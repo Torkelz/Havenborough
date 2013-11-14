@@ -16,3 +16,5 @@
 Debug/
 *.sdf
 *.suo
+*.opensdf
+testCaseCollection.xml
