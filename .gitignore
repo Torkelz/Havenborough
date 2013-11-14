@@ -11,3 +11,8 @@
 *.lai
 *.la
 *.a
+
+*.vcxproj.user
+Debug/
+*.sdf
+*.suo
