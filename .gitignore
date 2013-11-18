@@ -18,3 +18,9 @@ Debug/
 *.suo
 *.opensdf
 testCaseCollection.xml
+*.ilk
+*.pdb
+*.exe
+*.dll
+*.exp
+*.lib
