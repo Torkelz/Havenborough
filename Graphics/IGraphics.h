@@ -9,12 +9,13 @@ public:
 public:
 	/**
 	* Initialize the graphics system.
+	* @param 
 	*/
 	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,
 		bool p_Fullscreen);
 
 	/**
-	*
+	* 
 	*/
 	void shutdown(void);
 

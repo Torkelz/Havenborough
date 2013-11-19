@@ -226,7 +226,9 @@ void Graphics::useFrameLight(void)
 
 void Graphics::drawFrame(void)
 {
-
+	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
+	Begin(color);
+	End();
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
@@ -417,4 +419,26 @@ HRESULT Graphics::createRasterizerState(void)
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 	return m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+}
+
+void Graphics::Begin(float color[4])
+{
+	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color);
+
+	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+
+void Graphics::End(void)
+{
+	if(m_VSyncEnabled)
+	{
+		// Lock to screen refresh rate.
+		m_SwapChain->Present(1, 0);
+	}
+	else
+	{
+		// Present as fast as possible.
+		m_SwapChain->Present(0, 0);
+	}
 }
