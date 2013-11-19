@@ -33,15 +33,20 @@ public:
 
 	char m_GraphicsCard[128];
 	int m_GraphicsMemory;
-	int m_VSyncEnabled;
+	bool m_VSyncEnabled;
+
+	unsigned int m_Numerator;
+	unsigned int m_Denominator;
 
 
 public:
 	Graphics(void);
 	~Graphics(void);
 
-	bool initialize(HWND p_hwnd, int p_screenWidth, int p_screenHeight,
-		bool p_fullscreen);
+	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,
+		bool p_Fullscreen);
+	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight,
+		bool p_Fullscreen);
 	void shutdown(void);
 	
 	void renderModel(void);
@@ -55,8 +60,15 @@ public:
 	void drawFrame(void);
 
 private:
-	bool reInitialize(HWND p_hwnd, int p_screenWidht, int p_screenHeight,
-		bool p_fullscreen);
-
+	
+	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
+	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth,
+		int p_ScreenHeight, bool p_Fullscreen);
+	HRESULT createRenderTargetView(void);
+	HRESULT createDepthBufferDescription(int p_ScreenWidth,
+		int p_ScreenHeight);
+	HRESULT createDepthStencilState(void);
+	HRESULT createDepthStencilView(void);
+	HRESULT createRasterizerState(void);
 };
 
