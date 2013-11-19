@@ -12,7 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\clientProgram.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Graphics\Graphics.vcxproj">
@@ -20,8 +20,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MyExceptions.h" />
-    <ClInclude Include="Window.h" />
+    <ClInclude Include="Source\MyExceptions.h" />
+    <ClInclude Include="Source\Window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{10229040-9B98-4F55-8CC9-8F1DA231CE04}</ProjectGuid>
