@@ -15,9 +15,13 @@
 #define SAFE_DELETE(x) { if(x) { delete x; x = nullptr; } }
 #define SAFE_DELETE_ARRAY(x) { if(x) { delete[] x; x = nullptr; } }
 
-class Graphics :
+__declspec(dllexport) class Graphics :
 	public IGraphics
 {
+private:
+	unsigned int m_Numerator;
+	unsigned int m_Denominator;
+
 public:
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
@@ -34,10 +38,6 @@ public:
 	char m_GraphicsCard[128];
 	int m_GraphicsMemory;
 	bool m_VSyncEnabled;
-
-	unsigned int m_Numerator;
-	unsigned int m_Denominator;
-
 
 public:
 	Graphics(void);
@@ -65,10 +65,13 @@ private:
 	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth,
 		int p_ScreenHeight, bool p_Fullscreen);
 	HRESULT createRenderTargetView(void);
-	HRESULT createDepthBufferDescription(int p_ScreenWidth,
+	HRESULT createDepthStencilBuffer(int p_ScreenWidth,
 		int p_ScreenHeight);
 	HRESULT createDepthStencilState(void);
 	HRESULT createDepthStencilView(void);
 	HRESULT createRasterizerState(void);
+
+	void Begin(float color[4]);
+	void End(void);
 };
 

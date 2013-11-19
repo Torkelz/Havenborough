@@ -76,10 +76,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="graphicsLibrary.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Buffer.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="IGraphics.h" />
   </ItemGroup>

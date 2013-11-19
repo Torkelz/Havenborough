@@ -8,14 +8,18 @@ public:
 
 public:
 	/**
-	* Initialize the graphics system.
-	* @param 
+	* Initialize the graphics API.
+	* @param p_Hwnd the handle to the window which the graphics should be connected to
+	* @param p_ScreenWidth input of the window's width
+	* @param p_ScreenHeight input of the window's height
+	* @param p_Fullscreen input whether the program should run in fullscreen or not
+	* @return true if successful, otherwise false
 	*/
 	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,
 		bool p_Fullscreen);
 
 	/**
-	* 
+	* Release the resources allocated by the graphics API.
 	*/
 	void shutdown(void);
 

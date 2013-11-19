@@ -125,7 +125,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 
 	//Initialize the description of the depth buffer.
-	result = createDepthBufferDescription(p_ScreenWidth, p_ScreenHeight);
+	result = createDepthStencilBuffer(p_ScreenWidth, p_ScreenHeight);
 	if(FAILED(result))
 	{
 		return false;
@@ -332,7 +332,7 @@ HRESULT Graphics::createRenderTargetView(void)
 	return result;
 }
 
-HRESULT Graphics::createDepthBufferDescription(int p_ScreenWidth, int p_ScreenHeight)
+HRESULT Graphics::createDepthStencilBuffer(int p_ScreenWidth, int p_ScreenHeight)
 {
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
 
