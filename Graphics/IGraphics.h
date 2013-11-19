@@ -8,7 +8,8 @@ public:
 	/**
 	* Initialize the graphics system.
 	*/
-	static __declspec(dllexport) bool initialize(void);
+	static __declspec(dllexport) bool initialize(int p_screenWidth, 
+		int p_screenHeight, bool p_fullscreen);
 
 	/**
 	*
