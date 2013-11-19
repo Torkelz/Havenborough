@@ -24,3 +24,4 @@ testCaseCollection.xml
 *.dll
 *.exp
 *.lib
+*/Test/
