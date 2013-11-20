@@ -98,10 +98,10 @@
   <ItemGroup>
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Client\Source\GameScene.cpp" />
+    <ClCompile Include="..\Client\Source\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
-    <ClCompile Include="..\Client\Source\TestScene.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
-    <ClCompile Include="TestSceneManager.cpp" />
+    <ClCompile Include="Source\TestSceneManager.cpp" />
     <ClCompile Include="Source\TestWindow.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -17,12 +17,12 @@ bool SceneManager::init()
 	m_MenuSceneList.resize(2);
 	m_RunSceneList.resize(3);
 
-	m_MenuSceneList[0] = IScene::ptr(new TestScene);
-	m_MenuSceneList[1] = IScene::ptr(new TestScene);
+	m_MenuSceneList[0] = IScene::ptr(new MenuScene);
+	m_MenuSceneList[1] = IScene::ptr(new MenuScene);
 
 	m_RunSceneList[0] = IScene::ptr(new GameScene);
 	m_RunSceneList[1] = IScene::ptr(new GameScene);
-	m_RunSceneList[2] = IScene::ptr(new TestScene);
+	m_RunSceneList[2] = IScene::ptr(new MenuScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
 	m_NumberOfRunScene = m_RunSceneList.size();

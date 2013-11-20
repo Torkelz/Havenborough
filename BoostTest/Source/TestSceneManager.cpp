@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "..\Client\Source\SceneManager.h"
+#include "..\..\Client\Source\SceneManager.h"
 
 BOOST_AUTO_TEST_SUITE(SceneManagerTest)
 

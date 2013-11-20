@@ -2,7 +2,7 @@
 
 #include "IScene.h"
 
-class TestScene : public IScene
+class MenuScene : public IScene
 {
 private:
 	int m_SceneID;
@@ -11,8 +11,8 @@ private:
 	bool m_ChangeScene;
 	bool m_ChangeList;
 public: 
-	TestScene();
-	~TestScene();
+	MenuScene();
+	~MenuScene();
 	/**
 	* Initialize the scene.
 	* @param p_SceneID init the ID in order.

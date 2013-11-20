@@ -1,6 +1,6 @@
-#include "TestScene.h"
+#include "MenuScene.h"
 
-TestScene::TestScene()
+MenuScene::MenuScene()
 {
 	m_SceneID = 0;
 	m_Visible = false;
@@ -9,21 +9,21 @@ TestScene::TestScene()
 	m_ChangeList = false;
 }
 
-TestScene::~TestScene()
+MenuScene::~MenuScene()
 {
 }
 
-bool TestScene::init(unsigned int p_SceneID)
+bool MenuScene::init(unsigned int p_SceneID)
 {
 	m_SceneID = p_SceneID;
 	return true;
 }
 
-void TestScene::destroy()
+void MenuScene::destroy()
 {
 }
 
-void TestScene::onFrame(int* p_IsCurrentScene)
+void MenuScene::onFrame(int* p_IsCurrentScene)
 {
 	if(m_ChangeScene)
 	{
@@ -38,21 +38,21 @@ void TestScene::onFrame(int* p_IsCurrentScene)
 	}
 }
 
-void TestScene::render()
+void MenuScene::render()
 {
 }
 
-bool TestScene::getIsVisible()
+bool MenuScene::getIsVisible()
 {
 	return m_Visible;
 }
 
-void TestScene::setIsVisible(bool p_SetVisible)
+void MenuScene::setIsVisible(bool p_SetVisible)
 {
 	m_Visible = p_SetVisible;
 }
 
-void TestScene::registeredKeyStroke(char* p_Key)
+void MenuScene::registeredKeyStroke(char* p_Key)
 {
 	if(*p_Key == 'L')
 	{
@@ -74,7 +74,7 @@ void TestScene::registeredKeyStroke(char* p_Key)
 
 /*########## TEST FUNCTIONS ##########*/
 
-int TestScene::getID()
+int MenuScene::getID()
 {
 	return m_SceneID;
 }
