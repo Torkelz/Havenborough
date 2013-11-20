@@ -37,7 +37,6 @@ public:
 	void		destroy();
 	/**
 	* Update active scenes every frame.
-	* @param p_TestFlag is only used by the test program
 	*/
 	void		onFrame();
 	/**

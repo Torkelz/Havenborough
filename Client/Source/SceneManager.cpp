@@ -1,9 +1,10 @@
 #include "SceneManager.h"
+#include "MyExceptions.h"
 
 SceneManager::SceneManager()
 {
-	m_MenuSceneList.clear();
-	m_RunSceneList.clear();
+	//m_MenuSceneList.clear();
+	//m_RunSceneList.clear();
 	m_NowShowing = 0;
 }
 
@@ -27,16 +28,30 @@ bool SceneManager::init()
 	m_NumberOfMenuScene = m_MenuSceneList.size();
 	m_NumberOfRunScene = m_RunSceneList.size();
 
+	bool sceneFail = false;
 	unsigned int i;
 	for(i = 0; i < m_NumberOfMenuScene; i++)
 	{
-		m_MenuSceneList[i]->init(i);
+		if(!m_MenuSceneList[i]->init(i))
+		{
+			sceneFail = true;
+		}
 	}
 	for(i = 0; i < m_NumberOfRunScene; i++)
 	{
-		m_RunSceneList[i]->init(i);
+		if(!m_RunSceneList[i]->init(i))
+		{
+			sceneFail = true;
+		}
 	}
 	m_MenuSceneList[0]->setIsVisible(true);
+
+	if(sceneFail)
+	{
+		throw SceneManagerException("Failed to init all scenes", __LINE__,__FILE__);
+		return false;
+	}
+
 	return true;
 }
 
@@ -57,84 +72,74 @@ void SceneManager::destroy()
 
 void SceneManager::onFrame()
 {
+	std::vector<IScene::ptr>* activeList = nullptr;
+	unsigned int nrScenes = 0;
+
 	if(m_IsMenuState)
 	{
-		onFrameMenu();
+		activeList = &m_MenuSceneList;
+		nrScenes = m_NumberOfMenuScene;
 	}
 	else
 	{
-		onFrameRun();
+		activeList = &m_RunSceneList;
+		nrScenes = m_NumberOfRunScene;
 	}
-}
 
-void SceneManager::onFrameMenu()
-{
-	for(unsigned int i = 0; i < m_NumberOfMenuScene; i++)
-		{
-			if(m_MenuSceneList[i]->getIsVisible())
-			{
-				m_MenuSceneList[i]->onFrame(&m_NowShowing);
-				if(i != m_NowShowing)
-				{
-					if(m_NowShowing != -1)
-					{
-						changeScene(m_NowShowing);
-						i = m_NumberOfMenuScene;
-					}
-					else
-					{
-						startRun();
-						i = m_NumberOfMenuScene;
-					}
-				}
-			}
-		}
-}
-
-void SceneManager::onFrameRun()
-{
-	for(unsigned int i = 0; i < m_NumberOfRunScene; i++)
+	for(unsigned int i = 0; i < nrScenes; i++)
 	{
-		m_RunSceneList[i]->onFrame(&m_NowShowing);
-		if(i != m_NowShowing)
+		if(activeList->at(i)->getIsVisible())
 		{
-			if(m_NowShowing != -1)
+			activeList->at(i)->onFrame(&m_NowShowing);
+			if(i != m_NowShowing)
 			{
-				changeScene(m_NowShowing);
-				i = m_NumberOfMenuScene;
-			}
-			else
-			{
-				startMenu();
-				i = m_NumberOfMenuScene;
+				i = nrScenes;
 			}
 		}
 	}
+
+	if(m_NowShowing != -1)
+	{
+		changeScene(m_NowShowing);
+	}
+	else
+	{
+		if(m_IsMenuState)
+		{
+			startRun();
+		}
+		else
+		{
+			startMenu();
+		}
+	}
+	activeList = nullptr;
 }
 
 void SceneManager::render()
 {
-	unsigned int i;
+	std::vector<IScene::ptr>* activeList = nullptr;
+	unsigned int nrScenes = 0;
+
 	if(m_IsMenuState)
 	{
-		for(i = 0; i < m_MenuSceneList.size(); i++)
-		{
-			if(m_MenuSceneList[i]->getIsVisible())
-			{
-				m_MenuSceneList[i]->render();
-			}
-		}
+		activeList = &m_MenuSceneList;
+		nrScenes = m_NumberOfMenuScene;
 	}
 	else
 	{
-		for(i = 0; i < m_RunSceneList.size(); i++)
+		activeList = &m_RunSceneList;
+		nrScenes = m_NumberOfRunScene;
+	}
+
+	for(unsigned int i = 0; i < nrScenes; i++)
+	{
+		if(activeList->at(i)->getIsVisible())
 		{
-			if(m_RunSceneList[i]->getIsVisible())
-			{
-				m_RunSceneList[i]->render();
-			}
+			activeList->at(i)->render();
 		}
 	}
+	activeList = nullptr;
 }
 
 void SceneManager::setPause()
@@ -201,28 +206,29 @@ bool SceneManager::keyStroke(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result
 
 void SceneManager::passKeyStroke(char p_key)
 {
+	std::vector<IScene::ptr>* activeList = nullptr;
+	unsigned int nrScenes = 0;
+
 	if(m_IsMenuState)
+	{
+		activeList = &m_MenuSceneList;
+		nrScenes = m_NumberOfMenuScene;
+	}
+	else
+	{
+		activeList = &m_RunSceneList;
+		nrScenes = m_NumberOfRunScene;
+	}
+
+	for(unsigned int i = 0; i < nrScenes; i++)
+	{
+		if(activeList->at(i)->getIsVisible())
 		{
-			for(unsigned int i = 0; i < m_NumberOfMenuScene; i++)
-			{
-				if(m_MenuSceneList[i]->getIsVisible())
-				{
-					m_MenuSceneList[i]->registeredKeyStroke(&p_key);
-					i = m_NumberOfMenuScene;
-				}
-			}
+			activeList->at(i)->registeredKeyStroke(&p_key);
+			i = nrScenes;
 		}
-		else
-		{
-			for(unsigned int i = 0; i < m_NumberOfRunScene; i++)
-			{
-				if(m_RunSceneList[i]->getIsVisible())
-				{
-					m_RunSceneList[i]->registeredKeyStroke(&p_key);
-					i = m_NumberOfRunScene;
-				}
-			}
-		}
+	}
+	activeList = nullptr;
 }
 
 /*########## TEST FUNCTIONS ##########*/
