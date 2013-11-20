@@ -2,11 +2,12 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-__declspec(dllexport) class IGraphics
+class IGraphics
 {
 public:
 
 public:
+	__declspec(dllexport) static IGraphics *createGraphics(void);
 	/**
 	* Initialize the graphics API.
 	* @param p_Hwnd the handle to the window which the graphics should be connected to
@@ -15,48 +16,53 @@ public:
 	* @param p_Fullscreen input whether the program should run in fullscreen or not
 	* @return true if successful, otherwise false
 	*/
-	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,
-		bool p_Fullscreen);
+	virtual bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,
+		bool p_Fullscreen) =0;
 
 	/**
 	* Release the resources allocated by the graphics API.
 	*/
-	void shutdown(void);
+	virtual void shutdown(void) =0;
+
+	/*
+	* 
+	*/
+	__declspec(dllexport) static void deleteGraphics(IGraphics *p_Graphics);
 
 	/**
 	*
 	*/
-	void renderModel(void);
+	virtual void renderModel(void) =0;
 
 	/**
 	*
 	*/
-	void renderText(void);
+	virtual void renderText(void) =0;
 
 	/**
 	*
 	*/
-	void renderQuad(void);
+	virtual void renderQuad(void) =0;
 
 	/**
 	*
 	*/
-	void addStaticLight(void);
+	virtual void addStaticLight(void) =0;
 
 	/**
 	*
 	*/
-	void removeStaticLight(void);
+	virtual void removeStaticLight(void) =0;
 
 	/**
 	*
 	*/
-	void useFrameLight(void);
+	virtual void useFrameLight(void) =0;
 
 	/**
 	* Draw the current frame.
 	*/
-	void drawFrame(void);
+	virtual void drawFrame(void) =0;
 
 };
 

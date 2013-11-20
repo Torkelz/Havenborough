@@ -17,6 +17,11 @@ Graphics::~Graphics(void)
 {
 }
 
+__declspec(dllexport) IGraphics *IGraphics::createGraphics()
+{
+	return new Graphics();
+}
+
 bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen)
 {	
 	HRESULT result;
@@ -194,6 +199,12 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_DeviceContext);
 	SAFE_RELEASE(m_Device);
 	SAFE_RELEASE(m_SwapChain);
+}
+
+__declspec(dllexport) void IGraphics::deleteGraphics(IGraphics *p_Graphics)
+{
+	p_Graphics->shutdown();
+	delete p_Graphics;
 }
 
 void Graphics::renderModel(void)
