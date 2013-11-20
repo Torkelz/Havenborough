@@ -4,7 +4,7 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 
-#include "igraphics.h"
+#include "IGraphics.h"
 
 #include <windows.h>
 #include <d3d11.h>

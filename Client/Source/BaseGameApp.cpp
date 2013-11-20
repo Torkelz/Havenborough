@@ -8,7 +8,9 @@ void BaseGameApp::init()
 	m_Window.registerCallback(WM_KEYDOWN, std::bind<bool>(&BaseGameApp::handleKeyDown, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_Graphics = IGraphics::createGraphics();
-	m_Graphics->initialize(m_Window.getHandle(), 800, 480, false);
+	//TODO: Need some input setting variable to handle fullscreen.
+	bool fullscreen = false;
+	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 }
 
 void BaseGameApp::run()
@@ -24,7 +26,6 @@ void BaseGameApp::run()
 
 void BaseGameApp::shutdown()
 {
-	m_Graphics->shutdown();
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
 

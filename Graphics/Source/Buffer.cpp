@@ -60,21 +60,9 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 			break;
 		}
 	case CONSTANT_BUFFER_VS:
-		{
-			break;
-		}
 	case CONSTANT_BUFFER_GS:
-		{
-			break;
-		}
 	case CONSTANT_BUFFER_PS:
-		{
-			break;
-		}
 	case BUFFER_TYPE_COUNT:
-		{
-			break;
-		}
 	case CONSTANT_BUFFER_ALL:
 		{
 			bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
