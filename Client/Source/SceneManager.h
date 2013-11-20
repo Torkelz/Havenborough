@@ -2,6 +2,8 @@
 #include "TestScene.h"
 #include "GameScene.h"
 #include <vector>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
 /*TESTING*/
 #include <iostream>
@@ -35,6 +37,7 @@ public:
 	void		destroy();
 	/**
 	* Update active scenes every frame.
+	* @param p_TestFlag is only used by the test program
 	*/
 	void		onFrame();
 	/**
@@ -45,12 +48,16 @@ public:
 	* Set pause screen when game is running.
 	*/
 	void		setPause();
-
+	/**
+	* Pass along keystroke to a scene.
+	* @param p_WParam = Keyvalue.
+	* @param p_LParam Unused but needed.
+	* @param p_Result Unused but needed.
+	*/
+	bool keyStroke(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 	/*########## TEST FUNCTIONS ##########*/
 
 	std::vector<IScene::ptr> getScene();
-
-	std::vector<IScene::ptr> testOnFrame(int p_testScene);
 
 private:
 	/**
@@ -74,4 +81,9 @@ private:
 	* Update game scenes
 	*/
 	void		onFrameRun();
+	/**
+	* Passes along the a keystroke to active scene
+	* @param p_Key key pressed.
+	*/
+	void		passKeyStroke(char* p_key);
 };

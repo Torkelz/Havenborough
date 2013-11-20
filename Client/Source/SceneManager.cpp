@@ -18,10 +18,10 @@ bool SceneManager::init()
 	m_RunSceneList.resize(3);
 
 	m_MenuSceneList[0] = IScene::ptr(new TestScene);
-	m_MenuSceneList[1] = IScene::ptr(new GameScene);
+	m_MenuSceneList[1] = IScene::ptr(new TestScene);
 
 	m_RunSceneList[0] = IScene::ptr(new GameScene);
-	m_RunSceneList[1] = IScene::ptr(new TestScene);
+	m_RunSceneList[1] = IScene::ptr(new GameScene);
 	m_RunSceneList[2] = IScene::ptr(new TestScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
@@ -149,8 +149,8 @@ void SceneManager::setPause()
 	if(!m_IsMenuState)
 	{
 		bool currentState;
-		currentState = m_RunSceneList[PAUSE]->getIsVisible();
-		m_RunSceneList[PAUSE]->setIsVisible(!currentState);
+		currentState = m_RunSceneList[GAMEPAUSE]->getIsVisible();
+		m_RunSceneList[GAMEPAUSE]->setIsVisible(!currentState);
 	}
 }
 
@@ -190,6 +190,54 @@ void SceneManager::startMenu()
 	m_NowShowing = 0;
 }
 
+bool SceneManager::keyStroke(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
+{
+	if(p_WParam == 'K')
+	{
+		setPause();
+		return true;
+	}
+	//Change scene
+	else if(p_WParam == 'L')
+	{
+		passKeyStroke((char*)p_WParam);
+		return true;
+	}
+	//Change scene list
+	else if(p_WParam == 'J')
+	{
+		m_IsMenuState = false;
+		return true;
+	}
+	return false;
+}
+
+void SceneManager::passKeyStroke(char* p_key)
+{
+	if(m_IsMenuState)
+		{
+			for(unsigned int i = 0; i < m_NumberOfMenuScene; i++)
+			{
+				if(m_MenuSceneList[i]->getIsVisible())
+				{
+					m_MenuSceneList[i]->registeredKeyStroke(p_key);
+					i = m_NumberOfMenuScene;
+				}
+			}
+		}
+		else
+		{
+			for(unsigned int i = 0; i < m_NumberOfRunScene; i++)
+			{
+				if(m_RunSceneList[i]->getIsVisible())
+				{
+					m_RunSceneList[i]->registeredKeyStroke(p_key);
+					i = m_NumberOfRunScene;
+				}
+			}
+		}
+}
+
 /*########## TEST FUNCTIONS ##########*/
 
 std::vector<IScene::ptr> SceneManager::getScene()
@@ -218,60 +266,3 @@ std::vector<IScene::ptr> SceneManager::getScene()
 	return temp;
 }
 
-std::vector<IScene::ptr> SceneManager::testOnFrame(int p_testChange)
-{
-	unsigned int i;
-	if(m_IsMenuState)
-	{
-		for(i = 0; i < m_NumberOfMenuScene; i++)
-		{
-			if(m_MenuSceneList[i]->getIsVisible())
-			{
-				m_NowShowing = m_MenuSceneList[i]->testOnFrame(&p_testChange);
-				if(i != m_NowShowing)
-				{
-					if(m_NowShowing == 42)
-					{
-						std::cout << "Wrong entry value, choose 1 or 2 not: " << p_testChange << std::endl;
-					}
-					else if(m_NowShowing != -1)
-					{
-						changeScene(m_NowShowing);
-						i = m_NumberOfMenuScene;
-					}
-					else
-					{
-						startGame();
-						i = m_NumberOfMenuScene;
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		for(i = 0; i < m_NumberOfRunScene; i++)
-		{
-			if(m_RunSceneList[i]->getIsVisible() && i < 2)
-			{
-				m_RunSceneList[i]->testOnFrame(&p_testChange);
-			}
-			else 
-			{
-				m_NowShowing = m_RunSceneList[i]->testOnFrame(&p_testChange);
-				if(i != m_NowShowing)
-				{
-					if(m_NowShowing != -1)
-					{
-						changeScene(m_NowShowing);
-					}
-					else
-					{
-						startMenu();
-					}
-				}
-			}
-		}
-	}
-	return getScene();
-}

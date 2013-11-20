@@ -4,8 +4,10 @@ const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
 void BaseGameApp::init()
 {
+	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
 	m_Window.registerCallback(WM_KEYDOWN, std::bind<bool>(&BaseGameApp::handleKeyDown, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_Window.registerCallback(WM_KEYDOWN, std::bind<bool>(&SceneManager::keyStroke, m_SceneManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)); 
 }
 
 void BaseGameApp::run()

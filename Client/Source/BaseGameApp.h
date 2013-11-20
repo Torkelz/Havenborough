@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Window.h"
+#include "SceneManager.h"
 
 #include <string>
 
@@ -11,6 +12,7 @@ private:
 
 	Window m_Window;
 	bool m_ShouldQuit;
+	SceneManager m_SceneManager;
 
 public:
 	/**

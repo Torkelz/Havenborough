@@ -2,14 +2,14 @@
 #include <memory>
 enum MENUSCENES
 {
-	MAINMENU,
+	MENUMAIN,
 	MENUOPTION
 };
 enum RUNSCENES
 {
-	GAME,
-	HUD,
-	PAUSE
+	GAMEMAIN,
+	GAMEHUD,
+	GAMEPAUSE
 };
 class IScene
 {
@@ -47,10 +47,13 @@ public:
 	* @param p_SetVisible true = Active scene, false = deactive scene.
 	*/
 	virtual void	setIsVisible(bool p_SetVisible) = 0;
+	/**
+	* Register and handle key event.
+	* @param p_Key key pressed.
+	*/
+	virtual void	registeredKeyStroke(char* p_Key) = 0;
 
 	/*########## TEST FUNCTIONS ##########*/
-
-	virtual int		testOnFrame(int* p_testChange) = 0;
 
 	virtual int		getID() = 0;
 

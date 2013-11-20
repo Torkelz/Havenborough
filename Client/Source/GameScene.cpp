@@ -20,8 +20,14 @@ void GameScene::destroy()
 {
 }
 
-void GameScene::onFrame(int* p_IsCurrentState)
+void GameScene::onFrame(int* p_IsCurrentScene)
 {
+	if(m_ChangeScene)
+	{
+		p_IsCurrentScene = &m_NewSceneID;
+		m_Visible = false;
+		m_ChangeScene = false;
+	}
 }
 
 void GameScene::onFrame()
@@ -42,30 +48,16 @@ void GameScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-/*########## TEST FUNCTIONS ##########*/
-
-int GameScene::testOnFrame(int* p_testChange)
+void GameScene::registeredKeyStroke(char p_Key)
 {
-	if(*p_testChange == 1)
+	if(p_Key == 'L')
 	{
-		m_Visible = false;
-		return *p_testChange-1;
-	}
-	else if(*p_testChange == 2)
-	{
-		m_Visible = false;
-		return -1;
-	}
-	else if(*p_testChange == 3)
-	{
-		return 0;
-	}
-	else
-	{
-		m_Visible = false;
-		return 42;
+		m_NewSceneID = GAMEPAUSE;
+		m_ChangeScene = true;
 	}
 }
+
+/*########## TEST FUNCTIONS ##########*/
 
 int GameScene::getID()
 {

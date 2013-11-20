@@ -6,6 +6,8 @@ class GameScene : public IScene
 private:
 	int m_SceneID;
 	bool m_Visible;
+	int  m_NewSceneID;
+	bool m_ChangeScene;
 public: 
 	GameScene();
 	~GameScene();
@@ -22,11 +24,11 @@ public:
 	* Update scene every frame, used if the scene can change scene.
 	* @param p_IsCurrentScene is used if the scene contains buttons to switch scenes with.
 	*/
-	void	onFrame(int* p_IsCurrentScene);
+	void	onFrame(int* p_IsCurrentScene) override;
 	/**
 	* Update scene every frame, used for scene that can not change scene.
 	*/
-	void	onFrame();
+	void	onFrame() override;
 	/**
 	* Render the scene to the screen.
 	*/
@@ -41,9 +43,9 @@ public:
 	*/
 	void	setIsVisible(bool p_SetVisible) override;
 
-	/*########## TEST FUNCTIONS ##########*/
+	void	registeredKeyStroke(char p_Key) override;
 
-	int		testOnFrame(int* p_testChange) override;
+	/*########## TEST FUNCTIONS ##########*/
 
 	int		getID() override;
 

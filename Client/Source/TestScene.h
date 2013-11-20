@@ -7,6 +7,8 @@ class TestScene : public IScene
 private:
 	int m_SceneID;
 	bool m_Visible;
+	int  m_NewSceneID;
+	bool m_ChangeScene;
 public: 
 	TestScene();
 	~TestScene();
@@ -23,11 +25,11 @@ public:
 	* Update scene every frame, used if the scene can change scene.
 	* @param p_IsCurrentScene is used if the scene contains buttons to switch scenes with.
 	*/
-	void	onFrame(int* p_IsCurrentScene);
+	void	onFrame(int* p_IsCurrentScene) override;
 	/**
 	* Update scene every frame, used for scene that can not change scene.
 	*/
-	void	onFrame();
+	void	onFrame() override;
 	/**
 	* Render the scene to the screen.
 	*/
@@ -41,10 +43,10 @@ public:
 	* @param p_SetVisible true = Active scene, false = deactive scene.
 	*/
 	void	setIsVisible(bool p_SetVisible) override;
+
+	void	registeredKeyStroke(char p_Key) override;
 	
 	/*########## TEST FUNCTIONS ##########*/
-	
-	int		testOnFrame(int* p_testChange) override;
 
 	int		getID() override;
 
