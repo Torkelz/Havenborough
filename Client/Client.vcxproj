@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\BaseGameApp.cpp" />
     <ClCompile Include="Source\clientProgram.cpp" />
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
@@ -20,6 +21,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\BaseGameApp.h" />
     <ClInclude Include="Source\MyExceptions.h" />
     <ClInclude Include="Source\Window.h" />
   </ItemGroup>

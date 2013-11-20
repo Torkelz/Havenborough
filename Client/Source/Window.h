@@ -30,7 +30,7 @@ public:
 	/**
 	 * Function type to be used for registering callbacks for Win32 messages.
 	 */
-	typedef std::function<void(WPARAM, LPARAM)> callbackFunc_t;
+	typedef std::function<bool(WPARAM, LPARAM, LRESULT&)> callbackFunc_t;
 	
 private:
 	/**
@@ -87,7 +87,7 @@ public:
 	 * @param p_MessageType The system message type to listen to.
 	 * @param p_Callback the callback function to call when the specified message type arrives.
 	 */
-	void		registerCallback(UINT p_MessageType, std::function<void(WPARAM, LPARAM)> p_Callback);
+	void		registerCallback(UINT p_MessageType, callbackFunc_t p_Callback);
 
 	/**
 	 * Get the window handle associated with the window.
@@ -170,6 +170,12 @@ private:
 	 * Dispatches a message to any listeners registered to the window.
 	 *
 	 * For more information, ask Microsoft (http://msdn.microsoft.com/en-us/library/windows/desktop/ms633573%28v=vs.85%29.aspx)
+	 *
+	 * @param p_UMsg message type
+	 * @param p_WParam message info
+	 * @param p_LParam message info
+	 * @param p_Return Value to return to the operating system, if returning true
+	 * @return true if the message has been handled, otherwise false
 	 */
-	bool dispatchMessage(UINT p_UMsg, WPARAM p_WParam, LPARAM p_LParam);
+	bool dispatchMessage(UINT p_UMsg, WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Return);
 };

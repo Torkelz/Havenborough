@@ -125,7 +125,7 @@ void Window::pollMessages()
 	}
 }
 
-void Window::registerCallback(UINT p_MessageType, std::function<void(WPARAM, LPARAM)> p_Callback)
+void Window::registerCallback(UINT p_MessageType, callbackFunc_t p_Callback)
 {
 	m_RegisteredCallbacks.push_back(std::make_pair(p_MessageType, p_Callback));
 }
@@ -230,14 +230,15 @@ void Window::setIsVisible(bool p_Visible)
 
 LRESULT CALLBACK Window::windowProc(_In_ HWND p_Hwnd, _In_ UINT p_UMsg, _In_ WPARAM p_WParam, _In_ LPARAM p_LParam)
 {
-	bool handled = false;
+	LRESULT result;
+
 	if (p_Hwnd == NULL)
 	{
 		for (auto& window : m_CallbackWindows)
 		{
-			if (window.second->dispatchMessage(p_UMsg, p_WParam, p_LParam))
+			if (window.second->dispatchMessage(p_UMsg, p_WParam, p_LParam, result))
 			{
-				handled = true;
+				return result;
 			}
 		}
 	}
@@ -258,30 +259,27 @@ LRESULT CALLBACK Window::windowProc(_In_ HWND p_Hwnd, _In_ UINT p_UMsg, _In_ WPA
 			return DefWindowProcW(p_Hwnd, p_UMsg, p_WParam, p_LParam);
 		}
 
-		handled = calledWindow->dispatchMessage(p_UMsg, p_WParam, p_LParam);
+		if (calledWindow->dispatchMessage(p_UMsg, p_WParam, p_LParam, result))
+		{
+			return result;
+		}
 	}
 
-	if (handled)
-	{
-		return 0;
-	}
-	else
-	{
-		return DefWindowProcW(p_Hwnd, p_UMsg, p_WParam, p_LParam);
-	}
+	return DefWindowProcW(p_Hwnd, p_UMsg, p_WParam, p_LParam);
 }
 
-bool Window::dispatchMessage(UINT p_UMsg, WPARAM p_WParam, LPARAM p_LParam)
+bool Window::dispatchMessage(UINT p_UMsg, WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
 {
-	bool handled = false;
 	for (auto& callback : m_RegisteredCallbacks)
 	{
 		if (callback.first == p_UMsg)
 		{
-			callback.second(p_WParam, p_LParam);
-			handled = true;
+			if (callback.second(p_WParam, p_LParam, p_Result))
+			{
+				return true;
+			}
 		}
 	}
 
-	return handled;
+	return false;
 }

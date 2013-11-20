@@ -1,22 +1,17 @@
 #include "MyExceptions.h"
-#include "Window.h"
+#include "BaseGameApp.h"
 
 #include <iostream>
 
 int main(int argc, char* argv[])
 {
+	BaseGameApp game;
+
 	try
 	{
-		std::cout << "Hello World!" << std::endl;
-
-		UVec2 size = {800, 480};
-		Window myWindow;
-		myWindow.init("My awesome window title!", size);
-		while (true)
-		{
-			myWindow.pollMessages();
-		}
-		myWindow.destroy();
+		game.init();
+		game.run();
+		game.shutdown();
 
 		return EXIT_SUCCESS;
 	}
