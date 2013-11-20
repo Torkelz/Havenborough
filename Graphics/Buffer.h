@@ -45,14 +45,28 @@ private:
 	ID3D11DeviceContext *m_DeviceContext;
 	D3D11_MAPPED_SUBRESOURCE m_MappedResource;
 
+	UINT32 m_SizeOfElement;
+	UINT32 m_NumOfElements;
+
 	BufferType m_Type;
 	BufferUsage m_Usage;
+
 	
 public:
 	Buffer(void);
 	~Buffer(void);
 
+	ID3D11Buffer *getBufferPointer(void) const;
+	void setBufferPointer(ID3D11Buffer *p_Buffer);
+	UINT32 getSizeOfElement(void) const;
+	UINT32 getNumOfElements(void) const;
+
+	HRESULT initialize(ID3D11Device *p_Device,
+		ID3D11DeviceContext *p_DeviceContext, BufferDescription &p_Description);
+
 	void *map(void);
 	void unmap(void);
-};
 
+private:
+	void *mapResourceToContext(UINT32 p_MapType);
+};
