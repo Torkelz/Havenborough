@@ -13,6 +13,9 @@
   <ItemGroup>
     <ClCompile Include="Source\BaseGameApp.cpp" />
     <ClCompile Include="Source\clientProgram.cpp" />
+    <ClCompile Include="Source\GameScene.cpp" />
+    <ClCompile Include="Source\SceneManager.cpp" />
+    <ClCompile Include="Source\TestScene.cpp" />
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -22,7 +25,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\BaseGameApp.h" />
+    <ClInclude Include="Source\GameScene.h" />
+    <ClInclude Include="Source\IScene.h" />
     <ClInclude Include="Source\MyExceptions.h" />
+    <ClInclude Include="Source\SceneManager.h" />
+    <ClInclude Include="Source\TestScene.h" />
     <ClInclude Include="Source\Window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
