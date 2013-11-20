@@ -13,6 +13,9 @@
   <ItemGroup>
     <ClCompile Include="Source\BaseGameApp.cpp" />
     <ClCompile Include="Source\clientProgram.cpp" />
+    <ClCompile Include="Source\Input\Input.cpp" />
+    <ClCompile Include="Source\Input\InputState.cpp" />
+    <ClCompile Include="Source\Input\InputTranslator.cpp" />
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -22,6 +25,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\BaseGameApp.h" />
+    <ClInclude Include="Source\Input\Input.h" />
+    <ClInclude Include="Source\Input\InputRecord.h" />
+    <ClInclude Include="Source\Input\InputState.h" />
+    <ClInclude Include="Source\Input\InputTranslator.h" />
     <ClInclude Include="Source\MyExceptions.h" />
     <ClInclude Include="Source\Window.h" />
   </ItemGroup>
