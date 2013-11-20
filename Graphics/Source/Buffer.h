@@ -63,6 +63,7 @@ public:
 
 	HRESULT initialize(ID3D11Device *p_Device,
 		ID3D11DeviceContext *p_DeviceContext, BufferDescription &p_Description);
+	HRESULT setBuffer(UINT32 p_StartSlot);
 
 	void *map(void);
 	void unmap(void);
