@@ -8,6 +8,7 @@ void BaseGameApp::init()
 	m_Window.registerCallback(WM_KEYDOWN, std::bind<bool>(&BaseGameApp::handleKeyDown, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_Graphics = IGraphics::createGraphics();
+	m_Graphics->initialize(m_Window.getHandle(), 800, 480, false);
 }
 
 void BaseGameApp::run()
@@ -17,6 +18,7 @@ void BaseGameApp::run()
 	while (!m_ShouldQuit)
 	{
 		m_Window.pollMessages();
+		m_Graphics->drawFrame();
 	}
 }
 
