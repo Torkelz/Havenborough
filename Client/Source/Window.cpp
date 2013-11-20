@@ -9,16 +9,27 @@
 
 const LPCWSTR Window::m_ClassName = L"Havenborough_Game_Client";
 std::vector<std::pair<HWND, Window*>> Window::m_CallbackWindows;
+int Window::m_ClassUseCount = 0;
 
 Window::Window()
 	: m_Title("Window title: Change me!"),
 	  m_Handle(NULL),
 	  m_Icon(NULL),
 	  m_ShowingCursor(true),
-	  m_IsVisible(true)
+	  m_IsVisible(true),
+	  m_Initialized(false)
 {
 	m_Size.x = 800;
 	m_Size.y = 480;
+}
+
+Window::~Window()
+{
+	if (m_Initialized)
+	{
+		destroy();
+		m_Initialized = false;
+	}
 }
 
 void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
@@ -28,23 +39,28 @@ void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
 
 	HMODULE hInstance = GetModuleHandleW(NULL);
 
-	WNDCLASSEXW windowClassDescription;
-	windowClassDescription.cbSize		= sizeof(WNDCLASSEXW);
-	windowClassDescription.style		= 0;
-	windowClassDescription.lpfnWndProc	= windowProc;
-	windowClassDescription.cbClsExtra	= 0;
-	windowClassDescription.cbWndExtra	= 0;
-	windowClassDescription.hInstance	= hInstance;
-	windowClassDescription.hIcon		= m_Icon;
-	windowClassDescription.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	windowClassDescription.hbrBackground	= (HBRUSH)(COLOR_WINDOW + 1);
-	windowClassDescription.lpszMenuName	= NULL;
-	windowClassDescription.lpszClassName	= m_ClassName;
-	windowClassDescription.hIconSm		= NULL;
-
-	if (!RegisterClassExW(&windowClassDescription))
+	if (m_ClassUseCount == 0)
 	{
-		throw WindowException("Window could not be registered", __LINE__, __FILE__);
+		WNDCLASSEXW windowClassDescription;
+		windowClassDescription.cbSize		= sizeof(WNDCLASSEXW);
+		windowClassDescription.style		= 0;
+		windowClassDescription.lpfnWndProc	= windowProc;
+		windowClassDescription.cbClsExtra	= 0;
+		windowClassDescription.cbWndExtra	= 0;
+		windowClassDescription.hInstance	= hInstance;
+		windowClassDescription.hIcon		= m_Icon;
+		windowClassDescription.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		windowClassDescription.hbrBackground	= (HBRUSH)(COLOR_WINDOW + 1);
+		windowClassDescription.lpszMenuName	= NULL;
+		windowClassDescription.lpszClassName	= m_ClassName;
+		windowClassDescription.hIconSm		= NULL;
+
+		if (!RegisterClassExW(&windowClassDescription))
+		{
+			throw WindowException("Window could not be registered", __LINE__, __FILE__);
+		}
+
+		m_ClassUseCount++;
 	}
 
 	RECT windowSize = { 0, 0, p_WindowSize.x, p_WindowSize.y };
@@ -87,6 +103,8 @@ void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
 	}
 
 	m_CallbackWindows.push_back(std::make_pair(m_Handle, this));
+
+	m_Initialized = true;
 }
 
 void Window::destroy()
@@ -100,7 +118,11 @@ void Window::destroy()
 			throw WindowException("Window could not be destroyed", __LINE__, __FILE__);
 		}
 
-		UnregisterClassW(m_ClassName, GetModuleHandleW(NULL));
+		m_ClassUseCount--;
+		if (m_ClassUseCount == 0)
+		{
+			UnregisterClassW(m_ClassName, GetModuleHandleW(NULL));
+		}
 
 		for (size_t i = 0; i < m_CallbackWindows.size() - 1; i++)
 		{
@@ -113,6 +135,8 @@ void Window::destroy()
 
 		m_Handle = NULL;
 	}
+
+	m_Initialized = false;
 }
 
 void Window::pollMessages()
