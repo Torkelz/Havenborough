@@ -45,10 +45,6 @@ public:
 	*/
 	void		render();
 	/**
-	* Set pause screen when game is running.
-	*/
-	void		setPause();
-	/**
 	* Pass along keystroke to a scene.
 	* @param p_WParam = Keyvalue.
 	* @param p_LParam Unused but needed.
@@ -68,7 +64,7 @@ private:
 	/**
 	* Switching to run scene list.
 	*/
-	void		startGame();
+	void		startRun();
 	/**
 	* Switching to menu scene list.
 	*/
@@ -82,8 +78,12 @@ private:
 	*/
 	void		onFrameRun();
 	/**
+	* Set pause screen when game is running.
+	*/
+	void		setPause();
+	/**
 	* Passes along the a keystroke to active scene
 	* @param p_Key key pressed.
 	*/
-	void		passKeyStroke(char* p_key);
+	void		passKeyStroke(char p_key);
 };

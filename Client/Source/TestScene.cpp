@@ -6,6 +6,7 @@ TestScene::TestScene()
 	m_Visible = false;
 	m_NewSceneID = 0;
 	m_ChangeScene = false;
+	m_ChangeList = false;
 }
 
 TestScene::~TestScene()
@@ -30,10 +31,11 @@ void TestScene::onFrame(int* p_IsCurrentScene)
 		m_Visible = false;
 		m_ChangeScene = false;
 	}
-}
-
-void TestScene::onFrame()
-{ 
+	else if(m_ChangeList)
+	{
+		*p_IsCurrentScene = -1;
+		m_ChangeList = false;
+	}
 }
 
 void TestScene::render()
@@ -50,9 +52,9 @@ void TestScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void TestScene::registeredKeyStroke(char p_Key)
+void TestScene::registeredKeyStroke(char* p_Key)
 {
-	if(p_Key == 'L')
+	if(*p_Key == 'L')
 	{
 		if(m_SceneID == 0)
 		{
@@ -63,6 +65,10 @@ void TestScene::registeredKeyStroke(char p_Key)
 			m_NewSceneID = MENUMAIN; 
 		}
 		m_ChangeScene = true;
+	}
+	else if(*p_Key == 'J')
+	{
+		m_ChangeList = true;
 	}
 }
 

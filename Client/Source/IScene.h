@@ -27,13 +27,10 @@ public:
 	virtual void	destroy() = 0;
 	/**
 	* Update scene every frame, used if the scene can change scene.
-	* @param p_IsCurrentScene is used if the scene contains buttons to switch scenes with.
+	* @param p_IsCurrentScene is used if the scene contains buttons to switch scenes with. 
+	* If p_IsCurrentScene is -1 this switches from game to menu vice versa. 
 	*/
 	virtual void	onFrame(int* p_IsCurrentScene) = 0;
-	/**
-	* Update scene every frame, used for scene that can not change scene.
-	*/
-	virtual void	onFrame() = 0;
 	/**
 	* Render the scene to the screen.
 	*/

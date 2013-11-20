@@ -8,6 +8,7 @@ private:
 	bool m_Visible;
 	int  m_NewSceneID;
 	bool m_ChangeScene;
+	bool m_ChangeList;
 public: 
 	GameScene();
 	~GameScene();
@@ -26,10 +27,6 @@ public:
 	*/
 	void	onFrame(int* p_IsCurrentScene) override;
 	/**
-	* Update scene every frame, used for scene that can not change scene.
-	*/
-	void	onFrame() override;
-	/**
 	* Render the scene to the screen.
 	*/
 	void	render() override;
@@ -43,7 +40,7 @@ public:
 	*/
 	void	setIsVisible(bool p_SetVisible) override;
 
-	void	registeredKeyStroke(char p_Key) override;
+	void	registeredKeyStroke(char* p_Key) override;
 
 	/*########## TEST FUNCTIONS ##########*/
 

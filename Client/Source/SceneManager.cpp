@@ -83,7 +83,7 @@ void SceneManager::onFrameMenu()
 					}
 					else
 					{
-						startGame();
+						startRun();
 						i = m_NumberOfMenuScene;
 					}
 				}
@@ -95,25 +95,18 @@ void SceneManager::onFrameRun()
 {
 	for(unsigned int i = 0; i < m_NumberOfRunScene; i++)
 	{
-		if(m_RunSceneList[i]->getIsVisible() && i < 2)
+		m_RunSceneList[i]->onFrame(&m_NowShowing);
+		if(i != m_NowShowing)
 		{
-			m_RunSceneList[i]->onFrame();
-		}
-		else 
-		{
-			m_RunSceneList[i]->onFrame(&m_NowShowing);
-			if(i != m_NowShowing)
+			if(m_NowShowing != -1)
 			{
-				if(m_NowShowing != -1)
-				{
-					changeScene(m_NowShowing);
-					i = m_NumberOfMenuScene;
-				}
-				else
-				{
-					startMenu();
-					i = m_NumberOfMenuScene;
-				}
+				changeScene(m_NowShowing);
+				i = m_NumberOfMenuScene;
+			}
+			else
+			{
+				startMenu();
+				i = m_NumberOfMenuScene;
 			}
 		}
 	}
@@ -159,7 +152,7 @@ void SceneManager::changeScene(int p_NowShowing)
 	if(m_IsMenuState)
 	{
 		m_MenuSceneList[p_NowShowing]->setIsVisible(true);
-		m_MenuSceneList[p_NowShowing]->onFrame();
+		m_MenuSceneList[p_NowShowing]->onFrame(&m_NowShowing);
 	}
 	else
 	{
@@ -167,7 +160,7 @@ void SceneManager::changeScene(int p_NowShowing)
 	}
 }
 
-void SceneManager::startGame()
+void SceneManager::startRun()
 {
 	m_IsMenuState = false;
 	m_RunSceneList[0]->setIsVisible(true);
@@ -198,21 +191,15 @@ bool SceneManager::keyStroke(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result
 		return true;
 	}
 	//Change scene
-	else if(p_WParam == 'L')
+	else if(p_WParam == 'L' || p_WParam == 'J')
 	{
-		passKeyStroke((char*)p_WParam);
-		return true;
-	}
-	//Change scene list
-	else if(p_WParam == 'J')
-	{
-		m_IsMenuState = false;
+		passKeyStroke((char)p_WParam);
 		return true;
 	}
 	return false;
 }
 
-void SceneManager::passKeyStroke(char* p_key)
+void SceneManager::passKeyStroke(char p_key)
 {
 	if(m_IsMenuState)
 		{
@@ -220,7 +207,7 @@ void SceneManager::passKeyStroke(char* p_key)
 			{
 				if(m_MenuSceneList[i]->getIsVisible())
 				{
-					m_MenuSceneList[i]->registeredKeyStroke(p_key);
+					m_MenuSceneList[i]->registeredKeyStroke(&p_key);
 					i = m_NumberOfMenuScene;
 				}
 			}
@@ -231,7 +218,7 @@ void SceneManager::passKeyStroke(char* p_key)
 			{
 				if(m_RunSceneList[i]->getIsVisible())
 				{
-					m_RunSceneList[i]->registeredKeyStroke(p_key);
+					m_RunSceneList[i]->registeredKeyStroke(&p_key);
 					i = m_NumberOfRunScene;
 				}
 			}
