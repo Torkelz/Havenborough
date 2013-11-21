@@ -8,11 +8,22 @@ void BaseGameApp::init()
 	m_Window.init(getGameTitle(), getWindowSize());
 	m_Window.registerCallback(WM_KEYDOWN, std::bind<bool>(&BaseGameApp::handleKeyDown, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	m_Window.registerCallback(WM_KEYDOWN, std::bind<bool>(&SceneManager::keyStroke, m_SceneManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)); 
+
+	sphere1 = Sphere(1.f, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f));
+	sphere2 = Sphere(100.f, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+	aabb = AABB(DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f), DirectX::XMFLOAT4(10.f, 10.f, 10.f, 1.f));
+	aabbb = AABB(DirectX::XMFLOAT4(-10.f, -10.f, -10.f, 1.f), DirectX::XMFLOAT4(-1.f, -1.f, -1.f, 1.f));
+
+	physics = IPhysics::createPhysics();
 }
 
 void BaseGameApp::run()
 {
 	m_ShouldQuit = false;
+
+	bool result = physics->sphereVsSphere(&sphere1, &sphere2);
+	bool result2 = physics->AABBvsSphere(&aabb, &sphere1);
+	bool result3 = physics->AABBvsAABB(&aabb, &aabbb);
 
 	while (!m_ShouldQuit)
 	{

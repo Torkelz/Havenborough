@@ -2,6 +2,8 @@
 
 #include "Window.h"
 #include "SceneManager.h"
+#include "Sphere.h"
+#include "IPhysics.h"
 
 #include <string>
 
@@ -13,6 +15,12 @@ private:
 	Window m_Window;
 	bool m_ShouldQuit;
 	SceneManager m_SceneManager;
+
+	// TESTING SHIET
+	Sphere sphere1, sphere2;
+	AABB aabb, aabbb;
+
+	IPhysics::ptr physics;
 
 public:
 	/**

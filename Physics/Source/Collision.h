@@ -2,7 +2,7 @@
 
 #include "VolumeIncludeAll.h"
 
-_declspec (dllexport) class Collision
+class Collision
 {
 public:
 	static enum { OUTSIDE = 0, INTERSECT, INSIDE };
