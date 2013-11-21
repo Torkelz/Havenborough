@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include <iostream>
 
 Graphics::Graphics(void)
 {
@@ -17,7 +18,7 @@ Graphics::~Graphics(void)
 {
 }
 
-__declspec(dllexport) IGraphics *IGraphics::createGraphics()
+IGraphics *IGraphics::createGraphics()
 {
 	return new Graphics();
 }
@@ -36,52 +37,44 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
 
-	//Create a DirectX graphics interface factory.
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when creating DirectX graphics interface factory", __LINE__,__FILE__);
 	}
 
-	//Use the factory to create an adapter for the primary graphics interface.
 	result = factory->EnumAdapters(0, &adapter);
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when creating an adapter for the primary graphics interface", __LINE__,__FILE__);
 	}
 
-	//Enumerate the primary adapter output.
 	result = adapter->EnumOutputs(0, &adapterOutput);
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when enumerating the primary adapter output", __LINE__,__FILE__);
 	}
 
-	//Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output.
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED,
 		&numModes, NULL);
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when getting the display modes", __LINE__,__FILE__);
 	}
 
-	//Create a list to hold all the possible display modes for this monitor/video card combination.
 	displayModeList = new DXGI_MODE_DESC[numModes];
 	if(!displayModeList)
 	{
-		return false;
+		throw GraphicsException("Error when creating display mode list", __LINE__,__FILE__);
 	}
 
-	//Now fill the display mode list structures.
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED,
 		&numModes, displayModeList);
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when writing the display mode list", __LINE__,__FILE__);
 	}
 
-	//Now go through all the display modes and find the one that matches the screen width and height.
-	//When a match is found store the numerator and denominator of the refresh rate for that monitor.
 	for(unsigned int i = 0; i < numModes; i++)
 	{
 		if(displayModeList[i].Width == (unsigned int)p_ScreenWidth)
@@ -94,21 +87,18 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 		}
 	}
 
-	//Get the graphics card description.
 	result = adapter->GetDesc(&adapterDesc);
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when getting the graphics card description", __LINE__,__FILE__);
 	}
 
-	//Store the dedicated video card memory in megabytes.
 	m_GraphicsMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
-	//Convert the name of the graphics card to a character array and store it.
 	error = wcstombs_s(&stringLength, m_GraphicsCard, 128, adapterDesc.Description, 128);
 	if(error != 0)
 	{
-		return false;
+		throw GraphicsException("Error when storing the graphics card name", __LINE__,__FILE__);
 	}
 
 	SAFE_DELETE_ARRAY(displayModeList);
@@ -116,54 +106,46 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	SAFE_RELEASE(adapter);
 	SAFE_RELEASE(factory);
 
-	//Create the Direct3D device, device context and swap chain.
 	result = createDeviceAndSwapChain(p_Hwnd, p_ScreenWidth, p_ScreenHeight, p_Fullscreen);
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when creating the device and swap chain", __LINE__,__FILE__);
 	}
 
 	result = createRenderTargetView();
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when creating render target view", __LINE__,__FILE__);
 	}
 
-	
-
-	//Initialize the description of the depth buffer.
 	result = createDepthStencilBuffer(p_ScreenWidth, p_ScreenHeight);
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when creating the depth stencil buffer", __LINE__,__FILE__);
 	}
 
-	//Create the depth stencil state.
 	result = createDepthStencilState();
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when creating the depth stencil state", __LINE__,__FILE__);
 	}
 
-	//Set the depth stencil state.
 	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState, 1);
 
 	result = createDepthStencilView();
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when creating the depth stencil view", __LINE__,__FILE__);
 	}
 
-	//Bind the render target view and depth stencil buffer to the output render pipeline.
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 
 	result = createRasterizerState();
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when creating the rasterizer state", __LINE__,__FILE__);
 	}
 
-	//Now set the rasterizer state.
 	m_DeviceContext->RSSetState(m_RasterState);
 
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
@@ -176,7 +158,7 @@ bool Graphics::reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, 
 	HRESULT result = createDeviceAndSwapChain(p_Hwnd, p_ScreenWidht, p_ScreenHeight, p_Fullscreen);
 	if(FAILED(result))
 	{
-		return false;
+		throw GraphicsException("Error when recreating the device and swap chain", __LINE__, __FILE__);
 	}
 
 	setViewPort(p_ScreenWidht, p_ScreenHeight);
@@ -201,7 +183,7 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_SwapChain);
 }
 
-__declspec(dllexport) void IGraphics::deleteGraphics(IGraphics *p_Graphics)
+void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 {
 	p_Graphics->shutdown();
 	delete p_Graphics;

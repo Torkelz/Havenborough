@@ -1,19 +1,15 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
-
-#pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
-
-#include "IGraphics.h"
+#pragma comment(lib, "dxgi.lib")
 
 #include <windows.h>
 #include <d3d11.h>
-#include <d3dcompiler.h>
 #include <dxgi.h>
 
-#define SAFE_RELEASE(x) { if(x) { x->Release(); x = nullptr; } }
-#define SAFE_DELETE(x) { if(x) { delete x; x = nullptr; } }
-#define SAFE_DELETE_ARRAY(x) { if(x) { delete[] x; x = nullptr; } }
+#include "Util.h"
+#include "../include/IGraphics.h"
+#include "MyExceptions.h"
 
 class Graphics :
 	public IGraphics

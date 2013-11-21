@@ -25,86 +25,88 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 	const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
 {
 	HRESULT result = S_FALSE;
-	try
+
+
+	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+	ID3DBlob *errorMessage = nullptr;
+	ID3DBlob *shaderData;
+
+
+	result = D3DCompileFromFile(p_Filename, nullptr, nullptr, p_EntryPoint, p_ShaderModel,
+		shaderFlags, 0, &shaderData, &errorMessage);
+	if(FAILED(result))
 	{
-		
-		DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
-		ID3DBlob *errorMessage;
-		ID3DBlob *shaderData;
-
-
-		result = D3DCompileFromFile(p_Filename, nullptr, nullptr, p_EntryPoint, p_ShaderModel,
-			shaderFlags, 0, &shaderData, &errorMessage);
-		if(FAILED(result))
+		if(errorMessage == nullptr)
+		{
+			std::wstring foo = p_Filename;
+			throw ShaderException("Error when trying to compile shader. Could be missing file: " +
+				std::string(foo.begin(), foo.end()), __LINE__, __FILE__);			
+		}
+		else
 		{
 			throw ShaderException("Error when compiling shader.\n" + (std::string)(char*)errorMessage->GetBufferPointer(),
 				__LINE__, __FILE__);
-
-			errorMessage->Release();
-			errorMessage = nullptr;
-
-			return result;
+			SAFE_RELEASE(errorMessage);
 		}
 
-		switch (p_ShaderType)
-		{
-		case VERTEX_SHADER:
-			{
-				result = m_Device->CreateVertexShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-					nullptr, &m_VertexShader);
-				result = m_Device->CreateInputLayout(p_VertexLayout, m_NumOfElements, shaderData->GetBufferPointer(),
-					shaderData->GetBufferSize(), &m_VertexLayout);
-				break;
-			}
-		case PIXEL_SHADER:
-			{
-				result = m_Device->CreatePixelShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-					nullptr, &m_PixelShader);
-				break;
-			}
-		case GEOMETRY_SHADER:
-			{
-				result = m_Device->CreateGeometryShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-					nullptr, &m_GeometryShader);
-				break;
-			}
-		case HULL_SHADER:
-			{
-				result = m_Device->CreateHullShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-					nullptr, &m_HullShader);
-				break;
-			}
-		case DOMAIN_SHADER:
-			{
-				result = m_Device->CreateDomainShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-					nullptr, &m_DomainShader);
-				break;
-			}
-		default:
-			{
-				result = S_FALSE;
-				return result;
-				break;
 
-			}
-		}
-
-		if(FAILED(result))
-		{
-			throw ShaderException("Error when creating.\n" + (std::string)(char*)errorMessage->GetBufferPointer(),
-				__LINE__, __FILE__);
-		}
-
-		shaderData->Release();
-		errorMessage->Release();
 
 		return result;
 	}
-	catch (MyException *e)
+
+	switch (p_ShaderType)
 	{
-		std::cout << e->what() << std::endl;
-		return result;
-	}	
+	case VERTEX_SHADER:
+		{
+			result = m_Device->CreateVertexShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
+				nullptr, &m_VertexShader);
+			result = m_Device->CreateInputLayout(p_VertexLayout, m_NumOfElements, shaderData->GetBufferPointer(),
+				shaderData->GetBufferSize(), &m_VertexLayout);
+			break;
+		}
+	case PIXEL_SHADER:
+		{
+			result = m_Device->CreatePixelShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
+				nullptr, &m_PixelShader);
+			break;
+		}
+	case GEOMETRY_SHADER:
+		{
+			result = m_Device->CreateGeometryShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
+				nullptr, &m_GeometryShader);
+			break;
+		}
+	case HULL_SHADER:
+		{
+			result = m_Device->CreateHullShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
+				nullptr, &m_HullShader);
+			break;
+		}
+	case DOMAIN_SHADER:
+		{
+			result = m_Device->CreateDomainShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
+				nullptr, &m_DomainShader);
+			break;
+		}
+	default:
+		{
+			result = S_FALSE;
+			return result;
+			break;
+
+		}
+	}
+
+	if(FAILED(result))
+	{
+		throw ShaderException("Error when creating shader.\n" + (std::string)(char*)errorMessage->GetBufferPointer(),
+			__LINE__, __FILE__);
+	}
+
+	SAFE_RELEASE(shaderData);
+	SAFE_RELEASE(errorMessage);
+
+	return result;
 }
 
 void Shader::setShader(void)

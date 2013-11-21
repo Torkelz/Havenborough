@@ -3,6 +3,7 @@
 #include <d3dcompiler.h>
 #include <d3d11shader.h>
 
+#include "Util.h"
 #include "MyExceptions.h"
 
 #pragma comment(lib, "d3dcompiler.lib")

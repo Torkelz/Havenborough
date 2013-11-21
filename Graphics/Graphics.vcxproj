@@ -89,16 +89,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\WrapperFactory.cpp" />
     <ClCompile Include="Source\Buffer.cpp" />
     <ClCompile Include="Source\Graphics.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\WrapperFactory.h" />
     <ClInclude Include="Source\MyExceptions.h" />
     <ClInclude Include="Source\Shader.h" />
     <ClInclude Include="Source\Buffer.h" />
     <ClInclude Include="Source\Graphics.h" />
     <ClInclude Include="include\IGraphics.h" />
+    <ClInclude Include="Source\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,10 @@
 #pragma once
 #include <d3d11.h>
 
+#include "Util.h"
+#include "MyExceptions.h"
+
+
 enum BufferType
 {
 	VERTEX_BUFFER,
