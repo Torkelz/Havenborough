@@ -1,23 +1,40 @@
+#define INITGUID
 #include "Shader.h"
 #include <string>
 #include <iostream>
 
+using std::vector;
+
 Shader::Shader(void)
 {
+	m_Device = nullptr;
+	m_DeviceContext = nullptr;
+	m_VertexShader = nullptr;
+	m_GeometryShader = nullptr;
+	m_PixelShader = nullptr;
+	m_HullShader = nullptr;
+	m_DomainShader = nullptr;
+	m_VertexLayout = nullptr;
+	m_VertexDescription = nullptr;
 }
 
 
 Shader::~Shader(void)
 {
+	SAFE_RELEASE(m_VertexShader);
+	SAFE_RELEASE(m_GeometryShader);
+	SAFE_RELEASE(m_PixelShader);
+	SAFE_RELEASE(m_HullShader);
+	SAFE_RELEASE(m_DomainShader);
+	SAFE_RELEASE(m_VertexLayout);
+	SAFE_DELETE_ARRAY(m_VertexDescription);
 }
 
-bool Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements)
+void Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements)
 {
 	m_Device = p_Device;
 	m_DeviceContext = p_DeviceContext;
 	m_NumOfElements = p_NumOfElements;
-
-	return true;
 }
 
 HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint,
@@ -26,10 +43,9 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 {
 	HRESULT result = S_FALSE;
 
-
 	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
 	ID3DBlob *errorMessage = nullptr;
-	ID3DBlob *shaderData;
+	ID3DBlob *shaderData = nullptr;
 
 
 	result = D3DCompileFromFile(p_Filename, nullptr, nullptr, p_EntryPoint, p_ShaderModel,
@@ -49,18 +65,28 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 			SAFE_RELEASE(errorMessage);
 		}
 
-
-
 		return result;
 	}
 
-	switch (p_ShaderType)
+	m_ShaderType = p_ShaderType;
+
+	if(p_VertexLayout == nullptr)
+	{
+		createInputLayoutFromShaderSignature(shaderData);
+	}
+	else
+	{
+		m_VertexDescription = new D3D11_INPUT_ELEMENT_DESC[m_NumOfElements];
+		std::copy(p_VertexLayout, p_VertexLayout + m_NumOfElements, m_VertexDescription);
+	}
+
+	switch (m_ShaderType)
 	{
 	case VERTEX_SHADER:
 		{
 			result = m_Device->CreateVertexShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
 				nullptr, &m_VertexShader);
-			result = m_Device->CreateInputLayout(p_VertexLayout, m_NumOfElements, shaderData->GetBufferPointer(),
+			result = m_Device->CreateInputLayout(m_VertexDescription, m_NumOfElements, shaderData->GetBufferPointer(),
 				shaderData->GetBufferSize(), &m_VertexLayout);
 			break;
 		}
@@ -257,4 +283,117 @@ void Shader::setBlendState(ID3D11BlendState *p_BlendState)
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
 	m_DeviceContext->OMSetBlendState(p_BlendState, blendFactor, sampleMask);
+}
+
+void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)
+{
+	ID3D11ShaderReflection *shaderReflection = nullptr;
+	D3D11_SHADER_DESC shaderDescription;
+	UINT32 byteOffset;
+
+	if(FAILED(D3DReflect(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(), IID_ID3D11ShaderReflection,
+		(void**)&shaderReflection)))
+	{
+		throw ShaderException("Error when creating shader reflection", __LINE__, __FILE__);
+	}
+
+	shaderReflection->GetDesc(&shaderDescription);
+
+	byteOffset = 0;
+	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDescription;
+	for(UINT32 i = 0; i < shaderDescription.InputParameters; i++)
+	{
+		D3D11_SIGNATURE_PARAMETER_DESC parameterDescription;
+		shaderReflection->GetInputParameterDesc(i, &parameterDescription);
+
+		D3D11_INPUT_ELEMENT_DESC elementDescription;   
+		elementDescription.SemanticName = parameterDescription.SemanticName;      
+		elementDescription.SemanticIndex = parameterDescription.SemanticIndex;
+		elementDescription.InputSlot = 0;
+		elementDescription.AlignedByteOffset = byteOffset;
+		elementDescription.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		elementDescription.InstanceDataStepRate = 0;
+
+		if(parameterDescription.Mask == 1)
+		{
+			if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32_UINT;
+			}
+			else if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32_SINT;
+			}
+			else if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32_FLOAT;
+			}
+			byteOffset += 4;
+		}
+		else if(parameterDescription.Mask <= 3)
+		{
+			if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
+			{
+				elementDescription.Format = DXGI_FORMAT_R32G32_UINT;
+			}
+			else if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32G32_SINT;
+			}
+			else if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32G32_FLOAT;
+			}
+			byteOffset += 8;
+		}
+		else if(parameterDescription.Mask <= 7)
+		{
+			if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
+			{
+				elementDescription.Format = DXGI_FORMAT_R32G32B32_UINT;
+			}
+			else if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32G32B32_SINT;
+			}
+			else if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			}
+			byteOffset += 12;
+		}
+		else if(parameterDescription.Mask <= 15)
+		{
+			if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32G32B32A32_UINT;
+			}
+			else if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32G32B32A32_SINT;
+			}
+			else if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+			{
+				elementDescription.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			}
+			byteOffset += 16;
+		}
+
+		inputLayoutDescription.push_back(elementDescription);
+	}
+	m_VertexDescription = new D3D11_INPUT_ELEMENT_DESC[shaderDescription.InputParameters];
+	/*for(int i = 0; i <shaderDescription.InputParameters; i++)
+	{
+	m_VertexDescription[i] = inputLayoutDescription.at(i);
+	}*/
+	std::copy(inputLayoutDescription.begin(), inputLayoutDescription.begin() + shaderDescription.InputParameters, m_VertexDescription);
+	//m_VertexDescription = inputLayoutDescription.data();
+
+	/*if(FAILED(m_Device->CreateInputLayout(&inputLayoutDescription[0], inputLayoutDescription.size(),
+		p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(), &m_VertexLayout)))
+	{
+		throw ShaderException("", __LINE__, __FILE__);
+	}*/
+
+		SAFE_RELEASE(shaderReflection);
 }

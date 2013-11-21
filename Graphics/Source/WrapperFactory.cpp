@@ -15,14 +15,24 @@ WrapperFactory::~WrapperFactory(void)
 }
 
 Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-									const char *p_ShaderModel, ShaderType p_ShaderType,
-									const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
+									 const char *p_ShaderModel, ShaderType p_ShaderType)
 {
 	Shader* shader = new Shader();
-	
-	unsigned int numOfInputElements = sizeof(&p_VertexLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC);
 
-	shader->initialize(m_Device, m_DeviceContext, numOfInputElements);
+	shader->initialize(m_Device, m_DeviceContext, 0);
+	shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, nullptr);
+
+	return shader;
+}
+
+Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+									 const char *p_ShaderModel, ShaderType p_ShaderType,
+									 const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
+									 unsigned int p_NumOfInputElemts)
+{
+	Shader* shader = new Shader();
+
+	shader->initialize(m_Device, m_DeviceContext, p_NumOfInputElemts);
 	shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
 
 	return shader;
