@@ -29,6 +29,7 @@ public:
 	~SceneManager();
 	/**
 	* Initialize the scenes and scenemanager.
+	* @return true if initialize worked, false if the initialization failed.
 	*/
 	bool		init(/*graphics* p_graphics*/); //ska ta emot en pekare till graphics för att utföra render skickas vidare till IScene scener
 	/**
