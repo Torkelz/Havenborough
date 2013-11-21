@@ -16,24 +16,26 @@ bool Collision::sphereVsSphere (Sphere* p_sphere1, Sphere* p_sphere2)
 	float rSum = p_sphere2->getRadius() + p_sphere1->getRadius();
     float rSumSqr = rSum*rSum;
 
+	//Find out if the sphere centers are separated with more distance than the radiuses.
     return c <= rSumSqr;
 }
 
-int Collision::AABBvsAABB( AABB* p_aabb1, AABB* p_aabb2 )
+bool Collision::AABBvsAABB( AABB* p_aabb1, AABB* p_aabb2 )
 {
 	XMFLOAT4* max1 = p_aabb1->getMax();
 	XMFLOAT4* min1 = p_aabb1->getMin();
 	XMFLOAT4* max2 = p_aabb2->getMax();
 	XMFLOAT4* min2 = p_aabb2->getMin();
 
+	//Test if the boxes are separated in any axis.
 	if ( min1->x > max2->x || min2->x > max1->x )
-		return OUTSIDE;
+		return false;
 	if ( min1->y > max2->y || min2->y > max1->y )
-		return OUTSIDE;
+		return false;
 	if ( min1->z > max2->z || min2->z > max1->z )
-		return OUTSIDE;
+		return false;
 
-	return INTERSECT;
+	return true;
 }
 
 bool Collision::AABBvsSphere(AABB* p_aabb, Sphere* p_sphere)
@@ -49,6 +51,9 @@ bool Collision::AABBvsSphere(AABB* p_aabb, Sphere* p_sphere)
 	XMFLOAT3 dist = XMFLOAT3(.0f, .0f, .0f);
 	XMFLOAT4* aabbPos = p_aabb->getPosition();
 	XMFLOAT4* aabbDiagonal = p_aabb->getHalfDiagonal();
+
+	//if the sphere is outside of the box, find the corner closest to the sphere center in each axis.
+	//else special case for when the sphere center is inside that axis slab.
 
 	// x
 	if( spherePos->x - aabbPos->x <= -aabbDiagonal->x )

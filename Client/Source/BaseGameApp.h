@@ -16,12 +16,6 @@ private:
 	bool m_ShouldQuit;
 	SceneManager m_SceneManager;
 
-	// TESTING SHIET
-	Sphere sphere1, sphere2;
-	AABB aabb, aabbb;
-
-	IPhysics::ptr physics;
-
 public:
 	/**
 	 * Initialize the game and create a window.

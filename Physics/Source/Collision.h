@@ -22,7 +22,7 @@ public:
 	* true for better performance. ##
 	* @return true if collision happens, otherwise false
 	*/
-	int		AABBvsAABB( AABB* p_aabb1, AABB* p_aabb2 );
+	bool	AABBvsAABB( AABB* p_aabb1, AABB* p_aabb2 );
 	/**
 	* AABB versus Sphere collision
 	* ## Tip: You can use the AABB's sphere and do SphereVsSphere before calling this 

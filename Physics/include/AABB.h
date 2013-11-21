@@ -43,7 +43,7 @@ public:
 	* @p_top is the most positive corner in all axis.
 	* @p_bot is the least positive corner in all axis.
 	*/
-	AABB( DirectX::XMFLOAT4 p_top, DirectX::XMFLOAT4 p_bot) : BoundingVolume() {
+	AABB( DirectX::XMFLOAT4 p_bot, DirectX::XMFLOAT4 p_top) : BoundingVolume() {
 		m_top		= p_top;// + vec3(1.0f, 1.0f, 0.0f);
 		m_bottom	= p_bot;// + vec3(-1.0f, -1.0f, 0.0f);
 		
