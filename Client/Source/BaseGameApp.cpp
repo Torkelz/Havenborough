@@ -1,11 +1,24 @@
 #include "BaseGameApp.h"
 
+#include "Input\InputTranslator.h"
+
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
 void BaseGameApp::init()
 {
 	m_Window.init(getGameTitle(), getWindowSize());
-	m_Window.registerCallback(WM_KEYDOWN, std::bind<bool>(&BaseGameApp::handleKeyDown, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+	using namespace std::placeholders;
+	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, _1, _2, _3));
+
+	InputTranslator::ptr translator(new InputTranslator);
+	translator->init(&m_Window);
+	translator->addKeyboardMapping(VK_ESCAPE, "exit");
+	translator->addKeyboardMapping('W', "moveForward");
+	translator->addKeyboardMapping('S', "moveBackward");
+	translator->addKeyboardMapping('A', "moveLeft");
+	translator->addKeyboardMapping('D', "moveRight");
+	m_InputQueue.init(std::move(translator));
 }
 
 void BaseGameApp::run()
@@ -14,12 +27,26 @@ void BaseGameApp::run()
 
 	while (!m_ShouldQuit)
 	{
+		m_InputQueue.onFrame();
 		m_Window.pollMessages();
+
+		for (auto& in : m_InputQueue.getFrameInputs())
+		{
+			if (in.m_Action == "exit")
+			{
+				m_ShouldQuit = true;
+			}
+			else
+			{
+				printf("Received input action: %s (%.1f)\n", in.m_Action.c_str(), in.m_Value);
+			}
+		}
 	}
 }
 
 void BaseGameApp::shutdown()
 {
+	m_InputQueue.destroy();
 	m_Window.destroy();
 }
 
@@ -36,15 +63,9 @@ UVec2 BaseGameApp::getWindowSize() const
 	return size;
 }
 
-bool BaseGameApp::handleKeyDown(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
+bool BaseGameApp::handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
 {
-	if (p_WParam == VK_ESCAPE)
-	{
-		m_ShouldQuit = true;
-
-		p_Result = 0;
-		return true;
-	}
-
-	return false;
+	m_ShouldQuit = true;
+	p_Result = 0;
+	return true;
 }

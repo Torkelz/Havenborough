@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Input\Input.h"
 #include "Window.h"
 
 #include <string>
@@ -9,8 +10,9 @@ class BaseGameApp
 private:
 	static const std::string m_GameTitle;
 
-	Window m_Window;
-	bool m_ShouldQuit;
+	Window	m_Window;
+	Input	m_InputQueue;
+	bool	m_ShouldQuit;
 
 public:
 	/**
@@ -40,5 +42,5 @@ public:
 	UVec2 getWindowSize() const;
 
 private:
-	bool handleKeyDown(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 };

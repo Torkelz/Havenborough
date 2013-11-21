@@ -1,7 +1,14 @@
+/**
+ * PLACEHOLDER LICENSE: Be nice!
+ */
+
 #pragma once
 
 #include <string>
 
+/**
+ * A representation of a defined input and its value.
+ */
 struct InputRecord
 {
 	/**

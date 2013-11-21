@@ -66,3 +66,22 @@ public:
 	{
 	}
 };
+
+/**
+ * An exception to be thrown when an error is returned from win32 functions.
+ */
+class Win32Exception : public MyException
+{
+public:
+	/**
+	 * constructor.
+	 *
+	 * @param p_What A message describing the error
+	 * @param p_Line The line of the exception (use __LINE__)
+	 * @param p_File The file of the exception (use __FILE__)
+	 */
+	Win32Exception(const std::string& p_What, int p_Line, const std::string& p_File)
+		: MyException(p_What, p_Line, p_File)
+	{
+	}
+};

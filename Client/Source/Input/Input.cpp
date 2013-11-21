@@ -2,11 +2,19 @@
 
 void Input::init(InputTranslator::ptr p_Translator)
 {
+	m_Translator = std::move(p_Translator);
+	m_Translator->setRecordHandler(std::bind(&Input::handleRecords, this, std::placeholders::_1));
 }
 
 void Input::destroy()
 {
-	m_Translator->setRecordHandler(InputTranslator::recordFunc_t());
+	if (m_Translator)
+	{
+		m_Translator->destroy();
+		m_Translator = nullptr;
+	}
+	m_FrameInputs.clear();
+	m_InputState.clear();
 }
 
 void Input::onFrame()
@@ -27,4 +35,5 @@ const std::vector<InputRecord>& Input::getFrameInputs() const
 void Input::handleRecords(InputRecord p_Record)
 {
 	m_FrameInputs.push_back(p_Record);
+	m_InputState.updateRecord(p_Record);
 }

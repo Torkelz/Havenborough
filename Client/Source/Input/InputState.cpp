@@ -31,6 +31,11 @@ void InputState::updateRecord(InputRecord p_Record)
 	}
 }
 
+void InputState::clear()
+{
+	m_Records.clear();
+}
+
 bool InputState::hasRecord(const std::string& p_Identifier) const
 {
 	return std::any_of(m_Records.begin(), m_Records.end(), isRecord(p_Identifier));

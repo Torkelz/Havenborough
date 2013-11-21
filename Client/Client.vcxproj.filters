@@ -24,10 +24,10 @@
     <ClCompile Include="Source\BaseGameApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Input\Input.cpp">
+    <ClCompile Include="Source\Input\InputTranslator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Input\InputTranslator.cpp">
+    <ClCompile Include="Source\Input\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Input\InputState.cpp">

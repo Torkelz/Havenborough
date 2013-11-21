@@ -19,6 +19,14 @@
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BoostTest\BoostTest.vcxproj">
+      <Project>{2bb8f6a9-266a-4f01-b25a-585bebfcaa20}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
     <ProjectReference Include="..\Graphics\Graphics.vcxproj">
       <Project>{b3860466-45bd-4c0f-bd24-15dc7c96e0f1}</Project>
     </ProjectReference>
@@ -89,6 +97,9 @@
       <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)BoostTest\Test\BoostTest.exe</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -110,6 +121,9 @@
       <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)BoostTest\Bin\BoostTest.exe</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
