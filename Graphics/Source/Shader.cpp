@@ -86,8 +86,11 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 		{
 			result = m_Device->CreateVertexShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
 				nullptr, &m_VertexShader);
-			result = m_Device->CreateInputLayout(m_VertexDescription, m_NumOfElements, shaderData->GetBufferPointer(),
-				shaderData->GetBufferSize(), &m_VertexLayout);
+			if(m_VertexLayout == nullptr)
+			{
+				result = m_Device->CreateInputLayout(m_VertexDescription, m_NumOfElements, shaderData->GetBufferPointer(),
+					shaderData->GetBufferSize(), &m_VertexLayout);
+			}
 			break;
 		}
 	case PIXEL_SHADER:
@@ -312,7 +315,7 @@ void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)
 		elementDescription.InputSlot = 0;
 		elementDescription.AlignedByteOffset = byteOffset;
 		elementDescription.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		elementDescription.InstanceDataStepRate = 0;
+		elementDescription.InstanceDataStepRate = 0; 
 
 		if(parameterDescription.Mask == 1)
 		{
@@ -381,19 +384,12 @@ void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)
 
 		inputLayoutDescription.push_back(elementDescription);
 	}
-	m_VertexDescription = new D3D11_INPUT_ELEMENT_DESC[shaderDescription.InputParameters];
-	/*for(int i = 0; i <shaderDescription.InputParameters; i++)
-	{
-	m_VertexDescription[i] = inputLayoutDescription.at(i);
-	}*/
-	std::copy(inputLayoutDescription.begin(), inputLayoutDescription.begin() + shaderDescription.InputParameters, m_VertexDescription);
-	//m_VertexDescription = inputLayoutDescription.data();
 
-	/*if(FAILED(m_Device->CreateInputLayout(&inputLayoutDescription[0], inputLayoutDescription.size(),
+	if(FAILED(m_Device->CreateInputLayout(&inputLayoutDescription[0], inputLayoutDescription.size(),
 		p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(), &m_VertexLayout)))
 	{
-		throw ShaderException("", __LINE__, __FILE__);
-	}*/
+		throw ShaderException("Input layout creation failed", __LINE__, __FILE__);
+	}
 
-		SAFE_RELEASE(shaderReflection);
+	SAFE_RELEASE(shaderReflection);
 }

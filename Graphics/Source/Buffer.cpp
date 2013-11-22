@@ -9,6 +9,9 @@ Buffer::Buffer(void)
 
 Buffer::~Buffer(void)
 {
+	m_Device = nullptr;
+	m_DeviceContext = nullptr;
+	SAFE_RELEASE(m_Buffer);
 }
 
 ID3D11Buffer *Buffer::getBufferPointer(void) const
@@ -68,6 +71,12 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 			bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 			break;
 		}
+	case  STAGING_BUFFER:
+		{
+			bufferDescription.BindFlags = 0;
+			break;
+		}
+
 	default:
 		{
 			return S_FALSE;
@@ -78,19 +87,17 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	m_Usage = p_Description.usage;
 	m_SizeOfElement = p_Description.sizeOfElement;
 	m_NumOfElements = p_Description.numOfElements;
-
+	bufferDescription.CPUAccessFlags = 0;
 	switch (m_Usage)
 	{
 	case BUFFER_DEFAULT:
 		{
 			bufferDescription.Usage = D3D11_USAGE_DEFAULT;
-			bufferDescription.CPUAccessFlags = 0;
 			break;
 		}
 	case BUFFER_STREAM_OUT_TARGET:
 		{
 			bufferDescription.Usage = D3D11_USAGE_DEFAULT;
-			bufferDescription.CPUAccessFlags = 0;
 			break;
 		}
 	case BUFFER_CPU_WRITE:
@@ -107,20 +114,25 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 		}
 	case BUFFER_CPU_READ:
 		{
-			bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
+			if(m_Type != STAGING_BUFFER)
+			{
+				//m_DeviceContext = nullptr;
+				//m_Device = nullptr;
+				throw BufferException("Cannot set cpu read to other than staging buffer", __LINE__, __FILE__);
+			}
+			//bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
+			bufferDescription.Usage = D3D11_USAGE_STAGING;
 			bufferDescription.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
 			break;
 		}
 	case BUFFER_USAGE_COUNT:
 		{
 			bufferDescription.Usage = D3D11_USAGE_DEFAULT;
-			bufferDescription.CPUAccessFlags = 0;
 			break;
 		}
 	case BUFFER_USAGE_IMMUTABLE:
 		{
 			bufferDescription.Usage = D3D11_USAGE_IMMUTABLE;
-			bufferDescription.CPUAccessFlags = 0;
 			break;
 		}
 	default:
@@ -132,16 +144,20 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	bufferDescription.MiscFlags = 0;
 	bufferDescription.ByteWidth = p_Description.numOfElements * p_Description.sizeOfElement;
 
-	//Make sure at least 16 bytes is set.
-	if(bufferDescription.ByteWidth < 16)
-	{
-		bufferDescription.ByteWidth = 16;
-	}
+	////Make sure at least 16 bytes is set.
+	//if(bufferDescription.ByteWidth < 16)
+	//{
+	//	bufferDescription.ByteWidth = 16;
+	//}
+	//set at least 16 bytes
+	bufferDescription.ByteWidth = bufferDescription.ByteWidth + (16 - bufferDescription.ByteWidth % 16);
 
 	if(p_Description.initData)
 	{
 		D3D11_SUBRESOURCE_DATA data;
 		data.pSysMem = p_Description.initData;
+		data.SysMemPitch = 0;
+		data.SysMemSlicePitch = 0;
 		result = m_Device->CreateBuffer(&bufferDescription, &data, &m_Buffer);
 	}
 	else
