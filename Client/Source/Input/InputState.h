@@ -31,6 +31,13 @@ public:
 	void clear();
 
 	/**
+	 * Get the number of currently stored records.
+	 *
+	 * @return Number of stored records.
+	 */
+	std::vector<InputRecord>::size_type size() const;
+
+	/**
 	 * Check if there exists a record with the given action.
 	 *
 	 * @param p_Identifier The action to check the existens of.

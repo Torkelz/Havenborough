@@ -60,13 +60,14 @@ public:
 	 * Init the translator. Registers the supported devices
 	 * for sending to the application.
 	 *
-	 * @param p_Window The window to translate input from.
+	 * @param p_Window The window to translate input from. Must not be null.
+	 * @throws InvalidArgument if p_Window is null.
 	 */
-	virtual void init(Window* p_Window);
+	void init(Window* p_Window);
 	/**
 	 * Clean up resources.
 	 */
-	virtual void destroy();
+	void destroy();
 
 	/**
 	 * Set the function to handle any translated message.
@@ -84,7 +85,7 @@ public:
 	 */
 	void addKeyboardMapping(USHORT p_VirtualKey, const std::string& p_Action);
 
-private:
+protected:
 	/**
 	 * Handler function for Win32 raw input messages.
 	 *
@@ -95,4 +96,6 @@ private:
 	 * @return true if the message has been handled, otherwise false.
 	 */
 	bool handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+
+	bool handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard);
 };

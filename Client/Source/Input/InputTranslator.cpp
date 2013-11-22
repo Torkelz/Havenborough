@@ -4,6 +4,11 @@
 
 void InputTranslator::init(Window* p_Window)
 {
+	if (p_Window == nullptr)
+	{
+		throw InvalidArgument("Window must not be null", __LINE__, __FILE__);
+	}
+
 	RAWINPUTDEVICE inputDevices[2];
 
 	// Generic mouse
@@ -68,21 +73,9 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 
 	if (rawInputData->header.dwType == RIM_TYPEKEYBOARD)
 	{
-		USHORT keyCode = rawInputData->data.keyboard.VKey;
-		float value = 0.f;
-		if (!(rawInputData->data.keyboard.Flags & RI_KEY_BREAK))
+		if (handleKeyboardInput(rawInputData->data.keyboard))
 		{
-			value = 1.f;
-		}
-
-		for (const KeyboardRecord& record : m_KeyboardMappings)
-		{
-			if (record.m_KeyCode == keyCode)
-			{
-				InputRecord inRec = {record.m_Action, value};
-				m_RecordFunction(inRec);
-				handled = true;
-			}
+			handled = true;
 		}
 	}
 	else if (rawInputData->header.dwType == RIM_TYPEMOUSE)
@@ -99,4 +92,27 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 	{
 		return false;
 	}
+}
+
+bool InputTranslator::handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard)
+{
+	USHORT keyCode = p_RawKeyboard.VKey;
+	float value = 0.f;
+	if (!(p_RawKeyboard.Flags & RI_KEY_BREAK))
+	{
+		value = 1.f;
+	}
+
+	bool handled = false;
+	for (const KeyboardRecord& record : m_KeyboardMappings)
+	{
+		if (record.m_KeyCode == keyCode)
+		{
+			InputRecord inRec = {record.m_Action, value};
+			m_RecordFunction(inRec);
+			handled = true;
+		}
+	}
+
+	return handled;
 }

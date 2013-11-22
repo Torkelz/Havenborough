@@ -36,6 +36,11 @@ void InputState::clear()
 	m_Records.clear();
 }
 
+std::vector<InputRecord>::size_type InputState::size() const
+{
+	return m_Records.size();
+}
+
 bool InputState::hasRecord(const std::string& p_Identifier) const
 {
 	return std::any_of(m_Records.begin(), m_Records.end(), isRecord(p_Identifier));
