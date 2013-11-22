@@ -83,6 +83,9 @@
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)BoostTest\Test\BoostTest.exe</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

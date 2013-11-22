@@ -73,7 +73,6 @@ public:
 	* Draw the current frame.
 	*/
 	virtual void drawFrame(void) = 0;
-
 private:
 	/**
 	* Release the sub resources allocated by the graphics API.

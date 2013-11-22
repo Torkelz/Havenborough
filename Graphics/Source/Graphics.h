@@ -35,7 +35,6 @@ public:
 	char m_GraphicsCard[128];
 	int m_GraphicsMemory;
 	bool m_VSyncEnabled;
-
 public:
 	Graphics(void);
 	~Graphics(void);
@@ -55,7 +54,6 @@ public:
 	void useFrameLight(void);
 	
 	void drawFrame(void);
-
 private:
 	
 	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
