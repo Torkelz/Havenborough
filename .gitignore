@@ -25,3 +25,4 @@ testCaseCollection.xml
 *.exp
 *.lib
 */Test/
+*.orig

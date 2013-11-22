@@ -6,6 +6,7 @@ const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
 void BaseGameApp::init()
 {
+	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
 
 	using namespace std::placeholders;
@@ -19,6 +20,8 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('A', "moveLeft");
 	translator->addKeyboardMapping('D', "moveRight");
 	m_InputQueue.init(std::move(translator));
+
+	//physics = IPhysics::createPhysics();
 }
 
 void BaseGameApp::run()

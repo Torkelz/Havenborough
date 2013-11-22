@@ -2,6 +2,9 @@
 
 #include "Input\Input.h"
 #include "Window.h"
+#include "SceneManager.h"
+#include "Sphere.h"
+#include "IPhysics.h"
 
 #include <string>
 
@@ -13,6 +16,7 @@ private:
 	Window	m_Window;
 	Input	m_InputQueue;
 	bool	m_ShouldQuit;
+	SceneManager m_SceneManager;
 
 public:
 	/**
