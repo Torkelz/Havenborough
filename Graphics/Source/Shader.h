@@ -44,6 +44,8 @@ public:
 		const char *p_ShaderModel, ShaderType p_ShaderType,
 		const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
 
+	
+
 	void setShader(void);
 	void unSetShader(void);
 	
@@ -54,5 +56,12 @@ public:
 	void setBlendState(ID3D11BlendState *p_BlendState);
 
 private:
-	void createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData);
+	
+
+protected:
+	virtual HRESULT createShader(ID3DBlob *p_ShaderData);
+	virtual void createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData);
+	virtual HRESULT compileShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, DWORD p_ShaderFlags,
+		ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage);
 };

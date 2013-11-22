@@ -158,11 +158,11 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 		data.pSysMem = p_Description.initData;
 		data.SysMemPitch = 0;
 		data.SysMemSlicePitch = 0;
-		result = m_Device->CreateBuffer(&bufferDescription, &data, &m_Buffer);
+		result = createBuffer(&bufferDescription, &data, &m_Buffer);
 	}
 	else
 	{
-		result = m_Device->CreateBuffer(&bufferDescription, nullptr, &m_Buffer);
+		result = createBuffer(&bufferDescription, nullptr, &m_Buffer);
 	}
 
 	return result;
@@ -284,4 +284,9 @@ void *Buffer::mapResourceToContext(UINT32 p_MapType)
 	{
 		return m_MappedResource.pData;
 	}
+}
+
+HRESULT Buffer::createBuffer(D3D11_BUFFER_DESC *p_BufferDescription, D3D11_SUBRESOURCE_DATA *p_Data, ID3D11Buffer **p_Buffer)
+{
+	return m_Device->CreateBuffer(p_BufferDescription, p_Data, p_Buffer);
 }

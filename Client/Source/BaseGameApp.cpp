@@ -9,7 +9,7 @@ void BaseGameApp::init()
 
 	m_Graphics = IGraphics::createGraphics();
 	//TODO: Need some input setting variable to handle fullscreen.
-	bool fullscreen = false;
+	bool fullscreen = true;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 }
 

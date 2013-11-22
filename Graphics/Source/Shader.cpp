@@ -48,8 +48,8 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 	ID3DBlob *shaderData = nullptr;
 
 
-	result = D3DCompileFromFile(p_Filename, nullptr, nullptr, p_EntryPoint, p_ShaderModel,
-		shaderFlags, 0, &shaderData, &errorMessage);
+	result = compileShader(p_Filename, p_EntryPoint, p_ShaderModel, shaderFlags, shaderData, errorMessage);
+
 	if(FAILED(result))
 	{
 		if(errorMessage == nullptr)
@@ -80,51 +80,8 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 		std::copy(p_VertexLayout, p_VertexLayout + m_NumOfElements, m_VertexDescription);
 	}
 
-	switch (m_ShaderType)
-	{
-	case VERTEX_SHADER:
-		{
-			result = m_Device->CreateVertexShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-				nullptr, &m_VertexShader);
-			if(m_VertexLayout == nullptr)
-			{
-				result = m_Device->CreateInputLayout(m_VertexDescription, m_NumOfElements, shaderData->GetBufferPointer(),
-					shaderData->GetBufferSize(), &m_VertexLayout);
-			}
-			break;
-		}
-	case PIXEL_SHADER:
-		{
-			result = m_Device->CreatePixelShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-				nullptr, &m_PixelShader);
-			break;
-		}
-	case GEOMETRY_SHADER:
-		{
-			result = m_Device->CreateGeometryShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-				nullptr, &m_GeometryShader);
-			break;
-		}
-	case HULL_SHADER:
-		{
-			result = m_Device->CreateHullShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-				nullptr, &m_HullShader);
-			break;
-		}
-	case DOMAIN_SHADER:
-		{
-			result = m_Device->CreateDomainShader(shaderData->GetBufferPointer(), shaderData->GetBufferSize(),
-				nullptr, &m_DomainShader);
-			break;
-		}
-	default:
-		{
-			result = S_FALSE;
-			return result;
-			break;
+	result = createShader(shaderData);
 
-		}
-	}
 
 	if(FAILED(result))
 	{
@@ -392,4 +349,61 @@ void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)
 	}
 
 	SAFE_RELEASE(shaderReflection);
+}
+
+HRESULT Shader::createShader(ID3DBlob *p_ShaderData) 
+{
+	HRESULT result;
+	switch (m_ShaderType)
+	{
+	case VERTEX_SHADER:
+		{
+			result = m_Device->CreateVertexShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
+				nullptr, &m_VertexShader);
+			if(m_VertexLayout == nullptr)
+			{
+				result = m_Device->CreateInputLayout(m_VertexDescription, m_NumOfElements, p_ShaderData->GetBufferPointer(),
+					p_ShaderData->GetBufferSize(), &m_VertexLayout);
+			}
+			break;
+		}
+	case PIXEL_SHADER:
+		{
+			result = m_Device->CreatePixelShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
+				nullptr, &m_PixelShader);
+			break;
+		}
+	case GEOMETRY_SHADER:
+		{
+			result = m_Device->CreateGeometryShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
+				nullptr, &m_GeometryShader);
+			break;
+		}
+	case HULL_SHADER:
+		{
+			result = m_Device->CreateHullShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
+				nullptr, &m_HullShader);
+			break;
+		}
+	case DOMAIN_SHADER:
+		{
+			result = m_Device->CreateDomainShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
+				nullptr, &m_DomainShader);
+			break;
+		}
+	default:
+		{
+			result = S_FALSE;
+			return result;
+			break;
+		}
+	}
+	return result;
+}
+
+HRESULT Shader::compileShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+	DWORD p_ShaderFlags, ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage )
+{
+	return D3DCompileFromFile(p_Filename, nullptr, nullptr, p_EntryPoint, p_ShaderModel,
+		p_ShaderFlags, 0, &p_ShaderData, &p_ErrorMessage);
 }

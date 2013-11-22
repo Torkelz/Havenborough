@@ -43,7 +43,6 @@ public:
 		bool p_Fullscreen);
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight,
 		bool p_Fullscreen);
-	void shutdown(void);
 	
 	void renderModel(void);
 	void renderText(void);
@@ -56,7 +55,8 @@ public:
 	void drawFrame(void);
 
 private:
-	
+	void shutdown(void);
+
 	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
 	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth,
 		int p_ScreenHeight, bool p_Fullscreen);

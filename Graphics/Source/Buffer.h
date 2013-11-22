@@ -97,20 +97,27 @@ public:
 		ID3D11DeviceContext *p_DeviceContext, BufferDescription &p_Description);
 	
 	/**
-	* 
+	* Sets the the buffer to be applied.
+	* @param p_StartSlot where to start in the buffer
+	* @return S_OK if setting buffer, otherwise S_FALSE
 	*/
 	HRESULT setBuffer(UINT32 p_StartSlot);
 
 	/**
-	* 
+	* Maps a buffer usage to corresponding context.
+	* @return pointer to mapped data
 	*/
 	void *map(void);
 	
 	/**
-	* 
+	* Unmaps the buffer pointer.
 	*/
 	void unmap(void);
 
 private:
 	void *mapResourceToContext(UINT32 p_MapType);
+
+protected:
+	virtual HRESULT createBuffer(D3D11_BUFFER_DESC *p_BufferDescription,
+		D3D11_SUBRESOURCE_DATA *p_Data, ID3D11Buffer **p_Buffer);
 };
