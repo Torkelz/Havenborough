@@ -21,27 +21,35 @@ private:
 
 	//DEBUGGING
 	//Model					m_model;
-	//Buffer*					m_pBuffer;
-	//Buffer*					m_pCB;
-	//Shader*					m_pShader;
+	//Buffer*				m_pBuffer;
+	//Buffer*				m_pCB;
+	//Shader*				m_pShader;
 	//ID3D11Device*			m_pDevice;
 	//ID3D11DeviceContext*	m_pDeviceContext;
-	//CBS						m_cb;
-	//DirectX::XMFLOAT4X4		m_translate;
+	//CBS					m_cb;
+	//DirectX::XMFLOAT4X4	m_translate;
 
 public:
+	/**
+	* Default constructor, sets radius to zero and position to origo.
+	*/
 	Sphere(){
 		setRadius(0.0f);
 		m_position = DirectX::XMFLOAT4(0.f,0.f,0.f,1.f);
 
 		m_type = SPHERE;
-	};
+	}
+	/**
+	* Constructor, set radius and position to the inputs, calculate sqrRadius.
+	* @p_radius, sphere's radius.
+	* @p_pos, sphere's postion.
+	*/
 	Sphere(float p_radius, DirectX::XMFLOAT4 p_pos) : BoundingVolume(){
 		setRadius(p_radius);
 		m_position = p_pos;
 
 		m_type = SPHERE;
-	};
+	}
 	~Sphere(){
 		//m_pBuffer->~Buffer();
 		//m_pCB->~Buffer();
@@ -52,7 +60,7 @@ public:
 		//m_pShader			= nullptr;
 		//m_pDevice			= nullptr;
 		//m_pDeviceContext	= nullptr;
-	};
+	}
 	
 	/**
 	* Updates position for sphere with matrices.
@@ -60,7 +68,7 @@ public:
 	* @p_rotation, rotate the sphere.
 	* @p_translation, move the sphere.
 	*/
-	void	updatePosition(DirectX::XMFLOAT4X4& p_scale, DirectX::XMFLOAT4X4& p_rotation, DirectX::XMFLOAT4X4& p_translation ){
+	void updatePosition(DirectX::XMFLOAT4X4& p_scale, DirectX::XMFLOAT4X4& p_rotation, DirectX::XMFLOAT4X4& p_translation ){
 		m_prevPosition = m_position;
 
 		DirectX::XMMATRIX tempScale, tempRot, tempTrans;
@@ -74,37 +82,37 @@ public:
 		DirectX::XMVector4Transform(v, tempTransform);
 
 		DirectX::XMStoreFloat4(&m_position, v);
-	};
+	}
 	/**
 	* Updates position for sphere with position, used by aabb's sphere.
 	* @p_position, set current position to this.
 	*/
-	void	updatePosition(DirectX::XMFLOAT4& p_position){
+	void updatePosition(DirectX::XMFLOAT4& p_position){
 		m_prevPosition = m_position;
 		m_position = p_position;
-	};
+	}
 	/**
 	* Get the radius of the sphere.
 	* @return m_radius.
 	*/
-	float	getRadius(){
+	float getRadius(){
 		return m_radius;
-	};
+	}
 	/**
 	* Get the squared radius of the sphere.
 	* @return m_sqrRadius
 	*/
-	float	getSqrRadius(){
+	float getSqrRadius(){
 		return m_sqrRadius;
-	};
+	}
 	/**
 	* Updates m_radius and m_sqrRadius.
 	* @p_radius, change to this radius.
 	*/
-	void	setRadius(float p_radius){
+	void setRadius(float p_radius){
 		m_radius = p_radius;
 		m_sqrRadius = m_radius * m_radius;
-	};
+	}
 
 	//DEBUGGING
 	//void					setModel(Model p_model);

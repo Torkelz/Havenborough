@@ -26,7 +26,7 @@ private:
 	DirectX::XMFLOAT4	m_halfDiagonal;
 
 	////DEBUGGING
-	/*Buffer*				m_pBuffer;
+	/*Buffer*			m_pBuffer;
 	Buffer*				m_pCB;
 	Buffer*				m_pIndexBuffer;
 	Shader*				m_pShader;
@@ -37,27 +37,27 @@ private:
 	DirectX::XMFLOAT4	m_color;*/
 	
 public:
-	AABB(){};
+	AABB(){}
 	/**
 	* ## MUST BE BUILT IN MODEL SPACE! ##
 	* @p_top is the most positive corner in all axis.
 	* @p_bot is the least positive corner in all axis.
 	*/
 	AABB( DirectX::XMFLOAT4 p_bot, DirectX::XMFLOAT4 p_top) : BoundingVolume() {
-		m_top		= p_top;// + vec3(1.0f, 1.0f, 0.0f);
-		m_bottom	= p_bot;// + vec3(-1.0f, -1.0f, 0.0f);
+		m_top		= p_top;
+		m_bottom	= p_bot;
 		
 		m_bounds[0] = m_bottom;
 		m_bounds[7] = m_top;
 
-		m_position = DirectX::XMFLOAT4(	m_bottom.x + ((m_top.x - m_bottom.x) / 2) , 
-								m_bottom.y + ((m_top.y - m_bottom.y) / 2) , 
-								m_bottom.z + ((m_top.z - m_bottom.z) / 2) ,
-								0.0f );
+		m_position = DirectX::XMFLOAT4(	m_bottom.x + ((m_top.x - m_bottom.x) / 2), 
+										m_bottom.y + ((m_top.y - m_bottom.y) / 2), 
+										m_bottom.z + ((m_top.z - m_bottom.z) / 2),
+										0.0f );
 		m_type		= AABBOX;
 
 		initialize();
-	};
+	}
 	~AABB(){
 		/*m_pBuffer->~Buffer();
 		m_pCB->~Buffer();
@@ -70,20 +70,18 @@ public:
 		m_pShader			= nullptr;
 		m_pDevice			= nullptr;
 		m_pDeviceContext	= nullptr;*/
-	};
+	}
 	
 	/**
 	* Initialize the AABB
 	*/
-	void initialize()
-	{
+	void initialize(){
 		calculateBounds();
-	};
+	}
 	/**
 	* Calculate corners, half diagonal and create bounding sphere for AABB.
 	*/
-	void calculateBounds()
-	{
+	void calculateBounds(){
 		using namespace DirectX;
 		m_position = XMFLOAT4(	m_bounds[0].x + ((m_bounds[7].x - m_bounds[0].x) / 2) , 
 								m_bounds[0].y + ((m_bounds[7].y - m_bounds[0].y) / 2) , 
@@ -110,14 +108,14 @@ public:
 		m_sphere.updatePosition(m_position);
 
 		DirectX::XMStoreFloat4(&m_halfDiagonal, vDiag);
-	};
+	}
 	/**
 	* Updates position for AABB with matrices.
 	* @p_scale, scale the AABB. 
 	* @p_rotation, rotate the AABB.
 	* @p_translation, move the AABB.
 	*/
-	void				updatePosition( DirectX::XMFLOAT4X4& p_scale, DirectX::XMFLOAT4X4& p_rotation, DirectX::XMFLOAT4X4& p_translate ){
+	void updatePosition( DirectX::XMFLOAT4X4& p_scale, DirectX::XMFLOAT4X4& p_rotation, DirectX::XMFLOAT4X4& p_translate ){
 		DirectX::XMMATRIX tempScale, tempRot, tempTrans;
 	
 		tempScale = XMLoadFloat4x4(&p_scale);
@@ -135,31 +133,31 @@ public:
 		DirectX::XMStoreFloat4(&m_bounds[7], vTop);
 	
 		calculateBounds();
-	};
+	}
 	/**
 	* @return m_top, return top corner
 	*/
-	DirectX::XMFLOAT4*	getMax(){
+	DirectX::XMFLOAT4* getMax(){
 		return &m_bounds[7];
-	};
+	}
 	/**
 	* @return m_bottom, return bottom corner
 	*/
-	DirectX::XMFLOAT4*	getMin(){
+	DirectX::XMFLOAT4* getMin(){
 		return &m_bounds[0];
-	};
+	}
 	/**
 	* @return m_halfDiagonal, return vector from center to top corner.
 	*/
-	DirectX::XMFLOAT4*	getHalfDiagonal(){
+	DirectX::XMFLOAT4* getHalfDiagonal(){
 		return &m_halfDiagonal;
-	};
+	}
 	/**
 	* @return m_sphere, AABB's sphere
 	*/
 	Sphere*	getSphere(){
 		return &m_sphere;
-	};
+	}
 
 	//DEBUGGING
 	/*void				buildCubeIndices( int offset );

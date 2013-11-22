@@ -1,11 +1,9 @@
-#include "Window.h"
-
-#include "MyExceptions.h"
-
-#include <vector>
-
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <vector>
+
+#include "Window.h"
+#include "MyExceptions.h"
 
 const LPCWSTR Window::m_ClassName = L"Havenborough_Game_Client";
 std::vector<std::pair<HWND, Window*>> Window::m_CallbackWindows;
@@ -42,18 +40,18 @@ void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
 	if (m_ClassUseCount == 0)
 	{
 		WNDCLASSEXW windowClassDescription;
-		windowClassDescription.cbSize		= sizeof(WNDCLASSEXW);
-		windowClassDescription.style		= 0;
-		windowClassDescription.lpfnWndProc	= windowProc;
-		windowClassDescription.cbClsExtra	= 0;
-		windowClassDescription.cbWndExtra	= 0;
-		windowClassDescription.hInstance	= hInstance;
-		windowClassDescription.hIcon		= m_Icon;
-		windowClassDescription.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		windowClassDescription.cbSize			= sizeof(WNDCLASSEXW);
+		windowClassDescription.style			= 0;
+		windowClassDescription.lpfnWndProc		= windowProc;
+		windowClassDescription.cbClsExtra		= 0;
+		windowClassDescription.cbWndExtra		= 0;
+		windowClassDescription.hInstance		= hInstance;
+		windowClassDescription.hIcon			= m_Icon;
+		windowClassDescription.hCursor			= LoadCursor(NULL, IDC_ARROW);
 		windowClassDescription.hbrBackground	= (HBRUSH)(COLOR_WINDOW + 1);
-		windowClassDescription.lpszMenuName	= NULL;
+		windowClassDescription.lpszMenuName		= NULL;
 		windowClassDescription.lpszClassName	= m_ClassName;
-		windowClassDescription.hIconSm		= NULL;
+		windowClassDescription.hIconSm			= NULL;
 
 		if (!RegisterClassExW(&windowClassDescription))
 		{
