@@ -45,6 +45,4 @@ public:
 	/*########## TEST FUNCTIONS ##########*/
 
 	int		getID() override;
-
-private:
 };

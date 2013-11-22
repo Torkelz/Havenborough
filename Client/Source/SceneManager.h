@@ -8,7 +8,6 @@
 /*TESTING*/
 #include <iostream>
 
-
 class SceneManager
 {
 private:
