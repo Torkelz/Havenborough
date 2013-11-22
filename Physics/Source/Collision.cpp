@@ -5,7 +5,7 @@ using namespace DirectX;
 Collision::Collision(void){}
 Collision::~Collision(void){}
 
-bool Collision::sphereVsSphere (Sphere* p_sphere1, Sphere* p_sphere2)
+bool Collision::sphereVsSphere( Sphere* p_sphere1, Sphere* p_sphere2 )
 {
     XMVECTOR CDiff, vPos;
 	CDiff = XMLoadFloat4(p_sphere2->getPosition());
@@ -38,7 +38,7 @@ bool Collision::AABBvsAABB( AABB* p_aabb1, AABB* p_aabb2 )
 	return true;
 }
 
-bool Collision::AABBvsSphere(AABB* p_aabb, Sphere* p_sphere)
+bool Collision::AABBvsSphere( AABB* p_aabb, Sphere* p_sphere )
 {
 	//Check to see if the sphere overlaps the AABB
 	//const bool AABBOverlapsSphere ( const AABB& B, const SCALAR r, VECTOR& C )

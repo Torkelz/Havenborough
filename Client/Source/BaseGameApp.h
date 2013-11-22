@@ -3,7 +3,6 @@
 #include "Input\Input.h"
 #include "Window.h"
 #include "SceneManager.h"
-#include "Sphere.h"
 #include "IPhysics.h"
 
 #include <string>

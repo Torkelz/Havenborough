@@ -9,9 +9,7 @@ MenuScene::MenuScene()
 	m_ChangeList = false;
 }
 
-MenuScene::~MenuScene()
-{
-}
+MenuScene::~MenuScene(){}
 
 bool MenuScene::init(unsigned int p_SceneID)
 {
@@ -19,9 +17,7 @@ bool MenuScene::init(unsigned int p_SceneID)
 	return true;
 }
 
-void MenuScene::destroy()
-{
-}
+void MenuScene::destroy(){}
 
 void MenuScene::onFrame(int* p_IsCurrentScene)
 {
@@ -38,9 +34,7 @@ void MenuScene::onFrame(int* p_IsCurrentScene)
 	}
 }
 
-void MenuScene::render()
-{
-}
+void MenuScene::render(){}
 
 bool MenuScene::getIsVisible()
 {

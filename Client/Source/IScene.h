@@ -53,6 +53,4 @@ public:
 	/*########## TEST FUNCTIONS ##########*/
 
 	virtual int		getID() = 0;
-
-private:
 };

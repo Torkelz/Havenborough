@@ -24,7 +24,7 @@ public:
 	*/
 	int	getIndex(){
 		return m_index;
-	};
+	}
 	/**
 	* Compare two bounding volumes to figure out if they are different.
 	* @p_volume the volume to compare with
@@ -41,28 +41,28 @@ public:
 		{
 			return false;
 		}
-	};
+	}
 	/**
 	* Get the current position for the bounding volume.
 	* @return m_position.
 	*/
-	DirectX::XMFLOAT4*	getPosition(){
+	DirectX::XMFLOAT4* getPosition(){
 		return &m_position;
-	};
+	}
 	/**
 	* Get the bounding volume position in the last frame.
 	* @return m_prevPosition.
 	*/
-	DirectX::XMFLOAT4*	getPrevPosition(){
+	DirectX::XMFLOAT4* getPrevPosition(){
 		return &m_prevPosition;
-	};
+	}
 	/**
 	* Return the bounding volume type tied to the TYPE enum.
 	* @return m_type
 	*/
 	int	getType(){
 		return m_type;
-	};
+	}
 };
 
 #endif
