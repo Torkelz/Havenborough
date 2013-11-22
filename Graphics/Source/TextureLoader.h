@@ -5,7 +5,6 @@
 #include "WICTextureLoader.h"
 #include "DDSTextureLoader.h"
 
-
 class TextureLoader
 {
 private:
@@ -39,6 +38,19 @@ public:
 	 * @return Success = A pointer to the loaded texture, Fail = nullptr.
 	 */
 	ID3D11ShaderResourceView* createTextureFromFile(char* p_Filename);
+protected:
+	virtual HRESULT CreateWICTextureFromFile(ID3D11Device* d3dDevice,
+                                           ID3D11DeviceContext* d3dContext,
+                                           const wchar_t* fileName,
+                                           ID3D11Resource** texture,
+                                           ID3D11ShaderResourceView** textureView,
+                                           size_t maxsize);
+	virtual HRESULT CreateDDSTextureFromFile(ID3D11Device* d3dDevice,
+                                           const wchar_t* fileName,
+                                           ID3D11Resource** texture,
+                                           ID3D11ShaderResourceView** textureView,
+                                           size_t maxsize,
+                                           DirectX::DDS_ALPHA_MODE* alphaMode);
 private:
 	char* checkCompability(char* p_FileType);
 };

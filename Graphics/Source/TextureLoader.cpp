@@ -18,7 +18,9 @@ TextureLoader::TextureLoader(ID3D11Device* p_Device, ID3D11DeviceContext* p_Devi
 	m_CompabilityList.shrink_to_fit();
 }
 
-TextureLoader::TextureLoader(){}
+TextureLoader::TextureLoader()
+{
+}
 
 TextureLoader::~TextureLoader(){}
 
@@ -61,8 +63,8 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(char* p_Filename)
 	if(strcmp(result, "wic") == 0)
 	{
 
-		hr = DirectX::CreateWICTextureFromFile(m_Device, m_DeviceContext, filename.data(), 
-																		&textureResource, &textureSRV);
+		hr = CreateWICTextureFromFile(m_Device, m_DeviceContext, filename.data(), 
+																		&textureResource, &textureSRV,0);
 		if(FAILED(hr))
 		{
 			return nullptr;
@@ -73,7 +75,7 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(char* p_Filename)
 		//Temporary variable used to save a return value that is not used.
 		DirectX::DDS_ALPHA_MODE mode;
 
-		hr = DirectX::CreateDDSTextureFromFile(m_Device, filename.data(), 
+		hr = CreateDDSTextureFromFile(m_Device, filename.data(), 
 														&textureResource, &textureSRV, 0, &mode);
 		if(FAILED(hr))
 		{
@@ -92,8 +94,12 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(char* p_Filename)
 char* TextureLoader::checkCompability(char* p_FileType)
 {
 	unsigned int size = m_CompabilityList.size();
+
+	if (size == 0)
+		return "err";
+
 	//Check if the file format we want to load is supported.
-	for(unsigned int i = 0; i < size-1; i++)
+	for(unsigned int i = 0; i < size; i++)
 	{
 		//Loop through the compability list except for the last item in the list which is .dds
 		//because dds files is handled by another Loader function.
@@ -109,4 +115,24 @@ char* TextureLoader::checkCompability(char* p_FileType)
 	}
 	//if the file format is not supported return err.
 	return "err";
+}
+
+HRESULT TextureLoader::CreateWICTextureFromFile(ID3D11Device* d3dDevice,
+                                           ID3D11DeviceContext* d3dContext,
+                                           const wchar_t* fileName,
+                                           ID3D11Resource** texture,
+                                           ID3D11ShaderResourceView** textureView,
+                                           size_t maxsize)
+{
+	return DirectX::CreateWICTextureFromFile(d3dDevice,d3dContext,fileName,texture,textureView,maxsize);
+}
+
+HRESULT TextureLoader::CreateDDSTextureFromFile(ID3D11Device* d3dDevice,
+                                           const wchar_t* fileName,
+                                           ID3D11Resource** texture,
+                                           ID3D11ShaderResourceView** textureView,
+                                           size_t maxsize,
+                                           DirectX::DDS_ALPHA_MODE* alphaMode)
+{
+	return DirectX::CreateDDSTextureFromFile(d3dDevice,fileName,texture,textureView,maxsize,alphaMode);
 }

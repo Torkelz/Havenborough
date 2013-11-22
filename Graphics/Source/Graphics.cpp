@@ -150,8 +150,6 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
 
-	m_TextureLoad = TextureLoader(m_Device, m_DeviceContext);
-
 	return true;
 }
 
