@@ -2,7 +2,6 @@
 #define WIN32_LEAN_AND_MEAN
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
-
 #include <windows.h>
 #include <d3d11.h>
 #include <dxgi.h>
@@ -10,6 +9,8 @@
 #include "Util.h"
 #include "../include/IGraphics.h"
 #include "MyExceptions.h"
+#include "TextureLoader.h"
+
 
 class Graphics :
 	public IGraphics
@@ -17,7 +18,7 @@ class Graphics :
 private:
 	unsigned int m_Numerator;
 	unsigned int m_Denominator;
-
+	TextureLoader m_TextureLoad;
 public:
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
@@ -34,7 +35,6 @@ public:
 	char m_GraphicsCard[128];
 	int m_GraphicsMemory;
 	bool m_VSyncEnabled;
-
 public:
 	Graphics(void);
 	~Graphics(void);
@@ -53,7 +53,6 @@ public:
 	void useFrameLight(void);
 	
 	void drawFrame(void);
-
 private:
 	void shutdown(void);
 
