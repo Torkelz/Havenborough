@@ -11,6 +11,6 @@
     <LocalDebuggerEnvironment>PATH=$(SolutionDir)Graphics\Test</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup>
-    <ShowAllFiles>false</ShowAllFiles>
+    <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
 </Project>
