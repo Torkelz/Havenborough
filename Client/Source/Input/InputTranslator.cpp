@@ -2,6 +2,11 @@
 
 #include "../MyExceptions.h"
 
+InputTranslator::InputTranslator()
+	: m_Window(nullptr)
+{
+}
+
 void InputTranslator::init(Window* p_Window)
 {
 	if (p_Window == nullptr)
@@ -146,17 +151,16 @@ bool InputTranslator::handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard)
 
 bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 {
-	if (m_MouseMappings.empty())
-	{
-		return false;
-	}
-
 	const LONG lastX = p_RawMouse.lLastX;
 	const LONG lastY = p_RawMouse.lLastY;
 	POINT tempPos;
+	UVec2 windowSize = {10000, 10000};
 	GetCursorPos(&tempPos);
-	ScreenToClient(m_Window->getHandle(), &tempPos);
-	const UVec2 windowSize = m_Window->getSize();
+	if (m_Window)
+	{
+		ScreenToClient(m_Window->getHandle(), &tempPos);
+		windowSize = m_Window->getSize();
+	}
 
 	static const float sensitivity = 1.f;
 
@@ -165,6 +169,7 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 	const float posX = (float)tempPos.x / (float)windowSize.x;
 	const float posY = 1.f - (float)tempPos.y / (float)windowSize.y;
 
+	bool handled = false;
 	if (p_RawMouse.usButtonFlags != 0)
 	{
 		for (const MouseButtonRecord& record : m_MouseButtonMappings)
@@ -173,25 +178,32 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 			{
 				InputRecord inRec = {record.m_Action, 1.f};
 				m_RecordFunction(inRec);
+				handled = true;
 			}
 			if ((p_RawMouse.usButtonFlags & (record.m_Button << 1)) != 0)
 			{
 				InputRecord inRec = {record.m_Action, 0.f};
 				m_RecordFunction(inRec);
+				handled = true;
 			}
 		}
+	}
+	
+	if (m_MouseMappings.empty())
+	{
+		return handled;
 	}
 
 	// Filter out mouse movement outside window
 	if (posX > 1.f || posX < 0.f
 		|| posY > 1.f || posY < 0.f)
 	{
-		return false;
+		return handled;
 	}
 
 	if (moveX == 0.f && moveY == 0.f)
 	{
-		return true;
+		return handled;
 	}
 
 	for (const MouseRecord& record : m_MouseMappings)

@@ -69,6 +69,11 @@ protected:
 
 public:
 	/**
+	 * constructor.
+	 */
+	InputTranslator();
+
+	/**
 	 * Init the translator. Registers the supported devices
 	 * for sending to the application.
 	 *
