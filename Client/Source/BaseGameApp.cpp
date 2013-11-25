@@ -24,6 +24,13 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('S', "moveBackward");
 	translator->addKeyboardMapping('A', "moveLeft");
 	translator->addKeyboardMapping('D', "moveRight");
+
+	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
+	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
+
+	translator->addMouseButtonMapping(InputTranslator::MouseButton::LEFT, "gogogogo");
+	translator->addMouseButtonMapping(InputTranslator::MouseButton::MIDDLE, "rollMe!");
+
 	m_InputQueue.init(std::move(translator));
 
 	//physics = IPhysics::createPhysics();
@@ -47,7 +54,7 @@ void BaseGameApp::run()
 			}
 			else
 			{
-				printf("Received input action: %s (%.1f)\n", in.m_Action.c_str(), in.m_Value);
+				printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
 			}
 		}
 	}

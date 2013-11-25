@@ -26,6 +26,15 @@ public:
 	 */
 	typedef std::unique_ptr<InputTranslator> ptr;
 
+	/**
+	 * Axis enum.
+	 */
+	enum class Axis
+	{
+		HORIZONTAL,
+		VERTICAL
+	};
+
 protected:
 	/**
 	 * Function to handle new records.
@@ -36,24 +45,27 @@ protected:
 	 */
 	Window*			m_Window;
 
-	/**
-	 * Internal container of a single keyboard mapping.
-	 */
 	struct KeyboardRecord
 	{
-		/**
-		 * Windows virtual key code.
-		 */
 		USHORT		m_KeyCode;
-		/**
-		 * The registered action identifier.
-		 */
 		std::string	m_Action;
 	};
-	/**
-	 * A list of all registered keyboard mappings.
-	 */
 	std::vector<KeyboardRecord> m_KeyboardMappings;
+
+	struct MouseRecord
+	{
+		Axis		m_Axis;
+		std::string	m_PosAction;
+		std::string	m_MoveAction;
+	};
+	std::vector<MouseRecord> m_MouseMappings;
+
+	struct MouseButtonRecord
+	{
+		USHORT		m_Button;
+		std::string	m_Action;
+	};
+	std::vector<MouseButtonRecord> m_MouseButtonMappings;
 
 public:
 	/**
@@ -84,6 +96,39 @@ public:
 	 * @param p_Action The action identifier to translate the key to.
 	 */
 	void addKeyboardMapping(USHORT p_VirtualKey, const std::string& p_Action);
+	/**
+	 * Add a new mouse mapping to the translation for a single axis.
+	 * Duplicate calls will result in dupplicated translations.
+	 *
+	 * @param p_Axis The axis to map to an action.
+	 * @param p_PositionAction The action that mouse position changes will be translated to.
+	 * @param p_MovementAction The action that mouse movements will be translated to.
+	 */
+	void addMouseMapping(Axis p_Axis, const std::string& p_PositionAction, const std::string& p_MovementAction);
+
+	/**
+	 * Standard mouse buttons.
+	 */
+	enum class MouseButton
+	{
+		LEFT,
+		RIGHT,
+		/**
+		 * Also mouse wheel button
+		 */
+		MIDDLE,
+		EXTRA_1,
+		EXTRA_2,
+	};
+
+	/**
+	 * Add a new mouse button mapping to the translation. Duplicate calls will
+	 * result in duplicated translations.
+	 *
+	 * @param p_Button The button to listen for.
+	 * @param p_Action The action identifier to translate the button to.
+	 */
+	void addMouseButtonMapping(MouseButton p_Button, const std::string& p_Action);
 
 protected:
 	/**
@@ -98,4 +143,5 @@ protected:
 	bool handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
 	bool handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard);
+	bool handleMouseInput(const RAWMOUSE& p_RawMouse);
 };
