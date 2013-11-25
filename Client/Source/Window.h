@@ -42,6 +42,10 @@ private:
 	 * Used to relay messages to the correct window.
 	 */
 	static std::vector<std::pair<HWND, Window*>> m_CallbackWindows;
+	/**
+	 * The number of windows currently using the registered window class.
+	 */
+	static int m_ClassUseCount;
 
 	/**
 	 * A list of all registered callbacks functions with their corresponding message type.
@@ -54,6 +58,7 @@ private:
 	UVec2		m_Size;
 	bool		m_ShowingCursor;
 	bool		m_IsVisible;
+	bool		m_Initialized;
 
 public:
 	/**
@@ -62,6 +67,14 @@ public:
 	 * Initializes default values, but is always safe to call.
 	 */
 	Window();
+
+	/**
+	 * destructor.
+	 *
+	 * If the window has been initialized but not destroyed,
+	 * the destructor will destroy the window.
+	 */
+	~Window();
 
 	/**
 	 * Initialize and create the window. Uses the given title, size and any previously set value.

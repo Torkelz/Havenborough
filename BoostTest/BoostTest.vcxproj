@@ -46,6 +46,7 @@
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Test\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -53,6 +54,7 @@
     <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Bin\</OutDir>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -72,7 +74,7 @@
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)BoostTest\Test\BoostTest.exe</Command>
+      <Command>$(TargetPath)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -96,6 +98,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
+    <PostBuildEvent>
+      <Command>$(TargetPath)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Client\Source\Window.cpp" />
@@ -105,7 +110,18 @@
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
+    <ClCompile Include="..\Client\Source\Input\Input.cpp" />
+    <ClCompile Include="..\Client\Source\Input\InputState.cpp" />
+    <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp" />
+    <ClCompile Include="Source\Input\TestInput.cpp" />
+    <ClCompile Include="..\Client\Source\GameScene.cpp" />
+    <ClCompile Include="..\Client\Source\MenuScene.cpp" />
+    <ClCompile Include="..\Client\Source\SceneManager.cpp" />
+    <ClCompile Include="..\Physics\Source\Collision.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
+    <ClCompile Include="Source\TestSceneManager.cpp" />
+    <ClCompile Include="Source\TestWindow.cpp" />
+    <ClCompile Include="TestCollision.cpp" />
     <ClCompile Include="TestShader.cpp" />
     <ClCompile Include="TestTextureLoader.cpp" />
   </ItemGroup>

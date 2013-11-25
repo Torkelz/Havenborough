@@ -1,7 +1,10 @@
 #pragma once
 
+#include "Input\Input.h"
 #include "Window.h"
 #include "IGraphics.h"
+#include "SceneManager.h"
+#include "IPhysics.h"
 
 #include <string>
 
@@ -10,10 +13,12 @@ class BaseGameApp
 private:
 	static const std::string m_GameTitle;
 
-	Window m_Window;
+	Window	m_Window;
 	IGraphics* m_Graphics;
+	Input	m_InputQueue;
 
-	bool m_ShouldQuit;
+	bool	m_ShouldQuit;
+	SceneManager m_SceneManager;
 
 public:
 	/**
@@ -43,5 +48,5 @@ public:
 	UVec2 getWindowSize() const;
 
 private:
-	bool handleKeyDown(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 };
