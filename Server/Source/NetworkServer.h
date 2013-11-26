@@ -20,6 +20,7 @@ public:
 	NetworkServer( boost::asio::io_service& p_Service, unsigned short p_Port);
 
 	void start();
+	void stop();
 
 private:
 	void handleAccept( const boost::system::error_code& p_Error);

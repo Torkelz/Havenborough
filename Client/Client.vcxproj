@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\NetworkClient.cpp" />
     <ClCompile Include="Source\BaseGameApp.cpp" />
     <ClCompile Include="Source\clientProgram.cpp" />
     <ClCompile Include="Source\Input\Input.cpp" />
@@ -19,6 +18,7 @@
     <ClCompile Include="Source\Input\InputTranslator.cpp" />
     <ClCompile Include="Source\GameScene.cpp" />
     <ClCompile Include="Source\MenuScene.cpp" />
+    <ClCompile Include="Source\NetworkClient.cpp" />
     <ClCompile Include="Source\SceneManager.cpp" />
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>

@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "../Graphics/Source/WrapperFactory.h"
+#include "../../Graphics/Source/WrapperFactory.h"
 
 BOOST_AUTO_TEST_SUITE(TestShader)
 	

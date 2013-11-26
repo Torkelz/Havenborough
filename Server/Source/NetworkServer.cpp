@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "NetworkServer.h"
 
 NetworkServer::NetworkServer( boost::asio::io_service& p_Service, unsigned short p_Port) 
 		:	m_Acceptor(p_Service, tcp::endpoint( tcp::v4(), p_Port)),
@@ -9,7 +9,12 @@ NetworkServer::NetworkServer( boost::asio::io_service& p_Service, unsigned short
 
 void NetworkServer::start()
 {
-	m_Acceptor.async_accept(m_Socket, std::bind( &NetworkServer::handleAccept, this, std::placeholders::_1));
+	//m_Acceptor.async_accept(m_Socket, std::bind( &NetworkServer::handleAccept, this, std::placeholders::_1));
+}
+
+void NetworkServer::stop()
+{
+	m_Acceptor.get_io_service().stop();
 }
 
 void NetworkServer::handleAccept( const boost::system::error_code& error)
@@ -61,7 +66,7 @@ void NetworkServer::handleReadData(const boost::system::error_code& p_Error, std
 		std::string message(&m_Buffer[sizeof(Header)], header->m_Size - sizeof(header));
 		std::cout << message << std::endl;
 	}
-	std::cout << "Received " << p_BytesTransferred << " bytes." << std::endl;
+	//std::cout << "Received " << p_BytesTransferred << " bytes." << std::endl;
 
-	readHeader();
+	//readHeader();
 }

@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "..\Graphics\Source\TextureLoader.h"
+#include "..\..\Graphics\Source\TextureLoader.h"
 BOOST_AUTO_TEST_SUITE(TestTextureLoader)
 
 

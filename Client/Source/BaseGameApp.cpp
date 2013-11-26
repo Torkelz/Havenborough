@@ -14,8 +14,7 @@ void BaseGameApp::init()
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 
-	using namespace std::placeholders;
-	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, _1, _2, _3));
+	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);

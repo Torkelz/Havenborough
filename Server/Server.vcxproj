@@ -90,11 +90,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Server.cpp" />
+    <ClCompile Include="Source\NetworkServer.cpp" />
     <ClCompile Include="Source\serverProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Server.h" />
+    <ClInclude Include="Source\NetworkServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

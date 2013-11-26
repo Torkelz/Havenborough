@@ -9,46 +9,25 @@
     <ClCompile Include="Source\TestSceneManager.cpp" />
     <ClCompile Include="Source\TestWindow.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
-    <ClCompile Include="TestCollision.cpp" />
-    <ClCompile Include="Source\Input\TestInput.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\Input\Input.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\Input\InputState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TestShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\Buffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TestTextureLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\TextureLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
+    <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\Shader.cpp" />
+    <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
+    <ClCompile Include="..\Client\Source\Input\Input.cpp" />
+    <ClCompile Include="..\Client\Source\Input\InputState.cpp" />
+    <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp" />
+    <ClCompile Include="Source\Input\TestInput.cpp" />
+    <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
+    <ClCompile Include="Source\TestCollision.cpp" />
+    <ClCompile Include="Source\TestShader.cpp" />
+    <ClCompile Include="Source\TestTextureLoader.cpp" />
+    <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
+    <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />

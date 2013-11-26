@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "NetworkServer.h"
 
 int main(int argc, char* argv[])
 {

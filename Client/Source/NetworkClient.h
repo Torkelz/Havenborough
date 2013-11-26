@@ -1,7 +1,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include <thread>
+#include <boost/thread.hpp>
 
 class NetworkClient
 {
@@ -29,7 +29,7 @@ private:
 	boost::asio::ip::tcp::resolver	m_Resolver;
 	boost::asio::ip::tcp::socket	m_Socket;
 
-	std::thread m_IO_Thread;
+	boost::thread m_IO_Thread;
 
 	std::array<char, 1024> m_WriteBuffer;
 	std::array<char, 1024> m_ReadBuffer;
@@ -41,6 +41,9 @@ public:
 	~NetworkClient();
 
 	void connect(const std::string& p_URL);
+
+	bool isConnected() const;
+	bool hasError() const;
 
 private:
 	void handleResolve(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_ResolveResult);
