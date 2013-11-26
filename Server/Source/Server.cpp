@@ -1,12 +1,18 @@
 #include "Server.h"
 
-
-void tcp_server::start()
+NetworkServer::NetworkServer( boost::asio::io_service& p_Service, unsigned short p_Port) 
+		:	m_Acceptor(p_Service, tcp::endpoint( tcp::v4(), p_Port)),
+			m_Socket(p_Service),
+			m_Index(0)
 {
-	m_Acceptor.async_accept(m_Socket, boost::bind( &tcp_server::handle_accept, this, boost::asio::placeholders::error));
 }
 
-void tcp_server::handle_accept( const boost::system::error_code& error)
+void NetworkServer::start()
+{
+	m_Acceptor.async_accept(m_Socket, std::bind( &NetworkServer::handleAccept, this, std::placeholders::_1));
+}
+
+void NetworkServer::handleAccept( const boost::system::error_code& error)
 {
 	if ( error )
     {  
@@ -14,33 +20,34 @@ void tcp_server::handle_accept( const boost::system::error_code& error)
       return;
     }
 
-    read_header();
+    readHeader();
 }
 
-void tcp_server::read_header()
+void NetworkServer::readHeader()
 {
 	boost::asio::async_read(
 		m_Socket,
-		boost::asio::buffer(m_Buffer, HEADER_SIZE),
-		boost::bind( &tcp_server::handle_read_header, this,
-			boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
+		boost::asio::buffer(m_Buffer, sizeof(Header)),
+		std::bind( &NetworkServer::handleReadHeader, this,
+			std::placeholders::_1,
+			std::placeholders::_2));
 }
 
-void tcp_server::handle_read_header(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred)
+void NetworkServer::handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred)
 {
 	if( p_Error )
 	{
 		std::cout << p_Error.message() << std::endl;
 		return;
 	}
+	Header* header = (Header*)m_Buffer.data();
 
-	boost::asio::async_read(m_Socket, boost::asio::buffer(m_Buffer, DATA_SIZE),
-		boost::bind(&tcp_server::handle_read_data, this, boost::asio::placeholders::error,
-		boost::asio::placeholders::bytes_transferred));
+	boost::asio::async_read(m_Socket, boost::asio::buffer(&m_Buffer[sizeof(Header)], header->m_Size - sizeof(Header)),
+		std::bind(&NetworkServer::handleReadData, this, std::placeholders::_1,
+		std::placeholders::_2));
 }
 
-void tcp_server::handle_read_data(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred)
+void NetworkServer::handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred)
 {
 	if( p_Error)
 	{
@@ -48,5 +55,13 @@ void tcp_server::handle_read_data(const boost::system::error_code& p_Error, std:
 		return;
 	}
 
-	read_header();
+	Header* header = (Header*)m_Buffer.data();
+	if (header->m_TypeID == 1)
+	{
+		std::string message(&m_Buffer[sizeof(Header)], header->m_Size - sizeof(header));
+		std::cout << message << std::endl;
+	}
+	std::cout << "Received " << p_BytesTransferred << " bytes." << std::endl;
+
+	readHeader();
 }

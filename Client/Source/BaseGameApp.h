@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Input\Input.h"
-#include "Window.h"
 #include "IGraphics.h"
-#include "SceneManager.h"
+#include "Input\Input.h"
 #include "IPhysics.h"
+#include "NetworkClient.h"
+#include "SceneManager.h"
+#include "Window.h"
 
 #include <string>
 
@@ -16,6 +17,8 @@ private:
 	Window	m_Window;
 	IGraphics* m_Graphics;
 	Input	m_InputQueue;
+
+	NetworkClient m_Network;
 
 	bool	m_ShouldQuit;
 	SceneManager m_SceneManager;

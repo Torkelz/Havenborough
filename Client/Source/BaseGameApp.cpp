@@ -24,6 +24,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('S', "moveBackward");
 	translator->addKeyboardMapping('A', "moveLeft");
 	translator->addKeyboardMapping('D', "moveRight");
+	translator->addKeyboardMapping('C', "connect");
 	m_InputQueue.init(std::move(translator));
 
 	//physics = IPhysics::createPhysics();
@@ -44,6 +45,10 @@ void BaseGameApp::run()
 			if (in.m_Action == "exit")
 			{
 				m_ShouldQuit = true;
+			}
+			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
+			{
+				m_Network.connect("localhost");
 			}
 			else
 			{
