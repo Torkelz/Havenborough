@@ -11,6 +11,8 @@ Graphics::Graphics(void)
 	m_DepthStencilBuffer = nullptr;
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
+	m_WrapperFactory = nullptr;
+	m_TextureLoad = nullptr;
 }
 
 
@@ -150,6 +152,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
 
+	m_WrapperFactory = new WrapperFactory(m_Device, m_DeviceContext);
+
+	m_TextureLoad = new TextureLoader();
+
 	return true;
 }
 
@@ -181,6 +187,8 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_DeviceContext);
 	SAFE_RELEASE(m_Device);
 	SAFE_RELEASE(m_SwapChain);
+	SAFE_DELETE(m_WrapperFactory);
+	SAFE_DELETE(m_TextureLoad);
 }
 
 void IGraphics::deleteGraphics(IGraphics *p_Graphics)
@@ -224,6 +232,31 @@ void Graphics::drawFrame(void)
 	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
 	Begin(color);
 	End();
+}
+
+Shader *Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+	const char *p_ShaderModel, ShaderType p_ShaderType)
+{
+	return m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType);
+}
+
+void Graphics::addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+	const char *p_ShaderModel, ShaderType p_ShaderType)
+{
+	//m_WrapperFactory->addShaderStep(p_Shader, p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType);
+}
+
+Shader *Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+	const char *p_ShaderModel, ShaderType p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
+	unsigned int p_NumOfInputElements)
+{
+	return m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType,
+		p_VertexLayout, p_NumOfInputElements);
+}
+        
+Buffer *Graphics::createBuffer(BufferDescription &p_Description)
+{
+        return m_WrapperFactory->createBuffer( p_Description );
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
