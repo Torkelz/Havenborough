@@ -27,3 +27,4 @@ testCaseCollection.xml
 */Test/
 */Obj/
 *.orig
+*.coverage
