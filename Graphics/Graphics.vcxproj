@@ -69,6 +69,9 @@
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "Test\Graphicsd.dll" "..\Client\Test\" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -106,13 +109,21 @@
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
     <ClInclude Include="Source\WrapperFactory.h" />
-    <ClInclude Include="Source\MyExceptions.h" />
+    <ClInclude Include="Source\MyGraphicsExceptions.h" />
     <ClInclude Include="Source\Shader.h" />
     <ClInclude Include="Source\Buffer.h" />
     <ClInclude Include="Source\Graphics.h" />
     <ClInclude Include="include\IGraphics.h" />
     <ClInclude Include="Source\Util.h" />
     <ClInclude Include="Source\TextureLoader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\DummyVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSmain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

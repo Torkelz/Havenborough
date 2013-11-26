@@ -1,5 +1,7 @@
 #include "Buffer.h"
 
+
+
 Buffer::Buffer(void)
 {
 	m_Buffer = nullptr;
@@ -216,6 +218,61 @@ HRESULT Buffer::setBuffer(UINT32 p_StartSlot)
 			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, numOfBuffers, &m_Buffer);
 			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, numOfBuffers, &m_Buffer);
 			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, numOfBuffers, &m_Buffer);
+			break;
+		}
+	default:
+		{
+			result = S_FALSE;
+			break;
+		}
+	}
+
+	return result;
+}
+
+HRESULT Buffer::unsetBuffer(UINT32 p_StartSlot)
+{
+	HRESULT result = S_OK;
+
+	switch(m_Type)
+	{
+	case VERTEX_BUFFER:
+		{
+			UINT32 offset = 0;
+			m_DeviceContext->IASetVertexBuffers(p_StartSlot, 0, nullptr, 0, &offset);
+			break;
+		}
+	case INDEX_BUFFER:
+		{
+			UINT32 offset = 0;
+			m_DeviceContext->IASetIndexBuffer(nullptr, DXGI_FORMAT_R32_UINT, offset);
+			break;
+		}
+	case CONSTANT_BUFFER_VS:
+		{
+			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			break;
+		}
+	case CONSTANT_BUFFER_GS:
+		{
+			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			break;
+		}
+	case CONSTANT_BUFFER_PS:
+		{
+			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			break;
+		}
+	case BUFFER_TYPE_COUNT:
+		{
+			break;
+
+		}
+	case CONSTANT_BUFFER_ALL:
+		{
+			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, 0, nullptr);
 			break;
 		}
 	default:

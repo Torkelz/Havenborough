@@ -2,8 +2,7 @@
 #include <d3d11.h>
 
 #include "Util.h"
-#include "MyExceptions.h"
-
+#include "MyGraphicsExceptions.h"
 
 enum BufferType
 {
@@ -102,6 +101,13 @@ public:
 	* @return S_OK if setting buffer, otherwise S_FALSE
 	*/
 	HRESULT setBuffer(UINT32 p_StartSlot);
+
+	/**
+	* Unsets the the buffer.
+	* @param p_StartSlot where to start in the buffer
+	* @return S_OK if setting buffer, otherwise S_FALSE
+	*/
+	HRESULT unsetBuffer(UINT32 p_StartSlot);
 
 	/**
 	* Maps a buffer usage to corresponding context.

@@ -11,6 +11,8 @@ Graphics::Graphics(void)
 	m_DepthStencilBuffer = nullptr;
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
+
+	m_DeferredRender = nullptr;
 }
 
 
@@ -150,6 +152,12 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
 
+	//Deferred Render
+	m_DeferredRender = new DeferredRenderer();
+	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight);
+
+	m_WrapperFactory = new WrapperFactory(m_Device, m_DeviceContext);
+
 	return true;
 }
 
@@ -181,6 +189,9 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_DeviceContext);
 	SAFE_RELEASE(m_Device);
 	SAFE_RELEASE(m_SwapChain);
+
+	//Deferred render
+	SAFE_DELETE(m_DeferredRender);
 }
 
 void IGraphics::deleteGraphics(IGraphics *p_Graphics)
@@ -189,9 +200,10 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-void Graphics::renderModel(void)
+void Graphics::renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
+		Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent)
 {
-
+	m_DeferredRender->addRenderable(Renderable(p_Buffer,p_ConstantBuffer,p_Shader,p_World),p_Transparent);
 }
 
 void Graphics::renderText(void)
@@ -223,6 +235,9 @@ void Graphics::drawFrame(void)
 {
 	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
 	Begin(color);
+
+	m_DeferredRender->renderDeferred();
+
 	End();
 }
 
@@ -437,4 +452,30 @@ void Graphics::End(void)
 		// Present as fast as possible.
 		m_SwapChain->Present(0, 0);
 	}
+}
+
+Shader* Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_ShaderType)
+{
+	return m_WrapperFactory->createShader( p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType);
+}
+
+void Graphics::addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_ShaderType)
+{
+	m_WrapperFactory->addShaderStep(p_Shader, p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType);
+}
+
+Shader* Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_ShaderType,
+		const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
+		unsigned int p_NumOfInputElements)
+{
+	return m_WrapperFactory->createShader(	p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType,
+											p_VertexLayout, p_NumOfInputElements);
+}
+	
+Buffer* Graphics::createBuffer(BufferDescription &p_Description)
+{
+	return m_WrapperFactory->createBuffer( p_Description );
 }

@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 
+
+
 using std::vector;
 
 Shader::Shader(void)
@@ -60,7 +62,8 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 		}
 		else
 		{
-			throw ShaderException("Error when compiling shader.\n" + (std::string)(char*)errorMessage->GetBufferPointer(),
+			std::string errorMsg = (std::string)(char*)errorMessage->GetBufferPointer();
+			throw ShaderException("Error when compiling shader.\n" + errorMsg,
 				__LINE__, __FILE__);
 			SAFE_RELEASE(errorMessage);
 		}
@@ -70,7 +73,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 
 	m_ShaderType = p_ShaderType;
 
-	if(p_VertexLayout == nullptr)
+	if(p_VertexLayout == nullptr && m_ShaderType == VERTEX_SHADER) //FULHAXX. Should be removed, m_ShaderType == VERTEX_SHADER
 	{
 		createInputLayoutFromShaderSignature(shaderData);
 	}

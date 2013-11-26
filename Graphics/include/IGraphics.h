@@ -1,6 +1,8 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "../Source/WrapperFactory.h"
+#include <DirectXMath.h>
 
 class IGraphics
 {
@@ -42,7 +44,8 @@ public:
 	/**
 	*
 	*/
-	virtual void renderModel(void) = 0;
+	virtual void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
+		Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent) = 0;
 
 	/**
 	*
@@ -73,6 +76,25 @@ public:
 	* Draw the current frame.
 	*/
 	virtual void drawFrame(void) = 0;
+
+	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_ShaderType) = 0;
+
+	virtual void addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_ShaderType) = 0;
+	/**
+	*
+	*/
+	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_ShaderType,
+		const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
+		unsigned int p_NumOfInputElements) = 0;
+	
+	/**
+	*
+	*/
+	virtual Buffer *createBuffer(BufferDescription &p_Description) = 0;
+
 private:
 	/**
 	* Release the sub resources allocated by the graphics API.

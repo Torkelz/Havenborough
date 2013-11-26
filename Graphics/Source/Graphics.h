@@ -8,8 +8,10 @@
 
 #include "Util.h"
 #include "../include/IGraphics.h"
-#include "MyExceptions.h"
+#include "MyGraphicsExceptions.h"
 #include "TextureLoader.h"
+#include "DeferredRenderer.h"
+#include "WrapperFactory.h"
 
 
 class Graphics :
@@ -19,6 +21,10 @@ private:
 	unsigned int m_Numerator;
 	unsigned int m_Denominator;
 	TextureLoader m_TextureLoad;
+
+	DeferredRenderer	*m_DeferredRender;
+	WrapperFactory		*m_WrapperFactory;
+
 public:
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
@@ -44,7 +50,8 @@ public:
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight,
 		bool p_Fullscreen);
 	
-	void renderModel(void);
+	void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
+		Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent);
 	void renderText(void);
 	void renderQuad(void);
 
@@ -53,6 +60,25 @@ public:
 	void useFrameLight(void);
 	
 	void drawFrame(void);
+
+	Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_ShaderType);
+
+	void addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_ShaderType);
+	
+	/**
+	*
+	*/
+	Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_ShaderType,
+		const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
+		unsigned int p_NumOfInputElements);
+	
+	/**
+	*
+	*/
+	Buffer *createBuffer(BufferDescription &p_Description);
 private:
 	void shutdown(void);
 

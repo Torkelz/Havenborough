@@ -5,11 +5,11 @@ DeferredRenderer::DeferredRenderer(void)
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
-
-	m_SRV_RT0 = nullptr;
-	m_SRV_RT1 = nullptr;
-	m_SRV_RT2 = nullptr;
-	m_SRV_RT3 = nullptr;
+	m_DepthStencilView = nullptr;
+	for(int i = 0; i < 4; i++)
+	{
+		m_RenderTargets[i] = nullptr;
+	}
 }
 
 
@@ -17,10 +17,12 @@ DeferredRenderer::~DeferredRenderer(void)
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
-	SAFE_RELEASE(m_SRV_RT0);
-	SAFE_RELEASE(m_SRV_RT1);
-	SAFE_RELEASE(m_SRV_RT2);
-	SAFE_RELEASE(m_SRV_RT3);
+	m_DepthStencilView = nullptr;
+
+	for(int i = 0; i < 4; i++)
+	{
+		SAFE_RELEASE(m_RenderTargets[i]);
+	}
 
 	m_Objects.clear();
 	m_TransparentObjects.clear();
@@ -32,10 +34,12 @@ void DeferredRenderer::shutdown()
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
+								  ID3D11DepthStencilView *p_DepthStencilView,
 									unsigned int p_screenWidth, unsigned int p_screenHeight)
 {
 	m_Device = p_Device;
 	m_DeviceContext = p_DeviceContext;
+	m_DepthStencilView = p_DepthStencilView;
 
 	// Create the render target texture
 	D3D11_TEXTURE2D_DESC desc;
@@ -59,16 +63,15 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_Device->CreateTexture2D(&desc, nullptr, &srvt2);
 	m_Device->CreateTexture2D(&desc, nullptr, &srvt3);
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = desc.Format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.MipLevels = 1;
+	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
+	rtDesc.Format = desc.Format;
+	rtDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtDesc.Texture2D.MipSlice = 0;
 
-	m_Device->CreateShaderResourceView(srvt0, &srvDesc, &m_SRV_RT0);
-	m_Device->CreateShaderResourceView(srvt1, &srvDesc, &m_SRV_RT1);
-	m_Device->CreateShaderResourceView(srvt2, &srvDesc, &m_SRV_RT2);
-	m_Device->CreateShaderResourceView(srvt3, &srvDesc, &m_SRV_RT3);
+	m_Device->CreateRenderTargetView(srvt0, &rtDesc, &m_RenderTargets[0]);
+	m_Device->CreateRenderTargetView(srvt1, &rtDesc, &m_RenderTargets[1]);
+	m_Device->CreateRenderTargetView(srvt2, &rtDesc, &m_RenderTargets[2]);
+	m_Device->CreateRenderTargetView(srvt3, &rtDesc, &m_RenderTargets[3]);
 
 	srvt0 = nullptr;
 	srvt1 = nullptr;
@@ -83,20 +86,40 @@ void DeferredRenderer::renderDeferred()
 	renderLighting();
 	renderFinal();
 	renderForward();
+	
+	m_Objects.clear();
+	m_TransparentObjects.clear();
 }
 
 void DeferredRenderer::renderGeometry()
 {
+	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargets, m_DepthStencilView);
+
 	for(int i = 0; i < m_Objects.size();i++)
 	{
-		//Send stuff
+		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		
+
+		//Send stuff
+		m_Objects.at(i).m_ConstantBuffer->setBuffer(0);
+		// The update of the subresource has to be done externally.
+
+		m_Objects.at(i).m_Buffer->setBuffer(0);
 		//set shader
 		m_Objects.at(i).m_Shader->setShader();
 
-		//m_DeviceContext->Draw(m_Objects.at(i).m_Model->getBufferSize(), 0);
 
+		m_DeviceContext->Draw(m_Objects.at(i).m_Buffer->getNumOfElements(), 0);
+
+		m_Objects.at(i).m_Buffer->unsetBuffer(0);
+		m_Objects.at(i).m_ConstantBuffer->unsetBuffer(0);
 		m_Objects.at(i).m_Shader->unSetShader();
+	}
+
+	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f};
+	for(int i = 0; i < 1; i++)
+	{
+		m_DeviceContext->ClearRenderTargetView(m_RenderTargets[i], color);
 	}
 }
 
