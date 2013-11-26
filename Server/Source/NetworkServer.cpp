@@ -9,7 +9,7 @@ NetworkServer::NetworkServer( boost::asio::io_service& p_Service, unsigned short
 
 void NetworkServer::start()
 {
-	//m_Acceptor.async_accept(m_Socket, std::bind( &NetworkServer::handleAccept, this, std::placeholders::_1));
+	m_Acceptor.async_accept(m_Socket, std::bind( &NetworkServer::handleAccept, this, std::placeholders::_1));
 }
 
 void NetworkServer::stop()
@@ -42,7 +42,7 @@ void NetworkServer::handleReadHeader(const boost::system::error_code& p_Error, s
 {
 	if( p_Error )
 	{
-		std::cout << p_Error.message() << std::endl;
+		//std::cout << p_Error.message() << std::endl;
 		return;
 	}
 	Header* header = (Header*)m_Buffer.data();
