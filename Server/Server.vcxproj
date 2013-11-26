@@ -44,6 +44,8 @@
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Test\</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
+    <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -58,6 +60,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -85,7 +88,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Server.cpp" />
     <ClCompile Include="Source\serverProgram.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Server.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
