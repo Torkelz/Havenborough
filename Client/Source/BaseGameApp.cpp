@@ -32,7 +32,8 @@ void BaseGameApp::init()
 	translator->addMouseButtonMapping(InputTranslator::MouseButton::MIDDLE, "rollMe!");
 
 	m_InputQueue.init(std::move(translator));
-
+	m_Network = INetwork::createNetwork();
+	m_Network->createClient(31415);
 	//physics = IPhysics::createPhysics();
 }
 
@@ -54,7 +55,7 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 			{
-				//m_Network.connect("localhost");
+				m_Network->connectToServer("localhost", 31415);
 			}
 			else
 			{

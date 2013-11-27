@@ -30,7 +30,7 @@ NetworkHandler::~NetworkHandler()
 	}
 }
 
-void NetworkHandler::connectToServer(const std::string& p_URL)
+void NetworkHandler::connectToServer(const std::string& p_URL, unsigned short p_Port)
 {
 	if (m_State != State::UNCONNECTED)
 	{
@@ -39,6 +39,7 @@ void NetworkHandler::connectToServer(const std::string& p_URL)
 	}
 
 	m_ConnectURL = p_URL;
+	m_PortNumber = p_Port;
 
 	try
 	{
@@ -47,7 +48,7 @@ void NetworkHandler::connectToServer(const std::string& p_URL)
 		tcp::resolver::query query(tcp::v4(), m_ConnectURL, std::to_string(m_PortNumber));
 
 		m_State = State::RESOLVING;
-
+		std::cout << "RESOLVING" << std::endl;
 		m_Resolver.async_resolve(
 			query,
 			std::bind(
@@ -63,7 +64,16 @@ void NetworkHandler::connectToServer(const std::string& p_URL)
 
 void NetworkHandler::startServer()
 {
-	m_Acceptor.async_accept(m_Socket, std::bind( &NetworkHandler::handleAccept, this, std::placeholders::_1));
+	try
+	{
+		std::cout << "Staring" << std::endl;
+		m_Acceptor.async_accept(m_Socket, std::bind( &NetworkHandler::handleAccept, this, std::placeholders::_1));
+		m_IOThread.swap(boost::thread(std::bind(&NetworkHandler::runIO, this)));
+	}
+	catch (boost::system::system_error& err)
+	{
+		std::cout << err.what() << std::endl;
+	}
 }
 
 void NetworkHandler::stopServer()
@@ -90,7 +100,7 @@ void NetworkHandler::handleResolve(const boost::system::error_code& p_Error, boo
 	}
 
 	m_State = State::CONNECTING;
-
+	std::cout << "CONNECTING" << std::endl;
 	boost::asio::async_connect(m_Socket, p_ResolveResult,
 		std::bind(&NetworkHandler::handleConnect, this, std::placeholders::_1, std::placeholders::_2));
 }
@@ -102,7 +112,7 @@ void NetworkHandler::handleConnect(const boost::system::error_code& p_Error, boo
 		m_State = State::INVALID;
 		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
 	}
-
+	std::cout << "CONNECTED" << std::endl;
 	m_State = State::CONNECTED;
 	
 	readHeader();
@@ -175,7 +185,6 @@ void NetworkHandler::runIO()
 	{
 		boost::system::error_code error;
 		m_IOService.run(error);
-		//std::cout << "IO service done" << std::endl;
 		m_State = State::UNCONNECTED;
 	}
 	catch (...)

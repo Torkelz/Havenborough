@@ -19,7 +19,7 @@ private:
 		uint16_t m_Size;
 		uint16_t m_TypeID;
 	};
-	static const unsigned short m_PortNumber = 31415;
+	unsigned short m_PortNumber;
 
 	State m_State;
 	bool m_Writing;
@@ -53,8 +53,9 @@ public:
 	/*
 	* Used by the application to connect to the server
 	* @param p_URL, Server address, ip/url
+	* "param p_Port Port to call to.
 	*/
-	void connectToServer(const std::string& p_URL);
+	void connectToServer(const std::string& p_URL, unsigned short p_Port);
 	/*
 	* Start the server up.
 	*/

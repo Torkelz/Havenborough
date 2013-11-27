@@ -3,7 +3,7 @@
 #include "IGraphics.h"
 #include "Input\Input.h"
 #include "IPhysics.h"
-#include "NetworkClient.h"
+#include "INetwork.h"
 #include "SceneManager.h"
 #include "Window.h"
 
@@ -18,7 +18,7 @@ private:
 	IGraphics* m_Graphics;
 	Input	m_InputQueue;
 
-	//NetworkClient m_Network;
+	INetwork* m_Network;
 
 	bool	m_ShouldQuit;
 	SceneManager m_SceneManager;

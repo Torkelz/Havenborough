@@ -29,7 +29,10 @@
     <ClInclude Include="Source\MyExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\INetwork.h">
+    <ClInclude Include="Source\Network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\INetwork.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -95,8 +95,9 @@
     <ClCompile Include="Source\Network.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\INetwork.h" />
+    <ClInclude Include="include\INetwork.h" />
     <ClInclude Include="Source\MyExceptions.h" />
+    <ClInclude Include="Source\Network.h" />
     <ClInclude Include="Source\NetworkHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

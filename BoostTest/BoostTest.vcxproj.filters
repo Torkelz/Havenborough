@@ -22,12 +22,10 @@
     <ClCompile Include="..\Client\Source\Input\InputState.cpp" />
     <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
-    <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
     <ClCompile Include="Source\TestCollision.cpp" />
     <ClCompile Include="Source\TestShader.cpp" />
     <ClCompile Include="Source\TestTextureLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
-    <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
     <ClCompile Include="..\Network\Source\NetworkHandler.cpp" />
   </ItemGroup>
   <ItemGroup>

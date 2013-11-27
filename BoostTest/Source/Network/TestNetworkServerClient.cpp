@@ -27,14 +27,14 @@ BOOST_AUTO_TEST_CASE(TestConnect)
 
 	{
 		NetworkHandler client = NetworkHandler();
-		client.connectToServer("localhost");
+		client.connectToServer("localhost", 31415);
 
 		while (!client.isConnected() && !client.hasError())
 		{}
 
 		BOOST_CHECK(client.isConnected());
 	}
-//
+
 	server->stopServer();
 	ioThread.join();
 }
