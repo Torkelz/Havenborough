@@ -1,5 +1,5 @@
 #include <boost\test\unit_test.hpp>
-#include "..\Physics\Source\Collision.h"
+#include "..\..\Physics\Source\Collision.h"
 
 BOOST_AUTO_TEST_SUITE(CollisionTest)
 

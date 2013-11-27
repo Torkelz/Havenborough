@@ -6,10 +6,8 @@
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
-    <ClCompile Include="Source\TestSceneManager.cpp" />
     <ClCompile Include="Source\TestWindow.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
-    <ClCompile Include="TestCollision.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -23,11 +21,12 @@
     <ClCompile Include="..\Client\Source\Input\InputState.cpp" />
     <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
-    <ClCompile Include="TestShader.cpp" />
-    <ClCompile Include="TestTextureLoader.cpp" />
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
-    <ClCompile Include="ClientGraphicIT.cpp" />
+    <ClCompile Include="Source\TestCollision.cpp" />
+    <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp" />
+    <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
+    <ClCompile Include="Source\SceneManager\TestSceneManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />

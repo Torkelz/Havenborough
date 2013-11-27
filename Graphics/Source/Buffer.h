@@ -2,7 +2,7 @@
 #include <d3d11.h>
 
 #include "Util.h"
-#include "MyExceptions.h"
+#include "MyGraphicsExceptions.h"
 
 
 enum BufferType

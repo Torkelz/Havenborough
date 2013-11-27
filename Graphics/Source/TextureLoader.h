@@ -34,7 +34,6 @@ public:
 	/**
 	 * Used to load textures from file.
 	 * @param p_Filename, path of the file to be loaded.
-	 * @param p_FileType, file extension of the texture file to be loaded.
 	 * @return Success = A pointer to the loaded texture, Fail = nullptr.
 	 */
 	ID3D11ShaderResourceView* createTextureFromFile(char* p_Filename);

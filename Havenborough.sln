@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Physics", "Physics\Physics.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sound", "Sound\Sound.vcxproj", "{7F75D233-FB41-4AE7-82CD-F35DB3FF5628}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoostIntegrationTest", "BoostIntegrationTest\BoostIntegrationTest.vcxproj", "{C0F8B22C-8D50-4C3C-975A-807B498A51A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -49,6 +51,9 @@ Global
 		{7F75D233-FB41-4AE7-82CD-F35DB3FF5628}.Debug|Win32.Build.0 = Debug|Win32
 		{7F75D233-FB41-4AE7-82CD-F35DB3FF5628}.Release|Win32.ActiveCfg = Release|Win32
 		{7F75D233-FB41-4AE7-82CD-F35DB3FF5628}.Release|Win32.Build.0 = Release|Win32
+		{C0F8B22C-8D50-4C3C-975A-807B498A51A7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C0F8B22C-8D50-4C3C-975A-807B498A51A7}.Release|Win32.ActiveCfg = Release|Win32
+		{C0F8B22C-8D50-4C3C-975A-807B498A51A7}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

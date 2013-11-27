@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Source\testProgram.cpp" />
+    <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
+    <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
+    <ClCompile Include="..\Graphics\Source\Shader.cpp" />
+    <ClCompile Include="Source\GraphicsEngine.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
+    <ClCompile Include="..\Client\Source\Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{d20c80a8-07b0-4099-bfa1-7cee0096f082}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Client">
+      <UniqueIdentifier>{92a94797-9a10-48cc-a868-16d8bf2d8781}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -104,7 +104,7 @@
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
     <ClInclude Include="Source\WrapperFactory.h" />
-    <ClInclude Include="Source\MyExceptions.h" />
+    <ClInclude Include="Source\MyGraphicsExceptions.h" />
     <ClInclude Include="Source\Shader.h" />
     <ClInclude Include="Source\Buffer.h" />
     <ClInclude Include="Source\Graphics.h" />
