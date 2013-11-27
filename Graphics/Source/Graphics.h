@@ -8,9 +8,9 @@
 
 #include "Util.h"
 #include "../include/IGraphics.h"
-#include "MyExceptions.h"
-#include "TextureLoader.h"
-#include "WrapperFactory.h"
+#include "MyGraphicsExceptions.h"
+//#include "TextureLoader.h"
+//#include "WrapperFactory.h"
 
 class Graphics :
 	public IGraphics
@@ -18,7 +18,7 @@ class Graphics :
 private:
 	unsigned int m_Numerator;
 	unsigned int m_Denominator;
-	TextureLoader *m_TextureLoad;
+	//TextureLoader *m_TextureLoad;
 	
 	WrapperFactory *m_WrapperFactory;
 public:
@@ -62,18 +62,14 @@ public:
     void addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
             const char *p_ShaderModel, ShaderType p_ShaderType);
         
-    /**
-    *
-    */
     Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
             const char *p_ShaderModel, ShaderType p_ShaderType,
             const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
             unsigned int p_NumOfInputElements);
         
-    /**
-    *
-    */
     Buffer *createBuffer(BufferDescription &p_Description);
+
+	//ID3D11ShaderResourceView *createTexture(char *p_Filename);
 
 private:
 	void shutdown(void);
