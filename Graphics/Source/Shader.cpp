@@ -73,7 +73,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 
 	m_ShaderType = p_ShaderType;
 
-	if(p_VertexLayout == nullptr && m_ShaderType == VERTEX_SHADER) //FULHAXX. Should be removed, m_ShaderType == VERTEX_SHADER
+	if(p_VertexLayout == nullptr && m_ShaderType == VERTEX_SHADER)
 	{
 		createInputLayoutFromShaderSignature(shaderData);
 	}
@@ -112,7 +112,7 @@ void Shader::setShader(void)
 
 	if(m_PixelShader)
 	{
-		m_DeviceContext->PSSetShader(m_PixelShader, nullptr, 0);
+		m_DeviceContext->PSSetShader(m_PixelShader, 0, 0);
 	}
 	else
 	{

@@ -13,7 +13,8 @@ enum BufferType
 	CONSTANT_BUFFER_PS,
 	BUFFER_TYPE_COUNT,
 	CONSTANT_BUFFER_ALL,
-	STAGING_BUFFER
+	STAGING_BUFFER,
+	STRUCTURED_BUFFER
 };
 
 enum BufferUsage
@@ -94,7 +95,17 @@ public:
 	*/
 	HRESULT initialize(ID3D11Device *p_Device,
 		ID3D11DeviceContext *p_DeviceContext, BufferDescription &p_Description);
-	
+	/**
+	* Initializes the buffer depending on the buffer type in the description.
+	* @param p_Device pointer to the Direc3D device in use
+	* @param p_DeviceContext pointer to the Direct3D device context in use
+	* @param p_Description buffer description for the buffer to be initialized
+	* @param p_SRV Describes if a resource view is to be bound.
+	* @param p_UAV Describes if a unordered acces is to be bound.
+	* @return S_OK if buffer initialized successfully
+	*/
+	HRESULT initializeEx(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
+		BufferDescription &p_Description, bool p_SRV, bool p_UAV);
 	/**
 	* Sets the the buffer to be applied.
 	* @param p_StartSlot where to start in the buffer

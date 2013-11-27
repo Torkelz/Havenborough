@@ -170,6 +170,148 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	return result;
 }
 
+HRESULT Buffer::initializeEx(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
+	BufferDescription &p_Description, bool p_SRV, bool p_UAV)
+{
+	HRESULT result = S_OK;
+	D3D11_BUFFER_DESC bufferDescription;
+
+	m_Device = p_Device;
+	m_DeviceContext = p_DeviceContext;
+	m_Type = p_Description.type;
+
+	bufferDescription.StructureByteStride = 0;
+	
+	switch (m_Type)
+	{
+	case VERTEX_BUFFER:
+		{
+			bufferDescription.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			if(p_Description.usage == BUFFER_STREAM_OUT_TARGET)
+			{
+				bufferDescription.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
+			}
+			break;
+		}
+	case INDEX_BUFFER:
+		{
+			bufferDescription.BindFlags = D3D11_BIND_INDEX_BUFFER;
+			break;
+		}
+	case CONSTANT_BUFFER_VS:
+	case CONSTANT_BUFFER_GS:
+	case CONSTANT_BUFFER_PS:
+	case BUFFER_TYPE_COUNT:
+	case CONSTANT_BUFFER_ALL:
+		{
+			bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			break;
+		}
+	case  STAGING_BUFFER:
+		{
+			bufferDescription.BindFlags = 0;
+			break;
+		}
+	case STRUCTURED_BUFFER:
+		{
+			bufferDescription.BindFlags = 0;
+			break;
+		}
+
+	default:
+		{
+			return S_FALSE;
+			break;
+		}
+	}
+
+	if(p_UAV)        bufferDescription.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+    if(p_SRV)        bufferDescription.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+
+	m_Usage = p_Description.usage;
+	m_SizeOfElement = p_Description.sizeOfElement;
+	m_NumOfElements = p_Description.numOfElements;
+	bufferDescription.CPUAccessFlags = 0;
+	switch (m_Usage)
+	{
+	case BUFFER_DEFAULT:
+		{
+			bufferDescription.Usage = D3D11_USAGE_DEFAULT;
+			break;
+		}
+	case BUFFER_STREAM_OUT_TARGET:
+		{
+			bufferDescription.Usage = D3D11_USAGE_DEFAULT;
+			break;
+		}
+	case BUFFER_CPU_WRITE:
+		{
+			bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
+			bufferDescription.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
+			break;
+		}
+	case BUFFER_CPU_WRITE_DISCARD:
+		{
+			bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
+			bufferDescription.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
+			break;
+		}
+	case BUFFER_CPU_READ:
+		{
+			if(m_Type != STAGING_BUFFER)
+			{
+				//m_DeviceContext = nullptr;
+				//m_Device = nullptr;
+				throw BufferException("Cannot set cpu read to other than staging buffer", __LINE__, __FILE__);
+			}
+			//bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
+			bufferDescription.Usage = D3D11_USAGE_STAGING;
+			bufferDescription.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
+			break;
+		}
+	case BUFFER_USAGE_COUNT:
+		{
+			bufferDescription.Usage = D3D11_USAGE_DEFAULT;
+			break;
+		}
+	case BUFFER_USAGE_IMMUTABLE:
+		{
+			bufferDescription.Usage = D3D11_USAGE_IMMUTABLE;
+			break;
+		}
+	default:
+		{
+			break;
+		}
+	}
+
+	bufferDescription.MiscFlags = 0;
+	if(m_Type == STRUCTURED_BUFFER)
+	{
+		bufferDescription.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	}
+
+	bufferDescription.ByteWidth = p_Description.numOfElements * p_Description.sizeOfElement;
+
+	//set at least 16 bytes
+	bufferDescription.ByteWidth = bufferDescription.ByteWidth + (16 - bufferDescription.ByteWidth % 16);
+
+	if(p_Description.initData)
+	{
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = p_Description.initData;
+		data.SysMemPitch = 0;
+		data.SysMemSlicePitch = 0;
+		result = createBuffer(&bufferDescription, &data, &m_Buffer);
+	}
+	else
+	{
+		result = createBuffer(&bufferDescription, nullptr, &m_Buffer);
+	}
+
+	return result;
+}
+
 HRESULT Buffer::setBuffer(UINT32 p_StartSlot)
 {
 	HRESULT result = S_OK;

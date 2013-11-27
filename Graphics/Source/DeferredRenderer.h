@@ -7,6 +7,7 @@
 #include "Buffer.h"
 #include "Util.h"
 #include <DirectXMath.h>
+#include "LightStructs.h"
 
 struct Renderable
 {
@@ -39,17 +40,22 @@ class DeferredRenderer
 private:
 	std::vector<Renderable> m_TransparentObjects;
 	std::vector<Renderable> m_Objects;
-	//vector<std::shared_ptr<Light>> m_Lights;
+	std::vector<PointLight> m_PointLights;
 
-	ID3D11RenderTargetView		*m_RenderTargets[4];
-	//ID3D11ShaderResourceView*	m_SRV_RT0; //Specular Intencity & Specular Power
-	//ID3D11ShaderResourceView*	m_SRV_RT1; //Diffuse color
-	//ID3D11ShaderResourceView*	m_SRV_RT2; //Normal & Depth
-	//ID3D11ShaderResourceView*	m_SRV_RT3; //Light Accumulation
+	ID3D11RenderTargetView		*m_RenderTargets[3];
+	ID3D11ShaderResourceView	*m_DepthStencilResourceView;
+	ID3D11ShaderResourceView	*m_DiffuseSRV;
+	ID3D11ShaderResourceView	*m_NormalSRV; // Normal.xy and specular data.
+	ID3D11ShaderResourceView	*m_LightSRV;
+	//ID3D11RenderTargetView	*m_LightRenderTarget;
 
 	ID3D11Device				*m_Device;
 	ID3D11DeviceContext			*m_DeviceContext;
 	ID3D11DepthStencilView		*m_DepthStencilView;
+
+	Shader						*m_LightShader;	
+	Buffer						*m_LightBuffer;
+
 public:
 	DeferredRenderer(void);
 	~DeferredRenderer(void);

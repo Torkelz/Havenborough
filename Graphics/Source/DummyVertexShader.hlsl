@@ -20,15 +20,13 @@ struct PSIn
 	float3	normal				: NORMAL;
 };
 
-//struct PSOut
-//{
-//	float4 diffuse	: SV_Target0; // xyz = diffuse color, w = specularPower
-//	float4 normal	: SV_Target1; // xyz = normal.xyz, w = specularIntensity
-//	float4 depth	: SV_Target2; // Fetefete depth until further notice.
-//	float4 depth2	: SV_Target3; // Fetefete depth until further notice.
-//};
+struct PSOut
+{
+	half4 diffuse	: SV_Target0; // xyz = diffuse color, w = empty
+	half4 normal	: SV_Target1; // xy = normal.xy, z = specularPower, w = specularIntensity
+};
 
-PSIn VSmain( VSIn input )
+PSIn VS( VSIn input )
 {
 	PSIn output;
 
@@ -41,18 +39,15 @@ PSIn VSmain( VSIn input )
 	return output;
 }
 
-float4 PSmain( PSIn input ) : SV_Target
+PSOut PS( PSIn input )
 {
-	/*PSOut output;
-
+	PSOut output;
+	float2 norm			= input.normal.xy;
 	output.diffuse.xyz	= input.diffuse.xyz;
-	output.diffuse.w	= input.specularPower;
-	output.normal.w		= input.specularIntensity;
-	output.normal.xyz	= 0.5f * (normalize(input.normal) + 1.0f);
-	output.depth		= input.pos.z / input.pos.w;
-	output.depth2		= input.pos.z / input.pos.w;
+	output.diffuse.w	= 1.0f;
+	output.normal.z		= input.specularPower;
+	output.normal.w		= 1.0f;//input.specularIntensity; // 1.0f for debug.
+	output.normal.xy	= 0.5f * (normalize(norm) + 1.0f);
 
-	return output;*/
-
-	return float4(1,0,0,1);
+	return output;
 }

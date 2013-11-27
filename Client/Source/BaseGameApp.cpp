@@ -41,20 +41,20 @@ void BaseGameApp::init()
 
 	cBuffer cb;
 	DirectX::XMFLOAT4 eye,lookat,up;
-	eye = DirectX::XMFLOAT4(0,0,-20,0);
-	lookat = DirectX::XMFLOAT4(0,0,0,0);
+	eye = DirectX::XMFLOAT4(0,0,-50,1);
+	lookat = DirectX::XMFLOAT4(0,0,0,1);
 	up = DirectX::XMFLOAT4(0,1,0,0);
 	DirectX::XMStoreFloat4x4(&cb.view,
-							DirectX::XMMatrixLookAtRH(
+							DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
 								DirectX::XMLoadFloat4(&eye),
 								DirectX::XMLoadFloat4(&lookat),
-								DirectX::XMLoadFloat4(&up)));
+								DirectX::XMLoadFloat4(&up))));
 	DirectX::XMStoreFloat4x4(&cb.proj,
-							DirectX::XMMatrixPerspectiveFovRH(
+							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
 								0.4f*PI,
 								(float)m_Window.getSize().x / (float)m_Window.getSize().y,
 								1.0f,
-								1000.0f));
+								1000.0f)));
 	BufferDescription cbdesc;
 	cbdesc.initData = &cb;
 	cbdesc.numOfElements = 1;
@@ -63,8 +63,8 @@ void BaseGameApp::init()
 	cbdesc.usage = BUFFER_DEFAULT;
 	m_CBuffer = m_Graphics->createBuffer(cbdesc);
 
-	m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DummyVertexShader.hlsl","VSmain","vs_5_0",VERTEX_SHADER);
-	m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DummyVertexShader.hlsl","PSmain","ps_5_0",PIXEL_SHADER);
+	m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DummyVertexShader.hlsl","VS","vs_5_0",VERTEX_SHADER);
+	m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DummyVertexShader.hlsl","PS","ps_5_0",PIXEL_SHADER);
 	//TEMPORARY --------------------------------------------------------
 }
 
@@ -168,7 +168,7 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
 
     // Top
 	color = XMFLOAT4(1.f,0.f,0.f,1.f);
-	normal = XMFLOAT4(0.f,-1.f,0.f,0.f);
+	normal = XMFLOAT4(0.f,1.f,0.f,0.f);
     box[12] = vertex(vert3, normal, color);
     box[13] = vertex(vert7, normal, color);
     box[14] = vertex(vert2, normal, color);
@@ -188,7 +188,7 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
 
     // Right
 	color = XMFLOAT4(0.f,1.f,1.f,1.f);
-	normal = XMFLOAT4(-1.f,0.f,0.f,0.f);
+	normal = XMFLOAT4(1.f,0.f,0.f,0.f);
     box[24] = vertex(vert5, normal, color);
     box[25] = vertex(vert7, normal, color);
     box[26] = vertex(vert1, normal, color);

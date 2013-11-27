@@ -74,8 +74,14 @@
     <ClInclude Include="Source\MyGraphicsExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\LightStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\DummyVertexShader.hlsl" />
+    <FxCompile Include="Source\VertexShader.hlsl" />
+    <FxCompile Include="Source\BlockShader.fx" />
+    <FxCompile Include="Source\DummyLightPass.hlsl" />
   </ItemGroup>
 </Project>
