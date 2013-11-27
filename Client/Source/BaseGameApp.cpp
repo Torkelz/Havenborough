@@ -54,7 +54,7 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 			{
-				m_Network.connect("localhost");
+				//m_Network.connect("localhost");
 			}
 			else
 			{

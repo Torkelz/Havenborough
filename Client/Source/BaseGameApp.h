@@ -18,7 +18,7 @@ private:
 	IGraphics* m_Graphics;
 	Input	m_InputQueue;
 
-	NetworkClient m_Network;
+	//NetworkClient m_Network;
 
 	bool	m_ShouldQuit;
 	SceneManager m_SceneManager;
