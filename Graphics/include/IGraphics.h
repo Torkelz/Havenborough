@@ -1,8 +1,8 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "../Source/WrapperFactory.h"
-//#include "../Source/TextureLoader.h"
+#include "../../Graphics/Source/WrapperFactory.h"
+//#include "../../Graphics/Source/TextureLoader.h"
 
 class IGraphics
 {
@@ -103,7 +103,7 @@ public:
 	/**
 	* 
 	*/
-	//virtual ID3D11ShaderResourceView *createTexture(char *p_Filename) = 0;
+	//virtual void createTexture(char *p_Filename) = 0;
 
 private:
 	/**

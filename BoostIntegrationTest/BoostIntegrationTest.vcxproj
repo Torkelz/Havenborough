@@ -19,6 +19,13 @@
     <ClCompile Include="Source\GraphicsEngine.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\dummyPS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\dummyVS.hlsl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C0F8B22C-8D50-4C3C-975A-807B498A51A7}</ProjectGuid>
     <RootNamespace>BoostIntegrationTest</RootNamespace>

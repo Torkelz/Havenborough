@@ -97,51 +97,18 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 
 void Shader::setShader(void)
 {
-	if(m_VertexShader)
-	{
-		m_DeviceContext->IASetInputLayout(m_VertexLayout);
-		m_DeviceContext->VSSetShader(m_VertexShader,0,0);
-	}
-	else
-	{
-		m_DeviceContext->VSSetShader(nullptr, nullptr, 0);
-	}
 
-	if(m_PixelShader)
-	{
-		m_DeviceContext->PSSetShader(m_PixelShader, nullptr, 0);
-	}
-	else
-	{
-		m_DeviceContext->PSSetShader(nullptr, nullptr, 0);
-	}
+	m_DeviceContext->IASetInputLayout(m_VertexLayout);
+	m_DeviceContext->VSSetShader(m_VertexShader,0,0);
 
-	if(m_GeometryShader)
-	{
-		m_DeviceContext->GSSetShader(m_GeometryShader, nullptr, 0);
-	}
-	else
-	{
-		m_DeviceContext->GSSetShader(nullptr, nullptr, 0);
-	}
+	m_DeviceContext->PSSetShader(m_PixelShader, nullptr, 0);
 
-	if(m_DomainShader)
-	{
-		m_DeviceContext->DSSetShader(m_DomainShader, nullptr, 0);
-	}
-	else
-	{
-		m_DeviceContext->DSSetShader(nullptr, nullptr, 0);
-	}
+	m_DeviceContext->GSSetShader(m_GeometryShader, nullptr, 0);
 
-	if(m_HullShader)
-	{
-		m_DeviceContext->HSSetShader(m_HullShader, nullptr, 0);
-	}
-	else
-	{
-		m_DeviceContext->HSSetShader(nullptr, nullptr, 0);
-	}
+	m_DeviceContext->DSSetShader(m_DomainShader, nullptr, 0);
+
+	m_DeviceContext->HSSetShader(m_HullShader, nullptr, 0);
+
 }
 
 void Shader::unSetShader(void)

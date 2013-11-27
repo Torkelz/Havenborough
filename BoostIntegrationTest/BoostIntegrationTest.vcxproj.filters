@@ -19,4 +19,8 @@
       <UniqueIdentifier>{92a94797-9a10-48cc-a868-16d8bf2d8781}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\dummyPS.hlsl" />
+    <FxCompile Include="Source\dummyVS.hlsl" />
+  </ItemGroup>
 </Project>

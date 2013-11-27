@@ -30,7 +30,7 @@ public:
 	/**
 	*
 	*/
-	virtual void addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
 		const char *p_ShaderModel, ShaderType p_ShaderType);
 
 	/**

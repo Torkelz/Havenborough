@@ -10,7 +10,7 @@
 #include "../include/IGraphics.h"
 #include "MyGraphicsExceptions.h"
 //#include "TextureLoader.h"
-//#include "WrapperFactory.h"
+#include "WrapperFactory.h"
 
 class Graphics :
 	public IGraphics
