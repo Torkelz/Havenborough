@@ -1,12 +1,18 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "../../Graphics/Source/WrapperFactory.h"
-//#include "../../Graphics/Source/TextureLoader.h"
 
 class IGraphics
 {
 public:
+	enum class ShaderType
+	{
+		VERTEX_SHADER,
+		PIXEL_SHADER,
+		GEOMETRY_SHADER,
+		HULL_SHADER,
+		DOMAIN_SHADER
+	};
 	/**
 	* Create a pointer from which the graphics library can be accessed.
 	* @return the graphics pointer
@@ -22,7 +28,7 @@ public:
 	* @return true if successful, otherwise false
 	*/
 	virtual bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,
-		bool p_Fullscreen) =0;
+		bool p_Fullscreen) = 0;
 
 	/**
 	* Reinitialize parts of the graphics API when switching fullscreen on/off or changing resoluton.
@@ -44,7 +50,23 @@ public:
 	/**
 	* 
 	*/
-	virtual void renderModel(void) = 0;
+	virtual bool createModel(const char *p_ModelId, const char *p_Filename) = 0;
+
+	/**
+	* 
+	*/
+	virtual bool createShader(const char *p_shaderId, const char *p_Filename,
+		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) = 0;
+
+	/**
+	* 
+	*/
+	virtual bool linkShaderToModel(const char *p_ModelId, const char *p_ShaderId) = 0;
+
+	/**
+	* 
+	*/
+	virtual void renderModel(char *p_ModelId) = 0;
 
 	/**
 	* 
@@ -76,34 +98,25 @@ public:
 	*/
 	virtual void drawFrame(void) = 0;
 
-	/**
-	*
-	*/
-	virtual Shader* createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+	//OLD STUFF//
+	/*virtual Shader* createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
 		const char *p_ShaderModel, ShaderType p_ShaderType) = 0;
 
-	/**
-	* 
-	*/
+
 	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_ShaderType) = 0;
-	/**
-	* 
-	*/
+
+
 	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
 		const char *p_ShaderModel, ShaderType p_ShaderType,
 		const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
 		unsigned int p_NumOfInputElements) = 0;
 
-	/**
-	* 
-	*/
+
 	virtual Buffer *createBuffer(BufferDescription &p_Description) = 0;
 
-	/**
-	* 
-	*/
-	//virtual void createTexture(char *p_Filename) = 0;
+
+	virtual void createTexture(char *p_Filename) = 0;//*/
 
 private:
 	/**

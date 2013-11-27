@@ -46,7 +46,12 @@ public:
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight,
 		bool p_Fullscreen);
 	
-	void renderModel(void);
+	bool createModel(const char *p_ModelId, const char *p_Filename);
+	bool createShader(const char *p_shaderId, const char *p_Filename,
+		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
+	bool linkShaderToModel(const char *p_ModelId, const char *p_ShaderId);
+
+	void renderModel(char *p_ModelId);
 	void renderText(void);
 	void renderQuad(void);
 
@@ -56,9 +61,11 @@ public:
 	
 	void drawFrame(void);
 
-	Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+	//OLD STUFF//
+	/*Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
                 const char *p_ShaderModel, ShaderType p_ShaderType);
 
+	
     void addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
             const char *p_ShaderModel, ShaderType p_ShaderType);
         
@@ -69,7 +76,7 @@ public:
         
     Buffer *createBuffer(BufferDescription &p_Description);
 
-	//ID3D11ShaderResourceView *createTexture(char *p_Filename);
+	ID3D11ShaderResourceView *createTexture(char *p_Filename);//*/
 
 private:
 	void shutdown(void);

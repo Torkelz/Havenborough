@@ -31,7 +31,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	IDXGIFactory *factory;
 	IDXGIAdapter *adapter;
 	IDXGIOutput *adapterOutput;
-
+	//std::cout << "PLEASE TEELLLLL ME SSOMETHING";
 	unsigned int numModes;
 	unsigned int stringLength;
 
@@ -197,7 +197,23 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-void Graphics::renderModel(void)
+bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
+{
+	return true;
+}
+
+bool Graphics::createShader(const char *p_shaderId, const char *p_Filename, const char *p_EntryPoint,
+	const char *p_ShaderModel, ShaderType p_Type)
+{
+	return true;
+}
+
+bool Graphics::linkShaderToModel(const char *p_ModelId, const char *p_ShaderId)
+{
+	return true;
+}
+
+void Graphics::renderModel(char *p_ModelId)
 {
 
 }
@@ -234,7 +250,8 @@ void Graphics::drawFrame(void)
 	End();
 }
 
-Shader *Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+//OLD STUFF//
+/*Shader *Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, ShaderType p_ShaderType)
 {
 	return m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType);
@@ -262,7 +279,7 @@ Buffer *Graphics::createBuffer(BufferDescription &p_Description)
 //ID3D11ShaderResourceView *Graphics::createTexture(char *p_Filename)
 //{
 //	return m_TextureLoad->createTextureFromFile(p_Filename);
-//}
+//}*/
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
 {
