@@ -7,11 +7,11 @@ class IGraphics
 public:
 	enum class ShaderType
 	{
-		VERTEX_SHADER,
-		PIXEL_SHADER,
-		GEOMETRY_SHADER,
-		HULL_SHADER,
-		DOMAIN_SHADER
+		VERTEX_SHADER = 0,
+		PIXEL_SHADER = 1,
+		GEOMETRY_SHADER = 2,
+		HULL_SHADER = 3,
+		DOMAIN_SHADER = 4
 	};
 
 	virtual ~IGraphics(void)

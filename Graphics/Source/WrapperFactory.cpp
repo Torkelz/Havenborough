@@ -29,14 +29,14 @@ void WrapperFactory::shutdown(void)
 }
 
 Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-	int p_ShaderType)
+	Shader::Type p_ShaderType)
 {
 	Shader *shader = new Shader();
 
 	try
 	{
 		shader->initialize(m_Device, m_DeviceContext, 0);
-		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, (Shader::ShaderType)p_ShaderType,
+		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType,
 			nullptr);
 
 		return shader;
@@ -81,7 +81,7 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 //	}*/
 //}
 
-Buffer *WrapperFactory::createBuffer(BufferDescription &p_Description)
+Buffer *WrapperFactory::createBuffer(Buffer::Description &p_Description)
 {
 	Buffer *buffer = new Buffer();
 	HRESULT result;

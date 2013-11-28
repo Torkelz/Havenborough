@@ -18,97 +18,6 @@ Shader::Shader(void)
 	m_VertexDescription = nullptr;
 }
 
-//REALLY NEEDED?//
-/*Shader::Shader(Shader &p_Other)
-	: m_Device(p_Other.m_Device),
-	m_DeviceContext(p_Other.m_DeviceContext),
-	m_VertexShader(p_Other.m_VertexShader),
-	m_GeometryShader(p_Other.m_GeometryShader),
-	m_PixelShader(p_Other.m_PixelShader),
-	m_HullShader(p_Other.m_HullShader),
-	m_DomainShader(p_Other.m_DomainShader),
-	m_VertexLayout(p_Other.m_VertexLayout),
-	m_VertexDescription(p_Other.m_VertexDescription),
-	m_ShaderType(p_Other.m_ShaderType),
-	m_NumOfElements(p_Other.m_NumOfElements)
-
-{
-}
-
-Shader::Shader(Shader &&p_Other)
-	: m_Device(p_Other.m_Device),
-	m_DeviceContext(p_Other.m_DeviceContext),
-	m_VertexShader(p_Other.m_VertexShader),
-	m_GeometryShader(p_Other.m_GeometryShader),
-	m_PixelShader(p_Other.m_PixelShader),
-	m_HullShader(p_Other.m_HullShader),
-	m_DomainShader(p_Other.m_DomainShader),
-	m_VertexLayout(p_Other.m_VertexLayout),
-	m_VertexDescription(p_Other.m_VertexDescription),
-	m_ShaderType(p_Other.m_ShaderType),
-	m_NumOfElements(p_Other.m_NumOfElements)
-
-{
-}
-
-Shader &Shader::operator=(const Shader &p_Other)
-{
-	m_Device=p_Other.m_Device;
-	m_DeviceContext=p_Other.m_DeviceContext;
-	m_VertexShader=p_Other.m_VertexShader;
-	m_GeometryShader=p_Other.m_GeometryShader;
-	m_PixelShader=p_Other.m_PixelShader;
-	m_HullShader=p_Other.m_HullShader;
-	m_DomainShader=p_Other.m_DomainShader;
-	m_VertexLayout=p_Other.m_VertexLayout;
-	m_VertexDescription=p_Other.m_VertexDescription;
-	m_ShaderType=p_Other.m_ShaderType;
-	m_NumOfElements=p_Other.m_NumOfElements;
-	return *this;
-}
-
-Shader &Shader::operator=(Shader &&p_Other)
-{
-	if(this != &p_Other)
-	{
-		SAFE_RELEASE(m_VertexShader);
-		SAFE_RELEASE(m_GeometryShader);
-		SAFE_RELEASE(m_PixelShader);
-		SAFE_RELEASE(m_HullShader);
-		SAFE_RELEASE(m_DomainShader);
-		SAFE_RELEASE(m_VertexLayout);
-		SAFE_DELETE_ARRAY(m_VertexDescription);
-		m_Device = nullptr;
-		m_DeviceContext = nullptr;
-
-		m_Device=p_Other.m_Device;
-		m_DeviceContext=p_Other.m_DeviceContext;
-		m_VertexShader=p_Other.m_VertexShader;
-		m_GeometryShader=p_Other.m_GeometryShader;
-		m_PixelShader=p_Other.m_PixelShader;
-		m_HullShader=p_Other.m_HullShader;
-		m_DomainShader=p_Other.m_DomainShader;
-		m_VertexLayout=p_Other.m_VertexLayout;
-		m_VertexDescription=p_Other.m_VertexDescription;
-		m_ShaderType=p_Other.m_ShaderType;
-		m_NumOfElements=p_Other.m_NumOfElements;
-
-		p_Other.m_Device = nullptr;
-		p_Other.m_DeviceContext = nullptr;
-		p_Other.m_VertexShader = nullptr;
-		p_Other.m_GeometryShader = nullptr;
-		p_Other.m_PixelShader = nullptr;
-		p_Other.m_HullShader = nullptr;
-		p_Other.m_DomainShader = nullptr;
-		p_Other.m_VertexLayout = nullptr;
-		p_Other.m_VertexDescription = nullptr;
-		p_Other.m_NumOfElements = 0;
-
-	}
-	
-	return *this;
-}//*/
-
 Shader::~Shader(void)
 {
 	SAFE_RELEASE(m_VertexShader);
@@ -130,7 +39,7 @@ void Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceCon
 }
 
 HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-	const char *p_ShaderModel, ShaderType p_ShaderType,
+	const char *p_ShaderModel, Type p_ShaderType,
 	const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
 {
 	HRESULT result = S_FALSE;
@@ -227,32 +136,32 @@ void Shader::unSetShader(void)
 	}
 }
 
-void Shader::setResource(ShaderType p_ShaderType, UINT p_StartSpot, UINT p_NumOfViews,
+void Shader::setResource(Type p_ShaderType, UINT p_StartSpot, UINT p_NumOfViews,
 	ID3D11ShaderResourceView *p_ShaderResource)
 {
 	switch(p_ShaderType)
 	{
-	case ShaderType::VERTEX_SHADER:
+	case Type::VERTEX_SHADER:
 		{
 			m_DeviceContext->VSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case ShaderType::PIXEL_SHADER:
+	case Type::PIXEL_SHADER:
 		{
 			m_DeviceContext->PSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case ShaderType::GEOMETRY_SHADER:
+	case Type::GEOMETRY_SHADER:
 		{
 			m_DeviceContext->GSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case ShaderType::HULL_SHADER:
+	case Type::HULL_SHADER:
 		{
 			m_DeviceContext->HSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case ShaderType::DOMAIN_SHADER:
+	case Type::DOMAIN_SHADER:
 		{
 			m_DeviceContext->DSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
@@ -260,32 +169,32 @@ void Shader::setResource(ShaderType p_ShaderType, UINT p_StartSpot, UINT p_NumOf
 	}
 }
 
-void Shader::setSamplerState(ShaderType p_ShaderType, UINT p_StartSpot, UINT p_NumOfSamples,
+void Shader::setSamplerState(Type p_ShaderType, UINT p_StartSpot, UINT p_NumOfSamples,
 	ID3D11SamplerState *p_SamplerState)
 {
 	switch (p_ShaderType)
 	{
-	case ShaderType::VERTEX_SHADER:
+	case Type::VERTEX_SHADER:
 		{
 			m_DeviceContext->VSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case ShaderType::PIXEL_SHADER:
+	case Type::PIXEL_SHADER:
 		{
 			m_DeviceContext->PSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case ShaderType::GEOMETRY_SHADER:
+	case Type::GEOMETRY_SHADER:
 		{
 			m_DeviceContext->GSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case ShaderType::HULL_SHADER:
+	case Type::HULL_SHADER:
 		{
 			m_DeviceContext->HSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case ShaderType::DOMAIN_SHADER:
+	case Type::DOMAIN_SHADER:
 		{
 			m_DeviceContext->DSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
@@ -415,7 +324,7 @@ HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
 	HRESULT result;
 	switch (m_ShaderType)
 	{
-	case ShaderType::VERTEX_SHADER:
+	case Type::VERTEX_SHADER:
 		{
 			result = m_Device->CreateVertexShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_VertexShader);
@@ -426,25 +335,25 @@ HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
 			}
 			break;
 		}
-	case ShaderType::PIXEL_SHADER:
+	case Type::PIXEL_SHADER:
 		{
 			result = m_Device->CreatePixelShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_PixelShader);
 			break;
 		}
-	case ShaderType::GEOMETRY_SHADER:
+	case Type::GEOMETRY_SHADER:
 		{
 			result = m_Device->CreateGeometryShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_GeometryShader);
 			break;
 		}
-	case ShaderType::HULL_SHADER:
+	case Type::HULL_SHADER:
 		{
 			result = m_Device->CreateHullShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_HullShader);
 			break;
 		}
-	case ShaderType::DOMAIN_SHADER:
+	case Type::DOMAIN_SHADER:
 		{
 			result = m_Device->CreateDomainShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_DomainShader);

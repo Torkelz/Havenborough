@@ -11,13 +11,13 @@
 class Shader
 {
 public:
-	enum class ShaderType
+	enum class Type
 	{
-		VERTEX_SHADER,
-		PIXEL_SHADER,
-		GEOMETRY_SHADER,
-		HULL_SHADER,
-		DOMAIN_SHADER
+		VERTEX_SHADER = 0,
+		PIXEL_SHADER = 1,
+		GEOMETRY_SHADER = 2,
+		HULL_SHADER = 3,
+		DOMAIN_SHADER = 4
 	};
 private:
 	ID3D11Device *m_Device;
@@ -31,27 +31,22 @@ private:
 	ID3D11InputLayout *m_VertexLayout;
 	D3D11_INPUT_ELEMENT_DESC *m_VertexDescription;
 	
-	ShaderType m_ShaderType;
+	Type m_ShaderType;
 	UINT m_NumOfElements;
 public:
 	Shader(void);
-	//Shader(Shader &p_Other);
-	//Shader(Shader &&p_Other);
 	~Shader(void);
-
-	//Shader &operator=(const Shader &rhs);
-	//Shader &Shader::operator=(Shader &&rhs);
 
 	void initialize(ID3D11Device *p_Device,	ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements);
 	HRESULT compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-		ShaderType p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
-
+		Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
+	
 	void setShader(void);
 	void unSetShader(void);
 	
-	void setResource(ShaderType p_ShaderType, UINT p_StartSpot,
+	void setResource(Type p_ShaderType, UINT p_StartSpot,
 		UINT p_NumOfViews, ID3D11ShaderResourceView *p_ShaderResource);
-	void setSamplerState(ShaderType p_ShaderType, UINT p_StartSpot,
+	void setSamplerState(Type p_ShaderType, UINT p_StartSpot,
 		UINT p_NumOfSamples, ID3D11SamplerState *p_SamplerState);
 	void setBlendState(ID3D11BlendState *p_BlendState);
 

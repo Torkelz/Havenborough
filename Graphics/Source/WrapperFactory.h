@@ -35,7 +35,7 @@ public:
 	* @param p_ShaderModel the shader model version to be used
 	* @param p_ShaderType the type of shader to create
 	*/
-	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, int p_ShaderType);
+	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, Shader::Type p_ShaderType);
 	
 	/**
 	*
@@ -52,7 +52,7 @@ public:
 	/**
 	*
 	*/
-	virtual Buffer *createBuffer(BufferDescription &p_Description);
+	virtual Buffer *createBuffer(Buffer::Description &p_Description);
 	
 private:
 	WrapperFactory(void);

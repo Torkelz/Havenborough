@@ -15,6 +15,7 @@ void BaseGameApp::init()
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 
 	m_Graphics->createShader("lol", L"../../Graphics/Source/dummyVS.hlsl", "main", "vs_5_0", IGraphics::ShaderType::VERTEX_SHADER);
+
 	using namespace std::placeholders;
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, _1, _2, _3));
 

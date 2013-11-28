@@ -208,7 +208,7 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
 	Buffer *buffer = nullptr;
-	BufferDescription bufferDescription;
+	Buffer::Description bufferDescription;
 	
 
 	buffer = createBuffer(bufferDescription);
@@ -218,7 +218,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	const char *p_ShaderModel, ShaderType p_Type)
 {
 	m_ShaderList.push_back(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename,
-		p_EntryPoint, p_ShaderModel, (int)p_Type)));
+		p_EntryPoint, p_ShaderModel, (Shader::Type)p_Type)));
 }
 
 void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
@@ -485,7 +485,7 @@ HRESULT Graphics::createRasterizerState(void)
 	return m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
 }
 
-Buffer *Graphics::createBuffer(BufferDescription &p_Description)
+Buffer *Graphics::createBuffer(Buffer::Description &p_Description)
 {
 
 
