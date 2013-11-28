@@ -181,6 +181,14 @@ void Graphics::shutdown(void)
 		m_SwapChain->SetFullscreenState(false, NULL);
 	}
 
+	/*for(auto &s : m_ShaderList)
+	{
+		SAFE_DELETE(s.second);
+
+	}*/
+	for(unsigned int i = 0; i < m_ShaderList.size(); i++)
+		SAFE_DELETE(m_ShaderList[i]);
+	m_ShaderList.clear();
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthStencilView);
 	SAFE_RELEASE(m_DepthStencilState);
@@ -190,7 +198,9 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_Device);
 	SAFE_RELEASE(m_SwapChain);
 	m_WrapperFactory->shutdown();
+	m_WrapperFactory = nullptr;
 	//SAFE_DELETE(m_TextureLoad);
+	//SAFE_DELETE(shad);
 }
 
 void IGraphics::deleteGraphics(IGraphics *p_Graphics)
@@ -204,11 +214,15 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	return true;
 }
 
-bool Graphics::createShader(const char *p_shaderId, const char *p_Filename, const char *p_EntryPoint,
+bool Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, ShaderType p_Type)
 {
 	Shader *shader = m_WrapperFactory->createShader((LPCWSTR)p_Filename, p_EntryPoint, p_ShaderModel, (int)p_Type);
-	m_ShaderList.push_back(make_pair(p_shaderId, shader));
+	m_ShaderList.push_back(shader);
+	//m_ShaderList.push_back(m_WrapperFactory->createShader((LPCWSTR)p_Filename,
+	//	p_EntryPoint, p_ShaderModel, (int)p_Type));
+	//shad = m_WrapperFactory->createShader((LPCWSTR)p_Filename,
+	//	p_EntryPoint, p_ShaderModel, (int)p_Type);
 	
 	return true;
 }

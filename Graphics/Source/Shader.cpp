@@ -18,6 +18,37 @@ Shader::Shader(void)
 	m_VertexDescription = nullptr;
 }
 
+Shader::Shader(Shader &p_Other)
+	: m_Device(p_Other.m_Device),
+	m_DeviceContext(p_Other.m_DeviceContext),
+	m_VertexShader(p_Other.m_VertexShader),
+	m_GeometryShader(p_Other.m_GeometryShader),
+	m_PixelShader(p_Other.m_PixelShader),
+	m_HullShader(p_Other.m_HullShader),
+	m_DomainShader(p_Other.m_DomainShader),
+	m_VertexLayout(p_Other.m_VertexLayout),
+	m_VertexDescription(p_Other.m_VertexDescription),
+	m_ShaderType(p_Other.m_ShaderType),
+	m_NumOfElements(p_Other.m_NumOfElements)
+
+{
+}
+
+Shader::Shader(Shader &&p_Other)
+	: m_Device(p_Other.m_Device),
+	m_DeviceContext(p_Other.m_DeviceContext),
+	m_VertexShader(p_Other.m_VertexShader),
+	m_GeometryShader(p_Other.m_GeometryShader),
+	m_PixelShader(p_Other.m_PixelShader),
+	m_HullShader(p_Other.m_HullShader),
+	m_DomainShader(p_Other.m_DomainShader),
+	m_VertexLayout(p_Other.m_VertexLayout),
+	m_VertexDescription(p_Other.m_VertexDescription),
+	m_ShaderType(p_Other.m_ShaderType),
+	m_NumOfElements(p_Other.m_NumOfElements)
+
+{
+}
 
 Shader::~Shader(void)
 {
@@ -28,6 +59,8 @@ Shader::~Shader(void)
 	SAFE_RELEASE(m_DomainShader);
 	SAFE_RELEASE(m_VertexLayout);
 	SAFE_DELETE_ARRAY(m_VertexDescription);
+	m_Device = nullptr;
+	m_DeviceContext = nullptr;
 }
 
 void Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements)

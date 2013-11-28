@@ -41,20 +41,20 @@ public:
 	/**
 	*
 	*/
-	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, int p_ShaderType);
+	//virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+	//	const char *p_ShaderModel, int p_ShaderType);
 
 	/**
 	*
 	*/
-	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-		int p_ShaderType,const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts);
+	//virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+	//	int p_ShaderType,const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts);
 	
 	/**
 	*
 	*/
 	virtual Buffer *createBuffer(BufferDescription &p_Description);
-
+	
 private:
 	WrapperFactory(void);
 	~WrapperFactory(void);

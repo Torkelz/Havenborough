@@ -69,4 +69,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\dummyVS.hlsl" />
+  </ItemGroup>
 </Project>

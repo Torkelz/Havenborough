@@ -112,6 +112,9 @@
     <ClInclude Include="Source\Util.h" />
     <ClInclude Include="Source\TextureLoader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\dummyVS.hlsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

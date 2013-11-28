@@ -44,8 +44,9 @@ private:
 	//TextureLoader *m_TextureLoad;	
 	WrapperFactory *m_WrapperFactory;
 
-	vector<pair<string, Shader*>> m_ShaderList;
+	vector<Shader*> m_ShaderList;
 	//vector<pair<string, Model>> m_ModelList;
+	//Shader *shad;
 public:
 	Graphics(void);
 	~Graphics(void);
@@ -54,7 +55,7 @@ public:
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen);
 	
 	bool createModel(const char *p_ModelId, const char *p_Filename);
-	bool createShader(const char *p_shaderId, const char *p_Filename,
+	bool createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
 	bool linkShaderToModel(const char *p_ModelId, const char *p_ShaderId);
 
