@@ -1,24 +1,25 @@
-struct PointLight
+struct Light
 {
 	#include <DirectXMath.h>
-    DirectX::XMFLOAT4 position;
-    DirectX::XMFLOAT4 diffuse;
-    DirectX::XMFLOAT4 ambient;
-    DirectX::XMFLOAT4 specular;
-    DirectX::XMFLOAT4 att;
-    float range;
 
-	PointLight(){}
+	DirectX::XMFLOAT3	lightPos;
+    DirectX::XMFLOAT3	lightColor;
+	DirectX::XMFLOAT3	lightDirection;
+    DirectX::XMFLOAT2	spotlightAngles;
+    float				lightRange;
+	int					lightType;
 
-	PointLight( DirectX::XMFLOAT4 p_position, DirectX::XMFLOAT4 p_diffuse,
-		DirectX::XMFLOAT4 p_ambient, DirectX::XMFLOAT4 p_specular,
-		DirectX::XMFLOAT4 p_att, float p_range )
+	Light(){}
+
+	Light( DirectX::XMFLOAT3 p_position, DirectX::XMFLOAT3 p_color,
+		DirectX::XMFLOAT3 p_direction, DirectX::XMFLOAT2 p_angles,
+		float p_range, int p_type )
 	{
-		position = p_position;
-		diffuse = p_diffuse;
-		ambient = p_ambient;
-		specular = p_specular;
-		att = p_att;
-		range = p_range;
+		lightPos = p_position;
+		lightColor = p_color;
+		lightDirection = p_direction;
+		spotlightAngles = p_angles;
+		lightRange = p_range;
+		lightType = p_type;
 	}
 };

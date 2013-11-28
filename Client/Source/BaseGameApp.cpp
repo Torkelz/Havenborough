@@ -24,6 +24,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('S', "moveBackward");
 	translator->addKeyboardMapping('A', "moveLeft");
 	translator->addKeyboardMapping('D', "moveRight");
+	translator->addKeyboardMapping('C', "changeView");
 	m_InputQueue.init(std::move(translator));
 
 	//physics = IPhysics::createPhysics();
@@ -41,7 +42,7 @@ void BaseGameApp::init()
 
 	cBuffer cb;
 	DirectX::XMFLOAT4 eye,lookat,up;
-	eye = DirectX::XMFLOAT4(0,0,-50,1);
+	eye = DirectX::XMFLOAT4(10,0,-50,1);
 	lookat = DirectX::XMFLOAT4(0,0,0,1);
 	up = DirectX::XMFLOAT4(0,1,0,0);
 	DirectX::XMStoreFloat4x4(&cb.view,
@@ -51,10 +52,11 @@ void BaseGameApp::init()
 								DirectX::XMLoadFloat4(&up))));
 	DirectX::XMStoreFloat4x4(&cb.proj,
 							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
-								0.4f*PI,
+								0.4f*3.14f,
 								(float)m_Window.getSize().x / (float)m_Window.getSize().y,
 								1.0f,
 								1000.0f)));
+	cb.campos = DirectX::XMFLOAT3(eye.x, eye.y, eye.z);
 	BufferDescription cbdesc;
 	cbdesc.initData = &cb;
 	cbdesc.numOfElements = 1;
@@ -72,6 +74,8 @@ void BaseGameApp::run()
 {
 	m_ShouldQuit = false;
 
+	int currView = 0; // FOR DEBUGGING
+
 	while (!m_ShouldQuit)
 	{
 		m_InputQueue.onFrame();
@@ -84,7 +88,7 @@ void BaseGameApp::run()
 
 		m_Graphics->renderModel(m_Buffer, m_CBuffer, m_Shader, &tempMatrix, false);
 		//Temp -------------------------------------------------
-		m_Graphics->drawFrame();
+		m_Graphics->drawFrame(currView);
 
 		for (auto& in : m_InputQueue.getFrameInputs())
 		{
@@ -92,9 +96,18 @@ void BaseGameApp::run()
 			{
 				m_ShouldQuit = true;
 			}
+			else if(in.m_Action ==  "changeView" && in.m_Value == 1)
+			{
+				currView++;
+				if(currView >= 4)
+					currView = 0;
+				printf("Receive: %s (%.1f)\n", in.m_Action.c_str(), in.m_Value);
+			}
 			else
 			{
 				printf("Received input action: %s (%.1f)\n", in.m_Action.c_str(), in.m_Value);
+
+				
 			}
 		}
 	}

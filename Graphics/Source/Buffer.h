@@ -131,6 +131,9 @@ public:
 	*/
 	void unmap(void);
 
+	ID3D11ShaderResourceView* CreateBufferSRV(ID3D11Buffer* pBuffer);
+	ID3D11UnorderedAccessView* CreateBufferUAV(ID3D11Buffer* pBuffer);
+
 private:
 	void *mapResourceToContext(UINT32 p_MapType);
 

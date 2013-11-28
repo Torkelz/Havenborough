@@ -35,18 +35,26 @@ struct Renderable
 	}
 };
 
+struct cBuffer
+	{
+		DirectX::XMFLOAT4X4 view;
+		DirectX::XMFLOAT4X4 proj;
+		DirectX::XMFLOAT3 campos;
+	};
+
 class DeferredRenderer
 {
 private:
 	std::vector<Renderable> m_TransparentObjects;
 	std::vector<Renderable> m_Objects;
-	std::vector<PointLight> m_PointLights;
+	std::vector<Light> m_Lights;
 
-	ID3D11RenderTargetView		*m_RenderTargets[3];
+	ID3D11RenderTargetView		*m_RenderTargets[4];
 	ID3D11ShaderResourceView	*m_DepthStencilResourceView;
 	ID3D11ShaderResourceView	*m_DiffuseSRV;
 	ID3D11ShaderResourceView	*m_NormalSRV; // Normal.xy and specular data.
 	ID3D11ShaderResourceView	*m_LightSRV;
+	ID3D11ShaderResourceView	*m_DepthSRV;
 	//ID3D11RenderTargetView	*m_LightRenderTarget;
 
 	ID3D11Device				*m_Device;
@@ -70,6 +78,8 @@ public:
 	void addRenderable(Renderable p_Renderable, bool p_Transparent);
 	void addLight();
 
+
+	ID3D11ShaderResourceView* getRT(int i);
 private:
 	void renderGeometry();
 	void renderLighting();

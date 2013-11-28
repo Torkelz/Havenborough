@@ -158,6 +158,23 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_WrapperFactory = new WrapperFactory(m_Device, m_DeviceContext);
 
+
+	m_Shader = m_WrapperFactory->createShader(L"../../Graphics/Source/BlockShader.fx","VS","vs_5_0",VERTEX_SHADER);
+	m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/BlockShader.fx","PS","ps_5_0",PIXEL_SHADER);
+
+	D3D11_SAMPLER_DESC sd;
+    ZeroMemory(&sd, sizeof(sd));
+    sd.Filter                                = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sd.AddressU                                = D3D11_TEXTURE_ADDRESS_WRAP;
+    sd.AddressV                                = D3D11_TEXTURE_ADDRESS_WRAP;
+    sd.AddressW                                = D3D11_TEXTURE_ADDRESS_WRAP;
+    sd.ComparisonFunc                = D3D11_COMPARISON_NEVER;
+    sd.MinLOD                                = 0;
+    sd.MaxLOD                                = D3D11_FLOAT32_MAX;
+
+    m_Sampler = nullptr;
+    m_Device->CreateSamplerState( &sd, &m_Sampler );
+
 	return true;
 }
 
@@ -192,6 +209,8 @@ void Graphics::shutdown(void)
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
+
+	SAFE_DELETE(m_Shader);
 }
 
 void IGraphics::deleteGraphics(IGraphics *p_Graphics)
@@ -231,13 +250,23 @@ void Graphics::useFrameLight(void)
 
 }
 
-void Graphics::drawFrame(void)
+void Graphics::drawFrame(int i)
 {
 	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
 	Begin(color);
 
 	m_DeferredRender->renderDeferred();
 
+	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView); 
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_Shader->setShader();
+	m_Shader->setResource(PIXEL_SHADER,0,1,m_DeferredRender->getRT(i));
+	m_Shader->setSamplerState(PIXEL_SHADER, 0, 1, m_Sampler);
+	m_DeviceContext->Draw(6,0);
+
+	m_Shader->unSetShader();
+	
 	End();
 }
 

@@ -25,6 +25,9 @@ private:
 	DeferredRenderer	*m_DeferredRender;
 	WrapperFactory		*m_WrapperFactory;
 
+	Shader				*m_Shader; //DEBUG
+	ID3D11SamplerState	*m_Sampler;
+
 public:
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
@@ -59,7 +62,7 @@ public:
 	void removeStaticLight(void);
 	void useFrameLight(void);
 	
-	void drawFrame(void);
+	void drawFrame(int i);
 
 	Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
 		const char *p_ShaderModel, ShaderType p_ShaderType);

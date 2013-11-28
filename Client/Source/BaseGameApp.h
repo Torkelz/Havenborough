@@ -77,6 +77,7 @@ private:
 	{
 		DirectX::XMFLOAT4X4 view;
 		DirectX::XMFLOAT4X4 proj;
+		DirectX::XMFLOAT3 campos;
 	};
 
 	vertex* createBOX(unsigned int size, float x, float y, float z);

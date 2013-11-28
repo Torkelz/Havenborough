@@ -1,34 +1,46 @@
-cbuffer BlockConstBuffer : register(b0)
-{
-        matrix	view;
-        matrix	proj;
-};
+Texture2D depthTex		: register (t0);
+SamplerState m_textureSampler : register ( s0 );
 
-struct VSInput
-{
-        float4			m_posL : POSITION;
-		float4			m_color : COLOR;
-};
-
+//##################################
+//		SHADER PASSES
+//##################################
 struct VSOutput
 {
-        float4 m_posH : SV_POSITION;
-		float4 m_color : COLOR;
+	float4	position : SV_Position;
+	float2  texCoord : TEXCOORD;
 };
 
-VSOutput VS(VSInput p_vIn)
+VSOutput VS( uint vID : SV_VERTEXID )
 {
-    VSOutput vOut;
-        
-    // Transform to homogeneous clip space.
-    vOut.m_posH = mul(p_vIn.m_posL, mul(view,proj));
-    vOut.m_color = p_vIn.m_color;
-
-    return vOut;
+	VSOutput output;
+	/*if(vID != 4)
+		output.texCoord = float2( ( vID << 1 ) & 2, vID & 2 );
+	else
+		output.texCoord = float2(0.0f,2.0f);*/
+	switch(vID)
+	{
+		case 0:		output.texCoord = float2(0,0);	break;
+		case 1:		output.texCoord = float2(1,0);	break;
+		case 2:		output.texCoord = float2(0,1);	break;
+		case 3:		output.texCoord = float2(0,1);	break;
+		case 4:		output.texCoord = float2(1,0);	break;
+		case 5:		output.texCoord = float2(1,1);	break;
+		default:	output.texCoord = float2(-1,-1);break;
+	}
+	output.position = float4( (output.texCoord * float2(2.0f,-2.0f)) + 
+								float2(-1.0f,1.0f),
+								0.0f,
+								1.0f);
+	return output; 
 }
 
-float4 PS(VSOutput p_input) : SV_Target
+float4 PS( VSOutput input ) :  SV_Target0
 {
-    return p_input.m_color;
-    //return float4(1.0f, 0.0f, 0.0f, 1.0f);
+	float2 screenPos = input.texCoord;
+	int3 sampleIndices = int3( screenPos, 0);
+	// Sample the G-Buffer properties from the textures
+	return float4(depthTex.Sample(m_textureSampler, screenPos).xyz,1.0f);
+	//return float4(1,0,0,1);
+
+	//return float4(1,0,0,1);
 }
