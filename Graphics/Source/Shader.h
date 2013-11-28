@@ -1,8 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <d3dcompiler.h>
-#include <d3d11shader.h>
-#include <vector>
+//#include <d3d11shader.h>
 
 #include "Util.h"
 #include "MyGraphicsExceptions.h"
@@ -21,8 +20,6 @@ public:
 		DOMAIN_SHADER
 	};
 private:
-	
-
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 	
@@ -38,9 +35,12 @@ private:
 	UINT m_NumOfElements;
 public:
 	Shader(void);
-	Shader(Shader &p_Other);
-	Shader(Shader &&p_Other);
+	//Shader(Shader &p_Other);
+	//Shader(Shader &&p_Other);
 	~Shader(void);
+
+	//Shader &operator=(const Shader &rhs);
+	//Shader &Shader::operator=(Shader &&rhs);
 
 	void initialize(ID3D11Device *p_Device,	ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements);
 	HRESULT compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,

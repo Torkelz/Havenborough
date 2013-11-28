@@ -1,6 +1,6 @@
 #define INITGUID
 #include "Shader.h"
-#include <string>
+#include <vector>
 #include <iostream>
 
 using std::vector;
@@ -18,7 +18,8 @@ Shader::Shader(void)
 	m_VertexDescription = nullptr;
 }
 
-Shader::Shader(Shader &p_Other)
+//REALLY NEEDED?//
+/*Shader::Shader(Shader &p_Other)
 	: m_Device(p_Other.m_Device),
 	m_DeviceContext(p_Other.m_DeviceContext),
 	m_VertexShader(p_Other.m_VertexShader),
@@ -49,6 +50,64 @@ Shader::Shader(Shader &&p_Other)
 
 {
 }
+
+Shader &Shader::operator=(const Shader &p_Other)
+{
+	m_Device=p_Other.m_Device;
+	m_DeviceContext=p_Other.m_DeviceContext;
+	m_VertexShader=p_Other.m_VertexShader;
+	m_GeometryShader=p_Other.m_GeometryShader;
+	m_PixelShader=p_Other.m_PixelShader;
+	m_HullShader=p_Other.m_HullShader;
+	m_DomainShader=p_Other.m_DomainShader;
+	m_VertexLayout=p_Other.m_VertexLayout;
+	m_VertexDescription=p_Other.m_VertexDescription;
+	m_ShaderType=p_Other.m_ShaderType;
+	m_NumOfElements=p_Other.m_NumOfElements;
+	return *this;
+}
+
+Shader &Shader::operator=(Shader &&p_Other)
+{
+	if(this != &p_Other)
+	{
+		SAFE_RELEASE(m_VertexShader);
+		SAFE_RELEASE(m_GeometryShader);
+		SAFE_RELEASE(m_PixelShader);
+		SAFE_RELEASE(m_HullShader);
+		SAFE_RELEASE(m_DomainShader);
+		SAFE_RELEASE(m_VertexLayout);
+		SAFE_DELETE_ARRAY(m_VertexDescription);
+		m_Device = nullptr;
+		m_DeviceContext = nullptr;
+
+		m_Device=p_Other.m_Device;
+		m_DeviceContext=p_Other.m_DeviceContext;
+		m_VertexShader=p_Other.m_VertexShader;
+		m_GeometryShader=p_Other.m_GeometryShader;
+		m_PixelShader=p_Other.m_PixelShader;
+		m_HullShader=p_Other.m_HullShader;
+		m_DomainShader=p_Other.m_DomainShader;
+		m_VertexLayout=p_Other.m_VertexLayout;
+		m_VertexDescription=p_Other.m_VertexDescription;
+		m_ShaderType=p_Other.m_ShaderType;
+		m_NumOfElements=p_Other.m_NumOfElements;
+
+		p_Other.m_Device = nullptr;
+		p_Other.m_DeviceContext = nullptr;
+		p_Other.m_VertexShader = nullptr;
+		p_Other.m_GeometryShader = nullptr;
+		p_Other.m_PixelShader = nullptr;
+		p_Other.m_HullShader = nullptr;
+		p_Other.m_DomainShader = nullptr;
+		p_Other.m_VertexLayout = nullptr;
+		p_Other.m_VertexDescription = nullptr;
+		p_Other.m_NumOfElements = 0;
+
+	}
+	
+	return *this;
+}//*/
 
 Shader::~Shader(void)
 {

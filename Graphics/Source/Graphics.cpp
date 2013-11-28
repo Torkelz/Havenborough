@@ -12,12 +12,12 @@ Graphics::Graphics(void)
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
 	m_WrapperFactory = nullptr;
-	//m_TextureLoad = nullptr;
 }
 
 
 Graphics::~Graphics(void)
 {
+	m_Device = nullptr;
 }
 
 IGraphics *IGraphics::createGraphics()
@@ -155,8 +155,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Note this is the only time initialize should be called.
 	WrapperFactory::initialize(m_Device, m_DeviceContext);
 	m_WrapperFactory = WrapperFactory::getInstance();
-	
-	//m_TextureLoad = new TextureLoader();
+
+	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
 	return true;
 }
@@ -181,13 +181,11 @@ void Graphics::shutdown(void)
 		m_SwapChain->SetFullscreenState(false, NULL);
 	}
 
-	/*for(auto &s : m_ShaderList)
+	for(auto &s : m_ShaderList)
 	{
 		SAFE_DELETE(s.second);
-
-	}*/
-	for(unsigned int i = 0; i < m_ShaderList.size(); i++)
-		SAFE_DELETE(m_ShaderList[i]);
+	}
+	m_ShaderLinkList.clear();
 	m_ShaderList.clear();
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthStencilView);
@@ -199,8 +197,6 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_SwapChain);
 	m_WrapperFactory->shutdown();
 	m_WrapperFactory = nullptr;
-	//SAFE_DELETE(m_TextureLoad);
-	//SAFE_DELETE(shad);
 }
 
 void IGraphics::deleteGraphics(IGraphics *p_Graphics)
@@ -209,27 +205,25 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
+void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	return true;
+	Buffer *buffer = nullptr;
+	BufferDescription bufferDescription;
+	
+
+	buffer = createBuffer(bufferDescription);
 }
 
-bool Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
+void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, ShaderType p_Type)
 {
-	Shader *shader = m_WrapperFactory->createShader((LPCWSTR)p_Filename, p_EntryPoint, p_ShaderModel, (int)p_Type);
-	m_ShaderList.push_back(shader);
-	//m_ShaderList.push_back(m_WrapperFactory->createShader((LPCWSTR)p_Filename,
-	//	p_EntryPoint, p_ShaderModel, (int)p_Type));
-	//shad = m_WrapperFactory->createShader((LPCWSTR)p_Filename,
-	//	p_EntryPoint, p_ShaderModel, (int)p_Type);
-	
-	return true;
+	m_ShaderList.push_back(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename,
+		p_EntryPoint, p_ShaderModel, (int)p_Type)));
 }
 
-bool Graphics::linkShaderToModel(const char *p_ModelId, const char *p_ShaderId)
+void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 {
-	return true;
+	m_ShaderLinkList.push_back(make_pair(p_ShaderId, p_ModelId));
 }
 
 void Graphics::renderModel(char *p_ModelId)
@@ -489,6 +483,13 @@ HRESULT Graphics::createRasterizerState(void)
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 	return m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+}
+
+Buffer *Graphics::createBuffer(BufferDescription &p_Description)
+{
+
+
+	return m_WrapperFactory->createBuffer(p_Description);
 }
 
 void Graphics::Begin(float color[4])

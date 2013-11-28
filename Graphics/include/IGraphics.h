@@ -13,6 +13,9 @@ public:
 		HULL_SHADER,
 		DOMAIN_SHADER
 	};
+
+	virtual ~IGraphics(void)
+	{}
 	/**
 	* Create a pointer from which the graphics library can be accessed.
 	* @return the graphics pointer
@@ -48,18 +51,20 @@ public:
 	/**
 	* 
 	*/
-	virtual bool createModel(const char *p_ModelId, const char *p_Filename) = 0;
+	virtual void createModel(const char *p_ModelId, const char *p_Filename) = 0;
 
 	/**
 	* 
 	*/
-	virtual bool createShader(const char *p_shaderId, LPCWSTR p_Filename,
+	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) = 0;
 
 	/**
-	* 
+	* Establish a map of shader name to a model name.
+	* @param p_ShaderId name of the shader
+	* @param p_ModelId name of the model
 	*/
-	virtual bool linkShaderToModel(const char *p_ModelId, const char *p_ShaderId) = 0;
+	virtual void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) = 0;
 
 	/**
 	* 
