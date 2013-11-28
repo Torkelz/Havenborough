@@ -140,27 +140,27 @@ void Shader::setResource(ShaderType p_ShaderType, UINT p_StartSpot, UINT p_NumOf
 {
 	switch(p_ShaderType)
 	{
-	case VERTEX_SHADER:
+	case ShaderType::VERTEX_SHADER:
 		{
 			m_DeviceContext->VSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case PIXEL_SHADER:
+	case ShaderType::PIXEL_SHADER:
 		{
 			m_DeviceContext->PSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case GEOMETRY_SHADER:
+	case ShaderType::GEOMETRY_SHADER:
 		{
 			m_DeviceContext->GSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case HULL_SHADER:
+	case ShaderType::HULL_SHADER:
 		{
 			m_DeviceContext->HSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case DOMAIN_SHADER:
+	case ShaderType::DOMAIN_SHADER:
 		{
 			m_DeviceContext->DSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
@@ -173,27 +173,27 @@ void Shader::setSamplerState(ShaderType p_ShaderType, UINT p_StartSpot, UINT p_N
 {
 	switch (p_ShaderType)
 	{
-	case VERTEX_SHADER:
+	case ShaderType::VERTEX_SHADER:
 		{
 			m_DeviceContext->VSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case PIXEL_SHADER:
+	case ShaderType::PIXEL_SHADER:
 		{
 			m_DeviceContext->PSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case GEOMETRY_SHADER:
+	case ShaderType::GEOMETRY_SHADER:
 		{
 			m_DeviceContext->GSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case HULL_SHADER:
+	case ShaderType::HULL_SHADER:
 		{
 			m_DeviceContext->HSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case DOMAIN_SHADER:
+	case ShaderType::DOMAIN_SHADER:
 		{
 			m_DeviceContext->DSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
@@ -323,7 +323,7 @@ HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
 	HRESULT result;
 	switch (m_ShaderType)
 	{
-	case VERTEX_SHADER:
+	case ShaderType::VERTEX_SHADER:
 		{
 			result = m_Device->CreateVertexShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_VertexShader);
@@ -334,25 +334,25 @@ HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
 			}
 			break;
 		}
-	case PIXEL_SHADER:
+	case ShaderType::PIXEL_SHADER:
 		{
 			result = m_Device->CreatePixelShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_PixelShader);
 			break;
 		}
-	case GEOMETRY_SHADER:
+	case ShaderType::GEOMETRY_SHADER:
 		{
 			result = m_Device->CreateGeometryShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_GeometryShader);
 			break;
 		}
-	case HULL_SHADER:
+	case ShaderType::HULL_SHADER:
 		{
 			result = m_Device->CreateHullShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_HullShader);
 			break;
 		}
-	case DOMAIN_SHADER:
+	case ShaderType::DOMAIN_SHADER:
 		{
 			result = m_Device->CreateDomainShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_DomainShader);

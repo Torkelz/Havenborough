@@ -9,18 +9,20 @@
 
 #pragma comment(lib, "d3dcompiler.lib")
 
-enum ShaderType
-{
-	VERTEX_SHADER,
-	PIXEL_SHADER,
-	GEOMETRY_SHADER,
-	HULL_SHADER,
-	DOMAIN_SHADER
-};
-
 class Shader
 {
+public:
+	enum class ShaderType
+	{
+		VERTEX_SHADER,
+		PIXEL_SHADER,
+		GEOMETRY_SHADER,
+		HULL_SHADER,
+		DOMAIN_SHADER
+	};
 private:
+	
+
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 	

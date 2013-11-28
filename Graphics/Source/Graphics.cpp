@@ -31,7 +31,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	IDXGIFactory *factory;
 	IDXGIAdapter *adapter;
 	IDXGIOutput *adapterOutput;
-	//std::cout << "PLEASE TEELLLLL ME SSOMETHING";
+	
 	unsigned int numModes;
 	unsigned int stringLength;
 
@@ -152,8 +152,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
 
-	m_WrapperFactory = new WrapperFactory(m_Device, m_DeviceContext);
-
+	//Note this is the only time initialize should be called.
+	WrapperFactory::initialize(m_Device, m_DeviceContext);
+	m_WrapperFactory = WrapperFactory::getInstance();
+	
 	//m_TextureLoad = new TextureLoader();
 
 	return true;
@@ -187,7 +189,7 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_DeviceContext);
 	SAFE_RELEASE(m_Device);
 	SAFE_RELEASE(m_SwapChain);
-	SAFE_DELETE(m_WrapperFactory);
+	m_WrapperFactory->shutdown();
 	//SAFE_DELETE(m_TextureLoad);
 }
 
@@ -205,6 +207,9 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 bool Graphics::createShader(const char *p_shaderId, const char *p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, ShaderType p_Type)
 {
+	Shader *shader = m_WrapperFactory->createShader((LPCWSTR)p_Filename, p_EntryPoint, p_ShaderModel, (int)p_Type);
+	m_ShaderList.push_back(make_pair(p_shaderId, shader));
+	
 	return true;
 }
 
@@ -220,7 +225,7 @@ void Graphics::renderModel(char *p_ModelId)
 
 void Graphics::renderText(void)
 {
-
+	
 }
 
 void Graphics::renderQuad(void)

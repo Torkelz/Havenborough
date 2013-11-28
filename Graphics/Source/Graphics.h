@@ -3,6 +3,8 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #include <windows.h>
+#include <vector>
+#include <string>
 #include <d3d11.h>
 #include <dxgi.h>
 
@@ -12,16 +14,15 @@
 //#include "TextureLoader.h"
 #include "WrapperFactory.h"
 
+using std::string;
+using std::vector;
+using std::pair;
+using std::make_pair;
+
 class Graphics :
 	public IGraphics
 {
 private:
-	unsigned int m_Numerator;
-	unsigned int m_Denominator;
-	//TextureLoader *m_TextureLoad;
-	
-	WrapperFactory *m_WrapperFactory;
-public:
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 
@@ -34,31 +35,36 @@ public:
 	ID3D11DepthStencilState *m_DepthStencilState;
 	ID3D11DepthStencilView *m_DepthStencilView;
 
+	unsigned int m_Numerator;
+	unsigned int m_Denominator;
 	char m_GraphicsCard[128];
 	int m_GraphicsMemory;
 	bool m_VSyncEnabled;
+
+	//TextureLoader *m_TextureLoad;	
+	WrapperFactory *m_WrapperFactory;
+
+	vector<pair<string, Shader*>> m_ShaderList;
+	//vector<pair<string, Model>> m_ModelList;
 public:
 	Graphics(void);
 	~Graphics(void);
 
-	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,
-		bool p_Fullscreen);
-	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight,
-		bool p_Fullscreen);
+	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen);
+	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen);
 	
 	bool createModel(const char *p_ModelId, const char *p_Filename);
 	bool createShader(const char *p_shaderId, const char *p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
 	bool linkShaderToModel(const char *p_ModelId, const char *p_ShaderId);
 
-	void renderModel(char *p_ModelId);
-	void renderText(void);
-	void renderQuad(void);
-
 	void addStaticLight(void);
 	void removeStaticLight(void);
 	void useFrameLight(void);
 	
+	void renderModel(char *p_ModelId);
+	void renderText(void);
+	void renderQuad(void);
 	void drawFrame(void);
 
 	//OLD STUFF//
@@ -74,7 +80,7 @@ public:
             const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
             unsigned int p_NumOfInputElements);
         
-    Buffer *createBuffer(BufferDescription &p_Description);
+    
 
 	ID3D11ShaderResourceView *createTexture(char *p_Filename);//*/
 
@@ -91,7 +97,8 @@ private:
 	HRESULT createDepthStencilView(void);
 	HRESULT createRasterizerState(void);
 
+	Buffer *createBuffer(BufferDescription &p_Description);
+
 	void Begin(float color[4]);
 	void End(void);
 };
-
