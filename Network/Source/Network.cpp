@@ -1,8 +1,12 @@
 #include "Network.h"
 
+#include <boost/archive/binary_oarchive.hpp>
+
 Network::Network()
 {
 	m_Handler = NULL;
+
+
 }
 
 Network::~Network()
@@ -54,4 +58,9 @@ bool Network::hasError() const
 boost::asio::io_service& Network::getServerService()
 {
 	return m_Handler->getServerService();
+}
+
+void Network::sendAddObject(float, float, float)
+{
+
 }

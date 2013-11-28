@@ -48,7 +48,6 @@ void NetworkHandler::connectToServer(const std::string& p_URL, unsigned short p_
 		tcp::resolver::query query(tcp::v4(), m_ConnectURL, std::to_string(m_PortNumber));
 
 		m_State = State::RESOLVING;
-		std::cout << "RESOLVING" << std::endl;
 		m_Resolver.async_resolve(
 			query,
 			std::bind(
@@ -66,7 +65,6 @@ void NetworkHandler::startServer()
 {
 	try
 	{
-		std::cout << "Staring" << std::endl;
 		m_Acceptor.async_accept(m_Socket, std::bind( &NetworkHandler::handleAccept, this, std::placeholders::_1));
 		m_IOThread.swap(boost::thread(std::bind(&NetworkHandler::runIO, this)));
 	}
@@ -100,7 +98,6 @@ void NetworkHandler::handleResolve(const boost::system::error_code& p_Error, boo
 	}
 
 	m_State = State::CONNECTING;
-	std::cout << "CONNECTING" << std::endl;
 	boost::asio::async_connect(m_Socket, p_ResolveResult,
 		std::bind(&NetworkHandler::handleConnect, this, std::placeholders::_1, std::placeholders::_2));
 }
@@ -112,10 +109,39 @@ void NetworkHandler::handleConnect(const boost::system::error_code& p_Error, boo
 		m_State = State::INVALID;
 		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
 	}
-	std::cout << "CONNECTED" << std::endl;
 	m_State = State::CONNECTED;
 	
 	readHeader();
+}
+
+void NetworkHandler::writeData(const std::string& p_Buffer, uint16_t p_ID)
+{
+	Header header;
+	header.m_Size = m_WriteBuffer.size() + sizeof(Header);
+	header.m_TypeID = p_ID;
+
+	if(!m_LockWriting.test_and_set())
+	{
+		doWrite(header, p_Buffer);
+	}
+	else
+	{
+		std::lock_guard<std::mutex> lock(m_WriteQueueLock);
+		m_WaitingToWrite.push_back(std::make_pair(header, p_Buffer));
+	}
+}
+
+void NetworkHandler::doWrite(const Header& p_Header, const std::string& p_Buffer)
+{
+	m_headerWrite = p_Header;
+	m_WriteBuffer = p_Buffer;
+
+	std::vector<boost::asio::const_buffer> buffers;
+	buffers.push_back(boost::asio::buffer(&m_headerWrite, sizeof(m_headerWrite)));
+	buffers.push_back(boost::asio::buffer(m_WriteBuffer));
+
+	boost::asio::async_write(m_Socket, buffers, 
+		std::bind(&NetworkHandler::handleWrite, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void NetworkHandler::handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred)
@@ -126,9 +152,16 @@ void NetworkHandler::handleWrite(const boost::system::error_code& p_Error, std::
 		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
 	}
 
-	m_Writing = false;
-
-	std::cout << "Sent message" << std::endl;
+	std::lock_guard<std::mutex> lock(m_WriteQueueLock);
+	if (!m_WaitingToWrite.empty())
+	{
+		doWrite(m_WaitingToWrite[0].first, m_WaitingToWrite[0].second);
+		m_WaitingToWrite.erase(m_WaitingToWrite.begin());
+	}
+	else
+	{
+		m_LockWriting.clear();
+	}
 }
 
 void NetworkHandler::readHeader()

@@ -36,17 +36,25 @@ public:
 	* @return state::Connected
 	*/
 	virtual bool isConnected() const = 0;
+
 	/*
 	* Get the connection status 
 	* @return state::Invalid
 	*/
 	virtual bool hasError() const = 0;
+
 	/*
 	* Get the server Service for thread use.
-	* @return m_IOService.
+	* @return Returns a server service that is used right now.
 	*/
 	virtual boost::asio::io_service& getServerService() = 0;
 
-	
+	/*
+	* Connect the client to the server.
+	* @param p_URL, address to the server.
+	* @param p_Port, port number.
+	*/
 	virtual void connectToServer(const std::string& p_URL, unsigned short p_Port) = 0;
+
+	virtual void sendAddObject(float, float, float) = 0;
 };

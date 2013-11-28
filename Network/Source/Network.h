@@ -3,9 +3,13 @@
 #include "MyExceptions.h"
 #include "../include/INetwork.h"
 #include "NetworkHandler.h"
+#include "Packages.h"
 
 class Network : public INetwork
 {
+private:
+	NetworkHandler* m_Handler;
+	boost::thread m_IOThread;
 public:
 	Network();
 	~Network();
@@ -17,10 +21,8 @@ public:
 	bool isConnected() const override;
 	bool hasError() const;
 	void connectToServer(const std::string& p_URL, unsigned short p_Port);
+	void sendAddObject(float,float,float);
 
 	boost::asio::io_service& getServerService();
 
-private:
-	NetworkHandler* m_Handler;
-	boost::thread m_IOThread;
 };

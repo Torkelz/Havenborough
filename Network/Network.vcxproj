@@ -99,6 +99,7 @@
     <ClInclude Include="Source\MyExceptions.h" />
     <ClInclude Include="Source\Network.h" />
     <ClInclude Include="Source\NetworkHandler.h" />
+    <ClInclude Include="Source\Packages.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

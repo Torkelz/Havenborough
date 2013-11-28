@@ -35,5 +35,8 @@
     <ClInclude Include="include\INetwork.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Packages.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

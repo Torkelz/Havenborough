@@ -1,7 +1,9 @@
 #pragma once
 
+#include <atomic>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <mutex>
 
 class NetworkHandler
 {
@@ -31,8 +33,14 @@ private:
 	unsigned int m_Index;
 	boost::thread m_IOThread;
 
-	std::array<char, 1024> m_WriteBuffer;
+	std::atomic_flag m_LockWriting;
+	std::mutex m_WriteQueueLock;
+
+	Header m_headerWrite;
+	std::string m_WriteBuffer;
 	std::array<char, 1024> m_ReadBuffer;
+
+	std::vector<std::pair<Header, std::string>> m_WaitingToWrite;
 
 	std::string m_ConnectURL;
 
@@ -84,6 +92,8 @@ private:
 	void handleAccept(const boost::system::error_code& p_Error);
 	void handleResolve(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_ResolveResult);
 	void handleConnect(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_Endpoint);
+	void writeData(const std::string& p_Buffer, uint16_t p_ID);
+	void doWrite(const Header& p_Header, const std::string& p_Buffer);
 	void handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
 	void handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
 	void handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
