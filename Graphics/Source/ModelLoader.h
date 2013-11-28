@@ -2,31 +2,39 @@
 #include <sstream>
 #include <DirectXMath.h>
 #include <memory>
-
-struct Material
-{
-	std::string m_Diffuse;
-	std::string m_Normal;
-	std::string m_Specular;
-};
-
-struct Vertex
-{
-	DirectX::XMFLOAT3 m_Pos;
-	DirectX::XMFLOAT3 m_Tangent;
-	DirectX::XMFLOAT3 m_Normal;
-	DirectX::XMFLOAT2 m_Texture;
-};
+#include <vector>
 
 class ModelLoader
 {
+private:
+	struct Face
+	{
+		std::string m_MaterialID;
+		std::vector<DirectX::XMFLOAT3> m_Vertex;
+		std::vector<DirectX::XMFLOAT3> m_Tangents;
+		std::vector<DirectX::XMFLOAT3> m_Normals;
+		std::vector<DirectX::XMFLOAT2> m_TextureCoord;
+	};
+	
+	struct Material
+	{
+		std::string m_MaterialID;
+		std::string m_DiffuseMap;
+		std::string m_NormalMap;
+		std::string m_SpecularMap;
+	};
+	
+	int m_NumberOfMaterials;
+	int m_NumberOfVertices;
+	int m_NumberOfTriangles;
+	std::vector<DirectX::XMFLOAT3> m_Vertex;
+	std::vector<DirectX::XMFLOAT3> m_Tangents;
+	std::vector<DirectX::XMFLOAT3> m_Normals;
+	std::vector<DirectX::XMFLOAT2> m_TextureCoord;
+	std::vector<Face> m_Index;
+	std::vector<Material> m_Material;
 public:
 	ModelLoader();
 	~ModelLoader();
 	bool loadFile(std::string p_Filename);
-private:
-	std::unique_ptr<DirectX::XMFLOAT3> m_Pos;
-	std::unique_ptr<DirectX::XMFLOAT3> m_Tangents;
-	std::unique_ptr<DirectX::XMFLOAT3> m_Normals;
-	std::unique_ptr<DirectX::XMFLOAT2> m_Texture;
 };
