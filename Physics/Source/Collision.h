@@ -6,31 +6,72 @@ class Collision
 {
 public:
 	static enum { OUTSIDE = 0, INTERSECT, INSIDE };
+
+	enum class Type
+	{
+		NONE,
+		SPHEREVSSPHERE,
+		AABBVSSPHERE,
+		AABBVSAABB
+	};
+
+	struct HitData
+	{
+		DirectX::XMFLOAT4	colPos;
+		DirectX::XMFLOAT4	colNorm;
+		bool				intersect;
+		Collision::Type		colType;
+		float				colLength;
+
+		HitData()
+		{
+			colPos		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+			colNorm		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+			intersect	= false;
+			colType		= Collision::Type::NONE;
+			colLength	= -1.f;
+		}
+	};
+
 public:
 	Collision();
 	~Collision();
 	
 	/**
-	* Sphere versus Sphere collision
-	* @return true if collision happens, otherwise false.
+	* Redirect to the appropriate check, when neither BoundingVolumes' type is known.
+	* @return HitData, see HitData definition.
 	*/
-	bool sphereVsSphere(Sphere* p_sphere1, Sphere* p_sphere2);
+	HitData boundingVolumeVsBoundingVolume(BoundingVolume* p_Volume1, BoundingVolume* p_Volume2);
+	/**
+	* Check for the appropriate collision, a BoundingVolume versus a sphere.
+	* @return HitData, see HitData definition.
+	*/
+	HitData boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sphere);
+	/**
+	* Check for the appropriate collision, a BoundingVolume versus an AABB.
+	* Sphere versus Sphere collision
+	* @return HitData, see HitData definition.
+	*/
+	HitData boundingVolumeVsAABB(BoundingVolume* p_Volume, AABB* p_AABB);
+	/**
+	* Sphere versus Sphere collision
+	* @return HitData, see HitData definition.
+	*/
+	HitData sphereVsSphere(Sphere* p_Sphere1, Sphere* p_Sphere2);
 	/**
 	* AABB versus AABB collision
-	* ## Tip: You can use the AABBs' spheres and do SphereVsSphere before calling this 
-	* if you are doing a lot of collision tests and expect very few of them to return 
-	* true for better performance. ##
-	* @return true if collision happens, otherwise false
+	* ## SphereVsSphere check happens before 
+	* the actual AABBvsAABB collision check. ##
+	* @return HitData, see HitData definition.
 	*/
-	bool AABBvsAABB( AABB* p_aabb1, AABB* p_aabb2 );
+	HitData AABBvsAABB( AABB* p_AABB1, AABB* p_AABB2 );
 	/**
 	* AABB versus Sphere collision
-	* ## Tip: You can use the AABB's sphere and do SphereVsSphere before calling this 
-	* if you are doing a lot of collision tests and expect very few of them to return 
-	* true for better performance. ##
-	* @return true if collision happens, otherwise false
+	* ## SphereVsSphere check happens before 
+	* the actual AABBvsAABB collision check. ##
+	* @return HitData, see HitData definition.
 	*/
-	bool AABBvsSphere( AABB* p_aabb, Sphere* p_sphere );
+	HitData AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere );
 	//bool	collide( BoundingVolume* p_pVolume );
 };
 

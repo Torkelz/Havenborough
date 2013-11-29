@@ -115,6 +115,7 @@
     <ClCompile Include="..\Client\Source\Input\InputState.cpp" />
     <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp" />
     <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
+    <ClCompile Include="AABBTest.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
     <ClCompile Include="..\Client\Source\GameScene.cpp" />
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
@@ -127,12 +128,18 @@
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="Source\TestShader.cpp" />
     <ClCompile Include="Source\TestTextureLoader.cpp" />
+    <ClCompile Include="SphereTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Physics\include\AABB.h" />
+    <ClInclude Include="..\Physics\include\BoundingVolume.h" />
+    <ClInclude Include="..\Physics\include\Sphere.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

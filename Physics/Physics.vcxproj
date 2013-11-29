@@ -88,6 +88,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\AABB.cpp" />
+    <ClCompile Include="Source\Body.cpp" />
     <ClCompile Include="Source\Collision.cpp" />
     <ClCompile Include="Source\Physics.cpp" />
     <ClCompile Include="Source\Sphere.cpp" />
@@ -97,6 +98,7 @@
     <ClInclude Include="include\BoundingVolume.h" />
     <ClInclude Include="include\IPhysics.h" />
     <ClInclude Include="include\Sphere.h" />
+    <ClInclude Include="Source\Body.h" />
     <ClInclude Include="Source\Collision.h" />
     <ClInclude Include="Source\Physics.h" />
     <ClInclude Include="Source\VolumeIncludeAll.h" />

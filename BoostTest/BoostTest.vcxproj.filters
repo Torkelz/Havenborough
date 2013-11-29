@@ -28,8 +28,15 @@
     <ClCompile Include="Source\TestTextureLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
+    <ClCompile Include="SphereTest.cpp" />
+    <ClCompile Include="AABBTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Physics\include\Sphere.h" />
+    <ClInclude Include="..\Physics\include\BoundingVolume.h" />
+    <ClInclude Include="..\Physics\include\AABB.h" />
   </ItemGroup>
 </Project>
