@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		DummyWrapper::initializeDummy();
 		wraps = DummyWrapper::getDummyInstance();
 		
-		Shader *shady;
+		Shader *shady = nullptr;
 
 		D3D11_INPUT_ELEMENT_DESC desc[] = 
 		{
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 			desc, size));
 
 		BOOST_CHECK(shady != nullptr);
-
+		
 		SAFE_DELETE(shady);
 
 		wraps->shutdown();
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		DummyWrapper::initializeDummy();
 		wraps = DummyWrapper::getDummyInstance();
 
-		Shader *shady;
+		Shader *shady = nullptr;
 
 		BOOST_CHECK_NO_THROW(shady = wraps->createShader(L"Source/dummy.hlsl", "main", "vs_5_0", Shader::Type::VERTEX_SHADER));
 
