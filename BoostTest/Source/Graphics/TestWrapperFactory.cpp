@@ -266,6 +266,6 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		SAFE_DELETE(shady);
 
 		wraps->shutdown();
-	}//
+	}
 
 BOOST_AUTO_TEST_SUITE_END()
