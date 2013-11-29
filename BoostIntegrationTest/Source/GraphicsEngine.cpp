@@ -90,24 +90,29 @@ BOOST_AUTO_TEST_CASE(TestGraphics)
 		ShaderException);
 
 
-	D3D11_INPUT_ELEMENT_DESC desc[] = 
+	IGraphics::ShaderInputElementDescription desc[] = 
 	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 2, 24, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"POSITION", 0, IGraphics::Format::R32G32B32_FLOAT, 0, 0, 0, 0},
+		{"NORMAL", 0, IGraphics::Format::R32G32B32_FLOAT, 1, 12, 0, 0},
+		{"TEXCOORD", 0, IGraphics::Format::R32G32B32_FLOAT, 2, 24, 0, 0}
 	};
 	int size = sizeof(desc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
 	Shader *shader = nullptr;
 
 	BOOST_MESSAGE("Creating vertex shader with user defined input description");
-	BOOST_CHECK_NO_THROW(shader = factory->createShader(L"Source/dummyVS.hlsl", "main", "vs_5_0", Shader::Type::VERTEX_SHADER,
+	BOOST_CHECK_NO_THROW(gr->createShader("LAWL", L"Source/dummyVS.hlsl", "main", "vs_5_0", IGraphics::ShaderType::VERTEX_SHADER,
 		desc, size));
 	SAFE_DELETE(shader);
 
 	BOOST_MESSAGE("Creating vertex shader with user defined input description, wrong shader model, expecting shader exception");
-	BOOST_CHECK_THROW(shader = factory->createShader(L"Source/dummyVS.hlsl", "main", "ps_5_0", Shader::Type::VERTEX_SHADER,
+	BOOST_CHECK_THROW(gr->createShader("OMGLOL", L"Source/dummyVS.hlsl", "main", "ps_5_0", IGraphics::ShaderType::VERTEX_SHADER,
 		desc, size), ShaderException);
 	SAFE_DELETE(shader);
+
+	BOOST_MESSAGE("Creating Texture that does not exist, expecting exception");
+	BOOST_CHECK_THROW(gr->createTexture("MyTexture", "lol.png"), TextureLoaderException);
+
+	BOOST_CHECK_THROW(gr->createTexture("MyTexture", "lol.dds"), TextureLoaderException);
 
 	IGraphics::deleteGraphics(gr);
 	factory = nullptr;

@@ -41,7 +41,7 @@ public:
 	*
 	*/
 	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-		Shader::Type p_ShaderType,const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts);
+		Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfElements);
 	
 	/**
 	*

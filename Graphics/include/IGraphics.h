@@ -14,6 +14,28 @@ public:
 		DOMAIN_SHADER = 4
 	};
 
+	enum class Format
+	{
+		R32G32B32A32_FLOAT = 2,
+		R32G32B32A32_UINT = 3,
+		R32G32B32_FLOAT = 6,
+		R32G32B32_UINT = 7,
+		R32G32_FLOAT = 16,
+		R32G32_UINT = 17,
+		R8G8B8A8_UNORM = 28,
+	};
+
+	struct ShaderInputElementDescription
+	{
+		LPCSTR semanticName;
+		UINT semanticIndex; 
+		Format format;
+		UINT inputSlot;
+		UINT alignedByteOffset;
+		UINT inputSlotClass;
+		UINT instanceDataStepRate;
+	};
+
 	virtual ~IGraphics(void)
 	{}
 	/**
@@ -60,12 +82,23 @@ public:
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) = 0;
 
 	/**
+	* 
+	*/
+	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename,
+		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
+		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfElements) = 0;
+
+	/**
 	* Establish a map of shader name to a model name.
 	* @param p_ShaderId name of the shader
 	* @param p_ModelId name of the model
 	*/
 	virtual void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) = 0;
 
+	/**
+	* 
+	*/
+	virtual void createTexture(const char *p_TextureId, const char *p_filename) = 0;
 	/**
 	* 
 	*/

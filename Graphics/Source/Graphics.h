@@ -47,6 +47,7 @@ private:
 	vector<pair<string, Shader*>> m_ShaderList;
 	//vector<pair<string, Model>> m_ModelList;
 	vector<pair<string, string>> m_ShaderLinkList;
+	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
 
 public:
 	Graphics(void);
@@ -58,8 +59,13 @@ public:
 	void createModel(const char *p_ModelId, const char *p_Filename);
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
+	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
+		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
+		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements);
 	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId);
-
+	
+	void createTexture(const char *p_TextureId, const char *p_filename);
+	
 	void addStaticLight(void);
 	void removeStaticLight(void);
 	void useFrameLight(void);

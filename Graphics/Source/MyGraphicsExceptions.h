@@ -109,7 +109,7 @@ public:
 };
 
 /**
-* An exception to be thrown when an error occurs with the shaders.
+* An exception to be thrown when an error occurs with in the wrapper factory.
 */
 class WrapperFactoryException : public MyGraphicsExceptions
 {
@@ -122,6 +122,25 @@ public:
          * @param p_File The file of the exception (use __FILE__)
          */
         WrapperFactoryException(const std::string& p_What, int p_Line, const std::string& p_File)
+                : MyGraphicsExceptions(p_What, p_Line, p_File)
+        {
+        }
+};
+
+/**
+* An exception to be thrown when an error occurs with in the texture loader.
+*/
+class TextureLoaderException : public MyGraphicsExceptions
+{
+public:
+        /**
+         * constructor.
+         *
+         * @param p_What A message describing the error
+         * @param p_Line The line of the exception (use __LINE__)
+         * @param p_File The file of the exception (use __FILE__)
+         */
+        TextureLoaderException(const std::string& p_What, int p_Line, const std::string& p_File)
                 : MyGraphicsExceptions(p_What, p_Line, p_File)
         {
         }

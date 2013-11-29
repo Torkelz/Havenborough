@@ -4,6 +4,7 @@
 #include <vector>
 #include "WICTextureLoader.h"
 #include "DDSTextureLoader.h"
+#include "MyGraphicsExceptions.h"
 
 class TextureLoader
 {
@@ -36,7 +37,7 @@ public:
 	 * @param p_Filename, path of the file to be loaded.
 	 * @return Success = A pointer to the loaded texture, Fail = nullptr.
 	 */
-	ID3D11ShaderResourceView* createTextureFromFile(char* p_Filename);
+	ID3D11ShaderResourceView* createTextureFromFile(const char* p_Filename);
 protected:
 	virtual HRESULT CreateWICTextureFromFile(ID3D11Device* d3dDevice,
                                            ID3D11DeviceContext* d3dContext,

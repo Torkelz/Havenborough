@@ -220,9 +220,47 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		p_EntryPoint, p_ShaderModel, (Shader::Type)p_Type)));
 }
 
+void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
+	const char *p_ShaderModel, ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout,
+	unsigned int p_NumOfElements)
+{
+	D3D11_INPUT_ELEMENT_DESC *desc = new D3D11_INPUT_ELEMENT_DESC[p_NumOfElements];
+
+	for(unsigned int i = 0; i < p_NumOfElements; i++)
+	{
+		desc[i].SemanticName = p_VertexLayout[i].semanticName;
+		desc[i].SemanticIndex = p_VertexLayout[i].semanticIndex; 
+		desc[i].Format = (DXGI_FORMAT)p_VertexLayout[i].format;
+		desc[i].InputSlot = p_VertexLayout[i].inputSlot;
+		desc[i].AlignedByteOffset = p_VertexLayout[i].alignedByteOffset;
+		desc[i].InputSlotClass = (D3D11_INPUT_CLASSIFICATION)p_VertexLayout[i].inputSlotClass;
+		desc[i].InstanceDataStepRate = p_VertexLayout[i].instanceDataStepRate;
+	}
+	
+	try
+	{
+		m_ShaderList.push_back(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename,
+			p_EntryPoint, p_ShaderModel, (Shader::Type)p_Type, desc, p_NumOfElements)));
+	}
+	catch(...)
+	{
+		SAFE_DELETE(desc);
+		desc = nullptr;
+		throw;
+	}
+
+	SAFE_DELETE(desc);
+	desc = nullptr;
+}
+
 void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 {
 	m_ShaderLinkList.push_back(make_pair(p_ShaderId, p_ModelId));
+}
+
+void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
+{
+	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
 }
 
 void Graphics::renderModel(char *p_ModelId)
