@@ -152,9 +152,32 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
 
+	//Setup camera matrices REMOVE LATER
+	DirectX::XMFLOAT4 eye4,lookat,up;
+	DirectX::XMFLOAT3 *eye;
+	eye4 = DirectX::XMFLOAT4(0,0,-50,1);
+	eye = new  DirectX::XMFLOAT3(eye4.x,eye4.y,eye4.z);
+	lookat = DirectX::XMFLOAT4(0,0,0,1);
+	up = DirectX::XMFLOAT4(0,1,0,0);
+	DirectX::XMFLOAT4X4 *view, *proj;
+	view = new DirectX::XMFLOAT4X4();
+	proj = new DirectX::XMFLOAT4X4();
+	DirectX::XMStoreFloat4x4(view,
+							DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
+								DirectX::XMLoadFloat4(&eye4),
+								DirectX::XMLoadFloat4(&lookat),
+								DirectX::XMLoadFloat4(&up))));
+	DirectX::XMStoreFloat4x4(proj,
+							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
+								0.4f*3.14f,
+								(float)p_ScreenWidth / (float)p_ScreenHeight,
+								1.0f,
+								1000.0f)));
+
 	//Deferred Render
 	m_DeferredRender = new DeferredRenderer();
-	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight);
+	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
+								eye, view, proj);
 
 	m_WrapperFactory = new WrapperFactory(m_Device, m_DeviceContext);
 

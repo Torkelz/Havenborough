@@ -1,5 +1,5 @@
-Texture2D depthTex		: register (t0);
-SamplerState m_textureSampler : register ( s0 );
+Texture2D debugTex				: register (t0);
+SamplerState m_textureSampler	: register ( s0 );
 
 //##################################
 //		SHADER PASSES
@@ -37,10 +37,7 @@ VSOutput VS( uint vID : SV_VERTEXID )
 float4 PS( VSOutput input ) :  SV_Target0
 {
 	float2 screenPos = input.texCoord;
-	int3 sampleIndices = int3( screenPos, 0);
-	// Sample the G-Buffer properties from the textures
-	return float4(depthTex.Sample(m_textureSampler, screenPos).xyz,1.0f);
-	//return float4(1,0,0,1);
 
-	//return float4(1,0,0,1);
+	// Sample the texture and draw it on the screen quad.
+	return float4(debugTex.Sample(m_textureSampler, screenPos).xyz,1.0f);
 }

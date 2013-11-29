@@ -15,6 +15,7 @@ struct VSIn
 struct PSIn
 {
 	float4	pos					: SV_POSITION;
+	float4	wpos				: WSPOSITION;
 	float3	diffuse				: COLOR;
 	float	specularPower		: SP;
 	float	specularIntensity	: SI;
@@ -24,8 +25,8 @@ struct PSIn
 struct PSOut
 {
 	half4 diffuse	: SV_Target0; // xyz = diffuse color, w = empty
-	half4 normal	: SV_Target1; // xy = normal.xy, z = specularPower, w = specularIntensity
-	half4 depth		: SV_Target2;
+	half4 normal	: SV_Target1; // xyz = normal.xyz, w = specularPower
+	half4 wPosition	: SV_Target2; // xyz = world position, w = specular intensity
 };
 
 PSIn VS( VSIn input )
@@ -33,7 +34,8 @@ PSIn VS( VSIn input )
 	PSIn output;
 
 	output.pos = mul( mul(input.pos, view), projection );
-	float3 dummy = cameraPos;
+	output.wpos = input.pos;
+
 	output.diffuse = input.color.xyz;
 	output.specularPower = input.normal.w;
 	output.specularIntensity = input.color.w;
@@ -45,13 +47,13 @@ PSIn VS( VSIn input )
 PSOut PS( PSIn input )
 {
 	PSOut output;
-	float2 norm			= input.normal.xy;
-	output.diffuse.xyz	= input.diffuse.xyz;
-	output.diffuse.w	= 1.0f;
-	output.normal.z		= input.specularPower;
-	output.normal.w		= 1.0f;//input.specularIntensity; // 1.0f for debug.
-	output.normal.xy	= 0.5f * (normalize(norm) + 1.0f);
-	output.depth		= float4(input.pos.z/input.pos.w, input.pos.z/input.pos.w, input.pos.z/input.pos.w, 1.0f);	
+	float3 norm				= 0.5f * (normalize(input.normal) + 1.0f);
+	output.diffuse.xyz		= input.diffuse.xyz;
+	output.diffuse.w		= 1.0f; // Empty. 1.0f for debug.
+	output.normal.w			= 1.0f; // input.specularPower; 1.0f for debug.
+	output.normal.xyz		= norm.xyz;
+	output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
+	output.wPosition.w		= 1.0f;//input.specularIntensity; // 1.0f for debug.
 
 	return output;
 }

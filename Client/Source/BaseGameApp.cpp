@@ -24,7 +24,8 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('S', "moveBackward");
 	translator->addKeyboardMapping('A', "moveLeft");
 	translator->addKeyboardMapping('D', "moveRight");
-	translator->addKeyboardMapping('C', "changeView");
+	translator->addKeyboardMapping('C', "changeViewN");
+	translator->addKeyboardMapping('V', "changeViewP");
 	m_InputQueue.init(std::move(translator));
 
 	//physics = IPhysics::createPhysics();
@@ -39,32 +40,7 @@ void BaseGameApp::init()
 	bdesc.usage = BUFFER_DEFAULT;
 
 	m_Buffer = m_Graphics->createBuffer(bdesc);
-
-	cBuffer cb;
-	DirectX::XMFLOAT4 eye,lookat,up;
-	eye = DirectX::XMFLOAT4(10,0,-50,1);
-	lookat = DirectX::XMFLOAT4(0,0,0,1);
-	up = DirectX::XMFLOAT4(0,1,0,0);
-	DirectX::XMStoreFloat4x4(&cb.view,
-							DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
-								DirectX::XMLoadFloat4(&eye),
-								DirectX::XMLoadFloat4(&lookat),
-								DirectX::XMLoadFloat4(&up))));
-	DirectX::XMStoreFloat4x4(&cb.proj,
-							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
-								0.4f*3.14f,
-								(float)m_Window.getSize().x / (float)m_Window.getSize().y,
-								1.0f,
-								1000.0f)));
-	cb.campos = DirectX::XMFLOAT3(eye.x, eye.y, eye.z);
-	BufferDescription cbdesc;
-	cbdesc.initData = &cb;
-	cbdesc.numOfElements = 1;
-	cbdesc.sizeOfElement = sizeof(BaseGameApp::cBuffer);
-	cbdesc.type = CONSTANT_BUFFER_ALL;
-	cbdesc.usage = BUFFER_DEFAULT;
-	m_CBuffer = m_Graphics->createBuffer(cbdesc);
-
+	
 	m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DummyVertexShader.hlsl","VS","vs_5_0",VERTEX_SHADER);
 	m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DummyVertexShader.hlsl","PS","ps_5_0",PIXEL_SHADER);
 	//TEMPORARY --------------------------------------------------------
@@ -96,12 +72,19 @@ void BaseGameApp::run()
 			{
 				m_ShouldQuit = true;
 			}
-			else if(in.m_Action ==  "changeView" && in.m_Value == 1)
+			else if(in.m_Action ==  "changeViewN" && in.m_Value == 1)
+			{
+				currView--;
+				if(currView < 0)
+					currView = 3;
+				printf("Changeview--\n", in.m_Action.c_str(), in.m_Value);
+			}
+			else if(in.m_Action ==  "changeViewP" && in.m_Value == 1)
 			{
 				currView++;
 				if(currView >= 4)
 					currView = 0;
-				printf("Receive: %s (%.1f)\n", in.m_Action.c_str(), in.m_Value);
+				printf("Changeview++\n", in.m_Action.c_str(), in.m_Value);
 			}
 			else
 			{
@@ -170,18 +153,18 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
     box[5] = vertex(vert5, normal, color);
 
     // Front
-	color = XMFLOAT4(0.f,0.f,1.f,1.f);
-	normal = XMFLOAT4(0.f,0.f,-1.f,0.f);
+	/*color = XMFLOAT4(0.f,0.f,1.f,1.f);
+	normal = XMFLOAT4(0.f,0.f,1.f,0.f);
     box[6] =  vertex(vert1, normal, color);
     box[7] =  vertex(vert3, normal, color);
     box[8] =  vertex(vert0, normal, color);
     box[9] =  vertex(vert3, normal, color);
     box[10] = vertex(vert2, normal, color);
-    box[11] = vertex(vert0, normal, color);
+    box[11] = vertex(vert0, normal, color);*/
 
     // Top
 	color = XMFLOAT4(1.f,0.f,0.f,1.f);
-	normal = XMFLOAT4(0.f,1.f,0.f,0.f);
+	normal = XMFLOAT4(0.f,-1.f,0.f,0.f);
     box[12] = vertex(vert3, normal, color);
     box[13] = vertex(vert7, normal, color);
     box[14] = vertex(vert2, normal, color);
@@ -191,7 +174,7 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
 
     // Bottom
 	color = XMFLOAT4(1.f,1.f,0.f,1.f);
-	normal = XMFLOAT4(0.f,-1.f,0.f,0.f);
+	normal = XMFLOAT4(0.f,1.f,0.f,0.f);
     box[18] = vertex(vert0, normal, color);
     box[19] = vertex(vert4, normal, color);
     box[20] = vertex(vert1, normal, color);
@@ -201,7 +184,7 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
 
     // Right
 	color = XMFLOAT4(0.f,1.f,1.f,1.f);
-	normal = XMFLOAT4(1.f,0.f,0.f,0.f);
+	normal = XMFLOAT4(-1.f,0.f,0.f,0.f);
     box[24] = vertex(vert5, normal, color);
     box[25] = vertex(vert7, normal, color);
     box[26] = vertex(vert1, normal, color);
@@ -211,7 +194,7 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
 
     // Left
 	color = XMFLOAT4(1.f,0.f,1.f,1.f);
-	normal = XMFLOAT4(-1.f,0.f,0.f,0.f);
+	normal = XMFLOAT4(1.f,0.f,0.f,0.f);
     box[30] = vertex(vert0, normal, color);
     box[31] = vertex(vert2, normal, color);
     box[32] = vertex(vert4, normal, color);

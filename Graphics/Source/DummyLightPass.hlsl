@@ -1,5 +1,4 @@
-
-
+SamplerState m_textureSampler	: register ( s0 );
 Texture2D depthTex		: register (t0);
 Texture2D normalTex		: register (t1);
 Texture2D diffuseTex	: register (t2);
@@ -29,23 +28,15 @@ void GetGBufferAttributes( in float2 screenPos,
 						  out float3 position,
 						  out float3 diffuseAlbedo,
 						  out float3 specularAlbedo,
-						  out float specularPower,
-						  out float depth)
+						  out float specularPower)
 {
-	int3 sampleIndices = int3( screenPos, 0);
-	normal = normalTex.Load( sampleIndices ).xyz;
+	float3 normal2 = normalTex.Sample(m_textureSampler, screenPos).xyz;
+	normal = (normal2 * 2) - 1.0f;
 
-	//transform 2d coord to 3D coord
-	depth = depthTex.Load(sampleIndices).x;
-	float4 pixelpos = float4( (screenPos * float2(2.0f,-2.0f)) + 
-								float2(-1.0f,1.0f),
-								0.0f,
-								1.0f);
-	position = float3(pixelpos.xy, depth);
-	position = mul(position, mul(invview,invprojection));
+	position = depthTex.Sample(m_textureSampler, screenPos).xyz;
 
-	diffuseAlbedo = diffuseTex.Load( sampleIndices ).xyz;
-	float4 spec = float4(0,0,0,0);//specularTex.Load( sampleIndices );
+	diffuseAlbedo = diffuseTex.Sample(m_textureSampler, screenPos).xyz;
+	float4 spec = float4(0,0,0,0);//specularTex.Sample(m_textureSampler, screenPos).xyz;//specularTex.Load( sampleIndices );
 
 	specularAlbedo = spec.xyz;
 	specularPower = spec.w;
@@ -57,13 +48,13 @@ float3 CalcLighting(	float3 normal,
 						float3 specularAlbedo,
 						float specularPower )
 {
-	float3 L = 0;
+	float3 L = float3(0.f,0.f,0.f);
 	float attenuation = 1.0f;
 	if( lightType == 0 || lightType == 1) //Point light||Spot light
 	{
 		L = lightPos - position;
 		float dist = length( L );
-		attenuation = max( 0, 1.0f - (dist / lightRange) );
+		attenuation = max( 0.f, 1.0f - (dist / lightRange) );
 		L /= dist;
 	}
 	else if (lightType == 2) //Directional light
@@ -81,14 +72,17 @@ float3 CalcLighting(	float3 normal,
 	}
 
 	float nDotL = saturate( dot( normal, L ) );
-	float3 diffuse = nDotL * lightDirection * diffuseAlbedo;
-	
+	float3 diffuse;
+	if(lightType != 0)
+		diffuse = nDotL * lightDirection * diffuseAlbedo;
+	else
+		diffuse = nDotL * diffuseAlbedo;
+
 	// Calculate the specular term
 	float3 V = cameraPos - position;
 	float3 H = normalize( L + V );
 	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
 							lightColor * specularAlbedo.xyz * nDotL;
-
 	// Final value is the sum of the albedo and diffuse with attenuation applied
 	return ( diffuse + specular ) * attenuation;
 }
@@ -127,25 +121,20 @@ VSOutput VSmain( uint vID : SV_VERTEXID )
 	return output; 
 }
 
-float4 PSmain( VSOutput input ) :  SV_Target0
+float4 PSmain( VSOutput input ) :  SV_Target
 {
-	float2 screenPos = input.texCoord;
-
 	float3 normal;
 	float3 position;
 	float3 diffuseAlbedo;
 	float3 specularAlbedo;
 	float specularPower;
-	float depth;
 	
 	// Sample the G-Buffer properties from the textures
-	GetGBufferAttributes( screenPos, normal, position, diffuseAlbedo,
-		specularAlbedo, specularPower, depth );
-
-	return float4(depth,depth,depth,1);
+	GetGBufferAttributes( input.texCoord, normal, position, diffuseAlbedo,
+		specularAlbedo, specularPower );
 
 	float3 lighting = CalcLighting( normal, position, diffuseAlbedo,
 		specularAlbedo, specularPower );
-	//return float4(1,0,0,1);
+	
 	return float4( lighting, 1.0f );
 }
