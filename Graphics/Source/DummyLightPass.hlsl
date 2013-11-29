@@ -1,14 +1,16 @@
-SamplerState m_textureSampler	: register ( s0 );
-Texture2D depthTex		: register (t0);
-Texture2D normalTex		: register (t1);
-Texture2D diffuseTex	: register (t2);
-Texture2D specularTex	: register (t3);
+#pragma pack_matrix(row_major)
+
+SamplerState m_textureSampler	: register (s0);
+Texture2D depthTex				: register (t0);
+Texture2D normalTex				: register (t1);
+Texture2D diffuseTex			: register (t2);
+Texture2D specularTex			: register (t3);
 
 cbuffer cb : register(b0)
 {
-	float4x4 invview;
-	float4x4 invprojection;
-	float3 cameraPos;
+	float4x4	invview;
+	float4x4	invprojection;
+	float3		cameraPos;
 };
 cbuffer LightParams : register(b1)
 {

@@ -111,24 +111,34 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
     m_Device->CreateSamplerState( &sd, &m_Sampler );
 	
-
+	D3D11_BLEND_DESC bd;
+    bd.AlphaToCoverageEnable = false;
+    bd.IndependentBlendEnable = false;
+    bd.RenderTarget[3].BlendEnable = true;
+    bd.RenderTarget[3].SrcBlend = D3D11_BLEND_ONE;
+    bd.RenderTarget[3].DestBlend =  D3D11_BLEND_ONE;
+    bd.RenderTarget[3].BlendOp = D3D11_BLEND_OP_ADD;
+    bd.RenderTarget[3].SrcBlendAlpha = D3D11_BLEND_ONE;
+    bd.RenderTarget[3].DestBlendAlpha = D3D11_BLEND_ONE;
+    bd.RenderTarget[3].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    bd.RenderTarget[3].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    m_Device->CreateBlendState(&bd, &m_BlendState);
 
 	// TEMPORARY -----------------------------------------------------------
 	// Make the light
 	Light testLight(	
-		DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
+		DirectX::XMFLOAT3(5.0f, 0.0f, 0.0f),
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT2(1.0f, 1.0f),  
-		1000.0f,
+		10.0f,
 		0
 	);
-	m_Lights.push_back(testLight);
+	addLight(testLight);
+	addLight(Light (DirectX::XMFLOAT3(-5.0f, 0.0f, 0.0f),DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
+		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1.0f, 1.0f), 10.0f,0));
 	// TEMPORARY -----------------------------------------------------------------
-
-
-
-	createConstantBuffers(testLight);
+	createConstantBuffer();
 }
 
 void DeferredRenderer::renderDeferred()
@@ -163,7 +173,7 @@ void DeferredRenderer::renderGeometry()
 	for(unsigned int i = 0; i < m_Objects.size();i++)
 	{
 		//Send stuff
-		// The update of the subresource has to be done externally.
+		// The update of the sub resource has to be done externally.
 		m_Objects.at(i).m_Buffer->setBuffer(0);
 		//set shader
 		m_Objects.at(i).m_Shader->setShader();
@@ -191,10 +201,11 @@ void DeferredRenderer::renderLighting()
 
 	// Set texture sampler.
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
+	m_LightShader->setBlendState(m_BlendState);
 
 	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
-	////Select the third rendertarget[3]
+	////Select the third render target[3]
 	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], 0); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -202,7 +213,7 @@ void DeferredRenderer::renderLighting()
 	for(unsigned int i = 0; i < m_Lights.size();i++)
 	{
 		//Send stuff
-		// The update of the subresource has to be done externally.		
+		updateLightBuffer(m_Lights.at(i));		
 		m_LightBuffer->setBuffer(1);
 		
 		//set shader
@@ -214,6 +225,7 @@ void DeferredRenderer::renderLighting()
 		m_LightShader->unSetShader();
 	}
 	m_ConstantBuffer->unsetBuffer(1);
+	m_LightShader->setBlendState(nullptr);
 
 	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
@@ -244,9 +256,9 @@ void DeferredRenderer::addRenderable(Renderable p_renderable, bool p_Transparent
 	temp = nullptr;
 }
 
-void DeferredRenderer::addLight()
+void DeferredRenderer::addLight(Light p_Light)
 {
-
+	m_Lights.push_back(p_Light);
 }
 
 ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
@@ -268,6 +280,11 @@ void DeferredRenderer::updateConstantBuffer()
 	cb.campos = *m_CameraPosition;
 
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
+}
+
+void DeferredRenderer::updateLightBuffer(Light &p_Light)
+{
+	m_DeviceContext->UpdateSubresource(m_LightBuffer->getBufferPointer(), NULL,NULL, &p_Light,NULL,NULL);
 }
 
 HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc, unsigned int p_screenWidth, unsigned int p_screenHeight )
@@ -365,11 +382,11 @@ HRESULT DeferredRenderer::createShaderResourceViews( ID3D11DepthStencilView * p_
 	return result;
 }
 
-void DeferredRenderer::createConstantBuffers( Light testLight )
+void DeferredRenderer::createConstantBuffer()
 {
 	// Create constant buffer for the lights
 	BufferDescription sbdesc;
-	sbdesc.initData = &testLight;
+	sbdesc.initData = nullptr;
 	sbdesc.numOfElements = 1;
 	sbdesc.sizeOfElement = sizeof(Light);
 	sbdesc.type = CONSTANT_BUFFER_ALL;

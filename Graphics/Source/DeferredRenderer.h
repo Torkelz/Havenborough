@@ -64,6 +64,7 @@ private:
 	ID3D11ShaderResourceView	*m_wPositionSRV;
 	
 	ID3D11SamplerState			*m_Sampler;
+	ID3D11BlendState			*m_BlendState;
 	Shader						*m_LightShader;
 	Buffer						*m_LightBuffer;
 	Buffer						*m_ConstantBuffer;
@@ -86,7 +87,7 @@ public:
 	void renderDeferred();
 	
 	void addRenderable(Renderable p_Renderable, bool p_Transparent);
-	void addLight();
+	void addLight(Light p_light);
 
 
 	ID3D11ShaderResourceView* getRT(int i);
@@ -100,10 +101,11 @@ private:
 	void renderForward();
 
 	void updateConstantBuffer();
+	void updateLightBuffer(Light &p_Light);
 
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc, unsigned int p_screenWidth, unsigned int p_screenHeight );
 	HRESULT createShaderResourceViews( ID3D11DepthStencilView * p_DepthStencilView, D3D11_TEXTURE2D_DESC &desc );
-	void createConstantBuffers( Light testLight ); //REMOVE parameter when done with debug
+	void createConstantBuffer();
 	void clearRenderTargets();
 };
 

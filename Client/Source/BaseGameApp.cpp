@@ -133,18 +133,18 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
 	XMFLOAT4 center = XMFLOAT4(x,y,z,1.0f);
     XMFLOAT4 color, normal;
 
-    XMFLOAT4 vert0 = XMFLOAT4(-1.0f*size, -1.0f*size, -1.0f*size, 1.0f); // 0 --- LowerLeftFront
-    XMFLOAT4 vert1 = XMFLOAT4( 1.0f*size, -1.0f*size, -1.0f*size, 1.0f); // 1 +-- LowerRightFront
-    XMFLOAT4 vert2 = XMFLOAT4(-1.0f*size,  1.0f*size, -1.0f*size, 1.0f); // 2 -+- UpperLeftFront
-    XMFLOAT4 vert3 = XMFLOAT4( 1.0f*size,  1.0f*size, -1.0f*size, 1.0f); // 3 ++- UpperRightFront
-    XMFLOAT4 vert4 = XMFLOAT4(-1.0f*size, -1.0f*size,  1.0f*size, 1.0f); // 4 --+ LowerLeftBack
-    XMFLOAT4 vert5 = XMFLOAT4( 1.0f*size, -1.0f*size,  1.0f*size, 1.0f); // 5 +-+ LowerRightBack
-    XMFLOAT4 vert6 = XMFLOAT4(-1.0f*size,  1.0f*size,  1.0f*size, 1.0f); // 6 -++ UpperLeftBack
-    XMFLOAT4 vert7 = XMFLOAT4( 1.0f*size,  1.0f*size,  1.0f*size, 1.0f); // 7 +++ UpperRightBack
+    XMFLOAT4 vert0 = XMFLOAT4(-1.0f*size, -1.0f*size,  1.0f*size, 1.0f); // 0 --- LowerLeftFront
+    XMFLOAT4 vert1 = XMFLOAT4( 1.0f*size, -1.0f*size,  1.0f*size, 1.0f); // 1 +-- LowerRightFront
+    XMFLOAT4 vert2 = XMFLOAT4(-1.0f*size,  1.0f*size,  1.0f*size, 1.0f); // 2 -+- UpperLeftFront
+    XMFLOAT4 vert3 = XMFLOAT4( 1.0f*size,  1.0f*size,  1.0f*size, 1.0f); // 3 ++- UpperRightFront
+    XMFLOAT4 vert4 = XMFLOAT4(-1.0f*size, -1.0f*size, -1.0f*size, 1.0f); // 4 --+ LowerLeftBack
+    XMFLOAT4 vert5 = XMFLOAT4( 1.0f*size, -1.0f*size, -1.0f*size, 1.0f); // 5 +-+ LowerRightBack
+    XMFLOAT4 vert6 = XMFLOAT4(-1.0f*size,  1.0f*size, -1.0f*size, 1.0f); // 6 -++ UpperLeftBack
+    XMFLOAT4 vert7 = XMFLOAT4( 1.0f*size,  1.0f*size, -1.0f*size, 1.0f); // 7 +++ UpperRightBack
                                                                                                  
     // Back
     color = XMFLOAT4(0.f,1.f,0.f,1.f);
-	normal = XMFLOAT4(0.f,0.f,-1.f,0.f);
+	normal = XMFLOAT4(0.f,0.f,1.f,0.f);
     box[0] = vertex(vert4, normal, color);
     box[1] = vertex(vert6, normal, color);
     box[2] = vertex(vert5, normal, color);
@@ -201,7 +201,6 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
     box[33] = vertex(vert2, normal, color);
     box[34] = vertex(vert6, normal, color);
     box[35] = vertex(vert4, normal, color);
-
 
     return box;
 }

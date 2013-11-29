@@ -1,3 +1,5 @@
+#pragma pack_matrix(row_major)
+
 cbuffer cb : register(b1)
 {
 	float4x4 view;
@@ -33,7 +35,7 @@ PSIn VS( VSIn input )
 {
 	PSIn output;
 
-	output.pos = mul( mul(input.pos, view), projection );
+	output.pos = mul( projection, mul(view, input.pos) );
 	output.wpos = input.pos;
 
 	output.diffuse = input.color.xyz;
