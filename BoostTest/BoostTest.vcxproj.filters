@@ -30,6 +30,8 @@
     <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
     <ClCompile Include="SphereTest.cpp" />
     <ClCompile Include="AABBTest.cpp" />
+    <ClCompile Include="..\Physics\Source\Body.cpp" />
+    <ClCompile Include="BodyTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />

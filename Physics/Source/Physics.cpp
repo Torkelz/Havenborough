@@ -62,10 +62,11 @@ void Physics::update(float p_DeltaTime)
 		for (unsigned j = i + 1; j < m_Bodies.size(); j++)
 		{
 			Collision::HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
-			m_HitDatas.push_back(hit);
+			
 
 			if(hit.intersect)
 			{
+				m_HitDatas.push_back(hit);
 				XMVECTOR temp;
 				XMFLOAT4 tempPos;
 

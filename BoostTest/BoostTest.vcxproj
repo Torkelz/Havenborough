@@ -114,8 +114,10 @@
     <ClCompile Include="..\Client\Source\Input\Input.cpp" />
     <ClCompile Include="..\Client\Source\Input\InputState.cpp" />
     <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp" />
+    <ClCompile Include="..\Physics\Source\Body.cpp" />
     <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
     <ClCompile Include="AABBTest.cpp" />
+    <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
     <ClCompile Include="..\Client\Source\GameScene.cpp" />
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
