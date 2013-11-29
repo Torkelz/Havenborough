@@ -114,14 +114,14 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	D3D11_BLEND_DESC bd;
     bd.AlphaToCoverageEnable = false;
     bd.IndependentBlendEnable = false;
-    bd.RenderTarget[3].BlendEnable = true;
-    bd.RenderTarget[3].SrcBlend = D3D11_BLEND_ONE;
-    bd.RenderTarget[3].DestBlend =  D3D11_BLEND_ONE;
-    bd.RenderTarget[3].BlendOp = D3D11_BLEND_OP_ADD;
-    bd.RenderTarget[3].SrcBlendAlpha = D3D11_BLEND_ONE;
-    bd.RenderTarget[3].DestBlendAlpha = D3D11_BLEND_ONE;
-    bd.RenderTarget[3].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-    bd.RenderTarget[3].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    bd.RenderTarget[0].BlendEnable = true;
+    bd.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    bd.RenderTarget[0].DestBlend =  D3D11_BLEND_ONE;
+    bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+    bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     m_Device->CreateBlendState(&bd, &m_BlendState);
 
 	// TEMPORARY -----------------------------------------------------------
@@ -225,7 +225,7 @@ void DeferredRenderer::renderLighting()
 		m_LightShader->unSetShader();
 	}
 	m_ConstantBuffer->unsetBuffer(1);
-	m_LightShader->setBlendState(nullptr);
+	m_LightShader->setBlendState(0);
 
 	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
@@ -411,7 +411,7 @@ void DeferredRenderer::createConstantBuffer()
 
 void DeferredRenderer::clearRenderTargets()
 {
-	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f};
+	float color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	for(unsigned int i = 0; i < m_numRenderTargets; i++)
 	{
 		if(i == 1)
@@ -420,11 +420,17 @@ void DeferredRenderer::clearRenderTargets()
 			color[1] = 0.5f;
 			color[2] = 0.5f;
 		}
-		if (i == 2)
+		else if (i == 2)
 		{
 			color[0] = 1.0f;
 			color[1] = 1.0f;
 			color[2] = 1.0f;
+		}
+		else
+		{
+			color[0] = 0.0f;
+			color[1] = 0.0f;
+			color[2] = 0.0f;
 		}
 		m_DeviceContext->ClearRenderTargetView(m_RenderTargets[i], color);
 	}
