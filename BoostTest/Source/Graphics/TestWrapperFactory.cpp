@@ -82,78 +82,103 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		}
 	};
 
-	//class DummyWrapper : public WrapperFactory
-	//{
-	//public:
-	//	DummyWrapper(ID3D11Device *p_Device,
-	//		ID3D11DeviceContext *p_DeviceContext) : WrapperFactory(p_Device, p_DeviceContext)
-	//	{
-	//	
-	//	}
+	class DummyWrapper : public WrapperFactory
+	{
+	private:
+		static DummyWrapper *instance;
+		
+		~DummyWrapper()
+		{
+			 
+		}
 
-	//	Shader* createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts) override
-	//	{
-	//		DummyShader *shader = new DummyShader();
+	public:
 
-	//		try
-	//		{
-	//			shader->initialize(nullptr, nullptr, p_NumOfInputElemts);
-	//			shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
+		static DummyWrapper *getDummyInstance()
+		{
+			if(!instance)
+				throw WrapperFactoryException("Wrapper factory has not initialized before use", __LINE__, __FILE__);
 
-	//			return shader;
-	//		}
-	//		catch(...)
-	//		{
-	//			SAFE_DELETE(shader);
-	//			throw;
-	//		}
-	//	}
+			return instance;
+		}
 
-	//	Shader* createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_ShaderType) override
-	//	{
-	//		DummyShader *shader = new DummyShader();
+		static void initializeDummy()
+		{
+			if (!instance)
+			{
+				instance = new DummyWrapper();
+			}
+		}
 
-	//		try
-	//		{
-	//			shader->initialize(nullptr, nullptr, 0);
-	//			shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, nullptr);
+		Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, Shader::Type p_ShaderType) override
+		{
+			DummyShader *shader = new DummyShader();
 
-	//			return shader;
-	//		}
-	//		catch(...)
-	//		{
-	//			SAFE_DELETE(shader);
-	//			throw;
-	//		}
-	//	}
+			try
+			{
+				shader->initialize(nullptr, nullptr, 0);
+				shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, nullptr);
 
-	//	Buffer* createBuffer(BufferDescription &p_Description)
-	//	{
-	//		DummyBuffer *buffer = new DummyBuffer();
-	//		HRESULT result;
-	//		try
-	//		{
-	//			result = buffer->initialize(nullptr, nullptr, p_Description);
-	//			if(result == S_OK)
-	//			{
-	//				return buffer;
-	//			}
-	//			else
-	//			{
-	//				SAFE_DELETE(buffer);
-	//				return nullptr;
-	//			}
+				return shader;
+			}
+			catch(...)
+			{
+				SAFE_DELETE(shader);
+				throw;
+			}
+		}
 
-	//		}
-	//		catch(...)
-	//		{
-	//			SAFE_DELETE(buffer);
-	//			throw;
-	//		}
-	//	}
+		Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+			Shader::Type p_ShaderType,const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts) override
+		{
+			DummyShader *shader = new DummyShader();
 
+			try
+			{
+				shader->initialize(nullptr, nullptr, p_NumOfInputElemts);
+				shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
 
-	//};
+				return shader;
+			}
+			catch(...)
+			{
+				SAFE_DELETE(shader);
+				throw;
+			}
+		}
+
+		Buffer *createBuffer(Buffer::Description &p_Description)
+		{
+			DummyBuffer *buffer = new DummyBuffer();
+			HRESULT result;
+			try
+			{
+				result = buffer->initialize(nullptr, nullptr, p_Description);
+				if(result == S_OK)
+				{
+					return buffer;
+				}
+				else
+				{
+					SAFE_DELETE(buffer);
+					return nullptr;
+				}
+
+			}
+			catch(...)
+			{
+				SAFE_DELETE(buffer);
+				throw;
+			}
+		}
+
+		void shutdown(void) override
+		{
+			SAFE_DELETE(instance);
+		}
+	};
+
+	DummyWrapper *DummyWrapper::instance = nullptr;
 
 	BOOST_AUTO_TEST_CASE(TestInitShader)
 	{
@@ -169,10 +194,43 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 			ShaderException);
 	}
 
-	/*BOOST_AUTO_TEST_CASE(TestShaderFactory)
+	BOOST_AUTO_TEST_CASE(TestInitBuffer)
 	{
-		DummyWrapper wraps(nullptr,nullptr);
-		Shader* shady;
+		DummyBuffer buff; 
+
+		float ff[] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}; 
+
+		Buffer::Description desc;
+		desc.initData =  &ff;
+		for(int i = 0; i < 5;i++)
+		{
+			for(int j = 0; j < 7;j++)
+			{
+				desc.numOfElements = 4;
+				desc.sizeOfElement = 12;
+				desc.usage = (Buffer::Usage)i;
+				desc.type = (Buffer::Type)j;
+
+				std::string msg = "BufferDesc combination of (" + std::to_string(i) + "," + std::to_string(j) + ") failed.";
+				if(i == 4 && j < 7)
+				{
+					BOOST_CHECK_THROW(buff.initialize(nullptr, nullptr, desc), BufferException);
+				}
+				else
+				{
+					BOOST_CHECK_MESSAGE(buff.initialize(nullptr, nullptr, desc) == S_OK, msg);					
+				}				
+			}
+		}
+	}
+
+	BOOST_AUTO_TEST_CASE(TestShaderFactory)
+	{
+		DummyWrapper *wraps = nullptr;
+		DummyWrapper::initializeDummy();
+		wraps = DummyWrapper::getDummyInstance();
+		
+		Shader *shady;
 
 		D3D11_INPUT_ELEMENT_DESC desc[] = 
 		{
@@ -183,54 +241,31 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 
 		int size = sizeof(desc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
 
-		BOOST_CHECK_NO_THROW(shady = wraps.createShader(L"Source/dummy.hlsl", "main", "vs_5_0", VERTEX_SHADER,
+		BOOST_CHECK_NO_THROW(shady = wraps->createShader(L"Source/dummy.hlsl", "main", "vs_5_0", Shader::Type::VERTEX_SHADER,
 			desc, size));
 
 		BOOST_CHECK(shady != nullptr);
 
 		SAFE_DELETE(shady);
+
+		wraps->shutdown();
 	}
 
 	BOOST_AUTO_TEST_CASE(TestShaderFactoryWODesc)
 	{
-		DummyWrapper wraps(nullptr, nullptr);
-		Shader *shady = nullptr;
+		DummyWrapper *wraps = nullptr;
+		DummyWrapper::initializeDummy();
+		wraps = DummyWrapper::getDummyInstance();
 
-		BOOST_CHECK_NO_THROW(shady = wraps.createShader(L"Source/dummy.hlsl", "main", "vs_5_0", VERTEX_SHADER));
+		Shader *shady;
+
+		BOOST_CHECK_NO_THROW(shady = wraps->createShader(L"Source/dummy.hlsl", "main", "vs_5_0", Shader::Type::VERTEX_SHADER));
 
 		BOOST_CHECK(shady != nullptr);
 
 		SAFE_DELETE(shady);
-	}
 
-	BOOST_AUTO_TEST_CASE(TestBufferFactory)
-	{
-		DummyBuffer buff; 
-
-		float ff[] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}; 
-
-		BufferDescription desc;
-		desc.initData =  &ff;
-		for(int i = 4; i < 5;i++)
-		{
-			for(int j = 0; j < 7;j++)
-			{
-				desc.numOfElements = 4;
-				desc.sizeOfElement = 12;
-				desc.usage = (BufferUsage)i;
-				desc.type = (BufferType)j;
-
-				std::string msg = "BufferDesc combination of (" + std::to_string(i) + "," + std::to_string(j) + ") failed.";
-				if(i == 4 && j < 7)
-				{
-					BOOST_CHECK_THROW(buff.initialize(nullptr, nullptr, desc), BufferException);
-				}
-				else
-				{
-					BOOST_CHECK_MESSAGE(buff.initialize(nullptr, nullptr, desc) != S_OK, msg);					
-				}				
-			}
-		}
-	}//*/
+		wraps->shutdown();
+	}//
 
 BOOST_AUTO_TEST_SUITE_END()

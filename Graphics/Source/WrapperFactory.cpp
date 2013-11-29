@@ -48,6 +48,24 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 	}
 }
 
+Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+	Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts)
+{
+	Shader *shader = new Shader();
+
+	try
+	{
+		shader->initialize(m_Device, m_DeviceContext, p_NumOfInputElemts);
+		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
+
+		return shader;
+	}
+	catch(...)
+	{
+		SAFE_DELETE(shader);
+		throw;
+	}
+}
 //void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
 //	const char *p_ShaderModel, int p_ShaderType)
 //{
@@ -58,26 +76,6 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 //	catch(...)
 //	{
 //	throw;
-//	}*/
-//}
-
-
-//Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-//	int p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts)
-//{
-//	/*Shader *shader = new Shader();
-//
-//	try
-//	{
-//		shader->initialize(m_Device, m_DeviceContext, p_NumOfInputElemts);
-//		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
-//	
-//		return shader;
-//	}
-//	catch(...)
-//	{
-//		SAFE_DELETE(shader);
-//		throw;
 //	}*/
 //}
 
