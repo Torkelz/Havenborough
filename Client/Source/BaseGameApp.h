@@ -21,6 +21,8 @@ private:
 	INetwork* m_Network;
 
 	bool	m_ShouldQuit;
+	bool	m_Connected;
+
 	SceneManager m_SceneManager;
 
 public:
@@ -52,4 +54,6 @@ public:
 
 private:
 	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+
+	static void connectedCallback(Result p_Res, void* p_UserData);
 };

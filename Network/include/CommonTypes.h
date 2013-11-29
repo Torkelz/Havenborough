@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+typedef unsigned int Package;
+
 enum class PackageType : uint16_t
 {
 	RESERVED = 0,

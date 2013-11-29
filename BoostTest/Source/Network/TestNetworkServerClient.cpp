@@ -40,8 +40,8 @@ BOOST_AUTO_TEST_CASE(TestConnect)
 	boost::thread ioThread(&ioRun, boost::ref(server->getServerService()));
 
 	{
-		NetworkHandler client = NetworkHandler();
-		client.connectToServer("localhost", 31415, &actionDone, nullptr);
+		NetworkHandler client = NetworkHandler(31415);
+		client.connectToServer("localhost", &actionDone, nullptr);
 
 		std::unique_lock<std::mutex> lock(serverConnect);
 		while (!done)

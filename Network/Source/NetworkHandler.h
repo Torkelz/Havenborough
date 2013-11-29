@@ -35,10 +35,6 @@ public:
 	*/
 	NetworkHandler( unsigned short p_Port );
 	/**
-	* Default constructor for the connecting application.
-	*/
-	NetworkHandler();
-	/**
 	* De-constructor
 	*/
 	~NetworkHandler();
@@ -47,7 +43,7 @@ public:
 	* @param p_URL, Server address, ip/url
 	* "param p_Port Port to call to.
 	*/
-	void connectToServer(const std::string& p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData);
+	void connectToServer(const std::string& p_URL, actionDoneCallback p_DoneHandler, void* p_UserData);
 	/*
 	* Start the server up.
 	*/
@@ -73,21 +69,12 @@ public:
 	boost::asio::io_service& getServerService();
 
 	/**
-	 * Writes a buffer of data to the network stream. If the stream
-	 * is busy, the data is buffered and sent when the stream has time.
-	 * Data is always sent in order, even when buffered.
-	 *
-	 * @param p_Buffer A buffer of data to send. The data is copied and stored
-	 *		internally. Therefore it is safe to delete the buffer afterwards.
-	 * @param p_ID The package ID associated with the data.
-	 */
-	void writeData(const std::string& p_Buffer, uint16_t p_ID);
-
-	/**
 	* Set a callback to handle data when received.
 	* @param p_SaveData is the callback function, use the empty function to disable callback.
 	*/
 	void setSaveData(Connection::saveDataFunction p_SaveData);
+
+	Connection::ptr getClientConnection();
 
 private:
 	void handleAccept(const boost::system::error_code& p_Error);

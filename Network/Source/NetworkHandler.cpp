@@ -6,15 +6,8 @@ NetworkHandler::NetworkHandler(unsigned short p_Port)
 		:	m_Acceptor(m_IOService, boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4(), p_Port)),
 			m_Resolver(m_IOService),
 			m_AcceptSocket(m_IOService),
-			m_HasError(false)
-{
-}
-
-NetworkHandler::NetworkHandler()
-	:	m_Resolver(m_IOService),
-		m_Acceptor(m_IOService),
-		m_AcceptSocket(m_IOService),
-		m_HasError(false)
+			m_HasError(false),
+			m_PortNumber(p_Port)
 {
 }
 
@@ -28,7 +21,7 @@ NetworkHandler::~NetworkHandler()
 	}
 }
 
-void NetworkHandler::connectToServer(const std::string& p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData)
+void NetworkHandler::connectToServer(const std::string& p_URL, actionDoneCallback p_DoneHandler, void* p_UserData)
 {
 	if (m_Connection)
 	{
@@ -37,7 +30,6 @@ void NetworkHandler::connectToServer(const std::string& p_URL, unsigned short p_
 	}
 
 	m_ConnectURL = p_URL;
-	m_PortNumber = p_Port;
 	m_DoneCallback = p_DoneHandler;
 	m_CallbackUserData = p_UserData;
 
@@ -161,15 +153,12 @@ boost::asio::io_service& NetworkHandler::getServerService()
 	return m_IOService;
 }
 
-void NetworkHandler::writeData(const std::string& p_Buffer, uint16_t p_ID)
-{
-	if (m_Connection)
-	{
-		m_Connection->writeData(p_Buffer, p_ID);
-	}
-}
-
 void NetworkHandler::setSaveData(Connection::saveDataFunction p_SaveData)
 {
 	m_SaveFunction = p_SaveData;
+}
+
+Connection::ptr NetworkHandler::getClientConnection()
+{
+	return std::move(m_Connection);
 }

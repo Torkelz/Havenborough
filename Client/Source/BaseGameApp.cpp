@@ -34,19 +34,8 @@ void BaseGameApp::init()
 	m_InputQueue.init(std::move(translator));
 	m_Network = INetwork::createNetwork();
 	m_Network->createClient(31415);
+	m_Connected = false;
 	//physics = IPhysics::createPhysics();
-}
-
-void connected(Result p_Res, void* p_UesrData)
-{
-	if (p_Res == Result::SUCCESS)
-	{
-		std::cout << "Connected successfully" << std::endl;
-	}
-	else
-	{
-		std::cout << "Failed to connect" << std::endl;
-	}
 }
 
 void BaseGameApp::run()
@@ -67,7 +56,7 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 			{
-				m_Network->connectToServer("localhost", 31415, &connected, nullptr);
+				m_Network->connectToServer("localhost", &connectedCallback, this);
 			}
 			else
 			{
@@ -75,31 +64,35 @@ void BaseGameApp::run()
 			}
 		}
 
-		unsigned int numPackages = m_Network->getNumPackages();
-		for (unsigned int i = 0; i < numPackages; i++)
+		if (m_Connected)
 		{
-			INetwork::Package package = m_Network->getPackage(i);
-			PackageType type = m_Network->getPackageType(package);
-
-			switch (type)
+			IConnectionController* conn = m_Network->getConnectionToServer();
+			unsigned int numPackages = conn->getNumPackages();
+			for (unsigned int i = 0; i < numPackages; i++)
 			{
-			case PackageType::ADD_OBJECT:
+				Package package = conn->getPackage(i);
+				PackageType type = conn->getPackageType(package);
+
+				switch (type)
 				{
-					AddObjectData data = m_Network->getAddObjectData(package);
-					std::cout << "Adding object at (" 
-						<< data.m_Position[0] << ", "
-						<< data.m_Position[1] << ", " 
-						<< data.m_Position[2] << ")" << std::endl;
+				case PackageType::ADD_OBJECT:
+					{
+						AddObjectData data = conn->getAddObjectData(package);
+						std::cout << "Adding object at (" 
+							<< data.m_Position[0] << ", "
+							<< data.m_Position[1] << ", " 
+							<< data.m_Position[2] << ")" << std::endl;
+					}
+					break;
+
+				default:
+					std::cout << "Received unhandled package" << std::endl;
+					break;
 				}
-				break;
-
-			default:
-				std::cout << "Received unhandled package" << std::endl;
-				break;
 			}
-		}
 
-		m_Network->clearPackages(numPackages);
+			conn->clearPackages(numPackages);
+		}
 	}
 }
 
@@ -131,4 +124,16 @@ bool BaseGameApp::handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p
 	m_ShouldQuit = true;
 	p_Result = 0;
 	return true;
+}
+
+void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
+{
+	if (p_Res == Result::SUCCESS)
+	{
+		((BaseGameApp*)p_UserData)->m_Connected = true;
+	}
+	else
+	{
+		std::cout << "Connection failed" << std::endl;
+	}
 }
