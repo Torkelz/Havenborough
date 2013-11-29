@@ -36,11 +36,13 @@ private:
 public:
 	Shader(void);
 	~Shader(void);
+	
+	void setNumOfElements(UINT p_NumOfElements);
 
 	void initialize(ID3D11Device *p_Device,	ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements);
 	HRESULT compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
 		Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
-	
+
 	void setShader(void);
 	void unSetShader(void);
 	

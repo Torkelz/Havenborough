@@ -72,7 +72,11 @@ BOOST_AUTO_TEST_CASE(TestGraphics)
 
 	BOOST_MESSAGE("Creating vertex shader using hlsl shader layout");
 	BOOST_CHECK_NO_THROW(gr->createShader("myID", L"Source/dummyVS.hlsl", "main", "vs_5_0", IGraphics::ShaderType::VERTEX_SHADER));
-	
+	BOOST_CHECK_NO_THROW(gr->createShader("myID", L"Source/dummyPS.hlsl", "main", "ps_5_0",
+		IGraphics::ShaderType::PIXEL_SHADER));
+
+	BOOST_CHECK_THROW(gr->createShader("myID", L"Source/dummyGS.hlsl", "main", "vs_5_0", IGraphics::ShaderType::GEOMETRY_SHADER), ShaderException);
+
 	//BOOST_MESSAGE("Added pixel shader using hlsl shader layout");
 	//BOOST_CHECK_NO_THROW(gr->addShaderStep(shader, L"Source/dummyPS.hlsl", "main", "ps_5_0", IGraphics::ShaderType::VERTEX_SHADER));
 	//SAFE_DELETE(shader);

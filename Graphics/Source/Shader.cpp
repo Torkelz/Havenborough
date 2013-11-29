@@ -31,6 +31,11 @@ Shader::~Shader(void)
 	m_DeviceContext = nullptr;
 }
 
+void Shader::setNumOfElements(UINT p_NumOfElements)
+{
+	m_NumOfElements = p_NumOfElements;
+}
+
 void Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements)
 {
 	m_Device = p_Device;

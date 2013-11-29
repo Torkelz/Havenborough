@@ -7,11 +7,20 @@ class IGraphics
 public:
 	enum class ShaderType
 	{
-		VERTEX_SHADER = 0,
-		PIXEL_SHADER = 1,
-		GEOMETRY_SHADER = 2,
-		HULL_SHADER = 3,
-		DOMAIN_SHADER = 4
+		VERTEX_SHADER = 1,
+		PIXEL_SHADER = 2,
+		GEOMETRY_SHADER = 4,
+		HULL_SHADER = 8,
+		DOMAIN_SHADER = 16
+	};
+	inline friend ShaderType operator|(ShaderType a, ShaderType b)
+	{
+		return static_cast<ShaderType>(static_cast<int>(a) | static_cast<int>(b)); 
+	};
+
+	inline friend bool operator&(ShaderType a, ShaderType b)
+	{
+		return static_cast<int>(a) & static_cast<int>(b) ? true : false; 
 	};
 
 	enum class Format
@@ -82,7 +91,14 @@ public:
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) = 0;
 
 	/**
-	* 
+	* Creates a new shader object with user defined vertex layout. If shader ID already exists or no vertex shader type 
+	* is added an exception is thrown.
+	* @param p_ShaderId the ID of the shader that should be created, note if the ID already exists an exception will be thrown
+	* @param p_Filename the file where the shader code is
+	* @param p_EntryPoint in the shader
+	* @param p_ShaderModel the shader model version which is to be used
+	* @param p_ShaderType the shader types to be created, can be combined as VS | PS | GS, note that vertex shader needs to
+	*		 to be included or an exception will be thrown
 	*/
 	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,

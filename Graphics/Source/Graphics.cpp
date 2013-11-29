@@ -216,16 +216,72 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, ShaderType p_Type)
 {
-	m_ShaderList.push_back(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename,
-		p_EntryPoint, p_ShaderModel, (Shader::Type)p_Type)));
+	bool found = false;
+	Shader *shader;
+	
+	for(auto &s : m_ShaderList)
+	{
+		if(strcmp(s.first.c_str(), p_shaderId) == 0)
+		{
+			found = true;
+			shader = s.second;
+		}
+	}
+	if(!found)
+	{
+		shader = new Shader();
+		shader->initialize(m_Device, m_DeviceContext, 0);
+	}
+	
+	//TODO: Add entry point correct
+
+	if((p_Type & ShaderType::VERTEX_SHADER))
+	{
+		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::VERTEX_SHADER);
+	}
+	if((p_Type & ShaderType::PIXEL_SHADER))
+	{
+		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::PIXEL_SHADER);
+	}
+	if((p_Type & ShaderType::GEOMETRY_SHADER))
+	{
+		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::GEOMETRY_SHADER);
+	}
+	if((p_Type & ShaderType::HULL_SHADER))
+	{
+		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::HULL_SHADER);
+	}
+	if((p_Type & ShaderType::DOMAIN_SHADER))
+	{
+		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::DOMAIN_SHADER);
+	}
+
+	if(!found)
+	{
+		m_ShaderList.push_back(make_pair(p_shaderId, shader));
+	}
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout,
 	unsigned int p_NumOfElements)
-{
-	D3D11_INPUT_ELEMENT_DESC *desc = new D3D11_INPUT_ELEMENT_DESC[p_NumOfElements];
 
+{
+	if(!(p_Type & ShaderType::VERTEX_SHADER))
+		throw ShaderException("Failed to create shader, no vertex shader defined", __LINE__, __FILE__);
+
+	for(auto &s : m_ShaderList)
+	{
+		if(strcmp(s.first.c_str(), p_shaderId) == 0)
+		{
+			throw ShaderException("Failed to create shader, shader already exists", __LINE__, __FILE__);
+		}
+	}
+
+	Shader *shader = new Shader();
+	shader->initialize(m_Device, m_DeviceContext, p_NumOfElements);
+
+	D3D11_INPUT_ELEMENT_DESC *desc = new D3D11_INPUT_ELEMENT_DESC[p_NumOfElements];
 	for(unsigned int i = 0; i < p_NumOfElements; i++)
 	{
 		desc[i].SemanticName = p_VertexLayout[i].semanticName;
@@ -239,8 +295,38 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	
 	try
 	{
-		m_ShaderList.push_back(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename,
-			p_EntryPoint, p_ShaderModel, (Shader::Type)p_Type, desc, p_NumOfElements)));
+		//TODO: Add entry point correct
+
+		if((p_Type & ShaderType::VERTEX_SHADER))
+		{
+			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+				Shader::Type::VERTEX_SHADER, desc);
+
+			SAFE_DELETE(desc);
+			desc = nullptr;
+		}
+		if((p_Type & ShaderType::PIXEL_SHADER))
+		{
+			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+				Shader::Type::PIXEL_SHADER);
+		}
+		if((p_Type & ShaderType::GEOMETRY_SHADER))
+		{
+			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+				Shader::Type::GEOMETRY_SHADER);
+		}
+		if((p_Type & ShaderType::HULL_SHADER))
+		{
+			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+				Shader::Type::HULL_SHADER);
+		}
+		if((p_Type & ShaderType::DOMAIN_SHADER))
+		{
+			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+				Shader::Type::DOMAIN_SHADER);
+		}
+
+		m_ShaderList.push_back(make_pair(p_shaderId, shader));
 	}
 	catch(...)
 	{
@@ -248,9 +334,6 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		desc = nullptr;
 		throw;
 	}
-
-	SAFE_DELETE(desc);
-	desc = nullptr;
 }
 
 void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
