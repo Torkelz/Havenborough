@@ -62,6 +62,32 @@ void BaseGameApp::run()
 				//printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
 			}
 		}
+
+		unsigned int numPackages = m_Network->getNumPackages();
+		for (unsigned int i = 0; i < numPackages; i++)
+		{
+			INetwork::Package package = m_Network->getPackage(i);
+			PackageType type = m_Network->getPackageType(package);
+
+			switch (type)
+			{
+			case PackageType::ADD_OBJECT:
+				{
+					AddObjectData data = m_Network->getAddObjectData(package);
+					std::cout << "Adding object at (" 
+						<< data.m_Position[0] << ", "
+						<< data.m_Position[1] << ", " 
+						<< data.m_Position[2] << ")" << std::endl;
+				}
+				break;
+
+			default:
+				std::cout << "Received unhandled package" << std::endl;
+				break;
+			}
+		}
+
+		m_Network->clearPackages(numPackages);
 	}
 }
 

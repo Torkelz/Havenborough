@@ -6,7 +6,9 @@ NetworkHandler::NetworkHandler(unsigned short p_Port)
 		:	m_Acceptor(m_IOService, boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4(), p_Port)),
 			m_Socket(m_IOService),
 			m_Index(0),
-			m_Resolver(m_IOService)
+			m_Resolver(m_IOService),
+			m_LockWriting(),
+			m_ReadBuffer(sizeof(Header))
 {
 }
 
@@ -16,7 +18,9 @@ NetworkHandler::NetworkHandler()
 		m_Index(0),
 		m_State(State::UNCONNECTED),
 		m_Writing(false),
-		m_Acceptor(m_IOService)
+		m_Acceptor(m_IOService),
+		m_LockWriting(),
+		m_ReadBuffer(sizeof(Header))
 {
 }
 
@@ -114,30 +118,13 @@ void NetworkHandler::handleConnect(const boost::system::error_code& p_Error, boo
 	readHeader();
 }
 
-void NetworkHandler::writeData(const std::string& p_Buffer, uint16_t p_ID)
-{
-	Header header;
-	header.m_Size = m_WriteBuffer.size() + sizeof(Header);
-	header.m_TypeID = p_ID;
-
-	if(!m_LockWriting.test_and_set())
-	{
-		doWrite(header, p_Buffer);
-	}
-	else
-	{
-		std::lock_guard<std::mutex> lock(m_WriteQueueLock);
-		m_WaitingToWrite.push_back(std::make_pair(header, p_Buffer));
-	}
-}
-
 void NetworkHandler::doWrite(const Header& p_Header, const std::string& p_Buffer)
 {
-	m_headerWrite = p_Header;
+	m_WriteHeader = p_Header;
 	m_WriteBuffer = p_Buffer;
 
 	std::vector<boost::asio::const_buffer> buffers;
-	buffers.push_back(boost::asio::buffer(&m_headerWrite, sizeof(m_headerWrite)));
+	buffers.push_back(boost::asio::buffer(&m_WriteHeader, sizeof(m_WriteHeader)));
 	buffers.push_back(boost::asio::buffer(m_WriteBuffer));
 
 	boost::asio::async_write(m_Socket, buffers, 
@@ -180,10 +167,11 @@ void NetworkHandler::handleReadHeader(const boost::system::error_code& p_Error, 
 		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
 	}
 
-	Header* header;
-	header = (Header*)m_ReadBuffer.data();
+	Header header;
+	header = *((Header*)m_ReadBuffer.data());
+	m_ReadBuffer.resize(header.m_Size);
 	boost::asio::async_read(m_Socket,
-		boost::asio::buffer(&m_ReadBuffer[sizeof(Header)], header->m_Size - sizeof(Header)),
+		boost::asio::buffer(&m_ReadBuffer[sizeof(Header)], header.m_Size - sizeof(Header)),
 		std::bind(&NetworkHandler::handleReadData, this, std::placeholders::_1, std::placeholders::_2));
 }
 
@@ -194,10 +182,14 @@ void NetworkHandler::handleReadData(const boost::system::error_code& p_Error, st
 		m_State = State::INVALID;
 		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
 	}
-	Header* header = (Header*)m_ReadBuffer.data();
 
-	std::cout << "Received " << p_BytesTransferred << " bytes" << std::endl;
-	std::cout << "Header Length: " << header->m_Size << " Type: " << header->m_TypeID << std::endl;
+	if (m_SaveData)
+	{
+		Header* header = (Header*)m_ReadBuffer.data();
+		std::string data(&m_ReadBuffer[sizeof(Header)], header->m_Size - sizeof(Header));
+		m_SaveData(header->m_TypeID, data);
+	}
+
 	readHeader();
 }
 
@@ -229,4 +221,26 @@ void NetworkHandler::runIO()
 boost::asio::io_service& NetworkHandler::getServerService()
 {
 	return m_IOService;
+}
+
+void NetworkHandler::writeData(const std::string& p_Buffer, uint16_t p_ID)
+{
+	Header header;
+	header.m_Size = p_Buffer.size() + sizeof(Header);
+	header.m_TypeID = p_ID;
+
+	if(!m_LockWriting.test_and_set())
+	{
+		doWrite(header, p_Buffer);
+	}
+	else
+	{
+		std::lock_guard<std::mutex> lock(m_WriteQueueLock);
+		m_WaitingToWrite.push_back(std::make_pair(header, p_Buffer));
+	}
+}
+
+void NetworkHandler::setSaveData(saveDataFunction p_SaveData)
+{
+	m_SaveData = p_SaveData;
 }

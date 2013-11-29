@@ -1,5 +1,7 @@
 #pragma once
 
+#include <CommonTypes.h>
+
 #include <sstream>
 #include <memory>
 #include <vector>
@@ -14,45 +16,41 @@ class PackageBase
 public:
 	typedef std::unique_ptr<PackageBase> ptr;
 
-	enum class Type : uint16_t
-	{
-		RESERVED = 0,
-		PLAYER_READY,
-		ADD_OBJECT,
-		REMOVE_OBJECT,
-		UPDATE_OBJECTS,
-		GAME_RESULT,
-	};
-
 protected:
-	 Type m_ID;
+	 PackageType m_ID;
 
 public:
-	PackageBase(Type p_Type)
+	PackageBase(PackageType p_Type)
 		: m_ID(p_Type)
 	{}
 
-	Type getType() const { return m_ID; };
+	PackageType getType() const { return m_ID; };
 
-	virtual PackageBase::ptr createPackage(const std::vector<char>& p_Data) =0;
+	virtual PackageBase::ptr createPackage(const std::string& p_Data) =0;
+
+	template <typename Package>
+	PackageBase::ptr createPackageImp(const std::string& p_Data)
+	{
+		std::unique_ptr<Package> res(new Package());
+
+		std::istringstream stream(p_Data);
+		boost::archive::binary_iarchive archive(stream, boost::archive::no_header);
+		archive >> *res;
+
+		return PackageBase::ptr(res.release());
+	}
 };
 
 class PlayerReady : public PackageBase
 {
 public:
 	PlayerReady()
-		: PackageBase(Type::PLAYER_READY)
+		: PackageBase(PackageType::PLAYER_READY)
 	{}
 
-	PackageBase::ptr createPackage(const std::vector<char>& p_Data) override
+	PackageBase::ptr createPackage(const std::string& p_Data) override
 	{
-		std::unique_ptr<PlayerReady> res(new PlayerReady());
-
-		std::istringstream stream(std::string(p_Data.data(), p_Data.size()));
-		boost::archive::binary_iarchive archive(stream, boost::archive::no_header);
-		archive >> *res;
-
-		return PackageBase::ptr(res.release());
+		return createPackageImp<PlayerReady>(p_Data);
 	}
 
 	template <typename Archive>
@@ -64,27 +62,21 @@ public:
 class AddObject : public PackageBase
 {
 public:
-	float pos[3];
+	AddObjectData m_Data;
 
 public:
 	AddObject()
-		: PackageBase(Type::ADD_OBJECT)
+		: PackageBase(PackageType::ADD_OBJECT)
 	{}
 
-	PackageBase::ptr createPackage(const std::vector<char>& p_Data) override
+	PackageBase::ptr createPackage(const std::string& p_Data) override
 	{
-		std::unique_ptr<AddObject> res(new AddObject());
-
-		std::istringstream stream(std::string(p_Data.data(), p_Data.size()));
-		boost::archive::binary_iarchive archive(stream, boost::archive::no_header);
-		archive >> *res;
-
-		return PackageBase::ptr(res.release());
+		return createPackageImp<AddObject>(p_Data);
 	}
 
 	template <typename Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-		ar & pos[0] & pos[1] & pos[2];
+		ar & m_Data.m_Position[0] & m_Data.m_Position[1] & m_Data.m_Position[2];
 	}
 };

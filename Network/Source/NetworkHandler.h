@@ -8,6 +8,7 @@
 class NetworkHandler
 {
 private:
+	typedef std::function<void(uint16_t,const std::string&)> saveDataFunction;
 	enum class State
 	{
 		UNCONNECTED,
@@ -36,14 +37,14 @@ private:
 	std::atomic_flag m_LockWriting;
 	std::mutex m_WriteQueueLock;
 
-	Header m_headerWrite;
+	Header m_WriteHeader;
 	std::string m_WriteBuffer;
-	std::array<char, 1024> m_ReadBuffer;
+	std::vector<char> m_ReadBuffer;
 
 	std::vector<std::pair<Header, std::string>> m_WaitingToWrite;
 
 	std::string m_ConnectURL;
-
+	saveDataFunction m_SaveData;
 public:
 	/**
 	* Used by the server to handle connections.
@@ -88,11 +89,27 @@ public:
 	*/
 	boost::asio::io_service& getServerService();
 
+	/**
+	 * Writes a buffer of data to the network stream. If the stream
+	 * is busy, the data is buffered and sent when the stream has time.
+	 * Data is always sent in order, even when buffered.
+	 *
+	 * @param p_Buffer A buffer of data to send. The data is copied and stored
+	 *		internally. Therefore it is safe to delete the buffer afterwards.
+	 * @param p_ID The package ID associated with the data.
+	 */
+	void writeData(const std::string& p_Buffer, uint16_t p_ID);
+
+	/**
+	* Set a callback to handle data when received.
+	* @param p_SaveData is the callback function, use the empty function to disable callback.
+	*/
+	void setSaveData(saveDataFunction p_SaveData);
+
 private:
 	void handleAccept(const boost::system::error_code& p_Error);
 	void handleResolve(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_ResolveResult);
 	void handleConnect(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_Endpoint);
-	void writeData(const std::string& p_Buffer, uint16_t p_ID);
 	void doWrite(const Header& p_Header, const std::string& p_Buffer);
 	void handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
 	void handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
