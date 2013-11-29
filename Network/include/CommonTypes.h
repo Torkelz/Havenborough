@@ -16,3 +16,10 @@ struct AddObjectData
 {
 	float m_Position[3];
 };
+
+enum class Result
+{
+	SUCCESS,
+	FAILURE,
+};
+typedef void (*actionDoneCallback)(Result, void* p_UserData);

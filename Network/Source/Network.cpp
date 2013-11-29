@@ -42,9 +42,9 @@ void Network::createClient(unsigned short p_Port)
 	m_Handler->setSaveData(std::bind(&Network::savePackageCallBack, this, std::placeholders::_1, std::placeholders::_2));
 }
 
-void Network::connectToServer(const char* p_URL, unsigned short p_Port)
+void Network::connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData)
 {
-	m_Handler->connectToServer(p_URL, p_Port);
+	m_Handler->connectToServer(p_URL, p_Port, p_DoneHandler, p_UserData);
 }
 
 bool Network::isConnected() const

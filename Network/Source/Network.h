@@ -24,7 +24,7 @@ public:
 
 	bool isConnected() const override;
 	bool hasError() const override;
-	void connectToServer(const char* p_URL, unsigned short p_Port) override;
+	void connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData) override;
 	void sendAddObject(const AddObjectData& p_Data) override;
 
 	unsigned int getNumPackages() override;

@@ -12,7 +12,6 @@ int main(int argc, char* argv[])
 	server->sendAddObject(data);
 	server->sendAddObject(data);
 
-
 	std::cin >> test;
 
 	INetwork::deleteNetwork(server);

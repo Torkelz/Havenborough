@@ -4,6 +4,8 @@
 
 #include <boost/thread.hpp>
 
+#include <condition_variable>
+
 BOOST_AUTO_TEST_SUITE(TestNetworkServerClient)
 
 void ioRun(boost::asio::io_service& p_IO_Service)
@@ -18,6 +20,18 @@ void ioRun(boost::asio::io_service& p_IO_Service)
 	}
 }
 
+std::mutex serverConnect;
+std::condition_variable connected;
+Result res = Result::FAILURE;
+bool done = false;
+void actionDone(Result p_Res, void* p_UserData)
+{
+	std::unique_lock<std::mutex> lock(serverConnect);
+	res = p_Res;
+	done = true;
+	connected.notify_all();
+}
+
 BOOST_AUTO_TEST_CASE(TestConnect)
 {
 	std::shared_ptr<NetworkHandler> server = std::make_shared<NetworkHandler>(31415);
@@ -27,12 +41,13 @@ BOOST_AUTO_TEST_CASE(TestConnect)
 
 	{
 		NetworkHandler client = NetworkHandler();
-		client.connectToServer("localhost", 31415);
+		client.connectToServer("localhost", 31415, &actionDone, nullptr);
 
-		while (!client.isConnected() && !client.hasError())
-		{}
+		std::unique_lock<std::mutex> lock(serverConnect);
+		while (!done)
+			connected.wait(lock);
 
-		BOOST_CHECK(client.isConnected());
+		BOOST_CHECK(res == Result::SUCCESS);
 	}
 
 	server->stopServer();

@@ -52,7 +52,7 @@ public:
 	* @param p_URL, address to the server.
 	* @param p_Port, port number.
 	*/
-	virtual void connectToServer(const char* p_URL, unsigned short p_Port) = 0;
+	virtual void connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData) = 0;
 
 	virtual void sendAddObject(const AddObjectData& p_Data) = 0;
 

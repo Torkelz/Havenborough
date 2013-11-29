@@ -37,6 +37,18 @@ void BaseGameApp::init()
 	//physics = IPhysics::createPhysics();
 }
 
+void connected(Result p_Res, void* p_UesrData)
+{
+	if (p_Res == Result::SUCCESS)
+	{
+		std::cout << "Connected successfully" << std::endl;
+	}
+	else
+	{
+		std::cout << "Failed to connect" << std::endl;
+	}
+}
+
 void BaseGameApp::run()
 {
 	m_ShouldQuit = false;
@@ -55,7 +67,7 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 			{
-				m_Network->connectToServer("localhost", 31415);
+				m_Network->connectToServer("localhost", 31415, &connected, nullptr);
 			}
 			else
 			{

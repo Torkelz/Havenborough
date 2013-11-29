@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Connection.h"
+#include <CommonTypes.h>
+
 #include <atomic>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -8,43 +11,23 @@
 class NetworkHandler
 {
 private:
-	typedef std::function<void(uint16_t,const std::string&)> saveDataFunction;
-	enum class State
-	{
-		UNCONNECTED,
-		RESOLVING,
-		CONNECTING,
-		CONNECTED,
-		INVALID,
-	};
-	struct Header
-	{
-		uint16_t m_Size;
-		uint16_t m_TypeID;
-	};
 	unsigned short m_PortNumber;
-
-	State m_State;
-	bool m_Writing;
+	std::string m_ConnectURL;
 
 	boost::asio::io_service m_IOService;
 	boost::asio::ip::tcp::resolver m_Resolver;
 	boost::asio::ip::tcp::acceptor m_Acceptor;
-	boost::asio::ip::tcp::socket m_Socket;
-	unsigned int m_Index;
+	boost::asio::ip::tcp::socket m_AcceptSocket;
 	boost::thread m_IOThread;
 
-	std::atomic_flag m_LockWriting;
-	std::mutex m_WriteQueueLock;
+	Connection::ptr m_Connection;
+	bool m_HasError;
 
-	Header m_WriteHeader;
-	std::string m_WriteBuffer;
-	std::vector<char> m_ReadBuffer;
+	actionDoneCallback m_DoneCallback;
+	void* m_CallbackUserData;
 
-	std::vector<std::pair<Header, std::string>> m_WaitingToWrite;
+	Connection::saveDataFunction m_SaveFunction;
 
-	std::string m_ConnectURL;
-	saveDataFunction m_SaveData;
 public:
 	/**
 	* Used by the server to handle connections.
@@ -64,7 +47,7 @@ public:
 	* @param p_URL, Server address, ip/url
 	* "param p_Port Port to call to.
 	*/
-	void connectToServer(const std::string& p_URL, unsigned short p_Port);
+	void connectToServer(const std::string& p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData);
 	/*
 	* Start the server up.
 	*/
@@ -104,16 +87,11 @@ public:
 	* Set a callback to handle data when received.
 	* @param p_SaveData is the callback function, use the empty function to disable callback.
 	*/
-	void setSaveData(saveDataFunction p_SaveData);
+	void setSaveData(Connection::saveDataFunction p_SaveData);
 
 private:
 	void handleAccept(const boost::system::error_code& p_Error);
 	void handleResolve(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_ResolveResult);
 	void handleConnect(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_Endpoint);
-	void doWrite(const Header& p_Header, const std::string& p_Buffer);
-	void handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
-	void handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
-	void handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
-	void readHeader();
 	void runIO();
 };

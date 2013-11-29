@@ -4,23 +4,17 @@
 
 NetworkHandler::NetworkHandler(unsigned short p_Port) 
 		:	m_Acceptor(m_IOService, boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4(), p_Port)),
-			m_Socket(m_IOService),
-			m_Index(0),
 			m_Resolver(m_IOService),
-			m_LockWriting(),
-			m_ReadBuffer(sizeof(Header))
+			m_AcceptSocket(m_IOService),
+			m_HasError(false)
 {
 }
 
 NetworkHandler::NetworkHandler()
 	:	m_Resolver(m_IOService),
-		m_Socket(m_IOService),
-		m_Index(0),
-		m_State(State::UNCONNECTED),
-		m_Writing(false),
 		m_Acceptor(m_IOService),
-		m_LockWriting(),
-		m_ReadBuffer(sizeof(Header))
+		m_AcceptSocket(m_IOService),
+		m_HasError(false)
 {
 }
 
@@ -34,9 +28,9 @@ NetworkHandler::~NetworkHandler()
 	}
 }
 
-void NetworkHandler::connectToServer(const std::string& p_URL, unsigned short p_Port)
+void NetworkHandler::connectToServer(const std::string& p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData)
 {
-	if (m_State != State::UNCONNECTED)
+	if (m_Connection)
 	{
 		throw NetworkError("Cannot connect again", __LINE__, __FILE__);
 		return;
@@ -44,6 +38,8 @@ void NetworkHandler::connectToServer(const std::string& p_URL, unsigned short p_
 
 	m_ConnectURL = p_URL;
 	m_PortNumber = p_Port;
+	m_DoneCallback = p_DoneHandler;
+	m_CallbackUserData = p_UserData;
 
 	try
 	{
@@ -51,11 +47,9 @@ void NetworkHandler::connectToServer(const std::string& p_URL, unsigned short p_
 
 		tcp::resolver::query query(tcp::v4(), m_ConnectURL, std::to_string(m_PortNumber));
 
-		m_State = State::RESOLVING;
 		m_Resolver.async_resolve(
 			query,
-			std::bind(
-				&NetworkHandler::handleResolve, this, std::placeholders::_1, std::placeholders::_2));
+			std::bind(&NetworkHandler::handleResolve, this, std::placeholders::_1, std::placeholders::_2));
 
 		m_IOThread.swap(boost::thread(std::bind(&NetworkHandler::runIO, this)));
 	}
@@ -69,7 +63,7 @@ void NetworkHandler::startServer()
 {
 	try
 	{
-		m_Acceptor.async_accept(m_Socket, std::bind( &NetworkHandler::handleAccept, this, std::placeholders::_1));
+		m_Acceptor.async_accept(m_AcceptSocket, std::bind( &NetworkHandler::handleAccept, this, std::placeholders::_1));
 		m_IOThread.swap(boost::thread(std::bind(&NetworkHandler::runIO, this)));
 	}
 	catch (boost::system::system_error& err)
@@ -85,24 +79,28 @@ void NetworkHandler::stopServer()
 
 bool NetworkHandler::isConnected() const
 {
-	return m_State == State::CONNECTED;
+	return m_Connection;
 }
 
 bool NetworkHandler::hasError() const
 {
-	return m_State == State::INVALID;
+	return m_HasError;
 }
 
 void NetworkHandler::handleResolve(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_ResolveResult)
 {
 	if (p_Error)
 	{
-		m_State = State::INVALID;
+		if (m_DoneCallback)
+		{
+			m_DoneCallback(Result::FAILURE, m_CallbackUserData);
+		}
+
 		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
 	}
 
-	m_State = State::CONNECTING;
-	boost::asio::async_connect(m_Socket, p_ResolveResult,
+	m_AcceptSocket = boost::asio::ip::tcp::socket(m_IOService);
+	boost::asio::async_connect(m_AcceptSocket, p_ResolveResult,
 		std::bind(&NetworkHandler::handleConnect, this, std::placeholders::_1, std::placeholders::_2));
 }
 
@@ -110,98 +108,39 @@ void NetworkHandler::handleConnect(const boost::system::error_code& p_Error, boo
 {
 	if (p_Error)
 	{
-		m_State = State::INVALID;
+		if (m_DoneCallback)
+		{
+			m_DoneCallback(Result::FAILURE, m_CallbackUserData);
+		}
+
 		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
 	}
-	m_State = State::CONNECTED;
 	
-	readHeader();
-}
+	m_Connection.reset();
+	m_Connection.reset(new Connection(std::move(m_AcceptSocket)));
+	m_Connection->setSaveData(m_SaveFunction);
+	
+	m_Connection->startReading();
 
-void NetworkHandler::doWrite(const Header& p_Header, const std::string& p_Buffer)
-{
-	m_WriteHeader = p_Header;
-	m_WriteBuffer = p_Buffer;
-
-	std::vector<boost::asio::const_buffer> buffers;
-	buffers.push_back(boost::asio::buffer(&m_WriteHeader, sizeof(m_WriteHeader)));
-	buffers.push_back(boost::asio::buffer(m_WriteBuffer));
-
-	boost::asio::async_write(m_Socket, buffers, 
-		std::bind(&NetworkHandler::handleWrite, this, std::placeholders::_1, std::placeholders::_2));
-}
-
-void NetworkHandler::handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred)
-{
-	if (p_Error)
+	if (m_DoneCallback)
 	{
-		m_State = State::INVALID;
-		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
+		m_DoneCallback(Result::SUCCESS, m_CallbackUserData);
 	}
-
-	std::lock_guard<std::mutex> lock(m_WriteQueueLock);
-	if (!m_WaitingToWrite.empty())
-	{
-		doWrite(m_WaitingToWrite[0].first, m_WaitingToWrite[0].second);
-		m_WaitingToWrite.erase(m_WaitingToWrite.begin());
-	}
-	else
-	{
-		m_LockWriting.clear();
-	}
-}
-
-void NetworkHandler::readHeader()
-{
-	boost::asio::async_read(
-		m_Socket,
-		boost::asio::buffer(m_ReadBuffer, sizeof(Header)),
-		std::bind(&NetworkHandler::handleReadHeader, this, std::placeholders::_1, std::placeholders::_2));
-}
-
-void NetworkHandler::handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred)
-{
-	if( p_Error )
-	{
-		m_State = State::INVALID;
-		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
-	}
-
-	Header header;
-	header = *((Header*)m_ReadBuffer.data());
-	m_ReadBuffer.resize(header.m_Size);
-	boost::asio::async_read(m_Socket,
-		boost::asio::buffer(&m_ReadBuffer[sizeof(Header)], header.m_Size - sizeof(Header)),
-		std::bind(&NetworkHandler::handleReadData, this, std::placeholders::_1, std::placeholders::_2));
-}
-
-void NetworkHandler::handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred) 
-{
-	if( p_Error )
-	{
-		m_State = State::INVALID;
-		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
-	}
-
-	if (m_SaveData)
-	{
-		Header* header = (Header*)m_ReadBuffer.data();
-		std::string data(&m_ReadBuffer[sizeof(Header)], header->m_Size - sizeof(Header));
-		m_SaveData(header->m_TypeID, data);
-	}
-
-	readHeader();
 }
 
 void NetworkHandler::handleAccept( const boost::system::error_code& error)
 {
 	if ( error )
-    {  
-      std::cout << error.message() << std::endl;
-      return;
-    }
+	{  
+		std::cout << error.message() << std::endl;
+		return;
+	}
 
-    readHeader();
+    m_Connection.reset();
+	m_Connection.reset(new Connection(std::move(m_AcceptSocket)));
+	m_Connection->setSaveData(m_SaveFunction);
+
+	m_Connection->startReading();
 }
 
 void NetworkHandler::runIO()
@@ -210,7 +149,6 @@ void NetworkHandler::runIO()
 	{
 		boost::system::error_code error;
 		m_IOService.run(error);
-		m_State = State::UNCONNECTED;
 	}
 	catch (...)
 	{
@@ -225,22 +163,13 @@ boost::asio::io_service& NetworkHandler::getServerService()
 
 void NetworkHandler::writeData(const std::string& p_Buffer, uint16_t p_ID)
 {
-	Header header;
-	header.m_Size = p_Buffer.size() + sizeof(Header);
-	header.m_TypeID = p_ID;
-
-	if(!m_LockWriting.test_and_set())
+	if (m_Connection)
 	{
-		doWrite(header, p_Buffer);
-	}
-	else
-	{
-		std::lock_guard<std::mutex> lock(m_WriteQueueLock);
-		m_WaitingToWrite.push_back(std::make_pair(header, p_Buffer));
+		m_Connection->writeData(p_Buffer, p_ID);
 	}
 }
 
-void NetworkHandler::setSaveData(saveDataFunction p_SaveData)
+void NetworkHandler::setSaveData(Connection::saveDataFunction p_SaveData)
 {
-	m_SaveData = p_SaveData;
+	m_SaveFunction = p_SaveData;
 }
