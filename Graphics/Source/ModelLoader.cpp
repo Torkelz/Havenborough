@@ -2,11 +2,6 @@
 
 ModelLoader::ModelLoader()
 {
-	m_Index.clear();
-	m_Normals.clear();
-	m_Vertex.clear();
-	m_Tangents.clear();
-	m_TextureCoord.clear();
 }
 
 ModelLoader::~ModelLoader()
@@ -20,6 +15,16 @@ ModelLoader::~ModelLoader()
 
 bool ModelLoader::loadFile(std::string p_Filename)
 {
+	m_Index.clear();
+	m_Index.shrink_to_fit();
+	m_Normals.clear();
+	m_Normals.shrink_to_fit();
+	m_Vertex.clear();
+	m_Vertex.shrink_to_fit();
+	m_Tangents.clear();
+	m_Tangents.shrink_to_fit();
+	m_TextureCoord.clear();
+	m_TextureCoord.shrink_to_fit();
 	std::ifstream input(p_Filename.c_str(),std::ifstream::in);
 	std::string line, key, filler;
 	int readMaterial = 0;
