@@ -14,10 +14,8 @@ void BaseGameApp::init()
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 
-	m_Graphics->createShader("lol", L"../../Graphics/Source/dummyVS.hlsl", "main", "vs_5_0", IGraphics::ShaderType::VERTEX_SHADER);
+	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
-	using namespace std::placeholders;
-	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, _1, _2, _3));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -26,6 +24,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('S', "moveBackward");
 	translator->addKeyboardMapping('A', "moveLeft");
 	translator->addKeyboardMapping('D', "moveRight");
+	translator->addKeyboardMapping('C', "connect");
 
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
@@ -54,9 +53,13 @@ void BaseGameApp::run()
 			{
 				m_ShouldQuit = true;
 			}
+			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
+			{
+				m_Network.connect("localhost");
+			}
 			else
 			{
-				printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
+				//printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
 			}
 		}
 	}

@@ -104,6 +104,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
+    <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
@@ -115,6 +116,7 @@
     <ClCompile Include="..\Client\Source\Input\Input.cpp" />
     <ClCompile Include="..\Client\Source\Input\InputState.cpp" />
     <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp" />
+    <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
     <ClCompile Include="..\Client\Source\GameScene.cpp" />
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
@@ -126,6 +128,7 @@
     <ClCompile Include="Source\TestCollision.cpp" />
     <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp" />
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
+    <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

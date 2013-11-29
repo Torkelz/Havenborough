@@ -27,6 +27,9 @@
     <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp" />
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="Source\SceneManager\TestSceneManager.cpp" />
+    <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
+    <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
+    <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
