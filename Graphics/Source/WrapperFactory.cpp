@@ -22,9 +22,6 @@ void WrapperFactory::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_D
 
 void WrapperFactory::shutdown(void)
 {
-	//if(!m_Instance)
-		//throw WrapperFactoryException("Wrapper factory already shut down or never created.", __LINE__, __FILE__);
-
 	SAFE_DELETE(m_Instance);
 }
 

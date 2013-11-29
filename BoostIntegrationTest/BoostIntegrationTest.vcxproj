@@ -13,8 +13,11 @@
   <ItemGroup>
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
+    <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
+    <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
     <ClCompile Include="Source\GraphicsEngine.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />

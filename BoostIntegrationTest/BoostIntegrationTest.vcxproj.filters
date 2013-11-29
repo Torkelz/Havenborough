@@ -10,6 +10,9 @@
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">

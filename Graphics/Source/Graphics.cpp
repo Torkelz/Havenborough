@@ -17,7 +17,6 @@ Graphics::Graphics(void)
 
 Graphics::~Graphics(void)
 {
-	m_Device = nullptr;
 }
 
 IGraphics *IGraphics::createGraphics()
