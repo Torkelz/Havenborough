@@ -25,6 +25,7 @@ private:
 	};
 	
 	int m_NumberOfMaterials;
+	std::string m_MeshName;
 	int m_NumberOfVertices;
 	int m_NumberOfTriangles;
 	std::vector<DirectX::XMFLOAT3> m_Vertex;
@@ -33,6 +34,7 @@ private:
 	std::vector<DirectX::XMFLOAT2> m_TextureCoord;
 	std::vector<Face> m_Index;
 	std::vector<Material> m_Material;
+	std::vector<std::vector<Face>> m_IndexPerMaterial;
 public:
 	ModelLoader();
 	~ModelLoader();

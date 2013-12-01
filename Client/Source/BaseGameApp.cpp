@@ -1,5 +1,5 @@
 #include "BaseGameApp.h"
-
+#include "ModelLoader.h"
 #include "Input\InputTranslator.h"
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
@@ -8,14 +8,14 @@ void BaseGameApp::init()
 {
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
-
+	ModelLoader model;
 	m_Graphics = IGraphics::createGraphics();
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-
+	model.loadFile("C:/Users/Phille/Desktop/Sample81.tx");
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
