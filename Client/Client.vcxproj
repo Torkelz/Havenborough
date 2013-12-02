@@ -18,7 +18,6 @@
     <ClCompile Include="Source\Input\InputTranslator.cpp" />
     <ClCompile Include="Source\GameScene.cpp" />
     <ClCompile Include="Source\MenuScene.cpp" />
-    <ClCompile Include="Source\ModelLoader.cpp" />
     <ClCompile Include="Source\NetworkClient.cpp" />
     <ClCompile Include="Source\SceneManager.cpp" />
     <ClCompile Include="Source\Window.cpp" />
@@ -40,7 +39,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\ModelLoader.h" />
     <ClInclude Include="Source\NetworkClient.h" />
     <ClInclude Include="Source\BaseGameApp.h" />
     <ClInclude Include="Source\Input\Input.h" />
