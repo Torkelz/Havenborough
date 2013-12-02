@@ -28,8 +28,6 @@ private:
 
 	INetwork::clientConnectedCallback_t m_ClientConnected;
 	void* m_ClientConnectedUserData;
-
-	Connection::saveDataFunction m_SaveFunction;
 	
 	std::vector<PackageBase::ptr>& m_PackagePrototypes;
 	std::vector<ConnectionController::ptr> m_ConnectedClients;
@@ -57,12 +55,6 @@ public:
 	* @return state::Invalid
 	*/
 	bool hasError() const;
-
-	/**
-	* Set a callback to handle data when received.
-	* @param p_SaveData is the callback function, use the empty function to disable callback.
-	*/
-	void setSaveData(Connection::saveDataFunction p_SaveData);
 
 private:
 	void handleAccept(const boost::system::error_code& p_Error);

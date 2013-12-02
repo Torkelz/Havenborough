@@ -6,12 +6,21 @@ Connection::Connection( boost::asio::ip::tcp::socket&& p_Socket)
 		:   m_Socket(std::move(p_Socket)),
 			m_LockWriting(),
 			m_ReadBuffer(sizeof(Header)),
-			m_SaveData()
+			m_SaveData(),
+			m_Reading(false)
 {
 }
 
 Connection::~Connection()
 {
+	m_Socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+	m_Socket.close();
+
+	std::unique_lock<std::mutex> lock(m_WaitToFree);
+	while (m_Reading)
+	{
+		m_Wait.wait(lock);
+	}
 }
 
 bool Connection::isConnected() const
@@ -33,11 +42,11 @@ void Connection::doWrite(const Header& p_Header, const std::string& p_Buffer)
 	buffers.push_back(boost::asio::buffer(&m_WriteHeader, sizeof(m_WriteHeader)));
 	buffers.push_back(boost::asio::buffer(m_WriteBuffer));
 
-	boost::asio::async_write(m_Socket, buffers, 
-		std::bind(&Connection::handleWrite, this, std::placeholders::_1, std::placeholders::_2));
+	boost::asio::async_write(m_Socket, buffers,
+		std::bind(&Connection::handleWrite, std::placeholders::_1, std::placeholders::_2, this));
 }
 
-void Connection::handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred)
+void Connection::handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con)
 {
 	if (p_Error)
 	{
@@ -52,15 +61,15 @@ void Connection::handleWrite(const boost::system::error_code& p_Error, std::size
 		}
 	}
 
-	std::lock_guard<std::mutex> lock(m_WriteQueueLock);
-	if (!m_WaitingToWrite.empty())
+	std::lock_guard<std::mutex> lock(p_Con->m_WriteQueueLock);
+	if (!p_Con->m_WaitingToWrite.empty())
 	{
-		doWrite(m_WaitingToWrite[0].first, m_WaitingToWrite[0].second);
-		m_WaitingToWrite.erase(m_WaitingToWrite.begin());
+		p_Con->doWrite(p_Con->m_WaitingToWrite[0].first, p_Con->m_WaitingToWrite[0].second);
+		p_Con->m_WaitingToWrite.erase(p_Con->m_WaitingToWrite.begin());
 	}
 	else
 	{
-		m_LockWriting.clear();
+		p_Con->m_LockWriting.clear();
 	}
 }
 
@@ -69,18 +78,24 @@ void Connection::readHeader()
 	boost::asio::async_read(
 		m_Socket,
 		boost::asio::buffer(m_ReadBuffer, sizeof(Header)),
-		std::bind(&Connection::handleReadHeader, this, std::placeholders::_1, std::placeholders::_2));
+		std::bind(&Connection::handleReadHeader, std::placeholders::_1, std::placeholders::_2, this));
 }
 
-void Connection::handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred)
+void Connection::handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con)
 {
 	if( p_Error )
 	{
-		m_State = State::INVALID;
+		p_Con->m_State = State::INVALID;
+		p_Con->m_Reading = false;
+		p_Con->m_Wait.notify_one();
 		if (p_Error == boost::asio::error::connection_reset
 			|| p_Error == boost::asio::error::eof)
 		{
 			throw ClientDisconnected(formatError(p_Error), __LINE__, __FILE__);
+		}
+		else if (p_Error == boost::asio::error::operation_aborted)
+		{
+			return;
 		}
 		else
 		{
@@ -89,22 +104,28 @@ void Connection::handleReadHeader(const boost::system::error_code& p_Error, std:
 	}
 
 	Header header;
-	header = *((Header*)m_ReadBuffer.data());
-	m_ReadBuffer.resize(header.m_Size);
-	boost::asio::async_read(m_Socket,
-		boost::asio::buffer(&m_ReadBuffer[sizeof(Header)], header.m_Size - sizeof(Header)),
-		std::bind(&Connection::handleReadData, this, std::placeholders::_1, std::placeholders::_2));
+	header = *((Header*)p_Con->m_ReadBuffer.data());
+	p_Con->m_ReadBuffer.resize(header.m_Size);
+	boost::asio::async_read(p_Con->m_Socket,
+		boost::asio::buffer(&p_Con->m_ReadBuffer[sizeof(Header)], header.m_Size - sizeof(Header)),
+		std::bind(&Connection::handleReadData, std::placeholders::_1, std::placeholders::_2, p_Con));
 }
 
-void Connection::handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred) 
+void Connection::handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con) 
 {
 	if( p_Error )
 	{
-		m_State = State::INVALID;
+		p_Con->m_State = State::INVALID;
+		p_Con->m_Reading = false;
+		p_Con->m_Wait.notify_one();
 		if (p_Error == boost::asio::error::connection_reset
 			|| p_Error == boost::asio::error::eof)
 		{
 			throw ClientDisconnected(formatError(p_Error), __LINE__, __FILE__);
+		}
+		else if (p_Error == boost::asio::error::operation_aborted)
+		{
+			return;
 		}
 		else
 		{
@@ -112,14 +133,14 @@ void Connection::handleReadData(const boost::system::error_code& p_Error, std::s
 		}
 	}
 
-	if (m_SaveData)
+	if (p_Con->m_SaveData)
 	{
-		Header* header = (Header*)m_ReadBuffer.data();
-		std::string data(&m_ReadBuffer[sizeof(Header)], header->m_Size - sizeof(Header));
-		m_SaveData(header->m_TypeID, data);
+		Header* header = (Header*)p_Con->m_ReadBuffer.data();
+		std::string data(&p_Con->m_ReadBuffer[sizeof(Header)], header->m_Size - sizeof(Header));
+		p_Con->m_SaveData(header->m_TypeID, data);
 	}
 
-	readHeader();
+	p_Con->readHeader();
 }
 
 void Connection::writeData(const std::string& p_Buffer, uint16_t p_ID)
@@ -151,6 +172,7 @@ boost::asio::ip::tcp::socket* Connection::getSocket()
 
 void Connection::startReading()
 {
+	m_Reading = true;
 	readHeader();
 }
 

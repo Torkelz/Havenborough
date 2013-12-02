@@ -55,6 +55,7 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 			{
+				m_Connected = false;
 				m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
 			}
 			else

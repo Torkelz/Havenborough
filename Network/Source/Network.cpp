@@ -40,13 +40,18 @@ void Network::turnOfServer()
 
 void Network::connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData)
 {
+	m_ClientConnection.reset();
 	m_ClientConnect.reset();
+	m_IO_Service.reset();
+
+	if (m_IO_Thread.joinable())
+	{
+		m_IO_Thread.join();
+	}
+
 	m_ClientConnect.reset(new ClientConnect(m_IO_Service, p_URL, p_Port, std::bind(&Network::clientConnectionDone, this, std::placeholders::_1, p_DoneHandler, p_UserData)));
 
-	if (!m_IO_Started)
-	{
-		startIO();
-	}
+	startIO();
 }
 
 IConnectionController* Network::getConnectionToServer()
@@ -71,6 +76,10 @@ void Network::IO_Run()
 	{
 		m_IO_Service.run();
 	}
+	catch (NetworkError& err)
+	{
+		std::cout << err.what() << std::endl;
+	}
 	catch (...)
 	{
 		int dummy = 42;
@@ -87,4 +96,5 @@ void Network::clientConnectionDone(Result p_Result, actionDoneCallback p_DoneHan
 	}
 
 	m_ClientConnection->startListening();
+	m_ClientConnect.reset();
 }

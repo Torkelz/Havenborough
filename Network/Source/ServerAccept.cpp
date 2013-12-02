@@ -60,11 +60,6 @@ void ServerAccept::handleAccept( const boost::system::error_code& error)
 	}
 
     Connection::ptr connection(new Connection(std::move(m_AcceptSocket)));
-
-	connection->setSaveData(m_SaveFunction);
-
-	connection->startReading();
-
 	ConnectionController::ptr clientConnection(new ConnectionController(std::move(connection), m_PackagePrototypes));
 
 	if (m_ClientConnected)
@@ -72,12 +67,11 @@ void ServerAccept::handleAccept( const boost::system::error_code& error)
 		m_ClientConnected(clientConnection.get(), m_ClientConnectedUserData);
 	}
 
-	m_ConnectedClients.push_back(std::move(clientConnection));
-}
+	clientConnection->startListening();
 
-void ServerAccept::setSaveData(Connection::saveDataFunction p_SaveData)
-{
-	m_SaveFunction = p_SaveData;
+	m_ConnectedClients.push_back(std::move(clientConnection));
+
+	m_Acceptor.async_accept(m_AcceptSocket, std::bind( &ServerAccept::handleAccept, this, std::placeholders::_1));
 }
 
 void ServerAccept::startThreads(unsigned int p_NumThreads)

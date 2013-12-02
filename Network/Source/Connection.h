@@ -3,6 +3,7 @@
 #include <atomic>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <condition_variable>
 #include <mutex>
 
 class Connection
@@ -37,6 +38,10 @@ private:
 	std::vector<char> m_ReadBuffer;
 
 	std::vector<std::pair<Header, std::string>> m_WaitingToWrite;
+
+	std::mutex m_WaitToFree;
+	std::condition_variable m_Wait;
+	bool m_Reading;
 
 	saveDataFunction m_SaveData;
 
@@ -88,10 +93,10 @@ public:
 
 private:
 	void doWrite(const Header& p_Header, const std::string& p_Buffer);
-	void handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
-	void handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
-	void handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
+	static void handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con);
+	static void handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con);
+	static void handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con);
 	void readHeader();
 
-	std::string formatError(const boost::system::error_code& p_Error);
+	static std::string formatError(const boost::system::error_code& p_Error);
 };
