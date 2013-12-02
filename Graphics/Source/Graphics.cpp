@@ -13,6 +13,8 @@ Graphics::Graphics(void)
 	m_DepthStencilView = nullptr;
 
 	m_DeferredRender = nullptr;
+
+	m_VSyncEnabled = false; //DEBUG
 }
 
 

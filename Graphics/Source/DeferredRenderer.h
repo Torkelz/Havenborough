@@ -8,6 +8,7 @@
 #include "Util.h"
 #include <DirectXMath.h>
 #include "LightStructs.h"
+#include "TextureLoader.h"
 
 struct Renderable
 {
@@ -39,7 +40,8 @@ struct cBuffer
 {
 	DirectX::XMFLOAT4X4 view;
 	DirectX::XMFLOAT4X4 proj;
-	DirectX::XMFLOAT3 campos;
+	DirectX::XMFLOAT3	campos;
+	int					nrLights;
 };
 
 
@@ -68,10 +70,17 @@ private:
 	Shader						*m_LightShader;
 	Buffer						*m_LightBuffer;
 	Buffer						*m_ConstantBuffer;
+	Buffer						*m_AllLightBuffer; //TEST
 
 	DirectX::XMFLOAT3			*m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
 	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
+
+	float						m_speed;
+	int							xx,yy,zz;
+
+	TextureLoader				*m_TextureLoader; // TEST
+	ID3D11ShaderResourceView	*m_Specular, *m_Diffuse, *m_NormalMap;
 
 public:
 	DeferredRenderer(void);
@@ -89,7 +98,6 @@ public:
 	void addRenderable(Renderable p_Renderable, bool p_Transparent);
 	void addLight(Light p_light);
 
-
 	ID3D11ShaderResourceView* getRT(int i);
 private:
 	void renderGeometry();
@@ -100,12 +108,12 @@ private:
 	void renderFinal();
 	void renderForward();
 
-	void updateConstantBuffer();
+	void updateConstantBuffer(int nrLights);
 	void updateLightBuffer(Light &p_Light);
 
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc, unsigned int p_screenWidth, unsigned int p_screenHeight );
 	HRESULT createShaderResourceViews( ID3D11DepthStencilView * p_DepthStencilView, D3D11_TEXTURE2D_DESC &desc );
-	void createConstantBuffer();
+	void createConstantBuffer(int nrLights);
 	void clearRenderTargets();
 };
 

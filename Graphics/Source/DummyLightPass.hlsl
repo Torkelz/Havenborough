@@ -1,16 +1,31 @@
 #pragma pack_matrix(row_major)
 
+struct Lightsss
+{
+	float3	lightPos;
+	int padd1;
+    float3	lightColor;
+	int padd2;
+	float3	lightDirection;
+	int padd3;
+    float2	spotlightAngles;
+    float	lightRange;
+	int		lightType;
+};
+
 SamplerState m_textureSampler	: register (s0);
 Texture2D depthTex				: register (t0);
 Texture2D normalTex				: register (t1);
 Texture2D diffuseTex			: register (t2);
-Texture2D specularTex			: register (t3);
+//Texture2D specularTex			: register (t4);//t3
+StructuredBuffer<Lightsss>	m_lights : register(t3);	
 
 cbuffer cb : register(b0)
 {
-	float4x4	invview;
-	float4x4	invprojection;
+	float4x4	view;
+	float4x4	projection;
 	float3		cameraPos;
+	int		nrLights;
 };
 cbuffer LightParams : register(b1)
 {
@@ -48,35 +63,37 @@ float3 CalcLighting(	float3 normal,
 						float3 position,
 						float3 diffuseAlbedo,
 						float3 specularAlbedo,
-						float specularPower )
+						float specularPower,
+						int i)
 {
+	
 	float3 L = float3(0.f,0.f,0.f);
 	float attenuation = 1.0f;
-	if( lightType == 0 || lightType == 1) //Point light||Spot light
+	if( m_lights[i].lightType == 0 || m_lights[i].lightType == 1) //Point light||Spot light
 	{
-		L = lightPos - position;
+		L = m_lights[i].lightPos - position;
 		float dist = length( L );
-		attenuation = max( 0.f, 1.0f - (dist / lightRange) );
+		attenuation = max( 0.f, 1.0f - (dist / m_lights[i].lightRange) );
 		L /= dist;
 	}
-	else if (lightType == 2) //Directional light
+	else if (m_lights[i].lightType == 2) //Directional light
 	{
-		L = -lightDirection;
+		L = -m_lights[i].lightDirection;
 	}
 	
-	if (lightType == 1) //Spot light
+	if (m_lights[i].lightType == 1) //Spot light
 	{
-		float3 L2 = lightDirection;
+		float3 L2 = m_lights[i].lightDirection;
 		float rho = dot( -L, L2 );
-		attenuation *= saturate( (rho - spotlightAngles.y) /
-										(	spotlightAngles.x -
-											spotlightAngles.y ) );
+		attenuation *= saturate( (rho - m_lights[i].spotlightAngles.y) /
+										(	m_lights[i].spotlightAngles.x -
+											m_lights[i].spotlightAngles.y ) );
 	}
 
 	float nDotL = saturate( dot( normal, L ) );
 	float3 diffuse;
 	if(lightType != 0)
-		diffuse = nDotL * lightDirection * diffuseAlbedo;
+		diffuse = nDotL * m_lights[i].lightDirection * diffuseAlbedo;
 	else
 		diffuse = nDotL * diffuseAlbedo;
 
@@ -84,7 +101,7 @@ float3 CalcLighting(	float3 normal,
 	float3 V = cameraPos - position;
 	float3 H = normalize( L + V );
 	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
-							lightColor * specularAlbedo.xyz * nDotL;
+							m_lights[i].lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
 	return ( diffuse + specular ) * attenuation;
 }
@@ -135,8 +152,34 @@ float4 PSmain( VSOutput input ) :  SV_Target
 	GetGBufferAttributes( input.texCoord, normal, position, diffuseAlbedo,
 		specularAlbedo, specularPower );
 
-	float3 lighting = CalcLighting( normal, position, diffuseAlbedo,
-		specularAlbedo, specularPower );
-	
+	//REMOVE IF STRANGE RESULTS HAPPEN
+	//if(normal.x == 0 && normal.y == 0 && normal.z == 0)
+		//return float4(diffuseAlbedo,1);
+	float3 lightPosition;
+	float lightRange;
+	float3 lighting = float3(0,0,0);
+
+	bool calcLight = false;
+	//World space scissor-test
+	for(int i = 0; i < nrLights; i++)
+	{
+		lightPosition = m_lights[i].lightPos;
+		lightRange = m_lights[i].lightRange;
+		if(true)//m_lights[i].lightType == 0 ||m_lights[i].lightType == 1)
+				if(	position.x < (lightPosition.x + lightRange) && 
+					position.x > (lightPosition.x - lightRange) &&
+					position.y < (lightPosition.y + lightRange) && 
+					position.y > (lightPosition.y - lightRange) &&
+					position.z < (lightPosition.z + lightRange) && 
+					position.z > (lightPosition.z -	lightRange))
+					calcLight = true;
+
+		if(true)//calcLight)
+			lighting += CalcLighting( normal, position, diffuseAlbedo,
+									specularAlbedo, specularPower,i );
+
+		calcLight = false;
+	}
+
 	return float4( lighting, 1.0f );
 }

@@ -33,7 +33,7 @@ void BaseGameApp::init()
 
 	//TEMPORARY -------------------------------------------------------
 	BufferDescription bdesc;
-	bdesc.initData = createBOX(10,0.0f,0.0f,0.0f);
+	bdesc.initData = createBOX(31,0.0f,0.0f,0.0f);
 	bdesc.numOfElements = 36;
 	bdesc.sizeOfElement = sizeof(BaseGameApp::vertex);
 	bdesc.type = VERTEX_BUFFER;
@@ -50,18 +50,30 @@ void BaseGameApp::run()
 {
 	m_ShouldQuit = false;
 
-	int currView = 0; // FOR DEBUGGING
+	int currView = 3; // FOR DEBUGGING
+	__int64 cntsPerSec = 0;
+	QueryPerformanceFrequency((LARGE_INTEGER*)&cntsPerSec);
+	float secsPerCnt = 1.0f / (float)cntsPerSec;
 
-	while (!m_ShouldQuit)
-	{
-		m_InputQueue.onFrame();
-		m_Window.pollMessages();
-		//Temp ------------------------------------------------
+	__int64 prevTimeStamp = 0;
+	QueryPerformanceCounter((LARGE_INTEGER*)&prevTimeStamp);
+
+	//Temp ------------------------------------------------
 		DirectX::XMFLOAT4X4 tempMatrix;
 		DirectX::XMMATRIX tempMatrix2;
 		tempMatrix2 = DirectX::XMMatrixIdentity();
 		DirectX::XMStoreFloat4x4(&tempMatrix, tempMatrix2);
+	//Temp -------------------------------------------------
 
+	while (!m_ShouldQuit)
+	{
+		__int64 currTimeStamp = 0;
+		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
+		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
+
+		m_InputQueue.onFrame();
+		m_Window.pollMessages();
+		//Temp ------------------------------------------------
 		m_Graphics->renderModel(m_Buffer, m_CBuffer, m_Shader, &tempMatrix, false);
 		//Temp -------------------------------------------------
 		m_Graphics->drawFrame(currView);
@@ -93,6 +105,12 @@ void BaseGameApp::run()
 				
 			}
 		}
+
+		//TEMP ---------------------------------------------------------------------
+		std::string output = "DeltaTime: " + std::to_string(dt) + " FPS: " + std::to_string(1.0f/dt);
+		SetWindowTextA(m_Window.getHandle(),output.c_str()); 
+		//TEMP ---------------------------------------------------------------------
+		prevTimeStamp = currTimeStamp;
 	}
 }
 
@@ -115,7 +133,7 @@ UVec2 BaseGameApp::getWindowSize() const
 {
 	// TODO: Read from user option
 	
-	const static UVec2 size = {800, 480};
+	const static UVec2 size = {1280, 720};
 	return size;
 }
 
@@ -131,26 +149,39 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
 	vertex* box = new vertex[36];
 	using namespace DirectX;
 	XMFLOAT4 center = XMFLOAT4(x,y,z,1.0f);
-    XMFLOAT4 color, normal;
+    XMFLOAT4 color;
+	XMFLOAT3 tangent, binormal, normal;
 
-    XMFLOAT4 vert0 = XMFLOAT4(-1.0f*size, -1.0f*size,  1.0f*size, 1.0f); // 0 --- LowerLeftFront
-    XMFLOAT4 vert1 = XMFLOAT4( 1.0f*size, -1.0f*size,  1.0f*size, 1.0f); // 1 +-- LowerRightFront
-    XMFLOAT4 vert2 = XMFLOAT4(-1.0f*size,  1.0f*size,  1.0f*size, 1.0f); // 2 -+- UpperLeftFront
-    XMFLOAT4 vert3 = XMFLOAT4( 1.0f*size,  1.0f*size,  1.0f*size, 1.0f); // 3 ++- UpperRightFront
-    XMFLOAT4 vert4 = XMFLOAT4(-1.0f*size, -1.0f*size, -1.0f*size, 1.0f); // 4 --+ LowerLeftBack
-    XMFLOAT4 vert5 = XMFLOAT4( 1.0f*size, -1.0f*size, -1.0f*size, 1.0f); // 5 +-+ LowerRightBack
-    XMFLOAT4 vert6 = XMFLOAT4(-1.0f*size,  1.0f*size, -1.0f*size, 1.0f); // 6 -++ UpperLeftBack
-    XMFLOAT4 vert7 = XMFLOAT4( 1.0f*size,  1.0f*size, -1.0f*size, 1.0f); // 7 +++ UpperRightBack
+    XMFLOAT3 vert0 = XMFLOAT3(-1.0f*size, -1.0f*size,  1.0f*size); // 0 --+ LowerLeftBack
+    XMFLOAT3 vert1 = XMFLOAT3( 1.0f*size, -1.0f*size,  1.0f*size); // 1 +-+ LowerRightBack
+    XMFLOAT3 vert2 = XMFLOAT3(-1.0f*size,  1.0f*size,  1.0f*size); // 2 -++ UpperLeftBack
+    XMFLOAT3 vert3 = XMFLOAT3( 1.0f*size,  1.0f*size,  1.0f*size); // 3 +++ UpperRightBack
+    XMFLOAT3 vert4 = XMFLOAT3(-1.0f*size, -1.0f*size, -1.0f*size); // 4 --- LowerLeftFront
+    XMFLOAT3 vert5 = XMFLOAT3( 1.0f*size, -1.0f*size, -1.0f*size); // 5 +-- LowerRightFront
+    XMFLOAT3 vert6 = XMFLOAT3(-1.0f*size,  1.0f*size, -1.0f*size); // 6 -+- UpperLeftFront
+    XMFLOAT3 vert7 = XMFLOAT3( 1.0f*size,  1.0f*size, -1.0f*size); // 7 ++- UpperRightFront
+
+	//UV Coordinates
+	XMFLOAT2 uv0 = XMFLOAT2(0,0);
+	XMFLOAT2 uv1 = XMFLOAT2(0,1);
+	XMFLOAT2 uv2 = XMFLOAT2(1,0);
+	XMFLOAT2 uv3 = XMFLOAT2(1,1);
                                                                                                  
     // Back
     color = XMFLOAT4(0.f,1.f,0.f,1.f);
-	normal = XMFLOAT4(0.f,0.f,1.f,0.f);
-    box[0] = vertex(vert4, normal, color);
-    box[1] = vertex(vert6, normal, color);
-    box[2] = vertex(vert5, normal, color);
-    box[3] = vertex(vert6, normal, color);
-    box[4] = vertex(vert7, normal, color);
-    box[5] = vertex(vert5, normal, color);
+	//normal = XMFLOAT3(0.f,0.f,1.f);
+	CalculateTangentBinormal(vert4,vert6,vert5,uv1,uv0,uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+
+    box[0] = vertex(vert4, normal, uv1, tangent, binormal);
+    box[1] = vertex(vert6, normal, uv0, tangent, binormal);
+    box[2] = vertex(vert5, normal, uv3, tangent, binormal);
+
+	CalculateTangentBinormal(vert6,vert7,vert5,uv0,uv2,uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+    box[3] = vertex(vert6, normal, uv0, tangent, binormal);
+    box[4] = vertex(vert7, normal, uv2, tangent, binormal);
+    box[5] = vertex(vert5, normal, uv3, tangent, binormal);
 
     // Front
 	/*color = XMFLOAT4(0.f,0.f,1.f,1.f);
@@ -164,43 +195,135 @@ BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y,
 
     // Top
 	color = XMFLOAT4(1.f,0.f,0.f,1.f);
-	normal = XMFLOAT4(0.f,-1.f,0.f,0.f);
-    box[12] = vertex(vert3, normal, color);
-    box[13] = vertex(vert7, normal, color);
-    box[14] = vertex(vert2, normal, color);
-    box[15] = vertex(vert7, normal, color);
-    box[16] = vertex(vert6, normal, color);
-    box[17] = vertex(vert2, normal, color);
+	//normal = XMFLOAT3(0.f,-1.f,0.f);
+	CalculateTangentBinormal(vert3,vert7,vert2,uv1,uv0,uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+    box[12] = vertex(vert3, normal, uv1, tangent, binormal);
+    box[13] = vertex(vert7, normal, uv0, tangent, binormal);
+    box[14] = vertex(vert2, normal, uv3, tangent, binormal);
+	CalculateTangentBinormal(vert7,vert6,vert2,uv0,uv2,uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+    box[15] = vertex(vert7, normal, uv0, tangent, binormal);
+    box[16] = vertex(vert6, normal, uv2, tangent, binormal);
+    box[17] = vertex(vert2, normal, uv3, tangent, binormal);
 
     // Bottom
 	color = XMFLOAT4(1.f,1.f,0.f,1.f);
-	normal = XMFLOAT4(0.f,1.f,0.f,0.f);
-    box[18] = vertex(vert0, normal, color);
-    box[19] = vertex(vert4, normal, color);
-    box[20] = vertex(vert1, normal, color);
-    box[21] = vertex(vert4, normal, color);
-    box[22] = vertex(vert5, normal, color);
-    box[23] = vertex(vert1, normal, color);
+	//normal = XMFLOAT3(0.f,1.f,0.f);
+	CalculateTangentBinormal(vert0,vert4,vert1,uv1,uv0,uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+    box[18] = vertex(vert0, normal, uv1, tangent, binormal);
+    box[19] = vertex(vert4, normal, uv0, tangent, binormal);
+    box[20] = vertex(vert1, normal, uv3, tangent, binormal);
+	CalculateTangentBinormal(vert4,vert5,vert1,uv0,uv2,uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+    box[21] = vertex(vert4, normal, uv0, tangent, binormal);
+    box[22] = vertex(vert5, normal, uv2, tangent, binormal);
+    box[23] = vertex(vert1, normal, uv3, tangent, binormal);
 
     // Right
 	color = XMFLOAT4(0.f,1.f,1.f,1.f);
-	normal = XMFLOAT4(-1.f,0.f,0.f,0.f);
-    box[24] = vertex(vert5, normal, color);
-    box[25] = vertex(vert7, normal, color);
-    box[26] = vertex(vert1, normal, color);
-    box[27] = vertex(vert7, normal, color);
-    box[28] = vertex(vert3, normal, color);
-    box[29] = vertex(vert1, normal, color);
+	//normal = XMFLOAT3(-1.f,0.f,0.f);
+	CalculateTangentBinormal(vert5,vert7,vert1,uv1,uv0,uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+    box[24] = vertex(vert5, normal, uv1, tangent, binormal);
+    box[25] = vertex(vert7, normal, uv0, tangent, binormal);
+    box[26] = vertex(vert1, normal, uv3, tangent, binormal);
+	CalculateTangentBinormal(vert7,vert3,vert1,uv0,uv2, uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+    box[27] = vertex(vert7, normal, uv0, tangent, binormal);
+    box[28] = vertex(vert3, normal, uv2, tangent, binormal);
+    box[29] = vertex(vert1, normal, uv3, tangent, binormal);
 
     // Left
 	color = XMFLOAT4(1.f,0.f,1.f,1.f);
-	normal = XMFLOAT4(1.f,0.f,0.f,0.f);
-    box[30] = vertex(vert0, normal, color);
-    box[31] = vertex(vert2, normal, color);
-    box[32] = vertex(vert4, normal, color);
-    box[33] = vertex(vert2, normal, color);
-    box[34] = vertex(vert6, normal, color);
-    box[35] = vertex(vert4, normal, color);
+	//normal = XMFLOAT3(1.f,0.f,0.f);
+	CalculateTangentBinormal(vert0,vert2,vert4,uv1,uv0,uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+    box[30] = vertex(vert0, normal, uv1, tangent, binormal);
+    box[31] = vertex(vert2, normal, uv0, tangent, binormal);
+    box[32] = vertex(vert4, normal, uv3, tangent, binormal);
+	CalculateTangentBinormal(vert2,vert6,vert4,uv0,uv2,uv3,tangent,binormal);
+	CalculateNormal(tangent,binormal, normal);
+    box[33] = vertex(vert2, normal, uv0, tangent, binormal);
+    box[34] = vertex(vert6, normal, uv2, tangent, binormal);
+    box[35] = vertex(vert4, normal, uv3, tangent, binormal);
 
     return box;
+}
+void BaseGameApp::CalculateTangentBinormal(DirectX::XMFLOAT3 vertex1, DirectX::XMFLOAT3 vertex2, DirectX::XMFLOAT3 vertex3,
+										   DirectX::XMFLOAT2 uv1,DirectX::XMFLOAT2 uv2, DirectX::XMFLOAT2 uv3,
+											DirectX::XMFLOAT3& tangent, DirectX::XMFLOAT3& binormal)
+{
+	float vector1[3], vector2[3];
+	float tuVector[2], tvVector[2];
+	float den;
+	float length;
+
+
+	// Calculate the two vectors for this face.
+	vector1[0] = vertex2.x - vertex1.x;
+	vector1[1] = vertex2.y - vertex1.y;
+	vector1[2] = vertex2.z - vertex1.z;
+
+	vector2[0] = vertex3.x - vertex1.x;
+	vector2[1] = vertex3.y - vertex1.y;
+	vector2[2] = vertex3.z - vertex1.z;
+
+	// Calculate the tu and tv texture space vectors.
+	tuVector[0] = uv2.x - uv1.x;
+	tvVector[0] = uv2.y - uv1.y;
+
+	tuVector[1] = uv3.x - uv1.x;
+	tvVector[1] = uv3.y - uv1.y;
+
+	// Calculate the denominator of the tangent/binormal equation.
+	den = 1.0f / (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
+
+	// Calculate the cross products and multiply by the coefficient to get the tangent and binormal.
+	tangent.x = (tvVector[1] * vector1[0] - tvVector[0] * vector2[0]) * den;
+	tangent.y = (tvVector[1] * vector1[1] - tvVector[0] * vector2[1]) * den;
+	tangent.z = (tvVector[1] * vector1[2] - tvVector[0] * vector2[2]) * den;
+
+	binormal.x = (tuVector[0] * vector2[0] - tuVector[1] * vector1[0]) * den;
+	binormal.y = (tuVector[0] * vector2[1] - tuVector[1] * vector1[1]) * den;
+	binormal.z = (tuVector[0] * vector2[2] - tuVector[1] * vector1[2]) * den;
+
+	// Calculate the length of this normal.
+	length = sqrt((tangent.x * tangent.x) + (tangent.y * tangent.y) + (tangent.z * tangent.z));
+			
+	// Normalize the normal and then store it
+	tangent.x = tangent.x / length;
+	tangent.y = tangent.y / length;
+	tangent.z = tangent.z / length;
+
+	// Calculate the length of this normal.
+	length = sqrt((binormal.x * binormal.x) + (binormal.y * binormal.y) + (binormal.z * binormal.z));
+			
+	// Normalize the normal and then store it
+	binormal.x = binormal.x / length;
+	binormal.y = binormal.y / length;
+	binormal.z = binormal.z / length;
+
+	return;
+}
+void BaseGameApp::CalculateNormal(DirectX::XMFLOAT3 tangent, DirectX::XMFLOAT3 binormal, DirectX::XMFLOAT3& normal)
+{
+	float length;
+
+
+	// Calculate the cross product of the tangent and binormal which will give the normal vector.
+	normal.x = (tangent.y * binormal.z) - (tangent.z * binormal.y);
+	normal.y = (tangent.z * binormal.x) - (tangent.x * binormal.z);
+	normal.z = (tangent.x * binormal.y) - (tangent.y * binormal.x);
+
+	// Calculate the length of the normal.
+	length = sqrt((normal.x * normal.x) + (normal.y * normal.y) + (normal.z * normal.z));
+
+	// Normalize the normal.
+	normal.x = normal.x / length;
+	normal.y = normal.y / length;
+	normal.z = normal.z / length;
+
+	return;
 }

@@ -150,7 +150,7 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	//	bufferDescription.ByteWidth = 16;
 	//}
 	//set at least 16 bytes
-	bufferDescription.ByteWidth = bufferDescription.ByteWidth + (16 - bufferDescription.ByteWidth % 16);
+	bufferDescription.ByteWidth = ((bufferDescription.ByteWidth + 15) / 16) * 16;
 
 	if(p_Description.initData)
 	{
@@ -294,13 +294,25 @@ HRESULT Buffer::initializeEx(ID3D11Device *p_Device, ID3D11DeviceContext *p_Devi
 	//set at least 16 bytes
 	bufferDescription.ByteWidth = bufferDescription.ByteWidth + (16 - bufferDescription.ByteWidth % 16);
 
+	D3D11_BUFFER_DESC desc;
+    ZeroMemory( &desc, sizeof(desc) );
+    desc.BindFlags = 0;
+        
+        if(p_UAV)        desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+        if(p_SRV)        desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+    
+        UINT bufferSize = p_Description.sizeOfElement *  p_Description.numOfElements;
+        desc.ByteWidth = bufferSize < 16 ? 16 : bufferSize;
+    desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+    desc.StructureByteStride = p_Description.sizeOfElement;
+
 	if(p_Description.initData)
 	{
 		D3D11_SUBRESOURCE_DATA data;
 		data.pSysMem = p_Description.initData;
-		data.SysMemPitch = 0;
-		data.SysMemSlicePitch = 0;
-		result = createBuffer(&bufferDescription, &data, &m_Buffer);
+		//data.SysMemPitch = 0;
+		//data.SysMemSlicePitch = 0;
+		result = createBuffer(&desc, &data, &m_Buffer);
 	}
 	else
 	{
@@ -519,7 +531,7 @@ ID3D11ShaderResourceView* Buffer::CreateBufferSRV(ID3D11Buffer* pBuffer)
 		return NULL;
 	}
 
-    m_Device->CreateShaderResourceView(pBuffer, &desc, &pSRVOut);
+    HRESULT hr = m_Device->CreateShaderResourceView(pBuffer, &desc, &pSRVOut);
 
 	return pSRVOut;
 }

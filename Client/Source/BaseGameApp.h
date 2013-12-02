@@ -61,21 +61,31 @@ private:
 	struct vertex
 	{
 		DirectX::XMFLOAT4 position;
-		DirectX::XMFLOAT4 normal;
-		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT3 normal;
+		DirectX::XMFLOAT2 uv;
+		DirectX::XMFLOAT3 tangent;
+		DirectX::XMFLOAT3 binormal;
 		vertex(){}
-		vertex(DirectX::XMFLOAT4 _position,
-				DirectX::XMFLOAT4 _normal,
-				DirectX::XMFLOAT4 _color)
+		vertex(DirectX::XMFLOAT3 _position,
+				DirectX::XMFLOAT3 _normal,
+				DirectX::XMFLOAT2 _uv,
+				DirectX::XMFLOAT3 _tangent,
+				DirectX::XMFLOAT3 _binormal)
 		{
-			position = _position;
+			position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
 			normal = _normal;
-			color = _color;
+			uv = _uv;
+			tangent = _tangent;
+			binormal = _binormal;
 		}
 	};
 	
 
 	vertex* createBOX(unsigned int size, float x, float y, float z);
+	void CalculateTangentBinormal(DirectX::XMFLOAT3 vertex1, DirectX::XMFLOAT3 vertex2, DirectX::XMFLOAT3 vertex3,
+										   DirectX::XMFLOAT2 uv1,DirectX::XMFLOAT2 uv2, DirectX::XMFLOAT2 uv3,
+											DirectX::XMFLOAT3& tangent, DirectX::XMFLOAT3& binormal);
+	void CalculateNormal(DirectX::XMFLOAT3 tangent, DirectX::XMFLOAT3 binormal, DirectX::XMFLOAT3& normal);
 
 	//TEMP --------------------------------------------------
 };

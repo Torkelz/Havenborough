@@ -21,10 +21,15 @@ DeferredRenderer::DeferredRenderer(void)
 	m_LightShader = nullptr;
 	m_LightBuffer = nullptr;
 	m_ConstantBuffer = nullptr;
+	m_AllLightBuffer = nullptr;
 
 	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
+
+	m_speed = 4.0f;
+
+	
 }
 
 DeferredRenderer::~DeferredRenderer(void)
@@ -52,6 +57,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_LightShader);
 	SAFE_DELETE(m_LightBuffer);
 	SAFE_DELETE(m_ConstantBuffer);
+	SAFE_DELETE(m_AllLightBuffer);
 
 	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
@@ -127,27 +133,80 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	// TEMPORARY -----------------------------------------------------------
 	// Make the light
 	Light testLight(	
-		DirectX::XMFLOAT3(5.0f, 0.0f, 0.0f),
+		DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT2(1.0f, 1.0f),  
-		10.0f,
+		20.0f,
 		0
 	);
-	addLight(testLight);
-	addLight(Light (DirectX::XMFLOAT3(-5.0f, 0.0f, 0.0f),DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
-		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1.0f, 1.0f), 10.0f,0));
-	// TEMPORARY -----------------------------------------------------------------
-	createConstantBuffer();
+	//addLight(testLight);
+	
+	xx = 5;
+	yy = 5;
+	zz = 5;
+	int minX,minY,minZ,maxX,maxY,maxZ;
+	minX = minY = minZ = -30;
+	maxX = maxY = maxZ = 30;
+	float dx,dy,dz;
+	dx = (float)(abs(maxX) + abs(minX))/xx;
+	dy = (float)(abs(maxY) + abs(minY))/yy;
+	dz = (float)(abs(maxZ) + abs(minZ))/zz;
+	
+	for(int x= 0; x < xx; x++)
+	{
+		for(int y = 0; y < yy; y++)
+		{
+			for(int z = 0; z < zz; z++)
+			{
+				testLight.lightPos.x = (x * dx) + minX;
+				testLight.lightPos.y = (y * dy) + minY;
+				testLight.lightPos.z = (z * dz) + minZ;
+
+				addLight(testLight);
+			}
+		}
+	}
+	BufferDescription cbdesc;
+	cbdesc.initData = m_Lights.data();
+	cbdesc.numOfElements = xx*yy*zz;
+	cbdesc.sizeOfElement = sizeof(Light);
+	cbdesc.type = STRUCTURED_BUFFER;
+	cbdesc.usage = BUFFER_DEFAULT;
+	m_AllLightBuffer = new Buffer();
+	m_AllLightBuffer->initializeEx(m_Device, m_DeviceContext, cbdesc, true, false);
+
+	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
+	m_Specular = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/spec.jpg");
+	m_Diffuse = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
+	m_NormalMap = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/test2 nrm.jpg");
+
+
+	// TEMPORARY ----------------------------------------------------------------
+	createConstantBuffer(xx*yy*zz);
 }
 
 void DeferredRenderer::renderDeferred()
 {
+	float dt = 0.016;
+	for(int i = 0; i < m_Lights.size();i++)
+	{
+
+		if(i%2 == 0)
+			m_Lights.at(i).lightPos.y += m_speed * dt;
+		else
+			m_Lights.at(i).lightPos.y -= m_speed * dt;	
+	}
+	if((m_Lights.at(0).lightPos.y > 30) ||
+		(m_Lights.at(0).lightPos.y < -30))
+		m_speed *= -1.0f;
+
+
 	// Clear render targets.
 	clearRenderTargets();
 
 	// Update constant buffer
-	updateConstantBuffer();
+	updateConstantBuffer(xx*yy*zz);
 
 	// Render
 	renderGeometry();
@@ -168,8 +227,14 @@ void DeferredRenderer::renderGeometry()
 	m_DeviceContext->OMSetRenderTargets(nrRT, m_RenderTargets, m_DepthStencilView);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	m_ConstantBuffer->setBuffer(1);
+	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
+	ID3D11ShaderResourceView *srvs[] = {m_Diffuse,
+										m_NormalMap,
+										m_Specular};
+	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
 
+	m_ConstantBuffer->setBuffer(1);
+	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 	for(unsigned int i = 0; i < m_Objects.size();i++)
 	{
 		//Send stuff
@@ -183,6 +248,7 @@ void DeferredRenderer::renderGeometry()
 		m_Objects.at(i).m_Buffer->unsetBuffer(0);
 		m_Objects.at(i).m_Shader->unSetShader();
 	}
+	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	m_ConstantBuffer->unsetBuffer(1);
 	// Unset render targets.
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
@@ -192,42 +258,44 @@ void DeferredRenderer::renderLighting()
 {
 	unsigned int activeRenderTarget	= 3;
 	unsigned int nrRT = 1;
-	
+	ID3D11ShaderResourceView* temp;
+	temp = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
 	// Collect the shader resources in an array and create a clear array.
 	ID3D11ShaderResourceView *srvs[] = {m_wPositionSRV,
 										m_NormalSRV,
-										m_DiffuseSRV};
-	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
+										m_DiffuseSRV,
+										temp};
+	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0};
 
 	// Set texture sampler.
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	m_LightShader->setBlendState(m_BlendState);
 
-	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+	m_DeviceContext->PSSetShaderResources(0, 4, srvs);
 
 	////Select the third render target[3]
 	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], 0); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	m_ConstantBuffer->setBuffer(1);
-	for(unsigned int i = 0; i < m_Lights.size();i++)
-	{
+	m_ConstantBuffer->setBuffer(0);
+	//for(unsigned int i = 0; i < m_Lights.size();i++)
+	//{
 		//Send stuff
-		updateLightBuffer(m_Lights.at(i));		
-		m_LightBuffer->setBuffer(1);
+		//updateLightBuffer(m_Lights.at(i));		
+		//m_LightBuffer->setBuffer(1);
 		
 		//set shader
 		m_LightShader->setShader();
 		
 		m_DeviceContext->Draw(6, 0);
 		//unset resources
-		m_LightBuffer->unsetBuffer(1);		
+		//m_LightBuffer->unsetBuffer(1);		
 		m_LightShader->unSetShader();
-	}
-	m_ConstantBuffer->unsetBuffer(1);
+	//}
+	m_ConstantBuffer->unsetBuffer(0);
 	m_LightShader->setBlendState(0);
 
-	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 }
 
@@ -272,14 +340,15 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 		default: return nullptr;
 	}
 }
-void DeferredRenderer::updateConstantBuffer()
+void DeferredRenderer::updateConstantBuffer(int nrLights)
 {
 	cBuffer cb;
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
 	cb.campos = *m_CameraPosition;
-
+	cb.nrLights = nrLights;
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
+	m_DeviceContext->UpdateSubresource(m_AllLightBuffer->getBufferPointer(), NULL,NULL, m_Lights.data(),NULL,NULL);
 }
 
 void DeferredRenderer::updateLightBuffer(Light &p_Light)
@@ -382,7 +451,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( ID3D11DepthStencilView * p_
 	return result;
 }
 
-void DeferredRenderer::createConstantBuffer()
+void DeferredRenderer::createConstantBuffer(int nrLights)
 {
 	// Create constant buffer for the lights
 	BufferDescription sbdesc;
@@ -398,6 +467,7 @@ void DeferredRenderer::createConstantBuffer()
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
 	cb.campos = *m_CameraPosition;
+	cb.nrLights = nrLights;
 
 	BufferDescription cbdesc;
 	cbdesc.initData = &cb;
