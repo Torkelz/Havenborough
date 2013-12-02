@@ -8,10 +8,6 @@ class IPhysics
 public:
 	typedef unsigned int BodyHandle;
 	typedef std::shared_ptr<IPhysics> ptr;
-
-	
-protected:
-	std::vector<Collision::HitData> m_HitDatas;
 public:
 	_declspec(dllexport) static IPhysics::ptr createPhysics();
 
@@ -59,6 +55,8 @@ public:
 	* @return the hitdata on that index.
 	*/
 	virtual Collision::HitData getHitDataAt(unsigned int p_Index) = 0;
+
+	virtual unsigned int getHitDataSize() = 0;
 
 	///**
 	//* Redirect to the appropriate check, when neither BoundingVolumes' type is known.

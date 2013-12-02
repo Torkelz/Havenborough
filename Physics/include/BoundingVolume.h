@@ -53,7 +53,7 @@ public:
 	* Get the current position for the bounding volume.
 	* @return m_position.
 	*/
-	DirectX::XMFLOAT4* getPosition()
+	virtual DirectX::XMFLOAT4* getPosition()
 	{
 		return &m_Position;
 	}

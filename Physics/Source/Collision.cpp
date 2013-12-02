@@ -10,12 +10,12 @@ Collision::HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume* p_V
 	BoundingVolume::Type type = p_Volume2->getType();
 
 	switch(type)
-	{
-	case BoundingVolume::Type::SPHERE:
-		return boundingVolumeVsSphere(p_Volume1, (Sphere*) p_Volume2);
-
+	{		
 	case BoundingVolume::Type::AABBOX:
 		return boundingVolumeVsAABB(p_Volume1, (AABB*)p_Volume2);
+
+	case BoundingVolume::Type::SPHERE:
+		return boundingVolumeVsSphere(p_Volume1, (Sphere*) p_Volume2);
 
 	default:
 		HitData hit = HitData();
@@ -29,9 +29,11 @@ Collision::HitData Collision::boundingVolumeVsSphere(BoundingVolume* p_Volume, S
 
 	switch(type)
 	{
+	case BoundingVolume::Type::AABBOX:
+		return AABBvsSphere((AABB*)p_Volume, p_Sphere);
+
 	case BoundingVolume::Type::SPHERE:
 		return sphereVsSphere((Sphere*)p_Volume, p_Sphere);
-
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -43,11 +45,11 @@ Collision::HitData Collision::boundingVolumeVsAABB(BoundingVolume* p_Volume, AAB
 	BoundingVolume::Type type = p_Volume->getType();
 	switch(type)
 	{
-	case BoundingVolume::Type::SPHERE:
-		return AABBvsSphere(p_AABB, (Sphere*)p_Volume);
-
 	case BoundingVolume::Type::AABBOX:
 		return AABBvsAABB((AABB*)p_Volume, p_AABB);
+
+	case BoundingVolume::Type::SPHERE:
+		return AABBvsSphere(p_AABB, (Sphere*)p_Volume);
 
 	default:
 		HitData hit = HitData();
@@ -75,8 +77,8 @@ Collision::HitData Collision::sphereVsSphere( Sphere* p_Sphere1, Sphere* p_Spher
 
 		XMFLOAT4 position;
 		
-		XMVECTOR normalized = XMVector4Normalize( XMLoadFloat4(p_Sphere2->getPosition()) - XMLoadFloat4(p_Sphere1->getPosition()) );
-		XMVECTOR hitPos = normalized * p_Sphere1->getRadius();
+		XMVECTOR normalized = XMVector4Normalize( XMLoadFloat4(p_Sphere1->getPosition()) - XMLoadFloat4(p_Sphere2->getPosition()));
+		XMVECTOR hitPos = normalized * p_Sphere2->getRadius();
 		
 		position.x = hitPos.m128_f32[0];
 		position.y = hitPos.m128_f32[1];
@@ -89,6 +91,8 @@ Collision::HitData Collision::sphereVsSphere( Sphere* p_Sphere1, Sphere* p_Spher
 		hit.colNorm.y = normalized.m128_f32[1];
 		hit.colNorm.z = normalized.m128_f32[2];
 		hit.colNorm.w = normalized.m128_f32[3];
+
+		hit.colLength = rSum - sqrtf(c);
 
 		hit.colType = Type::SPHEREVSSPHERE;
 	}
@@ -127,6 +131,8 @@ Collision::HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	HitData hit = sphereVsSphere(p_AABB->getSphere(), p_Sphere); 
 	if(!hit.intersect)
 		return hit;
+
+	hit = HitData();
 
 	//Check to see if the sphere overlaps the AABB
 	//const bool AABBOverlapsSphere ( const AABB& B, const SCALAR r, VECTOR& C )

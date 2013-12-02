@@ -14,7 +14,7 @@ Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool 
 	  m_Volume(std::move(p_BoundingVolume))
 {
 	m_Mass = p_mass;	
-	m_Position			= *m_Volume->getPosition();;
+	m_Position			= *m_Volume->getPosition();
 	m_NetForce			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Velocity			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Acceleration		= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -99,7 +99,7 @@ void Body::update(float p_DeltaTime)
 	addGravity();
 }
 
-void Body::updateBoundingVolumePosition(XMFLOAT4 p_Position)
+void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
 {
 	XMMATRIX matTrans = XMMatrixTranslation(p_Position.x, p_Position.y, p_Position.z);
 	XMFLOAT4X4 tempTrans;
@@ -180,4 +180,24 @@ void Body::setPosition(XMFLOAT4 p_Position)
 	m_Position.y = p_Position.y;
 	m_Position.z = p_Position.z;
 	m_Position.w = p_Position.w;
+}
+
+DirectX::XMFLOAT4 Body::getNetForce()
+{
+	return m_NetForce;
+}
+
+DirectX::XMFLOAT4 Body::getACC()
+{
+	return m_Acceleration;
+}
+
+float Body::getGravity()
+{
+	return m_Gravity;
+}
+
+DirectX::XMFLOAT4 Body::getLastACC()
+{
+	return m_LastAcceleration;
 }

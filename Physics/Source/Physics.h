@@ -8,6 +8,7 @@ private:
 	Collision m_Collision;
 	float m_GlobalGravity;
 	std::vector<Body> m_Bodies;
+	std::vector<Collision::HitData> m_HitDatas;
 
 private:
 	Body* findBody(BodyHandle p_Body);
@@ -29,6 +30,7 @@ public:
 	DirectX::XMFLOAT4 getVelocity(BodyHandle p_Body);
 
 	Collision::HitData getHitDataAt(unsigned int p_Index);
+	unsigned int getHitDataSize();
 
 	//Collision::HitData boundingVolumeVsBoundingVolume(BoundingVolume* p_Volume1, BoundingVolume* p_Volume2);
 	//Collision::HitData boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sphere);

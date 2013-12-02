@@ -8,7 +8,7 @@
 
 class Body
 {
-private:
+protected:
 	typedef unsigned int BodyHandle;
 
 	static BodyHandle m_NextHandle;
@@ -43,6 +43,8 @@ public:
 	* Move constructor, needed because c++11 is not fully integrated to VS2012.
 	*/
 	Body(Body &&p_Other);
+	
+	Body(){};
 	~Body();
 
 	/**
@@ -59,7 +61,7 @@ public:
 	* Updates the body's BoundingVolumes position with relative coordinates.
 	* @p_Position, relative position.
 	*/
-	void updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position);
+	virtual void updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position);
 	/**
 	* Set the gravity that will act on the object.
 	* @p_Gravity, how much gravity shall the new gravity be.
@@ -111,11 +113,17 @@ public:
 	* @return m_Handle;
 	*/
 	BodyHandle getHandle() { return m_Handle; }
-
+		
 private:
 	DirectX::XMFLOAT4 calculateAcceleration();
 	void addGravity();
-
+protected:
 	Body(const Body&);
 	Body& operator=(const Body&);
+
+public:	
+	DirectX::XMFLOAT4 getNetForce();
+	DirectX::XMFLOAT4 getACC();
+	DirectX::XMFLOAT4 getLastACC();
+	float getGravity();
 };

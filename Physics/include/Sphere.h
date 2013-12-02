@@ -38,7 +38,7 @@ public:
 		setRadius(0.0f);
 		m_Position = DirectX::XMFLOAT4(0.f,0.f,0.f,1.f);
 
-		Type m_Type = Type::SPHERE;
+		m_Type = Type::SPHERE;
 	}
 	/**
 	* Constructor, set radius and position to the inputs, calculate sqrRadius.
@@ -50,7 +50,7 @@ public:
 		setRadius(p_Radius);
 		m_Position = p_Pos;
 		
-		Type m_Type = Type::SPHERE;
+		m_Type = Type::SPHERE;
 	}
 	~Sphere(){
 		//m_pBuffer->~Buffer();

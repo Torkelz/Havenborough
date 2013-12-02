@@ -140,6 +140,12 @@ Collision::HitData Physics::getHitDataAt(unsigned int p_Index)
 	return m_HitDatas.at(p_Index);
 }
 
+unsigned int Physics::getHitDataSize()
+{
+	return m_HitDatas.size();
+}
+
+
 //Debugging function
 void Physics::moveBodyPosition(XMFLOAT4 p_Position, BodyHandle p_Body)
 {
