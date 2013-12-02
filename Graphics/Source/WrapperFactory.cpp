@@ -67,26 +67,30 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, Shader::Type p_ShaderType)
 {
-	try
+
+	if(!p_Shader->checkExistingShader(p_ShaderType))
 	{
-		p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, nullptr);
+		std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
+		p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, nullptr);
 	}
-	catch(...)
+	else
 	{
-		throw;
+		throw WrapperFactoryException("Cannot add Shader step because it already exists.", __LINE__, __FILE__);
 	}
 }
 
 void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
 {
-	try
+
+	if(!p_Shader->checkExistingShader(p_ShaderType))
 	{
+		std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
 		p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
 	}
-	catch(...)
+	else
 	{
-		throw;
+		throw WrapperFactoryException("Cannot add Shader step because it already exists.", __LINE__, __FILE__);
 	}
 }
 
@@ -126,4 +130,49 @@ WrapperFactory::~WrapperFactory(void)
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
+}
+
+std::string WrapperFactory::getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type)
+{
+	std::string temp;
+
+	switch (p_Type)
+	{
+	case Shader::Type::VERTEX_SHADER:
+		{
+			temp = "vs_";
+			temp += p_ShaderVersion;
+			break;
+		}
+	case Shader::Type::PIXEL_SHADER:
+		{
+			temp = "ps_";
+			temp += p_ShaderVersion;
+			break;
+		}
+	case Shader::Type::GEOMETRY_SHADER:
+		{
+			temp = "gs_";
+			temp += p_ShaderVersion;
+			break;
+		}
+	case Shader::Type::HULL_SHADER:
+		{
+			temp = "hs_";
+			temp += p_ShaderVersion;
+			break;
+		}
+	case Shader::Type::DOMAIN_SHADER:
+		{
+			temp = "ds_";
+			temp += p_ShaderVersion;
+			break;
+		}
+	default:
+		{
+			return "";
+			break;
+		}
+	}
+	return temp;
 }

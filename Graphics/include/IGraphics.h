@@ -47,6 +47,7 @@ public:
 
 	virtual ~IGraphics(void)
 	{}
+
 	/**
 	* Create a pointer from which the graphics library can be accessed.
 	* @return the graphics pointer

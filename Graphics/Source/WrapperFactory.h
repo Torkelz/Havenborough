@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include "Buffer.h"
 
+
 class WrapperFactory
 {
 private:
@@ -29,6 +30,7 @@ public:
 	virtual void shutdown(void);
 	
 	/**
+	* DO NOT USE! USE ADD SHADER STEP INSTEAD
 	* Automatically creates a shader based on layout in the shader file.
 	* @param p_Filename the shader file to read
 	* @param p_EntryPoint the main entry point in the shader file
@@ -38,7 +40,7 @@ public:
 	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, Shader::Type p_ShaderType);
 	
 	/**
-	*
+	*	DO NOT USE! USE ADD SHADER STEP INSTEAD
 	*/
 	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
 		Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfElements);
@@ -59,7 +61,14 @@ public:
 	*
 	*/
 	virtual Buffer *createBuffer(Buffer::Description &p_Description);
+
+	/**
+	* 
+	*/
 	
+
+private:
+	std::string getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type);
 protected:
 	WrapperFactory(void);
 	virtual ~WrapperFactory(void);

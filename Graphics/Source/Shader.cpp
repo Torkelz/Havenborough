@@ -16,6 +16,10 @@ Shader::Shader(void)
 	m_DomainShader = nullptr;
 	m_VertexLayout = nullptr;
 	m_VertexDescription = nullptr;
+	for(int i = 0; i < NUM_OF_SHADER_TYPES; i++)
+	{
+		m_Exists[i] = false;
+	}
 }
 
 Shader::~Shader(void)
@@ -60,15 +64,17 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 	{
 		if(errorMessage == nullptr)
 		{
+			SAFE_RELEASE(errorMessage);
+			SAFE_RELEASE(shaderData);
 			std::wstring foo = p_Filename;
 			throw ShaderException("Error when trying to compile shader. Could be missing file: " +
 				std::string(foo.begin(), foo.end()), __LINE__, __FILE__);			
 		}
 		else
 		{
-			throw ShaderException("Error when compiling shader.\n" + (std::string)(char*)errorMessage->GetBufferPointer(),
-				__LINE__, __FILE__);
+			std::string temp = (std::string)(char*)errorMessage->GetBufferPointer();
 			SAFE_RELEASE(errorMessage);
+			throw ShaderException("Error when compiling shader.\n" + temp, __LINE__, __FILE__);
 		}
 
 		return result;
@@ -97,6 +103,8 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 
 	SAFE_RELEASE(shaderData);
 	SAFE_RELEASE(errorMessage);
+
+	m_Exists[(int)p_ShaderType] = true;
 
 	return result;
 }
@@ -216,6 +224,11 @@ void Shader::setBlendState(ID3D11BlendState *p_BlendState)
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
 	m_DeviceContext->OMSetBlendState(p_BlendState, blendFactor, sampleMask);
+}
+
+bool Shader::checkExistingShader(Shader::Type p_Type)
+{
+	return m_Exists[(int)p_Type];
 }
 
 void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)

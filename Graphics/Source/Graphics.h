@@ -106,7 +106,7 @@ private:
 	HRESULT createRasterizerState(void);
 
 	Buffer *createBuffer(Buffer::Description &p_Description);
-
+	vector<string> createEntryPointList(const char *p_EntryPoint);
 	void Begin(float color[4]);
 	void End(void);
 };

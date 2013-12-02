@@ -185,7 +185,7 @@ void Graphics::shutdown(void)
 		SAFE_DELETE(s.second);
 	}
 	m_ShaderLinkList.clear();
-	m_ShaderList.clear();
+	//m_ShaderList.clear();
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthStencilView);
 	SAFE_RELEASE(m_DepthStencilState);
@@ -233,27 +233,64 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		shader->initialize(m_Device, m_DeviceContext, 0);
 	}
 	
-	//TODO: Add entry point correct
+	vector<string> entryPointList = createEntryPointList(p_EntryPoint);
+		//vector<string> entryList;
 
-	if((p_Type & ShaderType::VERTEX_SHADER))
+	//std::vector<char> buffer(strlen(p_EntryPoint)+1);
+	//strcpy(buffer.data(), p_EntryPoint);
+	//char *type = nullptr, *tmp;
+	//tmp = strtok(buffer.data(), ",");
+	//while(tmp != nullptr)
+	//{
+	//	entryPointList.push_back(tmp);
+	//	tmp = strtok(NULL,",");
+	//}
+
+
+	string entryPoint;
+	try
 	{
-		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::VERTEX_SHADER);
+		//TODO: Add entry point correct
+		if((p_Type & ShaderType::VERTEX_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::VERTEX_SHADER);
+		}
+		if((p_Type & ShaderType::PIXEL_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::PIXEL_SHADER);
+		}
+		if((p_Type & ShaderType::GEOMETRY_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::GEOMETRY_SHADER);
+		}
+		if((p_Type & ShaderType::HULL_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::HULL_SHADER);
+		}
+		if((p_Type & ShaderType::DOMAIN_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::DOMAIN_SHADER);
+		}
 	}
-	if((p_Type & ShaderType::PIXEL_SHADER))
+	catch(...)
 	{
-		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::PIXEL_SHADER);
-	}
-	if((p_Type & ShaderType::GEOMETRY_SHADER))
-	{
-		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::GEOMETRY_SHADER);
-	}
-	if((p_Type & ShaderType::HULL_SHADER))
-	{
-		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::HULL_SHADER);
-	}
-	if((p_Type & ShaderType::DOMAIN_SHADER))
-	{
-		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, Shader::Type::DOMAIN_SHADER);
+		if(!found)
+		{
+			SAFE_DELETE(shader);
+			//m_ShaderList.pop_back();
+		}
+		
+		throw;
 	}
 
 	if(!found)
@@ -330,8 +367,8 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	}
 	catch(...)
 	{
+		SAFE_DELETE(shader);
 		SAFE_DELETE(desc);
-		desc = nullptr;
 		throw;
 	}
 }
@@ -607,9 +644,23 @@ HRESULT Graphics::createRasterizerState(void)
 
 Buffer *Graphics::createBuffer(Buffer::Description &p_Description)
 {
-
-
 	return m_WrapperFactory->createBuffer(p_Description);
+}
+
+vector<string> Graphics::createEntryPointList(const char *p_EntryPoint)
+{
+	vector<string> entryList;
+
+	std::vector<char> buffer(strlen(p_EntryPoint)+1);
+	strcpy(buffer.data(), p_EntryPoint);
+	char *type = nullptr, *tmp;
+	tmp = strtok(buffer.data(), ",");
+	while(tmp != nullptr)
+	{
+		entryList.push_back(tmp);
+		tmp = strtok(NULL,",");
+	}
+	return entryList;
 }
 
 void Graphics::Begin(float color[4])

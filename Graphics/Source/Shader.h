@@ -1,4 +1,6 @@
 #pragma once
+#define NUM_OF_SHADER_TYPES 5
+
 #include <d3d11.h>
 #include <d3dcompiler.h>
 //#include <d3d11shader.h>
@@ -19,6 +21,7 @@ public:
 		HULL_SHADER = 3,
 		DOMAIN_SHADER = 4
 	};
+
 private:
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
@@ -33,6 +36,9 @@ private:
 	
 	Type m_ShaderType;
 	UINT m_NumOfElements;
+
+	bool m_Exists[NUM_OF_SHADER_TYPES];
+
 public:
 	Shader(void);
 	~Shader(void);
@@ -51,7 +57,7 @@ public:
 	void setSamplerState(Type p_ShaderType, UINT p_StartSpot,
 		UINT p_NumOfSamples, ID3D11SamplerState *p_SamplerState);
 	void setBlendState(ID3D11BlendState *p_BlendState);
-
+	bool checkExistingShader(Shader::Type p_Type);
 private:
 	
 
