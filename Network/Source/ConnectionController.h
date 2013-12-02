@@ -3,7 +3,7 @@
 #include "Connection.h"
 #include "Packages.h"
 
-#include <INetwork.h>
+#include <IConnectionController.h>
 
 class ConnectionController : public IConnectionController
 {
@@ -22,6 +22,8 @@ public:
 
 	bool isConnected() const override;
 	bool hasError() const override;
+
+	void startListening() override;
 
 	unsigned int getNumPackages() override;
 	Package getPackage(unsigned int p_Index) override;

@@ -92,4 +92,6 @@ private:
 	void handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
 	void handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
 	void readHeader();
+
+	std::string formatError(const boost::system::error_code& p_Error);
 };

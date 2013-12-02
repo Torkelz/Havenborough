@@ -36,7 +36,7 @@ public:
 	 * @param p_File The file of the exception (use __FILE__)
 	 */
 	MyException(const std::string& p_What, int p_Line, const std::string& p_File)
-		: m_What(p_File + ":" + std::to_string(p_Line) + ": " + p_What),
+		: m_What(p_File + "(" + std::to_string(p_Line) + "): " + p_What),
 		  m_Line(p_Line),
 		  m_File(p_File)
 	{
@@ -63,6 +63,25 @@ public:
 	 */
 	NetworkError(const std::string& p_What, int p_Line, const std::string& p_File)
 		: MyException(p_What, p_Line, p_File)
+	{
+	}
+};
+
+/**
+ * An exception to be thrown when a network error has occured.
+ */
+class ClientDisconnected : public NetworkError
+{
+public:
+	/**
+	 * constructor.
+	 *
+	 * @param p_What A message describing the error
+	 * @param p_Line The line of the exception (use __LINE__)
+	 * @param p_File The file of the exception (use __FILE__)
+	 */
+	ClientDisconnected(const std::string& p_What, int p_Line, const std::string& p_File)
+		: NetworkError(p_What, p_Line, p_File)
 	{
 	}
 };

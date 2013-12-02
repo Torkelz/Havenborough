@@ -1,31 +1,7 @@
 #pragma once
 
 #include <CommonTypes.h>
-
-class IConnectionController
-{
-public:
-	/*
-	* Get the connection status for the application
-	* @return state::Connected
-	*/
-	virtual bool isConnected() const = 0;
-
-	/*
-	* Get the connection status 
-	* @return state::Invalid
-	*/
-	virtual bool hasError() const = 0;
-
-	virtual unsigned int getNumPackages() = 0;
-	virtual Package getPackage(unsigned int p_Index) = 0;
-	virtual void clearPackages(unsigned int p_NumPackages) =0;
-
-	virtual PackageType getPackageType(Package p_Package) =0;
-
-	virtual void sendAddObject(const AddObjectData& p_Data) = 0;
-	virtual AddObjectData getAddObjectData(Package p_Package) =0;
-};
+#include <IConnectionController.h>
 
 class INetwork
 {
@@ -36,22 +12,28 @@ public:
 	*/
 	__declspec(dllexport) static INetwork *createNetwork();
 	
-	/*
-	* Start the server and define the server listener port.
-	* @param p_Port, port number must be over 1024.
-	*/
-	virtual void createServer(unsigned short p_Port) = 0;
+	/**
+	 * Callback for successful client connections.
+	 *
+	 * @param p_Connection The newly connected clients connection.
+	 * @param p_UserData User defined data.
+	 */
+	typedef void (*clientConnectedCallback_t)(IConnectionController* p_Connection, void* p_UserData);
+
+	/**
+	 * Start the server at the specified port.
+	 *
+	 * @param p_Port, port number must be over 1024.
+	 * @param p_ConnectCallback The callback to handle connected clients. Null to disable callback.
+	 * @param p_UserData User defined data to be passed to the callback.
+	 * @param p_NumThreads The number of worker threads to spawn. Must be at least 1.
+	 */
+	virtual void createServer(unsigned short p_Port, clientConnectedCallback_t p_ConnectCallback, void* p_UserData, unsigned int p_NumThreads) = 0;
 	
 	/*
 	* Turn of the server.
 	*/
 	virtual void turnOfServer() = 0;
-
-	/*
-	* Create a send resive for the client.
-	* @pragma p_Port, portnumber must be over 1024.
-	*/
-	virtual void createClient(unsigned short p_Port) = 0;
 
 	/**
 	* Clear sub resources allocated by the network and delete the pointer. 
@@ -60,10 +42,11 @@ public:
 
 	/*
 	* Connect the client to the server.
+	*
 	* @param p_URL, address to the server.
-	* @param p_Port, port number.
+	* @param p_Port Port number on the server to connect to.
 	*/
-	virtual void connectToServer(const char* p_URL, actionDoneCallback p_DoneHandler, void* p_UserData) = 0;
+	virtual void connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData) = 0;
 
 	virtual IConnectionController* getConnectionToServer() = 0;
 };

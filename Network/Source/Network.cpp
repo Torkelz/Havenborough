@@ -1,15 +1,19 @@
 #include "Network.h"
 
 Network::Network()
+	:	m_IO_Started(false)
 {
-	m_Handler = NULL;
-
 	registerPackages();
 }
 
 Network::~Network()
 {
+	m_IO_Service.stop();
 
+	if (m_IO_Thread.joinable())
+	{
+		m_IO_Thread.join();
+	}
 }
 
 INetwork *INetwork::createNetwork()
@@ -22,45 +26,65 @@ void INetwork::deleteNetwork(INetwork * p_Network)
 	delete p_Network;
 }
 
-void Network::createServer(unsigned short p_Port)
+void Network::createServer(unsigned short p_Port, clientConnectedCallback_t p_ConnectCallback, void* p_UserData, unsigned int p_NumThreads)
 {
-	m_Handler = new NetworkHandler(p_Port);
-	//m_Handler->setSaveData(std::bind(&Network::savePackageCallBack, this, std::placeholders::_1, std::placeholders::_2));
-	m_Handler->startServer();
+	m_ServerAcceptor.reset();
+	m_ServerAcceptor.reset(new ServerAccept(m_IO_Service, p_Port, m_PackagePrototypes));
+	m_ServerAcceptor->startServer(p_ConnectCallback, p_UserData, p_NumThreads);
 }
 
 void Network::turnOfServer()
 {
-	m_Handler->stopServer();
+	m_ServerAcceptor->stopServer();
 }
 
-void Network::createClient(unsigned short p_Port)
+void Network::connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData)
 {
-	m_Handler = new NetworkHandler(p_Port);
-	//m_Handler->setSaveData(std::bind(&Network::savePackageCallBack, this, std::placeholders::_1, std::placeholders::_2));
-}
+	m_ClientConnect.reset();
+	m_ClientConnect.reset(new ClientConnect(m_IO_Service, p_URL, p_Port, std::bind(&Network::clientConnectionDone, this, std::placeholders::_1, p_DoneHandler, p_UserData)));
 
-void Network::connectToServer(const char* p_URL, actionDoneCallback p_DoneHandler, void* p_UserData)
-{
-	m_Handler->connectToServer(p_URL, p_DoneHandler, p_UserData);
+	if (!m_IO_Started)
+	{
+		startIO();
+	}
 }
 
 IConnectionController* Network::getConnectionToServer()
 {
-	if (!m_ClientConnection)
-	{
-		m_ClientConnection.reset(new ConnectionController(m_Handler->getClientConnection(), m_PackagePrototypes));
-	}
-
 	return m_ClientConnection.get();
-}
-
-boost::asio::io_service& Network::getServerService()
-{
-	return m_Handler->getServerService();
 }
 
 void Network::registerPackages()
 {
 	m_PackagePrototypes.push_back(PackageBase::ptr(new AddObject));
+}
+
+void Network::startIO()
+{
+	m_IO_Started = true;
+	m_IO_Thread.swap(boost::thread(std::bind(&Network::IO_Run, this)));
+}
+
+void Network::IO_Run()
+{
+	try
+	{
+		m_IO_Service.run();
+	}
+	catch (...)
+	{
+		int dummy = 42;
+	}
+}
+
+void Network::clientConnectionDone(Result p_Result, actionDoneCallback p_DoneHandler, void* p_UserData)
+{
+	m_ClientConnection.reset(new ConnectionController(std::unique_ptr<Connection>(new Connection(m_ClientConnect->releaseConnectedSocket())), m_PackagePrototypes));
+
+	if (p_DoneHandler)
+	{
+		p_DoneHandler(p_Result, p_UserData);
+	}
+
+	m_ClientConnection->startListening();
 }

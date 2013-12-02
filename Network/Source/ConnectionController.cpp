@@ -5,7 +5,9 @@
 ConnectionController::ConnectionController(Connection::ptr p_Connection, const std::vector<PackageBase::ptr>& p_Prototypes)
 	:	m_PackagePrototypes(p_Prototypes),
 		m_Connection(std::move(p_Connection))
-{}
+{
+	m_Connection->setSaveData(std::bind(&ConnectionController::savePackageCallBack, this, std::placeholders::_1, std::placeholders::_2));
+}
 
 bool ConnectionController::isConnected() const
 {
@@ -15,6 +17,11 @@ bool ConnectionController::isConnected() const
 bool ConnectionController::hasError() const
 {
 	return m_Connection->hasError();
+}
+
+void ConnectionController::startListening()
+{
+	m_Connection->startReading();
 }
 
 unsigned int ConnectionController::getNumPackages()

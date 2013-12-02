@@ -93,19 +93,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ClientConnect.cpp" />
     <ClCompile Include="Source\Connection.cpp" />
     <ClCompile Include="Source\ConnectionController.cpp" />
-    <ClCompile Include="Source\NetworkHandler.cpp" />
+    <ClCompile Include="Source\ServerAccept.cpp" />
     <ClCompile Include="Source\Network.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CommonTypes.h" />
+    <ClInclude Include="include\IConnectionController.h" />
     <ClInclude Include="include\INetwork.h" />
     <ClInclude Include="Source\Connection.h" />
     <ClInclude Include="Source\ConnectionController.h" />
+    <ClInclude Include="Source\ClientConnect.h" />
     <ClInclude Include="Source\MyExceptions.h" />
     <ClInclude Include="Source\Network.h" />
-    <ClInclude Include="Source\NetworkHandler.h" />
+    <ClInclude Include="Source\ServerAccept.h" />
     <ClInclude Include="Source\Packages.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

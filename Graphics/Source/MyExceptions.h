@@ -38,7 +38,7 @@ public:
          * @param p_File The file of the exception (use __FILE__)
          */
         MyException(const std::string& p_What, int p_Line, const std::string& p_File)
-                : m_What(p_File + ":" + std::to_string(p_Line) + ": " + p_What),
+                : m_What(p_File + "(" + std::to_string(p_Line) + "): " + p_What),
                   m_Line(p_Line),
                   m_File(p_File)
         {

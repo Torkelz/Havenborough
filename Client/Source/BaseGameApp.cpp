@@ -33,7 +33,6 @@ void BaseGameApp::init()
 
 	m_InputQueue.init(std::move(translator));
 	m_Network = INetwork::createNetwork();
-	m_Network->createClient(31415);
 	m_Connected = false;
 	//physics = IPhysics::createPhysics();
 }
@@ -56,7 +55,7 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 			{
-				m_Network->connectToServer("localhost", &connectedCallback, this);
+				m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
 			}
 			else
 			{
@@ -131,6 +130,7 @@ void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
 	if (p_Res == Result::SUCCESS)
 	{
 		((BaseGameApp*)p_UserData)->m_Connected = true;
+		std::cout << "Connected successfully" << std::endl;
 	}
 	else
 	{

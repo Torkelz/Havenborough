@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
-#include "../../../Network/Source/NetworkHandler.h"
+#include "../../../Network/Source/ClientConnect.h"
 #include "../../../Network/Source/MyExceptions.h"
+#include "../../../Network/Source/ServerAccept.h"
 
 #include <boost/thread.hpp>
 
@@ -8,20 +9,8 @@
 
 BOOST_AUTO_TEST_SUITE(TestNetworkServerClient)
 
-void ioRun(boost::asio::io_service& p_IO_Service)
-{
-	try
-	{
-		p_IO_Service.run();
-	}
-	catch (NetworkError&)
-	{
-
-	}
-}
-
 std::mutex serverConnect;
-std::condition_variable connected;
+std::condition_variable serverConnected;
 Result res = Result::FAILURE;
 bool done = false;
 void actionDone(Result p_Res, void* p_UserData)
@@ -29,29 +18,44 @@ void actionDone(Result p_Res, void* p_UserData)
 	std::unique_lock<std::mutex> lock(serverConnect);
 	res = p_Res;
 	done = true;
-	connected.notify_all();
+	serverConnected.notify_all();
+}
+
+std::mutex clientConnect;
+std::condition_variable clientConnected;
+bool clientConn = false;
+void clientConnectedCallback(IConnectionController* p_Connection, void* p_UserData)
+{
+	std::unique_lock<std::mutex> lock(clientConnect);
+	clientConn = true;
+	clientConnected.notify_all();
 }
 
 BOOST_AUTO_TEST_CASE(TestConnect)
 {
-	std::shared_ptr<NetworkHandler> server = std::make_shared<NetworkHandler>(31415);
+	boost::asio::io_service ioService;
+
+	std::vector<PackageBase::ptr> prototypes;
+	ServerAccept server(ioService, 31415, prototypes);
 	
-	server->startServer();
-	boost::thread ioThread(&ioRun, boost::ref(server->getServerService()));
+	server.startServer(&clientConnectedCallback, nullptr, 1);
 
 	{
-		NetworkHandler client = NetworkHandler(31415);
-		client.connectToServer("localhost", &actionDone, nullptr);
+		ClientConnect clientConnector(ioService, "localhost", 31415, std::bind(&actionDone, std::placeholders::_1, nullptr));
 
 		std::unique_lock<std::mutex> lock(serverConnect);
 		while (!done)
-			connected.wait(lock);
+			serverConnected.wait(lock);
 
-		BOOST_CHECK(res == Result::SUCCESS);
+		std::unique_lock<std::mutex> lock2(clientConnect);
+		while (!clientConn)
+			clientConnected.wait(lock2);
+
+		BOOST_CHECK_EQUAL((int)res, (int)Result::SUCCESS);
+		BOOST_CHECK(clientConn);
 	}
 
-	server->stopServer();
-	ioThread.join();
+	server.stopServer();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

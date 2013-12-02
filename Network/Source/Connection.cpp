@@ -41,8 +41,15 @@ void Connection::handleWrite(const boost::system::error_code& p_Error, std::size
 {
 	if (p_Error)
 	{
-		m_State = State::INVALID;
-		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
+		if (p_Error == boost::asio::error::connection_reset
+			|| p_Error == boost::asio::error::eof)
+		{
+			throw ClientDisconnected(formatError(p_Error), __LINE__, __FILE__);
+		}
+		else
+		{
+			throw NetworkError(formatError(p_Error), __LINE__, __FILE__);
+		}
 	}
 
 	std::lock_guard<std::mutex> lock(m_WriteQueueLock);
@@ -70,7 +77,15 @@ void Connection::handleReadHeader(const boost::system::error_code& p_Error, std:
 	if( p_Error )
 	{
 		m_State = State::INVALID;
-		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
+		if (p_Error == boost::asio::error::connection_reset
+			|| p_Error == boost::asio::error::eof)
+		{
+			throw ClientDisconnected(formatError(p_Error), __LINE__, __FILE__);
+		}
+		else
+		{
+			throw NetworkError(formatError(p_Error), __LINE__, __FILE__);
+		}
 	}
 
 	Header header;
@@ -86,7 +101,15 @@ void Connection::handleReadData(const boost::system::error_code& p_Error, std::s
 	if( p_Error )
 	{
 		m_State = State::INVALID;
-		throw NetworkError(p_Error.message(), __LINE__, __FILE__);
+		if (p_Error == boost::asio::error::connection_reset
+			|| p_Error == boost::asio::error::eof)
+		{
+			throw ClientDisconnected(formatError(p_Error), __LINE__, __FILE__);
+		}
+		else
+		{
+			throw NetworkError(formatError(p_Error), __LINE__, __FILE__);
+		}
 	}
 
 	if (m_SaveData)
@@ -129,4 +152,9 @@ boost::asio::ip::tcp::socket* Connection::getSocket()
 void Connection::startReading()
 {
 	readHeader();
+}
+
+std::string Connection::formatError(const boost::system::error_code& p_Error)
+{
+	return "error: " + std::to_string(p_Error.value()) + ": " + p_Error.message();
 }
