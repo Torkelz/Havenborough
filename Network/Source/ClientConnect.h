@@ -20,8 +20,20 @@ private:
 	connectionCallback_t m_ConnectionCallback;
 
 public:
+	/**
+	* Connects the client to the requested URL and port.'
+	*
+	* @param p_IO_Service handles the async read and write operations on the connection.
+	* @param p_URL the URL to connect to.
+	* @param p_Port the port number to listen to.
+	* @param p_ConnectionCallback callback function that returns if an connection was established.
+	*/
 	ClientConnect(boost::asio::io_service& p_IO_Service, const std::string& p_URL, unsigned short p_Port, connectionCallback_t p_ConnectionCallback);
 
+	/**
+	* Release the connected socket and close the connection. Use before a new connection is made.
+	* @returns the closed socket.
+	*/
 	boost::asio::ip::tcp::socket releaseConnectedSocket();
 
 private:

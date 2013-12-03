@@ -26,11 +26,25 @@ void INetwork::deleteNetwork(INetwork * p_Network)
 	delete p_Network;
 }
 
-void Network::createServer(unsigned short p_Port, clientConnectedCallback_t p_ConnectCallback, void* p_UserData, unsigned int p_NumThreads)
+void Network::createServer(unsigned short p_Port)
 {
 	m_ServerAcceptor.reset();
 	m_ServerAcceptor.reset(new ServerAccept(m_IO_Service, p_Port, m_PackagePrototypes));
-	m_ServerAcceptor->startServer(p_ConnectCallback, p_UserData, p_NumThreads);
+}
+
+void Network::startServer(unsigned int p_NumThreads)
+{
+	m_ServerAcceptor->startServer(p_NumThreads);
+}
+
+void Network::setClientConnectedCallback(clientConnectedCallback_t p_ConnectCallback, void* p_UserData)
+{
+	m_ServerAcceptor->setConnectedCallback(p_ConnectCallback, p_UserData);
+}
+
+void Network::setClientDisconnectedCallback(clientDisconnectedCallback_t p_DisconnectCallback, void* p_UserData)
+{
+	m_ServerAcceptor->setDisconnectedCallback(p_DisconnectCallback, p_UserData);
 }
 
 void Network::turnOfServer()

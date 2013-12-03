@@ -11,6 +11,11 @@
 #include <boost/archive/binary_iarchive.hpp>
 #pragma warning(pop)
 
+/**
+* Add new packages in this class. Make a new package by inherit
+* the PackageBase class and implement the functions that is inside it.
+*/
+
 class PackageBase
 {
 public:

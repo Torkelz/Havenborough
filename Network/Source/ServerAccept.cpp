@@ -10,19 +10,22 @@ ServerAccept::ServerAccept(boost::asio::io_service& p_IO_Service, unsigned short
 			m_Running(false),
 			m_PortNumber(p_Port),
 			m_PackagePrototypes(p_Prototypes),
-			m_IO_Service(p_IO_Service)
+			m_IO_Service(p_IO_Service),
+			m_ClientConnected(nullptr),
+			m_ClientDisconnected(nullptr)
 {
 }
 
 ServerAccept::~ServerAccept()
 {
+	if (m_Running)
+	{
+		stopServer();
+	}
 }
 
-void ServerAccept::startServer(INetwork::clientConnectedCallback_t p_ConnectCallback, void* p_UserData, unsigned int p_NumThreads)
+void ServerAccept::startServer(unsigned int p_NumThreads)
 {
-	m_ClientConnected = p_ConnectCallback;
-	m_ClientConnectedUserData = p_UserData;
-
 	try
 	{
 		m_Acceptor.async_accept(m_AcceptSocket, std::bind( &ServerAccept::handleAccept, this, std::placeholders::_1));
@@ -36,14 +39,28 @@ void ServerAccept::startServer(INetwork::clientConnectedCallback_t p_ConnectCall
 
 void ServerAccept::stopServer()
 {
+	m_ConnectedClients.clear();
+
 	m_Running = false;
-	m_Acceptor.get_io_service().stop();
+	m_IO_Service.stop();
 
 	for (auto& thread : m_WorkerThreads)
 	{
 		thread.join();
 	}
 	m_WorkerThreads.clear();
+}
+
+void ServerAccept::setConnectedCallback(INetwork::clientConnectedCallback_t p_ConnectCallback, void* p_UserData)
+{
+	m_ClientConnected = p_ConnectCallback;
+	m_ClientConnectedUserData = p_UserData;
+}
+
+void ServerAccept::setDisconnectedCallback(INetwork::clientDisconnectedCallback_t p_DisconnectCallback, void* p_UserData)
+{
+	m_ClientDisconnected = p_DisconnectCallback;
+	m_ClientDisconnectedUserData = p_UserData;
 }
 
 bool ServerAccept::hasError() const
@@ -61,6 +78,8 @@ void ServerAccept::handleAccept( const boost::system::error_code& error)
 
     Connection::ptr connection(new Connection(std::move(m_AcceptSocket)));
 	ConnectionController::ptr clientConnection(new ConnectionController(std::move(connection), m_PackagePrototypes));
+
+	clientConnection->setDisconnectedCallback(std::bind(&ServerAccept::handleDisconnectCallback, this, clientConnection.get()));
 
 	if (m_ClientConnected)
 	{
@@ -111,4 +130,13 @@ void ServerAccept::IO_Run()
 	{
 		int dummy = 42;
 	}
+}
+
+void ServerAccept::handleDisconnectCallback(ConnectionController* p_Connection)
+{
+	if (m_ClientDisconnected)
+	{
+		m_ClientDisconnected(p_Connection, m_ClientDisconnectedUserData);
+	}
+
 }

@@ -85,6 +85,11 @@ void Connection::handleReadHeader(const boost::system::error_code& p_Error, std:
 {
 	if( p_Error )
 	{
+		if (p_Con->m_Disconnected)
+		{
+			p_Con->m_Disconnected();
+		}
+
 		p_Con->m_State = State::INVALID;
 		p_Con->m_Reading = false;
 		p_Con->m_Wait.notify_one();
@@ -115,6 +120,11 @@ void Connection::handleReadData(const boost::system::error_code& p_Error, std::s
 {
 	if( p_Error )
 	{
+		if (p_Con->m_Disconnected)
+		{
+			p_Con->m_Disconnected();
+		}
+
 		p_Con->m_State = State::INVALID;
 		p_Con->m_Reading = false;
 		p_Con->m_Wait.notify_one();
@@ -163,6 +173,11 @@ void Connection::writeData(const std::string& p_Buffer, uint16_t p_ID)
 void Connection::setSaveData(saveDataFunction p_SaveData)
 {
 	m_SaveData = p_SaveData;
+}
+
+void Connection::setDisconnectedCallback(disconnectedCallback_t p_DisconnectedCallback)
+{
+	m_Disconnected = p_DisconnectedCallback;
 }
 
 boost::asio::ip::tcp::socket* Connection::getSocket()

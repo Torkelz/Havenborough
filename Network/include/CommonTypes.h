@@ -3,7 +3,10 @@
 #include <cstdint>
 
 typedef unsigned int Package;
-
+/**
+*
+*Add new packages here
+*/
 enum class PackageType : uint16_t
 {
 	RESERVED = 0,

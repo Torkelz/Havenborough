@@ -10,6 +10,7 @@ class Connection
 {
 public:
 	typedef std::function<void(uint16_t,const std::string&)> saveDataFunction;
+	typedef std::function<void()> disconnectedCallback_t;
 	typedef std::unique_ptr<Connection> ptr;
 
 	enum class State
@@ -44,12 +45,13 @@ private:
 	bool m_Reading;
 
 	saveDataFunction m_SaveData;
+	disconnectedCallback_t m_Disconnected;
 
 public:
 
 	/**
-	* Used by the server to handle connections.
-	* @param p_Port, the port number for the applicatioin to listen to.
+	* Constructor, takes in a socket.
+	* @param p_Socket takes in a socket to read and write to.
 	*/
 	Connection( boost::asio::ip::tcp::socket&& p_Socket );
 
@@ -87,8 +89,22 @@ public:
 	*/
 	void setSaveData(saveDataFunction p_SaveData);
 
+	/**
+	*
+	* Whada
+	*/
+	void setDisconnectedCallback(disconnectedCallback_t p_DisconnectedCallback);
+
+	/**
+	*
+	* Returns the socket from the connection.
+	*/
 	boost::asio::ip::tcp::socket* getSocket();
 
+	/**
+	*
+	* Begin to read from the stream.
+	*/
 	void startReading();
 
 private:

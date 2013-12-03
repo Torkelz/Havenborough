@@ -68,6 +68,11 @@ AddObjectData ConnectionController::getAddObjectData(Package p_Package)
 	return addObject->m_Data;
 }
 
+void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
+{
+	m_Connection->setDisconnectedCallback(p_DisconnectCallback);
+}
+
 void ConnectionController::writeData(const std::string& p_Buffer, uint16_t p_ID)
 {
 	if (m_Connection)

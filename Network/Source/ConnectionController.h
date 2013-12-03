@@ -22,7 +22,6 @@ public:
 
 	bool isConnected() const override;
 	bool hasError() const override;
-
 	void startListening() override;
 
 	unsigned int getNumPackages() override;
@@ -34,16 +33,9 @@ public:
 	void sendAddObject(const AddObjectData& p_Data) override;
 	AddObjectData getAddObjectData(Package p_Package) override;
 
+	void setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback);
+
 private:
-	/**
-	 * Writes a buffer of data to the network stream. If the stream
-	 * is busy, the data is buffered and sent when the stream has time.
-	 * Data is always sent in order, even when buffered.
-	 *
-	 * @param p_Buffer A buffer of data to send. The data is copied and stored
-	 *		internally. Therefore it is safe to delete the buffer afterwards.
-	 * @param p_ID The package ID associated with the data.
-	 */
 	void writeData(const std::string& p_Buffer, uint16_t p_ID);
 	void savePackageCallBack(uint16_t p_ID, const std::string& p_Data);
 };

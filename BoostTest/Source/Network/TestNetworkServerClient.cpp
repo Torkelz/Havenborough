@@ -37,8 +37,8 @@ BOOST_AUTO_TEST_CASE(TestConnect)
 
 	std::vector<PackageBase::ptr> prototypes;
 	ServerAccept server(ioService, 31415, prototypes);
-	
-	server.startServer(&clientConnectedCallback, nullptr, 1);
+	server.setConnectedCallback(clientConnectedCallback, nullptr);
+	server.startServer(3);
 
 	{
 		ClientConnect clientConnector(ioService, "localhost", 31415, std::bind(&actionDone, std::placeholders::_1, nullptr));
