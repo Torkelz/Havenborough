@@ -16,6 +16,7 @@ void BaseGameApp::init()
 
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
+
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
@@ -38,7 +39,7 @@ void BaseGameApp::init()
 	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
 	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
 
-	dt = (1.f/60.f / 1000.f);
+	dt = (1.f/60.f);
 }
 
 void BaseGameApp::run()
@@ -49,7 +50,7 @@ void BaseGameApp::run()
 	{
 		m_Physics->update(dt);
 
-		for(int i = 0; m_Physics->getHitDataSize(); i++)
+		for(int i = 0; i < m_Physics->getHitDataSize(); i++)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)

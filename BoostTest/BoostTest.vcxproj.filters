@@ -6,7 +6,6 @@
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
-    <ClCompile Include="Source\TestSceneManager.cpp" />
     <ClCompile Include="Source\TestWindow.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp">
@@ -22,16 +21,20 @@
     <ClCompile Include="..\Client\Source\Input\InputState.cpp" />
     <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
-    <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
+    <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
+    <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
     <ClCompile Include="Source\TestCollision.cpp" />
-    <ClCompile Include="Source\TestShader.cpp" />
-    <ClCompile Include="Source\TestTextureLoader.cpp" />
+    <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp" />
+    <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
+    <ClCompile Include="Source\SceneManager\TestSceneManager.cpp" />
+    <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
     <ClCompile Include="SphereTest.cpp" />
     <ClCompile Include="AABBTest.cpp" />
     <ClCompile Include="..\Physics\Source\Body.cpp" />
     <ClCompile Include="BodyTest.cpp" />
+    <ClCompile Include="..\Physics\Source\Physics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />

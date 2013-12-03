@@ -26,4 +26,7 @@ testCaseCollection.xml
 *.lib
 */Test/
 */Obj/
+*/Release/
 *.orig
+*.coverage
+*.cso

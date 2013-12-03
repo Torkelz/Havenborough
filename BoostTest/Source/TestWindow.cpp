@@ -73,7 +73,9 @@ BOOST_AUTO_TEST_CASE(WindowTestMultipleWindows)
 	UVec2 size = {800,600};
 	win1.init("Window1", size);
 	win2.init("Window2", size);
-
+	BOOST_CHECK(win1.getHandle() != NULL);
+	BOOST_CHECK(win2.getHandle() != NULL);
+	BOOST_CHECK(win1.getHandle() != win2.getHandle());
 	win1.destroy();
 	win2.destroy();
 }

@@ -2,7 +2,6 @@
 
 #include <DirectXMath.h>
 #include "BoundingVolume.h"
-#include "VolumeIncludeAll.h"
 
 #include <memory>
 

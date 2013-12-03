@@ -35,7 +35,7 @@ UINT32 Buffer::getNumOfElements(void) const
 }
 
 HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
-	BufferDescription &p_Description)
+	Description &p_Description)
 {
 	HRESULT result = S_OK;
 	D3D11_BUFFER_DESC bufferDescription;
@@ -48,30 +48,30 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	
 	switch (m_Type)
 	{
-	case VERTEX_BUFFER:
+	case Type::VERTEX_BUFFER:
 		{
 			bufferDescription.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-			if(p_Description.usage == BUFFER_STREAM_OUT_TARGET)
+			if(p_Description.usage == Usage::STREAM_OUT_TARGET)
 			{
 				bufferDescription.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
 			}
 			break;
 		}
-	case INDEX_BUFFER:
+	case Type::INDEX_BUFFER:
 		{
 			bufferDescription.BindFlags = D3D11_BIND_INDEX_BUFFER;
 			break;
 		}
-	case CONSTANT_BUFFER_VS:
-	case CONSTANT_BUFFER_GS:
-	case CONSTANT_BUFFER_PS:
-	case BUFFER_TYPE_COUNT:
-	case CONSTANT_BUFFER_ALL:
+	case Type::CONSTANT_BUFFER_VS:
+	case Type::CONSTANT_BUFFER_GS:
+	case Type::CONSTANT_BUFFER_PS:
+	case Type::BUFFER_TYPE_COUNT:
+	case Type::CONSTANT_BUFFER_ALL:
 		{
 			bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 			break;
 		}
-	case  STAGING_BUFFER:
+	case  Type::STAGING_BUFFER:
 		{
 			bufferDescription.BindFlags = 0;
 			break;
@@ -90,31 +90,31 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	bufferDescription.CPUAccessFlags = 0;
 	switch (m_Usage)
 	{
-	case BUFFER_DEFAULT:
+	case Usage::DEFAULT:
 		{
 			bufferDescription.Usage = D3D11_USAGE_DEFAULT;
 			break;
 		}
-	case BUFFER_STREAM_OUT_TARGET:
+	case Usage::STREAM_OUT_TARGET:
 		{
 			bufferDescription.Usage = D3D11_USAGE_DEFAULT;
 			break;
 		}
-	case BUFFER_CPU_WRITE:
+	case Usage::CPU_WRITE:
 		{
 			bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
 			bufferDescription.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
 			break;
 		}
-	case BUFFER_CPU_WRITE_DISCARD:
+	case Usage::CPU_WRITE_DISCARD:
 		{
 			bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
 			bufferDescription.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
 			break;
 		}
-	case BUFFER_CPU_READ:
+	case Usage::CPU_READ:
 		{
-			if(m_Type != STAGING_BUFFER)
+			if(m_Type != Type::STAGING_BUFFER)
 			{
 				//m_DeviceContext = nullptr;
 				//m_Device = nullptr;
@@ -125,12 +125,12 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 			bufferDescription.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
 			break;
 		}
-	case BUFFER_USAGE_COUNT:
+	case Usage::USAGE_COUNT:
 		{
 			bufferDescription.Usage = D3D11_USAGE_DEFAULT;
 			break;
 		}
-	case BUFFER_USAGE_IMMUTABLE:
+	case Usage::USAGE_IMMUTABLE:
 		{
 			bufferDescription.Usage = D3D11_USAGE_IMMUTABLE;
 			break;
@@ -174,43 +174,43 @@ HRESULT Buffer::setBuffer(UINT32 p_StartSlot)
 
 	switch(m_Type)
 	{
-	case VERTEX_BUFFER:
+	case Type::VERTEX_BUFFER:
 		{
 			UINT32 offset = 0;
 			UINT32 numOfBuffers = 1;
 			m_DeviceContext->IASetVertexBuffers(p_StartSlot, numOfBuffers, &m_Buffer, &m_SizeOfElement, &offset);
 			break;
 		}
-	case INDEX_BUFFER:
+	case Type::INDEX_BUFFER:
 		{
 			UINT32 offset = 0;
 			m_DeviceContext->IASetIndexBuffer(m_Buffer, DXGI_FORMAT_R32_UINT, offset);
 			break;
 		}
-	case CONSTANT_BUFFER_VS:
+	case Type::CONSTANT_BUFFER_VS:
 		{
 			UINT32 numOfBuffers = 1;
 			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, numOfBuffers, &m_Buffer);
 			break;
 		}
-	case CONSTANT_BUFFER_GS:
+	case Type::CONSTANT_BUFFER_GS:
 		{
 			UINT32 numOfBuffers = 1;
 			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, numOfBuffers, &m_Buffer);
 			break;
 		}
-	case CONSTANT_BUFFER_PS:
+	case Type::CONSTANT_BUFFER_PS:
 		{
 			UINT32 numOfBuffers = 1;
 			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, numOfBuffers, &m_Buffer);
 			break;
 		}
-	case BUFFER_TYPE_COUNT:
+	case Type::BUFFER_TYPE_COUNT:
 		{
 			break;
 
 		}
-	case CONSTANT_BUFFER_ALL:
+	case Type::CONSTANT_BUFFER_ALL:
 		{
 			UINT32 numOfBuffers = 1;
 			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, numOfBuffers, &m_Buffer);
@@ -235,32 +235,32 @@ void *Buffer::map(void)
 
 	switch (m_Usage)
 	{
-	case BUFFER_DEFAULT:
+	case Usage::DEFAULT:
 		break;
-	case BUFFER_STREAM_OUT_TARGET:
+	case Usage::STREAM_OUT_TARGET:
 		break;
-	case BUFFER_CPU_WRITE:
+	case Usage::CPU_WRITE:
 		{
-			mapType = BUFFER_CPU_WRITE;
+			mapType = (UINT32)Usage::CPU_WRITE;
 			result = mapResourceToContext(mapType);
 			break;
 		}
 		
-	case BUFFER_CPU_WRITE_DISCARD:
+	case Usage::CPU_WRITE_DISCARD:
 		{
-			mapType = BUFFER_CPU_WRITE_DISCARD;
+			mapType = (UINT32)Usage::CPU_WRITE_DISCARD;
 			result = mapResourceToContext(mapType);
 			break;
 		}
-	case BUFFER_CPU_READ:
+	case Usage::CPU_READ:
 		{
-			mapType = BUFFER_CPU_READ;
+			mapType = (UINT32)Usage::CPU_READ;
 			result = mapResourceToContext(mapType);
 			break;
 		}
-	case BUFFER_USAGE_COUNT:
+	case Usage::USAGE_COUNT:
 		break;
-	case BUFFER_USAGE_IMMUTABLE:
+	case Usage::USAGE_IMMUTABLE:
 		break;
 	default:
 		break;

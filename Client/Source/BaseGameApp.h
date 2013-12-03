@@ -1,11 +1,10 @@
 #pragma once
 
-#include "IGraphics.h"
+#include <IGraphics.h>
 #include "Input\Input.h"
 #include "IPhysics.h"
 #include "NetworkClient.h"
 #include "SceneManager.h"
-#include "IPhysics.h"
 #include "Window.h"
 
 #include <string>
