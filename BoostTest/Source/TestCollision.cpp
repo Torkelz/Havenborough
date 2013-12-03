@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHitOrigin)
 	Sphere s1;
 	AABB aabb;
 
-	Collision::HitData hit = Collision::HitData();
+	HitData hit = HitData();
 
 	s1 = Sphere(1.f, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHitOrigin)
 	BOOST_CHECK_EQUAL(hit.colPos.y, 0.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 
-	BOOST_CHECK_EQUAL((int)hit.colType, (int)Collision::Type::AABBVSSPHERE);
+	BOOST_CHECK_EQUAL((int)hit.colType, (int)Type::AABBVSSPHERE);
 }
 
 BOOST_AUTO_TEST_CASE(AABBVsSphereHit)
@@ -59,9 +59,9 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHit)
 	Sphere s1;
 	AABB aabb;
 
-	Collision::HitData hit = Collision::HitData();
+	HitData hit = HitData();
 
-	s1 = Sphere(1.f, DirectX::XMFLOAT4(0.0f, 2.0f, 0.0f, 1.0f));
+	s1 = Sphere(1.f, DirectX::XMFLOAT4(0.0f, 2.f, 0.0f, 1.0f));
 
 	aabb = AABB(DirectX::XMFLOAT4(-1.f, -1.f, -1.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
 
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHit)
 	BOOST_CHECK_EQUAL(hit.colPos.y, 1.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 
-	BOOST_CHECK_EQUAL((int)hit.colType, (int)Collision::Type::AABBVSSPHERE);
+	BOOST_CHECK_EQUAL((int)hit.colType, (int)Type::AABBVSSPHERE);
 }
 
 BOOST_AUTO_TEST_CASE(EXTREMECASE_AABBVsSphereHit)
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(EXTREMECASE_AABBVsSphereHit)
 	Sphere s1;
 	AABB aabb;
 
-	s1 = Sphere(0.1f, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+	s1 = Sphere(0.1f, DirectX::XMFLOAT4(0.0f, 50.0f, 0.0f, 0.0f));
 
 	aabb = AABB(DirectX::XMFLOAT4(-100.f, -100.f, -100.f, 1.f), DirectX::XMFLOAT4(100.f, 100.f, 100.f, 1.f));
 
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(EXTREMECASE2_AABBVsSphereHit)
 	Sphere s1;
 	AABB aabb;
 
-	Collision::HitData hit = Collision::HitData();
+	HitData hit = HitData();
 
 	s1 = Sphere(1000.f, DirectX::XMFLOAT4(1001.f, 0.0f, 0.0f, 1.0f));
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(EXTREMECASE2_AABBVsSphereHit)
 	BOOST_CHECK_EQUAL(hit.colPos.y, 0.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 
-	BOOST_CHECK_EQUAL((int)hit.colType, (int)Collision::Type::AABBVSSPHERE);
+	BOOST_CHECK_EQUAL((int)hit.colType, (int)Type::AABBVSSPHERE);
 }
 
 BOOST_AUTO_TEST_CASE(AABBVsSphereMiss)
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(AABBvsAABBMiss)
 BOOST_AUTO_TEST_CASE(BoundingVolumeVsBoundingVolumeHit)
 {
 	Collision col;
-	Collision::HitData hit = Collision::HitData();
+	HitData hit = HitData();
 	
 	Sphere *s1, *s2;
 	AABB *aabb1, *aabb2;
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(BoundingVolumeVsBoundingVolumeHit)
 
 	hit = col.boundingVolumeVsBoundingVolume(s1, s2);
 
-	BOOST_CHECK_EQUAL((int)hit.colType, (int)Collision::Type::SPHEREVSSPHERE);
+	BOOST_CHECK_EQUAL((int)hit.colType, (int)Type::SPHEREVSSPHERE);
 	BOOST_CHECK_EQUAL(hit.colNorm.x, 0.f);
 	BOOST_CHECK_EQUAL(hit.colNorm.y, 1.f);
 	BOOST_CHECK_EQUAL(hit.colNorm.z, 0.f);

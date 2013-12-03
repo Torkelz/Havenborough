@@ -32,16 +32,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Collision.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\VolumeIncludeAll.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Physics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\IPhysics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PhysicsTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AABB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\BoundingVolume.h">
@@ -50,10 +56,7 @@
     <ClInclude Include="include\Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AABB.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Body.h">
+    <ClInclude Include="include\VolumeIncludeAll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

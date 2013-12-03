@@ -1,28 +1,33 @@
 #pragma once
-#include <memory>
 
-#include "..\Source\Collision.h"
-#include "..\Source\Body.h"
+#include "PhysicsTypes.h"
+
 class IPhysics
-{
+{	
 public:
-	typedef unsigned int BodyHandle;
-	typedef std::unique_ptr<IPhysics> ptr;
-public:
-	_declspec(dllexport) static IPhysics::ptr createPhysics();
+	__declspec(dllexport) static IPhysics *createPhysics(void);
 
 	virtual void initialize() = 0;
-
 	/**
-	* Create a body to apply physics on.
+	* Create a boundingVolume sphere with a body.
 	* @p_Mass, define the mass for the body.
-	* @p_BoundingVolume, which boundingvolume the body should have.
 	* @p_IsImmovable, tells if the body are movible.
+	* @p_Position, position for the boundingvolume(sphere). Body get same position.
+	* @p_Radius, the radius for the sphere.
 	* @return a BodyHandle so it can be mapped outside of Physics.
 	*/
-	virtual BodyHandle createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable) = 0;
+	virtual BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius) = 0;
 	/**
-	* Keeps physics updated.
+	* Create a boundingVolume AABB with a body, the center position is calculated from the bot and top corner.
+	* @p_Mass, define the mass for the body.
+	* @p_IsImmovable, tells if the body are movible.
+	* @p_Bot, bottom corner for box.
+	* @p_Top, top corner for box.
+	* @return a BodyHandle so it can be mapped outside of Physics.
+	*/
+	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top) = 0;
+	/**
+	* Keeps physics updated, collision checks etc.
 	* @p_DeltaTime, timestep.
 	*/
 	virtual void update(float p_DeltaTime) = 0;
@@ -31,7 +36,7 @@ public:
 	* @p_Force, force to be added.
 	* @p_Body, what body to apply the force.
 	*/
-	virtual void applyForce(DirectX::XMFLOAT4 p_Force, BodyHandle p_Body) = 0;
+	virtual void applyForce(Vector3 p_Force, BodyHandle p_Body) = 0;
 	/**
 	* Used to change the gravity constant.
 	* @p_Gravity, the new gravity.
@@ -42,60 +47,24 @@ public:
 	* @p_Body, what body to get the data from.
 	* @return a BoundingVolum pointer.
 	*/
-	virtual BoundingVolume* getVolume(BodyHandle p_Body) = 0;
+	//virtual BoundingVolume* getVolume(BodyHandle p_Body) = 0;
 	/**
 	*Get the velocity for the chosen body.
 	*@p_Body, what body to get the data from.
 	* @return objects velocity.
 	*/
-	virtual DirectX::XMFLOAT4 getVelocity(BodyHandle p_Body) = 0;
+	virtual Vector4 getVelocity(BodyHandle p_Body) = 0;
 	/**
 	* Get the hitdata from the vector containing all the collision hitdata for the last frame.
 	* @p_Index, index number in the vector.
 	* @return the hitdata on that index.
 	*/
-	virtual Collision::HitData getHitDataAt(unsigned int p_Index) = 0;
-
+	//virtual Collision::HitData getHitDataAt(unsigned int p_Index) = 0;
 	virtual unsigned int getHitDataSize() = 0;
-
-	///**
-	//* Redirect to the appropriate check, when neither BoundingVolumes' type is known.
-	//* @return HitData, see HitData definition.
-	//*/
-	//virtual Collision::HitData boundingVolumeVsBoundingVolume(BoundingVolume* p_Volume1, BoundingVolume* p_Volume2) = 0;
-	///**
-	//* Check for the appropriate collision, a BoundingVolume versus a sphere.
-	//* @return HitData, see HitData definition.
-	//*/
-	//virtual Collision::HitData boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sphere) = 0;
-	///**
-	//* Check for the appropriate collision, a BoundingVolume versus an AABB.
-	//* @return HitData, see HitData definition.
-	//*/
-	//virtual Collision::HitData boundingVolumeVsAABB(BoundingVolume* p_Volume, AABB* p_AABB) = 0;
-	///**
-	//* Sphere versus Sphere collision
-	//* @return HitData, see HitData definition.
-	//*/
-	//virtual Collision::HitData sphereVsSphere(Sphere* p_Sphere1, Sphere* p_Sphere2) = 0;
-	///**
-	//* AABB versus AABB collision
-	//* ## SphereVsSphere check happens before 
-	//* the actual AABBvsAABB collision check. ##
-	//* @return HitData, see HitData definition.
-	//*/
-	//virtual Collision::HitData AABBvsAABB( AABB* p_AABB1, AABB* p_AABB2 ) = 0;
-	///**
-	//* AABB versus Sphere collision
-	//* ## SphereVsSphere check happens before 
-	//* the actual AABBvsAABB collision check. ##
-	//* @return HitData, see HitData definition.
-	//*/
-	//virtual Collision::HitData AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere ) = 0;
 
 	//DEBUGGING
 	/**
 	* A function used for debugging purpose.
 	*/
-	virtual void moveBodyPosition(DirectX::XMFLOAT4 p_Position, BodyHandle p_Body) = 0;
+	virtual void moveBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
 };

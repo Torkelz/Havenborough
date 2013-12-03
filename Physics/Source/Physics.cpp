@@ -2,12 +2,7 @@
 
 using namespace DirectX;
 
-_declspec(dllexport) IPhysics::ptr IPhysics::createPhysics()
-{
-	return IPhysics::ptr(new Physics());
-}
-
-Physics::Physics()
+Physics::Physics(void)
 	: m_GlobalGravity(9.82f)
 {
 
@@ -16,6 +11,11 @@ Physics::Physics()
 Physics::~Physics()
 {
 
+}
+
+IPhysics *IPhysics::createPhysics()
+{
+	return new Physics();
 }
 
 Body* Physics::findBody(BodyHandle p_Body)
@@ -61,16 +61,15 @@ void Physics::update(float p_DeltaTime)
 
 		for (unsigned j = i + 1; j < m_Bodies.size(); j++)
 		{
-			Collision::HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
+			HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
 			
-
 			if(hit.intersect)
 			{
 				m_HitDatas.push_back(hit);
 				XMVECTOR temp;
 				XMFLOAT4 tempPos;
 
-				temp = XMLoadFloat4(&b.getPosition()) + XMLoadFloat4(&hit.colNorm) * hit.colLength;
+				temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colPos) * hit.colLength;
 				XMStoreFloat4(&tempPos, temp);
 
 				b.setPosition(tempPos);
@@ -97,18 +96,56 @@ void Physics::update(float p_DeltaTime)
 	}
 }
 
-void Physics::applyForce(XMFLOAT4 p_force, BodyHandle p_Body)
+void Physics::applyForce(Vector3 p_Force, BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
 		return;
 
-	body->addForce(p_force);
+	XMFLOAT4 tempForce;
+
+	tempForce.x = p_Force.x;
+	tempForce.y = p_Force.y;
+	tempForce.z = p_Force.z;
+	tempForce.w = 0.f;
+
+	body->addForce(tempForce);
 }
 
-Physics::BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolumeType, bool p_IsImmovable)
+BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius)
 {
-	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolumeType), p_IsImmovable);
+	XMFLOAT4 tempPosition;
+	tempPosition.x = p_Position.x;
+	tempPosition.y = p_Position.y;
+	tempPosition.z = p_Position.z;
+	tempPosition.w = 1.f;
+
+	Sphere* sphere = new Sphere(p_Radius, tempPosition);
+
+	return createBody(p_Mass, sphere, p_IsImmovable);
+}
+
+BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top)
+{
+	XMFLOAT4 tempBot, tempTop;
+	tempBot.x = p_Bot.x;
+	tempBot.y = p_Bot.y;
+	tempBot.z = p_Bot.z;
+	tempBot.w = 1.f;
+
+	tempTop.x = p_Top.x;
+	tempTop.y = p_Top.y;
+	tempTop.z = p_Top.z;
+	tempTop.w = 1.f;
+
+	AABB* aabb = new AABB(tempBot, tempTop);
+
+	return createBody(p_Mass, aabb, p_IsImmovable);
+}
+
+BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable)
+{
+	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable);
 	return m_Bodies.back().getHandle();
 }
 
@@ -126,16 +163,18 @@ BoundingVolume* Physics::getVolume(BodyHandle p_Body)
 	return body->getVolume();
 }
 
-XMFLOAT4 Physics::getVelocity(BodyHandle p_Body)
+Vector4 Physics::getVelocity(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
-		return XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+		return Vector4(0.f, 0.f, 0.f, 0.f);
 
-	return body->getVelocity();
+	XMFLOAT4 tempVel = body->getVelocity();
+
+	return Vector4(tempVel.x, tempVel.y, tempVel.z, tempVel.w);
 }
 
-Collision::HitData Physics::getHitDataAt(unsigned int p_Index)
+HitData Physics::getHitDataAt(unsigned int p_Index)
 {
 	return m_HitDatas.at(p_Index);
 }
@@ -147,13 +186,20 @@ unsigned int Physics::getHitDataSize()
 
 
 //Debugging function
-void Physics::moveBodyPosition(XMFLOAT4 p_Position, BodyHandle p_Body)
+void Physics::moveBodyPosition(Vector3 p_Position, BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
 		return;
 
-	body->setPosition(p_Position);
+	XMFLOAT4 tempPosition;
+
+	tempPosition.x = p_Position.x;
+	tempPosition.y = p_Position.y;
+	tempPosition.z = p_Position.z;
+	tempPosition.w = 1.f;
+
+	body->setPosition(tempPosition);
 	body->setVelocity(XMFLOAT4(0.f, 0.f, 0.f, 0.f));
 }
 

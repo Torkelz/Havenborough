@@ -96,7 +96,7 @@ void Body::update(float p_DeltaTime)
 
 	updateBoundingVolumePosition(relativePos);
 	
-	addGravity();
+	//addGravity();
 }
 
 void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
@@ -119,7 +119,7 @@ XMFLOAT4 Body::calculateAcceleration()
 	}
 	
 	acc.x = m_NetForce.x/m_Mass;
-	acc.y = m_NetForce.y/m_Mass;
+	acc.y = m_NetForce.y/m_Mass - m_Gravity;
 	acc.z = m_NetForce.z/m_Mass;
 
 	return acc;

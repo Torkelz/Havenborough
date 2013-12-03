@@ -5,7 +5,7 @@ using namespace DirectX;
 Collision::Collision(){}
 Collision::~Collision(){}
 
-Collision::HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume* p_Volume1, BoundingVolume* p_Volume2)
+HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume* p_Volume1, BoundingVolume* p_Volume2)
 {
 	BoundingVolume::Type type = p_Volume2->getType();
 
@@ -23,7 +23,7 @@ Collision::HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume* p_V
 	}
 }
 
-Collision::HitData Collision::boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sphere)
+HitData Collision::boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sphere)
 {
 	BoundingVolume::Type type = p_Volume->getType();
 
@@ -40,7 +40,7 @@ Collision::HitData Collision::boundingVolumeVsSphere(BoundingVolume* p_Volume, S
 	}
 }
 
-Collision::HitData Collision::boundingVolumeVsAABB(BoundingVolume* p_Volume, AABB* p_AABB)
+HitData Collision::boundingVolumeVsAABB(BoundingVolume* p_Volume, AABB* p_AABB)
 {
 	BoundingVolume::Type type = p_Volume->getType();
 	switch(type)
@@ -57,7 +57,7 @@ Collision::HitData Collision::boundingVolumeVsAABB(BoundingVolume* p_Volume, AAB
 	}
 }
 
-Collision::HitData Collision::sphereVsSphere( Sphere* p_Sphere1, Sphere* p_Sphere2 )
+HitData Collision::sphereVsSphere( Sphere* p_Sphere1, Sphere* p_Sphere2 )
 {
 	HitData hit = HitData();
 
@@ -80,12 +80,12 @@ Collision::HitData Collision::sphereVsSphere( Sphere* p_Sphere1, Sphere* p_Spher
 		XMVECTOR normalized = XMVector4Normalize( XMLoadFloat4(p_Sphere1->getPosition()) - XMLoadFloat4(p_Sphere2->getPosition()));
 		XMVECTOR hitPos = normalized * p_Sphere2->getRadius();
 		
-		position.x = hitPos.m128_f32[0];
-		position.y = hitPos.m128_f32[1];
-		position.z = hitPos.m128_f32[2];
-		position.w = hitPos.m128_f32[3];
+		//position.x = hitPos.m128_f32[0];
+		//position.y = hitPos.m128_f32[1];
+		//position.z = hitPos.m128_f32[2];
+		//position.w = hitPos.m128_f32[3];
 
-		hit.colPos = position;
+		hit.colPos = XMVECTORToVector4(&hitPos);;
 
 		hit.colNorm.x = normalized.m128_f32[0];
 		hit.colNorm.y = normalized.m128_f32[1];
@@ -100,7 +100,7 @@ Collision::HitData Collision::sphereVsSphere( Sphere* p_Sphere1, Sphere* p_Spher
 	return hit;
 }
 
-Collision::HitData Collision::AABBvsAABB( AABB* p_AABB1, AABB* p_AABB2 )
+HitData Collision::AABBvsAABB( AABB* p_AABB1, AABB* p_AABB2 )
 {	
 	HitData hit = sphereVsSphere(p_AABB1->getSphere(), p_AABB2->getSphere());
 	if(!hit.intersect)
@@ -126,7 +126,7 @@ Collision::HitData Collision::AABBvsAABB( AABB* p_AABB1, AABB* p_AABB2 )
 	return hit;
 }
 
-Collision::HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
+HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 {
 	HitData hit = sphereVsSphere(p_AABB->getSphere(), p_Sphere); 
 	if(!hit.intersect)
@@ -206,12 +206,12 @@ Collision::HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 		hit.colPos.z = dist.z;
 		hit.colPos.w = 1.f;
 
-		XMVECTOR tempNorm = XMVector4Normalize( XMLoadFloat4(p_Sphere->getPosition()) - XMLoadFloat4(&hit.colPos) );
+		XMVECTOR tempNorm = XMVector4Normalize( XMLoadFloat4(p_Sphere->getPosition()) - Vector4ToXMVECTOR(&hit.colPos) );
 
-		XMFLOAT4 colNormPos;
-		XMStoreFloat4(&colNormPos, tempNorm);
+		/*XMFLOAT4 colNormPos;
+		XMStoreFloat4(&colNormPos, tempNorm);*/
 
-		hit.colNorm = colNormPos;
+		hit.colNorm = XMVECTORToVector4(&tempNorm);
 		hit.colLength = p_Sphere->getRadius() - sqrtf(d);
 
 		hit.colType = Type::AABBVSSPHERE;

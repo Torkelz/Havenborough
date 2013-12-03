@@ -39,10 +39,6 @@ private:
 	}
 
 };
-BOOST_AUTO_TEST_CASE(BodyTest_)
-{
-	stubBody fakeBody = stubBody();
-}
 
 BOOST_AUTO_TEST_CASE(BodyTest_AddForce)
 {
@@ -53,7 +49,7 @@ BOOST_AUTO_TEST_CASE(BodyTest_AddForce)
 	BOOST_CHECK_EQUAL(m_Netforce.y, 0.f); 
 	BOOST_CHECK_EQUAL(m_Netforce.z, 0.f);
 
-	fakeBody.addForce(DirectX::XMFLOAT4(1.f, 0.f, 3.f, 0.f));//DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f));
+	fakeBody.addForce(DirectX::XMFLOAT4(1.f, 0.f, 3.f, 0.f));
 	fakeBody.addForce(DirectX::XMFLOAT4(1.f, 0.f, 3.f, 0.f));
 
 	m_Netforce = fakeBody.getNetForce();
@@ -94,21 +90,18 @@ BOOST_AUTO_TEST_CASE(BodyTest_SetPosition)
 	BOOST_CHECK_EQUAL(fakeBody.getPosition().w, 0.f);
 
 	fakeBody.setPosition(DirectX::XMFLOAT4(5.f, 10.f, 15.f, 1.f));
-
 	fakeBody.setPosition(DirectX::XMFLOAT4(5.f, 10.f, 15.f, 1.f));
 
 	BOOST_CHECK_EQUAL(fakeBody.getPosition().x, 5.f);
 	BOOST_CHECK_EQUAL(fakeBody.getPosition().y, 10.f);
 	BOOST_CHECK_EQUAL(fakeBody.getPosition().z, 15.f);
 	BOOST_CHECK_EQUAL(fakeBody.getPosition().w, 1.f);
-
 }
 
 
 BOOST_AUTO_TEST_CASE(BodyTest_Update)
 {
 	stubBody fakeBody = stubBody();
-
 
 	DirectX::XMFLOAT4 m_Acceleration = fakeBody.getACC();
 	BOOST_CHECK_EQUAL(m_Acceleration.x, 0.f);
