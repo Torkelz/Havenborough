@@ -65,11 +65,15 @@ PSIn VS( VSIn input )
 PSOut PS( PSIn input )
 {
 	PSOut output;
-	//float3 norm				= 0.5f * (normalize(input.normal) + 1.0f);
-	float4 bumpMap = normalMap.Sample(m_textureSampler, input.uvCoord);
-	bumpMap = (bumpMap *2.0f) - 1.0f;
-	float3 normal = input.normal + bumpMap.x * input.tangent + bumpMap.y * input.binormal;
-	normal = 0.5f * normalize(bumpMap.xyz) + 1.0f;
+	input.normal			= normalize(input.normal);
+	float3 norm				= 0.5f * (input.normal + 1.0f);
+	float4 bumpMap			= normalMap.Sample(m_textureSampler, input.uvCoord);
+	bumpMap.zw				= float2(0.5f, 1.f);
+	bumpMap					= (bumpMap * 2.0f) - 1.0f;
+	float3 normal			= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
+	//normal *= -1.0f;
+	normal					= 0.5f * (normalize(normal) + 1.0f);
+	
 	
 
 	output.diffuse.xyz		= diffuse.Sample(m_textureSampler, input.uvCoord).xyz;//input.diffuse.xyz;

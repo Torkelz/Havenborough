@@ -116,6 +116,12 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
     sd.MaxLOD			= D3D11_FLOAT32_MAX;
 
     m_Device->CreateSamplerState( &sd, &m_Sampler );
+
+	D3D11_RASTERIZER_DESC rdesc;
+	rdesc.CullMode = D3D11_CULL_NONE;
+	//rdesc.FrontCounterClockwise = true;
+
+	m_Device->CreateRasterizerState(&rdesc,&m_RasterState);
 	
 	D3D11_BLEND_DESC bd;
     bd.AlphaToCoverageEnable = false;
@@ -137,21 +143,21 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT2(1.0f, 1.0f),  
-		20.0f,
+		50.0f,
 		0
 	);
 	//addLight(testLight);
 	
-	xx = 5;
-	yy = 5;
-	zz = 5;
+	xx = 2;
+	yy = 2;
+	zz = 2;
 	int minX,minY,minZ,maxX,maxY,maxZ;
 	minX = minY = minZ = -30;
 	maxX = maxY = maxZ = 30;
 	float dx,dy,dz;
-	dx = (float)(abs(maxX) + abs(minX))/xx;
-	dy = (float)(abs(maxY) + abs(minY))/yy;
-	dz = (float)(abs(maxZ) + abs(minZ))/zz;
+	dx = (float)(abs(maxX) + abs(minX))/(xx-1);
+	dy = (float)(abs(maxY) + abs(minY))/(yy-1);
+	dz = (float)(abs(maxZ) + abs(minZ))/(zz-1);
 	
 	for(int x= 0; x < xx; x++)
 	{
@@ -178,8 +184,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
 	m_Specular = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/spec.jpg");
-	m_Diffuse = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
-	m_NormalMap = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/test2 nrm.jpg");
+	m_Diffuse = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_COLOR.jpg");
+	m_NormalMap = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_NRM_RGB.jpg");
 
 
 	// TEMPORARY ----------------------------------------------------------------
@@ -226,6 +232,8 @@ void DeferredRenderer::renderGeometry()
 	// Set the render targets.
 	m_DeviceContext->OMSetRenderTargets(nrRT, m_RenderTargets, m_DepthStencilView);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//m_DeviceContext->RSSetState(m_RasterState);
 
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	ID3D11ShaderResourceView *srvs[] = {m_Diffuse,

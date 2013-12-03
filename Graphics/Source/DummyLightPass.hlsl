@@ -48,7 +48,7 @@ void GetGBufferAttributes( in float2 screenPos,
 						  out float specularPower)
 {
 	float3 normal2 = normalTex.Sample(m_textureSampler, screenPos).xyz;
-	normal = (normal2 * 2) - 1.0f;
+	normal = (normal2 * 2.0f) - 1.0f;
 
 	position = depthTex.Sample(m_textureSampler, screenPos).xyz;
 
@@ -66,7 +66,6 @@ float3 CalcLighting(	float3 normal,
 						float specularPower,
 						int i)
 {
-	
 	float3 L = float3(0.f,0.f,0.f);
 	float attenuation = 1.0f;
 	if( m_lights[i].lightType == 0 || m_lights[i].lightType == 1) //Point light||Spot light
@@ -90,15 +89,15 @@ float3 CalcLighting(	float3 normal,
 											m_lights[i].spotlightAngles.y ) );
 	}
 
-	float nDotL = saturate( dot( normal, L ) );
+	float nDotL = saturate( dot( L, normal ) );
 	float3 diffuse;
-	if(lightType != 0)
-		diffuse = nDotL * m_lights[i].lightDirection * diffuseAlbedo;
-	else
-		diffuse = nDotL * diffuseAlbedo;
+	//if(m_lights[i].lightType != 0)
+		diffuse = nDotL * m_lights[i].lightColor * diffuseAlbedo; //(normal + 1.0f) *0.5f;//
+	//else
+		//diffuse = (L + 1.f) * 0.5f;
 
 	// Calculate the specular term
-	float3 V = cameraPos - position;
+	float3 V = normalize(cameraPos - position);
 	float3 H = normalize( L + V );
 	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
 							m_lights[i].lightColor * specularAlbedo.xyz * nDotL;

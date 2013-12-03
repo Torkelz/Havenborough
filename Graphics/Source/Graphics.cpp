@@ -157,7 +157,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Setup camera matrices REMOVE LATER
 	DirectX::XMFLOAT4 eye4,lookat,up;
 	DirectX::XMFLOAT3 *eye;
-	eye4 = DirectX::XMFLOAT4(0,0,50,1);
+	eye4 = DirectX::XMFLOAT4(0,0,-60,1);
 	eye = new  DirectX::XMFLOAT3(eye4.x,eye4.y,eye4.z);
 	lookat = DirectX::XMFLOAT4(0,0,0,1);
 	up = DirectX::XMFLOAT4(0,1,0,0);
@@ -165,12 +165,12 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	view = new DirectX::XMFLOAT4X4();
 	proj = new DirectX::XMFLOAT4X4();
 	DirectX::XMStoreFloat4x4(view,
-							DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtRH(
+							DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
 								DirectX::XMLoadFloat4(&eye4),
 								DirectX::XMLoadFloat4(&lookat),
 								DirectX::XMLoadFloat4(&up))));
 	DirectX::XMStoreFloat4x4(proj,
-							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovRH(
+							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
 								0.4f*3.14f,
 								(float)p_ScreenWidth / (float)p_ScreenHeight,
 								1.0f,
