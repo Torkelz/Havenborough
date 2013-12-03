@@ -110,41 +110,18 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 			}
 		}
 
-		Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, Shader::Type p_ShaderType) override
+		void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+			Shader::Type p_ShaderType) override
 		{
-			DummyShader *shader = new DummyShader();
-
-			try
-			{
-				shader->initialize(nullptr, nullptr, 0);
-				shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, nullptr);
-
-				return shader;
-			}
-			catch(...)
-			{
-				SAFE_DELETE(shader);
-				throw;
-			}
+			std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
+			p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, nullptr);
 		}
 
-		Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-			Shader::Type p_ShaderType,const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts) override
+		void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+			Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout) override
 		{
-			DummyShader *shader = new DummyShader();
-
-			try
-			{
-				shader->initialize(nullptr, nullptr, p_NumOfInputElemts);
-				shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
-
-				return shader;
-			}
-			catch(...)
-			{
-				SAFE_DELETE(shader);
-				throw;
-			}
+			std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
+			p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, p_VertexLayout);
 		}
 
 		Buffer *createBuffer(Buffer::Description &p_Description)
@@ -230,7 +207,7 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		DummyWrapper::initializeDummy();
 		wraps = DummyWrapper::getDummyInstance();
 		
-		Shader *shady = nullptr;
+		DummyShader *shady = nullptr;
 
 		D3D11_INPUT_ELEMENT_DESC desc[] = 
 		{
@@ -241,8 +218,11 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 
 		int size = sizeof(desc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
 
-		BOOST_CHECK_NO_THROW(shady = wraps->createShader(L"Source/dummy.hlsl", "main", "vs_5_0", Shader::Type::VERTEX_SHADER,
-			desc, size));
+		shady = new DummyShader();
+		shady->initialize(nullptr, nullptr, size);
+
+		BOOST_CHECK_NO_THROW(wraps->addShaderStep(shady, L"Source/dummy.hlsl", "main", "5_0",
+			Shader::Type::VERTEX_SHADER, desc));
 
 		BOOST_CHECK(shady != nullptr);
 		
@@ -257,9 +237,12 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		DummyWrapper::initializeDummy();
 		wraps = DummyWrapper::getDummyInstance();
 
-		Shader *shady = nullptr;
+		DummyShader *shady = nullptr;
+		shady = new DummyShader();
+		shady->initialize(nullptr, nullptr, 0);
 
-		BOOST_CHECK_NO_THROW(shady = wraps->createShader(L"Source/dummy.hlsl", "main", "vs_5_0", Shader::Type::VERTEX_SHADER));
+		BOOST_CHECK_NO_THROW(wraps->addShaderStep(shady, L"Source/dummy.hlsl", "main", "5_0",
+			Shader::Type::VERTEX_SHADER));
 
 		BOOST_CHECK(shady != nullptr);
 

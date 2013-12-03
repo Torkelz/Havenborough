@@ -76,9 +76,9 @@ public:
 	//	Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfElements);
 #pragma endregion
 
-private:
-	std::string getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type);
 protected:
 	WrapperFactory(void);
 	virtual ~WrapperFactory(void);
+	
+	std::string getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type);
 };
