@@ -28,8 +28,6 @@ public:
 	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top);
 
 	void setGlobalGravity(float p_Gravity);
-
-	BoundingVolume* getVolume(BodyHandle p_Body);
 	Vector4 getVelocity(BodyHandle p_Body);
 
 	HitData getHitDataAt(unsigned int p_Index);
@@ -42,5 +40,7 @@ private:
 	Body* findBody(BodyHandle p_Body);
 	
 	BodyHandle createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable);
+
+	BoundingVolume* getVolume(BodyHandle p_Body);
 };
 

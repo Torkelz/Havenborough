@@ -38,7 +38,7 @@ void BaseGameApp::init()
 	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
 	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
 
-	dt = (1.f/60.f);
+	dt = (1.f/60.f / 1000.f);
 }
 
 void BaseGameApp::run()
@@ -49,9 +49,13 @@ void BaseGameApp::run()
 	{
 		m_Physics->update(dt);
 
-		if(m_Physics->getHitDataSize() >= 1)
+		for(int i = 0; m_Physics->getHitDataSize(); i++)
 		{
-			int i = 0;
+			HitData hit = m_Physics->getHitDataAt(i);
+			if(hit.intersect)
+			{
+				int i = 0;
+			}
 		}
 
 		m_InputQueue.onFrame();

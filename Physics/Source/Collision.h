@@ -50,33 +50,6 @@ class Collision
 {
 public:
 	static enum { OUTSIDE = 0, INTERSECT, INSIDE };
-
-	//enum class Type
-	//{
-	//	NONE,
-	//	SPHEREVSSPHERE,
-	//	AABBVSSPHERE,
-	//	AABBVSAABB
-	//};
-
-	//struct HitData
-	//{
-	//	DirectX::XMFLOAT4	colPos;
-	//	DirectX::XMFLOAT4	colNorm;
-	//	bool				intersect;
-	//	Collision::Type		colType;
-	//	float				colLength;
-
-	//	HitData()
-	//	{
-	//		colPos		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-	//		colNorm		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-	//		intersect	= false;
-	//		colType		= Collision::Type::NONE;
-	//		colLength	= -1.f;
-	//	}
-	//};
-
 public:
 	Collision();
 	~Collision();
@@ -117,7 +90,5 @@ public:
 	*/
 	HitData AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere );
 	//bool	collide( BoundingVolume* p_pVolume );
-
-	
 };
 
