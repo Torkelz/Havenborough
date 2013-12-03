@@ -3,7 +3,6 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
-//#include <d3d11shader.h>
 
 #include "Util.h"
 #include "MyGraphicsExceptions.h"
@@ -37,29 +36,69 @@ private:
 	Type m_ShaderType;
 	UINT m_NumOfElements;
 
-	bool m_Exists[NUM_OF_SHADER_TYPES];
-
 public:
 	Shader(void);
 	~Shader(void);
 	
-	void setNumOfElements(UINT p_NumOfElements);
-
+	/**
+	* Initializes the shader object with the DirectX API.
+	* @param p_Device pointer to the Direc3D device in use
+	* @param p_DeviceContext pointer to the Direct3D device context in use
+	* @param p_NumOfElements the number of elements in the input layout. Use 0 if the layout is auto generated.
+	*/
 	void initialize(ID3D11Device *p_Device,	ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements);
+	
+	/**
+	* Compiles the shader file and initialize the D3D11Shader object based on shader type.
+	* @param p_Filename the shader file to read
+	* @param p_EntryPoint the main entry point in the shader file
+	* @param p_ShaderModel the shader model version to be used
+	* @param p_ShaderType the type of shader to create
+	* @param p_VertexLayout the user defined vertex layout shader should use
+	*/
 	HRESULT compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
 		Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
 
+	/**
+	* Sets this shader object to be active. Use before it should be drawn.
+	*/
 	void setShader(void);
+	
+	/**
+	* Unsets this shader object from being active. Use after it has been drawn.
+	*/
 	void unSetShader(void);
 	
+	/**
+	* Connects a resource to a shader.
+	* @param p_ShaderType the shader the resource should be connected to
+	* @param p_StartSpot which object that should be used as start, usually this should be 0
+	* @param p_NumOfViews the number of resources sent to the shader
+	* @param P_ShaderResource pointer the the resource(s)
+	*/
 	void setResource(Type p_ShaderType, UINT p_StartSpot,
 		UINT p_NumOfViews, ID3D11ShaderResourceView *p_ShaderResource);
+	
+	/**
+	* Sets a sampler state to a shader.
+	* @param p_ShaderType the shader the sampler state should be connected to
+	* @param p_StartSpot which object that should be used as start, usually this should be 0
+	* @param p_NumOfViews the number of sampler states sent to the shader
+	* @param P_SamplerState pointer the the sampler state(s)
+	*/
 	void setSamplerState(Type p_ShaderType, UINT p_StartSpot,
 		UINT p_NumOfSamples, ID3D11SamplerState *p_SamplerState);
-	void setBlendState(ID3D11BlendState *p_BlendState);
-	bool checkExistingShader(Shader::Type p_Type);
-private:
 	
+	/**
+	* Sets the blend state for the shader object.
+	* @param p_BlendState the blend state that should be used at the moment
+	* @param p_BlendFactor the color channels to be blended
+	* @param p_SampleMask determines which samples to blend, default is 0xffffffff
+	*/
+	void setBlendState(ID3D11BlendState *p_BlendState, float p_BlendFactor[4], UINT p_SampleMask = 0xffffffff);
+	
+private:
+	void releaseShader(Shader::Type p_Type);
 
 protected:
 	virtual HRESULT createShader(ID3DBlob *p_ShaderData);

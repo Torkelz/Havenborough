@@ -218,7 +218,9 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 {
 	bool found = false;
 	Shader *shader;
-	
+	string entryPoint;
+	vector<string> entryPointList;
+
 	for(auto &s : m_ShaderList)
 	{
 		if(strcmp(s.first.c_str(), p_shaderId) == 0)
@@ -233,53 +235,44 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		shader->initialize(m_Device, m_DeviceContext, 0);
 	}
 	
-	vector<string> entryPointList = createEntryPointList(p_EntryPoint);
-		//vector<string> entryList;
+	entryPointList = createEntryPointList(p_EntryPoint);
 
-	//std::vector<char> buffer(strlen(p_EntryPoint)+1);
-	//strcpy(buffer.data(), p_EntryPoint);
-	//char *type = nullptr, *tmp;
-	//tmp = strtok(buffer.data(), ",");
-	//while(tmp != nullptr)
-	//{
-	//	entryPointList.push_back(tmp);
-	//	tmp = strtok(NULL,",");
-	//}
-
-
-	string entryPoint;
 	try
 	{
-		//TODO: Add entry point correct
 		if((p_Type & ShaderType::VERTEX_SHADER))
 		{
 			entryPoint = entryPointList.back();
 			entryPointList.pop_back();
-			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::VERTEX_SHADER);
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::VERTEX_SHADER);
 		}
 		if((p_Type & ShaderType::PIXEL_SHADER))
 		{
 			entryPoint = entryPointList.back();
 			entryPointList.pop_back();
-			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::PIXEL_SHADER);
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::PIXEL_SHADER);
 		}
 		if((p_Type & ShaderType::GEOMETRY_SHADER))
 		{
 			entryPoint = entryPointList.back();
 			entryPointList.pop_back();
-			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::GEOMETRY_SHADER);
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::GEOMETRY_SHADER);
 		}
 		if((p_Type & ShaderType::HULL_SHADER))
 		{
 			entryPoint = entryPointList.back();
 			entryPointList.pop_back();
-			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::HULL_SHADER);
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::HULL_SHADER);
 		}
 		if((p_Type & ShaderType::DOMAIN_SHADER))
 		{
 			entryPoint = entryPointList.back();
 			entryPointList.pop_back();
-			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel, Shader::Type::DOMAIN_SHADER);
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::DOMAIN_SHADER);
 		}
 	}
 	catch(...)
@@ -287,7 +280,6 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		if(!found)
 		{
 			SAFE_DELETE(shader);
-			//m_ShaderList.pop_back();
 		}
 		
 		throw;
@@ -315,6 +307,9 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		}
 	}
 
+	vector<string> entryPointList;
+	string entryPoint;
+
 	Shader *shader = new Shader();
 	shader->initialize(m_Device, m_DeviceContext, p_NumOfElements);
 
@@ -330,13 +325,15 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		desc[i].InstanceDataStepRate = p_VertexLayout[i].instanceDataStepRate;
 	}
 	
+	entryPointList = createEntryPointList(p_EntryPoint);
+
 	try
 	{
-		//TODO: Add entry point correct
-
 		if((p_Type & ShaderType::VERTEX_SHADER))
 		{
-			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
 				Shader::Type::VERTEX_SHADER, desc);
 
 			SAFE_DELETE(desc);
@@ -344,22 +341,30 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		}
 		if((p_Type & ShaderType::PIXEL_SHADER))
 		{
-			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
 				Shader::Type::PIXEL_SHADER);
 		}
 		if((p_Type & ShaderType::GEOMETRY_SHADER))
 		{
-			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
 				Shader::Type::GEOMETRY_SHADER);
 		}
 		if((p_Type & ShaderType::HULL_SHADER))
 		{
-			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
 				Shader::Type::HULL_SHADER);
 		}
 		if((p_Type & ShaderType::DOMAIN_SHADER))
 		{
-			m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel,
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
 				Shader::Type::DOMAIN_SHADER);
 		}
 
@@ -419,37 +424,6 @@ void Graphics::drawFrame(void)
 	Begin(color);
 	End();
 }
-
-//OLD STUFF//
-/*Shader *Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-	const char *p_ShaderModel, ShaderType p_ShaderType)
-{
-	return m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType);
-}
-
-void Graphics::addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-	const char *p_ShaderModel, ShaderType p_ShaderType)
-{
-	m_WrapperFactory->addShaderStep(p_Shader, p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType);
-}
-
-Shader *Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-	const char *p_ShaderModel, ShaderType p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
-	unsigned int p_NumOfInputElements)
-{
-	return m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType,
-		p_VertexLayout, p_NumOfInputElements);
-}
-        
-Buffer *Graphics::createBuffer(BufferDescription &p_Description)
-{
-        return m_WrapperFactory->createBuffer( p_Description );
-}
-
-//ID3D11ShaderResourceView *Graphics::createTexture(char *p_Filename)
-//{
-//	return m_TextureLoad->createTextureFromFile(p_Filename);
-//}*/
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
 {
@@ -650,6 +624,7 @@ Buffer *Graphics::createBuffer(Buffer::Description &p_Description)
 vector<string> Graphics::createEntryPointList(const char *p_EntryPoint)
 {
 	vector<string> entryList;
+	vector<string> result;
 
 	std::vector<char> buffer(strlen(p_EntryPoint)+1);
 	strcpy(buffer.data(), p_EntryPoint);
@@ -660,7 +635,13 @@ vector<string> Graphics::createEntryPointList(const char *p_EntryPoint)
 		entryList.push_back(tmp);
 		tmp = strtok(NULL,",");
 	}
-	return entryList;
+
+	for(int i = entryList.size() - 1; i >= 0; i--)
+	{
+		result.push_back(entryList.at(i));
+	}
+
+	return result;
 }
 
 void Graphics::Begin(float color[4])

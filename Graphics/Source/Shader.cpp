@@ -16,10 +16,6 @@ Shader::Shader(void)
 	m_DomainShader = nullptr;
 	m_VertexLayout = nullptr;
 	m_VertexDescription = nullptr;
-	for(int i = 0; i < NUM_OF_SHADER_TYPES; i++)
-	{
-		m_Exists[i] = false;
-	}
 }
 
 Shader::~Shader(void)
@@ -33,11 +29,6 @@ Shader::~Shader(void)
 	SAFE_DELETE_ARRAY(m_VertexDescription);
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
-}
-
-void Shader::setNumOfElements(UINT p_NumOfElements)
-{
-	m_NumOfElements = p_NumOfElements;
 }
 
 void Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements)
@@ -92,19 +83,19 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 		std::copy(p_VertexLayout, p_VertexLayout + m_NumOfElements, m_VertexDescription);
 	}
 
+	releaseShader(p_ShaderType);
 	result = createShader(shaderData);
 
 
 	if(FAILED(result))
 	{
+		releaseShader(p_ShaderType);
 		throw ShaderException("Error when creating shader.\n" + (std::string)(char*)errorMessage->GetBufferPointer(),
 			__LINE__, __FILE__);
 	}
 
 	SAFE_RELEASE(shaderData);
 	SAFE_RELEASE(errorMessage);
-
-	m_Exists[(int)p_ShaderType] = true;
 
 	return result;
 }
@@ -219,16 +210,33 @@ void Shader::setSamplerState(Type p_ShaderType, UINT p_StartSpot, UINT p_NumOfSa
 	}
 }
 
-void Shader::setBlendState(ID3D11BlendState *p_BlendState)
+void Shader::setBlendState(ID3D11BlendState *p_BlendState, float p_BlendFactor[4], UINT p_SampleMask)
 {
-	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-	UINT sampleMask = 0xffffffff;
-	m_DeviceContext->OMSetBlendState(p_BlendState, blendFactor, sampleMask);
+	m_DeviceContext->OMSetBlendState(p_BlendState, p_BlendFactor, p_SampleMask);
 }
 
-bool Shader::checkExistingShader(Shader::Type p_Type)
+void Shader::releaseShader(Shader::Type p_Type)
 {
-	return m_Exists[(int)p_Type];
+	switch(p_Type)
+	{
+	case Shader::Type::VERTEX_SHADER:
+		SAFE_RELEASE(m_VertexShader);
+		break;
+	case Shader::Type::PIXEL_SHADER:
+		SAFE_RELEASE(m_PixelShader);
+		break;
+	case Shader::Type::GEOMETRY_SHADER:
+		SAFE_RELEASE(m_GeometryShader);
+		break;
+	case Shader::Type::HULL_SHADER:
+		SAFE_RELEASE(m_HullShader);
+		break;
+	case Shader::Type::DOMAIN_SHADER:
+		SAFE_RELEASE(m_DomainShader);
+		break;
+	default:
+		break;
+	}
 }
 
 void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)

@@ -25,73 +25,21 @@ void WrapperFactory::shutdown(void)
 	SAFE_DELETE(m_Instance);
 }
 
-Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-	Shader::Type p_ShaderType)
-{
-	Shader *shader = new Shader();
-
-	try
-	{
-		shader->initialize(m_Device, m_DeviceContext, 0);
-		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType,
-			nullptr);
-
-		return shader;
-	}
-	catch(...)
-	{
-		SAFE_DELETE(shader);
-		throw;
-	}
-}
-
-Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-	Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts)
-{
-	Shader *shader = new Shader();
-
-	try
-	{
-		shader->initialize(m_Device, m_DeviceContext, p_NumOfInputElemts);
-		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
-
-		return shader;
-	}
-	catch(...)
-	{
-		SAFE_DELETE(shader);
-		throw;
-	}
-}
-
 void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, Shader::Type p_ShaderType)
 {
 
-	if(!p_Shader->checkExistingShader(p_ShaderType))
-	{
 		std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
 		p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, nullptr);
-	}
-	else
-	{
-		throw WrapperFactoryException("Cannot add Shader step because it already exists.", __LINE__, __FILE__);
-	}
+
 }
 
 void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
 {
 
-	if(!p_Shader->checkExistingShader(p_ShaderType))
-	{
 		std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
-		p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
-	}
-	else
-	{
-		throw WrapperFactoryException("Cannot add Shader step because it already exists.", __LINE__, __FILE__);
-	}
+		p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, p_VertexLayout);
 }
 
 Buffer *WrapperFactory::createBuffer(Buffer::Description &p_Description)
@@ -176,3 +124,44 @@ std::string WrapperFactory::getShaderModel(const char *p_ShaderVersion, Shader::
 	}
 	return temp;
 }
+
+#pragma region OLD STUFF
+//Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+//	Shader::Type p_ShaderType)
+//{
+//	Shader *shader = new Shader();
+//
+//	try
+//	{
+//		shader->initialize(m_Device, m_DeviceContext, 0);
+//		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType,
+//			nullptr);
+//
+//		return shader;
+//	}
+//	catch(...)
+//	{
+//		SAFE_DELETE(shader);
+//		throw;
+//	}
+//}
+
+//Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+//	Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts)
+//{
+//	Shader *shader = new Shader();
+//
+//	try
+//	{
+//		shader->initialize(m_Device, m_DeviceContext, p_NumOfInputElemts);
+//		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
+//
+//		return shader;
+//	}
+//	catch(...)
+//	{
+//		SAFE_DELETE(shader);
+//		throw;
+//	}
+//}
+#pragma endregion

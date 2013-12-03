@@ -19,10 +19,20 @@ using std::vector;
 using std::pair;
 using std::make_pair;
 
-class Graphics :
-	public IGraphics
+class Graphics : public IGraphics
 {
 private:
+	struct Model
+	{
+		ID3D11Buffer *vertexBuffer;
+		ID3D11Buffer *indexBuffer;
+		Shader *shader;
+		ID3D11ShaderResourceView *diffuseTexture;
+		ID3D11ShaderResourceView *normalTexture;
+		ID3D11ShaderResourceView *specularTexture;
+		unsigned int numOfMaterials;
+	};
+
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 
@@ -45,7 +55,7 @@ private:
 	WrapperFactory *m_WrapperFactory;
 
 	vector<pair<string, Shader*>> m_ShaderList;
-	//vector<pair<string, Model>> m_ModelList;
+	vector<pair<string, Model>> m_ModelList;
 	vector<pair<string, string>> m_ShaderLinkList;
 	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
 
@@ -74,23 +84,6 @@ public:
 	void renderText(void);
 	void renderQuad(void);
 	void drawFrame(void);
-
-	//OLD STUFF//
-	/*Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-                const char *p_ShaderModel, ShaderType p_ShaderType);
-
-	
-    void addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-            const char *p_ShaderModel, ShaderType p_ShaderType);
-        
-    Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-            const char *p_ShaderModel, ShaderType p_ShaderType,
-            const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
-            unsigned int p_NumOfInputElements);
-        
-    
-
-	ID3D11ShaderResourceView *createTexture(char *p_Filename);//*/
 
 private:
 	void shutdown(void);

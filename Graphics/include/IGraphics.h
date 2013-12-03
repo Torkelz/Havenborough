@@ -81,12 +81,22 @@ public:
 	__declspec(dllexport) static void deleteGraphics(IGraphics *p_Graphics);
 
 	/**
-	* 
+	* Creates a new model and stores in a vector connected with an ID.
+	* @param p_ModelId the ID of the model
+	* @param p_Filename the filename of the model
 	*/
 	virtual void createModel(const char *p_ModelId, const char *p_Filename) = 0;
 
 	/**
-	* 
+	* Automatically creates a shader based on layout in the shader file and stores in a vector connected with and ID.
+	* @param p_ShaderId the ID of the shader
+	* @param p_Filename the file where the shader code is located
+	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
+	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
+	*		 note the ',' is the separator
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderType the shader types to be created, can be combined as
+	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER
 	*/
 	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) = 0;
@@ -95,11 +105,16 @@ public:
 	* Creates a new shader object with user defined vertex layout. If shader ID already exists or no vertex shader type 
 	* is added an exception is thrown.
 	* @param p_ShaderId the ID of the shader that should be created, note if the ID already exists an exception will be thrown
-	* @param p_Filename the file where the shader code is
-	* @param p_EntryPoint in the shader
-	* @param p_ShaderModel the shader model version which is to be used
-	* @param p_ShaderType the shader types to be created, can be combined as VS | PS | GS, note that vertex shader needs to
-	*		 to be included or an exception will be thrown
+	* @param p_Filename the file where the shader code is located
+	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
+	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
+	*		 note the ',' is the separator
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderType the shader types to be created, can be combined as
+	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER,
+	*		 note that vertex shader needs to be included or an exception will be thrown
+	* @param p_VertexLayout the user defined vertex layout
+	* @param p_NumOfElement the number of elements in the layout
 	*/
 	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
@@ -113,9 +128,12 @@ public:
 	virtual void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) = 0;
 
 	/**
-	* 
+	* Creates a new texture and stores in a vector connected with an ID.
+	* @param p_TextureId the ID of the texture
+	* @param p_Filename the filename of the texture
 	*/
-	virtual void createTexture(const char *p_TextureId, const char *p_filename) = 0;
+	virtual void createTexture(const char *p_TextureId, const char *p_Filename) = 0;
+	
 	/**
 	* 
 	*/
@@ -132,7 +150,8 @@ public:
 	virtual void useFrameLight(void) = 0;
 
 	/**
-	* 
+	* Renders a model specified with an ID.
+	* @param p_ModelId the ID of the model to be rendered
 	*/
 	virtual void renderModel(char *p_ModelId) = 0;
 
@@ -152,6 +171,7 @@ public:
 	virtual void drawFrame(void) = 0;
 
 private:
+
 	/**
 	* Release the sub resources allocated by the graphics API.
 	*/

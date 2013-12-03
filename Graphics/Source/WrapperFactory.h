@@ -30,42 +30,51 @@ public:
 	virtual void shutdown(void);
 	
 	/**
-	* DO NOT USE! USE ADD SHADER STEP INSTEAD
+	* Automatically creates a shader based on layout in the shader file.
+	* @param p_Shader the shader object where to store the new shader
+	* @param p_Filename the shader file to read
+	* @param p_EntryPoint the main entry point in the shader file
+	* @param p_ShaderModel the shader model version to be used
+	* @param p_ShaderType the type of shader to create
+	*/
+	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, Shader::Type p_ShaderType);
+
+	/**
+	* Automatically creates a shader based on user defined layout. Should only be used if defining a vertex shader.
+	* @param p_Shader the shader object where to store the new shader
+	* @param p_Filename the shader file to read
+	* @param p_EntryPoint the main entry point in the shader file
+	* @param p_ShaderModel the shader model version to be used
+	* @param p_ShaderType the type of shader to create
+	* @param p_VertexLayout the user defined vertex layout shader should use
+	*/
+	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
+	
+	/**
+	* Creates a buffer from a buffer description.
+	* @param p_Description the description the buffer should use
+	* @return pointer to the created buffer
+	*/
+	virtual Buffer *createBuffer(Buffer::Description &p_Description);
+
+#pragma region OLD STUFF
+	/**
 	* Automatically creates a shader based on layout in the shader file.
 	* @param p_Filename the shader file to read
 	* @param p_EntryPoint the main entry point in the shader file
 	* @param p_ShaderModel the shader model version to be used
 	* @param p_ShaderType the type of shader to create
 	*/
-	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, Shader::Type p_ShaderType);
+	//virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, Shader::Type p_ShaderType);
 	
-	/**
-	*	DO NOT USE! USE ADD SHADER STEP INSTEAD
-	*/
-	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-		Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfElements);
-	
-	/**
-	*
-	*/
-	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, Shader::Type p_ShaderType);
-
-	/**
-	*
-	*/
-	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
-	
-	/**
-	*
-	*/
-	virtual Buffer *createBuffer(Buffer::Description &p_Description);
-
 	/**
 	* 
 	*/
-	
+	//virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+	//	Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfElements);
+#pragma endregion
 
 private:
 	std::string getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type);

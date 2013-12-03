@@ -83,16 +83,16 @@ BOOST_AUTO_TEST_CASE(TestGraphics)
 	BOOST_CHECK_THROW(gr->createShader("myOtherID", L"Source/IRWrong.hlsl", "main", "5_0",
 		IGraphics::ShaderType::VERTEX_SHADER), ShaderException);
 
-	//BOOST_MESSAGE("Creating vertex shader with wrong entry point, expecting shader exception");
-	//BOOST_CHECK_THROW(gr->createShader("myAnotherID", L"Source/dummyVS.hlsl", "entry", "5_0",
-	//	IGraphics::ShaderType::VERTEX_SHADER), ShaderException);
+	BOOST_MESSAGE("Creating vertex shader with wrong entry point, expecting shader exception");
+	BOOST_CHECK_THROW(gr->createShader("myAnotherID", L"Source/dummyVS.hlsl", "entry", "5_0",
+		IGraphics::ShaderType::VERTEX_SHADER), ShaderException);
 
 	BOOST_MESSAGE("Creating pixel shader with wrong shader model according to shader type, expecting shader exception");
 	BOOST_CHECK_THROW(gr->createShader("myOtherCoolID", L"Source/dummyPS.hlsl", "main", "5_0",
 		IGraphics::ShaderType::VERTEX_SHADER), ShaderException);
 
 
-	/*IGraphics::ShaderInputElementDescription desc[] = 
+	IGraphics::ShaderInputElementDescription desc[] = 
 	{
 	{"POSITION", 0, IGraphics::Format::R32G32B32_FLOAT, 0, 0, 0, 0},
 	{"NORMAL", 0, IGraphics::Format::R32G32B32_FLOAT, 1, 12, 0, 0},
@@ -102,14 +102,14 @@ BOOST_AUTO_TEST_CASE(TestGraphics)
 	Shader *shader = nullptr;
 
 	BOOST_MESSAGE("Creating vertex shader with user defined input description");
-	BOOST_CHECK_NO_THROW(gr->createShader("LAWL", L"Source/dummyVS.hlsl", "main", "vs_5_0", IGraphics::ShaderType::VERTEX_SHADER,
-	desc, size));
+	BOOST_CHECK_NO_THROW(gr->createShader("LAWL", L"Source/dummy.hlsl", "mainVS,mainPS", "5_0",
+		IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER, desc, size));
 	SAFE_DELETE(shader);
 
 	BOOST_MESSAGE("Creating vertex shader with user defined input description, wrong shader model, expecting shader exception");
-	BOOST_CHECK_THROW(gr->createShader("OMGLOL", L"Source/dummyVS.hlsl", "main", "ps_5_0", IGraphics::ShaderType::VERTEX_SHADER,
-	desc, size), ShaderException);
-	SAFE_DELETE(shader);*/
+	BOOST_CHECK_THROW(gr->createShader("OMGLOL", L"Source/dummyVS.hlsl", "main", "5_5",
+		IGraphics::ShaderType::VERTEX_SHADER, desc, size), ShaderException);
+	SAFE_DELETE(shader);
 
 	BOOST_MESSAGE("Creating Texture that does not exist, expecting exception");
 	BOOST_CHECK_THROW(gr->createTexture("MyTexture", "lol.png"), TextureLoaderException);
@@ -120,26 +120,26 @@ BOOST_AUTO_TEST_CASE(TestGraphics)
 	factory = nullptr;
 }
 
-//BOOST_AUTO_TEST_CASE(TestLol)
-//{
-//	Window win;
-//	UVec2 winSize = {1280, 720};
-//	win.init("Test Graphics", winSize);
-//
-//	IGraphics *gr = IGraphics::createGraphics();
-//	WrapperFactory *factory = nullptr;
-//
-//	BOOST_MESSAGE("Checking init graphics with window");
-//	BOOST_CHECK(gr->initialize(win.getHandle(), winSize.x, winSize.y, false));
-//	
-//	factory = WrapperFactory::getInstance();
-//
-//	BOOST_MESSAGE("Creating vertex shader using hlsl shader layout");
-//	BOOST_CHECK_NO_THROW(gr->createShader("myID", L"Source/dummy.hlsl", "mainVS,mainPS", "5_0",
-//		IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER));
-//
-//	IGraphics::deleteGraphics(gr);
-//	factory = nullptr;
-//}
+BOOST_AUTO_TEST_CASE(TestLol)
+{
+	Window win;
+	UVec2 winSize = {1280, 720};
+	win.init("Test Graphics", winSize);
+
+	IGraphics *gr = IGraphics::createGraphics();
+	WrapperFactory *factory = nullptr;
+
+	BOOST_MESSAGE("Checking init graphics with window");
+	BOOST_CHECK(gr->initialize(win.getHandle(), winSize.x, winSize.y, false));
+	
+	factory = WrapperFactory::getInstance();
+
+	BOOST_MESSAGE("Creating vertex shader using hlsl shader layout");
+	BOOST_CHECK_NO_THROW(gr->createShader("myID", L"Source/dummy.hlsl", "mainVS,mainPS", "5_0",
+		IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER));
+
+	IGraphics::deleteGraphics(gr);
+	factory = nullptr;
+}
 
 BOOST_AUTO_TEST_SUITE_END()
