@@ -8,7 +8,8 @@ cbuffer cb : register(b1)
 {
 	float4x4 view;
 	float4x4 projection;
-	float3 cameraPos;
+	float3	cameraPos;
+	int		ninjaKick;
 };
 
 struct VSIn
@@ -75,13 +76,30 @@ PSOut PS( PSIn input )
 	normal					= 0.5f * (normalize(normal) + 1.0f);
 	
 	
+	float4 diffuseColor = diffuse.Sample(m_textureSampler, input.uvCoord);
+	
+	// Remove when debugging is done.
+	if(ninjaKick == 0)
+	{
+		diffuseColor.x = 1.0f;
+		diffuseColor.y = 0.0f;
+		diffuseColor.z = 0.0f;
+	}
+	// ------------------------------
 
-	output.diffuse.xyz		= diffuse.Sample(m_textureSampler, input.uvCoord).xyz;//input.diffuse.xyz;
-	output.diffuse.w		= 1.0f; // Empty. 1.0f for debug.
+	if(diffuseColor.w >= .5f)
+		diffuseColor.w = 1.0f;
+	else
+		diffuseColor.w = 0.0f;
+
+	output.diffuse			= diffuseColor;//input.diffuse.xyz;
+	//output.diffuse.w		= 1.0f; // Empty. 1.0f for debug.
 	output.normal.w			= 1.0f;//specular.Sample(m_textureSampler, input.uvCoord).x;//input.specularPower;// 1.0f for debug.
 	output.normal.xyz		= normal;//norm.xyz;
 	output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
 	output.wPosition.w		= 1.0f;//input.specularIntensity; // 1.0f for debug.
+
+
 
 	return output;
 }

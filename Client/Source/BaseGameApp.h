@@ -23,6 +23,8 @@ private:
 	//TEMP
 	Buffer	*m_Buffer, *m_CBuffer;
 	Shader	*m_Shader;
+	Buffer	*m_Buffer2;
+	Shader	*m_Shader2;
 
 public:
 	/**

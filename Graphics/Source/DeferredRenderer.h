@@ -67,6 +67,7 @@ private:
 	
 	ID3D11SamplerState			*m_Sampler;
 	ID3D11BlendState			*m_BlendState;
+	ID3D11BlendState			*m_BlendState2;
 	ID3D11RasterizerState		*m_RasterState;
 	Shader						*m_LightShader;
 	Buffer						*m_LightBuffer;

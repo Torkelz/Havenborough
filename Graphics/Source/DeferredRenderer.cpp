@@ -28,8 +28,6 @@ DeferredRenderer::DeferredRenderer(void)
 	m_ProjectionMatrix = nullptr;
 
 	m_speed = 4.0f;
-
-	
 }
 
 DeferredRenderer::~DeferredRenderer(void)
@@ -136,6 +134,17 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
     bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     m_Device->CreateBlendState(&bd, &m_BlendState);
 
+	for(int i = 0; i < 4; i++)
+	{
+		bd.RenderTarget[i].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		bd.RenderTarget[i].DestBlend =  D3D11_BLEND_INV_SRC_ALPHA;
+		bd.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
+		bd.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ZERO;
+		bd.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO;
+		bd.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	}
+	m_Device->CreateBlendState(&bd, &m_BlendState2);
+
 	// TEMPORARY -----------------------------------------------------------
 	// Make the light
 	Light testLight(	
@@ -146,11 +155,11 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		50.0f,
 		0
 	);
-	//addLight(testLight);
+	addLight(testLight);
 	
 	xx = 2;
-	yy = 2;
-	zz = 2;
+	yy = 10;
+	zz = 10;
 	int minX,minY,minZ,maxX,maxY,maxZ;
 	minX = minY = minZ = -30;
 	maxX = maxY = maxZ = 30;
@@ -184,7 +193,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
 	m_Specular = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/spec.jpg");
-	m_Diffuse = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_COLOR.jpg");
+	m_Diffuse = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/uv alpha.png");
 	m_NormalMap = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_NRM_RGB.jpg");
 
 
@@ -211,11 +220,13 @@ void DeferredRenderer::renderDeferred()
 	// Clear render targets.
 	clearRenderTargets();
 
-	// Update constant buffer
-	updateConstantBuffer(xx*yy*zz);
 
 	// Render
 	renderGeometry();
+
+	
+	// Update constant buffer
+	updateConstantBuffer(xx*yy*zz);
 	renderLighting();
 	renderFinal();
 	renderForward();
@@ -232,7 +243,6 @@ void DeferredRenderer::renderGeometry()
 	// Set the render targets.
 	m_DeviceContext->OMSetRenderTargets(nrRT, m_RenderTargets, m_DepthStencilView);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	//m_DeviceContext->RSSetState(m_RasterState);
 
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
@@ -244,12 +254,15 @@ void DeferredRenderer::renderGeometry()
 	m_ConstantBuffer->setBuffer(1);
 	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 	for(unsigned int i = 0; i < m_Objects.size();i++)
+	//for( int i = m_Objects.size()-1; i >= 0 ;i--)
 	{
+		updateConstantBuffer(int(i));
 		//Send stuff
 		// The update of the sub resource has to be done externally.
 		m_Objects.at(i).m_Buffer->setBuffer(0);
 		//set shader
 		m_Objects.at(i).m_Shader->setShader();
+		m_Objects.at(i).m_Shader->setBlendState(m_BlendState2);
 
 		m_DeviceContext->Draw(m_Objects.at(i).m_Buffer->getNumOfElements(), 0);
 
@@ -489,7 +502,7 @@ void DeferredRenderer::createConstantBuffer(int nrLights)
 
 void DeferredRenderer::clearRenderTargets()
 {
-	float color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	for(unsigned int i = 0; i < m_numRenderTargets; i++)
 	{
 		if(i == 1)
