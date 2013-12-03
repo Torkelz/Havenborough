@@ -5,6 +5,7 @@
 #include "IPhysics.h"
 #include "NetworkClient.h"
 #include "SceneManager.h"
+//#include "IPhysics.h"
 #include "Window.h"
 
 #include <string>
@@ -22,6 +23,13 @@ private:
 
 	bool	m_ShouldQuit;
 	SceneManager m_SceneManager;
+
+	//Sphere* m_Sphere;
+	//Sphere* m_Sphere2;
+	//IPhysics::BodyHandle m_Body, m_Object;
+	//std::unique_ptr<IPhysics> m_Physics;
+
+	//float dt;
 
 public:
 	/**

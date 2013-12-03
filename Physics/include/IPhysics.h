@@ -7,7 +7,7 @@ class IPhysics
 {
 public:
 	typedef unsigned int BodyHandle;
-	typedef std::shared_ptr<IPhysics> ptr;
+	typedef std::unique_ptr<IPhysics> ptr;
 public:
 	_declspec(dllexport) static IPhysics::ptr createPhysics();
 

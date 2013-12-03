@@ -33,12 +33,25 @@ void BaseGameApp::init()
 
 	m_InputQueue.init(std::move(translator));
 
-	//physics = IPhysics::createPhysics();
+	//m_Physics = IPhysics::createPhysics();
+
+	//m_Sphere = new Sphere(1.f, DirectX::XMFLOAT4(0.f, 1.f, 0.f, 1.f) );
+	//m_Sphere2 = new Sphere(1.f, DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f) );
+	//m_Body = m_Physics->createBody(50.f, m_Sphere, false);
+	//m_Object = m_Physics->createBody(0.f, m_Sphere2, true);
+
+	//m_Physics->applyForce(DirectX::XMFLOAT4(0.f, -1.f, 0.f, 0.f), m_Body);
+
+	//dt = (1/60) / 1000;
 }
 
 void BaseGameApp::run()
 {
 	m_ShouldQuit = false;
+
+	//m_Physics->update(dt);
+
+	//m_Physics->getHitDataSize();
 
 	while (!m_ShouldQuit)
 	{
