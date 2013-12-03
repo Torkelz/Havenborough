@@ -46,6 +46,11 @@ void BaseGameApp::run()
 		m_InputQueue.onFrame();
 		m_Window.pollMessages();
 		m_Graphics->drawFrame();
+		m_MemoryInfo.update();
+		std::string vMemUsage = "VMem: " + std::to_string(m_MemoryInfo.getVirtualMemoryUsage());
+		std::string pMemUsage = "PMem: " + std::to_string(m_MemoryInfo.getPhysicalMemoryUsage());
+
+		SetWindowTextA(m_Window.getHandle(), (vMemUsage + " " + pMemUsage).c_str());
 
 		for (auto& in : m_InputQueue.getFrameInputs())
 		{
