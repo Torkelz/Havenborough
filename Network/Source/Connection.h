@@ -1,3 +1,7 @@
+/**
+ * File comment.
+ */
+
 #pragma once
 
 #include <atomic>
@@ -6,10 +10,20 @@
 #include <condition_variable>
 #include <mutex>
 
+/**
+ * Represents a connetion to a remote computer.
+ * Handles sending and receiving of raw data, prefixed with a minimal header.
+ */
 class Connection
 {
 public:
-	typedef std::function<void(uint16_t,const std::string&)> saveDataFunction;
+	/**
+	 * Callback type used to report that a data package has been received.
+	 *
+	 * First argument is the id of the package, as read from the header.
+	 * Second argument is the data as a string of bytes.
+	 */
+	typedef std::function<void(uint16_t, const std::string&)> saveDataFunction;
 	typedef std::function<void()> disconnectedCallback_t;
 	typedef std::unique_ptr<Connection> ptr;
 

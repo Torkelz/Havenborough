@@ -1,3 +1,7 @@
+/**
+ * File comment.
+ */
+
 #pragma once
 
 #include <CommonTypes.h>
@@ -12,6 +16,12 @@
 #include <boost/thread.hpp>
 #include <mutex>
 
+/**
+ * Represents the server part of the network.
+ *
+ * ServerAccept maintains all client connections and
+ * is responsible for accepting new ones.
+ */
 class ServerAccept
 {
 private:
@@ -75,21 +85,29 @@ public:
 	void stopServer();
 
 	/**
-	 * Callback function to the server that there is a connection to a client.
-	 * @param p_ConnectCallback is the return function.
-	 * @param p_Userdata user define data.
+	 * Set a callback for when a new client has connected to the server.
+	 *
+	 * The callback is called before any communication starts with the client.
+	 *
+	 * @param p_ConnectCallback the function to be called for connected clients.
+	 * @param p_Userdata user define data to be passed unmodified to the callback when called.
 	 */
 	void setConnectedCallback(INetwork::clientConnectedCallback_t p_ConnectCallback, void* p_UserData);
+
 	/**
-	* Callback function to the server that the connection to a client broke.
-	* @param p_ConnectCallback is the return function.
-	* @param p_Userdata user defined data.
-	*/
+	 * Set a callback for when a client has disconnected from the server.
+	 *
+	 * The callback is called before the connection has been removed.
+	 *
+	 * @param p_ConnectCallback the function to be called for disconnected clients.
+	 * @param p_Userdata user define data to be passed unmodified to the callback when called.
+	 */
 	void setDisconnectedCallback(INetwork::clientDisconnectedCallback_t p_DisconnectCallback, void* p_UserData);
 
 	/**
-	* Get the connection status 
-	* @return state::Invalid
+	* Check if there has occured an error with the acceptor.
+	*
+	* @return true if there is an error, otherwise false.
 	*/
 	bool hasError() const;
 

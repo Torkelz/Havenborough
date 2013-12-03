@@ -1,3 +1,7 @@
+/**
+ * File comment.
+ */
+
 #pragma once
 
 #include <CommonTypes.h>
@@ -6,6 +10,9 @@
 #include <memory>
 #include <string>
 
+/**
+ * Represents a connection attempt to a server.
+ */
 class ClientConnect
 {
 private:
@@ -21,18 +28,25 @@ private:
 
 public:
 	/**
-	* Connects the client to the requested URL and port.'
+	* Attempt an asynchronous connection to a server at the requested URL and port.
 	*
-	* @param p_IO_Service handles the async read and write operations on the connection.
+	* When the connection has succeeded or failed, the callback will be called with the result.
+	*
+	* @param p_IO_Service an IO service that can service asynchronous tasks.
+	*			The caller is responsible for running the service.
 	* @param p_URL the URL to connect to.
-	* @param p_Port the port number to listen to.
-	* @param p_ConnectionCallback callback function that returns if an connection was established.
+	* @param p_Port the port number on the server to connect to.
+	* @param p_ConnectionCallback callback function that will be called with the result of the operation.
+	*			An empty function will disable the callback.
 	*/
 	ClientConnect(boost::asio::io_service& p_IO_Service, const std::string& p_URL, unsigned short p_Port, connectionCallback_t p_ConnectionCallback);
 
 	/**
-	* Release the connected socket and close the connection. Use before a new connection is made.
-	* @returns the closed socket.
+	* Retreive the held socket, releasing ownership to the owner.
+	*
+	* Used to get the connected socket once the callback has returned with success.
+	*
+	* @return the socket used for the connection. The caller becomes responsible for eventually closing the socket.
 	*/
 	boost::asio::ip::tcp::socket releaseConnectedSocket();
 
