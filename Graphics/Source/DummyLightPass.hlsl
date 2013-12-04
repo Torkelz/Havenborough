@@ -3,21 +3,20 @@
 struct Lightsss
 {
 	float3	lightPos;
-	int padd1;
+	int		padd1;
     float3	lightColor;
-	int padd2;
+	int		padd2;
 	float3	lightDirection;
-	int padd3;
+	int		padd3;
     float2	spotlightAngles;
     float	lightRange;
 	int		lightType;
 };
 
-SamplerState m_textureSampler	: register (s0);
-Texture2D depthTex				: register (t0);
-Texture2D normalTex				: register (t1);
-Texture2D diffuseTex			: register (t2);
-//Texture2D specularTex			: register (t4);//t3
+SamplerState m_textureSampler		: register (s0);
+Texture2D wPosTex					: register (t0);
+Texture2D normalTex					: register (t1);
+Texture2D diffuseTex				: register (t2);
 StructuredBuffer<Lightsss>	m_lights : register(t3);	
 
 cbuffer cb : register(b0)
@@ -25,7 +24,7 @@ cbuffer cb : register(b0)
 	float4x4	view;
 	float4x4	projection;
 	float3		cameraPos;
-	int		nrLights;
+	int			nrLights;
 };
 cbuffer LightParams : register(b1)
 {
@@ -50,13 +49,13 @@ void GetGBufferAttributes( in float2 screenPos,
 	float3 normal2 = normalTex.Sample(m_textureSampler, screenPos).xyz;
 	normal = (normal2 * 2.0f) - 1.0f;
 
-	position = depthTex.Sample(m_textureSampler, screenPos).xyz;
+	position = wPosTex.Sample(m_textureSampler, screenPos).xyz;
 
 	diffuseAlbedo = diffuseTex.Sample(m_textureSampler, screenPos).xyz;
-	float4 spec = float4(0,0,0,0);//specularTex.Sample(m_textureSampler, screenPos).xyz;//specularTex.Load( sampleIndices );
+	float3 spec = wPosTex.Sample(m_textureSampler, screenPos).w;
 
 	specularAlbedo = spec.xyz;
-	specularPower = spec.w;
+	specularPower = normalTex.Sample(m_textureSampler, screenPos).w;
 }
 
 float3 CalcLighting(	float3 normal,
@@ -89,7 +88,7 @@ float3 CalcLighting(	float3 normal,
 											m_lights[i].spotlightAngles.y ) );
 	}
 
-	float nDotL = saturate( dot( L, normal ) );
+	float nDotL = saturate( dot( normal, L ) );
 	float3 diffuse;
 	//if(m_lights[i].lightType != 0)
 		diffuse = nDotL * m_lights[i].lightColor * diffuseAlbedo; //(normal + 1.0f) *0.5f;//
@@ -100,7 +99,7 @@ float3 CalcLighting(	float3 normal,
 	float3 V = normalize(cameraPos - position);
 	float3 H = normalize( L + V );
 	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
-							m_lights[i].lightColor * specularAlbedo.xyz * nDotL;
+							 m_lights[i].lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
 	return ( diffuse + specular ) * attenuation;
 }

@@ -87,14 +87,14 @@ void BaseGameApp::run()
 		m_Window.pollMessages();
 		//Temp ------------------------------------------------
 		m_Graphics->renderModel(m_Buffer, m_CBuffer, m_Shader, &tempMatrix, false);
-		for (int i = 0; i < 100; i++)
+		/*for (int i = 0; i < 100; i++)
 		{
 			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
 			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
 			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
 			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
 			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
-		}
+		}*/
 		//Temp -------------------------------------------------
 		m_Graphics->drawFrame(currView);
 

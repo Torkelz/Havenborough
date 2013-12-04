@@ -93,13 +93,10 @@ PSOut PS( PSIn input )
 		diffuseColor.w = 0.0f;
 
 	output.diffuse			= diffuseColor;//input.diffuse.xyz;
-	//output.diffuse.w		= 1.0f; // Empty. 1.0f for debug.
-	output.normal.w			= 1.0f;//specular.Sample(m_textureSampler, input.uvCoord).x;//input.specularPower;// 1.0f for debug.
+	output.normal.w			= 1.0f;//input.specularPower;// 1.0f for debug.
 	output.normal.xyz		= normal;//norm.xyz;
 	output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
-	output.wPosition.w		= 1.0f;//input.specularIntensity; // 1.0f for debug.
-
-
-
+	output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;//input.specularIntensity; // 1.0f for debug.
+	
 	return output;
 }

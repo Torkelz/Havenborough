@@ -80,7 +80,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_ViewMatrix = p_ViewMatrix;
 	m_ProjectionMatrix = p_ProjectionMatrix;
 
-	//Create rendertargets with the size of screenwidth and screenheight
+	//Create render targets with the size of screen width and screen height
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory( &desc, sizeof(desc) );
 	desc.Width = p_screenWidth;
@@ -157,9 +157,9 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	);
 	addLight(testLight);
 	
-	xx = 2;
-	yy = 10;
-	zz = 10;
+	xx = 10;
+	yy = 2;
+	zz = 2;
 	int minX,minY,minZ,maxX,maxY,maxZ;
 	minX = minY = minZ = -30;
 	maxX = maxY = maxZ = 30;
@@ -177,7 +177,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 				testLight.lightPos.x = (x * dx) + minX;
 				testLight.lightPos.y = (y * dy) + minY;
 				testLight.lightPos.z = (z * dz) + minZ;
-
+	
 				addLight(testLight);
 			}
 		}
@@ -192,7 +192,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_AllLightBuffer->initializeEx(m_Device, m_DeviceContext, cbdesc, true, false);
 
 	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
-	m_Specular = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/spec.jpg");
+	m_Specular = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
 	m_Diffuse = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/uv alpha.png");
 	m_NormalMap = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_NRM_RGB.jpg");
 
