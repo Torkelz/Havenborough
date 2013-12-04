@@ -184,8 +184,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_WrapperFactory = new WrapperFactory(m_Device, m_DeviceContext);
 
 
-	m_Shader = m_WrapperFactory->createShader(L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","VS","vs_5_0",VERTEX_SHADER);
-	m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","PS","ps_5_0",PIXEL_SHADER);
+	m_Shader = m_WrapperFactory->createShader(L"../../Graphics/Source/BlockShader.fx","VS","vs_5_0",VERTEX_SHADER);
+	m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/BlockShader.fx","PS","ps_5_0",PIXEL_SHADER);
 
 	D3D11_SAMPLER_DESC sd;
     ZeroMemory(&sd, sizeof(sd));
@@ -247,7 +247,7 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 void Graphics::renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
 		Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent)
 {
-	m_DeferredRender->addRenderable(Renderable(p_Buffer,p_ConstantBuffer,p_Shader,p_World));
+	m_DeferredRender->addRenderable(Renderable(p_Buffer,p_ConstantBuffer,p_Shader,p_World),p_Transparent);
 }
 
 void Graphics::renderText(void)
