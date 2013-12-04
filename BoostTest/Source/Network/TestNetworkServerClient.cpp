@@ -9,66 +9,66 @@
 
 BOOST_AUTO_TEST_SUITE(TestNetworkServerClient)
 
-std::mutex serverConnect;
-std::condition_variable serverConnected;
-Result res = Result::FAILURE;
-bool done = false;
-void actionDone(Result p_Res, void* p_UserData)
+std::mutex responseToClient;
+std::condition_variable clientReceivedResponse;
+Result clientConnectionResult = Result::FAILURE;
+bool clientReceivedResponseCheck = false;
+void clientResponse(Result p_Res, void* p_UserData)
 {
-	std::unique_lock<std::mutex> lock(serverConnect);
-	res = p_Res;
-	done = true;
-	serverConnected.notify_all();
+	std::unique_lock<std::mutex> clientLock(responseToClient);
+	clientConnectionResult = p_Res;
+	clientReceivedResponseCheck = true;
+	clientReceivedResponse.notify_all();
 }
 
-std::mutex clientConnect;
-std::condition_variable clientConnected;
-bool clientConn = false;
-void clientConnectedCallback(IConnectionController* p_Connection, void* p_UserData)
+std::mutex serverClientConnect;
+std::condition_variable serverClientConnected;
+bool serverClientConnectedCheck = false;
+void serverClientConnectedCallback(IConnectionController* p_Connection, void* p_UserData)
 {
-	std::unique_lock<std::mutex> lock(clientConnect);
-	clientConn = true;
-	clientConnected.notify_all();
+	std::unique_lock<std::mutex> serverLock(serverClientConnect);
+	serverClientConnectedCheck = true;
+	serverClientConnected.notify_all();
 }
 
-std::mutex clientDisconnect;
-std::condition_variable clientDisconnected;
-bool clientDisconn = false;
-void clientDisconnectedCallback(IConnectionController* p_Connection, void* p_UserData)
+std::mutex serverClientDisconnect;
+std::condition_variable serverClientDisconnected;
+bool serverClientDisconnectedCheck = false;
+void serverClientDisconnectedCallback(IConnectionController* p_Connection, void* p_UserData)
 {
-	std::unique_lock<std::mutex> lock(clientDisconnect);
-	clientDisconn = true;
-	clientDisconnected.notify_all();
+	std::unique_lock<std::mutex> lock(serverClientDisconnect);
+	serverClientDisconnectedCheck = true;
+	serverClientDisconnected.notify_all();
 }
 
 BOOST_AUTO_TEST_CASE(TestConnect)
 {
+	std::unique_lock<std::mutex> clientLock(responseToClient);
+	std::unique_lock<std::mutex> serverLock(serverClientConnect);
+	std::unique_lock<std::mutex> serverLock2(serverClientDisconnect);
+
 	boost::asio::io_service ioService;
 
 	std::vector<PackageBase::ptr> prototypes;
 	ServerAccept server(ioService, 31415, prototypes);
-	server.setConnectedCallback(clientConnectedCallback, nullptr);
-	server.setDisconnectedCallback(clientDisconnectedCallback, nullptr);
-	server.startServer(3);
+	server.setConnectedCallback(serverClientConnectedCallback, nullptr);
+	server.setDisconnectedCallback(serverClientDisconnectedCallback, nullptr);
+	server.startServer(4);
 
 	{
-		ClientConnect clientConnector(ioService, "localhost", 31415, std::bind(&actionDone, std::placeholders::_1, nullptr));
+		ClientConnect clientConnector(ioService, "localhost", 31415, std::bind(&clientResponse, std::placeholders::_1, nullptr));
 
-		std::unique_lock<std::mutex> lock(serverConnect);
-		while (!done)
-			serverConnected.wait(lock);
+		while (!clientReceivedResponseCheck)
+			clientReceivedResponse.wait(clientLock);
 		
-		std::unique_lock<std::mutex> lock2(clientConnect);
-		while (!clientConn)
-			clientConnected.wait(lock2);
+		while (!serverClientConnectedCheck)
+			serverClientConnected.wait(serverLock);
 		
-		BOOST_CHECK_EQUAL((int)res, (int)Result::SUCCESS);
-		BOOST_CHECK(clientConn);
+		BOOST_REQUIRE_EQUAL((int)clientConnectionResult, (int)Result::SUCCESS);
 	}
 
-	std::unique_lock<std::mutex> lock(clientDisconnect);
-	while (!clientDisconn)
-		clientDisconnected.wait(lock);
+	while (!serverClientDisconnectedCheck)
+		serverClientDisconnected.wait(serverLock2);
 
 	server.stopServer();
 }
