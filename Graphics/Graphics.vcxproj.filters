@@ -79,9 +79,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\DummyVertexShader.hlsl" />
     <FxCompile Include="Source\VertexShader.hlsl" />
-    <FxCompile Include="Source\BlockShader.fx" />
-    <FxCompile Include="Source\DummyLightPass.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\LightPass.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
   </ItemGroup>
 </Project>

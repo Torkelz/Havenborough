@@ -41,8 +41,8 @@ void BaseGameApp::init()
 
 	m_Buffer = m_Graphics->createBuffer(bdesc);
 	
-	m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DummyVertexShader.hlsl","VS","vs_5_0",VERTEX_SHADER);
-	m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DummyVertexShader.hlsl","PS","ps_5_0",PIXEL_SHADER);
+	m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","VS","vs_5_0",VERTEX_SHADER);
+	m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","PS","ps_5_0",PIXEL_SHADER);
 
 	//BufferDescription bdesc;
 	bdesc.initData = createBOX(25,0.0f,0.0f,0.0f);
@@ -53,8 +53,8 @@ void BaseGameApp::init()
 
 	m_Buffer2 = m_Graphics->createBuffer(bdesc);
 	
-	m_Shader2 = m_Graphics->createShader(L"../../Graphics/Source/DummyVertexShader.hlsl","VS","vs_5_0",VERTEX_SHADER);
-	m_Graphics->addShaderStep(m_Shader2,L"../../Graphics/Source/DummyVertexShader.hlsl","PS","ps_5_0",PIXEL_SHADER);
+	m_Shader2 = m_Graphics->createShader(L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","VS","vs_5_0",VERTEX_SHADER);
+	m_Graphics->addShaderStep(m_Shader2,L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","PS","ps_5_0",PIXEL_SHADER);
 	//TEMPORARY --------------------------------------------------------
 }
 
