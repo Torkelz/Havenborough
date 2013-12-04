@@ -22,7 +22,7 @@ ClientConnect::ClientConnect(boost::asio::io_service& p_IO_Service, const std::s
 	}
 	catch (boost::system::system_error& err)
 	{
-		std::cout << err.what() << std::endl;
+		throw NetworkError(err.what(), __LINE__, __FILE__);
 	}
 }
 

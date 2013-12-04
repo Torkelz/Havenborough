@@ -3,7 +3,7 @@
 #include "IGraphics.h"
 #include "Input\Input.h"
 #include "IPhysics.h"
-#include "INetwork.h"
+#include <INetwork.h>
 #include "SceneManager.h"
 #include "Window.h"
 

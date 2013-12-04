@@ -55,4 +55,5 @@ private:
 	void startIO();
 	void IO_Run();
 	void clientConnectionDone(Result p_Result, actionDoneCallback p_DoneHandler, void* p_UserData);
+	void clientDisconnected(actionDoneCallback p_DoneHandler, void* p_UserData);
 };

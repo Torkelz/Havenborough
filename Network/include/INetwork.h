@@ -24,7 +24,7 @@ public:
 	/**
 	 * Callback for successful client connections.
 	 *
-	 * @param p_Connection the newly connected clients connection.
+	 * @param p_Connection the newly connected clien'ts connection.
 	 * @param p_UserData user defined data.
 	 */
 	typedef void (*clientConnectedCallback_t)(IConnectionController* p_Connection, void* p_UserData);
@@ -32,7 +32,7 @@ public:
 	/**
 	 * Callback for successful client connections.
 	 *
-	 * @param p_Connection the newly connected clients connection.
+	 * @param p_Connection the disconnected client's connection.
 	 * @param p_UserData user defined data.
 	 */
 	typedef void (*clientDisconnectedCallback_t)(IConnectionController* p_Connection, void* p_UserData);
