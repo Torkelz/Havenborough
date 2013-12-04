@@ -1,6 +1,6 @@
 #pragma pack_matrix(row_major)
 
-SamplerState m_textureSampler	: register (s0);
+SamplerState m_textureSampler	: register(s0);
 Texture2D diffuse				: register(t0);
 Texture2D normalMap				: register(t1);
 Texture2D specular				: register(t2);
@@ -9,8 +9,8 @@ cbuffer cb : register(b1)
 {
 	float4x4 view;
 	float4x4 projection;
-	float3	cameraPos;
-	int		ninjaKick;
+	float3	 cameraPos;
+	int		 ninjaKick;
 };
 
 struct VSIn
@@ -87,7 +87,7 @@ PSOut PS( PSIn input )
 		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
 		output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;//input.specularIntensity; // 1.0f for debug.
 	}
-	else
+	else // If alpha is 0. Do not blend with any previous render targets.
 	{
 		output.diffuse			= float4(0,0,0,0);//input.diffuse.xyz;
 		output.normal.w			= 0.0f;//input.specularPower;// 1.0f for debug.

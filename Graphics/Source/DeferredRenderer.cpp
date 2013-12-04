@@ -57,46 +57,42 @@ DeferredRenderer::~DeferredRenderer(void)
 	m_ProjectionMatrix = nullptr;
 }
 
-void DeferredRenderer::shutdown()
-{
-
-}
-
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 								  ID3D11DepthStencilView *p_DepthStencilView,
 								  unsigned int p_screenWidth, unsigned int p_screenHeight,
 								  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix, DirectX::XMFLOAT4X4 *p_ProjectionMatrix)
 {
-	m_Device = p_Device;
-	m_DeviceContext = p_DeviceContext;
-	m_DepthStencilView = p_DepthStencilView;
+	m_Device			= p_Device;
+	m_DeviceContext		= p_DeviceContext;
+	m_DepthStencilView	= p_DepthStencilView;
 
-	m_CameraPosition = p_CameraPosition;
-	m_ViewMatrix = p_ViewMatrix;
-	m_ProjectionMatrix = p_ProjectionMatrix;
+	m_CameraPosition	= p_CameraPosition;
+	m_ViewMatrix		= p_ViewMatrix;
+	m_ProjectionMatrix	= p_ProjectionMatrix;
 
 	//Create render targets with the size of screen width and screen height
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory( &desc, sizeof(desc) );
-	desc.Width = p_screenWidth;
-	desc.Height = p_screenHeight;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	desc.SampleDesc.Count = 1;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	desc.Width				= p_screenWidth;
+	desc.Height				= p_screenHeight;
+	desc.MipLevels			= 1;
+	desc.ArraySize			= 1;
+	desc.Format				= DXGI_FORMAT_R16G16B16A16_FLOAT;
+	desc.SampleDesc.Count	= 1;
+	desc.Usage				= D3D11_USAGE_DEFAULT;
+	desc.BindFlags			= D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
 	createRenderTargets(desc);
 
-	createShaderResourceViews(p_DepthStencilView, desc);
+	createShaderResourceViews(desc);
 
-	//Create shader for the light pass
+	//Compile shader for the light pass
 	m_LightShader = new Shader();
 	m_LightShader->initialize(m_Device,m_DeviceContext, 0);
 	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","VSmain","vs_5_0",VERTEX_SHADER, nullptr);
 	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","PSmain","ps_5_0",PIXEL_SHADER, nullptr);
 
+	// Create sampler state and blend state for Alpha rendering.
 	createSamplerState();
 	createBlendStates();
 
@@ -184,7 +180,7 @@ void DeferredRenderer::renderDeferred()
 	// Render
 	renderGeometry();
 
-	// Update constant buffer
+	// Update constant buffer. ## REMOVE WHEN NINJA KICK IS REMOVED. ##
 	updateConstantBuffer(xx*yy*zz);
 	updateLightBuffer();
 
@@ -202,9 +198,8 @@ void DeferredRenderer::renderGeometry()
 	m_DeviceContext->OMSetRenderTargets(nrRT, m_RenderTargets, m_DepthStencilView);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	ID3D11ShaderResourceView *srvs[] = {m_Diffuse,
-		m_NormalMap,
-		m_Specular};
+	// The textures will be needed to be grabbed from the model later.
+	ID3D11ShaderResourceView *srvs[] = { m_Diffuse, m_NormalMap, m_Specular };
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
 
 	m_ConstantBuffer->setBuffer(1);
@@ -214,10 +209,10 @@ void DeferredRenderer::renderGeometry()
 	for(unsigned int i = 0; i < m_Objects.size();i++)
 	{
 		updateConstantBuffer(int(i));
-		//Send stuff
+		// Send stuff.
 		// The update of the sub resource has to be done externally.
 		m_Objects.at(i).m_Buffer->setBuffer(0);
-		//set shader
+		// Set shader.
 		m_Objects.at(i).m_Shader->setShader();
 		m_Objects.at(i).m_Shader->setBlendState(m_BlendState2);
 
@@ -241,10 +236,10 @@ void DeferredRenderer::renderLighting()
 	unsigned int nrRT = 1;
 
 	// Collect the shader resources in an array and create a clear array.
-	ID3D11ShaderResourceView *srvs[] = {m_wPositionSRV,
-		m_NormalSRV,
-		m_DiffuseSRV,
-		m_lightBufferSRV};
+	ID3D11ShaderResourceView *srvs[] = { m_wPositionSRV,
+										 m_NormalSRV,
+										 m_DiffuseSRV,
+										 m_lightBufferSRV };
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0};
 
 	// Set texture sampler.
@@ -290,13 +285,14 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 {
 	switch(i)
 	{
-	case 0: return m_DiffuseSRV;
-	case 1: return m_NormalSRV;
-	case 2: return m_wPositionSRV;
-	case 3: return m_LightSRV;
-	default: return nullptr;
+		case 0: return m_DiffuseSRV;
+		case 1: return m_NormalSRV;
+		case 2: return m_wPositionSRV;
+		case 3: return m_LightSRV;
+		default: return nullptr;
 	}
 }
+
 void DeferredRenderer::updateConstantBuffer(int nrLights)
 {
 	cBuffer cb;
@@ -305,7 +301,6 @@ void DeferredRenderer::updateConstantBuffer(int nrLights)
 	cb.campos = *m_CameraPosition;
 	cb.nrLights = nrLights;
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
-
 }
 
 void DeferredRenderer::updateLightBuffer()
@@ -354,11 +349,11 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 		return result;
 
 	srvt0 = srvt1 = srvt2 = srvt3 = nullptr;
-	//Done with the render targets
+	// Done with the render targets.
 	return result;
 }
 
-HRESULT DeferredRenderer::createShaderResourceViews( ID3D11DepthStencilView * p_DepthStencilView, D3D11_TEXTURE2D_DESC &desc )
+HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc )
 {
 	HRESULT result = E_FAIL;
 
@@ -433,9 +428,10 @@ void DeferredRenderer::clearRenderTargets()
 	color[0] = color[1] = color[2] = 0.0f;
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[3], color);
 }
+
 void DeferredRenderer::createSamplerState()
 {
-	//Create texture sampler
+	// Create texture sampler.
 	D3D11_SAMPLER_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
 	sd.Filter			= D3D11_FILTER_MIN_MAG_MIP_LINEAR;

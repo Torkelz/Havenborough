@@ -1,5 +1,5 @@
 Texture2D debugTex				: register (t0);
-SamplerState m_textureSampler	: register ( s0 );
+SamplerState m_textureSampler	: register (s0);
 
 //##################################
 //		SHADER PASSES
@@ -13,10 +13,6 @@ struct VSOutput
 VSOutput VS( uint vID : SV_VERTEXID )
 {
 	VSOutput output;
-	/*if(vID != 4)
-		output.texCoord = float2( ( vID << 1 ) & 2, vID & 2 );
-	else
-		output.texCoord = float2(0.0f,2.0f);*/
 	switch(vID)
 	{
 		case 0:		output.texCoord = float2(0,0);	break;

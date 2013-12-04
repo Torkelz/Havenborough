@@ -10,6 +10,10 @@
 #include "LightStructs.h"
 #include "TextureLoader.h"
 
+/*
+ * Renderable is a debug struct made with the only purpose to be a placeholder for models
+ * until the model loader is done.
+ */
 struct Renderable
 {
 	//std::shared_ptr<Model>	m_Model;
@@ -36,6 +40,9 @@ struct Renderable
 	}
 };
 
+/*
+ * cBuffer contains the matrices needed to render the models and lights.
+ */
 struct cBuffer
 {
 	DirectX::XMFLOAT4X4 view;
@@ -59,7 +66,7 @@ private:
 	ID3D11RenderTargetView		*m_RenderTargets[m_numRenderTargets];
 
 	ID3D11ShaderResourceView	*m_DiffuseSRV;
-	ID3D11ShaderResourceView	*m_NormalSRV; // Normal.xy and specular data.
+	ID3D11ShaderResourceView	*m_NormalSRV;
 	ID3D11ShaderResourceView	*m_LightSRV;
 	ID3D11ShaderResourceView	*m_wPositionSRV;
 	ID3D11ShaderResourceView	*m_lightBufferSRV;
@@ -88,20 +95,46 @@ public:
 	DeferredRenderer(void);
 	~DeferredRenderer(void);
 
+	/*
+	 * Initialize all the needed variables for rendering.
+	 * @ p_Device, DirectX Device used for rendering
+	 * @ p_DeviceContect, DX device context. Used for rendering.
+	 * @ p_DepthStencilView, used for z-culling when rendering.
+	 * @ p_ScreenWidth, used to initialize render textures.
+	 * @ p_ScreenHeight, used to initialize render textures.
+	 * @ p_CameraPosition, pointer to the camera position. Used when rendering.
+	 * @ p_ViewMatrix, pointer to the view matrix. Used when rendering.
+	 * @ p_ProjectionMatrix, pointer to the projection matrix. Used when rendering.
+	 */
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 		ID3D11DepthStencilView *p_DepthStencilView,
-		unsigned int p_screenWidth, unsigned int p_screenHeight,
-		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix, DirectX::XMFLOAT4X4 *p_ProjectionMatrix);
+		unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
+		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+		DirectX::XMFLOAT4X4 *p_ProjectionMatrix);
 
-
-
-	void shutdown();
-
+	/*
+	 * Call to render the graphics using deferred rendering.
+	 * All the objects that are supposed to be rendered must have been sent to the renderer
+	 * before calling this function.
+	 */
 	void renderDeferred();
 
+	/*
+	 * Add models to the list of objects to be rendered with deferred rendering.
+	 * @ p_Renderable, the model that needs to be rendered.
+	 */
 	void addRenderable(Renderable p_Renderable);
+	/*
+	 * Add light source to the list of lights to be taken into the light calculations.
+	 * @ p_Light, light source that needs to be taken into the light calculations.
+	 */
 	void addLight(Light p_light);
 
+	/*
+	 * Use to get specific render targets to put on the back buffer.
+	 * @ i, a number that is associated with a render target view.
+	 * @return, render target if i is a legal number, else nullptr.
+	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
 private:
 	void renderGeometry();
@@ -114,7 +147,7 @@ private:
 	void updateLightBuffer();
 
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
-	HRESULT createShaderResourceViews( ID3D11DepthStencilView * p_DepthStencilView, D3D11_TEXTURE2D_DESC &desc );
+	HRESULT createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc );
 	void createConstantBuffer(int nrLights);
 	void clearRenderTargets();
 	void createSamplerState();
