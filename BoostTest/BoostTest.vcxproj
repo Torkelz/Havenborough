@@ -105,6 +105,8 @@
   <ItemGroup>
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
     <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
+    <ClCompile Include="..\Client\Source\ResourceManager.cpp" />
+    <ClCompile Include="..\Client\Source\ResourceTranslator.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />

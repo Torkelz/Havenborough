@@ -7,6 +7,8 @@
 #include "SceneManager.h"
 #include "Window.h"
 
+#include "ResourceManager.h"
+
 #include <string>
 
 class BaseGameApp
@@ -23,16 +25,19 @@ private:
 	bool	m_ShouldQuit;
 	SceneManager m_SceneManager;
 
+	std::string m_ProjectDirectory;
+
 	BodyHandle m_Body, m_Object;
 	IPhysics *m_Physics;
 
-	float dt;
+	ResourceManager* m_ResourceManager;
 
+	float dt;
 public:
 	/**
 	 * Initialize the game and create a window.
 	 */
-	void init();
+	void init(std::string p_ProjectDirectory);
 	/**
 	 * Run the game. Doesn't return until the game is exited.
 	 */

@@ -385,7 +385,14 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 
 void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
-	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
+	for(unsigned int i = 0; i < m_TextureList.size(); i++)
+	{
+		if(!std::strcmp(m_TextureList.at(i).first.c_str(), p_TextureId))
+		{
+			m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
+			break;
+		}
+	}
 }
 
 void Graphics::renderModel(char *p_ModelId)

@@ -4,10 +4,12 @@
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
-void BaseGameApp::init()
+void BaseGameApp::init(std::string p_ProjectDirectory)
 {
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
+
+	m_ResourceManager = new ResourceManager(m_Graphics, p_ProjectDirectory);
 
 	m_Graphics = IGraphics::createGraphics();
 	//TODO: Need some input setting variable to handle fullscreen.
@@ -50,7 +52,7 @@ void BaseGameApp::run()
 	{
 		m_Physics->update(dt);
 
-		for(int i = 0; i < m_Physics->getHitDataSize(); i++)
+		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)

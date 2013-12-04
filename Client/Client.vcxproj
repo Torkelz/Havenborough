@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ResourceManager.cpp" />
+    <ClCompile Include="Source\ResourceTranslator.cpp" />
     <ClCompile Include="Source\BaseGameApp.cpp" />
     <ClCompile Include="Source\clientProgram.cpp" />
     <ClCompile Include="Source\Input\Input.cpp" />
@@ -39,6 +41,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\ResourceManager.h" />
+    <ClInclude Include="Source\ResourceTranslator.h" />
     <ClInclude Include="Source\NetworkClient.h" />
     <ClInclude Include="Source\BaseGameApp.h" />
     <ClInclude Include="Source\Input\Input.h" />

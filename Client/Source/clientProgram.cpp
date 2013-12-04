@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 
 	try
 	{
-		game.init();
+		game.init(argv[0]);
 		game.run();
 		game.shutdown();
 		
