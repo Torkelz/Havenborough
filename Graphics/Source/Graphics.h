@@ -63,30 +63,30 @@ public:
 	Graphics(void);
 	~Graphics(void);
 
-	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen);
-	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen);
+	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) override;
+	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
-	void createModel(const char *p_ModelId, const char *p_Filename);
+	void createModel(const char *p_ModelId, const char *p_Filename) override;
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
-		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
+		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) override;
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
-		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements);
-	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId);
+		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements) override;
+	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) override;
 	
-	void createTexture(const char *p_TextureId, const char *p_filename);
+	void createTexture(const char *p_TextureId, const char *p_filename) override;
 	
-	void addStaticLight(void);
-	void removeStaticLight(void);
-	void useFrameLight(void);
+	void addStaticLight(void) override;
+	void removeStaticLight(void) override;
+	void useFrameLight(void) override;
 	
-	void renderModel(const char *p_ModelId);
-	void renderText(void);
-	void renderQuad(void);
-	void drawFrame(void);
+	void renderModel(const char *p_ModelId) override;
+	void renderText(void) override;
+	void renderQuad(void) override;
+	void drawFrame(void) override;
 
 private:
-	void shutdown(void);
+	void shutdown(void) override;
 
 	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
 	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen);
