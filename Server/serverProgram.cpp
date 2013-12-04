@@ -1,5 +1,6 @@
 #include "INetwork.h"
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -67,6 +68,11 @@ void printClientList()
 	}
 }
 
+void printUnknownCommand()
+{
+	std::cout << "Unknown command. Use 'help' for available commands." << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
 	INetwork* server;
@@ -77,8 +83,14 @@ int main(int argc, char* argv[])
 	server->startServer(3);
 
 	std::string input;
-	while (std::getline(std::cin, input))
+	std::cout << "> ";
+	while (true)
 	{
+		if (!std::getline(std::cin, input))
+			break;
+
+		std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+
 		if (input == "exit")
 			break;
 		else if (input == "send")
@@ -88,7 +100,9 @@ int main(int argc, char* argv[])
 		else if (input == "list")
 			printClientList();
 		else
-		{}	//printUnknownCommand();
+			printUnknownCommand();
+
+		std::cout << "> ";
 	}
 
 	INetwork::deleteNetwork(server);

@@ -24,9 +24,18 @@ public:
 	 * Second argument is the data as a string of bytes.
 	 */
 	typedef std::function<void(uint16_t, const std::string&)> saveDataFunction;
+	/**
+	 * Callback type used to report that the connection has been disconnected.
+	 */
 	typedef std::function<void()> disconnectedCallback_t;
+	/**
+	 * Unique pointer type for connection.
+	 */
 	typedef std::unique_ptr<Connection> ptr;
 
+	/**
+	 * Connection status.
+	 */
 	enum class State
 	{
 		UNCONNECTED,
@@ -62,28 +71,35 @@ private:
 	disconnectedCallback_t m_Disconnected;
 
 public:
-
 	/**
-	* Constructor, takes in a socket.
-	* @param p_Socket takes in a socket to read and write to.
-	*/
+	 * Constructor.
+	 *
+	 * Creates a connection to manage a specific socket.
+	 *
+	 * @param p_Socket a connected socket that the connection
+	 *			takes ownership of and manages.
+	 */
 	Connection( boost::asio::ip::tcp::socket&& p_Socket );
 
 	/**
-	* De-constructor
-	*/
+	 * Destructor.
+	 *
+	 * Closes the socket and waits for any ongoing transfers to be aborted.
+	 */
 	~Connection();
 
 	/**
-	* Get the connection status for the application
-	* @return state::Connected
-	*/
+	 * Check if the connection is currently connected.
+	 *
+	 * @return true if connected, otherwise false
+	 */
 	bool isConnected() const;
 	
 	/**
-	* Get the connection status 
-	* @return state::Invalid
-	*/
+	 * Check if an error has been encountered.
+	 *
+	 * @return true if an error has occurred, otherwise false.
+	 */
 	bool hasError() const;
 
 	/**
@@ -93,31 +109,33 @@ public:
 	 *
 	 * @param p_Buffer A buffer of data to send. The data is copied and stored
 	 *		internally. Therefore it is safe to delete the buffer afterwards.
-	 * @param p_ID The package ID associated with the data.
+	 * @param p_ID The package ID to be associated with the data.
 	 */
 	void writeData(const std::string& p_Buffer, uint16_t p_ID);
 
 	/**
-	* Set a callback to handle data when received.
-	* @param p_SaveData is the callback function, use the empty function to disable callback.
-	*/
+	 * Set a callback to handle data when received. Data is always a single complete package.
+	 *
+	 * @param p_SaveData the callback function to receive incoming data,
+	 *			use the empty function to disable callback.
+	 */
 	void setSaveData(saveDataFunction p_SaveData);
 
 	/**
-	*
-	* Whada
-	*/
+	 * Set a callback to handle after the socket is disconnected.
+	 */
 	void setDisconnectedCallback(disconnectedCallback_t p_DisconnectedCallback);
 
 	/**
-	*
-	* Returns the socket from the connection.
-	*/
-	boost::asio::ip::tcp::socket* getSocket();
+	 * Get the socket from the connection.
+	 *
+	 * @return the underlying socket.
+	 */
+	boost::asio::ip::tcp::socket& getSocket();
 
 	/**
-	*
-	* Begin to read from the stream.
+	* Start a reading loop on the connection. The function should
+	* not be called twice on the same connection.
 	*/
 	void startReading();
 

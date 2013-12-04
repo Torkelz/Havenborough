@@ -42,6 +42,7 @@ private:
 	void* m_ClientDisconnectedUserData;
 	
 	std::vector<PackageBase::ptr>& m_PackagePrototypes;
+	std::mutex m_ClientLock;
 	std::vector<ConnectionController::ptr> m_ConnectedClients;
 
 public:
@@ -116,4 +117,5 @@ private:
 	void startThreads(unsigned int p_NumThreads);
 	void IO_Run();
 	void handleDisconnectCallback(ConnectionController* p_Connection);
+	void removeClient(ConnectionController* p_Connection);
 };

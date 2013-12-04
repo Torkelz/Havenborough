@@ -39,7 +39,14 @@ void ServerAccept::startServer(unsigned int p_NumThreads)
 
 void ServerAccept::stopServer()
 {
-	m_ConnectedClients.clear();
+	{
+		std::unique_lock<std::mutex> lock(m_ClientLock);
+		for (auto& client : m_ConnectedClients)
+		{
+			client.reset();
+		}
+		m_ConnectedClients.clear();
+	}
 
 	m_Running = false;
 	m_IO_Service.stop();
@@ -88,7 +95,10 @@ void ServerAccept::handleAccept( const boost::system::error_code& error)
 
 	clientConnection->startListening();
 
-	m_ConnectedClients.push_back(std::move(clientConnection));
+	{
+		std::unique_lock<std::mutex> lock(m_ClientLock);
+		m_ConnectedClients.push_back(std::move(clientConnection));
+	}
 
 	m_Acceptor.async_accept(m_AcceptSocket, std::bind( &ServerAccept::handleAccept, this, std::placeholders::_1));
 }
@@ -139,4 +149,18 @@ void ServerAccept::handleDisconnectCallback(ConnectionController* p_Connection)
 		m_ClientDisconnected(p_Connection, m_ClientDisconnectedUserData);
 	}
 
+	m_IO_Service.post(std::bind(&ServerAccept::removeClient, this, p_Connection));
+}
+
+void ServerAccept::removeClient(ConnectionController* p_Connection)
+{
+	std::unique_lock<std::mutex> lock(m_ClientLock);
+	for (unsigned int i = 0; i < m_ConnectedClients.size(); i++)
+	{
+		if (m_ConnectedClients[i].get() == p_Connection)
+		{
+			m_ConnectedClients.erase(m_ConnectedClients.begin() + i);
+			break;
+		}
+	}
 }

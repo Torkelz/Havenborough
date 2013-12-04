@@ -180,9 +180,9 @@ void Connection::setDisconnectedCallback(disconnectedCallback_t p_DisconnectedCa
 	m_Disconnected = p_DisconnectedCallback;
 }
 
-boost::asio::ip::tcp::socket* Connection::getSocket()
+boost::asio::ip::tcp::socket& Connection::getSocket()
 {
-	return &m_Socket;
+	return m_Socket;
 }
 
 void Connection::startReading()

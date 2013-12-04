@@ -31,6 +31,16 @@ void clientConnectedCallback(IConnectionController* p_Connection, void* p_UserDa
 	clientConnected.notify_all();
 }
 
+std::mutex clientDisconnect;
+std::condition_variable clientDisconnected;
+bool clientDisconn = false;
+void clientDisconnectedCallback(IConnectionController* p_Connection, void* p_UserData)
+{
+	std::unique_lock<std::mutex> lock(clientDisconnect);
+	clientDisconn = true;
+	clientDisconnected.notify_all();
+}
+
 BOOST_AUTO_TEST_CASE(TestConnect)
 {
 	boost::asio::io_service ioService;
@@ -38,6 +48,7 @@ BOOST_AUTO_TEST_CASE(TestConnect)
 	std::vector<PackageBase::ptr> prototypes;
 	ServerAccept server(ioService, 31415, prototypes);
 	server.setConnectedCallback(clientConnectedCallback, nullptr);
+	server.setDisconnectedCallback(clientDisconnectedCallback, nullptr);
 	server.startServer(3);
 
 	{
@@ -46,14 +57,18 @@ BOOST_AUTO_TEST_CASE(TestConnect)
 		std::unique_lock<std::mutex> lock(serverConnect);
 		while (!done)
 			serverConnected.wait(lock);
-
+		
 		std::unique_lock<std::mutex> lock2(clientConnect);
 		while (!clientConn)
 			clientConnected.wait(lock2);
-
+		
 		BOOST_CHECK_EQUAL((int)res, (int)Result::SUCCESS);
 		BOOST_CHECK(clientConn);
 	}
+
+	std::unique_lock<std::mutex> lock(clientDisconnect);
+	while (!clientDisconn)
+		clientDisconnected.wait(lock);
 
 	server.stopServer();
 }

@@ -47,7 +47,7 @@ void Network::setClientDisconnectedCallback(clientDisconnectedCallback_t p_Disco
 	m_ServerAcceptor->setDisconnectedCallback(p_DisconnectCallback, p_UserData);
 }
 
-void Network::turnOfServer()
+void Network::turnOffServer()
 {
 	m_ServerAcceptor->stopServer();
 }
