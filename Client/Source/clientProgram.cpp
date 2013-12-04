@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 		game.init();
 		game.run();
 		game.shutdown();
-
+		
 		return EXIT_SUCCESS;
 	}
 	catch (MyException& err)

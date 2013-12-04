@@ -9,7 +9,7 @@ Unpack and run the following commands from the extracted folder:
 
 ```
 bootstrap
-b2 --with-system --with-serialization --with-test --with-date_time --with-regex install
+b2 --with-system --with-serialization --with-test --with-date_time --with-regex --with-thread install
 ```
 
 For better integration with Visual Studio, optionally install the extension Boost Unit Test Adapter (Alpha 5).

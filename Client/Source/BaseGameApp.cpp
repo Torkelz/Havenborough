@@ -8,11 +8,12 @@ void BaseGameApp::init()
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
 	m_Graphics = IGraphics::createGraphics();
+	m_Graphics->createModel(0,"C:/Users/BTH/Desktop/Sample130.tx");
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
-	m_Graphics->renderModel();
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
@@ -30,7 +31,12 @@ void BaseGameApp::init()
 
 	m_InputQueue.init(std::move(translator));
 
-	//physics = IPhysics::createPhysics();
+	m_Physics = IPhysics::createPhysics();
+
+	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
+	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
+
+	dt = (1.f/60.f);
 }
 
 void BaseGameApp::run()
@@ -39,6 +45,17 @@ void BaseGameApp::run()
 
 	while (!m_ShouldQuit)
 	{
+		m_Physics->update(dt);
+
+		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
+		{
+			HitData hit = m_Physics->getHitDataAt(i);
+			if(hit.intersect)
+			{
+				int i = 0;
+			}
+		}
+
 		m_InputQueue.onFrame();
 		m_Window.pollMessages();
 		m_Graphics->drawFrame();

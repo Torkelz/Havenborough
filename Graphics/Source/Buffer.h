@@ -2,49 +2,49 @@
 #include <d3d11.h>
 
 #include "Util.h"
-#include "MyExceptions.h"
-
-
-enum BufferType
-{
-	VERTEX_BUFFER,
-	INDEX_BUFFER,
-	CONSTANT_BUFFER_VS,
-	CONSTANT_BUFFER_GS,
-	CONSTANT_BUFFER_PS,
-	BUFFER_TYPE_COUNT,
-	CONSTANT_BUFFER_ALL,
-	STAGING_BUFFER
-};
-
-enum BufferUsage
-{
-	BUFFER_DEFAULT,
-	BUFFER_STREAM_OUT_TARGET,
-	BUFFER_CPU_WRITE,
-	BUFFER_CPU_WRITE_DISCARD,
-	BUFFER_CPU_READ,
-	BUFFER_USAGE_COUNT,
-	BUFFER_USAGE_IMMUTABLE,
-	BUFFER_STAGING
-};
-
-struct BufferDescription
-{
-	BufferType type;
-	BufferUsage usage;
-	UINT32 numOfElements;
-	UINT32 sizeOfElement;
-	void *initData;
-
-	BufferDescription()
-	{
-		initData = nullptr;
-	}
-};
+#include "MyGraphicsExceptions.h"
 
 class Buffer
 {
+public:
+	enum class Type
+	{
+		VERTEX_BUFFER,
+		INDEX_BUFFER,
+		CONSTANT_BUFFER_VS,
+		CONSTANT_BUFFER_GS,
+		CONSTANT_BUFFER_PS,
+		BUFFER_TYPE_COUNT,
+		CONSTANT_BUFFER_ALL,
+		STAGING_BUFFER
+	};
+
+	enum class Usage
+	{
+		DEFAULT,
+		STREAM_OUT_TARGET,
+		CPU_WRITE,
+		CPU_WRITE_DISCARD,
+		CPU_READ,
+		USAGE_COUNT,
+		USAGE_IMMUTABLE,
+		STAGING
+	};
+
+	struct Description
+	{
+		Type type;
+		Usage usage;
+		UINT32 numOfElements;
+		UINT32 sizeOfElement;
+		void *initData;
+
+		Description()
+		{
+			initData = nullptr;
+		}
+	};
+
 private:
 	ID3D11Buffer *m_Buffer;
 	ID3D11Device *m_Device;
@@ -54,8 +54,8 @@ private:
 	UINT32 m_SizeOfElement;
 	UINT32 m_NumOfElements;
 
-	BufferType m_Type;
-	BufferUsage m_Usage;
+	Type m_Type;
+	Usage m_Usage;
 
 	
 public:
@@ -94,7 +94,7 @@ public:
 	* @return S_OK if buffer initialized successfully
 	*/
 	HRESULT initialize(ID3D11Device *p_Device,
-		ID3D11DeviceContext *p_DeviceContext, BufferDescription &p_Description);
+		ID3D11DeviceContext *p_DeviceContext, Description &p_Description);
 	
 	/**
 	* Sets the the buffer to be applied.

@@ -114,7 +114,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)BoostTest\Test\BoostTest.exe</Command>
+      <Command>$(SolutionDir)BoostTest\Test\BoostTest.exe --log_level=message</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

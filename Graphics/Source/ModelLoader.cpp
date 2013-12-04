@@ -144,30 +144,36 @@ bool ModelLoader::loadFile(std::string p_Filename)
 		}
 		else if(key == "*FACES")
 		{
-			m_Index.clear();
-			while(std::getline(input,line))
+			for(int i = 0; i < m_NumberOfMaterials; i++)
 			{
-				tempFace = Face();
-				stringstream = std::stringstream(line);
-				if(line == "")
-					break;
-				stringstream >> key >> key >> filler >> tempFace.m_MaterialID;
+				m_Index.clear();
 				std::getline(input, line);
 				stringstream = std::stringstream(line);
-				for(int i = 0; i < atoi(key.c_str()); i++)
+				stringstream >> tempFace.m_MaterialID;
+				std::getline(input, line);
+				stringstream = std::stringstream(line);
+				stringstream >> filler >> key;
+				while(std::getline(input,line))
 				{
-					stringstream >> tempInt >> filler;
-					tempFace.m_Vertex.push_back(m_Vertex.at(tempInt));
-					stringstream >> tempInt >> filler;
-					tempFace.m_Tangents.push_back(m_Tangents.at(tempInt));
-					stringstream >> tempInt >> filler;
-					tempFace.m_Normals.push_back(m_Normals.at(tempInt));
-					stringstream >> tempInt >> filler;	
-					tempFace.m_TextureCoord.push_back(m_TextureCoord.at(tempInt));
+					tempFace = Face();
+					stringstream = std::stringstream(line);
+					if(line == "")
+						break;
+					for(int i = 0; i < atoi(key.c_str()); i++)
+					{
+						stringstream >> tempInt >> filler;
+						tempFace.m_Vertex.push_back(m_Vertex.at(tempInt));
+						stringstream >> tempInt >> filler;
+						tempFace.m_Tangents.push_back(m_Tangents.at(tempInt));
+						stringstream >> tempInt >> filler;
+						tempFace.m_Normals.push_back(m_Normals.at(tempInt));
+						stringstream >> tempInt >> filler;	
+						tempFace.m_TextureCoord.push_back(m_TextureCoord.at(tempInt));
+					}
+					m_Index.push_back(tempFace);
 				}
-				m_Index.push_back(tempFace);
+				m_IndexPerMaterial.push_back(m_Index);
 			}
-			m_IndexPerMaterial.push_back(m_Index);
 		}
 	}
 	m_Index.clear();
