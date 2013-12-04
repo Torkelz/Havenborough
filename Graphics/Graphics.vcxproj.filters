@@ -53,6 +53,9 @@
     <ClInclude Include="Source\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\MyExceptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -82,5 +85,6 @@
     <FxCompile Include="Source\DeferredShaders\LightPass.hlsl" />
     <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
     <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
+    <FxCompile Include="Source\dummyVS.hlsl" />
   </ItemGroup>
 </Project>

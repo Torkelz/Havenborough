@@ -55,7 +55,7 @@ void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
 
 		if (!RegisterClassExW(&windowClassDescription))
 		{
-			throw WindowException("Window could not be registered", __LINE__, __FILE__);
+			//throw WindowException("Window could not be registered", __LINE__, __FILE__);
 		}
 
 		m_ClassUseCount++;

@@ -11,7 +11,7 @@ Graphics::Graphics(void)
 	m_DepthStencilBuffer = nullptr;
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
-
+	m_WrapperFactory = nullptr;
 	m_DeferredRender = nullptr;
 
 	m_VSyncEnabled = false; //DEBUG
@@ -33,7 +33,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	IDXGIFactory *factory;
 	IDXGIAdapter *adapter;
 	IDXGIOutput *adapterOutput;
-
+	
 	unsigned int numModes;
 	unsigned int stringLength;
 
@@ -154,6 +154,12 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
 
+	//Note this is the only time initialize should be called.
+	WrapperFactory::initialize(m_Device, m_DeviceContext);
+	m_WrapperFactory = WrapperFactory::getInstance();
+
+	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
+
 	//Setup camera matrices REMOVE LATER
 	DirectX::XMFLOAT4 eye4,lookat,up;
 	DirectX::XMFLOAT3 *eye;
@@ -181,11 +187,9 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 								eye, view, proj);
 
-	m_WrapperFactory = new WrapperFactory(m_Device, m_DeviceContext);
-
-
-	m_Shader = m_WrapperFactory->createShader(L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","VS","vs_5_0",VERTEX_SHADER);
-	m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","PS","ps_5_0",PIXEL_SHADER);
+	m_Shader = nullptr;
+	m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","VS","5_0",Shader::Type::VERTEX_SHADER);
+	m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","PS","5_0",Shader::Type::PIXEL_SHADER);
 
 	D3D11_SAMPLER_DESC sd;
     ZeroMemory(&sd, sizeof(sd));
@@ -223,6 +227,12 @@ void Graphics::shutdown(void)
 		m_SwapChain->SetFullscreenState(false, NULL);
 	}
 
+	for(auto &s : m_ShaderList)
+	{
+		SAFE_DELETE(s.second);
+	}
+	m_ShaderLinkList.clear();
+	//m_ShaderList.clear();
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthStencilView);
 	SAFE_RELEASE(m_DepthStencilState);
@@ -231,7 +241,9 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_DeviceContext);
 	SAFE_RELEASE(m_Device);
 	SAFE_RELEASE(m_SwapChain);
-
+	m_WrapperFactory->shutdown();
+	m_WrapperFactory = nullptr;
+	
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
 
@@ -244,6 +256,196 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
+void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
+{
+	Buffer *buffer = nullptr;
+	Buffer::Description bufferDescription;
+	
+
+	buffer = createBuffer(bufferDescription);
+}
+
+void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
+	const char *p_ShaderModel, ShaderType p_Type)
+{
+	bool found = false;
+	Shader *shader;
+	string entryPoint;
+	vector<string> entryPointList;
+
+	for(auto &s : m_ShaderList)
+	{
+		if(strcmp(s.first.c_str(), p_shaderId) == 0)
+		{
+			found = true;
+			shader = s.second;
+		}
+	}
+	if(!found)
+	{
+		shader = new Shader();
+		shader->initialize(m_Device, m_DeviceContext, 0);
+	}
+	
+	entryPointList = createEntryPointList(p_EntryPoint);
+
+	try
+	{
+		if((p_Type & ShaderType::VERTEX_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::VERTEX_SHADER);
+		}
+		if((p_Type & ShaderType::PIXEL_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::PIXEL_SHADER);
+		}
+		if((p_Type & ShaderType::GEOMETRY_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::GEOMETRY_SHADER);
+		}
+		if((p_Type & ShaderType::HULL_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::HULL_SHADER);
+		}
+		if((p_Type & ShaderType::DOMAIN_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::DOMAIN_SHADER);
+		}
+	}
+	catch(...)
+	{
+		if(!found)
+		{
+			SAFE_DELETE(shader);
+		}
+		
+		throw;
+	}
+
+	if(!found)
+	{
+		m_ShaderList.push_back(make_pair(p_shaderId, shader));
+	}
+}
+
+void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
+	const char *p_ShaderModel, ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout,
+	unsigned int p_NumOfElements)
+
+{
+	if(!(p_Type & ShaderType::VERTEX_SHADER))
+		throw ShaderException("Failed to create shader, no vertex shader defined", __LINE__, __FILE__);
+
+	for(auto &s : m_ShaderList)
+	{
+		if(strcmp(s.first.c_str(), p_shaderId) == 0)
+		{
+			throw ShaderException("Failed to create shader, shader already exists", __LINE__, __FILE__);
+		}
+	}
+
+	vector<string> entryPointList;
+	string entryPoint;
+
+	Shader *shader = new Shader();
+	shader->initialize(m_Device, m_DeviceContext, p_NumOfElements);
+
+	D3D11_INPUT_ELEMENT_DESC *desc = new D3D11_INPUT_ELEMENT_DESC[p_NumOfElements];
+	for(unsigned int i = 0; i < p_NumOfElements; i++)
+	{
+		desc[i].SemanticName = p_VertexLayout[i].semanticName;
+		desc[i].SemanticIndex = p_VertexLayout[i].semanticIndex; 
+		desc[i].Format = (DXGI_FORMAT)p_VertexLayout[i].format;
+		desc[i].InputSlot = p_VertexLayout[i].inputSlot;
+		desc[i].AlignedByteOffset = p_VertexLayout[i].alignedByteOffset;
+		desc[i].InputSlotClass = (D3D11_INPUT_CLASSIFICATION)p_VertexLayout[i].inputSlotClass;
+		desc[i].InstanceDataStepRate = p_VertexLayout[i].instanceDataStepRate;
+	}
+	
+	entryPointList = createEntryPointList(p_EntryPoint);
+
+	try
+	{
+		if((p_Type & ShaderType::VERTEX_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::VERTEX_SHADER, desc);
+
+			SAFE_DELETE(desc);
+			desc = nullptr;
+		}
+		if((p_Type & ShaderType::PIXEL_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::PIXEL_SHADER);
+		}
+		if((p_Type & ShaderType::GEOMETRY_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::GEOMETRY_SHADER);
+		}
+		if((p_Type & ShaderType::HULL_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::HULL_SHADER);
+		}
+		if((p_Type & ShaderType::DOMAIN_SHADER))
+		{
+			entryPoint = entryPointList.back();
+			entryPointList.pop_back();
+			m_WrapperFactory->addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+				Shader::Type::DOMAIN_SHADER);
+		}
+
+		m_ShaderList.push_back(make_pair(p_shaderId, shader));
+	}
+	catch(...)
+	{
+		SAFE_DELETE(shader);
+		SAFE_DELETE(desc);
+		throw;
+	}
+}
+
+void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
+{
+	m_ShaderLinkList.push_back(make_pair(p_ShaderId, p_ModelId));
+}
+
+void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
+{
+	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
+}
+
+void Graphics::renderModel(char *p_ModelId)
+{
+
+}
+
+// DEBUG remove when merging to real master
 void Graphics::renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
 		Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent)
 {
@@ -252,7 +454,7 @@ void Graphics::renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
 
 void Graphics::renderText(void)
 {
-
+	
 }
 
 void Graphics::renderQuad(void)
@@ -286,8 +488,8 @@ void Graphics::drawFrame(int i)
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_Shader->setShader();
-	m_Shader->setResource(PIXEL_SHADER,0,1,m_DeferredRender->getRT(i));
-	m_Shader->setSamplerState(PIXEL_SHADER, 0, 1, m_Sampler);
+	m_Shader->setResource(Shader::Type::PIXEL_SHADER,0,1,m_DeferredRender->getRT(i));
+	m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 	m_DeviceContext->Draw(6,0);
 
 	m_Shader->unSetShader();
@@ -486,6 +688,34 @@ HRESULT Graphics::createRasterizerState(void)
 	return m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
 }
 
+Buffer *Graphics::createBuffer(Buffer::Description &p_Description)
+{
+	return m_WrapperFactory->createBuffer(p_Description);
+}
+
+vector<string> Graphics::createEntryPointList(const char *p_EntryPoint)
+{
+	vector<string> entryList;
+	vector<string> result;
+
+	std::vector<char> buffer(strlen(p_EntryPoint)+1);
+	strcpy(buffer.data(), p_EntryPoint);
+	char *type = nullptr, *tmp;
+	tmp = strtok(buffer.data(), ",");
+	while(tmp != nullptr)
+	{
+		entryList.push_back(tmp);
+		tmp = strtok(NULL,",");
+	}
+
+	for(int i = entryList.size() - 1; i >= 0; i--)
+	{
+		result.push_back(entryList.at(i));
+	}
+
+	return result;
+}
+
 void Graphics::Begin(float color[4])
 {
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color);
@@ -506,30 +736,4 @@ void Graphics::End(void)
 		// Present as fast as possible.
 		m_SwapChain->Present(0, 0);
 	}
-}
-
-Shader* Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, ShaderType p_ShaderType)
-{
-	return m_WrapperFactory->createShader( p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType);
-}
-
-void Graphics::addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, ShaderType p_ShaderType)
-{
-	m_WrapperFactory->addShaderStep(p_Shader, p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType);
-}
-
-Shader* Graphics::createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, ShaderType p_ShaderType,
-		const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
-		unsigned int p_NumOfInputElements)
-{
-	return m_WrapperFactory->createShader(	p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType,
-											p_VertexLayout, p_NumOfInputElements);
-}
-	
-Buffer* Graphics::createBuffer(BufferDescription &p_Description)
-{
-	return m_WrapperFactory->createBuffer( p_Description );
 }

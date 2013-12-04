@@ -89,8 +89,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	//Compile shader for the light pass
 	m_LightShader = new Shader();
 	m_LightShader->initialize(m_Device,m_DeviceContext, 0);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","VSmain","vs_5_0",VERTEX_SHADER, nullptr);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","PSmain","ps_5_0",PIXEL_SHADER, nullptr);
+	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","VSmain","vs_5_0",Shader::Type::VERTEX_SHADER, nullptr);
+	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","PSmain","ps_5_0",Shader::Type::PIXEL_SHADER, nullptr);
 
 	// Create sampler state and blend state for Alpha rendering.
 	createSamplerState();
@@ -134,15 +134,15 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		}
 	}
 	//This buffer is supposed to be moved to non temporary code
-	BufferDescription cbdesc;
+	Buffer::Description cbdesc;
 	cbdesc.initData = m_Lights.data();
 	cbdesc.numOfElements = xx*yy*zz;
 	cbdesc.sizeOfElement = sizeof(Light);
-	cbdesc.type = STRUCTURED_BUFFER;
-	cbdesc.usage = BUFFER_DEFAULT;
+	cbdesc.type = Buffer::Type::STRUCTURED_BUFFER;
+	cbdesc.usage = Buffer::Usage::DEFAULT;
 	m_AllLightBuffer = new Buffer();
-	m_AllLightBuffer->initializeEx(m_Device, m_DeviceContext, cbdesc, true, false);
-	m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
+	m_AllLightBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
+	//m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
 
 	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
 	m_Specular = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
@@ -214,7 +214,8 @@ void DeferredRenderer::renderGeometry()
 		m_Objects.at(i).m_Buffer->setBuffer(0);
 		// Set shader.
 		m_Objects.at(i).m_Shader->setShader();
-		m_Objects.at(i).m_Shader->setBlendState(m_BlendState2);
+		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+		m_Objects.at(i).m_Shader->setBlendState(m_BlendState2, data);
 
 		m_DeviceContext->Draw(m_Objects.at(i).m_Buffer->getNumOfElements(), 0);
 
@@ -244,7 +245,8 @@ void DeferredRenderer::renderLighting()
 
 	// Set texture sampler.
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
-	m_LightShader->setBlendState(m_BlendState);
+	float data[] = { 1.f, 1.f, 1.f, 1.f };
+	m_LightShader->setBlendState(m_BlendState, data);
 
 	m_DeviceContext->PSSetShaderResources(0, 4, srvs);
 
@@ -265,7 +267,7 @@ void DeferredRenderer::renderLighting()
 
 	m_ConstantBuffer->unsetBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,0,0);
-	m_LightShader->setBlendState(0);
+	m_LightShader->setBlendState(0, data);
 
 	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
@@ -404,12 +406,12 @@ void DeferredRenderer::createConstantBuffer(int nrLights)
 	cb.campos = *m_CameraPosition;
 	cb.nrLights = nrLights;
 
-	BufferDescription cbdesc;
+	Buffer::Description cbdesc;
 	cbdesc.initData = &cb;
 	cbdesc.numOfElements = 1;
 	cbdesc.sizeOfElement = sizeof(cBuffer);
-	cbdesc.type = CONSTANT_BUFFER_ALL;
-	cbdesc.usage = BUFFER_DEFAULT;
+	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
+	cbdesc.usage = Buffer::Usage::DEFAULT;
 	m_ConstantBuffer = new Buffer();
 	m_ConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 }

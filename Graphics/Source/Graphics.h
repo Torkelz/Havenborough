@@ -3,6 +3,8 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #include <windows.h>
+#include <vector>
+#include <string>
 #include <d3d11.h>
 #include <dxgi.h>
 
@@ -13,22 +15,25 @@
 #include "DeferredRenderer.h"
 #include "WrapperFactory.h"
 
+using std::string;
+using std::vector;
+using std::pair;
+using std::make_pair;
 
-class Graphics :
-	public IGraphics
+class Graphics : public IGraphics
 {
 private:
-	unsigned int m_Numerator;
-	unsigned int m_Denominator;
-	TextureLoader m_TextureLoad;
+	struct Model
+	{
+		ID3D11Buffer *vertexBuffer;
+		ID3D11Buffer *indexBuffer;
+		Shader *shader;
+		ID3D11ShaderResourceView *diffuseTexture;
+		ID3D11ShaderResourceView *normalTexture;
+		ID3D11ShaderResourceView *specularTexture;
+		unsigned int numOfMaterials;
+	};
 
-	DeferredRenderer	*m_DeferredRender;
-	WrapperFactory		*m_WrapperFactory;
-
-	Shader				*m_Shader; //DEBUG
-	ID3D11SamplerState	*m_Sampler;
-
-public:
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 
@@ -41,47 +46,52 @@ public:
 	ID3D11DepthStencilState *m_DepthStencilState;
 	ID3D11DepthStencilView *m_DepthStencilView;
 
+	unsigned int m_Numerator;
+	unsigned int m_Denominator;
 	char m_GraphicsCard[128];
 	int m_GraphicsMemory;
 	bool m_VSyncEnabled;
+
+	TextureLoader m_TextureLoader;	
+	WrapperFactory *m_WrapperFactory;
+
+	vector<pair<string, Shader*>> m_ShaderList;
+	vector<pair<string, Model>> m_ModelList;
+	vector<pair<string, string>> m_ShaderLinkList;
+	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
+	
+	DeferredRenderer	*m_DeferredRender;
+
+	Shader				*m_Shader; //DEBUG
+	ID3D11SamplerState	*m_Sampler;
+
 public:
 	Graphics(void);
 	~Graphics(void);
 
-	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,
-		bool p_Fullscreen);
-	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight,
-		bool p_Fullscreen);
+	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen);
+	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen);
 	
-	void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
-		Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent);
-	void renderText(void);
-	void renderQuad(void);
-
+	void createModel(const char *p_ModelId, const char *p_Filename);
+	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
+		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
+	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
+		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
+		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements);
+	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId);
+	
+	void createTexture(const char *p_TextureId, const char *p_filename);
+	
 	void addStaticLight(void);
 	void removeStaticLight(void);
 	void useFrameLight(void);
 	
+	void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
+		Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent);
+	void renderModel(char *p_ModelId);
+	void renderText(void);
+	void renderQuad(void);
 	void drawFrame(int i);
-
-	Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, ShaderType p_ShaderType);
-
-	void addShaderStep(Shader* p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, ShaderType p_ShaderType);
-	
-	/**
-	*
-	*/
-	Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, ShaderType p_ShaderType,
-		const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout,
-		unsigned int p_NumOfInputElements);
-	
-	/**
-	*
-	*/
-	Buffer *createBuffer(BufferDescription &p_Description);
 private:
 	void shutdown(void);
 
@@ -95,7 +105,8 @@ private:
 	HRESULT createDepthStencilView(void);
 	HRESULT createRasterizerState(void);
 
+	Buffer *createBuffer(Buffer::Description &p_Description);
+	vector<string> createEntryPointList(const char *p_EntryPoint);
 	void Begin(float color[4]);
 	void End(void);
 };
-

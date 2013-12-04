@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "..\Graphics\Source\TextureLoader.h"
+#include "..\..\Graphics\Source\TextureLoader.h"
 BOOST_AUTO_TEST_SUITE(TestTextureLoader)
 
 
@@ -35,7 +35,6 @@ public:
 BOOST_AUTO_TEST_CASE(TestLoader)
 {
 	testTexLoader loader;
-	
 
 	BOOST_CHECK(loader.createTextureFromFile("test.png") != nullptr);
 

@@ -1,19 +1,46 @@
 #pragma once
 
 #include "IPhysics.h"
+#include <memory>
+
+#include "Collision.h"
+#include "Body.h"
 
 class Physics : public IPhysics
 {
-private:
-	Collision m_collision;
 public:
-	Physics(void){};
-	~Physics(void){};
+private:
+	Collision m_Collision;
+	float m_GlobalGravity;
+	std::vector<Body> m_Bodies;
+	std::vector<HitData> m_HitDatas;
+	
+public:
+	Physics();
+	~Physics();
 
 	void initialize();
+
+	void update(float p_DeltaTime);
+	void applyForce(Vector3 p_Force, BodyHandle p_Body);
+
+	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius);
+	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top);
+
+	void setGlobalGravity(float p_Gravity);
+	Vector4 getVelocity(BodyHandle p_Body);
+
+	HitData getHitDataAt(unsigned int p_Index);
+	unsigned int getHitDataSize();
+
+	//DEBUGGING
+	void moveBodyPosition(Vector3 p_Position, BodyHandle p_Body);
 		 
-	bool sphereVsSphere( Sphere* p_sphere1, Sphere* p_sphere2 );
-	bool AABBvsAABB( AABB* p_aabb1, AABB* p_aabb2 );
-	bool AABBvsSphere( AABB* p_aabb, Sphere* p_sphere);
+private:
+	Body* findBody(BodyHandle p_Body);
+	
+	BodyHandle createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable);
+
+	BoundingVolume* getVolume(BodyHandle p_Body);
 };
 

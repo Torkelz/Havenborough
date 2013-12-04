@@ -1,6 +1,6 @@
 #define INITGUID
 #include "Shader.h"
-#include <string>
+#include <vector>
 #include <iostream>
 
 
@@ -20,7 +20,6 @@ Shader::Shader(void)
 	m_VertexDescription = nullptr;
 }
 
-
 Shader::~Shader(void)
 {
 	SAFE_RELEASE(m_VertexShader);
@@ -30,6 +29,8 @@ Shader::~Shader(void)
 	SAFE_RELEASE(m_DomainShader);
 	SAFE_RELEASE(m_VertexLayout);
 	SAFE_DELETE_ARRAY(m_VertexDescription);
+	m_Device = nullptr;
+	m_DeviceContext = nullptr;
 }
 
 void Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, unsigned int p_NumOfElements)
@@ -40,7 +41,7 @@ void Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceCon
 }
 
 HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-	const char *p_ShaderModel, ShaderType p_ShaderType,
+	const char *p_ShaderModel, Type p_ShaderType,
 	const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
 {
 	HRESULT result = S_FALSE;
@@ -56,16 +57,17 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 	{
 		if(errorMessage == nullptr)
 		{
+			SAFE_RELEASE(errorMessage);
+			SAFE_RELEASE(shaderData);
 			std::wstring foo = p_Filename;
 			throw ShaderException("Error when trying to compile shader. Could be missing file: " +
 				std::string(foo.begin(), foo.end()), __LINE__, __FILE__);			
 		}
 		else
 		{
-			std::string errorMsg = (std::string)(char*)errorMessage->GetBufferPointer();
-			throw ShaderException("Error when compiling shader.\n" + errorMsg,
-				__LINE__, __FILE__);
+			std::string temp = (std::string)(char*)errorMessage->GetBufferPointer();
 			SAFE_RELEASE(errorMessage);
+			throw ShaderException("Error when compiling shader.\n" + temp, __LINE__, __FILE__);
 		}
 
 		return result;
@@ -73,7 +75,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 
 	m_ShaderType = p_ShaderType;
 
-	if(p_VertexLayout == nullptr && m_ShaderType == VERTEX_SHADER)
+	if(p_VertexLayout == nullptr && m_ShaderType == Type::VERTEX_SHADER)
 	{
 		createInputLayoutFromShaderSignature(shaderData);
 	}
@@ -83,11 +85,13 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 		std::copy(p_VertexLayout, p_VertexLayout + m_NumOfElements, m_VertexDescription);
 	}
 
+	releaseShader(p_ShaderType);
 	result = createShader(shaderData);
 
 
 	if(FAILED(result))
 	{
+		releaseShader(p_ShaderType);
 		throw ShaderException("Error when creating shader.\n" + (std::string)(char*)errorMessage->GetBufferPointer(),
 			__LINE__, __FILE__);
 	}
@@ -100,51 +104,18 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 
 void Shader::setShader(void)
 {
-	if(m_VertexShader)
-	{
-		m_DeviceContext->IASetInputLayout(m_VertexLayout);
-		m_DeviceContext->VSSetShader(m_VertexShader,0,0);
-	}
-	else
-	{
-		m_DeviceContext->VSSetShader(nullptr, nullptr, 0);
-	}
 
-	if(m_PixelShader)
-	{
-		m_DeviceContext->PSSetShader(m_PixelShader, 0, 0);
-	}
-	else
-	{
-		m_DeviceContext->PSSetShader(nullptr, nullptr, 0);
-	}
+	m_DeviceContext->IASetInputLayout(m_VertexLayout);
+	m_DeviceContext->VSSetShader(m_VertexShader,0,0);
 
-	if(m_GeometryShader)
-	{
-		m_DeviceContext->GSSetShader(m_GeometryShader, nullptr, 0);
-	}
-	else
-	{
-		m_DeviceContext->GSSetShader(nullptr, nullptr, 0);
-	}
+	m_DeviceContext->PSSetShader(m_PixelShader, nullptr, 0);
 
-	if(m_DomainShader)
-	{
-		m_DeviceContext->DSSetShader(m_DomainShader, nullptr, 0);
-	}
-	else
-	{
-		m_DeviceContext->DSSetShader(nullptr, nullptr, 0);
-	}
+	m_DeviceContext->GSSetShader(m_GeometryShader, nullptr, 0);
 
-	if(m_HullShader)
-	{
-		m_DeviceContext->HSSetShader(m_HullShader, nullptr, 0);
-	}
-	else
-	{
-		m_DeviceContext->HSSetShader(nullptr, nullptr, 0);
-	}
+	m_DeviceContext->DSSetShader(m_DomainShader, nullptr, 0);
+
+	m_DeviceContext->HSSetShader(m_HullShader, nullptr, 0);
+
 }
 
 void Shader::unSetShader(void)
@@ -171,32 +142,32 @@ void Shader::unSetShader(void)
 	}
 }
 
-void Shader::setResource(ShaderType p_ShaderType, UINT p_StartSpot, UINT p_NumOfViews,
+void Shader::setResource(Type p_ShaderType, UINT p_StartSpot, UINT p_NumOfViews,
 	ID3D11ShaderResourceView *p_ShaderResource)
 {
 	switch(p_ShaderType)
 	{
-	case VERTEX_SHADER:
+	case Type::VERTEX_SHADER:
 		{
 			m_DeviceContext->VSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case PIXEL_SHADER:
+	case Type::PIXEL_SHADER:
 		{
 			m_DeviceContext->PSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case GEOMETRY_SHADER:
+	case Type::GEOMETRY_SHADER:
 		{
 			m_DeviceContext->GSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case HULL_SHADER:
+	case Type::HULL_SHADER:
 		{
 			m_DeviceContext->HSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
 		}
-	case DOMAIN_SHADER:
+	case Type::DOMAIN_SHADER:
 		{
 			m_DeviceContext->DSSetShaderResources(p_StartSpot, p_NumOfViews, &p_ShaderResource);
 			break;
@@ -204,32 +175,32 @@ void Shader::setResource(ShaderType p_ShaderType, UINT p_StartSpot, UINT p_NumOf
 	}
 }
 
-void Shader::setSamplerState(ShaderType p_ShaderType, UINT p_StartSpot, UINT p_NumOfSamples,
+void Shader::setSamplerState(Type p_ShaderType, UINT p_StartSpot, UINT p_NumOfSamples,
 	ID3D11SamplerState *p_SamplerState)
 {
 	switch (p_ShaderType)
 	{
-	case VERTEX_SHADER:
+	case Type::VERTEX_SHADER:
 		{
 			m_DeviceContext->VSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case PIXEL_SHADER:
+	case Type::PIXEL_SHADER:
 		{
 			m_DeviceContext->PSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case GEOMETRY_SHADER:
+	case Type::GEOMETRY_SHADER:
 		{
 			m_DeviceContext->GSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case HULL_SHADER:
+	case Type::HULL_SHADER:
 		{
 			m_DeviceContext->HSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
 		}
-	case DOMAIN_SHADER:
+	case Type::DOMAIN_SHADER:
 		{
 			m_DeviceContext->DSSetSamplers(p_StartSpot, p_NumOfSamples, &p_SamplerState);
 			break;
@@ -241,11 +212,33 @@ void Shader::setSamplerState(ShaderType p_ShaderType, UINT p_StartSpot, UINT p_N
 	}
 }
 
-void Shader::setBlendState(ID3D11BlendState *p_BlendState)
+void Shader::setBlendState(ID3D11BlendState *p_BlendState, float p_BlendFactor[4], UINT p_SampleMask)
 {
-	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-	UINT sampleMask = 0xffffffff;
-	m_DeviceContext->OMSetBlendState(p_BlendState, blendFactor, sampleMask);
+	m_DeviceContext->OMSetBlendState(p_BlendState, p_BlendFactor, p_SampleMask);
+}
+
+void Shader::releaseShader(Shader::Type p_Type)
+{
+	switch(p_Type)
+	{
+	case Shader::Type::VERTEX_SHADER:
+		SAFE_RELEASE(m_VertexShader);
+		break;
+	case Shader::Type::PIXEL_SHADER:
+		SAFE_RELEASE(m_PixelShader);
+		break;
+	case Shader::Type::GEOMETRY_SHADER:
+		SAFE_RELEASE(m_GeometryShader);
+		break;
+	case Shader::Type::HULL_SHADER:
+		SAFE_RELEASE(m_HullShader);
+		break;
+	case Shader::Type::DOMAIN_SHADER:
+		SAFE_RELEASE(m_DomainShader);
+		break;
+	default:
+		break;
+	}
 }
 
 void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)
@@ -359,7 +352,7 @@ HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
 	HRESULT result;
 	switch (m_ShaderType)
 	{
-	case VERTEX_SHADER:
+	case Type::VERTEX_SHADER:
 		{
 			result = m_Device->CreateVertexShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_VertexShader);
@@ -370,25 +363,25 @@ HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
 			}
 			break;
 		}
-	case PIXEL_SHADER:
+	case Type::PIXEL_SHADER:
 		{
 			result = m_Device->CreatePixelShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_PixelShader);
 			break;
 		}
-	case GEOMETRY_SHADER:
+	case Type::GEOMETRY_SHADER:
 		{
 			result = m_Device->CreateGeometryShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_GeometryShader);
 			break;
 		}
-	case HULL_SHADER:
+	case Type::HULL_SHADER:
 		{
 			result = m_Device->CreateHullShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_HullShader);
 			break;
 		}
-	case DOMAIN_SHADER:
+	case Type::DOMAIN_SHADER:
 		{
 			result = m_Device->CreateDomainShader(p_ShaderData->GetBufferPointer(), p_ShaderData->GetBufferSize(),
 				nullptr, &m_DomainShader);

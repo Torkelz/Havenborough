@@ -4,47 +4,48 @@
 #include "Util.h"
 #include "MyGraphicsExceptions.h"
 
-enum BufferType
-{
-	VERTEX_BUFFER,
-	INDEX_BUFFER,
-	CONSTANT_BUFFER_VS,
-	CONSTANT_BUFFER_GS,
-	CONSTANT_BUFFER_PS,
-	BUFFER_TYPE_COUNT,
-	CONSTANT_BUFFER_ALL,
-	STAGING_BUFFER,
-	STRUCTURED_BUFFER
-};
-
-enum BufferUsage
-{
-	BUFFER_DEFAULT,
-	BUFFER_STREAM_OUT_TARGET,
-	BUFFER_CPU_WRITE,
-	BUFFER_CPU_WRITE_DISCARD,
-	BUFFER_CPU_READ,
-	BUFFER_USAGE_COUNT,
-	BUFFER_USAGE_IMMUTABLE,
-	BUFFER_STAGING
-};
-
-struct BufferDescription
-{
-	BufferType type;
-	BufferUsage usage;
-	UINT32 numOfElements;
-	UINT32 sizeOfElement;
-	void *initData;
-
-	BufferDescription()
-	{
-		initData = nullptr;
-	}
-};
-
 class Buffer
 {
+public:
+	enum class Type
+	{
+		VERTEX_BUFFER,
+		INDEX_BUFFER,
+		CONSTANT_BUFFER_VS,
+		CONSTANT_BUFFER_GS,
+		CONSTANT_BUFFER_PS,
+		BUFFER_TYPE_COUNT,
+		CONSTANT_BUFFER_ALL,
+		STAGING_BUFFER,
+		STRUCTURED_BUFFER
+	};
+
+	enum class Usage
+	{
+		DEFAULT,
+		STREAM_OUT_TARGET,
+		CPU_WRITE,
+		CPU_WRITE_DISCARD,
+		CPU_READ,
+		USAGE_COUNT,
+		USAGE_IMMUTABLE,
+		STAGING
+	};
+
+	struct Description
+	{
+		Type type;
+		Usage usage;
+		UINT32 numOfElements;
+		UINT32 sizeOfElement;
+		void *initData;
+
+		Description()
+		{
+			initData = nullptr;
+		}
+	};
+
 private:
 	ID3D11Buffer *m_Buffer;
 	ID3D11Device *m_Device;
@@ -54,8 +55,8 @@ private:
 	UINT32 m_SizeOfElement;
 	UINT32 m_NumOfElements;
 
-	BufferType m_Type;
-	BufferUsage m_Usage;
+	Type m_Type;
+	Usage m_Usage;
 
 	
 public:
@@ -94,18 +95,8 @@ public:
 	* @return S_OK if buffer initialized successfully
 	*/
 	HRESULT initialize(ID3D11Device *p_Device,
-		ID3D11DeviceContext *p_DeviceContext, BufferDescription &p_Description);
-	/**
-	* Initializes the buffer depending on the buffer type in the description.
-	* @param p_Device pointer to the Direc3D device in use
-	* @param p_DeviceContext pointer to the Direct3D device context in use
-	* @param p_Description buffer description for the buffer to be initialized
-	* @param p_SRV Describes if a resource view is to be bound.
-	* @param p_UAV Describes if a unordered acces is to be bound.
-	* @return S_OK if buffer initialized successfully
-	*/
-	HRESULT initializeEx(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
-		BufferDescription &p_Description, bool p_SRV, bool p_UAV);
+		ID3D11DeviceContext *p_DeviceContext, Description &p_Description);
+	
 	/**
 	* Sets the the buffer to be applied.
 	* @param p_StartSlot where to start in the buffer
@@ -132,7 +123,6 @@ public:
 	void unmap(void);
 
 	ID3D11ShaderResourceView* CreateBufferSRV(ID3D11Buffer* pBuffer);
-	ID3D11UnorderedAccessView* CreateBufferUAV(ID3D11Buffer* pBuffer);
 
 private:
 	void *mapResourceToContext(UINT32 p_MapType);

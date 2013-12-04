@@ -2,6 +2,11 @@
 
 #include "../MyExceptions.h"
 
+InputTranslator::InputTranslator()
+	: m_Window(nullptr)
+{
+}
+
 void InputTranslator::init(Window* p_Window)
 {
 	if (p_Window == nullptr)
@@ -23,7 +28,7 @@ void InputTranslator::init(Window* p_Window)
 	inputDevices[1].dwFlags		= RIDEV_NOLEGACY;
 	inputDevices[1].hwndTarget	= 0;
 
-	if (RegisterRawInputDevices(&inputDevices[1], 1, sizeof(inputDevices[0])) == FALSE)
+	if (RegisterRawInputDevices(&inputDevices[0], 2, sizeof(inputDevices[0])) == FALSE)
 	{
 		throw Win32Exception("Failed to register raw input devices", __LINE__, __FILE__);
 	}
@@ -48,6 +53,30 @@ void InputTranslator::addKeyboardMapping(USHORT p_VirtualKey, const std::string&
 {
 	KeyboardRecord rec = {p_VirtualKey, p_Action};
 	m_KeyboardMappings.push_back(rec);
+}
+
+void InputTranslator::addMouseMapping(Axis p_Axis, const std::string& p_PositionAction, const std::string& p_MovementAction)
+{
+	MouseRecord rec = {p_Axis, p_PositionAction, p_MovementAction};
+	m_MouseMappings.push_back(rec);
+}
+
+void InputTranslator::addMouseButtonMapping(MouseButton p_Button, const std::string& p_Action)
+{
+	USHORT buttonFlag;
+	switch(p_Button)
+	{
+	case MouseButton::LEFT:		buttonFlag = RI_MOUSE_LEFT_BUTTON_DOWN; break;
+	case MouseButton::RIGHT:	buttonFlag = RI_MOUSE_RIGHT_BUTTON_DOWN; break;
+	case MouseButton::MIDDLE:	buttonFlag = RI_MOUSE_MIDDLE_BUTTON_DOWN; break;
+	case MouseButton::EXTRA_1:	buttonFlag = RI_MOUSE_BUTTON_4_DOWN; break;
+	case MouseButton::EXTRA_2:	buttonFlag = RI_MOUSE_BUTTON_5_DOWN; break;
+	default:
+		throw InvalidArgument("Invalid button", __LINE__, __FILE__);
+	};
+
+	MouseButtonRecord rec = {buttonFlag, p_Action};
+	m_MouseButtonMappings.push_back(rec);
 }
 
 bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
@@ -80,7 +109,10 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 	}
 	else if (rawInputData->header.dwType == RIM_TYPEMOUSE)
 	{
-		// TODO: Handle raw mouse input
+		if (handleMouseInput(rawInputData->data.mouse))
+		{
+			handled = true;
+		}
 	}
 
 	if (handled)
@@ -115,4 +147,84 @@ bool InputTranslator::handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard)
 	}
 
 	return handled;
+}
+
+bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
+{
+	const LONG lastX = p_RawMouse.lLastX;
+	const LONG lastY = p_RawMouse.lLastY;
+	POINT tempPos;
+	UVec2 windowSize = {10000, 10000};
+	GetCursorPos(&tempPos);
+	if (m_Window)
+	{
+		ScreenToClient(m_Window->getHandle(), &tempPos);
+		windowSize = m_Window->getSize();
+	}
+
+	static const float sensitivity = 1.f;
+
+	const float moveX = (float)lastX * sensitivity;
+	const float moveY = -(float)lastY * sensitivity;
+	const float posX = (float)tempPos.x / (float)windowSize.x;
+	const float posY = 1.f - (float)tempPos.y / (float)windowSize.y;
+
+	bool handled = false;
+	if (p_RawMouse.usButtonFlags != 0)
+	{
+		for (const MouseButtonRecord& record : m_MouseButtonMappings)
+		{
+			if ((p_RawMouse.usButtonFlags & record.m_Button) != 0)
+			{
+				InputRecord inRec = {record.m_Action, 1.f};
+				m_RecordFunction(inRec);
+				handled = true;
+			}
+			if ((p_RawMouse.usButtonFlags & (record.m_Button << 1)) != 0)
+			{
+				InputRecord inRec = {record.m_Action, 0.f};
+				m_RecordFunction(inRec);
+				handled = true;
+			}
+		}
+	}
+	
+	if (m_MouseMappings.empty())
+	{
+		return handled;
+	}
+
+	// Filter out mouse movement outside window
+	if (posX > 1.f || posX < 0.f
+		|| posY > 1.f || posY < 0.f)
+	{
+		return handled;
+	}
+
+	if (moveX == 0.f && moveY == 0.f)
+	{
+		return handled;
+	}
+
+	for (const MouseRecord& record : m_MouseMappings)
+	{
+		InputRecord moveInRec = {record.m_MoveAction, 0.f};
+		InputRecord posInRec = {record.m_PosAction, 0.f};
+
+		if (record.m_Axis == Axis::HORIZONTAL)
+		{
+			moveInRec.m_Value = moveX;
+			posInRec.m_Value = posX;
+		}
+		else if (record.m_Axis == Axis::VERTICAL)
+		{
+			moveInRec.m_Value = moveY;
+			posInRec.m_Value = posY;
+		}
+
+		m_RecordFunction(moveInRec);
+		m_RecordFunction(posInRec);
+	}
+
+	return true;
 }
