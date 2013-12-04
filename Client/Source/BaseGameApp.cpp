@@ -33,7 +33,7 @@ void BaseGameApp::init()
 
 	//TEMPORARY -------------------------------------------------------
 	BufferDescription bdesc;
-	bdesc.initData = createBOX(31,0.0f,0.0f,0.0f);
+	bdesc.initData = createBOX(30,0.0f,0.0f,0.0f);
 	bdesc.numOfElements = 36;
 	bdesc.sizeOfElement = sizeof(BaseGameApp::vertex);
 	bdesc.type = VERTEX_BUFFER;
@@ -41,8 +41,8 @@ void BaseGameApp::init()
 
 	m_Buffer = m_Graphics->createBuffer(bdesc);
 	
-	m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DummyVertexShader.hlsl","VS","vs_5_0",VERTEX_SHADER);
-	m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DummyVertexShader.hlsl","PS","ps_5_0",PIXEL_SHADER);
+	m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DeferredShaders/DeferredGeometryPass.hlsl","VS","vs_5_0",VERTEX_SHADER);
+	m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DeferredGeometryPass.hlsl","PS","ps_5_0",PIXEL_SHADER);
 
 	//BufferDescription bdesc;
 	bdesc.initData = createBOX(25,0.0f,0.0f,0.0f);
@@ -53,8 +53,8 @@ void BaseGameApp::init()
 
 	m_Buffer2 = m_Graphics->createBuffer(bdesc);
 	
-	m_Shader2 = m_Graphics->createShader(L"../../Graphics/Source/DummyVertexShader.hlsl","VS","vs_5_0",VERTEX_SHADER);
-	m_Graphics->addShaderStep(m_Shader2,L"../../Graphics/Source/DummyVertexShader.hlsl","PS","ps_5_0",PIXEL_SHADER);
+	m_Shader2 = m_Graphics->createShader(L"../../Graphics/Source/DeferredShaders/DeferredGeometryPass.hlsl","VS","vs_5_0",VERTEX_SHADER);
+	m_Graphics->addShaderStep(m_Shader2,L"../../Graphics/Source/DeferredShaders/DeferredGeometryPass.hlsl","PS","ps_5_0",PIXEL_SHADER);
 	//TEMPORARY --------------------------------------------------------
 }
 
@@ -87,6 +87,7 @@ void BaseGameApp::run()
 		m_Window.pollMessages();
 		//Temp ------------------------------------------------
 		m_Graphics->renderModel(m_Buffer, m_CBuffer, m_Shader, &tempMatrix, false);
+		//m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
 		/*for (int i = 0; i < 100; i++)
 		{
 			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);

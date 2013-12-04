@@ -11,7 +11,6 @@ DeferredRenderer::DeferredRenderer(void)
 		m_RenderTargets[i] = nullptr;
 	}
 
-	m_DepthStencilResourceView = nullptr;
 	m_DiffuseSRV = nullptr;
 	m_NormalSRV = nullptr;
 	m_LightSRV = nullptr;
@@ -19,7 +18,6 @@ DeferredRenderer::DeferredRenderer(void)
 
 	m_Sampler = nullptr;
 	m_LightShader = nullptr;
-	m_LightBuffer = nullptr;
 	m_ConstantBuffer = nullptr;
 	m_AllLightBuffer = nullptr;
 
@@ -33,7 +31,6 @@ DeferredRenderer::DeferredRenderer(void)
 DeferredRenderer::~DeferredRenderer(void)
 {
 	m_Objects.clear();
-	m_TransparentObjects.clear();
 	m_Lights.clear();
 
 	m_Device = nullptr;
@@ -45,7 +42,6 @@ DeferredRenderer::~DeferredRenderer(void)
 		SAFE_RELEASE(m_RenderTargets[i]);
 	}
 	
-	SAFE_RELEASE(m_DepthStencilResourceView);
 	SAFE_RELEASE(m_DiffuseSRV);
 	SAFE_RELEASE(m_NormalSRV);
 	SAFE_RELEASE(m_LightSRV);
@@ -53,7 +49,6 @@ DeferredRenderer::~DeferredRenderer(void)
 	
 	SAFE_RELEASE(m_Sampler);
 	SAFE_DELETE(m_LightShader);
-	SAFE_DELETE(m_LightBuffer);
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
 
@@ -92,58 +87,18 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
-	createRenderTargets(desc, p_screenWidth, p_screenHeight);
+	createRenderTargets(desc);
 
 	createShaderResourceViews(p_DepthStencilView, desc);
 
 	//Create shader for the light pass
 	m_LightShader = new Shader();
 	m_LightShader->initialize(m_Device,m_DeviceContext, 0);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DummyLightPass.hlsl","VSmain","vs_5_0",VERTEX_SHADER, nullptr);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DummyLightPass.hlsl","PSmain","ps_5_0",PIXEL_SHADER, nullptr);
-
-	//Create texture sampler
-	D3D11_SAMPLER_DESC sd;
-    ZeroMemory(&sd, sizeof(sd));
-    sd.Filter			= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    sd.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
-    sd.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
-    sd.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
-    sd.ComparisonFunc   = D3D11_COMPARISON_NEVER;
-    sd.MinLOD			= 0;
-    sd.MaxLOD			= D3D11_FLOAT32_MAX;
-
-    m_Device->CreateSamplerState( &sd, &m_Sampler );
-
-	D3D11_RASTERIZER_DESC rdesc;
-	rdesc.CullMode = D3D11_CULL_NONE;
-	//rdesc.FrontCounterClockwise = true;
-
-	m_Device->CreateRasterizerState(&rdesc,&m_RasterState);
+	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/DeferredLightPass.hlsl","VSmain","vs_5_0",VERTEX_SHADER, nullptr);
+	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/DeferredLightPass.hlsl","PSmain","ps_5_0",PIXEL_SHADER, nullptr);
 	
-	D3D11_BLEND_DESC bd;
-    bd.AlphaToCoverageEnable = false;
-    bd.IndependentBlendEnable = false;
-    bd.RenderTarget[0].BlendEnable = true;
-    bd.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-    bd.RenderTarget[0].DestBlend =  D3D11_BLEND_ONE;
-    bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-    bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-    bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-    bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-    bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-    m_Device->CreateBlendState(&bd, &m_BlendState);
-
-	for(int i = 0; i < 4; i++)
-	{
-		bd.RenderTarget[i].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		bd.RenderTarget[i].DestBlend =  D3D11_BLEND_INV_SRC_ALPHA;
-		bd.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
-		bd.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ZERO;
-		bd.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO;
-		bd.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	}
-	m_Device->CreateBlendState(&bd, &m_BlendState2);
+	createSamplerState();
+	createBlendStates();
 
 	// TEMPORARY -----------------------------------------------------------
 	// Make the light
@@ -157,16 +112,16 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	);
 	addLight(testLight);
 	
-	xx = 10;
+	xx = 2;
 	yy = 2;
 	zz = 2;
 	int minX,minY,minZ,maxX,maxY,maxZ;
 	minX = minY = minZ = -30;
 	maxX = maxY = maxZ = 30;
 	float dx,dy,dz;
-	dx = (float)(abs(maxX) + abs(minX))/(xx-1);
-	dy = (float)(abs(maxY) + abs(minY))/(yy-1);
-	dz = (float)(abs(maxZ) + abs(minZ))/(zz-1);
+	dx = (float)(abs(maxX) + abs(minX))/(xx);
+	dy = (float)(abs(maxY) + abs(minY))/(yy);
+	dz = (float)(abs(maxZ) + abs(minZ))/(zz);
 	
 	for(int x= 0; x < xx; x++)
 	{
@@ -182,6 +137,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 			}
 		}
 	}
+	//This buffer is supposed to be moved to non temporary code
 	BufferDescription cbdesc;
 	cbdesc.initData = m_Lights.data();
 	cbdesc.numOfElements = xx*yy*zz;
@@ -190,6 +146,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	cbdesc.usage = BUFFER_DEFAULT;
 	m_AllLightBuffer = new Buffer();
 	m_AllLightBuffer->initializeEx(m_Device, m_DeviceContext, cbdesc, true, false);
+	m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
 
 	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
 	m_Specular = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
@@ -203,8 +160,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 void DeferredRenderer::renderDeferred()
 {
-	float dt = 0.016;
-	for(int i = 0; i < m_Lights.size();i++)
+	float dt = 0.016f;
+	for(unsigned int i = 0; i < m_Lights.size();i++)
 	{
 
 		if(i%2 == 0)
@@ -220,19 +177,20 @@ void DeferredRenderer::renderDeferred()
 	// Clear render targets.
 	clearRenderTargets();
 
+	//// Update constant buffer
+	//updateConstantBuffer(xx*yy*zz);
+	//updateLightBuffer();
 
 	// Render
 	renderGeometry();
 
-	
 	// Update constant buffer
 	updateConstantBuffer(xx*yy*zz);
+	updateLightBuffer();
+
 	renderLighting();
-	renderFinal();
-	renderForward();
-	
+
 	m_Objects.clear();
-	m_TransparentObjects.clear();
 	//m_Lights.clear(); For debug this is not active
 }
 
@@ -243,9 +201,7 @@ void DeferredRenderer::renderGeometry()
 	// Set the render targets.
 	m_DeviceContext->OMSetRenderTargets(nrRT, m_RenderTargets, m_DepthStencilView);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//m_DeviceContext->RSSetState(m_RasterState);
 
-	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	ID3D11ShaderResourceView *srvs[] = {m_Diffuse,
 										m_NormalMap,
 										m_Specular};
@@ -253,8 +209,9 @@ void DeferredRenderer::renderGeometry()
 
 	m_ConstantBuffer->setBuffer(1);
 	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
+
 	for(unsigned int i = 0; i < m_Objects.size();i++)
-	//for( int i = m_Objects.size()-1; i >= 0 ;i--)
 	{
 		updateConstantBuffer(int(i));
 		//Send stuff
@@ -269,8 +226,11 @@ void DeferredRenderer::renderGeometry()
 		m_Objects.at(i).m_Buffer->unsetBuffer(0);
 		m_Objects.at(i).m_Shader->unSetShader();
 	}
+
 	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_ConstantBuffer->unsetBuffer(1);
+
 	// Unset render targets.
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 }
@@ -279,13 +239,12 @@ void DeferredRenderer::renderLighting()
 {
 	unsigned int activeRenderTarget	= 3;
 	unsigned int nrRT = 1;
-	ID3D11ShaderResourceView* temp;
-	temp = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
+	
 	// Collect the shader resources in an array and create a clear array.
 	ID3D11ShaderResourceView *srvs[] = {m_wPositionSRV,
 										m_NormalSRV,
 										m_DiffuseSRV,
-										temp};
+										m_lightBufferSRV};
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0};
 
 	// Set texture sampler.
@@ -298,51 +257,28 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], 0); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	//Set constant data
 	m_ConstantBuffer->setBuffer(0);
-	//for(unsigned int i = 0; i < m_Lights.size();i++)
-	//{
-		//Send stuff
-		//updateLightBuffer(m_Lights.at(i));		
-		//m_LightBuffer->setBuffer(1);
 		
-		//set shader
-		m_LightShader->setShader();
+	//set shader
+	m_LightShader->setShader();
 		
-		m_DeviceContext->Draw(6, 0);
-		//unset resources
-		//m_LightBuffer->unsetBuffer(1);		
-		m_LightShader->unSetShader();
-	//}
+	m_DeviceContext->Draw(6, 0);
+
+	//unset resources	
+	m_LightShader->unSetShader();
+
 	m_ConstantBuffer->unsetBuffer(0);
+	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_LightShader->setBlendState(0);
 
 	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 }
 
-void DeferredRenderer::renderFinal()
+void DeferredRenderer::addRenderable(Renderable p_renderable)
 {
-
-}
-
-void DeferredRenderer::renderForward()
-{
-
-}
-
-void DeferredRenderer::addRenderable(Renderable p_renderable, bool p_Transparent)
-{
-	std::vector<Renderable>* temp;
-	if(p_Transparent)
-	{
-		temp = &m_TransparentObjects;
-	}
-	else
-	{
-		temp = &m_Objects;
-	}
-	temp->push_back(p_renderable);
-	temp = nullptr;
+	m_Objects.push_back(p_renderable);
 }
 
 void DeferredRenderer::addLight(Light p_Light)
@@ -369,15 +305,15 @@ void DeferredRenderer::updateConstantBuffer(int nrLights)
 	cb.campos = *m_CameraPosition;
 	cb.nrLights = nrLights;
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
+	
+}
+
+void DeferredRenderer::updateLightBuffer()
+{
 	m_DeviceContext->UpdateSubresource(m_AllLightBuffer->getBufferPointer(), NULL,NULL, m_Lights.data(),NULL,NULL);
 }
 
-void DeferredRenderer::updateLightBuffer(Light &p_Light)
-{
-	m_DeviceContext->UpdateSubresource(m_LightBuffer->getBufferPointer(), NULL,NULL, &p_Light,NULL,NULL);
-}
-
-HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc, unsigned int p_screenWidth, unsigned int p_screenHeight )
+HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 {
 	// Create the render target texture
 	HRESULT result = S_FALSE;
@@ -427,20 +363,13 @@ HRESULT DeferredRenderer::createShaderResourceViews( ID3D11DepthStencilView * p_
 	HRESULT result = E_FAIL;
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC dssrvdesc;
-	dssrvdesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	dssrvdesc.Format = dssrvdesc.Format = desc.Format;
 	dssrvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	dssrvdesc.Texture2D.MipLevels = 1;
 	dssrvdesc.Texture2D.MostDetailedMip = 0;
 
-	// Make the depth stencil texture from the depth stencil view.
 	ID3D11Resource* tt;
-	p_DepthStencilView->GetResource(&tt);
-	result = m_Device->CreateShaderResourceView(tt,&dssrvdesc, &m_DepthStencilResourceView);
-	tt = nullptr;
-	if(FAILED(result))
-		return result;
 
-	dssrvdesc.Format = desc.Format;
 	// Make the diffuse texture from the render target.	
 	m_RenderTargets[0]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_DiffuseSRV);
@@ -474,16 +403,6 @@ HRESULT DeferredRenderer::createShaderResourceViews( ID3D11DepthStencilView * p_
 
 void DeferredRenderer::createConstantBuffer(int nrLights)
 {
-	// Create constant buffer for the lights
-	BufferDescription sbdesc;
-	sbdesc.initData = nullptr;
-	sbdesc.numOfElements = 1;
-	sbdesc.sizeOfElement = sizeof(Light);
-	sbdesc.type = CONSTANT_BUFFER_ALL;
-	sbdesc.usage = BUFFER_DEFAULT;
-	m_LightBuffer = new Buffer();
-	m_LightBuffer->initialize(m_Device, m_DeviceContext, sbdesc);
-
 	cBuffer cb;
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
@@ -503,26 +422,56 @@ void DeferredRenderer::createConstantBuffer(int nrLights)
 void DeferredRenderer::clearRenderTargets()
 {
 	float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	for(unsigned int i = 0; i < m_numRenderTargets; i++)
+	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[0], color);
+
+	color[0] = color[1] = color[2] = 0.5f;
+	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[1], color);
+
+	color[0] = color[1] = color[2] = 1.0f;
+	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[2], color);
+
+	color[0] = color[1] = color[2] = 0.0f;
+	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[3], color);
+}
+void DeferredRenderer::createSamplerState()
+{
+	//Create texture sampler
+	D3D11_SAMPLER_DESC sd;
+	ZeroMemory(&sd, sizeof(sd));
+	sd.Filter			= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.ComparisonFunc   = D3D11_COMPARISON_NEVER;
+	sd.MinLOD			= 0;
+	sd.MaxLOD			= D3D11_FLOAT32_MAX;
+
+	m_Device->CreateSamplerState( &sd, &m_Sampler );
+}
+
+void DeferredRenderer::createBlendStates()
+{
+	D3D11_BLEND_DESC bd;
+	bd.AlphaToCoverageEnable = false;
+	bd.IndependentBlendEnable = false;
+	bd.RenderTarget[0].BlendEnable = true;
+	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	bd.RenderTarget[0].DestBlend =  D3D11_BLEND_ONE;
+	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	m_Device->CreateBlendState(&bd, &m_BlendState);
+
+	for(int i = 0; i < 4; i++)
 	{
-		if(i == 1)
-		{
-			color[0] = 0.5f;
-			color[1] = 0.5f;
-			color[2] = 0.5f;
-		}
-		else if (i == 2)
-		{
-			color[0] = 1.0f;
-			color[1] = 1.0f;
-			color[2] = 1.0f;
-		}
-		else
-		{
-			color[0] = 0.0f;
-			color[1] = 0.0f;
-			color[2] = 0.0f;
-		}
-		m_DeviceContext->ClearRenderTargetView(m_RenderTargets[i], color);
+		bd.RenderTarget[i].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		bd.RenderTarget[i].DestBlend =  D3D11_BLEND_INV_SRC_ALPHA;
+		bd.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
+		bd.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ZERO;
+		bd.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO;
+		bd.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	}
+	m_Device->CreateBlendState(&bd, &m_BlendState2);
 }

@@ -48,7 +48,6 @@ struct cBuffer
 class DeferredRenderer
 {
 private:
-	std::vector<Renderable>		m_TransparentObjects;
 	std::vector<Renderable>		m_Objects;
 	std::vector<Light>			m_Lights;
 
@@ -59,30 +58,31 @@ private:
 	static const unsigned int	m_numRenderTargets = 4;
 	ID3D11RenderTargetView		*m_RenderTargets[m_numRenderTargets];
 
-	ID3D11ShaderResourceView	*m_DepthStencilResourceView; // Currently not used. Will fix later.
 	ID3D11ShaderResourceView	*m_DiffuseSRV;
 	ID3D11ShaderResourceView	*m_NormalSRV; // Normal.xy and specular data.
 	ID3D11ShaderResourceView	*m_LightSRV;
 	ID3D11ShaderResourceView	*m_wPositionSRV;
+	ID3D11ShaderResourceView	*m_lightBufferSRV;
 	
 	ID3D11SamplerState			*m_Sampler;
 	ID3D11BlendState			*m_BlendState;
 	ID3D11BlendState			*m_BlendState2;
-	ID3D11RasterizerState		*m_RasterState;
 	Shader						*m_LightShader;
-	Buffer						*m_LightBuffer;
 	Buffer						*m_ConstantBuffer;
-	Buffer						*m_AllLightBuffer; //TEST
+	Buffer						*m_AllLightBuffer;
 
 	DirectX::XMFLOAT3			*m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
 	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
+
+	//TEMP--------------------------------------------------
 	float						m_speed;
 	int							xx,yy,zz;
 
 	TextureLoader				*m_TextureLoader; // TEST
 	ID3D11ShaderResourceView	*m_Specular, *m_Diffuse, *m_NormalMap;
+	//TEMP---------------------------------------------------
 
 public:
 	DeferredRenderer(void);
@@ -93,29 +93,31 @@ public:
 					unsigned int p_screenWidth, unsigned int p_screenHeight,
 					DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix, DirectX::XMFLOAT4X4 *p_ProjectionMatrix);
 
+	
+
 	void shutdown();
 
 	void renderDeferred();
 	
-	void addRenderable(Renderable p_Renderable, bool p_Transparent);
+	void addRenderable(Renderable p_Renderable);
 	void addLight(Light p_light);
 
-	ID3D11ShaderResourceView* getRT(int i);
+	ID3D11ShaderResourceView* getRT(int i); //DEBUG
 private:
 	void renderGeometry();
 
 	void clearRenderTargets( unsigned int nrRT );
 
 	void renderLighting();
-	void renderFinal();
-	void renderForward();
 
 	void updateConstantBuffer(int nrLights);
-	void updateLightBuffer(Light &p_Light);
+	void updateLightBuffer();
 
-	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc, unsigned int p_screenWidth, unsigned int p_screenHeight );
+	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
 	HRESULT createShaderResourceViews( ID3D11DepthStencilView * p_DepthStencilView, D3D11_TEXTURE2D_DESC &desc );
 	void createConstantBuffer(int nrLights);
 	void clearRenderTargets();
+	void createSamplerState();
+	void createBlendStates();
 };
 
