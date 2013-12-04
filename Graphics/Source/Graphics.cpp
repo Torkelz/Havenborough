@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include "ModelLoader.h"
 #include <iostream>
 
 Graphics::Graphics(void)
@@ -204,13 +205,16 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
+bool Graphics::createModel(const char *p_ModelId, const char *p_FilePath)
 {
 	Buffer *buffer = nullptr;
 	Buffer::Description bufferDescription;
-	
+	ModelLoader loader;
 
-	buffer = createBuffer(bufferDescription);
+	if(!loader.loadFile(p_FilePath))
+		return false;
+
+	//buffer = createBuffer(bufferDescription);
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
@@ -383,16 +387,19 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 	m_ShaderLinkList.push_back(make_pair(p_ShaderId, p_ModelId));
 }
 
-void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
+bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
-	for(unsigned int i = 0; i < m_TextureList.size(); i++)
+	for(auto &t : m_TextureList)
 	{
-		if(!std::strcmp(m_TextureList.at(i).first.c_str(), p_TextureId))
+		if(std::strcmp(t.first.c_str(), p_TextureId) == 0)
 		{
-			m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
-			break;
+			//Model får texturen här.
+			return false;
 		}
 	}
+	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
+	//Model får texturen här;
+	return true;
 }
 
 void Graphics::renderModel(char *p_ModelId)

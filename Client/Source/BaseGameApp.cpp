@@ -1,5 +1,4 @@
 #include "BaseGameApp.h"
-
 #include "Input\InputTranslator.h"
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
@@ -15,9 +14,7 @@ void BaseGameApp::init(std::string p_ProjectDirectory)
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
-
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);

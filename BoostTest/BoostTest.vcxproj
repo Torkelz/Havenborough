@@ -111,6 +111,7 @@
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
+    <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />

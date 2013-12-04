@@ -35,6 +35,7 @@
     <ClCompile Include="..\Physics\Source\Body.cpp" />
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
+    <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Client\Source\ResourceManager.cpp" />
     <ClCompile Include="..\Client\Source\ResourceTranslator.cpp" />
   </ItemGroup>

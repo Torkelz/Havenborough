@@ -24,7 +24,7 @@ public:
 	ResourceManager(IGraphics* p_Graphics, string p_ProjectDirectory);
 	~ResourceManager();
 
-	void loadResource(string p_ResourceType, string p_ResourceName);
+	bool loadResource(string p_ResourceType, string p_ResourceName);
 private:
 	void addResourceToList(string p_ResourceType, string p_ResourceName, unsigned int p_ID, string p_FilePath);
 	ResourceIndex getNextIndex();

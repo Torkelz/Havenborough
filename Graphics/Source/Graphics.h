@@ -66,7 +66,7 @@ public:
 	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen);
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen);
 	
-	void createModel(const char *p_ModelId, const char *p_Filename);
+	bool createModel(const char *p_ModelId, const char *p_FilePath);
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
@@ -74,7 +74,7 @@ public:
 		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements);
 	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId);
 	
-	void createTexture(const char *p_TextureId, const char *p_filename);
+	bool createTexture(const char *p_TextureId, const char *p_filename);
 	
 	void addStaticLight(void);
 	void removeStaticLight(void);

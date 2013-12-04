@@ -14,19 +14,28 @@ ResourceManager::~ResourceManager()
 
 }
 
-void ResourceManager::loadResource(std::string p_ResourceType, std::string p_ResourceName)
+bool ResourceManager::loadResource(std::string p_ResourceType, std::string p_ResourceName)
 {
 	string tempFilePath, temp;
 	int tempID;
 
 	temp = m_ResourceTranslator->translate(p_ResourceType, p_ResourceName);
-	// check tempfilepath if filepath is valid.
+	// check temp if filepath is valid.
+	if(temp != "")
+		return false;
+	if(p_ResourceType == "model")
+	{
+		tempFilePath = m_ProjectDirectory + " \\ " + temp;
 
-	tempFilePath = m_ProjectDirectory + " \\ " + temp;
+		string tempID = "model" + p_ResourceName;
 
-	m_Graphics->createModel(p_ResourceName.c_str(), tempFilePath.c_str());
-
+		if(!m_Graphics->createModel(tempID.c_str(), tempFilePath.c_str()))
+			return false;
+		
+		
+	}
 	addResourceToList(p_ResourceType, p_ResourceName, tempID, tempFilePath);
+	return true;
 }
 
 void ResourceManager::addResourceToList(string p_ResourceType, string p_ResourceName, unsigned int p_ID, string p_FilePath)
