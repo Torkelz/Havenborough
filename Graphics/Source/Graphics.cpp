@@ -14,7 +14,6 @@ Graphics::Graphics(void)
 	m_WrapperFactory = nullptr;
 }
 
-
 Graphics::~Graphics(void)
 {
 }
@@ -33,11 +32,11 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	unsigned int numModes;
 	unsigned int stringLength;
-
+	
 	DXGI_MODE_DESC *displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
-
+	
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if(FAILED(result))
 	{
@@ -93,7 +92,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	{
 		throw GraphicsException("Error when getting the graphics card description", __LINE__,__FILE__);
 	}
-
+	
 	m_GraphicsMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
 	error = wcstombs_s(&stringLength, m_GraphicsCard, 128, adapterDesc.Description, 128);
@@ -388,7 +387,7 @@ void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
 }
 
-void Graphics::renderModel(char *p_ModelId)
+void Graphics::renderModel(const char *p_ModelId)
 {
 
 }

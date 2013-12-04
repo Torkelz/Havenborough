@@ -153,7 +153,7 @@ public:
 	* Renders a model specified with an ID.
 	* @param p_ModelId the ID of the model to be rendered
 	*/
-	virtual void renderModel(char *p_ModelId) = 0;
+	virtual void renderModel(const char *p_ModelId) = 0;
 
 	/**
 	* 

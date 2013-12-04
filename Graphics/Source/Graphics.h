@@ -80,7 +80,7 @@ public:
 	void removeStaticLight(void);
 	void useFrameLight(void);
 	
-	void renderModel(char *p_ModelId);
+	void renderModel(const char *p_ModelId);
 	void renderText(void);
 	void renderQuad(void);
 	void drawFrame(void);
@@ -89,11 +89,9 @@ private:
 	void shutdown(void);
 
 	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
-	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth,
-		int p_ScreenHeight, bool p_Fullscreen);
+	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen);
 	HRESULT createRenderTargetView(void);
-	HRESULT createDepthStencilBuffer(int p_ScreenWidth,
-		int p_ScreenHeight);
+	HRESULT createDepthStencilBuffer(int p_ScreenWidth,	int p_ScreenHeight);
 	HRESULT createDepthStencilState(void);
 	HRESULT createDepthStencilView(void);
 	HRESULT createRasterizerState(void);
