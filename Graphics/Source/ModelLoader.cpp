@@ -13,6 +13,28 @@ ModelLoader::~ModelLoader()
 	m_TextureCoord.clear();	
 }
 
+void ModelLoader::clear()
+{
+	m_Index.clear();
+	m_Index.shrink_to_fit();
+	m_Normals.clear();
+	m_Normals.shrink_to_fit();
+	m_Tangents.clear();
+	m_Tangents.shrink_to_fit();
+	m_TextureCoord.clear();
+	m_TextureCoord.shrink_to_fit();
+	m_Vertex.clear();
+	m_Vertex.shrink_to_fit();
+	m_IndexPerMaterial.clear();
+	m_IndexPerMaterial.shrink_to_fit();
+	m_Material.clear();
+	m_Material.shrink_to_fit();
+	m_NumberOfMaterials = 0;
+	m_MeshName = "";
+	m_NumberOfVertices = 0;
+	m_NumberOfTriangles = 0;
+}
+
 bool ModelLoader::loadFile(std::string p_Filename)
 {
 	
@@ -22,7 +44,7 @@ bool ModelLoader::loadFile(std::string p_Filename)
 	int tempInt;
 	Material tempMaterial;
 	Face tempFace;
-	DirectX::XMFLOAT3 tempFlaot3;
+	DirectX::XMFLOAT3 tempFloat3;
 	std::stringstream stringstream;
 
 	if(!input)
@@ -36,7 +58,7 @@ bool ModelLoader::loadFile(std::string p_Filename)
 		key = "";
 		stringstream = std::stringstream(line);
 		stringstream >> key >> std::ws;
-		if(strcmp(key.c_str(), "*m3d-File-Header") == 0)
+		if(strcmp(key.c_str(), "*Header") == 0)
 		{
 			std::getline(input, line);
 			stringstream = std::stringstream(line);
@@ -51,7 +73,7 @@ bool ModelLoader::loadFile(std::string p_Filename)
 			stringstream = std::stringstream(line);
 			stringstream >> key >> m_NumberOfTriangles;
 		}
-		else if(strcmp(key.c_str(), "*Materials") == 0)
+		else if(key  == "*Materials")
 		{
 			std::getline(input, line);
 			stringstream = std::stringstream(line);
@@ -77,56 +99,57 @@ bool ModelLoader::loadFile(std::string p_Filename)
 				m_Material.push_back(tempMaterial);
 			}
 		}
-		else if(strcmp(key.c_str(), "*Vertices") == 0)
+		else if(key == "*Vertices")
 		{
 			for(int i = 0; i < m_NumberOfVertices; i++)
 			{	
 				std::getline(input, line);
 				stringstream = std::stringstream(line);
-				stringstream >> key >> tempFlaot3.x >> tempFlaot3.y >> tempFlaot3.z;
-				m_Vertex.push_back(tempFlaot3);
+				stringstream >> key >> tempFloat3.x >> tempFloat3.y >> tempFloat3.z;
+				m_Vertex.push_back(tempFloat3);
 			}
 		}
-		else if(strcmp(key.c_str(), "*Tangets") == 0)
+		else if(key == "*Tangets")
 		{
 			while(std::getline(input, line))
 			{
 				stringstream = std::stringstream(line);
-				if(strcmp(line.c_str(),""))
+				if(line == "")
 					break;
-				stringstream >> key >> tempFlaot3.x >> tempFlaot3.y >> tempFlaot3.z;
-				m_Tangents.push_back(tempFlaot3);
+				stringstream >> key >> tempFloat3.x >> tempFloat3.y >> tempFloat3.z;
+				m_Tangents.push_back(tempFloat3);
 			}
 		}
-		else if(strcmp(key.c_str(), "*Normals") == 0)
+		else if(key == "*Normals")
 		{
 			while(std::getline(input, line))
 			{
 				stringstream = std::stringstream(line);
-				if(strcmp(line.c_str(),""))
+				if(line == "")
 					break;
-				stringstream >> key >> tempFlaot3.x >> tempFlaot3.y >> tempFlaot3.z;
-				m_Normals.push_back(tempFlaot3);
+				stringstream >> key >> tempFloat3.x >> tempFloat3.y >> tempFloat3.z;
+				m_Normals.push_back(tempFloat3);
 			}
 		}
-		else if(strcmp(key.c_str(), "*UVCOORDS") == 0)
+		else if(key == "*UV")
 		{
 			while(std::getline(input, line))
 			{
 				stringstream = std::stringstream(line);
-				if(strcmp(line.c_str(),""))
+				if(line == "")
 					break;
-				stringstream >> key >> tempFlaot3.x >> tempFlaot3.y;
-				m_TextureCoord.push_back(DirectX::XMFLOAT2(tempFlaot3.x,tempFlaot3.y));
+				stringstream >> key >> tempFloat3.x >> tempFloat3.y;
+				m_TextureCoord.push_back(DirectX::XMFLOAT2(tempFloat3.x, 1 - tempFloat3.y));
 			}
 		}
-		else if(strcmp(key.c_str(), "*FACES") == 0)
+		else if(key == "*FACES")
 		{
+			m_Index.clear();
 			while(std::getline(input,line))
 			{
 				tempFace = Face();
 				stringstream = std::stringstream(line);
-				if(strcmp(line.c_str(),""))
+				if(line == "")
 					break;
 				stringstream >> key >> key >> filler >> tempFace.m_MaterialID;
 				std::getline(input, line);
@@ -151,11 +174,24 @@ bool ModelLoader::loadFile(std::string p_Filename)
 	m_Index.shrink_to_fit();
 	m_Normals.clear();
 	m_Normals.shrink_to_fit();
-	m_Vertex.clear();
-	m_Vertex.shrink_to_fit();
 	m_Tangents.clear();
 	m_Tangents.shrink_to_fit();
 	m_TextureCoord.clear();
 	m_TextureCoord.shrink_to_fit();
 	return true;
+}
+
+std::vector<DirectX::XMFLOAT3> ModelLoader::getVertices()
+{
+	return m_Vertex;
+}
+
+std::vector<std::vector<ModelLoader::Face>> ModelLoader::getIndices()
+{
+	return m_IndexPerMaterial;
+}
+
+std::vector<ModelLoader::Material> ModelLoader::getMaterial()
+{
+	return m_Material;
 }

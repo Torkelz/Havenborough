@@ -1,3 +1,5 @@
+#pragma once
+
 #include <fstream>
 #include <sstream>
 #include <DirectXMath.h>
@@ -6,7 +8,7 @@
 
 class ModelLoader
 {
-private:
+public:
 	struct Face
 	{
 		std::string m_MaterialID;
@@ -23,7 +25,8 @@ private:
 		std::string m_NormalMap;
 		std::string m_SpecularMap;
 	};
-	
+
+private:
 	int m_NumberOfMaterials;
 	std::string m_MeshName;
 	int m_NumberOfVertices;
@@ -38,5 +41,9 @@ private:
 public:
 	ModelLoader();
 	~ModelLoader();
+	void clear();
 	bool loadFile(std::string p_Filename);
+	std::vector<DirectX::XMFLOAT3> getVertices();
+	std::vector<std::vector<Face>> getIndices();
+	std::vector<Material> getMaterial();
 };

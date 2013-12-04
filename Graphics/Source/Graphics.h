@@ -16,6 +16,17 @@ class Graphics :
 	public IGraphics
 {
 private:
+	struct Model
+    {
+            ID3D11Buffer *vertexBuffer;
+            ID3D11Buffer *indexBuffer;
+            //Shader *shader;
+            ID3D11ShaderResourceView *diffuseTexture;
+            ID3D11ShaderResourceView *normalTexture;
+            ID3D11ShaderResourceView *specularTexture;
+            unsigned int numOfMaterials;
+    };
+	Model m_Model;
 	unsigned int m_Numerator;
 	unsigned int m_Denominator;
 	TextureLoader m_TextureLoad;
