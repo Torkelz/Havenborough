@@ -95,11 +95,24 @@ void BaseGameApp::run()
 	//Temp -------------------------------------------------
 
 	int boxId = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(boxId, 7,7,7);
-	m_Graphics->setModelPosition(boxId, 5,0,0);
-	m_Graphics->setModelRotation(boxId, -1,1,0.5f);
+	m_Graphics->setModelScale(boxId, 7.f, 7.f, 7.f);
+	m_Graphics->setModelPosition(boxId, 0.f, 5.f, 0.f);
+
+	int ground = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
+
+	float position[] = {0.f, 1.8f, 20.f};
+	float viewRot[] = {0.f, 0.f};
+
+	float speed = 1.f;
+	float sensitivity = 0.01f;
+
 	float yaw = 0.f;
 	float yawSpeed = 0.1f;
+	float pitch = 0.f;
+	float pitchSpeed = 0.05f;
+	float roll = 0.f;
+	float rollSpeed = 0.03f;
 
 	while (!m_ShouldQuit)
 	{
@@ -114,8 +127,21 @@ void BaseGameApp::run()
 			}
 		}
 
+		const InputState& state = m_InputQueue.getCurrentState();
+
+		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
+		float right = state.getValue("moveRight") - state.getValue("moveLeft");
+
+		position[2] -= forward * speed * dt;
+		position[0] -= right * speed * dt;
+
+		m_Graphics->updateCamera(position[0], position[1], position[2], viewRot[0], viewRot[1]);
+
 		yaw += yawSpeed * dt;
-		m_Graphics->setModelRotation(boxId, yaw,1,0.5f);
+		pitch += pitchSpeed * dt;
+		roll += rollSpeed * dt;
+
+		m_Graphics->setModelRotation(boxId, yaw, pitch, roll);
 
 		__int64 currTimeStamp = 0;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
@@ -125,6 +151,7 @@ void BaseGameApp::run()
 		m_Window.pollMessages();
 
 		m_Graphics->renderModel(boxId);
+		m_Graphics->renderModel(ground);
 		//Temp ------------------------------------------------
 		//m_Graphics->renderModel(m_Buffer, m_CBuffer, m_Shader, &tempMatrix, false);
 		/*for (int i = 0; i < 100; i++)
@@ -161,6 +188,14 @@ void BaseGameApp::run()
 				if(currView >= 4)
 					currView = 0;
 				printf("Changeview++\n", in.m_Action.c_str(), in.m_Value);
+			}
+			else if (in.m_Action == "mouseMoveHori")
+			{
+				viewRot[0] += in.m_Value * sensitivity;
+			}
+			else if (in.m_Action == "mouseMoveVert")
+			{
+				viewRot[1] += in.m_Value * sensitivity;
 			}
 			else
 			{

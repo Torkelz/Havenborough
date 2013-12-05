@@ -171,10 +171,61 @@ public:
 	*/
 	virtual void drawFrame(int i) = 0;
 
+	/**
+	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
+	 *
+	 * @param p_ModelId the resource identifier for the model to draw the instance with.
+	 * @return a unique id used to reference the instance with in later calls.
+	 */
 	virtual int createModelInstance(const char *p_ModelId) = 0;
+
+	/**
+	 * Erase an existing model instance.
+	 *
+	 * @param p_Instance an identifier to a model instance.
+	 */
+	virtual void eraseModelInstance(int p_Instance) = 0;
+
+	/**
+	 * Set the position of an model instance in absolute world coordinates.
+	 *
+	 * @param p_Instance an identifier to a model instance.
+	 * @param p_X position in X direction.
+	 * @param p_Y position in Y direction.
+	 * @param p_Z position in Z direction.
+	 */
 	virtual void setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z) = 0;
+
+	/**
+	 * Set the rotation of an model instance in radians.
+	 *
+	 * @param p_Instance an identifier to a model instance.
+	 * @param p_Yaw rotation around the Y axis, left-handed.
+	 * @param p_Pitch rotation around the X axis, left-handed.
+	 * @param p_Roll rotation around the Z axis, left-handed.
+	 */
 	virtual void setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll) = 0;
+
+	/**
+	 * Set the scale of an model instance.
+	 *
+	 * @param p_Instance an identifier to a model instance.
+	 * @param p_X scale in X direction.
+	 * @param p_Y scale in Y direction.
+	 * @param p_Z scale in Z direction.
+	 */
 	virtual void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) = 0;
+
+	/**
+	 * Update the position and viewing direction of the camera.
+	 *
+	 * @param p_PosX camera position X in absolute world coordinates.
+	 * @param p_PosY camera position Y in absolute world coordinates.
+	 * @param p_PosZ camera position Z in absolute world coordinates.
+	 * @param p_Yaw the camera rotation around the up axis, positive to the right.
+	 * @param p_Pitch the camera pitch, positive up.
+	 */
+	virtual void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) = 0;
 
 private:
 

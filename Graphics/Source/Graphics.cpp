@@ -166,20 +166,20 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	//Setup camera matrices REMOVE LATER
 	DirectX::XMFLOAT4 eye4,lookat,up;
-	DirectX::XMFLOAT3 *eye;
+	DirectX::XMFLOAT3 eye;
 	eye4 = DirectX::XMFLOAT4(0,0,-20,1);
-	eye = new  DirectX::XMFLOAT3(eye4.x,eye4.y,eye4.z);
+	eye = DirectX::XMFLOAT3(eye4.x,eye4.y,eye4.z);
 	lookat = DirectX::XMFLOAT4(0,0,0,1);
 	up = DirectX::XMFLOAT4(0,1,0,0);
-	DirectX::XMFLOAT4X4 *view, *proj;
-	view = new DirectX::XMFLOAT4X4();
-	proj = new DirectX::XMFLOAT4X4();
-	DirectX::XMStoreFloat4x4(view,
+	DirectX::XMFLOAT4X4 view, proj;
+	view = DirectX::XMFLOAT4X4();
+	proj = DirectX::XMFLOAT4X4();
+	DirectX::XMStoreFloat4x4(&view,
 							DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
 								DirectX::XMLoadFloat4(&eye4),
 								DirectX::XMLoadFloat4(&lookat),
 								DirectX::XMLoadFloat4(&up))));
-	DirectX::XMStoreFloat4x4(proj,
+	DirectX::XMStoreFloat4x4(&proj,
 							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
 								0.25f*3.14f,
 								(float)p_ScreenWidth / (float)p_ScreenHeight,
@@ -613,6 +613,18 @@ int Graphics::createModelInstance(const char *p_ModelId)
 	return id;
 }
 
+void Graphics::eraseModelInstance(int p_Instance)
+{
+	for (unsigned int i = 0; i < m_ModelInstances.size(); i++)
+	{
+		if (m_ModelInstances.at(i).first == p_Instance)
+		{
+			m_ModelInstances.erase(m_ModelInstances.begin() + i);
+			return;
+		}
+	}
+}
+
 void Graphics::setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z)
 {
 	for (auto& inst : m_ModelInstances)
@@ -647,6 +659,33 @@ void Graphics::setModelScale(int p_Instance, float p_X, float p_Y, float p_Z)
 			break;
 		}
 	}
+}
+
+void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch)
+{
+	using DirectX::operator+;
+
+	DirectX::XMFLOAT4 eye(p_PosX, p_PosY, p_PosZ, 1.f);
+	DirectX::XMVECTOR pos = DirectX::XMLoadFloat4(&eye);
+
+	DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
+
+	static const DirectX::XMFLOAT4 up(0.f, 1.f, 0.f, 0.f);
+	DirectX::XMVECTOR upVec = DirectX::XMLoadFloat4(&up);
+
+	DirectX::XMVECTOR rotatedUp = DirectX::XMVector4Transform(upVec, rotation);
+
+	static const DirectX::XMFLOAT4 forward(0.f, 0.f, -1.f, 0.f);
+	DirectX::XMVECTOR forwardVec = DirectX::XMLoadFloat4(&forward);
+
+	DirectX::XMVECTOR lookAt = pos + DirectX::XMVector4Transform(forwardVec, rotation);
+
+	DirectX::XMFLOAT4X4 view;
+	DirectX::XMStoreFloat4x4(&view,
+							DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
+
+	m_DeferredRender->updateViewMatrix(view);
+	m_DeferredRender->updateCameraPosition(DirectX::XMFLOAT3(p_PosX, p_PosY, p_PosZ));
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)

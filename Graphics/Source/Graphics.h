@@ -130,9 +130,13 @@ public:
 	void drawFrame(int i) override;
 
 	int createModelInstance(const char *p_ModelId) override;
+	void eraseModelInstance(int p_Instance) override;
 	void setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z) override;
 	void setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll) override;
 	void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) override;
+
+	void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) override;
+
 private:
 	void shutdown(void);
 

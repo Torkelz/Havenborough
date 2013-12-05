@@ -21,10 +21,6 @@ DeferredRenderer::DeferredRenderer(void)
 	m_ConstantBuffer = nullptr;
 	m_AllLightBuffer = nullptr;
 
-	m_CameraPosition = nullptr;
-	m_ViewMatrix = nullptr;
-	m_ProjectionMatrix = nullptr;
-
 	m_speed = 1.0f;
 }
 
@@ -52,16 +48,13 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
-
-	m_CameraPosition = nullptr;
-	m_ViewMatrix = nullptr;
-	m_ProjectionMatrix = nullptr;
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 								  ID3D11DepthStencilView *p_DepthStencilView,
 								  unsigned int p_screenWidth, unsigned int p_screenHeight,
-								  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix, DirectX::XMFLOAT4X4 *p_ProjectionMatrix)
+								  const DirectX::XMFLOAT3& p_CameraPosition, const DirectX::XMFLOAT4X4& p_ViewMatrix,
+								  const DirectX::XMFLOAT4X4& p_ProjectionMatrix)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -307,12 +300,22 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 	}
 }
 
+void DeferredRenderer::updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat)
+{
+	m_ViewMatrix = p_ViewMat;
+}
+
+void DeferredRenderer::updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos)
+{
+	m_CameraPosition = p_CameraPos;
+}
+
 void DeferredRenderer::updateConstantBuffer(int nrLights)
 {
 	cBuffer cb;
-	cb.view = *m_ViewMatrix;
-	cb.proj = *m_ProjectionMatrix;
-	cb.campos = *m_CameraPosition;
+	cb.view = m_ViewMatrix;
+	cb.proj = m_ProjectionMatrix;
+	cb.campos = m_CameraPosition;
 	cb.nrLights = nrLights;
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
 }
@@ -413,9 +416,9 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 void DeferredRenderer::createConstantBuffer(int nrLights)
 {
 	cBuffer cb;
-	cb.view = *m_ViewMatrix;
-	cb.proj = *m_ProjectionMatrix;
-	cb.campos = *m_CameraPosition;
+	cb.view = m_ViewMatrix;
+	cb.proj = m_ProjectionMatrix;
+	cb.campos = m_CameraPosition;
 	cb.nrLights = nrLights;
 
 	Buffer::Description cbdesc;
@@ -481,12 +484,13 @@ void DeferredRenderer::createBlendStates()
 
 	for(int i = 0; i < 4; i++)
 	{
-		bd.RenderTarget[i].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		bd.RenderTarget[i].DestBlend =  D3D11_BLEND_INV_SRC_ALPHA;
+		bd.RenderTarget[i].SrcBlend = D3D11_BLEND_ONE;
+		bd.RenderTarget[i].DestBlend =  D3D11_BLEND_ZERO;
 		bd.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
-		bd.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ZERO;
+		bd.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ONE;
 		bd.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO;
 		bd.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	}
+
 	m_Device->CreateBlendState(&bd, &m_BlendState2);
 }

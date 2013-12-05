@@ -78,9 +78,9 @@ private:
 	Buffer						*m_ObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
 
-	DirectX::XMFLOAT3			*m_CameraPosition;
-	DirectX::XMFLOAT4X4			*m_ViewMatrix;
-	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
+	DirectX::XMFLOAT3			m_CameraPosition;
+	DirectX::XMFLOAT4X4			m_ViewMatrix;
+	DirectX::XMFLOAT4X4			m_ProjectionMatrix;
 
 
 	//TEMP--------------------------------------------------
@@ -102,15 +102,15 @@ public:
 	 * @ p_DepthStencilView, used for z-culling when rendering.
 	 * @ p_ScreenWidth, used to initialize render textures.
 	 * @ p_ScreenHeight, used to initialize render textures.
-	 * @ p_CameraPosition, pointer to the camera position. Used when rendering.
-	 * @ p_ViewMatrix, pointer to the view matrix. Used when rendering.
-	 * @ p_ProjectionMatrix, pointer to the projection matrix. Used when rendering.
+	 * @ p_CameraPosition, the camera position. Used when rendering.
+	 * @ p_ViewMatrix, the view matrix. Used when rendering.
+	 * @ p_ProjectionMatrix, the projection matrix. Used when rendering.
 	 */
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 		ID3D11DepthStencilView *p_DepthStencilView,
 		unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
-		DirectX::XMFLOAT4X4 *p_ProjectionMatrix);
+		const DirectX::XMFLOAT3& p_CameraPosition, const DirectX::XMFLOAT4X4& p_ViewMatrix,
+		const DirectX::XMFLOAT4X4& p_ProjectionMatrix);
 
 	/*
 	 * Call to render the graphics using deferred rendering.
@@ -137,6 +137,21 @@ public:
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
 
+	/**
+	 * Update the view matrix. Remember to also update the
+	 * camera position if it has changed.
+	 *
+	 * @param p_ViewMat the new view matrix.
+	 */
+	void updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat);
+
+	/**
+	 * Update the camera position. Remember to also update the
+	 * view matrix if it has changed.
+	 *
+	 * @param p_CameraPos the new camera position in absolute world coordinates.
+	 */
+	void updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos);
 	
 private:
 	void renderGeometry();

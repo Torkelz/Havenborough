@@ -93,6 +93,7 @@ float3 CalcLighting(	float3 normal,
 	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
 							 lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
+
 	return saturate(( diffuse + specular ) * attenuation);
 }
 
