@@ -209,8 +209,7 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
 	Buffer *buffer = nullptr;
 	Buffer::Description bufferDescription;
-	ModelLoader loader;
-	loader.loadFile(p_Filename);
+	
 
 	//buffer = createBuffer(bufferDescription);
 }
