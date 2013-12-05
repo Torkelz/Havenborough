@@ -46,10 +46,11 @@ bool ModelLoader::loadFile(std::string p_FilePath)
 	std::ifstream input(p_FilePath.c_str(),std::ifstream::in);
 	std::string line, key, filler;
 	int readMaterial = 0;
-	int tempInt;
+	int tempInt, tempInt2;
 	Material tempMaterial;
 	IndexDesc tempFace;
 	DirectX::XMFLOAT3 tempFloat3;
+	DirectX::XMFLOAT4 tempWeight, tempJoint;
 	std::stringstream stringstream;
 
 	if(!input)
@@ -179,6 +180,63 @@ bool ModelLoader::loadFile(std::string p_FilePath)
 				}
 				m_IndexPerMaterial.push_back(m_Indices);
 			}
+		}
+		else if(key == "*WEIGHTS")
+		{
+			while(std::getline(input, line))
+			{
+				stringstream = std::stringstream(line);
+				if(line == "")
+					break;
+				stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z >> tempWeight.w;
+				std::getline(input, line);
+				stringstream = std::stringstream(line);
+				stringstream >> filler >> tempJoint.x >> tempJoint.y >> tempJoint.z >> tempJoint.w;
+				m_WeightsList.push_back(std::make_pair(tempWeight, tempJoint));
+			}
+		}
+		else if(key == "*Joint")
+		{
+			std::getline(input, line);
+			while(std::getline(input, line))
+			{
+				stringstream = std::stringstream(line);
+				if(line == "")
+					break;
+				stringstream >> filler >> tempInt >> filler >> tempInt2;
+				m_JointHierarchy.push_back(std::make_pair(tempInt, tempInt2));
+			}
+		}
+		else if(key == "*JOINT")
+		{
+			DirectX::XMFLOAT4X4 tempMat4x4;
+			while(std::getline(input, line))
+			{
+				stringstream = std::stringstream(line);
+				if(line == "")
+					break;
+				stringstream >> filler 
+					>> tempMat4x4._11 >> tempMat4x4._12 >> tempMat4x4._13 >> tempMat4x4._14 
+					>> tempMat4x4._21 >> tempMat4x4._22	>> tempMat4x4._23 >> tempMat4x4._24
+					>> tempMat4x4._31 >> tempMat4x4._32 >> tempMat4x4._33 >> tempMat4x4._34
+					>> tempMat4x4._41 >> tempMat4x4._42 >> tempMat4x4._43 >> tempMat4x4._44;
+				m_JointOffsetMatrix.push_back(tempMat4x4);
+			}
+		}
+		else if(key == "*ANIMATION")
+		{
+			int joint = 0;
+			std::getline(input, line);
+			stringstream = std::stringstream(line);
+			stringstream >> filler >> m_Start;
+			std::getline(input, line);
+			stringstream = std::stringstream(line);
+			stringstream >> filler >> m_End;
+			std::getline(input, line);
+			stringstream = std::stringstream(line);
+			stringstream >> filler >> m_NumFrames;
+			while()
+			
 		}
 	}
 	return true;

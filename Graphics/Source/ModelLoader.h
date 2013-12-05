@@ -26,11 +26,20 @@ public:
 		std::string m_SpecularMap;
 	};
 
+	struct KeyFrame
+	{
+		DirectX::XMFLOAT3 m_Trans;
+		DirectX::XMFLOAT3 m_Rot;
+		DirectX::XMFLOAT3 m_Scale;
+	};
+
 private:
 	int m_NumberOfMaterials;
 	std::string m_MeshName;
 	int m_NumberOfVertices;
 	int m_NumberOfTriangles;
+	float m_Start;
+	int m_End,m_NumFrames;
 	std::vector<DirectX::XMFLOAT3> m_Vertices;
 	std::vector<DirectX::XMFLOAT3> m_Tangents;
 	std::vector<DirectX::XMFLOAT3> m_Normals;
@@ -38,6 +47,10 @@ private:
 	std::vector<IndexDesc> m_Indices;
 	std::vector<Material> m_Material;
 	std::vector<std::vector<IndexDesc>> m_IndexPerMaterial;
+	std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMFLOAT4>> m_WeightsList;
+	std::vector<std::pair<int, int>> m_JointHierarchy;
+	std::vector<DirectX::XMFLOAT4X4> m_JointOffsetMatrix;
+	std::vector<std::vector<KeyFrame>> m_JointAnimation;
 public:
 	
 	/**
