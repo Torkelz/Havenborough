@@ -1,12 +1,37 @@
 #include "ResourceManager.h"
+#if defined(_DEBUG)
+#define DEBUG true
+#else
+#define DEBUG false
+#endif
 
-ResourceManager::ResourceManager(IGraphics* p_Graphics, string p_ProjectDirectory)
+//loader.reg("model", std::bind(m_Graphic->createModel))
+
+void Resource::setType(string p_Type)
 {
-	m_NextIndex = 0;
+	m_Type = p_Type;
+}
+string Resource::getType()
+{
+	return m_Type;
+}
 
-	m_Graphics = p_Graphics;
+ResourceManager::ResourceManager(string p_ProjectDirectory)
+{
 	m_ProjectDirectory = p_ProjectDirectory;
+
+	if(DEBUG)
+	{
+		m_ProjectDirectory.erase(m_ProjectDirectory.end()-16, m_ProjectDirectory.end());
+		m_ProjectDirectory = m_ProjectDirectory + "Bin\\";
+	}
+	else
+	{
+		m_ProjectDirectory.erase(m_ProjectDirectory.end()-10, m_ProjectDirectory.end());
+	}
+
 	m_ResourceTranslator = new ResourceTranslator();
+	NumberOfResources = 0;
 }
 
 ResourceManager::~ResourceManager()
@@ -14,43 +39,77 @@ ResourceManager::~ResourceManager()
 
 }
 
-bool ResourceManager::loadResource(std::string p_ResourceType, std::string p_ResourceName)
+bool ResourceManager::registerFunction(string p_Type, std::function<bool(const char*, const char*)> p_CreateFunc, std::function<bool(const char*)> p_ReleaseFunc)
 {
-	string tempFilePath, temp;
-	int tempID;
-
-	temp = m_ResourceTranslator->translate(p_ResourceType, p_ResourceName);
-	// check temp if filepath is valid.
-	if(temp != "")
-		return false;
-	if(p_ResourceType == "model")
+	for(auto &rl : m_ResourceList)
 	{
-		tempFilePath = m_ProjectDirectory + " \\ " + temp;
-
-		string tempID = "model" + p_ResourceName;
-
-		if(!m_Graphics->createModel(tempID.c_str(), tempFilePath.c_str()))
+		if(rl.getType() == p_Type)
+		{
 			return false;
-		
-		
+		}
 	}
-	addResourceToList(p_ResourceType, p_ResourceName, tempID, tempFilePath);
+
+	Resource temp;
+	temp.setType(p_Type);
+	temp.m_Create = p_CreateFunc;
+	temp.m_Release = p_ReleaseFunc;
+	m_ResourceList.push_back(temp);
 	return true;
 }
 
-void ResourceManager::addResourceToList(string p_ResourceType, string p_ResourceName, unsigned int p_ID, string p_FilePath)
+
+int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 {
-	std::vector<string> tempResource;
+	string tempFilePath, temp;
+	int id = -1;
+	for(auto &rl : m_ResourceList)
+	{
+		if(rl.getType() == p_ResourceType)
+		{
 
-	tempResource.push_back(p_ResourceType);
-	tempResource.push_back(p_ResourceName);
-	tempResource.push_back(std::to_string(p_ID));
-	tempResource.push_back(p_FilePath);
+			for(auto &t : rl.m_LoadedResources)
+			{
+				if(p_ResourceName == t.second)
+				{
+					return t.first;
+				}
+			}
 
-	m_Resources.push_back(tempResource);
+			tempFilePath = m_ResourceTranslator->translate(p_ResourceType, p_ResourceName);
+			tempFilePath = m_ProjectDirectory + tempFilePath;
+
+			if(rl.m_Create(p_ResourceName.c_str(), tempFilePath.c_str()))
+			{
+				std::pair<int, string> newRes;
+				newRes.second = p_ResourceName;
+				newRes.first = NumberOfResources++;
+				rl.m_LoadedResources.push_back(newRes);
+			}
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	return id;
 }
 
-ResourceIndex ResourceManager::getNextIndex()
+void ResourceManager::releaseResource(int p_ID)
 {
-	return m_NextIndex++;
+	int tempID = -1;
+	for(auto &rl : m_ResourceList)
+	{
+		for(auto &t : rl.m_LoadedResources)
+		{
+			if(t.first == p_ID)
+			{
+
+			}
+		}
+
+		for(auto &t : rl.m_LoadedResources)
+		{
+			
+		}
+	}
 }

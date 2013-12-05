@@ -85,8 +85,9 @@ public:
 	* @param p_ModelId the ID of the model
 	* @param p_Filename the filename of the model
 	*/
-	virtual bool createModel(const char *p_ModelId, const char *p_Filename) = 0;
+	virtual bool createModel(const char* p_ResourceName, const char *p_FilePath) = 0;
 
+	virtual bool releaseModel(const char* p_ResourceName) = 0;
 	/**
 	* Automatically creates a shader based on layout in the shader file and stores in a vector connected with and ID.
 	* @param p_ShaderId the ID of the shader
@@ -132,7 +133,7 @@ public:
 	* @param p_TextureId the ID of the texture
 	* @param p_Filename the filename of the texture
 	*/
-	virtual bool createTexture(const char *p_TextureId, const char *p_FilePath) = 0;
+	virtual int createTexture(const char *p_FilePath) = 0;
 	
 	/**
 	* 

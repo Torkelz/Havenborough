@@ -158,6 +158,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
+	m_ModelSize = 0;
+
 	return true;
 }
 
@@ -205,7 +207,7 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-bool Graphics::createModel(const char *p_ModelId, const char *p_FilePath)
+bool Graphics::createModel(const char* p_ResourceName, const char *p_FilePath)
 {
 	Buffer *buffer = nullptr;
 	Buffer::Description bufferDescription;
@@ -215,6 +217,12 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_FilePath)
 		return false;
 
 	//buffer = createBuffer(bufferDescription);
+	return true;
+}
+
+bool Graphics::releaseModel(const char* p_ResourceName)
+{
+	return true;
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
@@ -387,19 +395,21 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 	m_ShaderLinkList.push_back(make_pair(p_ShaderId, p_ModelId));
 }
 
-bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
+int Graphics::createTexture(const char *p_Filename)
 {
-	for(auto &t : m_TextureList)
-	{
-		if(std::strcmp(t.first.c_str(), p_TextureId) == 0)
-		{
-			//Model får texturen här.
-			return false;
-		}
-	}
-	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
-	//Model får texturen här;
-	return true;
+	//for(auto &t : m_TextureList)
+	//{
+	//	if(t.first.c_str() == 0)
+	//	{
+	//		//Model får texturen här.
+	//		return false;
+	//	}
+	//}
+	//m_TextureList.push_back(m_TextureLoader.createTextureFromFile(p_Filename));
+	////Model får texturen här;
+	//return true;
+
+	return -1;
 }
 
 void Graphics::renderModel(char *p_ModelId)

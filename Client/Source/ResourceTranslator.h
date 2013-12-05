@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
 
 class ResourceTranslator
 {

@@ -1,5 +1,7 @@
 #include "ResourceTranslator.h"
 
+
+
 ResourceTranslator::ResourceTranslator()
 {
 
@@ -15,12 +17,17 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 {
 	std::string tempPath;
 
+
 	if(p_ResourceType == "model")
 	{
 		tempPath = "Resources\\model\\";
-		if(p_ResourceName == "Dzala")
+		if(p_ResourceName == "DZALA")
 		{
-			tempPath = tempPath + "character\\Dzala\\dzala.obj";
+			tempPath = tempPath + "dzala.tx";
+		}
+		if(p_ResourceName == "MARIM")
+		{
+			tempPath = tempPath + "marim.tx";
 		}
 	}
 	else if( p_ResourceType == "texture")

@@ -8,13 +8,18 @@ void BaseGameApp::init(std::string p_ProjectDirectory)
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
 
-	m_ResourceManager = new ResourceManager(m_Graphics, p_ProjectDirectory);
-
 	m_Graphics = IGraphics::createGraphics();
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+	m_ResourceManager = new ResourceManager(p_ProjectDirectory);
+	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, std::placeholders::_1, std::placeholders::_2), std::bind(&IGraphics::releaseModel, m_Graphics, std::placeholders::_1) );
+
+	m_ResourceManager->loadResource("model", "DZALA");
+	m_ResourceManager->loadResource("model", "DZALA");
+	m_ResourceManager->loadResource("model", "MARIM");
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -44,7 +49,6 @@ void BaseGameApp::init(std::string p_ProjectDirectory)
 void BaseGameApp::run()
 {
 	m_ShouldQuit = false;
-
 	while (!m_ShouldQuit)
 	{
 		m_Physics->update(dt);
