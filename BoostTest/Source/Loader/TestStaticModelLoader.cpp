@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(TestLoadingFile)
 {
 	ModelLoader loader;
 	bool test;
-	test = loader.loadFile("C:/Users/BTH/Documents/GitHub/Havenborough/BoostTest/Source/Sample130.tx");
+	test = loader.loadFile("Source/Sample130.tx");
 	BOOST_CHECK_EQUAL(test, true);
 
 	std::vector<std::vector<ModelLoader::IndexDesc>> temp = loader.getIndices();

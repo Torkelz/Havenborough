@@ -11,6 +11,6 @@
     <LocalDebuggerEnvironment>PATH=$(SolutionDir)Graphics\Bin;$(SolutionDir)Network\Bin;$(SolutionDir)Physics\Bin</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup>
-    <ShowAllFiles>false</ShowAllFiles>
+    <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
 </Project>
