@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Client\Source\GameScene.cpp" />
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
@@ -9,29 +8,66 @@
     <ClCompile Include="Source\TestSceneManager.cpp" />
     <ClCompile Include="Source\TestWindow.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
-    <ClCompile Include="..\Client\Source\Window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
-    <ClCompile Include="..\Client\Source\Input\Input.cpp" />
-    <ClCompile Include="..\Client\Source\Input\InputState.cpp" />
-    <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
     <ClCompile Include="Source\TestCollision.cpp" />
     <ClCompile Include="Source\TestShader.cpp" />
     <ClCompile Include="Source\TestTextureLoader.cpp" />
-    <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
-    <ClCompile Include="..\Network\Source\Connection.cpp" />
-    <ClCompile Include="..\Network\Source\ConnectionController.cpp" />
-    <ClCompile Include="..\Network\Source\ClientConnect.cpp" />
-    <ClCompile Include="..\Network\Source\ServerAccept.cpp" />
+    <ClCompile Include="..\Network\Source\ClientConnect.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\Source\ConnectionController.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\Source\Connection.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\Source\ServerAccept.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\Source\Network.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\Input.cpp">
+      <Filter>ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\InputState.cpp">
+      <Filter>ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp">
+      <Filter>ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Window.cpp">
+      <Filter>ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Network\TestNetworkServerClient.cpp">
+      <Filter>TestNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Network\TestSerialize.cpp">
+      <Filter>TestNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Network\TestConnectionController.cpp">
+      <Filter>TestNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ClientImport">
+      <UniqueIdentifier>{9012d9e5-e746-47e1-ad07-9fcd3fe9d204}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestNetwork">
+      <UniqueIdentifier>{8071612c-29ac-4b80-a58c-541a8115a1ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestNetwork\NetworkImport">
+      <UniqueIdentifier>{8f720b2c-6b2b-48b0-b6c6-0a1c8f14cd18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

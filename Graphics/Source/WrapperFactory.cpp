@@ -6,7 +6,6 @@ WrapperFactory::WrapperFactory(ID3D11Device *p_Device, ID3D11DeviceContext *p_De
 {
 }
 
-
 WrapperFactory::~WrapperFactory(void)
 {
 	m_Device = nullptr;

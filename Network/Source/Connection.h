@@ -43,7 +43,7 @@ public:
 		INVALID,
 	};
 
-private:
+protected:
 	struct Header
 	{
 		uint16_t m_Size;

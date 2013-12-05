@@ -13,13 +13,16 @@ Connection::Connection( boost::asio::ip::tcp::socket&& p_Socket)
 
 Connection::~Connection()
 {
-	m_Socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-	m_Socket.close();
-
-	std::unique_lock<std::mutex> lock(m_WaitToFree);
-	while (m_Reading)
+	if (m_Socket.is_open())
 	{
-		m_Wait.wait(lock);
+		m_Socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+		m_Socket.close();
+
+		std::unique_lock<std::mutex> lock(m_WaitToFree);
+		while (m_Reading)
+		{
+			m_Wait.wait(lock);
+		}
 	}
 }
 
@@ -75,6 +78,7 @@ void Connection::handleWrite(const boost::system::error_code& p_Error, std::size
 
 void Connection::readHeader()
 {
+	m_Reading = true;
 	boost::asio::async_read(
 		m_Socket,
 		boost::asio::buffer(m_ReadBuffer, sizeof(Header)),
@@ -187,7 +191,6 @@ boost::asio::ip::tcp::socket& Connection::getSocket()
 
 void Connection::startReading()
 {
-	m_Reading = true;
 	readHeader();
 }
 

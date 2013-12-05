@@ -1,7 +1,5 @@
 #include "ConnectionController.h"
 
-#include <boost/archive/binary_oarchive.hpp>
-
 ConnectionController::ConnectionController(Connection::ptr p_Connection, const std::vector<PackageBase::ptr>& p_Prototypes)
 	:	m_PackagePrototypes(p_Prototypes),
 		m_Connection(std::move(p_Connection))
@@ -54,11 +52,7 @@ void ConnectionController::sendAddObject(const AddObjectData& p_Data)
 	AddObject package;
 	package.m_Data = p_Data;
 
-	std::ostringstream stream;
-	boost::archive::binary_oarchive archive(stream, boost::archive::no_header);
-	archive << package;
-
-	writeData(stream.str(), (uint16_t)package.getType());
+	writeData(package.getData(), (uint16_t)package.getType());
 }
 
 AddObjectData ConnectionController::getAddObjectData(Package p_Package)

@@ -8,6 +8,7 @@ Network::Network()
 
 Network::~Network()
 {
+	m_ClientConnection.reset();
 	m_IO_Service.stop();
 
 	if (m_IO_Thread.joinable())

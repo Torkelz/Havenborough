@@ -14,6 +14,7 @@
 #pragma warning(push)
 #pragma warning(disable : 4244)
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #pragma warning(pop)
 
 /**
@@ -52,6 +53,23 @@ protected:
 		return PackageBase::ptr(res.release());
 	}
 
+	/**
+	 * Create a byte stream from a package.
+	 *
+	 * @param <Package> the package type to serialize.
+	 * @param p_Package the package to serialize.
+	 * @return a byte stream from the package.
+	 */
+	template <typename Package>
+	std::string getDataImp(const Package& p_Package)
+	{
+		std::ostringstream ostream;
+		boost::archive::binary_oarchive archive(ostream, boost::archive::no_header);
+		archive << p_Package;
+
+		return ostream.str();
+	}
+
 public:
 	/**
 	 * Constructor setting the package type.
@@ -74,25 +92,53 @@ public:
 	 * @return a new deserialized package.
 	 */
 	virtual PackageBase::ptr createPackage(const std::string& p_Data) = 0;
+
+	/**
+	 * Get the serialized data from the package.
+	 *
+	 * @return the serialized package.
+	 */
+	virtual std::string getData() = 0;
+};
+
+/**
+ * Helper class to simplify package creation.
+ *
+ * Provides createPackage and getData.
+ *
+ * @param <Package> the target subclass to provide methods to.
+ */
+template <typename Package>
+class PackageHelper : public PackageBase
+{
+public:
+	PackageHelper(PackageType p_Type)
+		: PackageBase(p_Type)
+	{}
+
+	PackageBase::ptr createPackage(const std::string& p_Data) override
+	{
+		return createPackageImp<Package>(p_Data);
+	}
+
+	std::string getData() override
+	{
+		return getDataImp<Package>(*(Package*)this);
+	}
 };
 
 /**
  * A package representing that a player is ready to start a game.
  */
-class PlayerReady : public PackageBase
+class PlayerReady : public PackageHelper<PlayerReady>
 {
 public:
 	/**
 	 * constructor.
 	 */
 	PlayerReady()
-		: PackageBase(PackageType::PLAYER_READY)
+		: PackageHelper<PlayerReady>(PackageType::PLAYER_READY)
 	{}
-
-	PackageBase::ptr createPackage(const std::string& p_Data) override
-	{
-		return createPackageImp<PlayerReady>(p_Data);
-	}
 
 	/**
 	 * Serialize the package to or from an archive.
@@ -111,7 +157,7 @@ public:
 /**
  * A package representing the addition of a new object to the game world.
  */
-class AddObject : public PackageBase
+class AddObject : public PackageHelper<AddObject>
 {
 public:
 	/**
@@ -124,13 +170,8 @@ public:
 	 * constructor.
 	 */
 	AddObject()
-		: PackageBase(PackageType::ADD_OBJECT)
+		: PackageHelper<AddObject>(PackageType::ADD_OBJECT)
 	{}
-
-	PackageBase::ptr createPackage(const std::string& p_Data) override
-	{
-		return createPackageImp<AddObject>(p_Data);
-	}
 
 	/**
 	 * Serialize the package to or from an archive.

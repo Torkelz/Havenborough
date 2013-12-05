@@ -61,7 +61,7 @@ public:
 	 */
 	void setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback);
 
-private:
+protected:
 	void writeData(const std::string& p_Buffer, uint16_t p_ID);
 	void savePackageCallBack(uint16_t p_ID, const std::string& p_Data);
 };
