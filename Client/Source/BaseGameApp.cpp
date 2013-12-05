@@ -87,12 +87,8 @@ void BaseGameApp::run()
 	__int64 prevTimeStamp = 0;
 	QueryPerformanceCounter((LARGE_INTEGER*)&prevTimeStamp);
 
-	//Temp ------------------------------------------------
-		//DirectX::XMFLOAT4X4 tempMatrix;
-		//DirectX::XMMATRIX tempMatrix2;
-		//tempMatrix2 = DirectX::XMMatrixIdentity();
-		//DirectX::XMStoreFloat4x4(&tempMatrix, tempMatrix2);
-	//Temp -------------------------------------------------
+	//BodyHandle groundBody = m_Physics->createAABB(1.f, true, Vector3(-20.f, -1.f, -20.f), Vector3(20.f, 0.f, 20.f));
+	//BodyHandle playerBody = m_Physics->createSphere(80.f, false, Vector3(0.f, 1.8f, 20.f), 1.8f);
 
 	int boxId = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(boxId, 7.f, 7.f, 7.f);
@@ -152,17 +148,7 @@ void BaseGameApp::run()
 
 		m_Graphics->renderModel(boxId);
 		m_Graphics->renderModel(ground);
-		//Temp ------------------------------------------------
-		//m_Graphics->renderModel(m_Buffer, m_CBuffer, m_Shader, &tempMatrix, false);
-		/*for (int i = 0; i < 100; i++)
-		{
-			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
-			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
-			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
-			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
-			m_Graphics->renderModel(m_Buffer2, m_CBuffer, m_Shader2, &tempMatrix, false);
-		}*/
-		//Temp -------------------------------------------------
+
 		m_Graphics->drawFrame(currView);
 
 		for (auto& in : m_InputQueue.getFrameInputs())
@@ -199,7 +185,7 @@ void BaseGameApp::run()
 			}
 			else
 			{
-				//printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
+				printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
 			}
 		}
 
@@ -209,6 +195,9 @@ void BaseGameApp::run()
 		//TEMP ---------------------------------------------------------------------
 		prevTimeStamp = currTimeStamp;
 	}
+
+	m_Graphics->eraseModelInstance(ground);
+	m_Graphics->eraseModelInstance(boxId);
 }
 
 void BaseGameApp::shutdown()
