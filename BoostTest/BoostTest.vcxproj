@@ -104,14 +104,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
-    <ClCompile Include="..\Client\Source\MemoryInformation.cpp" />
     <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
+    <ClCompile Include="..\Client\Source\RAMMemInfo.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
     <ClCompile Include="..\Client\Source\Input\Input.cpp" />

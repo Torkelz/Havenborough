@@ -1,24 +1,24 @@
-#include "MemoryInformation.h"
+#include "RAMMemInfo.h"
 
-MemoryInformation::MemoryInformation(void)
+RAMMemInfo::RAMMemInfo(void)
 {
 }
 
-MemoryInformation::~MemoryInformation(void)
+RAMMemInfo::~RAMMemInfo(void)
 {
 }
 
-int MemoryInformation::getVirtualMemoryUsage(void)
+unsigned int RAMMemInfo::getVirtualMemoryUsage(void)
 {
 	return m_VirtualMemUsage;
 }
 
-int MemoryInformation::getPhysicalMemoryUsage(void)
+unsigned int RAMMemInfo::getPhysicalMemoryUsage(void)
 {
 	return m_PhysicalMemUsage;
 }
 
-void MemoryInformation::update(void)
+void RAMMemInfo::update(void)
 {
 	HANDLE processHandle;
 

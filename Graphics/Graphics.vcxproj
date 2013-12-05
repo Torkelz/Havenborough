@@ -94,6 +94,7 @@
   <ItemGroup>
     <ClCompile Include="Source\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\TextureLoader.cpp" />
+    <ClCompile Include="Source\VRAMMemInfo.cpp" />
     <ClCompile Include="Source\WICTextureLoader.cpp" />
     <ClCompile Include="Source\WrapperFactory.cpp" />
     <ClCompile Include="Source\Buffer.cpp" />
@@ -102,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\DDSTextureLoader.h" />
+    <ClInclude Include="Source\VRAMMemInfo.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
     <ClInclude Include="Source\WrapperFactory.h" />
     <ClInclude Include="Source\MyGraphicsExceptions.h" />

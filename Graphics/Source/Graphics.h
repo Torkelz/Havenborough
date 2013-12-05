@@ -13,6 +13,7 @@
 #include "MyGraphicsExceptions.h"
 #include "TextureLoader.h"
 #include "WrapperFactory.h"
+#include "VRAMMemInfo.h"
 
 using std::string;
 using std::vector;
@@ -53,6 +54,7 @@ private:
 
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
+	VRAMMemInfo *m_VRAMMemInfo;
 
 	vector<pair<string, Shader*>> m_ShaderList;
 	vector<pair<string, Model>> m_ModelList;
@@ -84,6 +86,8 @@ public:
 	void renderText(void) override;
 	void renderQuad(void) override;
 	void drawFrame(void) override;
+
+	int getVRAMMemUsage(void) override;
 
 private:
 	void shutdown(void) override;

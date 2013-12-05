@@ -50,8 +50,9 @@ void BaseGameApp::run()
 		
 		std::string vMemUsage = "Virtual MemUsage: " + std::to_string(m_MemoryInfo.getVirtualMemoryUsage()) + "MB";
 		std::string pMemUsage = "Physical MemUsage: " + std::to_string(m_MemoryInfo.getPhysicalMemoryUsage()) + "MB";
+		std::string gMemUsage = "Video MemUsage: " + std::to_string(m_Graphics->getVRAMMemUsage()) + "MB";
 
-		SetWindowTextA(m_Window.getHandle(), (vMemUsage + " " + pMemUsage).c_str());
+		SetWindowTextA(m_Window.getHandle(), (vMemUsage + " " + pMemUsage + " " + gMemUsage).c_str());
 
 		for (auto& in : m_InputQueue.getFrameInputs())
 		{

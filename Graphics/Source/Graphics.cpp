@@ -154,6 +154,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	WrapperFactory::initialize(m_Device, m_DeviceContext);
 	m_WrapperFactory = WrapperFactory::getInstance();
 
+	m_VRAMMemInfo = VRAMMemInfo::getInstance();
+
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
 	return true;
@@ -195,6 +197,8 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_SwapChain);
 	m_WrapperFactory->shutdown();
 	m_WrapperFactory = nullptr;
+	m_VRAMMemInfo->shutdown();
+	m_VRAMMemInfo = nullptr;
 }
 
 void IGraphics::deleteGraphics(IGraphics *p_Graphics)
@@ -385,6 +389,10 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
 	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
+	
+	unsigned int textureSize = sizeof(m_TextureList.back().second);
+	
+	m_VRAMMemInfo->updateUsage(textureSize);
 }
 
 void Graphics::renderModel(const char *p_ModelId)
@@ -422,6 +430,11 @@ void Graphics::drawFrame(void)
 	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
 	Begin(color);
 	End();
+}
+
+int Graphics::getVRAMMemUsage(void)
+{
+	return m_VRAMMemInfo->getUsage();
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)

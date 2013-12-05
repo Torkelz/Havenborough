@@ -170,6 +170,12 @@ public:
 	*/
 	virtual void drawFrame(void) = 0;
 
+	/**
+	* Gets the amount of VRAM usage of the program.
+	* @return the usage in MB
+	*/
+	virtual int getVRAMMemUsage(void) = 0;
+
 private:
 
 	/**

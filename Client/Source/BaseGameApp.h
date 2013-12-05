@@ -6,7 +6,7 @@
 #include "NetworkClient.h"
 #include "SceneManager.h"
 #include "Window.h"
-#include "MemoryInformation.h"
+#include "RAMMemInfo.h"
 
 #include <string>
 
@@ -18,7 +18,7 @@ private:
 	Window	m_Window;
 	IGraphics* m_Graphics;
 	Input	m_InputQueue;
-	MemoryInformation m_MemoryInfo;
+	RAMMemInfo m_MemoryInfo;
 
 	NetworkClient m_Network;
 

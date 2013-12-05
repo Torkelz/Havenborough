@@ -30,7 +30,8 @@
     <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
-    <ClCompile Include="..\Client\Source\MemoryInformation.cpp" />
+    <ClCompile Include="..\Client\Source\RAMMemInfo.cpp" />
+    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
