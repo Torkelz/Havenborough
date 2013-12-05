@@ -1,7 +1,7 @@
 #pragma once
 #include "Shader.h"
 #include "Buffer.h"
-
+#include "VRAMMemInfo.h"
 class WrapperFactory
 {
 private:

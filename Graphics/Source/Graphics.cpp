@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include "ModelLoader.h"
 #include <iostream>
 
 const std::string Graphics::m_RelativeResourcePath = "../../Graphics/Resources/";
@@ -21,7 +22,6 @@ Graphics::Graphics(void)
 	m_NextInstanceId = 1;
 }
 
-
 Graphics::~Graphics(void)
 {
 }
@@ -40,11 +40,11 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	unsigned int numModes;
 	unsigned int stringLength;
-
+	
 	DXGI_MODE_DESC *displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
-
+	
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if(FAILED(result))
 	{
@@ -100,8 +100,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	{
 		throw GraphicsException("Error when getting the graphics card description", __LINE__,__FILE__);
 	}
-
-	m_GraphicsMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
+	
+	m_GraphicsMemory = (int)(adapterDesc.DedicatedVideoMemory / MB);
 
 	error = wcstombs_s(&stringLength, m_GraphicsCard, 128, adapterDesc.Description, 128);
 	if(error != 0)
@@ -161,6 +161,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Note this is the only time initialize should be called.
 	WrapperFactory::initialize(m_Device, m_DeviceContext);
 	m_WrapperFactory = WrapperFactory::getInstance();
+
+	m_VRAMMemInfo = VRAMMemInfo::getInstance();
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
@@ -247,6 +249,8 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_SwapChain);
 	m_WrapperFactory->shutdown();
 	m_WrapperFactory = nullptr;
+	m_VRAMMemInfo->shutdown();
+	m_VRAMMemInfo = nullptr;
 	
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
@@ -268,32 +272,38 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	modelLoader.loadFile(p_Filename);
 
 	//int nrVertices = modelLoader.getVertices()->size();
-	vector<std::vector<ModelLoader::Face>>	*tempF	= modelLoader.getIndices();
-	vector<DirectX::XMFLOAT3>				*tempN	= modelLoader.getNormal();
-	vector<DirectX::XMFLOAT3>				*tempT	= modelLoader.getTangent();
-	vector<DirectX::XMFLOAT2>				*tempUV = modelLoader.getUV();
-	vector<DirectX::XMFLOAT3>				*tempVert = modelLoader.getVertices();
-	vector<ModelLoader::Material>			*tempM	= modelLoader.getMaterial();
+	vector<std::vector<ModelLoader::IndexDesc>>	tempF	= modelLoader.getIndices();
+	vector<DirectX::XMFLOAT3>				tempN	= modelLoader.getNormals();
+	vector<DirectX::XMFLOAT3>				tempT	= modelLoader.getTangents();
+	vector<DirectX::XMFLOAT2>				tempUV = modelLoader.getTextureCoords();
+	vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
+	vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
 	
 
 	vector<vertex> temp;
 	vector<vector<int>> tempI;
+
 	vector<int> I;
 
-	for(unsigned int i = 0; i < tempF->size(); i++)
+	for(unsigned int i = 0; i < tempF.size(); i++)
 	{
-		for(unsigned int j = 0; j < tempF->at(i).size();j++)
+		const vector<ModelLoader::IndexDesc>& indexDescList = tempF.at(i);
+
+		I.reserve(indexDescList.size());
+
+		for(unsigned int j = 0; j < indexDescList.size();j++)
 		{
-			for(unsigned int k = 0; k < tempF->at(i).at(j).m_Vertex.size();k++)
-			{
-				temp.push_back(vertex(tempVert->at(tempF->at(i).at(j).m_Vertex.at(k)),
-										tempN->at(tempF->at(i).at(j).m_Normals.at(k)),
-										tempUV->at(tempF->at(i).at(j).m_TextureCoord.at(k)),
-										tempT->at(tempF->at(i).at(j).m_Tangents.at(k))));
-				I.push_back(tempF->at(i).at(j).m_Vertex.at(k));
-			}
+			const ModelLoader::IndexDesc& indexDesc = indexDescList.at(j);
+
+			temp.push_back(vertex(tempVert.at(indexDesc.m_Vertex),
+									tempN.at(indexDesc.m_Normal),
+									tempUV.at(indexDesc.m_TextureCoord),
+									tempT.at(indexDesc.m_Tangent)));
+			I.push_back(j);
 		}
+
 		tempI.push_back(I);
+		I.clear();
 	}
 	
 	// Create Vertex buffer.
@@ -303,7 +313,7 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	bufferDescription.sizeOfElement = sizeof(Graphics::vertex);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
-	vertexBuffer = WrapperFactory::getInstance()->createBuffer(bufferDescription);
+	vertexBuffer = m_WrapperFactory->createBuffer(bufferDescription);
 	temp.clear();
 
 	// Create Index buffer.
@@ -312,6 +322,8 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	bufferDescription.type = Buffer::Type::INDEX_BUFFER;
 	//bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE;// Change to default when needed to change data.
 	bufferDescription.sizeOfElement = sizeof(int);
+	
+	//buffer = createBuffer(bufferDescription);
 	
 	for(unsigned int i = 0; i < nrIndexBuffers; i++)
 	{
@@ -329,9 +341,9 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	ID3D11ShaderResourceView **specular = new ID3D11ShaderResourceView*[nrIndexBuffers];
 	for(unsigned int i = 0; i < nrIndexBuffers; i++)
 	{
-		diffuse[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM->at(i).m_DiffuseMap).c_str());
-		normal[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM->at(i).m_NormalMap).c_str());
-		specular[i] = m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM->at(i).m_SpecularMap).c_str());
+		diffuse[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM.at(i).m_DiffuseMap).c_str());
+		normal[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM.at(i).m_NormalMap).c_str());
+		specular[i] = m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM.at(i).m_SpecularMap).c_str());
 	}
 	Model m;
 	m.vertexBuffer		= vertexBuffer;
@@ -343,21 +355,6 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 
 	m_ModelList.push_back(std::pair<string,Model>(p_ModelId,m));
 
-	// Cleanup.
-	tempF	= nullptr;
-	tempN	= nullptr;
-	tempT	= nullptr;
-	tempUV	= nullptr;
-	tempVert = nullptr;
-	tempM	= nullptr;
-	vertexBuffer = nullptr;
-	/*for(unsigned int i = 0; i < nrIndexBuffers; i++)
-	{
-		diffuse[i]	= nullptr;
-		normal[i]	= nullptr;
-		specular[i] = nullptr;
-		index[i]	= nullptr;
-	}*/
 	modelLoader.clear();
 }
 
@@ -539,6 +536,10 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
 	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
+	
+	unsigned int textureSize = sizeof(m_TextureList.back().second);
+	
+	m_VRAMMemInfo->updateUsage(textureSize);
 }
 
 void Graphics::renderModel(int p_ModelId)
@@ -596,6 +597,11 @@ void Graphics::drawFrame(int i)
 	m_Shader->unSetShader();
 	
 	End();
+}
+
+int Graphics::getVRAMMemUsage(void)
+{
+	return m_VRAMMemInfo->getUsage();
 }
 
 int Graphics::createModelInstance(const char *p_ModelId)

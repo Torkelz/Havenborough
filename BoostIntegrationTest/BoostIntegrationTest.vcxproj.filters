@@ -14,6 +14,7 @@
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
+    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">

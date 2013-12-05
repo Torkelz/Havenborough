@@ -46,11 +46,17 @@ Buffer *WrapperFactory::createBuffer(Buffer::Description &p_Description)
 {
 	Buffer *buffer = new Buffer();
 	HRESULT result;
+	UINT32 bufferSize = 0;
+
+	if(p_Description.usage != Buffer::Usage::STAGING)
+		bufferSize = p_Description.sizeOfElement * p_Description.numOfElements;
+
 	try
 	{
 		result = buffer->initialize(m_Device, m_DeviceContext, p_Description);
 		if(result == S_OK)
 		{
+			VRAMMemInfo::getInstance()->updateUsage(bufferSize);
 			return buffer;
 		}
 		else

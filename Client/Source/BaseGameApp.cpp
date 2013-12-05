@@ -1,6 +1,7 @@
 #include "BaseGameApp.h"
-
 #include "Input\InputTranslator.h"
+
+const double pi = 3.14159265358979323846264338;
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
@@ -8,14 +9,11 @@ void BaseGameApp::init()
 {
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
-
 	m_Graphics = IGraphics::createGraphics();
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
-
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -35,44 +33,18 @@ void BaseGameApp::init()
 	translator->addMouseButtonMapping(InputTranslator::MouseButton::MIDDLE, "rollMe!");
 
 	m_InputQueue.init(std::move(translator));
-
+	m_Network = INetwork::createNetwork();
+	m_Connected = false;
+	
 	m_Physics = IPhysics::createPhysics();
 
 	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
 	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
-
-	dt = (1.f/60.f);
 	
 	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
 	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("BOXShader","BOX");
-
-	//TEMPORARY -------------------------------------------------------
-	/*Buffer::Description bdesc;
-	bdesc.initData = createBOX(31,0.0f,0.0f,0.0f);
-	bdesc.numOfElements = 36;
-	bdesc.sizeOfElement = sizeof(BaseGameApp::vertex);
-	bdesc.type = Buffer::Type::VERTEX_BUFFER;
-	bdesc.usage = Buffer::Usage::DEFAULT;
-
-	m_Buffer = WrapperFactory::getInstance()->createBuffer(bdesc);
-
-	m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","VS","vs_5_0",VERTEX_SHADER);
-	m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","PS","ps_5_0",PIXEL_SHADER);
-	*/
-	////BufferDescription bdesc;
-	//bdesc.initData = createBOX(25,0.0f,0.0f,0.0f);
-	//bdesc.numOfElements = 36;
-	//bdesc.sizeOfElement = sizeof(BaseGameApp::vertex);
-	//bdesc.type = VERTEX_BUFFER;
-	//bdesc.usage = BUFFER_DEFAULT;
-	//
-	//m_Buffer2 = m_Graphics->createBuffer(bdesc);
-	//
-	//m_Shader2 = m_Graphics->createShader(L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","VS","vs_5_0",VERTEX_SHADER);
-	//m_Graphics->addShaderStep(m_Shader2,L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","PS","ps_5_0",PIXEL_SHADER);
-	//TEMPORARY --------------------------------------------------------
 }
 
 void BaseGameApp::run()
@@ -80,27 +52,28 @@ void BaseGameApp::run()
 	m_ShouldQuit = false;
 
 	int currView = 3; // FOR DEBUGGING
-	__int64 cntsPerSec = 0;
-	QueryPerformanceFrequency((LARGE_INTEGER*)&cntsPerSec);
-	float secsPerCnt = 1.0f / (float)cntsPerSec;
-
-	__int64 prevTimeStamp = 0;
-	QueryPerformanceCounter((LARGE_INTEGER*)&prevTimeStamp);
 
 	//BodyHandle groundBody = m_Physics->createAABB(1.f, true, Vector3(-20.f, -1.f, -20.f), Vector3(20.f, 0.f, 20.f));
 	//BodyHandle playerBody = m_Physics->createSphere(80.f, false, Vector3(0.f, 1.8f, 20.f), 1.8f);
 
-	int boxId = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(boxId, 7.f, 7.f, 7.f);
-	m_Graphics->setModelPosition(boxId, 0.f, 5.f, 0.f);
+	const static int NUM_BOXES = 16;
+	int boxIds[NUM_BOXES];
+	for (int i = 0; i < NUM_BOXES; i++)
+	{
+		boxIds[i] = m_Graphics->createModelInstance("BOX");
 
+		const float scale = 1.f + i * 3.f / NUM_BOXES;
+		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
+		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
+	}
+	
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
 
 	float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
 
-	float speed = 1.f;
+	float speed = 5.f;
 	float sensitivity = 0.01f;
 
 	float yaw = 0.f;
@@ -110,8 +83,21 @@ void BaseGameApp::run()
 	float roll = 0.f;
 	float rollSpeed = 0.03f;
 
+	__int64 cntsPerSec = 0;
+	QueryPerformanceFrequency((LARGE_INTEGER*)&cntsPerSec);
+	float secsPerCnt = 1.0f / (float)cntsPerSec;
+
+	__int64 prevTimeStamp = 0;
+	__int64 currTimeStamp = 0;
+	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
+	currTimeStamp--;
+
 	while (!m_ShouldQuit)
 	{
+		prevTimeStamp = currTimeStamp;
+		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
+		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
+
 		m_Physics->update(dt);
 
 		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
@@ -128,8 +114,13 @@ void BaseGameApp::run()
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 		float right = state.getValue("moveRight") - state.getValue("moveLeft");
 
-		position[2] -= forward * speed * dt;
-		position[0] -= right * speed * dt;
+		if (forward != 0.f || right != 0.f)
+		{
+			float dir = atan2f(right, forward) + viewRot[0];
+
+			position[2] -= cosf(dir) * speed * dt;
+			position[0] -= sinf(dir) * speed * dt;
+		}
 
 		m_Graphics->updateCamera(position[0], position[1], position[2], viewRot[0], viewRot[1]);
 
@@ -137,19 +128,21 @@ void BaseGameApp::run()
 		pitch += pitchSpeed * dt;
 		roll += rollSpeed * dt;
 
-		m_Graphics->setModelRotation(boxId, yaw, pitch, roll);
-
-		__int64 currTimeStamp = 0;
-		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
-		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
-
-		m_InputQueue.onFrame();
-		m_Window.pollMessages();
-
-		m_Graphics->renderModel(boxId);
+		for (int i = 0; i < NUM_BOXES; i++)
+		{
+			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
+			m_Graphics->renderModel(boxIds[i]);
+		}
 		m_Graphics->renderModel(ground);
 
 		m_Graphics->drawFrame(currView);
+		
+		m_MemoryInfo.update();
+		
+		updateDebugInfo(dt);
+
+		m_InputQueue.onFrame();
+		m_Window.pollMessages();
 
 		for (auto& in : m_InputQueue.getFrameInputs())
 		{
@@ -159,7 +152,8 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 			{
-				m_Network.connect("localhost");
+				m_Connected = false;
+				m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
 			}
 			else if(in.m_Action ==  "changeViewN" && in.m_Value == 1)
 			{
@@ -178,26 +172,75 @@ void BaseGameApp::run()
 			else if (in.m_Action == "mouseMoveHori")
 			{
 				viewRot[0] += in.m_Value * sensitivity;
+				if (viewRot[0] > pi)
+				{
+					viewRot[0] -= 2 * (float)pi;
+				}
+				else if (viewRot[0] < -pi)
+				{
+					viewRot[0] += 2 * (float)pi;
+				}
 			}
 			else if (in.m_Action == "mouseMoveVert")
 			{
 				viewRot[1] += in.m_Value * sensitivity;
+				if (viewRot[1] > pi * 0.45f)
+				{
+					viewRot[1] = (float)pi * 0.45f;
+				}
+				else if (viewRot[1] < -pi * 0.45f)
+				{
+					viewRot[1] = -(float)pi * 0.45f;
+				}
+			}
+			else if (in.m_Action == "mousePosHori")
+			{
+			}
+			else if (in.m_Action == "mousePosVert")
+			{
 			}
 			else
 			{
 				printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
 			}
 		}
+		
+		if (m_Connected)
+		{
+			IConnectionController* conn = m_Network->getConnectionToServer();
+			unsigned int numPackages = conn->getNumPackages();
+			for (unsigned int i = 0; i < numPackages; i++)
+			{
+				Package package = conn->getPackage(i);
+				PackageType type = conn->getPackageType(package);
 
-		//TEMP ---------------------------------------------------------------------
-		std::string output = "DeltaTime: " + std::to_string(dt) + " FPS: " + std::to_string(1.0f/dt);
-		SetWindowTextA(m_Window.getHandle(),output.c_str()); 
-		//TEMP ---------------------------------------------------------------------
-		prevTimeStamp = currTimeStamp;
+				switch (type)
+				{
+				case PackageType::ADD_OBJECT:
+					{
+						AddObjectData data = conn->getAddObjectData(package);
+						std::cout << "Adding object at (" 
+							<< data.m_Position[0] << ", "
+							<< data.m_Position[1] << ", " 
+							<< data.m_Position[2] << ")" << std::endl;
+					}
+					break;
+
+				default:
+					std::cout << "Received unhandled package" << std::endl;
+					break;
+				}
+			}
+
+			conn->clearPackages(numPackages);
+		}
 	}
 
 	m_Graphics->eraseModelInstance(ground);
-	m_Graphics->eraseModelInstance(boxId);
+	for (int box : boxIds)
+	{
+		m_Graphics->eraseModelInstance(box);
+	}
 }
 
 void BaseGameApp::shutdown()
@@ -230,214 +273,26 @@ bool BaseGameApp::handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p
 	return true;
 }
 
-//BaseGameApp::vertex* BaseGameApp::createBOX(unsigned int size, float x, float y, float z)
-//{
-//	vertex* box = new vertex[36];
-//	using namespace DirectX;
-//	XMFLOAT4 center = XMFLOAT4(x,y,z,1.0f);
-//    XMFLOAT4 color;
-//	XMFLOAT3 tangent, binormal, normal;
-//
-//    XMFLOAT3 vert0 = XMFLOAT3(-1.0f*size, -1.0f*size,  1.0f*size); // 0 --+ 
-//    XMFLOAT3 vert1 = XMFLOAT3( 1.0f*size, -1.0f*size,  1.0f*size); // 1 +-+ 
-//    XMFLOAT3 vert2 = XMFLOAT3(-1.0f*size,  1.0f*size,  1.0f*size); // 2 -++ 
-//    XMFLOAT3 vert3 = XMFLOAT3( 1.0f*size,  1.0f*size,  1.0f*size); // 3 +++ 
-//    XMFLOAT3 vert4 = XMFLOAT3(-1.0f*size,  1.0f*size, -1.0f*size); // 4 -+- 
-//    XMFLOAT3 vert5 = XMFLOAT3( 1.0f*size,  1.0f*size, -1.0f*size); // 5 ++- 
-//    XMFLOAT3 vert6 = XMFLOAT3(-1.0f*size, -1.0f*size, -1.0f*size); // 6 --- 
-//    XMFLOAT3 vert7 = XMFLOAT3( 1.0f*size, -1.0f*size, -1.0f*size); // 7 +-- 
-//
-//	//UV Coordinates
-//	XMFLOAT2 uv[] = {
-//				XMFLOAT2(0.375f, 1.0f - 0.f   ),
-//				XMFLOAT2(0.625f, 1.0f - 0.f   ),
-//				XMFLOAT2(0.375f, 1.0f - 0.25f),
-//				XMFLOAT2(0.625f, 1.0f - 0.25f),
-//				XMFLOAT2(0.375f, 1.0f - 0.5f ),
-//				XMFLOAT2(0.625f, 1.0f - 0.5f ),
-//				XMFLOAT2(0.375f, 1.0f - 0.75f),
-//				XMFLOAT2(0.625f, 1.0f - 0.75f),
-//				XMFLOAT2(0.375f, 1.0f - 1.f  ),
-//				XMFLOAT2(0.625f, 1.0f - 1.f   ),
-//				XMFLOAT2(0.875f, 1.0f - 0.f   ),
-//				XMFLOAT2(0.875f, 1.0f - 0.25f),
-//				XMFLOAT2(0.125f, 1.0f - 0.f   ),
-//				XMFLOAT2(0.125f, 1.0f - 0.25f)
-//	};
-//	XMFLOAT3 normals[] = {	XMFLOAT3(0,0,-1),
-//							XMFLOAT3(0,-1,0), 
-//							XMFLOAT3(0,0,1),
-//							XMFLOAT3(0,1,0),
-//							XMFLOAT3(-1,0,0),
-//							XMFLOAT3(1,0,0)};
-//
-//    // Back
-//    color = XMFLOAT4(0.f,1.f,0.f,1.f);
-//	//normal = XMFLOAT3(0.f,0.f,1.f);
-//	CalculateTangentBinormal(vert0,vert2,vert1,uv[0],uv[2],uv[1],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//	//normal.z = -normal.z;
-//    box[0] = vertex(vert0, normal,uv[0], tangent, binormal);
-//    box[1] = vertex(vert2, normal,uv[2], tangent, binormal);
-//    box[2] = vertex(vert1, normal,uv[1], tangent, binormal);
-//
-//	CalculateTangentBinormal(vert1,vert2,vert3,uv[1],uv[2],uv[3],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//    box[3] = vertex(vert1, normal, uv[1], tangent, binormal);
-//    box[4] = vertex(vert2, normal, uv[2], tangent, binormal);
-//    box[5] = vertex(vert3, normal, uv[3], tangent, binormal);
-//
-//    // Front
-//	//color = XMFLOAT4(0.f,0.f,1.f,1.f);
-//	//normal = XMFLOAT4(0.f,0.f,1.f,0.f);
-//	CalculateTangentBinormal(vert2,vert4,vert3,uv[2],uv[4],uv[3],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//    box[6] =  vertex(vert2, normal,uv[2], tangent, binormal);
-//    box[7] =  vertex(vert4, normal,uv[4], tangent, binormal);
-//    box[8] =  vertex(vert3, normal,uv[3], tangent, binormal);
-//
-//	CalculateTangentBinormal(vert3,vert4,vert5,uv[3],uv[4],uv[5],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//	box[9] =  vertex(vert3, normal, uv[3], tangent, binormal);
-//    box[10] = vertex(vert4, normal, uv[4], tangent, binormal);
-//    box[11] = vertex(vert5, normal, uv[5], tangent, binormal);
-//
-//    // Top
-//	//color = XMFLOAT4(1.f,0.f,0.f,1.f);
-//	//normal = XMFLOAT3(0.f,-1.f,0.f);
-//	/*CalculateTangentBinormal(vert4,vert6,vert5,uv[4],uv[6],uv[5],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//
-//    box[12] = vertex(vert4, normal, uv[4], tangent, binormal);
-//    box[13] = vertex(vert6, normal, uv[6], tangent, binormal);
-//    box[14] = vertex(vert5, normal, uv[5], tangent, binormal);
-//
-//	CalculateTangentBinormal(vert5,vert6,vert7,uv[5],uv[6],uv[7],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//    box[15] = vertex(vert5, normal, uv[5], tangent, binormal);
-//    box[16] = vertex(vert6, normal, uv[6], tangent, binormal);
-//    box[17] = vertex(vert7, normal, uv[7], tangent, binormal);*/
-//
-//    // Bottom
-//	//color = XMFLOAT4(1.f,1.f,0.f,1.f);
-//	//normal = XMFLOAT3(0.f,1.f,0.f);
-//	CalculateTangentBinormal(vert6,vert0,vert7,uv[6],uv[8],uv[7],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//    box[18] = vertex(vert6, normal, uv[6], tangent, binormal);
-//    box[19] = vertex(vert0, normal, uv[8], tangent, binormal);
-//    box[20] = vertex(vert7, normal, uv[7], tangent, binormal);
-//
-//	CalculateTangentBinormal(vert7,vert0,vert1,uv[7],uv[8], uv[9],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//    box[21] = vertex(vert7, normal, uv[7], tangent, binormal);
-//    box[22] = vertex(vert0, normal, uv[8], tangent, binormal);
-//    box[23] = vertex(vert1, normal, uv[9], tangent, binormal);
-//
-//    // Right
-//	//color = XMFLOAT4(0.f,1.f,1.f,1.f);
-//	//normal = XMFLOAT3(-1.f,0.f,0.f);
-//	CalculateTangentBinormal(vert1,vert3,vert7,uv[1],uv[3],uv[10],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//    box[24] = vertex(vert1, normal, uv[1], tangent, binormal);
-//    box[25] = vertex(vert3, normal, uv[3], tangent, binormal);
-//    box[26] = vertex(vert7, normal, uv[10], tangent, binormal);
-//
-//	CalculateTangentBinormal(vert7,vert3,vert5,uv[10],uv[3], uv[11],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//    box[27] = vertex(vert7, normal, uv[10], tangent, binormal);
-//    box[28] = vertex(vert3, normal, uv[3], tangent, binormal);
-//    box[29] = vertex(vert5, normal, uv[11], tangent, binormal);
-//
-//    // Left
-//	//color = XMFLOAT4(1.f,0.f,1.f,1.f);
-//	//normal = XMFLOAT3(1.f,0.f,0.f);
-//	CalculateTangentBinormal(vert6,vert4,vert0,uv[12],uv[13],uv[0],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//    box[30] = vertex(vert6, normal, uv[12], tangent, binormal);
-//    box[31] = vertex(vert4, normal, uv[13], tangent, binormal);
-//    box[32] = vertex(vert0, normal, uv[0], tangent, binormal);
-//
-//	CalculateTangentBinormal(vert0,vert4,vert2,uv[0],uv[13],uv[2],tangent,binormal);
-//	CalculateNormal(tangent,binormal, normal);
-//    box[33] = vertex(vert0, normal, uv[0], tangent, binormal);
-//    box[34] = vertex(vert4, normal, uv[13], tangent, binormal);
-//    box[35] = vertex(vert2, normal, uv[2], tangent, binormal);
-//
-//    return box;
-//}
-//void BaseGameApp::CalculateTangentBinormal(DirectX::XMFLOAT3 vertex1, DirectX::XMFLOAT3 vertex2, DirectX::XMFLOAT3 vertex3,
-//										   DirectX::XMFLOAT2 uv1,DirectX::XMFLOAT2 uv2, DirectX::XMFLOAT2 uv3,
-//											DirectX::XMFLOAT3& tangent, DirectX::XMFLOAT3& binormal)
-//{
-//	float vector1[3], vector2[3];
-//	float tuVector[2], tvVector[2];
-//	float den;
-//	float length;
-//
-//
-//	// Calculate the two vectors for this face.
-//	vector1[0] = vertex2.x - vertex1.x;
-//	vector1[1] = vertex2.y - vertex1.y;
-//	vector1[2] = vertex2.z - vertex1.z;
-//
-//	vector2[0] = vertex3.x - vertex1.x;
-//	vector2[1] = vertex3.y - vertex1.y;
-//	vector2[2] = vertex3.z - vertex1.z;
-//
-//	// Calculate the tu and tv texture space vectors.
-//	tuVector[0] = uv2.x - uv1.x;
-//	tvVector[0] = uv2.y - uv1.y;
-//
-//	tuVector[1] = uv3.x - uv1.x;
-//	tvVector[1] = uv3.y - uv1.y;
-//
-//	// Calculate the denominator of the tangent/binormal equation.
-//	den = 1.0f / (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
-//
-//	// Calculate the cross products and multiply by the coefficient to get the tangent and binormal.
-//	tangent.x = (tvVector[1] * vector1[0] - tvVector[0] * vector2[0]) * den;
-//	tangent.y = (tvVector[1] * vector1[1] - tvVector[0] * vector2[1]) * den;
-//	tangent.z = (tvVector[1] * vector1[2] - tvVector[0] * vector2[2]) * den;
-//
-//	binormal.x = (tuVector[0] * vector2[0] - tuVector[1] * vector1[0]) * den;
-//	binormal.y = (tuVector[0] * vector2[1] - tuVector[1] * vector1[1]) * den;
-//	binormal.z = (tuVector[0] * vector2[2] - tuVector[1] * vector1[2]) * den;
-//
-//	// Calculate the length of this normal.
-//	length = sqrt((tangent.x * tangent.x) + (tangent.y * tangent.y) + (tangent.z * tangent.z));
-//			
-//	// Normalize the normal and then store it
-//	tangent.x = tangent.x / length;
-//	tangent.y = tangent.y / length;
-//	tangent.z = tangent.z / length;
-//
-//	// Calculate the length of this normal.
-//	length = sqrt((binormal.x * binormal.x) + (binormal.y * binormal.y) + (binormal.z * binormal.z));
-//			
-//	// Normalize the normal and then store it
-//	binormal.x = binormal.x / length;
-//	binormal.y = binormal.y / length;
-//	binormal.z = binormal.z / length;
-//
-//	return;
-//}
-//void BaseGameApp::CalculateNormal(DirectX::XMFLOAT3 tangent, DirectX::XMFLOAT3 binormal, DirectX::XMFLOAT3& normal)
-//{
-//	float length;
-//
-//
-//	// Calculate the cross product of the tangent and binormal which will give the normal vector.
-//	normal.x = (tangent.y * binormal.z) - (tangent.z * binormal.y);
-//	normal.y = (tangent.z * binormal.x) - (tangent.x * binormal.z);
-//	normal.z = (tangent.x * binormal.y) - (tangent.y * binormal.x);
-//	
-//	// Calculate the length of the normal.
-//	length = sqrt((normal.x * normal.x) + (normal.y * normal.y) + (normal.z * normal.z));
-//
-//	// Normalize the normal.
-//	normal.x = normal.x / length;
-//	normal.y = normal.y / length;
-//	normal.z = normal.z / length;
-//
-//	return;
-//}
+void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
+{
+	if (p_Res == Result::SUCCESS)
+	{
+		((BaseGameApp*)p_UserData)->m_Connected = true;
+		std::cout << "Connected successfully" << std::endl;
+	}
+	else
+	{
+		std::cout << "Connection failed" << std::endl;
+	}
+}
+
+void BaseGameApp::updateDebugInfo(float p_dt)
+{
+	std::string vMemUsage = "Virtual MemUsage: " + std::to_string(m_MemoryInfo.getVirtualMemoryUsage()) + "MB";
+	std::string pMemUsage = "Physical MemUsage: " + std::to_string(m_MemoryInfo.getPhysicalMemoryUsage()) + "MB";
+	std::string gMemUsage = "Video MemUsage: " + std::to_string(m_Graphics->getVRAMMemUsage()) + "MB";
+
+	std::string speed = "DeltaTime: " + std::to_string(p_dt) + " FPS: " + std::to_string(1.0f/p_dt);
+
+	m_Window.setTitle(getGameTitle() + " | " + vMemUsage + " " + pMemUsage + " " + gMemUsage + " " + speed);
+}

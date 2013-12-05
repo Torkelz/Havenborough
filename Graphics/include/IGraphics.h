@@ -172,6 +172,12 @@ public:
 	virtual void drawFrame(int i) = 0;
 
 	/**
+	* Gets the amount of VRAM usage of the program.
+	* @return the usage in MB
+	*/
+	virtual int getVRAMMemUsage(void) = 0;
+	
+	/**
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
 	 *
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.

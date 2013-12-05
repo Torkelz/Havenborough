@@ -15,6 +15,7 @@
 #include "DeferredRenderer.h"
 #include "WrapperFactory.h"
 #include "ModelLoader.h"
+#include "VRAMMemInfo.h"
 
 using std::string;
 using std::vector;
@@ -91,6 +92,7 @@ private:
 
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
+	VRAMMemInfo *m_VRAMMemInfo;
 
 	vector<pair<string, Shader*>> m_ShaderList;
 	vector<pair<string, Model>> m_ModelList;
@@ -107,28 +109,30 @@ public:
 	Graphics(void);
 	~Graphics(void);
 
-	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen);
-	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen);
+	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) override;
+	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
-	void createModel(const char *p_ModelId, const char *p_Filename);
+	void createModel(const char *p_ModelId, const char *p_Filename) override;
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
-		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
+		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) override;
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
-		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements);
-	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId);
+		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements) override;
+	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) override;
 	
-	void createTexture(const char *p_TextureId, const char *p_filename);
+	void createTexture(const char *p_TextureId, const char *p_filename) override;
 	
-	void addStaticLight(void);
-	void removeStaticLight(void);
-	void useFrameLight(void);
+	void addStaticLight(void) override;
+	void removeStaticLight(void) override;
+	void useFrameLight(void) override;
 	
 	void renderModel(int p_ModelId) override;
-	void renderText(void);
-	void renderQuad(void);
+	void renderText(void) override;
+	void renderQuad(void) override;
 	void drawFrame(int i) override;
 
+	int getVRAMMemUsage(void) override;
+	
 	int createModelInstance(const char *p_ModelId) override;
 	void eraseModelInstance(int p_Instance) override;
 	void setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z) override;
@@ -138,14 +142,12 @@ public:
 	void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) override;
 
 private:
-	void shutdown(void);
+	void shutdown(void) override;
 
 	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
-	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth,
-		int p_ScreenHeight, bool p_Fullscreen);
+	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen);
 	HRESULT createRenderTargetView(void);
-	HRESULT createDepthStencilBuffer(int p_ScreenWidth,
-		int p_ScreenHeight);
+	HRESULT createDepthStencilBuffer(int p_ScreenWidth,	int p_ScreenHeight);
 	HRESULT createDepthStencilState(void);
 	HRESULT createDepthStencilView(void);
 	HRESULT createRasterizerState(void);

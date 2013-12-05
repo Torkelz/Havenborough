@@ -42,7 +42,7 @@
     <ClCompile Include="Source\MenuScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\NetworkClient.cpp">
+    <ClCompile Include="Source\RAMMemInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,7 +80,7 @@
     <ClInclude Include="Source\MenuScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NetworkClient.h">
+    <ClInclude Include="Source\RAMMemInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

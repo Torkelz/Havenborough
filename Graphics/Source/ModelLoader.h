@@ -9,13 +9,13 @@
 class ModelLoader
 {
 public:
-	struct Face
+	struct IndexDesc
 	{
 		std::string m_MaterialID;
-		std::vector<int> m_Vertex;
-		std::vector<int> m_Tangents;
-		std::vector<int> m_Normals;
-		std::vector<int> m_TextureCoord;
+		int m_Vertex;
+		int m_Tangent;
+		int m_Normal;
+		int m_TextureCoord;
 	};
 	
 	struct Material
@@ -31,22 +31,76 @@ private:
 	std::string m_MeshName;
 	int m_NumberOfVertices;
 	int m_NumberOfTriangles;
-	std::vector<DirectX::XMFLOAT3> m_Vertex;
+	std::vector<DirectX::XMFLOAT3> m_Vertices;
 	std::vector<DirectX::XMFLOAT3> m_Tangents;
 	std::vector<DirectX::XMFLOAT3> m_Normals;
 	std::vector<DirectX::XMFLOAT2> m_TextureCoord;
-	std::vector<Face> m_Index;
+	std::vector<IndexDesc> m_Indices;
 	std::vector<Material> m_Material;
-	std::vector<std::vector<Face>> m_IndexPerMaterial;
+	std::vector<std::vector<IndexDesc>> m_IndexPerMaterial;
 public:
+	
+	/**
+	 * Constructor.
+	 */
 	ModelLoader();
+	
+	/**
+	 * Destructor.
+	 */
 	~ModelLoader();
+	
+	/**
+	 * Use this function to release the memory in loader vectors.
+	 */
 	void clear();
-	bool loadFile(std::string p_Filename);
-	std::vector<DirectX::XMFLOAT3>  *getVertices();
-	std::vector<std::vector<Face>>  *getIndices();
-	std::vector<Material>			*getMaterial();
-	std::vector<DirectX::XMFLOAT3>  *getTangent();
-	std::vector<DirectX::XMFLOAT3>  *getNormal();
-	std::vector<DirectX::XMFLOAT2>  *getUV();
+	
+	/**
+	 * Creates vectors with information from the requested file.
+	 *
+	 * @param p_FilePath, the absolute path to the requested file.
+	 */
+	bool loadFile(std::string p_FilePath);
+
+	/**
+	 * Returns the stored information about vertices as a vector with Float3 values. 
+	 *
+	 * @returns a vector of vertices.
+	 */
+	std::vector<DirectX::XMFLOAT3> getVertices();
+
+	/**
+	 * Returns the stored information about indices as a vector with Float3 values.
+	 *
+	 * @returns a vector of indices.
+	 */
+	std::vector<std::vector<IndexDesc>> getIndices();
+
+	/**
+	 * Returns the stored information about the materials that are used by the model.
+	 *
+	 * @returns a vector of material structs.
+	 */
+	std::vector<Material> getMaterial();
+
+	/**
+	 * Returns the stored information about normal as a vector with Float3.
+	 *
+	 * @returns a vector of normals.
+	 */
+	std::vector<DirectX::XMFLOAT3> getNormals();
+
+	/**
+	 * Returns the stored information about tangents as a vector with Float3. 
+	 *
+	 * @returns a vector of tangents.
+	 */
+	std::vector<DirectX::XMFLOAT3> getTangents();
+
+	/**
+	 * Returns the stored information about uv coordinates as a vector with Float2. 
+	 *
+	 * @returns a vector of texture coords.
+	 */
+	std::vector<DirectX::XMFLOAT2> getTextureCoords();
 };
