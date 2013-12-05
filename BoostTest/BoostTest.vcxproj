@@ -127,6 +127,7 @@
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
+    <ClCompile Include="Source\Loader\TestStaticModelLoader.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
     <ClCompile Include="Source\SceneManager\TestSceneManager.cpp" />
     <ClCompile Include="Source\TestWindow.cpp" />
@@ -146,6 +147,9 @@
     <ClInclude Include="..\Physics\include\AABB.h" />
     <ClInclude Include="..\Physics\include\BoundingVolume.h" />
     <ClInclude Include="..\Physics\include\Sphere.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Sample130.tx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

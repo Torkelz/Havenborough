@@ -36,6 +36,7 @@
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
+    <ClCompile Include="Source\Loader\TestStaticModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
@@ -44,5 +45,8 @@
     <ClInclude Include="..\Physics\include\Sphere.h" />
     <ClInclude Include="..\Physics\include\BoundingVolume.h" />
     <ClInclude Include="..\Physics\include\AABB.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Sample130.tx" />
   </ItemGroup>
 </Project>
