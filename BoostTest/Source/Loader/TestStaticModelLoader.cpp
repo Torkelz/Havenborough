@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(TestLoadingFile)
 	test = loader.loadFile("C:/Users/BTH/Documents/GitHub/Havenborough/BoostTest/Source/Sample130.tx");
 	BOOST_CHECK_EQUAL(test, true);
 
-	std::vector<std::vector<ModelLoader::Face>> temp = loader.getIndices();
+	std::vector<std::vector<ModelLoader::IndexDesc>> temp = loader.getIndices();
 
 	BOOST_CHECK_EQUAL(temp.size(), 2);
 

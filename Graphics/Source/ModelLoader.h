@@ -9,12 +9,12 @@
 class ModelLoader
 {
 public:
-	struct Face
+	struct IndexDesc
 	{
 		std::string m_MaterialID;
 		int m_Vertex;
-		int m_Tangents;
-		int m_Normals;
+		int m_Tangent;
+		int m_Normal;
 		int m_TextureCoord;
 	};
 	
@@ -31,13 +31,13 @@ private:
 	std::string m_MeshName;
 	int m_NumberOfVertices;
 	int m_NumberOfTriangles;
-	std::vector<DirectX::XMFLOAT3> m_Vertex;
+	std::vector<DirectX::XMFLOAT3> m_Vertices;
 	std::vector<DirectX::XMFLOAT3> m_Tangents;
 	std::vector<DirectX::XMFLOAT3> m_Normals;
 	std::vector<DirectX::XMFLOAT2> m_TextureCoord;
-	std::vector<Face> m_Index;
+	std::vector<IndexDesc> m_Indices;
 	std::vector<Material> m_Material;
-	std::vector<std::vector<Face>> m_IndexPerMaterial;
+	std::vector<std::vector<IndexDesc>> m_IndexPerMaterial;
 public:
 	
 	/**
@@ -74,7 +74,7 @@ public:
 	 *
 	 * @returns a vector of indices.
 	 */
-	std::vector<std::vector<Face>> getIndices();
+	std::vector<std::vector<IndexDesc>> getIndices();
 
 	/**
 	 * Returns the stored information about the materials that are used by the model.

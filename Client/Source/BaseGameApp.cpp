@@ -30,7 +30,9 @@ void BaseGameApp::init()
 	translator->addMouseButtonMapping(InputTranslator::MouseButton::MIDDLE, "rollMe!");
 
 	m_InputQueue.init(std::move(translator));
-
+	m_Network = INetwork::createNetwork();
+	m_Connected = false;
+	
 	m_Physics = IPhysics::createPhysics();
 
 	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
@@ -68,12 +70,43 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 			{
-				m_Network.connect("localhost");
+				m_Connected = false;
+				m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
 			}
 			else
 			{
 				//printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
 			}
+		}
+
+		if (m_Connected)
+		{
+			IConnectionController* conn = m_Network->getConnectionToServer();
+			unsigned int numPackages = conn->getNumPackages();
+			for (unsigned int i = 0; i < numPackages; i++)
+			{
+				Package package = conn->getPackage(i);
+				PackageType type = conn->getPackageType(package);
+
+				switch (type)
+				{
+				case PackageType::ADD_OBJECT:
+					{
+						AddObjectData data = conn->getAddObjectData(package);
+						std::cout << "Adding object at (" 
+							<< data.m_Position[0] << ", "
+							<< data.m_Position[1] << ", " 
+							<< data.m_Position[2] << ")" << std::endl;
+					}
+					break;
+
+				default:
+					std::cout << "Received unhandled package" << std::endl;
+					break;
+				}
+			}
+
+			conn->clearPackages(numPackages);
 		}
 	}
 }
@@ -106,4 +139,17 @@ bool BaseGameApp::handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p
 	m_ShouldQuit = true;
 	p_Result = 0;
 	return true;
+}
+
+void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
+{
+	if (p_Res == Result::SUCCESS)
+	{
+		((BaseGameApp*)p_UserData)->m_Connected = true;
+		std::cout << "Connected successfully" << std::endl;
+	}
+	else
+	{
+		std::cout << "Connection failed" << std::endl;
+	}
 }
