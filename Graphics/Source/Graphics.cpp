@@ -1,6 +1,8 @@
 #include "Graphics.h"
 #include <iostream>
 
+const std::string Graphics::m_RelativeResourcePath = "../../Graphics/Resources/";
+
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
@@ -15,6 +17,8 @@ Graphics::Graphics(void)
 	m_DeferredRender = nullptr;
 
 	m_VSyncEnabled = false; //DEBUG
+
+	m_NextInstanceId = 1;
 }
 
 
@@ -163,7 +167,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Setup camera matrices REMOVE LATER
 	DirectX::XMFLOAT4 eye4,lookat,up;
 	DirectX::XMFLOAT3 *eye;
-	eye4 = DirectX::XMFLOAT4(0,0,-60,1);
+	eye4 = DirectX::XMFLOAT4(0,0,-20,1);
 	eye = new  DirectX::XMFLOAT3(eye4.x,eye4.y,eye4.z);
 	lookat = DirectX::XMFLOAT4(0,0,0,1);
 	up = DirectX::XMFLOAT4(0,1,0,0);
@@ -177,9 +181,9 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 								DirectX::XMLoadFloat4(&up))));
 	DirectX::XMStoreFloat4x4(proj,
 							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
-								0.4f*3.14f,
+								0.25f*3.14f,
 								(float)p_ScreenWidth / (float)p_ScreenHeight,
-								1.0f,
+								0.1f,
 								1000.0f)));
 
 	//Deferred Render
@@ -188,9 +192,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 								eye, view, proj);
 
 	m_Shader = nullptr;
-	m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","VS","5_0",Shader::Type::VERTEX_SHADER);
-	m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","PS","5_0",Shader::Type::PIXEL_SHADER);
-
+	createShader("DebugShader",L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","VS,PS","5_0",ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
+	//m_WrapperFactory->addShaderStep(m_Shader,L,"VS","5_0",Shader::Type::VERTEX_SHADER);
+	//m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","PS","5_0",Shader::Type::PIXEL_SHADER);
+	m_Shader = getShaderFromList("DebugShader");
 	D3D11_SAMPLER_DESC sd;
     ZeroMemory(&sd, sizeof(sd));
     sd.Filter                                = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -231,7 +236,6 @@ void Graphics::shutdown(void)
 	{
 		SAFE_DELETE(s.second);
 	}
-	m_ShaderLinkList.clear();
 	//m_ShaderList.clear();
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthStencilView);
@@ -247,7 +251,7 @@ void Graphics::shutdown(void)
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
 
-	SAFE_DELETE(m_Shader);
+	m_Shader = nullptr;
 }
 
 void IGraphics::deleteGraphics(IGraphics *p_Graphics)
@@ -258,11 +262,103 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 
 void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	Buffer *buffer = nullptr;
-	Buffer::Description bufferDescription;
+	ModelLoader modelLoader;
+	Buffer *vertexBuffer = nullptr;
+
+	modelLoader.loadFile(p_Filename);
+
+	//int nrVertices = modelLoader.getVertices()->size();
+	vector<std::vector<ModelLoader::Face>>	*tempF	= modelLoader.getIndices();
+	vector<DirectX::XMFLOAT3>				*tempN	= modelLoader.getNormal();
+	vector<DirectX::XMFLOAT3>				*tempT	= modelLoader.getTangent();
+	vector<DirectX::XMFLOAT2>				*tempUV = modelLoader.getUV();
+	vector<DirectX::XMFLOAT3>				*tempVert = modelLoader.getVertices();
+	vector<ModelLoader::Material>			*tempM	= modelLoader.getMaterial();
 	
 
-	buffer = createBuffer(bufferDescription);
+	vector<vertex> temp;
+	vector<vector<int>> tempI;
+	vector<int> I;
+
+	for(unsigned int i = 0; i < tempF->size(); i++)
+	{
+		for(unsigned int j = 0; j < tempF->at(i).size();j++)
+		{
+			for(unsigned int k = 0; k < tempF->at(i).at(j).m_Vertex.size();k++)
+			{
+				temp.push_back(vertex(tempVert->at(tempF->at(i).at(j).m_Vertex.at(k)),
+										tempN->at(tempF->at(i).at(j).m_Normals.at(k)),
+										tempUV->at(tempF->at(i).at(j).m_TextureCoord.at(k)),
+										tempT->at(tempF->at(i).at(j).m_Tangents.at(k))));
+				I.push_back(tempF->at(i).at(j).m_Vertex.at(k));
+			}
+		}
+		tempI.push_back(I);
+	}
+	
+	// Create Vertex buffer.
+	Buffer::Description bufferDescription;
+	bufferDescription.initData = temp.data();
+	bufferDescription.numOfElements = temp.size();
+	bufferDescription.sizeOfElement = sizeof(Graphics::vertex);
+	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
+	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
+	vertexBuffer = WrapperFactory::getInstance()->createBuffer(bufferDescription);
+	temp.clear();
+
+	// Create Index buffer.
+	unsigned int nrIndexBuffers = tempI.size();
+	Buffer **index = new Buffer*[nrIndexBuffers];
+	bufferDescription.type = Buffer::Type::INDEX_BUFFER;
+	//bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE;// Change to default when needed to change data.
+	bufferDescription.sizeOfElement = sizeof(int);
+	
+	for(unsigned int i = 0; i < nrIndexBuffers; i++)
+	{
+		bufferDescription.initData = tempI.at(i).data();
+		bufferDescription.numOfElements = tempI.at(i).size();
+
+		index[i] = WrapperFactory::getInstance()->createBuffer(bufferDescription);
+	}
+	tempI.clear();
+	I.clear();
+
+	// Load textures.
+	ID3D11ShaderResourceView **diffuse	= new ID3D11ShaderResourceView*[nrIndexBuffers];
+	ID3D11ShaderResourceView **normal	= new ID3D11ShaderResourceView*[nrIndexBuffers];
+	ID3D11ShaderResourceView **specular = new ID3D11ShaderResourceView*[nrIndexBuffers];
+	for(unsigned int i = 0; i < nrIndexBuffers; i++)
+	{
+		diffuse[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM->at(i).m_DiffuseMap).c_str());
+		normal[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM->at(i).m_NormalMap).c_str());
+		specular[i] = m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM->at(i).m_SpecularMap).c_str());
+	}
+	Model m;
+	m.vertexBuffer		= vertexBuffer;
+	m.indexBuffer		= index;
+	m.diffuseTexture	= diffuse;
+	m.normalTexture		= normal;
+	m.specularTexture	= specular;
+	m.numOfMaterials	= nrIndexBuffers;
+
+	m_ModelList.push_back(std::pair<string,Model>(p_ModelId,m));
+
+	// Cleanup.
+	tempF	= nullptr;
+	tempN	= nullptr;
+	tempT	= nullptr;
+	tempUV	= nullptr;
+	tempVert = nullptr;
+	tempM	= nullptr;
+	vertexBuffer = nullptr;
+	/*for(unsigned int i = 0; i < nrIndexBuffers; i++)
+	{
+		diffuse[i]	= nullptr;
+		normal[i]	= nullptr;
+		specular[i] = nullptr;
+		index[i]	= nullptr;
+	}*/
+	modelLoader.clear();
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
@@ -333,6 +429,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		{
 			SAFE_DELETE(shader);
 		}
+
 		
 		throw;
 	}
@@ -432,7 +529,11 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 
 void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 {
-	m_ShaderLinkList.push_back(make_pair(p_ShaderId, p_ModelId));
+	Model* m = nullptr;
+	m = getModelFromList(p_ModelId);
+	if(m != nullptr)
+		m->shader = getShaderFromList(p_ShaderId);
+	m = nullptr;
 }
 
 void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
@@ -440,16 +541,16 @@ void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
 }
 
-void Graphics::renderModel(char *p_ModelId)
+void Graphics::renderModel(int p_ModelId)
 {
-
-}
-
-// DEBUG remove when merging to real master
-void Graphics::renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
-		Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent)
-{
-	m_DeferredRender->addRenderable(Renderable(p_Buffer,p_ConstantBuffer,p_Shader,p_World));
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_ModelId)
+		{
+			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.m_ModelName), &inst.second.getWorldMatrix()));
+			break;
+		}
+	}
 }
 
 void Graphics::renderText(void)
@@ -495,6 +596,57 @@ void Graphics::drawFrame(int i)
 	m_Shader->unSetShader();
 	
 	End();
+}
+
+int Graphics::createModelInstance(const char *p_ModelId)
+{
+	ModelInstance instance;
+	instance.m_IsCalculated = false;
+	instance.m_ModelName = p_ModelId;
+	instance.m_Position = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
+	instance.m_Rotation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
+	instance.m_Scale = DirectX::XMFLOAT3(1.f, 1.f, 1.f);
+
+	int id = m_NextInstanceId++;
+	m_ModelInstances.push_back(std::make_pair(id, instance));
+
+	return id;
+}
+
+void Graphics::setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.setPosition(DirectX::XMFLOAT3(p_X, p_Y, p_Z));
+			break;
+		}
+	}
+}
+
+void Graphics::setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.setRotation(DirectX::XMFLOAT3(p_Pitch, p_Yaw, p_Roll));
+			break;
+		}
+	}
+}
+
+void Graphics::setModelScale(int p_Instance, float p_X, float p_Y, float p_Z)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.setScale(DirectX::XMFLOAT3(p_X, p_Y, p_Z));
+			break;
+		}
+	}
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
@@ -700,7 +852,7 @@ vector<string> Graphics::createEntryPointList(const char *p_EntryPoint)
 
 	std::vector<char> buffer(strlen(p_EntryPoint)+1);
 	strcpy(buffer.data(), p_EntryPoint);
-	char *type = nullptr, *tmp;
+	char *tmp;
 	tmp = strtok(buffer.data(), ",");
 	while(tmp != nullptr)
 	{
@@ -736,4 +888,34 @@ void Graphics::End(void)
 		// Present as fast as possible.
 		m_SwapChain->Present(0, 0);
 	}
+}
+
+Shader* Graphics::getShaderFromList(string p_Identifier)
+{
+	Shader* ret = nullptr;
+
+	for(auto & s : m_ShaderList)
+	{
+		if(s.first.compare(p_Identifier) == 0 )
+		{
+			ret = s.second;
+			break;
+		}
+	}
+	return ret;
+}
+
+Model* Graphics::getModelFromList(string p_Identifier)
+{
+	Model* ret = nullptr;
+
+	for(auto & s : m_ModelList)
+	{
+		if(s.first.compare(p_Identifier) == 0 )
+		{
+			ret = &s.second;
+			break;
+		}
+	}
+	return ret;
 }

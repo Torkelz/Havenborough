@@ -45,6 +45,7 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	m_Type = p_Description.type;
 
 	bufferDescription.StructureByteStride = 0;
+	bufferDescription.MiscFlags = 0;
 	
 	switch (m_Type)
 	{
@@ -79,6 +80,8 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 
 	case Type::STRUCTURED_BUFFER:
 		{
+			bufferDescription.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+			bufferDescription.StructureByteStride = p_Description.sizeOfElement;
 			bufferDescription.BindFlags = 0;
 			break;
 		}
@@ -89,6 +92,9 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 			break;
 		}
 	}
+
+	if(p_Description.bindSRV)	bufferDescription.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	if(p_Description.bindUAV)	bufferDescription.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
 	m_Usage = p_Description.usage;
 	m_SizeOfElement = p_Description.sizeOfElement;
@@ -147,11 +153,11 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 		}
 	}
 
-	bufferDescription.MiscFlags = 0;
-	if(m_Type ==Type::STRUCTURED_BUFFER)
+	
+	/*if(m_Type ==Type::STRUCTURED_BUFFER)
 	{
 		bufferDescription.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-	}
+	}*/
 
 	bufferDescription.ByteWidth = p_Description.numOfElements * p_Description.sizeOfElement;
 

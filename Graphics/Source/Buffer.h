@@ -39,10 +39,14 @@ public:
 		UINT32 numOfElements;
 		UINT32 sizeOfElement;
 		void *initData;
+		bool bindSRV;
+		bool bindUAV;
 
 		Description()
 		{
 			initData = nullptr;
+			bindSRV = false;
+			bindUAV = false;
 		}
 	};
 

@@ -43,19 +43,24 @@ void BaseGameApp::init()
 
 	dt = (1.f/60.f);
 	
+	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
+	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
+							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
+	m_Graphics->linkShaderToModel("BOXShader","BOX");
+
 	//TEMPORARY -------------------------------------------------------
-	//BufferDescription bdesc;
-	//bdesc.initData = createBOX(31,0.0f,0.0f,0.0f);
-	//bdesc.numOfElements = 36;
-	//bdesc.sizeOfElement = sizeof(BaseGameApp::vertex);
-	//bdesc.type = VERTEX_BUFFER;
-	//bdesc.usage = BUFFER_DEFAULT;
-	//
-	//m_Buffer = m_Graphics->createBuffer(bdesc);
-	//
-	//m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","VS","vs_5_0",VERTEX_SHADER);
-	//m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","PS","ps_5_0",PIXEL_SHADER);
-	//
+	/*Buffer::Description bdesc;
+	bdesc.initData = createBOX(31,0.0f,0.0f,0.0f);
+	bdesc.numOfElements = 36;
+	bdesc.sizeOfElement = sizeof(BaseGameApp::vertex);
+	bdesc.type = Buffer::Type::VERTEX_BUFFER;
+	bdesc.usage = Buffer::Usage::DEFAULT;
+
+	m_Buffer = WrapperFactory::getInstance()->createBuffer(bdesc);
+
+	m_Shader = m_Graphics->createShader(L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","VS","vs_5_0",VERTEX_SHADER);
+	m_Graphics->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl","PS","ps_5_0",PIXEL_SHADER);
+	*/
 	////BufferDescription bdesc;
 	//bdesc.initData = createBOX(25,0.0f,0.0f,0.0f);
 	//bdesc.numOfElements = 36;
@@ -89,11 +94,18 @@ void BaseGameApp::run()
 		//DirectX::XMStoreFloat4x4(&tempMatrix, tempMatrix2);
 	//Temp -------------------------------------------------
 
+	int boxId = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelScale(boxId, 7,7,7);
+	m_Graphics->setModelPosition(boxId, 5,0,0);
+	m_Graphics->setModelRotation(boxId, -1,1,0.5f);
+	float yaw = 0.f;
+	float yawSpeed = 0.1f;
+
 	while (!m_ShouldQuit)
 	{
 		m_Physics->update(dt);
 
-		for(int i = 0; i < m_Physics->getHitDataSize(); i++)
+		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)
@@ -101,12 +113,18 @@ void BaseGameApp::run()
 				int i = 0;
 			}
 		}
+
+		yaw += yawSpeed * dt;
+		m_Graphics->setModelRotation(boxId, yaw,1,0.5f);
+
 		__int64 currTimeStamp = 0;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
 
 		m_InputQueue.onFrame();
 		m_Window.pollMessages();
+
+		m_Graphics->renderModel(boxId);
 		//Temp ------------------------------------------------
 		//m_Graphics->renderModel(m_Buffer, m_CBuffer, m_Shader, &tempMatrix, false);
 		/*for (int i = 0; i < 100; i++)

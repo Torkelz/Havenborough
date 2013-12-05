@@ -25,7 +25,7 @@ DeferredRenderer::DeferredRenderer(void)
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 
-	m_speed = 4.0f;
+	m_speed = 1.0f;
 }
 
 DeferredRenderer::~DeferredRenderer(void)
@@ -50,6 +50,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_RELEASE(m_Sampler);
 	SAFE_DELETE(m_LightShader);
 	SAFE_DELETE(m_ConstantBuffer);
+	SAFE_DELETE(m_ObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
 
 	m_CameraPosition = nullptr;
@@ -99,14 +100,14 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	// TEMPORARY -----------------------------------------------------------
 	// Make the light
 	Light testLight(	
-		DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
+		DirectX::XMFLOAT3(0.0f, 0.0f, 8.0f),
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT2(1.0f, 1.0f),  
 		50.0f,
 		0
 		);
-	addLight(testLight);
+	//addLight(testLight);
 
 	xx = 2;
 	yy = 2;
@@ -140,14 +141,16 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	cbdesc.sizeOfElement = sizeof(Light);
 	cbdesc.type = Buffer::Type::STRUCTURED_BUFFER;
 	cbdesc.usage = Buffer::Usage::DEFAULT;
-	m_AllLightBuffer = new Buffer();
-	m_AllLightBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
-	//m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
+	cbdesc.bindSRV = true;
+	//m_AllLightBuffer = new Buffer();
+	m_AllLightBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	//m_AllLightBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
+	m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
 
 	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
-	m_Specular = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
-	m_Diffuse = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/uv alpha.png");
-	m_NormalMap = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_NRM_RGB.jpg");
+	m_Specular = nullptr;//m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
+	m_Diffuse = nullptr;//m_TextureLoader->createTextureFromFile("../../Graphics/Resources/uv alpha.png");
+	m_NormalMap = nullptr;//m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_NRM_RGB.jpg");
 
 
 	// TEMPORARY ----------------------------------------------------------------
@@ -159,7 +162,7 @@ void DeferredRenderer::renderDeferred()
 	float dt = 0.016f;
 	for(unsigned int i = 0; i < m_Lights.size();i++)
 	{
-
+	
 		if(i%2 == 0)
 			m_Lights.at(i).lightPos.y += m_speed * dt;
 		else
@@ -199,28 +202,37 @@ void DeferredRenderer::renderGeometry()
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// The textures will be needed to be grabbed from the model later.
-	ID3D11ShaderResourceView *srvs[] = { m_Diffuse, m_NormalMap, m_Specular };
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
 
 	m_ConstantBuffer->setBuffer(1);
-	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 
 	for(unsigned int i = 0; i < m_Objects.size();i++)
 	{
+		ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[0], 
+												m_Objects.at(i).m_Model->normalTexture[0], 
+												m_Objects.at(i).m_Model->specularTexture[0] 
+											};
+		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 		updateConstantBuffer(int(i));
 		// Send stuff.
 		// The update of the sub resource has to be done externally.
-		m_Objects.at(i).m_Buffer->setBuffer(0);
+		m_Objects.at(i).m_Model->vertexBuffer->setBuffer(0);
+		cObjectBuffer temp;
+		temp.world = *m_Objects.at(i).m_World;
+		m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+		m_ObjectConstantBuffer->setBuffer(2);
+
 		// Set shader.
-		m_Objects.at(i).m_Shader->setShader();
+		m_Objects.at(i).m_Model->shader->setShader();
 		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-		m_Objects.at(i).m_Shader->setBlendState(m_BlendState2, data);
+		m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
 
-		m_DeviceContext->Draw(m_Objects.at(i).m_Buffer->getNumOfElements(), 0);
+		m_DeviceContext->Draw(m_Objects.at(i).m_Model->vertexBuffer->getNumOfElements(), 0);
 
-		m_Objects.at(i).m_Buffer->unsetBuffer(0);
-		m_Objects.at(i).m_Shader->unSetShader();
+		m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
+		m_ObjectConstantBuffer->unsetBuffer(2);
+		m_Objects.at(i).m_Model->shader->unSetShader();
 	}
 
 	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
@@ -414,6 +426,11 @@ void DeferredRenderer::createConstantBuffer(int nrLights)
 	cbdesc.usage = Buffer::Usage::DEFAULT;
 	m_ConstantBuffer = new Buffer();
 	m_ConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
+
+
+	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
+	m_ObjectConstantBuffer = new Buffer();
+	m_ObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 }
 
 void DeferredRenderer::clearRenderTargets()

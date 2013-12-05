@@ -36,6 +36,7 @@
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
+    <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />

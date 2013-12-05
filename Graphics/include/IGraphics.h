@@ -154,7 +154,7 @@ public:
 	* Renders a model specified with an ID.
 	* @param p_ModelId the ID of the model to be rendered
 	*/
-	virtual void renderModel(char *p_ModelId) = 0;
+	virtual void renderModel(int p_ModelId) = 0;
 
 	/**
 	* 
@@ -170,6 +170,11 @@ public:
 	* Draw the current frame.
 	*/
 	virtual void drawFrame(int i) = 0;
+
+	virtual int createModelInstance(const char *p_ModelId) = 0;
+	virtual void setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z) = 0;
+	virtual void setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll) = 0;
+	virtual void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) = 0;
 
 private:
 

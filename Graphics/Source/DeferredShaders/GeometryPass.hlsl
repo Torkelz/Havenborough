@@ -13,6 +13,11 @@ cbuffer cb : register(b1)
 	int		 ninjaKick;
 };
 
+cbuffer cbWorld : register(b2)
+{
+	float4x4 world;
+};
+
 struct VSIn
 {
 	float4 pos		: POSITION;
@@ -43,13 +48,13 @@ PSIn VS( VSIn input )
 {
 	PSIn output;
 
-	output.pos = mul( projection, mul(view, input.pos) );
-	output.wpos = input.pos;
+	output.pos = mul( projection, mul(view, mul(world, input.pos) ) );
+	output.wpos = mul(world, input.pos);
 
-	output.normal = normalize(input.normal);
+	output.normal = normalize(mul(world, input.normal));
 	output.uvCoord = input.uvCoord;
-	output.tangent = normalize(input.tangent);
-	output.binormal = normalize(input.binormal);
+	output.tangent = normalize(mul(world, input.tangent));
+	output.binormal = normalize(mul(world, input.binormal));
 		
 	return output;
 }
@@ -66,12 +71,12 @@ PSOut PS( PSIn input )
 	float4 diffuseColor = diffuse.Sample(m_textureSampler, input.uvCoord);
 	
 	// Remove when debugging is done.
-	if(ninjaKick == 0)
+	/*if(ninjaKick == 0)
 	{
 		diffuseColor.x = 1.0f;
 		diffuseColor.y = 0.0f;
 		diffuseColor.z = 0.0f;
-	}
+	}*/
 	// ------------------------------
 
 	if(diffuseColor.w >= .5f)
@@ -81,7 +86,7 @@ PSOut PS( PSIn input )
 
 	if(diffuseColor.w == 1.0f)
 	{
-		output.diffuse			= diffuseColor;//input.diffuse.xyz;
+		output.diffuse			= float4(diffuseColor.xyz,1.0f);//input.diffuse.xyz;
 		output.normal.w			= 1.0f;//input.specularPower;// 1.0f for debug.
 		output.normal.xyz		= normal;//norm.xyz;
 		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
@@ -96,5 +101,6 @@ PSOut PS( PSIn input )
 		output.wPosition.w		= 0.0f;//specular.Sample(m_textureSampler, input.uvCoord).x;//input.specularIntensity; // 1.0f for debug.
 	}
 	
+
 	return output;
 }

@@ -93,7 +93,7 @@ float3 CalcLighting(	float3 normal,
 	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
 							 lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
-	return ( diffuse + specular ) * attenuation;
+	return saturate(( diffuse + specular ) * attenuation);
 }
 
 
@@ -167,7 +167,6 @@ float4 PSmain( VSOutput input ) :  SV_Target
 		if(calcLight)
 			lighting += CalcLighting( normal, position, diffuseAlbedo,
 									specularAlbedo, specularPower,i );
-
 		calcLight = false;
 	}
 

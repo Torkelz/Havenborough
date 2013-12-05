@@ -3,42 +3,16 @@
 #include <d3d11.h>
 #include <memory>
 #include <vector>
-#include "Shader.h"
-#include "Buffer.h"
+//#include "Shader.h"
+//#include "Buffer.h"
+#include "WrapperFactory.h"
 #include "Util.h"
 #include <DirectXMath.h>
 #include "LightStructs.h"
 #include "TextureLoader.h"
+#include "ModelDefinition.h"
 
-/*
- * Renderable is a debug struct made with the only purpose to be a placeholder for models
- * until the model loader is done.
- */
-struct Renderable
-{
-	//std::shared_ptr<Model>	m_Model;
-	Buffer				*m_Buffer; //Should be replaced by a Model object at a later date
-	Buffer				*m_ConstantBuffer;
-	Shader				*m_Shader;
-	DirectX::XMFLOAT4X4 *m_World;
 
-	Renderable(Buffer* p_Buffer, Buffer* p_ConstantBuffer,
-		Shader* p_Shader, DirectX::XMFLOAT4X4* p_World)
-	{
-		m_Buffer = p_Buffer;
-		m_ConstantBuffer = p_ConstantBuffer;
-		m_Shader = p_Shader;
-		m_World = p_World;
-	}
-
-	~Renderable()
-	{
-		m_Buffer = nullptr;
-		m_ConstantBuffer = nullptr;
-		m_Shader = nullptr;
-		m_World = nullptr;
-	}
-};
 
 /*
  * cBuffer contains the matrices needed to render the models and lights.
@@ -50,10 +24,35 @@ struct cBuffer
 	DirectX::XMFLOAT3	campos;
 	int					nrLights;
 };
-
+struct cObjectBuffer
+{
+	DirectX::XMFLOAT4X4 world;
+};
 
 class DeferredRenderer
 {
+public:
+	/*
+	 * Renderable is a debug struct made with the only purpose to be a placeholder for models
+	 * until the model loader is done.
+	 */
+	struct Renderable
+	{
+		Model				*m_Model;
+		const DirectX::XMFLOAT4X4 *m_World;
+
+		Renderable(Model *p_Model, const DirectX::XMFLOAT4X4* p_World)
+		{
+			m_Model = p_Model;
+			m_World = p_World;
+		}
+
+		~Renderable()
+		{
+			m_Model = nullptr;
+			m_World = nullptr;
+		}
+	};
 private:
 	std::vector<Renderable>		m_Objects;
 	std::vector<Light>			m_Lights;
@@ -76,6 +75,7 @@ private:
 	ID3D11BlendState			*m_BlendState2;
 	Shader						*m_LightShader;
 	Buffer						*m_ConstantBuffer;
+	Buffer						*m_ObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
 
 	DirectX::XMFLOAT3			*m_CameraPosition;
@@ -136,6 +136,8 @@ public:
 	 * @return, render target if i is a legal number, else nullptr.
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
+
+	
 private:
 	void renderGeometry();
 
