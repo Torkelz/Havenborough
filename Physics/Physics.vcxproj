@@ -88,18 +88,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\AABB.cpp" />
+    <ClCompile Include="Source\Body.cpp" />
     <ClCompile Include="Source\Collision.cpp" />
     <ClCompile Include="Source\Physics.cpp" />
     <ClCompile Include="Source\Sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\PhysicsTypes.h" />
     <ClInclude Include="include\AABB.h" />
     <ClInclude Include="include\BoundingVolume.h" />
     <ClInclude Include="include\IPhysics.h" />
     <ClInclude Include="include\Sphere.h" />
+    <ClInclude Include="Source\Body.h" />
     <ClInclude Include="Source\Collision.h" />
     <ClInclude Include="Source\Physics.h" />
-    <ClInclude Include="Source\VolumeIncludeAll.h" />
+    <ClInclude Include="include\VolumeIncludeAll.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "IGraphics.h"
+#include <IGraphics.h>
 #include "Input\Input.h"
 #include "IPhysics.h"
-#include "NetworkClient.h"
+#include <INetwork.h>
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
@@ -20,10 +20,17 @@ private:
 	Input	m_InputQueue;
 	RAMMemInfo m_MemoryInfo;
 
-	NetworkClient m_Network;
+	INetwork* m_Network;
 
 	bool	m_ShouldQuit;
+	bool	m_Connected;
+
 	SceneManager m_SceneManager;
+
+	BodyHandle m_Body, m_Object;
+	IPhysics *m_Physics;
+
+	float dt;
 
 public:
 	/**
@@ -54,4 +61,6 @@ public:
 
 private:
 	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+
+	static void connectedCallback(Result p_Res, void* p_UserData);
 };

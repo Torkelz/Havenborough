@@ -1,6 +1,50 @@
 #pragma once
 
 #include "VolumeIncludeAll.h"
+#include "..\include\PhysicsTypes.h"
+
+inline DirectX::XMFLOAT3 vector3ToXMFLOAT3(Vector3* p_vector)
+{
+	DirectX::XMFLOAT3 vector;
+	vector = DirectX::XMFLOAT3(p_vector->x, p_vector->y, p_vector->z);
+
+	return vector;
+};
+
+inline DirectX::XMFLOAT4 vector4ToXMFLOAT4(Vector4* p_vector)
+{
+	DirectX::XMFLOAT4 vector = DirectX::XMFLOAT4(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
+
+	return vector;
+};
+
+inline Vector3 XMFLOAT3ToVector3(DirectX::XMFLOAT3* p_vector)
+{
+	Vector3 vector = Vector3(p_vector->x, p_vector->y, p_vector->z);
+
+	return vector;
+};
+
+inline Vector4 XMFLOAT4ToVector4(DirectX::XMFLOAT4* p_vector)
+{
+	Vector4 vector = Vector4(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
+
+	return vector;
+};
+
+inline DirectX::XMVECTOR Vector4ToXMVECTOR(Vector4* p_vector)
+{
+	DirectX::XMVECTOR vector = DirectX::XMVectorSet(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
+
+	return vector;
+};
+
+inline Vector4 XMVECTORToVector4(DirectX::XMVECTOR* p_vector)
+{
+	Vector4 vector = Vector4(p_vector->m128_f32[0], p_vector->m128_f32[1], p_vector->m128_f32[2], p_vector->m128_f32[3]);
+
+	return vector;
+};
 
 class Collision
 {
@@ -9,28 +53,42 @@ public:
 public:
 	Collision();
 	~Collision();
-	
+
+	/**
+	* Redirect to the appropriate check, when neither BoundingVolumes' type is known.
+	* @return HitData, see HitData definition.
+	*/
+	HitData boundingVolumeVsBoundingVolume(BoundingVolume* p_Volume1, BoundingVolume* p_Volume2);
+	/**
+	* Check for the appropriate collision, a BoundingVolume versus a sphere.
+	* @return HitData, see HitData definition.
+	*/
+	HitData boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sphere);
+	/**
+	* Check for the appropriate collision, a BoundingVolume versus an AABB.
+	* Sphere versus Sphere collision
+	* @return HitData, see HitData definition.
+	*/
+	HitData boundingVolumeVsAABB(BoundingVolume* p_Volume, AABB* p_AABB);
 	/**
 	* Sphere versus Sphere collision
-	* @return true if collision happens, otherwise false.
+	* @return HitData, see HitData definition.
 	*/
-	bool sphereVsSphere(Sphere* p_sphere1, Sphere* p_sphere2);
+	HitData sphereVsSphere(Sphere* p_Sphere1, Sphere* p_Sphere2);
 	/**
 	* AABB versus AABB collision
-	* ## Tip: You can use the AABBs' spheres and do SphereVsSphere before calling this 
-	* if you are doing a lot of collision tests and expect very few of them to return 
-	* true for better performance. ##
-	* @return true if collision happens, otherwise false
+	* ## SphereVsSphere check happens before 
+	* the actual AABBvsAABB collision check. ##
+	* @return HitData, see HitData definition.
 	*/
-	bool AABBvsAABB( AABB* p_aabb1, AABB* p_aabb2 );
+	HitData AABBvsAABB( AABB* p_AABB1, AABB* p_AABB2 );
 	/**
 	* AABB versus Sphere collision
-	* ## Tip: You can use the AABB's sphere and do SphereVsSphere before calling this 
-	* if you are doing a lot of collision tests and expect very few of them to return 
-	* true for better performance. ##
-	* @return true if collision happens, otherwise false
+	* ## SphereVsSphere check happens before 
+	* the actual AABBvsAABB collision check. ##
+	* @return HitData, see HitData definition.
 	*/
-	bool AABBvsSphere( AABB* p_aabb, Sphere* p_sphere );
+	HitData AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere );
 	//bool	collide( BoundingVolume* p_pVolume );
 };
 

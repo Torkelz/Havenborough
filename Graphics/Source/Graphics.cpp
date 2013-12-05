@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include "ModelLoader.h"
 #include <iostream>
 
 Graphics::Graphics(void)
@@ -213,7 +214,7 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	Buffer::Description bufferDescription;
 	
 
-	buffer = createBuffer(bufferDescription);
+	//buffer = createBuffer(bufferDescription);
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,

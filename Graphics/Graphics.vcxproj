@@ -81,6 +81,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GRAPHICS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -93,6 +94,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\DDSTextureLoader.cpp" />
+    <ClCompile Include="Source\ModelLoader.cpp" />
     <ClCompile Include="Source\TextureLoader.cpp" />
     <ClCompile Include="Source\VRAMMemInfo.cpp" />
     <ClCompile Include="Source\WICTextureLoader.cpp" />
@@ -104,6 +106,7 @@
   <ItemGroup>
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\VRAMMemInfo.h" />
+    <ClInclude Include="Source\ModelLoader.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
     <ClInclude Include="Source\WrapperFactory.h" />
     <ClInclude Include="Source\MyGraphicsExceptions.h" />

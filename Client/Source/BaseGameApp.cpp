@@ -1,5 +1,4 @@
 #include "BaseGameApp.h"
-
 #include "Input\InputTranslator.h"
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
@@ -8,14 +7,12 @@ void BaseGameApp::init()
 {
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
-
 	m_Graphics = IGraphics::createGraphics();
+	m_Graphics->createModel(0,"C:/Users/BTH/Desktop/Sample130.tx");
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
-
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -33,8 +30,15 @@ void BaseGameApp::init()
 	translator->addMouseButtonMapping(InputTranslator::MouseButton::MIDDLE, "rollMe!");
 
 	m_InputQueue.init(std::move(translator));
+	m_Network = INetwork::createNetwork();
+	m_Connected = false;
+	
+	m_Physics = IPhysics::createPhysics();
 
-	//physics = IPhysics::createPhysics();
+	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
+	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
+
+	dt = (1.f/60.f);
 }
 
 void BaseGameApp::run()
@@ -43,6 +47,17 @@ void BaseGameApp::run()
 
 	while (!m_ShouldQuit)
 	{
+		m_Physics->update(dt);
+
+		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
+		{
+			HitData hit = m_Physics->getHitDataAt(i);
+			if(hit.intersect)
+			{
+				int i = 0;
+			}
+		}
+
 		m_InputQueue.onFrame();
 		m_Window.pollMessages();
 		m_Graphics->drawFrame();
@@ -62,12 +77,43 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 			{
-				m_Network.connect("localhost");
+				m_Connected = false;
+				m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
 			}
 			else
 			{
 				//printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
 			}
+		}
+
+		if (m_Connected)
+		{
+			IConnectionController* conn = m_Network->getConnectionToServer();
+			unsigned int numPackages = conn->getNumPackages();
+			for (unsigned int i = 0; i < numPackages; i++)
+			{
+				Package package = conn->getPackage(i);
+				PackageType type = conn->getPackageType(package);
+
+				switch (type)
+				{
+				case PackageType::ADD_OBJECT:
+					{
+						AddObjectData data = conn->getAddObjectData(package);
+						std::cout << "Adding object at (" 
+							<< data.m_Position[0] << ", "
+							<< data.m_Position[1] << ", " 
+							<< data.m_Position[2] << ")" << std::endl;
+					}
+					break;
+
+				default:
+					std::cout << "Received unhandled package" << std::endl;
+					break;
+				}
+			}
+
+			conn->clearPackages(numPackages);
 		}
 	}
 }
@@ -100,4 +146,17 @@ bool BaseGameApp::handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p
 	m_ShouldQuit = true;
 	p_Result = 0;
 	return true;
+}
+
+void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
+{
+	if (p_Res == Result::SUCCESS)
+	{
+		((BaseGameApp*)p_UserData)->m_Connected = true;
+		std::cout << "Connected successfully" << std::endl;
+	}
+	else
+	{
+		std::cout << "Connection failed" << std::endl;
+	}
 }
