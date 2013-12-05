@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IGraphics.h"
+#include <IGraphics.h>
 #include "Input\Input.h"
 #include "IPhysics.h"
 #include <INetwork.h>
@@ -24,6 +24,11 @@ private:
 	bool	m_Connected;
 
 	SceneManager m_SceneManager;
+
+	BodyHandle m_Body, m_Object;
+	IPhysics *m_Physics;
+
+	float dt;
 
 public:
 	/**

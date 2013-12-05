@@ -5,7 +5,6 @@
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
-    <ClCompile Include="Source\TestSceneManager.cpp" />
     <ClCompile Include="Source\TestWindow.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
@@ -15,9 +14,13 @@
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
+    <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
+    <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
     <ClCompile Include="Source\TestCollision.cpp" />
-    <ClCompile Include="Source\TestShader.cpp" />
-    <ClCompile Include="Source\TestTextureLoader.cpp" />
+    <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp" />
+    <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
+    <ClCompile Include="Source\SceneManager\TestSceneManager.cpp" />
+    <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
     <ClCompile Include="..\Network\Source\ClientConnect.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
@@ -27,6 +30,11 @@
     <ClCompile Include="..\Network\Source\Connection.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
+    <ClCompile Include="SphereTest.cpp" />
+    <ClCompile Include="AABBTest.cpp" />
+    <ClCompile Include="..\Physics\Source\Body.cpp" />
+    <ClCompile Include="BodyTest.cpp" />
+    <ClCompile Include="..\Physics\Source\Physics.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
@@ -63,6 +71,9 @@
     <Filter Include="ClientImport">
       <UniqueIdentifier>{9012d9e5-e746-47e1-ad07-9fcd3fe9d204}</UniqueIdentifier>
     </Filter>
+    <ClInclude Include="..\Physics\include\Sphere.h" />
+    <ClInclude Include="..\Physics\include\BoundingVolume.h" />
+    <ClInclude Include="..\Physics\include\AABB.h" />
     <Filter Include="TestNetwork">
       <UniqueIdentifier>{8071612c-29ac-4b80-a58c-541a8115a1ae}</UniqueIdentifier>
     </Filter>

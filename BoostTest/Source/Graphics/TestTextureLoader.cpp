@@ -35,7 +35,6 @@ public:
 BOOST_AUTO_TEST_CASE(TestLoader)
 {
 	testTexLoader loader;
-	
 
 	BOOST_CHECK(loader.createTextureFromFile("test.png") != nullptr);
 

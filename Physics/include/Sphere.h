@@ -16,8 +16,8 @@
 class Sphere : public BoundingVolume
 {
 private:
-	float					m_radius;
-	float					m_sqrRadius;
+	float					m_Radius;
+	float					m_SqrRadius;
 
 	//DEBUGGING
 	//Model					m_model;
@@ -33,22 +33,24 @@ public:
 	/**
 	* Default constructor, sets radius to zero and position to origo.
 	*/
-	Sphere(){
+	Sphere()
+	{
 		setRadius(0.0f);
-		m_position = DirectX::XMFLOAT4(0.f,0.f,0.f,1.f);
+		m_Position = DirectX::XMFLOAT4(0.f,0.f,0.f,1.f);
 
-		m_type = SPHERE;
+		m_Type = Type::SPHERE;
 	}
 	/**
 	* Constructor, set radius and position to the inputs, calculate sqrRadius.
 	* @p_radius, sphere's radius.
 	* @p_pos, sphere's postion.
 	*/
-	Sphere(float p_radius, DirectX::XMFLOAT4 p_pos) : BoundingVolume(){
-		setRadius(p_radius);
-		m_position = p_pos;
-
-		m_type = SPHERE;
+	Sphere(float p_Radius, DirectX::XMFLOAT4 p_Pos) : BoundingVolume()
+	{
+		setRadius(p_Radius);
+		m_Position = p_Pos;
+		
+		m_Type = Type::SPHERE;
 	}
 	~Sphere(){
 		//m_pBuffer->~Buffer();
@@ -63,55 +65,54 @@ public:
 	}
 	
 	/**
-	* Updates position for sphere with matrices.
-	* @p_scale, scale the sphere. 
-	* @p_rotation, rotate the sphere.
-	* @p_translation, move the sphere.
+	* Updates position for sphere with matrix.
+	* @p_translation, move the sphere in relative coordinates.
 	*/
-	void updatePosition(DirectX::XMFLOAT4X4& p_scale, DirectX::XMFLOAT4X4& p_rotation, DirectX::XMFLOAT4X4& p_translation ){
-		m_prevPosition = m_position;
+	void updatePosition( DirectX::XMFLOAT4X4& p_Translation )
+	{
+		m_PrevPosition = m_Position;
 
-		DirectX::XMMATRIX tempScale, tempRot, tempTrans;
+		DirectX::XMMATRIX tempTrans;
 
-		tempScale = XMLoadFloat4x4(&p_scale);
-		tempRot = XMLoadFloat4x4(&p_rotation);
-		tempTrans = XMLoadFloat4x4(&p_translation);
+		tempTrans = XMLoadFloat4x4(&p_Translation);
 
-		DirectX::XMMATRIX tempTransform = tempScale * tempRot * tempTrans;
-		DirectX::XMVECTOR v = XMLoadFloat4(&m_position);
-		DirectX::XMVector4Transform(v, tempTransform);
+		DirectX::XMVECTOR v = XMLoadFloat4(&m_Position); //XMVectorSet(0.f, 0.f, 0.f, 1.f);//
 
-		DirectX::XMStoreFloat4(&m_position, v);
+		XMStoreFloat4(&m_Position, XMVector4Transform(v, tempTrans));
 	}
 	/**
 	* Updates position for sphere with position, used by aabb's sphere.
 	* @p_position, set current position to this.
 	*/
-	void updatePosition(DirectX::XMFLOAT4& p_position){
-		m_prevPosition = m_position;
-		m_position = p_position;
+	void updatePosition(DirectX::XMFLOAT4& p_Position)
+	{
+		m_PrevPosition = m_Position;
+		m_Position = p_Position;
 	}
 	/**
 	* Get the radius of the sphere.
 	* @return m_radius.
 	*/
-	float getRadius(){
-		return m_radius;
+	float getRadius()
+	{
+		return m_Radius;
 	}
 	/**
 	* Get the squared radius of the sphere.
 	* @return m_sqrRadius
 	*/
-	float getSqrRadius(){
-		return m_sqrRadius;
+	float getSqrRadius()
+	{
+		return m_SqrRadius;
 	}
 	/**
 	* Updates m_radius and m_sqrRadius.
 	* @p_radius, change to this radius.
 	*/
-	void setRadius(float p_radius){
-		m_radius = p_radius;
-		m_sqrRadius = m_radius * m_radius;
+	void setRadius(float p_Radius)
+	{
+		m_Radius = p_Radius;
+		m_SqrRadius = m_Radius * m_Radius;
 	}
 
 	//DEBUGGING

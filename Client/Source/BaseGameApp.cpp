@@ -16,6 +16,7 @@ void BaseGameApp::init()
 
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
+
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
@@ -34,7 +35,13 @@ void BaseGameApp::init()
 	m_InputQueue.init(std::move(translator));
 	m_Network = INetwork::createNetwork();
 	m_Connected = false;
-	//physics = IPhysics::createPhysics();
+	
+	m_Physics = IPhysics::createPhysics();
+
+	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
+	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
+
+	dt = (1.f/60.f);
 }
 
 void BaseGameApp::run()
@@ -43,6 +50,17 @@ void BaseGameApp::run()
 
 	while (!m_ShouldQuit)
 	{
+		m_Physics->update(dt);
+
+		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
+		{
+			HitData hit = m_Physics->getHitDataAt(i);
+			if(hit.intersect)
+			{
+				int i = 0;
+			}
+		}
+
 		m_InputQueue.onFrame();
 		m_Window.pollMessages();
 		m_Graphics->drawFrame();

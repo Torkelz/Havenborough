@@ -31,7 +31,7 @@ void TextureLoader::destroy()
 	m_CompabilityList.clear();
 }
 
-ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(char* p_Filename)
+ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(const char* p_Filename)
 {
 	//Pick out file extension
 	std::vector<char> buffer(strlen(p_Filename)+1);
@@ -62,12 +62,11 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(char* p_Filename)
 	//All supported file formats except dds uses the WIC TextureLoader.
 	if(strcmp(result, "wic") == 0)
 	{
-
 		hr = CreateWICTextureFromFile(m_Device, m_DeviceContext, filename.data(), 
 																		&textureResource, &textureSRV,0);
 		if(FAILED(hr))
 		{
-			return nullptr;
+			throw TextureLoaderException("WIC Texture load failed", __LINE__, __FILE__);
 		}
 	}
 	else
@@ -79,7 +78,7 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(char* p_Filename)
 														&textureResource, &textureSRV, 0, &mode);
 		if(FAILED(hr))
 		{
-			return nullptr;
+			throw TextureLoaderException("DDS Texture load failed", __LINE__, __FILE__);
 		}
 	}
 	//Texture resource is used to catch output from the texture creation function but the
