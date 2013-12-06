@@ -93,7 +93,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	// TEMPORARY -----------------------------------------------------------
 	// Make the light
 	Light testLight(	
-		DirectX::XMFLOAT3(0.0f, 50.0f, 0.0f),
+		DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f),
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT2(1.0f, 1.0f),  

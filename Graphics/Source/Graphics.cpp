@@ -2,6 +2,8 @@
 #include "ModelLoader.h"
 #include <iostream>
 
+#include <boost/filesystem.hpp>
+
 const std::string Graphics::m_RelativeResourcePath = "../../Graphics/Resources/";
 
 Graphics::Graphics(void)
@@ -336,15 +338,23 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	tempI.clear();
 	I.clear();
 
+	boost::filesystem::path modelPath(p_Filename);
+	boost::filesystem::path parentDir(modelPath.parent_path());
+
 	// Load textures.
 	ID3D11ShaderResourceView **diffuse	= new ID3D11ShaderResourceView*[nrIndexBuffers];
 	ID3D11ShaderResourceView **normal	= new ID3D11ShaderResourceView*[nrIndexBuffers];
 	ID3D11ShaderResourceView **specular = new ID3D11ShaderResourceView*[nrIndexBuffers];
 	for(unsigned int i = 0; i < nrIndexBuffers; i++)
 	{
-		diffuse[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM.at(i).m_DiffuseMap).c_str());
-		normal[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM.at(i).m_NormalMap).c_str());
-		specular[i] = m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM.at(i).m_SpecularMap).c_str());
+		const ModelLoader::Material& mat = tempM.at(i);
+		boost::filesystem::path diff = (mat.m_DiffuseMap == "NONE") ? "assets/grey.jpg" : parentDir / mat.m_DiffuseMap;
+		boost::filesystem::path norm = (mat.m_NormalMap == "NONE") ? "assets/grey.jpg" : parentDir / mat.m_NormalMap;
+		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE") ? "assets/black.jpg" : parentDir / mat.m_SpecularMap;
+
+		diffuse[i]	= m_TextureLoader.createTextureFromFile(diff.string().c_str());
+		normal[i]	= m_TextureLoader.createTextureFromFile(norm.string().c_str());
+		specular[i] = m_TextureLoader.createTextureFromFile(spec.string().c_str());
 	}
 	Model m;
 	m.vertexBuffer		= vertexBuffer;

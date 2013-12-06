@@ -46,10 +46,8 @@ void BaseGameApp::init()
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("BOXShader","BOX");
 
-	m_Graphics->createModel("BOXM", "../../Graphics/Resources/Cube_2mat.tx");
-	m_Graphics->createShader("BOXMShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-		"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("BOXMShader","BOXM");
+	m_Graphics->createModel("skyBox", "assets/SkyBox.tx");
+	m_Graphics->linkShaderToModel("BOXShader","skyBox");
 }
 
 void BaseGameApp::run()
@@ -72,11 +70,8 @@ void BaseGameApp::run()
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 	}
 	
-	int BoxMultiMat = m_Graphics->createModelInstance("BOXM");
-
-	const float scale = 1.f + 5 * 3.f / NUM_BOXES;
-	m_Graphics->setModelScale(BoxMultiMat, scale, scale, scale);
-	m_Graphics->setModelPosition(BoxMultiMat, 10, 1.f, 10);
+	int skyBox = m_Graphics->createModelInstance("skyBox");
+	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
 
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
@@ -143,11 +138,10 @@ void BaseGameApp::run()
 		for (int i = 0; i < NUM_BOXES; i++)
 		{
 			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
-			//m_Graphics->renderModel(boxIds[i]);
+			m_Graphics->renderModel(boxIds[i]);
 		}
 		m_Graphics->renderModel(ground);
-		m_Graphics->setModelRotation(BoxMultiMat, yaw, pitch, roll);
-		m_Graphics->renderModel(BoxMultiMat);
+		m_Graphics->renderModel(skyBox);
 
 		m_Graphics->drawFrame(currView);
 		

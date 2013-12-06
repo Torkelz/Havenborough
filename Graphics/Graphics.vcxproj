@@ -44,13 +44,15 @@
     <OutDir>$(ProjectDir)Test\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)Bin\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
