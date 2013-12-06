@@ -13,7 +13,6 @@ struct Lights
 	int		lightType;
 };
 
-SamplerState m_textureSampler		: register (s0);
 Texture2D wPosTex					: register (t0);
 Texture2D normalTex					: register (t1);
 Texture2D diffuseTex				: register (t2);
@@ -37,15 +36,16 @@ void GetGBufferAttributes( in float2 screenPos,
 						  out float3 specularAlbedo,
 						  out float specularPower)
 {
-	float4 normalTexSample = normalTex.Sample(m_textureSampler, screenPos);	
+	int3 sampleIndex = int3(screenPos,0);
+	float4 normalTexSample = normalTex.Load(sampleIndex).xyzw;	
 
 	float3 normal2 = normalTexSample.xyz;
 	specularPower = normalTexSample.w;
 	normal = (normal2 * 2.0f) - 1.0f;
 
-	diffuseAlbedo = diffuseTex.Sample(m_textureSampler, screenPos).xyz;
+	diffuseAlbedo = diffuseTex.Load(sampleIndex).xyz;	
 
-	float4 wPosTexSample = wPosTex.Sample(m_textureSampler, screenPos);
+	float4 wPosTexSample = wPosTex.Load(sampleIndex).xyzw;	
 	position = wPosTexSample.xyz;
 	specularAlbedo = wPosTexSample.w;
 }
@@ -81,6 +81,8 @@ float3 CalcLighting(	float3 normal,
 		float rho = dot( -L, L2 );
 		attenuation *= saturate( (rho - spotlightAngle.y) / (spotlightAngle.x - spotlightAngle.y) );
 	} 
+	if(attenuation == 0.f)
+		return float3(0,0,0);
 
 	float3 lightColor = m_lights[i].lightColor;
 
@@ -93,7 +95,7 @@ float3 CalcLighting(	float3 normal,
 	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
 							 lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
-	return ( diffuse + specular ) * attenuation;
+	return saturate(( diffuse + specular ) * attenuation);
 }
 
 
@@ -135,40 +137,20 @@ float4 PSmain( VSOutput input ) :  SV_Target
 	float specularPower;
 	
 	// Sample the G-Buffer properties from the textures
-	GetGBufferAttributes( input.texCoord, normal, position, diffuseAlbedo,
+	GetGBufferAttributes( input.position.xy, normal, position, diffuseAlbedo,
 		specularAlbedo, specularPower );
 
 	//REMOVE IF STRANGE RESULTS HAPPEN
 	if(normal.x == 0 && normal.y == 0 && normal.z == 0)
 		return float4(diffuseAlbedo,1);
-
-	float3 lightPosition;
-	float lightRange;
 	
 	float3 lighting = float3(0,0,0);
-
-	bool calcLight = false;
 
 	//World space scissor-test
 	for(int i = 0; i < nrLights; i++)
 	{
-		lightPosition = m_lights[i].lightPos;
-		lightRange = m_lights[i].lightRange;
-		int lightType = m_lights[i].lightType;
-		if( lightType == 0 || lightType == 1 )
-				if(	position.x < (lightPosition.x + lightRange) && 
-					position.x > (lightPosition.x - lightRange) &&
-					position.y < (lightPosition.y + lightRange) && 
-					position.y > (lightPosition.y - lightRange) &&
-					position.z < (lightPosition.z + lightRange) && 
-					position.z > (lightPosition.z -	lightRange))
-						calcLight = true;
-
-		if(calcLight)
-			lighting += CalcLighting( normal, position, diffuseAlbedo,
-									specularAlbedo, specularPower,i );
-
-		calcLight = false;
+		lighting += CalcLighting( normal, position, diffuseAlbedo,
+								specularAlbedo, specularPower,i );
 	}
 
 	return float4( lighting, 1.0f );

@@ -153,7 +153,7 @@ UVec2 BaseGameApp::getWindowSize() const
 {
 	// TODO: Read from user option
 	
-	const static UVec2 size = {1280, 720};
+	const static UVec2 size = {800, 600};
 	return size;
 }
 

@@ -103,14 +103,14 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT2(1.0f, 1.0f),  
-		50.0f,
+		9.0f,
 		0
 		);
-	addLight(testLight);
+	//addLight(testLight);
 
-	xx = 2;
-	yy = 2;
-	zz = 2;
+	xx = 5;
+	yy = 5;
+	zz = 1;
 	int minX,minY,minZ,maxX,maxY,maxZ;
 	minX = minY = minZ = -30;
 	maxX = maxY = maxZ = 30;
@@ -204,7 +204,7 @@ void DeferredRenderer::renderGeometry()
 
 	m_ConstantBuffer->setBuffer(1);
 	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
+	//m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 
 	for(unsigned int i = 0; i < m_Objects.size();i++)
 	{
@@ -223,7 +223,7 @@ void DeferredRenderer::renderGeometry()
 	}
 
 	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
-	m_DeviceContext->PSSetSamplers(0,0,0);
+	//m_DeviceContext->PSSetSamplers(0,0,0);
 	m_ConstantBuffer->unsetBuffer(1);
 
 	// Unset render targets.
