@@ -7,8 +7,8 @@
 *Materials
 Material: lambert2
 DiffuseMap: skybox_texture.jpg
-NormalMap: NONE
-SpecularMap: NONE
+NormalMap: Default_NRM.jpg
+SpecularMap: Default_SPEC.jpg
 
 *Vertices
 v -500 -500 500
@@ -48,23 +48,23 @@ n 1 0 0
 
 *UV COORDS
 uv 1 0.333984
-uv 0 0.666992
-uv 0.75 0.666992
+uv 0 0.666016
+uv 0.75 0.666016
 uv 0.75 0.333984
-uv 0.250488 1
-uv 0.250488 0.666992
-uv 0.5 0.666992
+uv 0.250977 1
+uv 0.250977 0.666016
+uv 0.5 0.666016
 uv 0.5 1
-uv 0.250488 0.666992
+uv 0.250977 0.666016
 uv 0.250488 0.333984
 uv 0.5 0.333984
-uv 0.5 0.666992
+uv 0.5 0.666016
 uv 0.250488 0.333984
 uv 0.250488 0
 uv 0.5 0
 uv 0.5 0.333984
 uv 0 0.333984
-uv 1 0.666992
+uv 1 0.666016
 
 *Tangets
 t -1 0 0

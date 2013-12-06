@@ -52,8 +52,8 @@ void BaseGameApp::init()
 	m_Graphics->createModel("house1", "assets/House1/House1.tx");
 	m_Graphics->linkShaderToModel("BOXShader", "house1");
 
-	m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.tx");
-	m_Graphics->linkShaderToModel("BOXShader", "Dzala");
+	//m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.tx");
+	//m_Graphics->linkShaderToModel("BOXShader", "Dzala");
 }
 
 void BaseGameApp::run()
@@ -86,9 +86,9 @@ void BaseGameApp::run()
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
-	int witch = m_Graphics->createModelInstance("Dzala");
-	m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
-	m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
+	//int witch = m_Graphics->createModelInstance("Dzala");
+	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
+	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
 
 	float position[] = {0.f, 1.6f, 20.f};
 	float viewRot[] = {0.f, 0.f};
@@ -144,6 +144,7 @@ void BaseGameApp::run()
 		}
 
 		m_Graphics->updateCamera(position[0], position[1], position[2], viewRot[0], viewRot[1]);
+		m_Graphics->setModelPosition(skyBox, position[0], position[1], position[2]);
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -157,7 +158,7 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);
-		m_Graphics->renderModel(witch);
+		//m_Graphics->renderModel(witch);
 
 		m_Graphics->drawFrame(currView);
 		

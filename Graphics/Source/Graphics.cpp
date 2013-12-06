@@ -349,8 +349,8 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	{
 		const ModelLoader::Material& mat = tempM.at(i);
 		boost::filesystem::path diff = (mat.m_DiffuseMap == "NONE") ? "assets/grey.jpg" : parentDir / mat.m_DiffuseMap;
-		boost::filesystem::path norm = (mat.m_NormalMap == "NONE") ? "assets/grey.jpg" : parentDir / mat.m_NormalMap;
-		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE") ? "assets/black.jpg" : parentDir / mat.m_SpecularMap;
+		boost::filesystem::path norm = (mat.m_NormalMap == "NONE" || mat.m_NormalMap == "Default_NRM.jpg") ? "assets/grey.jpg" : parentDir / mat.m_NormalMap;
+		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE" || mat.m_SpecularMap == "Default_SPEC.jpg") ? "assets/black.jpg" : parentDir / mat.m_SpecularMap;
 
 		diffuse[i]	= m_TextureLoader.createTextureFromFile(diff.string().c_str());
 		normal[i]	= m_TextureLoader.createTextureFromFile(norm.string().c_str());
