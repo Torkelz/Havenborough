@@ -39,7 +39,7 @@ void BaseGameApp::init()
 	
 	m_Physics = IPhysics::createPhysics();
 
-	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 50.f, 0.f), 4.f);
+	m_Player = m_Physics->createSphere(1.f, false, Vector3(0.f, 50.f, 0.f), 4.f);
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-100.f, -100.f, -100.f), Vector3(100.f, 0.f, 100.f));
 	
 	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
@@ -49,7 +49,7 @@ void BaseGameApp::init()
 
 	m_Jump = false;
 	m_JumpTime = 0.f;
-	m_PrevForce = Vector4();
+	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
 }
 
 void BaseGameApp::run()
@@ -118,9 +118,20 @@ void BaseGameApp::run()
 
 		const InputState& state = m_InputQueue.getCurrentState();
 
+		if(m_Jump)
+		{
+ 			m_JumpTime += dt;
+			if(m_JumpTime > 0.04f)
+			{
+				m_Physics->applyForce(Vector4(0.f, -500.f, 0.f, 0.f), m_Player);
+				m_Jump = false;
+				m_JumpTime = 0.f;
+			}
+		}
+
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 		float right = state.getValue("moveRight") - state.getValue("moveLeft");
-
+		
 		float dirZ = 0.f;
 		float dirX = 0.f;
 
@@ -132,12 +143,17 @@ void BaseGameApp::run()
 			dirX = sinf(dir);
 		}
 
+		if(m_Physics->getBodyPosition(m_Player).z <= -10.f)
+		{
+ 			int i = 0;
+		}
+
 		Vector4 currentVelocity = m_Physics->getVelocity(m_Player);
 		currentVelocity.y = 0.f;
 		Vector4 maxVelocity(-dirX * maxSpeed, 0.f, -dirZ * maxSpeed, 0.f);
 
-		Vector4 diffVel = Vector4();
-		Vector4 force = Vector4();
+		Vector4 diffVel = Vector4(0.f, 0.f, 0.f, 0.f);
+		Vector4 force = Vector4(0.f, 0.f, 0.f, 0.f);
 		///*tempCurrentVel = XMLoadFloat4(&currentVelocity);
 		//tempMaxVel = XMLoadFloat4(&maxVelocity);*/
 		diffVel.x = maxVelocity.x - currentVelocity.x;
@@ -150,25 +166,14 @@ void BaseGameApp::run()
 		force.z = diffVel.z * accConstant;
 		force.w = diffVel.w * accConstant;
 
-		Vector4 newForce = force;
-		Vector3 forceDiff = Vector3(newForce.x - m_PrevForce.x, newForce.y - m_PrevForce.y, newForce.z - m_PrevForce.z);//, newForce.w - m_PrevForce.w); 
-		m_PrevForce = newForce;
+		Vector4 forceDiff = Vector4(force.x - m_PrevForce.x, force.y - m_PrevForce.y, force.z - m_PrevForce.z, force.w - m_PrevForce.w); 
+		m_PrevForce = force;
 
 		m_Physics->applyForce(forceDiff, m_Player);
 		m_Physics->update(dt);
 
-		if(m_Jump)
-		{
- 			m_JumpTime += dt;
-			if(m_JumpTime > 0.04f)
-			{
-				m_Physics->applyForce(Vector3(0.f, -50.f, 0.f), m_Player);
-				m_Jump = false;
-				m_JumpTime = 0.f;
-			}
-		}
+		
 
-		//
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
 
 		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
@@ -253,7 +258,7 @@ void BaseGameApp::run()
 				if(!m_Jump)
 				{
 					m_Jump = true;
-					m_Physics->applyForce(Vector3(0.f, 50.f, 0.f), m_Player);
+					m_Physics->applyForce(Vector4(0.f, 500.f, 0.f, 0.f), m_Player);
 				}
 			}
 			else

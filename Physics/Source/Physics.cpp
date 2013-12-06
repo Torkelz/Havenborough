@@ -96,7 +96,7 @@ void Physics::update(float p_DeltaTime)
 	}
 }
 
-void Physics::applyForce(Vector3 p_Force, BodyHandle p_Body)
+void Physics::applyForce(Vector4 p_Force, BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
@@ -107,7 +107,7 @@ void Physics::applyForce(Vector3 p_Force, BodyHandle p_Body)
 	tempForce.x = p_Force.x;
 	tempForce.y = p_Force.y;
 	tempForce.z = p_Force.z;
-	tempForce.w = 0.f;
+	tempForce.w = p_Force.w;
 
 	body->addForce(tempForce);
 }

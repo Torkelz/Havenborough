@@ -22,7 +22,7 @@ public:
 	void initialize();
 
 	void update(float p_DeltaTime);
-	void applyForce(Vector3 p_Force, BodyHandle p_Body);
+	void applyForce(Vector4 p_Force, BodyHandle p_Body);
 
 	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius);
 	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top);

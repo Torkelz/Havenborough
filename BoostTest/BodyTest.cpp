@@ -120,14 +120,14 @@ BOOST_AUTO_TEST_CASE(BodyTest_Update)
 	BOOST_CHECK_EQUAL(m_Acceleration.z, 0.f);
 
 	DirectX::XMFLOAT4 m_LastAcceleration = fakeBody.getLastACC();
-	BOOST_CHECK_EQUAL(m_LastAcceleration.x, 5.f);
+	BOOST_CHECK_EQUAL(m_LastAcceleration.x, 0.f);
 	BOOST_CHECK_EQUAL(m_LastAcceleration.y, 0.f);
 	BOOST_CHECK_EQUAL(m_LastAcceleration.z, 0.f);
 
 	fakeBody.update(timestep);
 
 	m_LastAcceleration = fakeBody.getLastACC();
-	BOOST_CHECK_EQUAL(m_LastAcceleration.x, 5.f);
+	BOOST_CHECK_EQUAL(m_LastAcceleration.x, 0.f);
 	BOOST_CHECK_EQUAL(m_LastAcceleration.y, 0.f);
 	BOOST_CHECK_EQUAL(m_LastAcceleration.z, 0.f);
 

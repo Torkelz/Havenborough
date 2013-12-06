@@ -47,7 +47,7 @@ public:
 	 * @p_Force, force to be added.
 	 * @p_Body, what body to apply the force.
 	 */
-	virtual void applyForce(Vector3 p_Force, BodyHandle p_Body) = 0;
+	virtual void applyForce(Vector4 p_Force, BodyHandle p_Body) = 0;
 	/**
 	 * Used to change the gravity constant.
 	 * @p_Gravity, the new gravity.
