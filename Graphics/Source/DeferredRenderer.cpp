@@ -93,15 +93,15 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	// TEMPORARY -----------------------------------------------------------
 	// Make the light
 	Light testLight(	
-		DirectX::XMFLOAT3(0.0f, 0.0f, 8.0f),
+		DirectX::XMFLOAT3(0.0f, 50.0f, 0.0f),
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT2(1.0f, 1.0f),  
-		50.0f,
+		500.0f,
 		0
 		);
-	//addLight(testLight);
-
+	addLight(testLight);
+	testLight.lightRange = 50.0f;
 	xx = 2;
 	yy = 2;
 	zz = 2;
@@ -130,7 +130,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	//This buffer is supposed to be moved to non temporary code
 	Buffer::Description cbdesc;
 	cbdesc.initData = m_Lights.data();
-	cbdesc.numOfElements = xx*yy*zz;
+	cbdesc.numOfElements = xx*yy*zz + 1;
 	cbdesc.sizeOfElement = sizeof(Light);
 	cbdesc.type = Buffer::Type::STRUCTURED_BUFFER;
 	cbdesc.usage = Buffer::Usage::DEFAULT;
@@ -147,7 +147,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 
 	// TEMPORARY ----------------------------------------------------------------
-	createConstantBuffer(xx*yy*zz);
+	createConstantBuffer(xx*yy*zz + 1);
 }
 
 void DeferredRenderer::renderDeferred()
@@ -177,7 +177,7 @@ void DeferredRenderer::renderDeferred()
 	renderGeometry();
 
 	// Update constant buffer. ## REMOVE WHEN NINJA KICK IS REMOVED. ##
-	updateConstantBuffer(xx*yy*zz);
+	updateConstantBuffer(xx*yy*zz + 1);
 	updateLightBuffer();
 
 	renderLighting();
@@ -202,30 +202,36 @@ void DeferredRenderer::renderGeometry()
 
 	for(unsigned int i = 0; i < m_Objects.size();i++)
 	{
-		ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[0], 
-												m_Objects.at(i).m_Model->normalTexture[0], 
-												m_Objects.at(i).m_Model->specularTexture[0] 
-											};
-		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-		updateConstantBuffer(int(i));
-		// Send stuff.
-		// The update of the sub resource has to be done externally.
 		m_Objects.at(i).m_Model->vertexBuffer->setBuffer(0);
-		cObjectBuffer temp;
-		temp.world = *m_Objects.at(i).m_World;
-		m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-		m_ObjectConstantBuffer->setBuffer(2);
+		for(unsigned int j = 0; j < m_Objects.at(i).m_Model->numOfMaterials;j++)
+		{
+			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[j], 
+													m_Objects.at(i).m_Model->normalTexture[j], 
+													m_Objects.at(i).m_Model->specularTexture[j] 
+												};
+			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+			updateConstantBuffer(int(i));
+			// Send stuff.
+			// The update of the sub resource has to be done externally.
+			
+			m_Objects.at(i).m_Model->indexBuffer[j]->setBuffer(0);
+			cObjectBuffer temp;
+			temp.world = *m_Objects.at(i).m_World;
+			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+			m_ObjectConstantBuffer->setBuffer(2);
 
-		// Set shader.
-		m_Objects.at(i).m_Model->shader->setShader();
-		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-		m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
+			// Set shader.
+			m_Objects.at(i).m_Model->shader->setShader();
+			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+			m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
 
-		m_DeviceContext->Draw(m_Objects.at(i).m_Model->vertexBuffer->getNumOfElements(), 0);
+			//m_DeviceContext->Draw(m_Objects.at(i).m_Model->vertexBuffer->getNumOfElements(), 0);
+			m_DeviceContext->DrawIndexed(m_Objects.at(i).m_Model->indexBuffer[j]->getNumOfElements(),0, 0);
 
-		m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
-		m_ObjectConstantBuffer->unsetBuffer(2);
-		m_Objects.at(i).m_Model->shader->unSetShader();
+			m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
+			m_ObjectConstantBuffer->unsetBuffer(2);
+			m_Objects.at(i).m_Model->shader->unSetShader();
+		}
 	}
 
 	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);

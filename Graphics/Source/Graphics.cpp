@@ -284,7 +284,7 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	vector<vector<int>> tempI;
 
 	vector<int> I;
-
+	int indexCounter = 0;
 	for(unsigned int i = 0; i < tempF.size(); i++)
 	{
 		const vector<ModelLoader::IndexDesc>& indexDescList = tempF.at(i);
@@ -299,7 +299,8 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 									tempN.at(indexDesc.m_Normal),
 									tempUV.at(indexDesc.m_TextureCoord),
 									tempT.at(indexDesc.m_Tangent)));
-			I.push_back(j);
+			I.push_back(indexCounter);
+			indexCounter++;
 		}
 
 		tempI.push_back(I);
