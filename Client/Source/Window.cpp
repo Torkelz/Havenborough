@@ -62,7 +62,7 @@ void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
 	}
 
 	RECT windowSize = { 0, 0, p_WindowSize.x, p_WindowSize.y };
-	AdjustWindowRect(&windowSize, WS_OVERLAPPEDWINDOW, FALSE);
+	AdjustWindowRectEx(&windowSize, WS_OVERLAPPEDWINDOW, FALSE, WS_EX_OVERLAPPEDWINDOW);
 
 	std::vector<wchar_t> convertedTitle(p_Title.size() + 1);
 	mbstowcs(convertedTitle.data(), p_Title.data(), p_Title.size() + 1);
