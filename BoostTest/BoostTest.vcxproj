@@ -130,6 +130,7 @@
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
+    <ClCompile Include="Source\Loader\TestAnimatedModelLoader.cpp" />
     <ClCompile Include="Source\Network\TestConnectionController.cpp" />
     <ClCompile Include="Source\Network\TestSerialize.cpp" />
     <ClCompile Include="Source\Loader\TestStaticModelLoader.cpp" />

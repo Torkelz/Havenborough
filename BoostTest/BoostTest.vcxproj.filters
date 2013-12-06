@@ -72,6 +72,7 @@
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="Source\Loader\TestStaticModelLoader.cpp" />
+    <ClCompile Include="Source\Loader\TestAnimatedModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
