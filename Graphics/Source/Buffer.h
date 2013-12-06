@@ -16,7 +16,8 @@ public:
 		CONSTANT_BUFFER_PS,
 		BUFFER_TYPE_COUNT,
 		CONSTANT_BUFFER_ALL,
-		STAGING_BUFFER
+		STAGING_BUFFER,
+		STRUCTURED_BUFFER
 	};
 
 	enum class Usage
@@ -38,10 +39,14 @@ public:
 		UINT32 numOfElements;
 		UINT32 sizeOfElement;
 		void *initData;
+		bool bindSRV;
+		bool bindUAV;
 
 		Description()
 		{
 			initData = nullptr;
+			bindSRV = false;
+			bindUAV = false;
 		}
 	};
 
@@ -104,6 +109,13 @@ public:
 	HRESULT setBuffer(UINT32 p_StartSlot);
 
 	/**
+	* Unsets the the buffer.
+	* @param p_StartSlot where to start in the buffer
+	* @return S_OK if setting buffer, otherwise S_FALSE
+	*/
+	HRESULT unsetBuffer(UINT32 p_StartSlot);
+
+	/**
 	* Maps a buffer usage to corresponding context.
 	* @return pointer to mapped data
 	*/
@@ -113,6 +125,8 @@ public:
 	* Unmaps the buffer pointer.
 	*/
 	void unmap(void);
+
+	ID3D11ShaderResourceView* CreateBufferSRV(ID3D11Buffer* pBuffer);
 
 private:
 	void *mapResourceToContext(UINT32 p_MapType);

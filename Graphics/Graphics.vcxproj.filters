@@ -32,6 +32,12 @@
     <ClCompile Include="Source\DDSTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DeferredRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VRAMMemInfo.cpp">
+          <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source\ModelLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -64,14 +70,32 @@
     <ClInclude Include="Source\WICTextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DeferredRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Source\ModelLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\MyGraphicsExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\VRAMMemInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LightStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ModelLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ModelDefinition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Source\DeferredShaders\LightPass.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
     <FxCompile Include="Source\dummyVS.hlsl" />
   </ItemGroup>
 </Project>

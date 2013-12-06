@@ -6,8 +6,11 @@
 #include <INetwork.h>
 #include "SceneManager.h"
 #include "Window.h"
+#include "RAMMemInfo.h"
 
 #include <string>
+
+#include "../../Graphics/Source/WrapperFactory.h" //Should be removed when merge to master
 
 class BaseGameApp
 {
@@ -17,6 +20,7 @@ private:
 	Window	m_Window;
 	IGraphics* m_Graphics;
 	Input	m_InputQueue;
+	RAMMemInfo m_MemoryInfo;
 
 	INetwork* m_Network;
 
@@ -27,8 +31,6 @@ private:
 
 	BodyHandle m_Body, m_Object;
 	IPhysics *m_Physics;
-
-	float dt;
 
 public:
 	/**
@@ -61,4 +63,6 @@ private:
 	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
 	static void connectedCallback(Result p_Res, void* p_UserData);
+
+	void updateDebugInfo(float p_dt);
 };

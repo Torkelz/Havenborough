@@ -3,6 +3,8 @@
 #include <vector>
 #include <iostream>
 
+
+
 using std::vector;
 
 Shader::Shader(void)
@@ -73,7 +75,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 
 	m_ShaderType = p_ShaderType;
 
-	if(p_VertexLayout == nullptr)
+	if(p_VertexLayout == nullptr && m_ShaderType == Type::VERTEX_SHADER)
 	{
 		createInputLayoutFromShaderSignature(shaderData);
 	}

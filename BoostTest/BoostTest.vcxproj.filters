@@ -31,6 +31,8 @@
     <ClCompile Include="..\Network\Source\ClientConnect.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\RAMMemInfo.cpp" />
+    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp" />
     <ClCompile Include="..\Network\Source\ConnectionController.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
@@ -42,6 +44,8 @@
     <ClCompile Include="..\Physics\Source\Body.cpp" />
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
+    <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
+    <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
