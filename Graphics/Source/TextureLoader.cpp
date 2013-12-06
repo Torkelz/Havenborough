@@ -51,7 +51,7 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(const char* p_Fil
 
 	ID3D11Resource*				textureResource = nullptr;
 	ID3D11ShaderResourceView*	textureSRV = nullptr;
-
+	
 	//Convert filename from char pointer to wchar_t 
 	//because the texture loader function wants the filename in wchar. 
 	std::vector<wchar_t> filename(strlen(p_Filename)+1);

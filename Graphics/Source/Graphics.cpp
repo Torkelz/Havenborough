@@ -334,7 +334,7 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	}
 	tempI.clear();
 	I.clear();
-
+	
 	// Load textures.
 	ID3D11ShaderResourceView **diffuse	= new ID3D11ShaderResourceView*[nrIndexBuffers];
 	ID3D11ShaderResourceView **normal	= new ID3D11ShaderResourceView*[nrIndexBuffers];
@@ -344,6 +344,28 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 		diffuse[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM.at(i).m_DiffuseMap).c_str());
 		normal[i]	= m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM.at(i).m_NormalMap).c_str());
 		specular[i] = m_TextureLoader.createTextureFromFile((m_RelativeResourcePath + tempM.at(i).m_SpecularMap).c_str());
+
+		ID3D11Resource *resource;
+		ID3D11Texture2D *texture;
+		D3D11_TEXTURE2D_DESC textureDesc;
+		int size;
+
+		diffuse[i]->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
+		size = 4 * textureDesc.Width * textureDesc.Height;
+
+		diffuse[i]->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
+		size += 4 * textureDesc.Width * textureDesc.Height;
+		
+		diffuse[i]->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
+		size += 4 * textureDesc.Width * textureDesc.Height;
+
+		m_VRAMMemInfo->updateUsage(size);
 	}
 	Model m;
 	m.vertexBuffer		= vertexBuffer;

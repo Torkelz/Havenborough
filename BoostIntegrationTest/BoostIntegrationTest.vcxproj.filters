@@ -15,6 +15,7 @@
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp" />
+    <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">
@@ -27,5 +28,8 @@
   <ItemGroup>
     <FxCompile Include="Source\dummyPS.hlsl" />
     <FxCompile Include="Source\dummyVS.hlsl" />
+    <FxCompile Include="..\Graphics\Source\DeferredShaders\DebugShader.hlsl" />
+    <FxCompile Include="..\Graphics\Source\DeferredShaders\LightPass.hlsl" />
+    <FxCompile Include="..\Graphics\Source\DeferredShaders\GeometryPass.hlsl" />
   </ItemGroup>
 </Project>
