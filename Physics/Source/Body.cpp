@@ -68,9 +68,9 @@ void Body::update(float p_DeltaTime)
 
 	XMFLOAT4 relativePos = XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 
-	relativePos.x = m_Velocity.x * p_DeltaTime * 100 + (0.5f * m_LastAcceleration.x * (p_DeltaTime*p_DeltaTime));
-	relativePos.y = m_Velocity.y * p_DeltaTime * 100 + (0.5f * m_LastAcceleration.y * (p_DeltaTime*p_DeltaTime));
-	relativePos.z = m_Velocity.z * p_DeltaTime * 100 + (0.5f * m_LastAcceleration.z * (p_DeltaTime*p_DeltaTime));
+	relativePos.x = m_Velocity.x * p_DeltaTime * 10 + (0.5f * m_LastAcceleration.x * (p_DeltaTime*p_DeltaTime));
+	relativePos.y = m_Velocity.y * p_DeltaTime * 10 + (0.5f * m_LastAcceleration.y * (p_DeltaTime*p_DeltaTime));
+	relativePos.z = m_Velocity.z * p_DeltaTime * 10 + (0.5f * m_LastAcceleration.z * (p_DeltaTime*p_DeltaTime));
 
 	m_Position.x += relativePos.x;
 	m_Position.y += relativePos.y;
@@ -123,11 +123,6 @@ XMFLOAT4 Body::calculateAcceleration()
 	acc.z = m_NetForce.z/m_Mass;
 
 	return acc;
-}
-
-void Body::addGravity()
-{
-	m_NetForce.y = m_Mass * -m_Gravity;
 }
 
 void Body::setGravity(float p_Gravity)

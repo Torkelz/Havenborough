@@ -27,9 +27,12 @@ private:
 	bool	m_ShouldQuit;
 	bool	m_Connected;
 
+	bool	m_Jump;
+	float	m_JumpTime;
+	Vector4 m_PrevForce;
 	SceneManager m_SceneManager;
 
-	BodyHandle m_Body, m_Object;
+	BodyHandle m_Player, m_Ground;
 	IPhysics *m_Physics;
 
 public:

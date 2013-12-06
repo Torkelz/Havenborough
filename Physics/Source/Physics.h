@@ -33,8 +33,9 @@ public:
 	HitData getHitDataAt(unsigned int p_Index);
 	unsigned int getHitDataSize();
 
-	//DEBUGGING
-	void moveBodyPosition(Vector3 p_Position, BodyHandle p_Body);
+	Vector4 getBodyPosition(BodyHandle p_Body);
+
+	void setBodyPosition(Vector3 p_Position, BodyHandle p_Body);
 		 
 private:
 	Body* findBody(BodyHandle p_Body);

@@ -25,6 +25,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('C', "connect");
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
+	translator->addKeyboardMapping(VK_SPACE, "jump");
 
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
@@ -38,13 +39,17 @@ void BaseGameApp::init()
 	
 	m_Physics = IPhysics::createPhysics();
 
-	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
-	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
+	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 50.f, 0.f), 4.f);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-100.f, -100.f, -100.f), Vector3(100.f, 0.f, 100.f));
 	
 	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
 	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("BOXShader","BOX");
+
+	m_Jump = false;
+	m_JumpTime = 0.f;
+	m_PrevForce = Vector4();
 }
 
 void BaseGameApp::run()
@@ -70,10 +75,10 @@ void BaseGameApp::run()
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
 
-	float position[] = {0.f, 1.8f, 20.f};
+	//float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
 
-	float speed = 5.f;
+	//float speed = 5.f;
 	float sensitivity = 0.01f;
 
 	float yaw = 0.f;
@@ -92,13 +97,15 @@ void BaseGameApp::run()
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 	currTimeStamp--;
 
+	static const float maxSpeed = 0.5f;
+	static const float accConstant = 9.f;
+	//float up = m_Up - m_Down;
+	
 	while (!m_ShouldQuit)
 	{
 		prevTimeStamp = currTimeStamp;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
-
-		m_Physics->update(dt);
 
 		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
 		{
@@ -114,15 +121,57 @@ void BaseGameApp::run()
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 		float right = state.getValue("moveRight") - state.getValue("moveLeft");
 
+		float dirZ = 0.f;
+		float dirX = 0.f;
+
 		if (forward != 0.f || right != 0.f)
 		{
 			float dir = atan2f(right, forward) + viewRot[0];
 
-			position[2] -= cosf(dir) * speed * dt;
-			position[0] -= sinf(dir) * speed * dt;
+			dirZ = cosf(dir);
+			dirX = sinf(dir);
 		}
 
-		m_Graphics->updateCamera(position[0], position[1], position[2], viewRot[0], viewRot[1]);
+		Vector4 currentVelocity = m_Physics->getVelocity(m_Player);
+		currentVelocity.y = 0.f;
+		Vector4 maxVelocity(-dirX * maxSpeed, 0.f, -dirZ * maxSpeed, 0.f);
+
+		Vector4 diffVel = Vector4();
+		Vector4 force = Vector4();
+		///*tempCurrentVel = XMLoadFloat4(&currentVelocity);
+		//tempMaxVel = XMLoadFloat4(&maxVelocity);*/
+		diffVel.x = maxVelocity.x - currentVelocity.x;
+		diffVel.y = maxVelocity.y - currentVelocity.y;
+		diffVel.z = maxVelocity.z - currentVelocity.z;
+		diffVel.w = maxVelocity.w - currentVelocity.w;
+
+		force.x = diffVel.x * accConstant;
+		force.y = diffVel.y * accConstant;
+		force.z = diffVel.z * accConstant;
+		force.w = diffVel.w * accConstant;
+
+		Vector4 newForce = force;
+		Vector3 forceDiff = Vector3(newForce.x - m_PrevForce.x, newForce.y - m_PrevForce.y, newForce.z - m_PrevForce.z);//, newForce.w - m_PrevForce.w); 
+		m_PrevForce = newForce;
+
+		m_Physics->applyForce(forceDiff, m_Player);
+		m_Physics->update(dt);
+
+		if(m_Jump)
+		{
+ 			m_JumpTime += dt;
+			if(m_JumpTime > 0.04f)
+			{
+				m_Physics->applyForce(Vector3(0.f, -50.f, 0.f), m_Player);
+				m_Jump = false;
+				m_JumpTime = 0.f;
+			}
+		}
+
+		//
+		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
+
+		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -198,6 +247,14 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "mousePosVert")
 			{
+			}
+			else if( in.m_Action == "jump")
+			{
+				if(!m_Jump)
+				{
+					m_Jump = true;
+					m_Physics->applyForce(Vector3(0.f, 50.f, 0.f), m_Player);
+				}
 			}
 			else
 			{
