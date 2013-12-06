@@ -9,6 +9,7 @@
 #include <DirectXMath.h>
 #include "LightStructs.h"
 #include "TextureLoader.h"
+#include "ModelLoader.h"
 
 /*
  * Renderable is a debug struct made with the only purpose to be a placeholder for models
@@ -77,6 +78,7 @@ private:
 	Shader						*m_LightShader;
 	Buffer						*m_ConstantBuffer;
 	Buffer						*m_AllLightBuffer;
+	Buffer						*m_PointLightBuffer;
 
 	DirectX::XMFLOAT3			*m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;

@@ -39,6 +39,9 @@
     <ClCompile Include="Source\DeferredRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ModelLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Buffer.h">
@@ -77,10 +80,14 @@
     <ClInclude Include="Source\LightStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ModelLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\DeferredShaders\LightPass.hlsl" />
     <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
     <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\LightPassV2.hlsl" />
   </ItemGroup>
 </Project>

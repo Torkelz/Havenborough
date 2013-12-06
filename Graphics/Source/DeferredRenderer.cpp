@@ -51,6 +51,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_LightShader);
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
+	SAFE_DELETE(m_PointLightBuffer);
 
 	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
@@ -87,10 +88,23 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	createShaderResourceViews(desc);
 
 	//Compile shader for the light pass
+	D3D11_INPUT_ELEMENT_DESC shaderDesc[] = 
+	{
+		{"POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA,	  0},
+		{"LPOSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"COLOR",		0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 12, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"DIRECTION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 24, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"ANGLE",		0, DXGI_FORMAT_R32G32_FLOAT,	1, 36, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"RANGE",		0, DXGI_FORMAT_R32_FLOAT,		1, 44, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"TYPE",		0, DXGI_FORMAT_R32_UINT,		1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1}
+	};
+
+
+
 	m_LightShader = new Shader();
-	m_LightShader->initialize(m_Device,m_DeviceContext, 0);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","VSmain","vs_5_0",VERTEX_SHADER, nullptr);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","PSmain","ps_5_0",PIXEL_SHADER, nullptr);
+	m_LightShader->initialize(m_Device,m_DeviceContext, 7);
+	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPassV2.hlsl","PointLightVS","vs_5_0",VERTEX_SHADER, shaderDesc);
+	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPassV2.hlsl","PointLightPS","ps_5_0",PIXEL_SHADER, nullptr);
 
 	// Create sampler state and blend state for Alpha rendering.
 	createSamplerState();
@@ -110,7 +124,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 	xx = 5;
 	yy = 5;
-	zz = 1;
+	zz = 5;
 	int minX,minY,minZ,maxX,maxY,maxZ;
 	minX = minY = minZ = -30;
 	maxX = maxY = maxZ = 30;
@@ -138,11 +152,33 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	cbdesc.initData = m_Lights.data();
 	cbdesc.numOfElements = xx*yy*zz;
 	cbdesc.sizeOfElement = sizeof(Light);
-	cbdesc.type = STRUCTURED_BUFFER;
+	cbdesc.type = VERTEX_BUFFER;
 	cbdesc.usage = BUFFER_DEFAULT;
 	m_AllLightBuffer = new Buffer();
 	m_AllLightBuffer->initializeEx(m_Device, m_DeviceContext, cbdesc, true, false);
-	m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
+
+	ModelLoader modL;
+	modL.loadFile("../../Graphics/Resources/sphere.tx");
+	const std::vector<std::vector<ModelLoader::IndexDesc>>& indices = modL.getIndices();
+	const std::vector<DirectX::XMFLOAT3>& vertices = modL.getVertices();
+	std::vector<DirectX::XMFLOAT3> temp;
+	unsigned int nrIndices = indices.at(0).size();
+	for(unsigned int i = 0; i < nrIndices; i++)
+	{
+		temp.push_back(vertices.at(indices.at(0).at(i).m_Vertex));
+	}
+
+
+	cbdesc.initData = temp.data();
+	cbdesc.numOfElements = nrIndices;
+	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
+	cbdesc.type = VERTEX_BUFFER;
+	cbdesc.usage = BUFFER_DEFAULT;
+	m_PointLightBuffer = new Buffer();
+	m_PointLightBuffer->initializeEx(m_Device, m_DeviceContext, cbdesc, true, false);
+	temp.clear();
+	modL.clear();
+	//m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
 
 	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
 	m_Specular = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
@@ -238,8 +274,7 @@ void DeferredRenderer::renderLighting()
 	// Collect the shader resources in an array and create a clear array.
 	ID3D11ShaderResourceView *srvs[] = { m_wPositionSRV,
 										 m_NormalSRV,
-										 m_DiffuseSRV,
-										 m_lightBufferSRV };
+										 m_DiffuseSRV };
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0};
 
 	// Set texture sampler.
