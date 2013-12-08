@@ -1,5 +1,5 @@
 #include "DeferredRenderer.h"
-
+#include <fstream>
 DeferredRenderer::DeferredRenderer(void)
 {
 	m_Device = nullptr;
@@ -25,7 +25,7 @@ DeferredRenderer::DeferredRenderer(void)
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 
-	m_speed = 4.0f;
+	m_speed = 1.0f;
 }
 
 DeferredRenderer::~DeferredRenderer(void)
@@ -91,12 +91,12 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	D3D11_INPUT_ELEMENT_DESC shaderDesc[] = 
 	{
 		{"POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA,	  0},
-		{"LPOSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"LPOSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA,  1},
 		{"COLOR",		0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 12, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 		{"DIRECTION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 24, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 		{"ANGLE",		0, DXGI_FORMAT_R32G32_FLOAT,	1, 36, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 		{"RANGE",		0, DXGI_FORMAT_R32_FLOAT,		1, 44, D3D11_INPUT_PER_INSTANCE_DATA, 1},
-		{"TYPE",		0, DXGI_FORMAT_R32_UINT,		1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1}
+		{"TYPE",		0, DXGI_FORMAT_R32_FLOAT,		1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1}
 	};
 
 
@@ -117,21 +117,21 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT2(1.0f, 1.0f),  
-		9.0f,
+		20.0f,
 		0
 		);
 	//addLight(testLight);
 
-	xx = 5;
-	yy = 5;
-	zz = 5;
+	xx = 10;
+	yy = 10;
+	zz = 10;
 	int minX,minY,minZ,maxX,maxY,maxZ;
-	minX = minY = minZ = -30;
-	maxX = maxY = maxZ = 30;
-	float dx,dy,dz;
-	dx = (float)(abs(maxX) + abs(minX))/(xx);
-	dy = (float)(abs(maxY) + abs(minY))/(yy);
-	dz = (float)(abs(maxZ) + abs(minZ))/(zz);
+	minX = minY = minZ = -20;
+	maxX = maxY = maxZ = 20;
+	float dx,dy,dz, cx,cy,cz;
+	dx = (float)(abs(maxX) + abs(minX))/((xx - 1 <= 0) ? 1 : xx - 1);
+	dy = (float)(abs(maxY) + abs(minY))/((yy - 1 <= 0) ? 1 : xx - 1);
+	dz = (float)(abs(maxZ) + abs(minZ))/((zz - 1 <= 0) ? 1 : xx - 1);
 
 	for(int x= 0; x < xx; x++)
 	{
@@ -147,6 +147,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 			}
 		}
 	}
+
 	//This buffer is supposed to be moved to non temporary code
 	BufferDescription cbdesc;
 	cbdesc.initData = m_Lights.data();
@@ -155,7 +156,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	cbdesc.type = VERTEX_BUFFER;
 	cbdesc.usage = BUFFER_DEFAULT;
 	m_AllLightBuffer = new Buffer();
-	m_AllLightBuffer->initializeEx(m_Device, m_DeviceContext, cbdesc, true, false);
+	m_AllLightBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 
 	ModelLoader modL;
 	modL.loadFile("../../Graphics/Resources/sphere.tx");
@@ -163,11 +164,13 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	const std::vector<DirectX::XMFLOAT3>& vertices = modL.getVertices();
 	std::vector<DirectX::XMFLOAT3> temp;
 	unsigned int nrIndices = indices.at(0).size();
-	for(unsigned int i = 0; i < nrIndices; i++)
+	/*for(unsigned int i = 0; i < nrIndices; i++)
 	{
-		temp.push_back(vertices.at(indices.at(0).at(i).m_Vertex));
+	temp.push_back(vertices.at(indices.at(0).at(i).m_Vertex));
 	}
+	*/
 
+	temp = loadModelFromOBJFile("../../Graphics/Resources/SphereTim.obj");
 
 	cbdesc.initData = temp.data();
 	cbdesc.numOfElements = nrIndices;
@@ -175,7 +178,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	cbdesc.type = VERTEX_BUFFER;
 	cbdesc.usage = BUFFER_DEFAULT;
 	m_PointLightBuffer = new Buffer();
-	m_PointLightBuffer->initializeEx(m_Device, m_DeviceContext, cbdesc, true, false);
+	m_PointLightBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 	temp.clear();
 	modL.clear();
 	//m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
@@ -185,6 +188,20 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_Diffuse = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/uv alpha.png");
 	m_NormalMap = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_NRM_RGB.jpg");
 
+
+	D3D11_DEPTH_STENCIL_DESC dsdesc;
+	ZeroMemory( &dsdesc, sizeof( D3D11_DEPTH_STENCIL_DESC ) );
+	dsdesc.DepthEnable = true;
+	dsdesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	dsdesc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+	HRESULT hr = m_Device->CreateDepthStencilState(&dsdesc, &m_DepthState);
+
+	D3D11_RASTERIZER_DESC rdesc;
+	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
+	rdesc.FillMode = D3D11_FILL_SOLID;
+	rdesc.CullMode = D3D11_CULL_BACK;
+	rdesc.FrontCounterClockwise = TRUE;
+	m_Device->CreateRasterizerState(&rdesc,&m_RasterState);
 
 	// TEMPORARY ----------------------------------------------------------------
 	createConstantBuffer(xx*yy*zz);
@@ -201,8 +218,8 @@ void DeferredRenderer::renderDeferred()
 		else
 			m_Lights.at(i).lightPos.y -= m_speed * dt;	
 	}
-	if((m_Lights.at(0).lightPos.y > 30) ||
-		(m_Lights.at(0).lightPos.y < -30))
+	if((m_Lights.at(0).lightPos.y > 20) ||
+		(m_Lights.at(0).lightPos.y < -20))
 		m_speed *= -1.0f;
 
 
@@ -238,7 +255,7 @@ void DeferredRenderer::renderGeometry()
 	ID3D11ShaderResourceView *srvs[] = { m_Diffuse, m_NormalMap, m_Specular };
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
 
-	m_ConstantBuffer->setBuffer(1);
+	m_ConstantBuffer->setBuffer(0);
 	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 	//m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 
@@ -253,14 +270,13 @@ void DeferredRenderer::renderGeometry()
 		m_Objects.at(i).m_Shader->setBlendState(m_BlendState2);
 
 		m_DeviceContext->Draw(m_Objects.at(i).m_Buffer->getNumOfElements(), 0);
-
 		m_Objects.at(i).m_Buffer->unsetBuffer(0);
 		m_Objects.at(i).m_Shader->unSetShader();
 	}
 
 	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	//m_DeviceContext->PSSetSamplers(0,0,0);
-	m_ConstantBuffer->unsetBuffer(1);
+	m_ConstantBuffer->unsetBuffer(0);
 
 	// Unset render targets.
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
@@ -281,28 +297,47 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	m_LightShader->setBlendState(m_BlendState);
 
-	m_DeviceContext->PSSetShaderResources(0, 4, srvs);
+	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
 	////Select the third render target[3]
-	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], 0); 
+	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], m_DepthStencilView); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_DeviceContext->RSSetState(m_RasterState);
+	m_DeviceContext->OMSetDepthStencilState(m_DepthState,0);
 
 	//Set constant data
 	m_ConstantBuffer->setBuffer(0);
 
+	UINT Offsets[2] = {0,0};
+	ID3D11Buffer * buffers[] = {m_PointLightBuffer->getBufferPointer(),
+								m_AllLightBuffer->getBufferPointer()};
+	UINT Stride[2] = {sizeof(DirectX::XMFLOAT3),
+						sizeof(Light)};
+
+	m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
+
+
 	//set shader
 	m_LightShader->setShader();
-
-	m_DeviceContext->Draw(6, 0);
+	m_DeviceContext->DrawInstanced(m_PointLightBuffer->getNumOfElements(),
+									m_AllLightBuffer->getNumOfElements(),
+									0,0);
+	//m_DeviceContext->Draw(6, 0);
 
 	//unset resources	
 	m_LightShader->unSetShader();
 
 	m_ConstantBuffer->unsetBuffer(0);
+	m_DeviceContext->IASetVertexBuffers(0,0,0,0, 0);
+
+	m_DeviceContext->RSSetState(0);
+	m_DeviceContext->OMSetDepthStencilState(0,0);
+
 	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_LightShader->setBlendState(0);
 
-	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
+	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 }
 
@@ -505,4 +540,62 @@ void DeferredRenderer::createBlendStates()
 		bd.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	}
 	m_Device->CreateBlendState(&bd, &m_BlendState2);
+}
+
+
+std::vector<DirectX::XMFLOAT3> DeferredRenderer::loadModelFromOBJFile( std::string p_OBJFileName )
+{
+	std::fstream objFile(p_OBJFileName);
+	std::vector<DirectX::XMFLOAT3> positions;
+	std::vector<DirectX::XMFLOAT3> temp;
+
+	if(objFile)
+	{
+
+		std::string strMaterialFilename;
+		std::string line;
+		std::string prefix;
+
+		while(objFile.eof() == false)
+		{
+			prefix = "NULL"; //leave nothing from the previous iteration
+			std::stringstream lineStream;
+
+			getline(objFile, line);
+			lineStream << line;
+			lineStream >> prefix;
+
+			if(prefix == "mtllib")
+			{
+			}
+			else if(prefix == "v")
+			{
+				DirectX::XMFLOAT3 pos;
+				lineStream >> pos.x >> pos.y >> pos.z;
+				positions.push_back(pos);
+			}
+			else if(prefix == "vt")
+			{
+			}
+			else if (prefix == "vn")
+			{
+			}
+			else if(prefix == "f")
+			{
+				char tmp;
+
+				int indexPos = 0;
+				int texPos = 0;
+				int normPos = 0;
+
+				for(int i=0; i<3; i++)
+				{
+
+					lineStream >> indexPos >> tmp >> texPos >>  tmp >> normPos;
+					temp.push_back(positions[indexPos - 1]);
+				}
+			}
+		}
+	}
+	return temp;
 }

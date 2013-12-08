@@ -150,7 +150,11 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	//	bufferDescription.ByteWidth = 16;
 	//}
 	//set at least 16 bytes
-	bufferDescription.ByteWidth = ((bufferDescription.ByteWidth + 15) / 16) * 16;
+	if(bufferDescription.ByteWidth < 16 || (m_Type != VERTEX_BUFFER && m_Type != INDEX_BUFFER ))
+	{
+		bufferDescription.ByteWidth = ((bufferDescription.ByteWidth + 15) / 16) * 16;
+	}
+	
 
 	if(p_Description.initData)
 	{

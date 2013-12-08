@@ -72,6 +72,9 @@ private:
 	ID3D11ShaderResourceView	*m_wPositionSRV;
 	ID3D11ShaderResourceView	*m_lightBufferSRV;
 
+	ID3D11RasterizerState		*m_RasterState;
+	ID3D11DepthStencilState		*m_DepthState;
+
 	ID3D11SamplerState			*m_Sampler;
 	ID3D11BlendState			*m_BlendState;
 	ID3D11BlendState			*m_BlendState2;
@@ -154,5 +157,7 @@ private:
 	void clearRenderTargets();
 	void createSamplerState();
 	void createBlendStates();
+
+	std::vector<DirectX::XMFLOAT3> loadModelFromOBJFile( std::string p_OBJFileName );
 };
 

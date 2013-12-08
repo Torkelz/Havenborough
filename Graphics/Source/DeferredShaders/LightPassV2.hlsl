@@ -51,7 +51,7 @@ struct VSInput
 	float3	lightDirection	: DIRECTION;
     float2	spotlightAngles	: ANGLE;
     float	lightRange		: RANGE;
-	int		lightType		: TYPE;
+	float		lightType	: TYPE;
 };
 
 struct VSOutput
@@ -62,7 +62,7 @@ struct VSOutput
 	float3	lightDirection	: DIRECTION;
     float2	spotlightAngles	: ANGLE;
     float	lightRange		: RANGE;
-	int		lightType		: TYPE;
+	float		lightType	: TYPE;
 };
 
 //###########################
@@ -70,13 +70,28 @@ struct VSOutput
 //############################
 VSOutput PointLightVS(VSInput input)
 {
+	float s = input.lightRange;
+	float3 t = input.lightPos;
+	float4x4 scale = {  float4(s,0,0,0),
+						float4(0,s,0,0),
+						float4(0,0,s,0),
+						float4(0,0,0,1)};
+	float4x4 trans = {  float4(1,0,0,t.x),
+						float4(0,1,0,t.y),
+						float4(0,0,1,t.z),
+						float4(0,0,0,1)};
+
+	float4 pos = mul(scale, float4(input.vposition,1.0f));
+	pos = mul(trans, pos);
 	VSOutput output;
-	output.vposition		= mul(projection, mul(view, float4(input.vposition,1)));
+	output.vposition		= mul(projection, mul(view, pos));
+	//output.vposition		= mul(projection, mul(view, float4(input.vposition,1)));
 	output.lightPos			= input.lightPos;
 	output.lightColor		= input.lightColor;	
 	output.lightDirection	= input.lightDirection;	
 	output.spotlightAngles	= input.spotlightAngles;	
-	output.lightRange		= input.lightRange;		
+	output.lightRange		= input.lightRange;	
+	output.lightType		= input.lightType;	
 	return output;
 }
 //##lightType		#########################
@@ -95,10 +110,11 @@ float4 PointLightPS( VSOutput input ) : SV_TARGET
 		specularAlbedo, specularPower );
 
 	float3 lighting = CalcLighting( normal, position, diffuseAlbedo,
-							specularAlbedo, specularPower,input.lightType,input.lightPos,input.lightRange,
+							specularAlbedo, specularPower,0,input.lightPos,input.lightRange,
 							input.lightDirection, input.spotlightAngles, input.lightColor);
 
 	return float4( lighting, 1.0f );
+	//return float4( float3(0,1,0), 1.0f );
 }
 
 

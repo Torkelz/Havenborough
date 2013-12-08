@@ -171,7 +171,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 								DirectX::XMLoadFloat4(&up))));
 	DirectX::XMStoreFloat4x4(proj,
 							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
-								0.4f*3.14f,
+								0.25f*3.14f,
 								(float)p_ScreenWidth / (float)p_ScreenHeight,
 								1.0f,
 								1000.0f)));
