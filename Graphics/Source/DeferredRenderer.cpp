@@ -164,14 +164,11 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	const std::vector<DirectX::XMFLOAT3>& vertices = modL.getVertices();
 	std::vector<DirectX::XMFLOAT3> temp;
 	unsigned int nrIndices = indices.at(0).size();
-	/*for(unsigned int i = 0; i < nrIndices; i++)
+	for(unsigned int i = 0; i < nrIndices; i++)
 	{
 	temp.push_back(vertices.at(indices.at(0).at(i).m_Vertex));
 	}
-	*/
-
-	temp = loadModelFromOBJFile("../../Graphics/Resources/SphereTim.obj");
-
+	
 	cbdesc.initData = temp.data();
 	cbdesc.numOfElements = nrIndices;
 	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
@@ -199,8 +196,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	D3D11_RASTERIZER_DESC rdesc;
 	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
 	rdesc.FillMode = D3D11_FILL_SOLID;
-	rdesc.CullMode = D3D11_CULL_BACK;
-	rdesc.FrontCounterClockwise = TRUE;
+	rdesc.CullMode = D3D11_CULL_FRONT;
+	//rdesc.FrontCounterClockwise = TRUE;
 	m_Device->CreateRasterizerState(&rdesc,&m_RasterState);
 
 	// TEMPORARY ----------------------------------------------------------------
@@ -540,62 +537,4 @@ void DeferredRenderer::createBlendStates()
 		bd.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	}
 	m_Device->CreateBlendState(&bd, &m_BlendState2);
-}
-
-
-std::vector<DirectX::XMFLOAT3> DeferredRenderer::loadModelFromOBJFile( std::string p_OBJFileName )
-{
-	std::fstream objFile(p_OBJFileName);
-	std::vector<DirectX::XMFLOAT3> positions;
-	std::vector<DirectX::XMFLOAT3> temp;
-
-	if(objFile)
-	{
-
-		std::string strMaterialFilename;
-		std::string line;
-		std::string prefix;
-
-		while(objFile.eof() == false)
-		{
-			prefix = "NULL"; //leave nothing from the previous iteration
-			std::stringstream lineStream;
-
-			getline(objFile, line);
-			lineStream << line;
-			lineStream >> prefix;
-
-			if(prefix == "mtllib")
-			{
-			}
-			else if(prefix == "v")
-			{
-				DirectX::XMFLOAT3 pos;
-				lineStream >> pos.x >> pos.y >> pos.z;
-				positions.push_back(pos);
-			}
-			else if(prefix == "vt")
-			{
-			}
-			else if (prefix == "vn")
-			{
-			}
-			else if(prefix == "f")
-			{
-				char tmp;
-
-				int indexPos = 0;
-				int texPos = 0;
-				int normPos = 0;
-
-				for(int i=0; i<3; i++)
-				{
-
-					lineStream >> indexPos >> tmp >> texPos >>  tmp >> normPos;
-					temp.push_back(positions[indexPos - 1]);
-				}
-			}
-		}
-	}
-	return temp;
 }

@@ -157,7 +157,5 @@ private:
 	void clearRenderTargets();
 	void createSamplerState();
 	void createBlendStates();
-
-	std::vector<DirectX::XMFLOAT3> loadModelFromOBJFile( std::string p_OBJFileName );
 };
 
