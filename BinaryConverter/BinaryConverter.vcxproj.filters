@@ -15,16 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BinaryConverter.cpp">
+    <ClCompile Include="BinaryConverter\BinaryConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelConverter.cpp">
+    <ClCompile Include="BinaryConverter\ModelConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ModelConverter.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="BinaryConverter\ModelConverter.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

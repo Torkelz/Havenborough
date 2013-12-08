@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{80E397C3-D373-40C5-8E34-77C3BB4C0BF0}</ProjectGuid>
+    <ProjectGuid>{823F7A96-CD1A-4175-9FC6-0D44460ACA5B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>BinaryConverter</RootNamespace>
   </PropertyGroup>
@@ -76,11 +76,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BinaryConverter.cpp" />
-    <ClCompile Include="ModelConverter.cpp" />
+    <ClCompile Include="BinaryConverter\BinaryConverter.cpp" />
+    <ClCompile Include="BinaryConverter\ModelConverter.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ModelConverter.h" />
+    <ClInclude Include="BinaryConverter\ModelConverter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
