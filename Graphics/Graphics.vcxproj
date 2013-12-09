@@ -111,6 +111,7 @@
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\LightStructs.h" />
     <ClInclude Include="Source\ModelDefinition.h" />
+    <ClInclude Include="Source\Vertex.h" />
     <ClInclude Include="Source\VRAMMemInfo.h" />
     <ClInclude Include="Source\ModelLoader.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
@@ -124,6 +125,10 @@
     <ClInclude Include="Source\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Source\DeferredShaders\AnimatedGeometryPass.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>

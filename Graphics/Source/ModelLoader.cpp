@@ -54,7 +54,8 @@ bool ModelLoader::loadFile(std::string p_FilePath)
 	Material tempMaterial;
 	IndexDesc tempFace;
 	DirectX::XMFLOAT3 tempFloat3;
-	DirectX::XMFLOAT4 tempWeight, tempJoint;
+	DirectX::XMFLOAT3 tempWeight;
+	DirectX::XMFLOAT4 tempJoint;
 	std::stringstream stringstream;
 	Joint tempJointStruct;
 
@@ -193,7 +194,7 @@ bool ModelLoader::loadFile(std::string p_FilePath)
 				stringstream = std::stringstream(line);
 				if(line == "")
 					break;
-				stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z >> tempWeight.w;
+				stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z;
 				std::getline(input, line);
 				stringstream = std::stringstream(line);
 				stringstream >> filler >> tempJoint.x >> tempJoint.y >> tempJoint.z >> tempJoint.w;
@@ -301,7 +302,7 @@ int ModelLoader::getNumberOfVertices()
 	return m_NumberOfVertices;
 }
 
-const std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMFLOAT4>>& ModelLoader::getWeightsList()
+const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& ModelLoader::getWeightsList()
 {
 	return m_WeightsList;
 }

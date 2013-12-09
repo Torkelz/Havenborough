@@ -36,7 +36,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\VRAMMemInfo.cpp">
-          <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\ModelLoader.cpp">
       <Filter>Source Files</Filter>
@@ -91,11 +91,15 @@
     <ClInclude Include="Source\ModelDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\DeferredShaders\LightPass.hlsl" />
     <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
     <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
     <FxCompile Include="Source\dummyVS.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\AnimatedGeometryPass.hlsl" />
   </ItemGroup>
 </Project>

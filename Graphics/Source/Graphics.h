@@ -17,6 +17,8 @@
 #include "ModelLoader.h"
 #include "VRAMMemInfo.h"
 
+#include "Vertex.h"
+
 using std::string;
 using std::vector;
 using std::pair;
@@ -112,7 +114,7 @@ public:
 	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) override;
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
-	void createModel(const char *p_ModelId, const char *p_Filename) override;
+	void createModel(const char *p_ModelId, const char *p_Filename, bool p_Animated) override;
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) override;
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
@@ -158,27 +160,4 @@ private:
 	void End(void);
 	Shader *getShaderFromList(string p_Identifier);
 	Model *getModelFromList(string p_identifier);
-
-	struct vertex
-	{
-		DirectX::XMFLOAT4 position;
-		DirectX::XMFLOAT3 normal;
-		DirectX::XMFLOAT2 uv;
-		DirectX::XMFLOAT3 tangent;
-		DirectX::XMFLOAT3 binormal;
-		vertex(){}
-		vertex(DirectX::XMFLOAT3 _position,
-			DirectX::XMFLOAT3 _normal,
-			DirectX::XMFLOAT2 _uv,
-			DirectX::XMFLOAT3 _tangent)
-		{
-			position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
-			normal = _normal;
-			uv = _uv;
-			tangent = _tangent;
-
-			//might be wrong
-			DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
-		}
-	};
 };

@@ -266,7 +266,7 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
+void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p_Animated)
 {
 	ModelLoader modelLoader;
 	Buffer *vertexBuffer = nullptr;
@@ -280,9 +280,16 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	vector<DirectX::XMFLOAT2>				tempUV = modelLoader.getTextureCoords();
 	vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
 	vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
-	
+	vector<pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> tempWeights;
 
-	vector<vertex> temp;
+
+	if(p_Animated)
+	{
+		tempWeights = modelLoader.getWeightsList();
+	}
+	
+	vector<Vertex> temp;
+	
 	vector<vector<int>> tempI;
 
 	vector<int> I;
@@ -297,10 +304,22 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 		{
 			const ModelLoader::IndexDesc& indexDesc = indexDescList.at(j);
 
-			temp.push_back(vertex(tempVert.at(indexDesc.m_Vertex),
-									tempN.at(indexDesc.m_Normal),
-									tempUV.at(indexDesc.m_TextureCoord),
-									tempT.at(indexDesc.m_Tangent)));
+			if (p_Animated)
+			{
+				temp.push_back(AnimatedVertex(	tempVert.at(indexDesc.m_Vertex),
+												tempN.at(indexDesc.m_Normal),
+												tempUV.at(indexDesc.m_TextureCoord),
+												tempT.at(indexDesc.m_Tangent),
+												tempWeights.at(indexDesc.m_Vertex).first,
+												tempWeights.at(indexDesc.m_Vertex).second
+												));
+			}
+			else
+				temp.push_back(Vertex(	tempVert.at(indexDesc.m_Vertex),
+										tempN.at(indexDesc.m_Normal),
+										tempUV.at(indexDesc.m_TextureCoord),
+										tempT.at(indexDesc.m_Tangent)));
+
 			I.push_back(indexCounter);
 			indexCounter++;
 		}
@@ -313,7 +332,14 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	Buffer::Description bufferDescription;
 	bufferDescription.initData = temp.data();
 	bufferDescription.numOfElements = temp.size();
-	bufferDescription.sizeOfElement = sizeof(Graphics::vertex);
+	if( p_Animated )
+	{
+		bufferDescription.sizeOfElement = temp.at(0).getSize();
+	}
+	else
+	{
+		bufferDescription.sizeOfElement = temp.at(0).getSize();
+	}
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
 	vertexBuffer = m_WrapperFactory->createBuffer(bufferDescription);
@@ -930,7 +956,6 @@ void Graphics::Begin(float color[4])
 
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
-
 
 void Graphics::End(void)
 {

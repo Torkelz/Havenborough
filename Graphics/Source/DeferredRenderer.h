@@ -28,6 +28,11 @@ struct cObjectBuffer
 {
 	DirectX::XMFLOAT4X4 world;
 };
+struct cAnimatedBuffer
+{
+	DirectX::XMFLOAT4X4 world;
+	DirectX::XMFLOAT4X4 invTransposeWorld;
+};
 
 class DeferredRenderer
 {
@@ -40,11 +45,13 @@ public:
 	{
 		Model				*m_Model;
 		const DirectX::XMFLOAT4X4 *m_World;
+		DirectX::XMFLOAT4X4 m_invTransposeWorld;
 
 		Renderable(Model *p_Model, const DirectX::XMFLOAT4X4* p_World)
 		{
 			m_Model = p_Model;
 			m_World = p_World;
+			DirectX::XMStoreFloat4x4( &m_invTransposeWorld, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&DirectX::XMMatrixDeterminant(DirectX::XMLoadFloat4x4(m_World)), DirectX::XMLoadFloat4x4(m_World))) ); 
 		}
 
 		~Renderable()

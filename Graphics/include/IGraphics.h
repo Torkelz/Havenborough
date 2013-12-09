@@ -84,8 +84,9 @@ public:
 	* Creates a new model and stores in a vector connected with an ID.
 	* @param p_ModelId the ID of the model
 	* @param p_Filename the filename of the model
+	* @param p_Animated specify if the model is static or animated
 	*/
-	virtual void createModel(const char *p_ModelId, const char *p_Filename) = 0;
+	virtual void createModel(const char *p_ModelId, const char *p_Filename, bool p_Animated) = 0;
 	//virtual void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
 		//Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent) = 0;
 	/**
