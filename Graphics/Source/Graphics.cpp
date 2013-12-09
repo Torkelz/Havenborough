@@ -348,13 +348,35 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	for(unsigned int i = 0; i < nrIndexBuffers; i++)
 	{
 		const ModelLoader::Material& mat = tempM.at(i);
-		boost::filesystem::path diff = (mat.m_DiffuseMap == "NONE") ? "assets/grey.jpg" : parentDir / mat.m_DiffuseMap;
-		boost::filesystem::path norm = (mat.m_NormalMap == "NONE" || mat.m_NormalMap == "Default_NRM.jpg") ? "assets/grey.jpg" : parentDir / mat.m_NormalMap;
-		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE" || mat.m_SpecularMap == "Default_SPEC.jpg") ? "assets/black.jpg" : parentDir / mat.m_SpecularMap;
+		boost::filesystem::path diff = (mat.m_DiffuseMap == "NONE") ? "assets/Cube/CubeMap_COLOR.jpg" : parentDir / mat.m_DiffuseMap;
+		boost::filesystem::path norm = (mat.m_NormalMap == "NONE" || mat.m_NormalMap == "Default_NRM.jpg") ? "assets/Cube/CubeMap_NRM.jpg" : parentDir / mat.m_NormalMap;
+		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE" || mat.m_SpecularMap == "Default_SPEC.jpg") ? "assets/Cube/CubeMap_SPEC.jpg" : parentDir / mat.m_SpecularMap;
 
 		diffuse[i]	= m_TextureLoader.createTextureFromFile(diff.string().c_str());
 		normal[i]	= m_TextureLoader.createTextureFromFile(norm.string().c_str());
 		specular[i] = m_TextureLoader.createTextureFromFile(spec.string().c_str());
+		
+		ID3D11Resource *resource;
+		ID3D11Texture2D *texture;
+		D3D11_TEXTURE2D_DESC textureDesc;
+		int size = 0;
+
+		diffuse[i]->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
+		size += m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
+
+		normal[i]->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
+		size += 4 * textureDesc.Width * textureDesc.Height;
+		
+		specular[i]->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
+		size += 4 * textureDesc.Width * textureDesc.Height;
+
+		m_VRAMMemInfo->updateUsage(size);
 	}
 	Model m;
 	m.vertexBuffer		= vertexBuffer;

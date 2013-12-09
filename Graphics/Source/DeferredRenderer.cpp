@@ -373,6 +373,10 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 
 	srvt0 = srvt1 = srvt2 = srvt3 = nullptr;
 	// Done with the render targets.
+
+	unsigned int size = 4 * VRAMMemInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
+	VRAMMemInfo::getInstance()->updateUsage(size);
+
 	return result;
 }
 
@@ -440,6 +444,8 @@ void DeferredRenderer::createConstantBuffer(int nrLights)
 	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
 	m_ObjectConstantBuffer = new Buffer();
 	m_ObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
+
+	VRAMMemInfo::getInstance()->updateUsage(cbdesc.sizeOfElement + sizeof(cBuffer));
 }
 
 void DeferredRenderer::clearRenderTargets()
