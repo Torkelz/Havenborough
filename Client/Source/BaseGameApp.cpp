@@ -39,18 +39,28 @@ void BaseGameApp::init()
 	
 	m_Physics = IPhysics::createPhysics();
 
-	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 50.f, 0.f), 4.f);
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-500.f, -50.f, -500.f), Vector3(500.f, 0.f, 500.f));
+	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 1.6f);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
+	
+	m_Jump = false;
+	m_JumpTime = 0.f;
+	m_JumpForce = 2000.f;
+	m_JumpForceTime = 0.2f;
+	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
 	
 	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
 	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("BOXShader","BOX");
+	m_Graphics->linkShaderToModel("BOXShader", "BOX");
 
-	m_Jump = false;
-	m_JumpTime = 0.f;
-	m_JumpForce = 2750.f;
-	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
+	m_Graphics->createModel("skyBox", "assets/SkyBox/SkyBox.tx");
+	m_Graphics->linkShaderToModel("BOXShader", "skyBox");
+
+	m_Graphics->createModel("house1", "assets/House1/House1.tx");
+	m_Graphics->linkShaderToModel("BOXShader", "house1");
+
+	//m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.tx");
+	//m_Graphics->linkShaderToModel("BOXShader", "Dzala");
 }
 
 void BaseGameApp::run()
@@ -73,10 +83,21 @@ void BaseGameApp::run()
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 	}
 	
-	int ground = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(ground, 1000.f, 0.0001f, 1000.f);
+	int skyBox = m_Graphics->createModelInstance("skyBox");
+	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
 
-	//float position[] = {0.f, 1.8f, 20.f};
+	int ground = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
+
+	int house = m_Graphics->createModelInstance("house1");
+	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
+	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
+
+	//int witch = m_Graphics->createModelInstance("Dzala");
+	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
+	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
+
+	float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
 
 	//float speed = 5.f;
@@ -98,8 +119,8 @@ void BaseGameApp::run()
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 	currTimeStamp--;
 
-	static const float maxSpeed = 1.5f;
-	static const float accConstant = 500.f;
+	static const float maxSpeed = 10.f;
+	static const float accConstant = 250.f;
 	//float up = m_Up - m_Down;
 	
 	while (!m_ShouldQuit)
@@ -115,6 +136,7 @@ void BaseGameApp::run()
 			if(hit.intersect)
 			{
 				int i = 0;
+				//hit.
 			}
 		}
 
@@ -123,7 +145,7 @@ void BaseGameApp::run()
 		if(m_Jump)
 		{
  			m_JumpTime += dt;
-			if(m_JumpTime > 0.04f)
+			if(m_JumpTime > m_JumpForceTime)
 			{
 				m_Physics->applyForce(Vector4(0.f, -m_JumpForce, 0.f, 0.f), m_Player);
 				m_Jump = false;
@@ -156,14 +178,14 @@ void BaseGameApp::run()
 		diffVel.x = maxVelocity.x - currentVelocity.x;
 		diffVel.y = maxVelocity.y - currentVelocity.y;
 		diffVel.z = maxVelocity.z - currentVelocity.z;
-		diffVel.w = maxVelocity.w - currentVelocity.w;
+		diffVel.w = 0.f;
 
 		force.x = diffVel.x * accConstant;
 		force.y = diffVel.y * accConstant;
 		force.z = diffVel.z * accConstant;
-		force.w = diffVel.w * accConstant;
+		force.w = 0.f;
 
-		Vector4 forceDiff = Vector4(force.x - m_PrevForce.x, force.y - m_PrevForce.y, force.z - m_PrevForce.z, force.w - m_PrevForce.w); 
+		Vector4 forceDiff = Vector4(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z, 0.f); 
 		m_PrevForce = force;
 
 		m_Physics->applyForce(forceDiff, m_Player);
@@ -173,6 +195,7 @@ void BaseGameApp::run()
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
 
  		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
+		m_Graphics->setModelPosition(skyBox, position[0], position[1], position[2]);
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -184,6 +207,9 @@ void BaseGameApp::run()
 			m_Graphics->renderModel(boxIds[i]);
 		}
 		m_Graphics->renderModel(ground);
+		m_Graphics->renderModel(skyBox);
+		m_Graphics->renderModel(house);
+		//m_Graphics->renderModel(witch);
 
 		m_Graphics->drawFrame(currView);
 		

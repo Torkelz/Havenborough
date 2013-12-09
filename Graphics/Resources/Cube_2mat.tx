@@ -1,14 +1,19 @@
 *Header
-#Materials 1
+#Materials 2
 #MESH pCubeShape1
 #Vertices 8
 #Triangles 12
 
 *Materials
 Material: blinn1
-DiffuseMap: CubeMap_COLOR1.jpg
-NormalMap: CubeMap_NRM.jpg
-SpecularMap: CubeMap_SPEC.jpg
+DiffuseMap: Cube1_COLOR.png
+NormalMap: Cube1_NRM.png
+SpecularMap: Cube1_SPEC.png
+
+Material: blinn2
+DiffuseMap: CubeBlur_COLOR.jpg
+NormalMap: CubeBlur_NRM.jpg
+SpecularMap: CubeBlur_SPEC.png
 
 *Vertices
 v -0.5 -0.5 0.5
@@ -111,10 +116,13 @@ face: 3
 6 / 15 / 10 / 6 | 5 / 16 / 9 / 5 | 7 / 17 / 11 / 7 | 
 6 / 18 / 12 / 6 | 7 / 19 / 13 / 7 | 0 / 20 / 14 / 8 | 
 0 / 21 / 14 / 8 | 7 / 22 / 13 / 7 | 1 / 23 / 15 / 9 | 
-1 / 24 / 16 / 1 | 7 / 25 / 17 / 10 | 3 / 26 / 18 / 3 | 
-3 / 27 / 18 / 3 | 7 / 28 / 17 / 10 | 5 / 29 / 19 / 11 | 
 6 / 30 / 20 / 12 | 0 / 31 / 21 / 0 | 4 / 32 / 22 / 13 | 
 4 / 33 / 22 / 13 | 0 / 34 / 21 / 0 | 2 / 35 / 23 / 2 | 
+
+-blinn2
+face: 3
+1 / 24 / 16 / 1 | 7 / 25 / 17 / 10 | 3 / 26 / 18 / 3 | 
+3 / 27 / 18 / 3 | 7 / 28 / 17 / 10 | 5 / 29 / 19 / 11 | 
 
 
 
