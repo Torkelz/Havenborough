@@ -6,7 +6,7 @@
 
 *Materials
 Material: lambert2
-DiffuseMap: skybox_texture.jpg
+DiffuseMap: SkyBox_COLOR.png
 NormalMap: Default_NRM.jpg
 SpecularMap: Default_SPEC.jpg
 
@@ -51,18 +51,18 @@ uv 1 0.333984
 uv 0 0.666016
 uv 0.75 0.666016
 uv 0.75 0.333984
-uv 0.250977 1
+uv 0.250977 0.999
 uv 0.250977 0.666016
-uv 0.5 0.666016
-uv 0.5 1
+uv 0.499023 0.666016
+uv 0.499023 0.999
 uv 0.250977 0.666016
-uv 0.250488 0.333984
-uv 0.5 0.333984
-uv 0.5 0.666016
-uv 0.250488 0.333984
-uv 0.250488 0
-uv 0.5 0
-uv 0.5 0.333984
+uv 0.250977 0.333984
+uv 0.499023 0.333984
+uv 0.499023 0.666016
+uv 0.250977 0.333984
+uv 0.250977 0.001
+uv 0.499023 0.001
+uv 0.499023 0.333984
 uv 0 0.333984
 uv 1 0.666016
 

@@ -46,7 +46,7 @@ void BaseGameApp::init()
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("BOXShader", "BOX");
 
-	m_Graphics->createModel("skyBox", "assets/SkyBox.tx");
+	m_Graphics->createModel("skyBox", "assets/SkyBox/SkyBox.tx");
 	m_Graphics->linkShaderToModel("BOXShader", "skyBox");
 
 	m_Graphics->createModel("house1", "assets/House1/House1.tx");
