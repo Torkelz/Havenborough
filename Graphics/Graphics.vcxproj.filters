@@ -89,5 +89,6 @@
     <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
     <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
     <FxCompile Include="Source\DeferredShaders\LightPassV2.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\LightPassV2Spotlight.hlsl" />
   </ItemGroup>
 </Project>

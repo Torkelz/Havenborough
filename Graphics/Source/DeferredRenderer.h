@@ -58,6 +58,9 @@ class DeferredRenderer
 private:
 	std::vector<Renderable>		m_Objects;
 	std::vector<Light>			m_Lights;
+	std::vector<Light>			m_PointLights;
+	std::vector<Light>			m_SpotLights;
+	std::vector<Light>			m_DirectionalLights;
 
 	ID3D11Device				*m_Device;
 	ID3D11DeviceContext			*m_DeviceContext;

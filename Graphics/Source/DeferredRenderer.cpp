@@ -103,8 +103,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 	m_LightShader = new Shader();
 	m_LightShader->initialize(m_Device,m_DeviceContext, 7);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPassV2.hlsl","PointLightVS","vs_5_0",VERTEX_SHADER, shaderDesc);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPassV2.hlsl","PointLightPS","ps_5_0",PIXEL_SHADER, nullptr);
+	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPassV2Spotlight.hlsl","PointLightVS","vs_5_0",VERTEX_SHADER, shaderDesc);
+	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPassV2Spotlight.hlsl","PointLightPS","ps_5_0",PIXEL_SHADER, nullptr);
 
 	// Create sampler state and blend state for Alpha rendering.
 	createSamplerState();
@@ -115,16 +115,16 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	Light testLight(	
 		DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
-		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
-		DirectX::XMFLOAT2(1.0f, 1.0f),  
-		20.0f,
-		0
+		DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f), 
+		DirectX::XMFLOAT2(0.5f, 1.0f),  
+		50.0f,
+		1
 		);
-	//addLight(testLight);
+	addLight(testLight);
 
-	xx = 10;
-	yy = 10;
-	zz = 10;
+	xx = 1;
+	yy = 1;
+	zz = 1;
 	int minX,minY,minZ,maxX,maxY,maxZ;
 	minX = minY = minZ = -20;
 	maxX = maxY = maxZ = 20;
@@ -133,20 +133,20 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	dy = (float)(abs(maxY) + abs(minY))/((yy - 1 <= 0) ? 1 : xx - 1);
 	dz = (float)(abs(maxZ) + abs(minZ))/((zz - 1 <= 0) ? 1 : xx - 1);
 
-	for(int x= 0; x < xx; x++)
+	/*for(int x= 0; x < xx; x++)
 	{
-		for(int y = 0; y < yy; y++)
-		{
-			for(int z = 0; z < zz; z++)
-			{
-				testLight.lightPos.x = (x * dx) + minX;
-				testLight.lightPos.y = (y * dy) + minY;
-				testLight.lightPos.z = (z * dz) + minZ;
+	for(int y = 0; y < yy; y++)
+	{
+	for(int z = 0; z < zz; z++)
+	{
+	testLight.lightPos.x = (x * dx) + minX;
+	testLight.lightPos.y = (y * dy) + minY;
+	testLight.lightPos.z = (z * dz) + minZ;
 
-				addLight(testLight);
-			}
-		}
+	addLight(testLight);
 	}
+	}
+	}*/
 
 	//This buffer is supposed to be moved to non temporary code
 	BufferDescription cbdesc;
@@ -159,7 +159,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_AllLightBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 
 	ModelLoader modL;
-	modL.loadFile("../../Graphics/Resources/sphere.tx");
+	modL.loadFile("../../Graphics/Resources/spotlight +Z openGL.tx"); //spherex2
 	const std::vector<std::vector<ModelLoader::IndexDesc>>& indices = modL.getIndices();
 	const std::vector<DirectX::XMFLOAT3>& vertices = modL.getVertices();
 	std::vector<DirectX::XMFLOAT3> temp;
@@ -206,18 +206,18 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 void DeferredRenderer::renderDeferred()
 {
-	float dt = 0.016f;
+	/*float dt = 0.016f;
 	for(unsigned int i = 0; i < m_Lights.size();i++)
 	{
 
-		if(i%2 == 0)
-			m_Lights.at(i).lightPos.y += m_speed * dt;
-		else
-			m_Lights.at(i).lightPos.y -= m_speed * dt;	
+	if(i%2 == 0)
+	m_Lights.at(i).lightPos.y += m_speed * dt;
+	else
+	m_Lights.at(i).lightPos.y -= m_speed * dt;	
 	}
 	if((m_Lights.at(0).lightPos.y > 20) ||
-		(m_Lights.at(0).lightPos.y < -20))
-		m_speed *= -1.0f;
+	(m_Lights.at(0).lightPos.y < -20))
+	m_speed *= -1.0f;*/
 
 
 	// Clear render targets.
@@ -346,6 +346,21 @@ void DeferredRenderer::addRenderable(Renderable p_renderable)
 void DeferredRenderer::addLight(Light p_Light)
 {
 	m_Lights.push_back(p_Light);
+
+	/*switch(p_Light.lightType)
+	{
+	case 0:
+	m_PointLights.push_back(p_Light);
+	break;
+	case 1:
+	m_SpotLights.push_back(p_Light);
+	break;
+	case 2:
+	m_DirectionalLights.push_back(p_Light);
+	break;
+	default:
+	break;
+	}*/
 }
 
 ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
