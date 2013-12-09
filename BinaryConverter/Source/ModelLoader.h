@@ -6,17 +6,9 @@
 #include <memory>
 #include <vector>
 
-class ModelConverter
+class ModelLoader
 {
 public:
-	struct Header
-	{
-		std::string m_modelName;
-		int m_numMaterial;
-		int m_numVertex;
-		int m_numMaterialBuffer;
-	};
-
 	struct KeyFrame
 	{
 		DirectX::XMFLOAT3 m_Trans;
@@ -33,15 +25,6 @@ public:
 		std::vector<KeyFrame> m_JointAnimation;
 	};
 
-	struct VertexBuffer
-	{
-		DirectX::XMFLOAT4 m_Position;
-		DirectX::XMFLOAT3 m_Tangent;
-		DirectX::XMFLOAT3 m_Normal;
-		DirectX::XMFLOAT2 m_UV;
-		DirectX::XMFLOAT3 m_Binormal;
-	};
-
 	struct IndexDesc
 	{
 		std::string m_MaterialID;
@@ -51,13 +34,6 @@ public:
 		int m_TextureCoord;
 	};
 	
-	struct MaterialBuffer
-	{
-		std::string material;
-		int start;
-		int length;
-	};
-
 	struct Material
 	{
 		std::string m_MaterialID;
@@ -71,7 +47,6 @@ private:
 	std::string m_MeshName;
 	int m_NumberOfTriangles;
 	std::vector<IndexDesc> m_Indices;
-	unsigned int m_VertexCount;
 
 	float m_Start, m_End;
 	int m_NumberOfFrames, m_NumberOfVertices, m_NumberOfMaterials;
@@ -79,7 +54,7 @@ private:
 	std::vector<DirectX::XMFLOAT2> m_TextureCoord;
 	std::vector<Material> m_Material;
 	std::vector<std::vector<IndexDesc>> m_IndexPerMaterial;
-	std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMFLOAT4>> m_WeightsList;
+	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> m_WeightsList;
 	std::vector<Joint> m_ListOfJoints;
 	
 public:
@@ -87,12 +62,12 @@ public:
 	/**
 	 * Constructor.
 	 */
-	ModelConverter();
+	ModelLoader();
 	
 	/**
 	 * Destructor.
 	 */
-	~ModelConverter();
+	~ModelLoader();
 	
 	/**
 	 * Use this function to release the memory in loader vectors.
@@ -114,19 +89,18 @@ public:
 	const std::vector<DirectX::XMFLOAT3>& getVertices();
 
 	/**
-	 * Returns the stored information about indices. 
-	 * It returns a list of lists with different index buffers depending on material.
-	 * 
+	 * Returns the stored information about indices as a vector with Float3 values.
+	 *
 	 * @returns a vector of indices.
 	 */
-	const std::vector<std::vector<ModelConverter::IndexDesc>>& getIndices();
+	const std::vector<std::vector<ModelLoader::IndexDesc>>& getIndices();
 
 	/**
 	 * Returns the stored information about the materials that are used by the model.
 	 *
 	 * @returns a vector of material structs.
 	 */
-	const std::vector<ModelConverter::Material>& getMaterial();
+	const std::vector<ModelLoader::Material>& getMaterial();
 
 	/**
 	 * Returns the stored information about normal as a vector with Float3.
@@ -148,34 +122,20 @@ public:
 	 * @returns a vector of texture coords.
 	 */
 	const std::vector<DirectX::XMFLOAT2>& getTextureCoords();
-
-	/**
-	 * Returns the number of materials for the test. 
-	 *
-	 * @returns an int with the correct size of the vector.
-	 */
-	int getNumberOfMaterial();
-
-	/**
-	 * Returns the number of vertices in the vector.
-	 *
-	 * @returns an int with the correct size of the vector.
-	 */
-	int getNumberOfVertices();
-
+	
 	/**
 	 * Returns a paired vector with information about weights and to what joint it is weighted.
 	 *
 	 * @returns a paired vector of weights and joints.
 	 */
-	const std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMFLOAT4>>& getWeightsList();
+	const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& getWeightsList();
 	
 	/**
 	 * Returns a list of joint structs that includes information about animation and parents.
 	 *
 	 * @return a vector of Joint. 
 	 */
-	const std::vector<ModelConverter::Joint>& getListOfJoints();
+	const std::vector<ModelLoader::Joint>& getListOfJoints();
 
 	/**
 	 * Returns the start number for the animation. 
@@ -198,33 +158,7 @@ public:
 	 */
 	int getNumberOfFrames();
 
-	void writeFile(std::string p_FilePath);
-
-	bool loadBinaryFile(std::string p_FilePath);
-	
+	std::string getMeshName();
 private:
-	
-	
-	void intToByte(int p_Int, std::ofstream* p_Output);
-	void floatToByte(float p_Float, std::ofstream* p_Output);
-	void stringToByte(std::string p_String, std::ofstream* p_Output);
-
-	int byteToInt(std::ifstream* p_Input);
-	float byteToFloat(std::ifstream* p_Input);
-	std::string byteToString(int strLength, std::ifstream* p_Input);
-	
-	ModelConverter::Header readHeader(std::ifstream* p_Input);
-	std::vector<ModelConverter::Material> readMaterial(int p_NumberOfMaterial, std::ifstream* p_Input);
-	std::vector<ModelConverter::MaterialBuffer> readMaterialBuffer(int p_NumberOfMaterialBuffers, std::ifstream* p_Input);
-	std::vector<ModelConverter::VertexBuffer> readVertexBuffer(int p_NumberOfVertex, std::ifstream* p_Input);
-
-	
-	
-	void createHeader(std::ofstream* p_Output);
-	void createMaterial(std::ofstream* p_Output);
-	void createMaterialBuffer(std::ofstream* p_Output);
-	void createVertexBuffer(std::ofstream* p_Output);
-	
-
 	void clearData();
 };

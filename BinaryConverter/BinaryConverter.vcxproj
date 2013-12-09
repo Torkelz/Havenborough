@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{823F7A96-CD1A-4175-9FC6-0D44460ACA5B}</ProjectGuid>
+    <ProjectGuid>{A647C21B-BF64-40AF-9D1B-9BB35202A4AA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>BinaryConverter</RootNamespace>
   </PropertyGroup>
@@ -41,9 +41,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)Test\</OutDir>
+    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)Bin\</OutDir>
+    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -76,11 +81,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BinaryConverter\BinaryConverter.cpp" />
-    <ClCompile Include="BinaryConverter\ModelConverter.cpp" />
+    <ClCompile Include="Source\ModelBinaryLoader.cpp" />
+    <ClCompile Include="Source\BinaryConverter.cpp" />
+    <ClCompile Include="Source\ModelConverter.cpp" />
+    <ClCompile Include="Source\ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BinaryConverter\ModelConverter.h" />
+    <ClInclude Include="Source\ModelBinaryLoader.h" />
+    <ClInclude Include="Source\ModelConverter.h" />
+    <ClInclude Include="Source\ModelLoader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

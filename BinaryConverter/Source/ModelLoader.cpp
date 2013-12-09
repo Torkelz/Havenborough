@@ -1,13 +1,10 @@
-#include "ModelConverter.h"
+#include "ModelLoader.h"
 
-#define WRITE_SIZE 4096
-
-ModelConverter::ModelConverter()
+ModelLoader::ModelLoader()
 {
-	m_VertexCount = 0;
 }
 
-ModelConverter::~ModelConverter()
+ModelLoader::~ModelLoader()
 {
 	m_Indices.clear();
 	m_Normals.clear();
@@ -16,7 +13,7 @@ ModelConverter::~ModelConverter()
 	m_TextureCoord.clear();	
 }
 
-void ModelConverter::clear()
+void ModelLoader::clear()
 {
 	m_Indices.clear();
 	m_Indices.shrink_to_fit();
@@ -44,208 +41,10 @@ void ModelConverter::clear()
 	m_MeshName.shrink_to_fit();
 	m_NumberOfVertices = 0;
 	m_NumberOfTriangles = 0;
+	m_NumberOfFrames = 0;
 }
 
-void ModelConverter::writeFile(std::string p_FilePath)
-{
-	std::ofstream output(p_FilePath, std::ofstream::out | std::ofstream::binary);
-	createHeader(&output);
-	createMaterial(&output);
-	createVertexBuffer(&output);
-	createMaterialBuffer(&output);
-	
-	output.close();
-}
-
-void ModelConverter::createHeader(std::ofstream* p_Output)
-{
-	Header header;
-	stringToByte(m_MeshName, p_Output);
-	intToByte(m_Material.size(), p_Output);
-	for(unsigned int i = 0; i < m_IndexPerMaterial.size(); i++)
-	{
-		m_VertexCount += m_IndexPerMaterial.at(i).size();
-	}
-	intToByte(m_VertexCount, p_Output);
-	intToByte(m_IndexPerMaterial.size(), p_Output);
-}
-
-void ModelConverter::createVertexBuffer(std::ofstream* p_Output)
-{
-	DirectX::XMFLOAT3 binormal, tangent, normal, vertex;
-	DirectX::XMFLOAT2 uv;
-	for(unsigned int i = 0; i < m_IndexPerMaterial.size(); i++)
-	{
-		for(unsigned int j = 0; j < m_IndexPerMaterial.at(i).size(); j++)
-		{
-			floatToByte(1.0f, p_Output);
-			vertex = m_Vertices.at(m_IndexPerMaterial.at(i).at(j).m_Vertex);
-			floatToByte(vertex.z, p_Output);
-			floatToByte(vertex.y, p_Output);
-			floatToByte(vertex.x, p_Output);
-			normal = m_Normals.at(m_IndexPerMaterial.at(i).at(j).m_Normal);
-			floatToByte(normal.z, p_Output);
-			floatToByte(normal.y, p_Output);
-			floatToByte(normal.x, p_Output);
-			uv = m_TextureCoord.at(m_IndexPerMaterial.at(i).at(j).m_TextureCoord);
-			floatToByte(uv.y, p_Output);
-			floatToByte(uv.x, p_Output);
-			tangent = m_Tangents.at(m_IndexPerMaterial.at(i).at(j).m_Tangent);
-			floatToByte(tangent.z, p_Output);
-			floatToByte(tangent.y, p_Output);
-			floatToByte(tangent.x, p_Output);
-			DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
-			floatToByte(binormal.z, p_Output);
-			floatToByte(binormal.y, p_Output);
-			floatToByte(binormal.x, p_Output);
-		}
-	}
-}
-
-void ModelConverter::createMaterialBuffer(std::ofstream* p_Output)
-{
-	int start = 0;
-	int i = 0;
-	for(auto &t : m_IndexPerMaterial)
-	{
-		stringToByte(t.at(i).m_MaterialID,p_Output);
-		intToByte(start, p_Output);
-		start += t.size();
-		intToByte(t.size(), p_Output);
-		i++;
-	}
-}
-
-void ModelConverter::createMaterial(std::ofstream* p_Output)
-{
-	for(auto &t : m_Material)
-	{
-		stringToByte(t.m_MaterialID, p_Output);
-		stringToByte(t.m_DiffuseMap, p_Output);
-		stringToByte(t.m_NormalMap, p_Output);
-		stringToByte(t.m_SpecularMap, p_Output);
-	}
-}
-ModelConverter::Header ModelConverter::readHeader(std::ifstream* p_Input)
-{
-	Header tempHeader;
-	tempHeader.m_modelName = byteToString(byteToInt(p_Input), p_Input);
-	tempHeader.m_numMaterial = byteToInt(p_Input);
-	tempHeader.m_numVertex = byteToInt(p_Input);
-	tempHeader.m_numMaterialBuffer = byteToInt(p_Input);
-	return tempHeader;
-}
-
-std::vector<ModelConverter::Material> ModelConverter::readMaterial(int p_NumberOfMaterial, std::ifstream* p_Input)
-{
-	Material temp;
-	std::vector<Material> tempVector;
-	for(int i = 0; i < p_NumberOfMaterial; i++)
-	{
-		temp.m_MaterialID = byteToString(byteToInt(p_Input), p_Input);
-		temp.m_DiffuseMap = byteToString(byteToInt(p_Input), p_Input);
-		temp.m_NormalMap = byteToString(byteToInt(p_Input), p_Input);
-		temp.m_SpecularMap = byteToString(byteToInt(p_Input), p_Input);
-		tempVector.push_back(temp);
-	}
-	return tempVector;
-}
-
-std::vector<ModelConverter::MaterialBuffer> ModelConverter::readMaterialBuffer(int p_NumberOfMaterialBuffers, std::ifstream* p_Input)
-{
-	MaterialBuffer temp;
-	std::vector<MaterialBuffer> tempBuffer;
-	for(int i = 0; i < p_NumberOfMaterialBuffers; i++)
-	{
-		temp.material = byteToString(byteToInt(p_Input),p_Input);
-		temp.start = byteToInt(p_Input);
-		temp.length = byteToInt(p_Input);
-		tempBuffer.push_back(temp);
-	}
-	return tempBuffer;
-}
-
-std::vector<ModelConverter::VertexBuffer> ModelConverter::readVertexBuffer(int p_NumberOfVertex, std::ifstream* p_Input)
-{
-	std::vector<VertexBuffer> vertexBuffer; 
-	VertexBuffer tempVertex;
-
-	for(int i = 0; i < p_NumberOfVertex; i++)
-	{
-		tempVertex.m_Position = DirectX::XMFLOAT4(byteToFloat(p_Input),byteToFloat(p_Input),byteToFloat(p_Input),byteToFloat(p_Input));
-		tempVertex.m_Normal = DirectX::XMFLOAT3(byteToFloat(p_Input),byteToFloat(p_Input),byteToFloat(p_Input));
-		tempVertex.m_UV = DirectX::XMFLOAT2(byteToFloat(p_Input),byteToFloat(p_Input));
-		tempVertex.m_Tangent = DirectX::XMFLOAT3(byteToFloat(p_Input),byteToFloat(p_Input),byteToFloat(p_Input));
-		tempVertex.m_Binormal = DirectX::XMFLOAT3(byteToFloat(p_Input),byteToFloat(p_Input),byteToFloat(p_Input));
-		vertexBuffer.push_back(tempVertex);
-	}
-	return vertexBuffer;
-}
-
-void ModelConverter::stringToByte(std::string p_String, std::ofstream* p_Output)
-{
-	unsigned int size = p_String.size();
-	char* data = new char[size];
-	p_Output->write(reinterpret_cast<const char*>(&size), sizeof(size));
-	for(unsigned int i = 0; i < size; i++)
-	{
-		data[1+i] = p_String[i];
-	}
-	size++;
-	p_Output->write(data, size);
-}
-
-void ModelConverter::intToByte(int p_Int, std::ofstream* p_Output)
-{
-	p_Output->write(reinterpret_cast<const char*>(&p_Int), sizeof(p_Int));
-}
-
-void ModelConverter::floatToByte(float p_Float, std::ofstream* p_Output)
-{
-	p_Output->write(reinterpret_cast<const char*>(&p_Float), sizeof(p_Float));
-}
-
-std::string ModelConverter::byteToString(int strLength, std::ifstream* p_Input)
-{
-	int pos = (int)p_Input->tellg();
-    p_Input->seekg( pos + 1 );
-	char* c = new char[strLength];
-	p_Input->read( c, strLength);
-	std::string s(c, strLength);
-	return s;
-}
-
-int ModelConverter::byteToInt(std::ifstream* p_Input)
-{
-	char b[4];
-	int temp = 0;
-	p_Input->read(b, sizeof(unsigned int));
-	memcpy(&temp, b, sizeof(unsigned int));
-	return temp;
-}
-
-float ModelConverter::byteToFloat(std::ifstream* p_Input)
-{
-	char b[4];
-	float temp = 0;;
-
-	p_Input->read( b, sizeof(float) );
-	memcpy( &temp, b, sizeof(float) );
-
-	return temp;
-}
-
-bool ModelConverter::loadBinaryFile(std::string p_FilePath)
-{
-	std::ifstream input(p_FilePath, std::ifstream::in | std::ifstream::binary);
-	Header fileHeader = readHeader(&input);
-	std::vector<Material> temp = readMaterial(fileHeader.m_numMaterial,&input);
-	std::vector<VertexBuffer> test = readVertexBuffer(fileHeader.m_numVertex, &input);
-	std::vector<MaterialBuffer> testBuf = readMaterialBuffer(fileHeader.m_numMaterialBuffer, &input);
-	return true;
-}
-
-bool ModelConverter::loadFile(std::string p_FilePath)
+bool ModelLoader::loadFile(std::string p_FilePath)
 {
 	clearData();
 	std::ifstream input(p_FilePath.c_str(),std::ifstream::in);
@@ -255,7 +54,8 @@ bool ModelConverter::loadFile(std::string p_FilePath)
 	Material tempMaterial;
 	IndexDesc tempFace;
 	DirectX::XMFLOAT3 tempFloat3;
-	DirectX::XMFLOAT4 tempWeight, tempJoint;
+	DirectX::XMFLOAT3 tempWeight;
+	DirectX::XMFLOAT4 tempJoint;
 	std::stringstream stringstream;
 	Joint tempJointStruct;
 
@@ -394,7 +194,7 @@ bool ModelConverter::loadFile(std::string p_FilePath)
 				stringstream = std::stringstream(line);
 				if(line == "")
 					break;
-				stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z >> tempWeight.w;
+				stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z;
 				std::getline(input, line);
 				stringstream = std::stringstream(line);
 				stringstream >> filler >> tempJoint.x >> tempJoint.y >> tempJoint.z >> tempJoint.w;
@@ -462,72 +262,67 @@ bool ModelConverter::loadFile(std::string p_FilePath)
 	return true;
 }
 
-const std::vector<DirectX::XMFLOAT3>& ModelConverter::getVertices()
+const std::vector<DirectX::XMFLOAT3>& ModelLoader::getVertices()
 {
 	return m_Vertices;
 }
 
-const std::vector<std::vector<ModelConverter::IndexDesc>>& ModelConverter::getIndices()
+const std::vector<std::vector<ModelLoader::IndexDesc>>& ModelLoader::getIndices()
 {
 	return m_IndexPerMaterial;
 }
 
-const std::vector<ModelConverter::Material>& ModelConverter::getMaterial()
+const std::vector<ModelLoader::Material>& ModelLoader::getMaterial()
 {
 	return m_Material;
 }
 
-const std::vector<DirectX::XMFLOAT3>& ModelConverter::getNormals()
+const std::vector<DirectX::XMFLOAT3>& ModelLoader::getNormals()
 {
 	return m_Normals;
 }
 
-const std::vector<DirectX::XMFLOAT3>& ModelConverter::getTangents()
+const std::vector<DirectX::XMFLOAT3>& ModelLoader::getTangents()
 {
 	return m_Tangents;
 }
 
-const std::vector<DirectX::XMFLOAT2>& ModelConverter::getTextureCoords()
+const std::vector<DirectX::XMFLOAT2>& ModelLoader::getTextureCoords()
 {
 	return m_TextureCoord;
 }
 
-int ModelConverter::getNumberOfMaterial()
-{
-	return m_NumberOfMaterials;
-}
-
-int ModelConverter::getNumberOfVertices()
-{
-	return m_NumberOfVertices;
-}
-
-const std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMFLOAT4>>& ModelConverter::getWeightsList()
+const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& ModelLoader::getWeightsList()
 {
 	return m_WeightsList;
 }
 
-const std::vector<ModelConverter::Joint>& ModelConverter::getListOfJoints()
+const std::vector<ModelLoader::Joint>& ModelLoader::getListOfJoints()
 {
 	return m_ListOfJoints;
 }
 
-float ModelConverter::getAnimationStartValue()
+float ModelLoader::getAnimationStartValue()
 {
 	return m_Start;
 }
 
-float ModelConverter::getAnimationEndValue()
+float ModelLoader::getAnimationEndValue()
 {
 	return m_End;
 }
 
-int ModelConverter::getNumberOfFrames()
+int ModelLoader::getNumberOfFrames()
 {
 	return m_NumberOfFrames;
 }
 
-void ModelConverter::clearData()
+std::string ModelLoader::getMeshName()
+{
+	return m_MeshName;
+}
+
+void ModelLoader::clearData()
 {
 	m_Indices.clear();
 	m_Normals.clear();
