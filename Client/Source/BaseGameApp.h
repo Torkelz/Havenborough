@@ -29,6 +29,7 @@ private:
 
 	bool	m_Jump;
 	float	m_JumpTime;
+	float	m_JumpForce;
 	Vector4 m_PrevForce;
 	SceneManager m_SceneManager;
 

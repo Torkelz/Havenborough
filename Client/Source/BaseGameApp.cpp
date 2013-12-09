@@ -39,8 +39,8 @@ void BaseGameApp::init()
 	
 	m_Physics = IPhysics::createPhysics();
 
-	m_Player = m_Physics->createSphere(1.f, false, Vector3(0.f, 50.f, 0.f), 4.f);
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-100.f, -100.f, -100.f), Vector3(100.f, 0.f, 100.f));
+	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 50.f, 0.f), 4.f);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-500.f, -50.f, -500.f), Vector3(500.f, 0.f, 500.f));
 	
 	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
 	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
@@ -49,6 +49,7 @@ void BaseGameApp::init()
 
 	m_Jump = false;
 	m_JumpTime = 0.f;
+	m_JumpForce = 2750.f;
 	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
 }
 
@@ -73,7 +74,7 @@ void BaseGameApp::run()
 	}
 	
 	int ground = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
+	m_Graphics->setModelScale(ground, 1000.f, 0.0001f, 1000.f);
 
 	//float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
@@ -97,8 +98,8 @@ void BaseGameApp::run()
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 	currTimeStamp--;
 
-	static const float maxSpeed = 0.5f;
-	static const float accConstant = 9.f;
+	static const float maxSpeed = 1.5f;
+	static const float accConstant = 500.f;
 	//float up = m_Up - m_Down;
 	
 	while (!m_ShouldQuit)
@@ -106,6 +107,7 @@ void BaseGameApp::run()
 		prevTimeStamp = currTimeStamp;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
+		
 
 		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
 		{
@@ -117,17 +119,18 @@ void BaseGameApp::run()
 		}
 
 		const InputState& state = m_InputQueue.getCurrentState();
-
+		
 		if(m_Jump)
 		{
  			m_JumpTime += dt;
 			if(m_JumpTime > 0.04f)
 			{
-				m_Physics->applyForce(Vector4(0.f, -500.f, 0.f, 0.f), m_Player);
+				m_Physics->applyForce(Vector4(0.f, -m_JumpForce, 0.f, 0.f), m_Player);
 				m_Jump = false;
 				m_JumpTime = 0.f;
 			}
 		}
+
 
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 		float right = state.getValue("moveRight") - state.getValue("moveLeft");
@@ -143,19 +146,13 @@ void BaseGameApp::run()
 			dirX = sinf(dir);
 		}
 
-		if(m_Physics->getBodyPosition(m_Player).z <= -10.f)
-		{
- 			int i = 0;
-		}
-
 		Vector4 currentVelocity = m_Physics->getVelocity(m_Player);
 		currentVelocity.y = 0.f;
 		Vector4 maxVelocity(-dirX * maxSpeed, 0.f, -dirZ * maxSpeed, 0.f);
 
 		Vector4 diffVel = Vector4(0.f, 0.f, 0.f, 0.f);
 		Vector4 force = Vector4(0.f, 0.f, 0.f, 0.f);
-		///*tempCurrentVel = XMLoadFloat4(&currentVelocity);
-		//tempMaxVel = XMLoadFloat4(&maxVelocity);*/
+
 		diffVel.x = maxVelocity.x - currentVelocity.x;
 		diffVel.y = maxVelocity.y - currentVelocity.y;
 		diffVel.z = maxVelocity.z - currentVelocity.z;
@@ -170,13 +167,12 @@ void BaseGameApp::run()
 		m_PrevForce = force;
 
 		m_Physics->applyForce(forceDiff, m_Player);
-		m_Physics->update(dt);
-
 		
+		m_Physics->update(dt);
 
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
 
-		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
+ 		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -253,12 +249,12 @@ void BaseGameApp::run()
 			else if (in.m_Action == "mousePosVert")
 			{
 			}
-			else if( in.m_Action == "jump")
+			else if( in.m_Action == "jump" && in.m_Value == 1)
 			{
 				if(!m_Jump)
 				{
 					m_Jump = true;
-					m_Physics->applyForce(Vector4(0.f, 500.f, 0.f, 0.f), m_Player);
+					m_Physics->applyForce(Vector4(0.f, m_JumpForce, 0.f, 0.f), m_Player);
 				}
 			}
 			else

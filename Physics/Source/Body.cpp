@@ -66,16 +66,6 @@ void Body::update(float p_DeltaTime)
 	
 	m_LastAcceleration = m_AvgAcceleration;
 
-	XMFLOAT4 relativePos = XMFLOAT4(0.f, 0.f, 0.f, 1.f);
-
-	relativePos.x = m_Velocity.x * p_DeltaTime * 10 + (0.5f * m_LastAcceleration.x * (p_DeltaTime*p_DeltaTime));
-	relativePos.y = m_Velocity.y * p_DeltaTime * 10 + (0.5f * m_LastAcceleration.y * (p_DeltaTime*p_DeltaTime));
-	relativePos.z = m_Velocity.z * p_DeltaTime * 10 + (0.5f * m_LastAcceleration.z * (p_DeltaTime*p_DeltaTime));
-
-	m_Position.x += relativePos.x;
-	m_Position.y += relativePos.y;
-	m_Position.z += relativePos.z;
-
 	XMVECTOR tempAvg, tempNew, tempLast;
 	tempAvg = XMVectorSet(0.f, 0.f, 0.f, 0.f);
 	
@@ -92,6 +82,16 @@ void Body::update(float p_DeltaTime)
 	m_Velocity.y += m_AvgAcceleration.y;
 	m_Velocity.z += m_AvgAcceleration.z;
 
+
+	XMFLOAT4 relativePos = XMFLOAT4(0.f, 0.f, 0.f, 1.f);
+
+	relativePos.x = m_Velocity.x * p_DeltaTime * 100 + (0.5f * m_LastAcceleration.x * (p_DeltaTime*p_DeltaTime));
+	relativePos.y = m_Velocity.y * p_DeltaTime * 100 + (0.5f * m_LastAcceleration.y * (p_DeltaTime*p_DeltaTime));
+	relativePos.z = m_Velocity.z * p_DeltaTime * 100 + (0.5f * m_LastAcceleration.z * (p_DeltaTime*p_DeltaTime));
+
+	m_Position.x += relativePos.x;
+	m_Position.y += relativePos.y;
+	m_Position.z += relativePos.z;
 
 	updateBoundingVolumePosition(relativePos);
 	

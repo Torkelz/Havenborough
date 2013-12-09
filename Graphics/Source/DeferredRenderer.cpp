@@ -97,7 +97,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
 		DirectX::XMFLOAT2(1.0f, 1.0f),  
-		50.0f,
+		5000.0f,
 		0
 		);
 	//addLight(testLight);
@@ -106,8 +106,10 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	yy = 2;
 	zz = 2;
 	int minX,minY,minZ,maxX,maxY,maxZ;
-	minX = minY = minZ = -30;
-	maxX = maxY = maxZ = 30;
+	minX = minY = minZ = -500;
+	maxX = maxY = maxZ = 500;
+	minY = 5;
+	maxY = 50;
 	float dx,dy,dz;
 	dx = (float)(abs(maxX) + abs(minX))/(xx);
 	dy = (float)(abs(maxY) + abs(minY))/(yy);

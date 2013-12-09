@@ -69,7 +69,7 @@ void Physics::update(float p_DeltaTime)
 				XMVECTOR temp;
 				XMFLOAT4 tempPos;
 
-				temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colPos) * hit.colLength;
+				temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength;
 				XMStoreFloat4(&tempPos, temp);
 
 				b.setPosition(tempPos);
