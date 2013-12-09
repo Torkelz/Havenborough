@@ -30,7 +30,7 @@ ResourceManager::ResourceManager(string p_ProjectDirectory)
 		m_ProjectDirectory.erase(m_ProjectDirectory.end()-10, m_ProjectDirectory.end());
 	}
 
-	m_ResourceTranslator = new ResourceTranslator();
+	
 	NumberOfResources = 0;
 }
 
@@ -75,7 +75,7 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 				}
 			}
 
-			tempFilePath = m_ResourceTranslator->translate(p_ResourceType, p_ResourceName);
+			tempFilePath = m_ResourceTranslator.translate(p_ResourceType, p_ResourceName);
 			tempFilePath = m_ProjectDirectory + tempFilePath;
 
 			if(rl.m_Create(p_ResourceName.c_str(), tempFilePath.c_str()))
@@ -96,20 +96,42 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 
 void ResourceManager::releaseResource(int p_ID)
 {
-	int tempID = -1;
+	bool found = false;
+	int counter = 0, tempID = -1;
+	Resource *tempRes = nullptr;
+	string tempString;
+
 	for(auto &rl : m_ResourceList)
 	{
-		for(auto &t : rl.m_LoadedResources)
-		{
-			if(t.first == p_ID)
-			{
+		counter = 0;
 
+		for(auto &r : rl.m_LoadedResources)
+		{
+			if(r.first == p_ID)
+			{
+				found = true;
+				tempID = p_ID;
+				tempString = r.second;
+				tempRes = &rl;
+				break;
+			}
+			counter++;
+		}
+	}
+
+	if(found)
+	{
+		for(auto &r : tempRes->m_LoadedResources)
+		{
+			if(r.second == tempString && r.first != tempID)
+			{
+				tempRes->m_LoadedResources.erase( tempRes->m_LoadedResources.begin() + counter);
+				return;
 			}
 		}
 
-		for(auto &t : rl.m_LoadedResources)
-		{
-			
-		}
+		tempRes->m_Release( tempRes->m_LoadedResources.at(counter).second.c_str() );
+		return;
 	}
+
 }

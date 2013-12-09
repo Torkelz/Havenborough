@@ -28,7 +28,7 @@ public:
 private:
 	unsigned int NumberOfResources;
 	vector<Resource> m_ResourceList;
-	ResourceTranslator* m_ResourceTranslator;
+	ResourceTranslator m_ResourceTranslator;
 	string m_ProjectDirectory;
 
 public:
