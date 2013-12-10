@@ -182,8 +182,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix);
+	
 	DebugDefferedDraw();
-
 
 	return true;
 }
@@ -380,13 +380,12 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	if(!found)
 	{
 		shader = m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
+		m_ShaderList.push_back(make_pair(p_shaderId, shader));
 	}
 	else
 	{
 		m_WrapperFactory->addShader(shader, p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
 	}
-
-	m_ShaderList.push_back(make_pair(p_shaderId, shader));
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
@@ -405,8 +404,8 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		}
 	}
 
-	m_ShaderList.push_back(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel,
-		p_Type, p_VertexLayout, p_NumOfElements)));
+	m_ShaderList.push_back(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, p_EntryPoint,
+		p_ShaderModel, p_Type, p_VertexLayout, p_NumOfElements)));
 }
 
 void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
@@ -552,7 +551,6 @@ void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Ya
 {
 	using namespace DirectX;
 
-	
 	m_Eye = XMFLOAT3(p_PosX,p_PosY,p_PosZ);
 	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
 	XMVECTOR pos = XMLoadFloat4(&eye);

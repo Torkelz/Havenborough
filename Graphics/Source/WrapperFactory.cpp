@@ -276,8 +276,8 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 	}
 }
 
-void WrapperFactory::addShader(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-	ShaderType p_Type)
+void WrapperFactory::addShader(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+	const char *p_ShaderModel, ShaderType p_Type)
 {
 	vector<string> entryPointList = createEntryPointList(p_EntryPoint);
 	string entryPoint;
