@@ -89,8 +89,6 @@ private:
 	int m_GraphicsMemory;
 	bool m_VSyncEnabled;
 
-	static const std::string m_RelativeResourcePath;
-
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	VRAMMemInfo *m_VRAMMemInfo;
@@ -113,7 +111,9 @@ public:
 	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) override;
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
-	void createModel(const char *p_ModelId, const char *p_Filename) override;
+	bool createModel(const char *p_ModelId, const char *p_Filename) override;
+	bool releaseModel(const char *p_ModelID) override;
+
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) override;
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
@@ -121,8 +121,10 @@ public:
 		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements) override;
 	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) override;
 	
-	void createTexture(const char *p_TextureId, const char *p_filename) override;
+	bool createTexture(const char *p_TextureId, const char *p_filename) override;
+	bool releaseTexture(const char *p_TextureID) override;
 	
+
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
 	void useFrameLight(void) override;
@@ -158,7 +160,8 @@ private:
 	void Begin(float color[4]);
 	void End(void);
 	Shader *getShaderFromList(string p_Identifier);
-	Model *getModelFromList(string p_identifier);
+	Model *getModelFromList(string p_Identifier);
+	ID3D11ShaderResourceView* getTextureFromList(string p_Identifier);
 
 	struct vertex
 	{

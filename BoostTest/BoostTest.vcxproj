@@ -104,7 +104,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
-    <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
     <ClCompile Include="..\Client\Source\RAMMemInfo.cpp" />
     <ClCompile Include="..\Client\Source\ResourceManager.cpp" />
     <ClCompile Include="..\Client\Source\ResourceTranslator.cpp" />

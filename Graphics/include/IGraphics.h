@@ -85,7 +85,7 @@ public:
 	* @param p_ModelId the ID of the model
 	* @param p_Filename the filename of the model
 	*/
-	virtual void createModel(const char *p_ModelId, const char *p_Filename) = 0;
+	virtual bool createModel(const char *p_ModelId, const char *p_Filename) = 0;
 	//virtual void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
 	virtual bool releaseModel(const char* p_ResourceName) = 0;
 	/**
@@ -132,8 +132,17 @@ public:
 	* Creates a new texture and stores in a vector connected with an ID.
 	* @param p_TextureId the ID of the texture
 	* @param p_Filename the filename of the texture
+	* @return true if the texture was successfully loaded, otherwise false
 	*/
-	virtual int createTexture(const char *p_FilePath) = 0;
+	virtual bool createTexture(const char *p_TextureId, const char *p_filename) = 0;
+
+	/**
+	 * Release a previously created texture.
+	 *
+	 * @param p_TextureId the ID of the texture
+	 * @return true if the texture existed and was successfully released.
+	 */
+	virtual bool releaseTexture(const char *p_TextureId) = 0;
 	
 	/**
 	* 

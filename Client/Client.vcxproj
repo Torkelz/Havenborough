@@ -22,7 +22,6 @@
     <ClCompile Include="Source\GameScene.cpp" />
     <ClCompile Include="Source\RAMMemInfo.cpp" />
     <ClCompile Include="Source\MenuScene.cpp" />
-    <ClCompile Include="Source\NetworkClient.cpp" />
     <ClCompile Include="Source\SceneManager.cpp" />
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>

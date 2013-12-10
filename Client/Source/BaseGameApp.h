@@ -36,7 +36,8 @@ private:
 	BodyHandle m_Body, m_Object;
 	IPhysics *m_Physics;
 	ResourceManager* m_ResourceManager;
-	std::vector<unsigned int> m_ResourceIDs; 
+
+	std::vector<int> m_ResourceIDs;
 
 public:
 	/**

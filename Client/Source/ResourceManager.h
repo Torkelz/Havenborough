@@ -1,22 +1,32 @@
 #pragma once
-#pragma once
+
 #include <algorithm>
 #include <functional>
 #include <vector>
 #include "ResourceTranslator.h"
 #include "MyExceptions.h"
 
+#include <boost/filesystem.hpp>
+
 using std::string;
 using std::vector;
 
-class Resource
+class ResourceType
 {
 private:
 	string m_Type;
 public:
+	struct Resource
+	{
+		int m_ID;
+		string m_Name;
+		string m_Path;
+		int m_Count;
+	};
+
 	void setType(string p_Type);
 	string getType();
-	vector<std::pair<int, string>> m_LoadedResources;
+	vector<Resource> m_LoadedResources;
 	
 	std::function<bool(const char*, const char*)> m_Create;
 	std::function<bool(const char*)> m_Release;
@@ -28,9 +38,9 @@ class ResourceManager
 public:
 private:
 	unsigned int m_NextID;
-	vector<Resource> m_ResourceList;
+	vector<ResourceType> m_ResourceList;
 	ResourceTranslator m_ResourceTranslator;
-	string m_ProjectDirectory;
+	boost::filesystem::path m_ProjectDirectory;
 
 public:
 	ResourceManager(string p_ProjectDirectory);

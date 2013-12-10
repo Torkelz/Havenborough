@@ -1,18 +1,13 @@
 #include "ResourceManager.h"
-#if defined(_DEBUG)
-#define DEBUG true
-#else
-#define DEBUG false
-#endif
 
 //loader.reg("model", std::bind(m_Graphic->createModel))
 
 
-void Resource::setType(string p_Type)
+void ResourceType::setType(string p_Type)
 {
 	m_Type = p_Type;
 }
-string Resource::getType()
+string ResourceType::getType()
 {
 	return m_Type;
 }
@@ -22,23 +17,21 @@ ResourceManager::ResourceManager(string p_ProjectDirectory)
 {
 	m_ProjectDirectory = p_ProjectDirectory;
 
-	if(DEBUG)
-	{
-		m_ProjectDirectory.erase(m_ProjectDirectory.end()-16, m_ProjectDirectory.end());
-		m_ProjectDirectory = m_ProjectDirectory + "Bin\\";
-	}
-	else
-	{
-		m_ProjectDirectory.erase(m_ProjectDirectory.end()-10, m_ProjectDirectory.end());
-	}
-
+	m_ProjectDirectory = boost::filesystem::current_path();
 	
 	m_NextID = 0;
 }
 
 ResourceManager::~ResourceManager()
 {
-
+	for (auto& type : m_ResourceList)
+	{
+		for (auto& res : type.m_LoadedResources)
+		{
+			type.m_Release(res.m_Name.c_str());
+			throw ResourceManagerException("Resource not released before shutdown", __LINE__, __FILE__);
+		}
+	}
 }
 
 bool ResourceManager::registerFunction(string p_Type, std::function<bool(const char*, const char*)> p_CreateFunc, std::function<bool(const char*)> p_ReleaseFunc)
@@ -51,7 +44,7 @@ bool ResourceManager::registerFunction(string p_Type, std::function<bool(const c
 		}
 	}
 
-	Resource temp;
+	ResourceType temp;
 	temp.setType(p_Type);
 	temp.m_Create = p_CreateFunc;
 	temp.m_Release = p_ReleaseFunc;
@@ -62,8 +55,8 @@ bool ResourceManager::registerFunction(string p_Type, std::function<bool(const c
 
 int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 {
-	string tempFilePath, temp;
-	int id = -1;
+	boost::filesystem::path filePath(m_ProjectDirectory / m_ResourceTranslator.translate(p_ResourceType, p_ResourceName));
+
 	for(auto &rl : m_ResourceList)
 	{
 		if(rl.getType() == p_ResourceType)
@@ -71,91 +64,61 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 
 			for(auto &t : rl.m_LoadedResources)
 			{
-				if(p_ResourceName == t.second)
+				if(filePath.string() == t.m_Path)
 				{
-					std::pair<int, string> newRes;
-					newRes.second = p_ResourceName;
-					newRes.first = m_NextID++;
-				
-					rl.m_LoadedResources.push_back(newRes);
-					return newRes.first;
+					t.m_Count++;
+
+					return t.m_ID;
 				}
 			}
 
-			tempFilePath = m_ResourceTranslator.translate(p_ResourceType, p_ResourceName);
-			tempFilePath = m_ProjectDirectory + tempFilePath;
-
-			if(rl.m_Create(p_ResourceName.c_str(), tempFilePath.c_str()))
+			if(rl.m_Create(p_ResourceName.c_str(), filePath.string().c_str()) )
 			{
-				std::pair<int, string> newRes;
-				newRes.second = p_ResourceName;
-				newRes.first = m_NextID++;
+				ResourceType::Resource newRes;
+				newRes.m_Name = p_ResourceName;
+				newRes.m_ID = m_NextID++;
+				newRes.m_Count = 1;
 				
 				rl.m_LoadedResources.push_back(newRes);
-				return newRes.first;
+				return newRes.m_ID;
 			}
 			else
 			{
 				throw ResourceManagerException("Error when loading resource!", __LINE__, __FILE__);
 			}
 		}
-		else
-		{
-			throw ResourceManagerException("Error resource type not found!", __LINE__, __FILE__);;
-		}
 	}
-	return id;
+
+	return -1;
 }
 
 bool ResourceManager::releaseResource(int p_ID)
 {
-	int counter, tempID = -1;
-	Resource *tempRes = nullptr;
-	string tempString;
-
 	for(auto &rl : m_ResourceList)
 	{
-		if(tempID != -1)
-				break;
-		
-		counter = 0;
-
-		for(auto &r : rl.m_LoadedResources)
+		for(auto& it = rl.m_LoadedResources.begin(); it != rl.m_LoadedResources.end(); ++it)
 		{
-			if(r.first == p_ID)
-			{
-				tempID = p_ID;
-				tempString = r.second;
-				tempRes = &rl;
-				break;
-			}
-			counter++;
-			
-		}
-	}
+			auto& r = *it;
 
-	if(tempID != -1)
-	{
-		for(auto &r : tempRes->m_LoadedResources)
-		{
-			if(r.second == tempString && r.first != tempID)
+			if(r.m_ID == p_ID)
 			{
-				tempRes->m_LoadedResources.erase( tempRes->m_LoadedResources.begin() + counter);
-				tempRes = nullptr;
+				r.m_Count--;
+
+				if (r.m_Count <= 0)
+				{
+					rl.m_Release(r.m_Name.c_str());
+					rl.m_LoadedResources.erase(it);
+				}
+
 				return true;
 			}
 		}
-
-		if( tempRes->m_Release( tempRes->m_LoadedResources.at(counter).second.c_str() ))
-		{
-			tempRes = nullptr;
-			return true;
-		}
-		else if(DEBUG)
-		{
-			throw ResourceManagerException("Releasing a resource that does not exist? Yeah right..", __LINE__, __FILE__);
-		}
-		else{}
 	}
+
+#ifdef DEBUG
+	throw ResourceManagerException("Releasing a resource that does not exist? Yeah right..", __LINE__, __FILE__);
+#endif
+
 	return false;
+
 }

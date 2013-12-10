@@ -4,8 +4,6 @@
 
 #include <boost/filesystem.hpp>
 
-const std::string Graphics::m_RelativeResourcePath = "../../Graphics/Resources/";
-
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
@@ -240,7 +238,17 @@ void Graphics::shutdown(void)
 	{
 		SAFE_DELETE(s.second);
 	}
-	//m_ShaderList.clear();
+	m_ShaderList.clear();
+
+	for (auto& tex : m_TextureList)
+	{
+		SAFE_RELEASE(tex.second);
+	}
+	m_TextureList.clear();
+
+	m_ModelList.clear();
+
+	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthStencilView);
 	SAFE_RELEASE(m_DepthStencilState);
@@ -266,10 +274,9 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
+bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
 	ModelLoader modelLoader;
-	Buffer *vertexBuffer = nullptr;
 
 	modelLoader.loadFile(p_Filename);
 
@@ -322,12 +329,12 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	bufferDescription.sizeOfElement = sizeof(Graphics::vertex);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
-	vertexBuffer = m_WrapperFactory->createBuffer(bufferDescription);
+	std::unique_ptr<Buffer> vertexBuffer(m_WrapperFactory->createBuffer(bufferDescription));
 	temp.clear();
 
 	// Create Index buffer.
 	unsigned int nrIndexBuffers = tempI.size();
-	Buffer **index = new Buffer*[nrIndexBuffers];
+	std::vector<std::unique_ptr<Buffer>> indices;
 	bufferDescription.type = Buffer::Type::INDEX_BUFFER;
 	//bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE;// Change to default when needed to change data.
 	bufferDescription.sizeOfElement = sizeof(int);
@@ -339,7 +346,7 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 		bufferDescription.initData = tempI.at(i).data();
 		bufferDescription.numOfElements = tempI.at(i).size();
 
-		index[i] = WrapperFactory::getInstance()->createBuffer(bufferDescription);
+		indices.push_back(std::unique_ptr<Buffer>(WrapperFactory::getInstance()->createBuffer(bufferDescription)));
 	}
 	tempI.clear();
 	I.clear();
@@ -348,9 +355,9 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	boost::filesystem::path parentDir(modelPath.parent_path());
 
 	// Load textures.
-	ID3D11ShaderResourceView **diffuse	= new ID3D11ShaderResourceView*[nrIndexBuffers];
-	ID3D11ShaderResourceView **normal	= new ID3D11ShaderResourceView*[nrIndexBuffers];
-	ID3D11ShaderResourceView **specular = new ID3D11ShaderResourceView*[nrIndexBuffers];
+	std::vector<ID3D11ShaderResourceView*> diffuse;
+	std::vector<ID3D11ShaderResourceView*> normal;
+	std::vector<ID3D11ShaderResourceView*> specular;
 	for(unsigned int i = 0; i < nrIndexBuffers; i++)
 	{
 		const ModelLoader::Material& mat = tempM.at(i);
@@ -358,30 +365,36 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 		boost::filesystem::path norm = (mat.m_NormalMap == "NONE" || mat.m_NormalMap == "Default_NRM.jpg") ? "assets/grey.jpg" : parentDir / mat.m_NormalMap;
 		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE" || mat.m_SpecularMap == "Default_SPEC.jpg") ? "assets/black.jpg" : parentDir / mat.m_SpecularMap;
 
-		diffuse[i]	= m_TextureLoader.createTextureFromFile(diff.string().c_str());
-		normal[i]	= m_TextureLoader.createTextureFromFile(norm.string().c_str());
-		specular[i] = m_TextureLoader.createTextureFromFile(spec.string().c_str());
+		createTexture(diff.string().c_str(), diff.string().c_str());
+		createTexture(norm.string().c_str(), norm.string().c_str());
+		createTexture(spec.string().c_str(), spec.string().c_str());
+
+		diffuse.push_back(getTextureFromList(diff.string()));
+		normal.push_back(getTextureFromList(norm.string()));
+		specular.push_back(getTextureFromList(spec.string()));
 	}
+
 	Model m;
-	m.vertexBuffer		= vertexBuffer;
-	m.indexBuffer		= index;
+	m.vertexBuffer.swap(vertexBuffer);
+	m.indexBuffers.swap(indices);
 	m.diffuseTexture	= diffuse;
 	m.normalTexture		= normal;
 	m.specularTexture	= specular;
 	m.numOfMaterials	= nrIndexBuffers;
 
-	m_ModelList.push_back(std::pair<string,Model>(p_ModelId,m));
+	m_ModelList.push_back(std::pair<string,Model>(p_ModelId, std::move(m)));
 
 	modelLoader.clear();
+	return true;
 }
 
 bool Graphics::releaseModel(const char* p_ResourceName)
 {
-	for(int i = 0; i < m_ModelList.size(); i++)
+	for(auto it = m_ModelList.begin(); it != m_ModelList.end(); ++it)
 	{
-		if(strcmp(m_ModelList.at(i).first.c_str(), p_ResourceName) == 0)
+		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
 		{
-			m_ModelList.erase(m_ModelList.begin() + i);
+			m_ModelList.erase(it);
 			return true;
 		}
 	}
@@ -563,13 +576,37 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 	m = nullptr;
 }
 
-void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
+bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
-	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
+	ID3D11ShaderResourceView* texture = m_TextureLoader.createTextureFromFile(p_Filename);
+	if (texture == nullptr)
+	{
+		return false;
+	}
+
+	m_TextureList.push_back(make_pair(p_TextureId, texture));
 	
 	unsigned int textureSize = sizeof(m_TextureList.back().second);
 	
 	m_VRAMMemInfo->updateUsage(textureSize);
+
+	return true;
+}
+
+bool Graphics::releaseTexture(const char *p_TextureId)
+{
+	for(auto it = m_TextureList.begin(); it != m_TextureList.end(); ++it)
+	{
+		if(strcmp(it->first.c_str(), p_TextureId) == 0)
+		{
+			ID3D11ShaderResourceView*& m = it->second;
+			SAFE_RELEASE(m);
+			m_TextureList.erase(it);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void Graphics::renderModel(int p_ModelId)
@@ -993,4 +1030,17 @@ Model* Graphics::getModelFromList(string p_Identifier)
 		}
 	}
 	return ret;
+}
+
+ID3D11ShaderResourceView* Graphics::getTextureFromList(string p_Identifier)
+{
+	for(auto & s : m_TextureList)
+	{
+		if(s.first == p_Identifier)
+		{
+			return s.second;
+		}
+	}
+
+	return nullptr;
 }
