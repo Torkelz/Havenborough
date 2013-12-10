@@ -1,18 +1,18 @@
 #include "VRAMMemInfo.h"
 
-VRAMMemInfo *VRAMMemInfo::m_Instance = nullptr;
+std::unique_ptr<VRAMMemInfo> VRAMMemInfo::m_Instance;
 
 VRAMMemInfo *VRAMMemInfo::getInstance(void)
 {
 	if(!m_Instance)
-		m_Instance = new VRAMMemInfo();
+		m_Instance.reset(new VRAMMemInfo());
 
-	return m_Instance;
+	return m_Instance.get();
 }
 
 void VRAMMemInfo::shutdown(void)
 {
-	SAFE_DELETE(m_Instance);
+	m_Instance.reset();
 }
 
 int VRAMMemInfo::getUsage(void) const

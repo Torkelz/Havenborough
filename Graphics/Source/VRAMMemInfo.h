@@ -6,6 +6,7 @@
 #include <d3d11.h>
 #include "Util.h"
 #include "MyGraphicsExceptions.h"
+#include <memory>
 
 
 class VRAMMemInfo
@@ -23,7 +24,7 @@ private:
 		R8G8B8A8_UNORM = 4
 	};
 	
-	static VRAMMemInfo *m_Instance;
+	static std::unique_ptr<VRAMMemInfo> m_Instance;
 	unsigned int m_Usage;
 
 public:
@@ -61,7 +62,7 @@ public:
 	*/
 	void updateUsage(int p_Size);
 
+	~VRAMMemInfo(void);
 private:
 	VRAMMemInfo(void);
-	~VRAMMemInfo(void);
 };
