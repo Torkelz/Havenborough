@@ -307,7 +307,7 @@ const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& ModelLoader:
 	return m_WeightsList;
 }
 
-const std::vector<ModelLoader::Joint>& ModelLoader::getListOfJoints()
+const std::vector<Joint>& ModelLoader::getListOfJoints()
 {
 	return m_ListOfJoints;
 }

@@ -5,7 +5,7 @@
 #include <vector>
 //#include "Shader.h"
 //#include "Buffer.h"
-#include "WrapperFactory.h"
+//#include "WrapperFactory.h"
 #include "Util.h"
 #include <DirectXMath.h>
 #include "LightStructs.h"
@@ -24,14 +24,16 @@ struct cBuffer
 	DirectX::XMFLOAT3	campos;
 	int					nrLights;
 };
+
 struct cObjectBuffer
 {
 	DirectX::XMFLOAT4X4 world;
 };
-struct cAnimatedBuffer
+
+struct cAnimatedObjectBuffer
 {
-	DirectX::XMFLOAT4X4 world;
 	DirectX::XMFLOAT4X4 invTransposeWorld;
+	DirectX::XMFLOAT4X4 boneTransform[96];
 };
 
 class DeferredRenderer
@@ -43,9 +45,9 @@ public:
 	 */
 	struct Renderable
 	{
-		Model				*m_Model;
-		const DirectX::XMFLOAT4X4 *m_World;
-		DirectX::XMFLOAT4X4 m_invTransposeWorld;
+		Model						*m_Model;
+		const DirectX::XMFLOAT4X4	*m_World;
+		DirectX::XMFLOAT4X4			m_invTransposeWorld;
 
 		Renderable(Model *p_Model, const DirectX::XMFLOAT4X4* p_World)
 		{
@@ -83,6 +85,7 @@ private:
 	Shader						*m_LightShader;
 	Buffer						*m_ConstantBuffer;
 	Buffer						*m_ObjectConstantBuffer;
+	Buffer						*m_AnimatedObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
 
 	DirectX::XMFLOAT3			m_CameraPosition;

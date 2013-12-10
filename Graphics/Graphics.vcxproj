@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClCompile Include="Source\DeferredRenderer.cpp" />
     <ClCompile Include="Source\DDSTextureLoader.cpp" />
+    <ClCompile Include="Source\ModelDefinition.cpp" />
     <ClCompile Include="Source\ModelLoader.cpp" />
     <ClCompile Include="Source\TextureLoader.cpp" />
     <ClCompile Include="Source\VRAMMemInfo.cpp" />
@@ -109,6 +110,7 @@
   <ItemGroup>
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />
+    <ClInclude Include="Source\Joint.h" />
     <ClInclude Include="Source\LightStructs.h" />
     <ClInclude Include="Source\ModelDefinition.h" />
     <ClInclude Include="Source\Vertex.h" />

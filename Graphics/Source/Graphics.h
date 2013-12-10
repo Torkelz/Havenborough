@@ -29,12 +29,12 @@ class Graphics : public IGraphics
 private:
 	struct ModelInstance
 	{
-		std::string m_ModelName;
-		DirectX::XMFLOAT3 m_Position;
-		DirectX::XMFLOAT3 m_Rotation;
-		DirectX::XMFLOAT3 m_Scale;
+		std::string			m_ModelName;
+		DirectX::XMFLOAT3	m_Position;
+		DirectX::XMFLOAT3	m_Rotation;
+		DirectX::XMFLOAT3	m_Scale;
 
-		mutable bool m_IsCalculated;
+		mutable bool				m_IsCalculated;
 		mutable DirectX::XMFLOAT4X4 m_World;
 
 		const DirectX::XMFLOAT4X4& getWorldMatrix() const
@@ -72,32 +72,32 @@ private:
 		}
 	};
 
-	ID3D11Device *m_Device;
-	ID3D11DeviceContext *m_DeviceContext;
+	ID3D11Device					*m_Device;
+	ID3D11DeviceContext				*m_DeviceContext;
 
-	IDXGISwapChain *m_SwapChain;
-	ID3D11RenderTargetView *m_RenderTargetView;
+	IDXGISwapChain					*m_SwapChain;
+	ID3D11RenderTargetView			*m_RenderTargetView;
 	
-	ID3D11RasterizerState *m_RasterState;
+	ID3D11RasterizerState			*m_RasterState;
 
-	ID3D11Texture2D *m_DepthStencilBuffer;
-	ID3D11DepthStencilState *m_DepthStencilState;
-	ID3D11DepthStencilView *m_DepthStencilView;
+	ID3D11Texture2D					*m_DepthStencilBuffer;
+	ID3D11DepthStencilState			*m_DepthStencilState;
+	ID3D11DepthStencilView			*m_DepthStencilView;
 
-	unsigned int m_Numerator;
-	unsigned int m_Denominator;
-	char m_GraphicsCard[128];
-	int m_GraphicsMemory;
-	bool m_VSyncEnabled;
+	unsigned int					m_Numerator;
+	unsigned int					m_Denominator;
+	char							m_GraphicsCard[128];
+	int								m_GraphicsMemory;
+	bool							m_VSyncEnabled;
 
-	static const std::string m_RelativeResourcePath;
+	static const std::string		m_RelativeResourcePath;
 
-	TextureLoader m_TextureLoader;	
-	WrapperFactory *m_WrapperFactory;
-	VRAMMemInfo *m_VRAMMemInfo;
+	TextureLoader					m_TextureLoader;	
+	WrapperFactory					*m_WrapperFactory;
+	VRAMMemInfo						*m_VRAMMemInfo;
 
-	vector<pair<string, Shader*>> m_ShaderList;
-	vector<pair<string, Model>> m_ModelList;
+	vector<pair<string, Shader*>>	m_ShaderList;
+	vector<pair<string, Model>>		m_ModelList;
 	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
 	vector<pair<int, ModelInstance>> m_ModelInstances;
 	int m_NextInstanceId;

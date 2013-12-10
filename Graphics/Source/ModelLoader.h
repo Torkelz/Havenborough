@@ -6,24 +6,11 @@
 #include <memory>
 #include <vector>
 
+#include "Joint.h"
+
 class ModelLoader
 {
 public:
-	struct KeyFrame
-	{
-		DirectX::XMFLOAT3 m_Trans;
-		DirectX::XMFLOAT4 m_Rot;
-		DirectX::XMFLOAT3 m_Scale;
-	};
-
-	struct Joint
-	{
-		std::string m_JointName;
-		int m_ID;
-		int m_Parent;
-		DirectX::XMFLOAT4X4 m_JointOffsetMatrix;
-		std::vector<KeyFrame> m_JointAnimation;
-	};
 
 	struct IndexDesc
 	{
@@ -149,7 +136,7 @@ public:
 	 *
 	 * @return a vector of Joint. 
 	 */
-	const std::vector<ModelLoader::Joint>& getListOfJoints();
+	const std::vector<Joint>& getListOfJoints();
 
 	/**
 	 * Returns the start number for the animation. 

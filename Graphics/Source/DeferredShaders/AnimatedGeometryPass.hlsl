@@ -16,12 +16,12 @@ cbuffer cb : register(b1)
 cbuffer cbWorld : register(b2)
 {
 	float4x4 world;
-	float4x4 worldInvTranspose;
 };
 
 cbuffer cbSkinned : register(b3)
 {
 	//Lower later if we realize we need fewer than 96 bones per character.
+	float4x4 worldInvTranspose;
 	float4x4 boneTransform[96];
 };
 
@@ -53,6 +53,29 @@ struct PSOut
 	half4 wPosition	: SV_Target2; // xyz = world position, w = specular intensity
 };
 
+//PSIn VS(VSIn input)
+//{
+//	PSIn output;
+//    float4x4 BoneTransform = boneTransform[input.boneId[0] - 1] * input.weights[0];
+//    BoneTransform += boneTransform[input.boneId[1] - 1] * input.weights[1];
+//    BoneTransform += boneTransform[input.boneId[2] - 1] * input.weights[2];
+//	float weight = 1.0f - input.weights[0] - input.weights[1] - input.weights[2];
+//    BoneTransform += boneTransform[input.boneId[3] - 1] * 0.0f;
+//
+//    float4 PosL = mul(BoneTransform, input.pos);
+//    output.pos = mul(projection, mul(view, mul(world, PosL)));
+//    output.uvCoord = input.uvCoord;
+//    float4 NormalL = mul(BoneTransform, float4(input.normal, 0.0));
+//    output.normal = mul(world, NormalL).xyz;
+//    output.wpos = mul(world, PosL);
+//	float4 tangentL = mul(BoneTransform, float4(input.tangent, 0.0));
+//	output.tangent = mul(world, tangentL).xyz;
+//	float4 binormalL = mul(BoneTransform, float4(input.binormal, 0.0));
+//	output.binormal = mul(world, binormalL).xyz;
+//
+//	return output;
+//} 
+
 PSIn VS(VSIn input)
 {
     PSIn output;
@@ -62,7 +85,7 @@ PSIn VS(VSIn input)
 	weights[0] = input.weights.x;
 	weights[1] = input.weights.y;
 	weights[2] = input.weights.z;
-	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
+	weights[3] = 0.0f;
 
 	float3 posL			= float3(0.0f, 0.0f, 0.0f);
 	float3 normalL		= float3(0.0f, 0.0f, 0.0f);
@@ -72,10 +95,10 @@ PSIn VS(VSIn input)
 	{
 	    // Assume no nonuniform scaling when transforming normals, so 
 		// that we do not have to use the inverse-transpose.
-	    posL		+= weights[i] * mul(input.pos, boneTransform[input.boneId[i]]).xyz;
-		normalL		+= weights[i] * mul(input.normal,  (float3x3)boneTransform[input.boneId[i]]);
-		tangentL	+= weights[i] * mul(input.tangent, (float3x3)boneTransform[input.boneId[i]]);
-		binormalL	+= weights[i] * mul(input.binormal, (float3x3)boneTransform[input.boneId[i]]);
+	    posL		+= weights[i] * mul(input.pos, boneTransform[input.boneId[i] - 1]).xyz;
+		normalL		+= weights[i] * mul(input.normal,  (float3x3)boneTransform[input.boneId[i]  - 1]);
+		tangentL	+= weights[i] * mul(input.tangent, (float3x3)boneTransform[input.boneId[i]  - 1]);
+		binormalL	+= weights[i] * mul(input.binormal, (float3x3)boneTransform[input.boneId[i] - 1]);
 	}
  
 	// Transform to view space.

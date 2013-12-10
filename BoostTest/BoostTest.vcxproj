@@ -110,6 +110,7 @@
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
+    <ClCompile Include="..\Graphics\Source\ModelDefinition.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
@@ -153,6 +154,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Graphics\Source\Joint.h" />
     <ClInclude Include="..\Physics\include\AABB.h" />
     <ClInclude Include="..\Physics\include\BoundingVolume.h" />
     <ClInclude Include="..\Physics\include\Sphere.h" />

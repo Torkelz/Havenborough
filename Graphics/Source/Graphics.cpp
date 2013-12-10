@@ -19,7 +19,7 @@ Graphics::Graphics(void)
 	m_WrapperFactory = nullptr;
 	m_DeferredRender = nullptr;
 
-	m_VSyncEnabled = false; //DEBUG
+	m_VSyncEnabled = true; //DEBUG
 
 	m_NextInstanceId = 1;
 }
@@ -281,14 +281,15 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p
 	vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
 	vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
 	vector<pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> tempWeights;
-
+	vector<Joint>							tempJoints;
 
 	if(p_Animated)
 	{
 		tempWeights = modelLoader.getWeightsList();
+		tempJoints	= modelLoader.getListOfJoints();
 	}
 	
-	vector<Vertex> temp;
+	vector<AnimatedVertex> temp;
 	
 	vector<vector<int>> tempI;
 
@@ -314,11 +315,11 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p
 												tempWeights.at(indexDesc.m_Vertex).second
 												));
 			}
-			else
-				temp.push_back(Vertex(	tempVert.at(indexDesc.m_Vertex),
-										tempN.at(indexDesc.m_Normal),
-										tempUV.at(indexDesc.m_TextureCoord),
-										tempT.at(indexDesc.m_Tangent)));
+			//else
+			//	temp.push_back(Vertex(	tempVert.at(indexDesc.m_Vertex),
+			//							tempN.at(indexDesc.m_Normal),
+			//							tempUV.at(indexDesc.m_TextureCoord),
+			//							tempT.at(indexDesc.m_Tangent)));
 
 			I.push_back(indexCounter);
 			indexCounter++;
@@ -332,14 +333,7 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p
 	Buffer::Description bufferDescription;
 	bufferDescription.initData = temp.data();
 	bufferDescription.numOfElements = temp.size();
-	if( p_Animated )
-	{
-		bufferDescription.sizeOfElement = temp.at(0).getSize();
-	}
-	else
-	{
-		bufferDescription.sizeOfElement = temp.at(0).getSize();
-	}
+	bufferDescription.sizeOfElement = sizeof(AnimatedVertex);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
 	vertexBuffer = m_WrapperFactory->createBuffer(bufferDescription);
@@ -382,13 +376,19 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p
 		normal[i]	= m_TextureLoader.createTextureFromFile(norm.string().c_str());
 		specular[i] = m_TextureLoader.createTextureFromFile(spec.string().c_str());
 	}
-	Model m;
+	Model m = Model();
+	if (p_Animated)
+	{
+		m.m_Joints	= tempJoints;
+	}
+		
 	m.vertexBuffer		= vertexBuffer;
 	m.indexBuffer		= index;
 	m.diffuseTexture	= diffuse;
 	m.normalTexture		= normal;
 	m.specularTexture	= specular;
 	m.numOfMaterials	= nrIndexBuffers;
+	m.animated			= p_Animated;
 
 	m_ModelList.push_back(std::pair<string,Model>(p_ModelId,m));
 

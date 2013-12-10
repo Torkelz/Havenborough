@@ -52,7 +52,7 @@ void BaseGameApp::init()
 	m_Graphics->createModel("house1", "assets/House1/House1.tx", false);
 	m_Graphics->linkShaderToModel("BOXShader", "house1");
 
-	m_Graphics->createModel("Test", "assets/Sample160_Animated_Something.tx", false);
+	m_Graphics->createModel("Test", "assets/Sample165_Animated_Legs.tx", true);
 	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("AnimatedShader", "Test");
@@ -89,8 +89,8 @@ void BaseGameApp::run()
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
 	int cactus = m_Graphics->createModelInstance("Test");
-	m_Graphics->setModelPosition(cactus, 10.f, 0.f, -10.f);
-	m_Graphics->setModelScale(cactus, 1.0f, 1.0f, 1.0f);
+	//m_Graphics->setModelPosition(cactus, 10.f, 0.f, -10.f);
+	//m_Graphics->setModelScale(cactus, 1.0f, 1.0f, 1.0f);
 
 	//int witch = m_Graphics->createModelInstance("Dzala");
 	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
@@ -156,14 +156,14 @@ void BaseGameApp::run()
 		pitch += pitchSpeed * dt;
 		roll += rollSpeed * dt;
 
-		for (int i = 0; i < NUM_BOXES; i++)
-		{
-			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
-			m_Graphics->renderModel(boxIds[i]);
-		}
-		m_Graphics->renderModel(ground);
-		m_Graphics->renderModel(skyBox);
-		m_Graphics->renderModel(house);
+		//for (int i = 0; i < NUM_BOXES; i++)
+		//{
+		//	m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
+		//	m_Graphics->renderModel(boxIds[i]);
+		//}
+		//m_Graphics->renderModel(ground);
+		//m_Graphics->renderModel(skyBox);
+		//m_Graphics->renderModel(house);
 		m_Graphics->renderModel(cactus);
 		//m_Graphics->renderModel(witch);
 

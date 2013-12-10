@@ -215,6 +215,20 @@ void DeferredRenderer::renderGeometry()
 			// The update of the sub resource has to be done externally.
 			
 			m_Objects.at(i).m_Model->indexBuffer[j]->setBuffer(0);
+			if (m_Objects.at(i).m_Model->animated)
+			{
+				cAnimatedObjectBuffer temp;
+				temp.invTransposeWorld = m_Objects.at(i).m_invTransposeWorld;
+
+				std::vector<DirectX::XMFLOAT4X4> tempBones;
+				m_Objects.at(i).m_Model->getFinalTransform(0.0f, tempBones);
+				for (unsigned int a = 0; a < tempBones.size(); a++)
+					temp.boneTransform[a] = tempBones[a];
+
+				m_DeviceContext->UpdateSubresource(m_AnimatedObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+				m_AnimatedObjectConstantBuffer->setBuffer(3);
+			}
+
 			cObjectBuffer temp;
 			temp.world = *m_Objects.at(i).m_World;
 			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
@@ -436,10 +450,13 @@ void DeferredRenderer::createConstantBuffer(int nrLights)
 	m_ConstantBuffer = new Buffer();
 	m_ConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 
-
 	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
 	m_ObjectConstantBuffer = new Buffer();
 	m_ObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
+
+	cbdesc.sizeOfElement = sizeof(cAnimatedObjectBuffer);
+	m_AnimatedObjectConstantBuffer = new Buffer();
+	m_AnimatedObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 }
 
 void DeferredRenderer::clearRenderTargets()
