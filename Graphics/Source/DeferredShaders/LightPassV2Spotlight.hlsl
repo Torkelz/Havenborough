@@ -40,7 +40,7 @@ struct VSInput
 	float3	lightDirection	: DIRECTION;
     float2	spotlightAngles	: ANGLE;
     float	lightRange		: RANGE;
-	float		lightType	: TYPE;
+	uint		lightType	: TYPE;
 };
 
 struct VSOutput
@@ -51,20 +51,21 @@ struct VSOutput
 	float3	lightDirection	: DIRECTION;
     float2	spotlightAngles	: ANGLE;
     float	lightRange		: RANGE;
-	float		lightType	: TYPE;
+	uint		lightType	: TYPE;
 };
 
 //###########################
 // Shader steps Vertex Shader
 //############################
 VSOutput PointLightVS(VSInput input)
-{
-	float s = 50.0f;//input.spotlightAngles.x;
+{	
 	float  l = input.lightRange;
+	float s = (l*tan(acos(input.spotlightAngles.y)));///sqrt(0.5618f);
+	//s = tan(acos(input.spotlightAngles.y));
 	float3 t = input.lightPos;
 	float4x4 scale = {  float4(s,0,0,0),
-						float4(0,50,0,0),
-						float4(0,0,s,0),
+						float4(0,s,0,0),
+						float4(0,0,l,0),
 						float4(0,0,0,1)};
 	float4x4 rotat = calcRotationMatrix(input.lightDirection, input.lightPos);
 	float4x4 trans = {  float4(1,0,0,t.x),
@@ -73,12 +74,11 @@ VSOutput PointLightVS(VSInput input)
 						float4(0,0,0,1)};
 
 	float4 pos = float4(input.vposition,1.0f);
-	pos = mul(rotat, pos);
 	pos = mul(scale, pos);
-	//pos = mul(trans, pos);
+	pos = mul(rotat, pos);	
+	pos = mul(trans, pos);
 	VSOutput output;
 	output.vposition		= mul(projection, mul(view, pos));
-	//output.vposition		= mul(projection, mul(view, float4(input.vposition,1)));
 	output.lightPos			= input.lightPos;
 	output.lightColor		= input.lightColor;	
 	output.lightDirection	= input.lightDirection;	
@@ -103,11 +103,10 @@ float4 PointLightPS( VSOutput input ) : SV_TARGET
 		specularAlbedo, specularPower );
 
 	float3 lighting = CalcLighting( normal, position, diffuseAlbedo,
-							specularAlbedo, specularPower,0,input.lightPos,input.lightRange,
+							specularAlbedo, specularPower,input.lightType,input.lightPos,input.lightRange,
 							input.lightDirection, input.spotlightAngles, input.lightColor);
 
 	return float4( lighting, 1.0f );
-	//return float4( float3(0,1,0), 1.0f );
 }
 
 
@@ -166,7 +165,8 @@ float3 CalcLighting(	float3 normal,
 
 		float3 L2 = lightDirection;
 		float rho = dot( -L, L2 );
-		attenuation *= saturate( (rho - spotlightAngle.y) / (spotlightAngle.x - spotlightAngle.y) );
+		attenuation *= saturate( (rho - spotlightAngle.y) /
+								(spotlightAngle.x - spotlightAngle.y) );
 	} 
 	if(attenuation == 0.f)
 		return float3(0,0,0);
@@ -185,51 +185,16 @@ float3 CalcLighting(	float3 normal,
 
 float4x4 calcRotationMatrix(float3 direction, float3 position)
 {
-	float4x4 ret;
+	float3 fwd = normalize(direction);
+	float3 up = float3(0,1,0);
+	float3 side = normalize(cross(up,fwd));
+	up = normalize(cross(side,fwd));
 
-	/*float3 SpotUp = float3(0,1,0);
-	float3 target = position + direction;
-	float3 zaxis = normalize(target - position);
-	float3 xaxis = normalize(cross(SpotUp, zaxis));
-	float3 yaxis = cross(zaxis, xaxis);
+	float4x4 rotation = {float4(side.x,side.y,side.z,0),
+						float4(up.x, up.y,up.z,0),
+						float4(fwd.x,fwd.y,fwd.z,0),
+						float4(0,0,0,1)
+						};
 
-	ret[0][0] = xaxis.x; ret[0][1] = xaxis.x; ret[0][2] = xaxis.z;
-	ret[1][0] = yaxis.x; ret[1][1] = yaxis.x; ret[1][2] = yaxis.z;
-	ret[2][0] = zaxis.x; ret[2][1] = zaxis.x; ret[2][2] = zaxis.z;
-	ret[3][0] = ret[3][1] = ret[3][2] = 0.f;
-
-	ret[0][3] = -dot(xaxis, position);
-	ret[1][3] = -dot(yaxis, position);
-	ret[2][3] = -dot(zaxis, position);
-	ret[3][3] = 1.f;*/
-
-	float x = direction.x;
-	float y = direction.y;
-	float z = direction.z;
-
-	float rotx = atan2( y, z );
-	float roty = atan2( x * cos(rotx), z );
-	float rotz = atan2( cos(rotx), sin(rotx) * sin(roty) );
-
-	 if (z >= 0) {
-		roty = -atan2( x * cos(rotx), z );
-	 }else{
-		roty = atan2( x * cos(rotx), -z );
-	 }
-
-	float4x4 rotX = {float4(1,0,0,0),
-					float4(0,cos(rotx),-sin(rotx),0),
-					float4(0,sin(rotx),cos(rotx),0),
-					float4(0,0,0,1)};
-	float4x4 rotY = {float4(cos(roty),0,sin(roty),0),
-					float4(0,1,0,0),
-					float4(-sin(roty),0,cos(roty),0),
-					float4(0,0,0,1)};
-	float4x4 rotZ = {float4(cos(rotz), -sin(rotz),0,0),
-					float4(sin(rotz),cos(rotz),0,0),
-					float4(0,0,1,0),
-					float4(0,0,0,1)};
-	ret = rotX * rotY * rotZ;
-
-	return ret;
+	return transpose(rotation);
 }

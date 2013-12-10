@@ -96,7 +96,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		{"DIRECTION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 24, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 		{"ANGLE",		0, DXGI_FORMAT_R32G32_FLOAT,	1, 36, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 		{"RANGE",		0, DXGI_FORMAT_R32_FLOAT,		1, 44, D3D11_INPUT_PER_INSTANCE_DATA, 1},
-		{"TYPE",		0, DXGI_FORMAT_R32_FLOAT,		1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1}
+		{"TYPE",		0, DXGI_FORMAT_R32_UINT,		1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1}
 	};
 
 
@@ -115,8 +115,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	Light testLight(	
 		DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
-		DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f), 
-		DirectX::XMFLOAT2(0.5f, 1.0f),  
+		DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f), 
+		DirectX::XMFLOAT2(cosf(3.14f/3.f),cosf(3.14f/3.f)),  
 		50.0f,
 		1
 		);
@@ -159,7 +159,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_AllLightBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 
 	ModelLoader modL;
-	modL.loadFile("../../Graphics/Resources/spotlight +Z openGL.tx"); //spherex2
+	modL.loadFile("../../Graphics/Resources/spotlight +Z openGL 2.tx"); //spherex2
 	const std::vector<std::vector<ModelLoader::IndexDesc>>& indices = modL.getIndices();
 	const std::vector<DirectX::XMFLOAT3>& vertices = modL.getVertices();
 	std::vector<DirectX::XMFLOAT3> temp;
@@ -185,7 +185,6 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_Diffuse = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/uv alpha.png");
 	m_NormalMap = m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_NRM_RGB.jpg");
 
-
 	D3D11_DEPTH_STENCIL_DESC dsdesc;
 	ZeroMemory( &dsdesc, sizeof( D3D11_DEPTH_STENCIL_DESC ) );
 	dsdesc.DepthEnable = true;
@@ -196,7 +195,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	D3D11_RASTERIZER_DESC rdesc;
 	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
 	rdesc.FillMode = D3D11_FILL_SOLID;
-	rdesc.CullMode = D3D11_CULL_FRONT;
+	rdesc.CullMode = D3D11_CULL_BACK;
 	//rdesc.FrontCounterClockwise = TRUE;
 	m_Device->CreateRasterizerState(&rdesc,&m_RasterState);
 
@@ -206,7 +205,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 void DeferredRenderer::renderDeferred()
 {
-	/*float dt = 0.016f;
+	float dt = 0.016f;
 	for(unsigned int i = 0; i < m_Lights.size();i++)
 	{
 
@@ -217,7 +216,7 @@ void DeferredRenderer::renderDeferred()
 	}
 	if((m_Lights.at(0).lightPos.y > 20) ||
 	(m_Lights.at(0).lightPos.y < -20))
-	m_speed *= -1.0f;*/
+	m_speed *= -1.0f;
 
 
 	// Clear render targets.
