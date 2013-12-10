@@ -251,4 +251,23 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		wraps->shutdown();
 	}
 
+	//BOOST_AUTO_TEST_CASE(TestShaderFactoryWODescMultipleShaders)
+	//{
+	//	DummyWrapper *wraps = nullptr;
+	//	DummyWrapper::initializeDummy();
+	//	wraps = DummyWrapper::getDummyInstance();
+
+	//	DummyShader *shady = nullptr;
+	//	shady = dynamic_cast<DummyShader*>(wraps->createShader(L"Source/dummy.hlsl", "main", "5_0",
+	//		ShaderType::VERTEX_SHADER ));
+	//	//BOOST_CHECK_NO_THROW(shady = wraps->createShader(L"Source/dummy.hlsl", "main", "5_0",
+	//	//	Shader::Type::VERTEX_SHADER ));
+
+	//	BOOST_CHECK(shady != nullptr);
+
+	//	SAFE_DELETE(shady);
+
+	//	wraps->shutdown();
+	//}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -184,22 +184,22 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	view = DirectX::XMFLOAT4X4();
 	proj = DirectX::XMFLOAT4X4();
 	DirectX::XMStoreFloat4x4(&view,
-							DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
-								DirectX::XMLoadFloat4(&eye4),
-								DirectX::XMLoadFloat4(&lookat),
-								DirectX::XMLoadFloat4(&up))));
+	DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
+	DirectX::XMLoadFloat4(&eye4),
+	DirectX::XMLoadFloat4(&lookat),
+	DirectX::XMLoadFloat4(&up))));
 	DirectX::XMStoreFloat4x4(&proj,
-							DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
-								0.25f*3.14f,
-								(float)p_ScreenWidth / (float)p_ScreenHeight,
-								0.1f,
-								1000.0f)));
+	DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
+	0.25f*3.14f,
+	(float)p_ScreenWidth / (float)p_ScreenHeight,
+	0.1f,
+	1000.0f)));
 
 	//Deferred Render
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-								eye, view, proj);
-	RemoveMeLater();
+		eye, view, proj);
+	DebugDefferedDraw();
 
 
 	return true;
@@ -438,10 +438,6 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
 	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
-	
-	unsigned int textureSize = sizeof(m_TextureList.back().second);
-	
-	m_VRAMMemInfo->updateUsage(textureSize);
 }
 
 void Graphics::renderModel(int p_ModelId)
@@ -571,29 +567,28 @@ void Graphics::setModelScale(int p_Instance, float p_X, float p_Y, float p_Z)
 
 void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch)
 {
-	using DirectX::operator+;
+	using namespace DirectX;
 
-	DirectX::XMFLOAT4 eye(p_PosX, p_PosY, p_PosZ, 1.f);
-	DirectX::XMVECTOR pos = DirectX::XMLoadFloat4(&eye);
+	XMFLOAT4 eye(p_PosX, p_PosY, p_PosZ, 1.f);
+	XMVECTOR pos = XMLoadFloat4(&eye);
 
-	DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
+	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
 
-	static const DirectX::XMFLOAT4 up(0.f, 1.f, 0.f, 0.f);
-	DirectX::XMVECTOR upVec = DirectX::XMLoadFloat4(&up);
+	static const XMFLOAT4 up(0.f, 1.f, 0.f, 0.f);
+	XMVECTOR upVec = XMLoadFloat4(&up);
 
-	DirectX::XMVECTOR rotatedUp = DirectX::XMVector4Transform(upVec, rotation);
+	XMVECTOR rotatedUp = XMVector4Transform(upVec, rotation);
 
-	static const DirectX::XMFLOAT4 forward(0.f, 0.f, -1.f, 0.f);
-	DirectX::XMVECTOR forwardVec = DirectX::XMLoadFloat4(&forward);
+	static const XMFLOAT4 forward(0.f, 0.f, -1.f, 0.f);
+	XMVECTOR forwardVec = XMLoadFloat4(&forward);
 
-	DirectX::XMVECTOR lookAt = pos + DirectX::XMVector4Transform(forwardVec, rotation);
+	XMVECTOR lookAt = pos + XMVector4Transform(forwardVec, rotation);
 
-	DirectX::XMFLOAT4X4 view;
-	DirectX::XMStoreFloat4x4(&view,
-							DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
+	XMFLOAT4X4 view;
+	XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
 
 	m_DeferredRender->updateViewMatrix(view);
-	m_DeferredRender->updateCameraPosition(DirectX::XMFLOAT3(p_PosX, p_PosY, p_PosZ));
+	m_DeferredRender->updateCameraPosition(XMFLOAT3(p_PosX, p_PosY, p_PosZ));
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
@@ -757,7 +752,7 @@ HRESULT Graphics::createDepthStencilView(void)
 {
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 
-	//Initailze the depth stencil view.
+	//Initiailize the depth stencil view.
 	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 
 	//Set up the depth stencil view description.
@@ -787,11 +782,6 @@ HRESULT Graphics::createRasterizerState(void)
 	return m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
 }
 
-Buffer *Graphics::createBuffer(Buffer::Description &p_Description)
-{
-	return m_WrapperFactory->createBuffer(p_Description);
-}
-
 void Graphics::Begin(float color[4])
 {
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color);
@@ -814,9 +804,9 @@ void Graphics::End(void)
 	}
 }
 
-Shader* Graphics::getShaderFromList(string p_Identifier)
+Shader *Graphics::getShaderFromList(string p_Identifier)
 {
-	Shader* ret = nullptr;
+	Shader *ret = nullptr;
 
 	for(auto & s : m_ShaderList)
 	{
@@ -829,7 +819,7 @@ Shader* Graphics::getShaderFromList(string p_Identifier)
 	return ret;
 }
 
-Model* Graphics::getModelFromList(string p_Identifier)
+Model *Graphics::getModelFromList(string p_Identifier)
 {
 	Model* ret = nullptr;
 
@@ -844,10 +834,11 @@ Model* Graphics::getModelFromList(string p_Identifier)
 	return ret;
 }
 
-void Graphics::RemoveMeLater()
+void Graphics::DebugDefferedDraw(void)
 {
 	m_Shader = nullptr;
-	createShader("DebugShader",L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	createShader("DebugShader",L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","VS,PS","5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	//m_WrapperFactory->addShaderStep(m_Shader,L,"VS","5_0",Shader::Type::VERTEX_SHADER);
 	//m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","PS","5_0",Shader::Type::PIXEL_SHADER);
 	m_Shader = getShaderFromList("DebugShader");

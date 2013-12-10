@@ -29,7 +29,7 @@ void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const c
 	const char *p_ShaderModel, Shader::Type p_ShaderType)
 {
 
-		std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
+		string temp = getShaderModel(p_ShaderModel, p_ShaderType);
 		p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, nullptr);
 
 }
@@ -38,7 +38,7 @@ void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const c
 	const char *p_ShaderModel, Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
 {
 
-		std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
+		string temp = getShaderModel(p_ShaderModel, p_ShaderType);
 		p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, p_VertexLayout);
 }
 
@@ -86,9 +86,9 @@ WrapperFactory::~WrapperFactory(void)
 	m_DeviceContext = nullptr;
 }
 
-std::string WrapperFactory::getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type)
+string WrapperFactory::getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type)
 {
-	std::string temp;
+	string temp;
 
 	switch (p_Type)
 	{
@@ -363,45 +363,3 @@ vector<string> WrapperFactory::createEntryPointList(const char *p_EntryPoint)
 
 	return result;
 }
-
-
-#pragma region OLD STUFF
-//Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-//	Shader::Type p_ShaderType)
-//{
-//	Shader *shader = new Shader();
-//
-//	try
-//	{
-//		shader->initialize(m_Device, m_DeviceContext, 0);
-//		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType,
-//			nullptr);
-//
-//		return shader;
-//	}
-//	catch(...)
-//	{
-//		SAFE_DELETE(shader);
-//		throw;
-//	}
-//}
-
-//Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-//	Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfInputElemts)
-//{
-//	Shader *shader = new Shader();
-//
-//	try
-//	{
-//		shader->initialize(m_Device, m_DeviceContext, p_NumOfInputElemts);
-//		shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, p_VertexLayout);
-//
-//		return shader;
-//	}
-//	catch(...)
-//	{
-//		SAFE_DELETE(shader);
-//		throw;
-//	}
-//}
-#pragma endregion

@@ -45,16 +45,16 @@ public:
 
 
 
-	Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
+	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type);
 
-	Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
+	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
 		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements);
 
-	void addShader(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+	virtual void addShader(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
 		ShaderType p_Type);
 
-private:
-	vector<string> createEntryPointList(const char *p_EntryPoint);
+protected:
+	virtual vector<string> createEntryPointList(const char *p_EntryPoint);
 
 	/**
 	* Automatically creates a shader based on layout in the shader file.
@@ -79,26 +79,9 @@ private:
 	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
 		const char *p_ShaderModel, Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
 
-#pragma region OLD STUFF
-	/**
-	* Automatically creates a shader based on layout in the shader file.
-	* @param p_Filename the shader file to read
-	* @param p_EntryPoint the main entry point in the shader file
-	* @param p_ShaderModel the shader model version to be used
-	* @param p_ShaderType the type of shader to create
-	*/
-	//virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel, Shader::Type p_ShaderType);
-	
-	/**
-	* 
-	*/
-	//virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-	//	Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout, unsigned int p_NumOfElements);
-#pragma endregion
-
 protected:
 	WrapperFactory(void);
 	virtual ~WrapperFactory(void);
 	
-	std::string getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type);
+	virtual string getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type);
 };

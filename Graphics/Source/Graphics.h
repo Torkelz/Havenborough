@@ -175,11 +175,11 @@ private:
 	HRESULT createDepthStencilView(void);
 	HRESULT createRasterizerState(void);
 
-	Buffer *createBuffer(Buffer::Description &p_Description);
-	
 	void Begin(float color[4]);
 	void End(void);
 	Shader *getShaderFromList(string p_Identifier);
 	Model *getModelFromList(string p_identifier);
-	void RemoveMeLater();
+	
+	//TODO: Remove later
+	void DebugDefferedDraw(void);
 };

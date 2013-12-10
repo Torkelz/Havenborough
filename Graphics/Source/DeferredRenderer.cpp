@@ -370,8 +370,11 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 	result = m_Device->CreateRenderTargetView(srvt3, &rtDesc, &m_RenderTargets[3]);
 	if(FAILED(result))
 		return result;
-
-	srvt0 = srvt1 = srvt2 = srvt3 = nullptr;
+	SAFE_RELEASE(srvt0);
+	SAFE_RELEASE(srvt1);
+	SAFE_RELEASE(srvt2);
+	SAFE_RELEASE(srvt3);
+	//srvt0 = srvt1 = srvt2 = srvt3 = nullptr;
 	// Done with the render targets.
 
 	unsigned int size = 4 * VRAMMemInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
