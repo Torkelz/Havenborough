@@ -70,6 +70,29 @@ private:
 		}
 	};
 
+	struct vertex
+	{
+		DirectX::XMFLOAT4 position;
+		DirectX::XMFLOAT3 normal;
+		DirectX::XMFLOAT2 uv;
+		DirectX::XMFLOAT3 tangent;
+		DirectX::XMFLOAT3 binormal;
+		vertex(){}
+		vertex(DirectX::XMFLOAT3 _position,
+			DirectX::XMFLOAT3 _normal,
+			DirectX::XMFLOAT2 _uv,
+			DirectX::XMFLOAT3 _tangent)
+		{
+			position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
+			normal = _normal;
+			uv = _uv;
+			tangent = _tangent;
+
+			//might be wrong
+			DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
+		}
+	};
+
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 
@@ -153,32 +176,10 @@ private:
 	HRESULT createRasterizerState(void);
 
 	Buffer *createBuffer(Buffer::Description &p_Description);
-	vector<string> createEntryPointList(const char *p_EntryPoint);
+	
 	void Begin(float color[4]);
 	void End(void);
 	Shader *getShaderFromList(string p_Identifier);
 	Model *getModelFromList(string p_identifier);
-
-	struct vertex
-	{
-		DirectX::XMFLOAT4 position;
-		DirectX::XMFLOAT3 normal;
-		DirectX::XMFLOAT2 uv;
-		DirectX::XMFLOAT3 tangent;
-		DirectX::XMFLOAT3 binormal;
-		vertex(){}
-		vertex(DirectX::XMFLOAT3 _position,
-			DirectX::XMFLOAT3 _normal,
-			DirectX::XMFLOAT2 _uv,
-			DirectX::XMFLOAT3 _tangent)
-		{
-			position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
-			normal = _normal;
-			uv = _uv;
-			tangent = _tangent;
-
-			//might be wrong
-			DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
-		}
-	};
+	void RemoveMeLater();
 };

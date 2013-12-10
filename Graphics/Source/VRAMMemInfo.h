@@ -5,6 +5,7 @@
 
 #include <d3d11.h>
 #include "Util.h"
+#include "MyGraphicsExceptions.h"
 
 
 class VRAMMemInfo
@@ -21,6 +22,7 @@ private:
 		R32G32_UINT = 8,
 		R8G8B8A8_UNORM = 4
 	};
+	
 	static VRAMMemInfo *m_Instance;
 	unsigned int m_Usage;
 

@@ -72,6 +72,7 @@ unsigned int VRAMMemInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width
 			break;
 		}
 	default:
+		throw MemoryUsageException("Error when determining memory size of texture.", __LINE__, __FILE__);
 		break;
 	}
 

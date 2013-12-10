@@ -9,6 +9,7 @@ void BaseGameApp::init()
 {
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
+	
 	m_Graphics = IGraphics::createGraphics();
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
@@ -37,19 +38,21 @@ void BaseGameApp::init()
 	m_Connected = false;
 	
 	m_Physics = IPhysics::createPhysics();
-
 	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
 	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
 	
 	m_Graphics->createModel("BOX", "assets/Cube/Sample135.tx");
 	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
+							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("BOXShader", "BOX");
 
 	m_Graphics->createModel("skyBox", "assets/SkyBox/SkyBox.tx");
 	m_Graphics->linkShaderToModel("BOXShader", "skyBox");
 
 	m_Graphics->createModel("house1", "assets/House1/House1.tx");
+	m_MemoryInfo.update();
+	std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
+	std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 	m_Graphics->linkShaderToModel("BOXShader", "house1");
 
 	//m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.tx");
@@ -163,7 +166,9 @@ void BaseGameApp::run()
 		m_Graphics->drawFrame(currView);
 		
 		m_MemoryInfo.update();
-		
+		m_MemoryInfo.update();
+		std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
+		std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 		updateDebugInfo(dt);
 
 		m_InputQueue.onFrame();

@@ -1,49 +1,12 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "ShaderDeffinitions.h"
 
 class IGraphics
 {
 public:
-	enum class ShaderType
-	{
-		VERTEX_SHADER = 1,
-		PIXEL_SHADER = 2,
-		GEOMETRY_SHADER = 4,
-		HULL_SHADER = 8,
-		DOMAIN_SHADER = 16
-	};
-	inline friend ShaderType operator|(ShaderType a, ShaderType b)
-	{
-		return static_cast<ShaderType>(static_cast<int>(a) | static_cast<int>(b)); 
-	};
-
-	inline friend bool operator&(ShaderType a, ShaderType b)
-	{
-		return static_cast<int>(a) & static_cast<int>(b) ? true : false; 
-	};
-
-	enum class Format
-	{
-		R32G32B32A32_FLOAT = 2,
-		R32G32B32A32_UINT = 3,
-		R32G32B32_FLOAT = 6,
-		R32G32B32_UINT = 7,
-		R32G32_FLOAT = 16,
-		R32G32_UINT = 17,
-		R8G8B8A8_UNORM = 28,
-	};
-
-	struct ShaderInputElementDescription
-	{
-		LPCSTR semanticName;
-		UINT semanticIndex; 
-		Format format;
-		UINT inputSlot;
-		UINT alignedByteOffset;
-		UINT inputSlotClass;
-		UINT instanceDataStepRate;
-	};
+	
 
 	virtual ~IGraphics(void)
 	{}
