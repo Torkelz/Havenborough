@@ -17,6 +17,7 @@
     <ClCompile Include="Source\Input\InputState.cpp" />
     <ClCompile Include="Source\Input\InputTranslator.cpp" />
     <ClCompile Include="Source\GameScene.cpp" />
+    <ClCompile Include="Source\Logger.cpp" />
     <ClCompile Include="Source\RAMMemInfo.cpp" />
     <ClCompile Include="Source\MenuScene.cpp" />
     <ClCompile Include="Source\SceneManager.cpp" />
@@ -42,6 +43,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Logger.h" />
     <ClInclude Include="Source\RAMMemInfo.h" />
     <ClInclude Include="Source\BaseGameApp.h" />
     <ClInclude Include="Source\Input\Input.h" />
@@ -50,7 +52,7 @@
     <ClInclude Include="Source\IScene.h" />
     <ClInclude Include="Source\Input\InputState.h" />
     <ClInclude Include="Source\Input\InputTranslator.h" />
-    <ClInclude Include="Source\MyExceptions.h" />
+    <ClInclude Include="Source\ClientExceptions.h" />
     <ClInclude Include="Source\SceneManager.h" />
     <ClInclude Include="Source\MenuScene.h" />
     <ClInclude Include="Source\Window.h" />

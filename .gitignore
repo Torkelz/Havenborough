@@ -30,3 +30,4 @@ testCaseCollection.xml
 *.orig
 *.coverage
 *.cso
+Client/Bin/logFile.txt

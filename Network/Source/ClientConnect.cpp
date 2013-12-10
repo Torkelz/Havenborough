@@ -1,6 +1,6 @@
 #include "ClientConnect.h"
 
-#include "MyExceptions.h"
+#include "NetworkExceptions.h"
 
 ClientConnect::ClientConnect(boost::asio::io_service& p_IO_Service, const std::string& p_URL, unsigned short p_Port, connectionCallback_t p_ConnectionCallback)
 	:	m_IO_Service(p_IO_Service),

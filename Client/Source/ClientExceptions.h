@@ -11,7 +11,7 @@
  * Base class for all our exceptions, all our exceptions
  * should inherit from this class.
  */
-class MyException : public std::exception
+class ClientException : public std::exception
 {
 protected:
 	/**
@@ -35,7 +35,7 @@ public:
 	 * @param p_Line The line of the exception (use __LINE__)
 	 * @param p_File The file of the exception (use __FILE__)
 	 */
-	MyException(const std::string& p_What, int p_Line, const std::string& p_File)
+	ClientException(const std::string& p_What, int p_Line, const std::string& p_File)
 		: m_What(p_File + "(" + std::to_string(p_Line) + "): " + p_What),
 		  m_Line(p_Line),
 		  m_File(p_File)
@@ -51,7 +51,7 @@ public:
 /**
  * An exception to be thrown when an error is encountered during window management.
  */
-class WindowException : public MyException
+class WindowException : public ClientException
 {
 public:
 	/**
@@ -62,7 +62,7 @@ public:
 	 * @param p_File The file of the exception (use __FILE__)
 	 */
 	WindowException(const std::string& p_What, int p_Line, const std::string& p_File)
-		: MyException(p_What, p_Line, p_File)
+		: ClientException(p_What, p_Line, p_File)
 	{
 	}
 };
@@ -70,7 +70,7 @@ public:
 /**
  * An exception to be thrown when an error is returned from win32 functions.
  */
-class Win32Exception : public MyException
+class Win32Exception : public ClientException
 {
 public:
 	/**
@@ -81,12 +81,12 @@ public:
 	 * @param p_File The file of the exception (use __FILE__)
 	 */
 	Win32Exception(const std::string& p_What, int p_Line, const std::string& p_File)
-		: MyException(p_What, p_Line, p_File)
+		: ClientException(p_What, p_Line, p_File)
 	{
 	}
 };
 
-class SceneManagerException : public MyException
+class SceneManagerException : public ClientException
 {
 public:
 	/**
@@ -97,7 +97,7 @@ public:
 	 * @param p_File The file of the exception (use __FILE__)
 	 */
 	SceneManagerException(const std::string& p_What, int p_Line, const std::string& p_File)
-		: MyException(p_What, p_Line, p_File)
+		: ClientException(p_What, p_Line, p_File)
 	{
 	}
 };
@@ -105,7 +105,7 @@ public:
 /**
  * An exception to be thrown when an invalid argument has been passed to a function.
  */
-class InvalidArgument : public MyException
+class InvalidArgument : public ClientException
 {
 public:
 	/**
@@ -116,26 +116,7 @@ public:
 	 * @param p_File The file of the exception (use __FILE__)
 	 */
 	InvalidArgument(const std::string& p_What, int p_Line, const std::string& p_File)
-		: MyException(p_What, p_Line, p_File)
-	{
-	}
-};
-
-/**
- * An exception to be thrown when a network error has occured.
- */
-class NetworkError : public MyException
-{
-public:
-	/**
-	 * constructor.
-	 *
-	 * @param p_What A message describing the error
-	 * @param p_Line The line of the exception (use __LINE__)
-	 * @param p_File The file of the exception (use __FILE__)
-	 */
-	NetworkError(const std::string& p_What, int p_Line, const std::string& p_File)
-		: MyException(p_What, p_Line, p_File)
+		: ClientException(p_What, p_Line, p_File)
 	{
 	}
 };

@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "Window.h"
-#include "MyExceptions.h"
+#include "ClientExceptions.h"
 
 const LPCWSTR Window::m_ClassName = L"Havenborough_Game_Client";
 std::vector<std::pair<HWND, Window*>> Window::m_CallbackWindows;

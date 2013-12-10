@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
+#include "../../../Network/include/NetworkExceptions.h"
 #include "../../../Network/Source/ClientConnect.h"
-#include "../../../Network/Source/MyExceptions.h"
 #include "../../../Network/Source/Network.h"
 #include "../../../Network/Source/ServerAccept.h"
 

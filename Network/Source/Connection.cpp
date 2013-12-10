@@ -1,6 +1,6 @@
 #include "Connection.h"
 
-#include "MyExceptions.h"
+#include "NetworkExceptions.h"
 
 Connection::Connection( boost::asio::ip::tcp::socket&& p_Socket) 
 		:   m_Socket(std::move(p_Socket)),

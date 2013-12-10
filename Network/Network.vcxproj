@@ -106,7 +106,7 @@
     <ClInclude Include="Source\Connection.h" />
     <ClInclude Include="Source\ConnectionController.h" />
     <ClInclude Include="Source\ClientConnect.h" />
-    <ClInclude Include="Source\MyExceptions.h" />
+    <ClInclude Include="include\NetworkExceptions.h" />
     <ClInclude Include="Source\Network.h" />
     <ClInclude Include="Source\ServerAccept.h" />
     <ClInclude Include="Source\Packages.h" />

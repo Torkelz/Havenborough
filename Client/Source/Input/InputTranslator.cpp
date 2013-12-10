@@ -1,6 +1,6 @@
 #include "InputTranslator.h"
 
-#include "../MyExceptions.h"
+#include "../ClientExceptions.h"
 
 InputTranslator::InputTranslator()
 	: m_Window(nullptr)

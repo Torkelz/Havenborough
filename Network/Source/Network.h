@@ -6,7 +6,7 @@
 
 #include "ClientConnect.h"
 #include "ConnectionController.h"
-#include "MyExceptions.h"
+#include "NetworkExceptions.h"
 #include "Packages.h"
 #include "ServerAccept.h"
 #include "../include/INetwork.h"
