@@ -20,6 +20,9 @@ DeferredRenderer::DeferredRenderer(void)
 	m_LightShader = nullptr;
 	m_ConstantBuffer = nullptr;
 	m_AllLightBuffer = nullptr;
+	m_ViewMatrix = nullptr;
+	m_ProjectionMatrix = nullptr;
+	m_CameraPosition = nullptr;
 
 	m_speed = 1.0f;
 }
@@ -32,6 +35,9 @@ DeferredRenderer::~DeferredRenderer(void)
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
 	m_DepthStencilView = nullptr;
+	m_ViewMatrix = nullptr;
+	m_ProjectionMatrix = nullptr;
+	m_CameraPosition = nullptr;
 
 	for(int i = 0; i < m_numRenderTargets; i++)
 	{
@@ -53,8 +59,8 @@ DeferredRenderer::~DeferredRenderer(void)
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 								  ID3D11DepthStencilView *p_DepthStencilView,
 								  unsigned int p_screenWidth, unsigned int p_screenHeight,
-								  const DirectX::XMFLOAT3& p_CameraPosition, const DirectX::XMFLOAT4X4& p_ViewMatrix,
-								  const DirectX::XMFLOAT4X4& p_ProjectionMatrix)
+								  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+								  DirectX::XMFLOAT4X4 *p_ProjectionMatrix)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -306,22 +312,22 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 	}
 }
 
-void DeferredRenderer::updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat)
-{
-	m_ViewMatrix = p_ViewMat;
-}
-
-void DeferredRenderer::updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos)
-{
-	m_CameraPosition = p_CameraPos;
-}
+//void DeferredRenderer::updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat)
+//{
+//	m_ViewMatrix = p_ViewMat;
+//}
+//
+//void DeferredRenderer::updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos)
+//{
+//	m_CameraPosition = p_CameraPos;
+//}
 
 void DeferredRenderer::updateConstantBuffer(int nrLights)
 {
 	cBuffer cb;
-	cb.view = m_ViewMatrix;
-	cb.proj = m_ProjectionMatrix;
-	cb.campos = m_CameraPosition;
+	cb.view = *m_ViewMatrix;
+	cb.proj = *m_ProjectionMatrix;
+	cb.campos = *m_CameraPosition;
 	cb.nrLights = nrLights;
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
 }
@@ -429,9 +435,9 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 void DeferredRenderer::createConstantBuffer(int nrLights)
 {
 	cBuffer cb;
-	cb.view = m_ViewMatrix;
-	cb.proj = m_ProjectionMatrix;
-	cb.campos = m_CameraPosition;
+	cb.view = *m_ViewMatrix;
+	cb.proj = *m_ProjectionMatrix;
+	cb.campos = *m_CameraPosition;
 	cb.nrLights = nrLights;
 
 	Buffer::Description cbdesc;

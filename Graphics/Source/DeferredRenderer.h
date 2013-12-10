@@ -79,9 +79,9 @@ private:
 	Buffer						*m_ObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
 
-	DirectX::XMFLOAT3			m_CameraPosition;
-	DirectX::XMFLOAT4X4			m_ViewMatrix;
-	DirectX::XMFLOAT4X4			m_ProjectionMatrix;
+	DirectX::XMFLOAT3			*m_CameraPosition;
+	DirectX::XMFLOAT4X4			*m_ViewMatrix;
+	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
 
 	//TEMP--------------------------------------------------
@@ -110,8 +110,8 @@ public:
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 		ID3D11DepthStencilView *p_DepthStencilView,
 		unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-		const DirectX::XMFLOAT3& p_CameraPosition, const DirectX::XMFLOAT4X4& p_ViewMatrix,
-		const DirectX::XMFLOAT4X4& p_ProjectionMatrix);
+		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+		DirectX::XMFLOAT4X4 *p_ProjectionMatrix);
 
 	/*
 	 * Call to render the graphics using deferred rendering.
@@ -144,7 +144,7 @@ public:
 	 *
 	 * @param p_ViewMat the new view matrix.
 	 */
-	void updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat);
+	//void updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat);
 
 	/**
 	 * Update the camera position. Remember to also update the
@@ -152,7 +152,7 @@ public:
 	 *
 	 * @param p_CameraPos the new camera position in absolute world coordinates.
 	 */
-	void updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos);
+	//void updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos);
 	
 private:
 	void renderGeometry();

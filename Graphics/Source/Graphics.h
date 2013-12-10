@@ -21,6 +21,7 @@ using std::string;
 using std::vector;
 using std::pair;
 using std::make_pair;
+using namespace DirectX;
 
 class Graphics : public IGraphics
 {
@@ -111,6 +112,10 @@ private:
 	int m_GraphicsMemory;
 	bool m_VSyncEnabled;
 
+	XMFLOAT4X4 m_ViewMatrix;
+	XMFLOAT4X4 m_ProjectionMatrix;
+	XMFLOAT3 m_Eye;
+
 	static const std::string m_RelativeResourcePath;
 
 	TextureLoader m_TextureLoader;	
@@ -180,6 +185,8 @@ private:
 	Shader *getShaderFromList(string p_Identifier);
 	Model *getModelFromList(string p_identifier);
 	
+	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight);
+
 	//TODO: Remove later
 	void DebugDefferedDraw(void);
 };

@@ -36,6 +36,7 @@ IGraphics *IGraphics::createGraphics()
 
 bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen)
 {	
+	_CrtSetBreakAlloc(32288);
 	HRESULT result;
 	IDXGIFactory *factory;
 	IDXGIAdapter *adapter;
@@ -174,31 +175,13 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
 	//TODO: Setup camera matrices REMOVE LATER (a.k.a. clean this shit up!)
-	DirectX::XMFLOAT4 eye4,lookat,up;
-	DirectX::XMFLOAT3 eye;
-	eye4 = DirectX::XMFLOAT4(0,0,-20,1);
-	eye = DirectX::XMFLOAT3(eye4.x,eye4.y,eye4.z);
-	lookat = DirectX::XMFLOAT4(0,0,0,1);
-	up = DirectX::XMFLOAT4(0,1,0,0);
-	DirectX::XMFLOAT4X4 view, proj;
-	view = DirectX::XMFLOAT4X4();
-	proj = DirectX::XMFLOAT4X4();
-	DirectX::XMStoreFloat4x4(&view,
-	DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(
-	DirectX::XMLoadFloat4(&eye4),
-	DirectX::XMLoadFloat4(&lookat),
-	DirectX::XMLoadFloat4(&up))));
-	DirectX::XMStoreFloat4x4(&proj,
-	DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
-	0.25f*3.14f,
-	(float)p_ScreenWidth / (float)p_ScreenHeight,
-	0.1f,
-	1000.0f)));
+	initializeMatrices(p_ScreenWidth, p_ScreenHeight);
+
 
 	//Deferred Render
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		eye, view, proj);
+		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix);
 	DebugDefferedDraw();
 
 
@@ -569,7 +552,9 @@ void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Ya
 {
 	using namespace DirectX;
 
-	XMFLOAT4 eye(p_PosX, p_PosY, p_PosZ, 1.f);
+	
+	m_Eye = XMFLOAT3(p_PosX,p_PosY,p_PosZ);
+	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
 	XMVECTOR pos = XMLoadFloat4(&eye);
 
 	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
@@ -584,11 +569,11 @@ void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Ya
 
 	XMVECTOR lookAt = pos + XMVector4Transform(forwardVec, rotation);
 
-	XMFLOAT4X4 view;
-	XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
+	//XMFLOAT4X4 view;
+	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
 
-	m_DeferredRender->updateViewMatrix(view);
-	m_DeferredRender->updateCameraPosition(XMFLOAT3(p_PosX, p_PosY, p_PosZ));
+	//m_DeferredRender->updateViewMatrix(view);
+	//m_DeferredRender->updateCameraPosition(XMFLOAT3(p_PosX, p_PosY, p_PosZ));
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
@@ -832,6 +817,23 @@ Model *Graphics::getModelFromList(string p_Identifier)
 		}
 	}
 	return ret;
+}
+
+void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
+{
+	XMFLOAT4 eye4,lookat,up;
+	m_Eye = XMFLOAT3(0,0,-20);
+
+	eye4 = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
+	lookat = XMFLOAT4(0,0,0,1);
+	up = XMFLOAT4(0,1,0,0);
+	m_ViewMatrix = XMFLOAT4X4();
+	m_ProjectionMatrix = XMFLOAT4X4();
+
+	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye4),
+		XMLoadFloat4(&lookat), XMLoadFloat4(&up))));
+	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(0.25f * 3.14f,
+		(float)p_ScreenWidth / (float)p_ScreenHeight, 0.1f, 1000.0f)));
 }
 
 void Graphics::DebugDefferedDraw(void)
