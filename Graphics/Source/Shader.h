@@ -98,7 +98,7 @@ public:
 	void setBlendState(ID3D11BlendState *p_BlendState, float p_BlendFactor[4], UINT p_SampleMask = 0xffffffff);
 	
 private:
-	void releaseShader(Shader::Type p_Type);
+	void releaseShader(Type p_Type);
 
 protected:
 	virtual HRESULT createShader(ID3DBlob *p_ShaderData);

@@ -27,24 +27,76 @@
     <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp" />
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="Source\SceneManager\TestSceneManager.cpp" />
-    <ClCompile Include="..\Client\Source\NetworkClient.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
-    <ClCompile Include="..\Server\Source\NetworkServer.cpp" />
+    <ClCompile Include="..\Network\Source\ClientConnect.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\RAMMemInfo.cpp" />
+    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp" />
+    <ClCompile Include="..\Network\Source\ConnectionController.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\Source\Connection.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
     <ClCompile Include="SphereTest.cpp" />
     <ClCompile Include="AABBTest.cpp" />
     <ClCompile Include="..\Physics\Source\Body.cpp" />
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
+    <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Client\Source\ResourceManager.cpp" />
     <ClCompile Include="..\Client\Source\ResourceTranslator.cpp" />
+    <ClCompile Include="..\Network\Source\ServerAccept.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Network\Source\Network.cpp">
+      <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\Input.cpp">
+      <Filter>ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\InputState.cpp">
+      <Filter>ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp">
+      <Filter>ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Window.cpp">
+      <Filter>ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Network\TestNetworkServerClient.cpp">
+      <Filter>TestNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Network\TestSerialize.cpp">
+      <Filter>TestNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Network\TestConnectionController.cpp">
+      <Filter>TestNetwork</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="Source\Loader\TestStaticModelLoader.cpp" />
+    <ClCompile Include="Source\Loader\TestAnimatedModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
   </ItemGroup>
   <ItemGroup>
+    <Filter Include="ClientImport">
+      <UniqueIdentifier>{9012d9e5-e746-47e1-ad07-9fcd3fe9d204}</UniqueIdentifier>
+    </Filter>
     <ClInclude Include="..\Physics\include\Sphere.h" />
     <ClInclude Include="..\Physics\include\BoundingVolume.h" />
     <ClInclude Include="..\Physics\include\AABB.h" />
+    <Filter Include="TestNetwork">
+      <UniqueIdentifier>{8071612c-29ac-4b80-a58c-541a8115a1ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestNetwork\NetworkImport">
+      <UniqueIdentifier>{8f720b2c-6b2b-48b0-b6c6-0a1c8f14cd18}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Sample130.tx" />
   </ItemGroup>
 </Project>

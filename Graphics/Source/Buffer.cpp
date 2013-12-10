@@ -45,6 +45,7 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	m_Type = p_Description.type;
 
 	bufferDescription.StructureByteStride = 0;
+	bufferDescription.MiscFlags = 0;
 	
 	switch (m_Type)
 	{
@@ -77,12 +78,23 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 			break;
 		}
 
+	case Type::STRUCTURED_BUFFER:
+		{
+			bufferDescription.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+			bufferDescription.StructureByteStride = p_Description.sizeOfElement;
+			bufferDescription.BindFlags = 0;
+			break;
+		}
+
 	default:
 		{
 			return S_FALSE;
 			break;
 		}
 	}
+
+	if(p_Description.bindSRV)	bufferDescription.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	if(p_Description.bindUAV)	bufferDescription.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
 	m_Usage = p_Description.usage;
 	m_SizeOfElement = p_Description.sizeOfElement;
@@ -141,7 +153,12 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 		}
 	}
 
-	bufferDescription.MiscFlags = 0;
+	
+	/*if(m_Type ==Type::STRUCTURED_BUFFER)
+	{
+		bufferDescription.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	}*/
+
 	bufferDescription.ByteWidth = p_Description.numOfElements * p_Description.sizeOfElement;
 
 	////Make sure at least 16 bytes is set.
@@ -150,7 +167,7 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 	//	bufferDescription.ByteWidth = 16;
 	//}
 	//set at least 16 bytes
-	bufferDescription.ByteWidth = bufferDescription.ByteWidth + (16 - bufferDescription.ByteWidth % 16);
+	bufferDescription.ByteWidth = ((bufferDescription.ByteWidth + 15) / 16) * 16;
 
 	if(p_Description.initData)
 	{
@@ -228,6 +245,61 @@ HRESULT Buffer::setBuffer(UINT32 p_StartSlot)
 	return result;
 }
 
+HRESULT Buffer::unsetBuffer(UINT32 p_StartSlot)
+{
+	HRESULT result = S_OK;
+
+	switch(m_Type)
+	{
+	case Type::VERTEX_BUFFER:
+		{
+			UINT32 offset = 0;
+			m_DeviceContext->IASetVertexBuffers(p_StartSlot, 0, nullptr, 0, &offset);
+			break;
+		}
+	case Type::INDEX_BUFFER:
+		{
+			UINT32 offset = 0;
+			m_DeviceContext->IASetIndexBuffer(nullptr, DXGI_FORMAT_R32_UINT, offset);
+			break;
+		}
+	case Type::CONSTANT_BUFFER_VS:
+		{
+			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			break;
+		}
+	case Type::CONSTANT_BUFFER_GS:
+		{
+			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			break;
+		}
+	case Type::CONSTANT_BUFFER_PS:
+		{
+			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			break;
+		}
+	case Type::BUFFER_TYPE_COUNT:
+		{
+			break;
+
+		}
+	case Type::CONSTANT_BUFFER_ALL:
+		{
+			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			break;
+		}
+	default:
+		{
+			result = S_FALSE;
+			break;
+		}
+	}
+
+	return result;
+}
+
 void *Buffer::map(void)
 {
 	void *result = nullptr;
@@ -289,4 +361,40 @@ void *Buffer::mapResourceToContext(UINT32 p_MapType)
 HRESULT Buffer::createBuffer(D3D11_BUFFER_DESC *p_BufferDescription, D3D11_SUBRESOURCE_DATA *p_Data, ID3D11Buffer **p_Buffer)
 {
 	return m_Device->CreateBuffer(p_BufferDescription, p_Data, p_Buffer);
+}
+
+ID3D11ShaderResourceView* Buffer::CreateBufferSRV(ID3D11Buffer* pBuffer)
+{
+	ID3D11ShaderResourceView* pSRVOut = NULL;
+
+    D3D11_BUFFER_DESC descBuf;
+    ZeroMemory(&descBuf, sizeof(descBuf));
+    pBuffer->GetDesc(&descBuf);
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+    ZeroMemory(&desc, sizeof(desc));
+    desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+    desc.BufferEx.FirstElement = 0;
+
+    if(descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS)
+    {
+        // This is a Raw Buffer
+        desc.Format = DXGI_FORMAT_R32_TYPELESS;
+        desc.BufferEx.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;
+        desc.BufferEx.NumElements = descBuf.ByteWidth / 4;
+    }
+        else if(descBuf.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
+    {
+        // This is a Structured Buffer
+        desc.Format = DXGI_FORMAT_UNKNOWN;
+        desc.BufferEx.NumElements = descBuf.ByteWidth / descBuf.StructureByteStride;
+    }
+	else
+	{
+		return NULL;
+	}
+
+    HRESULT hr = m_Device->CreateShaderResourceView(pBuffer, &desc, &pSRVOut);
+
+	return pSRVOut;
 }

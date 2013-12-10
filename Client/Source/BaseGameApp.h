@@ -3,13 +3,16 @@
 #include <IGraphics.h>
 #include "Input\Input.h"
 #include "IPhysics.h"
-#include "NetworkClient.h"
+#include <INetwork.h>
 #include "SceneManager.h"
 #include "Window.h"
+#include "RAMMemInfo.h"
 
 #include "ResourceManager.h"
 
 #include <string>
+
+#include "../../Graphics/Source/WrapperFactory.h" //Should be removed when merge to master
 
 class BaseGameApp
 {
@@ -19,21 +22,22 @@ private:
 	Window	m_Window;
 	IGraphics* m_Graphics;
 	Input	m_InputQueue;
+	RAMMemInfo m_MemoryInfo;
 
-	NetworkClient m_Network;
+	INetwork* m_Network;
 
 	bool	m_ShouldQuit;
+	bool	m_Connected;
+
 	SceneManager m_SceneManager;
 
 	std::string m_ProjectDirectory;
 
 	BodyHandle m_Body, m_Object;
 	IPhysics *m_Physics;
-
 	ResourceManager* m_ResourceManager;
 	std::vector<unsigned int> m_ResourceIDs; 
 
-	float dt;
 public:
 	/**
 	 * Initialize the game and create a window.
@@ -63,4 +67,8 @@ public:
 
 private:
 	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+
+	static void connectedCallback(Result p_Res, void* p_UserData);
+
+	void updateDebugInfo(float p_dt);
 };

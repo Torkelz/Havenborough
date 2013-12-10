@@ -44,11 +44,15 @@
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Test\</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
+    <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Bin\</OutDir>
+    <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -58,6 +62,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;NETWORK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -76,6 +82,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;NETWORK_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -86,7 +93,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\networkLibrary.cpp" />
+    <ClCompile Include="Source\ClientConnect.cpp" />
+    <ClCompile Include="Source\Connection.cpp" />
+    <ClCompile Include="Source\ConnectionController.cpp" />
+    <ClCompile Include="Source\ServerAccept.cpp" />
+    <ClCompile Include="Source\Network.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\CommonTypes.h" />
+    <ClInclude Include="include\IConnectionController.h" />
+    <ClInclude Include="include\INetwork.h" />
+    <ClInclude Include="Source\Connection.h" />
+    <ClInclude Include="Source\ConnectionController.h" />
+    <ClInclude Include="Source\ClientConnect.h" />
+    <ClInclude Include="Source\MyExceptions.h" />
+    <ClInclude Include="Source\Network.h" />
+    <ClInclude Include="Source\ServerAccept.h" />
+    <ClInclude Include="Source\Packages.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
