@@ -29,6 +29,10 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		{
 			tempPath = tempPath + "marim.tx";
 		}
+		if(p_ResourceName == "HOUSE1")
+		{
+			tempPath = tempPath + "house1.tx";
+		}
 	}
 	else if( p_ResourceType == "texture")
 	{

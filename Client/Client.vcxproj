@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Resource.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\ResourceTranslator.cpp" />
     <ClCompile Include="Source\BaseGameApp.cpp" />
@@ -41,6 +42,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Resource.h" />
     <ClInclude Include="Source\ResourceManager.h" />
     <ClInclude Include="Source\ResourceTranslator.h" />
     <ClInclude Include="Source\NetworkClient.h" />

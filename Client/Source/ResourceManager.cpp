@@ -7,6 +7,7 @@
 
 //loader.reg("model", std::bind(m_Graphic->createModel))
 
+
 void Resource::setType(string p_Type)
 {
 	m_Type = p_Type;
@@ -15,6 +16,7 @@ string Resource::getType()
 {
 	return m_Type;
 }
+
 
 ResourceManager::ResourceManager(string p_ProjectDirectory)
 {
@@ -31,7 +33,7 @@ ResourceManager::ResourceManager(string p_ProjectDirectory)
 	}
 
 	
-	NumberOfResources = 0;
+	m_NextID = 0;
 }
 
 ResourceManager::~ResourceManager()
@@ -71,7 +73,12 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 			{
 				if(p_ResourceName == t.second)
 				{
-					return t.first;
+					std::pair<int, string> newRes;
+					newRes.second = p_ResourceName;
+					newRes.first = m_NextID++;
+				
+					rl.m_LoadedResources.push_back(newRes);
+					return newRes.first;
 				}
 			}
 
@@ -82,56 +89,73 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 			{
 				std::pair<int, string> newRes;
 				newRes.second = p_ResourceName;
-				newRes.first = NumberOfResources++;
+				newRes.first = m_NextID++;
+				
 				rl.m_LoadedResources.push_back(newRes);
+				return newRes.first;
+			}
+			else
+			{
+				throw ResourceManagerException("Error when loading resource!", __LINE__, __FILE__);
 			}
 		}
 		else
 		{
-			return -1;
+			throw ResourceManagerException("Error resource type not found!", __LINE__, __FILE__);;
 		}
 	}
 	return id;
 }
 
-void ResourceManager::releaseResource(int p_ID)
+bool ResourceManager::releaseResource(int p_ID)
 {
-	bool found = false;
-	int counter = 0, tempID = -1;
+	int counter, tempID = -1;
 	Resource *tempRes = nullptr;
 	string tempString;
 
 	for(auto &rl : m_ResourceList)
 	{
+		if(tempID != -1)
+				break;
+		
 		counter = 0;
 
 		for(auto &r : rl.m_LoadedResources)
 		{
 			if(r.first == p_ID)
 			{
-				found = true;
 				tempID = p_ID;
 				tempString = r.second;
 				tempRes = &rl;
 				break;
 			}
 			counter++;
+			
 		}
 	}
 
-	if(found)
+	if(tempID != -1)
 	{
 		for(auto &r : tempRes->m_LoadedResources)
 		{
 			if(r.second == tempString && r.first != tempID)
 			{
 				tempRes->m_LoadedResources.erase( tempRes->m_LoadedResources.begin() + counter);
-				return;
+				tempRes = nullptr;
+				return true;
 			}
 		}
 
-		tempRes->m_Release( tempRes->m_LoadedResources.at(counter).second.c_str() );
-		return;
+		if( tempRes->m_Release( tempRes->m_LoadedResources.at(counter).second.c_str() ))
+		{
+			tempRes = nullptr;
+			return true;
+		}
+		else if(DEBUG)
+		{
+			throw ResourceManagerException("Releasing a resource that does not exist? Yeah right..", __LINE__, __FILE__);
+		}
+		else{}
 	}
-
+	return false;
 }

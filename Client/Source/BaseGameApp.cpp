@@ -21,6 +21,8 @@ void BaseGameApp::init(std::string p_ProjectDirectory)
 	m_ResourceManager->loadResource("model", "DZALA");
 	m_ResourceManager->loadResource("model", "MARIM");
 
+	m_ResourceManager->releaseResource(0);
+
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");

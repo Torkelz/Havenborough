@@ -31,6 +31,7 @@ private:
 	IPhysics *m_Physics;
 
 	ResourceManager* m_ResourceManager;
+	std::vector<unsigned int> m_ResourceIDs; 
 
 	float dt;
 public:

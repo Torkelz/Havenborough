@@ -222,7 +222,15 @@ bool Graphics::createModel(const char* p_ResourceName, const char *p_FilePath)
 
 bool Graphics::releaseModel(const char* p_ResourceName)
 {
-	return true;
+	for(int i = 0; i < m_ModelList.size(); i++)
+	{
+		if(strcmp(m_ModelList.at(i).first.c_str(), p_ResourceName) == 0)
+		{
+			m_ModelList.erase(m_ModelList.begin() + i);
+			return true;
+		}
+	}
+	return false;
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
