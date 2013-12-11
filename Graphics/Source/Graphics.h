@@ -153,8 +153,7 @@ public:
 	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) override;
 	
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
-	bool releaseTexture(const char *p_TextureID) override;
-	
+	bool releaseTexture(const char *p_TextureID) override;	
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
@@ -191,7 +190,9 @@ private:
 	
 	Shader *getShaderFromList(string p_Identifier);
 	Model *getModelFromList(string p_Identifier);
-	ID3D11ShaderResourceView* getTextureFromList(string p_Identifier);
+	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
+
+	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
 
 	void Begin(float color[4]);
 	void End(void);

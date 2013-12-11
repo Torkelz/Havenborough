@@ -214,4 +214,3 @@ private:
 	*/
 	virtual void shutdown(void) = 0;
 };
-

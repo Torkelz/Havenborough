@@ -64,7 +64,7 @@ void BaseGameApp::init()
 		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
 	}
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
+	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
 
 }

@@ -209,7 +209,6 @@ void Graphics::shutdown(void)
 		SAFE_RELEASE(tex.second);
 	}
 	m_TextureList.clear();
-
 	m_ModelList.clear();
 
 	SAFE_RELEASE(m_Sampler);
@@ -337,29 +336,7 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 
 		diffuse.push_back(getTextureFromList( mat.m_DiffuseMap.c_str() ));
 		normal.push_back(getTextureFromList( mat.m_NormalMap.c_str() ));
-		specular.push_back(getTextureFromList( mat.m_SpecularMap.c_str() ));	
-		
-		ID3D11Resource *resource;
-		ID3D11Texture2D *texture;
-		D3D11_TEXTURE2D_DESC textureDesc;
-		int size = 0;
-
-		diffuse[i]->GetResource(&resource);
-		resource->QueryInterface(&texture);
-		texture->GetDesc(&textureDesc);
-		size += m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
-
-		normal[i]->GetResource(&resource);
-		resource->QueryInterface(&texture);
-		texture->GetDesc(&textureDesc);
-		size += 4 * textureDesc.Width * textureDesc.Height;
-		
-		specular[i]->GetResource(&resource);
-		resource->QueryInterface(&texture);
-		texture->GetDesc(&textureDesc);
-		size += 4 * textureDesc.Width * textureDesc.Height;
-
-		m_VRAMMemInfo->updateUsage(size);
+		specular.push_back(getTextureFromList( mat.m_SpecularMap.c_str() ));
 	}
 
 	Model m;
@@ -437,22 +414,25 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 
 void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 {
-	Model* m = nullptr;
-	m = getModelFromList(p_ModelId);
-	if(m != nullptr)
-		m->shader = getShaderFromList(p_ShaderId);
-	m = nullptr;
+	Model *model = nullptr;
+	model = getModelFromList(p_ModelId);
+	if(model != nullptr)
+		model->shader = getShaderFromList(p_ShaderId);
+	model = nullptr;
 }
 
 bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
-	ID3D11ShaderResourceView* texture = m_TextureLoader.createTextureFromFile(p_Filename);
-	if (texture == nullptr)
+	ID3D11ShaderResourceView *resourceView = m_TextureLoader.createTextureFromFile(p_Filename);
+	if(!resourceView)
 	{
 		return false;
 	}
-	
-	m_TextureList.push_back(make_pair(p_TextureId, texture));
+
+	int size = calculateTextureSize(resourceView);
+	m_VRAMMemInfo->updateUsage(size);
+
+	m_TextureList.push_back(make_pair(p_TextureId, resourceView));
 
 	return true;
 }
@@ -463,7 +443,10 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	{
 		if(strcmp(it->first.c_str(), p_TextureId) == 0)
 		{
-			ID3D11ShaderResourceView*& m = it->second;
+			ID3D11ShaderResourceView *&m = it->second;
+			int size = calculateTextureSize(m);
+			m_VRAMMemInfo->updateUsage(-size);
+
 			SAFE_RELEASE(m);
 			m_TextureList.erase(it);
 			return true;
@@ -479,7 +462,8 @@ void Graphics::renderModel(int p_ModelId)
 	{
 		if (inst.first == p_ModelId)
 		{
-			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.m_ModelName), &inst.second.getWorldMatrix()));
+			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.m_ModelName),
+				&inst.second.getWorldMatrix()));
 			break;
 		}
 	}
@@ -871,7 +855,7 @@ Model *Graphics::getModelFromList(string p_Identifier)
 	return ret;
 }
 
-ID3D11ShaderResourceView* Graphics::getTextureFromList(string p_Identifier)
+ID3D11ShaderResourceView *Graphics::getTextureFromList(string p_Identifier)
 {
 	for(auto & s : m_TextureList)
 	{
@@ -882,6 +866,19 @@ ID3D11ShaderResourceView* Graphics::getTextureFromList(string p_Identifier)
 	}
 
 	return nullptr;
+}
+
+int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )
+{
+	ID3D11Resource *resource;
+	ID3D11Texture2D *texture;
+	D3D11_TEXTURE2D_DESC textureDesc;
+
+	resourceView->GetResource(&resource);
+	resource->QueryInterface(&texture);
+	texture->GetDesc(&textureDesc);
+
+	return m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
 }
 
 void Graphics::Begin(float color[4])
