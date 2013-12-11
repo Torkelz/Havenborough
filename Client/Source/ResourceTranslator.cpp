@@ -22,7 +22,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("MARIM", "assets/models/marim.tx"),
 		std::make_pair("HOUSE1", "assets/models/house1.tx"),
 		std::make_pair("BOX", "assets/models/Sample135.tx"),
-		std::make_pair("SkyBox", "assets/models/SkyBox.tx"),
+		std::make_pair("SKYBOX", "assets/models/SkyBox.tx"),
 	};
 	static const size_t numModels = sizeof(modelMap) / sizeof(modelMap[0]);
 

@@ -43,7 +43,7 @@ public:
 	/**
 	 * Initialize the game and create a window.
 	 */
-	void init(std::string p_ProjectDirectory);
+	void init();
 	/**
 	 * Run the game. Doesn't return until the game is exited.
 	 */

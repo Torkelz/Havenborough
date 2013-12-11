@@ -288,7 +288,6 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
 	vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
 	
-
 	vector<vertex> temp;
 	vector<vector<int>> tempI;
 
@@ -365,13 +364,17 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 		boost::filesystem::path norm = (mat.m_NormalMap == "NONE" || mat.m_NormalMap == "Default_NRM.jpg") ? "assets/grey.jpg" : parentDir / mat.m_NormalMap;
 		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE" || mat.m_SpecularMap == "Default_SPEC.jpg") ? "assets/black.jpg" : parentDir / mat.m_SpecularMap;
 
-		createTexture(diff.string().c_str(), diff.string().c_str());
-		createTexture(norm.string().c_str(), norm.string().c_str());
-		createTexture(spec.string().c_str(), spec.string().c_str());
+		//createTexture(diff.string().c_str(), diff.string().c_str());
+		//createTexture(norm.string().c_str(), norm.string().c_str());
+		//createTexture(spec.string().c_str(), spec.string().c_str());
 
-		diffuse.push_back(getTextureFromList(diff.string()));
-		normal.push_back(getTextureFromList(norm.string()));
-		specular.push_back(getTextureFromList(spec.string()));
+		m_LoadModelTexture(mat.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
+		m_LoadModelTexture(mat.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);
+		m_LoadModelTexture(mat.m_SpecularMap.c_str(), spec.string().c_str(), m_LoadModelTextureUserdata);
+
+		diffuse.push_back(getTextureFromList( mat.m_DiffuseMap.c_str() ));
+		normal.push_back(getTextureFromList( mat.m_NormalMap.c_str() ));
+		specular.push_back(getTextureFromList( mat.m_SpecularMap.c_str() ));
 	}
 
 	Model m;
@@ -583,12 +586,8 @@ bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	{
 		return false;
 	}
-
+	
 	m_TextureList.push_back(make_pair(p_TextureId, texture));
-	
-	unsigned int textureSize = sizeof(m_TextureList.back().second);
-	
-	m_VRAMMemInfo->updateUsage(textureSize);
 
 	return true;
 }
@@ -759,6 +758,12 @@ void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Ya
 
 	m_DeferredRender->updateViewMatrix(view);
 	m_DeferredRender->updateCameraPosition(DirectX::XMFLOAT3(p_PosX, p_PosY, p_PosZ));
+}
+
+void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata)
+{
+	m_LoadModelTexture = p_LoadModelTexture;
+	m_LoadModelTextureUserdata = p_Userdata;
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)

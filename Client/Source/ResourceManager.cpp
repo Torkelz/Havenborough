@@ -1,7 +1,5 @@
 #include "ResourceManager.h"
 
-//loader.reg("model", std::bind(m_Graphic->createModel))
-
 
 void ResourceType::setType(string p_Type)
 {
@@ -13,10 +11,8 @@ string ResourceType::getType()
 }
 
 
-ResourceManager::ResourceManager(string p_ProjectDirectory)
+ResourceManager::ResourceManager()
 {
-	m_ProjectDirectory = p_ProjectDirectory;
-
 	m_ProjectDirectory = boost::filesystem::current_path();
 	
 	m_NextID = 0;
@@ -62,13 +58,13 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 		if(rl.getType() == p_ResourceType)
 		{
 
-			for(auto &t : rl.m_LoadedResources)
+			for(auto &r : rl.m_LoadedResources)
 			{
-				if(filePath.string() == t.m_Path)
+				if(filePath.string() == r.m_Path)
 				{
-					t.m_Count++;
+					r.m_Count++;
 
-					return t.m_ID;
+					return r.m_ID;
 				}
 			}
 
@@ -78,6 +74,7 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 				newRes.m_Name = p_ResourceName;
 				newRes.m_ID = m_NextID++;
 				newRes.m_Count = 1;
+				newRes.m_Path = filePath.string().c_str();
 				
 				rl.m_LoadedResources.push_back(newRes);
 				return newRes.m_ID;
@@ -85,6 +82,49 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 			else
 			{
 				throw ResourceManagerException("Error when loading resource!", __LINE__, __FILE__);
+			}
+		}
+	}
+
+	return -1;
+}
+
+void  ResourceManager::loadModelTexture(const char *p_ResourceName, const char *p_FilePath, void* p_Userdata)
+{
+	((ResourceManager*)p_Userdata)->loadModelTextureImpl(p_ResourceName, p_FilePath);
+}
+
+int ResourceManager::loadModelTextureImpl(const char *p_ResourceName, const char *p_FilePath)
+{
+	for(auto &rl : m_ResourceList)
+	{
+		if(rl.getType() == "texture")
+		{
+
+			for(auto &r : rl.m_LoadedResources)
+			{
+				if(p_FilePath == r.m_Path)
+				{
+					r.m_Count++;
+
+					return r.m_ID;
+				}
+			}
+
+			if(rl.m_Create(p_ResourceName, p_FilePath) )
+			{
+				ResourceType::Resource newRes;
+				newRes.m_Name = p_ResourceName;
+				newRes.m_ID = m_NextID++;
+				newRes.m_Count = 1;
+				newRes.m_Path = p_FilePath;
+				
+				rl.m_LoadedResources.push_back(newRes);
+				return newRes.m_ID;
+			}
+			else
+			{
+				throw ResourceManagerException("Error when loading model texture resource!", __LINE__, __FILE__);
 			}
 		}
 	}
@@ -116,9 +156,10 @@ bool ResourceManager::releaseResource(int p_ID)
 	}
 
 #ifdef DEBUG
-	throw ResourceManagerException("Releasing a resource that does not exist? Yeah right..", __LINE__, __FILE__);
+	throw ResourceManagerException("Releasing a resource that does not exist?", __LINE__, __FILE__);
 #endif
 
 	return false;
 
 }
+

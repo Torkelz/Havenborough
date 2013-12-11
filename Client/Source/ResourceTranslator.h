@@ -1,8 +1,7 @@
 #pragma once
 
 #include <string>
-#include <Windows.h>
-#define WIN32_LEAN_AND_MEAN
+
 
 class ResourceTranslator
 {
@@ -12,6 +11,12 @@ public:
 	ResourceTranslator();
 	~ResourceTranslator();
 
+	/**
+	 * Translates a resource name to a filepath
+	 * @param p_ResourceType type of resource
+	 * @param p_ResourceName name of the resource
+	 * @return a filepath to the resource.
+	 */
 	std::string translate(std::string p_ResourceType, std::string p_ResourceName);
 };
 

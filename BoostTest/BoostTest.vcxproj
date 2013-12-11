@@ -147,6 +147,8 @@
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="SphereTest.cpp" />
+    <ClCompile Include="TestResouceTranslator.cpp" />
+    <ClCompile Include="TestResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

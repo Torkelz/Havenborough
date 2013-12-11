@@ -22,7 +22,6 @@ using std::vector;
 using std::pair;
 using std::make_pair;
 
-
 class Graphics : public IGraphics
 {
 private:
@@ -104,6 +103,9 @@ private:
 	Shader				*m_Shader; //DEBUG
 	ID3D11SamplerState	*m_Sampler;
 
+	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
+	void* m_LoadModelTextureUserdata;
+
 public:
 	Graphics(void);
 	~Graphics(void);
@@ -143,6 +145,8 @@ public:
 	void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) override;
 
 	void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) override;
+
+	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
 
 private:
 	void shutdown(void) override;
