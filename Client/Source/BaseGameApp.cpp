@@ -51,8 +51,7 @@ void BaseGameApp::init()
 
 	m_Graphics->createModel("house1", "assets/House1/House1.tx");
 	m_MemoryInfo.update();
-	std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
-	std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
+
 	m_Graphics->linkShaderToModel("BOXShader", "house1");
 
 	//m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.tx");
@@ -166,9 +165,6 @@ void BaseGameApp::run()
 		m_Graphics->drawFrame(currView);
 		
 		m_MemoryInfo.update();
-		m_MemoryInfo.update();
-		std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
-		std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 		updateDebugInfo(dt);
 
 		m_InputQueue.onFrame();
