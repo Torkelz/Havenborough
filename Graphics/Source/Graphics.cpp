@@ -269,6 +269,12 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 									tempN.at(indexDesc.m_Normal),
 									tempUV.at(indexDesc.m_TextureCoord),
 									tempT.at(indexDesc.m_Tangent)));
+
+			temp.back().position.x *= -1.f;
+			temp.back().normal.x *= -1.f;
+			temp.back().tangent.x *= -1.f;
+			temp.back().binormal.x *= -1.f;
+
 			I.push_back(indexCounter);
 			indexCounter++;
 		}
@@ -749,7 +755,7 @@ HRESULT Graphics::createRasterizerState(void)
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.CullMode = D3D11_CULL_FRONT;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
