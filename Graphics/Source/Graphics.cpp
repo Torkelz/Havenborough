@@ -1,9 +1,8 @@
 #include "Graphics.h"
 #include "ModelLoader.h"
-#include <iostream>
 
+#include <iostream>
 #include <boost/filesystem.hpp>
-#include "RAMMemInfo.h"
 
 const std::string Graphics::m_RelativeResourcePath = "../../Graphics/Resources/";
 
@@ -162,13 +161,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
 
 	//Note this is the only time initialize should be called.
-	WrapperFactory::initialize(m_Device, m_DeviceContext);
-	
+	WrapperFactory::initialize(m_Device, m_DeviceContext);	
 	m_WrapperFactory = WrapperFactory::getInstance();
-	RAMMemInfo m_MemoryInfo;
-	m_MemoryInfo.update();
-	std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
-	std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 	m_VRAMMemInfo = VRAMMemInfo::getInstance();
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
@@ -179,7 +173,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix);
-	
+
 	DebugDefferedDraw();
 
 	return true;
