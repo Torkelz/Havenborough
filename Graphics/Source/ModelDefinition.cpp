@@ -48,11 +48,13 @@ void Model::getAnimation()
 		XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
 		XMMATRIX identity = XMMatrixIdentity();
 		
-		offSet = XMMatrixInverse(&XMMatrixDeterminant(offSet), offSet);
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(flip, (XMMatrixMultiply(offSet, toRoot))));
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(flip, offSet)));
-		XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(toRoot));
-		XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(toRoot,offSet));
+		//offSet = XMMatrixInverse(&XMMatrixDeterminant(offSet), offSet);
+		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(offSet, toRoot));
+		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(toRoot,offSet)));
+		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(toRoot,offSet));
+		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(offSet));
+		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);
+		XMStoreFloat4x4(&m_FinalTransform[i], toRoot);
 		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(toRoot));
 	}
 }

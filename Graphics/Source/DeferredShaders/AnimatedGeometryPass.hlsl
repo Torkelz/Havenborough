@@ -95,10 +95,10 @@ PSIn VS(VSIn input)
 	{
 	    // Assume no nonuniform scaling when transforming normals, so 
 		// that we do not have to use the inverse-transpose.
-	    posL		+= weights[i] * mul(input.pos, boneTransform[input.boneId[i] - 1]).xyz;
-		normalL		+= weights[i] * mul(input.normal,  (float3x3)boneTransform[input.boneId[i]  - 1]);
-		tangentL	+= weights[i] * mul(input.tangent, (float3x3)boneTransform[input.boneId[i]  - 1]);
-		binormalL	+= weights[i] * mul(input.binormal, (float3x3)boneTransform[input.boneId[i] - 1]);
+	    posL		+= weights[i] * mul(boneTransform[input.boneId[i] - 1], input.pos).xyz;
+		normalL		+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.normal);
+		tangentL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.tangent);
+		binormalL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.binormal);
 	}
  
 	// Transform to view space.

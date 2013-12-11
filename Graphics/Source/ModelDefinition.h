@@ -14,17 +14,14 @@ public:
 	unsigned int				numOfMaterials;
 	bool						animated;
 
-	//virtual std::vector<DirectX::XMFLOAT4X4>* getFinalTransform(float p_Time){return nullptr;}
-	std::vector<Joint>					m_Joints;
-	float								m_Time;
+	std::vector<Joint>			m_Joints;
+	float						m_Time;
+
+private:
+	std::vector<DirectX::XMFLOAT4X4>	m_FinalTransform;
 
 	// Temp
 	float								m_currentFrame;
-	
-	std::vector<DirectX::XMFLOAT4X4>	m_FinalTransform;
-
-	//CactusModel() : Model(){}
-	//~CactusModel(){}
 public:
 	Model(){
 		m_Time = 0.0f;
@@ -38,8 +35,24 @@ private:
 	void getAnimation();
 };
 
-class CactusModel : public Model
+class AnimatedModel : public Model
 {
 public:
+	std::vector<Joint>			m_Joints;
+	float						m_Time;
 
+private:
+	std::vector<DirectX::XMFLOAT4X4>	m_FinalTransform;
+	float								m_currentFrame;
+public:
+	AnimatedModel() : Model(){
+		m_Time = 0.0f;
+		m_currentFrame = 0.0f;
+	}
+	~AnimatedModel(){} // may have to release content to avoid memory leaks.
+
+	void getFinalTransform(float p_Time, std::vector<DirectX::XMFLOAT4X4> &ref);
+
+private:
+	void getAnimation();
 };
