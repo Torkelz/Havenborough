@@ -216,11 +216,11 @@ void BaseGameApp::run()
 		for (int i = 0; i < NUM_BOXES; i++)
 		{
 			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
-			//m_Graphics->renderModel(boxIds[i]);
+			m_Graphics->renderModel(boxIds[i]);
 		}
-		/*m_Graphics->renderModel(ground);
+		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
-		m_Graphics->renderModel(house);*/
+		m_Graphics->renderModel(house);
 		//m_Graphics->renderModel(witch);
 
 		m_Graphics->drawFrame(currView);
