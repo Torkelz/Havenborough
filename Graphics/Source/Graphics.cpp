@@ -172,7 +172,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix);
-
+	
 	DebugDefferedDraw();
 
 	return true;

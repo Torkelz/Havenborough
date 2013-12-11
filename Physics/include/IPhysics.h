@@ -26,6 +26,17 @@ public:
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
 	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top) = 0;
+
+
+
+
+	virtual Vector4 getBodyPosition(BodyHandle p_Body) =0;
+
+
+	
+	virtual void setBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
+
+
 	/**
 	 * Keeps physics updated, collision checks etc.
 	 * @p_DeltaTime, timestep.
@@ -36,7 +47,7 @@ public:
 	 * @p_Force, force to be added.
 	 * @p_Body, what body to apply the force.
 	 */
-	virtual void applyForce(Vector3 p_Force, BodyHandle p_Body) = 0;
+	virtual void applyForce(Vector4 p_Force, BodyHandle p_Body) = 0;
 	/**
 	 * Used to change the gravity constant.
 	 * @p_Gravity, the new gravity.
@@ -67,9 +78,4 @@ public:
 	*/
 	//virtual BoundingVolume* getVolume(BodyHandle p_Body) = 0;
 
-	//DEBUGGING
-	/**
-	 * A function used for debugging purpose.
-	 */
-	virtual void moveBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
 };
