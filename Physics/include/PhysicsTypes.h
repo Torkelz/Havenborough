@@ -22,7 +22,12 @@ struct Vector3
 	float y;
 	float z;
 
-	Vector3(){}
+	Vector3()
+	{
+		x = 0.f;
+		y = 0.f;
+		z = 0.f;
+	}
 
 	Vector3(float p_X, float p_Y, float p_Z)
 	{
@@ -39,7 +44,13 @@ struct Vector4
 	float z;
 	float w;
 
-	Vector4(){}
+	Vector4()
+	{
+		x = 0.f;
+		y = 0.f;
+		z = 0.f;
+		w = 0.f;
+	}
 
 	Vector4(float p_X, float p_Y, float p_Z, float p_W)
 	{
@@ -47,6 +58,16 @@ struct Vector4
 		y = p_Y;
 		z = p_Z;
 		w = p_W;
+	}
+
+	inline Vector4 operator-(Vector4 p_vec)
+	{
+		this->x -= p_vec.x;
+		this->y -= p_vec.y;
+		this->z -= p_vec.z;
+		this->w -= p_vec.w;
+
+		return *this;
 	}
 };
 
@@ -57,6 +78,7 @@ struct HitData
 	bool			intersect;
 	Type			colType;
 	float			colLength;
+	//BodyHandle		colBody1;
 
 	HitData()
 	{

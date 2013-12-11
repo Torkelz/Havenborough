@@ -91,8 +91,11 @@ public:
 	 * @return true if the resource was released otherwise false.
 	 */
 	bool releaseResource(int p_ID);
+
+	static void releaseModelTexture(const char *p_ResournceName, void* p_Userdata);
 	
 private:
 	int loadModelTextureImpl(const char *p_ResourceName, const char *p_FilePath);
+	void releaseModelTextureImpl(const char *p_ResourceName);
 };
 

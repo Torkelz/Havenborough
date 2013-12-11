@@ -69,7 +69,7 @@ void Physics::update(float p_DeltaTime)
 				XMVECTOR temp;
 				XMFLOAT4 tempPos;
 
-				temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colPos) * hit.colLength;
+				temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength;
 				XMStoreFloat4(&tempPos, temp);
 
 				b.setPosition(tempPos);
@@ -96,25 +96,25 @@ void Physics::update(float p_DeltaTime)
 	}
 }
 
-void Physics::applyForce(Vector3 p_Force, BodyHandle p_Body)
+void Physics::applyForce(Vector4 p_Force, BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
 		return;
 
-	XMFLOAT4 tempForce;
+	XMFLOAT4 tempForce = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 
 	tempForce.x = p_Force.x;
 	tempForce.y = p_Force.y;
 	tempForce.z = p_Force.z;
-	tempForce.w = 0.f;
+	tempForce.w = p_Force.w;
 
 	body->addForce(tempForce);
 }
 
 BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius)
 {
-	XMFLOAT4 tempPosition;
+	XMFLOAT4 tempPosition = XMFLOAT4(0.f, 0.f, 0.f, 0.f);;
 	tempPosition.x = p_Position.x;
 	tempPosition.y = p_Position.y;
 	tempPosition.z = p_Position.z;
@@ -127,7 +127,8 @@ BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Pos
 
 BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top)
 {
-	XMFLOAT4 tempBot, tempTop;
+	XMFLOAT4 tempBot = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 tempTop = XMFLOAT4(0.f, 0.f, 0.f, 0.f);;
 	tempBot.x = p_Bot.x;
 	tempBot.y = p_Bot.y;
 	tempBot.z = p_Bot.z;
@@ -184,15 +185,27 @@ unsigned int Physics::getHitDataSize()
 	return m_HitDatas.size();
 }
 
+Vector4 Physics::getBodyPosition(BodyHandle p_Body)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return Vector4(0.f, 0.f, 0.f, 1.f);
 
-//Debugging function
-void Physics::moveBodyPosition(Vector3 p_Position, BodyHandle p_Body)
+	XMFLOAT4 temp = body->getPosition();
+	Vector4 tempvec4;
+
+	tempvec4 = XMFLOAT4ToVector4(&temp);
+
+	return tempvec4;
+}
+
+void Physics::setBodyPosition(Vector3 p_Position, BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
 		return;
 
-	XMFLOAT4 tempPosition;
+	XMFLOAT4 tempPosition = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 
 	tempPosition.x = p_Position.x;
 	tempPosition.y = p_Position.y;
@@ -200,7 +213,6 @@ void Physics::moveBodyPosition(Vector3 p_Position, BodyHandle p_Body)
 	tempPosition.w = 1.f;
 
 	body->setPosition(tempPosition);
-	body->setVelocity(XMFLOAT4(0.f, 0.f, 0.f, 0.f));
 }
 
 //

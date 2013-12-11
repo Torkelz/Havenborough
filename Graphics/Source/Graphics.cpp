@@ -172,7 +172,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix);
-
+	
 	DebugDefferedDraw();
 
 	return true;
@@ -317,9 +317,10 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	boost::filesystem::path parentDir(modelPath.parent_path());
 
 	// Load textures.
-	std::vector<ID3D11ShaderResourceView*> diffuse;
-	std::vector<ID3D11ShaderResourceView*> normal;
-	std::vector<ID3D11ShaderResourceView*> specular;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> diffuse;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> normal;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> specular;
+	
 	for(unsigned int i = 0; i < nrIndexBuffers; i++)
 	{
 		const ModelLoader::Material& mat = tempM.at(i);
@@ -332,24 +333,39 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 		m_LoadModelTexture(mat.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);
 		m_LoadModelTexture(mat.m_SpecularMap.c_str(), spec.string().c_str(), m_LoadModelTextureUserdata);
 
-		diffuse.push_back(getTextureFromList( mat.m_DiffuseMap.c_str() ));
-		normal.push_back(getTextureFromList( mat.m_NormalMap.c_str() ));
-		specular.push_back(getTextureFromList( mat.m_SpecularMap.c_str() ));
+		diffuse.push_back( std::make_pair( mat.m_DiffuseMap, getTextureFromList( mat.m_DiffuseMap.c_str() ) ));
+		normal.push_back( std::make_pair( mat.m_NormalMap, getTextureFromList( mat.m_NormalMap.c_str() ) ));
+		specular.push_back( std::make_pair( mat.m_SpecularMap, getTextureFromList( mat.m_SpecularMap.c_str() ) ));
 	}
 
-	model.vertexBuffer.swap(vertexBuffer);
-	model.indexBuffers.swap(indices);
-	model.diffuseTexture	= diffuse;
-	model.normalTexture		= normal;
-	model.specularTexture	= specular;
-	model.numOfMaterials	= nrIndexBuffers;
-	modelLoader.clear();
+		ID3D11Resource *resource = nullptr;
+		ID3D11Texture2D *texture = nullptr;
+		D3D11_TEXTURE2D_DESC textureDesc;
+		int size = 0;
 
-	m_ModelList.push_back(std::pair<string,ModelDefinition>(p_ModelId, std::move(model)));
+		diffuse[i].second->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
+		size += m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
+		SAFE_RELEASE(resource);
+		SAFE_RELEASE(texture);
+		normal[i].second->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
+		size += 4 * textureDesc.Width * textureDesc.Height;
+		SAFE_RELEASE(resource);
+		SAFE_RELEASE(texture);
+
+		specular[i].second->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
+		size += 4 * textureDesc.Width * textureDesc.Height;
+		SAFE_RELEASE(resource);
+		SAFE_RELEASE(texture);
 
 	return true;
 }
-
+	
 bool Graphics::createAnimatedModel(const char *p_ModelId, const char *p_Filename)
 {
 	ModelDefinition model = m_ModelFactory->getInstance()->createAnimatedModel(p_Filename);
@@ -362,6 +378,13 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 	{
 		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
 		{
+			for(int i = 0; i < it->second.numOfMaterials; i++)
+			{
+				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+				m_ReleaseModelTexture(it->second.normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+			}
+
 			m_ModelList.erase(it);
 			return true;
 		}
@@ -616,6 +639,12 @@ void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelT
 {
 	m_LoadModelTexture = p_LoadModelTexture;
 	m_LoadModelTextureUserdata = p_Userdata;
+}
+
+void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)
+{
+	m_ReleaseModelTexture = p_ReleaseModelTexture;
+	m_ReleaseModelTextureUserdata = p_Userdata;
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)

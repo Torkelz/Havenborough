@@ -9,9 +9,9 @@ struct ModelDefinition
 	std::unique_ptr<Buffer> vertexBuffer;
 	std::vector<std::unique_ptr<Buffer>> indexBuffers;
 	Shader *shader;
-	std::vector<ID3D11ShaderResourceView*> diffuseTexture;
-	std::vector<ID3D11ShaderResourceView*> normalTexture;
-	std::vector<ID3D11ShaderResourceView*> specularTexture;
+	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> diffuseTexture;
+	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> normalTexture;
+	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> specularTexture;
 	unsigned int numOfMaterials;
 
 	ModelDefinition() {};
