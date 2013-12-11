@@ -52,7 +52,9 @@ void BaseGameApp::init()
 	m_Graphics->createModel("house1", "assets/House1/House1.tx", false);
 	m_Graphics->linkShaderToModel("BOXShader", "house1");
 
-	m_Graphics->createModel("Test", "assets/Sample165_Animated_Legs.tx", true);
+	//m_Graphics->createModel("Test", "assets/Sample165_Animated_Legs.tx", true);
+	m_Graphics->createModel("Test", "assets/Sample175.tx", true);
+	//m_Graphics->createModel("Test", "assets/AnimatedQuad.tx", true);
 	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("AnimatedShader", "Test");

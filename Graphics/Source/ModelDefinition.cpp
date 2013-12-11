@@ -4,10 +4,17 @@ void Model::getFinalTransform(float p_Time, std::vector<DirectX::XMFLOAT4X4> &re
 {
 	m_Time += p_Time;
 	m_currentFrame++;
-	if (m_currentFrame < 1.0f)
-		m_currentFrame = 1.0f;
+	if (m_currentFrame < 0.0f)
+		m_currentFrame = 0.0f;
 	if (m_currentFrame > 24.0f)
-		m_currentFrame = 1.0f;
+		m_currentFrame = 0.0f;
+
+	//m_currentFrame += p_Time;
+	//while (m_currentFrame >= 24.f)
+	//{
+	//	m_currentFrame -= 24.f;
+	//}
+
 	getAnimation();
 
 	ref = m_FinalTransform;
@@ -17,7 +24,7 @@ void Model::getFinalTransform(float p_Time, std::vector<DirectX::XMFLOAT4X4> &re
 void Model::getAnimation()
 {
 	using namespace DirectX;
-	unsigned int numBones = m_Joints.size();
+	const unsigned int numBones = m_Joints.size();
 	
 	m_FinalTransform.resize(numBones);
 	std::vector<XMFLOAT4X4> toParentTranforms(numBones);
@@ -48,13 +55,15 @@ void Model::getAnimation()
 		XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
 		XMMATRIX identity = XMMatrixIdentity();
 		
-		//offSet = XMMatrixInverse(&XMMatrixDeterminant(offSet), offSet);
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(offSet, toRoot));
+		//offSet = XMMatrixInverse(nullptr, offSet);
+		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(offSet, toRoot)));
 		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(toRoot,offSet)));
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(toRoot,offSet));
+		XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(offSet, toRoot));
+		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(toRoot, offSet)));
 		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(offSet));
 		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);
-		XMStoreFloat4x4(&m_FinalTransform[i], toRoot);
+		//XMStoreFloat4x4(&m_FinalTransform[i], toRoot);
 		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(toRoot));
+		//XMStoreFloat4x4(&m_FinalTransform[i], identity);
 	}
 }

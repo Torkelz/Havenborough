@@ -214,7 +214,10 @@ void DeferredRenderer::renderGeometry()
 			// Send stuff.
 			// The update of the sub resource has to be done externally.
 			
+
+			// ##################### PER OBJECT BUFFERS SHOULD BE MOVED TO THE OBJECT LOOP
 			m_Objects.at(i).m_Model->indexBuffer[j]->setBuffer(0);
+
 			if (m_Objects.at(i).m_Model->animated)
 			{
 				cAnimatedObjectBuffer temp;

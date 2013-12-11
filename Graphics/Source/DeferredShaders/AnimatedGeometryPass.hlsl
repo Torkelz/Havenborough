@@ -78,7 +78,41 @@ struct PSOut
 
 PSIn VS(VSIn input)
 {
-    PSIn output;
+	//PSIn output;
+
+	//// Init array or else we get strange warnings about SV_POSITION.
+	//float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	//weights[0] = input.weights.x;
+	//weights[1] = input.weights.y;
+	//weights[2] = input.weights.z;
+	//weights[3] = 0.0f;//1.0f - weights[0] - weights[1] - weights[2];
+
+	//float3 posL     = float3(0.0f, 0.0f, 0.0f);
+	//float3 normalL  = float3(0.0f, 0.0f, 0.0f);
+	//float3 tangentL  = float3(0.0f, 0.0f, 0.0f);
+	//float3 binormalL  = float3(0.0f, 0.0f, 0.0f);
+	//for(int i = 0; i < 4; ++i)
+	//{
+	//    // Assume no nonuniform scaling when transforming normals, so 
+	//	// that we do not have to use the inverse-transpose.
+	//    posL		+= weights[i] * mul( input.pos,						boneTransform[input.boneId[i] - 1]).xyz;
+	//	normalL		+= weights[i] * mul( input.normal,		(float3x3)	boneTransform[input.boneId[i] - 1]);
+	//	tangentL	+= weights[i] * mul( input.tangent,		(float3x3)	boneTransform[input.boneId[i] - 1]);
+	//	binormalL	+= weights[i] * mul( input.binormal,	(float3x3)	boneTransform[input.boneId[i] - 1]);
+	//}
+ //
+	//output.pos    = mul(float4(posL, 1.0f), mul(world, mul(view, projection)));
+	//output.normal = mul(float4(normalL, 0.0f), mul(worldInvTranspose, view));
+	//	
+	//output.wpos = mul(float4(posL, 1.0f), world);
+	//
+	//output.uvCoord = input.uvCoord;
+	//output.tangent = normalize(mul(tangentL, world));
+	//output.binormal = normalize(mul(binormalL, world)); // Try worldInvTranspose if strange results with lighting.
+
+	//return output;
+
+	PSIn output;
 
 	// Init array or else we get strange warnings about SV_POSITION.
 	float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -87,7 +121,7 @@ PSIn VS(VSIn input)
 	weights[2] = input.weights.z;
 	weights[3] = 0.0f;
 
-	float3 posL			= float3(0.0f, 0.0f, 0.0f);
+	float4 posL			= float4(0.0f, 0.0f, 0.0f, 1.0f);
 	float3 normalL		= float3(0.0f, 0.0f, 0.0f);
 	float3 tangentL		= float3(0.0f, 0.0f, 0.0f);
 	float3 binormalL	= float3(0.0f, 0.0f, 0.0f);
@@ -95,11 +129,12 @@ PSIn VS(VSIn input)
 	{
 	    // Assume no nonuniform scaling when transforming normals, so 
 		// that we do not have to use the inverse-transpose.
-	    posL		+= weights[i] * mul(boneTransform[input.boneId[i] - 1], input.pos).xyz;
+	    posL		+= weights[i] * mul(boneTransform[input.boneId[i] - 1], input.pos);
 		normalL		+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.normal);
 		tangentL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.tangent);
 		binormalL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.binormal);
 	}
+	posL.w = 1.0f;
  
 	// Transform to view space.
 	//vout.PosV    = mul(float4(posL, 1.0f), gWorldView).xyz;
@@ -114,8 +149,8 @@ PSIn VS(VSIn input)
 	//output.pos = mul( projection, mul(view, mul(world, input.pos) ) );
 	//output.wpos = mul(world, input.pos);
 
-	output.pos = mul( projection, mul(view, mul(world, float4(posL, 1.0f)) ) );
-	output.wpos = mul(world, float4(posL, 1.0f));
+	output.pos = mul( projection, mul(view, mul(world, posL) ) );
+	output.wpos = mul(world, posL);
 
 	output.normal = normalize(mul(worldInvTranspose, normalL));
 	output.uvCoord = input.uvCoord;

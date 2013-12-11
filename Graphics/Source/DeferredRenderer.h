@@ -42,6 +42,8 @@ public:
 	/*
 	 * Renderable is a debug struct made with the only purpose to be a placeholder for models
 	 * until the model loader is done.
+	 * ### The inverse transpose world matrix is needed to render animations and is not stored 
+	 * ### anywhere else than here. Remember to move it if this struct is deleted.
 	 */
 	struct Renderable
 	{
