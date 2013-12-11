@@ -14,7 +14,7 @@
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
 #include "WrapperFactory.h"
-#include "ModelLoader.h"
+#include "ModelBinaryLoader.h"
 #include "VRAMMemInfo.h"
 
 using std::string;

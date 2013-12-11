@@ -45,8 +45,6 @@
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
-    <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
-    <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
@@ -75,8 +73,19 @@
       <Filter>TestNetwork</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp" />
-    <ClCompile Include="Source\Loader\TestStaticModelLoader.cpp" />
-    <ClCompile Include="Source\Loader\TestAnimatedModelLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp" />
+    <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp">
+      <Filter>TestBinaryConverter\BinaryConverterImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Loader\TestLoader.cpp">
+      <Filter>TestBinaryConverter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp">
+      <Filter>TestBinaryConverter\BinaryConverterImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Loader\TestBinaryConverter.cpp">
+      <Filter>TestBinaryConverter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
@@ -93,6 +102,12 @@
     </Filter>
     <Filter Include="TestNetwork\NetworkImport">
       <UniqueIdentifier>{8f720b2c-6b2b-48b0-b6c6-0a1c8f14cd18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestBinaryConverter">
+      <UniqueIdentifier>{eb0fdf2b-4829-4a81-85ab-873519d806dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestBinaryConverter\BinaryConverterImport">
+      <UniqueIdentifier>{90796c7f-39f9-4ec3-b868-5f1eaf9cd783}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

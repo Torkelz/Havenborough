@@ -9,17 +9,26 @@
 class ModelConverter
 {
 public:
-	struct VertexBuffer
+	struct VertexBufferAnimation
 	{
 		DirectX::XMFLOAT4 m_Position;
-		DirectX::XMFLOAT3 m_Tangent;
 		DirectX::XMFLOAT3 m_Normal;
 		DirectX::XMFLOAT2 m_UV;
+		DirectX::XMFLOAT3 m_Tangent;
 		DirectX::XMFLOAT3 m_Binormal;
 		DirectX::XMFLOAT3 m_Weight;
 		DirectX::XMFLOAT4 m_Joint;
 	};
 	
+	struct VertexBuffer
+	{
+		DirectX::XMFLOAT4 m_Position;
+		DirectX::XMFLOAT3 m_Normal;
+		DirectX::XMFLOAT2 m_UV;
+		DirectX::XMFLOAT3 m_Tangent;
+		DirectX::XMFLOAT3 m_Binormal;
+	};
+
 	struct MaterialBuffer
 	{
 		std::string material;
@@ -29,14 +38,15 @@ public:
 
 private:
 	std::string m_MeshName;
-	std::vector<ModelLoader::IndexDesc> m_Indices;
+	std::vector<ModelLoader::IndexDesc>* m_Indices;
 
 	float m_Start, m_End;
 	int m_NumberOfFrames;
+	int m_MaterialSize, m_IndexPerMaterialSize, m_ListOfJointsSize;
 	const std::vector<DirectX::XMFLOAT3> *m_Vertices, *m_Normals, *m_Tangents;
-	const std::vector<DirectX::XMFLOAT2> *m_TextureCoord;
+	const std::vector<DirectX::XMFLOAT2>* m_TextureCoord;
 	const std::vector<ModelLoader::Material>* m_Material;
-	const std::vector<std::vector<ModelLoader::IndexDesc>> *m_IndexPerMaterial;
+	const std::vector<std::vector<ModelLoader::IndexDesc>>* m_IndexPerMaterial;
 	const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>* m_WeightsList;
 	const std::vector<ModelLoader::Joint>* m_ListOfJoints;
 
@@ -58,7 +68,7 @@ public:
 	 */
 	void clear();
 
-	void writeFile(std::string p_FilePath);
+	bool writeFile(std::string p_FilePath);
 	
 	void setVertices(const std::vector<DirectX::XMFLOAT3>* p_Vertices);
 
@@ -84,7 +94,7 @@ public:
 
 	void setMeshName(std::string p_MeshName);
 
-private:
+protected:
 	void intToByte(int p_Int, std::ostream* p_Output);
 	void floatToByte(float p_Float, std::ostream* p_Output);
 	void stringToByte(std::string p_String, std::ostream* p_Output);
@@ -93,7 +103,8 @@ private:
 	void createMaterial(std::ostream* p_Output);
 	void createMaterialBuffer(std::ostream* p_Output);
 	void createVertexBuffer(std::ostream* p_Output);
+	void createVertexBufferAnimation(std::ostream* p_Output);
 	void createJointBuffer(std::ostream* p_Output);
-
+private:
 	void clearData();
 };

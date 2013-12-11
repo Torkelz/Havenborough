@@ -8,142 +8,174 @@ ModelBinaryLoader::ModelBinaryLoader()
 
 ModelBinaryLoader::~ModelBinaryLoader()
 {
+	clear();
+}
 
+void ModelBinaryLoader::clear()
+{
+	m_Material.clear();
+	m_Material.shrink_to_fit();
+	m_AnimationVertexBuffer.clear();
+	m_AnimationVertexBuffer.shrink_to_fit();
+	m_Joints.clear();
+	m_Joints.shrink_to_fit();
+	m_VertexBuffer.clear();
+	m_VertexBuffer.shrink_to_fit();
+	m_MaterialBuffer.clear();
+	m_MaterialBuffer.shrink_to_fit();
 }
 
 ModelBinaryLoader::Header ModelBinaryLoader::readHeader(std::istream* p_Input)
 {
 	Header tempHeader;
-	byteToString(p_Input, &tempHeader.m_modelName);
-	byteToInt(p_Input, &tempHeader.m_numMaterial);
-	byteToInt(p_Input, &tempHeader.m_numVertex);
-	byteToInt(p_Input, &tempHeader.m_numMaterialBuffer);
-	byteToInt(p_Input, &tempHeader.m_numJoints);
-	byteToInt(p_Input, &tempHeader.m_numFrames);
+	byteToString(p_Input, tempHeader.m_modelName);
+	byteToInt(p_Input, tempHeader.m_numMaterial);
+	byteToInt(p_Input, tempHeader.m_numVertex);
+	byteToInt(p_Input, tempHeader.m_numMaterialBuffer);
+	byteToInt(p_Input, tempHeader.m_numJoints);
+	byteToInt(p_Input, tempHeader.m_numFrames);
 	return tempHeader;
 }
 
-std::vector<ModelBinaryLoader::Material> ModelBinaryLoader::readMaterial(int p_NumberOfMaterial, std::istream* p_Input)
+std::vector<Material> ModelBinaryLoader::readMaterial(int p_NumberOfMaterial, std::istream* p_Input)
 {
-	ModelBinaryLoader::Material temp;
-	std::vector<ModelBinaryLoader::Material> tempVector;
+	Material temp;
+	std::vector<Material> tempVector;
 	for(int i = 0; i < p_NumberOfMaterial; i++)
 	{
-		byteToString(p_Input, &temp.m_MaterialID);
-		byteToString(p_Input, &temp.m_DiffuseMap);
-		byteToString(p_Input, &temp.m_NormalMap);
-		byteToString(p_Input, &temp.m_SpecularMap);
+		byteToString(p_Input, temp.m_MaterialID);
+		byteToString(p_Input, temp.m_DiffuseMap);
+		byteToString(p_Input, temp.m_NormalMap);
+		byteToString(p_Input, temp.m_SpecularMap);
 		tempVector.push_back(temp);
 	}
 	return tempVector;
 }
 
-std::vector<ModelBinaryLoader::MaterialBuffer> ModelBinaryLoader::readMaterialBuffer(int p_NumberOfMaterialBuffers, std::istream* p_Input)
+std::vector<MaterialBuffer> ModelBinaryLoader::readMaterialBuffer(int p_NumberOfMaterialBuffers, std::istream* p_Input)
 {
 	MaterialBuffer temp;
 	std::vector<MaterialBuffer> tempBuffer;
 	for(int i = 0; i < p_NumberOfMaterialBuffers; i++)
 	{
-		byteToString(p_Input, &temp.material);
-		byteToInt(p_Input, &temp.start);
-		byteToInt(p_Input, &temp.length);
+		byteToString(p_Input, temp.material);
+		byteToInt(p_Input, temp.start);
+		byteToInt(p_Input, temp.length);
 		tempBuffer.push_back(temp);
 	}
 	return tempBuffer;
 }
 
-std::vector<ModelBinaryLoader::VertexBuffer> ModelBinaryLoader::readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input)
+std::vector<Vertex> ModelBinaryLoader::readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input)
 {
-	std::vector<VertexBuffer> vertexBuffer(p_NumberOfVertex);
-	int size = sizeof(VertexBuffer) * p_NumberOfVertex;
-	p_Input->read(reinterpret_cast<char*>(vertexBuffer.data()), size);
+	std::vector<Vertex> vertexBuffer(p_NumberOfVertex);
+	p_Input->read(reinterpret_cast<char*>(vertexBuffer.data()), sizeof(Vertex) * p_NumberOfVertex);
 	return vertexBuffer;
 }
 
-std::vector<ModelBinaryLoader::Joint> ModelBinaryLoader::readJointList(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input)
+std::vector<VertexAnimation> ModelBinaryLoader::readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input)
+{
+	std::vector<VertexAnimation> vertexBuffer(p_NumberOfVertex);
+	p_Input->read(reinterpret_cast<char*>(vertexBuffer.data()), sizeof(VertexAnimation) * p_NumberOfVertex);
+	return vertexBuffer;
+}
+
+std::vector<Joint> ModelBinaryLoader::readJointList(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input)
 {
 	std::vector<Joint> readJoints;
 	Joint temp;
 	temp.m_JointAnimation.resize(p_NumberOfFrames);
-	int sizeMATRIX = sizeof(DirectX::XMFLOAT4X4);
-	int sizeKEYFRAMES = sizeof(KeyFrame) * p_NumberOfFrames;
 	for(int i = 0; i < p_NumberOfJoint; i++)
 	{
-		byteToString(p_Input, &temp.m_JointName);
-		byteToInt(p_Input, &temp.m_ID);
-		byteToInt(p_Input, &temp.m_Parent);
-		p_Input->read(reinterpret_cast<char*>(&temp.m_JointOffsetMatrix), sizeMATRIX);
-		p_Input->read(reinterpret_cast<char*>(temp.m_JointAnimation.data()), sizeKEYFRAMES);
+		byteToString(p_Input, temp.m_JointName);
+		byteToInt(p_Input, temp.m_ID);
+		byteToInt(p_Input, temp.m_Parent);
+		p_Input->read(reinterpret_cast<char*>(&temp.m_JointOffsetMatrix), sizeof(DirectX::XMFLOAT4X4));
+		p_Input->read(reinterpret_cast<char*>(temp.m_JointAnimation.data()), sizeof(KeyFrame) * p_NumberOfFrames);
 		readJoints.push_back(temp);
 	}
 	return readJoints;
 }
 
-void ModelBinaryLoader::byteToString(std::istream* p_Input, std::string* p_Return)
+void ModelBinaryLoader::byteToString(std::istream* p_Input, std::string& p_Return)
 {
-	int strLength;
-	byteToInt(p_Input, &strLength);
-	int pos = (int)p_Input->tellg();
-    p_Input->seekg( pos + 1 );
-	char* c = new char[strLength];
-	p_Input->read( c, strLength);
-	*p_Return = std::string(c, strLength);
+	int strLength = 0;
+	byteToInt(p_Input, strLength);
+	std::vector<char> buffer(strLength);
+	p_Input->read( buffer.data(), strLength);
+	p_Return = std::string(buffer.data(), strLength);
 }
 
-void ModelBinaryLoader::byteToInt(std::istream* p_Input, int* p_Return)
+void ModelBinaryLoader::byteToInt(std::istream* p_Input, int& p_Return)
 {
-	char b[4];
-	p_Input->read(b, sizeof(unsigned int));
-	memcpy(p_Return, b, sizeof(unsigned int));
+	p_Input->read((char*)&p_Return, sizeof(unsigned int));
 }
 
-void ModelBinaryLoader::byteToFloat(std::istream* p_Input, float* p_Return)
+void ModelBinaryLoader::byteToFloat(std::istream* p_Input, float& p_Return)
 {
-	char b[4];
-	p_Input->read( b, sizeof(float) );
-	memcpy( p_Return, b, sizeof(float) );
-}
-
-void ModelBinaryLoader::byteToFloat4(std::istream* p_Input, DirectX::XMFLOAT4* p_Return)
-{
-	float tempValue;
-	byteToFloat(p_Input, &tempValue);
-	p_Return->x = tempValue;
-	byteToFloat(p_Input, &tempValue);
-	p_Return->y = tempValue;
-	byteToFloat(p_Input, &tempValue);
-	p_Return->z = tempValue;
-	byteToFloat(p_Input, &tempValue);
-	p_Return->w = tempValue;
-}
-
-void ModelBinaryLoader::byteToFloat3(std::istream* p_Input, DirectX::XMFLOAT3* p_Return)
-{
-	float tempValue;
-	byteToFloat(p_Input, &tempValue);
-	p_Return->x = tempValue;
-	byteToFloat(p_Input, &tempValue);
-	p_Return->y = tempValue;
-	byteToFloat(p_Input, &tempValue);
-	p_Return->z = tempValue;
-}
-
-void ModelBinaryLoader::byteToFloat2(std::istream* p_Input, DirectX::XMFLOAT2* p_Return)
-{
-	float tempValue;
-	byteToFloat(p_Input, &tempValue);
-	p_Return->x = tempValue;
-	byteToFloat(p_Input, &tempValue);
-	p_Return->y = tempValue;
+	p_Input->read(reinterpret_cast<char*>(&p_Return), sizeof(float) );
 }
 
 bool ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 {
+	clearData();
 	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
-	Header fileHeader = readHeader(&input);
-	std::vector<Material> temp = readMaterial(fileHeader.m_numMaterial,&input);
-	std::vector<VertexBuffer> test = readVertexBuffer(fileHeader.m_numVertex, &input);
-	std::vector<MaterialBuffer> testBuf = readMaterialBuffer(fileHeader.m_numMaterialBuffer, &input);
-	std::vector<Joint> testJoint = readJointList(fileHeader.m_numJoints, fileHeader.m_numFrames, &input);
+	if(!input)
+	{
+		return false;
+	}
+	m_FileHeader = readHeader(&input);
+	m_Material = readMaterial(m_FileHeader.m_numMaterial,&input);
+	if(m_FileHeader.m_numJoints > 0)
+	{
+		m_AnimationVertexBuffer = readVertexBufferAnimation(m_FileHeader.m_numVertex, &input);
+		m_Joints = readJointList(m_FileHeader.m_numJoints, m_FileHeader.m_numFrames, &input);
+	}
+	else
+	{
+		m_VertexBuffer = readVertexBuffer(m_FileHeader.m_numVertex, &input);
+	}
+	m_MaterialBuffer = readMaterialBuffer(m_FileHeader.m_numMaterialBuffer, &input);
+	
 	return true;
+}
+
+const std::vector<Material>& ModelBinaryLoader::getMaterial()
+{
+	return m_Material;
+}
+
+const std::vector<VertexAnimation>& ModelBinaryLoader::getAnimationVertexBuffer()
+{
+	return m_AnimationVertexBuffer;
+}
+
+const std::vector<Joint>& ModelBinaryLoader::getJoints()
+{
+	return m_Joints;
+}
+
+const std::vector<Vertex>& ModelBinaryLoader::getVertexBuffer()
+{
+	return m_VertexBuffer;
+}
+
+const std::vector<MaterialBuffer>& ModelBinaryLoader::getMaterialBuffer()
+{
+	return m_MaterialBuffer;
+}
+
+void ModelBinaryLoader::clearData()
+{
+	m_FileHeader.m_modelName = "";
+	m_FileHeader.m_numFrames = 0;
+	m_FileHeader.m_numJoints = 0;
+	m_FileHeader.m_numMaterial = 0;
+	m_FileHeader.m_numMaterialBuffer = 0;
+	m_FileHeader.m_numVertex = 0;
+	m_Material.clear();
+	m_AnimationVertexBuffer.clear();
+	m_Joints.clear();
+	m_VertexBuffer.clear();
+	m_MaterialBuffer.clear();
 }

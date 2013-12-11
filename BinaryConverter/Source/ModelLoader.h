@@ -57,6 +57,8 @@ private:
 	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> m_WeightsList;
 	std::vector<Joint> m_ListOfJoints;
 	
+	std::stringstream m_Stringstream;
+	
 public:
 	
 	/**
@@ -158,7 +160,38 @@ public:
 	 */
 	int getNumberOfFrames();
 
+	/**
+	 * Returns a mesh name.
+	 *
+	 * @returns a string.
+	 */
 	std::string getMeshName();
+
+protected: 
+	void startReading(std::istream& p_Input);
+
+	void readHeader(std::istream& p_Input);
+
+	void readMaterials(std::istream& p_Input);
+
+	void readVertex(std::istream& p_Input); 
+
+	void readNormals(std::istream& p_Input);
+
+	void readUV(std::istream& p_Input);
+
+	void readTangents(std::istream& p_Input);
+
+	void readFaces(std::istream& p_Input);
+
+	void readWeights(std::istream& p_Input);
+
+	void readHierarchy(std::istream& p_Input);
+
+	void readJointOffset(std::istream& p_Input);
+
+	void readAnimation(std::istream& p_Input);
+
 private:
 	void clearData();
 };

@@ -41,19 +41,19 @@ void BaseGameApp::init()
 	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
 	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
 	
-	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
+	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.btx");
 	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("BOXShader", "BOX");
 
-	m_Graphics->createModel("skyBox", "assets/SkyBox/SkyBox.tx");
+	m_Graphics->createModel("skyBox", "assets/SkyBox/SkyBox.btx");
 	m_Graphics->linkShaderToModel("BOXShader", "skyBox");
 
-	m_Graphics->createModel("house1", "assets/House1/House1.tx");
+	m_Graphics->createModel("house1", "assets/House1/House1.btx");
 	m_Graphics->linkShaderToModel("BOXShader", "house1");
 
-	//m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.tx");
-	//m_Graphics->linkShaderToModel("BOXShader", "Dzala");
+	m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.btx");
+	m_Graphics->linkShaderToModel("BOXShader", "Dzala");
 }
 
 void BaseGameApp::run()
@@ -86,9 +86,9 @@ void BaseGameApp::run()
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
-	//int witch = m_Graphics->createModelInstance("Dzala");
-	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
-	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
+	int witch = m_Graphics->createModelInstance("Dzala");
+	m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
+	m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
 
 	float position[] = {0.f, 1.6f, 20.f};
 	float viewRot[] = {0.f, 0.f};
@@ -158,7 +158,7 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);
-		//m_Graphics->renderModel(witch);
+		m_Graphics->renderModel(witch);
 
 		m_Graphics->drawFrame(currView);
 		

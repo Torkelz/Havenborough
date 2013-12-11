@@ -1,5 +1,5 @@
 #include "Graphics.h"
-#include "ModelLoader.h"
+#include "ModelBinaryLoader.h"
 #include <iostream>
 
 #include <boost/filesystem.hpp>
@@ -268,95 +268,43 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 
 void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelLoader modelLoader;
+	ModelBinaryLoader modelLoader;
 	Buffer *vertexBuffer = nullptr;
 
-	modelLoader.loadFile(p_Filename);
+	modelLoader.loadBinaryFile(p_Filename);
 
 	//int nrVertices = modelLoader.getVertices()->size();
-	vector<std::vector<ModelLoader::IndexDesc>>	tempF	= modelLoader.getIndices();
-	vector<DirectX::XMFLOAT3>				tempN	= modelLoader.getNormals();
-	vector<DirectX::XMFLOAT3>				tempT	= modelLoader.getTangents();
-	vector<DirectX::XMFLOAT2>				tempUV = modelLoader.getTextureCoords();
-	vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
-	vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
-	
+	const vector<Vertex>& temp = modelLoader.getVertexBuffer();
+	vertex tempVertex;
+	const vector<Material>& tempMaterial = modelLoader.getMaterial();
+	const vector<MaterialBuffer>& tempMaterialBuffer = modelLoader.getMaterialBuffer();
 
-	vector<vertex> temp;
-	vector<vector<int>> tempI;
-
-	vector<int> I;
-	int indexCounter = 0;
-	for(unsigned int i = 0; i < tempF.size(); i++)
-	{
-		const vector<ModelLoader::IndexDesc>& indexDescList = tempF.at(i);
-
-		I.reserve(indexDescList.size());
-
-		for(unsigned int j = 0; j < indexDescList.size();j++)
-		{
-			const ModelLoader::IndexDesc& indexDesc = indexDescList.at(j);
-
-			temp.push_back(vertex(tempVert.at(indexDesc.m_Vertex),
-									tempN.at(indexDesc.m_Normal),
-									tempUV.at(indexDesc.m_TextureCoord),
-									tempT.at(indexDesc.m_Tangent)));
-
-			temp.back().position.x *= -1.f;
-			temp.back().normal.x *= -1.f;
-			temp.back().tangent.x *= -1.f;
-			temp.back().binormal.x *= -1.f;
-
-			I.push_back(indexCounter);
-			indexCounter++;
-		}
-
-		tempI.push_back(I);
-		I.clear();
-	}
-	
 	// Create Vertex buffer.
 	Buffer::Description bufferDescription;
 	bufferDescription.initData = temp.data();
 	bufferDescription.numOfElements = temp.size();
-	bufferDescription.sizeOfElement = sizeof(Graphics::vertex);
+	bufferDescription.sizeOfElement = sizeof(Vertex);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
 	vertexBuffer = m_WrapperFactory->createBuffer(bufferDescription);
-	temp.clear();
-
-	// Create Index buffer.
-	unsigned int nrIndexBuffers = tempI.size();
-	Buffer **index = new Buffer*[nrIndexBuffers];
-	bufferDescription.type = Buffer::Type::INDEX_BUFFER;
-	//bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE;// Change to default when needed to change data.
-	bufferDescription.sizeOfElement = sizeof(int);
-	
-	//buffer = createBuffer(bufferDescription);
-	
-	for(unsigned int i = 0; i < nrIndexBuffers; i++)
-	{
-		bufferDescription.initData = tempI.at(i).data();
-		bufferDescription.numOfElements = tempI.at(i).size();
-
-		index[i] = WrapperFactory::getInstance()->createBuffer(bufferDescription);
-	}
-	tempI.clear();
-	I.clear();
 
 	boost::filesystem::path modelPath(p_Filename);
 	boost::filesystem::path parentDir(modelPath.parent_path());
 
 	// Load textures.
-	ID3D11ShaderResourceView **diffuse	= new ID3D11ShaderResourceView*[nrIndexBuffers];
-	ID3D11ShaderResourceView **normal	= new ID3D11ShaderResourceView*[nrIndexBuffers];
-	ID3D11ShaderResourceView **specular = new ID3D11ShaderResourceView*[nrIndexBuffers];
-	for(unsigned int i = 0; i < nrIndexBuffers; i++)
+	ID3D11ShaderResourceView **diffuse	= new ID3D11ShaderResourceView*[tempMaterial.size()];
+	ID3D11ShaderResourceView **normal	= new ID3D11ShaderResourceView*[tempMaterial.size()];
+	ID3D11ShaderResourceView **specular = new ID3D11ShaderResourceView*[tempMaterial.size()];
+	vector<std::pair<int,int>> tempInterval(tempMaterial.size());
+	for(unsigned int i = 0; i < tempMaterial.size(); i++)
 	{
-		const ModelLoader::Material& mat = tempM.at(i);
+		const Material& mat = tempMaterial.at(i);
 		boost::filesystem::path diff = (mat.m_DiffuseMap == "NONE") ? "assets/grey.jpg" : parentDir / mat.m_DiffuseMap;
 		boost::filesystem::path norm = (mat.m_NormalMap == "NONE" || mat.m_NormalMap == "Default_NRM.jpg") ? "assets/grey.jpg" : parentDir / mat.m_NormalMap;
 		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE" || mat.m_SpecularMap == "Default_SPEC.jpg") ? "assets/black.jpg" : parentDir / mat.m_SpecularMap;
+
+		tempInterval.at(i).first = tempMaterialBuffer.at(i).start;
+		tempInterval.at(i).second = tempMaterialBuffer.at(i).length;
 
 		diffuse[i]	= m_TextureLoader.createTextureFromFile(diff.string().c_str());
 		normal[i]	= m_TextureLoader.createTextureFromFile(norm.string().c_str());
@@ -364,11 +312,11 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	}
 	Model m;
 	m.vertexBuffer		= vertexBuffer;
-	m.indexBuffer		= index;
+	m.drawInterval		= tempInterval;
 	m.diffuseTexture	= diffuse;
 	m.normalTexture		= normal;
 	m.specularTexture	= specular;
-	m.numOfMaterials	= nrIndexBuffers;
+	m.numOfMaterials	= tempMaterial.size();
 
 	m_ModelList.push_back(std::pair<string,Model>(p_ModelId,m));
 

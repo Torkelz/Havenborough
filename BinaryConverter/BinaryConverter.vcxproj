@@ -81,13 +81,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\ModelBinaryLoader.cpp" />
     <ClCompile Include="Source\BinaryConverter.cpp" />
     <ClCompile Include="Source\ModelConverter.cpp" />
     <ClCompile Include="Source\ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\ModelBinaryLoader.h" />
     <ClInclude Include="Source\ModelConverter.h" />
     <ClInclude Include="Source\ModelLoader.h" />
   </ItemGroup>

@@ -4,7 +4,7 @@
 struct Model
 {
 	Buffer *vertexBuffer;
-	Buffer **indexBuffer;
+	std::vector<std::pair<int,int>> drawInterval;
 	Shader *shader;
 	ID3D11ShaderResourceView **diffuseTexture;
 	ID3D11ShaderResourceView **normalTexture;

@@ -1,6 +1,5 @@
 #include "ModelConverter.h"
 #include "ModelLoader.h"
-#include "ModelBinaryLoader.h"
 #include <iostream>
 
 void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter);
@@ -9,14 +8,22 @@ int main(int argc, char* argv[])
 {
 	ModelLoader loader;
 	ModelConverter converter;
-	ModelBinaryLoader binLoader;
-	loader.loadFile("Sample150.tx");
-	setFileInfo(&loader, &converter);
-	converter.writeFile("Sample150.btx");
-	loader.clear();
-	converter.clear();
-	binLoader.loadBinaryFile("Sample150.btx");
-	system("PAUSE");
+	if(argc == 3)
+	{
+		loader.loadFile(argv[1]);
+		setFileInfo(&loader, &converter);
+		converter.writeFile(argv[2]);
+		loader.clear();
+		converter.clear();
+
+		return EXIT_SUCCESS;
+	}
+	else
+	{
+		std::cout << "Usage: " << argv[0] << " _in_file_ _out_file_" << std::endl;
+	}
+
+	return EXIT_FAILURE;
 }
 
 void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter)
