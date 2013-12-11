@@ -88,8 +88,6 @@ private:
 	float						m_speed;
 	int							xx,yy,zz;
 
-	TextureLoader				*m_TextureLoader; // TEST
-	ID3D11ShaderResourceView	*m_Specular, *m_Diffuse, *m_NormalMap;
 	//TEMP---------------------------------------------------
 
 public:

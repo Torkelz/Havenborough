@@ -8,6 +8,8 @@
 #include "Window.h"
 #include "RAMMemInfo.h"
 
+#include "ResourceManager.h"
+
 #include <string>
 
 #include "../../Graphics/Source/WrapperFactory.h" //Should be removed when merge to master
@@ -29,8 +31,13 @@ private:
 
 	SceneManager m_SceneManager;
 
+	std::string m_ProjectDirectory;
+
 	BodyHandle m_Body, m_Object;
 	IPhysics *m_Physics;
+	ResourceManager* m_ResourceManager;
+
+	std::vector<int> m_ResourceIDs;
 
 public:
 	/**

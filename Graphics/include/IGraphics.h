@@ -48,9 +48,9 @@ public:
 	* @param p_ModelId the ID of the model
 	* @param p_Filename the filename of the model
 	*/
-	virtual void createModel(const char *p_ModelId, const char *p_Filename) = 0;
+	virtual bool createModel(const char *p_ModelId, const char *p_Filename) = 0;
 	//virtual void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
-		//Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent) = 0;
+	virtual bool releaseModel(const char* p_ResourceName) = 0;
 	/**
 	* Automatically creates a shader based on layout in the shader file and stores in a vector connected with and ID.
 	* @param p_ShaderId the ID of the shader
@@ -95,8 +95,17 @@ public:
 	* Creates a new texture and stores in a vector connected with an ID.
 	* @param p_TextureId the ID of the texture
 	* @param p_Filename the filename of the texture
+	* @return true if the texture was successfully loaded, otherwise false
 	*/
-	virtual void createTexture(const char *p_TextureId, const char *p_Filename) = 0;
+	virtual bool createTexture(const char *p_TextureId, const char *p_filename) = 0;
+
+	/**
+	 * Release a previously created texture.
+	 *
+	 * @param p_TextureId the ID of the texture
+	 * @return true if the texture existed and was successfully released.
+	 */
+	virtual bool releaseTexture(const char *p_TextureId) = 0;
 	
 	/**
 	* 
@@ -194,6 +203,9 @@ public:
 	 * @param p_Pitch the camera pitch, positive up.
 	 */
 	virtual void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) = 0;
+	
+	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void* p_Userdata);
+	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) = 0;
 
 private:
 

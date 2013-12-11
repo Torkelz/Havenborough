@@ -1,0 +1,56 @@
+#include "ResourceTranslator.h"
+#include "MyExceptions.h"
+
+#include <vector>
+
+ResourceTranslator::ResourceTranslator()
+{
+
+}
+
+
+ResourceTranslator::~ResourceTranslator()
+{
+
+}
+
+std::string ResourceTranslator::translate(std::string p_ResourceType, std::string p_ResourceName)
+{
+	static const std::pair<std::string, std::string> modelMap[] =
+	{
+		std::make_pair("DZALA", "assets/models/character_witch.tx"),
+		std::make_pair("MARIM", "assets/models/marim.tx"),
+		std::make_pair("HOUSE1", "assets/models/house1.tx"),
+		std::make_pair("BOX", "assets/models/Sample135.tx"),
+		std::make_pair("SKYBOX", "assets/models/SkyBox.tx"),
+	};
+	static const size_t numModels = sizeof(modelMap) / sizeof(modelMap[0]);
+
+	static const std::pair<std::string, std::string> textureMap[] =
+	{
+		std::make_pair("TEXTURE_NOT_FOUND", "assets/textures/TextureNotFound.png"),
+	};
+	static const size_t numTextures = sizeof(textureMap) / sizeof(textureMap[0]);
+
+	static const std::pair<std::string, std::vector<const std::pair<std::string, std::string>>> resourceMaps[] =
+	{
+		std::make_pair("model", std::vector<const std::pair<std::string, std::string>>(modelMap, modelMap + numModels)),
+		std::make_pair("texture", std::vector<const std::pair<std::string, std::string>>(textureMap, textureMap + numTextures)),
+	};
+
+	for (const auto& map : resourceMaps)
+	{
+		if (p_ResourceType == map.first)
+		{
+			for (const auto& m : map.second)
+			{
+				if (m.first == p_ResourceName)
+				{
+					return m.second;
+				}
+			}
+		}
+	}
+	
+	throw ResourceManagerException("Unknown resource: '" + p_ResourceType + ":" + p_ResourceName + "'", __LINE__, __FILE__);
+}
