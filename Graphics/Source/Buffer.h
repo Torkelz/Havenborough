@@ -38,7 +38,7 @@ public:
 		Usage usage;
 		UINT32 numOfElements;
 		UINT32 sizeOfElement;
-		void *initData;
+		const void *initData;
 		bool bindSRV;
 		bool bindUAV;
 

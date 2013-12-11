@@ -46,7 +46,6 @@
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
-    <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
@@ -77,9 +76,22 @@
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="Source\Loader\TestStaticModelLoader.cpp" />
     <ClCompile Include="Source\Loader\TestAnimatedModelLoader.cpp" />
+    <ClCompile Include="..\Client\Source\ResourceManager.cpp">
+      <Filter>TestResourceManager\Import</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\ResourceTranslator.cpp">
+      <Filter>TestResourceManager\Import</Filter>
+    </ClCompile>
+    <ClCompile Include="TestResourceManager.cpp">
+      <Filter>TestResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="TestResouceTranslator.cpp">
+      <Filter>TestResourceManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
+    <FxCompile Include="Source\dummy2.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ClientImport">
@@ -93,6 +105,12 @@
     </Filter>
     <Filter Include="TestNetwork\NetworkImport">
       <UniqueIdentifier>{8f720b2c-6b2b-48b0-b6c6-0a1c8f14cd18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestResourceManager">
+      <UniqueIdentifier>{402429ed-f743-4cbc-b7fa-aa7dfe3a3972}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestResourceManager\Import">
+      <UniqueIdentifier>{4b3bd2f7-232a-4a17-a9e0-3b8189a72ba6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -1,49 +1,12 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "ShaderDeffinitions.h"
 
 class IGraphics
 {
 public:
-	enum class ShaderType
-	{
-		VERTEX_SHADER = 1,
-		PIXEL_SHADER = 2,
-		GEOMETRY_SHADER = 4,
-		HULL_SHADER = 8,
-		DOMAIN_SHADER = 16
-	};
-	inline friend ShaderType operator|(ShaderType a, ShaderType b)
-	{
-		return static_cast<ShaderType>(static_cast<int>(a) | static_cast<int>(b)); 
-	};
-
-	inline friend bool operator&(ShaderType a, ShaderType b)
-	{
-		return static_cast<int>(a) & static_cast<int>(b) ? true : false; 
-	};
-
-	enum class Format
-	{
-		R32G32B32A32_FLOAT = 2,
-		R32G32B32A32_UINT = 3,
-		R32G32B32_FLOAT = 6,
-		R32G32B32_UINT = 7,
-		R32G32_FLOAT = 16,
-		R32G32_UINT = 17,
-		R8G8B8A8_UNORM = 28,
-	};
-
-	struct ShaderInputElementDescription
-	{
-		LPCSTR semanticName;
-		UINT semanticIndex; 
-		Format format;
-		UINT inputSlot;
-		UINT alignedByteOffset;
-		UINT inputSlotClass;
-		UINT instanceDataStepRate;
-	};
+	
 
 	virtual ~IGraphics(void)
 	{}
@@ -85,9 +48,9 @@ public:
 	* @param p_ModelId the ID of the model
 	* @param p_Filename the filename of the model
 	*/
-	virtual void createModel(const char *p_ModelId, const char *p_Filename) = 0;
+	virtual bool createModel(const char *p_ModelId, const char *p_Filename) = 0;
 	//virtual void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
-		//Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent) = 0;
+	virtual bool releaseModel(const char* p_ResourceName) = 0;
 	/**
 	* Automatically creates a shader based on layout in the shader file and stores in a vector connected with and ID.
 	* @param p_ShaderId the ID of the shader
@@ -95,7 +58,7 @@ public:
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
 	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
-	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0"
 	* @param p_ShaderType the shader types to be created, can be combined as
 	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER
 	*/
@@ -110,7 +73,7 @@ public:
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
 	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
-	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0"
 	* @param p_ShaderType the shader types to be created, can be combined as
 	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER,
 	*		 note that vertex shader needs to be included or an exception will be thrown
@@ -132,8 +95,17 @@ public:
 	* Creates a new texture and stores in a vector connected with an ID.
 	* @param p_TextureId the ID of the texture
 	* @param p_Filename the filename of the texture
+	* @return true if the texture was successfully loaded, otherwise false
 	*/
-	virtual void createTexture(const char *p_TextureId, const char *p_Filename) = 0;
+	virtual bool createTexture(const char *p_TextureId, const char *p_filename) = 0;
+
+	/**
+	 * Release a previously created texture.
+	 *
+	 * @param p_TextureId the ID of the texture
+	 * @return true if the texture existed and was successfully released.
+	 */
+	virtual bool releaseTexture(const char *p_TextureId) = 0;
 	
 	/**
 	* 
@@ -179,7 +151,6 @@ public:
 	
 	/**
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
-	 *
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.
 	 * @return a unique id used to reference the instance with in later calls.
 	 */
@@ -232,6 +203,9 @@ public:
 	 * @param p_Pitch the camera pitch, positive up.
 	 */
 	virtual void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) = 0;
+	
+	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void* p_Userdata);
+	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) = 0;
 
 private:
 

@@ -5,6 +5,7 @@ const double pi = 3.14159265358979323846264338;
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
+
 void BaseGameApp::init()
 {
 	m_SceneManager.init();
@@ -14,6 +15,12 @@ void BaseGameApp::init()
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+	m_ResourceManager = new ResourceManager();
+	using namespace std::placeholders;
+	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
+	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
+	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -38,7 +45,6 @@ void BaseGameApp::init()
 	m_Connected = false;
 	
 	m_Physics = IPhysics::createPhysics();
-
 	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 1.6f);
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
 	
@@ -48,25 +54,32 @@ void BaseGameApp::init()
 	m_JumpForceTime = 0.2f;
 	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
 	
-	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
-	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("BOXShader", "BOX");
+	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
+							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	m_Graphics->createModel("skyBox", "assets/SkyBox/SkyBox.tx");
-	m_Graphics->linkShaderToModel("BOXShader", "skyBox");
+	static const std::string preloadedModels[] =
+	{
+		"BOX",
+		"SKYBOX",
+		"HOUSE1",
+		//"DZALA",
+	};
 
-	m_Graphics->createModel("house1", "assets/House1/House1.tx");
-	m_Graphics->linkShaderToModel("BOXShader", "house1");
+	for (const std::string& model : preloadedModels)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
+	}
 
-	//m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.tx");
-	//m_Graphics->linkShaderToModel("BOXShader", "Dzala");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
+	m_MemoryInfo.update();
+	std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
+	std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 }
 
 void BaseGameApp::run()
 {
 	m_ShouldQuit = false;
-
 	int currView = 3; // FOR DEBUGGING
 
 	//BodyHandle groundBody = m_Physics->createAABB(1.f, true, Vector3(-20.f, -1.f, -20.f), Vector3(20.f, 0.f, 20.f));
@@ -83,17 +96,17 @@ void BaseGameApp::run()
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 	}
 	
-	int skyBox = m_Graphics->createModelInstance("skyBox");
+	int skyBox = m_Graphics->createModelInstance("SKYBOX");
 	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
 
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
 
-	int house = m_Graphics->createModelInstance("house1");
+	int house = m_Graphics->createModelInstance("HOUSE1");
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
-	//int witch = m_Graphics->createModelInstance("Dzala");
+	//int witch = m_Graphics->createModelInstance("DZALA");
 	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
 	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
 
@@ -214,7 +227,9 @@ void BaseGameApp::run()
 		m_Graphics->drawFrame(currView);
 		
 		m_MemoryInfo.update();
-		
+		m_MemoryInfo.update();
+		std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
+		std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 		updateDebugInfo(dt);
 
 		m_InputQueue.onFrame();
@@ -329,6 +344,12 @@ void BaseGameApp::run()
 
 void BaseGameApp::shutdown()
 {
+	for (int i : m_ResourceIDs)
+	{
+		m_ResourceManager->releaseResource(i);
+	}
+	m_ResourceIDs.clear();
+
 	m_InputQueue.destroy();
 	
 	IGraphics::deleteGraphics(m_Graphics);

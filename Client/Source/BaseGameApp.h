@@ -8,6 +8,8 @@
 #include "Window.h"
 #include "RAMMemInfo.h"
 
+#include "ResourceManager.h"
+
 #include <string>
 
 #include "../../Graphics/Source/WrapperFactory.h" //Should be removed when merge to master
@@ -34,8 +36,11 @@ private:
 	Vector4 m_PrevForce;
 	SceneManager m_SceneManager;
 
-	BodyHandle m_Player, m_Ground;
+	BodyHandle m_Body, m_Object;
 	IPhysics *m_Physics;
+	ResourceManager* m_ResourceManager;
+
+	std::vector<int> m_ResourceIDs;
 
 public:
 	/**
