@@ -11,6 +11,7 @@
 #include "LightStructs.h"
 #include "TextureLoader.h"
 #include "ModelDefinition.h"
+#include "VRAMMemInfo.h"
 
 
 
@@ -38,10 +39,10 @@ public:
 	 */
 	struct Renderable
 	{
-		Model				*m_Model;
+		ModelDefinition				*m_Model;
 		const DirectX::XMFLOAT4X4 *m_World;
 
-		Renderable(Model *p_Model, const DirectX::XMFLOAT4X4* p_World)
+		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4* p_World)
 		{
 			m_Model = p_Model;
 			m_World = p_World;
@@ -78,17 +79,15 @@ private:
 	Buffer						*m_ObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
 
-	DirectX::XMFLOAT3			m_CameraPosition;
-	DirectX::XMFLOAT4X4			m_ViewMatrix;
-	DirectX::XMFLOAT4X4			m_ProjectionMatrix;
+	DirectX::XMFLOAT3			*m_CameraPosition;
+	DirectX::XMFLOAT4X4			*m_ViewMatrix;
+	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
 
 	//TEMP--------------------------------------------------
 	float						m_speed;
 	int							xx,yy,zz;
 
-	TextureLoader				*m_TextureLoader; // TEST
-	ID3D11ShaderResourceView	*m_Specular, *m_Diffuse, *m_NormalMap;
 	//TEMP---------------------------------------------------
 
 public:
@@ -109,8 +108,8 @@ public:
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 		ID3D11DepthStencilView *p_DepthStencilView,
 		unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-		const DirectX::XMFLOAT3& p_CameraPosition, const DirectX::XMFLOAT4X4& p_ViewMatrix,
-		const DirectX::XMFLOAT4X4& p_ProjectionMatrix);
+		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+		DirectX::XMFLOAT4X4 *p_ProjectionMatrix);
 
 	/*
 	 * Call to render the graphics using deferred rendering.
@@ -137,22 +136,6 @@ public:
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
 
-	/**
-	 * Update the view matrix. Remember to also update the
-	 * camera position if it has changed.
-	 *
-	 * @param p_ViewMat the new view matrix.
-	 */
-	void updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat);
-
-	/**
-	 * Update the camera position. Remember to also update the
-	 * view matrix if it has changed.
-	 *
-	 * @param p_CameraPos the new camera position in absolute world coordinates.
-	 */
-	void updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos);
-	
 private:
 	void renderGeometry();
 

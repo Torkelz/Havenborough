@@ -10,7 +10,7 @@ public:
 	stubBody()
 	{
 		m_Mass				= 1.f;	
-		m_Position			= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+		m_Position			= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 		m_NetForce			= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Velocity			= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Acceleration		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(BodyTest_SetPosition)
 	BOOST_CHECK_EQUAL(fakeBody.getPosition().x, 0.f);
 	BOOST_CHECK_EQUAL(fakeBody.getPosition().y, 0.f);
 	BOOST_CHECK_EQUAL(fakeBody.getPosition().z, 0.f);
-	BOOST_CHECK_EQUAL(fakeBody.getPosition().w, 0.f);
+	BOOST_CHECK_EQUAL(fakeBody.getPosition().w, 1.f);
 
 	fakeBody.setPosition(DirectX::XMFLOAT4(5.f, 10.f, 15.f, 1.f));
 	fakeBody.setPosition(DirectX::XMFLOAT4(5.f, 10.f, 15.f, 1.f));
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(BodyTest_Update)
 
 	fakeBody.addForce(DirectX::XMFLOAT4(5.f, 0.f, 0.f, 0.f));
 
-	float timestep = (1/60) / 1000;
+	float timestep = 1.f / 60.f;
 
 	fakeBody.update(timestep);
 
@@ -120,14 +120,14 @@ BOOST_AUTO_TEST_CASE(BodyTest_Update)
 	BOOST_CHECK_EQUAL(m_Acceleration.z, 0.f);
 
 	DirectX::XMFLOAT4 m_LastAcceleration = fakeBody.getLastACC();
-	BOOST_CHECK_EQUAL(m_LastAcceleration.x, 5.f);
+	BOOST_CHECK_EQUAL(m_LastAcceleration.x, 0.f);
 	BOOST_CHECK_EQUAL(m_LastAcceleration.y, 0.f);
 	BOOST_CHECK_EQUAL(m_LastAcceleration.z, 0.f);
 
 	fakeBody.update(timestep);
 
 	m_LastAcceleration = fakeBody.getLastACC();
-	BOOST_CHECK_EQUAL(m_LastAcceleration.x, 5.f);
+	BOOST_CHECK_EQUAL(m_LastAcceleration.x, 2.5f);
 	BOOST_CHECK_EQUAL(m_LastAcceleration.y, 0.f);
 	BOOST_CHECK_EQUAL(m_LastAcceleration.z, 0.f);
 

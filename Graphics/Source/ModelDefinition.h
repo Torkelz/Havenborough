@@ -1,13 +1,43 @@
 #pragma once
 #include "WrapperFactory.h"
 
-struct Model
+#include <memory>
+#include <vector>
+
+struct ModelDefinition
 {
-	Buffer *vertexBuffer;
-	Buffer **indexBuffer;
+	std::unique_ptr<Buffer> vertexBuffer;
+	std::vector<std::unique_ptr<Buffer>> indexBuffers;
 	Shader *shader;
-	ID3D11ShaderResourceView **diffuseTexture;
-	ID3D11ShaderResourceView **normalTexture;
-	ID3D11ShaderResourceView **specularTexture;
+	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> diffuseTexture;
+	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> normalTexture;
+	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> specularTexture;
 	unsigned int numOfMaterials;
+
+	ModelDefinition() {};
+	ModelDefinition(ModelDefinition&& p_Other)
+		:	vertexBuffer(std::move(p_Other.vertexBuffer)),
+			indexBuffers(std::move(p_Other.indexBuffers)),
+			shader(p_Other.shader),
+			diffuseTexture(p_Other.diffuseTexture),
+			normalTexture(p_Other.normalTexture),
+			specularTexture(p_Other.specularTexture),
+			numOfMaterials(p_Other.numOfMaterials)
+	{}
+
+	ModelDefinition& operator=(ModelDefinition&& p_Other)
+	{
+		std::swap(vertexBuffer, p_Other.vertexBuffer);
+		std::swap(indexBuffers, p_Other.indexBuffers);
+		std::swap(shader, p_Other.shader);
+		std::swap(diffuseTexture, p_Other.diffuseTexture);
+		std::swap(normalTexture, p_Other.normalTexture);
+		std::swap(specularTexture, p_Other.specularTexture);
+		std::swap(numOfMaterials, p_Other.numOfMaterials);
+
+		return *this;
+	}
+
+private:
+	ModelDefinition(const ModelDefinition&);
 };

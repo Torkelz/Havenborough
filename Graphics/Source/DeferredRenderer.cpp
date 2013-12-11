@@ -1,6 +1,10 @@
 #include "DeferredRenderer.h"
 
 DeferredRenderer::DeferredRenderer(void)
+	:	m_ObjectConstantBuffer(nullptr),
+		m_lightBufferSRV(nullptr),
+		m_BlendState(nullptr),
+		m_BlendState2(nullptr)
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
@@ -20,6 +24,9 @@ DeferredRenderer::DeferredRenderer(void)
 	m_LightShader = nullptr;
 	m_ConstantBuffer = nullptr;
 	m_AllLightBuffer = nullptr;
+	m_ViewMatrix = nullptr;
+	m_ProjectionMatrix = nullptr;
+	m_CameraPosition = nullptr;
 
 	m_speed = 1.0f;
 }
@@ -32,6 +39,9 @@ DeferredRenderer::~DeferredRenderer(void)
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
 	m_DepthStencilView = nullptr;
+	m_ViewMatrix = nullptr;
+	m_ProjectionMatrix = nullptr;
+	m_CameraPosition = nullptr;
 
 	for(int i = 0; i < m_numRenderTargets; i++)
 	{
@@ -42,19 +52,23 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_RELEASE(m_NormalSRV);
 	SAFE_RELEASE(m_LightSRV);
 	SAFE_RELEASE(m_wPositionSRV);
+	SAFE_RELEASE(m_lightBufferSRV);
 
 	SAFE_RELEASE(m_Sampler);
 	SAFE_DELETE(m_LightShader);
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
+
+	SAFE_RELEASE(m_BlendState);
+	SAFE_RELEASE(m_BlendState2);
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 								  ID3D11DepthStencilView *p_DepthStencilView,
 								  unsigned int p_screenWidth, unsigned int p_screenHeight,
-								  const DirectX::XMFLOAT3& p_CameraPosition, const DirectX::XMFLOAT4X4& p_ViewMatrix,
-								  const DirectX::XMFLOAT4X4& p_ProjectionMatrix)
+								  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+								  DirectX::XMFLOAT4X4 *p_ProjectionMatrix)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -127,6 +141,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 			}
 		}
 	}
+
 	//This buffer is supposed to be moved to non temporary code
 	Buffer::Description cbdesc;
 	cbdesc.initData = m_Lights.data();
@@ -139,12 +154,6 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_AllLightBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	//m_AllLightBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 	m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
-
-	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
-	m_Specular = nullptr;//m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
-	m_Diffuse = nullptr;//m_TextureLoader->createTextureFromFile("../../Graphics/Resources/uv alpha.png");
-	m_NormalMap = nullptr;//m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_NRM_RGB.jpg");
-
 
 	// TEMPORARY ----------------------------------------------------------------
 	createConstantBuffer(xx*yy*zz + 1);
@@ -205,16 +214,16 @@ void DeferredRenderer::renderGeometry()
 		m_Objects.at(i).m_Model->vertexBuffer->setBuffer(0);
 		for(unsigned int j = 0; j < m_Objects.at(i).m_Model->numOfMaterials;j++)
 		{
-			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[j], 
-													m_Objects.at(i).m_Model->normalTexture[j], 
-													m_Objects.at(i).m_Model->specularTexture[j] 
+			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[j].second, 
+													m_Objects.at(i).m_Model->normalTexture[j].second, 
+													m_Objects.at(i).m_Model->specularTexture[j].second 
 												};
 			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 			updateConstantBuffer(int(i));
 			// Send stuff.
 			// The update of the sub resource has to be done externally.
 			
-			m_Objects.at(i).m_Model->indexBuffer[j]->setBuffer(0);
+			m_Objects.at(i).m_Model->indexBuffers[j]->setBuffer(0);
 			cObjectBuffer temp;
 			temp.world = *m_Objects.at(i).m_World;
 			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
@@ -226,7 +235,7 @@ void DeferredRenderer::renderGeometry()
 			m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
 
 			//m_DeviceContext->Draw(m_Objects.at(i).m_Model->vertexBuffer->getNumOfElements(), 0);
-			m_DeviceContext->DrawIndexed(m_Objects.at(i).m_Model->indexBuffer[j]->getNumOfElements(),0, 0);
+			m_DeviceContext->DrawIndexed(m_Objects.at(i).m_Model->indexBuffers[j]->getNumOfElements(),0, 0);
 
 			m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
 			m_ObjectConstantBuffer->unsetBuffer(2);
@@ -306,22 +315,12 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 	}
 }
 
-void DeferredRenderer::updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat)
-{
-	m_ViewMatrix = p_ViewMat;
-}
-
-void DeferredRenderer::updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos)
-{
-	m_CameraPosition = p_CameraPos;
-}
-
 void DeferredRenderer::updateConstantBuffer(int nrLights)
 {
 	cBuffer cb;
-	cb.view = m_ViewMatrix;
-	cb.proj = m_ProjectionMatrix;
-	cb.campos = m_CameraPosition;
+	cb.view = *m_ViewMatrix;
+	cb.proj = *m_ProjectionMatrix;
+	cb.campos = *m_CameraPosition;
 	cb.nrLights = nrLights;
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
 }
@@ -371,8 +370,16 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 	if(FAILED(result))
 		return result;
 
-	srvt0 = srvt1 = srvt2 = srvt3 = nullptr;
+	SAFE_RELEASE(srvt0);
+	SAFE_RELEASE(srvt1);
+	SAFE_RELEASE(srvt2);
+	SAFE_RELEASE(srvt3);
+	//srvt0 = srvt1 = srvt2 = srvt3 = nullptr;
 	// Done with the render targets.
+
+	unsigned int size = 4 * VRAMMemInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
+	VRAMMemInfo::getInstance()->updateUsage(size);
+
 	return result;
 }
 
@@ -391,6 +398,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	// Make the diffuse texture from the render target.	
 	m_RenderTargets[0]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_DiffuseSRV);
+	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
@@ -398,6 +406,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	// Make the normal texture from the render target.
 	m_RenderTargets[1]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_NormalSRV);
+	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
@@ -405,6 +414,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	// Make the world position texture from the render target.
 	m_RenderTargets[2]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_wPositionSRV);
+	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
@@ -412,6 +422,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	// Make the final texture from the render target.
 	m_RenderTargets[3]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_LightSRV);
+	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
@@ -422,9 +433,9 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 void DeferredRenderer::createConstantBuffer(int nrLights)
 {
 	cBuffer cb;
-	cb.view = m_ViewMatrix;
-	cb.proj = m_ProjectionMatrix;
-	cb.campos = m_CameraPosition;
+	cb.view = *m_ViewMatrix;
+	cb.proj = *m_ProjectionMatrix;
+	cb.campos = *m_CameraPosition;
 	cb.nrLights = nrLights;
 
 	Buffer::Description cbdesc;
@@ -440,6 +451,8 @@ void DeferredRenderer::createConstantBuffer(int nrLights)
 	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
 	m_ObjectConstantBuffer = new Buffer();
 	m_ObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
+
+	VRAMMemInfo::getInstance()->updateUsage(cbdesc.sizeOfElement + sizeof(cBuffer));
 }
 
 void DeferredRenderer::clearRenderTargets()

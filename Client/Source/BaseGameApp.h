@@ -8,6 +8,8 @@
 #include "Window.h"
 #include "RAMMemInfo.h"
 
+#include "ResourceManager.h"
+
 #include <string>
 
 #include "../../Graphics/Source/WrapperFactory.h" //Should be removed when merge to master
@@ -29,10 +31,18 @@ private:
 	bool	m_ShouldQuit;
 	bool	m_Connected;
 
+	bool	m_Jump;
+	float	m_JumpTime;
+	float	m_JumpForce;
+	float	m_JumpForceTime;
+	Vector4 m_PrevForce;
 	SceneManager m_SceneManager;
 
-	BodyHandle m_Body, m_Object;
+	BodyHandle m_Player, m_Ground;
 	IPhysics *m_Physics;
+	ResourceManager* m_ResourceManager;
+
+	std::vector<int> m_ResourceIDs;
 
 public:
 	/**

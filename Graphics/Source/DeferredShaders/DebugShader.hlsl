@@ -33,7 +33,8 @@ VSOutput VS( uint vID : SV_VERTEXID )
 float4 PS( VSOutput input ) :  SV_Target0
 {
 	float2 screenPos = input.texCoord;
-
+	//uint3 texCoord = uint3(input.texCoord, 0);
 	// Sample the texture and draw it on the screen quad.
 	return float4(debugTex.Sample(m_textureSampler, screenPos).xyz,1.0f);
+	//return float4(debugTex.Load(texCoord).xyz, 1.0f);
 }

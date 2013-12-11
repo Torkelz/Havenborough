@@ -9,6 +9,7 @@ const double pi = 3.14159265358979323846264338;
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
+
 void BaseGameApp::init()
 {
 	Logger::log(Logger::Level::INFO, "Initializing game app");
@@ -27,6 +28,13 @@ void BaseGameApp::init()
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
+	m_ResourceManager = new ResourceManager();
+	using namespace std::placeholders;
+	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
+	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
+	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
+	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
+
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 
@@ -39,6 +47,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('C', "connect");
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
+	translator->addKeyboardMapping(VK_SPACE, "jump");
 
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
@@ -56,25 +65,38 @@ void BaseGameApp::init()
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction((IPhysics::clientLogCallback_t)&Logger::log);
 	m_Physics->initialize();
-
+		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
-	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
-	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
+	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 1.6f);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
+
+	m_Jump = false;
+	m_JumpTime = 0.f;
+	m_JumpForce = 2000.f;
+	m_JumpForceTime = 0.2f;
+	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
 	
 	Logger::log(Logger::Level::DEBUG, "Adding debug models");
-	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
-	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("BOXShader", "BOX");
+	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
+							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	m_Graphics->createModel("skyBox", "assets/SkyBox/SkyBox.tx");
-	m_Graphics->linkShaderToModel("BOXShader", "skyBox");
+	static const std::string preloadedModels[] =
+	{
+		"BOX",
+		"SKYBOX",
+		"HOUSE1",
+		//"DZALA",
+	};
 
-	m_Graphics->createModel("house1", "assets/House1/House1.tx");
-	m_Graphics->linkShaderToModel("BOXShader", "house1");
+	for (const std::string& model : preloadedModels)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
+	}
 
-	//m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.tx");
-	//m_Graphics->linkShaderToModel("BOXShader", "Dzala");
+	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
+	m_MemoryInfo.update();
+
 }
 
 void BaseGameApp::run()
@@ -82,7 +104,6 @@ void BaseGameApp::run()
 	Logger::log(Logger::Level::INFO, "Running the game");
 
 	m_ShouldQuit = false;
-
 	int currView = 3; // FOR DEBUGGING
 
 	//BodyHandle groundBody = m_Physics->createAABB(1.f, true, Vector3(-20.f, -1.f, -20.f), Vector3(20.f, 0.f, 20.f));
@@ -101,7 +122,7 @@ void BaseGameApp::run()
 	}
 	
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
-	int skyBox = m_Graphics->createModelInstance("skyBox");
+	int skyBox = m_Graphics->createModelInstance("SKYBOX");
 	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
@@ -109,19 +130,19 @@ void BaseGameApp::run()
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug house");
-	int house = m_Graphics->createModelInstance("house1");
+	int house = m_Graphics->createModelInstance("HOUSE1");
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
 	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
-	//int witch = m_Graphics->createModelInstance("Dzala");
+	//int witch = m_Graphics->createModelInstance("DZALA");
 	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
 	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
 
-	float position[] = {0.f, 1.6f, 20.f};
+	float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
 
-	float speed = 5.f;
+	//float speed = 5.f;
 	float sensitivity = 0.01f;
 
 	float yaw = 0.f;
@@ -140,6 +161,10 @@ void BaseGameApp::run()
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 	currTimeStamp--;
 
+	static const float maxSpeed = 10.f;
+	static const float accConstant = 250.f;
+	//float up = m_Up - m_Down;
+	
 	while (!m_ShouldQuit)
 	{
 		Logger::log(Logger::Level::TRACE, "New frame");
@@ -147,8 +172,7 @@ void BaseGameApp::run()
 		prevTimeStamp = currTimeStamp;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
-
-		m_Physics->update(dt);
+		
 
 		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
 		{
@@ -160,20 +184,61 @@ void BaseGameApp::run()
 		}
 
 		const InputState& state = m_InputQueue.getCurrentState();
+		
+		if(m_Jump)
+		{
+ 			m_JumpTime += dt;
+			if(m_JumpTime > m_JumpForceTime)
+			{
+				m_Physics->applyForce(Vector4(0.f, -m_JumpForce, 0.f, 0.f), m_Player);
+				m_Jump = false;
+				m_JumpTime = 0.f;
+			}
+		}
+
 
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 		float right = state.getValue("moveRight") - state.getValue("moveLeft");
+		
+		float dirZ = 0.f;
+		float dirX = 0.f;
 
 		if (forward != 0.f || right != 0.f)
 		{
 			float dir = atan2f(right, forward) + viewRot[0];
 
-			position[2] -= cosf(dir) * speed * dt;
-			position[0] -= sinf(dir) * speed * dt;
+			dirZ = cosf(dir);
+			dirX = sinf(dir);
 		}
 
-		m_Graphics->updateCamera(position[0], position[1], position[2], viewRot[0], viewRot[1]);
-		m_Graphics->setModelPosition(skyBox, position[0], position[1], position[2]);
+		Vector4 currentVelocity = m_Physics->getVelocity(m_Player);
+		currentVelocity.y = 0.f;
+		Vector4 maxVelocity(-dirX * maxSpeed, 0.f, -dirZ * maxSpeed, 0.f);
+
+		Vector4 diffVel = Vector4(0.f, 0.f, 0.f, 0.f);
+		Vector4 force = Vector4(0.f, 0.f, 0.f, 0.f);
+
+		diffVel.x = maxVelocity.x - currentVelocity.x;
+		diffVel.y = maxVelocity.y - currentVelocity.y;
+		diffVel.z = maxVelocity.z - currentVelocity.z;
+		diffVel.w = 0.f;
+
+		force.x = diffVel.x * accConstant;
+		force.y = diffVel.y * accConstant;
+		force.z = diffVel.z * accConstant;
+		force.w = 0.f;
+
+		Vector4 forceDiff = Vector4(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z, 0.f); 
+		m_PrevForce = force;
+
+		m_Physics->applyForce(forceDiff, m_Player);
+		
+		m_Physics->update(dt);
+
+		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
+
+ 		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
+		m_Graphics->setModelPosition(skyBox, tempPos.x, tempPos.y, tempPos.z);
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -192,7 +257,6 @@ void BaseGameApp::run()
 		m_Graphics->drawFrame(currView);
 		
 		m_MemoryInfo.update();
-		
 		updateDebugInfo(dt);
 
 		m_InputQueue.onFrame();
@@ -251,6 +315,14 @@ void BaseGameApp::run()
 					viewRot[1] = -(float)pi * 0.45f;
 				}
 			}
+			else if( in.m_Action == "jump" && in.m_Value == 1)
+			{
+				if(!m_Jump)
+				{
+					m_Jump = true;
+					m_Physics->applyForce(Vector4(0.f, m_JumpForce, 0.f, 0.f), m_Player);
+				}
+			}
 		}
 		
 		if (m_Connected)
@@ -304,8 +376,15 @@ void BaseGameApp::shutdown()
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
 
-	INetwork::deleteNetwork(m_Network);
+	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
+	
+	for (int i : m_ResourceIDs)
+	{
+		m_ResourceManager->releaseResource(i);
+	}
+	m_ResourceIDs.clear();
+	delete m_ResourceManager;
 
 	m_InputQueue.destroy();
 	
