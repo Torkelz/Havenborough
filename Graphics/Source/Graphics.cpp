@@ -336,32 +336,20 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 		diffuse.push_back( std::make_pair( mat.m_DiffuseMap, getTextureFromList( mat.m_DiffuseMap.c_str() ) ));
 		normal.push_back( std::make_pair( mat.m_NormalMap, getTextureFromList( mat.m_NormalMap.c_str() ) ));
 		specular.push_back( std::make_pair( mat.m_SpecularMap, getTextureFromList( mat.m_SpecularMap.c_str() ) ));
+
 	}
 
-		ID3D11Resource *resource = nullptr;
-		ID3D11Texture2D *texture = nullptr;
-		D3D11_TEXTURE2D_DESC textureDesc;
-		int size = 0;
 
-		diffuse[i].second->GetResource(&resource);
-		resource->QueryInterface(&texture);
-		texture->GetDesc(&textureDesc);
-		size += m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
-		SAFE_RELEASE(resource);
-		SAFE_RELEASE(texture);
-		normal[i].second->GetResource(&resource);
-		resource->QueryInterface(&texture);
-		texture->GetDesc(&textureDesc);
-		size += 4 * textureDesc.Width * textureDesc.Height;
-		SAFE_RELEASE(resource);
-		SAFE_RELEASE(texture);
+	model.vertexBuffer.swap(vertexBuffer);
+	model.indexBuffers.swap(indices);
+	model.diffuseTexture	= diffuse;
+	model.normalTexture		= normal;
+	model.specularTexture	= specular;
+	model.numOfMaterials	= nrIndexBuffers;
 
-		specular[i].second->GetResource(&resource);
-		resource->QueryInterface(&texture);
-		texture->GetDesc(&textureDesc);
-		size += 4 * textureDesc.Width * textureDesc.Height;
-		SAFE_RELEASE(resource);
-		SAFE_RELEASE(texture);
+	m_ModelList.push_back(std::pair<string,ModelDefinition>(p_ModelId, std::move(model)));
+
+	modelLoader.clear();
 
 	return true;
 }
@@ -909,6 +897,9 @@ int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )
 	resourceView->GetResource(&resource);
 	resource->QueryInterface(&texture);
 	texture->GetDesc(&textureDesc);
+
+	SAFE_RELEASE(texture);
+	SAFE_RELEASE(resource);
 
 	return m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
 }
