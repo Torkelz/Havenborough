@@ -8,12 +8,12 @@
 #include <d3d11.h>
 #include <dxgi.h>
 
-#include "Util.h"
 #include "../include/IGraphics.h"
 #include "MyGraphicsExceptions.h"
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
 #include "WrapperFactory.h"
+#include "ModelFactory.h"
 #include "ModelLoader.h"
 #include "VRAMMemInfo.h"
 
@@ -120,6 +120,7 @@ private:
 
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
+	ModelFactory *m_ModelFactory;
 	VRAMMemInfo *m_VRAMMemInfo;
 
 	vector<pair<string, Shader*>> m_ShaderList;

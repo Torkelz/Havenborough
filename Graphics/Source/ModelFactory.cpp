@@ -10,6 +10,11 @@ ModelFactory *ModelFactory::getInstance(void)
 	return m_Instance;
 }
 
+void ModelFactory::shutdown(void)
+{
+	SAFE_DELETE(m_Instance);
+}
+
 ModelClass *ModelFactory::createStaticModel(const char *p_Filename)
 {
 	ModelClass *model = new ModelClass();

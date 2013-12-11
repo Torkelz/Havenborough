@@ -1,5 +1,5 @@
 #pragma once
-#include <string>
+#include "Util.h"
 #include "WrapperFactory.h"
 #include "ModelClass.h"
 
@@ -10,6 +10,8 @@ private:
 
 public:
 	static ModelFactory *getInstance(void);
+
+	virtual void shutdown(void);
 
 	ModelClass *createStaticModel(const char *p_Filename);
 

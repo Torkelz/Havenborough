@@ -17,6 +17,7 @@ Graphics::Graphics(void)
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
 	m_WrapperFactory = nullptr;
+	m_ModelFactory = nullptr;
 	m_DeferredRender = nullptr;
 
 	m_VSyncEnabled = false; //DEBUG
@@ -211,11 +212,10 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_DeviceContext);
 	SAFE_RELEASE(m_Device);
 	SAFE_RELEASE(m_SwapChain);
-	m_WrapperFactory->shutdown();
-	m_WrapperFactory = nullptr;
-	m_VRAMMemInfo->shutdown();
-	m_VRAMMemInfo = nullptr;
-	
+	SAFE_SHUTDOWN(m_WrapperFactory);
+	SAFE_SHUTDOWN(m_ModelFactory);
+	SAFE_SHUTDOWN(m_VRAMMemInfo);
+
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
 
