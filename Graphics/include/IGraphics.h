@@ -1,49 +1,12 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "ShaderDeffinitions.h"
 
 class IGraphics
 {
 public:
-	enum class ShaderType
-	{
-		VERTEX_SHADER = 1,
-		PIXEL_SHADER = 2,
-		GEOMETRY_SHADER = 4,
-		HULL_SHADER = 8,
-		DOMAIN_SHADER = 16
-	};
-	inline friend ShaderType operator|(ShaderType a, ShaderType b)
-	{
-		return static_cast<ShaderType>(static_cast<int>(a) | static_cast<int>(b)); 
-	};
-
-	inline friend bool operator&(ShaderType a, ShaderType b)
-	{
-		return static_cast<int>(a) & static_cast<int>(b) ? true : false; 
-	};
-
-	enum class Format
-	{
-		R32G32B32A32_FLOAT = 2,
-		R32G32B32A32_UINT = 3,
-		R32G32B32_FLOAT = 6,
-		R32G32B32_UINT = 7,
-		R32G32_FLOAT = 16,
-		R32G32_UINT = 17,
-		R8G8B8A8_UNORM = 28,
-	};
-
-	struct ShaderInputElementDescription
-	{
-		LPCSTR semanticName;
-		UINT semanticIndex; 
-		Format format;
-		UINT inputSlot;
-		UINT alignedByteOffset;
-		UINT inputSlotClass;
-		UINT instanceDataStepRate;
-	};
+	
 
 	virtual ~IGraphics(void)
 	{}
@@ -95,7 +58,7 @@ public:
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
 	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
-	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0"
 	* @param p_ShaderType the shader types to be created, can be combined as
 	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER
 	*/
@@ -110,7 +73,7 @@ public:
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
 	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
-	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0"
 	* @param p_ShaderType the shader types to be created, can be combined as
 	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER,
 	*		 note that vertex shader needs to be included or an exception will be thrown
@@ -188,7 +151,6 @@ public:
 	
 	/**
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
-	 *
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.
 	 * @return a unique id used to reference the instance with in later calls.
 	 */

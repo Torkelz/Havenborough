@@ -21,6 +21,7 @@ using std::string;
 using std::vector;
 using std::pair;
 using std::make_pair;
+using namespace DirectX;
 
 class Graphics : public IGraphics
 {
@@ -70,6 +71,29 @@ private:
 		}
 	};
 
+	struct vertex
+	{
+		DirectX::XMFLOAT4 position;
+		DirectX::XMFLOAT3 normal;
+		DirectX::XMFLOAT2 uv;
+		DirectX::XMFLOAT3 tangent;
+		DirectX::XMFLOAT3 binormal;
+		vertex(){}
+		vertex(DirectX::XMFLOAT3 _position,
+			DirectX::XMFLOAT3 _normal,
+			DirectX::XMFLOAT2 _uv,
+			DirectX::XMFLOAT3 _tangent)
+		{
+			position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
+			normal = _normal;
+			uv = _uv;
+			tangent = _tangent;
+
+			//might be wrong
+			DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
+		}
+	};
+
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 
@@ -87,6 +111,10 @@ private:
 	char m_GraphicsCard[128];
 	int m_GraphicsMemory;
 	bool m_VSyncEnabled;
+
+	XMFLOAT4X4 m_ViewMatrix;
+	XMFLOAT4X4 m_ProjectionMatrix;
+	XMFLOAT3 m_Eye;
 
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
@@ -158,35 +186,15 @@ private:
 	HRESULT createDepthStencilState(void);
 	HRESULT createDepthStencilView(void);
 	HRESULT createRasterizerState(void);
-
-	Buffer *createBuffer(Buffer::Description &p_Description);
-	vector<string> createEntryPointList(const char *p_EntryPoint);
-	void Begin(float color[4]);
-	void End(void);
+	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight);
+	
 	Shader *getShaderFromList(string p_Identifier);
 	Model *getModelFromList(string p_Identifier);
 	ID3D11ShaderResourceView* getTextureFromList(string p_Identifier);
 
-	struct vertex
-	{
-		DirectX::XMFLOAT4 position;
-		DirectX::XMFLOAT3 normal;
-		DirectX::XMFLOAT2 uv;
-		DirectX::XMFLOAT3 tangent;
-		DirectX::XMFLOAT3 binormal;
-		vertex(){}
-		vertex(DirectX::XMFLOAT3 _position,
-			DirectX::XMFLOAT3 _normal,
-			DirectX::XMFLOAT2 _uv,
-			DirectX::XMFLOAT3 _tangent)
-		{
-			position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
-			normal = _normal;
-			uv = _uv;
-			tangent = _tangent;
+	void Begin(float color[4]);
+	void End(void);
 
-			//might be wrong
-			DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
-		}
-	};
+	//TODO: Remove later
+	void DebugDefferedDraw(void);
 };

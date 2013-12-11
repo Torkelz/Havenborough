@@ -10,7 +10,6 @@ void BaseGameApp::init()
 {
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
-
 	m_Graphics = IGraphics::createGraphics();
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
@@ -45,17 +44,16 @@ void BaseGameApp::init()
 	m_Connected = false;
 	
 	m_Physics = IPhysics::createPhysics();
-
 	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
 	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
 	
 	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
+							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
-		"SkyBox",
+		"SKYBOX",
 		"HOUSE1",
 		//"DZALA",
 	};
@@ -67,6 +65,9 @@ void BaseGameApp::init()
 	}
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
+	m_MemoryInfo.update();
+	std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
+	std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 }
 
 void BaseGameApp::run()
@@ -88,7 +89,7 @@ void BaseGameApp::run()
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 	}
 	
-	int skyBox = m_Graphics->createModelInstance("SkyBox");
+	int skyBox = m_Graphics->createModelInstance("SKYBOX");
 	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
 
 	int ground = m_Graphics->createModelInstance("BOX");
@@ -175,7 +176,9 @@ void BaseGameApp::run()
 		m_Graphics->drawFrame(currView);
 		
 		m_MemoryInfo.update();
-		
+		m_MemoryInfo.update();
+		std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
+		std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 		updateDebugInfo(dt);
 
 		m_InputQueue.onFrame();
