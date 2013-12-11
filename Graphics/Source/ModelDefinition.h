@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-struct Model
+struct ModelDefinition
 {
 	std::unique_ptr<Buffer> vertexBuffer;
 	std::vector<std::unique_ptr<Buffer>> indexBuffers;
@@ -14,8 +14,8 @@ struct Model
 	std::vector<ID3D11ShaderResourceView*> specularTexture;
 	unsigned int numOfMaterials;
 
-	Model() {};
-	Model(Model&& p_Other)
+	ModelDefinition() {};
+	ModelDefinition(ModelDefinition&& p_Other)
 		:	vertexBuffer(std::move(p_Other.vertexBuffer)),
 			indexBuffers(std::move(p_Other.indexBuffers)),
 			shader(p_Other.shader),
@@ -25,7 +25,7 @@ struct Model
 			numOfMaterials(p_Other.numOfMaterials)
 	{}
 
-	Model& operator=(Model&& p_Other)
+	ModelDefinition& operator=(ModelDefinition&& p_Other)
 	{
 		std::swap(vertexBuffer, p_Other.vertexBuffer);
 		std::swap(indexBuffers, p_Other.indexBuffers);
@@ -39,5 +39,5 @@ struct Model
 	}
 
 private:
-	Model(const Model&);
+	ModelDefinition(const ModelDefinition&);
 };

@@ -1,5 +1,4 @@
 #include "Graphics.h"
-#include "ModelLoader.h"
 
 #include <iostream>
 #include <boost/filesystem.hpp>
@@ -163,6 +162,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	WrapperFactory::initialize(m_Device, m_DeviceContext);	
 	m_WrapperFactory = WrapperFactory::getInstance();
 	m_VRAMMemInfo = VRAMMemInfo::getInstance();
+	m_ModelFactory = ModelFactory::getInstance();
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
@@ -238,119 +238,16 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 
 bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelLoader modelLoader;
+	ModelDefinition m =	m_ModelFactory->getInstance()->createStaticModel(p_Filename);
 
-	modelLoader.loadFile(p_Filename);
+	m_ModelList.push_back(std::pair<string,ModelDefinition>(p_ModelId, std::move(m)));
 
-	//int nrVertices = modelLoader.getVertices()->size();
-	vector<std::vector<ModelLoader::IndexDesc>>	tempF	= modelLoader.getIndices();
-	vector<DirectX::XMFLOAT3>				tempN	= modelLoader.getNormals();
-	vector<DirectX::XMFLOAT3>				tempT	= modelLoader.getTangents();
-	vector<DirectX::XMFLOAT2>				tempUV = modelLoader.getTextureCoords();
-	vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
-	vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
-	
-	vector<vertex> temp;
-	vector<vector<int>> tempI;
-
-	vector<int> I;
-	int indexCounter = 0;
-	for(unsigned int i = 0; i < tempF.size(); i++)
-	{
-		const vector<ModelLoader::IndexDesc>& indexDescList = tempF.at(i);
-
-		I.reserve(indexDescList.size());
-
-		for(unsigned int j = 0; j < indexDescList.size();j++)
-		{
-			const ModelLoader::IndexDesc& indexDesc = indexDescList.at(j);
-
-			temp.push_back(vertex(tempVert.at(indexDesc.m_Vertex),
-									tempN.at(indexDesc.m_Normal),
-									tempUV.at(indexDesc.m_TextureCoord),
-									tempT.at(indexDesc.m_Tangent)));
-
-			temp.back().position.x *= -1.f;
-			temp.back().normal.x *= -1.f;
-			temp.back().tangent.x *= -1.f;
-			temp.back().binormal.x *= -1.f;
-
-			I.push_back(indexCounter);
-			indexCounter++;
-		}
-
-		tempI.push_back(I);
-		I.clear();
-	}
-	
-	// Create Vertex buffer.
-	Buffer::Description bufferDescription;
-	bufferDescription.initData = temp.data();
-	bufferDescription.numOfElements = temp.size();
-	bufferDescription.sizeOfElement = sizeof(Graphics::vertex);
-	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
-	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
-	std::unique_ptr<Buffer> vertexBuffer(m_WrapperFactory->createBuffer(bufferDescription));
-	temp.clear();
-
-	// Create Index buffer.
-	unsigned int nrIndexBuffers = tempI.size();
-	std::vector<std::unique_ptr<Buffer>> indices;
-	bufferDescription.type = Buffer::Type::INDEX_BUFFER;
-	//bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE;// Change to default when needed to change data.
-	bufferDescription.sizeOfElement = sizeof(int);
-	
-	//buffer = createBuffer(bufferDescription);
-	
-	for(unsigned int i = 0; i < nrIndexBuffers; i++)
-	{
-		bufferDescription.initData = tempI.at(i).data();
-		bufferDescription.numOfElements = tempI.at(i).size();
-
-		indices.push_back(std::unique_ptr<Buffer>(WrapperFactory::getInstance()->createBuffer(bufferDescription)));
-	}
-	tempI.clear();
-	I.clear();
-
-	boost::filesystem::path modelPath(p_Filename);
-	boost::filesystem::path parentDir(modelPath.parent_path());
-
-	// Load textures.
-	std::vector<ID3D11ShaderResourceView*> diffuse;
-	std::vector<ID3D11ShaderResourceView*> normal;
-	std::vector<ID3D11ShaderResourceView*> specular;
-	for(unsigned int i = 0; i < nrIndexBuffers; i++)
-	{
-		const ModelLoader::Material& mat = tempM.at(i);
-		boost::filesystem::path diff = (mat.m_DiffuseMap == "NONE") ? "assets/Default/Default_COLOR.jpg" : parentDir / mat.m_DiffuseMap;
-		boost::filesystem::path norm = (mat.m_NormalMap == "NONE" || mat.m_NormalMap == "Default_NRM.jpg") ? "assets/Default/Default_COLOR.jpg" : parentDir / mat.m_NormalMap;
-		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE" || mat.m_SpecularMap == "Default_SPEC.jpg") ? "assets/Default/Default_SPEC.jpg" : parentDir / mat.m_SpecularMap;
-
-		//createTexture(diff.string().c_str(), diff.string().c_str());
-		//createTexture(norm.string().c_str(), norm.string().c_str());
-		//createTexture(spec.string().c_str(), spec.string().c_str());
-
-		m_LoadModelTexture(mat.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
-		m_LoadModelTexture(mat.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);
-		m_LoadModelTexture(mat.m_SpecularMap.c_str(), spec.string().c_str(), m_LoadModelTextureUserdata);
-
-		diffuse.push_back(getTextureFromList( mat.m_DiffuseMap.c_str() ));
-		normal.push_back(getTextureFromList( mat.m_NormalMap.c_str() ));
-		specular.push_back(getTextureFromList( mat.m_SpecularMap.c_str() ));
-	}
-
-	Model m;
-	m.vertexBuffer.swap(vertexBuffer);
-	m.indexBuffers.swap(indices);
-	m.diffuseTexture	= diffuse;
-	m.normalTexture		= normal;
-	m.specularTexture	= specular;
-	m.numOfMaterials	= nrIndexBuffers;
-
-	m_ModelList.push_back(std::pair<string,Model>(p_ModelId, std::move(m)));
-
-	modelLoader.clear();
 	return true;
+}
+
+bool Graphics::createAnimatedModel(const char *p_ModelId, const char *p_Filename)
+{
+	ModelDefinition model = m_ModelFactory->getInstance()->createAnimatedModel(p_Filename);
 }
 
 bool Graphics::releaseModel(const char* p_ResourceName)
@@ -414,7 +311,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 
 void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 {
-	Model *model = nullptr;
+	ModelDefinition *model = nullptr;
 	model = getModelFromList(p_ModelId);
 	if(model != nullptr)
 		model->shader = getShaderFromList(p_ShaderId);
@@ -840,9 +737,9 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 	return ret;
 }
 
-Model *Graphics::getModelFromList(string p_Identifier)
+ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 {
-	Model* ret = nullptr;
+	ModelDefinition* ret = nullptr;
 
 	for(auto & s : m_ModelList)
 	{

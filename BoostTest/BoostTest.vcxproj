@@ -113,6 +113,7 @@
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
+    <ClCompile Include="..\Graphics\Source\ModelFactory.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />

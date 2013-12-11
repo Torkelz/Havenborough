@@ -39,10 +39,10 @@ public:
 	 */
 	struct Renderable
 	{
-		Model				*m_Model;
+		ModelDefinition				*m_Model;
 		const DirectX::XMFLOAT4X4 *m_World;
 
-		Renderable(Model *p_Model, const DirectX::XMFLOAT4X4* p_World)
+		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4* p_World)
 		{
 			m_Model = p_Model;
 			m_World = p_World;

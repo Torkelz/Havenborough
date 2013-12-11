@@ -71,15 +71,15 @@ private:
 		}
 	};
 
-	struct vertex
+	struct Vertex
 	{
 		DirectX::XMFLOAT4 position;
 		DirectX::XMFLOAT3 normal;
 		DirectX::XMFLOAT2 uv;
 		DirectX::XMFLOAT3 tangent;
 		DirectX::XMFLOAT3 binormal;
-		vertex(){}
-		vertex(DirectX::XMFLOAT3 _position,
+		Vertex(){}
+		Vertex(DirectX::XMFLOAT3 _position,
 			DirectX::XMFLOAT3 _normal,
 			DirectX::XMFLOAT2 _uv,
 			DirectX::XMFLOAT3 _tangent)
@@ -122,7 +122,7 @@ private:
 	VRAMMemInfo *m_VRAMMemInfo;
 
 	vector<pair<string, Shader*>> m_ShaderList;
-	vector<pair<string, Model>> m_ModelList;
+	vector<pair<string, ModelDefinition>> m_ModelList;
 	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
 	vector<pair<int, ModelInstance>> m_ModelInstances;
 	int m_NextInstanceId;
@@ -143,6 +143,7 @@ public:
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
 	bool createModel(const char *p_ModelId, const char *p_Filename) override;
+	bool createAnimatedModel(const char *p_ModelId, const char *p_Filename) override;
 	bool releaseModel(const char *p_ModelID) override;
 
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
@@ -189,7 +190,7 @@ private:
 	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight);
 	
 	Shader *getShaderFromList(string p_Identifier);
-	Model *getModelFromList(string p_Identifier);
+	ModelDefinition *getModelFromList(string p_Identifier);
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
 
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);

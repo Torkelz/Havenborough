@@ -37,20 +37,32 @@ public:
 	*/
 	virtual bool reInitialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen) = 0;
 
-	
 	/**
 	* Clear sub resources allocated by the graphics API and delete the pointer. 
 	*/
 	__declspec(dllexport) static void deleteGraphics(IGraphics *p_Graphics);
 
 	/**
-	* Creates a new model and stores in a vector connected with an ID.
+	* Creates a new static model and stores in a vector connected with an ID.
 	* @param p_ModelId the ID of the model
 	* @param p_Filename the filename of the model
 	*/
 	virtual bool createModel(const char *p_ModelId, const char *p_Filename) = 0;
-	//virtual void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
+	
+	/**
+	* Creates a new animated model and stores in a vector connected with an ID.
+	* @param p_ModelId the ID of the model
+	* @param p_Filename the filename of the model
+	*/
+	virtual bool createAnimatedModel(const char *p_ModelId, const char *p_Filename) = 0;
+
+	/**
+	* 
+	* 
+	* 
+	*/
 	virtual bool releaseModel(const char* p_ResourceName) = 0;
+
 	/**
 	* Automatically creates a shader based on layout in the shader file and stores in a vector connected with and ID.
 	* @param p_ShaderId the ID of the shader
@@ -62,8 +74,8 @@ public:
 	* @param p_ShaderType the shader types to be created, can be combined as
 	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER
 	*/
-	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename,
-		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) = 0;
+	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_Type) = 0;
 
 	/**
 	* Creates a new shader object with user defined vertex layout. If shader ID already exists or no vertex shader type 
@@ -80,9 +92,9 @@ public:
 	* @param p_VertexLayout the user defined vertex layout
 	* @param p_NumOfElement the number of elements in the layout
 	*/
-	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename,
-		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
-		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfElements) = 0;
+	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout,
+		unsigned int p_NumOfElements) = 0;
 
 	/**
 	* Establish a map of shader name to a model name.
