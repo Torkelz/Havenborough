@@ -2,6 +2,7 @@
 
 #include "ConnectionController.h"
 #include "NetworkExceptions.h"
+#include "NetworkLogger.h"
 
 ServerAccept::ServerAccept(boost::asio::io_service& p_IO_Service, unsigned short p_Port, std::vector<PackageBase::ptr>& p_Prototypes) 
 		:	m_Acceptor(m_IO_Service, boost::asio::ip::tcp::endpoint( boost::asio::ip::tcp::v4(), p_Port)),
@@ -14,10 +15,13 @@ ServerAccept::ServerAccept(boost::asio::io_service& p_IO_Service, unsigned short
 			m_ClientConnected(nullptr),
 			m_ClientDisconnected(nullptr)
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Creating server acceptor");
 }
 
 ServerAccept::~ServerAccept()
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Destroying server acceptor");
+
 	if (m_Running)
 	{
 		stopServer();
@@ -26,6 +30,8 @@ ServerAccept::~ServerAccept()
 
 void ServerAccept::startServer(unsigned int p_NumThreads)
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Starting server acceptor");
+
 	try
 	{
 		m_Acceptor.async_accept(m_AcceptSocket, std::bind( &ServerAccept::handleAccept, this, std::placeholders::_1));
@@ -33,12 +39,14 @@ void ServerAccept::startServer(unsigned int p_NumThreads)
 	}
 	catch (boost::system::system_error& err)
 	{
-		std::cout << err.what() << std::endl;
+		NetworkLogger::log(NetworkLogger::Level::FATAL, err.what());
 	}
 }
 
 void ServerAccept::stopServer()
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Stopping server acceptor");
+
 	{
 		std::unique_lock<std::mutex> lock(m_ClientLock);
 		for (auto& client : m_ConnectedClients)
@@ -77,9 +85,11 @@ bool ServerAccept::hasError() const
 
 void ServerAccept::handleAccept( const boost::system::error_code& error)
 {
+	NetworkLogger::log(NetworkLogger::Level::TRACE, "Server handling accept");
+
 	if ( error )
 	{  
-		std::cout << error.message() << std::endl;
+		NetworkLogger::log(NetworkLogger::Level::FATAL, error.message().c_str());
 		return;
 	}
 
@@ -112,6 +122,8 @@ void ServerAccept::startThreads(unsigned int p_NumThreads)
 
 	for (unsigned int i = 0; i < p_NumThreads; i++)
 	{
+		NetworkLogger::log(NetworkLogger::Level::DEBUG, "Starting server network IO thread");
+
 		m_WorkerThreads.emplace_back(std::bind(&ServerAccept::IO_Run, this));
 	}
 }
@@ -126,20 +138,23 @@ void ServerAccept::IO_Run()
 			{
 				m_IO_Service.run();
 			}
-			catch (ClientDisconnected& /*err*/)
+			catch (ClientDisconnected& err)
 			{
-				//std::cout << err.what() << std::endl;
+				NetworkLogger::log(NetworkLogger::Level::INFO, "Client disconnected");
+				NetworkLogger::log(NetworkLogger::Level::TRACE, err.what());
 			}
 			catch (NetworkError& err)
 			{
-				std::cout << err.what() << std::endl;
+				NetworkLogger::log(NetworkLogger::Level::WARNING, err.what());
 			}
 		}
 	}
 	catch (...)
 	{
-		int dummy = 42;
+		NetworkLogger::log(NetworkLogger::Level::FATAL, "Unknown exception on network IO thread");
 	}
+	
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Server IO thread done");
 }
 
 void ServerAccept::handleDisconnectCallback(ConnectionController* p_Connection)
@@ -154,6 +169,8 @@ void ServerAccept::handleDisconnectCallback(ConnectionController* p_Connection)
 
 void ServerAccept::removeClient(ConnectionController* p_Connection)
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Removing client connection from server");
+
 	std::unique_lock<std::mutex> lock(m_ClientLock);
 	for (unsigned int i = 0; i < m_ConnectedClients.size(); i++)
 	{

@@ -1,13 +1,19 @@
 #include "Input.h"
 
+#include "../Logger.h"
+
 void Input::init(InputTranslator::ptr p_Translator)
 {
+	Logger::log(Logger::Level::INFO, "Initializing input");
+
 	m_Translator = std::move(p_Translator);
 	m_Translator->setRecordHandler(std::bind(&Input::handleRecords, this, std::placeholders::_1));
 }
 
 void Input::destroy()
 {
+	Logger::log(Logger::Level::INFO, "Shutting down input");
+
 	if (m_Translator)
 	{
 		m_Translator->destroy();
@@ -19,6 +25,8 @@ void Input::destroy()
 
 void Input::onFrame()
 {
+	Logger::log(Logger::Level::TRACE, "Input onFrame");
+
 	m_FrameInputs.clear();
 }
 
@@ -34,6 +42,8 @@ const std::vector<InputRecord>& Input::getFrameInputs() const
 
 void Input::handleRecords(InputRecord p_Record)
 {
+	Logger::log(Logger::Level::TRACE, "Input handling a record");
+
 	m_FrameInputs.push_back(p_Record);
 	m_InputState.updateRecord(p_Record);
 }

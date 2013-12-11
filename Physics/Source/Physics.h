@@ -35,6 +35,8 @@ public:
 
 	//DEBUGGING
 	void moveBodyPosition(Vector3 p_Position, BodyHandle p_Body);
+
+	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 		 
 private:
 	Body* findBody(BodyHandle p_Body);

@@ -141,6 +141,8 @@ public:
 
 	void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) override;
 
+	void setLogFunction(clientLogCallback_t p_LogCallback) override;
+
 private:
 	void shutdown(void) override;
 

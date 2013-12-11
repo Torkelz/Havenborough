@@ -21,6 +21,8 @@ private:
 	IGraphics* m_Graphics;
 	Input	m_InputQueue;
 	RAMMemInfo m_MemoryInfo;
+	float m_MemUpdateDelay;
+	float m_TimeToNextMemUpdate;
 
 	INetwork* m_Network;
 

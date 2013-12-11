@@ -1,6 +1,7 @@
 #include "Connection.h"
 
 #include "NetworkExceptions.h"
+#include "NetworkLogger.h"
 
 Connection::Connection( boost::asio::ip::tcp::socket&& p_Socket) 
 		:   m_Socket(std::move(p_Socket)),
@@ -38,6 +39,8 @@ bool Connection::hasError() const
 
 void Connection::doWrite(const Header& p_Header, const std::string& p_Buffer)
 {
+	NetworkLogger::log(NetworkLogger::Level::TRACE, "Starting a write on a connection");
+
 	m_WriteHeader = p_Header;
 	m_WriteBuffer = p_Buffer;
 
@@ -51,6 +54,8 @@ void Connection::doWrite(const Header& p_Header, const std::string& p_Buffer)
 
 void Connection::handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con)
 {
+	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection handling a write response");
+
 	if (p_Error)
 	{
 		if (p_Error == boost::asio::error::connection_reset
@@ -78,6 +83,8 @@ void Connection::handleWrite(const boost::system::error_code& p_Error, std::size
 
 void Connection::readHeader()
 {
+	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection starting to read header");
+
 	m_Reading = true;
 	boost::asio::async_read(
 		m_Socket,
@@ -87,6 +94,8 @@ void Connection::readHeader()
 
 void Connection::handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con)
 {
+	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection handling a read header response");
+
 	if( p_Error )
 	{
 		if (p_Con->m_Disconnected)
@@ -122,6 +131,8 @@ void Connection::handleReadHeader(const boost::system::error_code& p_Error, std:
 
 void Connection::handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con) 
 {
+	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection handling a read data response");
+
 	if( p_Error )
 	{
 		if (p_Con->m_Disconnected)
@@ -159,6 +170,8 @@ void Connection::handleReadData(const boost::system::error_code& p_Error, std::s
 
 void Connection::writeData(const std::string& p_Buffer, uint16_t p_ID)
 {
+	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection received data to send");
+
 	Header header;
 	header.m_Size = p_Buffer.size() + sizeof(Header);
 	header.m_TypeID = p_ID;

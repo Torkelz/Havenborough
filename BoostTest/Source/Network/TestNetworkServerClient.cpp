@@ -115,6 +115,7 @@ BOOST_AUTO_TEST_CASE(TestNetwork)
 	std::unique_lock<std::mutex> serverLock2(serverClientDisconnect);
 
 	Network serverNetwork;
+	serverNetwork.initialize();
 
 	serverNetwork.createServer(testPort);
 	serverNetwork.setClientConnectedCallback(serverClientConnectedCallback2, nullptr);
@@ -123,6 +124,7 @@ BOOST_AUTO_TEST_CASE(TestNetwork)
 
 	{
 		Network clientNetwork;
+		clientNetwork.initialize();
 
 		clientNetwork.connectToServer("localhost", testPort, clientResponse2, nullptr);
 

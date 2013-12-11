@@ -1,6 +1,7 @@
 #include "ClientConnect.h"
 
 #include "NetworkExceptions.h"
+#include "NetworkLogger.h"
 
 ClientConnect::ClientConnect(boost::asio::io_service& p_IO_Service, const std::string& p_URL, unsigned short p_Port, connectionCallback_t p_ConnectionCallback)
 	:	m_IO_Service(p_IO_Service),
@@ -10,6 +11,8 @@ ClientConnect::ClientConnect(boost::asio::io_service& p_IO_Service, const std::s
 		m_Resolver(m_IO_Service),
 		m_Socket(m_IO_Service)
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Starting a client connection attempt");
+
 	try
 	{
 		using boost::asio::ip::tcp;
@@ -28,6 +31,8 @@ ClientConnect::ClientConnect(boost::asio::io_service& p_IO_Service, const std::s
 
 void ClientConnect::handleResolve(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_ResolveResult)
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Handling resolve response");
+
 	if (p_Error)
 	{
 		if (m_ConnectionCallback)
@@ -47,6 +52,8 @@ void ClientConnect::handleResolve(const boost::system::error_code& p_Error, boos
 
 void ClientConnect::handleConnect(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_Endpoint)
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Handling connect response");
+
 	if (p_Error)
 	{
 		if (m_ConnectionCallback)
@@ -68,5 +75,7 @@ void ClientConnect::handleConnect(const boost::system::error_code& p_Error, boos
 
 boost::asio::ip::tcp::socket ClientConnect::releaseConnectedSocket()
 {
+	NetworkLogger::log(NetworkLogger::Level::TRACE, "Releasing connected socket");
+
 	return std::move(m_Socket);
 }

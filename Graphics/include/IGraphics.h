@@ -1,6 +1,9 @@
 #pragma once
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#include <cstdint>
 
 class IGraphics
 {
@@ -232,6 +235,22 @@ public:
 	 * @param p_Pitch the camera pitch, positive up.
 	 */
 	virtual void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) = 0;
+
+	/**
+	 * Callback for logging.
+	 *
+	 * @param p_Level log priority level. Higher is more important.
+	 * @param p_Message the log message.
+	 */
+	typedef void (*clientLogCallback_t)(uint32_t p_Level, const char* p_Message);
+
+	/**
+	 * Set the function to handle log messages.
+	 *
+	 * @param p_LogCallback the function to be called whenever a message is to
+	 *			be logged from this component. Set to null to disable logging.
+	 */
+	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
 
 private:
 

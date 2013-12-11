@@ -11,12 +11,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Client\Source\Logger.cpp" />
     <ClCompile Include="serverProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Network\Network.vcxproj">
       <Project>{618f0468-d053-4ae2-be83-118fe75c6f2e}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Client\Source\Logger.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{03B04F8A-DF5E-445D-A91D-1C4F7C8398FD}</ProjectGuid>

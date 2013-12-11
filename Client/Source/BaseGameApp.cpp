@@ -1,5 +1,9 @@
 #include "BaseGameApp.h"
 #include "Input\InputTranslator.h"
+#include "Logger.h"
+
+#include <iomanip>
+#include <sstream>
 
 const double pi = 3.14159265358979323846264338;
 
@@ -7,9 +11,17 @@ const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
 void BaseGameApp::init()
 {
+	Logger::log(Logger::Level::INFO, "Initializing game app");
+
+	m_MemUpdateDelay = 0.1f;
+	m_TimeToNextMemUpdate = 0.f;
+
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
+
 	m_Graphics = IGraphics::createGraphics();
+	m_Graphics->setLogFunction((IGraphics::clientLogCallback_t)&Logger::log);
+	
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
@@ -17,6 +29,8 @@ void BaseGameApp::init()
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
+
+	Logger::log(Logger::Level::DEBUG, "Adding input mappings");
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
 	translator->addKeyboardMapping('W', "moveForward");
 	translator->addKeyboardMapping('S', "moveBackward");
@@ -33,14 +47,21 @@ void BaseGameApp::init()
 	translator->addMouseButtonMapping(InputTranslator::MouseButton::MIDDLE, "rollMe!");
 
 	m_InputQueue.init(std::move(translator));
+
 	m_Network = INetwork::createNetwork();
+	m_Network->setLogFunction((INetwork::clientLogCallback_t)&Logger::log);
+	m_Network->initialize();
 	m_Connected = false;
 	
 	m_Physics = IPhysics::createPhysics();
+	m_Physics->setLogFunction((IPhysics::clientLogCallback_t)&Logger::log);
+	m_Physics->initialize();
 
+	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
 	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
 	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
 	
+	Logger::log(Logger::Level::DEBUG, "Adding debug models");
 	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx");
 	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
@@ -58,6 +79,8 @@ void BaseGameApp::init()
 
 void BaseGameApp::run()
 {
+	Logger::log(Logger::Level::INFO, "Running the game");
+
 	m_ShouldQuit = false;
 
 	int currView = 3; // FOR DEBUGGING
@@ -65,6 +88,7 @@ void BaseGameApp::run()
 	//BodyHandle groundBody = m_Physics->createAABB(1.f, true, Vector3(-20.f, -1.f, -20.f), Vector3(20.f, 0.f, 20.f));
 	//BodyHandle playerBody = m_Physics->createSphere(80.f, false, Vector3(0.f, 1.8f, 20.f), 1.8f);
 
+	Logger::log(Logger::Level::DEBUG, "Adding debug box model instances");
 	const static int NUM_BOXES = 16;
 	int boxIds[NUM_BOXES];
 	for (int i = 0; i < NUM_BOXES; i++)
@@ -76,16 +100,20 @@ void BaseGameApp::run()
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 	}
 	
+	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("skyBox");
 	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
 
+	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
 
+	Logger::log(Logger::Level::DEBUG, "Adding debug house");
 	int house = m_Graphics->createModelInstance("house1");
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
+	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
 	//int witch = m_Graphics->createModelInstance("Dzala");
 	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
 	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
@@ -114,6 +142,8 @@ void BaseGameApp::run()
 
 	while (!m_ShouldQuit)
 	{
+		Logger::log(Logger::Level::TRACE, "New frame");
+
 		prevTimeStamp = currTimeStamp;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
@@ -125,8 +155,7 @@ void BaseGameApp::run()
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)
 			{
-				int i = 0;
-				//hit.
+				Logger::log(Logger::Level::DEBUG, "Collision reported");
 			}
 		}
 
@@ -171,6 +200,10 @@ void BaseGameApp::run()
 
 		for (auto& in : m_InputQueue.getFrameInputs())
 		{
+			std::ostringstream msg;
+			msg << "Received input action: " << in.m_Action << " (" << std::setprecision(2) << std::fixed << in.m_Value << ")";
+			Logger::log(Logger::Level::TRACE, msg.str().c_str());
+
 			if (in.m_Action == "exit")
 			{
 				m_ShouldQuit = true;
@@ -185,14 +218,14 @@ void BaseGameApp::run()
 				currView--;
 				if(currView < 0)
 					currView = 3;
-				printf("Changeview--\n", in.m_Action.c_str(), in.m_Value);
+				Logger::log(Logger::Level::DEBUG, "Selecting previous view");
 			}
 			else if(in.m_Action ==  "changeViewP" && in.m_Value == 1)
 			{
 				currView++;
 				if(currView >= 4)
 					currView = 0;
-				printf("Changeview++\n", in.m_Action.c_str(), in.m_Value);
+				Logger::log(Logger::Level::DEBUG, "Selecting next view");
 			}
 			else if (in.m_Action == "mouseMoveHori")
 			{
@@ -218,16 +251,6 @@ void BaseGameApp::run()
 					viewRot[1] = -(float)pi * 0.45f;
 				}
 			}
-			else if (in.m_Action == "mousePosHori")
-			{
-			}
-			else if (in.m_Action == "mousePosVert")
-			{
-			}
-			else
-			{
-				printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
-			}
 		}
 		
 		if (m_Connected)
@@ -239,20 +262,26 @@ void BaseGameApp::run()
 				Package package = conn->getPackage(i);
 				PackageType type = conn->getPackageType(package);
 
+				std::string msg("Received package of type: " + std::to_string((uint16_t)type));
+				Logger::log(Logger::Level::TRACE, msg.c_str());
+
 				switch (type)
 				{
 				case PackageType::ADD_OBJECT:
 					{
 						AddObjectData data = conn->getAddObjectData(package);
-						std::cout << "Adding object at (" 
+						std::ostringstream msg;
+						msg << "Adding object at (" 
 							<< data.m_Position[0] << ", "
 							<< data.m_Position[1] << ", " 
-							<< data.m_Position[2] << ")" << std::endl;
+							<< data.m_Position[2] << ")";
+						Logger::log(Logger::Level::INFO, msg.str().c_str());
 					}
 					break;
 
 				default:
-					std::cout << "Received unhandled package" << std::endl;
+					std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
+					Logger::log(Logger::Level::WARNING, msg.c_str());
 					break;
 				}
 			}
@@ -270,6 +299,14 @@ void BaseGameApp::run()
 
 void BaseGameApp::shutdown()
 {
+	Logger::log(Logger::Level::INFO, "Shutting down the game app");
+
+	IPhysics::deletePhysics(m_Physics);
+	m_Physics = nullptr;
+
+	INetwork::deleteNetwork(m_Network);
+	m_Network = nullptr;
+
 	m_InputQueue.destroy();
 	
 	IGraphics::deleteGraphics(m_Graphics);
@@ -293,6 +330,8 @@ UVec2 BaseGameApp::getWindowSize() const
 
 bool BaseGameApp::handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
 {
+	Logger::log(Logger::Level::DEBUG, "Handling window close");
+
 	m_ShouldQuit = true;
 	p_Result = 0;
 	return true;
@@ -303,16 +342,24 @@ void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
 	if (p_Res == Result::SUCCESS)
 	{
 		((BaseGameApp*)p_UserData)->m_Connected = true;
-		std::cout << "Connected successfully" << std::endl;
+		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
 	else
 	{
-		std::cout << "Connection failed" << std::endl;
+		Logger::log(Logger::Level::WARNING, "Connection failed");
 	}
 }
 
 void BaseGameApp::updateDebugInfo(float p_dt)
 {
+	m_TimeToNextMemUpdate -= p_dt;
+	if (m_TimeToNextMemUpdate > 0.f)
+	{
+		return;
+	}
+
+	m_TimeToNextMemUpdate = m_MemUpdateDelay;
+
 	std::string vMemUsage = "Virtual MemUsage: " + std::to_string(m_MemoryInfo.getVirtualMemoryUsage()) + "MB";
 	std::string pMemUsage = "Physical MemUsage: " + std::to_string(m_MemoryInfo.getPhysicalMemoryUsage()) + "MB";
 	std::string gMemUsage = "Video MemUsage: " + std::to_string(m_Graphics->getVRAMMemUsage()) + "MB";

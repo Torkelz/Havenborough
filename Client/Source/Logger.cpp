@@ -13,6 +13,7 @@ void Logger::log(Level p_Level, const char* p_Message)
 	std::unique_lock<std::mutex> lock(m_Mutex);
 
 	time_t currentTime = time(nullptr);
+#pragma warning (suppress : 4996)
 	tm* currentLocalTime = localtime(&currentTime);
 
 	static const std::string levelNames[] =

@@ -1,5 +1,7 @@
 #include "Physics.h"
 
+#include "PhysicsLogger.h"
+
 using namespace DirectX;
 
 Physics::Physics(void)
@@ -10,12 +12,20 @@ Physics::Physics(void)
 
 Physics::~Physics()
 {
-
 }
 
 IPhysics *IPhysics::createPhysics()
 {
 	return new Physics();
+}
+
+void IPhysics::deletePhysics(IPhysics* p_Physics)
+{
+	if (p_Physics)
+	{
+		PhysicsLogger::log(PhysicsLogger::Level::INFO, "Shutting down physics");
+		delete p_Physics;
+	}
 }
 
 Body* Physics::findBody(BodyHandle p_Body)
@@ -33,6 +43,8 @@ Body* Physics::findBody(BodyHandle p_Body)
 
 void Physics::initialize()
 {
+	PhysicsLogger::log(PhysicsLogger::Level::INFO, "Initializing physics");
+
 	m_Collision = Collision();
 }
 
@@ -201,6 +213,11 @@ void Physics::moveBodyPosition(Vector3 p_Position, BodyHandle p_Body)
 
 	body->setPosition(tempPosition);
 	body->setVelocity(XMFLOAT4(0.f, 0.f, 0.f, 0.f));
+}
+
+void Physics::setLogFunction(clientLogCallback_t p_LogCallback)
+{
+	PhysicsLogger::setLogFunction(p_LogCallback);
 }
 
 //

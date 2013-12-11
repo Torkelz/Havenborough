@@ -1,13 +1,15 @@
 #include "Network.h"
+#include "NetworkLogger.h"
 
 Network::Network()
 	:	m_IO_Started(false)
 {
-	registerPackages();
 }
 
 Network::~Network()
 {
+	NetworkLogger::log(NetworkLogger::Level::INFO, "Shutting down network");
+
 	m_ClientConnection.reset();
 	m_IO_Service.stop();
 
@@ -25,6 +27,13 @@ INetwork *INetwork::createNetwork()
 void INetwork::deleteNetwork(INetwork * p_Network)
 {
 	delete p_Network;
+}
+
+void Network::initialize()
+{
+	NetworkLogger::log(NetworkLogger::Level::INFO, "Initializing network");
+
+	registerPackages();
 }
 
 void Network::createServer(unsigned short p_Port)
@@ -55,6 +64,8 @@ void Network::turnOffServer()
 
 void Network::connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData)
 {
+	NetworkLogger::log(NetworkLogger::Level::INFO, "Connecting to server");
+
 	m_ClientConnection.reset();
 	m_ClientConnect.reset();
 	m_IO_Service.reset();
@@ -74,13 +85,21 @@ IConnectionController* Network::getConnectionToServer()
 	return m_ClientConnection.get();
 }
 
+void Network::setLogFunction(clientLogCallback_t p_LogCallback)
+{
+	NetworkLogger::setLogFunction(p_LogCallback);
+}
+
 void Network::registerPackages()
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Registering packages");
 	m_PackagePrototypes.push_back(PackageBase::ptr(new AddObject));
 }
 
 void Network::startIO()
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Starting a network IO thread for the client");
+
 	m_IO_Started = true;
 	m_IO_Thread.swap(boost::thread(std::bind(&Network::IO_Run, this)));
 }
@@ -91,18 +110,25 @@ void Network::IO_Run()
 	{
 		m_IO_Service.run();
 	}
-	catch (ClientDisconnected& /*err*/)
+	catch (ClientDisconnected& err)
 	{
-		//std::cout << err.what() << std::endl;
+		NetworkLogger::log(NetworkLogger::Level::INFO, "Client disconnected");
+		NetworkLogger::log(NetworkLogger::Level::TRACE, err.what());
 	}
 	catch (NetworkError& err)
 	{
-		std::cout << err.what() << std::endl;
+		NetworkLogger::log(NetworkLogger::Level::FATAL, err.what());
+	}
+	catch (std::exception& err)
+	{
+		NetworkLogger::log(NetworkLogger::Level::FATAL, err.what());
 	}
 	catch (...)
 	{
-		int dummy = 42;
+		NetworkLogger::log(NetworkLogger::Level::FATAL, "Unknown exception on network IO thread");
 	}
+	
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Network IO thread done");
 }
 
 void Network::clientConnectionDone(Result p_Result, actionDoneCallback p_DoneHandler, void* p_UserData)

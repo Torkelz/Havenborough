@@ -38,6 +38,8 @@ public:
 	 */
 	~Network();
 
+	void initialize() override;
+
 	void createServer(unsigned short p_Port) override;
 	void startServer(unsigned int p_NumThreads) override;
 
@@ -48,6 +50,8 @@ public:
 	void connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData) override;
 
 	IConnectionController* getConnectionToServer() override;
+
+	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
 private:
 	void registerPackages();

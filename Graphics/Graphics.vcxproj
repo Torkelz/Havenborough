@@ -98,6 +98,7 @@
     <ClCompile Include="Source\DeferredRenderer.cpp" />
     <ClCompile Include="Source\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\ModelLoader.cpp" />
+    <ClCompile Include="Source\GraphicsLogger.cpp" />
     <ClCompile Include="Source\TextureLoader.cpp" />
     <ClCompile Include="Source\VRAMMemInfo.cpp" />
     <ClCompile Include="Source\WICTextureLoader.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\LightStructs.h" />
     <ClInclude Include="Source\ModelDefinition.h" />
+    <ClInclude Include="Source\GraphicsLogger.h" />
     <ClInclude Include="Source\VRAMMemInfo.h" />
     <ClInclude Include="Source\ModelLoader.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />

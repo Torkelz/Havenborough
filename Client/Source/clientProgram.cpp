@@ -14,7 +14,12 @@ int main(int argc, char* argv[])
 {
 	std::ofstream logFile("logFile.txt", std::ofstream::trunc);
 
-	Logger::addOutput(Logger::Level::DEBUG, logFile);
+#ifdef _DEBUG
+	Logger::addOutput(Logger::Level::TRACE, logFile);
+#else
+	Logger::addOutput(Logger::Level::INFO, logFile);
+#endif
+
 	Logger::addOutput(Logger::Level::INFO, std::cout);
 	Logger::log(Logger::Level::INFO, "Starting game");
 

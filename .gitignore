@@ -31,3 +31,4 @@ testCaseCollection.xml
 *.coverage
 *.cso
 Client/Bin/logFile.txt
+Server/logFile.txt

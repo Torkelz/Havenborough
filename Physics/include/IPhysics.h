@@ -2,10 +2,15 @@
 
 #include "PhysicsTypes.h"
 
+#include <cstdint>
+
 class IPhysics
 {	
 public:
 	__declspec(dllexport) static IPhysics *createPhysics(void);
+	__declspec(dllexport) static void deletePhysics(IPhysics* p_Physics);
+
+	virtual ~IPhysics() {};
 
 	virtual void initialize() = 0;
 	/**
@@ -72,4 +77,20 @@ public:
 	 * A function used for debugging purpose.
 	 */
 	virtual void moveBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
+
+	/**
+	 * Callback for logging.
+	 *
+	 * @param p_Level log priority level. Higher is more important.
+	 * @param p_Message the log message.
+	 */
+	typedef void (*clientLogCallback_t)(uint32_t p_Level, const char* p_Message);
+
+	/**
+	 * Set the function to handle log messages.
+	 *
+	 * @param p_LogCallback the function to be called whenever a message is to
+	 *			be logged from this component. Set to null to disable logging.
+	 */
+	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
 };

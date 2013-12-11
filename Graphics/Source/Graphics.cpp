@@ -1,5 +1,7 @@
 #include "Graphics.h"
+#include "GraphicsLogger.h"
 #include "ModelLoader.h"
+
 #include <iostream>
 
 #include <boost/filesystem.hpp>
@@ -35,6 +37,8 @@ IGraphics *IGraphics::createGraphics()
 
 bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen)
 {	
+	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Initializing graphics");
+
 	HRESULT result;
 	IDXGIFactory *factory;
 	IDXGIAdapter *adapter;
@@ -231,6 +235,8 @@ bool Graphics::reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, 
 
 void Graphics::shutdown(void)
 {
+	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Shutting down graphics");
+
 	if(m_SwapChain)
 	{
 		m_SwapChain->SetFullscreenState(false, NULL);
@@ -709,6 +715,11 @@ void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Ya
 
 	m_DeferredRender->updateViewMatrix(view);
 	m_DeferredRender->updateCameraPosition(DirectX::XMFLOAT3(p_PosX, p_PosY, p_PosZ));
+}
+
+void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
+{
+	GraphicsLogger::setLogFunction(p_LogCallback);
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
