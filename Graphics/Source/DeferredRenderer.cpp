@@ -214,9 +214,9 @@ void DeferredRenderer::renderGeometry()
 		m_Objects.at(i).m_Model->vertexBuffer->setBuffer(0);
 		for(unsigned int j = 0; j < m_Objects.at(i).m_Model->numOfMaterials;j++)
 		{
-			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[j], 
-													m_Objects.at(i).m_Model->normalTexture[j], 
-													m_Objects.at(i).m_Model->specularTexture[j] 
+			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[j].second, 
+													m_Objects.at(i).m_Model->normalTexture[j].second, 
+													m_Objects.at(i).m_Model->specularTexture[j].second 
 												};
 			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 			updateConstantBuffer(int(i));

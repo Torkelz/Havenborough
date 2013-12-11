@@ -134,7 +134,9 @@ private:
 
 	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
 	void* m_LoadModelTextureUserdata;
-
+	
+	IGraphics::releaseModelTextureCallBack m_ReleaseModelTexture;
+	void* m_ReleaseModelTextureUserdata;
 public:
 	Graphics(void);
 	~Graphics(void);
@@ -176,6 +178,7 @@ public:
 	void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) override;
 
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
+	void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void* p_Userdata) override;
 
 private:
 	void shutdown(void) override;

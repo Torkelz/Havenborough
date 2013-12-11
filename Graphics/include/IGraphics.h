@@ -207,6 +207,9 @@ public:
 	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void* p_Userdata);
 	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) = 0;
 
+	typedef void (*releaseModelTextureCallBack)(const char *p_ResourceName, void *p_Userdata);
+	virtual void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata) = 0;
+
 private:
 
 	/**

@@ -19,6 +19,7 @@ void BaseGameApp::init()
 	m_ResourceManager = new ResourceManager();
 	using namespace std::placeholders;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
+	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 
@@ -345,7 +346,7 @@ void BaseGameApp::shutdown()
 		m_ResourceManager->releaseResource(i);
 	}
 	m_ResourceIDs.clear();
-
+	delete m_ResourceManager;
 	m_InputQueue.destroy();
 	
 	IGraphics::deleteGraphics(m_Graphics);

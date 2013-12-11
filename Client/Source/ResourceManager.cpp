@@ -68,7 +68,7 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 				}
 			}
 
-			if(rl.m_Create(p_ResourceName.c_str(), filePath.string().c_str()) )
+			if( rl.m_Create(p_ResourceName.c_str(), filePath.string().c_str()) )
 			{
 				ResourceType::Resource newRes;
 				newRes.m_Name = p_ResourceName;
@@ -111,7 +111,7 @@ int ResourceManager::loadModelTextureImpl(const char *p_ResourceName, const char
 				}
 			}
 
-			if(rl.m_Create(p_ResourceName, p_FilePath) )
+			if( rl.m_Create(p_ResourceName, p_FilePath) )
 			{
 				ResourceType::Resource newRes;
 				newRes.m_Name = p_ResourceName;
@@ -160,6 +160,34 @@ bool ResourceManager::releaseResource(int p_ID)
 #endif
 
 	return false;
+}
 
+void ResourceManager::releaseModelTexture(const char *p_ResourceName, void *p_Userdata)
+{
+	((ResourceManager*)p_Userdata)->releaseModelTextureImpl(p_ResourceName);
+}
+
+void ResourceManager::releaseModelTextureImpl(const char *p_ResourceName)
+{
+	for(auto &rl : m_ResourceList)
+	{
+		for(auto& it = rl.m_LoadedResources.begin(); it != rl.m_LoadedResources.end(); ++it)
+		{
+			auto& r = *it;
+
+			if(strcmp(r.m_Name.c_str(), p_ResourceName) == 0)
+			{
+				r.m_Count--;
+
+				if (r.m_Count <= 0)
+				{
+					rl.m_Release(r.m_Name.c_str());
+					rl.m_LoadedResources.erase(it);
+				}
+
+				break;
+			}
+		}
+	}
 }
 
