@@ -26,6 +26,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('C', "connect");
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
+	translator->addKeyboardMapping('L', "updateCone");
 
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
@@ -167,8 +168,8 @@ void BaseGameApp::run()
 		
 		m_MemoryInfo.update();
 		m_MemoryInfo.update();
-		std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
-		std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
+		//std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
+		//std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 		updateDebugInfo(dt);
 
 		m_InputQueue.onFrame();
@@ -228,6 +229,10 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "mousePosVert")
 			{
+			}
+			else if (in.m_Action == "updateCone" && in.m_Value == 1.f)
+			{
+				m_Graphics->useFrameLight(viewRot[0], viewRot[1]);
 			}
 			else
 			{

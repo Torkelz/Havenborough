@@ -12,6 +12,7 @@
 #include "TextureLoader.h"
 #include "ModelDefinition.h"
 #include "VRAMMemInfo.h"
+#include "ModelLoader.h"
 
 
 
@@ -23,7 +24,6 @@ struct cBuffer
 	DirectX::XMFLOAT4X4 view;
 	DirectX::XMFLOAT4X4 proj;
 	DirectX::XMFLOAT3	campos;
-	int					nrLights;
 };
 struct cObjectBuffer
 {
@@ -56,11 +56,18 @@ public:
 	};
 private:
 	std::vector<Renderable>		m_Objects;
-	std::vector<Light>			m_Lights;
+
+	std::vector<Light>			m_SpotLights;
+	std::vector<Light>			m_PointLights;
+	std::vector<Light>			m_DirectionalLights;
 
 	ID3D11Device				*m_Device;
 	ID3D11DeviceContext			*m_DeviceContext;
 	ID3D11DepthStencilView		*m_DepthStencilView;
+
+	DirectX::XMFLOAT3			*m_CameraPosition;
+	DirectX::XMFLOAT4X4			*m_ViewMatrix;
+	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
 	static const unsigned int	m_numRenderTargets = 4;
 	ID3D11RenderTargetView		*m_RenderTargets[m_numRenderTargets];
@@ -69,27 +76,27 @@ private:
 	ID3D11ShaderResourceView	*m_NormalSRV;
 	ID3D11ShaderResourceView	*m_LightSRV;
 	ID3D11ShaderResourceView	*m_wPositionSRV;
-	ID3D11ShaderResourceView	*m_lightBufferSRV;
 
 	ID3D11SamplerState			*m_Sampler;
 	ID3D11BlendState			*m_BlendState;
 	ID3D11BlendState			*m_BlendState2;
-	Shader						*m_LightShader;
+
+	ID3D11RasterizerState		*m_RasterState;
+	ID3D11DepthStencilState		*m_DepthState;
+
+	Shader						*m_PointShader;
+	Shader						*m_SpotShader;
+	Shader						*m_DirectionalShader;
+
+	Buffer						*m_PointModelBuffer;
+	Buffer						*m_SpotModelBuffer;
+
 	Buffer						*m_ConstantBuffer;
 	Buffer						*m_ObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
-
-	DirectX::XMFLOAT3			*m_CameraPosition;
-	DirectX::XMFLOAT4X4			*m_ViewMatrix;
-	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
-
-
 	//TEMP--------------------------------------------------
 	float						m_speed;
 	int							xx,yy,zz;
-
-	TextureLoader				*m_TextureLoader; // TEST
-	ID3D11ShaderResourceView	*m_Specular, *m_Diffuse, *m_NormalMap;
 	//TEMP---------------------------------------------------
 
 public:
@@ -138,6 +145,8 @@ public:
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
 
+	void debugUpdateCone(float yaw, float pitch);
+
 private:
 	void renderGeometry();
 
@@ -145,14 +154,19 @@ private:
 
 	void renderLighting();
 
-	void updateConstantBuffer(int nrLights);
+	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, vector<Light> *p_Lights);
+
+	void updateConstantBuffer();
 	void updateLightBuffer();
 
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
 	HRESULT createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc );
-	void createConstantBuffer(int nrLights);
+	void createConstantBuffer();
 	void clearRenderTargets();
 	void createSamplerState();
 	void createBlendStates();
+	void createLightShaders();
+	void loadLightModels();
+	void createLightStates(); //Rasterize and depth state
 };
 

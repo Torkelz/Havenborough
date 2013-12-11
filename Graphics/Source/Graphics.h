@@ -152,7 +152,7 @@ public:
 	
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
-	void useFrameLight(void) override;
+	void useFrameLight(float yaw, float pitch) override;
 	
 	void renderModel(int p_ModelId) override;
 	void renderText(void) override;

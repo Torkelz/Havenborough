@@ -396,7 +396,7 @@ ID3D11ShaderResourceView* Buffer::CreateBufferSRV(ID3D11Buffer* pBuffer)
 		return NULL;
 	}
 
-    HRESULT hr = m_Device->CreateShaderResourceView(pBuffer, &desc, &pSRVOut);
+    m_Device->CreateShaderResourceView(pBuffer, &desc, &pSRVOut);
 
 	return pSRVOut;
 }

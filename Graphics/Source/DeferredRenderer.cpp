@@ -17,12 +17,21 @@ DeferredRenderer::DeferredRenderer(void)
 	m_wPositionSRV = nullptr;
 
 	m_Sampler = nullptr;
-	m_LightShader = nullptr;
+	m_PointShader = nullptr;
+	m_SpotShader = nullptr;
+	m_DirectionalShader = nullptr;
+
+	m_PointModelBuffer = nullptr;
+	m_SpotModelBuffer = nullptr;
+
 	m_ConstantBuffer = nullptr;
 	m_AllLightBuffer = nullptr;
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 	m_CameraPosition = nullptr;
+
+	m_RasterState = nullptr;
+	m_DepthState = nullptr;
 
 	m_speed = 1.0f;
 }
@@ -30,11 +39,19 @@ DeferredRenderer::DeferredRenderer(void)
 DeferredRenderer::~DeferredRenderer(void)
 {
 	m_Objects.clear();
-	m_Lights.clear();
+	m_PointLights.clear();
+	m_SpotLights.clear();
+	m_DirectionalLights.clear();
+
+	m_Objects.shrink_to_fit();
+	m_PointLights.shrink_to_fit();
+	m_SpotLights.shrink_to_fit();
+	m_DirectionalLights.shrink_to_fit();
 
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
 	m_DepthStencilView = nullptr;
+
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 	m_CameraPosition = nullptr;
@@ -50,10 +67,22 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_RELEASE(m_wPositionSRV);
 
 	SAFE_RELEASE(m_Sampler);
-	SAFE_DELETE(m_LightShader);
+	SAFE_RELEASE(m_BlendState);
+	SAFE_RELEASE(m_BlendState2);
+
+	SAFE_RELEASE(m_RasterState);
+	SAFE_RELEASE(m_DepthState);
+
+	SAFE_DELETE(m_PointShader);
+	SAFE_DELETE(m_SpotShader);
+	SAFE_DELETE(m_DirectionalShader);
+
+	SAFE_DELETE(m_PointModelBuffer);
+	SAFE_DELETE(m_SpotModelBuffer);
+
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
-	SAFE_DELETE(m_AllLightBuffer);
+	SAFE_DELETE(m_AllLightBuffer);	
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
@@ -86,11 +115,9 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 	createShaderResourceViews(desc);
 
-	//Compile shader for the light pass
-	m_LightShader = new Shader();
-	m_LightShader->initialize(m_Device,m_DeviceContext, 0);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","VSmain","vs_5_0",Shader::Type::VERTEX_SHADER, nullptr);
-	m_LightShader->compileAndCreateShader(L"../../Graphics/Source/DeferredShaders/LightPass.hlsl","PSmain","ps_5_0",Shader::Type::PIXEL_SHADER, nullptr);
+	createLightShaders();
+
+	loadLightModels();
 
 	// Create sampler state and blend state for Alpha rendering.
 	createSamplerState();
@@ -99,25 +126,27 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	// TEMPORARY -----------------------------------------------------------
 	// Make the light
 	Light testLight(	
-		DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f),
+		DirectX::XMFLOAT3(0.0f, 20.0f, 0.0f),
 		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
-		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 
-		DirectX::XMFLOAT2(1.0f, 1.0f),  
-		500.0f,
-		0
+		DirectX::XMFLOAT3(0.01f, -0.99f, 0.0f), 
+		DirectX::XMFLOAT2(cosf(3.14f/16.f),cosf(3.14f/7.f)),  
+		70.0f,
+		1
 		);
-	addLight(testLight);
-	testLight.lightRange = 50.0f;
-	xx = 2;
-	yy = 2;
-	zz = 2;
+	//addLight(testLight);
+
+	xx = 3;
+	yy = 1;
+	zz = 3;
 	int minX,minY,minZ,maxX,maxY,maxZ;
 	minX = minY = minZ = -30;
 	maxX = maxY = maxZ = 30;
+	minY = 20;
+	maxY = 50;
 	float dx,dy,dz;
-	dx = (float)(abs(maxX) + abs(minX))/(xx);
-	dy = (float)(abs(maxY) + abs(minY))/(yy);
-	dz = (float)(abs(maxZ) + abs(minZ))/(zz);
+	dx = (float)(abs(maxX) + abs(minX))/((xx - 1 <= 0) ? 1 : xx - 1);
+	dy = (float)(abs(maxY) + abs(minY))/((yy - 1 <= 0) ? 1 : xx - 1);
+	dz = (float)(abs(maxZ) + abs(minZ))/((zz - 1 <= 0) ? 1 : xx - 1);
 
 	for(int x= 0; x < xx; x++)
 	{
@@ -133,32 +162,23 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 			}
 		}
 	}
-	//This buffer is supposed to be moved to non temporary code
-	Buffer::Description cbdesc;
-	cbdesc.initData = m_Lights.data();
-	cbdesc.numOfElements = xx*yy*zz + 1;
-	cbdesc.sizeOfElement = sizeof(Light);
-	cbdesc.type = Buffer::Type::STRUCTURED_BUFFER;
-	cbdesc.usage = Buffer::Usage::DEFAULT;
-	cbdesc.bindSRV = true;
-	//m_AllLightBuffer = new Buffer();
-	m_AllLightBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	//m_AllLightBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
-	m_lightBufferSRV = m_AllLightBuffer->CreateBufferSRV(m_AllLightBuffer->getBufferPointer());
-
-	m_TextureLoader = new TextureLoader(m_Device, m_DeviceContext);
-	m_Specular = nullptr;//m_TextureLoader->createTextureFromFile("../../Graphics/Resources/diff.jpg");
-	m_Diffuse = nullptr;//m_TextureLoader->createTextureFromFile("../../Graphics/Resources/uv alpha.png");
-	m_NormalMap = nullptr;//m_TextureLoader->createTextureFromFile("../../Graphics/Resources/Cube1_NRM_RGB.jpg");
-
-
 	// TEMPORARY ----------------------------------------------------------------
-	createConstantBuffer(xx*yy*zz + 1);
+	createLightStates();
+
+	Buffer::Description cbdesc;
+	cbdesc.initData = nullptr;//m_Lights.data();
+	cbdesc.numOfElements = 200;
+	cbdesc.sizeOfElement = sizeof(Light);
+	cbdesc.type = Buffer::Type::VERTEX_BUFFER;
+	cbdesc.usage = Buffer::Usage::DEFAULT;
+	m_AllLightBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+
+	createConstantBuffer();
 }
 
 void DeferredRenderer::renderDeferred()
 {
-	float dt = 0.016f;
+	/*float dt = 0.016f;
 	for(unsigned int i = 0; i < m_Lights.size();i++)
 	{
 	
@@ -169,7 +189,7 @@ void DeferredRenderer::renderDeferred()
 	}
 	if((m_Lights.at(0).lightPos.y > 30) ||
 		(m_Lights.at(0).lightPos.y < -30))
-		m_speed *= -1.0f;
+		m_speed *= -1.0f;*/
 
 
 	// Clear render targets.
@@ -183,7 +203,7 @@ void DeferredRenderer::renderDeferred()
 	renderGeometry();
 
 	// Update constant buffer. ## REMOVE WHEN NINJA KICK IS REMOVED. ##
-	updateConstantBuffer(xx*yy*zz + 1);
+	updateConstantBuffer();
 	updateLightBuffer();
 
 	renderLighting();
@@ -205,7 +225,7 @@ void DeferredRenderer::renderGeometry()
 
 	m_ConstantBuffer->setBuffer(1);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
-
+	updateConstantBuffer();
 	for(unsigned int i = 0; i < m_Objects.size();i++)
 	{
 		m_Objects.at(i).m_Model->vertexBuffer->setBuffer(0);
@@ -216,7 +236,7 @@ void DeferredRenderer::renderGeometry()
 													m_Objects.at(i).m_Model->specularTexture[j] 
 												};
 			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-			updateConstantBuffer(int(i));
+			
 			// Send stuff.
 			// The update of the sub resource has to be done externally.
 			
@@ -235,7 +255,9 @@ void DeferredRenderer::renderGeometry()
 			m_DeviceContext->DrawIndexed(m_Objects.at(i).m_Model->indexBuffer[j]->getNumOfElements(),0, 0);
 
 			m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
+			m_Objects.at(i).m_Model->indexBuffer[j]->unsetBuffer(0);
 			m_ObjectConstantBuffer->unsetBuffer(2);
+			m_Objects.at(i).m_Model->shader->setBlendState(0, data);
 			m_Objects.at(i).m_Model->shader->unSetShader();
 		}
 	}
@@ -253,41 +275,48 @@ void DeferredRenderer::renderLighting()
 	unsigned int activeRenderTarget	= 3;
 	unsigned int nrRT = 1;
 
+	// Store previous States to be set when we exit the method.
+	ID3D11RasterizerState *previousRasterState;
+	ID3D11DepthStencilState *previousDepthState;
+	m_DeviceContext->RSGetState(&previousRasterState);
+	m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
+
 	// Collect the shader resources in an array and create a clear array.
-	ID3D11ShaderResourceView *srvs[] = { m_wPositionSRV,
-										 m_NormalSRV,
-										 m_DiffuseSRV,
-										 m_lightBufferSRV };
-	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0};
+	ID3D11ShaderResourceView *srvs[] = {m_wPositionSRV, m_NormalSRV, m_DiffuseSRV};
+	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
 
 	// Set texture sampler.
-	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
-	float data[] = { 1.f, 1.f, 1.f, 1.f };
-	m_LightShader->setBlendState(m_BlendState, data);
-
-	m_DeviceContext->PSSetShaderResources(0, 4, srvs);
+	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+	UINT sampleMask = 0xffffffff;
+	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
 	////Select the third render target[3]
-	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], 0); 
+	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], m_DepthStencilView); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_DeviceContext->RSSetState(m_RasterState);
+	m_DeviceContext->OMSetDepthStencilState(m_DepthState,0);
+	m_DeviceContext->OMSetBlendState(m_BlendState, blendFactor, sampleMask);
 
 	//Set constant data
 	m_ConstantBuffer->setBuffer(0);
 
-	//set shader
-	m_LightShader->setShader();
 
-	m_DeviceContext->Draw(6, 0);
+	//		Render PointLights
+	renderLight(m_PointShader, m_PointModelBuffer, &m_PointLights);
+	//		Render SpotLights
+	renderLight(m_SpotShader, m_SpotModelBuffer, &m_SpotLights);
+	//		Render DirectionalLights
+	//RenderLight(m_PointModelBuffer, &m_DirectionalLights);
 
-	//unset resources	
-	m_LightShader->unSetShader();
 
 	m_ConstantBuffer->unsetBuffer(0);
-	m_DeviceContext->PSSetSamplers(0,0,0);
-	m_LightShader->setBlendState(0, data);
 
-	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
+	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
+	m_DeviceContext->RSSetState(previousRasterState);
+	m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
+	m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
 }
 
 void DeferredRenderer::addRenderable(Renderable p_renderable)
@@ -297,7 +326,20 @@ void DeferredRenderer::addRenderable(Renderable p_renderable)
 
 void DeferredRenderer::addLight(Light p_Light)
 {
-	m_Lights.push_back(p_Light);
+	switch (p_Light.lightType)
+	{
+	case 0:
+		m_PointLights.push_back(p_Light);
+		break;
+	case 1:
+		m_SpotLights.push_back(p_Light);
+		break;
+	case 2:
+		m_DirectionalLights.push_back(p_Light);
+		break;
+	default:
+		break;
+	}
 }
 
 ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
@@ -312,19 +354,26 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 	}
 }
 
-void DeferredRenderer::updateConstantBuffer(int nrLights)
+void DeferredRenderer::debugUpdateCone(float yaw, float pitch)
+{
+	DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw(pitch, yaw, 0.f);
+	DirectX::XMVECTOR dir = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(0.f, 0.f, -1.f));
+
+	DirectX::XMStoreFloat3(&m_SpotLights[0].lightDirection, DirectX::XMVector3Transform(dir, rotMat));
+}
+
+void DeferredRenderer::updateConstantBuffer()
 {
 	cBuffer cb;
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
 	cb.campos = *m_CameraPosition;
-	cb.nrLights = nrLights;
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
 }
 
 void DeferredRenderer::updateLightBuffer()
 {
-	m_DeviceContext->UpdateSubresource(m_AllLightBuffer->getBufferPointer(), NULL,NULL, m_Lights.data(),NULL,NULL);
+	//m_DeviceContext->UpdateSubresource(m_AllLightBuffer->getBufferPointer(), NULL,NULL, m_Lights.data(),NULL,NULL);
 }
 
 HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
@@ -370,7 +419,6 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 	SAFE_RELEASE(srvt1);
 	SAFE_RELEASE(srvt2);
 	SAFE_RELEASE(srvt3);
-	//srvt0 = srvt1 = srvt2 = srvt3 = nullptr;
 	// Done with the render targets.
 
 	unsigned int size = 4 * VRAMMemInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
@@ -422,13 +470,12 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	return result;
 }
 
-void DeferredRenderer::createConstantBuffer(int nrLights)
+void DeferredRenderer::createConstantBuffer()
 {
 	cBuffer cb;
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
 	cb.campos = *m_CameraPosition;
-	cb.nrLights = nrLights;
 
 	Buffer::Description cbdesc;
 	cbdesc.initData = &cb;
@@ -436,15 +483,15 @@ void DeferredRenderer::createConstantBuffer(int nrLights)
 	cbdesc.sizeOfElement = sizeof(cBuffer);
 	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
 	cbdesc.usage = Buffer::Usage::DEFAULT;
-	m_ConstantBuffer = new Buffer();
-	m_ConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 
+	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMMemInfo::getInstance()->updateUsage(sizeof(cBuffer));
 
 	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
 	m_ObjectConstantBuffer = new Buffer();
 	m_ObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 
-	VRAMMemInfo::getInstance()->updateUsage(cbdesc.sizeOfElement + sizeof(cBuffer));
+	VRAMMemInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
 }
 
 void DeferredRenderer::clearRenderTargets()
@@ -504,4 +551,99 @@ void DeferredRenderer::createBlendStates()
 	}
 
 	m_Device->CreateBlendState(&bd, &m_BlendState2);
+}
+
+void DeferredRenderer::createLightShaders()
+{
+	ShaderInputElementDescription shaderDesc[] = 
+	{
+		{"POSITION",	0, Format::R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA,	  0},
+		{"LPOSITION",	0, Format::R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA,  1},
+		{"COLOR",		0, Format::R32G32B32_FLOAT, 1, 12, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"DIRECTION",	0, Format::R32G32B32_FLOAT, 1, 24, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"ANGLE",		0, Format::R32G32_FLOAT,	1, 36, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"RANGE",		0, Format::R32_FLOAT,		1, 44, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"TYPE",		0, Format::R32_UINT,		1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1}
+	};
+
+	m_SpotShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/LightPassSpotLight.hlsl",
+								"SpotLightVS,SpotLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
+
+	m_PointShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/LightPassPointLight.hlsl",
+		"PointLightVS,PointLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
+}
+
+void DeferredRenderer::loadLightModels()
+{
+	ModelLoader modelLoader;
+	modelLoader.loadFile("../../Graphics/Resources/spotlight +Z openGL 2.tx");
+	const std::vector<std::vector<ModelLoader::IndexDesc>>& indices = modelLoader.getIndices();
+	const std::vector<DirectX::XMFLOAT3>& vertices = modelLoader.getVertices();
+	std::vector<DirectX::XMFLOAT3> temp;
+	unsigned int nrIndices = indices.at(0).size();
+	for(unsigned int i = 0; i < nrIndices; i++)
+	{
+		temp.push_back(vertices.at(indices.at(0).at(i).m_Vertex));
+	}
+	Buffer::Description cbdesc;
+	cbdesc.initData = temp.data();
+	cbdesc.numOfElements = nrIndices;
+	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
+	cbdesc.type = Buffer::Type::VERTEX_BUFFER;
+	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
+
+	m_SpotModelBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	temp.clear();
+	modelLoader.loadFile("../../Graphics/Resources/sphere.tx");
+	const std::vector<std::vector<ModelLoader::IndexDesc>>& indices2 = modelLoader.getIndices();
+	const std::vector<DirectX::XMFLOAT3>& vertices2 = modelLoader.getVertices();
+
+	nrIndices = indices2.at(0).size();
+	for(unsigned int i = 0; i < nrIndices; i++)
+	{
+		temp.push_back(vertices2.at(indices2.at(0).at(i).m_Vertex));
+	}
+	cbdesc.initData = temp.data();
+	cbdesc.numOfElements = nrIndices;
+	m_PointModelBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	temp.clear();
+	temp.shrink_to_fit();
+
+	modelLoader.clear();
+}
+
+void DeferredRenderer::createLightStates()
+{
+	D3D11_DEPTH_STENCIL_DESC dsdesc;
+	ZeroMemory( &dsdesc, sizeof( D3D11_DEPTH_STENCIL_DESC ) );
+	dsdesc.DepthEnable = true;
+	dsdesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	dsdesc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+	m_Device->CreateDepthStencilState(&dsdesc, &m_DepthState);
+
+	D3D11_RASTERIZER_DESC rdesc;
+	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
+	rdesc.FillMode = D3D11_FILL_SOLID;
+	rdesc.CullMode = D3D11_CULL_BACK;
+	//rdesc.FrontCounterClockwise = TRUE;
+	m_Device->CreateRasterizerState(&rdesc,&m_RasterState);
+}
+
+void DeferredRenderer::renderLight(Shader *p_Shader, Buffer* p_ModelBuffer, vector<Light> *p_Lights)
+{
+	if(p_Lights->size() > 0)
+	{
+		UINT Offsets[2] = {0,0};
+		ID3D11Buffer * buffers[] = {p_ModelBuffer->getBufferPointer(), m_AllLightBuffer->getBufferPointer()};
+		UINT Stride[2] = {sizeof(DirectX::XMFLOAT3), sizeof(Light)};
+
+		p_Shader->setShader();
+
+		m_DeviceContext->UpdateSubresource(m_AllLightBuffer->getBufferPointer(),NULL,NULL,p_Lights->data(),NULL,NULL);
+
+		m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
+		m_DeviceContext->DrawInstanced(p_ModelBuffer->getNumOfElements(), p_Lights->size(),0,0);
+		m_DeviceContext->IASetVertexBuffers(0,0,0,0, 0);
+		p_Shader->unSetShader();
+	}
 }

@@ -111,7 +111,7 @@ public:
 	/**
 	* 
 	*/
-	virtual void useFrameLight(void) = 0;
+	virtual void useFrameLight(float yaw, float pitch) = 0;
 
 	/**
 	* Renders a model specified with an ID.

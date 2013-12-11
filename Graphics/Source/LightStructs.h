@@ -3,12 +3,9 @@ struct Light
 	#include <DirectXMath.h>
 
 	DirectX::XMFLOAT3	lightPos;
-	int padd1;
     DirectX::XMFLOAT3	lightColor;
-	int padd2;
 	DirectX::XMFLOAT3	lightDirection;
-	int padd3;
-    DirectX::XMFLOAT2	spotlightAngles;
+    DirectX::XMFLOAT2	spotlightAngles;// X must be smaller than Y
     float				lightRange;
 	int					lightType;
 
@@ -20,7 +17,8 @@ struct Light
 	{
 		lightPos = p_position;
 		lightColor = p_color;
-		lightDirection = p_direction;
+		DirectX::XMStoreFloat3(&lightDirection, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&p_direction)));
+		//lightDirection = p_direction;
 		spotlightAngles = p_angles;
 		lightRange = p_range;
 		lightType = p_type;

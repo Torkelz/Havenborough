@@ -167,8 +167,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_WrapperFactory = WrapperFactory::getInstance();
 	RAMMemInfo m_MemoryInfo;
 	m_MemoryInfo.update();
-	std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
-	std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
+	//std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
+	//std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 	m_VRAMMemInfo = VRAMMemInfo::getInstance();
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
@@ -369,7 +369,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	const char *p_ShaderModel, ShaderType p_Type)
 {
 	bool found = false;
-	Shader *shader;
+	Shader *shader = nullptr;
 
 	for(auto &s : m_ShaderList)
 	{
@@ -457,9 +457,9 @@ void Graphics::removeStaticLight(void)
 
 }
 
-void Graphics::useFrameLight(void)
+void Graphics::useFrameLight(float yaw, float pitch)
 {
-
+	m_DeferredRender->debugUpdateCone(yaw, pitch);
 }
 
 void Graphics::drawFrame(int i)

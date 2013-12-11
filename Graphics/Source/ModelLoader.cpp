@@ -49,7 +49,6 @@ bool ModelLoader::loadFile(std::string p_FilePath)
 	clearData();
 	std::ifstream input(p_FilePath.c_str(),std::ifstream::in);
 	std::string line, key, filler;
-	int readMaterial = 0;
 	int tempInt;
 	Material tempMaterial;
 	IndexDesc tempFace;

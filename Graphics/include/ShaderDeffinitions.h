@@ -25,6 +25,8 @@ enum class Format
 	R32G32B32_UINT = 7,
 	R32G32_FLOAT = 16,
 	R32G32_UINT = 17,
+	R32_FLOAT = 41,
+	R32_UINT = 42,
 	R8G8B8A8_UNORM = 28,
 };
 
