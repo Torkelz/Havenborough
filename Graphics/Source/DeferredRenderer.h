@@ -138,22 +138,6 @@ public:
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
 
-	/**
-	 * Update the view matrix. Remember to also update the
-	 * camera position if it has changed.
-	 *
-	 * @param p_ViewMat the new view matrix.
-	 */
-	//void updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat);
-
-	/**
-	 * Update the camera position. Remember to also update the
-	 * view matrix if it has changed.
-	 *
-	 * @param p_CameraPos the new camera position in absolute world coordinates.
-	 */
-	//void updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos);
-	
 private:
 	void renderGeometry();
 

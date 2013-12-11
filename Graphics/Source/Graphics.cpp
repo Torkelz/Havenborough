@@ -36,7 +36,6 @@ IGraphics *IGraphics::createGraphics()
 
 bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen)
 {	
-	_CrtSetBreakAlloc(32288);
 	HRESULT result;
 	IDXGIFactory *factory;
 	IDXGIAdapter *adapter;
@@ -174,9 +173,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
-	//TODO: Setup camera matrices REMOVE LATER (a.k.a. clean this shit up!)
 	initializeMatrices(p_ScreenWidth, p_ScreenHeight);
-
 
 	//Deferred Render
 	m_DeferredRender = new DeferredRenderer();
@@ -384,7 +381,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	}
 	else
 	{
-		m_WrapperFactory->addShader(shader, p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
+		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
 	}
 }
 
@@ -765,26 +762,23 @@ HRESULT Graphics::createRasterizerState(void)
 	return m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
 }
 
-void Graphics::Begin(float color[4])
+void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 {
-	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color);
+	XMFLOAT4 eye;
+	XMFLOAT4 lookAt;
+	XMFLOAT4 up;
+	m_Eye = XMFLOAT3(0,0,-20);
 
-	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
+	eye = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
+	lookAt = XMFLOAT4(0,0,0,1);
+	up = XMFLOAT4(0,1,0,0);
+	m_ViewMatrix = XMFLOAT4X4();
+	m_ProjectionMatrix = XMFLOAT4X4();
 
-
-void Graphics::End(void)
-{
-	if(m_VSyncEnabled)
-	{
-		// Lock to screen refresh rate.
-		m_SwapChain->Present(1, 0);
-	}
-	else
-	{
-		// Present as fast as possible.
-		m_SwapChain->Present(0, 0);
-	}
+	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye),
+		XMLoadFloat4(&lookAt), XMLoadFloat4(&up))));
+	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(0.25f * 3.14f,
+		(float)p_ScreenWidth / (float)p_ScreenHeight, 0.1f, 1000.0f)));
 }
 
 Shader *Graphics::getShaderFromList(string p_Identifier)
@@ -817,23 +811,29 @@ Model *Graphics::getModelFromList(string p_Identifier)
 	return ret;
 }
 
-void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
+void Graphics::Begin(float color[4])
 {
-	XMFLOAT4 eye4,lookat,up;
-	m_Eye = XMFLOAT3(0,0,-20);
+	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color);
 
-	eye4 = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
-	lookat = XMFLOAT4(0,0,0,1);
-	up = XMFLOAT4(0,1,0,0);
-	m_ViewMatrix = XMFLOAT4X4();
-	m_ProjectionMatrix = XMFLOAT4X4();
-
-	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye4),
-		XMLoadFloat4(&lookat), XMLoadFloat4(&up))));
-	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(0.25f * 3.14f,
-		(float)p_ScreenWidth / (float)p_ScreenHeight, 0.1f, 1000.0f)));
+	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
+
+void Graphics::End(void)
+{
+	if(m_VSyncEnabled)
+	{
+		// Lock to screen refresh rate.
+		m_SwapChain->Present(1, 0);
+	}
+	else
+	{
+		// Present as fast as possible.
+		m_SwapChain->Present(0, 0);
+	}
+}
+
+//TODO: Remove later
 void Graphics::DebugDefferedDraw(void)
 {
 	m_Shader = nullptr;

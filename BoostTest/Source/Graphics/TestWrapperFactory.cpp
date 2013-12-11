@@ -110,11 +110,43 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 			}
 		}
 
+		Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+			ShaderType p_Type) override
+		{
+			DummyShader *shader = new DummyShader();
+
+
+			vector<string> entryPointList = createEntryPointList(p_EntryPoint);
+			string entryPoint;
+
+			try
+			{
+				for(int i = 0; i < 5; i++)
+				{
+					if(p_Type & ShaderType((int)std::pow(2,i)))
+					{
+						entryPoint = entryPointList.back();
+						entryPointList.pop_back();
+						addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+							Shader::Type(i));
+						if(entryPointList.size() == 0)
+							break;
+					}
+				}
+				return shader;
+			}
+			catch(...)
+			{
+				SAFE_DELETE(shader);
+				throw;
+			}
+		}
+
 		void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
 			Shader::Type p_ShaderType) override
 		{
 			std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
-			p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, p_ShaderModel, p_ShaderType, nullptr);
+			p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, nullptr);
 		}
 
 		void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
@@ -251,23 +283,22 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		wraps->shutdown();
 	}
 
-	//BOOST_AUTO_TEST_CASE(TestShaderFactoryWODescMultipleShaders)
-	//{
-	//	DummyWrapper *wraps = nullptr;
-	//	DummyWrapper::initializeDummy();
-	//	wraps = DummyWrapper::getDummyInstance();
+	BOOST_AUTO_TEST_CASE(TestShaderFactoryWODescMultipleShaders)
+	{
+		DummyWrapper *wraps = nullptr;
+		DummyWrapper::initializeDummy();
+		wraps = DummyWrapper::getDummyInstance();
 
-	//	DummyShader *shady = nullptr;
-	//	shady = dynamic_cast<DummyShader*>(wraps->createShader(L"Source/dummy.hlsl", "main", "5_0",
-	//		ShaderType::VERTEX_SHADER ));
-	//	//BOOST_CHECK_NO_THROW(shady = wraps->createShader(L"Source/dummy.hlsl", "main", "5_0",
-	//	//	Shader::Type::VERTEX_SHADER ));
+		DummyShader *shady = nullptr;
+		
+		BOOST_CHECK_NO_THROW(shady = dynamic_cast<DummyShader*>(wraps->createShader(L"Source/dummy.hlsl", "main,PS",
+			"5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER )));
 
-	//	BOOST_CHECK(shady != nullptr);
+		BOOST_CHECK(shady != nullptr);
 
-	//	SAFE_DELETE(shady);
+		SAFE_DELETE(shady);
 
-	//	wraps->shutdown();
-	//}
+		wraps->shutdown();
+	}
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
+    <FxCompile Include="Source\dummy2.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ClientImport">

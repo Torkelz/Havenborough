@@ -128,10 +128,10 @@ private:
 	vector<pair<int, ModelInstance>> m_ModelInstances;
 	int m_NextInstanceId;
 	
-	DeferredRenderer	*m_DeferredRender;
+	DeferredRenderer *m_DeferredRender;
 
-	Shader				*m_Shader; //DEBUG
-	ID3D11SamplerState	*m_Sampler;
+	Shader *m_Shader; //DEBUG
+	ID3D11SamplerState *m_Sampler;
 
 public:
 	Graphics(void);
@@ -179,13 +179,13 @@ private:
 	HRESULT createDepthStencilState(void);
 	HRESULT createDepthStencilView(void);
 	HRESULT createRasterizerState(void);
+	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight);
+	
+	Shader *getShaderFromList(string p_Identifier);
+	Model *getModelFromList(string p_identifier);
 
 	void Begin(float color[4]);
 	void End(void);
-	Shader *getShaderFromList(string p_Identifier);
-	Model *getModelFromList(string p_identifier);
-	
-	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight);
 
 	//TODO: Remove later
 	void DebugDefferedDraw(void);

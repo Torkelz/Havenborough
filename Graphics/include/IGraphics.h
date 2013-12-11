@@ -58,7 +58,7 @@ public:
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
 	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
-	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0"
 	* @param p_ShaderType the shader types to be created, can be combined as
 	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER
 	*/
@@ -73,7 +73,7 @@ public:
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
 	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
-	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0"
 	* @param p_ShaderType the shader types to be created, can be combined as
 	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER,
 	*		 note that vertex shader needs to be included or an exception will be thrown
@@ -142,7 +142,6 @@ public:
 	
 	/**
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
-	 *
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.
 	 * @return a unique id used to reference the instance with in later calls.
 	 */

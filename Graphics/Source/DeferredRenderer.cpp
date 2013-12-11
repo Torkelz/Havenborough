@@ -312,16 +312,6 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 	}
 }
 
-//void DeferredRenderer::updateViewMatrix(const DirectX::XMFLOAT4X4& p_ViewMat)
-//{
-//	m_ViewMatrix = p_ViewMat;
-//}
-//
-//void DeferredRenderer::updateCameraPosition(const DirectX::XMFLOAT3& p_CameraPos)
-//{
-//	m_CameraPosition = p_CameraPos;
-//}
-
 void DeferredRenderer::updateConstantBuffer(int nrLights)
 {
 	cBuffer cb;
