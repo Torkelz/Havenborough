@@ -3,9 +3,6 @@
   <ItemGroup>
     <ClCompile Include="Source\testProgram.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
-    <ClCompile Include="..\Client\Source\Window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
@@ -76,7 +73,7 @@
       <Filter>TestResourceManager\Import</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp">
-      <Filter>TestClient\ClientImport</Filter>      
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="TestResourceManager.cpp">
       <Filter>TestResourceManager</Filter>
@@ -126,6 +123,12 @@
     </ClCompile>
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp">
       <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="TestLogger.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Window.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

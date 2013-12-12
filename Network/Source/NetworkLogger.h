@@ -1,10 +1,22 @@
+/**
+ * Licence.
+ */
+
 #pragma once
 
 #include <INetwork.h>
 
+#include <string>
+
+/**
+ * Wrapper for a log function.
+ */
 class NetworkLogger
 {
 public:
+	/**
+	 * Log priority level. Higher is more important.
+	 */
 	enum class Level : uint32_t
 	{
 		TRACE = 0,
@@ -19,7 +31,19 @@ private:
 	static INetwork::clientLogCallback_t m_LogFunc;
 
 public:
-	static void log(Level p_Level, const char* p_Message);
+	/**
+	 * Add a log message.
+	 *
+	 * @param p_Level the priority level of the log message.
+	 * @param p_Message the message to log.
+	 */
+	static void log(Level p_Level, const std::string& p_Message);
 
+	/**
+	 * Set the log function to use for logging.
+	 *
+	 * @param p_LogCallback a function that will be called for each log recieved.
+	 *			Set to null to disable logging.
+	 */
 	static void setLogFunction(INetwork::clientLogCallback_t p_LogCallback);
 };

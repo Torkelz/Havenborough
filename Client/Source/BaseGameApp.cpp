@@ -21,7 +21,7 @@ void BaseGameApp::init()
 	m_Window.init(getGameTitle(), getWindowSize());
 
 	m_Graphics = IGraphics::createGraphics();
-	m_Graphics->setLogFunction((IGraphics::clientLogCallback_t)&Logger::log);
+	m_Graphics->setLogFunction(&Logger::logRaw);
 	
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
@@ -58,12 +58,12 @@ void BaseGameApp::init()
 	m_InputQueue.init(std::move(translator));
 
 	m_Network = INetwork::createNetwork();
-	m_Network->setLogFunction((INetwork::clientLogCallback_t)&Logger::log);
+	m_Network->setLogFunction(&Logger::logRaw);
 	m_Network->initialize();
 	m_Connected = false;
 	
 	m_Physics = IPhysics::createPhysics();
-	m_Physics->setLogFunction((IPhysics::clientLogCallback_t)&Logger::log);
+	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
@@ -266,7 +266,7 @@ void BaseGameApp::run()
 		{
 			std::ostringstream msg;
 			msg << "Received input action: " << in.m_Action << " (" << std::setprecision(2) << std::fixed << in.m_Value << ")";
-			Logger::log(Logger::Level::TRACE, msg.str().c_str());
+			Logger::log(Logger::Level::TRACE, msg.str());
 
 			if (in.m_Action == "exit")
 			{
@@ -335,7 +335,7 @@ void BaseGameApp::run()
 				PackageType type = conn->getPackageType(package);
 
 				std::string msg("Received package of type: " + std::to_string((uint16_t)type));
-				Logger::log(Logger::Level::TRACE, msg.c_str());
+				Logger::log(Logger::Level::TRACE, msg);
 
 				switch (type)
 				{
@@ -347,13 +347,13 @@ void BaseGameApp::run()
 							<< data.m_Position[0] << ", "
 							<< data.m_Position[1] << ", " 
 							<< data.m_Position[2] << ")";
-						Logger::log(Logger::Level::INFO, msg.str().c_str());
+						Logger::log(Logger::Level::INFO, msg.str());
 					}
 					break;
 
 				default:
 					std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
-					Logger::log(Logger::Level::WARNING, msg.c_str());
+					Logger::log(Logger::Level::WARNING, msg);
 					break;
 				}
 			}

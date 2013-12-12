@@ -89,7 +89,7 @@ void ServerAccept::handleAccept( const boost::system::error_code& error)
 
 	if ( error )
 	{  
-		NetworkLogger::log(NetworkLogger::Level::FATAL, error.message().c_str());
+		NetworkLogger::log(NetworkLogger::Level::FATAL, error.message());
 		return;
 	}
 
