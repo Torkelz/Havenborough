@@ -29,21 +29,26 @@ void ModelFactory::shutdown(void)
 ModelDefinition ModelFactory::createStaticModel(const char *p_Filename)
 {
 	ModelDefinition model;
-
+	Buffer *vertexBuffer = nullptr;
+	
 	ModelLoader modelLoader;
 
 	modelLoader.loadFile(p_Filename);
 
+	//const vector<Vertex>& temp = modelLoader.getVertexBuffer();
+	//vertex tempVertex;
+	//const vector<Material>& tempMaterial = modelLoader.getMaterial();
+	//const vector<MaterialBuffer>& tempMaterialBuffer = modelLoader.getMaterialBuffer();
+
+	///REMOVE THIS///
 	vector<std::vector<ModelLoader::IndexDesc>>	tempF = modelLoader.getIndices();
 	vector<DirectX::XMFLOAT3> tempN	= modelLoader.getNormals();
 	vector<DirectX::XMFLOAT3> tempT	= modelLoader.getTangents();
 	vector<DirectX::XMFLOAT2> tempUV = modelLoader.getTextureCoords();
 	vector<DirectX::XMFLOAT3> tempVert = modelLoader.getVertices();
 	vector<ModelLoader::Material> tempM	= modelLoader.getMaterial();
-
 	vector<Vertex> temp;
 	vector<vector<int>> tempI;
-
 	vector<int> I;
 	int indexCounter = 0;
 	for(unsigned int i = 0; i < tempF.size(); i++)
@@ -73,25 +78,27 @@ ModelDefinition ModelFactory::createStaticModel(const char *p_Filename)
 		tempI.push_back(I);
 		I.clear();
 	}
+	///REMOVE THIS///
 
-	// Create Vertex buffer.
+	///REMOVE THIS///
 	Buffer::Description bufferDescription;
 	bufferDescription.initData = temp.data();
 	bufferDescription.numOfElements = temp.size();
 	bufferDescription.sizeOfElement = sizeof(Vertex);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
-	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
+	std::unique_ptr<Buffer> tmpVertexBuff(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 	temp.clear();
+	///REMOVE THIS///
 
-	// Create Index buffer.
+	//vertexBuffer = WrapperFactory::getInstance()->createBuffer(createBufferDescription(temp));
+
+	///REMOVETHIS///
 	unsigned int nrIndexBuffers = tempI.size();
 	std::vector<std::unique_ptr<Buffer>> indices;
 	bufferDescription.type = Buffer::Type::INDEX_BUFFER;
 	//bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE;// Change to default when needed to change data.
 	bufferDescription.sizeOfElement = sizeof(int);
-
-
 	for(unsigned int i = 0; i < nrIndexBuffers; i++)
 	{
 		bufferDescription.initData = tempI.at(i).data();
@@ -101,10 +108,11 @@ ModelDefinition ModelFactory::createStaticModel(const char *p_Filename)
 	}
 	tempI.clear();
 	I.clear();
+	///REMOVE THIS///
 
 	loadTextures(p_Filename, nrIndexBuffers, tempM, model);
 
-	model.vertexBuffer.swap(vertexBuffer);
+	model.vertexBuffer.swap(tmpVertexBuff);
 	model.indexBuffers.swap(indices);
 	model.numOfMaterials	= nrIndexBuffers;
 	modelLoader.clear();
@@ -131,6 +139,18 @@ ModelFactory::ModelFactory(void)
 
 ModelFactory::~ModelFactory(void)
 {
+}
+
+Buffer::Description ModelFactory::createBufferDescription(vector<Vertex> p_VertexBuffer)
+{
+	Buffer::Description bufferDescription;
+	//bufferDescription.initData = temp.data();
+	//bufferDescription.numOfElements = temp.size();
+	//bufferDescription.sizeOfElement = sizeof(Vertex);
+	//bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
+	//bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
+	
+	return bufferDescription;
 }
 
 ID3D11ShaderResourceView *ModelFactory::getTextureFromList(string p_Identifier)
