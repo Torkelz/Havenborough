@@ -17,9 +17,6 @@ using std::pair;
 
 class ModelFactory
 {
-private:
-	
-
 public:
 	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
 

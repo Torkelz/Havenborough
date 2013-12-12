@@ -373,7 +373,7 @@ void Graphics::renderModel(int p_ModelId)
 	{
 		if (inst.first == p_ModelId)
 		{
-			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.m_ModelName),
+			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.getModelName()),
 				&inst.second.getWorldMatrix()));
 			break;
 		}
@@ -433,11 +433,11 @@ int Graphics::getVRAMMemUsage(void)
 int Graphics::createModelInstance(const char *p_ModelId)
 {
 	ModelInstance instance;
-	instance.m_IsCalculated = false;
-	instance.m_ModelName = p_ModelId;
-	instance.m_Position = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	instance.m_Rotation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	instance.m_Scale = DirectX::XMFLOAT3(1.f, 1.f, 1.f);
+	instance.setIsCalculated(false);
+	instance.setModelName(p_ModelId);
+	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
+	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
+	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 
 	int id = m_NextInstanceId++;
 	m_ModelInstances.push_back(std::make_pair(id, instance));

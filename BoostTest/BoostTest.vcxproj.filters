@@ -2,33 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Source\testProgram.cpp" />
-    <ClCompile Include="..\Physics\Source\Collision.cpp" />
-    <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
-    <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
-    <ClCompile Include="..\Graphics\Source\Shader.cpp" />
-    <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
-    <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
-    <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
-    <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
-    <ClCompile Include="Source\TestCollision.cpp" />
-    <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp" />
-    <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="..\Network\Source\ClientConnect.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp" />
     <ClCompile Include="..\Network\Source\ConnectionController.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Network\Source\Connection.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
-    <ClCompile Include="SphereTest.cpp" />
-    <ClCompile Include="AABBTest.cpp" />
-    <ClCompile Include="..\Physics\Source\Body.cpp" />
-    <ClCompile Include="BodyTest.cpp" />
-    <ClCompile Include="..\Physics\Source\Physics.cpp" />
-    <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
@@ -81,7 +63,6 @@
     <ClCompile Include="TestResouceTranslator.cpp">
       <Filter>TestResourceManager</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\ModelFactory.cpp" />
     <ClCompile Include="..\Client\Source\Input\Input.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
@@ -145,18 +126,79 @@
     <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp">
       <Filter>ModelLoader\Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\ModelInstance.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\ModelFactory.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\Graphics.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\Shader.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp">
+      <Filter>TestGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\TestTextureLoader.cpp">
+      <Filter>TestGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextureLoader.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="AABBTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\Body.cpp">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="BodyTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\Buffer.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\Collision.cpp">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\Physics.cpp">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TestCollision.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\dummy.hlsl" />
-    <FxCompile Include="Source\dummy2.hlsl" />
+    <FxCompile Include="Source\dummy.hlsl">
+      <Filter>TestGraphics</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\dummy2.hlsl">
+      <Filter>TestGraphics</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ClientImport">
       <UniqueIdentifier>{9012d9e5-e746-47e1-ad07-9fcd3fe9d204}</UniqueIdentifier>
     </Filter>
-    <ClInclude Include="..\Physics\include\Sphere.h" />
-    <ClInclude Include="..\Physics\include\BoundingVolume.h" />
-    <ClInclude Include="..\Physics\include\AABB.h" />
     <Filter Include="TestNetwork">
       <UniqueIdentifier>{8071612c-29ac-4b80-a58c-541a8115a1ae}</UniqueIdentifier>
     </Filter>
@@ -196,5 +238,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Sample130.tx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Physics\include\AABB.h">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\BoundingVolume.h">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\Sphere.h">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

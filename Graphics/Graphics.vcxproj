@@ -119,6 +119,7 @@
     <ClInclude Include="Source\ModelDefinition.h" />
     <ClInclude Include="Source\GraphicsLogger.h" />
     <ClInclude Include="Source\ModelFactory.h" />
+    <ClInclude Include="Source\ModelInstance.h" />
     <ClInclude Include="Source\RAMMemInfo.h" />
     <ClInclude Include="Source\VRAMMemInfo.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
@@ -153,6 +154,11 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Source\dummyVS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\ModelInstance.cpp">
+      <FileType>Document</FileType>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

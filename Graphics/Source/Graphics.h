@@ -14,6 +14,7 @@
 #include "DeferredRenderer.h"
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
+#include "ModelInstance.h"
 #include "VRAMMemInfo.h"
 
 using std::string;
@@ -25,74 +26,6 @@ using namespace DirectX;
 class Graphics : public IGraphics
 {
 private:
-	struct ModelInstance
-	{
-		std::string m_ModelName;
-		DirectX::XMFLOAT3 m_Position;
-		DirectX::XMFLOAT3 m_Rotation;
-		DirectX::XMFLOAT3 m_Scale;
-
-		mutable bool m_IsCalculated;
-		mutable DirectX::XMFLOAT4X4 m_World;
-
-		const DirectX::XMFLOAT4X4& getWorldMatrix() const
-		{
-			if (!m_IsCalculated)
-			{
-				calculateWorldMatrix();
-			}
-			return m_World;
-		}
-		void setPosition(const DirectX::XMFLOAT3& p_Position)
-		{
-			m_Position = p_Position;
-			m_IsCalculated = false;
-		}
-		void setRotation(const DirectX::XMFLOAT3& p_Rotation)
-		{
-			m_Rotation = p_Rotation;
-			m_IsCalculated = false;
-		}
-		void setScale(const DirectX::XMFLOAT3& p_Scale)
-		{
-			m_Scale = p_Scale;
-			m_IsCalculated = false;
-		}
-		void calculateWorldMatrix() const
-		{
-			DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYawFromVector( DirectX::XMLoadFloat3(&m_Rotation) );
-			DirectX::XMMATRIX translation = DirectX::XMMatrixTranslationFromVector( DirectX::XMLoadFloat3(&m_Position) );
-			DirectX::XMMATRIX scale = DirectX::XMMatrixScalingFromVector( XMLoadFloat3(&m_Scale) );
-
-			DirectX::XMStoreFloat4x4( &m_World, DirectX::XMMatrixTranspose(scale * rotation * translation) );
-
-			m_IsCalculated = true;
-		}
-	};
-
-	struct Vertex
-	{
-		DirectX::XMFLOAT4 position;
-		DirectX::XMFLOAT3 normal;
-		DirectX::XMFLOAT2 uv;
-		DirectX::XMFLOAT3 tangent;
-		DirectX::XMFLOAT3 binormal;
-		Vertex(){}
-		Vertex(DirectX::XMFLOAT3 _position,
-			DirectX::XMFLOAT3 _normal,
-			DirectX::XMFLOAT2 _uv,
-			DirectX::XMFLOAT3 _tangent)
-		{
-			position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
-			normal = _normal;
-			uv = _uv;
-			tangent = _tangent;
-
-			//might be wrong
-			DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
-		}
-	};
-
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 
