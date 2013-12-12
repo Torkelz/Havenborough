@@ -37,6 +37,8 @@ public:
 	static void log(Level p_Level, const char* p_Message);
 	static void addOutput(Level p_Level, std::ostream& p_Out);
 
+	static void reset();
+
 private:
 	static Logger* getInstance();
 };

@@ -45,6 +45,13 @@ void Logger::addOutput(Level p_Level, std::ostream& p_Out)
 	instance->m_Outputs.push_back(out);
 }
 
+void Logger::reset()
+{
+	std::unique_lock<std::mutex> lock(m_Mutex);
+
+	m_Instance.reset();
+}
+
 Logger* Logger::getInstance()
 {
 	if (!m_Instance)
