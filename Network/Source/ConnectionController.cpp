@@ -93,5 +93,5 @@ void ConnectionController::savePackageCallBack(uint16_t p_ID, const std::string&
  	}
 
 	std::string msg("Received unregistered package type: " + std::to_string(p_ID));
-	NetworkLogger::log(NetworkLogger::Level::WARNING, msg.c_str());
+	NetworkLogger::log(NetworkLogger::Level::WARNING, msg);
 }

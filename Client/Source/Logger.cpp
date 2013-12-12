@@ -6,7 +6,12 @@
 std::mutex Logger::m_Mutex;
 std::unique_ptr<Logger> Logger::m_Instance;
 
-void Logger::log(Level p_Level, const char* p_Message)
+void Logger::log(Level p_Level, const std::string& p_Message)
+{
+	logRaw((uint32_t)p_Level, p_Message.c_str());
+}
+
+void Logger::logRaw(uint32_t p_Level, const char* p_Message)
 {
 	Logger* instance = getInstance();
 
@@ -28,7 +33,7 @@ void Logger::log(Level p_Level, const char* p_Message)
 
 	for (Output& out : instance->m_Outputs)
 	{
-		if (p_Level >= out.m_Level)
+		if (p_Level >= (uint32_t)out.m_Level)
 		{
 			out.m_Destination << std::put_time(currentLocalTime, "[%Y-%m-%d %H:%M:%S]") << " " << levelNames[(uint32_t)p_Level] << ": " << p_Message << std::endl << std::flush;
 		}
