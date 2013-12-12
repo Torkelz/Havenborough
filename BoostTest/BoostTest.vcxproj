@@ -147,6 +147,7 @@
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="SphereTest.cpp" />
     <ClCompile Include="Source\Loader\TestBinaryConverter.cpp" />
+    <ClCompile Include="Source\Loader\TestBinayLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

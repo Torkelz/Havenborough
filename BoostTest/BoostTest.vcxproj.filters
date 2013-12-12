@@ -73,7 +73,6 @@
       <Filter>TestNetwork</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp" />
-    <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp">
       <Filter>TestBinaryConverter\BinaryConverterImport</Filter>
     </ClCompile>
@@ -84,6 +83,12 @@
       <Filter>TestBinaryConverter\BinaryConverterImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\Loader\TestBinaryConverter.cpp">
+      <Filter>TestBinaryConverter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp">
+      <Filter>TestBinaryConverter\BinaryConverterImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Loader\TestBinayLoader.cpp">
       <Filter>TestBinaryConverter</Filter>
     </ClCompile>
   </ItemGroup>

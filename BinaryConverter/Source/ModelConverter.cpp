@@ -10,6 +10,7 @@ ModelConverter::ModelConverter()
 	m_MaterialSize = 0;
 	m_IndexPerMaterialSize = 0;
 	m_ListOfJointsSize = 0;
+	m_WeightsListSize = 0;
 }
 
 ModelConverter::~ModelConverter()
@@ -31,6 +32,7 @@ void ModelConverter::clear()
 	m_MaterialSize = 0;
 	m_IndexPerMaterialSize = 0;
 	m_ListOfJointsSize = 0;
+	m_WeightsListSize = 0;
 	m_MeshName = "";
 	m_Indices = nullptr;
 }
@@ -48,7 +50,7 @@ bool ModelConverter::writeFile(std::string p_FilePath)
 	}
 	createHeader(&output);
 	createMaterial(&output);
-	if(m_WeightsList != nullptr)
+	if(m_WeightsListSize != 0)
 	{
 		createVertexBufferAnimation(&output);
 		createJointBuffer(&output);
@@ -84,7 +86,8 @@ void ModelConverter::createVertexBuffer(std::ostream* p_Output)
 	std::vector<VertexBuffer> tempVertex;
 	for(int i = 0; i < m_IndexPerMaterialSize; i++)
 	{
-		for(unsigned int j = 0; j < m_IndexPerMaterial->at(i).size(); j++)
+		int tempsize = m_IndexPerMaterial->at(i).size()-1;
+		for(int j = tempsize; j >= 0 ; j--)
 		{
 			temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
 			temp.m_Normal = m_Normals->at(m_IndexPerMaterial->at(i).at(j).m_Normal);
@@ -211,9 +214,10 @@ void ModelConverter::setTextureCoords(const std::vector<DirectX::XMFLOAT2>* p_Te
 	m_TextureCoord = p_TextureCoord;
 }
 
-void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>* p_WeightList)
+void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>* p_WeightsList)
 {
-	m_WeightsList = p_WeightList;
+	m_WeightsList = p_WeightsList;
+	m_WeightsListSize = m_WeightsList->size();
 }
 
 void ModelConverter::setListOfJoints(const std::vector<ModelLoader::Joint>* p_ListOfJoints)
@@ -252,5 +256,6 @@ void ModelConverter::clearData()
 	m_MaterialSize = 0;
 	m_IndexPerMaterialSize = 0;
 	m_ListOfJointsSize = 0;
+	m_WeightsListSize = 0;
 	m_MeshName = "";
 }

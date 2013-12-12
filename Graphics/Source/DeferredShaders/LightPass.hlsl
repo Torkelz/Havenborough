@@ -113,11 +113,11 @@ VSOutput VSmain( uint vID : SV_VERTEXID )
 	switch(vID)
 	{
 		case 0:		output.texCoord = float2(0,0);	break;
-		case 2:		output.texCoord = float2(1,0);	break;
-		case 1:		output.texCoord = float2(0,1);	break;
+		case 1:		output.texCoord = float2(1,0);	break;
+		case 2:		output.texCoord = float2(0,1);	break;
 		case 3:		output.texCoord = float2(0,1);	break;
-		case 5:		output.texCoord = float2(1,0);	break;
-		case 4:		output.texCoord = float2(1,1);	break;
+		case 4:		output.texCoord = float2(1,0);	break;
+		case 5:		output.texCoord = float2(1,1);	break;
 		default:	output.texCoord = float2(-1,-1);break;
 	}
 	output.position = float4( (output.texCoord * float2(2.0f,-2.0f)) + 

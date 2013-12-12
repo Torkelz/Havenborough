@@ -108,7 +108,7 @@ void ModelBinaryLoader::byteToString(std::istream* p_Input, std::string& p_Retur
 
 void ModelBinaryLoader::byteToInt(std::istream* p_Input, int& p_Return)
 {
-	p_Input->read((char*)&p_Return, sizeof(unsigned int));
+	p_Input->read((char*)&p_Return, sizeof(int));
 }
 
 void ModelBinaryLoader::byteToFloat(std::istream* p_Input, float& p_Return)

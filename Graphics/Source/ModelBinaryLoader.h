@@ -11,8 +11,6 @@
 class ModelBinaryLoader
 {
 public:
-
-private:
 	struct Header
 	{
 		std::string m_modelName;
@@ -23,12 +21,14 @@ private:
 		int m_numFrames;
 	};
 
+private:
 	Header m_FileHeader;
 	std::vector<Material> m_Material;
 	std::vector<VertexAnimation> m_AnimationVertexBuffer;
 	std::vector<Joint> m_Joints;
 	std::vector<Vertex> m_VertexBuffer;
 	std::vector<MaterialBuffer> m_MaterialBuffer;
+
 public:
 	
 	/**
@@ -92,8 +92,7 @@ public:
 	 */
 	const std::vector<MaterialBuffer>& getMaterialBuffer();
 
-private:
-
+protected:
 	void byteToInt(std::istream* p_Input, int& p_Return);
 	void byteToFloat(std::istream* p_Input, float& p_Return);
 	void byteToString(std::istream* p_Input, std::string& p_Return);
@@ -104,5 +103,7 @@ private:
 	std::vector<Vertex> readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input);	
 	std::vector<VertexAnimation> readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input);	
 	std::vector<Joint> readJointList(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input);
+
+private:
 	void clearData();
 };
