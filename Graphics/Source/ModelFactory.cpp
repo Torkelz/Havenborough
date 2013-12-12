@@ -16,7 +16,7 @@ ModelFactory *ModelFactory::getInstance(void)
 void ModelFactory::initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList)
 {
 	if(!m_Instance)
-		return;
+		throw ModelFactoryException("Error when initializing ModelFactory, no instance exists", __LINE__, __FILE__);
 
 	m_TextureList = p_TextureList;
 }
