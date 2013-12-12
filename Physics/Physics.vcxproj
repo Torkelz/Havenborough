@@ -96,6 +96,7 @@
     <ClCompile Include="Source\Sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\OBB.h" />
     <ClInclude Include="include\PhysicsTypes.h" />
     <ClInclude Include="include\AABB.h" />
     <ClInclude Include="include\BoundingVolume.h" />

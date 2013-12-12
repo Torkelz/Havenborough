@@ -1,5 +1,4 @@
-#ifndef AABB_H
-#define AABB_H
+#pragma once
 
 #include "BoundingVolume.h"
 #include "Sphere.h"
@@ -40,8 +39,8 @@ public:
 	AABB(){}
 	/**
 	* ## MUST BE BUILT IN MODEL SPACE! ##
-	* @p_top is the most positive corner in all axis.
-	* @p_bot is the least positive corner in all axis.
+	* @param p_top is the most positive corner in all axis.
+	* @param p_bot is the least positive corner in all axis.
 	*/
 	AABB( DirectX::XMFLOAT4 p_Bot, DirectX::XMFLOAT4 p_Top) : BoundingVolume()
 	{
@@ -113,7 +112,7 @@ public:
 	}
 	/**
 	* Updates position for AABB with translation matrix.
-	* @p_translation, move the AABB in relative coordinates.
+	* @param p_translation, move the AABB in relative coordinates.
 	*/
 	void updatePosition( DirectX::XMFLOAT4X4& p_Translation )
 	{
@@ -134,28 +133,28 @@ public:
 		calculateBounds();
 	}
 	/**
-	* @return m_top, return top corner
+	* @return the top corner
 	*/
 	DirectX::XMFLOAT4* getMax()
 	{
 		return &m_Bounds[7];
 	}
 	/**
-	* @return m_bottom, return bottom corner
+	* @return the bottom corner
 	*/
 	DirectX::XMFLOAT4* getMin()
 	{
 		return &m_Bounds[0];
 	}
 	/**
-	* @return m_halfDiagonal, return vector from center to top corner.
+	* @return a vector from center to top corner.
 	*/
 	DirectX::XMFLOAT4* getHalfDiagonal()
 	{
 		return &m_HalfDiagonal;
 	}
 	/**
-	* @return m_sphere, AABB's sphere
+	* @return the sphere that surround the AABB
 	*/
 	Sphere*	getSphere()
 	{
@@ -167,5 +166,3 @@ public:
 	void				initDraw(ID3D11Device* p_pDevice, ID3D11DeviceContext* p_pDeviceContext, DirectX::XMFLOAT4 p_color);
 	void				draw( DirectX::XMFLOAT4X4& p_world, DirectX::XMFLOAT4X4& p_view, DirectX::XMFLOAT4X4& p_proj );*/
 };
-
-#endif

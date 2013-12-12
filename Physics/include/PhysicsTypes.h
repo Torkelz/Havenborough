@@ -5,7 +5,8 @@ typedef unsigned int BodyHandle;
 enum class BoundingVolumeType
 {
 	SPHERE,
-	AABB
+	AABB,
+	OBB
 };
 
 enum class Type

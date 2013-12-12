@@ -220,6 +220,145 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	return hit;
 }
 
+HitData Collision::OBBvsOBB(OBB &p_OBB1, OBB &p_OBB2)
+{
+	HitData hit = HitData();
+
+	DirectX::XMMATRIX invRotA, invRotB;
+	
+	DirectX::XMVECTOR sizeA = XMLoadFloat3(&p_OBB1.getExtent());
+	DirectX::XMVECTOR sizeB = XMLoadFloat3(&p_OBB2.getExtent());
+
+	DirectX::XMVECTOR vCenterPos1 = XMLoadFloat4(p_OBB1.getPosition());
+	DirectX::XMVECTOR vCenterPos2 = XMLoadFloat4(p_OBB2.getPosition());
+	
+	invRotA = DirectX::XMLoadFloat4x4(&p_OBB1.getInvRotation());
+	invRotB = DirectX::XMLoadFloat4x4(&p_OBB2.getInvRotation());
+
+	DirectX::XMMATRIX R, AR;
+	DirectX::XMVECTOR dotResult0, dotResult1, dotResult2;
+	float extentA, extentB, separation;
+
+    // Calculate B to A rotation matrix
+	for(int i = 0; i < 3; i++ )
+	{
+       for(int k = 0; k < 3; k++ )
+		{
+			dotResult0 = DirectX::XMVector4Dot(invRotA.r[i], invRotB.r[k]);
+			R.r[i].m128_f32[k] =  dotResult0.m128_f32[0];
+			AR.r[i].m128_f32[k] = fabs(R.r[i].m128_f32[k]);
+        }
+	}
+
+	// Vector separating the centers of Box B and of Box A	
+	DirectX::XMVECTOR vSepWS = vCenterPos2 - vCenterPos2;
+	// Rotated into Box A's coordinates
+	dotResult0 = DirectX::XMVector4Dot(vSepWS, invRotA.r[0]);
+	dotResult1 = DirectX::XMVector4Dot(vSepWS, invRotA.r[1]);
+	dotResult2 = DirectX::XMVector4Dot(vSepWS, invRotA.r[2]);
+	
+	DirectX::XMVECTOR vSepA	 = DirectX::XMVectorSet(dotResult0.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f);
+            
+     // Test if any of A's basis vectors separate the box
+	DirectX::XMVECTOR temp;
+	for(int i = 0; i < 3; i++ )
+	{
+		extentA = sizeA.m128_f32[i];
+		temp = DirectX::XMVectorSet(AR.r[i].m128_f32[0], AR.r[i].m128_f32[1], AR.r[i].m128_f32[2], 0.f);
+		dotResult0 = DirectX::XMVector4Dot(sizeB, temp);
+		extentB = dotResult0.m128_f32[0];
+		separation = fabs(vSepA.m128_f32[i]);
+
+		if(separation > extentA + extentB)
+		{
+			//No intersection
+			hit.intersect = false;
+			return hit;
+		}
+	}
+
+	// Test if any of B's basis vectors separate the box
+	for(int i = 0; i < 3; i++)
+	{
+		extentB = sizeA.m128_f32[i];
+		temp = DirectX::XMVectorSet(AR.r[0].m128_f32[i], AR.r[1].m128_f32[i], AR.r[2].m128_f32[i], 0.f);
+		dotResult0 = DirectX::XMVector4Dot(sizeA, temp);
+		extentA = dotResult0.m128_f32[0];
+
+		temp = DirectX::XMVectorSet(R.r[0].m128_f32[i], R.r[1].m128_f32[i], R.r[2].m128_f32[i], 0.f);
+		dotResult0 = DirectX::XMVector4Dot(vSepA, temp);
+
+		separation = fabs(dotResult0.m128_f32[0]);
+
+		if(separation > extentA + extentB)
+		{
+			//No intersection
+			hit.intersect = false;
+			return hit;
+		}
+	}
+
+	//// Now test Cross Products of each basis vector combination ( A[i], B[k] )
+	for(int i = 0; i < 3; i++)
+	{
+		for(int k = 0; k < 3; k++)
+		{
+			int i1 = (i+1)%3, i2 = (i+2)%3;
+			int k1 = (k+1)%3, k2 = (k+2)%3;
+			extentA = sizeA.m128_f32[i1] * AR.r[i2].m128_f32[k]  +  sizeA.m128_f32[i2] * AR.r[i1].m128_f32[k];
+			extentB = sizeB.m128_f32[k1] * AR.r[i].m128_f32[k2]  +  sizeB.m128_f32[k2] * AR.r[i].m128_f32[k1];
+			separation = fabs( vSepA.m128_f32[i2] * R.r[i1].m128_f32[k]  -  vSepA.m128_f32[i1] * R.r[i2].m128_f32[k] );
+			if( separation > extentA + extentB )
+			{
+				hit.intersect = false;
+				return hit;
+			}
+		}
+	}
+
+	//// No separating axis found, the boxes overlap
+	hit.intersect = true;
+	//Calculate intersection point()
+	return hit;
+}
+
+HitData Collision::OBBvsSphere(OBB &p_OBB, Sphere &p_Sphere)
+{
+	HitData hit = HitData();
+	float fDist;
+	float fDistSq				= 0;
+	DirectX::XMVECTOR extent	= DirectX::XMLoadFloat3(&p_OBB.getExtent());
+	DirectX::XMVECTOR spherePos = DirectX::XMLoadFloat4(p_Sphere.getPosition());
+	DirectX::XMMATRIX invRot	= DirectX::XMLoadFloat4x4(&p_OBB.getInvRotation());
+
+	float fRadius = p_Sphere.getRadius();
+	
+	DirectX::XMVECTOR P = DirectX::XMVector3Transform(spherePos, invRot);
+	
+	// Add distance squared from sphere centerpoint to box for each axis
+	for ( int i = 0; i < 3; i++ )
+	{
+		if ( fabs(P.m128_f32[i]) > extent.m128_f32[i] )
+		{
+			fDist = fabs(P.m128_f32[i]) - extent.m128_f32[i];
+			fDistSq += fDist*fDist;
+		}
+	}
+
+	if( fDistSq <= fRadius*fRadius )
+	{
+		hit.intersect = true;
+		//Calculate pos
+	}
+
+	return hit;
+}
+
+HitData Collision::OBBvsAABB(OBB &p_OBB, AABB &p_Sphere)
+{
+	
+}
+
 //bool AABB::collide(BoundingVolume* p_pVolume)
 //{
 //	if(p_pVolume->getType() == AABBOX)

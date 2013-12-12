@@ -90,5 +90,11 @@ public:
 	*/
 	HitData AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere );
 	//bool	collide( BoundingVolume* p_pVolume );
+
+	HitData OBBvsOBB(OBB &p_OBB1, OBB &p_OBB2);
+
+	HitData OBBvsSphere(OBB &p_OBB, Sphere &p_Sphere);
+
+	HitData OBBvsAABB(OBB &p_OBB, AABB &p_AABB);
 };
 
