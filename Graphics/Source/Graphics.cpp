@@ -1,7 +1,6 @@
 #include "Graphics.h"
 #include "GraphicsLogger.h"
 
-
 #include <iostream>
 #include <boost/filesystem.hpp>
 
@@ -264,7 +263,7 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 	{
 		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
 		{
-			for(int i = 0; i < it->second.numOfMaterials; i++)
+			for(unsigned int i = 0; i < it->second.numOfMaterials; i++)
 			{
 				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 				m_ReleaseModelTexture(it->second.normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
@@ -516,9 +515,6 @@ void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Ya
 
 	//XMFLOAT4X4 view;
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
-
-	//m_DeferredRender->updateViewMatrix(view);
-	//m_DeferredRender->updateCameraPosition(XMFLOAT3(p_PosX, p_PosY, p_PosZ));
 }
 
 void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
@@ -529,8 +525,6 @@ void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata)
 {
 	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
-	//m_LoadModelTexture = p_LoadModelTexture;
-	//m_LoadModelTextureUserdata = p_Userdata;
 }
 
 void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)

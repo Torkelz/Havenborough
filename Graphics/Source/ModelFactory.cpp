@@ -1,12 +1,9 @@
 #include "ModelFactory.h"
 
 
-#include <vector>
 #include <boost/filesystem.hpp>
 
 ModelFactory *ModelFactory::m_Instance = nullptr;
-
-
 
 ModelFactory *ModelFactory::getInstance(void)
 {
@@ -16,13 +13,12 @@ ModelFactory *ModelFactory::getInstance(void)
 	return m_Instance;
 }
 
-void ModelFactory::initialize(std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *p_TextureList)
+void ModelFactory::initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList)
 {
 	if(!m_Instance)
 		return;
 
 	m_TextureList = p_TextureList;
-	//setTextureList(p_TextureList);
 }
 
 void ModelFactory::shutdown(void)

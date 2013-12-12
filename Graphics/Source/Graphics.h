@@ -9,7 +9,7 @@
 #include <dxgi.h>
 
 #include "../include/IGraphics.h"
-#include "MyGraphicsExceptions.h"
+#include "GraphicsExceptions.h"
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
 #include "WrapperFactory.h"

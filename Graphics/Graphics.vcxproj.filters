@@ -42,7 +42,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\GraphicsLogger.cpp">
-          <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\RAMMemInfo.cpp">
       <Filter>Source Files</Filter>
@@ -85,9 +85,6 @@
     <ClInclude Include="Source\ModelLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MyGraphicsExceptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\VRAMMemInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -101,7 +98,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\GraphicsLogger.h">
-          <Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\RAMMemInfo.h">
       <Filter>Header Files</Filter>
@@ -110,6 +107,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ModelFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GraphicsExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

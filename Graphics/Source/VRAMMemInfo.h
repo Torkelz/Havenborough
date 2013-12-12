@@ -5,7 +5,7 @@
 
 #include <d3d11.h>
 #include "Util.h"
-#include "MyGraphicsExceptions.h"
+#include "GraphicsExceptions.h"
 #include <memory>
 
 
