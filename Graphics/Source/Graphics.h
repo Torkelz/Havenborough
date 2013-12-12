@@ -54,21 +54,23 @@ private:
 	VRAMMemInfo *m_VRAMMemInfo;
 
 	vector<pair<string, Shader*>> m_ShaderList;
-	vector<pair<string, ModelDefinition>> m_ModelList;
+	vector<pair<string, ModelDefinition>> m_StaticModelList;
+	vector<pair<string, ModelDefinition>> m_AnimatedModelList;
 	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
 	vector<pair<int, ModelInstance>> m_ModelInstances;
 	int m_NextInstanceId;
 	
-	DeferredRenderer	*m_DeferredRender;
+	DeferredRenderer *m_DeferredRender;
 
-	Shader				*m_Shader; //DEBUG
-	ID3D11SamplerState	*m_Sampler;
+	Shader *m_Shader; //DEBUG
+	ID3D11SamplerState *m_Sampler;
 
 	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
-	void* m_LoadModelTextureUserdata;
+	void *m_LoadModelTextureUserdata;
 	
 	IGraphics::releaseModelTextureCallBack m_ReleaseModelTexture;
-	void* m_ReleaseModelTextureUserdata;
+	void *m_ReleaseModelTextureUserdata;
+
 public:
 	Graphics(void);
 	~Graphics(void);

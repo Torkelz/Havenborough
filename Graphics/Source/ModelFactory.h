@@ -69,8 +69,9 @@ private:
 	ModelFactory(void);
 	virtual ~ModelFactory(void);
 	
-	Buffer::Description createBufferDescription(vector<Vertex> p_VertexBuffer);
+	Buffer::Description createBufferDescription(const vector<Vertex> &p_VertexData, Buffer::Usage p_Usage);
 
-	void loadTextures(const char *p_Filename, unsigned int nrIndexBuffers, const vector<Material> &tempM, ModelDefinition &model);
+	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
+		const vector<Material> &p_Materials);
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
 };

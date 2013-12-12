@@ -215,7 +215,7 @@ void Graphics::shutdown(void)
 		SAFE_RELEASE(tex.second);
 	}
 	m_TextureList.clear();
-	m_ModelList.clear();
+	m_StaticModelList.clear();
 
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
@@ -246,20 +246,23 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
 	ModelDefinition model =	m_ModelFactory->getInstance()->createStaticModel(p_Filename);
 
-	m_ModelList.push_back(std::pair<string,ModelDefinition>(p_ModelId, std::move(model)));
+	m_StaticModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
 
 	return true;
 }
 	
 bool Graphics::createAnimatedModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelDefinition model = m_ModelFactory->getInstance()->createAnimatedModel(p_Filename);
+	ModelDefinition model = m_ModelFactory->getInstance()->createAnimatedModel(p_Filename); //TODO: May need another model definition
+
+	m_AnimatedModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
+
 	return true;
 }
 
-bool Graphics::releaseModel(const char* p_ResourceName)
+bool Graphics::releaseModel(const char* p_ResourceName) //TODO: Maybe need to handle if animated or static?
 {
-	for(auto it = m_ModelList.begin(); it != m_ModelList.end(); ++it)
+	for(auto it = m_StaticModelList.begin(); it != m_StaticModelList.end(); ++it)
 	{
 		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
 		{
@@ -270,7 +273,7 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 			}
 
-			m_ModelList.erase(it);
+			m_StaticModelList.erase(it);
 			return true;
 		}
 	}
@@ -323,7 +326,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		p_ShaderModel, p_Type, p_VertexLayout, p_NumOfElements)));
 }
 
-void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
+void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) //TODO: Maybe need to handle if animated or static?
 {
 	ModelDefinition *model = nullptr;
 	model = getModelFromList(p_ModelId);
@@ -367,7 +370,7 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-void Graphics::renderModel(int p_ModelId)
+void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animated or static?
 {
 	for (auto& inst : m_ModelInstances)
 	{
@@ -438,8 +441,8 @@ int Graphics::createModelInstance(const char *p_ModelId)
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
-
 	int id = m_NextInstanceId++;
+
 	m_ModelInstances.push_back(std::make_pair(id, instance));
 
 	return id;
@@ -758,11 +761,11 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 	return ret;
 }
 
-ModelDefinition *Graphics::getModelFromList(string p_Identifier)
+ModelDefinition *Graphics::getModelFromList(string p_Identifier) //TODO: Maybe need to handle if animated or static?
 {
 	ModelDefinition* ret = nullptr;
 
-	for(auto & s : m_ModelList)
+	for(auto & s : m_StaticModelList)
 	{
 		if(s.first.compare(p_Identifier) == 0 )
 		{

@@ -23,7 +23,7 @@ void ModelInstance::setModelName(string p_Name)
 	m_ModelName = p_Name;
 }
 
-string ModelInstance::getModelName(void)
+string ModelInstance::getModelName(void) const
 {
 	return m_ModelName;
 }
