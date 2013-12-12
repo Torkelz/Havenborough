@@ -98,6 +98,9 @@
     <ClCompile Include="Source\DeferredRenderer.cpp" />
     <ClCompile Include="Source\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\ModelBinaryLoader.cpp" />
+    <ClCompile Include="Source\ModelFactory.cpp" />
+    <ClCompile Include="Source\GraphicsLogger.cpp" />
+    <ClCompile Include="Source\RAMMemInfo.cpp" />
     <ClCompile Include="Source\TextureLoader.cpp" />
     <ClCompile Include="Source\VRAMMemInfo.cpp" />
     <ClCompile Include="Source\WICTextureLoader.cpp" />
@@ -107,16 +110,20 @@
     <ClCompile Include="Source\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\LoaderStructs.h" />
+    <ClInclude Include="include\ShaderDeffinitions.h" />
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\LightStructs.h" />
+    <ClInclude Include="Source\LoaderStructs.h" />
     <ClInclude Include="Source\ModelBinaryLoader.h" />
     <ClInclude Include="Source\ModelDefinition.h" />
+    <ClInclude Include="Source\GraphicsLogger.h" />
+    <ClInclude Include="Source\ModelFactory.h" />
+    <ClInclude Include="Source\RAMMemInfo.h" />
     <ClInclude Include="Source\VRAMMemInfo.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
     <ClInclude Include="Source\WrapperFactory.h" />
-    <ClInclude Include="Source\MyGraphicsExceptions.h" />
+    <ClInclude Include="Source\GraphicsExceptions.h" />
     <ClInclude Include="Source\Shader.h" />
     <ClInclude Include="Source\Buffer.h" />
     <ClInclude Include="Source\Graphics.h" />

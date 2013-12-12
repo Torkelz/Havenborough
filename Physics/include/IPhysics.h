@@ -2,10 +2,15 @@
 
 #include "PhysicsTypes.h"
 
+#include <cstdint>
+
 class IPhysics
 {	
 public:
 	__declspec(dllexport) static IPhysics *createPhysics(void);
+	__declspec(dllexport) static void deletePhysics(IPhysics* p_Physics);
+
+	virtual ~IPhysics() {};
 
 	virtual void initialize() = 0;
 	/**
@@ -26,6 +31,17 @@ public:
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
 	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top) = 0;
+
+
+
+
+	virtual Vector4 getBodyPosition(BodyHandle p_Body) =0;
+
+
+	
+	virtual void setBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
+
+
 	/**
 	 * Keeps physics updated, collision checks etc.
 	 * @p_DeltaTime, timestep.
@@ -36,7 +52,7 @@ public:
 	 * @p_Force, force to be added.
 	 * @p_Body, what body to apply the force.
 	 */
-	virtual void applyForce(Vector3 p_Force, BodyHandle p_Body) = 0;
+	virtual void applyForce(Vector4 p_Force, BodyHandle p_Body) = 0;
 	/**
 	 * Used to change the gravity constant.
 	 * @p_Gravity, the new gravity.
@@ -67,9 +83,20 @@ public:
 	*/
 	//virtual BoundingVolume* getVolume(BodyHandle p_Body) = 0;
 
-	//DEBUGGING
+
 	/**
-	 * A function used for debugging purpose.
+	 * Callback for logging.
+	 *
+	 * @param p_Level log priority level. Higher is more important.
+	 * @param p_Message the log message.
 	 */
-	virtual void moveBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
+	typedef void (*clientLogCallback_t)(uint32_t p_Level, const char* p_Message);
+
+	/**
+	 * Set the function to handle log messages.
+	 *
+	 * @param p_LogCallback the function to be called whenever a message is to
+	 *			be logged from this component. Set to null to disable logging.
+	 */
+	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
 };

@@ -1,6 +1,8 @@
 #include <INetwork.h>
+#include "../../Client/Source/Logger.h"
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -9,7 +11,8 @@ std::vector<IConnectionController*> g_Controllers;
 
 void clientConnected(IConnectionController* p_Connection, void* p_UserData)
 {
-	std::cout << "Client connected" << std::endl;
+	Logger::log(Logger::Level::INFO, "Client connected");
+
 	AddObjectData data = {5.f, 4.f, 1.f};
 	p_Connection->sendAddObject(data);
 	p_Connection->sendAddObject(data);
@@ -24,7 +27,8 @@ void clientConnected(IConnectionController* p_Connection, void* p_UserData)
 
 void clientDisconnected(IConnectionController* p_Connection, void* p_UserData)
 {
-	std::cout << "Client disconnected" << std::endl;
+	Logger::log(Logger::Level::INFO, "Client disconnected");
+
 	for(unsigned int i = 0; i < g_Controllers.size(); i++)
 	{
 		if(g_Controllers[i] == p_Connection)
@@ -75,6 +79,12 @@ void printUnknownCommand()
 
 int main(int argc, char* argv[])
 {
+	std::ofstream logFile("logFile.txt", std::ofstream::trunc);
+
+	Logger::addOutput(Logger::Level::TRACE, logFile);
+	Logger::addOutput(Logger::Level::INFO, std::cout);
+	Logger::log(Logger::Level::INFO, "Starting server");
+
 	INetwork* server;
 	server = INetwork::createNetwork();
 	server->createServer(31415);

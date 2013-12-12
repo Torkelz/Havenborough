@@ -1,6 +1,7 @@
 #include "InputTranslator.h"
 
-#include "../MyExceptions.h"
+#include "../ClientExceptions.h"
+#include "../Logger.h"
 
 InputTranslator::InputTranslator()
 	: m_Window(nullptr)
@@ -9,6 +10,8 @@ InputTranslator::InputTranslator()
 
 void InputTranslator::init(Window* p_Window)
 {
+	Logger::log(Logger::Level::INFO, "Initializing input translator");
+
 	if (p_Window == nullptr)
 	{
 		throw InvalidArgument("Window must not be null", __LINE__, __FILE__);
@@ -39,6 +42,8 @@ void InputTranslator::init(Window* p_Window)
 
 void InputTranslator::destroy()
 {
+	Logger::log(Logger::Level::INFO, "Shutting down input translator");
+
 	m_KeyboardMappings.clear();
 	m_RecordFunction = recordFunc_t();
 	m_Window = nullptr;
@@ -51,18 +56,24 @@ void InputTranslator::setRecordHandler(InputTranslator::recordFunc_t p_RecordHan
 
 void InputTranslator::addKeyboardMapping(USHORT p_VirtualKey, const std::string& p_Action)
 {
+	Logger::log(Logger::Level::TRACE, "Adding keyboard mapping");
+
 	KeyboardRecord rec = {p_VirtualKey, p_Action};
 	m_KeyboardMappings.push_back(rec);
 }
 
 void InputTranslator::addMouseMapping(Axis p_Axis, const std::string& p_PositionAction, const std::string& p_MovementAction)
 {
+	Logger::log(Logger::Level::TRACE, "Adding mouse mapping");
+
 	MouseRecord rec = {p_Axis, p_PositionAction, p_MovementAction};
 	m_MouseMappings.push_back(rec);
 }
 
 void InputTranslator::addMouseButtonMapping(MouseButton p_Button, const std::string& p_Action)
 {
+	Logger::log(Logger::Level::TRACE, "Adding mouse button mapping");
+
 	USHORT buttonFlag;
 	switch(p_Button)
 	{

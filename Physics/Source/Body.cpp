@@ -63,36 +63,36 @@ void Body::update(float p_DeltaTime)
 {
 	if(m_IsImmovable)
 		return;
+	
+	m_LastAcceleration = m_AvgAcceleration;
 
-	m_Acceleration = calculateAcceleration();
+	XMFLOAT4 relativePos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 
-	XMFLOAT4 relativePos = XMFLOAT4(0.f, 0.f, 0.f, 1.f);
-
-	relativePos.x = m_Velocity.x * p_DeltaTime * 100 + (0.5f * m_LastAcceleration.x * (p_DeltaTime*p_DeltaTime));
-	relativePos.y = m_Velocity.y * p_DeltaTime * 100 + (0.5f * m_LastAcceleration.y * (p_DeltaTime*p_DeltaTime));
-	relativePos.z = m_Velocity.z * p_DeltaTime * 100 + (0.5f * m_LastAcceleration.z * (p_DeltaTime*p_DeltaTime));
+	relativePos.x = m_Velocity.x * p_DeltaTime + (0.5f * m_LastAcceleration.x * (p_DeltaTime*p_DeltaTime));
+	relativePos.y = m_Velocity.y * p_DeltaTime + (0.5f * m_LastAcceleration.y * (p_DeltaTime*p_DeltaTime));
+	relativePos.z = m_Velocity.z * p_DeltaTime + (0.5f * m_LastAcceleration.z * (p_DeltaTime*p_DeltaTime));
 
 	m_Position.x += relativePos.x;
 	m_Position.y += relativePos.y;
 	m_Position.z += relativePos.z;
 
 	m_NewAcceleration = calculateAcceleration();
+
 	XMVECTOR tempAvg, tempNew, tempLast;
 	tempAvg = XMVectorSet(0.f, 0.f, 0.f, 0.f);
-
+	
 	tempNew = XMLoadFloat4(&m_NewAcceleration);
 	tempLast = XMLoadFloat4(&m_LastAcceleration);
 
-	tempAvg += (tempLast + tempNew) * 0.5f;
-	tempAvg *= p_DeltaTime;
+	tempAvg = (tempLast + tempNew) * 0.5f;
 
 	XMStoreFloat4(&m_AvgAcceleration, tempAvg);
 
-	m_Velocity.x += m_AvgAcceleration.x;
-	m_Velocity.y += m_AvgAcceleration.y;
-	m_Velocity.z += m_AvgAcceleration.z;
+	m_Velocity.x += m_AvgAcceleration.x * p_DeltaTime;
+	m_Velocity.y += m_AvgAcceleration.y * p_DeltaTime;
+	m_Velocity.z += m_AvgAcceleration.z * p_DeltaTime;
 
-	m_LastAcceleration = m_Acceleration;
+
 
 	updateBoundingVolumePosition(relativePos);
 	
@@ -121,13 +121,9 @@ XMFLOAT4 Body::calculateAcceleration()
 	acc.x = m_NetForce.x/m_Mass;
 	acc.y = m_NetForce.y/m_Mass - m_Gravity;
 	acc.z = m_NetForce.z/m_Mass;
+	acc.w = 0.f;
 
 	return acc;
-}
-
-void Body::addGravity()
-{
-	m_NetForce.y = m_Mass * -m_Gravity;
 }
 
 void Body::setGravity(float p_Gravity)
@@ -189,7 +185,7 @@ DirectX::XMFLOAT4 Body::getNetForce()
 
 DirectX::XMFLOAT4 Body::getACC()
 {
-	return m_Acceleration;
+	return m_NewAcceleration;
 }
 
 float Body::getGravity()

@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A647C21B-BF64-40AF-9D1B-9BB35202A4AA}</ProjectGuid>
+    <ProjectGuid>{85EC47BA-C60F-41E8-8590-E2C3B3BE81FA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>BinaryConverter</RootNamespace>
   </PropertyGroup>
@@ -42,13 +42,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)Test\</OutDir>
-    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)Bin\</OutDir>
-    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -1,10 +1,28 @@
-#include "MyExceptions.h"
 #include "BaseGameApp.h"
+#include "Logger.h"
+#include "ClientExceptions.h"
 
+#include <NetworkExceptions.h>
+
+#include <boost/exception/all.hpp>
+#include <boost/system/system_error.hpp>
+
+#include <fstream>
 #include <iostream>
 
 int main(int argc, char* argv[])
 {
+	std::ofstream logFile("logFile.txt", std::ofstream::trunc);
+
+#ifdef _DEBUG
+	Logger::addOutput(Logger::Level::TRACE, logFile);
+#else
+	Logger::addOutput(Logger::Level::INFO, logFile);
+#endif
+
+	Logger::addOutput(Logger::Level::INFO, std::cout);
+	Logger::log(Logger::Level::INFO, "Starting game");
+
 	BaseGameApp game;
 
 	try
@@ -12,12 +30,22 @@ int main(int argc, char* argv[])
 		game.init();
 		game.run();
 		game.shutdown();
-		
-		return EXIT_SUCCESS;
+
+		Logger::log(Logger::Level::INFO, "Closed the game");
 	}
-	catch (MyException& err)
+	catch (std::exception& err)
 	{
-		std::cerr << err.what() << std::endl;
+		Logger::log(Logger::Level::FATAL, err.what());
+		logFile.close();
 		return EXIT_FAILURE;
 	}
+	catch (...)
+	{
+		Logger::log(Logger::Level::FATAL, "Unknown exception caught, aborting program");
+		logFile.close();
+		return EXIT_FAILURE;
+	}
+
+	logFile.close();
+	return EXIT_SUCCESS;
 }
