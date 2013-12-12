@@ -266,28 +266,157 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
+void adjustJoints(std::vector<Joint>& p_Joints)
+{
+	using namespace DirectX;
+
+	for (unsigned int i = 1; i < p_Joints.size(); i++)
+	{
+		XMMATRIX localJoint = XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix);
+		XMMATRIX parentBindJoint = XMLoadFloat4x4(&p_Joints[p_Joints[i].m_Parent - 1].m_JointOffsetMatrix);
+
+		XMMATRIX finalOffset = XMMatrixMultiply(parentBindJoint, localJoint);
+		XMStoreFloat4x4(&p_Joints[i].m_JointOffsetMatrix, finalOffset);
+	}
+
+	//for (unsigned int i = p_Joints.size() - 1; i > 0; i--)
+	//{
+	//	p_Joints[i].m_JointOffsetMatrix = p_Joints[p_Joints[i].m_Parent - 1].m_JointOffsetMatrix;
+	//}
+
+	//XMStoreFloat4x4(&p_Joints[0].m_JointOffsetMatrix, XMMatrixIdentity());
+}
+
+void createTestModel(vector<std::vector<ModelLoader::IndexDesc>>& indices,
+	vector<DirectX::XMFLOAT3>& normals,
+	vector<DirectX::XMFLOAT3>& tangents,
+	vector<DirectX::XMFLOAT2>& texCoords,
+	vector<DirectX::XMFLOAT3>& vertices,
+	vector<ModelLoader::Material>& materials,
+	vector<pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& weights,
+	vector<Joint>& joints)
+{
+	using namespace DirectX;
+
+	static const int numVertices = 12;
+
+	std::vector<ModelLoader::IndexDesc> indexList;
+	ModelLoader::IndexDesc index;
+	index.m_MaterialID = "lambert1";
+	index.m_Normal = 0;
+	index.m_Tangent = 0;
+	for (int i = 0; i < numVertices; i++)
+	{
+		index.m_TextureCoord = i / 3;
+		index.m_Vertex = i;
+		indexList.push_back(index);
+	}
+	indices.push_back(indexList);
+
+	normals.push_back(XMFLOAT3(0.f, 1.f, 0.f));
+
+	tangents.push_back(XMFLOAT3(1.f, 0.f, 0.f));
+
+	texCoords.push_back(XMFLOAT2(0.1f, 0.1f));
+	texCoords.push_back(XMFLOAT2(0.5f, 0.5f));
+	texCoords.push_back(XMFLOAT2(0.1f, 0.9f));
+	texCoords.push_back(XMFLOAT2(0.9f, 0.9f));
+
+	vertices.push_back(XMFLOAT3(-5.f, -5.f,  0.f));
+	vertices.push_back(XMFLOAT3( 0.f, -5.f,  5.f));
+	vertices.push_back(XMFLOAT3( 5.f, -5.f,  0.f));
+										    
+	vertices.push_back(XMFLOAT3( 5.f, -5.f,  0.f));
+	vertices.push_back(XMFLOAT3(10.f, -5.f,  5.f));
+	vertices.push_back(XMFLOAT3(15.f, -5.f,  0.f));
+										    
+	vertices.push_back(XMFLOAT3(-5.f, -5.f,  5.f));
+	vertices.push_back(XMFLOAT3( 0.f, -5.f, 10.f));
+	vertices.push_back(XMFLOAT3( 5.f, -5.f,  5.f));
+
+	vertices.push_back(XMFLOAT3(-5.f, -3.f, 0.f));
+	vertices.push_back(XMFLOAT3( 0.f, -3.f, 5.f));
+	vertices.push_back(XMFLOAT3( 5.f, -3.f, 0.f));
+
+	ModelLoader::Material material;
+	material.m_DiffuseMap = "Witch\\accessories_COLOR.jpg";
+	material.m_NormalMap = "Default_NRM.jpg";
+	material.m_SpecularMap = "Default_SPEC.jpg";
+	material.m_MaterialID = "labmert1";
+	materials.push_back(material);
+
+	for (int i = 0; i < numVertices; i++)
+	{
+		weights.push_back(std::make_pair(XMFLOAT3(1.f, 0.f, 0.f), XMFLOAT4(i / 6, 0.f, 0.f, 0.f)));
+	}
+
+	Joint joint;
+	joint.m_ID = 1;
+	KeyFrame keyFrame;
+	keyFrame.m_Rot = XMFLOAT4(0.f, 0.f, 0.f, 1.f);
+	keyFrame.m_Scale = XMFLOAT3(1.f, 1.f, 1.f);
+	keyFrame.m_Trans = XMFLOAT3(0.f, 0.f, 0.f);
+	for (int i = 0; i < 25; i++)
+		joint.m_JointAnimation.push_back(keyFrame);
+	joint.m_JointName = "joint1";
+	joint.m_JointOffsetMatrix = XMFLOAT4X4(
+		2.f, 0.f, 0.f, 0.f,
+		0.f, 2.f, 0.f, 0.f,
+		0.f, 0.f, 2.f, 0.f,
+		0.f, 0.f, 0.f, 1.f);
+	joint.m_Parent = 0;
+	joints.push_back(joint);
+
+	joint.m_ID = 2;
+	joint.m_JointName = "joint2";
+	joint.m_JointOffsetMatrix = XMFLOAT4X4(
+		2.f, 0.f, 0.f, 0.f,
+		0.f, 2.f, 0.f, 0.f,
+		0.f, 0.f, 2.f, 0.f,
+		0.f, 0.f, 0.f, 1.f);
+	joint.m_Parent = 1;
+	joints.push_back(joint);
+}
+
 void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p_Animated)
 {
-	ModelLoader modelLoader;
+	//ModelLoader modelLoader;
 	Buffer *vertexBuffer = nullptr;
 
-	modelLoader.loadFile(p_Filename);
+	//modelLoader.loadFile(p_Filename);
+
+	////int nrVertices = modelLoader.getVertices()->size();
+	//vector<std::vector<ModelLoader::IndexDesc>>	tempF	= modelLoader.getIndices();
+	//vector<DirectX::XMFLOAT3>				tempN	= modelLoader.getNormals();
+	//vector<DirectX::XMFLOAT3>				tempT	= modelLoader.getTangents();
+	//vector<DirectX::XMFLOAT2>				tempUV = modelLoader.getTextureCoords();
+	//vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
+	//vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
+	//vector<pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> tempWeights;
+	//vector<Joint>							tempJoints;
+
+	//if(p_Animated)
+	//{
+	//	tempWeights = modelLoader.getWeightsList();
+	//	tempJoints	= modelLoader.getListOfJoints();
+
+	//	adjustJoints(tempJoints);
+	//}
+
 
 	//int nrVertices = modelLoader.getVertices()->size();
-	vector<std::vector<ModelLoader::IndexDesc>>	tempF	= modelLoader.getIndices();
-	vector<DirectX::XMFLOAT3>				tempN	= modelLoader.getNormals();
-	vector<DirectX::XMFLOAT3>				tempT	= modelLoader.getTangents();
-	vector<DirectX::XMFLOAT2>				tempUV = modelLoader.getTextureCoords();
-	vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
-	vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
+	vector<std::vector<ModelLoader::IndexDesc>>	tempF;
+	vector<DirectX::XMFLOAT3>				tempN;
+	vector<DirectX::XMFLOAT3>				tempT;
+	vector<DirectX::XMFLOAT2>				tempUV;
+	vector<DirectX::XMFLOAT3>				tempVert;
+	vector<ModelLoader::Material>			tempM;
 	vector<pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> tempWeights;
 	vector<Joint>							tempJoints;
 
-	if(p_Animated)
-	{
-		tempWeights = modelLoader.getWeightsList();
-		tempJoints	= modelLoader.getListOfJoints();
-	}
+	createTestModel(tempF, tempN, tempT, tempUV, tempVert, tempM, tempWeights, tempJoints);
+
+
 	
 	vector<AnimatedVertex> temp;
 	
@@ -392,7 +521,7 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p
 
 	m_ModelList.push_back(std::pair<string,Model>(p_ModelId,m));
 
-	modelLoader.clear();
+	//modelLoader.clear();
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,

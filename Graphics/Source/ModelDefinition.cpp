@@ -55,10 +55,13 @@ void Model::getAnimation()
 		XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
 		XMMATRIX identity = XMMatrixIdentity();
 		
-		//offSet = XMMatrixInverse(nullptr, offSet);
+		offSet = XMMatrixInverse(nullptr, offSet);
+		XMMATRIX result = XMMatrixTranspose(XMMatrixMultiply(offSet, toRoot));
+
+		XMStoreFloat4x4(&m_FinalTransform[i], result);
 		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(offSet, toRoot)));
 		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(toRoot,offSet)));
-		XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(offSet, toRoot));
+		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(offSet, toRoot));
 		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(toRoot, offSet)));
 		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(offSet));
 		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);

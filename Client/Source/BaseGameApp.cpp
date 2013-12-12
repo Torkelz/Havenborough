@@ -41,19 +41,19 @@ void BaseGameApp::init()
 	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
 	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
 	
-	m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx", false);
-	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("BOXShader", "BOX");
+	//m_Graphics->createModel("BOX", "../../Graphics/Resources/Sample135.tx", false);
+	//m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
+	//						"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
+	//m_Graphics->linkShaderToModel("BOXShader", "BOX");
 
 	m_Graphics->createModel("skyBox", "assets/SkyBox.tx", false);
 	m_Graphics->linkShaderToModel("BOXShader", "skyBox");
 
-	m_Graphics->createModel("house1", "assets/House1/House1.tx", false);
-	m_Graphics->linkShaderToModel("BOXShader", "house1");
+	//m_Graphics->createModel("house1", "assets/House1/House1.tx", false);
+	//m_Graphics->linkShaderToModel("BOXShader", "house1");
 
 	//m_Graphics->createModel("Test", "assets/Sample165_Animated_Legs.tx", true);
-	m_Graphics->createModel("Test", "assets/Sample175.tx", true);
+	m_Graphics->createModel("Test", "assets/Sample212.tx", true);
 	//m_Graphics->createModel("Test", "assets/AnimatedQuad.tx", true);
 	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
 							"VS,PS","5_0", IGraphics::ShaderType::VERTEX_SHADER | IGraphics::ShaderType::PIXEL_SHADER);
@@ -86,9 +86,9 @@ void BaseGameApp::run()
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
 
-	int house = m_Graphics->createModelInstance("house1");
-	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
-	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
+	//int house = m_Graphics->createModelInstance("house1");
+	//m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
+	//m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
 	int cactus = m_Graphics->createModelInstance("Test");
 	//m_Graphics->setModelPosition(cactus, 10.f, 0.f, -10.f);
