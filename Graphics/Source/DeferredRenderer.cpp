@@ -223,7 +223,6 @@ void DeferredRenderer::renderGeometry()
 			// Send stuff.
 			// The update of the sub resource has to be done externally.
 			
-			m_Objects.at(i).m_Model->indexBuffers[j]->setBuffer(0);
 			cObjectBuffer temp;
 			temp.world = *m_Objects.at(i).m_World;
 			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
@@ -235,7 +234,7 @@ void DeferredRenderer::renderGeometry()
 			m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
 
 			//m_DeviceContext->Draw(m_Objects.at(i).m_Model->vertexBuffer->getNumOfElements(), 0);
-			m_DeviceContext->DrawIndexed(m_Objects.at(i).m_Model->indexBuffers[j]->getNumOfElements(),0, 0);
+			m_DeviceContext->Draw(m_Objects.at(i).m_Model->drawInterval.at(j).second, m_Objects.at(i).m_Model->drawInterval.at(j).first);
 
 			m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
 			m_ObjectConstantBuffer->unsetBuffer(2);

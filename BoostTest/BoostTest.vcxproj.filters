@@ -29,7 +29,6 @@
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
-    <ClCompile Include="..\Graphics\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
@@ -58,8 +57,6 @@
       <Filter>TestNetwork</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp" />
-    <ClCompile Include="Source\Loader\TestStaticModelLoader.cpp" />
-    <ClCompile Include="Source\Loader\TestAnimatedModelLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp">
       <Filter>TestNetwork</Filter>
     </ClCompile>
@@ -130,6 +127,24 @@
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Loader\TestBinaryConverter.cpp">
+      <Filter>ModelLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Loader\TestBinayLoader.cpp">
+      <Filter>ModelLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Loader\TestLoader.cpp">
+      <Filter>ModelLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp">
+      <Filter>ModelLoader\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp">
+      <Filter>ModelLoader\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp">
+      <Filter>ModelLoader\Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl" />
@@ -171,6 +186,12 @@
     </Filter>
     <Filter Include="TestPhysics\PhysicsImport">
       <UniqueIdentifier>{b43af11e-5778-4f5f-8fa7-95c06d96b6be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModelLoader">
+      <UniqueIdentifier>{c1519435-6038-4446-8c81-9b6161be5cf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModelLoader\Files">
+      <UniqueIdentifier>{ef828351-f38e-415f-bb85-34accbbec579}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

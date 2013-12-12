@@ -18,11 +18,11 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 {
 	static const std::pair<std::string, std::string> modelMap[] =
 	{
-		std::make_pair("DZALA", "assets/models/character_witch.tx"),
-		std::make_pair("MARIM", "assets/models/marim.tx"),
-		std::make_pair("HOUSE1", "assets/models/house1.tx"),
-		std::make_pair("BOX", "assets/models/Sample135.tx"),
-		std::make_pair("SKYBOX", "assets/models/SkyBox.tx"),
+		std::make_pair("DZALA", "assets/models/character_witch.btx"),
+		std::make_pair("MARIM", "assets/models/marim.btx"),
+		std::make_pair("HOUSE1", "assets/models/house1.btx"),
+		std::make_pair("BOX", "assets/models/Sample135.btx"),
+		std::make_pair("SKYBOX", "assets/models/SkyBox.btx"),
 	};
 	static const size_t numModels = sizeof(modelMap) / sizeof(modelMap[0]);
 

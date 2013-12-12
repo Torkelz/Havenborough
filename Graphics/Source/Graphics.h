@@ -14,7 +14,6 @@
 #include "DeferredRenderer.h"
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
-#include "ModelLoader.h"
 #include "VRAMMemInfo.h"
 
 using std::string;

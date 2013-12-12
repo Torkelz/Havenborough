@@ -7,7 +7,7 @@
 struct ModelDefinition
 {
 	std::unique_ptr<Buffer> vertexBuffer;
-	std::vector<std::unique_ptr<Buffer>> indexBuffers;
+	std::vector<std::pair<int,int>> drawInterval;
 	Shader *shader;
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> diffuseTexture;
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> normalTexture;
@@ -17,7 +17,7 @@ struct ModelDefinition
 	ModelDefinition() {};
 	ModelDefinition(ModelDefinition&& p_Other)
 		:	vertexBuffer(std::move(p_Other.vertexBuffer)),
-			indexBuffers(std::move(p_Other.indexBuffers)),
+			drawInterval(p_Other.drawInterval),
 			shader(p_Other.shader),
 			diffuseTexture(p_Other.diffuseTexture),
 			normalTexture(p_Other.normalTexture),
@@ -28,7 +28,7 @@ struct ModelDefinition
 	ModelDefinition& operator=(ModelDefinition&& p_Other)
 	{
 		std::swap(vertexBuffer, p_Other.vertexBuffer);
-		std::swap(indexBuffers, p_Other.indexBuffers);
+		std::swap(drawInterval, p_Other.drawInterval);
 		std::swap(shader, p_Other.shader);
 		std::swap(diffuseTexture, p_Other.diffuseTexture);
 		std::swap(normalTexture, p_Other.normalTexture);

@@ -54,8 +54,10 @@ private:
 	std::vector<DirectX::XMFLOAT2> m_TextureCoord;
 	std::vector<Material> m_Material;
 	std::vector<std::vector<IndexDesc>> m_IndexPerMaterial;
-	std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMFLOAT4>> m_WeightsList;
+	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> m_WeightsList;
 	std::vector<Joint> m_ListOfJoints;
+	
+	std::stringstream m_Stringstream;
 	
 public:
 	
@@ -122,27 +124,13 @@ public:
 	 * @returns a vector of texture coords.
 	 */
 	const std::vector<DirectX::XMFLOAT2>& getTextureCoords();
-
-	/**
-	 * Returns the number of materials for the test. 
-	 *
-	 * @returns an int with the correct size of the vector.
-	 */
-	int getNumberOfMaterial();
-
-	/**
-	 * Returns the number of vertices in the vector.
-	 *
-	 * @returns an int with the correct size of the vector.
-	 */
-	int getNumberOfVertices();
-
+	
 	/**
 	 * Returns a paired vector with information about weights and to what joint it is weighted.
 	 *
 	 * @returns a paired vector of weights and joints.
 	 */
-	const std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMFLOAT4>>& getWeightsList();
+	const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& getWeightsList();
 	
 	/**
 	 * Returns a list of joint structs that includes information about animation and parents.
@@ -171,6 +159,39 @@ public:
 	 * @returns an in number of frames.
 	 */
 	int getNumberOfFrames();
+
+	/**
+	 * Returns a mesh name.
+	 *
+	 * @returns a string.
+	 */
+	std::string getMeshName();
+
+protected: 
+	void startReading(std::istream& p_Input);
+
+	void readHeader(std::istream& p_Input);
+
+	void readMaterials(std::istream& p_Input);
+
+	void readVertex(std::istream& p_Input); 
+
+	void readNormals(std::istream& p_Input);
+
+	void readUV(std::istream& p_Input);
+
+	void readTangents(std::istream& p_Input);
+
+	void readFaces(std::istream& p_Input);
+
+	void readWeights(std::istream& p_Input);
+
+	void readHierarchy(std::istream& p_Input);
+
+	void readJointOffset(std::istream& p_Input);
+
+	void readAnimation(std::istream& p_Input);
+
 private:
 	void clearData();
 };
