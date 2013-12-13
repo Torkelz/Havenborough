@@ -1,5 +1,5 @@
 #include "SceneManager.h"
-#include "MyExceptions.h"
+#include "ClientExceptions.h"
 
 SceneManager::SceneManager()
 {

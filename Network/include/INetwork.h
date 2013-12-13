@@ -13,15 +13,6 @@ class INetwork
 {
 public:
 	/**
-	 * Create an instance of the network library.
-	 *
-	 * Use {@link #deleteNetwork(INetwork*)} to clean up.
-	 *
-	 * @return a pointer to the network library implementation.
-	 */
-	__declspec(dllexport) static INetwork *createNetwork();
-	
-	/**
 	 * Callback for successful client connections.
 	 *
 	 * @param p_Connection the newly connected clien'ts connection.
@@ -37,6 +28,28 @@ public:
 	 */
 	typedef void (*clientDisconnectedCallback_t)(IConnectionController* p_Connection, void* p_UserData);
 
+	/**
+	 * Callback for logging.
+	 *
+	 * @param p_Level log priority level. Higher is more important.
+	 * @param p_Message the log message.
+	 */
+	typedef void (*clientLogCallback_t)(uint32_t p_Level, const char* p_Message);
+
+	/**
+	 * Create an instance of the network library.
+	 *
+	 * Use {@link #deleteNetwork(INetwork*)} to clean up.
+	 *
+	 * @return a pointer to the network library implementation.
+	 */
+	__declspec(dllexport) static INetwork *createNetwork();
+
+	/**
+	 * Initialize the library. Must be called before any other function.
+	 */
+	virtual void initialize() = 0;
+	
 	/**
 	 * Create the server at the specified port.
 	 * Only one server per network may be created.
@@ -107,4 +120,15 @@ public:
 	 * @return a controller for sending and receiving data from the server.
 	 */
 	virtual IConnectionController* getConnectionToServer() = 0;
+
+	/**
+	 * Set the function to handle log messages.
+	 *
+	 * @param p_LogCallback the function to be called whenever a message is to
+	 *			be logged from this component. Set to null to disable logging.
+	 */
+	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
+
+protected:
+	virtual ~INetwork() {};
 };

@@ -2,7 +2,7 @@
 #include <d3d11.h>
 
 #include "Util.h"
-#include "MyGraphicsExceptions.h"
+#include "GraphicsExceptions.h"
 
 class Buffer
 {
@@ -38,7 +38,7 @@ public:
 		Usage usage;
 		UINT32 numOfElements;
 		UINT32 sizeOfElement;
-		void *initData;
+		const void *initData;
 		bool bindSRV;
 		bool bindUAV;
 
@@ -65,7 +65,7 @@ private:
 	
 public:
 	Buffer(void);
-	~Buffer(void);
+	virtual ~Buffer(void);
 
 	/**
 	* Gets hold of the pointer to the buffer.

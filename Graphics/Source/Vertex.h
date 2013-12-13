@@ -1,28 +1,28 @@
-#ifndef VERTEX_H
-#define VERTEX_H
+#pragma once
+
 #include <DirectXMath.h>
 
-class Vertex
+class StaticVertex
 {
 public:
-	DirectX::XMFLOAT4 position;
-	DirectX::XMFLOAT3 normal;
-	DirectX::XMFLOAT2 uv;
-	DirectX::XMFLOAT3 tangent;
-	DirectX::XMFLOAT3 binormal;
-	Vertex(){}
-	Vertex(DirectX::XMFLOAT3 _position,
+	DirectX::XMFLOAT4 m_Position;
+	DirectX::XMFLOAT3 m_Normal;
+	DirectX::XMFLOAT2 m_UV;
+	DirectX::XMFLOAT3 m_Tangent;
+	DirectX::XMFLOAT3 m_Binormal;
+	StaticVertex(){}
+	StaticVertex(DirectX::XMFLOAT3 _position,
 		DirectX::XMFLOAT3 _normal,
 		DirectX::XMFLOAT2 _uv,
 		DirectX::XMFLOAT3 _tangent)
 	{
-		position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
-		normal = _normal;
-		uv = _uv;
-		tangent = _tangent;
+		m_Position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
+		m_Normal = _normal;
+		m_UV = _uv;
+		m_Tangent = _tangent;
 
 		//might be wrong
-		DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
+		DirectX::XMStoreFloat3(&m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&m_Tangent),DirectX::XMLoadFloat3(&m_Normal)));
 	}
 
 	int getSize()
@@ -31,32 +31,25 @@ public:
 	}
 };
 
-class AnimatedVertex : public Vertex
+class AnimatedVertex : public StaticVertex
 {
 public:
-	DirectX::XMFLOAT3 weights;
-	unsigned int boneId[4];
-	AnimatedVertex() : Vertex(){}
+	DirectX::XMFLOAT3 m_Weights;
+	unsigned int m_BoneId[4];
+	AnimatedVertex() : StaticVertex(){}
 	AnimatedVertex(
 		DirectX::XMFLOAT3 _position,
 		DirectX::XMFLOAT3 _normal,
 		DirectX::XMFLOAT2 _uv,
 		DirectX::XMFLOAT3 _tangent,
 		DirectX::XMFLOAT3 _weights,
-		DirectX::XMFLOAT4 _boneId) : Vertex( _position, _normal, _uv, _tangent)
+		DirectX::XMFLOAT4 _boneId) : StaticVertex( _position, _normal, _uv, _tangent)
 	{
-		position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
-		normal = _normal;
-		uv = _uv;
-		tangent = _tangent;
-		//might be wrong
-		DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
-
-		weights = _weights;
-		boneId[0] = unsigned int(_boneId.x);
-		boneId[1] = unsigned int(_boneId.y);
-		boneId[2] = unsigned int(_boneId.z);
-		boneId[3] = unsigned int(_boneId.w);
+		m_Weights = _weights;
+		m_BoneId[0] = unsigned int(_boneId.x);
+		m_BoneId[1] = unsigned int(_boneId.y);
+		m_BoneId[2] = unsigned int(_boneId.z);
+		m_BoneId[3] = unsigned int(_boneId.w);
 	}
 
 	int getSize()
@@ -64,5 +57,3 @@ public:
 		return sizeof(DirectX::XMFLOAT4) + ( 4 * sizeof(DirectX::XMFLOAT3) ) + sizeof(DirectX::XMFLOAT2) + (4 * sizeof(unsigned int));
 	}
 };
-
-#endif

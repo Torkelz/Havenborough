@@ -2,8 +2,9 @@
 #include <Windows.h>
 #include <vector>
 
+#include "ClientExceptions.h"
+#include "Logger.h"
 #include "Window.h"
-#include "MyExceptions.h"
 
 const LPCWSTR Window::m_ClassName = L"Havenborough_Game_Client";
 std::vector<std::pair<HWND, Window*>> Window::m_CallbackWindows;
@@ -32,6 +33,8 @@ Window::~Window()
 
 void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
 {
+	Logger::log(Logger::Level::INFO, "Initializing window");
+
 	m_Title = p_Title;
 	m_Size = p_WindowSize;
 
@@ -52,6 +55,8 @@ void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
 		windowClassDescription.lpszMenuName		= NULL;
 		windowClassDescription.lpszClassName	= m_ClassName;
 		windowClassDescription.hIconSm			= NULL;
+
+		Logger::log(Logger::Level::DEBUG, "Registering window class");
 
 		if (!RegisterClassExW(&windowClassDescription))
 		{
@@ -107,6 +112,8 @@ void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
 
 void Window::destroy()
 {
+	Logger::log(Logger::Level::INFO, "Shutting down window");
+
 	m_RegisteredCallbacks.clear();
 
 	if (m_Handle != NULL)
@@ -119,6 +126,8 @@ void Window::destroy()
 		m_ClassUseCount--;
 		if (m_ClassUseCount == 0)
 		{
+			Logger::log(Logger::Level::DEBUG, "Unregistering window class");
+
 			UnregisterClassW(m_ClassName, GetModuleHandleW(NULL));
 		}
 
@@ -149,6 +158,8 @@ void Window::pollMessages()
 
 void Window::registerCallback(UINT p_MessageType, callbackFunc_t p_Callback)
 {
+	Logger::log(Logger::Level::DEBUG, "Adding window callback");
+
 	m_RegisteredCallbacks.push_back(std::make_pair(p_MessageType, p_Callback));
 }
 
@@ -164,6 +175,8 @@ HICON Window::getIcon() const
 
 void Window::setIcon(HICON p_Icon)
 {
+	Logger::log(Logger::Level::DEBUG, "Setting the window icon");
+
 	if (m_Icon != p_Icon)
 	{
 		SetClassLongPtrW(m_Handle, GCLP_HICON, (LONG)p_Icon);
@@ -201,6 +214,8 @@ void Window::setShowCursor(bool p_Show)
 {
 	if (m_ShowingCursor != p_Show)
 	{
+		Logger::log(Logger::Level::DEBUG, p_Show ? "Showing the cursor" : "Hiding the cursor");
+
 		ShowCursor(p_Show);
 
 		m_ShowingCursor = p_Show;
@@ -216,6 +231,8 @@ void Window::setTitle(const std::string& p_NewTitle)
 {
 	if (m_Title != p_NewTitle)
 	{
+		Logger::log(Logger::Level::TRACE, "Changing the window title");
+
 		std::vector<wchar_t> convertedTitle(p_NewTitle.size() + 1);
 		mbstowcs(convertedTitle.data(), p_NewTitle.data(), p_NewTitle.size() + 1);
 
@@ -239,10 +256,12 @@ void Window::setIsVisible(bool p_Visible)
 	{
 		if (p_Visible)
 		{
+			Logger::log(Logger::Level::DEBUG, "Showing the window");
 			ShowWindow(m_Handle, SW_SHOWNORMAL);
 		}
 		else
 		{
+			Logger::log(Logger::Level::DEBUG, "Hiding the window");
 			ShowWindow(m_Handle, SW_HIDE);
 		}
 

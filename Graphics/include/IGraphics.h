@@ -1,49 +1,32 @@
 #pragma once
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "ShaderDeffinitions.h"
+
+#include <cstdint>
 
 class IGraphics
 {
 public:
-	enum class ShaderType
+	struct vec2
 	{
-		VERTEX_SHADER = 1,
-		PIXEL_SHADER = 2,
-		GEOMETRY_SHADER = 4,
-		HULL_SHADER = 8,
-		DOMAIN_SHADER = 16
+		float x,y;
+		vec2(float p_X, float p_Y)
+		{
+			x = p_X;y = p_Y;
+		}
 	};
-	inline friend ShaderType operator|(ShaderType a, ShaderType b)
+	struct vec3 : public vec2
 	{
-		return static_cast<ShaderType>(static_cast<int>(a) | static_cast<int>(b)); 
+		float z;
+		vec3(float p_X, float p_Y, float p_Z)
+			: vec2(p_X,p_Y)
+		{
+			z = p_Z;
+		}
 	};
-
-	inline friend bool operator&(ShaderType a, ShaderType b)
-	{
-		return static_cast<int>(a) & static_cast<int>(b) ? true : false; 
-	};
-
-	enum class Format
-	{
-		R32G32B32A32_FLOAT = 2,
-		R32G32B32A32_UINT = 3,
-		R32G32B32_FLOAT = 6,
-		R32G32B32_UINT = 7,
-		R32G32_FLOAT = 16,
-		R32G32_UINT = 17,
-		R8G8B8A8_UNORM = 28,
-	};
-
-	struct ShaderInputElementDescription
-	{
-		LPCSTR semanticName;
-		UINT semanticIndex; 
-		Format format;
-		UINT inputSlot;
-		UINT alignedByteOffset;
-		UINT inputSlotClass;
-		UINT instanceDataStepRate;
-	};
+	
 
 	virtual ~IGraphics(void)
 	{}
@@ -74,21 +57,33 @@ public:
 	*/
 	virtual bool reInitialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen) = 0;
 
-	
 	/**
 	* Clear sub resources allocated by the graphics API and delete the pointer. 
 	*/
 	__declspec(dllexport) static void deleteGraphics(IGraphics *p_Graphics);
 
 	/**
-	* Creates a new model and stores in a vector connected with an ID.
+	* Creates a new static model and stores in a vector connected with an ID.
 	* @param p_ModelId the ID of the model
 	* @param p_Filename the filename of the model
 	* @param p_Animated specify if the model is static or animated
 	*/
-	virtual void createModel(const char *p_ModelId, const char *p_Filename, bool p_Animated) = 0;
-	//virtual void renderModel(Buffer *p_Buffer,Buffer *p_ConstantBuffer,
-		//Shader *p_Shader, DirectX::XMFLOAT4X4 *p_World, bool p_Transparent) = 0;
+	virtual bool createStaticModel(const char *p_ModelId, const char *p_Filename) = 0;
+	
+	/**
+	* Creates a new animated model and stores in a vector connected with an ID.
+	* @param p_ModelId the ID of the model
+	* @param p_Filename the filename of the model
+	*/
+	virtual bool createAnimatedModel(const char *p_ModelId, const char *p_Filename) = 0;
+
+	/**
+	* 
+	* 
+	* 
+	*/
+	virtual bool releaseModel(const char* p_ResourceName) = 0;
+
 	/**
 	* Automatically creates a shader based on layout in the shader file and stores in a vector connected with and ID.
 	* @param p_ShaderId the ID of the shader
@@ -96,12 +91,12 @@ public:
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
 	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
-	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0"
 	* @param p_ShaderType the shader types to be created, can be combined as
 	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER
 	*/
-	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename,
-		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) = 0;
+	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_Type) = 0;
 
 	/**
 	* Creates a new shader object with user defined vertex layout. If shader ID already exists or no vertex shader type 
@@ -111,16 +106,16 @@ public:
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g.
 	*		 "mainVS,mainPS,mainGS,mainHS,mainDS", note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
-	* @param p_ShaderModel the shader model version to be used, e.g. "5_0" 
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0"
 	* @param p_ShaderType the shader types to be created, can be combined as
 	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER,
 	*		 note that vertex shader needs to be included or an exception will be thrown
 	* @param p_VertexLayout the user defined vertex layout
 	* @param p_NumOfElement the number of elements in the layout
 	*/
-	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename,
-		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
-		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfElements) = 0;
+	virtual void createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
+		const char *p_ShaderModel, ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout,
+		unsigned int p_NumOfElements) = 0;
 
 	/**
 	* Establish a map of shader name to a model name.
@@ -133,8 +128,17 @@ public:
 	* Creates a new texture and stores in a vector connected with an ID.
 	* @param p_TextureId the ID of the texture
 	* @param p_Filename the filename of the texture
+	* @return true if the texture was successfully loaded, otherwise false
 	*/
-	virtual void createTexture(const char *p_TextureId, const char *p_Filename) = 0;
+	virtual bool createTexture(const char *p_TextureId, const char *p_filename) = 0;
+
+	/**
+	 * Release a previously created texture.
+	 *
+	 * @param p_TextureId the ID of the texture
+	 * @return true if the texture existed and was successfully released.
+	 */
+	virtual bool releaseTexture(const char *p_TextureId) = 0;
 	
 	/**
 	* 
@@ -147,10 +151,28 @@ public:
 	virtual void removeStaticLight(void) = 0;
 
 	/**
-	* 
+	* Creates a point light which is removed after each draw.
+	* @ p_LightPosition, the position of the light object.
+	* @ p_LightColor, the color of the light.
+	* @ p_LightRange, the range of the point light.
 	*/
-	virtual void useFrameLight(void) = 0;
-
+	virtual void useFramePointLight(vec3 p_LightPosition, vec3 p_LightColor, float p_LightRange) = 0;
+	/**
+	* Creates a spot light which is removed after each draw.
+	* @ p_LightPosition, the position of the light object.
+	* @ p_LightColor, the color of the light.
+	* @ p_LightDirection, the direction of the spot light.
+	* @ p_SpotLightAngles, angles in radians where the x component is smaller than the y component.
+	* @ p_LightRange, the range of the spot light.
+	*/
+	virtual void useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p_LightDirection,
+		vec2 p_SpotLightAngles,	float p_LightRange) = 0;
+	/**
+	* Creates a directional light which is removed after each draw.
+	* @ p_LightColor, the color of the light.
+	* @ p_LightDirection, the direction of the directional light.
+	*/
+	virtual void useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection) = 0;
 	/**
 	* Renders a model specified with an ID.
 	* @param p_ModelId the ID of the model to be rendered
@@ -180,7 +202,6 @@ public:
 	
 	/**
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
-	 *
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.
 	 * @return a unique id used to reference the instance with in later calls.
 	 */
@@ -233,6 +254,51 @@ public:
 	 * @param p_Pitch the camera pitch, positive up.
 	 */
 	virtual void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) = 0;
+	
+	/**
+	* Callback for loading a texture to a model.
+	* @param p_ResourceName the resource name of the texture
+	* @param p_FilePath path to where the texture is located
+	* @param p_UserData user defined data
+	*/
+	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
+	
+	/**
+	* Set the function to load a texture to a model.
+	* @param p_LoadModelTexture the function to be called whenever a texture is to be loaded.
+	* @param p_UserData user defined data
+	*/
+	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata) = 0;
+
+	/**
+	* Callback for releasing a texture to a model.
+	* @param p_ResourceName the resource name of the texture
+	* @param p_UserData user defined data
+	*/
+	typedef void (*releaseModelTextureCallBack)(const char *p_ResourceName, void *p_Userdata);
+	
+	/**
+	* Set the function to release a texture to a model.
+	* @param p_LoadModelTexture the function to be called whenever a texture is to be released.
+	* @param p_UserData user defined data
+	*/
+	virtual void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata) = 0;
+
+	/**
+	 * Callback for logging.
+	 *
+	 * @param p_Level log priority level. Higher is more important.
+	 * @param p_Message the log message.
+	 */
+	typedef void (*clientLogCallback_t)(uint32_t p_Level, const char* p_Message);
+
+	/**
+	 * Set the function to handle log messages.
+	 *
+	 * @param p_LogCallback the function to be called whenever a message is to
+	 *			be logged from this component. Set to null to disable logging.
+	 */
+	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
 
 private:
 
@@ -241,4 +307,3 @@ private:
 	*/
 	virtual void shutdown(void) = 0;
 };
-

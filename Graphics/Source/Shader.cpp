@@ -69,8 +69,6 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 			SAFE_RELEASE(errorMessage);
 			throw ShaderException("Error when compiling shader.\n" + temp, __LINE__, __FILE__);
 		}
-
-		return result;
 	}
 
 	m_ShaderType = p_ShaderType;
@@ -79,7 +77,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 	{
 		createInputLayoutFromShaderSignature(shaderData);
 	}
-	else
+	else if(m_ShaderType == Type::VERTEX_SHADER)
 	{
 		m_VertexDescription = new D3D11_INPUT_ELEMENT_DESC[m_NumOfElements];
 		std::copy(p_VertexLayout, p_VertexLayout + m_NumOfElements, m_VertexDescription);

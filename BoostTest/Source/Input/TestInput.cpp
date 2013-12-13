@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include "../../../Client/Source/Input/Input.h"
-#include "../../../Client/Source/MyExceptions.h"
+#include "../../../Client/Source/ClientExceptions.h"
 
 BOOST_AUTO_TEST_SUITE(InputTests)
 

@@ -51,10 +51,10 @@ PSIn VS( VSIn input )
 	output.pos = mul( projection, mul(view, mul(world, input.pos) ) );
 	output.wpos = mul(world, input.pos);
 
-	output.normal = normalize(mul(world, input.normal));
+	output.normal = normalize(mul(world, float4(input.normal, 0.f)).xyz);
 	output.uvCoord = input.uvCoord;
-	output.tangent = normalize(mul(world, input.tangent));
-	output.binormal = normalize(mul(world, input.binormal));
+	output.tangent = normalize(mul(world, float4(input.tangent,0.f)).xyz);
+	output.binormal = normalize(mul(world, float4(input.binormal, 0.f)).xyz);
 		
 	return output;
 }

@@ -1,6 +1,6 @@
 #include "ModelDefinition.h"
 
-void Model::getFinalTransform(float p_Time, std::vector<DirectX::XMFLOAT4X4> &ref)
+void ModelDefinition::getFinalTransform(float p_Time, std::vector<DirectX::XMFLOAT4X4> &ref)
 {
 	m_Time += p_Time;
 
@@ -16,7 +16,7 @@ void Model::getFinalTransform(float p_Time, std::vector<DirectX::XMFLOAT4X4> &re
 	//return &m_FinalTransform;
 }
 
-void Model::getAnimation()
+void ModelDefinition::getAnimation()
 {
 	using namespace DirectX;
 	const unsigned int numBones = m_Joints.size();

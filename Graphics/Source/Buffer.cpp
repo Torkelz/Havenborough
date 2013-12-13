@@ -1,4 +1,5 @@
 #include "Buffer.h"
+#include "VRAMMemInfo.h"
 
 Buffer::Buffer(void)
 {
@@ -9,6 +10,7 @@ Buffer::Buffer(void)
 
 Buffer::~Buffer(void)
 {
+	VRAMMemInfo::getInstance()->updateUsage(-(int)(m_SizeOfElement * m_NumOfElements));
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
 	SAFE_RELEASE(m_Buffer);
@@ -128,11 +130,8 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 		{
 			if(m_Type != Type::STAGING_BUFFER)
 			{
-				//m_DeviceContext = nullptr;
-				//m_Device = nullptr;
-				throw BufferException("Cannot set cpu read to other than staging buffer", __LINE__, __FILE__);
+				throw BufferException("Cannot set CPU read to other than staging buffer", __LINE__, __FILE__);
 			}
-			//bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
 			bufferDescription.Usage = D3D11_USAGE_STAGING;
 			bufferDescription.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
 			break;
@@ -153,20 +152,8 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 		}
 	}
 
-	
-	/*if(m_Type ==Type::STRUCTURED_BUFFER)
-	{
-		bufferDescription.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-	}*/
-
 	bufferDescription.ByteWidth = p_Description.numOfElements * p_Description.sizeOfElement;
 
-	////Make sure at least 16 bytes is set.
-	//if(bufferDescription.ByteWidth < 16)
-	//{
-	//	bufferDescription.ByteWidth = 16;
-	//}
-	//set at least 16 bytes
 	bufferDescription.ByteWidth = ((bufferDescription.ByteWidth + 15) / 16) * 16;
 
 	if(p_Description.initData)
@@ -348,7 +335,9 @@ void Buffer::unmap(void)
 
 void *Buffer::mapResourceToContext(UINT32 p_MapType)
 {
-	if(FAILED(m_DeviceContext->Map(m_Buffer, 0, (D3D11_MAP)p_MapType, 0, &m_MappedResource)))
+	//ZeroMemory(&m_MappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	HRESULT hr = m_DeviceContext->Map(m_Buffer, 0, (D3D11_MAP)p_MapType, 0, &m_MappedResource);
+	if(FAILED(hr))
 	{
 		return nullptr;
 	}
@@ -394,7 +383,7 @@ ID3D11ShaderResourceView* Buffer::CreateBufferSRV(ID3D11Buffer* pBuffer)
 		return NULL;
 	}
 
-    HRESULT hr = m_Device->CreateShaderResourceView(pBuffer, &desc, &pSRVOut);
+    m_Device->CreateShaderResourceView(pBuffer, &desc, &pSRVOut);
 
 	return pSRVOut;
 }
