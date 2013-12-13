@@ -65,7 +65,7 @@ private:
 	
 public:
 	Buffer(void);
-	~Buffer(void);
+	virtual ~Buffer(void);
 
 	/**
 	* Gets hold of the pointer to the buffer.

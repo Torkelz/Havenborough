@@ -47,14 +47,13 @@ DeferredRenderer::DeferredRenderer()
 
 DeferredRenderer::~DeferredRenderer(void)
 {
-	m_SpotLights = nullptr;
-	m_PointLights = nullptr;
-	m_DirectionalLights = nullptr;
-
-
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
 	m_DepthStencilView = nullptr;
+
+	m_SpotLights = nullptr;
+	m_PointLights = nullptr;
+	m_DirectionalLights = nullptr;
 
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
@@ -87,10 +86,7 @@ DeferredRenderer::~DeferredRenderer(void)
 
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
-	SAFE_DELETE(m_AllLightBuffer);	
-
-	SAFE_RELEASE(m_BlendState);
-	SAFE_RELEASE(m_BlendState2);
+	SAFE_DELETE(m_AllLightBuffer);
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
@@ -134,7 +130,6 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 	// Create sampler state and blend state for Alpha rendering.
 	createSamplerState();
-
 
 	createBlendStates();
 	createLightStates();
@@ -192,17 +187,15 @@ void DeferredRenderer::renderGeometry()
 			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
 			m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
 
-			//m_DeviceContext->Draw(m_Objects.at(i).m_Model->vertexBuffer->getNumOfElements(), 0);
 			m_DeviceContext->Draw(m_Objects.at(i).m_Model->drawInterval.at(j).second, m_Objects.at(i).m_Model->drawInterval.at(j).first);
 
 			m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
 			m_ObjectConstantBuffer->unsetBuffer(2);
 			m_Objects.at(i).m_Model->shader->setBlendState(0, data);
 			m_Objects.at(i).m_Model->shader->unSetShader();
+			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 		}
 	}
-
-	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_ConstantBuffer->unsetBuffer(1);
 
@@ -255,6 +248,8 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->RSSetState(previousRasterState);
 	m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
 	m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
+	SAFE_RELEASE(previousRasterState);
+	SAFE_RELEASE(previousDepthState);
 }
 
 void DeferredRenderer::addRenderable(Renderable p_renderable)
