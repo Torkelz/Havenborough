@@ -287,123 +287,6 @@ void adjustJoints(std::vector<Joint>& p_Joints)
 	XMStoreFloat4x4(&p_Joints[0].m_JointOffsetMatrix, XMMatrixIdentity());
 }
 
-void createTestModel(vector<std::vector<ModelLoader::IndexDesc>>& indices,
-	vector<DirectX::XMFLOAT3>& normals,
-	vector<DirectX::XMFLOAT3>& tangents,
-	vector<DirectX::XMFLOAT2>& texCoords,
-	vector<DirectX::XMFLOAT3>& vertices,
-	vector<ModelLoader::Material>& materials,
-	vector<pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& weights,
-	vector<Joint>& joints)
-{
-	using namespace DirectX;
-
-	static const int numVertices = 15;
-
-	std::vector<ModelLoader::IndexDesc> indexList;
-	ModelLoader::IndexDesc index;
-	index.m_MaterialID = "lambert1";
-	index.m_Normal = 0;
-	index.m_Tangent = 0;
-	for (int i = 0; i < numVertices; i++)
-	{
-		index.m_TextureCoord = i / 3;
-		index.m_Vertex = i;
-		indexList.push_back(index);
-	}
-	indices.push_back(indexList);
-
-	normals.push_back(XMFLOAT3(0.f, 1.f, 0.f));
-
-	tangents.push_back(XMFLOAT3(1.f, 0.f, 0.f));
-
-	texCoords.push_back(XMFLOAT2(0.1f, 0.1f));
-	texCoords.push_back(XMFLOAT2(0.5f, 0.5f));
-	texCoords.push_back(XMFLOAT2(0.1f, 0.9f));
-	texCoords.push_back(XMFLOAT2(0.9f, 0.9f));
-	texCoords.push_back(XMFLOAT2(0.75f, 0.25f));
-
-	vertices.push_back(XMFLOAT3(-5.f, -5.f,  0.f));
-	vertices.push_back(XMFLOAT3( 0.f, -5.f,  5.f));
-	vertices.push_back(XMFLOAT3( 5.f, -5.f,  0.f));
-										    
-	vertices.push_back(XMFLOAT3( 5.f, -5.f,  0.f));
-	vertices.push_back(XMFLOAT3(10.f, -5.f,  5.f));
-	vertices.push_back(XMFLOAT3(15.f, -5.f,  0.f));
-										    
-	vertices.push_back(XMFLOAT3(-5.f, -5.01f,  5.f));
-	vertices.push_back(XMFLOAT3( 0.f, -5.01f, 10.f));
-	vertices.push_back(XMFLOAT3( 5.f, -5.01f,  5.f));
-
-	vertices.push_back(XMFLOAT3(-5.f, -3.f, 0.f));
-	vertices.push_back(XMFLOAT3( 0.f, -3.f, 5.f));
-	vertices.push_back(XMFLOAT3( 5.f, -3.f, 0.f));
-
-	vertices.push_back(XMFLOAT3(-5.f, -3.01f,  5.f));
-	vertices.push_back(XMFLOAT3( 0.f, -3.01f, 10.f));
-	vertices.push_back(XMFLOAT3( 5.f, -3.01f,  5.f));
-
-	ModelLoader::Material material;
-	material.m_DiffuseMap = "assets\\Witch\\accessories_COLOR.jpg";
-	material.m_NormalMap = "Default_NRM.jpg";
-	material.m_SpecularMap = "Default_SPEC.jpg";
-	material.m_MaterialID = "labmert1";
-	materials.push_back(material);
-
-	for (int i = 0; i < numVertices; i++)
-	{
-		weights.push_back(std::make_pair(XMFLOAT3(1.f, 0.f, 0.f), XMFLOAT4((float)(i / 6 + 1), 0.f, 0.f, 0.f)));
-	}
-
-	Joint joint;
-	joint.m_ID = 1;
-	KeyFrame keyFrame;
-	keyFrame.m_Rot = XMFLOAT4(0.f, 0.f, 0.f, 1.f);
-	keyFrame.m_Scale = XMFLOAT3(1.f, 1.f, 1.f);
-	keyFrame.m_Trans = XMFLOAT3(0.f, 0.f, 0.f);
-	for (int i = 0; i < 25; i++)
-	{
-		keyFrame.m_Scale = XMFLOAT3(2.f + sin((float)i / 24.f * 3.24f * 2.f), 1.f, 1.f);
-		joint.m_JointAnimation.push_back(keyFrame);
-	}
-	joint.m_JointName = "joint1";
-	joint.m_JointOffsetMatrix = XMFLOAT4X4(
-		1.f, 0.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, -1.f, 0.f, 0.f,
-		0.f, -5.f, 0.f, 1.f);
-	joint.m_Parent = 0;
-	joints.push_back(joint);
-
-	joint.m_ID = 2;
-	joint.m_JointAnimation.clear();
-	keyFrame.m_Scale = XMFLOAT3(1.f, 1.f, 1.f);
-	keyFrame.m_Trans = XMFLOAT3(0.f, 0.f, 0.f);
-	for (int i = 0; i < 25; i++)
-	{
-		XMStoreFloat4(&keyFrame.m_Rot, XMQuaternionRotationRollPitchYaw(0.f, 3.14f * 2.f * i / 24.f, 0.f));
-		joint.m_JointAnimation.push_back(keyFrame);
-	}
-	joint.m_JointName = "joint2";
-	joint.m_JointOffsetMatrix = XMFLOAT4X4(
-		1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 5.f, 1.f);
-	joint.m_Parent = 1;
-	joints.push_back(joint);
-
-	joint.m_ID = 3;
-	joint.m_Parent = 2;
-	joint.m_JointName = "joint3";
-	joint.m_JointOffsetMatrix = XMFLOAT4X4(
-		1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 2.f, 0.f, 1.f);
-	joints.push_back(joint);
-}
-
 void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p_Animated)
 {
 	ModelLoader modelLoader;
@@ -537,7 +420,7 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p
 
 	m_ModelList.push_back(std::pair<string,Model>(p_ModelId,m));
 
-	//modelLoader.clear();
+	modelLoader.clear();
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
