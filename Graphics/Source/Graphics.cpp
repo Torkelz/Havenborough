@@ -525,7 +525,7 @@ void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 	GraphicsLogger::setLogFunction(p_LogCallback);
 }
 
-void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata)
+void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata)
 {
 	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
 }

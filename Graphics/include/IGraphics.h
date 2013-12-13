@@ -219,10 +219,33 @@ public:
 	 */
 	virtual void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) = 0;
 	
-	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void* p_Userdata);
-	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) = 0;
+	/**
+	* Callback for loading a texture to a model.
+	* @param p_ResourceName the resource name of the texture
+	* @param p_FilePath path to where the texture is located
+	* @param p_UserData user defined data
+	*/
+	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
+	
+	/**
+	* Set the function to load a texture to a model.
+	* @param p_LoadModelTexture the function to be called whenever a texture is to be loaded.
+	* @param p_UserData user defined data
+	*/
+	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata) = 0;
 
+	/**
+	* Callback for releasing a texture to a model.
+	* @param p_ResourceName the resource name of the texture
+	* @param p_UserData user defined data
+	*/
 	typedef void (*releaseModelTextureCallBack)(const char *p_ResourceName, void *p_Userdata);
+	
+	/**
+	* Set the function to release a texture to a model.
+	* @param p_LoadModelTexture the function to be called whenever a texture is to be released.
+	* @param p_UserData user defined data
+	*/
 	virtual void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata) = 0;
 
 	/**

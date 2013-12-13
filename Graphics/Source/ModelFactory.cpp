@@ -37,7 +37,7 @@ ModelDefinition ModelFactory::createStaticModel(const char *p_Filename)
 	const vector<Material> &materialData = modelLoader.getMaterial();
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
 
-	Buffer::Description bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE);
+	Buffer::Description bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 
 	boost::filesystem::path modelPath(p_Filename);
@@ -95,12 +95,12 @@ Buffer::Description ModelFactory::createBufferDescription(const vector<Vertex> &
 	bufferDescription.numOfElements = p_VertexData.size();
 	bufferDescription.sizeOfElement = sizeof(Vertex);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
-	bufferDescription.usage = p_Usage; // Change to default when needed to change data.
+	bufferDescription.usage = p_Usage;
 	
 	return bufferDescription;
 }
 
-void ModelFactory::loadTextures(ModelDefinition &p_Model, const char * p_Filename, unsigned int p_NumOfMaterials,
+void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename, unsigned int p_NumOfMaterials,
 	const vector<Material> &p_Materials)
 {
 	using std::pair;
@@ -126,9 +126,9 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char * p_Filenam
 		m_LoadModelTexture(material.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);
 		m_LoadModelTexture(material.m_SpecularMap.c_str(), spec.string().c_str(), m_LoadModelTextureUserdata);
 
-		diffuse.push_back( std::make_pair( material.m_DiffuseMap, getTextureFromList( material.m_DiffuseMap.c_str() ) ));
-		normal.push_back( std::make_pair( material.m_NormalMap, getTextureFromList( material.m_NormalMap.c_str() ) ));
-		specular.push_back( std::make_pair( material.m_SpecularMap, getTextureFromList( material.m_SpecularMap.c_str() ) ));
+		diffuse.push_back(std::make_pair(material.m_DiffuseMap, getTextureFromList(material.m_DiffuseMap.c_str())));
+		normal.push_back(std::make_pair(material.m_NormalMap, getTextureFromList(material.m_NormalMap.c_str())));
+		specular.push_back(std::make_pair(material.m_SpecularMap, getTextureFromList(material.m_SpecularMap.c_str())));
 
 	}
 

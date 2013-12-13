@@ -18,6 +18,12 @@ using std::pair;
 class ModelFactory
 {
 public:
+	/**
+	* Callback for loading a texture to a model.
+	* @param p_ResourceName the resource name of the texture
+	* @param p_FilePath path to where the texture is located
+	* @param p_UserData user defined data
+	*/
 	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
 
 private:
@@ -61,7 +67,9 @@ public:
 	ModelDefinition createAnimatedModel(const char *p_Filename);
 
 	/**
-	* Callback function for loading texture to model.
+	* Set the function to load a texture to a model.
+	* @param p_LoadModelTexture the function to be called whenever a texture is to be loaded.
+	* @param p_UserData user defined data
 	*/
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata);
 
