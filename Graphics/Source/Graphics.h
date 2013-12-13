@@ -78,7 +78,7 @@ public:
 	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) override;
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
-	bool createModel(const char *p_ModelId, const char *p_Filename) override;
+	bool createStaticModel(const char *p_ModelId, const char *p_Filename) override;
 	bool createAnimatedModel(const char *p_ModelId, const char *p_Filename) override;
 	bool releaseModel(const char *p_ModelID) override;
 

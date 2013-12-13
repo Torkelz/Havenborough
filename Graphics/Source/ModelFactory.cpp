@@ -26,18 +26,26 @@ void ModelFactory::shutdown(void)
 	SAFE_DELETE(m_Instance);
 }
 
-ModelDefinition ModelFactory::createStaticModel(const char *p_Filename)
+ModelDefinition ModelFactory::createModel(const char *p_Filename, bool p_IsAnimated)
 {
-	ModelDefinition model;
-	
 	ModelBinaryLoader modelLoader;
 	modelLoader.loadBinaryFile(p_Filename);
 
-	const vector<Vertex> &vertexData = modelLoader.getVertexBuffer();
+	ModelDefinition model;
+	Buffer::Description bufferDescription;
 	const vector<Material> &materialData = modelLoader.getMaterial();
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
-
-	Buffer::Description bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
+	
+	if(!p_IsAnimated)
+	{
+		const vector<Vertex> &vertexData = modelLoader.getVertexBuffer();
+		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
+	}
+	else
+	{
+		const vector<VertexAnimation> &vertexData = modelLoader.getAnimationVertexBuffer();
+		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
+	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 
 	boost::filesystem::path modelPath(p_Filename);
@@ -54,20 +62,6 @@ ModelDefinition ModelFactory::createStaticModel(const char *p_Filename)
 	model.vertexBuffer.swap(vertexBuffer);
 	model.drawInterval = tempInterval;
 	model.numOfMaterials = materialData.size();
-
-	modelLoader.clear();
-
-	return model;
-}
-
-ModelDefinition ModelFactory::createAnimatedModel(const char *p_Filename)
-{
-	ModelDefinition model;
-
-	ModelBinaryLoader modelLoader;
-	modelLoader.loadBinaryFile(p_Filename);
-
-	//TODO: Load animated vertex data
 
 	modelLoader.clear();
 
@@ -97,6 +91,19 @@ Buffer::Description ModelFactory::createBufferDescription(const vector<Vertex> &
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = p_Usage;
 	
+	return bufferDescription;
+}
+
+Buffer::Description ModelFactory::createBufferDescription(const vector<VertexAnimation> &p_VertexData,
+	Buffer::Usage p_Usage)
+{
+	Buffer::Description bufferDescription;
+	bufferDescription.initData = p_VertexData.data();
+	bufferDescription.numOfElements = p_VertexData.size();
+	bufferDescription.sizeOfElement = sizeof(VertexAnimation);
+	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
+	bufferDescription.usage = p_Usage;
+
 	return bufferDescription;
 }
 

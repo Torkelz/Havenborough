@@ -242,9 +242,9 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
+bool Graphics::createStaticModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelDefinition model =	m_ModelFactory->getInstance()->createStaticModel(p_Filename);
+	ModelDefinition model =	m_ModelFactory->getInstance()->createModel(p_Filename, false);
 
 	m_StaticModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
 
@@ -253,7 +253,7 @@ bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 	
 bool Graphics::createAnimatedModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelDefinition model = m_ModelFactory->getInstance()->createAnimatedModel(p_Filename); //TODO: May need another model definition
+	ModelDefinition model = m_ModelFactory->getInstance()->createModel(p_Filename, true); //TODO: May need another model definition
 
 	m_AnimatedModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
 

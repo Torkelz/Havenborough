@@ -186,6 +186,9 @@
     <ClCompile Include="Source\TestCollision.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
+    <ClCompile Include="TestModelFactory.cpp">
+      <Filter>TestGraphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

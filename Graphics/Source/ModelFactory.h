@@ -55,16 +55,10 @@ public:
 	/**
 	* Creates a static model with buffers and connects the textures to it.
 	* @param p_Filename the model file to read
+	* @param p_IsAnimated check whether the model should be animated or not, true = animated, false = static
 	* @return copy of the created model
 	*/
-	ModelDefinition createStaticModel(const char *p_Filename);
-
-	/**
-	* Creates an animated model with buffers and connects the textures to it.
-	* @param p_Filename the model file to read
-	* @return copy of the created model
-	*/
-	ModelDefinition createAnimatedModel(const char *p_Filename);
+	virtual ModelDefinition createModel(const char *p_Filename, bool p_IsAnimated);
 
 	/**
 	* Set the function to load a texture to a model.
@@ -73,11 +67,13 @@ public:
 	*/
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata);
 
-private:
+protected:
 	ModelFactory(void);
-	virtual ~ModelFactory(void);
+	~ModelFactory(void);
 	
+private:
 	Buffer::Description createBufferDescription(const vector<Vertex> &p_VertexData, Buffer::Usage p_Usage);
+	Buffer::Description createBufferDescription(const vector<VertexAnimation> &p_VertexData, Buffer::Usage p_Usage);
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
 		const vector<Material> &p_Materials);
