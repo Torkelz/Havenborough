@@ -32,15 +32,15 @@ public:
 	 */
 	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top) = 0;
 
+	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extent, Matrix4x4 p_RotMatrix) = 0;
 
 
-
-	virtual Vector4 getBodyPosition(BodyHandle p_Body) =0;
-
-
+	virtual Vector4 getBodyPosition(BodyHandle p_Body) = 0;
 	
+
 	virtual void setBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
 
+	virtual void setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, float p_Roll) = 0;
 
 	/**
 	 * Keeps physics updated, collision checks etc.

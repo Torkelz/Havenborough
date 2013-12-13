@@ -38,7 +38,7 @@ private:
 	Vector4 m_PrevForce;
 	SceneManager m_SceneManager;
 
-	BodyHandle m_Player, m_Ground;
+	BodyHandle m_Player, m_Ground, m_OBBStatic, m_OBBMovable;
 	IPhysics *m_Physics;
 	ResourceManager* m_ResourceManager;
 

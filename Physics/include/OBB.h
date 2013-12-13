@@ -94,5 +94,13 @@ public:
 	void setRotationMatrix(const DirectX::XMFLOAT4X4 &p_Rot)
 	{
 		m_Rotation = p_Rot;
+		UpdateRotation();
+	}
+	void UpdateRotation()
+	{
+		DirectX::XMVECTOR tempExtent = DirectX::XMLoadFloat3(&m_Extent);
+		DirectX::XMMATRIX tempRot = DirectX::XMLoadFloat4x4(&m_Rotation);
+		tempExtent = DirectX::XMVector3Transform(tempExtent, tempRot);
+		DirectX::XMStoreFloat3(&m_Extent, tempExtent);
 	}
 };

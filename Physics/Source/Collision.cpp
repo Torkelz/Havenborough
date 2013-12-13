@@ -13,10 +13,10 @@ HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume* p_Volume1, Bou
 	{		
 	case BoundingVolume::Type::AABBOX:
 		return boundingVolumeVsAABB(p_Volume1, (AABB*)p_Volume2);
-
 	case BoundingVolume::Type::SPHERE:
 		return boundingVolumeVsSphere(p_Volume1, (Sphere*) p_Volume2);
-
+	case BoundingVolume::Type::OBB:
+		return boundingVolumeVsOBB(p_Volume1, (OBB*)p_Volume2);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -31,9 +31,10 @@ HitData Collision::boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sp
 	{
 	case BoundingVolume::Type::AABBOX:
 		return AABBvsSphere((AABB*)p_Volume, p_Sphere);
-
 	case BoundingVolume::Type::SPHERE:
 		return sphereVsSphere((Sphere*)p_Volume, p_Sphere);
+	case BoundingVolume::Type::OBB:
+		return OBBvsSphere((OBB*)p_Volume, p_Sphere);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -47,10 +48,27 @@ HitData Collision::boundingVolumeVsAABB(BoundingVolume* p_Volume, AABB* p_AABB)
 	{
 	case BoundingVolume::Type::AABBOX:
 		return AABBvsAABB((AABB*)p_Volume, p_AABB);
-
 	case BoundingVolume::Type::SPHERE:
 		return AABBvsSphere(p_AABB, (Sphere*)p_Volume);
+	case BoundingVolume::Type::OBB:
+		return OBBvsAABB((OBB*)p_Volume, p_AABB);
+	default:
+		HitData hit = HitData();
+		return hit;
+	}
+}
 
+HitData Collision::boundingVolumeVsOBB(BoundingVolume* p_Volume, OBB* p_OBB)
+{
+	BoundingVolume::Type type = p_Volume->getType();
+	switch(type)
+	{
+	case BoundingVolume::Type::AABBOX:
+		return OBBvsAABB(p_OBB, (AABB*)p_Volume);
+	case BoundingVolume::Type::SPHERE:
+		return OBBvsSphere(p_OBB, (Sphere*)p_Volume);
+	case BoundingVolume::Type::OBB:
+		return OBBvsOBB((OBB*)p_Volume, p_OBB);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -220,23 +238,23 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	return hit;
 }
 
-HitData Collision::OBBvsOBB(OBB &p_OBB1, OBB &p_OBB2)
+HitData Collision::OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2)
 {
 	HitData hit = HitData();
 
-	DirectX::XMMATRIX invRotA, invRotB;
+	XMMATRIX invRotA, invRotB;
 	
-	DirectX::XMVECTOR sizeA = XMLoadFloat3(&p_OBB1.getExtent());
-	DirectX::XMVECTOR sizeB = XMLoadFloat3(&p_OBB2.getExtent());
+	XMVECTOR sizeA = XMLoadFloat3(&p_OBB1->getExtent());
+	XMVECTOR sizeB = XMLoadFloat3(&p_OBB2->getExtent());
 
-	DirectX::XMVECTOR vCenterPos1 = XMLoadFloat4(p_OBB1.getPosition());
-	DirectX::XMVECTOR vCenterPos2 = XMLoadFloat4(p_OBB2.getPosition());
+	XMVECTOR vCenterPos1 = XMLoadFloat4(p_OBB1->getPosition());
+	XMVECTOR vCenterPos2 = XMLoadFloat4(p_OBB2->getPosition());
 	
-	invRotA = DirectX::XMLoadFloat4x4(&p_OBB1.getInvRotation());
-	invRotB = DirectX::XMLoadFloat4x4(&p_OBB2.getInvRotation());
+	invRotA = XMLoadFloat4x4(&p_OBB1->getInvRotation());
+	invRotB = XMLoadFloat4x4(&p_OBB2->getInvRotation());
 
-	DirectX::XMMATRIX R, AR;
-	DirectX::XMVECTOR dotResult0, dotResult1, dotResult2;
+	XMMATRIX R, AR;
+	XMVECTOR dotResult0, dotResult1, dotResult2;
 	float extentA, extentB, separation;
 
     // Calculate B to A rotation matrix
@@ -244,28 +262,28 @@ HitData Collision::OBBvsOBB(OBB &p_OBB1, OBB &p_OBB2)
 	{
        for(int k = 0; k < 3; k++ )
 		{
-			dotResult0 = DirectX::XMVector4Dot(invRotA.r[i], invRotB.r[k]);
+			dotResult0 = XMVector4Dot(invRotA.r[i], invRotB.r[k]);
 			R.r[i].m128_f32[k] =  dotResult0.m128_f32[0];
 			AR.r[i].m128_f32[k] = fabs(R.r[i].m128_f32[k]);
         }
 	}
 
 	// Vector separating the centers of Box B and of Box A	
-	DirectX::XMVECTOR vSepWS = vCenterPos2 - vCenterPos2;
+	XMVECTOR vSepWS = vCenterPos2 - vCenterPos1;
 	// Rotated into Box A's coordinates
-	dotResult0 = DirectX::XMVector4Dot(vSepWS, invRotA.r[0]);
-	dotResult1 = DirectX::XMVector4Dot(vSepWS, invRotA.r[1]);
-	dotResult2 = DirectX::XMVector4Dot(vSepWS, invRotA.r[2]);
+	dotResult0 = XMVector4Dot(vSepWS, invRotA.r[0]);
+	dotResult1 = XMVector4Dot(vSepWS, invRotA.r[1]);
+	dotResult2 = XMVector4Dot(vSepWS, invRotA.r[2]);
 	
-	DirectX::XMVECTOR vSepA	 = DirectX::XMVectorSet(dotResult0.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f);
+	XMVECTOR vSepA	 = XMVectorSet(dotResult0.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f);
             
      // Test if any of A's basis vectors separate the box
-	DirectX::XMVECTOR temp;
+	XMVECTOR temp;
 	for(int i = 0; i < 3; i++ )
 	{
 		extentA = sizeA.m128_f32[i];
-		temp = DirectX::XMVectorSet(AR.r[i].m128_f32[0], AR.r[i].m128_f32[1], AR.r[i].m128_f32[2], 0.f);
-		dotResult0 = DirectX::XMVector4Dot(sizeB, temp);
+		temp = XMVectorSet(AR.r[i].m128_f32[0], AR.r[i].m128_f32[1], AR.r[i].m128_f32[2], 0.f);
+		dotResult0 = XMVector4Dot(sizeB, temp);
 		extentB = dotResult0.m128_f32[0];
 		separation = fabs(vSepA.m128_f32[i]);
 
@@ -281,12 +299,12 @@ HitData Collision::OBBvsOBB(OBB &p_OBB1, OBB &p_OBB2)
 	for(int i = 0; i < 3; i++)
 	{
 		extentB = sizeA.m128_f32[i];
-		temp = DirectX::XMVectorSet(AR.r[0].m128_f32[i], AR.r[1].m128_f32[i], AR.r[2].m128_f32[i], 0.f);
-		dotResult0 = DirectX::XMVector4Dot(sizeA, temp);
+		temp = XMVectorSet(AR.r[0].m128_f32[i], AR.r[1].m128_f32[i], AR.r[2].m128_f32[i], 0.f);
+		dotResult0 = XMVector4Dot(sizeA, temp);
 		extentA = dotResult0.m128_f32[0];
 
-		temp = DirectX::XMVectorSet(R.r[0].m128_f32[i], R.r[1].m128_f32[i], R.r[2].m128_f32[i], 0.f);
-		dotResult0 = DirectX::XMVector4Dot(vSepA, temp);
+		temp = XMVectorSet(R.r[0].m128_f32[i], R.r[1].m128_f32[i], R.r[2].m128_f32[i], 0.f);
+		dotResult0 = XMVector4Dot(vSepA, temp);
 
 		separation = fabs(dotResult0.m128_f32[0]);
 
@@ -318,22 +336,23 @@ HitData Collision::OBBvsOBB(OBB &p_OBB1, OBB &p_OBB2)
 
 	//// No separating axis found, the boxes overlap
 	hit.intersect = true;
+	hit.colType = Type::OBBVSOBB;
 	//Calculate intersection point()
 	return hit;
 }
 
-HitData Collision::OBBvsSphere(OBB &p_OBB, Sphere &p_Sphere)
+HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
 {
 	HitData hit = HitData();
 	float fDist;
-	float fDistSq				= 0;
-	DirectX::XMVECTOR extent	= DirectX::XMLoadFloat3(&p_OBB.getExtent());
-	DirectX::XMVECTOR spherePos = DirectX::XMLoadFloat4(p_Sphere.getPosition());
-	DirectX::XMMATRIX invRot	= DirectX::XMLoadFloat4x4(&p_OBB.getInvRotation());
+	float fDistSq		= 0;
+	XMVECTOR extent		= XMLoadFloat3(&p_OBB->getExtent());
+	XMVECTOR spherePos	= XMLoadFloat4(p_Sphere->getPosition());
+	XMMATRIX invRot		= XMLoadFloat4x4(&p_OBB->getInvRotation());
 
-	float fRadius = p_Sphere.getRadius();
+	float fRadius = p_Sphere->getRadius();
 	
-	DirectX::XMVECTOR P = DirectX::XMVector3Transform(spherePos, invRot);
+	XMVECTOR P = XMVector3Transform(spherePos, invRot);
 	
 	// Add distance squared from sphere centerpoint to box for each axis
 	for ( int i = 0; i < 3; i++ )
@@ -348,15 +367,17 @@ HitData Collision::OBBvsSphere(OBB &p_OBB, Sphere &p_Sphere)
 	if( fDistSq <= fRadius*fRadius )
 	{
 		hit.intersect = true;
+		hit.colType = Type::OBBVSSPHERE;
 		//Calculate pos
 	}
 
 	return hit;
 }
 
-HitData Collision::OBBvsAABB(OBB &p_OBB, AABB &p_Sphere)
+HitData Collision::OBBvsAABB(OBB *p_OBB, AABB *p_AABB)
 {
-	
+	HitData Hit;
+	return Hit;
 }
 
 //bool AABB::collide(BoundingVolume* p_pVolume)

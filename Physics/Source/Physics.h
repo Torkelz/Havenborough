@@ -26,6 +26,7 @@ public:
 
 	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius);
 	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top);
+	BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extent, Matrix4x4 p_RotMatrix);
 
 	void setGlobalGravity(float p_Gravity);
 	Vector4 getVelocity(BodyHandle p_Body);
@@ -36,6 +37,8 @@ public:
 	Vector4 getBodyPosition(BodyHandle p_Body);
 
 	void setBodyPosition(Vector3 p_Position, BodyHandle p_Body);
+
+	void setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, float p_Roll);
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 		 

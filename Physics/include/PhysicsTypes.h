@@ -14,7 +14,10 @@ enum class Type
 	NONE,
 	SPHEREVSSPHERE,
 	AABBVSSPHERE,
-	AABBVSAABB
+	AABBVSAABB,
+	OBBVSOBB,
+	OBBVSSPHERE,
+	OBBVSAABB,
 };
 
 struct Vector3
@@ -69,6 +72,35 @@ struct Vector4
 		this->w -= p_vec.w;
 
 		return *this;
+	}
+};
+
+struct Matrix4x4
+{
+	Vector4 M[4];
+
+	Matrix4x4()
+	{
+		M[0] = Vector4(1.f, 0.f, 0.f, 0.f);
+		M[1] = Vector4(0.f, 1.f, 0.f, 0.f);;
+		M[2] = Vector4(0.f, 0.f, 1.f, 0.f);;
+		M[3] = Vector4(0.f, 0.f, 0.f, 1.f);;
+	}
+
+	Matrix4x4(Vector4 p_column1, Vector4 p_column2, Vector4 p_column3, Vector4 p_column4)
+	{
+		M[0] = p_column1;
+		M[1] = p_column2;
+		M[2] = p_column3;
+		M[3] = p_column4;
+	}
+
+	Matrix4x4(Vector4 p_Matrix[4])
+	{
+		M[0] = p_Matrix[0];
+		M[1] = p_Matrix[1];
+		M[2] = p_Matrix[2];
+		M[3] = p_Matrix[3];
 	}
 };
 
