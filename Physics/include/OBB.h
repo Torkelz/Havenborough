@@ -86,6 +86,11 @@ public:
 		return inverse;
 	}
 
+	Sphere getSphere()
+	{
+		return m_Sphere;
+	}
+
 	void setExtent(const DirectX::XMFLOAT3 &p_Extent)
 	{
 		m_Extent = p_Extent;

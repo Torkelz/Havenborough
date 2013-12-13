@@ -77,7 +77,7 @@ void Physics::update(float p_DeltaTime)
 			
 			if(hit.intersect)
 			{
-				if(hit.colType == Type::OBBVSOBB)
+				if(hit.colType == Type::OBBVSSPHERE)
 				{
 					PhysicsLogger::log(PhysicsLogger::Level::INFO, "OBB intersection!");
 				}
@@ -246,6 +246,7 @@ void Physics::setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, flo
 	Body* body = findBody(p_Body);
 	if(body == nullptr || body->getVolume()->getType() != BoundingVolume::Type::OBB)
 		return;
+
 	OBB *obb = (OBB*)(body->getVolume());
 	XMFLOAT3 yawPitchRoll(p_Yaw, p_Pitch, p_Roll);
 	XMFLOAT4X4 temp;

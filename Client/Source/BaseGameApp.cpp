@@ -67,7 +67,7 @@ void BaseGameApp::init()
 	m_Physics->initialize();
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
-	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 1.6f);
+	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 2.f);
 	m_OBBMovable = m_Physics->createOBB(50.f, false, Vector3(0.f, 10.f, 0.f), Vector3(1.6f, 1.6f, 1.6f), Matrix4x4());
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
 	
@@ -118,10 +118,8 @@ void BaseGameApp::run()
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
 		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
-		if(i == 0)
-		{
+		if(i == 1)
 			m_OBBStatic = m_Physics->createOBB(50.f, true, Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f), Vector3(scale, scale, scale), Matrix4x4());
-		}
 	}
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
@@ -251,7 +249,7 @@ void BaseGameApp::run()
 		for (int i = 0; i < NUM_BOXES; i++)
 		{
 			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
-			if(i == 0)
+			if(i == 1)
 				m_Physics->setBodyRotation(m_OBBStatic, yaw * i, pitch * i, roll * i);  
 
 			m_Graphics->renderModel(boxIds[i]);

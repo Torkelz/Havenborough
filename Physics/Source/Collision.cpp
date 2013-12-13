@@ -240,7 +240,11 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 
 HitData Collision::OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2)
 {
-	HitData hit = HitData();
+	HitData hit = sphereVsSphere(&p_OBB1->getSphere(), &p_OBB2->getSphere());
+	if(!hit.intersect)
+		return hit;
+
+	hit = HitData();
 
 	XMMATRIX invRotA, invRotB;
 	
@@ -343,7 +347,12 @@ HitData Collision::OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2)
 
 HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
 {
-	HitData hit = HitData();
+	HitData hit = sphereVsSphere(&p_OBB->getSphere(), p_Sphere);
+	if(!hit.intersect)
+		return hit;
+
+	hit = HitData();
+
 	float fDist;
 	float fDistSq		= 0;
 	XMVECTOR extent		= XMLoadFloat3(&p_OBB->getExtent());
