@@ -224,7 +224,7 @@ void DeferredRenderer::renderGeometry()
 				temp.invTransposeWorld = m_Objects.at(i).m_invTransposeWorld;
 
 				std::vector<DirectX::XMFLOAT4X4> tempBones;
-				m_Objects.at(i).m_Model->getFinalTransform(0.0f, tempBones);
+				m_Objects.at(i).m_Model->getFinalTransform(1.f/200.f, tempBones);
 				for (unsigned int a = 0; a < tempBones.size(); a++)
 					temp.boneTransform[a] = tempBones[a];
 

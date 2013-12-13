@@ -279,12 +279,12 @@ void adjustJoints(std::vector<Joint>& p_Joints)
 		XMStoreFloat4x4(&p_Joints[i].m_JointOffsetMatrix, finalOffset);
 	}
 
-	//for (unsigned int i = p_Joints.size() - 1; i > 0; i--)
-	//{
-	//	p_Joints[i].m_JointOffsetMatrix = p_Joints[p_Joints[i].m_Parent - 1].m_JointOffsetMatrix;
-	//}
+	for (unsigned int i = p_Joints.size() - 1; i > 0; i--)
+	{
+		p_Joints[i].m_JointOffsetMatrix = p_Joints[p_Joints[i].m_Parent - 1].m_JointOffsetMatrix;
+	}
 
-	//XMStoreFloat4x4(&p_Joints[0].m_JointOffsetMatrix, XMMatrixIdentity());
+	XMStoreFloat4x4(&p_Joints[0].m_JointOffsetMatrix, XMMatrixIdentity());
 }
 
 void createTestModel(vector<std::vector<ModelLoader::IndexDesc>>& indices,
@@ -298,7 +298,7 @@ void createTestModel(vector<std::vector<ModelLoader::IndexDesc>>& indices,
 {
 	using namespace DirectX;
 
-	static const int numVertices = 12;
+	static const int numVertices = 15;
 
 	std::vector<ModelLoader::IndexDesc> indexList;
 	ModelLoader::IndexDesc index;
@@ -321,6 +321,7 @@ void createTestModel(vector<std::vector<ModelLoader::IndexDesc>>& indices,
 	texCoords.push_back(XMFLOAT2(0.5f, 0.5f));
 	texCoords.push_back(XMFLOAT2(0.1f, 0.9f));
 	texCoords.push_back(XMFLOAT2(0.9f, 0.9f));
+	texCoords.push_back(XMFLOAT2(0.75f, 0.25f));
 
 	vertices.push_back(XMFLOAT3(-5.f, -5.f,  0.f));
 	vertices.push_back(XMFLOAT3( 0.f, -5.f,  5.f));
@@ -330,16 +331,20 @@ void createTestModel(vector<std::vector<ModelLoader::IndexDesc>>& indices,
 	vertices.push_back(XMFLOAT3(10.f, -5.f,  5.f));
 	vertices.push_back(XMFLOAT3(15.f, -5.f,  0.f));
 										    
-	vertices.push_back(XMFLOAT3(-5.f, -5.f,  5.f));
-	vertices.push_back(XMFLOAT3( 0.f, -5.f, 10.f));
-	vertices.push_back(XMFLOAT3( 5.f, -5.f,  5.f));
+	vertices.push_back(XMFLOAT3(-5.f, -5.01f,  5.f));
+	vertices.push_back(XMFLOAT3( 0.f, -5.01f, 10.f));
+	vertices.push_back(XMFLOAT3( 5.f, -5.01f,  5.f));
 
 	vertices.push_back(XMFLOAT3(-5.f, -3.f, 0.f));
 	vertices.push_back(XMFLOAT3( 0.f, -3.f, 5.f));
 	vertices.push_back(XMFLOAT3( 5.f, -3.f, 0.f));
 
+	vertices.push_back(XMFLOAT3(-5.f, -3.01f,  5.f));
+	vertices.push_back(XMFLOAT3( 0.f, -3.01f, 10.f));
+	vertices.push_back(XMFLOAT3( 5.f, -3.01f,  5.f));
+
 	ModelLoader::Material material;
-	material.m_DiffuseMap = "Witch\\accessories_COLOR.jpg";
+	material.m_DiffuseMap = "assets\\Witch\\accessories_COLOR.jpg";
 	material.m_NormalMap = "Default_NRM.jpg";
 	material.m_SpecularMap = "Default_SPEC.jpg";
 	material.m_MaterialID = "labmert1";
@@ -347,7 +352,7 @@ void createTestModel(vector<std::vector<ModelLoader::IndexDesc>>& indices,
 
 	for (int i = 0; i < numVertices; i++)
 	{
-		weights.push_back(std::make_pair(XMFLOAT3(1.f, 0.f, 0.f), XMFLOAT4(i / 6, 0.f, 0.f, 0.f)));
+		weights.push_back(std::make_pair(XMFLOAT3(1.f, 0.f, 0.f), XMFLOAT4((float)(i / 6 + 1), 0.f, 0.f, 0.f)));
 	}
 
 	Joint joint;
@@ -357,52 +362,52 @@ void createTestModel(vector<std::vector<ModelLoader::IndexDesc>>& indices,
 	keyFrame.m_Scale = XMFLOAT3(1.f, 1.f, 1.f);
 	keyFrame.m_Trans = XMFLOAT3(0.f, 0.f, 0.f);
 	for (int i = 0; i < 25; i++)
+	{
+		keyFrame.m_Scale = XMFLOAT3(2.f + sin((float)i / 24.f * 3.24f * 2.f), 1.f, 1.f);
 		joint.m_JointAnimation.push_back(keyFrame);
+	}
 	joint.m_JointName = "joint1";
 	joint.m_JointOffsetMatrix = XMFLOAT4X4(
-		2.f, 0.f, 0.f, 0.f,
-		0.f, 2.f, 0.f, 0.f,
-		0.f, 0.f, 2.f, 0.f,
-		0.f, 0.f, 0.f, 1.f);
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, -1.f, 0.f, 0.f,
+		0.f, -5.f, 0.f, 1.f);
 	joint.m_Parent = 0;
 	joints.push_back(joint);
 
 	joint.m_ID = 2;
+	joint.m_JointAnimation.clear();
+	keyFrame.m_Scale = XMFLOAT3(1.f, 1.f, 1.f);
+	keyFrame.m_Trans = XMFLOAT3(0.f, 0.f, 0.f);
+	for (int i = 0; i < 25; i++)
+	{
+		XMStoreFloat4(&keyFrame.m_Rot, XMQuaternionRotationRollPitchYaw(0.f, 3.14f * 2.f * i / 24.f, 0.f));
+		joint.m_JointAnimation.push_back(keyFrame);
+	}
 	joint.m_JointName = "joint2";
 	joint.m_JointOffsetMatrix = XMFLOAT4X4(
-		2.f, 0.f, 0.f, 0.f,
-		0.f, 2.f, 0.f, 0.f,
-		0.f, 0.f, 2.f, 0.f,
-		0.f, 0.f, 0.f, 1.f);
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 5.f, 1.f);
 	joint.m_Parent = 1;
+	joints.push_back(joint);
+
+	joint.m_ID = 3;
+	joint.m_Parent = 2;
+	joint.m_JointName = "joint3";
+	joint.m_JointOffsetMatrix = XMFLOAT4X4(
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 2.f, 0.f, 1.f);
 	joints.push_back(joint);
 }
 
 void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p_Animated)
 {
-	//ModelLoader modelLoader;
+	ModelLoader modelLoader;
 	Buffer *vertexBuffer = nullptr;
-
-	//modelLoader.loadFile(p_Filename);
-
-	////int nrVertices = modelLoader.getVertices()->size();
-	//vector<std::vector<ModelLoader::IndexDesc>>	tempF	= modelLoader.getIndices();
-	//vector<DirectX::XMFLOAT3>				tempN	= modelLoader.getNormals();
-	//vector<DirectX::XMFLOAT3>				tempT	= modelLoader.getTangents();
-	//vector<DirectX::XMFLOAT2>				tempUV = modelLoader.getTextureCoords();
-	//vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
-	//vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
-	//vector<pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> tempWeights;
-	//vector<Joint>							tempJoints;
-
-	//if(p_Animated)
-	//{
-	//	tempWeights = modelLoader.getWeightsList();
-	//	tempJoints	= modelLoader.getListOfJoints();
-
-	//	adjustJoints(tempJoints);
-	//}
-
 
 	//int nrVertices = modelLoader.getVertices()->size();
 	vector<std::vector<ModelLoader::IndexDesc>>	tempF;
@@ -414,9 +419,20 @@ void Graphics::createModel(const char *p_ModelId, const char *p_Filename, bool p
 	vector<pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> tempWeights;
 	vector<Joint>							tempJoints;
 
-	createTestModel(tempF, tempN, tempT, tempUV, tempVert, tempM, tempWeights, tempJoints);
+	modelLoader.loadFile(p_Filename);
 
+	tempF	= modelLoader.getIndices();
+	tempN	= modelLoader.getNormals();
+	tempT	= modelLoader.getTangents();
+	tempUV = modelLoader.getTextureCoords();
+	tempVert = modelLoader.getVertices();
+	tempM	= modelLoader.getMaterial();
 
+	if(p_Animated)
+	{
+		tempWeights = modelLoader.getWeightsList();
+		tempJoints	= modelLoader.getListOfJoints();
+	}
 	
 	vector<AnimatedVertex> temp;
 	

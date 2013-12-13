@@ -116,12 +116,12 @@ PSIn VS(VSIn input)
 
 	// Init array or else we get strange warnings about SV_POSITION.
 	float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	weights[0] = 1;//input.weights.x;
-	weights[1] = 0;//input.weights.y;
-	weights[2] = 0;//input.weights.z;
-	weights[3] = 0.0f;
+	weights[0] = input.weights.x;
+	weights[1] = input.weights.y;
+	weights[2] = input.weights.z;
+	weights[3] = 1.f - input.weights.x - input.weights.y - input.weights.z;
 
-	float4 posL			= float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float4 posL			= float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float3 normalL		= float3(0.0f, 0.0f, 0.0f);
 	float3 tangentL		= float3(0.0f, 0.0f, 0.0f);
 	float3 binormalL	= float3(0.0f, 0.0f, 0.0f);
@@ -134,7 +134,8 @@ PSIn VS(VSIn input)
 		tangentL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.tangent);
 		binormalL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.binormal);
 	}
-	//posL /= posL.w;
+	posL /= posL.w;
+	//posL.w = 1.f;
  
 	// Transform to view space.
 	//vout.PosV    = mul(float4(posL, 1.0f), gWorldView).xyz;
