@@ -4,7 +4,7 @@
 #include <vector>
 #include "WICTextureLoader.h"
 #include "DDSTextureLoader.h"
-#include "MyGraphicsExceptions.h"
+#include "GraphicsExceptions.h"
 
 class TextureLoader
 {

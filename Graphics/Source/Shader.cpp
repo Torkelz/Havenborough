@@ -69,8 +69,6 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 			SAFE_RELEASE(errorMessage);
 			throw ShaderException("Error when compiling shader.\n" + temp, __LINE__, __FILE__);
 		}
-
-		return result;
 	}
 
 	m_ShaderType = p_ShaderType;

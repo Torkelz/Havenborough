@@ -11,7 +11,7 @@
  * Base class for all our exceptions, all our exceptions
  * should inherit from this class.
  */
-class MyException : public std::exception
+class NetworkException : public std::exception
 {
 protected:
 	/**
@@ -35,7 +35,7 @@ public:
 	 * @param p_Line The line of the exception (use __LINE__)
 	 * @param p_File The file of the exception (use __FILE__)
 	 */
-	MyException(const std::string& p_What, int p_Line, const std::string& p_File)
+	NetworkException(const std::string& p_What, int p_Line, const std::string& p_File)
 		: m_What(p_File + "(" + std::to_string(p_Line) + "): " + p_What),
 		  m_Line(p_Line),
 		  m_File(p_File)
@@ -51,7 +51,7 @@ public:
 /**
  * An exception to be thrown when a network error has occured.
  */
-class NetworkError : public MyException
+class NetworkError : public NetworkException
 {
 public:
 	/**
@@ -62,7 +62,7 @@ public:
 	 * @param p_File The file of the exception (use __FILE__)
 	 */
 	NetworkError(const std::string& p_What, int p_Line, const std::string& p_File)
-		: MyException(p_What, p_Line, p_File)
+		: NetworkException(p_What, p_Line, p_File)
 	{
 	}
 };

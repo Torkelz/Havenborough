@@ -3,6 +3,7 @@
 const unsigned int DeferredRenderer::m_MaxLightsPerLightInstance = 100;
 
 DeferredRenderer::DeferredRenderer()
+		
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
@@ -32,6 +33,7 @@ DeferredRenderer::DeferredRenderer()
 	m_DirectionalModelBuffer = nullptr;
 
 	m_ConstantBuffer = nullptr;
+	m_ObjectConstantBuffer = nullptr;
 	m_AllLightBuffer = nullptr;
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
@@ -39,6 +41,8 @@ DeferredRenderer::DeferredRenderer()
 
 	m_RasterState = nullptr;
 	m_DepthState = nullptr;
+	m_BlendState = nullptr;
+	m_BlendState2 = nullptr;
 }
 
 DeferredRenderer::~DeferredRenderer(void)
@@ -84,6 +88,9 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);	
+
+	SAFE_RELEASE(m_BlendState);
+	SAFE_RELEASE(m_BlendState2);
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
@@ -128,10 +135,9 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	// Create sampler state and blend state for Alpha rendering.
 	createSamplerState();
 
+
 	createBlendStates();
-
 	createLightStates();
-
 	createBuffers();
 }
 
@@ -169,14 +175,13 @@ void DeferredRenderer::renderGeometry()
 		m_Objects.at(i).m_Model->vertexBuffer->setBuffer(0);
 		for(unsigned int j = 0; j < m_Objects.at(i).m_Model->numOfMaterials;j++)
 		{
-			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[j], 
-													m_Objects.at(i).m_Model->normalTexture[j], 
-													m_Objects.at(i).m_Model->specularTexture[j] 
+			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[j].second, 
+													m_Objects.at(i).m_Model->normalTexture[j].second, 
+													m_Objects.at(i).m_Model->specularTexture[j].second 
 												};
 			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 			
 			// Send stuff.
-			m_Objects.at(i).m_Model->indexBuffer[j]->setBuffer(0);
 			cObjectBuffer temp;
 			temp.world = *m_Objects.at(i).m_World;
 			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
@@ -188,10 +193,9 @@ void DeferredRenderer::renderGeometry()
 			m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
 
 			//m_DeviceContext->Draw(m_Objects.at(i).m_Model->vertexBuffer->getNumOfElements(), 0);
-			m_DeviceContext->DrawIndexed(m_Objects.at(i).m_Model->indexBuffer[j]->getNumOfElements(),0, 0);
+			m_DeviceContext->Draw(m_Objects.at(i).m_Model->drawInterval.at(j).second, m_Objects.at(i).m_Model->drawInterval.at(j).first);
 
 			m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
-			m_Objects.at(i).m_Model->indexBuffer[j]->unsetBuffer(0);
 			m_ObjectConstantBuffer->unsetBuffer(2);
 			m_Objects.at(i).m_Model->shader->setBlendState(0, data);
 			m_Objects.at(i).m_Model->shader->unSetShader();
@@ -318,6 +322,7 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 	result = m_Device->CreateRenderTargetView(srvt3, &rtDesc, &m_RenderTargets[3]);
 	if(FAILED(result))
 		return result;
+
 	SAFE_RELEASE(srvt0);
 	SAFE_RELEASE(srvt1);
 	SAFE_RELEASE(srvt2);
@@ -345,6 +350,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	// Make the diffuse texture from the render target.	
 	m_RenderTargets[0]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_DiffuseSRV);
+	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
@@ -352,6 +358,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	// Make the normal texture from the render target.
 	m_RenderTargets[1]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_NormalSRV);
+	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
@@ -359,6 +366,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	// Make the world position texture from the render target.
 	m_RenderTargets[2]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_wPositionSRV);
+	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
@@ -366,6 +374,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	// Make the final texture from the render target.
 	m_RenderTargets[3]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_LightSRV);
+	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
@@ -490,36 +499,33 @@ void DeferredRenderer::createLightShaders()
 
 void DeferredRenderer::loadLightModels()
 {
-	ModelLoader modelLoader;
-	modelLoader.loadFile("assets/LightModels/spotlight +Z openGL 2 inv 2.tx");
-	const std::vector<std::vector<ModelLoader::IndexDesc>>& indices = modelLoader.getIndices();
-	const std::vector<DirectX::XMFLOAT3>& vertices = modelLoader.getVertices();
+	ModelBinaryLoader modelLoader;
+	modelLoader.loadBinaryFile("assets/LightModels/SpotLight.btx");
+	const std::vector<Vertex>& vertices = modelLoader.getVertexBuffer();
 	std::vector<DirectX::XMFLOAT3> temp;
-	unsigned int nrIndices = indices.at(0).size();
-	for(unsigned int i = 0; i < nrIndices; i++)
+	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
-		temp.push_back(vertices.at(indices.at(0).at(i).m_Vertex));
+		temp.push_back(DirectX::XMFLOAT3(vertices.at(i).m_Position.x,vertices.at(i).m_Position.y,vertices.at(i).m_Position.z));
 	}
+
+
 	Buffer::Description cbdesc;
 	cbdesc.initData = temp.data();
-	cbdesc.numOfElements = nrIndices;
+	cbdesc.numOfElements = temp.size();
 	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
 	cbdesc.type = Buffer::Type::VERTEX_BUFFER;
 	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
 
 	m_SpotModelBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	temp.clear();
-	modelLoader.loadFile("assets/LightModels/Sphere2.tx");
-	const std::vector<std::vector<ModelLoader::IndexDesc>>& indices2 = modelLoader.getIndices();
-	const std::vector<DirectX::XMFLOAT3>& vertices2 = modelLoader.getVertices();
-
-	nrIndices = indices2.at(0).size();
-	for(unsigned int i = 0; i < nrIndices; i++)
+	modelLoader.loadBinaryFile("assets/LightModels/Sphere2.btx");
+	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
-		temp.push_back(vertices2.at(indices2.at(0).at(i).m_Vertex));
+		temp.push_back(DirectX::XMFLOAT3(vertices.at(i).m_Position.x,vertices.at(i).m_Position.y,vertices.at(i).m_Position.z));
 	}
+
 	cbdesc.initData = temp.data();
-	cbdesc.numOfElements = nrIndices;
+	cbdesc.numOfElements = temp.size();
 	m_PointModelBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	temp.clear();
 	modelLoader.clear();

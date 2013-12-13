@@ -5,7 +5,7 @@
 #include <d3dcompiler.h>
 
 #include "Util.h"
-#include "MyGraphicsExceptions.h"
+#include "GraphicsExceptions.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 

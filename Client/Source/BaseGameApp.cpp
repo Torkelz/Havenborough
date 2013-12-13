@@ -1,23 +1,45 @@
 #include "BaseGameApp.h"
 #include "Input\InputTranslator.h"
+#include "Logger.h"
+
+#include <iomanip>
+#include <sstream>
 
 const double pi = 3.14159265358979323846264338;
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
+
 void BaseGameApp::init()
 {
+	Logger::log(Logger::Level::INFO, "Initializing game app");
+
+	m_MemUpdateDelay = 0.1f;
+	m_TimeToNextMemUpdate = 0.f;
+
 	m_SceneManager.init();
 	m_Window.init(getGameTitle(), getWindowSize());
-	
+
 	m_Graphics = IGraphics::createGraphics();
+	m_Graphics->setLogFunction(&Logger::logRaw);
+	
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
+	m_ResourceManager = new ResourceManager();
+	using namespace std::placeholders;
+	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
+	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
+	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createStaticModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
+	//TODO: May need to register a callback function for creating animated models? //Pontus
+	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
+
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
+
+	Logger::log(Logger::Level::DEBUG, "Adding input mappings");
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
 	translator->addKeyboardMapping('W', "moveForward");
 	translator->addKeyboardMapping('S', "moveBackward");
@@ -26,7 +48,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('C', "connect");
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
-	translator->addKeyboardMapping('L', "updateCone");
+	translator->addKeyboardMapping(VK_SPACE, "jump");
 
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
@@ -35,40 +57,60 @@ void BaseGameApp::init()
 	translator->addMouseButtonMapping(InputTranslator::MouseButton::MIDDLE, "rollMe!");
 
 	m_InputQueue.init(std::move(translator));
+
 	m_Network = INetwork::createNetwork();
+	m_Network->setLogFunction(&Logger::logRaw);
+	m_Network->initialize();
 	m_Connected = false;
 	
 	m_Physics = IPhysics::createPhysics();
-	m_Body = m_Physics->createSphere(50.f, false, Vector3(0.f, 5.f, 0.f), 1.f);
-	m_Object = m_Physics->createSphere(50.f, true, Vector3(0.f, 0.f, 0.f), 1.f);
+	m_Physics->setLogFunction(&Logger::logRaw);
+	m_Physics->initialize();
+		
+	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
+	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 1.6f);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
+
+	m_Jump = false;
+	m_JumpTime = 0.f;
+	m_JumpForce = 2000.f;
+	m_JumpForceTime = 0.2f;
+	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
 	
-	m_Graphics->createModel("BOX", "assets/Cube/Sample135.tx");
-	m_Graphics->createShader("BOXShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
+	Logger::log(Logger::Level::DEBUG, "Adding debug models");
+	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("BOXShader", "BOX");
 
-	m_Graphics->createModel("skyBox", "assets/SkyBox/SkyBox.tx");
-	m_Graphics->linkShaderToModel("BOXShader", "skyBox");
+	static const std::string preloadedModels[] =
+	{
+		"BOX",
+		"SKYBOX",
+		"HOUSE1",
+		//"DZALA",
+	};
 
-	m_Graphics->createModel("house1", "assets/House1/House1.tx");
+	for (const std::string& model : preloadedModels)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
+	}
+
+	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
-	std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
-	std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
-	m_Graphics->linkShaderToModel("BOXShader", "house1");
 
-	//m_Graphics->createModel("Dzala", "assets/Witch/Character_Witch.tx");
-	//m_Graphics->linkShaderToModel("BOXShader", "Dzala");
 }
 
 void BaseGameApp::run()
 {
-	m_ShouldQuit = false;
+	Logger::log(Logger::Level::INFO, "Running the game");
 
+	m_ShouldQuit = false;
 	int currView = 3; // FOR DEBUGGING
 
 	//BodyHandle groundBody = m_Physics->createAABB(1.f, true, Vector3(-20.f, -1.f, -20.f), Vector3(20.f, 0.f, 20.f));
 	//BodyHandle playerBody = m_Physics->createSphere(80.f, false, Vector3(0.f, 1.8f, 20.f), 1.8f);
 
+	Logger::log(Logger::Level::DEBUG, "Adding debug box model instances");
 	const static int NUM_BOXES = 16;
 	int boxIds[NUM_BOXES];
 	for (int i = 0; i < NUM_BOXES; i++)
@@ -80,24 +122,28 @@ void BaseGameApp::run()
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 	}
 	
-	int skyBox = m_Graphics->createModelInstance("skyBox");
+	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
+	int skyBox = m_Graphics->createModelInstance("SKYBOX");
 	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
 
+	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
 
-	int house = m_Graphics->createModelInstance("house1");
+	Logger::log(Logger::Level::DEBUG, "Adding debug house");
+	int house = m_Graphics->createModelInstance("HOUSE1");
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
-	//int witch = m_Graphics->createModelInstance("Dzala");
+	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
+	//int witch = m_Graphics->createModelInstance("DZALA");
 	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
 	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
 
-	float position[] = {0.f, 1.6f, 20.f};
+	float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
 
-	float speed = 5.f;
+	//float speed = 5.f;
 	float sensitivity = 0.01f;
 
 	float yaw = 0.f;
@@ -116,39 +162,84 @@ void BaseGameApp::run()
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 	currTimeStamp--;
 
+	static const float maxSpeed = 10.f;
+	static const float accConstant = 250.f;
+	//float up = m_Up - m_Down;
+	
 	while (!m_ShouldQuit)
 	{
+		Logger::log(Logger::Level::TRACE, "New frame");
+
 		prevTimeStamp = currTimeStamp;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
-
-		m_Physics->update(dt);
+		
 
 		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)
 			{
-				int i = 0;
-				//hit.
+				Logger::log(Logger::Level::DEBUG, "Collision reported");
 			}
 		}
 
 		const InputState& state = m_InputQueue.getCurrentState();
+		
+		if(m_Jump)
+		{
+ 			m_JumpTime += dt;
+			if(m_JumpTime > m_JumpForceTime)
+			{
+				m_Physics->applyForce(Vector4(0.f, -m_JumpForce, 0.f, 0.f), m_Player);
+				m_Jump = false;
+				m_JumpTime = 0.f;
+			}
+		}
+
 
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 		float right = state.getValue("moveRight") - state.getValue("moveLeft");
+		
+		float dirZ = 0.f;
+		float dirX = 0.f;
 
 		if (forward != 0.f || right != 0.f)
 		{
 			float dir = atan2f(right, forward) + viewRot[0];
 
-			position[2] -= cosf(dir) * speed * dt;
-			position[0] -= sinf(dir) * speed * dt;
+			dirZ = cosf(dir);
+			dirX = sinf(dir);
 		}
 
-		m_Graphics->updateCamera(position[0], position[1], position[2], viewRot[0], viewRot[1]);
-		m_Graphics->setModelPosition(skyBox, position[0], position[1], position[2]);
+		Vector4 currentVelocity = m_Physics->getVelocity(m_Player);
+		currentVelocity.y = 0.f;
+		Vector4 maxVelocity(-dirX * maxSpeed, 0.f, -dirZ * maxSpeed, 0.f);
+
+		Vector4 diffVel = Vector4(0.f, 0.f, 0.f, 0.f);
+		Vector4 force = Vector4(0.f, 0.f, 0.f, 0.f);
+
+		diffVel.x = maxVelocity.x - currentVelocity.x;
+		diffVel.y = maxVelocity.y - currentVelocity.y;
+		diffVel.z = maxVelocity.z - currentVelocity.z;
+		diffVel.w = 0.f;
+
+		force.x = diffVel.x * accConstant;
+		force.y = diffVel.y * accConstant;
+		force.z = diffVel.z * accConstant;
+		force.w = 0.f;
+
+		Vector4 forceDiff = Vector4(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z, 0.f); 
+		m_PrevForce = force;
+
+		m_Physics->applyForce(forceDiff, m_Player);
+		
+		m_Physics->update(dt);
+
+		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
+
+ 		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
+		m_Graphics->setModelPosition(skyBox, tempPos.x, tempPos.y, tempPos.z);
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -171,9 +262,6 @@ void BaseGameApp::run()
 		m_Graphics->drawFrame(currView);
 		
 		m_MemoryInfo.update();
-		m_MemoryInfo.update();
-		//std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
-		//std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 		updateDebugInfo(dt);
 
 		m_InputQueue.onFrame();
@@ -181,6 +269,10 @@ void BaseGameApp::run()
 
 		for (auto& in : m_InputQueue.getFrameInputs())
 		{
+			std::ostringstream msg;
+			msg << "Received input action: " << in.m_Action << " (" << std::setprecision(2) << std::fixed << in.m_Value << ")";
+			Logger::log(Logger::Level::TRACE, msg.str());
+
 			if (in.m_Action == "exit")
 			{
 				m_ShouldQuit = true;
@@ -195,14 +287,14 @@ void BaseGameApp::run()
 				currView--;
 				if(currView < 0)
 					currView = 3;
-				printf("Changeview--\n", in.m_Action.c_str(), in.m_Value);
+				Logger::log(Logger::Level::DEBUG, "Selecting previous view");
 			}
 			else if(in.m_Action ==  "changeViewP" && in.m_Value == 1)
 			{
 				currView++;
 				if(currView >= 4)
 					currView = 0;
-				printf("Changeview++\n", in.m_Action.c_str(), in.m_Value);
+				Logger::log(Logger::Level::DEBUG, "Selecting next view");
 			}
 			else if (in.m_Action == "mouseMoveHori")
 			{
@@ -228,15 +320,13 @@ void BaseGameApp::run()
 					viewRot[1] = -(float)pi * 0.45f;
 				}
 			}
-			else if (in.m_Action == "mousePosHori")
+			else if( in.m_Action == "jump" && in.m_Value == 1)
 			{
-			}
-			else if (in.m_Action == "mousePosVert")
-			{
-			}
-			else
-			{
-				printf("Received input action: %s (%.2f)\n", in.m_Action.c_str(), in.m_Value);
+				if(!m_Jump)
+				{
+					m_Jump = true;
+					m_Physics->applyForce(Vector4(0.f, m_JumpForce, 0.f, 0.f), m_Player);
+				}
 			}
 		}
 		
@@ -249,20 +339,26 @@ void BaseGameApp::run()
 				Package package = conn->getPackage(i);
 				PackageType type = conn->getPackageType(package);
 
+				std::string msg("Received package of type: " + std::to_string((uint16_t)type));
+				Logger::log(Logger::Level::TRACE, msg);
+
 				switch (type)
 				{
 				case PackageType::ADD_OBJECT:
 					{
 						AddObjectData data = conn->getAddObjectData(package);
-						std::cout << "Adding object at (" 
+						std::ostringstream msg;
+						msg << "Adding object at (" 
 							<< data.m_Position[0] << ", "
 							<< data.m_Position[1] << ", " 
-							<< data.m_Position[2] << ")" << std::endl;
+							<< data.m_Position[2] << ")";
+						Logger::log(Logger::Level::INFO, msg.str());
 					}
 					break;
 
 				default:
-					std::cout << "Received unhandled package" << std::endl;
+					std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
+					Logger::log(Logger::Level::WARNING, msg);
 					break;
 				}
 			}
@@ -280,6 +376,21 @@ void BaseGameApp::run()
 
 void BaseGameApp::shutdown()
 {
+	Logger::log(Logger::Level::INFO, "Shutting down the game app");
+
+	IPhysics::deletePhysics(m_Physics);
+	m_Physics = nullptr;
+
+	INetwork::deleteNetwork(m_Network);	
+	m_Network = nullptr;
+	
+	for (int i : m_ResourceIDs)
+	{
+		m_ResourceManager->releaseResource(i);
+	}
+	m_ResourceIDs.clear();
+	delete m_ResourceManager;
+
 	m_InputQueue.destroy();
 	
 	IGraphics::deleteGraphics(m_Graphics);
@@ -303,6 +414,8 @@ UVec2 BaseGameApp::getWindowSize() const
 
 bool BaseGameApp::handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
 {
+	Logger::log(Logger::Level::DEBUG, "Handling window close");
+
 	m_ShouldQuit = true;
 	p_Result = 0;
 	return true;
@@ -313,16 +426,24 @@ void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
 	if (p_Res == Result::SUCCESS)
 	{
 		((BaseGameApp*)p_UserData)->m_Connected = true;
-		std::cout << "Connected successfully" << std::endl;
+		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
 	else
 	{
-		std::cout << "Connection failed" << std::endl;
+		Logger::log(Logger::Level::WARNING, "Connection failed");
 	}
 }
 
 void BaseGameApp::updateDebugInfo(float p_dt)
 {
+	m_TimeToNextMemUpdate -= p_dt;
+	if (m_TimeToNextMemUpdate > 0.f)
+	{
+		return;
+	}
+
+	m_TimeToNextMemUpdate = m_MemUpdateDelay;
+
 	std::string vMemUsage = "Virtual MemUsage: " + std::to_string(m_MemoryInfo.getVirtualMemoryUsage()) + "MB";
 	std::string pMemUsage = "Physical MemUsage: " + std::to_string(m_MemoryInfo.getPhysicalMemoryUsage()) + "MB";
 	std::string gMemUsage = "Video MemUsage: " + std::to_string(m_Graphics->getVRAMMemUsage()) + "MB";

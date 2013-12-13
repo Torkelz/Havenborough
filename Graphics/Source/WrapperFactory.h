@@ -31,7 +31,7 @@ public:
 	static void initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext);
 
 	/**
-	* Shuts down the factory and release the memory allocated. Nulls all pointers.
+	* Shuts down the factory and releases the memory allocated. Nulls all pointers.
 	*/
 	virtual void shutdown(void);
 	

@@ -130,11 +130,8 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 		{
 			if(m_Type != Type::STAGING_BUFFER)
 			{
-				//m_DeviceContext = nullptr;
-				//m_Device = nullptr;
-				throw BufferException("Cannot set cpu read to other than staging buffer", __LINE__, __FILE__);
+				throw BufferException("Cannot set CPU read to other than staging buffer", __LINE__, __FILE__);
 			}
-			//bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
 			bufferDescription.Usage = D3D11_USAGE_STAGING;
 			bufferDescription.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
 			break;
@@ -155,20 +152,8 @@ HRESULT Buffer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Device
 		}
 	}
 
-	
-	/*if(m_Type ==Type::STRUCTURED_BUFFER)
-	{
-		bufferDescription.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-	}*/
-
 	bufferDescription.ByteWidth = p_Description.numOfElements * p_Description.sizeOfElement;
 
-	////Make sure at least 16 bytes is set.
-	//if(bufferDescription.ByteWidth < 16)
-	//{
-	//	bufferDescription.ByteWidth = 16;
-	//}
-	//set at least 16 bytes
 	bufferDescription.ByteWidth = ((bufferDescription.ByteWidth + 15) / 16) * 16;
 
 	if(p_Description.initData)

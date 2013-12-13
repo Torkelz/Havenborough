@@ -1,9 +1,13 @@
 #include "ConnectionController.h"
 
+#include "NetworkLogger.h"
+
 ConnectionController::ConnectionController(Connection::ptr p_Connection, const std::vector<PackageBase::ptr>& p_Prototypes)
 	:	m_PackagePrototypes(p_Prototypes),
 		m_Connection(std::move(p_Connection))
 {
+	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Creating a connection controller");
+
 	m_Connection->setSaveData(std::bind(&ConnectionController::savePackageCallBack, this, std::placeholders::_1, std::placeholders::_2));
 }
 
@@ -88,5 +92,6 @@ void ConnectionController::savePackageCallBack(uint16_t p_ID, const std::string&
 		}
  	}
 
-	std::cout << "Received unregistered package type: " << p_ID << std::endl;
+	std::string msg("Received unregistered package type: " + std::to_string(p_ID));
+	NetworkLogger::log(NetworkLogger::Level::WARNING, msg);
 }

@@ -1,11 +1,8 @@
 #include "Graphics.h"
-#include "ModelLoader.h"
+#include "GraphicsLogger.h"
+
 #include <iostream>
-
 #include <boost/filesystem.hpp>
-#include "RAMMemInfo.h"
-
-const std::string Graphics::m_RelativeResourcePath = "../../Graphics/Resources/";
 
 Graphics::Graphics(void)
 {
@@ -18,6 +15,7 @@ Graphics::Graphics(void)
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
 	m_WrapperFactory = nullptr;
+	m_ModelFactory = nullptr;
 	m_DeferredRender = nullptr;
 
 	m_VSyncEnabled = false; //DEBUG
@@ -36,6 +34,8 @@ IGraphics *IGraphics::createGraphics()
 
 bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen)
 {	
+	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Initializing graphics");
+
 	HRESULT result;
 	IDXGIFactory *factory;
 	IDXGIAdapter *adapter;
@@ -162,14 +162,11 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
 
 	//Note this is the only time initialize should be called.
-	WrapperFactory::initialize(m_Device, m_DeviceContext);
-	
+	WrapperFactory::initialize(m_Device, m_DeviceContext);	
 	m_WrapperFactory = WrapperFactory::getInstance();
-	RAMMemInfo m_MemoryInfo;
-	m_MemoryInfo.update();
-	//std::cout << m_MemoryInfo.getPhysicalMemoryUsage() << std::endl;
-	//std::cout << m_MemoryInfo.getVirtualMemoryUsage() << std::endl;
 	m_VRAMMemInfo = VRAMMemInfo::getInstance();
+	m_ModelFactory = ModelFactory::getInstance();
+	m_ModelFactory->initialize(&m_TextureList);
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
@@ -200,6 +197,8 @@ bool Graphics::reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, 
 
 void Graphics::shutdown(void)
 {
+	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Shutting down graphics");
+
 	if(m_SwapChain)
 	{
 		m_SwapChain->SetFullscreenState(false, NULL);
@@ -209,6 +208,16 @@ void Graphics::shutdown(void)
 	{
 		SAFE_DELETE(s.second);
 	}
+	m_ShaderList.clear();
+
+	for (auto& tex : m_TextureList)
+	{
+		SAFE_RELEASE(tex.second);
+	}
+	m_TextureList.clear();
+	m_StaticModelList.clear();
+
+	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthStencilView);
 	SAFE_RELEASE(m_DepthStencilState);
@@ -217,11 +226,10 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_DeviceContext);
 	SAFE_RELEASE(m_Device);
 	SAFE_RELEASE(m_SwapChain);
-	m_WrapperFactory->shutdown();
-	m_WrapperFactory = nullptr;
-	m_VRAMMemInfo->shutdown();
-	m_VRAMMemInfo = nullptr;
-	
+	SAFE_SHUTDOWN(m_WrapperFactory);
+	SAFE_SHUTDOWN(m_ModelFactory);
+	SAFE_SHUTDOWN(m_VRAMMemInfo);
+
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
 	//Clear lights
@@ -242,135 +250,42 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-void Graphics::createModel(const char *p_ModelId, const char *p_Filename)
+bool Graphics::createStaticModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelLoader modelLoader;
-	Buffer *vertexBuffer = nullptr;
+	ModelDefinition model =	m_ModelFactory->getInstance()->createModel(p_Filename, false);
 
-	modelLoader.loadFile(p_Filename);
+	m_StaticModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
 
-	//int nrVertices = modelLoader.getVertices()->size();
-	vector<std::vector<ModelLoader::IndexDesc>>	tempF	= modelLoader.getIndices();
-	vector<DirectX::XMFLOAT3>				tempN	= modelLoader.getNormals();
-	vector<DirectX::XMFLOAT3>				tempT	= modelLoader.getTangents();
-	vector<DirectX::XMFLOAT2>				tempUV = modelLoader.getTextureCoords();
-	vector<DirectX::XMFLOAT3>				tempVert = modelLoader.getVertices();
-	vector<ModelLoader::Material>			tempM	= modelLoader.getMaterial();
+	return true;
+}
 	
+bool Graphics::createAnimatedModel(const char *p_ModelId, const char *p_Filename)
+{
+	ModelDefinition model = m_ModelFactory->getInstance()->createModel(p_Filename, true); //TODO: May need another model definition
 
-	vector<vertex> temp;
-	vector<vector<int>> tempI;
+	m_AnimatedModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
 
-	vector<int> I;
-	int indexCounter = 0;
-	for(unsigned int i = 0; i < tempF.size(); i++)
+	return true;
+}
+
+bool Graphics::releaseModel(const char* p_ResourceName) //TODO: Maybe need to handle if animated or static?
+{
+	for(auto it = m_StaticModelList.begin(); it != m_StaticModelList.end(); ++it)
 	{
-		const vector<ModelLoader::IndexDesc>& indexDescList = tempF.at(i);
-
-		I.reserve(indexDescList.size());
-
-		for(unsigned int j = 0; j < indexDescList.size();j++)
+		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
 		{
-			const ModelLoader::IndexDesc& indexDesc = indexDescList.at(j);
+			for(unsigned int i = 0; i < it->second.numOfMaterials; i++)
+			{
+				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+				m_ReleaseModelTexture(it->second.normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+			}
 
-			temp.push_back(vertex(tempVert.at(indexDesc.m_Vertex),
-									tempN.at(indexDesc.m_Normal),
-									tempUV.at(indexDesc.m_TextureCoord),
-									tempT.at(indexDesc.m_Tangent)));
-
-			temp.back().position.x *= -1.f;
-			temp.back().normal.x *= -1.f;
-			temp.back().tangent.x *= -1.f;
-			temp.back().binormal.x *= -1.f;
-
-			I.push_back(indexCounter);
-			indexCounter++;
+			m_StaticModelList.erase(it);
+			return true;
 		}
-
-		tempI.push_back(I);
-		I.clear();
 	}
-	
-	// Create Vertex buffer.
-	Buffer::Description bufferDescription;
-	bufferDescription.initData = temp.data();
-	bufferDescription.numOfElements = temp.size();
-	bufferDescription.sizeOfElement = sizeof(Graphics::vertex);
-	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
-	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
-	vertexBuffer = m_WrapperFactory->createBuffer(bufferDescription);
-	temp.clear();
-
-	// Create Index buffer.
-	unsigned int nrIndexBuffers = tempI.size();
-	Buffer **index = new Buffer*[nrIndexBuffers];
-	bufferDescription.type = Buffer::Type::INDEX_BUFFER;
-	//bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE;// Change to default when needed to change data.
-	bufferDescription.sizeOfElement = sizeof(int);
-	
-	//buffer = createBuffer(bufferDescription);
-	
-	for(unsigned int i = 0; i < nrIndexBuffers; i++)
-	{
-		bufferDescription.initData = tempI.at(i).data();
-		bufferDescription.numOfElements = tempI.at(i).size();
-
-		index[i] = WrapperFactory::getInstance()->createBuffer(bufferDescription);
-	}
-	tempI.clear();
-	I.clear();
-
-	boost::filesystem::path modelPath(p_Filename);
-	boost::filesystem::path parentDir(modelPath.parent_path());
-
-	// Load textures.
-	ID3D11ShaderResourceView **diffuse	= new ID3D11ShaderResourceView*[nrIndexBuffers];
-	ID3D11ShaderResourceView **normal	= new ID3D11ShaderResourceView*[nrIndexBuffers];
-	ID3D11ShaderResourceView **specular = new ID3D11ShaderResourceView*[nrIndexBuffers];
-	for(unsigned int i = 0; i < nrIndexBuffers; i++)
-	{
-		const ModelLoader::Material& mat = tempM.at(i);
-		boost::filesystem::path diff = (mat.m_DiffuseMap == "NONE") ? "assets/Cube/CubeMap_COLOR.jpg" : parentDir / mat.m_DiffuseMap;
-		boost::filesystem::path norm = (mat.m_NormalMap == "NONE" || mat.m_NormalMap == "Default_NRM.jpg") ? "assets/Default/Default_NRM.jpg" : parentDir / mat.m_NormalMap;
-		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE" || mat.m_SpecularMap == "Default_SPEC.jpg") ? "assets/Default/Default_SPEC.jpg" : parentDir / mat.m_SpecularMap;
-
-		diffuse[i]	= m_TextureLoader.createTextureFromFile(diff.string().c_str());
-		normal[i]	= m_TextureLoader.createTextureFromFile(norm.string().c_str());
-		specular[i] = m_TextureLoader.createTextureFromFile(spec.string().c_str());
-		
-		ID3D11Resource *resource;
-		ID3D11Texture2D *texture;
-		D3D11_TEXTURE2D_DESC textureDesc;
-		int size = 0;
-
-		diffuse[i]->GetResource(&resource);
-		resource->QueryInterface(&texture);
-		texture->GetDesc(&textureDesc);
-		size += m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
-
-		normal[i]->GetResource(&resource);
-		resource->QueryInterface(&texture);
-		texture->GetDesc(&textureDesc);
-		size += 4 * textureDesc.Width * textureDesc.Height;
-		
-		specular[i]->GetResource(&resource);
-		resource->QueryInterface(&texture);
-		texture->GetDesc(&textureDesc);
-		size += 4 * textureDesc.Width * textureDesc.Height;
-
-		m_VRAMMemInfo->updateUsage(size);
-	}
-	Model m;
-	m.vertexBuffer		= vertexBuffer;
-	m.indexBuffer		= index;
-	m.diffuseTexture	= diffuse;
-	m.normalTexture		= normal;
-	m.specularTexture	= specular;
-	m.numOfMaterials	= nrIndexBuffers;
-
-	m_ModelList.push_back(std::pair<string,Model>(p_ModelId,m));
-
-	modelLoader.clear();
+	return false;
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
@@ -419,27 +334,58 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		p_ShaderModel, p_Type, p_VertexLayout, p_NumOfElements)));
 }
 
-void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
+void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) //TODO: Maybe need to handle if animated or static?
 {
-	Model* m = nullptr;
-	m = getModelFromList(p_ModelId);
-	if(m != nullptr)
-		m->shader = getShaderFromList(p_ShaderId);
-	m = nullptr;
+	ModelDefinition *model = nullptr;
+	model = getModelFromList(p_ModelId);
+	if(model != nullptr)
+		model->shader = getShaderFromList(p_ShaderId);
+	model = nullptr;
 }
 
-void Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
+bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
-	m_TextureList.push_back(make_pair(p_TextureId, m_TextureLoader.createTextureFromFile(p_Filename)));
+	ID3D11ShaderResourceView *resourceView = m_TextureLoader.createTextureFromFile(p_Filename);
+	if(!resourceView)
+	{
+		return false;
+	}
+
+	int size = calculateTextureSize(resourceView);
+	m_VRAMMemInfo->updateUsage(size);
+
+	m_TextureList.push_back(make_pair(p_TextureId, resourceView));
+
+	return true;
 }
 
-void Graphics::renderModel(int p_ModelId)
+bool Graphics::releaseTexture(const char *p_TextureId)
+{
+	for(auto it = m_TextureList.begin(); it != m_TextureList.end(); ++it)
+	{
+		if(strcmp(it->first.c_str(), p_TextureId) == 0)
+		{
+			ID3D11ShaderResourceView *&m = it->second;
+			int size = calculateTextureSize(m);
+			m_VRAMMemInfo->updateUsage(-size);
+
+			SAFE_RELEASE(m);
+			m_TextureList.erase(it);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animated or static?
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_ModelId)
 		{
-			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.m_ModelName), &inst.second.getWorldMatrix()));
+			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.getModelName()),
+				&inst.second.getWorldMatrix()));
 			break;
 		}
 	}
@@ -529,13 +475,13 @@ int Graphics::getVRAMMemUsage(void)
 int Graphics::createModelInstance(const char *p_ModelId)
 {
 	ModelInstance instance;
-	instance.m_IsCalculated = false;
-	instance.m_ModelName = p_ModelId;
-	instance.m_Position = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	instance.m_Rotation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	instance.m_Scale = DirectX::XMFLOAT3(1.f, 1.f, 1.f);
-
+	instance.setIsCalculated(false);
+	instance.setModelName(p_ModelId);
+	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
+	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
+	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 	int id = m_NextInstanceId++;
+
 	m_ModelInstances.push_back(std::make_pair(id, instance));
 
 	return id;
@@ -611,9 +557,22 @@ void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Ya
 
 	//XMFLOAT4X4 view;
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
+}
 
-	//m_DeferredRender->updateViewMatrix(view);
-	//m_DeferredRender->updateCameraPosition(XMFLOAT3(p_PosX, p_PosY, p_PosZ));
+void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
+{
+	GraphicsLogger::setLogFunction(p_LogCallback);
+}
+
+void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata)
+{
+	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
+}
+
+void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)
+{
+	m_ReleaseModelTexture = p_ReleaseModelTexture;
+	m_ReleaseModelTextureUserdata = p_Userdata;
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
@@ -794,7 +753,7 @@ HRESULT Graphics::createRasterizerState(void)
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_FRONT;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
@@ -841,11 +800,11 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 	return ret;
 }
 
-Model *Graphics::getModelFromList(string p_Identifier)
+ModelDefinition *Graphics::getModelFromList(string p_Identifier) //TODO: Maybe need to handle if animated or static?
 {
-	Model* ret = nullptr;
+	ModelDefinition* ret = nullptr;
 
-	for(auto & s : m_ModelList)
+	for(auto & s : m_StaticModelList)
 	{
 		if(s.first.compare(p_Identifier) == 0 )
 		{
@@ -854,6 +813,35 @@ Model *Graphics::getModelFromList(string p_Identifier)
 		}
 	}
 	return ret;
+}
+
+ID3D11ShaderResourceView *Graphics::getTextureFromList(string p_Identifier)
+{
+	for(auto & s : m_TextureList)
+	{
+		if(s.first == p_Identifier)
+		{
+			return s.second;
+		}
+	}
+
+	return nullptr;
+}
+
+int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )
+{
+	ID3D11Resource *resource;
+	ID3D11Texture2D *texture;
+	D3D11_TEXTURE2D_DESC textureDesc;
+
+	resourceView->GetResource(&resource);
+	resource->QueryInterface(&texture);
+	texture->GetDesc(&textureDesc);
+
+	SAFE_RELEASE(texture);
+	SAFE_RELEASE(resource);
+
+	return m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
 }
 
 void Graphics::Begin(float color[4])
