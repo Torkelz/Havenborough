@@ -11,7 +11,10 @@ public:
 	UINT32 numOfElements;
 	UINT32 sizeOfElement;
 	BufferStub(){}
-	~BufferStub(){}
+	~BufferStub()
+	{
+
+	}
 
 	void initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, Description &p_Description)
 	{
@@ -111,9 +114,9 @@ ModelFactoryStub *ModelFactoryStub::mInstance = nullptr;
 //
 //	ModelDefinition *model = &factory->createModel("n/a", false);
 //	
-//	BOOST_REQUIRE(model != nullptr);
+//	BOOST_CHECK(model != nullptr);
 //
-//	SAFE_DELETE(model);
+//	//SAFE_DELETE(model);
 //	SAFE_DELETE(factory);
 //}
 //
@@ -125,7 +128,7 @@ ModelFactoryStub *ModelFactoryStub::mInstance = nullptr;
 //
 //	BOOST_CHECK(model != nullptr);
 //
-//	SAFE_DELETE(model);
+//	//SAFE_DELETE(model);
 //	SAFE_DELETE(factory);
 //}
 
