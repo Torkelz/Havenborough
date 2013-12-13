@@ -57,13 +57,14 @@ public:
 private:
 	std::vector<Renderable>		m_Objects;
 
-	std::vector<Light>			m_SpotLights;
-	std::vector<Light>			m_PointLights;
-	std::vector<Light>			m_DirectionalLights;
-
 	ID3D11Device				*m_Device;
 	ID3D11DeviceContext			*m_DeviceContext;
 	ID3D11DepthStencilView		*m_DepthStencilView;
+
+	std::vector<Light>			*m_SpotLights;
+	std::vector<Light>			*m_PointLights;
+	std::vector<Light>			*m_DirectionalLights;
+	static const unsigned int	m_MaxLightsPerLightInstance;
 
 	DirectX::XMFLOAT3			*m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
@@ -90,17 +91,17 @@ private:
 
 	Buffer						*m_PointModelBuffer;
 	Buffer						*m_SpotModelBuffer;
+	Buffer						*m_DirectionalModelBuffer;
 
 	Buffer						*m_ConstantBuffer;
 	Buffer						*m_ObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
-	//TEMP--------------------------------------------------
-	float						m_speed;
-	int							xx,yy,zz;
-	//TEMP---------------------------------------------------
 
 public:
-	DeferredRenderer(void);
+	/*
+	 * 
+	 */
+	DeferredRenderer();
 	~DeferredRenderer(void);
 
 	/*
@@ -118,7 +119,8 @@ public:
 		ID3D11DepthStencilView *p_DepthStencilView,
 		unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
-		DirectX::XMFLOAT4X4 *p_ProjectionMatrix);
+		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
+		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights);
 
 	/*
 	 * Call to render the graphics using deferred rendering.
@@ -132,11 +134,6 @@ public:
 	 * @ p_Renderable, the model that needs to be rendered.
 	 */
 	void addRenderable(Renderable p_Renderable);
-	/*
-	 * Add light source to the list of lights to be taken into the light calculations.
-	 * @ p_Light, light source that needs to be taken into the light calculations.
-	 */
-	void addLight(Light p_light);
 
 	/*
 	 * Use to get specific render targets to put on the back buffer.
@@ -144,8 +141,6 @@ public:
 	 * @return, render target if i is a legal number, else nullptr.
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
-
-	void debugUpdateCone(float yaw, float pitch);
 
 private:
 	void renderGeometry();
@@ -161,7 +156,7 @@ private:
 
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
 	HRESULT createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc );
-	void createConstantBuffer();
+	void createBuffers();
 	void clearRenderTargets();
 	void createSamplerState();
 	void createBlendStates();

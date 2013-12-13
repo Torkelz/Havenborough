@@ -117,6 +117,7 @@ private:
 	XMFLOAT3 m_Eye;
 
 	static const std::string m_RelativeResourcePath;
+	static const unsigned int m_MaxLightsPerLightInstance;
 
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
@@ -129,6 +130,11 @@ private:
 	int m_NextInstanceId;
 	
 	DeferredRenderer *m_DeferredRender;
+
+	//Lights
+	std::vector<Light>			m_SpotLights;
+	std::vector<Light>			m_PointLights;
+	std::vector<Light>			m_DirectionalLights;
 
 	Shader *m_Shader; //DEBUG
 	ID3D11SamplerState *m_Sampler;
@@ -152,7 +158,13 @@ public:
 	
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
-	void useFrameLight(float yaw, float pitch) override;
+	
+	
+	
+	void useFramePointLight(vec3 p_LightPosition, vec3 p_LightColor, float p_LightRange) override;
+	void useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p_LightDirection,
+		vec2 p_SpotLightAngles,	float p_LightRange) override;
+	void useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection) override;
 	
 	void renderModel(int p_ModelId) override;
 	void renderText(void) override;

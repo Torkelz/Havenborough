@@ -178,7 +178,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred Render
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix);
+		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights);
 	
 	DebugDefferedDraw();
 
@@ -224,6 +224,14 @@ void Graphics::shutdown(void)
 	
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
+	//Clear lights
+	m_PointLights.clear();
+	m_SpotLights.clear();
+	m_DirectionalLights.clear();
+
+	m_PointLights.shrink_to_fit();
+	m_SpotLights.shrink_to_fit();
+	m_DirectionalLights.shrink_to_fit();
 
 	m_Shader = nullptr;
 }
@@ -457,9 +465,35 @@ void Graphics::removeStaticLight(void)
 
 }
 
-void Graphics::useFrameLight(float yaw, float pitch)
+void Graphics::useFramePointLight(vec3 p_LightPosition, vec3 p_LightColor, float p_LightRange)
 {
-	m_DeferredRender->debugUpdateCone(yaw, pitch);
+	Light l;
+	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
+	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+	l.lightRange = p_LightRange;
+	m_PointLights.push_back(l);
+}
+void Graphics::useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p_LightDirection,
+					   vec2 p_SpotLightAngles,	float p_LightRange)
+{
+	Light l;
+	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
+	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+	DirectX::XMStoreFloat3(&l.lightDirection, 
+		DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(
+		&DirectX::XMFLOAT3(p_LightDirection.x,p_LightDirection.y,p_LightDirection.z))));
+	l.spotlightAngles = DirectX::XMFLOAT2(p_SpotLightAngles.x,p_SpotLightAngles.y);
+	l.lightRange = p_LightRange;
+	m_SpotLights.push_back(l);
+}
+void Graphics::useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection)
+{
+	Light l;
+	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+	DirectX::XMStoreFloat3(&l.lightDirection, 
+		DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(
+		&DirectX::XMFLOAT3(p_LightDirection.x,p_LightDirection.y,p_LightDirection.z))));
+	m_DirectionalLights.push_back(l);
 }
 
 void Graphics::drawFrame(int i)
@@ -480,6 +514,11 @@ void Graphics::drawFrame(int i)
 	m_Shader->unSetShader();
 	
 	End();
+
+	//Delete lights
+	m_PointLights.clear();
+	m_SpotLights.clear();
+	m_DirectionalLights.clear();
 }
 
 int Graphics::getVRAMMemUsage(void)

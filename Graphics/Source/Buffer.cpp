@@ -350,7 +350,9 @@ void Buffer::unmap(void)
 
 void *Buffer::mapResourceToContext(UINT32 p_MapType)
 {
-	if(FAILED(m_DeviceContext->Map(m_Buffer, 0, (D3D11_MAP)p_MapType, 0, &m_MappedResource)))
+	//ZeroMemory(&m_MappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+	HRESULT hr = m_DeviceContext->Map(m_Buffer, 0, (D3D11_MAP)p_MapType, 0, &m_MappedResource);
+	if(FAILED(hr))
 	{
 		return nullptr;
 	}

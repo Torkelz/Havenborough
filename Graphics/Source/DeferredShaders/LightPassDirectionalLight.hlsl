@@ -49,27 +49,10 @@ struct VSOutput
     float	lightRange		: RANGE;
 };
 
-//############################
-// Shader steps Vertex Shader
-//############################
-VSOutput PointLightVS(VSInput input)
+VSOutput DirectionalLightVS(VSInput input)
 {
-	float s = input.lightRange;
-	float3 t = input.lightPos;
-	float4x4 scale = {  float4(s,0,0,0),
-						float4(0,s,0,0),
-						float4(0,0,s,0),
-						float4(0,0,0,1)};
-	float4x4 trans = {  float4(1,0,0,t.x),
-						float4(0,1,0,t.y),
-						float4(0,0,1,t.z),
-						float4(0,0,0,1)};
-
-	float4 pos = mul(scale, float4(input.vposition,1.0f));
-	pos = mul(trans, pos);
 	VSOutput output;
-	output.vposition		= mul(projection, mul(view, pos));
-	//output.vposition		= mul(projection, mul(view, float4(input.vposition,1)));
+	output.vposition		= float4(input.vposition,1.0f);
 	output.lightPos			= input.lightPos;
 	output.lightColor		= input.lightColor;	
 	output.lightDirection	= input.lightDirection;	
@@ -80,7 +63,7 @@ VSOutput PointLightVS(VSInput input)
 //############################
 // Shader steps Pixel Shader
 //############################
-float4 PointLightPS( VSOutput input ) : SV_TARGET
+float4 DirectionalLightPS( VSOutput input ) : SV_TARGET
 {
 	float3 normal;
 	float3 position;
@@ -97,11 +80,12 @@ float4 PointLightPS( VSOutput input ) : SV_TARGET
 							input.lightDirection, input.spotlightAngles, input.lightColor);
 
 	return float4( lighting, 1.0f );
-	//return float4( float3(0,1,0), 1.0f );
 }
 
 
-
+//################################
+//		HELPER FUNCTIONS
+//################################
 void GetGBufferAttributes( in float2 screenPos, 
 						  out float3 normal,
 						  out float3 position,
@@ -134,14 +118,9 @@ float3 CalcLighting(	float3 normal,
 						float2 spotlightAngles,
 						float3 lightColor)
 {
-	float3 L = lightPos - position;
-	float dist = length( L );
-	float attenuation = max( 0.f, 1.f - (dist / lightRange) );
-	L /= dist;
+	float attenuation = 1.0f;
+	float3 L = -lightDirection;
 
-	if(attenuation == 0.f)
-		return float3(0,0,0);
-	
 	float nDotL = saturate( dot( normal, L ) );
 	float3 diffuse = nDotL * lightColor * diffuseAlbedo;
 
@@ -151,5 +130,6 @@ float3 CalcLighting(	float3 normal,
 	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
 							 lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
+
 	return saturate(( diffuse + specular ) * attenuation);
 }

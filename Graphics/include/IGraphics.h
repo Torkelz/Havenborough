@@ -6,6 +6,23 @@
 class IGraphics
 {
 public:
+	struct vec2
+	{
+		float x,y;
+		vec2(float p_X, float p_Y)
+		{
+			x = p_X;y = p_Y;
+		}
+	};
+	struct vec3 : public vec2
+	{
+		float z;
+		vec3(float p_X, float p_Y, float p_Z)
+			: vec2(p_X,p_Y)
+		{
+			z = p_Z;
+		}
+	};
 	
 
 	virtual ~IGraphics(void)
@@ -109,10 +126,28 @@ public:
 	virtual void removeStaticLight(void) = 0;
 
 	/**
-	* 
+	* Creates a point light which is removed after each draw.
+	* @ p_LightPosition, the position of the light object.
+	* @ p_LightColor, the color of the light.
+	* @ p_LightRange, the range of the point light.
 	*/
-	virtual void useFrameLight(float yaw, float pitch) = 0;
-
+	virtual void useFramePointLight(vec3 p_LightPosition, vec3 p_LightColor, float p_LightRange) = 0;
+	/**
+	* Creates a spot light which is removed after each draw.
+	* @ p_LightPosition, the position of the light object.
+	* @ p_LightColor, the color of the light.
+	* @ p_LightDirection, the direction of the spot light.
+	* @ p_SpotLightAngles, angles in radians where the x component is smaller than the y component.
+	* @ p_LightRange, the range of the spot light.
+	*/
+	virtual void useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p_LightDirection,
+		vec2 p_SpotLightAngles,	float p_LightRange) = 0;
+	/**
+	* Creates a directional light which is removed after each draw.
+	* @ p_LightColor, the color of the light.
+	* @ p_LightDirection, the direction of the directional light.
+	*/
+	virtual void useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection) = 0;
 	/**
 	* Renders a model specified with an ID.
 	* @param p_ModelId the ID of the model to be rendered

@@ -163,6 +163,10 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);
 		//m_Graphics->renderModel(witch);
+		m_Graphics->useFrameDirectionalLight(IGraphics::vec3(1.f,1.f,1.f),IGraphics::vec3(0.1f,-0.99f,0.f));
+		m_Graphics->useFramePointLight(IGraphics::vec3(0.f,0.f,0.f),IGraphics::vec3(1.f,1.f,1.f),20.f);
+		m_Graphics->useFrameSpotLight(IGraphics::vec3(-10.f,5.f,0.f),IGraphics::vec3(0.f,1.f,0.f),
+			IGraphics::vec3(0.f,0.f,-1.f),IGraphics::vec2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
 
 		m_Graphics->drawFrame(currView);
 		
@@ -229,10 +233,6 @@ void BaseGameApp::run()
 			}
 			else if (in.m_Action == "mousePosVert")
 			{
-			}
-			else if (in.m_Action == "updateCone" && in.m_Value == 1.f)
-			{
-				m_Graphics->useFrameLight(viewRot[0], viewRot[1]);
 			}
 			else
 			{
