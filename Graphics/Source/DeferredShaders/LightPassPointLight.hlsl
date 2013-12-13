@@ -11,8 +11,6 @@ float3 CalcLighting(	float3 normal,
 						float specularPower,
 						float3 lightPos,
 						float lightRange,
-						float3 lightDirection,
-						float2 spotlightAngles,
 						float3 lightColor);
 
 void GetGBufferAttributes( in float2 screenPos, 
@@ -36,7 +34,6 @@ struct VSInput
 	float3	lightDirection	: DIRECTION;
     float2	spotlightAngles	: ANGLE;
     float	lightRange		: RANGE;
-	float		lightType	: TYPE;
 };
 
 struct VSOutput
@@ -94,7 +91,7 @@ float4 PointLightPS( VSOutput input ) : SV_TARGET
 
 	float3 lighting = CalcLighting( normal, position, diffuseAlbedo,
 							specularAlbedo, specularPower,input.lightPos,input.lightRange,
-							input.lightDirection, input.spotlightAngles, input.lightColor);
+							input.lightColor);
 
 	return float4( lighting, 1.0f );
 	//return float4( float3(0,1,0), 1.0f );
@@ -130,8 +127,6 @@ float3 CalcLighting(	float3 normal,
 						float specularPower,
 						float3 lightPos,
 						float lightRange,
-						float3 lightDirection,
-						float2 spotlightAngles,
 						float3 lightColor)
 {
 	float3 L = lightPos - position;

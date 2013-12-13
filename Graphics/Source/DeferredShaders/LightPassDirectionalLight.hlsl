@@ -10,9 +10,7 @@ float3 CalcLighting(	float3 normal,
 						float3 specularAlbedo,
 						float specularPower,
 						float3 lightPos,
-						float lightRange,
 						float3 lightDirection,
-						float2 spotlightAngles,
 						float3 lightColor);
 
 void GetGBufferAttributes( in float2 screenPos, 
@@ -36,7 +34,6 @@ struct VSInput
 	float3	lightDirection	: DIRECTION;
     float2	spotlightAngles	: ANGLE;
     float	lightRange		: RANGE;
-	float		lightType	: TYPE;
 };
 
 struct VSOutput
@@ -76,8 +73,8 @@ float4 DirectionalLightPS( VSOutput input ) : SV_TARGET
 		specularAlbedo, specularPower );
 
 	float3 lighting = CalcLighting( normal, position, diffuseAlbedo,
-							specularAlbedo, specularPower,input.lightPos,input.lightRange,
-							input.lightDirection, input.spotlightAngles, input.lightColor);
+							specularAlbedo, specularPower,input.lightPos,
+							input.lightDirection, input.lightColor);
 
 	return float4( lighting, 1.0f );
 }
@@ -113,9 +110,7 @@ float3 CalcLighting(	float3 normal,
 						float3 specularAlbedo,
 						float specularPower,
 						float3 lightPos,
-						float lightRange,
 						float3 lightDirection,
-						float2 spotlightAngles,
 						float3 lightColor)
 {
 	float attenuation = 1.0f;

@@ -102,7 +102,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\DeferredShaders\LightPass.hlsl" />
     <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
     <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
     <FxCompile Include="Source\dummyVS.hlsl" />

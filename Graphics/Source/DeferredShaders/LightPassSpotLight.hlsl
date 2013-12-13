@@ -39,7 +39,6 @@ struct VSInput
 	float3	lightDirection	: DIRECTION;
     float2	spotlightAngles	: ANGLE;
     float	lightRange		: RANGE;
-	uint		lightType	: TYPE;
 };
 
 struct VSOutput
@@ -193,5 +192,4 @@ float4x4 calcRotationMatrix(float3 direction, float3 position)
 						};
 
 	return transpose(rotation);
-	//return rotation;
 }
