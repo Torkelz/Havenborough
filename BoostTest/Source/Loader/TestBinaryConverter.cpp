@@ -341,14 +341,12 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 	conv.testCreateVertexBufferAnimated(&output);
 
  	std::string resVertexBufferAnimation = output.str();
-	tempFloat4Vec[0].f *= -1;
 	char c[16] = {
 		tempFloat4Vec[0].c[0],tempFloat4Vec[0].c[1],tempFloat4Vec[0].c[2],tempFloat4Vec[0].c[3],
 		tempFloat4Vec[1].c[0],tempFloat4Vec[1].c[1],tempFloat4Vec[1].c[2],tempFloat4Vec[1].c[3],
 		tempFloat4Vec[2].c[0],tempFloat4Vec[2].c[1],tempFloat4Vec[2].c[2],tempFloat4Vec[2].c[3],
 		tempFloat4Vec[3].c[0],tempFloat4Vec[3].c[1],tempFloat4Vec[3].c[2],tempFloat4Vec[3].c[3]};
 	BOOST_CHECK_EQUAL_COLLECTIONS(resVertexBufferAnimation.begin(), resVertexBufferAnimation.begin() + 16, c, c + sizeof(c));
-	tempFloat3Norm[0].f *=-1;
 	char d[12] = {
 		tempFloat3Norm[0].c[0],tempFloat3Norm[0].c[1],tempFloat3Norm[0].c[2],tempFloat3Norm[0].c[3],
 		tempFloat3Norm[1].c[0],tempFloat3Norm[1].c[1],tempFloat3Norm[1].c[2],tempFloat3Norm[1].c[3],
@@ -358,7 +356,6 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 		tempFloat2UV[0].c[0],tempFloat2UV[0].c[1],tempFloat2UV[0].c[2],tempFloat2UV[0].c[3],
 		tempFloat2UV[1].c[0],tempFloat2UV[1].c[1],tempFloat2UV[1].c[2],tempFloat2UV[1].c[3]};
 	BOOST_CHECK_EQUAL_COLLECTIONS(resVertexBufferAnimation.begin() + 28, resVertexBufferAnimation.begin() + 36, h, h + sizeof(h));
-	tempFloat3Tan[0].f *=-1;
 	char l[12] = {
 		tempFloat3Tan[0].c[0],tempFloat3Tan[0].c[1],tempFloat3Tan[0].c[2],tempFloat3Tan[0].c[3],
 		tempFloat3Tan[1].c[0],tempFloat3Tan[1].c[1],tempFloat3Tan[1].c[2],tempFloat3Tan[1].c[3],

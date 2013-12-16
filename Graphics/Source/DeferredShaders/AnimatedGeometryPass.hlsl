@@ -135,6 +135,10 @@ PSIn VS(VSIn input)
 		binormalL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.binormal);
 	}
 	posL /= posL.w;
+	posL.x *= -1.f;
+	normalL.x *= -1.f;
+	tangentL.x *= -1.f;
+	binormalL.x *= -1.f;
 	//posL.w = 1.f;
  
 	// Transform to view space.
