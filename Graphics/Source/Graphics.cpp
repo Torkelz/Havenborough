@@ -385,7 +385,7 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 		if (inst.first == p_ModelId)
 		{
 			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.getModelName()),
-				&inst.second.getWorldMatrix()));
+				inst.second.getWorldMatrix()));
 			break;
 		}
 	}

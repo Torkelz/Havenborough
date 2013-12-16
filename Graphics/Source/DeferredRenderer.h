@@ -47,23 +47,22 @@ public:
 	struct Renderable
 	{
 		ModelDefinition				*m_Model;
-		const DirectX::XMFLOAT4X4	*m_World;
+		DirectX::XMFLOAT4X4			m_World;
 		DirectX::XMFLOAT4X4			m_invTransposeWorld;
 
-		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4* p_World)
+		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World)
 		{
 			m_Model = p_Model;
 			m_World = p_World;
 
 			using namespace DirectX;
 
-			XMStoreFloat4x4( &m_invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(m_World))) ); 
+			XMStoreFloat4x4( &m_invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_World))) ); 
 		}
 
 		~Renderable()
 		{
 			m_Model = nullptr;
-			m_World = nullptr;
 		}
 	};
 private:

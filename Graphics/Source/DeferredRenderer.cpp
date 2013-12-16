@@ -194,7 +194,7 @@ void DeferredRenderer::renderGeometry()
 			}
 
 			cObjectBuffer temp;
-			temp.world = *m_Objects.at(i).m_World;
+			temp.world = m_Objects.at(i).m_World;
 			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
 			m_ObjectConstantBuffer->setBuffer(2);
 
