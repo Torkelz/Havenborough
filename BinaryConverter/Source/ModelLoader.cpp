@@ -259,7 +259,7 @@ void ModelLoader::readFaces(std::istream& p_Input)
 void ModelLoader::readWeights(std::istream& p_Input)
 {
 	DirectX::XMFLOAT3 tempWeight;
-	DirectX::XMFLOAT4 tempJoint;
+	uivec4 tempJoint;
 	std::string line, key, filler;
 
 	while(std::getline(p_Input, line))
@@ -379,7 +379,7 @@ const std::vector<DirectX::XMFLOAT2>& ModelLoader::getTextureCoords()
 	return m_TextureCoord;
 }
 
-const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& ModelLoader::getWeightsList()
+const std::vector<std::pair<DirectX::XMFLOAT3, uivec4>>& ModelLoader::getWeightsList()
 {
 	return m_WeightsList;
 }

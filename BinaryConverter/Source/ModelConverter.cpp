@@ -120,7 +120,7 @@ void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)
 			temp.m_Tangent = m_Tangents->at(m_IndexPerMaterial->at(i).at(j).m_Tangent);
 			DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
 			temp.m_Weight = m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).first;
-			temp.m_Joint = m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).second;
+			temp.m_Joint = (uivec4)m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).second;
 			//temp.m_Position.x *= -1.f;
 			//temp.m_Normal.x *= -1.f;
 			//temp.m_Tangent.x *= -1.f;
@@ -215,7 +215,7 @@ void ModelConverter::setTextureCoords(const std::vector<DirectX::XMFLOAT2>* p_Te
 	m_TextureCoord = p_TextureCoord;
 }
 
-void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>* p_WeightsList)
+void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, uivec4>>* p_WeightsList)
 {
 	m_WeightsList = p_WeightsList;
 	m_WeightsListSize = m_WeightsList->size();

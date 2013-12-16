@@ -1,5 +1,7 @@
 #pragma once
 
+#include "VecTypes.h"
+
 #include <fstream>
 #include <sstream>
 #include <DirectXMath.h>
@@ -55,7 +57,7 @@ private:
 	std::vector<DirectX::XMFLOAT2> m_TextureCoord;
 	std::vector<Material> m_Material;
 	std::vector<std::vector<IndexDesc>> m_IndexPerMaterial;
-	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> m_WeightsList;
+	std::vector<std::pair<DirectX::XMFLOAT3, uivec4>> m_WeightsList;
 	std::vector<Joint> m_ListOfJoints;
 	
 	std::stringstream m_Stringstream;
@@ -131,7 +133,7 @@ public:
 	 *
 	 * @returns a paired vector of weights and joints.
 	 */
-	const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& getWeightsList();
+	const std::vector<std::pair<DirectX::XMFLOAT3, uivec4>>& getWeightsList();
 	
 	/**
 	 * Returns a list of joint structs that includes information about animation and parents.
