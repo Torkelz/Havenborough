@@ -94,10 +94,10 @@ void ModelConverter::createVertexBuffer(std::ostream* p_Output)
 			temp.m_UV = m_TextureCoord->at(m_IndexPerMaterial->at(i).at(j).m_TextureCoord);
 			temp.m_Tangent = m_Tangents->at(m_IndexPerMaterial->at(i).at(j).m_Tangent);
 			DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
-			//temp.m_Position.x *= -1.f;
-			//temp.m_Normal.x *= -1.f;
-			//temp.m_Tangent.x *= -1.f;
-			//temp.m_Binormal.x *= -1.f;
+			temp.m_Position.x *= -1.f;
+			temp.m_Normal.x *= -1.f;
+			temp.m_Tangent.x *= -1.f;
+			temp.m_Binormal.x *= -1.f;
 			tempVertex.push_back(temp);
 		}
 	}
@@ -121,10 +121,10 @@ void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)
 			DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
 			temp.m_Weight = m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).first;
 			temp.m_Joint = (uivec4)m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).second;
-			//temp.m_Position.x *= -1.f;
-			//temp.m_Normal.x *= -1.f;
-			//temp.m_Tangent.x *= -1.f;
-			//temp.m_Binormal.x *= -1.f;
+			temp.m_Position.x *= -1.f;
+			temp.m_Normal.x *= -1.f;
+			temp.m_Tangent.x *= -1.f;
+			temp.m_Binormal.x *= -1.f;
 			tempVertex.push_back(temp);
 		}
 	}
@@ -161,8 +161,25 @@ void ModelConverter::createJointBuffer(std::ostream* p_Output)
 		stringToByte(m_ListOfJoints->at(i).m_JointName, p_Output);
 		intToByte(m_ListOfJoints->at(i).m_ID, p_Output);
 		intToByte(m_ListOfJoints->at(i).m_Parent, p_Output);
-		p_Output->write(reinterpret_cast<const char*>(&m_ListOfJoints->at(i).m_JointOffsetMatrix), sizeof(DirectX::XMFLOAT4X4));
-		p_Output->write(reinterpret_cast<const char*>(m_ListOfJoints->at(i).m_JointAnimation.data()), sizeof(ModelLoader::KeyFrame) * m_NumberOfFrames);
+
+		DirectX::XMFLOAT4X4 flipOffset = m_ListOfJoints->at(i).m_JointOffsetMatrix;
+		flipOffset._41 *= -1.f;
+
+		std::vector<ModelLoader::KeyFrame> keyFrames;
+
+		for (auto& jointAnim : m_ListOfJoints->at(i).m_JointAnimation)
+		{
+			ModelLoader::KeyFrame keyFrame = jointAnim;
+			keyFrame.m_Trans.x *= -1.f;
+
+			keyFrame.m_Rot.y *= -1.f;
+			keyFrame.m_Rot.z *= -1.f;
+
+			keyFrames.push_back(keyFrame);
+		}
+
+		p_Output->write(reinterpret_cast<const char*>(&flipOffset), sizeof(DirectX::XMFLOAT4X4));
+		p_Output->write(reinterpret_cast<const char*>(keyFrames.data()), sizeof(ModelLoader::KeyFrame) * m_NumberOfFrames);
 	}
 }
 

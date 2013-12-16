@@ -142,7 +142,8 @@ void BaseGameApp::run()
 
 	int cactus = m_Graphics->createModelInstance("Test");
 	m_Graphics->setModelPosition(cactus, -3.f, 1.f, 0.f);
-	//m_Graphics->setModelScale(cactus, 1.0f, 1.0f, 1.0f);
+	m_Graphics->setModelScale(cactus, 0.3f, 0.3f, 0.3f);
+	m_Graphics->setModelRotation(cactus, (float)pi / 4.f, 0.f, 0.f);
 
 	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
 	//int witch = m_Graphics->createModelInstance("DZALA");
