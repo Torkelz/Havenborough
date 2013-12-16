@@ -103,10 +103,10 @@ public:
 	
 	
 	
-	void useFramePointLight(vec3 p_LightPosition, vec3 p_LightColor, float p_LightRange) override;
-	void useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p_LightDirection,
-		vec2 p_SpotLightAngles,	float p_LightRange) override;
-	void useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection) override;
+	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
+	void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
+		Vector2 p_SpotLightAngles,	float p_LightRange) override;
+	void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) override;
 	
 	void renderModel(int p_ModelId) override;
 	void renderText(void) override;
@@ -117,11 +117,11 @@ public:
 	
 	int createModelInstance(const char *p_ModelId) override;
 	void eraseModelInstance(int p_Instance) override;
-	void setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z) override;
+	void setModelPosition(int p_Instance, Vector3 p_Position) override;
 	void setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll) override;
 	void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) override;
 
-	void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) override;
+	void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 

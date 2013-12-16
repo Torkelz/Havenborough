@@ -3,49 +3,6 @@
 #include "VolumeIncludeAll.h"
 #include "..\include\PhysicsTypes.h"
 
-inline DirectX::XMFLOAT3 vector3ToXMFLOAT3(Vector3* p_vector)
-{
-	DirectX::XMFLOAT3 vector;
-	vector = DirectX::XMFLOAT3(p_vector->x, p_vector->y, p_vector->z);
-
-	return vector;
-};
-
-inline DirectX::XMFLOAT4 vector4ToXMFLOAT4(Vector4* p_vector)
-{
-	DirectX::XMFLOAT4 vector = DirectX::XMFLOAT4(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
-
-	return vector;
-};
-
-inline Vector3 XMFLOAT3ToVector3(DirectX::XMFLOAT3* p_vector)
-{
-	Vector3 vector = Vector3(p_vector->x, p_vector->y, p_vector->z);
-
-	return vector;
-};
-
-inline Vector4 XMFLOAT4ToVector4(DirectX::XMFLOAT4* p_vector)
-{
-	Vector4 vector = Vector4(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
-
-	return vector;
-};
-
-inline DirectX::XMVECTOR Vector4ToXMVECTOR(Vector4* p_vector)
-{
-	DirectX::XMVECTOR vector = DirectX::XMVectorSet(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
-
-	return vector;
-};
-
-inline Vector4 XMVECTORToVector4(DirectX::XMVECTOR* p_vector)
-{
-	Vector4 vector = Vector4(p_vector->m128_f32[0], p_vector->m128_f32[1], p_vector->m128_f32[2], p_vector->m128_f32[3]);
-
-	return vector;
-};
-
 class Collision
 {
 public:

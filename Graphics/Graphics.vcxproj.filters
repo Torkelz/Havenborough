@@ -25,7 +25,6 @@
     <ClCompile Include="Source\ModelInstance.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ShaderDeffinitions.h" />
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\LightStructs.h" />
@@ -44,7 +43,7 @@
     <ClInclude Include="Source\Buffer.h" />
     <ClInclude Include="Source\Graphics.h" />
     <ClInclude Include="include\IGraphics.h" />
-    <ClInclude Include="Source\Util.h" />
     <ClInclude Include="Source\TextureLoader.h" />
+    <ClInclude Include="include\ShaderDefinitions.h" />
   </ItemGroup>
 </Project>

@@ -120,7 +120,7 @@ void Physics::applyForce(Vector4 p_Force, BodyHandle p_Body)
 	tempForce.y = p_Force.y;
 	tempForce.z = p_Force.z;
 	tempForce.w = p_Force.w;
-
+	
 	body->addForce(tempForce);
 }
 

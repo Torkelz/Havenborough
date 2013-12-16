@@ -411,7 +411,7 @@ void Graphics::removeStaticLight(void)
 
 }
 
-void Graphics::useFramePointLight(vec3 p_LightPosition, vec3 p_LightColor, float p_LightRange)
+void Graphics::useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange)
 {
 	Light l;
 	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
@@ -419,8 +419,8 @@ void Graphics::useFramePointLight(vec3 p_LightPosition, vec3 p_LightColor, float
 	l.lightRange = p_LightRange;
 	m_PointLights.push_back(l);
 }
-void Graphics::useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p_LightDirection,
-					   vec2 p_SpotLightAngles,	float p_LightRange)
+void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
+					   Vector2 p_SpotLightAngles,	float p_LightRange)
 {
 	Light l;
 	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
@@ -432,7 +432,7 @@ void Graphics::useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p
 	l.lightRange = p_LightRange;
 	m_SpotLights.push_back(l);
 }
-void Graphics::useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection)
+void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection)
 {
 	Light l;
 	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
@@ -499,13 +499,13 @@ void Graphics::eraseModelInstance(int p_Instance)
 	}
 }
 
-void Graphics::setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z)
+void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.setPosition(DirectX::XMFLOAT3(p_X, p_Y, p_Z));
+			inst.second.setPosition(Vector3ToXMFLOAT3(p_Position));
 			break;
 		}
 	}
@@ -535,11 +535,11 @@ void Graphics::setModelScale(int p_Instance, float p_X, float p_Y, float p_Z)
 	}
 }
 
-void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch)
+void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 {
 	using namespace DirectX;
 
-	m_Eye = XMFLOAT3(p_PosX,p_PosY,p_PosZ);
+	m_Eye = Vector3ToXMFLOAT3(p_Position);
 	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
 	XMVECTOR pos = XMLoadFloat4(&eye);
 

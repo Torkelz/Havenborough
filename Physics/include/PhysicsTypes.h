@@ -1,5 +1,5 @@
 #pragma once
-
+#include "../../Client/Utilities/Util.h"
 typedef unsigned int BodyHandle;
 
 enum class BoundingVolumeType
@@ -14,61 +14,6 @@ enum class Type
 	SPHEREVSSPHERE,
 	AABBVSSPHERE,
 	AABBVSAABB
-};
-
-struct Vector3
-{
-	float x;
-	float y;
-	float z;
-
-	Vector3()
-	{
-		x = 0.f;
-		y = 0.f;
-		z = 0.f;
-	}
-
-	Vector3(float p_X, float p_Y, float p_Z)
-	{
-		x = p_X;
-		y = p_Y;
-		z = p_Z;
-	}
-};
-
-struct Vector4
-{
-	float x;
-	float y;
-	float z;
-	float w;
-
-	Vector4()
-	{
-		x = 0.f;
-		y = 0.f;
-		z = 0.f;
-		w = 0.f;
-	}
-
-	Vector4(float p_X, float p_Y, float p_Z, float p_W)
-	{
-		x = p_X;
-		y = p_Y;
-		z = p_Z;
-		w = p_W;
-	}
-
-	inline Vector4 operator-(Vector4 p_vec)
-	{
-		this->x -= p_vec.x;
-		this->y -= p_vec.y;
-		this->z -= p_vec.z;
-		this->w -= p_vec.w;
-
-		return *this;
-	}
 };
 
 struct HitData

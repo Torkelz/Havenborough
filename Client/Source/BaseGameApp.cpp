@@ -66,17 +66,12 @@ void BaseGameApp::init()
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
+
+	m_Player.initialize(m_Physics,Vector3(0,10,0),Vector3(0,0,1));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
-	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 1.6f);
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
 
-	m_Jump = false;
-	m_JumpTime = 0.f;
-	m_JumpForce = 2000.f;
-	m_JumpForceTime = 0.2f;
-	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
-	
 	Logger::log(Logger::Level::DEBUG, "Adding debug models");
 	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
@@ -107,9 +102,6 @@ void BaseGameApp::run()
 	m_ShouldQuit = false;
 	int currView = 3; // FOR DEBUGGING
 
-	//BodyHandle groundBody = m_Physics->createAABB(1.f, true, Vector3(-20.f, -1.f, -20.f), Vector3(20.f, 0.f, 20.f));
-	//BodyHandle playerBody = m_Physics->createSphere(80.f, false, Vector3(0.f, 1.8f, 20.f), 1.8f);
-
 	Logger::log(Logger::Level::DEBUG, "Adding debug box model instances");
 	const static int NUM_BOXES = 16;
 	int boxIds[NUM_BOXES];
@@ -119,7 +111,7 @@ void BaseGameApp::run()
 
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
 		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
-		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
+		m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f));
 	}
 	
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
@@ -132,7 +124,7 @@ void BaseGameApp::run()
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug house");
 	int house = m_Graphics->createModelInstance("HOUSE1");
-	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
+	m_Graphics->setModelPosition(house, Vector3(-10.f, 0.f, -10.f));
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
 	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
@@ -140,10 +132,8 @@ void BaseGameApp::run()
 	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
 	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
 
-	float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
 
-	//float speed = 5.f;
 	float sensitivity = 0.01f;
 
 	float yaw = 0.f;
@@ -162,10 +152,6 @@ void BaseGameApp::run()
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 	currTimeStamp--;
 
-	static const float maxSpeed = 10.f;
-	static const float accConstant = 250.f;
-	//float up = m_Up - m_Down;
-	
 	while (!m_ShouldQuit)
 	{
 		Logger::log(Logger::Level::TRACE, "New frame");
@@ -174,6 +160,7 @@ void BaseGameApp::run()
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
 		
+		m_Player.update(dt);
 
 		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
 		{
@@ -186,60 +173,23 @@ void BaseGameApp::run()
 
 		const InputState& state = m_InputQueue.getCurrentState();
 		
-		if(m_Jump)
-		{
- 			m_JumpTime += dt;
-			if(m_JumpTime > m_JumpForceTime)
-			{
-				m_Physics->applyForce(Vector4(0.f, -m_JumpForce, 0.f, 0.f), m_Player);
-				m_Jump = false;
-				m_JumpTime = 0.f;
-			}
-		}
-
-
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 		float right = state.getValue("moveRight") - state.getValue("moveLeft");
 		
-		float dirZ = 0.f;
-		float dirX = 0.f;
-
 		if (forward != 0.f || right != 0.f)
 		{
 			float dir = atan2f(right, forward) + viewRot[0];
 
-			dirZ = cosf(dir);
-			dirX = sinf(dir);
+			m_Player.setDirectionX(sinf(dir));
+			m_Player.setDirectionZ(cosf(dir));
 		}
-
-		Vector4 currentVelocity = m_Physics->getVelocity(m_Player);
-		currentVelocity.y = 0.f;
-		Vector4 maxVelocity(-dirX * maxSpeed, 0.f, -dirZ * maxSpeed, 0.f);
-
-		Vector4 diffVel = Vector4(0.f, 0.f, 0.f, 0.f);
-		Vector4 force = Vector4(0.f, 0.f, 0.f, 0.f);
-
-		diffVel.x = maxVelocity.x - currentVelocity.x;
-		diffVel.y = maxVelocity.y - currentVelocity.y;
-		diffVel.z = maxVelocity.z - currentVelocity.z;
-		diffVel.w = 0.f;
-
-		force.x = diffVel.x * accConstant;
-		force.y = diffVel.y * accConstant;
-		force.z = diffVel.z * accConstant;
-		force.w = 0.f;
-
-		Vector4 forceDiff = Vector4(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z, 0.f); 
-		m_PrevForce = force;
-
-		m_Physics->applyForce(forceDiff, m_Player);
-		
+				
 		m_Physics->update(dt);
 
-		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
+		Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
 
- 		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
-		m_Graphics->setModelPosition(skyBox, tempPos.x, tempPos.y, tempPos.z);
+ 		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y, tempPos.z), viewRot[0], viewRot[1]);
+		m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -254,10 +204,11 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);
 		//m_Graphics->renderModel(witch);
-		m_Graphics->useFrameDirectionalLight(IGraphics::vec3(1.f,1.f,1.f),IGraphics::vec3(0.1f,-0.99f,0.f));
-		m_Graphics->useFramePointLight(IGraphics::vec3(0.f,0.f,0.f),IGraphics::vec3(1.f,1.f,1.f),20.f);
-		m_Graphics->useFrameSpotLight(IGraphics::vec3(-10.f,5.f,0.f),IGraphics::vec3(0.f,1.f,0.f),
-			IGraphics::vec3(0.f,0.f,-1.f),IGraphics::vec2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
+
+		m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
+		m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),20.f);
+		m_Graphics->useFrameSpotLight(Vector3(-10.f,5.f,0.f),Vector3(0.f,1.f,0.f),
+			Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
 
 		m_Graphics->drawFrame(currView);
 		
@@ -322,11 +273,7 @@ void BaseGameApp::run()
 			}
 			else if( in.m_Action == "jump" && in.m_Value == 1)
 			{
-				if(!m_Jump)
-				{
-					m_Jump = true;
-					m_Physics->applyForce(Vector4(0.f, m_JumpForce, 0.f, 0.f), m_Player);
-				}
+				m_Player.setJump();
 			}
 		}
 		
