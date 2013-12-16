@@ -7,7 +7,7 @@ Player::Player(void)
 	m_JumpForceTime = 0.2f;
 	m_JumpForce = 2000.f;
 	m_IsJumping = false;
-	m_PrevForce = XMFLOAT4();
+	m_PrevForce = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	maxSpeed = 10.f;
 	accConstant = 250.f;
 	m_DirectionZ = 0.f;
@@ -25,11 +25,37 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_Loo
 	m_Physics = p_Physics;
 	m_Position = p_Position;
 	m_LookDirection = p_LookDirection;
-	//float l[] = {m_Position.x,m_Position.y,m_Position.z};
-
-	//float d[3] = XMFLOAT3ToFloat3(l);
 	m_PlayerBody = m_Physics->createSphere(50.f, false, XMFLOAT3ToVector3(&m_Position), 1.6f);
 
+}
+
+XMFLOAT3 Player::getPosition(void) const
+{
+	return m_Position;
+}
+
+BodyHandle Player::getBody() const
+{
+	return m_PlayerBody;
+}
+
+void Player::setJump()
+{
+	if(!m_IsJumping)
+	{
+		m_IsJumping = true;
+		m_Physics->applyForce(Vector4(0.f, m_JumpForce, 0.f, 0.f), m_PlayerBody);
+	}
+}
+
+void Player::setDirectionX(float p_DirectionX)
+{
+	m_DirectionX = p_DirectionX;
+}
+
+void Player::setDirectionZ(float p_DirectionZ)
+{
+	m_DirectionZ = p_DirectionZ;
 }
 
 void Player::update(float dt)
@@ -52,14 +78,15 @@ void Player::jump(float dt)
 		}
 	}
 }
+
 void Player::move()
 {
-	Vector4 currentVelocity = m_Physics->getVelocity(m_PlayerBody);
+	XMFLOAT4 currentVelocity = Vector4ToXMFLOAT4(&(m_Physics->getVelocity(m_PlayerBody)));
 	currentVelocity.y = 0.f;
-	Vector4 maxVelocity(-m_DirectionX * maxSpeed, 0.f, -m_DirectionZ * maxSpeed, 0.f);
+	XMFLOAT4 maxVelocity(-m_DirectionX * maxSpeed, 0.f, -m_DirectionZ * maxSpeed, 0.f);
 
-	Vector4 diffVel = Vector4(0.f, 0.f, 0.f, 0.f);
-	Vector4 force = Vector4(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 diffVel = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 force = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 
 	diffVel.x = maxVelocity.x - currentVelocity.x;
 	diffVel.y = maxVelocity.y - currentVelocity.y;
@@ -70,33 +97,10 @@ void Player::move()
 	force.y = diffVel.y * accConstant;
 	force.z = diffVel.z * accConstant;
 	force.w = 0.f;
-	Vector4 forceDiff = Vector4(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z, 0.f); 
-	m_PrevForce = Vector4ToXMFLOAT4(force);
+	XMFLOAT4 forceDiff = XMFLOAT4(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z, 0.f); 
+	m_PrevForce = force;
 
-	m_Physics->applyForce(forceDiff, m_PlayerBody);
+	m_Physics->applyForce(XMFLOAT4ToVector4(&forceDiff), m_PlayerBody);
 
 	m_DirectionX = m_DirectionZ = 0.f;
-}
-
-
-BodyHandle Player::getBody() const
-{
-	return m_PlayerBody;
-}
-
-void Player::setJump()
-{
-	if(!m_IsJumping)
-	{
-		m_IsJumping = true;
-		m_Physics->applyForce(Vector4(0.f, m_JumpForce, 0.f, 0.f), m_PlayerBody);
-	}
-}
-void Player::setDirectionX(float p_DirectionX)
-{
-	m_DirectionX = p_DirectionX;
-}
-void Player::setDirectionZ(float p_DirectionZ)
-{
-	m_DirectionZ = p_DirectionZ;
 }

@@ -8,6 +8,7 @@
 #include "Window.h"
 #include "RAMMemInfo.h"
 #include "Player.h"
+#include "EdgeCollisionResponse.h"
 
 #include "ResourceManager.h"
 
@@ -41,6 +42,7 @@ private:
 	std::vector<int> m_ResourceIDs;
 
 	Player m_Player;
+	EdgeCollisionResponse m_EdgeCollResponse;
 
 public:
 	/**

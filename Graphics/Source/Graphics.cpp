@@ -505,7 +505,7 @@ void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.setPosition(Vector3ToXMFLOAT3(p_Position));
+			inst.second.setPosition(Vector3ToXMFLOAT3(&p_Position));
 			break;
 		}
 	}
@@ -539,7 +539,7 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 {
 	using namespace DirectX;
 
-	m_Eye = Vector3ToXMFLOAT3(p_Position);
+	m_Eye = Vector3ToXMFLOAT3(&p_Position);
 	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
 	XMVECTOR pos = XMLoadFloat4(&eye);
 

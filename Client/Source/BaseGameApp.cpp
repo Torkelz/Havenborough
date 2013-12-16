@@ -167,6 +167,11 @@ void BaseGameApp::run()
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)
 			{
+				if(hit.colType == Type::VSEDGE)
+				{
+					//TODO: Add for-loop for all characters
+					m_EdgeCollResponse.handleCollision(&m_Player, hit.collisionVictim);
+				}
 				Logger::log(Logger::Level::DEBUG, "Collision reported");
 			}
 		}

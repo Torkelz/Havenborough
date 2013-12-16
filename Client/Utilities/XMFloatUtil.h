@@ -45,65 +45,47 @@ struct Vector4 : Vector3
 	}
 };
 
-inline DirectX::XMFLOAT3 vector3ToXMFLOAT3(Vector3* p_vector)
+inline Vector2 XMFLOAT2ToVector2(const DirectX::XMFLOAT2 *p_vector)
 {
-	DirectX::XMFLOAT3 vector;
-	vector = DirectX::XMFLOAT3(p_vector->x, p_vector->y, p_vector->z);
-
-	return vector;
+	return Vector2(p_vector->x, p_vector->y);
 };
 
-inline DirectX::XMFLOAT4 vector4ToXMFLOAT4(Vector4* p_vector)
+inline Vector3 XMFLOAT3ToVector3(const DirectX::XMFLOAT3 *p_vector)
 {
-	DirectX::XMFLOAT4 vector = DirectX::XMFLOAT4(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
-
-	return vector;
+	return Vector3(p_vector->x, p_vector->y, p_vector->z);
 };
 
-inline Vector3 XMFLOAT3ToVector3(DirectX::XMFLOAT3* p_vector)
+inline Vector4 XMFLOAT4ToVector4(const DirectX::XMFLOAT4 *p_vector)
 {
-	Vector3 vector = Vector3(p_vector->x, p_vector->y, p_vector->z);
-
-	return vector;
+	return Vector4(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
 };
 
-inline Vector4 XMFLOAT4ToVector4(DirectX::XMFLOAT4* p_vector)
+inline Vector4 XMVECTORToVector4(const DirectX::XMVECTOR *p_vector)
 {
-	Vector4 vector = Vector4(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
-
-	return vector;
+	return Vector4(p_vector->m128_f32[0], p_vector->m128_f32[1], p_vector->m128_f32[2], p_vector->m128_f32[3]);
 };
 
-inline DirectX::XMVECTOR Vector4ToXMVECTOR(Vector4* p_vector)
+inline DirectX::XMFLOAT2 Vector2ToXMFLOAT2(const Vector2 *_p)
 {
-	DirectX::XMVECTOR vector = DirectX::XMVectorSet(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
-
-	return vector;
-};
-
-inline Vector4 XMVECTORToVector4(DirectX::XMVECTOR* p_vector)
-{
-	Vector4 vector = Vector4(p_vector->m128_f32[0], p_vector->m128_f32[1], p_vector->m128_f32[2], p_vector->m128_f32[3]);
-
-	return vector;
-};
-
-inline DirectX::XMFLOAT2 Vector2ToXMFLOAT2(Vector2 _p)
-{
-	return DirectX::XMFLOAT2(_p.x, _p.y);
+	return DirectX::XMFLOAT2(_p->x, _p->y);
 }
 
-inline DirectX::XMFLOAT3 Vector3ToXMFLOAT3(Vector3 _p)
+inline DirectX::XMFLOAT3 Vector3ToXMFLOAT3(const Vector3 *_p)
 {
-	return DirectX::XMFLOAT3(_p.x, _p.y, _p.z);
+	return DirectX::XMFLOAT3(_p->x, _p->y, _p->z);
 }
 
-inline DirectX::XMFLOAT4 Vector3ToXMFLOAT4(Vector3 _p, float _w)
+inline DirectX::XMFLOAT4 Vector3ToXMFLOAT4(const Vector3 *_p, float _w)
 {
-	return DirectX::XMFLOAT4(_p.x, _p.y, _p.z, _w);
+	return DirectX::XMFLOAT4(_p->x, _p->y, _p->z, _w);
 }
 
-inline DirectX::XMFLOAT4 Vector4ToXMFLOAT4(Vector4 _p)
+inline DirectX::XMFLOAT4 Vector4ToXMFLOAT4(const Vector4 *_p)
 {
-	return DirectX::XMFLOAT4(_p.x, _p.y, _p.z, _p.w);
+	return DirectX::XMFLOAT4(_p->x, _p->y, _p->z, _p->w);
 }
+
+inline DirectX::XMVECTOR Vector4ToXMVECTOR(const Vector4 *p_vector)
+{
+	return DirectX::XMVectorSet(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
+};

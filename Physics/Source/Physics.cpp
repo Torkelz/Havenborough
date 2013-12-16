@@ -77,6 +77,8 @@ void Physics::update(float p_DeltaTime)
 			
 			if(hit.intersect)
 			{
+				hit.collider = i;
+				hit.collisionVictim = j;
 				m_HitDatas.push_back(hit);
 				XMVECTOR temp;
 				XMFLOAT4 tempPos;

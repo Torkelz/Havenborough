@@ -13,7 +13,8 @@ enum class Type
 	NONE,
 	SPHEREVSSPHERE,
 	AABBVSSPHERE,
-	AABBVSAABB
+	AABBVSAABB,
+	VSEDGE,
 };
 
 struct HitData
@@ -23,7 +24,8 @@ struct HitData
 	bool			intersect;
 	Type			colType;
 	float			colLength;
-	//BodyHandle		colBody1;
+	BodyHandle		collider;
+	BodyHandle		collisionVictim;
 
 	HitData()
 	{
@@ -32,5 +34,6 @@ struct HitData
 		intersect	= false;
 		colType		= Type::NONE;
 		colLength	= -1.f;
+		collider = collisionVictim = 0;
 	}
 };

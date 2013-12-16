@@ -27,15 +27,16 @@ public:
 	Player(void);
 	~Player(void);
 	void initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_LookDirection);
-
 	
-	void update(float dt);
-
-
+	XMFLOAT3 getPosition(void) const;
 	BodyHandle getBody() const;
 	void setJump();
 	void setDirectionX(float p_DirectionX);
 	void setDirectionZ(float p_DirectionZ);
+
+	void update(float dt);
+
+
 private:
 	void jump(float dt);
 	void move();
