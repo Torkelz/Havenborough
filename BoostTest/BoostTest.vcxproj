@@ -115,6 +115,7 @@
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
+    <ClCompile Include="..\Graphics\Source\Joint.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelDefinition.cpp" />
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp" />

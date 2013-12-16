@@ -13,7 +13,6 @@ void ModelDefinition::getFinalTransform(float p_Time, std::vector<DirectX::XMFLO
 	getAnimation();
 
 	ref = m_FinalTransform;
-	//return &m_FinalTransform;
 }
 
 void ModelDefinition::getAnimation()
@@ -31,7 +30,6 @@ void ModelDefinition::getAnimation()
 
 	std::vector<XMFLOAT4X4> toRootTransforms(numBones);
 
-	//toRootTransforms[0] = toParentTranforms[0];
 	XMMATRIX localized = XMMatrixMultiply(XMLoadFloat4x4(&toParentTranforms[0]), XMLoadFloat4x4(&m_Joints[0].m_JointOffsetMatrix));
 	XMStoreFloat4x4(&toRootTransforms[0], localized);
 
@@ -66,14 +64,5 @@ void ModelDefinition::getAnimation()
 		XMMATRIX result = XMMatrixTranspose(XMMatrixMultiply(offSet, toRoot));
 
 		XMStoreFloat4x4(&m_FinalTransform[i], result);
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(offSet, toRoot)));
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(toRoot,offSet)));
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixMultiply(offSet, toRoot));
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(XMMatrixMultiply(toRoot, offSet)));
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(offSet));
-		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);
-		//XMStoreFloat4x4(&m_FinalTransform[i], toRoot);
-		//XMStoreFloat4x4(&m_FinalTransform[i], XMMatrixTranspose(toRoot));
-		//XMStoreFloat4x4(&m_FinalTransform[i], identity);
 	}
 }

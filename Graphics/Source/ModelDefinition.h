@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Joint.h"
 #include "LoaderStructs.h"
 #include "WrapperFactory.h"
 

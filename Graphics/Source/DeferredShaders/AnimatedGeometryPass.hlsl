@@ -53,65 +53,8 @@ struct PSOut
 	half4 wPosition	: SV_Target2; // xyz = world position, w = specular intensity
 };
 
-//PSIn VS(VSIn input)
-//{
-//	PSIn output;
-//    float4x4 BoneTransform = boneTransform[input.boneId[0] - 1] * input.weights[0];
-//    BoneTransform += boneTransform[input.boneId[1] - 1] * input.weights[1];
-//    BoneTransform += boneTransform[input.boneId[2] - 1] * input.weights[2];
-//	float weight = 1.0f - input.weights[0] - input.weights[1] - input.weights[2];
-//    BoneTransform += boneTransform[input.boneId[3] - 1] * 0.0f;
-//
-//    float4 PosL = mul(BoneTransform, input.pos);
-//    output.pos = mul(projection, mul(view, mul(world, PosL)));
-//    output.uvCoord = input.uvCoord;
-//    float4 NormalL = mul(BoneTransform, float4(input.normal, 0.0));
-//    output.normal = mul(world, NormalL).xyz;
-//    output.wpos = mul(world, PosL);
-//	float4 tangentL = mul(BoneTransform, float4(input.tangent, 0.0));
-//	output.tangent = mul(world, tangentL).xyz;
-//	float4 binormalL = mul(BoneTransform, float4(input.binormal, 0.0));
-//	output.binormal = mul(world, binormalL).xyz;
-//
-//	return output;
-//} 
-
 PSIn VS(VSIn input)
 {
-	//PSIn output;
-
-	//// Init array or else we get strange warnings about SV_POSITION.
-	//float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	//weights[0] = input.weights.x;
-	//weights[1] = input.weights.y;
-	//weights[2] = input.weights.z;
-	//weights[3] = 0.0f;//1.0f - weights[0] - weights[1] - weights[2];
-
-	//float3 posL     = float3(0.0f, 0.0f, 0.0f);
-	//float3 normalL  = float3(0.0f, 0.0f, 0.0f);
-	//float3 tangentL  = float3(0.0f, 0.0f, 0.0f);
-	//float3 binormalL  = float3(0.0f, 0.0f, 0.0f);
-	//for(int i = 0; i < 4; ++i)
-	//{
-	//    // Assume no nonuniform scaling when transforming normals, so 
-	//	// that we do not have to use the inverse-transpose.
-	//    posL		+= weights[i] * mul( input.pos,						boneTransform[input.boneId[i] - 1]).xyz;
-	//	normalL		+= weights[i] * mul( input.normal,		(float3x3)	boneTransform[input.boneId[i] - 1]);
-	//	tangentL	+= weights[i] * mul( input.tangent,		(float3x3)	boneTransform[input.boneId[i] - 1]);
-	//	binormalL	+= weights[i] * mul( input.binormal,	(float3x3)	boneTransform[input.boneId[i] - 1]);
-	//}
- //
-	//output.pos    = mul(float4(posL, 1.0f), mul(world, mul(view, projection)));
-	//output.normal = mul(float4(normalL, 0.0f), mul(worldInvTranspose, view));
-	//	
-	//output.wpos = mul(float4(posL, 1.0f), world);
-	//
-	//output.uvCoord = input.uvCoord;
-	//output.tangent = normalize(mul(tangentL, world));
-	//output.binormal = normalize(mul(binormalL, world)); // Try worldInvTranspose if strange results with lighting.
-
-	//return output;
-
 	PSIn output;
 
 	// Init array or else we get strange warnings about SV_POSITION.
@@ -139,20 +82,6 @@ PSIn VS(VSIn input)
 	normalL.x *= -1.f;
 	tangentL.x *= -1.f;
 	binormalL.x *= -1.f;
-	//posL.w = 1.f;
- 
-	// Transform to view space.
-	//vout.PosV    = mul(float4(posL, 1.0f), gWorldView).xyz;
-	//vout.NormalV = mul(normalL, (float3x3)gWorldInvTransposeView);
-		
-	// Transform to homogeneous clip space.
-	//vout.PosH = mul(float4(posL, 1.0f), gWorldViewProj);
-	
-	// Output vertex attributes for interpolation across triangle.
-	//vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
-
-	//output.pos = mul( projection, mul(view, mul(world, input.pos) ) );
-	//output.wpos = mul(world, input.pos);
 
 	output.pos = mul( projection, mul(view, mul(world, posL) ) );
 	output.wpos = mul(world, posL);
@@ -175,15 +104,6 @@ PSOut PS( PSIn input )
 	normal					= 0.5f * (normalize(normal) + 1.0f);
 	
 	float4 diffuseColor = diffuse.Sample(m_textureSampler, input.uvCoord);
-	
-	// Remove when debugging is done.
-	/*if(ninjaKick == 0)
-	{
-		diffuseColor.x = 1.0f;
-		diffuseColor.y = 0.0f;
-		diffuseColor.z = 0.0f;
-	}*/
-	// ------------------------------
 
 	if(diffuseColor.w >= .5f)
 		diffuseColor.w = 1.0f;
