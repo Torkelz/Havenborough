@@ -160,13 +160,17 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, 
 	return createBody(p_Mass, aabb, p_IsImmovable);
 }
 
-BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extent, Matrix4x4 p_RotMatrix)
+BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Vertices[8])
 {
-	XMFLOAT4 tempPos	= vector3ToXMFLOAT4(p_CenterPos);
-	XMFLOAT3 tempExtent = vector3ToXMFLOAT3(&p_Extent);
-	XMFLOAT4X4 tempRot	= Matrix4x4ToXMFLOAT4X4(p_RotMatrix);
+	XMFLOAT4 tempPos	= vector3ToXMFLOAT4(p_CenterPos, 1.f);
+	XMFLOAT4 tempVert[8];
+	for(int i = 0; i < 8; i++)
+	{
+		tempVert[i] = vector3ToXMFLOAT4(p_Vertices[i], 1.f);
+	}
 
-	OBB *obb = new OBB(tempPos, tempExtent, tempRot);
+
+	OBB *obb = new OBB(tempPos, p_Vertices[8], tempRot);
 	return createBody(p_Mass, obb, p_IsImmovable);
 }
 

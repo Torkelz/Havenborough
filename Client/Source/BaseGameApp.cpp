@@ -118,7 +118,7 @@ void BaseGameApp::run()
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
 		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
-		if(i == 1)
+		if(i == 0)
 			m_OBBStatic = m_Physics->createOBB(50.f, true, Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f), Vector3(scale, scale, scale), Matrix4x4());
 	}
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
@@ -249,9 +249,6 @@ void BaseGameApp::run()
 		for (int i = 0; i < NUM_BOXES; i++)
 		{
 			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
-			if(i == 1)
-				m_Physics->setBodyRotation(m_OBBStatic, yaw * i, pitch * i, roll * i);  
-
 			m_Graphics->renderModel(boxIds[i]);
 		}
 		m_Graphics->renderModel(ground);

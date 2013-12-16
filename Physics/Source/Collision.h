@@ -11,10 +11,10 @@ inline DirectX::XMFLOAT3 vector3ToXMFLOAT3(Vector3* p_vector)
 	return vector;
 };
 
-inline DirectX::XMFLOAT4 vector3ToXMFLOAT4(Vector3 &p_vector)
+inline DirectX::XMFLOAT4 vector3ToXMFLOAT4(Vector3 &p_Vector, const float &p_W)
 {
 	DirectX::XMFLOAT4 vector;
-	vector = DirectX::XMFLOAT4(p_vector.x, p_vector.y, p_vector.z, 0.f);
+	vector = DirectX::XMFLOAT4(p_Vector.x, p_Vector.y, p_Vector.z, p_W);
 
 	return vector;
 };
