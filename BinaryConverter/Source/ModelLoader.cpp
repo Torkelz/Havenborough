@@ -61,8 +61,7 @@ bool ModelLoader::loadFile(std::string p_FilePath)
 }	
 void ModelLoader::startReading(std::istream& p_Input)	
 {
-	std::string line, key, filler;
-	int readMaterial = 0;
+	std::string line, key;
 	std::stringstream stringstream;
 	while (!p_Input.eof() && std::getline(p_Input, line))
 	{
@@ -259,7 +258,7 @@ void ModelLoader::readFaces(std::istream& p_Input)
 void ModelLoader::readWeights(std::istream& p_Input)
 {
 	DirectX::XMFLOAT3 tempWeight;
-	DirectX::XMFLOAT4 tempJoint;
+	DirectX::XMINT4 tempJoint;
 	std::string line, key, filler;
 
 	while(std::getline(p_Input, line))
@@ -372,7 +371,7 @@ const std::vector<DirectX::XMFLOAT2>& ModelLoader::getTextureCoords()
 	return m_TextureCoord;
 }
 
-const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>& ModelLoader::getWeightsList()
+const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>& ModelLoader::getWeightsList()
 {
 	return m_WeightsList;
 }

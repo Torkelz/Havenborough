@@ -286,6 +286,14 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 		};
 	};
 	
+	struct byteInt
+	{
+		union
+		{
+			int i;
+			char c[sizeof(float)];
+		};
+	};
 	std::vector<std::vector<ModelLoader::IndexDesc>> indexList;
 	std::vector<ModelLoader::IndexDesc> indexDesc;
 	ModelLoader::IndexDesc temp;
@@ -311,12 +319,12 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 	byteFloat tempFloat2UV[2];tempFloat2UV[0].f = 0.5f; tempFloat2UV[1].f = 1.f;
 	tempUV.push_back(DirectX::XMFLOAT2(tempFloat2UV[0].f, tempFloat2UV[1].f));
 
-	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>> tempWeight;
+	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>> tempWeight;
 	byteFloat tempFloat3Weight[3];tempFloat3Weight[0].f = 0.f; tempFloat3Weight[1].f = 1.f; tempFloat3Weight[2].f = 2.f;
-	byteFloat tempFloat4Joint[4];tempFloat4Joint[0].f = 2.f; tempFloat4Joint[1].f = 1.f; tempFloat4Joint[2].f = 2.f; tempFloat4Joint[3].f = 0;
+	byteInt tempFloat4Joint[4];tempFloat4Joint[0].i = 2; tempFloat4Joint[1].i = 1; tempFloat4Joint[2].i = 2; tempFloat4Joint[3].i = 0;
 	tempWeight.push_back(std::make_pair(
 		DirectX::XMFLOAT3(tempFloat3Weight[0].f, tempFloat3Weight[1].f, tempFloat3Weight[2].f), 
-		DirectX::XMFLOAT4(tempFloat4Joint[0].f, tempFloat4Joint[1].f, tempFloat4Joint[2].f, tempFloat4Joint[3].f)));
+		DirectX::XMINT4(tempFloat4Joint[0].i, tempFloat4Joint[1].i, tempFloat4Joint[2].i, tempFloat4Joint[3].i)));
 
 	indexDesc.push_back(temp);
 	indexList.push_back(indexDesc);

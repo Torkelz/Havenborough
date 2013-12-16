@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\ResourceTranslator.cpp" />
     <ClCompile Include="Source\BaseGameApp.cpp" />
@@ -45,6 +46,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\Logger.h" />
     <ClInclude Include="Source\Resource.h" />
     <ClInclude Include="Source\ResourceManager.h" />

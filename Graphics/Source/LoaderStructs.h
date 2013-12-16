@@ -25,7 +25,7 @@ struct VertexAnimation
 	DirectX::XMFLOAT3 m_Tangent;
 	DirectX::XMFLOAT3 m_Binormal;
 	DirectX::XMFLOAT3 m_Weight;
-	DirectX::XMFLOAT4 m_Joint;
+	DirectX::XMINT4 m_Joint;
 };
 	
 struct Vertex

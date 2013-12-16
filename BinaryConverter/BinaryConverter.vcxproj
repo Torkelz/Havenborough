@@ -78,11 +78,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\LevelConverter.cpp" />
+    <ClCompile Include="Source\LevelLoader.cpp" />
     <ClCompile Include="Source\BinaryConverter.cpp" />
     <ClCompile Include="Source\ModelConverter.cpp" />
     <ClCompile Include="Source\ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\LevelConverter.h" />
+    <ClInclude Include="Source\LevelLoader.h" />
     <ClInclude Include="Source\ModelConverter.h" />
     <ClInclude Include="Source\ModelLoader.h" />
   </ItemGroup>

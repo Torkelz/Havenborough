@@ -121,7 +121,7 @@ void BaseGameApp::run()
 		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 	}
-	
+
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
 	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
@@ -135,10 +135,10 @@ void BaseGameApp::run()
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
-	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
-	//int witch = m_Graphics->createModelInstance("DZALA");
-	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
-	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
+	Logger::log(Logger::Level::DEBUG, "Adding debug character");
+	int witch = m_Graphics->createModelInstance("DZALA");
+	m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
+	m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
 
 	float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};

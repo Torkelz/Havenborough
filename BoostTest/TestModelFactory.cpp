@@ -60,7 +60,7 @@ public:
 			vector<VertexAnimation> vertexData;
 			VertexAnimation vertex;
 			vertex.m_Binormal = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			vertex.m_Joint = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			vertex.m_Joint = XMINT4(1, 1, 1, 1);
 			vertex.m_Normal = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			vertex.m_Position = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			vertex.m_Tangent = XMFLOAT3(1.0f, 1.0f, 1.0f);

@@ -111,7 +111,8 @@ void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)
 	std::vector<VertexBufferAnimation> tempVertex;
 	for(int i = 0; i < m_IndexPerMaterialSize; i++)
 	{
-		for(unsigned int j = 0; j < m_IndexPerMaterial->at(i).size(); j++)
+		int tempsize = m_IndexPerMaterial->at(i).size()-1;
+		for(int j = tempsize; j >= 0 ; j--)
 		{
 			temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
 			temp.m_Normal = m_Normals->at(m_IndexPerMaterial->at(i).at(j).m_Normal);
@@ -214,7 +215,7 @@ void ModelConverter::setTextureCoords(const std::vector<DirectX::XMFLOAT2>* p_Te
 	m_TextureCoord = p_TextureCoord;
 }
 
-void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>* p_WeightsList)
+void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>* p_WeightsList)
 {
 	m_WeightsList = p_WeightsList;
 	m_WeightsListSize = m_WeightsList->size();
