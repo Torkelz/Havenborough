@@ -43,17 +43,17 @@ void LevelLoader::startReading(std::istream& p_Input)
 		m_Stringstream >> key >> std::ws;
 		if(key == "*Header")
 		{
-			createHeader(p_Input);
+			readHeader(p_Input);
 		}
 
 		if(key == "#MESH")
 		{
-			createMeshList(p_Input);
+			readMeshList(p_Input);
 		}
 	}
 }
 
-void LevelLoader::createHeader(std::istream& p_Input)
+void LevelLoader::readHeader(std::istream& p_Input)
 {
 	std::string key, line;
 	std::getline(p_Input, line);
@@ -61,7 +61,7 @@ void LevelLoader::createHeader(std::istream& p_Input)
 	m_Stringstream >> key >> m_Header.m_NumberOfModels;
 }
 
-void LevelLoader::createMeshList(std::istream& p_Input)
+void LevelLoader::readMeshList(std::istream& p_Input)
 {
 	std::string key, filler, line;
 	LevelStruct tempLevel;

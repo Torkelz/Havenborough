@@ -40,7 +40,7 @@ void LevelConverter::createLevel(std::ostream* p_Output)
 	std::vector<ModelData> level;
 	ModelData model;
 	bool written = false;
-	for(int i = 0; i < m_Header.m_NumberOfModels; i++)
+	for(unsigned int i = 0; i < m_LevelData->size(); i++)
 	{
 		model = ModelData();
 		for(unsigned int j = 0; j < level.size(); j++)

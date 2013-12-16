@@ -22,13 +22,16 @@ bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 	return true;
 }
 
-void LevelBinaryLoader::readHeader(std::istream* p_Input)
+LevelBinaryLoader::Header LevelBinaryLoader::readHeader(std::istream* p_Input)
 {
-	byteToInt(p_Input, m_Header.m_NumberOfModels); 
+	Header header;
+	byteToInt(p_Input, header.m_NumberOfModels); 
+	return header;
 }
 
-void LevelBinaryLoader::readLevel(std::istream* p_Input)
+std::vector<LevelBinaryLoader::ModelData> LevelBinaryLoader::readLevel(std::istream* p_Input)
 {
+	std::vector<LevelBinaryLoader::ModelData> levelData;
 	int numberOfDifferentModels;
 	byteToInt(p_Input, numberOfDifferentModels);
 	for(int i = 0; i < numberOfDifferentModels; i++)
@@ -45,8 +48,10 @@ void LevelBinaryLoader::readLevel(std::istream* p_Input)
 		byteToInt(p_Input, size);
 		data.m_Scale.resize(size);
 		p_Input->read(reinterpret_cast<char*>(data.m_Scale.data()),sizeof(DirectX::XMFLOAT3) * size);
-		m_LevelData.push_back(data);
+		levelData.push_back(data);
 	}
+
+	return levelData;
 }
 
 void LevelBinaryLoader::byteToString(std::istream* p_Input, std::string& p_Return)

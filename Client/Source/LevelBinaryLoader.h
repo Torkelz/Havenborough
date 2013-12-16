@@ -20,8 +20,8 @@ public:
 		std::vector<DirectX::XMFLOAT3> m_Rotation;
 		std::vector<DirectX::XMFLOAT3> m_Scale;
 	};
-private:
-	std::vector<ModelData> m_LevelData;
+private: 
+	std::vector<LevelBinaryLoader::ModelData> m_LevelData;
 	Header m_Header;
 public:
 	LevelBinaryLoader();
@@ -34,8 +34,8 @@ protected:
 	void byteToFloat(std::istream* p_Input, float& p_Return);
 	void byteToString(std::istream* p_Input, std::string& p_Return);
 	
-	void readHeader(std::istream* p_Input);
-	void readLevel(std::istream* p_Input);
+	LevelBinaryLoader::Header readHeader(std::istream* p_Input);
+	std::vector<LevelBinaryLoader::ModelData> readLevel(std::istream* p_Input);
 	
 private:
 	void clearData();

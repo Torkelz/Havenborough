@@ -33,8 +33,8 @@ public:
 	const std::vector<LevelLoader::LevelStruct>& getLevelModelList();
 protected:
 	void startReading(std::istream& p_Input);
-	void createHeader(std::istream& p_Input);
-	void createMeshList(std::istream& p_Input);
+	void readHeader(std::istream& p_Input);
+	void readMeshList(std::istream& p_Input);
 
 private:
 	void clearData();
