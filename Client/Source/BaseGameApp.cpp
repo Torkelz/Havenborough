@@ -33,8 +33,8 @@ void BaseGameApp::init()
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createStaticModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
-	//TODO: May need to register a callback function for creating animated models? //Pontus
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
+	m_ResourceManager->registerFunction( "animatedModel", std::bind(&IGraphics::createAnimatedModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -98,8 +98,7 @@ void BaseGameApp::init()
 	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
 
-	//m_Graphics->createModel("Test", "assets/Sample196_leggs.tx", true);
-	m_Graphics->createAnimatedModel("Test", "assets/IKtest.btx");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("animatedModel", "Test"));
 	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
 							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("AnimatedShader", "Test");
@@ -270,7 +269,7 @@ void BaseGameApp::run()
 		m_Graphics->useFrameSpotLight(IGraphics::vec3(-10.f,5.f,0.f),IGraphics::vec3(0.f,1.f,0.f),
 			IGraphics::vec3(0.f,0.f,-1.f),IGraphics::vec2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
 
-		m_Graphics->drawFrame(currView);
+		m_Graphics->drawFrame(dt, currView);
 		
 		m_MemoryInfo.update();
 		updateDebugInfo(dt);

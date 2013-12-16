@@ -32,10 +32,17 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	};
 	static const size_t numTextures = sizeof(textureMap) / sizeof(textureMap[0]);
 
+	static const std::pair<std::string, std::string> animatedModelMap[] =
+	{
+		std::make_pair("Test", "assets/IKtest.btx"),
+	};
+	static const size_t numAnimatedModels = sizeof(animatedModelMap) / sizeof(animatedModelMap[0]);
+
 	static const std::pair<std::string, std::vector<const std::pair<std::string, std::string>>> resourceMaps[] =
 	{
 		std::make_pair("model", std::vector<const std::pair<std::string, std::string>>(modelMap, modelMap + numModels)),
 		std::make_pair("texture", std::vector<const std::pair<std::string, std::string>>(textureMap, textureMap + numTextures)),
+		std::make_pair("animatedModel", std::vector<const std::pair<std::string, std::string>>(animatedModelMap, animatedModelMap + numAnimatedModels)),
 	};
 
 	for (const auto& map : resourceMaps)

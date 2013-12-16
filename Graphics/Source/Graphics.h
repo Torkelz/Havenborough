@@ -113,7 +113,7 @@ public:
 	void renderModel(int p_ModelId) override;
 	void renderText(void) override;
 	void renderQuad(void) override;
-	void drawFrame(int i) override;
+	void drawFrame(float p_DeltaTime, int i) override;
 
 	int getVRAMMemUsage(void) override;
 	

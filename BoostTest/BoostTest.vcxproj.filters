@@ -42,7 +42,6 @@
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp">
       <Filter>TestNetwork</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\ModelDefinition.cpp" />
     <ClCompile Include="..\Client\Source\ResourceManager.cpp">
       <Filter>TestResourceManager\Import</Filter>
     </ClCompile>
@@ -247,7 +246,6 @@
     <None Include="Source\Sample130.tx" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Graphics\Source\Joint.h" />
     <ClInclude Include="..\Physics\include\AABB.h">
       <Filter>TestPhysics\PhysicsImport</Filter>
     </ClInclude>

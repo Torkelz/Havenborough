@@ -191,8 +191,12 @@ public:
 	
 	/**
 	* Draw the current frame.
+	*
+	* @param p_DeltaTime the time in seconds since the previous frame.
+	*			Affects animations and effects.
+	* @param i the render target to display.
 	*/
-	virtual void drawFrame(int i) = 0;
+	virtual void drawFrame(float p_DeltaTime, int i) = 0;
 
 	/**
 	* Gets the amount of VRAM usage of the program.

@@ -49,8 +49,9 @@ public:
 		ModelDefinition				*m_Model;
 		DirectX::XMFLOAT4X4			m_World;
 		DirectX::XMFLOAT4X4			m_invTransposeWorld;
+		const std::vector<DirectX::XMFLOAT4X4> *m_FinalTransforms;
 
-		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World)
+		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World, const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr)
 		{
 			m_Model = p_Model;
 			m_World = p_World;
@@ -58,6 +59,8 @@ public:
 			using namespace DirectX;
 
 			XMStoreFloat4x4( &m_invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_World))) ); 
+
+			m_FinalTransforms = p_FinalTransforms;
 		}
 
 		~Renderable()

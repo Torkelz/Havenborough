@@ -1,33 +1,44 @@
 #pragma once
+
+#include "Joint.h"
+
 #include <DirectXMath.h>
 #include <string>
+#include <vector>
 
-using namespace DirectX;
-using std::string;
-
+/**
+ * A single instance of a model object.
+ */
  class ModelInstance
  {
  private:
-	string m_ModelName;
-	XMFLOAT3 m_Position;
-	XMFLOAT3 m_Rotation;
-	XMFLOAT3 m_Scale;
+	std::string m_ModelName;
+	DirectX::XMFLOAT3 m_Position;
+	DirectX::XMFLOAT3 m_Rotation;
+	DirectX::XMFLOAT3 m_Scale;
 	
 	mutable bool m_IsCalculated;
-	mutable XMFLOAT4X4 m_World;
+	mutable DirectX::XMFLOAT4X4 m_World;
+
+	// Animation data
+	std::vector<DirectX::XMFLOAT4X4> m_FinalTransform;
+	float m_CurrentFrame;
 
  public:
-	 ModelInstance(void);
-	 ~ModelInstance(void);
-	 
-	 void setIsCalculated(bool p_IsCalculated);
-	 bool getIsCalculated(void) const;
-	 void setModelName(string p_Name);
-	 string getModelName(void) const;
+	ModelInstance(void);
+	~ModelInstance(void);
+	
+	void setIsCalculated(bool p_IsCalculated);
+	bool getIsCalculated(void) const;
+	void setModelName(const std::string& p_Name);
+	std::string getModelName(void) const;
 
-	 const XMFLOAT4X4 &getWorldMatrix(void) const;
-	 void setPosition(const XMFLOAT3 &p_Position);
-	 void setRotation(const XMFLOAT3 & p_Rotation);
-	 void setScale(const XMFLOAT3 &p_Scale);
-	 void calculateWorldMatrix(void) const;
+	const DirectX::XMFLOAT4X4 &getWorldMatrix(void) const;
+	void setPosition(const DirectX::XMFLOAT3 &p_Position);
+	void setRotation(const DirectX::XMFLOAT3 & p_Rotation);
+	void setScale(const DirectX::XMFLOAT3 &p_Scale);
+	void calculateWorldMatrix(void) const;
+	 
+	void updateAnimation(float p_DeltaTime, const std::vector<Joint>& p_Joints);
+	const std::vector<DirectX::XMFLOAT4X4>& getFinalTransform() const;
  };

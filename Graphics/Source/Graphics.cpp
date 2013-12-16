@@ -17,8 +17,10 @@ Graphics::Graphics(void)
 	m_WrapperFactory = nullptr;
 	m_ModelFactory = nullptr;
 	m_DeferredRender = nullptr;
+	m_Sampler = nullptr;
+	m_VRAMMemInfo = nullptr;
 
-	m_VSyncEnabled = true; //DEBUG
+	m_VSyncEnabled = false; //DEBUG
 
 	m_NextInstanceId = 1;
 }
@@ -37,14 +39,14 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Initializing graphics");
 
 	HRESULT result;
-	IDXGIFactory *factory;
-	IDXGIAdapter *adapter;
-	IDXGIOutput *adapterOutput;
+	IDXGIFactory *factory = nullptr;
+	IDXGIAdapter *adapter = nullptr;
+	IDXGIOutput *adapterOutput = nullptr;
 	
 	unsigned int numModes;
 	unsigned int stringLength;
 	
-	DXGI_MODE_DESC *displayModeList;
+	DXGI_MODE_DESC *displayModeList = nullptr;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
 	
@@ -215,7 +217,24 @@ void Graphics::shutdown(void)
 		SAFE_RELEASE(tex.second);
 	}
 	m_TextureList.clear();
-	m_StaticModelList.clear();
+
+	while (!m_StaticModelList.empty())
+	{
+		std::string unremovedName = m_StaticModelList.front().first;
+
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + unremovedName + "' not removed properly");
+
+		releaseModel(unremovedName.c_str());
+	}
+
+	while (!m_AnimatedModelList.empty())
+	{
+		std::string unremovedName = m_AnimatedModelList.front().first;
+
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + unremovedName + "' not removed properly");
+
+		releaseModel(unremovedName.c_str());
+	}
 
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
@@ -281,11 +300,27 @@ bool Graphics::releaseModel(const char* p_ResourceName) //TODO: Maybe need to ha
 				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 			}
 
-
 			m_StaticModelList.erase(it);
 			return true;
 		}
 	}
+	
+	for(auto it = m_AnimatedModelList.begin(); it != m_AnimatedModelList.end(); ++it)
+	{
+		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
+		{
+			for(unsigned int i = 0; i < it->second.numOfMaterials; i++)
+			{
+				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+				m_ReleaseModelTexture(it->second.normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+			}
+
+			m_AnimatedModelList.erase(it);
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -385,7 +420,8 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 		if (inst.first == p_ModelId)
 		{
 			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.getModelName()),
-				inst.second.getWorldMatrix()));
+				inst.second.getWorldMatrix(),
+				&inst.second.getFinalTransform()));
 			break;
 		}
 	}
@@ -440,8 +476,22 @@ void Graphics::useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection
 	m_DirectionalLights.push_back(l);
 }
 
-void Graphics::drawFrame(int i)
+void Graphics::drawFrame(float p_DeltaTime, int i)
 {
+	if (!m_DeviceContext || !m_DeferredRender)
+	{
+		return;
+	}
+
+	for (auto& model : m_ModelInstances)
+	{
+		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
+		if (modelDef->m_IsAnimated)
+		{
+			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
+		}
+	}
+
 	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
 	Begin(color);
 
@@ -467,11 +517,25 @@ void Graphics::drawFrame(int i)
 
 int Graphics::getVRAMMemUsage(void)
 {
-	return m_VRAMMemInfo->getUsage();
+	if (m_VRAMMemInfo)
+	{
+		return m_VRAMMemInfo->getUsage();
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 int Graphics::createModelInstance(const char *p_ModelId)
 {
+	ModelDefinition* modelDef = getModelFromList(p_ModelId);
+	if (modelDef == nullptr)
+	{
+		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the mode definition: " + std::string(p_ModelId));
+		return -1;
+	}
+
 	ModelInstance instance;
 	instance.setIsCalculated(false);
 	instance.setModelName(p_ModelId);
@@ -564,7 +628,10 @@ void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 
 void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata)
 {
-	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
+	if (m_ModelFactory)
+	{
+		m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
+	}
 }
 
 void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)

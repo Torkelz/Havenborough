@@ -2,6 +2,9 @@
 
 #include <DirectXMath.h>
 
+/**
+ * Structure of a vertex for a static model.
+ */
 class StaticVertex
 {
 public:
@@ -26,6 +29,9 @@ public:
 	}
 };
 
+/**
+ * Structure of a vertex for an animated model.
+ */
 class AnimatedVertex
 {
 public:
