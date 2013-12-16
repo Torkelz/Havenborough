@@ -3,6 +3,7 @@
 
 EdgeCollisionResponse::EdgeCollisionResponse(void)
 {
+
 }
 
 

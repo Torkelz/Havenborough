@@ -67,7 +67,7 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
-	m_Player.initialize(m_Physics,Vector3(0,10,0),Vector3(0,0,1));
+	m_Player.initialize(m_Physics, XMFLOAT3(0,10,0), XMFLOAT3(0,0,1));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));

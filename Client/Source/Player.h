@@ -1,13 +1,15 @@
 #pragma once
+#include <DirectXMath.h>
 #include "IPhysics.h"
 #include "../Utilities/Util.h"
 
+using namespace DirectX;
 
 class Player
 {
 private:
-	Vector3 m_Position;
-	Vector3 m_LookDirection;
+	XMFLOAT3 m_Position;
+	XMFLOAT3 m_LookDirection;
 	float m_ViewRotation[2];
 	BodyHandle m_PlayerBody;
 	IPhysics* m_Physics;
@@ -17,14 +19,14 @@ private:
 	float m_JumpForce;
 	float maxSpeed;
 	float accConstant;
-	Vector4 m_PrevForce;
+	XMFLOAT4 m_PrevForce;
 	float m_DirectionX;
 	float m_DirectionZ;
 
 public:
 	Player(void);
 	~Player(void);
-	void initialize(IPhysics *p_Physics, Vector3 p_Position, Vector3 p_LookDirection);
+	void initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_LookDirection);
 
 	
 	void update(float dt);
