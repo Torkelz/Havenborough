@@ -32,7 +32,7 @@ public:
 	 */
 	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top) = 0;
 
-	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extent, Matrix4x4 p_RotMatrix) = 0;
+	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Corner) = 0;
 
 
 	virtual Vector4 getBodyPosition(BodyHandle p_Body) = 0;

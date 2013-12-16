@@ -360,11 +360,11 @@ HitData Collision::OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2)
 	XMMATRIX a_Axes, b_Axes;
 	a_Center = XMLoadFloat4(p_OBB1->getPosition()); //a.c
 	a_Axes = XMLoadFloat3x3(&p_OBB1->getAxes()); //a.u
-	a_Extents = XMLoadFloat3(&p_OBB2->getExtents()); //a.e
+	a_Extents = XMLoadFloat4(&p_OBB1->getExtents()); //a.e
 	
 	b_Center = XMLoadFloat4(p_OBB2->getPosition()); //b.c
 	b_Axes = XMLoadFloat3x3(&p_OBB2->getAxes()); //b.u
-	b_Extents = XMLoadFloat3(&p_OBB2->getExtents()); //b.e
+	b_Extents = XMLoadFloat4(&p_OBB2->getExtents()); //b.e
 
 
 	//Compute rotation matrix expressing b in a's coordinate frame
@@ -500,7 +500,7 @@ HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
 
 	float fDist;
 	float fDistSq		= 0;
-	XMVECTOR extent		= XMLoadFloat3(&p_OBB->getExtent());
+	XMVECTOR extent		= XMLoadFloat4(&p_OBB->getExtents());
 	XMVECTOR spherePos	= XMLoadFloat4(p_Sphere->getPosition());
 	XMMATRIX invRot		= XMLoadFloat4x4(&p_OBB->getInvRotation());
 
@@ -530,7 +530,7 @@ HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
 
 HitData Collision::OBBvsAABB(OBB *p_OBB, AABB *p_AABB)
 {
-	HitData Hit;
+	HitData Hit = HitData();
 	return Hit;
 }
 

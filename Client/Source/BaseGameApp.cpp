@@ -67,8 +67,8 @@ void BaseGameApp::init()
 	m_Physics->initialize();
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
-	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 2.f);
-	m_OBBMovable = m_Physics->createOBB(50.f, false, Vector3(0.f, 10.f, 0.f), Vector3(1.6f, 1.6f, 1.6f), Matrix4x4());
+	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 0.5f);
+	m_OBBMovable = m_Physics->createOBB(50.f, false, Vector3(0.f, 10.f, 0.f), Vector3(0.5f, 0.5f, 0.5f));
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
 	
 
@@ -119,7 +119,7 @@ void BaseGameApp::run()
 		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 		if(i == 0)
-			m_OBBStatic = m_Physics->createOBB(50.f, true, Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f), Vector3(scale, scale, scale), Matrix4x4());
+			m_OBBStatic = m_Physics->createOBB(50.f, true, Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f), Vector3(scale, scale, scale));
 	}
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
@@ -179,6 +179,7 @@ void BaseGameApp::run()
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)
 			{
+
 				Logger::log(Logger::Level::DEBUG, "Collision reported");
 			}
 		}

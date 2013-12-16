@@ -7,7 +7,7 @@ class OBB : public BoundingVolume
 {
 private:
 	DirectX::XMFLOAT3X3	m_Axes; // Local x-,y and z-axes
-	DirectX::XMFLOAT3	m_Extents; //Positive half-width extents oo OBB along each axis
+	DirectX::XMFLOAT4	m_Extents; //Positive half-width extents oo OBB along each axis
 	DirectX::XMFLOAT4X4 m_Rotation;
 	Sphere				m_Sphere;
 	
@@ -16,28 +16,29 @@ public:
 	{
 		m_Position		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); //OBB Center Point
 		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-		m_Extents		= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
+		m_Extents		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat3x3(&m_Axes, DirectX::XMMatrixIdentity());
 		DirectX::XMStoreFloat4x4(&m_Rotation, DirectX::XMMatrixIdentity());
 		m_Sphere		= Sphere();
 	}
 
-	OBB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Vertices[8])
+	OBB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Corner)
 	{
-		m_Position		= p_CenterPos; //OBB Center Point. 
+		m_Position		= p_CenterPos; //OBB Center Point.
 		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-		m_Axes			= p_Axes;
-		m_Extents		= p_Extents;
 		m_Type			= Type::OBB;
-		m_Rotation		= p_Rot;
 		DirectX::XMStoreFloat3x3(&m_Axes, DirectX::XMMatrixIdentity());
+		calcExtent(p_Corner);
+		m_Extents = p_Corner;
 
-		DirectX::XMVECTOR extentVector = DirectX::XMVECTOR(DirectX::XMLoadFloat3(&m_Extents));
+		//Sphere
+		DirectX::XMVECTOR extentVector = DirectX::XMLoadFloat4(&m_Extents);
 		DirectX::XMVECTOR length = DirectX::XMVector3Length(extentVector);
 		float radius;
 		DirectX::XMStoreFloat(&radius, length);
 		m_Sphere		= Sphere(radius, p_CenterPos);
+
 	}
 	~OBB()
 	{
@@ -63,7 +64,7 @@ public:
 		return m_Axes;
 	}
 
-	DirectX::XMFLOAT3 getExtents()
+	DirectX::XMFLOAT4 getExtents()
 	{
 		return m_Extents;
 	}
@@ -76,7 +77,7 @@ public:
 	DirectX::XMFLOAT3 getSize()
 	{
 		using DirectX::operator*;
-		DirectX::XMVECTOR temp = DirectX::XMVECTOR(DirectX::XMLoadFloat3(&m_Extents));
+		DirectX::XMVECTOR temp = DirectX::XMLoadFloat4(&m_Extents);
 		temp = temp * 2.0f;
 		DirectX::XMFLOAT3 result;
 		DirectX::XMStoreFloat3(&result, temp);
@@ -100,7 +101,7 @@ public:
 		return m_Sphere;
 	}
 
-	void setExtent(const DirectX::XMFLOAT3 &p_Extents)
+	void setExtent(const DirectX::XMFLOAT4 &p_Extents)
 	{
 		m_Extents = p_Extents;
 	}
@@ -114,14 +115,30 @@ public:
 private:
 	void updateRotation()
 	{
-		DirectX::XMVECTOR tempExtent = DirectX::XMLoadFloat3(&m_Extents);
+		DirectX::XMVECTOR tempExtent = DirectX::XMLoadFloat4(&m_Extents);
 		DirectX::XMMATRIX tempRot = DirectX::XMLoadFloat4x4(&m_Rotation);
-		tempExtent = DirectX::XMVector3Transform(tempExtent, tempRot);
-		DirectX::XMStoreFloat3(&m_Extents, tempExtent);
+		DirectX::XMMATRIX tAxes= XMLoadFloat3x3(&m_Axes);
+		tAxes = tempRot * tAxes;
+		tempExtent = DirectX::XMVector4Transform(tempExtent, tempRot);
+
+		DirectX::XMStoreFloat3x3(&m_Axes, tAxes);
+		DirectX::XMStoreFloat4(&m_Extents, tempExtent);
 	}
 
-	void calcExtent()
+	void calcExtent(const DirectX::XMFLOAT4 &p_Corner)
 	{
+		DirectX::XMVECTOR tCorner = DirectX::XMLoadFloat4(&p_Corner);
+		DirectX::XMVECTOR tPosition = DirectX::XMLoadFloat4(&m_Position);
+		DirectX::XMVECTOR tExtent;
 		
+		using DirectX::operator-;
+		tExtent = tCorner - tPosition;
+
+		DirectX::XMStoreFloat4(&m_Extents, tExtent);
+		m_Extents.x = fabs(m_Extents.x);
+		m_Extents.y = fabs(m_Extents.y);
+		m_Extents.z = fabs(m_Extents.z);
+		m_Extents.w = fabs(m_Extents.w);
+
 	}
 };

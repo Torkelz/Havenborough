@@ -77,7 +77,7 @@ void Physics::update(float p_DeltaTime)
 			
 			if(hit.intersect)
 			{
-				if(hit.colType == Type::OBBVSSPHERE)
+				if(hit.colType == Type::OBBVSOBB)
 				{
 					PhysicsLogger::log(PhysicsLogger::Level::INFO, "OBB intersection!");
 				}
@@ -160,17 +160,15 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, 
 	return createBody(p_Mass, aabb, p_IsImmovable);
 }
 
-BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Vertices[8])
+BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Corner)
 {
 	XMFLOAT4 tempPos	= vector3ToXMFLOAT4(p_CenterPos, 1.f);
-	XMFLOAT4 tempVert[8];
-	for(int i = 0; i < 8; i++)
-	{
-		tempVert[i] = vector3ToXMFLOAT4(p_Vertices[i], 1.f);
-	}
+	XMFLOAT4 tempCorn	= vector3ToXMFLOAT4(p_Corner, 1.f);
+	
+	tempCorn = vector3ToXMFLOAT4(p_Corner, 1.f);
 
+	OBB *obb = new OBB(tempPos, tempCorn);
 
-	OBB *obb = new OBB(tempPos, p_Vertices[8], tempRot);
 	return createBody(p_Mass, obb, p_IsImmovable);
 }
 
@@ -254,7 +252,8 @@ void Physics::setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, flo
 	OBB *obb = (OBB*)(body->getVolume());
 	XMFLOAT3 yawPitchRoll(p_Yaw, p_Pitch, p_Roll);
 	XMFLOAT4X4 temp;
-	XMMATRIX rotation = XMMatrixRotationRollPitchYawFromVector( XMLoadFloat3(&yawPitchRoll) );
+	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
+
 	XMStoreFloat4x4(&temp, rotation);
 	obb->setRotationMatrix(temp);
 }

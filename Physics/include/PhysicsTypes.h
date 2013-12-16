@@ -18,6 +18,7 @@ enum class Type
 	OBBVSOBB,
 	OBBVSSPHERE,
 	OBBVSAABB,
+	VSEDGE
 };
 
 struct Vector3
