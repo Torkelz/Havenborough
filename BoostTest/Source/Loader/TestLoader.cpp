@@ -146,10 +146,13 @@ BOOST_AUTO_TEST_CASE(TestAnimation)
 	testLoader loader;
 	
 	loader.testWeights(tempStream);
+
+	float weightSum =
+		loader.getWeightsList().at(0).first.x + 
+		loader.getWeightsList().at(0).first.y;
 	
-	BOOST_CHECK_EQUAL(loader.getWeightsList().at(0).first.x, 0.993041f);
+	BOOST_CHECK_EQUAL(weightSum, 1.f);
 	BOOST_CHECK_EQUAL(loader.getWeightsList().at(0).second.x, 1);
-	BOOST_CHECK_EQUAL(loader.getWeightsList().at(1).first.y, 0.0378095f);
 	BOOST_CHECK_EQUAL(loader.getWeightsList().at(1).second.y, 2);
 
 	tempStream.clear();
@@ -235,7 +238,7 @@ BOOST_AUTO_TEST_CASE(TestMainLoop)
 	BOOST_CHECK_EQUAL(loader.getNormals().at(tempIndex.m_Normal).x , -0.00028988f);
 	BOOST_CHECK_EQUAL(loader.getTangents().at(tempIndex.m_Tangent).x , 1.f);
 	BOOST_CHECK_EQUAL(loader.getTextureCoords().at(tempIndex.m_TextureCoord).x , 0.375f);
-	BOOST_CHECK_EQUAL(loader.getWeightsList().at(0).first.x, 0.993041f);
+	BOOST_CHECK_EQUAL(loader.getWeightsList().at(0).first.x, 1.f);
 	BOOST_CHECK_EQUAL(loader.getWeightsList().at(0).second.x, 1);
 	BOOST_CHECK_EQUAL(loader.getAnimationStartValue(), 0.0416667f);
 	BOOST_CHECK_EQUAL(loader.getAnimationEndValue(), 1);

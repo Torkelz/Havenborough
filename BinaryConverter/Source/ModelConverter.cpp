@@ -94,10 +94,10 @@ void ModelConverter::createVertexBuffer(std::ostream* p_Output)
 			temp.m_UV = m_TextureCoord->at(m_IndexPerMaterial->at(i).at(j).m_TextureCoord);
 			temp.m_Tangent = m_Tangents->at(m_IndexPerMaterial->at(i).at(j).m_Tangent);
 			DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
-			temp.m_Position.x *= -1.f;
-			temp.m_Normal.x *= -1.f;
-			temp.m_Tangent.x *= -1.f;
-			temp.m_Binormal.x *= -1.f;
+			//temp.m_Position.x *= -1.f;
+			//temp.m_Normal.x *= -1.f;
+			//temp.m_Tangent.x *= -1.f;
+			//temp.m_Binormal.x *= -1.f;
 			tempVertex.push_back(temp);
 		}
 	}
@@ -111,7 +111,8 @@ void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)
 	std::vector<VertexBufferAnimation> tempVertex;
 	for(int i = 0; i < m_IndexPerMaterialSize; i++)
 	{
-		for(unsigned int j = 0; j < m_IndexPerMaterial->at(i).size(); j++)
+		int tempsize = m_IndexPerMaterial->at(i).size()-1;
+		for(int j = tempsize; j >= 0 ; j--)
 		{
 			temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
 			temp.m_Normal = m_Normals->at(m_IndexPerMaterial->at(i).at(j).m_Normal);
@@ -120,10 +121,10 @@ void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)
 			DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
 			temp.m_Weight = m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).first;
 			temp.m_Joint = m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).second;
-			temp.m_Position.x *= -1.f;
-			temp.m_Normal.x *= -1.f;
-			temp.m_Tangent.x *= -1.f;
-			temp.m_Binormal.x *= -1.f;
+			//temp.m_Position.x *= -1.f;
+			//temp.m_Normal.x *= -1.f;
+			//temp.m_Tangent.x *= -1.f;
+			//temp.m_Binormal.x *= -1.f;
 			tempVertex.push_back(temp);
 		}
 	}

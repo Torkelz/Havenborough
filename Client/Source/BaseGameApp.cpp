@@ -141,7 +141,7 @@ void BaseGameApp::run()
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
 	int cactus = m_Graphics->createModelInstance("Test");
-	//m_Graphics->setModelPosition(cactus, -3.f, 1.f, 0.f);
+	m_Graphics->setModelPosition(cactus, -3.f, 1.f, 0.f);
 	//m_Graphics->setModelScale(cactus, 1.0f, 1.0f, 1.0f);
 
 	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
