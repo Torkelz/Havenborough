@@ -442,20 +442,11 @@ void Graphics::useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection
 	m_DirectionalLights.push_back(l);
 }
 
-void Graphics::drawFrame(float p_DeltaTime, int i)
+void Graphics::drawFrame(int i)
 {
 	if (!m_DeviceContext || !m_DeferredRender)
 	{
 		return;
-	}
-
-	for (auto& model : m_ModelInstances)
-	{
-		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
-		if (modelDef->m_IsAnimated)
-		{
-			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
-		}
 	}
 
 	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
@@ -479,6 +470,18 @@ void Graphics::drawFrame(float p_DeltaTime, int i)
 	m_PointLights.clear();
 	m_SpotLights.clear();
 	m_DirectionalLights.clear();
+}
+
+void Graphics::updateAnimations(float p_DeltaTime)
+{
+	for (auto& model : m_ModelInstances)
+	{
+		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
+		if (modelDef->m_IsAnimated)
+		{
+			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
+		}
+	}
 }
 
 int Graphics::getVRAMMemUsage(void)
@@ -558,6 +561,18 @@ void Graphics::setModelScale(int p_Instance, float p_X, float p_Y, float p_Z)
 		if (inst.first == p_Instance)
 		{
 			inst.second.setScale(DirectX::XMFLOAT3(p_X, p_Y, p_Z));
+			break;
+		}
+	}
+}
+
+void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_Joint, float p_X, float p_Y, float p_Z)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.applyIK_ReachPoint(p_Joint, DirectX::XMFLOAT3(p_X, p_Y, p_Z), getModelFromList(inst.second.getModelName())->m_Joints);
 			break;
 		}
 	}

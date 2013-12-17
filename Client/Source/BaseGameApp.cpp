@@ -181,7 +181,12 @@ void BaseGameApp::run()
 		prevTimeStamp = currTimeStamp;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
-		
+		const static float maxDeltaTime = 1.f / 5.f;
+		if (dt > maxDeltaTime)
+		{
+			Logger::log(Logger::Level::WARNING, "Computer to slow or something");
+			dt = maxDeltaTime;
+		}
 
 		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
 		{
@@ -249,6 +254,8 @@ void BaseGameApp::run()
  		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
 		m_Graphics->setModelPosition(skyBox, tempPos.x, tempPos.y, tempPos.z);
 
+		m_Graphics->updateAnimations(dt);
+
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
 		roll += rollSpeed * dt;
@@ -261,6 +268,8 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);
+
+		m_Graphics->applyIK_ReachPoint(cactus, "joint4", tempPos.x, tempPos.y, tempPos.z);
 		m_Graphics->renderModel(cactus);
 		//m_Graphics->renderModel(witch);
 		m_Graphics->useFrameDirectionalLight(IGraphics::vec3(1.f,1.f,1.f),IGraphics::vec3(0.1f,-0.99f,0.f));
@@ -268,7 +277,7 @@ void BaseGameApp::run()
 		m_Graphics->useFrameSpotLight(IGraphics::vec3(-10.f,5.f,0.f),IGraphics::vec3(0.f,1.f,0.f),
 			IGraphics::vec3(0.f,0.f,-1.f),IGraphics::vec2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
 
-		m_Graphics->drawFrame(dt, currView);
+		m_Graphics->drawFrame(currView);
 		
 		m_MemoryInfo.update();
 		updateDebugInfo(dt);

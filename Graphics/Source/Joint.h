@@ -33,6 +33,11 @@ public:
 	 */
 	DirectX::XMFLOAT4X4 m_JointOffsetMatrix;
 	/**
+	 * The matrix offset of the joint that would move a vector from bind space
+	 * to the local space of the actual joint.
+	 */
+	DirectX::XMFLOAT4X4 m_TotalJointOffset;
+	/**
 	 * A list of all of the animations' keyframes, that is interpolated in between frames.
 	 */
 	std::vector<KeyFrame> m_JointAnimation;

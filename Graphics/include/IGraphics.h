@@ -184,11 +184,16 @@ public:
 	/**
 	* Draw the current frame.
 	*
-	* @param p_DeltaTime the time in seconds since the previous frame.
-	*			Affects animations and effects.
 	* @param i the render target to display.
 	*/
-	virtual void drawFrame(float p_DeltaTime, int i) = 0;
+	virtual void drawFrame(int i) = 0;
+
+	/**
+	 * Update the animations of all models.
+	 *
+	 * @param p_DeltaTime the time in seconds since the previous frame.
+	 */
+	virtual void updateAnimations(float p_DeltaTime) = 0;
 
 	/**
 	* Gets the amount of VRAM usage of the program.
@@ -239,6 +244,18 @@ public:
 	 * @param p_Z scale in Z direction.
 	 */
 	virtual void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) = 0;
+
+	/**
+	 * Updates the model to reach for a point in world space.
+	 *
+	 * @param p_Instance an identifier to a model instance.
+	 * @param p_Joint the name of the end joint to change.
+	 *			The joint must have a parent and a grandparent.
+	 * @param p_X position in X direction.
+	 * @param p_Y position in Y direction.
+	 * @param p_Z position in Z direction.
+	 */
+	virtual void applyIK_ReachPoint(int p_Instance, const char* p_Joint, float p_X, float p_Y, float p_Z) = 0;
 
 	/**
 	 * Update the position and viewing direction of the camera.

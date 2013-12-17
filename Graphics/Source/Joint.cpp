@@ -24,7 +24,7 @@ DirectX::XMFLOAT4X4 Joint::interpolate(float p_FrameTime) const
 	DirectX::XMVECTOR zero = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
 	DirectX::XMFLOAT4X4 result;
-	DirectX::XMStoreFloat4x4(&result, DirectX::XMMatrixAffineTransformation(scale1 + scale2, zero, rotation1 + rotation2, translation1 + translation2));
+	DirectX::XMStoreFloat4x4(&result, XMMatrixTranspose(XMMatrixAffineTransformation(scale1 + scale2, zero, rotation1 + rotation2, translation1 + translation2)));
 
 	return result;
 }
