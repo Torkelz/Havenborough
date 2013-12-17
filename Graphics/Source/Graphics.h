@@ -57,8 +57,7 @@ private:
 	VRAMMemInfo						*m_VRAMMemInfo;
 
 	vector<pair<string, Shader*>>	m_ShaderList;
-	vector<pair<string, ModelDefinition>> m_StaticModelList;
-	vector<pair<string, ModelDefinition>> m_AnimatedModelList;
+	vector<pair<string, ModelDefinition>> m_ModelList;
 	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
 	vector<pair<int, ModelInstance>> m_ModelInstances;
 	int m_NextInstanceId;
@@ -86,8 +85,7 @@ public:
 	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) override;
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
-	bool createStaticModel(const char *p_ModelId, const char *p_Filename) override;
-	bool createAnimatedModel(const char *p_ModelId, const char *p_Filename) override;
+	bool createModel(const char *p_ModelId, const char *p_Filename) override;
 	bool releaseModel(const char *p_ModelID) override;
 
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,

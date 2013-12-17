@@ -58,7 +58,7 @@ public:
 	* @param p_IsAnimated check whether the model should be animated or not, true = animated, false = static
 	* @return copy of the created model
 	*/
-	virtual ModelDefinition createModel(const char *p_Filename, bool p_IsAnimated);
+	virtual ModelDefinition createModel(const char *p_Filename);
 
 	/**
 	* Set the function to load a texture to a model.

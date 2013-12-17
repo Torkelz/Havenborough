@@ -32,9 +32,8 @@ void BaseGameApp::init()
 	using namespace std::placeholders;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
-	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createStaticModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
+	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
-	m_ResourceManager->registerFunction( "animatedModel", std::bind(&IGraphics::createAnimatedModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -98,7 +97,7 @@ void BaseGameApp::init()
 	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("animatedModel", "Test"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Test"));
 	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
 							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("AnimatedShader", "Test");

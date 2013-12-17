@@ -218,18 +218,9 @@ void Graphics::shutdown(void)
 	}
 	m_TextureList.clear();
 
-	while (!m_StaticModelList.empty())
+	while (!m_ModelList.empty())
 	{
-		std::string unremovedName = m_StaticModelList.front().first;
-
-		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + unremovedName + "' not removed properly");
-
-		releaseModel(unremovedName.c_str());
-	}
-
-	while (!m_AnimatedModelList.empty())
-	{
-		std::string unremovedName = m_AnimatedModelList.front().first;
+		std::string unremovedName = m_ModelList.front().first;
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + unremovedName + "' not removed properly");
 
@@ -269,27 +260,18 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-bool Graphics::createStaticModel(const char *p_ModelId, const char *p_Filename)
+bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelDefinition model =	m_ModelFactory->getInstance()->createModel(p_Filename, false);
+	ModelDefinition model =	m_ModelFactory->getInstance()->createModel(p_Filename);
 
-	m_StaticModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
-
-	return true;
-}
-	
-bool Graphics::createAnimatedModel(const char *p_ModelId, const char *p_Filename)
-{
-	ModelDefinition model = m_ModelFactory->getInstance()->createModel(p_Filename, true); //TODO: May need another model definition
-
-	m_AnimatedModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
+	m_ModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
 
 	return true;
 }
 
-bool Graphics::releaseModel(const char* p_ResourceName) //TODO: Maybe need to handle if animated or static?
+bool Graphics::releaseModel(const char* p_ResourceName)
 {
-	for(auto it = m_StaticModelList.begin(); it != m_StaticModelList.end(); ++it)
+	for(auto it = m_ModelList.begin(); it != m_ModelList.end(); ++it)
 	{
 		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
 		{
@@ -300,23 +282,7 @@ bool Graphics::releaseModel(const char* p_ResourceName) //TODO: Maybe need to ha
 				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 			}
 
-			m_StaticModelList.erase(it);
-			return true;
-		}
-	}
-	
-	for(auto it = m_AnimatedModelList.begin(); it != m_AnimatedModelList.end(); ++it)
-	{
-		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
-		{
-			for(unsigned int i = 0; i < it->second.numOfMaterials; i++)
-			{
-				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-				m_ReleaseModelTexture(it->second.normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-			}
-
-			m_AnimatedModelList.erase(it);
+			m_ModelList.erase(it);
 			return true;
 		}
 	}
@@ -867,17 +833,9 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 
 ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 {
-	for(auto & s : m_StaticModelList)
+	for(auto & s : m_ModelList)
 	{
 		if(s.first == p_Identifier)
-		{
-			return &s.second;
-		}
-	}
-
-	for (auto & s : m_AnimatedModelList)
-	{
-		if (s.first == p_Identifier)
 		{
 			return &s.second;
 		}

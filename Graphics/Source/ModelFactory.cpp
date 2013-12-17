@@ -26,7 +26,7 @@ void ModelFactory::shutdown(void)
 	SAFE_DELETE(m_Instance);
 }
 
-ModelDefinition ModelFactory::createModel(const char *p_Filename, bool p_IsAnimated)
+ModelDefinition ModelFactory::createModel(const char *p_Filename)
 {
 	ModelBinaryLoader modelLoader;
 	modelLoader.loadBinaryFile(p_Filename);
@@ -36,7 +36,9 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename, bool p_IsAnima
 	const vector<Material> &materialData = modelLoader.getMaterial();
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
 	
-	if(!p_IsAnimated)
+	bool isAnimated = !modelLoader.getAnimationVertexBuffer().empty();
+
+	if(!isAnimated)
 	{
 		const vector<StaticVertex> &vertexData = modelLoader.getVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
@@ -64,7 +66,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename, bool p_IsAnima
 	model.vertexBuffer.swap(vertexBuffer);
 	model.drawInterval = tempInterval;
 	model.numOfMaterials = materialData.size();
-	model.m_IsAnimated = p_IsAnimated;
+	model.m_IsAnimated = isAnimated;
 
 	modelLoader.clear();
 
