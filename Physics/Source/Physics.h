@@ -31,6 +31,7 @@ public:
 	Vector4 getVelocity(BodyHandle p_Body);
 
 	HitData getHitDataAt(unsigned int p_Index);
+	void removedHitDataAt(unsigned int p_index) override;
 	unsigned int getHitDataSize();
 
 	Vector4 getBodyPosition(BodyHandle p_Body);

@@ -67,6 +67,12 @@ public:
 	 * @return the hitdata on that index.
 	 */
 	virtual HitData getHitDataAt(unsigned int p_Index) = 0;
+
+	/**
+	 * Removes the hitdata from the vector containing all the collision hitdata for the last frame at specific position.
+	 * @p_Index, index number in the vector.
+	 */
+	virtual void removedHitDataAt(unsigned int p_index) = 0;
 	/**
 	 * Vector size, with hitData.
 	 * @return m_HitDatas.size

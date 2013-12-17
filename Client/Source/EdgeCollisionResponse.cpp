@@ -79,7 +79,7 @@ XMVECTOR EdgeCollisionResponse::calculatePosition(XMVECTOR p_Normal, XMVECTOR p_
 	p_PlayerToCenter = XMVector3Reflect(p_PlayerToCenter, p_Normal);
 	p_PlayerToCenter = XMVector3Reflect(-p_PlayerToCenter, up);
 
-	XMVECTOR playerFinal = p_BodyCenter + (playerToCenterLength*3) * p_PlayerToCenter;
+	XMVECTOR playerFinal = p_BodyCenter + (playerToCenterLength) * p_PlayerToCenter;
 
 	return playerFinal;
 }

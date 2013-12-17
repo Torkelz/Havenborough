@@ -178,20 +178,26 @@ void BaseGameApp::run()
 		
 		m_Player.update(dt);
 
-		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
+		if(m_Physics->getHitDataSize() > 0)
 		{
-			HitData hit = m_Physics->getHitDataAt(i);
-			if(hit.intersect)
+			for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 			{
-				if(hit.isEdge && hit.collider == m_Player.getBody())
+				HitData hit = m_Physics->getHitDataAt(i);
+				if(hit.intersect)
 				{
-					//TODO: Add for-loop for all characters
-					m_EdgeCollResponse.handleCollision(&m_Player, hit.collisionVictim, 
-						DirectX::XMLoadFloat3(&XMFLOAT3(0,0,-1)));
+					if(hit.isEdge && hit.collider == m_Player.getBody())
+					{
+						//TODO: Add for-loop for all characters
+						m_EdgeCollResponse.handleCollision(&m_Player, hit.collisionVictim,
+							DirectX::XMLoadFloat3(&Vector3ToXMFLOAT3(&hit.colNorm)));
+							//DirectX::XMLoadFloat3(&XMFLOAT3(0,0,-1)));
+						m_Physics->removedHitDataAt(i);
+					}
+					Logger::log(Logger::Level::DEBUG, "Collision reported");
 				}
-				Logger::log(Logger::Level::DEBUG, "Collision reported");
 			}
 		}
+		
 
 		const InputState& state = m_InputQueue.getCurrentState();
 		
