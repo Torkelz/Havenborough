@@ -18,7 +18,6 @@ Player::Player(void)
 	m_CurrentForceMoveTime = 0.f;
 }
 
-
 Player::~Player(void)
 {
 	m_Physics = nullptr;
@@ -38,12 +37,12 @@ XMFLOAT3 Player::getPosition(void) const
 	return m_Position;
 }
 
-BodyHandle Player::getBody() const
+BodyHandle Player::getBody(void) const
 {
 	return m_PlayerBody;
 }
 
-void Player::setJump()
+void Player::setJump(void)
 {
 	if(!m_IsJumping)
 	{
@@ -62,25 +61,40 @@ void Player::setDirectionZ(float p_DirectionZ)
 	m_DirectionZ = p_DirectionZ;
 }
 
-void Player::update(float dt)
+bool Player::getForceMove(void)
+{
+	return m_ForceMove;
+}
+
+void Player::forceMove(XMVECTOR p_StartPosition, XMVECTOR p_EndPosition)
 {
 	if(!m_ForceMove)
 	{
-		jump(dt);
+		m_ForceMove = true;
+		m_ForceMoveStartPosition = p_StartPosition;
+		m_ForceMoveEndPosition = p_EndPosition;
+	}
+}
+
+void Player::update(float p_DeltaTime)
+{
+	if(!m_ForceMove)
+	{
+		jump(p_DeltaTime);
 		move();
 	}
 	else
 	{
-		float dTime = m_CurrentForceMoveTime / m_ForceMoveTime;
+		float dt = m_CurrentForceMoveTime / m_ForceMoveTime;
 
 		XMVECTOR currPosition = XMVectorLerp(m_ForceMoveStartPosition,
-			m_ForceMoveEndPosition, dTime);
+			m_ForceMoveEndPosition, dt);
 		XMStoreFloat3(&m_Position, currPosition);
 
 		m_Physics->setBodyPosition(XMFLOAT3ToVector3(&m_Position), m_PlayerBody);
-		
 
-		m_CurrentForceMoveTime += dt * m_ForceMoveSpeed;
+
+		m_CurrentForceMoveTime += p_DeltaTime * m_ForceMoveSpeed;
 		if(m_CurrentForceMoveTime > m_ForceMoveTime)
 		{
 			m_ForceMove = false;
@@ -101,21 +115,6 @@ void Player::jump(float dt)
 			m_JumpTime = 0.f;
 		}
 	}
-}
-
-void Player::forceMove(XMVECTOR p_StartPosition, XMVECTOR p_EndPosition)
-{
-	if(!m_ForceMove)
-	{
-		m_ForceMove = true;
-		m_ForceMoveStartPosition = p_StartPosition;
-		m_ForceMoveEndPosition = p_EndPosition;
-	}
-}
-
-bool Player::getForceMove()
-{
-	return m_ForceMove;
 }
 
 void Player::move()
