@@ -23,6 +23,13 @@ private:
 	float m_DirectionX;
 	float m_DirectionZ;
 
+	bool m_ForceMove;
+	float m_ForceMoveTime;
+	float m_CurrentForceMoveTime;
+	float m_ForceMoveSpeed;
+	XMVECTOR m_ForceMoveStartPosition;
+	XMVECTOR m_ForceMoveEndPosition;
+
 public:
 	Player(void);
 	~Player(void);
@@ -33,8 +40,11 @@ public:
 	void setJump();
 	void setDirectionX(float p_DirectionX);
 	void setDirectionZ(float p_DirectionZ);
+	void forceMove(XMVECTOR p_StartPosition, XMVECTOR p_EndPosition);
 
 	void update(float dt);
+
+	bool getForceMove();
 
 
 private:

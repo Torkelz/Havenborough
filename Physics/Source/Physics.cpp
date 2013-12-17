@@ -77,8 +77,9 @@ void Physics::update(float p_DeltaTime)
 			
 			if(hit.intersect)
 			{
-				hit.collider = i;
-				hit.collisionVictim = j;
+				hit.collider = m_Bodies.at(i).getHandle();
+				hit.collisionVictim = m_Bodies.at(j).getHandle();
+				hit.isEdge = m_Bodies.at(j).getIsEdge();
 				m_HitDatas.push_back(hit);
 				XMVECTOR temp;
 				XMFLOAT4 tempPos;
@@ -136,10 +137,10 @@ BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Pos
 
 	Sphere* sphere = new Sphere(p_Radius, tempPosition);
 
-	return createBody(p_Mass, sphere, p_IsImmovable);
+	return createBody(p_Mass, sphere, p_IsImmovable, false);
 }
 
-BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top)
+BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge)
 {
 	XMFLOAT4 tempBot = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	XMFLOAT4 tempTop = XMFLOAT4(0.f, 0.f, 0.f, 0.f);;
@@ -155,12 +156,12 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, 
 
 	AABB* aabb = new AABB(tempBot, tempTop);
 
-	return createBody(p_Mass, aabb, p_IsImmovable);
+	return createBody(p_Mass, aabb, p_IsImmovable, p_IsEdge);
 }
 
-BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable)
+BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 {
-	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable);
+	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable, p_IsEdge);
 	return m_Bodies.back().getHandle();
 }
 

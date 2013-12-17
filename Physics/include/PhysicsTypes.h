@@ -14,7 +14,6 @@ enum class Type
 	SPHEREVSSPHERE,
 	AABBVSSPHERE,
 	AABBVSAABB,
-	VSEDGE,
 };
 
 struct HitData
@@ -26,6 +25,8 @@ struct HitData
 	float			colLength;
 	BodyHandle		collider;
 	BodyHandle		collisionVictim;
+	Vector3			victimNormal;
+	bool			isEdge;
 
 	HitData()
 	{
@@ -35,5 +36,7 @@ struct HitData
 		colType		= Type::NONE;
 		colLength	= -1.f;
 		collider = collisionVictim = 0;
+		victimNormal = Vector3(0.0f, 0.0f, 0.0f);
+		isEdge = false;
 	}
 };

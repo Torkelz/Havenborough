@@ -67,10 +67,12 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
-	m_Player.initialize(m_Physics, XMFLOAT3(0,10,0), XMFLOAT3(0,0,1));
+	m_EdgeCollResponse.initialize(m_Physics);
+
+	m_Player.initialize(m_Physics, XMFLOAT3(20,10,0), XMFLOAT3(0,0,1));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f), false);
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug models");
 	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
@@ -89,6 +91,10 @@ void BaseGameApp::init()
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
 		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
 	}
+
+
+
+	
 
 	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
@@ -110,8 +116,18 @@ void BaseGameApp::run()
 		boxIds[i] = m_Graphics->createModelInstance("BOX");
 
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
-		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
-		m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f));
+		
+		if(i == 0)
+		{
+			m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
+			m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 2.f, (float)(i % 4) * 4.f));
+			m_Physics->createAABB(50.f, true,Vector3(-scale,-scale + 2.f,-scale),Vector3(scale,scale + 2.f,scale),true );
+		}
+		else
+		{
+			m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
+			m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f));
+		}
 	}
 	
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
@@ -167,10 +183,11 @@ void BaseGameApp::run()
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)
 			{
-				if(hit.colType == Type::VSEDGE)
+				if(hit.isEdge && hit.collider == m_Player.getBody())
 				{
 					//TODO: Add for-loop for all characters
-					m_EdgeCollResponse.handleCollision(&m_Player, hit.collisionVictim);
+					m_EdgeCollResponse.handleCollision(&m_Player, hit.collisionVictim, 
+						DirectX::XMLoadFloat3(&XMFLOAT3(0,0,-1)));
 				}
 				Logger::log(Logger::Level::DEBUG, "Collision reported");
 			}
@@ -188,7 +205,7 @@ void BaseGameApp::run()
 			m_Player.setDirectionX(sinf(dir));
 			m_Player.setDirectionZ(cosf(dir));
 		}
-				
+		if(!m_Player.getForceMove())		
 		m_Physics->update(dt);
 
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());

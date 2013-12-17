@@ -28,9 +28,10 @@ public:
 	 * @p_IsImmovable, tells if the body are movable.
 	 * @p_Bot, bottom corner for box.
 	 * @p_Top, top corner for box.
+	 * @p_IsEdge, flag if it's a Edge or not.
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
-	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top) = 0;
+	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge) = 0;
 
 	//TODO: Comment this!
 	virtual Vector4 getBodyPosition(BodyHandle p_Body) =0;

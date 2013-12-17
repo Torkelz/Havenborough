@@ -25,7 +25,7 @@ public:
 	void applyForce(Vector4 p_Force, BodyHandle p_Body);
 
 	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius);
-	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top);
+	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge);
 
 	void setGlobalGravity(float p_Gravity);
 	Vector4 getVelocity(BodyHandle p_Body);
@@ -42,7 +42,7 @@ public:
 private:
 	Body* findBody(BodyHandle p_Body);
 	
-	BodyHandle createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable);
+	BodyHandle createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge);
 
 	BoundingVolume* getVolume(BodyHandle p_Body);
 };

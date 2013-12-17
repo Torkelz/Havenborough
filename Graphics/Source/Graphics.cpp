@@ -425,9 +425,11 @@ void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, 
 	Light l;
 	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
 	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
-	DirectX::XMStoreFloat3(&l.lightDirection, 
-		DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(
-		&DirectX::XMFLOAT3(p_LightDirection.x,p_LightDirection.y,p_LightDirection.z))));
+	
+	DirectX::XMVECTOR temp = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(
+		&DirectX::XMFLOAT3(p_LightDirection.x,p_LightDirection.y,p_LightDirection.z)));
+
+	DirectX::XMStoreFloat3(&l.lightDirection, temp);
 	l.spotlightAngles = DirectX::XMFLOAT2(p_SpotLightAngles.x,p_SpotLightAngles.y);
 	l.lightRange = p_LightRange;
 	m_SpotLights.push_back(l);
