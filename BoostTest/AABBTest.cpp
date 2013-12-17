@@ -5,8 +5,8 @@ BOOST_AUTO_TEST_SUITE(AABBTesting)
 
 BOOST_AUTO_TEST_CASE(buildAABB)
 {
-	DirectX::XMFLOAT4 bot = DirectX::XMFLOAT4(-1.f, -1.f, -1.f, 1.f);
-	DirectX::XMFLOAT4 top = DirectX::XMFLOAT4(2.f, 4.f, 7.f, 1.f);
+	DirectX::XMFLOAT4 bot = DirectX::XMFLOAT4(0.5f, 1.5f, 3.f, 1.f);
+	DirectX::XMFLOAT4 top = DirectX::XMFLOAT4(3.f, 5.f, 8.f, 1.f);
 
 	AABB* aabb = new AABB(bot, top);
 
@@ -44,9 +44,9 @@ BOOST_AUTO_TEST_CASE(updatePosition)
 
 	AABB* aabb = new AABB(bot, top);
 
-	BOOST_CHECK_EQUAL(aabb->getPosition()->x, 0.5f);
-	BOOST_CHECK_EQUAL(aabb->getPosition()->y, 0.5f);
-	BOOST_CHECK_EQUAL(aabb->getPosition()->z, 0.5f);
+	BOOST_CHECK_EQUAL(aabb->getPosition()->x, 0.0f);
+	BOOST_CHECK_EQUAL(aabb->getPosition()->y, 0.0f);
+	BOOST_CHECK_EQUAL(aabb->getPosition()->z, 0.0f);
 	BOOST_CHECK_EQUAL(aabb->getPosition()->w, 1.f);
 
 	DirectX::XMFLOAT4X4 temp;
@@ -56,9 +56,9 @@ BOOST_AUTO_TEST_CASE(updatePosition)
 	aabb->updatePosition(temp);
 	aabb->updatePosition(temp);
 
-	BOOST_CHECK_EQUAL(aabb->getPosition()->x, 2.5f);
-	BOOST_CHECK_EQUAL(aabb->getPosition()->y, 20.5f);
-	BOOST_CHECK_EQUAL(aabb->getPosition()->z, 10.5f);
+	BOOST_CHECK_EQUAL(aabb->getPosition()->x, 2.f);
+	BOOST_CHECK_EQUAL(aabb->getPosition()->y, 20.f);
+	BOOST_CHECK_EQUAL(aabb->getPosition()->z, 10.f);
 	BOOST_CHECK_EQUAL(aabb->getPosition()->w, 1.f);
 
 	delete aabb;

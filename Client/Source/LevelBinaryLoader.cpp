@@ -18,7 +18,7 @@ bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 		return false;
 	}	
 	readHeader(&input);
-	readLevel(&input);
+	m_LevelData = readLevel(&input);
 	return true;
 }
 
@@ -54,6 +54,11 @@ std::vector<LevelBinaryLoader::ModelData> LevelBinaryLoader::readLevel(std::istr
 	return levelData;
 }
 
+const std::vector<LevelBinaryLoader::ModelData>& LevelBinaryLoader::getModelData()
+{
+	return m_LevelData;
+}
+
 void LevelBinaryLoader::byteToString(std::istream* p_Input, std::string& p_Return)
 {
 	int strLength = 0;
@@ -66,9 +71,4 @@ void LevelBinaryLoader::byteToString(std::istream* p_Input, std::string& p_Retur
 void LevelBinaryLoader::byteToInt(std::istream* p_Input, int& p_Return)
 {
 	p_Input->read((char*)&p_Return, sizeof(int));
-}
-
-void LevelBinaryLoader::byteToFloat(std::istream* p_Input, float& p_Return)
-{
-	p_Input->read(reinterpret_cast<char*>(&p_Return), sizeof(float) );
 }

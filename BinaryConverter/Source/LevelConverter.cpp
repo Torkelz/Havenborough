@@ -2,7 +2,7 @@
 
 LevelConverter::LevelConverter()
 {
-
+	m_Header.m_NumberOfModels = 0;
 }
 
 LevelConverter::~LevelConverter()
@@ -27,6 +27,10 @@ bool LevelConverter::writeFile(std::string p_FilePath)
 		createHeader(&output);
 		createLevel(&output);
 	}
+	else
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -40,7 +44,7 @@ void LevelConverter::createLevel(std::ostream* p_Output)
 	std::vector<ModelData> level;
 	ModelData model;
 	bool written = false;
-	for(unsigned int i = 0; i < m_LevelData->size(); i++)
+	for(int i = 0; i < m_LevelDataSize; i++)
 	{
 		model = ModelData();
 		for(unsigned int j = 0; j < level.size(); j++)
@@ -89,11 +93,6 @@ void LevelConverter::intToByte(int p_Int, std::ostream* p_Output)
 	p_Output->write(reinterpret_cast<const char*>(&p_Int), sizeof(p_Int));
 }
 
-void LevelConverter::floatToByte(float p_Float, std::ostream* p_Output)
-{
-	p_Output->write(reinterpret_cast<const char*>(&p_Float), sizeof(p_Float));
-}
-
 void LevelConverter::setLevelHead(LevelLoader::LevelHeader p_Header)
 {
 	m_Header = p_Header;
@@ -102,4 +101,5 @@ void LevelConverter::setLevelHead(LevelLoader::LevelHeader p_Header)
 void LevelConverter::setLevelModelList(const std::vector<LevelLoader::LevelStruct>* p_LevelModelList)
 {
 	m_LevelData = p_LevelModelList;
+	m_LevelDataSize = m_LevelData->size();
 }

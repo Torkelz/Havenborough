@@ -10,11 +10,6 @@ public:
 		intToByte(p_Int,p_Output);
 	}
 
-	void testFloatToByte(float p_Float, std::ostream* p_Output)
-	{
-		floatToByte(p_Float, p_Output);
-	}
-
 	void testStringToByte(std::string p_String, std::ostream* p_Output)
 	{
 		stringToByte(p_String, p_Output);
@@ -70,29 +65,6 @@ BOOST_AUTO_TEST_CASE(TestIntToByte)
 
 	std::string tempString = output.str();
 	byteInt test2;
-	std::copy(tempString.begin(), tempString.end(), test2.c);
-	BOOST_CHECK_EQUAL_COLLECTIONS(test.c, test.c+sizeof(int), test2.c, test2.c+sizeof(int));
-}
-
-BOOST_AUTO_TEST_CASE(TestFloatToByte)
-{
-	struct byteFloat
-	{
-		union
-		{
-			float f;
-			char c[sizeof(float)];
-		};
-	};
-
-	testConv conv;
-	byteFloat test;
-	test.f = 5.45f;
-	std::ostringstream output;
-	conv.testFloatToByte(test.f, &output);
-
-	std::string tempString = output.str();
-	byteFloat test2;
 	std::copy(tempString.begin(), tempString.end(), test2.c);
 	BOOST_CHECK_EQUAL_COLLECTIONS(test.c, test.c+sizeof(int), test2.c, test2.c+sizeof(int));
 }

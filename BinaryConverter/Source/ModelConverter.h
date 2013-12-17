@@ -163,7 +163,6 @@ public:
 
 protected:
 	void intToByte(int p_Int, std::ostream* p_Output);
-	void floatToByte(float p_Float, std::ostream* p_Output);
 	void stringToByte(std::string p_String, std::ostream* p_Output);
 
 	void createHeader(std::ostream* p_Output);

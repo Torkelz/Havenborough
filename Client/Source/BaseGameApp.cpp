@@ -35,10 +35,12 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createStaticModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	//TODO: May need to register a callback function for creating animated models? //Pontus
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
+	
+
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
-
+	
 	Logger::log(Logger::Level::DEBUG, "Adding input mappings");
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
 	translator->addKeyboardMapping('W', "moveForward");
@@ -49,7 +51,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
 	translator->addKeyboardMapping(VK_SPACE, "jump");
-
+	
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
 
@@ -67,9 +69,13 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 		
+	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
+	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
+
+
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
 	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 1.6f);
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(100.f, 0.f, 100.f));
 
 	m_Jump = false;
 	m_JumpTime = 0.f;
@@ -77,9 +83,9 @@ void BaseGameApp::init()
 	m_JumpForceTime = 0.2f;
 	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
 	
-	Logger::log(Logger::Level::DEBUG, "Adding debug models");
-	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	//Logger::log(Logger::Level::DEBUG, "Adding debug models");
+	//m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
+	//						"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	static const std::string preloadedModels[] =
 	{
@@ -119,9 +125,9 @@ void BaseGameApp::run()
 
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
 		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
-		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
+		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, -150.f, (float)(i % 4) * 4.f);
 	}
-
+	
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
 	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
@@ -129,16 +135,17 @@ void BaseGameApp::run()
 	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
+	m_Graphics->setModelPosition(ground, 0.f, -10.f, 0.f);
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug house");
 	int house = m_Graphics->createModelInstance("HOUSE1");
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug character");
+	/*Logger::log(Logger::Level::DEBUG, "Adding debug character");
 	int witch = m_Graphics->createModelInstance("DZALA");
 	m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
-	m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
+	m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);*/
 
 	float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
@@ -250,6 +257,7 @@ void BaseGameApp::run()
 			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
 			m_Graphics->renderModel(boxIds[i]);
 		}
+		m_Level.drawLevel();
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);

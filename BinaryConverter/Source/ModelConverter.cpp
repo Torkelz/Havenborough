@@ -178,11 +178,6 @@ void ModelConverter::intToByte(int p_Int, std::ostream* p_Output)
 	p_Output->write(reinterpret_cast<const char*>(&p_Int), sizeof(p_Int));
 }
 
-void ModelConverter::floatToByte(float p_Float, std::ostream* p_Output)
-{
-	p_Output->write(reinterpret_cast<const char*>(&p_Float), sizeof(p_Float));
-}
-
 void ModelConverter::setVertices(const std::vector<DirectX::XMFLOAT3>* p_Vertices)
 {
 	m_Vertices = p_Vertices;

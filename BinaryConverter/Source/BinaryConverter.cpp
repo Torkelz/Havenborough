@@ -1,3 +1,5 @@
+#pragma warning(disable : 4996)
+
 #include "ModelConverter.h"
 #include "ModelLoader.h"
 #include "LevelLoader.h"
@@ -44,7 +46,7 @@ int main(int argc, char* argv[])
 		}
 
 		std::cout << argv[0] << " does not support files of type: " << type << std::endl
-			<< "Supported types are: " << std::endl << "      .tx" << std::endl << "      .ltx";
+			<< "Supported types are: " << std::endl << "      .tx" << std::endl << "      .txl";
 
 
 		return EXIT_FAILURE;

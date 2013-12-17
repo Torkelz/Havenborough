@@ -207,6 +207,9 @@
     <ClCompile Include="Source\Loader\TestBinaryLevelLoader.cpp">
       <Filter>TestLoaders</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\Level.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
