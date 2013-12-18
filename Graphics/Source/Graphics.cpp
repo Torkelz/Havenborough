@@ -4,6 +4,8 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 
+using namespace DirectX;
+
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
@@ -414,33 +416,35 @@ void Graphics::removeStaticLight(void)
 void Graphics::useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange)
 {
 	Light l;
-	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
-	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
+	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
 	l.lightRange = p_LightRange;
 	m_PointLights.push_back(l);
 }
 void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
-					   Vector2 p_SpotLightAngles,	float p_LightRange)
+	Vector2 p_SpotLightAngles,	float p_LightRange)
 {
 	Light l;
-	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
-	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
+	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
 	
-	DirectX::XMVECTOR temp = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(
-		&DirectX::XMFLOAT3(p_LightDirection.x,p_LightDirection.y,p_LightDirection.z)));
+	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMVECTOR lightDirectionV =XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
-	DirectX::XMStoreFloat3(&l.lightDirection, temp);
-	l.spotlightAngles = DirectX::XMFLOAT2(p_SpotLightAngles.x,p_SpotLightAngles.y);
+	XMStoreFloat3(&l.lightDirection, lightDirectionV);
+	l.spotlightAngles = XMFLOAT2(p_SpotLightAngles.x,p_SpotLightAngles.y);
 	l.lightRange = p_LightRange;
 	m_SpotLights.push_back(l);
 }
 void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection)
 {
 	Light l;
-	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
-	DirectX::XMStoreFloat3(&l.lightDirection, 
-		DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(
-		&DirectX::XMFLOAT3(p_LightDirection.x,p_LightDirection.y,p_LightDirection.z))));
+	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+
+	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMVECTOR lightDirectionV =XMVector3Normalize(XMLoadFloat3(&lightDirection));
+
+	XMStoreFloat3(&l.lightDirection, lightDirectionV);
 	m_DirectionalLights.push_back(l);
 }
 

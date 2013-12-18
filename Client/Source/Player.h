@@ -33,6 +33,10 @@ private:
 	XMVECTOR m_ForceMoveStartPosition;
 	XMVECTOR m_ForceMoveEndPosition;
 
+	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
+	//while climbing objects.
+	float m_TempHeight; 
+
 public:
 	/**
 	* Constructor
@@ -57,6 +61,12 @@ public:
 	* @return the position
 	*/
 	XMFLOAT3 getPosition(void) const;
+
+	/**
+	* Gets the height of the player.
+	* @return the height
+	*/
+	float getHeight(void) const;
 	
 	/**
 	* Gets the body handle of the player.

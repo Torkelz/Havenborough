@@ -185,20 +185,15 @@ void BaseGameApp::run()
 				HitData hit = m_Physics->getHitDataAt(i);
 				if(hit.intersect)
 				{
-					if(hit.isEdge && hit.collider == m_Player.getBody())
-					{
-						//TODO: Add for-loop for all characters
-						m_EdgeCollResponse.handleCollision(&m_Player, hit.collisionVictim,
-							DirectX::XMLoadFloat3(&Vector3ToXMFLOAT3(&hit.colNorm)));
-							//DirectX::XMLoadFloat3(&XMFLOAT3(0,0,-1)));
+
+					if(m_EdgeCollResponse.checkCollision(hit,&m_Player))
 						m_Physics->removedHitDataAt(i);
-					}
+
 					Logger::log(Logger::Level::DEBUG, "Collision reported");
 				}
 			}
 		}
 		
-
 		const InputState& state = m_InputQueue.getCurrentState();
 		
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");

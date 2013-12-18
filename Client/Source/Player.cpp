@@ -28,13 +28,19 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_Loo
 	m_Physics = p_Physics;
 	m_Position = p_Position;
 	m_LookDirection = p_LookDirection;
-	m_PlayerBody = m_Physics->createSphere(50.f, false, XMFLOAT3ToVector3(&m_Position), 1.6f);
+	m_TempHeight = 3.2f;
+	m_PlayerBody = m_Physics->createSphere(50.f, false, XMFLOAT3ToVector3(&m_Position), m_TempHeight * 0.5f);
 
 }
 
 XMFLOAT3 Player::getPosition(void) const
 {
 	return m_Position;
+}
+
+float Player::getHeight() const
+{
+	return m_TempHeight;
 }
 
 BodyHandle Player::getBody(void) const
@@ -119,7 +125,8 @@ void Player::jump(float dt)
 
 void Player::move()
 {
-	XMFLOAT4 currentVelocity = Vector4ToXMFLOAT4(&(m_Physics->getVelocity(m_PlayerBody)));
+	Vector4 velocity = m_Physics->getVelocity(m_PlayerBody);
+	XMFLOAT4 currentVelocity = Vector4ToXMFLOAT4(&velocity);
 	currentVelocity.y = 0.f;
 	XMFLOAT4 maxVelocity(-m_DirectionX * maxSpeed, 0.f, -m_DirectionZ * maxSpeed, 0.f);
 
@@ -142,5 +149,6 @@ void Player::move()
 
 	m_DirectionX = m_DirectionZ = 0.f;
 
-	m_Position = Vector3ToXMFLOAT3(&m_Physics->getBodyPosition(m_PlayerBody));
+	Vector3 position = m_Physics->getBodyPosition(m_PlayerBody);
+	m_Position = Vector3ToXMFLOAT3(&position);
 }
