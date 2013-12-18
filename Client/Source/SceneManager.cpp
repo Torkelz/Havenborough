@@ -187,7 +187,7 @@ void SceneManager::startMenu()
 	m_NowShowing = 0;
 }
 
-bool SceneManager::keyStroke(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
+bool SceneManager::keyStroke(WPARAM p_WParam, LPARAM /*p_LParam*/, LRESULT& /*p_Result*/)
 {
 	if(p_WParam == 'K')
 	{

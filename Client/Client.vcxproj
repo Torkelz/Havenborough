@@ -118,12 +118,12 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4324;4512;4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -148,7 +148,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4324;4512;4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>

@@ -10,7 +10,7 @@
 #include <fstream>
 #include <iostream>
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 	std::ofstream logFile("logFile.txt", std::ofstream::trunc);
 

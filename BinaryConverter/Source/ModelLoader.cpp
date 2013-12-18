@@ -62,7 +62,7 @@ bool ModelLoader::loadFile(std::string p_FilePath)
 void ModelLoader::startReading(std::istream& p_Input)	
 {
 	std::string line, key, filler;
-	int readMaterial = 0;
+	//int readMaterial = 0;
 	std::stringstream stringstream;
 	while (!p_Input.eof() && std::getline(p_Input, line))
 	{

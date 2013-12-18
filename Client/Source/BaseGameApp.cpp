@@ -145,7 +145,7 @@ void BaseGameApp::run()
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
 	int cactus = m_Graphics->createModelInstance("Test");
-	m_Graphics->setModelPosition(cactus, -3.f, 1.f, 0.f);
+	m_Graphics->setModelPosition(cactus, Vector3(-3.f, 1.f, 0.f));
 	m_Graphics->setModelScale(cactus, 0.3f, 0.3f, 0.3f);
 	m_Graphics->setModelRotation(cactus, (float)pi / 4.f, 0.f, 0.f);
 
@@ -388,7 +388,7 @@ UVec2 BaseGameApp::getWindowSize() const
 	return size;
 }
 
-bool BaseGameApp::handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
+bool BaseGameApp::handleWindowClose(WPARAM /*p_WParam*/, LPARAM /*p_LParam*/, LRESULT& p_Result)
 {
 	Logger::log(Logger::Level::DEBUG, "Handling window close");
 
