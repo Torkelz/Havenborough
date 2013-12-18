@@ -100,9 +100,6 @@
     <ClInclude Include="Source\ModelDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\ShaderDeffinitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -140,6 +137,4 @@
     <FxCompile Include="Source\DeferredShaders\LightPassSpotLight.hlsl" />
     <FxCompile Include="Source\dummyVS.hlsl" />
   </ItemGroup>
-
-
 </Project>

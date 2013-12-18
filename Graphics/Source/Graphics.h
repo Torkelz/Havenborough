@@ -17,7 +17,7 @@
 #include "ModelInstance.h"
 #include "VRAMMemInfo.h"
 
-#include "Vertex.h"
+#include "LoaderStructs.h"
 
 using std::string;
 using std::vector;

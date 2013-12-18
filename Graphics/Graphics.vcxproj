@@ -120,7 +120,6 @@
     <ClInclude Include="Source\LoaderStructs.h" />
     <ClInclude Include="Source\ModelBinaryLoader.h" />
     <ClInclude Include="Source\ModelDefinition.h" />
-    <ClInclude Include="Source\Vertex.h" />
     <ClInclude Include="Source\GraphicsLogger.h" />
     <ClInclude Include="Source\ModelFactory.h" />
     <ClInclude Include="Source\ModelInstance.h" />

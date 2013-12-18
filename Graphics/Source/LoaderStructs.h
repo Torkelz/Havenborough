@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Vertex.h"
-
 #include <DirectXMath.h>
 #include <vector>
 
@@ -16,6 +14,26 @@ struct KeyFrame
 struct BoundingVolume
 {
 	DirectX::XMFLOAT4 m_Postition;
+};
+
+struct StaticVertex
+{
+	DirectX::XMFLOAT4 m_Position;
+	DirectX::XMFLOAT3 m_Normal;
+	DirectX::XMFLOAT2 m_UV;
+	DirectX::XMFLOAT3 m_Tangent;
+	DirectX::XMFLOAT3 m_Binormal;
+};
+
+struct AnimatedVertex 
+{
+	DirectX::XMFLOAT4 m_Position;
+	DirectX::XMFLOAT3 m_Normal;
+	DirectX::XMFLOAT2 m_UV;
+	DirectX::XMFLOAT3 m_Tangent;
+	DirectX::XMFLOAT3 m_Binormal;
+	DirectX::XMFLOAT3 m_Weights;
+	DirectX::XMINT4 m_BoneId;
 };
 
 struct MaterialBuffer
