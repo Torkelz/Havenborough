@@ -3,7 +3,7 @@
 #include <d3d11.h>
 #include <memory>
 #include <vector>
-#include "WrapperFactory.h"
+//#include "WrapperFactory.h"
 #include <DirectXMath.h>
 #include "LightStructs.h"
 #include "TextureLoader.h"
@@ -22,9 +22,16 @@ struct cBuffer
 	DirectX::XMFLOAT4X4 proj;
 	DirectX::XMFLOAT3	campos;
 };
+
 struct cObjectBuffer
 {
 	DirectX::XMFLOAT4X4 world;
+};
+
+struct cAnimatedObjectBuffer
+{
+	DirectX::XMFLOAT4X4 invTransposeWorld;
+	DirectX::XMFLOAT4X4 boneTransform[96];
 };
 
 class DeferredRenderer
@@ -33,22 +40,31 @@ public:
 	/*
 	 * Renderable is a debug struct made with the only purpose to be a placeholder for models
 	 * until the model loader is done.
+	 * ### The inverse transpose world matrix is needed to render animations and is not stored 
+	 * ### anywhere else than here. Remember to move it if this struct is deleted.
 	 */
 	struct Renderable
 	{
 		ModelDefinition				*m_Model;
-		const DirectX::XMFLOAT4X4 *m_World;
+		DirectX::XMFLOAT4X4			m_World;
+		DirectX::XMFLOAT4X4			m_invTransposeWorld;
+		const std::vector<DirectX::XMFLOAT4X4> *m_FinalTransforms;
 
-		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4* p_World)
+		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World, const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr)
 		{
 			m_Model = p_Model;
 			m_World = p_World;
+
+			using namespace DirectX;
+
+			XMStoreFloat4x4( &m_invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_World))) ); 
+
+			m_FinalTransforms = p_FinalTransforms;
 		}
 
 		~Renderable()
 		{
 			m_Model = nullptr;
-			m_World = nullptr;
 		}
 	};
 private:
@@ -78,6 +94,7 @@ private:
 	ID3D11SamplerState			*m_Sampler;
 	ID3D11BlendState			*m_BlendState;
 	ID3D11BlendState			*m_BlendState2;
+	Buffer						*m_AnimatedObjectConstantBuffer;
 
 	ID3D11RasterizerState		*m_RasterState;
 	ID3D11DepthStencilState		*m_DepthState;

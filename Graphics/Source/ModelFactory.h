@@ -57,7 +57,7 @@ public:
 	* @param p_IsAnimated check whether the model should be animated or not, true = animated, false = static
 	* @return copy of the created model
 	*/
-	virtual ModelDefinition createModel(const char *p_Filename, bool p_IsAnimated);
+	virtual ModelDefinition createModel(const char *p_Filename);
 
 	/**
 	* Set the function to load a texture to a model.
@@ -71,8 +71,8 @@ protected:
 	~ModelFactory(void);
 	
 private:
-	Buffer::Description createBufferDescription(const vector<Vertex> &p_VertexData, Buffer::Usage p_Usage);
-	Buffer::Description createBufferDescription(const vector<VertexAnimation> &p_VertexData, Buffer::Usage p_Usage);
+	Buffer::Description createBufferDescription(const vector<StaticVertex> &p_VertexData, Buffer::Usage p_Usage);
+	Buffer::Description createBufferDescription(const vector<AnimatedVertex> &p_VertexData, Buffer::Usage p_Usage);
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
 		const vector<Material> &p_Materials);

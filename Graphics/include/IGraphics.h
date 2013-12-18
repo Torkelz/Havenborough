@@ -47,18 +47,11 @@ public:
 	__declspec(dllexport) static void deleteGraphics(IGraphics *p_Graphics);
 
 	/**
-	* Creates a new static model and stores in a vector connected with an ID.
+	* Creates a new static or animated model and stores in a vector connected with an ID.
 	* @param p_ModelId the ID of the model
 	* @param p_Filename the filename of the model
 	*/
-	virtual bool createStaticModel(const char *p_ModelId, const char *p_Filename) = 0;
-	
-	/**
-	* Creates a new animated model and stores in a vector connected with an ID.
-	* @param p_ModelId the ID of the model
-	* @param p_Filename the filename of the model
-	*/
-	virtual bool createAnimatedModel(const char *p_ModelId, const char *p_Filename) = 0;
+	virtual bool createModel(const char *p_ModelId, const char *p_Filename) = 0;
 
 	/**
 	* 
@@ -174,8 +167,12 @@ public:
 	
 	/**
 	* Draw the current frame.
+	*
+	* @param p_DeltaTime the time in seconds since the previous frame.
+	*			Affects animations and effects.
+	* @param i the render target to display.
 	*/
-	virtual void drawFrame(int i) = 0;
+	virtual void drawFrame(float p_DeltaTime, int i) = 0;
 
 	/**
 	* Gets the amount of VRAM usage of the program.

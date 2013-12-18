@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Joint.h"
 #include "LoaderStructs.h"
 
 #include <fstream>
@@ -24,9 +25,9 @@ public:
 private:
 	Header m_FileHeader;
 	std::vector<Material> m_Material;
-	std::vector<VertexAnimation> m_AnimationVertexBuffer;
+	std::vector<AnimatedVertex> m_AnimationVertexBuffer;
 	std::vector<Joint> m_Joints;
-	std::vector<Vertex> m_VertexBuffer;
+	std::vector<StaticVertex> m_VertexBuffer;
 	std::vector<MaterialBuffer> m_MaterialBuffer;
 
 public:
@@ -66,7 +67,7 @@ public:
 	 *
 	 * @returns a vector of the struct VertexAnimation.
 	 */
-	const std::vector<VertexAnimation>& getAnimationVertexBuffer();
+	const std::vector<AnimatedVertex>& getAnimationVertexBuffer();
 
 
 	/**
@@ -83,7 +84,7 @@ public:
 	 *
 	 * @returns a vector of the struct Vertex.
 	 */
-	const std::vector<Vertex>& getVertexBuffer();
+	const std::vector<StaticVertex>& getVertexBuffer();
 
 	/**
 	 * Returns information about waht material is used on a part of the model.
@@ -100,8 +101,8 @@ protected:
 	ModelBinaryLoader::Header readHeader(std::istream* p_Input);
 	std::vector<Material> readMaterial(int p_NumberOfMaterial, std::istream* p_Input);
 	std::vector<MaterialBuffer> readMaterialBuffer(int p_NumberOfMaterialBuffers, std::istream* p_Input);
-	std::vector<Vertex> readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input);	
-	std::vector<VertexAnimation> readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input);	
+	std::vector<StaticVertex> readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input);	
+	std::vector<AnimatedVertex> readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input);	
 	std::vector<Joint> readJointList(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input);
 
 private:

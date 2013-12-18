@@ -1,4 +1,7 @@
 #pragma once
+
+#include "Joint.h"
+#include "LoaderStructs.h"
 #include "WrapperFactory.h"
 
 #include <memory>
@@ -8,13 +11,15 @@ struct ModelDefinition
 {
 	std::unique_ptr<Buffer> vertexBuffer;
 	std::vector<std::pair<int,int>> drawInterval;
-	Shader *shader;
+	Shader						*shader;
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> diffuseTexture;
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> normalTexture;
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> specularTexture;
-	unsigned int numOfMaterials;
+	unsigned int				numOfMaterials;
+	bool						m_IsAnimated;
 
-	ModelDefinition() {};
+	std::vector<Joint>					m_Joints;
+
 	ModelDefinition(ModelDefinition&& p_Other)
 		:	vertexBuffer(std::move(p_Other.vertexBuffer)),
 			drawInterval(p_Other.drawInterval),
@@ -22,7 +27,9 @@ struct ModelDefinition
 			diffuseTexture(p_Other.diffuseTexture),
 			normalTexture(p_Other.normalTexture),
 			specularTexture(p_Other.specularTexture),
-			numOfMaterials(p_Other.numOfMaterials)
+			numOfMaterials(p_Other.numOfMaterials),
+			m_IsAnimated(p_Other.m_IsAnimated),
+			m_Joints(std::move(p_Other.m_Joints))
 	{}
 
 	ModelDefinition& operator=(ModelDefinition&& p_Other)
@@ -34,10 +41,16 @@ struct ModelDefinition
 		std::swap(normalTexture, p_Other.normalTexture);
 		std::swap(specularTexture, p_Other.specularTexture);
 		std::swap(numOfMaterials, p_Other.numOfMaterials);
+		std::swap(m_IsAnimated, p_Other.m_IsAnimated);
+		std::swap(m_Joints, p_Other.m_Joints);
 
 		return *this;
 	}
 
 private:
 	ModelDefinition(const ModelDefinition&);
+
+public:
+	ModelDefinition(){}
+	~ModelDefinition(){}
 };

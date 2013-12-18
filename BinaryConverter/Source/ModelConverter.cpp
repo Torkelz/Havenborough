@@ -111,7 +111,8 @@ void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)
 	std::vector<VertexBufferAnimation> tempVertex;
 	for(int i = 0; i < m_IndexPerMaterialSize; i++)
 	{
-		for(unsigned int j = 0; j < m_IndexPerMaterial->at(i).size(); j++)
+		int tempsize = m_IndexPerMaterial->at(i).size()-1;
+		for(int j = tempsize; j >= 0 ; j--)
 		{
 			temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
 			temp.m_Normal = m_Normals->at(m_IndexPerMaterial->at(i).at(j).m_Normal);
@@ -119,11 +120,7 @@ void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)
 			temp.m_Tangent = m_Tangents->at(m_IndexPerMaterial->at(i).at(j).m_Tangent);
 			DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
 			temp.m_Weight = m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).first;
-			temp.m_Joint = m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).second;
-			temp.m_Position.x *= -1.f;
-			temp.m_Normal.x *= -1.f;
-			temp.m_Tangent.x *= -1.f;
-			temp.m_Binormal.x *= -1.f;
+			temp.m_Joint = (uivec4)m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).second;
 			tempVertex.push_back(temp);
 		}
 	}
@@ -160,6 +157,7 @@ void ModelConverter::createJointBuffer(std::ostream* p_Output)
 		stringToByte(m_ListOfJoints->at(i).m_JointName, p_Output);
 		intToByte(m_ListOfJoints->at(i).m_ID, p_Output);
 		intToByte(m_ListOfJoints->at(i).m_Parent, p_Output);
+
 		p_Output->write(reinterpret_cast<const char*>(&m_ListOfJoints->at(i).m_JointOffsetMatrix), sizeof(DirectX::XMFLOAT4X4));
 		p_Output->write(reinterpret_cast<const char*>(m_ListOfJoints->at(i).m_JointAnimation.data()), sizeof(ModelLoader::KeyFrame) * m_NumberOfFrames);
 	}
@@ -214,7 +212,7 @@ void ModelConverter::setTextureCoords(const std::vector<DirectX::XMFLOAT2>* p_Te
 	m_TextureCoord = p_TextureCoord;
 }
 
-void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT4>>* p_WeightsList)
+void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, uivec4>>* p_WeightsList)
 {
 	m_WeightsList = p_WeightsList;
 	m_WeightsListSize = m_WeightsList->size();

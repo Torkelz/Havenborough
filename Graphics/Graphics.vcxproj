@@ -95,8 +95,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Joint.cpp" />
     <ClCompile Include="Source\DeferredRenderer.cpp" />
     <ClCompile Include="Source\DDSTextureLoader.cpp" />
+    <ClCompile Include="Source\LoadM3d.cpp" />
     <ClCompile Include="Source\ModelBinaryLoader.cpp" />
     <ClCompile Include="Source\ModelFactory.cpp" />
     <ClCompile Include="Source\GraphicsLogger.cpp" />
@@ -111,12 +113,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ShaderDefinitions.h" />
+    <ClInclude Include="Source\Joint.h" />
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\LightStructs.h" />
     <ClInclude Include="Source\LoaderStructs.h" />
     <ClInclude Include="Source\ModelBinaryLoader.h" />
     <ClInclude Include="Source\ModelDefinition.h" />
+    <ClInclude Include="Source\Vertex.h" />
     <ClInclude Include="Source\GraphicsLogger.h" />
     <ClInclude Include="Source\ModelFactory.h" />
     <ClInclude Include="Source\ModelInstance.h" />
@@ -132,6 +136,12 @@
     <ClInclude Include="Source\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Source\DeferredShaders\AnimatedGeometryPass.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
