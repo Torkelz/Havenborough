@@ -1,80 +1,109 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
-    <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
-    <FxCompile Include="Source\DeferredShaders\LightPassDirectionalLight.hlsl" />
-    <FxCompile Include="Source\DeferredShaders\LightPassPointLight.hlsl" />
-    <FxCompile Include="Source\DeferredShaders\LightPassSpotLight.hlsl" />
-    <FxCompile Include="Source\dummyVS.hlsl" />
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Buffer.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DDSTextureLoader.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DeferredRenderer.cpp">
-      <Filter>Source Filess</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\GraphicsLogger.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ModelBinaryLoader.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ModelFactory.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ModelInstance.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\RAMMemInfo.cpp">
-      <Filter>Source Filess</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Shader.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\TextureLoader.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\VRAMMemInfo.cpp">
-      <Filter>Source Filess</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\WICTextureLoader.cpp">
-      <Filter>Source Filess</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\WrapperFactory.cpp">
-      <Filter>Source Filess</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\WICTextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DDSTextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DeferredRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VRAMMemInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\LoadM3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ModelBinaryLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ModelFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RAMMemInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ModelInstance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Joint.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DDSTextureLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DeferredRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Graphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GraphicsExceptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GraphicsLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\IGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\WrapperFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DDSTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\WICTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DeferredRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VRAMMemInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Source\LightStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ModelDefinition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ShaderDeffinitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\LoaderStructs.h">
@@ -83,7 +112,7 @@
     <ClInclude Include="Source\ModelBinaryLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ModelDefinition.h">
+    <ClInclude Include="Source\GraphicsLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ModelFactory.h">
@@ -95,39 +124,22 @@
     <ClInclude Include="Source\RAMMemInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Shader.h">
+    <ClInclude Include="Source\GraphicsExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\ShaderDeffinitions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\TextureLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\VRAMMemInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\WICTextureLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\WrapperFactory.h">
+    <ClInclude Include="Source\Joint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{db8cdee9-a1da-45ea-8e57-8b631d001c65}</UniqueIdentifier>
-      <Extensions>.h</Extensions>
-    </Filter>
-    <Filter Include="Source Filess">
-      <UniqueIdentifier>{5cae1079-3e5e-4ae7-9c5a-610c6add9df5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{ba547cd1-58a9-494a-8dcf-438a9a0af5eb}</UniqueIdentifier>
-      <Extensions>.cpp</Extensions>
-    </Filter>
+    <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\AnimatedGeometryPass.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\LightPassDirectionalLight.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\LightPassPointLight.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\LightPassSpotLight.hlsl" />
+    <FxCompile Include="Source\dummyVS.hlsl" />
   </ItemGroup>
+
+
 </Project>

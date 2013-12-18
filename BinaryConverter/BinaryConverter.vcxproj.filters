@@ -44,5 +44,8 @@
     <ClInclude Include="Source\LevelConverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\VecTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

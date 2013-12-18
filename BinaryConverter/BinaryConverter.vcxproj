@@ -89,6 +89,7 @@
     <ClInclude Include="Source\LevelLoader.h" />
     <ClInclude Include="Source\ModelConverter.h" />
     <ClInclude Include="Source\ModelLoader.h" />
+    <ClInclude Include="Source\VecTypes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

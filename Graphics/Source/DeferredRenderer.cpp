@@ -86,6 +86,7 @@ DeferredRenderer::~DeferredRenderer(void)
 
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
+	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
 }
 
@@ -168,6 +169,31 @@ void DeferredRenderer::renderGeometry()
 	for(unsigned int i = 0; i < m_Objects.size();i++)
 	{
 		m_Objects.at(i).m_Model->vertexBuffer->setBuffer(0);
+
+		if (m_Objects.at(i).m_Model->m_IsAnimated)
+		{
+			cAnimatedObjectBuffer temp;
+			temp.invTransposeWorld = m_Objects.at(i).m_invTransposeWorld;
+
+			const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_Objects.at(i).m_FinalTransforms;
+			//m_Objects.at(i).m_Model->getFinalTransform(1.f/200.f, tempBones);
+			for (unsigned int a = 0; a < tempBones->size(); a++)
+				temp.boneTransform[a] = (*tempBones)[a];
+
+			m_DeviceContext->UpdateSubresource(m_AnimatedObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+			m_AnimatedObjectConstantBuffer->setBuffer(3);
+		}
+
+		cObjectBuffer temp;
+		temp.world = m_Objects.at(i).m_World;
+		m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+		m_ObjectConstantBuffer->setBuffer(2);
+
+		// Set shader.
+		m_Objects.at(i).m_Model->shader->setShader();
+		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+		m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
+
 		for(unsigned int j = 0; j < m_Objects.at(i).m_Model->numOfMaterials;j++)
 		{
 			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[j].second, 
@@ -175,26 +201,17 @@ void DeferredRenderer::renderGeometry()
 													m_Objects.at(i).m_Model->specularTexture[j].second 
 												};
 			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-			
-			// Send stuff.
-			cObjectBuffer temp;
-			temp.world = *m_Objects.at(i).m_World;
-			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-			m_ObjectConstantBuffer->setBuffer(2);
-
-			// Set shader.
-			m_Objects.at(i).m_Model->shader->setShader();
-			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-			m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
 
 			m_DeviceContext->Draw(m_Objects.at(i).m_Model->drawInterval.at(j).second, m_Objects.at(i).m_Model->drawInterval.at(j).first);
 
-			m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
-			m_ObjectConstantBuffer->unsetBuffer(2);
-			m_Objects.at(i).m_Model->shader->setBlendState(0, data);
-			m_Objects.at(i).m_Model->shader->unSetShader();
 			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 		}
+
+		m_Objects.at(i).m_Model->shader->setBlendState(0, data);
+		m_Objects.at(i).m_Model->shader->unSetShader();
+		m_ObjectConstantBuffer->unsetBuffer(2);
+		m_AnimatedObjectConstantBuffer->unsetBuffer(3);
+		m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
 	}
 	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_ConstantBuffer->unsetBuffer(1);
@@ -393,11 +410,14 @@ void DeferredRenderer::createBuffers()
 
 	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMMemInfo::getInstance()->updateUsage(sizeof(cBuffer));
-
 	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
 	m_ObjectConstantBuffer = new Buffer();
 	m_ObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 
+	cbdesc.sizeOfElement = sizeof(cAnimatedObjectBuffer);
+	m_AnimatedObjectConstantBuffer = new Buffer();
+	m_AnimatedObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
+	
 	VRAMMemInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
 
 	Buffer::Description adesc;
@@ -496,7 +516,7 @@ void DeferredRenderer::loadLightModels()
 {
 	ModelBinaryLoader modelLoader;
 	modelLoader.loadBinaryFile("assets/LightModels/SpotLight.btx");
-	const std::vector<Vertex>& vertices = modelLoader.getVertexBuffer();
+	const std::vector<StaticVertex>& vertices = modelLoader.getVertexBuffer();
 	std::vector<DirectX::XMFLOAT3> temp;
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{

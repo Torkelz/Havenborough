@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include "ModelLoader.h"
+#include "VecTypes.h"
 
 class ModelConverter
 {

@@ -66,10 +66,10 @@ std::vector<MaterialBuffer> ModelBinaryLoader::readMaterialBuffer(int p_NumberOf
 	return tempBuffer;
 }
 
-std::vector<Vertex> ModelBinaryLoader::readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input)
+std::vector<StaticVertex> ModelBinaryLoader::readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input)
 {
-	std::vector<Vertex> vertexBuffer(p_NumberOfVertex);
-	p_Input->read(reinterpret_cast<char*>(vertexBuffer.data()), sizeof(Vertex) * p_NumberOfVertex);
+	std::vector<StaticVertex> vertexBuffer(p_NumberOfVertex);
+	p_Input->read(reinterpret_cast<char*>(vertexBuffer.data()), sizeof(StaticVertex) * p_NumberOfVertex);
 	return vertexBuffer;
 }
 
@@ -80,10 +80,10 @@ std::vector<BoundingVolume> ModelBinaryLoader::readBoundingVolume(int p_NumberOf
 	return boundingVolume;
 }
 
-std::vector<VertexAnimation> ModelBinaryLoader::readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input)
+std::vector<AnimatedVertex> ModelBinaryLoader::readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input)
 {
-	std::vector<VertexAnimation> vertexBuffer(p_NumberOfVertex);
-	p_Input->read(reinterpret_cast<char*>(vertexBuffer.data()), sizeof(VertexAnimation) * p_NumberOfVertex);
+	std::vector<AnimatedVertex> vertexBuffer(p_NumberOfVertex);
+	p_Input->read(reinterpret_cast<char*>(vertexBuffer.data()), sizeof(AnimatedVertex) * p_NumberOfVertex);
 	return vertexBuffer;
 }
 
@@ -156,7 +156,7 @@ const std::vector<Material>& ModelBinaryLoader::getMaterial()
 	return m_Material;
 }
 
-const std::vector<VertexAnimation>& ModelBinaryLoader::getAnimationVertexBuffer()
+const std::vector<AnimatedVertex>& ModelBinaryLoader::getAnimationVertexBuffer()
 {
 	return m_AnimationVertexBuffer;
 }
@@ -166,7 +166,7 @@ const std::vector<Joint>& ModelBinaryLoader::getJoints()
 	return m_Joints;
 }
 
-const std::vector<Vertex>& ModelBinaryLoader::getVertexBuffer()
+const std::vector<StaticVertex>& ModelBinaryLoader::getVertexBuffer()
 {
 	return m_VertexBuffer;
 }

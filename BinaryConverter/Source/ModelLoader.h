@@ -1,5 +1,7 @@
 #pragma once
 
+#include "VecTypes.h"
+
 #include <fstream>
 #include <sstream>
 #include <DirectXMath.h>
@@ -9,6 +11,7 @@
 class ModelLoader
 {
 public:
+
 	struct KeyFrame
 	{
 		DirectX::XMFLOAT3 m_Trans;
@@ -137,7 +140,7 @@ public:
 	 *
 	 * @return a vector of Joint. 
 	 */
-	const std::vector<ModelLoader::Joint>& getListOfJoints();
+	const std::vector<Joint>& getListOfJoints();
 
 	/**
 	 * Returns the start number for the animation. 

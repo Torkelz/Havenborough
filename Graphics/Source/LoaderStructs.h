@@ -1,3 +1,7 @@
+#pragma once
+
+#include "Vertex.h"
+
 #include <DirectXMath.h>
 #include <vector>
 
@@ -8,34 +12,6 @@ struct KeyFrame
 	DirectX::XMFLOAT3 m_Scale;
 };
 
-struct Joint
-{
-	std::string m_JointName;
-	int m_ID;
-	int m_Parent;
-	DirectX::XMFLOAT4X4 m_JointOffsetMatrix;
-	std::vector<KeyFrame> m_JointAnimation;
-};
-
-struct VertexAnimation
-{
-	DirectX::XMFLOAT4 m_Position;
-	DirectX::XMFLOAT3 m_Normal;
-	DirectX::XMFLOAT2 m_UV;
-	DirectX::XMFLOAT3 m_Tangent;
-	DirectX::XMFLOAT3 m_Binormal;
-	DirectX::XMFLOAT3 m_Weight;
-	DirectX::XMINT4 m_Joint;
-};
-	
-struct Vertex
-{
-	DirectX::XMFLOAT4 m_Position;
-	DirectX::XMFLOAT3 m_Normal;
-	DirectX::XMFLOAT2 m_UV;
-	DirectX::XMFLOAT3 m_Tangent;
-	DirectX::XMFLOAT3 m_Binormal;
-};
 
 struct BoundingVolume
 {

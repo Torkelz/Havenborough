@@ -189,6 +189,9 @@
     <ClCompile Include="TestModelFactory.cpp">
       <Filter>TestGraphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\Joint.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
     <ClCompile Include="..\BinaryConverter\Source\LevelLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>

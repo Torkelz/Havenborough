@@ -32,8 +32,7 @@ void BaseGameApp::init()
 	using namespace std::placeholders;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
-	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createStaticModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
-	//TODO: May need to register a callback function for creating animated models? //Pontus
+	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 	
 
@@ -82,11 +81,11 @@ void BaseGameApp::init()
 	m_JumpForce = 2000.f;
 	m_JumpForceTime = 0.2f;
 	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
-	
+
 	//Logger::log(Logger::Level::DEBUG, "Adding debug models");
 	//m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 	//						"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
+	
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
@@ -104,6 +103,10 @@ void BaseGameApp::init()
 	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
 
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Test"));
+	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
+							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	m_Graphics->linkShaderToModel("AnimatedShader", "Test");
 }
 
 void BaseGameApp::run()
@@ -146,6 +149,12 @@ void BaseGameApp::run()
 	int witch = m_Graphics->createModelInstance("DZALA");
 	m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);*/
+	
+	int cactus = m_Graphics->createModelInstance("Test");
+	m_Graphics->setModelPosition(cactus, -3.f, 1.f, 0.f);
+	m_Graphics->setModelScale(cactus, 0.3f, 0.3f, 0.3f);
+	m_Graphics->setModelRotation(cactus, (float)pi / 4.f, 0.f, 0.f);
+
 
 	float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
@@ -261,13 +270,14 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);
+		m_Graphics->renderModel(cactus);
 		//m_Graphics->renderModel(witch);
 		m_Graphics->useFrameDirectionalLight(IGraphics::vec3(1.f,1.f,1.f),IGraphics::vec3(0.1f,-0.99f,0.f));
 		m_Graphics->useFramePointLight(IGraphics::vec3(0.f,0.f,0.f),IGraphics::vec3(1.f,1.f,1.f),20.f);
 		m_Graphics->useFrameSpotLight(IGraphics::vec3(-10.f,5.f,0.f),IGraphics::vec3(0.f,1.f,0.f),
 			IGraphics::vec3(0.f,0.f,-1.f),IGraphics::vec2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
 
-		m_Graphics->drawFrame(currView);
+		m_Graphics->drawFrame(dt, currView);
 		
 		m_MemoryInfo.update();
 		updateDebugInfo(dt);

@@ -35,12 +35,12 @@ public:
 		return readMaterialBuffer(p_NumberOfMaterialBuffers, p_Input);
 	}
 
-	std::vector<Vertex> testReadVertex(int p_NumberOfVertex, std::istream* p_Input)
+	std::vector<StaticVertex> testReadVertex(int p_NumberOfVertex, std::istream* p_Input)
 	{
 		return readVertexBuffer(p_NumberOfVertex, p_Input);
 	}
 
-	std::vector<VertexAnimation> testReadVertexAnimation(int p_NumberOfVertex, std::istream* p_Input)
+	std::vector<AnimatedVertex> testReadVertexAnimation(int p_NumberOfVertex, std::istream* p_Input)
 	{
 		return readVertexBufferAnimation(p_NumberOfVertex, p_Input);
 	}
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE(TestReadVertexBuffer)
 
 	std::istringstream tempString(std::string(binVertex, binVertex + sizeof(binVertex)));
 	testBinaryLoader loader;
-	std::vector<Vertex> tempVertex;
+	std::vector<StaticVertex> tempVertex;
 
 	tempVertex = loader.testReadVertex(1,&tempString);
 
@@ -217,13 +217,13 @@ BOOST_AUTO_TEST_CASE(TestReadVertexBufferAnimation)
 
 	std::istringstream tempString(std::string(binVertexAnimation, binVertexAnimation + sizeof(binVertexAnimation)));
 	testBinaryLoader loader;
-	std::vector<VertexAnimation> tempVertex;
+	std::vector<AnimatedVertex> tempVertex;
 
 	tempVertex = loader.testReadVertexAnimation(1,&tempString);
 
 	BOOST_CHECK_EQUAL(tempVertex.at(0).m_Position.x, 0.5f);
 	BOOST_CHECK_EQUAL(tempVertex.at(0).m_Normal.x, 15.0f);
-	BOOST_CHECK_EQUAL(tempVertex.at(0).m_Weight.x, 0.9375f);
+	BOOST_CHECK_EQUAL(tempVertex.at(0).m_Weights.x, 0.9375f);
 }
 
 BOOST_AUTO_TEST_CASE(TestReadJoint)

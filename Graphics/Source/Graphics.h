@@ -17,6 +17,8 @@
 #include "ModelInstance.h"
 #include "VRAMMemInfo.h"
 
+#include "Vertex.h"
+
 using std::string;
 using std::vector;
 using std::pair;
@@ -26,37 +28,36 @@ using namespace DirectX;
 class Graphics : public IGraphics
 {
 private:
-	ID3D11Device *m_Device;
-	ID3D11DeviceContext *m_DeviceContext;
+	ID3D11Device					*m_Device;
+	ID3D11DeviceContext				*m_DeviceContext;
 
-	IDXGISwapChain *m_SwapChain;
-	ID3D11RenderTargetView *m_RenderTargetView;
+	IDXGISwapChain					*m_SwapChain;
+	ID3D11RenderTargetView			*m_RenderTargetView;
 	
-	ID3D11RasterizerState *m_RasterState;
+	ID3D11RasterizerState			*m_RasterState;
 
-	ID3D11Texture2D *m_DepthStencilBuffer;
-	ID3D11DepthStencilState *m_DepthStencilState;
-	ID3D11DepthStencilView *m_DepthStencilView;
+	ID3D11Texture2D					*m_DepthStencilBuffer;
+	ID3D11DepthStencilState			*m_DepthStencilState;
+	ID3D11DepthStencilView			*m_DepthStencilView;
 
-	unsigned int m_Numerator;
-	unsigned int m_Denominator;
-	char m_GraphicsCard[128];
-	int m_GraphicsMemory;
-	bool m_VSyncEnabled;
+	unsigned int					m_Numerator;
+	unsigned int					m_Denominator;
+	char							m_GraphicsCard[128];
+	int								m_GraphicsMemory;
+	bool							m_VSyncEnabled;
 
 	XMFLOAT4X4 m_ViewMatrix;
 	XMFLOAT4X4 m_ProjectionMatrix;
 	XMFLOAT3 m_Eye;
 
 	static const unsigned int m_MaxLightsPerLightInstance;
-	TextureLoader m_TextureLoader;	
-	WrapperFactory *m_WrapperFactory;
+	TextureLoader					m_TextureLoader;	
+	WrapperFactory					*m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
-	VRAMMemInfo *m_VRAMMemInfo;
+	VRAMMemInfo						*m_VRAMMemInfo;
 
-	vector<pair<string, Shader*>> m_ShaderList;
-	vector<pair<string, ModelDefinition>> m_StaticModelList;
-	vector<pair<string, ModelDefinition>> m_AnimatedModelList;
+	vector<pair<string, Shader*>>	m_ShaderList;
+	vector<pair<string, ModelDefinition>> m_ModelList;
 	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
 	vector<pair<int, ModelInstance>> m_ModelInstances;
 	int m_NextInstanceId;
@@ -84,8 +85,7 @@ public:
 	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) override;
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
-	bool createStaticModel(const char *p_ModelId, const char *p_Filename) override;
-	bool createAnimatedModel(const char *p_ModelId, const char *p_Filename) override;
+	bool createModel(const char *p_ModelId, const char *p_Filename) override;
 	bool releaseModel(const char *p_ModelID) override;
 
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
@@ -111,7 +111,7 @@ public:
 	void renderModel(int p_ModelId) override;
 	void renderText(void) override;
 	void renderQuad(void) override;
-	void drawFrame(int i) override;
+	void drawFrame(float p_DeltaTime, int i) override;
 
 	int getVRAMMemUsage(void) override;
 	
@@ -143,9 +143,7 @@ private:
 	Shader *getShaderFromList(string p_Identifier);
 	ModelDefinition *getModelFromList(string p_Identifier);
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
-
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
-
 	void Begin(float color[4]);
 	void End(void);
 

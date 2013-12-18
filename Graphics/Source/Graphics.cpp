@@ -17,6 +17,8 @@ Graphics::Graphics(void)
 	m_WrapperFactory = nullptr;
 	m_ModelFactory = nullptr;
 	m_DeferredRender = nullptr;
+	m_Sampler = nullptr;
+	m_VRAMMemInfo = nullptr;
 
 	m_VSyncEnabled = false; //DEBUG
 
@@ -37,14 +39,14 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Initializing graphics");
 
 	HRESULT result;
-	IDXGIFactory *factory;
-	IDXGIAdapter *adapter;
-	IDXGIOutput *adapterOutput;
+	IDXGIFactory *factory = nullptr;
+	IDXGIAdapter *adapter = nullptr;
+	IDXGIOutput *adapterOutput = nullptr;
 	
 	unsigned int numModes;
 	unsigned int stringLength;
 	
-	DXGI_MODE_DESC *displayModeList;
+	DXGI_MODE_DESC *displayModeList = nullptr;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
 	
@@ -215,7 +217,15 @@ void Graphics::shutdown(void)
 		SAFE_RELEASE(tex.second);
 	}
 	m_TextureList.clear();
-	m_StaticModelList.clear();
+
+	while (!m_ModelList.empty())
+	{
+		std::string unremovedName = m_ModelList.front().first;
+
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + unremovedName + "' not removed properly");
+
+		releaseModel(unremovedName.c_str());
+	}
 
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
@@ -250,27 +260,18 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 	delete p_Graphics;
 }
 
-bool Graphics::createStaticModel(const char *p_ModelId, const char *p_Filename)
+bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelDefinition model =	m_ModelFactory->getInstance()->createModel(p_Filename, false);
+	ModelDefinition model =	m_ModelFactory->getInstance()->createModel(p_Filename);
 
-	m_StaticModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
-
-	return true;
-}
-	
-bool Graphics::createAnimatedModel(const char *p_ModelId, const char *p_Filename)
-{
-	ModelDefinition model = m_ModelFactory->getInstance()->createModel(p_Filename, true); //TODO: May need another model definition
-
-	m_AnimatedModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
+	m_ModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
 
 	return true;
 }
 
-bool Graphics::releaseModel(const char* p_ResourceName) //TODO: Maybe need to handle if animated or static?
+bool Graphics::releaseModel(const char* p_ResourceName)
 {
-	for(auto it = m_StaticModelList.begin(); it != m_StaticModelList.end(); ++it)
+	for(auto it = m_ModelList.begin(); it != m_ModelList.end(); ++it)
 	{
 		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
 		{
@@ -281,10 +282,11 @@ bool Graphics::releaseModel(const char* p_ResourceName) //TODO: Maybe need to ha
 				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 			}
 
-			m_StaticModelList.erase(it);
+			m_ModelList.erase(it);
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -340,7 +342,6 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) 
 	model = getModelFromList(p_ModelId);
 	if(model != nullptr)
 		model->shader = getShaderFromList(p_ShaderId);
-	model = nullptr;
 }
 
 bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
@@ -385,7 +386,8 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 		if (inst.first == p_ModelId)
 		{
 			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.getModelName()),
-				&inst.second.getWorldMatrix()));
+				inst.second.getWorldMatrix(),
+				&inst.second.getFinalTransform()));
 			break;
 		}
 	}
@@ -425,9 +427,8 @@ void Graphics::useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p
 	Light l;
 	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
 	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
-	DirectX::XMStoreFloat3(&l.lightDirection, 
-		DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(
-		&DirectX::XMFLOAT3(p_LightDirection.x,p_LightDirection.y,p_LightDirection.z))));
+	DirectX::XMFLOAT3 lightDirection(p_LightDirection.x, p_LightDirection.y, p_LightDirection.z);
+	DirectX::XMStoreFloat3(&l.lightDirection, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&lightDirection)));
 	l.spotlightAngles = DirectX::XMFLOAT2(p_SpotLightAngles.x,p_SpotLightAngles.y);
 	l.lightRange = p_LightRange;
 	m_SpotLights.push_back(l);
@@ -436,14 +437,27 @@ void Graphics::useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection
 {
 	Light l;
 	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
-	DirectX::XMStoreFloat3(&l.lightDirection, 
-		DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(
-		&DirectX::XMFLOAT3(p_LightDirection.x,p_LightDirection.y,p_LightDirection.z))));
+	DirectX::XMFLOAT3 lightDirection(p_LightDirection.x, p_LightDirection.y, p_LightDirection.z);
+	DirectX::XMStoreFloat3(&l.lightDirection, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&lightDirection)));
 	m_DirectionalLights.push_back(l);
 }
 
-void Graphics::drawFrame(int i)
+void Graphics::drawFrame(float p_DeltaTime, int i)
 {
+	if (!m_DeviceContext || !m_DeferredRender)
+	{
+		return;
+	}
+
+	for (auto& model : m_ModelInstances)
+	{
+		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
+		if (modelDef->m_IsAnimated)
+		{
+			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
+		}
+	}
+
 	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
 	Begin(color);
 
@@ -469,11 +483,25 @@ void Graphics::drawFrame(int i)
 
 int Graphics::getVRAMMemUsage(void)
 {
-	return m_VRAMMemInfo->getUsage();
+	if (m_VRAMMemInfo)
+	{
+		return m_VRAMMemInfo->getUsage();
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 int Graphics::createModelInstance(const char *p_ModelId)
 {
+	ModelDefinition* modelDef = getModelFromList(p_ModelId);
+	if (modelDef == nullptr)
+	{
+		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the mode definition: " + std::string(p_ModelId));
+		return -1;
+	}
+
 	ModelInstance instance;
 	instance.setIsCalculated(false);
 	instance.setModelName(p_ModelId);
@@ -566,7 +594,10 @@ void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 
 void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata)
 {
-	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
+	if (m_ModelFactory)
+	{
+		m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
+	}
 }
 
 void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)
@@ -800,19 +831,17 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 	return ret;
 }
 
-ModelDefinition *Graphics::getModelFromList(string p_Identifier) //TODO: Maybe need to handle if animated or static?
+ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 {
-	ModelDefinition* ret = nullptr;
-
-	for(auto & s : m_StaticModelList)
+	for(auto & s : m_ModelList)
 	{
-		if(s.first.compare(p_Identifier) == 0 )
+		if(s.first == p_Identifier)
 		{
-			ret = &s.second;
-			break;
+			return &s.second;
 		}
 	}
-	return ret;
+
+	return nullptr;
 }
 
 ID3D11ShaderResourceView *Graphics::getTextureFromList(string p_Identifier)
@@ -850,7 +879,6 @@ void Graphics::Begin(float color[4])
 
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
-
 
 void Graphics::End(void)
 {

@@ -297,7 +297,14 @@ void ModelLoader::readWeights(std::istream& p_Input)
 		m_Stringstream = std::stringstream(line);
 		if(line == "")
 			break;
-		m_Stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z;
+		float weightW;
+		m_Stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z >> weightW;
+
+		float weightSum = tempWeight.x + tempWeight.y + tempWeight.z + weightW;
+		tempWeight.x /= weightSum;
+		tempWeight.y /= weightSum;
+		tempWeight.z /= weightSum;
+
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
 		m_Stringstream >> filler >> tempJoint.x >> tempJoint.y >> tempJoint.z >> tempJoint.w;
