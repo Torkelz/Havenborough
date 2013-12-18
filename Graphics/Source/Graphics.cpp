@@ -506,7 +506,6 @@ int Graphics::createModelInstance(const char *p_ModelId)
 	}
 
 	ModelInstance instance;
-	instance.setIsCalculated(false);
 	instance.setModelName(p_ModelId);
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
@@ -584,11 +583,15 @@ void Graphics::getJointPosition(int p_Instance, const char* p_Joint, float p_Pos
 	{
 		if (inst.first == p_Instance)
 		{
-			XMFLOAT3 position = inst.second.getJointPos(p_Joint, getModelFromList(inst.second.getModelName())->m_Joints);
+			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->m_Joints);
+			
 			*reinterpret_cast<XMFLOAT3*>(p_Position) = position;
-			break;
+			return;
 		}
 	}
+
+	throw InvalidArgumentGraphicsException("Model instance does not exist", __LINE__, __FILE__);
 }
 
 void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch)

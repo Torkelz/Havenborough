@@ -8,7 +8,7 @@
 #include <DirectXMath.h>
 
 /**
- * Joint represents a joint in a skeletal animated mesh,
+ * Represents a joint in a skeletal animated mesh,
  * along with the animation for that joint.
  */
 class Joint

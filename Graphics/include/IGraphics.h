@@ -257,6 +257,13 @@ public:
 	 */
 	virtual void applyIK_ReachPoint(int p_Instance, const char* p_Joint, float p_X, float p_Y, float p_Z) = 0;
 
+	/**
+	 * Get the position of a single joint from a model instance.
+	 *
+	 * @param p_Instance the instance identifier to retreive the joint from.
+	 * @param p_Joint the identifier of the joint to get the position of.
+	 * @param p_Position an array to store the position in.
+	 */
 	virtual void getJointPosition(int p_Instance, const char* p_Joint, float p_Position[3]) = 0;
 
 	/**

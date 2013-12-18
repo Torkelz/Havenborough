@@ -94,6 +94,8 @@ std::vector<Joint> ModelBinaryLoader::readJointList(int p_NumberOfJoint, int p_N
 		p_Input->read(reinterpret_cast<char*>(temp.m_JointAnimation.data()), sizeof(KeyFrame) * p_NumberOfFrames);
 
 		using namespace DirectX;
+
+		// Precompute the total offset matrix for the joints
 		if (temp.m_Parent == 0)
 		{
 			XMMATRIX offset = XMLoadFloat4x4(&temp.m_JointOffsetMatrix);

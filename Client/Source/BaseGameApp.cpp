@@ -254,13 +254,6 @@ void BaseGameApp::run()
 
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
 
-		float lookDir[3];
-		lookDir[0] = -sinf(viewRot[0]) * cosf(viewRot[1]);
-		lookDir[1] = sinf(viewRot[1]);
-		lookDir[2] = -cosf(viewRot[0]) * cosf(viewRot[1]);
-
-		static const float IK_Length = 5.f;
-
  		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
 		m_Graphics->setModelPosition(skyBox, tempPos.x, tempPos.y, tempPos.z);
 
@@ -270,11 +263,18 @@ void BaseGameApp::run()
 		pitch += pitchSpeed * dt;
 		roll += rollSpeed * dt;
 
-		//for (int i = 0; i < NUM_BOXES; i++)
-		//{
-		//	m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
-		//	m_Graphics->renderModel(boxIds[i]);
-		//}
+		for (int i = 0; i < NUM_BOXES; i++)
+		{
+			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
+			m_Graphics->renderModel(boxIds[i]);
+		}
+
+		float lookDir[3];
+		lookDir[0] = -sinf(viewRot[0]) * cosf(viewRot[1]);
+		lookDir[1] = sinf(viewRot[1]);
+		lookDir[2] = -cosf(viewRot[0]) * cosf(viewRot[1]);
+
+		static const float IK_Length = 5.f;
 
 		static const char* testJoint = "joint4";
 
