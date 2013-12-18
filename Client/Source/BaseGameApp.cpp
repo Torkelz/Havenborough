@@ -97,10 +97,10 @@ void BaseGameApp::init()
 	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Test"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "IKTest"));
 	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
 							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("AnimatedShader", "Test");
+	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
 }
 
 void BaseGameApp::run()
@@ -124,6 +124,9 @@ void BaseGameApp::run()
 		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 	}
+
+	int jointBox = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelScale(jointBox, 0.3f, 0.3f, 2.f);
 	
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
@@ -138,10 +141,10 @@ void BaseGameApp::run()
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
-	int cactus = m_Graphics->createModelInstance("Test");
-	m_Graphics->setModelPosition(cactus, -3.f, 1.f, 0.f);
-	m_Graphics->setModelScale(cactus, 0.3f, 0.3f, 0.3f);
-	m_Graphics->setModelRotation(cactus, (float)pi / 4.f, 0.f, 0.f);
+	int ikTest = m_Graphics->createModelInstance("IKTest");
+	m_Graphics->setModelPosition(ikTest, 0.f, 1.f, 0.f);
+	m_Graphics->setModelScale(ikTest, 0.3f, 0.3f, 0.3f);
+	m_Graphics->setModelRotation(ikTest, (float)pi / 4.f, 0.f, 0.f);
 
 	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
 	//int witch = m_Graphics->createModelInstance("DZALA");
@@ -251,6 +254,13 @@ void BaseGameApp::run()
 
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
 
+		float lookDir[3];
+		lookDir[0] = -sinf(viewRot[0]) * cosf(viewRot[1]);
+		lookDir[1] = sinf(viewRot[1]);
+		lookDir[2] = -cosf(viewRot[0]) * cosf(viewRot[1]);
+
+		static const float IK_Length = 5.f;
+
  		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
 		m_Graphics->setModelPosition(skyBox, tempPos.x, tempPos.y, tempPos.z);
 
@@ -260,17 +270,25 @@ void BaseGameApp::run()
 		pitch += pitchSpeed * dt;
 		roll += rollSpeed * dt;
 
-		for (int i = 0; i < NUM_BOXES; i++)
-		{
-			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
-			m_Graphics->renderModel(boxIds[i]);
-		}
+		//for (int i = 0; i < NUM_BOXES; i++)
+		//{
+		//	m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
+		//	m_Graphics->renderModel(boxIds[i]);
+		//}
+
+		static const char* testJoint = "joint4";
+
+		m_Graphics->applyIK_ReachPoint(ikTest, testJoint, tempPos.x + lookDir[0] * IK_Length, tempPos.y + lookDir[1] * IK_Length, tempPos.z + lookDir[2] * IK_Length);
+
+		float jointPos[3];
+		m_Graphics->getJointPosition(ikTest, testJoint, jointPos);
+		m_Graphics->setModelPosition(jointBox, jointPos[0], jointPos[1], jointPos[2]);
+		m_Graphics->renderModel(jointBox);
+
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);
-
-		m_Graphics->applyIK_ReachPoint(cactus, "joint4", tempPos.x, tempPos.y, tempPos.z);
-		m_Graphics->renderModel(cactus);
+		m_Graphics->renderModel(ikTest);
 		//m_Graphics->renderModel(witch);
 		m_Graphics->useFrameDirectionalLight(IGraphics::vec3(1.f,1.f,1.f),IGraphics::vec3(0.1f,-0.99f,0.f));
 		m_Graphics->useFramePointLight(IGraphics::vec3(0.f,0.f,0.f),IGraphics::vec3(1.f,1.f,1.f),20.f);

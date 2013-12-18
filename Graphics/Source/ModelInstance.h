@@ -21,7 +21,15 @@
 	mutable DirectX::XMFLOAT4X4 m_World;
 
 	// Animation data
+	/**
+	 * The matrices that transforms from the animated joint's space to the parent's joint's space.
+	 * Row major.
+	 */
 	std::vector<DirectX::XMFLOAT4X4> m_LocalTransforms;
+	/**
+	 * The matrices that transforms from bind space to model space with animations.
+	 * Row major.
+	 */
 	std::vector<DirectX::XMFLOAT4X4> m_FinalTransform;
 	float m_CurrentFrame;
 
@@ -44,6 +52,7 @@
 	const std::vector<DirectX::XMFLOAT4X4>& getFinalTransform() const;
 
 	void applyIK_ReachPoint(const std::string& p_JointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints);
+	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName, const std::vector<Joint>& p_Joints);
 
  private:
 	void updateFinalTransforms(const std::vector<Joint>& p_Joints);

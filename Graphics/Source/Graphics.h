@@ -122,6 +122,7 @@ public:
 	void setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll) override;
 	void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) override;
 	void applyIK_ReachPoint(int p_Instance, const char* p_Joint, float p_X, float p_Y, float p_Z) override;
+	void getJointPosition(int p_Instance, const char* p_Joint, float p_Position[3]) override;
 
 	void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) override;
 

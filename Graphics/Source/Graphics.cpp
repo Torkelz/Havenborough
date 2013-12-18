@@ -578,6 +578,19 @@ void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_Joint, float p_X
 	}
 }
 
+void Graphics::getJointPosition(int p_Instance, const char* p_Joint, float p_Position[3])
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			XMFLOAT3 position = inst.second.getJointPos(p_Joint, getModelFromList(inst.second.getModelName())->m_Joints);
+			*reinterpret_cast<XMFLOAT3*>(p_Position) = position;
+			break;
+		}
+	}
+}
+
 void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch)
 {
 	using namespace DirectX;

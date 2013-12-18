@@ -80,20 +80,13 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 
 	using namespace DirectX;
 	const unsigned int numBones = p_Joints.size();
-	
-	m_FinalTransform.resize(numBones);
-	std::vector<XMFLOAT4X4> toParentTransforms(numBones);
-
-	for(unsigned int i = 0; i < p_Joints.size(); ++i)
-	{
-		toParentTransforms[i] = p_Joints[i].interpolate(0.f);
-	}
 
 	m_LocalTransforms.resize(numBones);
-	for (unsigned int i = 0; i < numBones; i++)
+
+	for(unsigned int i = 0; i < numBones; ++i)
 	{
-		XMMATRIX toParent = XMLoadFloat4x4(&toParentTransforms[i]);
-		toParent = XMMatrixMultiply(XMMatrixTranspose(XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix)), toParent);
+		XMFLOAT4X4 toParentData = p_Joints[i].interpolate(m_CurrentFrame);
+		XMMATRIX toParent = XMMatrixMultiply(XMMatrixTranspose(XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix)), XMLoadFloat4x4(&toParentData));
 		XMStoreFloat4x4(&m_LocalTransforms[i], toParent);
 	}
 
@@ -200,7 +193,7 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_JointName, const Dir
 	XMVECTOR nmlStartToJoint = XMVector4Normalize(startToJoint);
 	XMVECTOR nmlJointToEnd = XMVector4Normalize(jointToEnd);
 
-	float currentJointAngle = XMScalarACos(XMVector4Dot(-nmlStartToJoint, nmlJointToEnd).m128_f32[0]);
+	float currentJointAngle = XMScalarACos(XMVector3Dot(-nmlStartToJoint, nmlJointToEnd).m128_f32[0]);
 
 	float diffJointAngle = wantedJointAngle - currentJointAngle;
 	static const XMFLOAT4 rotationAxisData(0.f, 0.f, 1.f, 0.f);
@@ -214,7 +207,7 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_JointName, const Dir
 	tempMatrixData._24 = 0.f;
 	tempMatrixData._34 = 0.f;
 	tempMatrixData._44 = 1.f;
-	XMMATRIX tempMatrix = XMLoadFloat4x4(&tempMatrixData);
+	XMMATRIX tempMatrix = XMMatrixTranspose(XMLoadFloat4x4(&tempMatrixData));
 
 	XMVECTOR worldHingeAxis = XMVector4Transform(rotationAxis, tempMatrix);
 	worldHingeAxis = XMVector3Normalize(worldHingeAxis);
@@ -223,8 +216,8 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_JointName, const Dir
 
 	XMVECTOR newEndPosition = newJointToEnd + jointPositionV;
 
-	XMMATRIX mtxToLocal = XMMatrixInverse(nullptr, baseCombinedTransform);
-	XMVECTOR localNewEnd = XMVector3TransformCoord(newEndPosition, mtxToLocal);
+	XMMATRIX mtxToLocal = XMMatrixTranspose(XMMatrixInverse(nullptr, baseCombinedTransform));
+	XMVECTOR localNewEnd = XMVector3Transform(newEndPosition, mtxToLocal);
 	XMVECTOR localTarget = XMVector3TransformCoord(target, mtxToLocal);
 	localNewEnd = XMVector3Normalize(localNewEnd);
 	localTarget = XMVector3Normalize(localTarget);
@@ -238,10 +231,34 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_JointName, const Dir
 	localAxis = XMVector3Normalize(localAxis);
 	float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
 
-	rotation = XMMatrixRotationAxis(localAxis, localAngle);
+	rotation = XMMatrixRotationAxis(localAxis, -localAngle);
 	XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1], XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
 
 	updateFinalTransforms(p_Joints);
+}
+
+DirectX::XMFLOAT3 ModelInstance::getJointPos(const std::string& p_JointName, const std::vector<Joint>& p_Joints)
+{
+	for (const auto& joint : p_Joints)
+	{
+		if (joint.m_JointName == p_JointName)
+		{
+				XMMATRIX jointCombinedTransform = XMMatrixMultiply(
+					XMLoadFloat4x4(&getWorldMatrix()),
+					XMMatrixMultiply(
+						XMLoadFloat4x4(&m_FinalTransform[joint.m_ID - 1]),
+						XMLoadFloat4x4(&joint.m_TotalJointOffset)));
+
+				XMFLOAT4X4 jointCombinedTransformData;
+				XMStoreFloat4x4(&jointCombinedTransformData, jointCombinedTransform);
+
+				XMFLOAT3 jointPosition(jointCombinedTransformData._14, jointCombinedTransformData._24, jointCombinedTransformData._34); 
+
+				return jointPosition;
+		}
+	}
+
+	return XMFLOAT3(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN());
 }
 
 void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
@@ -249,8 +266,7 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 	unsigned int numBones = p_Joints.size();
 
 	std::vector<XMFLOAT4X4> toRootTransforms(numBones);
-	XMMATRIX toParent = XMLoadFloat4x4(&m_LocalTransforms[0]);
-	XMStoreFloat4x4(&toRootTransforms[0], toParent);
+	toRootTransforms[0] = m_LocalTransforms[0];
 
 	for (unsigned int i = 1; i < numBones; i++)
 	{
@@ -267,13 +283,14 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 		 0.f, 0.f, 1.f, 0.f,
 		 0.f, 0.f, 0.f, 1.f);
 
-	const XMMATRIX flipMatrix = XMLoadFloat4x4(&flipMatrixData);
+	static const XMMATRIX flipMatrix = XMLoadFloat4x4(&flipMatrixData);
+	
+	m_FinalTransform.resize(numBones);
 
 	for (unsigned int i = 0; i < numBones; i++)
 	{
 		XMMATRIX offSet = XMLoadFloat4x4(&p_Joints[i].m_TotalJointOffset);
 		XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
-		XMMATRIX identity = XMMatrixIdentity();
 		
 		offSet = XMMatrixInverse(nullptr, offSet);
 		XMMATRIX result = XMMatrixMultiply(toRoot, offSet);

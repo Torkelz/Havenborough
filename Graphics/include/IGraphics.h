@@ -257,6 +257,8 @@ public:
 	 */
 	virtual void applyIK_ReachPoint(int p_Instance, const char* p_Joint, float p_X, float p_Y, float p_Z) = 0;
 
+	virtual void getJointPosition(int p_Instance, const char* p_Joint, float p_Position[3]) = 0;
+
 	/**
 	 * Update the position and viewing direction of the camera.
 	 *

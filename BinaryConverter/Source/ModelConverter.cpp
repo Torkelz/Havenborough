@@ -114,13 +114,16 @@ void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)
 		int tempsize = m_IndexPerMaterial->at(i).size()-1;
 		for(int j = tempsize; j >= 0 ; j--)
 		{
-			temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
-			temp.m_Normal = m_Normals->at(m_IndexPerMaterial->at(i).at(j).m_Normal);
-			temp.m_UV = m_TextureCoord->at(m_IndexPerMaterial->at(i).at(j).m_TextureCoord);
-			temp.m_Tangent = m_Tangents->at(m_IndexPerMaterial->at(i).at(j).m_Tangent);
+			const ModelLoader::IndexDesc& desc = m_IndexPerMaterial->at(i).at(j);
+			const DirectX::XMFLOAT3& vertexPos = m_Vertices->at(desc.m_Vertex);
+
+			temp.m_Position = DirectX::XMFLOAT4(vertexPos.x,vertexPos.y,vertexPos.z, 1.0f);
+			temp.m_Normal = m_Normals->at(desc.m_Normal);
+			temp.m_UV = m_TextureCoord->at(desc.m_TextureCoord);
+			temp.m_Tangent = m_Tangents->at(desc.m_Tangent);
 			DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
-			temp.m_Weight = m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).first;
-			temp.m_Joint = (uivec4)m_WeightsList->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).second;
+			temp.m_Weight = m_WeightsList->at(desc.m_Vertex).first;
+			temp.m_Joint = (uivec4)m_WeightsList->at(desc.m_Vertex).second;
 			tempVertex.push_back(temp);
 		}
 	}
