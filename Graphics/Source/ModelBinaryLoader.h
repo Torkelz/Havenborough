@@ -27,6 +27,7 @@ private:
 	std::vector<VertexAnimation> m_AnimationVertexBuffer;
 	std::vector<Joint> m_Joints;
 	std::vector<Vertex> m_VertexBuffer;
+	std::vector<BoundingVolume> m_BoundingVolume;
 	std::vector<MaterialBuffer> m_MaterialBuffer;
 
 public:
@@ -101,6 +102,7 @@ protected:
 	std::vector<Material> readMaterial(int p_NumberOfMaterial, std::istream* p_Input);
 	std::vector<MaterialBuffer> readMaterialBuffer(int p_NumberOfMaterialBuffers, std::istream* p_Input);
 	std::vector<Vertex> readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input);	
+	std::vector<BoundingVolume> readBoundingVolume(int p_NumberOfVertex, std::istream* p_Input);
 	std::vector<VertexAnimation> readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input);	
 	std::vector<Joint> readJointList(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input);
 

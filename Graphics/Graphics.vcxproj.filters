@@ -9,42 +9,125 @@
     <FxCompile Include="Source\dummyVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\DeferredRenderer.cpp" />
-    <ClCompile Include="Source\DDSTextureLoader.cpp" />
-    <ClCompile Include="Source\ModelBinaryLoader.cpp" />
-    <ClCompile Include="Source\ModelFactory.cpp" />
-    <ClCompile Include="Source\GraphicsLogger.cpp" />
-    <ClCompile Include="Source\RAMMemInfo.cpp" />
-    <ClCompile Include="Source\TextureLoader.cpp" />
-    <ClCompile Include="Source\VRAMMemInfo.cpp" />
-    <ClCompile Include="Source\WICTextureLoader.cpp" />
-    <ClCompile Include="Source\WrapperFactory.cpp" />
-    <ClCompile Include="Source\Buffer.cpp" />
-    <ClCompile Include="Source\Graphics.cpp" />
-    <ClCompile Include="Source\Shader.cpp" />
-    <ClCompile Include="Source\ModelInstance.cpp" />
+    <ClCompile Include="Source\Buffer.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DDSTextureLoader.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DeferredRenderer.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsLogger.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ModelBinaryLoader.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ModelFactory.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ModelInstance.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RAMMemInfo.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shader.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TextureLoader.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VRAMMemInfo.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\WICTextureLoader.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\WrapperFactory.cpp">
+      <Filter>Source Filess</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ShaderDeffinitions.h" />
-    <ClInclude Include="Source\DeferredRenderer.h" />
-    <ClInclude Include="Source\DDSTextureLoader.h" />
-    <ClInclude Include="Source\LightStructs.h" />
-    <ClInclude Include="Source\LoaderStructs.h" />
-    <ClInclude Include="Source\ModelBinaryLoader.h" />
-    <ClInclude Include="Source\ModelDefinition.h" />
-    <ClInclude Include="Source\GraphicsLogger.h" />
-    <ClInclude Include="Source\ModelFactory.h" />
-    <ClInclude Include="Source\ModelInstance.h" />
-    <ClInclude Include="Source\RAMMemInfo.h" />
-    <ClInclude Include="Source\VRAMMemInfo.h" />
-    <ClInclude Include="Source\WICTextureLoader.h" />
-    <ClInclude Include="Source\WrapperFactory.h" />
-    <ClInclude Include="Source\GraphicsExceptions.h" />
-    <ClInclude Include="Source\Shader.h" />
-    <ClInclude Include="Source\Buffer.h" />
-    <ClInclude Include="Source\Graphics.h" />
-    <ClInclude Include="include\IGraphics.h" />
-    <ClInclude Include="Source\Util.h" />
-    <ClInclude Include="Source\TextureLoader.h" />
+    <ClInclude Include="Source\Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DDSTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DeferredRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GraphicsExceptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GraphicsLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IGraphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LightStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LoaderStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ModelBinaryLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ModelDefinition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ModelFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ModelInstance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RAMMemInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ShaderDeffinitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VRAMMemInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\WICTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\WrapperFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{db8cdee9-a1da-45ea-8e57-8b631d001c65}</UniqueIdentifier>
+      <Extensions>.h</Extensions>
+    </Filter>
+    <Filter Include="Source Filess">
+      <UniqueIdentifier>{5cae1079-3e5e-4ae7-9c5a-610c6add9df5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{ba547cd1-58a9-494a-8dcf-438a9a0af5eb}</UniqueIdentifier>
+      <Extensions>.cpp</Extensions>
+    </Filter>
   </ItemGroup>
 </Project>

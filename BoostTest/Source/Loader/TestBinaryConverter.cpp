@@ -192,6 +192,9 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBuffer)
 	temp.m_Tangent = 0;
 	temp.m_TextureCoord = 0;
 
+	std::vector<ModelLoader::Material> tempMaterial;
+	tempMaterial.resize(1);
+
 	std::vector<DirectX::XMFLOAT3> tempVertex;
 	byteFloat tempFloat4Vec[4];tempFloat4Vec[0].f = 0.f; tempFloat4Vec[1].f = 1.f; tempFloat4Vec[2].f = 2.f;tempFloat4Vec[3].f = 1.f;
 	tempVertex.push_back(DirectX::XMFLOAT3(tempFloat4Vec[0].f, tempFloat4Vec[1].f, tempFloat4Vec[2].f));
@@ -208,15 +211,17 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBuffer)
 	byteFloat tempFloat2UV[2];tempFloat2UV[0].f = 0.5f; tempFloat2UV[1].f = 1.f;
 	tempUV.push_back(DirectX::XMFLOAT2(tempFloat2UV[0].f, tempFloat2UV[1].f));
 
+	
 	indexDesc.push_back(temp);
 	indexList.push_back(indexDesc);
-
+	
+	conv.setMaterial(&tempMaterial);
 	conv.setIndices(&indexList);
 	conv.setVertices(&tempVertex);
 	conv.setNormals(&tempNormal);
 	conv.setTangents(&tempTangent);
 	conv.setTextureCoords(&tempUV);
-
+	
 	std::ostringstream output;
 	conv.testCreateVertexBuffer(&output);
 	

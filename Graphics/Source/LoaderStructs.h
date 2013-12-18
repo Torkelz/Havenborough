@@ -37,6 +37,11 @@ struct Vertex
 	DirectX::XMFLOAT3 m_Binormal;
 };
 
+struct BoundingVolume
+{
+	DirectX::XMFLOAT4 m_Postition;
+};
+
 struct MaterialBuffer
 {
 	std::string material;

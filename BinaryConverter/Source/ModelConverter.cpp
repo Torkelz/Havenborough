@@ -82,27 +82,49 @@ void ModelConverter::createHeader(std::ostream* p_Output)
 
 void ModelConverter::createVertexBuffer(std::ostream* p_Output)
 {
-	VertexBuffer temp;
-	std::vector<VertexBuffer> tempVertex;
-	for(int i = 0; i < m_IndexPerMaterialSize; i++)
+	
+	if(m_MaterialSize != 0)
 	{
-		int tempsize = m_IndexPerMaterial->at(i).size()-1;
-		for(int j = tempsize; j >= 0 ; j--)
+		VertexBuffer temp;
+		std::vector<VertexBuffer> tempVertex;
+		for(int i = 0; i < m_IndexPerMaterialSize; i++)
 		{
-			temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
-			temp.m_Normal = m_Normals->at(m_IndexPerMaterial->at(i).at(j).m_Normal);
-			temp.m_UV = m_TextureCoord->at(m_IndexPerMaterial->at(i).at(j).m_TextureCoord);
-			temp.m_Tangent = m_Tangents->at(m_IndexPerMaterial->at(i).at(j).m_Tangent);
-			DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
-			temp.m_Position.x *= -1.f;
-			temp.m_Normal.x *= -1.f;
-			temp.m_Tangent.x *= -1.f;
-			temp.m_Binormal.x *= -1.f;
-			tempVertex.push_back(temp);
+			int tempsize = m_IndexPerMaterial->at(i).size()-1;
+			for(int j = tempsize; j >= 0 ; j--)
+			{
+				temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
+				temp.m_Normal = m_Normals->at(m_IndexPerMaterial->at(i).at(j).m_Normal);
+				temp.m_UV = m_TextureCoord->at(m_IndexPerMaterial->at(i).at(j).m_TextureCoord);
+				temp.m_Tangent = m_Tangents->at(m_IndexPerMaterial->at(i).at(j).m_Tangent);
+				DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
+				temp.m_Position.x *= -1.f;
+				temp.m_Normal.x *= -1.f;
+				temp.m_Tangent.x *= -1.f;
+				temp.m_Binormal.x *= -1.f;
+				tempVertex.push_back(temp);
+			}
 		}
+		int size = sizeof(VertexBuffer) * tempVertex.size();
+		p_Output->write(reinterpret_cast<const char*>(tempVertex.data()), size);
 	}
-	int size = sizeof(VertexBuffer) * tempVertex.size();
-	p_Output->write(reinterpret_cast<const char*>(tempVertex.data()), size);
+	else
+	{
+		BoundingVolume temp;
+		std::vector<BoundingVolume> tempBoundingVolume;
+		for(int i = 0; i < m_IndexPerMaterialSize; i++)
+		{
+			int tempsize = m_IndexPerMaterial->at(i).size()-1;
+			for(int j = tempsize; j >= 0 ; j--)
+			{
+				temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
+				temp.m_Position.x *= -1.f;
+				tempBoundingVolume.push_back(temp);
+			}
+		}
+		int size = sizeof(BoundingVolume) * tempBoundingVolume.size();
+		p_Output->write(reinterpret_cast<const char*>(tempBoundingVolume.data()), size);
+	}
+	
  }
 
 void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)

@@ -255,11 +255,6 @@ void DeferredRenderer::renderLighting()
 void DeferredRenderer::addRenderable(Renderable p_renderable)
 {
 	m_Objects.push_back(p_renderable);
-
-	if(m_Objects.size() > 47)
-	{
-		int i = 0;
-	}
 }
 
 ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
