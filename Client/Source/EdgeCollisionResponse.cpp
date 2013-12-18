@@ -27,7 +27,6 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosi
 {
 	XMFLOAT3 playerPos = p_Player->getPosition();
 	XMVECTOR playerStartPos = XMLoadFloat3(&playerPos);
-	//Vector4 bodyPositionV = m_Physics->getBodyPosition(p_CollisionBody);
 	XMFLOAT4 collisionBodyPos = Vector4ToXMFLOAT4(&p_EdgePosition);
 
 	XMFLOAT3 collisionPosition = XMFLOAT3(collisionBodyPos.x, collisionBodyPos.y, collisionBodyPos.z);
