@@ -25,7 +25,7 @@ public:
 	*/
 	bool checkCollision(HitData &p_Hit, Vector4 p_EdgePosition, Player *p_Player);
 
-private:
+protected:
 	void handleCollision(Player *p_Player, Vector4 p_EdgePosition, XMVECTOR p_VictimNormal, 
 		XMVECTOR p_CollisionPosition);
 
