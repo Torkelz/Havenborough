@@ -97,9 +97,6 @@
     <ClInclude Include="Source\LightStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ModelLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ModelDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
