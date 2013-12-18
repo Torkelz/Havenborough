@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LoaderStructs.h"
+#include "ShaderStructs.h"
 
 #include <string>
 #include <vector>

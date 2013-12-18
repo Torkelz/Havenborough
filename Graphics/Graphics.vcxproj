@@ -117,7 +117,7 @@
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\LightStructs.h" />
-    <ClInclude Include="Source\LoaderStructs.h" />
+    <ClInclude Include="Source\ShaderStructs.h" />
     <ClInclude Include="Source\ModelBinaryLoader.h" />
     <ClInclude Include="Source\ModelDefinition.h" />
     <ClInclude Include="Source\GraphicsLogger.h" />

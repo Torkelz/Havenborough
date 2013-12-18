@@ -10,11 +10,6 @@ public:
 		byteToInt(p_Input, temp);
 	}
 
-	void testByteToFloat(std::istream* p_Input, float& temp)
-	{
-		byteToFloat(p_Input, temp);
-	}
-
 	void testByteToString(std::istream* p_Input, std::string& temp)
 	{
 		byteToString(p_Input, temp);
@@ -69,26 +64,6 @@ BOOST_AUTO_TEST_CASE(TestByteToInt)
 	loader.testByteToInt(&tempString, result);
 
 	BOOST_CHECK_EQUAL(result, tempInt.i);
-}
-
-BOOST_AUTO_TEST_CASE(TestByteToFloat)
-{
-	struct byteFloat
-	{
-		union
-		{
-			float f;
-			char c[sizeof(float)];
-		};
-	};
-	byteFloat tempFloat;
-	tempFloat.f = 15.0f;
-	std::istringstream tempString(std::string(tempFloat.c, tempFloat.c + sizeof(float)));
-	testBinaryLoader loader;
-	float result = 0;
-	loader.testByteToFloat(&tempString, result);
-
-	BOOST_CHECK_EQUAL(result, tempFloat.f);
 }
 
 BOOST_AUTO_TEST_CASE(TestByteToString)

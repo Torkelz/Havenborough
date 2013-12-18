@@ -10,12 +10,6 @@ struct KeyFrame
 	DirectX::XMFLOAT3 m_Scale;
 };
 
-
-struct BoundingVolume
-{
-	DirectX::XMFLOAT4 m_Postition;
-};
-
 struct StaticVertex
 {
 	DirectX::XMFLOAT4 m_Position;

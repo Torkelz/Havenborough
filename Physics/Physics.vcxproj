@@ -88,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\BVLoader.cpp" />
     <ClCompile Include="Source\AABB.cpp" />
     <ClCompile Include="Source\Body.cpp" />
     <ClCompile Include="Source\Collision.cpp" />
@@ -96,6 +97,7 @@
     <ClCompile Include="Source\Sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\BVLoader.h" />
     <ClInclude Include="include\PhysicsTypes.h" />
     <ClInclude Include="include\AABB.h" />
     <ClInclude Include="include\BoundingVolume.h" />

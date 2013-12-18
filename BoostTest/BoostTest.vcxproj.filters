@@ -213,6 +213,9 @@
     <ClCompile Include="..\Client\Source\Level.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Physics\Source\BVLoader.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Joint.h"
-#include "LoaderStructs.h"
+#include "ShaderStructs.h"
 #include "WrapperFactory.h"
 
 #include <memory>

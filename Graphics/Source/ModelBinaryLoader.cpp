@@ -73,12 +73,7 @@ std::vector<StaticVertex> ModelBinaryLoader::readVertexBuffer(int p_NumberOfVert
 	return vertexBuffer;
 }
 
-std::vector<BoundingVolume> ModelBinaryLoader::readBoundingVolume(int p_NumberOfVertex, std::istream* p_Input)
-{
-	std::vector<BoundingVolume> boundingVolume(p_NumberOfVertex);
-	p_Input->read(reinterpret_cast<char*>(boundingVolume.data()), sizeof(boundingVolume) * p_NumberOfVertex);
-	return boundingVolume;
-}
+
 
 std::vector<AnimatedVertex> ModelBinaryLoader::readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input)
 {
@@ -118,11 +113,6 @@ void ModelBinaryLoader::byteToInt(std::istream* p_Input, int& p_Return)
 	p_Input->read((char*)&p_Return, sizeof(int));
 }
 
-void ModelBinaryLoader::byteToFloat(std::istream* p_Input, float& p_Return)
-{
-	p_Input->read(reinterpret_cast<char*>(&p_Return), sizeof(float) );
-}
-
 bool ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 {
 	clearData();
@@ -138,13 +128,9 @@ bool ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 		m_AnimationVertexBuffer = readVertexBufferAnimation(m_FileHeader.m_numVertex, &input);
 		m_Joints = readJointList(m_FileHeader.m_numJoints, m_FileHeader.m_numFrames, &input);
 	}
-	else if(m_FileHeader.m_numMaterial > 0)
-	{
-		m_VertexBuffer = readVertexBuffer(m_FileHeader.m_numVertex, &input);
-	}
 	else
 	{
-		m_BoundingVolume = readBoundingVolume(m_FileHeader.m_numVertex, &input);
+		m_VertexBuffer = readVertexBuffer(m_FileHeader.m_numVertex, &input);
 	}
 	m_MaterialBuffer = readMaterialBuffer(m_FileHeader.m_numMaterialBuffer, &input);
 	

@@ -11,8 +11,8 @@ private:
 	IPhysics* m_Physics;
 	ResourceManager* m_Resource;
 	LevelBinaryLoader m_LevelLoader, m_CollisionLoader;
-	std::vector<LevelBinaryLoader::ModelData> m_LevelData;
-	std::vector<int> m_ResourceID;
+	std::vector<LevelBinaryLoader::ModelData> m_LevelData, m_LevelCollisionData;
+	std::vector<int> m_ResourceID, m_BVResourceID;
 	std::vector<int> m_DrawID;
 public:
 	Level(){}

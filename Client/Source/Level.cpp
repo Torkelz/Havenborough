@@ -24,7 +24,7 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 	m_LevelData = m_LevelLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelData.size(); i++)
 	{
-		m_ResourceID.push_back(m_Resource->loadResource("model" ,m_LevelData.at(i).m_MeshName));
+		m_ResourceID.push_back(m_Resource->loadResource("model", m_LevelData.at(i).m_MeshName));
 		m_Graphic->linkShaderToModel("DefaultShader", m_LevelData.at(i).m_MeshName.c_str());
 		for(unsigned int j = 0; j < m_LevelData.at(i).m_Translation.size(); j++)
 		{
@@ -43,6 +43,27 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 	{
 		return false;
 	}
+	m_LevelCollisionData = m_CollisionLoader.getModelData();
+	for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
+	{
+		m_BVResourceID.push_back(m_Resource->loadResource("volume", m_LevelCollisionData.at(i).m_MeshName));
+
+		for(unsigned int j = 0; m_LevelCollisionData.at(i).m_Translation.size(); j++)
+		{
+			//m_DrawID.push_back(m_Graphic->createModelInstance(m_LevelData.at(i).m_MeshName.c_str()));
+			
+			DirectX::XMFLOAT3 translation, rotation, scale;
+			translation = m_LevelData.at(i).m_Translation.at(j);
+			rotation = m_LevelData.at(i).m_Rotation.at(j);
+			scale = m_LevelData.at(i).m_Scale.at(j);
+			m_Physics->setBVPosition(m_DrawID.back(), translation.z, translation.y, translation.x);
+			m_Physics->setBVRotation(m_DrawID.back(), rotation.z, rotation.y, rotation.x);
+			m_Physics->setBVScale(m_DrawID.back(), scale.z, scale.y, scale.x);
+		}
+
+	}
+
+
 	return true;
 }
 

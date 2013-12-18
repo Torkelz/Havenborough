@@ -156,6 +156,34 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, 
 	return createBody(p_Mass, aabb, p_IsImmovable);
 }
 
+bool Physics::createLevelBV(const char* p_ModelID, const char* p_FilePath)
+{
+	m_BVLoader.loadBinaryFile(p_FilePath);
+
+
+	return true;
+}
+
+bool Physics::releaseLevelBV(const char* p_ModelID)
+{
+	return true;
+}
+
+void Physics::setBVPosition(int p_Instance, float p_x, float p_y, float p_z)
+{
+
+}
+
+void Physics::setBVRotation(int p_Instance, float p_x, float p_y, float p_z)
+{
+
+}
+
+void Physics::setBVScale(int p_Instance, float p_x, float p_y, float p_z)
+{
+
+}
+
 BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable)
 {
 	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable);
