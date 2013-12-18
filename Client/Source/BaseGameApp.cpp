@@ -181,13 +181,13 @@ void BaseGameApp::run()
 			for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 			{
 				HitData hit = m_Physics->getHitDataAt(i);
-				//if(hit.intersect)
-				//{
-				//	if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim), &m_Player))
-				//		m_Physics->removedHitDataAt(i);
+				if(hit.intersect)
+				{
+					if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim), &m_Player))
+						m_Physics->removedHitDataAt(i);
 
-				//	Logger::log(Logger::Level::DEBUG, "Collision reported");
-				//}
+					Logger::log(Logger::Level::DEBUG, "Collision reported");
+				}
 			}
 		}
 		
