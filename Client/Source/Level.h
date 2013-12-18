@@ -18,6 +18,7 @@ public:
 	Level(){}
 	Level(IGraphics* p_Graphic, ResourceManager* p_Resource, IPhysics* p_Physics);
 	~Level();
+	void releaseLevel();
 	bool loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePath);
 	void drawLevel();
 private:

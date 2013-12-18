@@ -128,7 +128,7 @@ void BaseGameApp::run()
 
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
 		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
-		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, -150.f, (float)(i % 4) * 4.f);
+		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
 	}
 	
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
@@ -138,7 +138,7 @@ void BaseGameApp::run()
 	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
-	m_Graphics->setModelPosition(ground, 0.f, -10.f, 0.f);
+	m_Graphics->setModelPosition(ground, 0.f, 0.f, 0.f);
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug house");
 	int house = m_Graphics->createModelInstance("HOUSE1");
@@ -406,6 +406,9 @@ void BaseGameApp::shutdown()
 	{
 		m_ResourceManager->releaseResource(i);
 	}
+
+	m_Level.releaseLevel();
+
 	m_ResourceIDs.clear();
 	delete m_ResourceManager;
 
