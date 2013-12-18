@@ -67,8 +67,6 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
-	m_EdgeCollResponse.initialize(m_Physics);
-
 	m_Player.initialize(m_Physics, XMFLOAT3(20,10,0), XMFLOAT3(0,0,1));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
@@ -183,14 +181,13 @@ void BaseGameApp::run()
 			for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 			{
 				HitData hit = m_Physics->getHitDataAt(i);
-				if(hit.intersect)
-				{
+				//if(hit.intersect)
+				//{
+				//	if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim), &m_Player))
+				//		m_Physics->removedHitDataAt(i);
 
-					if(m_EdgeCollResponse.checkCollision(hit,&m_Player))
-						m_Physics->removedHitDataAt(i);
-
-					Logger::log(Logger::Level::DEBUG, "Collision reported");
-				}
+				//	Logger::log(Logger::Level::DEBUG, "Collision reported");
+				//}
 			}
 		}
 		

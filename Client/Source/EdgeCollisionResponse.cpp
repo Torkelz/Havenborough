@@ -3,43 +3,32 @@
 
 EdgeCollisionResponse::EdgeCollisionResponse(void)
 {
-	m_Physics = nullptr;
 }
 
 EdgeCollisionResponse::~EdgeCollisionResponse(void)
 {
-	m_Physics = nullptr;
 }
 
-void EdgeCollisionResponse::initialize(IPhysics *p_Physics)
-{
-	if(!p_Physics)
-		throw EdgeCollisionException("Error when initializing the edge collision response, physics engine not initialized ",
-		__LINE__, __FILE__);
-
-	m_Physics = p_Physics;
-}
-
-bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Player *p_Player)
+bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector4 p_EdgePosition, Player *p_Player)
 {
 	if(p_Hit.isEdge && p_Hit.collider == p_Player->getBody())
 	{
 		XMFLOAT3 collisionNormal = Vector3ToXMFLOAT3(&p_Hit.colNorm);
 		XMFLOAT3 collisionPosition = Vector3ToXMFLOAT3(&p_Hit.colPos);
-		handleCollision(p_Player, p_Hit.collisionVictim, XMLoadFloat3(&collisionNormal),
+		handleCollision(p_Player, p_EdgePosition, XMLoadFloat3(&collisionNormal),
 			XMLoadFloat3(&collisionPosition));
 		return true;
 	}
 	return false;
 }
 
-void EdgeCollisionResponse::handleCollision(Player *p_Player, unsigned int p_CollisionBody, XMVECTOR p_VictimNormal,
+void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosition, XMVECTOR p_VictimNormal,
 	XMVECTOR p_CollisionPosition)
 {
 	XMFLOAT3 playerPos = p_Player->getPosition();
 	XMVECTOR playerStartPos = XMLoadFloat3(&playerPos);
-	Vector4 bodyPositionV = m_Physics->getBodyPosition(p_CollisionBody);
-	XMFLOAT4 collisionBodyPos = Vector4ToXMFLOAT4(&bodyPositionV);
+	//Vector4 bodyPositionV = m_Physics->getBodyPosition(p_CollisionBody);
+	XMFLOAT4 collisionBodyPos = Vector4ToXMFLOAT4(&p_EdgePosition);
 
 	XMFLOAT3 collisionPosition = XMFLOAT3(collisionBodyPos.x, collisionBodyPos.y, collisionBodyPos.z);
 	XMVECTOR boundingVolumeCenter = XMLoadFloat3(&collisionPosition);
