@@ -17,18 +17,6 @@
     <ClCompile Include="..\Network\Source\Network.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\Input\Input.cpp">
-      <Filter>ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\Input\InputState.cpp">
-      <Filter>ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp">
-      <Filter>ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\Window.cpp">
-      <Filter>ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp">
       <Filter>TestNetwork</Filter>
     </ClCompile>
@@ -204,17 +192,32 @@
     <ClCompile Include="..\BinaryConverter\Source\LevelLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\Window.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
     <ClCompile Include="..\BinaryConverter\Source\LevelConverter.cpp">
       <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\Input.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\LevelBinaryLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\InputState.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Loader\TestLevelConverter.cpp">
       <Filter>TestLoaders</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Loader\TestLevelLoader.cpp">
       <Filter>TestLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="TestIK.cpp">
+      <Filter>TestGraphics</Filter>
     </ClCompile>
     <ClCompile Include="Source\Loader\TestBinaryLevelLoader.cpp">
       <Filter>TestLoaders</Filter>
@@ -235,9 +238,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="ClientImport">
-      <UniqueIdentifier>{9012d9e5-e746-47e1-ad07-9fcd3fe9d204}</UniqueIdentifier>
-    </Filter>
     <Filter Include="TestNetwork">
       <UniqueIdentifier>{8071612c-29ac-4b80-a58c-541a8115a1ae}</UniqueIdentifier>
     </Filter>

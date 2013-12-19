@@ -170,6 +170,7 @@
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="SphereTest.cpp" />
     <ClCompile Include="TestEdgeCollisionResponse.cpp" />
+    <ClCompile Include="TestIK.cpp" />
     <ClCompile Include="TestLogger.cpp" />
     <ClCompile Include="Source\Graphics\TestModelFactory.cpp" />
     <ClCompile Include="TestResouceTranslator.cpp" />
