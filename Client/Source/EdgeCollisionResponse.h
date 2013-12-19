@@ -20,6 +20,7 @@ public:
 	* calculated position.
 	* @param p_Hit information about the collision hit
 	* @param p_EdgePosition center position of collision volume
+	* @param p_EdgeSizeY half the height of the collision volume
 	* @param p_Player the player to be evaluated with the collision
 	* @return true = player collided with an edge and will be moved, false = player did not collide and has full control
 	*/

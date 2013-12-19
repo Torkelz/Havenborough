@@ -116,7 +116,7 @@ void BaseGameApp::run()
 
 	m_ShouldQuit = false;
 	int currView = 3; // FOR DEBUGGING
-	BodyHandle boxTest;
+	
 	Logger::log(Logger::Level::DEBUG, "Adding debug box model instances");
 	const static int NUM_BOXES = 16;
 	int boxIds[NUM_BOXES];
@@ -128,11 +128,13 @@ void BaseGameApp::run()
 		
 		if(i == 0)
 		{
+			BodyHandle boxTest;
+			
 			m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
 
-			boxTest = m_Physics->createAABB(50.f, true,Vector3(-scale, 2.f,-scale),Vector3(scale,scale,scale),true );
-			Vector4 dd = m_Physics->getBodyPosition(boxTest);
-			m_Graphics->setModelPosition(boxIds[i], Vector3(dd.x, dd.y, dd.z));
+			boxTest = m_Physics->createAABB(50.f, true, Vector3(-scale, 2.f,-scale), Vector3(scale,scale,scale), true);
+			Vector4 tempBodyPosition = m_Physics->getBodyPosition(boxTest);
+			m_Graphics->setModelPosition(boxIds[i], Vector3(tempBodyPosition.x, tempBodyPosition.y, tempBodyPosition.z));
 		}
 		else
 		{

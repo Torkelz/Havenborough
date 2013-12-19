@@ -14,7 +14,6 @@ bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector4 p_EdgePositio
 	if(!p_Player->getForceMove() && p_Hit.isEdge && p_Hit.collider == p_Player->getBody())
 	{
 		XMFLOAT3 collisionNormal = Vector4ToXMFLOAT3(&p_Hit.colNorm);
-		//XMFLOAT3 collisionPosition = Vector4ToXMFLOAT3(&p_Hit.colPos);
 		handleCollision(p_Player, p_EdgePosition, XMLoadFloat3(&collisionNormal),
 			p_EdgeSizeY);
 		return true;
@@ -50,39 +49,6 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosi
 XMVECTOR EdgeCollisionResponse::calculateEndPosition(XMVECTOR p_Normal, XMVECTOR p_PlayerToCenter,
 	XMVECTOR p_BodyCenter, float p_EdgeOffsetY, float p_HeightOffset)
 {
-#pragma region VERSION 1
-	/*XMVECTOR point6 = XMLoadFloat3(&XMFLOAT3(-10,-5,-5));
-	XMVECTOR point3 = XMLoadFloat3(&XMFLOAT3(-10,5,5));
-	XMVECTOR point4 = XMLoadFloat3(&XMFLOAT3(-10,-5,5));
-	XMVECTOR center = XMLoadFloat3(&XMFLOAT3(0,0,0));
-	XMVECTOR player = XMLoadFloat3(&XMFLOAT3(8,-7,-7));
-	XMVECTOR direction = XMVector3Normalize(XMVector3Cross(point6 - point4, point3 - point4));
-	//XMVECTOR t = direction;
-	XMVECTOR b = center - player;
-	XMFLOAT3 xDir, xB, xT;
-	XMStoreFloat3(&xDir, direction);
-	XMStoreFloat3(&xT, direction);
-	XMStoreFloat3(&xB, b);
-
-	float tx = xDir.x * xT.x;
-	float ty = xDir.y * xT.y;
-	float tz = xDir.z * xT.z;
-	float bx = xDir.x * xB.x;
-	float by = xDir.y * xB.y;
-	float bz = xDir.z * xB.z;
-	float T = tx+ty+tz;
-	float B = bx+by+bz;
-	B *= -1.0f;
-
-	float end = B/T;
-	XMVECTOR pointOnLine = center + end*direction;
-
-	XMVECTOR playerDir = pointOnLine - player;
-
-	XMVECTOR playerEnd = player + playerDir*2;//*/
-#pragma endregion
-
-	//VERSION 2//
 	XMFLOAT3 up = XMFLOAT3(0,1,0);
 	XMVECTOR upV = XMLoadFloat3(&up);
 
