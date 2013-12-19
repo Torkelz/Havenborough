@@ -169,6 +169,7 @@
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="SphereTest.cpp" />
+    <ClCompile Include="TestBVLoader.cpp" />
     <ClCompile Include="TestEdgeCollisionResponse.cpp" />
     <ClCompile Include="TestIK.cpp" />
     <ClCompile Include="TestLogger.cpp" />

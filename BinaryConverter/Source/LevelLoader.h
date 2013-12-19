@@ -60,6 +60,7 @@ public:
 	 * @return LevelStruct struct.
 	 */
 	const std::vector<LevelLoader::LevelStruct>& getLevelModelList();
+
 protected:
 	void startReading(std::istream& p_Input);
 	void readHeader(std::istream& p_Input);
