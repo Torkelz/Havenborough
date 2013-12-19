@@ -5,6 +5,7 @@
 
 #include "Collision.h"
 #include "Body.h"
+#include "BVLoader.h"
 
 class Physics : public IPhysics
 {
@@ -14,7 +15,7 @@ private:
 	float m_GlobalGravity;
 	std::vector<Body> m_Bodies;
 	std::vector<HitData> m_HitDatas;
-	
+	BVLoader m_BVLoader;
 public:
 	Physics();
 	~Physics();
@@ -26,6 +27,14 @@ public:
 
 	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius);
 	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge);
+
+	bool createLevelBV(const char* m_ModelID, const char* m_FilePath) override;
+
+	bool releaseLevelBV(const char* p_ModelID) override; 
+
+	void setBVPosition(int p_Instance, float p_x, float p_y, float p_z) override;
+	void setBVRotation(int p_Instance, float p_x, float p_y, float p_z) override;
+	void setBVScale(int p_Instance, float p_x, float p_y, float p_z) override;
 
 	void setGlobalGravity(float p_Gravity);
 	Vector4 getVelocity(BodyHandle p_Body);

@@ -54,8 +54,14 @@
     <ClCompile Include="Source\ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\LevelBinaryLoader.cpp">
+          <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source\EdgeCollisionResponse.cpp">
-      <Filter>Source Files</Filter>
+      	<Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Level.cpp"> 
+         <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Player.cpp">
       <Filter>Source Files</Filter>
@@ -113,7 +119,13 @@
     <ClInclude Include="Source\NetworkClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\LevelBinaryLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Source\EdgeCollisionResponse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Level.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Player.h">

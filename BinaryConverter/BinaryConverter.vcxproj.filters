@@ -24,12 +24,24 @@
     <ClCompile Include="Source\ModelLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\LevelLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\LevelConverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\ModelConverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ModelLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LevelLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LevelConverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\VecTypes.h">

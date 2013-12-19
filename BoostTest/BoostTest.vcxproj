@@ -103,10 +103,14 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\BinaryConverter\Source\LevelConverter.cpp" />
+    <ClCompile Include="..\BinaryConverter\Source\LevelLoader.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
+    <ClCompile Include="..\Client\Source\Level.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />
+    <ClCompile Include="..\Client\Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="..\Client\Source\Logger.cpp" />
     <ClCompile Include="..\Client\Source\Player.cpp" />
     <ClCompile Include="..\Client\Source\RAMMemInfo.cpp" />
@@ -136,6 +140,7 @@
     <ClCompile Include="..\Network\Source\Connection.cpp" />
     <ClCompile Include="..\Network\Source\NetworkLogger.cpp" />
     <ClCompile Include="..\Physics\Source\Body.cpp" />
+    <ClCompile Include="..\Physics\Source\BVLoader.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
     <ClCompile Include="..\Network\Source\ConnectionController.cpp" />
     <ClCompile Include="..\Network\Source\Network.cpp" />
@@ -149,7 +154,10 @@
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
     <ClCompile Include="Source\Loader\TestBinaryConverter.cpp" />
+    <ClCompile Include="Source\Loader\TestBinaryLevelLoader.cpp" />
+    <ClCompile Include="Source\Loader\TestLevelConverter.cpp" />
     <ClCompile Include="Source\Loader\TestBinayLoader.cpp" />
+    <ClCompile Include="Source\Loader\TestLevelLoader.cpp" />
     <ClCompile Include="Source\Loader\TestLoader.cpp" />
     <ClCompile Include="Source\Network\TestConnectionController.cpp" />
     <ClCompile Include="Source\Network\TestSerialize.cpp" />

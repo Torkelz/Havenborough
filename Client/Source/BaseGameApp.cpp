@@ -34,10 +34,12 @@ void BaseGameApp::init()
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
+	
+
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
-
+	
 	Logger::log(Logger::Level::DEBUG, "Adding input mappings");
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
 	translator->addKeyboardMapping('W', "moveForward");
@@ -48,7 +50,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
 	translator->addKeyboardMapping(VK_SPACE, "jump");
-
+	
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
 
@@ -65,15 +67,21 @@ void BaseGameApp::init()
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
+	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
+		
+	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
+	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
+
 
 	m_Player.initialize(m_Physics, XMFLOAT3(20,10,0), XMFLOAT3(0,0,1));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f), false);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(100.f, 0.f, 100.f), false);
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug models");
-	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
+	//Logger::log(Logger::Level::DEBUG, "Adding debug models");
+	//m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
+	//						"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	
 	static const std::string preloadedModels[] =
 	{
@@ -96,10 +104,10 @@ void BaseGameApp::init()
 	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Test"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "IKTest"));
 	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
 							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("AnimatedShader", "Test");
+	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
 }
 
 void BaseGameApp::run()
@@ -120,39 +128,45 @@ void BaseGameApp::run()
 		
 		if(i == 0)
 		{
-			m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
+			m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
 			m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 2.f, (float)(i % 4) * 4.f));
 			m_Physics->createAABB(50.f, true,Vector3(-scale,-scale + 2.f,-scale),Vector3(scale,scale + 2.f,scale),true );
 		}
 		else
 		{
-			m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
+			m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
 			m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f));
 		}
 	}
+
+	int jointBox = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelScale(jointBox, Vector3(0.3f, 0.3f, 2.f));
 	
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
-	m_Graphics->setModelScale(skyBox, 0.1f, 0.1f, 0.1f);
+	m_Graphics->setModelScale(skyBox, Vector3(0.1f, 0.1f, 0.1f));
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
 	int ground = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(ground, 100.f, 0.0001f, 100.f);
+	m_Graphics->setModelScale(ground, Vector3(100.f, 0.0001f, 100.f));
+	m_Graphics->setModelPosition(ground, Vector3(0.f, 0.f, 0.f));
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug house");
 	int house = m_Graphics->createModelInstance("HOUSE1");
 	m_Graphics->setModelPosition(house, Vector3(-10.f, 0.f, -10.f));
-	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
+	m_Graphics->setModelScale(house, Vector3(0.01f, 0.01f, 0.01f));
 
-	int cactus = m_Graphics->createModelInstance("Test");
-	m_Graphics->setModelPosition(cactus, Vector3(-3.f, 1.f, 0.f));
-	m_Graphics->setModelScale(cactus, 0.3f, 0.3f, 0.3f);
-	m_Graphics->setModelRotation(cactus, (float)pi / 4.f, 0.f, 0.f);
+	/*Logger::log(Logger::Level::DEBUG, "Adding debug character");
+	int witch = m_Graphics->createModelInstance("DZALA");
+	m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
+	m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);*/
+	
+	int ikTest = m_Graphics->createModelInstance("IKTest");
+	m_Graphics->setModelPosition(ikTest, Vector3(-3.f, 1.f, 0.f));
+	m_Graphics->setModelScale(ikTest, Vector3(0.3f, 0.3f, 0.3f));
+	m_Graphics->setModelRotation(ikTest, Vector3((float)pi / 4.f, 0.f, 0.f));
+	
 
-	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
-	//int witch = m_Graphics->createModelInstance("DZALA");
-	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
-	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
 
 	float viewRot[] = {0.f, 0.f};
 
@@ -181,9 +195,15 @@ void BaseGameApp::run()
 		prevTimeStamp = currTimeStamp;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
-		
-		m_Player.update(dt);
+		const static float maxDeltaTime = 1.f / 5.f;
+		if (dt > maxDeltaTime)
+		{
+			Logger::log(Logger::Level::WARNING, "Computer to slow or something");
+			dt = maxDeltaTime;
+		}
 
+		m_Player.update(dt);
+		
 		if(m_Physics->getHitDataSize() > 0)
 		{
 			for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
@@ -219,19 +239,38 @@ void BaseGameApp::run()
  		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y, tempPos.z), viewRot[0], viewRot[1]);
 		m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
 
+		m_Graphics->updateAnimations(dt);
+
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
 		roll += rollSpeed * dt;
 
 		for (int i = 0; i < NUM_BOXES; i++)
 		{
-			m_Graphics->setModelRotation(boxIds[i], yaw * i, pitch * i, roll * i);
+			m_Graphics->setModelRotation(boxIds[i], Vector3(yaw * i, pitch * i, roll * i));
 			m_Graphics->renderModel(boxIds[i]);
 		}
+		m_Level.drawLevel();
+		Vector3 lookDir;
+		lookDir.x = -sinf(viewRot[0]) * cosf(viewRot[1]);
+		lookDir.y = sinf(viewRot[1]);
+		lookDir.z = -cosf(viewRot[0]) * cosf(viewRot[1]);
+
+		static const float IK_Length = 5.f;
+
+		static const char* testJoint = "joint4";
+
+		Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
+		m_Graphics->applyIK_ReachPoint(ikTest, testJoint, IK_Target);
+
+		Vector3 jointPos = m_Graphics->getJointPosition(ikTest, testJoint);
+		m_Graphics->setModelPosition(jointBox, jointPos);
+		m_Graphics->renderModel(jointBox);
+
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);
-		m_Graphics->renderModel(cactus);
+		m_Graphics->renderModel(ikTest);
 		//m_Graphics->renderModel(witch);
 
 		m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
@@ -239,7 +278,7 @@ void BaseGameApp::run()
 		m_Graphics->useFrameSpotLight(Vector3(-10.f,5.f,0.f),Vector3(0.f,1.f,0.f),
 			Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
 
-		m_Graphics->drawFrame(dt, currView);
+		m_Graphics->drawFrame(currView);
 		
 		m_MemoryInfo.update();
 		updateDebugInfo(dt);
@@ -353,6 +392,8 @@ void BaseGameApp::run()
 void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
+	
+	m_Level.releaseLevel();
 
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
@@ -364,6 +405,9 @@ void BaseGameApp::shutdown()
 	{
 		m_ResourceManager->releaseResource(i);
 	}
+
+
+
 	m_ResourceIDs.clear();
 	delete m_ResourceManager;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LoaderStructs.h"
+#include "ShaderStructs.h"
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 #include <DirectXMath.h>
 
 /**
- * Joint represents a joint in a skeletal animated mesh,
+ * Represents a joint in a skeletal animated mesh,
  * along with the animation for that joint.
  */
 class Joint
@@ -32,6 +32,11 @@ public:
 	 * space of the joint's parent to the local space of the actual joint.
 	 */
 	DirectX::XMFLOAT4X4 m_JointOffsetMatrix;
+	/**
+	 * The matrix offset of the joint that would move a vector from bind space
+	 * to the local space of the actual joint.
+	 */
+	DirectX::XMFLOAT4X4 m_TotalJointOffset;
 	/**
 	 * A list of all of the animations' keyframes, that is interpolated in between frames.
 	 */

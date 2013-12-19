@@ -1,25 +1,58 @@
 #pragma once
 
 #include "Joint.h"
-#include "LoaderStructs.h"
+#include "ShaderStructs.h"
 #include "WrapperFactory.h"
 
 #include <memory>
 #include <vector>
 
+/**
+ * Representation of the static data associated with a model.
+ */
 struct ModelDefinition
 {
+	/**
+	 * The GPU buffer containing the vertex data.
+	 */
 	std::unique_ptr<Buffer> vertexBuffer;
+	/**
+	 * The vertex range for each material.
+	 */
 	std::vector<std::pair<int,int>> drawInterval;
+	/**
+	 * The shader bound to the model, or nullptr if no shader has been bound.
+	 */
 	Shader						*shader;
+	/**
+	 * Matrial diffuse textures.
+	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> diffuseTexture;
+	/**
+	 * Matrial normal textures.
+	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> normalTexture;
+	/**
+	 * Matrial specular textures.
+	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> specularTexture;
+	/**
+	 * The number of materials in this model.
+	 */
 	unsigned int				numOfMaterials;
+	/**
+	 * If the model is animated or static.
+	 */
 	bool						m_IsAnimated;
 
-	std::vector<Joint>					m_Joints;
+	/**
+	 * The animation joints of the model. Contains all static animation data.
+	 */
+	std::vector<Joint>			m_Joints;
 
+	/**
+	 * Move constructor.
+	 */
 	ModelDefinition(ModelDefinition&& p_Other)
 		:	vertexBuffer(std::move(p_Other.vertexBuffer)),
 			drawInterval(p_Other.drawInterval),
@@ -32,6 +65,9 @@ struct ModelDefinition
 			m_Joints(std::move(p_Other.m_Joints))
 	{}
 
+	/**
+	 * Move assignment operator. Swaps the data of the two objects.
+	 */
 	ModelDefinition& operator=(ModelDefinition&& p_Other)
 	{
 		std::swap(vertexBuffer, p_Other.vertexBuffer);
@@ -48,9 +84,15 @@ struct ModelDefinition
 	}
 
 private:
-	ModelDefinition(const ModelDefinition&);
+	ModelDefinition(const ModelDefinition&); // Removed
 
 public:
-	ModelDefinition(){}
+	/**
+	 * Default contructor. Constructs an object without any data.
+	 */
+	ModelDefinition()
+		:	shader(nullptr),
+			numOfMaterials(0),
+			m_IsAnimated(false) {}
 	~ModelDefinition(){}
 };

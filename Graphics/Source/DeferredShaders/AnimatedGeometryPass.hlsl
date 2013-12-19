@@ -78,18 +78,14 @@ PSIn VS(VSIn input)
 		binormalL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.binormal);
 	}
 	posL /= posL.w;
-	posL.x *= -1.f;
-	normalL.x *= -1.f;
-	tangentL.x *= -1.f;
-	binormalL.x *= -1.f;
 
 	output.pos = mul( projection, mul(view, mul(world, posL) ) );
 	output.wpos = mul(world, posL);
 
-	output.normal = normalize(mul(worldInvTranspose, float4(normalL, 0.0f))).xyz;
+	output.normal = normalize(mul(worldInvTranspose, float4(normalL, 0.f))).xyz;
 	output.uvCoord = input.uvCoord;
-	output.tangent = normalize(mul(world, float4(tangentL, 0.0f))).xyz;
-	output.binormal = normalize(mul(world, float4(binormalL, 0.0f))).xyz; // Try worldInvTranspose if strange results with lighting.
+	output.tangent = normalize(mul(world, float4(tangentL, 0.f))).xyz;
+	output.binormal = normalize(mul(world, float4(binormalL, 0.f))).xyz; // Try worldInvTranspose if strange results with lighting.
 		
 	return output;
 }

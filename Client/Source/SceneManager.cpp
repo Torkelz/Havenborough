@@ -72,7 +72,7 @@ void SceneManager::destroy()
 void SceneManager::onFrame()
 {
 	std::vector<IScene::ptr>* activeList = nullptr;
-	unsigned int nrScenes = 0;
+	int nrScenes = 0;
 
 	if(m_IsMenuState)
 	{
@@ -85,7 +85,7 @@ void SceneManager::onFrame()
 		nrScenes = m_NumberOfRunScene;
 	}
 
-	for(unsigned int i = 0; i < nrScenes; i++)
+	for(int i = 0; i < nrScenes; i++)
 	{
 		if(activeList->at(i)->getIsVisible())
 		{

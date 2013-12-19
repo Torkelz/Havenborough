@@ -21,9 +21,18 @@ struct Vector3
 
 	Vector3() :x(0.0f), y(0.0f), z(0.0f)
 	{}
-
+	Vector3(const DirectX::XMFLOAT3& _vec) : x(_vec.x), y(_vec.y), z(_vec.z)
+	{}
+	
 	Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
 	{}
+
+	{}
+
+	operator DirectX::XMFLOAT3() const
+	{
+		return DirectX::XMFLOAT3(x, y, z);
+	}
 };
 
 struct Vector4

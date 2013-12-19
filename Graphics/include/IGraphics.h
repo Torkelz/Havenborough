@@ -168,11 +168,16 @@ public:
 	/**
 	* Draw the current frame.
 	*
-	* @param p_DeltaTime the time in seconds since the previous frame.
-	*			Affects animations and effects.
 	* @param i the render target to display.
 	*/
-	virtual void drawFrame(float p_DeltaTime, int i) = 0;
+	virtual void drawFrame(int i) = 0;
+
+	/**
+	 * Update the animations of all models.
+	 *
+	 * @param p_DeltaTime the time in seconds since the previous frame.
+	 */
+	virtual void updateAnimations(float p_DeltaTime) = 0;
 
 	/**
 	* Gets the amount of VRAM usage of the program.
@@ -212,7 +217,7 @@ public:
 	 * @param p_Pitch rotation around the X axis, left-handed.
 	 * @param p_Roll rotation around the Z axis, left-handed.
 	 */
-	virtual void setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll) = 0;
+	virtual void setModelRotation(int p_Instance, Vector3 p_YawPitchRoll) = 0;
 
 	/**
 	 * Set the scale of an model instance.
@@ -222,7 +227,26 @@ public:
 	 * @param p_Y scale in Y direction.
 	 * @param p_Z scale in Z direction.
 	 */
-	virtual void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) = 0;
+	virtual void setModelScale(int p_Instance, Vector3 p_Scale) = 0;
+
+	/**
+	 * Updates the model to reach for a point in world space.
+	 *
+	 * @param p_Instance an identifier to a model instance.
+	 * @param p_Joint the name of the end joint to change.
+	 *			The joint must have a parent and a grandparent.
+	 * @param p_Target the target position in world space.
+	 */
+	virtual void applyIK_ReachPoint(int p_Instance, const char* p_Joint, Vector3 p_Target) = 0;
+
+	/**
+	 * Get the position of a single joint from a model instance.
+	 *
+	 * @param p_Instance the instance identifier to retreive the joint from.
+	 * @param p_Joint the identifier of the joint to get the position of.
+	 * @return the position of the joint in world space.
+	 */
+	virtual Vector3 getJointPosition(int p_Instance, const char* p_Joint) = 0;
 
 	/**
 	 * Update the position and viewing direction of the camera.

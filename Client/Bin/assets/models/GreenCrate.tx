@@ -1,14 +1,14 @@
 *Header
 #Materials 1
-#MESH pCubeShape1
+#MESH GreenCrate
 #Vertices 8
 #Triangles 12
 
 *Materials
-Material: blinn1
-DiffuseMap: CubeMap_COLOR1.jpg
-NormalMap: CubeMap_NRM.jpg
-SpecularMap: CubeMap_SPEC.jpg
+Material: lambert1
+DiffuseMap: Green.jpg
+NormalMap: Default_NRM.jpg
+SpecularMap: Default_SPEC.jpg
 
 *Vertices
 v -0.5 -0.5 0.5
@@ -101,7 +101,7 @@ t 0 0 1
 t 0 0 1
 
 *FACES
--blinn1
+-lambert1
 face: 3
 0 / 0 / 0 / 0 | 1 / 1 / 1 / 1 | 2 / 2 / 2 / 2 | 
 2 / 3 / 2 / 2 | 1 / 4 / 1 / 1 | 3 / 5 / 3 / 3 | 

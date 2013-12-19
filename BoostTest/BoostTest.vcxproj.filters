@@ -109,22 +109,22 @@
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\Loader\TestBinaryConverter.cpp">
-      <Filter>ModelLoader</Filter>
+      <Filter>TestLoaders</Filter>
     </ClCompile>
     <ClCompile Include="Source\Loader\TestBinayLoader.cpp">
-      <Filter>ModelLoader</Filter>
+      <Filter>TestLoaders</Filter>
     </ClCompile>
     <ClCompile Include="Source\Loader\TestLoader.cpp">
-      <Filter>ModelLoader</Filter>
+      <Filter>TestLoaders</Filter>
     </ClCompile>
     <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp">
-      <Filter>ModelLoader\Files</Filter>
+      <Filter>TestLoaders\Files</Filter>
     </ClCompile>
     <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp">
-      <Filter>ModelLoader\Files</Filter>
+      <Filter>TestLoaders\Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp">
-      <Filter>ModelLoader\Files</Filter>
+      <Filter>TestLoaders\Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\ModelInstance.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
@@ -201,6 +201,30 @@
     <ClCompile Include="..\Graphics\Source\Joint.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\BinaryConverter\Source\LevelLoader.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BinaryConverter\Source\LevelConverter.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\LevelBinaryLoader.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Loader\TestLevelConverter.cpp">
+      <Filter>TestLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Loader\TestLevelLoader.cpp">
+      <Filter>TestLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Loader\TestBinaryLevelLoader.cpp">
+      <Filter>TestLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Level.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\BVLoader.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
@@ -244,10 +268,10 @@
     <Filter Include="TestPhysics\PhysicsImport">
       <UniqueIdentifier>{b43af11e-5778-4f5f-8fa7-95c06d96b6be}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ModelLoader">
+    <Filter Include="TestLoaders">
       <UniqueIdentifier>{c1519435-6038-4446-8c81-9b6161be5cf0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ModelLoader\Files">
+    <Filter Include="TestLoaders\Files">
       <UniqueIdentifier>{ef828351-f38e-415f-bb85-34accbbec579}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

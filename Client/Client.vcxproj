@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Level.cpp" />
+    <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
@@ -47,6 +49,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Level.h" />
+    <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\EdgeCollisionResponse.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\Logger.h" />

@@ -60,10 +60,7 @@ public:
 			vector<AnimatedVertex> vertexData;
 			AnimatedVertex vertex;
 			vertex.m_Binormal = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			vertex.m_BoneId[0] = 1;
-			vertex.m_BoneId[1] = 1;
-			vertex.m_BoneId[2] = 1;
-			vertex.m_BoneId[3] = 1;
+			vertex.m_BoneId = XMINT4(1, 1, 1, 1);
 			vertex.m_Normal = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			vertex.m_Position = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			vertex.m_Tangent = XMFLOAT3(1.0f, 1.0f, 1.0f);

@@ -24,6 +24,7 @@ private:
 	std::vector<int>	m_Indices;
 	Sphere				m_Sphere;
 	DirectX::XMFLOAT4	m_HalfDiagonal;
+	DirectX::XMFLOAT4	m_Size;
 
 	////DEBUGGING
 	/*Buffer*			m_pBuffer;
@@ -43,22 +44,34 @@ public:
 	* @p_top is the most positive corner in all axis.
 	* @p_bot is the least positive corner in all axis.
 	*/
-	AABB( DirectX::XMFLOAT4 p_Bot, DirectX::XMFLOAT4 p_Top) : BoundingVolume()
+	AABB( DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
 	{
-		m_Top		= p_Top;
-		m_Bottom	= p_Bot;
-	
-		m_Bounds[0] = m_Bottom;
-		m_Bounds[7] = m_Top;
-
-		m_Position = DirectX::XMFLOAT4(	m_Bottom.x + ((m_Top.x - m_Bottom.x) / 2) , 
-										m_Bottom.y + ((m_Top.y - m_Bottom.y) / 2) , 
-										m_Bottom.z + ((m_Top.z - m_Bottom.z) / 2) ,
-										1.0f );
+		m_Position = p_CenterPos;
+		m_Size.x = p_Size.x * 0.5f;
+		m_Size.y = p_Size.y * 0.5f;
+		m_Size.z = p_Size.z * 0.5f;
+		m_Size.w = p_Size.w;
+		
 		m_Type		= Type::AABBOX;
 
 		calculateBounds();
 	}
+	//AABB( DirectX::XMFLOAT4 p_Bot, DirectX::XMFLOAT4 p_Top) : BoundingVolume()
+	//{
+	//	m_Top		= p_Top;
+	//	m_Bottom	= p_Bot;
+	//
+	//	m_Bounds[0] = m_Bottom;
+	//	m_Bounds[7] = m_Top;
+
+	//	m_Position = DirectX::XMFLOAT4(	m_Bottom.x + ((m_Top.x - m_Bottom.x) / 2) , 
+	//									m_Bottom.y + ((m_Top.y - m_Bottom.y) / 2) , 
+	//									m_Bottom.z + ((m_Top.z - m_Bottom.z) / 2) ,
+	//									1.0f );
+	//	m_Type		= Type::AABBOX;
+
+	//	calculateBounds();
+	//}
 	~AABB(){
 		/*m_pBuffer->~Buffer();
 		m_pCB->~Buffer();
@@ -86,17 +99,28 @@ public:
 	void calculateBounds()
 	{
 		using namespace DirectX;
-		m_Position = XMFLOAT4(	m_Bounds[0].x + ((m_Bounds[7].x - m_Bounds[0].x) / 2) , 
-								m_Bounds[0].y + ((m_Bounds[7].y - m_Bounds[0].y) / 2) , 
-								m_Bounds[0].z + ((m_Bounds[7].z - m_Bounds[0].z) / 2) ,
-								1.0f );
 
-		m_Bounds[1] = XMFLOAT4( m_Bounds[7].x,		m_Bounds[0].y,		m_Bounds[0].z, 1.0f ); // Xyz
-		m_Bounds[2] = XMFLOAT4( m_Bounds[0].x,		m_Bounds[7].y,		m_Bounds[0].z, 1.0f ); // xYz
-		m_Bounds[3] = XMFLOAT4( m_Bounds[7].x,		m_Bounds[7].y,		m_Bounds[0].z, 1.0f ); // XYz
-		m_Bounds[4] = XMFLOAT4( m_Bounds[0].x,		m_Bounds[0].y,		m_Bounds[7].z, 1.0f ); // xyZ
-		m_Bounds[5] = XMFLOAT4( m_Bounds[7].x,		m_Bounds[0].y,		m_Bounds[7].z, 1.0f ); // XyZ
-		m_Bounds[6] = XMFLOAT4( m_Bounds[0].x,		m_Bounds[7].y,		m_Bounds[7].z, 1.0f ); // xYZ
+		m_Bounds[0] = XMFLOAT4(- m_Size.x, - m_Size.y, - m_Size.z, 1.f);
+		m_Bounds[1] = XMFLOAT4(+ m_Size.x, - m_Size.y, - m_Size.z, 1.f);
+		m_Bounds[2] = XMFLOAT4(- m_Size.x, + m_Size.y, - m_Size.z, 1.f);
+		m_Bounds[3] = XMFLOAT4(+ m_Size.x, + m_Size.y, - m_Size.z, 1.f);
+		m_Bounds[4] = XMFLOAT4(- m_Size.x, - m_Size.y, + m_Size.z, 1.f);
+		m_Bounds[5] = XMFLOAT4(+ m_Size.x, - m_Size.y, + m_Size.z, 1.f);
+		m_Bounds[6] = XMFLOAT4(- m_Size.x, + m_Size.y, + m_Size.z, 1.f);
+		m_Bounds[7] = XMFLOAT4(+ m_Size.x, + m_Size.y, + m_Size.z, 1.f);
+
+		//using namespace DirectX;
+		//m_Position = XMFLOAT4(	m_Bounds[0].x + ((m_Bounds[7].x - m_Bounds[0].x) / 2) , 
+		//						m_Bounds[0].y + ((m_Bounds[7].y - m_Bounds[0].y) / 2) , 
+		//						m_Bounds[0].z + ((m_Bounds[7].z - m_Bounds[0].z) / 2) ,
+		//						1.0f );
+
+		//m_Bounds[1] = XMFLOAT4( m_Bounds[7].x,		m_Bounds[0].y,		m_Bounds[0].z, 1.0f ); // Xyz
+		//m_Bounds[2] = XMFLOAT4( m_Bounds[0].x,		m_Bounds[7].y,		m_Bounds[0].z, 1.0f ); // xYz
+		//m_Bounds[3] = XMFLOAT4( m_Bounds[7].x,		m_Bounds[7].y,		m_Bounds[0].z, 1.0f ); // XYz
+		//m_Bounds[4] = XMFLOAT4( m_Bounds[0].x,		m_Bounds[0].y,		m_Bounds[7].z, 1.0f ); // xyZ
+		//m_Bounds[5] = XMFLOAT4( m_Bounds[7].x,		m_Bounds[0].y,		m_Bounds[7].z, 1.0f ); // XyZ
+		//m_Bounds[6] = XMFLOAT4( m_Bounds[0].x,		m_Bounds[7].y,		m_Bounds[7].z, 1.0f ); // xYZ
 
 		XMVECTOR vBot, vTop, vDiag;
 
@@ -121,15 +145,12 @@ public:
 
 		tempTrans = XMLoadFloat4x4(&p_Translation);
 
-		DirectX::XMVECTOR vBot, vTop;
-		vBot = XMLoadFloat4(&m_Bounds[0]);
-		vTop = XMLoadFloat4(&m_Bounds[7]);
+		DirectX::XMVECTOR tPos;
+		tPos = XMLoadFloat4(&m_Position);
 
-		vBot = XMVector4Transform(vBot, tempTrans);
-		vTop = XMVector4Transform(vTop, tempTrans);
+		tPos = XMVector4Transform(tPos, tempTrans);
 
-		XMStoreFloat4(&m_Bounds[0], vBot);
-		XMStoreFloat4(&m_Bounds[7], vTop);
+		XMStoreFloat4(&m_Position, tPos);
 
 		calculateBounds();
 	}

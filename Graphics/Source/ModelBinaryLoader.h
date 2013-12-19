@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Joint.h"
-#include "LoaderStructs.h"
+#include "ShaderStructs.h"
 
 #include <fstream>
 #include <sstream>
@@ -30,8 +30,7 @@ private:
 	std::vector<StaticVertex> m_VertexBuffer;
 	std::vector<MaterialBuffer> m_MaterialBuffer;
 
-public:
-	
+public:	
 	/**
 	 * Constructor.
 	 */
@@ -69,7 +68,6 @@ public:
 	 */
 	const std::vector<AnimatedVertex>& getAnimationVertexBuffer();
 
-
 	/**
 	 * Returns a vector of joints for the animation. 
 	 ** This will be empty if the source file does not contain any animation.
@@ -95,13 +93,12 @@ public:
 
 protected:
 	void byteToInt(std::istream* p_Input, int& p_Return);
-	void byteToFloat(std::istream* p_Input, float& p_Return);
 	void byteToString(std::istream* p_Input, std::string& p_Return);
 	
 	ModelBinaryLoader::Header readHeader(std::istream* p_Input);
 	std::vector<Material> readMaterial(int p_NumberOfMaterial, std::istream* p_Input);
 	std::vector<MaterialBuffer> readMaterialBuffer(int p_NumberOfMaterialBuffers, std::istream* p_Input);
-	std::vector<StaticVertex> readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input);	
+	std::vector<StaticVertex> readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input);
 	std::vector<AnimatedVertex> readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input);	
 	std::vector<Joint> readJointList(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input);
 

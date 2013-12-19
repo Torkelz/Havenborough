@@ -11,7 +11,7 @@
  * Base class for all our exceptions, all our exceptions
  * should inherit from this class.
  */
-class GraphicsExceptions : public std::exception
+class GraphicsException : public std::exception
 {
 protected:
         /**
@@ -36,7 +36,7 @@ public:
          * @param p_Line The line of the exception (use __LINE__)
          * @param p_File The file of the exception (use __FILE__)
          */
-        GraphicsExceptions(const std::string& p_What, int p_Line, const std::string& p_File)
+        GraphicsException(const std::string& p_What, int p_Line, const std::string& p_File)
                 : m_What(p_File + "(" + std::to_string(p_Line) + "): " + p_What),
                   m_Line(p_Line),
                   m_File(p_File)
@@ -51,28 +51,9 @@ public:
 };
 
 /**
- * An exception to be thrown when an error occurs in the graphics engine.
- */
-class GraphicsException : public GraphicsExceptions
-{
-public:
-        /**
-         * constructor.
-         *
-         * @param p_What A message describing the error
-         * @param p_Line The line of the exception (use __LINE__)
-         * @param p_File The file of the exception (use __FILE__)
-         */
-        GraphicsException(const std::string& p_What, int p_Line, const std::string& p_File)
-                : GraphicsExceptions(p_What, p_Line, p_File)
-        {
-        }
-};
-
-/**
  * An exception to be thrown when an error is encountered with the buffers.
  */
-class BufferException : public GraphicsExceptions
+class BufferException : public GraphicsException
 {
 public:
         /**
@@ -83,7 +64,7 @@ public:
          * @param p_File The file of the exception (use __FILE__)
          */
         BufferException(const std::string& p_What, int p_Line, const std::string& p_File)
-                : GraphicsExceptions(p_What, p_Line, p_File)
+                : GraphicsException(p_What, p_Line, p_File)
         {
         }
 };
@@ -91,7 +72,7 @@ public:
 /**
 * An exception to be thrown when an error occurs with the shaders.
 */
-class ShaderException : public GraphicsExceptions
+class ShaderException : public GraphicsException
 {
 public:
         /**
@@ -102,7 +83,7 @@ public:
          * @param p_File The file of the exception (use __FILE__)
          */
         ShaderException(const std::string& p_What, int p_Line, const std::string& p_File)
-                : GraphicsExceptions(p_What, p_Line, p_File)
+                : GraphicsException(p_What, p_Line, p_File)
         {
         }
 };
@@ -110,7 +91,7 @@ public:
 /**
 * An exception to be thrown when an error occurs in the wrapper factory.
 */
-class WrapperFactoryException : public GraphicsExceptions
+class WrapperFactoryException : public GraphicsException
 {
 public:
         /**
@@ -121,7 +102,7 @@ public:
          * @param p_File The file of the exception (use __FILE__)
          */
         WrapperFactoryException(const std::string& p_What, int p_Line, const std::string& p_File)
-                : GraphicsExceptions(p_What, p_Line, p_File)
+                : GraphicsException(p_What, p_Line, p_File)
         {
         }
 };
@@ -129,7 +110,7 @@ public:
 /**
 * An exception to be thrown when an error occurs in the model factory.
 */
-class ModelFactoryException : public GraphicsExceptions
+class ModelFactoryException : public GraphicsException
 {
 public:
         /**
@@ -140,7 +121,7 @@ public:
          * @param p_File The file of the exception (use __FILE__)
          */
         ModelFactoryException(const std::string& p_What, int p_Line, const std::string& p_File)
-                : GraphicsExceptions(p_What, p_Line, p_File)
+                : GraphicsException(p_What, p_Line, p_File)
         {
         }
 };
@@ -148,7 +129,7 @@ public:
 /**
 * An exception to be thrown when an error occurs with in the texture loader.
 */
-class TextureLoaderException : public GraphicsExceptions
+class TextureLoaderException : public GraphicsException
 {
 public:
         /**
@@ -159,7 +140,7 @@ public:
          * @param p_File The file of the exception (use __FILE__)
          */
         TextureLoaderException(const std::string& p_What, int p_Line, const std::string& p_File)
-                : GraphicsExceptions(p_What, p_Line, p_File)
+                : GraphicsException(p_What, p_Line, p_File)
         {
         }
 };
@@ -167,7 +148,7 @@ public:
 /**
 * An exception to be thrown when an error occurs with in the texture loader.
 */
-class MemoryUsageException : public GraphicsExceptions
+class MemoryUsageException : public GraphicsException
 {
 public:
         /**
@@ -178,7 +159,26 @@ public:
          * @param p_File The file of the exception (use __FILE__)
          */
         MemoryUsageException(const std::string& p_What, int p_Line, const std::string& p_File)
-                : GraphicsExceptions(p_What, p_Line, p_File)
+                : GraphicsException(p_What, p_Line, p_File)
         {
         }
+};
+
+/**
+* An exception to be thrown when an invalid argument has been passed to a function.
+*/
+class InvalidArgumentGraphicsException : public GraphicsException
+{
+public:
+	/**
+		* constructor.
+		*
+		* @param p_What A message describing the error
+		* @param p_Line The line of the exception (use __LINE__)
+		* @param p_File The file of the exception (use __FILE__)
+		*/
+	InvalidArgumentGraphicsException(const std::string& p_What, int p_Line, const std::string& p_File)
+			: GraphicsException(p_What, p_Line, p_File)
+	{
+	}
 };

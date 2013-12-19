@@ -61,8 +61,7 @@ bool ModelLoader::loadFile(std::string p_FilePath)
 }	
 void ModelLoader::startReading(std::istream& p_Input)	
 {
-	std::string line, key, filler;
-	//int readMaterial = 0;
+	std::string line, key;
 	std::stringstream stringstream;
 	while (!p_Input.eof() && std::getline(p_Input, line))
 	{
@@ -224,7 +223,40 @@ void ModelLoader::readFaces(std::istream& p_Input)
 	int tempInt;
 	IndexDesc tempFace;
 	std::string line, key, filler;
-	for(int i = 0; i < m_NumberOfMaterials; i++)
+	if(m_NumberOfMaterials != 0)
+	{
+		for(int i = 0; i < m_NumberOfMaterials; i++)
+		{
+			m_Indices.clear();
+			std::getline(p_Input, line);
+			m_Stringstream = std::stringstream(line);
+			m_Stringstream >> tempFace.m_MaterialID;
+			std::getline(p_Input, line);
+			m_Stringstream = std::stringstream(line);
+			m_Stringstream >> filler >> key;
+			while(std::getline(p_Input,line))
+			{
+				m_Stringstream = std::stringstream(line);
+				if(line == "")
+					break;
+				for(int i = 0; i < atoi(key.c_str()); i++)
+				{
+					m_Stringstream >> tempInt >> filler;
+					tempFace.m_Vertex = tempInt;
+					m_Stringstream >> tempInt >> filler;
+					tempFace.m_Tangent = tempInt;
+					m_Stringstream >> tempInt >> filler;
+					tempFace.m_Normal = tempInt;
+					m_Stringstream >> tempInt >> filler;	
+					tempFace.m_TextureCoord = tempInt;
+					m_Indices.push_back(tempFace);
+				}
+					
+			}
+			m_IndexPerMaterial.push_back(m_Indices);
+		}
+	}
+	else
 	{
 		m_Indices.clear();
 		std::getline(p_Input, line);
@@ -242,24 +274,22 @@ void ModelLoader::readFaces(std::istream& p_Input)
 			{
 				m_Stringstream >> tempInt >> filler;
 				tempFace.m_Vertex = tempInt;
-				m_Stringstream >> tempInt >> filler;
-				tempFace.m_Tangent = tempInt;
-				m_Stringstream >> tempInt >> filler;
-				tempFace.m_Normal = tempInt;
-				m_Stringstream >> tempInt >> filler;	
-				tempFace.m_TextureCoord = tempInt;
+				tempFace.m_Tangent = 0;
+				tempFace.m_Normal = 0;	
+				tempFace.m_TextureCoord = 0;
 				m_Indices.push_back(tempFace);
 			}
 					
 		}
 		m_IndexPerMaterial.push_back(m_Indices);
 	}
+
 }
 
 void ModelLoader::readWeights(std::istream& p_Input)
 {
 	DirectX::XMFLOAT3 tempWeight;
-	uivec4 tempJoint;
+	DirectX::XMINT4 tempJoint;
 	std::string line, key, filler;
 
 	while(std::getline(p_Input, line))
@@ -379,7 +409,7 @@ const std::vector<DirectX::XMFLOAT2>& ModelLoader::getTextureCoords()
 	return m_TextureCoord;
 }
 
-const std::vector<std::pair<DirectX::XMFLOAT3, uivec4>>& ModelLoader::getWeightsList()
+const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>& ModelLoader::getWeightsList()
 {
 	return m_WeightsList;
 }

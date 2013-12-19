@@ -34,6 +34,14 @@ public:
 	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge) = 0;
 
 	//TODO: Comment this!
+	//ha en struct som håller trianglar och dess info(positioner, rotation, skalning)
+	virtual bool createLevelBV(const char* p_VolumeID, const char* p_FilePath) = 0;
+
+	virtual bool releaseLevelBV(const char* p_VolumeID) = 0;
+
+	virtual void setBVPosition(int p_Instance, float p_x, float p_y, float p_z) = 0;
+	virtual void setBVRotation(int p_Instance, float p_x, float p_y, float p_z) = 0;
+	virtual void setBVScale(int p_Instance, float p_x, float p_y, float p_z) = 0;
 	virtual Vector4 getBodyPosition(BodyHandle p_Body) =0;
 
 	//TODO: Comment this!

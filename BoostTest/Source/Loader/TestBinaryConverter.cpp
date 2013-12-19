@@ -10,11 +10,6 @@ public:
 		intToByte(p_Int,p_Output);
 	}
 
-	void testFloatToByte(float p_Float, std::ostream* p_Output)
-	{
-		floatToByte(p_Float, p_Output);
-	}
-
 	void testStringToByte(std::string p_String, std::ostream* p_Output)
 	{
 		stringToByte(p_String, p_Output);
@@ -70,29 +65,6 @@ BOOST_AUTO_TEST_CASE(TestIntToByte)
 
 	std::string tempString = output.str();
 	byteInt test2;
-	std::copy(tempString.begin(), tempString.end(), test2.c);
-	BOOST_CHECK_EQUAL_COLLECTIONS(test.c, test.c+sizeof(int), test2.c, test2.c+sizeof(int));
-}
-
-BOOST_AUTO_TEST_CASE(TestFloatToByte)
-{
-	struct byteFloat
-	{
-		union
-		{
-			float f;
-			char c[sizeof(float)];
-		};
-	};
-
-	testConv conv;
-	byteFloat test;
-	test.f = 5.45f;
-	std::ostringstream output;
-	conv.testFloatToByte(test.f, &output);
-
-	std::string tempString = output.str();
-	byteFloat test2;
 	std::copy(tempString.begin(), tempString.end(), test2.c);
 	BOOST_CHECK_EQUAL_COLLECTIONS(test.c, test.c+sizeof(int), test2.c, test2.c+sizeof(int));
 }
@@ -220,6 +192,9 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBuffer)
 	temp.m_Tangent = 0;
 	temp.m_TextureCoord = 0;
 
+	std::vector<ModelLoader::Material> tempMaterial;
+	tempMaterial.resize(1);
+
 	std::vector<DirectX::XMFLOAT3> tempVertex;
 	byteFloat tempFloat4Vec[4];tempFloat4Vec[0].f = 0.f; tempFloat4Vec[1].f = 1.f; tempFloat4Vec[2].f = 2.f;tempFloat4Vec[3].f = 1.f;
 	tempVertex.push_back(DirectX::XMFLOAT3(tempFloat4Vec[0].f, tempFloat4Vec[1].f, tempFloat4Vec[2].f));
@@ -236,15 +211,17 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBuffer)
 	byteFloat tempFloat2UV[2];tempFloat2UV[0].f = 0.5f; tempFloat2UV[1].f = 1.f;
 	tempUV.push_back(DirectX::XMFLOAT2(tempFloat2UV[0].f, tempFloat2UV[1].f));
 
+	
 	indexDesc.push_back(temp);
 	indexList.push_back(indexDesc);
-
+	
+	conv.setMaterial(&tempMaterial);
 	conv.setIndices(&indexList);
 	conv.setVertices(&tempVertex);
 	conv.setNormals(&tempNormal);
 	conv.setTangents(&tempTangent);
 	conv.setTextureCoords(&tempUV);
-
+	
 	std::ostringstream output;
 	conv.testCreateVertexBuffer(&output);
 	
@@ -286,12 +263,12 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 		};
 	};
 
-	struct byteUInt
+	struct byteInt
 	{
 		union
 		{
-			unsigned int ui;
-			char c[sizeof(unsigned int)];
+			int i;
+			char c[sizeof(int)];
 		};
 	};
 	
@@ -320,12 +297,12 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 	byteFloat tempFloat2UV[2];tempFloat2UV[0].f = 0.5f; tempFloat2UV[1].f = 1.f;
 	tempUV.push_back(DirectX::XMFLOAT2(tempFloat2UV[0].f, tempFloat2UV[1].f));
 
-	std::vector<std::pair<DirectX::XMFLOAT3, uivec4>> tempWeight;
+	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>> tempWeight;
 	byteFloat tempFloat3Weight[3];tempFloat3Weight[0].f = 0.f; tempFloat3Weight[1].f = 1.f; tempFloat3Weight[2].f = 2.f;
-	byteUInt tempFloat4Joint[4];tempFloat4Joint[0].ui = 2; tempFloat4Joint[1].ui = 1; tempFloat4Joint[2].ui = 2; tempFloat4Joint[3].ui = 0;
+	byteInt tempFloat4Joint[4];tempFloat4Joint[0].i = 2; tempFloat4Joint[1].i = 1; tempFloat4Joint[2].i = 2; tempFloat4Joint[3].i = 0;
 	tempWeight.push_back(std::make_pair(
 		DirectX::XMFLOAT3(tempFloat3Weight[0].f, tempFloat3Weight[1].f, tempFloat3Weight[2].f), 
-		uivec4(tempFloat4Joint[0].ui, tempFloat4Joint[1].ui, tempFloat4Joint[2].ui, tempFloat4Joint[3].ui)));
+		DirectX::XMINT4(tempFloat4Joint[0].i, tempFloat4Joint[1].i, tempFloat4Joint[2].i, tempFloat4Joint[3].i)));
 
 	indexDesc.push_back(temp);
 	indexList.push_back(indexDesc);

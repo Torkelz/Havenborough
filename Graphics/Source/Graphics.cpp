@@ -450,20 +450,11 @@ void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDir
 	m_DirectionalLights.push_back(l);
 }
 
-void Graphics::drawFrame(float p_DeltaTime, int i)
+void Graphics::drawFrame(int i)
 {
 	if (!m_DeviceContext || !m_DeferredRender)
 	{
 		return;
-	}
-
-	for (auto& model : m_ModelInstances)
-	{
-		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
-		if (modelDef->m_IsAnimated)
-		{
-			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
-		}
 	}
 
 	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
@@ -489,6 +480,18 @@ void Graphics::drawFrame(float p_DeltaTime, int i)
 	m_DirectionalLights.clear();
 }
 
+void Graphics::updateAnimations(float p_DeltaTime)
+{
+	for (auto& model : m_ModelInstances)
+	{
+		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
+		if (modelDef->m_IsAnimated)
+		{
+			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
+		}
+	}
+}
+
 int Graphics::getVRAMMemUsage(void)
 {
 	if (m_VRAMMemInfo)
@@ -511,7 +514,6 @@ int Graphics::createModelInstance(const char *p_ModelId)
 	}
 
 	ModelInstance instance;
-	instance.setIsCalculated(false);
 	instance.setModelName(p_ModelId);
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
@@ -547,28 +549,56 @@ void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
 	}
 }
 
-void Graphics::setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll)
+void Graphics::setModelRotation(int p_Instance, Vector3 p_YawPitchRoll)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.setRotation(DirectX::XMFLOAT3(p_Pitch, p_Yaw, p_Roll));
+			inst.second.setRotation(DirectX::XMFLOAT3(p_YawPitchRoll.y, p_YawPitchRoll.x, p_YawPitchRoll.z));
 			break;
 		}
 	}
 }
 
-void Graphics::setModelScale(int p_Instance, float p_X, float p_Y, float p_Z)
+void Graphics::setModelScale(int p_Instance, Vector3 p_Scale)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.setScale(DirectX::XMFLOAT3(p_X, p_Y, p_Z));
+			inst.second.setScale(DirectX::XMFLOAT3(p_Scale));
 			break;
 		}
 	}
+}
+
+void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_Joint, Vector3 p_Target)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.applyIK_ReachPoint(p_Joint, p_Target, getModelFromList(inst.second.getModelName())->m_Joints);
+			break;
+		}
+	}
+}
+
+Vector3 Graphics::getJointPosition(int p_Instance, const char* p_Joint)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->m_Joints);
+			
+			return position;
+		}
+	}
+
+	throw InvalidArgumentGraphicsException("Model instance does not exist", __LINE__, __FILE__);
 }
 
 void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
