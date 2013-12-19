@@ -148,6 +148,7 @@
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
     <ClCompile Include="AABBTest.cpp" />
     <ClCompile Include="BodyTest.cpp" />
+    <ClCompile Include="OBBTest.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
     <ClCompile Include="..\Client\Source\GameScene.cpp" />
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
@@ -188,6 +189,7 @@
   <ItemGroup>
     <ClInclude Include="..\Physics\include\AABB.h" />
     <ClInclude Include="..\Physics\include\BoundingVolume.h" />
+    <ClInclude Include="..\Physics\include\OBB.h" />
     <ClInclude Include="..\Physics\include\Sphere.h" />
   </ItemGroup>
   <ItemGroup>

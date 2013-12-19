@@ -190,4 +190,160 @@ BOOST_AUTO_TEST_CASE(BoundingVolumeVsBoundingVolumeHit)
 	delete aabb2;
 }
 
+BOOST_AUTO_TEST_CASE(OBBvsOBB)
+{
+	Collision col;
+	HitData hd;
+	DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(0.f, 5.f, 0.f);
+	DirectX::XMFLOAT4X4 mtrans;
+	DirectX::XMStoreFloat4x4(&mtrans, trans);
+
+	OBB obb1 = OBB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
+	OBB obb2 = OBB(DirectX::XMFLOAT4(0.f, 5.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
+
+	hd = col.OBBvsOBB(&obb1, &obb2);
+	BOOST_CHECK(hd.intersect);
+	
+	obb2.updatePosition(mtrans);
+	hd = col.OBBvsOBB(&obb1, &obb2);
+	BOOST_CHECK(hd.intersect);
+
+	obb2.updatePosition(mtrans);
+	hd = col.OBBvsOBB(&obb1, &obb2);
+	BOOST_CHECK(!hd.intersect);
+
+	trans = DirectX::XMMatrixTranslation(0.f, -0.5f, 0.f);
+	DirectX::XMStoreFloat4x4(&mtrans, trans);
+	for(int i = 0; i < 100; i++)
+	{
+		hd = col.OBBvsOBB(&obb1, &obb2);
+		if(hd.intersect == true)
+		{
+			BOOST_CHECK_MESSAGE(i >= 10 && i <= 50,"Error on iteration: " + std::to_string(i) + ".\n");
+		}
+		obb2.updatePosition(mtrans);
+	}
+
+	//Rotation
+	obb2 = OBB(DirectX::XMFLOAT4(0.f, 15.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
+	DirectX::XMMATRIX rot = DirectX::XMMatrixRotationY(3.1415926f/4.f);
+	DirectX::XMFLOAT4X4 mrot;
+	DirectX::XMStoreFloat4x4(&mrot, rot);
+	obb2.setRotationMatrix(mrot);
+	for(int i = 0; i < 100; i++)
+	{
+		hd = col.OBBvsOBB(&obb1, &obb2);
+		obb2.updatePosition(mtrans);
+		if(hd.intersect == true)
+		{
+			BOOST_CHECK_MESSAGE(i >= 10 && i <= 50, "Error on rotation iteration LOLZ!: " + std::to_string(i) + ".\n");
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(OBBvsAABB)
+{
+	Collision col;
+	HitData hd;
+	DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(0.f, 5.f, 0.f);
+	DirectX::XMFLOAT4X4 mtrans;
+	DirectX::XMStoreFloat4x4(&mtrans, trans);
+
+	OBB obb		= OBB(DirectX::XMFLOAT4(0.f, 5.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
+	AABB aabb	= AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
+
+	hd = col.OBBvsAABB(&obb, &aabb);
+	BOOST_CHECK(hd.intersect);
+	
+	obb.updatePosition(mtrans);
+	hd = col.OBBvsAABB(&obb, &aabb);
+	BOOST_CHECK(hd.intersect);
+
+	obb.updatePosition(mtrans);
+	hd = col.OBBvsAABB(&obb, &aabb);
+	BOOST_CHECK(!hd.intersect);
+
+	trans = DirectX::XMMatrixTranslation(0.f, -0.5f, 0.f);
+	DirectX::XMStoreFloat4x4(&mtrans, trans);
+	for(int i = 0; i < 100; i++)
+	{
+		hd = col.OBBvsAABB(&obb, &aabb);
+		obb.updatePosition(mtrans);
+		if(hd.intersect == true)
+		{
+			BOOST_CHECK_MESSAGE(i >= 10 && i <= 50,"Error on iteration: " + std::to_string(i) + ".\n");
+		}
+		
+	}
+
+	//Rotation
+	obb = OBB(DirectX::XMFLOAT4(0.f, 15.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
+	DirectX::XMMATRIX rot = DirectX::XMMatrixRotationY(3.1415926f/4.f);
+	DirectX::XMFLOAT4X4 mrot;
+	DirectX::XMStoreFloat4x4(&mrot, rot);
+	obb.setRotationMatrix(mrot);
+	for(int i = 0; i < 100; i++)
+	{
+		hd = col.OBBvsAABB(&obb, &aabb);
+		obb.updatePosition(mtrans);
+		if(hd.intersect == true)
+		{
+			BOOST_CHECK_MESSAGE(i >= 10 && i <= 50, "Error on rotation iteration LOLZ!: " + std::to_string(i) + ".\n");
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(OBBvsSphere)
+{
+	Collision col;
+	HitData hd;
+	DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(0.f, 5.f, 0.f);
+	DirectX::XMFLOAT4X4 mtrans;
+	DirectX::XMStoreFloat4x4(&mtrans, trans);
+
+	OBB obb		= OBB(DirectX::XMFLOAT4(0.f, 5.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
+	Sphere s	= Sphere(5.f, DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f));
+
+	hd = col.OBBvsSphere(&obb, &s);
+	BOOST_CHECK(hd.intersect);
+	
+	obb.updatePosition(mtrans);
+	hd = col.OBBvsSphere(&obb, &s);
+	BOOST_CHECK(hd.intersect);
+
+	obb.updatePosition(mtrans);
+	hd = col.OBBvsSphere(&obb, &s);
+	BOOST_CHECK(!hd.intersect);
+
+	trans = DirectX::XMMatrixTranslation(0.f, -0.5f, 0.f);
+	DirectX::XMStoreFloat4x4(&mtrans, trans);
+	for(int i = 0; i < 100; i++)
+	{
+		hd = col.OBBvsSphere(&obb, &s);
+		obb.updatePosition(mtrans);
+		if(hd.intersect == true)
+		{
+			BOOST_CHECK_MESSAGE(i >= 10 && i <= 50,"OBB Collision Error on iteration: " + std::to_string(i) + ".\n");
+		}
+		
+	}
+
+	//Rotation
+	obb = OBB(DirectX::XMFLOAT4(0.f, 15.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
+	DirectX::XMMATRIX rot = DirectX::XMMatrixRotationY(3.1415926f/4.f);
+	DirectX::XMFLOAT4X4 mrot;
+	DirectX::XMStoreFloat4x4(&mrot, rot);
+	obb.setRotationMatrix(mrot);
+	for(int i = 0; i < 100; i++)
+	{
+		hd = col.OBBvsSphere(&obb, &s);
+		obb.updatePosition(mtrans);
+		if(hd.intersect == true)
+		{
+			BOOST_CHECK_MESSAGE(i >= 10 && i <= 50, "OBB Collision Error on rotation iteration: " + std::to_string(i) + ".\n");
+		}
+	}
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()

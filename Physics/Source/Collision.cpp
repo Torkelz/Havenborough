@@ -396,9 +396,7 @@ HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
 		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - Vector4ToXMVECTOR(&hit.colPos) );
 
 		hit.colNorm = XMVECTORToVector4(&tempNorm);
-		//hit.colNorm = Vector4(0.f, 1.f, 0.f, 0.f);
 		hit.colLength = p_Sphere->getRadius() - sqrtf(vv.m128_f32[0]);
-		//hit.colLength = 1.f;
 		hit.colType = Type::OBBVSSPHERE;
 	}
 
@@ -431,19 +429,19 @@ HitData Collision::OBBvsAABB(OBB *p_OBB, AABB *p_AABB)
 	{
 		for (int j = 0; j < 3; j++)
 		{
-   			dotResult = XMVector3Dot(a_Axes.r[i], b_Axes.r[j]); //R[i][j] = Dot(a.u[i], b.u[j]);
+   			dotResult = XMVector3Dot(a_Axes.r[i], b_Axes.r[j]);
 			R.r[i].m128_f32[j] = dotResult.m128_f32[0];
 		}
 	}
 
 	// Compute translation vector t
-	XMVECTOR t = b_Center - a_Center; //Vector t = b.c - a.c;
+	XMVECTOR t = b_Center - a_Center;
 	
 	// Bring translation into a’s coordinate frame
 	dotResult = XMVector3Dot(t, a_Axes.r[0]);
 	dotResult1 = XMVector3Dot(t, a_Axes.r[1]);
 	dotResult2 = XMVector3Dot(t, a_Axes.r[2]); 
-	t = XMVectorSet(dotResult.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f); //t = Vector(Dot(t, a.u[0]), Dot(t, a.u[1), Dot(t, a.u[2]));
+	t = XMVectorSet(dotResult.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f);
 
 	// Compute common subexpressions. Add in an epsilon term to
 	// counteract arithmetic errors when two edges are parallel and
