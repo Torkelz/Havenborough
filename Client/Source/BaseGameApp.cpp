@@ -68,7 +68,6 @@ void BaseGameApp::init()
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
 	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 0.5f);
-	m_OBBMovable = m_Physics->createOBB(50.f, false, Vector3(0.f, 10.f, 0.f), Vector3(0.5f, 0.5f, 0.5f));
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
 	
 
@@ -118,8 +117,6 @@ void BaseGameApp::run()
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
 		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
 		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
-		if(i == 0)
-			m_OBBStatic = m_Physics->createOBB(50.f, true, Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f), Vector3(scale, scale, scale));
 	}
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
@@ -132,7 +129,6 @@ void BaseGameApp::run()
 	Logger::log(Logger::Level::DEBUG, "Adding debug house");
 	int house = m_Graphics->createModelInstance("HOUSE1");
 	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
-	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
 	//Logger::log(Logger::Level::DEBUG, "Adding debug character");
@@ -164,6 +160,7 @@ void BaseGameApp::run()
 
 	static const float maxSpeed = 10.f;
 	static const float accConstant = 250.f;
+
 	
 	while (!m_ShouldQuit)
 	{
@@ -239,8 +236,6 @@ void BaseGameApp::run()
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
 
  		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
-		m_Physics->setBodyPosition(Vector3(tempPos.x, tempPos.y, tempPos.z), m_OBBMovable);
-		m_Physics->setBodyRotation(m_OBBMovable, viewRot[0], viewRot[1], 1.f); 
 		m_Graphics->setModelPosition(skyBox, tempPos.x, tempPos.y, tempPos.z);
 
 		yaw += yawSpeed * dt;
