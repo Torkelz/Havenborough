@@ -98,7 +98,6 @@
     <ClCompile Include="Source\Joint.cpp" />
     <ClCompile Include="Source\DeferredRenderer.cpp" />
     <ClCompile Include="Source\DDSTextureLoader.cpp" />
-    <ClCompile Include="Source\LoadM3d.cpp" />
     <ClCompile Include="Source\ModelBinaryLoader.cpp" />
     <ClCompile Include="Source\ModelFactory.cpp" />
     <ClCompile Include="Source\GraphicsLogger.cpp" />

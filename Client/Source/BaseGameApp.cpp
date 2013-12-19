@@ -141,6 +141,7 @@ void BaseGameApp::run()
 	static const Vector3 climbTestHalfSize(1.f, 1.f, 1.f);
 
 	m_Graphics->setModelPosition(climbBox, climbTestPos);
+	m_Graphics->setModelScale(climbBox, Vector3(2.f, 2.f, 2.f));
 	m_Physics->createAABB(50.f, true, climbTestPos - climbTestHalfSize, climbTestPos + climbTestHalfSize, true );
 
 
@@ -149,7 +150,7 @@ void BaseGameApp::run()
 	
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
-	m_Graphics->setModelScale(skyBox, Vector3(0.1f, 0.1f, 0.1f));
+	m_Graphics->setModelScale(skyBox, Vector3(1.f, 1.f, 1.f));
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
 	int ground = m_Graphics->createModelInstance("BOX");
@@ -173,6 +174,21 @@ void BaseGameApp::run()
 	m_Graphics->setModelScale(ikTest, Vector3(0.3f, 0.3f, 0.3f));
 	m_Graphics->setModelRotation(ikTest, Vector3((float)pi / 4.f, 0.f, 0.f));
 	
+	int towerBoxes[4] =
+	{
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+	};
+
+	m_Graphics->setModelScale(towerBoxes[0], Vector3(16.f, 1.f, 16.f));
+	m_Graphics->setModelPosition(towerBoxes[0], Vector3(30.f, 0.5f, 40.f));
+	m_Graphics->setModelPosition(towerBoxes[1], Vector3(30.f, 3.5f, 40.f));
+	m_Graphics->setModelPosition(towerBoxes[2], Vector3(30.f, 6.5f, 40.f));
+	m_Graphics->setModelPosition(towerBoxes[3], Vector3(30.f, 9.5f, 40.f));
+
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(8.f, 0.5f, 0.f), Vector3(16.f, 1.f, 16.f), false);
 
 
 	float viewRot[] = {0.f, 0.f};
@@ -304,6 +320,10 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(standingWitch);
 		m_Graphics->renderModel(wavingWitch);
 		m_Graphics->renderModel(climbBox);
+		m_Graphics->renderModel(towerBoxes[0]);
+		m_Graphics->renderModel(towerBoxes[1]);
+		m_Graphics->renderModel(towerBoxes[2]);
+		m_Graphics->renderModel(towerBoxes[3]);
 
 		m_Level.drawLevel();
 
@@ -311,8 +331,8 @@ void BaseGameApp::run()
 		m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),20.f);
 		m_Graphics->useFrameSpotLight(Vector3(-10.f,5.f,0.f),Vector3(0.f,1.f,0.f),
 			Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
-		m_Graphics->useFramePointLight(Vector3(0.f, 30.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 200.f);
-		m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 200.f);
+		m_Graphics->useFramePointLight(Vector3(0.f, 30.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
+		m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
 
 		m_Graphics->drawFrame(currView);
 		
