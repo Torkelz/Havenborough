@@ -186,8 +186,17 @@
     <ClCompile Include="Source\TestCollision.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
-    <ClCompile Include="TestModelFactory.cpp">
+    <ClCompile Include="Source\Graphics\TestModelFactory.cpp">
       <Filter>TestGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Player.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="TestEdgeCollisionResponse.cpp">
+      <Filter>TestClient</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\Joint.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>

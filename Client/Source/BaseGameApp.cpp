@@ -65,16 +65,11 @@ void BaseGameApp::init()
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
+
+	m_Player.initialize(m_Physics, XMFLOAT3(20,10,0), XMFLOAT3(0,0,1));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
-	m_Player = m_Physics->createSphere(50.f, false, Vector3(0.f, 10.f, 0.f), 1.6f);
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f));
-
-	m_Jump = false;
-	m_JumpTime = 0.f;
-	m_JumpForce = 2000.f;
-	m_JumpForceTime = 0.2f;
-	m_PrevForce = Vector4(0.f, 0.f, 0.f, 0.f);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(-50.f, -50.f, -50.f), Vector3(50.f, 0.f, 50.f), false);
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug models");
 	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
@@ -94,6 +89,10 @@ void BaseGameApp::init()
 		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
 	}
 
+
+
+	
+
 	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
 
@@ -110,9 +109,6 @@ void BaseGameApp::run()
 	m_ShouldQuit = false;
 	int currView = 3; // FOR DEBUGGING
 
-	//BodyHandle groundBody = m_Physics->createAABB(1.f, true, Vector3(-20.f, -1.f, -20.f), Vector3(20.f, 0.f, 20.f));
-	//BodyHandle playerBody = m_Physics->createSphere(80.f, false, Vector3(0.f, 1.8f, 20.f), 1.8f);
-
 	Logger::log(Logger::Level::DEBUG, "Adding debug box model instances");
 	const static int NUM_BOXES = 16;
 	int boxIds[NUM_BOXES];
@@ -121,8 +117,18 @@ void BaseGameApp::run()
 		boxIds[i] = m_Graphics->createModelInstance("BOX");
 
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
-		m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
-		m_Graphics->setModelPosition(boxIds[i], (float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f);
+		
+		if(i == 0)
+		{
+			m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
+			m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 2.f, (float)(i % 4) * 4.f));
+			m_Physics->createAABB(50.f, true,Vector3(-scale,-scale + 2.f,-scale),Vector3(scale,scale + 2.f,scale),true );
+		}
+		else
+		{
+			m_Graphics->setModelScale(boxIds[i], scale, scale, scale);
+			m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f));
+		}
 	}
 
 	int jointBox = m_Graphics->createModelInstance("BOX");
@@ -138,11 +144,11 @@ void BaseGameApp::run()
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug house");
 	int house = m_Graphics->createModelInstance("HOUSE1");
-	m_Graphics->setModelPosition(house, -10.f, 0.f, -10.f);
+	m_Graphics->setModelPosition(house, Vector3(-10.f, 0.f, -10.f));
 	m_Graphics->setModelScale(house, 0.01f, 0.01f, 0.01f);
 
 	int ikTest = m_Graphics->createModelInstance("IKTest");
-	m_Graphics->setModelPosition(ikTest, 0.f, 1.f, 0.f);
+	m_Graphics->setModelPosition(ikTest, Vector3(-3.f, 1.f, 0.f));
 	m_Graphics->setModelScale(ikTest, 0.3f, 0.3f, 0.3f);
 	m_Graphics->setModelRotation(ikTest, (float)pi / 4.f, 0.f, 0.f);
 
@@ -151,10 +157,8 @@ void BaseGameApp::run()
 	//m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
 	//m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);
 
-	float position[] = {0.f, 1.8f, 20.f};
 	float viewRot[] = {0.f, 0.f};
 
-	//float speed = 5.f;
 	float sensitivity = 0.01f;
 
 	float yaw = 0.f;
@@ -173,10 +177,6 @@ void BaseGameApp::run()
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 	currTimeStamp--;
 
-	static const float maxSpeed = 10.f;
-	static const float accConstant = 250.f;
-	//float up = m_Up - m_Down;
-	
 	while (!m_ShouldQuit)
 	{
 		Logger::log(Logger::Level::TRACE, "New frame");
@@ -191,71 +191,42 @@ void BaseGameApp::run()
 			dt = maxDeltaTime;
 		}
 
-		for(unsigned int i = 0; i < m_Physics->getHitDataSize(); i++)
+		m_Player.update(dt);
+		
+		if(m_Physics->getHitDataSize() > 0)
 		{
-			HitData hit = m_Physics->getHitDataAt(i);
-			if(hit.intersect)
+			for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 			{
-				Logger::log(Logger::Level::DEBUG, "Collision reported");
+				HitData hit = m_Physics->getHitDataAt(i);
+				if(hit.intersect)
+				{
+					if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim), &m_Player))
+						m_Physics->removedHitDataAt(i);
+
+					Logger::log(Logger::Level::DEBUG, "Collision reported");
+				}
 			}
 		}
-
+		
 		const InputState& state = m_InputQueue.getCurrentState();
 		
-		if(m_Jump)
-		{
- 			m_JumpTime += dt;
-			if(m_JumpTime > m_JumpForceTime)
-			{
-				m_Physics->applyForce(Vector4(0.f, -m_JumpForce, 0.f, 0.f), m_Player);
-				m_Jump = false;
-				m_JumpTime = 0.f;
-			}
-		}
-
-
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 		float right = state.getValue("moveRight") - state.getValue("moveLeft");
 		
-		float dirZ = 0.f;
-		float dirX = 0.f;
-
 		if (forward != 0.f || right != 0.f)
 		{
 			float dir = atan2f(right, forward) + viewRot[0];
 
-			dirZ = cosf(dir);
-			dirX = sinf(dir);
+			m_Player.setDirectionX(sinf(dir));
+			m_Player.setDirectionZ(cosf(dir));
 		}
-
-		Vector4 currentVelocity = m_Physics->getVelocity(m_Player);
-		currentVelocity.y = 0.f;
-		Vector4 maxVelocity(-dirX * maxSpeed, 0.f, -dirZ * maxSpeed, 0.f);
-
-		Vector4 diffVel = Vector4(0.f, 0.f, 0.f, 0.f);
-		Vector4 force = Vector4(0.f, 0.f, 0.f, 0.f);
-
-		diffVel.x = maxVelocity.x - currentVelocity.x;
-		diffVel.y = maxVelocity.y - currentVelocity.y;
-		diffVel.z = maxVelocity.z - currentVelocity.z;
-		diffVel.w = 0.f;
-
-		force.x = diffVel.x * accConstant;
-		force.y = diffVel.y * accConstant;
-		force.z = diffVel.z * accConstant;
-		force.w = 0.f;
-
-		Vector4 forceDiff = Vector4(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z, 0.f); 
-		m_PrevForce = force;
-
-		m_Physics->applyForce(forceDiff, m_Player);
-		
+		if(!m_Player.getForceMove())		
 		m_Physics->update(dt);
 
-		Vector4 tempPos = m_Physics->getBodyPosition(m_Player);
+		Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
 
- 		m_Graphics->updateCamera(tempPos.x, tempPos.y, tempPos.z, viewRot[0], viewRot[1]);
-		m_Graphics->setModelPosition(skyBox, tempPos.x, tempPos.y, tempPos.z);
+ 		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y, tempPos.z), viewRot[0], viewRot[1]);
+		m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
 
 		m_Graphics->updateAnimations(dt);
 
@@ -269,20 +240,20 @@ void BaseGameApp::run()
 			m_Graphics->renderModel(boxIds[i]);
 		}
 
-		float lookDir[3];
-		lookDir[0] = -sinf(viewRot[0]) * cosf(viewRot[1]);
-		lookDir[1] = sinf(viewRot[1]);
-		lookDir[2] = -cosf(viewRot[0]) * cosf(viewRot[1]);
+		Vector3 lookDir;
+		lookDir.x = -sinf(viewRot[0]) * cosf(viewRot[1]);
+		lookDir.y = sinf(viewRot[1]);
+		lookDir.z = -cosf(viewRot[0]) * cosf(viewRot[1]);
 
 		static const float IK_Length = 5.f;
 
 		static const char* testJoint = "joint4";
 
-		m_Graphics->applyIK_ReachPoint(ikTest, testJoint, tempPos.x + lookDir[0] * IK_Length, tempPos.y + lookDir[1] * IK_Length, tempPos.z + lookDir[2] * IK_Length);
+		Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
+		m_Graphics->applyIK_ReachPoint(ikTest, testJoint, IK_Target);
 
-		float jointPos[3];
-		m_Graphics->getJointPosition(ikTest, testJoint, jointPos);
-		m_Graphics->setModelPosition(jointBox, jointPos[0], jointPos[1], jointPos[2]);
+		Vector3 jointPos = m_Graphics->getJointPosition(ikTest, testJoint);
+		m_Graphics->setModelPosition(jointBox, jointPos);
 		m_Graphics->renderModel(jointBox);
 
 		m_Graphics->renderModel(ground);
@@ -290,10 +261,11 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(house);
 		m_Graphics->renderModel(ikTest);
 		//m_Graphics->renderModel(witch);
-		m_Graphics->useFrameDirectionalLight(IGraphics::vec3(1.f,1.f,1.f),IGraphics::vec3(0.1f,-0.99f,0.f));
-		m_Graphics->useFramePointLight(IGraphics::vec3(0.f,0.f,0.f),IGraphics::vec3(1.f,1.f,1.f),20.f);
-		m_Graphics->useFrameSpotLight(IGraphics::vec3(-10.f,5.f,0.f),IGraphics::vec3(0.f,1.f,0.f),
-			IGraphics::vec3(0.f,0.f,-1.f),IGraphics::vec2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
+
+		m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
+		m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),20.f);
+		m_Graphics->useFrameSpotLight(Vector3(-10.f,5.f,0.f),Vector3(0.f,1.f,0.f),
+			Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
 
 		m_Graphics->drawFrame(currView);
 		
@@ -358,11 +330,7 @@ void BaseGameApp::run()
 			}
 			else if( in.m_Action == "jump" && in.m_Value == 1)
 			{
-				if(!m_Jump)
-				{
-					m_Jump = true;
-					m_Physics->applyForce(Vector4(0.f, m_JumpForce, 0.f, 0.f), m_Player);
-				}
+				m_Player.setJump();
 			}
 		}
 		
@@ -448,7 +416,7 @@ UVec2 BaseGameApp::getWindowSize() const
 	return size;
 }
 
-bool BaseGameApp::handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
+bool BaseGameApp::handleWindowClose(WPARAM /*p_WParam*/, LPARAM /*p_LParam*/, LRESULT& p_Result)
 {
 	Logger::log(Logger::Level::DEBUG, "Handling window close");
 

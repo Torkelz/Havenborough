@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
-#include "Util.h"
+#include "../../Client/Utilities/MemoryUtil.h"
 #include "GraphicsExceptions.h"
 
 #pragma comment(lib, "d3dcompiler.lib")

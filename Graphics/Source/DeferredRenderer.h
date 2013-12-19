@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 //#include "WrapperFactory.h"
-#include "Util.h"
 #include <DirectXMath.h>
 #include "LightStructs.h"
 #include "TextureLoader.h"

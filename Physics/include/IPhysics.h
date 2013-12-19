@@ -16,7 +16,7 @@ public:
 	/**
 	 * Create a boundingVolume sphere with a body.
 	 * @p_Mass, define the mass for the body.
-	 * @p_IsImmovable, tells if the body are movible.
+	 * @p_IsImmovable, tells if the body are movable.
 	 * @p_Position, position for the boundingvolume(sphere). Body get same position.
 	 * @p_Radius, the radius for the sphere.
 	 * @return a BodyHandle so it can be mapped outside of Physics.
@@ -25,22 +25,19 @@ public:
 	/**
 	 * Create a boundingVolume AABB with a body, the center position is calculated from the bot and top corner.
 	 * @p_Mass, define the mass for the body.
-	 * @p_IsImmovable, tells if the body are movible.
+	 * @p_IsImmovable, tells if the body are movable.
 	 * @p_Bot, bottom corner for box.
 	 * @p_Top, top corner for box.
+	 * @p_IsEdge, flag if it's a Edge or not.
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
-	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top) = 0;
+	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge) = 0;
 
-
-
-
+	//TODO: Comment this!
 	virtual Vector4 getBodyPosition(BodyHandle p_Body) =0;
 
-
-	
+	//TODO: Comment this!
 	virtual void setBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
-
 
 	/**
 	 * Keeps physics updated, collision checks etc.
@@ -70,6 +67,12 @@ public:
 	 * @return the hitdata on that index.
 	 */
 	virtual HitData getHitDataAt(unsigned int p_Index) = 0;
+
+	/**
+	 * Removes the hitdata from the vector containing all the collision hitdata for the last frame at specific position.
+	 * @p_Index, index number in the vector.
+	 */
+	virtual void removedHitDataAt(unsigned int p_index) = 0;
 	/**
 	 * Vector size, with hitData.
 	 * @return m_HitDatas.size
@@ -82,7 +85,6 @@ public:
 	* @return a BoundingVolum pointer.
 	*/
 	//virtual BoundingVolume* getVolume(BodyHandle p_Body) = 0;
-
 
 	/**
 	 * Callback for logging.

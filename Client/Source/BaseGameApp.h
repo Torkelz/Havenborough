@@ -7,6 +7,8 @@
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
+#include "Player.h"
+#include "EdgeCollisionResponse.h"
 
 #include "ResourceManager.h"
 
@@ -31,18 +33,16 @@ private:
 	bool	m_ShouldQuit;
 	bool	m_Connected;
 
-	bool	m_Jump;
-	float	m_JumpTime;
-	float	m_JumpForce;
-	float	m_JumpForceTime;
-	Vector4 m_PrevForce;
 	SceneManager m_SceneManager;
 
-	BodyHandle m_Player, m_Ground;
+	BodyHandle m_Ground;
 	IPhysics *m_Physics;
 	ResourceManager* m_ResourceManager;
 
 	std::vector<int> m_ResourceIDs;
+
+	Player m_Player;
+	EdgeCollisionResponse m_EdgeCollResponse;
 
 public:
 	/**
@@ -53,6 +53,8 @@ public:
 	 * Run the game. Doesn't return until the game is exited.
 	 */
 	void run();
+
+
 	/**
 	 * Shutdown the game and cleanup any resources.
 	 */

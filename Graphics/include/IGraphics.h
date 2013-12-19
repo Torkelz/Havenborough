@@ -2,31 +2,15 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "ShaderDeffinitions.h"
-
 #include <cstdint>
+
+#include "ShaderDefinitions.h"
+#include "../../Client/Utilities/Util.h"
+
 
 class IGraphics
 {
 public:
-	struct vec2
-	{
-		float x,y;
-		vec2(float p_X, float p_Y)
-		{
-			x = p_X;y = p_Y;
-		}
-	};
-	struct vec3 : public vec2
-	{
-		float z;
-		vec3(float p_X, float p_Y, float p_Z)
-			: vec2(p_X,p_Y)
-		{
-			z = p_Z;
-		}
-	};
-	
 
 	virtual ~IGraphics(void)
 	{}
@@ -148,7 +132,7 @@ public:
 	* @ p_LightColor, the color of the light.
 	* @ p_LightRange, the range of the point light.
 	*/
-	virtual void useFramePointLight(vec3 p_LightPosition, vec3 p_LightColor, float p_LightRange) = 0;
+	virtual void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) = 0;
 	/**
 	* Creates a spot light which is removed after each draw.
 	* @ p_LightPosition, the position of the light object.
@@ -157,14 +141,14 @@ public:
 	* @ p_SpotLightAngles, angles in radians where the x component is smaller than the y component.
 	* @ p_LightRange, the range of the spot light.
 	*/
-	virtual void useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p_LightDirection,
-		vec2 p_SpotLightAngles,	float p_LightRange) = 0;
+	virtual void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
+		Vector2 p_SpotLightAngles,	float p_LightRange) = 0;
 	/**
 	* Creates a directional light which is removed after each draw.
 	* @ p_LightColor, the color of the light.
 	* @ p_LightDirection, the direction of the directional light.
 	*/
-	virtual void useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection) = 0;
+	virtual void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) = 0;
 	/**
 	* Renders a model specified with an ID.
 	* @param p_ModelId the ID of the model to be rendered
@@ -223,7 +207,7 @@ public:
 	 * @param p_Y position in Y direction.
 	 * @param p_Z position in Z direction.
 	 */
-	virtual void setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z) = 0;
+	virtual void setModelPosition(int p_Instance, Vector3 p_Position) = 0;
 
 	/**
 	 * Set the rotation of an model instance in radians.
@@ -251,20 +235,18 @@ public:
 	 * @param p_Instance an identifier to a model instance.
 	 * @param p_Joint the name of the end joint to change.
 	 *			The joint must have a parent and a grandparent.
-	 * @param p_X position in X direction.
-	 * @param p_Y position in Y direction.
-	 * @param p_Z position in Z direction.
+	 * @param p_Target the target position in world space.
 	 */
-	virtual void applyIK_ReachPoint(int p_Instance, const char* p_Joint, float p_X, float p_Y, float p_Z) = 0;
+	virtual void applyIK_ReachPoint(int p_Instance, const char* p_Joint, Vector3 p_Target) = 0;
 
 	/**
 	 * Get the position of a single joint from a model instance.
 	 *
 	 * @param p_Instance the instance identifier to retreive the joint from.
 	 * @param p_Joint the identifier of the joint to get the position of.
-	 * @param p_Position an array to store the position in.
+	 * @return the position of the joint in world space.
 	 */
-	virtual void getJointPosition(int p_Instance, const char* p_Joint, float p_Position[3]) = 0;
+	virtual Vector3 getJointPosition(int p_Instance, const char* p_Joint) = 0;
 
 	/**
 	 * Update the position and viewing direction of the camera.
@@ -275,7 +257,7 @@ public:
 	 * @param p_Yaw the camera rotation around the up axis, positive to the right.
 	 * @param p_Pitch the camera pitch, positive up.
 	 */
-	virtual void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) = 0;
+	virtual void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) = 0;
 	
 	/**
 	* Callback for loading a texture to a model.

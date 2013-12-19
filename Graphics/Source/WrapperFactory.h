@@ -4,7 +4,7 @@
 #include "Shader.h"
 #include "Buffer.h"
 #include "VRAMMemInfo.h"
-#include "../include/ShaderDeffinitions.h"
+#include "../include/ShaderDefinitions.h"
 
 using std::string;
 using std::vector;

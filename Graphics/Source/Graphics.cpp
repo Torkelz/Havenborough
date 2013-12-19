@@ -4,6 +4,8 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 
+using namespace DirectX;
+
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
@@ -413,32 +415,38 @@ void Graphics::removeStaticLight(void)
 
 }
 
-void Graphics::useFramePointLight(vec3 p_LightPosition, vec3 p_LightColor, float p_LightRange)
+void Graphics::useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange)
 {
 	Light l;
-	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
-	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
+	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
 	l.lightRange = p_LightRange;
 	m_PointLights.push_back(l);
 }
-void Graphics::useFrameSpotLight(vec3 p_LightPosition, vec3 p_LightColor, vec3 p_LightDirection,
-					   vec2 p_SpotLightAngles,	float p_LightRange)
+void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
+	Vector2 p_SpotLightAngles,	float p_LightRange)
 {
 	Light l;
-	l.lightPos = DirectX::XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
-	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
-	DirectX::XMFLOAT3 lightDirection(p_LightDirection.x, p_LightDirection.y, p_LightDirection.z);
-	DirectX::XMStoreFloat3(&l.lightDirection, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&lightDirection)));
-	l.spotlightAngles = DirectX::XMFLOAT2(p_SpotLightAngles.x,p_SpotLightAngles.y);
+	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
+	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+	
+	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
+
+	XMStoreFloat3(&l.lightDirection, lightDirectionV);
+	l.spotlightAngles = XMFLOAT2(p_SpotLightAngles.x,p_SpotLightAngles.y);
 	l.lightRange = p_LightRange;
 	m_SpotLights.push_back(l);
 }
-void Graphics::useFrameDirectionalLight(vec3 p_LightColor, vec3 p_LightDirection)
+void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection)
 {
 	Light l;
-	l.lightColor = DirectX::XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
-	DirectX::XMFLOAT3 lightDirection(p_LightDirection.x, p_LightDirection.y, p_LightDirection.z);
-	DirectX::XMStoreFloat3(&l.lightDirection, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&lightDirection)));
+	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+
+	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
+
+	XMStoreFloat3(&l.lightDirection, lightDirectionV);
 	m_DirectionalLights.push_back(l);
 }
 
@@ -529,13 +537,13 @@ void Graphics::eraseModelInstance(int p_Instance)
 	}
 }
 
-void Graphics::setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z)
+void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.setPosition(DirectX::XMFLOAT3(p_X, p_Y, p_Z));
+			inst.second.setPosition(Vector3ToXMFLOAT3(&p_Position));
 			break;
 		}
 	}
@@ -565,19 +573,19 @@ void Graphics::setModelScale(int p_Instance, float p_X, float p_Y, float p_Z)
 	}
 }
 
-void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_Joint, float p_X, float p_Y, float p_Z)
+void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_Joint, Vector3 p_Target)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.applyIK_ReachPoint(p_Joint, DirectX::XMFLOAT3(p_X, p_Y, p_Z), getModelFromList(inst.second.getModelName())->m_Joints);
+			inst.second.applyIK_ReachPoint(p_Joint, p_Target, getModelFromList(inst.second.getModelName())->m_Joints);
 			break;
 		}
 	}
 }
 
-void Graphics::getJointPosition(int p_Instance, const char* p_Joint, float p_Position[3])
+Vector3 Graphics::getJointPosition(int p_Instance, const char* p_Joint)
 {
 	for (auto& inst : m_ModelInstances)
 	{
@@ -586,19 +594,18 @@ void Graphics::getJointPosition(int p_Instance, const char* p_Joint, float p_Pos
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
 			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->m_Joints);
 			
-			*reinterpret_cast<XMFLOAT3*>(p_Position) = position;
-			return;
+			return position;
 		}
 	}
 
 	throw InvalidArgumentGraphicsException("Model instance does not exist", __LINE__, __FILE__);
 }
 
-void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch)
+void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 {
 	using namespace DirectX;
 
-	m_Eye = XMFLOAT3(p_PosX,p_PosY,p_PosZ);
+	m_Eye = Vector3ToXMFLOAT3(&p_Position);
 	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
 	XMVECTOR pos = XMLoadFloat4(&eye);
 
