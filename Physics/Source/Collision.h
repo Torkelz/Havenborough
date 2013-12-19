@@ -23,10 +23,14 @@ public:
 	HitData boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sphere);
 	/**
 	* Check for the appropriate collision, a BoundingVolume versus an AABB.
-	* Sphere versus Sphere collision
 	* @return HitData, see HitData definition.
 	*/
 	HitData boundingVolumeVsAABB(BoundingVolume* p_Volume, AABB* p_AABB);
+	/**
+	* Check for the appropriate collision, a BoundingVolume versus an OBB.
+	* @return HitData, see HitData definition.
+	*/
+	HitData boundingVolumeVsOBB(BoundingVolume* p_Volume, OBB* p_OBB);
 	/**
 	* Sphere versus Sphere collision
 	* @return HitData, see HitData definition.
@@ -46,6 +50,24 @@ public:
 	* @return HitData, see HitData definition.
 	*/
 	HitData AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere );
-	//bool	collide( BoundingVolume* p_pVolume );
+	/**
+	* OBB versus OBB collision test
+	* ## SphereVsSphere check happens before 
+	* the actual AABBvsAABB collision check. ##
+	* @return HitData, see HitData definition.
+	*/
+	HitData OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2);
+	/**
+	* OBB versus Sphere collision test
+	* Uses Seperating axes test to check for collision
+	* @return HitData, see HitData definition.
+	*/
+	HitData OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere);
+	/**
+	* OBB versus AABB collision test
+	* Uses Seperating axes test to check for collision
+	* @return HitData, see HitData definition.
+	*/
+	HitData OBBvsAABB(OBB *p_OBB, AABB *p_AABB);
 };
 

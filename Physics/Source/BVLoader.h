@@ -39,9 +39,16 @@ public:
 	bool loadBinaryFile(std::string p_FilePath);
 	
 	/**
-	 * Use this function to release the memory in loader vectors.
+	 * Use this function to de-allocate the memory in loader vectors.
 	 */
 	void clear();
+
+	/**
+	 * Returns all header information about the file. 
+	 *
+	 * @return LevelHeader struct.
+	 */
+	BVLoader::Header getLevelHeader();
 
 	/**
 	 * Returns information about the boundingvolume for a specific model.

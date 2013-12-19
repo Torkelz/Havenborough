@@ -148,6 +148,7 @@
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
     <ClCompile Include="AABBTest.cpp" />
     <ClCompile Include="BodyTest.cpp" />
+    <ClCompile Include="OBBTest.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
     <ClCompile Include="..\Client\Source\GameScene.cpp" />
     <ClCompile Include="..\Client\Source\MenuScene.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="SphereTest.cpp" />
+    <ClCompile Include="TestBVLoader.cpp" />
     <ClCompile Include="TestEdgeCollisionResponse.cpp" />
     <ClCompile Include="TestIK.cpp" />
     <ClCompile Include="TestLogger.cpp" />
@@ -187,6 +189,7 @@
   <ItemGroup>
     <ClInclude Include="..\Physics\include\AABB.h" />
     <ClInclude Include="..\Physics\include\BoundingVolume.h" />
+    <ClInclude Include="..\Physics\include\OBB.h" />
     <ClInclude Include="..\Physics\include\Sphere.h" />
   </ItemGroup>
   <ItemGroup>

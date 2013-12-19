@@ -20,8 +20,8 @@ private:
 	bool m_IsJumping;
 	float m_JumpForceTime;
 	float m_JumpForce;
-	float maxSpeed;
-	float accConstant;
+	float m_MaxSpeed;
+	float m_AccConstant;
 	XMFLOAT4 m_PrevForce;
 	float m_DirectionX;
 	float m_DirectionZ;

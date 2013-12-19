@@ -73,7 +73,7 @@ public:
 	 *
 	 * @return The size (width, height) of the client area of the window.
 	 */
-	UVec2 getWindowSize() const;
+	XMFLOAT2 getWindowSize() const;
 
 private:
 	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);

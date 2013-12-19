@@ -31,22 +31,52 @@ public:
 	 * @p_IsEdge, flag if it's a Edge or not.
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
-	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge) = 0;
+	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
 
-	//TODO: Comment this!
-	//ha en struct som håller trianglar och dess info(positioner, rotation, skalning)
+	/**
+	 * Create a boundingVolume OBB with a body, the center position is calculated from the bot and top corner.
+	 * @param p_Mass, define the mass for the body.
+	 * @param p_IsImmovable, tells if the body are movible.
+	 * @param p_CenterPos, Center of the box.
+	 * @param p_Extents, Box half lengths.
+	 * @return a BodyHandle so it can be mapped outside of Physics.
+	 */
+	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
+
 	virtual bool createLevelBV(const char* p_VolumeID, const char* p_FilePath) = 0;
 
 	virtual bool releaseLevelBV(const char* p_VolumeID) = 0;
 
 	virtual void setBVPosition(int p_Instance, float p_x, float p_y, float p_z) = 0;
+	
 	virtual void setBVRotation(int p_Instance, float p_x, float p_y, float p_z) = 0;
+	
 	virtual void setBVScale(int p_Instance, float p_x, float p_y, float p_z) = 0;
-	virtual Vector4 getBodyPosition(BodyHandle p_Body) =0;
-
-	//TODO: Comment this!
+	/**
+	 * Create a boundingVolume OBB with a body, the center position is calculated from the bot and top corner.
+	 * @param p_Body, which body position to gets.
+	 * @return a Bodys position
+	 */
+	virtual Vector4 getBodyPosition(BodyHandle p_Body) = 0;
+	/**
+	 * Set the position of a body
+	 * @param p_Position, postion to set to.
+	 * @param p_Body, body to move.
+	 */
 	virtual void setBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
 
+	/**
+	 * Sets rotation of a body, If the body is not a OBB the rotation will not be performed
+	 * @param p_Body, body to rotate.
+	 * @param p_Yaw rotation around the Y axis, left-handed.
+	 * @param p_Pitch rotation around the X axis, left-handed.
+	 * @param p_Roll rotation around the Z axis, left-handed.
+	 */
+	virtual void setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, float p_Roll) = 0;
+
+	virtual void setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body) = 0;
+	
+	virtual Vector3 getBodySize(BodyHandle p_Body) =0;
 	/**
 	 * Keeps physics updated, collision checks etc.
 	 * @p_DeltaTime, timestep.

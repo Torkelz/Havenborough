@@ -76,6 +76,11 @@ void BVLoader::byteToInt(std::istream* p_Input, int& p_Return)
 	p_Input->read((char*)&p_Return, sizeof(int));
 }
 
+BVLoader::Header BVLoader::getLevelHeader()
+{
+	return m_FileHeader;
+}
+
 const std::vector<BVLoader::BoundingVolume>& BVLoader::getBoundingVolumes()
 {
 	return m_BoundingVolume;

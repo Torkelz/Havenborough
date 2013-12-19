@@ -226,6 +226,12 @@
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Physics\Source\BVLoader.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestBVLoader.cpp">
+      <Filter>TestLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="OBBTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -286,6 +292,9 @@
       <Filter>TestPhysics\PhysicsImport</Filter>
     </ClInclude>
     <ClInclude Include="..\Physics\include\Sphere.h">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\OBB.h">
       <Filter>TestPhysics\PhysicsImport</Filter>
     </ClInclude>
   </ItemGroup>

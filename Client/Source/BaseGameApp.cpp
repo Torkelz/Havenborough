@@ -13,7 +13,7 @@ const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 void BaseGameApp::init()
 {
 	Logger::log(Logger::Level::INFO, "Initializing game app");
-
+	
 	m_MemUpdateDelay = 0.1f;
 	m_TimeToNextMemUpdate = 0.f;
 
@@ -25,7 +25,7 @@ void BaseGameApp::init()
 	
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
-	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
+	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, fullscreen);
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_ResourceManager = new ResourceManager();
@@ -115,7 +115,7 @@ void BaseGameApp::run()
 
 	m_ShouldQuit = false;
 	int currView = 3; // FOR DEBUGGING
-
+	
 	bool useIK_OnIK_Worm = false;
 	float witchCircleAngle = 0.f;
 	static const float witchAngleSpeed = 0.3f;
@@ -131,18 +131,20 @@ void BaseGameApp::run()
 		boxIds[i] = m_Graphics->createModelInstance("BOX");
 
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
-
+			
 		m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
 		m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f + 40.f));
 	}
 
-	int climbBox = m_Graphics->createModelInstance("BOX");
 	static const Vector3 climbTestPos(0.f, 2.f, 30.f);
 	static const Vector3 climbTestHalfSize(1.f, 1.f, 1.f);
 
+	BodyHandle boxTest = m_Physics->createAABB(50.f, true, climbTestPos, climbTestHalfSize, true );
+	
+	int climbBox = m_Graphics->createModelInstance("BOX");
+	
 	m_Graphics->setModelPosition(climbBox, climbTestPos);
 	m_Graphics->setModelScale(climbBox, Vector3(2.f, 2.f, 2.f));
-	m_Physics->createAABB(50.f, true, climbTestPos - climbTestHalfSize, climbTestPos + climbTestHalfSize, true );
 
 
 	int jointBox = m_Graphics->createModelInstance("BOX");
@@ -188,7 +190,7 @@ void BaseGameApp::run()
 	m_Graphics->setModelPosition(towerBoxes[2], Vector3(30.f, 6.5f, 40.f));
 	m_Graphics->setModelPosition(towerBoxes[3], Vector3(30.f, 9.5f, 40.f));
 
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(8.f, 0.5f, 0.f), Vector3(16.f, 1.f, 16.f), false);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(30.f, 0.5f, 40.f), Vector3(8.f, 1.f, 8.f), false);
 
 
 	float viewRot[] = {0.f, 0.f};
@@ -234,7 +236,7 @@ void BaseGameApp::run()
 				HitData hit = m_Physics->getHitDataAt(i);
 				if(hit.intersect)
 				{
-					if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim), &m_Player))
+					if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 						m_Physics->removedHitDataAt(i);
 
 					Logger::log(Logger::Level::DEBUG, "Collision reported");
@@ -255,7 +257,7 @@ void BaseGameApp::run()
 			m_Player.setDirectionZ(cosf(dir));
 		}
 		if(!m_Player.getForceMove())		
-		m_Physics->update(dt);
+			m_Physics->update(dt);
 
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
 
@@ -311,11 +313,11 @@ void BaseGameApp::run()
 
 		Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
 		m_Graphics->setModelPosition(jointBox, jointPos);
-		m_Graphics->renderModel(jointBox);
+		//m_Graphics->renderModel(jointBox);
 
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
-		m_Graphics->renderModel(ikTest);
+		//m_Graphics->renderModel(ikTest);
 		m_Graphics->renderModel(circleWitch);
 		m_Graphics->renderModel(standingWitch);
 		m_Graphics->renderModel(wavingWitch);
@@ -484,11 +486,11 @@ std::string BaseGameApp::getGameTitle() const
 	return m_GameTitle;
 }
 
-UVec2 BaseGameApp::getWindowSize() const
+XMFLOAT2 BaseGameApp::getWindowSize() const
 {
 	// TODO: Read from user option
 	
-	const static UVec2 size = {1280, 720};
+	const static XMFLOAT2 size = XMFLOAT2(1280, 720);
 	return size;
 }
 

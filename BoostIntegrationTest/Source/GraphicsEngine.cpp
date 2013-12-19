@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 BOOST_AUTO_TEST_CASE(TestGraphics)
 {
 	Window win;
-	UVec2 winSize = {1280, 720};
+	DirectX::XMFLOAT2 winSize = DirectX::XMFLOAT2(1280, 720);
 	win.init("Test Graphics", winSize);
 
 	IGraphics *gr = IGraphics::createGraphics();
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(TestGraphics)
 BOOST_AUTO_TEST_CASE(TestLol)
 {
 	Window win;
-	UVec2 winSize = {1280, 720};
+	DirectX::XMFLOAT2 winSize = DirectX::XMFLOAT2(1280, 720);
 	win.init("Test Graphics", winSize);
 
 	IGraphics *gr = IGraphics::createGraphics();

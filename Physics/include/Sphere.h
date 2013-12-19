@@ -1,5 +1,4 @@
-#ifndef SPHERE_H
-#define SPHERE_H
+#pragma once
 
 #include "BoundingVolume.h"
 //#include "Buffer.h"
@@ -43,7 +42,7 @@ public:
 	/**
 	* Constructor, set radius and position to the inputs, calculate sqrRadius.
 	* @p_radius, sphere's radius.
-	* @p_pos, sphere's postion.
+	* @p_pos, sphere's position.
 	*/
 	Sphere(float p_Radius, DirectX::XMFLOAT4 p_Pos) : BoundingVolume()
 	{
@@ -66,7 +65,7 @@ public:
 	
 	/**
 	* Updates position for sphere with matrix.
-	* @p_translation, move the sphere in relative coordinates.
+	* @param p_translation, move the sphere in relative coordinates.
 	*/
 	void updatePosition( DirectX::XMFLOAT4X4& p_Translation )
 	{
@@ -82,7 +81,7 @@ public:
 	}
 	/**
 	* Updates position for sphere with position, used by aabb's sphere.
-	* @p_position, set current position to this.
+	* @param p_position, set current position to this.
 	*/
 	void updatePosition(DirectX::XMFLOAT4& p_Position)
 	{
@@ -91,7 +90,7 @@ public:
 	}
 	/**
 	* Get the radius of the sphere.
-	* @return m_radius.
+	* @return the radius of the sphere.
 	*/
 	float getRadius()
 	{
@@ -99,15 +98,15 @@ public:
 	}
 	/**
 	* Get the squared radius of the sphere.
-	* @return m_sqrRadius
+	* @return the radius squared
 	*/
 	float getSqrRadius()
 	{
 		return m_SqrRadius;
 	}
 	/**
-	* Updates m_radius and m_sqrRadius.
-	* @p_radius, change to this radius.
+	* Updates the radius of the sphere.
+	* @param p_radius the new radius.
 	*/
 	void setRadius(float p_Radius)
 	{
@@ -120,5 +119,3 @@ public:
 	//void					initDraw(ID3D11Device* p_pDevice, ID3D11DeviceContext* p_pDeviceContext);
 	//void					draw( DirectX::XMFLOAT4X4& p_world, DirectX::XMFLOAT4X4& p_view, DirectX::XMFLOAT4X4& p_proj );
 };
-
-#endif SPHERE_H

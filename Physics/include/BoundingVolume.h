@@ -1,5 +1,5 @@
-#ifndef BOUNDINGVOLUME_H
-#define BOUNDINGVOLUME_H
+#pragma once
+
 
 #include <DirectXMath.h>
 
@@ -8,7 +8,8 @@ class BoundingVolume
 public:
 	enum class Type {
 		AABBOX,
-		SPHERE
+		SPHERE,
+		OBB
 	};
 
 protected:
@@ -21,7 +22,7 @@ public:
 	BoundingVolume(){};
 	/**
 	 * Get a unique index from the volume for comparison.
-	 * @return m_index
+	 * @return index of the bounding volume.
 	 */
 	int	getIndex()
 	{
@@ -29,12 +30,11 @@ public:
 	}
 	/**
 	 * Compare two bounding volumes to figure out if they are different.
-	 * @p_volume the volume to compare with
+	 * @param p_volume the volume to compare with.
 	 * @return true if it's the same volume, else return false.
 	 */
 	bool compare( BoundingVolume* p_Volume )
 	{
-		// Return true if it's the same volume, else return false.
 		if(p_Volume->getIndex() == m_Index)
 		{
 			return true;
@@ -46,12 +46,12 @@ public:
 		}
 	}
 	/* Updates position for BoundingVolume with translation matrix.
-	 * @p_Translation, move the AABB in relative coordinates.
+	 * @param p_Translation, move the AABB in relative coordinates.
 	 */
 	virtual void updatePosition( DirectX::XMFLOAT4X4& p_Translation ) = 0;
 	/**
 	 * Get the current position for the bounding volume.
-	 * @return m_position.
+	 * @return the position of the bounding volume.
 	 */
 	virtual DirectX::XMFLOAT4* getPosition()
 	{
@@ -59,7 +59,7 @@ public:
 	}
 	/**
 	 * Get the bounding volume position in the last frame.
-	 * @return m_prevPosition.
+	 * @return the previus position of the bounding volume.
 	 */
 	DirectX::XMFLOAT4* getPrevPosition()
 	{
@@ -67,12 +67,10 @@ public:
 	}
 	/**
 	 * Return the bounding volume type tied to the TYPE enum.
-	 * @return m_type
+	 * @return type of the bounding volume.
 	 */
 	Type getType()
 	{
 		return m_Type;
 	}
 };
-
-#endif

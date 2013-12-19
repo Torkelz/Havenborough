@@ -5,7 +5,8 @@ typedef unsigned int BodyHandle;
 enum class BoundingVolumeType
 {
 	SPHERE,
-	AABB
+	AABB,
+	OBB
 };
 
 enum class Type
@@ -14,6 +15,10 @@ enum class Type
 	SPHEREVSSPHERE,
 	AABBVSSPHERE,
 	AABBVSAABB,
+	OBBVSOBB,
+	OBBVSSPHERE,
+	OBBVSAABB,
+	VSEDGE
 };
 
 struct HitData

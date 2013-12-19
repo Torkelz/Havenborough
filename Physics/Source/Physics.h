@@ -20,13 +20,14 @@ public:
 	Physics();
 	~Physics();
 
-	void initialize();
+	void initialize() override;
 
-	void update(float p_DeltaTime);
-	void applyForce(Vector4 p_Force, BodyHandle p_Body);
+	void update(float p_DeltaTime) override;
+	void applyForce(Vector4 p_Force, BodyHandle p_Body) override;
 
-	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius);
+	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius) override;
 	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge);
+	BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) override;
 
 	bool createLevelBV(const char* m_ModelID, const char* m_FilePath) override;
 
@@ -36,16 +37,20 @@ public:
 	void setBVRotation(int p_Instance, float p_x, float p_y, float p_z) override;
 	void setBVScale(int p_Instance, float p_x, float p_y, float p_z) override;
 
-	void setGlobalGravity(float p_Gravity);
-	Vector4 getVelocity(BodyHandle p_Body);
+	void setGlobalGravity(float p_Gravity) override;
+	Vector4 getVelocity(BodyHandle p_Body) override;
 
-	HitData getHitDataAt(unsigned int p_Index);
+	HitData getHitDataAt(unsigned int p_Index) override;
 	void removedHitDataAt(unsigned int p_index) override;
-	unsigned int getHitDataSize();
+	unsigned int getHitDataSize() override;
 
-	Vector4 getBodyPosition(BodyHandle p_Body);
+	Vector4 getBodyPosition(BodyHandle p_Body) override;
+	Vector3 getBodySize(BodyHandle p_Body) override;
 
-	void setBodyPosition(Vector3 p_Position, BodyHandle p_Body);
+	void setBodyPosition(Vector3 p_Position, BodyHandle p_Body) override;
+	void setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body) override;
+
+	void setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, float p_Roll) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 		 
