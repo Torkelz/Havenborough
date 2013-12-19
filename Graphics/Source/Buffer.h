@@ -1,8 +1,8 @@
 #pragma once
 #include <d3d11.h>
 
-#include "Util.h"
-#include "MyGraphicsExceptions.h"
+#include "../../Client/Utilities/MemoryUtil.h"
+#include "GraphicsExceptions.h"
 
 class Buffer
 {
@@ -65,7 +65,7 @@ private:
 	
 public:
 	Buffer(void);
-	~Buffer(void);
+	virtual ~Buffer(void);
 
 	/**
 	* Gets hold of the pointer to the buffer.

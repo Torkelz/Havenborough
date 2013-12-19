@@ -1,0 +1,187 @@
+*Header
+#Materials 1
+#MESH pCubeShape1
+#Vertices 72
+#Triangles 24
+
+*Materials
+Material: lambert1
+DiffuseMap: Default_COLOR.jpg
+NormalMap: Default_NRM.jpg
+SpecularMap: Default_SPEC.jpg
+
+*Vertices
+v 0 -1 -1
+v 4 -1 -1
+v 8 -1 -1
+v 0 -1 1
+v 4 -1 1
+v 8 -1 1
+v 0 1 -1
+v 4 1 -1
+v 8 1 -1
+v 0 1 1
+v 4 1 1
+v 8 1 1
+
+*Normals
+n -1 0 0
+n 0 -1 0
+n 0 0 -1
+n 0 0 1
+n 0 1 0
+n 1 0 0
+
+*UV COORDS
+uv 0 0
+
+*Tangets
+t 1 0 0 
+t 0 0 1
+
+*FACES
+-lambert1
+face: 3
+0 / 1 / 0 / 0 | 9 / 1 / 0 / 0 | 6 / 1 / 0 / 0 |
+0 / 1 / 0 / 0 | 3 / 1 / 0 / 0 | 9 / 1 / 0 / 0 |
+0 / 0 / 2 / 0 | 6 / 0 / 2 / 0 | 7 / 0 / 2 / 0 |
+7 / 0 / 2 / 0 | 1 / 0 / 2 / 0 | 0 / 0 / 2 / 0 |
+1 / 0 / 2 / 0 | 7 / 0 / 2 / 0 | 8 / 0 / 2 / 0 |
+8 / 0 / 2 / 0 | 2 / 0 / 2 / 0 | 1 / 0 / 2 / 0 |
+7 / 0 / 4 / 0 | 6 / 0 / 4 / 0 | 9 / 0 / 4 / 0 |
+10 / 0 / 4 / 0 | 7 / 0 / 4 / 0 | 9 / 0 / 4 / 0 |
+8 / 0 / 4 / 0 | 7 / 0 / 4 / 0 | 10 / 0 / 4 / 0 |
+11 / 0 / 4 / 0 | 8 / 0 / 4 / 0 | 10 / 0 / 4 / 0 |
+0 / 0 / 1 / 0 | 1 / 0 / 1 / 0 | 3 / 0 / 1 / 0 |
+3 / 0 / 1 / 0 | 1 / 0 / 1 / 0 | 4 / 0 / 1 / 0 |
+4 / 0 / 1 / 0 | 1 / 0 / 1 / 0 | 2 / 0 / 1 / 0 |
+5 / 0 / 1 / 0 | 4 / 0 / 1 / 0 | 2 / 0 / 1 / 0 |
+10 / 0 / 3 / 0 | 9 / 0 / 3 / 0 | 3 / 0 / 3 / 0 |
+4 / 0 / 3 / 0 | 10 / 0 / 3 / 0 | 3 / 0 / 3 / 0 |
+11 / 0 / 3 / 0 | 10 / 0 / 3 / 0 | 4 / 0 / 3 / 0 |
+5 / 0 / 3 / 0 | 11 / 0 / 3 / 0 | 4 / 0 / 3 / 0 |
+2 / 1 / 5 / 0 | 8 / 1 / 5 / 0 | 11 / 1 / 5 / 0 |
+5 / 1 / 5 / 0 | 2 / 1 / 5 / 0 | 11 / 1 / 5 / 0 |
+
+
+*WEIGHTS
+w 1 0 0 0
+j 1 0 0 0
+w 0.5 0.5 0 0
+j 1 2 0 0
+w 1 0 0 0
+j 3 0 0 0
+w 1 0 0 0
+j 1 0 0 0
+w 0.5 0.5 0 0
+j 1 2 0 0
+w 1 0 0 0
+j 3 0 0 0
+w 1 0 0 0
+j 1 0 0 0
+w 0.5 0.5 0 0
+j 1 2 0 0
+w 1 0 0 0
+j 3 0 0 0
+w 1 0 0 0
+j 1 0 0 0
+w 0.5 0.5 0 0
+j 1 2 0 0
+w 1 0 0 0
+j 3 0 0 0
+
+*HIERARCHY
+joint1 1 | 0
+joint2 2 | 1
+joint3 3 | 2
+
+*JOINT_OFFSET
+joint1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
+joint2 1 0 0 0 0 1 0 0 0 0 1 0 4 0 0 1
+joint3 1 0 0 0 0 1 0 0 0 0 1 0 4 0 0 1
+
+*ANIMATION
+Start 0
+End 1
+Num_frames 25
+
+1
+ Trans: 0 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.131347 0.991336 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.322608 0.946533 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.497309 0.867573 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.640376 0.768062 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.745835 0.666131 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.80997 0.586471 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.831286 0.555844 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.819052 0.57372 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.780157 0.625583 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.734794 0.678291 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.703421 0.710774 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.702595 0.71159 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.729635 0.683837 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.77062 0.637295 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.809637 0.586931 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.829314 0.558784 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.827253 0.56183 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.785817 0.61846 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.710898 0.703295 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.60226 0.7983 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.46325 0.886228 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.299206 0.954188 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0.122658 0.992449 Scale: 1 1 1
+ Trans: 0 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+2
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+3
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+ Trans: 4 0 0 Rot: 0 0 0 1 Scale: 1 1 1
+
+

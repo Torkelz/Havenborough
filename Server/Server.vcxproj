@@ -63,7 +63,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Bin\</OutDir>
-    <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\BTH\Documents\GitHub\Havenborough\Network\include;$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
     <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -93,6 +93,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)Network\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

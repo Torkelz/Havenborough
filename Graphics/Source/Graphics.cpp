@@ -1,9 +1,10 @@
 #include "Graphics.h"
 #include "GraphicsLogger.h"
 
-
 #include <iostream>
 #include <boost/filesystem.hpp>
+
+using namespace DirectX;
 
 Graphics::Graphics(void)
 {
@@ -18,6 +19,8 @@ Graphics::Graphics(void)
 	m_WrapperFactory = nullptr;
 	m_ModelFactory = nullptr;
 	m_DeferredRender = nullptr;
+	m_Sampler = nullptr;
+	m_VRAMMemInfo = nullptr;
 
 	m_VSyncEnabled = false; //DEBUG
 
@@ -38,14 +41,14 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Initializing graphics");
 
 	HRESULT result;
-	IDXGIFactory *factory;
-	IDXGIAdapter *adapter;
-	IDXGIOutput *adapterOutput;
+	IDXGIFactory *factory = nullptr;
+	IDXGIAdapter *adapter = nullptr;
+	IDXGIOutput *adapterOutput = nullptr;
 	
 	unsigned int numModes;
 	unsigned int stringLength;
 	
-	DXGI_MODE_DESC *displayModeList;
+	DXGI_MODE_DESC *displayModeList = nullptr;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
 	
@@ -167,6 +170,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_WrapperFactory = WrapperFactory::getInstance();
 	m_VRAMMemInfo = VRAMMemInfo::getInstance();
 	m_ModelFactory = ModelFactory::getInstance();
+	m_ModelFactory->initialize(&m_TextureList);
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
@@ -175,7 +179,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred Render
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix);
+		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights);
 	
 	DebugDefferedDraw();
 
@@ -215,7 +219,15 @@ void Graphics::shutdown(void)
 		SAFE_RELEASE(tex.second);
 	}
 	m_TextureList.clear();
-	m_ModelList.clear();
+
+	while (!m_ModelList.empty())
+	{
+		std::string unremovedName = m_ModelList.front().first;
+
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + unremovedName + "' not removed properly");
+
+		releaseModel(unremovedName.c_str());
+	}
 
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
@@ -232,6 +244,14 @@ void Graphics::shutdown(void)
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
+	//Clear lights
+	m_PointLights.clear();
+	m_SpotLights.clear();
+	m_DirectionalLights.clear();
+
+	m_PointLights.shrink_to_fit();
+	m_SpotLights.shrink_to_fit();
+	m_DirectionalLights.shrink_to_fit();
 
 	m_Shader = nullptr;
 }
@@ -244,125 +264,10 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 
 bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	//ModelDefinition model =	m_ModelFactory->getInstance()->createStaticModel(p_Filename);
-	ModelDefinition model;
+	ModelDefinition model =	m_ModelFactory->getInstance()->createModel(p_Filename);
 
-	ModelLoader modelLoader;
+	m_ModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
 
-	modelLoader.loadFile(p_Filename);
-
-	vector<std::vector<ModelLoader::IndexDesc>>	tempF = modelLoader.getIndices();
-	vector<DirectX::XMFLOAT3> tempN	= modelLoader.getNormals();
-	vector<DirectX::XMFLOAT3> tempT	= modelLoader.getTangents();
-	vector<DirectX::XMFLOAT2> tempUV = modelLoader.getTextureCoords();
-	vector<DirectX::XMFLOAT3> tempVert = modelLoader.getVertices();
-	vector<ModelLoader::Material> tempM	= modelLoader.getMaterial();
-
-	vector<Vertex> temp;
-	vector<vector<int>> tempI;
-
-	vector<int> I;
-	int indexCounter = 0;
-	for(unsigned int i = 0; i < tempF.size(); i++)
-	{
-		const vector<ModelLoader::IndexDesc>& indexDescList = tempF.at(i);
-
-		I.reserve(indexDescList.size());
-
-		for(unsigned int j = 0; j < indexDescList.size();j++)
-		{
-			const ModelLoader::IndexDesc& indexDesc = indexDescList.at(j);
-
-			temp.push_back(Vertex(tempVert.at(indexDesc.m_Vertex),
-				tempN.at(indexDesc.m_Normal),
-				tempUV.at(indexDesc.m_TextureCoord),
-				tempT.at(indexDesc.m_Tangent)));
-
-			temp.back().position.x *= -1.f;
-			temp.back().normal.x *= -1.f;
-			temp.back().tangent.x *= -1.f;
-			temp.back().binormal.x *= -1.f;
-
-			I.push_back(indexCounter);
-			indexCounter++;
-		}
-
-		tempI.push_back(I);
-		I.clear();
-	}
-
-	// Create Vertex buffer.
-	Buffer::Description bufferDescription;
-	bufferDescription.initData = temp.data();
-	bufferDescription.numOfElements = temp.size();
-	bufferDescription.sizeOfElement = sizeof(Vertex);
-	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
-	bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE; // Change to default when needed to change data.
-	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
-	temp.clear();
-
-	// Create Index buffer.
-	unsigned int nrIndexBuffers = tempI.size();
-	std::vector<std::unique_ptr<Buffer>> indices;
-	bufferDescription.type = Buffer::Type::INDEX_BUFFER;
-	//bufferDescription.usage = Buffer::Usage::USAGE_IMMUTABLE;// Change to default when needed to change data.
-	bufferDescription.sizeOfElement = sizeof(int);
-
-
-	for(unsigned int i = 0; i < nrIndexBuffers; i++)
-	{
-		bufferDescription.initData = tempI.at(i).data();
-		bufferDescription.numOfElements = tempI.at(i).size();
-
-		indices.push_back(std::unique_ptr<Buffer>(WrapperFactory::getInstance()->createBuffer(bufferDescription)));
-	}
-	tempI.clear();
-	I.clear();
-
-	boost::filesystem::path modelPath(p_Filename);
-	boost::filesystem::path parentDir(modelPath.parent_path());
-
-	// Load textures.
-	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> diffuse;
-	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> normal;
-	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> specular;
-	
-	for(unsigned int i = 0; i < nrIndexBuffers; i++)
-	{
-		const ModelLoader::Material& mat = tempM.at(i);
-		boost::filesystem::path diff = (mat.m_DiffuseMap == "NONE") ? "assets/Default/Default_COLOR.jpg" : parentDir / mat.m_DiffuseMap;
-		boost::filesystem::path norm = (mat.m_NormalMap == "NONE" || mat.m_NormalMap == "Default_NRM.jpg") ? "assets/Default/Default_COLOR.jpg" : parentDir / mat.m_NormalMap;
-		boost::filesystem::path spec = (mat.m_SpecularMap == "NONE" || mat.m_SpecularMap == "Default_SPEC.jpg") ? "assets/Default/Default_SPEC.jpg" : parentDir / mat.m_SpecularMap;
-
-
-		m_LoadModelTexture(mat.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
-		m_LoadModelTexture(mat.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);
-		m_LoadModelTexture(mat.m_SpecularMap.c_str(), spec.string().c_str(), m_LoadModelTextureUserdata);
-
-		diffuse.push_back( std::make_pair( mat.m_DiffuseMap, getTextureFromList( mat.m_DiffuseMap.c_str() ) ));
-		normal.push_back( std::make_pair( mat.m_NormalMap, getTextureFromList( mat.m_NormalMap.c_str() ) ));
-		specular.push_back( std::make_pair( mat.m_SpecularMap, getTextureFromList( mat.m_SpecularMap.c_str() ) ));
-
-	}
-
-
-	model.vertexBuffer.swap(vertexBuffer);
-	model.indexBuffers.swap(indices);
-	model.diffuseTexture	= diffuse;
-	model.normalTexture		= normal;
-	model.specularTexture	= specular;
-	model.numOfMaterials	= nrIndexBuffers;
-
-	m_ModelList.push_back(std::pair<string,ModelDefinition>(p_ModelId, std::move(model)));
-
-	modelLoader.clear();
-
-	return true;
-}
-	
-bool Graphics::createAnimatedModel(const char *p_ModelId, const char *p_Filename)
-{
-	ModelDefinition model = m_ModelFactory->getInstance()->createAnimatedModel(p_Filename);
 	return true;
 }
 
@@ -372,7 +277,7 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 	{
 		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
 		{
-			for(int i = 0; i < it->second.numOfMaterials; i++)
+			for(unsigned int i = 0; i < it->second.numOfMaterials; i++)
 			{
 				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 				m_ReleaseModelTexture(it->second.normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
@@ -383,6 +288,7 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -390,7 +296,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	const char *p_ShaderModel, ShaderType p_Type)
 {
 	bool found = false;
-	Shader *shader;
+	Shader *shader = nullptr;
 
 	for(auto &s : m_ShaderList)
 	{
@@ -432,13 +338,12 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		p_ShaderModel, p_Type, p_VertexLayout, p_NumOfElements)));
 }
 
-void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
+void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) //TODO: Maybe need to handle if animated or static?
 {
 	ModelDefinition *model = nullptr;
 	model = getModelFromList(p_ModelId);
 	if(model != nullptr)
 		model->shader = getShaderFromList(p_ShaderId);
-	model = nullptr;
 }
 
 bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
@@ -476,14 +381,15 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-void Graphics::renderModel(int p_ModelId)
+void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animated or static?
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_ModelId)
 		{
-			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.m_ModelName),
-				&inst.second.getWorldMatrix()));
+			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.getModelName()),
+				inst.second.getWorldMatrix(),
+				&inst.second.getFinalTransform()));
 			break;
 		}
 	}
@@ -509,13 +415,48 @@ void Graphics::removeStaticLight(void)
 
 }
 
-void Graphics::useFrameLight(void)
+void Graphics::useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange)
 {
+	Light l;
+	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
+	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+	l.lightRange = p_LightRange;
+	m_PointLights.push_back(l);
+}
+void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
+	Vector2 p_SpotLightAngles,	float p_LightRange)
+{
+	Light l;
+	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
+	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+	
+	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
+	XMStoreFloat3(&l.lightDirection, lightDirectionV);
+	l.spotlightAngles = XMFLOAT2(p_SpotLightAngles.x,p_SpotLightAngles.y);
+	l.lightRange = p_LightRange;
+	m_SpotLights.push_back(l);
+}
+void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection)
+{
+	Light l;
+	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
+
+	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
+
+	XMStoreFloat3(&l.lightDirection, lightDirectionV);
+	m_DirectionalLights.push_back(l);
 }
 
 void Graphics::drawFrame(int i)
 {
+	if (!m_DeviceContext || !m_DeferredRender)
+	{
+		return;
+	}
+
 	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
 	Begin(color);
 
@@ -532,23 +473,53 @@ void Graphics::drawFrame(int i)
 	m_Shader->unSetShader();
 	
 	End();
+
+	//Delete lights
+	m_PointLights.clear();
+	m_SpotLights.clear();
+	m_DirectionalLights.clear();
+}
+
+void Graphics::updateAnimations(float p_DeltaTime)
+{
+	for (auto& model : m_ModelInstances)
+	{
+		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
+		if (modelDef->m_IsAnimated)
+		{
+			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
+		}
+	}
 }
 
 int Graphics::getVRAMMemUsage(void)
 {
-	return m_VRAMMemInfo->getUsage();
+	if (m_VRAMMemInfo)
+	{
+		return m_VRAMMemInfo->getUsage();
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 int Graphics::createModelInstance(const char *p_ModelId)
 {
-	ModelInstance instance;
-	instance.m_IsCalculated = false;
-	instance.m_ModelName = p_ModelId;
-	instance.m_Position = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	instance.m_Rotation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	instance.m_Scale = DirectX::XMFLOAT3(1.f, 1.f, 1.f);
+	ModelDefinition* modelDef = getModelFromList(p_ModelId);
+	if (modelDef == nullptr)
+	{
+		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the mode definition: " + std::string(p_ModelId));
+		return -1;
+	}
 
+	ModelInstance instance;
+	instance.setModelName(p_ModelId);
+	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
+	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
+	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 	int id = m_NextInstanceId++;
+
 	m_ModelInstances.push_back(std::make_pair(id, instance));
 
 	return id;
@@ -566,47 +537,75 @@ void Graphics::eraseModelInstance(int p_Instance)
 	}
 }
 
-void Graphics::setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z)
+void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.setPosition(DirectX::XMFLOAT3(p_X, p_Y, p_Z));
+			inst.second.setPosition(Vector3ToXMFLOAT3(&p_Position));
 			break;
 		}
 	}
 }
 
-void Graphics::setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll)
+void Graphics::setModelRotation(int p_Instance, Vector3 p_YawPitchRoll)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.setRotation(DirectX::XMFLOAT3(p_Pitch, p_Yaw, p_Roll));
+			inst.second.setRotation(DirectX::XMFLOAT3(p_YawPitchRoll.y, p_YawPitchRoll.x, p_YawPitchRoll.z));
 			break;
 		}
 	}
 }
 
-void Graphics::setModelScale(int p_Instance, float p_X, float p_Y, float p_Z)
+void Graphics::setModelScale(int p_Instance, Vector3 p_Scale)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.setScale(DirectX::XMFLOAT3(p_X, p_Y, p_Z));
+			inst.second.setScale(DirectX::XMFLOAT3(p_Scale));
 			break;
 		}
 	}
 }
 
-void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch)
+void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_Joint, Vector3 p_Target)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.applyIK_ReachPoint(p_Joint, p_Target, getModelFromList(inst.second.getModelName())->m_Joints);
+			break;
+		}
+	}
+}
+
+Vector3 Graphics::getJointPosition(int p_Instance, const char* p_Joint)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->m_Joints);
+			
+			return position;
+		}
+	}
+
+	throw InvalidArgumentGraphicsException("Model instance does not exist", __LINE__, __FILE__);
+}
+
+void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 {
 	using namespace DirectX;
 
-	m_Eye = XMFLOAT3(p_PosX,p_PosY,p_PosZ);
+	m_Eye = Vector3ToXMFLOAT3(&p_Position);
 	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
 	XMVECTOR pos = XMLoadFloat4(&eye);
 
@@ -624,9 +623,6 @@ void Graphics::updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Ya
 
 	//XMFLOAT4X4 view;
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
-
-	//m_DeferredRender->updateViewMatrix(view);
-	//m_DeferredRender->updateCameraPosition(XMFLOAT3(p_PosX, p_PosY, p_PosZ));
 }
 
 void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
@@ -634,10 +630,12 @@ void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 	GraphicsLogger::setLogFunction(p_LogCallback);
 }
 
-void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata)
+void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata)
 {
-	m_LoadModelTexture = p_LoadModelTexture;
-	m_LoadModelTextureUserdata = p_Userdata;
+	if (m_ModelFactory)
+	{
+		m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
+	}
 }
 
 void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)
@@ -824,7 +822,7 @@ HRESULT Graphics::createRasterizerState(void)
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_FRONT;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
@@ -873,17 +871,15 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 
 ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 {
-	ModelDefinition* ret = nullptr;
-
 	for(auto & s : m_ModelList)
 	{
-		if(s.first.compare(p_Identifier) == 0 )
+		if(s.first == p_Identifier)
 		{
-			ret = &s.second;
-			break;
+			return &s.second;
 		}
 	}
-	return ret;
+
+	return nullptr;
 }
 
 ID3D11ShaderResourceView *Graphics::getTextureFromList(string p_Identifier)
@@ -921,7 +917,6 @@ void Graphics::Begin(float color[4])
 
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
-
 
 void Graphics::End(void)
 {

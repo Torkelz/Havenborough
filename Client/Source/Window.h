@@ -10,16 +10,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-
-/**
- * Placeholder struct to be used for passing window sizes.
- * Replace whenever a math library is included.
- */
-struct UVec2
-{
-	unsigned int x;
-	unsigned int y;
-};
+#include <DirectXMath.h>
 
 /**
  * Represents a Win32 window that deals with the basic initialization and message polling.
@@ -55,7 +46,7 @@ private:
 	std::string	m_Title;
 	HWND		m_Handle;
 	HICON		m_Icon;
-	UVec2		m_Size;
+	DirectX::XMFLOAT2 m_Size;
 	bool		m_ShowingCursor;
 	bool		m_IsVisible;
 	bool		m_Initialized;
@@ -84,7 +75,7 @@ public:
 	 * @param p_WindowSize The size of the window to create (width, height). The caller is
 	 *			responsible for making sure that the values are valid for the platform.
 	 */
-	void		init(const std::string& p_Title, UVec2 p_WindowSize);
+	void		init(const std::string& p_Title, DirectX::XMFLOAT2 p_WindowSize);
 	/**
 	 * Closes the window and cleans up any resources used. May be called on an unitialized object.
 	 */
@@ -125,14 +116,14 @@ public:
 	 *
 	 * @return The size (width, height) of the window.
 	 */
-	UVec2		getSize() const;
+	DirectX::XMFLOAT2 getSize() const;
 	/**
 	 * Set a new size for the window.
 	 *
 	 * @param p_NewSize The size to resize the window to. The caller is responsible
 	 *			for making sure that the size is supported by the platform.
 	 */
-	void		setSize(UVec2 p_NewSize);
+	void		setSize(DirectX::XMFLOAT2 p_NewSize);
 	/**
 	 * Get whether the windows cursor is currently shown.
 	 *

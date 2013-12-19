@@ -73,14 +73,14 @@ void Physics::update(float p_DeltaTime)
 
 		for (unsigned j = i + 1; j < m_Bodies.size(); j++)
 		{
+			unsigned int hh = m_Bodies.at(j).getHandle();
 			HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
 			
 			if(hit.intersect)
 			{
-				if(hit.colType == Type::OBBVSOBB)
-				{
-					PhysicsLogger::log(PhysicsLogger::Level::INFO, "OBB intersection!");
-				}
+				hit.collider = m_Bodies.at(i).getHandle();
+				hit.collisionVictim = m_Bodies.at(j).getHandle();
+				hit.isEdge = m_Bodies.at(j).getIsEdge();
 				m_HitDatas.push_back(hit);
 				XMVECTOR temp;
 				XMFLOAT4 tempPos;
@@ -124,7 +124,7 @@ void Physics::applyForce(Vector4 p_Force, BodyHandle p_Body)
 	tempForce.y = p_Force.y;
 	tempForce.z = p_Force.z;
 	tempForce.w = p_Force.w;
-
+	
 	body->addForce(tempForce);
 }
 
@@ -138,10 +138,10 @@ BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Pos
 
 	Sphere* sphere = new Sphere(p_Radius, tempPosition);
 
-	return createBody(p_Mass, sphere, p_IsImmovable);
+	return createBody(p_Mass, sphere, p_IsImmovable, false);
 }
 
-BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top)
+BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge)
 {
 	XMFLOAT4 tempBot = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	XMFLOAT4 tempTop = XMFLOAT4(0.f, 0.f, 0.f, 0.f);;
@@ -157,7 +157,7 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, 
 
 	AABB* aabb = new AABB(tempBot, tempTop);
 
-	return createBody(p_Mass, aabb, p_IsImmovable);
+	return createBody(p_Mass, aabb, p_IsImmovable, p_IsEdge);
 }
 
 BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Corner)
@@ -172,9 +172,38 @@ BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_Center
 	return createBody(p_Mass, obb, p_IsImmovable);
 }
 
-BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable)
+bool Physics::createLevelBV(const char* p_VolumeID, const char* p_FilePath)
 {
-	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable);
+	m_BVLoader.loadBinaryFile(p_FilePath);
+
+
+	return true;
+}
+
+bool Physics::releaseLevelBV(const char* p_VolumeID)
+{
+
+	return true;
+}
+
+void Physics::setBVPosition(int p_Instance, float p_x, float p_y, float p_z)
+{
+
+}
+
+void Physics::setBVRotation(int p_Instance, float p_x, float p_y, float p_z)
+{
+
+}
+
+void Physics::setBVScale(int p_Instance, float p_x, float p_y, float p_z)
+{
+
+}
+
+BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
+{
+	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable, p_IsEdge);
 	return m_Bodies.back().getHandle();
 }
 
@@ -208,6 +237,11 @@ HitData Physics::getHitDataAt(unsigned int p_Index)
 	return m_HitDatas.at(p_Index);
 }
 
+void Physics::removedHitDataAt(unsigned int p_index)
+{
+	m_HitDatas.erase(m_HitDatas.begin() + p_index);
+}
+
 unsigned int Physics::getHitDataSize()
 {
 	return m_HitDatas.size();
@@ -227,6 +261,33 @@ Vector4 Physics::getBodyPosition(BodyHandle p_Body)
 	return tempvec4;
 }
 
+Vector3 Physics::getBodySize(BodyHandle p_Body)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return Vector3(0.f, 0.f, 0.f);
+
+	Vector3 temp;
+	float r;
+	XMFLOAT4 bSize;
+	switch (body->getVolume()->getType())
+	{
+	case BoundingVolume::Type::AABBOX:
+		bSize = *((AABB*)body->getVolume())->getHalfDiagonal();
+		temp = Vector3(bSize.x,bSize.y,bSize.z);
+		break;
+	case BoundingVolume::Type::SPHERE:
+		r = ((Sphere*)body->getVolume())->getRadius();
+		temp = Vector3(r,r,r);
+		break;
+	default:
+		temp = Vector3(0,0,0);
+		break;
+	}
+	
+	return temp;
+}
+
 void Physics::setBodyPosition(Vector3 p_Position, BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
@@ -241,6 +302,20 @@ void Physics::setBodyPosition(Vector3 p_Position, BodyHandle p_Body)
 	tempPosition.w = 1.f;
 
 	body->setPosition(tempPosition);
+}
+void Physics::setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return;
+
+	XMFLOAT4 tempPosition = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+
+	tempPosition.x = p_Velocity.x;
+	tempPosition.y = p_Velocity.y;
+	tempPosition.z = p_Velocity.z;
+	tempPosition.w = 1.f;
+	body->setVelocity(tempPosition);
 }
 
 void Physics::setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, float p_Roll)

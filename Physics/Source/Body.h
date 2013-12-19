@@ -28,6 +28,7 @@ protected:
 	bool				m_InAir;
 
 	bool				m_IsImmovable;
+	bool				m_IsEdge;
 
 	std::unique_ptr<BoundingVolume>	m_Volume;
 public:
@@ -37,7 +38,7 @@ public:
 	* @p_Volume, pointer to the body's BoundingVolume.
 	* @p_IsImmovable, should a body be immovable(static)?
 	*/
-	Body(float p_Mass, std::unique_ptr<BoundingVolume> p_Volume, bool p_IsImmovable);
+	Body(float p_Mass, std::unique_ptr<BoundingVolume> p_Volume, bool p_IsImmovable, bool p_IsEdge);
 	/**
 	* Move constructor, needed because c++11 is not fully integrated to VS2012.
 	*/
@@ -82,6 +83,11 @@ public:
 	* @return a bool, if the body is movable or immovable.
 	*/
 	bool getIsImmovable();
+	/**
+	* Is the body a Edge(static)?
+	* @return a bool, if the body is an edge.
+	*/
+	bool getIsEdge();
 	/**
 	* Get the volume that is connected to the body.
 	* @return body's volume.

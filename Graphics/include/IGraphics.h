@@ -2,14 +2,15 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "ShaderDeffinitions.h"
-
 #include <cstdint>
+
+#include "ShaderDefinitions.h"
+#include "../../Client/Utilities/Util.h"
+
 
 class IGraphics
 {
 public:
-	
 
 	virtual ~IGraphics(void)
 	{}
@@ -46,18 +47,11 @@ public:
 	__declspec(dllexport) static void deleteGraphics(IGraphics *p_Graphics);
 
 	/**
-	* Creates a new static model and stores in a vector connected with an ID.
+	* Creates a new static or animated model and stores in a vector connected with an ID.
 	* @param p_ModelId the ID of the model
 	* @param p_Filename the filename of the model
 	*/
 	virtual bool createModel(const char *p_ModelId, const char *p_Filename) = 0;
-	
-	/**
-	* Creates a new animated model and stores in a vector connected with an ID.
-	* @param p_ModelId the ID of the model
-	* @param p_Filename the filename of the model
-	*/
-	virtual bool createAnimatedModel(const char *p_ModelId, const char *p_Filename) = 0;
 
 	/**
 	* 
@@ -133,10 +127,28 @@ public:
 	virtual void removeStaticLight(void) = 0;
 
 	/**
-	* 
+	* Creates a point light which is removed after each draw.
+	* @ p_LightPosition, the position of the light object.
+	* @ p_LightColor, the color of the light.
+	* @ p_LightRange, the range of the point light.
 	*/
-	virtual void useFrameLight(void) = 0;
-
+	virtual void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) = 0;
+	/**
+	* Creates a spot light which is removed after each draw.
+	* @ p_LightPosition, the position of the light object.
+	* @ p_LightColor, the color of the light.
+	* @ p_LightDirection, the direction of the spot light.
+	* @ p_SpotLightAngles, angles in radians where the x component is smaller than the y component.
+	* @ p_LightRange, the range of the spot light.
+	*/
+	virtual void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
+		Vector2 p_SpotLightAngles,	float p_LightRange) = 0;
+	/**
+	* Creates a directional light which is removed after each draw.
+	* @ p_LightColor, the color of the light.
+	* @ p_LightDirection, the direction of the directional light.
+	*/
+	virtual void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) = 0;
 	/**
 	* Renders a model specified with an ID.
 	* @param p_ModelId the ID of the model to be rendered
@@ -155,8 +167,17 @@ public:
 	
 	/**
 	* Draw the current frame.
+	*
+	* @param i the render target to display.
 	*/
 	virtual void drawFrame(int i) = 0;
+
+	/**
+	 * Update the animations of all models.
+	 *
+	 * @param p_DeltaTime the time in seconds since the previous frame.
+	 */
+	virtual void updateAnimations(float p_DeltaTime) = 0;
 
 	/**
 	* Gets the amount of VRAM usage of the program.
@@ -186,7 +207,7 @@ public:
 	 * @param p_Y position in Y direction.
 	 * @param p_Z position in Z direction.
 	 */
-	virtual void setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z) = 0;
+	virtual void setModelPosition(int p_Instance, Vector3 p_Position) = 0;
 
 	/**
 	 * Set the rotation of an model instance in radians.
@@ -196,7 +217,7 @@ public:
 	 * @param p_Pitch rotation around the X axis, left-handed.
 	 * @param p_Roll rotation around the Z axis, left-handed.
 	 */
-	virtual void setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll) = 0;
+	virtual void setModelRotation(int p_Instance, Vector3 p_YawPitchRoll) = 0;
 
 	/**
 	 * Set the scale of an model instance.
@@ -206,7 +227,26 @@ public:
 	 * @param p_Y scale in Y direction.
 	 * @param p_Z scale in Z direction.
 	 */
-	virtual void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) = 0;
+	virtual void setModelScale(int p_Instance, Vector3 p_Scale) = 0;
+
+	/**
+	 * Updates the model to reach for a point in world space.
+	 *
+	 * @param p_Instance an identifier to a model instance.
+	 * @param p_Joint the name of the end joint to change.
+	 *			The joint must have a parent and a grandparent.
+	 * @param p_Target the target position in world space.
+	 */
+	virtual void applyIK_ReachPoint(int p_Instance, const char* p_Joint, Vector3 p_Target) = 0;
+
+	/**
+	 * Get the position of a single joint from a model instance.
+	 *
+	 * @param p_Instance the instance identifier to retreive the joint from.
+	 * @param p_Joint the identifier of the joint to get the position of.
+	 * @return the position of the joint in world space.
+	 */
+	virtual Vector3 getJointPosition(int p_Instance, const char* p_Joint) = 0;
 
 	/**
 	 * Update the position and viewing direction of the camera.
@@ -217,12 +257,35 @@ public:
 	 * @param p_Yaw the camera rotation around the up axis, positive to the right.
 	 * @param p_Pitch the camera pitch, positive up.
 	 */
-	virtual void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) = 0;
+	virtual void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) = 0;
 	
-	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void* p_Userdata);
-	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) = 0;
+	/**
+	* Callback for loading a texture to a model.
+	* @param p_ResourceName the resource name of the texture
+	* @param p_FilePath path to where the texture is located
+	* @param p_UserData user defined data
+	*/
+	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
+	
+	/**
+	* Set the function to load a texture to a model.
+	* @param p_LoadModelTexture the function to be called whenever a texture is to be loaded.
+	* @param p_UserData user defined data
+	*/
+	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata) = 0;
 
+	/**
+	* Callback for releasing a texture to a model.
+	* @param p_ResourceName the resource name of the texture
+	* @param p_UserData user defined data
+	*/
 	typedef void (*releaseModelTextureCallBack)(const char *p_ResourceName, void *p_Userdata);
+	
+	/**
+	* Set the function to release a texture to a model.
+	* @param p_LoadModelTexture the function to be called whenever a texture is to be released.
+	* @param p_UserData user defined data
+	*/
 	virtual void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata) = 0;
 
 	/**

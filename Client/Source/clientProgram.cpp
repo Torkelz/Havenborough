@@ -10,12 +10,12 @@
 #include <fstream>
 #include <iostream>
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 	std::ofstream logFile("logFile.txt", std::ofstream::trunc);
 
 #ifdef _DEBUG
-	Logger::addOutput(Logger::Level::TRACE, logFile);
+	Logger::addOutput(Logger::Level::DEBUG, logFile);
 #else
 	Logger::addOutput(Logger::Level::INFO, logFile);
 #endif

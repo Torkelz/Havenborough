@@ -98,7 +98,7 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 	}
 
 	bool handled = false;
-	WPARAM wParam = GET_RAWINPUT_CODE_WPARAM(p_WParam);
+	//WPARAM wParam = GET_RAWINPUT_CODE_WPARAM(p_WParam);
 
 	UINT size;
 	GetRawInputData((HRAWINPUT)p_LParam, RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER));
@@ -165,7 +165,7 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 	const LONG lastX = p_RawMouse.lLastX;
 	const LONG lastY = p_RawMouse.lLastY;
 	POINT tempPos;
-	UVec2 windowSize = {10000, 10000};
+	DirectX::XMFLOAT2 windowSize = DirectX::XMFLOAT2(10000, 10000);
 	GetCursorPos(&tempPos);
 	if (m_Window)
 	{

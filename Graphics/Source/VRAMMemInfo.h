@@ -2,11 +2,11 @@
 #define KB 1000
 #define MB (1000 * KB)
 #define OVERHEAD_USAGE (10 * MB) //This is a theoretical overhead for graphics resources in the video memory
-
-#include <d3d11.h>
-#include "Util.h"
-#include "MyGraphicsExceptions.h"
 #include <memory>
+#include <d3d11.h>
+#include "../../Client/Utilities/MemoryUtil.h"
+#include "GraphicsExceptions.h"
+
 
 
 class VRAMMemInfo

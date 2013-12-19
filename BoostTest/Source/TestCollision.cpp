@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHitOrigin)
 
 	s1 = Sphere(1.f, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 
-	aabb = AABB(DirectX::XMFLOAT4(-1.f, -1.f, -1.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
 
 	hit = col.AABBvsSphere(&aabb, &s1);
 
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHit)
 
 	s1 = Sphere(1.f, DirectX::XMFLOAT4(0.0f, 2.f, 0.0f, 1.0f));
 
-	aabb = AABB(DirectX::XMFLOAT4(-1.f, -1.f, -1.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
 
 	hit = col.AABBvsSphere(&aabb, &s1);
 
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(EXTREMECASE_AABBVsSphereHit)
 
 	s1 = Sphere(0.1f, DirectX::XMFLOAT4(0.0f, 50.0f, 0.0f, 0.0f));
 
-	aabb = AABB(DirectX::XMFLOAT4(-100.f, -100.f, -100.f, 1.f), DirectX::XMFLOAT4(100.f, 100.f, 100.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(100.f, 100.f, 100.f, 1.f));
 
 	BOOST_CHECK_EQUAL(col.AABBvsSphere(&aabb, &s1).intersect, true);
 }
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(EXTREMECASE2_AABBVsSphereHit)
 
 	s1 = Sphere(1000.f, DirectX::XMFLOAT4(1001.f, 0.0f, 0.0f, 1.0f));
 
-	aabb = AABB(DirectX::XMFLOAT4(-1.f, -1.f, -1.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
 
 	hit = col.AABBvsSphere(&aabb, &s1);
 
@@ -151,8 +151,8 @@ BOOST_AUTO_TEST_CASE(AABBvsAABBMiss)
 	Collision col;
 	AABB aabb, aabbb;
 
-	aabb = AABB(DirectX::XMFLOAT4(-1.f, -1.f, -1.f, 1.f), DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f));
-	aabbb = AABB(DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f), DirectX::XMFLOAT4(2.f, 2.f, 2.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(-2.f, -2.f, -2.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
+	aabbb = AABB(DirectX::XMFLOAT4(2.f, 2.f, 2.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
 
 	BOOST_CHECK_EQUAL(col.AABBvsAABB(&aabb, &aabbb).intersect, false);
 }

@@ -9,7 +9,7 @@
 
 std::vector<IConnectionController*> g_Controllers;
 
-void clientConnected(IConnectionController* p_Connection, void* p_UserData)
+void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 {
 	Logger::log(Logger::Level::INFO, "Client connected");
 
@@ -25,7 +25,7 @@ void clientConnected(IConnectionController* p_Connection, void* p_UserData)
 	g_Controllers.push_back(p_Connection);
 }
 
-void clientDisconnected(IConnectionController* p_Connection, void* p_UserData)
+void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 {
 	Logger::log(Logger::Level::INFO, "Client disconnected");
 

@@ -18,14 +18,32 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 {
 	static const std::pair<std::string, std::string> modelMap[] =
 	{
-		std::make_pair("DZALA", "assets/models/character_witch.tx"),
-		std::make_pair("MARIM", "assets/models/marim.tx"),
-		std::make_pair("HOUSE1", "assets/models/house1.tx"),
-		std::make_pair("BOX", "assets/models/Sample135.tx"),
-		std::make_pair("SKYBOX", "assets/models/SkyBox.tx"),
+		std::make_pair("DZALA", "assets/models/character_witch.btx"),
+		std::make_pair("MARIM", "assets/models/marim.btx"),
+		std::make_pair("HOUSE1", "assets/models/house1.btx"),
+		std::make_pair("BOX", "assets/models/Sample135.btx"),
+		std::make_pair("SKYBOX", "assets/models/SkyBox.btx"),
+		std::make_pair("RedBlueCrate", "assets/models/RedBlueCrate.btx"),
+		std::make_pair("IKTest", "assets/IKtest.btx"),
+		std::make_pair("RedCrate", "assets/models/RedCrate.btx"),
+		std::make_pair("OrangeCrate", "assets/models/OrangeCrate.btx"),
+		std::make_pair("LightBlueCrate", "assets/models/LightBlueCrate.btx"),
+		std::make_pair("GreenCrate", "assets/models/GreenCrate.btx"),
+		std::make_pair("BrownCrate", "assets/models/BrownCrate.btx"),
 	};
 
 	static const size_t numModels = sizeof(modelMap) / sizeof(modelMap[0]);
+
+	static const std::pair<std::string, std::string> boundingMap[] =
+	{
+		std::make_pair("RedBlueCrate", "assets/volumes/RedBlueCrate.btx"),
+		std::make_pair("RedCrate", "assets/volumes/RedCrate.btx"),
+		std::make_pair("OrangeCrate", "assets/volumes/OrangeCrate.btx"),
+		std::make_pair("LightBlueCrate", "assets/volumes/LightBlueCrate.btx"),
+		std::make_pair("GreenCrate", "assets/volumes/GreenCrate.btx"),
+		std::make_pair("BrownCrate", "assets/volumes/BrownCrate.btx"),
+	};
+	static const size_t numBoundingVolumes = sizeof(boundingMap) / sizeof(boundingMap[0]);
 
 	static const std::pair<std::string, std::string> textureMap[] =
 	{
@@ -37,6 +55,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	{
 		std::make_pair("model", std::vector<const std::pair<std::string, std::string>>(modelMap, modelMap + numModels)),
 		std::make_pair("texture", std::vector<const std::pair<std::string, std::string>>(textureMap, textureMap + numTextures)),
+		std::make_pair("volume", std::vector<const std::pair<std::string, std::string>>(boundingMap, boundingMap + numBoundingVolumes)),
 	};
 
 	for (const auto& map : resourceMaps)

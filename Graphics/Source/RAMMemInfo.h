@@ -16,7 +16,14 @@ private:
 	SIZE_T m_PhysicalMemUsage;
 	
 public:
+	/**
+	* Constructor
+	*/
 	RAMMemInfo(void);
+	
+	/**
+	* Destructor
+	*/
 	~RAMMemInfo(void);
 
 	/**

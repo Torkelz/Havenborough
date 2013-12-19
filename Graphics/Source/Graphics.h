@@ -9,134 +9,74 @@
 #include <dxgi.h>
 
 #include "../include/IGraphics.h"
-#include "MyGraphicsExceptions.h"
+#include "GraphicsExceptions.h"
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
-#include "ModelLoader.h"
+#include "ModelInstance.h"
 #include "VRAMMemInfo.h"
+
+#include "ShaderStructs.h"
 
 using std::string;
 using std::vector;
 using std::pair;
 using std::make_pair;
-using namespace DirectX;
 
 class Graphics : public IGraphics
 {
 private:
-	struct ModelInstance
-	{
-		std::string m_ModelName;
-		DirectX::XMFLOAT3 m_Position;
-		DirectX::XMFLOAT3 m_Rotation;
-		DirectX::XMFLOAT3 m_Scale;
+	ID3D11Device					*m_Device;
+	ID3D11DeviceContext				*m_DeviceContext;
 
-		mutable bool m_IsCalculated;
-		mutable DirectX::XMFLOAT4X4 m_World;
-
-		const DirectX::XMFLOAT4X4& getWorldMatrix() const
-		{
-			if (!m_IsCalculated)
-			{
-				calculateWorldMatrix();
-			}
-			return m_World;
-		}
-		void setPosition(const DirectX::XMFLOAT3& p_Position)
-		{
-			m_Position = p_Position;
-			m_IsCalculated = false;
-		}
-		void setRotation(const DirectX::XMFLOAT3& p_Rotation)
-		{
-			m_Rotation = p_Rotation;
-			m_IsCalculated = false;
-		}
-		void setScale(const DirectX::XMFLOAT3& p_Scale)
-		{
-			m_Scale = p_Scale;
-			m_IsCalculated = false;
-		}
-		void calculateWorldMatrix() const
-		{
-			DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYawFromVector( DirectX::XMLoadFloat3(&m_Rotation) );
-			DirectX::XMMATRIX translation = DirectX::XMMatrixTranslationFromVector( DirectX::XMLoadFloat3(&m_Position) );
-			DirectX::XMMATRIX scale = DirectX::XMMatrixScalingFromVector( XMLoadFloat3(&m_Scale) );
-
-			DirectX::XMStoreFloat4x4( &m_World, DirectX::XMMatrixTranspose(scale * rotation * translation) );
-
-			m_IsCalculated = true;
-		}
-	};
-
-	struct Vertex
-	{
-		DirectX::XMFLOAT4 position;
-		DirectX::XMFLOAT3 normal;
-		DirectX::XMFLOAT2 uv;
-		DirectX::XMFLOAT3 tangent;
-		DirectX::XMFLOAT3 binormal;
-		Vertex(){}
-		Vertex(DirectX::XMFLOAT3 _position,
-			DirectX::XMFLOAT3 _normal,
-			DirectX::XMFLOAT2 _uv,
-			DirectX::XMFLOAT3 _tangent)
-		{
-			position = DirectX::XMFLOAT4(_position.x,_position.y,_position.z,1.0f);
-			normal = _normal;
-			uv = _uv;
-			tangent = _tangent;
-
-			//might be wrong
-			DirectX::XMStoreFloat3(&binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&tangent),DirectX::XMLoadFloat3(&normal)));
-		}
-	};
-
-	ID3D11Device *m_Device;
-	ID3D11DeviceContext *m_DeviceContext;
-
-	IDXGISwapChain *m_SwapChain;
-	ID3D11RenderTargetView *m_RenderTargetView;
+	IDXGISwapChain					*m_SwapChain;
+	ID3D11RenderTargetView			*m_RenderTargetView;
 	
-	ID3D11RasterizerState *m_RasterState;
+	ID3D11RasterizerState			*m_RasterState;
 
-	ID3D11Texture2D *m_DepthStencilBuffer;
-	ID3D11DepthStencilState *m_DepthStencilState;
-	ID3D11DepthStencilView *m_DepthStencilView;
+	ID3D11Texture2D					*m_DepthStencilBuffer;
+	ID3D11DepthStencilState			*m_DepthStencilState;
+	ID3D11DepthStencilView			*m_DepthStencilView;
 
-	unsigned int m_Numerator;
-	unsigned int m_Denominator;
-	char m_GraphicsCard[128];
-	int m_GraphicsMemory;
-	bool m_VSyncEnabled;
+	unsigned int					m_Numerator;
+	unsigned int					m_Denominator;
+	char							m_GraphicsCard[128];
+	int								m_GraphicsMemory;
+	bool							m_VSyncEnabled;
 
 	XMFLOAT4X4 m_ViewMatrix;
 	XMFLOAT4X4 m_ProjectionMatrix;
 	XMFLOAT3 m_Eye;
 
-	TextureLoader m_TextureLoader;	
-	WrapperFactory *m_WrapperFactory;
+	static const unsigned int m_MaxLightsPerLightInstance;
+	TextureLoader					m_TextureLoader;	
+	WrapperFactory					*m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
-	VRAMMemInfo *m_VRAMMemInfo;
+	VRAMMemInfo						*m_VRAMMemInfo;
 
-	vector<pair<string, Shader*>> m_ShaderList;
+	vector<pair<string, Shader*>>	m_ShaderList;
 	vector<pair<string, ModelDefinition>> m_ModelList;
 	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
 	vector<pair<int, ModelInstance>> m_ModelInstances;
 	int m_NextInstanceId;
 	
-	DeferredRenderer	*m_DeferredRender;
+	DeferredRenderer *m_DeferredRender;
 
-	Shader				*m_Shader; //DEBUG
-	ID3D11SamplerState	*m_Sampler;
+	//Lights
+	std::vector<Light>			m_SpotLights;
+	std::vector<Light>			m_PointLights;
+	std::vector<Light>			m_DirectionalLights;
+
+	Shader *m_Shader; //DEBUG
+	ID3D11SamplerState *m_Sampler;
 
 	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
-	void* m_LoadModelTextureUserdata;
+	void *m_LoadModelTextureUserdata;
 	
 	IGraphics::releaseModelTextureCallBack m_ReleaseModelTexture;
-	void* m_ReleaseModelTextureUserdata;
+	void *m_ReleaseModelTextureUserdata;
+
 public:
 	Graphics(void);
 	~Graphics(void);
@@ -145,7 +85,6 @@ public:
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
 	bool createModel(const char *p_ModelId, const char *p_Filename) override;
-	bool createAnimatedModel(const char *p_ModelId, const char *p_Filename) override;
 	bool releaseModel(const char *p_ModelID) override;
 
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
@@ -160,22 +99,31 @@ public:
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
-	void useFrameLight(void) override;
+	
+	
+	
+	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
+	void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
+		Vector2 p_SpotLightAngles,	float p_LightRange) override;
+	void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) override;
 	
 	void renderModel(int p_ModelId) override;
 	void renderText(void) override;
 	void renderQuad(void) override;
 	void drawFrame(int i) override;
+	void updateAnimations(float p_DeltaTime) override;
 
 	int getVRAMMemUsage(void) override;
 	
 	int createModelInstance(const char *p_ModelId) override;
 	void eraseModelInstance(int p_Instance) override;
-	void setModelPosition(int p_Instance, float p_X, float p_Y, float p_Z) override;
-	void setModelRotation(int p_Instance, float p_Yaw, float p_Pitch, float p_Roll) override;
-	void setModelScale(int p_Instance, float p_X, float p_Y, float p_Z) override;
+	void setModelPosition(int p_Instance, Vector3 p_Position) override;
+	void setModelRotation(int p_Instance, Vector3 p_YawPitchRoll) override;
+	void setModelScale(int p_Instance, Vector3 p_Scale) override;
+	void applyIK_ReachPoint(int p_Instance, const char* p_Joint, Vector3 p_Target) override;
+	Vector3 getJointPosition(int p_Instance, const char* p_Joint) override;
 
-	void updateCamera(float p_PosX, float p_PosY, float p_PosZ, float p_Yaw, float p_Pitch) override;
+	void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
@@ -197,9 +145,7 @@ private:
 	Shader *getShaderFromList(string p_Identifier);
 	ModelDefinition *getModelFromList(string p_Identifier);
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
-
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
-
 	void Begin(float color[4]);
 	void End(void);
 

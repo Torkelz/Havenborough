@@ -11,6 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Level.cpp" />
+    <ClCompile Include="Source\LevelBinaryLoader.cpp" />
+    <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
+    <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\ResourceTranslator.cpp" />
     <ClCompile Include="Source\BaseGameApp.cpp" />
@@ -45,6 +49,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Level.h" />
+    <ClInclude Include="Source\LevelBinaryLoader.h" />
+    <ClInclude Include="Source\EdgeCollisionResponse.h" />
+    <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\Logger.h" />
     <ClInclude Include="Source\Resource.h" />
     <ClInclude Include="Source\ResourceManager.h" />
@@ -62,6 +70,9 @@
     <ClInclude Include="Source\SceneManager.h" />
     <ClInclude Include="Source\MenuScene.h" />
     <ClInclude Include="Source\Window.h" />
+    <ClInclude Include="Utilities\MemoryUtil.h" />
+    <ClInclude Include="Utilities\Util.h" />
+    <ClInclude Include="Utilities\XMFloatUtil.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{10229040-9B98-4F55-8CC9-8F1DA231CE04}</ProjectGuid>
@@ -116,7 +127,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -141,7 +152,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>

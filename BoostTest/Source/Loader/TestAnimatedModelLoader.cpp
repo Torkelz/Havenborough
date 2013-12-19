@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(TestLoadingFile)
 
 	BOOST_CHECK_EQUAL(temp2.size(), loader.getNumberOfMaterial());
 
-	const std::vector<ModelLoader::Joint>& tempJoints = loader.getListOfJoints();
+	const std::vector<Joint>& tempJoints = loader.getListOfJoints();
 
 	BOOST_CHECK_EQUAL(tempJoints.at(0).m_JointAnimation.size(), loader.getNumberOfFrames());
 }
