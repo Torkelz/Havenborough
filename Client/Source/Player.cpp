@@ -79,6 +79,7 @@ void Player::forceMove(XMVECTOR p_StartPosition, XMVECTOR p_EndPosition)
 		m_ForceMove = true;
 		m_ForceMoveStartPosition = p_StartPosition;
 		m_ForceMoveEndPosition = p_EndPosition;
+		m_Physics->setBodyVelocity(Vector3(0,0,0),m_PlayerBody);
 	}
 }
 

@@ -43,10 +43,11 @@ public:
 	virtual void setBVRotation(int p_Instance, float p_x, float p_y, float p_z) = 0;
 	virtual void setBVScale(int p_Instance, float p_x, float p_y, float p_z) = 0;
 	virtual Vector4 getBodyPosition(BodyHandle p_Body) =0;
+	virtual Vector3 getBodySize(BodyHandle p_Body) =0;
 
 	//TODO: Comment this!
 	virtual void setBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
-
+	virtual void setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body) = 0;
 	/**
 	 * Keeps physics updated, collision checks etc.
 	 * @p_DeltaTime, timestep.

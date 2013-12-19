@@ -44,8 +44,10 @@ public:
 	unsigned int getHitDataSize();
 
 	Vector4 getBodyPosition(BodyHandle p_Body);
+	Vector3 getBodySize(BodyHandle p_Body) override;
 
 	void setBodyPosition(Vector3 p_Position, BodyHandle p_Body);
+	void setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 		 

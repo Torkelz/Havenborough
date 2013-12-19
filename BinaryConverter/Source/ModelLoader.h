@@ -1,7 +1,5 @@
 #pragma once
 
-#include "VecTypes.h"
-
 #include <fstream>
 #include <sstream>
 #include <DirectXMath.h>

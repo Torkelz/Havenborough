@@ -116,7 +116,7 @@ void BaseGameApp::run()
 
 	m_ShouldQuit = false;
 	int currView = 3; // FOR DEBUGGING
-
+	BodyHandle boxTest;
 	Logger::log(Logger::Level::DEBUG, "Adding debug box model instances");
 	const static int NUM_BOXES = 16;
 	int boxIds[NUM_BOXES];
@@ -129,8 +129,10 @@ void BaseGameApp::run()
 		if(i == 0)
 		{
 			m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
-			m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 2.f, (float)(i % 4) * 4.f));
-			m_Physics->createAABB(50.f, true,Vector3(-scale,-scale + 2.f,-scale),Vector3(scale,scale + 2.f,scale),true );
+
+			boxTest = m_Physics->createAABB(50.f, true,Vector3(-scale, 2.f,-scale),Vector3(scale,scale,scale),true );
+			Vector4 dd = m_Physics->getBodyPosition(boxTest);
+			m_Graphics->setModelPosition(boxIds[i], Vector3(dd.x, dd.y, dd.z));
 		}
 		else
 		{
@@ -211,7 +213,7 @@ void BaseGameApp::run()
 				HitData hit = m_Physics->getHitDataAt(i);
 				if(hit.intersect)
 				{
-					if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim), &m_Player))
+					if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 						m_Physics->removedHitDataAt(i);
 
 					Logger::log(Logger::Level::DEBUG, "Collision reported");
@@ -232,7 +234,7 @@ void BaseGameApp::run()
 			m_Player.setDirectionZ(cosf(dir));
 		}
 		if(!m_Player.getForceMove())		
-		m_Physics->update(dt);
+			m_Physics->update(dt);
 
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
 
@@ -265,12 +267,12 @@ void BaseGameApp::run()
 
 		Vector3 jointPos = m_Graphics->getJointPosition(ikTest, testJoint);
 		m_Graphics->setModelPosition(jointBox, jointPos);
-		m_Graphics->renderModel(jointBox);
+		//m_Graphics->renderModel(jointBox);
 
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
 		m_Graphics->renderModel(house);
-		m_Graphics->renderModel(ikTest);
+		//m_Graphics->renderModel(ikTest);
 		//m_Graphics->renderModel(witch);
 
 		m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));

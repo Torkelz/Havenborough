@@ -15,9 +15,9 @@ BOOST_AUTO_TEST_CASE(buildAABB)
 	BOOST_CHECK_EQUAL(aabb->getPosition()->z, 3.f);
 	BOOST_CHECK_EQUAL(aabb->getPosition()->w, 1.f);
 
-	BOOST_CHECK_EQUAL(aabb->getHalfDiagonal()->x, 1.5f);
-	BOOST_CHECK_EQUAL(aabb->getHalfDiagonal()->y, 2.5f);
-	BOOST_CHECK_EQUAL(aabb->getHalfDiagonal()->z, 4.f);
+	BOOST_CHECK_EQUAL(aabb->getHalfDiagonal()->x, 3.f);
+	BOOST_CHECK_EQUAL(aabb->getHalfDiagonal()->y, 5.f);
+	BOOST_CHECK_EQUAL(aabb->getHalfDiagonal()->z, 8.f);
 	BOOST_CHECK_EQUAL(aabb->getHalfDiagonal()->w, 0.f);
 
 	delete aabb;

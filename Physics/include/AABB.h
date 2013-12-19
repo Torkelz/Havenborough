@@ -47,9 +47,9 @@ public:
 	AABB( DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
 	{
 		m_Position = p_CenterPos;
-		m_Size.x = p_Size.x * 0.5f;
-		m_Size.y = p_Size.y * 0.5f;
-		m_Size.z = p_Size.z * 0.5f;
+		m_Size.x = p_Size.x;
+		m_Size.y = p_Size.y;
+		m_Size.z = p_Size.z;
 		m_Size.w = p_Size.w;
 		
 		m_Type		= Type::AABBOX;

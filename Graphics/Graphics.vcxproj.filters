@@ -9,6 +9,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="HLSL">
+      <UniqueIdentifier>{d1a91177-2aba-4ff4-8f49-ad9a6843c7e7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Buffer.cpp">
@@ -73,9 +76,6 @@
     <ClInclude Include="Source\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\WrapperFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -98,9 +98,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ModelDefinition.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ShaderDeffinitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ModelBinaryLoader.h">
@@ -132,12 +129,26 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />
-    <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl" />
-    <FxCompile Include="Source\DeferredShaders\AnimatedGeometryPass.hlsl" />
-    <FxCompile Include="Source\DeferredShaders\LightPassDirectionalLight.hlsl" />
-    <FxCompile Include="Source\DeferredShaders\LightPassPointLight.hlsl" />
-    <FxCompile Include="Source\DeferredShaders\LightPassSpotLight.hlsl" />
-    <FxCompile Include="Source\dummyVS.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\LightPassSpotLight.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\AnimatedGeometryPass.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\dummyVS.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\LightPassDirectionalLight.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\LightPassPointLight.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

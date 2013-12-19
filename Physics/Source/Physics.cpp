@@ -73,6 +73,7 @@ void Physics::update(float p_DeltaTime)
 
 		for (unsigned j = i + 1; j < m_Bodies.size(); j++)
 		{
+			unsigned int hh = m_Bodies.at(j).getHandle();
 			HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
 			
 			if(hit.intersect)
@@ -248,6 +249,33 @@ Vector4 Physics::getBodyPosition(BodyHandle p_Body)
 	return tempvec4;
 }
 
+Vector3 Physics::getBodySize(BodyHandle p_Body)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return Vector3(0.f, 0.f, 0.f);
+
+	Vector3 temp;
+	float r;
+	XMFLOAT4 bSize;
+	switch (body->getVolume()->getType())
+	{
+	case BoundingVolume::Type::AABBOX:
+		bSize = *((AABB*)body->getVolume())->getHalfDiagonal();
+		temp = Vector3(bSize.x,bSize.y,bSize.z);
+		break;
+	case BoundingVolume::Type::SPHERE:
+		r = ((Sphere*)body->getVolume())->getRadius();
+		temp = Vector3(r,r,r);
+		break;
+	default:
+		temp = Vector3(0,0,0);
+		break;
+	}
+	
+	return temp;
+}
+
 void Physics::setBodyPosition(Vector3 p_Position, BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
@@ -262,6 +290,20 @@ void Physics::setBodyPosition(Vector3 p_Position, BodyHandle p_Body)
 	tempPosition.w = 1.f;
 
 	body->setPosition(tempPosition);
+}
+void Physics::setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return;
+
+	XMFLOAT4 tempPosition = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+
+	tempPosition.x = p_Velocity.x;
+	tempPosition.y = p_Velocity.y;
+	tempPosition.z = p_Velocity.z;
+	tempPosition.w = 1.f;
+	body->setVelocity(tempPosition);
 }
 
 void Physics::setLogFunction(clientLogCallback_t p_LogCallback)

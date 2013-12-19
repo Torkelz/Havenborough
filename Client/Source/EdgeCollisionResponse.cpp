@@ -9,21 +9,21 @@ EdgeCollisionResponse::~EdgeCollisionResponse(void)
 {
 }
 
-bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector4 p_EdgePosition, Player *p_Player)
+bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector4 p_EdgePosition, float p_EdgeSizeY, Player *p_Player)
 {
-	if(p_Hit.isEdge && p_Hit.collider == p_Player->getBody())
+	if(!p_Player->getForceMove() && p_Hit.isEdge && p_Hit.collider == p_Player->getBody())
 	{
 		XMFLOAT3 collisionNormal = Vector4ToXMFLOAT3(&p_Hit.colNorm);
-		XMFLOAT3 collisionPosition = Vector4ToXMFLOAT3(&p_Hit.colPos);
+		//XMFLOAT3 collisionPosition = Vector4ToXMFLOAT3(&p_Hit.colPos);
 		handleCollision(p_Player, p_EdgePosition, XMLoadFloat3(&collisionNormal),
-			XMLoadFloat3(&collisionPosition));
+			p_EdgeSizeY);
 		return true;
 	}
 	return false;
 }
 
 void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosition, XMVECTOR p_VictimNormal,
-	XMVECTOR p_CollisionPosition)
+	float p_EdgeOffsetY)
 {
 	XMFLOAT3 playerPos = p_Player->getPosition();
 	XMVECTOR playerStartPos = XMLoadFloat3(&playerPos);
@@ -41,14 +41,14 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosi
 		p_VictimNormal = XMVector3Normalize(p_VictimNormal);
 		
 		XMVECTOR playerEndPos =  calculateEndPosition(p_VictimNormal, boundingVolumeCenter - playerStartPos,
-			boundingVolumeCenter, &p_CollisionPosition, playerHeight* 0.5f);
+			boundingVolumeCenter, p_EdgeOffsetY, playerHeight* 0.5f);
 
 		p_Player->forceMove(playerStartPos, playerEndPos);
 	}
 }
 
 XMVECTOR EdgeCollisionResponse::calculateEndPosition(XMVECTOR p_Normal, XMVECTOR p_PlayerToCenter,
-	XMVECTOR p_BodyCenter, XMVECTOR *p_CollisionPosition, float p_HeightOffset)
+	XMVECTOR p_BodyCenter, float p_EdgeOffsetY, float p_HeightOffset)
 {
 #pragma region VERSION 1
 	/*XMVECTOR point6 = XMLoadFloat3(&XMFLOAT3(-10,-5,-5));
@@ -86,17 +86,13 @@ XMVECTOR EdgeCollisionResponse::calculateEndPosition(XMVECTOR p_Normal, XMVECTOR
 	XMFLOAT3 up = XMFLOAT3(0,1,0);
 	XMVECTOR upV = XMLoadFloat3(&up);
 
-	XMFLOAT3 edgeOffset;
-	XMStoreFloat3(&edgeOffset, XMVector3Dot((*p_CollisionPosition - p_BodyCenter), p_Normal));
-	float edgeOffsetY = edgeOffset.y;
-
 	XMVECTOR playerToCenterLength = XMVector3Length(p_PlayerToCenter);
 	p_PlayerToCenter = XMVector3Normalize(p_PlayerToCenter);
 	p_PlayerToCenter = XMVector3Reflect(p_PlayerToCenter, p_Normal);
 	p_PlayerToCenter = XMVector3Reflect(-p_PlayerToCenter, upV);
 
-	XMVECTOR playerFinal = p_BodyCenter + (playerToCenterLength) * p_PlayerToCenter;
-	XMFLOAT3 offset = XMFLOAT3(0.0f, edgeOffsetY + p_HeightOffset, 0.0f);
+	XMVECTOR playerFinal = p_BodyCenter + (playerToCenterLength * 1.1f) * p_PlayerToCenter;
+	XMFLOAT3 offset = XMFLOAT3(0.0f, p_EdgeOffsetY + p_HeightOffset, 0.0f);
 	XMVECTOR offsetV = XMLoadFloat3(&offset);
 	
 	return playerFinal + offsetV;

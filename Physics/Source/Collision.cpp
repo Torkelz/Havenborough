@@ -150,17 +150,18 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	//if the sphere is outside of the box, find the corner closest to the sphere center in each axis.
 	//else special case for when the sphere center is inside that axis slab.
 
-	XMFLOAT4* bMin = p_AABB->getMin();
-	XMFLOAT4* bMax = p_AABB->getMax();
-
+	XMFLOAT4 bMin;
+	XMStoreFloat4( &bMin, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(p_AABB->getMin() ));
+	XMFLOAT4 bMax;
+	XMStoreFloat4( &bMax, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(p_AABB->getMax() ));
 	// x
-	if( spherePos->x <= bMin->x )
+	if( spherePos->x <= bMin.x )
 	{
-		dist.x = bMin->x;
+		dist.x = bMin.x;
 	}
-	else if( spherePos->x > bMax->x )
+	else if( spherePos->x > bMax.x )
 	{
-		dist.x = bMax->x;
+		dist.x = bMax.x;
 	}
 	else
 		dist.x = spherePos->x;
@@ -169,13 +170,13 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	d += s*s;
 
 	// y
-	if( spherePos->y <= bMin->y )
+	if( spherePos->y <= bMin.y )
 	{
-		dist.y = bMin->y;
+		dist.y = bMin.y;
 	}
-	else if( spherePos->y > bMax->y )
+	else if( spherePos->y > bMax.y )
 	{
-		dist.y = bMax->y;
+		dist.y = bMax.y;
 	}
 	else
 		dist.y = spherePos->y;
@@ -184,13 +185,13 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	d += s*s;
 
 	// z
-	if( spherePos->z <= bMin->z )
+	if( spherePos->z <= bMin.z )
 	{
-		dist.z = bMin->z;
+		dist.z = bMin.z;
 	}
-	else if( spherePos->z > bMax->z )
+	else if( spherePos->z > bMax.z )
 	{
-		dist.z = bMax->z;
+		dist.z = bMax.z;
 	}
 	else
 		dist.z = spherePos->z;
