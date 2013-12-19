@@ -94,7 +94,8 @@ PSOut PS( PSIn input )
 {
 	PSOut output;
 	float3 norm				= 0.5f * (input.normal + 1.0f);
-	float4 bumpMap			= normalMap.Sample(m_textureSampler, input.uvCoord);
+	float4 bumpMap			= normalMap.Sample(m_textureSampler, input.uvCoord) * 0.5f + 0.25f;
+	//float4 bumpMap			= float4(0.5f, 0.5f, 0.5f, 0.f);
 	bumpMap					= (bumpMap * 2.0f) - 1.0f;
 	float3 normal			= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
 	normal					= 0.5f * (normalize(normal) + 1.0f);

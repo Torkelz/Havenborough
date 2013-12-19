@@ -241,4 +241,53 @@
 #Rotation: 0.0233225 -0.0576 -0.0404529
 #Scale: 0.786315 0.786315 0.786315
 
+#MESH House
+#Translation: 30 0 -10
+#Rotation: 0 0 0
+#Scale: 0.01 0.01 0.02
+
+#MESH House
+#Translation: -5 0 -10
+#Rotation: 0 0 0
+#Scale: 0.01 0.01 0.01
+
+#MESH House
+#Translation: -16.3 0 -10
+#Rotation: 0 0 0
+#Scale: 0.01 0.01 0.01
+
+#MESH House
+#Translation: 10 0 -28
+#Rotation: 0 0 0
+#Scale: 0.01 0.01 0.01
+
+#MESH House
+#Translation: -1.3 0 -28
+#Rotation: 0 0 0
+#Scale: 0.01 0.01 0.01
+
+#MESH House
+#Translation: -12.3 0 -28
+#Rotation: 0 0 0
+#Scale: 0.01 0.01 0.01
+
+#MESH House
+#Translation: -30 0 -20
+#Rotation: -1.57 0 0
+#Scale: 0.01 0.01 0.01
+
+#MESH House
+#Translation: -30 0 -8.7
+#Rotation: -1.57 0 0
+#Scale: 0.01 0.01 0.01
+
+#MESH House
+#Translation: -30 0 2.6
+#Rotation: -1.57 0 0
+#Scale: 0.01 0.01 0.01
+
+#MESH House
+#Translation: -30 0 13.9
+#Rotation: -1.57 0 0
+#Scale: 0.01 0.01 0.01
 

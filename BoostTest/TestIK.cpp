@@ -88,27 +88,27 @@ BOOST_AUTO_TEST_SUITE(TestIK)
 		BOOST_CHECK_EQUAL(model.getJointPos(elbowJointName, joints), XMFLOAT3(-4.f, 0.f, 0.f));
 		BOOST_CHECK_EQUAL(model.getJointPos(handJointName, joints), XMFLOAT3(-8.f, 0.f, 0.f));
 
-		model.applyIK_ReachPoint(handJointName, XMFLOAT3(-4.f, 4.f, 0.f), joints);
+		model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, XMFLOAT3(-4.f, 4.f, 0.f), joints);
 
 		CHECK_CLOSE_VEC3(model.getJointPos(shoulderJointName, joints), XMFLOAT3(0.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(elbowJointName, joints), XMFLOAT3(-4.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(handJointName, joints), XMFLOAT3(-4.f, 4.f, 0.f), 0.01f);
 
-		model.applyIK_ReachPoint(handJointName, XMFLOAT3(-4.f, 4.f, 0.f), joints);
+		model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, XMFLOAT3(-4.f, 4.f, 0.f), joints);
 
 		CHECK_CLOSE_VEC3(model.getJointPos(shoulderJointName, joints), XMFLOAT3(0.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(elbowJointName, joints), XMFLOAT3(-4.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(handJointName, joints), XMFLOAT3(-4.f, 4.f, 0.f), 0.01f);
 
 		model.updateAnimation(0.f, joints);
-		model.applyIK_ReachPoint(handJointName, XMFLOAT3(-8.f, 0.f, 0.f), joints);
+		model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, XMFLOAT3(-8.f, 0.f, 0.f), joints);
 
 		CHECK_CLOSE_VEC3(model.getJointPos(shoulderJointName, joints), XMFLOAT3(0.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(elbowJointName, joints), XMFLOAT3(-4.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(handJointName, joints), XMFLOAT3(-8.f, 0.f, 0.f), 0.01f);
 
 		model.updateAnimation(0.f, joints);
-		model.applyIK_ReachPoint(handJointName, XMFLOAT3(8.f, 0.0001f, 0.f), joints);
+		model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, XMFLOAT3(8.f, 0.0001f, 0.f), joints);
 
 		CHECK_CLOSE_VEC3(model.getJointPos(shoulderJointName, joints), XMFLOAT3(0.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(elbowJointName, joints), XMFLOAT3(4.f, 0.f, 0.f), 0.01f);
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_SUITE(TestIK)
 		for (const auto& test : extraTests)
 		{
 			model.updateAnimation(0.f, joints);
-			model.applyIK_ReachPoint(handJointName, test, joints);
+			model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, test, joints);
 
 			CHECK_CLOSE_VEC3(model.getJointPos(handJointName, joints), test, 0.01f);
 		}
@@ -187,24 +187,24 @@ BOOST_AUTO_TEST_SUITE(TestIK)
 		
 		CHECK_CLOSE_VEC3(model.getJointPos(shoulderJointName, joints), XMFLOAT3(0.f, 0.f, 0.f), 0.01f);
 
-		model.applyIK_ReachPoint(handJointName, XMFLOAT3(-4.f, 4.f, 0.f), joints);
+		model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, XMFLOAT3(-4.f, 4.f, 0.f), joints);
 
 		CHECK_CLOSE_VEC3(model.getJointPos(shoulderJointName, joints), XMFLOAT3(0.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(handJointName, joints), XMFLOAT3(-4.f, 4.f, 0.f), 0.01f);
 
-		model.applyIK_ReachPoint(handJointName, XMFLOAT3(-4.f, 4.f, 0.f), joints);
+		model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, XMFLOAT3(-4.f, 4.f, 0.f), joints);
 
 		CHECK_CLOSE_VEC3(model.getJointPos(shoulderJointName, joints), XMFLOAT3(0.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(handJointName, joints), XMFLOAT3(-4.f, 4.f, 0.f), 0.01f);
 
 		model.updateAnimation(0.f, joints);
-		model.applyIK_ReachPoint(handJointName, XMFLOAT3(-8.f, 0.f, 0.f), joints);
+		model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, XMFLOAT3(-8.f, 0.f, 0.f), joints);
 
 		CHECK_CLOSE_VEC3(model.getJointPos(shoulderJointName, joints), XMFLOAT3(0.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(handJointName, joints), XMFLOAT3(-8.f, 0.f, 0.f), 0.01f);
 
 		model.updateAnimation(0.f, joints);
-		model.applyIK_ReachPoint(handJointName, XMFLOAT3(8.f, 0.0001f, 0.f), joints);
+		model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, XMFLOAT3(8.f, 0.0001f, 0.f), joints);
 
 		CHECK_CLOSE_VEC3(model.getJointPos(shoulderJointName, joints), XMFLOAT3(0.f, 0.f, 0.f), 0.01f);
 		CHECK_CLOSE_VEC3(model.getJointPos(handJointName, joints), XMFLOAT3(8.f, 0.f, 0.f), 0.01f);
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_SUITE(TestIK)
 		for (const auto& test : extraTests)
 		{
 			model.updateAnimation(0.f, joints);
-			model.applyIK_ReachPoint(handJointName, test, joints);
+			model.applyIK_ReachPoint(handJointName, elbowJointName, shoulderJointName, test, joints);
 
 			CHECK_CLOSE_VEC3(model.getJointPos(handJointName, joints), test, 0.01f);
 		}

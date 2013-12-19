@@ -520,6 +520,11 @@ int Graphics::createModelInstance(const char *p_ModelId)
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 	int id = m_NextInstanceId++;
 
+	if (modelDef->m_IsAnimated)
+	{
+		instance.updateAnimation(0.f, modelDef->m_Joints);
+	}
+
 	m_ModelInstances.push_back(std::make_pair(id, instance));
 
 	return id;
@@ -573,13 +578,13 @@ void Graphics::setModelScale(int p_Instance, Vector3 p_Scale)
 	}
 }
 
-void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_Joint, Vector3 p_Target)
+void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.applyIK_ReachPoint(p_Joint, p_Target, getModelFromList(inst.second.getModelName())->m_Joints);
+			inst.second.applyIK_ReachPoint(p_TargetJoint, p_HingeJoint, p_BaseJoint, p_Target, getModelFromList(inst.second.getModelName())->m_Joints);
 			break;
 		}
 	}

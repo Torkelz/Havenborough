@@ -51,8 +51,14 @@ void LevelConverter::createLevel(std::ostream* p_Output)
 		{
 			if(level.at(j).m_MeshName == m_LevelData->at(i).m_MeshName)
 			{
-				level.at(j).m_Translation.push_back(m_LevelData->at(i).m_Translation);
-				level.at(j).m_Rotation.push_back(m_LevelData->at(i).m_Rotation);
+				DirectX::XMFLOAT3 translation = m_LevelData->at(i).m_Translation;
+				translation.x *= -1.f;
+				level.at(j).m_Translation.push_back(translation);
+
+				DirectX::XMFLOAT3 rotation = m_LevelData->at(i).m_Rotation;
+				rotation.x *= -1.f;
+				rotation.z *= -1.f;
+				level.at(j).m_Rotation.push_back(rotation);
 				level.at(j).m_Scale.push_back(m_LevelData->at(i).m_Scale);
 				written = true;
 				break;
@@ -60,8 +66,14 @@ void LevelConverter::createLevel(std::ostream* p_Output)
 		}
 		if(written != true)
 		{
-			model.m_Translation.push_back(m_LevelData->at(i).m_Translation);
-			model.m_Rotation.push_back(m_LevelData->at(i).m_Rotation);
+			DirectX::XMFLOAT3 translation = m_LevelData->at(i).m_Translation;
+			translation.x *= -1.f;
+			model.m_Translation.push_back(translation);
+
+			DirectX::XMFLOAT3 rotation = m_LevelData->at(i).m_Rotation;
+			rotation.x *= -1.f;
+			rotation.z *= -1.f;
+			model.m_Rotation.push_back(rotation);
 			model.m_Scale.push_back(m_LevelData->at(i).m_Scale);
 			model.m_MeshName = m_LevelData->at(i).m_MeshName;
 			level.push_back(model);

@@ -46,9 +46,10 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('S', "moveBackward");
 	translator->addKeyboardMapping('A', "moveLeft");
 	translator->addKeyboardMapping('D', "moveRight");
-	translator->addKeyboardMapping('C', "connect");
+	//translator->addKeyboardMapping('C', "connect");
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
+	translator->addKeyboardMapping('I', "toggleIK");
 	translator->addKeyboardMapping(VK_SPACE, "jump");
 	
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
@@ -73,7 +74,7 @@ void BaseGameApp::init()
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
 
 
-	m_Player.initialize(m_Physics, XMFLOAT3(20,10,0), XMFLOAT3(0,0,1));
+	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 2.f, 10.f), XMFLOAT3(0.f, 0.f, 1.f));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(100.f, 0.f, 100.f), false);
@@ -87,8 +88,7 @@ void BaseGameApp::init()
 	{
 		"BOX",
 		"SKYBOX",
-		"HOUSE1",
-		//"DZALA",
+		"House",
 	};
 
 	for (const std::string& model : preloadedModels)
@@ -97,10 +97,6 @@ void BaseGameApp::init()
 		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
 	}
 
-
-
-	
-
 	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
 	m_MemoryInfo.update();
 
@@ -108,6 +104,9 @@ void BaseGameApp::init()
 	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
 							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
+
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
+	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
 }
 
 void BaseGameApp::run()
@@ -117,6 +116,13 @@ void BaseGameApp::run()
 	m_ShouldQuit = false;
 	int currView = 3; // FOR DEBUGGING
 
+	bool useIK_OnIK_Worm = false;
+	float witchCircleAngle = 0.f;
+	static const float witchAngleSpeed = 0.3f;
+
+	float witchWaveAngle = 0.f;
+	static const float witchWavingAngleSpeed = 1.f;
+
 	Logger::log(Logger::Level::DEBUG, "Adding debug box model instances");
 	const static int NUM_BOXES = 16;
 	int boxIds[NUM_BOXES];
@@ -125,22 +131,21 @@ void BaseGameApp::run()
 		boxIds[i] = m_Graphics->createModelInstance("BOX");
 
 		const float scale = 1.f + i * 3.f / NUM_BOXES;
-		
-		if(i == 0)
-		{
-			m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
-			m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 2.f, (float)(i % 4) * 4.f));
-			m_Physics->createAABB(50.f, true,Vector3(-scale,-scale + 2.f,-scale),Vector3(scale,scale + 2.f,scale),true );
-		}
-		else
-		{
-			m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
-			m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f));
-		}
+
+		m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
+		m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f + 40.f));
 	}
 
+	int climbBox = m_Graphics->createModelInstance("BOX");
+	static const Vector3 climbTestPos(0.f, 2.f, 30.f);
+	static const Vector3 climbTestHalfSize(1.f, 1.f, 1.f);
+
+	m_Graphics->setModelPosition(climbBox, climbTestPos);
+	m_Physics->createAABB(50.f, true, climbTestPos - climbTestHalfSize, climbTestPos + climbTestHalfSize, true );
+
+
 	int jointBox = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(jointBox, Vector3(0.3f, 0.3f, 2.f));
+	m_Graphics->setModelScale(jointBox, Vector3(0.05f, 0.05f, 2.f));
 	
 	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
@@ -151,18 +156,20 @@ void BaseGameApp::run()
 	m_Graphics->setModelScale(ground, Vector3(100.f, 0.0001f, 100.f));
 	m_Graphics->setModelPosition(ground, Vector3(0.f, 0.f, 0.f));
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug house");
-	int house = m_Graphics->createModelInstance("HOUSE1");
-	m_Graphics->setModelPosition(house, Vector3(-10.f, 0.f, -10.f));
-	m_Graphics->setModelScale(house, Vector3(0.01f, 0.01f, 0.01f));
+	Logger::log(Logger::Level::DEBUG, "Adding debug character");
+	int circleWitch = m_Graphics->createModelInstance("DZALA");
+	m_Graphics->setModelScale(circleWitch, Vector3(0.1f, 0.1f, 0.1f));
 
-	/*Logger::log(Logger::Level::DEBUG, "Adding debug character");
-	int witch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelPosition(witch, 10.f, 0.f, -10.f);
-	m_Graphics->setModelScale(witch, 0.01f, 0.01f, 0.01f);*/
+	int standingWitch = m_Graphics->createModelInstance("DZALA");
+	m_Graphics->setModelScale(standingWitch, Vector3(0.1f, 0.1f, 0.1f));
+	m_Graphics->setModelPosition(standingWitch, Vector3(16.f, 0.f, -5.f));
+
+	int wavingWitch = m_Graphics->createModelInstance("DZALA");
+	m_Graphics->setModelScale(wavingWitch, Vector3(0.1f, 0.1f, 0.1f));
+	m_Graphics->setModelPosition(wavingWitch, Vector3(15.f, 0.f, -5.f));
 	
 	int ikTest = m_Graphics->createModelInstance("IKTest");
-	m_Graphics->setModelPosition(ikTest, Vector3(-3.f, 1.f, 0.f));
+	m_Graphics->setModelPosition(ikTest, Vector3(8.f, 1.f, 2.f));
 	m_Graphics->setModelScale(ikTest, Vector3(0.3f, 0.3f, 0.3f));
 	m_Graphics->setModelRotation(ikTest, Vector3((float)pi / 4.f, 0.f, 0.f));
 	
@@ -239,7 +246,25 @@ void BaseGameApp::run()
  		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y, tempPos.z), viewRot[0], viewRot[1]);
 		m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
 
+		static const Vector3 circleCenter(4.f, 0.f, 15.f);
+		static const float circleRadius = 8.f;
+		witchCircleAngle += witchAngleSpeed * dt;
+		Vector3 witchCirclePosition(circleCenter);
+		witchCirclePosition.x -= cosf(witchCircleAngle) * circleRadius;
+		witchCirclePosition.z += sinf(witchCircleAngle) * circleRadius;
+		m_Graphics->setModelPosition(circleWitch, witchCirclePosition);
+		m_Graphics->setModelRotation(circleWitch, Vector3(witchCircleAngle, 0.f, 0.f));
+
+		static const float waveRadius = 0.5f;
+		Vector3 wavePos = m_Graphics->getJointPosition(wavingWitch, "bn_head01");
+		wavePos.x -= 1.f;
+		witchWaveAngle += witchWavingAngleSpeed * dt;
+		wavePos.y += sinf(witchWaveAngle) * waveRadius;
+		wavePos.z += cosf(witchWaveAngle) * waveRadius;
+
 		m_Graphics->updateAnimations(dt);
+
+		m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_a01", "bn_l_arm01", wavePos);
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -250,7 +275,6 @@ void BaseGameApp::run()
 			m_Graphics->setModelRotation(boxIds[i], Vector3(yaw * i, pitch * i, roll * i));
 			m_Graphics->renderModel(boxIds[i]);
 		}
-		m_Level.drawLevel();
 		Vector3 lookDir;
 		lookDir.x = -sinf(viewRot[0]) * cosf(viewRot[1]);
 		lookDir.y = sinf(viewRot[1]);
@@ -258,25 +282,37 @@ void BaseGameApp::run()
 
 		static const float IK_Length = 5.f;
 
-		static const char* testJoint = "joint4";
+		static const char* testTargetJoint = "bn_l_foot01";
+		static const char* testHingeJoint = "bn_l_Knee_a01";
+		static const char* testBaseJoint = "bn_l_Tigh01";
 
 		Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
-		m_Graphics->applyIK_ReachPoint(ikTest, testJoint, IK_Target);
+		if (useIK_OnIK_Worm)
+		{
+			m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
+			m_Graphics->applyIK_ReachPoint(ikTest, "joint4", "joint3", "joint2", IK_Target);
+		}
 
-		Vector3 jointPos = m_Graphics->getJointPosition(ikTest, testJoint);
+		Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
 		m_Graphics->setModelPosition(jointBox, jointPos);
 		m_Graphics->renderModel(jointBox);
 
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
-		m_Graphics->renderModel(house);
 		m_Graphics->renderModel(ikTest);
-		//m_Graphics->renderModel(witch);
+		m_Graphics->renderModel(circleWitch);
+		m_Graphics->renderModel(standingWitch);
+		m_Graphics->renderModel(wavingWitch);
+		m_Graphics->renderModel(climbBox);
+
+		m_Level.drawLevel();
 
 		m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
 		m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),20.f);
 		m_Graphics->useFrameSpotLight(Vector3(-10.f,5.f,0.f),Vector3(0.f,1.f,0.f),
 			Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
+		m_Graphics->useFramePointLight(Vector3(0.f, 30.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 200.f);
+		m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 200.f);
 
 		m_Graphics->drawFrame(currView);
 		
@@ -342,6 +378,10 @@ void BaseGameApp::run()
 			else if( in.m_Action == "jump" && in.m_Value == 1)
 			{
 				m_Player.setJump();
+			}
+			else if (in.m_Action == "toggleIK" && in.m_Value == 1.f)
+			{
+				useIK_OnIK_Worm = !useIK_OnIK_Worm;
 			}
 		}
 		

@@ -96,7 +96,7 @@ const std::vector<DirectX::XMFLOAT4X4>& ModelInstance::getFinalTransform() const
 	return m_FinalTransform;
 }
 
-void ModelInstance::applyIK_ReachPoint(const std::string& p_JointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints)
+void ModelInstance::applyIK_ReachPoint(const std::string& p_TargetJointName, const std::string& p_HingeJointName, const std::string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints)
 {
 	using namespace DirectX;
 
@@ -117,27 +117,25 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_JointName, const Dir
 	{
 		const Joint& joint = p_Joints[i];
 
-		if (joint.m_JointName == p_JointName)
+		if (joint.m_JointName == p_TargetJointName)
 		{
 			endJoint = &joint;
 		}
+		else if (joint.m_JointName == p_HingeJointName)
+		{
+			middleJoint = &joint;
+		}
+		else if (joint.m_JointName == p_BaseJointName)
+		{
+			baseJoint = &joint;
+		}
 	}
 
-	// The algorithm requires a joint with a parent...
-	if (endJoint == nullptr || endJoint->m_Parent == 0)
+	// The algorithm requires all three joints
+	if (endJoint == nullptr || middleJoint == nullptr || baseJoint == nullptr)
 	{
 		return;
 	}
-
-	middleJoint = &p_Joints[endJoint->m_Parent - 1];
-
-	// ... and a grandparent.
-	if (middleJoint->m_Parent == 0)
-	{
-		return;
-	}
-
-	baseJoint = &p_Joints[middleJoint->m_Parent - 1];
 
 	XMMATRIX world = XMLoadFloat4x4(&getWorldMatrix());
 

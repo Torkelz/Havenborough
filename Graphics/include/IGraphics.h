@@ -233,11 +233,12 @@ public:
 	 * Updates the model to reach for a point in world space.
 	 *
 	 * @param p_Instance an identifier to a model instance.
-	 * @param p_Joint the name of the end joint to change.
-	 *			The joint must have a parent and a grandparent.
+	 * @param p_TargetJoint the name of the end joint to change.
+	 * @param p_HingeJoint the name of the "elbow" joint.
+	 * @param p_BaseJoint the name of the base "shoulder" joint.
 	 * @param p_Target the target position in world space.
 	 */
-	virtual void applyIK_ReachPoint(int p_Instance, const char* p_Joint, Vector3 p_Target) = 0;
+	virtual void applyIK_ReachPoint(int p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target) = 0;
 
 	/**
 	 * Get the position of a single joint from a model instance.

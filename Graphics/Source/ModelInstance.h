@@ -102,10 +102,13 @@
 	/**
 	 * Alter the joint transformation to make a joint "reach" for a target point.
 	 *
-	 * @param p_JointName the name of the joint that should reach for the target.
+	 * @param p_TargetJointName the name of the joint that should reach for the target.
+	 * @param p_HingeJointName the name of the joint that should bend.
+	 * @param p_BaseJointName the name of the rotating joint.
 	 * @param p_Position the position in world space to reach for.
+	 * @param p_Joints the skeleton used for the model.
 	 */
-	void applyIK_ReachPoint(const std::string& p_JointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints);
+	void applyIK_ReachPoint(const std::string& p_TargetJointName, const std::string& p_HingeJointName, const std::string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints);
 	/**
 	 * Get the position of a joint.
 	 *
