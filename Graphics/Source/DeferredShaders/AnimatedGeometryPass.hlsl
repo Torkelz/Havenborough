@@ -86,10 +86,10 @@ PSIn VS(VSIn input)
 	output.pos = mul( projection, mul(view, mul(world, posL) ) );
 	output.wpos = mul(world, posL);
 
-	output.normal = normalize(mul(worldInvTranspose, normalL));
+	output.normal = normalize(mul(worldInvTranspose, float4(normalL, 0.0f))).xyz;
 	output.uvCoord = input.uvCoord;
-	output.tangent = normalize(mul(world, tangentL));
-	output.binormal = normalize(mul(world, binormalL)); // Try worldInvTranspose if strange results with lighting.
+	output.tangent = normalize(mul(world, float4(tangentL, 0.0f))).xyz;
+	output.binormal = normalize(mul(world, float4(binormalL, 0.0f))).xyz; // Try worldInvTranspose if strange results with lighting.
 		
 	return output;
 }
