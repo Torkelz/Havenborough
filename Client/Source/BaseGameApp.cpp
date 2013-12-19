@@ -13,7 +13,7 @@ const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 void BaseGameApp::init()
 {
 	Logger::log(Logger::Level::INFO, "Initializing game app");
-
+	
 	m_MemUpdateDelay = 0.1f;
 	m_TimeToNextMemUpdate = 0.f;
 

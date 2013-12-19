@@ -13,25 +13,30 @@ struct Vector2
 	{}
 };
 
-struct Vector3 : Vector2
+struct Vector3
 {
+	float x;
+	float y;
 	float z;
 
-	Vector3() : Vector2(0.0f, 0.0f), z(0.0f)
+	Vector3() :x(0.0f), y(0.0f), z(0.0f)
 	{}
 
-	Vector3(float _x, float _y, float _z) : Vector2(_x, _y), z(_z)
+	Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
 	{}
 };
 
-struct Vector4 : Vector3
+struct Vector4
 {
+	float x;
+	float y;
+	float z;
 	float w;
 
-	Vector4() : Vector3(0.0f, 0.0f, 0.0f), w(0.0f)
+	Vector4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f)
 	{}
 
-	Vector4(float _x, float _y, float _z, float _w) : Vector3(_x, _y, _z), w(_w)
+	Vector4(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w)
 	{}
 
 	inline Vector4 operator-(Vector4 p_vec)
@@ -78,6 +83,11 @@ inline DirectX::XMFLOAT3 Vector3ToXMFLOAT3(const Vector3 *_p)
 inline DirectX::XMFLOAT4 Vector3ToXMFLOAT4(const Vector3 *_p, float _w)
 {
 	return DirectX::XMFLOAT4(_p->x, _p->y, _p->z, _w);
+}
+
+inline DirectX::XMFLOAT3 Vector4ToXMFLOAT3(const Vector4 *_p)
+{
+	return DirectX::XMFLOAT3(_p->x, _p->y, _p->z);
 }
 
 inline DirectX::XMFLOAT4 Vector4ToXMFLOAT4(const Vector4 *_p)

@@ -8,8 +8,8 @@ Player::Player(void)
 	m_JumpForce = 2000.f;
 	m_IsJumping = false;
 	m_PrevForce = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	maxSpeed = 10.f;
-	accConstant = 250.f;
+	m_MaxSpeed = 10.f;
+	m_AccConstant = 250.f;
 	m_DirectionZ = 0.f;
 	m_DirectionX = 0.f;
 	m_ForceMove = false;
@@ -128,7 +128,7 @@ void Player::move()
 	Vector4 velocity = m_Physics->getVelocity(m_PlayerBody);
 	XMFLOAT4 currentVelocity = Vector4ToXMFLOAT4(&velocity);
 	currentVelocity.y = 0.f;
-	XMFLOAT4 maxVelocity(-m_DirectionX * maxSpeed, 0.f, -m_DirectionZ * maxSpeed, 0.f);
+	XMFLOAT4 maxVelocity(-m_DirectionX * m_MaxSpeed, 0.f, -m_DirectionZ * m_MaxSpeed, 0.f);
 
 	XMFLOAT4 diffVel = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	XMFLOAT4 force = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -138,9 +138,9 @@ void Player::move()
 	diffVel.z = maxVelocity.z - currentVelocity.z;
 	diffVel.w = 0.f;
 
-	force.x = diffVel.x * accConstant;
-	force.y = diffVel.y * accConstant;
-	force.z = diffVel.z * accConstant;
+	force.x = diffVel.x * m_AccConstant;
+	force.y = diffVel.y * m_AccConstant;
+	force.z = diffVel.z * m_AccConstant;
 	force.w = 0.f;
 	XMFLOAT4 forceDiff = XMFLOAT4(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z, 0.f); 
 	m_PrevForce = force;
@@ -149,6 +149,6 @@ void Player::move()
 
 	m_DirectionX = m_DirectionZ = 0.f;
 
-	Vector3 position = m_Physics->getBodyPosition(m_PlayerBody);
-	m_Position = Vector3ToXMFLOAT3(&position);
+	Vector4 position = m_Physics->getBodyPosition(m_PlayerBody);
+	m_Position = Vector4ToXMFLOAT3(&position);
 }

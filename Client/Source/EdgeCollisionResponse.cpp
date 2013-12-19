@@ -13,8 +13,8 @@ bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector4 p_EdgePositio
 {
 	if(p_Hit.isEdge && p_Hit.collider == p_Player->getBody())
 	{
-		XMFLOAT3 collisionNormal = Vector3ToXMFLOAT3(&p_Hit.colNorm);
-		XMFLOAT3 collisionPosition = Vector3ToXMFLOAT3(&p_Hit.colPos);
+		XMFLOAT3 collisionNormal = Vector4ToXMFLOAT3(&p_Hit.colNorm);
+		XMFLOAT3 collisionPosition = Vector4ToXMFLOAT3(&p_Hit.colPos);
 		handleCollision(p_Player, p_EdgePosition, XMLoadFloat3(&collisionNormal),
 			XMLoadFloat3(&collisionPosition));
 		return true;
