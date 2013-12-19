@@ -58,7 +58,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GRAPHICS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
@@ -112,7 +112,7 @@
     <ClCompile Include="Source\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ShaderDeffinitions.h" />
+    <ClInclude Include="include\ShaderDefinitions.h" />
     <ClInclude Include="Source\Joint.h" />
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />
@@ -132,7 +132,6 @@
     <ClInclude Include="Source\Buffer.h" />
     <ClInclude Include="Source\Graphics.h" />
     <ClInclude Include="include\IGraphics.h" />
-    <ClInclude Include="Source\Util.h" />
     <ClInclude Include="Source\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>

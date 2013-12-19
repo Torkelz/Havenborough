@@ -20,13 +20,20 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
+	bool unreleasedResources = false;
+
 	for (auto& type : m_ResourceList)
 	{
 		for (auto& res : type.m_LoadedResources)
 		{
 			type.m_Release(res.m_Name.c_str());
-			throw ResourceManagerException("Resource not released before shutdown", __LINE__, __FILE__);
+			unreleasedResources = true;
 		}
+	}
+
+	if (unreleasedResources)
+	{
+		throw ResourceManagerException("Resource not released before shutdown", __LINE__, __FILE__);
 	}
 }
 
@@ -136,7 +143,7 @@ bool ResourceManager::releaseResource(int p_ID)
 {
 	for(auto &rl : m_ResourceList)
 	{
-		for(auto& it = rl.m_LoadedResources.begin(); it != rl.m_LoadedResources.end(); ++it)
+		for(auto it = rl.m_LoadedResources.begin(); it != rl.m_LoadedResources.end(); ++it)
 		{
 			auto& r = *it;
 
@@ -171,7 +178,7 @@ void ResourceManager::releaseModelTextureImpl(const char *p_ResourceName)
 {
 	for(auto &rl : m_ResourceList)
 	{
-		for(auto& it = rl.m_LoadedResources.begin(); it != rl.m_LoadedResources.end(); ++it)
+		for(auto it = rl.m_LoadedResources.begin(); it != rl.m_LoadedResources.end(); ++it)
 		{
 			auto& r = *it;
 

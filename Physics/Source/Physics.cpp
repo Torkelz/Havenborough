@@ -77,6 +77,9 @@ void Physics::update(float p_DeltaTime)
 			
 			if(hit.intersect)
 			{
+				hit.collider = m_Bodies.at(i).getHandle();
+				hit.collisionVictim = m_Bodies.at(j).getHandle();
+				hit.isEdge = m_Bodies.at(j).getIsEdge();
 				m_HitDatas.push_back(hit);
 				XMVECTOR temp;
 				XMFLOAT4 tempPos;
@@ -120,7 +123,7 @@ void Physics::applyForce(Vector4 p_Force, BodyHandle p_Body)
 	tempForce.y = p_Force.y;
 	tempForce.z = p_Force.z;
 	tempForce.w = p_Force.w;
-
+	
 	body->addForce(tempForce);
 }
 
@@ -134,10 +137,10 @@ BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Pos
 
 	Sphere* sphere = new Sphere(p_Radius, tempPosition);
 
-	return createBody(p_Mass, sphere, p_IsImmovable);
+	return createBody(p_Mass, sphere, p_IsImmovable, false);
 }
 
-BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top)
+BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge)
 {
 	XMFLOAT4 tempBot = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	XMFLOAT4 tempTop = XMFLOAT4(0.f, 0.f, 0.f, 0.f);;
@@ -153,7 +156,7 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, 
 
 	AABB* aabb = new AABB(tempBot, tempTop);
 
-	return createBody(p_Mass, aabb, p_IsImmovable);
+	return createBody(p_Mass, aabb, p_IsImmovable, p_IsEdge);
 }
 
 bool Physics::createLevelBV(const char* p_VolumeID, const char* p_FilePath)
@@ -185,9 +188,9 @@ void Physics::setBVScale(int p_Instance, float p_x, float p_y, float p_z)
 
 }
 
-BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable)
+BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 {
-	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable);
+	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable, p_IsEdge);
 	return m_Bodies.back().getHandle();
 }
 
@@ -219,6 +222,11 @@ Vector4 Physics::getVelocity(BodyHandle p_Body)
 HitData Physics::getHitDataAt(unsigned int p_Index)
 {
 	return m_HitDatas.at(p_Index);
+}
+
+void Physics::removedHitDataAt(unsigned int p_index)
+{
+	m_HitDatas.erase(m_HitDatas.begin() + p_index);
 }
 
 unsigned int Physics::getHitDataSize()

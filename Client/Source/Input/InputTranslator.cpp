@@ -98,7 +98,7 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 	}
 
 	bool handled = false;
-	WPARAM wParam = GET_RAWINPUT_CODE_WPARAM(p_WParam);
+	//WPARAM wParam = GET_RAWINPUT_CODE_WPARAM(p_WParam);
 
 	UINT size;
 	GetRawInputData((HRAWINPUT)p_LParam, RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER));

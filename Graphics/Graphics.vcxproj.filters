@@ -127,6 +127,9 @@
     <ClInclude Include="Source\ShaderStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\ShaderDefinitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl" />

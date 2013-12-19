@@ -55,9 +55,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\LevelBinaryLoader.cpp">
-      <Filter>Source Files</Filter>
+          <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Level.cpp">
+    <ClCompile Include="Source\EdgeCollisionResponse.cpp">
+      	<Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Level.cpp"> 
+         <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,7 +122,22 @@
     <ClInclude Include="Source\LevelBinaryLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\EdgeCollisionResponse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Level.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\MemoryUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\XMFloatUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

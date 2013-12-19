@@ -24,7 +24,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("BOX", "assets/models/Sample135.btx"),
 		std::make_pair("SKYBOX", "assets/models/SkyBox.btx"),
 		std::make_pair("RedBlueCrate", "assets/models/RedBlueCrate.btx"),
-		std::make_pair("Test", "assets/IKtest.btx"),
+		std::make_pair("IKTest", "assets/IKtest.btx"),
 		std::make_pair("RedCrate", "assets/models/RedCrate.btx"),
 		std::make_pair("OrangeCrate", "assets/models/OrangeCrate.btx"),
 		std::make_pair("LightBlueCrate", "assets/models/LightBlueCrate.btx"),

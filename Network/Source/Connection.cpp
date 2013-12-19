@@ -52,7 +52,7 @@ void Connection::doWrite(const Header& p_Header, const std::string& p_Buffer)
 		std::bind(&Connection::handleWrite, std::placeholders::_1, std::placeholders::_2, this));
 }
 
-void Connection::handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con)
+void Connection::handleWrite(const boost::system::error_code& p_Error, std::size_t /*p_BytesTransferred*/, Connection* p_Con)
 {
 	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection handling a write response");
 
@@ -92,7 +92,7 @@ void Connection::readHeader()
 		std::bind(&Connection::handleReadHeader, std::placeholders::_1, std::placeholders::_2, this));
 }
 
-void Connection::handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con)
+void Connection::handleReadHeader(const boost::system::error_code& p_Error, std::size_t /*p_BytesTransferred*/, Connection* p_Con)
 {
 	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection handling a read header response");
 
@@ -129,7 +129,7 @@ void Connection::handleReadHeader(const boost::system::error_code& p_Error, std:
 		std::bind(&Connection::handleReadData, std::placeholders::_1, std::placeholders::_2, p_Con));
 }
 
-void Connection::handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con) 
+void Connection::handleReadData(const boost::system::error_code& p_Error, std::size_t /*p_BytesTransferred*/, Connection* p_Con) 
 {
 	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection handling a read data response");
 
@@ -173,7 +173,7 @@ void Connection::writeData(const std::string& p_Buffer, uint16_t p_ID)
 	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection received data to send");
 
 	Header header;
-	header.m_Size = p_Buffer.size() + sizeof(Header);
+	header.m_Size = static_cast<uint16_t>(p_Buffer.size() + sizeof(Header));
 	header.m_TypeID = p_ID;
 
 	if(!m_LockWriting.test_and_set())

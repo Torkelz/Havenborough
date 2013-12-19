@@ -149,7 +149,7 @@ public:
 	 * @param version the desired or given archive version. Ignored.
 	 */
 	template <typename Archive>
-	void serialize(Archive& ar, const unsigned int version)
+	void serialize(Archive& /*ar*/, const unsigned int /*version*/)
 	{
 	}
 };
@@ -182,7 +182,7 @@ public:
 	 * @param version the desired or given archive version. Ignored.
 	 */
 	template <typename Archive>
-	void serialize(Archive& ar, const unsigned int version)
+	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
 		ar & m_Data.m_Position[0] & m_Data.m_Position[1] & m_Data.m_Position[2];
 	}

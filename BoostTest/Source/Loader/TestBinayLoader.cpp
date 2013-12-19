@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(TestReadJoint)
 	char tempS[] = 
 		"\x11\0\0\0polySurfaceShape1"
 		"\x01\0\0\0"
-		"\x01\0\0\0"
+		"\x00\0\0\0"
 		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
 		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
 		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(TestReadJoint)
 
 	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointName, "polySurfaceShape1");
 	BOOST_CHECK_EQUAL(tempJoint.at(0).m_ID, 1);
-	BOOST_CHECK_EQUAL(tempJoint.at(0).m_Parent, 1);
+	BOOST_CHECK_EQUAL(tempJoint.at(0).m_Parent, 0);
 	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointOffsetMatrix._11, 0.5f);
 	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointOffsetMatrix._44, 0.5f);
 	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointAnimation.at(0).m_Trans.x, 15.0f);

@@ -90,7 +90,7 @@ void SceneManager::onFrame()
 		if(activeList->at(i)->getIsVisible())
 		{
 			activeList->at(i)->onFrame(&m_NowShowing);
-			if(i != m_NowShowing)
+			if(i != (unsigned int)m_NowShowing)
 			{
 				i = nrScenes;
 			}
@@ -187,7 +187,7 @@ void SceneManager::startMenu()
 	m_NowShowing = 0;
 }
 
-bool SceneManager::keyStroke(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
+bool SceneManager::keyStroke(WPARAM p_WParam, LPARAM /*p_LParam*/, LRESULT& /*p_Result*/)
 {
 	if(p_WParam == 'K')
 	{

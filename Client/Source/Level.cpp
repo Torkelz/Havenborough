@@ -52,9 +52,9 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 			translation = m_LevelData.at(i).m_Translation.at(j);
 			rotation = m_LevelData.at(i).m_Rotation.at(j);
 			scale = m_LevelData.at(i).m_Scale.at(j);
-			m_Graphic->setModelPosition(m_DrawID.back(), translation.x, translation.y, translation.z);
-			m_Graphic->setModelRotation(m_DrawID.back(), rotation.x, rotation.y, rotation.z);
-			m_Graphic->setModelScale(m_DrawID.back(), scale.x, scale.y, scale.z);
+			m_Graphic->setModelPosition(m_DrawID.back(), Vector3(translation.x, translation.y, translation.z));
+			m_Graphic->setModelRotation(m_DrawID.back(), Vector3(rotation.x, rotation.y, rotation.z));
+			m_Graphic->setModelScale(m_DrawID.back(), Vector3(scale.x, scale.y, scale.z));
 		}
 	}
 	//This will be implemented at a later stage when physics has what it takes!
