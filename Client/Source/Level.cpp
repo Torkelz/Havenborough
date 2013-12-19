@@ -17,10 +17,18 @@ void Level::releaseLevel()
 	{
 		m_Resource->releaseResource(i);
 	}
+	for(int j : m_BVResourceID)
+	{
+		m_Resource->releaseResource(j);
+	}
 	m_ResourceID.clear();
 	m_ResourceID.shrink_to_fit();
 	m_BVResourceID.clear();
 	m_BVResourceID.shrink_to_fit();
+	m_LevelData.clear();
+	m_LevelData.shrink_to_fit();
+	m_LevelCollisionData.clear();
+	m_LevelCollisionData.shrink_to_fit();
 	m_Graphic = nullptr;
 	m_Resource = nullptr;
 }
@@ -44,35 +52,34 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 			translation = m_LevelData.at(i).m_Translation.at(j);
 			rotation = m_LevelData.at(i).m_Rotation.at(j);
 			scale = m_LevelData.at(i).m_Scale.at(j);
-			m_Graphic->setModelPosition(m_DrawID.back(), translation.z, translation.y, translation.x);
-			m_Graphic->setModelRotation(m_DrawID.back(), rotation.z, rotation.y, rotation.x);
-			m_Graphic->setModelScale(m_DrawID.back(), scale.z, scale.y, scale.x);
+			m_Graphic->setModelPosition(m_DrawID.back(), translation.x, translation.y, translation.z);
+			m_Graphic->setModelRotation(m_DrawID.back(), rotation.x, rotation.y, rotation.z);
+			m_Graphic->setModelScale(m_DrawID.back(), scale.x, scale.y, scale.z);
 		}
 	}
 	//This will be implemented at a later stage when physics has what it takes!
-	//if(!m_CollisionLoader.loadBinaryFile(p_CollisionFilePath))
-	//{
-	//	return false;
-	//}
-	//m_LevelCollisionData = m_CollisionLoader.getModelData();
-	//for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
-	//{
-	//	m_BVResourceID.push_back(m_Resource->loadResource("volume", m_LevelCollisionData.at(i).m_MeshName));
+	if(!m_CollisionLoader.loadBinaryFile(p_CollisionFilePath))
+	{
+		return false;
+	}
+	m_LevelCollisionData = m_CollisionLoader.getModelData();
+	for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
+	{
+		m_BVResourceID.push_back(m_Resource->loadResource("volume", m_LevelCollisionData.at(i).m_MeshName));
 
-	//	for(unsigned int j = 0; m_LevelCollisionData.at(i).m_Translation.size(); j++)
-	//	{
-	//		//m_DrawID.push_back(m_Graphic->createModelInstance(m_LevelData.at(i).m_MeshName.c_str()));
-	//		
-	//		DirectX::XMFLOAT3 translation, rotation, scale;
-	//		translation = m_LevelData.at(i).m_Translation.at(j);
-	//		rotation = m_LevelData.at(i).m_Rotation.at(j);
-	//		scale = m_LevelData.at(i).m_Scale.at(j);
-	//		m_Physics->setBVPosition(m_DrawID.back(), translation.z, translation.y, translation.x);
-	//		m_Physics->setBVRotation(m_DrawID.back(), rotation.z, rotation.y, rotation.x);
-	//		m_Physics->setBVScale(m_DrawID.back(), scale.z, scale.y, scale.x);
-	//	}
-
-	//}
+		//for(unsigned int j = 0; m_LevelCollisionData.at(i).m_Translation.size(); j++)
+		//{
+		//	//m_DrawID.push_back(m_Graphic->createModelInstance(m_LevelData.at(i).m_MeshName.c_str()));
+		//	
+		//	DirectX::XMFLOAT3 translation, rotation, scale;
+		//	translation = m_LevelData.at(i).m_Translation.at(j);
+		//	rotation = m_LevelData.at(i).m_Rotation.at(j);
+		//	scale = m_LevelData.at(i).m_Scale.at(j);
+		//	m_Physics->setBVPosition(m_DrawID.back(), translation.z, translation.y, translation.x);
+		//	m_Physics->setBVRotation(m_DrawID.back(), rotation.z, rotation.y, rotation.x);
+		//	m_Physics->setBVScale(m_DrawID.back(), scale.z, scale.y, scale.x);
+		//}
+	}
 
 
 	return true;

@@ -1,6 +1,6 @@
 *Header
 #Materials 0
-#MESH BrownCrate
+#MESH RedBlueCrate
 #Vertices 8
 #Triangles 12
 
@@ -29,6 +29,7 @@ face: 3
 3 | 7 | 5 | 
 6 | 0 | 4 | 
 4 | 0 | 2 | 
+
 
 
 

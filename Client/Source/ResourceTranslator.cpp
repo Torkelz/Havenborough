@@ -35,9 +35,6 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 
 	static const std::pair<std::string, std::string> boundingMap[] =
 	{
-		std::make_pair("HOUSE1", "assets/volumes/house1.btx"),
-		std::make_pair("BOX", "assets/volumes/Sample135.btx"),
-		std::make_pair("SKYBOX", "assets/volumes/SkyBox.btx"),
 		std::make_pair("RedBlueCrate", "assets/volumes/RedBlueCrate.btx"),
 		std::make_pair("RedCrate", "assets/volumes/RedCrate.btx"),
 		std::make_pair("OrangeCrate", "assets/volumes/OrangeCrate.btx"),

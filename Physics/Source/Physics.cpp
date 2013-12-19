@@ -156,7 +156,7 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, 
 	return createBody(p_Mass, aabb, p_IsImmovable);
 }
 
-bool Physics::createLevelBV(const char* p_ModelID, const char* p_FilePath)
+bool Physics::createLevelBV(const char* p_VolumeID, const char* p_FilePath)
 {
 	m_BVLoader.loadBinaryFile(p_FilePath);
 
@@ -164,8 +164,9 @@ bool Physics::createLevelBV(const char* p_ModelID, const char* p_FilePath)
 	return true;
 }
 
-bool Physics::releaseLevelBV(const char* p_ModelID)
+bool Physics::releaseLevelBV(const char* p_VolumeID)
 {
+
 	return true;
 }
 

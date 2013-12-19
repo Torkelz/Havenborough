@@ -34,9 +34,9 @@ public:
 
 
 	//ha en struct som håller trianglar och dess info(positioner, rotation, skalning)
-	virtual bool createLevelBV(const char* p_ModelID, const char* p_FilePath) = 0;
+	virtual bool createLevelBV(const char* p_VolumeID, const char* p_FilePath) = 0;
 
-	virtual bool releaseLevelBV(const char* p_ModelID) = 0;
+	virtual bool releaseLevelBV(const char* p_VolumeID) = 0;
 
 	virtual void setBVPosition(int p_Instance, float p_x, float p_y, float p_z) = 0;
 	virtual void setBVRotation(int p_Instance, float p_x, float p_y, float p_z) = 0;

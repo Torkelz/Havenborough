@@ -34,7 +34,7 @@ void BaseGameApp::init()
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
-	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
+	
 
 
 	InputTranslator::ptr translator(new InputTranslator);
@@ -67,6 +67,7 @@ void BaseGameApp::init()
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
+	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
 		
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
@@ -395,6 +396,8 @@ void BaseGameApp::run()
 void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
+	
+	m_Level.releaseLevel();
 
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
@@ -407,7 +410,7 @@ void BaseGameApp::shutdown()
 		m_ResourceManager->releaseResource(i);
 	}
 
-	m_Level.releaseLevel();
+
 
 	m_ResourceIDs.clear();
 	delete m_ResourceManager;
