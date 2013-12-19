@@ -25,7 +25,7 @@ void BaseGameApp::init()
 	
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
-	m_Graphics->initialize(m_Window.getHandle(), m_Window.getSize().x, m_Window.getSize().y, fullscreen);
+	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, fullscreen);
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_ResourceManager = new ResourceManager();
@@ -380,11 +380,11 @@ std::string BaseGameApp::getGameTitle() const
 	return m_GameTitle;
 }
 
-UVec2 BaseGameApp::getWindowSize() const
+XMFLOAT2 BaseGameApp::getWindowSize() const
 {
 	// TODO: Read from user option
 	
-	const static UVec2 size = {1280, 720};
+	const static XMFLOAT2 size = XMFLOAT2(1280, 720);
 	return size;
 }
 

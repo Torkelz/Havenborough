@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE(WindowTestGetSet)
 	//Basic init
 	Window win;
 	win.setIsVisible(false);
-	UVec2 size = {800,600};
+	DirectX::XMFLOAT2 size = DirectX::XMFLOAT2(800,600);
 	win.init("Havenborough", size);
 
 	//Change title check
@@ -30,9 +30,9 @@ BOOST_AUTO_TEST_CASE(WindowTestGetSet)
 	BOOST_CHECK_EQUAL(win.getShowCursor(), showCursor);
 
 	//Change size check
-	UVec2 newSize = {300,400};
+	DirectX::XMFLOAT2 newSize = DirectX::XMFLOAT2(300,400);
 	win.setSize(newSize);
-	UVec2 retSize = win.getSize();
+	DirectX::XMFLOAT2 retSize = win.getSize();
 	BOOST_CHECK_EQUAL(retSize.x, newSize.x);
 	BOOST_CHECK_EQUAL(retSize.y, newSize.y);
 
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(WindowTestMethods)
 	BOOST_CHECK(win.getHandle() == NULL);
 
 	//GetHandle after init check
-	UVec2 size = {800,600};
+	DirectX::XMFLOAT2 size = DirectX::XMFLOAT2(800,600);
 	win.init("Havenborough", size);
 	BOOST_CHECK(win.getHandle() != NULL);
 	win.destroy();
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(WindowTestMultipleWindows)
 	win1.setIsVisible(false);
 	win2.setIsVisible(false);
 
-	UVec2 size = {800,600};
+	DirectX::XMFLOAT2 size = DirectX::XMFLOAT2(800,600);
 	win1.init("Window1", size);
 	win2.init("Window2", size);
 	BOOST_CHECK(win1.getHandle() != NULL);

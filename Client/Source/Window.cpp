@@ -31,7 +31,7 @@ Window::~Window()
 	}
 }
 
-void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
+void Window::init(const std::string& p_Title, DirectX::XMFLOAT2 p_WindowSize)
 {
 	Logger::log(Logger::Level::INFO, "Initializing window");
 
@@ -66,7 +66,7 @@ void Window::init(const std::string& p_Title, UVec2 p_WindowSize)
 		m_ClassUseCount++;
 	}
 
-	RECT windowSize = { 0, 0, p_WindowSize.x, p_WindowSize.y };
+	RECT windowSize = { 0, 0, (long)p_WindowSize.x, (long)p_WindowSize.y };
 	AdjustWindowRectEx(&windowSize, WS_OVERLAPPEDWINDOW, FALSE, WS_EX_OVERLAPPEDWINDOW);
 
 	std::vector<wchar_t> convertedTitle(p_Title.size() + 1);
@@ -184,16 +184,16 @@ void Window::setIcon(HICON p_Icon)
 	}
 }
 
-UVec2 Window::getSize() const
+DirectX::XMFLOAT2 Window::getSize() const
 {
 	return m_Size;
 }
 
-void Window::setSize(UVec2 p_NewSize)
+void Window::setSize(DirectX::XMFLOAT2 p_NewSize)
 {
 	if (m_Size.x != p_NewSize.x || m_Size.y != p_NewSize.y)
 	{
-		RECT windowSize = { 0, 0, p_NewSize.x, p_NewSize.y };
+		RECT windowSize = { 0, 0, (long)p_NewSize.x, (long)p_NewSize.y };
 		AdjustWindowRect(&windowSize, WS_OVERLAPPEDWINDOW, FALSE);
 
 		if (!SetWindowPos(m_Handle, HWND_TOP, 0, 0, windowSize.right - windowSize.left, windowSize.bottom - windowSize.top, SWP_NOMOVE | SWP_NOZORDER))
