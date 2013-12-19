@@ -1,9 +1,9 @@
 #include "Level.h"
 
-Level::Level(IGraphics* p_Graphics, ResourceManager* p_Resource, IPhysics* p_Physics)
+Level::Level(IGraphics* p_Graphics, ResourceManager* p_Resources, IPhysics* p_Physics)
 {
-	m_Graphic = p_Graphics;
-	m_Resource = p_Resource;
+	m_Graphics = p_Graphics;
+	m_Resources = p_Resources;
 	m_Physics = p_Physics;
 }
 
@@ -15,11 +15,11 @@ void Level::releaseLevel()
 {
 	for(int i : m_ResourceID)
 	{
-		m_Resource->releaseResource(i);
+		m_Resources->releaseResource(i);
 	}
 	for(int j : m_BVResourceID)
 	{
-		m_Resource->releaseResource(j);
+		m_Resources->releaseResource(j);
 	}
 	m_ResourceID.clear();
 	m_ResourceID.shrink_to_fit();
@@ -29,8 +29,8 @@ void Level::releaseLevel()
 	m_LevelData.shrink_to_fit();
 	m_LevelCollisionData.clear();
 	m_LevelCollisionData.shrink_to_fit();
-	m_Graphic = nullptr;
-	m_Resource = nullptr;
+	m_Graphics = nullptr;
+	m_Resources = nullptr;
 }
 bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePath)
 {
@@ -38,23 +38,23 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 	{
 		return false;
 	}
-	m_Graphic->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
+	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	m_LevelData = m_LevelLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelData.size(); i++)
 	{
-		m_ResourceID.push_back(m_Resource->loadResource("model", m_LevelData.at(i).m_MeshName));
-		m_Graphic->linkShaderToModel("DefaultShader", m_LevelData.at(i).m_MeshName.c_str());
+		m_ResourceID.push_back(m_Resources->loadResource("model", m_LevelData.at(i).m_MeshName));
+		m_Graphics->linkShaderToModel("DefaultShader", m_LevelData.at(i).m_MeshName.c_str());
 		for(unsigned int j = 0; j < m_LevelData.at(i).m_Translation.size(); j++)
 		{
-			m_DrawID.push_back(m_Graphic->createModelInstance(m_LevelData.at(i).m_MeshName.c_str()));
+			m_DrawID.push_back(m_Graphics->createModelInstance(m_LevelData.at(i).m_MeshName.c_str()));
 			DirectX::XMFLOAT3 translation, rotation, scale;
 			translation = m_LevelData.at(i).m_Translation.at(j);
 			rotation = m_LevelData.at(i).m_Rotation.at(j);
 			scale = m_LevelData.at(i).m_Scale.at(j);
-			m_Graphic->setModelPosition(m_DrawID.back(), Vector3(translation.x, translation.y, translation.z));
-			m_Graphic->setModelRotation(m_DrawID.back(), Vector3(rotation.x, rotation.y, rotation.z));
-			m_Graphic->setModelScale(m_DrawID.back(), Vector3(scale.x, scale.y, scale.z));
+			m_Graphics->setModelPosition(m_DrawID.back(), Vector3(translation.x, translation.y, translation.z));
+			m_Graphics->setModelRotation(m_DrawID.back(), Vector3(rotation.x, rotation.y, rotation.z));
+			m_Graphics->setModelScale(m_DrawID.back(), Vector3(scale.x, scale.y, scale.z));
 		}
 	}
 	//This will be implemented at a later stage when physics has what it takes!
@@ -65,7 +65,7 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 	m_LevelCollisionData = m_CollisionLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
 	{
-		m_BVResourceID.push_back(m_Resource->loadResource("volume", m_LevelCollisionData.at(i).m_MeshName));
+		m_BVResourceID.push_back(m_Resources->loadResource("volume", m_LevelCollisionData.at(i).m_MeshName));
 
 		//for(unsigned int j = 0; m_LevelCollisionData.at(i).m_Translation.size(); j++)
 		//{
@@ -89,6 +89,6 @@ void Level::drawLevel()
 {
 	for(unsigned int i = 0; i < m_DrawID.size(); i++)
 	{
-		m_Graphic->renderModel(m_DrawID.at(i));
+		m_Graphics->renderModel(m_DrawID.at(i));
 	}
 }

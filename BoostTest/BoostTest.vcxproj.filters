@@ -226,7 +226,10 @@
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Physics\Source\BVLoader.cpp">
-      <Filter>TestPhysics</Filter>
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestBVLoader.cpp">
+      <Filter>TestLoaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
