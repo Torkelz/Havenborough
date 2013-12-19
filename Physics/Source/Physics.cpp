@@ -160,16 +160,16 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, 
 	return createBody(p_Mass, aabb, p_IsImmovable, p_IsEdge);
 }
 
-BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Corner)
+BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extent, bool p_IsEdge)
 {
-	XMFLOAT4 tempPos	= vector3ToXMFLOAT4(p_CenterPos, 1.f);
-	XMFLOAT4 tempCorn	= vector3ToXMFLOAT4(p_Corner, 1.f);
+	XMFLOAT4 tempPos	= Vector3ToXMFLOAT4(&p_CenterPos, 1.f);
+	XMFLOAT4 tempExt	= Vector3ToXMFLOAT4(&p_Extent, 1.f);
 	
-	tempCorn = vector3ToXMFLOAT4(p_Corner, 1.f);
+	tempExt = Vector3ToXMFLOAT4(&p_Extent, 1.f);
 
-	OBB *obb = new OBB(tempPos, tempCorn);
+	OBB *obb = new OBB(tempPos, tempExt);
 
-	return createBody(p_Mass, obb, p_IsImmovable);
+	return createBody(p_Mass, obb, p_IsImmovable, p_IsEdge);
 }
 
 bool Physics::createLevelBV(const char* p_VolumeID, const char* p_FilePath)

@@ -31,7 +31,7 @@ public:
 	 * @p_IsEdge, flag if it's a Edge or not.
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
-	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge) = 0;
+	virtual BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
 
 	/**
 	 * Create a boundingVolume OBB with a body, the center position is calculated from the bot and top corner.
@@ -41,7 +41,7 @@ public:
 	 * @param p_Extents, Box half lengths.
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
-	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents) = 0;
+	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
 
 	virtual bool createLevelBV(const char* p_VolumeID, const char* p_FilePath) = 0;
 
