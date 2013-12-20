@@ -8,7 +8,7 @@
 #include "LightStructs.h"
 #include "TextureLoader.h"
 #include "ModelDefinition.h"
-#include "VRAMMemInfo.h"
+#include "VRAMInfo.h"
 #include "ModelBinaryLoader.h"
 
 

@@ -15,7 +15,7 @@
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
 #include "ModelInstance.h"
-#include "VRAMMemInfo.h"
+#include "VRAMInfo.h"
 
 #include "ShaderStructs.h"
 

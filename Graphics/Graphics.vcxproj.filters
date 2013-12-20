@@ -38,9 +38,6 @@
     <ClCompile Include="Source\DeferredRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\VRAMMemInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ModelBinaryLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -50,13 +47,13 @@
     <ClCompile Include="Source\GraphicsLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RAMMemInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ModelInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Joint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VRAMInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,9 +85,6 @@
     <ClInclude Include="Source\DeferredRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\VRAMMemInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\LightStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -109,9 +103,6 @@
     <ClInclude Include="Source\ModelInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RAMMemInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\GraphicsExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -122,6 +113,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ShaderDefinitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VRAMInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

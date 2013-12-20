@@ -1,12 +1,13 @@
 #pragma once
 
 #include <IGraphics.h>
-#include "Input\Input.h"
-#include "IPhysics.h"
 #include <INetwork.h>
+#include <IPhysics.h>
+
+#include "Input\Input.h"
 #include "SceneManager.h"
 #include "Window.h"
-#include "RAMMemInfo.h"
+#include "RAMInfo.h"
 #include "Level.h"
 #include "Player.h"
 #include "EdgeCollisionResponse.h"
@@ -15,15 +16,13 @@
 
 #include <string>
 
-#include "../../Graphics/Source/WrapperFactory.h" //Should be removed when merge to master
-
 class BaseGameApp
 {
 private:
 	static const std::string m_GameTitle;
 
 	Window	m_Window;
-	IGraphics* m_Graphics;
+	IGraphics *m_Graphics;
 	Level m_Level;
 	Input	m_InputQueue;
 	RAMMemInfo m_MemoryInfo;

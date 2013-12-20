@@ -1,5 +1,5 @@
 #include "Buffer.h"
-#include "VRAMMemInfo.h"
+#include "VRAMInfo.h"
 
 Buffer::Buffer(void)
 {

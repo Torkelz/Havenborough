@@ -1,4 +1,4 @@
-#include "VRAMMemInfo.h"
+#include "VRAMInfo.h"
 
 std::unique_ptr<VRAMMemInfo> VRAMMemInfo::m_Instance;
 

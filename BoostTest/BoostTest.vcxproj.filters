@@ -63,9 +63,6 @@
     <ClCompile Include="..\Client\Source\MenuScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\RAMMemInfo.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\SceneManager.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
@@ -130,9 +127,6 @@
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp">
@@ -233,6 +227,12 @@
     </ClCompile>
     <ClCompile Include="OBBTest.cpp">
       <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\RAMInfo.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-#include "RAMMemInfo.h"
+#include "RAMInfo.h"
 
 RAMMemInfo::RAMMemInfo(void)
 {
@@ -29,8 +29,8 @@ void RAMMemInfo::update(void)
 	m_ProcessInformation.cb = sizeof(m_ProcessInformation);
 	if(GetProcessMemoryInfo(processHandle, (PROCESS_MEMORY_COUNTERS*)&m_ProcessInformation, m_ProcessInformation.cb))
 	{
-		m_VirtualMemUsage = m_ProcessInformation.PrivateUsage / KB;
-		m_PhysicalMemUsage = m_ProcessInformation.WorkingSetSize / KB;
+		m_VirtualMemUsage = m_ProcessInformation.PrivateUsage / MB;
+		m_PhysicalMemUsage = m_ProcessInformation.WorkingSetSize / MB;
 	}
 
 	CloseHandle(processHandle);
