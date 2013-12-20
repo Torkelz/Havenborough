@@ -21,7 +21,9 @@ private:
 		R16G16B16A16_FLOAT = 8,
 		R32G32_FLOAT = 8,
 		R32G32_UINT = 8,
-		R8G8B8A8_UNORM = 4
+		R8G8B8A8_UNORM = 4,
+		B8G8R8X8_UNORM = 4,
+		BC3_UNORM = 1,
 	};
 	
 	static std::unique_ptr<VRAMMemInfo> m_Instance;

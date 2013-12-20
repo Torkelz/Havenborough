@@ -6,14 +6,14 @@
 
 *Materials
 Material: blinn1
-DiffuseMap: body_COLOR.jpg
-NormalMap: body_NRM.jpg
-SpecularMap: Default_SPEC.jpg
+DiffuseMap: body_COLOR.dds
+NormalMap: body_NRM.dds
+SpecularMap: Default_SPEC.dds
 
 Material: blinn2
-DiffuseMap: accessories_COLOR.jpg
-NormalMap: Accessories_NRM.jpg
-SpecularMap: Default_SPEC.jpg
+DiffuseMap: accessories_COLOR.dds
+NormalMap: Accessories_NRM.dds
+SpecularMap: Default_SPEC.dds
 
 *Vertices
 v 2.118769 14.273767 0.754334
