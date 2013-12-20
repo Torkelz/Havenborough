@@ -198,7 +198,17 @@ void Physics::setBVRotation(int p_Instance, float p_x, float p_y, float p_z)
 
 void Physics::setBVScale(int p_Instance, float p_x, float p_y, float p_z)
 {
+	Body* body = findBody(p_Instance);
+	if(body == nullptr)
+		return;
 
+	if(body->getVolume()->getType() == BoundingVolume::Type::OBB)
+	{
+		((OBB*)body->getVolume())->setExtent(XMFLOAT4(p_x, p_y, p_z, 0.f));
+		return;
+	}
+
+	return;
 }
 
 BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
@@ -325,9 +335,8 @@ void Physics::setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, flo
 		return;
 
 	OBB *obb = (OBB*)(body->getVolume());
-	XMFLOAT3 yawPitchRoll(p_Yaw, p_Pitch, p_Roll);
 	XMFLOAT4X4 temp;
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
+	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, p_Roll);
 
 	XMStoreFloat4x4(&temp, rotation);
 	obb->setRotationMatrix(temp);

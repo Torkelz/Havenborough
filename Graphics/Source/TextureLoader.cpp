@@ -98,7 +98,7 @@ char* TextureLoader::checkCompability(char* p_FileType)
 		return "err";
 
 	//Check if the file format we want to load is supported.
-	for(unsigned int i = 0; i < size; i++)
+	for(unsigned int i = 0; i < size - 1; i++)
 	{
 		//Loop through the compability list except for the last item in the list which is .dds
 		//because dds files is handled by another Loader function.

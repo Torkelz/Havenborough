@@ -107,6 +107,13 @@ void BaseGameApp::init()
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
+
+
+
+	/*int OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(10.f, 10.f, 10.f), false);
+	m_Physics->setBodyRotation(OBBhouse2, 0.f, 0.f, 3.14f/4.f);
+	m_Physics->setBodyPosition(Vector3(-16.3f, 0.f, -10.f), OBBhouse2);*/
+
 }
 
 void BaseGameApp::run()
@@ -255,6 +262,25 @@ void BaseGameApp::run()
 		m_Physics->setBodyRotation(rotatedTowerBodies[i], 1.f, 0.f, 0.f);
 	}
 
+	static const Vector3 slantedPlanePosition(-40.f, 3.f, 20.f);
+	static const Vector3 slantedPlaneSize(20.f, 5.f, 30.f);
+	static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
+	int slantedPlane = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelPosition(slantedPlane, slantedPlanePosition);
+	m_Graphics->setModelScale(slantedPlane, slantedPlaneSize);
+	m_Graphics->setModelRotation(slantedPlane, slantedPlaneRotation);
+
+	BodyHandle slantedPlaneBody = m_Physics->createOBB(0.f, true, slantedPlanePosition, slantedPlaneSize * 0.5f, false);
+	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlaneRotation.x, slantedPlaneRotation.y, slantedPlaneRotation.z);
+	
+	int OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
+	m_Physics->setBodyRotation(OBBhouse1, 0.f, 0.f, 3.14f/6.5f);
+	m_Physics->setBodyPosition(Vector3(14.f, 4.5f, -10.f), OBBhouse1);
+
+	int OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
+	m_Physics->setBodyRotation(OBBhouse2, 0.f, 0.f, 3.14f/6.5f);
+	m_Physics->setBodyPosition(Vector3(3.5f, 5.0f, -10.f), OBBhouse2);
+
 	float viewRot[] = {0.f, 0.f};
 
 	float sensitivity = 0.01f;
@@ -392,7 +418,7 @@ void BaseGameApp::run()
 		{
 			m_Graphics->renderModel(box);
 		}
-
+		m_Graphics->renderModel(slantedPlane);
 		m_Level.drawLevel();
 
 		m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));

@@ -26,8 +26,8 @@ public:
 	 * Create a boundingVolume AABB with a body, the center position is calculated from the bot and top corner.
 	 * @p_Mass, define the mass for the body.
 	 * @p_IsImmovable, tells if the body are movable.
-	 * @p_Bot, bottom corner for box.
-	 * @p_Top, top corner for box.
+	 * @p_CenterPos, center position for box in world space.
+	 * @p_Extents, half length(extens) for the box.
 	 * @p_IsEdge, flag if it's a Edge or not.
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
@@ -74,6 +74,11 @@ public:
 	 */
 	virtual void setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, float p_Roll) = 0;
 
+	/**
+	 * Sets the velocity for a body.
+	 * @param p_Velocity, the new velocity for thee body.
+	 * @param p_Body, which body to change velocity on.
+	 */
 	virtual void setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body) = 0;
 	
 	virtual Vector3 getBodySize(BodyHandle p_Body) =0;
