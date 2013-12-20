@@ -39,7 +39,7 @@ Buffer *WrapperFactory::createBuffer(Buffer::Description &p_Description)
 		result = buffer->initialize(m_Device, m_DeviceContext, p_Description);
 		if(result == S_OK)
 		{
-			VRAMMemInfo::getInstance()->updateUsage(bufferSize);
+			VRAMInfo::getInstance()->updateUsage(bufferSize);
 			return buffer;
 		}
 		else

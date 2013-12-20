@@ -8,7 +8,7 @@
 #include <Psapi.h>
 
 
-class RAMMemInfo
+class RAMInfo
 {
 private:
 	PROCESS_MEMORY_COUNTERS_EX m_ProcessInformation;
@@ -19,12 +19,12 @@ public:
 	/**
 	* Constructor
 	*/
-	RAMMemInfo(void);
+	RAMInfo(void);
 	
 	/**
 	* Destructor
 	*/
-	~RAMMemInfo(void);
+	~RAMInfo(void);
 
 	/**
 	* Gets the amount of physical RAM memory the program uses.

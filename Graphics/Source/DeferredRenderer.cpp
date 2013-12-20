@@ -340,8 +340,8 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 	SAFE_RELEASE(srvt3);
 	// Done with the render targets.
 
-	unsigned int size = 4 * VRAMMemInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
-	VRAMMemInfo::getInstance()->updateUsage(size);
+	unsigned int size = 4 * VRAMInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
+	VRAMInfo::getInstance()->updateUsage(size);
 
 	return result;
 }
@@ -408,7 +408,7 @@ void DeferredRenderer::createBuffers()
 	cbdesc.usage = Buffer::Usage::DEFAULT;
 
 	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(cBuffer));
+	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
 	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
 	m_ObjectConstantBuffer = new Buffer();
 	m_ObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
@@ -417,7 +417,7 @@ void DeferredRenderer::createBuffers()
 	m_AnimatedObjectConstantBuffer = new Buffer();
 	m_AnimatedObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
 	
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
+	VRAMInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
 
 	Buffer::Description adesc;
 	adesc.initData = nullptr;
@@ -427,7 +427,7 @@ void DeferredRenderer::createBuffers()
 	adesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	m_AllLightBuffer = WrapperFactory::getInstance()->createBuffer(adesc);
 
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(Light) * m_MaxLightsPerLightInstance);
+	VRAMInfo::getInstance()->updateUsage(sizeof(Light) * m_MaxLightsPerLightInstance);
 }
 
 void DeferredRenderer::clearRenderTargets()

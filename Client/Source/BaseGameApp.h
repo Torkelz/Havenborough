@@ -25,7 +25,7 @@ private:
 	IGraphics *m_Graphics;
 	Level m_Level;
 	Input	m_InputQueue;
-	RAMMemInfo m_MemoryInfo;
+	RAMInfo m_MemoryInfo;
 	float m_MemUpdateDelay;
 	float m_TimeToNextMemUpdate;
 

@@ -20,7 +20,7 @@ Graphics::Graphics(void)
 	m_ModelFactory = nullptr;
 	m_DeferredRender = nullptr;
 	m_Sampler = nullptr;
-	m_VRAMMemInfo = nullptr;
+	m_VRAMInfo = nullptr;
 
 	m_VSyncEnabled = false; //DEBUG
 
@@ -168,7 +168,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Note this is the only time initialize should be called.
 	WrapperFactory::initialize(m_Device, m_DeviceContext);	
 	m_WrapperFactory = WrapperFactory::getInstance();
-	m_VRAMMemInfo = VRAMMemInfo::getInstance();
+	m_VRAMInfo = VRAMInfo::getInstance();
 	m_ModelFactory = ModelFactory::getInstance();
 	m_ModelFactory->initialize(&m_TextureList);
 
@@ -240,7 +240,7 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_SwapChain);
 	SAFE_SHUTDOWN(m_WrapperFactory);
 	SAFE_SHUTDOWN(m_ModelFactory);
-	SAFE_SHUTDOWN(m_VRAMMemInfo);
+	SAFE_SHUTDOWN(m_VRAMInfo);
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
@@ -355,7 +355,7 @@ bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	}
 
 	int size = calculateTextureSize(resourceView);
-	m_VRAMMemInfo->updateUsage(size);
+	m_VRAMInfo->updateUsage(size);
 
 	m_TextureList.push_back(make_pair(p_TextureId, resourceView));
 
@@ -370,7 +370,7 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 		{
 			ID3D11ShaderResourceView *&m = it->second;
 			int size = calculateTextureSize(m);
-			m_VRAMMemInfo->updateUsage(-size);
+			m_VRAMInfo->updateUsage(-size);
 
 			SAFE_RELEASE(m);
 			m_TextureList.erase(it);
@@ -494,9 +494,9 @@ void Graphics::updateAnimations(float p_DeltaTime)
 
 int Graphics::getVRAMMemUsage(void)
 {
-	if (m_VRAMMemInfo)
+	if (m_VRAMInfo)
 	{
-		return m_VRAMMemInfo->getUsage();
+		return m_VRAMInfo->getUsage();
 	}
 	else
 	{
@@ -913,7 +913,7 @@ int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )
 	SAFE_RELEASE(texture);
 	SAFE_RELEASE(resource);
 
-	return m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
+	return m_VRAMInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
 }
 
 void Graphics::Begin(float color[4])

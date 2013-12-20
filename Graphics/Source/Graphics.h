@@ -53,7 +53,7 @@ private:
 	TextureLoader					m_TextureLoader;	
 	WrapperFactory					*m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
-	VRAMMemInfo						*m_VRAMMemInfo;
+	VRAMInfo						*m_VRAMInfo;
 
 	vector<pair<string, Shader*>>	m_ShaderList;
 	vector<pair<string, ModelDefinition>> m_ModelList;
