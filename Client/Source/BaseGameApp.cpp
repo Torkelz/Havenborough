@@ -156,8 +156,8 @@ void BaseGameApp::run()
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
 	int ground = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(ground, Vector3(100.f, 0.0001f, 100.f));
-	m_Graphics->setModelPosition(ground, Vector3(0.f, 0.f, 0.f));
+	m_Graphics->setModelScale(ground, Vector3(100.f, 5.f, 100.f));
+	m_Graphics->setModelPosition(ground, Vector3(0.f, -2.5f, 0.f));
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug character");
 	int circleWitch = m_Graphics->createModelInstance("DZALA");

@@ -30,6 +30,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("LightBlueCrate", "assets/models/LightBlueCrate.btx"),
 		std::make_pair("GreenCrate", "assets/models/GreenCrate.btx"),
 		std::make_pair("BrownCrate", "assets/models/BrownCrate.btx"),
+		std::make_pair("MarketStand1", "assets/models/MarketStand1.btx"),
 	};
 
 	static const size_t numModels = sizeof(modelMap) / sizeof(modelMap[0]);

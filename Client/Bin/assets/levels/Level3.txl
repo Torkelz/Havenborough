@@ -291,3 +291,7 @@
 #Rotation: -1.57 0 0
 #Scale: 0.01 0.01 0.01
 
+#MESH MarketStand1
+#Translation: -25 0 0
+#Rotation: -1.57 0 0
+#Scale: 0.01 0.01 0.01
