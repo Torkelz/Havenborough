@@ -174,17 +174,17 @@ bool Physics::releaseLevelBV(const char* p_VolumeID)
 	return true;
 }
 
-void Physics::setBVPosition(int p_Instance, float p_x, float p_y, float p_z)
+void Physics::setBVPosition(int p_Instance, Vector3 p_Position)
 {
 
 }
 
-void Physics::setBVRotation(int p_Instance, float p_x, float p_y, float p_z)
+void Physics::setBVRotation(int p_Instance, Vector3 p_Rotation)
 {
 
 }
 
-void Physics::setBVScale(int p_Instance, float p_x, float p_y, float p_z)
+void Physics::setBVScale(int p_Instance, Vector3 p_Scale)
 {
 
 }
