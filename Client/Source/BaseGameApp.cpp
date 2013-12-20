@@ -211,10 +211,10 @@ void BaseGameApp::run()
 		m_Physics->createAABB(50.f, true, towerBoxPositions[i], towerBoxSizes[i] * 0.5f, false);
 	}
 
-	m_Physics->createAABB(0.f, true, Vector3(30.f, 7.f, 37.f), Vector3(2.8f, 0.2f, 0.2f), true);
-	m_Physics->createAABB(0.f, true, Vector3(30.f, 7.f, 43.f), Vector3(2.8f, 0.2f, 0.2f), true);
-	m_Physics->createAABB(0.f, true, Vector3(27.f, 7.f, 40.f), Vector3(0.2f, 0.2f, 2.8f), true);
-	m_Physics->createAABB(0.f, true, Vector3(33.f, 7.f, 40.f), Vector3(0.2f, 0.2f, 2.8f), true);
+	m_Physics->createAABB(0.f, true, Vector3(30.f, 6.8f, 37.f), Vector3(2.8f, 0.6f, 0.2f), true);
+	m_Physics->createAABB(0.f, true, Vector3(30.f, 6.8f, 43.f), Vector3(2.8f, 0.6f, 0.2f), true);
+	m_Physics->createAABB(0.f, true, Vector3(27.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
+	m_Physics->createAABB(0.f, true, Vector3(33.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
 
 	static const int numRotatedTowerBoxes = 5;
 	int rotatedTowerBoxes[numRotatedTowerBoxes] =
@@ -323,7 +323,7 @@ void BaseGameApp::run()
 
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
 
- 		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y, tempPos.z), viewRot[0], viewRot[1]);
+		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y + m_Player.getHeight() * 0.305f, tempPos.z), viewRot[0], viewRot[1]);
 		m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
 
 		static const Vector3 circleCenter(4.f, 0.f, 15.f);
