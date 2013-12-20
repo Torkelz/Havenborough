@@ -325,9 +325,8 @@ void Physics::setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, flo
 		return;
 
 	OBB *obb = (OBB*)(body->getVolume());
-	XMFLOAT3 yawPitchRoll(p_Yaw, p_Pitch, p_Roll);
 	XMFLOAT4X4 temp;
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
+	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, p_Roll);
 
 	XMStoreFloat4x4(&temp, rotation);
 	obb->setRotationMatrix(temp);

@@ -77,7 +77,7 @@ void BaseGameApp::init()
 	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 2.f, 10.f), XMFLOAT3(0.f, 0.f, 1.f));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(100.f, 0.f, 100.f), false);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(50.f, 0.f, 50.f), false);
 
 
 	//Logger::log(Logger::Level::DEBUG, "Adding debug models");
@@ -176,22 +176,95 @@ void BaseGameApp::run()
 	m_Graphics->setModelScale(ikTest, Vector3(0.3f, 0.3f, 0.3f));
 	m_Graphics->setModelRotation(ikTest, Vector3((float)pi / 4.f, 0.f, 0.f));
 	
-	int towerBoxes[4] =
+	static const unsigned int numTowerBoxes = 5;
+	int towerBoxes[numTowerBoxes] =
 	{
+		m_Graphics->createModelInstance("BOX"),
 		m_Graphics->createModelInstance("BOX"),
 		m_Graphics->createModelInstance("BOX"),
 		m_Graphics->createModelInstance("BOX"),
 		m_Graphics->createModelInstance("BOX"),
 	};
 
-	m_Graphics->setModelScale(towerBoxes[0], Vector3(16.f, 1.f, 16.f));
-	m_Graphics->setModelPosition(towerBoxes[0], Vector3(30.f, 0.5f, 40.f));
-	m_Graphics->setModelPosition(towerBoxes[1], Vector3(30.f, 3.5f, 40.f));
-	m_Graphics->setModelPosition(towerBoxes[2], Vector3(30.f, 6.5f, 40.f));
-	m_Graphics->setModelPosition(towerBoxes[3], Vector3(30.f, 9.5f, 40.f));
+	Vector3 towerBoxSizes[numTowerBoxes] =
+	{
+		Vector3(20.f, 1.6f, 20.f),
+		Vector3(12.f, 1.6f, 12.f),
+		Vector3(6.f, 4.f, 6.f),
+		Vector3(0.1f, 8.f, 0.1f),
+		Vector3(0.4f, 0.4f, 0.4f),
+	};
 
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(30.f, 0.5f, 40.f), Vector3(8.f, 1.f, 8.f), false);
+	Vector3 towerBoxPositions[numTowerBoxes] =
+	{
+		Vector3(30.f, 0.8f, 40.f),
+		Vector3(30.f, 2.4f, 40.f),
+		Vector3(30.f, 5.2f, 40.f),
+		Vector3(30.f, 11.2f, 40.f),
+		Vector3(30.f, 15.4f, 40.f),
+	};
 
+	for (unsigned int i = 0; i < numTowerBoxes; i++)
+	{
+		m_Graphics->setModelScale(towerBoxes[i], towerBoxSizes[i]);
+		m_Graphics->setModelPosition(towerBoxes[i], towerBoxPositions[i]);
+		m_Physics->createAABB(50.f, true, towerBoxPositions[i], towerBoxSizes[i] * 0.5f, false);
+	}
+
+	m_Physics->createAABB(0.f, true, Vector3(30.f, 6.8f, 37.f), Vector3(2.8f, 0.6f, 0.2f), true);
+	m_Physics->createAABB(0.f, true, Vector3(30.f, 6.8f, 43.f), Vector3(2.8f, 0.6f, 0.2f), true);
+	m_Physics->createAABB(0.f, true, Vector3(27.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
+	m_Physics->createAABB(0.f, true, Vector3(33.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
+
+	static const int numRotatedTowerBoxes = 5;
+	int rotatedTowerBoxes[numRotatedTowerBoxes] =
+	{
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+	};
+
+	Vector3 rotatedTowerBoxSizes[numRotatedTowerBoxes] =
+	{
+		Vector3(20.f, 1.6f, 20.f),
+		Vector3(12.f, 1.6f, 12.f),
+		Vector3(6.f, 4.f, 6.f),
+		Vector3(0.1f, 8.f, 0.1f),
+		Vector3(0.4f, 0.4f, 0.4f),
+	};
+
+	Vector3 rotatedTowerBoxPositions[numRotatedTowerBoxes] =
+	{
+		Vector3(-30.f, 0.8f, 40.f),
+		Vector3(-30.f, 2.4f, 40.f),
+		Vector3(-30.f, 5.2f, 40.f),
+		Vector3(-30.f, 11.2f, 40.f),
+		Vector3(-30.f, 15.4f, 40.f),
+	};
+
+	BodyHandle rotatedTowerBodies[numRotatedTowerBoxes];
+
+	for (unsigned int i = 0; i < numRotatedTowerBoxes; i++)
+	{
+		m_Graphics->setModelScale(rotatedTowerBoxes[i], rotatedTowerBoxSizes[i]);
+		m_Graphics->setModelPosition(rotatedTowerBoxes[i], rotatedTowerBoxPositions[i]);
+		m_Graphics->setModelRotation(rotatedTowerBoxes[i], Vector3(1.f, 0.f, 0.f));
+		rotatedTowerBodies[i] = m_Physics->createOBB(50.f, true, rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, false);
+		m_Physics->setBodyRotation(rotatedTowerBodies[i], 1.f, 0.f, 0.f);
+	}
+
+	static const Vector3 slantedPlanePosition(-40.f, 3.f, 20.f);
+	static const Vector3 slantedPlaneSize(20.f, 5.f, 30.f);
+	static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
+	int slantedPlane = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelPosition(slantedPlane, slantedPlanePosition);
+	m_Graphics->setModelScale(slantedPlane, slantedPlaneSize);
+	m_Graphics->setModelRotation(slantedPlane, slantedPlaneRotation);
+
+	BodyHandle slantedPlaneBody = m_Physics->createOBB(0.f, true, slantedPlanePosition, slantedPlaneSize * 0.5f, false);
+	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlaneRotation.x, slantedPlaneRotation.y, slantedPlaneRotation.z);
 
 	float viewRot[] = {0.f, 0.f};
 
@@ -261,7 +334,7 @@ void BaseGameApp::run()
 
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
 
- 		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y, tempPos.z), viewRot[0], viewRot[1]);
+		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y + m_Player.getHeight() * 0.305f, tempPos.z), viewRot[0], viewRot[1]);
 		m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
 
 		static const Vector3 circleCenter(4.f, 0.f, 15.f);
@@ -282,7 +355,7 @@ void BaseGameApp::run()
 
 		m_Graphics->updateAnimations(dt);
 
-		m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_a01", "bn_l_arm01", wavePos);
+		m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_b01", "bn_l_arm01", wavePos);
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -317,15 +390,20 @@ void BaseGameApp::run()
 
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
-		//m_Graphics->renderModel(ikTest);
+		m_Graphics->renderModel(ikTest);
 		m_Graphics->renderModel(circleWitch);
 		m_Graphics->renderModel(standingWitch);
 		m_Graphics->renderModel(wavingWitch);
 		m_Graphics->renderModel(climbBox);
-		m_Graphics->renderModel(towerBoxes[0]);
-		m_Graphics->renderModel(towerBoxes[1]);
-		m_Graphics->renderModel(towerBoxes[2]);
-		m_Graphics->renderModel(towerBoxes[3]);
+		for (int box : towerBoxes)
+		{
+			m_Graphics->renderModel(box);
+		}
+		for (int box : rotatedTowerBoxes)
+		{
+			m_Graphics->renderModel(box);
+		}
+		m_Graphics->renderModel(slantedPlane);
 
 		m_Level.drawLevel();
 

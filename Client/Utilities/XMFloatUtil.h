@@ -41,6 +41,11 @@ struct Vector3
 	{
 		return Vector3(x - p_Right.x, y - p_Right.y, z - p_Right.z);
 	}
+
+	Vector3 operator*(float p_Right) const
+	{
+		return Vector3(x * p_Right, y * p_Right, z * p_Right);
+	}
 };
 
 struct Vector4
