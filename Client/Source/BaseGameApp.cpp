@@ -107,6 +107,13 @@ void BaseGameApp::init()
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
+
+
+
+	/*int OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(10.f, 10.f, 10.f), false);
+	m_Physics->setBodyRotation(OBBhouse2, 0.f, 0.f, 3.14f/4.f);
+	m_Physics->setBodyPosition(Vector3(-16.3f, 0.f, -10.f), OBBhouse2);*/
+
 }
 
 void BaseGameApp::run()
@@ -192,6 +199,14 @@ void BaseGameApp::run()
 
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(30.f, 0.5f, 40.f), Vector3(8.f, 1.f, 8.f), false);
 
+	
+	int OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
+	m_Physics->setBodyRotation(OBBhouse1, 0.f, 0.f, 3.14f/6.5f);
+	m_Physics->setBodyPosition(Vector3(14.f, 4.5f, -10.f), OBBhouse1);
+
+	int OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
+	m_Physics->setBodyRotation(OBBhouse2, 0.f, 0.f, 3.14f/6.5f);
+	m_Physics->setBodyPosition(Vector3(3.5f, 5.0f, -10.f), OBBhouse2);
 
 	float viewRot[] = {0.f, 0.f};
 
@@ -261,7 +276,7 @@ void BaseGameApp::run()
 
 		Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
 
- 		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y, tempPos.z), viewRot[0], viewRot[1]);
+		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y + m_Player.getHeight()*0.305f, tempPos.z), viewRot[0], viewRot[1]);
 		m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
 
 		static const Vector3 circleCenter(4.f, 0.f, 15.f);
@@ -326,7 +341,6 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(towerBoxes[1]);
 		m_Graphics->renderModel(towerBoxes[2]);
 		m_Graphics->renderModel(towerBoxes[3]);
-
 		m_Level.drawLevel();
 
 		m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
