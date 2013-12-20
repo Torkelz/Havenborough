@@ -198,7 +198,17 @@ void Physics::setBVRotation(int p_Instance, float p_x, float p_y, float p_z)
 
 void Physics::setBVScale(int p_Instance, float p_x, float p_y, float p_z)
 {
+	Body* body = findBody(p_Instance);
+	if(body == nullptr)
+		return;
 
+	if(body->getVolume()->getType() == BoundingVolume::Type::OBB)
+	{
+		((OBB*)body->getVolume())->setExtent(XMFLOAT4(p_x, p_y, p_z, 0.f));
+		return;
+	}
+
+	return;
 }
 
 BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
