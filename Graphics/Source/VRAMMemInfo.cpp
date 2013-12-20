@@ -73,12 +73,12 @@ unsigned int VRAMMemInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width
 		}
 	case DXGI_FORMAT_B8G8R8X8_UNORM:
 		{
-			result = 0;Size::B8G8R8X8_UNORM * p_Width * p_Height;
+			result = Size::B8G8R8X8_UNORM * p_Width * p_Height;
 			break;
 		}
 	case DXGI_FORMAT_BC3_UNORM:
 		{
-			result = 0;Size::BC3_UNORM * p_Width * p_Height;
+			result = Size::BC3_UNORM * p_Width * p_Height;
 			break;
 		}
 	default:
