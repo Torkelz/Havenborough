@@ -14,7 +14,7 @@ Player::Player(void)
 	m_DirectionX = 0.f;
 	m_ForceMove = false;
 	m_ForceMoveTime = 1.0f;
-	m_ForceMoveSpeed = 0.2f;
+	m_ForceMoveSpeed = 1.f;
 	m_CurrentForceMoveTime = 0.f;
 }
 
