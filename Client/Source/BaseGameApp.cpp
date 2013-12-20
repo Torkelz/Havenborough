@@ -255,6 +255,17 @@ void BaseGameApp::run()
 		m_Physics->setBodyRotation(rotatedTowerBodies[i], 1.f, 0.f, 0.f);
 	}
 
+	static const Vector3 slantedPlanePosition(-40.f, 3.f, 20.f);
+	static const Vector3 slantedPlaneSize(20.f, 5.f, 30.f);
+	static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
+	int slantedPlane = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelPosition(slantedPlane, slantedPlanePosition);
+	m_Graphics->setModelScale(slantedPlane, slantedPlaneSize);
+	m_Graphics->setModelRotation(slantedPlane, slantedPlaneRotation);
+
+	BodyHandle slantedPlaneBody = m_Physics->createOBB(0.f, true, slantedPlanePosition, slantedPlaneSize * 0.5f, false);
+	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlaneRotation.x, slantedPlaneRotation.y, slantedPlaneRotation.z);
+
 	float viewRot[] = {0.f, 0.f};
 
 	float sensitivity = 0.01f;
@@ -392,6 +403,7 @@ void BaseGameApp::run()
 		{
 			m_Graphics->renderModel(box);
 		}
+		m_Graphics->renderModel(slantedPlane);
 
 		m_Level.drawLevel();
 
