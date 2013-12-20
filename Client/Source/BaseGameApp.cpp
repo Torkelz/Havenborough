@@ -176,22 +176,45 @@ void BaseGameApp::run()
 	m_Graphics->setModelScale(ikTest, Vector3(0.3f, 0.3f, 0.3f));
 	m_Graphics->setModelRotation(ikTest, Vector3((float)pi / 4.f, 0.f, 0.f));
 	
-	int towerBoxes[4] =
+	static const unsigned int numTowerBoxes = 5;
+	int towerBoxes[numTowerBoxes] =
 	{
+		m_Graphics->createModelInstance("BOX"),
 		m_Graphics->createModelInstance("BOX"),
 		m_Graphics->createModelInstance("BOX"),
 		m_Graphics->createModelInstance("BOX"),
 		m_Graphics->createModelInstance("BOX"),
 	};
 
-	m_Graphics->setModelScale(towerBoxes[0], Vector3(16.f, 1.f, 16.f));
-	m_Graphics->setModelPosition(towerBoxes[0], Vector3(30.f, 0.5f, 40.f));
-	m_Graphics->setModelPosition(towerBoxes[1], Vector3(30.f, 3.5f, 40.f));
-	m_Graphics->setModelPosition(towerBoxes[2], Vector3(30.f, 6.5f, 40.f));
-	m_Graphics->setModelPosition(towerBoxes[3], Vector3(30.f, 9.5f, 40.f));
+	Vector3 towerBoxSizes[numTowerBoxes] =
+	{
+		Vector3(20.f, 1.6f, 20.f),
+		Vector3(12.f, 1.6f, 12.f),
+		Vector3(6.f, 4.f, 6.f),
+		Vector3(0.1f, 8.f, 0.1f),
+		Vector3(0.4f, 0.4f, 0.4f),
+	};
 
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(30.f, 0.5f, 40.f), Vector3(8.f, 1.f, 8.f), false);
+	Vector3 towerBoxPositions[numTowerBoxes] =
+	{
+		Vector3(30.f, 0.8f, 40.f),
+		Vector3(30.f, 2.4f, 40.f),
+		Vector3(30.f, 5.2f, 40.f),
+		Vector3(30.f, 11.2f, 40.f),
+		Vector3(30.f, 15.4f, 40.f),
+	};
 
+	for (unsigned int i = 0; i < numTowerBoxes; i++)
+	{
+		m_Graphics->setModelScale(towerBoxes[i], towerBoxSizes[i]);
+		m_Graphics->setModelPosition(towerBoxes[i], towerBoxPositions[i]);
+		m_Physics->createAABB(50.f, true, towerBoxPositions[i], towerBoxSizes[i] * 0.5f, false);
+	}
+
+	m_Physics->createAABB(0.f, true, Vector3(30.f, 7.f, 37.f), Vector3(2.8f, 0.2f, 0.2f), true);
+	m_Physics->createAABB(0.f, true, Vector3(30.f, 7.f, 43.f), Vector3(2.8f, 0.2f, 0.2f), true);
+	m_Physics->createAABB(0.f, true, Vector3(27.f, 7.f, 40.f), Vector3(0.2f, 0.2f, 2.8f), true);
+	m_Physics->createAABB(0.f, true, Vector3(33.f, 7.f, 40.f), Vector3(0.2f, 0.2f, 2.8f), true);
 
 	float viewRot[] = {0.f, 0.f};
 
@@ -317,15 +340,15 @@ void BaseGameApp::run()
 
 		m_Graphics->renderModel(ground);
 		m_Graphics->renderModel(skyBox);
-		//m_Graphics->renderModel(ikTest);
+		m_Graphics->renderModel(ikTest);
 		m_Graphics->renderModel(circleWitch);
 		m_Graphics->renderModel(standingWitch);
 		m_Graphics->renderModel(wavingWitch);
 		m_Graphics->renderModel(climbBox);
-		m_Graphics->renderModel(towerBoxes[0]);
-		m_Graphics->renderModel(towerBoxes[1]);
-		m_Graphics->renderModel(towerBoxes[2]);
-		m_Graphics->renderModel(towerBoxes[3]);
+		for (int box : towerBoxes)
+		{
+			m_Graphics->renderModel(box);
+		}
 
 		m_Level.drawLevel();
 
