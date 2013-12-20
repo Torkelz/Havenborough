@@ -77,7 +77,7 @@ void BaseGameApp::init()
 	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 2.f, 10.f), XMFLOAT3(0.f, 0.f, 1.f));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(100.f, 0.f, 100.f), false);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(50.f, 0.f, 50.f), false);
 
 
 	//Logger::log(Logger::Level::DEBUG, "Adding debug models");
@@ -216,6 +216,45 @@ void BaseGameApp::run()
 	m_Physics->createAABB(0.f, true, Vector3(27.f, 7.f, 40.f), Vector3(0.2f, 0.2f, 2.8f), true);
 	m_Physics->createAABB(0.f, true, Vector3(33.f, 7.f, 40.f), Vector3(0.2f, 0.2f, 2.8f), true);
 
+	static const int numRotatedTowerBoxes = 5;
+	int rotatedTowerBoxes[numRotatedTowerBoxes] =
+	{
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+		m_Graphics->createModelInstance("BOX"),
+	};
+
+	Vector3 rotatedTowerBoxSizes[numRotatedTowerBoxes] =
+	{
+		Vector3(20.f, 1.6f, 20.f),
+		Vector3(12.f, 1.6f, 12.f),
+		Vector3(6.f, 4.f, 6.f),
+		Vector3(0.1f, 8.f, 0.1f),
+		Vector3(0.4f, 0.4f, 0.4f),
+	};
+
+	Vector3 rotatedTowerBoxPositions[numRotatedTowerBoxes] =
+	{
+		Vector3(-30.f, 0.8f, 40.f),
+		Vector3(-30.f, 2.4f, 40.f),
+		Vector3(-30.f, 5.2f, 40.f),
+		Vector3(-30.f, 11.2f, 40.f),
+		Vector3(-30.f, 15.4f, 40.f),
+	};
+
+	BodyHandle rotatedTowerBodies[numRotatedTowerBoxes];
+
+	for (unsigned int i = 0; i < numRotatedTowerBoxes; i++)
+	{
+		m_Graphics->setModelScale(rotatedTowerBoxes[i], rotatedTowerBoxSizes[i]);
+		m_Graphics->setModelPosition(rotatedTowerBoxes[i], rotatedTowerBoxPositions[i]);
+		m_Graphics->setModelRotation(rotatedTowerBoxes[i], Vector3(1.f, 0.f, 0.f));
+		rotatedTowerBodies[i] = m_Physics->createOBB(50.f, true, rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, false);
+		m_Physics->setBodyRotation(rotatedTowerBodies[i], 1.f, 0.f, 0.f);
+	}
+
 	float viewRot[] = {0.f, 0.f};
 
 	float sensitivity = 0.01f;
@@ -305,7 +344,7 @@ void BaseGameApp::run()
 
 		m_Graphics->updateAnimations(dt);
 
-		m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_a01", "bn_l_arm01", wavePos);
+		m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_b01", "bn_l_arm01", wavePos);
 
 		yaw += yawSpeed * dt;
 		pitch += pitchSpeed * dt;
@@ -346,6 +385,10 @@ void BaseGameApp::run()
 		m_Graphics->renderModel(wavingWitch);
 		m_Graphics->renderModel(climbBox);
 		for (int box : towerBoxes)
+		{
+			m_Graphics->renderModel(box);
+		}
+		for (int box : rotatedTowerBoxes)
 		{
 			m_Graphics->renderModel(box);
 		}
