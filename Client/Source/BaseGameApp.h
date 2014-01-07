@@ -7,7 +7,7 @@
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
-#include "Level.h"
+//#include "Level.h"
 #include "Player.h"
 #include "EdgeCollisionResponse.h"
 
@@ -24,7 +24,7 @@ private:
 
 	Window	m_Window;
 	IGraphics* m_Graphics;
-	Level m_Level;
+	//Level m_Level;
 	Input	m_InputQueue;
 	RAMMemInfo m_MemoryInfo;
 	float m_MemUpdateDelay;
