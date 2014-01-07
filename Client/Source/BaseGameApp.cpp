@@ -46,7 +46,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('S', "moveBackward");
 	translator->addKeyboardMapping('A', "moveLeft");
 	translator->addKeyboardMapping('D', "moveRight");
-	//translator->addKeyboardMapping('C', "connect");
+	translator->addKeyboardMapping('C', "connect");
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
 	translator->addKeyboardMapping('I', "toggleIK");
@@ -513,15 +513,20 @@ void BaseGameApp::run()
 
 				switch (type)
 				{
-				case PackageType::ADD_OBJECT:
+				case PackageType::CREATE_OBJECTS:
 					{
-						AddObjectData data = conn->getAddObjectData(package);
-						std::ostringstream msg;
-						msg << "Adding object at (" 
-							<< data.m_Position[0] << ", "
-							<< data.m_Position[1] << ", " 
-							<< data.m_Position[2] << ")";
-						Logger::log(Logger::Level::INFO, msg.str());
+						unsigned int numInstances = conn->getNumCreateObjectInstances(package);
+						const ObjectInstance* instances = conn->getCreateObjectInstances(package);
+						for (unsigned int i = 0; i < numInstances; ++i)
+						{
+							ObjectInstance data = instances[i];
+							std::ostringstream msg;
+							msg << "Adding object at (" 
+								<< data.m_Position[0] << ", "
+								<< data.m_Position[1] << ", " 
+								<< data.m_Position[2] << ")";
+							Logger::log(Logger::Level::INFO, msg.str());
+						}
 					}
 					break;
 
