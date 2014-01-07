@@ -33,9 +33,9 @@ public:
 
 	bool releaseLevelBV(const char* p_ModelID) override; 
 
-	void setBVPosition(int p_Instance, float p_x, float p_y, float p_z) override;
-	void setBVRotation(int p_Instance, float p_x, float p_y, float p_z) override;
-	void setBVScale(int p_Instance, float p_x, float p_y, float p_z) override;
+	void setBVPosition(int p_Instance, Vector3 p_Position) override;
+	void setBVRotation(int p_Instance, Vector3 p_Rotation) override;
+	void setBVScale(int p_Instance, Vector3 p_Scale) override;
 
 	void setGlobalGravity(float p_Gravity) override;
 	Vector4 getVelocity(BodyHandle p_Body) override;

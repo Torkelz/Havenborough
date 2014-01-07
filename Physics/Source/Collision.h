@@ -6,8 +6,6 @@
 class Collision
 {
 public:
-	static enum { OUTSIDE = 0, INTERSECT, INSIDE };
-public:
 	Collision();
 	~Collision();
 

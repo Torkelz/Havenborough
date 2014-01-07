@@ -186,17 +186,17 @@ bool Physics::releaseLevelBV(const char* p_VolumeID)
 	return true;
 }
 
-void Physics::setBVPosition(int p_Instance, float p_x, float p_y, float p_z)
+void Physics::setBVPosition(int p_Instance, Vector3 p_Position)
 {
 
 }
 
-void Physics::setBVRotation(int p_Instance, float p_x, float p_y, float p_z)
+void Physics::setBVRotation(int p_Instance, Vector3 p_Rotation)
 {
 
 }
 
-void Physics::setBVScale(int p_Instance, float p_x, float p_y, float p_z)
+void Physics::setBVScale(int p_Instance, Vector3 p_Scale)
 {
 	Body* body = findBody(p_Instance);
 	if(body == nullptr)
@@ -204,7 +204,7 @@ void Physics::setBVScale(int p_Instance, float p_x, float p_y, float p_z)
 
 	if(body->getVolume()->getType() == BoundingVolume::Type::OBB)
 	{
-		((OBB*)body->getVolume())->setExtent(XMFLOAT4(p_x, p_y, p_z, 0.f));
+		((OBB*)body->getVolume())->setExtent(XMFLOAT4(p_Scale.x, p_Scale.y, p_Scale.z, 0.f));
 		return;
 	}
 
