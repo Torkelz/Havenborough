@@ -117,7 +117,15 @@ public:
 	 * @param p_Position is a vector3 with all the position coordinates
 	 * @param p_Body are what body to work with
 	 */
-	virtual void setBodyPosition(Vector3 p_Position, BodyHandle p_Body) = 0;
+	virtual void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) = 0;
+
+	/**
+	 * Sets the velocity for a body.
+	 *
+	 * @param p_Velocity, the new velocity for thee body.
+	 * @param p_Body, which body to change velocity on.
+	 */
+	virtual void setBodyVelocity(BodyHandle p_Body, Vector3 p_Velocity) = 0;
 
 	/**
 	 * Edit the rotation of the target body.
@@ -127,15 +135,7 @@ public:
 	 * @param p_Pitch the rotation around the X-axis, in radians, positive up
 	 * @param p_Roll the rotation around the Z-axis, in radians, positive clock-wise
 	 */
-	virtual void setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, float p_Roll) = 0;
-
-	/**
-	 * Sets the velocity for a body.
-	 *
-	 * @param p_Velocity, the new velocity for thee body.
-	 * @param p_Body, which body to change velocity on.
-	 */
-	virtual void setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body) = 0;
+	virtual void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) = 0;
 	
 	/**
 	 * Keeps physics updated, collision checks etc.

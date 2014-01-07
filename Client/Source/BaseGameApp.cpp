@@ -259,7 +259,7 @@ void BaseGameApp::run()
 		m_Graphics->setModelPosition(rotatedTowerBoxes[i], rotatedTowerBoxPositions[i]);
 		m_Graphics->setModelRotation(rotatedTowerBoxes[i], Vector3(1.f, 0.f, 0.f));
 		rotatedTowerBodies[i] = m_Physics->createOBB(50.f, true, rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, false);
-		m_Physics->setBodyRotation(rotatedTowerBodies[i], 1.f, 0.f, 0.f);
+		m_Physics->setBodyRotation(rotatedTowerBodies[i], Vector3(1.f, 0.f, 0.f));
 	}
 
 	static const Vector3 slantedPlanePosition(-40.f, 3.f, 20.f);
@@ -271,15 +271,15 @@ void BaseGameApp::run()
 	m_Graphics->setModelRotation(slantedPlane, slantedPlaneRotation);
 
 	BodyHandle slantedPlaneBody = m_Physics->createOBB(0.f, true, slantedPlanePosition, slantedPlaneSize * 0.5f, false);
-	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlaneRotation.x, slantedPlaneRotation.y, slantedPlaneRotation.z);
+	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlanePosition);
 	
 	int OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
-	m_Physics->setBodyRotation(OBBhouse1, 0.f, 0.f, 3.14f/6.5f);
-	m_Physics->setBodyPosition(Vector3(14.f, 4.5f, -10.f), OBBhouse1);
+	m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
+	m_Physics->setBodyPosition(OBBhouse1, Vector3(14.f, 4.5f, -10.f));
 
 	int OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
-	m_Physics->setBodyRotation(OBBhouse2, 0.f, 0.f, 3.14f/6.5f);
-	m_Physics->setBodyPosition(Vector3(3.5f, 5.0f, -10.f), OBBhouse2);
+	m_Physics->setBodyRotation(OBBhouse2, Vector3(0.f, 0.f, 3.14f/6.5f));
+	m_Physics->setBodyPosition(OBBhouse2, Vector3(3.5f, 5.0f, -10.f));
 
 	float viewRot[] = {0.f, 0.f};
 

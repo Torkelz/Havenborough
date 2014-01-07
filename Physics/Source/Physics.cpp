@@ -298,7 +298,7 @@ Vector3 Physics::getBodySize(BodyHandle p_Body)
 	return temp;
 }
 
-void Physics::setBodyPosition(Vector3 p_Position, BodyHandle p_Body)
+void Physics::setBodyPosition( BodyHandle p_Body, Vector3 p_Position)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
@@ -313,7 +313,7 @@ void Physics::setBodyPosition(Vector3 p_Position, BodyHandle p_Body)
 
 	body->setPosition(tempPosition);
 }
-void Physics::setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body)
+void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
@@ -328,7 +328,7 @@ void Physics::setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body)
 	body->setVelocity(tempPosition);
 }
 
-void Physics::setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, float p_Roll)
+void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr || body->getVolume()->getType() != BoundingVolume::Type::OBB)
@@ -336,7 +336,7 @@ void Physics::setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, flo
 
 	OBB *obb = (OBB*)(body->getVolume());
 	XMFLOAT4X4 temp;
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, p_Roll);
+	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Rotation.x, p_Rotation.y, p_Rotation.z);
 
 	XMStoreFloat4x4(&temp, rotation);
 	obb->setRotationMatrix(temp);

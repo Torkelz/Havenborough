@@ -47,10 +47,9 @@ public:
 	Vector4 getBodyPosition(BodyHandle p_Body) override;
 	Vector3 getBodySize(BodyHandle p_Body) override;
 
-	void setBodyPosition(Vector3 p_Position, BodyHandle p_Body) override;
-	void setBodyVelocity(Vector3 p_Velocity, BodyHandle p_Body) override;
-
-	void setBodyRotation(BodyHandle p_Body, float p_Yaw, float p_Pitch, float p_Roll) override;
+	void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) override;
+	void setBodyVelocity(BodyHandle p_Body, Vector3 p_Velocity) override;
+	void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 		 

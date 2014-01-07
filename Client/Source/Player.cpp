@@ -79,7 +79,7 @@ void Player::forceMove(XMVECTOR p_StartPosition, XMVECTOR p_EndPosition)
 		m_ForceMove = true;
 		m_ForceMoveStartPosition = p_StartPosition;
 		m_ForceMoveEndPosition = p_EndPosition;
-		m_Physics->setBodyVelocity(Vector3(0,0,0),m_PlayerBody);
+		m_Physics->setBodyVelocity(m_PlayerBody, Vector3(0,0,0));
 	}
 }
 
@@ -98,7 +98,7 @@ void Player::update(float p_DeltaTime)
 			m_ForceMoveEndPosition, dt);
 		XMStoreFloat3(&m_Position, currPosition);
 
-		m_Physics->setBodyPosition(XMFLOAT3ToVector3(&m_Position), m_PlayerBody);
+		m_Physics->setBodyPosition(m_PlayerBody, XMFLOAT3ToVector3(&m_Position));
 
 
 		m_CurrentForceMoveTime += p_DeltaTime * m_ForceMoveSpeed;
