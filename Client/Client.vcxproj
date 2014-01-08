@@ -22,11 +22,12 @@
     <ClCompile Include="Source\Input\Input.cpp" />
     <ClCompile Include="Source\Input\InputState.cpp" />
     <ClCompile Include="Source\Input\InputTranslator.cpp" />
-    <ClCompile Include="Source\GameScene.cpp" />
     <ClCompile Include="Source\Logger.cpp" />
     <ClCompile Include="Source\RAMMemInfo.cpp" />
-    <ClCompile Include="Source\MenuScene.cpp" />
     <ClCompile Include="Source\SceneManager.cpp" />
+    <ClCompile Include="Source\Scenes\GameScene.cpp" />
+    <ClCompile Include="Source\Scenes\MenuScene.cpp" />
+    <ClCompile Include="Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -62,13 +63,14 @@
     <ClInclude Include="Source\BaseGameApp.h" />
     <ClInclude Include="Source\Input\Input.h" />
     <ClInclude Include="Source\Input\InputRecord.h" />
-    <ClInclude Include="Source\GameScene.h" />
-    <ClInclude Include="Source\IScene.h" />
     <ClInclude Include="Source\Input\InputState.h" />
     <ClInclude Include="Source\Input\InputTranslator.h" />
     <ClInclude Include="Source\ClientExceptions.h" />
     <ClInclude Include="Source\SceneManager.h" />
-    <ClInclude Include="Source\MenuScene.h" />
+    <ClInclude Include="Source\Scenes\GameScene.h" />
+    <ClInclude Include="Source\Scenes\IScene.h" />
+    <ClInclude Include="Source\Scenes\MenuScene.h" />
+    <ClInclude Include="Source\Scenes\PostGameScene.h" />
     <ClInclude Include="Source\Window.h" />
     <ClInclude Include="Utilities\MemoryUtil.h" />
     <ClInclude Include="Utilities\Util.h" />

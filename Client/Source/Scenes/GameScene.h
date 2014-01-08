@@ -1,9 +1,9 @@
 #pragma once
 #include "IScene.h"
-#include "Logger.h"
-#include "Level.h"
-#include "Player.h"
-#include "EdgeCollisionResponse.h"
+#include "../Logger.h"
+#include "../Level.h"
+#include "../Player.h"
+#include "../EdgeCollisionResponse.h"
 
 class GameScene : public IScene
 {

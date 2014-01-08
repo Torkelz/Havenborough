@@ -1,6 +1,7 @@
 #pragma once 
-#include "MenuScene.h"
-#include "GameScene.h"
+#include "Scenes/MenuScene.h"
+#include "Scenes/GameScene.h"
+#include "Scenes/PostGameScene.h"
 #include <vector>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -53,7 +54,7 @@ public:
 	* @param p_LParam Unused but needed.
 	* @param p_Result Unused but needed.
 	*/
-	bool keyStroke(std::string p_Action, float p_Value);
+	void keyStroke(std::string p_Action, float p_Value);
 	/*########## TEST FUNCTIONS ##########*/
 
 	std::vector<IScene::ptr> getScene();

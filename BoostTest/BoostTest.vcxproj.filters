@@ -45,9 +45,6 @@
     <ClCompile Include="TestResourceManager.cpp">
       <Filter>TestResourceManager</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\GameScene.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="TestResouceTranslator.cpp">
       <Filter>TestResourceManager</Filter>
     </ClCompile>
@@ -60,13 +57,7 @@
     <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\MenuScene.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\RAMMemInfo.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\SceneManager.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\Input\TestInput.cpp">
@@ -233,6 +224,18 @@
     </ClCompile>
     <ClCompile Include="OBBTest.cpp">
       <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Scenes\GameScene.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\SceneManager.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

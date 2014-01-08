@@ -10,6 +10,8 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
+
+	IGraphics *m_Graphics;
 public: 
 	MenuScene();
 	~MenuScene();

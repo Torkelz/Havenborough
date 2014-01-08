@@ -4,16 +4,22 @@ GameScene::GameScene()
 {
 	m_SceneID = 0;
 	m_Visible = false;
+	m_NewSceneID = 0;
 	m_ChangeScene = false;
 	m_ChangeList = false;
+	
 	m_Graphics = nullptr;
+	m_Physics = nullptr;
 	m_InputQueue = nullptr;
+	m_ResourceManager = nullptr;
 }
 
 GameScene::~GameScene()
 {
 	m_Graphics = nullptr;
+	m_Physics = nullptr;
 	m_InputQueue = nullptr;
+	m_ResourceManager = nullptr;
 }
 
 bool GameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,

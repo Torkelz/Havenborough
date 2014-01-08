@@ -116,6 +116,10 @@
     <ClCompile Include="..\Client\Source\RAMMemInfo.cpp" />
     <ClCompile Include="..\Client\Source\ResourceManager.cpp" />
     <ClCompile Include="..\Client\Source\ResourceTranslator.cpp" />
+    <ClCompile Include="..\Client\Source\SceneManager.cpp" />
+    <ClCompile Include="..\Client\Source\Scenes\GameScene.cpp" />
+    <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
+    <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
@@ -150,9 +154,6 @@
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="OBBTest.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
-    <ClCompile Include="..\Client\Source\GameScene.cpp" />
-    <ClCompile Include="..\Client\Source\MenuScene.cpp" />
-    <ClCompile Include="..\Client\Source\SceneManager.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
     <ClCompile Include="Source\Loader\TestBinaryConverter.cpp" />
     <ClCompile Include="Source\Loader\TestBinaryLevelLoader.cpp" />

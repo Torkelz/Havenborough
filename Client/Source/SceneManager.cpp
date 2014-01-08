@@ -34,7 +34,7 @@ bool SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	m_MenuSceneList[1] = IScene::ptr(new MenuScene);
 
 	m_RunSceneList[0] = IScene::ptr(new GameScene);
-	m_RunSceneList[1] = IScene::ptr(new MenuScene);
+	m_RunSceneList[1] = IScene::ptr(new PostGameScene);
 	m_RunSceneList[2] = IScene::ptr(new MenuScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
@@ -180,7 +180,7 @@ void SceneManager::startRun()
 {
 	m_IsMenuState = false;
 	m_RunSceneList[0]->setIsVisible(true);
-	m_RunSceneList[1]->setIsVisible(true);
+	//m_RunSceneList[1]->setIsVisible(true);
 	for(unsigned int i = 2; i < m_NumberOfRunScene; i++)
 	{
 		m_RunSceneList[i]->setIsVisible(false);
@@ -199,20 +199,17 @@ void SceneManager::startMenu()
 	m_NowShowing = 0;
 }
 
-bool SceneManager::keyStroke(std::string p_Action, float p_Value)
+void SceneManager::keyStroke(std::string p_Action, float p_Value)
 {
 	if(p_Action == "pauseScene" && p_Value == 1)
 	{
 		setPause();
-		return true;
 	}
 	//Change scene
 	else// if((p_Action == "changeSceneN"  && p_Value == 1) || (p_Action == "changeSceneP" && p_Value == 1))
 	{
 		passKeyStroke(p_Action, p_Value);
-		return true;
 	}
-	//return false;
 }
 
 void SceneManager::passKeyStroke(std::string p_Action, float p_Value)

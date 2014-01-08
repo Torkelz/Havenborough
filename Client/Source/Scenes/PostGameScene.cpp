@@ -1,25 +1,36 @@
-#include "MenuScene.h"
+#include "PostGameScene.h"
 
-MenuScene::MenuScene()
+PostGameScene::PostGameScene()
 {
 	m_SceneID = 0;
 	m_Visible = false;
 	m_NewSceneID = 0;
 	m_ChangeScene = false;
 	m_ChangeList = false;
+
+	m_Graphics = nullptr;
 }
 
-MenuScene::~MenuScene(){}
+PostGameScene::~PostGameScene()
+{
+	m_Graphics = nullptr;
+}
 
-bool MenuScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue, unsigned int p_SceneID)
+bool PostGameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
+	Input *p_InputQueue, unsigned int p_SceneID)
 {
 	m_SceneID = p_SceneID;
+	m_Graphics = p_Graphics;
+	
 	return true;
 }
 
-void MenuScene::destroy(){}
+void PostGameScene::destroy()
+{
 
-void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
+}
+
+void PostGameScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 {
 	if(m_ChangeScene)
 	{
@@ -34,19 +45,22 @@ void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 	}
 }
 
-void MenuScene::render(){}
+void PostGameScene::render()
+{
+	m_Graphics->drawFrame(3);
+}
 
-bool MenuScene::getIsVisible()
+bool PostGameScene::getIsVisible()
 {
 	return m_Visible;
 }
 
-void MenuScene::setIsVisible(bool p_SetVisible)
+void PostGameScene::setIsVisible(bool p_SetVisible)
 {
 	m_Visible = p_SetVisible;
 }
 
-void MenuScene::registeredKeyStroke(std::string p_Action, float p_Value)
+void PostGameScene::registeredKeyStroke(std::string p_Action, float p_Value)
 {
 	if(p_Action == "changeSceneN" && p_Value == 1)
 	{
@@ -68,8 +82,7 @@ void MenuScene::registeredKeyStroke(std::string p_Action, float p_Value)
 
 /*########## TEST FUNCTIONS ##########*/
 
-int MenuScene::getID()
+int PostGameScene::getID()
 {
 	return m_SceneID;
 }
-

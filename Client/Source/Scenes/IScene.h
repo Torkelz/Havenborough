@@ -2,9 +2,9 @@
 #include <memory>
 #include <string>
 #include "IGraphics.h"
-#include "ResourceManager.h"
+#include "../ResourceManager.h"
 #include "IPhysics.h"
-#include "Input\Input.h"
+#include "../Input/Input.h"
 enum MENUSCENES
 {
 	MENUMAIN,
