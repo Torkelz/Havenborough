@@ -7,13 +7,28 @@
 #include <string>
 #include <vector>
 
+#include <tinyxml2.h>
+
 std::vector<IConnectionController*> g_Controllers;
 
 void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 {
 	Logger::log(Logger::Level::INFO, "Client connected");
 
-	const char* desc = "Model:BOX\nCollision:OBB 0 0 0 0.5 0.5 0.5 0 0 0\n";
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	printer.CloseElement();
+	printer.OpenElement("OBBPhysics");
+	printer.OpenElement("Halfsize");
+	printer.PushAttribute("x", 0.5f);
+	printer.PushAttribute("y", 0.5f);
+	printer.PushAttribute("z", 0.5f);
+	printer.CloseElement();
+	printer.CloseElement();
+	printer.CloseElement();
+	const char* desc = printer.CStr();
 	ObjectInstance inst = {{5.f, 4.f, 1.f}, {1.f, 1.f, 1.f}, 0, 1};
 
 	p_Connection->sendCreateObjects(&desc, 1, &inst, 1);

@@ -1,9 +1,14 @@
 #include "BaseGameApp.h"
+
+#include "ActorFactory.h"
+#include "Components.h"
 #include "Input\InputTranslator.h"
 #include "Logger.h"
 
 #include <iomanip>
 #include <sstream>
+
+#include <tinyxml2.h>
 
 const double pi = 3.14159265358979323846264338;
 
@@ -280,7 +285,7 @@ void BaseGameApp::run()
 	m_Physics->setBodyRotation(OBBhouse2, 0.f, 0.f, 3.14f/6.5f);
 	m_Physics->setBodyPosition(Vector3(3.5f, 5.0f, -10.f), OBBhouse2);
 
-	std::vector<int> serverObjects;
+	std::vector<Actor::ptr> serverActors;
 
 	float viewRot[] = {0.f, 0.f};
 
@@ -333,6 +338,11 @@ void BaseGameApp::run()
 			}
 		}
 		
+		for (auto& actor : serverActors)
+		{
+			actor->onUpdate(dt);
+		}
+
 		const InputState& state = m_InputQueue.getCurrentState();
 		
 		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
@@ -421,9 +431,15 @@ void BaseGameApp::run()
 		}
 		m_Graphics->renderModel(slantedPlane);
 		m_Level.drawLevel();
-		for (int obj : serverObjects)
+		for (auto& actor : serverActors)
 		{
-			m_Graphics->renderModel(obj);
+			auto weakGraphicsComponent = actor->getComponent<ModelInterface>(2);
+			std::shared_ptr<ModelInterface> strongGraphicsComponent(weakGraphicsComponent);
+
+			if (strongGraphicsComponent)
+			{
+				strongGraphicsComponent->render();
+			}
 		}
 
 		m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
@@ -524,6 +540,10 @@ void BaseGameApp::run()
 						const ObjectInstance* instances = conn->getCreateObjectInstances(package);
 						for (unsigned int i = 0; i < numInstances; ++i)
 						{
+							using tinyxml2::XMLAttribute;
+							using tinyxml2::XMLDocument;
+							using tinyxml2::XMLElement;
+
 							ObjectInstance data = instances[i];
 							std::ostringstream msg;
 							msg << "Adding object at (" 
@@ -532,69 +552,19 @@ void BaseGameApp::run()
 								<< data.m_Position[2] << ")";
 							Logger::log(Logger::Level::INFO, msg.str());
 
-							std::string description(conn->getCreateObjectDescription(package, data.m_DescriptionIdx));
+							XMLDocument description;
+							description.Parse(conn->getCreateObjectDescription(package, data.m_DescriptionIdx));
 
-							static const std::string modelId("Model:");
-							size_t modelPos = description.find(modelId);
-							if (modelPos != std::string::npos)
-							{
-								size_t modelEndPos = description.find('\n', modelPos);
-								modelPos += modelId.length();
-								size_t count = modelEndPos;
-								if (modelEndPos != std::string::npos)
-								{
-									count = modelEndPos - modelPos;
-								}
+							ActorFactory factory;
+							factory.setPhysics(m_Physics);
+							factory.setGraphics(m_Graphics);
 
-								int obj = m_Graphics->createModelInstance(description.substr(modelPos, count).c_str());
-								if (obj > -1)
-								{
-									m_Graphics->setModelPosition(obj, Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
-									m_Graphics->setModelRotation(obj, Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
-									serverObjects.push_back(obj);
-								}
-							}
+							const XMLElement* obj = description.FirstChildElement("Object");
 
-							static const std::string collisionId("Collision:");
-							size_t collisionPos = description.find(collisionId);
-							if (collisionPos != std::string::npos)
-							{
-								size_t collisionEndPos = description.find('\n', collisionPos);
-								collisionPos += collisionId.length();
-								size_t count = collisionEndPos;
-								if (collisionEndPos != std::string::npos)
-								{
-									count = collisionEndPos - collisionPos;
-								}
-
-								size_t idEnd = description.find(' ', collisionPos);
-								if (idEnd > collisionEndPos)
-								{
-									idEnd = collisionEndPos;
-								}
-								count = idEnd;
-								if (idEnd != std::string::npos)
-								{
-									count = idEnd - collisionPos;
-								}
-
-								if (description.substr(collisionPos, count) == "OBB")
-								{
-									collisionPos = idEnd + 1;
-
-									float obbData[9];
-									for (unsigned int i = 0; i < 9; ++i)
-									{
-										size_t floatEnd;
-										obbData[i] = std::stof(description.substr(collisionPos), &floatEnd);
-										collisionPos += floatEnd + 1;
-									}
-
-									BodyHandle box = m_Physics->createOBB(0.f, true, Vector3(data.m_Position[0] + obbData[0], data.m_Position[1] + obbData[1], data.m_Position[2] + obbData[2]),
-										Vector3(obbData[3], obbData[4], obbData[5]), false);
-									m_Physics->setBodyRotation(box, data.m_Rotation[0] + obbData[6], data.m_Rotation[1] + obbData[7], data.m_Rotation[2] + obbData[8]);
-								}
-							}
+							Actor::ptr actor = factory.createActor(obj);
+							actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
+							actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
+							serverActors.push_back(actor);
 						}
 					}
 					break;

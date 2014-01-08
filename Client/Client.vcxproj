@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="Source\Actor.cpp" />
+    <ClCompile Include="Source\ActorFactory.cpp" />
     <ClCompile Include="Source\Level.cpp" />
     <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
@@ -51,6 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="Source\ActorComponent.h" />
+    <ClInclude Include="Source\Actor.h" />
+    <ClInclude Include="Source\ActorFactory.h" />
+    <ClInclude Include="Source\Components.h" />
     <ClInclude Include="Source\Level.h" />
     <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\EdgeCollisionResponse.h" />

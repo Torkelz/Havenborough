@@ -107,6 +107,8 @@
     <ClCompile Include="..\BinaryConverter\Source\LevelLoader.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp" />
+    <ClCompile Include="..\Client\Source\Actor.cpp" />
+    <ClCompile Include="..\Client\Source\ActorFactory.cpp" />
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
     <ClCompile Include="..\Client\Source\Level.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />
