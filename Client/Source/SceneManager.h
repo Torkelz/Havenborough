@@ -33,11 +33,12 @@ public:
 	* Initialize the scenes and scenemanager.
 	* @return true if initialize worked, false if the initialization failed.
 	*/
-	bool init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue);
+	bool init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
+		Input *p_InputQueue);
 	/**
 	* Destroy scenes when shutdown.
 	*/
-	void		destroy();
+	void destroy();
 	/**
 	* Update active scenes every frame.
 	*/
@@ -45,7 +46,7 @@ public:
 	/**
 	* Render active scenes.
 	*/
-	void		render();
+	void render();
 	/**
 	* Pass along keystroke to a scene.
 	* @param p_WParam = Keyvalue.

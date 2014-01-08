@@ -27,7 +27,7 @@ private:
 	std::vector<int> m_ResourceIDs;
 
 	//DEBUG
-	int currView;
+	int currentDebugView;
 	int climbBox;
 	int jointBox;
 	int skyBox;
@@ -66,7 +66,7 @@ public:
 	/**
 	* Destroy the scene.
 	*/
-	void	destroy() override;
+	void destroy() override;
 	/**
 	* Update scene every frame, used if the scene can change scene.
 	* @param p_IsCurrentScene is used if the scene contains buttons to switch scenes with.
@@ -75,23 +75,27 @@ public:
 	/**
 	* Render the scene to the screen.
 	*/
-	void	render() override;
+	void render() override;
 	/**
 	* Get if the scene is visible.
 	*/
-	bool	getIsVisible() override;
+	bool getIsVisible() override;
 	/**
 	* Set scene activation and deactivation.
 	* @param p_SetVisible true = Active scene, false = deactive scene.
 	*/
-	void	setIsVisible(bool p_SetVisible) override;
+	void setIsVisible(bool p_SetVisible) override;
 
-	void	registeredKeyStroke(std::string p_Action, float p_Value) override;
+	void registeredKeyStroke(std::string p_Action, float p_Value) override;
 
 	/*########## TEST FUNCTIONS ##########*/
 
 	int		getID() override;
 
 private:
-	void InitTemporaryStuff();
+	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
+	void loadSandbox();
+	void updateSandbox(float p_DeltaTime);
+	void renderSandbox();
+	void shutdownSandbox();
 };
