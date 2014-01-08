@@ -26,26 +26,27 @@ BOOST_AUTO_TEST_CASE(TestReceivePackage)
 	std::unique_ptr<Connection> conn(rawConnectionStub);
 
 	std::vector<PackageBase::ptr> prototypes;
-	prototypes.push_back(PackageBase::ptr(new AddObject));
+	prototypes.push_back(PackageBase::ptr(new CreateObjects));
 
 	ConnectionController controller(std::move(conn), prototypes);
 
-	AddObject package;
-	package.m_Data.m_Position[0] = 4.f;
-	package.m_Data.m_Position[1] = 3.f;
-	package.m_Data.m_Position[2] = 7.f;
+	CreateObjects package;
+	static const std::string testDesc = "TestDesc";
+	package.m_Descriptions.push_back(testDesc);
+	ObjectInstance inst = {{4.f, 3.f, 7.f}, {0.f, 0.f, 0.f}, 0, 123};
+	package.m_Instances.push_back(inst);
 
-	rawConnectionStub->receiveData((uint16_t)PackageType::ADD_OBJECT, package.getData());
+	rawConnectionStub->receiveData((uint16_t)PackageType::CREATE_OBJECTS, package.getData());
 
 	BOOST_REQUIRE_EQUAL(controller.getNumPackages(), 1);
 	
 	Package packageRef = controller.getPackage(0);
 
-	BOOST_REQUIRE_EQUAL((uint16_t)controller.getPackageType(packageRef), (uint16_t)PackageType::ADD_OBJECT);
+	BOOST_REQUIRE_EQUAL((uint16_t)controller.getPackageType(packageRef), (uint16_t)PackageType::CREATE_OBJECTS);
 
-	AddObjectData objectData = controller.getAddObjectData(packageRef);
+	const ObjectInstance* objectInstances = controller.getCreateObjectInstances(packageRef);
 
-	BOOST_CHECK_EQUAL_COLLECTIONS(objectData.m_Position, objectData.m_Position + 3, package.m_Data.m_Position, package.m_Data.m_Position + 3);
+	BOOST_CHECK_EQUAL_COLLECTIONS(objectInstances[0].m_Position, objectInstances[0].m_Position + 3, package.m_Instances[0].m_Position, package.m_Instances[0].m_Position + 3);
 
 	controller.clearPackages(1);
 

@@ -93,7 +93,7 @@ void Network::setLogFunction(clientLogCallback_t p_LogCallback)
 void Network::registerPackages()
 {
 	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Registering packages");
-	m_PackagePrototypes.push_back(PackageBase::ptr(new AddObject));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new CreateObjects));
 }
 
 void Network::startIO()

@@ -13,13 +13,15 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 {
 	Logger::log(Logger::Level::INFO, "Client connected");
 
-	AddObjectData data = {5.f, 4.f, 1.f};
-	p_Connection->sendAddObject(data);
-	p_Connection->sendAddObject(data);
+	const char* desc = "";
+	ObjectInstance inst = {{5.f, 4.f, 1.f}, {0.f, 0.f, 0.f}, 0, 1};
+
+	p_Connection->sendCreateObjects(&desc, 1, &inst, 1);
+	p_Connection->sendCreateObjects(&desc, 1, &inst, 1);
 
 	for (auto& con : g_Controllers)
 	{
-		con->sendAddObject(data);
+		con->sendCreateObjects(&desc, 1, &inst, 1);
 	}
 
 	g_Controllers.push_back(p_Connection);
@@ -37,20 +39,24 @@ void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*
 			break;
 		}
 	}
-	AddObjectData data = {-5.f, -4.f, -1.f};
+
+	const char* desc = "";
+	ObjectInstance inst = {{-5.f, -4.f, -1.f}, {0.f, 0.f, 0.f}, 0, 1};
+
 	for(auto& con : g_Controllers)
 	{
-		con->sendAddObject(data);
+		con->sendCreateObjects(&desc, 1, &inst, 1);
 	}
 }
 
 void sendTestData()
 {
-	AddObjectData data = {3.f, 4.f, 1.f};
+	const char* desc = "";
+	ObjectInstance inst = {{5.f, 4.f, 1.f}, {0.f, 0.f, 0.f}, 0, 1};
 
-	for (auto& con : g_Controllers)
+	for(auto& con : g_Controllers)
 	{
-		con->sendAddObject(data);
+		con->sendCreateObjects(&desc, 1, &inst, 1);
 	}
 }
 

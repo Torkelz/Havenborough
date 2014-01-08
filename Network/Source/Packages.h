@@ -15,6 +15,8 @@
 #pragma warning(disable : 4244)
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/is_bitwise_serializable.hpp>
 #pragma warning(pop)
 
 /**
@@ -79,6 +81,8 @@ public:
 	PackageBase(PackageType p_Type)
 		: m_ID(p_Type)
 	{}
+
+	virtual ~PackageBase() {};
 
 	/**
 	 * Get the type of the package.
@@ -154,23 +158,23 @@ public:
 	}
 };
 
+BOOST_IS_BITWISE_SERIALIZABLE(ObjectInstance);
+
 /**
  * A package representing the addition of a new object to the game world.
  */
-class AddObject : public PackageHelper<AddObject>
+class CreateObjects : public PackageHelper<CreateObjects>
 {
 public:
-	/**
-	 * The package data.
-	 */
-	AddObjectData m_Data;
+	std::vector<std::string> m_Descriptions;
+	std::vector<ObjectInstance> m_Instances;
 
 public:
 	/**
 	 * constructor.
 	 */
-	AddObject()
-		: PackageHelper<AddObject>(PackageType::ADD_OBJECT)
+	CreateObjects()
+		: PackageHelper<CreateObjects>(PackageType::CREATE_OBJECTS)
 	{}
 
 	/**
@@ -184,6 +188,7 @@ public:
 	template <typename Archive>
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
-		ar & m_Data.m_Position[0] & m_Data.m_Position[1] & m_Data.m_Position[2];
+		ar & m_Descriptions;
+		ar & m_Instances;
 	}
 };

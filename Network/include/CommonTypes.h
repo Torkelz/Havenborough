@@ -18,18 +18,18 @@ enum class PackageType : uint16_t
 {
 	RESERVED = 0,
 	PLAYER_READY,
-	ADD_OBJECT,
-	REMOVE_OBJECT,
+	CREATE_OBJECTS,
+	REMOVE_OBJECTS,
 	UPDATE_OBJECTS,
 	GAME_RESULT,
 };
 
-/**
- * Data for an add object package.
- */
-struct AddObjectData
+struct ObjectInstance
 {
 	float m_Position[3];
+	float m_Rotation[3];
+	uint16_t m_DescriptionIdx;
+	uint16_t m_Id;
 };
 
 /**

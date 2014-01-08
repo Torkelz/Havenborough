@@ -5,18 +5,37 @@ BOOST_AUTO_TEST_SUITE(TestSerialize)
 
 BOOST_AUTO_TEST_CASE(TestPackageSerialize)
 {
-	AddObjectData data = {{1.f, 2.f, 3.f}};
-	AddObject package;
-	package.m_Data = data;
+	CreateObjects package;
+
+	std::string testDescription("TestDescription");
+	package.m_Descriptions.push_back(testDescription);
+	ObjectInstance inst;
+	inst.m_DescriptionIdx = 0;
+	inst.m_Id = 1234;
+	inst.m_Position[0] = 3.f;
+	inst.m_Position[1] = 4.f;
+	inst.m_Position[2] = 5.f;
+	inst.m_Rotation[0] = 7.f;
+	inst.m_Rotation[1] = 8.f;
+	inst.m_Rotation[2] = 9.f;
+	package.m_Instances.push_back(inst);
 
 	std::string serializedData(package.getData());
 
-	AddObject::ptr deserializedPackage(package.createPackage(serializedData));
-	AddObjectData deserializedData = ((AddObject*)deserializedPackage.get())->m_Data;
+	PackageBase::ptr deserializedPackage(package.createPackage(serializedData));
+	CreateObjects* rawDeserializedPackage = (CreateObjects*)deserializedPackage.get();
 
-	BOOST_CHECK_EQUAL(deserializedData.m_Position[0], data.m_Position[0]);
-	BOOST_CHECK_EQUAL(deserializedData.m_Position[1], data.m_Position[1]);
-	BOOST_CHECK_EQUAL(deserializedData.m_Position[2], data.m_Position[2]);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Descriptions.size(), 1);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Descriptions[0], testDescription);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Instances.size(), 1);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Instances[0].m_DescriptionIdx, inst.m_DescriptionIdx);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Instances[0].m_Id, inst.m_Id);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Instances[0].m_Position[0], inst.m_Position[0]);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Instances[0].m_Position[1], inst.m_Position[1]);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Instances[0].m_Position[2], inst.m_Position[2]);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Instances[0].m_Rotation[0], inst.m_Rotation[0]);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Instances[0].m_Rotation[1], inst.m_Rotation[1]);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Instances[0].m_Rotation[2], inst.m_Rotation[2]);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
