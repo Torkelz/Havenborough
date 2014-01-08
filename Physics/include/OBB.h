@@ -79,7 +79,7 @@ public:
 								  
 		m_Sphere.updatePosition(m_Position);
 
-		calculateCorners();
+		//calculateCorners();
 	}
 
 	/**

@@ -6,13 +6,10 @@ using namespace DirectX;
 
 Physics::Physics(void)
 	: m_GlobalGravity(9.82f)
-{
-
-}
+{}
 
 Physics::~Physics()
-{
-}
+{}
 
 IPhysics *IPhysics::createPhysics()
 {
@@ -46,6 +43,23 @@ void Physics::initialize()
 	PhysicsLogger::log(PhysicsLogger::Level::INFO, "Initializing physics");
 
 	m_Collision = Collision();
+
+	std::vector<Triangle> triangles;
+	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f)));
+
+	triangles.push_back(Triangle(Vector4( 1.f, -1.f, -1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f)));
+
+	triangles.push_back(Triangle(Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f), Vector4(-1.f, 1.f, 1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4(-1.f, -1.f, 1.f, 1.f), Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f)));
+
+	triangles.push_back(Triangle(Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
+
+	Hull *hull = new Hull(XMFLOAT4(0.f, 0.f, 0.f, 1.f), triangles);
+
+	createBody(1.f, hull, true, false);
 }
 
 void Physics::update(float p_DeltaTime)
@@ -71,7 +85,7 @@ void Physics::update(float p_DeltaTime)
 
 		bool onSomething = false;
 
-		for (unsigned j = i + 1; j < m_Bodies.size(); j++)
+		for (unsigned j = 0; j < m_Bodies.size(); j++)
 		{
 			unsigned int hh = m_Bodies.at(j).getHandle();
 			HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());

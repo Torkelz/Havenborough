@@ -6,7 +6,8 @@ enum class BoundingVolumeType
 {
 	SPHERE,
 	AABB,
-	OBB
+	OBB,
+	HULL
 };
 
 enum class Type
@@ -18,7 +19,21 @@ enum class Type
 	OBBVSOBB,
 	OBBVSSPHERE,
 	OBBVSAABB,
+	HULLVSSPHERE,
 	VSEDGE
+};
+
+struct Triangle
+{
+	Vector4 corners[3];
+
+	Triangle(){}
+	Triangle(Vector4 p_Corner1, Vector4 p_Corner2, Vector4 p_Corner3)
+	{
+		corners[0] = p_Corner1;
+		corners[1] = p_Corner2;
+		corners[2] = p_Corner3;
+	}
 };
 
 struct HitData

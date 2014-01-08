@@ -53,7 +53,6 @@ public:
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
 	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
-
 	/**
 	 * Create boundingvolumes based on a level description.
 	 *

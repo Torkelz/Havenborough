@@ -74,7 +74,7 @@ void BaseGameApp::init()
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
 
 
-	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 2.f, 10.f), XMFLOAT3(0.f, 0.f, 1.f));
+	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 2.f, 3.f), XMFLOAT3(0.f, 0.f, 1.f));
 		
 	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(50.f, 0.f, 50.f), false);

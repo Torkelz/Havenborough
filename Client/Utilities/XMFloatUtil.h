@@ -61,14 +61,19 @@ struct Vector4
 	Vector4(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w)
 	{}
 
-	inline Vector4 operator-(Vector4 p_vec)
+	inline Vector4 operator-(Vector4 p_Right)
 	{
-		this->x -= p_vec.x;
-		this->y -= p_vec.y;
-		this->z -= p_vec.z;
-		this->w -= p_vec.w;
+		this->x -= p_Right.x;
+		this->y -= p_Right.y;
+		this->z -= p_Right.z;
+		this->w -= p_Right.w;
 
 		return *this;
+	}
+
+	Vector4 operator+(const Vector4& p_Right) const
+	{
+		return Vector4(x + p_Right.x, y + p_Right.y, z + p_Right.z, w + p_Right.w);
 	}
 };
 
