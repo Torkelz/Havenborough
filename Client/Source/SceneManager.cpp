@@ -20,7 +20,7 @@ SceneManager::~SceneManager()
 	m_InputQueue = nullptr;
 }
 
-bool SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue)
+void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue)
 {
 	m_Graphics = p_Graphics;
 	m_ResourceManager = p_ResourceManager;
@@ -62,8 +62,6 @@ bool SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	{
 		throw SceneManagerException("Failed to init all scenes", __LINE__,__FILE__);
 	}
-
-	return true;
 }
 
 void SceneManager::destroy()

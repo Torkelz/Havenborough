@@ -34,7 +34,7 @@ public:
 	* Initialize the scenes and scenemanager.
 	* @return true if initialize worked, false if the initialization failed.
 	*/
-	bool init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
+	void init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
 		Input *p_InputQueue);
 	/**
 	* Destroy scenes when shutdown.
