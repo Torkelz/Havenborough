@@ -47,8 +47,11 @@ public:
 
 	PackageType getPackageType(Package p_Package) override;
 
-	void sendAddObject(const AddObjectData& p_Data) override;
-	AddObjectData getAddObjectData(Package p_Package) override;
+	void sendCreateObjects(const char** p_Descriptions, unsigned int p_NumDescriptions, const ObjectInstance* p_Instances, unsigned int p_NumInstances) override;
+	unsigned int getNumCreateObjectDescriptions(Package p_Package) override;
+	const char* getCreateObjectDescription(Package p_Package, unsigned int p_Description) override;
+	unsigned int getNumCreateObjectInstances(Package p_Package) override;
+	const ObjectInstance* getCreateObjectInstances(Package p_Package) override;
 
 	/**
 	 * Start the listening loop on the connection.

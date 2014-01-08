@@ -51,19 +51,44 @@ PackageType ConnectionController::getPackageType(Package p_Package)
 		return PackageType::RESERVED;
 }
 
-void ConnectionController::sendAddObject(const AddObjectData& p_Data)
+void ConnectionController::sendCreateObjects(const char** p_Descriptions, unsigned int p_NumDescriptions, const ObjectInstance* p_Instances, unsigned int p_NumInstances)
 {
-	AddObject package;
-	package.m_Data = p_Data;
+	CreateObjects package;
+	for (unsigned int i = 0; i < p_NumDescriptions; ++i)
+	{
+		package.m_Descriptions.push_back(std::string(p_Descriptions[i]));
+	}
+	package.m_Instances.insert(package.m_Instances.end(), p_Instances, p_Instances + p_NumInstances);
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 
-AddObjectData ConnectionController::getAddObjectData(Package p_Package)
+unsigned int ConnectionController::getNumCreateObjectDescriptions(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
-	AddObject* addObject = static_cast<AddObject*>(m_ReceivedPackages[p_Package].get());
-	return addObject->m_Data;
+	CreateObjects* createObjects = static_cast<CreateObjects*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Descriptions.size();
+}
+
+const char* ConnectionController::getCreateObjectDescription(Package p_Package, unsigned int p_Description)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	CreateObjects* createObjects = static_cast<CreateObjects*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Descriptions[p_Description].c_str();
+}
+
+unsigned int ConnectionController::getNumCreateObjectInstances(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	CreateObjects* createObjects = static_cast<CreateObjects*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Instances.size();
+}
+
+const ObjectInstance* ConnectionController::getCreateObjectInstances(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	CreateObjects* createObjects = static_cast<CreateObjects*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Instances.data();
 }
 
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)

@@ -63,16 +63,45 @@ public:
 	virtual PackageType getPackageType(Package p_Package) = 0;
 
 	/**
-	 * Send an Add Object package.
+	 * Send an Create Objects package.
 	 *
-	 * @param p_Data the object data for the package.
+	 * @param p_Descriptions array of null-terminated strings describing the different types of objects
+	 * @param p_NumDescriptions the number of descriptions in the array
+	 * @param p_Instances array of object instances
+	 * @param p_NumInstance the number of instances in the array
 	 */
-	virtual void sendAddObject(const AddObjectData& p_Data) = 0;
+	virtual void sendCreateObjects(const char** p_Descriptions, unsigned int p_NumDescriptions, const ObjectInstance* p_Instances, unsigned int p_NumInstances) = 0;
+
 	/**
-	 * Get the object data from the package.
+	 * Get the number of descriptions in the package.
 	 *
-	 * @param p_Package a valid reference to a package with the AddObject type.
-	 * @result a copy of the object data.
+	 * @param p_Package a valid reference to a package with the CreateObjects type.
+	 * @result the number of descriptions in the package
 	 */
-	virtual AddObjectData getAddObjectData(Package p_Package) = 0;
+	virtual unsigned int getNumCreateObjectDescriptions(Package p_Package) = 0;
+
+	/**
+	 * Get the array of descriptions in the package.
+	 *
+	 * @param p_Package a valid reference to a package with the CreateObjects type.
+	 * @param p_Description the index of the description to retreive
+	 * @result the description in the package
+	 */
+	virtual const char* getCreateObjectDescription(Package p_Package, unsigned int p_Description) = 0;
+
+	/**
+	 * Get the number of instances in the package.
+	 *
+	 * @param p_Package a valid reference to a package with the CreateObjects type.
+	 * @result the number of instances in the package
+	 */
+	virtual unsigned int getNumCreateObjectInstances(Package p_Package) = 0;
+
+	/**
+	 * Get the array of descriptions in the package.
+	 *
+	 * @param p_Package a valid reference to a package with the CreateObjects type.
+	 * @result the descriptions in the package
+	 */
+	virtual const ObjectInstance* getCreateObjectInstances(Package p_Package) = 0;
 };
