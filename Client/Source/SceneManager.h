@@ -12,49 +12,58 @@
 class SceneManager
 {
 private:
-	std::vector<IScene::ptr>		m_MenuSceneList;
-	std::vector<IScene::ptr>		m_RunSceneList;
-	unsigned int					m_NumberOfMenuScene;
-	unsigned int					m_NumberOfRunScene;
-	int								m_NowShowing;
+	std::vector<IScene::ptr> m_MenuSceneList;
+	std::vector<IScene::ptr> m_RunSceneList;
+	unsigned int			 m_NumberOfMenuScene;
+	unsigned int			 m_NumberOfRunScene;
+	int						 m_NowShowing;
 	/**
 	* Changes render and update lists of scenes.
 	* true = Menu(m_MenuSceneList)
 	* false = Run(m_RunSceneList)
 	*/
-	bool							m_IsMenuState;
-	IGraphics						*m_Graphics;
-	ResourceManager					*m_ResourceManager;
-	IPhysics						*m_Physics;
-	Input							*m_InputQueue;
+	bool			m_IsMenuState;
+	IGraphics		*m_Graphics;
+	ResourceManager	*m_ResourceManager;
+	IPhysics		*m_Physics;
+	Input			*m_InputQueue;
+
 public:
 	SceneManager();
 	~SceneManager();
 	/**
-	* Initialize the scenes and scenemanager.
-	* @return true if initialize worked, false if the initialization failed.
+	* Initialize the scenes and scene manager.
+	* @param p_Graphics pointer to the graphics engine
+	* @param p_ResourceManager pointer to the resource manager
+	* @param p_Physics pointer to the physics engine
+	* @param p_InputQueue pointer to the keyboard and mouse input queue
 	*/
 	void init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
 		Input *p_InputQueue);
+	
 	/**
 	* Destroy scenes when shutdown.
 	*/
 	void destroy();
+	
 	/**
 	* Update active scenes every frame.
+	* @param p_DeltaTime the time between two frames
 	*/
 	void onFrame(float p_DeltaTime);
+	
 	/**
 	* Render active scenes.
 	*/
 	void render();
+
 	/**
-	* Pass along keystroke to a scene.
-	* @param p_WParam = Keyvalue.
-	* @param p_LParam Unused but needed.
-	* @param p_Result Unused but needed.
+	* Pass along keyboard and mouse input to a scene.
+	* @param p_Action the action to take
+	* @param p_Value the value for the action
 	*/
-	void keyStroke(std::string p_Action, float p_Value);
+	void registeredInput(std::string p_Action, float p_Value);
+	
 	/*########## TEST FUNCTIONS ##########*/
 
 	std::vector<IScene::ptr> getScene();

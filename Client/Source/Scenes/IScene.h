@@ -27,7 +27,7 @@ public:
 	* @param p_SceneID init the ID in order
 	* @param p_Graphics pointer to the graphics engine
 	* @param p_ResourceManager pointer to the resource manager
-	* @param p_Physics p_InputQueue pointer the the keyboard and mouse input queue
+	* @param p_Physics p_InputQueue pointer to the keyboard and mouse input queue
 	*/
 	virtual bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
 		IPhysics *p_Physics, Input *p_InputQueue) = 0;
@@ -39,7 +39,7 @@ public:
 	
 	/**
 	* Update scene every frame, used if the scene can change scene.
-	* @param p_DeltaTime the time between to frames
+	* @param p_DeltaTime the time between two frames
 	* @param p_IsCurrentScene is used if the scene contains buttons to switch scenes with,
 	*	if p_IsCurrentScene is -1 this switches from game to menu vice versa
 	*/

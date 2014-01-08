@@ -197,7 +197,7 @@ void SceneManager::startMenu()
 	m_NowShowing = 0;
 }
 
-void SceneManager::keyStroke(std::string p_Action, float p_Value)
+void SceneManager::registeredInput(std::string p_Action, float p_Value)
 {
 	if(p_Action == "pauseScene" && p_Value == 1)
 	{
