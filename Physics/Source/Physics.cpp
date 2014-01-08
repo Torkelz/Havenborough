@@ -112,50 +112,32 @@ void Physics::update(float p_DeltaTime)
 	}
 }
 
-void Physics::applyForce(Vector4 p_Force, BodyHandle p_Body)
+void Physics::applyForce(BodyHandle p_Body, Vector3 p_Force)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
 		return;
 
-	XMFLOAT4 tempForce = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 tempForce = Vector3ToXMFLOAT4(&p_Force, 0.f);
 
-	tempForce.x = p_Force.x;
-	tempForce.y = p_Force.y;
-	tempForce.z = p_Force.z;
-	tempForce.w = p_Force.w;
-	
 	body->addForce(tempForce);
 }
 
 BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius)
 {
-	XMFLOAT4 tempPosition = XMFLOAT4(0.f, 0.f, 0.f, 0.f);;
-	tempPosition.x = p_Position.x;
-	tempPosition.y = p_Position.y;
-	tempPosition.z = p_Position.z;
-	tempPosition.w = 1.f;
+	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&p_Position, 1.f);
 
 	Sphere* sphere = new Sphere(p_Radius, tempPosition);
 
 	return createBody(p_Mass, sphere, p_IsImmovable, false);
 }
 
-BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge)
+BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge)
 {
-	XMFLOAT4 tempBot = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-	XMFLOAT4 tempTop = XMFLOAT4(0.f, 0.f, 0.f, 0.f);;
-	tempBot.x = p_Bot.x;
-	tempBot.y = p_Bot.y;
-	tempBot.z = p_Bot.z;
-	tempBot.w = 1.f;
+	XMFLOAT4 tempPos = Vector3ToXMFLOAT4(&p_CenterPos, 1.f);
+	XMFLOAT4 tempExt = Vector3ToXMFLOAT4(&p_Extents, 0.f);
 
-	tempTop.x = p_Top.x;
-	tempTop.y = p_Top.y;
-	tempTop.z = p_Top.z;
-	tempTop.w = 1.f;
-
-	AABB* aabb = new AABB(tempBot, tempTop);
+	AABB* aabb = new AABB(tempPos, tempExt);
 
 	return createBody(p_Mass, aabb, p_IsImmovable, p_IsEdge);
 }
@@ -163,9 +145,7 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, 
 BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extent, bool p_IsEdge)
 {
 	XMFLOAT4 tempPos	= Vector3ToXMFLOAT4(&p_CenterPos, 1.f);
-	XMFLOAT4 tempExt	= Vector3ToXMFLOAT4(&p_Extent, 1.f);
-	
-	tempExt = Vector3ToXMFLOAT4(&p_Extent, 1.f);
+	XMFLOAT4 tempExt	= Vector3ToXMFLOAT4(&p_Extent, 0.f);
 
 	OBB *obb = new OBB(tempPos, tempExt);
 
@@ -306,10 +286,7 @@ void Physics::setBodyPosition( BodyHandle p_Body, Vector3 p_Position)
 
 	XMFLOAT4 tempPosition = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 
-	tempPosition.x = p_Position.x;
-	tempPosition.y = p_Position.y;
-	tempPosition.z = p_Position.z;
-	tempPosition.w = 1.f;
+	tempPosition = Vector3ToXMFLOAT4(&p_Position, 1.f);
 
 	body->setPosition(tempPosition);
 }
@@ -319,12 +296,8 @@ void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 	if(body == nullptr)
 		return;
 
-	XMFLOAT4 tempPosition = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&p_Velocity, 0.f);
 
-	tempPosition.x = p_Velocity.x;
-	tempPosition.y = p_Velocity.y;
-	tempPosition.z = p_Velocity.z;
-	tempPosition.w = 1.f;
 	body->setVelocity(tempPosition);
 }
 
@@ -336,7 +309,7 @@ void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 
 	OBB *obb = (OBB*)(body->getVolume());
 	XMFLOAT4X4 temp;
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Rotation.x, p_Rotation.y, p_Rotation.z);
+	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Rotation.y, p_Rotation.x, p_Rotation.z);
 
 	XMStoreFloat4x4(&temp, rotation);
 	obb->setRotationMatrix(temp);

@@ -271,7 +271,7 @@ void BaseGameApp::run()
 	m_Graphics->setModelRotation(slantedPlane, slantedPlaneRotation);
 
 	BodyHandle slantedPlaneBody = m_Physics->createOBB(0.f, true, slantedPlanePosition, slantedPlaneSize * 0.5f, false);
-	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlanePosition);
+	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlaneRotation);
 	
 	int OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
 	m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
