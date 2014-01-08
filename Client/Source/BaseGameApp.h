@@ -7,15 +7,10 @@
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
-//#include "Level.h"
-#include "Player.h"
-#include "EdgeCollisionResponse.h"
 
 #include "ResourceManager.h"
 
 #include <string>
-
-#include "../../Graphics/Source/WrapperFactory.h" //Should be removed when merge to master
 
 class BaseGameApp
 {
@@ -24,7 +19,6 @@ private:
 
 	Window	m_Window;
 	IGraphics* m_Graphics;
-	//Level m_Level;
 	Input	m_InputQueue;
 	RAMMemInfo m_MemoryInfo;
 	float m_MemUpdateDelay;
@@ -37,14 +31,8 @@ private:
 
 	SceneManager m_SceneManager;
 
-	BodyHandle m_Ground;
 	IPhysics *m_Physics;
 	ResourceManager* m_ResourceManager;
-
-	std::vector<int> m_ResourceIDs;
-
-	Player m_Player;
-	EdgeCollisionResponse m_EdgeCollResponse;
 
 public:
 	/**

@@ -102,7 +102,7 @@ void SceneManager::onFrame( float p_DeltaTime )
 		if(activeList->at(i)->getIsVisible())
 		{
 			activeList->at(i)->onFrame(p_DeltaTime,&m_NowShowing);
-			if(i != (unsigned int)m_NowShowing)
+			if(i != m_NowShowing)
 			{
 				i = nrScenes;
 			}
@@ -212,7 +212,7 @@ bool SceneManager::keyStroke(std::string p_Action, float p_Value)
 		passKeyStroke(p_Action, p_Value);
 		return true;
 	}
-	return false;
+	//return false;
 }
 
 void SceneManager::passKeyStroke(std::string p_Action, float p_Value)

@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "Level.h"
 #include "Player.h"
+#include "EdgeCollisionResponse.h"
 
 class GameScene : public IScene
 {
@@ -19,6 +20,7 @@ private:
 	Level m_Level;
 	Player m_Player;
 	Input *m_InputQueue;
+	EdgeCollisionResponse m_EdgeCollResponse;
 
 	BodyHandle m_Ground;
 
