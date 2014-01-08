@@ -40,7 +40,7 @@ void BaseGameApp::init()
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	
-	Logger::log(Logger::Level::DEBUG, "Adding input mappings");
+	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
 	translator->addKeyboardMapping('W', "moveForward");
 	translator->addKeyboardMapping('S', "moveBackward");
@@ -76,7 +76,7 @@ void BaseGameApp::init()
 
 	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 2.f, 10.f), XMFLOAT3(0.f, 0.f, 1.f));
 		
-	Logger::log(Logger::Level::DEBUG, "Adding debug bodies");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug bodies");
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(50.f, 0.f, 50.f), false);
 
 
@@ -129,7 +129,7 @@ void BaseGameApp::run()
 	float witchWaveAngle = 0.f;
 	static const float witchWavingAngleSpeed = 1.f;
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug box model instances");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug box model instances");
 	const static int NUM_BOXES = 16;
 	int boxIds[NUM_BOXES];
 	for (int i = 0; i < NUM_BOXES; i++)
@@ -156,16 +156,16 @@ void BaseGameApp::run()
 	int jointBox = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(jointBox, Vector3(0.05f, 0.05f, 2.f));
 	
-	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug skybox");
 	int skyBox = m_Graphics->createModelInstance("SKYBOX");
 	m_Graphics->setModelScale(skyBox, Vector3(1.f, 1.f, 1.f));
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug ground");
 	int ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, Vector3(100.f, 5.f, 100.f));
 	m_Graphics->setModelPosition(ground, Vector3(0.f, -2.5f, 0.f));
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug character");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug character");
 	int circleWitch = m_Graphics->createModelInstance("DZALA");
 	m_Graphics->setModelScale(circleWitch, Vector3(0.1f, 0.1f, 0.1f));
 
@@ -328,7 +328,7 @@ void BaseGameApp::run()
 					if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 						m_Physics->removedHitDataAt(i);
 
-					Logger::log(Logger::Level::DEBUG, "Collision reported");
+					Logger::log(Logger::Level::DEBUG_L, "Collision reported");
 				}
 			}
 		}
@@ -461,14 +461,14 @@ void BaseGameApp::run()
 				currView--;
 				if(currView < 0)
 					currView = 3;
-				Logger::log(Logger::Level::DEBUG, "Selecting previous view");
+				Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 			}
 			else if(in.m_Action ==  "changeViewP" && in.m_Value == 1)
 			{
 				currView++;
 				if(currView >= 4)
 					currView = 0;
-				Logger::log(Logger::Level::DEBUG, "Selecting next view");
+				Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 			}
 			else if (in.m_Action == "mouseMoveHori")
 			{
@@ -662,7 +662,7 @@ XMFLOAT2 BaseGameApp::getWindowSize() const
 
 bool BaseGameApp::handleWindowClose(WPARAM /*p_WParam*/, LPARAM /*p_LParam*/, LRESULT& p_Result)
 {
-	Logger::log(Logger::Level::DEBUG, "Handling window close");
+	Logger::log(Logger::Level::DEBUG_L, "Handling window close");
 
 	m_ShouldQuit = true;
 	p_Result = 0;

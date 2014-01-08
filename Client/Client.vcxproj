@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="Source\Level.cpp" />
     <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
@@ -49,6 +50,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />
     <ClInclude Include="Source\Level.h" />
     <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\EdgeCollisionResponse.h" />
@@ -126,7 +128,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -151,7 +153,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

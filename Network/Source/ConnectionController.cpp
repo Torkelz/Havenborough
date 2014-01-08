@@ -6,7 +6,7 @@ ConnectionController::ConnectionController(Connection::ptr p_Connection, const s
 	:	m_PackagePrototypes(p_Prototypes),
 		m_Connection(std::move(p_Connection))
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Creating a connection controller");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Creating a connection controller");
 
 	m_Connection->setSaveData(std::bind(&ConnectionController::savePackageCallBack, this, std::placeholders::_1, std::placeholders::_2));
 }

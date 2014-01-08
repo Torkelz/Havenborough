@@ -92,13 +92,13 @@ void Network::setLogFunction(clientLogCallback_t p_LogCallback)
 
 void Network::registerPackages()
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Registering packages");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Registering packages");
 	m_PackagePrototypes.push_back(PackageBase::ptr(new CreateObjects));
 }
 
 void Network::startIO()
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Starting a network IO thread for the client");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Starting a network IO thread for the client");
 
 	m_IO_Started = true;
 	m_IO_Thread.swap(boost::thread(std::bind(&Network::IO_Run, this)));
@@ -128,7 +128,7 @@ void Network::IO_Run()
 		NetworkLogger::log(NetworkLogger::Level::FATAL, "Unknown exception on network IO thread");
 	}
 	
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Network IO thread done");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Network IO thread done");
 }
 
 void Network::clientConnectionDone(Result p_Result, actionDoneCallback p_DoneHandler, void* p_UserData)

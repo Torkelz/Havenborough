@@ -15,7 +15,7 @@ int main(int /*argc*/, char* /*argv*/[])
 	std::ofstream logFile("logFile.txt", std::ofstream::trunc);
 
 #ifdef _DEBUG
-	Logger::addOutput(Logger::Level::DEBUG, logFile);
+	Logger::addOutput(Logger::Level::DEBUG_L, logFile);
 #else
 	Logger::addOutput(Logger::Level::INFO, logFile);
 #endif

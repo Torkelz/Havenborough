@@ -56,7 +56,7 @@ void Window::init(const std::string& p_Title, DirectX::XMFLOAT2 p_WindowSize)
 		windowClassDescription.lpszClassName	= m_ClassName;
 		windowClassDescription.hIconSm			= NULL;
 
-		Logger::log(Logger::Level::DEBUG, "Registering window class");
+		Logger::log(Logger::Level::DEBUG_L, "Registering window class");
 
 		if (!RegisterClassExW(&windowClassDescription))
 		{
@@ -126,7 +126,7 @@ void Window::destroy()
 		m_ClassUseCount--;
 		if (m_ClassUseCount == 0)
 		{
-			Logger::log(Logger::Level::DEBUG, "Unregistering window class");
+			Logger::log(Logger::Level::DEBUG_L, "Unregistering window class");
 
 			UnregisterClassW(m_ClassName, GetModuleHandleW(NULL));
 		}
@@ -158,7 +158,7 @@ void Window::pollMessages()
 
 void Window::registerCallback(UINT p_MessageType, callbackFunc_t p_Callback)
 {
-	Logger::log(Logger::Level::DEBUG, "Adding window callback");
+	Logger::log(Logger::Level::DEBUG_L, "Adding window callback");
 
 	m_RegisteredCallbacks.push_back(std::make_pair(p_MessageType, p_Callback));
 }
@@ -175,7 +175,7 @@ HICON Window::getIcon() const
 
 void Window::setIcon(HICON p_Icon)
 {
-	Logger::log(Logger::Level::DEBUG, "Setting the window icon");
+	Logger::log(Logger::Level::DEBUG_L, "Setting the window icon");
 
 	if (m_Icon != p_Icon)
 	{
@@ -214,7 +214,7 @@ void Window::setShowCursor(bool p_Show)
 {
 	if (m_ShowingCursor != p_Show)
 	{
-		Logger::log(Logger::Level::DEBUG, p_Show ? "Showing the cursor" : "Hiding the cursor");
+		Logger::log(Logger::Level::DEBUG_L, p_Show ? "Showing the cursor" : "Hiding the cursor");
 
 		ShowCursor(p_Show);
 
@@ -256,12 +256,12 @@ void Window::setIsVisible(bool p_Visible)
 	{
 		if (p_Visible)
 		{
-			Logger::log(Logger::Level::DEBUG, "Showing the window");
+			Logger::log(Logger::Level::DEBUG_L, "Showing the window");
 			ShowWindow(m_Handle, SW_SHOWNORMAL);
 		}
 		else
 		{
-			Logger::log(Logger::Level::DEBUG, "Hiding the window");
+			Logger::log(Logger::Level::DEBUG_L, "Hiding the window");
 			ShowWindow(m_Handle, SW_HIDE);
 		}
 
