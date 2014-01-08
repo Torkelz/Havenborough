@@ -409,15 +409,15 @@ void DeferredRenderer::createBuffers()
 
 	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMMemInfo::getInstance()->updateUsage(sizeof(cBuffer));
+
+	cbdesc.initData = nullptr;
 	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
-	m_ObjectConstantBuffer = new Buffer();
-	m_ObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
+	m_ObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMMemInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
 
 	cbdesc.sizeOfElement = sizeof(cAnimatedObjectBuffer);
-	m_AnimatedObjectConstantBuffer = new Buffer();
-	m_AnimatedObjectConstantBuffer->initialize(m_Device, m_DeviceContext, cbdesc);
-	
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
+	m_AnimatedObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMMemInfo::getInstance()->updateUsage(sizeof(cAnimatedObjectBuffer));	
 
 	Buffer::Description adesc;
 	adesc.initData = nullptr;
