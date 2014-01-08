@@ -37,6 +37,7 @@ void BaseGameApp::init()
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	
+	//TODO: This should be loaded from file
 	Logger::log(Logger::Level::DEBUG, "Adding input mappings");
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
 	translator->addKeyboardMapping('W', "moveForward");
@@ -72,7 +73,7 @@ void BaseGameApp::init()
 
 	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue);
 	
-	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
+	m_ResourceManager->registerFunction("volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
 				
 	m_MemoryInfo.update();
 }
