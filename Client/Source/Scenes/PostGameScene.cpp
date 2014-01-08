@@ -16,8 +16,8 @@ PostGameScene::~PostGameScene()
 	m_Graphics = nullptr;
 }
 
-bool PostGameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-	Input *p_InputQueue, unsigned int p_SceneID)
+bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
+	Input *p_InputQueue)
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
@@ -60,7 +60,7 @@ void PostGameScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void PostGameScene::registeredKeyStroke(std::string p_Action, float p_Value)
+void PostGameScene::registeredInput(std::string p_Action, float p_Value)
 {
 	if(p_Action == "changeSceneN" && p_Value == 1)
 	{

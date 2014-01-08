@@ -16,7 +16,7 @@ MenuScene::~MenuScene()
 	m_Graphics = nullptr;
 }
 
-bool MenuScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue, unsigned int p_SceneID)
+bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue)
 {
 	m_SceneID = p_SceneID;
 
@@ -58,7 +58,7 @@ void MenuScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void MenuScene::registeredKeyStroke(std::string p_Action, float p_Value)
+void MenuScene::registeredInput(std::string p_Action, float p_Value)
 {
 	if(p_Action == "changeSceneN" && p_Value == 1)
 	{

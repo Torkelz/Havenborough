@@ -15,8 +15,8 @@ public:
 	PostGameScene();
 	~PostGameScene();
 
-	bool init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-		Input *p_InputQueue, unsigned int p_SceneID) override;
+	bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
+		Input *p_InputQueue) override;
 
 	void destroy() override;
 
@@ -28,7 +28,7 @@ public:
 
 	void setIsVisible(bool p_SetVisible) override;
 
-	void registeredKeyStroke(std::string p_Action, float p_Value) override;
+	void registeredInput(std::string p_Action, float p_Value) override;
 	
 
 

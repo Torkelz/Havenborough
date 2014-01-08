@@ -44,14 +44,14 @@ bool SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	unsigned int i;
 	for(i = 0; i < m_NumberOfMenuScene; i++)
 	{
-		if(!m_MenuSceneList[i]->init(m_Graphics, m_ResourceManager, m_Physics, m_InputQueue, i))
+		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue))
 		{
 			sceneFail = true;
 		}
 	}
 	for(i = 0; i < m_NumberOfRunScene; i++)
 	{
-		if(!m_RunSceneList[i]->init(m_Graphics, m_ResourceManager, m_Physics, m_InputQueue, i))
+		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue))
 		{
 			sceneFail = true;
 		}
@@ -232,7 +232,7 @@ void SceneManager::passKeyStroke(std::string p_Action, float p_Value)
 	{
 		if(activeList->at(i)->getIsVisible())
 		{
-			activeList->at(i)->registeredKeyStroke(p_Action, p_Value);
+			activeList->at(i)->registeredInput(p_Action, p_Value);
 			i = nrScenes;
 		}
 	}

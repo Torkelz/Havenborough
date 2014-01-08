@@ -22,8 +22,8 @@ GameScene::~GameScene()
 	m_ResourceManager = nullptr;
 }
 
-bool GameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-	Input *p_InputQueue, unsigned int p_SceneID)
+bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
+	Input *p_InputQueue)
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
@@ -78,6 +78,8 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 				if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 					m_Physics->removedHitDataAt(i);
 
+				
+
 				Logger::log(Logger::Level::DEBUG, "Collision reported");
 			}
 		}
@@ -129,7 +131,7 @@ void GameScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void GameScene::registeredKeyStroke(std::string p_Action, float p_Value)
+void GameScene::registeredInput(std::string p_Action, float p_Value)
 {
 	if(p_Action == "changeSceneN" && p_Value == 1)
 	{
