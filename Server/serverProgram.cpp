@@ -13,14 +13,14 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 {
 	Logger::log(Logger::Level::INFO, "Client connected");
 
-	const char* desc = "";
-	ObjectInstance inst = {{5.f, 4.f, 1.f}, {0.f, 0.f, 0.f}, 0, 1};
+	const char* desc = "Model:BOX\nCollision:OBB 0 0 0 0.5 0.5 0.5 0 0 0\n";
+	ObjectInstance inst = {{5.f, 4.f, 1.f}, {1.f, 1.f, 1.f}, 0, 1};
 
-	p_Connection->sendCreateObjects(&desc, 1, &inst, 1);
 	p_Connection->sendCreateObjects(&desc, 1, &inst, 1);
 
 	for (auto& con : g_Controllers)
 	{
+		inst.m_Position[0] -= 2.f;
 		con->sendCreateObjects(&desc, 1, &inst, 1);
 	}
 
@@ -40,8 +40,8 @@ void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*
 		}
 	}
 
-	const char* desc = "";
-	ObjectInstance inst = {{-5.f, -4.f, -1.f}, {0.f, 0.f, 0.f}, 0, 1};
+	const char* desc = "Model:DZALA\n";
+	ObjectInstance inst = {{-5.f, 4.f, -1.f}, {0.f, 0.f, 0.f}, 0, 1};
 
 	for(auto& con : g_Controllers)
 	{
@@ -51,11 +51,12 @@ void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*
 
 void sendTestData()
 {
-	const char* desc = "";
-	ObjectInstance inst = {{5.f, 4.f, 1.f}, {0.f, 0.f, 0.f}, 0, 1};
+	const char* desc = "Model:BOX\nCollision:OBB 0 0 0 0.5 0.5 0.5 0 0 0\n";
+	ObjectInstance inst = {{5.f, 2.f, 1.f}, {0.f, 0.f, 0.f}, 0, 1};
 
 	for(auto& con : g_Controllers)
 	{
+		inst.m_Position[0] -= 2.f;
 		con->sendCreateObjects(&desc, 1, &inst, 1);
 	}
 }
