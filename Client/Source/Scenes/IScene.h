@@ -5,12 +5,12 @@
 #include "../ResourceManager.h"
 #include "IPhysics.h"
 #include "../Input/Input.h"
-enum MENUSCENES
+enum class MenuScenes
 {
-	MENUMAIN,
-	MENUOPTION
+	MAIN,
+	OPTION
 };
-enum RUNSCENES
+enum class RunScenes
 {
 	GAMEMAIN,
 	GAMEHUD,

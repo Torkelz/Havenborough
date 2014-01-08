@@ -64,11 +64,11 @@ void MenuScene::registeredKeyStroke(std::string p_Action, float p_Value)
 	{
 		if(m_SceneID == 0)
 		{
-			m_NewSceneID = MENUOPTION;
+			m_NewSceneID = (int)MenuScenes::OPTION;
 		}
 		else if(m_SceneID == 1)
 		{
-			m_NewSceneID = MENUMAIN; 
+			m_NewSceneID = (int)MenuScenes::MAIN; 
 		}
 		m_ChangeScene = true;
 	}

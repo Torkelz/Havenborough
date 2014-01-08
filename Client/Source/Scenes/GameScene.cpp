@@ -133,7 +133,7 @@ void GameScene::registeredKeyStroke(std::string p_Action, float p_Value)
 {
 	if(p_Action == "changeSceneN" && p_Value == 1)
 	{
-		m_NewSceneID = GAMEPAUSE;
+		m_NewSceneID = (int)RunScenes::GAMEPAUSE;
 		m_ChangeScene = true;
 	}
 	else if(p_Action == "changeSceneP" && p_Value == 1)

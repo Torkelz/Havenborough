@@ -158,8 +158,8 @@ void SceneManager::setPause()
 	if(!m_IsMenuState)
 	{
 		bool currentState;
-		currentState = m_RunSceneList[GAMEPAUSE]->getIsVisible();
-		m_RunSceneList[GAMEPAUSE]->setIsVisible(!currentState);
+		currentState = m_RunSceneList[(int)RunScenes::GAMEPAUSE]->getIsVisible();
+		m_RunSceneList[(int)RunScenes::GAMEPAUSE]->setIsVisible(!currentState);
 	}
 }
 
@@ -181,7 +181,7 @@ void SceneManager::startRun()
 	m_IsMenuState = false;
 	m_RunSceneList[0]->setIsVisible(true);
 	//m_RunSceneList[1]->setIsVisible(true);
-	for(unsigned int i = 2; i < m_NumberOfRunScene; i++)
+	for(unsigned int i = 1; i < m_NumberOfRunScene; i++)
 	{
 		m_RunSceneList[i]->setIsVisible(false);
 	}
@@ -266,4 +266,3 @@ std::vector<IScene::ptr> SceneManager::getScene()
 	}
 	return temp;
 }
-
