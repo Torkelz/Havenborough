@@ -63,10 +63,15 @@ bool GameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, 
 
 void GameScene::destroy()
 {
+	
 	m_Graphics->eraseModelInstance(ground);
 	for (int box : boxIds)
 	{
 		m_Graphics->eraseModelInstance(box);
+	}
+	for(int i : m_ResourceIDs)
+	{
+		m_ResourceManager->releaseResource(i);
 	}
 	m_Level.releaseLevel();
 }
@@ -125,7 +130,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	static const Vector3 circleCenter(4.f, 0.f, 15.f);
 	static const float circleRadius = 8.f;
 
-	float witchCircleAngle = 0.f;
+	
 	static const float witchAngleSpeed = 0.3f;
 
 	float witchWaveAngle = 0.f;
@@ -349,15 +354,6 @@ void GameScene::InitTemporaryStuff()
 	m_Graphics->setModelScale(ikTest, Vector3(0.3f, 0.3f, 0.3f));
 	m_Graphics->setModelRotation(ikTest, Vector3(PI / 4.f, 0.f, 0.f));
 
-	/*static const unsigned int numTowerBoxes = 5;
-	int towerBoxes[numTowerBoxes] =
-	{
-	m_Graphics->createModelInstance("BOX"),
-	m_Graphics->createModelInstance("BOX"),
-	m_Graphics->createModelInstance("BOX"),
-	m_Graphics->createModelInstance("BOX"),
-	m_Graphics->createModelInstance("BOX"),
-	};*/
 	for(unsigned int i = 0; i < numTowerBoxes; i++)
 	{
 		towerBoxes[i] = m_Graphics->createModelInstance("BOX");
@@ -393,15 +389,6 @@ void GameScene::InitTemporaryStuff()
 	m_Physics->createAABB(0.f, true, Vector3(27.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
 	m_Physics->createAABB(0.f, true, Vector3(33.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
 
-	/*static const int numRotatedTowerBoxes = 5;
-	int rotatedTowerBoxes[numRotatedTowerBoxes] =
-	{
-	m_Graphics->createModelInstance("BOX"),
-	m_Graphics->createModelInstance("BOX"),
-	m_Graphics->createModelInstance("BOX"),
-	m_Graphics->createModelInstance("BOX"),
-	m_Graphics->createModelInstance("BOX"),
-	};*/
 	for(unsigned int i = 0; i < numRotatedTowerBoxes; i++)
 	{
 		rotatedTowerBoxes[i] = m_Graphics->createModelInstance("BOX");
@@ -466,4 +453,6 @@ void GameScene::InitTemporaryStuff()
 	pitchSpeed = 0.05f;
 	roll = 0.f;
 	rollSpeed = 0.03f;
+
+	witchCircleAngle = 0.0f;
 }

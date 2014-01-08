@@ -54,6 +54,7 @@ private:
 	int rotatedTowerBoxes[numRotatedTowerBoxes];
 	float viewRot[2];
 	float sensitivity;
+	float witchCircleAngle;
 public: 
 	GameScene();
 	~GameScene();
