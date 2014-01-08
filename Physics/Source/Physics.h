@@ -23,7 +23,7 @@ public:
 	void initialize() override;
 
 	void update(float p_DeltaTime) override;
-	void applyForce(Vector4 p_Force, BodyHandle p_Body) override;
+	void applyForce(BodyHandle p_Body, Vector3 p_Force) override;
 
 	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius) override;
 	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Bot, Vector3 p_Top, bool p_IsEdge);
