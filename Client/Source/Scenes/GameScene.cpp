@@ -22,8 +22,8 @@ GameScene::~GameScene()
 	m_ResourceManager = nullptr;
 }
 
-bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-	Input *p_InputQueue)
+bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
+	IPhysics *p_Physics, Input *p_InputQueue)
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
@@ -31,17 +31,20 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_Physics = p_Physics;
 	m_InputQueue = p_InputQueue;
 
+	if(!m_Graphics || !m_ResourceManager || !m_Physics || !m_InputQueue)
+		throw SceneException("Error when initializing GameScene, null-components not allowed ",
+			__LINE__, __FILE__);
+
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
-	m_Level.setStartPosition(XMFLOAT3(25, 2.0f, 25.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(25.0f, 2.0f, 25.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(-25.0f, 2.0f, -25.0f)); //TODO: Remove this line when level gets the position from file
+
+	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 2.0f);
 
 	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
 
-
-
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(25.f, 0.f, 25.f), false);
-
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(50, 0.f, 50.f), false);
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 	currentDebugView = 3;
@@ -79,10 +82,16 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)
 			{
-				if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
+				if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
+					m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
+				{
 					m_Physics->removedHitDataAt(i);
-
-				
+				}
+				if(m_FinishLine == hit.collisionVictim)
+				{
+					m_ChangeScene = true;
+					m_NewSceneID = 2;
+				}
 
 				Logger::log(Logger::Level::DEBUG, "Collision reported");
 			}

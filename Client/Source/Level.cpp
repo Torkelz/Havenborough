@@ -1,6 +1,24 @@
 #include "Level.h"
 
+const DirectX::XMFLOAT3 &Level::getStartPosition(void) const
+{
+	return m_StartPosition;
+}
 
+void Level::setStartPosition(const DirectX::XMFLOAT3 &p_StartPosition)
+{
+	m_StartPosition = p_StartPosition;
+}
+
+const DirectX::XMFLOAT3 &Level::getGoalPosition(void) const
+{
+	return m_GoalPosition;
+}
+
+void Level::setGoalPosition(const DirectX::XMFLOAT3 &p_GoalPosition)
+{
+	m_GoalPosition = p_GoalPosition;
+}
 
 Level::Level(IGraphics* p_Graphics, ResourceManager* p_Resources, IPhysics* p_Physics)
 {
@@ -102,24 +120,4 @@ void Level::drawLevel()
 	{
 		m_Graphics->renderModel(m_DrawID.at(i));
 	}
-}
-
-const DirectX::XMFLOAT3 & Level::getStartPosition(void) 
-{
-	return m_StartPosition;
-}
-
-void Level::setStartPosition(const DirectX::XMFLOAT3 &p_StartPosition )
-{
-	m_StartPosition = p_StartPosition;
-}
-
-const DirectX::XMFLOAT3 &Level::getGoalPosition(void)
-{
-	return m_GoalPosition;
-}
-
-void Level::setGoalPosition( const DirectX::XMFLOAT3 &p_GoalPosition )
-{
-	m_GoalPosition = p_GoalPosition;
 }

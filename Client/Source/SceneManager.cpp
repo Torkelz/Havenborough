@@ -20,7 +20,8 @@ SceneManager::~SceneManager()
 	m_InputQueue = nullptr;
 }
 
-void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue)
+void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
+	IPhysics *p_Physics, Input *p_InputQueue)
 {
 	m_Graphics = p_Graphics;
 	m_ResourceManager = p_ResourceManager;

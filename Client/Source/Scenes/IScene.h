@@ -5,6 +5,8 @@
 #include "../ResourceManager.h"
 #include "IPhysics.h"
 #include "../Input/Input.h"
+#include "../ClientExceptions.h"
+
 enum class MenuScenes
 {
 	MAIN,

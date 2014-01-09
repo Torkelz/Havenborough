@@ -63,8 +63,8 @@ public:
 	* Initialize the scene.
 	* @param p_SceneID init the ID in order.
 	*/
-	bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-		Input *p_InputQueue) override; 
+	bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
+		IPhysics *p_Physics, Input *p_InputQueue) override; 
 	/**
 	* Destroy the scene.
 	*/

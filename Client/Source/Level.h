@@ -23,7 +23,7 @@ public:
 	/*
 	* 
 	*/
-	const DirectX::XMFLOAT3 &getStartPosition(void);
+	const DirectX::XMFLOAT3 &getStartPosition(void) const;
 
 	/*
 	* 
@@ -33,7 +33,7 @@ public:
 	/*
 	* 
 	*/
-	const DirectX::XMFLOAT3 &getGoalPosition(void);
+	const DirectX::XMFLOAT3 &getGoalPosition(void) const;
 
 	/*
 	* 
