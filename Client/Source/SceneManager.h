@@ -22,7 +22,10 @@ private:
 	* false = Run(m_RunSceneList)
 	*/
 	bool							m_IsMenuState;
-	//Graphics* m_graphics
+	IGraphics						*m_Graphics;
+	ResourceManager					*m_ResourceManager;
+	IPhysics						*m_Physics;
+	Input							*m_InputQueue;
 public:
 	SceneManager();
 	~SceneManager();
@@ -30,7 +33,7 @@ public:
 	* Initialize the scenes and scenemanager.
 	* @return true if initialize worked, false if the initialization failed.
 	*/
-	bool		init(/*graphics* p_graphics*/); //ska ta emot en pekare till graphics för att utföra render skickas vidare till IScene scener
+	bool init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue);
 	/**
 	* Destroy scenes when shutdown.
 	*/
@@ -38,7 +41,7 @@ public:
 	/**
 	* Update active scenes every frame.
 	*/
-	void		onFrame();
+	void onFrame(float p_DeltaTime);
 	/**
 	* Render active scenes.
 	*/
@@ -49,7 +52,7 @@ public:
 	* @param p_LParam Unused but needed.
 	* @param p_Result Unused but needed.
 	*/
-	bool keyStroke(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+	bool keyStroke(std::string p_Action, float p_Value);
 	/*########## TEST FUNCTIONS ##########*/
 
 	std::vector<IScene::ptr> getScene();
@@ -59,7 +62,7 @@ private:
 	* Change the scene 
 	* @param p_NowShowing gives visibility to a new scene.
 	*/
-	void		changeScene(int p_NowShowing);
+	void		changeScene(float p_DeltaTime, int p_NowShowing);
 	/**
 	* Switching to run scene list.
 	*/
@@ -84,5 +87,5 @@ private:
 	* Passes along the a keystroke to active scene
 	* @param p_Key key pressed.
 	*/
-	void		passKeyStroke(char p_key);
+	void passKeyStroke(std::string p_Action, float p_Value);
 };

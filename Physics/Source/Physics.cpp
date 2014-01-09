@@ -57,7 +57,7 @@ void Physics::initialize()
 	triangles.push_back(Triangle(Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
 	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
 
-	Hull *hull = new Hull(XMFLOAT4(0.f, 0.f, 0.f, 1.f), triangles);
+	Hull *hull = new Hull(XMFLOAT4(0.f, 2.f, 0.f, 1.f), triangles);
 
 	createBody(1.f, hull, true, false);
 }
