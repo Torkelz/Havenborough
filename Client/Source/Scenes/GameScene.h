@@ -23,6 +23,7 @@ private:
 	EdgeCollisionResponse m_EdgeCollResponse;
 
 	BodyHandle m_Ground;
+	BodyHandle m_FinishLine;
 
 	std::vector<int> m_ResourceIDs;
 
@@ -62,7 +63,8 @@ public:
 	* Initialize the scene.
 	* @param p_SceneID init the ID in order.
 	*/
-	bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue) override; 
+	bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
+		Input *p_InputQueue) override; 
 	/**
 	* Destroy the scene.
 	*/
@@ -90,7 +92,7 @@ public:
 
 	/*########## TEST FUNCTIONS ##########*/
 
-	int		getID() override;
+	int	getID() override;
 
 private:
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE

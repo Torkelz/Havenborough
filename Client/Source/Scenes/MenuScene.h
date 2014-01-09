@@ -21,7 +21,7 @@ public:
 
 	void destroy() override;
 
-	void onFrame(float p_Dt, int* p_IsCurrentScene) override;
+	void onFrame(float p_DeltaTime, int* p_IsCurrentScene) override;
 
 	void render() override;
 		 

@@ -15,7 +15,30 @@ private:
 	std::vector<LevelBinaryLoader::ModelData> m_LevelData, m_LevelCollisionData;
 	std::vector<int> m_ResourceID, m_BVResourceID;
 	std::vector<int> m_DrawID;
+
+	DirectX::XMFLOAT3 m_StartPosition;
+	DirectX::XMFLOAT3 m_GoalPosition;
+
 public:
+	/*
+	* 
+	*/
+	const DirectX::XMFLOAT3 &getStartPosition(void);
+
+	/*
+	* 
+	*/
+	void setStartPosition(const DirectX::XMFLOAT3 &p_StartPosition);
+
+	/*
+	* 
+	*/
+	const DirectX::XMFLOAT3 &getGoalPosition(void);
+
+	/*
+	* 
+	*/
+	void setGoalPosition(const DirectX::XMFLOAT3 &p_GoalPosition);
 
 	/**
 	 * Default constructor
