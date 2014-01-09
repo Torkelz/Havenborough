@@ -53,7 +53,8 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('J', "changeSceneP");
 	translator->addKeyboardMapping('K', "pauseScene");
 	translator->addKeyboardMapping('L', "changeSceneN");
-	
+	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
+
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
 

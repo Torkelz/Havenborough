@@ -30,7 +30,7 @@ void PostGameScene::destroy()
 
 }
 
-void PostGameScene::onFrame(float p_Dt, int* p_IsCurrentScene)
+void PostGameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 {
 	if(m_ChangeScene)
 	{
@@ -73,6 +73,10 @@ void PostGameScene::registeredInput(std::string p_Action, float p_Value)
 			m_NewSceneID = (int)MenuScenes::MAIN; 
 		}
 		m_ChangeScene = true;
+	}
+	if(p_Action == "goToMainMenu" && p_Value == 1)
+	{
+		m_ChangeList = true;
 	}
 	else if(p_Action == "changeSceneP" && p_Value == 1)
 	{

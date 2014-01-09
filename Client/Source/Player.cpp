@@ -38,6 +38,12 @@ XMFLOAT3 Player::getPosition(void) const
 	return m_Position;
 }
 
+void Player::setPosition(const XMFLOAT3 &p_Position)
+{
+	m_Position = p_Position;
+	m_Physics->setBodyPosition(m_PlayerBody, XMFLOAT3ToVector3(&m_Position));
+}
+
 float Player::getHeight() const
 {
 	return m_TempHeight;

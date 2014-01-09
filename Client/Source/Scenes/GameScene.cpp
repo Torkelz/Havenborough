@@ -61,17 +61,7 @@ void GameScene::destroy()
 
 void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 {
-	if(m_ChangeScene)
-	{
-		*p_IsCurrentScene = m_NewSceneID;
-		m_Visible = false;
-		m_ChangeScene = false;
-	}
-	else if(m_ChangeList)
-	{
-		*p_IsCurrentScene = -1;
-		m_ChangeList = false;
-	}
+	
 
 	m_Player.update(p_DeltaTime);
 
@@ -89,8 +79,10 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 				}
 				if(m_FinishLine == hit.collisionVictim)
 				{
+					m_Player.setPosition(m_Level.getStartPosition());
 					m_ChangeScene = true;
 					m_NewSceneID = 2;
+					m_Physics->removedHitDataAt(i);
 				}
 
 				Logger::log(Logger::Level::DEBUG, "Collision reported");
@@ -120,6 +112,18 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	
 	m_Graphics->updateAnimations(p_DeltaTime);
 	updateSandbox(p_DeltaTime);
+
+	if(m_ChangeScene)
+	{
+		*p_IsCurrentScene = m_NewSceneID;
+		m_Visible = false;
+		m_ChangeScene = false;
+	}
+	else if(m_ChangeList)
+	{
+		*p_IsCurrentScene = -1;
+		m_ChangeList = false;
+	}
 }
 
 void GameScene::render()

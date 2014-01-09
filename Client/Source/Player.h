@@ -63,6 +63,12 @@ public:
 	XMFLOAT3 getPosition(void) const;
 
 	/**
+	* Sets the position of the player at specified position in the game world.
+	* @param p_Position the position where to place the player
+	*/
+	void setPosition(const XMFLOAT3 &p_Position);
+
+	/**
 	* Gets the height of the player.
 	* @return the height
 	*/

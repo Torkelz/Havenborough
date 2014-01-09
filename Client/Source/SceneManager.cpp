@@ -35,8 +35,8 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	m_MenuSceneList[1] = IScene::ptr(new MenuScene);
 
 	m_RunSceneList[0] = IScene::ptr(new GameScene);
-	m_RunSceneList[1] = IScene::ptr(new PostGameScene);
-	m_RunSceneList[2] = IScene::ptr(new MenuScene);
+	m_RunSceneList[1] = IScene::ptr(new MenuScene);
+	m_RunSceneList[2] = IScene::ptr(new PostGameScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
 	m_NumberOfRunScene = m_RunSceneList.size();
@@ -207,11 +207,11 @@ void SceneManager::registeredInput(std::string p_Action, float p_Value)
 	//Change scene
 	else// if((p_Action == "changeSceneN"  && p_Value == 1) || (p_Action == "changeSceneP" && p_Value == 1))
 	{
-		passKeyStroke(p_Action, p_Value);
+		passInput(p_Action, p_Value);
 	}
 }
 
-void SceneManager::passKeyStroke(std::string p_Action, float p_Value)
+void SceneManager::passInput(std::string p_Action, float p_Value)
 {
 	std::vector<IScene::ptr>* activeList = nullptr;
 	unsigned int nrScenes = 0;

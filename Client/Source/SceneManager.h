@@ -31,6 +31,7 @@ private:
 public:
 	SceneManager();
 	~SceneManager();
+
 	/**
 	* Initialize the scenes and scene manager.
 	* @param p_Graphics pointer to the graphics engine
@@ -73,30 +74,27 @@ private:
 	* Change the scene 
 	* @param p_NowShowing gives visibility to a new scene.
 	*/
-	void		changeScene(float p_DeltaTime, int p_NowShowing);
+	void changeScene(float p_DeltaTime, int p_NowShowing);
 	/**
 	* Switching to run scene list.
 	*/
-	void		startRun();
+	void startRun();
 	/**
 	* Switching to menu scene list.
 	*/
-	void		startMenu();
+	void startMenu();
 	/**
 	* Update menu scenes
 	*/
-	void		onFrameMenu();
+	void onFrameMenu();
 	/**
 	* Update game scenes
 	*/
-	void		onFrameRun();
+	void onFrameRun();
 	/**
 	* Set pause screen when game is running.
 	*/
-	void		setPause();
-	/**
-	* Passes along the a keystroke to active scene
-	* @param p_Key key pressed.
-	*/
-	void passKeyStroke(std::string p_Action, float p_Value);
+	void setPause();
+
+	void passInput(std::string p_Action, float p_Value);
 };
