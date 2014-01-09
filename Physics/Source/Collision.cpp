@@ -570,7 +570,7 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 
 	spherePos = XMVectorSet(0.f, 0.f, 0.f, 0.f);
 
-	XMStoreFloat4(p_Sphere->getPosition(), spherePos);
+	spherePos = XMLoadFloat4(p_Sphere->getPosition());
 
 	for(unsigned int i = 0; i < p_Hull->getTriangleSize(); i++)
 	{

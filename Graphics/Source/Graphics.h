@@ -125,6 +125,8 @@ public:
 
 	void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) override;
 
+	void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) override;
+
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;

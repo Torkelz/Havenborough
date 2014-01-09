@@ -52,6 +52,9 @@ public:
 	void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
+
+	Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) override;
+	unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) override;
 		 
 private:
 	Body* findBody(BodyHandle p_Body);

@@ -48,16 +48,16 @@ void Physics::initialize()
 	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
 	triangles.push_back(Triangle(Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f)));
 
-	triangles.push_back(Triangle(Vector4( 1.f, -1.f, -1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f)));
+	/*triangles.push_back(Triangle(Vector4( 1.f, -1.f, -1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
 
-	triangles.push_back(Triangle(Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f), Vector4(-1.f, 1.f, 1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4(-1.f, -1.f, 1.f, 1.f), Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( 1.f, -1.f, 1.f, 1.f), Vector4(1.f, 1.f, 1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(1.f, 1.f, 1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
 
 	triangles.push_back(Triangle(Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));*/
 
-	Hull *hull = new Hull(XMFLOAT4(0.f, 2.f, 0.f, 1.f), triangles);
+	Hull *hull = new Hull(XMFLOAT4(0.f, 0.f, 0.f, 1.f), triangles);
 
 	createBody(1.f, hull, true, false);
 }
@@ -332,6 +332,56 @@ void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 void Physics::setLogFunction(clientLogCallback_t p_LogCallback)
 {
 	PhysicsLogger::setLogFunction(p_LogCallback);
+}
+
+Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex)
+{
+	Body* body = findBody(p_BodyHandle);
+	Triangle trig;
+	if(body == nullptr)
+		return trig;
+
+	BoundingVolume *volume = body->getVolume();
+
+	switch (volume->getType())
+	{
+	case BoundingVolume::Type::AABBOX:
+		break;
+	case BoundingVolume::Type::HULL:
+		return ((Hull*)volume)->getTriangleAt(p_TriangleIndex);
+	case BoundingVolume::Type::OBB:
+		break;
+	case BoundingVolume::Type::SPHERE:
+		break;
+	default:
+		break;
+	}
+
+	return trig;
+}
+unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex)
+{
+	Body* body = findBody(p_BodyHandle);
+	if(body == nullptr)
+		return 0;
+
+	BoundingVolume *volume = body->getVolume();
+
+	switch (volume->getType())
+	{
+	case BoundingVolume::Type::AABBOX:
+		break;
+	case BoundingVolume::Type::HULL:
+		return ((Hull*)volume)->getTriangleSize();
+	case BoundingVolume::Type::OBB:
+		break;
+	case BoundingVolume::Type::SPHERE:
+		break;
+	default:
+		break;
+	}
+
+	return 0;
 }
 
 //

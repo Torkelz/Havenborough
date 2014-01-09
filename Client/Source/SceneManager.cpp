@@ -62,7 +62,8 @@ bool SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	{
 		throw SceneManagerException("Failed to init all scenes", __LINE__,__FILE__);
 	}
-
+	// ################################ Remove this override later, used for skipping the menu!! #####################################################
+	m_IsMenuState = false;
 	return true;
 }
 

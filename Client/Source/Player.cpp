@@ -29,7 +29,7 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_Loo
 	m_Position = p_Position;
 	m_LookDirection = p_LookDirection;
 	m_TempHeight = 3.2f;
-	m_PlayerBody = m_Physics->createSphere(50.f, false, XMFLOAT3ToVector3(&m_Position), m_TempHeight * 0.22f);
+	m_PlayerBody = m_Physics->createSphere(50.f, false, XMFLOAT3ToVector3(&m_Position), m_TempHeight * 0.3f);
 
 }
 

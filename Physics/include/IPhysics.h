@@ -204,4 +204,7 @@ public:
 	 *			be logged from this component. Set to null to disable logging
 	 */
 	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
+
+	virtual Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) = 0;
+	virtual unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) = 0;
 };

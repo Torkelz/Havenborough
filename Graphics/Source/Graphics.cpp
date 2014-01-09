@@ -630,6 +630,11 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
 }
 
+void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)
+{
+
+}
+
 void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 {
 	GraphicsLogger::setLogFunction(p_LogCallback);
