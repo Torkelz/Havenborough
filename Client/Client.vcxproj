@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\GameLogic.cpp" />
     <ClCompile Include="Source\Level.cpp" />
     <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
@@ -50,6 +51,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\GameLogic.h" />
     <ClInclude Include="Source\Level.h" />
     <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\EdgeCollisionResponse.h" />
@@ -58,7 +60,6 @@
     <ClInclude Include="Source\Resource.h" />
     <ClInclude Include="Source\ResourceManager.h" />
     <ClInclude Include="Source\ResourceTranslator.h" />
-    <ClInclude Include="Source\NetworkClient.h" />
     <ClInclude Include="Source\RAMMemInfo.h" />
     <ClInclude Include="Source\BaseGameApp.h" />
     <ClInclude Include="Source\Input\Input.h" />

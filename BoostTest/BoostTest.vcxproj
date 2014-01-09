@@ -108,6 +108,7 @@
     <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
+    <ClCompile Include="..\Client\Source\GameLogic.cpp" />
     <ClCompile Include="..\Client\Source\Level.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />
     <ClCompile Include="..\Client\Source\LevelBinaryLoader.cpp" />

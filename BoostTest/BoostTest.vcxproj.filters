@@ -237,6 +237,9 @@
     <ClCompile Include="..\Client\Source\SceneManager.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\GameLogic.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
