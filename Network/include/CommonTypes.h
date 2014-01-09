@@ -32,6 +32,16 @@ struct ObjectInstance
 	uint16_t m_Id;
 };
 
+struct UpdateObjectData
+{
+	float m_Position[3];
+	float m_Velocity[3];
+	float m_Rotation[3];
+	float m_RotationVelocity[3];
+	uint16_t m_Id;
+	uint16_t _padding_;
+};
+
 /**
  * Result codes for API use.
  */

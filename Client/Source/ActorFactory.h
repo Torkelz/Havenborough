@@ -38,4 +38,5 @@ private:
 
 	ActorComponent::ptr createOBBComponent();
 	ActorComponent::ptr createModelComponent();
+	ActorComponent::ptr createMovementComponent();
 };

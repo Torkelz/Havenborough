@@ -158,10 +158,10 @@ public:
 	}
 };
 
-BOOST_IS_BITWISE_SERIALIZABLE(ObjectInstance);
+BOOST_IS_BITWISE_SERIALIZABLE(ObjectInstance)
 
 /**
- * A package representing the addition of a new object to the game world.
+ * A package representing the addition of new objects to the game world.
  */
 class CreateObjects : public PackageHelper<CreateObjects>
 {
@@ -190,5 +190,40 @@ public:
 	{
 		ar & m_Descriptions;
 		ar & m_Instances;
+	}
+};
+
+BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
+
+/**
+ * A package representing the update of objects in the game world.
+ */
+class UpdateObjects : public PackageHelper<UpdateObjects>
+{
+public:
+	std::vector<UpdateObjectData> m_ObjectUpdates;
+	std::vector<std::string> m_Extra;
+
+public:
+	/**
+	 * constructor.
+	 */
+	UpdateObjects()
+		: PackageHelper<UpdateObjects>(PackageType::UPDATE_OBJECTS)
+	{}
+
+	/**
+	 * Serialize the package to or from an archive.
+	 *
+	 * @param <Archive> the archive type to serialize with.
+	 *			Can be either input or output archives.
+	 * @param ar the archive used.
+	 * @param version the desired or given archive version. Ignored.
+	 */
+	template <typename Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & m_ObjectUpdates;
+		ar & m_Extra;
 	}
 };

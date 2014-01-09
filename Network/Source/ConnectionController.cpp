@@ -91,6 +91,46 @@ const ObjectInstance* ConnectionController::getCreateObjectInstances(Package p_P
 	return createObjects->m_Instances.data();
 }
 
+void ConnectionController::sendUpdateObjects(const UpdateObjectData* p_ObjectData, unsigned int p_NumObjects, const char** p_ExtraData, unsigned int p_NumExtraData)
+{
+	UpdateObjects package;
+	for (unsigned int i = 0; i < p_NumExtraData; ++i)
+	{
+		package.m_Extra.push_back(std::string(p_ExtraData[i]));
+	}
+	package.m_ObjectUpdates.insert(package.m_ObjectUpdates.end(), p_ObjectData, p_ObjectData + p_NumObjects);
+
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+unsigned int ConnectionController::getNumUpdateObjectData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_ObjectUpdates.size();
+}
+
+const UpdateObjectData* ConnectionController::getUpdateObjectData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_ObjectUpdates.data();
+}
+
+unsigned int ConnectionController::getNumUpdateObjectExtraData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Extra.size();
+}
+
+const char* ConnectionController::getUpdateObjectExtraData(Package p_Package, unsigned int p_ExtraData)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Extra[p_ExtraData].c_str();
+}
+
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);

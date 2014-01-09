@@ -264,7 +264,7 @@ void BaseGameApp::handleNetwork()
 						using tinyxml2::XMLDocument;
 						using tinyxml2::XMLElement;
 
-						ObjectInstance data = instances[i];
+						const ObjectInstance& data = instances[i];
 						std::ostringstream msg;
 						msg << "Adding object at (" 
 							<< data.m_Position[0] << ", "
@@ -282,6 +282,47 @@ void BaseGameApp::handleNetwork()
 						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
 						m_ServerActors.push_back(actor);
 					}
+				}
+				break;
+
+			case PackageType::UPDATE_OBJECTS:
+				{
+					const unsigned int numUpdates = conn->getNumUpdateObjectData(package);
+					const UpdateObjectData* const updates = conn->getUpdateObjectData(package);
+					for (unsigned int i = 0; i < numUpdates; ++i)
+					{
+						const UpdateObjectData& data = updates[i];
+						const uint16_t actorId = data.m_Id;
+
+						Actor::ptr actor;
+						for (auto& act : m_ServerActors)
+						{
+							if (act->getId() == actorId)
+							{
+								actor = act;
+								break;
+							}
+						}
+
+						if (!actor)
+						{
+							Logger::log(Logger::Level::ERROR_L, "Could not find actor (" + std::to_string(actorId));
+							continue;
+						}
+
+						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
+						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
+						
+						std::weak_ptr<MovementInterface> wMove = actor->getComponent<MovementInterface>(3);
+						std::shared_ptr<MovementInterface> shMove(wMove);
+						if (shMove)
+						{
+							shMove->setVelocity(Vector3(data.m_Velocity[0], data.m_Velocity[1], data.m_Velocity[2]));
+							shMove->setRotationalVelocity(Vector3(data.m_RotationVelocity[0], data.m_RotationVelocity[1], data.m_RotationVelocity[2]));
+						}
+					}
+
+					// TODO: Handle extra data
 				}
 				break;
 

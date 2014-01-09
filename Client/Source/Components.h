@@ -110,3 +110,77 @@ public:
 		m_Graphics->setModelRotation(m_Model, m_Owner->getRotation());
 	}
 };
+
+class MovementInterface : public ActorComponent
+{
+public:
+	virtual unsigned int getComponentId() const override
+	{
+		return 3;
+	}
+	virtual void setVelocity(Vector3 p_Velocity) = 0;
+	virtual Vector3 getVelocity() const = 0;
+	virtual void setRotationalVelocity(Vector3 p_RotVelocity) = 0;
+	virtual Vector3 getRotationalVelocity() const = 0;
+};
+
+class MovementComponent : public MovementInterface
+{
+private:
+	Vector3 m_Velocity;
+	Vector3 m_RotVelocity;
+
+public:
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		const tinyxml2::XMLElement* velElem = p_Data->FirstChildElement("Velocity");
+		if (velElem)
+		{
+			m_Velocity.x = velElem->FloatAttribute("x");
+			m_Velocity.y = velElem->FloatAttribute("y");
+			m_Velocity.z = velElem->FloatAttribute("z");
+		}
+		else
+		{
+			m_Velocity = Vector3(0.f, 0.f, 0.f);
+		}
+
+		const tinyxml2::XMLElement* rotVelElem = p_Data->FirstChildElement("RotationalVelocity");
+		if (rotVelElem)
+		{
+			m_RotVelocity.x = rotVelElem->FloatAttribute("x");
+			m_RotVelocity.y = rotVelElem->FloatAttribute("y");
+			m_RotVelocity.z = rotVelElem->FloatAttribute("z");
+		}
+		else
+		{
+			m_RotVelocity = Vector3(0.f, 0.f, 0.f);
+		}
+	}
+
+	void onUpdate(float p_DeltaTime) override
+	{
+		const Vector3 pos = m_Owner->getPosition();
+		m_Owner->setPosition(pos + m_Velocity * p_DeltaTime);
+
+		const Vector3 rot = m_Owner->getRotation();
+		m_Owner->setRotation(rot + m_RotVelocity * p_DeltaTime);
+	}
+
+	void setVelocity(Vector3 p_Velocity) override
+	{
+		m_Velocity = p_Velocity;
+	}
+	Vector3 getVelocity() const override
+	{
+		return m_Velocity;
+	}
+	void setRotationalVelocity(Vector3 p_RotVelocity) override
+	{
+		m_RotVelocity = p_RotVelocity;
+	}
+	Vector3 getRotationalVelocity() const override
+	{
+		return m_RotVelocity;
+	}
+};

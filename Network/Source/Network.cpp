@@ -94,6 +94,7 @@ void Network::registerPackages()
 {
 	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Registering packages");
 	m_PackagePrototypes.push_back(PackageBase::ptr(new CreateObjects));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new UpdateObjects));
 }
 
 void Network::startIO()
