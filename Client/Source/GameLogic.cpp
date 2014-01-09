@@ -231,14 +231,14 @@ void GameLogic::loadSandbox()
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug character");
 	circleWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(circleWitch, Vector3(0.1f, 0.1f, 0.1f));
+	m_Graphics->setModelScale(circleWitch, Vector3(0.01f, 0.01f, 0.01f));
 
 	standingWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(standingWitch, Vector3(0.1f, 0.1f, 0.1f));
+	m_Graphics->setModelScale(standingWitch, Vector3(0.01f, 0.01f, 0.01f));
 	m_Graphics->setModelPosition(standingWitch, Vector3(16.f, 0.f, -5.f));
 
 	wavingWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(wavingWitch, Vector3(0.1f, 0.1f, 0.1f));
+	m_Graphics->setModelScale(wavingWitch, Vector3(0.01f, 0.01f, 0.01f));
 	m_Graphics->setModelPosition(wavingWitch, Vector3(15.f, 0.f, -5.f));
 
 	ikTest = m_Graphics->createModelInstance("IKTest");
