@@ -28,7 +28,7 @@ bool BVLoader::loadBinaryFile(std::string p_FilePath)
 	m_FileHeader = readHeader(&input);
 	if(m_FileHeader.m_numMaterial != 0)
 	{
-		return false;
+		//return false;
 	}
 	if(m_FileHeader.m_numVertex > 0)
 	{

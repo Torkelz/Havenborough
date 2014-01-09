@@ -61,6 +61,8 @@ void Physics::initialize()
 
 	Hull *hull = new Hull(XMFLOAT4(0.f, 0.f, 0.f, 1.f), triangles);
 
+	m_BVLoader.loadBinaryFile("assets/LightModels/bvSphere.btx");
+
 	createBody(1.f, hull, true, false);
 }
 
