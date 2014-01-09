@@ -53,7 +53,7 @@ void Player::setJump(void)
 	if(!m_IsJumping)
 	{
 		m_IsJumping = true;
-		m_Physics->applyForce(Vector4(0.f, m_JumpForce, 0.f, 0.f), m_PlayerBody);
+		m_Physics->applyForce(m_PlayerBody, Vector3(0.f, m_JumpForce, 0.f));
 	}
 }
 
@@ -79,7 +79,7 @@ void Player::forceMove(XMVECTOR p_StartPosition, XMVECTOR p_EndPosition)
 		m_ForceMove = true;
 		m_ForceMoveStartPosition = p_StartPosition;
 		m_ForceMoveEndPosition = p_EndPosition;
-		m_Physics->setBodyVelocity(Vector3(0,0,0),m_PlayerBody);
+		m_Physics->setBodyVelocity(m_PlayerBody, Vector3(0,0,0));
 	}
 }
 
@@ -98,7 +98,7 @@ void Player::update(float p_DeltaTime)
 			m_ForceMoveEndPosition, dt);
 		XMStoreFloat3(&m_Position, currPosition);
 
-		m_Physics->setBodyPosition(XMFLOAT3ToVector3(&m_Position), m_PlayerBody);
+		m_Physics->setBodyPosition(m_PlayerBody, XMFLOAT3ToVector3(&m_Position));
 
 
 		m_CurrentForceMoveTime += p_DeltaTime * m_ForceMoveSpeed;
@@ -117,7 +117,7 @@ void Player::jump(float dt)
 		m_JumpTime += dt;
 		if(m_JumpTime > m_JumpForceTime)
 		{
-			m_Physics->applyForce(Vector4(0.f, -m_JumpForce, 0.f, 0.f), m_PlayerBody);
+			m_Physics->applyForce(m_PlayerBody, Vector3(0.f, -m_JumpForce, 0.f));
 			m_IsJumping = false;
 			m_JumpTime = 0.f;
 		}
@@ -143,10 +143,10 @@ void Player::move()
 	force.y = diffVel.y * m_AccConstant;
 	force.z = diffVel.z * m_AccConstant;
 	force.w = 0.f;
-	XMFLOAT4 forceDiff = XMFLOAT4(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z, 0.f); 
+	XMFLOAT3 forceDiff = XMFLOAT3(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z); 
 	m_PrevForce = force;
 
-	m_Physics->applyForce(XMFLOAT4ToVector4(&forceDiff), m_PlayerBody);
+	m_Physics->applyForce(m_PlayerBody, XMFLOAT3ToVector3(&forceDiff));
 
 	m_DirectionX = m_DirectionZ = 0.f;
 

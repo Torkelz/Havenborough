@@ -128,7 +128,6 @@ public:
 		calculateCorners();
 	}
 
-
 	/**
 	* Sets the rotation matrix of the OBB and rotates its Axes accordingly.
 	* @param p_Rotation matrix to rotate the axes with.
@@ -138,7 +137,6 @@ public:
 		m_Rotation = p_Rot;
 		updateRotation();
 	}
-
 	 
 	/**
 	* Given point p, return point on(or in) OBB, closest to p

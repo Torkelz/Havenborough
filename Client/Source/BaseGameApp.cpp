@@ -21,8 +21,7 @@ void BaseGameApp::init()
 	
 	m_MemUpdateDelay = 0.1f;
 	m_TimeToNextMemUpdate = 0.f;
-
-	m_SceneManager.init();
+	
 	m_Window.init(getGameTitle(), getWindowSize());
 
 	m_Graphics = IGraphics::createGraphics();
@@ -40,8 +39,6 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 	
-
-
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	
@@ -56,6 +53,10 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('X', "changeViewP");
 	translator->addKeyboardMapping('I', "toggleIK");
 	translator->addKeyboardMapping(VK_SPACE, "jump");
+
+	translator->addKeyboardMapping('J', "changeSceneP");
+	translator->addKeyboardMapping('K', "pauseScene");
+	translator->addKeyboardMapping('L', "changeSceneN");
 	
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
@@ -73,51 +74,12 @@ void BaseGameApp::init()
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
-	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
-		
-	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
-	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
 
-
-	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 2.f, 10.f), XMFLOAT3(0.f, 0.f, 1.f));
-		
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug bodies");
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(50.f, 0.f, 50.f), false);
-
-
-	//Logger::log(Logger::Level::DEBUG, "Adding debug models");
-	//m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-	//						"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue);
 	
-	static const std::string preloadedModels[] =
-	{
-		"BOX",
-		"SKYBOX",
-		"House",
-	};
-
-	for (const std::string& model : preloadedModels)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
-		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
-	}
-
-	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", "TEXTURE_NOT_FOUND"));
+	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
+				
 	m_MemoryInfo.update();
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "IKTest"));
-	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
-							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
-	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
-
-
-
-	/*int OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(10.f, 10.f, 10.f), false);
-	m_Physics->setBodyRotation(OBBhouse2, 0.f, 0.f, 3.14f/4.f);
-	m_Physics->setBodyPosition(Vector3(-16.3f, 0.f, -10.f), OBBhouse2);*/
 }
 
 void BaseGameApp::run()
@@ -125,179 +87,9 @@ void BaseGameApp::run()
 	Logger::log(Logger::Level::INFO, "Running the game");
 
 	m_ShouldQuit = false;
-	int currView = 3; // FOR DEBUGGING
-	
-	bool useIK_OnIK_Worm = false;
-	float witchCircleAngle = 0.f;
-	static const float witchAngleSpeed = 0.3f;
-
-	float witchWaveAngle = 0.f;
-	static const float witchWavingAngleSpeed = 1.f;
-
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug box model instances");
-	const static int NUM_BOXES = 16;
-	int boxIds[NUM_BOXES];
-	for (int i = 0; i < NUM_BOXES; i++)
-	{
-		boxIds[i] = m_Graphics->createModelInstance("BOX");
-
-		const float scale = 1.f + i * 3.f / NUM_BOXES;
-			
-		m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
-		m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f + 40.f));
-	}
-
-	static const Vector3 climbTestPos(0.f, 2.f, 30.f);
-	static const Vector3 climbTestHalfSize(1.f, 1.f, 1.f);
-
-	BodyHandle boxTest = m_Physics->createAABB(50.f, true, climbTestPos, climbTestHalfSize, true );
-	
-	int climbBox = m_Graphics->createModelInstance("BOX");
-	
-	m_Graphics->setModelPosition(climbBox, climbTestPos);
-	m_Graphics->setModelScale(climbBox, Vector3(2.f, 2.f, 2.f));
-
-
-	int jointBox = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(jointBox, Vector3(0.05f, 0.05f, 2.f));
-	
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug skybox");
-	int skyBox = m_Graphics->createModelInstance("SKYBOX");
-	m_Graphics->setModelScale(skyBox, Vector3(1.f, 1.f, 1.f));
-
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug ground");
-	int ground = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(ground, Vector3(100.f, 5.f, 100.f));
-	m_Graphics->setModelPosition(ground, Vector3(0.f, -2.5f, 0.f));
-
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug character");
-	int circleWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(circleWitch, Vector3(0.1f, 0.1f, 0.1f));
-
-	int standingWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(standingWitch, Vector3(0.1f, 0.1f, 0.1f));
-	m_Graphics->setModelPosition(standingWitch, Vector3(16.f, 0.f, -5.f));
-
-	int wavingWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(wavingWitch, Vector3(0.1f, 0.1f, 0.1f));
-	m_Graphics->setModelPosition(wavingWitch, Vector3(15.f, 0.f, -5.f));
-	
-	int ikTest = m_Graphics->createModelInstance("IKTest");
-	m_Graphics->setModelPosition(ikTest, Vector3(8.f, 1.f, 2.f));
-	m_Graphics->setModelScale(ikTest, Vector3(0.3f, 0.3f, 0.3f));
-	m_Graphics->setModelRotation(ikTest, Vector3((float)pi / 4.f, 0.f, 0.f));
-	
-	static const unsigned int numTowerBoxes = 5;
-	int towerBoxes[numTowerBoxes] =
-	{
-		m_Graphics->createModelInstance("BOX"),
-		m_Graphics->createModelInstance("BOX"),
-		m_Graphics->createModelInstance("BOX"),
-		m_Graphics->createModelInstance("BOX"),
-		m_Graphics->createModelInstance("BOX"),
-	};
-
-	Vector3 towerBoxSizes[numTowerBoxes] =
-	{
-		Vector3(20.f, 1.6f, 20.f),
-		Vector3(12.f, 1.6f, 12.f),
-		Vector3(6.f, 4.f, 6.f),
-		Vector3(0.1f, 8.f, 0.1f),
-		Vector3(0.4f, 0.4f, 0.4f),
-	};
-
-	Vector3 towerBoxPositions[numTowerBoxes] =
-	{
-		Vector3(30.f, 0.8f, 40.f),
-		Vector3(30.f, 2.4f, 40.f),
-		Vector3(30.f, 5.2f, 40.f),
-		Vector3(30.f, 11.2f, 40.f),
-		Vector3(30.f, 15.4f, 40.f),
-	};
-
-	for (unsigned int i = 0; i < numTowerBoxes; i++)
-	{
-		m_Graphics->setModelScale(towerBoxes[i], towerBoxSizes[i]);
-		m_Graphics->setModelPosition(towerBoxes[i], towerBoxPositions[i]);
-		m_Physics->createAABB(50.f, true, towerBoxPositions[i], towerBoxSizes[i] * 0.5f, false);
-	}
-
-	m_Physics->createAABB(0.f, true, Vector3(30.f, 6.8f, 37.f), Vector3(2.8f, 0.6f, 0.2f), true);
-	m_Physics->createAABB(0.f, true, Vector3(30.f, 6.8f, 43.f), Vector3(2.8f, 0.6f, 0.2f), true);
-	m_Physics->createAABB(0.f, true, Vector3(27.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
-	m_Physics->createAABB(0.f, true, Vector3(33.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
-
-	static const int numRotatedTowerBoxes = 5;
-	int rotatedTowerBoxes[numRotatedTowerBoxes] =
-	{
-		m_Graphics->createModelInstance("BOX"),
-		m_Graphics->createModelInstance("BOX"),
-		m_Graphics->createModelInstance("BOX"),
-		m_Graphics->createModelInstance("BOX"),
-		m_Graphics->createModelInstance("BOX"),
-	};
-
-	Vector3 rotatedTowerBoxSizes[numRotatedTowerBoxes] =
-	{
-		Vector3(20.f, 1.6f, 20.f),
-		Vector3(12.f, 1.6f, 12.f),
-		Vector3(6.f, 4.f, 6.f),
-		Vector3(0.1f, 8.f, 0.1f),
-		Vector3(0.4f, 0.4f, 0.4f),
-	};
-
-	Vector3 rotatedTowerBoxPositions[numRotatedTowerBoxes] =
-	{
-		Vector3(-30.f, 0.8f, 40.f),
-		Vector3(-30.f, 2.4f, 40.f),
-		Vector3(-30.f, 5.2f, 40.f),
-		Vector3(-30.f, 11.2f, 40.f),
-		Vector3(-30.f, 15.4f, 40.f),
-	};
-
-	BodyHandle rotatedTowerBodies[numRotatedTowerBoxes];
-
-	for (unsigned int i = 0; i < numRotatedTowerBoxes; i++)
-	{
-		m_Graphics->setModelScale(rotatedTowerBoxes[i], rotatedTowerBoxSizes[i]);
-		m_Graphics->setModelPosition(rotatedTowerBoxes[i], rotatedTowerBoxPositions[i]);
-		m_Graphics->setModelRotation(rotatedTowerBoxes[i], Vector3(1.f, 0.f, 0.f));
-		rotatedTowerBodies[i] = m_Physics->createOBB(50.f, true, rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, false);
-		m_Physics->setBodyRotation(rotatedTowerBodies[i], 1.f, 0.f, 0.f);
-	}
-
-	static const Vector3 slantedPlanePosition(-40.f, 3.f, 20.f);
-	static const Vector3 slantedPlaneSize(20.f, 5.f, 30.f);
-	static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
-	int slantedPlane = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelPosition(slantedPlane, slantedPlanePosition);
-	m_Graphics->setModelScale(slantedPlane, slantedPlaneSize);
-	m_Graphics->setModelRotation(slantedPlane, slantedPlaneRotation);
-
-	BodyHandle slantedPlaneBody = m_Physics->createOBB(0.f, true, slantedPlanePosition, slantedPlaneSize * 0.5f, false);
-	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlaneRotation.x, slantedPlaneRotation.y, slantedPlaneRotation.z);
-	
-	int OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
-	m_Physics->setBodyRotation(OBBhouse1, 0.f, 0.f, 3.14f/6.5f);
-	m_Physics->setBodyPosition(Vector3(14.f, 4.5f, -10.f), OBBhouse1);
-
-	int OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
-	m_Physics->setBodyRotation(OBBhouse2, 0.f, 0.f, 3.14f/6.5f);
-	m_Physics->setBodyPosition(Vector3(3.5f, 5.0f, -10.f), OBBhouse2);
-
 	std::vector<Actor::ptr> serverActors;
 
-	float viewRot[] = {0.f, 0.f};
-
-	float sensitivity = 0.01f;
-
-	float yaw = 0.f;
-	float yawSpeed = 0.1f;
-	float pitch = 0.f;
-	float pitchSpeed = 0.05f;
-	float roll = 0.f;
-	float rollSpeed = 0.03f;
-
+	
 	__int64 cntsPerSec = 0;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&cntsPerSec);
 	float secsPerCnt = 1.0f / (float)cntsPerSec;
@@ -321,116 +113,11 @@ void BaseGameApp::run()
 			dt = maxDeltaTime;
 		}
 
-		m_Player.update(dt);
-		
-		if(m_Physics->getHitDataSize() > 0)
-		{
-			for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
-			{
-				HitData hit = m_Physics->getHitDataAt(i);
-				if(hit.intersect)
-				{
-					if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
-						m_Physics->removedHitDataAt(i);
-
-					Logger::log(Logger::Level::DEBUG_L, "Collision reported");
-				}
-			}
-		}
-		
 		for (auto& actor : serverActors)
 		{
 			actor->onUpdate(dt);
 		}
 
-		const InputState& state = m_InputQueue.getCurrentState();
-		
-		float forward = state.getValue("moveForward") - state.getValue("moveBackward");
-		float right = state.getValue("moveRight") - state.getValue("moveLeft");
-		
-		if (forward != 0.f || right != 0.f)
-		{
-			float dir = atan2f(right, forward) + viewRot[0];
-
-			m_Player.setDirectionX(sinf(dir));
-			m_Player.setDirectionZ(cosf(dir));
-		}
-		if(!m_Player.getForceMove())		
-			m_Physics->update(dt);
-
-		Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
-
-		m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y + m_Player.getHeight() * 0.305f, tempPos.z), viewRot[0], viewRot[1]);
-		m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
-
-		static const Vector3 circleCenter(4.f, 0.f, 15.f);
-		static const float circleRadius = 8.f;
-		witchCircleAngle += witchAngleSpeed * dt;
-		Vector3 witchCirclePosition(circleCenter);
-		witchCirclePosition.x -= cosf(witchCircleAngle) * circleRadius;
-		witchCirclePosition.z += sinf(witchCircleAngle) * circleRadius;
-		m_Graphics->setModelPosition(circleWitch, witchCirclePosition);
-		m_Graphics->setModelRotation(circleWitch, Vector3(witchCircleAngle, 0.f, 0.f));
-
-		static const float waveRadius = 0.5f;
-		Vector3 wavePos = m_Graphics->getJointPosition(wavingWitch, "bn_head01");
-		wavePos.x -= 1.f;
-		witchWaveAngle += witchWavingAngleSpeed * dt;
-		wavePos.y += sinf(witchWaveAngle) * waveRadius;
-		wavePos.z += cosf(witchWaveAngle) * waveRadius;
-
-		m_Graphics->updateAnimations(dt);
-
-		m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_b01", "bn_l_arm01", wavePos);
-
-		yaw += yawSpeed * dt;
-		pitch += pitchSpeed * dt;
-		roll += rollSpeed * dt;
-
-		for (int i = 0; i < NUM_BOXES; i++)
-		{
-			m_Graphics->setModelRotation(boxIds[i], Vector3(yaw * i, pitch * i, roll * i));
-			m_Graphics->renderModel(boxIds[i]);
-		}
-		Vector3 lookDir;
-		lookDir.x = -sinf(viewRot[0]) * cosf(viewRot[1]);
-		lookDir.y = sinf(viewRot[1]);
-		lookDir.z = -cosf(viewRot[0]) * cosf(viewRot[1]);
-
-		static const float IK_Length = 5.f;
-
-		static const char* testTargetJoint = "bn_l_foot01";
-		static const char* testHingeJoint = "bn_l_Knee_a01";
-		static const char* testBaseJoint = "bn_l_Tigh01";
-
-		Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
-		if (useIK_OnIK_Worm)
-		{
-			m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
-			m_Graphics->applyIK_ReachPoint(ikTest, "joint4", "joint3", "joint2", IK_Target);
-		}
-
-		Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
-		m_Graphics->setModelPosition(jointBox, jointPos);
-		//m_Graphics->renderModel(jointBox);
-
-		m_Graphics->renderModel(ground);
-		m_Graphics->renderModel(skyBox);
-		m_Graphics->renderModel(ikTest);
-		m_Graphics->renderModel(circleWitch);
-		m_Graphics->renderModel(standingWitch);
-		m_Graphics->renderModel(wavingWitch);
-		m_Graphics->renderModel(climbBox);
-		for (int box : towerBoxes)
-		{
-			m_Graphics->renderModel(box);
-		}
-		for (int box : rotatedTowerBoxes)
-		{
-			m_Graphics->renderModel(box);
-		}
-		m_Graphics->renderModel(slantedPlane);
-		m_Level.drawLevel();
 		for (auto& actor : serverActors)
 		{
 			auto weakGraphicsComponent = actor->getComponent<ModelInterface>(2);
@@ -442,14 +129,8 @@ void BaseGameApp::run()
 			}
 		}
 
-		m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
-		m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),20.f);
-		m_Graphics->useFrameSpotLight(Vector3(-10.f,5.f,0.f),Vector3(0.f,1.f,0.f),
-			Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
-		m_Graphics->useFramePointLight(Vector3(0.f, 30.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
-		m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
-
-		m_Graphics->drawFrame(currView);
+		m_SceneManager.onFrame(dt);
+		m_SceneManager.render();
 		
 		m_MemoryInfo.update();
 		updateDebugInfo(dt);
@@ -463,6 +144,9 @@ void BaseGameApp::run()
 			msg << "Received input action: " << in.m_Action << " (" << std::setprecision(2) << std::fixed << in.m_Value << ")";
 			Logger::log(Logger::Level::TRACE, msg.str());
 
+			// Pass keystrokes to all active scenes.
+			m_SceneManager.keyStroke(in.m_Action, in.m_Value);
+
 			if (in.m_Action == "exit")
 			{
 				m_ShouldQuit = true;
@@ -471,52 +155,6 @@ void BaseGameApp::run()
 			{
 				m_Connected = false;
 				m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
-			}
-			else if(in.m_Action ==  "changeViewN" && in.m_Value == 1)
-			{
-				currView--;
-				if(currView < 0)
-					currView = 3;
-				Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
-			}
-			else if(in.m_Action ==  "changeViewP" && in.m_Value == 1)
-			{
-				currView++;
-				if(currView >= 4)
-					currView = 0;
-				Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
-			}
-			else if (in.m_Action == "mouseMoveHori")
-			{
-				viewRot[0] += in.m_Value * sensitivity;
-				if (viewRot[0] > pi)
-				{
-					viewRot[0] -= 2 * (float)pi;
-				}
-				else if (viewRot[0] < -pi)
-				{
-					viewRot[0] += 2 * (float)pi;
-				}
-			}
-			else if (in.m_Action == "mouseMoveVert")
-			{
-				viewRot[1] += in.m_Value * sensitivity;
-				if (viewRot[1] > pi * 0.45f)
-				{
-					viewRot[1] = (float)pi * 0.45f;
-				}
-				else if (viewRot[1] < -pi * 0.45f)
-				{
-					viewRot[1] = -(float)pi * 0.45f;
-				}
-			}
-			else if( in.m_Action == "jump" && in.m_Value == 1)
-			{
-				m_Player.setJump();
-			}
-			else if (in.m_Action == "toggleIK" && in.m_Value == 1.f)
-			{
-				useIK_OnIK_Worm = !useIK_OnIK_Worm;
 			}
 		}
 		
@@ -579,34 +217,20 @@ void BaseGameApp::run()
 			conn->clearPackages(numPackages);
 		}
 	}
-
-	m_Graphics->eraseModelInstance(ground);
-	for (int box : boxIds)
-	{
-		m_Graphics->eraseModelInstance(box);
-	}
 }
 
 void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
 	
-	m_Level.releaseLevel();
-
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
 
 	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
 	
-	for (int i : m_ResourceIDs)
-	{
-		m_ResourceManager->releaseResource(i);
-	}
+	m_SceneManager.destroy();
 
-
-
-	m_ResourceIDs.clear();
 	delete m_ResourceManager;
 
 	m_InputQueue.destroy();

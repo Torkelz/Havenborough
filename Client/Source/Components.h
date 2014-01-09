@@ -54,17 +54,17 @@ public:
 	}
 	virtual void updatePosition(Vector3 p_Position) override
 	{
-		m_Physics->setBodyPosition(p_Position, m_Body);
+		m_Physics->setBodyPosition(m_Body, p_Position);
 	}
 	virtual void updateRotation(Vector3 p_Rotation) override
 	{
-		m_Physics->setBodyRotation(m_Body, p_Rotation.x, p_Rotation.y, p_Rotation.z);
+		m_Physics->setBodyRotation(m_Body, p_Rotation);
 	}
 	virtual void onUpdate(float p_DeltaTime) override
 	{
-		m_Physics->setBodyPosition(m_Owner->getPosition(), m_Body);
+		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
 		Vector3 rotation = m_Owner->getRotation();
-		m_Physics->setBodyRotation(m_Body, rotation.x, rotation.y, rotation.z);
+		m_Physics->setBodyRotation(m_Body, rotation);
 	}
 };
 

@@ -17,7 +17,7 @@ public:
 	* Initialize the scene.
 	* @param p_SceneID init the ID in order.
 	*/
-	bool	init(unsigned int p_SceneID) override;
+	bool init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue, unsigned int p_SceneID) override;
 	/**
 	* Destroy the scene.
 	*/
@@ -26,7 +26,7 @@ public:
 	* Update scene every frame, used if the scene can change scene.
 	* @param p_IsCurrentScene is used if the scene contains buttons to switch scenes with.
 	*/
-	void	onFrame(int* p_IsCurrentScene) override;
+	void onFrame(float p_Dt, int* p_IsCurrentScene) override;
 	/**
 	* Render the scene to the screen.
 	*/
@@ -41,7 +41,7 @@ public:
 	*/
 	void	setIsVisible(bool p_SetVisible) override;
 
-	void	registeredKeyStroke(char* p_Key) override;
+	void	registeredKeyStroke(std::string p_Action, float p_Value) override;
 	
 	/*########## TEST FUNCTIONS ##########*/
 
