@@ -71,7 +71,7 @@ void Physics::update(float p_DeltaTime)
 
 		bool onSomething = false;
 
-		for (unsigned j = i + 1; j < m_Bodies.size(); j++)
+		for (unsigned j = 0; j < m_Bodies.size(); j++)
 		{
 			unsigned int hh = m_Bodies.at(j).getHandle();
 			HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
