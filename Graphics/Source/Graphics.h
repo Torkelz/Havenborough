@@ -34,6 +34,7 @@ private:
 	ID3D11RenderTargetView			*m_RenderTargetView;
 	
 	ID3D11RasterizerState			*m_RasterState;
+	ID3D11RasterizerState			*m_RasterStateBV;
 
 	ID3D11Texture2D					*m_DepthStencilBuffer;
 	ID3D11DepthStencilState			*m_DepthStencilState;
@@ -156,6 +157,8 @@ private:
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
 	void Begin(float color[4]);
 	void End(void);
+
+	void drawBoundingVolumes();
 
 	//TODO: Remove later
 	void DebugDefferedDraw(void);

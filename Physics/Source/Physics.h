@@ -16,6 +16,8 @@ private:
 	std::vector<Body> m_Bodies;
 	std::vector<HitData> m_HitDatas;
 	BVLoader m_BVLoader;
+
+	std::vector<DirectX::XMFLOAT3> m_TriangleIndex;
 public:
 	Physics();
 	~Physics();
@@ -62,5 +64,7 @@ private:
 	BodyHandle createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge);
 
 	BoundingVolume* getVolume(BodyHandle p_Body);
+
+	void fillTriangleIndexList();
 };
 

@@ -211,14 +211,20 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_Graphics->useFramePointLight(Vector3(0.f, 30.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
 	m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
 
-	unsigned int size =  m_Physics->getNrOfTrianglesFromBody(1);
-
-	for(unsigned int i = 0; i < size; i++)
-	{
-		Triangle triangle;
-		triangle = m_Physics->getTriangleFromBody(1, i);
-		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
-	}
+	//addDebugBVToDraw(1);
+	addDebugBVToDraw(OBBhouse1);
+	addDebugBVToDraw(5);
+	addDebugBVToDraw(6);
+	addDebugBVToDraw(7);
+	addDebugBVToDraw(8);
+	addDebugBVToDraw(9);
+	addDebugBVToDraw(10);
+	addDebugBVToDraw(11);
+	addDebugBVToDraw(12);
+	addDebugBVToDraw(13);
+	addDebugBVToDraw(14);
+	addDebugBVToDraw(15);
+	addDebugBVToDraw(16);
 
 	m_Graphics->drawFrame(currView);
 
@@ -452,6 +458,7 @@ void GameScene::InitTemporaryStuff()
 	OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
 	m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
 	m_Physics->setBodyPosition(OBBhouse1, Vector3(14.f, 4.5f, -10.f));
+	//m_Physics->setBodyPosition(OBBhouse1, Vector3(0.f, 2.5f, 0.f));
 
 	OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
 	m_Physics->setBodyRotation(OBBhouse2, Vector3(0.f, 0.f, 3.14f/6.5f));
@@ -470,4 +477,16 @@ void GameScene::InitTemporaryStuff()
 	rollSpeed = 0.03f;
 
 	witchCircleAngle = 0.0f;
+}
+
+void GameScene::addDebugBVToDraw(unsigned int p_BodyHandle)
+{
+	unsigned int size =  m_Physics->getNrOfTrianglesFromBody(p_BodyHandle);
+
+	for(unsigned int i = 0; i < size; i++)
+	{
+		Triangle triangle;
+		triangle = m_Physics->getTriangleFromBody(p_BodyHandle, i);
+		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+	}
 }

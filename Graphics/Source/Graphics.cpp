@@ -248,6 +248,7 @@ void Graphics::shutdown(void)
 
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
+	SAFE_RELEASE(m_RasterStateBV);
 	SAFE_RELEASE(m_DepthStencilView);
 	SAFE_RELEASE(m_DepthStencilState);
 	SAFE_RELEASE(m_DepthStencilBuffer);
@@ -260,6 +261,7 @@ void Graphics::shutdown(void)
 	SAFE_SHUTDOWN(m_VRAMMemInfo);
 
 	SAFE_DELETE(m_BVBuffer);
+	SAFE_DELETE(m_BVShader);
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
@@ -491,41 +493,9 @@ void Graphics::drawFrame(int i)
 
 	m_Shader->unSetShader();
 
-	Buffer* buffer = nullptr;
-
-	if(m_BVTriangles.size() >= m_BVBufferNumOfElements)
-	{
-		m_BVBufferNumOfElements = m_BVTriangles.size() + 1;
-		Buffer::Description buffDesc;
-		buffDesc.initData = &m_BVTriangles;
-		buffDesc.numOfElements = m_BVBufferNumOfElements;
-		buffDesc.sizeOfElement = sizeof(XMFLOAT4);
-		buffDesc.type = Buffer::Type::VERTEX_BUFFER;
-		buffDesc.usage = Buffer::Usage::DEFAULT;
-	
-		buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
-
-		SAFE_DELETE(m_BVBuffer);
-		m_BVBuffer = buffer;
-	}
-	else 
-	{
-		m_DeviceContext->UpdateSubresource(m_BVBuffer->getBufferPointer(), NULL, NULL, m_BVTriangles.data(), 0, 0);
-		buffer = m_BVBuffer;
-	}
-	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView); 
-	buffer->setBuffer(0);
-	m_BVShader->setShader();
-	
-	m_DeviceContext->Draw(m_BVTriangles.size(),0);
-
-	m_Shader->unSetShader();
-	buffer->unsetBuffer(0);
+	drawBoundingVolumes();
 
 	End();
-
-	buffer = nullptr;
-	m_BVTriangles.clear();
 
 	//Delete lights
 	m_PointLights.clear();
@@ -884,10 +854,11 @@ HRESULT Graphics::createDepthStencilView(void)
 HRESULT Graphics::createRasterizerState(void)
 {
 	D3D11_RASTERIZER_DESC rasterDesc;
+	HRESULT result;
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
@@ -897,7 +868,11 @@ HRESULT Graphics::createRasterizerState(void)
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
-	return m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+
+	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterStateBV);
+	return result;
 }
 
 void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
@@ -995,6 +970,50 @@ void Graphics::End(void)
 		// Present as fast as possible.
 		m_SwapChain->Present(0, 0);
 	}
+}
+
+void Graphics::drawBoundingVolumes()
+{
+	Buffer* buffer = nullptr;
+
+	if(m_BVTriangles.size() >= m_BVBufferNumOfElements)
+	{
+		m_BVBufferNumOfElements = m_BVTriangles.size() + 1;
+		Buffer::Description buffDesc;
+		buffDesc.initData = &m_BVTriangles;
+		buffDesc.numOfElements = m_BVBufferNumOfElements;
+		buffDesc.sizeOfElement = sizeof(XMFLOAT4);
+		buffDesc.type = Buffer::Type::VERTEX_BUFFER;
+		buffDesc.usage = Buffer::Usage::DEFAULT;
+	
+		buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
+
+		SAFE_DELETE(m_BVBuffer);
+		m_BVBuffer = buffer;
+	}
+	else 
+	{
+		m_DeviceContext->UpdateSubresource(m_BVBuffer->getBufferPointer(), NULL, NULL, m_BVTriangles.data(), 0, 0);
+		buffer = m_BVBuffer;
+	}
+
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
+
+	m_DeviceContext->RSSetState(m_RasterStateBV);
+
+	buffer->setBuffer(0);
+	m_BVShader->setShader();
+	
+	m_DeviceContext->Draw(m_BVTriangles.size(), 0);
+
+	m_Shader->unSetShader();
+	buffer->unsetBuffer(0);
+
+	m_DeviceContext->RSSetState(m_RasterState);
+
+	buffer = nullptr;
+	m_BVTriangles.clear();
 }
 
 //TODO: Remove later

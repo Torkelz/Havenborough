@@ -44,18 +44,20 @@ void Physics::initialize()
 
 	m_Collision = Collision();
 
+	fillTriangleIndexList();
+
 	std::vector<Triangle> triangles;
 	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
-	//triangles.push_back(Triangle(Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f)));
 
-	/*triangles.push_back(Triangle(Vector4( 1.f, -1.f, -1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( 1.f, -1.f, -1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f)));
 	triangles.push_back(Triangle(Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
 
 	triangles.push_back(Triangle(Vector4( 1.f, -1.f, 1.f, 1.f), Vector4(1.f, 1.f, 1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
 	triangles.push_back(Triangle(Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(1.f, 1.f, 1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
 
-	triangles.push_back(Triangle(Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));*/
+	triangles.push_back(Triangle(Vector4(-1.f, -1.f, 1.f, 1.f), Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(-1.f, -1.f, -1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(-1.f, -1.f, -1.f, 1.f)));
 
 	Hull *hull = new Hull(XMFLOAT4(0.f, 0.f, 0.f, 1.f), triangles);
 
@@ -211,6 +213,22 @@ BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, b
 	return m_Bodies.back().getHandle();
 }
 
+void Physics::fillTriangleIndexList()
+{
+	m_TriangleIndex.push_back(XMFLOAT3(1, 0, 2));
+	m_TriangleIndex.push_back(XMFLOAT3(2, 3, 1));
+	m_TriangleIndex.push_back(XMFLOAT3(5, 1, 3));
+	m_TriangleIndex.push_back(XMFLOAT3(3, 7, 5));
+	m_TriangleIndex.push_back(XMFLOAT3(4, 5, 7));
+	m_TriangleIndex.push_back(XMFLOAT3(7, 6, 4));
+	m_TriangleIndex.push_back(XMFLOAT3(2, 0, 4));
+	m_TriangleIndex.push_back(XMFLOAT3(4, 6, 2));
+	m_TriangleIndex.push_back(XMFLOAT3(6, 7, 3));
+	m_TriangleIndex.push_back(XMFLOAT3(3, 2, 6));
+	m_TriangleIndex.push_back(XMFLOAT3(1, 5, 4));
+	m_TriangleIndex.push_back(XMFLOAT3(4, 0, 1));
+}
+
 void Physics::setGlobalGravity(float p_Gravity)
 {
 	m_GlobalGravity = p_Gravity;
@@ -346,11 +364,24 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 	switch (volume->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
-		break;
+		{
+			XMFLOAT3 triangleIndex = m_TriangleIndex.at(p_TriangleIndex);
+			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.x)),
+										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.y)),
+										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.z)));
+
+			return triangle;
+		}
 	case BoundingVolume::Type::HULL:
 		return ((Hull*)volume)->getTriangleAt(p_TriangleIndex);
 	case BoundingVolume::Type::OBB:
-		break;
+		{
+			XMFLOAT3 triangleIndex = m_TriangleIndex.at(p_TriangleIndex);
+			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.x)),
+										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.y)),
+										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.z)));
+			return triangle;
+		}
 	case BoundingVolume::Type::SPHERE:
 		break;
 	default:
@@ -370,11 +401,12 @@ unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle)
 	switch (volume->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
+	case BoundingVolume::Type::OBB:
+		return m_TriangleIndex.size();
 		break;
 	case BoundingVolume::Type::HULL:
 		return ((Hull*)volume)->getTriangleSize();
-	case BoundingVolume::Type::OBB:
-		break;
+	
 	case BoundingVolume::Type::SPHERE:
 		break;
 	default:

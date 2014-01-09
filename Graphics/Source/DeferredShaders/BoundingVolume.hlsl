@@ -24,5 +24,5 @@ VSOutput VS( float4 vertexPosition : POSITION )
 
 float4 PS( VSOutput input ) :  SV_Target0
 {
-	return float4(1.f, 1.f, 1.f, 1.f);
+	return float4(0.2f, 1.f, 0.2f, 1.f);
 }

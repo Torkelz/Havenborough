@@ -95,4 +95,6 @@ public:
 
 private:
 	void InitTemporaryStuff();
+
+	void addDebugBVToDraw(unsigned int p_BodyHandle);
 };
