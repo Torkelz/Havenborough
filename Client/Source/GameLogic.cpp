@@ -35,6 +35,10 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
 
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(50, 0.f, 50.f), false);
+	
+	m_ChangeScene = GoToScene::NONE;
+
+	
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 	currentDebugView = 3;
@@ -43,6 +47,7 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 void GameLogic::shutdown(void)
 {
 	m_Graphics->eraseModelInstance(ground);
+	
 	m_Level.releaseLevel();
 	shutdownSandbox();
 }
@@ -66,8 +71,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 				if(m_FinishLine == hit.collisionVictim)
 				{
 					m_Player.setPosition(m_Level.getStartPosition());
-					//m_ChangeScene = true;
-					//m_NewSceneID = 2;
+					m_ChangeScene = GoToScene::POSTGAME;
 					m_Physics->removedHitDataAt(i);
 				}
 
@@ -438,4 +442,9 @@ void GameLogic::shutdownSandbox()
 	{
 		m_ResourceManager->releaseResource(i);
 	}
+}
+
+GameLogic::GoToScene GameLogic::getChangeScene(void)
+{
+	return m_ChangeScene;
 }

@@ -179,7 +179,7 @@ void SceneManager::startRun()
 {
 	m_IsMenuState = false;
 	m_RunSceneList[0]->setIsVisible(true);
-	//m_RunSceneList[1]->setIsVisible(true);
+	((GameScene*)m_RunSceneList.at(0).get())->initializeGameLogic();
 	for(unsigned int i = 1; i < m_NumberOfRunScene; i++)
 	{
 		m_RunSceneList[i]->setIsVisible(false);

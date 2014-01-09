@@ -7,6 +7,13 @@
 
 class GameLogic
 {
+public:
+	enum class GoToScene
+	{
+		NONE = -1,
+		POSTGAME = 2
+	};
+
 private:
 	IGraphics *m_Graphics;
 	IPhysics *m_Physics;
@@ -20,6 +27,8 @@ private:
 	std::vector<int> m_ResourceIDs;
 	BodyHandle m_Ground;
 	BodyHandle m_FinishLine;
+
+	GoToScene m_ChangeScene;
 
 	//DEBUG
 	int currentDebugView;
@@ -51,6 +60,10 @@ private:
 	float sensitivity;
 	float witchCircleAngle;
 public:
+	/**
+	* Gets which scene the game should change to.
+	*/
+	GoToScene getChangeScene(void);
 	GameLogic(void);
 	~GameLogic(void);
 

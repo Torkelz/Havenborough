@@ -8,12 +8,14 @@ GameScene::GameScene()
 	m_ChangeScene = false;
 	m_ChangeList = false;
 	
+	m_GameLogic = nullptr;
 	m_Graphics = nullptr;
 	m_InputQueue = nullptr;
 }
 
 GameScene::~GameScene()
 {
+	//SAFE_SHUTDOWN(m_GameLogic);
 	m_Graphics = nullptr;
 	m_InputQueue = nullptr;
 }
@@ -23,27 +25,33 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
+	m_Physics = p_Physics;
 	m_InputQueue = p_InputQueue;
-
-	m_GameLogic.initialize(p_Graphics, p_ResourceManager, p_Physics, p_InputQueue);
+	m_ResourceManager = p_ResourceManager;
 	
 	return true;
 }
 
 void GameScene::destroy()
 {
-	m_GameLogic.shutdown();
+	//SAFE_SHUTDOWN(m_GameLogic);
 }
 
 void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 {
-	m_GameLogic.onFrame(p_DeltaTime);
-
+	m_GameLogic->onFrame(p_DeltaTime);
+	if(m_GameLogic->getChangeScene() != GameLogic::GoToScene::NONE)
+	{
+		m_ChangeScene = true;
+		m_NewSceneID = (int)m_GameLogic->getChangeScene();
+		
+	}
 	if(m_ChangeScene)
 	{
 		*p_IsCurrentScene = m_NewSceneID;
 		m_Visible = false;
 		m_ChangeScene = false;
+
 	}
 	else if(m_ChangeList)
 	{
@@ -54,7 +62,8 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 void GameScene::render()
 {
-	m_GameLogic.render();
+	if(m_GameLogic)
+		m_GameLogic->render();
 }
 
 bool GameScene::getIsVisible()
@@ -79,7 +88,13 @@ void GameScene::registeredInput(std::string p_Action, float p_Value)
 		m_ChangeList = true;
 	}
 
-	m_GameLogic.registeredInput(p_Action, p_Value);
+	m_GameLogic->registeredInput(p_Action, p_Value);
+}
+
+void GameScene::initializeGameLogic(void)
+{
+	m_GameLogic = new GameLogic();
+	m_GameLogic->initialize(m_Graphics, m_ResourceManager, m_Physics, m_InputQueue);
 }
 
 /*########## TEST FUNCTIONS ##########*/
