@@ -80,6 +80,9 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
 				
 	m_MemoryInfo.update();
+	
+	m_ActorFactory.setPhysics(m_Physics);
+	m_ActorFactory.setGraphics(m_Graphics);
 }
 
 void BaseGameApp::run()
@@ -87,136 +90,28 @@ void BaseGameApp::run()
 	Logger::log(Logger::Level::INFO, "Running the game");
 
 	m_ShouldQuit = false;
-	std::vector<Actor::ptr> serverActors;
 
-	
-	__int64 cntsPerSec = 0;
-	QueryPerformanceFrequency((LARGE_INTEGER*)&cntsPerSec);
-	float secsPerCnt = 1.0f / (float)cntsPerSec;
-
-	__int64 prevTimeStamp = 0;
-	__int64 currTimeStamp = 0;
-	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
-	currTimeStamp--;
+	resetTimer();
 
 	while (!m_ShouldQuit)
 	{
 		Logger::log(Logger::Level::TRACE, "New frame");
 
-		prevTimeStamp = currTimeStamp;
-		QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
-		float dt = (currTimeStamp - prevTimeStamp) * secsPerCnt;
-		const static float maxDeltaTime = 1.f / 5.f;
-		if (dt > maxDeltaTime)
-		{
-			Logger::log(Logger::Level::WARNING, "Computer to slow or something");
-			dt = maxDeltaTime;
-		}
-
-		for (auto& actor : serverActors)
-		{
-			actor->onUpdate(dt);
-		}
-
-		for (auto& actor : serverActors)
-		{
-			auto weakGraphicsComponent = actor->getComponent<ModelInterface>(2);
-			std::shared_ptr<ModelInterface> strongGraphicsComponent(weakGraphicsComponent);
-
-			if (strongGraphicsComponent)
-			{
-				strongGraphicsComponent->render();
-			}
-		}
-
-		m_SceneManager.onFrame(dt);
-		m_SceneManager.render();
-		
-		m_MemoryInfo.update();
-		updateDebugInfo(dt);
-
 		m_InputQueue.onFrame();
 		m_Window.pollMessages();
 
-		for (auto& in : m_InputQueue.getFrameInputs())
-		{
-			std::ostringstream msg;
-			msg << "Received input action: " << in.m_Action << " (" << std::setprecision(2) << std::fixed << in.m_Value << ")";
-			Logger::log(Logger::Level::TRACE, msg.str());
+		handleInput();
+		handleNetwork();
 
-			// Pass keystrokes to all active scenes.
-			m_SceneManager.keyStroke(in.m_Action, in.m_Value);
+		updateLogic();
 
-			if (in.m_Action == "exit")
-			{
-				m_ShouldQuit = true;
-			}
-			else if (in.m_Action == "connect" && in.m_Value == 1.0f)
-			{
-				m_Connected = false;
-				m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
-			}
-		}
+		render();
 		
-		if (m_Connected)
-		{
-			IConnectionController* conn = m_Network->getConnectionToServer();
-			unsigned int numPackages = conn->getNumPackages();
-			for (unsigned int i = 0; i < numPackages; i++)
-			{
-				Package package = conn->getPackage(i);
-				PackageType type = conn->getPackageType(package);
-
-				std::string msg("Received package of type: " + std::to_string((uint16_t)type));
-				Logger::log(Logger::Level::TRACE, msg);
-
-				switch (type)
-				{
-				case PackageType::CREATE_OBJECTS:
-					{
-						unsigned int numInstances = conn->getNumCreateObjectInstances(package);
-						const ObjectInstance* instances = conn->getCreateObjectInstances(package);
-						for (unsigned int i = 0; i < numInstances; ++i)
-						{
-							using tinyxml2::XMLAttribute;
-							using tinyxml2::XMLDocument;
-							using tinyxml2::XMLElement;
-
-							ObjectInstance data = instances[i];
-							std::ostringstream msg;
-							msg << "Adding object at (" 
-								<< data.m_Position[0] << ", "
-								<< data.m_Position[1] << ", " 
-								<< data.m_Position[2] << ")";
-							Logger::log(Logger::Level::INFO, msg.str());
-
-							XMLDocument description;
-							description.Parse(conn->getCreateObjectDescription(package, data.m_DescriptionIdx));
-
-							ActorFactory factory;
-							factory.setPhysics(m_Physics);
-							factory.setGraphics(m_Graphics);
-
-							const XMLElement* obj = description.FirstChildElement("Object");
-
-							Actor::ptr actor = factory.createActor(obj);
-							actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
-							actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
-							serverActors.push_back(actor);
-						}
-					}
-					break;
-
-				default:
-					std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
-					Logger::log(Logger::Level::WARNING, msg);
-					break;
-				}
-			}
-
-			conn->clearPackages(numPackages);
-		}
+		m_MemoryInfo.update();
+		updateDebugInfo();
 	}
+
+	m_ServerActors.clear();
 }
 
 void BaseGameApp::shutdown()
@@ -276,9 +171,9 @@ void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
 	}
 }
 
-void BaseGameApp::updateDebugInfo(float p_dt)
+void BaseGameApp::updateDebugInfo()
 {
-	m_TimeToNextMemUpdate -= p_dt;
+	m_TimeToNextMemUpdate -= m_DeltaTime;
 	if (m_TimeToNextMemUpdate > 0.f)
 	{
 		return;
@@ -290,7 +185,141 @@ void BaseGameApp::updateDebugInfo(float p_dt)
 	std::string pMemUsage = "Physical MemUsage: " + std::to_string(m_MemoryInfo.getPhysicalMemoryUsage()) + "MB";
 	std::string gMemUsage = "Video MemUsage: " + std::to_string(m_Graphics->getVRAMMemUsage()) + "MB";
 
-	std::string speed = "DeltaTime: " + std::to_string(p_dt) + " FPS: " + std::to_string(1.0f/p_dt);
+	std::string speed = "DeltaTime: " + std::to_string(m_DeltaTime) + " FPS: " + std::to_string(1.0f/m_DeltaTime);
 
 	m_Window.setTitle(getGameTitle() + " | " + vMemUsage + " " + pMemUsage + " " + gMemUsage + " " + speed);
+}
+
+void BaseGameApp::resetTimer()
+{
+	__int64 cntsPerSec = 0;
+	QueryPerformanceFrequency((LARGE_INTEGER*)&cntsPerSec);
+	m_SecsPerCnt = 1.0f / (float)cntsPerSec;
+
+	m_PrevTimeStamp = 0;
+	m_CurrTimeStamp = 0;
+	QueryPerformanceCounter((LARGE_INTEGER*)&m_CurrTimeStamp);
+	m_CurrTimeStamp--;
+}
+
+void BaseGameApp::updateTimer()
+{
+	m_PrevTimeStamp = m_CurrTimeStamp;
+	QueryPerformanceCounter((LARGE_INTEGER*)&m_CurrTimeStamp);
+	m_DeltaTime = (m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt;
+	static const float maxDeltaTime = 1.f / 5.f;
+	if (m_DeltaTime > maxDeltaTime)
+	{
+		Logger::log(Logger::Level::WARNING, "Computer to slow or something");
+		m_DeltaTime = maxDeltaTime;
+	}
+}
+
+void BaseGameApp::handleInput()
+{
+	for (auto& in : m_InputQueue.getFrameInputs())
+	{
+		std::ostringstream msg;
+		msg << "Received input action: " << in.m_Action << " (" << std::setprecision(2) << std::fixed << in.m_Value << ")";
+		Logger::log(Logger::Level::TRACE, msg.str());
+
+		// Pass keystrokes to all active scenes.
+		m_SceneManager.keyStroke(in.m_Action, in.m_Value);
+
+		if (in.m_Action == "exit")
+		{
+			m_ShouldQuit = true;
+		}
+		else if (in.m_Action == "connect" && in.m_Value == 1.0f)
+		{
+			m_Connected = false;
+			m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
+		}
+	}
+}
+
+void BaseGameApp::handleNetwork()
+{
+	if (m_Connected)
+	{
+		IConnectionController* conn = m_Network->getConnectionToServer();
+		unsigned int numPackages = conn->getNumPackages();
+		for (unsigned int i = 0; i < numPackages; i++)
+		{
+			Package package = conn->getPackage(i);
+			PackageType type = conn->getPackageType(package);
+
+			std::string msg("Received package of type: " + std::to_string((uint16_t)type));
+			Logger::log(Logger::Level::TRACE, msg);
+
+			switch (type)
+			{
+			case PackageType::CREATE_OBJECTS:
+				{
+					unsigned int numInstances = conn->getNumCreateObjectInstances(package);
+					const ObjectInstance* instances = conn->getCreateObjectInstances(package);
+					for (unsigned int i = 0; i < numInstances; ++i)
+					{
+						using tinyxml2::XMLAttribute;
+						using tinyxml2::XMLDocument;
+						using tinyxml2::XMLElement;
+
+						ObjectInstance data = instances[i];
+						std::ostringstream msg;
+						msg << "Adding object at (" 
+							<< data.m_Position[0] << ", "
+							<< data.m_Position[1] << ", " 
+							<< data.m_Position[2] << ")";
+						Logger::log(Logger::Level::INFO, msg.str());
+
+						XMLDocument description;
+						description.Parse(conn->getCreateObjectDescription(package, data.m_DescriptionIdx));
+
+						const XMLElement* obj = description.FirstChildElement("Object");
+
+						Actor::ptr actor = m_ActorFactory.createActor(obj);
+						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
+						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
+						m_ServerActors.push_back(actor);
+					}
+				}
+				break;
+
+			default:
+				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
+				Logger::log(Logger::Level::WARNING, msg);
+				break;
+			}
+		}
+
+		conn->clearPackages(numPackages);
+	}
+}
+
+void BaseGameApp::updateLogic()
+{
+	updateTimer();
+
+	for (auto& actor : m_ServerActors)
+	{
+		actor->onUpdate(m_DeltaTime);
+	}
+
+	m_SceneManager.onFrame(m_DeltaTime);
+}
+
+void BaseGameApp::render()
+{
+	for (auto& actor : m_ServerActors)
+	{
+		auto weakGraphicsComponent = actor->getComponent<ModelInterface>(2);
+		std::shared_ptr<ModelInterface> strongGraphicsComponent(weakGraphicsComponent);
+
+		if (strongGraphicsComponent)
+		{
+			strongGraphicsComponent->render();
+		}
+	}
+
+	m_SceneManager.render();
 }

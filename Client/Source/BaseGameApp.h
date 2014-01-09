@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Actor.h"
+#include "ActorFactory.h"
 #include <IGraphics.h>
 #include "Input\Input.h"
 #include "IPhysics.h"
@@ -33,6 +35,14 @@ private:
 
 	IPhysics *m_Physics;
 	ResourceManager* m_ResourceManager;
+
+	ActorFactory m_ActorFactory;
+	std::vector<Actor::ptr> m_ServerActors;
+
+	__int64 m_PrevTimeStamp;
+	__int64 m_CurrTimeStamp;
+	float m_SecsPerCnt;
+	float m_DeltaTime;
 
 public:
 	/**
@@ -68,5 +78,12 @@ private:
 
 	static void connectedCallback(Result p_Res, void* p_UserData);
 
-	void updateDebugInfo(float p_dt);
+	void updateDebugInfo();
+
+	void resetTimer();
+	void updateTimer();
+	void handleInput();
+	void handleNetwork();
+	void updateLogic();
+	void render();
 };
