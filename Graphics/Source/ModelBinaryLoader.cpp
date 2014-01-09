@@ -92,24 +92,27 @@ std::vector<Joint> ModelBinaryLoader::readJointList(int p_NumberOfJoint, int p_N
 		byteToString(p_Input, temp.m_JointName);
 		byteToInt(p_Input, temp.m_ID);
 		byteToInt(p_Input, temp.m_Parent);
-		p_Input->read(reinterpret_cast<char*>(&temp.m_JointOffsetMatrix), sizeof(DirectX::XMFLOAT4X4));
+		p_Input->read(reinterpret_cast<char*>(&temp.m_TotalJointOffset), sizeof(DirectX::XMFLOAT4X4));
 		p_Input->read(reinterpret_cast<char*>(temp.m_JointAnimation.data()), sizeof(KeyFrame) * p_NumberOfFrames);
 
 		using namespace DirectX;
+		
+		XMMATRIX offset = XMLoadFloat4x4(&temp.m_TotalJointOffset);
+		offset = XMMatrixTranspose(offset);
+		XMStoreFloat4x4(&temp.m_TotalJointOffset, offset);
 
 		// Precompute the total offset matrix for the joints
 		if (temp.m_Parent == 0)
 		{
-			XMMATRIX offset = XMLoadFloat4x4(&temp.m_JointOffsetMatrix);
-			XMStoreFloat4x4(&temp.m_TotalJointOffset, XMMatrixTranspose(offset));
+			XMStoreFloat4x4(&temp.m_JointOffsetMatrix, XMMatrixTranspose(offset));
 		}
 		else
 		{
 			XMMATRIX parent = XMLoadFloat4x4(&readJoints[temp.m_Parent - 1].m_TotalJointOffset);
-			XMMATRIX offset = DirectX::XMLoadFloat4x4(&temp.m_JointOffsetMatrix);
+			parent = XMMatrixInverse(nullptr, parent);
 
-			XMMATRIX sumOffset = XMMatrixMultiply(parent, XMMatrixTranspose(offset));
-			XMStoreFloat4x4(&temp.m_TotalJointOffset, sumOffset);
+			XMMATRIX sumOffset = XMMatrixMultiply(parent, offset);
+			XMStoreFloat4x4(&temp.m_JointOffsetMatrix, XMMatrixTranspose(sumOffset));
 		}
 
 		readJoints.push_back(temp);
