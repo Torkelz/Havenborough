@@ -183,6 +183,23 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	DebugDefferedDraw();
 
+	m_BVBufferNumOfElements = 100;
+	Buffer::Description buffDesc;
+	buffDesc.initData = nullptr;
+	buffDesc.numOfElements = m_BVBufferNumOfElements;
+	buffDesc.sizeOfElement = sizeof(XMFLOAT4);
+	buffDesc.type = Buffer::Type::VERTEX_BUFFER;
+	buffDesc.usage = Buffer::Usage::DEFAULT;
+	
+	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
+
+	//ShaderInputElementDescription shaderDesc[] = 
+	//{
+	//	{"POSITION", 0, Format::R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	//};
+
+	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
+															"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);//, shaderDesc, 1);
 	return true;
 }
 
@@ -241,6 +258,8 @@ void Graphics::shutdown(void)
 	SAFE_SHUTDOWN(m_WrapperFactory);
 	SAFE_SHUTDOWN(m_ModelFactory);
 	SAFE_SHUTDOWN(m_VRAMMemInfo);
+
+	SAFE_DELETE(m_BVBuffer);
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
@@ -462,7 +481,7 @@ void Graphics::drawFrame(int i)
 
 	m_DeferredRender->renderDeferred();
 
-	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView); 
+	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_Shader->setShader();
@@ -471,8 +490,42 @@ void Graphics::drawFrame(int i)
 	m_DeviceContext->Draw(6,0);
 
 	m_Shader->unSetShader();
+
+	Buffer* buffer = nullptr;
+
+	if(m_BVTriangles.size() >= m_BVBufferNumOfElements)
+	{
+		m_BVBufferNumOfElements = m_BVTriangles.size() + 1;
+		Buffer::Description buffDesc;
+		buffDesc.initData = &m_BVTriangles;
+		buffDesc.numOfElements = m_BVBufferNumOfElements;
+		buffDesc.sizeOfElement = sizeof(XMFLOAT4);
+		buffDesc.type = Buffer::Type::VERTEX_BUFFER;
+		buffDesc.usage = Buffer::Usage::DEFAULT;
 	
+		buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
+
+		SAFE_DELETE(m_BVBuffer);
+		m_BVBuffer = buffer;
+	}
+	else 
+	{
+		m_DeviceContext->UpdateSubresource(m_BVBuffer->getBufferPointer(), NULL, NULL, m_BVTriangles.data(), 0, 0);
+		buffer = m_BVBuffer;
+	}
+	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView); 
+	buffer->setBuffer(0);
+	m_BVShader->setShader();
+	
+	m_DeviceContext->Draw(m_BVTriangles.size(),0);
+
+	m_Shader->unSetShader();
+	buffer->unsetBuffer(0);
+
 	End();
+
+	buffer = nullptr;
+	m_BVTriangles.clear();
 
 	//Delete lights
 	m_PointLights.clear();
@@ -632,7 +685,9 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 
 void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)
 {
-
+	m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner1, 1.f));
+	m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner2, 1.f));
+	m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner3, 1.f));
 }
 
 void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)

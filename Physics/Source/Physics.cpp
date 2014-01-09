@@ -46,7 +46,7 @@ void Physics::initialize()
 
 	std::vector<Triangle> triangles;
 	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f)));
+	//triangles.push_back(Triangle(Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f)));
 
 	/*triangles.push_back(Triangle(Vector4( 1.f, -1.f, -1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f)));
 	triangles.push_back(Triangle(Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
@@ -359,7 +359,7 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 
 	return trig;
 }
-unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex)
+unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle)
 {
 	Body* body = findBody(p_BodyHandle);
 	if(body == nullptr)

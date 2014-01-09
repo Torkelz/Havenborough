@@ -68,6 +68,12 @@ private:
 	std::vector<Light>			m_PointLights;
 	std::vector<Light>			m_DirectionalLights;
 
+	//Stuff needed for drawing boundingvolumes
+	std::vector<XMFLOAT4>		m_BVTriangles;
+	Buffer						*m_BVBuffer;
+	unsigned int				m_BVBufferNumOfElements;
+	Shader						*m_BVShader;
+
 	Shader *m_Shader; //DEBUG
 	ID3D11SamplerState *m_Sampler;
 

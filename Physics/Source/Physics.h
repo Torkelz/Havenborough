@@ -54,7 +54,7 @@ public:
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
 	Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) override;
-	unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) override;
+	unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle) override;
 		 
 private:
 	Body* findBody(BodyHandle p_Body);

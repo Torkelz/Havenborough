@@ -28,7 +28,7 @@ bool GameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, 
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
 
-	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 2.f, 10.f), XMFLOAT3(0.f, 0.f, 1.f));
+	m_Player.initialize(m_Physics, XMFLOAT3(1.f, 2.f, 1.f), XMFLOAT3(0.f, 0.f, 1.f));
 
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(50.f, 0.f, 50.f), false);
 
@@ -201,6 +201,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 		m_Graphics->renderModel(box);
 	}
 	m_Graphics->renderModel(slantedPlane);
+	m_Graphics->renderModel(hej);
 	//m_Level.drawLevel();
 
 	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
@@ -210,8 +211,16 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_Graphics->useFramePointLight(Vector3(0.f, 30.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
 	m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
 
-	m_Graphics->drawFrame(currView);
+	unsigned int size =  m_Physics->getNrOfTrianglesFromBody(1);
 
+	for(unsigned int i = 0; i < size; i++)
+	{
+		Triangle triangle;
+		triangle = m_Physics->getTriangleFromBody(1, i);
+		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+	}
+
+	m_Graphics->drawFrame(currView);
 
 }
 
@@ -433,6 +442,12 @@ void GameScene::InitTemporaryStuff()
 
 	BodyHandle slantedPlaneBody = m_Physics->createOBB(0.f, true, slantedPlanePosition, slantedPlaneSize * 0.5f, false);
 	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlaneRotation);
+
+	/*hej = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelPosition(hej,  Vector3(14.f, 4.5f, -10.f));
+	m_Graphics->setModelScale(hej,  Vector3(5.f, 0.5f, 7.f));
+	m_Graphics->setModelRotation(hej, Vector3(0.f, 0.f, 3.14f/6.5f));*/
+
 
 	OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
 	m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
