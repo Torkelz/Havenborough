@@ -124,6 +124,9 @@
     <ClInclude Include="include\ShaderDefinitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\AnimationStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\DeferredShaders\LightPassSpotLight.hlsl">

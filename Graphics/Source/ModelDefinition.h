@@ -3,9 +3,11 @@
 #include "Joint.h"
 #include "ShaderStructs.h"
 #include "WrapperFactory.h"
+#include "AnimationStructs.h"
 
 #include <memory>
 #include <vector>
+#include <map>
 
 /**
  * Representation of the static data associated with a model.
@@ -49,6 +51,11 @@ struct ModelDefinition
 	 * The animation joints of the model. Contains all static animation data.
 	 */
 	std::vector<Joint>			m_Joints;
+
+	/**
+	 * The animation clips. Address them via a name. E.g. "Walk", "Run", "Laugh"...
+	 */
+	std::map<std::string, AnimationClip>	m_AnimationClips;
 
 	/**
 	 * Move constructor.

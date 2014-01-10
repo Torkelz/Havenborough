@@ -8,7 +8,10 @@ using std::string;
 
 ModelInstance::ModelInstance()
 	:	m_CurrentFrame(0.f),
-		m_IsCalculated(false) {}
+		m_IsCalculated(false)
+{
+	m_ActiveClips[0] = AnimationClip();
+}
 
 ModelInstance::~ModelInstance() {}
 
@@ -66,13 +69,14 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 
 	static const float keyfps = 24.0f;
 
-	m_CurrentFrame += p_DeltaTime * keyfps;
+	m_CurrentFrame += p_DeltaTime * keyfps * m_ActiveClips[0].m_AnimationSpeed;
 
-	const unsigned int numKeyframes = p_Joints[0].m_JointAnimation.size();
-	// Could be if but has while to catch very big delta steps in time.
-	while (m_CurrentFrame >= (float)(numKeyframes - 1))
+	const unsigned int numKeyframes = m_ActiveClips[0].m_End;
+	
+	if (m_CurrentFrame >= (float)(numKeyframes - 1))
 	{
-		m_CurrentFrame -= (float)(numKeyframes - 1);
+		m_CurrentFrame = m_ActiveClips[0].m_Start;
+		// Note: This will not work for backward animations.
 	}
 
 	const unsigned int numBones = p_Joints.size();
@@ -311,8 +315,14 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 		result = XMMatrixMultiply(flipMatrix, result);
 
 		XMStoreFloat4x4(&m_FinalTransform[i], result);
-		XMMATRIX identity = XMMatrixIdentity();
-		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);
+		//XMMATRIX identity = XMMatrixIdentity();
 		//XMStoreFloat4x4(&m_FinalTransform[i], identity);
+		XMStoreFloat4x4(&m_FinalTransform[i], offSet);
 	}
+}
+
+void ModelInstance::playClip(AnimationClip p_Clip)
+{
+	m_ActiveClips[0] = p_Clip;
+	m_CurrentFrame = p_Clip.m_Start;
 }

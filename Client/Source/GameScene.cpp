@@ -53,10 +53,18 @@ bool GameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
 
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
+	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
+
 	currView = 3;
 
 	InitTemporaryStuff();
 
+	// Test.
+	m_Graphics->playAnimation(circleWitch, "Bomb");
+	m_Graphics->playAnimation(wavingWitch, "Kick");
+	m_Graphics->playAnimation(standingWitch, "Bomb");
+	m_Graphics->playAnimation(testWitch, "Witch");
 
 	return true;
 }
@@ -201,6 +209,9 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 		m_Graphics->renderModel(box);
 	}
 	m_Graphics->renderModel(slantedPlane);
+
+	
+	m_Graphics->renderModel(testWitch);
 	//m_Level.drawLevel();
 
 	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
@@ -340,6 +351,11 @@ void GameScene::InitTemporaryStuff()
 	Logger::log(Logger::Level::DEBUG, "Adding debug character");
 	circleWitch = m_Graphics->createModelInstance("DZALA");
 	m_Graphics->setModelScale(circleWitch, Vector3(0.01f, 0.01f, 0.01f));
+
+	Logger::log(Logger::Level::DEBUG, "Adding debug witch");
+	testWitch = m_Graphics->createModelInstance("WITCH");
+	m_Graphics->setModelScale(testWitch, Vector3(0.01f, 0.01f, 0.01f));
+	m_Graphics->setModelPosition(testWitch, Vector3(16.0f, 0.0f, 5.0f));
 
 	standingWitch = m_Graphics->createModelInstance("DZALA");
 	m_Graphics->setModelScale(standingWitch, Vector3(0.01f, 0.01f, 0.01f));

@@ -18,8 +18,8 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 {
 	static const std::pair<std::string, std::string> modelMap[] =
 	{
-		std::make_pair("DZALA", "assets/models/Ninta.btx"),
-		std::make_pair("MARIM", "assets/models/marim.btx"),
+		std::make_pair("DZALA", "assets/models/Ninta2.btx"),
+		std::make_pair("WITCH", "assets/models/Witch.btx"),
 		std::make_pair("House", "assets/models/house1.btx"),
 		std::make_pair("BOX", "assets/models/Sample135.btx"),
 		std::make_pair("SKYBOX", "assets/models/SkyBox.btx"),

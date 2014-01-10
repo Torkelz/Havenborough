@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ShaderDefinitions.h" />
+    <ClInclude Include="Source\AnimationStructs.h" />
     <ClInclude Include="Source\Joint.h" />
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />

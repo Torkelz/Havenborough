@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Joint.h"
+#include "AnimationStructs.h"
 
 #include <DirectXMath.h>
 #include <string>
@@ -35,6 +36,8 @@
 	 * The current frame time point. Non-integral values results in interpolation.
 	 */
 	float m_CurrentFrame;
+	AnimationClip m_ActiveClips[2]; // "Tracks"
+	std::vector<AnimationClip> m_QueuedClips;
 
  public:
 	/**
@@ -116,6 +119,8 @@
 	 * @param p_Joints the joints associated with the model instance.
 	 */
 	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName, const std::vector<Joint>& p_Joints);
+
+	void playClip(AnimationClip p_Clip);
 
  private:
 	void calculateWorldMatrix(void) const;
