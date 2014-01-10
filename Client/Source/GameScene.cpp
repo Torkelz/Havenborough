@@ -144,7 +144,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_Graphics->setModelRotation(circleWitch, Vector3(witchCircleAngle, 0.f, 0.f));
 
 	static const float waveRadius = 0.5f;
-	Vector3 wavePos = m_Graphics->getJointPosition(wavingWitch, "bn_head01");
+	Vector3 wavePos = m_Graphics->getJointPosition(wavingWitch, "Head");
 	wavePos.x -= 1.f;
 	witchWaveAngle += witchWavingAngleSpeed * p_DeltaTime;
 	wavePos.y += sinf(witchWaveAngle) * waveRadius;
@@ -152,7 +152,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_Graphics->updateAnimations(p_DeltaTime);
 
-	m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_b01", "bn_l_arm01", wavePos);
+	//m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_b01", "bn_l_arm01", wavePos);
 
 	yaw += yawSpeed * p_DeltaTime;
 	pitch += pitchSpeed * p_DeltaTime;
@@ -170,19 +170,19 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	static const float IK_Length = 5.f;
 
-	static const char* testTargetJoint = "bn_l_foot01";
-	static const char* testHingeJoint = "bn_l_Knee_a01";
-	static const char* testBaseJoint = "bn_l_Tigh01";
+	//static const char* testTargetJoint = "bn_l_foot01";
+	//static const char* testHingeJoint = "bn_l_Knee_a01";
+	//static const char* testBaseJoint = "bn_l_Tigh01";
 
 	Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
 	if (useIK_OnIK_Worm)
 	{
-		m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
+		//m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
 		m_Graphics->applyIK_ReachPoint(ikTest, "joint4", "joint3", "joint2", IK_Target);
 	}
 
-	Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
-	m_Graphics->setModelPosition(jointBox, jointPos);
+	//Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
+	//m_Graphics->setModelPosition(jointBox, jointPos);
 	//m_Graphics->renderModel(jointBox);
 
 	m_Graphics->renderModel(ground);
@@ -339,14 +339,14 @@ void GameScene::InitTemporaryStuff()
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug character");
 	circleWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(circleWitch, Vector3(0.1f, 0.1f, 0.1f));
+	m_Graphics->setModelScale(circleWitch, Vector3(0.01f, 0.01f, 0.01f));
 
 	standingWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(standingWitch, Vector3(0.1f, 0.1f, 0.1f));
+	m_Graphics->setModelScale(standingWitch, Vector3(0.01f, 0.01f, 0.01f));
 	m_Graphics->setModelPosition(standingWitch, Vector3(16.f, 0.f, -5.f));
 
 	wavingWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(wavingWitch, Vector3(0.1f, 0.1f, 0.1f));
+	m_Graphics->setModelScale(wavingWitch, Vector3(0.01f, 0.01f, 0.01f));
 	m_Graphics->setModelPosition(wavingWitch, Vector3(15.f, 0.f, -5.f));
 
 	ikTest = m_Graphics->createModelInstance("IKTest");

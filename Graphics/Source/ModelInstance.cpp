@@ -298,6 +298,7 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 	static const XMMATRIX flipMatrix = XMLoadFloat4x4(&flipMatrixData);
 	
 	m_FinalTransform.resize(numBones);
+
 	// Use offset to account for bind space coordinates of vertex positions
 	for (unsigned int i = 0; i < numBones; i++)
 	{
@@ -310,5 +311,8 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 		result = XMMatrixMultiply(flipMatrix, result);
 
 		XMStoreFloat4x4(&m_FinalTransform[i], result);
+		XMMATRIX identity = XMMatrixIdentity();
+		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);
+		//XMStoreFloat4x4(&m_FinalTransform[i], identity);
 	}
 }
