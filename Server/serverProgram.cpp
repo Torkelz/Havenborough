@@ -89,6 +89,10 @@ std::string getBoxDescription(const TestBox& p_Box)
 	static const float halfsize[3] = {0.5f, 0.5f, 0.5f};
 	pushVector(printer, "Halfsize", halfsize);
 	printer.CloseElement();
+	printer.OpenElement("Pulse");
+	printer.PushAttribute("Length", 0.5f);
+	printer.PushAttribute("Strength", 0.5f);
+	printer.CloseElement();
 	printer.CloseElement();
 	return std::string(printer.CStr());
 }
@@ -125,6 +129,30 @@ void removeLastBox()
 	}
 }
 
+bool pulseObject = false;
+
+void pulse()
+{
+	if (boxes.empty())
+	{
+		return;
+	}
+
+	const uint16_t object = boxes.front().actorId;
+
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Action");
+	printer.OpenElement("Pulse");
+	printer.CloseElement();
+	printer.CloseElement();
+
+	std::lock_guard<std::mutex> lock(g_ControllerLock);
+	for(auto& con : g_Controllers)
+	{
+		con->sendObjectAction(object, printer.CStr());
+	}
+}
+
 void updateClients()
 {
 	std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
@@ -137,6 +165,12 @@ void updateClients()
 		{
 			removeLastBox();
 			removeBox = false;
+		}
+
+		if (pulseObject)
+		{
+			pulse();
+			pulseObject = false;
 		}
 
 		std::vector<UpdateObjectData> data;
@@ -238,8 +272,14 @@ void sendTestData()
 	removeBox = true;
 }
 
+void sendPulseObject()
+{
+	pulseObject = true;
+}
+
 const std::string helpMessage =
 	"  send     Send data to client\n"
+	"  pulse    Pulse an object\n"
 	"  list     List all the connected clients\n"
 	"  exit     Shutdown the server\n";
 
@@ -298,6 +338,8 @@ int main(int argc, char* argv[])
 			printHelp();
 		else if (input == "list")
 			printClientList();
+		else if (input == "pulse")
+			sendPulseObject();
 		else
 			printUnknownCommand();
 

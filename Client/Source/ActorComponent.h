@@ -13,6 +13,7 @@ protected:
 
 public:
 	typedef std::shared_ptr<ActorComponent> ptr;
+	typedef unsigned int Id;
 
 	virtual ~ActorComponent() {}
 
@@ -20,7 +21,7 @@ public:
 	virtual void postInit() {}
 	virtual void onUpdate(float p_DeltaTime) {}
 
-	virtual unsigned int getComponentId() const = 0;
+	virtual Id getComponentId() const = 0;
 
 private:
 	friend class ActorFactory;

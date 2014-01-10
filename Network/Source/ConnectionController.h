@@ -63,6 +63,10 @@ public:
 	unsigned int getNumRemoveObjectRefs(Package p_Package) override;
 	const uint16_t* getRemoveObjectRefs(Package p_Package) override;
 
+	void sendObjectAction(uint16_t p_ObjectId, const char* p_Action) override;
+	uint16_t getObjectActionId(Package p_Package) override;
+	const char* getObjectActionAction(Package p_Package) override;
+
 	/**
 	 * Start the listening loop on the connection.
 	 */

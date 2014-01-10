@@ -22,6 +22,7 @@ enum class PackageType : uint16_t
 	REMOVE_OBJECTS,
 	UPDATE_OBJECTS,
 	GAME_RESULT,
+	OBJECT_ACTION,
 };
 
 struct ObjectInstance

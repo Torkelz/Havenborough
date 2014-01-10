@@ -337,6 +337,33 @@ void BaseGameApp::handleNetwork()
 				}
 				break;
 
+			case PackageType::OBJECT_ACTION:
+				{
+					const Actor::Id actorId = conn->getObjectActionId(package);
+					const char* xmlAction = conn->getObjectActionAction(package);
+					tinyxml2::XMLDocument actionDoc;
+					actionDoc.Parse(xmlAction);
+					const tinyxml2::XMLElement* root = actionDoc.FirstChildElement("Action");
+					const tinyxml2::XMLElement* action = root->FirstChildElement();
+					
+					if (std::string(action->Value()) == "Pulse")
+					{
+						for (auto& actor : m_ServerActors)
+						{
+							if (actor->getId())
+							{
+								std::shared_ptr<PulseInterface> pulseComp(actor->getComponent<PulseInterface>(4));
+								if (pulseComp)
+								{
+									pulseComp->pulseOnce();
+								}
+								break;
+							}
+						}
+					}
+				}
+				break;
+
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);

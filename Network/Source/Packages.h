@@ -259,3 +259,35 @@ public:
 	}
 };
 
+/**
+ * A package representing one objects action in the game world.
+ */
+class ObjectAction : public PackageHelper<ObjectAction>
+{
+public:
+	uint16_t m_Object;
+	std::string m_Action;
+
+public:
+	/**
+	 * constructor.
+	 */
+	ObjectAction()
+		: PackageHelper<ObjectAction>(PackageType::OBJECT_ACTION)
+	{}
+
+	/**
+	 * Serialize the package to or from an archive.
+	 *
+	 * @param <Archive> the archive type to serialize with.
+	 *			Can be either input or output archives.
+	 * @param ar the archive used.
+	 * @param version the desired or given archive version. Ignored.
+	 */
+	template <typename Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & m_Object;
+		ar & m_Action;
+	}
+};

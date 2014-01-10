@@ -149,7 +149,7 @@ public:
 	virtual const char* getUpdateObjectExtraData(Package p_Package, unsigned int p_ExtraData) = 0;
 
 	/**
-	 * Send a Remove Objects package
+	 * Send a Remove Objects package.
 	 *
 	 * @param p_Objects array of objects to be removed
 	 * @param p_NumObjects the number of objects in the array
@@ -157,7 +157,7 @@ public:
 	virtual void sendRemoveObjects(const uint16_t* p_Objects, unsigned int p_NumObjects) = 0;
 
 	/**
-	 * Get the number of objects in the package
+	 * Get the number of objects in the package.
 	 *
 	 * @param p_Package a valid reference to a package with the RemoveObjects type.
 	 * @return the number of objects in the package
@@ -171,4 +171,28 @@ public:
 	 * @return an array of object references to objects to remove
 	 */
 	virtual const uint16_t* getRemoveObjectRefs(Package p_Package) = 0;
+
+	/**
+	 * Send a Object Action package.
+	 *
+	 * @param p_ObjectId the id of the target object
+	 * @param p_Action a null-terminated string describing the action
+	 */
+	virtual void sendObjectAction(uint16_t p_ObjectId, const char* p_Action) = 0;
+
+	/**
+	 * Get the id of the object targeted by the package.
+	 *
+	 * @param p_Package a valid reference to a package with the ObjectAction type.
+	 * @return the id of an object
+	 */
+	virtual uint16_t getObjectActionId(Package p_Package) = 0;
+
+	/**
+	 * Get the action from the package.
+	 *
+	 * @param p_Package a valid reference to a package with the ObjectAction type.
+	 * @return a null-terminated string describing the action
+	 */
+	virtual const char* getObjectActionAction(Package p_Package) = 0;
 };

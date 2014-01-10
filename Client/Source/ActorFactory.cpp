@@ -11,6 +11,7 @@ ActorFactory::ActorFactory()
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
 	m_ComponentCreators["Model"] = std::bind(&ActorFactory::createModelComponent, this);
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
+	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
 }
 
 void ActorFactory::setGraphics(IGraphics* p_Graphics)
@@ -100,5 +101,10 @@ ActorComponent::ptr ActorFactory::createModelComponent()
 
 ActorComponent::ptr ActorFactory::createMovementComponent()
 {
-	return  ActorComponent::ptr(new MovementComponent);
+	return ActorComponent::ptr(new MovementComponent);
+}
+
+ActorComponent::ptr ActorFactory::createPulseComponent()
+{
+	return ActorComponent::ptr(new PulseComponent);
 }

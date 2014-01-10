@@ -153,6 +153,29 @@ const uint16_t* ConnectionController::getRemoveObjectRefs(Package p_Package)
 	return removeObjects->m_Objects.data();
 }
 
+void ConnectionController::sendObjectAction(uint16_t p_ObjectId, const char* p_Action)
+{
+	ObjectAction package;
+	package.m_Object = p_ObjectId;
+	package.m_Action = p_Action;
+
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+uint16_t ConnectionController::getObjectActionId(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	ObjectAction* objectAction = static_cast<ObjectAction*>(m_ReceivedPackages[p_Package].get());
+	return objectAction->m_Object;
+}
+
+const char* ConnectionController::getObjectActionAction(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	ObjectAction* objectAction = static_cast<ObjectAction*>(m_ReceivedPackages[p_Package].get());
+	return objectAction->m_Action.c_str();
+}
+
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);
