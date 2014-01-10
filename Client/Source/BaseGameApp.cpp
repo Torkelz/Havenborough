@@ -184,9 +184,6 @@ void BaseGameApp::run()
 void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
-	
-	IPhysics::deletePhysics(m_Physics);
-	m_Physics = nullptr;
 
 	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
@@ -196,7 +193,10 @@ void BaseGameApp::shutdown()
 	delete m_ResourceManager;
 
 	m_InputQueue.destroy();
-	
+
+	IPhysics::deletePhysics(m_Physics);
+	m_Physics = nullptr;
+
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
 

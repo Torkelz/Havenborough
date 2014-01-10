@@ -109,6 +109,8 @@ public:
 	 */
 	virtual void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) = 0;
 
+	virtual void deleteShader(const char *p_ShaderId) = 0;
+
 	/**
 	 * Creates a new texture and stores in a vector connected with an ID.
 	 *

@@ -166,6 +166,14 @@ bool Physics::releaseLevelBV(const char* p_VolumeID)
 	return true;
 }
 
+void Physics::releaseAllBoundingVolumes(void)
+{
+	m_Bodies.clear();
+	m_Bodies.shrink_to_fit();
+
+	int i=0;
+}
+
 void Physics::setBVPosition(int p_Instance, Vector3 p_Position)
 {
 

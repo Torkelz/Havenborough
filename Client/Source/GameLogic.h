@@ -21,6 +21,8 @@ private:
 	ResourceManager *m_ResourceManager;
 
 	Level m_Level;
+	int skyBox;
+	int ground;
 	Player m_Player;
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
@@ -34,8 +36,6 @@ private:
 	int currentDebugView;
 	int climbBox;
 	int jointBox;
-	int skyBox;
-	int ground;
 	int circleWitch;
 	int standingWitch;
 	int wavingWitch;
@@ -60,16 +60,17 @@ private:
 	float sensitivity;
 	float witchCircleAngle;
 public:
-	/**
-	* Gets which scene the game should change to.
-	*/
-	GoToScene getChangeScene(void);
 	GameLogic(void);
 	~GameLogic(void);
 
 	void initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
 		IPhysics *p_Physics, Input *p_InputQueue); 
 	void shutdown(void);
+
+	/**
+	* Gets which scene the game should change to.
+	*/
+	GoToScene getChangeScene(void) const;
 
 	void onFrame(float p_DeltaTime);
 	void render(void);
