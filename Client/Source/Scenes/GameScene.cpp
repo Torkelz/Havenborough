@@ -10,12 +10,13 @@ GameScene::GameScene()
 	
 	m_GameLogic = nullptr;
 	m_Graphics = nullptr;
+	m_Physics = nullptr;
 	m_InputQueue = nullptr;
 }
 
 GameScene::~GameScene()
 {
-	//SAFE_SHUTDOWN(m_GameLogic);
+	SAFE_SHUTDOWN(m_GameLogic);
 	m_Graphics = nullptr;
 	m_InputQueue = nullptr;
 }
@@ -34,7 +35,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 
 void GameScene::destroy()
 {
-	//SAFE_SHUTDOWN(m_GameLogic);
+	SAFE_SHUTDOWN(m_GameLogic);
 }
 
 void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
@@ -93,6 +94,11 @@ void GameScene::registeredInput(std::string p_Action, float p_Value)
 
 void GameScene::initializeGameLogic(void)
 {
+	if(m_GameLogic)
+	{
+		m_GameLogic->shutdown();
+		SAFE_DELETE(m_GameLogic);
+	}
 	m_GameLogic = new GameLogic();
 	m_GameLogic->initialize(m_Graphics, m_ResourceManager, m_Physics, m_InputQueue);
 }

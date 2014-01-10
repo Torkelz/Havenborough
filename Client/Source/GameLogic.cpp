@@ -1,6 +1,5 @@
 #include "GameLogic.h"
 
-
 GameLogic::GameLogic(void)
 {
 	m_Graphics = nullptr;
@@ -28,8 +27,8 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
-	m_Level.setStartPosition(XMFLOAT3(25.0f, 2.0f, 25.0f)); //TODO: Remove this line when level gets the position from file
-	m_Level.setGoalPosition(XMFLOAT3(-25.0f, 2.0f, -25.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(15.0f, 2.0f, 15.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(0.0f, 2.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
 	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 2.0f);
 
 	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
@@ -47,9 +46,16 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 void GameLogic::shutdown(void)
 {
 	m_Graphics->eraseModelInstance(ground);
-	
+	m_Graphics->eraseModelInstance(skyBox);
 	m_Level.releaseLevel();
+	m_Physics->releaseAllBoundingVolumes();
+	//TODO: Remove when we have a real level.
 	shutdownSandbox();
+}
+
+GameLogic::GoToScene GameLogic::getChangeScene(void) const
+{
+	return m_ChangeScene;
 }
 
 void GameLogic::onFrame(float p_DeltaTime)
@@ -442,9 +448,7 @@ void GameLogic::shutdownSandbox()
 	{
 		m_ResourceManager->releaseResource(i);
 	}
-}
 
-GameLogic::GoToScene GameLogic::getChangeScene(void)
-{
-	return m_ChangeScene;
+	m_Graphics->deleteShader("DefaultShader");
+	m_Graphics->deleteShader("AnimatedShader");
 }
