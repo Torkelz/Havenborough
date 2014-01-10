@@ -20,7 +20,7 @@ private:
 	bool m_IsJumping;
 	float m_JumpForceTime;
 	float m_JumpForce;
-	float m_MaxSpeed;
+	float m_MaxSpeed; // Centimeters per secound
 	float m_AccConstant;
 	XMFLOAT4 m_PrevForce;
 	float m_DirectionX;
@@ -36,6 +36,8 @@ private:
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
 	//while climbing objects.
 	float m_TempHeight; 
+	float m_KneeHeight;
+	float m_EyeHeight;
 
 public:
 	/**
@@ -61,6 +63,20 @@ public:
 	* @return the position
 	*/
 	XMFLOAT3 getPosition(void) const;
+
+	/**
+	 * Get the eye position of the player.
+	 *
+	 * @return the position of the players eyes
+	 */
+	XMFLOAT3 getEyePosition() const;
+
+	/**
+	 * Get the position that would be on the ground if the player would be standing on a flat surface.
+	 *
+	 * @return the ground position of the player
+	 */
+	XMFLOAT3 getGroundPosition() const;
 
 	/**
 	* Gets the height of the player.

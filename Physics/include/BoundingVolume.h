@@ -33,7 +33,7 @@ public:
 	 * @param p_volume the volume to compare with.
 	 * @return true if it's the same volume, else return false.
 	 */
-	bool compare( BoundingVolume* p_Volume )
+	bool compare(BoundingVolume* p_Volume)
 	{
 		if(p_Volume->getIndex() == m_Index)
 		{
@@ -48,7 +48,7 @@ public:
 	/* Updates position for BoundingVolume with translation matrix.
 	 * @param p_Translation, move the AABB in relative coordinates.
 	 */
-	virtual void updatePosition( DirectX::XMFLOAT4X4& p_Translation ) = 0;
+	virtual void updatePosition(DirectX::XMFLOAT4X4& p_Translation) = 0;
 	/**
 	 * Get the current position for the bounding volume.
 	 * @return the position of the bounding volume.

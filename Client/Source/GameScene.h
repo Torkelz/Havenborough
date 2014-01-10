@@ -27,6 +27,8 @@ private:
 	std::vector<int> m_ResourceIDs;
 
 	//DEBUG
+	int testScaleBox;
+
 	int currView;
 	int climbBox;
 	int jointBox;

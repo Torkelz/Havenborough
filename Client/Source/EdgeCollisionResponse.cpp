@@ -24,7 +24,7 @@ bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector4 p_EdgePositio
 void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosition, XMVECTOR p_VictimNormal,
 	float p_EdgeOffsetY)
 {
-	XMFLOAT3 playerPos = p_Player->getPosition();
+	XMFLOAT3 playerPos = p_Player->getGroundPosition();
 	XMVECTOR playerStartPos = XMLoadFloat3(&playerPos);
 	XMFLOAT4 collisionBodyPos = Vector4ToXMFLOAT4(&p_EdgePosition);
 
@@ -32,15 +32,13 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosi
 	XMVECTOR boundingVolumeCenter = XMLoadFloat3(&collisionPosition);
 	
 	float playerPositionY = playerPos.y;
-	float playerHeight = p_Player->getHeight();
-	float kneeHeight = playerHeight * 0.25f; //Assumes knees at roughly 25% of player height
 
-	if(playerPositionY - kneeHeight < collisionBodyPos.y)
+	if(playerPositionY < collisionBodyPos.y)
 	{
 		p_VictimNormal = XMVector3Normalize(p_VictimNormal);
 		
 		XMVECTOR playerEndPos =  calculateEndPosition(p_VictimNormal, boundingVolumeCenter - playerStartPos,
-			boundingVolumeCenter, p_EdgeOffsetY, playerHeight* 0.5f);
+			boundingVolumeCenter, p_EdgeOffsetY, p_Player->getHeight() * 0.5f);
 
 		p_Player->forceMove(playerStartPos, playerEndPos);
 	}

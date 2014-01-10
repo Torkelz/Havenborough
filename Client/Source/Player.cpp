@@ -5,16 +5,16 @@ Player::Player(void)
 	m_Physics = nullptr;
 	m_JumpTime = 0.f;
 	m_JumpForceTime = 0.2f;
-	m_JumpForce = 2000.f;
+	m_JumpForce = 20000.f;
 	m_IsJumping = false;
 	m_PrevForce = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	m_MaxSpeed = 10.f;
+	m_MaxSpeed = 1000.f;
 	m_AccConstant = 250.f;
 	m_DirectionZ = 0.f;
 	m_DirectionX = 0.f;
 	m_ForceMove = false;
 	m_ForceMoveTime = 1.0f;
-	m_ForceMoveSpeed = 1.f;
+	m_ForceMoveSpeed = 100.f;
 	m_CurrentForceMoveTime = 0.f;
 }
 
@@ -28,12 +28,27 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_Loo
 	m_Physics = p_Physics;
 	m_Position = p_Position;
 	m_LookDirection = p_LookDirection;
-	m_TempHeight = 3.2f;
-	m_PlayerBody = m_Physics->createSphere(50.f, false, XMFLOAT3ToVector3(&m_Position), m_TempHeight * 0.22f);
+	m_TempHeight = 180.f;
+	m_KneeHeight = 50.f;
+	m_EyeHeight = 165.f;
+	Vector3 kneePos(m_Position.x, m_Position.y + m_KneeHeight, m_Position.z);
+	m_PlayerBody = m_Physics->createSphere(50.f, false, kneePos, m_KneeHeight);
 
 }
 
 XMFLOAT3 Player::getPosition(void) const
+{
+	return m_Position;
+}
+
+XMFLOAT3 Player::getEyePosition() const
+{
+	XMFLOAT3 eyePosition = m_Position;
+	eyePosition.y += m_EyeHeight;
+	return eyePosition;
+}
+
+XMFLOAT3 Player::getGroundPosition() const
 {
 	return m_Position;
 }
@@ -98,7 +113,8 @@ void Player::update(float p_DeltaTime)
 			m_ForceMoveEndPosition, dt);
 		XMStoreFloat3(&m_Position, currPosition);
 
-		m_Physics->setBodyPosition(m_PlayerBody, XMFLOAT3ToVector3(&m_Position));
+		Vector3 kneePos(m_Position.x, m_Position.y - m_TempHeight + m_KneeHeight, m_Position.z);
+		m_Physics->setBodyPosition(m_PlayerBody, kneePos);
 
 
 		m_CurrentForceMoveTime += p_DeltaTime * m_ForceMoveSpeed;
@@ -150,6 +166,8 @@ void Player::move()
 
 	m_DirectionX = m_DirectionZ = 0.f;
 
-	Vector4 position = m_Physics->getBodyPosition(m_PlayerBody);
-	m_Position = Vector4ToXMFLOAT3(&position);
+	Vector4 kneePosition = m_Physics->getBodyPosition(m_PlayerBody);
+	m_Position.x = kneePosition.x;
+	m_Position.y = kneePosition.y - m_KneeHeight;
+	m_Position.z = kneePosition.z;
 }

@@ -135,7 +135,7 @@ BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Pos
 BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge)
 {
 	XMFLOAT4 tempPos = Vector3ToXMFLOAT4(&p_CenterPos, 1.f);
-	XMFLOAT4 tempExt = Vector3ToXMFLOAT4(&p_Extents, 0.f);
+	XMFLOAT4 tempExt = Vector3ToXMFLOAT4(&p_Extents	 , 0.f);
 
 	AABB* aabb = new AABB(tempPos, tempExt);
 
@@ -145,7 +145,7 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Cente
 BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extent, bool p_IsEdge)
 {
 	XMFLOAT4 tempPos	= Vector3ToXMFLOAT4(&p_CenterPos, 1.f);
-	XMFLOAT4 tempExt	= Vector3ToXMFLOAT4(&p_Extent, 0.f);
+	XMFLOAT4 tempExt	= Vector3ToXMFLOAT4(&p_Extent	, 0.f);
 
 	OBB *obb = new OBB(tempPos, tempExt);
 
@@ -156,13 +156,11 @@ bool Physics::createLevelBV(const char* p_VolumeID, const char* p_FilePath)
 {
 	m_BVLoader.loadBinaryFile(p_FilePath);
 
-
 	return true;
 }
 
 bool Physics::releaseLevelBV(const char* p_VolumeID)
 {
-
 	return true;
 }
 

@@ -49,7 +49,7 @@ private:
 	XMFLOAT4X4 m_ProjectionMatrix;
 	XMFLOAT3 m_Eye;
 
-	static const unsigned int m_MaxLightsPerLightInstance;
+	static const unsigned int		m_MaxLightsPerLightInstance;
 	TextureLoader					m_TextureLoader;	
 	WrapperFactory					*m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
