@@ -227,3 +227,35 @@ public:
 		ar & m_Extra;
 	}
 };
+
+/**
+ * A package representing the removal of objects in the game world.
+ */
+class RemoveObjects : public PackageHelper<RemoveObjects>
+{
+public:
+	std::vector<uint16_t> m_Objects;
+
+public:
+	/**
+	 * constructor.
+	 */
+	RemoveObjects()
+		: PackageHelper<RemoveObjects>(PackageType::REMOVE_OBJECTS)
+	{}
+
+	/**
+	 * Serialize the package to or from an archive.
+	 *
+	 * @param <Archive> the archive type to serialize with.
+	 *			Can be either input or output archives.
+	 * @param ar the archive used.
+	 * @param version the desired or given archive version. Ignored.
+	 */
+	template <typename Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & m_Objects;
+	}
+};
+

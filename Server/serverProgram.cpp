@@ -13,13 +13,117 @@
 std::mutex g_ControllerLock;
 std::vector<IConnectionController*> g_Controllers;
 
-const float boxCircleCenter[3] = {5.f, 4.f, 6.f};
-const float boxCircleRadius = 5.f;
-const float boxCircleRotationSpeed = 3.141592f / 10.f;
-float boxCircleRotation = 0.f;
-
 bool running = false;
 std::thread updateThread;
+
+struct TestBox
+{
+	uint16_t actorId;
+
+	float position[3];
+	float velocity[3];
+	float rotation[3];
+	float rotationVelocity[3];
+
+	float circleCenter[3];
+	float circleRadius;
+	float circleRotationSpeed;
+	float circleRotation;
+};
+
+uint16_t lastActorId = 0;
+std::vector<TestBox> boxes;
+
+void updateBox(TestBox& p_Box, float p_DeltaTime)
+{
+	p_Box.circleRotation += p_Box.circleRotationSpeed * p_DeltaTime;
+	p_Box.position[0] = p_Box.circleCenter[0] + cos(p_Box.circleRotation) * p_Box.circleRadius;
+	p_Box.position[1] = p_Box.circleCenter[1];
+	p_Box.position[2] = p_Box.circleCenter[2] - sin(p_Box.circleRotation) * p_Box.circleRadius;
+	p_Box.velocity[0] = -sin(p_Box.circleRotation) * p_Box.circleRadius * p_Box.circleRotationSpeed;
+	p_Box.velocity[1] = 0.f;
+	p_Box.velocity[2] = -cos(p_Box.circleRotation) * p_Box.circleRadius * p_Box.circleRotationSpeed;
+	p_Box.rotation[0] = p_Box.circleRotation;
+	p_Box.rotation[1] = 0.f;
+	p_Box.rotation[2] = p_Box.circleRotation;
+	p_Box.rotationVelocity[0] = p_Box.circleRotationSpeed;
+	p_Box.rotationVelocity[1] = 0.f;
+	p_Box.rotationVelocity[2] = p_Box.circleRotationSpeed;
+}
+
+UpdateObjectData getUpdateData(const TestBox& p_Box)
+{
+	UpdateObjectData data =
+	{
+		{ p_Box.position[0], p_Box.position[1], p_Box.position[2] },
+		{ p_Box.velocity[0], p_Box.velocity[1], p_Box.velocity[2] },
+		{ p_Box.rotation[0], p_Box.rotation[1], p_Box.rotation[2] },
+		{ p_Box.rotationVelocity[0], p_Box.rotationVelocity[1], p_Box.rotationVelocity[2] },
+		p_Box.actorId
+	};
+
+	return data;
+}
+
+void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, const float p_Vec[3])
+{
+	p_Printer.OpenElement(p_ElementName.c_str());
+	p_Printer.PushAttribute("x", p_Vec[0]);
+	p_Printer.PushAttribute("y", p_Vec[1]);
+	p_Printer.PushAttribute("z", p_Vec[2]);
+	p_Printer.CloseElement();
+}
+
+std::string getBoxDescription(const TestBox& p_Box)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Movement");
+	pushVector(printer, "Velocity", p_Box.velocity);
+	pushVector(printer, "RotationalVelocity", p_Box.rotationVelocity);
+	printer.CloseElement();
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	printer.CloseElement();
+	printer.OpenElement("OBBPhysics");
+	static const float halfsize[3] = {0.5f, 0.5f, 0.5f};
+	pushVector(printer, "Halfsize", halfsize);
+	printer.CloseElement();
+	printer.CloseElement();
+	return std::string(printer.CStr());
+}
+
+ObjectInstance getBoxInstance(const TestBox& p_Box, uint16_t p_DescIdx)
+{
+	ObjectInstance inst =
+	{
+		{ p_Box.position[0], p_Box.position[1], p_Box.position[2] },
+		{ p_Box.rotation[0], p_Box.rotation[1], p_Box.rotation[2] },
+		p_DescIdx,
+		p_Box.actorId
+	};
+
+	return inst;
+}
+
+bool removeBox = false;
+
+void removeLastBox()
+{
+	if (boxes.empty())
+	{
+		return;
+	}
+
+	const uint16_t objectsToRemove[] = { boxes.back().actorId };
+	boxes.pop_back();
+
+	std::lock_guard<std::mutex> lock(g_ControllerLock);
+	for(auto& con : g_Controllers)
+	{
+		con->sendRemoveObjects(objectsToRemove, 1);
+	}
+}
 
 void updateClients()
 {
@@ -29,37 +133,24 @@ void updateClients()
 
 	while (running)
 	{
-		boxCircleRotation += boxCircleRotationSpeed * deltaTime;
-
-		UpdateObjectData data =
+		if (removeBox)
 		{
-			{
-				boxCircleCenter[0] + cos(boxCircleRotation) * boxCircleRadius,
-				boxCircleCenter[1],
-				boxCircleCenter[2] - sin(boxCircleRotation) * boxCircleRadius
-			},
-			{
-				-sin(boxCircleRotation) * boxCircleRadius * boxCircleRotationSpeed,
-				0.f,
-				-cos(boxCircleRotation) * boxCircleRadius * boxCircleRotationSpeed
-			},
-			{
-				boxCircleRotation,
-				0.f,
-				boxCircleRotation
-			},
-			{
-				boxCircleRotationSpeed,
-				0.f,
-				0.f
-			},
-			1
-		};
+			removeLastBox();
+			removeBox = false;
+		}
+
+		std::vector<UpdateObjectData> data;
+
+		for (auto& box : boxes)
+		{
+			updateBox(box, deltaTime);
+			data.push_back(getUpdateData(box));
+		}
 
 		std::lock_guard<std::mutex> lock(g_ControllerLock);
 		for (auto& con : g_Controllers)
 		{
-			con->sendUpdateObjects(&data, 1, nullptr, 0);
+			con->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
 		}
 		
 		previousTime = currentTime;
@@ -77,38 +168,45 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 {
 	Logger::log(Logger::Level::INFO, "Client connected");
 
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Movement");
-	printer.OpenElement("Velocity");
-	printer.PushAttribute("x", 10.f);
-	printer.PushAttribute("y", 0.f);
-	printer.PushAttribute("z", 0.f);
-	printer.CloseElement();
-	printer.OpenElement("RotationalVelocity");
-	printer.PushAttribute("x", boxCircleRotationSpeed);
-	printer.PushAttribute("y", 0.f);
-	printer.PushAttribute("z", 0.f);
-	printer.CloseElement();
-	printer.CloseElement();
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "BOX");
-	printer.CloseElement();
-	printer.OpenElement("OBBPhysics");
-	printer.OpenElement("Halfsize");
-	printer.PushAttribute("x", 0.5f);
-	printer.PushAttribute("y", 0.5f);
-	printer.PushAttribute("z", 0.5f);
-	printer.CloseElement();
-	printer.CloseElement();
-	printer.CloseElement();
-	const char* desc = printer.CStr();
-	ObjectInstance inst = {{5.f, 4.f, 1.f}, {1.f, 1.f, 1.f}, 0, 1};
+	std::vector<std::string> descriptions;
+	std::vector<const char*> cDescriptions;
+	std::vector<ObjectInstance> instances;
 
-	p_Connection->sendCreateObjects(&desc, 1, &inst, 1);
+	for (const auto& box : boxes)
+	{
+		descriptions.push_back(getBoxDescription(box));
+		cDescriptions.push_back(descriptions.back().c_str());
+		instances.push_back(getBoxInstance(box, descriptions.size() - 1));
+	}
+
+	p_Connection->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
+
+	TestBox newBox =
+	{
+		++lastActorId,
+		{ 0.f, 0.f, 0.f },
+		{ 0.f, 0.f, 0.f },
+		{ 0.f, 0.f, 0.f },
+		{ 0.f, 0.f, 0.f },
+		{ 5.f, 2.f + (float)lastActorId, 4.f },
+		(float)lastActorId,
+		3.14f / 10.f,
+		0.f
+	};
+	updateBox(newBox, 0.f);
+	std::string desc = getBoxDescription(newBox);
+	const char* cDesc = desc.c_str();
+	ObjectInstance inst = getBoxInstance(newBox, 0);
 
 	std::lock_guard<std::mutex> lock(g_ControllerLock);
 	g_Controllers.push_back(p_Connection);
+
+	for(auto& con : g_Controllers)
+	{
+		con->sendCreateObjects(&cDesc, 1, &inst, 1);
+	}
+
+	boxes.push_back(newBox);
 }
 
 void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*/)
@@ -137,15 +235,7 @@ void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*
 
 void sendTestData()
 {
-	//const char* desc = "Model:BOX\nCollision:OBB 0 0 0 0.5 0.5 0.5 0 0 0\n";
-	//ObjectInstance inst = {{5.f, 2.f, 1.f}, {0.f, 0.f, 0.f}, 0, 1};
-
-	//std::lock_guard<std::mutex> lock(g_ControllerLock);
-	//for(auto& con : g_Controllers)
-	//{
-	//	inst.m_Position[0] -= 2.f;
-	//	con->sendCreateObjects(&desc, 1, &inst, 1);
-	//}
+	removeBox = true;
 }
 
 const std::string helpMessage =

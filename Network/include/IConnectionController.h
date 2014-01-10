@@ -118,7 +118,7 @@ public:
 	/**
 	 * Get the number of object updates in the package.
 	 *
-	 * @param p_Package a valid reference to a pacakge with the UpdataObjects type.
+	 * @param p_Package a valid reference to a package with the UpdateObjects type.
 	 * @result the number of object updates in the package
 	 */
 	virtual unsigned int getNumUpdateObjectData(Package p_Package) = 0;
@@ -126,7 +126,7 @@ public:
 	/**
 	 * Get the array of object updates in the package.
 	 *
-	 * @param p_Package a valid reference to a pacakge with the UpdataObjects type.
+	 * @param p_Package a valid reference to a package with the UpdateObjects type.
 	 * @return an array of object updates
 	 */
 	virtual const UpdateObjectData* getUpdateObjectData(Package p_Package) = 0;
@@ -134,7 +134,7 @@ public:
 	/**
 	 * Get the number of extra data in the package.
 	 *
-	 * @param p_Package a valid reference to a pacakge with the UpdataObjects type.
+	 * @param p_Package a valid reference to a package with the UpdateObjects type.
 	 * @return the number of extra data strings in the package
 	 */
 	virtual unsigned int getNumUpdateObjectExtraData(Package p_Package) = 0;
@@ -142,9 +142,33 @@ public:
 	/**
 	 * Get an extra data string from the package.
 	 *
-	 * @param p_Package a valid reference to a pacakge with the UpdataObjects type.
+	 * @param p_Package a valid reference to a package with the UpdateObjects type.
 	 * @param p_ExtraData the index of the extra data to retreive
 	 * @return a null-terminated string containing any extra data
 	 */
 	virtual const char* getUpdateObjectExtraData(Package p_Package, unsigned int p_ExtraData) = 0;
+
+	/**
+	 * Send a Remove Objects package
+	 *
+	 * @param p_Objects array of objects to be removed
+	 * @param p_NumObjects the number of objects in the array
+	 */
+	virtual void sendRemoveObjects(const uint16_t* p_Objects, unsigned int p_NumObjects) = 0;
+
+	/**
+	 * Get the number of objects in the package
+	 *
+	 * @param p_Package a valid reference to a package with the RemoveObjects type.
+	 * @return the number of objects in the package
+	 */
+	virtual unsigned int getNumRemoveObjectRefs(Package p_Package) = 0;
+
+	/**
+	 * Get the array of objects in the package.
+	 *
+	 * @param p_Package a valid reference to a package with the RemoveObjects type.
+	 * @return an array of object references to objects to remove
+	 */
+	virtual const uint16_t* getRemoveObjectRefs(Package p_Package) = 0;
 };

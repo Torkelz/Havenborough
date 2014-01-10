@@ -58,7 +58,7 @@ void ConnectionController::sendCreateObjects(const char** p_Descriptions, unsign
 	{
 		package.m_Descriptions.push_back(std::string(p_Descriptions[i]));
 	}
-	package.m_Instances.insert(package.m_Instances.end(), p_Instances, p_Instances + p_NumInstances);
+	package.m_Instances.assign(p_Instances, p_Instances + p_NumInstances);
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -98,7 +98,7 @@ void ConnectionController::sendUpdateObjects(const UpdateObjectData* p_ObjectDat
 	{
 		package.m_Extra.push_back(std::string(p_ExtraData[i]));
 	}
-	package.m_ObjectUpdates.insert(package.m_ObjectUpdates.end(), p_ObjectData, p_ObjectData + p_NumObjects);
+	package.m_ObjectUpdates.assign(p_ObjectData, p_ObjectData + p_NumObjects);
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -129,6 +129,28 @@ const char* ConnectionController::getUpdateObjectExtraData(Package p_Package, un
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
 	return createObjects->m_Extra[p_ExtraData].c_str();
+}
+
+void ConnectionController::sendRemoveObjects(const uint16_t* p_Objects, unsigned int p_NumObjects)
+{
+	RemoveObjects package;
+	package.m_Objects.assign(p_Objects, p_Objects + p_NumObjects);
+
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+unsigned int ConnectionController::getNumRemoveObjectRefs(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	RemoveObjects* removeObjects = static_cast<RemoveObjects*>(m_ReceivedPackages[p_Package].get());
+	return removeObjects->m_Objects.size();
+}
+
+const uint16_t* ConnectionController::getRemoveObjectRefs(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	RemoveObjects* removeObjects = static_cast<RemoveObjects*>(m_ReceivedPackages[p_Package].get());
+	return removeObjects->m_Objects.data();
 }
 
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)

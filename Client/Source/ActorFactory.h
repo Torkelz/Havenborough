@@ -29,6 +29,7 @@ public:
 	void setPhysics(IPhysics* p_Physics);
 
 	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data);
+	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id);
 
 protected:
 	virtual ActorComponent::ptr createComponent(const tinyxml2::XMLElement* p_Data);

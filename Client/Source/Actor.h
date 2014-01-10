@@ -11,15 +11,16 @@ class Actor
 {
 public:
 	typedef std::shared_ptr<Actor> ptr;
+	typedef unsigned int Id;
 
 private:
-	unsigned int m_Id;
+	Id m_Id;
 	std::vector<ActorComponent::ptr> m_Components;
 	Vector3 m_Position;
 	Vector3 m_Rotation;
 
 public:
-	explicit Actor(unsigned int p_Id);
+	explicit Actor(Id p_Id);
 	~Actor();
 
 	void initialize(const tinyxml2::XMLElement* p_Data);
@@ -27,7 +28,7 @@ public:
 
 	void onUpdate(float p_DeltaTime);
 
-	unsigned int getId() const;
+	Id getId() const;
 	Vector3 getPosition() const;
 	void setPosition(Vector3 p_Position);
 	Vector3 getRotation() const;

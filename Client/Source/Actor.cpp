@@ -1,6 +1,6 @@
 #include "Actor.h"
 
-Actor::Actor(unsigned int p_Id)
+Actor::Actor(Id p_Id)
 	: m_Id(p_Id)
 {
 }
@@ -26,7 +26,7 @@ void Actor::onUpdate(float p_DeltaTime)
 	}
 }
 
-unsigned int Actor::getId() const
+Actor::Id Actor::getId() const
 {
 	return m_Id;
 }

@@ -4,7 +4,7 @@
 #include "Components.h"
 
 ActorFactory::ActorFactory()
-	:	m_LastActorId(0),
+	:	m_LastActorId(65536),
 		m_Graphics(nullptr),
 		m_Physics(nullptr)
 {
@@ -25,7 +25,12 @@ void ActorFactory::setPhysics(IPhysics* p_Physics)
 
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
 {
-	Actor::ptr actor(new Actor(getNextActorId()));
+	return createActor(p_Data, getNextActorId());
+}
+
+Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id)
+{
+	Actor::ptr actor(new Actor(p_Id));
 	actor->initialize(p_Data);
 
 	for (const tinyxml2::XMLElement* node = p_Data->FirstChildElement(); node; node = node->NextSiblingElement())

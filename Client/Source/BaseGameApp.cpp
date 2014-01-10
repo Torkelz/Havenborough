@@ -277,7 +277,7 @@ void BaseGameApp::handleNetwork()
 
 						const XMLElement* obj = description.FirstChildElement("Object");
 
-						Actor::ptr actor = m_ActorFactory.createActor(obj);
+						Actor::ptr actor = m_ActorFactory.createActor(obj, data.m_Id);
 						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
 						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
 						m_ServerActors.push_back(actor);
@@ -306,7 +306,7 @@ void BaseGameApp::handleNetwork()
 
 						if (!actor)
 						{
-							Logger::log(Logger::Level::ERROR_L, "Could not find actor (" + std::to_string(actorId));
+							Logger::log(Logger::Level::ERROR_L, "Could not find actor (" + std::to_string(actorId) + ")");
 							continue;
 						}
 
@@ -323,6 +323,17 @@ void BaseGameApp::handleNetwork()
 					}
 
 					// TODO: Handle extra data
+				}
+				break;
+
+			case PackageType::REMOVE_OBJECTS:
+				{
+					const unsigned int numObjects = conn->getNumRemoveObjectRefs(package);
+					const uint16_t* removeObjects = conn->getRemoveObjectRefs(package);
+					for (unsigned int i = 0; i < numObjects; ++i)
+					{
+						removeActor(removeObjects[i]);
+					}
 				}
 				break;
 
@@ -363,4 +374,17 @@ void BaseGameApp::render()
 	}
 
 	m_SceneManager.render();
+}
+
+void BaseGameApp::removeActor(Actor::Id m_Actor)
+{
+	for (size_t i = 0; i < m_ServerActors.size(); ++i)
+	{
+		if (m_ServerActors[i]->getId() == m_Actor)
+		{
+			std::swap(m_ServerActors[i], m_ServerActors.back());
+			m_ServerActors.pop_back();
+			return;
+		}
+	}
 }

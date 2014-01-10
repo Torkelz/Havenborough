@@ -86,4 +86,6 @@ private:
 	void handleNetwork();
 	void updateLogic();
 	void render();
+
+	void removeActor(Actor::Id m_Actor);
 };
