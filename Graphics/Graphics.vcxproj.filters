@@ -147,5 +147,8 @@
     <FxCompile Include="Source\DeferredShaders\LightPassPointLight.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\BoundingVolume.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

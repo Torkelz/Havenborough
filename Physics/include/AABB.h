@@ -181,6 +181,26 @@ public:
 	{
 		return &m_Sphere;
 	}
+	/**
+	 * Return a corner at the index specified.
+	 * 
+	 * @param p_Index index number in m_Bounds list
+	 * @return a XMFLOAT4 corner.
+	 */
+	DirectX::XMFLOAT4 getBoundAt(unsigned p_Index)
+	{
+		return m_Bounds[p_Index];
+	}
+	/**
+	 * Return a corner in world coordinates at the index specified.
+	 * 
+	 * @param p_Index index number in m_Bounds list
+	 * @return a XMFLOAT4 corner.
+	 */
+	DirectX::XMFLOAT4 getBoundWorldCoordAt(unsigned p_Index)
+	{
+		return DirectX::XMFLOAT4(m_Bounds[p_Index].x + m_Position.x,m_Bounds[p_Index].y + m_Position.y, m_Bounds[p_Index].z + m_Position.z, 1.f);
+	}
 
 	//DEBUGGING
 	/*void				buildCubeIndices( int offset );

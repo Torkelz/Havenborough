@@ -34,6 +34,27 @@ struct Triangle
 		corners[1] = p_Corner2;
 		corners[2] = p_Corner3;
 	}
+	/**
+	 * Relative translation of the triangle.
+	 * @param p_Position how much to move from last frame.
+	 */
+	void translate(Vector4 p_Position)
+	{
+		p_Position.w = 0.f;
+		corners[0] = corners[0] + p_Position;
+		corners[1] = corners[1] + p_Position;
+		corners[2] = corners[2] + p_Position;
+	}
+	/**
+	 * Uniform(same amount in all axis) scaling of the triangle. Used for debug drawing with spheres.
+	 * @param p_Size the new size of the triangle, increases the distance between the corners.
+	 */
+	void uniformScale(float p_Size)
+	{
+		corners[0] = corners[0] * p_Size;
+		corners[1] = corners[1] * p_Size;
+		corners[2] = corners[2] * p_Size;
+	}
 };
 
 struct HitData
