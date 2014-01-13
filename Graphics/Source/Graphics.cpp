@@ -371,6 +371,20 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) 
 		model->shader = getShaderFromList(p_ShaderId);
 }
 
+void Graphics::deleteShader(const char *p_ShaderId)
+{
+	for(auto & s : m_ShaderList)
+	{
+		if(s.first.compare(p_ShaderId) == 0 )
+		{
+			SAFE_DELETE(s.second);
+			std::swap(s, m_ShaderList.back());
+			m_ShaderList.pop_back();
+			break;
+		}
+	}
+}
+
 bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
 	ID3D11ShaderResourceView *resourceView = m_TextureLoader.createTextureFromFile(p_Filename);

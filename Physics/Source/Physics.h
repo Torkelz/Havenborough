@@ -35,6 +35,7 @@ public:
 	bool createLevelBV(const char* m_ModelID, const char* m_FilePath) override;
 
 	bool releaseLevelBV(const char* p_ModelID) override; 
+	void releaseAllBoundingVolumes(void) override;
 
 	void setBVPosition(int p_Instance, Vector3 p_Position) override;
 	void setBVRotation(int p_Instance, Vector3 p_Rotation) override;

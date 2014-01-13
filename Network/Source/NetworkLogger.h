@@ -20,7 +20,7 @@ public:
 	enum class Level : uint32_t
 	{
 		TRACE = 0,
-		DEBUG = 1,
+		DEBUG_L = 1,
 		INFO = 2,
 		WARNING = 3,
 		ERROR_L = 4,

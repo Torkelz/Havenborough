@@ -51,12 +51,12 @@ private:
 	XMFLOAT3 m_Eye;
 
 	static const unsigned int m_MaxLightsPerLightInstance;
-	TextureLoader					m_TextureLoader;	
-	WrapperFactory					*m_WrapperFactory;
+	TextureLoader m_TextureLoader;	
+	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
-	VRAMMemInfo						*m_VRAMMemInfo;
+	VRAMMemInfo *m_VRAMMemInfo;
 
-	vector<pair<string, Shader*>>	m_ShaderList;
+	vector<pair<string, Shader*>> m_ShaderList;
 	vector<pair<string, ModelDefinition>> m_ModelList;
 	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
 	vector<pair<int, ModelInstance>> m_ModelInstances;
@@ -65,9 +65,9 @@ private:
 	DeferredRenderer *m_DeferredRender;
 
 	//Lights
-	std::vector<Light>			m_SpotLights;
-	std::vector<Light>			m_PointLights;
-	std::vector<Light>			m_DirectionalLights;
+	std::vector<Light> m_SpotLights;
+	std::vector<Light> m_PointLights;
+	std::vector<Light> m_DirectionalLights;
 
 	//Stuff needed for drawing boundingvolumes
 	std::vector<XMFLOAT4>		m_BVTriangles;
@@ -100,14 +100,13 @@ public:
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
 		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements) override;
 	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) override;
-	
+	void deleteShader(const char *p_ShaderId) override;
+
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
 	bool releaseTexture(const char *p_TextureID) override;	
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
-	
-	
 	
 	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
 	void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,

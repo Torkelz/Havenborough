@@ -71,6 +71,11 @@ public:
 	virtual bool releaseLevelBV(const char* p_VolumeID) = 0;
 
 	/**
+	* Releases all the existing bounding volumes.
+	*/
+	virtual void releaseAllBoundingVolumes(void) = 0;
+
+	/**
 	 * Edit the position of the target boundingvolume.
 	 *
 	 * @param p_Instance are what boundingvolume to work with
