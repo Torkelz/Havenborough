@@ -5,7 +5,7 @@ Player::Player(void)
 	m_Physics = nullptr;
 	m_JumpTime = 0.f;
 	m_JumpForceTime = 0.2f;
-	m_JumpForce = 20000.f;
+	m_JumpForce = 2000.f;
 	m_IsJumping = false;
 	m_PrevForce = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	m_MaxSpeed = 1000.f;
@@ -14,7 +14,7 @@ Player::Player(void)
 	m_DirectionX = 0.f;
 	m_ForceMove = false;
 	m_ForceMoveTime = 1.0f;
-	m_ForceMoveSpeed = 100.f;
+	m_ForceMoveSpeed = 1.f;
 	m_CurrentForceMoveTime = 0.f;
 }
 
@@ -51,6 +51,11 @@ XMFLOAT3 Player::getEyePosition() const
 XMFLOAT3 Player::getGroundPosition() const
 {
 	return m_Position;
+}
+
+XMFLOAT3 Player::getCollisionCenter() const
+{
+	return XMFLOAT3(m_Position.x, m_Position.y + m_KneeHeight, m_Position.z);
 }
 
 float Player::getHeight() const
@@ -113,7 +118,7 @@ void Player::update(float p_DeltaTime)
 			m_ForceMoveEndPosition, dt);
 		XMStoreFloat3(&m_Position, currPosition);
 
-		Vector3 kneePos(m_Position.x, m_Position.y - m_TempHeight + m_KneeHeight, m_Position.z);
+		Vector3 kneePos(m_Position.x, m_Position.y + m_KneeHeight, m_Position.z);
 		m_Physics->setBodyPosition(m_PlayerBody, kneePos);
 
 
@@ -143,30 +148,30 @@ void Player::jump(float dt)
 void Player::move()
 {
 	Vector4 velocity = m_Physics->getVelocity(m_PlayerBody);
-	XMFLOAT4 currentVelocity = Vector4ToXMFLOAT4(&velocity);
+	XMFLOAT4 currentVelocity = Vector4ToXMFLOAT4(&velocity);	// cm/s
 	currentVelocity.y = 0.f;
-	XMFLOAT4 maxVelocity(-m_DirectionX * m_MaxSpeed, 0.f, -m_DirectionZ * m_MaxSpeed, 0.f);
+	XMFLOAT4 maxVelocity(-m_DirectionX * m_MaxSpeed, 0.f, -m_DirectionZ * m_MaxSpeed, 0.f);	// cm/s
 
-	XMFLOAT4 diffVel = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-	XMFLOAT4 force = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 diffVel = XMFLOAT4(0.f, 0.f, 0.f, 0.f);	// cm/s
+	XMFLOAT4 force = XMFLOAT4(0.f, 0.f, 0.f, 0.f);		// kg * m/s^2
 
 	diffVel.x = maxVelocity.x - currentVelocity.x;
 	diffVel.y = maxVelocity.y - currentVelocity.y;
 	diffVel.z = maxVelocity.z - currentVelocity.z;
 	diffVel.w = 0.f;
 
-	force.x = diffVel.x * m_AccConstant;
-	force.y = diffVel.y * m_AccConstant;
-	force.z = diffVel.z * m_AccConstant;
+	force.x = diffVel.x / 100.f * m_AccConstant;
+	force.y = diffVel.y / 100.f * m_AccConstant;
+	force.z = diffVel.z / 100.f * m_AccConstant;
 	force.w = 0.f;
-	XMFLOAT3 forceDiff = XMFLOAT3(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z); 
+	XMFLOAT3 forceDiff = XMFLOAT3(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z);	// kg * m/s^2
 	m_PrevForce = force;
 
 	m_Physics->applyForce(m_PlayerBody, XMFLOAT3ToVector3(&forceDiff));
 
 	m_DirectionX = m_DirectionZ = 0.f;
 
-	Vector4 kneePosition = m_Physics->getBodyPosition(m_PlayerBody);
+	Vector4 kneePosition = m_Physics->getBodyPosition(m_PlayerBody);	// cm
 	m_Position.x = kneePosition.x;
 	m_Position.y = kneePosition.y - m_KneeHeight;
 	m_Position.z = kneePosition.z;

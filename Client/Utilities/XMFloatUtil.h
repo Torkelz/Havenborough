@@ -70,6 +70,11 @@ struct Vector4
 
 		return *this;
 	}
+
+	Vector4 operator*(float p_Right) const
+	{
+		return Vector4(x * p_Right, y * p_Right, z * p_Right, w * p_Right);
+	}
 };
 
 inline Vector2 XMFLOAT2ToVector2(const DirectX::XMFLOAT2 *p_vector)

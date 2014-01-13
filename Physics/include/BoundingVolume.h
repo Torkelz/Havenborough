@@ -51,7 +51,7 @@ public:
 	virtual void updatePosition(DirectX::XMFLOAT4X4& p_Translation) = 0;
 	/**
 	 * Get the current position for the bounding volume.
-	 * @return the position of the bounding volume.
+	 * @return the position of the bounding volume in m
 	 */
 	virtual DirectX::XMFLOAT4* getPosition()
 	{
@@ -59,7 +59,7 @@ public:
 	}
 	/**
 	 * Get the bounding volume position in the last frame.
-	 * @return the previus position of the bounding volume.
+	 * @return the previus position of the bounding volume in m
 	 */
 	DirectX::XMFLOAT4* getPrevPosition()
 	{

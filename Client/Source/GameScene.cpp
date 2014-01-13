@@ -102,7 +102,9 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 			if(hit.intersect)
 			{
 				if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
-				m_Physics->removedHitDataAt(i);
+				{
+					m_Physics->removedHitDataAt(i);
+				}
 
 				Logger::log(Logger::Level::TRACE, "Collision reported");
 			}
@@ -340,7 +342,7 @@ void GameScene::InitTemporaryStuff()
 
 	
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug testScaleBox");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug testScaleBox");
 	testScaleBox = m_Graphics->createModelInstance("BOX");
 	//m_Graphics->setModelScale(testScaleBox, Vector3(100.f, 100.f, 100.f));
 	m_Graphics->setModelPosition(testScaleBox, Vector3(0.f, 0.f, 0.f));

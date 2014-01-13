@@ -9,7 +9,7 @@ using namespace DirectX;
 class Player
 {
 private:
-	XMFLOAT3 m_Position;
+	XMFLOAT3 m_Position;	// cm
 	XMFLOAT3 m_LookDirection;
 	float m_ViewRotation[2];
 
@@ -22,21 +22,21 @@ private:
 	float m_JumpForce;
 	float m_MaxSpeed; // Centimeters per secound
 	float m_AccConstant;
-	XMFLOAT4 m_PrevForce;
-	float m_DirectionX;
-	float m_DirectionZ;
+	XMFLOAT4 m_PrevForce;	// kg * m/s^2
+	float m_DirectionX;	// (-1 - +1)
+	float m_DirectionZ;	// (-1 - +1)
 
 	bool m_ForceMove;
 	float m_ForceMoveTime;
 	float m_CurrentForceMoveTime;
-	float m_ForceMoveSpeed;
-	XMVECTOR m_ForceMoveStartPosition;
-	XMVECTOR m_ForceMoveEndPosition;
+	float m_ForceMoveSpeed;	// cm/s
+	XMVECTOR m_ForceMoveStartPosition;	// cm
+	XMVECTOR m_ForceMoveEndPosition;	// cm
 
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
 	//while climbing objects.
 	float m_TempHeight; 
-	float m_KneeHeight;
+	float m_KneeHeight;	// cm
 	float m_EyeHeight;
 
 public:
@@ -53,7 +53,7 @@ public:
 	/**
 	* Initialize the player.
 	* @param p_Physics a pointer to the physics engine
-	* @param p_Position the starting position of the player
+	* @param p_Position the starting position of the player in cm
 	* @param p_LookDirection the direction the player will look at when starting
 	*/
 	void initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_LookDirection);
@@ -77,6 +77,13 @@ public:
 	 * @return the ground position of the player
 	 */
 	XMFLOAT3 getGroundPosition() const;
+
+	/**
+	 * Get the center position of the players collision volume.
+	 *
+	 * @return the collision volume center in cm, in world coordinates.
+	 */
+	XMFLOAT3 getCollisionCenter() const;
 
 	/**
 	* Gets the height of the player.
