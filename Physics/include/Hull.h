@@ -26,7 +26,6 @@ public:
 		float radius = findFarthestDistanceOnTriangle();
 
 		m_Sphere = Sphere( radius, p_CenterPos );
-		//calculateTriangles();
 	}
 	~Hull()
 	{
@@ -200,12 +199,11 @@ public:
 		m_Sphere.setRadius(radius);
 
 	}
+
 	void setRotation(DirectX::XMFLOAT4X4 p_Rotation)
 	{
 		DirectX::XMMATRIX rotation = DirectX::XMLoadFloat4x4(&p_Rotation);
 		DirectX::XMVECTOR c1, c2, c3;
-		//calculateCorners();
-		DirectX::XMVECTOR tempCorners[8];
 		for(auto& tri : m_Triangles)
 		{
 			c1 = Vector4ToXMVECTOR(&tri.corners[0]);

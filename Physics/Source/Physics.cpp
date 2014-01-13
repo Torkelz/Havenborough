@@ -76,15 +76,15 @@ void Physics::initialize()
 	triangles.push_back(Triangle(Vector4( size, -size, size, 1.f), Vector4( -size,  -size, size, 1.f), Vector4( -size,	-size,  -size, 1.f)));
 	triangles.push_back(Triangle(Vector4( size,  -size,  -size, 1.f), Vector4( size,  -size, size, 1.f), Vector4( -size,	-size, -size, 1.f)));
 
-	Hull *hull = new Hull(XMFLOAT4(10.f, 1.01f, 0.f, 1.f), triangles);
-	float scale = .5f;
+	Hull *hull = new Hull(XMFLOAT4(10.f, 3.01f, 0.f, 1.f), triangles);
+	float scale = 1.5f;
 	XMMATRIX m = XMMatrixScaling(scale, scale, scale);
 	XMFLOAT4X4 fm;
 	XMStoreFloat4x4(&fm, m);  
 	hull->setScale(fm);
 
-	float rot = 1.5f;
-	XMMATRIX m_rot = XMMatrixRotationY(rot);
+	float rot = 0.47f;
+	XMMATRIX m_rot = XMMatrixRotationRollPitchYaw(rot, rot, rot);
 	XMStoreFloat4x4(&fm, m_rot);  
 
 	hull->setRotation(fm);
