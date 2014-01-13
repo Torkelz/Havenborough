@@ -77,12 +77,17 @@ void Physics::initialize()
 	triangles.push_back(Triangle(Vector4( size,  -size,  -size, 1.f), Vector4( size,  -size, size, 1.f), Vector4( -size,	-size, -size, 1.f)));
 
 	Hull *hull = new Hull(XMFLOAT4(10.f, 1.01f, 0.f, 1.f), triangles);
-	float scale = 4.f;
+	float scale = .5f;
 	XMMATRIX m = XMMatrixScaling(scale, scale, scale);
 	XMFLOAT4X4 fm;
 	XMStoreFloat4x4(&fm, m);  
-
 	hull->setScale(fm);
+
+	float rot = 1.5f;
+	XMMATRIX m_rot = XMMatrixRotationY(rot);
+	XMStoreFloat4x4(&fm, m_rot);  
+
+	hull->setRotation(fm);
 
 	createBody(1.f, hull, true, false);
 
@@ -410,7 +415,7 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 			return triangle;
 		}
 	case BoundingVolume::Type::HULL:
-		return ((Hull*)volume)->getTriangleAt(p_TriangleIndex);
+		return ((Hull*)volume)->getTriangleWorldCoordAt(p_TriangleIndex);
 	case BoundingVolume::Type::OBB:
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);

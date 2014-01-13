@@ -26,7 +26,7 @@ public:
 		float radius = findFarthestDistanceOnTriangle();
 
 		m_Sphere = Sphere( radius, p_CenterPos );
-		calculateTriangles();
+		//calculateTriangles();
 	}
 	~Hull()
 	{
@@ -51,22 +51,12 @@ public:
 		calculateTriangles();
 	}
 
-	unsigned int getTriangleSize()
-	{
-		return m_Triangles.size();
-	}
-
-	const Triangle& getTriangleAt(int p_Index)
-	{
-		return m_Triangles[p_Index];
-	}
-
 	DirectX::XMFLOAT4 findClosestPointOnTriangle(const DirectX::XMFLOAT4 p_Position, int p_Index)
 	{
 		DirectX::XMVECTOR ab, ac, ap, a, b, c, pos;
-		a = Vector4ToXMVECTOR(&m_Triangles[p_Index].corners[0]);
-		b = Vector4ToXMVECTOR(&m_Triangles[p_Index].corners[1]);
-		c = Vector4ToXMVECTOR(&m_Triangles[p_Index].corners[2]);
+		a = Vector4ToXMVECTOR(&getTriangleWorldCoordAt(p_Index).corners[0]);
+		b = Vector4ToXMVECTOR(&getTriangleWorldCoordAt(p_Index).corners[1]);
+		c = Vector4ToXMVECTOR(&getTriangleWorldCoordAt(p_Index).corners[2]);
 		pos = DirectX::XMLoadFloat4(&p_Position);
 
 		using DirectX::operator-;
@@ -210,15 +200,66 @@ public:
 		m_Sphere.setRadius(radius);
 
 	}
+	void setRotation(DirectX::XMFLOAT4X4 p_Rotation)
+	{
+		DirectX::XMMATRIX rotation = DirectX::XMLoadFloat4x4(&p_Rotation);
+		DirectX::XMVECTOR c1, c2, c3;
+		//calculateCorners();
+		DirectX::XMVECTOR tempCorners[8];
+		for(auto& tri : m_Triangles)
+		{
+			c1 = Vector4ToXMVECTOR(&tri.corners[0]);
+			c2 = Vector4ToXMVECTOR(&tri.corners[1]);
+			c3 = Vector4ToXMVECTOR(&tri.corners[2]);
+
+			c1 = XMVector4Transform(c1, rotation);
+			c2 = XMVector4Transform(c2, rotation);
+			c3 = XMVector4Transform(c3, rotation);
+
+			tri.corners[0] = XMVECTORToVector4(&c1);
+			tri.corners[1] = XMVECTORToVector4(&c2);
+			tri.corners[2] = XMVECTORToVector4(&c3);
+		}
+	}
 
 	Sphere getSphere()
 	{
 		return m_Sphere;
 	}
+	/**
+	 * Return a corner in world coordinates at the index specified.
+	 * 
+	 * @param p_Index index number in m_Bounds list
+	 * @return a XMFLOAT4 corner.
+	 */
 
+	unsigned int getTriangleSize()
+	{
+		return m_Triangles.size();
+	}
+
+	const Triangle& getTriangleAt(int p_Index)
+	{
+		return m_Triangles[p_Index];
+	}
+
+	Triangle getTriangleWorldCoordAt(unsigned p_Index)
+	{
+		Triangle triangle;
+		triangle = m_Triangles[p_Index];
+
+		triangle.corners[0] = triangle.corners[0] + XMFLOAT4ToVector4(&m_Position);
+		triangle.corners[1] = triangle.corners[1] + XMFLOAT4ToVector4(&m_Position);
+		triangle.corners[2] = triangle.corners[2] + XMFLOAT4ToVector4(&m_Position);
+
+		triangle.corners[0].w = 1.f;
+		triangle.corners[1].w = 1.f;
+		triangle.corners[2].w = 1.f;
+
+		return triangle;
+	}
 private:
-
-	void calculateTriangles()
+		void calculateTriangles()
 	{
 		for(auto& tri : m_Triangles)
 		{
