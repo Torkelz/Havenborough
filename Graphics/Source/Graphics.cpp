@@ -874,7 +874,7 @@ HRESULT Graphics::createRasterizerState(void)
 
 	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
 
-	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+	//rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
 	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterStateBV);
 	return result;
 }

@@ -52,16 +52,16 @@ void Physics::initialize()
 	std::vector<Triangle> triangles;
 
 	//Back
-	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f,  1.f, -1.f, 1.f), Vector4( 1.f,	1.f, -1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( -1.f,  -1.f, -1.f, 1.f), Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f,	 -1.f, -1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -1.f,  -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(1.f,	1.f, -1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -1.f,  -1.f, -1.f, 1.f), Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
 	
 	//Top
-    triangles.push_back(Triangle(Vector4( -1.f, 1.f, -1.f, 1.f), Vector4( -1.f,  1.f, 1.f, 1.f), Vector4( 1.f,	1.f,  1.f, 1.f)));
+    triangles.push_back(Triangle(Vector4( -1.f,  1.f,  -1.f, 1.f), Vector4(-1.f,  1.f, 1.f, 1.f), Vector4( 1.f,	1.f,  1.f, 1.f)));
 	triangles.push_back(Triangle(Vector4( -1.f,  1.f,  -1.f, 1.f), Vector4( 1.f,  1.f, 1.f, 1.f), Vector4( 1.f,	1.f, -1.f, 1.f)));
 	
 	//Front
-	triangles.push_back(Triangle(Vector4( -1.f, -1.f,  1.f, 1.f), Vector4( -1.f,  1.f,  1.f, 1.f), Vector4(1.f,	1.f,  1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4(-1.f,  -1.f,  1.f, 1.f), Vector4( 1.f,  1.f,  1.f, 1.f), Vector4(1.f,	-1.f,  1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -1.f, -1.f,  1.f, 1.f), Vector4(  1.f,  1.f,  1.f, 1.f), Vector4(-1.f,	 1.f,  1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -1.f, -1.f,  1.f, 1.f), Vector4(  1.f,  -1.f,  1.f, 1.f), Vector4(1.f,  1.f,  1.f, 1.f)));
 
 	//right	 																  
 	triangles.push_back(Triangle(Vector4(-1.f,  -1.f,  1.f, 1.f), Vector4( -1.f, 1.f, 1.f, 1.f), Vector4(-1.f,	1.f,  -1.f, 1.f)));
@@ -71,6 +71,7 @@ void Physics::initialize()
 	triangles.push_back(Triangle(Vector4(1.f, -1.f, -1.f, 1.f), Vector4(1.f,  1.f, -1.f, 1.f), Vector4( 1.f,1.f, 1.f, 1.f)));
 	triangles.push_back(Triangle(Vector4( 1.f,  -1.f, -1.f, 1.f), Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f,	-1.f, 1.f, 1.f)));
 
+	//bottom
 	triangles.push_back(Triangle(Vector4( -1.f, -1.f, -1.f, 1.f), Vector4( -1.f,  -1.f, 1.f, 1.f), Vector4( 1.f,	-1.f,  1.f, 1.f)));
 	triangles.push_back(Triangle(Vector4( -1.f,  -1.f,  -1.f, 1.f), Vector4( 1.f,  -1.f, 1.f, 1.f), Vector4( 1.f,	-1.f, -1.f, 1.f)));
 
@@ -78,7 +79,7 @@ void Physics::initialize()
 	triangles.push_back(Triangle(Vector4(-1.f,  1.f,  1.f, 1.f), Vector4( -1.f, 1.f, -1.f, 1.f), Vector4(-1.f,	-1.f,  1.f, 1.f)));
 	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4( -1.f, 1.f, -1.f, 1.f), Vector4(-1.f,	-1.f,  1.f, 1.f)));*/
 
-	Hull *hull = new Hull(XMFLOAT4(0.f, 0.f, 0.f, 1.f), triangles);
+	Hull *hull = new Hull(XMFLOAT4(10.f, 1.01f, 0.f, 1.f), triangles);
 	
 	createBody(1.f, hull, true, false);
 

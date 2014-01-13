@@ -26,7 +26,7 @@ public:
 		//THe idea is that to find the furthest point away from the center
 		//get the length and set that to the spheres radius.
 		m_Sphere = Sphere(1.f, p_CenterPos);
-		//calculateTriangles();
+		calculateTriangles();
 	}
 	~Hull()
 	{
@@ -150,6 +150,10 @@ private:
 			tri.corners[0] = tri.corners[0] + XMFLOAT4ToVector4(&m_Position);
 			tri.corners[1] = tri.corners[1] + XMFLOAT4ToVector4(&m_Position);
 			tri.corners[2] = tri.corners[2] + XMFLOAT4ToVector4(&m_Position);
+
+			tri.corners[0].w = 1.f;
+			tri.corners[1].w = 1.f;
+			tri.corners[2].w = 1.f;
 		}
 	}
 

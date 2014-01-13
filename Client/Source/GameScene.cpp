@@ -210,7 +210,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_Graphics->useFramePointLight(Vector3(0.f, 30.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
 	m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
 
-	//addDebugBVToDraw(1);
+	addDebugBVToDraw(1);
 	addDebugBVToDraw(5);
 	addDebugBVToDraw(6);
 	addDebugBVToDraw(7);
