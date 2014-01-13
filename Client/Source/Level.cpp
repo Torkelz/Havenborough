@@ -50,6 +50,8 @@ void Level::releaseLevel()
 	{
 		m_Resources->releaseResource(j);
 	}
+	for(int i : m_DrawID)
+		m_Graphics->eraseModelInstance(i);
 	m_ResourceID.clear();
 	m_ResourceID.shrink_to_fit();
 	m_BVResourceID.clear();
@@ -61,6 +63,7 @@ void Level::releaseLevel()
 	m_Graphics = nullptr;
 	m_Resources = nullptr;
 }
+
 bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePath)
 {
 	if(!m_LevelLoader.loadBinaryFile(p_LevelFilePath))

@@ -109,6 +109,10 @@ public:
 	 */
 	virtual void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) = 0;
 
+	/**
+	* Deletes an existing shader.
+	* @param p_ShaderId name of the shader
+	*/
 	virtual void deleteShader(const char *p_ShaderId) = 0;
 
 	/**

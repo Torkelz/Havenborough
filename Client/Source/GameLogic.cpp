@@ -27,7 +27,7 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
-	m_Level.setStartPosition(XMFLOAT3(15.0f, 2.0f, 15.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(0.0f, 2.0f, 15.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(0.0f, 2.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
 	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 2.0f);
 
@@ -49,6 +49,8 @@ void GameLogic::shutdown(void)
 	m_Graphics->eraseModelInstance(skyBox);
 	m_Level.releaseLevel();
 	m_Physics->releaseAllBoundingVolumes();
+	
+	
 	//TODO: Remove when we have a real level.
 	shutdownSandbox();
 }
@@ -107,6 +109,8 @@ void GameLogic::onFrame(float p_DeltaTime)
 	m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
 
 	m_Graphics->updateAnimations(p_DeltaTime);
+	
+	
 	updateSandbox(p_DeltaTime);
 }
 
@@ -440,10 +444,26 @@ void GameLogic::renderSandbox()
 
 void GameLogic::shutdownSandbox()
 {
+	m_Graphics->eraseModelInstance(ikTest);
+	m_Graphics->eraseModelInstance(circleWitch);
+	m_Graphics->eraseModelInstance(standingWitch);
+	m_Graphics->eraseModelInstance(wavingWitch);
+	m_Graphics->eraseModelInstance(climbBox);
+	m_Graphics->eraseModelInstance(jointBox);
+	for(int box : towerBoxes)
+	{
+		m_Graphics->eraseModelInstance(box);
+	}	
+	for(int box : rotatedTowerBoxes)
+	{
+		m_Graphics->eraseModelInstance(box);
+	}
 	for (int box : boxIds)
 	{
 		m_Graphics->eraseModelInstance(box);
 	}
+	m_Graphics->eraseModelInstance(slantedPlane);
+	
 	for(int i : m_ResourceIDs)
 	{
 		m_ResourceManager->releaseResource(i);
