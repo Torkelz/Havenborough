@@ -179,7 +179,7 @@ public:
 	 *
 	 * @param p_Index are the index number in the vector
 	 */
-	virtual void removedHitDataAt(unsigned int p_index) = 0;
+	virtual void removeHitDataAt(unsigned int p_index) = 0;
 	/**
 	 * Vector size, with hitData.
 	 *

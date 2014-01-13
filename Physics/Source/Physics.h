@@ -42,7 +42,7 @@ public:
 	Vector4 getVelocity(BodyHandle p_Body) override;
 
 	HitData getHitDataAt(unsigned int p_Index) override;
-	void removedHitDataAt(unsigned int p_index) override;
+	void removeHitDataAt(unsigned int p_index) override;
 	unsigned int getHitDataSize() override;
 
 	Vector4 getBodyPosition(BodyHandle p_Body) override;

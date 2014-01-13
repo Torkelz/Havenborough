@@ -180,6 +180,7 @@
     <ClCompile Include="TestIK.cpp" />
     <ClCompile Include="TestLogger.cpp" />
     <ClCompile Include="Source\Graphics\TestModelFactory.cpp" />
+    <ClCompile Include="TestObserver.cpp" />
     <ClCompile Include="TestResouceTranslator.cpp" />
     <ClCompile Include="TestResourceManager.cpp" />
   </ItemGroup>

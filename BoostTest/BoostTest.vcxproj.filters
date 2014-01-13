@@ -249,6 +249,9 @@
     <ClCompile Include="..\Client\Source\GameLogic.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="TestObserver.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

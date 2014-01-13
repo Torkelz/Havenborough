@@ -9,6 +9,7 @@
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
+#include "Subject.h"
 
 #include "ResourceManager.h"
 
@@ -28,10 +29,11 @@ private:
 
 	INetwork* m_Network;
 
-	bool	m_ShouldQuit;
-	bool	m_Connected;
+	bool m_ShouldQuit;
+	bool m_Connected;
 
 	SceneManager m_SceneManager;
+	Subject<std::string> m_Observer;
 
 	IPhysics *m_Physics;
 	ResourceManager* m_ResourceManager;

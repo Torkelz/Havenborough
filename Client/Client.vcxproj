@@ -79,6 +79,7 @@
     <ClInclude Include="Source\Scenes\IScene.h" />
     <ClInclude Include="Source\Scenes\MenuScene.h" />
     <ClInclude Include="Source\Scenes\PostGameScene.h" />
+    <ClInclude Include="Source\Subject.h" />
     <ClInclude Include="Source\Window.h" />
     <ClInclude Include="Utilities\MemoryUtil.h" />
     <ClInclude Include="Utilities\Util.h" />
