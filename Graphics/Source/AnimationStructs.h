@@ -20,6 +20,7 @@ struct AnimationClip
 		m_AnimationSpeed = 1.0f;
 		m_FirstJoint = 0;
 		m_PriorityLevel = 0;
+		m_ClipName = "default";
 	}
 
 	AnimationClip( float start, float end, std::string clipName, bool loop, float animationSpeed, int firstJoint, int priorityLevel)

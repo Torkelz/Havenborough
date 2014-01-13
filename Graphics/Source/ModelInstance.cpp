@@ -71,12 +71,21 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 
 	m_CurrentFrame += p_DeltaTime * keyfps * m_ActiveClips[0].m_AnimationSpeed;
 
-	const unsigned int numKeyframes = m_ActiveClips[0].m_End;
+	const unsigned int numKeyframes = (unsigned int)m_ActiveClips[0].m_End;
 	
-	if (m_CurrentFrame >= (float)(numKeyframes - 1))
+	if (m_ActiveClips[0].m_AnimationSpeed > 0.0f)
 	{
-		m_CurrentFrame = m_ActiveClips[0].m_Start;
-		// Note: This will not work for backward animations.
+		if (m_CurrentFrame >= (float)(numKeyframes - 1))
+		{
+			m_CurrentFrame = m_ActiveClips[0].m_Start;
+		}
+	}
+	else
+	{
+		if (m_CurrentFrame <= m_ActiveClips[0].m_Start)
+		{
+			m_CurrentFrame = (float)(numKeyframes - 1);
+		}
 	}
 
 	const unsigned int numBones = p_Joints.size();
@@ -317,7 +326,7 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 		XMStoreFloat4x4(&m_FinalTransform[i], result);
 		//XMMATRIX identity = XMMatrixIdentity();
 		//XMStoreFloat4x4(&m_FinalTransform[i], identity);
-		XMStoreFloat4x4(&m_FinalTransform[i], offSet);
+		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);
 	}
 }
 

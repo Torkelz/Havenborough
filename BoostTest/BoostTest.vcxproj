@@ -117,6 +117,7 @@
     <ClCompile Include="..\Client\Source\ResourceManager.cpp" />
     <ClCompile Include="..\Client\Source\ResourceTranslator.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />

@@ -503,19 +503,24 @@ void Graphics::playAnimation(int p_Instance, char* p_ClipName)
 			//const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
 			ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
 
-			// FULKOD TA BORT SENARE
+			//// FULKOD TA BORT SENARE
 			std::string tempStr(p_ClipName);
-			if(tempStr == "Kick")
+			//if(tempStr == "Kick")
+			//{
+			//	modelDef->m_AnimationClips.insert( std::pair<std::string, AnimationClip>(tempStr, AnimationClip(0, 31, tempStr, true, 1.0f, 0, 1)) );
+			//}
+			//else if(tempStr == "Witch")
+			//{
+			//	modelDef->m_AnimationClips.insert( std::pair<std::string, AnimationClip>(tempStr, AnimationClip(0, 24, tempStr, true, 1.0f, 0, 1)) );
+			//}
+			//else
+			//	modelDef->m_AnimationClips.insert( std::pair<std::string, AnimationClip>(tempStr, AnimationClip(32, 43, tempStr, true, 0.5f, 0, 2)) );
+			//// END FULKOD
+
+			if( modelDef->m_AnimationClips.find("default") != modelDef->m_AnimationClips.end() )
 			{
-				modelDef->m_AnimationClips.insert( std::pair<std::string, AnimationClip>(tempStr, AnimationClip(0, 31, tempStr, true, 1.0f, 0, 1)) );
+				tempStr = "default";
 			}
-			else if(tempStr == "Witch")
-			{
-				modelDef->m_AnimationClips.insert( std::pair<std::string, AnimationClip>(tempStr, AnimationClip(0, 1, tempStr, true, 1.0f, 0, 1)) );
-			}
-			else
-				modelDef->m_AnimationClips.insert( std::pair<std::string, AnimationClip>(tempStr, AnimationClip(32, 43, tempStr, true, 0.5f, 0, 2)) );
-			// END FULKOD
 
 			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr));
 		}

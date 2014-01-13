@@ -1,0 +1,17 @@
+*Clip
+n	Kick
+sp	-1.0
+st	1
+en	32
+l	1
+f	0
+p	1
+
+*Clip
+n	Bomb
+sp	-1.0
+st	33
+en	44
+l	1
+f	0
+p	2

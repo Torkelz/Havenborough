@@ -61,7 +61,7 @@ bool GameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, 
 	InitTemporaryStuff();
 
 	// Test.
-	m_Graphics->playAnimation(circleWitch, "Bomb");
+	m_Graphics->playAnimation(circleWitch, "Kick");
 	m_Graphics->playAnimation(wavingWitch, "Kick");
 	m_Graphics->playAnimation(standingWitch, "Bomb");
 	m_Graphics->playAnimation(testWitch, "Witch");
