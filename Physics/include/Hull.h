@@ -12,6 +12,7 @@ private:
 	Sphere m_Sphere;
 	std::vector<Triangle> m_Triangles;
 
+
 public:
 	/*
 	 *
@@ -22,10 +23,9 @@ public:
 		m_Position = p_CenterPos;
 		m_Triangles = p_Triangles;
 		m_Type = Type::HULL;
+		float radius = findFarthestDistanceOnTriangle();
 
-		//THe idea is that to find the furthest point away from the center
-		//get the length and set that to the spheres radius.
-		m_Sphere = Sphere(1.f, p_CenterPos);
+		m_Sphere = Sphere( radius, p_CenterPos );
 		calculateTriangles();
 	}
 	~Hull()
@@ -63,77 +63,152 @@ public:
 
 	DirectX::XMFLOAT4 findClosestPointOnTriangle(const DirectX::XMFLOAT4 p_Position, int p_Index)
 	{
-		DirectX::XMVECTOR ab, ac, bc, a, b, c, pos;
+		DirectX::XMVECTOR ab, ac, ap, a, b, c, pos;
 		a = Vector4ToXMVECTOR(&m_Triangles[p_Index].corners[0]);
 		b = Vector4ToXMVECTOR(&m_Triangles[p_Index].corners[1]);
 		c = Vector4ToXMVECTOR(&m_Triangles[p_Index].corners[2]);
 		pos = DirectX::XMLoadFloat4(&p_Position);
 
 		using DirectX::operator-;
+		using DirectX::operator*;
+		using DirectX::operator+;
 		ab = b - a;
 		ac = c - a;
-		bc = c - b;
+		ap = pos - a;
 
-		float snom = DirectX::XMVector4Dot(pos - a, ab).m128_f32[0];
-		float sdenom = DirectX::XMVector4Dot(pos - b, a - b).m128_f32[0];
-
-		float tnom = DirectX::XMVector4Dot(pos - a, ac).m128_f32[0];
-		float tdenom = DirectX::XMVector4Dot(pos - c, a - c).m128_f32[0];
+		float d1 = DirectX::XMVector4Dot(ab, ap).m128_f32[0];
+		float d2 = DirectX::XMVector4Dot(ac, ap).m128_f32[0];
 		
 		DirectX::XMFLOAT4 ret;
-		if(snom <= 0.f && tnom <= 0.f)
+		if(d1 <= 0.f && d2 <= 0.f)
 		{
 			DirectX::XMStoreFloat4(&ret, a);
 			return ret;
 		}
 
-		float unom = DirectX::XMVector4Dot(pos - b, bc).m128_f32[0];
-		float udenom = DirectX::XMVector4Dot(pos - c, b - c).m128_f32[0];
+		DirectX::XMVECTOR bp = pos - b;
+		float d3 = DirectX::XMVector4Dot(ab, bp).m128_f32[0];
+		float d4 = DirectX::XMVector4Dot(ac, bp).m128_f32[0];
 
-		if(sdenom <= 0.f && unom <= 0.f)
+		if(d3 >= 0.f && d4 <= d3)
 		{
 			DirectX::XMStoreFloat4(&ret, b);
 			return ret;
 		}
 
-		if(tdenom <= 0.f && udenom <= 0.f)
+		float vc = d1*d4 - d3*d2;
+		if(vc <= 0.f && d1 >= 0.f && d3 <= 0.f)
+		{
+			float v = d1 / (d1 - d3);
+			DirectX::XMStoreFloat4(&ret, a + v * ab);
+			return ret;
+		}
+
+		DirectX::XMVECTOR cp = pos - c;
+		float d5 = DirectX::XMVector3Dot(ab, cp).m128_f32[0];
+		float d6 = DirectX::XMVector3Dot(ac, cp).m128_f32[0];
+
+		if(d6 >= 0.f && d5 <= d6)
 		{
 			DirectX::XMStoreFloat4(&ret, c);
 			return ret;
 		}
 
-		DirectX::XMVECTOR normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(b - a, c - a));
-		float vc = DirectX::XMVector4Dot(normal, DirectX::XMVector3Cross(a - pos, b - pos)).m128_f32[0];
-
-		using DirectX::operator*;
-		using DirectX::operator+;
-		using DirectX::operator/;
-		if ( vc <= 0.f && snom >= 0.f && sdenom >= 0.f)
+		float vb = d5*d2 - d1*d6;
+		if(vb <= 0.f && d2 >= 0.f && d6 <= 0.f)
 		{
-			DirectX::XMStoreFloat4(&ret, a + snom / (snom + sdenom) * ab);
+			float w = d2 / (d2 - d6);
+			DirectX::XMStoreFloat4(&ret, a + w * ac);
 			return ret;
 		}
 
-		float va = DirectX::XMVector4Dot(normal, DirectX::XMVector3Cross(b - pos, c - pos)).m128_f32[0];
-		if(va <= 0.f && unom >= 0.f && udenom >= 0.f)
+		float va = d3*d6 - d5*d4;
+		if(va <= 0.f && (d4 - d3) >= 0.f && (d5 - d6) >= 0.f)
 		{
-			DirectX::XMStoreFloat4(&ret, b + unom / ( unom + udenom ) * bc);
+			float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+			DirectX::XMStoreFloat4(&ret, b + w * ( c - b ));
 			return ret;
 		}
 
-		float vb = DirectX::XMVector4Dot(normal, DirectX::XMVector3Cross(c - pos, a - pos)).m128_f32[0];
-		if(vb <= 0.f && tnom >= 0.f && tdenom >= 0.f)
-		{
-			DirectX::XMStoreFloat4(&ret, a + tnom / (tnom + tdenom) * ac);
-			return ret;
-		}
+		float denom = 1.f / ( va + vb + vc);
 
-		float u = va / ( va + vb + vc);
-		float v = vb / ( va + vb + vc);
-		float w = 1.f - u - v; // vc / (va + vb + vc);
-		DirectX::XMStoreFloat4(&ret, u * a + v * b + w * c);
+		float v = vb * denom;
+		float w = vc * denom;
+		DirectX::XMStoreFloat4(&ret, a + ab * v + ac * w);
 		return ret;
 		
+	}
+
+	float findFarthestDistanceOnTriangle()
+	{
+		//The idea is that to find the furthest point away from the center
+		//get the length and set that to the spheres radius.
+		DirectX::XMVECTOR v, farthest, centerPos, corner;
+		centerPos = DirectX::XMVectorSet(0.f, 0.f, 0.f, 1.f);
+
+		float farthestDistance = 0.f;
+
+		for(auto& tri : m_Triangles)
+		{
+			using DirectX::operator-;
+			corner = Vector4ToXMVECTOR(&tri.corners[0]);
+			v = corner - centerPos;
+			float c1 = DirectX::XMVector3Dot(v, v).m128_f32[0];
+			
+			if(c1 > farthestDistance)
+			{
+				farthestDistance = c1;
+				farthest = v;
+			}
+
+			corner = Vector4ToXMVECTOR(&tri.corners[1]);
+			v = corner - centerPos;
+			float c2 = DirectX::XMVector3Dot(v, v).m128_f32[0];
+
+			if(c2 > farthestDistance)
+			{
+				farthestDistance = c1;
+				farthest = v;
+			}
+
+			corner = Vector4ToXMVECTOR(&tri.corners[2]);
+			v = corner - centerPos;
+			float c3 = DirectX::XMVector3Dot(v, v).m128_f32[0];
+
+			if(c3 > farthestDistance)
+			{
+				farthestDistance = c3;
+				farthest = v;
+			}
+
+		}
+	
+		farthest.m128_f32[3] = 1.f;
+		return sqrtf(farthestDistance);
+	}
+
+	void setScale(DirectX::XMFLOAT4X4 p_scaleMatrix)
+	{
+		DirectX::XMVECTOR c1, c2, c3;
+		DirectX::XMMATRIX m = XMLoadFloat4x4(&p_scaleMatrix);
+
+		for(auto &tri : m_Triangles)
+		{
+			c1 = Vector4ToXMVECTOR(&tri.corners[0]);
+			c2 = Vector4ToXMVECTOR(&tri.corners[1]);
+			c3 = Vector4ToXMVECTOR(&tri.corners[2]);
+
+			c1 = DirectX::XMVector4Transform(c1, m);
+			c2 = DirectX::XMVector4Transform(c2, m);
+			c3 = DirectX::XMVector4Transform(c3, m);
+
+			tri.corners[0] = XMVECTORToVector4(&c1); 
+			tri.corners[1] = XMVECTORToVector4(&c2); 
+			tri.corners[2] = XMVECTORToVector4(&c3);
+		}
+		float radius = findFarthestDistanceOnTriangle();
+		m_Sphere.setRadius(radius);
+
 	}
 
 	Sphere getSphere()

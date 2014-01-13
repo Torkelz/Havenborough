@@ -887,8 +887,9 @@ HRESULT Graphics::createRasterizerState(void)
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
-
-	//rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+	
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
 	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterStateBV);
 	return result;
 }

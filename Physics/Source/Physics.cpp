@@ -51,36 +51,39 @@ void Physics::initialize()
 
 	std::vector<Triangle> triangles;
 
+	float size = 1.f;
 	//Back
-	triangles.push_back(Triangle(Vector4( -1.f,  -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(1.f,	1.f, -1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( -1.f,  -1.f, -1.f, 1.f), Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4(-size, size, -size, 1.f), Vector4(size,	size, -size, 1.f)));
+	triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4( size, size, -size, 1.f), Vector4(size, -size, -size, 1.f)));
 	
 	//Top
-    triangles.push_back(Triangle(Vector4( -1.f,  1.f,  -1.f, 1.f), Vector4(-1.f,  1.f, 1.f, 1.f), Vector4( 1.f,	1.f,  1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( -1.f,  1.f,  -1.f, 1.f), Vector4( 1.f,  1.f, 1.f, 1.f), Vector4( 1.f,	1.f, -1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -size,  size,  -size, 1.f), Vector4(-size,  size, size, 1.f), Vector4( size,	size,  size, 1.f)));
+	triangles.push_back(Triangle(Vector4( -size,  size,  -size, 1.f), Vector4( size,  size, size, 1.f), Vector4( size,	size, -size, 1.f)));
 	
 	//Front
-	triangles.push_back(Triangle(Vector4( -1.f, -1.f,  1.f, 1.f), Vector4(  1.f,  1.f,  1.f, 1.f), Vector4(-1.f,	 1.f,  1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( -1.f, -1.f,  1.f, 1.f), Vector4(  1.f,  -1.f,  1.f, 1.f), Vector4(1.f,  1.f,  1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  size,  size, 1.f), Vector4(-size,	 size,  size, 1.f)));
+	triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  -size,  size, 1.f), Vector4(size,  size,  size, 1.f)));
 
-	//right	 																  
-	triangles.push_back(Triangle(Vector4(-1.f,  -1.f,  1.f, 1.f), Vector4( -1.f, 1.f, 1.f, 1.f), Vector4(-1.f,	1.f,  -1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4(-1.f, -1.f, 1.f, 1.f), Vector4( -1.f, 1.f, -1.f, 1.f), Vector4(-1.f,	-1.f,  -1.f, 1.f)));
+	////right	 																  
+	triangles.push_back(Triangle(Vector4(-size,  -size,  size, 1.f), Vector4( -size, size, size, 1.f), Vector4(-size,	size,  -size, 1.f)));
+	triangles.push_back(Triangle(Vector4(-size, -size, size, 1.f), Vector4( -size, size, -size, 1.f), Vector4(-size,	-size,  -size, 1.f)));
 
-	//left
-	triangles.push_back(Triangle(Vector4(1.f, -1.f, -1.f, 1.f), Vector4(1.f,  1.f, -1.f, 1.f), Vector4( 1.f,1.f, 1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( 1.f,  -1.f, -1.f, 1.f), Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f,	-1.f, 1.f, 1.f)));
+	////left
+	triangles.push_back(Triangle(Vector4(size, -size, -size, 1.f), Vector4(size,  size, -size, 1.f), Vector4( size, size, size, 1.f)));
+	triangles.push_back(Triangle(Vector4( size,  -size, -size, 1.f), Vector4( size, size, size, 1.f), Vector4(size, -size, size, 1.f)));
 
-	//bottom
-	triangles.push_back(Triangle(Vector4( -1.f, -1.f, -1.f, 1.f), Vector4( -1.f,  -1.f, 1.f, 1.f), Vector4( 1.f,	-1.f,  1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( -1.f,  -1.f,  -1.f, 1.f), Vector4( 1.f,  -1.f, 1.f, 1.f), Vector4( 1.f,	-1.f, -1.f, 1.f)));
-
-    /*triangles.push_back(Triangle(Vector4( 1.f, -1.f, -1.f, 1.f), Vector4( 1.f,  1.f, -1.f, 1.f), Vector4( 1.f,	-1.f,  1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4(-1.f,  1.f,  1.f, 1.f), Vector4( -1.f, 1.f, -1.f, 1.f), Vector4(-1.f,	-1.f,  1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4( -1.f, 1.f, -1.f, 1.f), Vector4(-1.f,	-1.f,  1.f, 1.f)));*/
+	////bottom
+	triangles.push_back(Triangle(Vector4( size, -size, size, 1.f), Vector4( -size,  -size, size, 1.f), Vector4( -size,	-size,  -size, 1.f)));
+	triangles.push_back(Triangle(Vector4( size,  -size,  -size, 1.f), Vector4( size,  -size, size, 1.f), Vector4( -size,	-size, -size, 1.f)));
 
 	Hull *hull = new Hull(XMFLOAT4(10.f, 1.01f, 0.f, 1.f), triangles);
-	
+	float scale = 4.f;
+	XMMATRIX m = XMMatrixScaling(scale, scale, scale);
+	XMFLOAT4X4 fm;
+	XMStoreFloat4x4(&fm, m);  
+
+	hull->setScale(fm);
+
 	createBody(1.f, hull, true, false);
 
 	m_BVLoader.loadBinaryFile("assets/LightModels/CB_Sphere.txc");

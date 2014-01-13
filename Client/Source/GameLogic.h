@@ -83,4 +83,6 @@ private:
 	void updateSandbox(float p_DeltaTime);
 	void renderSandbox();
 	void shutdownSandbox();
+
+	void addDebugBVToDraw(BodyHandle p_BodyHandle);
 };

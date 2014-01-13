@@ -566,37 +566,49 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 
 	hit = HitData();
 
-	XMVECTOR closestPoint, v, spherePos;
+	XMVECTOR closestPoint, v, spherePos, point;
 
 	spherePos = XMVectorSet(0.f, 0.f, 0.f, 0.f);
 
 	spherePos = XMLoadFloat4(p_Sphere->getPosition());
 
+	float distance = 10000.f;
+	point = XMVectorSet(0.f, 0.f, 0.f, 0.f);
+
 	for(unsigned int i = 0; i < p_Hull->getTriangleSize(); i++)
 	{
-		closestPoint = XMLoadFloat4(&p_Hull->findClosestPointOnTriangle(*p_Sphere->getPosition(), i));
+		point = XMLoadFloat4(&p_Hull->findClosestPointOnTriangle(*p_Sphere->getPosition(), i));
 		
-		v = closestPoint - spherePos;
+		v = point - spherePos;
 
 		float vv = XMVector4Dot(v, v).m128_f32[0]; 
 
 		if(vv <= p_Sphere->getSqrRadius())
 		{
 			hit.intersect = true;
-			hit.colPos.x = closestPoint.m128_f32[0];
-			hit.colPos.y = closestPoint.m128_f32[1];
-			hit.colPos.z = closestPoint.m128_f32[2];
-			hit.colPos.w = 1.f;
-
-			XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - Vector4ToXMVECTOR(&hit.colPos) );
-
-			hit.colNorm = XMVECTORToVector4(&tempNorm);
-			hit.colLength = p_Sphere->getRadius() - sqrtf(vv);
-			hit.colType = Type::HULLVSSPHERE;
-
-			break;
+			if(vv <= distance)
+			{
+				distance = vv;
+				closestPoint = point;
+			}
 		}
 	}
+
+	if(hit.intersect)
+	{
+		hit.colPos.x = closestPoint.m128_f32[0];
+		hit.colPos.y = closestPoint.m128_f32[1];
+		hit.colPos.z = closestPoint.m128_f32[2];
+		hit.colPos.w = 1.f;
+
+		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - Vector4ToXMVECTOR(&hit.colPos) );
+
+		hit.colNorm = XMVECTORToVector4(&tempNorm);
+		hit.colLength = p_Sphere->getRadius() - sqrtf(distance);
+		hit.colType = Type::HULLVSSPHERE;
+
+	}
+
 
 	return hit;
 }

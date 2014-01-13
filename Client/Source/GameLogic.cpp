@@ -37,7 +37,6 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 	
 	m_ChangeScene = GoToScene::NONE;
 
-	
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 	currentDebugView = 3;
@@ -121,7 +120,8 @@ void GameLogic::render()
 	m_Graphics->renderModel(skyBox);
 
 	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
-	m_Graphics->drawFrame(currView);
+	//m_Graphics->drawFrame(currView);
+
 	addDebugBVToDraw(1);
 	addDebugBVToDraw(5);
 	addDebugBVToDraw(6);
@@ -135,7 +135,8 @@ void GameLogic::render()
 	addDebugBVToDraw(14);
 	addDebugBVToDraw(15);
 	addDebugBVToDraw(16);
-	m_Graphics->drawFrame(currView);
+
+	//m_Graphics->drawFrame(currView);
 
 	renderSandbox();
 	m_Graphics->drawFrame(currentDebugView);
@@ -495,7 +496,7 @@ void GameLogic::shutdownSandbox()
 	m_Graphics->deleteShader("AnimatedShader");
 }
 
-void GameScene::addDebugBVToDraw(unsigned int p_BodyHandle)
+void GameLogic::addDebugBVToDraw(BodyHandle p_BodyHandle)
 {
 	unsigned int size =  m_Physics->getNrOfTrianglesFromBody(p_BodyHandle);
 
@@ -505,3 +506,4 @@ void GameScene::addDebugBVToDraw(unsigned int p_BodyHandle)
 		triangle = m_Physics->getTriangleFromBody(p_BodyHandle, i);
 		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
 	}
+}
