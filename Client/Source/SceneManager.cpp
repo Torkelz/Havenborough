@@ -6,6 +6,7 @@ SceneManager::SceneManager()
 	//m_MenuSceneList.clear();
 	//m_RunSceneList.clear();
 	m_NowShowing = 0;
+	m_IsMenuState = true;
 	m_Graphics = nullptr;
 	m_ResourceManager = nullptr;
 	m_Physics = nullptr;
