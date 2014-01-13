@@ -104,7 +104,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 				if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 				m_Physics->removedHitDataAt(i);
 
-				Logger::log(Logger::Level::DEBUG, "Collision reported");
+				Logger::log(Logger::Level::TRACE, "Collision reported");
 			}
 		}
 	}
@@ -252,14 +252,14 @@ void GameScene::registeredKeyStroke(std::string p_Action, float p_Value)
 		currView--;
 		if(currView < 0)
 		currView = 3;
-		Logger::log(Logger::Level::DEBUG, "Selecting previous view");
+		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
 	{
 		currView++;
 		if(currView >= 4)
 		currView = 0;
-		Logger::log(Logger::Level::DEBUG, "Selecting next view");
+		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 	}
 	else if (p_Action == "mouseMoveHori")
 	{
@@ -308,7 +308,7 @@ void GameScene::InitTemporaryStuff()
 	useIK_OnIK_Worm = false;
 	
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug box model instances");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug box model instances");
 	
 	for (int i = 0; i < NUM_BOXES; i++)
 	{
@@ -334,7 +334,7 @@ void GameScene::InitTemporaryStuff()
 	jointBox = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(jointBox, Vector3(5.f, 5.f, 200.f));
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug skybox");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug skybox");
 	skyBox = m_Graphics->createModelInstance("SKYBOX");
 	m_Graphics->setModelScale(skyBox, Vector3(100.f, 100.f, 100.f));
 
@@ -347,12 +347,12 @@ void GameScene::InitTemporaryStuff()
 
 
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug ground");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug ground");
 	ground = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelScale(ground, Vector3(10000.f, 500.f, 10000.f));
 	m_Graphics->setModelPosition(ground, Vector3(0.f, -250.f, 0.f));
 
-	Logger::log(Logger::Level::DEBUG, "Adding debug character");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug character");
 	circleWitch = m_Graphics->createModelInstance("DZALA");
 	//m_Graphics->setModelScale(circleWitch, Vector3(0.01f, 0.01f, 0.01f));
 

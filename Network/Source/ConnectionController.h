@@ -53,6 +53,20 @@ public:
 	unsigned int getNumCreateObjectInstances(Package p_Package) override;
 	const ObjectInstance* getCreateObjectInstances(Package p_Package) override;
 
+	void sendUpdateObjects(const UpdateObjectData* p_ObjectData, unsigned int p_NumObjects, const char** p_ExtraData, unsigned int p_NumExtraData) override;
+	unsigned int getNumUpdateObjectData(Package p_Package) override;
+	const UpdateObjectData* getUpdateObjectData(Package p_Package) override;
+	unsigned int getNumUpdateObjectExtraData(Package p_Package) override;
+	const char* getUpdateObjectExtraData(Package p_Package, unsigned int p_ExtraData) override;
+
+	void sendRemoveObjects(const uint16_t* p_Objects, unsigned int p_NumObjects) override;
+	unsigned int getNumRemoveObjectRefs(Package p_Package) override;
+	const uint16_t* getRemoveObjectRefs(Package p_Package) override;
+
+	void sendObjectAction(uint16_t p_ObjectId, const char* p_Action) override;
+	uint16_t getObjectActionId(Package p_Package) override;
+	const char* getObjectActionAction(Package p_Package) override;
+
 	/**
 	 * Start the listening loop on the connection.
 	 */

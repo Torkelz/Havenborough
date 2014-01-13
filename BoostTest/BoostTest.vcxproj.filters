@@ -26,7 +26,6 @@
     <ClCompile Include="Source\Network\TestConnectionController.cpp">
       <Filter>TestNetwork</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp">
       <Filter>TestNetwork</Filter>
     </ClCompile>
@@ -233,6 +232,16 @@
     </ClCompile>
     <ClCompile Include="OBBTest.cpp">
       <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="..\Client\Source\Window.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Actor.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\ActorFactory.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
