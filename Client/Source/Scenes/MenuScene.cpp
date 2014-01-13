@@ -45,6 +45,7 @@ void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 
 void MenuScene::render()
 {
+	m_Graphics->setClearColor(Vector4(0, 1, 0, 1));
 	m_Graphics->drawFrame(3);
 }
 

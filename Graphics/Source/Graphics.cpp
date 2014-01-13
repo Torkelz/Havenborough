@@ -182,7 +182,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights);
 	
 	DebugDefferedDraw();
-
+	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
 	return true;
 }
 
@@ -464,6 +464,14 @@ void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDir
 	m_DirectionalLights.push_back(l);
 }
 
+void Graphics::setClearColor(Vector4 p_Color)
+{
+	m_ClearColor[0] = p_Color.x;
+	m_ClearColor[1] = p_Color.y;
+	m_ClearColor[2] = p_Color.z;
+	m_ClearColor[3] = p_Color.w;
+}
+
 void Graphics::drawFrame(int i)
 {
 	if (!m_DeviceContext || !m_DeferredRender)
@@ -471,8 +479,7 @@ void Graphics::drawFrame(int i)
 		return;
 	}
 
-	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
-	Begin(color);
+	Begin(m_ClearColor);
 
 	m_DeferredRender->renderDeferred();
 
@@ -480,9 +487,9 @@ void Graphics::drawFrame(int i)
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_Shader->setShader();
-	m_Shader->setResource(Shader::Type::PIXEL_SHADER,0,1,m_DeferredRender->getRT(i));
+	m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(i));
 	m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
-	m_DeviceContext->Draw(6,0);
+	m_DeviceContext->Draw(6, 0);
 
 	m_Shader->unSetShader();
 	
