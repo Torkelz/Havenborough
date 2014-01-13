@@ -1,17 +1,17 @@
 *Clip
-n	Kick
+n	Run
 sp	1.0
-st	1
-en	32
+st	2
+en	10
 l	1
 f	0
 p	1
 
 *Clip
-n	Bomb
+n	Test
 sp	1.0
-st	33
-en	44
+st	1
+en	3
 l	1
 f	0
-p	2
+p	1

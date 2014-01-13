@@ -49,5 +49,5 @@ public:
 	 *			Must be in the range [0.f, n - 1), where n is the number of frames.
 	 * @return the interpolated transformation.
 	 */
-	DirectX::XMFLOAT4X4 interpolate(float p_FrameTime) const;
+	DirectX::XMFLOAT4X4 interpolate(float p_FrameTime, float m_DestinationFrameTime) const;
 };

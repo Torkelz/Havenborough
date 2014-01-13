@@ -36,8 +36,20 @@
 	 * The current frame time point. Non-integral values results in interpolation.
 	 */
 	float m_CurrentFrame;
+	float m_DestinationFrame;
 	AnimationClip m_ActiveClips[2]; // "Tracks"
-	std::vector<AnimationClip> m_QueuedClips;
+	AnimationClip m_FadeClip;
+
+	// Blend stuff
+	bool m_CrossfadeMainTrack;
+	bool m_CrossfadeOffTrack;
+	bool m_Layer;
+	int m_FadeFramesMainTrack;
+	int m_FadeFramesOffTrack;
+	float m_CurrentFadeFrame;
+	float m_DestinationFadeFrame;
+	float m_CurrentOffTrackFrame;
+	float m_DestinationOffTrackFrame;
 
  public:
 	/**
@@ -120,7 +132,7 @@
 	 */
 	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName, const std::vector<Joint>& p_Joints);
 
-	void playClip(AnimationClip p_Clip);
+	void playClip(AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames);
 
  private:
 	void calculateWorldMatrix(void) const;

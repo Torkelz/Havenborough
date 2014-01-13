@@ -14,7 +14,7 @@ struct AnimationClip
 
 	AnimationClip()
 	{
-		m_Start = 0.0f;
+		m_Start = 1.0f;
 		m_End = 10.0f;
 		m_Loop = true;
 		m_AnimationSpeed = 1.0f;

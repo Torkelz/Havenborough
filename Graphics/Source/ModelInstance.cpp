@@ -8,6 +8,7 @@ using std::string;
 
 ModelInstance::ModelInstance()
 	:	m_CurrentFrame(0.f),
+		m_DestinationFrame(1.f),
 		m_IsCalculated(false)
 {
 	m_ActiveClips[0] = AnimationClip();
@@ -75,16 +76,30 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 	
 	if (m_ActiveClips[0].m_AnimationSpeed > 0.0f)
 	{
-		if (m_CurrentFrame >= (float)(numKeyframes - 1))
+		m_DestinationFrame = m_CurrentFrame + 1.0f;
+		if (m_CurrentFrame >= (float)(numKeyframes))
 		{
 			m_CurrentFrame = m_ActiveClips[0].m_Start;
+		}
+		if (m_DestinationFrame >= (float)(numKeyframes))
+		{
+			float dummy;
+			float frac = modff(m_DestinationFrame, &dummy);
+			m_DestinationFrame = m_ActiveClips[0].m_Start + frac;
 		}
 	}
 	else
 	{
 		if (m_CurrentFrame <= m_ActiveClips[0].m_Start)
 		{
-			m_CurrentFrame = (float)(numKeyframes - 1);
+			m_CurrentFrame = (float)(numKeyframes);
+		}
+		m_DestinationFrame = m_CurrentFrame - 1.0f;
+		if (m_DestinationFrame <= m_ActiveClips[0].m_Start)
+		{
+			float frac = 0.0f;
+			frac = m_DestinationFrame - (int)m_DestinationFrame;
+			m_DestinationFrame = (float)(numKeyframes) + frac - 1;
 		}
 	}
 
@@ -96,7 +111,14 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 	// to be done before IK is calculated and applied.
 	for(unsigned int i = 0; i < numBones; ++i)
 	{
-		XMFLOAT4X4 toParentData = p_Joints[i].interpolate(m_CurrentFrame);
+		XMFLOAT4X4 toParentData;
+		if(m_ActiveClips[0].m_AnimationSpeed > 0)
+		{
+			toParentData = p_Joints[i].interpolate(m_CurrentFrame, m_DestinationFrame);
+		}
+		else
+			toParentData = p_Joints[i].interpolate(m_DestinationFrame, m_CurrentFrame);
+
 		XMMATRIX toParent = XMMatrixMultiply(XMMatrixTranspose(XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix)), XMLoadFloat4x4(&toParentData));
 		XMStoreFloat4x4(&m_LocalTransforms[i], toParent);
 	}
@@ -324,14 +346,45 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 		result = XMMatrixMultiply(flipMatrix, result);
 
 		XMStoreFloat4x4(&m_FinalTransform[i], result);
+
+		// *** Save for debugging of new animated objects. ***
 		//XMMATRIX identity = XMMatrixIdentity();
 		//XMStoreFloat4x4(&m_FinalTransform[i], identity);
 		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);
 	}
 }
 
-void ModelInstance::playClip(AnimationClip p_Clip)
+void ModelInstance::playClip( AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames )
 {
-	m_ActiveClips[0] = p_Clip;
-	m_CurrentFrame = p_Clip.m_Start;
+	if (!p_Layer)
+	{
+		if(p_Crossfade)
+		{
+			m_CrossfadeMainTrack = p_Crossfade;
+			m_FadeFramesMainTrack = p_FadeFrames;
+			m_FadeClip = p_Clip;
+			m_CurrentFadeFrame = m_FadeClip.m_Start;
+		}
+		else
+		{
+			m_ActiveClips[0] = p_Clip;
+			m_CurrentFrame = p_Clip.m_Start;
+		}
+	}
+
+	if (p_Layer)
+	{
+		m_ActiveClips[1] = p_Clip;
+		if(p_Crossfade)
+		{
+			m_CrossfadeOffTrack = p_Crossfade;
+			m_FadeFramesOffTrack = p_FadeFrames;
+			m_CurrentOffTrackFrame = m_ActiveClips[1].m_Start;
+		}
+		else
+		{
+			m_ActiveClips[1] = p_Clip;
+			m_CurrentOffTrackFrame = p_Clip.m_Start;
+		}
+	}
 }

@@ -61,10 +61,10 @@ bool GameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, 
 	InitTemporaryStuff();
 
 	// Test.
-	m_Graphics->playAnimation(circleWitch, "Kick");
-	m_Graphics->playAnimation(wavingWitch, "Kick");
-	m_Graphics->playAnimation(standingWitch, "Bomb");
-	m_Graphics->playAnimation(testWitch, "Witch");
+	m_Graphics->playAnimation(circleWitch, "Run", false, false, 0);
+	m_Graphics->playAnimation(wavingWitch, "Kick", false, false, 0);
+	m_Graphics->playAnimation(standingWitch, "Bomb", false, false, 0);
+	m_Graphics->playAnimation(testWitch, "Run", false, false, 0);
 
 	return true;
 }
@@ -178,14 +178,14 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	static const float IK_Length = 5.f;
 
-	//static const char* testTargetJoint = "bn_l_foot01";
-	//static const char* testHingeJoint = "bn_l_Knee_a01";
-	//static const char* testBaseJoint = "bn_l_Tigh01";
+	static const char* testTargetJoint = "L_Hand";
+	static const char* testHingeJoint = "L_LowerArm";
+	static const char* testBaseJoint = "L_UpperArm";
 
 	Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
 	if (useIK_OnIK_Worm)
 	{
-		//m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
+		m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
 		m_Graphics->applyIK_ReachPoint(ikTest, "joint4", "joint3", "joint2", IK_Target);
 	}
 
@@ -349,7 +349,7 @@ void GameScene::InitTemporaryStuff()
 	m_Graphics->setModelPosition(ground, Vector3(0.f, -2.5f, 0.f));
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug character");
-	circleWitch = m_Graphics->createModelInstance("DZALA");
+	circleWitch = m_Graphics->createModelInstance("WITCH");
 	m_Graphics->setModelScale(circleWitch, Vector3(0.01f, 0.01f, 0.01f));
 
 	Logger::log(Logger::Level::DEBUG, "Adding debug witch");

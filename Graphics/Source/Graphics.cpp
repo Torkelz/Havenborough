@@ -492,7 +492,7 @@ void Graphics::updateAnimations(float p_DeltaTime)
 	}
 }
 
-void Graphics::playAnimation(int p_Instance, char* p_ClipName)
+void Graphics::playAnimation(int p_Instance, char* p_ClipName, bool p_Layer, bool p_Crossfade, int p_FadeFrames)
 {
 	#include "AnimationStructs.h"
 
@@ -522,7 +522,7 @@ void Graphics::playAnimation(int p_Instance, char* p_ClipName)
 				tempStr = "default";
 			}
 
-			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr));
+			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr), p_Layer, p_Crossfade, p_FadeFrames);
 		}
 	}
 }

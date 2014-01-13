@@ -193,7 +193,7 @@ public:
 	 */
 	virtual void updateAnimations(float p_DeltaTime) = 0;
 
-	virtual void playAnimation(int p_Instance, char* p_ClipName) = 0;
+	virtual void playAnimation(int p_Instance, char* p_ClipName, bool p_Layer, bool p_Crossfade, int p_FadeFrames) = 0;
 
 	/**
 	 * Gets the amount of VRAM usage of the program.
