@@ -184,13 +184,10 @@ public:
 private:
 	void updateRotation()
 	{
-		DirectX::XMMATRIX tempRot = DirectX::XMLoadFloat4x4(&m_Rotation);
-		DirectX::XMMATRIX tAxes = XMLoadFloat4x4(&m_Axes);
-		tAxes = tempRot * tAxes;
+		m_Axes = m_Rotation;
+		DirectX::XMMATRIX tAxes = DirectX::XMLoadFloat4x4(&m_Axes);
 
-		DirectX::XMStoreFloat4x4(&m_Axes, tAxes);
-
-
+		calculateCorners();
 		DirectX::XMVECTOR tempCorners[8];
 		for(int i = 0; i < 8; i++)
 		{

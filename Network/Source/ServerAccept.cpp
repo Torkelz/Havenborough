@@ -15,12 +15,12 @@ ServerAccept::ServerAccept(boost::asio::io_service& p_IO_Service, unsigned short
 			m_ClientConnected(nullptr),
 			m_ClientDisconnected(nullptr)
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Creating server acceptor");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Creating server acceptor");
 }
 
 ServerAccept::~ServerAccept()
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Destroying server acceptor");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Destroying server acceptor");
 
 	if (m_Running)
 	{
@@ -30,7 +30,7 @@ ServerAccept::~ServerAccept()
 
 void ServerAccept::startServer(unsigned int p_NumThreads)
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Starting server acceptor");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Starting server acceptor");
 
 	try
 	{
@@ -45,7 +45,7 @@ void ServerAccept::startServer(unsigned int p_NumThreads)
 
 void ServerAccept::stopServer()
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Stopping server acceptor");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Stopping server acceptor");
 
 	{
 		std::unique_lock<std::mutex> lock(m_ClientLock);
@@ -122,7 +122,7 @@ void ServerAccept::startThreads(unsigned int p_NumThreads)
 
 	for (unsigned int i = 0; i < p_NumThreads; i++)
 	{
-		NetworkLogger::log(NetworkLogger::Level::DEBUG, "Starting server network IO thread");
+		NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Starting server network IO thread");
 
 		m_WorkerThreads.emplace_back(std::bind(&ServerAccept::IO_Run, this));
 	}
@@ -154,7 +154,7 @@ void ServerAccept::IO_Run()
 		NetworkLogger::log(NetworkLogger::Level::FATAL, "Unknown exception on network IO thread");
 	}
 	
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Server IO thread done");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Server IO thread done");
 }
 
 void ServerAccept::handleDisconnectCallback(ConnectionController* p_Connection)
@@ -169,7 +169,7 @@ void ServerAccept::handleDisconnectCallback(ConnectionController* p_Connection)
 
 void ServerAccept::removeClient(ConnectionController* p_Connection)
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Removing client connection from server");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Removing client connection from server");
 
 	std::unique_lock<std::mutex> lock(m_ClientLock);
 	for (unsigned int i = 0; i < m_ConnectedClients.size(); i++)
