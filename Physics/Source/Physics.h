@@ -16,8 +16,9 @@ private:
 	std::vector<Body> m_Bodies;
 	std::vector<HitData> m_HitDatas;
 	BVLoader m_BVLoader;
+	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume ;
 
-	std::vector<DirectX::XMFLOAT3> m_TriangleIndex;
+	std::vector<DirectX::XMFLOAT3> m_BoxTriangleIndex;
 public:
 	Physics();
 	~Physics();

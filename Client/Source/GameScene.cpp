@@ -201,7 +201,6 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 		m_Graphics->renderModel(box);
 	}
 	m_Graphics->renderModel(slantedPlane);
-	m_Graphics->renderModel(hej);
 	//m_Level.drawLevel();
 
 	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
@@ -212,7 +211,6 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
 
 	//addDebugBVToDraw(1);
-	addDebugBVToDraw(OBBhouse1);
 	addDebugBVToDraw(5);
 	addDebugBVToDraw(6);
 	addDebugBVToDraw(7);

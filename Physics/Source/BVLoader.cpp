@@ -20,12 +20,14 @@ void BVLoader::clear()
 bool BVLoader::loadBinaryFile(std::string p_FilePath)
 {
 	clearData();
-	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
+	//std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
+	std::ifstream input(p_FilePath, std::istream::in);
 	if(!input)
 	{
 		return false;
 	}
 	m_FileHeader = readHeader(&input);
+
 	if(m_FileHeader.m_numMaterial != 0)
 	{
 		//return false;
@@ -45,20 +47,81 @@ bool BVLoader::loadBinaryFile(std::string p_FilePath)
 BVLoader::Header BVLoader::readHeader(std::istream* p_Input)
 {
 	Header tempHeader;
-	byteToString(p_Input, tempHeader.m_modelName);
+	std::string line;
+	/*byteToString(p_Input, tempHeader.m_modelName);
 	byteToInt(p_Input, tempHeader.m_numMaterial);
 	byteToInt(p_Input, tempHeader.m_numVertex);
 	byteToInt(p_Input, tempHeader.m_numMaterialBuffer);
 	byteToInt(p_Input, tempHeader.m_numJoints);
-	byteToInt(p_Input, tempHeader.m_numFrames);
+	byteToInt(p_Input, tempHeader.m_numFrames);*/
+	std::getline(*p_Input, line);
+	std::string temp;
+	std::getline(*p_Input, line);
+	std::stringstream ss(line);
+	ss >> temp >> tempHeader.m_numMaterial;
+	std::getline(*p_Input, line);
+	ss = std::stringstream(line);
+	ss >> temp >> tempHeader.m_modelName;
+	std::getline(*p_Input, line);
+	ss = std::stringstream(line);
+	ss >> temp >> tempHeader.m_numVertex;
+	std::getline(*p_Input, line);
+	ss = std::stringstream(line);
+	ss >> temp >> tempHeader.m_numFrames;
+
 	return tempHeader;
 }
 
 
 std::vector<BVLoader::BoundingVolume> BVLoader::readBoundingVolume(int p_NumberOfVertex, std::istream* p_Input)
 {
-	std::vector<BoundingVolume> boundingVolume(p_NumberOfVertex);
-	p_Input->read(reinterpret_cast<char*>(boundingVolume.data()), sizeof(boundingVolume) * p_NumberOfVertex);
+	std::vector<BoundingVolume> boundingVolume;//(p_NumberOfVertex);
+	std::vector<DirectX::XMFLOAT4> tempVertices;
+	std::vector<DirectX::XMFLOAT3> tempFaces;
+	//p_Input->read(reinterpret_cast<char*>(boundingVolume.data()), sizeof(boundingVolume) * p_NumberOfVertex);
+	std::string line, temp;
+	std::stringstream ss;
+	std::getline(*p_Input, line);
+	std::getline(*p_Input, line);
+	for(int i = 0; i < m_FileHeader.m_numVertex;i++)
+	{
+		DirectX::XMFLOAT4 tv;
+		std::getline(*p_Input, line);
+		ss = std::stringstream(line);
+		ss >> temp >> tv.x >> tv.y >> tv.z;
+		tv.w = 1.0f;
+
+		tempVertices.push_back(tv);
+	}
+
+	std::getline(*p_Input, line);
+	std::getline(*p_Input, line);
+	std::getline(*p_Input, line);
+	std::getline(*p_Input, line);
+
+	for(int i = 0; i < m_FileHeader.m_numFrames; i++)
+	{
+		std::getline(*p_Input, line);
+		ss = std::stringstream(line);
+		DirectX::XMFLOAT3 tempFace;
+		ss >> tempFace.x >> temp >> tempFace.y >> temp >> tempFace.z;
+
+		tempFaces.push_back(tempFace);
+	}
+
+	for(int i = 0; i < m_FileHeader.m_numFrames; i++)
+	{
+		BoundingVolume tempBV;
+
+		tempBV.m_Postition = tempVertices[(unsigned int)tempFaces[i].x];
+		boundingVolume.push_back(tempBV);
+		tempBV.m_Postition = tempVertices[(unsigned int)tempFaces[i].y];
+		boundingVolume.push_back(tempBV);
+		tempBV.m_Postition = tempVertices[(unsigned int)tempFaces[i].z];
+		boundingVolume.push_back(tempBV);
+	}
+
+	boundingVolume.shrink_to_fit();
 	return boundingVolume;
 }
 
