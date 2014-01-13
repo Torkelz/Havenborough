@@ -485,13 +485,15 @@ void Graphics::drawFrame(int i)
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	if(i >= 0 && i <=3)
+	{
+		m_Shader->setShader();
+		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(i));
+		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
+		m_DeviceContext->Draw(6, 0);
 
-	m_Shader->setShader();
-	m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(i));
-	m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
-	m_DeviceContext->Draw(6, 0);
-
-	m_Shader->unSetShader();
+		m_Shader->unSetShader();
+	}
 	
 	End();
 
