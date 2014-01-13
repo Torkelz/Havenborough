@@ -70,9 +70,9 @@ public:
 		pos = DirectX::XMLoadFloat4(&p_Position);
 
 		using DirectX::operator-;
-		ab = a - b;
-		ac = a - c;
-		bc = b - c;
+		ab = b - a;
+		ac = c - a;
+		bc = c - b;
 
 		float snom = DirectX::XMVector4Dot(pos - a, ab).m128_f32[0];
 		float sdenom = DirectX::XMVector4Dot(pos - b, a - b).m128_f32[0];
@@ -102,7 +102,7 @@ public:
 			return ret;
 		}
 
-		DirectX::XMVECTOR normal = DirectX::XMVector3Cross(b - a, c - a);
+		DirectX::XMVECTOR normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(b - a, c - a));
 		float vc = DirectX::XMVector4Dot(normal, DirectX::XMVector3Cross(a - pos, b - pos)).m128_f32[0];
 
 		using DirectX::operator*;

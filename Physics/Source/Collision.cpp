@@ -293,7 +293,7 @@ HitData Collision::OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2)
 
 	// Compute common subexpressions. Add in an epsilon term to
 	// counteract arithmetic errors when two edges are parallel and
-	// their cross product is (near) null (see text for details)
+	// their cross product is (near) null 
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)

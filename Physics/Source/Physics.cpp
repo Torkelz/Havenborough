@@ -45,17 +45,42 @@ void Physics::initialize()
 	m_Collision = Collision();
 
 	std::vector<Triangle> triangles;
-	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f)));
 
-	/*triangles.push_back(Triangle(Vector4( 1.f, -1.f, -1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, 1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f, 1.f, -1.f, 1.f), Vector4(1.f, -1.f, -1.f, 1.f)));
+	//Back
+	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f,  1.f, -1.f, 1.f), Vector4( 1.f,	1.f, -1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -1.f,  -1.f, -1.f, 1.f), Vector4( 1.f, 1.f, -1.f, 1.f), Vector4(1.f,	 -1.f, -1.f, 1.f)));
+	
+	//Top
+    triangles.push_back(Triangle(Vector4( -1.f, 1.f, -1.f, 1.f), Vector4( -1.f,  1.f, 1.f, 1.f), Vector4( 1.f,	1.f,  1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -1.f,  1.f,  -1.f, 1.f), Vector4( 1.f,  1.f, 1.f, 1.f), Vector4( 1.f,	1.f, -1.f, 1.f)));
+	
+	//Front
+	triangles.push_back(Triangle(Vector4( -1.f, -1.f,  1.f, 1.f), Vector4( -1.f,  1.f,  1.f, 1.f), Vector4(1.f,	1.f,  1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4(-1.f,  -1.f,  1.f, 1.f), Vector4( 1.f,  1.f,  1.f, 1.f), Vector4(1.f,	-1.f,  1.f, 1.f)));
 
-	triangles.push_back(Triangle(Vector4( 1.f, -1.f, 1.f, 1.f), Vector4(1.f, 1.f, 1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(1.f, 1.f, 1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
+	//right	 																  
+	triangles.push_back(Triangle(Vector4(-1.f,  -1.f,  1.f, 1.f), Vector4( -1.f, 1.f, 1.f, 1.f), Vector4(-1.f,	1.f,  -1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4(-1.f, -1.f, 1.f, 1.f), Vector4( -1.f, 1.f, -1.f, 1.f), Vector4(-1.f,	-1.f,  -1.f, 1.f)));
 
-	triangles.push_back(Triangle(Vector4(-1.f, 1.f, 1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));
-	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4(-1.f, 1.f, -1.f, 1.f), Vector4(-1.f, -1.f, 1.f, 1.f)));*/
+	//left
+	triangles.push_back(Triangle(Vector4(1.f, -1.f, -1.f, 1.f), Vector4(1.f,  1.f, -1.f, 1.f), Vector4( 1.f,1.f, 1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( 1.f,  -1.f, -1.f, 1.f), Vector4( 1.f, 1.f, 1.f, 1.f), Vector4(1.f,	-1.f, 1.f, 1.f)));
+
+	triangles.push_back(Triangle(Vector4( -1.f, -1.f, -1.f, 1.f), Vector4( -1.f,  -1.f, 1.f, 1.f), Vector4( 1.f,	-1.f,  1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( -1.f,  -1.f,  -1.f, 1.f), Vector4( 1.f,  -1.f, 1.f, 1.f), Vector4( 1.f,	-1.f, -1.f, 1.f)));
+
+
+
+
+
+    /*triangles.push_back(Triangle(Vector4( 1.f, -1.f, -1.f, 1.f), Vector4( 1.f,  1.f, -1.f, 1.f), Vector4( 1.f,	-1.f,  1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4( 1.f,  1.f,  1.f, 1.f), Vector4( 1.f,  1.f, -1.f, 1.f), Vector4( 1.f,	-1.f, -1.f, 1.f)));
+											   		 																  
+	triangles.push_back(Triangle(Vector4( 1.f, -1.f,  1.f, 1.f), Vector4( 1.f,  1.f,  1.f, 1.f), Vector4(-1.f,	-1.f,  1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4(-1.f,  1.f,  1.f, 1.f), Vector4( 1.f,  1.f,  1.f, 1.f), Vector4(-1.f,	-1.f,  1.f, 1.f)));
+											   		 																  
+	triangles.push_back(Triangle(Vector4(-1.f,  1.f,  1.f, 1.f), Vector4( -1.f, 1.f, -1.f, 1.f), Vector4(-1.f,	-1.f,  1.f, 1.f)));
+	triangles.push_back(Triangle(Vector4(-1.f, -1.f, -1.f, 1.f), Vector4( -1.f, 1.f, -1.f, 1.f), Vector4(-1.f,	-1.f,  1.f, 1.f)));*/
 
 	Hull *hull = new Hull(XMFLOAT4(0.f, 0.f, 0.f, 1.f), triangles);
 
