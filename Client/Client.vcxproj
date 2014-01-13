@@ -65,7 +65,6 @@
     <ClInclude Include="Source\EdgeCollisionResponse.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\Logger.h" />
-    <ClInclude Include="Source\Resource.h" />
     <ClInclude Include="Source\ResourceManager.h" />
     <ClInclude Include="Source\ResourceTranslator.h" />
     <ClInclude Include="Source\RAMMemInfo.h" />

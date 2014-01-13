@@ -119,9 +119,6 @@
     <ClInclude Include="Source\ResourceTranslator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\LevelBinaryLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
