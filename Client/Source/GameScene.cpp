@@ -453,7 +453,7 @@ void GameScene::InitTemporaryStuff()
 
 	OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
 	m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
-	m_Physics->setBodyPosition(OBBhouse1, Vector3(0.f, 450.f, 0.f));
+	m_Physics->setBodyPosition(OBBhouse1, Vector3(1400.f, 450.f, -1000.f));
 
 	OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
 	m_Physics->setBodyRotation(OBBhouse2, Vector3(0.f, 0.f, 3.14f/6.5f));

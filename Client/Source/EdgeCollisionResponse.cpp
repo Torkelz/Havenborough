@@ -43,8 +43,10 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosi
 			boundingVolumeCenter, p_EdgeOffsetY, 0.f);
 
 		XMVECTOR playerOrigPosV = XMLoadFloat3(&playerOrigPos);
-		XMVECTOR playerEndPosV = playerEndPos + (playerOrigPosV - playerStartPos);
-		p_Player->forceMove(playerOrigPosV, playerEndPos);
+		XMFLOAT3 playerEndPosV;
+		XMStoreFloat3(&playerEndPosV, playerEndPos);
+
+		p_Player->forceMove(playerOrigPos, playerEndPosV);
 	}
 }
 

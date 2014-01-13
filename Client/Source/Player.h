@@ -30,8 +30,8 @@ private:
 	float m_ForceMoveTime;
 	float m_CurrentForceMoveTime;
 	float m_ForceMoveSpeed;	// cm/s
-	XMVECTOR m_ForceMoveStartPosition;	// cm
-	XMVECTOR m_ForceMoveEndPosition;	// cm
+	Vector3 m_ForceMoveStartPosition;	// cm
+	Vector3 m_ForceMoveEndPosition;	// cm
 
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
 	//while climbing objects.
@@ -123,7 +123,7 @@ public:
 	* @param p_StartPosition the starting position of the movement
 	* @param p_EndPostion the position where the movement will end
 	*/
-	void forceMove(XMVECTOR p_StartPosition, XMVECTOR p_EndPosition);
+	void forceMove(Vector3 p_StartPosition, Vector3 p_EndPosition);
 
 	/**
 	* Updates the player's actions such as movement and jumping. If forced movement is active, the position will be updated between two stored positions.

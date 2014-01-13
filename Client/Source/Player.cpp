@@ -92,7 +92,7 @@ bool Player::getForceMove(void)
 	return m_ForceMove;
 }
 
-void Player::forceMove(XMVECTOR p_StartPosition, XMVECTOR p_EndPosition)
+void Player::forceMove(Vector3 p_StartPosition, Vector3 p_EndPosition)
 {
 	if(!m_ForceMove)
 	{
@@ -114,8 +114,11 @@ void Player::update(float p_DeltaTime)
 	{
 		float dt = m_CurrentForceMoveTime / m_ForceMoveTime;
 
-		XMVECTOR currPosition = XMVectorLerp(m_ForceMoveStartPosition,
-			m_ForceMoveEndPosition, dt);
+		XMVECTOR startPos = XMLoadFloat3(&((XMFLOAT3)m_ForceMoveStartPosition));
+		XMVECTOR endPos = XMLoadFloat3(&((XMFLOAT3)m_ForceMoveEndPosition));
+
+		XMVECTOR currPosition = XMVectorLerp(startPos,
+			endPos, dt);
 		XMStoreFloat3(&m_Position, currPosition);
 
 		Vector3 kneePos(m_Position.x, m_Position.y + m_KneeHeight, m_Position.z);
