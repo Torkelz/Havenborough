@@ -122,10 +122,22 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	if(!m_Player.getForceMove())		
 		m_Physics->update(p_DeltaTime);
 
-	Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
+	Vector4 tempPos4 = m_Physics->getBodyPosition(m_Player.getBody());
+	Vector3 tempPos(tempPos4.x, tempPos4.y, tempPos4.z);
 
-	m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y + m_Player.getHeight() * 0.305f, tempPos.z), viewRot[0], viewRot[1]);
-	m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
+	Vector2 actualViewRot(viewRot[0], viewRot[1]);
+
+	Actor::ptr strongPlayerActor = m_PlayerActor.lock();
+	if (strongPlayerActor)
+	{
+		tempPos = strongPlayerActor->getPosition();
+		Vector3 rot = strongPlayerActor->getRotation();
+		actualViewRot.x += rot.x;
+		actualViewRot.y += rot.y;
+	}
+
+	m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y + m_Player.getHeight() * 0.305f, tempPos.z), actualViewRot.x, actualViewRot.y);
+	m_Graphics->setModelPosition(skyBox, tempPos);
 
 	static const Vector3 circleCenter(4.f, 0.f, 15.f);
 	static const float circleRadius = 8.f;
@@ -164,9 +176,9 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 		m_Graphics->renderModel(boxIds[i]);
 	}
 	Vector3 lookDir;
-	lookDir.x = -sinf(viewRot[0]) * cosf(viewRot[1]);
-	lookDir.y = sinf(viewRot[1]);
-	lookDir.z = -cosf(viewRot[0]) * cosf(viewRot[1]);
+	lookDir.x = -sinf(actualViewRot.x) * cosf(actualViewRot.y);
+	lookDir.y = sinf(actualViewRot.y);
+	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
 
 	static const float IK_Length = 5.f;
 
@@ -288,6 +300,11 @@ void GameScene::registeredKeyStroke(std::string p_Action, float p_Value)
 		useIK_OnIK_Worm = !useIK_OnIK_Worm;
 	}
 
+}
+
+void GameScene::setPlayerActor(std::weak_ptr<Actor> p_Actor)
+{
+	m_PlayerActor = p_Actor;
 }
 
 /*########## TEST FUNCTIONS ##########*/

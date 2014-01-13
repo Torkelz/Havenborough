@@ -53,6 +53,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('X', "changeViewP");
 	translator->addKeyboardMapping('I', "toggleIK");
 	translator->addKeyboardMapping(VK_SPACE, "jump");
+	translator->addKeyboardMapping('R', "releaseObject");
 
 	translator->addKeyboardMapping('J', "changeSceneP");
 	translator->addKeyboardMapping('K', "pauseScene");
@@ -235,6 +236,15 @@ void BaseGameApp::handleInput()
 			m_Connected = false;
 			m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
 		}
+		else if (in.m_Action == "releaseObject" && in.m_Value == 1.f)
+		{
+			IScene::ptr scene = m_SceneManager.getScene()[0];
+			GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
+			if (gameScene)
+			{
+				gameScene->setPlayerActor(Actor::ptr());
+			}
+		}
 	}
 }
 
@@ -314,7 +324,7 @@ void BaseGameApp::handleNetwork()
 						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
 						
 						std::weak_ptr<MovementInterface> wMove = actor->getComponent<MovementInterface>(3);
-						std::shared_ptr<MovementInterface> shMove(wMove);
+						std::shared_ptr<MovementInterface> shMove = wMove.lock();
 						if (shMove)
 						{
 							shMove->setVelocity(Vector3(data.m_Velocity[0], data.m_Velocity[1], data.m_Velocity[2]));
@@ -364,6 +374,22 @@ void BaseGameApp::handleNetwork()
 				}
 				break;
 
+			case PackageType::ASSIGN_PLAYER:
+				{
+					const Actor::Id actorId = conn->getAssignPlayerObject(package);
+					Actor::ptr actor = getActor(actorId);
+					if (actor)
+					{
+						IScene::ptr scene = m_SceneManager.getScene()[0];
+						GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
+						if (gameScene)
+						{
+							gameScene->setPlayerActor(actor);
+						}
+					}
+				}
+				break;
+
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);
@@ -403,11 +429,24 @@ void BaseGameApp::render()
 	m_SceneManager.render();
 }
 
-void BaseGameApp::removeActor(Actor::Id m_Actor)
+Actor::ptr BaseGameApp::getActor(Actor::Id p_Actor)
+{
+	for (auto actor : m_ServerActors)
+	{
+		if (actor->getId() == p_Actor)
+		{
+			return actor;
+		}
+	}
+
+	return Actor::ptr();
+}
+
+void BaseGameApp::removeActor(Actor::Id p_Actor)
 {
 	for (size_t i = 0; i < m_ServerActors.size(); ++i)
 	{
-		if (m_ServerActors[i]->getId() == m_Actor)
+		if (m_ServerActors[i]->getId() == p_Actor)
 		{
 			std::swap(m_ServerActors[i], m_ServerActors.back());
 			m_ServerActors.pop_back();

@@ -241,6 +241,8 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 	}
 
 	boxes.push_back(newBox);
+
+	p_Connection->sendAssignPlayer(newBox.actorId);
 }
 
 void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*/)

@@ -291,3 +291,34 @@ public:
 		ar & m_Action;
 	}
 };
+
+/**
+ * A package representing assigning a player to an object.
+ */
+class AssignPlayer : public PackageHelper<AssignPlayer>
+{
+public:
+	uint16_t m_Object;
+
+public:
+	/**
+	 * constructor.
+	 */
+	AssignPlayer()
+		: PackageHelper<AssignPlayer>(PackageType::ASSIGN_PLAYER)
+	{}
+
+	/**
+	 * Serialize the package to or from an archive.
+	 *
+	 * @param <Archive> the archive type to serialize with.
+	 *			Can be either input or output archives.
+	 * @param ar the archive used.
+	 * @param version the desired or given archive version. Ignored.
+	 */
+	template <typename Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & m_Object;
+	}
+};

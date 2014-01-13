@@ -1,5 +1,6 @@
 #pragma once
 #include "IScene.h"
+#include "Actor.h"
 #include "Logger.h"
 #include "Level.h"
 #include "Player.h"
@@ -19,6 +20,7 @@ private:
 	IPhysics *m_Physics;
 	Level m_Level;
 	Player m_Player;
+	std::weak_ptr<Actor> m_PlayerActor;
 	Input *m_InputQueue;
 	EdgeCollisionResponse m_EdgeCollResponse;
 
@@ -87,6 +89,8 @@ public:
 	void	setIsVisible(bool p_SetVisible) override;
 
 	void	registeredKeyStroke(std::string p_Action, float p_Value) override;
+
+	void	setPlayerActor(std::weak_ptr<Actor> p_Actor);
 
 	/*########## TEST FUNCTIONS ##########*/
 
