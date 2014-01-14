@@ -56,6 +56,9 @@ public:
 		m_Sphere		= Sphere(radius, p_CenterPos);
 
 	}
+	/**
+	* Destructor
+	*/
 	~OBB()
 	{
 	}

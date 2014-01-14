@@ -9,29 +9,41 @@
 class Hull : public BoundingVolume
 {
 private:
-	Sphere m_Sphere;
-	std::vector<Triangle> m_Triangles;
+	Sphere m_Sphere; //Sphere surrounding the hull
+	std::vector<Triangle> m_Triangles; //Triangles that make up the hull
 
 
 public:
-	/*
-	 *
-	 * DO NOT FORGET TO CHANGE THE RADIUS FOR THE SPHERE!!!!! Remove comment when fixed.
+	/**
+	 * Constructor.
+	 * The hull is always created with origo as center position, call updatePosition to move the hull to desired place.
+	 * @param p_Triangles, a list of triangles that make up the hull
 	 */
-	Hull(DirectX::XMFLOAT4 p_CenterPos, std::vector<Triangle> p_Triangles)
+	Hull(std::vector<Triangle> p_Triangles)
 	{
-		m_Position = p_CenterPos;
+		
+		m_Position = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
+		m_PrevPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 		m_Triangles = p_Triangles;
 		m_Type = Type::HULL;
 		float radius = findFarthestDistanceOnTriangle();
 
-		m_Sphere = Sphere( radius, p_CenterPos );
+		m_Sphere = Sphere( radius, m_Position );
 	}
+
+	/**
+	 * Destructor
+	 */
 	~Hull()
 	{
-
+		m_Triangles.clear();
 	}
 
+
+	/**
+	 * Updates position for the hull with a translation matrix.
+	 * @param p_translation, move the hull in relative coordinates.
+	 */
 	void updatePosition(DirectX::XMFLOAT4X4& p_Translation) override
 	{
 		m_PrevPosition = m_Position;
@@ -47,16 +59,20 @@ public:
 								  
 		m_Sphere.updatePosition(m_Position);
 
-		calculateTriangles();
 	}
 
-	DirectX::XMFLOAT4 findClosestPointOnTriangle(const DirectX::XMFLOAT4 p_Position, int p_Index)
+	/**
+	 * Given point p, return point in triangle, closest to p
+	 * @param p_point the point you want to search from
+	 * @return closest point in the triangle
+	 */
+	DirectX::XMFLOAT4 findClosestPointOnTriangle(const DirectX::XMFLOAT4 p_Point, int p_Index)
 	{
 		DirectX::XMVECTOR ab, ac, ap, a, b, c, pos;
-		a = Vector4ToXMVECTOR(&getTriangleWorldCoordAt(p_Index).corners[0]);
-		b = Vector4ToXMVECTOR(&getTriangleWorldCoordAt(p_Index).corners[1]);
-		c = Vector4ToXMVECTOR(&getTriangleWorldCoordAt(p_Index).corners[2]);
-		pos = DirectX::XMLoadFloat4(&p_Position);
+		a = Vector4ToXMVECTOR(&getTriangleInWorldCoord(p_Index).corners[0]);
+		b = Vector4ToXMVECTOR(&getTriangleInWorldCoord(p_Index).corners[1]);
+		c = Vector4ToXMVECTOR(&getTriangleInWorldCoord(p_Index).corners[2]);
+		pos = DirectX::XMLoadFloat4(&p_Point);
 
 		using DirectX::operator-;
 		using DirectX::operator*;
@@ -128,6 +144,105 @@ public:
 		
 	}
 
+
+	/**
+	 * Scales all the triangles in the hull
+	 * @param p_scaleMatrix the matrix to scale the triangles with
+	 */
+	void setScale(DirectX::XMFLOAT4X4 p_scaleMatrix)
+	{
+		DirectX::XMVECTOR c1, c2, c3;
+		DirectX::XMMATRIX m = XMLoadFloat4x4(&p_scaleMatrix);
+
+		for(auto &tri : m_Triangles)
+		{
+			c1 = Vector4ToXMVECTOR(&tri.corners[0]);
+			c2 = Vector4ToXMVECTOR(&tri.corners[1]);
+			c3 = Vector4ToXMVECTOR(&tri.corners[2]);
+
+			c1 = DirectX::XMVector4Transform(c1, m);
+			c2 = DirectX::XMVector4Transform(c2, m);
+			c3 = DirectX::XMVector4Transform(c3, m);
+
+			tri.corners[0] = XMVECTORToVector4(&c1); 
+			tri.corners[1] = XMVECTORToVector4(&c2); 
+			tri.corners[2] = XMVECTORToVector4(&c3);
+		}
+		float radius = findFarthestDistanceOnTriangle();
+		m_Sphere.setRadius(radius);
+
+	}
+	/**
+	 * Rotates all the trangles in the hull
+	 * @param p_Rotation matrix to rotate the triangles with.
+	 */
+	void setRotation(DirectX::XMFLOAT4X4 p_Rotation)
+	{
+		DirectX::XMMATRIX rotation = DirectX::XMLoadFloat4x4(&p_Rotation);
+		DirectX::XMVECTOR c1, c2, c3;
+		for(auto& tri : m_Triangles)
+		{
+			c1 = Vector4ToXMVECTOR(&tri.corners[0]);
+			c2 = Vector4ToXMVECTOR(&tri.corners[1]);
+			c3 = Vector4ToXMVECTOR(&tri.corners[2]);
+
+			c1 = XMVector4Transform(c1, rotation);
+			c2 = XMVector4Transform(c2, rotation);
+			c3 = XMVector4Transform(c3, rotation);
+
+			tri.corners[0] = XMVECTORToVector4(&c1);
+			tri.corners[1] = XMVECTORToVector4(&c2);
+			tri.corners[2] = XMVECTORToVector4(&c3);
+		}
+	}
+	/**
+	 * Get the sphere surrounding the hull.
+	 * @return m_Sphere the surrounding sphere
+	 */
+	Sphere getSphere()
+	{
+		return m_Sphere;
+	}
+
+	/**
+	 * Gets the number of triangles in the hull
+	 * @return size of the triangle list
+	 */
+	unsigned int getTriangleListSize()
+	{
+		return m_Triangles.size();
+	}
+	/**
+	 * Gets a triangle from the hull
+	 * @param p_Index index of the triangle int the hulls triangle list
+	 * @return a triangle with local coordinates from the hulls triangle list at the specified index
+	 */
+	const Triangle& getTriangleAt(int p_Index)
+	{
+		return m_Triangles[p_Index];
+	}
+	/**
+	 * Return a triangle from the hull in world coordinates.
+	 * 
+	 * @param p_Index index number in triangle list
+	 * @return a triangle in world coordinates.
+	 */
+	Triangle getTriangleInWorldCoord(unsigned p_Index)
+	{
+		Triangle triangle;
+		triangle = m_Triangles[p_Index];
+
+		triangle.corners[0] = triangle.corners[0] + XMFLOAT4ToVector4(&m_Position);
+		triangle.corners[1] = triangle.corners[1] + XMFLOAT4ToVector4(&m_Position);
+		triangle.corners[2] = triangle.corners[2] + XMFLOAT4ToVector4(&m_Position);
+
+		triangle.corners[0].w = 1.f;
+		triangle.corners[1].w = 1.f;
+		triangle.corners[2].w = 1.f;
+
+		return triangle;
+	}
+private:
 	float findFarthestDistanceOnTriangle()
 	{
 		//The idea is that to find the furthest point away from the center
@@ -175,100 +290,4 @@ public:
 		farthest.m128_f32[3] = 1.f;
 		return sqrtf(farthestDistance);
 	}
-
-	void setScale(DirectX::XMFLOAT4X4 p_scaleMatrix)
-	{
-		DirectX::XMVECTOR c1, c2, c3;
-		DirectX::XMMATRIX m = XMLoadFloat4x4(&p_scaleMatrix);
-
-		for(auto &tri : m_Triangles)
-		{
-			c1 = Vector4ToXMVECTOR(&tri.corners[0]);
-			c2 = Vector4ToXMVECTOR(&tri.corners[1]);
-			c3 = Vector4ToXMVECTOR(&tri.corners[2]);
-
-			c1 = DirectX::XMVector4Transform(c1, m);
-			c2 = DirectX::XMVector4Transform(c2, m);
-			c3 = DirectX::XMVector4Transform(c3, m);
-
-			tri.corners[0] = XMVECTORToVector4(&c1); 
-			tri.corners[1] = XMVECTORToVector4(&c2); 
-			tri.corners[2] = XMVECTORToVector4(&c3);
-		}
-		float radius = findFarthestDistanceOnTriangle();
-		m_Sphere.setRadius(radius);
-
-	}
-
-	void setRotation(DirectX::XMFLOAT4X4 p_Rotation)
-	{
-		DirectX::XMMATRIX rotation = DirectX::XMLoadFloat4x4(&p_Rotation);
-		DirectX::XMVECTOR c1, c2, c3;
-		for(auto& tri : m_Triangles)
-		{
-			c1 = Vector4ToXMVECTOR(&tri.corners[0]);
-			c2 = Vector4ToXMVECTOR(&tri.corners[1]);
-			c3 = Vector4ToXMVECTOR(&tri.corners[2]);
-
-			c1 = XMVector4Transform(c1, rotation);
-			c2 = XMVector4Transform(c2, rotation);
-			c3 = XMVector4Transform(c3, rotation);
-
-			tri.corners[0] = XMVECTORToVector4(&c1);
-			tri.corners[1] = XMVECTORToVector4(&c2);
-			tri.corners[2] = XMVECTORToVector4(&c3);
-		}
-	}
-
-	Sphere getSphere()
-	{
-		return m_Sphere;
-	}
-	/**
-	 * Return a corner in world coordinates at the index specified.
-	 * 
-	 * @param p_Index index number in m_Bounds list
-	 * @return a XMFLOAT4 corner.
-	 */
-
-	unsigned int getTriangleSize()
-	{
-		return m_Triangles.size();
-	}
-
-	const Triangle& getTriangleAt(int p_Index)
-	{
-		return m_Triangles[p_Index];
-	}
-
-	Triangle getTriangleWorldCoordAt(unsigned p_Index)
-	{
-		Triangle triangle;
-		triangle = m_Triangles[p_Index];
-
-		triangle.corners[0] = triangle.corners[0] + XMFLOAT4ToVector4(&m_Position);
-		triangle.corners[1] = triangle.corners[1] + XMFLOAT4ToVector4(&m_Position);
-		triangle.corners[2] = triangle.corners[2] + XMFLOAT4ToVector4(&m_Position);
-
-		triangle.corners[0].w = 1.f;
-		triangle.corners[1].w = 1.f;
-		triangle.corners[2].w = 1.f;
-
-		return triangle;
-	}
-private:
-		void calculateTriangles()
-	{
-		for(auto& tri : m_Triangles)
-		{
-			tri.corners[0] = tri.corners[0] + XMFLOAT4ToVector4(&m_Position);
-			tri.corners[1] = tri.corners[1] + XMFLOAT4ToVector4(&m_Position);
-			tri.corners[2] = tri.corners[2] + XMFLOAT4ToVector4(&m_Position);
-
-			tri.corners[0].w = 1.f;
-			tri.corners[1].w = 1.f;
-			tri.corners[2].w = 1.f;
-		}
-	}
-
 };

@@ -64,19 +64,20 @@ void Physics::initialize()
 	triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  size,  size, 1.f), Vector4(-size,	 size,  size, 1.f)));
 	triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  -size,  size, 1.f), Vector4(size,  size,  size, 1.f)));
 
-	////right	 																  
+	//right	 																  
 	triangles.push_back(Triangle(Vector4(-size,  -size,  size, 1.f), Vector4( -size, size, size, 1.f), Vector4(-size,	size,  -size, 1.f)));
 	triangles.push_back(Triangle(Vector4(-size, -size, size, 1.f), Vector4( -size, size, -size, 1.f), Vector4(-size,	-size,  -size, 1.f)));
 
-	////left
+	//left
 	triangles.push_back(Triangle(Vector4(size, -size, -size, 1.f), Vector4(size,  size, -size, 1.f), Vector4( size, size, size, 1.f)));
 	triangles.push_back(Triangle(Vector4( size,  -size, -size, 1.f), Vector4( size, size, size, 1.f), Vector4(size, -size, size, 1.f)));
 
-	////bottom
+	//bottom
 	triangles.push_back(Triangle(Vector4( size, -size, size, 1.f), Vector4( -size,  -size, size, 1.f), Vector4( -size,	-size,  -size, 1.f)));
 	triangles.push_back(Triangle(Vector4( size,  -size,  -size, 1.f), Vector4( size,  -size, size, 1.f), Vector4( -size,	-size, -size, 1.f)));
 
-	Hull *hull = new Hull(XMFLOAT4(10.f, 3.01f, 0.f, 1.f), triangles);
+	Hull *hull = new Hull(triangles);
+
 	float scale = 1.5f;
 	XMMATRIX m = XMMatrixScaling(scale, scale, scale);
 	XMFLOAT4X4 fm;
@@ -88,6 +89,12 @@ void Physics::initialize()
 	XMStoreFloat4x4(&fm, m_rot);  
 
 	hull->setRotation(fm);
+
+
+	DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(5.2f, 10.f, 5.f);
+	DirectX::XMFLOAT4X4 mtrans;
+	DirectX::XMStoreFloat4x4(&mtrans, trans);
+	hull->updatePosition(mtrans);
 
 	createBody(1.f, hull, true, false);
 
@@ -415,7 +422,7 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 			return triangle;
 		}
 	case BoundingVolume::Type::HULL:
-		return ((Hull*)volume)->getTriangleWorldCoordAt(p_TriangleIndex);
+		return ((Hull*)volume)->getTriangleInWorldCoord(p_TriangleIndex);
 	case BoundingVolume::Type::OBB:
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);
@@ -454,7 +461,7 @@ unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle)
 	case BoundingVolume::Type::OBB:
 		return m_BoxTriangleIndex.size();
 	case BoundingVolume::Type::HULL:
-		return ((Hull*)volume)->getTriangleSize();
+		return ((Hull*)volume)->getTriangleListSize();
 	case BoundingVolume::Type::SPHERE:
 		return m_sphereBoundingVolume.size() / 3;
 	default:

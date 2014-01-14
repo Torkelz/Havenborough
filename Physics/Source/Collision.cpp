@@ -575,7 +575,7 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 	float distance = 10000.f;
 	point = XMVectorSet(0.f, 0.f, 0.f, 0.f);
 
-	for(unsigned int i = 0; i < p_Hull->getTriangleSize(); i++)
+	for(unsigned int i = 0; i < p_Hull->getTriangleListSize(); i++)
 	{
 		point = XMLoadFloat4(&p_Hull->findClosestPointOnTriangle(*p_Sphere->getPosition(), i));
 
