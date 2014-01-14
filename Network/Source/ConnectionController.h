@@ -70,6 +70,9 @@ public:
 	void sendAssignPlayer(uint16_t p_ObjectId) override;
 	uint16_t getAssignPlayerObject(Package p_Package) override;
 
+	void sendPlayerControl(PlayerControlData p_Data) override;
+	PlayerControlData getPlayerControlData(Package p_Package) override;
+
 	/**
 	 * Start the listening loop on the connection.
 	 */

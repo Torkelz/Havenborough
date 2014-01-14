@@ -50,7 +50,59 @@ public:
 			halfsize.z = size->FloatAttribute("z");
 		}
 
-		m_Body = m_Physics->createOBB(0.f, true, position, halfsize, false);
+		bool immovable = true;
+		p_Data->QueryBoolAttribute("Immovable", &immovable);
+
+		m_Body = m_Physics->createOBB(0.f, immovable, position, halfsize, false);
+	}
+
+	virtual void onUpdate(float p_DeltaTime) override
+	{
+		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
+		Vector3 rotation = m_Owner->getRotation();
+		m_Physics->setBodyRotation(m_Body, rotation);
+	}
+
+	virtual void updatePosition(Vector3 p_Position) override
+	{
+		m_Physics->setBodyPosition(m_Body, p_Position);
+	}
+	virtual void updateRotation(Vector3 p_Rotation) override
+	{
+		m_Physics->setBodyRotation(m_Body, p_Rotation);
+	}
+};
+
+class CollisionSphereComponent : public PhysicsInterface
+{
+private:
+	BodyHandle m_Body;
+	IPhysics* m_Physics;
+
+public:
+	void setPhysics(IPhysics* p_Physics)
+	{
+		m_Physics = p_Physics;
+	}
+
+	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		Vector3 position(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("Position");
+		if (pos)
+		{
+			position.x = pos->FloatAttribute("x");
+			position.y = pos->FloatAttribute("y");
+			position.z = pos->FloatAttribute("z");
+		}
+
+		bool immovable = true;
+		p_Data->QueryBoolAttribute("Immovable", &immovable);
+
+		float radius = 1.f;
+		p_Data->QueryFloatAttribute("Radius", &radius);
+
+		m_Body = m_Physics->createSphere(0.f, immovable, position, radius);
 	}
 
 	virtual void onUpdate(float p_DeltaTime) override

@@ -24,6 +24,7 @@ enum class PackageType : uint16_t
 	GAME_RESULT,
 	OBJECT_ACTION,
 	ASSIGN_PLAYER,
+	PLAYER_CONTROL,
 };
 
 struct ObjectInstance
@@ -42,6 +43,12 @@ struct UpdateObjectData
 	float m_RotationVelocity[3];
 	uint16_t m_Id;
 	uint16_t _padding_;
+};
+
+struct PlayerControlData
+{
+	float m_Velocity[3];
+	float m_Rotation[3];
 };
 
 /**

@@ -16,6 +16,7 @@ private:
 	IPhysics *m_Physics;
 	ResourceManager *m_ResourceManager;
 	Input *m_InputQueue;
+	INetwork *m_Network;
 
 	GameLogic *m_GameLogic;
 
@@ -24,7 +25,7 @@ public:
 	~GameScene();
 
 	bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		IPhysics *p_Physics, Input *p_InputQueue) override;
+		IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network) override;
 	void destroy() override;
 
 	void onFrame(float p_DeltaTime, int* p_IsCurrentScene) override;

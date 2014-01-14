@@ -22,12 +22,13 @@ SceneManager::~SceneManager()
 }
 
 void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-	IPhysics *p_Physics, Input *p_InputQueue)
+	IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network)
 {
 	m_Graphics = p_Graphics;
 	m_ResourceManager = p_ResourceManager;
 	m_Physics = p_Physics;
 	m_InputQueue = p_InputQueue;
+	m_Network = p_Network;
 
 	m_MenuSceneList.resize(2);
 	m_RunSceneList.resize(3);
@@ -46,14 +47,14 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	unsigned int i;
 	for(i = 0; i < m_NumberOfMenuScene; i++)
 	{
-		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue))
+		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue, m_Network))
 		{
 			sceneFail = true;
 		}
 	}
 	for(i = 0; i < m_NumberOfRunScene; i++)
 	{
-		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue))
+		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue, m_Network))
 		{
 			sceneFail = true;
 		}

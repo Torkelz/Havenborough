@@ -17,7 +17,7 @@ PostGameScene::~PostGameScene()
 }
 
 bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-	Input *p_InputQueue)
+	Input *p_InputQueue, INetwork *p_Network)
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;

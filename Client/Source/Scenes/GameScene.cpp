@@ -12,6 +12,7 @@ GameScene::GameScene()
 	m_Graphics = nullptr;
 	m_Physics = nullptr;
 	m_InputQueue = nullptr;
+	m_Network = nullptr;
 }
 
 GameScene::~GameScene()
@@ -22,13 +23,14 @@ GameScene::~GameScene()
 }
 
 bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-	IPhysics *p_Physics, Input *p_InputQueue)
+	IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network)
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
 	m_Physics = p_Physics;
 	m_InputQueue = p_InputQueue;
 	m_ResourceManager = p_ResourceManager;
+	m_Network = p_Network;
 	
 	return true;
 }
@@ -100,7 +102,7 @@ void GameScene::initializeGameLogic(void)
 		SAFE_DELETE(m_GameLogic);
 	}
 	m_GameLogic = new GameLogic();
-	m_GameLogic->initialize(m_Graphics, m_ResourceManager, m_Physics, m_InputQueue);
+	m_GameLogic->initialize(m_Graphics, m_ResourceManager, m_Physics, m_InputQueue, m_Network);
 }
 
 /*########## TEST FUNCTIONS ##########*/

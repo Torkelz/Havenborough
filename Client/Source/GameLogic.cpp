@@ -18,12 +18,13 @@ GameLogic::~GameLogic(void)
 }
 
 void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-	IPhysics *p_Physics, Input *p_InputQueue)
+	IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network)
 {
 	m_Graphics = p_Graphics;
 	m_Physics = p_Physics;
 	m_InputQueue = p_InputQueue;
 	m_ResourceManager = p_ResourceManager;
+	m_Network = p_Network;
 
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
@@ -103,24 +104,34 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!m_Player.getForceMove())		
 		m_Physics->update(p_DeltaTime);
 
-	Vector3 tempPos = m_Player.getEyePosition();
-	Vector2 actualViewRot(viewRot[0], viewRot[1]);
-
 	Actor::ptr strongPlayerActor = m_PlayerActor.lock();
 	if (strongPlayerActor)
 	{
-		tempPos = strongPlayerActor->getPosition();
+		m_Player.setPosition(strongPlayerActor->getPosition());
 		Vector3 rot = strongPlayerActor->getRotation();
-		actualViewRot.x += rot.x;
-		actualViewRot.y += rot.y;
 	}
 
-	m_Graphics->updateCamera(tempPos, actualViewRot.x, actualViewRot.y);
-	m_Graphics->setModelPosition(skyBox, tempPos);
+	m_Graphics->updateCamera(m_Player.getEyePosition(), viewRot[0], viewRot[1]);
+	m_Graphics->setModelPosition(skyBox, m_Player.getEyePosition());
 	
-	lookDir.x = -sinf(actualViewRot.x) * cosf(actualViewRot.y);
-	lookDir.y = sinf(actualViewRot.y);
-	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
+	lookDir.x = -sinf(viewRot[0]) * cosf(viewRot[1]);
+	lookDir.y = sinf(viewRot[1]);
+	lookDir.z = -cosf(viewRot[0]) * cosf(viewRot[1]);
+
+	IConnectionController *conn = m_Network->getConnectionToServer();
+	if (conn)
+	{
+		PlayerControlData data;
+		data.m_Rotation[0] = viewRot[0];
+		data.m_Rotation[1] = viewRot[1];
+		data.m_Rotation[2] = 0.f;
+		Vector3 playerVel = m_Player.getVelocity();
+		data.m_Velocity[0] = playerVel.x;
+		data.m_Velocity[1] = playerVel.y;
+		data.m_Velocity[2] = playerVel.z;
+
+		conn->sendPlayerControl(data);
+	}
 
 	m_Graphics->updateAnimations(p_DeltaTime);
 	

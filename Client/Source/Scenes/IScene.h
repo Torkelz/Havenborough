@@ -4,6 +4,7 @@
 #include "IGraphics.h"
 #include "../ResourceManager.h"
 #include "IPhysics.h"
+#include <INetwork.h>
 #include "../Input/Input.h"
 #include "../ClientExceptions.h"
 
@@ -32,7 +33,7 @@ public:
 	* @param p_Physics p_InputQueue pointer to the keyboard and mouse input queue
 	*/
 	virtual bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		IPhysics *p_Physics, Input *p_InputQueue) = 0;
+		IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network) = 0;
 
 	/**
 	* Destroy the scene.

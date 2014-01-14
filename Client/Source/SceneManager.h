@@ -27,6 +27,7 @@ private:
 	ResourceManager	*m_ResourceManager;
 	IPhysics		*m_Physics;
 	Input			*m_InputQueue;
+	INetwork		*m_Network;
 
 public:
 	SceneManager();
@@ -40,7 +41,7 @@ public:
 	* @param p_InputQueue pointer to the keyboard and mouse input queue
 	*/
 	void init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-		Input *p_InputQueue);
+		Input *p_InputQueue, INetwork *p_Network);
 	
 	/**
 	* Destroy scenes when shutdown.

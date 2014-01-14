@@ -11,7 +11,6 @@
 #include <tinyxml2.h>
 
 std::mutex g_ControllerLock;
-std::vector<IConnectionController*> g_Controllers;
 
 bool running = false;
 std::thread updateThread;
@@ -31,8 +30,28 @@ struct TestBox
 	float circleRotation;
 };
 
+static const float playerSphereRadius = 50.f;
+
+struct TestPlayerBox
+{
+	uint16_t actorId;
+
+	float position[3];
+	float velocity[3];
+	float rotation[3];
+	float rotationVelocity[3];
+};
+
+struct TestPlayer
+{
+	IConnectionController* m_Connection;
+
+	TestPlayerBox m_PlayerBox;
+};
+
 uint16_t lastActorId = 0;
 std::vector<TestBox> boxes;
+std::vector<TestPlayer> players;
 
 void updateBox(TestBox& p_Box, float p_DeltaTime)
 {
@@ -51,7 +70,31 @@ void updateBox(TestBox& p_Box, float p_DeltaTime)
 	p_Box.rotationVelocity[2] = p_Box.circleRotationSpeed;
 }
 
+void updatePlayerBox(TestPlayerBox& p_Box, float p_DeltaTime)
+{
+	p_Box.position[0] += p_Box.velocity[0] * p_DeltaTime;
+	p_Box.position[1] += p_Box.velocity[1] * p_DeltaTime;
+	p_Box.position[2] += p_Box.velocity[2] * p_DeltaTime;
+	p_Box.rotation[0] += p_Box.rotationVelocity[0] * p_DeltaTime;
+	p_Box.rotation[1] += p_Box.rotationVelocity[1] * p_DeltaTime;
+	p_Box.rotation[2] += p_Box.rotationVelocity[2] * p_DeltaTime;
+}
+
 UpdateObjectData getUpdateData(const TestBox& p_Box)
+{
+	UpdateObjectData data =
+	{
+		{ p_Box.position[0], p_Box.position[1], p_Box.position[2] },
+		{ p_Box.velocity[0], p_Box.velocity[1], p_Box.velocity[2] },
+		{ p_Box.rotation[0], p_Box.rotation[1], p_Box.rotation[2] },
+		{ p_Box.rotationVelocity[0], p_Box.rotationVelocity[1], p_Box.rotationVelocity[2] },
+		p_Box.actorId
+	};
+
+	return data;
+}
+
+UpdateObjectData getUpdateData(const TestPlayerBox& p_Box)
 {
 	UpdateObjectData data =
 	{
@@ -99,7 +142,45 @@ std::string getBoxDescription(const TestBox& p_Box)
 	return std::string(printer.CStr());
 }
 
+std::string getPlayerBoxDescription(const TestPlayerBox& p_Box)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Movement");
+	pushVector(printer, "Velocity", p_Box.velocity);
+	pushVector(printer, "RotationalVelocity", p_Box.rotationVelocity);
+	printer.CloseElement();
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	static const float scale[3] = {playerSphereRadius, playerSphereRadius, playerSphereRadius};
+	pushVector(printer, "Scale", scale);
+	printer.CloseElement();
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", true);
+	printer.PushAttribute("Radius", playerSphereRadius);
+	printer.CloseElement();
+	printer.OpenElement("Pulse");
+	printer.PushAttribute("Length", 0.5f);
+	printer.PushAttribute("Strength", 0.5f);
+	printer.CloseElement();
+	printer.CloseElement();
+	return std::string(printer.CStr());
+}
+
 ObjectInstance getBoxInstance(const TestBox& p_Box, uint16_t p_DescIdx)
+{
+	ObjectInstance inst =
+	{
+		{ p_Box.position[0], p_Box.position[1], p_Box.position[2] },
+		{ p_Box.rotation[0], p_Box.rotation[1], p_Box.rotation[2] },
+		p_DescIdx,
+		p_Box.actorId
+	};
+
+	return inst;
+}
+
+ObjectInstance getBoxInstance(const TestPlayerBox& p_Box, uint16_t p_DescIdx)
 {
 	ObjectInstance inst =
 	{
@@ -125,9 +206,9 @@ void removeLastBox()
 	boxes.pop_back();
 
 	std::lock_guard<std::mutex> lock(g_ControllerLock);
-	for(auto& con : g_Controllers)
+	for(auto& player : players)
 	{
-		con->sendRemoveObjects(objectsToRemove, 1);
+		player.m_Connection->sendRemoveObjects(objectsToRemove, 1);
 	}
 }
 
@@ -149,9 +230,47 @@ void pulse()
 	printer.CloseElement();
 
 	std::lock_guard<std::mutex> lock(g_ControllerLock);
-	for(auto& con : g_Controllers)
+	for(auto& player : players)
 	{
-		con->sendObjectAction(object, printer.CStr());
+		player.m_Connection->sendObjectAction(object, printer.CStr());
+	}
+}
+
+void handlePackages()
+{
+	std::lock_guard<std::mutex> lock(g_ControllerLock);
+	for(auto& player : players)
+	{
+		IConnectionController* con = player.m_Connection;
+
+		unsigned int numPackages = con->getNumPackages();
+		for (unsigned int i = 0; i < numPackages; ++i)
+		{
+			Package package = con->getPackage(i);
+			PackageType type = con->getPackageType(package);
+
+			switch (type)
+			{
+			case PackageType::PLAYER_CONTROL:
+				{
+					PlayerControlData playerControlData = con->getPlayerControlData(package);
+					player.m_PlayerBox.velocity[0] = playerControlData.m_Velocity[0];
+					player.m_PlayerBox.velocity[1] = playerControlData.m_Velocity[1];
+					player.m_PlayerBox.velocity[2] = playerControlData.m_Velocity[2];
+					player.m_PlayerBox.rotation[0] = playerControlData.m_Rotation[0];
+					player.m_PlayerBox.rotation[1] = playerControlData.m_Rotation[1];
+					player.m_PlayerBox.rotation[2] = playerControlData.m_Rotation[2];
+				}
+				break;
+
+			default:
+				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
+				Logger::log(Logger::Level::WARNING, msg);
+				break;
+			}
+		}
+
+		con->clearPackages(numPackages);
 	}
 }
 
@@ -163,6 +282,8 @@ void updateClients()
 
 	while (running)
 	{
+		handlePackages();
+
 		if (removeBox)
 		{
 			removeLastBox();
@@ -183,10 +304,18 @@ void updateClients()
 			data.push_back(getUpdateData(box));
 		}
 
-		std::lock_guard<std::mutex> lock(g_ControllerLock);
-		for (auto& con : g_Controllers)
+		for (auto& player : players)
 		{
-			con->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
+			updatePlayerBox(player.m_PlayerBox, deltaTime);
+			data.push_back(getUpdateData(player.m_PlayerBox));
+		}
+
+		{
+			std::lock_guard<std::mutex> lock(g_ControllerLock);
+			for (auto& player : players)
+			{
+				player.m_Connection->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
+			}
 		}
 		
 		previousTime = currentTime;
@@ -215,7 +344,19 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 		instances.push_back(getBoxInstance(box, descriptions.size() - 1));
 	}
 
+	for (const auto& player : players)
+	{
+		descriptions.push_back(getPlayerBoxDescription(player.m_PlayerBox));
+		cDescriptions.push_back(descriptions.back().c_str());
+		instances.push_back(getBoxInstance(player.m_PlayerBox, descriptions.size() - 1));
+	}
+
 	p_Connection->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
+
+
+	descriptions.clear();
+	cDescriptions.clear();
+	instances.clear();
 
 	TestBox newBox =
 	{
@@ -230,21 +371,38 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 		0.f
 	};
 	updateBox(newBox, 0.f);
-	std::string desc = getBoxDescription(newBox);
-	const char* cDesc = desc.c_str();
-	ObjectInstance inst = getBoxInstance(newBox, 0);
+
+	descriptions.push_back(getBoxDescription(newBox));
+	cDescriptions.push_back(descriptions.back().c_str());
+	instances.push_back(getBoxInstance(newBox, descriptions.size() - 1));
+
+	TestPlayer newPlayer =
+	{
+		p_Connection,
+		{
+			++lastActorId,
+			{ 500.f - lastActorId * 200.f, playerSphereRadius, 600.f },
+			{ 0.f, 0.f, 0.f },
+			{ 0.f, 0.f, 0.f },
+			{ 0.f, 0.f, 0.f }
+		}
+	};
+
+	descriptions.push_back(getPlayerBoxDescription(newPlayer.m_PlayerBox));
+	cDescriptions.push_back(descriptions.back().c_str());
+	instances.push_back(getBoxInstance(newPlayer.m_PlayerBox, descriptions.size() - 1));
 
 	std::lock_guard<std::mutex> lock(g_ControllerLock);
-	g_Controllers.push_back(p_Connection);
+	players.push_back(newPlayer);
 
-	for(auto& con : g_Controllers)
+	for(auto& player : players)
 	{
-		con->sendCreateObjects(&cDesc, 1, &inst, 1);
+		player.m_Connection->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
 	}
 
 	boxes.push_back(newBox);
 
-	p_Connection->sendAssignPlayer(newBox.actorId);
+	p_Connection->sendAssignPlayer(newPlayer.m_PlayerBox.actorId);
 }
 
 void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*/)
@@ -253,22 +411,28 @@ void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*
 
 	std::lock_guard<std::mutex> lock(g_ControllerLock);
 
-	for(unsigned int i = 0; i < g_Controllers.size(); i++)
+	bool playerRemoved = false;
+	TestPlayer removedPlayer;
+
+	for(unsigned int i = 0; i < players.size(); i++)
 	{
-		if(g_Controllers[i] == p_Connection)
+		if(players[i].m_Connection == p_Connection)
 		{
-			g_Controllers.erase(g_Controllers.begin() + i);
+			removedPlayer = players[i];
+			playerRemoved = true;
+
+			players.erase(players.begin() + i);
 			break;
 		}
 	}
 
-	//const char* desc = "Model:DZALA\n";
-	//ObjectInstance inst = {{-5.f, 4.f, -1.f}, {0.f, 0.f, 0.f}, 0, 1};
-
-	//for(auto& con : g_Controllers)
-	//{
-	//	con->sendCreateObjects(&desc, 1, &inst, 1);
-	//}
+	if (playerRemoved)
+	{
+		for (auto& player : players)
+		{
+			player.m_Connection->sendRemoveObjects(&removedPlayer.m_PlayerBox.actorId, 1);
+		}
+	}
 }
 
 void sendTestData()
@@ -296,9 +460,9 @@ void printClientList()
 {
 	std::lock_guard<std::mutex> lock(g_ControllerLock);
 
-	for (unsigned int i = 0; i < g_Controllers.size(); i++)
+	for (unsigned int i = 0; i < players.size(); i++)
 	{
-		std::cout << g_Controllers[i] << std::endl;
+		std::cout << players[i].m_Connection << std::endl;
 	}
 }
 
@@ -317,6 +481,7 @@ int main(int argc, char* argv[])
 
 	INetwork* server;
 	server = INetwork::createNetwork();
+	server->initialize();
 	server->createServer(31415);
 	server->setClientConnectedCallback(&clientConnected, nullptr);
 	server->setClientDisconnectedCallback(&clientDisconnected, nullptr);

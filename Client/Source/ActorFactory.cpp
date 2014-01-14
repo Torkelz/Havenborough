@@ -9,6 +9,7 @@ ActorFactory::ActorFactory()
 		m_Physics(nullptr)
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
+	m_ComponentCreators["SpherePhysics"] = std::bind(&ActorFactory::createCollisionSphereComponent, this);
 	m_ComponentCreators["Model"] = std::bind(&ActorFactory::createModelComponent, this);
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
@@ -86,6 +87,14 @@ unsigned int ActorFactory::getNextActorId()
 ActorComponent::ptr ActorFactory::createOBBComponent()
 {
 	OBB_Component* comp = new OBB_Component;
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createCollisionSphereComponent()
+{
+	CollisionSphereComponent* comp = new CollisionSphereComponent;
 	comp->setPhysics(m_Physics);
 
 	return ActorComponent::ptr(comp);

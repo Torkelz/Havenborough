@@ -98,6 +98,7 @@ void Network::registerPackages()
 	m_PackagePrototypes.push_back(PackageBase::ptr(new RemoveObjects));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new ObjectAction));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new AssignPlayer));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new PlayerControl));
 }
 
 void Network::startIO()

@@ -6,6 +6,8 @@
 #include "EdgeCollisionResponse.h"
 #include "Input/Input.h"
 
+#include <INetwork.h>
+
 class GameLogic
 {
 public:
@@ -20,6 +22,7 @@ private:
 	IPhysics *m_Physics;
 	Input *m_InputQueue;
 	ResourceManager *m_ResourceManager;
+	INetwork *m_Network;
 
 	Level m_Level;
 	int skyBox;
@@ -67,7 +70,7 @@ public:
 	~GameLogic(void);
 
 	void initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		IPhysics *p_Physics, Input *p_InputQueue); 
+		IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network); 
 	void shutdown(void);
 
 	/**

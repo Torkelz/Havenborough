@@ -38,6 +38,7 @@ private:
 	unsigned int getNextActorId();
 
 	ActorComponent::ptr createOBBComponent();
+	ActorComponent::ptr createCollisionSphereComponent();
 	ActorComponent::ptr createModelComponent();
 	ActorComponent::ptr createMovementComponent();
 	ActorComponent::ptr createPulseComponent();

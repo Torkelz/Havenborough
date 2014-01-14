@@ -78,7 +78,7 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
-	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue);
+	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue, m_Network);
 	
 	m_ResourceManager->registerFunction("volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
 				
@@ -358,9 +358,6 @@ void BaseGameApp::handleNetwork()
 					actionDoc.Parse(xmlAction);
 					const tinyxml2::XMLElement* root = actionDoc.FirstChildElement("Action");
 					const tinyxml2::XMLElement* action = root->FirstChildElement();
-
-	IPhysics::deletePhysics(m_Physics);
-	m_Physics = nullptr;
 
 					if (std::string(action->Value()) == "Pulse")
 					{

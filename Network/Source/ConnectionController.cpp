@@ -191,6 +191,21 @@ uint16_t ConnectionController::getAssignPlayerObject(Package p_Package)
 	return assignPlayer->m_Object;
 }
 
+void ConnectionController::sendPlayerControl(PlayerControlData p_Data)
+{
+	PlayerControl package;
+	package.m_Data = p_Data;
+
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+PlayerControlData ConnectionController::getPlayerControlData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	PlayerControl* playerControl = static_cast<PlayerControl*>(m_ReceivedPackages[p_Package].get());
+	return playerControl->m_Data;
+}
+
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);

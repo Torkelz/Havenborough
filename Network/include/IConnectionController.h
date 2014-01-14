@@ -208,4 +208,19 @@ public:
 	 * @return the id of an object
 	 */
 	virtual uint16_t getAssignPlayerObject(Package p_Package) = 0;
+
+	/**
+	 * Send a Player Control package, controlling the players object.
+	 *
+	 * @param p_Data the data to send
+	 */
+	virtual void sendPlayerControl(PlayerControlData p_Data) = 0;
+
+	/**
+	 * Get the player control data from a package
+	 *
+	 * @param p_Package a valid reference to a package with the PlayerControl type.
+	 * @return the player control data
+	 */
+	virtual PlayerControlData getPlayerControlData(Package p_Package) = 0;
 };
