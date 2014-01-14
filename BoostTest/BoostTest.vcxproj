@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BOOST_INC_DIR);$(FMOD_INC_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(FMOD_LIB_DIR);$(LibraryPath)</LibraryPath>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Test\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -64,7 +64,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -72,6 +72,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
+      <AdditionalDependencies>fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>$(TargetPath)</Command>
@@ -154,6 +155,7 @@
     <ClCompile Include="..\Network\Source\Network.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp" />
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
+    <ClCompile Include="..\Sound\Source\Sound.cpp" />
     <ClCompile Include="AABBTest.cpp" />
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="HullTest.cpp" />

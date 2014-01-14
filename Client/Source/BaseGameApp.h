@@ -9,6 +9,7 @@
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
+#include "ISound.h"
 
 #include "ResourceManager.h"
 
@@ -39,6 +40,7 @@ private:
 	ActorFactory m_ActorFactory;
 	std::vector<Actor::ptr> m_ServerActors;
 
+	ISound *m_Sound;
 	__int64 m_PrevTimeStamp;
 	__int64 m_CurrTimeStamp;
 	float m_SecsPerCnt;

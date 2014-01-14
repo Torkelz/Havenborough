@@ -81,7 +81,8 @@ void BaseGameApp::init()
 
 	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue);
 	
-
+	m_Sound = ISound::createSound();
+	m_Sound->initialize();
 				
 	m_MemoryInfo.update();
 	
@@ -134,6 +135,9 @@ void BaseGameApp::shutdown()
 	
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
+
+	ISound::deleteSound(m_Sound);
+	m_Sound = nullptr;
 
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;

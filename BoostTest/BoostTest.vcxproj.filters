@@ -252,6 +252,9 @@
     <ClCompile Include="HullTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
+    <ClCompile Include="..\Sound\Source\Sound.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

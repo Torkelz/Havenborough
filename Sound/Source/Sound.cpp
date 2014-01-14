@@ -110,7 +110,18 @@ bool Sound::releaseSound(void)
 
 void Sound::shutdown(void)
 {
+	for(auto &s : m_Sounds)
+	{
+		s.release();
+	}
+	m_Sounds.clear();
+	m_Channels.clear();
 
+	m_Result = m_System->close();
+	errorCheck(m_Result);
+
+	m_Result = m_System->release();
+	errorCheck(m_Result);
 }
 
 void ISound::deleteSound(ISound *p_Sound)
