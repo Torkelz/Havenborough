@@ -9,8 +9,11 @@
 
 BOOST_AUTO_TEST_SUITE(TestEventManager)
 
+bool testFlag = false;
+
 void testDelegate(IEventData::IEventDataPtr in)
 {
+	testFlag = true;
 }
 void testDelegateWhile(IEventData::IEventDataPtr in)
 {
@@ -119,6 +122,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdate)
 
 	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
 	BOOST_CHECK(testEventManager.tickUpdate(10) == true);
+	BOOST_CHECK(testFlag == true);
 	BOOST_CHECK(testEventManager.abortEvent(eventCheck, true) == false);
 	BOOST_CHECK_NO_THROW(testEventManager.removeListener(delegater, eventCheck));
 

@@ -32,5 +32,6 @@ public:
 
 	virtual bool tickUpdate(unsigned long p_MaxMS = kINFINITE) override;
 
+private:
 	virtual unsigned long getTickCount(void) override;
 };

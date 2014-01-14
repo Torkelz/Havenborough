@@ -16,7 +16,7 @@ EventManager::~EventManager(void)
 
 }
 
-void EventManager::addListener( const EventListenerDelegate &p_EventDelegate, const IEventData::EventType &p_Type )
+void EventManager::addListener(const EventListenerDelegate &p_EventDelegate, const IEventData::EventType &p_Type)
 {
 	EventListenerList &eventListenerList = m_EventListeners[p_Type];
 	for(auto it = eventListenerList.begin(); it != eventListenerList.end(); ++it)
@@ -151,7 +151,7 @@ bool EventManager::tickUpdate(unsigned long p_MaxMS /*= kINFINITE*/)
 		}
 
 		currMs = getTickCount();
-		if(p_MaxMS != IEventManager::kINFINITE && currMs >= p_MaxMS)
+		if(p_MaxMS != IEventManager::kINFINITE && currMs >= maxMs)
 		{
 			Logger::log(Logger::Level::WARNING, "Aborting event processing, time ran out.");
 			break;

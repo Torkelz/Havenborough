@@ -1,6 +1,9 @@
 #pragma once
 #include "IEventData.h"
 
+//////////////////////////////////////////////////////////////////////////
+/// EXAMPLE EVENT DATA AND USED FOR TESTING
+//////////////////////////////////////////////////////////////////////////
 class TestEventData : public BaseEventData
 {
 private: 
@@ -34,10 +37,17 @@ public:
 		return "TestEvent";
 	}
 
+	/**
+	* Used to get the event data. User defined function.
+	*/
 	bool directInterventionIsNecessary(void) const
 	{
 		return m_AssumingDirectControl;
 	}
 };
 
+/**
+* Unique identifier for event data type. This one is an example and for testing.
+* E.g. IEventData::EventType UniqueEventDataName::sk_EventType(unique_hex);
+*/
 const IEventData::EventType TestEventData::sk_EventType(0x77dd2b3a);

@@ -9,8 +9,8 @@ public:
 	typedef unsigned long EventType;
 
 	/**
-	* Gets the type of event as unsigned long.
-	* @return the type of event
+	* Gets the type of event.
+	* @return the type of event as unsigned long
 	*/
 	virtual const EventType &getEventType(void) const = 0;
 
@@ -21,12 +21,14 @@ public:
 	virtual float getTimeStamp(void) const = 0;
 
 	/**
-	* 
+	* Used for network. //TODO: Comment properly when implemented
+	* @param p_Out the stream to be written to with the event data
 	*/
 	virtual void serialize(std::ostream &p_Out) const = 0;
 
 	/**
-	* 
+	* Copies a shared pointer of event data.
+	* @return deep copy of the pointer
 	*/
 	virtual IEventDataPtr copy(void) const = 0;
 
