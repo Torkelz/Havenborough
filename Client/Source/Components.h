@@ -105,6 +105,13 @@ public:
 		}
 
 		m_Scale = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
+		if (scale)
+		{
+			scale->QueryFloatAttribute("x", &m_Scale.x);
+			scale->QueryFloatAttribute("y", &m_Scale.y);
+			scale->QueryFloatAttribute("z", &m_Scale.z);
+		}
 
 		m_Model = m_Graphics->createModelInstance(mesh);
 	}

@@ -84,9 +84,11 @@ std::string getBoxDescription(const TestBox& p_Box)
 	printer.CloseElement();
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "BOX");
+	static const float scale[3] = {100.f, 100.f, 100.f};
+	pushVector(printer, "Scale", scale);
 	printer.CloseElement();
 	printer.OpenElement("OBBPhysics");
-	static const float halfsize[3] = {0.5f, 0.5f, 0.5f};
+	static const float halfsize[3] = {50.f, 50.f, 50.f};
 	pushVector(printer, "Halfsize", halfsize);
 	printer.CloseElement();
 	printer.OpenElement("Pulse");
@@ -222,8 +224,8 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 		{ 0.f, 0.f, 0.f },
 		{ 0.f, 0.f, 0.f },
 		{ 0.f, 0.f, 0.f },
-		{ 5.f, 2.f + (float)lastActorId, 4.f },
-		(float)lastActorId,
+		{ 500.f, 200.f + (float)lastActorId * 100.f, 400.f },
+		(float)lastActorId * 100.f,
 		3.14f / 10.f,
 		0.f
 	};

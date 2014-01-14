@@ -237,61 +237,61 @@
 #Scale: 1 1 1
 
 #MESH BrownCrate
-#Translation: 13.821939 0.5 5.13813
+#Translation: 1382.1939 50 513.813
 #Rotation: 0.0233225 -0.0576 -0.0404529
-#Scale: 0.786315 0.786315 0.786315
+#Scale: 78.6315 78.6315 78.6315
 
 #MESH House
-#Translation: 30 0 -10
+#Translation: 3000 0 -1000
 #Rotation: 0 0 0
-#Scale: 0.01 0.01 0.02
+#Scale: 1 1 2
 
 #MESH House
-#Translation: -5 0 -10
+#Translation: -500 0 -1000
 #Rotation: 0 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1
 
 #MESH House
-#Translation: -16.3 0 -10
+#Translation: -1630 0 -1000
 #Rotation: 0 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1
 
 #MESH House
-#Translation: 10 0 -28
+#Translation: 1000 0 -2800
 #Rotation: 0 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1
 
 #MESH House
-#Translation: -1.3 0 -28
+#Translation: -130 0 -2800
 #Rotation: 0 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1
 
 #MESH House
-#Translation: -12.3 0 -28
+#Translation: -1230 0 -2800
 #Rotation: 0 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1
 
 #MESH House
-#Translation: -30 0 -20
+#Translation: -3000 0 -2000
 #Rotation: -1.57 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1
 
 #MESH House
-#Translation: -30 0 -8.7
+#Translation: -3000 0 -870
 #Rotation: -1.57 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1
 
 #MESH House
-#Translation: -30 0 2.6
+#Translation: -3000 0 260
 #Rotation: -1.57 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1
 
 #MESH House
-#Translation: -30 0 13.9
+#Translation: -3000 0 1390
 #Rotation: -1.57 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1
 
 #MESH MarketStand1
-#Translation: -25 0 0
+#Translation: -2500 0 0
 #Rotation: -1.57 0 0
-#Scale: 0.01 0.01 0.01
+#Scale: 1 1 1

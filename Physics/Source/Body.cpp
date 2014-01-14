@@ -68,7 +68,7 @@ void Body::update(float p_DeltaTime)
 	
 	m_LastAcceleration = m_AvgAcceleration;
 
-	XMFLOAT4 relativePos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 relativePos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);	// cm
 
 	relativePos.x = m_Velocity.x * p_DeltaTime + (0.5f * m_LastAcceleration.x * (p_DeltaTime*p_DeltaTime));
 	relativePos.y = m_Velocity.y * p_DeltaTime + (0.5f * m_LastAcceleration.y * (p_DeltaTime*p_DeltaTime));
@@ -80,7 +80,7 @@ void Body::update(float p_DeltaTime)
 
 	m_NewAcceleration = calculateAcceleration();
 
-	XMVECTOR tempAvg, tempNew, tempLast;
+	XMVECTOR tempAvg, tempNew, tempLast;	// m/s^2
 	tempAvg = XMVectorSet(0.f, 0.f, 0.f, 0.f);
 	
 	tempNew = XMLoadFloat4(&m_NewAcceleration);
@@ -113,7 +113,7 @@ void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
 
 XMFLOAT4 Body::calculateAcceleration()
 {
-	XMFLOAT4 acc;
+	XMFLOAT4 acc;	// m/s^2
 
 	if(m_Mass == 0)
 	{

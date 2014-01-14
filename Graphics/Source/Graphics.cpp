@@ -879,7 +879,7 @@ void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye),
 		XMLoadFloat4(&lookAt), XMLoadFloat4(&up))));
 	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(0.25f * 3.14f,
-		(float)p_ScreenWidth / (float)p_ScreenHeight, 0.1f, 1000.0f)));
+		(float)p_ScreenWidth / (float)p_ScreenHeight, 10.f, 100000.0f)));
 }
 
 Shader *Graphics::getShaderFromList(string p_Identifier)

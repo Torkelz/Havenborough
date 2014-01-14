@@ -15,8 +15,8 @@
 class Sphere : public BoundingVolume
 {
 private:
-	float					m_Radius;
-	float					m_SqrRadius;
+	float					m_Radius;	// m
+	float					m_SqrRadius;	// m^2
 
 	//DEBUGGING
 	//Model					m_model;
@@ -41,8 +41,8 @@ public:
 	}
 	/**
 	* Constructor, set radius and position to the inputs, calculate sqrRadius.
-	* @p_radius, sphere's radius.
-	* @p_pos, sphere's position.
+	* @p_radius, sphere's radius in m.
+	* @p_pos, sphere's position in m.
 	*/
 	Sphere(float p_Radius, DirectX::XMFLOAT4 p_Pos) : BoundingVolume()
 	{
@@ -90,7 +90,7 @@ public:
 	}
 	/**
 	* Get the radius of the sphere.
-	* @return the radius of the sphere.
+	* @return the radius of the sphere in m
 	*/
 	float getRadius()
 	{
@@ -98,7 +98,7 @@ public:
 	}
 	/**
 	* Get the squared radius of the sphere.
-	* @return the radius squared
+	* @return the radius squared in m^2
 	*/
 	float getSqrRadius()
 	{
@@ -106,7 +106,7 @@ public:
 	}
 	/**
 	* Updates the radius of the sphere.
-	* @param p_radius the new radius.
+	* @param p_radius the new radius in m.
 	*/
 	void setRadius(float p_Radius)
 	{

@@ -39,10 +39,9 @@ private:
 public:
 	AABB(){}
 	/**
-	* ## MUST BE BUILT IN MODEL SPACE! ##
-	* @param p_top is the most positive corner in all axis.
-	* @param p_bot is the least positive corner in all axis.
-	*/
+	 * @param p_CenterPos the position in world space in m
+	 * @param p_Size the halfsize of the box in m
+	 */
 	AABB( DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
 	{
 		m_Position = p_CenterPos;
@@ -138,7 +137,7 @@ public:
 	* Updates position for AABB with translation matrix.
 	* @param p_translation, move the AABB in relative coordinates.
 	*/
-	void updatePosition( DirectX::XMFLOAT4X4& p_Translation )
+	void updatePosition(DirectX::XMFLOAT4X4& p_Translation)
 	{
 		DirectX::XMMATRIX tempTrans;
 
@@ -154,21 +153,21 @@ public:
 		calculateBounds();
 	}
 	/**
-	* @return the top corner
+	* @return the top corner in m
 	*/
 	DirectX::XMFLOAT4* getMax()
 	{
 		return &m_Bounds[7];
 	}
 	/**
-	* @return the bottom corner
+	* @return the bottom corner in m
 	*/
 	DirectX::XMFLOAT4* getMin()
 	{
 		return &m_Bounds[0];
 	}
 	/**
-	* @return a vector from center to top corner.
+	* @return a vector from center to top corner in m
 	*/
 	DirectX::XMFLOAT4* getHalfDiagonal()
 	{
