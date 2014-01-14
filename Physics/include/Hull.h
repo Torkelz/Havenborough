@@ -16,7 +16,7 @@ private:
 public:
 	/**
 	 * Constructor.
-	 * The hull is always created with origo as center position, call updatePosition to move the hull to desired place.
+	 * The hull is always created with origo as center position, call updatePosition to move the hull to its desired place.
 	 * @param p_Triangles, a list of triangles that make up the hull
 	 */
 	Hull(std::vector<Triangle> p_Triangles)

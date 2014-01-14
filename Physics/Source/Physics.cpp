@@ -49,54 +49,41 @@ void Physics::initialize()
 
 	fillTriangleIndexList();
 
-	std::vector<Triangle> triangles;
+	//std::vector<Triangle> triangles;
 
-	float size = 1.f;
-	//Back
-	triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4(-size, size, -size, 1.f), Vector4(size,	size, -size, 1.f)));
-	triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4( size, size, -size, 1.f), Vector4(size, -size, -size, 1.f)));
-	
-	//Top
-	triangles.push_back(Triangle(Vector4( -size,  size,  -size, 1.f), Vector4(-size,  size, size, 1.f), Vector4( size,	size,  size, 1.f)));
-	triangles.push_back(Triangle(Vector4( -size,  size,  -size, 1.f), Vector4( size,  size, size, 1.f), Vector4( size,	size, -size, 1.f)));
-	
-	//Front
-	triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  size,  size, 1.f), Vector4(-size,	 size,  size, 1.f)));
-	triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  -size,  size, 1.f), Vector4(size,  size,  size, 1.f)));
+	//float size = 1.f;
+	////Back
+	//triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4(-size, size, -size, 1.f), Vector4(size,	size, -size, 1.f)));
+	//triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4( size, size, -size, 1.f), Vector4(size, -size, -size, 1.f)));
+	//
+	////Top
+	//triangles.push_back(Triangle(Vector4( -size,  size,  -size, 1.f), Vector4(-size,  size, size, 1.f), Vector4( size,	size,  size, 1.f)));
+	//triangles.push_back(Triangle(Vector4( -size,  size,  -size, 1.f), Vector4( size,  size, size, 1.f), Vector4( size,	size, -size, 1.f)));
+	//
+	////Front
+	//triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  size,  size, 1.f), Vector4(-size,	 size,  size, 1.f)));
+	//triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  -size,  size, 1.f), Vector4(size,  size,  size, 1.f)));
 
-	//right	 																  
-	triangles.push_back(Triangle(Vector4(-size,  -size,  size, 1.f), Vector4( -size, size, size, 1.f), Vector4(-size,	size,  -size, 1.f)));
-	triangles.push_back(Triangle(Vector4(-size, -size, size, 1.f), Vector4( -size, size, -size, 1.f), Vector4(-size,	-size,  -size, 1.f)));
+	////right	 																  
+	//triangles.push_back(Triangle(Vector4(-size,  -size,  size, 1.f), Vector4( -size, size, size, 1.f), Vector4(-size,	size,  -size, 1.f)));
+	//triangles.push_back(Triangle(Vector4(-size, -size, size, 1.f), Vector4( -size, size, -size, 1.f), Vector4(-size,	-size,  -size, 1.f)));
 
-	//left
-	triangles.push_back(Triangle(Vector4(size, -size, -size, 1.f), Vector4(size,  size, -size, 1.f), Vector4( size, size, size, 1.f)));
-	triangles.push_back(Triangle(Vector4( size,  -size, -size, 1.f), Vector4( size, size, size, 1.f), Vector4(size, -size, size, 1.f)));
+	////left
+	//triangles.push_back(Triangle(Vector4(size, -size, -size, 1.f), Vector4(size,  size, -size, 1.f), Vector4( size, size, size, 1.f)));
+	//triangles.push_back(Triangle(Vector4( size,  -size, -size, 1.f), Vector4( size, size, size, 1.f), Vector4(size, -size, size, 1.f)));
 
-	//bottom
-	triangles.push_back(Triangle(Vector4( size, -size, size, 1.f), Vector4( -size,  -size, size, 1.f), Vector4( -size,	-size,  -size, 1.f)));
-	triangles.push_back(Triangle(Vector4( size,  -size,  -size, 1.f), Vector4( size,  -size, size, 1.f), Vector4( -size,	-size, -size, 1.f)));
+	////bottom
+	//triangles.push_back(Triangle(Vector4( size, -size, size, 1.f), Vector4( -size,  -size, size, 1.f), Vector4( -size,	-size,  -size, 1.f)));
+	//triangles.push_back(Triangle(Vector4( size,  -size,  -size, 1.f), Vector4( size,  -size, size, 1.f), Vector4( -size,	-size, -size, 1.f)));
 
-	Hull *hull = new Hull(triangles);
+	//Hull *hull = new Hull(triangles);
 
-	float scale = 1.5f;
-	XMMATRIX m = XMMatrixScaling(scale, scale, scale);
-	XMFLOAT4X4 fm;
-	XMStoreFloat4x4(&fm, m);  
-	hull->setScale(fm);
+	//DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(0.f, 1.f, 0.f);
+	//DirectX::XMFLOAT4X4 mtrans;
+	//DirectX::XMStoreFloat4x4(&mtrans, trans);
+	//hull->updatePosition(mtrans);
 
-	float rot = 0.0f;
-	XMMATRIX m_rot = XMMatrixRotationRollPitchYaw(rot, rot, rot);
-	XMStoreFloat4x4(&fm, m_rot);  
-
-	hull->setRotation(fm);
-
-
-	DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(0.f, 1.f, 0.f);
-	DirectX::XMFLOAT4X4 mtrans;
-	DirectX::XMStoreFloat4x4(&mtrans, trans);
-	hull->updatePosition(mtrans);
-
-	createBody(1.f, hull, true, false);
+	//createBody(1.f, hull, true, false);
 
 	m_BVLoader.loadBinaryFile("assets/LightModels/CB_Sphere.txc");
 	
@@ -420,37 +407,35 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 	case BoundingVolume::Type::AABBOX:
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);
-			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.x)) * 100,
-										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.y)) * 100,
-										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.z)) * 100);
+			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.x)) * 100.f,
+										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.y)) * 100.f,
+										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.z)) * 100.f);
 
 			return triangle;
 		}
 	case BoundingVolume::Type::HULL:
 		{
-			Triangle temp = ((Hull*)volume)->getTriangleInWorldCoord(p_TriangleIndex);
-			temp.corners[0] = temp.corners[0] * 100;
-			temp.corners[1] = temp.corners[1] * 100;
-			temp.corners[2] = temp.corners[2] * 100;
-			return temp;
+			Triangle triangle = ((Hull*)volume)->getTriangleInWorldCoord(p_TriangleIndex);
+			triangle.uniformScale(100.f);
+			return triangle;
 		}
 		
 	case BoundingVolume::Type::OBB:
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);
-			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.x)) * 100,
-										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.y)) * 100,
-										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.z)) * 100);
+			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.x)) * 100.f,
+										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.y)) * 100.f,
+										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.z)) * 100.f);
 			return triangle;
 		}
 	case BoundingVolume::Type::SPHERE:
 		{
-			Triangle triangle = Triangle(XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3).m_Postition    ) * 100,
-										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 1).m_Postition) * 100,
-										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 2).m_Postition) * 100);
+			Triangle triangle = Triangle(XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3).m_Postition    ),
+										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 1).m_Postition),
+										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 2).m_Postition));
 			triangle.uniformScale(((Sphere*)volume)->getRadius());
 			triangle.translate(XMFLOAT4ToVector4(&body->getPosition()));
-
+			triangle.uniformScale(100.f);
 			return triangle;
 		}
 	default:
