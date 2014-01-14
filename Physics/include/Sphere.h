@@ -1,32 +1,12 @@
 #pragma once
 
 #include "BoundingVolume.h"
-//#include "Buffer.h"
-//#include "Shader.h"
-//#include <DirectXMath.h> included in BoundingVolume.h
-
-//DEBUGGING
-//struct CBS
-//{
-//	DirectX::XMMATRIX WVP;
-//	DirectX::XMVECTOR color;
-//};
 
 class Sphere : public BoundingVolume
 {
 private:
-	float					m_Radius;
-	float					m_SqrRadius;
-
-	//DEBUGGING
-	//Model					m_model;
-	//Buffer*				m_pBuffer;
-	//Buffer*				m_pCB;
-	//Shader*				m_pShader;
-	//ID3D11Device*			m_pDevice;
-	//ID3D11DeviceContext*	m_pDeviceContext;
-	//CBS					m_cb;
-	//DirectX::XMFLOAT4X4	m_translate;
+	float					m_Radius;	// m
+	float					m_SqrRadius;	// m^2
 
 public:
 	/**
@@ -41,8 +21,8 @@ public:
 	}
 	/**
 	* Constructor, set radius and position to the inputs, calculate sqrRadius.
-	* @p_radius, sphere's radius.
-	* @p_pos, sphere's position.
+	* @p_radius, sphere's radius in m.
+	* @p_pos, sphere's position in m.
 	*/
 	Sphere(float p_Radius, DirectX::XMFLOAT4 p_Pos) : BoundingVolume()
 	{
@@ -51,16 +31,9 @@ public:
 		
 		m_Type = Type::SPHERE;
 	}
-	~Sphere(){
-		//m_pBuffer->~Buffer();
-		//m_pCB->~Buffer();
-		//m_pShader->~Shader();
+	~Sphere()
+	{
 
-		//m_pBuffer			= nullptr;
-		//m_pCB				= nullptr;
-		//m_pShader			= nullptr;
-		//m_pDevice			= nullptr;
-		//m_pDeviceContext	= nullptr;
 	}
 	
 	/**
@@ -90,7 +63,7 @@ public:
 	}
 	/**
 	* Get the radius of the sphere.
-	* @return the radius of the sphere.
+	* @return the radius of the sphere in m
 	*/
 	float getRadius()
 	{
@@ -98,7 +71,7 @@ public:
 	}
 	/**
 	* Get the squared radius of the sphere.
-	* @return the radius squared
+	* @return the radius squared in m^2
 	*/
 	float getSqrRadius()
 	{
@@ -106,16 +79,11 @@ public:
 	}
 	/**
 	* Updates the radius of the sphere.
-	* @param p_radius the new radius.
+	* @param p_radius the new radius in m.
 	*/
 	void setRadius(float p_Radius)
 	{
 		m_Radius = p_Radius;
 		m_SqrRadius = m_Radius * m_Radius;
 	}
-
-	//DEBUGGING
-	//void					setModel(Model p_model);
-	//void					initDraw(ID3D11Device* p_pDevice, ID3D11DeviceContext* p_pDeviceContext);
-	//void					draw( DirectX::XMFLOAT4X4& p_world, DirectX::XMFLOAT4X4& p_view, DirectX::XMFLOAT4X4& p_proj );
 };

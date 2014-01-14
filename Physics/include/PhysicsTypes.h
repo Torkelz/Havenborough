@@ -69,11 +69,11 @@ struct Triangle
 
 struct HitData
 {
-	Vector4			colPos;
+	Vector4			colPos;	// cm
 	Vector4			colNorm;
 	bool			intersect;
 	Type			colType;
-	float			colLength;
+	float			colLength;	// cm
 	BodyHandle		collider;
 	BodyHandle		collisionVictim;
 	bool			isEdge;

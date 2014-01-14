@@ -38,4 +38,5 @@ public:
 	void initializeGameLogic(void);
 
 	int	getID() override;
+	GameLogic* getGameLogic();
 };

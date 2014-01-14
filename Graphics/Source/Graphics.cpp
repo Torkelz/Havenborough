@@ -182,7 +182,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights);
 	
 	DebugDefferedDraw();
-
+	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
 	m_BVBufferNumOfElements = 100;
 	Buffer::Description buffDesc;
 	buffDesc.initData = nullptr;
@@ -489,6 +489,14 @@ void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDir
 	m_DirectionalLights.push_back(l);
 }
 
+void Graphics::setClearColor(Vector4 p_Color)
+{
+	m_ClearColor[0] = p_Color.x;
+	m_ClearColor[1] = p_Color.y;
+	m_ClearColor[2] = p_Color.z;
+	m_ClearColor[3] = p_Color.w;
+}
+
 void Graphics::drawFrame(int i)
 {
 	if (!m_DeviceContext || !m_DeferredRender)
@@ -496,20 +504,21 @@ void Graphics::drawFrame(int i)
 		return;
 	}
 
-	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
-	Begin(color);
+	Begin(m_ClearColor);
 
 	m_DeferredRender->renderDeferred();
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	if(i >= 0 && i <=3)
+	{
+		m_Shader->setShader();
+		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(i));
+		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
+		m_DeviceContext->Draw(6, 0);
 
-	m_Shader->setShader();
-	m_Shader->setResource(Shader::Type::PIXEL_SHADER,0,1,m_DeferredRender->getRT(i));
-	m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
-	m_DeviceContext->Draw(6,0);
-
-	m_Shader->unSetShader();
+		m_Shader->unSetShader();
+	}
 
 	drawBoundingVolumes();
 
@@ -910,7 +919,7 @@ void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye),
 		XMLoadFloat4(&lookAt), XMLoadFloat4(&up))));
 	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(0.25f * 3.14f,
-		(float)p_ScreenWidth / (float)p_ScreenHeight, 0.1f, 1000.0f)));
+		(float)p_ScreenWidth / (float)p_ScreenHeight, 10.f, 100000.0f)));
 }
 
 Shader *Graphics::getShaderFromList(string p_Identifier)

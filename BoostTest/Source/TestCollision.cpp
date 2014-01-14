@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHitOrigin)
 
 	s1 = Sphere(1.f, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 
-	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f));
 
 	hit = col.AABBvsSphere(&aabb, &s1);
 
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHitOrigin)
 	BOOST_CHECK_EQUAL(hit.colNorm.y, 0.f);
 	BOOST_CHECK_EQUAL(hit.colNorm.z, 0.f);
 
-	BOOST_CHECK_EQUAL(hit.colLength, 1.f);
+	BOOST_CHECK_EQUAL(hit.colLength, 100.f);
 
 	BOOST_CHECK_EQUAL(hit.colPos.x, 0.f);
 	BOOST_CHECK_EQUAL(hit.colPos.y, 0.f);
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHit)
 	BOOST_CHECK_EQUAL(hit.colLength, 0.f);
 
 	BOOST_CHECK_EQUAL(hit.colPos.x, 0.f);
-	BOOST_CHECK_EQUAL(hit.colPos.y, 1.f);
+	BOOST_CHECK_EQUAL(hit.colPos.y, 100.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 
 	BOOST_CHECK_EQUAL((int)hit.colType, (int)Type::AABBVSSPHERE);
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(EXTREMECASE2_AABBVsSphereHit)
 
 	s1 = Sphere(1000.f, DirectX::XMFLOAT4(1001.f, 0.0f, 0.0f, 1.0f));
 
-	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f));
 
 	hit = col.AABBvsSphere(&aabb, &s1);
 
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(EXTREMECASE2_AABBVsSphereHit)
 
 	BOOST_CHECK_EQUAL(hit.colLength, 0.f);
 
-	BOOST_CHECK_EQUAL(hit.colPos.x, 1.f);
+	BOOST_CHECK_EQUAL(hit.colPos.x, 100.f);
 	BOOST_CHECK_EQUAL(hit.colPos.y, 0.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 
@@ -179,10 +179,10 @@ BOOST_AUTO_TEST_CASE(BoundingVolumeVsBoundingVolumeHit)
 	BOOST_CHECK_EQUAL(hit.colNorm.z, 0.f);
 
 	BOOST_CHECK_EQUAL(hit.colPos.x, 0.f);
-	BOOST_CHECK_EQUAL(hit.colPos.y, 2.f);
+	BOOST_CHECK_EQUAL(hit.colPos.y, 200.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 	
-	BOOST_CHECK_EQUAL(hit.colLength, 0.5f);
+	BOOST_CHECK_EQUAL(hit.colLength, 50.f);
 
 	delete s1;
 	delete s2;

@@ -27,13 +27,13 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
-	m_Level.setStartPosition(XMFLOAT3(0.0f, 2.0f, 15.0f)); //TODO: Remove this line when level gets the position from file
-	m_Level.setGoalPosition(XMFLOAT3(0.0f, 2.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
-	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 2.0f);
+	m_Level.setStartPosition(XMFLOAT3(0.0f, 200.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(0.0f, 0.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
+	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
 
 	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
 
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(50, 0.f, 50.f), false);
+	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(5000.f, 0.f, 5000.f), false);
 	
 	m_ChangeScene = GoToScene::NONE;
 
@@ -102,10 +102,24 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!m_Player.getForceMove())		
 		m_Physics->update(p_DeltaTime);
 
-	Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
+	Vector3 tempPos = m_Player.getEyePosition();
+	Vector2 actualViewRot(viewRot[0], viewRot[1]);
 
-	m_Graphics->updateCamera(Vector3(tempPos.x, tempPos.y + m_Player.getHeight() * 0.305f, tempPos.z), viewRot[0], viewRot[1]);
-	m_Graphics->setModelPosition(skyBox, Vector3(tempPos.x, tempPos.y, tempPos.z));
+	Actor::ptr strongPlayerActor = m_PlayerActor.lock();
+	if (strongPlayerActor)
+	{
+		tempPos = strongPlayerActor->getPosition();
+		Vector3 rot = strongPlayerActor->getRotation();
+		actualViewRot.x += rot.x;
+		actualViewRot.y += rot.y;
+	}
+
+	m_Graphics->updateCamera(tempPos, actualViewRot.x, actualViewRot.y);
+	m_Graphics->setModelPosition(skyBox, tempPos);
+	
+	lookDir.x = -sinf(actualViewRot.x) * cosf(actualViewRot.y);
+	lookDir.y = sinf(actualViewRot.y);
+	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
 
 	m_Graphics->updateAnimations(p_DeltaTime);
 	
@@ -122,8 +136,8 @@ void GameLogic::render()
 	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
 	//m_Graphics->drawFrame(currView);
 
-	addDebugBVToDraw(1);
-	addDebugBVToDraw(5);
+	//addDebugBVToDraw(1);
+	/*addDebugBVToDraw(5);
 	addDebugBVToDraw(6);
 	addDebugBVToDraw(7);
 	addDebugBVToDraw(8);
@@ -134,7 +148,12 @@ void GameLogic::render()
 	addDebugBVToDraw(13);
 	addDebugBVToDraw(14);
 	addDebugBVToDraw(15);
-	addDebugBVToDraw(16);
+	addDebugBVToDraw(16);*/
+
+	for(int i = 0; i < 25; i++)
+	{
+		addDebugBVToDraw(i);
+	}
 
 	//m_Graphics->drawFrame(currView);
 
@@ -192,6 +211,11 @@ void GameLogic::registeredInput(std::string p_Action, float p_Value)
 	}
 }
 
+void GameLogic::setPlayerActor(std::weak_ptr<Actor> p_Actor)
+{
+	m_PlayerActor = p_Actor;
+}
+
 void GameLogic::loadSandbox()
 {
 	static const std::string preloadedModels[] =
@@ -226,50 +250,50 @@ void GameLogic::loadSandbox()
 	{
 		boxIds[i] = m_Graphics->createModelInstance("BOX");
 
-		const float scale = 1.f + i * 3.f / NUM_BOXES;
+		const float scale = 100.f + i * 300.f / NUM_BOXES;
 
 		m_Graphics->setModelScale(boxIds[i], Vector3(scale, scale, scale));
-		m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 4.f, 1.f, (float)(i % 4) * 4.f + 40.f));
+		m_Graphics->setModelPosition(boxIds[i], Vector3((float)(i / 4) * 400.f, 100.f, (float)(i % 4) * 400.f + 4000.f));
 	}
 
-	static const Vector3 climbTestPos(0.f, 2.f, 30.f);
-	static const Vector3 climbTestHalfSize(1.f, 1.f, 1.f);
+	static const Vector3 climbTestPos(0.f, 200.f, 3000.f);
+	static const Vector3 climbTestHalfSize(100.f, 100.f, 100.f);
 
 	BodyHandle boxTest = m_Physics->createAABB(50.f, true, climbTestPos, climbTestHalfSize, true );
 
 	climbBox = m_Graphics->createModelInstance("BOX");
 
 	m_Graphics->setModelPosition(climbBox, climbTestPos);
-	m_Graphics->setModelScale(climbBox, Vector3(2.f, 2.f, 2.f));
+	m_Graphics->setModelScale(climbBox, Vector3(200.f, 200.f, 200.f));
 
 
 	jointBox = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(jointBox, Vector3(0.05f, 0.05f, 2.f));
+	m_Graphics->setModelScale(jointBox, Vector3(5.f, 5.f, 200.f));
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug skybox");
 	skyBox = m_Graphics->createModelInstance("SKYBOX");
-	m_Graphics->setModelScale(skyBox, Vector3(1.f, 1.f, 1.f));
+	m_Graphics->setModelScale(skyBox, Vector3(100.f, 100.f, 100.f));
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug ground");
 	ground = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelScale(ground, Vector3(100.f, 5.f, 100.f));
-	m_Graphics->setModelPosition(ground, Vector3(0.f, -2.5f, 0.f));
+	m_Graphics->setModelScale(ground, Vector3(10000.f, 500.f, 10000.f));
+	m_Graphics->setModelPosition(ground, Vector3(0.f, -250.f, 0.f));
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug character");
 	circleWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(circleWitch, Vector3(0.01f, 0.01f, 0.01f));
+	//m_Graphics->setModelScale(circleWitch, Vector3(0.01f, 0.01f, 0.01f));
 
 	standingWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(standingWitch, Vector3(0.01f, 0.01f, 0.01f));
-	m_Graphics->setModelPosition(standingWitch, Vector3(16.f, 0.f, -5.f));
+	m_Graphics->setModelPosition(standingWitch, Vector3(1600.f, 0.f, -500.f));
+	//m_Graphics->setModelScale(standingWitch, Vector3(0.01f, 0.01f, 0.01f));
 
 	wavingWitch = m_Graphics->createModelInstance("DZALA");
-	m_Graphics->setModelScale(wavingWitch, Vector3(0.01f, 0.01f, 0.01f));
-	m_Graphics->setModelPosition(wavingWitch, Vector3(15.f, 0.f, -5.f));
+	m_Graphics->setModelPosition(wavingWitch, Vector3(1500.f, 0.f, -500.f));
+	//m_Graphics->setModelScale(wavingWitch, Vector3(0.01f, 0.01f, 0.01f));
 
 	ikTest = m_Graphics->createModelInstance("IKTest");
-	m_Graphics->setModelPosition(ikTest, Vector3(8.f, 1.f, 2.f));
-	m_Graphics->setModelScale(ikTest, Vector3(0.3f, 0.3f, 0.3f));
+	m_Graphics->setModelPosition(ikTest, Vector3(800.f, 100.f, 200.f));
+	m_Graphics->setModelScale(ikTest, Vector3(30.f, 30.f, 30.f));
 	m_Graphics->setModelRotation(ikTest, Vector3(PI / 4.f, 0.f, 0.f));
 
 	for(unsigned int i = 0; i < numTowerBoxes; i++)
@@ -279,20 +303,20 @@ void GameLogic::loadSandbox()
 
 	Vector3 towerBoxSizes[numTowerBoxes] =
 	{
-		Vector3(20.f, 1.6f, 20.f),
-		Vector3(12.f, 1.6f, 12.f),
-		Vector3(6.f, 4.f, 6.f),
-		Vector3(0.1f, 8.f, 0.1f),
-		Vector3(0.4f, 0.4f, 0.4f),
+		Vector3(2000.f, 160.f, 2000.f),
+		Vector3(1200.f, 160.f, 1200.f),
+		Vector3(600.f, 400.f, 600.f),
+		Vector3(10.f, 800.f, 10.f),
+		Vector3(40.f, 40.f, 40.f),
 	};
 
 	Vector3 towerBoxPositions[numTowerBoxes] =
 	{
-		Vector3(30.f, 0.8f, 40.f),
-		Vector3(30.f, 2.4f, 40.f),
-		Vector3(30.f, 5.2f, 40.f),
-		Vector3(30.f, 11.2f, 40.f),
-		Vector3(30.f, 15.4f, 40.f),
+		Vector3(3000.f, 80.f, 4000.f),
+		Vector3(3000.f, 240.f, 4000.f),
+		Vector3(3000.f, 520.f, 4000.f),
+		Vector3(3000.f, 1120.f, 4000.f),
+		Vector3(3000.f, 1540.f, 4000.f),
 	};
 
 	for (unsigned int i = 0; i < numTowerBoxes; i++)
@@ -302,10 +326,10 @@ void GameLogic::loadSandbox()
 		m_Physics->createAABB(50.f, true, towerBoxPositions[i], towerBoxSizes[i] * 0.5f, false);
 	}
 
-	m_Physics->createAABB(0.f, true, Vector3(30.f, 6.8f, 37.f), Vector3(2.8f, 0.6f, 0.2f), true);
-	m_Physics->createAABB(0.f, true, Vector3(30.f, 6.8f, 43.f), Vector3(2.8f, 0.6f, 0.2f), true);
-	m_Physics->createAABB(0.f, true, Vector3(27.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
-	m_Physics->createAABB(0.f, true, Vector3(33.f, 6.8f, 40.f), Vector3(0.2f, 0.6f, 2.8f), true);
+	m_Physics->createAABB(0.f, true, Vector3(3000.f, 680.f, 3700.f), Vector3(280.f, 60.f, 20.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(3000.f, 680.f, 4300.f), Vector3(280.f, 60.f, 20.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(2700.f, 680.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(3300.f, 680.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
 
 	for(unsigned int i = 0; i < numRotatedTowerBoxes; i++)
 	{
@@ -314,20 +338,20 @@ void GameLogic::loadSandbox()
 
 	Vector3 rotatedTowerBoxSizes[numRotatedTowerBoxes] =
 	{
-		Vector3(20.f, 1.6f, 20.f),
-		Vector3(12.f, 1.6f, 12.f),
-		Vector3(6.f, 4.f, 6.f),
-		Vector3(0.1f, 8.f, 0.1f),
-		Vector3(0.4f, 0.4f, 0.4f),
+		Vector3(2000.f, 160.f, 2000.f),
+		Vector3(1200.f, 160.f, 1200.f),
+		Vector3(600.f, 400.f, 600.f),
+		Vector3(10.f, 800.f, 10.f),
+		Vector3(40.f, 40.f, 40.f),
 	};
 
 	Vector3 rotatedTowerBoxPositions[numRotatedTowerBoxes] =
 	{
-		Vector3(-30.f, 0.8f, 40.f),
-		Vector3(-30.f, 2.4f, 40.f),
-		Vector3(-30.f, 5.2f, 40.f),
-		Vector3(-30.f, 11.2f, 40.f),
-		Vector3(-30.f, 15.4f, 40.f),
+		Vector3(-3000.f, 80.f, 4000.f),
+		Vector3(-3000.f, 240.f, 4000.f),
+		Vector3(-3000.f, 520.f, 4000.f),
+		Vector3(-3000.f, 1120.f, 4000.f),
+		Vector3(-3000.f, 1540.f, 4000.f),
 	};
 
 	BodyHandle rotatedTowerBodies[numRotatedTowerBoxes];
@@ -341,8 +365,8 @@ void GameLogic::loadSandbox()
 		m_Physics->setBodyRotation(rotatedTowerBodies[i], Vector3(1.f, 0.f, 0.f));
 	}
 
-	static const Vector3 slantedPlanePosition(-40.f, 3.f, 20.f);
-	static const Vector3 slantedPlaneSize(20.f, 5.f, 30.f);
+	static const Vector3 slantedPlanePosition(-4000.f, 300.f, 2000.f);
+	static const Vector3 slantedPlaneSize(2000.f, 500.f, 3000.f);
 	static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
 	slantedPlane = m_Graphics->createModelInstance("BOX");
 	m_Graphics->setModelPosition(slantedPlane, slantedPlanePosition);
@@ -358,14 +382,14 @@ void GameLogic::loadSandbox()
 	m_Graphics->setModelRotation(hej, Vector3(0.f, 0.f, 3.14f/6.5f));*/
 
 
-	OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
+	OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
 	m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
-	m_Physics->setBodyPosition(OBBhouse1, Vector3(14.f, 4.5f, -10.f));
+	m_Physics->setBodyPosition(OBBhouse1, Vector3(1400.f, 450.f, -1000.f));
 	//m_Physics->setBodyPosition(OBBhouse1, Vector3(0.f, 2.5f, 0.f));
 
-	OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(5.f, 0.5f, 7.f/2.f), false);
+	OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
 	m_Physics->setBodyRotation(OBBhouse2, Vector3(0.f, 0.f, 3.14f/6.5f));
-	m_Physics->setBodyPosition(OBBhouse2, Vector3(3.5f, 5.0f, -10.f));
+	m_Physics->setBodyPosition(OBBhouse2, Vector3(350.f, 500.0f, -1000.f));
 
 	viewRot[0] = 0.f;
 	viewRot[1] = 0.f;
@@ -384,8 +408,8 @@ void GameLogic::loadSandbox()
 
 void GameLogic::updateSandbox(float p_DeltaTime)
 {
-	static const Vector3 circleCenter(4.f, 0.f, 15.f);
-	static const float circleRadius = 8.f;
+	static const Vector3 circleCenter(400.f, 0.f, 1500.f);
+	static const float circleRadius = 800.f;
 
 
 	static const float witchAngleSpeed = 0.3f;
@@ -418,12 +442,8 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 		m_Graphics->setModelRotation(boxIds[i], Vector3(yaw * i, pitch * i, roll * i));
 		m_Graphics->renderModel(boxIds[i]);
 	}
-	Vector3 lookDir;
-	lookDir.x = -sinf(viewRot[0]) * cosf(viewRot[1]);
-	lookDir.y = sinf(viewRot[1]);
-	lookDir.z = -cosf(viewRot[0]) * cosf(viewRot[1]);
 
-	static const float IK_Length = 5.f;
+	static const float IK_Length = 500.f;
 
 	//static const char* testTargetJoint = "bn_l_foot01";
 	//static const char* testHingeJoint = "bn_l_Knee_a01";
@@ -458,11 +478,11 @@ void GameLogic::renderSandbox()
 	}
 	m_Graphics->renderModel(slantedPlane);
 
-	m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),20.f);
-	m_Graphics->useFrameSpotLight(Vector3(-10.f,5.f,0.f),Vector3(0.f,1.f,0.f),
-		Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 20.f );
-	m_Graphics->useFramePointLight(Vector3(0.f, 30.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
-	m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 20000.f);
+	m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),2000.f);
+	m_Graphics->useFrameSpotLight(Vector3(-1000.f,500.f,0.f),Vector3(0.f,1.f,0.f),
+		Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f );
+	m_Graphics->useFramePointLight(Vector3(0.f, 3000.f, 3000.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
+	m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 3000.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
 }
 
 void GameLogic::shutdownSandbox()

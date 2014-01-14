@@ -96,33 +96,33 @@ HitData Collision::sphereVsSphere( Sphere* p_Sphere1, Sphere* p_Sphere2 )
 {
 	HitData hit = HitData();
 
-    XMVECTOR CDiff, vPos;
+    XMVECTOR CDiff, vPos;	// m
 	CDiff = XMLoadFloat4(p_Sphere2->getPosition());
 	vPos = XMLoadFloat4(p_Sphere1->getPosition());
 	CDiff = CDiff - vPos;
 	
-	float c = XMVector3LengthSq(CDiff).m128_f32[0];
-	float rSum = p_Sphere2->getRadius() + p_Sphere1->getRadius();
-    float rSumSqr = rSum*rSum;
+	float c = XMVector3LengthSq(CDiff).m128_f32[0];	// m^2
+	float rSum = p_Sphere2->getRadius() + p_Sphere1->getRadius();	// m
+    float rSumSqr = rSum*rSum;	// m^2
 
 	//Find out if the sphere centers are separated with more distance than the radiuses.
     if(c <= rSumSqr)
 	{
 		hit.intersect = true;
 
-		XMFLOAT4 position;
+		XMFLOAT4 position;	// m
 		
 		XMVECTOR normalized = XMVector4Normalize( XMLoadFloat4(p_Sphere1->getPosition()) - XMLoadFloat4(p_Sphere2->getPosition()));
-		XMVECTOR hitPos = normalized * p_Sphere2->getRadius();
+		XMVECTOR hitPos = normalized * p_Sphere2->getRadius();	// m
 
-		hit.colPos = XMVECTORToVector4(&hitPos);;
+		hit.colPos = XMVECTORToVector4(&hitPos) * 100.f;
 
 		hit.colNorm.x = normalized.m128_f32[0];
 		hit.colNorm.y = normalized.m128_f32[1];
 		hit.colNorm.z = normalized.m128_f32[2];
 		hit.colNorm.w = normalized.m128_f32[3];
 
-		hit.colLength = rSum - sqrtf(c);
+		hit.colLength = (rSum - sqrtf(c)) * 100.f;
 
 		hit.colType = Type::SPHEREVSSPHERE;
 	}
@@ -137,10 +137,10 @@ HitData Collision::AABBvsAABB( AABB* p_AABB1, AABB* p_AABB2 )
 		return hit;
 
 	hit = HitData();
-	XMFLOAT4* max1 = p_AABB1->getMax();
-	XMFLOAT4* min1 = p_AABB1->getMin();
-	XMFLOAT4* max2 = p_AABB2->getMax();
-	XMFLOAT4* min2 = p_AABB2->getMin();
+	XMFLOAT4* max1 = p_AABB1->getMax();	// m
+	XMFLOAT4* min1 = p_AABB1->getMin();	// m
+	XMFLOAT4* max2 = p_AABB2->getMax();	// m
+	XMFLOAT4* min2 = p_AABB2->getMin();	// m
 
 	//Test if the boxes are separated in any axis.
 	if ( min1->x > max2->x || min2->x > max1->x )
@@ -166,13 +166,14 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 
 	//Check to see if the sphere overlaps the AABB
 	//const bool AABBOverlapsSphere ( const AABB& B, const SCALAR r, VECTOR& C )
-	float s = 0, d = 0; 
+	float s = 0; // m
+	float d = 0; // m^2
 
 	//find the square of the distance
 	//from the sphere to the box
 
-	XMFLOAT4* spherePos = p_Sphere->getPosition();
-	XMFLOAT3 dist = XMFLOAT3(.0f, .0f, .0f);
+	XMFLOAT4* spherePos = p_Sphere->getPosition();	// m
+	XMFLOAT3 dist = XMFLOAT3(.0f, .0f, .0f);	// m
 
 	//XMFLOAT4* aabbPos = p_AABB->getPosition();
 	//XMFLOAT4* aabbDiagonal = p_AABB->getHalfDiagonal();
@@ -180,9 +181,9 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	//if the sphere is outside of the box, find the corner closest to the sphere center in each axis.
 	//else special case for when the sphere center is inside that axis slab.
 
-	XMFLOAT4 bMin;
+	XMFLOAT4 bMin;	// m
 	XMStoreFloat4( &bMin, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(p_AABB->getMin() ));
-	XMFLOAT4 bMax;
+	XMFLOAT4 bMax;	// m
 	XMStoreFloat4( &bMax, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(p_AABB->getMax() ));
 	// x
 	if( spherePos->x <= bMin.x )
@@ -232,18 +233,18 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	if(d <= p_Sphere->getSqrRadius())
 	{
 		hit.intersect = true;
-		hit.colPos.x = dist.x;
-		hit.colPos.y = dist.y;
-		hit.colPos.z = dist.z;
+		hit.colPos.x = dist.x * 100.f;
+		hit.colPos.y = dist.y * 100.f;
+		hit.colPos.z = dist.z * 100.f;
 		hit.colPos.w = 1.f;
 
-		XMVECTOR tempNorm = XMVector4Normalize( XMLoadFloat4(p_Sphere->getPosition()) - Vector4ToXMVECTOR(&hit.colPos) );
+		XMFLOAT4 colPos(dist.x, dist.y, dist.z, 1.f);
+		XMVECTOR tempNorm = XMVector4Normalize( XMLoadFloat4(p_Sphere->getPosition()) - XMLoadFloat4(&colPos));
 
-		/*XMFLOAT4 colNormPos;
-		XMStoreFloat4(&colNormPos, tempNorm);*/
+
 
 		hit.colNorm = XMVECTORToVector4(&tempNorm);
-		hit.colLength = p_Sphere->getRadius() - sqrtf(d);
+		hit.colLength = (p_Sphere->getRadius() - sqrtf(d)) * 100.f;
 
 		hit.colType = Type::AABBVSSPHERE;
 	}
@@ -262,7 +263,8 @@ HitData Collision::OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2)
 	float ra, rb, overlap = 0;
 	const float EPSILON = 0.000001f;
 	XMMATRIX R, AbsR;
-	XMVECTOR dotResult, dotResult1, a_Center, b_Center, a_Extents, b_Extents;
+	XMVECTOR dotResult, dotResult1;
+	XMVECTOR a_Center, b_Center, a_Extents, b_Extents; // m
 	XMMATRIX a_Axes, b_Axes;
 	a_Center = XMLoadFloat4(p_OBB1->getPosition());
 	a_Axes = XMLoadFloat4x4(&p_OBB1->getAxes());
@@ -283,7 +285,7 @@ HitData Collision::OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2)
 	}
 
 	// Compute translation vector t
-	XMVECTOR t = b_Center - a_Center;
+	XMVECTOR t = b_Center - a_Center;	// m
 	
 	// Bring translation into a’s coordinate frame
 	dotResult = XMVector3Dot(t, a_Axes.r[0]);
@@ -392,28 +394,28 @@ HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
 
 	hit = HitData();
 
-	XMFLOAT4 dist;
+	XMFLOAT4 dist;	// m
 	
 
-	XMVECTOR sphereCent = XMLoadFloat4(p_Sphere->getPosition());
+	XMVECTOR sphereCent = XMLoadFloat4(p_Sphere->getPosition());	// m
 	
-	XMVECTOR closestPoint = XMLoadFloat4(&p_OBB->findClosestPt(*p_Sphere->getPosition()));
+	XMVECTOR closestPoint = XMLoadFloat4(&p_OBB->findClosestPt(*p_Sphere->getPosition()));	// m
 
-	XMVECTOR v = closestPoint - sphereCent;
-	XMVECTOR vv = XMVector4Dot(v, v);
+	XMVECTOR v = closestPoint - sphereCent;	// m
+	XMVECTOR vv = XMVector4Dot(v, v);	// m^2
 
 	if(vv.m128_f32[0] <= p_Sphere->getSqrRadius())
 	{
 		hit.intersect = true;
-		hit.colPos.x = closestPoint.m128_f32[0];
-		hit.colPos.y = closestPoint.m128_f32[1];
-		hit.colPos.z = closestPoint.m128_f32[2];
+		hit.colPos.x = closestPoint.m128_f32[0] * 100.f;
+		hit.colPos.y = closestPoint.m128_f32[1] * 100.f;
+		hit.colPos.z = closestPoint.m128_f32[2] * 100.f;
 		hit.colPos.w = 1.f;
 
-		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - Vector4ToXMVECTOR(&hit.colPos) );
+		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - closestPoint);
 
 		hit.colNorm = XMVECTORToVector4(&tempNorm);
-		hit.colLength = p_Sphere->getRadius() - sqrtf(vv.m128_f32[0]);
+		hit.colLength = (p_Sphere->getRadius() - sqrtf(vv.m128_f32[0])) * 100.f;
 		hit.colType = Type::OBBVSSPHERE;
 	}
 
@@ -596,15 +598,15 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 
 	if(hit.intersect)
 	{
-		hit.colPos.x = closestPoint.m128_f32[0];
-		hit.colPos.y = closestPoint.m128_f32[1];
-		hit.colPos.z = closestPoint.m128_f32[2];
+		hit.colPos.x = closestPoint.m128_f32[0] * 100.f;
+		hit.colPos.y = closestPoint.m128_f32[1] * 100.f;
+		hit.colPos.z = closestPoint.m128_f32[2] * 100.f;
 		hit.colPos.w = 1.f;
 
-		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - Vector4ToXMVECTOR(&hit.colPos) );
+		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - closestPoint);
 
 		hit.colNorm = XMVECTORToVector4(&tempNorm);
-		hit.colLength = p_Sphere->getRadius() - sqrtf(distance);
+		hit.colLength = (p_Sphere->getRadius() - sqrtf(distance)) * 100.f;
 		hit.colType = Type::HULLVSSPHERE;
 
 	}

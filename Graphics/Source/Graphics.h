@@ -45,12 +45,13 @@ private:
 	char							m_GraphicsCard[128];
 	int								m_GraphicsMemory;
 	bool							m_VSyncEnabled;
+	float							m_ClearColor[4];
 
 	XMFLOAT4X4 m_ViewMatrix;
 	XMFLOAT4X4 m_ProjectionMatrix;
 	XMFLOAT3 m_Eye;
 
-	static const unsigned int m_MaxLightsPerLightInstance;
+	static const unsigned int		m_MaxLightsPerLightInstance;
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
@@ -113,6 +114,8 @@ public:
 		Vector2 p_SpotLightAngles,	float p_LightRange) override;
 	void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) override;
 	
+	void setClearColor(Vector4 p_Color) override;
+
 	void renderModel(int p_ModelId) override;
 	void renderText(void) override;
 	void renderQuad(void) override;

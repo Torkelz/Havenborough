@@ -47,7 +47,8 @@ void PostGameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 void PostGameScene::render()
 {
-	m_Graphics->drawFrame(3);
+	m_Graphics->setClearColor(Vector4(1, 0, 0, 1));
+	m_Graphics->drawFrame(-1);
 }
 
 bool PostGameScene::getIsVisible()

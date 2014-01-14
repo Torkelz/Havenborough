@@ -96,7 +96,7 @@ public:
 
 	/**
 	* Get the half lengths(extents) of the OBB
-	* @return m_Extents, the extents of the OBB
+	* @return m_Extents, the extents of the OBB in m
 	*/
 	DirectX::XMFLOAT4 getExtents()
 	{
@@ -144,7 +144,7 @@ public:
 	/**
 	* Given point p, return point on(or in) OBB, closest to p
 	* @param p_point the point you want to search from
-	* @return closest point in the OBB
+	* @return closest point in the OBB in m
 	*/
 	DirectX::XMFLOAT4 findClosestPt(const DirectX::XMFLOAT4 &p_point)
 	{

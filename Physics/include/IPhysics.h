@@ -25,8 +25,8 @@ public:
 	 *
 	 * @param p_Mass is defineing the mass for the body
 	 * @param p_IsImmovable tells if the body are movable
-	 * @param p_Position sets the position for the boundingvolume(sphere). Body gets the same position.
-	 * @param p_Radius sets the radius for the sphere
+	 * @param p_Position sets the position for the boundingvolume(sphere). Body gets the same position. cm.
+	 * @param p_Radius sets the radius for the sphere in cm
 	 * @return a BodyHandle so it can be mapped outside of Physics
 	 */
 	virtual BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius) = 0;
@@ -36,8 +36,8 @@ public:
 	 *
 	 * @param p_Mass is defineing the mass for the body
 	 * @param p_IsImmovable tells if the body are movable
-	 * @param p_CenterPos the center position for box in world space
-	 * @param p_Extents the half lengths (extents) for the box
+	 * @param p_CenterPos the center position for box in world space in cm
+	 * @param p_Extents the half lengths (extents) for the box in cm
 	 * @param p_IsEdge true if the bounding volume should be an edge, otherwise false
 	 * @return a BodyHandle so it can be mapped outside of Physics
 	 */
@@ -103,7 +103,7 @@ public:
 	 * Used to get the position of the target body.
 	 *
 	 * @param p_Body is an identifier to know what to work with.
-	 * @return a Vector4 containing the position of the target body
+	 * @return a Vector4 containing the position of the target body in cm
 	 */
 	virtual Vector4 getBodyPosition(BodyHandle p_Body) = 0;
 
@@ -111,7 +111,7 @@ public:
 	 * Used to get the size of the target body.
 	 *
 	 * @param p_Body is an identifier to know what to work with.
-	 * @return a Vector3 with the size of the body
+	 * @return a Vector3 with the size of the body in cm
 	 */
 	virtual Vector3 getBodySize(BodyHandle p_Body) =0;
 
@@ -119,7 +119,7 @@ public:
 	 * Edit the position of the target body.
 	 *
 	 * @param p_Body are what body to work with
-	 * @param p_Position is a vector3 with all the position coordinates
+	 * @param p_Position is a vector3 with all the position coordinates in cm
 	 */
 	virtual void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) = 0;
 
@@ -127,7 +127,7 @@ public:
 	 * Sets the velocity for a body.
 	 *
 	 * @param p_Body, which body to change velocity on.
-	 * @param p_Velocity, the new velocity for the body.
+	 * @param p_Velocity, the new velocity for the body in cm/s
 	 */
 	virtual void setBodyVelocity(BodyHandle p_Body, Vector3 p_Velocity) = 0;
 
@@ -149,7 +149,7 @@ public:
 	 * Apply a force on an object.
 	 *
 	 * @param p_Body are on what body to apply the force
-	 * @param p_Force are what force to be added
+	 * @param p_Force are what force to be added, in Newton (N = (kg*m)/s^2) 
 	 */
 	virtual void applyForce(BodyHandle p_Body, Vector3 p_Force) = 0;
 	/**
@@ -162,7 +162,7 @@ public:
 	 * Get the velocity for the chosen body.
 	 *
 	 * @param p_Body what body to get the data from
-	 * @return objects velocity
+	 * @return objects velocity in cm/s
 	 */
 	virtual Vector4 getVelocity(BodyHandle p_Body) = 0;
 	/**

@@ -24,7 +24,8 @@ bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector4 p_EdgePositio
 void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosition, XMVECTOR p_VictimNormal,
 	float p_EdgeOffsetY)
 {
-	XMFLOAT3 playerPos = p_Player->getPosition();
+	XMFLOAT3 playerPos = p_Player->getCollisionCenter();
+	XMFLOAT3 playerOrigPos = p_Player->getPosition();
 	XMVECTOR playerStartPos = XMLoadFloat3(&playerPos);
 	XMFLOAT4 collisionBodyPos = Vector4ToXMFLOAT4(&p_EdgePosition);
 
@@ -32,17 +33,20 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosi
 	XMVECTOR boundingVolumeCenter = XMLoadFloat3(&collisionPosition);
 	
 	float playerPositionY = playerPos.y;
-	float playerHeight = p_Player->getHeight();
-	float kneeHeight = playerHeight * 0.25f; //Assumes knees at roughly 25% of player height
 
-	if(playerPositionY - kneeHeight < collisionBodyPos.y)
+	if(playerPositionY < collisionBodyPos.y)
 	{
+		p_VictimNormal.m128_f32[1] = 0.f;
 		p_VictimNormal = XMVector3Normalize(p_VictimNormal);
 		
 		XMVECTOR playerEndPos =  calculateEndPosition(p_VictimNormal, boundingVolumeCenter - playerStartPos,
-			boundingVolumeCenter, p_EdgeOffsetY, playerHeight* 0.5f);
+			boundingVolumeCenter, p_EdgeOffsetY, 0.f);
 
-		p_Player->forceMove(playerStartPos, playerEndPos);
+		XMVECTOR playerOrigPosV = XMLoadFloat3(&playerOrigPos);
+		XMFLOAT3 playerEndPosV;
+		XMStoreFloat3(&playerEndPosV, playerEndPos);
+
+		p_Player->forceMove(playerOrigPos, playerEndPosV);
 	}
 }
 
@@ -52,14 +56,10 @@ XMVECTOR EdgeCollisionResponse::calculateEndPosition(XMVECTOR p_Normal, XMVECTOR
 	XMFLOAT3 up = XMFLOAT3(0,1,0);
 	XMVECTOR upV = XMLoadFloat3(&up);
 
-	XMVECTOR playerToCenterLength = XMVector3Length(p_PlayerToCenter);
-	p_PlayerToCenter = XMVector3Normalize(p_PlayerToCenter);
-	p_PlayerToCenter = XMVector3Reflect(p_PlayerToCenter, p_Normal);
-	p_PlayerToCenter = XMVector3Reflect(-p_PlayerToCenter, upV);
+	XMVECTOR collisionTangent = XMVector3Cross(upV, p_Normal);
+	XMVECTOR projectedPosition = p_BodyCenter + XMVector3Dot(-p_PlayerToCenter, collisionTangent) * collisionTangent;
 
-	XMVECTOR playerFinal = p_BodyCenter + (playerToCenterLength * 1.1f) * p_PlayerToCenter;
-	XMFLOAT3 offset = XMFLOAT3(0.0f, p_EdgeOffsetY + p_HeightOffset, 0.0f);
-	XMVECTOR offsetV = XMLoadFloat3(&offset);
-	
-	return playerFinal + offsetV;
+	projectedPosition.m128_f32[1] += p_EdgeOffsetY + p_HeightOffset;
+
+	return projectedPosition;
 }

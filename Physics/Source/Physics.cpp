@@ -84,14 +84,14 @@ void Physics::initialize()
 	XMStoreFloat4x4(&fm, m);  
 	hull->setScale(fm);
 
-	float rot = 0.47f;
+	float rot = 0.0f;
 	XMMATRIX m_rot = XMMatrixRotationRollPitchYaw(rot, rot, rot);
 	XMStoreFloat4x4(&fm, m_rot);  
 
 	hull->setRotation(fm);
 
 
-	DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(5.2f, 10.f, 5.f);
+	DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(0.f, 1.f, 0.f);
 	DirectX::XMFLOAT4X4 mtrans;
 	DirectX::XMStoreFloat4x4(&mtrans, trans);
 	hull->updatePosition(mtrans);
@@ -139,10 +139,10 @@ void Physics::update(float p_DeltaTime)
 				hit.collisionVictim = m_Bodies.at(j).getHandle();
 				hit.isEdge = m_Bodies.at(j).getIsEdge();
 				m_HitDatas.push_back(hit);
-				XMVECTOR temp;
-				XMFLOAT4 tempPos;
+				XMVECTOR temp;		// m
+				XMFLOAT4 tempPos;	// m
 
-				temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength;
+				temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m
 				XMStoreFloat4(&tempPos, temp);
 
 				b.setPosition(tempPos);
@@ -151,7 +151,7 @@ void Physics::update(float p_DeltaTime)
 				{
 					onSomething = true;
 
-					XMFLOAT4 velocity = b.getVelocity();
+					XMFLOAT4 velocity = b.getVelocity();	// m/s
 					velocity.y = 0.f;
 					b.setVelocity(velocity);
 				}
@@ -175,24 +175,28 @@ void Physics::applyForce(BodyHandle p_Body, Vector3 p_Force)
 	if(body == nullptr)
 		return;
 
-	XMFLOAT4 tempForce = Vector3ToXMFLOAT4(&p_Force, 0.f);
+	XMFLOAT4 tempForce = Vector3ToXMFLOAT4(&p_Force, 0.f); // kg*m/s^2
 
 	body->addForce(tempForce);
 }
 
 BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius)
 {
-	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&p_Position, 1.f);
+	Vector3 convPosition = p_Position * 0.01f;	// m
+	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f); // m
 
-	Sphere* sphere = new Sphere(p_Radius, tempPosition);
+	Sphere* sphere = new Sphere(p_Radius / 100.f, tempPosition);
 
 	return createBody(p_Mass, sphere, p_IsImmovable, false);
 }
 
 BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge)
 {
-	XMFLOAT4 tempPos = Vector3ToXMFLOAT4(&p_CenterPos, 1.f);
-	XMFLOAT4 tempExt = Vector3ToXMFLOAT4(&p_Extents, 0.f);
+	Vector3 convPosition = p_CenterPos * 0.01f;	// m
+	Vector3 convExtents = p_Extents * 0.01f;	// m
+
+	XMFLOAT4 tempPos = Vector3ToXMFLOAT4(&convPosition, 1.f);	// m
+	XMFLOAT4 tempExt = Vector3ToXMFLOAT4(&convExtents , 0.f);	// m
 
 	AABB* aabb = new AABB(tempPos, tempExt);
 
@@ -201,8 +205,11 @@ BodyHandle Physics::createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_Cente
 
 BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extent, bool p_IsEdge)
 {
-	XMFLOAT4 tempPos	= Vector3ToXMFLOAT4(&p_CenterPos, 1.f);
-	XMFLOAT4 tempExt	= Vector3ToXMFLOAT4(&p_Extent, 0.f);
+	Vector3 convPosition = p_CenterPos * 0.01f;	// m
+	Vector3 convExtents = p_Extent * 0.01f;	// m
+
+	XMFLOAT4 tempPos	= Vector3ToXMFLOAT4(&convPosition, 1.f);	// m
+	XMFLOAT4 tempExt	= Vector3ToXMFLOAT4(&convExtents, 0.f);	// m
 
 	OBB *obb = new OBB(tempPos, tempExt);
 
@@ -213,14 +220,12 @@ bool Physics::createLevelBV(const char* p_VolumeID, const char* p_FilePath)
 {
 	m_BVLoader.loadBinaryFile(p_FilePath);
 
-
 	return true;
 }
 
 bool Physics::releaseLevelBV(const char* p_VolumeID)
 {
-
-	return true;
+	throw std::exception("Unimplemented function");
 }
 
 void Physics::releaseAllBoundingVolumes(void)
@@ -233,12 +238,12 @@ void Physics::releaseAllBoundingVolumes(void)
 
 void Physics::setBVPosition(int p_Instance, Vector3 p_Position)
 {
-
+	throw std::exception("Unimplemented function");
 }
 
 void Physics::setBVRotation(int p_Instance, Vector3 p_Rotation)
 {
-
+	throw std::exception("Unimplemented function");
 }
 
 void Physics::setBVScale(int p_Instance, Vector3 p_Scale)
@@ -300,7 +305,7 @@ Vector4 Physics::getVelocity(BodyHandle p_Body)
 
 	XMFLOAT4 tempVel = body->getVelocity();
 
-	return Vector4(tempVel.x, tempVel.y, tempVel.z, tempVel.w);
+	return Vector4(tempVel.x, tempVel.y, tempVel.z, tempVel.w) * 100.f;
 }
 
 HitData Physics::getHitDataAt(unsigned int p_Index)
@@ -324,10 +329,10 @@ Vector4 Physics::getBodyPosition(BodyHandle p_Body)
 	if(body == nullptr)
 		return Vector4(0.f, 0.f, 0.f, 1.f);
 
-	XMFLOAT4 temp = body->getPosition();
-	Vector4 tempvec4;
+	XMFLOAT4 temp = body->getPosition();	// m
+	Vector4 tempvec4;	// cm
 
-	tempvec4 = XMFLOAT4ToVector4(&temp);
+	tempvec4 = XMFLOAT4ToVector4(&temp) * 100.f;
 
 	return tempvec4;
 }
@@ -356,7 +361,7 @@ Vector3 Physics::getBodySize(BodyHandle p_Body)
 		break;
 	}
 	
-	return temp;
+	return temp * 100.f;
 }
 
 void Physics::setBodyPosition( BodyHandle p_Body, Vector3 p_Position)
@@ -365,9 +370,8 @@ void Physics::setBodyPosition( BodyHandle p_Body, Vector3 p_Position)
 	if(body == nullptr)
 		return;
 
-	XMFLOAT4 tempPosition = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-
-	tempPosition = Vector3ToXMFLOAT4(&p_Position, 1.f);
+	Vector3 convPosition = p_Position * 0.01f;	// m
+	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f);	// m
 
 	body->setPosition(tempPosition);
 }
@@ -377,7 +381,8 @@ void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 	if(body == nullptr)
 		return;
 
-	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&p_Velocity, 0.f);
+	Vector3 convVelocity = p_Velocity * 0.01f;	// m
+	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convVelocity, 0.f);	// m
 
 	body->setVelocity(tempPosition);
 }
@@ -415,27 +420,34 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 	case BoundingVolume::Type::AABBOX:
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);
-			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.x)),
-										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.y)),
-										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.z)));
+			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.x)) * 100,
+										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.y)) * 100,
+										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.z)) * 100);
 
 			return triangle;
 		}
 	case BoundingVolume::Type::HULL:
-		return ((Hull*)volume)->getTriangleInWorldCoord(p_TriangleIndex);
+		{
+			Triangle temp = ((Hull*)volume)->getTriangleInWorldCoord(p_TriangleIndex);
+			temp.corners[0] = temp.corners[0] * 100;
+			temp.corners[1] = temp.corners[1] * 100;
+			temp.corners[2] = temp.corners[2] * 100;
+			return temp;
+		}
+		
 	case BoundingVolume::Type::OBB:
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);
-			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.x)),
-										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.y)),
-										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.z)));
+			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.x)) * 100,
+										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.y)) * 100,
+										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.z)) * 100);
 			return triangle;
 		}
 	case BoundingVolume::Type::SPHERE:
 		{
-			Triangle triangle = Triangle(XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3).m_Postition),
-										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 1).m_Postition),
-										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 2).m_Postition));
+			Triangle triangle = Triangle(XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3).m_Postition    ) * 100,
+										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 1).m_Postition) * 100,
+										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 2).m_Postition) * 100);
 			triangle.uniformScale(((Sphere*)volume)->getRadius());
 			triangle.translate(XMFLOAT4ToVector4(&body->getPosition()));
 

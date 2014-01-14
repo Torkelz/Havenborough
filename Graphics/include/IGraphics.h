@@ -168,6 +168,13 @@ public:
 	 * @ p_LightDirection, the direction of the directional light.
 	 */
 	virtual void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) = 0;
+	
+	/**
+	* Sets which color the final render target should be cleared in.
+	* @param the color in RGBA, 0 to 1;
+	*/
+	virtual void setClearColor(Vector4 p_Color) = 0;
+	
 	/**
 	 * Renders a model specified with an ID.
 	 *

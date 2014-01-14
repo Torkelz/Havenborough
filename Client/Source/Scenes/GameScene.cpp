@@ -109,3 +109,8 @@ int GameScene::getID()
 {
 	return m_SceneID;
 }
+
+GameLogic* GameScene::getGameLogic()
+{
+	return m_GameLogic;
+}
