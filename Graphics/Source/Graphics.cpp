@@ -182,7 +182,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights);
 	
 	DebugDefferedDraw();
-
+	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
 	return true;
 }
 
@@ -346,6 +346,20 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) 
 		model->shader = getShaderFromList(p_ShaderId);
 }
 
+void Graphics::deleteShader(const char *p_ShaderId)
+{
+	for(auto & s : m_ShaderList)
+	{
+		if(s.first.compare(p_ShaderId) == 0 )
+		{
+			SAFE_DELETE(s.second);
+			std::swap(s, m_ShaderList.back());
+			m_ShaderList.pop_back();
+			break;
+		}
+	}
+}
+
 bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 {
 	ID3D11ShaderResourceView *resourceView = m_TextureLoader.createTextureFromFile(p_Filename);
@@ -450,6 +464,14 @@ void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDir
 	m_DirectionalLights.push_back(l);
 }
 
+void Graphics::setClearColor(Vector4 p_Color)
+{
+	m_ClearColor[0] = p_Color.x;
+	m_ClearColor[1] = p_Color.y;
+	m_ClearColor[2] = p_Color.z;
+	m_ClearColor[3] = p_Color.w;
+}
+
 void Graphics::drawFrame(int i)
 {
 	if (!m_DeviceContext || !m_DeferredRender)
@@ -457,20 +479,21 @@ void Graphics::drawFrame(int i)
 		return;
 	}
 
-	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
-	Begin(color);
+	Begin(m_ClearColor);
 
 	m_DeferredRender->renderDeferred();
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	if(i >= 0 && i <=3)
+	{
+		m_Shader->setShader();
+		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(i));
+		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
+		m_DeviceContext->Draw(6, 0);
 
-	m_Shader->setShader();
-	m_Shader->setResource(Shader::Type::PIXEL_SHADER,0,1,m_DeferredRender->getRT(i));
-	m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
-	m_DeviceContext->Draw(6,0);
-
-	m_Shader->unSetShader();
+		m_Shader->unSetShader();
+	}
 	
 	End();
 

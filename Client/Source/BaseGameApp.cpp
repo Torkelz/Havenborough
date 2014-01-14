@@ -42,6 +42,7 @@ void BaseGameApp::init()
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	
+	//TODO: This should be loaded from file
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
 	translator->addKeyboardMapping(VK_ESCAPE, "exit");
 	translator->addKeyboardMapping('W', "moveForward");
@@ -57,7 +58,8 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('J', "changeSceneP");
 	translator->addKeyboardMapping('K', "pauseScene");
 	translator->addKeyboardMapping('L', "changeSceneN");
-	
+	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
+
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
 
@@ -77,7 +79,7 @@ void BaseGameApp::init()
 
 	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue);
 	
-	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
+	m_ResourceManager->registerFunction("volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
 				
 	m_MemoryInfo.update();
 	
@@ -118,8 +120,6 @@ void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
 	
-	IPhysics::deletePhysics(m_Physics);
-	m_Physics = nullptr;
 
 	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
@@ -130,6 +130,9 @@ void BaseGameApp::shutdown()
 
 	m_InputQueue.destroy();
 	
+	IPhysics::deletePhysics(m_Physics);
+	m_Physics = nullptr;
+
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
 
@@ -224,7 +227,7 @@ void BaseGameApp::handleInput()
 		Logger::log(Logger::Level::TRACE, msg.str());
 
 		// Pass keystrokes to all active scenes.
-		m_SceneManager.keyStroke(in.m_Action, in.m_Value);
+		m_SceneManager.registeredInput(in.m_Action, in.m_Value);
 
 		if (in.m_Action == "exit")
 		{
@@ -345,7 +348,10 @@ void BaseGameApp::handleNetwork()
 					actionDoc.Parse(xmlAction);
 					const tinyxml2::XMLElement* root = actionDoc.FirstChildElement("Action");
 					const tinyxml2::XMLElement* action = root->FirstChildElement();
-					
+
+	IPhysics::deletePhysics(m_Physics);
+	m_Physics = nullptr;
+
 					if (std::string(action->Value()) == "Pulse")
 					{
 						for (auto& actor : m_ServerActors)

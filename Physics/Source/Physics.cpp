@@ -71,7 +71,7 @@ void Physics::update(float p_DeltaTime)
 
 		bool onSomething = false;
 
-		for (unsigned j = i + 1; j < m_Bodies.size(); j++)
+		for (unsigned j = 0; j < m_Bodies.size(); j++)
 		{
 			unsigned int hh = m_Bodies.at(j).getHandle();
 			HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
@@ -169,6 +169,14 @@ bool Physics::createLevelBV(const char* p_VolumeID, const char* p_FilePath)
 bool Physics::releaseLevelBV(const char* p_VolumeID)
 {
 	throw std::exception("Unimplemented function");
+}
+
+void Physics::releaseAllBoundingVolumes(void)
+{
+	m_Bodies.clear();
+	m_Bodies.shrink_to_fit();
+
+	int i=0;
 }
 
 void Physics::setBVPosition(int p_Instance, Vector3 p_Position)

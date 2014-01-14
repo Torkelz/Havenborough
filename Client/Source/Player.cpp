@@ -48,6 +48,13 @@ XMFLOAT3 Player::getEyePosition() const
 	return eyePosition;
 }
 
+void Player::setPosition(const XMFLOAT3 &p_Position)
+{
+	m_Position = p_Position;
+	m_Physics->setBodyPosition(m_PlayerBody, XMFLOAT3ToVector3(&m_Position));
+}
+
+
 XMFLOAT3 Player::getGroundPosition() const
 {
 	return m_Position;

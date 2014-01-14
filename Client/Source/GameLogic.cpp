@@ -1,97 +1,67 @@
-#include "GameScene.h"
+#include "GameLogic.h"
 
-GameScene::GameScene()
-{
-	m_SceneID = 0;
-	m_Visible = false;
-	m_ChangeScene = false;
-	m_ChangeList = false;
-	m_Graphics = nullptr;
-	m_InputQueue = nullptr;
-}
-
-GameScene::~GameScene()
+GameLogic::GameLogic(void)
 {
 	m_Graphics = nullptr;
+	m_Physics = nullptr;
 	m_InputQueue = nullptr;
+	m_ResourceManager = nullptr;
 }
 
-bool GameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue, unsigned int p_SceneID)
-{
-	m_SceneID = p_SceneID;
 
+GameLogic::~GameLogic(void)
+{
+	m_Graphics = nullptr;
+	m_Physics = nullptr;
+	m_InputQueue = nullptr;
+	m_ResourceManager = nullptr;
+}
+
+void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
+	IPhysics *p_Physics, Input *p_InputQueue)
+{
 	m_Graphics = p_Graphics;
-	m_ResourceManager = p_ResourceManager;
 	m_Physics = p_Physics;
 	m_InputQueue = p_InputQueue;
+	m_ResourceManager = p_ResourceManager;
 
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
+	m_Level.setStartPosition(XMFLOAT3(0.0f, 200.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(0.0f, 200.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
+	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
 
-	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 20.f, 10.f), XMFLOAT3(0.f, 0.f, 1.f));
+	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
 
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(5000.f, 0.f, 5000.f), false);
+	
+	m_ChangeScene = GoToScene::NONE;
 
-	static const std::string preloadedModels[] =
-	{
-		"BOX",
-		"SKYBOX",
-		"House",
-	};
-
-	for (const std::string& model : preloadedModels)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
-		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
-	}
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "IKTest"));
-	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
-		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
-	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
-
-	currView = 3;
-
-	InitTemporaryStuff();
-
-
-	return true;
+	
+	//TODO: Remove later when we actually have a level to load.
+	loadSandbox();
+	currentDebugView = 3;
 }
 
-void GameScene::destroy()
+void GameLogic::shutdown(void)
 {
-	m_Graphics->eraseModelInstance(testScaleBox);
-
-
 	m_Graphics->eraseModelInstance(ground);
-	for (int box : boxIds)
-	{
-		m_Graphics->eraseModelInstance(box);
-	}
-	for(int i : m_ResourceIDs)
-	{
-		m_ResourceManager->releaseResource(i);
-	}
+	m_Graphics->eraseModelInstance(skyBox);
 	m_Level.releaseLevel();
+	m_Physics->releaseAllBoundingVolumes();
+	
+	
+	//TODO: Remove when we have a real level.
+	shutdownSandbox();
 }
 
-void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
+GameLogic::GoToScene GameLogic::getChangeScene(void) const
 {
-	if(m_ChangeScene)
-	{
-		*p_IsCurrentScene = m_NewSceneID;
-		m_Visible = false;
-		m_ChangeScene = false;
-	}
-	else if(m_ChangeList)
-	{
-		*p_IsCurrentScene = -1;
-		m_ChangeList = false;
-	}
+	return m_ChangeScene;
+}
 
+void GameLogic::onFrame(float p_DeltaTime)
+{
 	m_Player.update(p_DeltaTime);
 
 	if(m_Physics->getHitDataSize() > 0)
@@ -101,8 +71,15 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(hit.intersect)
 			{
-				if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
+				if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
+					m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 				{
+					m_Physics->removedHitDataAt(i);
+				}
+				if(m_FinishLine == hit.collisionVictim)
+				{
+					m_Player.setPosition(m_Level.getStartPosition());
+					m_ChangeScene = GoToScene::POSTGAME;
 					m_Physics->removedHitDataAt(i);
 				}
 
@@ -131,136 +108,39 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_Graphics->updateCamera(tempPos, viewRot[0], viewRot[1]);
 	m_Graphics->setModelPosition(skyBox, m_Player.getGroundPosition());
 
-	static const Vector3 circleCenter(400.f, 0.f, 1500.f);
-	static const float circleRadius = 800.f;
-
-	
-	static const float witchAngleSpeed = 0.3f;
-
-	float witchWaveAngle = 0.f;
-	static const float witchWavingAngleSpeed = 1.f;
-
-	witchCircleAngle += witchAngleSpeed * p_DeltaTime;
-	Vector3 witchCirclePosition(circleCenter);
-	witchCirclePosition.x -= cosf(witchCircleAngle) * circleRadius;
-	witchCirclePosition.z += sinf(witchCircleAngle) * circleRadius;
-	m_Graphics->setModelPosition(circleWitch, witchCirclePosition);
-	m_Graphics->setModelRotation(circleWitch, Vector3(witchCircleAngle, 0.f, 0.f));
-
-	static const float waveRadius = 0.5f;
-	Vector3 wavePos = m_Graphics->getJointPosition(wavingWitch, "Head");
-	wavePos.x -= 1.f;
-	witchWaveAngle += witchWavingAngleSpeed * p_DeltaTime;
-	wavePos.y += sinf(witchWaveAngle) * waveRadius;
-	wavePos.z += cosf(witchWaveAngle) * waveRadius;
-
 	m_Graphics->updateAnimations(p_DeltaTime);
-
-	//m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_b01", "bn_l_arm01", wavePos);
-
-	yaw += yawSpeed * p_DeltaTime;
-	pitch += pitchSpeed * p_DeltaTime;
-	roll += rollSpeed * p_DeltaTime;
-
-	for (int i = 0; i < NUM_BOXES; i++)
-	{
-		m_Graphics->setModelRotation(boxIds[i], Vector3(yaw * i, pitch * i, roll * i));
-		m_Graphics->renderModel(boxIds[i]);
-	}
-	Vector3 lookDir;
-	lookDir.x = -sinf(viewRot[0]) * cosf(viewRot[1]);
-	lookDir.y = sinf(viewRot[1]);
-	lookDir.z = -cosf(viewRot[0]) * cosf(viewRot[1]);
-
-	static const float IK_Length = 500.f;
-
-	//static const char* testTargetJoint = "bn_l_foot01";
-	//static const char* testHingeJoint = "bn_l_Knee_a01";
-	//static const char* testBaseJoint = "bn_l_Tigh01";
-
-	Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
-	if (useIK_OnIK_Worm)
-	{
-		//m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
-		m_Graphics->applyIK_ReachPoint(ikTest, "joint4", "joint3", "joint2", IK_Target);
-	}
-
-	//Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
-	//m_Graphics->setModelPosition(jointBox, jointPos);
-	//m_Graphics->renderModel(jointBox);
-
-
-	m_Graphics->renderModel(testScaleBox);
-
-
-	m_Graphics->renderModel(ground);
-	m_Graphics->renderModel(skyBox);
-	m_Graphics->renderModel(ikTest);
-	m_Graphics->renderModel(circleWitch);
-	m_Graphics->renderModel(standingWitch);
-	m_Graphics->renderModel(wavingWitch);
-	m_Graphics->renderModel(climbBox);
-	for (int box : towerBoxes)
-	{
-		m_Graphics->renderModel(box);
-	}
-	for (int box : rotatedTowerBoxes)
-	{
-		m_Graphics->renderModel(box);
-	}
-	m_Graphics->renderModel(slantedPlane);
-	//m_Level.drawLevel();
-
-	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
-	m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),2000.f);
-	m_Graphics->useFrameSpotLight(Vector3(-1000.f,500.f,0.f),Vector3(0.f,1.f,0.f),
-		Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f );
-	m_Graphics->useFramePointLight(Vector3(0.f, 30.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
-	m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 30.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
-
-	m_Graphics->drawFrame(currView);
-
-
+	
+	
+	updateSandbox(p_DeltaTime);
 }
 
-void GameScene::render()
+void GameLogic::render()
 {
 	m_Level.drawLevel();
+	
+	m_Graphics->renderModel(ground);
+	m_Graphics->renderModel(skyBox);
+
+	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
+
+	renderSandbox();
+	m_Graphics->drawFrame(currentDebugView);
 }
 
-bool GameScene::getIsVisible()
+void GameLogic::registeredInput(std::string p_Action, float p_Value)
 {
-	return m_Visible;
-}
-
-void GameScene::setIsVisible(bool p_SetVisible)
-{
-	m_Visible = p_SetVisible;
-}
-
-void GameScene::registeredKeyStroke(std::string p_Action, float p_Value)
-{
-	if(p_Action == "changeSceneN" && p_Value == 1)
+	if(p_Action ==  "changeViewN" && p_Value == 1)
 	{
-		m_NewSceneID = GAMEPAUSE;
-		m_ChangeScene = true;
-	}
-	else if(p_Action == "changeSceneP" && p_Value == 1)
-	{
-		m_ChangeList = true;
-	}
-	else if(p_Action ==  "changeViewN" && p_Value == 1)
-	{
-		currView--;
-		if(currView < 0)
-		currView = 3;
+		currentDebugView--;
+		if(currentDebugView < 0)
+			currentDebugView = 3;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
 	{
-		currView++;
-		if(currView >= 4)
-		currView = 0;
+		currentDebugView++;
+		if(currentDebugView >= 4)
+			currentDebugView = 0;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 	}
 	else if (p_Action == "mouseMoveHori")
@@ -268,11 +148,11 @@ void GameScene::registeredKeyStroke(std::string p_Action, float p_Value)
 		viewRot[0] += p_Value * sensitivity;
 		if (viewRot[0] > PI)
 		{
-		viewRot[0] -= 2 * PI;
+			viewRot[0] -= 2 * PI;
 		}
 		else if (viewRot[0] < -PI)
 		{
-		viewRot[0] += 2 * PI;
+			viewRot[0] += 2 * PI;
 		}
 	}
 	else if (p_Action == "mouseMoveVert")
@@ -280,11 +160,11 @@ void GameScene::registeredKeyStroke(std::string p_Action, float p_Value)
 		viewRot[1] += p_Value * sensitivity;
 		if (viewRot[1] > PI * 0.45f)
 		{
-		viewRot[1] = PI * 0.45f;
+			viewRot[1] = PI * 0.45f;
 		}
 		else if (viewRot[1] < -PI * 0.45f)
 		{
-		viewRot[1] = -PI * 0.45f;
+			viewRot[1] = -PI * 0.45f;
 		}
 	}
 	else if( p_Action == "jump" && p_Value == 1)
@@ -295,23 +175,38 @@ void GameScene::registeredKeyStroke(std::string p_Action, float p_Value)
 	{
 		useIK_OnIK_Worm = !useIK_OnIK_Worm;
 	}
-
 }
 
-/*########## TEST FUNCTIONS ##########*/
-
-int GameScene::getID()
+void GameLogic::loadSandbox()
 {
-	return m_SceneID;
-}
+	static const std::string preloadedModels[] =
+	{
+		"BOX",
+		"SKYBOX",
+		"House",
+	};
 
-void GameScene::InitTemporaryStuff()
-{
+	for (const std::string& model : preloadedModels)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
+	}
+
+	Logger::log(Logger::Level::DEBUG_L, "Adding IK test tube");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "IKTest"));
+	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
+		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
+
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Dzala");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
+	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
+
 	useIK_OnIK_Worm = false;
-	
+
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug box model instances");
-	
+
 	for (int i = 0; i < NUM_BOXES; i++)
 	{
 		boxIds[i] = m_Graphics->createModelInstance("BOX");
@@ -339,15 +234,6 @@ void GameScene::InitTemporaryStuff()
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug skybox");
 	skyBox = m_Graphics->createModelInstance("SKYBOX");
 	m_Graphics->setModelScale(skyBox, Vector3(100.f, 100.f, 100.f));
-
-	
-
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug testScaleBox");
-	testScaleBox = m_Graphics->createModelInstance("BOX");
-	//m_Graphics->setModelScale(testScaleBox, Vector3(100.f, 100.f, 100.f));
-	m_Graphics->setModelPosition(testScaleBox, Vector3(0.f, 0.f, 0.f));
-
-
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug ground");
 	ground = m_Graphics->createModelInstance("BOX");
@@ -472,4 +358,118 @@ void GameScene::InitTemporaryStuff()
 	rollSpeed = 0.03f;
 
 	witchCircleAngle = 0.0f;
+}
+
+void GameLogic::updateSandbox(float p_DeltaTime)
+{
+	static const Vector3 circleCenter(400.f, 0.f, 1500.f);
+	static const float circleRadius = 800.f;
+
+
+	static const float witchAngleSpeed = 0.3f;
+
+	float witchWaveAngle = 0.f;
+	static const float witchWavingAngleSpeed = 1.f;
+
+	witchCircleAngle += witchAngleSpeed * p_DeltaTime;
+	Vector3 witchCirclePosition(circleCenter);
+	witchCirclePosition.x -= cosf(witchCircleAngle) * circleRadius;
+	witchCirclePosition.z += sinf(witchCircleAngle) * circleRadius;
+	m_Graphics->setModelPosition(circleWitch, witchCirclePosition);
+	m_Graphics->setModelRotation(circleWitch, Vector3(witchCircleAngle, 0.f, 0.f));
+
+	static const float waveRadius = 0.5f;
+	Vector3 wavePos = m_Graphics->getJointPosition(wavingWitch, "Head");
+	wavePos.x -= 1.f;
+	witchWaveAngle += witchWavingAngleSpeed * p_DeltaTime;
+	wavePos.y += sinf(witchWaveAngle) * waveRadius;
+	wavePos.z += cosf(witchWaveAngle) * waveRadius;
+
+	//m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_b01", "bn_l_arm01", wavePos);
+
+	yaw += yawSpeed * p_DeltaTime;
+	pitch += pitchSpeed * p_DeltaTime;
+	roll += rollSpeed * p_DeltaTime;
+
+	for (int i = 0; i < NUM_BOXES; i++)
+	{
+		m_Graphics->setModelRotation(boxIds[i], Vector3(yaw * i, pitch * i, roll * i));
+		m_Graphics->renderModel(boxIds[i]);
+	}
+	Vector3 lookDir;
+	lookDir.x = -sinf(viewRot[0]) * cosf(viewRot[1]);
+	lookDir.y = sinf(viewRot[1]);
+	lookDir.z = -cosf(viewRot[0]) * cosf(viewRot[1]);
+
+	static const float IK_Length = 500.f;
+
+	//static const char* testTargetJoint = "bn_l_foot01";
+	//static const char* testHingeJoint = "bn_l_Knee_a01";
+	//static const char* testBaseJoint = "bn_l_Tigh01";
+
+	Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
+	Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
+	if (useIK_OnIK_Worm)
+	{
+		//m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
+		m_Graphics->applyIK_ReachPoint(ikTest, "joint4", "joint3", "joint2", IK_Target);
+	}
+
+	//Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
+	//m_Graphics->setModelPosition(jointBox, jointPos);
+}
+
+void GameLogic::renderSandbox()
+{
+	m_Graphics->renderModel(ikTest);
+	m_Graphics->renderModel(circleWitch);
+	m_Graphics->renderModel(standingWitch);
+	m_Graphics->renderModel(wavingWitch);
+	m_Graphics->renderModel(climbBox);
+	for (int box : towerBoxes)
+	{
+		m_Graphics->renderModel(box);
+	}
+	for (int box : rotatedTowerBoxes)
+	{
+		m_Graphics->renderModel(box);
+	}
+	m_Graphics->renderModel(slantedPlane);
+
+	m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),2000.f);
+	m_Graphics->useFrameSpotLight(Vector3(-1000.f,500.f,0.f),Vector3(0.f,1.f,0.f),
+		Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f );
+	m_Graphics->useFramePointLight(Vector3(0.f, 3000.f, 3000.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
+	m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 3000.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
+}
+
+void GameLogic::shutdownSandbox()
+{
+	m_Graphics->eraseModelInstance(ikTest);
+	m_Graphics->eraseModelInstance(circleWitch);
+	m_Graphics->eraseModelInstance(standingWitch);
+	m_Graphics->eraseModelInstance(wavingWitch);
+	m_Graphics->eraseModelInstance(climbBox);
+	m_Graphics->eraseModelInstance(jointBox);
+	for(int box : towerBoxes)
+	{
+		m_Graphics->eraseModelInstance(box);
+	}	
+	for(int box : rotatedTowerBoxes)
+	{
+		m_Graphics->eraseModelInstance(box);
+	}
+	for (int box : boxIds)
+	{
+		m_Graphics->eraseModelInstance(box);
+	}
+	m_Graphics->eraseModelInstance(slantedPlane);
+	
+	for(int i : m_ResourceIDs)
+	{
+		m_ResourceManager->releaseResource(i);
+	}
+
+	m_Graphics->deleteShader("DefaultShader");
+	m_Graphics->deleteShader("AnimatedShader");
 }

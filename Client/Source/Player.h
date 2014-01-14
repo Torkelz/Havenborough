@@ -59,6 +59,12 @@ public:
 	void initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_LookDirection);
 	
 	/**
+	* Sets the position of the player at specified position in the game world.
+	* @param p_Position the position where to place the player
+	*/
+	void setPosition(const XMFLOAT3 &p_Position);
+	
+	/**
 	* Gets the position of the player.
 	* @return the position
 	*/

@@ -1,44 +1,57 @@
-//#include <boost/test/unit_test.hpp>
-//#include "..\..\Client\Source\SceneManager.h"
-//
-//BOOST_AUTO_TEST_SUITE(SceneManagerTest)
-//
-//
-///**
-//* This test changes scene to option menu and then goes back to menu again.
-//*/
-//BOOST_AUTO_TEST_CASE(ChangeScene)
+#include <boost/test/unit_test.hpp>
+#include "..\..\Client\Source\SceneManager.h"
+
+BOOST_AUTO_TEST_SUITE(SceneManagerTest)
+
+//class DummySceneManager : public SceneManager
 //{
-//	SceneManager Scenes;
-//	BOOST_CHECK_EQUAL(Scenes.init(nullptr, nullptr, nullptr, nullptr),true);
-//	std::vector<IScene::ptr> Tested;
+//public:
+//	DummySceneManager();
+//	~DummySceneManager();
 //
-//	//Simulate a keystroke.
-//	Scenes.keyStroke("L", 0.f);
-//	float dt = 0.f;
-//	Scenes.onFrame(dt);
-//	Tested = Scenes.getScene();
-//	
-//	//Check so that the right scene is shown.
-//	int size = Tested.size();
-//	BOOST_REQUIRE_EQUAL(size, 1);
-//	int ID = Tested[0]->getID();
-//	BOOST_CHECK_EQUAL(ID, 1);
-//	int active = Tested[0]->getIsVisible();
-//	BOOST_CHECK_EQUAL(active,1);
+//	bool init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue)
+//	{
+//	}
 //
-//	//Same as above but backwards.
-//	Scenes.keyStroke("L", 0.f);
-//	Scenes.onFrame(dt);
-//	Tested = Scenes.getScene();
-//	size = Tested.size();
-//	BOOST_REQUIRE_EQUAL(size, 1);
-//	ID = Tested[0]->getID();
-//	BOOST_CHECK_EQUAL(ID, 0);
-//	active = Tested[0]->getIsVisible();
-//	BOOST_CHECK_EQUAL(active,1);
-//}
+//private:
 //
+//};
+
+/**
+* This test changes scene to option menu and then goes back to menu again.
+*/
+/*BOOST_AUTO_TEST_CASE(ChangeScene)
+{
+	SceneManager Scenes;
+	BOOST_CHECK_EQUAL(Scenes.init(nullptr, nullptr, nullptr, nullptr),true);
+	std::vector<IScene::ptr> Tested;
+
+	//Simulate a keystroke.
+	Scenes.keyStroke("L", 0.f);
+	float dt = 0.f;
+	Scenes.onFrame(dt);
+	Tested = Scenes.getScene();
+	
+	//Check so that the right scene is shown.
+	int size = Tested.size();
+	BOOST_REQUIRE_EQUAL(size, 1);
+	int ID = Tested[0]->getID();
+	BOOST_CHECK_EQUAL(ID, 1);
+	int active = Tested[0]->getIsVisible();
+	BOOST_CHECK_EQUAL(active,1);
+
+	//Same as above but backwards.
+	Scenes.keyStroke("L", 0.f);
+	Scenes.onFrame(dt);
+	Tested = Scenes.getScene();
+	size = Tested.size();
+	BOOST_REQUIRE_EQUAL(size, 1);
+	ID = Tested[0]->getID();
+	BOOST_CHECK_EQUAL(ID, 0);
+	active = Tested[0]->getIsVisible();
+	BOOST_CHECK_EQUAL(active,1);
+}*/
+
 //BOOST_AUTO_TEST_CASE(ChangeListOfScenes)
 //{
 //	SceneManager Scenes;
@@ -132,6 +145,5 @@
 //	ID = Tested[1]->getID();
 //	BOOST_CHECK_EQUAL(ID,1);
 //}
-//
-//
-//BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE_END()

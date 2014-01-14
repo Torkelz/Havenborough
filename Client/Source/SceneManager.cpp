@@ -6,6 +6,7 @@ SceneManager::SceneManager()
 	//m_MenuSceneList.clear();
 	//m_RunSceneList.clear();
 	m_NowShowing = 0;
+	m_IsMenuState = true;
 	m_Graphics = nullptr;
 	m_ResourceManager = nullptr;
 	m_Physics = nullptr;
@@ -20,7 +21,8 @@ SceneManager::~SceneManager()
 	m_InputQueue = nullptr;
 }
 
-bool SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue)
+void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
+	IPhysics *p_Physics, Input *p_InputQueue)
 {
 	m_Graphics = p_Graphics;
 	m_ResourceManager = p_ResourceManager;
@@ -35,7 +37,7 @@ bool SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 
 	m_RunSceneList[0] = IScene::ptr(new GameScene);
 	m_RunSceneList[1] = IScene::ptr(new MenuScene);
-	m_RunSceneList[2] = IScene::ptr(new MenuScene);
+	m_RunSceneList[2] = IScene::ptr(new PostGameScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
 	m_NumberOfRunScene = m_RunSceneList.size();
@@ -44,14 +46,14 @@ bool SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	unsigned int i;
 	for(i = 0; i < m_NumberOfMenuScene; i++)
 	{
-		if(!m_MenuSceneList[i]->init(m_Graphics, m_ResourceManager, m_Physics, m_InputQueue, i))
+		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue))
 		{
 			sceneFail = true;
 		}
 	}
 	for(i = 0; i < m_NumberOfRunScene; i++)
 	{
-		if(!m_RunSceneList[i]->init(m_Graphics, m_ResourceManager, m_Physics, m_InputQueue, i))
+		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue))
 		{
 			sceneFail = true;
 		}
@@ -62,8 +64,6 @@ bool SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	{
 		throw SceneManagerException("Failed to init all scenes", __LINE__,__FILE__);
 	}
-
-	return true;
 }
 
 void SceneManager::destroy()
@@ -158,8 +158,8 @@ void SceneManager::setPause()
 	if(!m_IsMenuState)
 	{
 		bool currentState;
-		currentState = m_RunSceneList[GAMEPAUSE]->getIsVisible();
-		m_RunSceneList[GAMEPAUSE]->setIsVisible(!currentState);
+		currentState = m_RunSceneList[(int)RunScenes::GAMEPAUSE]->getIsVisible();
+		m_RunSceneList[(int)RunScenes::GAMEPAUSE]->setIsVisible(!currentState);
 	}
 }
 
@@ -180,8 +180,8 @@ void SceneManager::startRun()
 {
 	m_IsMenuState = false;
 	m_RunSceneList[0]->setIsVisible(true);
-	m_RunSceneList[1]->setIsVisible(true);
-	for(unsigned int i = 2; i < m_NumberOfRunScene; i++)
+	((GameScene*)m_RunSceneList.at(0).get())->initializeGameLogic();
+	for(unsigned int i = 1; i < m_NumberOfRunScene; i++)
 	{
 		m_RunSceneList[i]->setIsVisible(false);
 	}
@@ -199,23 +199,20 @@ void SceneManager::startMenu()
 	m_NowShowing = 0;
 }
 
-bool SceneManager::keyStroke(std::string p_Action, float p_Value)
+void SceneManager::registeredInput(std::string p_Action, float p_Value)
 {
 	if(p_Action == "pauseScene" && p_Value == 1)
 	{
 		setPause();
-		return true;
 	}
 	//Change scene
 	else// if((p_Action == "changeSceneN"  && p_Value == 1) || (p_Action == "changeSceneP" && p_Value == 1))
 	{
-		passKeyStroke(p_Action, p_Value);
-		return true;
+		passInput(p_Action, p_Value);
 	}
-	//return false;
 }
 
-void SceneManager::passKeyStroke(std::string p_Action, float p_Value)
+void SceneManager::passInput(std::string p_Action, float p_Value)
 {
 	std::vector<IScene::ptr>* activeList = nullptr;
 	unsigned int nrScenes = 0;
@@ -235,7 +232,7 @@ void SceneManager::passKeyStroke(std::string p_Action, float p_Value)
 	{
 		if(activeList->at(i)->getIsVisible())
 		{
-			activeList->at(i)->registeredKeyStroke(p_Action, p_Value);
+			activeList->at(i)->registeredInput(p_Action, p_Value);
 			i = nrScenes;
 		}
 	}
@@ -269,4 +266,3 @@ std::vector<IScene::ptr> SceneManager::getScene()
 	}
 	return temp;
 }
-
