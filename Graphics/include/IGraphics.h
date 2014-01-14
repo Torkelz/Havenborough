@@ -110,6 +110,12 @@ public:
 	virtual void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) = 0;
 
 	/**
+	* Deletes an existing shader.
+	* @param p_ShaderId name of the shader
+	*/
+	virtual void deleteShader(const char *p_ShaderId) = 0;
+
+	/**
 	 * Creates a new texture and stores in a vector connected with an ID.
 	 *
 	 * @param p_TextureId the ID of the texture
@@ -162,6 +168,13 @@ public:
 	 * @ p_LightDirection, the direction of the directional light.
 	 */
 	virtual void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) = 0;
+	
+	/**
+	* Sets which color the final render target should be cleared in.
+	* @param the color in RGBA, 0 to 1;
+	*/
+	virtual void setClearColor(Vector4 p_Color) = 0;
+	
 	/**
 	 * Renders a model specified with an ID.
 	 *
