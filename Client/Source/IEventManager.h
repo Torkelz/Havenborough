@@ -36,6 +36,4 @@ public:
 	virtual bool tickUpdate(unsigned long p_MaxMS = kINFINITE) = 0;
 
 	virtual unsigned long getTickCount(void) = 0;
-
-	//virtual IEventManager *getInstance(void) = 0;
 };

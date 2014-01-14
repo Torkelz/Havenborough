@@ -5,16 +5,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-EventManager *EventManager::m_Instance = nullptr;
-
-EventManager *EventManager::getInstance()
-{
-	if(!m_Instance)
-		m_Instance = new EventManager();
-	
-	return m_Instance;
-}
-
 EventManager::EventManager() :
 	IEventManager()
 {
@@ -95,7 +85,7 @@ bool EventManager::queueEvent(const IEventData::IEventDataPtr &p_Event)
 		m_Queues[m_ActiveQueue].push_back(p_Event);
 		return true;
 	}
-		
+
 	return false;
 }
 
@@ -186,6 +176,6 @@ unsigned long EventManager::getTickCount(void)
 {
 	unsigned __int64 currTimeStamp = 0;
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
-	
+
 	return (long)currTimeStamp;
 }

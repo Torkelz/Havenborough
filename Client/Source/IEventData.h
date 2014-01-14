@@ -23,7 +23,7 @@ public:
 	/**
 	* 
 	*/
-	virtual void serialize(std::ostream) const = 0;
+	virtual void serialize(std::ostream &p_Out) const = 0;
 
 	/**
 	* 
@@ -59,7 +59,7 @@ public:
 		return m_TimeStamp;
 	}
 
-	virtual void serialize(std::ostream &p_Out) const
+	virtual void serialize(std::ostream &p_Out) const override
 	{
 	}
 };

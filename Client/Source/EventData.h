@@ -3,14 +3,11 @@
 
 class TestEventData : public BaseEventData
 {
-public:
-	const IEventData::EventType TestEventData::sk_EventType(0x77dd2b3a);
-
 private: 
 	bool m_AssumingDirectControl;
 
 public:
-	static const EventType sk_EventType;
+	static const IEventData::EventType sk_EventType;
 	
 	explicit TestEventData(bool p_AssumingControl) :
 		m_AssumingDirectControl(p_AssumingControl)
@@ -42,3 +39,5 @@ public:
 		return m_AssumingDirectControl;
 	}
 };
+
+const IEventData::EventType TestEventData::sk_EventType(0x77dd2b3a);

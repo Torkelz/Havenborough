@@ -110,6 +110,7 @@
     <ClCompile Include="..\Client\Source\Actor.cpp" />
     <ClCompile Include="..\Client\Source\ActorFactory.cpp" />
     <ClCompile Include="..\Client\Source\BaseGameApp.cpp" />
+    <ClCompile Include="..\Client\Source\EventManager.cpp" />
     <ClCompile Include="..\Client\Source\GameLogic.cpp" />
     <ClCompile Include="..\Client\Source\Level.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />
@@ -180,7 +181,7 @@
     <ClCompile Include="TestIK.cpp" />
     <ClCompile Include="TestLogger.cpp" />
     <ClCompile Include="Source\Graphics\TestModelFactory.cpp" />
-    <ClCompile Include="TestObserver.cpp" />
+    <ClCompile Include="Source\Client\TestEventManager.cpp" />
     <ClCompile Include="TestResouceTranslator.cpp" />
     <ClCompile Include="TestResourceManager.cpp" />
   </ItemGroup>

@@ -16,12 +16,9 @@ private:
 	EventQueue m_Queues[EVENTMANAGER_NUM_QUEUES];
 	int m_ActiveQueue;
 
-	static EventManager *m_Instance;
 public:
 	explicit EventManager(void);
 	virtual ~EventManager(void);
-
-	static EventManager *getInstance(void);
 
 	virtual void addListener(const EventListenerDelegate &p_EventDelegate, const IEventData::EventType &p_Type) override;
 
@@ -36,6 +33,4 @@ public:
 	virtual bool tickUpdate(unsigned long p_MaxMS = kINFINITE) override;
 
 	virtual unsigned long getTickCount(void) override;
-
-private:
 };

@@ -85,6 +85,8 @@ void BaseGameApp::init()
 	
 	m_ActorFactory.setPhysics(m_Physics);
 	m_ActorFactory.setGraphics(m_Graphics);
+
+	m_EventManager = new EventManager();
 }
 
 void BaseGameApp::run()
@@ -135,6 +137,8 @@ void BaseGameApp::shutdown()
 
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
+
+	SAFE_DELETE(m_EventManager);
 
 	m_Window.destroy();
 }
@@ -390,6 +394,7 @@ void BaseGameApp::updateLogic()
 		actor->onUpdate(m_DeltaTime);
 	}
 
+	m_EventManager->tickUpdate();
 	m_SceneManager.onFrame(m_DeltaTime);
 }
 
