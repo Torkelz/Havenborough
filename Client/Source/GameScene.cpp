@@ -65,6 +65,7 @@ bool GameScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, 
 	m_Graphics->playAnimation(wavingWitch, "Kick", false, false, 0);
 	m_Graphics->playAnimation(standingWitch, "Bomb", false, false, 0);
 	m_Graphics->playAnimation(testWitch, "Run", false, false, 0);
+	m_Graphics->playAnimation(ikTest, "Wave", false, false, 0);
 
 	return true;
 }
@@ -186,7 +187,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	if (useIK_OnIK_Worm)
 	{
 		m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
-		m_Graphics->applyIK_ReachPoint(ikTest, "joint4", "joint3", "joint2", IK_Target);
+		m_Graphics->applyIK_ReachPoint(ikTest, "joint3", "joint2", "joint1", IK_Target);
 	}
 
 	//Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
@@ -298,7 +299,28 @@ void GameScene::registeredKeyStroke(std::string p_Action, float p_Value)
 	{
 		useIK_OnIK_Worm = !useIK_OnIK_Worm;
 	}
-
+	else if( p_Action == "blendAnimation" && p_Value == 1.0f )
+	{
+		m_Graphics->playAnimation(wavingWitch, "Bomb", false, true, 2);
+		m_Graphics->playAnimation(ikTest, "Spin", false, true, 12);
+		m_Graphics->playAnimation(testWitch, "Idle", false, true, 12);
+	}
+	else if( p_Action == "resetAnimation" && p_Value == 1.0f )
+	{
+		m_Graphics->playAnimation(wavingWitch, "Kick", false, true, 2);
+		m_Graphics->playAnimation(ikTest, "Wave", false, true, 12);
+		m_Graphics->playAnimation(testWitch, "Run", false, true, 12);
+	}
+	else if( p_Action == "layerAnimation" && p_Value == 1.0f )
+	{
+		m_Graphics->playAnimation(ikTest, "Wave", true, false, 0);
+		m_Graphics->playAnimation(wavingWitch, "Bomb", true, false, 0);
+	}
+	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f )
+	{
+		m_Graphics->playAnimation(ikTest, "Wave", false, false, 0);
+		m_Graphics->playAnimation(wavingWitch, "Kick", false, false, 0);
+	}
 }
 
 /*########## TEST FUNCTIONS ##########*/
@@ -367,7 +389,7 @@ void GameScene::InitTemporaryStuff()
 
 	ikTest = m_Graphics->createModelInstance("IKTest");
 	m_Graphics->setModelPosition(ikTest, Vector3(8.f, 1.f, 2.f));
-	m_Graphics->setModelScale(ikTest, Vector3(0.3f, 0.3f, 0.3f));
+	m_Graphics->setModelScale(ikTest, Vector3(0.01f, 0.01f, 0.01f));
 	m_Graphics->setModelRotation(ikTest, Vector3(PI / 4.f, 0.f, 0.f));
 
 	for(unsigned int i = 0; i < numTowerBoxes; i++)

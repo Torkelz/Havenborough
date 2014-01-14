@@ -1,17 +1,17 @@
 *Clip
-n	Kick
+n	Wave
 sp	1.0
 st	1
-en	32
+en	23
 l	1
 f	0
 p	1
 
 *Clip
-n	Bomb
-sp	1
-st	33
-en	44
+n	Spin
+sp	1.0
+st	25
+en	49
 l	1
 f	0
-p	2
+p	1

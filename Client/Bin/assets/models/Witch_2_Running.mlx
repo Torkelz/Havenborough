@@ -1,0 +1,17 @@
+*Clip
+n	Run
+sp	0.1
+st	2
+en	31
+l	1
+f	0
+p	1
+
+*Clip
+n	Idle
+sp	0.1
+st	36
+en	50
+l	1
+f	0
+p	1

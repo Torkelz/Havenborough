@@ -13,6 +13,17 @@
  class ModelInstance
  {
  private:
+	struct AnimationTrack{
+		AnimationClip clip;
+		bool crossfade;
+		bool active;
+		bool layered;
+		int fadeFrames; // Original amount of frames to fade
+		float fadedFrames; // The amount of frames faded.
+		float currentFrame;
+		float destinationFrame;
+	};
+
 	std::string m_ModelName;
 	DirectX::XMFLOAT3 m_Position;
 	DirectX::XMFLOAT3 m_Rotation;
@@ -35,21 +46,23 @@
 	/**
 	 * The current frame time point. Non-integral values results in interpolation.
 	 */
-	float m_CurrentFrame;
-	float m_DestinationFrame;
-	AnimationClip m_ActiveClips[2]; // "Tracks"
-	AnimationClip m_FadeClip;
+	//float m_CurrentFrame;
+	//float m_DestinationFrame;
+	//AnimationClip m_ActiveClips[2]; // "Tracks"
+	//AnimationClip m_FadeClip;
+
+	AnimationTrack m_Tracks[3];
 
 	// Blend stuff
-	bool m_CrossfadeMainTrack;
-	bool m_CrossfadeOffTrack;
-	bool m_Layer;
-	int m_FadeFramesMainTrack;
-	int m_FadeFramesOffTrack;
-	float m_CurrentFadeFrame;
-	float m_DestinationFadeFrame;
-	float m_CurrentOffTrackFrame;
-	float m_DestinationOffTrackFrame;
+	//bool m_CrossfadeMainTrack;
+	//bool m_CrossfadeOffTrack;
+	//bool m_Layer;
+	//int m_FadeFramesMainTrack;
+	//int m_FadeFramesOffTrack;
+	//float m_CurrentFadeFrame;
+	//float m_DestinationFadeFrame;
+	//float m_CurrentOffTrackFrame;
+	//float m_DestinationOffTrackFrame;
 
  public:
 	/**
