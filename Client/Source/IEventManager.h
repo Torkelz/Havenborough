@@ -3,6 +3,12 @@
 #include "IEventData.h"
 #include <chrono>
 
+/**
+* Wrapper to a stored function pointer. The function to be bound MUST have return type void and 
+* have solely IEventData::Ptr as parameter.
+* E.g. to bind a member function: EventListenerDelegate variableName(&object, &className::memberFunction)
+* E.g. to bind a static function: EventListenerDelegate variableName(&className::memberFunction)
+*/
 typedef fastdelegate::FastDelegate1<IEventData::Ptr> EventListenerDelegate;
 
 class IEventManager
@@ -23,14 +29,14 @@ public:
 	/**
 	* Adds a function to be run when a specific event is triggered.
 	*	Note, an exception is thrown if adding already existing combination of function and type.
-	* @param p_EventDelegate 
+	* @param p_EventDelegate (see comment for EventListenerDelegate in header)
 	* @param p_Type the unique IEventData::Type identifier to trigger the function
 	*/
 	virtual void addListener(const EventListenerDelegate &p_EventDelegate, const IEventData::Type &p_Type) = 0;
 
 	/**
 	* Removes a function which is triggered on a specific event.
-	* @param p_EventDelegate 
+	* @param p_EventDelegate (see comment for EventListenerDelegate in header)
 	* @param p_Type the unique IEventData::Type identifier which trigger the function
 	* @return true if function is removed, otherwise false
 	*/

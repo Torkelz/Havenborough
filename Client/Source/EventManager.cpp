@@ -75,7 +75,7 @@ bool EventManager::triggerTriggerEvent(const IEventData::Ptr &p_Event) const
 
 bool EventManager::queueEvent(const IEventData::Ptr &p_Event)
 {
-	if((m_ActiveQueue >= 0 && m_ActiveQueue < EVENTMANAGER_NUM_QUEUES) == false)
+	if((m_ActiveQueue >= 0 && m_ActiveQueue < m_NumOfQueues) == false)
 		throw EventException("Error queue is out of bounds.", __LINE__, __FILE__);
 
 	auto findIt = m_EventListeners.find(p_Event->getEventType());
@@ -90,7 +90,7 @@ bool EventManager::queueEvent(const IEventData::Ptr &p_Event)
 
 bool EventManager::abortEvent(const IEventData::Type &p_Type, bool p_AllOfType /*= false*/)
 {
-	if((m_ActiveQueue >= 0 && m_ActiveQueue < EVENTMANAGER_NUM_QUEUES) == false)
+	if((m_ActiveQueue >= 0 && m_ActiveQueue < m_NumOfQueues) == false)
 		throw EventException("Error queue is out of bounds.", __LINE__, __FILE__);
 
 	bool success = false;
@@ -127,7 +127,7 @@ bool EventManager::processEvents(std::chrono::milliseconds p_MaxMS /*= m_MaxProc
 	Timer::time_point stopTime = currTime + p_MaxMS;
 	
 	int queueToProcess = m_ActiveQueue;
-	m_ActiveQueue = (m_ActiveQueue + 1) % EVENTMANAGER_NUM_QUEUES;
+	m_ActiveQueue = (m_ActiveQueue + 1) % m_NumOfQueues;
 	m_Queues[m_ActiveQueue].clear();
 
 	while(!m_Queues[queueToProcess].empty())

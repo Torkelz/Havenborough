@@ -20,6 +20,18 @@ void testDelegateWhile(IEventData::Ptr in)
 	Sleep(2);
 }
 
+class dummy
+{
+private:
+	bool a;
+public:
+	dummy(){a = false;}
+	explicit dummy(bool p) : a(p) {}
+
+	void setValue(IEventData::Ptr in){a = true;}
+	bool getValue(){return a;}
+};
+
 BOOST_AUTO_TEST_CASE(TestEventDataTest)
 {
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
@@ -39,7 +51,7 @@ BOOST_AUTO_TEST_CASE(TestEventDataTest)
 BOOST_AUTO_TEST_CASE(TestEventManagerAddListener)
 {
 	EventManager testEventManager;
-	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	EventListenerDelegate delegater(&TestEventManager::testDelegate);
 	IEventData::Type eventCheck(0x77dd2b3a);
 	BOOST_CHECK_NO_THROW(testEventManager.addListener(delegater, eventCheck));
 
@@ -50,7 +62,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerAddListener)
 BOOST_AUTO_TEST_CASE(TestEventManagerRemoveListener)
 {
 	EventManager testEventManager;
-	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	EventListenerDelegate delegater(&TestEventManager::testDelegate);
 	IEventData::Type eventCheck(0x77dd2b3a);
 	IEventData::Type eventCheckNotAdded(0x77dd2b3b);
 
@@ -64,7 +76,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerRemoveListener)
 BOOST_AUTO_TEST_CASE(TestEventManagerTriggerTriggerEvent)
 {
 	EventManager testEventManager;
-	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	EventListenerDelegate delegater(&TestEventManager::testDelegate);
 	IEventData::Type eventCheck(0x77dd2b3a);
 
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
@@ -78,7 +90,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerTriggerTriggerEvent)
 BOOST_AUTO_TEST_CASE(TestEventManagerQueueEvent)
 {
 	EventManager testEventManager;
-	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	EventListenerDelegate delegater(&TestEventManager::testDelegate);
 	IEventData::Type eventCheck(0x77dd2b3a);
 
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
@@ -91,7 +103,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerQueueEvent)
 BOOST_AUTO_TEST_CASE(TestEventManagerAbortEvent)
 {
 	EventManager testEventManager;
-	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	EventListenerDelegate delegater(&TestEventManager::testDelegate);
 	IEventData::Type eventCheck(0x77dd2b3a);
 
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
@@ -113,8 +125,8 @@ BOOST_AUTO_TEST_CASE(TestEventManagerAbortEvent)
 BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdate)
 {
 	EventManager testEventManager;
-	EventListenerDelegate delegater = &TestEventManager::testDelegate;
-	EventListenerDelegate delegaterWhile = &TestEventManager::testDelegateWhile;
+	EventListenerDelegate delegater(&TestEventManager::testDelegate);
+	EventListenerDelegate delegaterWhile(&TestEventManager::testDelegateWhile);
 
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
 	IEventData::Type eventCheck(0x77dd2b3a);
@@ -133,6 +145,22 @@ BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdate)
 	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
 	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
 	BOOST_CHECK(testEventManager.processEvents(processTime) == false);
+}
+
+BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdateWithMemberFunction)
+{
+	EventManager testEventManager;
+	dummy d;
+	EventListenerDelegate delegater(&d,&dummy::setValue);
+
+	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
+	IEventData::Type eventCheck(0x77dd2b3a);
+	BOOST_CHECK_NO_THROW(testEventManager.addListener(delegater, eventCheck));
+
+	std::chrono::milliseconds harvestTime(10);
+	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
+	BOOST_CHECK(testEventManager.processEvents(harvestTime) == true);
+	BOOST_CHECK(d.getValue() == true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
