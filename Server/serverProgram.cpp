@@ -1,4 +1,5 @@
 #include <INetwork.h>
+#include <IPhysics.h>
 #include "../../Client/Source/Logger.h"
 
 #include <algorithm>
@@ -19,15 +20,17 @@ struct TestBox
 {
 	uint16_t actorId;
 
-	float position[3];
-	float velocity[3];
-	float rotation[3];
-	float rotationVelocity[3];
+	Vector3 position;
+	Vector3 velocity;
+	Vector3 rotation;
+	Vector3 rotationVelocity;
 
-	float circleCenter[3];
+	Vector3 circleCenter;
 	float circleRadius;
 	float circleRotationSpeed;
 	float circleRotation;
+	
+	BodyHandle body;
 };
 
 static const float playerSphereRadius = 50.f;
@@ -36,10 +39,12 @@ struct TestPlayerBox
 {
 	uint16_t actorId;
 
-	float position[3];
-	float velocity[3];
-	float rotation[3];
-	float rotationVelocity[3];
+	Vector3 position;
+	Vector3 velocity;
+	Vector3 rotation;
+	Vector3 rotationVelocity;
+
+	BodyHandle body;
 };
 
 struct TestPlayer
@@ -53,41 +58,46 @@ uint16_t lastActorId = 0;
 std::vector<TestBox> boxes;
 std::vector<TestPlayer> players;
 
+void doRemoveBox(TestBox& p_Box)
+{
+
+}
+
 void updateBox(TestBox& p_Box, float p_DeltaTime)
 {
 	p_Box.circleRotation += p_Box.circleRotationSpeed * p_DeltaTime;
-	p_Box.position[0] = p_Box.circleCenter[0] + cos(p_Box.circleRotation) * p_Box.circleRadius;
-	p_Box.position[1] = p_Box.circleCenter[1];
-	p_Box.position[2] = p_Box.circleCenter[2] - sin(p_Box.circleRotation) * p_Box.circleRadius;
-	p_Box.velocity[0] = -sin(p_Box.circleRotation) * p_Box.circleRadius * p_Box.circleRotationSpeed;
-	p_Box.velocity[1] = 0.f;
-	p_Box.velocity[2] = -cos(p_Box.circleRotation) * p_Box.circleRadius * p_Box.circleRotationSpeed;
-	p_Box.rotation[0] = p_Box.circleRotation;
-	p_Box.rotation[1] = 0.f;
-	p_Box.rotation[2] = p_Box.circleRotation;
-	p_Box.rotationVelocity[0] = p_Box.circleRotationSpeed;
-	p_Box.rotationVelocity[1] = 0.f;
-	p_Box.rotationVelocity[2] = p_Box.circleRotationSpeed;
+	p_Box.position.x = p_Box.circleCenter.y + cos(p_Box.circleRotation) * p_Box.circleRadius;
+	p_Box.position.y = p_Box.circleCenter.x;
+	p_Box.position.z = p_Box.circleCenter.z - sin(p_Box.circleRotation) * p_Box.circleRadius;
+	p_Box.velocity.x = -sin(p_Box.circleRotation) * p_Box.circleRadius * p_Box.circleRotationSpeed;
+	p_Box.velocity.y = 0.f;
+	p_Box.velocity.z = -cos(p_Box.circleRotation) * p_Box.circleRadius * p_Box.circleRotationSpeed;
+	p_Box.rotation.x = p_Box.circleRotation;
+	p_Box.rotation.y = 0.f;
+	p_Box.rotation.z = p_Box.circleRotation;
+	p_Box.rotationVelocity.x = p_Box.circleRotationSpeed;
+	p_Box.rotationVelocity.y = 0.f;
+	p_Box.rotationVelocity.z = p_Box.circleRotationSpeed;
 }
 
 void updatePlayerBox(TestPlayerBox& p_Box, float p_DeltaTime)
 {
-	p_Box.position[0] += p_Box.velocity[0] * p_DeltaTime;
-	p_Box.position[1] += p_Box.velocity[1] * p_DeltaTime;
-	p_Box.position[2] += p_Box.velocity[2] * p_DeltaTime;
-	p_Box.rotation[0] += p_Box.rotationVelocity[0] * p_DeltaTime;
-	p_Box.rotation[1] += p_Box.rotationVelocity[1] * p_DeltaTime;
-	p_Box.rotation[2] += p_Box.rotationVelocity[2] * p_DeltaTime;
+	p_Box.position.x += p_Box.velocity.x * p_DeltaTime;
+	p_Box.position.y += p_Box.velocity.y * p_DeltaTime;
+	p_Box.position.z += p_Box.velocity.z * p_DeltaTime;
+	p_Box.rotation.x += p_Box.rotationVelocity.x * p_DeltaTime;
+	p_Box.rotation.y += p_Box.rotationVelocity.y * p_DeltaTime;
+	p_Box.rotation.z += p_Box.rotationVelocity.z * p_DeltaTime;
 }
 
 UpdateObjectData getUpdateData(const TestBox& p_Box)
 {
 	UpdateObjectData data =
 	{
-		{ p_Box.position[0], p_Box.position[1], p_Box.position[2] },
-		{ p_Box.velocity[0], p_Box.velocity[1], p_Box.velocity[2] },
-		{ p_Box.rotation[0], p_Box.rotation[1], p_Box.rotation[2] },
-		{ p_Box.rotationVelocity[0], p_Box.rotationVelocity[1], p_Box.rotationVelocity[2] },
+		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
+		{ p_Box.velocity.x, p_Box.velocity.y, p_Box.velocity.z },
+		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
+		{ p_Box.rotationVelocity.x, p_Box.rotationVelocity.y, p_Box.rotationVelocity.z },
 		p_Box.actorId
 	};
 
@@ -98,22 +108,22 @@ UpdateObjectData getUpdateData(const TestPlayerBox& p_Box)
 {
 	UpdateObjectData data =
 	{
-		{ p_Box.position[0], p_Box.position[1], p_Box.position[2] },
-		{ p_Box.velocity[0], p_Box.velocity[1], p_Box.velocity[2] },
-		{ p_Box.rotation[0], p_Box.rotation[1], p_Box.rotation[2] },
-		{ p_Box.rotationVelocity[0], p_Box.rotationVelocity[1], p_Box.rotationVelocity[2] },
+		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
+		{ p_Box.velocity.x, p_Box.velocity.y, p_Box.velocity.z },
+		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
+		{ p_Box.rotationVelocity.x, p_Box.rotationVelocity.y, p_Box.rotationVelocity.z },
 		p_Box.actorId
 	};
 
 	return data;
 }
 
-void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, const float p_Vec[3])
+void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, const Vector3& p_Vec)
 {
 	p_Printer.OpenElement(p_ElementName.c_str());
-	p_Printer.PushAttribute("x", p_Vec[0]);
-	p_Printer.PushAttribute("y", p_Vec[1]);
-	p_Printer.PushAttribute("z", p_Vec[2]);
+	p_Printer.PushAttribute("x", p_Vec.x);
+	p_Printer.PushAttribute("y", p_Vec.y);
+	p_Printer.PushAttribute("z", p_Vec.z);
 	p_Printer.CloseElement();
 }
 
@@ -127,12 +137,11 @@ std::string getBoxDescription(const TestBox& p_Box)
 	printer.CloseElement();
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "BOX");
-	static const float scale[3] = {100.f, 100.f, 100.f};
+	static const Vector3 scale(100.f, 100.f, 100.f);
 	pushVector(printer, "Scale", scale);
 	printer.CloseElement();
 	printer.OpenElement("OBBPhysics");
-	static const float halfsize[3] = {50.f, 50.f, 50.f};
-	pushVector(printer, "Halfsize", halfsize);
+	pushVector(printer, "Halfsize", scale * 0.5f);
 	printer.CloseElement();
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
@@ -152,7 +161,7 @@ std::string getPlayerBoxDescription(const TestPlayerBox& p_Box)
 	printer.CloseElement();
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "BOX");
-	static const float scale[3] = {playerSphereRadius, playerSphereRadius, playerSphereRadius};
+	static const Vector3 scale(playerSphereRadius, playerSphereRadius, playerSphereRadius);
 	pushVector(printer, "Scale", scale);
 	printer.CloseElement();
 	printer.OpenElement("SpherePhysics");
@@ -171,8 +180,8 @@ ObjectInstance getBoxInstance(const TestBox& p_Box, uint16_t p_DescIdx)
 {
 	ObjectInstance inst =
 	{
-		{ p_Box.position[0], p_Box.position[1], p_Box.position[2] },
-		{ p_Box.rotation[0], p_Box.rotation[1], p_Box.rotation[2] },
+		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
+		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
 		p_DescIdx,
 		p_Box.actorId
 	};
@@ -184,8 +193,8 @@ ObjectInstance getBoxInstance(const TestPlayerBox& p_Box, uint16_t p_DescIdx)
 {
 	ObjectInstance inst =
 	{
-		{ p_Box.position[0], p_Box.position[1], p_Box.position[2] },
-		{ p_Box.rotation[0], p_Box.rotation[1], p_Box.rotation[2] },
+		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
+		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
 		p_DescIdx,
 		p_Box.actorId
 	};
@@ -203,6 +212,7 @@ void removeLastBox()
 	}
 
 	const uint16_t objectsToRemove[] = { boxes.back().actorId };
+	doRemoveBox(boxes.back());
 	boxes.pop_back();
 
 	std::lock_guard<std::mutex> lock(g_ControllerLock);
@@ -254,12 +264,12 @@ void handlePackages()
 			case PackageType::PLAYER_CONTROL:
 				{
 					PlayerControlData playerControlData = con->getPlayerControlData(package);
-					player.m_PlayerBox.velocity[0] = playerControlData.m_Velocity[0];
-					player.m_PlayerBox.velocity[1] = playerControlData.m_Velocity[1];
-					player.m_PlayerBox.velocity[2] = playerControlData.m_Velocity[2];
-					player.m_PlayerBox.rotation[0] = playerControlData.m_Rotation[0];
-					player.m_PlayerBox.rotation[1] = playerControlData.m_Rotation[1];
-					player.m_PlayerBox.rotation[2] = playerControlData.m_Rotation[2];
+					player.m_PlayerBox.velocity.x = playerControlData.m_Velocity[0];
+					player.m_PlayerBox.velocity.y = playerControlData.m_Velocity[1];
+					player.m_PlayerBox.velocity.z = playerControlData.m_Velocity[2];
+					player.m_PlayerBox.rotation.x = playerControlData.m_Rotation[0];
+					player.m_PlayerBox.rotation.y = playerControlData.m_Rotation[1];
+					player.m_PlayerBox.rotation.z = playerControlData.m_Rotation[2];
 				}
 				break;
 
@@ -361,11 +371,11 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 	TestBox newBox =
 	{
 		++lastActorId,
-		{ 0.f, 0.f, 0.f },
-		{ 0.f, 0.f, 0.f },
-		{ 0.f, 0.f, 0.f },
-		{ 0.f, 0.f, 0.f },
-		{ 500.f, 200.f + (float)lastActorId * 100.f, 400.f },
+		Vector3(0.f, 0.f, 0.f),
+		Vector3(0.f, 0.f, 0.f),
+		Vector3(0.f, 0.f, 0.f),
+		Vector3(0.f, 0.f, 0.f),
+		Vector3(500.f, 200.f + (float)lastActorId * 100.f, 400.f),
 		(float)lastActorId * 100.f,
 		3.14f / 10.f,
 		0.f
@@ -381,10 +391,10 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 		p_Connection,
 		{
 			++lastActorId,
-			{ 500.f - lastActorId * 200.f, playerSphereRadius, 600.f },
-			{ 0.f, 0.f, 0.f },
-			{ 0.f, 0.f, 0.f },
-			{ 0.f, 0.f, 0.f }
+			Vector3(500.f - lastActorId * 200.f, playerSphereRadius, 600.f),
+			Vector3(0.f, 0.f, 0.f),
+			Vector3(0.f, 0.f, 0.f),
+			Vector3(0.f, 0.f, 0.f)
 		}
 	};
 
