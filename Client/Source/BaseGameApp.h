@@ -40,6 +40,7 @@ private:
 
 	ActorFactory m_ActorFactory;
 	std::vector<Actor::ptr> m_ServerActors;
+	DirectX::XMFLOAT2 m_NewWindowSize;
 
 	__int64 m_PrevTimeStamp;
 	__int64 m_CurrTimeStamp;
@@ -77,7 +78,11 @@ public:
 
 private:
 	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+	
+	bool handleWindowExitSizeMove(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
+	bool handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+	
 	static void connectedCallback(Result p_Res, void* p_UserData);
 
 	void updateDebugInfo();
