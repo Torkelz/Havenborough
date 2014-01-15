@@ -34,6 +34,8 @@ private:
 
 	GoToScene m_ChangeScene;
 
+	bool	m_drawBV;
+
 	//DEBUG
 	int currentDebugView;
 	int climbBox;

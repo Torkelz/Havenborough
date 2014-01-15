@@ -24,6 +24,7 @@ void IPhysics::deletePhysics(IPhysics* p_Physics)
 	if (p_Physics)
 	{
 		PhysicsLogger::log(PhysicsLogger::Level::INFO, "Shutting down physics");
+		p_Physics->releaseAllBoundingVolumes();
 		delete p_Physics;
 	}
 }
@@ -48,48 +49,7 @@ void Physics::initialize()
 	m_Collision = Collision();
 
 	fillTriangleIndexList();
-
-	//std::vector<Triangle> triangles;
-
-	//float size = 1.f;
-	////Back
-	//triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4(-size, size, -size, 1.f), Vector4(size,	size, -size, 1.f)));
-	//triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4( size, size, -size, 1.f), Vector4(size, -size, -size, 1.f)));
-	//
-	////Top
-	//triangles.push_back(Triangle(Vector4( -size,  size,  -size, 1.f), Vector4(-size,  size, size, 1.f), Vector4( size,	size,  size, 1.f)));
-	//triangles.push_back(Triangle(Vector4( -size,  size,  -size, 1.f), Vector4( size,  size, size, 1.f), Vector4( size,	size, -size, 1.f)));
-	//
-	////Front
-	//triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  size,  size, 1.f), Vector4(-size,	 size,  size, 1.f)));
-	//triangles.push_back(Triangle(Vector4( -size, -size,  size, 1.f), Vector4(  size,  -size,  size, 1.f), Vector4(size,  size,  size, 1.f)));
-
-	////right	 																  
-	//triangles.push_back(Triangle(Vector4(-size,  -size,  size, 1.f), Vector4( -size, size, size, 1.f), Vector4(-size,	size,  -size, 1.f)));
-	//triangles.push_back(Triangle(Vector4(-size, -size, size, 1.f), Vector4( -size, size, -size, 1.f), Vector4(-size,	-size,  -size, 1.f)));
-
-	////left
-	//triangles.push_back(Triangle(Vector4(size, -size, -size, 1.f), Vector4(size,  size, -size, 1.f), Vector4( size, size, size, 1.f)));
-	//triangles.push_back(Triangle(Vector4( size,  -size, -size, 1.f), Vector4( size, size, size, 1.f), Vector4(size, -size, size, 1.f)));
-
-	////bottom
-	//triangles.push_back(Triangle(Vector4( size, -size, size, 1.f), Vector4( -size,  -size, size, 1.f), Vector4( -size,	-size,  -size, 1.f)));
-	//triangles.push_back(Triangle(Vector4( size,  -size,  -size, 1.f), Vector4( size,  -size, size, 1.f), Vector4( -size,	-size, -size, 1.f)));
-
-	//Hull *hull = new Hull(triangles);
-
-	//DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(0.f, 1.f, 0.f);
-	//DirectX::XMFLOAT4X4 mtrans;
-	//DirectX::XMStoreFloat4x4(&mtrans, trans);
-	//hull->updatePosition(mtrans);
-
-	//createBody(1.f, hull, true, false);
-
-	m_BVLoader.loadBinaryFile("assets/LightModels/CB_Sphere.txc");
-	
-	m_sphereBoundingVolume = m_BVLoader.getBoundingVolumes();
-
-	m_BVLoader.clear();
+	m_LoadBVSphereTemplateOnce = true;
 }
 
 void Physics::update(float p_DeltaTime)
@@ -146,13 +106,6 @@ void Physics::update(float p_DeltaTime)
 		}
 
 		b.setInAir(!onSomething);
-
-		/*if(b.m_IsImmovable())
-		{
-			Collision col;
-			for(SPD &s : m_spatialList)
-				col.collision(b.getVolume, s.getVolume)
-		}*/
 	}
 }
 
@@ -263,7 +216,7 @@ bool Physics::createBV(const char* p_VolumeID, const char* p_FilePath)
 	}
 
 	m_TemplateBVList.push_back(std::pair<std::string, std::vector<BVLoader::BoundingVolume>>(p_VolumeID, tempBV));
-
+	m_BVLoader.clear();
 	PhysicsLogger::log(PhysicsLogger::Level::INFO, "CreateBV success");
 	return true;
 }
@@ -289,6 +242,7 @@ void Physics::releaseAllBoundingVolumes(void)
 	m_Bodies.shrink_to_fit();
 	Body b;
 	b.resetBodyHandleCounter();
+	m_sphereBoundingVolume.clear();
 }
 
 void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
@@ -546,26 +500,20 @@ unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle)
 	case BoundingVolume::Type::HULL:
 		return ((Hull*)volume)->getTriangleListSize();
 	case BoundingVolume::Type::SPHERE:
-		return m_sphereBoundingVolume.size() / 3;
+		{
+			if(m_LoadBVSphereTemplateOnce)
+			{
+				m_LoadBVSphereTemplateOnce = false;
+				m_BVLoader.loadBinaryFile("assets/LightModels/CB_Sphere.txc");
+
+				m_sphereBoundingVolume = m_BVLoader.getBoundingVolumes();
+				m_BVLoader.clear();
+			}
+			return m_sphereBoundingVolume.size() / 3;
+		}
 	default:
 		break;
 	}
 
 	return 0;
 }
-
-//
-//Collision::HitData Physics::sphereVsSphere( Sphere* p_sphere1, Sphere* p_sphere2 )
-//{
-//	return m_Collision.sphereVsSphere(p_sphere1, p_sphere2);
-//}
-//
-//Collision::HitData Physics::AABBvsAABB( AABB* p_aabb1, AABB* p_aabb2 )
-//{
-//	return m_Collision.AABBvsAABB(p_aabb1, p_aabb2);
-//}
-//
-//Collision::HitData Physics::AABBvsSphere( AABB* p_aabb, Sphere* p_sphere )
-//{
-//	return m_Collision.AABBvsSphere(p_aabb, p_sphere);
-//}

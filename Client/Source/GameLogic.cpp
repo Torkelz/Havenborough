@@ -37,6 +37,8 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 	
 	m_ChangeScene = GoToScene::NONE;
 
+	m_drawBV = false;
+
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 	currentDebugView = 3;
@@ -136,20 +138,6 @@ void GameLogic::render()
 	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
 	//m_Graphics->drawFrame(currView);
 
-	//addDebugBVToDraw(1);
-	/*addDebugBVToDraw(5);
-	addDebugBVToDraw(6);
-	addDebugBVToDraw(7);
-	addDebugBVToDraw(8);
-	addDebugBVToDraw(9);
-	addDebugBVToDraw(10);
-	addDebugBVToDraw(11);
-	addDebugBVToDraw(12);
-	addDebugBVToDraw(13);
-	addDebugBVToDraw(14);
-	addDebugBVToDraw(15);
-	addDebugBVToDraw(16);*/
-
 	for(int i = 0; i < 35; i++)
 	{
 		addDebugBVToDraw(i);
@@ -208,6 +196,10 @@ void GameLogic::registeredInput(std::string p_Action, float p_Value)
 	else if (p_Action == "toggleIK" && p_Value == 1.f)
 	{
 		useIK_OnIK_Worm = !useIK_OnIK_Worm;
+	}
+	else if( p_Action == "switchBVDraw" && p_Value == 1.f)
+	{
+		m_drawBV = !m_drawBV;
 	}
 }
 
@@ -520,12 +512,15 @@ void GameLogic::shutdownSandbox()
 
 void GameLogic::addDebugBVToDraw(BodyHandle p_BodyHandle)
 {
-	unsigned int size =  m_Physics->getNrOfTrianglesFromBody(p_BodyHandle);
-
-	for(unsigned int i = 0; i < size; i++)
+	if(m_drawBV)
 	{
-		Triangle triangle;
-		triangle = m_Physics->getTriangleFromBody(p_BodyHandle, i);
-		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		unsigned int size =  m_Physics->getNrOfTrianglesFromBody(p_BodyHandle);
+
+		for(unsigned int i = 0; i < size; i++)
+		{
+			Triangle triangle;
+			triangle = m_Physics->getTriangleFromBody(p_BodyHandle, i);
+			m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		}
 	}
 }
