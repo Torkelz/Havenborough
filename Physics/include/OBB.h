@@ -56,6 +56,9 @@ public:
 		m_Sphere		= Sphere(radius, p_CenterPos);
 
 	}
+	/**
+	* Destructor
+	*/
 	~OBB()
 	{
 	}
@@ -79,7 +82,7 @@ public:
 								  
 		m_Sphere.updatePosition(m_Position);
 
-		calculateCorners();
+		//calculateCorners();
 	}
 
 	/**
@@ -181,6 +184,28 @@ public:
 		XMStoreFloat4(&fResult, result);
 		return  fResult;
 	}
+
+	/**
+	 * Return a corner at the index specified.
+	 * 
+	 * @param p_Index index number in m_Cornerslist
+	 * @return a XMFLOAT4 corner.
+	 */
+	DirectX::XMFLOAT4 getCornerAt(unsigned int p_Index)
+	{
+		return m_Corners[p_Index];
+	}
+	/**
+	 * Return a corner in world coordinates at the index specified.
+	 * 
+	 * @param p_Index index number in m_Bounds list
+	 * @return a XMFLOAT4 corner.
+	 */
+	DirectX::XMFLOAT4 getCornerWorldCoordAt(unsigned p_Index)
+	{
+		return DirectX::XMFLOAT4(m_Corners[p_Index].x + m_Position.x, m_Corners[p_Index].y + m_Position.y, m_Corners[p_Index].z + m_Position.z, 1.f);
+	}
+
 private:
 	void updateRotation()
 	{

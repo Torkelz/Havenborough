@@ -29,7 +29,7 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 200.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
-	m_Level.setGoalPosition(XMFLOAT3(0.0f, 200.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(0.0f, 0.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
 	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
 
 	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
@@ -38,7 +38,6 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 	
 	m_ChangeScene = GoToScene::NONE;
 
-	
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 	currentDebugView = 3;
@@ -146,6 +145,28 @@ void GameLogic::render()
 	m_Graphics->renderModel(skyBox);
 
 	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
+	//m_Graphics->drawFrame(currView);
+
+	//addDebugBVToDraw(1);
+	/*addDebugBVToDraw(5);
+	addDebugBVToDraw(6);
+	addDebugBVToDraw(7);
+	addDebugBVToDraw(8);
+	addDebugBVToDraw(9);
+	addDebugBVToDraw(10);
+	addDebugBVToDraw(11);
+	addDebugBVToDraw(12);
+	addDebugBVToDraw(13);
+	addDebugBVToDraw(14);
+	addDebugBVToDraw(15);
+	addDebugBVToDraw(16);*/
+
+	for(int i = 0; i < 25; i++)
+	{
+		addDebugBVToDraw(i);
+	}
+
+	//m_Graphics->drawFrame(currView);
 
 	renderSandbox();
 	m_Graphics->drawFrame(currentDebugView);
@@ -366,9 +387,16 @@ void GameLogic::loadSandbox()
 	BodyHandle slantedPlaneBody = m_Physics->createOBB(0.f, true, slantedPlanePosition, slantedPlaneSize * 0.5f, false);
 	m_Physics->setBodyRotation(slantedPlaneBody, slantedPlaneRotation);
 
+	/*hej = m_Graphics->createModelInstance("BOX");
+	m_Graphics->setModelPosition(hej,  Vector3(14.f, 4.5f, -10.f));
+	m_Graphics->setModelScale(hej,  Vector3(5.f, 0.5f, 7.f));
+	m_Graphics->setModelRotation(hej, Vector3(0.f, 0.f, 3.14f/6.5f));*/
+
+
 	OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
 	m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
 	m_Physics->setBodyPosition(OBBhouse1, Vector3(1400.f, 450.f, -1000.f));
+	//m_Physics->setBodyPosition(OBBhouse1, Vector3(0.f, 2.5f, 0.f));
 
 	OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
 	m_Physics->setBodyRotation(OBBhouse2, Vector3(0.f, 0.f, 3.14f/6.5f));
@@ -497,4 +525,16 @@ void GameLogic::shutdownSandbox()
 
 	m_Graphics->deleteShader("DefaultShader");
 	m_Graphics->deleteShader("AnimatedShader");
+}
+
+void GameLogic::addDebugBVToDraw(BodyHandle p_BodyHandle)
+{
+	unsigned int size =  m_Physics->getNrOfTrianglesFromBody(p_BodyHandle);
+
+	for(unsigned int i = 0; i < size; i++)
+	{
+		Triangle triangle;
+		triangle = m_Physics->getTriangleFromBody(p_BodyHandle, i);
+		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+	}
 }

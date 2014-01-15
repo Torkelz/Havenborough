@@ -17,6 +17,8 @@ HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume* p_Volume1, Bou
 		return boundingVolumeVsSphere(p_Volume1, (Sphere*) p_Volume2);
 	case BoundingVolume::Type::OBB:
 		return boundingVolumeVsOBB(p_Volume1, (OBB*)p_Volume2);
+	case BoundingVolume::Type::HULL:
+		return boundingVolumeVsHull(p_Volume1, (Hull*)p_Volume2);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -35,6 +37,8 @@ HitData Collision::boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sp
 		return sphereVsSphere((Sphere*)p_Volume, p_Sphere);
 	case BoundingVolume::Type::OBB:
 		return OBBvsSphere((OBB*)p_Volume, p_Sphere);
+	case BoundingVolume::Type::HULL:
+		return HullVsSphere((Hull*)p_Volume, p_Sphere);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -69,6 +73,19 @@ HitData Collision::boundingVolumeVsOBB(BoundingVolume* p_Volume, OBB* p_OBB)
 		return OBBvsSphere(p_OBB, (Sphere*)p_Volume);
 	case BoundingVolume::Type::OBB:
 		return OBBvsOBB((OBB*)p_Volume, p_OBB);
+	default:
+		HitData hit = HitData();
+		return hit;
+	}
+}
+
+HitData Collision::boundingVolumeVsHull(BoundingVolume* p_Volume, Hull* p_Hull)
+{
+	BoundingVolume::Type type = p_Volume->getType();
+	switch(type)
+	{
+	case BoundingVolume::Type::SPHERE:
+			return HullVsSphere(p_Hull, (Sphere*)p_Volume);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -224,8 +241,7 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 		XMFLOAT4 colPos(dist.x, dist.y, dist.z, 1.f);
 		XMVECTOR tempNorm = XMVector4Normalize( XMLoadFloat4(p_Sphere->getPosition()) - XMLoadFloat4(&colPos));
 
-		/*XMFLOAT4 colNormPos;
-		XMStoreFloat4(&colNormPos, tempNorm);*/
+
 
 		hit.colNorm = XMVECTORToVector4(&tempNorm);
 		hit.colLength = (p_Sphere->getRadius() - sqrtf(d)) * 100.f;
@@ -279,7 +295,7 @@ HitData Collision::OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2)
 
 	// Compute common subexpressions. Add in an epsilon term to
 	// counteract arithmetic errors when two edges are parallel and
-	// their cross product is (near) null (see text for details)
+	// their cross product is (near) null 
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -396,8 +412,7 @@ HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
 		hit.colPos.z = closestPoint.m128_f32[2] * 100.f;
 		hit.colPos.w = 1.f;
 
-		XMFLOAT4 colPos(closestPoint.m128_f32[0], closestPoint.m128_f32[1], closestPoint.m128_f32[2], 1.f);
-		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - XMLoadFloat4(&colPos) );
+		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - closestPoint);
 
 		hit.colNorm = XMVECTORToVector4(&tempNorm);
 		hit.colLength = (p_Sphere->getRadius() - sqrtf(vv.m128_f32[0])) * 100.f;
@@ -545,6 +560,60 @@ HitData Collision::OBBvsAABB(OBB *p_OBB, AABB *p_AABB)
 	return hit;
 }
 
+HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
+{
+	HitData hit = sphereVsSphere(&p_Hull->getSphere(), p_Sphere);
+	if(!hit.intersect)
+		return hit;
+
+	hit = HitData();
+
+	XMVECTOR closestPoint, v, spherePos, point;
+
+	spherePos = XMVectorSet(0.f, 0.f, 0.f, 0.f);
+
+	spherePos = XMLoadFloat4(p_Sphere->getPosition());
+
+	float distance = 10000.f;
+	point = XMVectorSet(0.f, 0.f, 0.f, 0.f);
+
+	for(unsigned int i = 0; i < p_Hull->getTriangleListSize(); i++)
+	{
+		point = XMLoadFloat4(&p_Hull->findClosestPointOnTriangle(*p_Sphere->getPosition(), i));
+
+		v = point - spherePos;
+
+		float vv = XMVector4Dot(v, v).m128_f32[0]; 
+
+		if(vv <= p_Sphere->getSqrRadius())
+		{
+			hit.intersect = true;
+			if(vv <= distance)
+			{
+				distance = vv;
+				closestPoint = point;
+			}
+		}
+	}
+
+	if(hit.intersect)
+	{
+		hit.colPos.x = closestPoint.m128_f32[0] * 100.f;
+		hit.colPos.y = closestPoint.m128_f32[1] * 100.f;
+		hit.colPos.z = closestPoint.m128_f32[2] * 100.f;
+		hit.colPos.w = 1.f;
+
+		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - closestPoint);
+
+		hit.colNorm = XMVECTORToVector4(&tempNorm);
+		hit.colLength = (p_Sphere->getRadius() - sqrtf(distance)) * 100.f;
+		hit.colType = Type::HULLVSSPHERE;
+
+	}
+
+
+	return hit;
+}
 //bool AABB::collide(BoundingVolume* p_pVolume)
 //{
 //	if(p_pVolume->getType() == AABBOX)

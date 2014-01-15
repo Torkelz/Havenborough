@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <DirectXMath.h>
 
 class BoundingVolume
@@ -9,7 +8,8 @@ public:
 	enum class Type {
 		AABBOX,
 		SPHERE,
-		OBB
+		OBB,
+		HULL
 	};
 
 protected:

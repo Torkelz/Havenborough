@@ -2,17 +2,7 @@
 
 #include "BoundingVolume.h"
 #include "Sphere.h"
-/*#include "Buffer.h"
-#include "Shader.h"*/
 #include <vector>
-//#include <DirectXMath.h>// included in BoundingVolume.h
-
-//DEBUGGING
-//struct CB
-//{
-//	XMMATRIX WVP;
-//	XMVECTOR color;
-//};
 
 class AABB : public BoundingVolume
 {
@@ -24,17 +14,6 @@ private:
 	Sphere				m_Sphere;
 	DirectX::XMFLOAT4	m_HalfDiagonal;
 	DirectX::XMFLOAT4	m_Size;
-
-	////DEBUGGING
-	/*Buffer*			m_pBuffer;
-	Buffer*				m_pCB;
-	Buffer*				m_pIndexBuffer;
-	Shader*				m_pShader;
-	ID3D11Device*		m_pDevice;
-	ID3D11DeviceContext* m_pDeviceContext;
-	CB					m_cb;
-	DirectX::XMFLOAT4X4	m_translate;
-	DirectX::XMFLOAT4	m_color;*/
 	
 public:
 	AABB(){}
@@ -54,43 +33,14 @@ public:
 
 		calculateBounds();
 	}
-	//AABB( DirectX::XMFLOAT4 p_Bot, DirectX::XMFLOAT4 p_Top) : BoundingVolume()
-	//{
-	//	m_Top		= p_Top;
-	//	m_Bottom	= p_Bot;
-	//
-	//	m_Bounds[0] = m_Bottom;
-	//	m_Bounds[7] = m_Top;
-
-	//	m_Position = DirectX::XMFLOAT4(	m_Bottom.x + ((m_Top.x - m_Bottom.x) / 2) , 
-	//									m_Bottom.y + ((m_Top.y - m_Bottom.y) / 2) , 
-	//									m_Bottom.z + ((m_Top.z - m_Bottom.z) / 2) ,
-	//									1.0f );
-	//	m_Type		= Type::AABBOX;
-
-	//	calculateBounds();
-	//}
-	~AABB(){
-		/*m_pBuffer->~Buffer();
-		m_pCB->~Buffer();
-		m_pIndexBuffer->~Buffer();
-		m_pShader->~Shader();
-
-		m_pBuffer			= nullptr;
-		m_pCB				= nullptr;
-		m_pIndexBuffer		= nullptr;
-		m_pShader			= nullptr;
-		m_pDevice			= nullptr;
-		m_pDeviceContext	= nullptr;*/
+	/**
+	* Destructor
+	*/
+	~AABB()
+	{
+		m_Indices.clear();
 	}
 	
-	/**
-	* Initialize the AABB
-	*/
-	void initialize()
-	{
-		calculateBounds();
-	}
 	/**
 	* Calculate corners, half diagonal and create bounding sphere for AABB.
 	*/
@@ -106,19 +56,6 @@ public:
 		m_Bounds[5] = XMFLOAT4(+ m_Size.x, - m_Size.y, + m_Size.z, 1.f);
 		m_Bounds[6] = XMFLOAT4(- m_Size.x, + m_Size.y, + m_Size.z, 1.f);
 		m_Bounds[7] = XMFLOAT4(+ m_Size.x, + m_Size.y, + m_Size.z, 1.f);
-
-		//using namespace DirectX;
-		//m_Position = XMFLOAT4(	m_Bounds[0].x + ((m_Bounds[7].x - m_Bounds[0].x) / 2) , 
-		//						m_Bounds[0].y + ((m_Bounds[7].y - m_Bounds[0].y) / 2) , 
-		//						m_Bounds[0].z + ((m_Bounds[7].z - m_Bounds[0].z) / 2) ,
-		//						1.0f );
-
-		//m_Bounds[1] = XMFLOAT4( m_Bounds[7].x,		m_Bounds[0].y,		m_Bounds[0].z, 1.0f ); // Xyz
-		//m_Bounds[2] = XMFLOAT4( m_Bounds[0].x,		m_Bounds[7].y,		m_Bounds[0].z, 1.0f ); // xYz
-		//m_Bounds[3] = XMFLOAT4( m_Bounds[7].x,		m_Bounds[7].y,		m_Bounds[0].z, 1.0f ); // XYz
-		//m_Bounds[4] = XMFLOAT4( m_Bounds[0].x,		m_Bounds[0].y,		m_Bounds[7].z, 1.0f ); // xyZ
-		//m_Bounds[5] = XMFLOAT4( m_Bounds[7].x,		m_Bounds[0].y,		m_Bounds[7].z, 1.0f ); // XyZ
-		//m_Bounds[6] = XMFLOAT4( m_Bounds[0].x,		m_Bounds[7].y,		m_Bounds[7].z, 1.0f ); // xYZ
 
 		XMVECTOR vBot, vTop, vDiag;
 
@@ -180,9 +117,24 @@ public:
 	{
 		return &m_Sphere;
 	}
-
-	//DEBUGGING
-	/*void				buildCubeIndices( int offset );
-	void				initDraw(ID3D11Device* p_pDevice, ID3D11DeviceContext* p_pDeviceContext, DirectX::XMFLOAT4 p_color);
-	void				draw( DirectX::XMFLOAT4X4& p_world, DirectX::XMFLOAT4X4& p_view, DirectX::XMFLOAT4X4& p_proj );*/
+	/**
+	 * Return a corner at the index specified.
+	 * 
+	 * @param p_Index index number in m_Bounds list
+	 * @return a XMFLOAT4 corner.
+	 */
+	DirectX::XMFLOAT4 getBoundAt(unsigned p_Index)
+	{
+		return m_Bounds[p_Index];
+	}
+	/**
+	 * Return a corner in world coordinates at the index specified.
+	 * 
+	 * @param p_Index index number in m_Bounds list
+	 * @return a XMFLOAT4 corner.
+	 */
+	DirectX::XMFLOAT4 getBoundWorldCoordAt(unsigned p_Index)
+	{
+		return DirectX::XMFLOAT4(m_Bounds[p_Index].x + m_Position.x,m_Bounds[p_Index].y + m_Position.y, m_Bounds[p_Index].z + m_Position.z, 1.f);
+	}
 };

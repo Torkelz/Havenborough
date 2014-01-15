@@ -249,6 +249,9 @@
     <ClCompile Include="..\Client\Source\GameLogic.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="HullTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
@@ -310,6 +313,9 @@
       <Filter>TestPhysics\PhysicsImport</Filter>
     </ClInclude>
     <ClInclude Include="..\Physics\include\OBB.h">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\Hull.h">
       <Filter>TestPhysics\PhysicsImport</Filter>
     </ClInclude>
   </ItemGroup>

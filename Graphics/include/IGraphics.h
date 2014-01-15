@@ -287,6 +287,15 @@ public:
 	 * @param p_Pitch the camera pitch, positive up.
 	 */
 	virtual void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) = 0;
+
+	/**
+	 * Add the triangles for a boundingvolume to graphics making it possible to render BV. 
+	 *
+	 * @param p_Corner1, specified in world coordinates.
+	 * @param p_Corner2, specified in world coordinates.
+	 * @param p_Corner3, specified in world coordinates.
+	 */
+	virtual void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) = 0;
 	
 	/**
 	 * Callback for loading a texture to a model.

@@ -53,7 +53,6 @@ public:
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
 	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
-
 	/**
 	 * Create boundingvolumes based on a level description.
 	 *
@@ -210,4 +209,17 @@ public:
 	 *			be logged from this component. Set to null to disable logging
 	 */
 	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
+
+	/**
+	 * Get a made up triangle from a body so that its boundingvolume can be drawn.
+	 * @param p_Body are what body to work with
+	 * @param p_TriangleIndex, which triangle to draw. Works similar to a index buffer.
+	 */
+	virtual Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) = 0;
+	/**
+	 * Returns the number of triangles from the body's boundingvolume.
+	 * @param p_BodyHandle what body to work with.
+	 * @return the number of triangles.
+	 */
+	virtual unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle) = 0;
 };

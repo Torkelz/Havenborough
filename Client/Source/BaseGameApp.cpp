@@ -32,13 +32,18 @@ void BaseGameApp::init()
 	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, fullscreen);
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
+	m_Physics = IPhysics::createPhysics();
+	m_Physics->setLogFunction(&Logger::logRaw);
+	m_Physics->initialize();
+
 	m_ResourceManager = new ResourceManager();
 	using namespace std::placeholders;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
-	
+	m_ResourceManager->registerFunction("volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
+
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	
@@ -73,14 +78,10 @@ void BaseGameApp::init()
 	m_Network->setLogFunction(&Logger::logRaw);
 	m_Network->initialize();
 	m_Connected = false;
-	
-	m_Physics = IPhysics::createPhysics();
-	m_Physics->setLogFunction(&Logger::logRaw);
-	m_Physics->initialize();
 
 	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue, m_Network);
 	
-	m_ResourceManager->registerFunction("volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
+
 				
 	m_MemoryInfo.update();
 	

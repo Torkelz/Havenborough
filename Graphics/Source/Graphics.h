@@ -34,6 +34,7 @@ private:
 	ID3D11RenderTargetView			*m_RenderTargetView;
 	
 	ID3D11RasterizerState			*m_RasterState;
+	ID3D11RasterizerState			*m_RasterStateBV;
 
 	ID3D11Texture2D					*m_DepthStencilBuffer;
 	ID3D11DepthStencilState			*m_DepthStencilState;
@@ -68,6 +69,12 @@ private:
 	std::vector<Light> m_SpotLights;
 	std::vector<Light> m_PointLights;
 	std::vector<Light> m_DirectionalLights;
+
+	//Stuff needed for drawing boundingvolumes
+	std::vector<XMFLOAT4>		m_BVTriangles;
+	Buffer						*m_BVBuffer;
+	unsigned int				m_BVBufferNumOfElements;
+	Shader						*m_BVShader;
 
 	Shader *m_Shader; //DEBUG
 	ID3D11SamplerState *m_Sampler;
@@ -127,6 +134,8 @@ public:
 
 	void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) override;
 
+	void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) override;
+
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
@@ -150,6 +159,8 @@ private:
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
 	void Begin(float color[4]);
 	void End(void);
+
+	void drawBoundingVolumes();
 
 	//TODO: Remove later
 	void DebugDefferedDraw(void);
