@@ -53,6 +53,8 @@ public:
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
 	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
+
+	virtual BodyHandle createBVInstance(const char* p_VolumeID) = 0;
 	/**
 	 * Create boundingvolumes based on a level description.
 	 *
@@ -60,7 +62,7 @@ public:
 	 * @param p_FilePath to the filename of the volume
 	 * @return true if the volume was successfully created, otherwise false
 	 */
-	virtual bool createLevelBV(const char* p_VolumeID, const char* p_FilePath) = 0;
+	virtual bool createBV(const char* p_VolumeID, const char* p_FilePath) = 0;
 
 	/**
 	 * Release a previously created volume.
@@ -68,7 +70,7 @@ public:
 	 * @param p_VolumeID are the identifier of the volume working with
 	 * @return true if the volume existed and was successfully released
 	 */
-	virtual bool releaseLevelBV(const char* p_VolumeID) = 0;
+	virtual bool releaseBV(const char* p_VolumeID) = 0;
 
 	/**
 	* Releases all the existing bounding volumes.
@@ -92,14 +94,6 @@ public:
 	virtual void setBVRotation(int p_Instance, Vector3 p_Rotation) = 0;
 
 	/**
-	 * Edit the scale of the target boundingvolume.
-	 *
-	 * @param p_Instance are what boundingvolume to work with
-	 * @param p_Scale is a vector3 with all the scale coordinates 
-	 */
-	virtual void setBVScale(int p_Instance, Vector3 p_Scale) = 0;
-
-	/**
 	 * Used to get the position of the target body.
 	 *
 	 * @param p_Body is an identifier to know what to work with.
@@ -116,7 +110,7 @@ public:
 	virtual Vector3 getBodySize(BodyHandle p_Body) =0;
 
 	/**
-	 * Edit the position of the target body.
+	 * Edit the position of the target body and its bounding volume.
 	 *
 	 * @param p_Body are what body to work with
 	 * @param p_Position is a vector3 with all the position coordinates in cm
@@ -132,12 +126,19 @@ public:
 	virtual void setBodyVelocity(BodyHandle p_Body, Vector3 p_Velocity) = 0;
 
 	/**
-	 * Edit the rotation of the target body.
+	 * Edit the rotation of the target body's bounding volume. Only works on OBB and Hull.
 	 *
 	 * @param p_Body are what body to work with
 	 * @param p_Rotation is a vector3 with all the rotation coordinates 
 	 */
-	virtual void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) = 0;
+	virtual void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) = 0;	
+	/**
+	 * Edit the scale of the target body's BoundingVolume. When scaling spheres only the x-coordinate is needed. 
+	 *
+	 * @param p_BodyHandle are what body to work with
+	 * @param p_Scale is a vector3 with all the scale coordinates 
+	 */
+	virtual void setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale) = 0;
 	
 	/**
 	 * Keeps physics updated, collision checks etc.

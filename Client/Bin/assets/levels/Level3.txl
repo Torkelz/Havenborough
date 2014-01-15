@@ -242,54 +242,54 @@
 #Scale: 78.6315 78.6315 78.6315
 
 #MESH House
-#Translation: 3000 0 -1000
+#Translation: 3000 300 -1000
 #Rotation: 0 0 0
 #Scale: 1 1 2
 
 #MESH House
-#Translation: -500 0 -1000
+#Translation: -500 300 -1000
 #Rotation: 0 0 0
-#Scale: 1 1 1
+#Scale: 1.2 1.2 1.2
 
 #MESH House
-#Translation: -1630 0 -1000
+#Translation: -1630 300 -1000
 #Rotation: 0 0 0
-#Scale: 1 1 1
+#Scale: 1.2 1.2 1.2
 
 #MESH House
-#Translation: 1000 0 -2800
+#Translation: 1000 300 -2800
 #Rotation: 0 0 0
-#Scale: 1 1 1
+#Scale: 1.2 1.2 1.2
 
 #MESH House
-#Translation: -130 0 -2800
+#Translation: -130 300 -2800
 #Rotation: 0 0 0
-#Scale: 1 1 1
+#Scale: 1.2 1.2 1.2
 
 #MESH House
-#Translation: -1230 0 -2800
+#Translation: -1230 300 -2800
 #Rotation: 0 0 0
-#Scale: 1 1 1
+#Scale: 1.2 1.2 1.2
 
 #MESH House
-#Translation: -3000 0 -2000
+#Translation: -3000 300 -2000
 #Rotation: -1.57 0 0
-#Scale: 1 1 1
+#Scale: 1.2 1.2 1.2
 
 #MESH House
-#Translation: -3000 0 -870
+#Translation: -3000 300 -870
 #Rotation: -1.57 0 0
-#Scale: 1 1 1
+#Scale: 1.2 1.2 1.2
 
 #MESH House
-#Translation: -3000 0 260
+#Translation: -3000 300 260
 #Rotation: -1.57 0 0
-#Scale: 1 1 1
+#Scale: 1.2 1.2 1.2
 
 #MESH House
-#Translation: -3000 0 1390
+#Translation: -3000 300 1390
 #Rotation: -1.57 0 0
-#Scale: 1 1 1
+#Scale: 1.2 1.2 1.2
 
 #MESH MarketStand1
 #Translation: -2500 0 0

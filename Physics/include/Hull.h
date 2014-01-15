@@ -149,10 +149,10 @@ public:
 	 * Scales all the triangles in the hull
 	 * @param p_scaleMatrix the matrix to scale the triangles with
 	 */
-	void setScale(DirectX::XMFLOAT4X4 p_scaleMatrix)
+	void setScale(DirectX::XMFLOAT3 p_Scale)
 	{
 		DirectX::XMVECTOR c1, c2, c3;
-		DirectX::XMMATRIX m = XMLoadFloat4x4(&p_scaleMatrix);
+		DirectX::XMMATRIX m = DirectX::XMMatrixScaling(p_Scale.x, p_Scale.y, p_Scale.z);
 
 		for(auto &tri : m_Triangles)
 		{
