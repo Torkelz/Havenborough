@@ -108,9 +108,7 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 			DirectX::XMFLOAT3 translation, rotation, scale;
 			translation = m_LevelCollisionData.at(i).m_Translation.at(j);
 			rotation = m_LevelCollisionData.at(i).m_Rotation.at(j);
-			//rotation.x += 3.14f;
 			scale = m_LevelCollisionData.at(i).m_Scale.at(j);
-			//scale.x *= -1;
 			m_Physics->setBodyPosition(m_BodyHandles.back(), XMFLOAT3ToVector3(&translation));
 			m_Physics->setBodyRotation(m_BodyHandles.back(), XMFLOAT3ToVector3(&rotation));
 			m_Physics->setBodyScale(   m_BodyHandles.back(), XMFLOAT3ToVector3(&scale));

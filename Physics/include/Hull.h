@@ -147,7 +147,7 @@ public:
 
 	/**
 	 * Scales all the triangles in the hull
-	 * @param p_scaleMatrix the matrix to scale the triangles with
+	 * @param p_Scale is a vector3 with all the scale coordinates 
 	 */
 	void setScale(DirectX::XMFLOAT3 p_Scale)
 	{

@@ -211,11 +211,15 @@ BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 		if(strcmp(bv.first.c_str(), p_VolumeID))
 		{
 			tempBV = bv.second;
+			break;
 		}
 	}
 
 	if(tempBV.empty())
+	{	
+		PhysicsLogger::log(PhysicsLogger::Level::ERROR_L, "Bounding Volume from template is empty");
 		return -1;
+	}
 
 	std::vector<Triangle> triangles;
 	Triangle triangle;
@@ -238,13 +242,18 @@ BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 bool Physics::createBV(const char* p_VolumeID, const char* p_FilePath)
 {
 	if(!m_BVLoader.loadBinaryFile(p_FilePath))
+	{
+		PhysicsLogger::log(PhysicsLogger::Level::ERROR_L, "Loading Bounding Volume file error");
 		return false;
-
+	}
 	std::vector<BVLoader::BoundingVolume> tempBV;
 	tempBV = m_BVLoader.getBoundingVolumes();
 
 	if(tempBV.empty())
+	{
+		PhysicsLogger::log(PhysicsLogger::Level::ERROR_L, "Bounding Volume from BVLoader is empty");
 		return false;
+	}
 
 	for(unsigned i = 0; i < tempBV.size(); i++)
 	{
@@ -255,6 +264,7 @@ bool Physics::createBV(const char* p_VolumeID, const char* p_FilePath)
 
 	m_TemplateBVList.push_back(std::pair<std::string, std::vector<BVLoader::BoundingVolume>>(p_VolumeID, tempBV));
 
+	PhysicsLogger::log(PhysicsLogger::Level::INFO, "CreateBV success");
 	return true;
 }
 

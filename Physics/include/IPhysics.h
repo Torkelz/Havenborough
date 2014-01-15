@@ -54,9 +54,14 @@ public:
 	 */
 	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
 
+	/**
+	 * Create a single instance of a bounding volume.
+	 *
+	 * @param p_VolumeId, which loaded resource to 
+	 */
 	virtual BodyHandle createBVInstance(const char* p_VolumeID) = 0;
 	/**
-	 * Create boundingvolumes based on a level description.
+	 * Create boundingvolumes based on a level description. Only hulls will be created.
 	 *
 	 * @param p_VolumeID are the identifier to the volume working with
 	 * @param p_FilePath to the filename of the volume
@@ -73,8 +78,8 @@ public:
 	virtual bool releaseBV(const char* p_VolumeID) = 0;
 
 	/**
-	* Releases all the existing bounding volumes.
-	*/
+     * Releases all the existing bounding volumes.
+     */
 	virtual void releaseAllBoundingVolumes(void) = 0;
 
 	/**
