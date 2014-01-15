@@ -221,7 +221,7 @@ void ConnectionController::writeData(const std::string& p_Buffer, uint16_t p_ID)
 
 void ConnectionController::savePackageCallBack(uint16_t p_ID, const std::string& p_Data)
 {
-	for(const std::unique_ptr<PackageBase>& p : m_PackagePrototypes)
+	for(const PackageBase::ptr& p : m_PackagePrototypes)
 	{
 		if(p->getType() == (PackageType)p_ID)
 		{

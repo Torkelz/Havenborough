@@ -138,7 +138,7 @@ void Network::IO_Run()
 
 void Network::clientConnectionDone(Result p_Result, actionDoneCallback p_DoneHandler, void* p_UserData)
 {
-	m_ClientConnection.reset(new ConnectionController(std::unique_ptr<Connection>(new Connection(m_ClientConnect->releaseConnectedSocket())), m_PackagePrototypes));
+	m_ClientConnection.reset(new ConnectionController(Connection::ptr(new Connection(m_ClientConnect->releaseConnectedSocket())), m_PackagePrototypes));
 	m_ClientConnection->setDisconnectedCallback(std::bind(&Network::clientDisconnected, this, p_DoneHandler, p_UserData));
 
 	if (p_DoneHandler)
