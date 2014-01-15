@@ -83,22 +83,6 @@ public:
 	virtual void releaseAllBoundingVolumes(void) = 0;
 
 	/**
-	 * Edit the position of the target boundingvolume.
-	 *
-	 * @param p_Instance are what boundingvolume to work with
-	 * @param p_Position is a vector3 with all the position coordinates  
-	 */
-	virtual void setBVPosition(int p_Instance, Vector3 p_Position) = 0;
-
-	/**
-	 * Edit the rotation of the target boundingvolume.
-	 *
-	 * @param p_Instance are what boundingvolume to work with
-	 * @param p_Rotation is a vector3 with all the rotation coordinates 
-	 */
-	virtual void setBVRotation(int p_Instance, Vector3 p_Rotation) = 0;
-
-	/**
 	 * Used to get the position of the target body.
 	 *
 	 * @param p_Body is an identifier to know what to work with.

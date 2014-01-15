@@ -291,16 +291,6 @@ void Physics::releaseAllBoundingVolumes(void)
 	b.resetBodyHandleCounter();
 }
 
-void Physics::setBVPosition(int p_Instance, Vector3 p_Position)
-{
-	throw std::exception("Unimplemented function");
-}
-
-void Physics::setBVRotation(int p_Instance, Vector3 p_Rotation)
-{
-	throw std::exception("Unimplemented function");
-}
-
 void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 {
 	Body* body = findBody(p_BodyHandle);
