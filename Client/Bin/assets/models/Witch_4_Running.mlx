@@ -1,0 +1,41 @@
+*Clip
+na	Run
+sp	1.5
+st	2
+en	31
+lo	1
+f	Hip
+tr	0
+la	1
+fi	1
+fif	3
+fo	1
+fof	3
+
+*Clip
+na	Idle
+sp	1.0
+st	34
+en	53
+lo	1
+f	Hip
+tr	0
+la	1
+fi	1
+fif	3
+fo	1
+fof	3
+
+*Clip
+na	Wave
+sp	1.0
+st	56
+en	67
+lo	1
+f	L_UpperArm
+tr	1
+la	1
+fi	1
+fif	2
+fo	1
+fof	2

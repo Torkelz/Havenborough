@@ -151,4 +151,5 @@
  private:
 	void calculateWorldMatrix(void) const;
 	void updateFinalTransforms(const std::vector<Joint>& p_Joints);
+	bool affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint);
  };

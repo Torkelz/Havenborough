@@ -187,18 +187,21 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].dynamicWeight );
 		}
 
-		if (m_Tracks[1].active)
+		if (m_Tracks[1].active) // Track 1 should hold partial animations such as waving, spellcasting etc.
 		{
-			matrixDecomposed tempData;
-			if(m_Tracks[1].clip.m_AnimationSpeed > 0)
-				tempData = p_Joints[i].interpolateEx(m_Tracks[1].currentFrame, m_Tracks[1].destinationFrame);
-			else
-				tempData = p_Joints[i].interpolateEx(m_Tracks[1].destinationFrame, m_Tracks[1].currentFrame);
+			if (affected(p_Joints, i, m_Tracks[1].clip.m_FirstJoint))
+			{
+				matrixDecomposed tempData;
+				if(m_Tracks[1].clip.m_AnimationSpeed > 0)
+					tempData = p_Joints[i].interpolateEx(m_Tracks[1].currentFrame, m_Tracks[1].destinationFrame);
+				else
+					tempData = p_Joints[i].interpolateEx(m_Tracks[1].destinationFrame, m_Tracks[1].currentFrame);
 
-			if(m_Tracks[1].crossfade)
-				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[1].fadedFrames / (float)m_Tracks[1].fadeFrames) * m_Tracks[1].dynamicWeight );
-			else
-				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].dynamicWeight );
+				if(m_Tracks[1].crossfade)
+					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[1].fadedFrames / (float)m_Tracks[1].fadeFrames) * m_Tracks[1].dynamicWeight );
+				else
+					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].dynamicWeight );
+			}
 		}
 
 		XMMATRIX transMat = XMMatrixTranslationFromVector(XMLoadFloat4(&toParentData.translation));
@@ -211,6 +214,16 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 	}
 
 	updateFinalTransforms(p_Joints);
+}
+
+bool ModelInstance::affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint)
+{
+	// FirstAffectedJode = FAJ
+	if(p_ID == 0) // The root joint has been reached and the FAJ has not been found.
+		return false;
+	else if (p_Joints[p_ID].m_JointName == p_FirstAffectedJoint) // The FAJ has been found.
+		return true;
+	else return affected(p_Joints, p_Joints.at(p_ID).m_Parent, p_FirstAffectedJoint); // Neither the root nor the FAJ has been found yet, keep looking.
 }
 
 const std::vector<DirectX::XMFLOAT4X4>& ModelInstance::getFinalTransform() const
@@ -451,42 +464,6 @@ void ModelInstance::playClip( AnimationClip p_Clip, bool p_Layer, bool p_Crossfa
 	m_Tracks[p_Track].fadedFrames = 0.0f;
 	m_Tracks[p_Track].fadeFrames = p_FadeFrames;
 	m_Tracks[p_Track].layered = p_Layer;
-	//if (!p_Layer)
-	//{
-	//	if(p_Crossfade)
-	//	{
-	//		// Track 2 is the fade track.
-	//		m_Tracks[2].crossfade = p_Crossfade;
-	//		m_Tracks[2].fadeFrames = p_FadeFrames;
-	//		m_Tracks[2].layered = p_Layer;
-	//		m_Tracks[2].clip = p_Clip;
-	//		m_Tracks[2].currentFrame = m_Tracks[2].clip.m_Start;
-	//		m_Tracks[2].active = true;
-	//		m_Tracks[2].fadedFrames = 0.0f;
-	//		m_Tracks[2].dynamicWeight = p_ExtraTrackWeight;
-	//	}
-	//	else
-	//	{
-	//		// Track 0 is the main track.
-	//		m_Tracks[0].clip = p_Clip;
-	//		m_Tracks[0].currentFrame = m_Tracks[0].clip.m_Start;
-	//		m_Tracks[0].active = true;
-	//		m_Tracks[0].dynamicWeight = p_ExtraTrackWeight;
-	//	}
-	//}
-	//
-	//if (p_Layer)
-	//{
-	//	// Track 1 is the extra animation track. It holds small sub-animations like wave, spellcasts etc.
-	//	m_Tracks[1].clip = p_Clip;
-	//	m_Tracks[1].active = true;
-	//	m_Tracks[1].currentFrame = m_Tracks[1].clip.m_Start;
-	//	m_Tracks[1].crossfade = p_Crossfade;
-	//	m_Tracks[1].layered = p_Layer;
-	//	m_Tracks[1].fadeFrames = p_FadeFrames;
-	//	m_Tracks[1].fadedFrames = 0.0f;
-	//	m_Tracks[1].dynamicWeight = p_ExtraTrackWeight;
-	//}
 
 	// DEBUG
 	if(!p_Layer && !p_Crossfade)
