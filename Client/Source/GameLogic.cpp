@@ -150,7 +150,7 @@ void GameLogic::render()
 	addDebugBVToDraw(15);
 	addDebugBVToDraw(16);*/
 
-	for(int i = 0; i < 25; i++)
+	for(int i = 0; i < 35; i++)
 	{
 		addDebugBVToDraw(i);
 	}
