@@ -43,7 +43,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("LightBlueCrate", "assets/volumes/LightBlueCrate.btx"),
 		std::make_pair("GreenCrate", "assets/volumes/GreenCrate.btx"),
 		std::make_pair("BrownCrate", "assets/volumes/BrownCrate.btx"),
-		std::make_pair("House", "assets/volumes/House1.btx"),
+		std::make_pair("House", "assets/volumes/CB_House1.txc"),
 		std::make_pair("DZALA", "assets/volumes/Dzala.btx"),
 	};
 	static const size_t numBoundingVolumes = sizeof(boundingMap) / sizeof(boundingMap[0]);

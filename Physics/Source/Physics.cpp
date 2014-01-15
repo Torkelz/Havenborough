@@ -203,16 +203,84 @@ BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_Center
 	return createBody(p_Mass, obb, p_IsImmovable, p_IsEdge);
 }
 
-bool Physics::createLevelBV(const char* p_VolumeID, const char* p_FilePath)
+BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 {
-	m_BVLoader.loadBinaryFile(p_FilePath);
+	std::vector<BVLoader::BoundingVolume> tempBV;
+	for(auto& bv : m_TemplateBVList)
+	{
+		if(strcmp(bv.first.c_str(), p_VolumeID))
+		{
+			tempBV = bv.second;
+			break;
+		}
+	}
 
+	if(tempBV.empty())
+	{	
+		PhysicsLogger::log(PhysicsLogger::Level::ERROR_L, "Bounding Volume from template is empty");
+		return -1;
+	}
+
+	std::vector<Triangle> triangles;
+	Triangle triangle;
+
+	for(unsigned i = 0; i < tempBV.size() / 3; i++)
+	{
+		triangle.corners[0] = XMFLOAT4ToVector4(&tempBV[i * 3].m_Postition);
+		triangle.corners[1] = XMFLOAT4ToVector4(&tempBV[i * 3 + 1].m_Postition);
+		triangle.corners[2] = XMFLOAT4ToVector4(&tempBV[i * 3 + 2].m_Postition);
+
+		triangles.push_back(triangle);
+	}
+
+	Hull *hull = new Hull(triangles);
+
+	return createBody(1.f, hull, true, false);
+
+}
+
+bool Physics::createBV(const char* p_VolumeID, const char* p_FilePath)
+{
+	if(!m_BVLoader.loadBinaryFile(p_FilePath))
+	{
+		PhysicsLogger::log(PhysicsLogger::Level::ERROR_L, "Loading Bounding Volume file error");
+		return false;
+	}
+	std::vector<BVLoader::BoundingVolume> tempBV;
+	tempBV = m_BVLoader.getBoundingVolumes();
+
+	if(tempBV.empty())
+	{
+		PhysicsLogger::log(PhysicsLogger::Level::ERROR_L, "Bounding Volume from BVLoader is empty");
+		return false;
+	}
+
+	for(unsigned i = 0; i < tempBV.size(); i++)
+	{
+		tempBV[i].m_Postition.x *= 0.01f;
+		tempBV[i].m_Postition.y *= 0.01f;
+		tempBV[i].m_Postition.z *= 0.01f; 
+	}
+
+	m_TemplateBVList.push_back(std::pair<std::string, std::vector<BVLoader::BoundingVolume>>(p_VolumeID, tempBV));
+
+	PhysicsLogger::log(PhysicsLogger::Level::INFO, "CreateBV success");
 	return true;
 }
 
-bool Physics::releaseLevelBV(const char* p_VolumeID)
+bool Physics::releaseBV(const char* p_VolumeID)
 {
-	throw std::exception("Unimplemented function");
+	for(auto bv = m_TemplateBVList.begin(); bv != m_TemplateBVList.end(); bv++)
+	{
+		const char* temp = bv->first.c_str();
+		if(strcmp(temp, p_VolumeID) == 0)
+		{
+			m_TemplateBVList.erase(bv);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void Physics::releaseAllBoundingVolumes(void)
@@ -233,19 +301,32 @@ void Physics::setBVRotation(int p_Instance, Vector3 p_Rotation)
 	throw std::exception("Unimplemented function");
 }
 
-void Physics::setBVScale(int p_Instance, Vector3 p_Scale)
+void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 {
-	Body* body = findBody(p_Instance);
+	Body* body = findBody(p_BodyHandle);
 	if(body == nullptr)
 		return;
 
-	if(body->getVolume()->getType() == BoundingVolume::Type::OBB)
+	switch (body->getVolume()->getType())
 	{
-		((OBB*)body->getVolume())->setExtent(XMFLOAT4(p_Scale.x, p_Scale.y, p_Scale.z, 0.f));
-		return;
-	}
+	case BoundingVolume::Type::AABBOX:
+		((AABB*)body->getVolume())->setSize(Vector3ToXMFLOAT4(&p_Scale, 0.f));
+		break;
 
-	return;
+	case BoundingVolume::Type::HULL:
+		((Hull*)body->getVolume())->setScale(p_Scale);
+		break;
+
+	case BoundingVolume::Type::OBB:
+		((OBB*)body->getVolume())->setExtent(XMFLOAT4(p_Scale.x, p_Scale.y, p_Scale.z, 0.f));
+		break;
+
+	case BoundingVolume::Type::SPHERE:
+		((Sphere*)body->getVolume())->setRadius(p_Scale.x);
+		break;
+	default:
+		break;
+	}
 }
 
 BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
@@ -377,15 +458,30 @@ void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr || body->getVolume()->getType() != BoundingVolume::Type::OBB)
+	if(body == nullptr)
 		return;
 
-	OBB *obb = (OBB*)(body->getVolume());
 	XMFLOAT4X4 temp;
 	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Rotation.y, p_Rotation.x, p_Rotation.z);
 
 	XMStoreFloat4x4(&temp, rotation);
-	obb->setRotationMatrix(temp);
+
+	switch (body->getVolume()->getType())
+	{
+	case BoundingVolume::Type::OBB:
+		{
+			((OBB*)body->getVolume())->setRotationMatrix(temp);
+			break;
+		}
+	case BoundingVolume::Type::HULL:
+		{
+			((Hull*)body->getVolume())->setRotation(temp);
+			break;
+		}
+	default:
+		break;
+	}
+
 }
 
 void Physics::setLogFunction(clientLogCallback_t p_LogCallback)

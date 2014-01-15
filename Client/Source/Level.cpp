@@ -89,29 +89,31 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 			m_Graphics->setModelScale(m_DrawID.back(), Vector3(scale.x, scale.y, scale.z));
 		}
 	}
+	
 	//This will be implemented at a later stage when physics has what it takes!
-	//if(!m_CollisionLoader.loadBinaryFile(p_CollisionFilePath))
-	//{
-	//	return false;
-	//}
-	//m_LevelCollisionData = m_CollisionLoader.getModelData();
-	//for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
-	//{
-	//	m_BVResourceID.push_back(m_Resources->loadResource("volume", m_LevelCollisionData.at(i).m_MeshName));
+	if(!m_CollisionLoader.loadBinaryFile(p_CollisionFilePath))
+	{
+		return false;
+	}
+	m_LevelCollisionData = m_CollisionLoader.getModelData();
+	for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
+	{
+		m_BVResourceID.push_back(m_Resources->loadResource("volume", m_LevelCollisionData.at(i).m_MeshName));
 
-	//	//for(unsigned int j = 0; m_LevelCollisionData.at(i).m_Translation.size(); j++)
-	//	//{
-	//	//	//m_DrawID.push_back(m_Graphic->createModelInstance(m_LevelData.at(i).m_MeshName.c_str()));
-	//	//	
-	//	//	DirectX::XMFLOAT3 translation, rotation, scale;
-	//	//	translation = m_LevelData.at(i).m_Translation.at(j);
-	//	//	rotation = m_LevelData.at(i).m_Rotation.at(j);
-	//	//	scale = m_LevelData.at(i).m_Scale.at(j);
-	//	//	m_Physics->setBVPosition(m_DrawID.back(), translation.z, translation.y, translation.x);
-	//	//	m_Physics->setBVRotation(m_DrawID.back(), rotation.z, rotation.y, rotation.x);
-	//	//	m_Physics->setBVScale(m_DrawID.back(), scale.z, scale.y, scale.x);
-	//	//}
-	//}
+		for(unsigned int j = 0; j < m_LevelCollisionData.at(i).m_Translation.size(); j++)
+		{
+			m_BodyHandles.push_back(m_Physics->createBVInstance(m_LevelData.at(i).m_MeshName.c_str()));
+			//pushback a bodyhandle to be able to rotate, scale and translate it.
+			
+			DirectX::XMFLOAT3 translation, rotation, scale;
+			translation = m_LevelCollisionData.at(i).m_Translation.at(j);
+			rotation = m_LevelCollisionData.at(i).m_Rotation.at(j);
+			scale = m_LevelCollisionData.at(i).m_Scale.at(j);
+			m_Physics->setBodyPosition(m_BodyHandles.back(), XMFLOAT3ToVector3(&translation));
+			m_Physics->setBodyRotation(m_BodyHandles.back(), XMFLOAT3ToVector3(&rotation));
+			m_Physics->setBodyScale(   m_BodyHandles.back(), XMFLOAT3ToVector3(&scale));
+		}
+	}
 
 
 	return true;

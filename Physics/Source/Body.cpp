@@ -98,8 +98,6 @@ void Body::update(float p_DeltaTime)
 	m_Velocity.y += m_AvgAcceleration.y * p_DeltaTime;
 	m_Velocity.z += m_AvgAcceleration.z * p_DeltaTime;
 
-
-
 	updateBoundingVolumePosition(relativePos);
 	
 	//addGravity();
