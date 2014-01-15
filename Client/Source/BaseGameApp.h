@@ -9,7 +9,7 @@
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
-#include "ISound.h"
+#include <ISound.h>
 
 #include "ResourceManager.h"
 

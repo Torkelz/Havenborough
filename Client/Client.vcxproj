@@ -52,6 +52,9 @@
     <ProjectReference Include="..\Physics\Physics.vcxproj">
       <Project>{1db22d9f-addf-4065-9355-db75f64d13a6}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Sound\Sound.vcxproj">
+      <Project>{7f75d233-fb41-4ae7-82cd-f35db3ff5628}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\GameLogic.h" />

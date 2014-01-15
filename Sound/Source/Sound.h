@@ -19,7 +19,6 @@ private:
 	unsigned int				m_Version;
 	char						m_Name[256];
 
-
 public:
 	Sound(void);
 	~Sound(void);

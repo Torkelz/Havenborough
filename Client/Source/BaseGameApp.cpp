@@ -36,6 +36,9 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
+	m_Sound = ISound::createSound();
+	m_Sound->initialize();
+
 	m_ResourceManager = new ResourceManager();
 	using namespace std::placeholders;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
@@ -80,9 +83,6 @@ void BaseGameApp::init()
 	m_Connected = false;
 
 	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue);
-	
-	m_Sound = ISound::createSound();
-	m_Sound->initialize();
 				
 	m_MemoryInfo.update();
 	
