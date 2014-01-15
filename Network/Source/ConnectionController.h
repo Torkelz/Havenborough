@@ -67,6 +67,9 @@ public:
 	uint16_t getObjectActionId(Package p_Package) override;
 	const char* getObjectActionAction(Package p_Package) override;
 
+	void sendAssignPlayer(uint16_t p_ObjectId) override;
+	uint16_t getAssignPlayerObject(Package p_Package) override;
+
 	/**
 	 * Start the listening loop on the connection.
 	 */

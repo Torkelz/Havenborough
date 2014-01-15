@@ -176,6 +176,21 @@ const char* ConnectionController::getObjectActionAction(Package p_Package)
 	return objectAction->m_Action.c_str();
 }
 
+void ConnectionController::sendAssignPlayer(uint16_t p_ObjectId)
+{
+	AssignPlayer package;
+	package.m_Object = p_ObjectId;
+
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+uint16_t ConnectionController::getAssignPlayerObject(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	AssignPlayer* assignPlayer = static_cast<AssignPlayer*>(m_ReceivedPackages[p_Package].get());
+	return assignPlayer->m_Object;
+}
+
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);

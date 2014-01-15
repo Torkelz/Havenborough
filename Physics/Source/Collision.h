@@ -30,6 +30,11 @@ public:
 	*/
 	HitData boundingVolumeVsOBB(BoundingVolume* p_Volume, OBB* p_OBB);
 	/**
+	* Check for the appropriate collision, a BoundingVolume versus a Triangle.
+	* @return HitData, see HitData definition.
+	*/
+	HitData boundingVolumeVsHull(BoundingVolume* p_Volume, Hull* p_Hull);
+	/**
 	* Sphere versus Sphere collision
 	* @return HitData, see HitData definition.
 	*/
@@ -67,5 +72,10 @@ public:
 	* @return HitData, see HitData definition.
 	*/
 	HitData OBBvsAABB(OBB *p_OBB, AABB *p_AABB);
+	/**
+	* Triangle versus Sphere collision test
+	* @return HitData, see HitData definition.
+	*/
+	HitData HullVsSphere(Hull* p_Hull, Sphere *p_Sphere);
 };
 

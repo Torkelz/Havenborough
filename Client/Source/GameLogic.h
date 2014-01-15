@@ -1,4 +1,5 @@
 #pragma once
+#include "Actor.h"
 #include "Logger.h"
 #include "Level.h"
 #include "Player.h"
@@ -24,6 +25,7 @@ private:
 	int skyBox;
 	int ground;
 	Player m_Player;
+	std::weak_ptr<Actor> m_PlayerActor;
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
 	std::vector<int> m_ResourceIDs;
@@ -57,6 +59,7 @@ private:
 	static const unsigned int numRotatedTowerBoxes = 5;
 	int rotatedTowerBoxes[numRotatedTowerBoxes];
 	float viewRot[2];
+	Vector3 lookDir;
 	float sensitivity;
 	float witchCircleAngle;
 public:
@@ -77,10 +80,14 @@ public:
 
 	void registeredInput(std::string p_Action, float p_Value);
 
+	void setPlayerActor(std::weak_ptr<Actor> p_Actor);
+
 private:
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();
 	void updateSandbox(float p_DeltaTime);
 	void renderSandbox();
 	void shutdownSandbox();
+
+	void addDebugBVToDraw(BodyHandle p_BodyHandle);
 };

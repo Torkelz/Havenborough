@@ -89,5 +89,6 @@ private:
 	void updateLogic();
 	void render();
 
-	void removeActor(Actor::Id m_Actor);
+	Actor::ptr getActor(Actor::Id p_Actor);
+	void removeActor(Actor::Id p_Actor);
 };

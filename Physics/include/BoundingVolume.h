@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <DirectXMath.h>
 
 class BoundingVolume
@@ -9,7 +8,8 @@ public:
 	enum class Type {
 		AABBOX,
 		SPHERE,
-		OBB
+		OBB,
+		HULL
 	};
 
 protected:
@@ -33,7 +33,7 @@ public:
 	 * @param p_volume the volume to compare with.
 	 * @return true if it's the same volume, else return false.
 	 */
-	bool compare( BoundingVolume* p_Volume )
+	bool compare(BoundingVolume* p_Volume)
 	{
 		if(p_Volume->getIndex() == m_Index)
 		{
@@ -48,10 +48,10 @@ public:
 	/* Updates position for BoundingVolume with translation matrix.
 	 * @param p_Translation, move the AABB in relative coordinates.
 	 */
-	virtual void updatePosition( DirectX::XMFLOAT4X4& p_Translation ) = 0;
+	virtual void updatePosition(DirectX::XMFLOAT4X4& p_Translation) = 0;
 	/**
 	 * Get the current position for the bounding volume.
-	 * @return the position of the bounding volume.
+	 * @return the position of the bounding volume in m
 	 */
 	virtual DirectX::XMFLOAT4* getPosition()
 	{
@@ -59,7 +59,7 @@ public:
 	}
 	/**
 	 * Get the bounding volume position in the last frame.
-	 * @return the previus position of the bounding volume.
+	 * @return the previus position of the bounding volume in m
 	 */
 	DirectX::XMFLOAT4* getPrevPosition()
 	{

@@ -56,6 +56,9 @@ public:
 		m_Sphere		= Sphere(radius, p_CenterPos);
 
 	}
+	/**
+	* Destructor
+	*/
 	~OBB()
 	{
 	}
@@ -79,7 +82,7 @@ public:
 								  
 		m_Sphere.updatePosition(m_Position);
 
-		calculateCorners();
+		//calculateCorners();
 	}
 
 	/**
@@ -93,7 +96,7 @@ public:
 
 	/**
 	* Get the half lengths(extents) of the OBB
-	* @return m_Extents, the extents of the OBB
+	* @return m_Extents, the extents of the OBB in m
 	*/
 	DirectX::XMFLOAT4 getExtents()
 	{
@@ -141,7 +144,7 @@ public:
 	/**
 	* Given point p, return point on(or in) OBB, closest to p
 	* @param p_point the point you want to search from
-	* @return closest point in the OBB
+	* @return closest point in the OBB in m
 	*/
 	DirectX::XMFLOAT4 findClosestPt(const DirectX::XMFLOAT4 &p_point)
 	{
@@ -181,6 +184,28 @@ public:
 		XMStoreFloat4(&fResult, result);
 		return  fResult;
 	}
+
+	/**
+	 * Return a corner at the index specified.
+	 * 
+	 * @param p_Index index number in m_Cornerslist
+	 * @return a XMFLOAT4 corner.
+	 */
+	DirectX::XMFLOAT4 getCornerAt(unsigned int p_Index)
+	{
+		return m_Corners[p_Index];
+	}
+	/**
+	 * Return a corner in world coordinates at the index specified.
+	 * 
+	 * @param p_Index index number in m_Bounds list
+	 * @return a XMFLOAT4 corner.
+	 */
+	DirectX::XMFLOAT4 getCornerWorldCoordAt(unsigned p_Index)
+	{
+		return DirectX::XMFLOAT4(m_Corners[p_Index].x + m_Position.x, m_Corners[p_Index].y + m_Position.y, m_Corners[p_Index].z + m_Position.z, 1.f);
+	}
+
 private:
 	void updateRotation()
 	{
