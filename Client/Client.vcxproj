@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\EventManager.cpp" />
     <ClCompile Include="Source\GameLogic.cpp" />
     <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="Source\Actor.cpp" />
@@ -54,12 +55,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\EventManager.h" />
+    <ClInclude Include="Source\EventData.h" />
+    <ClInclude Include="Utilities\FastDelegate.h" />
     <ClInclude Include="Source\GameLogic.h" />
     <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />
     <ClInclude Include="Source\ActorComponent.h" />
     <ClInclude Include="Source\Actor.h" />
     <ClInclude Include="Source\ActorFactory.h" />
     <ClInclude Include="Source\Components.h" />
+    <ClInclude Include="Source\IEventData.h" />
+    <ClInclude Include="Source\IEventManager.h" />
     <ClInclude Include="Source\Level.h" />
     <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\EdgeCollisionResponse.h" />

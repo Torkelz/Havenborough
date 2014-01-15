@@ -26,7 +26,7 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 	m_ResourceManager = p_ResourceManager;
 
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
-	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/Level3.btxl");
+	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/CB_Level3.btxl");
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 200.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(0.0f, 0.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
 	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
@@ -73,13 +73,13 @@ void GameLogic::onFrame(float p_DeltaTime)
 				if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
 					m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 				{
-					m_Physics->removedHitDataAt(i);
+					m_Physics->removeHitDataAt(i);
 				}
 				if(m_FinishLine == hit.collisionVictim)
 				{
 					m_Player.setPosition(m_Level.getStartPosition());
 					m_ChangeScene = GoToScene::POSTGAME;
-					m_Physics->removedHitDataAt(i);
+					m_Physics->removeHitDataAt(i);
 				}
 
 				Logger::log(Logger::Level::TRACE, "Collision reported");
@@ -149,7 +149,7 @@ void GameLogic::render()
 	addDebugBVToDraw(15);
 	addDebugBVToDraw(16);*/
 
-	for(int i = 0; i < 25; i++)
+	for(int i = 0; i < 35; i++)
 	{
 		addDebugBVToDraw(i);
 	}
@@ -242,6 +242,8 @@ void GameLogic::setPlayerActor(std::weak_ptr<Actor> p_Actor)
 
 void GameLogic::loadSandbox()
 {
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("volume", "House"));
+
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
@@ -414,14 +416,14 @@ void GameLogic::loadSandbox()
 	m_Graphics->setModelRotation(hej, Vector3(0.f, 0.f, 3.14f/6.5f));*/
 
 
-	OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
-	m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
-	m_Physics->setBodyPosition(OBBhouse1, Vector3(1400.f, 450.f, -1000.f));
-	//m_Physics->setBodyPosition(OBBhouse1, Vector3(0.f, 2.5f, 0.f));
+	//OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
+	//m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
+	//m_Physics->setBodyPosition(OBBhouse1, Vector3(1400.f, 450.f, -1000.f));
+	////m_Physics->setBodyPosition(OBBhouse1, Vector3(0.f, 2.5f, 0.f));
 
-	OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
-	m_Physics->setBodyRotation(OBBhouse2, Vector3(0.f, 0.f, 3.14f/6.5f));
-	m_Physics->setBodyPosition(OBBhouse2, Vector3(350.f, 500.0f, -1000.f));
+	//OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
+	//m_Physics->setBodyRotation(OBBhouse2, Vector3(0.f, 0.f, 3.14f/6.5f));
+	//m_Physics->setBodyPosition(OBBhouse2, Vector3(350.f, 500.0f, -1000.f));
 
 	viewRot[0] = 0.f;
 	viewRot[1] = 0.f;

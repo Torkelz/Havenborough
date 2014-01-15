@@ -42,7 +42,7 @@ void BaseGameApp::init()
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
-	m_ResourceManager->registerFunction("volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
+	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseBV, m_Physics, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -85,13 +85,13 @@ void BaseGameApp::init()
 	m_Connected = false;
 
 	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue);
-	
-
-				
+					
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
 	m_ActorFactory.setGraphics(m_Graphics);
+
+	m_EventManager = new EventManager();
 }
 
 void BaseGameApp::run()
@@ -142,6 +142,8 @@ void BaseGameApp::shutdown()
 
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
+
+	SAFE_DELETE(m_EventManager);
 
 	m_Window.destroy();
 }
@@ -422,6 +424,7 @@ void BaseGameApp::updateLogic()
 		actor->onUpdate(m_DeltaTime);
 	}
 
+	m_EventManager->processEvents();
 	m_SceneManager.onFrame(m_DeltaTime);
 }
 

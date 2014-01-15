@@ -252,8 +252,14 @@
     <ClCompile Include="..\Client\Source\GameLogic.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Client\TestEventManager.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
     <ClCompile Include="HullTest.cpp">
       <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\EventManager.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

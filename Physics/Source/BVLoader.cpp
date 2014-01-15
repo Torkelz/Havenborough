@@ -91,6 +91,8 @@ std::vector<BVLoader::BoundingVolume> BVLoader::readBoundingVolume(int p_NumberO
 		ss >> temp >> tv.x >> tv.y >> tv.z;
 		tv.w = 1.0f;
 
+		tv.x *= -1;
+
 		tempVertices.push_back(tv);
 	}
 
@@ -98,6 +100,7 @@ std::vector<BVLoader::BoundingVolume> BVLoader::readBoundingVolume(int p_NumberO
 	std::getline(*p_Input, line);
 	std::getline(*p_Input, line);
 	std::getline(*p_Input, line);
+	
 
 	for(int i = 0; i < m_FileHeader.m_numFrames; i++)
 	{

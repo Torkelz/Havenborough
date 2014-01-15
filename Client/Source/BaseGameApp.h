@@ -9,6 +9,7 @@
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
+#include "EventManager.h"
 
 #include "ResourceManager.h"
 
@@ -28,10 +29,11 @@ private:
 
 	INetwork* m_Network;
 
-	bool	m_ShouldQuit;
-	bool	m_Connected;
+	bool m_ShouldQuit;
+	bool m_Connected;
 
 	SceneManager m_SceneManager;
+	EventManager *m_EventManager;
 
 	IPhysics *m_Physics;
 	ResourceManager* m_ResourceManager;
@@ -43,7 +45,7 @@ private:
 	__int64 m_CurrTimeStamp;
 	float m_SecsPerCnt;
 	float m_DeltaTime;
-
+	
 public:
 	/**
 	 * Initialize the game and create a window.
