@@ -19,6 +19,9 @@
     <ProjectReference Include="..\Network\Network.vcxproj">
       <Project>{618f0468-d053-4ae2-be83-118fe75c6f2e}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Physics\Physics.vcxproj">
+      <Project>{1db22d9f-addf-4065-9355-db75f64d13a6}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Client\Source\Logger.h" />

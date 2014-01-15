@@ -14,6 +14,11 @@ class IConnectionController
 {
 public:
 	/**
+	 *
+	 */
+	virtual ~IConnectionController() {};
+
+	/**
 	 * Check if the controlled connection is connected.
 	 *
 	 * @return true if connected, otherwise false.

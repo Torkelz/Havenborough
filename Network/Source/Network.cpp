@@ -80,6 +80,25 @@ void Network::connectToServer(const char* p_URL, unsigned short p_Port, actionDo
 	startIO();
 }
 
+void Network::disconnectFromServer()
+{
+	if (!m_ClientConnection)
+	{
+		return;
+	}
+
+	NetworkLogger::log(NetworkLogger::Level::INFO, "Disconnecting from server");
+
+	m_ClientConnection.reset();
+	m_ClientConnect.reset();
+	m_IO_Service.reset();
+
+	if (m_IO_Thread.joinable())
+	{
+		m_IO_Thread.join();
+	}
+}
+
 IConnectionController* Network::getConnectionToServer()
 {
 	return m_ClientConnection.get();

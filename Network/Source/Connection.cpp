@@ -7,7 +7,8 @@ Connection::Connection( boost::asio::ip::tcp::socket&& p_Socket)
 		:   m_Socket(std::move(p_Socket)),
 			m_LockWriting(),
 			m_ReadBuffer(sizeof(Header)),
-			m_SaveData()
+			m_SaveData(),
+			m_State(State::CONNECTED)
 {
 }
 
@@ -20,6 +21,9 @@ void Connection::disconnect()
 {
 	if (m_State == State::CONNECTED && m_Socket.is_open())
 	{
+		m_SaveData = saveDataFunction();
+		m_State = State::UNCONNECTED;
+
 		m_Socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
 		m_Socket.close();
 	}

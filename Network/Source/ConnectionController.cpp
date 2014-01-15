@@ -11,6 +11,11 @@ ConnectionController::ConnectionController(Connection::ptr p_Connection, const s
 	m_Connection->setSaveData(std::bind(&ConnectionController::savePackageCallBack, this, std::placeholders::_1, std::placeholders::_2));
 }
 
+ConnectionController::~ConnectionController()
+{
+	m_Connection->disconnect();
+}
+
 bool ConnectionController::isConnected() const
 {
 	return m_Connection->isConnected();

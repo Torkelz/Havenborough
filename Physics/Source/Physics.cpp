@@ -215,6 +215,19 @@ bool Physics::releaseLevelBV(const char* p_VolumeID)
 	throw std::exception("Unimplemented function");
 }
 
+void Physics::releaseBody(BodyHandle p_Body)
+{
+	for (auto& body : m_Bodies)
+	{
+		if (body.getHandle() == p_Body)
+		{
+			std::swap(body, m_Bodies.back());
+			m_Bodies.pop_back();
+			return;
+		}
+	}
+}
+
 void Physics::releaseAllBoundingVolumes(void)
 {
 	m_Bodies.clear();

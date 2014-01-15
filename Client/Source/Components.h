@@ -25,6 +25,11 @@ private:
 	IPhysics* m_Physics;
 
 public:
+	virtual ~OBB_Component()
+	{
+		m_Physics->releaseBody(m_Body);
+	}
+
 	void setPhysics(IPhysics* p_Physics)
 	{
 		m_Physics = p_Physics;
@@ -80,6 +85,11 @@ private:
 	IPhysics* m_Physics;
 
 public:
+	virtual ~CollisionSphereComponent()
+	{
+		m_Physics->releaseBody(m_Body);
+	}
+
 	void setPhysics(IPhysics* p_Physics)
 	{
 		m_Physics = p_Physics;

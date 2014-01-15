@@ -38,6 +38,11 @@ public:
 	 */
 	ConnectionController(Connection::ptr p_Connection, const std::vector<PackageBase::ptr>& p_Prototypes);
 
+	/**
+	 * destructor.
+	 */
+	virtual ~ConnectionController();
+
 	bool isConnected() const override;
 	bool hasError() const override;
 

@@ -111,6 +111,13 @@ public:
 	virtual void connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData) = 0;
 
 	/**
+	 * Disconnect as a client from a server.
+	 *
+	 * The function does nothing if the client is not connected.
+	 */
+	virtual void disconnectFromServer() = 0;
+
+	/**
 	 * Get a controller to the client connection to the server.
 	 *
 	 * Should not be used before the callback in

@@ -16,6 +16,8 @@ std::mutex g_ControllerLock;
 bool running = false;
 std::thread updateThread;
 
+IPhysics* g_Physics = nullptr;
+
 struct TestBox
 {
 	uint16_t actorId;
@@ -386,15 +388,18 @@ void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/)
 	cDescriptions.push_back(descriptions.back().c_str());
 	instances.push_back(getBoxInstance(newBox, descriptions.size() - 1));
 
+	Vector3 position(500.f - lastActorId * 200.f, playerSphereRadius, 600.f);
+
 	TestPlayer newPlayer =
 	{
 		p_Connection,
 		{
 			++lastActorId,
-			Vector3(500.f - lastActorId * 200.f, playerSphereRadius, 600.f),
+			position,
 			Vector3(0.f, 0.f, 0.f),
 			Vector3(0.f, 0.f, 0.f),
-			Vector3(0.f, 0.f, 0.f)
+			Vector3(0.f, 0.f, 0.f),
+			g_Physics->createSphere(50.f, false, position, playerSphereRadius)
 		}
 	};
 
@@ -442,6 +447,8 @@ void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*
 		{
 			player.m_Connection->sendRemoveObjects(&removedPlayer.m_PlayerBox.actorId, 1);
 		}
+
+		g_Physics->releaseBody(removedPlayer.m_PlayerBox.body);
 	}
 }
 
@@ -489,6 +496,9 @@ int main(int argc, char* argv[])
 	Logger::addOutput(Logger::Level::INFO, std::cout);
 	Logger::log(Logger::Level::INFO, "Starting server");
 
+	g_Physics = IPhysics::createPhysics();
+	g_Physics->initialize();
+
 	INetwork* server;
 	server = INetwork::createNetwork();
 	server->initialize();
@@ -529,4 +539,6 @@ int main(int argc, char* argv[])
 	updateThread.join();
 
 	INetwork::deleteNetwork(server);
+
+	IPhysics::deletePhysics(g_Physics);
 }

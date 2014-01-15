@@ -45,6 +45,26 @@ Body::Body(Body &&p_Other)
 	  m_IsEdge(p_Other.m_IsEdge)
 {}
 
+Body& Body::operator=(Body&& p_Other)
+{
+	std::swap(m_Handle, p_Other.m_Handle);
+	std::swap(m_Volume, p_Other.m_Volume);
+	std::swap(m_Mass, p_Other.m_Mass);
+	std::swap(m_Position, p_Other.m_Position);
+	std::swap(m_NetForce, p_Other.m_NetForce);
+	std::swap(m_Velocity, p_Other.m_Velocity);
+	std::swap(m_Acceleration, p_Other.m_Acceleration);
+	std::swap(m_LastAcceleration, p_Other.m_LastAcceleration);
+	std::swap(m_AvgAcceleration, p_Other.m_AvgAcceleration);
+	std::swap(m_NewAcceleration, p_Other.m_NewAcceleration);
+	std::swap(m_Gravity, p_Other.m_Gravity);
+	std::swap(m_InAir, p_Other.m_InAir);
+	std::swap(m_IsImmovable, p_Other.m_IsImmovable);
+	std::swap(m_IsEdge, p_Other.m_IsEdge);
+
+	return *this;
+}
+
 Body::~Body()
 {
 

@@ -237,6 +237,12 @@ void BaseGameApp::handleInput()
 		}
 		else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 		{
+			if (m_Connected)
+			{
+				m_Network->disconnectFromServer();
+				m_ServerActors.clear();
+			}
+
 			m_Connected = false;
 			m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
 		}
