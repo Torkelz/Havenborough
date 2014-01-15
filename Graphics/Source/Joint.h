@@ -58,6 +58,5 @@ public:
 	 */
 	DirectX::XMFLOAT4X4 interpolate(float p_FrameTime, float m_DestinationFrameTime) const;
 	matrixDecomposed interpolateEx(float p_FrameTime, float m_DestinationFrameTime) const;
-	//DirectX::XMFLOAT4X4 interpolate(DirectX::XMFLOAT4X4* p_Frame1, DirectX::XMFLOAT4X4* p_Frame2, float interpolateFraction) const;
 	matrixDecomposed interpolateEx(matrixDecomposed p_Frame1, matrixDecomposed p_Frame2, float interpolateFraction) const;
 };

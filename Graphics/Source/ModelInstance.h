@@ -22,6 +22,7 @@
 		float fadedFrames; // The amount of frames faded.
 		float currentFrame;
 		float destinationFrame;
+		float dynamicWeight;
 	};
 
 	std::string m_ModelName;
@@ -145,7 +146,7 @@
 	 */
 	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName, const std::vector<Joint>& p_Joints);
 
-	void playClip(AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames);
+	void playClip(AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames, float p_ExtraTrackWeight, int p_Track);
 
  private:
 	void calculateWorldMatrix(void) const;

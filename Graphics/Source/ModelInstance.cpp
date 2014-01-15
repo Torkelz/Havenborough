@@ -181,22 +181,24 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 				tempData = p_Joints[i].interpolateEx(m_Tracks[2].destinationFrame, m_Tracks[2].currentFrame);
 			}
 
-			toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[2].fadedFrames / (float)m_Tracks[2].fadeFrames);
+			if(m_Tracks[2].crossfade)
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[2].fadedFrames / (float)m_Tracks[2].fadeFrames) * m_Tracks[2].dynamicWeight);
+			else
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].dynamicWeight );
 		}
 
 		if (m_Tracks[1].active)
 		{
 			matrixDecomposed tempData;
 			if(m_Tracks[1].clip.m_AnimationSpeed > 0)
-			{
 				tempData = p_Joints[i].interpolateEx(m_Tracks[1].currentFrame, m_Tracks[1].destinationFrame);
-			}
 			else
-			{
 				tempData = p_Joints[i].interpolateEx(m_Tracks[1].destinationFrame, m_Tracks[1].currentFrame);
-			}
 
-			toParentData = p_Joints[i].interpolateEx( toParentData, tempData, 0.5f );
+			if(m_Tracks[1].crossfade)
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[1].fadedFrames / (float)m_Tracks[1].fadeFrames) * m_Tracks[1].dynamicWeight );
+			else
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].dynamicWeight );
 		}
 
 		XMMATRIX transMat = XMMatrixTranslationFromVector(XMLoadFloat4(&toParentData.translation));
@@ -439,41 +441,52 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 	}
 }
 
-void ModelInstance::playClip( AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames )
+void ModelInstance::playClip( AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames, float p_ExtraTrackWeight, int p_Track )
 {
-	if (!p_Layer)
-	{
-		if(p_Crossfade)
-		{
-			// Track 2 is the fade track.
-			m_Tracks[2].crossfade = p_Crossfade;
-			m_Tracks[2].fadeFrames = p_FadeFrames;
-			m_Tracks[2].layered = p_Layer;
-			m_Tracks[2].clip = p_Clip;
-			m_Tracks[2].currentFrame = m_Tracks[2].clip.m_Start;
-			m_Tracks[2].active = true;
-			m_Tracks[2].fadedFrames = 0.0f;
-		}
-		else
-		{
-			// Track 0 is the main track.
-			m_Tracks[0].clip = p_Clip;
-			m_Tracks[0].currentFrame = m_Tracks[0].clip.m_Start;
-			m_Tracks[0].active = true;
-		}
-	}
-
-	if (p_Layer)
-	{
-		// Track 1 is the extra animation track. It holds small sub-animations like wave, spellcasts etc.
-		m_Tracks[1].clip = p_Clip;
-		m_Tracks[1].active = true;
-		m_Tracks[1].currentFrame = m_Tracks[1].clip.m_Start;
-		m_Tracks[1].crossfade = p_Crossfade;
-		m_Tracks[1].layered = p_Layer;
-		m_Tracks[1].fadeFrames = p_FadeFrames;
-		m_Tracks[1].fadedFrames = 0.0f;
-	}
+	m_Tracks[p_Track].active = true;
+	m_Tracks[p_Track].clip = p_Clip;
+	m_Tracks[p_Track].crossfade = p_Crossfade;
+	m_Tracks[p_Track].currentFrame = m_Tracks[p_Track].clip.m_Start;
+	m_Tracks[p_Track].dynamicWeight = p_ExtraTrackWeight;
+	m_Tracks[p_Track].fadedFrames = 0.0f;
+	m_Tracks[p_Track].fadeFrames = p_FadeFrames;
+	m_Tracks[p_Track].layered = p_Layer;
+	//if (!p_Layer)
+	//{
+	//	if(p_Crossfade)
+	//	{
+	//		// Track 2 is the fade track.
+	//		m_Tracks[2].crossfade = p_Crossfade;
+	//		m_Tracks[2].fadeFrames = p_FadeFrames;
+	//		m_Tracks[2].layered = p_Layer;
+	//		m_Tracks[2].clip = p_Clip;
+	//		m_Tracks[2].currentFrame = m_Tracks[2].clip.m_Start;
+	//		m_Tracks[2].active = true;
+	//		m_Tracks[2].fadedFrames = 0.0f;
+	//		m_Tracks[2].dynamicWeight = p_ExtraTrackWeight;
+	//	}
+	//	else
+	//	{
+	//		// Track 0 is the main track.
+	//		m_Tracks[0].clip = p_Clip;
+	//		m_Tracks[0].currentFrame = m_Tracks[0].clip.m_Start;
+	//		m_Tracks[0].active = true;
+	//		m_Tracks[0].dynamicWeight = p_ExtraTrackWeight;
+	//	}
+	//}
+	//
+	//if (p_Layer)
+	//{
+	//	// Track 1 is the extra animation track. It holds small sub-animations like wave, spellcasts etc.
+	//	m_Tracks[1].clip = p_Clip;
+	//	m_Tracks[1].active = true;
+	//	m_Tracks[1].currentFrame = m_Tracks[1].clip.m_Start;
+	//	m_Tracks[1].crossfade = p_Crossfade;
+	//	m_Tracks[1].layered = p_Layer;
+	//	m_Tracks[1].fadeFrames = p_FadeFrames;
+	//	m_Tracks[1].fadedFrames = 0.0f;
+	//	m_Tracks[1].dynamicWeight = p_ExtraTrackWeight;
+	//}
 
 	// DEBUG
 	if(!p_Layer && !p_Crossfade)
