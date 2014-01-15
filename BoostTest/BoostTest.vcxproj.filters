@@ -255,6 +255,9 @@
     <ClCompile Include="..\Sound\Source\Sound.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Sound\Source\SoundLogger.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

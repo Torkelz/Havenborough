@@ -156,6 +156,7 @@
     <ClCompile Include="..\Network\Source\ServerAccept.cpp" />
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
     <ClCompile Include="..\Sound\Source\Sound.cpp" />
+    <ClCompile Include="..\Sound\Source\SoundLogger.cpp" />
     <ClCompile Include="AABBTest.cpp" />
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="HullTest.cpp" />

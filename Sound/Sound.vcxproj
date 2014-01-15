@@ -44,8 +44,8 @@
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Test\</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
-    <IncludePath>$(FMOD_INC_DIR);$(IncludePath)</IncludePath>
-    <LibraryPath>$(FMOD_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(FMOD_INC_DIR);$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(FMOD_LIB_DIR);$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -92,10 +92,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\SoundLogger.cpp" />
     <ClCompile Include="Source\Sound.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ISound.h" />
+    <ClInclude Include="Source\SoundLogger.h" />
     <ClInclude Include="Source\Sound.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

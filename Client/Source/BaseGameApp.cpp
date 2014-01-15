@@ -37,6 +37,7 @@ void BaseGameApp::init()
 	m_Physics->initialize();
 
 	m_Sound = ISound::createSound();
+	m_Sound->setLogFunction(&Logger::logRaw);
 	m_Sound->initialize();
 
 	m_ResourceManager = new ResourceManager();
