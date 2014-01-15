@@ -11,6 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\GameLogic.cpp" />
+    <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="Source\Actor.cpp" />
+    <ClCompile Include="Source\ActorFactory.cpp" />
     <ClCompile Include="Source\Level.cpp" />
     <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
@@ -22,11 +26,12 @@
     <ClCompile Include="Source\Input\Input.cpp" />
     <ClCompile Include="Source\Input\InputState.cpp" />
     <ClCompile Include="Source\Input\InputTranslator.cpp" />
-    <ClCompile Include="Source\GameScene.cpp" />
     <ClCompile Include="Source\Logger.cpp" />
     <ClCompile Include="Source\RAMMemInfo.cpp" />
-    <ClCompile Include="Source\MenuScene.cpp" />
     <ClCompile Include="Source\SceneManager.cpp" />
+    <ClCompile Include="Source\Scenes\GameScene.cpp" />
+    <ClCompile Include="Source\Scenes\MenuScene.cpp" />
+    <ClCompile Include="Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -49,26 +54,31 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\GameLogic.h" />
+    <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="Source\ActorComponent.h" />
+    <ClInclude Include="Source\Actor.h" />
+    <ClInclude Include="Source\ActorFactory.h" />
+    <ClInclude Include="Source\Components.h" />
     <ClInclude Include="Source\Level.h" />
     <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\EdgeCollisionResponse.h" />
     <ClInclude Include="Source\Player.h" />
     <ClInclude Include="Source\Logger.h" />
-    <ClInclude Include="Source\Resource.h" />
     <ClInclude Include="Source\ResourceManager.h" />
     <ClInclude Include="Source\ResourceTranslator.h" />
-    <ClInclude Include="Source\NetworkClient.h" />
     <ClInclude Include="Source\RAMMemInfo.h" />
     <ClInclude Include="Source\BaseGameApp.h" />
     <ClInclude Include="Source\Input\Input.h" />
     <ClInclude Include="Source\Input\InputRecord.h" />
-    <ClInclude Include="Source\GameScene.h" />
-    <ClInclude Include="Source\IScene.h" />
     <ClInclude Include="Source\Input\InputState.h" />
     <ClInclude Include="Source\Input\InputTranslator.h" />
     <ClInclude Include="Source\ClientExceptions.h" />
     <ClInclude Include="Source\SceneManager.h" />
-    <ClInclude Include="Source\MenuScene.h" />
+    <ClInclude Include="Source\Scenes\GameScene.h" />
+    <ClInclude Include="Source\Scenes\IScene.h" />
+    <ClInclude Include="Source\Scenes\MenuScene.h" />
+    <ClInclude Include="Source\Scenes\PostGameScene.h" />
     <ClInclude Include="Source\Window.h" />
     <ClInclude Include="Utilities\MemoryUtil.h" />
     <ClInclude Include="Utilities\Util.h" />
@@ -126,7 +136,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -151,7 +161,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

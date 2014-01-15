@@ -11,7 +11,7 @@ ClientConnect::ClientConnect(boost::asio::io_service& p_IO_Service, const std::s
 		m_Resolver(m_IO_Service),
 		m_Socket(m_IO_Service)
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Starting a client connection attempt");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Starting a client connection attempt");
 
 	try
 	{
@@ -31,7 +31,7 @@ ClientConnect::ClientConnect(boost::asio::io_service& p_IO_Service, const std::s
 
 void ClientConnect::handleResolve(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_ResolveResult)
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Handling resolve response");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Handling resolve response");
 
 	if (p_Error)
 	{
@@ -52,7 +52,7 @@ void ClientConnect::handleResolve(const boost::system::error_code& p_Error, boos
 
 void ClientConnect::handleConnect(const boost::system::error_code& p_Error, boost::asio::ip::tcp::resolver::iterator p_Endpoint)
 {
-	NetworkLogger::log(NetworkLogger::Level::DEBUG, "Handling connect response");
+	NetworkLogger::log(NetworkLogger::Level::DEBUG_L, "Handling connect response");
 
 	if (p_Error)
 	{

@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHitOrigin)
 
 	s1 = Sphere(1.f, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 
-	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f));
 
 	hit = col.AABBvsSphere(&aabb, &s1);
 
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHitOrigin)
 	BOOST_CHECK_EQUAL(hit.colNorm.y, 0.f);
 	BOOST_CHECK_EQUAL(hit.colNorm.z, 0.f);
 
-	BOOST_CHECK_EQUAL(hit.colLength, 1.f);
+	BOOST_CHECK_EQUAL(hit.colLength, 100.f);
 
 	BOOST_CHECK_EQUAL(hit.colPos.x, 0.f);
 	BOOST_CHECK_EQUAL(hit.colPos.y, 0.f);
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHit)
 	BOOST_CHECK_EQUAL(hit.colLength, 0.f);
 
 	BOOST_CHECK_EQUAL(hit.colPos.x, 0.f);
-	BOOST_CHECK_EQUAL(hit.colPos.y, 1.f);
+	BOOST_CHECK_EQUAL(hit.colPos.y, 100.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 
 	BOOST_CHECK_EQUAL((int)hit.colType, (int)Type::AABBVSSPHERE);
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(EXTREMECASE2_AABBVsSphereHit)
 
 	s1 = Sphere(1000.f, DirectX::XMFLOAT4(1001.f, 0.0f, 0.0f, 1.0f));
 
-	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f));
 
 	hit = col.AABBvsSphere(&aabb, &s1);
 
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(EXTREMECASE2_AABBVsSphereHit)
 
 	BOOST_CHECK_EQUAL(hit.colLength, 0.f);
 
-	BOOST_CHECK_EQUAL(hit.colPos.x, 1.f);
+	BOOST_CHECK_EQUAL(hit.colPos.x, 100.f);
 	BOOST_CHECK_EQUAL(hit.colPos.y, 0.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 
@@ -179,10 +179,10 @@ BOOST_AUTO_TEST_CASE(BoundingVolumeVsBoundingVolumeHit)
 	BOOST_CHECK_EQUAL(hit.colNorm.z, 0.f);
 
 	BOOST_CHECK_EQUAL(hit.colPos.x, 0.f);
-	BOOST_CHECK_EQUAL(hit.colPos.y, 2.f);
+	BOOST_CHECK_EQUAL(hit.colPos.y, 200.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 	
-	BOOST_CHECK_EQUAL(hit.colLength, 0.5f);
+	BOOST_CHECK_EQUAL(hit.colLength, 50.f);
 
 	delete s1;
 	delete s2;
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(BoundingVolumeVsBoundingVolumeHit)
 	delete aabb2;
 }
 
-BOOST_AUTO_TEST_CASE(OBBvsOBB)
+BOOST_AUTO_TEST_CASE(OBBvsOBBHit)
 {
 	Collision col;
 	HitData hd;
@@ -214,6 +214,8 @@ BOOST_AUTO_TEST_CASE(OBBvsOBB)
 
 	trans = DirectX::XMMatrixTranslation(0.f, -0.5f, 0.f);
 	DirectX::XMStoreFloat4x4(&mtrans, trans);
+
+	//A box moving through a box standing still
 	for(int i = 0; i < 100; i++)
 	{
 		hd = col.OBBvsOBB(&obb1, &obb2);
@@ -224,7 +226,7 @@ BOOST_AUTO_TEST_CASE(OBBvsOBB)
 		obb2.updatePosition(mtrans);
 	}
 
-	//Rotation
+	//A rotating box moving through a box standing still.
 	obb2 = OBB(DirectX::XMFLOAT4(0.f, 15.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
 	DirectX::XMMATRIX rot = DirectX::XMMatrixRotationY(3.1415926f/4.f);
 	DirectX::XMFLOAT4X4 mrot;
@@ -236,12 +238,12 @@ BOOST_AUTO_TEST_CASE(OBBvsOBB)
 		obb2.updatePosition(mtrans);
 		if(hd.intersect == true)
 		{
-			BOOST_CHECK_MESSAGE(i >= 10 && i <= 50, "Error on rotation iteration LOLZ!: " + std::to_string(i) + ".\n");
+			BOOST_CHECK_MESSAGE(i >= 10 && i <= 50, "Error on rotation iteration: " + std::to_string(i) + ".\n");
 		}
 	}
 }
 
-BOOST_AUTO_TEST_CASE(OBBvsAABB)
+BOOST_AUTO_TEST_CASE(OBBvsAABBHit)
 {
 	Collision col;
 	HitData hd;
@@ -293,7 +295,7 @@ BOOST_AUTO_TEST_CASE(OBBvsAABB)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(OBBvsSphere)
+BOOST_AUTO_TEST_CASE(OBBvsSphereHit)
 {
 	Collision col;
 	HitData hd;
@@ -343,6 +345,109 @@ BOOST_AUTO_TEST_CASE(OBBvsSphere)
 			BOOST_CHECK_MESSAGE(i >= 10 && i <= 50, "OBB Collision Error on rotation iteration: " + std::to_string(i) + ".\n");
 		}
 	}
+}
+
+BOOST_AUTO_TEST_CASE(OBBInsideOBB)
+{
+	Collision col;
+	HitData hd;
+
+	OBB obb1 = OBB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.f));
+	OBB obb2 = OBB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1000.f, 1000.f, 1000.f, 1000.f));
+
+	hd = col.OBBvsOBB(&obb1, &obb2);
+	BOOST_CHECK(hd.intersect);
+}
+
+BOOST_AUTO_TEST_CASE(OBBInsideSphereAndViceVersa)
+{
+	Collision col;
+	HitData hd;
+
+	OBB obb		= OBB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.f));
+	Sphere s	= Sphere(1000.f, DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f));
+	//OBB inside sphere
+	hd = col.OBBvsSphere(&obb, &s);
+	BOOST_CHECK(hd.intersect);
+
+	obb.setExtent(DirectX::XMFLOAT4(1000.f, 1000.f, 1000.f, 1.f));
+	s.setRadius(0.1f);
+	///sphere inside OBB
+	hd = col.OBBvsSphere(&obb, &s);
+	BOOST_CHECK(hd.intersect);
+}
+
+BOOST_AUTO_TEST_CASE(OBBInsideAABBAndViceVersa)
+{
+	Collision col;
+	HitData hd;
+
+	OBB obb		= OBB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.f));
+	AABB aabb	= AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(1000.f, 1000.f, 1000.f, 1.f));
+
+	///OBB inside AABB
+	hd = col.OBBvsAABB(&obb, &aabb);
+	BOOST_CHECK(hd.intersect);
+
+	obb.setExtent(DirectX::XMFLOAT4(1000.f, 1000.f, 1000.f, 1.f));
+	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.f));
+	///AABB inside OBB
+	hd = col.OBBvsAABB(&obb, &aabb);
+	BOOST_CHECK(hd.intersect);
+}
+
+BOOST_AUTO_TEST_CASE(HullvsSphereHit)
+{
+		Collision col;
+		HitData hd;
+		std::vector<Triangle> triangles;
+		float size = 1.f;
+		triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4(-size, size, -size, 1.f), Vector4(size,	size, -size, 1.f)));
+		triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4( size, size, -size, 1.f), Vector4(size, -size, -size, 1.f)));
+
+		Hull h  = Hull(triangles);
+		Sphere s = Sphere(2.f, DirectX::XMFLOAT4(2.f, 0.f, 0.f, 1.f));
+		
+		hd = col.HullVsSphere(&h, &s);
+
+		BOOST_CHECK(hd.intersect);
+
+		s.updatePosition(DirectX::XMFLOAT4(2.2f, 0.f, 0.f, 1.f));
+
+		hd = col.HullVsSphere(&h, &s);
+
+		BOOST_CHECK(hd.intersect);
+
+		s.updatePosition(DirectX::XMFLOAT4(3.1f, 0.f, 0.f, 1.f));
+
+		hd = col.HullVsSphere(&h, &s);
+
+		BOOST_CHECK(!hd.intersect);
+
+		DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(1.f, 0.f, 0.f);
+		DirectX::XMFLOAT4X4 mtrans;
+		DirectX::XMStoreFloat4x4(&mtrans, trans);
+		h.updatePosition(mtrans);
+
+		hd = col.HullVsSphere(&h, &s);
+		BOOST_CHECK(hd.intersect);
+}
+
+BOOST_AUTO_TEST_CASE(HullInBigSphere)
+{
+	Collision col;
+	HitData hd;
+	std::vector<Triangle> triangles;
+	float size = 1.f;
+	triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4(-size, size, -size, 1.f), Vector4(size,	size, -size, 1.f)));
+	triangles.push_back(Triangle(Vector4( -size,  -size, -size, 1.f), Vector4( size, size, -size, 1.f), Vector4(size, -size, -size, 1.f)));
+
+	Hull h  = Hull(triangles);
+	Sphere s = Sphere(2000.f, DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f));
+
+	hd = col.HullVsSphere(&h, &s);
+
+	BOOST_CHECK(hd.intersect);
 }
 
 

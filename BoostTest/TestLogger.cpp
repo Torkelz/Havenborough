@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(TestLogLevel)
 	std::ostringstream testStream;
 	Logger::addOutput(Logger::Level::INFO, testStream);
 
-	Logger::log(Logger::Level::DEBUG, "Debug output");
+	Logger::log(Logger::Level::DEBUG_L, "Debug output");
 
 	BOOST_CHECK_EQUAL(testStream.str().find("Debug output"), std::string::npos);
 

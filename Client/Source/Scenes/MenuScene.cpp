@@ -7,13 +7,20 @@ MenuScene::MenuScene()
 	m_NewSceneID = 0;
 	m_ChangeScene = false;
 	m_ChangeList = false;
+
+	m_Graphics = nullptr;
 }
 
-MenuScene::~MenuScene(){}
+MenuScene::~MenuScene()
+{
+	m_Graphics = nullptr;
+}
 
-bool MenuScene::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue, unsigned int p_SceneID)
+bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue)
 {
 	m_SceneID = p_SceneID;
+
+	m_Graphics = p_Graphics;
 	return true;
 }
 
@@ -32,9 +39,15 @@ void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 		*p_IsCurrentScene = -1;
 		m_ChangeList = false;
 	}
+
+	
 }
 
-void MenuScene::render(){}
+void MenuScene::render()
+{
+	m_Graphics->setClearColor(Vector4(0, 1, 0, 1));
+	m_Graphics->drawFrame(-1);
+}
 
 bool MenuScene::getIsVisible()
 {
@@ -46,17 +59,17 @@ void MenuScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void MenuScene::registeredKeyStroke(std::string p_Action, float p_Value)
+void MenuScene::registeredInput(std::string p_Action, float p_Value)
 {
 	if(p_Action == "changeSceneN" && p_Value == 1)
 	{
 		if(m_SceneID == 0)
 		{
-			m_NewSceneID = MENUOPTION;
+			m_NewSceneID = (int)MenuScenes::OPTION;
 		}
 		else if(m_SceneID == 1)
 		{
-			m_NewSceneID = MENUMAIN; 
+			m_NewSceneID = (int)MenuScenes::MAIN; 
 		}
 		m_ChangeScene = true;
 	}

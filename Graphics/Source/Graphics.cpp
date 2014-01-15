@@ -182,7 +182,26 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights);
 	
 	DebugDefferedDraw();
+	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
+	m_BVBufferNumOfElements = 100;
+	Buffer::Description buffDesc;
+	buffDesc.initData = nullptr;
+	buffDesc.numOfElements = m_BVBufferNumOfElements;
+	buffDesc.sizeOfElement = sizeof(XMFLOAT4);
+	buffDesc.type = Buffer::Type::VERTEX_BUFFER;
+	buffDesc.usage = Buffer::Usage::DEFAULT;
+	
+	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 
+	VRAMMemInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
+
+	//ShaderInputElementDescription shaderDesc[] = 
+	//{
+	//	{"POSITION", 0, Format::R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	//};
+
+	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
+															"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);//, shaderDesc, 1);
 	return true;
 }
 
@@ -231,6 +250,7 @@ void Graphics::shutdown(void)
 
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
+	SAFE_RELEASE(m_RasterStateBV);
 	SAFE_RELEASE(m_DepthStencilView);
 	SAFE_RELEASE(m_DepthStencilState);
 	SAFE_RELEASE(m_DepthStencilBuffer);
@@ -241,6 +261,9 @@ void Graphics::shutdown(void)
 	SAFE_SHUTDOWN(m_WrapperFactory);
 	SAFE_SHUTDOWN(m_ModelFactory);
 	SAFE_SHUTDOWN(m_VRAMMemInfo);
+
+	SAFE_DELETE(m_BVBuffer);
+	SAFE_DELETE(m_BVShader);
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
@@ -253,6 +276,8 @@ void Graphics::shutdown(void)
 	m_SpotLights.shrink_to_fit();
 	m_DirectionalLights.shrink_to_fit();
 
+	VRAMMemInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
+	
 	m_Shader = nullptr;
 }
 
@@ -344,6 +369,20 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) 
 	model = getModelFromList(p_ModelId);
 	if(model != nullptr)
 		model->shader = getShaderFromList(p_ShaderId);
+}
+
+void Graphics::deleteShader(const char *p_ShaderId)
+{
+	for(auto & s : m_ShaderList)
+	{
+		if(s.first.compare(p_ShaderId) == 0 )
+		{
+			SAFE_DELETE(s.second);
+			std::swap(s, m_ShaderList.back());
+			m_ShaderList.pop_back();
+			break;
+		}
+	}
 }
 
 bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
@@ -450,6 +489,14 @@ void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDir
 	m_DirectionalLights.push_back(l);
 }
 
+void Graphics::setClearColor(Vector4 p_Color)
+{
+	m_ClearColor[0] = p_Color.x;
+	m_ClearColor[1] = p_Color.y;
+	m_ClearColor[2] = p_Color.z;
+	m_ClearColor[3] = p_Color.w;
+}
+
 void Graphics::drawFrame(int i)
 {
 	if (!m_DeviceContext || !m_DeferredRender)
@@ -457,21 +504,24 @@ void Graphics::drawFrame(int i)
 		return;
 	}
 
-	float color[4] = {0.0f, 0.5f, 0.0f, 1.0f}; 
-	Begin(color);
+	Begin(m_ClearColor);
 
 	m_DeferredRender->renderDeferred();
 
-	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView); 
+	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	if(i >= 0 && i <=3)
+	{
+		m_Shader->setShader();
+		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(i));
+		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
+		m_DeviceContext->Draw(6, 0);
 
-	m_Shader->setShader();
-	m_Shader->setResource(Shader::Type::PIXEL_SHADER,0,1,m_DeferredRender->getRT(i));
-	m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
-	m_DeviceContext->Draw(6,0);
+		m_Shader->unSetShader();
+	}
 
-	m_Shader->unSetShader();
-	
+	drawBoundingVolumes();
+
 	End();
 
 	//Delete lights
@@ -663,6 +713,13 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 
 	//XMFLOAT4X4 view;
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
+}
+
+void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)
+{
+	m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner1, 1.f));
+	m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner2, 1.f));
+	m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner3, 1.f));
 }
 
 void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
@@ -859,10 +916,11 @@ HRESULT Graphics::createDepthStencilView(void)
 HRESULT Graphics::createRasterizerState(void)
 {
 	D3D11_RASTERIZER_DESC rasterDesc;
+	HRESULT result;
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
@@ -872,7 +930,12 @@ HRESULT Graphics::createRasterizerState(void)
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
-	return m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+	
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterStateBV);
+	return result;
 }
 
 void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
@@ -891,7 +954,7 @@ void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye),
 		XMLoadFloat4(&lookAt), XMLoadFloat4(&up))));
 	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(0.25f * 3.14f,
-		(float)p_ScreenWidth / (float)p_ScreenHeight, 0.1f, 1000.0f)));
+		(float)p_ScreenWidth / (float)p_ScreenHeight, 10.f, 100000.0f)));
 }
 
 Shader *Graphics::getShaderFromList(string p_Identifier)
@@ -969,6 +1032,54 @@ void Graphics::End(void)
 	{
 		// Present as fast as possible.
 		m_SwapChain->Present(0, 0);
+	}
+}
+
+void Graphics::drawBoundingVolumes()
+{
+	if(m_BVTriangles.size() > 0)
+	{
+		Buffer* buffer = nullptr;
+
+		if(m_BVTriangles.size() >= m_BVBufferNumOfElements)
+		{
+			VRAMMemInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
+			m_BVBufferNumOfElements = m_BVTriangles.size() + 1;
+			Buffer::Description buffDesc;
+			buffDesc.initData = &m_BVTriangles;
+			buffDesc.numOfElements = m_BVBufferNumOfElements;
+			buffDesc.sizeOfElement = sizeof(XMFLOAT4);
+			buffDesc.type = Buffer::Type::VERTEX_BUFFER;
+			buffDesc.usage = Buffer::Usage::DEFAULT;
+	
+			buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
+			VRAMMemInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
+			SAFE_DELETE(m_BVBuffer);
+			m_BVBuffer = buffer;
+		}
+		else 
+		{
+			m_DeviceContext->UpdateSubresource(m_BVBuffer->getBufferPointer(), NULL, NULL, m_BVTriangles.data(), 0, 0);
+			buffer = m_BVBuffer;
+		}
+
+		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
+
+		m_DeviceContext->RSSetState(m_RasterStateBV);
+
+		buffer->setBuffer(0);
+		m_BVShader->setShader();
+	
+		m_DeviceContext->Draw(m_BVTriangles.size(), 0);
+
+		m_Shader->unSetShader();
+		buffer->unsetBuffer(0);
+
+		m_DeviceContext->RSSetState(m_RasterState);
+
+		buffer = nullptr;
+		m_BVTriangles.clear();
 	}
 }
 

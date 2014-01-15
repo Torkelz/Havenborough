@@ -6,7 +6,8 @@ enum class BoundingVolumeType
 {
 	SPHERE,
 	AABB,
-	OBB
+	OBB,
+	HULL
 };
 
 enum class Type
@@ -18,16 +19,61 @@ enum class Type
 	OBBVSOBB,
 	OBBVSSPHERE,
 	OBBVSAABB,
+	HULLVSSPHERE,
 	VSEDGE
+};
+
+struct Triangle
+{
+	Vector4 corners[3];
+
+	Triangle(){}
+	Triangle(Vector4 p_Corner1, Vector4 p_Corner2, Vector4 p_Corner3)
+	{
+		corners[0] = p_Corner1;
+		corners[1] = p_Corner2;
+		corners[2] = p_Corner3;
+	}
+	/**
+	 * Relative translation of the triangle.
+	 * @param p_Position how much to move from last frame.
+	 */
+	void translate(Vector4 p_Position)
+	{
+		p_Position.w = 0.f;
+		corners[0] = corners[0] + p_Position;
+		corners[1] = corners[1] + p_Position;
+		corners[2] = corners[2] + p_Position;
+	}
+	/**
+	 * Uniform(same amount in all axis) scaling of the triangle. Used for debug drawing with spheres.
+	 * @param p_Size the new size of the triangle, increases the distance between the corners.
+	 */
+	void uniformScale(float p_Size)
+	{
+		corners[0] = corners[0] * p_Size;
+		corners[1] = corners[1] * p_Size;
+		corners[2] = corners[2] * p_Size;
+	}
+
+	void scale(Vector3 p_Scale)
+	{
+
+	}
+
+	void rotation(Vector3 p_Rotation)
+	{
+
+	}
 };
 
 struct HitData
 {
-	Vector4			colPos;
+	Vector4			colPos;	// cm
 	Vector4			colNorm;
 	bool			intersect;
 	Type			colType;
-	float			colLength;
+	float			colLength;	// cm
 	BodyHandle		collider;
 	BodyHandle		collisionVictim;
 	bool			isEdge;
