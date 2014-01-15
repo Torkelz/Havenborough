@@ -39,9 +39,6 @@ public:
 	bool releaseBV(const char* p_ModelID) override; 
 	void releaseAllBoundingVolumes(void) override;
 
-	void setBVPosition(int p_Instance, Vector3 p_Position) override;
-	void setBVRotation(int p_Instance, Vector3 p_Rotation) override;
-
 	void setGlobalGravity(float p_Gravity) override;
 	Vector4 getVelocity(BodyHandle p_Body) override;
 
