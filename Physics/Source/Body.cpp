@@ -8,6 +8,10 @@ Body::BodyHandle Body::getNextHandle()
 {
 	return m_NextHandle++;
 }
+void Body::resetBodyHandleCounter()
+{
+	m_NextHandle = 1;
+}
 
 Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 	: m_Handle(getNextHandle()),

@@ -118,6 +118,10 @@ public:
 	* @return m_Handle;
 	*/
 	BodyHandle getHandle() { return m_Handle; }
+	/*
+	* reset the BodyHandleCounter. Only use when clearing the body list in physics
+	*/
+	static void resetBodyHandleCounter();
 		
 private:
 	/**
