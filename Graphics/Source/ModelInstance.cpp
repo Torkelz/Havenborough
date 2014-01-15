@@ -7,8 +7,18 @@ using namespace DirectX;
 using std::string;
 
 ModelInstance::ModelInstance()
-	:	m_CurrentFrame(0.f),
-		m_IsCalculated(false) {}
+	: m_IsCalculated(false)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		m_Tracks[i].crossfade = false;
+		m_Tracks[i].fadeFrames = 0;
+		m_Tracks[i].active = false;
+		m_Tracks[i].currentFrame = 0.0f;
+		m_Tracks[i].destinationFrame = 1.0f;
+		m_Tracks[i].clip = AnimationClip();
+	}
+}
 
 ModelInstance::~ModelInstance() {}
 
@@ -66,13 +76,79 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 
 	static const float keyfps = 24.0f;
 
-	m_CurrentFrame += p_DeltaTime * keyfps;
-
-	const unsigned int numKeyframes = p_Joints[0].m_JointAnimation.size();
-	// Could be if but has while to catch very big delta steps in time.
-	while (m_CurrentFrame >= (float)(numKeyframes - 1))
+	for (int i = 0; i < 3; i++)
 	{
-		m_CurrentFrame -= (float)(numKeyframes - 1);
+		if (m_Tracks[i].crossfade)
+		{
+			if ((float)m_Tracks[i].fadeFrames <= m_Tracks[i].fadedFrames)
+			{
+				m_Tracks[i].crossfade = false;
+				if(!m_Tracks[i].layered && m_Tracks[i].clip.m_Loop)
+				{
+					m_Tracks[0] = m_Tracks[i];
+					m_Tracks[i].active = false;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		if( m_Tracks[i].active)
+		{
+			float frameStep = p_DeltaTime * keyfps * m_Tracks[i].clip.m_AnimationSpeed;
+			m_Tracks[i].currentFrame += frameStep;
+
+			if (m_Tracks[i].crossfade)
+				m_Tracks[i].fadedFrames += abs(frameStep);
+
+			const unsigned int numKeyframes = (unsigned int)m_Tracks[i].clip.m_End;
+	
+			if (m_Tracks[i].clip.m_AnimationSpeed > 0.0f)
+			{
+				m_Tracks[i].destinationFrame = m_Tracks[i].currentFrame + 1.0f;
+				if (m_Tracks[i].currentFrame >= (float)(numKeyframes))
+				{
+					if(m_Tracks[i].clip.m_Loop)
+						m_Tracks[i].currentFrame = m_Tracks[i].clip.m_Start;
+					else
+						m_Tracks[i].active = false;
+				}
+				if (m_Tracks[i].destinationFrame >= (float)(numKeyframes))
+				{
+					if(m_Tracks[i].clip.m_Loop)
+					{
+						float dummy;
+						float frac = modff(m_Tracks[i].destinationFrame, &dummy);
+						m_Tracks[i].destinationFrame = m_Tracks[i].clip.m_Start + frac;
+					}
+					else
+						m_Tracks[i].active = false;
+				}
+			}
+			else
+			{
+				if (m_Tracks[i].currentFrame <= m_Tracks[i].clip.m_Start)
+				{
+					if(m_Tracks[i].clip.m_Loop)
+						m_Tracks[i].currentFrame = (float)(numKeyframes);
+					else
+						m_Tracks[i].active = false;
+				}
+				m_Tracks[i].destinationFrame = m_Tracks[i].currentFrame - 1.0f;
+				if (m_Tracks[i].destinationFrame <= m_Tracks[i].clip.m_Start)
+				{
+					if(m_Tracks[i].clip.m_Loop)
+					{
+						float frac = 0.0f;
+						frac = m_Tracks[i].destinationFrame - (int)m_Tracks[i].destinationFrame;
+						m_Tracks[i].destinationFrame = (float)(numKeyframes) + frac - 1;
+					}
+					else
+						m_Tracks[i].active = false;
+				}
+			}
+		}
 	}
 
 	const unsigned int numBones = p_Joints.size();
@@ -83,8 +159,54 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 	// to be done before IK is calculated and applied.
 	for(unsigned int i = 0; i < numBones; ++i)
 	{
-		XMFLOAT4X4 toParentData = p_Joints[i].interpolate(m_CurrentFrame);
-		XMMATRIX toParent = XMMatrixMultiply(XMMatrixTranspose(XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix)), XMLoadFloat4x4(&toParentData));
+		matrixDecomposed toParentData;
+		if(m_Tracks[0].clip.m_AnimationSpeed > 0)
+		{
+			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].currentFrame, m_Tracks[0].destinationFrame);
+		}
+		else
+		{
+			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].destinationFrame, m_Tracks[0].currentFrame);
+		}
+
+		if (m_Tracks[2].active && m_Tracks[2].crossfade)
+		{
+			matrixDecomposed tempData;
+			if(m_Tracks[2].clip.m_AnimationSpeed > 0)
+			{
+				tempData = p_Joints[i].interpolateEx(m_Tracks[2].currentFrame, m_Tracks[2].destinationFrame);
+			}
+			else
+			{
+				tempData = p_Joints[i].interpolateEx(m_Tracks[2].destinationFrame, m_Tracks[2].currentFrame);
+			}
+
+			if(m_Tracks[2].crossfade)
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[2].fadedFrames / (float)m_Tracks[2].fadeFrames) * m_Tracks[2].dynamicWeight);
+			else
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].dynamicWeight );
+		}
+
+		if (m_Tracks[1].active)
+		{
+			matrixDecomposed tempData;
+			if(m_Tracks[1].clip.m_AnimationSpeed > 0)
+				tempData = p_Joints[i].interpolateEx(m_Tracks[1].currentFrame, m_Tracks[1].destinationFrame);
+			else
+				tempData = p_Joints[i].interpolateEx(m_Tracks[1].destinationFrame, m_Tracks[1].currentFrame);
+
+			if(m_Tracks[1].crossfade)
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[1].fadedFrames / (float)m_Tracks[1].fadeFrames) * m_Tracks[1].dynamicWeight );
+			else
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].dynamicWeight );
+		}
+
+		XMMATRIX transMat = XMMatrixTranslationFromVector(XMLoadFloat4(&toParentData.translation));
+		XMMATRIX scaleMat = XMMatrixScalingFromVector(XMLoadFloat4(&toParentData.scale));
+		XMMATRIX rotMat = XMMatrixRotationQuaternion(XMLoadFloat4(&toParentData.rotation));
+		XMMATRIX toParentMatrix = XMMatrixTranspose(scaleMat * rotMat * transMat);
+
+		XMMATRIX toParent = XMMatrixMultiply(XMMatrixTranspose(XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix)), toParentMatrix);
 		XMStoreFloat4x4(&m_LocalTransforms[i], toParent);
 	}
 
@@ -311,8 +433,64 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 		result = XMMatrixMultiply(flipMatrix, result);
 
 		XMStoreFloat4x4(&m_FinalTransform[i], result);
-		XMMATRIX identity = XMMatrixIdentity();
-		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);
+
+		// *** Save for debugging of new animated objects. ***
+		//XMMATRIX identity = XMMatrixIdentity();
 		//XMStoreFloat4x4(&m_FinalTransform[i], identity);
+		//XMStoreFloat4x4(&m_FinalTransform[i], offSet);
+	}
+}
+
+void ModelInstance::playClip( AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames, float p_ExtraTrackWeight, int p_Track )
+{
+	m_Tracks[p_Track].active = true;
+	m_Tracks[p_Track].clip = p_Clip;
+	m_Tracks[p_Track].crossfade = p_Crossfade;
+	m_Tracks[p_Track].currentFrame = m_Tracks[p_Track].clip.m_Start;
+	m_Tracks[p_Track].dynamicWeight = p_ExtraTrackWeight;
+	m_Tracks[p_Track].fadedFrames = 0.0f;
+	m_Tracks[p_Track].fadeFrames = p_FadeFrames;
+	m_Tracks[p_Track].layered = p_Layer;
+	//if (!p_Layer)
+	//{
+	//	if(p_Crossfade)
+	//	{
+	//		// Track 2 is the fade track.
+	//		m_Tracks[2].crossfade = p_Crossfade;
+	//		m_Tracks[2].fadeFrames = p_FadeFrames;
+	//		m_Tracks[2].layered = p_Layer;
+	//		m_Tracks[2].clip = p_Clip;
+	//		m_Tracks[2].currentFrame = m_Tracks[2].clip.m_Start;
+	//		m_Tracks[2].active = true;
+	//		m_Tracks[2].fadedFrames = 0.0f;
+	//		m_Tracks[2].dynamicWeight = p_ExtraTrackWeight;
+	//	}
+	//	else
+	//	{
+	//		// Track 0 is the main track.
+	//		m_Tracks[0].clip = p_Clip;
+	//		m_Tracks[0].currentFrame = m_Tracks[0].clip.m_Start;
+	//		m_Tracks[0].active = true;
+	//		m_Tracks[0].dynamicWeight = p_ExtraTrackWeight;
+	//	}
+	//}
+	//
+	//if (p_Layer)
+	//{
+	//	// Track 1 is the extra animation track. It holds small sub-animations like wave, spellcasts etc.
+	//	m_Tracks[1].clip = p_Clip;
+	//	m_Tracks[1].active = true;
+	//	m_Tracks[1].currentFrame = m_Tracks[1].clip.m_Start;
+	//	m_Tracks[1].crossfade = p_Crossfade;
+	//	m_Tracks[1].layered = p_Layer;
+	//	m_Tracks[1].fadeFrames = p_FadeFrames;
+	//	m_Tracks[1].fadedFrames = 0.0f;
+	//	m_Tracks[1].dynamicWeight = p_ExtraTrackWeight;
+	//}
+
+	// DEBUG
+	if(!p_Layer && !p_Crossfade)
+	{
+		m_Tracks[1].active = false;
 	}
 }

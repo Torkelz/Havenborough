@@ -67,6 +67,11 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('9', "switchBVDraw");
 	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
 
+	translator->addKeyboardMapping('B', "blendAnimation");
+	translator->addKeyboardMapping('N', "resetAnimation");
+	translator->addKeyboardMapping('M', "layerAnimation");
+	translator->addKeyboardMapping('V', "resetLayerAnimation");
+	
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
 

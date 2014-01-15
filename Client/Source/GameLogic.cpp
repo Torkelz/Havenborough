@@ -135,7 +135,6 @@ void GameLogic::render()
 	m_Graphics->renderModel(ground);
 	m_Graphics->renderModel(skyBox);
 
-	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
 	//m_Graphics->drawFrame(currView);
 
 	for(int i = 0; i < 35; i++)
@@ -201,6 +200,30 @@ void GameLogic::registeredInput(std::string p_Action, float p_Value)
 	{
 		m_drawBV = !m_drawBV;
 	}
+	else if( p_Action == "blendAnimation" && p_Value == 1.0f )
+	{
+	        m_Graphics->playAnimation(wavingWitch, "Bomb", false, true, 2, 1.0f, 2);
+	        m_Graphics->playAnimation(ikTest, "Spin", false, true, 12, 1.0f, 2);
+	        m_Graphics->playAnimation(testWitch, "Idle", false, true, 12, 1.0f, 2);
+	}
+	else if( p_Action == "resetAnimation" && p_Value == 1.0f )
+	{
+	        m_Graphics->playAnimation(wavingWitch, "Kick", false, true, 2, 1.0f, 2);
+	        m_Graphics->playAnimation(ikTest, "Wave", false, true, 12, 1.0f, 2);
+	        m_Graphics->playAnimation(testWitch, "Run", false, true, 12, 1.0f, 2);
+	}
+	else if( p_Action == "layerAnimation" && p_Value == 1.0f )
+	{
+	        m_Graphics->playAnimation(ikTest, "Wave", true, false, 0, 0.7f, 1);
+	        m_Graphics->playAnimation(wavingWitch, "Bomb", true, false, 0, 0.5f, 1);
+	        m_Graphics->playAnimation(testWitch, "Idle", true, true, 12, 0.5f, 1);
+	}
+	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f )
+	{
+	        m_Graphics->playAnimation(ikTest, "Wave", false, false, 0, 1.0f, 0);
+	        m_Graphics->playAnimation(wavingWitch, "Kick", false, false, 0, 1.0f, 0);
+	        m_Graphics->playAnimation(testWitch, "Run", false, false, 0, 1.0f, 0);
+	}
 }
 
 void GameLogic::setPlayerActor(std::weak_ptr<Actor> p_Actor)
@@ -231,9 +254,13 @@ void GameLogic::loadSandbox()
 		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
 
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Dzala");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Ninja");
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
+
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
+	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
 
 	useIK_OnIK_Worm = false;
 
@@ -273,9 +300,13 @@ void GameLogic::loadSandbox()
 	m_Graphics->setModelScale(ground, Vector3(10000.f, 500.f, 10000.f));
 	m_Graphics->setModelPosition(ground, Vector3(0.f, -250.f, 0.f));
 
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug character");
-	circleWitch = m_Graphics->createModelInstance("DZALA");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug characters");
+	circleWitch = m_Graphics->createModelInstance("WITCH");
 	//m_Graphics->setModelScale(circleWitch, Vector3(0.01f, 0.01f, 0.01f));
+
+	testWitch = m_Graphics->createModelInstance("WITCH");
+	//m_Graphics->setModelScale(testWitch, Vector3(0.01f, 0.01f, 0.01f));
+	m_Graphics->setModelPosition(testWitch, Vector3(1600.0f, 0.0f, 500.0f));
 
 	standingWitch = m_Graphics->createModelInstance("DZALA");
 	m_Graphics->setModelPosition(standingWitch, Vector3(1600.f, 0.f, -500.f));
@@ -287,8 +318,8 @@ void GameLogic::loadSandbox()
 
 	ikTest = m_Graphics->createModelInstance("IKTest");
 	m_Graphics->setModelPosition(ikTest, Vector3(800.f, 100.f, 200.f));
-	m_Graphics->setModelScale(ikTest, Vector3(30.f, 30.f, 30.f));
-	m_Graphics->setModelRotation(ikTest, Vector3(PI / 4.f, 0.f, 0.f));
+	//m_Graphics->setModelScale(ikTest, Vector3(30.f, 30.f, 30.f));
+	//m_Graphics->setModelRotation(ikTest, Vector3(PI / 4.f, 0.f, 0.f));
 
 	for(unsigned int i = 0; i < numTowerBoxes; i++)
 	{
@@ -398,6 +429,14 @@ void GameLogic::loadSandbox()
 	rollSpeed = 0.03f;
 
 	witchCircleAngle = 0.0f;
+
+	
+	// Test.
+	m_Graphics->playAnimation(circleWitch, "Run", false, false, 0, 1.0f, 0);
+	m_Graphics->playAnimation(wavingWitch, "Kick", false, false, 0, 1.0f, 0);
+	m_Graphics->playAnimation(standingWitch, "Bomb", false, false, 0, 1.0f, 0);
+	m_Graphics->playAnimation(testWitch, "Run", false, false, 0, 1.0f, 0);
+	m_Graphics->playAnimation(ikTest, "Wave", false, false, 0, 1.0f, 0);
 }
 
 void GameLogic::updateSandbox(float p_DeltaTime)
@@ -438,17 +477,17 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 	}
 
 	static const float IK_Length = 500.f;
-
-	//static const char* testTargetJoint = "bn_l_foot01";
-	//static const char* testHingeJoint = "bn_l_Knee_a01";
-	//static const char* testBaseJoint = "bn_l_Tigh01";
+	
+	static const char* testTargetJoint = "L_Hand";
+	static const char* testHingeJoint = "L_LowerArm";
+	static const char* testBaseJoint = "L_UpperArm";
 
 	Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
 	Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
 	if (useIK_OnIK_Worm)
 	{
-		//m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
-		m_Graphics->applyIK_ReachPoint(ikTest, "joint4", "joint3", "joint2", IK_Target);
+		m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
+		m_Graphics->applyIK_ReachPoint(ikTest, "joint3", "joint2", "joint1", IK_Target);
 	}
 
 	//Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
@@ -461,6 +500,7 @@ void GameLogic::renderSandbox()
 	m_Graphics->renderModel(circleWitch);
 	m_Graphics->renderModel(standingWitch);
 	m_Graphics->renderModel(wavingWitch);
+	m_Graphics->renderModel(testWitch);
 	m_Graphics->renderModel(climbBox);
 	for (int box : towerBoxes)
 	{
@@ -472,9 +512,10 @@ void GameLogic::renderSandbox()
 	}
 	m_Graphics->renderModel(slantedPlane);
 
+	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.0f,-1.f,0.f));
 	m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),2000.f);
 	m_Graphics->useFrameSpotLight(Vector3(-1000.f,500.f,0.f),Vector3(0.f,1.f,0.f),
-		Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f );
+			Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f );
 	m_Graphics->useFramePointLight(Vector3(0.f, 3000.f, 3000.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
 	m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 3000.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
 }

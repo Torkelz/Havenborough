@@ -44,6 +44,7 @@ private:
 	int standingWitch;
 	int wavingWitch;
 	int ikTest;
+	int testWitch;
 	int slantedPlane;
 	int OBBhouse1;
 	int OBBhouse2;

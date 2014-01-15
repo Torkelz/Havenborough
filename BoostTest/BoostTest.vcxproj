@@ -125,6 +125,7 @@
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />

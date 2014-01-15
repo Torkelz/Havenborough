@@ -62,7 +62,7 @@ PSIn VS(VSIn input)
 	weights[0] = input.weights.x;
 	weights[1] = input.weights.y;
 	weights[2] = input.weights.z;
-	weights[3] = 1.f - input.weights.x - input.weights.y - input.weights.z;
+	weights[3] = 0.0f;//1.f - input.weights.x - input.weights.y - input.weights.z;
 
 	float4 posL			= float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float3 normalL		= float3(0.0f, 0.0f, 0.0f);

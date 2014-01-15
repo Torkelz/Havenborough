@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Joint.h"
+#include "AnimationStructs.h"
 
 #include <DirectXMath.h>
 #include <string>
@@ -12,6 +13,18 @@
  class ModelInstance
  {
  private:
+	struct AnimationTrack{
+		AnimationClip clip;
+		bool crossfade;
+		bool active;
+		bool layered;
+		int fadeFrames; // Original amount of frames to fade
+		float fadedFrames; // The amount of frames faded.
+		float currentFrame;
+		float destinationFrame;
+		float dynamicWeight;
+	};
+
 	std::string m_ModelName;
 	DirectX::XMFLOAT3 m_Position;
 	DirectX::XMFLOAT3 m_Rotation;
@@ -34,7 +47,23 @@
 	/**
 	 * The current frame time point. Non-integral values results in interpolation.
 	 */
-	float m_CurrentFrame;
+	//float m_CurrentFrame;
+	//float m_DestinationFrame;
+	//AnimationClip m_ActiveClips[2]; // "Tracks"
+	//AnimationClip m_FadeClip;
+
+	AnimationTrack m_Tracks[3];
+
+	// Blend stuff
+	//bool m_CrossfadeMainTrack;
+	//bool m_CrossfadeOffTrack;
+	//bool m_Layer;
+	//int m_FadeFramesMainTrack;
+	//int m_FadeFramesOffTrack;
+	//float m_CurrentFadeFrame;
+	//float m_DestinationFadeFrame;
+	//float m_CurrentOffTrackFrame;
+	//float m_DestinationOffTrackFrame;
 
  public:
 	/**
@@ -116,6 +145,8 @@
 	 * @param p_Joints the joints associated with the model instance.
 	 */
 	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName, const std::vector<Joint>& p_Joints);
+
+	void playClip(AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames, float p_ExtraTrackWeight, int p_Track);
 
  private:
 	void calculateWorldMatrix(void) const;

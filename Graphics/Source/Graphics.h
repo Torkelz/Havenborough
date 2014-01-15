@@ -120,7 +120,9 @@ public:
 	void renderText(void) override;
 	void renderQuad(void) override;
 	void drawFrame(int i) override;
+
 	void updateAnimations(float p_DeltaTime) override;
+	void playAnimation(int p_Instance, char* p_ClipName, bool p_Layer, bool p_Crossfade, int p_FadeFrames, float p_ExtraTrackWeight, int p_Track) override;
 
 	int getVRAMMemUsage(void) override;
 	

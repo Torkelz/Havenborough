@@ -227,6 +227,9 @@
     <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
+    <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Actor.cpp">
       <Filter>TestClient\ClientImport</Filter>
