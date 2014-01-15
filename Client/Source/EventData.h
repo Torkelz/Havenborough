@@ -1,12 +1,14 @@
 #pragma once
 #include "IEventData.h"
 
+#pragma region EXAMPLE READ THIS IF YOU DO NOT KNOW HOW TO CREATE AN EVENT
 //////////////////////////////////////////////////////////////////////////
 /// EXAMPLE EVENT DATA AND USED FOR TESTING
 //////////////////////////////////////////////////////////////////////////
 class TestEventData : public BaseEventData
 {
 private: 
+	//Parameter for event, can be of any number
 	bool m_AssumingDirectControl;
 
 public:
@@ -39,6 +41,7 @@ public:
 
 	/**
 	* Used to get the event data. User defined function.
+	* Can be of any number of functions.
 	*/
 	bool directInterventionIsNecessary(void) const
 	{
@@ -51,3 +54,4 @@ public:
 * E.g. IEventData::Type UniqueEventDataName::sk_EventType(unique_hex);
 */
 const IEventData::Type TestEventData::sk_EventType(0x77dd2b3a);
+#pragma endregion
