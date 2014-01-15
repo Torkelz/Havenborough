@@ -9,9 +9,10 @@
 class PhysicsInterface : public ActorComponent
 {
 public:
+	static const Id m_ComponentId = 1;
 	virtual Id getComponentId() const
 	{
-		return 1;
+		return m_ComponentId;
 	}
 
 	virtual void updatePosition(Vector3 p_Position) = 0;
@@ -73,11 +74,12 @@ public:
 class ModelInterface : public ActorComponent
 {
 public:
+	static const Id m_ComponentId = 2;
 	virtual Id getComponentId() const override
 	{
-		return 2;
+		return m_ComponentId;
 	}
-	virtual void render() = 0;
+	virtual void render(IGraphics* p_Graphics) = 0;
 	virtual void updateScale(const std::string& p_CompName, Vector3 p_Scale) = 0;
 	virtual void removeScale(const std::string& p_CompName) = 0;
 };
@@ -88,14 +90,10 @@ private:
 	int m_Model;
 	IGraphics* m_Graphics;
 	Vector3 m_Scale;
+	std::string meshName;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
 public:
-	void setGraphics(IGraphics* p_Graphics)
-	{
-		m_Graphics = p_Graphics;
-	}
-
 	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		const char* mesh = p_Data->Attribute("Mesh");
@@ -103,6 +101,8 @@ public:
 		{
 			throw ClientException("Component lacks mesh", __LINE__, __FILE__);
 		}
+
+		meshName = std::string(mesh);
 
 		m_Scale = Vector3(1.f, 1.f, 1.f);
 		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
@@ -113,10 +113,32 @@ public:
 			scale->QueryFloatAttribute("z", &m_Scale.z);
 		}
 
-		m_Model = m_Graphics->createModelInstance(mesh);
+		m_Model = -1;
+		m_Graphics = nullptr;
 	}
-	virtual void render() override
+	virtual void render(IGraphics* p_Graphics) override
 	{
+		if (m_Graphics != p_Graphics)
+		{
+			m_Graphics = p_Graphics;
+
+			if (m_Model == -1)
+			{
+				m_Model = m_Graphics->createModelInstance(meshName.c_str());
+				m_Graphics->setModelPosition(m_Model, m_Owner->getPosition());
+				m_Graphics->setModelRotation(m_Model, m_Owner->getRotation());
+
+				Vector3 composedScale = m_Scale;
+				for (const auto& scale : m_AppliedScales)
+				{
+					composedScale.x *= scale.second.x;
+					composedScale.y *= scale.second.y;
+					composedScale.z *= scale.second.z;
+				}
+				m_Graphics->setModelScale(m_Model, composedScale);
+			}
+		}
+
 		m_Graphics->renderModel(m_Model);
 	}
 	virtual void updateScale(const std::string& p_CompName, Vector3 p_Scale) override
@@ -146,26 +168,30 @@ public:
 	}
 	virtual void onUpdate(float p_DeltaTime) override
 	{
-		m_Graphics->setModelPosition(m_Model, m_Owner->getPosition());
-		m_Graphics->setModelRotation(m_Model, m_Owner->getRotation());
-
-		Vector3 composedScale = m_Scale;
-		for (const auto& scale : m_AppliedScales)
+		if (m_Graphics)
 		{
-			composedScale.x *= scale.second.x;
-			composedScale.y *= scale.second.y;
-			composedScale.z *= scale.second.z;
+			m_Graphics->setModelPosition(m_Model, m_Owner->getPosition());
+			m_Graphics->setModelRotation(m_Model, m_Owner->getRotation());
+
+			Vector3 composedScale = m_Scale;
+			for (const auto& scale : m_AppliedScales)
+			{
+				composedScale.x *= scale.second.x;
+				composedScale.y *= scale.second.y;
+				composedScale.z *= scale.second.z;
+			}
+			m_Graphics->setModelScale(m_Model, composedScale);
 		}
-		m_Graphics->setModelScale(m_Model, composedScale);
 	}
 };
 
 class MovementInterface : public ActorComponent
 {
 public:
+	static const Id m_ComponentId = 3;
 	virtual Id getComponentId() const override
 	{
-		return 3;
+		return m_ComponentId;
 	}
 	virtual void setVelocity(Vector3 p_Velocity) = 0;
 	virtual Vector3 getVelocity() const = 0;
@@ -237,9 +263,10 @@ public:
 class PulseInterface : public ActorComponent
 {
 public:
+	static const Id m_ComponentId = 4;
 	virtual Id getComponentId() const override
 	{
-		return 4;
+		return m_ComponentId;
 	}
 	virtual void pulseOnce() = 0;
 };

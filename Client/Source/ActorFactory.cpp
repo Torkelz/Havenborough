@@ -93,10 +93,7 @@ ActorComponent::ptr ActorFactory::createOBBComponent()
 
 ActorComponent::ptr ActorFactory::createModelComponent()
 {
-	ModelComponent* comp = new ModelComponent;
-	comp->setGraphics(m_Graphics);
-
-	return ActorComponent::ptr(comp);
+	return ActorComponent::ptr(new ModelComponent);
 }
 
 ActorComponent::ptr ActorFactory::createMovementComponent()

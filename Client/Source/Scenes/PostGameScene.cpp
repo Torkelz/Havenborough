@@ -16,8 +16,7 @@ PostGameScene::~PostGameScene()
 	m_Graphics = nullptr;
 }
 
-bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-	Input *p_InputQueue)
+bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, Input *p_InputQueue, GameLogic *p_GameLogic)
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
@@ -48,7 +47,7 @@ void PostGameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 void PostGameScene::render()
 {
 	m_Graphics->setClearColor(Vector4(1, 0, 0, 1));
-	m_Graphics->drawFrame(-1);
+	m_Graphics->setRenderTarget(-1);
 }
 
 bool PostGameScene::getIsVisible()

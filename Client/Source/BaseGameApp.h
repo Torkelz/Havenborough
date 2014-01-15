@@ -13,6 +13,11 @@
 
 #include "ResourceManager.h"
 
+
+
+//1:P
+#include "GameLogic.h"
+
 #include <string>
 
 class BaseGameApp
@@ -33,7 +38,7 @@ private:
 	bool m_Connected;
 
 	SceneManager m_SceneManager;
-	EventManager *m_EventManager;
+	std::unique_ptr<EventManager> m_EventManager;
 
 	IPhysics *m_Physics;
 	ResourceManager* m_ResourceManager;
@@ -46,6 +51,9 @@ private:
 	float m_SecsPerCnt;
 	float m_DeltaTime;
 	
+
+	//1:P
+	std::unique_ptr<GameLogic> m_GameLogic;
 public:
 	/**
 	 * Initialize the game and create a window.

@@ -11,6 +11,7 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
+	int m_CurrentDebugView;
 	
 	IGraphics *m_Graphics;
 	IPhysics *m_Physics;
@@ -19,12 +20,16 @@ private:
 
 	GameLogic *m_GameLogic;
 
+	ActorFactory m_ActorFactory;
+
+	std::vector<int> m_ResourceIDs;
+
 public: 
 	GameScene();
 	~GameScene();
 
 	bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		IPhysics *p_Physics, Input *p_InputQueue) override;
+		Input *p_InputQueue, GameLogic *p_GameLogic) override;
 	void destroy() override;
 
 	void onFrame(float p_DeltaTime, int* p_IsCurrentScene) override;
@@ -35,8 +40,9 @@ public:
 
 	void registeredInput(std::string p_Action, float p_Value) override;
 
-	void initializeGameLogic(void);
-
 	int	getID() override;
-	GameLogic* getGameLogic();
+
+private:
+	void loadSandboxModels();
+	void releaseSandboxModels();
 };

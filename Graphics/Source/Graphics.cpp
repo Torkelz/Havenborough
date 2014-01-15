@@ -25,6 +25,7 @@ Graphics::Graphics(void)
 	m_VSyncEnabled = false; //DEBUG
 
 	m_NextInstanceId = 1;
+	m_SelectedRenderTarget = 3;
 }
 
 Graphics::~Graphics(void)
@@ -202,6 +203,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
 															"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);//, shaderDesc, 1);
+
 	return true;
 }
 
@@ -497,7 +499,7 @@ void Graphics::setClearColor(Vector4 p_Color)
 	m_ClearColor[3] = p_Color.w;
 }
 
-void Graphics::drawFrame(int i)
+void Graphics::drawFrame()
 {
 	if (!m_DeviceContext || !m_DeferredRender)
 	{
@@ -510,10 +512,10 @@ void Graphics::drawFrame(int i)
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	if(i >= 0 && i <=3)
+	if(m_SelectedRenderTarget >= 0 && m_SelectedRenderTarget <=3)
 	{
 		m_Shader->setShader();
-		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(i));
+		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
 		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
 
@@ -690,6 +692,11 @@ void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Cor
 void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 {
 	GraphicsLogger::setLogFunction(p_LogCallback);
+}
+
+void Graphics::setRenderTarget(int p_RenderTarget)
+{
+	m_SelectedRenderTarget = p_RenderTarget;
 }
 
 void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata)

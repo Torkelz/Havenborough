@@ -16,7 +16,7 @@ MenuScene::~MenuScene()
 	m_Graphics = nullptr;
 }
 
-bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue)
+bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, Input *p_InputQueue, GameLogic *p_GameLogic)
 {
 	m_SceneID = p_SceneID;
 
@@ -46,7 +46,7 @@ void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 void MenuScene::render()
 {
 	m_Graphics->setClearColor(Vector4(0, 1, 0, 1));
-	m_Graphics->drawFrame(-1);
+	m_Graphics->setRenderTarget(-1);
 }
 
 bool MenuScene::getIsVisible()

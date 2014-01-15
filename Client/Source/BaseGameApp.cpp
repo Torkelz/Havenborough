@@ -18,7 +18,9 @@ const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 void BaseGameApp::init()
 {
 	Logger::log(Logger::Level::INFO, "Initializing game app");
-	
+	//1:P
+	m_GameLogic = nullptr;
+
 	m_MemUpdateDelay = 0.1f;
 	m_TimeToNextMemUpdate = 0.f;
 	
@@ -77,16 +79,21 @@ void BaseGameApp::init()
 	m_Network = INetwork::createNetwork();
 	m_Network->setLogFunction(&Logger::logRaw);
 	m_Network->initialize();
-	m_Connected = false;
+	m_Connected = false;	
 
-	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue);
+	m_GameLogic.reset(new GameLogic());
+	m_SceneManager.init(m_Graphics, m_ResourceManager, &m_InputQueue, m_GameLogic.get());
 					
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
 	m_ActorFactory.setGraphics(m_Graphics);
 
-	m_EventManager = new EventManager();
+	m_EventManager.reset(new EventManager());
+
+	m_ActorFactory.setGraphics(m_Graphics);
+	m_ActorFactory.setPhysics(m_Physics);
+	m_GameLogic->initialize(m_ResourceManager, m_Physics, &m_ActorFactory);
 }
 
 void BaseGameApp::run()
@@ -122,6 +129,8 @@ void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
 	
+	m_GameLogic->shutdown();
+	m_GameLogic.reset();
 
 	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
@@ -138,7 +147,7 @@ void BaseGameApp::shutdown()
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
 
-	SAFE_DELETE(m_EventManager);
+	m_EventManager.reset();
 
 	m_Window.destroy();
 }
@@ -248,7 +257,7 @@ void BaseGameApp::handleInput()
 			GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
 			if (gameScene)
 			{
-				gameScene->getGameLogic()->setPlayerActor(Actor::ptr());
+				m_GameLogic->setPlayerActor(Actor::ptr());
 			}
 		}
 	}
@@ -393,7 +402,7 @@ void BaseGameApp::handleNetwork()
 						GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
 						if (gameScene)
 						{
-							gameScene->getGameLogic()->setPlayerActor(actor);
+							m_GameLogic->setPlayerActor(actor);
 						}
 					}
 				}
@@ -419,8 +428,10 @@ void BaseGameApp::updateLogic()
 		actor->onUpdate(m_DeltaTime);
 	}
 
-	m_EventManager->processEvents();
 	m_SceneManager.onFrame(m_DeltaTime);
+	m_GameLogic->onFrame(m_DeltaTime);
+
+	m_EventManager->processEvents();
 }
 
 void BaseGameApp::render()
@@ -432,11 +443,12 @@ void BaseGameApp::render()
 
 		if (strongGraphicsComponent)
 		{
-			strongGraphicsComponent->render();
+			strongGraphicsComponent->render(m_Graphics);
 		}
 	}
 
 	m_SceneManager.render();
+	m_Graphics->drawFrame();
 }
 
 Actor::ptr BaseGameApp::getActor(Actor::Id p_Actor)
@@ -464,3 +476,4 @@ void BaseGameApp::removeActor(Actor::Id p_Actor)
 		}
 	}
 }
+
