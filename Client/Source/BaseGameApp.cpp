@@ -394,7 +394,7 @@ void BaseGameApp::updateLogic()
 		actor->onUpdate(m_DeltaTime);
 	}
 
-	m_EventManager->tickUpdate();
+	m_EventManager->processEvents();
 	m_SceneManager.onFrame(m_DeltaTime);
 }
 

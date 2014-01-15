@@ -2,8 +2,7 @@
 #include "ClientExceptions.h"
 #include "Logger.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+const std::chrono::milliseconds IEventManager::m_MaxProcessTime(std::numeric_limits<long long>::max());
 
 EventManager::EventManager() :
 	IEventManager()
@@ -122,12 +121,11 @@ bool EventManager::abortEvent(const IEventData::EventType &p_Type, bool p_AllOfT
 	return success;
 }
 
-bool EventManager::tickUpdate(unsigned long p_MaxMS /*= kINFINITE*/)
+bool EventManager::processEvents(std::chrono::milliseconds p_MaxMS /*= m_MaxProcessTime*/)
 {
-	unsigned long currMs = getTickCount();
-	unsigned long maxMs = ((p_MaxMS == IEventManager::kINFINITE) ?
-		(IEventManager::kINFINITE) : (currMs + p_MaxMS));
-
+	Timer::time_point currTime = Timer::now(); //getCurrentTime();
+	Timer::time_point stopTime = currTime + p_MaxMS;
+	
 	int queueToProcess = m_ActiveQueue;
 	m_ActiveQueue = (m_ActiveQueue + 1) % EVENTMANAGER_NUM_QUEUES;
 	m_Queues[m_ActiveQueue].clear();
@@ -150,8 +148,8 @@ bool EventManager::tickUpdate(unsigned long p_MaxMS /*= kINFINITE*/)
 			}
 		}
 
-		currMs = getTickCount();
-		if(p_MaxMS != IEventManager::kINFINITE && currMs >= maxMs)
+		currTime = Timer::now(); //getCurrentTime();
+		if(p_MaxMS != m_MaxProcessTime && currTime >= stopTime)
 		{
 			Logger::log(Logger::Level::WARNING, "Aborting event processing, time ran out.");
 			break;
@@ -170,12 +168,4 @@ bool EventManager::tickUpdate(unsigned long p_MaxMS /*= kINFINITE*/)
 	}
 
 	return queueFlushed;
-}
-
-unsigned long EventManager::getTickCount(void)
-{
-	unsigned __int64 currTimeStamp = 0;
-	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
-
-	return (long)currTimeStamp;
 }

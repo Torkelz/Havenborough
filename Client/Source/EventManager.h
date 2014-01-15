@@ -12,6 +12,7 @@ class EventManager : public IEventManager
 	typedef std::list<IEventData::IEventDataPtr> EventQueue;
 
 private:
+	typedef std::chrono::high_resolution_clock Timer;
 	EventListenerMap m_EventListeners;
 	EventQueue m_Queues[EVENTMANAGER_NUM_QUEUES];
 	int m_ActiveQueue;
@@ -30,8 +31,5 @@ public:
 
 	virtual bool abortEvent(const IEventData::EventType &p_Type, bool p_AllOfType = false) override;
 
-	virtual bool tickUpdate(unsigned long p_MaxMS = kINFINITE) override;
-
-private:
-	virtual unsigned long getTickCount(void) override;
+	virtual bool processEvents(std::chrono::milliseconds p_MaxMS = m_MaxProcessTime) override;
 };

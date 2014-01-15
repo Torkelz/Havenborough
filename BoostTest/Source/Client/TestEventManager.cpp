@@ -17,7 +17,7 @@ void testDelegate(IEventData::IEventDataPtr in)
 }
 void testDelegateWhile(IEventData::IEventDataPtr in)
 {
-	Sleep(1);
+	Sleep(2);
 }
 
 BOOST_AUTO_TEST_CASE(TestEventDataTest)
@@ -120,16 +120,19 @@ BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdate)
 	IEventData::EventType eventCheck(0x77dd2b3a);
 	BOOST_CHECK_NO_THROW(testEventManager.addListener(delegater, eventCheck));
 
+	std::chrono::milliseconds harvestTime(10);
 	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
-	BOOST_CHECK(testEventManager.tickUpdate(10) == true);
+	BOOST_CHECK(testEventManager.processEvents(harvestTime) == true);
 	BOOST_CHECK(testFlag == true);
 	BOOST_CHECK(testEventManager.abortEvent(eventCheck, true) == false);
 	BOOST_CHECK_NO_THROW(testEventManager.removeListener(delegater, eventCheck));
 
+	std::chrono::milliseconds processTime(4);
 	BOOST_CHECK_NO_THROW(testEventManager.addListener(delegaterWhile, eventCheck));
 	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
 	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
-	BOOST_CHECK(testEventManager.tickUpdate(10) == false);
+	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
+	BOOST_CHECK(testEventManager.processEvents(processTime) == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
