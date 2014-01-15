@@ -11,11 +11,11 @@ BOOST_AUTO_TEST_SUITE(TestEventManager)
 
 bool testFlag = false;
 
-void testDelegate(IEventData::IEventDataPtr in)
+void testDelegate(IEventData::Ptr in)
 {
 	testFlag = true;
 }
-void testDelegateWhile(IEventData::IEventDataPtr in)
+void testDelegateWhile(IEventData::Ptr in)
 {
 	Sleep(2);
 }
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(TestEventDataTest)
 	std::string type(Harbinger->getName());
 	BOOST_CHECK(type == "TestEvent");
 
-	IEventData::EventType eventCheck(0x77dd2b3a);
+	IEventData::Type eventCheck(0x77dd2b3a);
 	BOOST_CHECK(Harbinger->getEventType() == eventCheck);
 
 	std::shared_ptr<TestEventData> Sovereign = std::static_pointer_cast<TestEventData>(Harbinger->copy());
@@ -39,8 +39,8 @@ BOOST_AUTO_TEST_CASE(TestEventDataTest)
 BOOST_AUTO_TEST_CASE(TestEventManagerAddListener)
 {
 	EventManager testEventManager;
-	IEventManager::EventListenerDelegate delegater = &TestEventManager::testDelegate;
-	IEventData::EventType eventCheck(0x77dd2b3a);
+	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	IEventData::Type eventCheck(0x77dd2b3a);
 	BOOST_CHECK_NO_THROW(testEventManager.addListener(delegater, eventCheck));
 
 	//Should throw since event type already has been added.
@@ -50,9 +50,9 @@ BOOST_AUTO_TEST_CASE(TestEventManagerAddListener)
 BOOST_AUTO_TEST_CASE(TestEventManagerRemoveListener)
 {
 	EventManager testEventManager;
-	IEventManager::EventListenerDelegate delegater = &TestEventManager::testDelegate;
-	IEventData::EventType eventCheck(0x77dd2b3a);
-	IEventData::EventType eventCheckNotAdded(0x77dd2b3b);
+	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	IEventData::Type eventCheck(0x77dd2b3a);
+	IEventData::Type eventCheckNotAdded(0x77dd2b3b);
 
 	BOOST_CHECK_NO_THROW(testEventManager.addListener(delegater, eventCheck));
 	
@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(TestEventManagerRemoveListener)
 BOOST_AUTO_TEST_CASE(TestEventManagerTriggerTriggerEvent)
 {
 	EventManager testEventManager;
-	IEventManager::EventListenerDelegate delegater = &TestEventManager::testDelegate;
-	IEventData::EventType eventCheck(0x77dd2b3a);
+	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	IEventData::Type eventCheck(0x77dd2b3a);
 
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
 	BOOST_CHECK(testEventManager.triggerTriggerEvent(Harbinger) == false);
@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_CASE(TestEventManagerTriggerTriggerEvent)
 BOOST_AUTO_TEST_CASE(TestEventManagerQueueEvent)
 {
 	EventManager testEventManager;
-	IEventManager::EventListenerDelegate delegater = &TestEventManager::testDelegate;
-	IEventData::EventType eventCheck(0x77dd2b3a);
+	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	IEventData::Type eventCheck(0x77dd2b3a);
 
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
 	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == false);
@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE(TestEventManagerQueueEvent)
 BOOST_AUTO_TEST_CASE(TestEventManagerAbortEvent)
 {
 	EventManager testEventManager;
-	IEventManager::EventListenerDelegate delegater = &TestEventManager::testDelegate;
-	IEventData::EventType eventCheck(0x77dd2b3a);
+	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	IEventData::Type eventCheck(0x77dd2b3a);
 
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
 
@@ -113,11 +113,11 @@ BOOST_AUTO_TEST_CASE(TestEventManagerAbortEvent)
 BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdate)
 {
 	EventManager testEventManager;
-	IEventManager::EventListenerDelegate delegater = &TestEventManager::testDelegate;
-	IEventManager::EventListenerDelegate delegaterWhile = &TestEventManager::testDelegateWhile;
+	EventListenerDelegate delegater = &TestEventManager::testDelegate;
+	EventListenerDelegate delegaterWhile = &TestEventManager::testDelegateWhile;
 
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
-	IEventData::EventType eventCheck(0x77dd2b3a);
+	IEventData::Type eventCheck(0x77dd2b3a);
 	BOOST_CHECK_NO_THROW(testEventManager.addListener(delegater, eventCheck));
 
 	std::chrono::milliseconds harvestTime(10);

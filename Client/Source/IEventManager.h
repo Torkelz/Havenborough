@@ -3,13 +3,13 @@
 #include "IEventData.h"
 #include <chrono>
 
+typedef fastdelegate::FastDelegate1<IEventData::Ptr> EventListenerDelegate;
+
 class IEventManager
 {
 public:
 	static const std::chrono::milliseconds m_MaxProcessTime;
 	
-	typedef fastdelegate::FastDelegate1<IEventData::IEventDataPtr> EventListenerDelegate;
-
 	/**
 	* Constructor.
 	*/
@@ -24,24 +24,24 @@ public:
 	* Adds a function to be run when a specific event is triggered.
 	*	Note, an exception is thrown if adding already existing combination of function and type.
 	* @param p_EventDelegate 
-	* @param p_Type the unique IEventData::EventType identifier to trigger the function
+	* @param p_Type the unique IEventData::Type identifier to trigger the function
 	*/
-	virtual void addListener(const EventListenerDelegate &p_EventDelegate, const IEventData::EventType &p_Type) = 0;
+	virtual void addListener(const EventListenerDelegate &p_EventDelegate, const IEventData::Type &p_Type) = 0;
 
 	/**
 	* Removes a function which is triggered on a specific event.
 	* @param p_EventDelegate 
-	* @param p_Type the unique IEventData::EventType identifier which trigger the function
+	* @param p_Type the unique IEventData::Type identifier which trigger the function
 	* @return true if function is removed, otherwise false
 	*/
-	virtual bool removeListener(const EventListenerDelegate &p_EventDelegate, const IEventData::EventType &p_Type) = 0;
+	virtual bool removeListener(const EventListenerDelegate &p_EventDelegate, const IEventData::Type &p_Type) = 0;
 
 	/**
 	* Instantly trigger the functions linked to this event data
 	* @param p_Event the data to be sent to the functions
 	* @return true if the functions linked was processed, otherwise false
 	*/
-	virtual bool triggerTriggerEvent(const IEventData::IEventDataPtr &p_Event) const = 0;
+	virtual bool triggerTriggerEvent(const IEventData::Ptr &p_Event) const = 0;
 
 	/**
 	* Queue an event data to run when processEvents function is called
@@ -49,7 +49,7 @@ public:
 	* @param p_Event the data to be sent to the functions
 	* @return true if the event data was added to the queue, otherwise false
 	*/
-	virtual bool queueEvent(const IEventData::IEventDataPtr &p_Event) = 0;
+	virtual bool queueEvent(const IEventData::Ptr &p_Event) = 0;
 
 	/**
 	* Aborts an event data which have not yet been processed by processEvents function
@@ -58,7 +58,7 @@ public:
 	* @param (true) Aborts all of the provided types, (false) aborts the first one in the queue
 	* @return true if event type was successfully aborted
 	*/
-	virtual bool abortEvent(const IEventData::EventType &p_Type, bool p_AllOfType = false) = 0;
+	virtual bool abortEvent(const IEventData::Type &p_Type, bool p_AllOfType = false) = 0;
 
 	/**
 	* Process all the events in the queue

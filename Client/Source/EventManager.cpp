@@ -15,7 +15,7 @@ EventManager::~EventManager(void)
 
 }
 
-void EventManager::addListener(const EventListenerDelegate &p_EventDelegate, const IEventData::EventType &p_Type)
+void EventManager::addListener(const EventListenerDelegate &p_EventDelegate, const IEventData::Type &p_Type)
 {
 	EventListenerList &eventListenerList = m_EventListeners[p_Type];
 	for(auto it = eventListenerList.begin(); it != eventListenerList.end(); ++it)
@@ -29,7 +29,7 @@ void EventManager::addListener(const EventListenerDelegate &p_EventDelegate, con
 	eventListenerList.push_back(p_EventDelegate);
 }
 
-bool EventManager::removeListener(const EventListenerDelegate &p_EventDelegate, const IEventData::EventType &p_Type)
+bool EventManager::removeListener(const EventListenerDelegate &p_EventDelegate, const IEventData::Type &p_Type)
 {
 	bool success = false;
 
@@ -53,7 +53,7 @@ bool EventManager::removeListener(const EventListenerDelegate &p_EventDelegate, 
 	return success;
 }
 
-bool EventManager::triggerTriggerEvent(const IEventData::IEventDataPtr &p_Event) const 
+bool EventManager::triggerTriggerEvent(const IEventData::Ptr &p_Event) const 
 {
 	bool processed = false;
 	auto findIt = m_EventListeners.find(p_Event->getEventType());
@@ -73,7 +73,7 @@ bool EventManager::triggerTriggerEvent(const IEventData::IEventDataPtr &p_Event)
 	return processed;
 }
 
-bool EventManager::queueEvent(const IEventData::IEventDataPtr &p_Event)
+bool EventManager::queueEvent(const IEventData::Ptr &p_Event)
 {
 	if((m_ActiveQueue >= 0 && m_ActiveQueue < EVENTMANAGER_NUM_QUEUES) == false)
 		throw EventException("Error queue is out of bounds.", __LINE__, __FILE__);
@@ -88,7 +88,7 @@ bool EventManager::queueEvent(const IEventData::IEventDataPtr &p_Event)
 	return false;
 }
 
-bool EventManager::abortEvent(const IEventData::EventType &p_Type, bool p_AllOfType /*= false*/)
+bool EventManager::abortEvent(const IEventData::Type &p_Type, bool p_AllOfType /*= false*/)
 {
 	if((m_ActiveQueue >= 0 && m_ActiveQueue < EVENTMANAGER_NUM_QUEUES) == false)
 		throw EventException("Error queue is out of bounds.", __LINE__, __FILE__);
@@ -132,10 +132,10 @@ bool EventManager::processEvents(std::chrono::milliseconds p_MaxMS /*= m_MaxProc
 
 	while(!m_Queues[queueToProcess].empty())
 	{
-		IEventData::IEventDataPtr event = m_Queues[queueToProcess].front();
+		IEventData::Ptr event = m_Queues[queueToProcess].front();
 		m_Queues[queueToProcess].pop_front();
 
-		const IEventData::EventType &eventType = event->getEventType();
+		const IEventData::Type &eventType = event->getEventType();
 		auto findIt = m_EventListeners.find(eventType);
 
 		if(findIt != m_EventListeners.end())
@@ -161,7 +161,7 @@ bool EventManager::processEvents(std::chrono::milliseconds p_MaxMS /*= m_MaxProc
 	{
 		while(!m_Queues[queueToProcess].empty())
 		{
-			IEventData::IEventDataPtr event = m_Queues[queueToProcess].back();
+			IEventData::Ptr event = m_Queues[queueToProcess].back();
 			m_Queues[queueToProcess].pop_back();
 			m_Queues[m_ActiveQueue].push_front(event);
 		}

@@ -5,14 +5,14 @@
 class IEventData
 {
 public:
-	typedef std::shared_ptr<IEventData> IEventDataPtr;
-	typedef unsigned long EventType;
+	typedef std::shared_ptr<IEventData> Ptr;
+	typedef unsigned long Type;
 
 	/**
 	* Gets the type of event.
 	* @return the type of event as unsigned long
 	*/
-	virtual const EventType &getEventType(void) const = 0;
+	virtual const Type &getEventType(void) const = 0;
 
 	/**
 	* Gets the time stamp of the event.
@@ -30,7 +30,7 @@ public:
 	* Copies a shared pointer of event data.
 	* @return deep copy of the pointer
 	*/
-	virtual IEventDataPtr copy(void) const = 0;
+	virtual Ptr copy(void) const = 0;
 
 	/**
 	* Gets the name of the event.
@@ -54,7 +54,7 @@ public:
 	{
 	}
 
-	virtual const EventType &getEventType(void) const = 0;
+	virtual const Type &getEventType(void) const = 0;
 
 	float getTimeStamp(void) const
 	{
