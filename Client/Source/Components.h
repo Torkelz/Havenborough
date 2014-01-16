@@ -3,6 +3,7 @@
 #include "ActorComponent.h"
 #include "ClientExceptions.h"
 #include "EventData.h"
+#include "ResourceManager.h"
 
 #include <IGraphics.h>
 #include <IPhysics.h>
@@ -18,6 +19,7 @@ public:
 
 	virtual void updatePosition(Vector3 p_Position) = 0;
 	virtual void updateRotation(Vector3 p_Rotation) = 0;
+	virtual BodyHandle getBodyHandle() const = 0;
 };
 
 class OBB_Component : public PhysicsInterface
@@ -69,6 +71,10 @@ public:
 	virtual void updateRotation(Vector3 p_Rotation) override
 	{
 		m_Physics->setBodyRotation(m_Body, p_Rotation);
+	}
+	virtual BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
 	}
 };
 
@@ -123,6 +129,72 @@ public:
 	virtual void updateRotation(Vector3 p_Rotation) override
 	{
 		m_Physics->setBodyRotation(m_Body, p_Rotation);
+	}
+	virtual BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
+	}
+};
+
+class BoundingMeshComponent : public PhysicsInterface
+{
+private:
+	BodyHandle m_Body;
+	int m_MeshResourceId;
+	IPhysics* m_Physics;
+	ResourceManager* m_ResourceManager;
+	Vector3 m_Scale;
+
+public:
+	~BoundingMeshComponent()
+	{
+		m_ResourceManager->releaseResource(m_MeshResourceId);
+	}
+
+	void setPhysics(IPhysics* p_Physics)
+	{
+		m_Physics = p_Physics;
+	}
+	void setResourceManager(ResourceManager* p_ResourceManager)
+	{
+		m_ResourceManager = p_ResourceManager;
+	}
+
+	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		const char* meshName = p_Data->Attribute("Mesh");
+
+		if (!meshName)
+		{
+			throw ClientException("Collision component lacks mesh", __LINE__, __FILE__);
+		}
+
+		m_MeshResourceId = m_ResourceManager->loadResource("volume", meshName);
+
+		m_Scale = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
+		if (scale)
+		{
+			m_Scale.x = scale->FloatAttribute("x");
+			m_Scale.y = scale->FloatAttribute("y");
+			m_Scale.z = scale->FloatAttribute("z");
+		}
+
+		m_Body = m_Physics->createBVInstance(meshName);
+		m_Physics->setBodyScale(m_Body, m_Scale);
+	}
+
+	virtual void updatePosition(Vector3 p_Position) override
+	{
+		m_Physics->setBodyPosition(m_Body, p_Position);
+	}
+	virtual void updateRotation(Vector3 p_Rotation) override
+	{
+		m_Physics->setBodyRotation(m_Body, p_Rotation);
+	}
+	virtual BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
 	}
 };
 

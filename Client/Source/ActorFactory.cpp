@@ -11,6 +11,7 @@ ActorFactory::ActorFactory()
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
 	m_ComponentCreators["AABBPhysics"] = std::bind(&ActorFactory::createAABBComponent, this);
+	m_ComponentCreators["MeshPhysics"] = std::bind(&ActorFactory::createBoundingMeshComponent, this);
 	m_ComponentCreators["Model"] = std::bind(&ActorFactory::createModelComponent, this);
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
@@ -29,6 +30,11 @@ void ActorFactory::setPhysics(IPhysics* p_Physics)
 void ActorFactory::setEventManager(EventManager* p_EventManager)
 {
 	m_EventManager = p_EventManager;
+}
+
+void ActorFactory::setResourceManager(ResourceManager* p_ResourceManager)
+{
+	m_ResourceManager = p_ResourceManager;
 }
 
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
@@ -102,6 +108,15 @@ ActorComponent::ptr ActorFactory::createAABBComponent()
 {
 	AABB_Component* comp = new AABB_Component;
 	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createBoundingMeshComponent()
+{
+	BoundingMeshComponent* comp = new BoundingMeshComponent;
+	comp->setPhysics(m_Physics);
+	comp->setResourceManager(m_ResourceManager);
 
 	return ActorComponent::ptr(comp);
 }

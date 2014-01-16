@@ -48,6 +48,11 @@ void Actor::setPosition(Vector3 p_Position)
 	{
 		m_EventManager->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(comp->getId(), p_Position)));
 	}
+	std::shared_ptr<BoundingMeshComponent> boundingComp = getComponent<BoundingMeshComponent>(BoundingMeshComponent::m_ComponentId).lock();
+	if(boundingComp)
+	{
+		boundingComp->updatePosition(p_Position);
+	}
 
 	m_Position = p_Position;
 }
@@ -64,12 +69,33 @@ void Actor::setRotation(Vector3 p_Rotation)
 	{
 		m_EventManager->queueEvent(IEventData::Ptr(new UpdateModelRotationEventData(comp->getId(), p_Rotation)));
 	}
+	std::shared_ptr<BoundingMeshComponent> boundingComp = getComponent<BoundingMeshComponent>(BoundingMeshComponent::m_ComponentId).lock();
+	if(boundingComp)
+	{
+		boundingComp->updateRotation(p_Rotation);
+	}
+
 	m_Rotation = p_Rotation;
 }
 
 EventManager* Actor::getEventManager() const
 {
 	return m_EventManager;
+}
+
+std::vector<BodyHandle> Actor::getBodyHandles() const
+{
+	std::vector<BodyHandle> bodies;
+	
+	for(auto &comp : m_Components)
+	{
+		if(comp->getComponentId() == PhysicsInterface::m_ComponentId)
+		{
+			bodies.push_back(std::static_pointer_cast<PhysicsInterface>(comp)->getBodyHandle());
+		}
+	}
+	
+	return bodies;
 }
 
 void Actor::addComponent(ActorComponent::ptr p_Component)

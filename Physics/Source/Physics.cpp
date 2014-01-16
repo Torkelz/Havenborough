@@ -208,7 +208,7 @@ BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 	std::vector<BVLoader::BoundingVolume> tempBV;
 	for(auto& bv : m_TemplateBVList)
 	{
-		if(strcmp(bv.first.c_str(), p_VolumeID))
+		if(strcmp(bv.first.c_str(), p_VolumeID) == 0)
 		{
 			tempBV = bv.second;
 			break;

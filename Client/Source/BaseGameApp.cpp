@@ -38,10 +38,10 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
-	m_ResourceManager = new ResourceManager();
+	m_ResourceManager.reset(new ResourceManager());
 	using namespace std::placeholders;
-	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
-	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
+	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager.get());
+	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager.get());
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseBV, m_Physics, _1));
@@ -83,15 +83,16 @@ void BaseGameApp::init()
 
 	m_EventManager.reset(new EventManager());
 	m_GameLogic.reset(new GameLogic());
-	m_SceneManager.init(m_Graphics, m_ResourceManager, &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
+	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
 					
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
 	m_ActorFactory.setGraphics(m_Graphics);
 	m_ActorFactory.setEventManager(m_EventManager.get());
+	m_ActorFactory.setResourceManager(m_ResourceManager.get());
 
-	m_GameLogic->initialize(m_ResourceManager, m_Physics, &m_ActorFactory, m_EventManager.get());
+	m_GameLogic->initialize(m_ResourceManager.get(), m_Physics, &m_ActorFactory, m_EventManager.get());
 }
 
 void BaseGameApp::run()
@@ -135,7 +136,7 @@ void BaseGameApp::shutdown()
 	
 	m_SceneManager.destroy();
 
-	delete m_ResourceManager;
+	m_ResourceManager.reset();
 
 	m_InputQueue.destroy();
 	

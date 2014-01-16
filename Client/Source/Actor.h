@@ -3,7 +3,7 @@
 #include "ActorComponent.h"
 #include "EventManager.h"
 #include "../Utilities/XMFloatUtil.h"
-
+#include "IPhysics.h"
 #include <tinyxml2.h>
 
 #include <vector>
@@ -36,6 +36,7 @@ public:
 	Vector3 getRotation() const;
 	void setRotation(Vector3 p_Rotation);
 	EventManager* getEventManager() const;
+	std::vector<BodyHandle> getBodyHandles() const;
 
 	template <class ComponentType>
 	std::weak_ptr<ComponentType> getComponent(unsigned int m_Id)

@@ -27,8 +27,6 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
 
 	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
-
-	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(5000.f, 0.f, 5000.f), false);
 	
 	m_ChangeScene = GoToScene::NONE;
 
@@ -40,9 +38,6 @@ void GameLogic::shutdown(void)
 {
 	m_Level.releaseLevel();
 	m_Physics->releaseAllBoundingVolumes();
-	
-	//TODO: Remove when we have a real level.
-	shutdownSandbox();
 }
 
 std::vector<Actor::ptr> &GameLogic::getObjects()
@@ -111,36 +106,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 	updateSandbox(p_DeltaTime);
 }
-
-//void GameLogic::render()
-//{
-//	m_Graphics->useFrameDirectionalLight(Vector3(1.f,1.f,1.f),Vector3(0.1f,-0.99f,0.f));
-//	//m_Graphics->drawFrame(currView);
-//
-//	//addDebugBVToDraw(1);
-//	/*addDebugBVToDraw(5);
-//	addDebugBVToDraw(6);
-//	addDebugBVToDraw(7);
-//	addDebugBVToDraw(8);
-//	addDebugBVToDraw(9);
-//	addDebugBVToDraw(10);
-//	addDebugBVToDraw(11);
-//	addDebugBVToDraw(12);
-//	addDebugBVToDraw(13);
-//	addDebugBVToDraw(14);
-//	addDebugBVToDraw(15);
-//	addDebugBVToDraw(16);*/
-//
-//	for(int i = 0; i < 35; i++)
-//	{
-//		addDebugBVToDraw(i);
-//	}
-//
-//	//m_Graphics->drawFrame(currView);
-//
-//	renderSandbox();
-//	m_Graphics->drawFrame(currentDebugView);
-//}
 
 void GameLogic::setPlayerActor(std::weak_ptr<Actor> p_Actor)
 {
@@ -240,9 +205,10 @@ void GameLogic::loadSandbox()
 		rotBoxes[i] = m_Objects.back();
 	}
 
+	addBoxWithAABB(Vector3(0.f, -250.f, 0.f), Vector3(5000.f, 250.f, 5000.f));
+
 	addClimbBox();
 	skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
-	addRotatingBox(Vector3(0.f, -250.f, 0.f), Vector3(10000.f, 500.f, 10000.f));
 
 	circleWitch = addDzala(Vector3(0.f, 0.f, 0.f));
 	addDzala(Vector3(1600.f, 0.f, -500.f));
@@ -338,20 +304,9 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 	}
 }
 
-void GameLogic::shutdownSandbox()
+IPhysics *GameLogic::getPhysics() const
 {
-}
-
-void GameLogic::addDebugBVToDraw(BodyHandle p_BodyHandle)
-{
-	//unsigned int size =  m_Physics->getNrOfTrianglesFromBody(p_BodyHandle);
-
-	//for(unsigned int i = 0; i < size; i++)
-	//{
-	//	Triangle triangle;
-	//	triangle = m_Physics->getTriangleFromBody(p_BodyHandle, i);
-	//	m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
-	//}
+	return m_Physics;
 }
 
 void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Vec)

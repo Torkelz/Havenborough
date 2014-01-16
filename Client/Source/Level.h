@@ -13,9 +13,6 @@ private:
 	ActorFactory* m_ActorFactory;
 	LevelBinaryLoader m_LevelLoader, m_CollisionLoader;
 	std::vector<LevelBinaryLoader::ModelData> m_LevelData, m_LevelCollisionData;
-	std::vector<int> m_BVResourceID;
-	std::vector<int> m_DrawID;
-	std::vector<BodyHandle> m_BodyHandles;
 
 	DirectX::XMFLOAT3 m_StartPosition;
 	DirectX::XMFLOAT3 m_GoalPosition;
@@ -88,4 +85,5 @@ public:
 
 private:
 	Actor::ptr createObjectActor(std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale);
+	Actor::ptr createCollisionActor(std::string p_MeshName, Vector3 p_Translation, Vector3 p_Rotation, Vector3 p_Scale);
 };

@@ -13,9 +13,9 @@ private:
 	bool m_ChangeScene;
 	bool m_ChangeList;
 	int m_CurrentDebugView;
-	
+	bool m_RenderDebugBV;
+
 	IGraphics *m_Graphics;
-	IPhysics *m_Physics;
 	ResourceManager *m_ResourceManager;
 	Input *m_InputQueue;
 
@@ -58,6 +58,9 @@ private:
 	void updateModelPosition(IEventData::Ptr p_Data);
 	void updateModelRotation(IEventData::Ptr p_Data);
 	void updateModelScale(IEventData::Ptr p_Data);
+	
+	void renderBoundingVolume(BodyHandle p_BoundingVolume);
+
 	void loadSandboxModels();
 	void releaseSandboxModels();
 };

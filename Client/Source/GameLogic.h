@@ -91,6 +91,8 @@ public:
 	Vector3 getPlayerViewRotation() const;
 	void movePlayerView(float p_Yaw, float p_Pitch);
 
+	IPhysics *getPhysics() const;
+
 	void playerJump();
 	void toggleIK();
 
@@ -98,9 +100,6 @@ private:
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();
 	void updateSandbox(float p_DeltaTime);
-	void shutdownSandbox();
-
-	void addDebugBVToDraw(BodyHandle p_BodyHandle);
 
 	std::weak_ptr<Actor> addRotatingBox(Vector3 p_Position, Vector3 p_Scale);
 	std::weak_ptr<Actor> addSkybox(Vector3 p_Scale);

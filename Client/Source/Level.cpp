@@ -41,14 +41,6 @@ Level::~Level()
 
 void Level::releaseLevel()
 {
-	for(int j : m_BVResourceID)
-	{
-		m_Resources->releaseResource(j);
-	}
-	//for(int i : m_DrawID)
-	//	m_Graphics->eraseModelInstance(i);
-	m_BVResourceID.clear();
-	m_BVResourceID.shrink_to_fit();
 	m_LevelData.clear();
 	m_LevelData.shrink_to_fit();
 	m_LevelCollisionData.clear();
@@ -87,20 +79,16 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 	m_LevelCollisionData = m_CollisionLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
 	{
-		m_BVResourceID.push_back(m_Resources->loadResource("volume", m_LevelCollisionData.at(i).m_MeshName));
+		LevelBinaryLoader::ModelData& collisionData = m_LevelCollisionData.at(i);
+		std::string meshName = collisionData.m_MeshName;
 		
-		for(unsigned int j = 0; j < m_LevelCollisionData.at(i).m_Translation.size(); j++)
+		for(unsigned int j = 0; j < collisionData.m_Translation.size(); j++)
 		{
-			m_BodyHandles.push_back(m_Physics->createBVInstance(m_LevelData.at(i).m_MeshName.c_str()));
-			//pushback a bodyhandle to be able to rotate, scale and translate it.
-			
-			DirectX::XMFLOAT3 translation, rotation, scale;
-			translation = m_LevelCollisionData.at(i).m_Translation.at(j);
-			rotation = m_LevelCollisionData.at(i).m_Rotation.at(j);
-			scale = m_LevelCollisionData.at(i).m_Scale.at(j);
-			m_Physics->setBodyPosition(m_BodyHandles.back(), XMFLOAT3ToVector3(&translation));
-			m_Physics->setBodyRotation(m_BodyHandles.back(), XMFLOAT3ToVector3(&rotation));
-			m_Physics->setBodyScale(   m_BodyHandles.back(), XMFLOAT3ToVector3(&scale));
+			Vector3 translation = collisionData.m_Translation.at(j);
+			Vector3 rotation = collisionData.m_Rotation.at(j);
+			Vector3 scale = collisionData.m_Scale.at(j);
+
+			p_ActorOut.push_back(createCollisionActor(meshName, translation, rotation, scale));
 		}
 	}
 
@@ -140,6 +128,26 @@ Actor::ptr Level::createObjectActor(std::string p_MeshName, Vector3 p_Position, 
 
 	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
 	actor->setPosition(p_Position);
+	actor->setRotation(p_Rotation);
+
+	return actor;
+}
+
+Actor::ptr Level::createCollisionActor(std::string p_MeshName, Vector3 p_Translation, Vector3 p_Rotation, Vector3 p_Scale)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("MeshPhysics");
+	printer.PushAttribute("Mesh", p_MeshName.c_str());
+	pushVector(printer, "Scale", p_Scale);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Translation);
 	actor->setRotation(p_Rotation);
 
 	return actor;

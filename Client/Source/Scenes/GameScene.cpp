@@ -12,7 +12,6 @@ GameScene::GameScene()
 	
 	m_GameLogic = nullptr;
 	m_Graphics = nullptr;
-	m_Physics = nullptr;
 	m_InputQueue = nullptr;
 }
 
@@ -39,7 +38,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelScaleEventData::sk_EventType);
 
 	m_CurrentDebugView = 3;
-	
+	m_RenderDebugBV = true;
 	loadSandboxModels();
 
 	return true;
@@ -92,6 +91,17 @@ void GameScene::render()
 	for (auto& mesh : m_Models)
 	{
 		m_Graphics->renderModel(mesh.modelId);
+	}
+
+	if(m_RenderDebugBV)
+	{
+		for(auto &object : m_GameLogic->getObjects())
+		{
+			for (BodyHandle body : object->getBodyHandles())
+			{
+				renderBoundingVolume(body);
+			}
+		}
 	}
 	
 	for(auto &light : m_Lights)
@@ -238,6 +248,18 @@ void GameScene::updateModelScale(IEventData::Ptr p_Data)
 		{
 			m_Graphics->setModelRotation(model.modelId, scaleData->getScale());
 		}
+	}
+}
+
+void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
+{
+	unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle);
+
+	for(unsigned int i = 0; i < size; i++)
+	{
+		Triangle triangle;
+		triangle = m_GameLogic->getPhysics()->getTriangleFromBody(p_BodyHandle, i);
+		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
 	}
 }
 
