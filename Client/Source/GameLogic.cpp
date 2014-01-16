@@ -351,10 +351,10 @@ void GameLogic::loadSandbox()
 		m_Physics->createAABB(50.f, true, towerBoxPositions[i], towerBoxSizes[i] * 0.5f, false);
 	}
 
-	m_Physics->createAABB(0.f, true, Vector3(3000.f, 680.f, 3700.f), Vector3(280.f, 60.f, 20.f), true);
-	m_Physics->createAABB(0.f, true, Vector3(3000.f, 680.f, 4300.f), Vector3(280.f, 60.f, 20.f), true);
-	m_Physics->createAABB(0.f, true, Vector3(2700.f, 680.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
-	m_Physics->createAABB(0.f, true, Vector3(3300.f, 680.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(3000.f, 650.f, 3700.f), Vector3(280.f, 60.f, 20.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(3000.f, 650.f, 4300.f), Vector3(280.f, 60.f, 20.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(2700.f, 650.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(3300.f, 650.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
 
 	for(unsigned int i = 0; i < numRotatedTowerBoxes; i++)
 	{
