@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ISound.h" />
+    <ClInclude Include="Source\SoundExceptions.h" />
     <ClInclude Include="Source\SoundLogger.h" />
     <ClInclude Include="Source\Sound.h" />
   </ItemGroup>

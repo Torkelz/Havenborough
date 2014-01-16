@@ -5,13 +5,22 @@
 class ISound
 {
 public:
-
+	enum class ChannelGroup
+	{
+		MASTER,
+		MUSIC,
+		SFX
+	};
 	/**
-	 * 
+	 * Create an instance of the sound library.
+	 *
+	 * Use {@link #deleteNetwork(ISound*)} to clean up.
+	 *
+	 * @return a pointer to the sound library implementation.
 	 */
 	__declspec(dllexport) static ISound *createSound(void);
 	/**
-	 * 
+	 * Clear sub resources allocated by the network and delete the library. 
 	 */
 	__declspec(dllexport) static void deleteSound(ISound *p_Sound);
     /**
@@ -49,24 +58,27 @@ public:
 	 */
 	virtual void stopSound(const char *p_SoundId) = 0;
 	/**
-	 * Set Volume of a specific channel.
+	 * Set Volume of a specific sound.
 	 * @param p_ChannelId which channel to change the volume on
 	 * @param p_Volume the new volume value
 	 */
 	virtual void setSoundVolume(const char *p_ChannelId, float p_Volume) = 0;
 	/**
-	 * Set Volume for all channels.
+	 * Set Volume for all sounds in a group.
+	 * @param p_Group which group to change the Volume on, use Master to change volume all sounds.
 	 * @param p_Volume the new volume value
 	 */
-	virtual void setMasterVolume(float p_Volume) = 0;
+	virtual void setGroupVolume(ChannelGroup p_Group, float p_Volume) = 0;
 	/**
-	 * Mute all channels.
+	 * Mute/unmute all sounds.
+	 * @param p_Mute true = mutes all sounds, false = unmutes all sounds
 	 */
-	virtual void muteAll(void) = 0;
+	virtual void muteAll(bool p_Mute) = 0;
 	/**
-	 * Unmute all channels
+	 * Pause/unpause all sounds
+	 * @p_Pause true = pauses all sounds, false = unpauses all sounds
 	 */
-	virtual void unmuteAll(void) = 0;
+	virtual void pauseAll(bool p_Pause) = 0;
 	/**
 	 * Release a sound from memory
 	 * @param p_SoundId which sound to release

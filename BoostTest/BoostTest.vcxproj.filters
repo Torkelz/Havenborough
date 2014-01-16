@@ -38,9 +38,6 @@
     <ClCompile Include="..\Client\Source\ResourceTranslator.cpp">
       <Filter>TestResourceManager\Import</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\BaseGameApp.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="TestResourceManager.cpp">
       <Filter>TestResourceManager</Filter>
     </ClCompile>
@@ -251,12 +248,6 @@
     </ClCompile>
     <ClCompile Include="HullTest.cpp">
       <Filter>TestPhysics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Sound\Source\Sound.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Sound\Source\SoundLogger.cpp">
-      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
