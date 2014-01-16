@@ -25,9 +25,11 @@ Install FMOD Ex by running the downloaded .exe file.
 ### Environment Variables ###
 - FMOD_INC_DIR: Path to FMOD includes, for example 'C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows\api\inc'
 - FMOD_LIB_DIR: Path to FMOD libs, for example 'C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows\api\lib'
-- FMOD_DLL_DIR: Path to FMOD dll, for example 'C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows\api'
+- FMOD_DLL_DIR: Path to FMOD dll, for example 'C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows\api'  
 
+Remeber to restart your computer before using the variables!
 ### Linking DLL ###
 Right click the Client project in Visual Studio and click properties.  
-Open the page Configuration Properties->Debugging.  
-In the field Environment add $(FMOD_DLL_DIR)  
+Select Debug as Configuration and open the page Configuration Properties->Debugging.  
+In the field 'Environment' add '$(SolutionDir)Sound\Test;$(FMOD_DLL_DIR)'  
+Switch Configuration to Release, in the field 'Environment' add '$(SolutionDir)Sound\Bin;$(FMOD_DLL_DIR)'  
