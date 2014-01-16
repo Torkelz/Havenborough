@@ -240,16 +240,22 @@ void GameLogic::loadSandbox()
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
 	testWitch = addBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f));
+	playAnimation(testWitch.lock(), "Run");
 
 	addClimbBox();
 	skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
 
-	circleWitch = addBasicModel("DZALA", Vector3(0.f, 0.f, 0.f));
-	addBasicModel("DZALA", Vector3(1600.f, 0.f, -500.f));
+	circleWitch = addBasicModel("WITCH", Vector3(0.f, 0.f, 0.f));
+	playAnimation(circleWitch.lock(), "Run");
+	standingWitch = addBasicModel("DZALA", Vector3(1600.f, 0.f, -500.f));
+	playAnimation(standingWitch.lock(), "Bomb");
 	wavingWitch = addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
+	playAnimation(wavingWitch.lock(), "Kick");
 
-	addIK_Worm();
+	ikTest = addIK_Worm();
+	playAnimation(ikTest.lock(), "Wave");
 
+	static const unsigned int numTowerBoxes = 5;
 	Vector3 towerBoxSizes[numTowerBoxes] =
 	{
 		Vector3(2000.f, 160.f, 2000.f),
@@ -272,7 +278,8 @@ void GameLogic::loadSandbox()
 	}
 
 	addClimbTowerBox(Vector3(3000.f, 520.f, 4000.f), Vector3(300.f, 200.f, 300.f));
-
+	
+	static const unsigned int numRotatedTowerBoxes = 5;
 	Vector3 rotatedTowerBoxSizes[numRotatedTowerBoxes] =
 	{
 		Vector3(2000.f, 160.f, 2000.f),
@@ -431,7 +438,6 @@ std::weak_ptr<Actor> GameLogic::addIK_Worm()
 	printer.OpenElement("Object");
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "IKTest");
-	pushVector(printer, "Scale", Vector3(30.f, 30.f, 30.f));
 	printer.CloseElement();
 	printer.CloseElement();
 
@@ -440,7 +446,6 @@ std::weak_ptr<Actor> GameLogic::addIK_Worm()
 
 	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
 	actor->setPosition(Vector3(800.f, 100.f, 200.f));
-	actor->setRotation(Vector3(PI / 4.f, 0.f, 0.f));
 
 	m_Objects.push_back(actor);
 

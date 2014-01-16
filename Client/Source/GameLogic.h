@@ -18,9 +18,7 @@ public:
 	};
 
 private:
-	//IGraphics *m_Graphics;
 	IPhysics *m_Physics;
-	//Input *m_InputQueue;
 	ResourceManager *m_ResourceManager;
 	EventManager *m_EventManager;
 
@@ -42,21 +40,16 @@ private:
 	//DEBUG
 	std::weak_ptr<Actor> circleWitch;
 	std::weak_ptr<Actor> skyBox;
-	int standingWitch;
+	std::weak_ptr<Actor> standingWitch;
 	std::weak_ptr<Actor> wavingWitch;
 	std::weak_ptr<Actor> ikTest;
 	std::weak_ptr<Actor> testWitch;
-	int slantedPlane;
-	int OBBhouse1;
-	int OBBhouse2;
+
 	const static int NUM_BOXES = 16;
 	std::weak_ptr<Actor> rotBoxes[NUM_BOXES];
 	bool useIK_OnIK_Worm;
 	Vector3 rotBlockRotation;
-	static const unsigned int numTowerBoxes = 5;
-	int towerBoxes[numTowerBoxes];
-	static const unsigned int numRotatedTowerBoxes = 5;
-	int rotatedTowerBoxes[numRotatedTowerBoxes];
+
 	Vector3 lookDir;
 	float witchCircleAngle;
 

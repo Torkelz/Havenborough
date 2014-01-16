@@ -80,13 +80,6 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_Graphics->updateAnimations(p_DeltaTime);
 
-	// Test.
-	//m_Graphics->playAnimation(circleWitch, "Run");
-	//m_Graphics->playAnimation(wavingWitch, "Kick");
-	//m_Graphics->playAnimation(standingWitch, "Bomb");
-	//m_Graphics->playAnimation(testWitch, "Run");
-	//m_Graphics->playAnimation(ikTest, "Wave");
-
 	static const char* testTargetJoint = "L_Hand";
 	static const char* testHingeJoint = "L_LowerArm";
 	static const char* testBaseJoint = "L_UpperArm";
