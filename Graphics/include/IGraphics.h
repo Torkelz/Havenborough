@@ -206,7 +206,13 @@ public:
 	 */
 	virtual void updateAnimations(float p_DeltaTime) = 0;
 
-	virtual void playAnimation(int p_Instance, char* p_ClipName, bool p_Layer, bool p_Crossfade, int p_FadeFrames, float p_ExtraTrackWeight, int p_Track) = 0;
+	/**
+	 * Decide what animation that should be played when update animation is invoked.
+	 *
+	 * @param p_Instance the model that should change animation data.
+	 * @param p_ClipName the new animation clip to be played next time update animation is invoked.
+	 */
+	virtual void playAnimation(int p_Instance, char* p_ClipName) = 0;
 
 	/**
 	 * Gets the amount of VRAM usage of the program.

@@ -56,10 +56,40 @@ std::map<std::string, AnimationClip> AnimationClipLoader::load(std::string p_Fil
 					stringstream = std::stringstream(line);
 					stringstream >> key >> ac.m_FirstJoint;
 
-					// Priority level
+					// Destination track
 					std::getline(input, line);
 					stringstream = std::stringstream(line);
-					stringstream >> key >> ac.m_PriorityLevel;
+					stringstream >> key >> ac.m_DestinationTrack;
+					
+					// Layer animation
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ac.m_Layered;
+					
+					// Fade in animation
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ac.m_FadeIn;
+					
+					// Fade in frames
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ac.m_FadeInFrames;
+					
+					// Fade out animation
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ac.m_FadeOut;
+					
+					// Fade out frames
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ac.m_FadeOutFrames;
+
+					// Off track weight
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ac.m_Weight;
 
 					returnValue.insert( std::pair<std::string, AnimationClip>(ac.m_ClipName, ac) );
 			}

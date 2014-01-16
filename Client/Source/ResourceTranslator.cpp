@@ -18,7 +18,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	static const std::pair<std::string, std::string> modelMap[] =
 	{
 		std::make_pair("DZALA", "assets/models/Ninta2.btx"),
-		std::make_pair("WITCH", "assets/models/Witch_3_Running.btx"),
+		std::make_pair("WITCH", "assets/models/Witch_5_Running.btx"),
 		std::make_pair("House", "assets/models/house1.btx"),
 		std::make_pair("BOX", "assets/models/Sample135.btx"),
 		std::make_pair("SKYBOX", "assets/models/SkyBox.btx"),
@@ -53,11 +53,18 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	};
 	static const size_t numTextures = sizeof(textureMap) / sizeof(textureMap[0]);
 
+	static const std::pair<std::string, std::string> soundMap[] =
+	{
+		std::make_pair("Temp", "Temp"),
+	};
+	static const size_t numSounds = sizeof(soundMap) / sizeof(soundMap[0]);
+
 	static const std::pair<std::string, std::vector<const std::pair<std::string, std::string>>> resourceMaps[] =
 	{
 		std::make_pair("model", std::vector<const std::pair<std::string, std::string>>(modelMap, modelMap + numModels)),
 		std::make_pair("texture", std::vector<const std::pair<std::string, std::string>>(textureMap, textureMap + numTextures)),
 		std::make_pair("volume", std::vector<const std::pair<std::string, std::string>>(boundingMap, boundingMap + numBoundingVolumes)),
+		std::make_pair("sound", std::vector<const std::pair<std::string, std::string>>(soundMap, soundMap + numSounds)),
 	};
 
 	for (const auto& map : resourceMaps)

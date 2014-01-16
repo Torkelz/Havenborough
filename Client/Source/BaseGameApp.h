@@ -9,6 +9,7 @@
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
+#include <ISound.h>
 #include "EventManager.h"
 
 #include "ResourceManager.h"
@@ -42,6 +43,7 @@ private:
 	std::vector<Actor::ptr> m_ServerActors;
 	DirectX::XMFLOAT2 m_NewWindowSize;
 
+	ISound *m_Sound;
 	__int64 m_PrevTimeStamp;
 	__int64 m_CurrTimeStamp;
 	float m_SecsPerCnt;

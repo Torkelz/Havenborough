@@ -14,15 +14,13 @@
  {
  private:
 	struct AnimationTrack{
-		AnimationClip clip;
-		bool crossfade;
+		AnimationClip clip; // Constant animation data
+
+		// Dynamic animation data
 		bool active;
-		bool layered;
-		int fadeFrames; // Original amount of frames to fade
 		float fadedFrames; // The amount of frames faded.
 		float currentFrame;
 		float destinationFrame;
-		float dynamicWeight;
 	};
 
 	std::string m_ModelName;
@@ -45,25 +43,12 @@
 	 */
 	std::vector<DirectX::XMFLOAT4X4> m_FinalTransform;
 	/**
-	 * The current frame time point. Non-integral values results in interpolation.
+	 * The animation tracks contain the timestamp information and animation clip data needed for animations and blends.
+	 * Track 0 is the main track. It contains whole body animations.
+	 * Track 1 is the first extra track. It has logic for partial body blends, fade in and out.
+	 * Track 2 is the second extra track. It has logic for whole body blends and fade ins.
 	 */
-	//float m_CurrentFrame;
-	//float m_DestinationFrame;
-	//AnimationClip m_ActiveClips[2]; // "Tracks"
-	//AnimationClip m_FadeClip;
-
 	AnimationTrack m_Tracks[3];
-
-	// Blend stuff
-	//bool m_CrossfadeMainTrack;
-	//bool m_CrossfadeOffTrack;
-	//bool m_Layer;
-	//int m_FadeFramesMainTrack;
-	//int m_FadeFramesOffTrack;
-	//float m_CurrentFadeFrame;
-	//float m_DestinationFadeFrame;
-	//float m_CurrentOffTrackFrame;
-	//float m_DestinationOffTrackFrame;
 
  public:
 	/**
@@ -146,9 +131,14 @@
 	 */
 	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName, const std::vector<Joint>& p_Joints);
 
-	void playClip(AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames, float p_ExtraTrackWeight, int p_Track);
+	/**
+	 * Play an animation clip.
+	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
+	 */
+	void playClip( AnimationClip p_Clip );
 
  private:
 	void calculateWorldMatrix(void) const;
 	void updateFinalTransforms(const std::vector<Joint>& p_Joints);
+	bool affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint);
  };

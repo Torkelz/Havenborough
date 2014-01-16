@@ -38,6 +38,10 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
+	m_Sound = ISound::createSound();
+	m_Sound->setLogFunction(&Logger::logRaw);
+	m_Sound->initialize();
+
 	m_ResourceManager = new ResourceManager();
 	using namespace std::placeholders;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
@@ -45,6 +49,7 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseBV, m_Physics, _1));
+	m_ResourceManager->registerFunction("sound", std::bind(&ISound::loadSound, m_Sound, _1, _2), std::bind(&ISound::releaseSound, m_Sound, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -145,6 +150,9 @@ void BaseGameApp::shutdown()
 	
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
+
+	ISound::deleteSound(m_Sound);
+	m_Sound = nullptr;
 
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;

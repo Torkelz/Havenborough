@@ -38,9 +38,6 @@
     <ClCompile Include="..\Client\Source\ResourceTranslator.cpp">
       <Filter>TestResourceManager\Import</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\BaseGameApp.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="TestResourceManager.cpp">
       <Filter>TestResourceManager</Filter>
     </ClCompile>
