@@ -26,7 +26,7 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 	m_ResourceManager = p_ResourceManager;
 
 	m_Level = Level(m_Graphics, m_ResourceManager, m_Physics);
-	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/CB_Level3.btxl");
+	m_Level.loadLevel("../Bin/assets/levels/Level1.btxl", "../Bin/assets/levels/Level1.btxl");
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 200.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(0.0f, 0.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
 	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
@@ -137,7 +137,7 @@ void GameLogic::render()
 
 	//m_Graphics->drawFrame(currView);
 
-	for(int i = 0; i < 35; i++)
+	for(int i = 0; i < 100; i++)
 	{
 		addDebugBVToDraw(i);
 	}
@@ -235,13 +235,11 @@ void GameLogic::setPlayerActor(std::weak_ptr<Actor> p_Actor)
 
 void GameLogic::loadSandbox()
 {
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("volume", "House"));
-
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
 		"SKYBOX",
-		"House",
+		"House1",
 	};
 
 	for (const std::string& model : preloadedModels)

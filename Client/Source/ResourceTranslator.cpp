@@ -17,33 +17,47 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 {
 	static const std::pair<std::string, std::string> modelMap[] =
 	{
+		std::make_pair("Barrel1", "assets/models/Barrel1.btx"),
+		std::make_pair("BrownCrate", "assets/models/BrownCrate.btx"),
+		//std::make_pair("Charachter_Witch", "assets/models/Character_Witch.btx"),
+		std::make_pair("Crate1", "assets/models/Crate1.btx"),
+		std::make_pair("GreenCrate", "assets/models/GreenCrate.btx"),
+		std::make_pair("House1", "assets/models/house1.btx"),
+		std::make_pair("House3", "assets/models/house3.btx"),
+		std::make_pair("LightBlueCrate", "assets/models/LightBlueCrate.btx"),
+		std::make_pair("MarketStand1", "assets/models/MarketStand1.btx"),
+		std::make_pair("MarketStand2", "assets/models/MarketStand2.btx"),
+		//std::make_pair("DZALA", "assets/models/Ninta.btx"),
 		std::make_pair("DZALA", "assets/models/Ninta2.btx"),
-		std::make_pair("WITCH", "assets/models/Witch_5_Running.btx"),
-		std::make_pair("House", "assets/models/house1.btx"),
+		std::make_pair("OrangeCrate", "assets/models/OrangeCrate.btx"),
+		std::make_pair("RedBlueCrate", "assets/models/RedBlueCrate.btx"),
+		std::make_pair("RedCrate", "assets/models/RedCrate.btx"),
 		std::make_pair("BOX", "assets/models/Sample135.btx"),
 		std::make_pair("SKYBOX", "assets/models/SkyBox.btx"),
-		std::make_pair("RedBlueCrate", "assets/models/RedBlueCrate.btx"),
+		std::make_pair("StoneBrick2", "assets/models/StoneBrick2.btx"),
+		std::make_pair("Stair1", "assets/models/Stair1.btx"),
 		std::make_pair("IKTest", "assets/models/testRig.btx"),
-		std::make_pair("RedCrate", "assets/models/RedCrate.btx"),
-		std::make_pair("OrangeCrate", "assets/models/OrangeCrate.btx"),
-		std::make_pair("LightBlueCrate", "assets/models/LightBlueCrate.btx"),
-		std::make_pair("GreenCrate", "assets/models/GreenCrate.btx"),
-		std::make_pair("BrownCrate", "assets/models/BrownCrate.btx"),
-		std::make_pair("MarketStand1", "assets/models/MarketStand1.btx"),
+		std::make_pair("Tree1", "assets/models/Tree1.btx"),
+		//std::make_pair("WITCH", "assets/models/Witch.btx"),
+		std::make_pair("WITCH", "assets/models/Witch_5_Running.btx"),
+		std::make_pair("WoodenShed1", "assets/models/WoodenShed.btx"),
 	};
 
 	static const size_t numModels = sizeof(modelMap) / sizeof(modelMap[0]);
 
 	static const std::pair<std::string, std::string> boundingMap[] =
 	{
-		std::make_pair("RedBlueCrate", "assets/volumes/RedBlueCrate.btx"),
-		std::make_pair("RedCrate", "assets/volumes/RedCrate.btx"),
-		std::make_pair("OrangeCrate", "assets/volumes/OrangeCrate.btx"),
-		std::make_pair("LightBlueCrate", "assets/volumes/LightBlueCrate.btx"),
-		std::make_pair("GreenCrate", "assets/volumes/GreenCrate.btx"),
-		std::make_pair("BrownCrate", "assets/volumes/BrownCrate.btx"),
-		std::make_pair("House", "assets/volumes/CB_House1.txc"),
-		std::make_pair("DZALA", "assets/volumes/Dzala.btx"),
+		std::make_pair("Barrel1", "assets/volumes/CB_Barrel1.txc"),
+		std::make_pair("Crate1", "assets/volumes/CB_Crate1.txc"),
+		std::make_pair("House1", "assets/volumes/CB_House1.txc"),
+		std::make_pair("House3", "assets/volumes/CB_House3.txc"),
+		std::make_pair("MarketStand1", "assets/volumes/CB_MarketStand1.txc"),
+		std::make_pair("MarketStand2", "assets/volumes/CB_MarketStand2.txc"),
+		std::make_pair("Stair1", "assets/volumes/CB_Stair1.txc"),
+		std::make_pair("StoneBrick2", "assets/volumes/CB_StoneBrick2.txc"),
+		std::make_pair("Tree1", "assets/volumes/CB_Tree1.txc"),
+		std::make_pair("WoodenShed1", "assets/volumes/CB_WoodenShed1.txc"),
+		
 	};
 	static const size_t numBoundingVolumes = sizeof(boundingMap) / sizeof(boundingMap[0]);
 

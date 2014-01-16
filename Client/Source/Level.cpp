@@ -102,7 +102,7 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 
 		for(unsigned int j = 0; j < m_LevelCollisionData.at(i).m_Translation.size(); j++)
 		{
-			m_BodyHandles.push_back(m_Physics->createBVInstance(m_LevelData.at(i).m_MeshName.c_str()));
+			m_BodyHandles.push_back(m_Physics->createBVInstance(m_LevelCollisionData.at(i).m_MeshName.c_str()));
 			//pushback a bodyhandle to be able to rotate, scale and translate it.
 			
 			DirectX::XMFLOAT3 translation, rotation, scale;
