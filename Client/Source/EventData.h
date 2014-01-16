@@ -278,3 +278,47 @@ public:
 		return m_Rotation;
 	}
 };
+
+class PlayAnimationEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	std::string m_AnimationName;
+
+public:
+	static const Type sk_EventType = Type(0x14dd2b5d);
+
+	PlayAnimationEventData(unsigned int p_Id, std::string p_AnimationName)
+		:	m_Id(p_Id), m_AnimationName(p_AnimationName)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new PlayAnimationEventData(m_Id, m_AnimationName));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "PlayAnimationEvent";
+	}
+
+	int getId() const
+	{
+		return m_Id;
+	}
+
+	std::string getAnimationName() const
+	{
+		return m_AnimationName;
+	}
+};

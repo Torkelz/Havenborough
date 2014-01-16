@@ -544,7 +544,7 @@ void Graphics::updateAnimations(float p_DeltaTime)
 	}
 }
 
-void Graphics::playAnimation(int p_Instance, char* p_ClipName)
+void Graphics::playAnimation(int p_Instance, const char* p_ClipName)
 {
 	#include "AnimationStructs.h"
 
@@ -558,8 +558,9 @@ void Graphics::playAnimation(int p_Instance, char* p_ClipName)
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->m_AnimationClips.find("default") != modelDef->m_AnimationClips.end() )
+			if( modelDef->m_AnimationClips.find(p_ClipName) == modelDef->m_AnimationClips.end() )
 			{
+
 				tempStr = "default";
 			}
 

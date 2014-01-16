@@ -30,6 +30,7 @@ private:
 	struct MeshBinding
 	{
 		unsigned int meshId;
+		int resourceId;
 		IGraphics::InstanceId modelId;
 	};
 	std::vector<MeshBinding> m_Models;
@@ -58,6 +59,7 @@ private:
 	void updateModelPosition(IEventData::Ptr p_Data);
 	void updateModelRotation(IEventData::Ptr p_Data);
 	void updateModelScale(IEventData::Ptr p_Data);
+	void playAnimation(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 

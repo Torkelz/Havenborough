@@ -1,4 +1,5 @@
 #include "GameLogic.h"
+#include "Components.h"
 #include "EventData.h"
 
 GameLogic::GameLogic(void)
@@ -191,6 +192,37 @@ void GameLogic::toggleIK()
 	useIK_OnIK_Worm = !useIK_OnIK_Worm;
 }
 
+
+
+void GameLogic::testBlendAnimation()
+{
+	playAnimation(wavingWitch.lock(), "Bomb");
+	playAnimation(ikTest.lock(), "Spin");
+	playAnimation(testWitch.lock(), "Idle");
+}
+
+void GameLogic::testResetAnimation()
+{
+	playAnimation(wavingWitch.lock(), "Kick");
+	playAnimation(ikTest.lock(), "Wave");
+	playAnimation(testWitch.lock(), "Run");
+}
+
+void GameLogic::testLayerAnimation()
+{
+	playAnimation(ikTest.lock(), "Wave");
+	playAnimation(wavingWitch.lock(), "Bomb");
+	playAnimation(testWitch.lock(), "Wave");
+}
+
+void GameLogic::testResetLayerAnimation()
+{
+	playAnimation(wavingWitch.lock(), "Kick");
+	playAnimation(ikTest.lock(), "Wave");
+	playAnimation(testWitch.lock(), "Run");
+	playAnimation(testWitch.lock(), "DefLayer1");
+}
+
 void GameLogic::loadSandbox()
 {
 	useIK_OnIK_Worm = false;
@@ -207,14 +239,14 @@ void GameLogic::loadSandbox()
 	addBoxWithAABB(Vector3(0.f, -250.f, 0.f), Vector3(5000.f, 250.f, 5000.f));
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
-	addBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f));
+	testWitch = addBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f));
 
 	addClimbBox();
 	skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
 
 	circleWitch = addBasicModel("DZALA", Vector3(0.f, 0.f, 0.f));
 	addBasicModel("DZALA", Vector3(1600.f, 0.f, -500.f));
-	addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
+	wavingWitch = addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
 
 	addIK_Worm();
 
@@ -303,6 +335,20 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 		{
 			strongBox->setRotation(rotBlockRotation * (float)i);
 		}
+	}
+}
+
+void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
+{
+	if (!p_Actor)
+	{
+		return;
+	}
+
+	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	if (comp)
+	{
+		m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName)));
 	}
 }
 

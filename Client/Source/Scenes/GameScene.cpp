@@ -36,6 +36,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelPosition), UpdateModelPositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelScaleEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::playAnimation), PlayAnimationEventData::sk_EventType);
 
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = true;
@@ -204,32 +205,22 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_RenderDebugBV = !m_RenderDebugBV;
 	}
-	//else if( p_Action == "blendAnimation" && p_Value == 1.0f && p_PrevValue == 0)
-	//{
-	//	m_Graphics->playAnimation(wavingWitch, "Bomb");
-	//	m_Graphics->playAnimation(ikTest, "Spin");
-	//	m_Graphics->playAnimation(testWitch, "Idle");
-	//}
-	//else if( p_Action == "resetAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
-	//{
-	//	m_Graphics->playAnimation(wavingWitch, "Kick");
-	//	m_Graphics->playAnimation(ikTest, "Wave");
-	//	m_Graphics->playAnimation(testWitch, "Run");
-	//}
-	//else if( p_Action == "layerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
-	//{
-	//	m_Graphics->playAnimation(ikTest, "Wave");
-	//	m_Graphics->playAnimation(wavingWitch, "Bomb");
-	//	// m_Graphics->playAnimation(testWitch, "IdleLayered");
-	//	m_Graphics->playAnimation(testWitch, "Wave");
-	//}
-	//else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
-	//{
-	//	m_Graphics->playAnimation(ikTest, "Wave");
-	//	m_Graphics->playAnimation(wavingWitch, "Kick");
-	//	m_Graphics->playAnimation(testWitch, "Run");
-	//	m_Graphics->playAnimation(testWitch, "DefLayer1");
-	//}
+	else if( p_Action == "blendAnimation" && p_Value == 1.0f && p_PrevValue == 0)
+	{
+		m_GameLogic->testBlendAnimation();
+	}
+	else if( p_Action == "resetAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
+	{
+		m_GameLogic->testResetAnimation();
+	}
+	else if( p_Action == "layerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
+	{
+		m_GameLogic->testLayerAnimation();
+	}
+	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
+	{
+		m_GameLogic->testResetLayerAnimation();
+	}
 }
 
 /*########## TEST FUNCTIONS ##########*/
@@ -249,9 +240,14 @@ void GameScene::addLight(IEventData::Ptr p_Data)
 void GameScene::createMesh(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<CreateMeshEventData> meshData = std::static_pointer_cast<CreateMeshEventData>(p_Data);
+
+	int resource = m_ResourceManager->loadResource("model", meshData->getMeshName());
+	m_ResourceIDs.push_back(resource);
+
 	MeshBinding mesh =
 	{
 		meshData->getId(),
+		resource,
 		m_Graphics->createModelInstance(meshData->getMeshName().c_str())
 	};
 	m_Graphics->setModelScale(mesh.modelId, meshData->getScale());
@@ -295,6 +291,18 @@ void GameScene::updateModelScale(IEventData::Ptr p_Data)
 	}
 }
 
+void GameScene::playAnimation(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<PlayAnimationEventData> animationData = std::static_pointer_cast<PlayAnimationEventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == animationData->getId())
+		{
+			m_Graphics->playAnimation(model.modelId, animationData->getAnimationName().c_str());
+		}
+	}
+}
+
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
 	unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle);
@@ -317,6 +325,13 @@ void GameScene::loadSandboxModels()
 		"BOX",
 		"SKYBOX",
 		"House",
+		"RedBlueCrate",
+		"OrangeCrate",
+		"LightBlueCrate",
+		"GreenCrate",
+		"RedCrate",
+		"BrownCrate",
+		"MarketStand1",
 	};
 
 	for (const std::string& model : preloadedModels)

@@ -123,7 +123,7 @@ public:
 	void drawFrame() override;
 
 	void updateAnimations(float p_DeltaTime) override;
-	void playAnimation(int p_Instance, char* p_ClipName) override;
+	void playAnimation(int p_Instance, const char* p_ClipName) override;
 
 	int getVRAMMemUsage(void) override;
 	

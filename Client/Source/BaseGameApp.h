@@ -13,10 +13,6 @@
 #include "EventManager.h"
 
 #include "ResourceManager.h"
-
-
-
-//1:P
 #include "GameLogic.h"
 
 #include <string>
@@ -54,8 +50,6 @@ private:
 	float m_SecsPerCnt;
 	float m_DeltaTime;
 	
-
-	//1:P
 	std::unique_ptr<GameLogic> m_GameLogic;
 public:
 	/**

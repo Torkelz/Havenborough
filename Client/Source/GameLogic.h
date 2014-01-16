@@ -43,9 +43,9 @@ private:
 	std::weak_ptr<Actor> circleWitch;
 	std::weak_ptr<Actor> skyBox;
 	int standingWitch;
-	int wavingWitch;
-	int ikTest;
-	int testWitch;
+	std::weak_ptr<Actor> wavingWitch;
+	std::weak_ptr<Actor> ikTest;
+	std::weak_ptr<Actor> testWitch;
 	int slantedPlane;
 	int OBBhouse1;
 	int OBBhouse2;
@@ -77,9 +77,6 @@ public:
 	GoToScene getChangeScene(void) const;
 
 	void onFrame(float p_DeltaTime);
-	//void render(void);
-
-	//void registeredInput(std::string p_Action, float p_Value);
 
 	void setPlayerActor(std::weak_ptr<Actor> p_Actor);
 
@@ -96,11 +93,17 @@ public:
 
 	void playerJump();
 	void toggleIK();
+	void testBlendAnimation();
+	void testResetAnimation();
+	void testLayerAnimation();
+	void testResetLayerAnimation();
 
 private:
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();
 	void updateSandbox(float p_DeltaTime);
+
+	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
 
 	std::weak_ptr<Actor> addRotatingBox(Vector3 p_Position, Vector3 p_Scale);
 	std::weak_ptr<Actor> addSkybox(Vector3 p_Scale);
