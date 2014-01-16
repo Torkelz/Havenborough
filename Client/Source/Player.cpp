@@ -4,8 +4,8 @@ Player::Player(void)
 {
 	m_Physics = nullptr;
 	m_JumpTime = 0.f;
-	m_JumpForceTime = 0.2f;
-	m_JumpForce = 2000.f;
+	m_JumpForceTime = 0.15f;
+	m_JumpForce = 6500.f;
 	m_IsJumping = false;
 	m_PrevForce = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	m_MaxSpeed = 1000.f;
@@ -32,7 +32,7 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_Loo
 	m_KneeHeight = 50.f;
 	m_EyeHeight = 165.f;
 	Vector3 kneePos(m_Position.x, m_Position.y + m_KneeHeight, m_Position.z);
-	m_PlayerBody = m_Physics->createSphere(50.f, false, kneePos, m_KneeHeight);
+	m_PlayerBody = m_Physics->createSphere(68.f, false, kneePos, m_KneeHeight);
 
 }
 
