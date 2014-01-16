@@ -59,9 +59,9 @@ void MenuScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void MenuScene::registeredInput(std::string p_Action, float p_Value)
+void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action == "changeSceneN" && p_Value == 1)
+	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
 	{
 		if(m_SceneID == 0)
 		{
@@ -73,7 +73,7 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value)
 		}
 		m_ChangeScene = true;
 	}
-	else if(p_Action == "changeSceneP" && p_Value == 1)
+	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_ChangeList = true;
 	}

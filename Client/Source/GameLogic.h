@@ -81,7 +81,7 @@ public:
 	void onFrame(float p_DeltaTime);
 	void render(void);
 
-	void registeredInput(std::string p_Action, float p_Value);
+	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue);
 
 	void setPlayerActor(std::weak_ptr<Actor> p_Actor);
 

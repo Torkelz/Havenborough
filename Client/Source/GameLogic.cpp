@@ -148,16 +148,16 @@ void GameLogic::render()
 	m_Graphics->drawFrame(currentDebugView);
 }
 
-void GameLogic::registeredInput(std::string p_Action, float p_Value)
+void GameLogic::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action ==  "changeViewN" && p_Value == 1)
+	if(p_Action ==  "changeViewN" && p_Value == 1 && p_PrevValue == 0)
 	{
 		currentDebugView--;
 		if(currentDebugView < 0)
 			currentDebugView = 3;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
-	else if(p_Action ==  "changeViewP" && p_Value == 1)
+	else if(p_Action ==  "changeViewP" && p_Value == 1 && p_PrevValue == 0)
 	{
 		currentDebugView++;
 		if(currentDebugView >= 4)
@@ -188,37 +188,37 @@ void GameLogic::registeredInput(std::string p_Action, float p_Value)
 			viewRot[1] = -PI * 0.45f;
 		}
 	}
-	else if( p_Action == "jump" && p_Value == 1)
+	else if( p_Action == "jump" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_Player.setJump();
 	}
-	else if (p_Action == "toggleIK" && p_Value == 1.f)
+	else if (p_Action == "toggleIK" && p_Value == 1.f && p_PrevValue == 0)
 	{
 		useIK_OnIK_Worm = !useIK_OnIK_Worm;
 	}
-	else if( p_Action == "switchBVDraw" && p_Value == 1.f)
+	else if( p_Action == "switchBVDraw" && p_Value == 1.f && p_PrevValue == 0)
 	{
 		m_drawBV = !m_drawBV;
 	}
-	else if( p_Action == "blendAnimation" && p_Value == 1.0f )
+	else if( p_Action == "blendAnimation" && p_Value == 1.0f && p_PrevValue == 0)
 	{
 	        m_Graphics->playAnimation(wavingWitch, "Bomb", false, true, 2, 1.0f, 2);
 	        m_Graphics->playAnimation(ikTest, "Spin", false, true, 12, 1.0f, 2);
 	        m_Graphics->playAnimation(testWitch, "Idle", false, true, 12, 1.0f, 2);
 	}
-	else if( p_Action == "resetAnimation" && p_Value == 1.0f )
+	else if( p_Action == "resetAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
 	{
 	        m_Graphics->playAnimation(wavingWitch, "Kick", false, true, 2, 1.0f, 2);
 	        m_Graphics->playAnimation(ikTest, "Wave", false, true, 12, 1.0f, 2);
 	        m_Graphics->playAnimation(testWitch, "Run", false, true, 12, 1.0f, 2);
 	}
-	else if( p_Action == "layerAnimation" && p_Value == 1.0f )
+	else if( p_Action == "layerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
 	{
 	        m_Graphics->playAnimation(ikTest, "Wave", true, false, 0, 0.7f, 1);
 	        m_Graphics->playAnimation(wavingWitch, "Bomb", true, false, 0, 0.5f, 1);
 	        m_Graphics->playAnimation(testWitch, "Idle", true, true, 12, 0.5f, 1);
 	}
-	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f )
+	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
 	{
 	        m_Graphics->playAnimation(ikTest, "Wave", false, false, 0, 1.0f, 0);
 	        m_Graphics->playAnimation(wavingWitch, "Kick", false, false, 0, 1.0f, 0);

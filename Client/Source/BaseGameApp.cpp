@@ -273,7 +273,7 @@ void BaseGameApp::handleInput()
 		Logger::log(Logger::Level::TRACE, msg.str());
 
 		// Pass keystrokes to all active scenes.
-		m_SceneManager.registeredInput(in.m_Action, in.m_Value);
+		m_SceneManager.registeredInput(in.m_Action, in.m_Value, in.m_PrevValue);
 
 		if (in.m_Action == "exit")
 		{
