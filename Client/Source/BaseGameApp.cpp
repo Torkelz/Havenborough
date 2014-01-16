@@ -201,18 +201,30 @@ bool BaseGameApp::handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_
 	switch(p_WParam)
 	{
 	case SIZE_MAXIMIZED:
-		m_Window.setSize(m_NewWindowSize);
-		break;
-	case SIZE_MAXHIDE: break;
-	case SIZE_MAXSHOW: break;
-	case SIZE_MINIMIZED: break;
-	case SIZE_RESTORED: break;
+		{
+			m_Window.setSize(m_NewWindowSize);
+			m_Window.setIsMaximized(true);
+			p_Result = 0;
+			return true;
+		}
+	case SIZE_MAXHIDE:{return false;}
+	case SIZE_MAXSHOW:{return false;}
+	case SIZE_MINIMIZED:{return false;}
+	case SIZE_RESTORED:
+		{
+			if(m_Window.getIsMaximized())
+			{
+				m_Window.setIsMaximized(false);
+				m_Window.setSize(m_NewWindowSize);
+				p_Result = 0;
+				return true;
+			}
+			return false;
+		}
 	default:
-		break;
+		return false;
 	}
-
-	p_Result = 0;
-	return true;
+	
 }
 
 void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
