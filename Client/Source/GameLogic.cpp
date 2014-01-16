@@ -37,6 +37,8 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 	
 	m_ChangeScene = GoToScene::NONE;
 
+	m_drawBV = false;
+
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 	currentDebugView = 3;
@@ -135,20 +137,6 @@ void GameLogic::render()
 
 	//m_Graphics->drawFrame(currView);
 
-	//addDebugBVToDraw(1);
-	/*addDebugBVToDraw(5);
-	addDebugBVToDraw(6);
-	addDebugBVToDraw(7);
-	addDebugBVToDraw(8);
-	addDebugBVToDraw(9);
-	addDebugBVToDraw(10);
-	addDebugBVToDraw(11);
-	addDebugBVToDraw(12);
-	addDebugBVToDraw(13);
-	addDebugBVToDraw(14);
-	addDebugBVToDraw(15);
-	addDebugBVToDraw(16);*/
-
 	for(int i = 0; i < 35; i++)
 	{
 		addDebugBVToDraw(i);
@@ -160,16 +148,16 @@ void GameLogic::render()
 	m_Graphics->drawFrame(currentDebugView);
 }
 
-void GameLogic::registeredInput(std::string p_Action, float p_Value)
+void GameLogic::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action ==  "changeViewN" && p_Value == 1)
+	if(p_Action ==  "changeViewN" && p_Value == 1 && p_PrevValue == 0)
 	{
 		currentDebugView--;
 		if(currentDebugView < 0)
 			currentDebugView = 3;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
-	else if(p_Action ==  "changeViewP" && p_Value == 1)
+	else if(p_Action ==  "changeViewP" && p_Value == 1 && p_PrevValue == 0)
 	{
 		currentDebugView++;
 		if(currentDebugView >= 4)
@@ -200,35 +188,38 @@ void GameLogic::registeredInput(std::string p_Action, float p_Value)
 			viewRot[1] = -PI * 0.45f;
 		}
 	}
-	else if( p_Action == "jump" && p_Value == 1)
+	else if( p_Action == "jump" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_Player.setJump();
 	}
-	else if (p_Action == "toggleIK" && p_Value == 1.f)
+	else if (p_Action == "toggleIK" && p_Value == 1.f && p_PrevValue == 0)
 	{
 		useIK_OnIK_Worm = !useIK_OnIK_Worm;
 	}
-
-	else if( p_Action == "blendAnimation" && p_Value == 1.0f )
+	else if( p_Action == "switchBVDraw" && p_Value == 1.f && p_PrevValue == 0)
+	{
+		m_drawBV = !m_drawBV;
+	}
+	else if( p_Action == "blendAnimation" && p_Value == 1.0f && p_PrevValue == 0)
 	{
 	        m_Graphics->playAnimation(wavingWitch, "Bomb");
 	        m_Graphics->playAnimation(ikTest, "Spin");
 	        m_Graphics->playAnimation(testWitch, "Idle");
 	}
-	else if( p_Action == "resetAnimation" && p_Value == 1.0f )
+	else if( p_Action == "resetAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
 	{
 	        m_Graphics->playAnimation(wavingWitch, "Kick");
 	        m_Graphics->playAnimation(ikTest, "Wave");
 	        m_Graphics->playAnimation(testWitch, "Run");
 	}
-	else if( p_Action == "layerAnimation" && p_Value == 1.0f )
+	else if( p_Action == "layerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
 	{
 	        m_Graphics->playAnimation(ikTest, "Wave");
 	        m_Graphics->playAnimation(wavingWitch, "Bomb");
 	       // m_Graphics->playAnimation(testWitch, "IdleLayered");
 			m_Graphics->playAnimation(testWitch, "Wave");
 	}
-	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f )
+	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
 	{
 	        m_Graphics->playAnimation(ikTest, "Wave");
 	        m_Graphics->playAnimation(wavingWitch, "Kick");
@@ -362,10 +353,10 @@ void GameLogic::loadSandbox()
 		m_Physics->createAABB(50.f, true, towerBoxPositions[i], towerBoxSizes[i] * 0.5f, false);
 	}
 
-	m_Physics->createAABB(0.f, true, Vector3(3000.f, 680.f, 3700.f), Vector3(280.f, 60.f, 20.f), true);
-	m_Physics->createAABB(0.f, true, Vector3(3000.f, 680.f, 4300.f), Vector3(280.f, 60.f, 20.f), true);
-	m_Physics->createAABB(0.f, true, Vector3(2700.f, 680.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
-	m_Physics->createAABB(0.f, true, Vector3(3300.f, 680.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(3000.f, 650.f, 3700.f), Vector3(280.f, 60.f, 20.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(3000.f, 650.f, 4300.f), Vector3(280.f, 60.f, 20.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(2700.f, 650.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
+	m_Physics->createAABB(0.f, true, Vector3(3300.f, 650.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
 
 	for(unsigned int i = 0; i < numRotatedTowerBoxes; i++)
 	{
@@ -564,12 +555,15 @@ void GameLogic::shutdownSandbox()
 
 void GameLogic::addDebugBVToDraw(BodyHandle p_BodyHandle)
 {
-	unsigned int size =  m_Physics->getNrOfTrianglesFromBody(p_BodyHandle);
-
-	for(unsigned int i = 0; i < size; i++)
+	if(m_drawBV)
 	{
-		Triangle triangle;
-		triangle = m_Physics->getTriangleFromBody(p_BodyHandle, i);
-		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		unsigned int size =  m_Physics->getNrOfTrianglesFromBody(p_BodyHandle);
+
+		for(unsigned int i = 0; i < size; i++)
+		{
+			Triangle triangle;
+			triangle = m_Physics->getTriangleFromBody(p_BodyHandle, i);
+			m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		}
 	}
 }

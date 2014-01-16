@@ -31,10 +31,16 @@ void BaseGameApp::init()
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, fullscreen);
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_Window.registerCallback(WM_EXITSIZEMOVE, std::bind(&BaseGameApp::handleWindowExitSizeMove, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_Window.registerCallback(WM_SIZE, std::bind(&BaseGameApp::handleWindowSize, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
+
+	m_Sound = ISound::createSound();
+	m_Sound->setLogFunction(&Logger::logRaw);
+	m_Sound->initialize();
 
 	m_ResourceManager = new ResourceManager();
 	using namespace std::placeholders;
@@ -43,6 +49,7 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseBV, m_Physics, _1));
+	m_ResourceManager->registerFunction("sound", std::bind(&ISound::loadSound, m_Sound, _1, _2), std::bind(&ISound::releaseSound, m_Sound, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -64,6 +71,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('J', "changeSceneP");
 	translator->addKeyboardMapping('K', "pauseScene");
 	translator->addKeyboardMapping('L', "changeSceneN");
+	translator->addKeyboardMapping('9', "switchBVDraw");
 	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
 
 	translator->addKeyboardMapping('B', "blendAnimation");
@@ -92,6 +100,9 @@ void BaseGameApp::init()
 	m_ActorFactory.setGraphics(m_Graphics);
 
 	m_EventManager = new EventManager();
+
+	// Set Current Size
+	m_NewWindowSize = m_Window.getSize();
 }
 
 void BaseGameApp::run()
@@ -140,6 +151,9 @@ void BaseGameApp::shutdown()
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
 
+	ISound::deleteSound(m_Sound);
+	m_Sound = nullptr;
+
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
 
@@ -166,6 +180,37 @@ bool BaseGameApp::handleWindowClose(WPARAM /*p_WParam*/, LPARAM /*p_LParam*/, LR
 	Logger::log(Logger::Level::DEBUG_L, "Handling window close");
 
 	m_ShouldQuit = true;
+	p_Result = 0;
+	return true;
+}
+bool BaseGameApp::handleWindowExitSizeMove(WPARAM /*p_WParam*/, LPARAM p_LParam, LRESULT& p_Result)
+{
+	Logger::log(Logger::Level::DEBUG_L, "Handling window when the user releases the resize bars.");
+
+	m_Window.setSize(m_NewWindowSize);				
+
+	p_Result = 0;
+	return true;
+}
+bool BaseGameApp::handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
+{
+	Logger::log(Logger::Level::DEBUG_L, "Handling window when the user resizes the window.");
+
+	m_NewWindowSize = DirectX::XMFLOAT2(LOWORD(p_LParam),HIWORD(p_LParam));
+
+	switch(p_WParam)
+	{
+	case SIZE_MAXIMIZED:
+		m_Window.setSize(m_NewWindowSize);
+		break;
+	case SIZE_MAXHIDE: break;
+	case SIZE_MAXSHOW: break;
+	case SIZE_MINIMIZED: break;
+	case SIZE_RESTORED: break;
+	default:
+		break;
+	}
+
 	p_Result = 0;
 	return true;
 }
@@ -236,7 +281,7 @@ void BaseGameApp::handleInput()
 		Logger::log(Logger::Level::TRACE, msg.str());
 
 		// Pass keystrokes to all active scenes.
-		m_SceneManager.registeredInput(in.m_Action, in.m_Value);
+		m_SceneManager.registeredInput(in.m_Action, in.m_Value, in.m_PrevValue);
 
 		if (in.m_Action == "exit")
 		{

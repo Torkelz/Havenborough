@@ -77,19 +77,19 @@ void GameScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void GameScene::registeredInput(std::string p_Action, float p_Value)
+void GameScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action == "changeSceneN" && p_Value == 1)
+	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_NewSceneID = (int)RunScenes::GAMEPAUSE;
 		m_ChangeScene = true;
 	}
-	else if(p_Action == "changeSceneP" && p_Value == 1)
+	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_ChangeList = true;
 	}
 
-	m_GameLogic->registeredInput(p_Action, p_Value);
+	m_GameLogic->registeredInput(p_Action, p_Value, p_PrevValue);
 }
 
 void GameScene::initializeGameLogic(void)
