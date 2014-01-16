@@ -125,7 +125,7 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 				if (m_Tracks[i].currentFrame >= (float)(numKeyframes))
 				{
 					if(m_Tracks[i].clip.m_Loop)
-						m_Tracks[i].currentFrame = m_Tracks[i].clip.m_Start;
+						m_Tracks[i].currentFrame = (float)m_Tracks[i].clip.m_Start;
 					else
 						m_Tracks[i].active = false;
 				}
@@ -496,14 +496,14 @@ void ModelInstance::playClip( AnimationClip p_Clip )
 		m_Tracks[2].clip = p_Clip;
 		m_Tracks[2].fadedFrames = 0.0f;
 		m_Tracks[2].active = true;
-		m_Tracks[2].currentFrame = p_Clip.m_Start;
+		m_Tracks[2].currentFrame = (float)p_Clip.m_Start;
 	}
 	else
 	{
 		m_Tracks[p_Clip.m_DestinationTrack].clip = p_Clip;
 		m_Tracks[p_Clip.m_DestinationTrack].fadedFrames = 0.0f;
 		m_Tracks[p_Clip.m_DestinationTrack].active = true;
-		m_Tracks[p_Clip.m_DestinationTrack].currentFrame = p_Clip.m_Start;
+		m_Tracks[p_Clip.m_DestinationTrack].currentFrame = (float)p_Clip.m_Start;
 	}
 
 	// DEBUG to in-activate looping animations on track 1.
