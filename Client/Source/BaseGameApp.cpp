@@ -188,7 +188,7 @@ bool BaseGameApp::handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_
 {
 	Logger::log(Logger::Level::DEBUG_L, "Handling window when the user resizes the window.");
 
-	m_NewWindowSize = DirectX::XMFLOAT2(LOWORD(p_LParam),HIWORD(p_LParam));
+	m_NewWindowSize = DirectX::XMFLOAT2(LOWORD(p_LParam), HIWORD(p_LParam));
 
 	switch(p_WParam)
 	{
@@ -198,7 +198,9 @@ bool BaseGameApp::handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_
 	case SIZE_MAXHIDE: break;
 	case SIZE_MAXSHOW: break;
 	case SIZE_MINIMIZED: break;
-	case SIZE_RESTORED: break;
+	case SIZE_RESTORED:
+		//m_Window.setSize(m_NewWindowSize);
+		break;
 	default:
 		break;
 	}

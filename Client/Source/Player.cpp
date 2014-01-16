@@ -81,10 +81,20 @@ BodyHandle Player::getBody(void) const
 
 void Player::setJump(void)
 {
-	if(!m_IsJumping && m_JumpCount < m_JumpCountMax)
+	if(m_Physics->getBodyInAir(m_PlayerBody))
 	{
 		m_JumpCount++;
+	}
+
+	if(!m_IsJumping && m_JumpCount < m_JumpCountMax)
+	{
+		//m_JumpCount++;
 		m_IsJumping = true;
+		if(m_JumpCount > 0)
+		{
+			Vector4 temp = m_Physics->getBodyVelocity(m_PlayerBody);
+			m_Physics->setBodyVelocity(m_PlayerBody, Vector3(temp.x, 0.f, temp.z));
+		}
 		m_Physics->applyForce(m_PlayerBody, Vector3(0.f, m_JumpForce, 0.f));
 	}
 }
