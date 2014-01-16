@@ -9,6 +9,7 @@
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMMemInfo.h"
+#include <ISound.h>
 #include "EventManager.h"
 
 #include "ResourceManager.h"
@@ -45,7 +46,9 @@ private:
 
 	ActorFactory m_ActorFactory;
 	std::vector<Actor::ptr> m_ServerActors;
+	DirectX::XMFLOAT2 m_NewWindowSize;
 
+	ISound *m_Sound;
 	__int64 m_PrevTimeStamp;
 	__int64 m_CurrTimeStamp;
 	float m_SecsPerCnt;
@@ -85,7 +88,11 @@ public:
 
 private:
 	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+	
+	bool handleWindowExitSizeMove(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
+	bool handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+	
 	static void connectedCallback(Result p_Res, void* p_UserData);
 
 	void updateDebugInfo();

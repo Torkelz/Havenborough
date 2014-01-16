@@ -95,6 +95,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\AnimationClipLoader.cpp" />
     <ClCompile Include="Source\Joint.cpp" />
     <ClCompile Include="Source\DeferredRenderer.cpp" />
     <ClCompile Include="Source\DDSTextureLoader.cpp" />
@@ -112,6 +113,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ShaderDefinitions.h" />
+    <ClInclude Include="Source\AnimationClipLoader.h" />
+    <ClInclude Include="Source\AnimationStructs.h" />
     <ClInclude Include="Source\Joint.h" />
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />

@@ -16,6 +16,7 @@ private:
 	std::vector<Body> m_Bodies;
 	std::vector<HitData> m_HitDatas;
 	BVLoader m_BVLoader;
+	bool m_LoadBVSphereTemplateOnce;
 	std::vector<std::pair<std::string, std::vector<BVLoader::BoundingVolume>>> m_TemplateBVList;
 	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume ;
 

@@ -16,7 +16,8 @@ Window::Window()
 	  m_Icon(NULL),
 	  m_ShowingCursor(true),
 	  m_IsVisible(true),
-	  m_Initialized(false)
+	  m_Initialized(false),
+	  m_Maximized(false)
 {
 	m_Size.x = 800;
 	m_Size.y = 480;
@@ -268,7 +269,27 @@ void Window::setIsVisible(bool p_Visible)
 		m_IsVisible = p_Visible;
 	}
 }
+bool Window::getIsMaximized() const
+{
+	return m_Maximized;
+}
 
+void Window::setIsMaximized(bool p_Maximized)
+{
+	if (m_Maximized != p_Maximized)
+	{
+		if (p_Maximized)
+		{
+			Logger::log(Logger::Level::DEBUG_L, "Maximizing the window");
+		}
+		else
+		{
+			Logger::log(Logger::Level::DEBUG_L, "Restoring the window");
+		}
+
+		m_Maximized = p_Maximized;
+	}
+}
 LRESULT CALLBACK Window::windowProc(_In_ HWND p_Hwnd, _In_ UINT p_UMsg, _In_ WPARAM p_WParam, _In_ LPARAM p_LParam)
 {
 	LRESULT result;

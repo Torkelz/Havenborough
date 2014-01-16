@@ -111,7 +111,6 @@ void GameLogic::setPlayerActor(std::weak_ptr<Actor> p_Actor)
 {
 	m_PlayerActor = p_Actor;
 }
-
 Vector3 GameLogic::getPlayerViewRotation()
 {
 	return m_PlayerViewRotation;
@@ -207,12 +206,15 @@ void GameLogic::loadSandbox()
 
 	addBoxWithAABB(Vector3(0.f, -250.f, 0.f), Vector3(5000.f, 250.f, 5000.f));
 
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
+	addBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f));
+
 	addClimbBox();
 	skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
 
-	circleWitch = addDzala(Vector3(0.f, 0.f, 0.f));
-	addDzala(Vector3(1600.f, 0.f, -500.f));
-	addDzala(Vector3(1500.f, 0.f, -500.f));
+	circleWitch = addBasicModel("DZALA", Vector3(0.f, 0.f, 0.f));
+	addBasicModel("DZALA", Vector3(1600.f, 0.f, -500.f));
+	addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
 
 	addIK_Worm();
 
@@ -291,7 +293,7 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 
 	static const Vector3 blockRotationSpeed(0.1f, 0.05f, 0.03f);
 	rotBlockRotation = rotBlockRotation + blockRotationSpeed * p_DeltaTime;
-
+	
 	for (size_t i = 0; i < NUM_BOXES; ++i)
 	{
 		auto& box = rotBoxes[i];
@@ -358,12 +360,12 @@ std::weak_ptr<Actor> GameLogic::addSkybox(Vector3 p_Scale)
 	return actor;
 }
 
-std::weak_ptr<Actor> GameLogic::addDzala(Vector3 p_Position)
+std::weak_ptr<Actor> GameLogic::addBasicModel(const std::string& p_Model, Vector3 p_Position)
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "DZALA");
+	printer.PushAttribute("Mesh", p_Model.c_str());
 	printer.CloseElement();
 	printer.CloseElement();
 

@@ -204,7 +204,7 @@ void SceneManager::startMenu()
 	m_NowShowing = 0;
 }
 
-void SceneManager::registeredInput(std::string p_Action, float p_Value)
+void SceneManager::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
 	if(p_Action == "pauseScene" && p_Value == 1)
 	{
@@ -213,11 +213,11 @@ void SceneManager::registeredInput(std::string p_Action, float p_Value)
 	//Change scene
 	else// if((p_Action == "changeSceneN"  && p_Value == 1) || (p_Action == "changeSceneP" && p_Value == 1))
 	{
-		passInput(p_Action, p_Value);
+		passInput(p_Action, p_Value, p_PrevValue);
 	}
 }
 
-void SceneManager::passInput(std::string p_Action, float p_Value)
+void SceneManager::passInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
 	std::vector<IScene::ptr>* activeList = nullptr;
 	unsigned int nrScenes = 0;
@@ -237,7 +237,7 @@ void SceneManager::passInput(std::string p_Action, float p_Value)
 	{
 		if(activeList->at(i)->getIsVisible())
 		{
-			activeList->at(i)->registeredInput(p_Action, p_Value);
+			activeList->at(i)->registeredInput(p_Action, p_Value, p_PrevValue);
 			i = nrScenes;
 		}
 	}

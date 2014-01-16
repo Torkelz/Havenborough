@@ -65,8 +65,9 @@ public:
 	* Pass along keyboard and mouse input to a scene.
 	* @param p_Action the action to take
 	* @param p_Value the value for the action
+	* @param p_PrevValue the previous value for the action, when checked if zero there is no key repeats.
 	*/
-	void registeredInput(std::string p_Action, float p_Value);
+	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue);
 	
 	
 	/*########## TEST FUNCTIONS ##########*/
@@ -101,5 +102,5 @@ private:
 	*/
 	void setPause();
 
-	void passInput(std::string p_Action, float p_Value);
+	void passInput(std::string p_Action, float p_Value, float p_PrevValue);
 };

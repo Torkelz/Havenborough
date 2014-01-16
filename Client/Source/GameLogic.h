@@ -45,6 +45,7 @@ private:
 	int standingWitch;
 	int wavingWitch;
 	int ikTest;
+	int testWitch;
 	int slantedPlane;
 	int OBBhouse1;
 	int OBBhouse2;
@@ -103,7 +104,7 @@ private:
 
 	std::weak_ptr<Actor> addRotatingBox(Vector3 p_Position, Vector3 p_Scale);
 	std::weak_ptr<Actor> addSkybox(Vector3 p_Scale);
-	std::weak_ptr<Actor> addDzala(Vector3 p_Position);
+	std::weak_ptr<Actor> addBasicModel(const std::string& p_Model, Vector3 p_Position);
 	std::weak_ptr<Actor> addIK_Worm();
 	std::weak_ptr<Actor> addBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize);
 	std::weak_ptr<Actor> addBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);

@@ -48,7 +48,7 @@ public:
 	bool getIsVisible() override;
 	void setIsVisible(bool p_SetVisible) override;
 
-	void registeredInput(std::string p_Action, float p_Value) override;
+	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue) override;
 
 	int	getID() override;
 

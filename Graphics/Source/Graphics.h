@@ -121,7 +121,9 @@ public:
 	void renderText(void) override;
 	void renderQuad(void) override;
 	void drawFrame() override;
+
 	void updateAnimations(float p_DeltaTime) override;
+	void playAnimation(int p_Instance, char* p_ClipName) override;
 
 	int getVRAMMemUsage(void) override;
 	

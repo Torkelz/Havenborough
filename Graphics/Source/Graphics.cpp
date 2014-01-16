@@ -544,6 +544,31 @@ void Graphics::updateAnimations(float p_DeltaTime)
 	}
 }
 
+void Graphics::playAnimation(int p_Instance, char* p_ClipName)
+{
+	#include "AnimationStructs.h"
+
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			std::string tempStr(p_ClipName);
+
+			// If an illegal string has been put in, just shoot in the default animation.
+			// The show must go on!
+			if( modelDef->m_AnimationClips.find("default") != modelDef->m_AnimationClips.end() )
+			{
+				tempStr = "default";
+			}
+
+			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr));
+			break;
+		}
+	}
+}
+
 int Graphics::getVRAMMemUsage(void)
 {
 	if (m_VRAMMemInfo)

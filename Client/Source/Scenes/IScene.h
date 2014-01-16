@@ -72,8 +72,9 @@ public:
 	* Register and handle keyboard and mouse input.
 	* @param p_Action the action to take
 	* @param p_Value the value for the action
+	* @param p_PrevValue the previous value for the action, when checked if zero there is no key repeats.
 	*/
-	virtual void registeredInput(std::string p_Action, float p_Value) = 0;
+	virtual void registeredInput(std::string p_Action, float p_Value, float p_PrevValue) = 0;
 
 	/*########## TEST FUNCTIONS ##########*/
 

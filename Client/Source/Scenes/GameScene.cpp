@@ -78,6 +78,20 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->setPlayerDirection(Vector2(forward, right));
 
 	m_Graphics->updateAnimations(p_DeltaTime);
+
+	// Test.
+	//m_Graphics->playAnimation(circleWitch, "Run");
+	//m_Graphics->playAnimation(wavingWitch, "Kick");
+	//m_Graphics->playAnimation(standingWitch, "Bomb");
+	//m_Graphics->playAnimation(testWitch, "Run");
+	//m_Graphics->playAnimation(ikTest, "Wave");
+
+	static const char* testTargetJoint = "L_Hand";
+	static const char* testHingeJoint = "L_LowerArm";
+	static const char* testBaseJoint = "L_UpperArm";
+
+	//m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
+	//m_Graphics->applyIK_ReachPoint(ikTest, "joint3", "joint2", "joint1", IK_Target);
 }
 
 void GameScene::render()
@@ -143,16 +157,16 @@ void GameScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void GameScene::registeredInput(std::string p_Action, float p_Value)
+void GameScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
 	static const float sensitivity = 0.01f;
-
-	if(p_Action == "changeSceneN" && p_Value == 1)
+	
+	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_NewSceneID = (int)RunScenes::GAMEPAUSE;
 		m_ChangeScene = true;
 	}
-	else if(p_Action == "changeSceneP" && p_Value == 1)
+	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_ChangeList = true;
 	}
@@ -186,6 +200,36 @@ void GameScene::registeredInput(std::string p_Action, float p_Value)
 	{
 		m_GameLogic->toggleIK();
 	}
+	else if( p_Action == "switchBVDraw" && p_Value == 1.f && p_PrevValue == 0)
+	{
+		m_RenderDebugBV = !m_RenderDebugBV;
+	}
+	//else if( p_Action == "blendAnimation" && p_Value == 1.0f && p_PrevValue == 0)
+	//{
+	//	m_Graphics->playAnimation(wavingWitch, "Bomb");
+	//	m_Graphics->playAnimation(ikTest, "Spin");
+	//	m_Graphics->playAnimation(testWitch, "Idle");
+	//}
+	//else if( p_Action == "resetAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
+	//{
+	//	m_Graphics->playAnimation(wavingWitch, "Kick");
+	//	m_Graphics->playAnimation(ikTest, "Wave");
+	//	m_Graphics->playAnimation(testWitch, "Run");
+	//}
+	//else if( p_Action == "layerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
+	//{
+	//	m_Graphics->playAnimation(ikTest, "Wave");
+	//	m_Graphics->playAnimation(wavingWitch, "Bomb");
+	//	// m_Graphics->playAnimation(testWitch, "IdleLayered");
+	//	m_Graphics->playAnimation(testWitch, "Wave");
+	//}
+	//else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
+	//{
+	//	m_Graphics->playAnimation(ikTest, "Wave");
+	//	m_Graphics->playAnimation(wavingWitch, "Kick");
+	//	m_Graphics->playAnimation(testWitch, "Run");
+	//	m_Graphics->playAnimation(testWitch, "DefLayer1");
+	//}
 }
 
 /*########## TEST FUNCTIONS ##########*/
@@ -287,9 +331,12 @@ void GameScene::loadSandboxModels()
 		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
 
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Dzala");
+	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated models");
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
+
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
+	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
 }
 
 void GameScene::releaseSandboxModels()

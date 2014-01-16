@@ -60,9 +60,9 @@ void PostGameScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void PostGameScene::registeredInput(std::string p_Action, float p_Value)
+void PostGameScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action == "changeSceneN" && p_Value == 1)
+	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
 	{
 		if(m_SceneID == 0)
 		{
@@ -74,11 +74,11 @@ void PostGameScene::registeredInput(std::string p_Action, float p_Value)
 		}
 		m_ChangeScene = true;
 	}
-	if(p_Action == "goToMainMenu" && p_Value == 1)
+	if(p_Action == "goToMainMenu" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_ChangeList = true;
 	}
-	else if(p_Action == "changeSceneP" && p_Value == 1)
+	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_ChangeList = true;
 	}
