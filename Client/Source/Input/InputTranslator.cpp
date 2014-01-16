@@ -140,7 +140,7 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 bool InputTranslator::handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard)
 {
 	USHORT keyCode = p_RawKeyboard.VKey;
-	float value = 0.f;
+	float value = 0.f, prevValue = -1.f;
 	if (!(p_RawKeyboard.Flags & RI_KEY_BREAK))
 	{
 		value = 1.f;
@@ -151,7 +151,7 @@ bool InputTranslator::handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard)
 	{
 		if (record.m_KeyCode == keyCode)
 		{
-			InputRecord inRec = {record.m_Action, value};
+			InputRecord inRec = {record.m_Action, value, prevValue};
 			m_RecordFunction(inRec);
 			handled = true;
 		}

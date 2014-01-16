@@ -15,6 +15,7 @@ private:
 	std::vector<LevelBinaryLoader::ModelData> m_LevelData, m_LevelCollisionData;
 	std::vector<int> m_ResourceID, m_BVResourceID;
 	std::vector<int> m_DrawID;
+	std::vector<BodyHandle> m_BodyHandles;
 
 	DirectX::XMFLOAT3 m_StartPosition;
 	DirectX::XMFLOAT3 m_GoalPosition;

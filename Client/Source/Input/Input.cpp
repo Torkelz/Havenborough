@@ -44,6 +44,8 @@ void Input::handleRecords(InputRecord p_Record)
 {
 	Logger::log(Logger::Level::TRACE, "Input handling a record");
 
+	p_Record.m_PrevValue = m_InputState.getValue(p_Record.m_Action);
 	m_FrameInputs.push_back(p_Record);
 	m_InputState.updateRecord(p_Record);
+	
 }

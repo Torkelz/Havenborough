@@ -81,8 +81,13 @@ unsigned int VRAMMemInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width
 			result = 0;
 			break;
 		}
+	case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+		{
+			throw MemoryUsageException("Trying to load SRGB texture.", __LINE__, __FILE__);
+			break;
+		}
 	default:
-		throw MemoryUsageException("Error when determining memory size of texture.", __LINE__, __FILE__);
+		throw MemoryUsageException("Error when determining memory size of texture. Illegal file format or color type.", __LINE__, __FILE__);
 		break;
 	}
 

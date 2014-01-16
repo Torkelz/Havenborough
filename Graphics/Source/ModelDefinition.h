@@ -3,9 +3,11 @@
 #include "Joint.h"
 #include "ShaderStructs.h"
 #include "WrapperFactory.h"
+#include "AnimationStructs.h"
 
 #include <memory>
 #include <vector>
+#include <map>
 
 /**
  * Representation of the static data associated with a model.
@@ -51,6 +53,11 @@ struct ModelDefinition
 	std::vector<Joint>			m_Joints;
 
 	/**
+	 * The animation clips. Address them via a name. E.g. "Walk", "Run", "Laugh"...
+	 */
+	std::map<std::string, AnimationClip>	m_AnimationClips;
+
+	/**
 	 * Move constructor.
 	 */
 	ModelDefinition(ModelDefinition&& p_Other)
@@ -62,7 +69,8 @@ struct ModelDefinition
 			specularTexture(p_Other.specularTexture),
 			numOfMaterials(p_Other.numOfMaterials),
 			m_IsAnimated(p_Other.m_IsAnimated),
-			m_Joints(std::move(p_Other.m_Joints))
+			m_Joints(std::move(p_Other.m_Joints)),
+			m_AnimationClips(std::move(p_Other.m_AnimationClips))
 	{}
 
 	/**
@@ -79,6 +87,7 @@ struct ModelDefinition
 		std::swap(numOfMaterials, p_Other.numOfMaterials);
 		std::swap(m_IsAnimated, p_Other.m_IsAnimated);
 		std::swap(m_Joints, p_Other.m_Joints);
+		std::swap(m_AnimationClips, p_Other.m_AnimationClips);
 
 		return *this;
 	}

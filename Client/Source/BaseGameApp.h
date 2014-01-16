@@ -10,6 +10,7 @@
 #include "Window.h"
 #include "RAMMemInfo.h"
 #include <ISound.h>
+#include "EventManager.h"
 
 #include "ResourceManager.h"
 
@@ -29,23 +30,25 @@ private:
 
 	INetwork* m_Network;
 
-	bool	m_ShouldQuit;
-	bool	m_Connected;
+	bool m_ShouldQuit;
+	bool m_Connected;
 
 	SceneManager m_SceneManager;
+	EventManager *m_EventManager;
 
 	IPhysics *m_Physics;
 	ResourceManager* m_ResourceManager;
 
 	ActorFactory m_ActorFactory;
 	std::vector<Actor::ptr> m_ServerActors;
+	DirectX::XMFLOAT2 m_NewWindowSize;
 
 	ISound *m_Sound;
 	__int64 m_PrevTimeStamp;
 	__int64 m_CurrTimeStamp;
 	float m_SecsPerCnt;
 	float m_DeltaTime;
-
+	
 public:
 	/**
 	 * Initialize the game and create a window.
@@ -77,7 +80,11 @@ public:
 
 private:
 	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+	
+	bool handleWindowExitSizeMove(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
+	bool handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+	
 	static void connectedCallback(Result p_Res, void* p_UserData);
 
 	void updateDebugInfo();

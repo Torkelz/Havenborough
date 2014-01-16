@@ -6,6 +6,7 @@
 #include <fmod.hpp>
 #include <fmod_errors.h>
 #include <vector>
+#include <string>
 
 #define FMODSAFERELEASE(x){ if(x){errorCheck(x->release()); x=nullptr;} }
 

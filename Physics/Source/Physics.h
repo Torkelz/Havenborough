@@ -16,6 +16,8 @@ private:
 	std::vector<Body> m_Bodies;
 	std::vector<HitData> m_HitDatas;
 	BVLoader m_BVLoader;
+	bool m_LoadBVSphereTemplateOnce;
+	std::vector<std::pair<std::string, std::vector<BVLoader::BoundingVolume>>> m_TemplateBVList;
 	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume ;
 
 	std::vector<DirectX::XMFLOAT3> m_BoxTriangleIndex;
@@ -32,20 +34,17 @@ public:
 	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge);
 	BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) override;
 
-	bool createLevelBV(const char* m_ModelID, const char* m_FilePath) override;
+	BodyHandle createBVInstance(const char* p_VolumeID) override;
+	bool createBV(const char* m_ModelID, const char* m_FilePath) override;
 
-	bool releaseLevelBV(const char* p_ModelID) override; 
+	bool releaseBV(const char* p_ModelID) override; 
 	void releaseAllBoundingVolumes(void) override;
-
-	void setBVPosition(int p_Instance, Vector3 p_Position) override;
-	void setBVRotation(int p_Instance, Vector3 p_Rotation) override;
-	void setBVScale(int p_Instance, Vector3 p_Scale) override;
 
 	void setGlobalGravity(float p_Gravity) override;
 	Vector4 getVelocity(BodyHandle p_Body) override;
 
 	HitData getHitDataAt(unsigned int p_Index) override;
-	void removedHitDataAt(unsigned int p_index) override;
+	void removeHitDataAt(unsigned int p_index) override;
 	unsigned int getHitDataSize() override;
 
 	Vector4 getBodyPosition(BodyHandle p_Body) override;
@@ -54,6 +53,7 @@ public:
 	void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) override;
 	void setBodyVelocity(BodyHandle p_Body, Vector3 p_Velocity) override;
 	void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) override;
+	void setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 

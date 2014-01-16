@@ -542,6 +542,41 @@ void Graphics::updateAnimations(float p_DeltaTime)
 	}
 }
 
+void Graphics::playAnimation(int p_Instance, char* p_ClipName, bool p_Layer, bool p_Crossfade, int p_FadeFrames, float p_ExtraTrackWeight, int p_Track)
+{
+	#include "AnimationStructs.h"
+
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			//const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+
+			//// FULKOD TA BORT SENARE
+			std::string tempStr(p_ClipName);
+			//if(tempStr == "Kick")
+			//{
+			//	modelDef->m_AnimationClips.insert( std::pair<std::string, AnimationClip>(tempStr, AnimationClip(0, 31, tempStr, true, 1.0f, 0, 1)) );
+			//}
+			//else if(tempStr == "Witch")
+			//{
+			//	modelDef->m_AnimationClips.insert( std::pair<std::string, AnimationClip>(tempStr, AnimationClip(0, 24, tempStr, true, 1.0f, 0, 1)) );
+			//}
+			//else
+			//	modelDef->m_AnimationClips.insert( std::pair<std::string, AnimationClip>(tempStr, AnimationClip(32, 43, tempStr, true, 0.5f, 0, 2)) );
+			//// END FULKOD
+
+			if( modelDef->m_AnimationClips.find("default") != modelDef->m_AnimationClips.end() )
+			{
+				tempStr = "default";
+			}
+
+			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr), p_Layer, p_Crossfade, p_FadeFrames, p_ExtraTrackWeight, p_Track);
+		}
+	}
+}
+
 int Graphics::getVRAMMemUsage(void)
 {
 	if (m_VRAMMemInfo)
