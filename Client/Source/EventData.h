@@ -242,7 +242,7 @@ private:
 	Vector3 m_Rotation;
 
 public:
-	static const Type sk_EventType = Type(0x77dd2b5c);
+	static const Type sk_EventType = Type(0x77dd2b5d);
 
 	UpdateModelRotationEventData(unsigned int p_Id, Vector3 p_Rotation)
 		:	m_Id(p_Id), m_Rotation(p_Rotation)
