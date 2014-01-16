@@ -229,6 +229,12 @@ public:
 	virtual int createModelInstance(const char *p_ModelId) = 0;
 
 	/**
+	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
+	 * @param p_ModelId the resource identifier for the model to draw the instance with.
+	 */
+	virtual void createSkyDome(const char *p_ModelId, float p_Radius) = 0;
+
+	/**
 	 * Erase an existing model instance.
 	 *
 	 * @param p_Instance an identifier to a model instance.

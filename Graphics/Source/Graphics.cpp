@@ -605,6 +605,11 @@ int Graphics::createModelInstance(const char *p_ModelId)
 	return id;
 }
 
+void Graphics::createSkyDome(const char* p_Identifier, float p_Radius)
+{
+
+}
+
 void Graphics::eraseModelInstance(int p_Instance)
 {
 	for (unsigned int i = 0; i < m_ModelInstances.size(); i++)
