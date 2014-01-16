@@ -211,27 +211,29 @@ void GameLogic::registeredInput(std::string p_Action, float p_Value)
 
 	else if( p_Action == "blendAnimation" && p_Value == 1.0f )
 	{
-	        m_Graphics->playAnimation(wavingWitch, "Bomb", false, true, 2, 1.0f, 2);
-	        m_Graphics->playAnimation(ikTest, "Spin", false, true, 12, 1.0f, 2);
-	        m_Graphics->playAnimation(testWitch, "Idle", false, true, 12, 1.0f, 2);
+	        m_Graphics->playAnimation(wavingWitch, "Bomb");
+	        m_Graphics->playAnimation(ikTest, "Spin");
+	        m_Graphics->playAnimation(testWitch, "Idle");
 	}
 	else if( p_Action == "resetAnimation" && p_Value == 1.0f )
 	{
-	        m_Graphics->playAnimation(wavingWitch, "Kick", false, true, 2, 1.0f, 2);
-	        m_Graphics->playAnimation(ikTest, "Wave", false, true, 12, 1.0f, 2);
-	        m_Graphics->playAnimation(testWitch, "Run", false, true, 12, 1.0f, 2);
+	        m_Graphics->playAnimation(wavingWitch, "Kick");
+	        m_Graphics->playAnimation(ikTest, "Wave");
+	        m_Graphics->playAnimation(testWitch, "Run");
 	}
 	else if( p_Action == "layerAnimation" && p_Value == 1.0f )
 	{
-	        m_Graphics->playAnimation(ikTest, "Wave", true, false, 0, 0.7f, 1);
-	        m_Graphics->playAnimation(wavingWitch, "Bomb", true, false, 0, 0.5f, 1);
-	        m_Graphics->playAnimation(testWitch, "Idle", true, true, 12, 0.5f, 1);
+	        m_Graphics->playAnimation(ikTest, "Wave");
+	        m_Graphics->playAnimation(wavingWitch, "Bomb");
+	       // m_Graphics->playAnimation(testWitch, "IdleLayered");
+			m_Graphics->playAnimation(testWitch, "Wave");
 	}
 	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f )
 	{
-	        m_Graphics->playAnimation(ikTest, "Wave", false, false, 0, 1.0f, 0);
-	        m_Graphics->playAnimation(wavingWitch, "Kick", false, false, 0, 1.0f, 0);
-	        m_Graphics->playAnimation(testWitch, "Run", false, false, 0, 1.0f, 0);
+	        m_Graphics->playAnimation(ikTest, "Wave");
+	        m_Graphics->playAnimation(wavingWitch, "Kick");
+	        m_Graphics->playAnimation(testWitch, "Run");
+			m_Graphics->playAnimation(testWitch, "DefLayer1");
 	}
 }
 
@@ -441,11 +443,11 @@ void GameLogic::loadSandbox()
 
 	
 	// Test.
-	m_Graphics->playAnimation(circleWitch, "Run", false, false, 0, 1.0f, 0);
-	m_Graphics->playAnimation(wavingWitch, "Kick", false, false, 0, 1.0f, 0);
-	m_Graphics->playAnimation(standingWitch, "Bomb", false, false, 0, 1.0f, 0);
-	m_Graphics->playAnimation(testWitch, "Run", false, false, 0, 1.0f, 0);
-	m_Graphics->playAnimation(ikTest, "Wave", false, false, 0, 1.0f, 0);
+	m_Graphics->playAnimation(circleWitch, "Run");
+	m_Graphics->playAnimation(wavingWitch, "Kick");
+	m_Graphics->playAnimation(standingWitch, "Bomb");
+	m_Graphics->playAnimation(testWitch, "Run");
+	m_Graphics->playAnimation(ikTest, "Wave");
 }
 
 void GameLogic::updateSandbox(float p_DeltaTime)

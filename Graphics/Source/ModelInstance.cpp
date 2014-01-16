@@ -11,9 +11,8 @@ ModelInstance::ModelInstance()
 {
 	for (int i = 0; i < 3; i++)
 	{
-		m_Tracks[i].crossfade = false;
-		m_Tracks[i].fadeFrames = 0;
 		m_Tracks[i].active = false;
+		m_Tracks[i].fadedFrames = 0.0f;
 		m_Tracks[i].currentFrame = 0.0f;
 		m_Tracks[i].destinationFrame = 1.0f;
 		m_Tracks[i].clip = AnimationClip();
@@ -76,22 +75,33 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 
 	static const float keyfps = 24.0f;
 
+	// Check if any fade blend are active and if they should end.
 	for (int i = 0; i < 3; i++)
 	{
-		if (m_Tracks[i].crossfade)
+		if (m_Tracks[i].clip.m_FadeIn)
 		{
-			if ((float)m_Tracks[i].fadeFrames <= m_Tracks[i].fadedFrames)
+			if ((float)m_Tracks[i].clip.m_FadeInFrames <= m_Tracks[i].fadedFrames)
 			{
-				m_Tracks[i].crossfade = false;
-				if(!m_Tracks[i].layered && m_Tracks[i].clip.m_Loop)
+				m_Tracks[i].clip.m_FadeIn = false;
+				m_Tracks[i].fadedFrames = 0.0f;
+				if(!m_Tracks[i].clip.m_Layered && m_Tracks[i].clip.m_Loop)
 				{
 					m_Tracks[0] = m_Tracks[i];
 					m_Tracks[i].active = false;
+					m_Tracks[0].active = true;
 				}
+			}
+		}
+		else if ( m_Tracks[i].clip.m_FadeOut && !m_Tracks[i].clip.m_Loop )
+		{
+			if( (float)m_Tracks[i].clip.m_End < m_Tracks[i].currentFrame)
+			{
+				m_Tracks[i].active = false;
 			}
 		}
 	}
 
+	// Update time stamp in the direction of the animation speed.
 	for (int i = 0; i < 3; i++)
 	{
 		if( m_Tracks[i].active)
@@ -99,8 +109,13 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 			float frameStep = p_DeltaTime * keyfps * m_Tracks[i].clip.m_AnimationSpeed;
 			m_Tracks[i].currentFrame += frameStep;
 
-			if (m_Tracks[i].crossfade)
+			if (m_Tracks[i].clip.m_FadeIn)
 				m_Tracks[i].fadedFrames += abs(frameStep);
+			else if ( m_Tracks[i].clip.m_FadeOut && !m_Tracks[i].clip.m_Loop)
+			{
+				if( (float)(m_Tracks[i].clip.m_End - m_Tracks[i].clip.m_FadeOutFrames - 1) <= m_Tracks[i].currentFrame)
+					m_Tracks[i].fadedFrames += abs(frameStep);
+			}
 
 			const unsigned int numKeyframes = (unsigned int)m_Tracks[i].clip.m_End;
 	
@@ -160,6 +175,7 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 	for(unsigned int i = 0; i < numBones; ++i)
 	{
 		matrixDecomposed toParentData;
+		// Track 0 is the main track. Do vanilla animation.
 		if(m_Tracks[0].clip.m_AnimationSpeed > 0)
 		{
 			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].currentFrame, m_Tracks[0].destinationFrame);
@@ -169,7 +185,8 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].destinationFrame, m_Tracks[0].currentFrame);
 		}
 
-		if (m_Tracks[2].active && m_Tracks[2].crossfade)
+		// Track 2 contains whole body animations. Only layered and full body blends are allowed.
+		if (m_Tracks[2].active)
 		{
 			matrixDecomposed tempData;
 			if(m_Tracks[2].clip.m_AnimationSpeed > 0)
@@ -181,13 +198,23 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 				tempData = p_Joints[i].interpolateEx(m_Tracks[2].destinationFrame, m_Tracks[2].currentFrame);
 			}
 
-			if(m_Tracks[2].crossfade)
-				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[2].fadedFrames / (float)m_Tracks[2].fadeFrames) * m_Tracks[2].dynamicWeight);
+			if(m_Tracks[2].clip.m_Loop && !m_Tracks[2].clip.m_Layered)
+			{
+				if(m_Tracks[2].clip.m_FadeIn)
+					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[2].fadedFrames / (float)m_Tracks[2].clip.m_FadeInFrames));
+			}
+			
 			else
-				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].dynamicWeight );
+			{
+				if(m_Tracks[2].clip.m_FadeIn)
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[2].fadedFrames / (float)m_Tracks[2].clip.m_FadeInFrames) * m_Tracks[2].clip.m_Weight);
+				else
+				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[2].clip.m_Weight );
+			}
 		}
 
-		if (m_Tracks[1].active) // Track 1 should hold partial animations such as waving, spellcasting etc.
+		// Track 1 should hold partial animations such as waving, spellcasting etc. The skeleton is traversed with the function affected().
+		if (m_Tracks[1].active)
 		{
 			if (affected(p_Joints, i, m_Tracks[1].clip.m_FirstJoint))
 			{
@@ -197,10 +224,14 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 				else
 					tempData = p_Joints[i].interpolateEx(m_Tracks[1].destinationFrame, m_Tracks[1].currentFrame);
 
-				if(m_Tracks[1].crossfade)
-					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[1].fadedFrames / (float)m_Tracks[1].fadeFrames) * m_Tracks[1].dynamicWeight );
+				if(m_Tracks[1].clip.m_FadeIn)
+					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[1].fadedFrames / (float)m_Tracks[1].clip.m_FadeInFrames) * m_Tracks[1].clip.m_Weight );
+				else if(m_Tracks[1].clip.m_FadeOut && !m_Tracks[1].clip.m_Loop)
+				{
+					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, 1.0f - ((m_Tracks[1].fadedFrames / (float)m_Tracks[1].clip.m_FadeOutFrames) * m_Tracks[1].clip.m_Weight) );
+				}
 				else
-					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].dynamicWeight );
+					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].clip.m_Weight );
 			}
 		}
 
@@ -219,11 +250,11 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 bool ModelInstance::affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint)
 {
 	// FirstAffectedJode = FAJ
-	if(p_ID == 0) // The root joint has been reached and the FAJ has not been found.
-		return false;
-	else if (p_Joints[p_ID].m_JointName == p_FirstAffectedJoint) // The FAJ has been found.
+	if (p_Joints[p_ID].m_JointName == p_FirstAffectedJoint) // The FAJ has been found.
 		return true;
-	else return affected(p_Joints, p_Joints.at(p_ID).m_Parent, p_FirstAffectedJoint); // Neither the root nor the FAJ has been found yet, keep looking.
+	else if(p_ID == 0) // The root joint has been reached and the FAJ has not been found.
+		return false;
+	else return affected(p_Joints, p_Joints.at(p_ID).m_Parent - 1, p_FirstAffectedJoint); // Neither the root nor the FAJ has been found yet, keep looking.
 }
 
 const std::vector<DirectX::XMFLOAT4X4>& ModelInstance::getFinalTransform() const
@@ -454,19 +485,29 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 	}
 }
 
-void ModelInstance::playClip( AnimationClip p_Clip, bool p_Layer, bool p_Crossfade, int p_FadeFrames, float p_ExtraTrackWeight, int p_Track )
+void ModelInstance::playClip( AnimationClip p_Clip )
 {
-	m_Tracks[p_Track].active = true;
-	m_Tracks[p_Track].clip = p_Clip;
-	m_Tracks[p_Track].crossfade = p_Crossfade;
-	m_Tracks[p_Track].currentFrame = m_Tracks[p_Track].clip.m_Start;
-	m_Tracks[p_Track].dynamicWeight = p_ExtraTrackWeight;
-	m_Tracks[p_Track].fadedFrames = 0.0f;
-	m_Tracks[p_Track].fadeFrames = p_FadeFrames;
-	m_Tracks[p_Track].layered = p_Layer;
+	// If the main track is already active it suggests that there is already a main
+	// animation active. The new animation should be faded in and then override the
+	// old animation.
+	m_Tracks[0].active = true;
+	if(p_Clip.m_DestinationTrack == 0 && m_Tracks[0].active)
+	{
+		m_Tracks[2].clip = p_Clip;
+		m_Tracks[2].fadedFrames = 0.0f;
+		m_Tracks[2].active = true;
+		m_Tracks[2].currentFrame = p_Clip.m_Start;
+	}
+	else
+	{
+		m_Tracks[p_Clip.m_DestinationTrack].clip = p_Clip;
+		m_Tracks[p_Clip.m_DestinationTrack].fadedFrames = 0.0f;
+		m_Tracks[p_Clip.m_DestinationTrack].active = true;
+		m_Tracks[p_Clip.m_DestinationTrack].currentFrame = p_Clip.m_Start;
+	}
 
-	// DEBUG
-	if(!p_Layer && !p_Crossfade)
+	// DEBUG to in-activate looping animations on track 1.
+	if(!p_Clip.m_Layered && !p_Clip.m_FadeIn)
 	{
 		m_Tracks[1].active = false;
 	}

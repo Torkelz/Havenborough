@@ -6,11 +6,12 @@ en	31
 lo	1
 f	Hip
 tr	0
-la	1
+la	0
 fi	1
 fif	3
 fo	1
 fof	3
+we	0.5
 
 *Clip
 na	Idle
@@ -20,11 +21,12 @@ en	53
 lo	1
 f	Hip
 tr	0
-la	1
+la	0
 fi	1
 fif	3
 fo	1
 fof	3
+we	0.5
 
 *Clip
 na	Wave
@@ -39,3 +41,4 @@ fi	1
 fif	2
 fo	1
 fof	2
+we	1.0

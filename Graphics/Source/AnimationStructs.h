@@ -16,6 +16,7 @@ struct AnimationClip
 	int			m_FadeInFrames;
 	bool		m_FadeOut;
 	int			m_FadeOutFrames;
+	float		m_Weight;
 
 	AnimationClip()
 	{
@@ -31,10 +32,11 @@ struct AnimationClip
 		m_FadeInFrames = 0;
 		m_FadeOut = false;
 		m_FadeOutFrames = 0;
+		m_Weight = 0.0f;
 	}
 
 	AnimationClip( std::string clipName, float animationSpeed, float start, float end, bool loop, std::string firstJoint, 
-		int destinationTrack, bool layered, bool fadeIn, int fadeInFrames, bool fadeOut, int fadeOutFrames)
+		int destinationTrack, bool layered, bool fadeIn, int fadeInFrames, bool fadeOut, int fadeOutFrames, float p_Weight)
 	{	
 		m_ClipName = clipName;
 		m_AnimationSpeed = animationSpeed;
@@ -48,6 +50,7 @@ struct AnimationClip
 		m_FadeInFrames = fadeInFrames;
 		m_FadeOut = fadeOut;
 		m_FadeOutFrames = fadeOutFrames;
+		m_Weight = p_Weight;
 	}
 };
 

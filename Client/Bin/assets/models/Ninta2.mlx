@@ -1,17 +1,29 @@
 *Clip
-n	Kick
-sp	1.0
+na	Kick
+sp	0.1
 st	1
 en	32
-l	1
-f	0
-p	1
+lo	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	12
+fo	0
+fof	0
+we	0.5
 
 *Clip
-n	Bomb
-sp	1
+na	Bomb
+sp	0.1
 st	33
 en	44
-l	1
-f	0
-p	2
+lo	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	12
+fo	0
+fof	0
+we	0.5
