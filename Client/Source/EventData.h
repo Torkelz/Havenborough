@@ -322,3 +322,116 @@ public:
 		return m_AnimationName;
 	}
 };
+
+class AddReachIK_EventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+
+	std::string m_RootJoint;
+	std::string m_BendJoint;
+	std::string m_ReachJoint;
+	Vector3 m_Target;
+
+public:
+	static const Type sk_EventType = Type(0x141d2b5d);
+
+	AddReachIK_EventData(unsigned int p_Id, std::string p_RootJoint, std::string p_BendJoint, std::string p_ReachJoint, Vector3 p_Target)
+		:	m_Id(p_Id),
+			m_RootJoint(p_RootJoint),
+			m_BendJoint(p_BendJoint),
+			m_ReachJoint(p_ReachJoint),
+			m_Target(p_Target)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new AddReachIK_EventData(m_Id, m_RootJoint, m_BendJoint, m_ReachJoint, m_Target));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "AddReachIK_Event";
+	}
+
+	int getId() const
+	{
+		return m_Id;
+	}
+
+	std::string getRootJoint() const
+	{
+		return m_RootJoint;
+	}
+
+	std::string getBendJoint() const
+	{
+		return m_BendJoint;
+	}
+
+	std::string getReachJoint() const
+	{
+		return m_ReachJoint;
+	}
+
+	Vector3 getTarget() const
+	{
+		return m_Target;
+	}
+};
+
+class RemoveReachIK_EventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+
+	std::string m_ReachJoint;
+
+public:
+	static const Type sk_EventType = Type(0x142d2b5d);
+
+	RemoveReachIK_EventData(unsigned int p_Id, std::string p_ReachJoint)
+		:	m_Id(p_Id),
+			m_ReachJoint(p_ReachJoint)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new RemoveReachIK_EventData(m_Id, m_ReachJoint));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "RemoveReachIK_Event";
+	}
+
+	int getId() const
+	{
+		return m_Id;
+	}
+
+	std::string getReachJoint() const
+	{
+		return m_ReachJoint;
+	}
+};

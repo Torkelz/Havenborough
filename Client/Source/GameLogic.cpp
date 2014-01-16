@@ -189,7 +189,7 @@ void GameLogic::playerJump()
 
 void GameLogic::toggleIK()
 {
-	useIK_OnIK_Worm = !useIK_OnIK_Worm;
+	useIK = !useIK;
 }
 
 
@@ -225,7 +225,7 @@ void GameLogic::testResetLayerAnimation()
 
 void GameLogic::loadSandbox()
 {
-	useIK_OnIK_Worm = false;
+	useIK = false;
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug box model instances");
 
@@ -343,6 +343,8 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 			strongBox->setRotation(rotBlockRotation * (float)i);
 		}
 	}
+
+	updateIK();
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
@@ -356,6 +358,58 @@ void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
 	if (comp)
 	{
 		m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName)));
+	}
+}
+
+void GameLogic::updateIK()
+{
+	static const char* testTargetJoint = "L_Hand";
+	static const char* testHingeJoint = "L_LowerArm";
+	static const char* testBaseJoint = "L_UpperArm";
+
+	Vector3 IK_Target = Vector3(m_Player.getEyePosition()) + lookDir * 200.f;
+
+	if (useIK)
+	{
+		std::shared_ptr<Actor> strIKTest = ikTest.lock();
+		if (strIKTest)
+		{
+			std::shared_ptr<ModelComponent> comp = strIKTest->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			if (comp)
+			{
+				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "joint1", "joint2", "joint3", IK_Target)));
+			}
+		}
+		std::shared_ptr<Actor> strWitch = circleWitch.lock();
+		if (strWitch)
+		{
+			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			if (comp)
+			{
+				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), testBaseJoint, testHingeJoint, testTargetJoint, IK_Target)));
+			}
+		}
+	}
+	else
+	{
+		std::shared_ptr<Actor> strIKTest = ikTest.lock();
+		if (strIKTest)
+		{
+			std::shared_ptr<ModelComponent> comp = strIKTest->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			if (comp)
+			{
+				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "joint3")));
+			}
+		}
+		std::shared_ptr<Actor> strWitch = circleWitch.lock();
+		if (strWitch)
+		{
+			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			if (comp)
+			{
+				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), testTargetJoint)));
+			}
+		}
 	}
 }
 

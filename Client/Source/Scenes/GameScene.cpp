@@ -37,6 +37,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelScaleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::playAnimation), PlayAnimationEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addReachIK), AddReachIK_EventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
 
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = true;
@@ -80,12 +82,13 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_Graphics->updateAnimations(p_DeltaTime);
 
-	static const char* testTargetJoint = "L_Hand";
-	static const char* testHingeJoint = "L_LowerArm";
-	static const char* testBaseJoint = "L_UpperArm";
-
-	//m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
-	//m_Graphics->applyIK_ReachPoint(ikTest, "joint3", "joint2", "joint1", IK_Target);
+	for (auto& model : m_Models)
+	{
+		for (const ReachIK& ik : model.activeIKs)
+		{
+			m_Graphics->applyIK_ReachPoint(model.modelId, ik.reachJoint.c_str(), ik.bendJoint.c_str(), ik.rootJoint.c_str(), ik.target);
+		}
+	}
 }
 
 void GameScene::render()
@@ -292,6 +295,55 @@ void GameScene::playAnimation(IEventData::Ptr p_Data)
 		if(model.meshId == animationData->getId())
 		{
 			m_Graphics->playAnimation(model.modelId, animationData->getAnimationName().c_str());
+		}
+	}
+}
+
+void GameScene::addReachIK(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<AddReachIK_EventData> ikData = std::static_pointer_cast<AddReachIK_EventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == ikData->getId())
+		{
+			ReachIK ik =
+			{
+				ikData->getRootJoint(),
+				ikData->getBendJoint(),
+				ikData->getReachJoint(),
+				ikData->getTarget()
+			};
+
+			for (auto& activeIK : model.activeIKs)
+			{
+				if (activeIK.reachJoint == ikData->getReachJoint())
+				{
+					activeIK = ik;
+					return;
+				}
+			}
+
+			model.activeIKs.push_back(ik);
+		}
+	}
+}
+
+void GameScene::removeReachIK(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveReachIK_EventData> ikData = std::static_pointer_cast<RemoveReachIK_EventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == ikData->getId())
+		{
+			for (auto& ik : model.activeIKs)
+			{
+				if (ik.reachJoint == ikData->getReachJoint())
+				{
+					std::swap(ik, model.activeIKs.back());
+					model.activeIKs.pop_back();
+					return;
+				}
+			}
 		}
 	}
 }

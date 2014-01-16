@@ -27,11 +27,20 @@ private:
 	std::vector<int> m_ResourceIDs;
 	std::vector<Light> m_Lights;
 
+	struct ReachIK
+	{
+		std::string rootJoint;
+		std::string bendJoint;
+		std::string reachJoint;
+		Vector3 target;
+	};
+
 	struct MeshBinding
 	{
 		unsigned int meshId;
 		int resourceId;
 		IGraphics::InstanceId modelId;
+		std::vector<ReachIK> activeIKs;
 	};
 	std::vector<MeshBinding> m_Models;
 
@@ -60,6 +69,8 @@ private:
 	void updateModelRotation(IEventData::Ptr p_Data);
 	void updateModelScale(IEventData::Ptr p_Data);
 	void playAnimation(IEventData::Ptr p_Data);
+	void addReachIK(IEventData::Ptr p_Data);
+	void removeReachIK(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 

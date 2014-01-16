@@ -47,7 +47,7 @@ private:
 
 	const static int NUM_BOXES = 16;
 	std::weak_ptr<Actor> rotBoxes[NUM_BOXES];
-	bool useIK_OnIK_Worm;
+	bool useIK;
 	Vector3 rotBlockRotation;
 
 	Vector3 lookDir;
@@ -97,6 +97,7 @@ private:
 	void updateSandbox(float p_DeltaTime);
 
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
+	void updateIK();
 
 	std::weak_ptr<Actor> addRotatingBox(Vector3 p_Position, Vector3 p_Scale);
 	std::weak_ptr<Actor> addSkybox(Vector3 p_Scale);
