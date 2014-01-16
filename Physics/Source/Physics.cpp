@@ -99,7 +99,13 @@ void Physics::update(float p_DeltaTime)
 					onSomething = true;
 
 					XMFLOAT4 velocity = b.getVelocity();	// m/s
-					velocity.y = 0.f;
+					float degrade = 0.1f;
+					if(velocity.y - degrade > 0.f)
+						velocity.y -= degrade;
+					else
+						velocity.y = 0.f;
+					
+
 					b.setVelocity(velocity);
 				}
 			}
