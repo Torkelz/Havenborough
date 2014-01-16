@@ -16,8 +16,7 @@ PostGameScene::~PostGameScene()
 	m_Graphics = nullptr;
 }
 
-bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-	Input *p_InputQueue, INetwork *p_Network)
+bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
@@ -48,7 +47,7 @@ void PostGameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 void PostGameScene::render()
 {
 	m_Graphics->setClearColor(Vector4(1, 0, 0, 1));
-	m_Graphics->drawFrame(-1);
+	m_Graphics->setRenderTarget(-1);
 }
 
 bool PostGameScene::getIsVisible()
@@ -61,9 +60,9 @@ void PostGameScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void PostGameScene::registeredInput(std::string p_Action, float p_Value)
+void PostGameScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action == "changeSceneN" && p_Value == 1)
+	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
 	{
 		if(m_SceneID == 0)
 		{
@@ -75,11 +74,11 @@ void PostGameScene::registeredInput(std::string p_Action, float p_Value)
 		}
 		m_ChangeScene = true;
 	}
-	if(p_Action == "goToMainMenu" && p_Value == 1)
+	if(p_Action == "goToMainMenu" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_ChangeList = true;
 	}
-	else if(p_Action == "changeSceneP" && p_Value == 1)
+	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_ChangeList = true;
 	}

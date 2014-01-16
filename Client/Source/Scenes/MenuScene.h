@@ -17,7 +17,7 @@ public:
 	~MenuScene();
 
 	bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network) override;
+		Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager) override;
 
 	void destroy() override;
 
@@ -29,7 +29,7 @@ public:
 		 
 	void setIsVisible(bool p_SetVisible) override;
 		 
-	void registeredInput(std::string p_Action, float p_Value) override;
+	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue) override;
 	
 	/*########## TEST FUNCTIONS ##########*/
 

@@ -3,6 +3,7 @@
 #include "ModelDefinition.h"
 #include "ModelBinaryLoader.h"
 #include "GraphicsExceptions.h"
+#include "AnimationClipLoader.h"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -31,7 +32,6 @@ private:
 
 	loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
-
 public:
 
 	/**
@@ -77,4 +77,5 @@ private:
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
 		const vector<Material> &p_Materials);
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
+
 };

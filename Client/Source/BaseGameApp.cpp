@@ -18,7 +18,9 @@ const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 void BaseGameApp::init()
 {
 	Logger::log(Logger::Level::INFO, "Initializing game app");
-	
+
+	m_GameLogic = nullptr;
+
 	m_MemUpdateDelay = 0.1f;
 	m_TimeToNextMemUpdate = 0.f;
 	
@@ -31,18 +33,26 @@ void BaseGameApp::init()
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, fullscreen);
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_Window.registerCallback(WM_EXITSIZEMOVE, std::bind(&BaseGameApp::handleWindowExitSizeMove, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_Window.registerCallback(WM_SIZE, std::bind(&BaseGameApp::handleWindowSize, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
-	m_ResourceManager = new ResourceManager();
+	m_ResourceManager.reset(new ResourceManager());
+	
+	m_Sound = ISound::createSound();
+	m_Sound->setLogFunction(&Logger::logRaw);
+	m_Sound->initialize();
+
 	using namespace std::placeholders;
-	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
-	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
+	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager.get());
+	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager.get());
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
-	m_ResourceManager->registerFunction("volume", std::bind(&IPhysics::createLevelBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseLevelBV, m_Physics, _1));
+	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseBV, m_Physics, _1));
+	m_ResourceManager->registerFunction("sound", std::bind(&ISound::loadSound, m_Sound, _1, _2), std::bind(&ISound::releaseSound, m_Sound, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -64,8 +74,14 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('J', "changeSceneP");
 	translator->addKeyboardMapping('K', "pauseScene");
 	translator->addKeyboardMapping('L', "changeSceneN");
+	translator->addKeyboardMapping('9', "switchBVDraw");
 	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
 
+	translator->addKeyboardMapping('B', "blendAnimation");
+	translator->addKeyboardMapping('N', "resetAnimation");
+	translator->addKeyboardMapping('M', "layerAnimation");
+	translator->addKeyboardMapping('V', "resetLayerAnimation");
+	
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
 
@@ -77,16 +93,23 @@ void BaseGameApp::init()
 	m_Network = INetwork::createNetwork();
 	m_Network->setLogFunction(&Logger::logRaw);
 	m_Network->initialize();
-	m_Connected = false;
+	m_Connected = false;	
 
-	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue, m_Network);
-	
-
-				
+	m_EventManager.reset(new EventManager());
+	m_GameLogic.reset(new GameLogic());
+	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
+					
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
 	m_ActorFactory.setGraphics(m_Graphics);
+	m_ActorFactory.setEventManager(m_EventManager.get());
+	m_ActorFactory.setResourceManager(m_ResourceManager.get());
+
+	m_GameLogic->initialize(m_ResourceManager.get(), m_Physics, &m_ActorFactory, m_EventManager.get(), m_Network);
+
+	// Set Current Size
+	m_NewWindowSize = m_Window.getSize();
 }
 
 void BaseGameApp::run()
@@ -122,21 +145,28 @@ void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
 	
+	m_GameLogic->shutdown();
+	m_GameLogic.reset();
 
 	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
 	
 	m_SceneManager.destroy();
 
-	delete m_ResourceManager;
+	m_ResourceManager.reset();
 
 	m_InputQueue.destroy();
 	
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
 
+	ISound::deleteSound(m_Sound);
+	m_Sound = nullptr;
+
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
+
+	m_EventManager.reset();
 
 	m_Window.destroy();
 }
@@ -161,6 +191,49 @@ bool BaseGameApp::handleWindowClose(WPARAM /*p_WParam*/, LPARAM /*p_LParam*/, LR
 	m_ShouldQuit = true;
 	p_Result = 0;
 	return true;
+}
+bool BaseGameApp::handleWindowExitSizeMove(WPARAM /*p_WParam*/, LPARAM p_LParam, LRESULT& p_Result)
+{
+	Logger::log(Logger::Level::DEBUG_L, "Handling window when the user releases the resize bars.");
+
+	m_Window.setSize(m_NewWindowSize);				
+
+	p_Result = 0;
+	return true;
+}
+bool BaseGameApp::handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
+{
+	Logger::log(Logger::Level::DEBUG_L, "Handling window when the user resizes the window.");
+
+	m_NewWindowSize = DirectX::XMFLOAT2(LOWORD(p_LParam),HIWORD(p_LParam));
+
+	switch(p_WParam)
+	{
+	case SIZE_MAXIMIZED:
+		{
+			m_Window.setSize(m_NewWindowSize);
+			m_Window.setIsMaximized(true);
+			p_Result = 0;
+			return true;
+		}
+	case SIZE_MAXHIDE:{return false;}
+	case SIZE_MAXSHOW:{return false;}
+	case SIZE_MINIMIZED:{return false;}
+	case SIZE_RESTORED:
+		{
+			if(m_Window.getIsMaximized())
+			{
+				m_Window.setIsMaximized(false);
+				m_Window.setSize(m_NewWindowSize);
+				p_Result = 0;
+				return true;
+			}
+			return false;
+		}
+	default:
+		return false;
+	}
+	
 }
 
 void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
@@ -229,7 +302,7 @@ void BaseGameApp::handleInput()
 		Logger::log(Logger::Level::TRACE, msg.str());
 
 		// Pass keystrokes to all active scenes.
-		m_SceneManager.registeredInput(in.m_Action, in.m_Value);
+		m_SceneManager.registeredInput(in.m_Action, in.m_Value, in.m_PrevValue);
 
 		if (in.m_Action == "exit")
 		{
@@ -252,7 +325,7 @@ void BaseGameApp::handleInput()
 			GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
 			if (gameScene)
 			{
-				gameScene->getGameLogic()->setPlayerActor(Actor::ptr());
+				m_GameLogic->setPlayerActor(Actor::ptr());
 			}
 		}
 	}
@@ -394,7 +467,7 @@ void BaseGameApp::handleNetwork()
 						GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
 						if (gameScene)
 						{
-							gameScene->getGameLogic()->setPlayerActor(actor);
+							m_GameLogic->setPlayerActor(actor);
 						}
 					}
 				}
@@ -421,6 +494,9 @@ void BaseGameApp::updateLogic()
 	}
 
 	m_SceneManager.onFrame(m_DeltaTime);
+	m_GameLogic->onFrame(m_DeltaTime);
+
+	m_EventManager->processEvents();
 }
 
 void BaseGameApp::render()
@@ -432,11 +508,12 @@ void BaseGameApp::render()
 
 		if (strongGraphicsComponent)
 		{
-			strongGraphicsComponent->render();
+			//strongGraphicsComponent->render(m_Graphics);
 		}
 	}
 
 	m_SceneManager.render();
+	m_Graphics->drawFrame();
 }
 
 Actor::ptr BaseGameApp::getActor(Actor::Id p_Actor)
@@ -464,3 +541,4 @@ void BaseGameApp::removeActor(Actor::Id p_Actor)
 		}
 	}
 }
+

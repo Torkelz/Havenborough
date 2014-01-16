@@ -1,6 +1,5 @@
 #include "ModelFactory.h"
 
-
 #include <boost/filesystem.hpp>
 
 ModelFactory *ModelFactory::m_Instance = nullptr;
@@ -49,6 +48,20 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 
 		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimationVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
+
+		//Animation clip stuff
+		const int stringLength = std::strlen(p_Filename);
+		std::string animationClipName;
+		for (int i = 0; i < stringLength - 3; i++)
+		{
+			animationClipName.push_back(p_Filename[i]);
+		}
+		animationClipName += "mlx";
+
+		AnimationClipLoader tempLoader = AnimationClipLoader();
+
+		model.m_AnimationClips = tempLoader.load(animationClipName);
+		//tempLoader.~AnimationClipLoader();
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 

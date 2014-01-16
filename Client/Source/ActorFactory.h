@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor.h"
+#include "ResourceManager.h"
 
 #include <IGraphics.h>
 #include <IPhysics.h>
@@ -15,8 +16,11 @@ class ActorFactory
 {
 private:
 	unsigned int m_LastActorId;
+	unsigned int m_LastModelComponentId;
 	IGraphics* m_Graphics;
 	IPhysics* m_Physics;
+	EventManager* m_EventManager;
+	ResourceManager* m_ResourceManager;
 
 protected:
 	typedef std::function<ActorComponent::ptr()> componentCreatorFunc;
@@ -27,6 +31,8 @@ public:
 
 	void setGraphics(IGraphics* p_Graphics);
 	void setPhysics(IPhysics* p_Physics);
+	void setEventManager(EventManager* p_EventManager);
+	void setResourceManager(ResourceManager* p_ResourceManager);
 
 	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data);
 	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id);
@@ -38,7 +44,9 @@ private:
 	unsigned int getNextActorId();
 
 	ActorComponent::ptr createOBBComponent();
+	ActorComponent::ptr createAABBComponent();
 	ActorComponent::ptr createCollisionSphereComponent();
+	ActorComponent::ptr createBoundingMeshComponent();
 	ActorComponent::ptr createModelComponent();
 	ActorComponent::ptr createMovementComponent();
 	ActorComponent::ptr createPulseComponent();

@@ -5,11 +5,14 @@
 
 ActorFactory::ActorFactory()
 	:	m_LastActorId(65536),
+		m_LastModelComponentId(0),
 		m_Graphics(nullptr),
 		m_Physics(nullptr)
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
+	m_ComponentCreators["AABBPhysics"] = std::bind(&ActorFactory::createAABBComponent, this);
 	m_ComponentCreators["SpherePhysics"] = std::bind(&ActorFactory::createCollisionSphereComponent, this);
+	m_ComponentCreators["MeshPhysics"] = std::bind(&ActorFactory::createBoundingMeshComponent, this);
 	m_ComponentCreators["Model"] = std::bind(&ActorFactory::createModelComponent, this);
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
@@ -25,6 +28,16 @@ void ActorFactory::setPhysics(IPhysics* p_Physics)
 	m_Physics = p_Physics;
 }
 
+void ActorFactory::setEventManager(EventManager* p_EventManager)
+{
+	m_EventManager = p_EventManager;
+}
+
+void ActorFactory::setResourceManager(ResourceManager* p_ResourceManager)
+{
+	m_ResourceManager = p_ResourceManager;
+}
+
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
 {
 	return createActor(p_Data, getNextActorId());
@@ -32,7 +45,7 @@ Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
 
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id)
 {
-	Actor::ptr actor(new Actor(p_Id));
+	Actor::ptr actor(new Actor(p_Id, m_EventManager));
 	actor->initialize(p_Data);
 
 	for (const tinyxml2::XMLElement* node = p_Data->FirstChildElement(); node; node = node->NextSiblingElement())
@@ -100,10 +113,27 @@ ActorComponent::ptr ActorFactory::createCollisionSphereComponent()
 	return ActorComponent::ptr(comp);
 }
 
+ActorComponent::ptr ActorFactory::createAABBComponent()
+{
+	AABB_Component* comp = new AABB_Component;
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createBoundingMeshComponent()
+{
+	BoundingMeshComponent* comp = new BoundingMeshComponent;
+	comp->setPhysics(m_Physics);
+	comp->setResourceManager(m_ResourceManager);
+
+	return ActorComponent::ptr(comp);
+}
+
 ActorComponent::ptr ActorFactory::createModelComponent()
 {
 	ModelComponent* comp = new ModelComponent;
-	comp->setGraphics(m_Graphics);
+	comp->setId(++m_LastModelComponentId);
 
 	return ActorComponent::ptr(comp);
 }

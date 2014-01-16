@@ -1,0 +1,15 @@
+n	Kick
+st	1
+en	32
+l	1
+sp	1.0
+f	0
+p	1
+
+n	Bomb
+st	33
+en	44
+l	1
+sp	1.0
+f	0
+p	2

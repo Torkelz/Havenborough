@@ -16,7 +16,8 @@ MenuScene::~MenuScene()
 	m_Graphics = nullptr;
 }
 
-bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network)
+bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
+	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
 	m_SceneID = p_SceneID;
 
@@ -46,7 +47,7 @@ void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 void MenuScene::render()
 {
 	m_Graphics->setClearColor(Vector4(0, 1, 0, 1));
-	m_Graphics->drawFrame(-1);
+	m_Graphics->setRenderTarget(-1);
 }
 
 bool MenuScene::getIsVisible()
@@ -59,9 +60,9 @@ void MenuScene::setIsVisible(bool p_SetVisible)
 	m_Visible = p_SetVisible;
 }
 
-void MenuScene::registeredInput(std::string p_Action, float p_Value)
+void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action == "changeSceneN" && p_Value == 1)
+	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
 	{
 		if(m_SceneID == 0)
 		{
@@ -73,7 +74,7 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value)
 		}
 		m_ChangeScene = true;
 	}
-	else if(p_Action == "changeSceneP" && p_Value == 1)
+	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
 	{
 		m_ChangeList = true;
 	}

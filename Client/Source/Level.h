@@ -1,5 +1,5 @@
+#include "ActorFactory.h"
 #include "LevelBinaryLoader.h"
-#include "IGraphics.h"
 #include "IPhysics.h"
 #include "ResourceManager.h"
 #include "../Utilities/Util.h"
@@ -8,13 +8,11 @@ class Level
 {
 public:
 private:
-	IGraphics* m_Graphics;
 	IPhysics* m_Physics;
 	ResourceManager* m_Resources;
+	ActorFactory* m_ActorFactory;
 	LevelBinaryLoader m_LevelLoader, m_CollisionLoader;
 	std::vector<LevelBinaryLoader::ModelData> m_LevelData, m_LevelCollisionData;
-	std::vector<int> m_ResourceID, m_BVResourceID;
-	std::vector<int> m_DrawID;
 
 	DirectX::XMFLOAT3 m_StartPosition;
 	DirectX::XMFLOAT3 m_GoalPosition;
@@ -56,11 +54,10 @@ public:
 	/**
 	 * Constructor
 	 *
-	 * @param p_Graphics, Creates a reference to the main graphic source.
 	 * @param p_Resources, Creates a reference to the main resource source. 
 	 * @param p_Physics, Creates a reference to the main physic source.
 	 **/
-	Level(IGraphics* p_Graphics, ResourceManager* p_Resources, IPhysics* p_Physics);
+	Level(ResourceManager* p_Resources, IPhysics* p_Physics, ActorFactory* p_ActorFactory);
 
 	/**
 	 * Destructor
@@ -79,11 +76,14 @@ public:
 	 * @param p_LevelFilePath the complete path to the environment .txl file.
 	 * @param p_CollisionFilePath the complete path to the collision .txl file.
 	 */
-	bool loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePath);
+	bool loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePath, std::vector<Actor::ptr>& p_ActorOut);
 
 	/**
 	 * Calls a draw function and send the information about what to draw to the Graphics.
 	 */
 	void drawLevel();
+
 private:
+	Actor::ptr createObjectActor(std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale);
+	Actor::ptr createCollisionActor(std::string p_MeshName, Vector3 p_Translation, Vector3 p_Rotation, Vector3 p_Scale);
 };

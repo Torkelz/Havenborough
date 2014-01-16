@@ -50,6 +50,7 @@ private:
 	bool		m_ShowingCursor;
 	bool		m_IsVisible;
 	bool		m_Initialized;
+	bool		m_Maximized;
 
 public:
 	/**
@@ -161,6 +162,18 @@ public:
 	 * @param p_Visible true to show the window, false to hide it.
 	 */
 	void		setIsVisible(bool p_Visible);
+	/**
+	 * Get whether the window is currently maximized.
+	 *
+	 * @return true if the window is maximized and false if it is not.
+	 */
+	bool		getIsMaximized() const;
+	/**
+	 * Set the maximized flag of the window.
+	 *
+	 * @param p_Maximized true to set the maximized flag of the window, false not maximized.
+	 */
+	void		setIsMaximized(bool p_Maximized);
 
 private:
 	/**

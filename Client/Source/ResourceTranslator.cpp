@@ -8,7 +8,6 @@ ResourceTranslator::ResourceTranslator()
 
 }
 
-
 ResourceTranslator::~ResourceTranslator()
 {
 
@@ -18,13 +17,13 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 {
 	static const std::pair<std::string, std::string> modelMap[] =
 	{
-		std::make_pair("DZALA", "assets/models/Ninta.btx"),
-		std::make_pair("MARIM", "assets/models/marim.btx"),
+		std::make_pair("DZALA", "assets/models/Ninta2.btx"),
+		std::make_pair("WITCH", "assets/models/Witch_5_Running.btx"),
 		std::make_pair("House", "assets/models/house1.btx"),
 		std::make_pair("BOX", "assets/models/Sample135.btx"),
 		std::make_pair("SKYBOX", "assets/models/SkyBox.btx"),
 		std::make_pair("RedBlueCrate", "assets/models/RedBlueCrate.btx"),
-		std::make_pair("IKTest", "assets/IKtest.btx"),
+		std::make_pair("IKTest", "assets/models/testRig.btx"),
 		std::make_pair("RedCrate", "assets/models/RedCrate.btx"),
 		std::make_pair("OrangeCrate", "assets/models/OrangeCrate.btx"),
 		std::make_pair("LightBlueCrate", "assets/models/LightBlueCrate.btx"),
@@ -43,7 +42,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("LightBlueCrate", "assets/volumes/LightBlueCrate.btx"),
 		std::make_pair("GreenCrate", "assets/volumes/GreenCrate.btx"),
 		std::make_pair("BrownCrate", "assets/volumes/BrownCrate.btx"),
-		std::make_pair("House", "assets/volumes/House1.btx"),
+		std::make_pair("House", "assets/volumes/CB_House1.txc"),
 		std::make_pair("DZALA", "assets/volumes/Dzala.btx"),
 	};
 	static const size_t numBoundingVolumes = sizeof(boundingMap) / sizeof(boundingMap[0]);
@@ -54,11 +53,18 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	};
 	static const size_t numTextures = sizeof(textureMap) / sizeof(textureMap[0]);
 
+	static const std::pair<std::string, std::string> soundMap[] =
+	{
+		std::make_pair("Temp", "Temp"),
+	};
+	static const size_t numSounds = sizeof(soundMap) / sizeof(soundMap[0]);
+
 	static const std::pair<std::string, std::vector<const std::pair<std::string, std::string>>> resourceMaps[] =
 	{
 		std::make_pair("model", std::vector<const std::pair<std::string, std::string>>(modelMap, modelMap + numModels)),
 		std::make_pair("texture", std::vector<const std::pair<std::string, std::string>>(textureMap, textureMap + numTextures)),
 		std::make_pair("volume", std::vector<const std::pair<std::string, std::string>>(boundingMap, boundingMap + numBoundingVolumes)),
+		std::make_pair("sound", std::vector<const std::pair<std::string, std::string>>(soundMap, soundMap + numSounds)),
 	};
 
 	for (const auto& map : resourceMaps)

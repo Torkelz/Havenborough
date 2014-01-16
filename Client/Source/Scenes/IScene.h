@@ -1,12 +1,16 @@
 #pragma once
-#include <memory>
-#include <string>
+
 #include "IGraphics.h"
-#include "../ResourceManager.h"
 #include "IPhysics.h"
 #include <INetwork.h>
-#include "../Input/Input.h"
 #include "../ClientExceptions.h"
+#include "../GameLogic.h"
+#include "../Input/Input.h"
+#include "../ResourceManager.h"
+#include "../EventManager.h"
+
+#include <memory>
+#include <string>
 
 enum class MenuScenes
 {
@@ -33,7 +37,7 @@ public:
 	* @param p_Physics p_InputQueue pointer to the keyboard and mouse input queue
 	*/
 	virtual bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network) = 0;
+		Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager) = 0;
 
 	/**
 	* Destroy the scene.
@@ -69,8 +73,9 @@ public:
 	* Register and handle keyboard and mouse input.
 	* @param p_Action the action to take
 	* @param p_Value the value for the action
+	* @param p_PrevValue the previous value for the action, when checked if zero there is no key repeats.
 	*/
-	virtual void registeredInput(std::string p_Action, float p_Value) = 0;
+	virtual void registeredInput(std::string p_Action, float p_Value, float p_PrevValue) = 0;
 
 	/*########## TEST FUNCTIONS ##########*/
 

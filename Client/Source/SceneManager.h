@@ -25,9 +25,11 @@ private:
 	bool			m_IsMenuState;
 	IGraphics		*m_Graphics;
 	ResourceManager	*m_ResourceManager;
-	IPhysics		*m_Physics;
 	Input			*m_InputQueue;
-	INetwork		*m_Network;
+	GameLogic		*m_GameLogic;
+
+	//1:P
+	bool m_RunGame; 
 
 public:
 	SceneManager();
@@ -40,8 +42,8 @@ public:
 	* @param p_Physics pointer to the physics engine
 	* @param p_InputQueue pointer to the keyboard and mouse input queue
 	*/
-	void init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-		Input *p_InputQueue, INetwork *p_Network);
+	void init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, Input *p_InputQueue,
+		GameLogic *p_GameLogic, EventManager *p_EventManager);
 	
 	/**
 	* Destroy scenes when shutdown.
@@ -63,13 +65,16 @@ public:
 	* Pass along keyboard and mouse input to a scene.
 	* @param p_Action the action to take
 	* @param p_Value the value for the action
+	* @param p_PrevValue the previous value for the action, when checked if zero there is no key repeats.
 	*/
-	void registeredInput(std::string p_Action, float p_Value);
+	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue);
+	
 	
 	/*########## TEST FUNCTIONS ##########*/
 
 	std::vector<IScene::ptr> getScene();
 
+	
 private:
 	/**
 	* Change the scene 
@@ -97,5 +102,5 @@ private:
 	*/
 	void setPause();
 
-	void passInput(std::string p_Action, float p_Value);
+	void passInput(std::string p_Action, float p_Value, float p_PrevValue);
 };

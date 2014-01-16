@@ -1,8 +1,9 @@
 #pragma once
 
 #include "ActorComponent.h"
+#include "EventManager.h"
 #include "../Utilities/XMFloatUtil.h"
-
+#include "IPhysics.h"
 #include <tinyxml2.h>
 
 #include <vector>
@@ -18,9 +19,10 @@ private:
 	std::vector<ActorComponent::ptr> m_Components;
 	Vector3 m_Position;
 	Vector3 m_Rotation;
+	EventManager* m_EventManager;
 
 public:
-	explicit Actor(Id p_Id);
+	Actor(Id p_Id, EventManager* p_EventManager);
 	~Actor();
 
 	void initialize(const tinyxml2::XMLElement* p_Data);
@@ -33,6 +35,8 @@ public:
 	void setPosition(Vector3 p_Position);
 	Vector3 getRotation() const;
 	void setRotation(Vector3 p_Rotation);
+	EventManager* getEventManager() const;
+	std::vector<BodyHandle> getBodyHandles() const;
 
 	template <class ComponentType>
 	std::weak_ptr<ComponentType> getComponent(unsigned int m_Id)

@@ -9,7 +9,6 @@ SceneManager::SceneManager()
 	m_IsMenuState = true;
 	m_Graphics = nullptr;
 	m_ResourceManager = nullptr;
-	m_Physics = nullptr;
 	m_InputQueue = nullptr;
 }
 
@@ -17,18 +16,18 @@ SceneManager::~SceneManager()
 {
 	m_Graphics = nullptr;
 	m_ResourceManager = nullptr;
-	m_Physics = nullptr;
 	m_InputQueue = nullptr;
 }
 
 void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-	IPhysics *p_Physics, Input *p_InputQueue, INetwork *p_Network)
+	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
 	m_Graphics = p_Graphics;
 	m_ResourceManager = p_ResourceManager;
-	m_Physics = p_Physics;
 	m_InputQueue = p_InputQueue;
-	m_Network = p_Network;
+	m_GameLogic = p_GameLogic;
+
+	m_RunGame = false;
 
 	m_MenuSceneList.resize(2);
 	m_RunSceneList.resize(3);
@@ -47,19 +46,22 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	unsigned int i;
 	for(i = 0; i < m_NumberOfMenuScene; i++)
 	{
-		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue, m_Network))
+		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_InputQueue, m_GameLogic, p_EventManager))
 		{
 			sceneFail = true;
 		}
 	}
 	for(i = 0; i < m_NumberOfRunScene; i++)
 	{
-		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue, m_Network))
+		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_InputQueue, m_GameLogic, p_EventManager))
 		{
 			sceneFail = true;
 		}
 	}
 	m_MenuSceneList[0]->setIsVisible(true);
+
+	//((GameScene*)m_RunSceneList.at(0).get())->setGameLogic(m_GameLogic);
+
 
 	if(sceneFail)
 	{
@@ -184,7 +186,6 @@ void SceneManager::startRun()
 {
 	m_IsMenuState = false;
 	m_RunSceneList[0]->setIsVisible(true);
-	((GameScene*)m_RunSceneList.at(0).get())->initializeGameLogic();
 	for(unsigned int i = 1; i < m_NumberOfRunScene; i++)
 	{
 		m_RunSceneList[i]->setIsVisible(false);
@@ -203,7 +204,7 @@ void SceneManager::startMenu()
 	m_NowShowing = 0;
 }
 
-void SceneManager::registeredInput(std::string p_Action, float p_Value)
+void SceneManager::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
 	if(p_Action == "pauseScene" && p_Value == 1)
 	{
@@ -212,11 +213,11 @@ void SceneManager::registeredInput(std::string p_Action, float p_Value)
 	//Change scene
 	else// if((p_Action == "changeSceneN"  && p_Value == 1) || (p_Action == "changeSceneP" && p_Value == 1))
 	{
-		passInput(p_Action, p_Value);
+		passInput(p_Action, p_Value, p_PrevValue);
 	}
 }
 
-void SceneManager::passInput(std::string p_Action, float p_Value)
+void SceneManager::passInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
 	std::vector<IScene::ptr>* activeList = nullptr;
 	unsigned int nrScenes = 0;
@@ -236,7 +237,7 @@ void SceneManager::passInput(std::string p_Action, float p_Value)
 	{
 		if(activeList->at(i)->getIsVisible())
 		{
-			activeList->at(i)->registeredInput(p_Action, p_Value);
+			activeList->at(i)->registeredInput(p_Action, p_Value, p_PrevValue);
 			i = nrScenes;
 		}
 	}

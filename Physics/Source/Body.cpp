@@ -8,6 +8,10 @@ Body::BodyHandle Body::getNextHandle()
 {
 	return m_NextHandle++;
 }
+void Body::resetBodyHandleCounter()
+{
+	m_NextHandle = 1;
+}
 
 Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 	: m_Handle(getNextHandle()),
@@ -113,8 +117,6 @@ void Body::update(float p_DeltaTime)
 	m_Velocity.x += m_AvgAcceleration.x * p_DeltaTime;
 	m_Velocity.y += m_AvgAcceleration.y * p_DeltaTime;
 	m_Velocity.z += m_AvgAcceleration.z * p_DeltaTime;
-
-
 
 	updateBoundingVolumePosition(relativePos);
 	

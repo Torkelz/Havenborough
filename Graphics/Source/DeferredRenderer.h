@@ -58,6 +58,10 @@ public:
 			using namespace DirectX;
 
 			XMStoreFloat4x4( &m_invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_World))) ); 
+			m_invTransposeWorld._41 = 0.f;
+			m_invTransposeWorld._42 = 0.f;
+			m_invTransposeWorld._43 = 0.f;
+			m_invTransposeWorld._44 = 1.f;
 
 			m_FinalTransforms = p_FinalTransforms;
 		}

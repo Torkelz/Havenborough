@@ -90,6 +90,15 @@ public:
 		calculateBounds();
 	}
 	/**
+	 * Sets a new size for AABB and recalculates.
+	 * @param p_Size, new size.
+	 */
+	void setSize(DirectX::XMFLOAT4 p_Size)
+	{
+		m_Size = p_Size;
+		calculateBounds();
+	}
+	/**
 	* @return the top corner in m
 	*/
 	DirectX::XMFLOAT4* getMax()
