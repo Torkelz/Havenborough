@@ -84,12 +84,12 @@ void updateBox(TestBox& p_Box, float p_DeltaTime)
 
 void updatePlayerBox(TestPlayerBox& p_Box, float p_DeltaTime)
 {
-	p_Box.position.x += p_Box.velocity.x * p_DeltaTime;
-	p_Box.position.y += p_Box.velocity.y * p_DeltaTime;
-	p_Box.position.z += p_Box.velocity.z * p_DeltaTime;
-	p_Box.rotation.x += p_Box.rotationVelocity.x * p_DeltaTime;
-	p_Box.rotation.y += p_Box.rotationVelocity.y * p_DeltaTime;
-	p_Box.rotation.z += p_Box.rotationVelocity.z * p_DeltaTime;
+	Vector4 pos4 = g_Physics->getBodyPosition(p_Box.body);
+	p_Box.position = Vector3(pos4.x, pos4.y, pos4.z);
+	if (p_Box.position.y < 0.f)
+		p_Box.position.y = 0.f;
+	p_Box.rotation = p_Box.rotation + p_Box.rotationVelocity * p_DeltaTime;
+	g_Physics->setBodyRotation(p_Box.body, p_Box.rotation);
 }
 
 UpdateObjectData getUpdateData(const TestBox& p_Box)
@@ -272,6 +272,8 @@ void handlePackages()
 					player.m_PlayerBox.rotation.x = playerControlData.m_Rotation[0];
 					player.m_PlayerBox.rotation.y = playerControlData.m_Rotation[1];
 					player.m_PlayerBox.rotation.z = playerControlData.m_Rotation[2];
+
+					g_Physics->setBodyVelocity(player.m_PlayerBox.body, player.m_PlayerBox.velocity);
 				}
 				break;
 
@@ -307,6 +309,8 @@ void updateClients()
 			pulse();
 			pulseObject = false;
 		}
+
+		g_Physics->update(deltaTime);
 
 		std::vector<UpdateObjectData> data;
 
@@ -538,6 +542,8 @@ int main(int argc, char* argv[])
 	running = false;
 	updateThread.join();
 
+	server->setClientConnectedCallback(nullptr, nullptr);
+	server->setClientDisconnectedCallback(nullptr, nullptr);
 	INetwork::deleteNetwork(server);
 
 	IPhysics::deletePhysics(g_Physics);
