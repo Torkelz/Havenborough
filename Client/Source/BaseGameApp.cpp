@@ -42,9 +42,9 @@ void BaseGameApp::init()
 
 	m_ResourceManager.reset(new ResourceManager());
 	
-	//m_Sound = ISound::createSound();
-	//m_Sound->setLogFunction(&Logger::logRaw);
-	//m_Sound->initialize();
+	m_Sound = ISound::createSound();
+	m_Sound->setLogFunction(&Logger::logRaw);
+	m_Sound->initialize();
 
 	using namespace std::placeholders;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager.get());
@@ -160,8 +160,8 @@ void BaseGameApp::shutdown()
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
 
-	//ISound::deleteSound(m_Sound);
-	//m_Sound = nullptr;
+	ISound::deleteSound(m_Sound);
+	m_Sound = nullptr;
 
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
