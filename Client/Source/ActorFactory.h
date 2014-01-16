@@ -15,8 +15,10 @@ class ActorFactory
 {
 private:
 	unsigned int m_LastActorId;
+	unsigned int m_LastModelComponentId;
 	IGraphics* m_Graphics;
 	IPhysics* m_Physics;
+	EventManager* m_EventManager;
 
 protected:
 	typedef std::function<ActorComponent::ptr()> componentCreatorFunc;
@@ -27,6 +29,7 @@ public:
 
 	void setGraphics(IGraphics* p_Graphics);
 	void setPhysics(IPhysics* p_Physics);
+	void setEventManager(EventManager* p_EventManager);
 
 	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data);
 	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id);
@@ -38,6 +41,7 @@ private:
 	unsigned int getNextActorId();
 
 	ActorComponent::ptr createOBBComponent();
+	ActorComponent::ptr createAABBComponent();
 	ActorComponent::ptr createModelComponent();
 	ActorComponent::ptr createMovementComponent();
 	ActorComponent::ptr createPulseComponent();

@@ -43,7 +43,7 @@ public:
 	* @param p_InputQueue pointer to the keyboard and mouse input queue
 	*/
 	void init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, Input *p_InputQueue,
-		GameLogic *p_GameLogic);
+		GameLogic *p_GameLogic, EventManager *p_EventManager);
 	
 	/**
 	* Destroy scenes when shutdown.

@@ -16,7 +16,7 @@ PostGameScene::~PostGameScene()
 	m_Graphics = nullptr;
 }
 
-bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, Input *p_InputQueue, GameLogic *p_GameLogic)
+bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager, Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;

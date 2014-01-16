@@ -5,10 +5,12 @@
 
 ActorFactory::ActorFactory()
 	:	m_LastActorId(65536),
+		m_LastModelComponentId(0),
 		m_Graphics(nullptr),
 		m_Physics(nullptr)
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
+	m_ComponentCreators["AABBPhysics"] = std::bind(&ActorFactory::createAABBComponent, this);
 	m_ComponentCreators["Model"] = std::bind(&ActorFactory::createModelComponent, this);
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
@@ -24,6 +26,11 @@ void ActorFactory::setPhysics(IPhysics* p_Physics)
 	m_Physics = p_Physics;
 }
 
+void ActorFactory::setEventManager(EventManager* p_EventManager)
+{
+	m_EventManager = p_EventManager;
+}
+
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
 {
 	return createActor(p_Data, getNextActorId());
@@ -31,7 +38,7 @@ Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
 
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id)
 {
-	Actor::ptr actor(new Actor(p_Id));
+	Actor::ptr actor(new Actor(p_Id, m_EventManager));
 	actor->initialize(p_Data);
 
 	for (const tinyxml2::XMLElement* node = p_Data->FirstChildElement(); node; node = node->NextSiblingElement())
@@ -91,9 +98,20 @@ ActorComponent::ptr ActorFactory::createOBBComponent()
 	return ActorComponent::ptr(comp);
 }
 
+ActorComponent::ptr ActorFactory::createAABBComponent()
+{
+	AABB_Component* comp = new AABB_Component;
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
 ActorComponent::ptr ActorFactory::createModelComponent()
 {
-	return ActorComponent::ptr(new ModelComponent);
+	ModelComponent* comp = new ModelComponent;
+	comp->setId(++m_LastModelComponentId);
+
+	return ActorComponent::ptr(comp);
 }
 
 ActorComponent::ptr ActorFactory::createMovementComponent()

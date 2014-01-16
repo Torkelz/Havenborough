@@ -5,6 +5,7 @@
 #include "Level.h"
 #include "Player.h"
 #include "EdgeCollisionResponse.h"
+#include "EventManager.h"
 #include "Input/Input.h"
 
 class GameLogic
@@ -21,6 +22,7 @@ private:
 	IPhysics *m_Physics;
 	//Input *m_InputQueue;
 	ResourceManager *m_ResourceManager;
+	EventManager *m_EventManager;
 
 	Level m_Level;
 	Player m_Player;
@@ -38,8 +40,6 @@ private:
 	std::vector<Actor::ptr> m_Objects;
 
 	//DEBUG
-	int climbBox;
-	int jointBox;
 	std::weak_ptr<Actor> circleWitch;
 	std::weak_ptr<Actor> skyBox;
 	int standingWitch;
@@ -56,17 +56,17 @@ private:
 	int towerBoxes[numTowerBoxes];
 	static const unsigned int numRotatedTowerBoxes = 5;
 	int rotatedTowerBoxes[numRotatedTowerBoxes];
-	float viewRot[2];
 	Vector3 lookDir;
 	float witchCircleAngle;
 
 	Vector2 m_PlayerDirection;
+	Vector3 m_PlayerViewRotation;
 
 public:
 	GameLogic(void);
 	~GameLogic(void);
 
-	void initialize(ResourceManager *p_ResourceManager,	IPhysics *p_Physics, ActorFactory *p_ActorFactory); 
+	void initialize(ResourceManager *p_ResourceManager,	IPhysics *p_Physics, ActorFactory *p_ActorFactory, EventManager *p_EventManager); 
 	void shutdown(void);
 
 	std::vector<Actor::ptr> &getObjects();
@@ -98,7 +98,6 @@ private:
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();
 	void updateSandbox(float p_DeltaTime);
-	void renderSandbox();
 	void shutdownSandbox();
 
 	void addDebugBVToDraw(BodyHandle p_BodyHandle);
@@ -109,4 +108,8 @@ private:
 	std::weak_ptr<Actor> addIK_Worm();
 	std::weak_ptr<Actor> addBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize);
 	std::weak_ptr<Actor> addBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
+	std::weak_ptr<Actor> addClimbBox();
+	std::weak_ptr<Actor> addClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
+
+	void addLights();
 };

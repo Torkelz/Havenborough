@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "../Components.h"
+#include "../EventData.h"
 
 GameScene::GameScene()
 {
@@ -22,13 +23,20 @@ GameScene::~GameScene()
 }
 
 bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-	Input *p_InputQueue, GameLogic *p_GameLogic)
+	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
 	m_InputQueue = p_InputQueue;
 	m_ResourceManager = p_ResourceManager;
 	m_GameLogic = p_GameLogic;
+	m_EventManager = p_EventManager;
+
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addLight), LightEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createMesh), CreateMeshEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelPosition), UpdateModelPositionEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelRotationEventData::sk_EventType);
 
 	m_CurrentDebugView = 3;
 	
@@ -81,16 +89,37 @@ void GameScene::render()
 
 	std::vector<Actor::ptr>& actors = m_GameLogic->getObjects();
 
-	for (auto& actor : actors)
+	for (auto& mesh : m_Models)
 	{
-		std::shared_ptr<ModelInterface> modelComp = actor->getComponent<ModelInterface>(ModelComponent::m_ComponentId).lock();
-		if (modelComp)
+		m_Graphics->renderModel(mesh.modelId);
+	}
+	
+	for(auto &light : m_Lights)
+	{
+		switch(light.type)
 		{
-			modelComp->render(m_Graphics);
+		case Light::Type::DIRECTIONAL:
+			{
+				m_Graphics->useFrameDirectionalLight(light.color, light.direction);
+				break;
+			}
+		case Light::Type::POINT:
+			{
+				m_Graphics->useFramePointLight(light.position, light.color, light.range);
+
+				break;
+			}
+		case Light::Type::SPOT:
+			{
+				m_Graphics->useFrameSpotLight(light.position, light.color, light.direction,
+					light.spotlightAngles, light.range);
+
+				break;
+			}
 		}
+		
 	}
 
-	m_Graphics->useFrameDirectionalLight(Vector3(1.f, 1.f, 1.f), Vector3(0.f, -1.f, 0.f));
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
 }
 
@@ -154,6 +183,62 @@ void GameScene::registeredInput(std::string p_Action, float p_Value)
 int GameScene::getID()
 {
 	return m_SceneID;
+}
+
+void GameScene::addLight(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<LightEventData> lightData = std::static_pointer_cast<LightEventData>(p_Data);
+	Light light = lightData->getLight();
+	m_Lights.push_back(light);
+}
+
+void GameScene::createMesh(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<CreateMeshEventData> meshData = std::static_pointer_cast<CreateMeshEventData>(p_Data);
+	MeshBinding mesh =
+	{
+		meshData->getId(),
+		m_Graphics->createModelInstance(meshData->getMeshName().c_str())
+	};
+	m_Graphics->setModelScale(mesh.modelId, meshData->getScale());
+
+	m_Models.push_back(mesh);
+}
+
+void GameScene::updateModelPosition(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateModelPositionEventData> positionData = std::static_pointer_cast<UpdateModelPositionEventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == positionData->getId())
+		{
+			m_Graphics->setModelPosition(model.modelId, positionData->getPosition());
+		}
+	}
+}
+
+void GameScene::updateModelRotation(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateModelRotationEventData> rotationData = std::static_pointer_cast<UpdateModelRotationEventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == rotationData->getId())
+		{
+			m_Graphics->setModelRotation(model.modelId, rotationData->getRotation());
+		}
+	}
+}
+
+void GameScene::updateModelScale(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateModelScaleEventData> scaleData = std::static_pointer_cast<UpdateModelScaleEventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == scaleData->getId())
+		{
+			m_Graphics->setModelRotation(model.modelId, scaleData->getScale());
+		}
+	}
 }
 
 void GameScene::loadSandboxModels()

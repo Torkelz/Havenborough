@@ -6,6 +6,7 @@
 #include "../GameLogic.h"
 #include "../Input/Input.h"
 #include "../ResourceManager.h"
+#include "../EventManager.h"
 
 #include <memory>
 #include <string>
@@ -35,7 +36,7 @@ public:
 	* @param p_Physics p_InputQueue pointer to the keyboard and mouse input queue
 	*/
 	virtual bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		Input *p_InputQueue, GameLogic *p_GameLogic) = 0;
+		Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager) = 0;
 
 	/**
 	* Destroy the scene.

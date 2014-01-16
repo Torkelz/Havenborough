@@ -20,7 +20,7 @@ SceneManager::~SceneManager()
 }
 
 void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-	Input *p_InputQueue, GameLogic *p_GameLogic)
+	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
 	m_Graphics = p_Graphics;
 	m_ResourceManager = p_ResourceManager;
@@ -46,14 +46,14 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	unsigned int i;
 	for(i = 0; i < m_NumberOfMenuScene; i++)
 	{
-		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_InputQueue, m_GameLogic))
+		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_InputQueue, m_GameLogic, p_EventManager))
 		{
 			sceneFail = true;
 		}
 	}
 	for(i = 0; i < m_NumberOfRunScene; i++)
 	{
-		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_InputQueue, m_GameLogic))
+		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_InputQueue, m_GameLogic, p_EventManager))
 		{
 			sceneFail = true;
 		}

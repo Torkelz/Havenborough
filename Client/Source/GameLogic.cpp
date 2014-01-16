@@ -1,28 +1,25 @@
 #include "GameLogic.h"
+#include "EventData.h"
 
 GameLogic::GameLogic(void)
 {
-	//m_Graphics = nullptr;
 	m_Physics = nullptr;
-	//m_InputQueue = nullptr;
 	m_ResourceManager = nullptr;
 }
 
 
 GameLogic::~GameLogic(void)
 {
-	//m_Graphics = nullptr;
 	m_Physics = nullptr;
-	//m_InputQueue = nullptr;
 	m_ResourceManager = nullptr;
 }
 
-void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physics, ActorFactory *p_ActorFactory)
+void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physics, ActorFactory *p_ActorFactory, EventManager *p_EventManager)
 {
 	m_Physics = p_Physics;
 	m_ResourceManager = p_ResourceManager;
 	m_ActorFactory = p_ActorFactory;
-
+	m_EventManager = p_EventManager;
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/CB_Level3.btxl", m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 200.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
@@ -88,7 +85,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 	if (m_PlayerDirection.x != 0.f || m_PlayerDirection.y != 0.f)
 	{
-		float dir = atan2f(m_PlayerDirection.y, m_PlayerDirection.x) + viewRot[0];
+		float dir = atan2f(m_PlayerDirection.y, m_PlayerDirection.x) + m_PlayerViewRotation.x;
 
 		m_Player.setDirectionX(sinf(dir));
 		m_Player.setDirectionZ(cosf(dir));
@@ -152,7 +149,7 @@ void GameLogic::setPlayerActor(std::weak_ptr<Actor> p_Actor)
 
 Vector3 GameLogic::getPlayerViewRotation()
 {
-	return Vector3(viewRot[0], viewRot[1], 0.f);
+	return m_PlayerViewRotation;
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -184,7 +181,7 @@ Vector3 GameLogic::getPlayerEyePosition() const
 
 Vector3 GameLogic::getPlayerViewRotation() const
 {
-	Vector3 actualViewRot(viewRot[0], viewRot[1], 0.f);
+	Vector3 actualViewRot = m_PlayerViewRotation;
 
 	Actor::ptr strongPlayerActor = m_PlayerActor.lock();
 	if (strongPlayerActor)
@@ -198,25 +195,25 @@ Vector3 GameLogic::getPlayerViewRotation() const
 
 void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 {
-	viewRot[0] += p_Yaw;
-	viewRot[1] += p_Pitch;
+	m_PlayerViewRotation.x += p_Yaw;
+	m_PlayerViewRotation.y += p_Pitch;
 
-	if (viewRot[0] > PI)
+	if (m_PlayerViewRotation.x > PI)
 	{
-		viewRot[0] -= 2 * PI;
+		m_PlayerViewRotation.x -= 2 * PI;
 	}
-	else if (viewRot[0] < -PI)
+	else if (m_PlayerViewRotation.x < -PI)
 	{
-		viewRot[0] += 2 * PI;
+		m_PlayerViewRotation.x += 2 * PI;
 	}
 
-	if (viewRot[1] > PI * 0.45f)
+	if (m_PlayerViewRotation.y > PI * 0.45f)
 	{
-		viewRot[1] = PI * 0.45f;
+		m_PlayerViewRotation.y = PI * 0.45f;
 	}
-	else if (viewRot[1] < -PI * 0.45f)
+	else if (m_PlayerViewRotation.y < -PI * 0.45f)
 	{
-		viewRot[1] = -PI * 0.45f;
+		m_PlayerViewRotation.y = -PI * 0.45f;
 	}
 }
 
@@ -243,20 +240,7 @@ void GameLogic::loadSandbox()
 		rotBoxes[i] = m_Objects.back();
 	}
 
-	static const Vector3 climbTestPos(0.f, 200.f, 3000.f);
-	static const Vector3 climbTestHalfSize(100.f, 100.f, 100.f);
-
-	//BodyHandle boxTest = m_Physics->createAABB(50.f, true, climbTestPos, climbTestHalfSize, true );
-
-	//climbBox = m_Graphics->createModelInstance("BOX");
-
-	//m_Graphics->setModelPosition(climbBox, climbTestPos);
-	//m_Graphics->setModelScale(climbBox, Vector3(200.f, 200.f, 200.f));
-
-
-	//jointBox = m_Graphics->createModelInstance("BOX");
-	//m_Graphics->setModelScale(jointBox, Vector3(5.f, 5.f, 200.f));
-
+	addClimbBox();
 	skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
 	addRotatingBox(Vector3(0.f, -250.f, 0.f), Vector3(10000.f, 500.f, 10000.f));
 
@@ -270,7 +254,6 @@ void GameLogic::loadSandbox()
 	{
 		Vector3(2000.f, 160.f, 2000.f),
 		Vector3(1200.f, 160.f, 1200.f),
-		Vector3(600.f, 400.f, 600.f),
 		Vector3(10.f, 800.f, 10.f),
 		Vector3(40.f, 40.f, 40.f),
 	};
@@ -279,7 +262,6 @@ void GameLogic::loadSandbox()
 	{
 		Vector3(3000.f, 80.f, 4000.f),
 		Vector3(3000.f, 240.f, 4000.f),
-		Vector3(3000.f, 520.f, 4000.f),
 		Vector3(3000.f, 1120.f, 4000.f),
 		Vector3(3000.f, 1540.f, 4000.f),
 	};
@@ -289,10 +271,7 @@ void GameLogic::loadSandbox()
 		addBoxWithAABB(towerBoxPositions[i], towerBoxSizes[i] * 0.5f);
 	}
 
-	//m_Physics->createAABB(0.f, true, Vector3(3000.f, 680.f, 3700.f), Vector3(280.f, 60.f, 20.f), true);
-	//m_Physics->createAABB(0.f, true, Vector3(3000.f, 680.f, 4300.f), Vector3(280.f, 60.f, 20.f), true);
-	//m_Physics->createAABB(0.f, true, Vector3(2700.f, 680.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
-	//m_Physics->createAABB(0.f, true, Vector3(3300.f, 680.f, 4000.f), Vector3(20.f, 60.f, 280.f), true);
+	addClimbTowerBox(Vector3(3000.f, 520.f, 4000.f), Vector3(300.f, 200.f, 300.f));
 
 	Vector3 rotatedTowerBoxSizes[numRotatedTowerBoxes] =
 	{
@@ -317,36 +296,14 @@ void GameLogic::loadSandbox()
 		addBoxWithOBB(rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, Vector3(1.f, 0.f, 0.f));
 	}
 
-	//static const Vector3 slantedPlanePosition(-4000.f, 300.f, 2000.f);
-	//static const Vector3 slantedPlaneSize(2000.f, 500.f, 3000.f);
-	//static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
-	//slantedPlane = m_Graphics->createModelInstance("BOX");
-	//m_Graphics->setModelPosition(slantedPlane, slantedPlanePosition);
-	//m_Graphics->setModelScale(slantedPlane, slantedPlaneSize);
-	//m_Graphics->setModelRotation(slantedPlane, slantedPlaneRotation);
-
-	//BodyHandle slantedPlaneBody = m_Physics->createOBB(0.f, true, slantedPlanePosition, slantedPlaneSize * 0.5f, false);
-	//m_Physics->setBodyRotation(slantedPlaneBody, slantedPlaneRotation);
-
-	/*hej = m_Graphics->createModelInstance("BOX");
-	m_Graphics->setModelPosition(hej,  Vector3(14.f, 4.5f, -10.f));
-	m_Graphics->setModelScale(hej,  Vector3(5.f, 0.5f, 7.f));
-	m_Graphics->setModelRotation(hej, Vector3(0.f, 0.f, 3.14f/6.5f));*/
-
-
-	//OBBhouse1 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
-	//m_Physics->setBodyRotation(OBBhouse1, Vector3(0.f, 0.f, 3.14f/6.5f));
-	//m_Physics->setBodyPosition(OBBhouse1, Vector3(1400.f, 450.f, -1000.f));
-	////m_Physics->setBodyPosition(OBBhouse1, Vector3(0.f, 2.5f, 0.f));
-
-	//OBBhouse2 = m_Physics->createOBB(1.f, true, Vector3(), Vector3(500.f, 50.f, 350.f), false);
-	//m_Physics->setBodyRotation(OBBhouse2, Vector3(0.f, 0.f, 3.14f/6.5f));
-	//m_Physics->setBodyPosition(OBBhouse2, Vector3(350.f, 500.0f, -1000.f));
-
-	viewRot[0] = 0.f;
-	viewRot[1] = 0.f;
+	static const Vector3 slantedPlanePosition(-4000.f, 300.f, 2000.f);
+	static const Vector3 slantedPlaneSize(2000.f, 500.f, 3000.f);
+	static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
+	addBoxWithOBB(slantedPlanePosition, slantedPlaneSize * 0.5f, slantedPlaneRotation);
 
 	witchCircleAngle = 0.0f;
+
+	addLights();
 }
 
 void GameLogic::updateSandbox(float p_DeltaTime)
@@ -366,17 +323,6 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 		strongWitch->setRotation(Vector3(witchCircleAngle, 0.f, 0.f));
 	}
 
-	//float witchWaveAngle = 0.f;
-	//static const float witchWavingAngleSpeed = 1.f;
-	//static const float waveRadius = 0.5f;
-	//Vector3 wavePos = m_Graphics->getJointPosition(wavingWitch, "Head");
-	//wavePos.x -= 1.f;
-	//witchWaveAngle += witchWavingAngleSpeed * p_DeltaTime;
-	//wavePos.y += sinf(witchWaveAngle) * waveRadius;
-	//wavePos.z += cosf(witchWaveAngle) * waveRadius;
-
-	//m_Graphics->applyIK_ReachPoint(wavingWitch, "bn_l_wrist01", "bn_l_elbow_b01", "bn_l_arm01", wavePos);
-
 	static const Vector3 blockRotationSpeed(0.1f, 0.05f, 0.03f);
 	rotBlockRotation = rotBlockRotation + blockRotationSpeed * p_DeltaTime;
 
@@ -390,32 +336,6 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 			strongBox->setRotation(rotBlockRotation * (float)i);
 		}
 	}
-
-	//static const float IK_Length = 500.f;
-
-	//static const char* testTargetJoint = "bn_l_foot01";
-	//static const char* testHingeJoint = "bn_l_Knee_a01";
-	//static const char* testBaseJoint = "bn_l_Tigh01";
-
-	//Vector4 tempPos = m_Physics->getBodyPosition(m_Player.getBody());
-	//Vector3 IK_Target(tempPos.x + lookDir.x * IK_Length, tempPos.y + lookDir.y * IK_Length, tempPos.z + lookDir.z * IK_Length);
-	//if (useIK_OnIK_Worm)
-	//{
-	//	//m_Graphics->applyIK_ReachPoint(circleWitch, testTargetJoint, testHingeJoint, testBaseJoint, IK_Target);
-	//	m_Graphics->applyIK_ReachPoint(ikTest, "joint4", "joint3", "joint2", IK_Target);
-	//}
-
-	//Vector3 jointPos = m_Graphics->getJointPosition(circleWitch, testTargetJoint);
-	//m_Graphics->setModelPosition(jointBox, jointPos);
-}
-
-void GameLogic::renderSandbox()
-{
-	//m_Graphics->useFramePointLight(Vector3(0.f,0.f,0.f),Vector3(1.f,1.f,1.f),2000.f);
-	//m_Graphics->useFrameSpotLight(Vector3(-1000.f,500.f,0.f),Vector3(0.f,1.f,0.f),
-	//	Vector3(0,0,-1),Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f );
-	//m_Graphics->useFramePointLight(Vector3(0.f, 3000.f, 3000.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
-	//m_Graphics->useFramePointLight(Vector3(0.f, 0.f, 3000.f), Vector3(0.5f, 0.5f, 0.5f), 2000000.f);
 }
 
 void GameLogic::shutdownSandbox()
@@ -571,4 +491,81 @@ std::weak_ptr<Actor> GameLogic::addBoxWithOBB(Vector3 p_Position, Vector3 p_Half
 	m_Objects.push_back(actor);
 
 	return actor;
+}
+
+void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Halfsize)
+{
+	p_Printer.OpenElement("AABBPhysics");
+	p_Printer.PushAttribute("Edge", true);
+	pushVector(p_Printer, "Halfsize", p_Halfsize);
+	pushVector(p_Printer, "RelativePosition", p_Position);
+	p_Printer.CloseElement();
+}
+
+std::weak_ptr<Actor> GameLogic::addClimbBox()
+{
+	static const Vector3 climbTestPos(0.f, 200.f, 3000.f);
+	static const Vector3 climbTestHalfSize(100.f, 100.f, 100.f);
+
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", climbTestHalfSize * 2.f);
+	printer.CloseElement();
+	addEdge(printer, Vector3(0.f, 0.f, 0.f), climbTestHalfSize);
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(climbTestPos);
+	m_Objects.push_back(actor);
+
+	return actor;
+}
+
+std::weak_ptr<Actor> GameLogic::addClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", p_Halfsize * 2.f);
+	printer.CloseElement();
+	printer.OpenElement("AABBPhysics");
+	pushVector(printer, "Halfsize", p_Halfsize);
+	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));
+	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, -p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));
+	addEdge(printer, Vector3(p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
+	addEdge(printer, Vector3(-p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
+	printer.CloseElement();
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+	m_Objects.push_back(actor);
+
+	return actor;
+}
+
+void GameLogic::addLights()
+{
+	Light directional = Light::createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f));
+	Light spot = Light::createSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
+		Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f, Vector3(0.f,1.f,0.f));
+
+	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(directional)));
+	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(spot)));
+
+	Light point = Light::createPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f));
+	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(point)));
+	point = Light::createPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f));
+	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(point)));
+	Light::createPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f));
+	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(point)));
 }

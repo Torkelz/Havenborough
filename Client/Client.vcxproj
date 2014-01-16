@@ -57,6 +57,7 @@
   <ItemGroup>
     <ClInclude Include="Source\EventManager.h" />
     <ClInclude Include="Source\EventData.h" />
+    <ClInclude Include="Source\LightStructs.h" />
     <ClInclude Include="Utilities\FastDelegate.h" />
     <ClInclude Include="Source\GameLogic.h" />
     <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />

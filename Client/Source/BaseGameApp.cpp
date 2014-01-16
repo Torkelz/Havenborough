@@ -81,19 +81,17 @@ void BaseGameApp::init()
 	m_Network->initialize();
 	m_Connected = false;	
 
+	m_EventManager.reset(new EventManager());
 	m_GameLogic.reset(new GameLogic());
-	m_SceneManager.init(m_Graphics, m_ResourceManager, &m_InputQueue, m_GameLogic.get());
+	m_SceneManager.init(m_Graphics, m_ResourceManager, &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
 					
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
 	m_ActorFactory.setGraphics(m_Graphics);
+	m_ActorFactory.setEventManager(m_EventManager.get());
 
-	m_EventManager.reset(new EventManager());
-
-	m_ActorFactory.setGraphics(m_Graphics);
-	m_ActorFactory.setPhysics(m_Physics);
-	m_GameLogic->initialize(m_ResourceManager, m_Physics, &m_ActorFactory);
+	m_GameLogic->initialize(m_ResourceManager, m_Physics, &m_ActorFactory, m_EventManager.get());
 }
 
 void BaseGameApp::run()
@@ -443,7 +441,7 @@ void BaseGameApp::render()
 
 		if (strongGraphicsComponent)
 		{
-			strongGraphicsComponent->render(m_Graphics);
+			//strongGraphicsComponent->render(m_Graphics);
 		}
 	}
 
