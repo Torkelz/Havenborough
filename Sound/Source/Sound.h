@@ -16,8 +16,8 @@ struct SoundInstance
 	FMOD::Sound		*m_Sound;
 	FMOD::Channel	*m_Channel;
 
-	explicit SoundInstance(std::string p_SoundId, FMOD::Sound *p_Sound)
-		: m_SoundId(p_SoundId), m_Sound(p_Sound), m_Channel(nullptr)
+	explicit SoundInstance(std::string p_SoundId, FMOD::Sound *p_Sound, FMOD::Channel *p_Channel)
+		: m_SoundId(p_SoundId), m_Sound(p_Sound), m_Channel(p_Channel)
 	{
 	}
 	~SoundInstance()
@@ -31,9 +31,9 @@ struct SoundInstance
 	{
 		return m_Sound;
 	}
-	FMOD::Channel **getChannelRef()
+	void setChannel(FMOD::Channel *p_Channel)
 	{
-		return &m_Channel;
+		m_Channel = p_Channel;
 	}
 	FMOD::Channel *getChannel() const
 	{
@@ -78,6 +78,8 @@ public:
 	void pauseSound(const char *p_SoundId) override;
 
 	void stopSound(const char *p_SoundId) override;
+
+	void addSoundToGroup(const char *SoundId, ChannelGroup p_Group);
 
 	void setGroupVolume(ISound::ChannelGroup p_Group, float p_Volume) override;
 	

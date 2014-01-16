@@ -122,15 +122,38 @@ bool Sound::loadSound(const char *p_SoundId, const char *p_Filename)
 {
 
 	FMOD::Sound *s;
+	FMOD::Channel *c;
 	errorCheck(m_System->createSound(p_Filename, FMOD_DEFAULT, 0, &s));
-	m_Sounds.push_back(SoundInstance(p_SoundId, s));
+	errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s, true, &c));
+
+	SoundInstance si(p_SoundId, s, c);
+	m_Sounds.push_back(si);
+	s = nullptr;
+	
 	return true;
 }
 
 void Sound::playSound(const char *p_SoundId)
 {
 	SoundInstance *s = getSound(std::string(p_SoundId));
-	errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, s->getChannelRef()));
+	FMOD::Channel *c;
+	if(s->getChannel())
+	{
+		bool p;
+		errorCheck(s->getChannel()->getPaused(&p));
+		if(p)
+			errorCheck(s->getChannel()->setPaused(false));
+		else
+		{
+			errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, &c));
+			s->setChannel(c);
+		}
+	}
+	else
+	{
+		errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, &c));
+		s->setChannel(c);
+	}
 }
 
 void Sound::pauseSound(const char *p_SoundId)
@@ -151,9 +174,37 @@ void Sound::stopSound(const char *p_SoundId)
 	}
 }
 
+void Sound::addSoundToGroup(const char* p_SoundId, ISound::ChannelGroup p_Group)
+{
+	SoundInstance *s = getSound(std::string(p_SoundId));
+	if(s->getChannel())
+	{
+		switch(p_Group)
+		{
+		case ISound::ChannelGroup::MUSIC:
+			s->getChannel()->setChannelGroup(m_MusicChannelGroup);
+			return;
+		case ISound::ChannelGroup::SFX:
+			s->getChannel()->setChannelGroup(m_SfxChannelGroup);
+			return;
+		}
+	}
+}
+
 void Sound::setGroupVolume(ISound::ChannelGroup p_Group, float p_Volume)
 {
-	errorCheck(m_MasterChannelGroup->setVolume(p_Volume));
+	switch(p_Group)
+	{
+	case ISound::ChannelGroup::MASTER:
+		m_MasterChannelGroup->setVolume(p_Volume);
+		return;
+	case ISound::ChannelGroup::MUSIC:
+		m_MusicChannelGroup->setVolume(p_Volume);
+		return;
+	case ISound::ChannelGroup::SFX:
+		m_SfxChannelGroup->setVolume(p_Volume);
+		return;
+	}
 }
 
 void Sound::setSoundVolume(const char *p_SoundId, float p_Volume)
