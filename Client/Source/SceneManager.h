@@ -8,6 +8,7 @@
 
 /*TESTING*/
 #include <iostream>
+#include <ISound.h>
 
 class SceneManager
 {
@@ -27,10 +28,12 @@ private:
 	ResourceManager	*m_ResourceManager;
 	Input			*m_InputQueue;
 	GameLogic		*m_GameLogic;
+	ISound			*m_Sound;
 
 	//1:P
 	bool m_RunGame; 
-
+	//Demo 4 only
+	int m_SoundId;
 public:
 	SceneManager();
 	~SceneManager();
@@ -43,7 +46,7 @@ public:
 	* @param p_InputQueue pointer to the keyboard and mouse input queue
 	*/
 	void init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, Input *p_InputQueue,
-		GameLogic *p_GameLogic, EventManager *p_EventManager);
+		GameLogic *p_GameLogic, EventManager *p_EventManager, ISound *p_Sound);
 	
 	/**
 	* Destroy scenes when shutdown.

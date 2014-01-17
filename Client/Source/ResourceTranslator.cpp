@@ -55,7 +55,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 
 	static const std::pair<std::string, std::string> soundMap[] =
 	{
-		std::make_pair("Temp", "Temp"),
+		std::make_pair("Background", "assets/sounds/Mainbackground.mp3"),
 	};
 	static const size_t numSounds = sizeof(soundMap) / sizeof(soundMap[0]);
 

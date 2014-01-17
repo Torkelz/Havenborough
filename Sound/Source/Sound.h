@@ -75,7 +75,7 @@ public:
 
 	void playSound(const char *p_SoundId) override;
 
-	void pauseSound(const char *p_SoundId) override;
+	void pauseSound(const char *p_SoundId, bool p_Pause) override;
 
 	void stopSound(const char *p_SoundId) override;
 

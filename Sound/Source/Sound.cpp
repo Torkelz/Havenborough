@@ -123,7 +123,7 @@ bool Sound::loadSound(const char *p_SoundId, const char *p_Filename)
 
 	FMOD::Sound *s;
 	FMOD::Channel *c;
-	errorCheck(m_System->createSound(p_Filename, FMOD_DEFAULT, 0, &s));
+	errorCheck(m_System->createSound(p_Filename, FMOD_LOOP_NORMAL, 0, &s));
 	errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s, true, &c));
 
 	SoundInstance si(p_SoundId, s, c);
@@ -156,12 +156,15 @@ void Sound::playSound(const char *p_SoundId)
 	}
 }
 
-void Sound::pauseSound(const char *p_SoundId)
+void Sound::pauseSound(const char *p_SoundId, bool p_Pause)
 {
 	SoundInstance *s = getSound(std::string(p_SoundId));
 	if(s->getChannel())
 	{
-		errorCheck(s->getChannel()->setPaused(true));
+		bool p;
+		s->getChannel()->getPaused(&p);
+		if(p != p_Pause)
+		errorCheck(s->getChannel()->setPaused(p_Pause));
 	}
 }
 
@@ -170,7 +173,13 @@ void Sound::stopSound(const char *p_SoundId)
 	SoundInstance *s = getSound(std::string(p_SoundId));
 	if(s->getChannel())
 	{
-		errorCheck(s->getChannel()->stop()); 
+		bool p;
+		s->getChannel()->getPaused(&p);
+		if(!p)
+		{
+			errorCheck(s->getChannel()->stop()); 
+			s->setChannel(nullptr);
+		}
 	}
 }
 

@@ -48,10 +48,11 @@ public:
 	 */
 	virtual void playSound(const char *p_SoundId) = 0;
 	/**
-	 * Pause a sound.
+	 * Pause/unpause a sound.
 	 * @param p_SoundId which sound to pause
+	 * @param p_Pause true pauses the sound, false unpauses the sound
 	 */
-	virtual void pauseSound(const char *p_SoundId) = 0;
+	virtual void pauseSound(const char *p_SoundId, bool p_Pause) = 0;
 	/**
 	 * Stop a sound.
 	 * @param p_SoundId which sound to stop
