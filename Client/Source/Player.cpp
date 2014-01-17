@@ -3,8 +3,12 @@
 Player::Player(void)
 {
 	m_Physics = nullptr;
-	m_JumpTime = 0.f;
-	m_JumpForceTime = 0.15f;
+	m_JumpCount = 0;
+    m_JumpCountMax = 2;
+    m_JumpDelay = 0;
+    m_JumpDelayMax = 0.1f;
+    m_JumpTime = 0.f;
+    m_JumpTimeMax = 0.15f;
 	m_JumpForce = 6500.f;
 	m_IsJumping = false;
 	m_PrevForce = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -77,11 +81,22 @@ BodyHandle Player::getBody(void) const
 
 void Player::setJump(void)
 {
-	if(!m_IsJumping)
-	{
-		m_IsJumping = true;
-		m_Physics->applyForce(m_PlayerBody, Vector3(0.f, m_JumpForce, 0.f));
-	}
+	  if(m_Physics->getBodyInAir(m_PlayerBody))
+    {
+            m_JumpCount++;
+    }
+
+    if(!m_IsJumping && m_JumpCount < m_JumpCountMax)
+    {
+            //m_JumpCount++;
+            m_IsJumping = true;
+            if(m_JumpCount > 0)
+            {
+                    Vector4 temp = m_Physics->getBodyVelocity(m_PlayerBody);
+                    m_Physics->setBodyVelocity(m_PlayerBody, Vector3(temp.x, 0.f, temp.z));
+            }
+            m_Physics->applyForce(m_PlayerBody, Vector3(0.f, m_JumpForce, 0.f));
+    }
 }
 
 void Player::setDirectionX(float p_DirectionX)
@@ -143,7 +158,7 @@ void Player::update(float p_DeltaTime)
 
 Vector3 Player::getVelocity() const
 {
-	Vector4 vel4 = m_Physics->getVelocity(m_PlayerBody);
+	Vector4 vel4 = m_Physics->getBodyVelocity(m_PlayerBody);
 	return Vector3(vel4.x, vel4.y, vel4.z);
 }
 
@@ -152,18 +167,22 @@ void Player::jump(float dt)
 	if(m_IsJumping)
 	{
 		m_JumpTime += dt;
-		if(m_JumpTime > m_JumpForceTime)
+		if(m_JumpTime > m_JumpTimeMax)
 		{
 			m_Physics->applyForce(m_PlayerBody, Vector3(0.f, -m_JumpForce, 0.f));
 			m_IsJumping = false;
 			m_JumpTime = 0.f;
 		}
 	}
+	if(!m_IsJumping && !m_Physics->getBodyInAir(m_PlayerBody))
+    {
+		m_JumpCount = 0;
+    }
 }
 
 void Player::move()
 {
-	Vector4 velocity = m_Physics->getVelocity(m_PlayerBody);
+	Vector4 velocity = m_Physics->getBodyVelocity(m_PlayerBody);
 	XMFLOAT4 currentVelocity = Vector4ToXMFLOAT4(&velocity);	// cm/s
 	currentVelocity.y = 0.f;
 	XMFLOAT4 maxVelocity(-m_DirectionX * m_MaxSpeed, 0.f, -m_DirectionZ * m_MaxSpeed, 0.f);	// cm/s

@@ -370,7 +370,7 @@ void GameScene::loadSandboxModels()
 	{
 		"BOX",
 		"SKYBOX",
-		"House",
+		"House1",
 		"RedBlueCrate",
 		"OrangeCrate",
 		"LightBlueCrate",
@@ -378,6 +378,17 @@ void GameScene::loadSandboxModels()
 		"RedCrate",
 		"BrownCrate",
 		"MarketStand1",
+		"Barrel1",
+		"Crate1",
+		"House3",
+		"House2",
+		"MarketStand2",
+		"Sidewalk1",
+		"StoneBrick2",
+		"Stair1",
+		"Street1",
+		"Tree1",
+		"WoodenShed1",
 	};
 
 	for (const std::string& model : preloadedModels)

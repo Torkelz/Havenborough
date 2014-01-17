@@ -127,7 +127,14 @@ public:
 	 * @param p_Body are what body to work with
 	 * @param p_Rotation is a vector3 with all the rotation coordinates 
 	 */
-	virtual void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) = 0;	
+	virtual void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) = 0;
+	/**
+	 * Get the velocity for the chosen body.
+	 *
+	 * @param p_Body what body to get the data from
+	 * @return objects velocity in cm/s
+     */
+	virtual Vector4 getBodyVelocity(BodyHandle p_Body) = 0;
 	/**
 	 * Edit the scale of the target body's BoundingVolume. When scaling spheres only the x-coordinate is needed. 
 	 *
@@ -156,12 +163,13 @@ public:
 	 */
 	virtual void setGlobalGravity(float p_Gravity) = 0;
 	/**
-	 * Get the velocity for the chosen body.
-	 *
-	 * @param p_Body what body to get the data from
-	 * @return objects velocity in cm/s
-	 */
-	virtual Vector4 getVelocity(BodyHandle p_Body) = 0;
+     * Get if the target body is in the air (affected by gravity)
+     *
+	 * @param p_Body the body to work with.
+     * @return true if the body is in the air, otherwise false.
+     */
+    virtual bool getBodyInAir(BodyHandle p_Body) = 0;
+
 	/**
 	 * Get the hitdata from the vector containing all the collision hitdata for the last frame.
 	 *
