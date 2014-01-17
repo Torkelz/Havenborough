@@ -43,6 +43,11 @@ public:
 	* Move constructor, needed because c++11 is not fully integrated to VS2012.
 	*/
 	Body(Body &&p_Other);
+
+	/**
+	 * Move assignment
+	 */
+	Body& operator=(Body&& p_Other);
 	
 	Body(){};
 	~Body();

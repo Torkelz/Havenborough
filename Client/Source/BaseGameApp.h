@@ -13,6 +13,7 @@
 #include "EventManager.h"
 
 #include "ResourceManager.h"
+#include "GameLogic.h"
 
 #include <string>
 
@@ -34,10 +35,10 @@ private:
 	bool m_Connected;
 
 	SceneManager m_SceneManager;
-	EventManager *m_EventManager;
+	std::unique_ptr<EventManager> m_EventManager;
 
 	IPhysics *m_Physics;
-	ResourceManager* m_ResourceManager;
+	std::unique_ptr<ResourceManager> m_ResourceManager;
 
 	ActorFactory m_ActorFactory;
 	std::vector<Actor::ptr> m_ServerActors;
@@ -49,6 +50,7 @@ private:
 	float m_SecsPerCnt;
 	float m_DeltaTime;
 	
+	std::unique_ptr<GameLogic> m_GameLogic;
 public:
 	/**
 	 * Initialize the game and create a window.

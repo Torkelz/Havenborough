@@ -17,7 +17,7 @@ public:
 	~MenuScene();
 
 	bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		IPhysics *p_Physics, Input *p_InputQueue) override;
+		Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager) override;
 
 	void destroy() override;
 

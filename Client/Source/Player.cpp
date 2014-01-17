@@ -141,6 +141,12 @@ void Player::update(float p_DeltaTime)
 	}
 }
 
+Vector3 Player::getVelocity() const
+{
+	Vector4 vel4 = m_Physics->getVelocity(m_PlayerBody);
+	return Vector3(vel4.x, vel4.y, vel4.z);
+}
+
 void Player::jump(float dt)
 {
 	if(m_IsJumping)

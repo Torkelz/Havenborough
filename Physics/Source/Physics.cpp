@@ -161,7 +161,7 @@ BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 	std::vector<BVLoader::BoundingVolume> tempBV;
 	for(auto& bv : m_TemplateBVList)
 	{
-		if(strcmp(bv.first.c_str(), p_VolumeID))
+		if(strcmp(bv.first.c_str(), p_VolumeID) == 0)
 		{
 			tempBV = bv.second;
 			break;
@@ -190,6 +190,19 @@ BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 
 	return createBody(1.f, hull, true, false);
 
+}
+
+void Physics::releaseBody(BodyHandle p_Body)
+{
+	for (auto& body : m_Bodies)
+	{
+		if (body.getHandle() == p_Body)
+		{
+			std::swap(body, m_Bodies.back());
+			m_Bodies.pop_back();
+			return;
+		}
+	}
 }
 
 bool Physics::createBV(const char* p_VolumeID, const char* p_FilePath)

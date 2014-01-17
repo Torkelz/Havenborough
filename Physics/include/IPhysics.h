@@ -78,6 +78,13 @@ public:
 	virtual bool releaseBV(const char* p_VolumeID) = 0;
 
 	/**
+	 * Release an existing body.
+	 *
+	 * @param p_Body a handle to the body to remove
+	 */
+	virtual void releaseBody(BodyHandle p_Body) = 0;
+
+	/**
      * Releases all the existing bounding volumes.
      */
 	virtual void releaseAllBoundingVolumes(void) = 0;

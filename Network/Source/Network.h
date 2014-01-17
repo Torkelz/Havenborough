@@ -48,6 +48,7 @@ public:
 
 	void turnOffServer() override;
 	void connectToServer(const char* p_URL, unsigned short p_Port, actionDoneCallback p_DoneHandler, void* p_UserData) override;
+	void disconnectFromServer() override;
 
 	IConnectionController* getConnectionToServer() override;
 

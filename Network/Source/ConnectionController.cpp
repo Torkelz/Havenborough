@@ -11,6 +11,11 @@ ConnectionController::ConnectionController(Connection::ptr p_Connection, const s
 	m_Connection->setSaveData(std::bind(&ConnectionController::savePackageCallBack, this, std::placeholders::_1, std::placeholders::_2));
 }
 
+ConnectionController::~ConnectionController()
+{
+	m_Connection->disconnect();
+}
+
 bool ConnectionController::isConnected() const
 {
 	return m_Connection->isConnected();
@@ -191,6 +196,21 @@ uint16_t ConnectionController::getAssignPlayerObject(Package p_Package)
 	return assignPlayer->m_Object;
 }
 
+void ConnectionController::sendPlayerControl(PlayerControlData p_Data)
+{
+	PlayerControl package;
+	package.m_Data = p_Data;
+
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+PlayerControlData ConnectionController::getPlayerControlData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	PlayerControl* playerControl = static_cast<PlayerControl*>(m_ReceivedPackages[p_Package].get());
+	return playerControl->m_Data;
+}
+
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);
@@ -206,7 +226,7 @@ void ConnectionController::writeData(const std::string& p_Buffer, uint16_t p_ID)
 
 void ConnectionController::savePackageCallBack(uint16_t p_ID, const std::string& p_Data)
 {
-	for(const std::unique_ptr<PackageBase>& p : m_PackagePrototypes)
+	for(const PackageBase::ptr& p : m_PackagePrototypes)
 	{
 		if(p->getType() == (PackageType)p_ID)
 		{

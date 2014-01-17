@@ -20,11 +20,11 @@ void Level::setGoalPosition(const DirectX::XMFLOAT3 &p_GoalPosition)
 	m_GoalPosition = p_GoalPosition;
 }
 
-Level::Level(IGraphics* p_Graphics, ResourceManager* p_Resources, IPhysics* p_Physics)
+Level::Level(ResourceManager* p_Resources, IPhysics* p_Physics, ActorFactory* p_ActorFactory)
 {
-	m_Graphics = p_Graphics;
 	m_Resources = p_Resources;
 	m_Physics = p_Physics;
+	m_ActorFactory = p_ActorFactory;
 
 	m_StartPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_GoalPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -32,7 +32,6 @@ Level::Level(IGraphics* p_Graphics, ResourceManager* p_Resources, IPhysics* p_Ph
 
 Level::~Level()
 {
-	m_Graphics = nullptr;
 	m_Resources = nullptr;
 	m_Physics = nullptr;
 
@@ -42,55 +41,37 @@ Level::~Level()
 
 void Level::releaseLevel()
 {
-	for(int i : m_ResourceID)
-	{
-		m_Resources->releaseResource(i);
-	}
-	for(int j : m_BVResourceID)
-	{
-		m_Resources->releaseResource(j);
-	}
-	for(int i : m_DrawID)
-		m_Graphics->eraseModelInstance(i);
-	m_ResourceID.clear();
-	m_ResourceID.shrink_to_fit();
-	m_BVResourceID.clear();
-	m_BVResourceID.shrink_to_fit();
 	m_LevelData.clear();
 	m_LevelData.shrink_to_fit();
 	m_LevelCollisionData.clear();
 	m_LevelCollisionData.shrink_to_fit();
-	m_Graphics = nullptr;
 	m_Resources = nullptr;
 }
 
-bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePath)
+bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePath, std::vector<Actor::ptr>& p_ActorOut)
 {
 	if(!m_LevelLoader.loadBinaryFile(p_LevelFilePath))
 	{
 		return false;
 	}
-	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
-							"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
 	m_LevelData = m_LevelLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelData.size(); i++)
 	{
-		m_ResourceID.push_back(m_Resources->loadResource("model", m_LevelData.at(i).m_MeshName));
-		m_Graphics->linkShaderToModel("DefaultShader", m_LevelData.at(i).m_MeshName.c_str());
+		LevelBinaryLoader::ModelData& model = m_LevelData.at(i);
+		std::string meshName = model.m_MeshName;
+
 		for(unsigned int j = 0; j < m_LevelData.at(i).m_Translation.size(); j++)
 		{
-			m_DrawID.push_back(m_Graphics->createModelInstance(m_LevelData.at(i).m_MeshName.c_str()));
-			DirectX::XMFLOAT3 translation, rotation, scale;
-			translation = m_LevelData.at(i).m_Translation.at(j);
-			rotation = m_LevelData.at(i).m_Rotation.at(j);
-			scale = m_LevelData.at(i).m_Scale.at(j);
-			m_Graphics->setModelPosition(m_DrawID.back(), Vector3(translation.x, translation.y, translation.z));
-			m_Graphics->setModelRotation(m_DrawID.back(), Vector3(rotation.x, rotation.y, rotation.z));
-			m_Graphics->setModelScale(m_DrawID.back(), Vector3(scale.x, scale.y, scale.z));
+			Vector3 translation = model.m_Translation.at(j);
+			Vector3 rotation = model.m_Rotation.at(j);
+			Vector3 scale = model.m_Scale.at(j);
+
+			p_ActorOut.push_back(createObjectActor(model.m_MeshName, translation, rotation, scale));
 		}
 	}
 	
-	//This will be implemented at a later stage when physics has what it takes!
+	// This will be implemented at a later stage when physics has what it takes!
 	if(!m_CollisionLoader.loadBinaryFile(p_CollisionFilePath))
 	{
 		return false;
@@ -98,20 +79,16 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 	m_LevelCollisionData = m_CollisionLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
 	{
-		m_BVResourceID.push_back(m_Resources->loadResource("volume", m_LevelCollisionData.at(i).m_MeshName));
-
-		for(unsigned int j = 0; j < m_LevelCollisionData.at(i).m_Translation.size(); j++)
+		LevelBinaryLoader::ModelData& collisionData = m_LevelCollisionData.at(i);
+		std::string meshName = collisionData.m_MeshName;
+		
+		for(unsigned int j = 0; j < collisionData.m_Translation.size(); j++)
 		{
-			m_BodyHandles.push_back(m_Physics->createBVInstance(m_LevelData.at(i).m_MeshName.c_str()));
-			//pushback a bodyhandle to be able to rotate, scale and translate it.
-			
-			DirectX::XMFLOAT3 translation, rotation, scale;
-			translation = m_LevelCollisionData.at(i).m_Translation.at(j);
-			rotation = m_LevelCollisionData.at(i).m_Rotation.at(j);
-			scale = m_LevelCollisionData.at(i).m_Scale.at(j);
-			m_Physics->setBodyPosition(m_BodyHandles.back(), XMFLOAT3ToVector3(&translation));
-			m_Physics->setBodyRotation(m_BodyHandles.back(), XMFLOAT3ToVector3(&rotation));
-			m_Physics->setBodyScale(   m_BodyHandles.back(), XMFLOAT3ToVector3(&scale));
+			Vector3 translation = collisionData.m_Translation.at(j);
+			Vector3 rotation = collisionData.m_Rotation.at(j);
+			Vector3 scale = collisionData.m_Scale.at(j);
+
+			p_ActorOut.push_back(createCollisionActor(meshName, translation, rotation, scale));
 		}
 	}
 
@@ -119,10 +96,59 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 	return true;
 }
 
+static void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Vec)
+{
+	p_Printer.OpenElement(p_ElementName.c_str());
+	p_Printer.PushAttribute("x", p_Vec.x);
+	p_Printer.PushAttribute("y", p_Vec.y);
+	p_Printer.PushAttribute("z", p_Vec.z);
+	p_Printer.CloseElement();
+}
+
 void Level::drawLevel()
 {
-	for(unsigned int i = 0; i < m_DrawID.size(); i++)
-	{
-		m_Graphics->renderModel(m_DrawID.at(i));
-	}
+	//for(unsigned int i = 0; i < m_DrawID.size(); i++)
+	//{
+	//	m_Graphics->renderModel(m_DrawID.at(i));
+	//}
+}
+
+Actor::ptr Level::createObjectActor(std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", p_MeshName.c_str());
+	pushVector(printer, "Scale", p_Scale);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+	actor->setRotation(p_Rotation);
+
+	return actor;
+}
+
+Actor::ptr Level::createCollisionActor(std::string p_MeshName, Vector3 p_Translation, Vector3 p_Rotation, Vector3 p_Scale)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("MeshPhysics");
+	printer.PushAttribute("Mesh", p_MeshName.c_str());
+	pushVector(printer, "Scale", p_Scale);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Translation);
+	actor->setRotation(p_Rotation);
+
+	return actor;
 }

@@ -14,7 +14,7 @@
  * Represents a connetion to a remote computer.
  * Handles sending and receiving of raw data, prefixed with a minimal header.
  */
-class Connection
+class Connection : public std::enable_shared_from_this<Connection>
 {
 public:
 	/**
@@ -29,9 +29,9 @@ public:
 	 */
 	typedef std::function<void()> disconnectedCallback_t;
 	/**
-	 * Unique pointer type for connection.
+	 * Smart pointer type for connection.
 	 */
-	typedef std::unique_ptr<Connection> ptr;
+	typedef std::shared_ptr<Connection> ptr;
 
 	/**
 	 * Connection status.
@@ -63,10 +63,6 @@ protected:
 
 	std::vector<std::pair<Header, std::string>> m_WaitingToWrite;
 
-	std::mutex m_WaitToFree;
-	std::condition_variable m_Wait;
-	bool m_Reading;
-
 	saveDataFunction m_SaveData;
 	disconnectedCallback_t m_Disconnected;
 
@@ -82,18 +78,16 @@ public:
 	Connection( boost::asio::ip::tcp::socket&& p_Socket );
 
 	/**
-	 * Destructor.
-	 *
-	 * Closes the socket and waits for any ongoing transfers to be aborted.
-	 */
-	~Connection();
-
-	/**
 	 * Check if the connection is currently connected.
 	 *
 	 * @return true if connected, otherwise false
 	 */
 	bool isConnected() const;
+
+	/**
+	 * Disconnect the connection if connected.
+	 */
+	void disconnect();
 	
 	/**
 	 * Check if an error has been encountered.
@@ -141,9 +135,9 @@ public:
 
 private:
 	void doWrite(const Header& p_Header, const std::string& p_Buffer);
-	static void handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con);
-	static void handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con);
-	static void handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred, Connection* p_Con);
+	void handleWrite(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
+	void handleReadHeader(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
+	void handleReadData(const boost::system::error_code& p_Error, std::size_t p_BytesTransferred);
 	void readHeader();
 
 	static std::string formatError(const boost::system::error_code& p_Error);

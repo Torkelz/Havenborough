@@ -137,6 +137,13 @@ public:
 	*/
 	void update(float p_DeltaTime);
 
+	/**
+	 * Get the current velocity of the player.
+	 *
+	 * @return the velocity of the player in cm in world space
+	 */
+	Vector3 getVelocity() const;
+
 private:
 	void jump(float dt);
 	void move(void);

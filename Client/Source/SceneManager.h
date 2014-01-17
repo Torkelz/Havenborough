@@ -25,8 +25,11 @@ private:
 	bool			m_IsMenuState;
 	IGraphics		*m_Graphics;
 	ResourceManager	*m_ResourceManager;
-	IPhysics		*m_Physics;
 	Input			*m_InputQueue;
+	GameLogic		*m_GameLogic;
+
+	//1:P
+	bool m_RunGame; 
 
 public:
 	SceneManager();
@@ -39,8 +42,8 @@ public:
 	* @param p_Physics pointer to the physics engine
 	* @param p_InputQueue pointer to the keyboard and mouse input queue
 	*/
-	void init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, IPhysics *p_Physics,
-		Input *p_InputQueue);
+	void init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager, Input *p_InputQueue,
+		GameLogic *p_GameLogic, EventManager *p_EventManager);
 	
 	/**
 	* Destroy scenes when shutdown.
@@ -66,10 +69,12 @@ public:
 	*/
 	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue);
 	
+	
 	/*########## TEST FUNCTIONS ##########*/
 
 	std::vector<IScene::ptr> getScene();
 
+	
 private:
 	/**
 	* Change the scene 

@@ -1,10 +1,14 @@
 #pragma once
 #include "Actor.h"
+#include "ActorFactory.h"
 #include "Logger.h"
 #include "Level.h"
 #include "Player.h"
 #include "EdgeCollisionResponse.h"
+#include "EventManager.h"
 #include "Input/Input.h"
+
+#include <INetwork.h>
 
 class GameLogic
 {
@@ -16,15 +20,14 @@ public:
 	};
 
 private:
-	IGraphics *m_Graphics;
 	IPhysics *m_Physics;
-	Input *m_InputQueue;
 	ResourceManager *m_ResourceManager;
+	INetwork *m_Network;
+	EventManager *m_EventManager;
 
 	Level m_Level;
-	int skyBox;
-	int ground;
 	Player m_Player;
+	
 	std::weak_ptr<Actor> m_PlayerActor;
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
@@ -34,63 +37,77 @@ private:
 
 	GoToScene m_ChangeScene;
 
-	bool	m_drawBV;
+	ActorFactory* m_ActorFactory;
+	std::vector<Actor::ptr> m_Objects;
 
 	//DEBUG
-	int currentDebugView;
-	int climbBox;
-	int jointBox;
-	int circleWitch;
-	int standingWitch;
-	int wavingWitch;
-	int ikTest;
-	int testWitch;
-	int slantedPlane;
-	int OBBhouse1;
-	int OBBhouse2;
+	std::weak_ptr<Actor> circleWitch;
+	std::weak_ptr<Actor> skyBox;
+	std::weak_ptr<Actor> standingWitch;
+	std::weak_ptr<Actor> wavingWitch;
+	std::weak_ptr<Actor> ikTest;
+	std::weak_ptr<Actor> testWitch;
+
 	const static int NUM_BOXES = 16;
-	int boxIds[NUM_BOXES];
-	bool useIK_OnIK_Worm;
-	float yaw;
-	float yawSpeed;
-	float pitch;
-	float pitchSpeed;
-	float roll;
-	float rollSpeed;
-	static const unsigned int numTowerBoxes = 5;
-	int towerBoxes[numTowerBoxes];
-	static const unsigned int numRotatedTowerBoxes = 5;
-	int rotatedTowerBoxes[numRotatedTowerBoxes];
-	float viewRot[2];
+	std::weak_ptr<Actor> rotBoxes[NUM_BOXES];
+	bool useIK;
+	Vector3 rotBlockRotation;
+
 	Vector3 lookDir;
-	float sensitivity;
 	float witchCircleAngle;
+
+	Vector2 m_PlayerDirection;
+	Vector3 m_PlayerViewRotation;
+
 public:
 	GameLogic(void);
 	~GameLogic(void);
 
-	void initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		IPhysics *p_Physics, Input *p_InputQueue); 
+	void initialize(ResourceManager *p_ResourceManager,	IPhysics *p_Physics, ActorFactory *p_ActorFactory, EventManager *p_EventManager, INetwork *p_Network); 
 	void shutdown(void);
 
+	std::vector<Actor::ptr> &getObjects();
 	/**
 	* Gets which scene the game should change to.
 	*/
 	GoToScene getChangeScene(void) const;
 
 	void onFrame(float p_DeltaTime);
-	void render(void);
-
-	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue);
 
 	void setPlayerActor(std::weak_ptr<Actor> p_Actor);
+
+	void setPlayerDirection(Vector2 p_Direction);
+	Vector2 getPlayerDirection() const;
+
+	Vector3 getPlayerEyePosition() const;
+	Vector3 getPlayerViewRotation() const;
+	void movePlayerView(float p_Yaw, float p_Pitch);
+
+	IPhysics *getPhysics() const;
+
+	void playerJump();
+	void toggleIK();
+	void testBlendAnimation();
+	void testResetAnimation();
+	void testLayerAnimation();
+	void testResetLayerAnimation();
 
 private:
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();
 	void updateSandbox(float p_DeltaTime);
-	void renderSandbox();
-	void shutdownSandbox();
 
-	void addDebugBVToDraw(BodyHandle p_BodyHandle);
+	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
+	void updateIK();
+
+	std::weak_ptr<Actor> addRotatingBox(Vector3 p_Position, Vector3 p_Scale);
+	std::weak_ptr<Actor> addSkybox(Vector3 p_Scale);
+	std::weak_ptr<Actor> addBasicModel(const std::string& p_Model, Vector3 p_Position);
+	std::weak_ptr<Actor> addIK_Worm();
+	std::weak_ptr<Actor> addBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize);
+	std::weak_ptr<Actor> addBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
+	std::weak_ptr<Actor> addClimbBox();
+	std::weak_ptr<Actor> addClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
+
+	void addLights();
 };

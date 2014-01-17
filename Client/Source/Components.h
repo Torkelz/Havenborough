@@ -2,6 +2,8 @@
 
 #include "ActorComponent.h"
 #include "ClientExceptions.h"
+#include "EventData.h"
+#include "ResourceManager.h"
 
 #include <IGraphics.h>
 #include <IPhysics.h>
@@ -9,13 +11,15 @@
 class PhysicsInterface : public ActorComponent
 {
 public:
+	static const Id m_ComponentId = 1;
 	virtual Id getComponentId() const
 	{
-		return 1;
+		return m_ComponentId;
 	}
 
 	virtual void updatePosition(Vector3 p_Position) = 0;
 	virtual void updateRotation(Vector3 p_Rotation) = 0;
+	virtual BodyHandle getBodyHandle() const = 0;
 };
 
 class OBB_Component : public PhysicsInterface
@@ -25,6 +29,11 @@ private:
 	IPhysics* m_Physics;
 
 public:
+	virtual ~OBB_Component()
+	{
+		m_Physics->releaseBody(m_Body);
+	}
+
 	void setPhysics(IPhysics* p_Physics)
 	{
 		m_Physics = p_Physics;
@@ -50,7 +59,10 @@ public:
 			halfsize.z = size->FloatAttribute("z");
 		}
 
-		m_Body = m_Physics->createOBB(0.f, true, position, halfsize, false);
+		bool immovable = true;
+		p_Data->QueryBoolAttribute("Immovable", &immovable);
+
+		m_Body = m_Physics->createOBB(0.f, immovable, position, halfsize, false);
 	}
 
 	virtual void onUpdate(float p_DeltaTime) override
@@ -68,34 +80,215 @@ public:
 	{
 		m_Physics->setBodyRotation(m_Body, p_Rotation);
 	}
+	virtual BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
+	}
+};
+
+class CollisionSphereComponent : public PhysicsInterface
+{
+private:
+	BodyHandle m_Body;
+	IPhysics* m_Physics;
+
+public:
+	virtual ~CollisionSphereComponent()
+	{
+		m_Physics->releaseBody(m_Body);
+	}
+
+	void setPhysics(IPhysics* p_Physics)
+	{
+		m_Physics = p_Physics;
+	}
+
+	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		Vector3 position(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("Position");
+		if (pos)
+		{
+			position.x = pos->FloatAttribute("x");
+			position.y = pos->FloatAttribute("y");
+			position.z = pos->FloatAttribute("z");
+		}
+
+		bool immovable = true;
+		p_Data->QueryBoolAttribute("Immovable", &immovable);
+
+		float radius = 1.f;
+		p_Data->QueryFloatAttribute("Radius", &radius);
+
+		m_Body = m_Physics->createSphere(0.f, immovable, position, radius);
+	}
+
+	virtual void onUpdate(float p_DeltaTime) override
+	{
+		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
+		Vector3 rotation = m_Owner->getRotation();
+		m_Physics->setBodyRotation(m_Body, rotation);
+	}
+
+	virtual void updatePosition(Vector3 p_Position) override
+	{
+		m_Physics->setBodyPosition(m_Body, p_Position);
+	}
+	virtual void updateRotation(Vector3 p_Rotation) override
+	{
+		m_Physics->setBodyRotation(m_Body, p_Rotation);
+	}
+	virtual BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
+	}
+};
+
+class AABB_Component : public PhysicsInterface
+{
+private:
+	BodyHandle m_Body;
+	IPhysics* m_Physics;
+	Vector3 m_RelativePosition;
+
+public:
+	void setPhysics(IPhysics* p_Physics)
+	{
+		m_Physics = p_Physics;
+	}
+
+	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		m_RelativePosition = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("RelativePosition");
+		if (pos)
+		{
+			m_RelativePosition.x = pos->FloatAttribute("x");
+			m_RelativePosition.y = pos->FloatAttribute("y");
+			m_RelativePosition.z = pos->FloatAttribute("z");
+		}
+
+		Vector3 halfsize(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* size = p_Data->FirstChildElement("Halfsize");
+		if (size)
+		{
+			halfsize.x = size->FloatAttribute("x");
+			halfsize.y = size->FloatAttribute("y");
+			halfsize.z = size->FloatAttribute("z");
+		}
+
+		bool edge = false;
+		p_Data->QueryBoolAttribute("Edge", &edge);
+
+		m_Body = m_Physics->createAABB(0.f, true, Vector3(0.f, 0.f, 0.f), halfsize, edge);
+	}
+
+	virtual void onUpdate(float p_DeltaTime) override
+	{
+		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition() + m_RelativePosition);
+	}
+
+	virtual void updatePosition(Vector3 p_Position) override
+	{
+		m_Physics->setBodyPosition(m_Body, p_Position + m_RelativePosition);
+	}
+	virtual void updateRotation(Vector3 p_Rotation) override
+	{
+		m_Physics->setBodyRotation(m_Body, p_Rotation);
+	}
+	virtual BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
+	}
+};
+
+class BoundingMeshComponent : public PhysicsInterface
+{
+private:
+	BodyHandle m_Body;
+	int m_MeshResourceId;
+	IPhysics* m_Physics;
+	ResourceManager* m_ResourceManager;
+	Vector3 m_Scale;
+
+public:
+	~BoundingMeshComponent()
+	{
+		m_ResourceManager->releaseResource(m_MeshResourceId);
+	}
+
+	void setPhysics(IPhysics* p_Physics)
+	{
+		m_Physics = p_Physics;
+	}
+	void setResourceManager(ResourceManager* p_ResourceManager)
+	{
+		m_ResourceManager = p_ResourceManager;
+	}
+
+	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		const char* meshName = p_Data->Attribute("Mesh");
+
+		if (!meshName)
+		{
+			throw ClientException("Collision component lacks mesh", __LINE__, __FILE__);
+		}
+
+		m_MeshResourceId = m_ResourceManager->loadResource("volume", meshName);
+
+		m_Scale = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
+		if (scale)
+		{
+			m_Scale.x = scale->FloatAttribute("x");
+			m_Scale.y = scale->FloatAttribute("y");
+			m_Scale.z = scale->FloatAttribute("z");
+		}
+
+		m_Body = m_Physics->createBVInstance(meshName);
+		m_Physics->setBodyScale(m_Body, m_Scale);
+	}
+
+	virtual void updatePosition(Vector3 p_Position) override
+	{
+		m_Physics->setBodyPosition(m_Body, p_Position);
+	}
+	virtual void updateRotation(Vector3 p_Rotation) override
+	{
+		m_Physics->setBodyRotation(m_Body, p_Rotation);
+	}
+	virtual BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
+	}
 };
 
 class ModelInterface : public ActorComponent
 {
 public:
+	static const Id m_ComponentId = 2;
 	virtual Id getComponentId() const override
 	{
-		return 2;
+		return m_ComponentId;
 	}
-	virtual void render() = 0;
+	//virtual void render(IGraphics* p_Graphics) = 0;
 	virtual void updateScale(const std::string& p_CompName, Vector3 p_Scale) = 0;
 	virtual void removeScale(const std::string& p_CompName) = 0;
 };
 
 class ModelComponent : public ModelInterface
 {
+public:
+	typedef unsigned int Id;
+
 private:
-	int m_Model;
-	IGraphics* m_Graphics;
-	Vector3 m_Scale;
+	Id m_Id;
+	Vector3 m_BaseScale;
+	std::string m_MeshName;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
 public:
-	void setGraphics(IGraphics* p_Graphics)
-	{
-		m_Graphics = p_Graphics;
-	}
-
 	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		const char* mesh = p_Data->Attribute("Mesh");
@@ -104,20 +297,20 @@ public:
 			throw ClientException("Component lacks mesh", __LINE__, __FILE__);
 		}
 
-		m_Scale = Vector3(1.f, 1.f, 1.f);
+		m_MeshName = std::string(mesh);
+
+		m_BaseScale = Vector3(1.f, 1.f, 1.f);
 		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
 		if (scale)
 		{
-			scale->QueryFloatAttribute("x", &m_Scale.x);
-			scale->QueryFloatAttribute("y", &m_Scale.y);
-			scale->QueryFloatAttribute("z", &m_Scale.z);
+			scale->QueryFloatAttribute("x", &m_BaseScale.x);
+			scale->QueryFloatAttribute("y", &m_BaseScale.y);
+			scale->QueryFloatAttribute("z", &m_BaseScale.z);
 		}
-
-		m_Model = m_Graphics->createModelInstance(mesh);
 	}
-	virtual void render() override
+	virtual void postInit() override
 	{
-		m_Graphics->renderModel(m_Model);
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName, m_BaseScale)));
 	}
 	virtual void updateScale(const std::string& p_CompName, Vector3 p_Scale) override
 	{
@@ -146,26 +339,54 @@ public:
 	}
 	virtual void onUpdate(float p_DeltaTime) override
 	{
-		m_Graphics->setModelPosition(m_Model, m_Owner->getPosition());
-		m_Graphics->setModelRotation(m_Model, m_Owner->getRotation());
+		//if (m_Graphics)
+		//{
+		//	m_Graphics->setModelPosition(m_Model, m_Owner->getPosition());
+		//	m_Graphics->setModelRotation(m_Model, m_Owner->getRotation());
 
-		Vector3 composedScale = m_Scale;
+		//	Vector3 composedScale = m_BaseScale;
+		//	for (const auto& scale : m_AppliedScales)
+		//	{
+		//		composedScale.x *= scale.second.x;
+		//		composedScale.y *= scale.second.y;
+		//		composedScale.z *= scale.second.z;
+		//	}
+		//	m_Graphics->setModelScale(m_Model, composedScale);
+		//}
+	}
+
+	Id getId() const
+	{
+		return m_Id;
+	}
+
+	void setId(Id p_Id)
+	{
+		m_Id = p_Id;
+	}
+
+private:
+	void calculateScale()
+	{
+		Vector3 composedScale = m_BaseScale;
 		for (const auto& scale : m_AppliedScales)
 		{
 			composedScale.x *= scale.second.x;
 			composedScale.y *= scale.second.y;
 			composedScale.z *= scale.second.z;
 		}
-		m_Graphics->setModelScale(m_Model, composedScale);
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelRotationEventData(getId(), composedScale)));
 	}
+
 };
 
 class MovementInterface : public ActorComponent
 {
 public:
+	static const Id m_ComponentId = 3;
 	virtual Id getComponentId() const override
 	{
-		return 3;
+		return m_ComponentId;
 	}
 	virtual void setVelocity(Vector3 p_Velocity) = 0;
 	virtual Vector3 getVelocity() const = 0;
@@ -237,9 +458,10 @@ public:
 class PulseInterface : public ActorComponent
 {
 public:
+	static const Id m_ComponentId = 4;
 	virtual Id getComponentId() const override
 	{
-		return 4;
+		return m_ComponentId;
 	}
 	virtual void pulseOnce() = 0;
 };

@@ -38,6 +38,7 @@ public:
 	bool createBV(const char* m_ModelID, const char* m_FilePath) override;
 
 	bool releaseBV(const char* p_ModelID) override; 
+	void releaseBody(BodyHandle p_Body) override;
 	void releaseAllBoundingVolumes(void) override;
 
 	void setGlobalGravity(float p_Gravity) override;

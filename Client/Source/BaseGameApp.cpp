@@ -18,7 +18,9 @@ const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 void BaseGameApp::init()
 {
 	Logger::log(Logger::Level::INFO, "Initializing game app");
-	
+
+	m_GameLogic = nullptr;
+
 	m_MemUpdateDelay = 0.1f;
 	m_TimeToNextMemUpdate = 0.f;
 	
@@ -38,14 +40,15 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
+	m_ResourceManager.reset(new ResourceManager());
+	
 	m_Sound = ISound::createSound();
 	m_Sound->setLogFunction(&Logger::logRaw);
 	m_Sound->initialize();
 
-	m_ResourceManager = new ResourceManager();
 	using namespace std::placeholders;
-	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager);
-	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager);
+	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager.get());
+	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager.get());
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseBV, m_Physics, _1));
@@ -90,16 +93,20 @@ void BaseGameApp::init()
 	m_Network = INetwork::createNetwork();
 	m_Network->setLogFunction(&Logger::logRaw);
 	m_Network->initialize();
-	m_Connected = false;
+	m_Connected = false;	
 
-	m_SceneManager.init(m_Graphics, m_ResourceManager, m_Physics, &m_InputQueue);
+	m_EventManager.reset(new EventManager());
+	m_GameLogic.reset(new GameLogic());
+	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
 					
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
 	m_ActorFactory.setGraphics(m_Graphics);
+	m_ActorFactory.setEventManager(m_EventManager.get());
+	m_ActorFactory.setResourceManager(m_ResourceManager.get());
 
-	m_EventManager = new EventManager();
+	m_GameLogic->initialize(m_ResourceManager.get(), m_Physics, &m_ActorFactory, m_EventManager.get(), m_Network);
 
 	// Set Current Size
 	m_NewWindowSize = m_Window.getSize();
@@ -138,13 +145,15 @@ void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
 	
+	m_GameLogic->shutdown();
+	m_GameLogic.reset();
 
 	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
 	
 	m_SceneManager.destroy();
 
-	delete m_ResourceManager;
+	m_ResourceManager.reset();
 
 	m_InputQueue.destroy();
 	
@@ -157,7 +166,7 @@ void BaseGameApp::shutdown()
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
 
-	SAFE_DELETE(m_EventManager);
+	m_EventManager.reset();
 
 	m_Window.destroy();
 }
@@ -201,18 +210,30 @@ bool BaseGameApp::handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_
 	switch(p_WParam)
 	{
 	case SIZE_MAXIMIZED:
-		m_Window.setSize(m_NewWindowSize);
-		break;
-	case SIZE_MAXHIDE: break;
-	case SIZE_MAXSHOW: break;
-	case SIZE_MINIMIZED: break;
-	case SIZE_RESTORED: break;
+		{
+			m_Window.setSize(m_NewWindowSize);
+			m_Window.setIsMaximized(true);
+			p_Result = 0;
+			return true;
+		}
+	case SIZE_MAXHIDE:{return false;}
+	case SIZE_MAXSHOW:{return false;}
+	case SIZE_MINIMIZED:{return false;}
+	case SIZE_RESTORED:
+		{
+			if(m_Window.getIsMaximized())
+			{
+				m_Window.setIsMaximized(false);
+				m_Window.setSize(m_NewWindowSize);
+				p_Result = 0;
+				return true;
+			}
+			return false;
+		}
 	default:
-		break;
+		return false;
 	}
-
-	p_Result = 0;
-	return true;
+	
 }
 
 void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
@@ -289,6 +310,12 @@ void BaseGameApp::handleInput()
 		}
 		else if (in.m_Action == "connect" && in.m_Value == 1.0f)
 		{
+			if (m_Connected)
+			{
+				m_Network->disconnectFromServer();
+				m_ServerActors.clear();
+			}
+
 			m_Connected = false;
 			m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
 		}
@@ -298,7 +325,7 @@ void BaseGameApp::handleInput()
 			GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
 			if (gameScene)
 			{
-				gameScene->getGameLogic()->setPlayerActor(Actor::ptr());
+				m_GameLogic->setPlayerActor(Actor::ptr());
 			}
 		}
 	}
@@ -412,9 +439,6 @@ void BaseGameApp::handleNetwork()
 					const tinyxml2::XMLElement* root = actionDoc.FirstChildElement("Action");
 					const tinyxml2::XMLElement* action = root->FirstChildElement();
 
-	IPhysics::deletePhysics(m_Physics);
-	m_Physics = nullptr;
-
 					if (std::string(action->Value()) == "Pulse")
 					{
 						for (auto& actor : m_ServerActors)
@@ -443,7 +467,7 @@ void BaseGameApp::handleNetwork()
 						GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
 						if (gameScene)
 						{
-							gameScene->getGameLogic()->setPlayerActor(actor);
+							m_GameLogic->setPlayerActor(actor);
 						}
 					}
 				}
@@ -469,8 +493,10 @@ void BaseGameApp::updateLogic()
 		actor->onUpdate(m_DeltaTime);
 	}
 
-	m_EventManager->processEvents();
 	m_SceneManager.onFrame(m_DeltaTime);
+	m_GameLogic->onFrame(m_DeltaTime);
+
+	m_EventManager->processEvents();
 }
 
 void BaseGameApp::render()
@@ -482,11 +508,12 @@ void BaseGameApp::render()
 
 		if (strongGraphicsComponent)
 		{
-			strongGraphicsComponent->render();
+			//strongGraphicsComponent->render(m_Graphics);
 		}
 	}
 
 	m_SceneManager.render();
+	m_Graphics->drawFrame();
 }
 
 Actor::ptr BaseGameApp::getActor(Actor::Id p_Actor)
@@ -514,3 +541,4 @@ void BaseGameApp::removeActor(Actor::Id p_Actor)
 		}
 	}
 }
+

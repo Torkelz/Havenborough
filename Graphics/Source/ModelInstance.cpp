@@ -371,7 +371,7 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_TargetJointName, con
 	float diffJointAngle = wantedJointAngle - currentJointAngle;
 
 	// Asume all "elbows" has the positive Z axis as hinge axis.
-	static const XMFLOAT4 rotationAxisData(0.f, 0.f, 1.f, 0.f);
+	static const XMFLOAT4 rotationAxisData(0.f, -1.f, 0.f, 0.f);
 	XMVECTOR rotationAxis = XMLoadFloat4(&rotationAxisData);
 	XMMATRIX rotation = XMMatrixRotationAxis(rotationAxis, diffJointAngle);
 
