@@ -20,13 +20,12 @@ SceneManager::~SceneManager()
 }
 
 void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager, ISound *p_Sound)
+	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
 	m_Graphics = p_Graphics;
 	m_ResourceManager = p_ResourceManager;
 	m_InputQueue = p_InputQueue;
 	m_GameLogic = p_GameLogic;
-	m_Sound	= p_Sound;
 
 	m_RunGame = false;
 
@@ -70,16 +69,11 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	}
 	//// ################################ Remove this override later, used for skipping the menu!! #####################################################
 	//m_IsMenuState = false;
-
-	//// ################################ Sound is being loaded here for demo 4 only!! Should be removed after! #####################################################
-	m_SoundId = 0;
-	m_SoundId = m_ResourceManager->loadResource("sound", "Background");
 }
 
 void SceneManager::destroy()
 {
 	unsigned int i;
-	m_ResourceManager->releaseResource(m_SoundId);
 	for(i = 0; i < m_NumberOfMenuScene; i++)
 	{
 		m_MenuSceneList[i]->destroy();
@@ -196,9 +190,6 @@ void SceneManager::startRun()
 		m_RunSceneList[i]->setIsVisible(false);
 	}
 	m_NowShowing = 0;
-	//// ################################ Sound is being played here for demo 4 only!! Should be removed after! #####################################################
-	m_Sound->playSound("Background");
-	m_Sound->setSoundVolume("Background", 0.5f);
 }
 
 void SceneManager::startMenu()
@@ -210,8 +201,6 @@ void SceneManager::startMenu()
 		m_MenuSceneList[i]->setIsVisible(false);
 	}
 	m_NowShowing = 0;
-	//// ################################ Sound is being played here for demo 4 only!! Should be removed after! #####################################################
-	m_Sound->stopSound("Background");
 }
 
 void SceneManager::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)

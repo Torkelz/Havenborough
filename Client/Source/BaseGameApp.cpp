@@ -95,7 +95,7 @@ void BaseGameApp::init()
 
 	m_EventManager.reset(new EventManager());
 	m_GameLogic.reset(new GameLogic());
-	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get(), m_Sound);
+	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
 					
 	m_MemoryInfo.update();
 	
