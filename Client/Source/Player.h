@@ -15,10 +15,11 @@ private:
 
 	BodyHandle m_PlayerBody;
 	IPhysics *m_Physics;
-	
-	float m_JumpTime;
+
 	bool m_IsJumping;
-	float m_JumpForceTime;
+	int m_JumpCount, m_JumpCountMax;
+	float m_JumpDelay, m_JumpDelayMax;
+    float m_JumpTime, m_JumpTimeMax;
 	float m_JumpForce;
 	float m_MaxSpeed; // Centimeters per secound
 	float m_AccConstant;

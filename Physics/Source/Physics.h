@@ -42,7 +42,7 @@ public:
 	void releaseAllBoundingVolumes(void) override;
 
 	void setGlobalGravity(float p_Gravity) override;
-	Vector4 getVelocity(BodyHandle p_Body) override;
+	bool getBodyInAir(BodyHandle p_Body) override;
 
 	HitData getHitDataAt(unsigned int p_Index) override;
 	void removeHitDataAt(unsigned int p_index) override;
@@ -52,7 +52,10 @@ public:
 	Vector3 getBodySize(BodyHandle p_Body) override;
 
 	void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) override;
+
 	void setBodyVelocity(BodyHandle p_Body, Vector3 p_Velocity) override;
+	Vector4 getBodyVelocity(BodyHandle p_Body) override;
+
 	void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) override;
 	void setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale) override;
 

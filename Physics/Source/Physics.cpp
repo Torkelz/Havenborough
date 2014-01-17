@@ -313,6 +313,15 @@ void Physics::setGlobalGravity(float p_Gravity)
 	m_GlobalGravity = p_Gravity;
 }
 
+bool Physics::getBodyInAir(BodyHandle p_Body)
+{
+    Body* body = findBody(p_Body);
+    if(body == nullptr)
+            return false;
+
+    return body->getInAir();
+}
+
 BoundingVolume* Physics::getVolume(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
@@ -320,17 +329,6 @@ BoundingVolume* Physics::getVolume(BodyHandle p_Body)
 		return nullptr;
 
 	return body->getVolume();
-}
-
-Vector4 Physics::getVelocity(BodyHandle p_Body)
-{
-	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return Vector4(0.f, 0.f, 0.f, 0.f);
-
-	XMFLOAT4 tempVel = body->getVelocity();
-
-	return Vector4(tempVel.x, tempVel.y, tempVel.z, tempVel.w) * 100.f;
 }
 
 HitData Physics::getHitDataAt(unsigned int p_Index)
@@ -412,6 +410,17 @@ void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 	body->setVelocity(tempPosition);
 }
 
+Vector4 Physics::getBodyVelocity(BodyHandle p_Body)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return Vector4(0.f, 0.f, 0.f, 0.f);
+
+	XMFLOAT4 tempVel = body->getVelocity();
+
+	return Vector4(tempVel.x, tempVel.y, tempVel.z, tempVel.w) * 100.f;
+}
+
 void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 {
 	Body* body = findBody(p_Body);
@@ -419,7 +428,7 @@ void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 		return;
 
 	XMFLOAT4X4 temp;
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Rotation.y, p_Rotation.x, p_Rotation.z);
+	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Rotation.x, p_Rotation.y, p_Rotation.z);
 
 	XMStoreFloat4x4(&temp, rotation);
 
