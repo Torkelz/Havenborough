@@ -32,7 +32,6 @@ private:
 	INetwork* m_Network;
 
 	bool m_ShouldQuit;
-	bool m_Connected;
 
 	SceneManager m_SceneManager;
 	std::unique_ptr<EventManager> m_EventManager;
@@ -41,7 +40,6 @@ private:
 	std::unique_ptr<ResourceManager> m_ResourceManager;
 
 	ActorFactory m_ActorFactory;
-	std::vector<Actor::ptr> m_ServerActors;
 	DirectX::XMFLOAT2 m_NewWindowSize;
 
 	ISound *m_Sound;
@@ -86,18 +84,12 @@ private:
 	bool handleWindowExitSizeMove(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
 	bool handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
-	
-	static void connectedCallback(Result p_Res, void* p_UserData);
 
 	void updateDebugInfo();
 
 	void resetTimer();
 	void updateTimer();
 	void handleInput();
-	void handleNetwork();
 	void updateLogic();
 	void render();
-
-	Actor::ptr getActor(Actor::Id p_Actor);
-	void removeActor(Actor::Id p_Actor);
 };

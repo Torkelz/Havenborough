@@ -26,11 +26,15 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/CB_Level3.btxl", m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 200.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(0.0f, 0.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
-	m_FinishLine = m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
+	//m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
+	m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
 
 	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
 	
 	m_ChangeScene = GoToScene::NONE;
+
+	m_Connected = false;
+	m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
 
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
@@ -54,6 +58,8 @@ GameLogic::GoToScene GameLogic::getChangeScene(void) const
 
 void GameLogic::onFrame(float p_DeltaTime)
 {
+	handleNetwork();
+
 	m_Player.update(p_DeltaTime);
 
 	if(m_Physics->getHitDataSize() > 0)
@@ -68,7 +74,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 				{
 					m_Physics->removeHitDataAt(i);
 				}
-				if(m_FinishLine == hit.collisionVictim)
+				if(m_FinishLine.lock()->getBodyHandles()[0] == hit.collisionVictim)
 				{
 					m_Player.setPosition(m_Level.getStartPosition());
 					m_ChangeScene = GoToScene::POSTGAME;
@@ -224,6 +230,192 @@ void GameLogic::testResetLayerAnimation()
 	playAnimation(ikTest.lock(), "Wave");
 	playAnimation(testWitch.lock(), "Run");
 	playAnimation(testWitch.lock(), "DefLayer1");
+}
+
+void GameLogic::handleNetwork()
+{
+	if (m_Connected)
+	{
+		IConnectionController* conn = m_Network->getConnectionToServer();
+		unsigned int numPackages = conn->getNumPackages();
+		for (unsigned int i = 0; i < numPackages; i++)
+		{
+			Package package = conn->getPackage(i);
+			PackageType type = conn->getPackageType(package);
+
+			std::string msg("Received package of type: " + std::to_string((uint16_t)type));
+			Logger::log(Logger::Level::TRACE, msg);
+
+			switch (type)
+			{
+			case PackageType::CREATE_OBJECTS:
+				{
+					unsigned int numInstances = conn->getNumCreateObjectInstances(package);
+					const ObjectInstance* instances = conn->getCreateObjectInstances(package);
+					for (unsigned int i = 0; i < numInstances; ++i)
+					{
+						using tinyxml2::XMLAttribute;
+						using tinyxml2::XMLDocument;
+						using tinyxml2::XMLElement;
+
+						const ObjectInstance& data = instances[i];
+						std::ostringstream msg;
+						msg << "Adding object at (" 
+							<< data.m_Position[0] << ", "
+							<< data.m_Position[1] << ", " 
+							<< data.m_Position[2] << ")";
+						Logger::log(Logger::Level::INFO, msg.str());
+
+						XMLDocument description;
+						description.Parse(conn->getCreateObjectDescription(package, data.m_DescriptionIdx));
+
+						const XMLElement* obj = description.FirstChildElement("Object");
+
+						Actor::ptr actor = m_ActorFactory->createActor(obj, data.m_Id);
+						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
+						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
+						m_Objects.push_back(actor);
+					}
+				}
+				break;
+
+			case PackageType::UPDATE_OBJECTS:
+				{
+					const unsigned int numUpdates = conn->getNumUpdateObjectData(package);
+					const UpdateObjectData* const updates = conn->getUpdateObjectData(package);
+					for (unsigned int i = 0; i < numUpdates; ++i)
+					{
+						const UpdateObjectData& data = updates[i];
+						const uint16_t actorId = data.m_Id;
+
+						Actor::ptr actor;
+						for (auto& act : m_Objects)
+						{
+							if (act->getId() == actorId)
+							{
+								actor = act;
+								break;
+							}
+						}
+
+						if (!actor)
+						{
+							Logger::log(Logger::Level::ERROR_L, "Could not find actor (" + std::to_string(actorId) + ")");
+							continue;
+						}
+
+						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
+						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
+						
+						std::weak_ptr<MovementInterface> wMove = actor->getComponent<MovementInterface>(3);
+						std::shared_ptr<MovementInterface> shMove = wMove.lock();
+						if (shMove)
+						{
+							shMove->setVelocity(Vector3(data.m_Velocity[0], data.m_Velocity[1], data.m_Velocity[2]));
+							shMove->setRotationalVelocity(Vector3(data.m_RotationVelocity[0], data.m_RotationVelocity[1], data.m_RotationVelocity[2]));
+						}
+					}
+
+					// TODO: Handle extra data
+				}
+				break;
+
+			case PackageType::REMOVE_OBJECTS:
+				{
+					const unsigned int numObjects = conn->getNumRemoveObjectRefs(package);
+					const uint16_t* removeObjects = conn->getRemoveObjectRefs(package);
+					for (unsigned int i = 0; i < numObjects; ++i)
+					{
+						removeActor(removeObjects[i]);
+					}
+				}
+				break;
+
+			case PackageType::OBJECT_ACTION:
+				{
+					const Actor::Id actorId = conn->getObjectActionId(package);
+					const char* xmlAction = conn->getObjectActionAction(package);
+					tinyxml2::XMLDocument actionDoc;
+					actionDoc.Parse(xmlAction);
+					const tinyxml2::XMLElement* root = actionDoc.FirstChildElement("Action");
+					const tinyxml2::XMLElement* action = root->FirstChildElement();
+
+					if (std::string(action->Value()) == "Pulse")
+					{
+						Actor::ptr actor = getActor(actorId);
+
+						if (actor->getId())
+						{
+							std::shared_ptr<PulseInterface> pulseComp = actor->getComponent<PulseInterface>(PulseComponent::m_ComponentId).lock();
+							if (pulseComp)
+							{
+								pulseComp->pulseOnce();
+							}
+							break;
+						}
+					}
+				}
+				break;
+
+			case PackageType::ASSIGN_PLAYER:
+				{
+					const Actor::Id actorId = conn->getAssignPlayerObject(package);
+					Actor::ptr actor = getActor(actorId);
+					if (actor)
+					{
+						setPlayerActor(actor);
+					}
+				}
+				break;
+
+			default:
+				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
+				Logger::log(Logger::Level::WARNING, msg);
+				break;
+			}
+		}
+
+		conn->clearPackages(numPackages);
+	}
+}
+
+void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
+{
+	if (p_Res == Result::SUCCESS)
+	{
+		((GameLogic*)p_UserData)->m_Connected = true;
+		Logger::log(Logger::Level::INFO, "Connected successfully");
+	}
+	else
+	{
+		Logger::log(Logger::Level::WARNING, "Connection failed");
+	}
+}
+
+Actor::ptr GameLogic::getActor(Actor::Id p_Actor)
+{
+	for (auto actor : m_Objects)
+	{
+		if (actor->getId() == p_Actor)
+		{
+			return actor;
+		}
+	}
+
+	return Actor::ptr();
+}
+
+void GameLogic::removeActor(Actor::Id p_Actor)
+{
+	for (size_t i = 0; i < m_Objects.size(); ++i)
+	{
+		if (m_Objects[i]->getId() == p_Actor)
+		{
+			std::swap(m_Objects[i], m_Objects.back());
+			m_Objects.pop_back();
+			return;
+		}
+	}
 }
 
 void GameLogic::loadSandbox()
@@ -608,6 +800,26 @@ std::weak_ptr<Actor> GameLogic::addClimbTowerBox(Vector3 p_Position, Vector3 p_H
 	addEdge(printer, Vector3(p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
 	addEdge(printer, Vector3(-p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
 	printer.CloseElement();
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+	m_Objects.push_back(actor);
+
+	return actor;
+}
+
+std::weak_ptr<Actor> GameLogic::addCollisionSphere(Vector3 p_Position, float p_Radius)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Radius", p_Radius);
+	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	printer.CloseElement();
+
 	tinyxml2::XMLDocument doc;
 	doc.Parse(printer.CStr());
 

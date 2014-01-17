@@ -32,13 +32,14 @@ private:
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
 	std::vector<int> m_ResourceIDs;
-	BodyHandle m_Ground;
-	BodyHandle m_FinishLine;
+	std::weak_ptr<Actor> m_FinishLine;
 
 	GoToScene m_ChangeScene;
 
 	ActorFactory* m_ActorFactory;
 	std::vector<Actor::ptr> m_Objects;
+
+	bool m_Connected;
 
 	//DEBUG
 	std::weak_ptr<Actor> circleWitch;
@@ -93,6 +94,13 @@ public:
 	void testResetLayerAnimation();
 
 private:
+	void handleNetwork();
+	
+	static void connectedCallback(Result p_Res, void* p_UserData);
+
+	Actor::ptr getActor(Actor::Id p_Actor);
+	void removeActor(Actor::Id p_Actor);
+
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();
 	void updateSandbox(float p_DeltaTime);
@@ -108,6 +116,7 @@ private:
 	std::weak_ptr<Actor> addBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
 	std::weak_ptr<Actor> addClimbBox();
 	std::weak_ptr<Actor> addClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
+	std::weak_ptr<Actor> addCollisionSphere(Vector3 p_Position, float p_Radius);
 
 	void addLights();
 };
