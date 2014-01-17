@@ -198,6 +198,7 @@ void SceneManager::startRun()
 	m_NowShowing = 0;
 	//// ################################ Sound is being played here for demo 4 only!! Should be removed after! #####################################################
 	m_Sound->playSound("Background");
+	m_Sound->setSoundVolume("Background", 0.5f);
 }
 
 void SceneManager::startMenu()
@@ -210,7 +211,7 @@ void SceneManager::startMenu()
 	}
 	m_NowShowing = 0;
 	//// ################################ Sound is being played here for demo 4 only!! Should be removed after! #####################################################
-	m_Sound->pauseSound("Background", true);
+	m_Sound->stopSound("Background");
 }
 
 void SceneManager::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
