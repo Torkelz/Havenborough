@@ -43,6 +43,13 @@ public:
 	 */
 	virtual bool loadSound(const char *p_SoundId, const char *p_Filename) = 0;
 	/**
+	 * Stream a sound from file
+	 * @param p_SoundId resource name connected to the sound to load.
+	 * @param p_Filename filename of the sound file.
+	 * @param true if the load is successful otherwise false
+	 */
+	virtual bool loadStream(const char *p_SoundId, const char *p_Filename) = 0;
+	/**
 	 * Play a sound.
 	 * @param p_SoundId which sound to play
 	 */

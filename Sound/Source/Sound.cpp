@@ -133,6 +133,11 @@ bool Sound::loadSound(const char *p_SoundId, const char *p_Filename)
 	return true;
 }
 
+bool Sound::loadStream(const char *p_SoundId, const char *p_Filename)
+{
+	return true;
+}
+
 void Sound::playSound(const char *p_SoundId)
 {
 	SoundInstance *s = getSound(std::string(p_SoundId));
