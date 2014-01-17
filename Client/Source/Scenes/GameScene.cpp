@@ -42,7 +42,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
 
 	m_CurrentDebugView = 3;
-	m_RenderDebugBV = true;
+	m_RenderDebugBV = false;
 	loadSandboxModels();
 
 	return true;

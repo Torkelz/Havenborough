@@ -34,7 +34,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_ChangeScene = GoToScene::NONE;
 
 	m_Connected = false;
-	m_Network->connectToServer("194.47.150.5", 31415, &connectedCallback, this);
+	m_Network->connectToServer("localhost", 31415, &connectedCallback, this); //Note: IP to server if running: 194.47.150.5
 
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
