@@ -64,7 +64,6 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('S', "moveBackward");
 	translator->addKeyboardMapping('A', "moveLeft");
 	translator->addKeyboardMapping('D', "moveRight");
-	translator->addKeyboardMapping('C', "connect");
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
 	translator->addKeyboardMapping('I', "toggleIK");
@@ -93,7 +92,6 @@ void BaseGameApp::init()
 	m_Network = INetwork::createNetwork();
 	m_Network->setLogFunction(&Logger::logRaw);
 	m_Network->initialize();
-	m_Connected = false;	
 
 	m_EventManager.reset(new EventManager());
 	m_GameLogic.reset(new GameLogic());
@@ -128,7 +126,6 @@ void BaseGameApp::run()
 		m_Window.pollMessages();
 
 		handleInput();
-		handleNetwork();
 
 		updateLogic();
 
@@ -137,8 +134,6 @@ void BaseGameApp::run()
 		m_MemoryInfo.update();
 		updateDebugInfo();
 	}
-
-	m_ServerActors.clear();
 }
 
 void BaseGameApp::shutdown()
@@ -236,19 +231,6 @@ bool BaseGameApp::handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_
 	
 }
 
-void BaseGameApp::connectedCallback(Result p_Res, void* p_UserData)
-{
-	if (p_Res == Result::SUCCESS)
-	{
-		((BaseGameApp*)p_UserData)->m_Connected = true;
-		Logger::log(Logger::Level::INFO, "Connected successfully");
-	}
-	else
-	{
-		Logger::log(Logger::Level::WARNING, "Connection failed");
-	}
-}
-
 void BaseGameApp::updateDebugInfo()
 {
 	m_TimeToNextMemUpdate -= m_DeltaTime;
@@ -308,17 +290,6 @@ void BaseGameApp::handleInput()
 		{
 			m_ShouldQuit = true;
 		}
-		else if (in.m_Action == "connect" && in.m_Value == 1.0f)
-		{
-			if (m_Connected)
-			{
-				m_Network->disconnectFromServer();
-				m_ServerActors.clear();
-			}
-
-			m_Connected = false;
-			m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
-		}
 		else if (in.m_Action == "releaseObject" && in.m_Value == 1.f)
 		{
 			IScene::ptr scene = m_SceneManager.getScene()[0];
@@ -331,167 +302,9 @@ void BaseGameApp::handleInput()
 	}
 }
 
-void BaseGameApp::handleNetwork()
-{
-	if (m_Connected)
-	{
-		IConnectionController* conn = m_Network->getConnectionToServer();
-		unsigned int numPackages = conn->getNumPackages();
-		for (unsigned int i = 0; i < numPackages; i++)
-		{
-			Package package = conn->getPackage(i);
-			PackageType type = conn->getPackageType(package);
-
-			std::string msg("Received package of type: " + std::to_string((uint16_t)type));
-			Logger::log(Logger::Level::TRACE, msg);
-
-			switch (type)
-			{
-			case PackageType::CREATE_OBJECTS:
-				{
-					unsigned int numInstances = conn->getNumCreateObjectInstances(package);
-					const ObjectInstance* instances = conn->getCreateObjectInstances(package);
-					for (unsigned int i = 0; i < numInstances; ++i)
-					{
-						using tinyxml2::XMLAttribute;
-						using tinyxml2::XMLDocument;
-						using tinyxml2::XMLElement;
-
-						const ObjectInstance& data = instances[i];
-						std::ostringstream msg;
-						msg << "Adding object at (" 
-							<< data.m_Position[0] << ", "
-							<< data.m_Position[1] << ", " 
-							<< data.m_Position[2] << ")";
-						Logger::log(Logger::Level::INFO, msg.str());
-
-						XMLDocument description;
-						description.Parse(conn->getCreateObjectDescription(package, data.m_DescriptionIdx));
-
-						const XMLElement* obj = description.FirstChildElement("Object");
-
-						Actor::ptr actor = m_ActorFactory.createActor(obj, data.m_Id);
-						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
-						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
-						m_ServerActors.push_back(actor);
-					}
-				}
-				break;
-
-			case PackageType::UPDATE_OBJECTS:
-				{
-					const unsigned int numUpdates = conn->getNumUpdateObjectData(package);
-					const UpdateObjectData* const updates = conn->getUpdateObjectData(package);
-					for (unsigned int i = 0; i < numUpdates; ++i)
-					{
-						const UpdateObjectData& data = updates[i];
-						const uint16_t actorId = data.m_Id;
-
-						Actor::ptr actor;
-						for (auto& act : m_ServerActors)
-						{
-							if (act->getId() == actorId)
-							{
-								actor = act;
-								break;
-							}
-						}
-
-						if (!actor)
-						{
-							Logger::log(Logger::Level::ERROR_L, "Could not find actor (" + std::to_string(actorId) + ")");
-							continue;
-						}
-
-						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
-						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
-						
-						std::weak_ptr<MovementInterface> wMove = actor->getComponent<MovementInterface>(3);
-						std::shared_ptr<MovementInterface> shMove = wMove.lock();
-						if (shMove)
-						{
-							shMove->setVelocity(Vector3(data.m_Velocity[0], data.m_Velocity[1], data.m_Velocity[2]));
-							shMove->setRotationalVelocity(Vector3(data.m_RotationVelocity[0], data.m_RotationVelocity[1], data.m_RotationVelocity[2]));
-						}
-					}
-
-					// TODO: Handle extra data
-				}
-				break;
-
-			case PackageType::REMOVE_OBJECTS:
-				{
-					const unsigned int numObjects = conn->getNumRemoveObjectRefs(package);
-					const uint16_t* removeObjects = conn->getRemoveObjectRefs(package);
-					for (unsigned int i = 0; i < numObjects; ++i)
-					{
-						removeActor(removeObjects[i]);
-					}
-				}
-				break;
-
-			case PackageType::OBJECT_ACTION:
-				{
-					const Actor::Id actorId = conn->getObjectActionId(package);
-					const char* xmlAction = conn->getObjectActionAction(package);
-					tinyxml2::XMLDocument actionDoc;
-					actionDoc.Parse(xmlAction);
-					const tinyxml2::XMLElement* root = actionDoc.FirstChildElement("Action");
-					const tinyxml2::XMLElement* action = root->FirstChildElement();
-
-					if (std::string(action->Value()) == "Pulse")
-					{
-						for (auto& actor : m_ServerActors)
-						{
-							if (actor->getId())
-							{
-								std::shared_ptr<PulseInterface> pulseComp(actor->getComponent<PulseInterface>(4));
-								if (pulseComp)
-								{
-									pulseComp->pulseOnce();
-								}
-								break;
-							}
-						}
-					}
-				}
-				break;
-
-			case PackageType::ASSIGN_PLAYER:
-				{
-					const Actor::Id actorId = conn->getAssignPlayerObject(package);
-					Actor::ptr actor = getActor(actorId);
-					if (actor)
-					{
-						IScene::ptr scene = m_SceneManager.getScene()[0];
-						GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
-						if (gameScene)
-						{
-							m_GameLogic->setPlayerActor(actor);
-						}
-					}
-				}
-				break;
-
-			default:
-				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
-				Logger::log(Logger::Level::WARNING, msg);
-				break;
-			}
-		}
-
-		conn->clearPackages(numPackages);
-	}
-}
-
 void BaseGameApp::updateLogic()
 {
 	updateTimer();
-
-	for (auto& actor : m_ServerActors)
-	{
-		actor->onUpdate(m_DeltaTime);
-	}
 
 	m_SceneManager.onFrame(m_DeltaTime);
 	m_GameLogic->onFrame(m_DeltaTime);
@@ -501,44 +314,6 @@ void BaseGameApp::updateLogic()
 
 void BaseGameApp::render()
 {
-	for (auto& actor : m_ServerActors)
-	{
-		auto weakGraphicsComponent = actor->getComponent<ModelInterface>(2);
-		std::shared_ptr<ModelInterface> strongGraphicsComponent(weakGraphicsComponent);
-
-		if (strongGraphicsComponent)
-		{
-			//strongGraphicsComponent->render(m_Graphics);
-		}
-	}
-
 	m_SceneManager.render();
 	m_Graphics->drawFrame();
 }
-
-Actor::ptr BaseGameApp::getActor(Actor::Id p_Actor)
-{
-	for (auto actor : m_ServerActors)
-	{
-		if (actor->getId() == p_Actor)
-		{
-			return actor;
-		}
-	}
-
-	return Actor::ptr();
-}
-
-void BaseGameApp::removeActor(Actor::Id p_Actor)
-{
-	for (size_t i = 0; i < m_ServerActors.size(); ++i)
-	{
-		if (m_ServerActors[i]->getId() == p_Actor)
-		{
-			std::swap(m_ServerActors[i], m_ServerActors.back());
-			m_ServerActors.pop_back();
-			return;
-		}
-	}
-}
-

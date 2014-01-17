@@ -319,11 +319,14 @@ public:
 			if (scale.first == p_CompName)
 			{
 				scale.second = p_Scale;
+				calculateScale();
 				return;
 			}
 		}
 
 		m_AppliedScales.push_back(std::make_pair(p_CompName, p_Scale));
+
+		calculateScale();
 	}
 	virtual void removeScale(const std::string& p_CompName) override
 	{
@@ -336,23 +339,6 @@ public:
 				return;
 			}
 		}
-	}
-	virtual void onUpdate(float p_DeltaTime) override
-	{
-		//if (m_Graphics)
-		//{
-		//	m_Graphics->setModelPosition(m_Model, m_Owner->getPosition());
-		//	m_Graphics->setModelRotation(m_Model, m_Owner->getRotation());
-
-		//	Vector3 composedScale = m_BaseScale;
-		//	for (const auto& scale : m_AppliedScales)
-		//	{
-		//		composedScale.x *= scale.second.x;
-		//		composedScale.y *= scale.second.y;
-		//		composedScale.z *= scale.second.z;
-		//	}
-		//	m_Graphics->setModelScale(m_Model, composedScale);
-		//}
 	}
 
 	Id getId() const
@@ -375,7 +361,7 @@ private:
 			composedScale.y *= scale.second.y;
 			composedScale.z *= scale.second.z;
 		}
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelRotationEventData(getId(), composedScale)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelScaleEventData(getId(), composedScale)));
 	}
 
 };

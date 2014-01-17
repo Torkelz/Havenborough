@@ -33,23 +33,26 @@ int main(int /*argc*/, char* /*argv*/[])
 
 		Logger::log(Logger::Level::INFO, "Closed the game");
 	}
-	/*catch (std::exception& err)
+	catch (std::exception& err)
 	{
 		Logger::log(Logger::Level::FATAL, err.what());
 		logFile.close();
+#ifdef _DEBUG
+		throw;
+#else
 		return EXIT_FAILURE;
+#endif
 	}
 	catch (...)
 	{
 		Logger::log(Logger::Level::FATAL, "Unknown exception caught, aborting program");
 		logFile.close();
-		return EXIT_FAILURE;
-	}*/
-	catch(...)
-	{
+#ifdef _DEBUG
 		throw;
+#else
+		return EXIT_FAILURE;
+#endif
 	}
-	
 
 	logFile.close();
 	return EXIT_SUCCESS;

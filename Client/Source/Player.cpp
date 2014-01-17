@@ -162,6 +162,16 @@ Vector3 Player::getVelocity() const
 	return Vector3(vel4.x, vel4.y, vel4.z);
 }
 
+std::weak_ptr<Actor> Player::getActor() const
+{
+	return m_Actor;
+}
+
+void Player::setActor(std::weak_ptr<Actor> p_Actor)
+{
+	m_Actor = p_Actor;
+}
+
 void Player::jump(float dt)
 {
 	if(m_IsJumping)

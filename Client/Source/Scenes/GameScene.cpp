@@ -283,7 +283,7 @@ void GameScene::updateModelScale(IEventData::Ptr p_Data)
 	{
 		if(model.meshId == scaleData->getId())
 		{
-			m_Graphics->setModelRotation(model.modelId, scaleData->getScale());
+			m_Graphics->setModelScale(model.modelId, scaleData->getScale());
 		}
 	}
 }
