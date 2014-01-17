@@ -436,7 +436,7 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 
 void Graphics::renderSkyDome()
 {
-
+	m_DeferredRender->renderSkyDome();
 }
 
 void Graphics::renderText(void)
@@ -612,7 +612,7 @@ int Graphics::createModelInstance(const char *p_ModelId)
 
 void Graphics::createSkyDome(const char* p_Identifier, float p_Radius)
 {
-
+	m_DeferredRender->createSkyDome(getTextureFromList(std::string(p_Identifier)),p_Radius);
 }
 
 void Graphics::eraseModelInstance(int p_Instance)

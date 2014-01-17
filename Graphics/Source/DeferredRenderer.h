@@ -121,6 +121,7 @@ private:
 	ID3D11DepthStencilState		*m_SkyDomeDepthStencilState;
 	ID3D11RasterizerState		*m_SkyDomeRasterizerState;
 	bool						m_RenderSkyDome;
+	ID3D11SamplerState			*m_SkyDomeSampler;
 
 
 public:
@@ -184,7 +185,7 @@ private:
 	void clearRenderTargets( unsigned int nrRT );
 
 	void renderLighting();
-	void renderSkyDome();
+	void renderSkyDomeImpl();
 
 	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, vector<Light> *p_Lights);
 

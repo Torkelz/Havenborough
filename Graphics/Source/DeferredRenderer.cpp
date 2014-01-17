@@ -43,6 +43,12 @@ DeferredRenderer::DeferredRenderer()
 	m_DepthState = nullptr;
 	m_BlendState = nullptr;
 	m_BlendState2 = nullptr;
+
+	m_SkyDomeBuffer = nullptr;
+	m_SkyDomeShader = nullptr;
+	m_SkyDomeSRV = nullptr;
+	m_SkyDomeDepthStencilState = nullptr;
+	m_SkyDomeRasterizerState = nullptr;
 }
 
 DeferredRenderer::~DeferredRenderer(void)
@@ -89,9 +95,12 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
 
+	SAFE_DELETE(m_SkyDomeBuffer);
+	SAFE_DELETE(m_SkyDomeShader);
+	SAFE_RELEASE(m_SkyDomeSRV);
 	SAFE_RELEASE(m_SkyDomeDepthStencilState);
 	SAFE_RELEASE(m_SkyDomeRasterizerState);
-	SAFE_DELETE(m_SkyDomeBuffer);
+	
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
@@ -264,6 +273,8 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget],0);
 	renderLight(m_DirectionalShader, m_DirectionalModelBuffer, m_DirectionalLights);
 
+	renderSkyDomeImpl();
+
 	m_ConstantBuffer->unsetBuffer(0);
 	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
@@ -274,11 +285,32 @@ void DeferredRenderer::renderLighting()
 	SAFE_RELEASE(previousDepthState);
 }
 
-void DeferredRenderer::renderSkyDome()
+void DeferredRenderer::renderSkyDomeImpl()
 {
 	if(m_RenderSkyDome)
 	{
+		float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+		UINT sampleMask = 0xffffffff;
+		////Select the third render target[3]
+		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargets[3], m_DepthStencilView); 
+		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
+		m_DeviceContext->RSSetState(m_SkyDomeRasterizerState);
+		m_DeviceContext->OMSetDepthStencilState(m_SkyDomeDepthStencilState,0);
+		m_DeviceContext->PSSetSamplers(0,1,&m_SkyDomeSampler);
+		m_DeviceContext->PSSetShaderResources(0,1,&m_SkyDomeSRV);
+		//Set constant data
+		m_ConstantBuffer->setBuffer(0);
 
+		m_SkyDomeShader->setShader();
+		m_SkyDomeBuffer->setBuffer(0);
+
+		m_DeviceContext->Draw(m_SkyDomeBuffer->getNumOfElements(),0);
+
+		m_SkyDomeBuffer->unsetBuffer(0);
+		m_SkyDomeShader->unSetShader();
+		m_ConstantBuffer->unsetBuffer(0);
+		m_DeviceContext->PSSetSamplers(0,0,0);
 	}
 }
 
@@ -288,13 +320,32 @@ void DeferredRenderer::addRenderable(Renderable p_renderable)
 }
 void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float p_Radius)
 {
-	m_SkyDomeSRV = p_Texture;
+	ID3D11Resource *resource;
+	ID3D11Texture2D *texture;
+	D3D11_TEXTURE2D_DESC textureDesc;
+
+	p_Texture->GetResource(&resource);
+	resource->QueryInterface(&texture);
+	texture->GetDesc(&textureDesc);
+
+	
+	
+    D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+    viewDesc.Format = textureDesc.Format;
+    viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+    viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
+    viewDesc.TextureCube.MostDetailedMip = 0;
+
+	HRESULT hr = m_Device->CreateShaderResourceView(texture, &viewDesc, &m_SkyDomeSRV);
+	SAFE_RELEASE(texture);
+	SAFE_RELEASE(resource);
+
 	SkyDome d;
 	d.init(p_Radius);
-
+	std::vector<DirectX::XMFLOAT3> tt = d.getVertices();
 	Buffer::Description cbdesc;
-	cbdesc.initData = &d.getVertices();
-	cbdesc.numOfElements = d.getVertices().size();
+	cbdesc.initData = tt.data();
+	cbdesc.numOfElements = tt.size();
 	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
 	cbdesc.type = Buffer::Type::VERTEX_BUFFER;
 	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
@@ -304,13 +355,15 @@ void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float 
 	dsdesc.DepthEnable = true;
 	dsdesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsdesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	m_Device->CreateDepthStencilState(&dsdesc, &m_DepthState);
+	m_Device->CreateDepthStencilState(&dsdesc, &m_SkyDomeDepthStencilState);
 
 	D3D11_RASTERIZER_DESC rdesc;
 	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
 	rdesc.FillMode = D3D11_FILL_SOLID;
 	rdesc.CullMode = D3D11_CULL_NONE;
 	m_Device->CreateRasterizerState(&rdesc,&m_SkyDomeRasterizerState);
+
+	m_SkyDomeShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SkyDome.hlsl","VS,PS","5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 }
 void DeferredRenderer::renderSkyDome()
@@ -503,6 +556,10 @@ void DeferredRenderer::createSamplerState()
 	sd.MaxLOD			= D3D11_FLOAT32_MAX;
 
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
+	// Create texture sampler.
+	sd.Filter			= D3D11_FILTER_ANISOTROPIC;
+
+	m_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
 }
 
 void DeferredRenderer::createBlendStates()

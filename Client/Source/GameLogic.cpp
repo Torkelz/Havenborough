@@ -34,6 +34,9 @@ void GameLogic::initialize(IGraphics *p_Graphics, ResourceManager *p_ResourceMan
 	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
 
 	m_Ground = m_Physics->createAABB(50.f, true, Vector3(0.f, 0.f, 0.f), Vector3(5000.f, 0.f, 5000.f), false);
+
+	m_ResourceManager->loadResource("texture","SKYBOXDDS");
+	m_Graphics->createSkyDome("SKYBOXDDS",50000.f);
 	
 	m_ChangeScene = GoToScene::NONE;
 
@@ -133,7 +136,8 @@ void GameLogic::render()
 {
 	m_Level.drawLevel();
 	m_Graphics->renderModel(ground);
-	m_Graphics->renderModel(skyBox);
+	//m_Graphics->renderModel(skyBox);
+	m_Graphics->renderSkyDome();
 
 	//m_Graphics->drawFrame(currView);
 

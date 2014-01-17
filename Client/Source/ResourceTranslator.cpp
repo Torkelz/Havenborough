@@ -50,6 +50,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	static const std::pair<std::string, std::string> textureMap[] =
 	{
 		std::make_pair("TEXTURE_NOT_FOUND", "assets/textures/TextureNotFound.png"),
+		std::make_pair("SKYBOXDDS", "assets/SkyBox/DD.dds"),
 	};
 	static const size_t numTextures = sizeof(textureMap) / sizeof(textureMap[0]);
 

@@ -26,9 +26,13 @@ bool SkyDome::init(float p_Radius)
 
 		std::vector<DirectX::XMFLOAT3> temp;
 
-		for( auto &i : m_initIndices )
+		/*for( auto &i : m_initIndices )
 		{
 			temp.push_back(m_vertices.at(i));
+		}*/
+		for(unsigned int i = 0; i < m_initIndices.size();i++)
+		{
+			temp.push_back(m_vertices.at(m_initIndices.at(i)));
 		}
 		m_vertices = temp;
 		m_vertices.shrink_to_fit();
@@ -127,9 +131,9 @@ void SkyDome::Subdivide()
                 DirectX::XMFLOAT3 m0;
 				XMStoreFloat3(&m0,0.5f*(vv0 + vv1));
                 DirectX::XMFLOAT3 m1;
-				XMStoreFloat3(&m0,0.5f*(vv0 + vv1));
+				XMStoreFloat3(&m1,0.5f*(vv1 + vv2));
                 DirectX::XMFLOAT3 m2;
-				XMStoreFloat3(&m0,0.5f*(vv0 + vv1));
+				XMStoreFloat3(&m2,0.5f*(vv0 + vv2));
 
                 m_vertices.push_back(v0); // 0
                 m_vertices.push_back(v1); // 1
