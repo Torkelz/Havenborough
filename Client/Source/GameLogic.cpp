@@ -23,8 +23,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_Network = p_Network;
 	m_EventManager = p_EventManager;
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
-	m_Level.loadLevel("../Bin/assets/levels/Level3.btxl", "../Bin/assets/levels/CB_Level3.btxl", m_Objects);
-	m_Level.setStartPosition(XMFLOAT3(0.0f, 200.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
+	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(0.0f, 0.0f, 0.0f)); //TODO: Remove this line when level gets the position from file
 	//m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
 	m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
@@ -432,7 +432,7 @@ void GameLogic::loadSandbox()
 		rotBoxes[i] = m_Objects.back();
 	}
 
-	addBoxWithAABB(Vector3(0.f, -250.f, 0.f), Vector3(5000.f, 250.f, 5000.f));
+	//addBoxWithAABB(Vector3(0.f, -250.f, 0.f), Vector3(5000.f, 250.f, 5000.f));
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
 	testWitch = addBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f));
