@@ -115,9 +115,14 @@ void GameLogic::onFrame(float p_DeltaTime)
 		data.m_Rotation[1] = actualViewRot.y;
 		data.m_Rotation[2] = actualViewRot.z;
 		Vector3 playerVel = m_Player.getVelocity();
+
+		playerVel = m_Player.getPosition();
 		data.m_Velocity[0] = playerVel.x;
 		data.m_Velocity[1] = playerVel.y;
 		data.m_Velocity[2] = playerVel.z;
+		//data.m_Velocity[0] = playerVel.x;
+		//data.m_Velocity[1] = playerVel.y;
+		//data.m_Velocity[2] = playerVel.z;
 
 		conn->sendPlayerControl(data);
 	}
@@ -132,7 +137,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 void GameLogic::setPlayerActor(std::weak_ptr<Actor> p_Actor)
 {
-	m_PlayerActor = p_Actor;
+	m_Player.setActor(p_Actor);
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -149,12 +154,12 @@ Vector3 GameLogic::getPlayerEyePosition() const
 {
 	Vector3 tempPos;
 
-	Actor::ptr strongPlayerActor = m_PlayerActor.lock();
-	if (strongPlayerActor)
-	{
-		tempPos = strongPlayerActor->getPosition();
-	}
-	else
+	//Actor::ptr strongPlayerActor = m_Player.getActor().lock();
+	//if (strongPlayerActor)
+	//{
+	//	tempPos = strongPlayerActor->getPosition();
+	//}
+	//else
 	{
 		tempPos = m_Player.getEyePosition();
 	}
@@ -288,21 +293,17 @@ void GameLogic::handleNetwork()
 						const UpdateObjectData& data = updates[i];
 						const uint16_t actorId = data.m_Id;
 
-						Actor::ptr actor;
-						for (auto& act : m_Objects)
-						{
-							if (act->getId() == actorId)
-							{
-								actor = act;
-								break;
-							}
-						}
-
+						Actor::ptr actor = getActor(actorId);
 						if (!actor)
 						{
 							Logger::log(Logger::Level::ERROR_L, "Could not find actor (" + std::to_string(actorId) + ")");
 							continue;
 						}
+
+						//if (actor == m_Player.getActor().lock())
+						//{
+						//	continue;
+						//}
 
 						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
 						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
@@ -363,7 +364,7 @@ void GameLogic::handleNetwork()
 					Actor::ptr actor = getActor(actorId);
 					if (actor)
 					{
-						setPlayerActor(actor);
+						m_Player.setActor(actor);
 					}
 				}
 				break;
@@ -817,6 +818,39 @@ std::weak_ptr<Actor> GameLogic::addCollisionSphere(Vector3 p_Position, float p_R
 	printer.OpenElement("SpherePhysics");
 	printer.PushAttribute("Radius", p_Radius);
 	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+	m_Objects.push_back(actor);
+
+	return actor;
+}
+
+std::weak_ptr<Actor> GameLogic::addPlayerActor(Vector3 p_Position)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Movement");
+	pushVector(printer, "Velocity", Vector3(0.f, 0.f, 0.f));
+	pushVector(printer, "RotationalVelocity", Vector3(0.f, 0.f, 0.f));
+	printer.CloseElement();
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	static const Vector3 scale(50.f, 50.f, 50.f);
+	pushVector(printer, "Scale", scale);
+	printer.CloseElement();
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", true);
+	printer.PushAttribute("Radius", 50.f);
+	printer.CloseElement();
+	printer.OpenElement("Pulse");
+	printer.PushAttribute("Length", 0.5f);
+	printer.PushAttribute("Strength", 0.5f);
 	printer.CloseElement();
 	printer.CloseElement();
 

@@ -28,7 +28,6 @@ private:
 	Level m_Level;
 	Player m_Player;
 	
-	std::weak_ptr<Actor> m_PlayerActor;
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
 	std::vector<int> m_ResourceIDs;
@@ -117,6 +116,7 @@ private:
 	std::weak_ptr<Actor> addClimbBox();
 	std::weak_ptr<Actor> addClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
 	std::weak_ptr<Actor> addCollisionSphere(Vector3 p_Position, float p_Radius);
+	std::weak_ptr<Actor> addPlayerActor(Vector3 p_Position);
 
 	void addLights();
 };

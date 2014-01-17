@@ -1,4 +1,6 @@
 #pragma once
+
+#include "Actor.h"
 #include "IPhysics.h"
 #include "../Utilities/Util.h"
 
@@ -15,6 +17,7 @@ private:
 
 	BodyHandle m_PlayerBody;
 	IPhysics *m_Physics;
+	std::weak_ptr<Actor> m_Actor;
 	
 	float m_JumpTime;
 	bool m_IsJumping;
@@ -143,6 +146,9 @@ public:
 	 * @return the velocity of the player in cm in world space
 	 */
 	Vector3 getVelocity() const;
+
+	std::weak_ptr<Actor> getActor() const;
+	void setActor(std::weak_ptr<Actor> p_Actor);
 
 private:
 	void jump(float dt);

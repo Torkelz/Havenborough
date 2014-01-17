@@ -84,10 +84,11 @@ void updateBox(TestBox& p_Box, float p_DeltaTime)
 
 void updatePlayerBox(TestPlayerBox& p_Box, float p_DeltaTime)
 {
-	Vector4 pos4 = g_Physics->getBodyPosition(p_Box.body);
-	p_Box.position = Vector3(pos4.x, pos4.y, pos4.z);
-	if (p_Box.position.y < 0.f)
-		p_Box.position.y = 0.f;
+	//p_Box.position = p_Box.position + p_Box.velocity * p_DeltaTime;
+	//Vector4 pos4 = g_Physics->getBodyPosition(p_Box.body);
+	//p_Box.position = Vector3(pos4.x, pos4.y, pos4.z);
+	//if (p_Box.position.y < 0.f)
+	//	p_Box.position.y = 0.f;
 	p_Box.rotation = p_Box.rotation + p_Box.rotationVelocity * p_DeltaTime;
 	g_Physics->setBodyRotation(p_Box.body, p_Box.rotation);
 }
@@ -166,10 +167,10 @@ std::string getPlayerBoxDescription(const TestPlayerBox& p_Box)
 	static const Vector3 scale(playerSphereRadius, playerSphereRadius, playerSphereRadius);
 	pushVector(printer, "Scale", scale);
 	printer.CloseElement();
-	printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Immovable", true);
-	printer.PushAttribute("Radius", playerSphereRadius);
-	printer.CloseElement();
+	//printer.OpenElement("SpherePhysics");
+	//printer.PushAttribute("Immovable", true);
+	//printer.PushAttribute("Radius", playerSphereRadius);
+	//printer.CloseElement();
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
 	printer.PushAttribute("Strength", 0.5f);
@@ -266,9 +267,12 @@ void handlePackages()
 			case PackageType::PLAYER_CONTROL:
 				{
 					PlayerControlData playerControlData = con->getPlayerControlData(package);
-					player.m_PlayerBox.velocity.x = playerControlData.m_Velocity[0];
-					player.m_PlayerBox.velocity.y = playerControlData.m_Velocity[1];
-					player.m_PlayerBox.velocity.z = playerControlData.m_Velocity[2];
+					player.m_PlayerBox.position.x = playerControlData.m_Velocity[0];
+					player.m_PlayerBox.position.y = playerControlData.m_Velocity[1];
+					player.m_PlayerBox.position.z = playerControlData.m_Velocity[2];
+					//player.m_PlayerBox.velocity.x = playerControlData.m_Velocity[0];
+					//player.m_PlayerBox.velocity.y = playerControlData.m_Velocity[1];
+					//player.m_PlayerBox.velocity.z = playerControlData.m_Velocity[2];
 					player.m_PlayerBox.rotation.x = playerControlData.m_Rotation[0];
 					player.m_PlayerBox.rotation.y = playerControlData.m_Rotation[1];
 					player.m_PlayerBox.rotation.z = playerControlData.m_Rotation[2];
