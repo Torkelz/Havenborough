@@ -94,7 +94,7 @@ void Physics::update(float p_DeltaTime)
 
 				b.setPosition(tempPos);
 
-				if (hit.colNorm.y > 0.88f)
+				if (hit.colNorm.y > 0.68f)
 				{
 					onSomething = true;
 
@@ -428,7 +428,7 @@ void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 		return;
 
 	XMFLOAT4X4 temp;
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Rotation.x, p_Rotation.y, p_Rotation.z);
+	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Rotation.y, p_Rotation.x, p_Rotation.z);
 
 	XMStoreFloat4x4(&temp, rotation);
 
