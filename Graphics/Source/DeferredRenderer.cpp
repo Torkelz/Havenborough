@@ -88,6 +88,10 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_ObjectConstantBuffer);
 	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
+
+	SAFE_RELEASE(m_SkyDomeDepthStencilState);
+	SAFE_RELEASE(m_SkyDomeRasterizerState);
+	SAFE_DELETE(m_SkyDomeBuffer);
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
@@ -108,6 +112,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_SpotLights = p_SpotLights;
 	m_PointLights = p_PointLights;
 	m_DirectionalLights = p_DirectionalLights;
+	m_RenderSkyDome = false;
 
 	//Create render targets with the size of screen width and screen height
 	D3D11_TEXTURE2D_DESC desc;
@@ -150,6 +155,7 @@ void DeferredRenderer::renderDeferred()
 	renderLighting();
 
 	m_Objects.clear();
+	m_RenderSkyDome = false;
 }
 
 void DeferredRenderer::renderGeometry()
@@ -268,11 +274,49 @@ void DeferredRenderer::renderLighting()
 	SAFE_RELEASE(previousDepthState);
 }
 
+void DeferredRenderer::renderSkyDome()
+{
+	if(m_RenderSkyDome)
+	{
+
+	}
+}
+
 void DeferredRenderer::addRenderable(Renderable p_renderable)
 {
 	m_Objects.push_back(p_renderable);
 }
+void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float p_Radius)
+{
+	m_SkyDomeSRV = p_Texture;
+	SkyDome d;
+	d.init(p_Radius);
 
+	Buffer::Description cbdesc;
+	cbdesc.initData = &d.getVertices();
+	cbdesc.numOfElements = d.getVertices().size();
+	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
+	cbdesc.type = Buffer::Type::VERTEX_BUFFER;
+	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
+	m_SkyDomeBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	D3D11_DEPTH_STENCIL_DESC dsdesc;
+	ZeroMemory( &dsdesc, sizeof( D3D11_DEPTH_STENCIL_DESC ) );
+	dsdesc.DepthEnable = true;
+	dsdesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsdesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	m_Device->CreateDepthStencilState(&dsdesc, &m_DepthState);
+
+	D3D11_RASTERIZER_DESC rdesc;
+	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
+	rdesc.FillMode = D3D11_FILL_SOLID;
+	rdesc.CullMode = D3D11_CULL_NONE;
+	m_Device->CreateRasterizerState(&rdesc,&m_SkyDomeRasterizerState);
+
+}
+void DeferredRenderer::renderSkyDome()
+{
+	m_RenderSkyDome = true;
+}
 ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 {
 	switch(i)

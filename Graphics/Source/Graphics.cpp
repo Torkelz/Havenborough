@@ -434,6 +434,11 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 	}
 }
 
+void Graphics::renderSkyDome()
+{
+
+}
+
 void Graphics::renderText(void)
 {
 	

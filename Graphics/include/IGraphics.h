@@ -181,6 +181,11 @@ public:
 	 * @param p_ModelId the ID of the model to be rendered
 	 */
 	virtual void renderModel(int p_ModelId) = 0;
+	/**
+	 * Renders the created skyDome.
+	 *
+	 */
+	virtual void renderSkyDome() = 0;
 
 	/**
 	 * 

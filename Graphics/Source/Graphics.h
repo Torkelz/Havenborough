@@ -117,6 +117,7 @@ public:
 	void setClearColor(Vector4 p_Color) override;
 
 	void renderModel(int p_ModelId) override;
+	virtual void renderSkyDome() override;
 	void renderText(void) override;
 	void renderQuad(void) override;
 	void drawFrame(int i) override;
