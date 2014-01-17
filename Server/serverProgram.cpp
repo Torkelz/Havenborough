@@ -113,7 +113,7 @@ UpdateObjectData getUpdateData(const TestPlayerBox& p_Box)
 	{
 		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
 		{ p_Box.velocity.x, p_Box.velocity.y, p_Box.velocity.z },
-		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
+		{ p_Box.rotation.x + 3.1415f, p_Box.rotation.y, p_Box.rotation.z },
 		{ p_Box.rotationVelocity.x, p_Box.rotationVelocity.y, p_Box.rotationVelocity.z },
 		p_Box.actorId
 	};
@@ -163,8 +163,8 @@ std::string getPlayerBoxDescription(const TestPlayerBox& p_Box)
 	pushVector(printer, "RotationalVelocity", p_Box.rotationVelocity);
 	printer.CloseElement();
 	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "BOX");
-	static const Vector3 scale(playerSphereRadius, playerSphereRadius, playerSphereRadius);
+	printer.PushAttribute("Mesh", "WITCH");
+	static const Vector3 scale(1.f, 1.f, 1.f);
 	pushVector(printer, "Scale", scale);
 	printer.CloseElement();
 	//printer.OpenElement("SpherePhysics");
