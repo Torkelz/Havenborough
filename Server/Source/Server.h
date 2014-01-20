@@ -1,13 +1,16 @@
 #pragma once
 
-#include <INetwork.h>
+#include "Lobby.h"
+#include "User.h"
 #include "../../Client/Utilities/Util.h"
+
+#include <INetwork.h>
+
+#include <tinyxml2.h>
 
 #include <mutex>
 #include <thread>
 #include <vector>
-
-#include <tinyxml2.h>
 
 class Server
 {
@@ -39,12 +42,14 @@ private:
 	
 	struct TestPlayer
 	{
-		IConnectionController* m_Connection;
+		User::ptr m_Connection;
 
 		TestPlayerBox m_PlayerBox;
 	};
 
 	INetwork* m_Network;
+
+	std::unique_ptr<Lobby> m_Lobby;
 
 	static const float m_PlayerSphereRadius;
 
@@ -72,8 +77,8 @@ public:
 	void sendPulseObject();
 
 private:
-	static void clientConnected(IConnectionController* p_Connection, void* /*p_UserData*/);
-	static void clientDisconnected(IConnectionController* p_Connection, void* /*p_UserData*/);
+	static void clientConnected(IConnectionController* p_Connection, void* p_UserData);
+	static void clientDisconnected(IConnectionController* p_Connection, void* p_UserData);
 
 	void updateBox(TestBox& p_Box, float p_DeltaTime);
 	void updatePlayerBox(TestPlayerBox& p_Box, float p_DeltaTime);

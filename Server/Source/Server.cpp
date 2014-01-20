@@ -21,6 +21,8 @@ void Server::initialize()
 	m_Network->setClientConnectedCallback(&Server::clientConnected, this);
 	m_Network->setClientDisconnectedCallback(&Server::clientDisconnected, this);
 	m_Network->startServer(3);
+
+	m_Lobby.reset(new Lobby());
 }
 
 void Server::run()
@@ -34,6 +36,8 @@ void Server::shutdown()
 	std::lock_guard<std::mutex> lock(m_UserLock);
 
 	m_Running = false;
+	m_Lobby.reset();
+
 	m_UpdateThread.join();
 	
 	m_Network->setClientConnectedCallback(nullptr, nullptr);
@@ -49,7 +53,7 @@ std::vector<std::string> Server::getUserNames()
 
 	for (unsigned int i = 0; i < m_Players.size(); i++)
 	{
-		names.push_back(std::to_string((intptr_t)m_Players[i].m_Connection));
+		names.push_back(std::to_string((intptr_t)m_Players[i].m_Connection->getConnection()));
 	}
 
 	return names;
@@ -71,6 +75,8 @@ void Server::clientConnected(IConnectionController* p_Connection, void* p_UserDa
 
 	Server* obj = static_cast<Server*>(p_UserData);
 
+	User::ptr user(new User(p_Connection));
+
 	std::vector<std::string> descriptions;
 	std::vector<const char*> cDescriptions;
 	std::vector<ObjectInstance> instances;
@@ -89,8 +95,7 @@ void Server::clientConnected(IConnectionController* p_Connection, void* p_UserDa
 		instances.push_back(obj->getBoxInstance(player.m_PlayerBox, descriptions.size() - 1));
 	}
 
-	p_Connection->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
-
+	user->getConnection()->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
 
 	descriptions.clear();
 	cDescriptions.clear();
@@ -118,7 +123,7 @@ void Server::clientConnected(IConnectionController* p_Connection, void* p_UserDa
 
 	TestPlayer newPlayer =
 	{
-		p_Connection,
+		user,
 		{
 			++obj->m_LastActorId,
 			position,
@@ -137,12 +142,12 @@ void Server::clientConnected(IConnectionController* p_Connection, void* p_UserDa
 
 	for(auto& player : obj->m_Players)
 	{
-		player.m_Connection->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
+		player.m_Connection->getConnection()->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
 	}
 
 	obj->m_Boxes.push_back(newBox);
 
-	p_Connection->sendAssignPlayer(newPlayer.m_PlayerBox.actorId);
+	user->getConnection()->sendAssignPlayer(newPlayer.m_PlayerBox.actorId);
 }
 
 void Server::clientDisconnected(IConnectionController* p_Connection, void* p_UserData)
@@ -158,7 +163,7 @@ void Server::clientDisconnected(IConnectionController* p_Connection, void* p_Use
 
 	for(unsigned int i = 0; i < obj->m_Players.size(); i++)
 	{
-		if(obj->m_Players[i].m_Connection == p_Connection)
+		if(obj->m_Players[i].m_Connection->getConnection() == p_Connection)
 		{
 			removedPlayer = obj->m_Players[i];
 			playerRemoved = true;
@@ -172,7 +177,7 @@ void Server::clientDisconnected(IConnectionController* p_Connection, void* p_Use
 	{
 		for (auto& player : obj->m_Players)
 		{
-			player.m_Connection->sendRemoveObjects(&removedPlayer.m_PlayerBox.actorId, 1);
+			player.m_Connection->getConnection()->sendRemoveObjects(&removedPlayer.m_PlayerBox.actorId, 1);
 		}
 	}
 }
@@ -324,7 +329,7 @@ void Server::removeLastBox()
 	std::lock_guard<std::mutex> lock(m_UserLock);
 	for(auto& player : m_Players)
 	{
-		player.m_Connection->sendRemoveObjects(objectsToRemove, 1);
+		player.m_Connection->getConnection()->sendRemoveObjects(objectsToRemove, 1);
 	}
 }
 
@@ -346,7 +351,7 @@ void Server::pulse()
 	std::lock_guard<std::mutex> lock(m_UserLock);
 	for(auto& player : m_Players)
 	{
-		player.m_Connection->sendObjectAction(object, printer.CStr());
+		player.m_Connection->getConnection()->sendObjectAction(object, printer.CStr());
 	}
 }
 
@@ -355,7 +360,7 @@ void Server::handlePackages()
 	std::lock_guard<std::mutex> lock(m_UserLock);
 	for(auto& player : m_Players)
 	{
-		IConnectionController* con = player.m_Connection;
+		IConnectionController* con = player.m_Connection->getConnection();
 
 		unsigned int numPackages = con->getNumPackages();
 		for (unsigned int i = 0; i < numPackages; ++i)
@@ -431,7 +436,7 @@ void Server::updateClients()
 			std::lock_guard<std::mutex> lock(m_UserLock);
 			for (auto& player : m_Players)
 			{
-				player.m_Connection->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
+				player.m_Connection->getConnection()->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
 			}
 		}
 		
