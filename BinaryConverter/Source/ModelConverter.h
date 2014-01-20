@@ -16,7 +16,7 @@ public:
 		DirectX::XMFLOAT2 m_UV;
 		DirectX::XMFLOAT3 m_Tangent;
 		DirectX::XMFLOAT3 m_Binormal;
-		DirectX::XMFLOAT3 m_Weight;
+		DirectX::XMFLOAT4 m_Weight;
 		DirectX::XMINT4 m_Joint;
 	};
 	
@@ -52,7 +52,7 @@ private:
 	const std::vector<DirectX::XMFLOAT2>* m_TextureCoord;
 	const std::vector<ModelLoader::Material>* m_Material;
 	const std::vector<std::vector<ModelLoader::IndexDesc>>* m_IndexPerMaterial;
-	const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>* m_WeightsList;
+	const std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMINT4>>* m_WeightsList;
 	const std::vector<ModelLoader::Joint>* m_ListOfJoints;
 
 	int m_VertexCount;
@@ -79,6 +79,7 @@ public:
 	 * you have to change the direction of the vertex loop and the animated vertex loop, and remove the *=-1 on X-axis.
 	 *
 	 * @param p_FilePath is the complete filepath to the source file.
+	 * @return false if something is wrong when writing the file.
 	 */
 	bool writeFile(std::string p_FilePath);
 	
@@ -129,7 +130,7 @@ public:
 	 *
 	 * @param p_WeightsList is a vector pointer that contains a pair of DirectX::XMFLOAT3 and DirectX::XMFLOAT4.
 	 */
-	void setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>* p_WeightsList);
+	void setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMINT4>>* p_WeightsList);
 
 	/**
 	 * This whants a pointer to the source information about each joint. 

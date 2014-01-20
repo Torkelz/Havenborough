@@ -55,7 +55,7 @@ private:
 	std::vector<DirectX::XMFLOAT2> m_TextureCoord;
 	std::vector<Material> m_Material;
 	std::vector<std::vector<IndexDesc>> m_IndexPerMaterial;
-	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>> m_WeightsList;
+	std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMINT4>> m_WeightsList;
 	std::vector<Joint> m_ListOfJoints;
 	
 	std::stringstream m_Stringstream;
@@ -81,6 +81,7 @@ public:
 	 * Creates vectors with information from the requested file.
 	 *
 	 * @param p_FilePath, the absolute path to the requested file.
+	 * @return false if something is wrong when loading file.
 	 */
 	bool loadFile(std::string p_FilePath);
 
@@ -131,7 +132,7 @@ public:
 	 *
 	 * @returns a paired vector of weights and joints.
 	 */
-	const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>& getWeightsList();
+	const std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMINT4>>& getWeightsList();
 	
 	/**
 	 * Returns a list of joint structs that includes information about animation and parents.

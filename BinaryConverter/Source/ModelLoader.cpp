@@ -288,7 +288,7 @@ void ModelLoader::readFaces(std::istream& p_Input)
 
 void ModelLoader::readWeights(std::istream& p_Input)
 {
-	DirectX::XMFLOAT3 tempWeight;
+	DirectX::XMFLOAT4 tempWeight;
 	DirectX::XMINT4 tempJoint;
 	std::string line, key, filler;
 
@@ -297,13 +297,14 @@ void ModelLoader::readWeights(std::istream& p_Input)
 		m_Stringstream = std::stringstream(line);
 		if(line == "")
 			break;
-		float weightW;
-		m_Stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z >> weightW;
+		//float weightW;
+		m_Stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z >> tempWeight.w;
 
-		float weightSum = tempWeight.x + tempWeight.y + tempWeight.z + weightW;
+		float weightSum = tempWeight.x + tempWeight.y + tempWeight.z + tempWeight.w;
 		tempWeight.x /= weightSum;
 		tempWeight.y /= weightSum;
 		tempWeight.z /= weightSum;
+		tempWeight.w /= weightSum;
 
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
@@ -409,7 +410,7 @@ const std::vector<DirectX::XMFLOAT2>& ModelLoader::getTextureCoords()
 	return m_TextureCoord;
 }
 
-const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>& ModelLoader::getWeightsList()
+const std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMINT4>>& ModelLoader::getWeightsList()
 {
 	return m_WeightsList;
 }

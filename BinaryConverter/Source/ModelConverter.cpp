@@ -232,7 +232,7 @@ void ModelConverter::setTextureCoords(const std::vector<DirectX::XMFLOAT2>* p_Te
 	m_TextureCoord = p_TextureCoord;
 }
 
-void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>* p_WeightsList)
+void ModelConverter::setWeightsList(const std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMINT4>>* p_WeightsList)
 {
 	m_WeightsList = p_WeightsList;
 	m_WeightsListSize = m_WeightsList->size();
