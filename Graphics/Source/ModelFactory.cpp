@@ -131,7 +131,7 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 	using std::pair;
 
 	boost::filesystem::path modelPath(p_Filename);
-	boost::filesystem::path parentDir(modelPath.parent_path());
+	boost::filesystem::path parentDir(modelPath.parent_path().parent_path() / "textures");
 
 	vector<pair<string, ID3D11ShaderResourceView*>> diffuse;
 	vector<pair<string, ID3D11ShaderResourceView*>> normal;
