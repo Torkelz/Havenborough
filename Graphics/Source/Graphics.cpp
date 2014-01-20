@@ -549,7 +549,7 @@ void Graphics::drawFrame()
 		m_Shader->unSetShader();
 	}
 
-	//forwardRendering();
+	forwardRendering();
 
 	//drawBoundingVolumes();
 

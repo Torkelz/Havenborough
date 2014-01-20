@@ -439,7 +439,7 @@ void GameLogic::loadSandbox()
 	playAnimation(testWitch.lock(), "Run");
 
 	addClimbBox();
-	//skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
+	skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
 
 	circleWitch = addBasicModel("WITCH", Vector3(0.f, 0.f, 0.f));
 	playAnimation(circleWitch.lock(), "Run");
