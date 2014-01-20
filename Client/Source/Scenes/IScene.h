@@ -1,11 +1,16 @@
 #pragma once
+
+#include "IGraphics.h"
+#include "IPhysics.h"
+#include <INetwork.h>
+#include "../ClientExceptions.h"
+#include "../GameLogic.h"
+#include "../Input/Input.h"
+#include "../ResourceManager.h"
+#include "../EventManager.h"
+
 #include <memory>
 #include <string>
-#include "IGraphics.h"
-#include "../ResourceManager.h"
-#include "IPhysics.h"
-#include "../Input/Input.h"
-#include "../ClientExceptions.h"
 
 enum class MenuScenes
 {
@@ -32,7 +37,7 @@ public:
 	* @param p_Physics p_InputQueue pointer to the keyboard and mouse input queue
 	*/
 	virtual bool init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-		IPhysics *p_Physics, Input *p_InputQueue) = 0;
+		Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager) = 0;
 
 	/**
 	* Destroy the scene.

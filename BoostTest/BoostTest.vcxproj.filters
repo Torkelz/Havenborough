@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Source\testProgram.cpp" />
@@ -224,9 +224,9 @@
     <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
-    </ClCompile>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Actor.cpp">
       <Filter>TestClient\ClientImport</Filter>

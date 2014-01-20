@@ -13,6 +13,7 @@
 #include "EventManager.h"
 
 #include "ResourceManager.h"
+#include "GameLogic.h"
 
 #include <string>
 
@@ -31,16 +32,14 @@ private:
 	INetwork* m_Network;
 
 	bool m_ShouldQuit;
-	bool m_Connected;
 
 	SceneManager m_SceneManager;
-	EventManager *m_EventManager;
+	std::unique_ptr<EventManager> m_EventManager;
 
 	IPhysics *m_Physics;
-	ResourceManager* m_ResourceManager;
+	std::unique_ptr<ResourceManager> m_ResourceManager;
 
 	ActorFactory m_ActorFactory;
-	std::vector<Actor::ptr> m_ServerActors;
 	DirectX::XMFLOAT2 m_NewWindowSize;
 
 	ISound *m_Sound;
@@ -49,6 +48,7 @@ private:
 	float m_SecsPerCnt;
 	float m_DeltaTime;
 	
+	std::unique_ptr<GameLogic> m_GameLogic;
 public:
 	/**
 	 * Initialize the game and create a window.
@@ -84,18 +84,12 @@ private:
 	bool handleWindowExitSizeMove(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
 	bool handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
-	
-	static void connectedCallback(Result p_Res, void* p_UserData);
 
 	void updateDebugInfo();
 
 	void resetTimer();
 	void updateTimer();
 	void handleInput();
-	void handleNetwork();
 	void updateLogic();
 	void render();
-
-	Actor::ptr getActor(Actor::Id p_Actor);
-	void removeActor(Actor::Id p_Actor);
 };

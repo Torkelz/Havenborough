@@ -80,6 +80,25 @@ void Network::connectToServer(const char* p_URL, unsigned short p_Port, actionDo
 	startIO();
 }
 
+void Network::disconnectFromServer()
+{
+	if (!m_ClientConnection)
+	{
+		return;
+	}
+
+	NetworkLogger::log(NetworkLogger::Level::INFO, "Disconnecting from server");
+
+	m_ClientConnection.reset();
+	m_ClientConnect.reset();
+	m_IO_Service.reset();
+
+	if (m_IO_Thread.joinable())
+	{
+		m_IO_Thread.join();
+	}
+}
+
 IConnectionController* Network::getConnectionToServer()
 {
 	return m_ClientConnection.get();
@@ -98,6 +117,7 @@ void Network::registerPackages()
 	m_PackagePrototypes.push_back(PackageBase::ptr(new RemoveObjects));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new ObjectAction));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new AssignPlayer));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new PlayerControl));
 }
 
 void Network::startIO()
@@ -137,7 +157,7 @@ void Network::IO_Run()
 
 void Network::clientConnectionDone(Result p_Result, actionDoneCallback p_DoneHandler, void* p_UserData)
 {
-	m_ClientConnection.reset(new ConnectionController(std::unique_ptr<Connection>(new Connection(m_ClientConnect->releaseConnectedSocket())), m_PackagePrototypes));
+	m_ClientConnection.reset(new ConnectionController(Connection::ptr(new Connection(m_ClientConnect->releaseConnectedSocket())), m_PackagePrototypes));
 	m_ClientConnection->setDisconnectedCallback(std::bind(&Network::clientDisconnected, this, p_DoneHandler, p_UserData));
 
 	if (p_DoneHandler)

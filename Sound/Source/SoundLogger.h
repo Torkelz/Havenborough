@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include <ISound.h>
-
 #include <cstdint>
 #include <string>
+#include <ISound.h>
 
 /**
  * Wrapper for a log function.

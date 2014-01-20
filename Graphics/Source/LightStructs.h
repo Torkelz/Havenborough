@@ -1,6 +1,8 @@
+#pragma once
+#include <DirectXMath.h>
+
 struct Light
 {
-	#include <DirectXMath.h>
 
 	DirectX::XMFLOAT3	lightPos;
     DirectX::XMFLOAT3	lightColor;

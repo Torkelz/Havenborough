@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(TestReceivePackage)
 {
 	boost::asio::io_service ioService;
 	ConnectionStub* rawConnectionStub = new ConnectionStub(ioService);
-	std::unique_ptr<Connection> conn(rawConnectionStub);
+	Connection::ptr conn(rawConnectionStub);
 
 	std::vector<PackageBase::ptr> prototypes;
 	prototypes.push_back(PackageBase::ptr(new CreateObjects));

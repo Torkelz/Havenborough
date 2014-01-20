@@ -322,3 +322,37 @@ public:
 		ar & m_Object;
 	}
 };
+
+BOOST_IS_BITWISE_SERIALIZABLE(PlayerControlData)
+
+/**
+ * A package representing the player controlling its object.
+ */
+class PlayerControl : public PackageHelper<PlayerControl>
+{
+public:
+	PlayerControlData m_Data;
+
+public:
+	/**
+	 * constructor.
+	 */
+	PlayerControl()
+		: PackageHelper<PlayerControl>(PackageType::PLAYER_CONTROL)
+	{}
+
+	/**
+	 * Serialize the package to or from an archive.
+	 *
+	 * @param <Archive> the archive type to serialize with.
+	 *			Can be either input or output archives.
+	 * @param ar the archive used.
+	 * @param version the desired or given archive version. Ignored.
+	 */
+	template <typename Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & m_Data.m_Velocity;
+		ar & m_Data.m_Rotation;
+	}
+};

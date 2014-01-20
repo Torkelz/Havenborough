@@ -1,4 +1,6 @@
 #pragma once
+
+#include "Actor.h"
 #include "IPhysics.h"
 #include "../Utilities/Util.h"
 
@@ -15,10 +17,12 @@ private:
 
 	BodyHandle m_PlayerBody;
 	IPhysics *m_Physics;
-	
-	float m_JumpTime;
+	std::weak_ptr<Actor> m_Actor;
+
 	bool m_IsJumping;
-	float m_JumpForceTime;
+	int m_JumpCount, m_JumpCountMax;
+	float m_JumpDelay, m_JumpDelayMax;
+    float m_JumpTime, m_JumpTimeMax;
 	float m_JumpForce;
 	float m_MaxSpeed; // Centimeters per secound
 	float m_AccConstant;
@@ -136,6 +140,16 @@ public:
 	* @param p_DeltaTime the dt between two consecutive frames
 	*/
 	void update(float p_DeltaTime);
+
+	/**
+	 * Get the current velocity of the player.
+	 *
+	 * @return the velocity of the player in cm in world space
+	 */
+	Vector3 getVelocity() const;
+
+	std::weak_ptr<Actor> getActor() const;
+	void setActor(std::weak_ptr<Actor> p_Actor);
 
 private:
 	void jump(float dt);

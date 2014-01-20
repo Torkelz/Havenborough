@@ -37,13 +37,21 @@ int main(int /*argc*/, char* /*argv*/[])
 	{
 		Logger::log(Logger::Level::FATAL, err.what());
 		logFile.close();
+#ifdef _DEBUG
+		throw;
+#else
 		return EXIT_FAILURE;
+#endif
 	}
 	catch (...)
 	{
 		Logger::log(Logger::Level::FATAL, "Unknown exception caught, aborting program");
 		logFile.close();
+#ifdef _DEBUG
+		throw;
+#else
 		return EXIT_FAILURE;
+#endif
 	}
 
 	logFile.close();

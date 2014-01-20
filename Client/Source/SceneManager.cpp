@@ -9,7 +9,6 @@ SceneManager::SceneManager()
 	m_IsMenuState = true;
 	m_Graphics = nullptr;
 	m_ResourceManager = nullptr;
-	m_Physics = nullptr;
 	m_InputQueue = nullptr;
 }
 
@@ -17,17 +16,18 @@ SceneManager::~SceneManager()
 {
 	m_Graphics = nullptr;
 	m_ResourceManager = nullptr;
-	m_Physics = nullptr;
 	m_InputQueue = nullptr;
 }
 
 void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
-	IPhysics *p_Physics, Input *p_InputQueue)
+	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
 	m_Graphics = p_Graphics;
 	m_ResourceManager = p_ResourceManager;
-	m_Physics = p_Physics;
 	m_InputQueue = p_InputQueue;
+	m_GameLogic = p_GameLogic;
+
+	m_RunGame = false;
 
 	m_MenuSceneList.resize(2);
 	m_RunSceneList.resize(3);
@@ -46,25 +46,27 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	unsigned int i;
 	for(i = 0; i < m_NumberOfMenuScene; i++)
 	{
-		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue))
+		if(!m_MenuSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_InputQueue, m_GameLogic, p_EventManager))
 		{
 			sceneFail = true;
 		}
 	}
 	for(i = 0; i < m_NumberOfRunScene; i++)
 	{
-		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_Physics, m_InputQueue))
+		if(!m_RunSceneList[i]->init(i, m_Graphics, m_ResourceManager, m_InputQueue, m_GameLogic, p_EventManager))
 		{
 			sceneFail = true;
 		}
 	}
 	m_MenuSceneList[0]->setIsVisible(true);
 
+	//((GameScene*)m_RunSceneList.at(0).get())->setGameLogic(m_GameLogic);
+
+
 	if(sceneFail)
 	{
 		throw SceneManagerException("Failed to init all scenes", __LINE__,__FILE__);
 	}
-
 	//// ################################ Remove this override later, used for skipping the menu!! #####################################################
 	//m_IsMenuState = false;
 }
@@ -183,7 +185,6 @@ void SceneManager::startRun()
 {
 	m_IsMenuState = false;
 	m_RunSceneList[0]->setIsVisible(true);
-	((GameScene*)m_RunSceneList.at(0).get())->initializeGameLogic();
 	for(unsigned int i = 1; i < m_NumberOfRunScene; i++)
 	{
 		m_RunSceneList[i]->setIsVisible(false);

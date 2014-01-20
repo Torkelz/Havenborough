@@ -11,6 +11,7 @@
 class IGraphics
 {
 public:
+	typedef int InstanceId;
 
 	virtual ~IGraphics(void)
 	{}
@@ -180,7 +181,7 @@ public:
 	 *
 	 * @param p_ModelId the ID of the model to be rendered
 	 */
-	virtual void renderModel(int p_ModelId) = 0;
+	virtual void renderModel(InstanceId p_ModelId) = 0;
 	/**
 	 * Renders the created skyDome.
 	 *
@@ -199,10 +200,8 @@ public:
 	
 	/**
 	 * Draw the current frame.
-	 *
-	 * @param i the render target to display.
 	 */
-	virtual void drawFrame(int i) = 0;
+	virtual void drawFrame() = 0;
 
 	/**
 	 * Update the animations of all models.
@@ -217,7 +216,7 @@ public:
 	 * @param p_Instance the model that should change animation data.
 	 * @param p_ClipName the new animation clip to be played next time update animation is invoked.
 	 */
-	virtual void playAnimation(int p_Instance, char* p_ClipName) = 0;
+	virtual void playAnimation(int p_Instance, const char* p_ClipName) = 0;
 
 	/**
 	 * Gets the amount of VRAM usage of the program.
@@ -231,7 +230,7 @@ public:
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.
 	 * @return a unique id used to reference the instance with in later calls.
 	 */
-	virtual int createModelInstance(const char *p_ModelId) = 0;
+	virtual InstanceId createModelInstance(const char *p_ModelId) = 0;
 
 	/**
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
@@ -244,7 +243,7 @@ public:
 	 *
 	 * @param p_Instance an identifier to a model instance.
 	 */
-	virtual void eraseModelInstance(int p_Instance) = 0;
+	virtual void eraseModelInstance(InstanceId p_Instance) = 0;
 
 	/**
 	 * Set the position of an model instance in absolute world coordinates.
@@ -254,7 +253,7 @@ public:
 	 * @param p_Y position in Y direction.
 	 * @param p_Z position in Z direction.
 	 */
-	virtual void setModelPosition(int p_Instance, Vector3 p_Position) = 0;
+	virtual void setModelPosition(InstanceId p_Instance, Vector3 p_Position) = 0;
 
 	/**
 	 * Set the rotation of an model instance in radians.
@@ -264,7 +263,7 @@ public:
 	 * @param p_Pitch rotation around the X axis, left-handed.
 	 * @param p_Roll rotation around the Z axis, left-handed.
 	 */
-	virtual void setModelRotation(int p_Instance, Vector3 p_YawPitchRoll) = 0;
+	virtual void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) = 0;
 
 	/**
 	 * Set the scale of an model instance.
@@ -274,7 +273,7 @@ public:
 	 * @param p_Y scale in Y direction.
 	 * @param p_Z scale in Z direction.
 	 */
-	virtual void setModelScale(int p_Instance, Vector3 p_Scale) = 0;
+	virtual void setModelScale(InstanceId p_Instance, Vector3 p_Scale) = 0;
 
 	/**
 	 * Updates the model to reach for a point in world space.
@@ -285,7 +284,7 @@ public:
 	 * @param p_BaseJoint the name of the base "shoulder" joint.
 	 * @param p_Target the target position in world space.
 	 */
-	virtual void applyIK_ReachPoint(int p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target) = 0;
+	virtual void applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target) = 0;
 
 	/**
 	 * Get the position of a single joint from a model instance.
@@ -294,7 +293,7 @@ public:
 	 * @param p_Joint the identifier of the joint to get the position of.
 	 * @return the position of the joint in world space.
 	 */
-	virtual Vector3 getJointPosition(int p_Instance, const char* p_Joint) = 0;
+	virtual Vector3 getJointPosition(InstanceId p_Instance, const char* p_Joint) = 0;
 
 	/**
 	 * Update the position and viewing direction of the camera.
@@ -364,6 +363,15 @@ public:
 	 *			be logged from this component. Set to null to disable logging.
 	 */
 	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
+
+	/**
+	 * Change the render target.
+	 *
+	 * Nag André about what the number means.
+	 *
+	 * @param p_RenderTarget the render target to display on the next drawFrame call
+	 */
+	virtual void setRenderTarget(int p_RenderTarget) = 0;
 
 private:
 

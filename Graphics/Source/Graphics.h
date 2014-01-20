@@ -46,6 +46,7 @@ private:
 	int								m_GraphicsMemory;
 	bool							m_VSyncEnabled;
 	float							m_ClearColor[4];
+	int								m_SelectedRenderTarget;
 
 	XMFLOAT4X4 m_ViewMatrix;
 	XMFLOAT4X4 m_ProjectionMatrix;
@@ -120,10 +121,10 @@ public:
 	virtual void renderSkyDome() override;
 	void renderText(void) override;
 	void renderQuad(void) override;
-	void drawFrame(int i) override;
+	void drawFrame() override;
 
 	void updateAnimations(float p_DeltaTime) override;
-	void playAnimation(int p_Instance, char* p_ClipName) override;
+	void playAnimation(int p_Instance, const char* p_ClipName) override;
 
 	int getVRAMMemUsage(void) override;
 	
@@ -141,6 +142,7 @@ public:
 	void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
+	void setRenderTarget(int p_RenderTarget) override;
 
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
 	void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void* p_Userdata) override;
