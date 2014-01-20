@@ -1,0 +1,46 @@
+*Header
+#Materials 1
+#MESH Street1
+#Vertices 4
+#Triangles 2
+
+*Materials
+Material: Sidewalk:lambert2SG1
+DiffuseMap: StreetTiles_COLOR.dds
+NormalMap: StreetTiles_NRM.dds
+SpecularMap: Default_SPEC.dds
+
+*Vertices
+v -6646.065918 0 4517.89502
+v 6646.065918 0 4517.89502
+v -6646.065918 0 -4517.89502
+v 6646.065918 0 -4517.89502
+
+*Normals
+n 0 1 0
+n 0 1 0
+n 0 1 0
+n 0 1 0
+
+*UV COORDS
+uv -21.604635 32.781582
+uv -21.604635 -31.781578
+uv 22.284422 -31.781578
+uv 22.284422 32.781582
+
+*Tangets
+t 0 0 -1
+t 0 0 -1
+t 0 0 -1
+t 0 0 -1
+t 0 0 -1
+t 0 0 -1
+
+*FACES
+-Sidewalk:lambert2SG1
+face: 3
+0 / 0 / 0 / 0 | 1 / 1 / 1 / 1 | 2 / 2 / 2 / 3 | 
+2 / 3 / 2 / 3 | 1 / 4 / 1 / 1 | 3 / 5 / 3 / 2 | 
+
+
+
