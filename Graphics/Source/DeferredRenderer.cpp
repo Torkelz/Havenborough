@@ -557,6 +557,9 @@ void DeferredRenderer::createSamplerState()
 
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
 	// Create texture sampler.
+	sd.AddressU			= D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressV			= D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressW			= D3D11_TEXTURE_ADDRESS_CLAMP;
 	sd.Filter			= D3D11_FILTER_ANISOTROPIC;
 
 	m_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );

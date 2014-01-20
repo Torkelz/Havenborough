@@ -31,10 +31,6 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 
 	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
 	
-	// Added from Skydome branch
-	// m_ResourceManager->loadResource("texture","SKYBOXDDS");
-	// m_Graphics->createSkyDome("SKYBOXDDS",50000.f);
-	
 	m_ChangeScene = GoToScene::NONE;
 
 	m_Connected = false;
@@ -100,11 +96,11 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!m_Player.getForceMove())		
 		m_Physics->update(p_DeltaTime);
 
-	Actor::ptr strongSkyBox = skyBox.lock();
-	if (strongSkyBox)
-	{
-		strongSkyBox->setPosition(getPlayerEyePosition());
-	}
+	//Actor::ptr strongSkyBox = skyBox.lock();
+	//if (strongSkyBox)
+	//{
+	//	strongSkyBox->setPosition(getPlayerEyePosition());
+	//}
 
 	Vector3 actualViewRot = getPlayerViewRotation();
 	lookDir.x = -sinf(actualViewRot.x) * cosf(actualViewRot.y);
@@ -135,7 +131,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 	{
 		actor->onUpdate(p_DeltaTime);
 	}
-	//m_Graphics->renderSkyDome();
 
 	updateSandbox(p_DeltaTime);
 }
@@ -444,7 +439,7 @@ void GameLogic::loadSandbox()
 	playAnimation(testWitch.lock(), "Run");
 
 	addClimbBox();
-	skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
+	//skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
 
 	circleWitch = addBasicModel("WITCH", Vector3(0.f, 0.f, 0.f));
 	playAnimation(circleWitch.lock(), "Run");
@@ -649,24 +644,24 @@ std::weak_ptr<Actor> GameLogic::addRotatingBox(Vector3 p_Position, Vector3 p_Sca
 	return actor;
 }
 
-std::weak_ptr<Actor> GameLogic::addSkybox(Vector3 p_Scale)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "SKYBOX");
-	pushVector(printer, "Scale", p_Scale);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	m_Objects.push_back(actor);
-
-	return actor;
-}
+//std::weak_ptr<Actor> GameLogic::addSkybox(Vector3 p_Scale)
+//{
+//	tinyxml2::XMLPrinter printer;
+//	printer.OpenElement("Object");
+//	printer.OpenElement("Model");
+//	printer.PushAttribute("Mesh", "SKYBOX");
+//	pushVector(printer, "Scale", p_Scale);
+//	printer.CloseElement();
+//	printer.CloseElement();
+//
+//	tinyxml2::XMLDocument doc;
+//	doc.Parse(printer.CStr());
+//
+//	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+//	m_Objects.push_back(actor);
+//
+//	return actor;
+//}
 
 std::weak_ptr<Actor> GameLogic::addBasicModel(const std::string& p_Model, Vector3 p_Position)
 {

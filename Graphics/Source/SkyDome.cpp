@@ -14,7 +14,7 @@ bool SkyDome::init(float p_Radius)
 {
         
 
-        BuildGeoSphere( 2, p_Radius);
+        BuildGeoSphere( 1, p_Radius);
 
         std::vector<DirectX::XMFLOAT3> initSkym_vertices(m_vertices.size());
         for(unsigned int i = 0; i < m_vertices.size(); i++)
