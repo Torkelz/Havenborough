@@ -551,7 +551,7 @@ void Graphics::drawFrame()
 
 	forwardRendering();
 
-	//drawBoundingVolumes();
+	drawBoundingVolumes();
 
 	End();
 
@@ -1172,67 +1172,70 @@ void Graphics::updateConstantBuffer()
 
 void Graphics::forwardRendering()
 {
-	// Set the render targets.
-	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
-	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// The textures will be needed to be grabbed from the model later.
-	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
-
-	m_ConstantBuffer->setBuffer(1);
-	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
-	updateConstantBuffer();
-	for(unsigned int i = 0; i < m_TransparencyObjects.size();i++)
+	if(m_TransparencyObjects.size() > 0)
 	{
-		m_TransparencyObjects.at(i).m_Model->vertexBuffer->setBuffer(0);
+		// Set the render targets.
+		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
+		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		if (m_TransparencyObjects.at(i).m_Model->m_IsAnimated)
+		// The textures will be needed to be grabbed from the model later.
+		ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
+
+		m_ConstantBuffer->setBuffer(1);
+		m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
+		updateConstantBuffer();
+		for(unsigned int i = 0; i < m_TransparencyObjects.size();i++)
 		{
-			cAnimatedObjectBuffer temp;
-			temp.invTransposeWorld = m_TransparencyObjects.at(i).m_invTransposeWorld;
+			m_TransparencyObjects.at(i).m_Model->vertexBuffer->setBuffer(0);
 
-			const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_TransparencyObjects.at(i).m_FinalTransforms;
-			for (unsigned int a = 0; a < tempBones->size(); a++)
-				temp.boneTransform[a] = (*tempBones)[a];
+			if (m_TransparencyObjects.at(i).m_Model->m_IsAnimated)
+			{
+				cAnimatedObjectBuffer temp;
+				temp.invTransposeWorld = m_TransparencyObjects.at(i).m_invTransposeWorld;
 
-			m_DeviceContext->UpdateSubresource(m_AnimatedObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-			m_AnimatedObjectConstantBuffer->setBuffer(3);
-		}
+				const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_TransparencyObjects.at(i).m_FinalTransforms;
+				for (unsigned int a = 0; a < tempBones->size(); a++)
+					temp.boneTransform[a] = (*tempBones)[a];
 
-		cObjectBuffer temp;
-		temp.world = m_TransparencyObjects.at(i).m_World;
-		m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-		m_ObjectConstantBuffer->setBuffer(2);
+				m_DeviceContext->UpdateSubresource(m_AnimatedObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+				m_AnimatedObjectConstantBuffer->setBuffer(3);
+			}
 
-		// Set shader.
-		m_TransparencyObjects.at(i).m_Model->shader->setShader();
-		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-		m_TransparencyObjects.at(i).m_Model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
+			cObjectBuffer temp;
+			temp.world = m_TransparencyObjects.at(i).m_World;
+			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+			m_ObjectConstantBuffer->setBuffer(2);
+
+			// Set shader.
+			m_TransparencyObjects.at(i).m_Model->shader->setShader();
+			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+			m_TransparencyObjects.at(i).m_Model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
 		
-		for(unsigned int j = 0; j < m_TransparencyObjects.at(i).m_Model->numOfMaterials;j++)
-		{
-			ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).m_Model->diffuseTexture[j].second, 
-				m_TransparencyObjects.at(i).m_Model->normalTexture[j].second, 
-				m_TransparencyObjects.at(i).m_Model->specularTexture[j].second 
-			};
-			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+			for(unsigned int j = 0; j < m_TransparencyObjects.at(i).m_Model->numOfMaterials;j++)
+			{
+				ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).m_Model->diffuseTexture[j].second, 
+					m_TransparencyObjects.at(i).m_Model->normalTexture[j].second, 
+					m_TransparencyObjects.at(i).m_Model->specularTexture[j].second 
+				};
+				m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
-			m_DeviceContext->Draw(m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).second, m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).first);
+				m_DeviceContext->Draw(m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).second, m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).first);
 
-			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+				m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+			}
+
+			m_TransparencyObjects.at(i).m_Model->shader->setBlendState(0, data);
+			m_TransparencyObjects.at(i).m_Model->shader->unSetShader();
+			m_ObjectConstantBuffer->unsetBuffer(2);
+			m_AnimatedObjectConstantBuffer->unsetBuffer(3);
+			m_TransparencyObjects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
 		}
+		m_DeviceContext->PSSetSamplers(0,0,0);
+		m_ConstantBuffer->unsetBuffer(1);
 
-		m_TransparencyObjects.at(i).m_Model->shader->setBlendState(0, data);
-		m_TransparencyObjects.at(i).m_Model->shader->unSetShader();
-		m_ObjectConstantBuffer->unsetBuffer(2);
-		m_AnimatedObjectConstantBuffer->unsetBuffer(3);
-		m_TransparencyObjects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
+		// Unset render targets.
+		m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 	}
-	m_DeviceContext->PSSetSamplers(0,0,0);
-	m_ConstantBuffer->unsetBuffer(1);
-
-	// Unset render targets.
-	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 }
 
 //TODO: Remove later
