@@ -82,7 +82,8 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	model.m_IsAnimated = isAnimated;
 
 	modelLoader.clear();
-
+	if(std::strcmp(p_Filename,"C:\\Users\\BTH\\Desktop\\GithubHavenborough\\Project\\Havenborough\\Client\\Bin\\assets/models/Tree1.btx") == 0)
+		model.m_IsTransparent = true;
 	return model;
 }
 

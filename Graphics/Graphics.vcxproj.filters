@@ -159,5 +159,6 @@
     <FxCompile Include="Source\DeferredShaders\BoundingVolume.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\ForwardShader.hlsl" />
   </ItemGroup>
 </Project>

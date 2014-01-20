@@ -1,6 +1,6 @@
 #include "DeferredRenderer.h"
 
-const unsigned int DeferredRenderer::m_MaxLightsPerLightInstance = 100;
+//const unsigned int DeferredRenderer::m_MaxLightsPerLightInstance = 100;
 
 DeferredRenderer::DeferredRenderer()
 		
@@ -95,7 +95,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 								  unsigned int p_screenWidth, unsigned int p_screenHeight,
 								  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 								  DirectX::XMFLOAT4X4 *p_ProjectionMatrix,std::vector<Light> *p_SpotLights,
-								  std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights)
+								  std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+								  unsigned int p_MaxLightsPerLightInstance)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -108,6 +109,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_SpotLights = p_SpotLights;
 	m_PointLights = p_PointLights;
 	m_DirectionalLights = p_DirectionalLights;
+	m_MaxLightsPerLightInstance = p_MaxLightsPerLightInstance;
 
 	//Create render targets with the size of screen width and screen height
 	D3D11_TEXTURE2D_DESC desc;
@@ -146,8 +148,11 @@ void DeferredRenderer::renderDeferred()
 	updateConstantBuffer();
 
 	// Render
-	renderGeometry();
-	renderLighting();
+	if(m_Objects.size() > 0)
+	{
+		renderGeometry();
+		renderLighting();
+	}
 
 	m_Objects.clear();
 }

@@ -66,6 +66,12 @@ private:
 	
 	DeferredRenderer *m_DeferredRender;
 
+	std::vector<DeferredRenderer::Renderable> m_TransparencyObjects;
+	Buffer						*m_ConstantBuffer;
+	Buffer						*m_ObjectConstantBuffer;
+	Buffer						*m_AnimatedObjectConstantBuffer;
+	Buffer						*m_AllLightBuffer;
+	ID3D11BlendState			*m_TransparencyAdditiveBlend;
 	//Lights
 	std::vector<Light> m_SpotLights;
 	std::vector<Light> m_PointLights;
@@ -165,6 +171,10 @@ private:
 	void End(void);
 
 	void drawBoundingVolumes();
+	void createBlendStates();
+	void createForwardBuffers();
+	void updateConstantBuffer();
+	void forwardRendering();
 
 	//TODO: Remove later
 	void DebugDefferedDraw(void);

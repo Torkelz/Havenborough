@@ -81,7 +81,7 @@ private:
 	std::vector<Light>			*m_SpotLights;
 	std::vector<Light>			*m_PointLights;
 	std::vector<Light>			*m_DirectionalLights;
-	static const unsigned int	m_MaxLightsPerLightInstance;
+	unsigned int	m_MaxLightsPerLightInstance;
 
 	DirectX::XMFLOAT3			*m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
@@ -138,7 +138,8 @@ public:
 		unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
-		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights);
+		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, 
+		unsigned int p_MaxLightsPerLightInstance);
 
 	/*
 	 * Call to render the graphics using deferred rendering.
