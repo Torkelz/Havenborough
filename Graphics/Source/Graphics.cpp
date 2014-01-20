@@ -169,7 +169,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Note this is the only time initialize should be called.
 	WrapperFactory::initialize(m_Device, m_DeviceContext);	
 	m_WrapperFactory = WrapperFactory::getInstance();
-	m_VRAMMemInfo = VRAMMemInfo::getInstance();
+	m_VRAMMemInfo = VRAMInfo::getInstance();
 	m_ModelFactory = ModelFactory::getInstance();
 	m_ModelFactory->initialize(&m_TextureList);
 
@@ -194,7 +194,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
+	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 
 	//ShaderInputElementDescription shaderDesc[] = 
 	//{
@@ -278,7 +278,7 @@ void Graphics::shutdown(void)
 	m_SpotLights.shrink_to_fit();
 	m_DirectionalLights.shrink_to_fit();
 
-	VRAMMemInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
+	VRAMInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
 	
 	m_Shader = nullptr;
 }
@@ -1041,7 +1041,7 @@ void Graphics::drawBoundingVolumes()
 
 		if(m_BVTriangles.size() >= m_BVBufferNumOfElements)
 		{
-			VRAMMemInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
+			VRAMInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
 			m_BVBufferNumOfElements = m_BVTriangles.size() + 1;
 			Buffer::Description buffDesc;
 			buffDesc.initData = &m_BVTriangles;
@@ -1051,7 +1051,7 @@ void Graphics::drawBoundingVolumes()
 			buffDesc.usage = Buffer::Usage::DEFAULT;
 	
 			buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
-			VRAMMemInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
+			VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 			SAFE_DELETE(m_BVBuffer);
 			m_BVBuffer = buffer;
 		}
