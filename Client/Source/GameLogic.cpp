@@ -24,7 +24,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_EventManager = p_EventManager;
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
 	m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
-	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(0.0f, 2400.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 	//m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
 	m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
@@ -93,8 +93,11 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Player.setDirectionX(sinf(dir));
 		m_Player.setDirectionZ(cosf(dir));
 	}
-	if(!m_Player.getForceMove())		
-		m_Physics->update(p_DeltaTime);
+	if(!m_Player.getForceMove())
+	{
+		m_Physics->update(p_DeltaTime*0.5f);
+		m_Physics->update(p_DeltaTime*0.5f);
+	}
 
 	Actor::ptr strongSkyBox = skyBox.lock();
 	if (strongSkyBox)
@@ -498,7 +501,7 @@ void GameLogic::loadSandbox()
 	{
 		addBoxWithOBB(rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, Vector3(1.f, 0.f, 0.f));
 	}
-
+	addBoxWithAABB(Vector3(0.0f, 2100.0f, 1500.0f), Vector3(200.0f, 100.0f, 200.0f));//, Vector3(0.0f, 0.0f, 0.0f));
 	//static const Vector3 slantedPlanePosition(-4000.f, 300.f, 2000.f);
 	//static const Vector3 slantedPlaneSize(2000.f, 500.f, 3000.f);
 	//static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);

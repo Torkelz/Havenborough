@@ -111,11 +111,13 @@ void GameScene::render()
 		{
 			for (BodyHandle body : object->getBodyHandles())
 			{
-				renderBoundingVolume(body);
+				///renderBoundingVolume(body);
+				
 			}
 		}
+		renderBoundingVolume(372);
 	}
-	
+
 	for(auto &light : m_Lights)
 	{
 		switch(light.type)
