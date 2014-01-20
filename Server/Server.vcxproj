@@ -13,7 +13,8 @@
   <ItemGroup>
     <ClCompile Include="..\Client\Source\Logger.cpp" />
     <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
-    <ClCompile Include="serverProgram.cpp" />
+    <ClCompile Include="Source\serverProgram.cpp" />
+    <ClCompile Include="Source\Server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Network\Network.vcxproj">
@@ -26,6 +27,7 @@
   <ItemGroup>
     <ClInclude Include="..\Client\Source\Logger.h" />
     <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="Source\Server.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{03B04F8A-DF5E-445D-A91D-1C4F7C8398FD}</ProjectGuid>
