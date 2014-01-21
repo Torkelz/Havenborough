@@ -114,7 +114,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
-	if (conn)
+	if (conn && conn->isConnected())
 	{
 		PlayerControlData data;
 		data.m_Rotation[0] = actualViewRot.x;

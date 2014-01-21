@@ -79,6 +79,7 @@ public:
 	 * you have to change the direction of the vertex loop and the animated vertex loop, and remove the *=-1 on X-axis.
 	 *
 	 * @param p_FilePath is the complete filepath to the source file.
+	 * @return false if something is wrong when writing the file.
 	 */
 	bool writeFile(std::string p_FilePath);
 	
