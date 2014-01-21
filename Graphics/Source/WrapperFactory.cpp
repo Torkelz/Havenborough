@@ -130,6 +130,7 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 	}
 	catch(...)
 	{
+		SAFE_DELETE_ARRAY(desc);
 		SAFE_DELETE(shader);
 		throw;
 	}
