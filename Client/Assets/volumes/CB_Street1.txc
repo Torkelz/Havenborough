@@ -1,0 +1,17 @@
+*Header
+#Materials 0
+#MESH CB_Street1
+#Vertices 4
+#Triangles 2
+
+*Vertices
+v -6646.065918 0 4517.89502
+v 6646.065918 0 4517.89502
+v -6646.065918 0 -4517.89502
+v 6646.065918 0 -4517.89502
+
+*FACES
+-BoundingVolume
+face: 3
+0 | 1 | 2 | 
+2 | 1 | 3 | 

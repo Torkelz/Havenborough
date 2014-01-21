@@ -15,7 +15,7 @@
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
 #include "ModelInstance.h"
-#include "VRAMMemInfo.h"
+#include "VRAMInfo.h"
 
 #include "ShaderStructs.h"
 
@@ -56,7 +56,7 @@ private:
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
-	VRAMMemInfo *m_VRAMMemInfo;
+	VRAMInfo *m_VRAMMemInfo;
 
 	vector<pair<string, Shader*>> m_ShaderList;
 	vector<pair<string, ModelDefinition>> m_ModelList;
