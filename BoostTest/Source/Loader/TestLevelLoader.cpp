@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(TestReadMeshList)
 
 BOOST_AUTO_TEST_CASE(TestMainLoop)
 {
-	std::string string = "*Header \n#numObj: 512 \n\n#MESH House1 \n#Translation: 0 0 0 \n#Rotation: 0 1 0 \n#Scale: 1.138714 1.138714 1.138714";
+	std::string string = "*ObjectHeader* \n#numObj: 512 \n\n#MESH House1 \n#Translation: 0 0 0 \n#Rotation: 0 1 0 \n#Scale: 1.138714 1.138714 1.138714";
 	std::istringstream stream(string); 
 	testLevelLoader loader;
 	

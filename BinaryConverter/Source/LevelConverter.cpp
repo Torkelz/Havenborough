@@ -110,7 +110,7 @@ void LevelConverter::setLevelHead(LevelLoader::LevelHeader p_Header)
 	m_Header = p_Header;
 }
 
-void LevelConverter::setLevelModelList(const std::vector<LevelLoader::LevelStruct>* p_LevelModelList)
+void LevelConverter::setLevelModelList(const std::vector<LevelLoader::ModelStruct>* p_LevelModelList)
 {
 	m_LevelData = p_LevelModelList;
 	m_LevelDataSize = m_LevelData->size();

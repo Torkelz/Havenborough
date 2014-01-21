@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(TestCreateLevel)
 		"\x04\0\0\0Test"
 		"\x01\0\0\0";
 
-	std::vector<LevelLoader::LevelStruct> level;
+	std::vector<LevelLoader::ModelStruct> level;
 	level.resize(1);
 	level.at(0).m_MeshName = "Test";
 	float3Trans[0].f = 0.75f; float3Trans[1].f = 1204.0f; float3Trans[2].f = 0.999f;

@@ -17,7 +17,7 @@ private:
 		std::vector<DirectX::XMFLOAT3> m_Scale;
 	};
 
-	const std::vector<LevelLoader::LevelStruct>* m_LevelData;
+	const std::vector<LevelLoader::ModelStruct>* m_LevelData;
 	LevelLoader::LevelHeader m_Header;
 	int m_LevelDataSize;
 public:
@@ -51,7 +51,7 @@ public:
 	 *
 	 * @param p_LevelModelList, is a vector with models that is unsorted. It expects it to be in .txl format.
 	 */
-	void setLevelModelList(const std::vector<LevelLoader::LevelStruct>* p_LevelModelList);
+	void setLevelModelList(const std::vector<LevelLoader::ModelStruct>* p_LevelModelList);
 
 	/**
 	 * Clears the writer.

@@ -12,16 +12,43 @@ public:
 	struct LevelHeader
 	{
 		int m_NumberOfModels;
+		int m_NumberOfLights;
+		int m_NumberOfCheckPoints;
 	};
-	struct LevelStruct
+	struct ModelStruct
 	{
 		std::string m_MeshName;
 		DirectX::XMFLOAT3 m_Translation;
 		DirectX::XMFLOAT3 m_Rotation;
 		DirectX::XMFLOAT3 m_Scale;
 	};
+	struct LightStruct
+	{
+		std::string m_LightName;
+		DirectX::XMFLOAT3 m_Translation;
+		DirectX::XMFLOAT3 m_Color;
+		int m_Type;
+	};
+	struct DirectionalLight
+	{
+		int m_Intensity;
+		DirectX::XMFLOAT3 m_Direction;
+	};
+	struct PointLight
+	{
+		int m_Intensity;
+	};
+	struct SpotLight
+	{
+		int m_Intensity;
+		DirectX::XMFLOAT3 m_Direction;
+		int m_ConeAngle;
+	};
 private:
-	std::vector<LevelStruct> m_LevelModelList;
+	std::vector<ModelStruct> m_LevelModelList;
+	std::vector<std::pair<LightStruct,DirectionalLight>> m_LevelDirectionalLightList;
+	std::vector<std::pair<LightStruct,PointLight>> m_LevelPointLightList;
+	std::vector<std::pair<LightStruct,SpotLight>> m_LevelSpotLightList;
 	std::stringstream m_Stringstream;
 	LevelHeader m_Header;
 public:
@@ -59,12 +86,15 @@ public:
 	 *
 	 * @return LevelStruct struct.
 	 */
-	const std::vector<LevelLoader::LevelStruct>& getLevelModelList();
+	const std::vector<LevelLoader::ModelStruct>& getLevelModelList();
 
 protected:
 	void startReading(std::istream& p_Input);
 	void readHeader(std::istream& p_Input);
+	void readLightHeader(std::istream& p_Input);
+	void readCheckPointHeader(std::istream& p_Input);
 	void readMeshList(std::istream& p_Input);
+	void readLightList(std::istream& p_Input);
 
 private:
 	void clearData();
