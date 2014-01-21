@@ -57,11 +57,26 @@ public:
 	 */
 	void setLevelModelList(const std::vector<LevelLoader::ModelStruct>* p_LevelModelList);
 
+	/**
+	 * Sets information about the directional lighting used in the level.
+	 *
+	 * @param p_LevelDirectionalLightList, is a vector with directional lights. It expects it to be in .txl format.
+	 */
 	void setLevelDirectionalLightList(const std::vector<LevelLoader::DirectionalLight>* p_LevelDirectionalLightList);
 
-	void setLevelPointLightList(const std::vector<LevelLoader::PointLight>* p_LevelDirectionalLightList);
+	/**
+	 * Sets information about the point lighting used in the level.
+	 *
+	 * @param p_LevelPointLightList, is a vector with point lights. It expects it to be in .txl format.
+	 */
+	void setLevelPointLightList(const std::vector<LevelLoader::PointLight>* p_LevelPointLightList);
 
-	void setLevelSpotLightList(const std::vector<LevelLoader::SpotLight>* p_LevelDirectionalLightList);
+	/**
+	 * Sets information about the spot lighting used in the level.
+	 *
+	 * @param p_LevelSpotLightList, is a vector with spot lights. It expects it to be in .txl format.
+	 */
+	void setLevelSpotLightList(const std::vector<LevelLoader::SpotLight>* p_LevelSpotLightList);
 
 	/**
 	 * Clears the writer.

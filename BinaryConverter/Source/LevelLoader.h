@@ -101,21 +101,21 @@ public:
 	 *
 	 * @return DirectionalLight list.
 	 */
-	const std::vector<LevelLoader::DirectionalLight> getLevelDirectionalLightList();
+	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>& getLevelDirectionalLightList();
 
 	/**
 	 * Returns a vector with information about the levels directional lighting.
 	 *
 	 * @return PointLight list.
 	 */
-	const std::vector<LevelLoader::PointLight> getLevelPointLightList();
+	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>& getLevelPointLightList();
 
 	/**
 	 * Returns a vector with information about the levels directional lighting.
 	 *
 	 * @return PointLight list.
 	 */
-	const std::vector<LevelLoader::SpotLight> getLevelSpotLightList();
+	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>& getLevelSpotLightList();
 
 	/**
 	 * Returns a vector with information about the levels check points.

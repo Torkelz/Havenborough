@@ -220,11 +220,17 @@ const std::vector<LevelLoader::ModelStruct>& LevelLoader::getLevelModelList()
 	return m_LevelModelList;
 }
 
-LevelLoader::LightStruct LevelLoader::getLevelLightList()
+const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>& LevelLoader::getLevelDirectionalLightList()
 {
-	m_LightStruct.m_LevelDirectionalLightList = m_LevelDirectionalLightList;
-	m_LightStruct.m_LevelPointLightList = m_LevelPointLightList;
-	m_LightStruct.m_LevelSpotLightList = m_LevelSpotLightList;
+	return m_LevelDirectionalLightList;
+}
 
-	return m_LightStruct;
+const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>& LevelLoader::getLevelPointLightList()
+{
+	return m_LevelPointLightList;
+}
+
+const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>& LevelLoader::getLevelSpotLightList()
+{
+	return m_LevelSpotLightList;
 }
