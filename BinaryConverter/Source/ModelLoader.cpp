@@ -303,7 +303,6 @@ void ModelLoader::readWeights(std::istream& p_Input)
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
 		m_Stringstream >> filler >> tempJoint.x >> tempJoint.y >> tempJoint.z >> tempJoint.w;
-		m_WeightsList.push_back(std::make_pair(tempWeight, tempJoint));
 		
 		if(tempJoint.w != 0)
 		{
@@ -319,6 +318,7 @@ void ModelLoader::readWeights(std::istream& p_Input)
 			tempWeight.y /= weightSum;
 			tempWeight.z /= weightSum;
 		}
+		m_WeightsList.push_back(std::make_pair(tempWeight, tempJoint));
 	}
 }
 
