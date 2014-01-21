@@ -10,8 +10,14 @@
 #include <fstream>
 #include <iostream>
 
+//#define _CRTDBG_MAP_ALLOC
+//#include <stdlib.h>
+//#include <crtdbg.h>
+
 int main(int /*argc*/, char* /*argv*/[])
 {
+	//_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+
 	std::ofstream logFile("logFile.txt", std::ofstream::trunc);
 
 #ifdef _DEBUG
@@ -24,7 +30,6 @@ int main(int /*argc*/, char* /*argv*/[])
 	Logger::log(Logger::Level::INFO, "Starting game");
 
 	BaseGameApp game;
-
 	try
 	{
 		game.init();

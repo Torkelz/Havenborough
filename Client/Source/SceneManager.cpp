@@ -3,10 +3,8 @@
 
 SceneManager::SceneManager()
 {
-	//m_MenuSceneList.clear();
-	//m_RunSceneList.clear();
 	m_NowShowing = 0;
-	m_IsMenuState = true;
+	m_IsMenuState = false;
 	m_Graphics = nullptr;
 	m_ResourceManager = nullptr;
 	m_InputQueue = nullptr;
@@ -26,8 +24,6 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	m_ResourceManager = p_ResourceManager;
 	m_InputQueue = p_InputQueue;
 	m_GameLogic = p_GameLogic;
-
-	m_RunGame = false;
 
 	m_MenuSceneList.resize(2);
 	m_RunSceneList.resize(3);
@@ -58,11 +54,9 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 			sceneFail = true;
 		}
 	}
-	m_MenuSceneList[0]->setIsVisible(true);
+	m_RunSceneList[0]->setIsVisible(true);
 
-	//((GameScene*)m_RunSceneList.at(0).get())->setGameLogic(m_GameLogic);
-
-
+	
 	if(sceneFail)
 	{
 		throw SceneManagerException("Failed to init all scenes", __LINE__,__FILE__);
