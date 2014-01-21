@@ -1,24 +1,24 @@
-#include "RAMMemInfo.h"
+#include "RAMInfo.h"
 
-RAMMemInfo::RAMMemInfo(void)
+RAMInfo::RAMInfo(void)
 {
 }
 
-RAMMemInfo::~RAMMemInfo(void)
+RAMInfo::~RAMInfo(void)
 {
 }
 
-unsigned int RAMMemInfo::getVirtualMemoryUsage(void)
+unsigned int RAMInfo::getVirtualMemoryUsage(void)
 {
 	return m_VirtualMemUsage;
 }
 
-unsigned int RAMMemInfo::getPhysicalMemoryUsage(void)
+unsigned int RAMInfo::getPhysicalMemoryUsage(void)
 {
 	return m_PhysicalMemUsage;
 }
 
-void RAMMemInfo::update(void)
+void RAMInfo::update(void)
 {
 	HANDLE processHandle;
 
@@ -29,8 +29,8 @@ void RAMMemInfo::update(void)
 	m_ProcessInformation.cb = sizeof(m_ProcessInformation);
 	if(GetProcessMemoryInfo(processHandle, (PROCESS_MEMORY_COUNTERS*)&m_ProcessInformation, m_ProcessInformation.cb))
 	{
-		m_VirtualMemUsage = m_ProcessInformation.PrivateUsage / MB;
-		m_PhysicalMemUsage = m_ProcessInformation.WorkingSetSize / MB;
+		m_VirtualMemUsage = m_ProcessInformation.PrivateUsage;
+		m_PhysicalMemUsage = m_ProcessInformation.WorkingSetSize;
 	}
 
 	CloseHandle(processHandle);

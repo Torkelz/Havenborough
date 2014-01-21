@@ -3,7 +3,6 @@
 #include <vector>
 #include "Shader.h"
 #include "Buffer.h"
-#include "VRAMMemInfo.h"
 #include "../include/ShaderDefinitions.h"
 
 using std::string;

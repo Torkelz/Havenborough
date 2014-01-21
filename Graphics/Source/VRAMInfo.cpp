@@ -1,31 +1,32 @@
-#include "VRAMMemInfo.h"
+#include "VRAMInfo.h"
+#include "GraphicsExceptions.h"
 
-std::unique_ptr<VRAMMemInfo> VRAMMemInfo::m_Instance;
+std::unique_ptr<VRAMInfo> VRAMInfo::m_Instance;
 
-VRAMMemInfo *VRAMMemInfo::getInstance(void)
+VRAMInfo *VRAMInfo::getInstance(void)
 {
 	if(!m_Instance)
-		m_Instance.reset(new VRAMMemInfo());
+		m_Instance.reset(new VRAMInfo());
 
 	return m_Instance.get();
 }
 
-void VRAMMemInfo::shutdown(void)
+void VRAMInfo::shutdown(void)
 {
 	m_Instance.reset();
 }
 
-int VRAMMemInfo::getUsage(void) const
+int VRAMInfo::getUsage(void) const
 {
-	return m_Usage / MB;
+	return m_Usage;
 }
 
-void VRAMMemInfo::updateUsage(int size)
+void VRAMInfo::updateUsage(int size)
 {
 	m_Usage += size;
 }
 
-unsigned int VRAMMemInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width, int p_Height)
+unsigned int VRAMInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width, int p_Height)
 {
 	unsigned int result;
 
@@ -87,18 +88,21 @@ unsigned int VRAMMemInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width
 			break;
 		}
 	default:
-		throw MemoryUsageException("Error when determining memory size of texture. Illegal file format or color type.", __LINE__, __FILE__);
-		break;
+		{
+			throw MemoryUsageException("Error when determining memory size of texture. Illegal file format or color type.", __LINE__, __FILE__);
+			break;
+		}
+		
 	}
 
 	return result;
 }
 
-VRAMMemInfo::VRAMMemInfo(void)
+VRAMInfo::VRAMInfo(void)
 {
 	m_Usage = OVERHEAD_USAGE;
 }
 
-VRAMMemInfo::~VRAMMemInfo(void)
+VRAMInfo::~VRAMInfo(void)
 {
 }

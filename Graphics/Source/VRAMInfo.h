@@ -4,12 +4,8 @@
 #define OVERHEAD_USAGE (10 * MB) //This is a theoretical overhead for graphics resources in the video memory
 #include <memory>
 #include <d3d11.h>
-#include "../../Client/Utilities/MemoryUtil.h"
-#include "GraphicsExceptions.h"
 
-
-
-class VRAMMemInfo
+class VRAMInfo
 {
 private:
 	enum Size : unsigned int
@@ -26,7 +22,7 @@ private:
 		BC3_UNORM = 1,
 	};
 	
-	static std::unique_ptr<VRAMMemInfo> m_Instance;
+	static std::unique_ptr<VRAMInfo> m_Instance;
 	unsigned int m_Usage;
 
 public:
@@ -34,7 +30,7 @@ public:
 	* Gets an instance of the VRAM memory info.
 	* @return a pointer to the instance
 	*/
-	static VRAMMemInfo *getInstance(void);
+	static VRAMInfo *getInstance(void);
 
 	/**
 	* Shuts down the info and release the memory allocated.
@@ -64,7 +60,7 @@ public:
 	*/
 	void updateUsage(int p_Size);
 
-	~VRAMMemInfo(void);
+	~VRAMInfo(void);
 private:
-	VRAMMemInfo(void);
+	VRAMInfo(void);
 };
