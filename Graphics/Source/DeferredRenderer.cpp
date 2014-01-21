@@ -560,7 +560,7 @@ void DeferredRenderer::createSamplerState()
 	sd.AddressU			= D3D11_TEXTURE_ADDRESS_CLAMP;
 	sd.AddressV			= D3D11_TEXTURE_ADDRESS_CLAMP;
 	sd.AddressW			= D3D11_TEXTURE_ADDRESS_CLAMP;
-	sd.Filter			= D3D11_FILTER_ANISOTROPIC;
+	sd.Filter			= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	m_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
 }

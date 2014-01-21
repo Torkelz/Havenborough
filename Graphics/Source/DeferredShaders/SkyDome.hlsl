@@ -13,7 +13,7 @@ struct VSSceneIn
 
 struct PSSceneIn
 {
-        float4 Pos : SV_Position;                // SV_Position is a (S)ystem (V)ariable that denotes transformed position
+        float4 Pos : SV_Position;
 		float3 texC : TEXCOORD;
 };
 cbuffer cb : register(b1)
@@ -37,7 +37,7 @@ PSSceneIn VS(VSSceneIn input)
         // transform the point into view space
         output.Pos = mul( projection, mul(view, mul(trans, float4(input.posL,1.0f) ) ));
 
-
+		input.posL *= 0.0000000000001f;
         output.texC = input.posL;
         
         return output;

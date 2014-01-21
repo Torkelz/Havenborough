@@ -49,7 +49,7 @@ void SkyDome::BuildGeoSphere(unsigned int p_NumSubDivisions, float p_Radius)
         //Put a cap on the number of subdivisions
         p_NumSubDivisions = std::min(p_NumSubDivisions, unsigned int(5));
 
-        //Aprox a asphere by tesselating an icosahedron
+        //Aprox a sphere by tesselating an icosahedron
         const float X = 0.525731f;
         const float Z = 0.850651f;
 

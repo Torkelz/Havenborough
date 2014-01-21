@@ -522,7 +522,7 @@ void Graphics::drawFrame()
 		m_Shader->setShader();
 		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
 		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
-		//m_DeviceContext->Draw(6, 0);
+		m_DeviceContext->Draw(6, 0);
 		
 		m_Shader->unSetShader();
 	}
