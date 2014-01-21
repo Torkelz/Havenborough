@@ -99,7 +99,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Player.setDirectionX(sinf(dir));
 		m_Player.setDirectionZ(cosf(dir));
 	}
-	if(!m_Player.getForceMove())		
+	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime);
 
 	Actor::ptr strongSkyBox = skyBox.lock();
@@ -114,7 +114,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
-	if (conn)
+	if (conn && conn->isConnected())
 	{
 		PlayerControlData data;
 		data.m_Rotation[0] = actualViewRot.x;

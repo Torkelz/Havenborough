@@ -65,7 +65,7 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 		{
 			Vector3 translation = model.m_Translation.at(j);
 			Vector3 rotation = model.m_Rotation.at(j);
-			Vector3 scale = model.m_Scale.at(j);
+			Vector3 scale = model.m_Scale.at(j);	
 
 			p_ActorOut.push_back(createObjectActor(model.m_MeshName, translation, rotation, scale));
 		}

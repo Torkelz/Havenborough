@@ -15,7 +15,8 @@ int main(int argc, char* argv[])
 	ModelConverter converter;
 	LevelLoader levelLoader;
 	LevelConverter levelConverter;
-	if(argc == 3)
+	bool result;
+	if(argc == 2)
 	{
 		std::vector<char> buffer(strlen(argv[1])+1);
 		strcpy(buffer.data(), argv[1]);
@@ -28,18 +29,32 @@ int main(int argc, char* argv[])
 		}
 		if(strcmp(type, "tx") == 0)
 		{
-			loader.loadFile(argv[1]);
+			std::vector<char> outputBuffer(strlen(argv[1])+2);
+			strcpy(outputBuffer.data(), argv[1]);
+			int length = outputBuffer.size();
+			strcpy(outputBuffer.data()+length-5, ".btx");
+			result = loader.loadFile(argv[1]);
+			if(!result){std::cout<<"Error loading file";return EXIT_FAILURE;}
 			setFileInfo(&loader, &converter);
-			converter.writeFile(argv[2]);
+			std::cout << outputBuffer.data();
+			result = converter.writeFile(outputBuffer.data());
+			if(!result){std::cout<<"Error writing file";return EXIT_FAILURE;}
 			loader.clear();
 			converter.clear();
 			return EXIT_SUCCESS;
 		}
 		if(strcmp(type, "txl") == 0)
 		{
-			levelLoader.loadLevel(argv[1]);
+			std::vector<char> outputBuffer(strlen(argv[1])+2);
+			strcpy(outputBuffer.data(), argv[1]);
+			int length = outputBuffer.size();
+			strcpy(outputBuffer.data()+length-6, ".btxl");
+			result = levelLoader.loadLevel(argv[1]);
+			if(!result){std::cout<<"Error loading file";return EXIT_FAILURE;}
 			setLevelInfo(&levelLoader, &levelConverter);
-			levelConverter.writeFile(argv[2]);
+			result = levelConverter.writeFile(outputBuffer.data());
+			if(!result){std::cout<<"Error writing file";return EXIT_FAILURE;}
+			std::cout << outputBuffer.data();
 			levelLoader.clear();
 			levelConverter.clear();
 			return EXIT_SUCCESS;
@@ -53,7 +68,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		std::cout << "Usage: " << argv[0] << " _in_file_ _out_file_" << std::endl;
+		std::cout << "Usage: " << argv[0] << " _in_file_ " << std::endl;
 	}
 
 	return EXIT_FAILURE;

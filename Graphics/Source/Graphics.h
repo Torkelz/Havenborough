@@ -12,6 +12,7 @@
 #include "GraphicsExceptions.h"
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
+#include "ForwardRendering.h"
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
 #include "ModelInstance.h"
@@ -65,7 +66,8 @@ private:
 	int m_NextInstanceId;
 	
 	DeferredRenderer *m_DeferredRender;
-
+	ForwardRendering *m_Forwardrender;
+		
 	//Lights
 	std::vector<Light> m_SpotLights;
 	std::vector<Light> m_PointLights;

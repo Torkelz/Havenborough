@@ -5,7 +5,7 @@
 #include <boost/filesystem.hpp>
 
 using namespace DirectX;
-
+const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
@@ -22,6 +22,8 @@ Graphics::Graphics(void)
 	//m_DeferredRender = nullptr;
 	m_Sampler = nullptr;
 	m_VRAMInfo = nullptr;
+
+	
 
 	m_VSyncEnabled = false; //DEBUG
 
@@ -185,7 +187,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred Render
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights);
+		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
+		m_MaxLightsPerLightInstance);
 	
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
@@ -208,6 +211,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
 															"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);//, shaderDesc, 1);
+
+	m_Forwardrender = new ForwardRendering();
+	m_Forwardrender->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
+		m_DepthStencilView, m_RenderTargetView);
 
 	return true;
 }
@@ -275,6 +282,7 @@ void Graphics::shutdown(void)
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
+	SAFE_DELETE(m_Forwardrender);
 	//Clear lights
 	m_PointLights.clear();
 	m_SpotLights.clear();
@@ -432,9 +440,20 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 	{
 		if (inst.first == p_ModelId)
 		{
-			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.getModelName()),
-				inst.second.getWorldMatrix(),
-				&inst.second.getFinalTransform()));
+			ModelDefinition *temp = getModelFromList(inst.second.getModelName());
+			if(temp->m_IsTransparent == false)
+			{
+				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(temp,
+					inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
+			}
+			else
+			{
+				m_Forwardrender->addRenderable(DeferredRenderer::Renderable(temp,
+					inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
+			}
+			
 			break;
 		}
 	}
@@ -525,6 +544,8 @@ void Graphics::drawFrame()
 
 		m_Shader->unSetShader();
 	}
+
+	m_Forwardrender->renderForward();
 
 	drawBoundingVolumes();
 
@@ -1107,3 +1128,4 @@ void Graphics::DebugDefferedDraw(void)
 	m_Sampler = nullptr;
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
 }
+
