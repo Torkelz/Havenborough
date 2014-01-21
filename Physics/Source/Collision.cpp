@@ -258,289 +258,7 @@ HitData Collision::OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2)
 	if(!hit.intersect)
 		return hit;
 
-	hit = HitData();
-
-	float r, ra, rb, overlap = FLT_MAX, lLength; 
-	const float EPSILON = 0.000001f;
-	XMMATRIX R, AbsR;
-	XMVECTOR dotResult, dotResult1;
-	XMVECTOR a_Center, b_Center, a_Extents, b_Extents, least;; // m
-	XMMATRIX a_Axes, b_Axes;
-	a_Center = XMLoadFloat4(p_OBB1->getPosition());
-	a_Axes = XMLoadFloat4x4(&p_OBB1->getAxes());
-	a_Extents = XMLoadFloat4(&p_OBB1->getExtents()); 
-
-	b_Center = XMLoadFloat4(p_OBB2->getPosition());
-	b_Axes = XMLoadFloat4x4(&p_OBB2->getAxes());
-	b_Extents = XMLoadFloat4(&p_OBB2->getExtents());
-
-	//Compute rotation matrix expressing b in a's coordinate frame
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			dotResult = XMVector3Dot(a_Axes.r[i], b_Axes.r[j]);
-			R.r[i].m128_f32[j] = dotResult.m128_f32[0];
-		}
-	}
-
-	// Compute translation vector t
-	XMVECTOR t = b_Center - a_Center;	// m
-	
-	// Bring translation into a’s coordinate frame
-	dotResult = XMVector3Dot(t, a_Axes.r[0]);
-	XMVECTOR dotResult2 = XMVector3Dot(t, a_Axes.r[2]); 
-	dotResult1 = XMVector3Dot(t, a_Axes.r[1]); 
-	t = XMVectorSet(dotResult.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f);
-
-	// Compute common subexpressions. Add in an epsilon term to
-	// counteract arithmetic errors when two edges are parallel and
-	// their cross product is (near) null 
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			AbsR.r[i].m128_f32[j] = fabs(R.r[i].m128_f32[j]) + EPSILON;
-		}
-	}
-
-	XMVECTOR LA[] = { XMVectorSet(a_Extents.m128_f32[0], 0.f, 0.f, 0.f),
-					  XMVectorSet(0.f, a_Extents.m128_f32[1], 0.f, 0.f),
-					  XMVectorSet(0.f, 0.f, a_Extents.m128_f32[2], 0.f), };
-
-	
-	XMVECTOR LB[] = { XMVectorSet(b_Extents.m128_f32[0], 0.f, 0.f, 0.f),
-					  XMVectorSet(0.f, b_Extents.m128_f32[1], 0.f, 0.f),
-					  XMVectorSet(0.f, 0.f, b_Extents.m128_f32[2], 0.f), };
-
-	XMVECTOR L = XMVectorSet(0.f, 0.f, 0.f, 0.f);
-
-	// Test axes L = A0, L = A1, L = A2
-	for (int i = 0; i < 3; i++) 
-	{
-		ra = a_Extents.m128_f32[i]; 
-		rb = b_Extents.m128_f32[0]	* AbsR.r[i].m128_f32[0] + b_Extents.m128_f32[1] * AbsR.r[i].m128_f32[1] + b_Extents.m128_f32[2] * AbsR.r[i].m128_f32[2];
-		float r = t.m128_f32[i];
-		if(fabs(r) > ra + rb)
-			return hit;
-
-		lLength = XMVector4LengthSq(LA[i]).m128_f32[0];
-		if(lLength != 0.0f)
-		{
-			r = r - (ra + rb)/lLength;
-			if(overlap > r)
-			{
-				least = LA[i];
-				overlap = r;
-			}
-		}
-	}
-
-	//Test axes L = B0, L = B1, L = B2
-	for (int i = 0; i < 3; i++) 
-	{
-		ra = a_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[i] + a_Extents.m128_f32[1] * AbsR.r[1].m128_f32[i] + a_Extents.m128_f32[2] * AbsR.r[2].m128_f32[i];
-		rb = b_Extents.m128_f32[i]; 
-		r  = t.m128_f32[0] * R.r[0].m128_f32[i] + t.m128_f32[1] * R.r[1].m128_f32[i] + t.m128_f32[2] * R.r[2].m128_f32[i];
-		if(fabs(r) > ra + rb)
-			return hit;
-
-		lLength = XMVector4LengthSq(LB[i]).m128_f32[0];
-		if(lLength != 0.0f)
-		{
-			r = r - (ra + rb)/lLength;
-			if(overlap > r)
-			{
-				least = LB[i];
-				overlap = r;
-			}
-		}
-	}
-
-	
-
-	// Test axis L = A0 x B0
-	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[0] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[0];
-	rb		= b_Extents.m128_f32[1]	* AbsR.r[0].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[0].m128_f32[1];
-	r		= t.m128_f32[2] * R.r[1].m128_f32[0] - t.m128_f32[1] * R.r[2].m128_f32[0];
-	if (fabs(r) > ra + rb)
-		return hit;
-
-	L = XMVector3Cross(LA[0], LB[0]);
-	lLength = XMVector4LengthSq(L).m128_f32[0];
-	if(lLength != 0.0f)
-	{
-		r = r - (ra + rb)/lLength;
-		if(overlap > r)
-		{
-			least = L;
-			overlap = r;
-		}
-	}
-
-	// Test axis L = A0 x B1
-	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
-	r		= t.m128_f32[2] * R.r[1].m128_f32[1] - t.m128_f32[1] * R.r[2].m128_f32[1];
-	if (fabs(r) > ra + rb) 
-		return hit;
-
-	L = XMVector3Cross(LA[0], LB[1]);
-	lLength = XMVector4LengthSq(L).m128_f32[0];
-	if(lLength != 0.0f)
-	{
-		r = r - (ra + rb)/lLength;
-		if(overlap > r)
-		{
-			least = L;
-			overlap = r;
-		}
-	}
-
-	// Test axis L = A0 x B2
-	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[2];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[0].m128_f32[0];
-	r		= t.m128_f32[2] * R.r[1].m128_f32[2] - t.m128_f32[1] * R.r[2].m128_f32[2];
-	if (fabs(r) > ra + rb) 
-		return hit;
-
-	L = XMVector3Cross(LA[0], LB[2]);
-	lLength = XMVector4LengthSq(L).m128_f32[0];
-	if(lLength != 0.0f)
-	{
-		r = r - (ra + rb)/lLength;
-		if(overlap > r)
-		{
-			least = L;
-			overlap = r;
-		}
-	}
-
-	// Test axis L = A1 x B0
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[0] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
-	rb		= b_Extents.m128_f32[1]	* AbsR.r[1].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
-	r		= t.m128_f32[0] * R.r[2].m128_f32[0] - t.m128_f32[2] * R.r[0].m128_f32[0];
-	if (fabs(r) > ra + rb) 
-		return hit;
-
-	L = XMVector3Cross(LA[1], LB[0]);
-	lLength = XMVector4LengthSq(L).m128_f32[0];
-	if(lLength != 0.0f)
-	{
-		r = r - (ra + rb)/lLength;
-		if(overlap > r)
-		{
-			least = L;
-			overlap = r;
-		}
-	}
-
-	// Test axis L = A1 x B1
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[1];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[1].m128_f32[0];
-	r		= t.m128_f32[0] * R.r[2].m128_f32[1] - t.m128_f32[2] * R.r[0].m128_f32[1];
-	if (fabs(r) > ra + rb) 
-		return hit;
-
-	L = XMVector3Cross(LA[1], LB[1]);
-	lLength = XMVector4LengthSq(L).m128_f32[0];
-	if(lLength != 0.0f)
-	{
-		r = r - (ra + rb)/lLength;
-		if(overlap > r)
-		{
-			least = L;
-			overlap = r;
-		}
-	}
-
-	// Test axis L = A1 x B2
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[2];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[1].m128_f32[0];
-	r		= t.m128_f32[0] * R.r[2].m128_f32[2] - t.m128_f32[2] * R.r[0].m128_f32[2];
-	if (fabs(r) > ra + rb) 
-		return hit;
-
-	L = XMVector3Cross(LA[1], LB[2]);
-	lLength = XMVector4LengthSq(L).m128_f32[0];
-	if(lLength != 0.0f)
-	{
-		r = r - (ra + rb)/lLength;
-		if(overlap > r)
-		{
-			least = L;
-			overlap = r;
-		}
-	}
-
-	// Test axis L = A2 x B0
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[0] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[0];
-	rb		= b_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[2].m128_f32[1];
-	r		= t.m128_f32[1] * R.r[0].m128_f32[0] - t.m128_f32[0] * R.r[1].m128_f32[0];
-	if(fabs(r) > ra + rb)
-		return hit;
-
-	L = XMVector3Cross(LA[2], LB[0]);
-	lLength = XMVector4LengthSq(L).m128_f32[0];
-	if(lLength != 0.0f)
-	{
-		r = r - (ra + rb)/lLength;
-		if(overlap > r)
-		{
-			least = L;
-			overlap = r;
-		}
-	}
-
-	// Test axis L = A2 x B1
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[1] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[1];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[2].m128_f32[0];
-	r		= t.m128_f32[1] * R.r[0].m128_f32[1] - t.m128_f32[0] * R.r[1].m128_f32[1];
-	if (fabs(r) > ra + rb) 
-		return hit;
-
-	L = XMVector3Cross(LA[2], LB[1]);
-	lLength = XMVector4LengthSq(L).m128_f32[0];
-	if(lLength != 0.0f)
-	{
-		r = r - (ra + rb)/lLength;
-		if(overlap > r)
-		{
-			least = L;
-			overlap = r;
-		}
-	}
-
-	// Test axis L = A2 x B2
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[2] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[2];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[2].m128_f32[0];
-	r		= t.m128_f32[1] * R.r[0].m128_f32[2] - t.m128_f32[0] * R.r[1].m128_f32[2];
-	if (fabs(r) > ra + rb) 
-		return hit;
-
-	L = XMVector3Cross(LA[2], LB[2]);
-	lLength = XMVector4LengthSq(L).m128_f32[0];
-	if(lLength != 0.0f)
-	{
-		r = r - (ra + rb)/XMVector4LengthSq(L).m128_f32[0];
-		if(overlap > r)
-		{
-			least = L;
-			overlap = r;
-		}
-	}
-
-	//if(overlap >= 10000)
-	//{
-	//	overlap = 0;
-	//}
-
-	hit.intersect = true;
-	hit.colType = Type::OBBVSOBB;
-	hit.colNorm = Vector4(0.f, 1.f, 0.f, 0.f);
-	hit.colLength = overlap;
-
-	return hit;
+	return seperatingAxisTest(p_OBB1, p_OBB2);
 }
 
 HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
@@ -585,136 +303,7 @@ HitData Collision::OBBvsAABB(OBB *p_OBB, AABB *p_AABB)
 	if(!hit.intersect)
 		return hit;
 
-	hit = HitData();
-
-	float ra, rb;
-	const float EPSILON = 0.000001f;
-	XMMATRIX R, AbsR;
-	XMVECTOR dotResult, dotResult1, dotResult2, a_Center, b_Center, a_Extents, b_Extents;
-	XMMATRIX a_Axes, b_Axes;
-	a_Center = XMLoadFloat4(p_OBB->getPosition());
-	a_Axes = XMLoadFloat4x4(&p_OBB->getAxes());
-	a_Extents = XMLoadFloat4(&p_OBB->getExtents());
-
-	b_Center = XMLoadFloat4(p_AABB->getPosition());
-	b_Axes = XMMatrixIdentity();
-	b_Extents = XMLoadFloat4(p_AABB->getHalfDiagonal());
-
-	//Compute rotation matrix expressing b in a's coordinate frame
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-   			dotResult = XMVector3Dot(a_Axes.r[i], b_Axes.r[j]);
-			R.r[i].m128_f32[j] = dotResult.m128_f32[0];
-		}
-	}
-
-	// Compute translation vector t
-	XMVECTOR t = b_Center - a_Center;
-	
-	// Bring translation into a’s coordinate frame
-	dotResult = XMVector3Dot(t, a_Axes.r[0]);
-	dotResult1 = XMVector3Dot(t, a_Axes.r[1]);
-	dotResult2 = XMVector3Dot(t, a_Axes.r[2]); 
-	t = XMVectorSet(dotResult.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f);
-
-	// Compute common subexpressions. Add in an epsilon term to
-	// counteract arithmetic errors when two edges are parallel and
-	// their cross product is (near) null (see text for details)
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			AbsR.r[i].m128_f32[j] = fabs(R.r[i].m128_f32[j]) + EPSILON;
-		}
-	}
-
-	// Test axes L = A0, L = A1, L = A2
-	for (int i = 0; i < 3; i++) 
-	{
-		ra = a_Extents.m128_f32[i]; 
-		rb = b_Extents.m128_f32[0]	* AbsR.r[i].m128_f32[0] + b_Extents.m128_f32[1] * AbsR.r[i].m128_f32[1] + b_Extents.m128_f32[2] * AbsR.r[i].m128_f32[2];
-
-		if(fabs(t.m128_f32[i]) > ra + rb)
-			return hit;
-	}
-
-	//Test axes L = B0, L = B1, L = B2
-	for (int i = 0; i < 3; i++) 
-	{
-		ra = a_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[i] + a_Extents.m128_f32[1] * AbsR.r[1].m128_f32[i] + a_Extents.m128_f32[2] * AbsR.r[2].m128_f32[i];
-		rb = b_Extents.m128_f32[i]; 
-	
-		if(fabs(t.m128_f32[0] * R.r[0].m128_f32[i] + t.m128_f32[1] * R.r[1].m128_f32[i] + t.m128_f32[2] * R.r[2].m128_f32[i]) > ra + rb)
-			return hit;
-	}
-
-	// Test axis L = A0 x B0
-	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[0] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[0];
-	rb		= b_Extents.m128_f32[1]	* AbsR.r[0].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[0].m128_f32[1];
-	if (fabs(t.m128_f32[2] * R.r[1].m128_f32[0] - t.m128_f32[1] * R.r[2].m128_f32[0]) > ra + rb) 
-		return hit;
-
-	// Test axis L = A0 x B1
-	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
-	if (fabs(t.m128_f32[2] * R.r[1].m128_f32[1] - t.m128_f32[1] * R.r[2].m128_f32[1]) > ra + rb) 
-		return hit;
-
-	// Test axis L = A0 x B2
-	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[2];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[0].m128_f32[0];
-	if (fabs(t.m128_f32[2] * R.r[1].m128_f32[2] - t.m128_f32[1] * R.r[2].m128_f32[2]) > ra + rb) 
-		return hit;
-
-	// Test axis L = A1 x B0
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[0] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
-	rb		= b_Extents.m128_f32[1]	* AbsR.r[1].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
-	if (fabs(t.m128_f32[0] * R.r[2].m128_f32[0] - t.m128_f32[2] * R.r[0].m128_f32[0]) > ra + rb) 
-		return hit;
-
-	// Test axis L = A1 x B1
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[1];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[1].m128_f32[0];
-	if (fabs(t.m128_f32[0] * R.r[2].m128_f32[1] - t.m128_f32[2] * R.r[0].m128_f32[1]) > ra + rb) 
-		return hit;
-
-	// Test axis L = A1 x B2
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[2];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[1].m128_f32[0];
-
-	if (fabs(t.m128_f32[0] * R.r[2].m128_f32[2] - t.m128_f32[2] * R.r[0].m128_f32[2]) > ra + rb) 
-		return hit;
-
-	// Test axis L = A2 x B0
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[0] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[0];
-	rb		= b_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[2].m128_f32[1];
-
-	if (fabs(t.m128_f32[1] * R.r[0].m128_f32[0] - t.m128_f32[0] * R.r[1].m128_f32[0]) > ra + rb) 
-		return hit;
-
-	// Test axis L = A2 x B1
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[1] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[1];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[2].m128_f32[0];
-	if (fabs(t.m128_f32[1] * R.r[0].m128_f32[1] - t.m128_f32[0] * R.r[1].m128_f32[1]) > ra + rb) 
-		return hit;
-
-	// Test axis L = A2 x B2
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[2] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[2];
-
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[2].m128_f32[0];
-
-	if (fabs(t.m128_f32[1] * R.r[0].m128_f32[2] - t.m128_f32[0] * R.r[1].m128_f32[2]) > ra + rb) 
-		return hit;
-
-	hit.intersect = true;
-	hit.colType = Type::OBBVSAABB;
-
-	hit.colNorm = Vector4(0.f, 1.f, 0.f, 0.f);
-	hit.colLength = 1.f;
-
-	return hit;
+	return seperatingAxisTest(p_OBB, p_AABB);
 }
 
 HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
@@ -771,16 +360,220 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 
 	return hit;
 }
-//bool AABB::collide(BoundingVolume* p_pVolume)
-//{
-//	if(p_pVolume->getType() == AABBOX)
-//	{
-//		return boxVsBox((AABB*)p_pVolume);
-//	}
-//	else if(p_pVolume->getType() == SPHERE)
-//	{
-//		return boxVsSphere((Sphere*)p_pVolume);
-//	}
-//
-//	return false;
-//}
+
+HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
+{
+	HitData hit = HitData();
+	float r, ra, rb, overlap = FLT_MAX;
+	const float EPSILON = 0.000001f;
+	XMMATRIX R, AbsR;
+	XMVECTOR dotResult, dotResult1, dotResult2;
+	XMVECTOR a_Center, b_Center, a_Extents, b_Extents, least, tVec; // m
+	XMMATRIX a_Axes, b_Axes;
+	a_Center = XMLoadFloat4(p_OBB->getPosition());
+	a_Axes = XMLoadFloat4x4(&p_OBB->getAxes());
+	a_Extents = XMLoadFloat4(&p_OBB->getExtents()); 
+
+	if(p_vol->getType() == BoundingVolume::Type::OBB)
+	{
+		
+		b_Center = XMLoadFloat4(((OBB*)p_vol)->getPosition());
+		b_Axes = XMLoadFloat4x4(&((OBB*)p_vol)->getAxes());
+		b_Extents = XMLoadFloat4(&((OBB*)p_vol)->getExtents());
+	}
+	else
+	{
+		b_Center = XMLoadFloat4(((AABB*)p_vol)->getPosition());
+		b_Axes = XMMatrixIdentity();
+		b_Extents = XMLoadFloat4(((AABB*)p_vol)->getHalfDiagonal());
+	}
+	//Compute rotation matrix expressing b in a's coordinate frame
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			dotResult = XMVector3Dot(a_Axes.r[i], b_Axes.r[j]);
+			R.r[i].m128_f32[j] = dotResult.m128_f32[0];
+		}
+	}
+
+	// Compute translation vector t
+	XMVECTOR t = b_Center - a_Center;	// m
+	tVec = b_Center - a_Center;
+	
+	// Bring translation into a’s coordinate frame
+	dotResult = XMVector3Dot(t, a_Axes.r[0]); 
+	dotResult1 = XMVector3Dot(t, a_Axes.r[1]); 
+	dotResult2 = XMVector3Dot(t, a_Axes.r[2]); 
+	t = XMVectorSet(dotResult.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f);
+
+	// Compute common subexpressions. Add in an epsilon term to
+	// counteract arithmetic errors when two edges are parallel and
+	// their cross product is (near) null 
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			AbsR.r[i].m128_f32[j] = fabs(R.r[i].m128_f32[j]) + EPSILON;
+		}
+	}
+
+	XMVECTOR LA[] = { XMVectorSet(a_Extents.m128_f32[0], 0.f, 0.f, 0.f),
+					  XMVectorSet(0.f, a_Extents.m128_f32[1], 0.f, 0.f),
+					  XMVectorSet(0.f, 0.f, a_Extents.m128_f32[2], 0.f), };
+
+	
+	XMVECTOR LB[] = { XMVectorSet(b_Extents.m128_f32[0], 0.f, 0.f, 0.f),
+					  XMVectorSet(0.f, b_Extents.m128_f32[1], 0.f, 0.f),
+					  XMVectorSet(0.f, 0.f, b_Extents.m128_f32[2], 0.f), };
+
+	XMVECTOR L = XMVectorSet(0.f, 0.f, 0.f, 0.f);
+
+	// Test axes L = A0, L = A1, L = A2
+	for (int i = 0; i < 3; i++) 
+	{
+		ra = a_Extents.m128_f32[i]; 
+		rb = b_Extents.m128_f32[0]	* AbsR.r[i].m128_f32[0] + b_Extents.m128_f32[1] * AbsR.r[i].m128_f32[1] + b_Extents.m128_f32[2] * AbsR.r[i].m128_f32[2];
+		float r = t.m128_f32[i];
+		if(fabs(r) > ra + rb)
+			return hit;
+
+		checkCollisionDepth(ra, rb, r, overlap, LA[i], least);
+	}
+
+	//Test axes L = B0, L = B1, L = B2
+	for (int i = 0; i < 3; i++) 
+	{
+		ra = a_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[i] + a_Extents.m128_f32[1] * AbsR.r[1].m128_f32[i] + a_Extents.m128_f32[2] * AbsR.r[2].m128_f32[i];
+		rb = b_Extents.m128_f32[i]; 
+		r  = t.m128_f32[0] * R.r[0].m128_f32[i] + t.m128_f32[1] * R.r[1].m128_f32[i] + t.m128_f32[2] * R.r[2].m128_f32[i];
+		if(fabs(r) > ra + rb)
+			return hit;
+		
+		checkCollisionDepth(ra, rb, r, overlap, LB[i], least);
+	}
+
+	
+
+	// Test axis L = A0 x B0
+	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[0] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[0];
+	rb		= b_Extents.m128_f32[1]	* AbsR.r[0].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[0].m128_f32[1];
+	r		= t.m128_f32[2] * R.r[1].m128_f32[0] - t.m128_f32[1] * R.r[2].m128_f32[0];
+	if (fabs(r) > ra + rb)
+		return hit;
+
+	L = XMVector3Cross(LA[0], LB[0]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
+
+	// Test axis L = A0 x B1
+	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
+	rb		= b_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
+	r		= t.m128_f32[2] * R.r[1].m128_f32[1] - t.m128_f32[1] * R.r[2].m128_f32[1];
+	if (fabs(r) > ra + rb) 
+		return hit;
+
+	L = XMVector3Cross(LA[0], LB[1]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
+
+	// Test axis L = A0 x B2
+	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[2];
+	rb		= b_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[0].m128_f32[0];
+	r		= t.m128_f32[2] * R.r[1].m128_f32[2] - t.m128_f32[1] * R.r[2].m128_f32[2];
+	if (fabs(r) > ra + rb) 
+		return hit;
+
+	L = XMVector3Cross(LA[0], LB[2]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
+
+	// Test axis L = A1 x B0
+	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[0] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
+	rb		= b_Extents.m128_f32[1]	* AbsR.r[1].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
+	r		= t.m128_f32[0] * R.r[2].m128_f32[0] - t.m128_f32[2] * R.r[0].m128_f32[0];
+	if (fabs(r) > ra + rb) 
+		return hit;
+
+	L = XMVector3Cross(LA[1], LB[0]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
+
+	// Test axis L = A1 x B1
+	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[1];
+	rb		= b_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[1].m128_f32[0];
+	r		= t.m128_f32[0] * R.r[2].m128_f32[1] - t.m128_f32[2] * R.r[0].m128_f32[1];
+	if (fabs(r) > ra + rb) 
+		return hit;
+
+	L = XMVector3Cross(LA[1], LB[1]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
+
+	// Test axis L = A1 x B2
+	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[2];
+	rb		= b_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[1].m128_f32[0];
+	r		= t.m128_f32[0] * R.r[2].m128_f32[2] - t.m128_f32[2] * R.r[0].m128_f32[2];
+	if (fabs(r) > ra + rb) 
+		return hit;
+
+	L = XMVector3Cross(LA[1], LB[2]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
+
+	// Test axis L = A2 x B0
+	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[0] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[0];
+	rb		= b_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[2].m128_f32[1];
+	r		= t.m128_f32[1] * R.r[0].m128_f32[0] - t.m128_f32[0] * R.r[1].m128_f32[0];
+	if(fabs(r) > ra + rb)
+		return hit;
+
+	L = XMVector3Cross(LA[2], LB[0]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
+
+	// Test axis L = A2 x B1
+	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[1] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[1];
+	rb		= b_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[2].m128_f32[0];
+	r		= t.m128_f32[1] * R.r[0].m128_f32[1] - t.m128_f32[0] * R.r[1].m128_f32[1];
+	if (fabs(r) > ra + rb) 
+		return hit;
+
+	L = XMVector3Cross(LA[2], LB[1]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
+
+	// Test axis L = A2 x B2
+	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[2] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[2];
+	rb		= b_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[2].m128_f32[0];
+	r		= t.m128_f32[1] * R.r[0].m128_f32[2] - t.m128_f32[0] * R.r[1].m128_f32[2];
+	if (fabs(r) > ra + rb) 
+		return hit;
+
+	L = XMVector3Cross(LA[2], LB[2]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
+	
+	hit.intersect = true;
+
+	//float temp = XMVector3Cross(tVec, least).m128_f32[0];
+
+	//if(temp > 0)
+	//	least *= -1.f;
+
+	hit.colNorm = Vector4(0.f, 1.f, 0.f, 0.f);// XMVECTORToVector4(&XMVector4Normalize(least));
+	hit.colLength = overlap * 100.f;
+	if(p_vol->getType() == BoundingVolume::Type::OBB)
+		hit.colType = Type::OBBVSOBB;
+	else
+		hit.colType = Type::OBBVSAABB;
+
+
+ 	return hit;
+}
+
+void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
+{
+	float lLength = XMVector4LengthSq(p_L).m128_f32[0];
+
+	if(lLength != 0.0f)
+	{
+		p_R = p_R - (p_RA + p_RB);///lLength;
+		if(p_Overlap > fabs(p_R))
+		{
+			p_Overlap = fabs(p_R);
+			p_Least = p_L;
+		}
+	}
+}

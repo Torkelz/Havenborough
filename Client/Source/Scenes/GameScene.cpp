@@ -111,11 +111,10 @@ void GameScene::render()
 		{
 			for (BodyHandle body : object->getBodyHandles())
 			{
-				///renderBoundingVolume(body);
-				
+				renderBoundingVolume(body);
 			}
 		}
-		renderBoundingVolume(372);
+		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
 	}
 
 	for(auto &light : m_Lights)

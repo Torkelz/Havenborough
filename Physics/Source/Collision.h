@@ -77,5 +77,10 @@ public:
 	* @return HitData, see HitData definition.
 	*/
 	HitData HullVsSphere(Hull* p_Hull, Sphere *p_Sphere);
+
+private:
+
+	void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
+	HitData seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol);
 };
 
