@@ -56,6 +56,9 @@
     <ClCompile Include="Source\AnimationClipLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SkyDome.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source\VRAMInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -130,7 +133,10 @@
     <ClInclude Include="Source\AnimationClipLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\VRAMInfo.h">
+    <ClInclude Include="Source\SkyDome.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+     <ClInclude Include="Source\VRAMInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\RAMInfo.h">
@@ -163,6 +169,9 @@
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\DeferredShaders\BoundingVolume.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\SkyDome.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\DeferredShaders\ForwardShader.hlsl">

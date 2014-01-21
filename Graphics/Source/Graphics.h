@@ -120,6 +120,7 @@ public:
 	void setClearColor(Vector4 p_Color) override;
 
 	void renderModel(int p_ModelId) override;
+	virtual void renderSkyDome() override;
 	void renderText(void) override;
 	void renderQuad(void) override;
 	void drawFrame() override;
@@ -130,6 +131,7 @@ public:
 	int getVRAMUsage(void) override;
 	
 	int createModelInstance(const char *p_ModelId) override;
+	virtual void createSkyDome(const char *p_ModelId, float p_Radius) override;
 	void eraseModelInstance(int p_Instance) override;
 	void setModelPosition(int p_Instance, Vector3 p_Position) override;
 	void setModelRotation(int p_Instance, Vector3 p_YawPitchRoll) override;

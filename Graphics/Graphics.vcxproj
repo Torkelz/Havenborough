@@ -95,6 +95,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\SkyDome.cpp" />
     <ClCompile Include="Source\ForwardRendering.cpp" />
     <ClCompile Include="Source\AnimationClipLoader.cpp" />
     <ClCompile Include="Source\Joint.cpp" />
@@ -115,6 +116,7 @@
   <ItemGroup>
     <ClInclude Include="Source\ForwardRendering.h" />
     <ClInclude Include="include\ShaderDefinitions.h" />
+    <ClInclude Include="Source\SkyDome.h" />
     <ClInclude Include="Source\AnimationClipLoader.h" />
     <ClInclude Include="Source\AnimationStructs.h" />
     <ClInclude Include="Source\Joint.h" />
@@ -139,6 +141,16 @@
     <ClInclude Include="Source\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Source\DeferredShaders\SkyDome.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Source\DeferredShaders\AnimatedGeometryPass.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>

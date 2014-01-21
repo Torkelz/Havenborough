@@ -459,6 +459,11 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 	}
 }
 
+void Graphics::renderSkyDome()
+{
+	m_DeferredRender->renderSkyDome();
+}
+
 void Graphics::renderText(void)
 {
 	
@@ -541,7 +546,7 @@ void Graphics::drawFrame()
 		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
 		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
-
+		
 		m_Shader->unSetShader();
 	}
 
@@ -631,6 +636,11 @@ int Graphics::createModelInstance(const char *p_ModelId)
 	m_ModelInstances.push_back(std::make_pair(id, instance));
 
 	return id;
+}
+
+void Graphics::createSkyDome(const char* p_Identifier, float p_Radius)
+{
+	m_DeferredRender->createSkyDome(getTextureFromList(std::string(p_Identifier)),p_Radius);
 }
 
 void Graphics::eraseModelInstance(int p_Instance)
@@ -943,7 +953,7 @@ HRESULT Graphics::createRasterizerState(void)
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;

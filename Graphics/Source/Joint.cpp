@@ -14,17 +14,11 @@ DirectX::XMFLOAT4X4 Joint::interpolate(float p_FrameTime, float m_DestinationFra
 
 	DirectX::XMVECTOR scale1		= DirectX::XMLoadFloat3(&first.m_Scale) * interpolateFraction1;
 	DirectX::XMVECTOR translation1	= DirectX::XMLoadFloat3(&first.m_Trans) * interpolateFraction1;
-	// Account for Maya
-	//translation1 -= XMLoadFloat4x4(&m_JointOffsetMatrix).r[3] * interpolateFraction1;
 	DirectX::XMVECTOR rotation1		= DirectX::XMLoadFloat4(&first.m_Rot) * interpolateFraction1;
 
 	DirectX::XMVECTOR scale2		= DirectX::XMLoadFloat3(&second.m_Scale) * interpolateFraction2;
 	DirectX::XMVECTOR translation2	= DirectX::XMLoadFloat3(&second.m_Trans) * interpolateFraction2;
-	// Account for Maya
-	//translation2 -= XMLoadFloat4x4(&m_JointOffsetMatrix).r[3] * interpolateFraction2;
 	DirectX::XMVECTOR rotation2		= DirectX::XMLoadFloat4(&second.m_Rot) * interpolateFraction2;
-
-	DirectX::XMVECTOR zero = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
 	DirectX::XMFLOAT4X4 result;
 	// Transpose after creation to get a row major matrix
@@ -35,7 +29,6 @@ DirectX::XMFLOAT4X4 Joint::interpolate(float p_FrameTime, float m_DestinationFra
 	XMMATRIX scaleMat = XMMatrixScalingFromVector(scale1 + scale2);
 	XMMATRIX rotMat = XMMatrixRotationQuaternion(rotation1 + rotation2);
 
-	//DirectX::XMStoreFloat4x4(&result, XMMatrixTranspose(XMMatrixAffineTransformation(scale1 + scale2, zero, rotation1 + rotation2, translation1 + translation2)));
 	XMStoreFloat4x4(&result, XMMatrixTranspose(scaleMat * rotMat * transMat));
 
 	return result;
@@ -60,8 +53,6 @@ matrixDecomposed Joint::interpolateEx(float p_FrameTime, float m_DestinationFram
 	XMVECTOR translation2	= XMLoadFloat3(&second.m_Trans) * interpolateFraction2;
 	XMVECTOR rotation2		= XMLoadFloat4(&second.m_Rot) * interpolateFraction2;
 
-	XMVECTOR zero			= XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-
 	matrixDecomposed result;
 
 	XMMATRIX invOffset = XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_JointOffsetMatrix));
@@ -83,8 +74,6 @@ matrixDecomposed Joint::interpolateEx(matrixDecomposed p_Frame1, matrixDecompose
 	XMVECTOR scale2			= XMLoadFloat4(&p_Frame2.scale);
 	XMVECTOR translation2	= XMLoadFloat4(&p_Frame2.translation);
 	XMVECTOR rotation2		= XMLoadFloat4(&p_Frame2.rotation);
-
-	XMVECTOR zero = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
 	matrixDecomposed result;
 
