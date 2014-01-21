@@ -20,6 +20,7 @@
     <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
     <ClCompile Include="Source\Player.cpp" />
+    <ClCompile Include="Source\RAMInfo.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\ResourceTranslator.cpp" />
     <ClCompile Include="Source\BaseGameApp.cpp" />
@@ -28,7 +29,6 @@
     <ClCompile Include="Source\Input\InputState.cpp" />
     <ClCompile Include="Source\Input\InputTranslator.cpp" />
     <ClCompile Include="Source\Logger.cpp" />
-    <ClCompile Include="Source\RAMMemInfo.cpp" />
     <ClCompile Include="Source\SceneManager.cpp" />
     <ClCompile Include="Source\Scenes\GameScene.cpp" />
     <ClCompile Include="Source\Scenes\MenuScene.cpp" />
@@ -61,6 +61,7 @@
     <ClInclude Include="Source\EventManager.h" />
     <ClInclude Include="Source\EventData.h" />
     <ClInclude Include="Source\LightStructs.h" />
+    <ClInclude Include="Source\RAMInfo.h" />
     <ClInclude Include="Utilities\FastDelegate.h" />
     <ClInclude Include="Source\GameLogic.h" />
     <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />
@@ -77,7 +78,6 @@
     <ClInclude Include="Source\Logger.h" />
     <ClInclude Include="Source\ResourceManager.h" />
     <ClInclude Include="Source\ResourceTranslator.h" />
-    <ClInclude Include="Source\RAMMemInfo.h" />
     <ClInclude Include="Source\BaseGameApp.h" />
     <ClInclude Include="Source\Input\Input.h" />
     <ClInclude Include="Source\Input\InputRecord.h" />
