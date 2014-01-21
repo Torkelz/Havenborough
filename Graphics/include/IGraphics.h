@@ -133,6 +133,23 @@ public:
 	 */
 	virtual bool releaseTexture(const char *p_TextureId) = 0;
 	
+	/** 
+	 * Creates a new particle system and stores in a vector connected with an ID.
+	 *
+	 * @param p_ParticleSystemId the ID of the particle system
+	 * @param p_Filename the filename of the particle system
+	 * @return true if the particle system was successfully loaded, otherwise false
+	 */
+	virtual bool crateParticleSystem(const char *p_ParticleSystemId, const char *p_filename) = 0;
+
+	/** 
+	 * Release a previously created particle system.
+	 * 
+	 * @param p_ParticleSystemId the ID of the particle system
+	 * @return true if the particle system existed and was successfully released.
+	 */
+	virtual bool releaseParticleSystem(const char *p_ParticleSystemId) = 0;
+
 	/**
 	 * 
 	 */
@@ -361,7 +378,6 @@ public:
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(int p_RenderTarget) = 0;
-
 private:
 
 	/**

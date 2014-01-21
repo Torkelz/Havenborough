@@ -18,6 +18,8 @@
 #include "ModelInstance.h"
 #include "VRAMInfo.h"
 
+#include "ParticleSystem.h"
+
 #include "ShaderStructs.h"
 
 using std::string;
@@ -65,6 +67,9 @@ private:
 	vector<pair<int, ModelInstance>> m_ModelInstances;
 	int m_NextInstanceId;
 	
+	vector<pair<string, ParticleSystem*>>  m_ParticleSystemList;
+
+
 	DeferredRenderer *m_DeferredRender;
 	ForwardRendering *m_Forwardrender;
 		
@@ -108,6 +113,9 @@ public:
 
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
 	bool releaseTexture(const char *p_TextureID) override;	
+
+	bool crateParticleSystem(const char *p_ParticleSystemId, const char *p_filename) override;
+	bool releaseParticleSystem(const char *p_ParticleSystemId) override;
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
