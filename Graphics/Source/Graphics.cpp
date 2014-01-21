@@ -16,16 +16,21 @@ Graphics::Graphics(void)
 	m_DepthStencilBuffer = nullptr;
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
+	m_RasterStateBV = nullptr;
 	m_WrapperFactory = nullptr;
 	m_ModelFactory = nullptr;
-	m_DeferredRender = nullptr;
+	//m_DeferredRender = nullptr;
 	m_Sampler = nullptr;
-	m_VRAMMemInfo = nullptr;
+	m_VRAMInfo = nullptr;
 
 	m_VSyncEnabled = false; //DEBUG
 
 	m_NextInstanceId = 1;
 	m_SelectedRenderTarget = 3;
+
+	m_Shader = nullptr;
+	m_BVShader = nullptr;
+	m_BVBuffer = nullptr;
 }
 
 Graphics::~Graphics(void)
@@ -169,7 +174,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Note this is the only time initialize should be called.
 	WrapperFactory::initialize(m_Device, m_DeviceContext);	
 	m_WrapperFactory = WrapperFactory::getInstance();
-	m_VRAMMemInfo = VRAMInfo::getInstance();
+	m_VRAMInfo = VRAMInfo::getInstance();
 	m_ModelFactory = ModelFactory::getInstance();
 	m_ModelFactory->initialize(&m_TextureList);
 
@@ -262,8 +267,9 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_SwapChain);
 	SAFE_SHUTDOWN(m_WrapperFactory);
 	SAFE_SHUTDOWN(m_ModelFactory);
-	SAFE_SHUTDOWN(m_VRAMMemInfo);
+	SAFE_SHUTDOWN(m_VRAMInfo);
 
+	m_Shader = nullptr;
 	SAFE_DELETE(m_BVBuffer);
 	SAFE_DELETE(m_BVShader);
 
@@ -279,14 +285,12 @@ void Graphics::shutdown(void)
 	m_DirectionalLights.shrink_to_fit();
 
 	VRAMInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
-	
-	m_Shader = nullptr;
 }
 
 void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 {
 	p_Graphics->shutdown();
-	delete p_Graphics;
+	SAFE_DELETE(p_Graphics);
 }
 
 bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
@@ -396,7 +400,7 @@ bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	}
 
 	int size = calculateTextureSize(resourceView);
-	m_VRAMMemInfo->updateUsage(size);
+	m_VRAMInfo->updateUsage(size);
 
 	m_TextureList.push_back(make_pair(p_TextureId, resourceView));
 
@@ -411,7 +415,7 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 		{
 			ID3D11ShaderResourceView *&m = it->second;
 			int size = calculateTextureSize(m);
-			m_VRAMMemInfo->updateUsage(-size);
+			m_VRAMInfo->updateUsage(-size);
 
 			SAFE_RELEASE(m);
 			m_TextureList.erase(it);
@@ -570,11 +574,11 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName)
 	}
 }
 
-int Graphics::getVRAMMemUsage(void)
+int Graphics::getVRAMUsage(void)
 {
-	if (m_VRAMMemInfo)
+	if (m_VRAMInfo)
 	{
-		return m_VRAMMemInfo->getUsage();
+		return m_VRAMInfo->getUsage();
 	}
 	else
 	{
@@ -1009,7 +1013,7 @@ int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )
 	SAFE_RELEASE(texture);
 	SAFE_RELEASE(resource);
 
-	return m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
+	return m_VRAMInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
 }
 
 void Graphics::Begin(float color[4])

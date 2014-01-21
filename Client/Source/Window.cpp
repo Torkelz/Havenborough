@@ -61,7 +61,7 @@ void Window::init(const std::string& p_Title, DirectX::XMFLOAT2 p_WindowSize)
 
 		if (!RegisterClassExW(&windowClassDescription))
 		{
-			//throw WindowException("Window could not be registered", __LINE__, __FILE__);
+			throw WindowException("Window could not be registered", __LINE__, __FILE__);
 		}
 
 		m_ClassUseCount++;

@@ -27,26 +27,26 @@ using std::make_pair;
 class Graphics : public IGraphics
 {
 private:
-	ID3D11Device					*m_Device;
-	ID3D11DeviceContext				*m_DeviceContext;
+	ID3D11Device			*m_Device;
+	ID3D11DeviceContext		*m_DeviceContext;
 
-	IDXGISwapChain					*m_SwapChain;
-	ID3D11RenderTargetView			*m_RenderTargetView;
+	IDXGISwapChain			*m_SwapChain;
+	ID3D11RenderTargetView	*m_RenderTargetView;
 	
-	ID3D11RasterizerState			*m_RasterState;
-	ID3D11RasterizerState			*m_RasterStateBV;
+	ID3D11RasterizerState	*m_RasterState;
+	ID3D11RasterizerState	*m_RasterStateBV;
 
-	ID3D11Texture2D					*m_DepthStencilBuffer;
-	ID3D11DepthStencilState			*m_DepthStencilState;
-	ID3D11DepthStencilView			*m_DepthStencilView;
+	ID3D11Texture2D			*m_DepthStencilBuffer;
+	ID3D11DepthStencilState	*m_DepthStencilState;
+	ID3D11DepthStencilView	*m_DepthStencilView;
 
-	unsigned int					m_Numerator;
-	unsigned int					m_Denominator;
-	char							m_GraphicsCard[128];
-	int								m_GraphicsMemory;
-	bool							m_VSyncEnabled;
-	float							m_ClearColor[4];
-	int								m_SelectedRenderTarget;
+	unsigned int			m_Numerator;
+	unsigned int			m_Denominator;
+	char					m_GraphicsCard[128];
+	int						m_GraphicsMemory;
+	bool					m_VSyncEnabled;
+	float					m_ClearColor[4];
+	int						m_SelectedRenderTarget;
 
 	XMFLOAT4X4 m_ViewMatrix;
 	XMFLOAT4X4 m_ProjectionMatrix;
@@ -56,7 +56,7 @@ private:
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
-	VRAMInfo *m_VRAMMemInfo;
+	VRAMInfo *m_VRAMInfo;
 
 	vector<pair<string, Shader*>> m_ShaderList;
 	vector<pair<string, ModelDefinition>> m_ModelList;
@@ -72,10 +72,10 @@ private:
 	std::vector<Light> m_DirectionalLights;
 
 	//Stuff needed for drawing boundingvolumes
-	std::vector<XMFLOAT4>		m_BVTriangles;
-	Buffer						*m_BVBuffer;
-	unsigned int				m_BVBufferNumOfElements;
-	Shader						*m_BVShader;
+	std::vector<XMFLOAT4>	m_BVTriangles;
+	Buffer					*m_BVBuffer;
+	unsigned int			m_BVBufferNumOfElements;
+	Shader					*m_BVShader;
 
 	Shader *m_Shader; //DEBUG
 	ID3D11SamplerState *m_Sampler;
@@ -125,7 +125,7 @@ public:
 	void updateAnimations(float p_DeltaTime) override;
 	void playAnimation(int p_Instance, const char* p_ClipName) override;
 
-	int getVRAMMemUsage(void) override;
+	int getVRAMUsage(void) override;
 	
 	int createModelInstance(const char *p_ModelId) override;
 	void eraseModelInstance(int p_Instance) override;

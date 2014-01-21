@@ -218,10 +218,11 @@ public:
 	 *
 	 * @return the usage in MB
 	 */
-	virtual int getVRAMMemUsage(void) = 0;
+	virtual int getVRAMUsage(void) = 0;
 	
 	/**
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
+	 *
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.
 	 * @return a unique id used to reference the instance with in later calls.
 	 */
