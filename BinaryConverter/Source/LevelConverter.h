@@ -18,6 +18,10 @@ private:
 	};
 
 	const std::vector<LevelLoader::ModelStruct>* m_LevelData;
+	const std::vector<LevelLoader::DirectionalLight>* m_LevelDirectionalLightList;
+	const std::vector<LevelLoader::PointLight>* m_LevelPointLightList;
+	const std::vector<LevelLoader::SpotLight>* m_LevelSpotLightList;
+
 	LevelLoader::LevelHeader m_Header;
 	int m_LevelDataSize;
 public:
@@ -52,6 +56,12 @@ public:
 	 * @param p_LevelModelList, is a vector with models that is unsorted. It expects it to be in .txl format.
 	 */
 	void setLevelModelList(const std::vector<LevelLoader::ModelStruct>* p_LevelModelList);
+
+	void setLevelDirectionalLightList(const std::vector<LevelLoader::DirectionalLight>* p_LevelDirectionalLightList);
+
+	void setLevelPointLightList(const std::vector<LevelLoader::PointLight>* p_LevelDirectionalLightList);
+
+	void setLevelSpotLightList(const std::vector<LevelLoader::SpotLight>* p_LevelDirectionalLightList);
 
 	/**
 	 * Clears the writer.

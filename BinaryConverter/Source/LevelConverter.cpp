@@ -115,3 +115,18 @@ void LevelConverter::setLevelModelList(const std::vector<LevelLoader::ModelStruc
 	m_LevelData = p_LevelModelList;
 	m_LevelDataSize = m_LevelData->size();
 }
+
+void LevelConverter::setLevelDirectionalLightList(const std::vector<LevelLoader::DirectionalLight>* p_LevelDirectionalLightList)
+{
+	m_LevelDirectionalLightList = p_LevelDirectionalLightList;
+}
+
+void LevelConverter::setLevelPointLightList(const std::vector<LevelLoader::PointLight>* p_LevelPointLightList)
+{
+	m_LevelPointLightList = p_LevelPointLightList;
+}
+
+void LevelConverter::setLevelSpotLightList(const std::vector<LevelLoader::SpotLight>* p_LevelSpotLightList)
+{
+	m_LevelSpotLightList = p_LevelSpotLightList;
+}

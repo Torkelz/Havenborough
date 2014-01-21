@@ -66,6 +66,12 @@ void LevelLoader::startReading(std::istream& p_Input)
 			readLightList(p_Input);
 			std::getline(p_Input, line);
 		}
+		if(key == "#Type:")
+		{
+			readCheckPointList(p_Input);
+			std::getline(p_Input, line);
+		}
+
 	}
 }
 
@@ -97,21 +103,16 @@ void LevelLoader::readMeshList(std::istream& p_Input)
 {
 	std::string key, filler, line;
 	ModelStruct tempLevel;
-	DirectX::XMFLOAT3 tempFlaot3;
-	tempLevel = ModelStruct();
 	m_Stringstream >> tempLevel.m_MeshName;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
-	m_Stringstream >> filler >> tempFlaot3.x >> tempFlaot3.y >> tempFlaot3.z;
-	tempLevel.m_Translation = tempFlaot3;
+	m_Stringstream >> filler >> tempLevel.m_Translation.x >> tempLevel.m_Translation.y >> tempLevel.m_Translation.z;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
-	m_Stringstream >> filler >> tempFlaot3.x >> tempFlaot3.y >> tempFlaot3.z;
-	tempLevel.m_Rotation = tempFlaot3;
+	m_Stringstream >> filler >> tempLevel.m_Rotation.x >> tempLevel.m_Rotation.y >> tempLevel.m_Rotation.z;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
-	m_Stringstream >> filler >> tempFlaot3.x >> tempFlaot3.y >> tempFlaot3.z;
-	tempLevel.m_Scale = tempFlaot3;
+	m_Stringstream >> filler >> tempLevel.m_Scale.x >> tempLevel.m_Scale.y >> tempLevel.m_Scale.z;
 
 	m_LevelModelList.push_back(tempLevel);
 }
@@ -119,19 +120,15 @@ void LevelLoader::readMeshList(std::istream& p_Input)
 void LevelLoader::readLightList(std::istream& p_Input)
 {
 	std::string key, filler, line;
-	LightStruct tempLight;
-	DirectX::XMFLOAT3 tempFlaot3;
+	LightData tempLight;
 	std::string tempString;
-	tempLight = LightStruct();
 	m_Stringstream >> tempLight.m_LightName;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
-	m_Stringstream >> filler >> tempFlaot3.x >> tempFlaot3.y >> tempFlaot3.z;
-	tempLight.m_Translation = tempFlaot3;
+	m_Stringstream >> filler >> tempLight.m_Translation.x >> tempLight.m_Translation.y >> tempLight.m_Translation.z;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
-	m_Stringstream >> filler >> tempFlaot3.x >> tempFlaot3.y >> tempFlaot3.z;
-	tempLight.m_Color = tempFlaot3;
+	m_Stringstream >> filler >> tempLight.m_Color.x >> tempLight.m_Color.y >> tempLight.m_Color.z;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
 	m_Stringstream >> filler >> tempString;
@@ -150,7 +147,7 @@ void LevelLoader::readLightList(std::istream& p_Input)
 	}
 	if(tempString == "kPointLight")
 	{
-		tempLight.m_Type = 0;
+		tempLight.m_Type = 1;
 		PointLight tempDirectional;
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
@@ -160,7 +157,7 @@ void LevelLoader::readLightList(std::istream& p_Input)
 	}
 	if(tempString == "kSpotLight")
 	{
-		tempLight.m_Type = 0;
+		tempLight.m_Type = 2;
 		SpotLight tempDirectional;
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
@@ -173,6 +170,36 @@ void LevelLoader::readLightList(std::istream& p_Input)
 		m_Stringstream >> filler >> tempDirectional.m_ConeAngle;
 		m_LevelSpotLightList.push_back(std::make_pair(tempLight,tempDirectional));
 		return;
+	}
+}
+
+void LevelLoader::readCheckPointList(std::istream& p_Input)
+{
+	std::string key, filler, line;
+	CheckPointStruct tempCheckPoint;
+	std::string tempString;
+	m_Stringstream >> tempString;
+	if(tempString == "Start")
+	{
+		std::getline(p_Input, line);
+		m_Stringstream = std::stringstream(line);
+		m_Stringstream >> filler >> m_CheckPointStart.x >> m_CheckPointStart.y >> m_CheckPointStart.z;
+	}
+	else if(tempString == "End")
+	{
+		std::getline(p_Input, line);
+		m_Stringstream = std::stringstream(line);
+		m_Stringstream >> filler >> m_CheckPointEnd.x >> m_CheckPointEnd.y >> m_CheckPointEnd.z;
+	}
+	else
+	{
+		std::getline(p_Input, line);
+		m_Stringstream = std::stringstream(line);
+		m_Stringstream >> filler >> tempCheckPoint.m_Number;
+		std::getline(p_Input, line);
+		m_Stringstream = std::stringstream(line);
+		m_Stringstream >> filler >> tempCheckPoint.m_Transaltion.x >> tempCheckPoint.m_Transaltion.y >> tempCheckPoint.m_Transaltion.z;
+		m_LevelCheckPointList.push_back(tempCheckPoint);
 	}
 }
 
@@ -191,4 +218,13 @@ LevelLoader::LevelHeader LevelLoader::getLevelHeader()
 const std::vector<LevelLoader::ModelStruct>& LevelLoader::getLevelModelList()
 {
 	return m_LevelModelList;
+}
+
+LevelLoader::LightStruct LevelLoader::getLevelLightList()
+{
+	m_LightStruct.m_LevelDirectionalLightList = m_LevelDirectionalLightList;
+	m_LightStruct.m_LevelPointLightList = m_LevelPointLightList;
+	m_LightStruct.m_LevelSpotLightList = m_LevelSpotLightList;
+
+	return m_LightStruct;
 }
