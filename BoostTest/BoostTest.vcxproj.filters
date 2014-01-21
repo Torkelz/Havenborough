@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Source\testProgram.cpp" />
@@ -51,9 +51,6 @@
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Input\InputTranslator.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\RAMMemInfo.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\Input\TestInput.cpp">
@@ -117,9 +114,6 @@
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp">
@@ -257,6 +251,15 @@
     </ClCompile>
     <ClCompile Include="..\Client\Source\EventManager.cpp">
       <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\RAMInfo.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

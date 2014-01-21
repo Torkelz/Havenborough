@@ -8,7 +8,7 @@
 #include <INetwork.h>
 #include "SceneManager.h"
 #include "Window.h"
-#include "RAMMemInfo.h"
+#include "RAMInfo.h"
 #include <ISound.h>
 #include "EventManager.h"
 
@@ -25,7 +25,7 @@ private:
 	Window	m_Window;
 	IGraphics* m_Graphics;
 	Input	m_InputQueue;
-	RAMMemInfo m_MemoryInfo;
+	RAMInfo m_MemoryInfo;
 	float m_MemUpdateDelay;
 	float m_TimeToNextMemUpdate;
 

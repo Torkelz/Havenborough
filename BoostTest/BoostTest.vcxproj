@@ -117,7 +117,7 @@
     <ClCompile Include="..\Client\Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="..\Client\Source\Logger.cpp" />
     <ClCompile Include="..\Client\Source\Player.cpp" />
-    <ClCompile Include="..\Client\Source\RAMMemInfo.cpp" />
+    <ClCompile Include="..\Client\Source\RAMInfo.cpp" />
     <ClCompile Include="..\Client\Source\ResourceManager.cpp" />
     <ClCompile Include="..\Client\Source\ResourceTranslator.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
@@ -130,6 +130,7 @@
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
+    <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
     <ClCompile Include="..\Graphics\Source\Joint.cpp" />
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp" />
@@ -141,7 +142,7 @@
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
-    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp" />
+    <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
     <ClCompile Include="..\Client\Source\Input\Input.cpp" />

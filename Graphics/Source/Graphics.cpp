@@ -5,7 +5,7 @@
 #include <boost/filesystem.hpp>
 
 using namespace DirectX;
-
+const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
@@ -21,6 +21,8 @@ Graphics::Graphics(void)
 	m_DeferredRender = nullptr;
 	m_Sampler = nullptr;
 	m_VRAMMemInfo = nullptr;
+
+	
 
 	m_VSyncEnabled = false; //DEBUG
 
@@ -169,7 +171,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Note this is the only time initialize should be called.
 	WrapperFactory::initialize(m_Device, m_DeviceContext);	
 	m_WrapperFactory = WrapperFactory::getInstance();
-	m_VRAMMemInfo = VRAMMemInfo::getInstance();
+	m_VRAMMemInfo = VRAMInfo::getInstance();
 	m_ModelFactory = ModelFactory::getInstance();
 	m_ModelFactory->initialize(&m_TextureList);
 
@@ -180,7 +182,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred Render
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights);
+		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
+		m_MaxLightsPerLightInstance);
 	
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
@@ -194,7 +197,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
+	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 
 	//ShaderInputElementDescription shaderDesc[] = 
 	//{
@@ -203,6 +206,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
 															"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);//, shaderDesc, 1);
+
+	m_Forwardrender = new ForwardRendering();
+	m_Forwardrender->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
+		m_DepthStencilView, m_RenderTargetView);
 
 	return true;
 }
@@ -269,6 +276,7 @@ void Graphics::shutdown(void)
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
+	SAFE_DELETE(m_Forwardrender);
 	//Clear lights
 	m_PointLights.clear();
 	m_SpotLights.clear();
@@ -278,7 +286,7 @@ void Graphics::shutdown(void)
 	m_SpotLights.shrink_to_fit();
 	m_DirectionalLights.shrink_to_fit();
 
-	VRAMMemInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
+	VRAMInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
 	
 	m_Shader = nullptr;
 }
@@ -428,9 +436,20 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 	{
 		if (inst.first == p_ModelId)
 		{
-			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.getModelName()),
-				inst.second.getWorldMatrix(),
-				&inst.second.getFinalTransform()));
+			ModelDefinition *temp = getModelFromList(inst.second.getModelName());
+			if(temp->m_IsTransparent == false)
+			{
+				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(temp,
+					inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
+			}
+			else
+			{
+				m_Forwardrender->addRenderable(DeferredRenderer::Renderable(temp,
+					inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
+			}
+			
 			break;
 		}
 	}
@@ -526,6 +545,8 @@ void Graphics::drawFrame()
 		
 		m_Shader->unSetShader();
 	}
+
+	m_Forwardrender->renderForward();
 
 	drawBoundingVolumes();
 
@@ -1051,7 +1072,7 @@ void Graphics::drawBoundingVolumes()
 
 		if(m_BVTriangles.size() >= m_BVBufferNumOfElements)
 		{
-			VRAMMemInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
+			VRAMInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
 			m_BVBufferNumOfElements = m_BVTriangles.size() + 1;
 			Buffer::Description buffDesc;
 			buffDesc.initData = &m_BVTriangles;
@@ -1061,7 +1082,7 @@ void Graphics::drawBoundingVolumes()
 			buffDesc.usage = Buffer::Usage::DEFAULT;
 	
 			buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
-			VRAMMemInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
+			VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 			SAFE_DELETE(m_BVBuffer);
 			m_BVBuffer = buffer;
 		}
@@ -1113,3 +1134,4 @@ void Graphics::DebugDefferedDraw(void)
 	m_Sampler = nullptr;
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
 }
+

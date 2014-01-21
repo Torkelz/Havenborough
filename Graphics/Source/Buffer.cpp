@@ -1,5 +1,5 @@
 #include "Buffer.h"
-#include "VRAMMemInfo.h"
+#include "VRAMInfo.h"
 
 Buffer::Buffer(void)
 {
@@ -10,7 +10,7 @@ Buffer::Buffer(void)
 
 Buffer::~Buffer(void)
 {
-	VRAMMemInfo::getInstance()->updateUsage(-(int)(m_SizeOfElement * m_NumOfElements));
+	VRAMInfo::getInstance()->updateUsage(-(int)(m_SizeOfElement * m_NumOfElements));
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
 	SAFE_RELEASE(m_Buffer);

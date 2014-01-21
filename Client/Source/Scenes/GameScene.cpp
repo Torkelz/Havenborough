@@ -33,7 +33,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager = p_EventManager;
 	
 	// Added from Skydome branch
-	m_ResourceManager->loadResource("texture","SKYBOXDDS");
+	m_SkyboxID = m_ResourceManager->loadResource("texture","SKYBOXDDS");
 	m_Graphics->createSkyDome("SKYBOXDDS",50000.f);
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addLight), LightEventData::sk_EventType);
@@ -55,6 +55,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 void GameScene::destroy()
 {
 	releaseSandboxModels();
+	m_ResourceManager->releaseResource(m_SkyboxID);
 }
 
 void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
@@ -98,12 +99,13 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 void GameScene::render()
 {
+	m_Graphics->setClearColor(Vector4(0,0,0,1));
 	Vector3 viewRot = m_GameLogic->getPlayerViewRotation();
 	Vector3 playerPos = m_GameLogic->getPlayerEyePosition();
 	m_Graphics->updateCamera(playerPos, viewRot.x, viewRot.y);
 
 	std::vector<Actor::ptr>& actors = m_GameLogic->getObjects();
-
+	
 	for (auto& mesh : m_Models)
 	{
 		m_Graphics->renderModel(mesh.modelId);
@@ -372,18 +374,14 @@ void GameScene::loadSandboxModels()
 {
 	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
 								"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	m_Graphics->createShader("DefaultShaderForward", L"../../Graphics/Source/DeferredShaders/ForwardShader.hlsl",
+		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
 		"SKYBOX",
 		"House1",
-		"RedBlueCrate",
-		"OrangeCrate",
-		"LightBlueCrate",
-		"GreenCrate",
-		"RedCrate",
-		"BrownCrate",
 		"MarketStand1",
 		"Barrel1",
 		"Crate1",
@@ -401,6 +399,7 @@ void GameScene::loadSandboxModels()
 	for (const std::string& model : preloadedModels)
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+
 		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
 	}
 

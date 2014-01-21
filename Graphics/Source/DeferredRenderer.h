@@ -3,15 +3,12 @@
 #include <d3d11.h>
 #include <memory>
 #include <vector>
-//#include "WrapperFactory.h"
 #include <DirectXMath.h>
 #include "LightStructs.h"
 #include "TextureLoader.h"
 #include "ModelDefinition.h"
-#include "VRAMMemInfo.h"
 #include "ModelBinaryLoader.h"
 #include "SkyDome.h"
-
 
 /*
  * cBuffer contains the matrices needed to render the models and lights.
@@ -81,7 +78,7 @@ private:
 	std::vector<Light>			*m_SpotLights;
 	std::vector<Light>			*m_PointLights;
 	std::vector<Light>			*m_DirectionalLights;
-	static const unsigned int	m_MaxLightsPerLightInstance;
+	unsigned int	m_MaxLightsPerLightInstance;
 
 	DirectX::XMFLOAT3			*m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
@@ -133,6 +130,7 @@ public:
 
 	/*
 	 * Initialize all the needed variables for rendering.
+	 * 
 	 * @ p_Device, DirectX Device used for rendering
 	 * @ p_DeviceContect, DX device context. Used for rendering.
 	 * @ p_DepthStencilView, used for z-culling when rendering.
@@ -147,10 +145,12 @@ public:
 		unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
-		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights);
+		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, 
+		unsigned int p_MaxLightsPerLightInstance);
 
 	/*
 	 * Call to render the graphics using deferred rendering.
+	 *
 	 * All the objects that are supposed to be rendered must have been sent to the renderer
 	 * before calling this function.
 	 */
@@ -158,6 +158,7 @@ public:
 
 	/*
 	 * Add models to the list of objects to be rendered with deferred rendering.
+	 *
 	 * @ p_Renderable, the model that needs to be rendered.
 	 */
 	void addRenderable(Renderable p_Renderable);

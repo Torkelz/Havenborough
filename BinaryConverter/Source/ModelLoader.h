@@ -81,6 +81,7 @@ public:
 	 * Creates vectors with information from the requested file.
 	 *
 	 * @param p_FilePath, the absolute path to the requested file.
+	 * @return false if something is wrong when loading file.
 	 */
 	bool loadFile(std::string p_FilePath);
 

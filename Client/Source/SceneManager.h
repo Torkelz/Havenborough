@@ -29,8 +29,6 @@ private:
 	Input			*m_InputQueue;
 	GameLogic		*m_GameLogic;
 
-	//1:P
-	bool m_RunGame; 
 public:
 	SceneManager();
 	~SceneManager();

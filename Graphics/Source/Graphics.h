@@ -12,10 +12,11 @@
 #include "GraphicsExceptions.h"
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
+#include "ForwardRendering.h"
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
 #include "ModelInstance.h"
-#include "VRAMMemInfo.h"
+#include "VRAMInfo.h"
 
 #include "ShaderStructs.h"
 
@@ -56,7 +57,7 @@ private:
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
-	VRAMMemInfo *m_VRAMMemInfo;
+	VRAMInfo *m_VRAMMemInfo;
 
 	vector<pair<string, Shader*>> m_ShaderList;
 	vector<pair<string, ModelDefinition>> m_ModelList;
@@ -65,7 +66,8 @@ private:
 	int m_NextInstanceId;
 	
 	DeferredRenderer *m_DeferredRender;
-
+	ForwardRendering *m_Forwardrender;
+		
 	//Lights
 	std::vector<Light> m_SpotLights;
 	std::vector<Light> m_PointLights;

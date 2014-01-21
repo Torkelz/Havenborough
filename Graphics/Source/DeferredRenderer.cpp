@@ -1,6 +1,8 @@
 #include "DeferredRenderer.h"
+#include "VRAMInfo.h"
 
-const unsigned int DeferredRenderer::m_MaxLightsPerLightInstance = 100;
+
+//const unsigned int DeferredRenderer::m_MaxLightsPerLightInstance = 100;
 
 DeferredRenderer::DeferredRenderer()
 		
@@ -108,7 +110,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 								  unsigned int p_screenWidth, unsigned int p_screenHeight,
 								  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 								  DirectX::XMFLOAT4X4 *p_ProjectionMatrix,std::vector<Light> *p_SpotLights,
-								  std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights)
+								  std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+								  unsigned int p_MaxLightsPerLightInstance)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -122,6 +125,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_PointLights = p_PointLights;
 	m_DirectionalLights = p_DirectionalLights;
 	m_RenderSkyDome = false;
+	m_MaxLightsPerLightInstance = p_MaxLightsPerLightInstance;
 
 	//Create render targets with the size of screen width and screen height
 	D3D11_TEXTURE2D_DESC desc;
@@ -160,8 +164,11 @@ void DeferredRenderer::renderDeferred()
 	updateConstantBuffer();
 
 	// Render
-	renderGeometry();
-	renderLighting();
+	if(m_Objects.size() > 0)
+	{
+		renderGeometry();
+		renderLighting();
+	}
 
 	m_Objects.clear();
 	m_RenderSkyDome = false;
@@ -289,12 +296,9 @@ void DeferredRenderer::renderSkyDomeImpl()
 {
 	if(m_RenderSkyDome)
 	{
-		float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-		UINT sampleMask = 0xffffffff;
 		////Select the third render target[3]
 		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargets[3], m_DepthStencilView); 
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		//m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
 		m_DeviceContext->RSSetState(m_SkyDomeRasterizerState);
 		m_DeviceContext->OMSetDepthStencilState(m_SkyDomeDepthStencilState,0);
 		m_DeviceContext->PSSetSamplers(0,1,&m_SkyDomeSampler);
@@ -336,7 +340,7 @@ void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float 
     viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
     viewDesc.TextureCube.MostDetailedMip = 0;
 
-	HRESULT hr = m_Device->CreateShaderResourceView(texture, &viewDesc, &m_SkyDomeSRV);
+	m_Device->CreateShaderResourceView(texture, &viewDesc, &m_SkyDomeSRV);
 	SAFE_RELEASE(texture);
 	SAFE_RELEASE(resource);
 
@@ -437,8 +441,8 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 	SAFE_RELEASE(srvt3);
 	// Done with the render targets.
 
-	unsigned int size = 4 * VRAMMemInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
-	VRAMMemInfo::getInstance()->updateUsage(size);
+	unsigned int size = 4 * VRAMInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
+	VRAMInfo::getInstance()->updateUsage(size);
 
 	return result;
 }
@@ -505,16 +509,16 @@ void DeferredRenderer::createBuffers()
 	cbdesc.usage = Buffer::Usage::DEFAULT;
 
 	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(cBuffer));
+	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
 
 	cbdesc.initData = nullptr;
 	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
 	m_ObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
+	VRAMInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
 
 	cbdesc.sizeOfElement = sizeof(cAnimatedObjectBuffer);
 	m_AnimatedObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(cAnimatedObjectBuffer));	
+	VRAMInfo::getInstance()->updateUsage(sizeof(cAnimatedObjectBuffer));	
 
 	Buffer::Description adesc;
 	adesc.initData = nullptr;
@@ -524,7 +528,7 @@ void DeferredRenderer::createBuffers()
 	adesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	m_AllLightBuffer = WrapperFactory::getInstance()->createBuffer(adesc);
 
-	VRAMMemInfo::getInstance()->updateUsage(sizeof(Light) * m_MaxLightsPerLightInstance);
+	VRAMInfo::getInstance()->updateUsage(sizeof(Light) * m_MaxLightsPerLightInstance);
 }
 
 void DeferredRenderer::clearRenderTargets()
