@@ -23,9 +23,15 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_Network = p_Network;
 	m_EventManager = p_EventManager;
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
+#ifdef _DEBUG
+	m_Level.loadLevel("../Bin/assets/levels/Level2.btxl", "../Bin/assets/levels/Level2.btxl", m_Objects);
+	m_Level.setStartPosition(XMFLOAT3(0.0f, 1000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+#else
 	m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+#endif
 	//m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
 	m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
 
@@ -34,7 +40,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_ChangeScene = GoToScene::NONE;
 
 	m_Connected = false;
-	m_Network->connectToServer("localhost", 31415, &connectedCallback, this);
+	m_Network->connectToServer("localhost", 31415, &connectedCallback, this); //Note: IP to server if running: 194.47.150.5
 
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();

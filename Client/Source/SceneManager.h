@@ -9,6 +9,7 @@
 /*TESTING*/
 #include <iostream>
 
+
 class SceneManager
 {
 private:
@@ -30,7 +31,6 @@ private:
 
 	//1:P
 	bool m_RunGame; 
-
 public:
 	SceneManager();
 	~SceneManager();

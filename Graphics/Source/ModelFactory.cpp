@@ -131,7 +131,7 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 	using std::pair;
 
 	boost::filesystem::path modelPath(p_Filename);
-	boost::filesystem::path parentDir(modelPath.parent_path());
+	boost::filesystem::path parentDir(modelPath.parent_path().parent_path() / "textures");
 
 	vector<pair<string, ID3D11ShaderResourceView*>> diffuse;
 	vector<pair<string, ID3D11ShaderResourceView*>> normal;
@@ -140,12 +140,12 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 	for(unsigned int i = 0; i < p_NumOfMaterials; i++)
 	{
 		const Material &material = p_Materials.at(i);
-		boost::filesystem::path diff = (material.m_DiffuseMap == "NONE") ?
-			"assets/Default/Default_COLOR.jpg" : parentDir / material.m_DiffuseMap;
-		boost::filesystem::path norm = (material.m_NormalMap == "NONE" || material.m_NormalMap == "Default_NRM.jpg") ?
-			"assets/Default/Default_COLOR.jpg" : parentDir / material.m_NormalMap;
-		boost::filesystem::path spec = (material.m_SpecularMap == "NONE" || material.m_SpecularMap == "Default_SPEC.jpg") ?
-			"assets/Default/Default_SPEC.jpg" : parentDir / material.m_SpecularMap;
+		boost::filesystem::path diff = (material.m_DiffuseMap == "NONE" || material.m_DiffuseMap == "Default_COLOR.dds") ?
+			"assets/textures/Default_COLOR.dds" : parentDir / material.m_DiffuseMap;
+		boost::filesystem::path norm = (material.m_NormalMap == "NONE" || material.m_NormalMap == "Default_NRM.dds") ?
+			"assets/textures/Default_NRM.dds" : parentDir / material.m_NormalMap;
+		boost::filesystem::path spec = (material.m_SpecularMap == "NONE" || material.m_SpecularMap == "Default_SPEC.dds") ?
+			"assets/textures/Default_SPEC.dds" : parentDir / material.m_SpecularMap;
 
 		m_LoadModelTexture(material.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
 		m_LoadModelTexture(material.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);

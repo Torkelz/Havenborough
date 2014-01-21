@@ -64,7 +64,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -88,7 +88,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -117,7 +117,7 @@
     <ClCompile Include="..\Client\Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="..\Client\Source\Logger.cpp" />
     <ClCompile Include="..\Client\Source\Player.cpp" />
-    <ClCompile Include="..\Client\Source\RAMMemInfo.cpp" />
+    <ClCompile Include="..\Client\Source\RAMInfo.cpp" />
     <ClCompile Include="..\Client\Source\ResourceManager.cpp" />
     <ClCompile Include="..\Client\Source\ResourceTranslator.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
@@ -140,7 +140,7 @@
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
-    <ClCompile Include="..\Graphics\Source\VRAMMemInfo.cpp" />
+    <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
     <ClCompile Include="..\Client\Source\Input\Input.cpp" />

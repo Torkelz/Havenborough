@@ -3,14 +3,11 @@
 #include <d3d11.h>
 #include <memory>
 #include <vector>
-//#include "WrapperFactory.h"
 #include <DirectXMath.h>
 #include "LightStructs.h"
 #include "TextureLoader.h"
 #include "ModelDefinition.h"
-#include "VRAMMemInfo.h"
 #include "ModelBinaryLoader.h"
-
 
 
 /*
