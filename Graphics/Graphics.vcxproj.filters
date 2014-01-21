@@ -62,6 +62,9 @@
     <ClCompile Include="Source\RAMInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ForwardRendering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Buffer.h">
@@ -133,6 +136,9 @@
     <ClInclude Include="Source\RAMInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ForwardRendering.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\DeferredShaders\LightPassSpotLight.hlsl">
@@ -159,6 +165,8 @@
     <FxCompile Include="Source\DeferredShaders\BoundingVolume.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="Source\DeferredShaders\ForwardShader.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\ForwardShader.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

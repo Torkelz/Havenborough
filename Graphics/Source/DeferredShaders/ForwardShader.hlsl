@@ -62,8 +62,8 @@ PSOut PS( PSIn input )
 	PSOut output;
 
 	output.color = diffuse.Sample(m_textureSampler, input.uvCoord);
-	/*if(output.color.w <= 0.5f)
-		output.color.rgb = float3(1,0,0);*/
+	if(output.color.w == 0.f)
+		discard;
 
 	return output;
 }

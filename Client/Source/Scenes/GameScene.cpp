@@ -391,11 +391,8 @@ void GameScene::loadSandboxModels()
 	for (const std::string& model : preloadedModels)
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
-	
-		if(model == "Tree1")
-			m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
-		else
-			m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
+
+		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
 	}
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding IK test tube");

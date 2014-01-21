@@ -22,11 +22,7 @@ Graphics::Graphics(void)
 	m_Sampler = nullptr;
 	m_VRAMMemInfo = nullptr;
 
-	m_ConstantBuffer = nullptr;
-	m_ObjectConstantBuffer = nullptr;
-	m_AnimatedObjectConstantBuffer = nullptr;
-	m_AllLightBuffer = nullptr;
-	m_TransparencyAdditiveBlend = nullptr;
+	
 
 	m_VSyncEnabled = false; //DEBUG
 
@@ -211,8 +207,9 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
 															"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);//, shaderDesc, 1);
 
-	createForwardBuffers();
-	createBlendStates();
+	m_Forwardrender = new ForwardRendering();
+	m_Forwardrender->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
+		m_DepthStencilView, m_RenderTargetView);
 
 	return true;
 }
@@ -279,12 +276,7 @@ void Graphics::shutdown(void)
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
-
-	SAFE_DELETE(m_ConstantBuffer);
-	SAFE_DELETE(m_ObjectConstantBuffer);
-	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
-	SAFE_DELETE(m_AllLightBuffer);
-	SAFE_RELEASE(m_TransparencyAdditiveBlend);
+	SAFE_DELETE(m_Forwardrender);
 	//Clear lights
 	m_PointLights.clear();
 	m_SpotLights.clear();
@@ -453,7 +445,7 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 			}
 			else
 			{
-				m_TransparencyObjects.push_back(DeferredRenderer::Renderable(temp,
+				m_Forwardrender->addRenderable(DeferredRenderer::Renderable(temp,
 					inst.second.getWorldMatrix(),
 					&inst.second.getFinalTransform()));
 			}
@@ -549,7 +541,7 @@ void Graphics::drawFrame()
 		m_Shader->unSetShader();
 	}
 
-	forwardRendering();
+	m_Forwardrender->renderForward();
 
 	drawBoundingVolumes();
 
@@ -559,7 +551,6 @@ void Graphics::drawFrame()
 	m_PointLights.clear();
 	m_SpotLights.clear();
 	m_DirectionalLights.clear();
-	m_TransparencyObjects.clear();
 }
 
 void Graphics::updateAnimations(float p_DeltaTime)
@@ -1110,133 +1101,6 @@ void Graphics::drawBoundingVolumes()
 		m_BVTriangles.clear();
 	}
 }
-void Graphics::createBlendStates()
-{
-	D3D11_BLEND_DESC bd;
-	bd.AlphaToCoverageEnable = false;
-	bd.IndependentBlendEnable = false;
-	bd.RenderTarget[0].BlendEnable = true;
-	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	bd.RenderTarget[0].DestBlend =  D3D11_BLEND_INV_SRC_ALPHA;
-	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
-	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	m_Device->CreateBlendState(&bd, &m_TransparencyAdditiveBlend);
-}
-void Graphics::createForwardBuffers()
-{
-	cBuffer cb;
-	cb.view = m_ViewMatrix;
-	cb.proj = m_ProjectionMatrix;
-	cb.campos = m_Eye;
-
-	Buffer::Description cbdesc;
-	cbdesc.initData = &cb;
-	cbdesc.numOfElements = 1;
-	cbdesc.sizeOfElement = sizeof(cBuffer);
-	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
-	cbdesc.usage = Buffer::Usage::DEFAULT;
-
-	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
-
-	cbdesc.initData = nullptr;
-	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
-	m_ObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
-
-	cbdesc.sizeOfElement = sizeof(cAnimatedObjectBuffer);
-	m_AnimatedObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMInfo::getInstance()->updateUsage(sizeof(cAnimatedObjectBuffer));	
-
-	Buffer::Description adesc;
-	adesc.initData = nullptr;
-	adesc.numOfElements = m_MaxLightsPerLightInstance;
-	adesc.sizeOfElement = sizeof(Light);
-	adesc.type = Buffer::Type::VERTEX_BUFFER;
-	adesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
-	m_AllLightBuffer = WrapperFactory::getInstance()->createBuffer(adesc);
-
-	VRAMInfo::getInstance()->updateUsage(sizeof(Light) * m_MaxLightsPerLightInstance);
-}
-void Graphics::updateConstantBuffer()
-{
-	cBuffer cb;
-	cb.view = m_ViewMatrix;
-	cb.proj = m_ProjectionMatrix;
-	cb.campos = m_Eye;
-	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
-}
-
-void Graphics::forwardRendering()
-{
-	if(m_TransparencyObjects.size() > 0)
-	{
-		// Set the render targets.
-		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
-		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		// The textures will be needed to be grabbed from the model later.
-		ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
-
-		m_ConstantBuffer->setBuffer(1);
-		m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
-		updateConstantBuffer();
-		for(unsigned int i = 0; i < m_TransparencyObjects.size();i++)
-		{
-			m_TransparencyObjects.at(i).m_Model->vertexBuffer->setBuffer(0);
-
-			if (m_TransparencyObjects.at(i).m_Model->m_IsAnimated)
-			{
-				cAnimatedObjectBuffer temp;
-				temp.invTransposeWorld = m_TransparencyObjects.at(i).m_invTransposeWorld;
-
-				const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_TransparencyObjects.at(i).m_FinalTransforms;
-				for (unsigned int a = 0; a < tempBones->size(); a++)
-					temp.boneTransform[a] = (*tempBones)[a];
-
-				m_DeviceContext->UpdateSubresource(m_AnimatedObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-				m_AnimatedObjectConstantBuffer->setBuffer(3);
-			}
-
-			cObjectBuffer temp;
-			temp.world = m_TransparencyObjects.at(i).m_World;
-			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-			m_ObjectConstantBuffer->setBuffer(2);
-
-			// Set shader.
-			m_TransparencyObjects.at(i).m_Model->shader->setShader();
-			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-			m_TransparencyObjects.at(i).m_Model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
-		
-			for(unsigned int j = 0; j < m_TransparencyObjects.at(i).m_Model->numOfMaterials;j++)
-			{
-				ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).m_Model->diffuseTexture[j].second, 
-					m_TransparencyObjects.at(i).m_Model->normalTexture[j].second, 
-					m_TransparencyObjects.at(i).m_Model->specularTexture[j].second 
-				};
-				m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-
-				m_DeviceContext->Draw(m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).second, m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).first);
-
-				m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
-			}
-
-			m_TransparencyObjects.at(i).m_Model->shader->setBlendState(0, data);
-			m_TransparencyObjects.at(i).m_Model->shader->unSetShader();
-			m_ObjectConstantBuffer->unsetBuffer(2);
-			m_AnimatedObjectConstantBuffer->unsetBuffer(3);
-			m_TransparencyObjects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
-		}
-		m_DeviceContext->PSSetSamplers(0,0,0);
-		m_ConstantBuffer->unsetBuffer(1);
-
-		// Unset render targets.
-		m_DeviceContext->OMSetRenderTargets(0, 0, 0);
-	}
-}
 
 //TODO: Remove later
 void Graphics::DebugDefferedDraw(void)
@@ -1260,3 +1124,4 @@ void Graphics::DebugDefferedDraw(void)
 	m_Sampler = nullptr;
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
 }
+
