@@ -59,6 +59,9 @@
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
     <ClCompile Include="testProgram.cpp" />
+    <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp">
+      <Filter>Graphics\GraphicsInclude</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">

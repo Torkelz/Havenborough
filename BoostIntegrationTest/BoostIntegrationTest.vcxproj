@@ -17,6 +17,7 @@
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
+    <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp" />
     <ClCompile Include="..\Graphics\Source\Joint.cpp" />
@@ -79,8 +80,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)Test\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BOOST_INC_DIR);$(VLD_INC_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(VLD_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
@@ -115,6 +116,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

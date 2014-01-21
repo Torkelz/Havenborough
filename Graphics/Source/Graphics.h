@@ -73,7 +73,7 @@ private:
 	std::vector<Light> m_PointLights;
 	std::vector<Light> m_DirectionalLights;
 
-	//Stuff needed for drawing boundingvolumes
+	//Stuff needed for drawing bounding volumes
 	std::vector<XMFLOAT4>	m_BVTriangles;
 	Buffer					*m_BVBuffer;
 	unsigned int			m_BVBufferNumOfElements;

@@ -6,19 +6,24 @@
 #include "../../Graphics/Source/Shader.h"
 #include "../../Client/Source/Window.h"
 
+#if _DEBUG
+#include <vld.h> 
+#endif
+
 BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 
 	BOOST_AUTO_TEST_CASE(TestGraphics)
 {
+	BOOST_MESSAGE("1> Running TestGraphics...");
 	Window window;
 	Vector2 winSize = Vector2(1280, 720);
-	BOOST_MESSAGE("Creating window");
+	BOOST_MESSAGE("1> Creating window");
 	BOOST_CHECK_NO_THROW(window.init("Test Graphics", Vector2ToXMFLOAT2(&winSize)));
 
 	IGraphics *graphics = IGraphics::createGraphics();
 	
 
-	BOOST_MESSAGE("Checking init graphics with window");
+	BOOST_MESSAGE("1> Checking init graphics with window");
 	BOOST_CHECK(graphics->initialize(window.getHandle(), (int)winSize.x, (int)winSize.y, false));
 	
 	WrapperFactory *wraperpFactory = WrapperFactory::getInstance();
