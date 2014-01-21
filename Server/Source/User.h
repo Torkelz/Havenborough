@@ -14,6 +14,8 @@ public:
 		LOBBY,
 		WAITING_FOR_GAME,
 		IN_GAME,
+		LOADING_LEVEL,
+		WAITING_FOR_START,
 	};
 
 	typedef std::function<void()> listenerCallback_t;
@@ -28,5 +30,8 @@ private:
 public:
 	explicit User(IConnectionController* p_Connection);
 
-	IConnectionController* getConnection();
+	IConnectionController* getConnection() const;
+
+	State getState() const;
+	void setState(State p_NewState);
 };

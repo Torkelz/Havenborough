@@ -287,6 +287,8 @@ void GameLogic::handleNetwork()
 						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
 						m_Objects.push_back(actor);
 					}
+
+					conn->sendDoneLoading();
 				}
 				break;
 
@@ -390,7 +392,9 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 {
 	if (p_Res == Result::SUCCESS)
 	{
-		((GameLogic*)p_UserData)->m_Connected = true;
+		GameLogic* self = static_cast<GameLogic*>(p_UserData);
+
+		self->m_Connected = true;
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
 	else

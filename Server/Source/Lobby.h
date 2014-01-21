@@ -1,8 +1,11 @@
 #pragma once
 
+#include "GameRoundFactory.h"
 #include "User.h"
 
 #include <vector>
+
+class Server;
 
 class Lobby
 {
@@ -15,10 +18,15 @@ public:
 	};
 
 private:
+	Server* m_Server;
+
 	std::vector<AvailableLevel> m_Levels;
 	std::vector<User::wPtr> m_FreeUsers;
+	GameRoundFactory m_GameFactory;
 
 public:
+	explicit Lobby(Server* p_Server);
+
 	void checkFreeUsers();
 
 	void addAvailableLevel(const std::string& p_LevelName, unsigned int p_MaxPlayers);

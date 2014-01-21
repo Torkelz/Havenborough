@@ -211,6 +211,12 @@ PlayerControlData ConnectionController::getPlayerControlData(Package p_Package)
 	return playerControl->m_Data;
 }
 
+void ConnectionController::sendDoneLoading()
+{
+	DoneLoading package;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);

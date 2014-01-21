@@ -1,5 +1,12 @@
 #include "Lobby.h"
 
+#include "Server.h"
+
+Lobby::Lobby(Server* p_Server)
+	:	m_Server(p_Server)
+{
+}
+
 void Lobby::checkFreeUsers()
 {
 	if (m_Levels.empty())
@@ -13,7 +20,7 @@ void Lobby::checkFreeUsers()
 		{
 			level.m_JoinedUsers.push_back(user);
 
-			if (level.m_JoinedUsers.size() == level.m_MaxPlayers)
+			if (level.m_JoinedUsers.size() >= level.m_MaxPlayers)
 			{
 				startLevel(level);
 			}
@@ -43,5 +50,13 @@ void Lobby::addFreeUser(User::wPtr p_User)
 
 void Lobby::startLevel(AvailableLevel& p_Level)
 {
+	GameRound::ptr game = m_GameFactory.createRound(p_Level.m_LevelName);
+	for (auto& player : p_Level.m_JoinedUsers)
+	{
+		game->addNewPlayer(player);
+	}
+
 	p_Level.m_JoinedUsers.clear();
+
+	m_Server->addNewGame(game);
 }

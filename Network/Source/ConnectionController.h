@@ -78,6 +78,8 @@ public:
 	void sendPlayerControl(PlayerControlData p_Data) override;
 	PlayerControlData getPlayerControlData(Package p_Package) override;
 
+	void sendDoneLoading() override;
+
 	/**
 	 * Start the listening loop on the connection.
 	 */
