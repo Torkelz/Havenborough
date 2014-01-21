@@ -177,7 +177,7 @@ void DeferredRenderer::renderGeometry()
 
 	// The textures will be needed to be grabbed from the model later.
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
-
+	
 	m_ConstantBuffer->setBuffer(1);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	updateConstantBuffer();
@@ -557,10 +557,10 @@ void DeferredRenderer::createSamplerState()
 
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
 	// Create texture sampler.
-	sd.AddressU			= D3D11_TEXTURE_ADDRESS_CLAMP;
-	sd.AddressV			= D3D11_TEXTURE_ADDRESS_CLAMP;
-	sd.AddressW			= D3D11_TEXTURE_ADDRESS_CLAMP;
-	sd.Filter			= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.Filter			= D3D11_FILTER_ANISOTROPIC;
 
 	m_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
 }

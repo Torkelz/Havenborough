@@ -21,7 +21,6 @@ cbuffer cb : register(b1)
 	float4x4 view;
 	float4x4 projection;
 	float3	 cameraPos;
-	int		 ninjaKick;
 };
 //-----------------------------------------------------------------------------------------
 // VertexShader: VSScene
@@ -36,8 +35,6 @@ PSSceneIn VS(VSSceneIn input)
         
         // transform the point into view space
         output.Pos = mul( projection, mul(view, mul(trans, float4(input.posL,1.0f) ) ));
-
-		input.posL *= 0.0000000000001f;
         output.texC = input.posL;
         
         return output;
@@ -47,7 +44,5 @@ PSSceneIn VS(VSSceneIn input)
 //-----------------------------------------------------------------------------------------
 float4 PS(PSSceneIn input) : SV_Target
 {        
-        //return gCubeMap.Sample(linearSampler, input.texC);
         return m_texture.Sample(m_textureSampler, input.texC);
-       // return float4(1,0,0,1);
 }
