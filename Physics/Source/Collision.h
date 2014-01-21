@@ -80,7 +80,7 @@ public:
 
 private:
 
-	void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
+	void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMFLOAT4 p_L, DirectX::XMFLOAT4 &p_Least);
 	HitData seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol);
 };
 

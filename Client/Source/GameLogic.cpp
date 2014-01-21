@@ -45,7 +45,13 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 
 	addBoxWithOBB(Vector3(0.f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(0.0f, 0.0f, 0.0f));
 	addBoxWithOBB(Vector3(-1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
+	//addBoxWithOBB(Vector3(-1000.0f, 600.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
 	addBoxWithOBB(Vector3(1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
+
+	//	addBoxWithOBB(Vector3(0.f, 400.0f, 4300.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(0.0f, 0.0f, 0.0f));
+	//addBoxWithOBB(Vector3(-1000.0f, 400.0f, 4300.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
+	////addBoxWithOBB(Vector3(-1000.0f, 600.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
+	//addBoxWithOBB(Vector3(1000.0f, 400.0f, 4300.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
 
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
