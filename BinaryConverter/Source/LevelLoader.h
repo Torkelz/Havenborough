@@ -24,7 +24,6 @@ public:
 	};
 	struct LightData
 	{
-		std::string m_LightName;
 		DirectX::XMFLOAT3 m_Translation;
 		DirectX::XMFLOAT3 m_Color;
 		int m_Type;

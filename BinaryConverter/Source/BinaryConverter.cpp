@@ -97,4 +97,7 @@ void setLevelInfo(LevelLoader* p_Loader, LevelConverter* p_Converter)
 	p_Converter->setLevelDirectionalLightList(&p_Loader->getLevelDirectionalLightList());
 	p_Converter->setLevelPointLightList(&p_Loader->getLevelPointLightList());
 	p_Converter->setLevelSpotLightList(&p_Loader->getLevelSpotLightList());
+	p_Converter->setLevelCheckPointList(&p_Loader->getLevelCheckPointList());
+	p_Converter->setLevelCheckPointStart(p_Loader->getLevelCheckPointStart());
+	p_Converter->setLevelCheckPointEnd(p_Loader->getLevelCheckPointEnd());
 }

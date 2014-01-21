@@ -13,12 +13,14 @@ LevelBinaryLoader::~LevelBinaryLoader()
 bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 {
 	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
+	bool result;
 	if(!input)
 	{
 		return false;
 	}	
 	readHeader(&input);
 	m_LevelData = readLevel(&input);
+	result = readLevelLighting(&input);
 	return true;
 }
 
@@ -52,6 +54,16 @@ std::vector<LevelBinaryLoader::ModelData> LevelBinaryLoader::readLevel(std::istr
 	}
 
 	return levelData;
+}
+
+bool LevelBinaryLoader::readLevelLighting(std::istream* p_Input)
+{
+	int type;
+	byteToInt(p_Input, type);
+	////////////////////////////////////////////////////////////////////////////////////
+	if(type)
+
+	return true;
 }
 
 const std::vector<LevelBinaryLoader::ModelData>& LevelBinaryLoader::getModelData()

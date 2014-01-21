@@ -20,8 +20,34 @@ public:
 		std::vector<DirectX::XMFLOAT3> m_Rotation;
 		std::vector<DirectX::XMFLOAT3> m_Scale;
 	};
+	
+	struct LightData
+	{
+		DirectX::XMFLOAT3 m_Translation;
+		DirectX::XMFLOAT3 m_Color;
+		int m_Type;
+	};
+	struct DirectionalLight
+	{
+		int m_Intensity;
+		DirectX::XMFLOAT3 m_Direction;
+	};
+	struct PointLight
+	{
+		int m_Intensity;
+	};
+	struct SpotLight
+	{
+		int m_Intensity;
+		DirectX::XMFLOAT3 m_Direction;
+		int m_ConeAngle;
+	};
 private: 
 	std::vector<LevelBinaryLoader::ModelData> m_LevelData;
+	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::DirectionalLight>>* m_LevelDirectionalLightList;
+	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::PointLight>>* m_LevelPointLightList;
+	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::SpotLight>>* m_LevelSpotLightList;
+
 	Header m_Header;
 public:
 	/**
@@ -60,7 +86,11 @@ protected:
 	
 	LevelBinaryLoader::Header readHeader(std::istream* p_Input);
 	std::vector<LevelBinaryLoader::ModelData> readLevel(std::istream* p_Input);
-	
+	bool readLevelLighting(std::istream* p_Input);
+	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::DirectionalLight>> readDirectionalLight(std::istream* p_Input);
+	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::PointLight>> readPointLight(std::istream* p_Input);
+	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::SpotLight>> readSpotLight(std::istream* p_Input);
+
 private:
 	void clearData();
 };

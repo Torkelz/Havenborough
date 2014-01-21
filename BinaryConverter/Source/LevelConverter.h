@@ -18,9 +18,11 @@ private:
 	};
 
 	const std::vector<LevelLoader::ModelStruct>* m_LevelData;
-	const std::vector<LevelLoader::DirectionalLight>* m_LevelDirectionalLightList;
-	const std::vector<LevelLoader::PointLight>* m_LevelPointLightList;
-	const std::vector<LevelLoader::SpotLight>* m_LevelSpotLightList;
+	const std::vector<LevelLoader::CheckPointStruct>* m_LevelCheckPointList;
+	DirectX::XMFLOAT3 m_LevelCheckPointStart, m_LevelCheckPointEnd;
+	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>* m_LevelDirectionalLightList;
+	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>* m_LevelPointLightList;
+	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>* m_LevelSpotLightList;
 
 	LevelLoader::LevelHeader m_Header;
 	int m_LevelDataSize;
@@ -62,21 +64,42 @@ public:
 	 *
 	 * @param p_LevelDirectionalLightList, is a vector with directional lights. It expects it to be in .txl format.
 	 */
-	void setLevelDirectionalLightList(const std::vector<LevelLoader::DirectionalLight>* p_LevelDirectionalLightList);
+	void setLevelDirectionalLightList(const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>* p_LevelDirectionalLightList);
 
 	/**
 	 * Sets information about the point lighting used in the level.
 	 *
 	 * @param p_LevelPointLightList, is a vector with point lights. It expects it to be in .txl format.
 	 */
-	void setLevelPointLightList(const std::vector<LevelLoader::PointLight>* p_LevelPointLightList);
+	void setLevelPointLightList(const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>* p_LevelPointLightList);
 
 	/**
 	 * Sets information about the spot lighting used in the level.
 	 *
 	 * @param p_LevelSpotLightList, is a vector with spot lights. It expects it to be in .txl format.
 	 */
-	void setLevelSpotLightList(const std::vector<LevelLoader::SpotLight>* p_LevelSpotLightList);
+	void setLevelSpotLightList(const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>* p_LevelSpotLightList);
+
+	/**
+	 * Sets the list of checkpoints for the track.
+	 *
+	 * @param p_LevelCheckPointList, is a list of checkpoints structs that contains positions.
+	 */
+	void setLevelCheckPointList(const std::vector<LevelLoader::CheckPointStruct>* p_LevelCheckPointList);
+
+	/**
+	 * Set the checkpoint start value.
+	 *
+	 * @param p_LevelCheckPointStart, is a DirectX::XMFLOAT3.
+	 */
+	void setLevelCheckPointStart(DirectX::XMFLOAT3 p_LevelCheckPointStart);
+
+	/**
+	 * Set the checkpoint end value.
+	 *
+	 * @param p_LevelCheckPointEnd, is a DirectX::XMFLOAT3.
+	 */
+	void setLevelCheckPointEnd(DirectX::XMFLOAT3 p_LevelCheckPointEnd);
 
 	/**
 	 * Clears the writer.
@@ -88,4 +111,5 @@ protected:
 
 	void createHeader(std::ostream* p_Output);
 	void createLevel(std::ostream* p_Output);
+	void createLighting(std::ostream* p_Output);
 };

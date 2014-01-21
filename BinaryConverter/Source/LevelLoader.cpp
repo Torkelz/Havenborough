@@ -119,10 +119,10 @@ void LevelLoader::readMeshList(std::istream& p_Input)
 
 void LevelLoader::readLightList(std::istream& p_Input)
 {
-	std::string key, filler, line;
+	std::string key, filler, line, tempName;
 	LightData tempLight;
 	std::string tempString;
-	m_Stringstream >> tempLight.m_LightName;
+	m_Stringstream >> tempName;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
 	m_Stringstream >> filler >> tempLight.m_Translation.x >> tempLight.m_Translation.y >> tempLight.m_Translation.z;
@@ -233,4 +233,19 @@ const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>& L
 const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>& LevelLoader::getLevelSpotLightList()
 {
 	return m_LevelSpotLightList;
+}
+
+const std::vector<LevelLoader::CheckPointStruct>& LevelLoader::getLevelCheckPointList()
+{
+	return m_LevelCheckPointList;
+}
+
+DirectX::XMFLOAT3 LevelLoader::getLevelCheckPointStart()
+{
+	return m_CheckPointStart;
+}
+
+DirectX::XMFLOAT3 LevelLoader::getLevelCheckPointEnd()
+{
+	return m_CheckPointEnd;
 }
