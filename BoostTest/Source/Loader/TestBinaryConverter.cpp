@@ -297,11 +297,11 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 	byteFloat tempFloat2UV[2];tempFloat2UV[0].f = 0.5f; tempFloat2UV[1].f = 1.f;
 	tempUV.push_back(DirectX::XMFLOAT2(tempFloat2UV[0].f, tempFloat2UV[1].f));
 
-	std::vector<std::pair<DirectX::XMFLOAT4, DirectX::XMINT4>> tempWeight;
-	byteFloat tempFloat4Weight[4];tempFloat4Weight[0].f = 0.f; tempFloat4Weight[1].f = 1.f; tempFloat4Weight[2].f = 2.f; tempFloat4Weight[3].f = 1.f;
+	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>> tempWeight;
+	byteFloat tempFloat4Weight[3];tempFloat4Weight[0].f = 0.f; tempFloat4Weight[1].f = 1.f; tempFloat4Weight[2].f = 2.f;
 	byteInt tempFloat4Joint[4];tempFloat4Joint[0].i = 2; tempFloat4Joint[1].i = 1; tempFloat4Joint[2].i = 2; tempFloat4Joint[3].i = 0;
 	tempWeight.push_back(std::make_pair(
-		DirectX::XMFLOAT4(tempFloat4Weight[0].f, tempFloat4Weight[1].f, tempFloat4Weight[2].f, tempFloat4Weight[3].f), 
+		DirectX::XMFLOAT3(tempFloat4Weight[0].f, tempFloat4Weight[1].f, tempFloat4Weight[2].f), 
 		DirectX::XMINT4(tempFloat4Joint[0].i, tempFloat4Joint[1].i, tempFloat4Joint[2].i, tempFloat4Joint[3].i)));
 
 	indexDesc.push_back(temp);
@@ -338,19 +338,18 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 		tempFloat3Tan[1].c[0],tempFloat3Tan[1].c[1],tempFloat3Tan[1].c[2],tempFloat3Tan[1].c[3],
 		tempFloat3Tan[2].c[0],tempFloat3Tan[2].c[1],tempFloat3Tan[2].c[2],tempFloat3Tan[2].c[3]};
 	BOOST_CHECK_EQUAL_COLLECTIONS(resVertexBufferAnimation.begin() + 36, resVertexBufferAnimation.begin() + 48, l, l + sizeof(l));
-	char o[16] = {
+	char o[12] = {
 		tempFloat4Weight[0].c[0],tempFloat4Weight[0].c[1],tempFloat4Weight[0].c[2],tempFloat4Weight[0].c[3],
 		tempFloat4Weight[1].c[0],tempFloat4Weight[1].c[1],tempFloat4Weight[1].c[2],tempFloat4Weight[1].c[3],
-		tempFloat4Weight[2].c[0],tempFloat4Weight[2].c[1],tempFloat4Weight[2].c[2],tempFloat4Weight[2].c[3],
-		tempFloat4Weight[3].c[0],tempFloat4Weight[3].c[1],tempFloat4Weight[3].c[2],tempFloat4Weight[3].c[3]};
-	BOOST_CHECK_EQUAL_COLLECTIONS(resVertexBufferAnimation.begin() + 60, resVertexBufferAnimation.begin() + 76, o, o + sizeof(o));
+		tempFloat4Weight[2].c[0],tempFloat4Weight[2].c[1],tempFloat4Weight[2].c[2],tempFloat4Weight[2].c[3]};
+	BOOST_CHECK_EQUAL_COLLECTIONS(resVertexBufferAnimation.begin() + 60, resVertexBufferAnimation.begin() + 72, o, o + sizeof(o));
 
 	char w[16] = {
 		tempFloat4Joint[0].c[0],tempFloat4Joint[0].c[1],tempFloat4Joint[0].c[2],tempFloat4Joint[0].c[3],
 		tempFloat4Joint[1].c[0],tempFloat4Joint[1].c[1],tempFloat4Joint[1].c[2],tempFloat4Joint[1].c[3],
 		tempFloat4Joint[2].c[0],tempFloat4Joint[2].c[1],tempFloat4Joint[2].c[2],tempFloat4Joint[2].c[3],
 		tempFloat4Joint[3].c[0],tempFloat4Joint[3].c[1],tempFloat4Joint[3].c[2],tempFloat4Joint[3].c[3]};
-	BOOST_CHECK_EQUAL_COLLECTIONS(resVertexBufferAnimation.begin() + 76, resVertexBufferAnimation.begin() + 92, w, w + sizeof(w));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resVertexBufferAnimation.begin() + 72, resVertexBufferAnimation.begin() + 88, w, w + sizeof(w));
 }
 
 BOOST_AUTO_TEST_CASE(TestCreateJointBuffer)

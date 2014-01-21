@@ -65,7 +65,7 @@ public:
 			vertex.m_Position = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			vertex.m_Tangent = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
-			vertex.m_Weights = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			vertex.m_Weights = XMFLOAT3(1.0f, 1.0f, 1.0f);
 			vertexData.push_back(vertex);
 			bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
 		}

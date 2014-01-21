@@ -26,7 +26,7 @@ struct AnimatedVertex
 	DirectX::XMFLOAT2 m_UV;
 	DirectX::XMFLOAT3 m_Tangent;
 	DirectX::XMFLOAT3 m_Binormal;
-	DirectX::XMFLOAT4 m_Weights;
+	DirectX::XMFLOAT3 m_Weights;
 	DirectX::XMINT4 m_BoneId;
 };
 
