@@ -1,0 +1,17 @@
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe Barrel1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe Character_Witch.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe Crate1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe House1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe House2.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe House3.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe MarketStand1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe MarketStand2.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe Sidewalk1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe SkyBox.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe Stair1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe StoneBrick1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe StoneBrick2.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe Street1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe Tree1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe Witch_Run_05.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe WoodenShed.tx
