@@ -19,9 +19,6 @@
     <ClCompile Include="..\Graphics\Source\Shader.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
-    <ClCompile Include="Source\testProgram.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
@@ -58,13 +55,13 @@
     <ClCompile Include="..\Graphics\Source\Joint.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
-    <ClCompile Include="testProgram.cpp" />
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
+    <ClCompile Include="Source\testProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">

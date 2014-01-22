@@ -34,7 +34,6 @@
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
     <ClCompile Include="Source\GraphicsEngine.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
-    <ClCompile Include="testProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummyShader.hlsl">
