@@ -2,7 +2,9 @@
 
 LevelLoader::LevelLoader()
 {
-
+	m_Header.m_NumberOfModels = 0;
+	m_Header.m_NumberOfLights = 0;
+	m_Header.m_NumberOfCheckPoints = 0;
 }
 
 LevelLoader::~LevelLoader()
@@ -15,6 +17,8 @@ void LevelLoader::clear()
 	m_LevelModelList.clear();
 	m_LevelModelList.shrink_to_fit();
 	m_Header.m_NumberOfModels = 0;
+	m_Header.m_NumberOfLights = 0;
+	m_Header.m_NumberOfCheckPoints = 0;
 	m_Stringstream.clear();
 }
 
@@ -43,30 +47,30 @@ void LevelLoader::startReading(std::istream& p_Input)
 		m_Stringstream >> key >> std::ws;
 		if(key == "*ObjectHeader*")
 		{
-			readHeader(p_Input);
+			m_Header.m_NumberOfModels = readHeader(p_Input);
 			std::getline(p_Input, line);
 		}
-		if(key == "*LightHeader*")
+		else if(key == "*LightHeader*")
 		{
-			readLightHeader(p_Input);
+			m_Header.m_NumberOfLights = readHeader(p_Input);
 			std::getline(p_Input, line);
 		}
-		if(key == "*CheckPointHeader*")
+		else if(key == "*CheckPointHeader*")
 		{
-			readCheckPointHeader(p_Input);
+			m_Header.m_NumberOfCheckPoints = readHeader(p_Input);
 			std::getline(p_Input, line);
 		}
-		if(key == "#MESH:")
+		else if(key == "#MESH:")
 		{
 			readMeshList(p_Input);
 			std::getline(p_Input, line);
 		}
-		if(key == "#Light:")
+		else if(key == "#Light:")
 		{
 			readLightList(p_Input);
 			std::getline(p_Input, line);
 		}
-		if(key == "#Type:")
+		else if(key == "#Type:")
 		{
 			readCheckPointList(p_Input);
 			std::getline(p_Input, line);
@@ -75,28 +79,14 @@ void LevelLoader::startReading(std::istream& p_Input)
 	}
 }
 
-void LevelLoader::readHeader(std::istream& p_Input)
+int LevelLoader::readHeader(std::istream& p_Input)
 {
 	std::string key, line;
+	int result;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
-	m_Stringstream >> key >> m_Header.m_NumberOfModels;
-}
-
-void LevelLoader::readLightHeader(std::istream& p_Input)
-{
-	std::string key, line;
-	std::getline(p_Input, line);
-	m_Stringstream = std::stringstream(line);
-	m_Stringstream >> key >> m_Header.m_NumberOfLights;
-}
-
-void LevelLoader::readCheckPointHeader(std::istream& p_Input)
-{
-	std::string key, line;
-	std::getline(p_Input, line);
-	m_Stringstream = std::stringstream(line);
-	m_Stringstream >> key >> m_Header.m_NumberOfCheckPoints;
+	m_Stringstream >> key >> result;
+	return result;
 }
 
 void LevelLoader::readMeshList(std::istream& p_Input)

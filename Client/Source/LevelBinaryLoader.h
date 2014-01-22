@@ -141,9 +141,6 @@ protected:
 	std::vector<LevelBinaryLoader::ModelData> readLevel(std::istream* p_Input);
 	void readLevelLighting(std::istream* p_Input);
 	void readLevelCheckPoint(std::istream* p_Input);
-	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::DirectionalLight>> readDirectionalLight(std::istream* p_Input);
-	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::PointLight>> readPointLight(std::istream* p_Input);
-	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::SpotLight>> readSpotLight(std::istream* p_Input);
 
 private:
 	void clearData();

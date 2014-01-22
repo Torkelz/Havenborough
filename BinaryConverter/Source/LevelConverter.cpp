@@ -104,18 +104,33 @@ void LevelConverter::createLevel(std::ostream* p_Output)
 
 void LevelConverter::createLighting(std::ostream* p_Output)
 {
-	intToByte(m_LevelDirectionalLightList->at(0).first.m_Type, p_Output);
-	intToByte(m_LevelDirectionalLightList->size(), p_Output);
-	p_Output->write(reinterpret_cast<const char*>(m_LevelDirectionalLightList->data()),
-		sizeof(std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>) * m_LevelDirectionalLightList->size());
-	intToByte(m_LevelPointLightList->at(0).first.m_Type, p_Output);
-	intToByte(m_LevelPointLightList->size(), p_Output);
-	p_Output->write(reinterpret_cast<const char*>(m_LevelPointLightList->data()),
-		sizeof(std::pair<LevelLoader::LightData, LevelLoader::PointLight>) * m_LevelPointLightList->size());
-	intToByte(m_LevelSpotLightList->at(0).first.m_Type, p_Output);
-	intToByte(m_LevelSpotLightList->size(), p_Output);
-	p_Output->write(reinterpret_cast<const char*>(m_LevelSpotLightList->data()),
-		sizeof(std::pair<LevelLoader::LightData, LevelLoader::SpotLight>) * m_LevelSpotLightList->size());
+	int numberOfDifferentLights = 0;
+	if(m_LevelDirectionalLightList->size() != 0)++numberOfDifferentLights;
+	if(m_LevelPointLightList->size() != 0)++numberOfDifferentLights;
+	if(m_LevelSpotLightList->size() != 0)++numberOfDifferentLights;
+	intToByte(numberOfDifferentLights, p_Output);
+	if(m_LevelDirectionalLightList->size() != 0)
+	{
+		intToByte(m_LevelDirectionalLightList->at(0).first.m_Type, p_Output);
+		intToByte(m_LevelDirectionalLightList->size(), p_Output);
+		p_Output->write(reinterpret_cast<const char*>(m_LevelDirectionalLightList->data()),
+			sizeof(std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>) * m_LevelDirectionalLightList->size());
+	}
+	if(m_LevelPointLightList->size() != 0)
+	{
+		intToByte(m_LevelPointLightList->at(0).first.m_Type, p_Output);
+		intToByte(m_LevelPointLightList->size(), p_Output);
+		p_Output->write(reinterpret_cast<const char*>(m_LevelPointLightList->data()),
+			sizeof(std::pair<LevelLoader::LightData, LevelLoader::PointLight>) * m_LevelPointLightList->size());
+		
+	}
+	if(m_LevelSpotLightList->size() != 0)
+	{
+		intToByte(m_LevelSpotLightList->at(0).first.m_Type, p_Output);
+		intToByte(m_LevelSpotLightList->size(), p_Output);
+		p_Output->write(reinterpret_cast<const char*>(m_LevelSpotLightList->data()),
+			sizeof(std::pair<LevelLoader::LightData, LevelLoader::SpotLight>) * m_LevelSpotLightList->size());
+	}
 }
 
 void LevelConverter::createCheckPoints(std::ostream* p_Output)

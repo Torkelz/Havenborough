@@ -141,9 +141,7 @@ public:
 
 protected:
 	void startReading(std::istream& p_Input);
-	void readHeader(std::istream& p_Input);
-	void readLightHeader(std::istream& p_Input);
-	void readCheckPointHeader(std::istream& p_Input);
+	int readHeader(std::istream& p_Input);
 	void readMeshList(std::istream& p_Input);
 	void readLightList(std::istream& p_Input);
 	void readCheckPointList(std::istream& p_Input);

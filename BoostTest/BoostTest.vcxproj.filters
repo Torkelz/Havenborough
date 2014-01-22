@@ -310,9 +310,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Sample130.tx" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\Physics\include\AABB.h">
       <Filter>TestPhysics\PhysicsImport</Filter>
     </ClInclude>

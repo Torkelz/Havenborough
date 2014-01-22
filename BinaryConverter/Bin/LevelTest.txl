@@ -27,7 +27,56 @@
 #Scale: 375.542511 375.542511 375.542511
 
 *LightHeader*
-#numLights 3
+#numLights 12
+
+#Light: directionalLightShape1
+#Translation: -64.818832 86.49115 0
+Color: 1 1 1
+Type: kDirectionalLight
+Intensity: 1
+Direction: -0.159335 -0.273098 -0.948699
+
+#Light: directionalLightShape1
+#Translation: -64.818832 86.49115 0
+Color: 1 1 1
+Type: kDirectionalLight
+Intensity: 1
+Direction: -0.159335 -0.273098 -0.948699
+
+#Light: directionalLightShape1
+#Translation: -64.818832 86.49115 0
+Color: 1 1 1
+Type: kDirectionalLight
+Intensity: 1
+Direction: -0.159335 -0.273098 -0.948699
+
+#Light: directionalLightShape1
+#Translation: -64.818832 86.49115 0
+Color: 1 1 1
+Type: kDirectionalLight
+Intensity: 1
+Direction: -0.159335 -0.273098 -0.948699
+
+#Light: directionalLightShape1
+#Translation: -64.818832 86.49115 0
+Color: 1 1 1
+Type: kDirectionalLight
+Intensity: 1
+Direction: -0.159335 -0.273098 -0.948699
+
+#Light: directionalLightShape1
+#Translation: -64.818832 86.49115 0
+Color: 1 1 1
+Type: kDirectionalLight
+Intensity: 1
+Direction: -0.159335 -0.273098 -0.948699
+
+#Light: directionalLightShape1
+#Translation: -64.818832 86.49115 0
+Color: 1 1 1
+Type: kDirectionalLight
+Intensity: 1
+Direction: -0.159335 -0.273098 -0.948699
 
 #Light: directionalLightShape1
 #Translation: -64.818832 86.49115 0
@@ -42,16 +91,24 @@ Color: 1 1 1
 Type: kPointLight
 Intensity: 1
 
-#Light: spotLightShape1
-#Translation: 0 93.212402 -88.540741
+#Light: pointLightShape1
+#Translation: 51.825298 75.479088 -26.634514
 Color: 1 1 1
-Type: kSpotLight
+Type: kPointLight
 Intensity: 1
-Direction: -0.389399 -0.666308 -0.635926
-ConeAngle: 0.698132 0.0984208
 
-*CheckPointHeader*
-#numCheckpoints 3
+#Light: pointLightShape1
+#Translation: 51.825298 75.479088 -26.634514
+Color: 1 1 1
+Type: kPointLight
+Intensity: 1
+
+#Light: pointLightShape1
+#Translation: 51.825298 75.479088 -26.634514
+Color: 1 1 1
+Type: kPointLight
+Intensity: 1
+
 
 #Type: CheckPoint
 #NR: 1

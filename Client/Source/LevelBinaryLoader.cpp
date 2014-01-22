@@ -2,12 +2,18 @@
 
 LevelBinaryLoader::LevelBinaryLoader()
 {
-
+	m_Header.m_NumberOfModels = 0;
+	m_Header.m_NumberOfLights = 0;
+	m_Header.m_NumberOfCheckPoints = 0;
 }
 
 LevelBinaryLoader::~LevelBinaryLoader()
 {
-
+	m_LevelCheckPointList.clear();
+	m_LevelData.clear();
+	m_LevelDirectionalLightList.clear();
+	m_LevelPointLightList.clear();
+	m_LevelSpotLightList.clear();
 }
 
 bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
@@ -18,9 +24,9 @@ bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 		return false;
 	}	
 	m_Header = readHeader(&input);
-	m_LevelData = readLevel(&input);
-	readLevelLighting(&input);
-	readLevelCheckPoint(&input);
+	if(m_Header.m_NumberOfModels != 0)m_LevelData = readLevel(&input);
+	if(m_Header.m_NumberOfLights != 0)readLevelLighting(&input);
+	if(m_Header.m_NumberOfCheckPoints != 0)readLevelCheckPoint(&input);
 	input.close();
 	return true;
 }
@@ -28,9 +34,12 @@ bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 LevelBinaryLoader::Header LevelBinaryLoader::readHeader(std::istream* p_Input)
 {
 	Header header;
+	header.m_NumberOfModels = 0;
+	header.m_NumberOfLights = 0;
+	header.m_NumberOfCheckPoints = 0;
 	byteToInt(p_Input, header.m_NumberOfModels); 
-	byteToInt(p_Input, header.m_NumberOfLights);
-	byteToInt(p_Input, header.m_NumberOfCheckPoints);
+	//byteToInt(p_Input, header.m_NumberOfLights);
+	//byteToInt(p_Input, header.m_NumberOfCheckPoints);
 	return header;
 }
 
@@ -61,8 +70,9 @@ std::vector<LevelBinaryLoader::ModelData> LevelBinaryLoader::readLevel(std::istr
 
 void LevelBinaryLoader::readLevelLighting(std::istream* p_Input)
 {
-	int type,size;
-	for(int i = 0 ; i < 3; i++)
+	int type,size, numberOfDifferentLights;
+	byteToInt(p_Input, numberOfDifferentLights);
+	for(int i = 0 ; i < numberOfDifferentLights; i++)
 	{
 		byteToInt(p_Input, type);
 	

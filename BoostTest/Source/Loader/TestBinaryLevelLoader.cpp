@@ -13,18 +13,34 @@ public:
 	{
 		return readLevel(p_Input);
 	}
+	void testReadLight(std::istream* p_Input)
+	{
+		return readLevelLighting(p_Input);
+	}
+	void m_LevelCheckPointList(std::istream* p_Input)
+	{
+		return readLevelCheckPoint(p_Input);
+	}
+	void m_LevelCheckPointStart(std::istream* p_Input)
+	{
+		return readLevelCheckPoint(p_Input);
+	}
 };
 
 BOOST_AUTO_TEST_CASE(TestReadHeader)
 {
 	LevelBinaryLoader::Header header;
 	char binHeader[] =
-		"\x01\0\0\0";
+		"\x01\0\0\0"
+		"\x01\0\0\0"
+		"\x05\0\0\0";
 	std::istringstream tempString(std::string(binHeader, binHeader + sizeof(binHeader)));
 	testLevelLoader loader;
 	header = loader.testReadHeader(&tempString);
 
 	BOOST_CHECK_EQUAL(header.m_NumberOfModels, 1);
+	//BOOST_CHECK_EQUAL(header.m_NumberOfLights, 1);
+	//BOOST_CHECK_EQUAL(header.m_NumberOfCheckPoints, 5);
 }
 
 BOOST_AUTO_TEST_CASE(TestReadLevelData)
@@ -66,4 +82,8 @@ BOOST_AUTO_TEST_CASE(TestReadLevelData)
 	BOOST_CHECK_EQUAL(data.at(0).m_Scale.at(0).z, bFloat[8].f );
 }
 
+BOOST_AUTO_TEST_CASE(TestReadLevelLighting)
+{
+
+}
 BOOST_AUTO_TEST_SUITE_END()
