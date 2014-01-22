@@ -47,6 +47,8 @@ private:
 	std::weak_ptr<Actor> wavingWitch;
 	std::weak_ptr<Actor> ikTest;
 	std::weak_ptr<Actor> testWitch;
+	std::weak_ptr<Actor> Witch_new;
+
 
 	const static int NUM_BOXES = 16;
 	std::weak_ptr<Actor> rotBoxes[NUM_BOXES];

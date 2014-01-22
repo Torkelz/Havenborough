@@ -1,0 +1,97 @@
+*Clip
+na 	Bindpose
+sp 	1.0
+st 	1
+en 	1
+lo 	1
+f	Hip
+tr	0
+la	false
+fi	1
+fif	5
+fo	0
+we	1.0
+
+*Clip
+na 	Run
+sp 	1.0
+st 	2
+en 	31
+lo 	1
+f	Hip
+tr	0
+la	false
+fi	1
+fif	5
+fo	0
+we	1.0
+
+*Clip
+na 	Idle
+sp 	1.0
+st 	34
+en 	54
+lo 	1
+f	Hip
+tr	0
+la	false
+fi	1
+fif	5
+fo	0
+we	1.0
+
+*CLip
+na 	RunningJump
+sp 	1.0
+st 	56
+en 	68
+lo 	0
+f	Hip
+tr	0
+la	false
+fi	1
+fif	5
+fo	0
+we	1.0
+
+*CLip
+na 	Falling
+sp 	1.0
+st 	70
+en 	94
+lo 	1
+f	Hip
+tr	0
+la	false
+fi	1
+fif	5
+fo	0
+we	1.0
+
+*CLip
+na 	
+sp 	1.0
+st 	70
+en 	94
+lo 	1
+f	Hip
+tr	0
+la	false
+fi	1
+fif	5
+fo	0
+we	1.0
+
+*CLip
+na 	Land
+sp 	1.0
+st 	97
+en 	113
+lo 	0
+f	Hip
+tr	0
+la	false
+fi	1
+fif	5
+fo	0
+we	1.0

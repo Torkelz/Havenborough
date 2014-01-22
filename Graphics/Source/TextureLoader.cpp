@@ -78,7 +78,27 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(const char* p_Fil
 														&textureResource, &textureSRV, 0, &mode);
 		if(FAILED(hr))
 		{
-			throw TextureLoaderException("DDS Texture load failed", __LINE__, __FILE__);
+			static char buffer[1024];
+			size_t bufferSize = 1024;
+
+			std::vector<char> bigBuffer;
+
+			char* tBuffer;
+			if (filename.size() > 1024 / 4)
+			{
+				bigBuffer.resize(filename.size() * 4);
+				tBuffer = bigBuffer.data();
+				bufferSize = bigBuffer.size();
+			}
+			else
+			{
+				tBuffer = buffer;
+			}
+
+			int ret = wcstombs(tBuffer, filename.data(), bufferSize);
+			tBuffer[ret] = '\0';
+
+			throw TextureLoaderException("DDS Texture load failed (\"" + std::string(tBuffer) + "\")", __LINE__, __FILE__);
 		}
 	}
 	//Texture resource is used to catch output from the texture creation function but the

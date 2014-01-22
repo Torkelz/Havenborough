@@ -454,6 +454,9 @@ void GameLogic::loadSandbox()
 	wavingWitch = addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
 	playAnimation(wavingWitch.lock(), "Kick");
 
+	Witch_new = addBasicModel("Witch_new", Vector3(0.f, 0.f, -200.f));
+	playAnimation(Witch_new.lock(), "Land");
+
 	ikTest = addIK_Worm();
 	playAnimation(ikTest.lock(), "Wave");
 

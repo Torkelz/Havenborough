@@ -32,3 +32,4 @@ testCaseCollection.xml
 *.cso
 Client/Bin/logFile.txt
 Server/logFile.txt
+**/.mayaSwatches/
