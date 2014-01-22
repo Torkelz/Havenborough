@@ -31,6 +31,10 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_ResourceManager = p_ResourceManager;
 	m_GameLogic = p_GameLogic;
 	m_EventManager = p_EventManager;
+	
+	// Added from Skydome branch
+	m_SkyboxID = m_ResourceManager->loadResource("texture","SKYBOXDDS");
+	m_Graphics->createSkyDome("SKYBOXDDS",50000.f);
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addLight), LightEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createMesh), CreateMeshEventData::sk_EventType);
@@ -51,6 +55,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 void GameScene::destroy()
 {
 	releaseSandboxModels();
+	m_ResourceManager->releaseResource(m_SkyboxID);
 }
 
 void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
@@ -142,6 +147,9 @@ void GameScene::render()
 		}
 		
 	}
+
+	//From skybox branch, move later if needed.
+	m_Graphics->renderSkyDome();
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
 }

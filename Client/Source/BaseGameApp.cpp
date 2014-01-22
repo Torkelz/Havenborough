@@ -245,7 +245,7 @@ void BaseGameApp::updateDebugInfo()
 	std::string test = std::to_string(m_MemoryInfo.getPhysicalMemoryUsage());
 	std::string vMemUsage = "Virtual RAM usage: " + std::to_string(m_MemoryInfo.getVirtualMemoryUsage()) + "B";
 	std::string pMemUsage = "Physical RAM usage: " + std::to_string(m_MemoryInfo.getPhysicalMemoryUsage()) + "B";
-	std::string gMemUsage = "Video usage: " + std::to_string(m_Graphics->getVRAMMemUsage()) + "B";
+	std::string gMemUsage = "Video usage: " + std::to_string(m_Graphics->getVRAMUsage()) + "B";
 
 	std::string speed = "DeltaTime: " + std::to_string(m_DeltaTime) + " FPS: " + std::to_string(1.0f/m_DeltaTime);
 

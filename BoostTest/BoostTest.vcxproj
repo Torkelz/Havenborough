@@ -140,6 +140,7 @@
       <FileType>Document</FileType>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
+    <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />

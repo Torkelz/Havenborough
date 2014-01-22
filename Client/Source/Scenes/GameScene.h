@@ -14,6 +14,7 @@ private:
 	bool m_ChangeList;
 	int m_CurrentDebugView;
 	bool m_RenderDebugBV;
+	int m_SkyboxID;
 
 	IGraphics *m_Graphics;
 	ResourceManager *m_ResourceManager;

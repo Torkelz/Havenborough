@@ -8,7 +8,7 @@
 #include "TextureLoader.h"
 #include "ModelDefinition.h"
 #include "ModelBinaryLoader.h"
-
+#include "SkyDome.h"
 
 /*
  * cBuffer contains the matrices needed to render the models and lights.
@@ -112,6 +112,15 @@ private:
 	Buffer						*m_ObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
 
+	Buffer						*m_SkyDomeBuffer;
+	Shader						*m_SkyDomeShader;
+	ID3D11ShaderResourceView	*m_SkyDomeSRV;
+	ID3D11DepthStencilState		*m_SkyDomeDepthStencilState;
+	ID3D11RasterizerState		*m_SkyDomeRasterizerState;
+	bool						m_RenderSkyDome;
+	ID3D11SamplerState			*m_SkyDomeSampler;
+
+
 public:
 	/*
 	 * 
@@ -153,6 +162,16 @@ public:
 	 * @ p_Renderable, the model that needs to be rendered.
 	 */
 	void addRenderable(Renderable p_Renderable);
+	/*
+	 * Add models to the list of objects to be rendered with deferred rendering.
+	 * @ p_Texture, the texture for the skydome
+	 * @ p_Radius, the radius of the skydome.
+	 */
+	void createSkyDome(ID3D11ShaderResourceView* p_Texture, float p_Radius);
+	/*
+	 * Tells the deffered renderer to render the skyDome created.
+	 */
+	void renderSkyDome();
 
 	/*
 	 * Use to get specific render targets to put on the back buffer.
@@ -167,6 +186,7 @@ private:
 	void clearRenderTargets( unsigned int nrRT );
 
 	void renderLighting();
+	void renderSkyDomeImpl();
 
 	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, vector<Light> *p_Lights);
 

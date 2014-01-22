@@ -199,6 +199,11 @@ public:
 	 * @param p_ModelId the ID of the model to be rendered
 	 */
 	virtual void renderModel(InstanceId p_ModelId) = 0;
+	/**
+	 * Renders the created skyDome.
+	 *
+	 */
+	virtual void renderSkyDome() = 0;
 
 	/**
 	 * 
@@ -235,14 +240,21 @@ public:
 	 *
 	 * @return the usage in MB
 	 */
-	virtual int getVRAMMemUsage(void) = 0;
+	virtual int getVRAMUsage(void) = 0;
 	
 	/**
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
+	 *
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.
 	 * @return a unique id used to reference the instance with in later calls.
 	 */
 	virtual InstanceId createModelInstance(const char *p_ModelId) = 0;
+
+	/**
+	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
+	 * @param p_ModelId the resource identifier for the model to draw the instance with.
+	 */
+	virtual void createSkyDome(const char *p_ModelId, float p_Radius) = 0;
 
 	/**
 	 * Erase an existing model instance.
