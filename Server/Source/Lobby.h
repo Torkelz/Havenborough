@@ -15,6 +15,8 @@ public:
 		std::vector<User::wPtr> m_JoinedUsers;
 		unsigned int m_MaxPlayers;
 		std::string m_LevelName;
+		float m_TimeoutLength;
+		float m_WaitedTime;
 	};
 
 private:
@@ -27,7 +29,7 @@ private:
 public:
 	explicit Lobby(Server* p_Server);
 
-	void checkFreeUsers();
+	void checkFreeUsers(float p_DeltaTime);
 
 	void addAvailableLevel(const std::string& p_LevelName, unsigned int p_MaxPlayers);
 	void addFreeUser(User::wPtr p_User);

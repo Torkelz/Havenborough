@@ -7,7 +7,7 @@ Lobby::Lobby(Server* p_Server)
 {
 }
 
-void Lobby::checkFreeUsers()
+void Lobby::checkFreeUsers(float p_DeltaTime)
 {
 	if (m_Levels.empty())
 	{
@@ -30,6 +30,19 @@ void Lobby::checkFreeUsers()
 	}
 
 	m_FreeUsers.clear();
+
+	for (auto& level : m_Levels)
+	{
+		if (!level.m_JoinedUsers.empty())
+		{
+			level.m_WaitedTime += p_DeltaTime;
+		}
+
+		if (level.m_WaitedTime > level.m_TimeoutLength)
+		{
+			startLevel(level);
+		}
+	}
 }
 
 void Lobby::addAvailableLevel(const std::string& p_LevelName, unsigned int p_MaxPlayers)
@@ -38,7 +51,9 @@ void Lobby::addAvailableLevel(const std::string& p_LevelName, unsigned int p_Max
 	{
 		std::vector<User::wPtr>(),
 		p_MaxPlayers,
-		p_LevelName
+		p_LevelName,
+		30.f,
+		0.f
 	};
 	m_Levels.push_back(level);
 }
@@ -57,6 +72,7 @@ void Lobby::startLevel(AvailableLevel& p_Level)
 	}
 
 	p_Level.m_JoinedUsers.clear();
+	p_Level.m_WaitedTime = 0.f;
 
 	m_Server->addNewGame(game);
 }

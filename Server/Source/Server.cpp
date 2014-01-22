@@ -14,7 +14,7 @@ void Server::initialize()
 	m_Running = false;
 
 	m_Lobby.reset(new Lobby(this));
-	m_Lobby->addAvailableLevel("test", 1);
+	m_Lobby->addAvailableLevel("test", 4);
 	
 	m_Network = INetwork::createNetwork();
 	m_Network->initialize();
@@ -164,7 +164,7 @@ void Server::updateClients()
 
 	while (m_Running)
 	{
-		m_Lobby->checkFreeUsers();
+		m_Lobby->checkFreeUsers(deltaTime);
 
 		if (m_RemoveBox)
 		{
