@@ -23,7 +23,7 @@ public:
 	~GameRound();
 
 	void initialize(ActorFactory::ptr p_ActorFactory);
-	virtual void setup() {};
+	virtual void setup() {}
 
 	void start();
 
@@ -32,12 +32,14 @@ public:
 
 protected:
 	virtual void sendLevel() = 0;
-	virtual void updateLogic(float p_DeltaTime) {};
+	virtual void updateLogic(float p_DeltaTime) {}
 	virtual void handlePackages();
-	virtual void sendUpdates() {};
+	virtual void sendUpdates() {}
+	virtual void playerDisconnected(Player& p_DisconnectedPlayer) {}
 
 private:
 	void run();
 	void sendLevelAndWait();
 	void runGame();
+	void checkForDisconnectedUsers();
 };

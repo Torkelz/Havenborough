@@ -147,8 +147,7 @@ void GameRound::sendLevelAndWait()
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 
-	auto newEnd = std::remove_if(m_Players.begin(), m_Players.end(), [] (const Player& p_Player){ return !p_Player.getUser().lock(); });
-	m_Players.erase(newEnd, m_Players.end());
+	checkForDisconnectedUsers();
 }
 
 void GameRound::runGame()
@@ -163,6 +162,7 @@ void GameRound::runGame()
 		currentTime = std::chrono::high_resolution_clock::now();
 		const std::chrono::high_resolution_clock::duration frameTime = currentTime - previousTime;
 
+		checkForDisconnectedUsers();
 		handlePackages();
 		updateLogic(deltaTime);
 		sendUpdates();
@@ -171,5 +171,22 @@ void GameRound::runGame()
 
 		static const std::chrono::milliseconds sleepDuration(20);
 		std::this_thread::sleep_for(sleepDuration - frameTime);
+	}
+}
+
+void GameRound::checkForDisconnectedUsers()
+{
+	auto split = std::partition(m_Players.begin(), m_Players.end(), [] (const Player& p_Player){ return p_Player.getUser().lock(); });
+
+	for (auto removePlayer = split; removePlayer != m_Players.end(); ++removePlayer)
+	{
+		playerDisconnected(*removePlayer);
+	}
+
+	m_Players.erase(split, m_Players.end());
+
+	if (m_Players.empty())
+	{
+		m_Running = false;
 	}
 }
