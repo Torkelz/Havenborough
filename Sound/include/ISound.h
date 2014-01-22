@@ -79,10 +79,10 @@ public:
 	/*virtual void RemoveSoundFromGroup(const char *SoundId, ChannelGroup p_Group) = 0;*/
 	/**
 	 * Set Volume of a specific sound.
-	 * @param p_ChannelId which channel to change the volume on
+	 * @param p_SoundId which channel to change the volume on
 	 * @param p_Volume the new volume value which should 0.0 - 1.0 where 0.0 is mute and 1.0 is max volume.
 	 */
-	virtual void setSoundVolume(const char *p_ChannelId, float p_Volume) = 0;
+	virtual void setSoundVolume(const char *p_SoundId, float p_Volume) = 0;
 	/**
 	 * Set Volume for all sounds in a group.
 	 * @param p_Group which group to change the Volume on, use Master to change volume all sounds.
@@ -138,17 +138,13 @@ public:
 	 * @param identification for the sound/group to get paused status from.
 	 */
 	virtual bool getPaused(const char* p_SoundId) = 0;
-	virtual bool getGroupPaused(ISound::ChannelGroup p_Group) = 0;
-
 	/**
-	 * Get functions for debug and/or pause indicator on the UI.
+	 * Get functions for debug and/or mute indicator on the UI.
 	 *
 	 * @param identification for the sound/group to get paused status from.
 	 */
 	virtual bool getMute(const char* p_SoundId) = 0;
-	virtual bool getGroupMute(ISound::ChannelGroup p_Group) = 0;
-
-
+	
 private:
 
 };
