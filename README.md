@@ -42,3 +42,19 @@ Install VLD by running the installer.
 ### Environment Variables ###
 - VLD_INC_DIR: Path to VLD includes, for example 'C:\Program Files (x86)\Visual Leak Detector\include'
 - VLD_LIB_DIR: Path to VLD lib, for example 'C:\Program Files (x86)\Visual Leak Detector\lib\Win32'
+
+### Settings ###
+
+```
+https://vld.codeplex.com/wikipage?title=Using%20Visual%20Leak%20Detector&referringTitle=Documentation
+```
+
+- Follow the instructions for visual studio 2012 from the link above.
+- After the changes you will have to restart visual studio 2012. You might have to either relog the user or restart the computer.
+- Go to the property pages for BoostIntegrationTest. 
+- Configuration Properties(Release) -> Debugging.
+- In the Command Arguments add '--log_level=message > release_log.txt'. 
+- On the same page in the field Working Directory set it to '$(ProjectDir)Bin'.
+- Change to Debug configuration. 
+- In the Command Arguments add '--log_level=message > debug_log.txt'. 
+- On the same page in the field Working Directory set it to '$(ProjectDir)Bin'.
