@@ -10,7 +10,7 @@
 class TestEventData : public BaseEventData
 {
 private: 
-	//Parameter for event, can be of any number
+	//Parameter for event, can be of any number and type
 	bool m_AssumingDirectControl;
 
 public:
@@ -47,7 +47,7 @@ public:
 
 	/**
 	* Used to get the event data. User defined function.
-	* Can be of any number of functions.
+	* Can be of any number of functions and have any return type.
 	*/
 	bool directInterventionIsNecessary(void) const
 	{
