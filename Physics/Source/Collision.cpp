@@ -271,7 +271,7 @@ HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
 
 	XMVECTOR sphereCent = XMLoadFloat4(p_Sphere->getPosition());	// m
 	
-	XMVECTOR closestPoint = XMLoadFloat4(&p_OBB->findClosestPt(*p_Sphere->getPosition()));	// m
+	XMVECTOR closestPoint = p_OBB->findClosestPt(sphereCent);	// m
 
 	XMVECTOR v = closestPoint - sphereCent;	// m
 	XMVECTOR vv = XMVector4Dot(v, v);	// m^2

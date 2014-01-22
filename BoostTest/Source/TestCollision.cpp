@@ -224,9 +224,7 @@ BOOST_AUTO_TEST_CASE(OBBvsOBBHit)
 	//A rotating box moving through a box standing still.
 	obb2 = OBB(DirectX::XMFLOAT4(0.f, 15.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
 	DirectX::XMMATRIX rot = DirectX::XMMatrixRotationY(3.1415926f/4.f);
-	DirectX::XMFLOAT4X4 mrot;
-	DirectX::XMStoreFloat4x4(&mrot, rot);
-	obb2.setRotationMatrix(mrot);
+	obb2.setRotation(rot);
 	for(int i = 0; i < 100; i++)
 	{
 		hd = Collision::OBBvsOBB(&obb1, &obb2);
@@ -275,9 +273,7 @@ BOOST_AUTO_TEST_CASE(OBBvsAABBHit)
 	//Rotation
 	obb = OBB(DirectX::XMFLOAT4(0.f, 15.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
 	DirectX::XMMATRIX rot = DirectX::XMMatrixRotationY(3.1415926f/4.f);
-	DirectX::XMFLOAT4X4 mrot;
-	DirectX::XMStoreFloat4x4(&mrot, rot);
-	obb.setRotationMatrix(mrot);
+	obb.setRotation(rot);
 	for(int i = 0; i < 100; i++)
 	{
 		hd = Collision::OBBvsAABB(&obb, &aabb);
@@ -326,9 +322,7 @@ BOOST_AUTO_TEST_CASE(OBBvsSphereHit)
 	//Rotation
 	obb = OBB(DirectX::XMFLOAT4(0.f, 15.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 1.f));
 	DirectX::XMMATRIX rot = DirectX::XMMatrixRotationY(3.1415926f/4.f);
-	DirectX::XMFLOAT4X4 mrot;
-	DirectX::XMStoreFloat4x4(&mrot, rot);
-	obb.setRotationMatrix(mrot);
+	obb.setRotation(rot);
 	for(int i = 0; i < 100; i++)
 	{
 		hd = Collision::OBBvsSphere(&obb, &s);
@@ -465,11 +459,9 @@ BOOST_AUTO_TEST_CASE(OBBCollisionVectorTest)
 	BOOST_CHECK_SMALL(hd.colNorm.z, 0.0001f);
 
 	obb1 = OBB(DirectX::XMFLOAT4(-10.f, 2.f, 40.f, 1.f), DirectX::XMFLOAT4(0.5f, 0.9f, 0.5f, 0.f));
-	DirectX::XMFLOAT4X4 rot;
-	DirectX::XMStoreFloat4x4(&rot, DirectX::XMMatrixRotationRollPitchYaw(0.f, 1.f, 0.f));
-	obb1.setRotationMatrix(rot);
+	obb1.setRotation(DirectX::XMMatrixRotationRollPitchYaw(0.f, 1.f, 0.f));
 	obb2 = OBB(DirectX::XMFLOAT4(-10.f, 0.f, 40.f, 1.f), DirectX::XMFLOAT4(5.f, 1.2f, 5.f, 0.f));
-	obb2.setRotationMatrix(rot);
+	obb2.setRotation(DirectX::XMMatrixRotationRollPitchYaw(0.f, 1.f, 0.f));
 
 	hd = Collision::OBBvsOBB(&obb1, &obb2);
 	BOOST_CHECK(hd.intersect);
@@ -480,7 +472,7 @@ BOOST_AUTO_TEST_CASE(OBBCollisionVectorTest)
 
 	DirectX::XMFLOAT4 fCorner(5.f, 0.f, 5.f, 0.f);
 	DirectX::XMVECTOR corner = DirectX::XMLoadFloat4(&fCorner);
-	corner = DirectX::XMVector4Transform(corner, DirectX::XMLoadFloat4x4(&rot));
+	corner = DirectX::XMVector4Transform(corner, DirectX::XMMatrixRotationRollPitchYaw(0.f, 1.f, 0.f));
 
 
 	obb1 = OBB(DirectX::XMFLOAT4(-10.f + corner.m128_f32[0] + 0.4f, 0.f, 40.f + corner.m128_f32[2], 1.f), DirectX::XMFLOAT4(0.5f, 0.9f, 0.5f, 0.f));

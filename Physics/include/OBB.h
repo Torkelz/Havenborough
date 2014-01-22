@@ -81,10 +81,16 @@ public:
 		DirectX::XMStoreFloat4(&m_Position, vCenterPos);
 								  
 		m_Sphere.updatePosition(m_Position);
-
-		//calculateCorners();
 	}
-
+	/**
+	* Changes ther center position for the OBB.
+	* @param p_newPosition, new center pos for the OBB.
+	*/
+	void setPosition(DirectX::XMVECTOR p_newPosition)
+	{
+		DirectX::XMStoreFloat4(&m_Position, p_newPosition);
+		m_Sphere.updatePosition(m_Position);
+	}
 	/**
 	* Gets the normalized local axes of the OBB
 	* @return m_Axes the OBB Axes.
@@ -135,10 +141,20 @@ public:
 	* Sets the rotation matrix of the OBB and rotates its Axes accordingly.
 	* @param p_Rotation matrix to rotate the axes with.
 	*/
-	void setRotationMatrix(const DirectX::XMFLOAT4X4 &p_Rot)
+	void setRotation(const DirectX::XMMATRIX &p_Rot)
 	{
-		m_Rotation = p_Rot;
-		updateRotation();
+		XMStoreFloat4x4(&m_Axes, p_Rot);
+
+		calculateCorners();
+		DirectX::XMVECTOR tempCorners[8];
+		for(int i = 0; i < 8; i++)
+		{
+			tempCorners[i] = DirectX::XMLoadFloat4(&m_Corners[i]);
+
+			tempCorners[i] = DirectX::XMVector4Transform(tempCorners[i], p_Rot);
+
+			DirectX::XMStoreFloat4(&m_Corners[i], tempCorners[i]);
+		}
 	}
 	 
 	/**
@@ -146,19 +162,17 @@ public:
 	* @param p_point the point you want to search from
 	* @return closest point in the OBB in m
 	*/
-	DirectX::XMFLOAT4 findClosestPt(const DirectX::XMFLOAT4 &p_point)
+	DirectX::XMVECTOR findClosestPt(const DirectX::XMVECTOR &p_Point)
 	{
-		DirectX::XMVECTOR tPoint	= XMLoadFloat4(&p_point);
 		DirectX::XMVECTOR tPos		= XMLoadFloat4(&m_Position);
 		DirectX::XMMATRIX tAxes		= XMLoadFloat4x4(&m_Axes);
 		DirectX::XMVECTOR tExtent	= XMLoadFloat4(&m_Extents);
 		DirectX::XMVECTOR result;
-		DirectX::XMFLOAT4 fResult;
 
 		using DirectX::operator-;
 		using DirectX::operator+=;
 		using DirectX::operator*;
-		DirectX::XMVECTOR d = tPoint - tPos;
+		DirectX::XMVECTOR d = p_Point - tPos;
 		result = tPos;
 		// For each OBB axis.
 		for(int i = 0; i < 3; i++)
@@ -180,9 +194,7 @@ public:
 
 			result += dist * tAxes.r[i];
 		}
-
-		XMStoreFloat4(&fResult, result);
-		return  fResult;
+		return result;
 	}
 
 	/**
@@ -207,23 +219,6 @@ public:
 	}
 
 private:
-	void updateRotation()
-	{
-		m_Axes = m_Rotation;
-		DirectX::XMMATRIX tAxes = DirectX::XMLoadFloat4x4(&m_Axes);
-
-		calculateCorners();
-		DirectX::XMVECTOR tempCorners[8];
-		for(int i = 0; i < 8; i++)
-		{
-			tempCorners[i] = DirectX::XMLoadFloat4(&m_Corners[i]);
-
-			tempCorners[i] = DirectX::XMVector4Transform(tempCorners[i], tAxes);
-
-			DirectX::XMStoreFloat4(&m_Corners[i], tempCorners[i]);
-		}
-	}
-
 	void calculateCorners()
 	{
 		m_Corners[0] = DirectX::XMFLOAT4(- m_Extents.x, - m_Extents.y, - m_Extents.z, 1.f); 

@@ -434,12 +434,12 @@ void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 	{
 	case BoundingVolume::Type::OBB:
 		{
-			((OBB*)body->getVolume())->setRotationMatrix(temp);
+			((OBB*)body->getVolume())->setRotation(rotation);
 			break;
 		}
 	case BoundingVolume::Type::HULL:
 		{
-			((Hull*)body->getVolume())->setRotation(temp);
+			((Hull*)body->getVolume())->setRotation(rotation);
 			break;
 		}
 	default:
