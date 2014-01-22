@@ -124,6 +124,31 @@ public:
 	 */
 	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
 
+	/**
+	 * Get functions for debug and/or volume bar on the UI.
+	 *
+	 * @param identification for the sound/group to get volume from.
+	 */
+	virtual float getVolume(const char* p_SoundId) = 0;
+	virtual float getGroupVolume(ISound::ChannelGroup p_Group) = 0;
+
+	/**
+	 * Get functions for debug and/or pause indicator on the UI.
+	 *
+	 * @param identification for the sound/group to get paused status from.
+	 */
+	virtual bool getPaused(const char* p_SoundId) = 0;
+	virtual bool getGroupPaused(ISound::ChannelGroup p_Group) = 0;
+
+	/**
+	 * Get functions for debug and/or pause indicator on the UI.
+	 *
+	 * @param identification for the sound/group to get paused status from.
+	 */
+	virtual bool getMute(const char* p_SoundId) = 0;
+	virtual bool getGroupMute(ISound::ChannelGroup p_Group) = 0;
+
+
 private:
 
 };

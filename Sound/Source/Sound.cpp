@@ -295,6 +295,81 @@ SoundInstance *Sound::getSound(std::string p_SoundId)
 			return &s;
 		}
 	}
-	return nullptr;
+
+	throw SoundException("Sound " + p_SoundId + " not found. Is the file missing?", __LINE__, __FILE__);
 }
 
+float Sound::getVolume(const char* p_SoundId)
+{
+	float returnParam;
+	getSound(std::string(p_SoundId))->getChannel()->getVolume( &returnParam );
+	return returnParam;
+}
+
+float Sound::getGroupVolume(ISound::ChannelGroup p_Group)
+{
+	float returnParam;
+	switch(p_Group)
+	{
+	case ISound::ChannelGroup::MASTER:
+		m_MasterChannelGroup->getVolume(&returnParam);
+		break;
+	case ISound::ChannelGroup::MUSIC:
+		m_MusicChannelGroup->getVolume(&returnParam);
+		break;
+	case ISound::ChannelGroup::SFX:
+		m_SfxChannelGroup->getVolume(&returnParam);
+		break;
+	}
+	return returnParam;
+}
+
+bool Sound::getPaused(const char* p_SoundId)
+{
+	bool returnParam;
+	getSound(std::string(p_SoundId))->getChannel()->getPaused(&returnParam);
+	return returnParam;
+}
+
+bool Sound::getGroupPaused(ISound::ChannelGroup p_Group)
+{
+	bool returnParam;
+	switch(p_Group)
+	{
+	case ISound::ChannelGroup::MASTER:
+		m_MasterChannelGroup->getPaused(&returnParam);
+		break;
+	case ISound::ChannelGroup::MUSIC:
+		m_MusicChannelGroup->getPaused(&returnParam);
+		break;
+	case ISound::ChannelGroup::SFX:
+		m_SfxChannelGroup->getPaused(&returnParam);
+		break;
+	}
+	return returnParam;
+}
+
+bool Sound::getMute(const char* p_SoundId)
+{
+	bool returnParam;
+	getSound(std::string(p_SoundId))->getChannel()->getMute(&returnParam);
+	return returnParam;
+}
+
+bool Sound::getGroupMute(ISound::ChannelGroup p_Group)
+{
+	bool returnParam;
+	switch(p_Group)
+	{
+	case ISound::ChannelGroup::MASTER:
+		m_MasterChannelGroup->getMute(&returnParam);
+		break;
+	case ISound::ChannelGroup::MUSIC:
+		m_MusicChannelGroup->getMute(&returnParam);
+		break;
+	case ISound::ChannelGroup::SFX:
+		m_SfxChannelGroup->getMute(&returnParam);
+		break;
+	}
+	return returnParam;
+}
