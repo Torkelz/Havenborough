@@ -158,17 +158,17 @@ void LevelLoader::readLightList(std::istream& p_Input)
 	if(tempString == "kSpotLight")
 	{
 		tempLight.m_Type = 2;
-		SpotLight tempDirectional;
+		SpotLight tempSpot;
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
-		m_Stringstream >> filler >> tempDirectional.m_Intensity;
+		m_Stringstream >> filler >> tempSpot.m_Intensity;
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
-		m_Stringstream >> filler >> tempDirectional.m_Direction.x >> tempDirectional.m_Direction.y >> tempDirectional.m_Direction.z;
+		m_Stringstream >> filler >> tempSpot.m_Direction.x >> tempSpot.m_Direction.y >> tempSpot.m_Direction.z;
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
-		m_Stringstream >> filler >> tempDirectional.m_ConeAngle;
-		m_LevelSpotLightList.push_back(std::make_pair(tempLight,tempDirectional));
+		m_Stringstream >> filler >> tempSpot.m_ConeAngle >> tempSpot.m_PenumbraAngle;
+		m_LevelSpotLightList.push_back(std::make_pair(tempLight,tempSpot));
 		return;
 	}
 }

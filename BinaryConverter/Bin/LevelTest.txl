@@ -48,7 +48,7 @@ Color: 1 1 1
 Type: kSpotLight
 Intensity: 1
 Direction: -0.389399 -0.666308 -0.635926
-ConeAngle: 0.698132
+ConeAngle: 0.698132 0.0984208
 
 *CheckPointHeader*
 #numCheckpoints 3

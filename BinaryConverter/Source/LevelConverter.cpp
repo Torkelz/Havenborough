@@ -31,17 +31,21 @@ bool LevelConverter::writeFile(std::string p_FilePath)
 		createHeader(&output);
 		createLevel(&output);
 		createLighting(&output);
+		createCheckPoints(&output);
 	}
 	else
 	{
 		return false;
 	}
+	output.close();
 	return true;
 }
 
 void LevelConverter::createHeader(std::ostream* p_Output)
 {
 	intToByte(m_Header.m_NumberOfModels, p_Output);
+	intToByte(m_Header.m_NumberOfLights, p_Output);
+	intToByte(m_Header.m_NumberOfCheckPoints, p_Output);
 }
 
 void LevelConverter::createLevel(std::ostream* p_Output)
@@ -102,7 +106,6 @@ void LevelConverter::createLighting(std::ostream* p_Output)
 {
 	intToByte(m_LevelDirectionalLightList->at(0).first.m_Type, p_Output);
 	intToByte(m_LevelDirectionalLightList->size(), p_Output);
-	int i = sizeof(std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>);
 	p_Output->write(reinterpret_cast<const char*>(m_LevelDirectionalLightList->data()),
 		sizeof(std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>) * m_LevelDirectionalLightList->size());
 	intToByte(m_LevelPointLightList->at(0).first.m_Type, p_Output);
@@ -115,6 +118,18 @@ void LevelConverter::createLighting(std::ostream* p_Output)
 		sizeof(std::pair<LevelLoader::LightData, LevelLoader::SpotLight>) * m_LevelSpotLightList->size());
 }
 
+void LevelConverter::createCheckPoints(std::ostream* p_Output)
+{
+	DirectX::XMFLOAT3* tempStart,*tempEnd;
+	tempStart = &m_LevelCheckPointStart;
+	tempEnd = &m_LevelCheckPointEnd;
+	p_Output->write(reinterpret_cast<const char*>(tempStart), sizeof(DirectX::XMFLOAT3));
+	p_Output->write(reinterpret_cast<const char*>(tempEnd), sizeof(DirectX::XMFLOAT3));
+	int size = m_LevelCheckPointList->size();
+	intToByte(size, p_Output);
+	p_Output->write(reinterpret_cast<const char*>(m_LevelCheckPointList->data()), sizeof(LevelLoader::CheckPointStruct) * size);
+}
+
 void LevelConverter::stringToByte(std::string p_String, std::ostream* p_Output)
 {
 	unsigned int size = p_String.size();
@@ -124,7 +139,7 @@ void LevelConverter::stringToByte(std::string p_String, std::ostream* p_Output)
 
 void LevelConverter::intToByte(int p_Int, std::ostream* p_Output)
 {
-	p_Output->write(reinterpret_cast<const char*>(&p_Int), sizeof(p_Int));
+	p_Output->write(reinterpret_cast<const char*>(&p_Int), sizeof(int));
 }
 
 void LevelConverter::setLevelHead(LevelLoader::LevelHeader p_Header)

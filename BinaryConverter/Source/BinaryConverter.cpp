@@ -15,6 +15,7 @@ int main(int argc, char* argv[])
 	ModelConverter converter;
 	LevelLoader levelLoader;
 	LevelConverter levelConverter;
+	
 	bool result;
 	if(argc == 2)
 	{

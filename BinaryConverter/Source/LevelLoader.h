@@ -30,18 +30,19 @@ public:
 	};
 	struct DirectionalLight
 	{
-		int m_Intensity;
+		float m_Intensity;
 		DirectX::XMFLOAT3 m_Direction;
 	};
 	struct PointLight
 	{
-		int m_Intensity;
+		float m_Intensity;
 	};
 	struct SpotLight
 	{
-		int m_Intensity;
+		float m_Intensity;
 		DirectX::XMFLOAT3 m_Direction;
-		int m_ConeAngle;
+		float m_ConeAngle;
+		float m_PenumbraAngle;
 	};
 	struct CheckPointStruct
 	{

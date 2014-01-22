@@ -17,13 +17,13 @@ private:
 		std::vector<DirectX::XMFLOAT3> m_Scale;
 	};
 
-	const std::vector<LevelLoader::ModelStruct>* m_LevelData;
+	DirectX::XMFLOAT3 m_LevelCheckPointStart;
+	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
 	const std::vector<LevelLoader::CheckPointStruct>* m_LevelCheckPointList;
-	DirectX::XMFLOAT3 m_LevelCheckPointStart, m_LevelCheckPointEnd;
+	const std::vector<LevelLoader::ModelStruct>* m_LevelData;
 	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>* m_LevelDirectionalLightList;
 	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>* m_LevelPointLightList;
 	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>* m_LevelSpotLightList;
-
 	LevelLoader::LevelHeader m_Header;
 	int m_LevelDataSize;
 public:
@@ -112,4 +112,5 @@ protected:
 	void createHeader(std::ostream* p_Output);
 	void createLevel(std::ostream* p_Output);
 	void createLighting(std::ostream* p_Output);
+	void createCheckPoints(std::ostream* p_Output);
 };
