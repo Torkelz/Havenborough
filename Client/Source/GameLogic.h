@@ -42,7 +42,7 @@ private:
 
 	//DEBUG
 	std::weak_ptr<Actor> circleWitch;
-	std::weak_ptr<Actor> skyBox;
+	//std::weak_ptr<Actor> skyBox;
 	std::weak_ptr<Actor> standingWitch;
 	std::weak_ptr<Actor> wavingWitch;
 	std::weak_ptr<Actor> ikTest;

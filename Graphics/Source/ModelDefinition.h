@@ -46,6 +46,10 @@ struct ModelDefinition
 	 * If the model is animated or static.
 	 */
 	bool						m_IsAnimated;
+	/**
+	 * If the model is transparent or not.
+	 */
+	bool						m_IsTransparent;
 
 	/**
 	 * The animation joints of the model. Contains all static animation data.
@@ -69,6 +73,7 @@ struct ModelDefinition
 			specularTexture(p_Other.specularTexture),
 			numOfMaterials(p_Other.numOfMaterials),
 			m_IsAnimated(p_Other.m_IsAnimated),
+			m_IsTransparent(p_Other.m_IsTransparent),
 			m_Joints(std::move(p_Other.m_Joints)),
 			m_AnimationClips(std::move(p_Other.m_AnimationClips))
 	{}
@@ -86,6 +91,7 @@ struct ModelDefinition
 		std::swap(specularTexture, p_Other.specularTexture);
 		std::swap(numOfMaterials, p_Other.numOfMaterials);
 		std::swap(m_IsAnimated, p_Other.m_IsAnimated);
+		std::swap(m_IsTransparent, p_Other.m_IsTransparent);
 		std::swap(m_Joints, p_Other.m_Joints);
 		std::swap(m_AnimationClips, p_Other.m_AnimationClips);
 
@@ -102,6 +108,7 @@ public:
 	ModelDefinition()
 		:	shader(nullptr),
 			numOfMaterials(0),
-			m_IsAnimated(false) {}
+			m_IsAnimated(false),
+			m_IsTransparent(false) {}
 	~ModelDefinition(){}
 };

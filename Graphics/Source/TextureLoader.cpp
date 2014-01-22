@@ -76,6 +76,7 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(const char* p_Fil
 
 		hr = CreateDDSTextureFromFile(m_Device, filename.data(), 
 														&textureResource, &textureSRV, 0, &mode);
+
 		if(FAILED(hr))
 		{
 			throw TextureLoaderException("DDS Texture load failed", __LINE__, __FILE__);

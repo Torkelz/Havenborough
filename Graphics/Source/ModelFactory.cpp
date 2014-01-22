@@ -82,7 +82,6 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	model.m_IsAnimated = isAnimated;
 
 	modelLoader.clear();
-
 	return model;
 }
 

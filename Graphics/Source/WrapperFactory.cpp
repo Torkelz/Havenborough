@@ -79,43 +79,6 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 					break;
 			}
 		}
-#pragma region OLD LOGICAL VERSION
-		//if((p_Type & ShaderType::VERTEX_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::VERTEX_SHADER);
-		//}
-		//if((p_Type & ShaderType::PIXEL_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::PIXEL_SHADER);
-		//}
-		//if((p_Type & ShaderType::GEOMETRY_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::GEOMETRY_SHADER);
-		//}
-		//if((p_Type & ShaderType::HULL_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::HULL_SHADER);
-		//}
-		//if((p_Type & ShaderType::DOMAIN_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::DOMAIN_SHADER);
-		//}
-#pragma endregion
 
 		return shader;
 	}
@@ -160,43 +123,8 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 					break;
 			}
 		}
-#pragma region OLD LOGICAL VERSION
-		//if((p_Type & ShaderType::VERTEX_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::VERTEX_SHADER, desc);
-		//}
-		//if((p_Type & ShaderType::PIXEL_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::PIXEL_SHADER, desc);
-		//}
-		//if((p_Type & ShaderType::GEOMETRY_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::GEOMETRY_SHADER, desc);
-		//}
-		//if((p_Type & ShaderType::HULL_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::HULL_SHADER, desc);
-		//}
-		//if((p_Type & ShaderType::DOMAIN_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::DOMAIN_SHADER, desc);
-		//}
-#pragma endregion
+	
+		SAFE_DELETE_ARRAY(desc);
 
 		return shader;
 	}
@@ -229,43 +157,6 @@ void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const c
 					break;
 			}
 		}
-#pragma region OLD LOGICAL VERSION
-		//if((p_Type & ShaderType::VERTEX_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::VERTEX_SHADER);
-		//}
-		//if((p_Type & ShaderType::PIXEL_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::PIXEL_SHADER);
-		//}
-		//if((p_Type & ShaderType::GEOMETRY_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::GEOMETRY_SHADER);
-		//}
-		//if((p_Type & ShaderType::HULL_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::HULL_SHADER);
-		//}
-		//if((p_Type & ShaderType::DOMAIN_SHADER))
-		//{
-		//	entryPoint = entryPointList.back();
-		//	entryPointList.pop_back();
-		//	addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
-		//		Shader::Type::DOMAIN_SHADER);
-		//}
-#pragma endregion
 	}
 	catch(...)
 	{
@@ -337,7 +228,7 @@ vector<string> WrapperFactory::createEntryPointList(const char *p_EntryPoint)
 	vector<string> result;
 
 	std::vector<char> buffer(strlen(p_EntryPoint)+1);
-	strcpy(buffer.data(), p_EntryPoint);
+	strcpy_s(buffer.data(), (strlen(p_EntryPoint)+1), p_EntryPoint);
 	char *tmp;
 	tmp = strtok(buffer.data(), ",");
 	while(tmp != nullptr)
