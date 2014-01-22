@@ -11,7 +11,6 @@ class Physics : public IPhysics
 {
 public:
 private:
-	Collision m_Collision;
 	float m_GlobalGravity;
 	std::vector<Body> m_Bodies;
 	std::vector<HitData> m_HitDatas;

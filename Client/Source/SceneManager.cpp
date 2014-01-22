@@ -3,11 +3,15 @@
 
 SceneManager::SceneManager()
 {
-	m_NowShowing = 0;
-	m_IsMenuState = false;
 	m_Graphics = nullptr;
 	m_ResourceManager = nullptr;
 	m_InputQueue = nullptr;
+	m_NowShowing = 0;
+#if _DEBUG
+	m_IsMenuState = false;
+#else
+	m_IsMenuState = true;
+#endif
 }
 
 SceneManager::~SceneManager()
@@ -54,15 +58,16 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 			sceneFail = true;
 		}
 	}
+#if _DEBUG
+	m_MenuSceneList[0]->setIsVisible(true);
+#else
 	m_RunSceneList[0]->setIsVisible(true);
-
+#endif
 	
 	if(sceneFail)
 	{
 		throw SceneManagerException("Failed to init all scenes", __LINE__,__FILE__);
 	}
-	//// ################################ Remove this override later, used for skipping the menu!! #####################################################
-	//m_IsMenuState = false;
 }
 
 void SceneManager::destroy()
