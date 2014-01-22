@@ -40,6 +40,7 @@ public:
 	void shutdown();
 	
 	std::vector<std::string> getUserNames();
+	std::vector<std::string> getGameDescriptions();
 	void sendTestData();
 	void sendPulseObject();
 

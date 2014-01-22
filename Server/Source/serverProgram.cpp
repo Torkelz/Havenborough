@@ -16,6 +16,7 @@ void printHelp()
 		"  send     Send data to client\n"
 		"  pulse    Pulse an object\n"
 		"  list     List all the connected clients\n"
+		"  games    List all running games\n"
 		"  exit     Shutdown the server\n";
 
 	std::cout << helpMessage;
@@ -26,6 +27,14 @@ void listUsers()
 	for (const auto& user : server.getUserNames())
 	{
 		std::cout << user << std::endl;
+	}
+}
+
+void listGames()
+{
+	for (const auto& game : server.getGameDescriptions())
+	{
+		std::cout << game << std::endl;
 	}
 }
 
@@ -62,6 +71,8 @@ int main(int argc, char* argv[])
 			printHelp();
 		else if (input == "list")
 			listUsers();
+		else if (input == "games")
+			listGames();
 		else if (input == "pulse")
 			server.sendPulseObject();
 		else

@@ -13,6 +13,7 @@ GameRound::ptr GameRoundFactory::createRound(const std::string& p_GameType)
 	ActorFactory::ptr actorFactory(new ActorFactory);
 
 	std::shared_ptr<TestGameRound> gameRound(new TestGameRound);
+	gameRound->setGameType(p_GameType);
 	gameRound->initialize(actorFactory);
 
 	return gameRound;

@@ -60,6 +60,18 @@ std::vector<std::string> Server::getUserNames()
 	return names;
 }
 
+std::vector<std::string> Server::getGameDescriptions()
+{
+	std::vector<std::string> descriptions;
+
+	for (const auto& game : m_Games.getRunningGames())
+	{
+		descriptions.push_back("Game \"" + game->getGameType() + "\" with " + std::to_string(game->getPlayers().size()) + " players");
+	}
+
+	return descriptions;
+}
+
 void Server::sendTestData()
 {
 	m_RemoveBox = true;

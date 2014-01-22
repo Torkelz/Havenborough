@@ -1,5 +1,6 @@
 #include "GameRound.h"
 
+#include "GameList.h"
 #include "../../Client/Source/Logger.h"
 
 #include <algorithm>
@@ -7,10 +8,9 @@
 GameRound::~GameRound()
 {
 	m_Running = false;
-
 	if (m_RunThread.joinable())
 	{
-		m_RunThread.join();
+		m_RunThread.detach();
 	}
 }
 
@@ -19,9 +19,14 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory)
 	m_ActorFactory = p_ActorFactory;
 }
 
+void GameRound::setOwningList(GameList* p_ParentList)
+{
+	m_ParentList = p_ParentList;
+}
+
 void GameRound::start()
 {
-	m_RunThread = std::thread(&GameRound::run, this);
+	m_RunThread = std::thread(&GameRound::run, shared_from_this());
 }
 
 void GameRound::addNewPlayer(User::wPtr p_User)
@@ -32,6 +37,16 @@ void GameRound::addNewPlayer(User::wPtr p_User)
 std::vector<Player> GameRound::getPlayers() const
 {
 	return m_Players;
+}
+
+void GameRound::setGameType(const std::string& p_TypeName)
+{
+	m_TypeName = p_TypeName;
+}
+
+std::string GameRound::getGameType() const
+{
+	return m_TypeName;
 }
 
 void GameRound::handlePackages()
@@ -92,17 +107,30 @@ void GameRound::run()
 	Logger::log(Logger::Level::INFO, "Starting game round");
 	m_Running = true;
 
-	sendLevelAndWait();
-
-	if (m_Players.empty())
+	try
 	{
-		Logger::log(Logger::Level::INFO, "All clients disconnected before level loaded, aborting game round");
-		return;
+		sendLevelAndWait();
+
+		if (m_Players.empty())
+		{
+			Logger::log(Logger::Level::INFO, "All clients disconnected before level loaded, aborting game round");
+			return;
+		}
+
+		Logger::log(Logger::Level::INFO, "Level loaded by clients, starting game");
+
+		runGame();
+	}
+	catch (std::exception& ex)
+	{
+		Logger::log(Logger::Level::FATAL, std::string("Unexpected exception stopped game: ") + ex.what());
+	}
+	catch (...)
+	{
+		Logger::log(Logger::Level::FATAL, "Unexpected exception stopped game round");
 	}
 
-	Logger::log(Logger::Level::INFO, "Level loaded by clients, starting game");
-
-	runGame();
+	m_ParentList->removeGameRound(shared_from_this());
 
 	Logger::log(Logger::Level::INFO, "Game round stopped");
 }
