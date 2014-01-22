@@ -81,7 +81,11 @@
     <FxCompile Include="Source\testShader_VS_PS.hlsl">
       <Filter>Graphics</Filter>
     </FxCompile>
-    <FxCompile Include="Source\testShader_VS.hlsl" />
-    <FxCompile Include="Source\testShader_PS.hlsl" />
+    <FxCompile Include="Source\testShader_PS.hlsl">
+      <Filter>Graphics</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\testShader_VS.hlsl">
+      <Filter>Graphics</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
