@@ -123,7 +123,7 @@ public:
 	 * @param p_Filename the filename of the texture
 	 * @return true if the texture was successfully loaded, otherwise false
 	 */
-	virtual bool createTexture(const char *p_TextureId, const char *p_filename) = 0;
+	virtual bool createTexture(const char *p_TextureId, const char *p_Filename) = 0;
 
 	/**
 	 * Release a previously created texture.
@@ -140,7 +140,7 @@ public:
 	 * @param p_Filename the filename of the particle system
 	 * @return true if the particle system was successfully loaded, otherwise false
 	 */
-	virtual bool crateParticleSystem(const char *p_ParticleSystemId, const char *p_filename) = 0;
+	virtual bool createParticleSystem(const char *p_ParticleSystemId, const char *p_Filename) = 0;
 
 	/** 
 	 * Release a previously created particle system.

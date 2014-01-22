@@ -114,7 +114,7 @@ public:
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
 	bool releaseTexture(const char *p_TextureID) override;	
 
-	bool crateParticleSystem(const char *p_ParticleSystemId, const char *p_filename) override;
+	bool createParticleSystem(const char *p_ParticleSystemId, const char *p_filename) override;
 	bool releaseParticleSystem(const char *p_ParticleSystemId) override;
 
 	void addStaticLight(void) override;

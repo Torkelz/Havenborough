@@ -436,7 +436,7 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-bool crateParticleSystem(const char *p_ParticleSystemId, const char *p_filename)
+bool Graphics::createParticleSystem(const char *p_ParticleSystemId, const char *p_filename)
 {
 	/*ID3D11ShaderResourceView *resourceView = m_TextureLoader.createTextureFromFile(p_filename);
 	if(!resourceView)
@@ -452,7 +452,7 @@ bool crateParticleSystem(const char *p_ParticleSystemId, const char *p_filename)
 	return true;
 }
 
-bool releaseParticleSystem(const char *p_ParticleSystemId)
+bool Graphics::releaseParticleSystem(const char *p_ParticleSystemId)
 {
 	/*for(auto it = m_ParticleSystemList.begin(); it != m_ParticleSystemList.end(); ++it)
 	{

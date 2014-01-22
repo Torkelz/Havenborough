@@ -78,12 +78,19 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	};
 	static const size_t numSounds = sizeof(soundMap) / sizeof(soundMap[0]);
 
+	static const std::pair<std::string, std::string> particleMap[] =
+	{
+		std::make_pair("TEMP", "assets/particles/temp.cx"),
+	};
+	static const size_t numParticles = sizeof(particleMap) / sizeof(particleMap[0]);
+
 	static const std::pair<std::string, std::vector<const std::pair<std::string, std::string>>> resourceMaps[] =
 	{
 		std::make_pair("model", std::vector<const std::pair<std::string, std::string>>(modelMap, modelMap + numModels)),
 		std::make_pair("texture", std::vector<const std::pair<std::string, std::string>>(textureMap, textureMap + numTextures)),
 		std::make_pair("volume", std::vector<const std::pair<std::string, std::string>>(boundingMap, boundingMap + numBoundingVolumes)),
 		std::make_pair("sound", std::vector<const std::pair<std::string, std::string>>(soundMap, soundMap + numSounds)),
+		std::make_pair("particleSystem", std::vector<const std::pair<std::string, std::string>>(particleMap, particleMap + numParticles)),
 	};
 
 	for (const auto& map : resourceMaps)

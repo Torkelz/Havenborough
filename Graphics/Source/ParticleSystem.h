@@ -1,11 +1,6 @@
 #pragma once
 
-#include "Graphics.h"
-
-struct kockolol
-{
-
-};
+//#include "Graphics.h"
 
 class ParticleSystem
 {
