@@ -13,7 +13,16 @@
   <ItemGroup>
     <ClCompile Include="..\Client\Source\Logger.cpp" />
     <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
-    <ClCompile Include="serverProgram.cpp" />
+    <ClCompile Include="Source\ActorFactory.cpp" />
+    <ClCompile Include="Source\GameList.cpp" />
+    <ClCompile Include="Source\GameRound.cpp" />
+    <ClCompile Include="Source\GameRoundFactory.cpp" />
+    <ClCompile Include="Source\TestGameRound.cpp" />
+    <ClCompile Include="Source\Lobby.cpp" />
+    <ClCompile Include="Source\Player.cpp" />
+    <ClCompile Include="Source\serverProgram.cpp" />
+    <ClCompile Include="Source\Server.cpp" />
+    <ClCompile Include="Source\User.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Network\Network.vcxproj">
@@ -26,6 +35,16 @@
   <ItemGroup>
     <ClInclude Include="..\Client\Source\Logger.h" />
     <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="Source\ActorFactory.h" />
+    <ClInclude Include="Source\GameList.h" />
+    <ClInclude Include="Source\GameRound.h" />
+    <ClInclude Include="Source\GameRoundFactory.h" />
+    <ClInclude Include="Source\TestGameRound.h" />
+    <ClInclude Include="Source\Lobby.h" />
+    <ClInclude Include="Source\Player.h" />
+    <ClInclude Include="Source\Server.h" />
+    <ClInclude Include="Source\ServerExceptions.h" />
+    <ClInclude Include="Source\User.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{03B04F8A-DF5E-445D-A91D-1C4F7C8398FD}</ProjectGuid>

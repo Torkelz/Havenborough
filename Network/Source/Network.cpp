@@ -118,6 +118,7 @@ void Network::registerPackages()
 	m_PackagePrototypes.push_back(PackageBase::ptr(new ObjectAction));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new AssignPlayer));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new PlayerControl));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new DoneLoading));
 }
 
 void Network::startIO()

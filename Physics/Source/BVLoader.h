@@ -62,7 +62,7 @@ protected:
 	void byteToString(std::istream* p_Input, std::string& p_Return);
 
 	BVLoader::Header readHeader(std::istream* p_Input);
-	std::vector<BVLoader::BoundingVolume> readBoundingVolume(int p_NumberOfVertex, std::istream* p_Input);
+	std::vector<BVLoader::BoundingVolume> readBoundingVolume(std::istream* p_Input);
 
 private:
 	void clearData();
