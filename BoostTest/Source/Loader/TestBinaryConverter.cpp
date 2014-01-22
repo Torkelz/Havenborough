@@ -298,10 +298,10 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 	tempUV.push_back(DirectX::XMFLOAT2(tempFloat2UV[0].f, tempFloat2UV[1].f));
 
 	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>> tempWeight;
-	byteFloat tempFloat3Weight[3];tempFloat3Weight[0].f = 0.f; tempFloat3Weight[1].f = 1.f; tempFloat3Weight[2].f = 2.f;
+	byteFloat tempFloat4Weight[3];tempFloat4Weight[0].f = 0.f; tempFloat4Weight[1].f = 1.f; tempFloat4Weight[2].f = 2.f;
 	byteInt tempFloat4Joint[4];tempFloat4Joint[0].i = 2; tempFloat4Joint[1].i = 1; tempFloat4Joint[2].i = 2; tempFloat4Joint[3].i = 0;
 	tempWeight.push_back(std::make_pair(
-		DirectX::XMFLOAT3(tempFloat3Weight[0].f, tempFloat3Weight[1].f, tempFloat3Weight[2].f), 
+		DirectX::XMFLOAT3(tempFloat4Weight[0].f, tempFloat4Weight[1].f, tempFloat4Weight[2].f), 
 		DirectX::XMINT4(tempFloat4Joint[0].i, tempFloat4Joint[1].i, tempFloat4Joint[2].i, tempFloat4Joint[3].i)));
 
 	indexDesc.push_back(temp);
@@ -339,9 +339,9 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBufferAnimation)
 		tempFloat3Tan[2].c[0],tempFloat3Tan[2].c[1],tempFloat3Tan[2].c[2],tempFloat3Tan[2].c[3]};
 	BOOST_CHECK_EQUAL_COLLECTIONS(resVertexBufferAnimation.begin() + 36, resVertexBufferAnimation.begin() + 48, l, l + sizeof(l));
 	char o[12] = {
-		tempFloat3Weight[0].c[0],tempFloat3Weight[0].c[1],tempFloat3Weight[0].c[2],tempFloat3Weight[0].c[3],
-		tempFloat3Weight[1].c[0],tempFloat3Weight[1].c[1],tempFloat3Weight[1].c[2],tempFloat3Weight[1].c[3],
-		tempFloat3Weight[2].c[0],tempFloat3Weight[2].c[1],tempFloat3Weight[2].c[2],tempFloat3Weight[2].c[3]};
+		tempFloat4Weight[0].c[0],tempFloat4Weight[0].c[1],tempFloat4Weight[0].c[2],tempFloat4Weight[0].c[3],
+		tempFloat4Weight[1].c[0],tempFloat4Weight[1].c[1],tempFloat4Weight[1].c[2],tempFloat4Weight[1].c[3],
+		tempFloat4Weight[2].c[0],tempFloat4Weight[2].c[1],tempFloat4Weight[2].c[2],tempFloat4Weight[2].c[3]};
 	BOOST_CHECK_EQUAL_COLLECTIONS(resVertexBufferAnimation.begin() + 60, resVertexBufferAnimation.begin() + 72, o, o + sizeof(o));
 
 	char w[16] = {

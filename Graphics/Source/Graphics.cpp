@@ -5,7 +5,7 @@
 #include <boost/filesystem.hpp>
 
 using namespace DirectX;
-
+const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
@@ -16,16 +16,23 @@ Graphics::Graphics(void)
 	m_DepthStencilBuffer = nullptr;
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
+	m_RasterStateBV = nullptr;
 	m_WrapperFactory = nullptr;
 	m_ModelFactory = nullptr;
-	m_DeferredRender = nullptr;
+	//m_DeferredRender = nullptr;
 	m_Sampler = nullptr;
-	m_VRAMMemInfo = nullptr;
+	m_VRAMInfo = nullptr;
+
+	
 
 	m_VSyncEnabled = false; //DEBUG
 
 	m_NextInstanceId = 1;
 	m_SelectedRenderTarget = 3;
+
+	m_Shader = nullptr;
+	m_BVShader = nullptr;
+	m_BVBuffer = nullptr;
 }
 
 Graphics::~Graphics(void)
@@ -169,7 +176,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Note this is the only time initialize should be called.
 	WrapperFactory::initialize(m_Device, m_DeviceContext);	
 	m_WrapperFactory = WrapperFactory::getInstance();
-	m_VRAMMemInfo = VRAMInfo::getInstance();
+	m_VRAMInfo = VRAMInfo::getInstance();
 	m_ModelFactory = ModelFactory::getInstance();
 	m_ModelFactory->initialize(&m_TextureList);
 
@@ -180,7 +187,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred Render
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights);
+		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
+		m_MaxLightsPerLightInstance);
 	
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
@@ -203,6 +211,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
 															"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);//, shaderDesc, 1);
+
+	m_Forwardrender = new ForwardRendering();
+	m_Forwardrender->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
+		m_DepthStencilView, m_RenderTargetView);
 
 	return true;
 }
@@ -262,13 +274,15 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_SwapChain);
 	SAFE_SHUTDOWN(m_WrapperFactory);
 	SAFE_SHUTDOWN(m_ModelFactory);
-	SAFE_SHUTDOWN(m_VRAMMemInfo);
+	SAFE_SHUTDOWN(m_VRAMInfo);
 
+	m_Shader = nullptr;
 	SAFE_DELETE(m_BVBuffer);
 	SAFE_DELETE(m_BVShader);
 
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
+	SAFE_DELETE(m_Forwardrender);
 	//Clear lights
 	m_PointLights.clear();
 	m_SpotLights.clear();
@@ -279,14 +293,12 @@ void Graphics::shutdown(void)
 	m_DirectionalLights.shrink_to_fit();
 
 	VRAMInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
-	
-	m_Shader = nullptr;
 }
 
 void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 {
 	p_Graphics->shutdown();
-	delete p_Graphics;
+	SAFE_DELETE(p_Graphics);
 }
 
 bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
@@ -396,7 +408,7 @@ bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	}
 
 	int size = calculateTextureSize(resourceView);
-	m_VRAMMemInfo->updateUsage(size);
+	m_VRAMInfo->updateUsage(size);
 
 	m_TextureList.push_back(make_pair(p_TextureId, resourceView));
 
@@ -411,7 +423,7 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 		{
 			ID3D11ShaderResourceView *&m = it->second;
 			int size = calculateTextureSize(m);
-			m_VRAMMemInfo->updateUsage(-size);
+			m_VRAMInfo->updateUsage(-size);
 
 			SAFE_RELEASE(m);
 			m_TextureList.erase(it);
@@ -428,12 +440,28 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 	{
 		if (inst.first == p_ModelId)
 		{
-			m_DeferredRender->addRenderable(DeferredRenderer::Renderable(getModelFromList(inst.second.getModelName()),
-				inst.second.getWorldMatrix(),
-				&inst.second.getFinalTransform()));
+			ModelDefinition *temp = getModelFromList(inst.second.getModelName());
+			if(temp->m_IsTransparent == false)
+			{
+				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(temp,
+					inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
+			}
+			else
+			{
+				m_Forwardrender->addRenderable(DeferredRenderer::Renderable(temp,
+					inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
+			}
+			
 			break;
 		}
 	}
+}
+
+void Graphics::renderSkyDome()
+{
+	m_DeferredRender->renderSkyDome();
 }
 
 void Graphics::renderText(void)
@@ -518,9 +546,11 @@ void Graphics::drawFrame()
 		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
 		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
-
+		
 		m_Shader->unSetShader();
 	}
+
+	m_Forwardrender->renderForward();
 
 	drawBoundingVolumes();
 
@@ -570,11 +600,11 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName)
 	}
 }
 
-int Graphics::getVRAMMemUsage(void)
+int Graphics::getVRAMUsage(void)
 {
-	if (m_VRAMMemInfo)
+	if (m_VRAMInfo)
 	{
-		return m_VRAMMemInfo->getUsage();
+		return m_VRAMInfo->getUsage();
 	}
 	else
 	{
@@ -606,6 +636,11 @@ int Graphics::createModelInstance(const char *p_ModelId)
 	m_ModelInstances.push_back(std::make_pair(id, instance));
 
 	return id;
+}
+
+void Graphics::createSkyDome(const char* p_Identifier, float p_Radius)
+{
+	m_DeferredRender->createSkyDome(getTextureFromList(std::string(p_Identifier)),p_Radius);
 }
 
 void Graphics::eraseModelInstance(int p_Instance)
@@ -918,7 +953,7 @@ HRESULT Graphics::createRasterizerState(void)
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
@@ -1009,7 +1044,7 @@ int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )
 	SAFE_RELEASE(texture);
 	SAFE_RELEASE(resource);
 
-	return m_VRAMMemInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
+	return m_VRAMInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
 }
 
 void Graphics::Begin(float color[4])
@@ -1103,3 +1138,4 @@ void Graphics::DebugDefferedDraw(void)
 	m_Sampler = nullptr;
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
 }
+
