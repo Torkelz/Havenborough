@@ -73,9 +73,11 @@ void Physics::update(float p_DeltaTime)
 
 		bool onSomething = false;
 
-		for (unsigned j = i + 1; j < m_Bodies.size(); j++)
+		for (unsigned j = 0; j < m_Bodies.size(); j++)
 		{
-			unsigned int hh = m_Bodies.at(j).getHandle();
+			if(i == j)
+				continue;
+
 			HitData hit = Collision::boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
 			
 			if(hit.intersect)
@@ -169,7 +171,7 @@ BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 	if(tempBV.empty())
 	{	
 		PhysicsLogger::log(PhysicsLogger::Level::ERROR_L, "Bounding Volume from template is empty");
-		return -1;
+		return (BodyHandle)0;
 	}
 
 	std::vector<Triangle> triangles;
