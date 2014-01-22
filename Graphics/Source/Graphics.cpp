@@ -255,7 +255,7 @@ void Graphics::shutdown(void)
 
 	/*for(auto& Psys : m_ParticleSystemList)
 	{
-		SAFE_RELEASE(Psys.second);
+		SAFE_DELETE(Psys.second);
 	}
 	m_ParticleSystemList.clear();*/
 
