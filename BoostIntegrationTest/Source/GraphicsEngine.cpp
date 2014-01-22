@@ -133,6 +133,15 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 
 
 	//Step 4
+	BOOST_MESSAGE(testId + "Trying to create textures that does not exist, expecting exception");
+	BOOST_CHECK_THROW(graphics->createTexture("MyTexture", "IDoNotExist.png"), TextureLoaderException);
+	BOOST_CHECK_THROW(graphics->createTexture("MyTexture", "IDoNotExistEither.dds"), TextureLoaderException);
+
+	BOOST_MESSAGE(testId + "Trying to create texture with wrong extension");
+	BOOST_CHECK(!graphics->createTexture("MyTexture", "../../Client/Bin/assets/textures/Default_COLOR.dss"));
+
+	BOOST_MESSAGE(testId + "Creating texture from DDS");
+	BOOST_CHECK(graphics->createTexture("MyTexture", "../../Client/Bin/assets/textures/Default_COLOR.dds"));
 	//BOOST_MESSAGE(testId + "Creating vertex shader using hlsl shader layout");
 	//BOOST_CHECK_NO_THROW(graphics->createShader("myID", L"../Source/dummyShader.hlsl", "mainVS,mainPS", "5_0",
 	//	ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER));
@@ -165,9 +174,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	//BOOST_CHECK_THROW(graphics->createShader("anotherUserDefinedDesc", L"../Source/dummyShader.hlsl", "main", "5_5",
 	//	ShaderType::VERTEX_SHADER, desc, size), ShaderException);
 
-	//BOOST_MESSAGE(testId + "Trying to create textures that does not exist, expecting exception");
-	//BOOST_CHECK_THROW(graphics->createTexture("MyTexture", "lol.png"), TextureLoaderException);
-	//BOOST_CHECK_THROW(graphics->createTexture("MyTexture", "lol.dds"), TextureLoaderException);
+
 
 
 
