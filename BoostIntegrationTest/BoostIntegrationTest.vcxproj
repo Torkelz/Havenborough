@@ -32,6 +32,12 @@
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
+    <ClCompile Include="..\Physics\Source\Body.cpp" />
+    <ClCompile Include="..\Physics\Source\BVLoader.cpp" />
+    <ClCompile Include="..\Physics\Source\Collision.cpp" />
+    <ClCompile Include="..\Physics\Source\Physics.cpp" />
+    <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
+    <ClCompile Include="Physics Engine.cpp" />
     <ClCompile Include="Source\GraphicsEngine.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
   </ItemGroup>
@@ -46,6 +52,14 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </EntryPointName>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Physics\include\BoundingVolume.h" />
+    <ClInclude Include="..\Physics\include\Hull.h" />
+    <ClInclude Include="..\Physics\include\OBB.h" />
+    <ClInclude Include="..\Physics\include\PhysicsTypes.h" />
+    <ClInclude Include="..\Physics\include\Sphere.h" />
+    <ClInclude Include="..\Physics\Source\Collision.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C0F8B22C-8D50-4C3C-975A-807B498A51A7}</ProjectGuid>
