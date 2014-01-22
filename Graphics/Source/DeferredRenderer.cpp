@@ -36,6 +36,7 @@ DeferredRenderer::DeferredRenderer()
 
 	m_ConstantBuffer = nullptr;
 	m_ObjectConstantBuffer = nullptr;
+	m_AnimatedObjectConstantBuffer = nullptr;
 	m_AllLightBuffer = nullptr;
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
@@ -51,6 +52,7 @@ DeferredRenderer::DeferredRenderer()
 	m_SkyDomeSRV = nullptr;
 	m_SkyDomeDepthStencilState = nullptr;
 	m_SkyDomeRasterizerState = nullptr;
+	m_SkyDomeSampler = nullptr;
 }
 
 DeferredRenderer::~DeferredRenderer(void)
@@ -102,7 +104,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_RELEASE(m_SkyDomeSRV);
 	SAFE_RELEASE(m_SkyDomeDepthStencilState);
 	SAFE_RELEASE(m_SkyDomeRasterizerState);
-	
+	SAFE_RELEASE(m_SkyDomeSampler);
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
