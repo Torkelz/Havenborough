@@ -300,14 +300,24 @@ void ModelLoader::readWeights(std::istream& p_Input)
 		float weightW;
 		m_Stringstream >> filler >> tempWeight.x >> tempWeight.y >> tempWeight.z >> weightW;
 
-		float weightSum = tempWeight.x + tempWeight.y + tempWeight.z + weightW;
-		tempWeight.x /= weightSum;
-		tempWeight.y /= weightSum;
-		tempWeight.z /= weightSum;
-
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
 		m_Stringstream >> filler >> tempJoint.x >> tempJoint.y >> tempJoint.z >> tempJoint.w;
+		
+		if(tempJoint.w != 0)
+		{
+			float weightSum = tempWeight.x + tempWeight.y + tempWeight.z + weightW;
+			tempWeight.x /= weightSum;
+			tempWeight.y /= weightSum;
+			tempWeight.z /= weightSum;
+		}
+		else
+		{
+			float weightSum = tempWeight.x + tempWeight.y + tempWeight.z + 0;
+			tempWeight.x /= weightSum;
+			tempWeight.y /= weightSum;
+			tempWeight.z /= weightSum;
+		}
 		m_WeightsList.push_back(std::make_pair(tempWeight, tempJoint));
 	}
 }

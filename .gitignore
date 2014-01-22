@@ -32,3 +32,5 @@ testCaseCollection.xml
 *.cso
 Client/Bin/logFile.txt
 Server/logFile.txt
+BoostIntegrationTest/Bin/debug_log.txt
+BoostIntegrationTest/Bin/release_log.txt

@@ -10,7 +10,6 @@ cbuffer cb : register(b1)
 	float4x4 view;
 	float4x4 projection;
 	float3	 cameraPos;
-	int		 ninjaKick;
 };
 
 cbuffer cbWorld : register(b2)
@@ -62,7 +61,7 @@ PSIn VS(VSIn input)
 	weights[0] = input.weights.x;
 	weights[1] = input.weights.y;
 	weights[2] = input.weights.z;
-	weights[3] = 0.0f;//1.f - input.weights.x - input.weights.y - input.weights.z;
+	weights[3] = 1.f - input.weights.x - input.weights.y - input.weights.z;
 
 	float4 posL			= float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float3 normalL		= float3(0.0f, 0.0f, 0.0f);
@@ -85,7 +84,7 @@ PSIn VS(VSIn input)
 	output.normal = normalize(mul(worldInvTranspose, float4(normalL, 0.f))).xyz;
 	output.uvCoord = input.uvCoord;
 	output.tangent = normalize(mul(world, float4(tangentL, 0.f))).xyz;
-	output.binormal = normalize(mul(world, float4(binormalL, 0.f))).xyz; // Try worldInvTranspose if strange results with lighting.
+	output.binormal = normalize(mul(world, float4(binormalL, 0.f))).xyz;
 		
 	return output;
 }
@@ -95,7 +94,6 @@ PSOut PS( PSIn input )
 	PSOut output;
 	float3 norm				= 0.5f * (input.normal + 1.0f);
 	float4 bumpMap			= (normalMap.Sample(m_textureSampler, input.uvCoord) - 0.5f) * 0.2f + 0.5f;
-	//float4 bumpMap			= float4(0.5f, 0.5f, 0.5f, 0.f);
 	bumpMap					= (bumpMap * 2.0f) - 1.0f;
 	float3 normal			= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
 	normal					= 0.5f * (normalize(normal) + 1.0f);
@@ -111,17 +109,13 @@ PSOut PS( PSIn input )
 	{
 		output.diffuse			= float4(diffuseColor.xyz,1.0f);//input.diffuse.xyz;
 		output.normal.w			= 1.0f;//input.specularPower;// 1.0f for debug.
-		output.normal.xyz		= normal;//norm.xyz;
+		output.normal.xyz		= normal;
 		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
-		output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;//input.specularIntensity; // 1.0f for debug.
+		output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;
 	}
 	else // If alpha is 0. Do not blend with any previous render targets.
 	{
-		output.diffuse			= float4(0,0,0,0);//input.diffuse.xyz;
-		output.normal.w			= 0.0f;//input.specularPower;// 1.0f for debug.
-		output.normal.xyz		= float3(0.0f,0.0f,0.0f);//norm.xyz;
-		output.wPosition.xyz	= float3(0,0,0);
-		output.wPosition.w		= 0.0f;//specular.Sample(m_textureSampler, input.uvCoord).x;//input.specularIntensity; // 1.0f for debug.
+		discard;
 	}
 	
 
