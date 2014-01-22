@@ -176,9 +176,8 @@ public:
 	 * Rotates all the trangles in the hull
 	 * @param p_Rotation matrix to rotate the triangles with.
 	 */
-	void setRotation(DirectX::XMFLOAT4X4 p_Rotation)
+	void setRotation(const DirectX::XMMATRIX &p_Rotation)
 	{
-		DirectX::XMMATRIX rotation = DirectX::XMLoadFloat4x4(&p_Rotation);
 		DirectX::XMVECTOR c1, c2, c3;
 		for(auto& tri : m_Triangles)
 		{
@@ -186,9 +185,9 @@ public:
 			c2 = Vector4ToXMVECTOR(&tri.corners[1]);
 			c3 = Vector4ToXMVECTOR(&tri.corners[2]);
 
-			c1 = XMVector4Transform(c1, rotation);
-			c2 = XMVector4Transform(c2, rotation);
-			c3 = XMVector4Transform(c3, rotation);
+			c1 = XMVector4Transform(c1, p_Rotation);
+			c2 = XMVector4Transform(c2, p_Rotation);
+			c3 = XMVector4Transform(c3, p_Rotation);
 
 			tri.corners[0] = XMVECTORToVector4(&c1);
 			tri.corners[1] = XMVECTORToVector4(&c2);
