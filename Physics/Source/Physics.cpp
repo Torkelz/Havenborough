@@ -46,8 +46,6 @@ void Physics::initialize()
 {
 	PhysicsLogger::log(PhysicsLogger::Level::INFO, "Initializing physics");
 
-	m_Collision = Collision();
-
 	fillTriangleIndexList();
 	m_LoadBVSphereTemplateOnce = true;
 }
@@ -78,7 +76,7 @@ void Physics::update(float p_DeltaTime)
 		for (unsigned j = i + 1; j < m_Bodies.size(); j++)
 		{
 			unsigned int hh = m_Bodies.at(j).getHandle();
-			HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
+			HitData hit = Collision::boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
 			
 			if(hit.intersect)
 			{
