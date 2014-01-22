@@ -13,6 +13,7 @@ class GameRound : std::enable_shared_from_this<GameRound>
 {
 public:
 	typedef std::shared_ptr<GameRound> ptr;
+	typedef std::weak_ptr<GameRound> wPtr;
 
 protected:
 	GameList* m_ParentList;
