@@ -11,7 +11,13 @@ BOOST_AUTO_TEST_CASE(SphereVsSphereHit)
 	s1 = Sphere(1.f, DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f));
 	s2 = Sphere(100.f, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 
-	BOOST_CHECK_EQUAL(col.sphereVsSphere(&s1, &s2).intersect, true);
+	HitData hitData = col.sphereVsSphere(&s1, &s2);
+
+	BOOST_CHECK(hitData.intersect);
+	BOOST_CHECK_CLOSE_FRACTION(hitData.colLength, 10000.f, 0.001f);
+	BOOST_CHECK_SMALL(hitData.colNorm.x, 0.001f);
+	BOOST_CHECK_CLOSE_FRACTION(hitData.colNorm.y, 1.f, 0.001f);
+	BOOST_CHECK_SMALL(hitData.colNorm.z, 0.001f);
 }
 
 BOOST_AUTO_TEST_CASE(SphereVsSphereMiss)
@@ -450,5 +456,59 @@ BOOST_AUTO_TEST_CASE(HullInBigSphere)
 	BOOST_CHECK(hd.intersect);
 }
 
+BOOST_AUTO_TEST_CASE(OBBCollisionVectorTest)
+{
+	Collision col;
+	HitData hd;
+	DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(0.f, 5.f, 0.f);
+	DirectX::XMFLOAT4X4 mtrans;
+	DirectX::XMStoreFloat4x4(&mtrans, trans);
+
+	OBB obb1 = OBB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 0.f));
+	OBB obb2 = OBB(DirectX::XMFLOAT4(0.f, 5.f, 0.f, 1.f), DirectX::XMFLOAT4(5.f, 5.f, 5.f, 0.f));
+
+	hd = col.OBBvsOBB(&obb1, &obb2);
+	BOOST_CHECK(hd.intersect);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colLength, 500.f, 0.01f);
+	BOOST_CHECK_SMALL(hd.colNorm.x, 0.01f);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.y, -1.f, 0.01f);
+	BOOST_CHECK_SMALL(hd.colNorm.z, 0.01f);
+	
+	obb2.updatePosition(mtrans);
+	hd = col.OBBvsOBB(&obb1, &obb2);
+	BOOST_CHECK(hd.intersect);
+	BOOST_CHECK_SMALL(hd.colLength, 0.01f);
+	BOOST_CHECK_SMALL(hd.colNorm.x, 0.0001f);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.y, -1.f, 0.0001f);
+	BOOST_CHECK_SMALL(hd.colNorm.z, 0.0001f);
+
+	obb1 = OBB(DirectX::XMFLOAT4(-10.f, 2.f, 40.f, 1.f), DirectX::XMFLOAT4(0.5f, 0.9f, 0.5f, 0.f));
+	DirectX::XMFLOAT4X4 rot;
+	DirectX::XMStoreFloat4x4(&rot, DirectX::XMMatrixRotationRollPitchYaw(0.f, 1.f, 0.f));
+	obb1.setRotationMatrix(rot);
+	obb2 = OBB(DirectX::XMFLOAT4(-10.f, 0.f, 40.f, 1.f), DirectX::XMFLOAT4(5.f, 1.2f, 5.f, 0.f));
+	obb2.setRotationMatrix(rot);
+
+	hd = col.OBBvsOBB(&obb1, &obb2);
+	BOOST_CHECK(hd.intersect);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colLength, 10.f, 0.001f);
+	BOOST_CHECK_SMALL(hd.colNorm.x, 0.001f);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.y, 1.f, 0.001f);
+	BOOST_CHECK_SMALL(hd.colNorm.z, 0.001f);
+
+	DirectX::XMFLOAT4 fCorner(5.f, 0.f, 5.f, 0.f);
+	DirectX::XMVECTOR corner = DirectX::XMLoadFloat4(&fCorner);
+	corner = DirectX::XMVector4Transform(corner, DirectX::XMLoadFloat4x4(&rot));
+
+
+	obb1 = OBB(DirectX::XMFLOAT4(-10.f + corner.m128_f32[0] + 0.4f, 0.f, 40.f + corner.m128_f32[2], 1.f), DirectX::XMFLOAT4(0.5f, 0.9f, 0.5f, 0.f));
+
+	hd = col.OBBvsOBB(&obb1, &obb2);
+	BOOST_CHECK(hd.intersect);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colLength, 10.f, 0.001f);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.x, 1.f, 0.001f);
+	BOOST_CHECK_SMALL(hd.colNorm.y, 0.001f);
+	BOOST_CHECK_SMALL(hd.colNorm.z, 0.001f);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

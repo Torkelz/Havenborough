@@ -367,17 +367,15 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	float r, ra, rb, overlap = FLT_MAX;
 	const float EPSILON = 0.000001f;
 	XMMATRIX R, AbsR;
-	XMVECTOR dotResult, dotResult1, dotResult2;
-	XMVECTOR a_Center, b_Center, a_Extents, b_Extents, tVec, colPoint; // m
-	XMMATRIX a_Axes, b_Axes;
-	XMFLOAT4 least;
-	a_Center = XMLoadFloat4(p_OBB->getPosition());
-	a_Axes = XMLoadFloat4x4(&p_OBB->getAxes());
-	a_Extents = XMLoadFloat4(&p_OBB->getExtents()); 
+	XMVECTOR b_Center, b_Extents, tVec, colPoint; // m
+	XMMATRIX b_Axes;
+	XMVECTOR least;
+	const XMVECTOR a_Center = XMLoadFloat4(p_OBB->getPosition());
+	const XMMATRIX a_Axes = XMLoadFloat4x4(&p_OBB->getAxes());
+	const XMVECTOR a_Extents = XMLoadFloat4(&p_OBB->getExtents()); 
 
 	if(p_vol->getType() == BoundingVolume::Type::OBB)
 	{
-		
 		b_Center = XMLoadFloat4(((OBB*)p_vol)->getPosition());
 		b_Axes = XMLoadFloat4x4(&((OBB*)p_vol)->getAxes());
 		b_Extents = XMLoadFloat4(&((OBB*)p_vol)->getExtents());
@@ -393,7 +391,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			dotResult = XMVector3Dot(a_Axes.r[i], b_Axes.r[j]);
+			XMVECTOR dotResult = XMVector3Dot(a_Axes.r[i], b_Axes.r[j]);
 			R.r[i].m128_f32[j] = dotResult.m128_f32[0];
 		}
 	}
@@ -403,9 +401,9 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	tVec = t;
 	
 	// Bring translation into a’s coordinate frame
-	dotResult = XMVector3Dot(t, a_Axes.r[0]); 
-	dotResult1 = XMVector3Dot(t, a_Axes.r[1]); 
-	dotResult2 = XMVector3Dot(t, a_Axes.r[2]); 
+	XMVECTOR dotResult = XMVector3Dot(t, a_Axes.r[0]); 
+	XMVECTOR dotResult1 = XMVector3Dot(t, a_Axes.r[1]); 
+	XMVECTOR dotResult2 = XMVector3Dot(t, a_Axes.r[2]); 
 	t = XMVectorSet(dotResult.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f);
 
 	// Compute common subexpressions. Add in an epsilon term to
@@ -419,19 +417,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 		}
 	}
 
-	XMVECTOR LA[] = { XMVectorSet(a_Extents.m128_f32[0], 0.f, 0.f, 0.f),
-					  XMVectorSet(0.f, a_Extents.m128_f32[1], 0.f, 0.f),
-					  XMVectorSet(0.f, 0.f, a_Extents.m128_f32[2], 0.f), };
-
-	
-	XMVECTOR LB[] = { XMVectorSet(b_Extents.m128_f32[0], 0.f, 0.f, 0.f),
-					  XMVectorSet(0.f, b_Extents.m128_f32[1], 0.f, 0.f),
-					  XMVectorSet(0.f, 0.f, b_Extents.m128_f32[2], 0.f), };
-
 	XMVECTOR L = XMVectorSet(0.f, 0.f, 0.f, 0.f);
-	
-	XMFLOAT4 cross;
-	XMFLOAT4 storeL;
 
 	// Test axes L = A0, L = A1, L = A2
 	for (int i = 0; i < 3; i++) 
@@ -441,10 +427,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 		float r = t.m128_f32[i];
 		if(fabs(r) > ra + rb)
 			return hit;
-
-		colPoint.m128_f32[i] = r*0.5f;
-		XMStoreFloat4(&storeL, LA[i]);
-		checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+		checkCollisionDepth(ra, rb, r, overlap, a_Axes.r[i], least);
 		
 	}
 
@@ -456,8 +439,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 		r  = t.m128_f32[0] * R.r[0].m128_f32[i] + t.m128_f32[1] * R.r[1].m128_f32[i] + t.m128_f32[2] * R.r[2].m128_f32[i];
 		if(fabs(r) > ra + rb)
 			return hit;
-		XMStoreFloat4(&storeL, LB[i]);
-		checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+		checkCollisionDepth(ra, rb, r, overlap, b_Axes.r[i], least);
 	}
 
 	// Test axis L = A0 x B0
@@ -467,20 +449,18 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	if (fabs(r) > ra + rb)
 		return hit;
 
-	L = XMVector3Cross(LA[0], LB[0]);
-	XMStoreFloat4(&storeL, L);
-	checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+	L = XMVector3Cross(a_Axes.r[0], b_Axes.r[0]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A0 x B1
-	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
+ 	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
 	rb		= b_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
 	r		= t.m128_f32[2] * R.r[1].m128_f32[1] - t.m128_f32[1] * R.r[2].m128_f32[1];
 	if (fabs(r) > ra + rb) 
 		return hit;
 
-	L = XMVector3Cross(LA[0], LB[1]);
-	XMStoreFloat4(&storeL, L);
-	checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+	L = XMVector3Cross(a_Axes.r[0], b_Axes.r[1]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A0 x B2
 	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[2];
@@ -489,9 +469,8 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	if (fabs(r) > ra + rb) 
 		return hit;
 
-	L = XMVector3Cross(LA[0], LB[2]);
-	XMStoreFloat4(&storeL, L);
-	checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+	L = XMVector3Cross(a_Axes.r[0], b_Axes.r[2]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A1 x B0
 	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[0] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
@@ -500,9 +479,8 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	if (fabs(r) > ra + rb) 
 		return hit;
 
-	L = XMVector3Cross(LA[1], LB[0]);
-	XMStoreFloat4(&storeL, L);
-	checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+	L = XMVector3Cross(a_Axes.r[1], b_Axes.r[0]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A1 x B1
 	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[1];
@@ -511,9 +489,8 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	if (fabs(r) > ra + rb) 
 		return hit;
 
-	L = XMVector3Cross(LA[1], LB[1]);
-	XMStoreFloat4(&storeL, L);
-	checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+	L = XMVector3Cross(a_Axes.r[1], b_Axes.r[1]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A1 x B2
 	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[2];
@@ -522,9 +499,8 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	if (fabs(r) > ra + rb) 
 		return hit;
 
-	L = XMVector3Cross(LA[1], LB[2]);
-	XMStoreFloat4(&storeL, L);
-	checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+	L = XMVector3Cross(a_Axes.r[1], b_Axes.r[2]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A2 x B0 
 	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[0] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[0];
@@ -533,9 +509,8 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	if(fabs(r) > ra + rb)
 		return hit;
 
-	L = XMVector3Cross(LA[2], LB[0]);
-	XMStoreFloat4(&storeL, L);
-	checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+	L = XMVector3Cross(a_Axes.r[2], b_Axes.r[0]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A2 x B1
 	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[1] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[1];
@@ -544,9 +519,8 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	if (fabs(r) > ra + rb) 
 		return hit;
 
-	L = XMVector3Cross(LA[2], LB[1]);
-	XMStoreFloat4(&storeL, L);
-	checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+	L = XMVector3Cross(a_Axes.r[2], b_Axes.r[1]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A2 x B2
 	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[2] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[2];
@@ -555,12 +529,11 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	if (fabs(r) > ra + rb) 
 		return hit;
 
-	L = XMVector3Cross(LA[2], LB[2]);
-	XMStoreFloat4(&storeL, L);
-	checkCollisionDepth(ra, rb, r, overlap, storeL, least);
+	L = XMVector3Cross(a_Axes.r[2], b_Axes.r[2]);
+	checkCollisionDepth(ra, rb, r, overlap, L, least);
 	
 	
-	XMVECTOR v = XMLoadFloat4(&least);
+	XMVECTOR v = least;
 	
 	hit.intersect = true;
 
@@ -571,6 +544,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 
 	hit.colNorm = XMVECTORToVector4(&XMVector4Normalize(v));
 	hit.colLength = overlap * 100.f;
+
 	if(p_vol->getType() == BoundingVolume::Type::OBB)
 		hit.colType = Type::OBBVSOBB;
 	else
@@ -580,12 +554,12 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
  	return hit;
 }
 
-void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMFLOAT4 p_L, XMFLOAT4 &p_Least)
+void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
 {
-	float lLength = XMVector4LengthSq(XMLoadFloat4(&p_L)).m128_f32[0];
-	if(lLength != 0.0f)
+	float lLength = XMVector4LengthSq(p_L).m128_f32[0];
+	if(lLength > 0.0001f)
 	{
-		p_R = (p_R - (p_RA + p_RB))/lLength;
+		p_R = (fabs(p_R) - (p_RA + p_RB)) / lLength;
 		if(p_Overlap > fabs(p_R))
 		{
 			p_Overlap = fabs(p_R);
