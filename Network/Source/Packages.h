@@ -160,6 +160,72 @@ public:
 };
 
 /**
+ * Template for packages with a single simple object.
+ */
+template <PackageType type, class obj1>
+class Package1Obj : public PackageHelper<Package1Obj<type, obj1>>
+{
+public:
+	obj1 m_Object1;
+
+public:
+	/**
+	 * constructor.
+	 */
+	Package1Obj()
+		: PackageHelper<Package1Obj<type, obj1>>(type)
+	{}
+
+	/**
+	 * Serialize the package to or from an archive.
+	 *
+	 * @param <Archive> the archive type to serialize with.
+	 *			Can be either input or output archives.
+	 * @param ar the archive used.
+	 * @param version the desired or given archive version. Ignored.
+	 */
+	template <typename Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & m_Object1;
+	}
+};
+
+/**
+ * Template for packages with a single simple object.
+ */
+template <PackageType type, class obj1, class obj2>
+class Package2Obj : public PackageHelper<Package2Obj<type, obj1, obj2>>
+{
+public:
+	obj1 m_Object1;
+	obj2 m_Object2;
+
+public:
+	/**
+	 * constructor.
+	 */
+	Package2Obj()
+		: PackageHelper<Package2Obj<type, obj1, obj2>>(type)
+	{}
+
+	/**
+	 * Serialize the package to or from an archive.
+	 *
+	 * @param <Archive> the archive type to serialize with.
+	 *			Can be either input or output archives.
+	 * @param ar the archive used.
+	 * @param version the desired or given archive version. Ignored.
+	 */
+	template <typename Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & m_Object1;
+		ar & m_Object2;
+	}
+};
+
+/**
  * A package representing that a player is ready to start a game.
  */
 typedef Signal<PackageType::PLAYER_READY> PlayerReady;
@@ -169,201 +235,52 @@ typedef Signal<PackageType::PLAYER_READY> PlayerReady;
  */
 typedef Signal<PackageType::DONE_LOADING> DoneLoading;
 
+/**
+ * A package representing the removal of objects in the game world.
+ */
+typedef Package1Obj<PackageType::REMOVE_OBJECTS, std::vector<uint16_t>> RemoveObjects;
+
+/**
+ * A package representing assigning a player to an object.
+ */
+typedef Package1Obj<PackageType::ASSIGN_PLAYER, uint16_t> AssignPlayer;
+
+BOOST_IS_BITWISE_SERIALIZABLE(PlayerControlData)
+
+namespace boost
+{
+	namespace serialization
+	{
+		template <typename Archive>
+		inline void serialize(Archive& ar, PlayerControlData& m_Data, const unsigned int /*version*/)
+		{
+			ar & m_Data.m_Velocity;
+			ar & m_Data.m_Rotation;
+		}
+	}
+}
+
+/**
+ * A package representing the player controlling its object.
+ */
+typedef Package1Obj<PackageType::PLAYER_CONTROL, PlayerControlData> PlayerControl;
+
+
 BOOST_IS_BITWISE_SERIALIZABLE(ObjectInstance)
 
 /**
  * A package representing the addition of new objects to the game world.
  */
-class CreateObjects : public PackageHelper<CreateObjects>
-{
-public:
-	std::vector<std::string> m_Descriptions;
-	std::vector<ObjectInstance> m_Instances;
-
-public:
-	/**
-	 * constructor.
-	 */
-	CreateObjects()
-		: PackageHelper<CreateObjects>(PackageType::CREATE_OBJECTS)
-	{}
-
-	/**
-	 * Serialize the package to or from an archive.
-	 *
-	 * @param <Archive> the archive type to serialize with.
-	 *			Can be either input or output archives.
-	 * @param ar the archive used.
-	 * @param version the desired or given archive version. Ignored.
-	 */
-	template <typename Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
-	{
-		ar & m_Descriptions;
-		ar & m_Instances;
-	}
-};
+typedef Package2Obj<PackageType::CREATE_OBJECTS, std::vector<std::string>, std::vector<ObjectInstance>> CreateObjects;
 
 BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
 
 /**
  * A package representing the update of objects in the game world.
  */
-class UpdateObjects : public PackageHelper<UpdateObjects>
-{
-public:
-	std::vector<UpdateObjectData> m_ObjectUpdates;
-	std::vector<std::string> m_Extra;
-
-public:
-	/**
-	 * constructor.
-	 */
-	UpdateObjects()
-		: PackageHelper<UpdateObjects>(PackageType::UPDATE_OBJECTS)
-	{}
-
-	/**
-	 * Serialize the package to or from an archive.
-	 *
-	 * @param <Archive> the archive type to serialize with.
-	 *			Can be either input or output archives.
-	 * @param ar the archive used.
-	 * @param version the desired or given archive version. Ignored.
-	 */
-	template <typename Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
-	{
-		ar & m_ObjectUpdates;
-		ar & m_Extra;
-	}
-};
-
-/**
- * A package representing the removal of objects in the game world.
- */
-class RemoveObjects : public PackageHelper<RemoveObjects>
-{
-public:
-	std::vector<uint16_t> m_Objects;
-
-public:
-	/**
-	 * constructor.
-	 */
-	RemoveObjects()
-		: PackageHelper<RemoveObjects>(PackageType::REMOVE_OBJECTS)
-	{}
-
-	/**
-	 * Serialize the package to or from an archive.
-	 *
-	 * @param <Archive> the archive type to serialize with.
-	 *			Can be either input or output archives.
-	 * @param ar the archive used.
-	 * @param version the desired or given archive version. Ignored.
-	 */
-	template <typename Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
-	{
-		ar & m_Objects;
-	}
-};
+ typedef Package2Obj<PackageType::UPDATE_OBJECTS, std::vector<UpdateObjectData>, std::vector<std::string>> UpdateObjects;
 
 /**
  * A package representing one objects action in the game world.
  */
-class ObjectAction : public PackageHelper<ObjectAction>
-{
-public:
-	uint16_t m_Object;
-	std::string m_Action;
-
-public:
-	/**
-	 * constructor.
-	 */
-	ObjectAction()
-		: PackageHelper<ObjectAction>(PackageType::OBJECT_ACTION)
-	{}
-
-	/**
-	 * Serialize the package to or from an archive.
-	 *
-	 * @param <Archive> the archive type to serialize with.
-	 *			Can be either input or output archives.
-	 * @param ar the archive used.
-	 * @param version the desired or given archive version. Ignored.
-	 */
-	template <typename Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
-	{
-		ar & m_Object;
-		ar & m_Action;
-	}
-};
-
-/**
- * A package representing assigning a player to an object.
- */
-class AssignPlayer : public PackageHelper<AssignPlayer>
-{
-public:
-	uint16_t m_Object;
-
-public:
-	/**
-	 * constructor.
-	 */
-	AssignPlayer()
-		: PackageHelper<AssignPlayer>(PackageType::ASSIGN_PLAYER)
-	{}
-
-	/**
-	 * Serialize the package to or from an archive.
-	 *
-	 * @param <Archive> the archive type to serialize with.
-	 *			Can be either input or output archives.
-	 * @param ar the archive used.
-	 * @param version the desired or given archive version. Ignored.
-	 */
-	template <typename Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
-	{
-		ar & m_Object;
-	}
-};
-
-BOOST_IS_BITWISE_SERIALIZABLE(PlayerControlData)
-
-/**
- * A package representing the player controlling its object.
- */
-class PlayerControl : public PackageHelper<PlayerControl>
-{
-public:
-	PlayerControlData m_Data;
-
-public:
-	/**
-	 * constructor.
-	 */
-	PlayerControl()
-		: PackageHelper<PlayerControl>(PackageType::PLAYER_CONTROL)
-	{}
-
-	/**
-	 * Serialize the package to or from an archive.
-	 *
-	 * @param <Archive> the archive type to serialize with.
-	 *			Can be either input or output archives.
-	 * @param ar the archive used.
-	 * @param version the desired or given archive version. Ignored.
-	 */
-	template <typename Archive>
-	void serialize(Archive& ar, const unsigned int /*version*/)
-	{
-		ar & m_Data.m_Velocity;
-		ar & m_Data.m_Rotation;
-	}
-};
+typedef Package2Obj<PackageType::OBJECT_ACTION, uint16_t, std::string> ObjectAction;
