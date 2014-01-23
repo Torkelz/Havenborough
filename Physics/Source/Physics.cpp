@@ -46,8 +46,6 @@ void Physics::initialize()
 {
 	PhysicsLogger::log(PhysicsLogger::Level::INFO, "Initializing physics");
 
-	m_Collision = Collision();
-
 	fillTriangleIndexList();
 	m_LoadBVSphereTemplateOnce = true;
 }
@@ -77,8 +75,10 @@ void Physics::update(float p_DeltaTime)
 
 		for (unsigned j = 0; j < m_Bodies.size(); j++)
 		{
-			unsigned int hh = m_Bodies.at(j).getHandle();
-			HitData hit = m_Collision.boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
+			if(i == j)
+				continue;
+
+			HitData hit = Collision::boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
 			
 			if(hit.intersect)
 			{
@@ -171,7 +171,7 @@ BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 	if(tempBV.empty())
 	{	
 		PhysicsLogger::log(PhysicsLogger::Level::ERROR_L, "Bounding Volume from template is empty");
-		return -1;
+		return (BodyHandle)0;
 	}
 
 	std::vector<Triangle> triangles;
@@ -436,12 +436,12 @@ void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 	{
 	case BoundingVolume::Type::OBB:
 		{
-			((OBB*)body->getVolume())->setRotationMatrix(temp);
+			((OBB*)body->getVolume())->setRotation(rotation);
 			break;
 		}
 	case BoundingVolume::Type::HULL:
 		{
-			((Hull*)body->getVolume())->setRotation(temp);
+			((Hull*)body->getVolume())->setRotation(rotation);
 			break;
 		}
 	default:

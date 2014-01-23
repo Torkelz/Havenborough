@@ -25,7 +25,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
 #ifdef _DEBUG
 	m_Level.loadLevel("../Bin/assets/levels/Level2.btxl", "../Bin/assets/levels/Level2.btxl", m_Objects);
-	m_Level.setStartPosition(XMFLOAT3(0.0f, 1000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
 	m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
@@ -156,6 +156,11 @@ Vector2 GameLogic::getPlayerDirection() const
 	return m_PlayerDirection;
 }
 
+BodyHandle GameLogic::getPlayerBodyHandle() const
+{
+	return m_Player.getBody();
+}
+
 Vector3 GameLogic::getPlayerEyePosition() const
 {
 	Vector3 tempPos;
@@ -200,6 +205,8 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	{
 		m_PlayerViewRotation.y = -PI * 0.45f;
 	}
+
+	m_Physics->setBodyRotation(m_Player.getBody(), Vector3(m_PlayerViewRotation.x , 0.f, 0.f));
 }
 
 void GameLogic::playerJump()
@@ -287,6 +294,8 @@ void GameLogic::handleNetwork()
 						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
 						m_Objects.push_back(actor);
 					}
+
+					conn->sendDoneLoading();
 				}
 				break;
 
@@ -390,7 +399,9 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 {
 	if (p_Res == Result::SUCCESS)
 	{
-		((GameLogic*)p_UserData)->m_Connected = true;
+		GameLogic* self = static_cast<GameLogic*>(p_UserData);
+
+		self->m_Connected = true;
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
 	else
@@ -510,6 +521,9 @@ void GameLogic::loadSandbox()
 	//static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
 	//addBoxWithOBB(slantedPlanePosition, slantedPlaneSize * 0.5f, slantedPlaneRotation);
 
+	addBoxWithOBB(Vector3(0.f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(0.0f, 0.0f, 0.0f));
+	addBoxWithOBB(Vector3(-1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
+	addBoxWithOBB(Vector3(1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
 	witchCircleAngle = 0.0f;
 
 	addLights();
@@ -716,7 +730,7 @@ std::weak_ptr<Actor> GameLogic::addBoxWithAABB(Vector3 p_Position, Vector3 p_Hal
 	printer.PushAttribute("Mesh", "BOX");
 	pushVector(printer, "Scale", p_Halfsize * 2.f);
 	printer.CloseElement();
-	printer.OpenElement("OBBPhysics");
+	printer.OpenElement("AABBPhysics");
 	pushVector(printer, "Halfsize", p_Halfsize);
 	pushVector(printer, "Position", p_Position);
 	printer.CloseElement();

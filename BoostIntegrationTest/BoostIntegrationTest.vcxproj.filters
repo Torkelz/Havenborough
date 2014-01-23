@@ -19,9 +19,6 @@
     <ClCompile Include="..\Graphics\Source\Shader.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
-    <ClCompile Include="Source\testProgram.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
@@ -58,7 +55,6 @@
     <ClCompile Include="..\Graphics\Source\Joint.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
-    <ClCompile Include="testProgram.cpp" />
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
@@ -77,6 +73,7 @@
     <ClCompile Include="..\Client\Source\EventManager.cpp">
       <Filter>Sound\SoundInclude</Filter>
     </ClCompile>
+     <ClCompile Include="Source\testProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">
@@ -99,11 +96,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\dummyPS.hlsl">
-      <Filter>Graphics\GraphicsInclude</Filter>
+    <FxCompile Include="Source\testShader_VS_PS.hlsl">
+      <Filter>Graphics</Filter>
     </FxCompile>
-    <FxCompile Include="Source\dummyVS.hlsl">
-      <Filter>Graphics\GraphicsInclude</Filter>
+    <FxCompile Include="Source\testShader_PS.hlsl">
+      <Filter>Graphics</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\testShader_VS.hlsl">
+      <Filter>Graphics</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

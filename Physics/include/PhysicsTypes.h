@@ -55,16 +55,6 @@ struct Triangle
 		corners[1] = corners[1] * p_Size;
 		corners[2] = corners[2] * p_Size;
 	}
-
-	void scale(Vector3 p_Scale)
-	{
-
-	}
-
-	void rotation(Vector3 p_Rotation)
-	{
-
-	}
 };
 
 struct HitData
