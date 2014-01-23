@@ -3,6 +3,9 @@
 #include "LightStructs.h"
 #include "../Utilities/XMFloatUtil.h"
 
+#pragma warning(push)
+#pragma warning( once : 4100 )
+
 #pragma region EXAMPLE READ THIS IF YOU DO NOT KNOW HOW TO CREATE AN EVENT
 //////////////////////////////////////////////////////////////////////////
 /// EXAMPLE EVENT DATA AND USED FOR TESTING
@@ -435,3 +438,102 @@ public:
 		return m_ReachJoint;
 	}
 };
+
+class MouseEventDataLock : public BaseEventData
+{
+private: 
+	//Parameter for event, can be of any number and type
+	bool m_State;
+
+public:
+	/**
+	* Unique identifier for event data type. This one is an example and for testing.
+	* E.g. IEventData::Type UniqueEventDataName::sk_EventType(unique_hex);
+	*/
+	static const IEventData::Type sk_EventType = Type(0x72dd2b3a);
+	
+	explicit MouseEventDataLock(bool p_LockState) :
+		m_State(p_LockState)
+	{
+	}
+
+	virtual const IEventData::Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new MouseEventDataLock(m_State));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+		p_Out << m_State;
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "MouseEventDataLock";
+	}
+
+	/**
+	* Used to get the event data. User defined function.
+	* Can be of any number of functions and have any return type.
+	*/
+	bool getLockState(void) const
+	{
+		return m_State;
+	}
+};
+
+class MouseEventDataShow : public BaseEventData
+{
+private: 
+	//Parameter for event, can be of any number and type
+	bool m_State;
+
+public:
+	/**
+	* Unique identifier for event data type. This one is an example and for testing.
+	* E.g. IEventData::Type UniqueEventDataName::sk_EventType(unique_hex);
+	*/
+	static const IEventData::Type sk_EventType = Type(0x22dd2b3a);
+	
+	explicit MouseEventDataShow(bool p_HideState) :
+		m_State(p_HideState)
+	{
+	}
+
+	virtual const IEventData::Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new MouseEventDataShow(m_State));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+		p_Out << m_State;
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "MouseEventDataShow";
+	}
+
+	/**
+	* Used to get the event data. User defined function.
+	* Can be of any number of functions and have any return type.
+	*/
+	bool getShowState(void) const
+	{
+		return m_State;
+	}
+};
+
+
+#pragma warning(pop)

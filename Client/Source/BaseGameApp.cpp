@@ -94,6 +94,10 @@ void BaseGameApp::init()
 	m_Network->initialize();
 
 	m_EventManager.reset(new EventManager());
+
+	m_EventManager->addListener(EventListenerDelegate(&m_InputQueue, &Input::lockMouse), MouseEventDataLock::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(&m_InputQueue, &Input::showMouse), MouseEventDataShow::sk_EventType);
+
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
 					
