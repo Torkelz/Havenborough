@@ -130,7 +130,7 @@ public:
 
 	int getVRAMUsage(void) override;
 	
-	int createModelInstance(const char *p_ModelId) override;
+	InstanceId createModelInstance(const char *p_ModelId) override;
 	virtual void createSkyDome(const char *p_ModelId, float p_Radius) override;
 	void eraseModelInstance(int p_Instance) override;
 	void setModelPosition(int p_Instance, Vector3 p_Position) override;
