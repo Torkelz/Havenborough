@@ -7,11 +7,11 @@ SceneManager::SceneManager()
 	m_ResourceManager = nullptr;
 	m_InputQueue = nullptr;
 	m_NowShowing = 0;
-#if _DEBUG
-	m_IsMenuState = false;
-#else
+//#if _DEBUG
+//	m_IsMenuState = false;
+//#else
 	m_IsMenuState = true;
-#endif
+//#endif
 }
 
 SceneManager::~SceneManager()

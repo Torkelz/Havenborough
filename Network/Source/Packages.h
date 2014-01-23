@@ -236,6 +236,11 @@ typedef Signal<PackageType::PLAYER_READY> PlayerReady;
 typedef Signal<PackageType::DONE_LOADING> DoneLoading;
 
 /**
+ * A package representing a player leaving a game.
+ */
+typedef Signal<PackageType::LEAVE_GAME> LeaveGame;
+
+/**
  * A package representing the removal of objects in the game world.
  */
 typedef Package1Obj<PackageType::REMOVE_OBJECTS, std::vector<uint16_t>> RemoveObjects;

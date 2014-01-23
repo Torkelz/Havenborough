@@ -92,4 +92,7 @@ private:
 	void handleInput();
 	void updateLogic();
 	void render();
+	
+	void startGame(IEventData::Ptr p_Data);
+	void gameLeft(IEventData::Ptr p_Data);
 };

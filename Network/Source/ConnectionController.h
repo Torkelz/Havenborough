@@ -83,6 +83,8 @@ public:
 	void sendJoinGame(const char* p_Game) override;
 	const char* getJoinGameName(Package p_Package) override;
 
+	void sendLeaveGame() override;
+
 	/**
 	 * Start the listening loop on the connection.
 	 */

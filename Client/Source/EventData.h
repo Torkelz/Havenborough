@@ -185,6 +185,44 @@ public:
 	}
 };
 
+class RemoveMeshEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+
+public:
+	static const Type sk_EventType = Type(0xdeadebbe);
+
+	RemoveMeshEventData(unsigned int p_Id)
+		:	m_Id(p_Id)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new RemoveMeshEventData(m_Id));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "RemoveMeshEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+};
+
 class UpdateModelPositionEventData : public BaseEventData
 {
 private:
@@ -502,5 +540,36 @@ public:
 	virtual const char *getName(void) const override
 	{
 		return "GameStartedEvent";
+	}
+};
+
+class GameLeftEventData : public BaseEventData
+{
+private:
+
+public:
+	static const Type sk_EventType = Type(0x846ef45b);
+
+	GameLeftEventData()
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new GameLeftEventData);
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "GameLeftEvent";
 	}
 };

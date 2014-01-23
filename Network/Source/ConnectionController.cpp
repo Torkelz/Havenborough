@@ -232,6 +232,12 @@ const char* ConnectionController::getJoinGameName(Package p_Package)
 	return joinGame->m_Object1.c_str();
 }
 
+void ConnectionController::sendLeaveGame()
+{
+	LeaveGame package;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);

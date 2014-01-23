@@ -25,9 +25,8 @@ bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_SceneID = p_SceneID;
 
 	m_Graphics = p_Graphics;
+	m_GameLogic = p_GameLogic;
 	m_EventManager = p_EventManager;
-
-	m_EventManager->addListener(EventListenerDelegate(this, &MenuScene::startGame), GameStartedEventData::sk_EventType);
 
 	return true;
 }
@@ -64,6 +63,8 @@ bool MenuScene::getIsVisible()
 
 void MenuScene::setIsVisible(bool p_SetVisible)
 {
+	m_ChangeList = false;
+
 	m_Visible = p_SetVisible;
 }
 
@@ -85,6 +86,18 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_ChangeList = true;
 	}
+	else if (p_Action == "joinTestLevel" && p_Value == 1.f)
+	{
+		m_GameLogic->joinGame("test");
+	}
+	else if (p_Action == "playLocalTest" && p_Value == 1.f)
+	{
+		m_GameLogic->playLocalLevel();
+	}
+	else if (p_Action == "connectToServer" && p_Value == 1.f)
+	{
+		m_GameLogic->connectToServer("localhost", 31415); //Note: IP to server if running: 194.47.150.5
+	}
 }
 
 /*########## TEST FUNCTIONS ##########*/
@@ -92,9 +105,4 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 int MenuScene::getID()
 {
 	return m_SceneID;
-}
-
-void MenuScene::startGame(IEventData::Ptr p_Data)
-{
-	m_ChangeList = true;
 }

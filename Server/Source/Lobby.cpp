@@ -6,7 +6,8 @@
 #include <algorithm>
 
 Lobby::Lobby(Server* p_Server)
-	:	m_Server(p_Server)
+	:	m_Server(p_Server),
+		m_GameFactory(this)
 {
 }
 
@@ -97,37 +98,44 @@ void Lobby::handlePackages()
 {
 	for(auto& wUser : m_FreeUsers)
 	{
-		User::ptr user = wUser.lock();
-
-		if (!user)
-		{
-			continue;
-		}
-
-		IConnectionController* con = user->getConnection();
-
-		unsigned int numPackages = con->getNumPackages();
-		for (unsigned int i = 0; i < numPackages; ++i)
-		{
-			Package package = con->getPackage(i);
-			PackageType type = con->getPackageType(package);
-
-			switch (type)
-			{
-			case PackageType::JOIN_GAME:
-				{
-					std::string levelName = con->getJoinGameName(package);
-					joinLevel(user, levelName);
-				}
-				break;
-
-			default:
-				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
-				Logger::log(Logger::Level::WARNING, msg);
-				break;
-			}
-		}
-
-		con->clearPackages(numPackages);
+		handlePackagesForOneUser(wUser);
 	}
+}
+
+void Lobby::handlePackagesForOneUser(User::wPtr p_User)
+{
+	User::ptr user = p_User.lock();
+
+	if (!user)
+	{
+		return;
+	}
+
+	IConnectionController* con = user->getConnection();
+
+	unsigned int numPackages = con->getNumPackages();
+	for (unsigned int i = 0; i < numPackages; ++i)
+	{
+		Package package = con->getPackage(i);
+		PackageType type = con->getPackageType(package);
+
+		switch (type)
+		{
+		case PackageType::JOIN_GAME:
+			{
+				std::string levelName = con->getJoinGameName(package);
+				joinLevel(user, levelName);
+
+				con->clearPackages(i + 1);
+				return;
+			}
+
+		default:
+			std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
+			Logger::log(Logger::Level::WARNING, msg);
+			break;
+		}
+	}
+
+	con->clearPackages(numPackages);
 }

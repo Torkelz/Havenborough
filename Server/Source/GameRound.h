@@ -8,6 +8,7 @@
 #include <vector>
 
 class GameList;
+class Lobby;
 
 class GameRound : std::enable_shared_from_this<GameRound>
 {
@@ -17,6 +18,7 @@ public:
 
 protected:
 	GameList* m_ParentList;
+	Lobby* m_ReturnLobby;
 	std::thread m_RunThread;
 	bool m_Running;
 	std::string m_TypeName;
@@ -27,7 +29,7 @@ protected:
 public:
 	~GameRound();
 
-	void initialize(ActorFactory::ptr p_ActorFactory);
+	void initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobby);
 	void setOwningList(GameList* p_ParentList);
 	virtual void setup() {}
 

@@ -40,6 +40,7 @@ private:
 
 	bool m_Connected;
 	bool m_InGame;
+	bool m_PlayingLocal;
 
 	//DEBUG
 	std::weak_ptr<Actor> circleWitch;
@@ -75,8 +76,6 @@ public:
 
 	void onFrame(float p_DeltaTime);
 
-	void setPlayerActor(std::weak_ptr<Actor> p_Actor);
-
 	void setPlayerDirection(Vector2 p_Direction);
 	Vector2 getPlayerDirection() const;
 	BodyHandle getPlayerBodyHandle() const;
@@ -92,6 +91,11 @@ public:
 	void testResetAnimation();
 	void testLayerAnimation();
 	void testResetLayerAnimation();
+	void playLocalLevel();
+
+	void connectToServer(const std::string& p_URL, unsigned short p_Port);
+	void leaveGame();
+	void joinGame(const std::string& p_LevelName);
 
 private:
 	void handleNetwork();

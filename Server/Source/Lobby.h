@@ -38,4 +38,5 @@ private:
 	void joinLevel(User::ptr p_User, const std::string& p_LevelName);
 	void startLevel(AvailableLevel& p_Level);
 	void handlePackages();
+	void handlePackagesForOneUser(User::wPtr p_User);
 };

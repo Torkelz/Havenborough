@@ -248,4 +248,9 @@ public:
 	 * @return the name of the game from the package
 	 */
 	virtual const char* getJoinGameName(Package p_Package) = 0;
+
+	/**
+	 * Send a Leave Game package for a player leaving a server game.
+	 */
+	virtual void sendLeaveGame() = 0;
 };

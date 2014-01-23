@@ -68,7 +68,10 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('X', "changeViewP");
 	translator->addKeyboardMapping('I', "toggleIK");
 	translator->addKeyboardMapping(VK_SPACE, "jump");
-	translator->addKeyboardMapping('R', "releaseObject");
+	translator->addKeyboardMapping('C', "connectToServer");
+	translator->addKeyboardMapping('T', "joinTestLevel");
+	translator->addKeyboardMapping('Y', "leaveGame");
+	translator->addKeyboardMapping('U', "playLocalTest");
 
 	translator->addKeyboardMapping('J', "changeSceneP");
 	translator->addKeyboardMapping('K', "pauseScene");
@@ -94,6 +97,9 @@ void BaseGameApp::init()
 	m_Network->initialize();
 
 	m_EventManager.reset(new EventManager());
+	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::startGame), GameStartedEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::gameLeft), GameLeftEventData::sk_EventType);
+
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
 					
@@ -291,15 +297,6 @@ void BaseGameApp::handleInput()
 		{
 			m_ShouldQuit = true;
 		}
-		else if (in.m_Action == "releaseObject" && in.m_Value == 1.f)
-		{
-			IScene::ptr scene = m_SceneManager.getScene()[0];
-			GameScene* gameScene = dynamic_cast<GameScene*>(scene.get());
-			if (gameScene)
-			{
-				m_GameLogic->setPlayerActor(Actor::ptr());
-			}
-		}
 	}
 }
 
@@ -317,4 +314,14 @@ void BaseGameApp::render()
 {
 	m_SceneManager.render();
 	m_Graphics->drawFrame();
+}
+
+void BaseGameApp::startGame(IEventData::Ptr p_Data)
+{
+	m_SceneManager.startRun();
+}
+
+void BaseGameApp::gameLeft(IEventData::Ptr p_Data)
+{
+	m_SceneManager.startMenu();
 }

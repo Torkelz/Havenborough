@@ -12,6 +12,7 @@ private:
 	bool m_ChangeList;
 
 	IGraphics *m_Graphics;
+	GameLogic *m_GameLogic;
 	EventManager *m_EventManager;
 
 public: 
@@ -36,7 +37,4 @@ public:
 	/*########## TEST FUNCTIONS ##########*/
 
 	int	getID() override;
-
-private:
-	void startGame(IEventData::Ptr p_Data);
 };

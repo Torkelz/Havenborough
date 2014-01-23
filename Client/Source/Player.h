@@ -11,11 +11,9 @@ using namespace DirectX;
 class Player
 {
 private:
-	XMFLOAT3 m_Position;	// cm
 	XMFLOAT3 m_LookDirection;
 	float m_ViewRotation[2];
 
-	BodyHandle m_PlayerBody;
 	IPhysics *m_Physics;
 	std::weak_ptr<Actor> m_Actor;
 
@@ -26,7 +24,7 @@ private:
 	float m_JumpForce;
 	float m_MaxSpeed; // Centimeters per secound
 	float m_AccConstant;
-	XMFLOAT4 m_PrevForce;	// kg * m/s^2
+	XMFLOAT3 m_PrevForce;	// kg * m/s^2
 	float m_DirectionX;	// (-1 - +1)
 	float m_DirectionZ;	// (-1 - +1)
 
@@ -60,7 +58,7 @@ public:
 	* @param p_Position the starting position of the player in cm
 	* @param p_LookDirection the direction the player will look at when starting
 	*/
-	void initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_LookDirection);
+	void initialize(IPhysics *p_Physics, XMFLOAT3 p_LookDirection, std::weak_ptr<Actor> p_Actor);
 	
 	/**
 	* Sets the position of the player at specified position in the game world.

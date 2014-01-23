@@ -22,29 +22,12 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_ActorFactory = p_ActorFactory;
 	m_Network = p_Network;
 	m_EventManager = p_EventManager;
-	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
-#ifdef _DEBUG
-	m_Level.loadLevel("../Bin/assets/levels/Level2.btxl", "../Bin/assets/levels/Level2.btxl", m_Objects);
-	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
-	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
-#else
-	m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
-	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
-	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
-#endif
-	//m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
-	m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
-
-	m_Player.initialize(m_Physics, m_Level.getStartPosition(), XMFLOAT3(0.f, 0.f, 1.f));
 	
 	m_ChangeScene = GoToScene::NONE;
 
 	m_Connected = false;
 	m_InGame = false;
-	m_Network->connectToServer("localhost", 31415, &connectedCallback, this); //Note: IP to server if running: 194.47.150.5
-
-	//TODO: Remove later when we actually have a level to load.
-	loadSandbox();
+	m_PlayingLocal = true;
 }
 
 void GameLogic::shutdown(void)
@@ -66,6 +49,11 @@ GameLogic::GoToScene GameLogic::getChangeScene(void) const
 void GameLogic::onFrame(float p_DeltaTime)
 {
 	handleNetwork();
+
+	if (!m_InGame)
+	{
+		return;
+	}
 
 	m_Player.update(p_DeltaTime);
 
@@ -115,7 +103,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
-	if (m_InGame && conn && conn->isConnected())
+	if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
 	{
 		PlayerControlData data;
 		data.m_Rotation[0] = actualViewRot.x;
@@ -142,11 +130,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 	updateSandbox(p_DeltaTime);
 }
 
-void GameLogic::setPlayerActor(std::weak_ptr<Actor> p_Actor)
-{
-	m_Player.setActor(p_Actor);
-}
-
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
 {
 	m_PlayerDirection = p_Direction;
@@ -164,19 +147,7 @@ BodyHandle GameLogic::getPlayerBodyHandle() const
 
 Vector3 GameLogic::getPlayerEyePosition() const
 {
-	Vector3 tempPos;
-
-	//Actor::ptr strongPlayerActor = m_Player.getActor().lock();
-	//if (strongPlayerActor)
-	//{
-	//	tempPos = strongPlayerActor->getPosition();
-	//}
-	//else
-	{
-		tempPos = m_Player.getEyePosition();
-	}
-
-	return tempPos;
+	return m_Player.getEyePosition();
 }
 
 Vector3 GameLogic::getPlayerViewRotation() const
@@ -251,6 +222,91 @@ void GameLogic::testResetLayerAnimation()
 	playAnimation(testWitch.lock(), "DefLayer1");
 }
 
+void GameLogic::playLocalLevel()
+{
+	m_Objects.clear();
+
+	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
+#ifdef _DEBUG
+	m_Level.loadLevel("../Bin/assets/levels/Level2.btxl", "../Bin/assets/levels/Level2.btxl", m_Objects);
+	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+#else
+	m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
+	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+#endif
+	//m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
+	m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
+
+	Vector3 startPosition = m_Level.getStartPosition();
+	static const float kneeHeight = 50.f;
+
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.PushAttribute("x", startPosition.x);
+	printer.PushAttribute("y", startPosition.y);
+	printer.PushAttribute("z", startPosition.z);
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", kneeHeight);
+	printer.PushAttribute("Mass", 68.f);
+	printer.OpenElement("OffsetPosition");
+	printer.PushAttribute("y", kneeHeight);
+	printer.CloseElement();
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr playerActor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	m_Objects.push_back(playerActor);
+	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), playerActor);
+
+	m_InGame = true;
+	m_PlayingLocal = true;
+
+	//TODO: Remove later when we actually have a level to load.
+	loadSandbox();
+
+	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
+}
+
+void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
+{
+	m_Network->connectToServer(p_URL.c_str(), p_Port, &connectedCallback, this);
+}
+
+void GameLogic::leaveGame()
+{
+	if (m_InGame)
+	{
+		m_Level = Level();
+		m_Objects.clear();
+
+		m_InGame = false;
+
+		IConnectionController* con = m_Network->getConnectionToServer();
+
+		if (!m_PlayingLocal && con && con->isConnected())
+		{
+			con->sendLeaveGame();
+		}
+		
+		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData));
+	}
+}
+
+void GameLogic::joinGame(const std::string& p_LevelName)
+{
+	IConnectionController* con = m_Network->getConnectionToServer();
+	if (!m_InGame && con && con->isConnected())
+	{
+		con->sendJoinGame(p_LevelName.c_str());
+	}
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)
@@ -296,8 +352,48 @@ void GameLogic::handleNetwork()
 						m_Objects.push_back(actor);
 					}
 
+					m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
+
+					Vector3 startPosition = m_Level.getStartPosition();
+					static const float kneeHeight = 50.f;
+
+					tinyxml2::XMLPrinter printer;
+					printer.OpenElement("Object");
+					printer.PushAttribute("x", startPosition.x);
+					printer.PushAttribute("y", startPosition.y);
+					printer.PushAttribute("z", startPosition.z);
+					printer.OpenElement("SpherePhysics");
+					printer.PushAttribute("Immovable", false);
+					printer.PushAttribute("Radius", kneeHeight);
+					printer.PushAttribute("Mass", 68.f);
+					printer.OpenElement("OffsetPosition");
+					printer.PushAttribute("y", kneeHeight);
+					printer.CloseElement();
+					printer.CloseElement();
+					printer.CloseElement();
+
+					tinyxml2::XMLDocument doc;
+					doc.Parse(printer.CStr());
+
+					Actor::ptr playerActor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+					m_Objects.push_back(playerActor);
+					m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), playerActor);
+
+#ifdef _DEBUG
+					m_Level.loadLevel("../Bin/assets/levels/Level2.btxl", "../Bin/assets/levels/Level2.btxl", m_Objects);
+					m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
+					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+#else
+					m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
+					m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+#endif
+					m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
+
 					conn->sendDoneLoading();
 					m_InGame = true;
+					m_PlayingLocal = false;
+
 					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 				}
 				break;
@@ -318,10 +414,10 @@ void GameLogic::handleNetwork()
 							continue;
 						}
 
-						//if (actor == m_Player.getActor().lock())
-						//{
-						//	continue;
-						//}
+						if (actor == m_Player.getActor().lock())
+						{
+							continue;
+						}
 
 						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
 						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
@@ -771,7 +867,7 @@ void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Half
 	p_Printer.OpenElement("AABBPhysics");
 	p_Printer.PushAttribute("Edge", true);
 	pushVector(p_Printer, "Halfsize", p_Halfsize);
-	pushVector(p_Printer, "RelativePosition", p_Position);
+	pushVector(p_Printer, "OffsetPosition", p_Position);
 	p_Printer.CloseElement();
 }
 
@@ -803,13 +899,15 @@ std::weak_ptr<Actor> GameLogic::addClimbTowerBox(Vector3 p_Position, Vector3 p_H
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
+	printer.PushAttribute("x", p_Position.x);
+	printer.PushAttribute("y", p_Position.y);
+	printer.PushAttribute("z", p_Position.z);
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "BOX");
 	pushVector(printer, "Scale", p_Halfsize * 2.f);
 	printer.CloseElement();
 	printer.OpenElement("AABBPhysics");
 	pushVector(printer, "Halfsize", p_Halfsize);
-	pushVector(printer, "Position", p_Position);
 	printer.CloseElement();
 	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));
 	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, -p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));

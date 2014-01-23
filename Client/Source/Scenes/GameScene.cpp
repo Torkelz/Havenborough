@@ -39,6 +39,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addLight), LightEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeLight), RemoveLightEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createMesh), CreateMeshEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeMesh), RemoveMeshEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelPosition), UpdateModelPositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelScaleEventData::sk_EventType);
@@ -229,6 +230,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->testResetLayerAnimation();
 	}
+	else if (p_Action == "leaveGame" && p_Value == 1.f)
+	{
+		m_GameLogic->leaveGame();
+	}
 }
 
 /*########## TEST FUNCTIONS ##########*/
@@ -273,6 +278,30 @@ void GameScene::createMesh(IEventData::Ptr p_Data)
 	m_Graphics->setModelScale(mesh.modelId, meshData->getScale());
 
 	m_Models.push_back(mesh);
+}
+
+void GameScene::removeMesh(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveMeshEventData> meshData = std::static_pointer_cast<RemoveMeshEventData>(p_Data);
+
+	for (auto& model : m_Models)
+	{
+		if (model.meshId == meshData->getId())
+		{
+			m_ResourceManager->releaseResource(model.resourceId);
+			auto it = std::find(m_ResourceIDs.begin(), m_ResourceIDs.end(), model.resourceId);
+			if (it != m_ResourceIDs.end())
+			{
+				m_ResourceIDs.erase(it);
+			}
+
+			m_Graphics->eraseModelInstance(model.modelId);
+
+			std::swap(model, m_Models.back());
+			m_Models.pop_back();
+			return;
+		}
+	}
 }
 
 void GameScene::updateModelPosition(IEventData::Ptr p_Data)

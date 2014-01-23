@@ -24,4 +24,5 @@ public:
 	explicit Player(User::wPtr p_User);
 
 	User::wPtr getUser() const;
+	void releaseUser();
 };

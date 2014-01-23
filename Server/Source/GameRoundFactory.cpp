@@ -3,6 +3,11 @@
 #include "ServerExceptions.h"
 #include "TestGameRound.h"
 
+GameRoundFactory::GameRoundFactory(Lobby* p_ReturnLobby)
+{
+	m_ReturnLobby = p_ReturnLobby;
+}
+
 GameRound::ptr GameRoundFactory::createRound(const std::string& p_GameType)
 {
 	if (p_GameType != "test")
@@ -14,7 +19,7 @@ GameRound::ptr GameRoundFactory::createRound(const std::string& p_GameType)
 
 	std::shared_ptr<TestGameRound> gameRound(new TestGameRound);
 	gameRound->setGameType(p_GameType);
-	gameRound->initialize(actorFactory);
+	gameRound->initialize(actorFactory, m_ReturnLobby);
 
 	return gameRound;
 }

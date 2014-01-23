@@ -68,6 +68,7 @@ private:
 	void addLight(IEventData::Ptr p_Data);
 	void removeLight(IEventData::Ptr p_Data);
 	void createMesh(IEventData::Ptr p_Data);
+	void removeMesh(IEventData::Ptr p_Data);
 	void updateModelPosition(IEventData::Ptr p_Data);
 	void updateModelRotation(IEventData::Ptr p_Data);
 	void updateModelScale(IEventData::Ptr p_Data);
