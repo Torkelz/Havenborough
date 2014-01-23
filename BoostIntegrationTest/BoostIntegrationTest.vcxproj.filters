@@ -74,11 +74,11 @@
     <ClCompile Include="..\Physics\Source\Physics.cpp">
       <Filter>Physics\Physics Import</Filter>
     </ClCompile>
-    <ClCompile Include="Physics Engine.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp">
       <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Physics Engine.cpp">
+      <Filter>Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

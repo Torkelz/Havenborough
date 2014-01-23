@@ -101,16 +101,16 @@ public:
 	/**
 	* @return the top corner in m
 	*/
-	DirectX::XMFLOAT4* getMax()
+	DirectX::XMFLOAT4 getMax()
 	{
-		return &m_Bounds[7];
+		return getBoundWorldCoordAt(7);
 	}
 	/**
 	* @return the bottom corner in m
 	*/
-	DirectX::XMFLOAT4* getMin()
+	DirectX::XMFLOAT4 getMin()
 	{
-		return &m_Bounds[0];
+		return getBoundWorldCoordAt(0);
 	}
 	/**
 	* @return a vector from center to top corner in m

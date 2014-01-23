@@ -134,17 +134,17 @@ HitData Collision::AABBvsAABB( AABB* p_AABB1, AABB* p_AABB2 )
 		return hit;
 
 	hit = HitData();
-	XMFLOAT4* max1 = p_AABB1->getMax();	// m
-	XMFLOAT4* min1 = p_AABB1->getMin();	// m
-	XMFLOAT4* max2 = p_AABB2->getMax();	// m
-	XMFLOAT4* min2 = p_AABB2->getMin();	// m
+	XMFLOAT4 max1 = p_AABB1->getMax();	// m
+	XMFLOAT4 min1 = p_AABB1->getMin();	// m
+	XMFLOAT4 max2 = p_AABB2->getMax();	// m
+	XMFLOAT4 min2 = p_AABB2->getMin();	// m
 
 	//Test if the boxes are separated in any axis.
-	if ( min1->x > max2->x || min2->x > max1->x )
+	if ( min1.x > max2.x || min2.x > max1.x )
 		return hit;
-	if ( min1->y > max2->y || min2->y > max1->y )
+	if ( min1.y > max2.y || min2.y > max1.y )
 		return hit;
-	if ( min1->z > max2->z || min2->z > max1->z )
+	if ( min1.z > max2.z || min2.z > max1.z )
 		return hit;
 		
 	hit.intersect = true;
@@ -179,9 +179,9 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	//else special case for when the sphere center is inside that axis slab.
 
 	XMFLOAT4 bMin;	// m
-	XMStoreFloat4( &bMin, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(p_AABB->getMin() ));
+	XMStoreFloat4( &bMin, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(&p_AABB->getMin() ));
 	XMFLOAT4 bMax;	// m
-	XMStoreFloat4( &bMax, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(p_AABB->getMax() ));
+	XMStoreFloat4( &bMax, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(&p_AABB->getMax() ));
 	// x
 	if( spherePos->x <= bMin.x )
 	{
@@ -371,6 +371,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	const XMMATRIX a_Axes = XMLoadFloat4x4(&p_OBB->getAxes());
 	const XMVECTOR a_Extents = XMLoadFloat4(&p_OBB->getExtents()); 
 
+
 	if(p_vol->getType() == BoundingVolume::Type::OBB)
 	{
 		b_Center = XMLoadFloat4(((OBB*)p_vol)->getPosition());
@@ -389,7 +390,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 		for (int j = 0; j < 3; j++)
 		{
 			XMVECTOR dotResult = XMVector3Dot(a_Axes.r[i], b_Axes.r[j]);
-			R.r[i].m128_f32[j] = dotResult.m128_f32[0];
+			R.r[i].m128_f32[j] = XMVectorGetX(dotResult);
 		}
 	}
 
@@ -401,7 +402,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	XMVECTOR dotResult = XMVector3Dot(t, a_Axes.r[0]); 
 	XMVECTOR dotResult1 = XMVector3Dot(t, a_Axes.r[1]); 
 	XMVECTOR dotResult2 = XMVector3Dot(t, a_Axes.r[2]); 
-	t = XMVectorSet(dotResult.m128_f32[0], dotResult1.m128_f32[0], dotResult2.m128_f32[0], 0.f);
+	t = XMVectorSet(XMVectorGetX(dotResult), XMVectorGetX(dotResult1), XMVectorGetX(dotResult2), 0.f);
 
 	// Compute common subexpressions. Add in an epsilon term to
 	// counteract arithmetic errors when two edges are parallel and
@@ -418,7 +419,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	for (int i = 0; i < 3; i++) 
 	{
 		ra = a_Extents.m128_f32[i]; 
-		rb = b_Extents.m128_f32[0]	* AbsR.r[i].m128_f32[0] + b_Extents.m128_f32[1] * AbsR.r[i].m128_f32[1] + b_Extents.m128_f32[2] * AbsR.r[i].m128_f32[2];
+		rb = XMVectorGetX(b_Extents) * XMVectorGetX(AbsR.r[i]) + XMVectorGetY(b_Extents) * XMVectorGetY(AbsR.r[i]) + XMVectorGetZ(b_Extents) * XMVectorGetZ(AbsR.r[i]);
 		float r = t.m128_f32[i];
 		if(fabs(r) > ra + rb)
 			return miss;
@@ -429,18 +430,18 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	//Test axes L = B0, L = B1, L = B2
 	for (int i = 0; i < 3; i++) 
 	{
-		ra = a_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[i] + a_Extents.m128_f32[1] * AbsR.r[1].m128_f32[i] + a_Extents.m128_f32[2] * AbsR.r[2].m128_f32[i];
+		ra = XMVectorGetX(a_Extents) * AbsR.r[0].m128_f32[i] + XMVectorGetY(a_Extents) * AbsR.r[1].m128_f32[i] + XMVectorGetZ(a_Extents) * AbsR.r[2].m128_f32[i];
 		rb = b_Extents.m128_f32[i]; 
-		r  = t.m128_f32[0] * R.r[0].m128_f32[i] + t.m128_f32[1] * R.r[1].m128_f32[i] + t.m128_f32[2] * R.r[2].m128_f32[i];
+		r  = XMVectorGetX(t) * R.r[0].m128_f32[i] + XMVectorGetY(t) * R.r[1].m128_f32[i] + XMVectorGetZ(t) * R.r[2].m128_f32[i];
 		if(fabs(r) > ra + rb)
 			return miss;
 		checkCollisionDepth(ra, rb, r, overlap, b_Axes.r[i], least);
 	}
 
 	// Test axis L = A0 x B0
-	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[0] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[0];
-	rb		= b_Extents.m128_f32[1]	* AbsR.r[0].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[0].m128_f32[1];
-	r		= t.m128_f32[2] * R.r[1].m128_f32[0] - t.m128_f32[1] * R.r[2].m128_f32[0];
+	ra		= XMVectorGetY(a_Extents) * XMVectorGetX(AbsR.r[2]) + XMVectorGetZ(a_Extents) * XMVectorGetX(AbsR.r[1]);
+	rb		= XMVectorGetY(b_Extents) * XMVectorGetZ(AbsR.r[0]) + XMVectorGetZ(b_Extents) * XMVectorGetY(AbsR.r[0]);
+	r		= XMVectorGetZ(t) * XMVectorGetX(R.r[1]) - XMVectorGetY(t) * XMVectorGetX(R.r[2]);
 	if (fabs(r) > ra + rb)
 		return miss;
 
@@ -448,9 +449,9 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A0 x B1
- 	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
-	r		= t.m128_f32[2] * R.r[1].m128_f32[1] - t.m128_f32[1] * R.r[2].m128_f32[1];
+ 	ra		= XMVectorGetY(a_Extents)	* XMVectorGetY(AbsR.r[2]) + XMVectorGetZ(a_Extents) * XMVectorGetY(AbsR.r[1]);
+	rb		= XMVectorGetX(b_Extents)	* XMVectorGetZ(AbsR.r[0]) + XMVectorGetZ(b_Extents) * XMVectorGetX(AbsR.r[0]);
+	r		= XMVectorGetZ(t) * XMVectorGetY(R.r[1]) - XMVectorGetY(t) * XMVectorGetY(R.r[2]);
 	if (fabs(r) > ra + rb) 
 		return miss;
 
@@ -458,9 +459,9 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A0 x B2
-	ra		= a_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[1].m128_f32[2];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[0].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[0].m128_f32[0];
-	r		= t.m128_f32[2] * R.r[1].m128_f32[2] - t.m128_f32[1] * R.r[2].m128_f32[2];
+	ra		= XMVectorGetY(a_Extents)	* XMVectorGetZ(AbsR.r[2]) + XMVectorGetZ(a_Extents) * XMVectorGetZ(AbsR.r[1]);
+	rb		= XMVectorGetX(b_Extents)	* XMVectorGetY(AbsR.r[0]) + XMVectorGetY(b_Extents) * XMVectorGetX(AbsR.r[0]);
+	r		= XMVectorGetZ(t) * XMVectorGetZ(R.r[1]) - XMVectorGetY(t) * XMVectorGetZ(R.r[2]);
 	if (fabs(r) > ra + rb) 
 		return miss;
 
@@ -468,9 +469,9 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A1 x B0
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[0] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[0];
-	rb		= b_Extents.m128_f32[1]	* AbsR.r[1].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[1].m128_f32[1];
-	r		= t.m128_f32[0] * R.r[2].m128_f32[0] - t.m128_f32[2] * R.r[0].m128_f32[0];
+	ra		= XMVectorGetX(a_Extents)	* XMVectorGetX(AbsR.r[2]) + XMVectorGetZ(a_Extents) * XMVectorGetX(AbsR.r[0]);
+	rb		= XMVectorGetY(b_Extents)	* XMVectorGetZ(AbsR.r[1]) + XMVectorGetZ(b_Extents) * XMVectorGetY(AbsR.r[1]);
+	r		= XMVectorGetX(t) * XMVectorGetX(R.r[2]) - XMVectorGetZ(t) * XMVectorGetX(R.r[0]);
 	if (fabs(r) > ra + rb) 
 		return miss;
 
@@ -478,9 +479,9 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A1 x B1
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[1] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[1];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[1].m128_f32[0];
-	r		= t.m128_f32[0] * R.r[2].m128_f32[1] - t.m128_f32[2] * R.r[0].m128_f32[1];
+	ra		= XMVectorGetX(a_Extents)	* XMVectorGetY(AbsR.r[2]) + XMVectorGetZ(a_Extents) * XMVectorGetY(AbsR.r[0]);
+	rb		= XMVectorGetX(b_Extents)	* XMVectorGetZ(AbsR.r[1]) + XMVectorGetZ(b_Extents) * XMVectorGetX(AbsR.r[1]);
+	r		= XMVectorGetX(t) * XMVectorGetY(R.r[2]) - XMVectorGetZ(t) * XMVectorGetY(R.r[0]);
 	if (fabs(r) > ra + rb) 
 		return miss;
 
@@ -488,9 +489,9 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A1 x B2
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[2] + a_Extents.m128_f32[2] * AbsR.r[0].m128_f32[2];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[1].m128_f32[0];
-	r		= t.m128_f32[0] * R.r[2].m128_f32[2] - t.m128_f32[2] * R.r[0].m128_f32[2];
+	ra		= XMVectorGetX(a_Extents)	* XMVectorGetZ(AbsR.r[2]) + XMVectorGetZ(a_Extents) * XMVectorGetZ(AbsR.r[0]);
+	rb		= XMVectorGetX(b_Extents)	* XMVectorGetY(AbsR.r[1]) + XMVectorGetY(b_Extents) * XMVectorGetX(AbsR.r[1]);
+	r		= XMVectorGetX(t) * XMVectorGetZ(R.r[2]) - XMVectorGetZ(t) * XMVectorGetZ(R.r[0]);
 	if (fabs(r) > ra + rb) 
 		return miss;
 
@@ -498,9 +499,9 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A2 x B0 
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[0] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[0];
-	rb		= b_Extents.m128_f32[1]	* AbsR.r[2].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[2].m128_f32[1];
-	r		= t.m128_f32[1] * R.r[0].m128_f32[0] - t.m128_f32[0] * R.r[1].m128_f32[0];
+	ra		= XMVectorGetX(a_Extents)	* XMVectorGetX(AbsR.r[1]) + XMVectorGetY(a_Extents) * XMVectorGetX(AbsR.r[0]);
+	rb		= XMVectorGetY(b_Extents)	* XMVectorGetZ(AbsR.r[2]) + XMVectorGetZ(b_Extents) * XMVectorGetY(AbsR.r[2]);
+	r		= XMVectorGetY(t) * XMVectorGetX(R.r[0]) - XMVectorGetX(t) * XMVectorGetX(R.r[1]);
 	if(fabs(r) > ra + rb)
 		return miss;
 
@@ -508,9 +509,9 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A2 x B1
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[1] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[1];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[2] + b_Extents.m128_f32[2] * AbsR.r[2].m128_f32[0];
-	r		= t.m128_f32[1] * R.r[0].m128_f32[1] - t.m128_f32[0] * R.r[1].m128_f32[1];
+	ra		= XMVectorGetX(a_Extents)	* XMVectorGetY(AbsR.r[1]) + XMVectorGetY(a_Extents) * XMVectorGetY(AbsR.r[0]);
+	rb		= XMVectorGetX(b_Extents)	* XMVectorGetZ(AbsR.r[2]) + XMVectorGetZ(b_Extents) * XMVectorGetX(AbsR.r[2]);
+	r		= XMVectorGetY(t) * XMVectorGetY(R.r[0]) - XMVectorGetX(t) * XMVectorGetY(R.r[1]);
 	if (fabs(r) > ra + rb) 
 		return miss;
 
@@ -518,16 +519,16 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 	checkCollisionDepth(ra, rb, r, overlap, L, least);
 
 	// Test axis L = A2 x B2
-	ra		= a_Extents.m128_f32[0]	* AbsR.r[1].m128_f32[2] + a_Extents.m128_f32[1] * AbsR.r[0].m128_f32[2];
-	rb		= b_Extents.m128_f32[0]	* AbsR.r[2].m128_f32[1] + b_Extents.m128_f32[1] * AbsR.r[2].m128_f32[0];
-	r		= t.m128_f32[1] * R.r[0].m128_f32[2] - t.m128_f32[0] * R.r[1].m128_f32[2];
+	ra		= XMVectorGetX(a_Extents)	* XMVectorGetZ(AbsR.r[1]) + XMVectorGetY(a_Extents) * XMVectorGetZ(AbsR.r[0]);
+	rb		= XMVectorGetX(b_Extents)	* XMVectorGetY(AbsR.r[2]) + XMVectorGetY(b_Extents) * XMVectorGetX(AbsR.r[2]);
+	r		= XMVectorGetY(t) * XMVectorGetZ(R.r[0]) - XMVectorGetX(t) * XMVectorGetZ(R.r[1]);
 	if (fabs(r) > ra + rb) 
 		return miss;
 
 	L = XMVector3Cross(a_Axes.r[2], b_Axes.r[2]);
 	checkCollisionDepth(ra, rb, r, overlap, L, least);
 	
-	float temp = XMVector4Dot(tVec, least).m128_f32[0];
+	float temp = XMVectorGetX(XMVector4Dot(tVec, least));
 
 	if(temp > 0)
 		least *= -1.f;
@@ -546,7 +547,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 
 void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
 {
-	float lLength = XMVector4LengthSq(p_L).m128_f32[0];
+	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
 	if(lLength > 0.000001f)
 	{
 		p_R = (fabs(p_R) - (p_RA + p_RB)) / lLength;

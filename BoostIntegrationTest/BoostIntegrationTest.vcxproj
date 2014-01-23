@@ -37,7 +37,7 @@
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
-    <ClCompile Include="Physics Engine.cpp" />
+    <ClCompile Include="Source\Physics Engine.cpp" />
     <ClCompile Include="Source\GraphicsEngine.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
   </ItemGroup>
