@@ -217,6 +217,21 @@ void ConnectionController::sendDoneLoading()
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 
+void ConnectionController::sendJoinGame(const char* p_Game)
+{
+	JoinGame package;
+	package.m_Object1 = p_Game;
+
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+const char* ConnectionController::getJoinGameName(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
+	return joinGame->m_Object1.c_str();
+}
+
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);

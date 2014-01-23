@@ -265,6 +265,10 @@ namespace boost
  */
 typedef Package1Obj<PackageType::PLAYER_CONTROL, PlayerControlData> PlayerControl;
 
+/**
+ * A package representing the player joining a game.
+ */
+typedef Package1Obj<PackageType::JOIN_GAME, std::string> JoinGame;
 
 BOOST_IS_BITWISE_SERIALIZABLE(ObjectInstance)
 

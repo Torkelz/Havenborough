@@ -1,5 +1,7 @@
 #include "MenuScene.h"
 
+#include "../EventData.h"
+
 MenuScene::MenuScene()
 {
 	m_SceneID = 0;
@@ -14,6 +16,7 @@ MenuScene::MenuScene()
 MenuScene::~MenuScene()
 {
 	m_Graphics = nullptr;
+	m_EventManager = nullptr;
 }
 
 bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
@@ -22,6 +25,10 @@ bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_SceneID = p_SceneID;
 
 	m_Graphics = p_Graphics;
+	m_EventManager = p_EventManager;
+
+	m_EventManager->addListener(EventListenerDelegate(this, &MenuScene::startGame), GameStartedEventData::sk_EventType);
+
 	return true;
 }
 
@@ -87,3 +94,7 @@ int MenuScene::getID()
 	return m_SceneID;
 }
 
+void MenuScene::startGame(IEventData::Ptr p_Data)
+{
+	m_ChangeList = true;
+}

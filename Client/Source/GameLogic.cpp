@@ -40,6 +40,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_ChangeScene = GoToScene::NONE;
 
 	m_Connected = false;
+	m_InGame = false;
 	m_Network->connectToServer("localhost", 31415, &connectedCallback, this); //Note: IP to server if running: 194.47.150.5
 
 	//TODO: Remove later when we actually have a level to load.
@@ -114,7 +115,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
-	if (conn && conn->isConnected())
+	if (m_InGame && conn && conn->isConnected())
 	{
 		PlayerControlData data;
 		data.m_Rotation[0] = actualViewRot.x;
@@ -296,6 +297,8 @@ void GameLogic::handleNetwork()
 					}
 
 					conn->sendDoneLoading();
+					m_InGame = true;
+					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 				}
 				break;
 
@@ -402,6 +405,8 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 		GameLogic* self = static_cast<GameLogic*>(p_UserData);
 
 		self->m_Connected = true;
+		self->m_Network->getConnectionToServer()->sendJoinGame("test");
+
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
 	else

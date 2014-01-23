@@ -39,6 +39,7 @@ private:
 	std::vector<Actor::ptr> m_Objects;
 
 	bool m_Connected;
+	bool m_InGame;
 
 	//DEBUG
 	std::weak_ptr<Actor> circleWitch;

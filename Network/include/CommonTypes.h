@@ -26,6 +26,7 @@ enum class PackageType : uint16_t
 	ASSIGN_PLAYER,
 	PLAYER_CONTROL,
 	DONE_LOADING,
+	JOIN_GAME,
 };
 
 struct ObjectInstance

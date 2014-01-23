@@ -12,6 +12,8 @@ private:
 	bool m_ChangeList;
 
 	IGraphics *m_Graphics;
+	EventManager *m_EventManager;
+
 public: 
 	MenuScene();
 	~MenuScene();
@@ -34,4 +36,7 @@ public:
 	/*########## TEST FUNCTIONS ##########*/
 
 	int	getID() override;
+
+private:
+	void startGame(IEventData::Ptr p_Data);
 };
