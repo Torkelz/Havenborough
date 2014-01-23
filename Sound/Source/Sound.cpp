@@ -332,6 +332,6 @@ bool Sound::getPaused(const char* p_SoundId)
 bool Sound::getMute(const char* p_SoundId)
 {
 	bool returnParam;
-	getSound(std::string(p_SoundId))->getChannel()->getMute(&returnParam);
+	m_MasterChannelGroup->getMute(&returnParam);
 	return returnParam;
 }
