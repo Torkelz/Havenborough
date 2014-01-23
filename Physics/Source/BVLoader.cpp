@@ -34,7 +34,7 @@ bool BVLoader::loadBinaryFile(std::string p_FilePath)
 	}
 	if(m_FileHeader.m_numVertex > 0)
 	{
-		m_BoundingVolume = readBoundingVolume(m_FileHeader.m_numVertex, &input);
+		m_BoundingVolume = readBoundingVolume(&input);
 	}
 	else
 	{
@@ -73,7 +73,7 @@ BVLoader::Header BVLoader::readHeader(std::istream* p_Input)
 }
 
 
-std::vector<BVLoader::BoundingVolume> BVLoader::readBoundingVolume(int p_NumberOfVertex, std::istream* p_Input)
+std::vector<BVLoader::BoundingVolume> BVLoader::readBoundingVolume(std::istream* p_Input)
 {
 	std::vector<BoundingVolume> boundingVolume;//(p_NumberOfVertex);
 	std::vector<DirectX::XMFLOAT4> tempVertices;

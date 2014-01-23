@@ -78,7 +78,7 @@ public:
 
 	void setPlayerDirection(Vector2 p_Direction);
 	Vector2 getPlayerDirection() const;
-
+	BodyHandle getPlayerBodyHandle() const;
 	Vector3 getPlayerEyePosition() const;
 	Vector3 getPlayerViewRotation() const;
 	void movePlayerView(float p_Yaw, float p_Pitch);

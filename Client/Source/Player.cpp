@@ -35,7 +35,8 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_Position, XMFLOAT3 p_Loo
 	m_TempHeight = 180.f;
 	m_KneeHeight = 50.f;
 	m_EyeHeight = 165.f;
-	Vector3 kneePos(m_Position.x, m_Position.y + m_KneeHeight, m_Position.z);
+	Vector3 kneePos(m_Position.x, m_Position.y + 90.f, m_Position.z);
+	//m_PlayerBody = m_Physics->createOBB(68.f, false, kneePos, Vector3(50.f, 90.f, 50.f), false);
 	m_PlayerBody = m_Physics->createSphere(68.f, false, kneePos, m_KneeHeight);
 
 }
