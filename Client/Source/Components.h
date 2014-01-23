@@ -27,6 +27,9 @@ class OBB_Component : public PhysicsInterface
 private:
 	BodyHandle m_Body;
 	IPhysics* m_Physics;
+	Vector3 m_OffsetPositition;
+	bool m_Immovable;
+	Vector3 m_Halfsize;
 
 public:
 	virtual ~OBB_Component()
@@ -41,40 +44,44 @@ public:
 
 	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
-		Vector3 position(0.f, 0.f, 0.f);
-		const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("Position");
-		if (pos)
-		{
-			position.x = pos->FloatAttribute("x");
-			position.y = pos->FloatAttribute("y");
-			position.z = pos->FloatAttribute("z");
-		}
+		m_OffsetPositition = Vector3(0.f, 0.f, 0.f);
 
-		Vector3 halfsize(1.f, 1.f, 1.f);
+		m_Halfsize = Vector3(1.f, 1.f, 1.f);
 		const tinyxml2::XMLElement* size = p_Data->FirstChildElement("Halfsize");
 		if (size)
 		{
-			halfsize.x = size->FloatAttribute("x");
-			halfsize.y = size->FloatAttribute("y");
-			halfsize.z = size->FloatAttribute("z");
+			m_Halfsize.x = size->FloatAttribute("x");
+			m_Halfsize.y = size->FloatAttribute("y");
+			m_Halfsize.z = size->FloatAttribute("z");
 		}
 
-		bool immovable = true;
-		p_Data->QueryBoolAttribute("Immovable", &immovable);
+		const tinyxml2::XMLElement* relPos = p_Data->FirstChildElement("OffsetPosition");
+		if (relPos)
+		{
+			relPos->QueryAttribute("x", &m_OffsetPositition.x);
+			relPos->QueryAttribute("y", &m_OffsetPositition.y);
+			relPos->QueryAttribute("z", &m_OffsetPositition.z);
+		}
 
-		m_Body = m_Physics->createOBB(0.f, immovable, position, halfsize, false);
+		m_Immovable = true;
+		p_Data->QueryBoolAttribute("Immovable", &m_Immovable);
+	}
+
+	virtual void postInit() override
+	{
+		m_Body = m_Physics->createOBB(0.f, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, false);
 	}
 
 	virtual void onUpdate(float p_DeltaTime) override
 	{
-		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
+		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
 		Vector3 rotation = m_Owner->getRotation();
 		m_Physics->setBodyRotation(m_Body, rotation);
 	}
 
 	virtual void updatePosition(Vector3 p_Position) override
 	{
-		m_Physics->setBodyPosition(m_Body, p_Position);
+		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
 	}
 	virtual void updateRotation(Vector3 p_Rotation) override
 	{
@@ -91,6 +98,10 @@ class CollisionSphereComponent : public PhysicsInterface
 private:
 	BodyHandle m_Body;
 	IPhysics* m_Physics;
+	Vector3 m_OffsetPositition;
+	float m_Radius;
+	float m_Mass;
+	bool m_Immovable;
 
 public:
 	virtual ~CollisionSphereComponent()
@@ -105,34 +116,41 @@ public:
 
 	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
-		Vector3 position(0.f, 0.f, 0.f);
-		const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("Position");
-		if (pos)
+		m_OffsetPositition = Vector3(0.f, 0.f, 0.f);
+
+		const tinyxml2::XMLElement* relPos = p_Data->FirstChildElement("OffsetPosition");
+		if (relPos)
 		{
-			position.x = pos->FloatAttribute("x");
-			position.y = pos->FloatAttribute("y");
-			position.z = pos->FloatAttribute("z");
+			relPos->QueryAttribute("x", &m_OffsetPositition.x);
+			relPos->QueryAttribute("y", &m_OffsetPositition.y);
+			relPos->QueryAttribute("z", &m_OffsetPositition.z);
 		}
 
-		bool immovable = true;
-		p_Data->QueryBoolAttribute("Immovable", &immovable);
+		m_Immovable = true;
+		p_Data->QueryBoolAttribute("Immovable", &m_Immovable);
 
-		float radius = 1.f;
-		p_Data->QueryFloatAttribute("Radius", &radius);
+		m_Radius = 1.f;
+		p_Data->QueryFloatAttribute("Radius", &m_Radius);
 
-		m_Body = m_Physics->createSphere(0.f, immovable, position, radius);
+		m_Mass = 0.f;
+		p_Data->QueryAttribute("Mass", &m_Mass);
+	}
+
+	virtual void postInit() override
+	{
+		m_Body = m_Physics->createSphere(m_Mass, m_Immovable, m_Owner->getPosition(), m_Radius);
 	}
 
 	virtual void onUpdate(float p_DeltaTime) override
 	{
-		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
+		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
 		Vector3 rotation = m_Owner->getRotation();
 		m_Physics->setBodyRotation(m_Body, rotation);
 	}
 
 	virtual void updatePosition(Vector3 p_Position) override
 	{
-		m_Physics->setBodyPosition(m_Body, p_Position);
+		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
 	}
 	virtual void updateRotation(Vector3 p_Rotation) override
 	{
@@ -149,9 +167,16 @@ class AABB_Component : public PhysicsInterface
 private:
 	BodyHandle m_Body;
 	IPhysics* m_Physics;
-	Vector3 m_RelativePosition;
+	Vector3 m_OffsetPositition;
+	Vector3 m_Halfsize;
+	bool m_IsEdge;
 
 public:
+	~AABB_Component()
+	{
+		m_Physics->releaseBody(m_Body);
+	}
+
 	void setPhysics(IPhysics* p_Physics)
 	{
 		m_Physics = p_Physics;
@@ -159,38 +184,42 @@ public:
 
 	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
-		m_RelativePosition = Vector3(0.f, 0.f, 0.f);
-		const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("RelativePosition");
-		if (pos)
-		{
-			m_RelativePosition.x = pos->FloatAttribute("x");
-			m_RelativePosition.y = pos->FloatAttribute("y");
-			m_RelativePosition.z = pos->FloatAttribute("z");
-		}
+		m_OffsetPositition = Vector3(0.f, 0.f, 0.f);
 
-		Vector3 halfsize(1.f, 1.f, 1.f);
+		m_Halfsize = Vector3(1.f, 1.f, 1.f);
 		const tinyxml2::XMLElement* size = p_Data->FirstChildElement("Halfsize");
 		if (size)
 		{
-			halfsize.x = size->FloatAttribute("x");
-			halfsize.y = size->FloatAttribute("y");
-			halfsize.z = size->FloatAttribute("z");
+			m_Halfsize.x = size->FloatAttribute("x");
+			m_Halfsize.y = size->FloatAttribute("y");
+			m_Halfsize.z = size->FloatAttribute("z");
 		}
 
-		bool edge = false;
-		p_Data->QueryBoolAttribute("Edge", &edge);
+		const tinyxml2::XMLElement* relPos = p_Data->FirstChildElement("OffsetPosition");
+		if (relPos)
+		{
+			relPos->QueryAttribute("x", &m_OffsetPositition.x);
+			relPos->QueryAttribute("y", &m_OffsetPositition.y);
+			relPos->QueryAttribute("z", &m_OffsetPositition.z);
+		}
 
-		m_Body = m_Physics->createAABB(0.f, true, Vector3(0.f, 0.f, 0.f), halfsize, edge);
+		m_IsEdge = false;
+		p_Data->QueryBoolAttribute("Edge", &m_IsEdge);
+	}
+
+	virtual void postInit()
+	{
+		m_Body = m_Physics->createAABB(0.f, true, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
 	}
 
 	virtual void onUpdate(float p_DeltaTime) override
 	{
-		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition() + m_RelativePosition);
+		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
 	}
 
 	virtual void updatePosition(Vector3 p_Position) override
 	{
-		m_Physics->setBodyPosition(m_Body, p_Position + m_RelativePosition);
+		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
 	}
 	virtual void updateRotation(Vector3 p_Rotation) override
 	{
@@ -214,6 +243,7 @@ private:
 public:
 	~BoundingMeshComponent()
 	{
+		m_Physics->releaseBody(m_Body);
 		m_ResourceManager->releaseResource(m_MeshResourceId);
 	}
 
@@ -289,6 +319,11 @@ private:
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
 public:
+	~ModelComponent()
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveMeshEventData(m_Id)));
+	}
+
 	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		const char* mesh = p_Data->Attribute("Mesh");
@@ -501,5 +536,193 @@ public:
 	void pulseOnce()
 	{
 		m_CurrentTime = 0.f;
+	}
+};
+
+class LightInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 5;
+	virtual Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+};
+
+class LightComponent : public LightInterface
+{
+private:
+	Light m_Light;
+
+public:
+	~LightComponent()
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveLightEventData(m_Light.id)));
+	}
+
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		if (p_Data->Attribute("Type", "Point"))
+		{
+			Vector3 position(0.f, 0.f, 0.f);
+			Vector3 color(1.f, 1.f, 1.f);
+			float range = 2000.f;
+
+			p_Data->QueryAttribute("Range", &range);
+
+			const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("Position");
+			if (pos)
+			{
+				pos->QueryAttribute("x", &position.x);
+				pos->QueryAttribute("y", &position.y);
+				pos->QueryAttribute("z", &position.z);
+			}
+
+			const tinyxml2::XMLElement* col = p_Data->FirstChildElement("Color");
+			if (col)
+			{
+				col->QueryAttribute("r", &color.x);
+				col->QueryAttribute("g", &color.y);
+				col->QueryAttribute("b", &color.z);
+			}
+
+			m_Light = Light::createPointLight(position, range, color);
+		}
+		else if (p_Data->Attribute("Type", "Spot"))
+		{
+			Vector3 position(0.f, 0.f, 0.f);
+			Vector3 direction(0.f, -1.f, 0.f);
+			Vector3 color(1.f, 1.f, 1.f);
+			Vector2 angles(1.f, 1.f);
+			float range = 2000.f;
+
+			p_Data->QueryAttribute("Range", &range);
+
+			const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("Position");
+			if (pos)
+			{
+				pos->QueryAttribute("x", &position.x);
+				pos->QueryAttribute("y", &position.y);
+				pos->QueryAttribute("z", &position.z);
+			}
+
+			const tinyxml2::XMLElement* dir = p_Data->FirstChildElement("Direction");
+			if (dir)
+			{
+				dir->QueryAttribute("x", &direction.x);
+				dir->QueryAttribute("y", &direction.y);
+				dir->QueryAttribute("z", &direction.z);
+			}
+
+			const tinyxml2::XMLElement* col = p_Data->FirstChildElement("Color");
+			if (col)
+			{
+				col->QueryAttribute("r", &color.x);
+				col->QueryAttribute("g", &color.y);
+				col->QueryAttribute("b", &color.z);
+			}
+
+			const tinyxml2::XMLElement* ang = p_Data->FirstChildElement("Angles");
+			if (ang)
+			{
+				ang->QueryAttribute("min", &angles.x);
+				ang->QueryAttribute("max", &angles.y);
+			}
+
+			m_Light = Light::createSpotLight(position, direction, angles, range, color);
+		}
+		else if (p_Data->Attribute("Type", "Directional"))
+		{
+			Vector3 direction(0.f, -1.f, 0.f);
+			Vector3 color(1.f, 1.f, 1.f);
+
+			const tinyxml2::XMLElement* dir = p_Data->FirstChildElement("Direction");
+			if (dir)
+			{
+				dir->QueryAttribute("x", &direction.x);
+				dir->QueryAttribute("y", &direction.y);
+				dir->QueryAttribute("z", &direction.z);
+			}
+
+			const tinyxml2::XMLElement* col = p_Data->FirstChildElement("Color");
+			if (col)
+			{
+				col->QueryAttribute("r", &color.x);
+				col->QueryAttribute("g", &color.y);
+				col->QueryAttribute("b", &color.z);
+			}
+
+			m_Light = Light::createDirectionalLight(direction, color);
+		}
+		else
+		{
+			throw ClientException("XML Light description missing valid type", __LINE__, __FILE__);
+		}
+	}
+	virtual void postInit() override
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new LightEventData(m_Light)));
+	}
+
+	Light::Id getId() const
+	{
+		return m_Light.id;
+	}
+
+	void setId(Light::Id p_Id)
+	{
+		m_Light.id = p_Id;
+	}
+};
+
+class LookInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 6;
+	virtual Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+	virtual Vector3 getLookPosition() const = 0;
+	virtual Vector3 getLookDirection() const = 0;
+};
+
+class LookComponent : public LookInterface
+{
+private:
+	Vector3 m_OffsetPosition;
+	Vector3 m_Direction;
+
+public:
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		m_OffsetPosition = Vector3(0.f, 0.f, 0.f);
+		m_Direction = Vector3(0.f, -1.f, 0.f);
+
+		const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("OffsetPosition");
+		if (pos)
+		{
+			pos->QueryAttribute("x", &m_OffsetPosition.x);
+			pos->QueryAttribute("y", &m_OffsetPosition.y);
+			pos->QueryAttribute("z", &m_OffsetPosition.z);
+		}
+
+		const tinyxml2::XMLElement* dir = p_Data->FirstChildElement("Direction");
+		if (dir)
+		{
+			dir->QueryAttribute("x", &m_Direction.x);
+			dir->QueryAttribute("y", &m_Direction.y);
+			dir->QueryAttribute("z", &m_Direction.z);
+		}
+	}
+
+	Vector3 getLookPosition() const override
+	{
+		return m_Owner->getPosition() + m_OffsetPosition;
+	}
+
+	Vector3 getLookDirection() const
+	{
+		return m_Direction;
 	}
 };

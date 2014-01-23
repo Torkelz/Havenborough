@@ -37,6 +37,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_Graphics->createSkyDome("SKYBOXDDS",50000.f);
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addLight), LightEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeLight), RemoveLightEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createMesh), CreateMeshEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelPosition), UpdateModelPositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
@@ -242,6 +243,18 @@ void GameScene::addLight(IEventData::Ptr p_Data)
 	std::shared_ptr<LightEventData> lightData = std::static_pointer_cast<LightEventData>(p_Data);
 	Light light = lightData->getLight();
 	m_Lights.push_back(light);
+}
+
+void GameScene::removeLight(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveLightEventData> lightData = std::static_pointer_cast<RemoveLightEventData>(p_Data);
+
+	auto remIt = std::remove_if(m_Lights.begin(), m_Lights.end(),
+		[&lightData] (Light& p_Light)
+		{
+			return p_Light.id == lightData->getId();
+		});
+	m_Lights.erase(remIt, m_Lights.end());
 }
 
 void GameScene::createMesh(IEventData::Ptr p_Data)

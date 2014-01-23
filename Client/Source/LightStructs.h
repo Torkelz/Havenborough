@@ -18,6 +18,9 @@ public:
     float range;
 	Type type;
 
+	typedef unsigned int Id;
+	Id id;
+
 	Light()
 	{
 		position = Vector3(0.f,0.f,0.f);
@@ -73,5 +76,6 @@ private:
 		direction = p_direction;
 		spotlightAngles = p_angles;
 		range = p_range;
+		id = 0;
 	}
 };

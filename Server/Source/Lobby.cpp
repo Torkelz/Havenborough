@@ -43,7 +43,7 @@ void Lobby::addAvailableLevel(const std::string& p_LevelName, unsigned int p_Max
 		std::vector<User::wPtr>(),
 		p_MaxPlayers,
 		p_LevelName,
-		30.f,
+		5.f,
 		0.f
 	};
 	m_Levels.push_back(level);

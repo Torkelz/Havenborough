@@ -648,6 +648,15 @@ void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementNam
 	p_Printer.CloseElement();
 }
 
+void pushColor(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Color)
+{
+	p_Printer.OpenElement(p_ElementName.c_str());
+	p_Printer.PushAttribute("r", p_Color.x);
+	p_Printer.PushAttribute("g", p_Color.y);
+	p_Printer.PushAttribute("b", p_Color.z);
+	p_Printer.CloseElement();
+}
+
 std::weak_ptr<Actor> GameLogic::addRotatingBox(Vector3 p_Position, Vector3 p_Scale)
 {
 	tinyxml2::XMLPrinter printer;
@@ -668,25 +677,6 @@ std::weak_ptr<Actor> GameLogic::addRotatingBox(Vector3 p_Position, Vector3 p_Sca
 
 	return actor;
 }
-
-//std::weak_ptr<Actor> GameLogic::addSkybox(Vector3 p_Scale)
-//{
-//	tinyxml2::XMLPrinter printer;
-//	printer.OpenElement("Object");
-//	printer.OpenElement("Model");
-//	printer.PushAttribute("Mesh", "SKYBOX");
-//	pushVector(printer, "Scale", p_Scale);
-//	printer.CloseElement();
-//	printer.CloseElement();
-//
-//	tinyxml2::XMLDocument doc;
-//	doc.Parse(printer.CStr());
-//
-//	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-//	m_Objects.push_back(actor);
-//
-//	return actor;
-//}
 
 std::weak_ptr<Actor> GameLogic::addBasicModel(const std::string& p_Model, Vector3 p_Position)
 {
@@ -889,19 +879,80 @@ std::weak_ptr<Actor> GameLogic::addPlayerActor(Vector3 p_Position)
 	return actor;
 }
 
+
+std::weak_ptr<Actor> GameLogic::addDirectionalLight(Vector3 p_Direction, Vector3 p_Color)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Light");
+	printer.PushAttribute("Type", "Directional");
+	pushVector(printer, "Direction", p_Direction);
+	pushColor(printer, "Color", p_Color);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	m_Objects.push_back(actor);
+
+	return actor;
+}
+
+std::weak_ptr<Actor> GameLogic::addSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Light");
+	printer.PushAttribute("Type", "Spot");
+	printer.PushAttribute("Range", p_Range);
+	pushVector(printer, "Position", p_Position);
+	pushVector(printer, "Direction", p_Direction);
+	printer.OpenElement("Angles");
+	printer.PushAttribute("min", p_MinMaxAngles.x);
+	printer.PushAttribute("max", p_MinMaxAngles.y);
+	printer.CloseElement();
+	pushColor(printer, "Color", p_Color);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	m_Objects.push_back(actor);
+
+	return actor;
+}
+
+std::weak_ptr<Actor> GameLogic::addPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Light");
+	printer.PushAttribute("Type", "Point");
+	printer.PushAttribute("Range", p_Range);
+	pushVector(printer, "Position", p_Position);
+	pushColor(printer, "Color", p_Color);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	m_Objects.push_back(actor);
+
+	return actor;
+}
+
 void GameLogic::addLights()
 {
-	Light directional = Light::createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f));
-	Light spot = Light::createSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
+	addDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f));
+	addSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
 		Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f, Vector3(0.f,1.f,0.f));
-
-	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(directional)));
-	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(spot)));
-
-	Light point = Light::createPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f));
-	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(point)));
-	point = Light::createPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f));
-	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(point)));
-	Light::createPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f));
-	m_EventManager->queueEvent(IEventData::Ptr(new LightEventData(point)));
+	addPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f));
+	addPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f));
+	addPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f));
 }

@@ -17,6 +17,7 @@ class ActorFactory
 private:
 	unsigned int m_LastActorId;
 	unsigned int m_LastModelComponentId;
+	unsigned int m_LastLightComponentId;
 	IGraphics* m_Graphics;
 	IPhysics* m_Physics;
 	EventManager* m_EventManager;
@@ -50,4 +51,5 @@ private:
 	ActorComponent::ptr createModelComponent();
 	ActorComponent::ptr createMovementComponent();
 	ActorComponent::ptr createPulseComponent();
+	ActorComponent::ptr createLightComponent();
 };
