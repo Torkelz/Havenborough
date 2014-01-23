@@ -260,6 +260,9 @@ BOOST_AUTO_TEST_CASE(TestSound)
 	BOOST_MESSAGE(ID + "Starting to clean up the Sound engine.");
 	BOOST_CHECK_NO_THROW(ISound::deleteSound(sound));
 	// ############### STEP 7 END ###############
+
+	BOOST_MESSAGE(ID + "Sound engine integration test completed.");
+	BOOST_MESSAGE("");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
