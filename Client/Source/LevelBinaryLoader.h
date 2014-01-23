@@ -22,24 +22,26 @@ public:
 		std::vector<DirectX::XMFLOAT3> m_Rotation;
 		std::vector<DirectX::XMFLOAT3> m_Scale;
 	};
-	
-	struct LightData
+	struct DirectionalLight
 	{
 		DirectX::XMFLOAT3 m_Translation;
 		DirectX::XMFLOAT3 m_Color;
 		int m_Type;
-	};
-	struct DirectionalLight
-	{
 		float m_Intensity;
 		DirectX::XMFLOAT3 m_Direction;
 	};
 	struct PointLight
 	{
+		DirectX::XMFLOAT3 m_Translation;
+		DirectX::XMFLOAT3 m_Color;
+		int m_Type;
 		float m_Intensity;
 	};
 	struct SpotLight
 	{
+		DirectX::XMFLOAT3 m_Translation;
+		DirectX::XMFLOAT3 m_Color;
+		int m_Type;
 		float m_Intensity;
 		DirectX::XMFLOAT3 m_Direction;
 		float m_ConeAngle;
@@ -48,13 +50,13 @@ public:
 	struct CheckPointStruct
 	{
 		int m_Number;
-		DirectX::XMFLOAT3 m_Transaltion;
+		DirectX::XMFLOAT3 m_Translation;
 	};
 private: 
 	std::vector<LevelBinaryLoader::ModelData> m_LevelData;
-	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::DirectionalLight>> m_LevelDirectionalLightList;
-	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::PointLight>> m_LevelPointLightList;
-	std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::SpotLight>> m_LevelSpotLightList;
+	std::vector<LevelBinaryLoader::DirectionalLight> m_LevelDirectionalLightList;
+	std::vector<LevelBinaryLoader::PointLight> m_LevelPointLightList;
+	std::vector<LevelBinaryLoader::SpotLight> m_LevelSpotLightList;
 	std::vector<LevelBinaryLoader::CheckPointStruct> m_LevelCheckPointList;
 	DirectX::XMFLOAT3 m_LevelCheckPointStart;
 	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
@@ -96,21 +98,21 @@ public:
 	 *
 	 * @return a vector of LightData struct paired with DirectionalLight struct. 
 	 */
-	const std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::DirectionalLight>>& getDirectionalLightData();
+	const std::vector<LevelBinaryLoader::DirectionalLight>& getDirectionalLightData();
 
 	/**
 	 * Returns information about the point lights in the level.
 	 *
 	 * @return a vector of LightData struct paired with PointLight struct. 
 	 */
-	const std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::PointLight>>& getPointLightData();
+	const std::vector<LevelBinaryLoader::PointLight>& getPointLightData();
 
 	/**
 	 * Returns information about the spot lights in the level.
 	 *
 	 * @return a vector of LightData struct paired with SpotLight struct.  
 	 */
-	const std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::SpotLight>>& getSpotLightData();
+	const std::vector<LevelBinaryLoader::SpotLight>& getSpotLightData();
 
 	/**
 	 * Returns information about the start checkpoint in the level.

@@ -47,7 +47,7 @@ public:
 	struct CheckPointStruct
 	{
 		int m_Number;
-		DirectX::XMFLOAT3 m_Transaltion;
+		DirectX::XMFLOAT3 m_Translation;
 	};
 private:
 	DirectX::XMFLOAT3 m_CheckPointStart;

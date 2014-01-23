@@ -9,11 +9,12 @@ LevelBinaryLoader::LevelBinaryLoader()
 
 LevelBinaryLoader::~LevelBinaryLoader()
 {
-	m_LevelCheckPointList.clear();
-	m_LevelData.clear();
-	m_LevelDirectionalLightList.clear();
-	m_LevelPointLightList.clear();
-	m_LevelSpotLightList.clear();
+	clear();
+	m_LevelCheckPointList.shrink_to_fit();
+	m_LevelData.shrink_to_fit();
+	m_LevelDirectionalLightList.shrink_to_fit();
+	m_LevelPointLightList.shrink_to_fit();
+	m_LevelSpotLightList.shrink_to_fit();
 }
 
 bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
@@ -38,8 +39,8 @@ LevelBinaryLoader::Header LevelBinaryLoader::readHeader(std::istream* p_Input)
 	header.m_NumberOfLights = 0;
 	header.m_NumberOfCheckPoints = 0;
 	byteToInt(p_Input, header.m_NumberOfModels); 
-	//byteToInt(p_Input, header.m_NumberOfLights);
-	//byteToInt(p_Input, header.m_NumberOfCheckPoints);
+	byteToInt(p_Input, header.m_NumberOfLights);
+	byteToInt(p_Input, header.m_NumberOfCheckPoints);
 	return header;
 }
 
@@ -80,19 +81,19 @@ void LevelBinaryLoader::readLevelLighting(std::istream* p_Input)
 		{
 			byteToInt(p_Input, size);
 			m_LevelDirectionalLightList.resize(size);
-			p_Input->read(reinterpret_cast<char*>(m_LevelDirectionalLightList.data()),sizeof(std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::DirectionalLight>) * size);
+			p_Input->read(reinterpret_cast<char*>(m_LevelDirectionalLightList.data()),sizeof(LevelBinaryLoader::DirectionalLight) * size);
 		}
 		if(type == 1)
 		{
 			byteToInt(p_Input, size);
 			m_LevelPointLightList.resize(size);
-			p_Input->read(reinterpret_cast<char*>(m_LevelPointLightList.data()),sizeof(std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::PointLight>) * size);
+			p_Input->read(reinterpret_cast<char*>(m_LevelPointLightList.data()),sizeof(LevelBinaryLoader::PointLight) * size);
 		}
 		if(type == 2)
 		{
 			byteToInt(p_Input, size);
 			m_LevelSpotLightList.resize(size);
-			p_Input->read(reinterpret_cast<char*>(m_LevelSpotLightList.data()),sizeof(std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::SpotLight>) * size);
+			p_Input->read(reinterpret_cast<char*>(m_LevelSpotLightList.data()),sizeof(LevelBinaryLoader::SpotLight) * size);
 		}
 	}
 }
@@ -113,17 +114,17 @@ const std::vector<LevelBinaryLoader::ModelData>& LevelBinaryLoader::getModelData
 	return m_LevelData;
 }
 
-const std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::DirectionalLight>>& LevelBinaryLoader::getDirectionalLightData()
+const std::vector<LevelBinaryLoader::DirectionalLight>& LevelBinaryLoader::getDirectionalLightData()
 {
 	return m_LevelDirectionalLightList;
 }
 
-const std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::PointLight>>& LevelBinaryLoader::getPointLightData()
+const std::vector<LevelBinaryLoader::PointLight>& LevelBinaryLoader::getPointLightData()
 {
 	return m_LevelPointLightList;
 }
 
-const std::vector<std::pair<LevelBinaryLoader::LightData, LevelBinaryLoader::SpotLight>>& LevelBinaryLoader::getSpotLightData()
+const std::vector<LevelBinaryLoader::SpotLight>& LevelBinaryLoader::getSpotLightData()
 {
 	return m_LevelSpotLightList;
 }
@@ -155,4 +156,13 @@ void LevelBinaryLoader::byteToString(std::istream* p_Input, std::string& p_Retur
 void LevelBinaryLoader::byteToInt(std::istream* p_Input, int& p_Return)
 {
 	p_Input->read((char*)&p_Return, sizeof(int));
+}
+
+void LevelBinaryLoader::clear()
+{
+	m_LevelCheckPointList.clear();
+	m_LevelData.clear();
+	m_LevelDirectionalLightList.clear();
+	m_LevelPointLightList.clear();
+	m_LevelSpotLightList.clear();
 }

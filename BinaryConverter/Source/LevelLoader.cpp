@@ -16,6 +16,16 @@ void LevelLoader::clear()
 {
 	m_LevelModelList.clear();
 	m_LevelModelList.shrink_to_fit();
+	m_CheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
+	m_CheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
+	m_LevelCheckPointList.clear();
+	m_LevelCheckPointList.shrink_to_fit();
+	m_LevelDirectionalLightList.clear();
+	m_LevelDirectionalLightList.shrink_to_fit();
+	m_LevelPointLightList.clear();
+	m_LevelPointLightList.shrink_to_fit();
+	m_LevelSpotLightList.clear();
+	m_LevelSpotLightList.shrink_to_fit();
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
@@ -188,7 +198,7 @@ void LevelLoader::readCheckPointList(std::istream& p_Input)
 		m_Stringstream >> filler >> tempCheckPoint.m_Number;
 		std::getline(p_Input, line);
 		m_Stringstream = std::stringstream(line);
-		m_Stringstream >> filler >> tempCheckPoint.m_Transaltion.x >> tempCheckPoint.m_Transaltion.y >> tempCheckPoint.m_Transaltion.z;
+		m_Stringstream >> filler >> tempCheckPoint.m_Translation.x >> tempCheckPoint.m_Translation.y >> tempCheckPoint.m_Translation.z;
 		m_LevelCheckPointList.push_back(tempCheckPoint);
 	}
 }
@@ -196,7 +206,15 @@ void LevelLoader::readCheckPointList(std::istream& p_Input)
 void LevelLoader::clearData()
 {
 	m_LevelModelList.clear();
+	m_CheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
+	m_CheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
+	m_LevelCheckPointList.clear();
+	m_LevelDirectionalLightList.clear();
+	m_LevelPointLightList.clear();
+	m_LevelSpotLightList.clear();
 	m_Header.m_NumberOfModels = 0;
+	m_Header.m_NumberOfLights = 0;
+	m_Header.m_NumberOfCheckPoints = 0;
 	m_Stringstream.clear();
 }
 

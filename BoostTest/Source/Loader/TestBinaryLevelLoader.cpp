@@ -17,11 +17,7 @@ public:
 	{
 		return readLevelLighting(p_Input);
 	}
-	void m_LevelCheckPointList(std::istream* p_Input)
-	{
-		return readLevelCheckPoint(p_Input);
-	}
-	void m_LevelCheckPointStart(std::istream* p_Input)
+	void testLevelCheckPointList(std::istream* p_Input)
 	{
 		return readLevelCheckPoint(p_Input);
 	}
@@ -39,8 +35,8 @@ BOOST_AUTO_TEST_CASE(TestReadHeader)
 	header = loader.testReadHeader(&tempString);
 
 	BOOST_CHECK_EQUAL(header.m_NumberOfModels, 1);
-	//BOOST_CHECK_EQUAL(header.m_NumberOfLights, 1);
-	//BOOST_CHECK_EQUAL(header.m_NumberOfCheckPoints, 5);
+	BOOST_CHECK_EQUAL(header.m_NumberOfLights, 1);
+	BOOST_CHECK_EQUAL(header.m_NumberOfCheckPoints, 5);
 }
 
 BOOST_AUTO_TEST_CASE(TestReadLevelData)
@@ -84,6 +80,110 @@ BOOST_AUTO_TEST_CASE(TestReadLevelData)
 
 BOOST_AUTO_TEST_CASE(TestReadLevelLighting)
 {
+	char binData[] =
+		"\x03\0\0\0"
+		"\0\0\0\0"
+		"\x01\0\0\0"
+		"\0\0pA\0\0?D\0\0\0?"
+		"\0\0\0D\0\0\0D\0\0\0D"
+		"\0\0\0\0"
+		"\0\0\0D"
+		"\0\0\0D\0\0\0D\0\0\0D"
 
+		"\x01\0\0\0"
+		"\x01\0\0\0"
+		"\0\0pA\0\0\0D\0\0\0D"
+		"\0\0\0D\0\0\0D\0\0\0D"
+		"\x01\0\0\0"
+		"\0\0\0D"
+
+		"\x02\0\0\0"
+		"\x01\0\0\0"
+		"\0\0\0A\0\0?D\0\0\0?"
+		"\0\0\0D\0\0\0D\0\0\0D"
+		"\x02\0\0\0"
+		"\0\0\0D"
+		"\0\0\0D\0\0\0D\0\0\0D"
+		"\0\0\0A"
+		"\0\0\0A";
+	testLevelLoader loader;
+	std::istringstream tempString(std::string(binData, binData + sizeof(binData)));
+	loader.testReadLight(&tempString);
+
+	std::vector<LevelBinaryLoader::DirectionalLight> directionalLight;
+	std::vector<LevelBinaryLoader::PointLight> pointLight;
+	std::vector<LevelBinaryLoader::SpotLight> spotLight;
+
+	directionalLight = loader.getDirectionalLightData();
+	pointLight = loader.getPointLightData();
+	spotLight = loader.getSpotLightData();
+
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Translation.x, 15.0f);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Translation.y, 764.0f);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Translation.z, 0.5f);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Color.x, 512.0f);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Color.y, 512.0f);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Color.z, 512.0f);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Type, 0);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Direction.x, 512.0f);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Direction.y, 512.0f);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Direction.z, 512.0f);
+	BOOST_CHECK_EQUAL(directionalLight.at(0).m_Intensity, 512.0f);
+
+	BOOST_CHECK_EQUAL(pointLight.at(0).m_Translation.x, 15.0f);
+	BOOST_CHECK_EQUAL(pointLight.at(0).m_Translation.y, 512.0f);
+	BOOST_CHECK_EQUAL(pointLight.at(0).m_Translation.z, 512.0f);
+	BOOST_CHECK_EQUAL(pointLight.at(0).m_Color.x, 512.0f);
+	BOOST_CHECK_EQUAL(pointLight.at(0).m_Color.y, 512.0f);
+	BOOST_CHECK_EQUAL(pointLight.at(0).m_Color.z, 512.0f);
+	BOOST_CHECK_EQUAL(pointLight.at(0).m_Type, 1);
+	BOOST_CHECK_EQUAL(pointLight.at(0).m_Intensity, 512.0f);
+
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Translation.x, 8.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Translation.y, 764.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Translation.z, 0.5f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Color.x, 512.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Color.y, 512.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Color.z, 512.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Type, 2);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Direction.x, 512.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Direction.y, 512.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Direction.z, 512.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_Intensity, 512.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_ConeAngle, 8.0f);
+	BOOST_CHECK_EQUAL(spotLight.at(0).m_PenumbraAngle, 8.0f);
 }
+
+BOOST_AUTO_TEST_CASE(TestReadLevelCheckPoint)
+{
+	char binData[] =
+		"\0\0pA\0\0?D\0\0\0?"
+		"\0\0\0D\0\0\0D\0\0\0D"
+		"\x01\0\0\0"
+		"\x05\0\0\0"
+		"\0\0\0D\0\0\0D\0\0\0D";
+
+	testLevelLoader loader;
+	std::istringstream tempString(std::string(binData, binData + sizeof(binData)));
+	loader.testLevelCheckPointList(&tempString);
+
+	std::vector<LevelBinaryLoader::CheckPointStruct> checkPoints;
+	checkPoints.resize(1);
+	DirectX::XMFLOAT3 start, end;
+	checkPoints = loader.getCheckPointData();
+	start = loader.getCheckPointStart();
+	end = loader.getCheckPointEnd();
+
+	BOOST_CHECK_EQUAL(checkPoints.at(0).m_Number, 5);
+	BOOST_CHECK_EQUAL(checkPoints.at(0).m_Translation.x, 512.0f);
+	BOOST_CHECK_EQUAL(checkPoints.at(0).m_Translation.y, 512.0f);
+	BOOST_CHECK_EQUAL(checkPoints.at(0).m_Translation.z, 512.0f);
+	BOOST_CHECK_EQUAL(start.x, 15.0f);
+	BOOST_CHECK_EQUAL(start.y, 764.0f);
+	BOOST_CHECK_EQUAL(start.z, 0.5f);
+	BOOST_CHECK_EQUAL(end.x, 512.0f);
+	BOOST_CHECK_EQUAL(end.y, 512.0f);
+	BOOST_CHECK_EQUAL(end.z, 512.0f);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

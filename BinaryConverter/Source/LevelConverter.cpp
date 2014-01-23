@@ -17,6 +17,9 @@ void LevelConverter::clear()
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
+	m_LevelDataSize = 0;
+	m_LevelCheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
+	m_LevelCheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
 }
 
 bool LevelConverter::writeFile(std::string p_FilePath)
