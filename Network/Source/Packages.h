@@ -132,16 +132,17 @@ public:
 };
 
 /**
- * A package representing that a player is ready to start a game.
+ * Template for packages without arguments.
  */
-class PlayerReady : public PackageHelper<PlayerReady>
+template <PackageType type>
+class Signal : public PackageHelper<Signal<type>>
 {
 public:
 	/**
 	 * constructor.
 	 */
-	PlayerReady()
-		: PackageHelper<PlayerReady>(PackageType::PLAYER_READY)
+	Signal()
+		: PackageHelper<Signal<type>>(type)
 	{}
 
 	/**
@@ -157,6 +158,16 @@ public:
 	{
 	}
 };
+
+/**
+ * A package representing that a player is ready to start a game.
+ */
+typedef Signal<PackageType::PLAYER_READY> PlayerReady;
+
+/**
+ * A package representing that a player has finished loading the level.
+ */
+typedef Signal<PackageType::DONE_LOADING> DoneLoading;
 
 BOOST_IS_BITWISE_SERIALIZABLE(ObjectInstance)
 
