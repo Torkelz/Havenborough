@@ -3,6 +3,9 @@
 #include "LightStructs.h"
 #include "../Utilities/XMFloatUtil.h"
 
+#pragma warning(push)
+#pragma warning( once : 4100 )
+
 #pragma region EXAMPLE READ THIS IF YOU DO NOT KNOW HOW TO CREATE AN EVENT
 //////////////////////////////////////////////////////////////////////////
 /// EXAMPLE EVENT DATA AND USED FOR TESTING
@@ -531,3 +534,6 @@ public:
 		return m_State;
 	}
 };
+
+
+#pragma warning(pop)

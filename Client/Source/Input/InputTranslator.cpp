@@ -231,10 +231,10 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 	//	return handled;
 	//}
 	//
-	//if (moveX == 0.f && moveY == 0.f)
-	//{
-	//	return handled;
-	//}
+	if (moveX == 0.f && moveY == 0.f)
+	{
+		return handled;
+	}
 
 	for (const MouseRecord& record : m_MouseMappings)
 	{
