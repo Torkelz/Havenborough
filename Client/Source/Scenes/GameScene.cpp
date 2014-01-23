@@ -48,7 +48,6 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
-
 	return true;
 }
 
@@ -65,6 +64,10 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 		m_ChangeScene = true;
 		m_NewSceneID = (int)m_GameLogic->getChangeScene();
 		
+		std::shared_ptr<MouseEventDataShow> showMouse(new MouseEventDataShow(true));
+		m_EventManager->queueEvent(showMouse);
+		std::shared_ptr<MouseEventDataLock> lockMouse(new MouseEventDataLock(false));
+		m_EventManager->queueEvent(lockMouse);
 	}
 	if(m_ChangeScene)
 	{
