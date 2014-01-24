@@ -177,10 +177,16 @@ public:
 			halfsize.z = size->FloatAttribute("z");
 		}
 
+
 		bool edge = false;
 		p_Data->QueryBoolAttribute("Edge", &edge);
 
 		m_Body = m_Physics->createAABB(0.f, true, Vector3(0.f, 0.f, 0.f), halfsize, edge);
+
+		bool collisionResponse = true;
+		p_Data->QueryBoolAttribute("CollisionResponse", &collisionResponse);
+		m_Physics->setBodyCollisionResponse(m_Body, collisionResponse);
+
 	}
 
 	virtual void onUpdate(float p_DeltaTime) override

@@ -86,21 +86,25 @@ void Physics::update(float p_DeltaTime)
 				hit.collisionVictim = m_Bodies.at(j).getHandle();
 				hit.isEdge = m_Bodies.at(j).getIsEdge();
 				m_HitDatas.push_back(hit);
-				XMVECTOR temp;		// m
-				XMFLOAT4 tempPos;	// m
 
-				temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m
-				XMStoreFloat4(&tempPos, temp);
-
-				b.setPosition(tempPos);
-
-				if (hit.colNorm.y > 0.68f)
+				if(m_Bodies.at(i).getCollisionResponse() && m_Bodies.at(j).getCollisionResponse())
 				{
-					onSomething = true;
+					XMVECTOR temp;		// m
+					XMFLOAT4 tempPos;	// m
 
-					XMFLOAT4 velocity = b.getVelocity();	// m/s
-					velocity.y = 0.f;
-					b.setVelocity(velocity);
+					temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m
+					XMStoreFloat4(&tempPos, temp);
+
+					b.setPosition(tempPos);
+
+					if (hit.colNorm.y > 0.68f)
+					{
+						onSomething = true;
+
+						XMFLOAT4 velocity = b.getVelocity();	// m/s
+						velocity.y = 0.f;
+						b.setVelocity(velocity);
+					}
 				}
 			}
 		}
@@ -344,6 +348,15 @@ void Physics::removeHitDataAt(unsigned int p_index)
 unsigned int Physics::getHitDataSize()
 {
 	return m_HitDatas.size();
+}
+
+void Physics::setBodyCollisionResponse(BodyHandle p_Body, bool p_State)
+{
+	Body *body = findBody(p_Body);
+	if(!body)
+		return;
+
+	body->setCollisionResponse(p_State);
 }
 
 Vector4 Physics::getBodyPosition(BodyHandle p_Body)
