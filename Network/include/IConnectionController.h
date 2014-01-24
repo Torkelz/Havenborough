@@ -228,4 +228,9 @@ public:
 	 * @return the player control data
 	 */
 	virtual PlayerControlData getPlayerControlData(Package p_Package) = 0;
+
+	/**
+	 * Send a Done Loading package singaling that the client has finished loading the level.
+	 */
+	virtual void sendDoneLoading() = 0;
 };

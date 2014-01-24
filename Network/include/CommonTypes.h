@@ -25,6 +25,7 @@ enum class PackageType : uint16_t
 	OBJECT_ACTION,
 	ASSIGN_PLAYER,
 	PLAYER_CONTROL,
+	DONE_LOADING,
 };
 
 struct ObjectInstance

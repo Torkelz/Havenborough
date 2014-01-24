@@ -4,7 +4,7 @@
 #include "../Logger.h"
 
 InputTranslator::InputTranslator()
-	: m_Window(nullptr)
+	: m_Window(nullptr), m_MouseLocked(false)
 {
 }
 
@@ -88,6 +88,16 @@ void InputTranslator::addMouseButtonMapping(MouseButton p_Button, const std::str
 
 	MouseButtonRecord rec = {buttonFlag, p_Action};
 	m_MouseButtonMappings.push_back(rec);
+}
+
+void InputTranslator::lockMouse(bool p_State)
+{
+	m_MouseLocked = p_State;
+}
+
+void InputTranslator::showMouse(bool p_State)
+{
+	ShowCursor(p_State);
 }
 
 bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
@@ -205,13 +215,22 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 		return handled;
 	}
 
-	// Filter out mouse movement outside window
-	if (posX > 1.f || posX < 0.f
-		|| posY > 1.f || posY < 0.f)
+	if(GetFocus() != NULL && m_MouseLocked)
 	{
-		return handled;
+		POINT tempSize;
+		tempSize.x = (LONG)(windowSize.x * 0.5f);
+		tempSize.y = (LONG)(windowSize.y * 0.5f);
+		ClientToScreen(m_Window->getHandle(), &tempSize);
+		SetCursorPos(tempSize.x, tempSize.y);
 	}
 
+	// Filter out mouse movement outside window
+	//if (posX > 1.f || posX < 0.f
+	//	|| posY > 1.f || posY < 0.f)
+	//{
+	//	return handled;
+	//}
+	//
 	if (moveX == 0.f && moveY == 0.f)
 	{
 		return handled;

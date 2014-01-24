@@ -22,6 +22,7 @@ bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_SceneID = p_SceneID;
 
 	m_Graphics = p_Graphics;
+	m_EventManager = p_EventManager;
 	return true;
 }
 
@@ -39,9 +40,12 @@ void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 	{
 		*p_IsCurrentScene = -1;
 		m_ChangeList = false;
+		// Move out to menu scene or whatever later if needed. Debug stuffz.
+		std::shared_ptr<MouseEventDataShow> showMouse(new MouseEventDataShow(false));
+		m_EventManager->queueEvent(showMouse);
+		std::shared_ptr<MouseEventDataLock> lockMouse(new MouseEventDataLock(true));
+		m_EventManager->queueEvent(lockMouse);
 	}
-
-	
 }
 
 void MenuScene::render()

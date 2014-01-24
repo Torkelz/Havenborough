@@ -61,7 +61,19 @@
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
-    <ClCompile Include="Source\testProgram.cpp" />
+    <ClCompile Include="Source\SoundEngine.cpp">
+      <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Sound\Source\SoundLogger.cpp">
+      <Filter>Sound\SoundInclude</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Sound\Source\Sound.cpp">
+      <Filter>Sound\SoundInclude</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\EventManager.cpp">
+      <Filter>Sound\SoundInclude</Filter>
+    </ClCompile>
+     <ClCompile Include="Source\testProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">
@@ -76,9 +88,21 @@
     <Filter Include="Client\ClientImport">
       <UniqueIdentifier>{626962ff-a4ea-404f-897f-44f282574004}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sound">
+      <UniqueIdentifier>{f282d834-7cf2-4265-a93e-2b55849fdbd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sound\SoundInclude">
+      <UniqueIdentifier>{e7a0c4be-cd38-4852-8cfd-e0e1ebec1b17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\dummyShader.hlsl">
+    <FxCompile Include="Source\testShader_VS_PS.hlsl">
+      <Filter>Graphics</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\testShader_PS.hlsl">
+      <Filter>Graphics</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\testShader_VS.hlsl">
       <Filter>Graphics</Filter>
     </FxCompile>
   </ItemGroup>
