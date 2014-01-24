@@ -84,6 +84,9 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 			{
 				m_Tracks[i].clip.m_FadeIn = false;
 				m_Tracks[i].fadedFrames = 0.0f;
+
+				// Theoretically only track 2 can be not layered and 
+				// still be played as a layered animation.
 				if(!m_Tracks[i].clip.m_Layered && m_Tracks[i].clip.m_Loop)
 				{
 					m_Tracks[0] = m_Tracks[i];
@@ -96,7 +99,8 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 		{
 			if( (float)m_Tracks[i].clip.m_End < m_Tracks[i].currentFrame)
 			{
-				m_Tracks[i].active = false;
+				if(!playQueuedClip(i))
+					m_Tracks[i].active = false;
 			}
 		}
 	}
@@ -490,7 +494,7 @@ void ModelInstance::playClip( AnimationClip p_Clip )
 	// If the main track is already active it suggests that there is already a main
 	// animation active. The new animation should be faded in and then override the
 	// old animation.
-	m_Tracks[0].active = true;
+	//m_Tracks[0].active = true;
 	if(p_Clip.m_DestinationTrack == 0 && m_Tracks[0].active)
 	{
 		m_Tracks[2].clip = p_Clip;
@@ -511,4 +515,27 @@ void ModelInstance::playClip( AnimationClip p_Clip )
 	{
 		m_Tracks[1].active = false;
 	}
+}
+
+void ModelInstance::queueClip( AnimationClip p_Clip)
+{
+	m_Queue.push_back(p_Clip);
+}
+
+bool ModelInstance::playQueuedClip(int p_Track)
+{
+	if(!m_Queue.empty())
+	{
+		for (unsigned int i = 0; i < m_Queue.size(); i++)
+		{
+			// Animations with target track 0 or 2 will always be played on track 2 first.
+			if (m_Queue[i].m_DestinationTrack % 2 == p_Track % 2)
+			{
+				playClip(m_Queue[i]);
+				m_Queue.erase(m_Queue.begin() + i);
+				return true;
+			}
+		}
+	}
+	return false;
 }

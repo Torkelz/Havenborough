@@ -86,6 +86,8 @@ void GameLogic::onFrame(float p_DeltaTime)
 					m_ChangeScene = GoToScene::POSTGAME;
 					m_Physics->removeHitDataAt(i);
 				}
+				//if(hit.ySpeed > 0.0f)
+					//playAnimation(
 
 				Logger::log(Logger::Level::TRACE, "Collision reported");
 			}
@@ -212,6 +214,9 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
+	// Kolla velocity
+	//playAnimation(testWitch.lock(), "");
+	//m_Player.getVelocity();
 }
 
 void GameLogic::toggleIK()

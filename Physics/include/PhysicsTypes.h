@@ -67,6 +67,7 @@ struct HitData
 	BodyHandle		collider;
 	BodyHandle		collisionVictim;
 	bool			isEdge;
+	float			ySpeed;
 
 	HitData()
 	{
@@ -75,7 +76,8 @@ struct HitData
 		intersect	= false;
 		colType		= Type::NONE;
 		colLength	= -1.f;
-		collider = collisionVictim = 0;
-		isEdge = false;
+		collider	= collisionVictim = 0;
+		isEdge		= false;
+		ySpeed		= 0.0f;
 	}
 };

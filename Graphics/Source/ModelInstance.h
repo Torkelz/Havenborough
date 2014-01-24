@@ -49,6 +49,7 @@
 	 * Track 2 is the second extra track. It has logic for whole body blends and fade ins.
 	 */
 	AnimationTrack m_Tracks[3];
+	std::vector<AnimationClip> m_Queue;
 
  public:
 	/**
@@ -137,8 +138,15 @@
 	 */
 	void playClip( AnimationClip p_Clip );
 
+	/**
+	 * Queue animation clip.
+	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
+	 */
+	void queueClip( AnimationClip p_Clip);
+
  private:
 	void calculateWorldMatrix(void) const;
 	void updateFinalTransforms(const std::vector<Joint>& p_Joints);
 	bool affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint);
+	bool playQueuedClip(int p_Track);
  };

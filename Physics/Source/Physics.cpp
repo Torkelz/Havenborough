@@ -99,6 +99,7 @@ void Physics::update(float p_DeltaTime)
 					onSomething = true;
 
 					XMFLOAT4 velocity = b.getVelocity();	// m/s
+					hit.ySpeed = velocity.y;
 					velocity.y = 0.f;
 					b.setVelocity(velocity);
 				}
