@@ -30,11 +30,6 @@ struct Particle
 	}
 };
 
-struct  VertexType
-{
-	//???
-};
-
 class ParticleSystem
 {
 private:

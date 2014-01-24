@@ -101,6 +101,11 @@ void ParticleSystem::emitNewParticles(float p_DeltaTime)
 
 }
 
+static bool isDying(Particle& p_Particle)
+{
+	return p_Particle.life >= p_Particle.lifeMax;
+}
+
 void ParticleSystem::killOldParticles()
 {
 	//might not work as intended
@@ -111,19 +116,17 @@ void ParticleSystem::killOldParticles()
 	//{
 	//	if(part.life >= part.lifeMax)
 	//	{
-	//		m_ParticlesToSys.erase(i)
+	//		m_ParticlesToSys.erase(i);
 	//		i++;
 	//	}
 	//}
 
 	//Example exists in the lobby.cpp and in the check if the player are in the lobby or not
 	//Will go thou the list of particles in the system and remove any particle that are to old
-	for(auto& part : m_ParticlesToSys)
-	{
-		//remove_if(m_ParticlesToSys.begin(),m_ParticlesToSys.end(),
-		//	[] )
 
-	}
+	auto removeIt = std::remove_if(m_ParticlesToSys.begin(),m_ParticlesToSys.end(), isDying); //(part.life, part.lifeMax)
+	m_ParticlesToSys.erase(removeIt, m_ParticlesToSys.end());
+
 }
 
 void ParticleSystem::updateParticles(float p_DeltaTime)
