@@ -12,12 +12,12 @@ void GameList::addGameRound(GameRound::ptr p_Game)
 	p_Game->start();
 }
 
-void GameList::removeGameRound(GameRound::ptr p_Game)
+void GameList::removeGameRound()
 {
 	std::lock_guard<std::mutex> lock(m_RunningGamesLock);
 
-	auto removed = std::remove(m_RunningGames.begin(), m_RunningGames.end(), p_Game);
-	m_RunningGames.erase(removed);
+	auto removed = std::remove_if(m_RunningGames.begin(), m_RunningGames.end(), [] (GameRound::wPtr p_Game){ return p_Game.expired(); });
+	m_RunningGames.erase(removed, m_RunningGames.end());
 }
 
 void GameList::stopAllGames()
@@ -31,5 +31,15 @@ std::vector<GameRound::ptr> GameList::getRunningGames()
 {
 	std::lock_guard<std::mutex> lock(m_RunningGamesLock);
 
-	return m_RunningGames;
+	std::vector<GameRound::ptr> result;
+	for (auto& weakGame : m_RunningGames)
+	{
+		GameRound::ptr game = weakGame.lock();
+		if (game)
+		{
+			result.push_back(game);
+		}
+	}
+
+	return result;
 }

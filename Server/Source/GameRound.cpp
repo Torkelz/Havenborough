@@ -8,6 +8,8 @@
 GameRound::~GameRound()
 {
 	m_Running = false;
+
+	m_ParentList->removeGameRound();
 	if (m_RunThread.joinable())
 	{
 		m_RunThread.detach();
@@ -129,8 +131,6 @@ void GameRound::run()
 	{
 		Logger::log(Logger::Level::FATAL, "Unexpected exception stopped game round");
 	}
-
-	m_ParentList->removeGameRound(shared_from_this());
 
 	Logger::log(Logger::Level::INFO, "Game round stopped");
 }
