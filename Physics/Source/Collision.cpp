@@ -70,6 +70,8 @@ HitData Collision::boundingVolumeVsOBB(BoundingVolume* p_Volume, OBB* p_OBB)
 		return OBBvsSphere(p_OBB, (Sphere*)p_Volume);
 	case BoundingVolume::Type::OBB:
 		return OBBvsOBB((OBB*)p_Volume, p_OBB);
+	case BoundingVolume::Type::HULL:
+		return OBBVsHull(p_OBB, (Hull*)p_Volume);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -82,7 +84,9 @@ HitData Collision::boundingVolumeVsHull(BoundingVolume* p_Volume, Hull* p_Hull)
 	switch(type)
 	{
 	case BoundingVolume::Type::SPHERE:
-			return HullVsSphere(p_Hull, (Sphere*)p_Volume);
+		return HullVsSphere(p_Hull, (Sphere*)p_Volume);
+	case BoundingVolume::Type::OBB:
+		return OBBVsHull((OBB*)p_Hull, p_Hull);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -542,6 +546,29 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 		hit.colType = Type::OBBVSAABB;
 
  	return hit;
+}
+
+HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
+{
+	HitData hit = sphereVsSphere(&p_OBB->getSphere(), &p_Hull->getSphere());
+	if(!hit.intersect)
+	{
+		return hit;
+	}
+
+	const XMVECTOR box_Center = XMLoadFloat4(p_OBB->getPosition());
+	const XMMATRIX box_Axes = XMLoadFloat4x4(&p_OBB->getAxes());
+	const XMVECTOR box_Extents = XMLoadFloat4(&p_OBB->getExtents());
+
+	Plane plane;
+
+	XMVECTOR a, b, c;
+	a = XMVectorSet(1.f, 0.f, 1.f, 1.f);
+	b = XMVectorSet(0.f, 1.f, 1.f, 1.f);
+	c = XMVectorSet(-1.f, 0.f, 1.f, 1.f);
+	plane.ComputePlane(a, b, c);
+
+	return hit;
 }
 
 void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
