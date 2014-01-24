@@ -86,7 +86,7 @@ HitData Collision::boundingVolumeVsHull(BoundingVolume* p_Volume, Hull* p_Hull)
 	case BoundingVolume::Type::SPHERE:
 		return HullVsSphere(p_Hull, (Sphere*)p_Volume);
 	case BoundingVolume::Type::OBB:
-		return OBBVsHull((OBB*)p_Hull, p_Hull);
+		return OBBVsHull((OBB*)p_Volume, p_Hull);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -547,6 +547,19 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 
  	return hit;
 }
+void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
+{
+	float lLength = XMVector4LengthSq(p_L).m128_f32[0];
+	if(lLength > 0.000001f)
+	{
+		p_R = (fabs(p_R) - (p_RA + p_RB)) / lLength;
+		if(p_Overlap > fabs(p_R))
+		{
+			p_Overlap = fabs(p_R);
+			p_Least = p_L;
+		}
+	}
+}
 
 HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
 {
@@ -563,24 +576,31 @@ HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
 	Plane plane;
 
 	XMVECTOR a, b, c;
-	a = XMVectorSet(1.f, 0.f, 1.f, 1.f);
-	b = XMVectorSet(0.f, 1.f, 1.f, 1.f);
-	c = XMVectorSet(-1.f, 0.f, 1.f, 1.f);
-	plane.ComputePlane(a, b, c);
+	a = XMVectorSet(10.f, 10.09f, -10.f, 1.f);
+	b = XMVectorSet(-10.f, 10.09f, -10.f, 1.f);
+	c = XMVectorSet(-10.f, 10.09f, 10.f, 1.f);
+	plane = plane.ComputePlane(a, b, c);
 
+	
+	hit.intersect = OBBVsPlane(p_OBB, &plane);;
 	return hit;
 }
 
-void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
+bool Collision::OBBVsPlane(OBB *p_OBB, Plane *p_Plane)
 {
-	float lLength = XMVector4LengthSq(p_L).m128_f32[0];
-	if(lLength > 0.000001f)
-	{
-		p_R = (fabs(p_R) - (p_RA + p_RB)) / lLength;
-		if(p_Overlap > fabs(p_R))
-		{
-			p_Overlap = fabs(p_R);
-			p_Least = p_L;
-		}
-	}
+	float ex = p_OBB->getExtents().x;
+	float ey = p_OBB->getExtents().y;
+	float ez = p_OBB->getExtents().z;
+
+	XMMATRIX bAxes = XMLoadFloat4x4(&p_OBB->getAxes());
+	XMVECTOR pn = XMLoadFloat4(&p_Plane->normal);
+
+	float r = ex * fabs(XMVectorGetX( XMVector4Dot(pn, bAxes.r[0]) )) +
+			  ey * fabs(XMVectorGetX( XMVector4Dot(pn, bAxes.r[1]) )) +
+			  ez * fabs(XMVectorGetX( XMVector4Dot(pn, bAxes.r[2]) ));
+
+	XMVECTOR bc = XMLoadFloat4(p_OBB->getPosition());
+	float s = XMVectorGetX( XMVector4Dot(pn, bc) ) - p_Plane->d;
+
+	return fabs(s) <= r;
 }

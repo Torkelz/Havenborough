@@ -86,6 +86,7 @@ void Physics::update(float p_DeltaTime)
 				hit.collisionVictim = m_Bodies.at(j).getHandle();
 				hit.isEdge = m_Bodies.at(j).getIsEdge();
 				m_HitDatas.push_back(hit);
+
 				XMVECTOR temp;		// m
 				XMFLOAT4 tempPos;	// m
 

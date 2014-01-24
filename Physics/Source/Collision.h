@@ -5,6 +5,34 @@
 
 class Collision
 {
+private:
+
+	struct Plane
+	{
+		DirectX::XMFLOAT4 normal;
+		float	d;
+
+		/**
+		 * Given three noncollinear points (ordered counter clockwise),
+		 * to compute a plane in world coordinates.
+		 *
+		 * @param p_A, first point.
+		 * @param p_B, second point.
+		 * @param p_C, third point.
+		 * @return return the plane that is created.
+		 */
+		Plane ComputePlane(const DirectX::XMVECTOR &p_A, const DirectX::XMVECTOR &p_B, const DirectX::XMVECTOR &p_C)
+		{
+			Plane p;
+			using DirectX::operator-;
+			DirectX::XMStoreFloat4(&p.normal, DirectX::XMVector4Normalize( DirectX::XMVector3Cross(p_B - p_A, p_C - p_A) ));
+
+			p.d = DirectX::XMVectorGetX(DirectX::XMVector4Dot(DirectX::XMLoadFloat4(&p.normal), p_A ));
+
+			return p;
+		}
+	};
+
 public:
 	/**
 	* Redirect to the appropriate check, when neither BoundingVolumes' type is known.
@@ -84,31 +112,7 @@ public:
 
 private:
 
-	struct Plane
-	{
-		DirectX::XMFLOAT4 normal;
-		float	d;
-
-		/**
-		 * Given three noncollinear points (ordered counter clockwise),
-		 * to compute a plane in world coordinates.
-		 *
-		 * @param p_A, first point.
-		 * @param p_B, second point.
-		 * @param p_C, third point.
-		 * @return return the plane that is created.
-		 */
-		Plane ComputePlane(const DirectX::XMVECTOR &p_A, const DirectX::XMVECTOR &p_B, const DirectX::XMVECTOR &p_C)
-		{
-			Plane p;
-			using DirectX::operator-;
-			DirectX::XMStoreFloat4(&p.normal, DirectX::XMVector4Normalize( DirectX::XMVector3Cross(p_B - p_A, p_C - p_A) ));
-
-			p.d = DirectX::XMVectorGetX(DirectX::XMVector4Dot(DirectX::XMLoadFloat4(&p.normal), p_A ));
-
-			return p;
-		}
-	};
+	static bool OBBVsPlane(OBB *p_OBB, Plane *p_Plane);
 
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static HitData seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol);
