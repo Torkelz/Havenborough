@@ -22,6 +22,8 @@ private:
 	Buffer				*m_ConstantBuffer;
 	Buffer				*m_ObjectConstantBuffer;
 	Buffer				*m_AnimatedObjectConstantBuffer;
+	Buffer				*m_ColorShadingConstantBuffer;
+
 	ID3D11BlendState	*m_TransparencyAdditiveBlend;
 public:
 	ForwardRendering(void);

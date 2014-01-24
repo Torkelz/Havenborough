@@ -20,6 +20,8 @@ ForwardRendering::ForwardRendering(void)
 	m_ConstantBuffer = nullptr;
 	m_ObjectConstantBuffer = nullptr;
 	m_AnimatedObjectConstantBuffer = nullptr;
+	m_ColorShadingConstantBuffer = nullptr;
+
 	m_TransparencyAdditiveBlend = nullptr;
 }
 
@@ -42,6 +44,8 @@ ForwardRendering::~ForwardRendering(void)
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
 	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
+	SAFE_DELETE(m_ColorShadingConstantBuffer);
+
 	SAFE_RELEASE(m_TransparencyAdditiveBlend);
 }
 
@@ -113,6 +117,10 @@ void ForwardRendering::createForwardBuffers()
 	cbdesc.sizeOfElement = sizeof(cAnimatedObjectBuffer);
 	m_AnimatedObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cAnimatedObjectBuffer));
+
+	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
+	m_ColorShadingConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT3));
 }
 void ForwardRendering::createSampler()
 {
@@ -237,6 +245,13 @@ void ForwardRendering::renderForward()
 			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
 			m_ObjectConstantBuffer->setBuffer(2);
 
+			//Set the colorshadingConstantBuffer
+			DirectX::XMFLOAT3 color = DirectX::XMFLOAT3(0,0,1);
+			m_DeviceContext->UpdateSubresource(m_ColorShadingConstantBuffer->getBufferPointer(),
+				NULL,NULL,m_TransparencyObjects.at(i).m_ColorTone ,NULL,NULL);
+			m_ColorShadingConstantBuffer->setBuffer(3);
+
+
 			// Set shader.
 			m_TransparencyObjects.at(i).m_Model->shader->setShader();
 			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
@@ -260,6 +275,7 @@ void ForwardRendering::renderForward()
 			m_ObjectConstantBuffer->unsetBuffer(2);
 			m_AnimatedObjectConstantBuffer->unsetBuffer(3);
 			m_TransparencyObjects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
+			m_ColorShadingConstantBuffer->unsetBuffer(3);
 		}
 		m_DeviceContext->PSSetSamplers(0,0,0);
 		m_ConstantBuffer->unsetBuffer(1);

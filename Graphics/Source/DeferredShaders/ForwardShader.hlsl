@@ -17,6 +17,11 @@ cbuffer cbWorld : register(b2)
 	float4x4 world;
 };
 
+cbuffer cbColor : register(b3)
+{
+	float3 cbColor;
+};
+
 struct VSIn
 {
 	float4 pos		: POSITION;
@@ -28,8 +33,8 @@ struct VSIn
 
 struct PSIn
 {
-	float4	pos		: SV_POSITION;
-	float4	wpos	: WSPOSITION;
+	float4 pos		: SV_POSITION;
+	float4 wpos		: WSPOSITION;
 	float3 normal	: NORMAL;
 	float2 uvCoord	: COORD;
 	float3 tangent	: TANGENT;
@@ -64,5 +69,6 @@ PSOut PS( PSIn input )
 	if(output.color.w == 0.f)
 		discard;
 
+	output.color.xyz = saturate(output.color.xyz * cbColor);
 	return output;
 }

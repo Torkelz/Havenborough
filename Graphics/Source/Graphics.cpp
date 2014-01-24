@@ -451,7 +451,8 @@ void Graphics::renderModel(int p_ModelId)
 			{
 				m_Forwardrender->addRenderable(DeferredRenderer::Renderable(temp,
 					inst.second.getWorldMatrix(),
-					&inst.second.getFinalTransform()));
+					&inst.second.getFinalTransform(),
+					&inst.second.getColorTone()));
 			}
 			
 			break;
