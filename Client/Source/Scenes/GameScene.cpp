@@ -112,8 +112,6 @@ void GameScene::render()
 	Vector3 playerPos = m_GameLogic->getPlayerEyePosition();
 	m_Graphics->updateCamera(playerPos, viewRot.x, viewRot.y);
 
-	std::vector<Actor::ptr>& actors = m_GameLogic->getObjects();
-	
 	for (auto& mesh : m_Models)
 	{
 		m_Graphics->renderModel(mesh.modelId);

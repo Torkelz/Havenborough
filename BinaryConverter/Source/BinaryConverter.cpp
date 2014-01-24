@@ -15,6 +15,7 @@ int main(int argc, char* argv[])
 	ModelConverter converter;
 	LevelLoader levelLoader;
 	LevelConverter levelConverter;
+	
 	bool result;
 	if(argc == 2)
 	{
@@ -94,4 +95,10 @@ void setLevelInfo(LevelLoader* p_Loader, LevelConverter* p_Converter)
 {
 	p_Converter->setLevelHead(p_Loader->getLevelHeader());
 	p_Converter->setLevelModelList(&p_Loader->getLevelModelList());
+	p_Converter->setLevelDirectionalLightList(&p_Loader->getLevelDirectionalLightList());
+	p_Converter->setLevelPointLightList(&p_Loader->getLevelPointLightList());
+	p_Converter->setLevelSpotLightList(&p_Loader->getLevelSpotLightList());
+	p_Converter->setLevelCheckPointList(&p_Loader->getLevelCheckPointList());
+	p_Converter->setLevelCheckPointStart(p_Loader->getLevelCheckPointStart());
+	p_Converter->setLevelCheckPointEnd(p_Loader->getLevelCheckPointEnd());
 }

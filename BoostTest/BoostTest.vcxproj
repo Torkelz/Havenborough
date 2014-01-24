@@ -204,9 +204,6 @@
     <ClInclude Include="..\Physics\include\OBB.h" />
     <ClInclude Include="..\Physics\include\Sphere.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Source\Sample130.tx" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
