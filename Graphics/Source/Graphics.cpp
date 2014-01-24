@@ -662,7 +662,7 @@ void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
 		if (inst.first == p_Instance)
 		{
 			inst.second.setPosition(Vector3ToXMFLOAT3(&p_Position));
-			break;
+			return;
 		}
 	}
 	throw GraphicsException("Failed to set model instance position.", __LINE__, __FILE__);
@@ -675,7 +675,7 @@ void Graphics::setModelRotation(int p_Instance, Vector3 p_YawPitchRoll)
 		if (inst.first == p_Instance)
 		{
 			inst.second.setRotation(DirectX::XMFLOAT3(p_YawPitchRoll.y, p_YawPitchRoll.x, p_YawPitchRoll.z));
-			break;
+			return;
 		}
 	}
 	throw GraphicsException("Failed to set model instance position.", __LINE__, __FILE__);
@@ -689,7 +689,7 @@ void Graphics::setModelScale(int p_Instance, Vector3 p_Scale)
 		if (inst.first == p_Instance)
 		{
 			inst.second.setScale(DirectX::XMFLOAT3(p_Scale));
-			break;
+			return;
 		}
 	}
 	throw GraphicsException("Failed to set model instance scale.", __LINE__, __FILE__);
