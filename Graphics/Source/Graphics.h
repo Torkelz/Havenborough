@@ -67,6 +67,7 @@ private:
 	vector<pair<int, ModelInstance>> m_ModelInstances;
 	int m_NextInstanceId;
 	
+	//Particles
 	vector<pair<string, ParticleSystem*>>  m_ParticleSystemList;
 
 
@@ -114,8 +115,8 @@ public:
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
 	bool releaseTexture(const char *p_TextureID) override;	
 
-	bool createParticleSystem(const char *p_ParticleSystemId, const char *p_filename) override;
-	bool releaseParticleSystem(const char *p_ParticleSystemId) override;
+	bool createParticleSystemInstance(const char *p_ParticleSystemId, const char *p_filename) override;
+	bool releaseParticleSystemInstance(const char *p_ParticleSystemId) override;
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;

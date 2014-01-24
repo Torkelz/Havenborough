@@ -34,10 +34,33 @@ bool ParticleSystem::loadParticleSystemFromFile(const char* p_filename)
 	return false;
 }
 
-void ParticleSystem::init()
+void ParticleSystem::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
+						  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+						  DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11DepthStencilView* p_DepthStencilView,
+						  ID3D11RenderTargetView *p_RenderTarget)
 {
-	//set "m_" before a new instance are used or reused
-	m_CurrentParticleCount = 0.f;
+	m_Device = p_Device;
+	m_DeviceContext = p_DeviceContext;
+
+	m_DepthStencilView = p_DepthStencilView;
+	m_RenderTarget = p_RenderTarget;
+
+	m_CameraPosition = p_CameraPosition;
+	m_ViewMatrix = p_ViewMatrix;
+	m_ProjectionMatrix = p_ProjectionMatrix;
+
+	createParticleBuffer();
+}
+
+void ParticleSystem::createParticleBuffer()
+{
+
+
+	Buffer::Description cbDesc;
+	cbDesc.usage = Buffer::Usage::CPU_WRITE; //DYNAMIC?
+	cbDesc.numOfElements = m_MaxParticles;
+	cbDesc.sizeOfElement = sizeof(cBuffer);
+	cbDesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
 }
 
 void ParticleSystem::update(float p_DeltaTime, ID3D11DeviceContext* p_DeviceContext)
@@ -108,23 +131,9 @@ static bool isDying(Particle& p_Particle)
 
 void ParticleSystem::killOldParticles()
 {
-	//might not work as intended
-
-	//Will go thou the list of particles in the system and remove any particle that are to old
-	//int i = 0;
-	//for(auto& part : m_ParticlesToSys)
-	//{
-	//	if(part.life >= part.lifeMax)
-	//	{
-	//		m_ParticlesToSys.erase(i);
-	//		i++;
-	//	}
-	//}
-
-	//Example exists in the lobby.cpp and in the check if the player are in the lobby or not
 	//Will go thou the list of particles in the system and remove any particle that are to old
 
-	auto removeIt = std::remove_if(m_ParticlesToSys.begin(),m_ParticlesToSys.end(), isDying); //(part.life, part.lifeMax)
+	auto removeIt = std::remove_if(m_ParticlesToSys.begin(),m_ParticlesToSys.end(), isDying);
 	m_ParticlesToSys.erase(removeIt, m_ParticlesToSys.end());
 
 }

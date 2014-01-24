@@ -7,6 +7,14 @@
 
 #include "Buffer.h"
 
+struct cBuffer 
+{
+	DirectX::XMFLOAT4X4 viewM;
+	DirectX::XMFLOAT4X4 projM;
+	DirectX::XMFLOAT3	cameraPos;
+
+};
+
 struct Particle
 {
 	DirectX::XMFLOAT4 Position; //pos from the syspos, in cm
@@ -33,15 +41,27 @@ struct Particle
 class ParticleSystem
 {
 private:
+	ID3D11Device		*m_Device;
+	ID3D11DeviceContext	*m_DeviceContext;
+
+	ID3D11DepthStencilView	*m_DepthStencilView;
+	ID3D11RenderTargetView	*m_RenderTarget;
+	ID3D11SamplerState		*m_Sampler;
+	ID3D11RasterizerState	*m_RasterState;
+
+	DirectX::XMFLOAT3	*m_CameraPosition;
+	DirectX::XMFLOAT4X4	*m_ViewMatrix;
+	DirectX::XMFLOAT4X4	*m_ProjectionMatrix;
+
+	Buffer				m_Buffer;
+
+
 	std::vector<Particle>	m_ParticlesToSys;
 	DirectX::XMFLOAT4	m_SysPosition; //world pos, in cm
 	std::string			m_SysType;
 
 	float				m_CurrentParticleCount;
 	float				m_AccumulatedTime;
-
-	//Buffer				m_Buffer; //probably getting fixed out in the graphic class
-	//Shader				m_Shader; //probably getting fixed out in the graphic class
 
 	//Header
 	std::string			m_SysName;
@@ -64,7 +84,10 @@ public:
 
 	bool loadParticleSystemFromFile(const char* p_filename);
 
-	void init();
+	void init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
+		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11DepthStencilView* p_DepthStencilView,
+		ID3D11RenderTargetView *p_RenderTarget);
 	void update(float p_DeltaTime, ID3D11DeviceContext* p_DeviceContext);
 
 	void render();
@@ -75,5 +98,6 @@ private:
 	void killOldParticles();
 	void updateParticles(float p_DeltaTime);
 	void updateBuffers(ID3D11DeviceContext* p_DeviceContext);
+	void createParticleBuffer();
 };
 
