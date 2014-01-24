@@ -328,7 +328,7 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 	{
 		Triangle tri = p_Hull->getTriangleInWorldCoord(i);
 
-		point = XMLoadFloat4(&findClosestPointOnTriangle(*p_Sphere->getPosition(), tri.getCorner(0), tri.getCorner(1), tri.getCorner(2)));
+		point = XMLoadFloat4(&findClosestPointOnTriangle(*p_Sphere->getPosition(), tri.corners[0], tri.corners[1], tri.corners[2]));
 
 		v = point - spherePos;
 
@@ -582,39 +582,39 @@ HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
 	const XMMATRIX box_Axes = XMLoadFloat4x4(&p_OBB->getAxes());
 	const XMVECTOR box_Extents = XMLoadFloat4(&p_OBB->getExtents());
 
-	//for(unsigned i = 0; i < p_Hull->getTriangleListSize(); i++)
-	//{
-	//	XMVECTOR v0 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[0]);
-	//	XMVECTOR v1 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[1]);
-	//	XMVECTOR v2 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[2]);
+	for(unsigned i = 0; i < p_Hull->getTriangleListSize(); i++)
+	{
+		XMVECTOR v0 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[0]);
+		XMVECTOR v1 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[1]);
+		XMVECTOR v2 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[2]);
 
-	//	v0 = v0 - box_Center;
-	//	v1 = v1 - box_Center;
-	//	v2 = v2 - box_Center;
+		v0 = v0 - box_Center;
+		v1 = v1 - box_Center;
+		v2 = v2 - box_Center;
 
-	//	XMVECTOR f0 = v1 - v0;
-	//	XMVECTOR f1 = v2 - v1;
-	//	XMVECTOR f2 = v0 - v2;
+		XMVECTOR f0 = v1 - v0;
+		XMVECTOR f1 = v2 - v1;
+		XMVECTOR f2 = v0 - v2;
 
-	//	float p0, p1, p2, r;
+		float p0, p1, p2, r;
 
-	//	//axis a00
-	//	p0 = XMVectorGetZ(v0) * XMVectorGetY(v1) - XMVectorGetY(v0) * XMVectorGetZ(v1);
-	//	p1 = p0;
-	//	p2 = XMVectorGetZ(v2) * (XMVectorGetY(v1) - XMVectorGetY(v0)) - XMVectorGetZ(v2) * ( XMVectorGetZ(v1) - XMVectorGetZ(v0) );
-	//	r = XMVectorGetY(box_Extents) * fabs( XMVectorGetZ(f0) ) + XMVectorGetZ(box_Extents) * fabs( XMVectorGetY(f0) );
+		//axis a00
+		p0 = XMVectorGetZ(v0) * XMVectorGetY(v1) - XMVectorGetY(v0) * XMVectorGetZ(v1);
+		p1 = p0;
+		p2 = XMVectorGetZ(v2) * (XMVectorGetY(v1) - XMVectorGetY(v0)) - XMVectorGetZ(v2) * ( XMVectorGetZ(v1) - XMVectorGetZ(v0) );
+		r = XMVectorGetY(box_Extents) * fabs( XMVectorGetZ(f0) ) + XMVectorGetZ(box_Extents) * fabs( XMVectorGetY(f0) );
 
-	//	if(XMMax( -XMMax(p0, p2), XMMin(p0, p2) ) > r)
-	//		return hit;
+		if(XMMax( -XMMax(p0, p2), XMMin(p0, p2) ) > r)
+			return hit;
 
-	//	//axis a01
-	//	p0 = XMVectorGetZ(v0) * ( XMVectorGetY(v2) - XMVectorGetY(v1) ) - XMVectorGetY(v0) * ( XMVectorGetZ(v2) - XMVectorGetZ(v1) );
-	//	p1 = XMVectorGetZ(v1) * XMVectorGetY(v2) + XMVectorGetY(v1) * XMVectorGetZ(v2);
-	//	p2 = p1;
-	//	r = XMVectorGetY(box_Extents) * fabs( XMVectorGetZ(f1) ) + XMVectorGetZ(box_Extents) * fabs( XMVectorGetY(f1) );
-	//	if(XMMax( -XMMax(p0, p2), XMMin(p0, p2) ) > r)
-	//		return hit;
-	//}
+		//axis a01
+		p0 = XMVectorGetZ(v0) * ( XMVectorGetY(v2) - XMVectorGetY(v1) ) - XMVectorGetY(v0) * ( XMVectorGetZ(v2) - XMVectorGetZ(v1) );
+		p1 = XMVectorGetZ(v1) * XMVectorGetY(v2) + XMVectorGetY(v1) * XMVectorGetZ(v2);
+		p2 = p1;
+		r = XMVectorGetY(box_Extents) * fabs( XMVectorGetZ(f1) ) + XMVectorGetZ(box_Extents) * fabs( XMVectorGetY(f1) );
+		if(XMMax( -XMMax(p0, p2), XMMin(p0, p2) ) > r)
+			return hit;
+	}
 
 	hit.intersect = true;
 	hit.colNorm = Vector4(0.f, 1.f, 0.f, 0.f);
@@ -643,12 +643,12 @@ bool Collision::OBBVsPlane(OBB *p_OBB, Plane *p_Plane)
 	return fabs(s) <= r;
 }
 
-DirectX::XMFLOAT4 Collision::findClosestPointOnTriangle(const DirectX::XMFLOAT4 &p_Point, const DirectX::XMFLOAT4 &p_A, const DirectX::XMFLOAT4 &p_B, const DirectX::XMFLOAT4 &p_C)
+DirectX::XMFLOAT4 Collision::findClosestPointOnTriangle(const DirectX::XMFLOAT4 &p_Point, const Vector4 &p_A, const Vector4 &p_B, const Vector4 &p_C)
 {
 	DirectX::XMVECTOR ab, ac, ap, a, b, c, pos;
-	a = XMLoadFloat4(&p_A);
-	b = XMLoadFloat4(&p_B);
-	c = XMLoadFloat4(&p_C);
+	a = Vector4ToXMVECTOR(&p_A);
+	b = Vector4ToXMVECTOR(&p_B);
+	c = Vector4ToXMVECTOR(&p_C);
 	pos = DirectX::XMLoadFloat4(&p_Point);
 
 	using DirectX::operator-;

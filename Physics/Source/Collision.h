@@ -110,8 +110,6 @@ public:
 	*/
 	static HitData HullVsSphere(Hull* p_Hull, Sphere *p_Sphere);
 
-private:
-
 	/**
 	* Given point p and the triangle corners in world coordinates, return point in triangle, closest to p
 	*
@@ -121,7 +119,9 @@ private:
 	* @param p_C, corner[2] of triangle in world coordinates
 	* @return closest point in the triangle
 	*/
-	static DirectX::XMFLOAT4 findClosestPointOnTriangle(const DirectX::XMFLOAT4 &p_Point, const DirectX::XMFLOAT4 &p_A, const DirectX::XMFLOAT4 &p_B, const DirectX::XMFLOAT4 &p_C);
+	static DirectX::XMFLOAT4 findClosestPointOnTriangle(const DirectX::XMFLOAT4 &p_Point, const Vector4 &p_A, const Vector4 &p_B, const Vector4 &p_C);
+
+private:
 
 	static bool SphereVsTriangle(Sphere *p_Sphere, Triangle *p_Triangle);
 
