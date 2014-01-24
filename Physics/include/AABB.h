@@ -99,21 +99,21 @@ public:
 		calculateBounds();
 	}
 	/**
-	* @return the top corner in m
+	* @return the top corner in world coordinates m
 	*/
 	DirectX::XMFLOAT4 getMax()
 	{
 		return getBoundWorldCoordAt(7);
 	}
 	/**
-	* @return the bottom corner in m
+	* @return the bottom corner in world coordinates m
 	*/
 	DirectX::XMFLOAT4 getMin()
 	{
 		return getBoundWorldCoordAt(0);
 	}
 	/**
-	* @return a vector from center to top corner in m
+	* @return a vector from center to top corner m
 	*/
 	DirectX::XMFLOAT4* getHalfDiagonal()
 	{
@@ -145,5 +145,17 @@ public:
 	DirectX::XMFLOAT4 getBoundWorldCoordAt(unsigned p_Index)
 	{
 		return DirectX::XMFLOAT4(m_Bounds[p_Index].x + m_Position.x,m_Bounds[p_Index].y + m_Position.y, m_Bounds[p_Index].z + m_Position.z, 1.f);
+	}
+	/**
+	* Scales the ABBB.
+	* @param p_scale vector to scale the box with..
+	*/
+	void setScale(const DirectX::XMVECTOR &p_Scale) override
+	{
+		DirectX::XMMATRIX m = DirectX::XMMatrixScalingFromVector(p_Scale);
+		DirectX::XMVECTOR s = XMLoadFloat4(&m_Size);
+		s = DirectX::XMVector4Transform(s, m);
+		DirectX::XMStoreFloat4(&m_Size, s);
+		calculateBounds();
 	}
 };

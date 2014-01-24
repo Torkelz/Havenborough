@@ -86,4 +86,12 @@ public:
 		m_Radius = p_Radius;
 		m_SqrRadius = m_Radius * m_Radius;
 	}
+	/**
+	* Scales the radius of the sphere.
+	* @param p_scale the X value of the vector is multiplied with the radius in m.
+	*/
+	void setScale(const DirectX::XMVECTOR &p_Scale) override
+	{
+		setRadius(m_Radius * DirectX::XMVectorGetX(p_Scale));
+	}
 };

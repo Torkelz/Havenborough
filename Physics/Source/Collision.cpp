@@ -179,9 +179,9 @@ HitData Collision::AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere )
 	//else special case for when the sphere center is inside that axis slab.
 
 	XMFLOAT4 bMin;	// m
-	XMStoreFloat4( &bMin, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(&p_AABB->getMin() ));
+	XMStoreFloat4( &bMin, XMLoadFloat4(&p_AABB->getMin()));
 	XMFLOAT4 bMax;	// m
-	XMStoreFloat4( &bMax, XMLoadFloat4( p_AABB->getPosition() ) + XMLoadFloat4(&p_AABB->getMax() ));
+	XMStoreFloat4( &bMax, XMLoadFloat4(&p_AABB->getMax()));
 	// x
 	if( spherePos->x <= bMin.x )
 	{
@@ -276,17 +276,26 @@ HitData Collision::OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere)
 	XMVECTOR v = closestPoint - sphereCent;	// m
 	XMVECTOR vv = XMVector4Dot(v, v);	// m^2
 
-	if(vv.m128_f32[0] <= p_Sphere->getSqrRadius())
+	if(XMVectorGetX(vv) <= p_Sphere->getSqrRadius())
 	{
 		hit.intersect = true;
-		hit.colPos.x = closestPoint.m128_f32[0] * 100.f;
-		hit.colPos.y = closestPoint.m128_f32[1] * 100.f;
-		hit.colPos.z = closestPoint.m128_f32[2] * 100.f;
+		hit.colPos.x = XMVectorGetX(closestPoint) * 100.f;
+		hit.colPos.y = XMVectorGetY(closestPoint) * 100.f;
+		hit.colPos.z = XMVectorGetZ(closestPoint) * 100.f;
 		hit.colPos.w = 1.f;
 
 		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - closestPoint);
-
-		hit.colNorm = XMVECTORToVector4(&tempNorm);
+		float l = XMVectorGetX(XMVector4Length(tempNorm));
+		if(l > XMVectorGetX(g_XMEpsilon))
+			hit.colNorm = XMVECTORToVector4(&tempNorm);
+		else
+		{
+			XMVECTOR n = sphereCent - XMLoadFloat4(p_OBB->getPosition());
+			n = XMVectorSetW(n, 0.f);
+			hit.colNorm = XMVECTORToVector4(&XMVector4Normalize(n));
+		}
+			
+		
 		hit.colLength = (p_Sphere->getRadius() - sqrtf(vv.m128_f32[0])) * 100.f;
 		hit.colType = Type::OBBVSSPHERE;
 	}
@@ -313,12 +322,9 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 
 	XMVECTOR closestPoint, v, spherePos, point;
 
-	spherePos = XMVectorSet(0.f, 0.f, 0.f, 0.f);
-
 	spherePos = XMLoadFloat4(p_Sphere->getPosition());
 
-	float distance = 10000.f;
-	point = XMVectorSet(0.f, 0.f, 0.f, 0.f);
+	float distance = FLT_MAX;
 
 	for(unsigned int i = 0; i < p_Hull->getTriangleListSize(); i++)
 	{
@@ -326,7 +332,7 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 
 		v = point - spherePos;
 
-		float vv = XMVector4Dot(v, v).m128_f32[0]; 
+		float vv = XMVectorGetX(XMVector4Dot(v, v));
 
 		if(vv <= p_Sphere->getSqrRadius())
 		{
@@ -341,14 +347,21 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 
 	if(hit.intersect)
 	{
-		hit.colPos.x = closestPoint.m128_f32[0] * 100.f;
-		hit.colPos.y = closestPoint.m128_f32[1] * 100.f;
-		hit.colPos.z = closestPoint.m128_f32[2] * 100.f;
+		hit.colPos.x = XMVectorGetX(closestPoint) * 100.f;
+		hit.colPos.y = XMVectorGetY(closestPoint) * 100.f;
+		hit.colPos.z = XMVectorGetZ(closestPoint) * 100.f;
 		hit.colPos.w = 1.f;
 
 		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere->getPosition()) - closestPoint);
-
-		hit.colNorm = XMVECTORToVector4(&tempNorm);
+		float l = XMVectorGetX(XMVector4Length(tempNorm));
+		if(l > XMVectorGetX(g_XMEpsilon))
+			hit.colNorm = XMVECTORToVector4(&tempNorm);
+		else
+		{
+			XMVECTOR n = spherePos - XMLoadFloat4(p_Hull->getPosition());
+			n = XMVectorSetW(n, 0.f);
+			hit.colNorm = XMVECTORToVector4(&XMVector4Normalize(n));
+		}
 		hit.colLength = (p_Sphere->getRadius() - sqrtf(distance)) * 100.f;
 		hit.colType = Type::HULLVSSPHERE;
 
@@ -362,7 +375,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 {
 	HitData miss = HitData();
 	float r, ra, rb, overlap = FLT_MAX;
-	const float EPSILON = 0.000001f;
+	const float EPSILON = XMVectorGetX(g_XMEpsilon);
 	XMMATRIX R, AbsR;
 	XMVECTOR b_Center, b_Extents; // m
 	XMMATRIX b_Axes;
@@ -548,7 +561,7 @@ HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
 void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
 {
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
-	if(lLength > 0.000001f)
+	if(lLength > XMVectorGetX(g_XMEpsilon))
 	{
 		p_R = (fabs(p_R) - (p_RA + p_RB)) / lLength;
 		if(p_Overlap > fabs(p_R))

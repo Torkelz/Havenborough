@@ -149,10 +149,10 @@ public:
 	 * Scales all the triangles in the hull
 	 * @param p_Scale is a vector3 with all the scale coordinates 
 	 */
-	void setScale(DirectX::XMFLOAT3 p_Scale)
+	void setScale(const DirectX::XMVECTOR &p_Scale)
 	{
 		DirectX::XMVECTOR c1, c2, c3;
-		DirectX::XMMATRIX m = DirectX::XMMatrixScaling(p_Scale.x, p_Scale.y, p_Scale.z);
+		DirectX::XMMATRIX m = DirectX::XMMatrixScalingFromVector(p_Scale);
 
 		for(auto &tri : m_Triangles)
 		{

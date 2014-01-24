@@ -73,4 +73,7 @@ public:
 	{
 		return m_Type;
 	}
+
+	virtual void setScale(const DirectX::XMVECTOR &p_Scale) = 0;
+	
 };

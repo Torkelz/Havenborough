@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(OBBInsideSphereAndViceVersa)
 	hd = Collision::OBBvsSphere(&obb, &s);
 	BOOST_CHECK(hd.intersect);
 
-	obb.setExtent(DirectX::XMFLOAT4(1000.f, 1000.f, 1000.f, 1.f));
+	obb.setExtent(DirectX::XMVectorSet(1000.f, 1000.f, 1000.f, 1.f));
 	s.setRadius(0.1f);
 	///sphere inside OBB
 	hd = Collision::OBBvsSphere(&obb, &s);
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE(OBBInsideAABBAndViceVersa)
 	hd = Collision::OBBvsAABB(&obb, &aabb);
 	BOOST_CHECK(hd.intersect);
 
-	obb.setExtent(DirectX::XMFLOAT4(1000.f, 1000.f, 1000.f, 1.f));
+	obb.setExtent(DirectX::XMVectorSet(1000.f, 1000.f, 1000.f, 1.f));
 	aabb = AABB(DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f), DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.f));
 	///AABB inside OBB
 	hd = Collision::OBBvsAABB(&obb, &aabb);

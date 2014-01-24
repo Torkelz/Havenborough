@@ -263,23 +263,24 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 	Body* body = findBody(p_BodyHandle);
 	if(body == nullptr)
 		return;
+	XMVECTOR scale = Vector3ToXMVECTOR(&p_Scale, 0.f);
 
 	switch (body->getVolume()->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
-		((AABB*)body->getVolume())->setSize(Vector3ToXMFLOAT4(&p_Scale, 0.f));
+		((AABB*)body->getVolume())->setScale(scale);
 		break;
 
 	case BoundingVolume::Type::HULL:
-		((Hull*)body->getVolume())->setScale(p_Scale);
+		((Hull*)body->getVolume())->setScale(scale);
 		break;
 
 	case BoundingVolume::Type::OBB:
-		((OBB*)body->getVolume())->setExtent(XMFLOAT4(p_Scale.x, p_Scale.y, p_Scale.z, 0.f));
+		((OBB*)body->getVolume())->setScale(scale);
 		break;
 
 	case BoundingVolume::Type::SPHERE:
-		((Sphere*)body->getVolume())->setRadius(p_Scale.x);
+		((Sphere*)body->getVolume())->setScale(scale);
 		break;
 	default:
 		break;
