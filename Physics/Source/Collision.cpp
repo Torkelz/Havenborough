@@ -71,7 +71,7 @@ HitData Collision::boundingVolumeVsOBB(BoundingVolume* p_Volume, OBB* p_OBB)
 	case BoundingVolume::Type::OBB:
 		return OBBvsOBB((OBB*)p_Volume, p_OBB);
 	case BoundingVolume::Type::HULL:
-		return OBBVsHull(p_OBB, (Hull*)p_Volume);
+		//return OBBVsHull(p_OBB, (Hull*)p_Volume);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -326,7 +326,9 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 
 	for(unsigned int i = 0; i < p_Hull->getTriangleListSize(); i++)
 	{
-		point = XMLoadFloat4(&p_Hull->findClosestPointOnTriangle(*p_Sphere->getPosition(), i));
+		Triangle tri = p_Hull->getTriangleInWorldCoord(i);
+
+		point = XMLoadFloat4(&findClosestPointOnTriangle(*p_Sphere->getPosition(), tri.getCorner(0), tri.getCorner(1), tri.getCorner(2)));
 
 		v = point - spherePos;
 
@@ -360,6 +362,11 @@ HitData Collision::HullVsSphere(Hull* p_Hull, Sphere* p_Sphere)
 
 
 	return hit;
+}
+
+bool Collision::SphereVsTriangle(Sphere *p_Sphere, Triangle *p_Triangle)
+{
+	return false;
 }
 
 HitData Collision::seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol)
@@ -569,20 +576,51 @@ HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
 		return hit;
 	}
 
+	hit = HitData();
+
 	const XMVECTOR box_Center = XMLoadFloat4(p_OBB->getPosition());
 	const XMMATRIX box_Axes = XMLoadFloat4x4(&p_OBB->getAxes());
 	const XMVECTOR box_Extents = XMLoadFloat4(&p_OBB->getExtents());
 
-	Plane plane;
+	//for(unsigned i = 0; i < p_Hull->getTriangleListSize(); i++)
+	//{
+	//	XMVECTOR v0 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[0]);
+	//	XMVECTOR v1 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[1]);
+	//	XMVECTOR v2 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[2]);
 
-	XMVECTOR a, b, c;
-	a = XMVectorSet(10.f, 10.09f, -10.f, 1.f);
-	b = XMVectorSet(-10.f, 10.09f, -10.f, 1.f);
-	c = XMVectorSet(-10.f, 10.09f, 10.f, 1.f);
-	plane = plane.ComputePlane(a, b, c);
+	//	v0 = v0 - box_Center;
+	//	v1 = v1 - box_Center;
+	//	v2 = v2 - box_Center;
 
-	
-	hit.intersect = OBBVsPlane(p_OBB, &plane);;
+	//	XMVECTOR f0 = v1 - v0;
+	//	XMVECTOR f1 = v2 - v1;
+	//	XMVECTOR f2 = v0 - v2;
+
+	//	float p0, p1, p2, r;
+
+	//	//axis a00
+	//	p0 = XMVectorGetZ(v0) * XMVectorGetY(v1) - XMVectorGetY(v0) * XMVectorGetZ(v1);
+	//	p1 = p0;
+	//	p2 = XMVectorGetZ(v2) * (XMVectorGetY(v1) - XMVectorGetY(v0)) - XMVectorGetZ(v2) * ( XMVectorGetZ(v1) - XMVectorGetZ(v0) );
+	//	r = XMVectorGetY(box_Extents) * fabs( XMVectorGetZ(f0) ) + XMVectorGetZ(box_Extents) * fabs( XMVectorGetY(f0) );
+
+	//	if(XMMax( -XMMax(p0, p2), XMMin(p0, p2) ) > r)
+	//		return hit;
+
+	//	//axis a01
+	//	p0 = XMVectorGetZ(v0) * ( XMVectorGetY(v2) - XMVectorGetY(v1) ) - XMVectorGetY(v0) * ( XMVectorGetZ(v2) - XMVectorGetZ(v1) );
+	//	p1 = XMVectorGetZ(v1) * XMVectorGetY(v2) + XMVectorGetY(v1) * XMVectorGetZ(v2);
+	//	p2 = p1;
+	//	r = XMVectorGetY(box_Extents) * fabs( XMVectorGetZ(f1) ) + XMVectorGetZ(box_Extents) * fabs( XMVectorGetY(f1) );
+	//	if(XMMax( -XMMax(p0, p2), XMMin(p0, p2) ) > r)
+	//		return hit;
+	//}
+
+	hit.intersect = true;
+	hit.colNorm = Vector4(0.f, 1.f, 0.f, 0.f);
+	hit.colLength = 1.f;
+	//
+	//hit.intersect = OBBVsPlane(p_OBB, &plane);;
 	return hit;
 }
 
@@ -603,4 +641,81 @@ bool Collision::OBBVsPlane(OBB *p_OBB, Plane *p_Plane)
 	float s = XMVectorGetX( XMVector4Dot(pn, bc) ) - p_Plane->d;
 
 	return fabs(s) <= r;
+}
+
+DirectX::XMFLOAT4 Collision::findClosestPointOnTriangle(const DirectX::XMFLOAT4 &p_Point, const DirectX::XMFLOAT4 &p_A, const DirectX::XMFLOAT4 &p_B, const DirectX::XMFLOAT4 &p_C)
+{
+	DirectX::XMVECTOR ab, ac, ap, a, b, c, pos;
+	a = XMLoadFloat4(&p_A);
+	b = XMLoadFloat4(&p_B);
+	c = XMLoadFloat4(&p_C);
+	pos = DirectX::XMLoadFloat4(&p_Point);
+
+	using DirectX::operator-;
+	using DirectX::operator*;
+	using DirectX::operator+;
+	ab = b - a;
+	ac = c - a;
+	ap = pos - a;
+
+	float d1 = DirectX::XMVector4Dot(ab, ap).m128_f32[0];
+	float d2 = DirectX::XMVector4Dot(ac, ap).m128_f32[0];
+		
+	DirectX::XMFLOAT4 ret;
+	if(d1 <= 0.f && d2 <= 0.f)
+	{
+		DirectX::XMStoreFloat4(&ret, a);
+		return ret;
+	}
+
+	DirectX::XMVECTOR bp = pos - b;
+	float d3 = DirectX::XMVector4Dot(ab, bp).m128_f32[0];
+	float d4 = DirectX::XMVector4Dot(ac, bp).m128_f32[0];
+
+	if(d3 >= 0.f && d4 <= d3)
+	{
+		DirectX::XMStoreFloat4(&ret, b);
+		return ret;
+	}
+
+	float vc = d1*d4 - d3*d2;
+	if(vc <= 0.f && d1 >= 0.f && d3 <= 0.f)
+	{
+		float v = d1 / (d1 - d3);
+		DirectX::XMStoreFloat4(&ret, a + v * ab);
+		return ret;
+	}
+
+	DirectX::XMVECTOR cp = pos - c;
+	float d5 = DirectX::XMVector3Dot(ab, cp).m128_f32[0];
+	float d6 = DirectX::XMVector3Dot(ac, cp).m128_f32[0];
+
+	if(d6 >= 0.f && d5 <= d6)
+	{
+		DirectX::XMStoreFloat4(&ret, c);
+		return ret;
+	}
+
+	float vb = d5*d2 - d1*d6;
+	if(vb <= 0.f && d2 >= 0.f && d6 <= 0.f)
+	{
+		float w = d2 / (d2 - d6);
+		DirectX::XMStoreFloat4(&ret, a + w * ac);
+		return ret;
+	}
+
+	float va = d3*d6 - d5*d4;
+	if(va <= 0.f && (d4 - d3) >= 0.f && (d5 - d6) >= 0.f)
+	{
+		float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+		DirectX::XMStoreFloat4(&ret, b + w * ( c - b ));
+		return ret;
+	}
+
+	float denom = 1.f / ( va + vb + vc);
+
+	float v = vb * denom;
+	float w = vc * denom;
+	DirectX::XMStoreFloat4(&ret, a + ab * v + ac * w);
+	return ret;
 }

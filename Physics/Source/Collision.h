@@ -112,6 +112,19 @@ public:
 
 private:
 
+	/**
+	* Given point p and the triangle corners in world coordinates, return point in triangle, closest to p
+	*
+	* @param p_point the point you want to search from
+	* @param p_A, corner[0] of triangle in world coordinates
+	* @param p_B, corner[1] of triangle in world coordinates
+	* @param p_C, corner[2] of triangle in world coordinates
+	* @return closest point in the triangle
+	*/
+	static DirectX::XMFLOAT4 findClosestPointOnTriangle(const DirectX::XMFLOAT4 &p_Point, const DirectX::XMFLOAT4 &p_A, const DirectX::XMFLOAT4 &p_B, const DirectX::XMFLOAT4 &p_C);
+
+	static bool SphereVsTriangle(Sphere *p_Sphere, Triangle *p_Triangle);
+
 	static bool OBBVsPlane(OBB *p_OBB, Plane *p_Plane);
 
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
