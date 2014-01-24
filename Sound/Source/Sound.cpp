@@ -32,7 +32,6 @@ void ISound::deleteSound(ISound *p_Sound)
 	SoundLogger::log(SoundLogger::Level::INFO, "Shutting down sound");
 	p_Sound->shutdown();
 	delete p_Sound;
-	p_Sound = nullptr;
 }
 
 void Sound::initialize(void)
@@ -178,13 +177,8 @@ void Sound::stopSound(const char *p_SoundId)
 	SoundInstance *s = getSound(std::string(p_SoundId));
 	if(s->getChannel())
 	{
-		bool p;
-		s->getChannel()->getPaused(&p);
-		if(!p)
-		{
-			errorCheck(s->getChannel()->stop()); 
-			s->setChannel(nullptr);
-		}
+		errorCheck(s->getChannel()->stop()); 
+		s->setChannel(nullptr);
 	}
 }
 
@@ -228,6 +222,10 @@ void Sound::setSoundVolume(const char *p_SoundId, float p_Volume)
 	{
 		errorCheck(s->getChannel()->setVolume(p_Volume));
 	}
+	else
+	{
+		throw SoundException("The sound channel does not exist.",__LINE__,__FILE__);
+	}
 }
 
 void Sound::muteAll(bool m_Mute)
@@ -258,7 +256,7 @@ void Sound::shutdown(void)
 {
 	for(auto &s : m_Sounds)
 	{
-		releaseSound(s.getSoundId().c_str());
+		errorCheck(s.destroy());
 	}
 
 	m_Sounds.clear();
@@ -295,6 +293,45 @@ SoundInstance *Sound::getSound(std::string p_SoundId)
 			return &s;
 		}
 	}
-	return nullptr;
+
+	throw SoundException("Sound " + p_SoundId + " not found. Is the file missing?", __LINE__, __FILE__);
 }
 
+float Sound::getVolume(const char* p_SoundId)
+{
+	float returnParam;
+	getSound(std::string(p_SoundId))->getChannel()->getVolume( &returnParam );
+	return returnParam;
+}
+
+float Sound::getGroupVolume(ISound::ChannelGroup p_Group)
+{
+	float returnParam;
+	switch(p_Group)
+	{
+	case ISound::ChannelGroup::MASTER:
+		m_MasterChannelGroup->getVolume(&returnParam);
+		break;
+	case ISound::ChannelGroup::MUSIC:
+		m_MusicChannelGroup->getVolume(&returnParam);
+		break;
+	case ISound::ChannelGroup::SFX:
+		m_SfxChannelGroup->getVolume(&returnParam);
+		break;
+	}
+	return returnParam;
+}
+
+bool Sound::getPaused(const char* p_SoundId)
+{
+	bool returnParam;
+	getSound(std::string(p_SoundId))->getChannel()->getPaused(&returnParam);
+	return returnParam;
+}
+
+bool Sound::getMute(const char* p_SoundId)
+{
+	bool returnParam;
+	m_MasterChannelGroup->getMute(&returnParam);
+	return returnParam;
+}

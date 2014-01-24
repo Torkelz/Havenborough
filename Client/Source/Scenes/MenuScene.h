@@ -12,6 +12,7 @@ private:
 	bool m_ChangeList;
 
 	IGraphics *m_Graphics;
+	EventManager *m_EventManager;
 public: 
 	MenuScene();
 	~MenuScene();
