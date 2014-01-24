@@ -146,7 +146,17 @@ public:
 	 */
 	Vector3 getVelocity() const;
 
+	/**
+	 * Get the actor that represents the player.
+	 *
+	 * @return an actor, or an empty pointer if none exists
+	 */
 	std::weak_ptr<Actor> getActor() const;
+	/**
+	 * Set a new actor to represent the player.
+	 *
+	 * @param p_Actor a valid actor, or an empty pointer to remove
+	 */
 	void setActor(std::weak_ptr<Actor> p_Actor);
 
 private:

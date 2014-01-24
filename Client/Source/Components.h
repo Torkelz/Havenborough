@@ -1,3 +1,7 @@
+/**
+ * Stuff.
+ */
+
 #pragma once
 
 #include "ActorComponent.h"
@@ -8,20 +12,43 @@
 #include <IGraphics.h>
 #include <IPhysics.h>
 
+/**
+ * Interface for a physics component.
+ * <p>
+ * Use for things like collisions and forces.
+ */
 class PhysicsInterface : public ActorComponent
 {
 public:
-	static const Id m_ComponentId = 1;
-	virtual Id getComponentId() const
+	static const Id m_ComponentId = 1;	/// Unique id
+	Id getComponentId() const override
 	{
 		return m_ComponentId;
 	}
 
+	/**
+	 * Update the position, according to the actor.
+	 *
+	 * @param p_Position the new position of the actor
+	 */
 	virtual void updatePosition(Vector3 p_Position) = 0;
+	/**
+	 * Update the rotation, according to the actor.
+	 *
+	 * @param p_Rotation the new rotation of the actor
+	 */
 	virtual void updateRotation(Vector3 p_Rotation) = 0;
+	/**
+	 * Get the body handle of the component.
+	 *
+	 * @return a body handle
+	 */
 	virtual BodyHandle getBodyHandle() const = 0;
 };
 
+/**
+ * Oriented bounding box component.
+ */
 class OBB_Component : public PhysicsInterface
 {
 private:
@@ -32,17 +59,22 @@ private:
 	Vector3 m_Halfsize;
 
 public:
-	virtual ~OBB_Component()
+	~OBB_Component() override
 	{
 		m_Physics->releaseBody(m_Body);
 	}
 
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
 	void setPhysics(IPhysics* p_Physics)
 	{
 		m_Physics = p_Physics;
 	}
 
-	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		m_OffsetPositition = Vector3(0.f, 0.f, 0.f);
 
@@ -67,32 +99,35 @@ public:
 		p_Data->QueryBoolAttribute("Immovable", &m_Immovable);
 	}
 
-	virtual void postInit() override
+	void postInit() override
 	{
 		m_Body = m_Physics->createOBB(0.f, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, false);
 	}
 
-	virtual void onUpdate(float p_DeltaTime) override
+	void onUpdate(float p_DeltaTime) override
 	{
 		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
 		Vector3 rotation = m_Owner->getRotation();
 		m_Physics->setBodyRotation(m_Body, rotation);
 	}
 
-	virtual void updatePosition(Vector3 p_Position) override
+	void updatePosition(Vector3 p_Position) override
 	{
 		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
 	}
-	virtual void updateRotation(Vector3 p_Rotation) override
+	void updateRotation(Vector3 p_Rotation) override
 	{
 		m_Physics->setBodyRotation(m_Body, p_Rotation);
 	}
-	virtual BodyHandle getBodyHandle() const override
+	BodyHandle getBodyHandle() const override
 	{
 		return m_Body;
 	}
 };
 
+/**
+ * Bounding sphere component.
+ */
 class CollisionSphereComponent : public PhysicsInterface
 {
 private:
@@ -104,17 +139,22 @@ private:
 	bool m_Immovable;
 
 public:
-	virtual ~CollisionSphereComponent()
+	~CollisionSphereComponent() override
 	{
 		m_Physics->releaseBody(m_Body);
 	}
-
+	
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
 	void setPhysics(IPhysics* p_Physics)
 	{
 		m_Physics = p_Physics;
 	}
 
-	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		m_OffsetPositition = Vector3(0.f, 0.f, 0.f);
 
@@ -136,32 +176,35 @@ public:
 		p_Data->QueryAttribute("Mass", &m_Mass);
 	}
 
-	virtual void postInit() override
+	void postInit() override
 	{
 		m_Body = m_Physics->createSphere(m_Mass, m_Immovable, m_Owner->getPosition(), m_Radius);
 	}
 
-	virtual void onUpdate(float p_DeltaTime) override
+	void onUpdate(float p_DeltaTime) override
 	{
 		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
 		Vector3 rotation = m_Owner->getRotation();
 		m_Physics->setBodyRotation(m_Body, rotation);
 	}
 
-	virtual void updatePosition(Vector3 p_Position) override
+	void updatePosition(Vector3 p_Position) override
 	{
 		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
 	}
-	virtual void updateRotation(Vector3 p_Rotation) override
+	void updateRotation(Vector3 p_Rotation) override
 	{
 		m_Physics->setBodyRotation(m_Body, p_Rotation);
 	}
-	virtual BodyHandle getBodyHandle() const override
+	BodyHandle getBodyHandle() const override
 	{
 		return m_Body;
 	}
 };
 
+/**
+ * Axis-Aligned Bounding Box component.
+ */
 class AABB_Component : public PhysicsInterface
 {
 private:
@@ -172,17 +215,22 @@ private:
 	bool m_IsEdge;
 
 public:
-	~AABB_Component()
+	~AABB_Component() override
 	{
 		m_Physics->releaseBody(m_Body);
 	}
-
+	
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
 	void setPhysics(IPhysics* p_Physics)
 	{
 		m_Physics = p_Physics;
 	}
 
-	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		m_OffsetPositition = Vector3(0.f, 0.f, 0.f);
 
@@ -207,30 +255,33 @@ public:
 		p_Data->QueryBoolAttribute("Edge", &m_IsEdge);
 	}
 
-	virtual void postInit()
+	void postInit() override
 	{
 		m_Body = m_Physics->createAABB(0.f, true, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
 	}
 
-	virtual void onUpdate(float p_DeltaTime) override
+	void onUpdate(float p_DeltaTime) override
 	{
 		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
 	}
 
-	virtual void updatePosition(Vector3 p_Position) override
+	void updatePosition(Vector3 p_Position) override
 	{
 		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
 	}
-	virtual void updateRotation(Vector3 p_Rotation) override
+	void updateRotation(Vector3 p_Rotation) override
 	{
 		m_Physics->setBodyRotation(m_Body, p_Rotation);
 	}
-	virtual BodyHandle getBodyHandle() const override
+	BodyHandle getBodyHandle() const override
 	{
 		return m_Body;
 	}
 };
 
+/**
+ * Bounding volume component based on a triangle mesh.
+ */
 class BoundingMeshComponent : public PhysicsInterface
 {
 private:
@@ -241,22 +292,32 @@ private:
 	Vector3 m_Scale;
 
 public:
-	~BoundingMeshComponent()
+	~BoundingMeshComponent() override
 	{
 		m_Physics->releaseBody(m_Body);
 		m_ResourceManager->releaseResource(m_MeshResourceId);
 	}
-
+	
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
 	void setPhysics(IPhysics* p_Physics)
 	{
 		m_Physics = p_Physics;
 	}
+	/**
+	 * Set the resource manager for the component.
+	 *
+	 * @param p_ResourceManager the resource manager to use
+	 */
 	void setResourceManager(ResourceManager* p_ResourceManager)
 	{
 		m_ResourceManager = p_ResourceManager;
 	}
 
-	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		const char* meshName = p_Data->Attribute("Mesh");
 
@@ -280,51 +341,70 @@ public:
 		m_Physics->setBodyScale(m_Body, m_Scale);
 	}
 
-	virtual void updatePosition(Vector3 p_Position) override
+	void updatePosition(Vector3 p_Position) override
 	{
 		m_Physics->setBodyPosition(m_Body, p_Position);
 	}
-	virtual void updateRotation(Vector3 p_Rotation) override
+	void updateRotation(Vector3 p_Rotation) override
 	{
 		m_Physics->setBodyRotation(m_Body, p_Rotation);
 	}
-	virtual BodyHandle getBodyHandle() const override
+	BodyHandle getBodyHandle() const override
 	{
 		return m_Body;
 	}
 };
 
+/**
+ * Interface for model components.
+ */
 class ModelInterface : public ActorComponent
 {
 public:
-	static const Id m_ComponentId = 2;
-	virtual Id getComponentId() const override
+	static const Id m_ComponentId = 2;	/// Unique id
+	Id getComponentId() const override
 	{
 		return m_ComponentId;
 	}
-	//virtual void render(IGraphics* p_Graphics) = 0;
+	/**
+	 * Update the scale of the model.
+	 *
+	 * @param p_CompName an identifier to keep track of the scale to keep track of it
+	 * @param p_Scale the new scale
+	 */
 	virtual void updateScale(const std::string& p_CompName, Vector3 p_Scale) = 0;
+	/**
+	 * Remove a scale from the model.
+	 *
+	 * @param p_CompName an identifier of an existing scale
+	 */
 	virtual void removeScale(const std::string& p_CompName) = 0;
 };
 
+/**
+ * A standard model component.
+ */
 class ModelComponent : public ModelInterface
 {
 public:
-	typedef unsigned int Id;
+	/**
+	 * Id for separating different model components.
+	 */
+	typedef unsigned int ModelCompId;
 
 private:
-	Id m_Id;
+	ModelCompId m_Id;
 	Vector3 m_BaseScale;
 	std::string m_MeshName;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
 public:
-	~ModelComponent()
+	~ModelComponent() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveMeshEventData(m_Id)));
 	}
 
-	virtual void initialize(const tinyxml2::XMLElement* p_Data) override
+	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		const char* mesh = p_Data->Attribute("Mesh");
 		if (!mesh)
@@ -343,11 +423,11 @@ public:
 			scale->QueryFloatAttribute("z", &m_BaseScale.z);
 		}
 	}
-	virtual void postInit() override
+	void postInit() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName, m_BaseScale)));
 	}
-	virtual void updateScale(const std::string& p_CompName, Vector3 p_Scale) override
+	void updateScale(const std::string& p_CompName, Vector3 p_Scale) override
 	{
 		for (auto& scale : m_AppliedScales)
 		{
@@ -363,7 +443,7 @@ public:
 
 		calculateScale();
 	}
-	virtual void removeScale(const std::string& p_CompName) override
+	void removeScale(const std::string& p_CompName) override
 	{
 		for (auto& scale : m_AppliedScales)
 		{
@@ -376,12 +456,22 @@ public:
 		}
 	}
 
-	Id getId() const
+	/**
+	 * Get the model component id from the component.
+	 *
+	 * @return unique id of the model
+	 */
+	ModelCompId getId() const
 	{
 		return m_Id;
 	}
 
-	void setId(Id p_Id)
+	/**
+	 * Set the id of the model component.
+	 *
+	 * @param p_Id a new unique identifier
+	 */
+	void setId(ModelCompId p_Id)
 	{
 		m_Id = p_Id;
 	}
@@ -401,20 +491,47 @@ private:
 
 };
 
+/**
+ * Interface for movements.
+ */
 class MovementInterface : public ActorComponent
 {
 public:
-	static const Id m_ComponentId = 3;
-	virtual Id getComponentId() const override
+	static const Id m_ComponentId = 3;	/// Unique id
+	Id getComponentId() const override
 	{
 		return m_ComponentId;
 	}
+
+	/**
+	 * Set the velocity of the movement.
+	 *
+	 * @param p_Velocity velocity in cm/s
+	 */
 	virtual void setVelocity(Vector3 p_Velocity) = 0;
+	/**
+	 * Get the velocity.
+	 *
+	 * @return the current velocity of the movement in cm/s
+	 */
 	virtual Vector3 getVelocity() const = 0;
+	/**
+	 * Set the velocity of rotation.
+	 *
+	 * @param p_RotVelocity the (yaw, pitch, roll) rotation velocity in radians/s
+	 */
 	virtual void setRotationalVelocity(Vector3 p_RotVelocity) = 0;
+	/**
+	 * Get the current rotational velocity.
+	 *
+	 * @return the (yaw, pitch, roll) rotation velocity in radians/s
+	 */
 	virtual Vector3 getRotationalVelocity() const = 0;
 };
 
+/**
+ * Simple linear movement component implementation.
+ */
 class MovementComponent : public MovementInterface
 {
 private:
@@ -476,17 +593,26 @@ public:
 	}
 };
 
+/**
+ * Interface for visibly pulsing an actor.
+ */
 class PulseInterface : public ActorComponent
 {
 public:
-	static const Id m_ComponentId = 4;
+	static const Id m_ComponentId = 4;	/// Unique id
 	virtual Id getComponentId() const override
 	{
 		return m_ComponentId;
 	}
+	/**
+	 * Activate a single pulse.
+	 */
 	virtual void pulseOnce() = 0;
 };
 
+/**
+ * Scaling component implementation of pulsing.
+ */
 class PulseComponent : public PulseInterface
 {
 private:
@@ -533,29 +659,35 @@ public:
 		}
 	}
 
-	void pulseOnce()
+	void pulseOnce() override
 	{
 		m_CurrentTime = 0.f;
 	}
 };
 
+/**
+ * Interface for components shining light.
+ */
 class LightInterface : public ActorComponent
 {
 public:
-	static const Id m_ComponentId = 5;
-	virtual Id getComponentId() const override
+	static const Id m_ComponentId = 5;	/// Unique id
+	Id getComponentId() const override
 	{
 		return m_ComponentId;
 	}
 };
 
+/**
+ * Light component implementation providing point, spot and directional lights.
+ */
 class LightComponent : public LightInterface
 {
 private:
 	Light m_Light;
 
 public:
-	~LightComponent()
+	~LightComponent() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveLightEventData(m_Light.id)));
 	}
@@ -659,16 +791,26 @@ public:
 			throw ClientException("XML Light description missing valid type", __LINE__, __FILE__);
 		}
 	}
-	virtual void postInit() override
+	void postInit() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new LightEventData(m_Light)));
 	}
 
+	/**
+	 * Get the unique id of the light.
+	 *
+	 * @return the lights unique identifier
+	 */
 	Light::Id getId() const
 	{
 		return m_Light.id;
 	}
 
+	/**
+	 * Set a new unique identifier for the light.
+	 *
+	 * @param p_Id the light's id
+	 */
 	void setId(Light::Id p_Id)
 	{
 		m_Light.id = p_Id;
@@ -678,7 +820,7 @@ public:
 class LookInterface : public ActorComponent
 {
 public:
-	static const Id m_ComponentId = 6;
+	static const Id m_ComponentId = 6;	/// Unique id
 	virtual Id getComponentId() const override
 	{
 		return m_ComponentId;

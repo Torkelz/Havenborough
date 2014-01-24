@@ -1,3 +1,7 @@
+/**
+ * Stuff.
+ */
+
 #pragma once
 
 #include "GameList.h"
@@ -12,10 +16,12 @@
 #include <thread>
 #include <vector>
 
+/**
+ * A multiplayer, multi-game server.
+ */
 class Server
 {
 private:
-
 	INetwork* m_Network;
 
 	std::unique_ptr<Lobby> m_Lobby;
@@ -33,17 +39,50 @@ private:
 	std::thread m_UpdateThread;
 
 public:
+	/**
+	 * contructor.
+	 */
 	Server();
 
+	/**
+	 * Initialize the server and start listening for clients.
+	 */
 	void initialize();
+	/**
+	 * Start the server logic for managing clients.
+	 */
 	void run();
+	/**
+	 * Disconnect all users and shutdown the server.
+	 */
 	void shutdown();
 	
+	/**
+	 * Get the names of all connected users.
+	 *
+	 * @return a list of user names
+	 */
 	std::vector<std::string> getUserNames();
+	/**
+	 * Get the descriptions for all running games.
+	 *
+	 * @return game descriptions
+	 */
 	std::vector<std::string> getGameDescriptions();
+	/**
+	 * Send some test data.
+	 */
 	void sendTestData();
+	/**
+	 * Pulse a object on the client.
+	 */
 	void sendPulseObject();
 
+	/**
+	 * Add a new game to the list of running games.
+	 *
+	 * @param p_Game the game to run
+	 */
 	void addNewGame(GameRound::ptr p_Game);
 
 private:
