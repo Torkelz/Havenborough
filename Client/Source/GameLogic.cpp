@@ -262,6 +262,7 @@ void GameLogic::playLocalLevel()
 
 	Actor::ptr playerActor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
 	m_Objects.push_back(playerActor);
+	m_Player = Player();
 	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), playerActor);
 
 	m_InGame = true;
@@ -377,6 +378,7 @@ void GameLogic::handleNetwork()
 
 					Actor::ptr playerActor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
 					m_Objects.push_back(playerActor);
+					m_Player = Player();
 					m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), playerActor);
 
 #ifdef _DEBUG
