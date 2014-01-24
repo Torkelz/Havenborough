@@ -1,4 +1,4 @@
-*Header
+*ObjectHeader*
 #numObj: 370
 
 #MESH Barrel1
