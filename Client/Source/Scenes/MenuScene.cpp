@@ -70,33 +70,41 @@ void MenuScene::setIsVisible(bool p_SetVisible)
 
 void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
+	// On "KeyDown"
+	if (p_Value >= 0.5f && p_PrevValue < 0.5f)
 	{
-		if(m_SceneID == 0)
+		if(p_Action == "changeSceneN")
 		{
-			m_NewSceneID = (int)MenuScenes::OPTION;
+			if(m_SceneID == 0)
+			{
+				m_NewSceneID = (int)MenuScenes::OPTION;
+			}
+			else if(m_SceneID == 1)
+			{
+				m_NewSceneID = (int)MenuScenes::MAIN; 
+			}
+			m_ChangeScene = true;
 		}
-		else if(m_SceneID == 1)
+		else if(p_Action == "changeSceneP")
 		{
-			m_NewSceneID = (int)MenuScenes::MAIN; 
+			m_ChangeList = true;
 		}
-		m_ChangeScene = true;
-	}
-	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
-	{
-		m_ChangeList = true;
-	}
-	else if (p_Action == "joinTestLevel" && p_Value == 1.f)
-	{
-		m_GameLogic->joinGame("test");
-	}
-	else if (p_Action == "playLocalTest" && p_Value == 1.f)
-	{
-		m_GameLogic->playLocalLevel();
-	}
-	else if (p_Action == "connectToServer" && p_Value == 1.f)
-	{
-		m_GameLogic->connectToServer("localhost", 31415); //Note: IP to server if running: 194.47.150.5
+		else if (p_Action == "joinTestLevel")
+		{
+			m_GameLogic->joinGame("test");
+		}
+		else if (p_Action == "playLocalTest")
+		{
+			m_GameLogic->playLocalLevel();
+		}
+		else if (p_Action == "connectToServer")
+		{
+			m_GameLogic->connectToServer("localhost", 31415); //Note: IP to server if running: 194.47.150.5
+		}
+		else if (p_Action == "back")
+		{
+			m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
+		}
 	}
 }
 

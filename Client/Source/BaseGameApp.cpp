@@ -59,7 +59,8 @@ void BaseGameApp::init()
 	
 	//TODO: This should be loaded from file
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
-	translator->addKeyboardMapping(VK_ESCAPE, "exit");
+	translator->addKeyboardMapping(VK_ESCAPE, "back");
+	translator->addKeyboardMapping(VK_ESCAPE, "leaveGame");
 	translator->addKeyboardMapping('W', "moveForward");
 	translator->addKeyboardMapping('S', "moveBackward");
 	translator->addKeyboardMapping('A', "moveLeft");
@@ -70,7 +71,6 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping(VK_SPACE, "jump");
 	translator->addKeyboardMapping('C', "connectToServer");
 	translator->addKeyboardMapping('T', "joinTestLevel");
-	translator->addKeyboardMapping('Y', "leaveGame");
 	translator->addKeyboardMapping('U', "playLocalTest");
 
 	translator->addKeyboardMapping('J', "changeSceneP");
@@ -99,6 +99,7 @@ void BaseGameApp::init()
 	m_EventManager.reset(new EventManager());
 	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::startGame), GameStartedEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::gameLeft), GameLeftEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::quitGame), QuitGameEventData::sk_EventType);
 
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
@@ -292,11 +293,6 @@ void BaseGameApp::handleInput()
 
 		// Pass keystrokes to all active scenes.
 		m_SceneManager.registeredInput(in.m_Action, in.m_Value, in.m_PrevValue);
-
-		if (in.m_Action == "exit")
-		{
-			m_ShouldQuit = true;
-		}
 	}
 }
 
@@ -324,4 +320,9 @@ void BaseGameApp::startGame(IEventData::Ptr p_Data)
 void BaseGameApp::gameLeft(IEventData::Ptr p_Data)
 {
 	m_SceneManager.startMenu();
+}
+
+void BaseGameApp::quitGame(IEventData::Ptr p_Data)
+{
+	m_ShouldQuit = true;
 }
