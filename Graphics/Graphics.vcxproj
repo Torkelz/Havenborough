@@ -115,6 +115,7 @@
     <ClCompile Include="Source\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ParticleDefinition.h" />
     <ClInclude Include="Source\ParticleSystem.h" />
     <ClInclude Include="Source\ForwardRendering.h" />
     <ClInclude Include="include\ShaderDefinitions.h" />
@@ -143,6 +144,7 @@
     <ClInclude Include="Source\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Source\DeferredShaders\ParticleSystem.hlsl" />
     <FxCompile Include="Source\DeferredShaders\SkyDome.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>

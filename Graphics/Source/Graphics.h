@@ -69,7 +69,7 @@ private:
 	
 	//Particles
 	vector<pair<string, ParticleSystem*>>  m_ParticleSystemList;
-
+	ParticleSystem *m_PS;
 
 	DeferredRenderer *m_DeferredRender;
 	ForwardRendering *m_Forwardrender;
@@ -110,6 +110,7 @@ public:
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
 		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements) override;
 	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) override;
+	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
 	void deleteShader(const char *p_ShaderId) override;
 
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;

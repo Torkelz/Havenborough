@@ -13,36 +13,29 @@ cbuffer cb : register(b1)
 cbuffer cbWorld : register(b2)
 {
 	float4x4 world;
-	float sizeX;
-	float sizeY;
+
 }
 
 struct VSIn
 {
-	float4 centerpos: POSITION;
-	float4 eyepos	: EYEPOSITION;
+	float4 centerPos: POSITION;
+	float4 eyePos	: EYEPOSITION;
 	float2 uvCoord	: COORD;
-	//float2 size		: SIZE;
+	float2 size		: SIZE;
 };
 
 struct PSIn
 {
-	float4 centerpos: SV_POSITION;
-	float4 wpos		: WSPOSITION;
-	float4 eyepos	: EYEPOSITION;
+	float4 centerPos: SV_POSITION;
+	float4 eyePos	: EYEPOSITION;
 	float2 uvCoord	: COORD;
 	float4 color	: COLOR;
-	//float2 size		: SIZE;
+	float2 size		: SIZE;
 };
 
-/*struct PSOut
-{
-	half4 color	: SV_TARGET0; //xyz = diffuse color, w = empty
-};
-*/
 struct GSOut
 {
-	float4 centerpos: SV_POSITION;
+	float4 centerPos: SV_POSITION;
 	float2 uvCoord	: COORD;
 };
 
@@ -118,7 +111,7 @@ GSIn GS(point VSIn input[1], inout TriangleStream<PSIn> triangleStream)
     localToWorld._44 = 1;
 
 	// And the matrix to transform from local to screen space.
-    float4x4 transform = localToWorld * World * ViewProjection;
+    float4x4 transform = localToWorld * world * view * projection;
 
 	// The positions of that quad is easily described in the local coordinate system:
     // -z points towards the camera, y points upwards and x towards the right.
@@ -129,16 +122,16 @@ GSIn GS(point VSIn input[1], inout TriangleStream<PSIn> triangleStream)
     float size = 0.5f; //????
     v1.centerpos = mul(float4(-size, size, 0, 1), transform);
     v1.uvCoord = float2(0, 0);
-    v1.color    = particle.Color;
+    v1.color    = triangleStream.color;
     v2.centerpos = mul(float4(size, size, 0, 1), transform);
     v2.uvCoord = float2(1, 0);
-    v2.color    = particle.Color;
+    v2.color    = triangleStream.color;
     v3.centerpos = mul(float4(-size,-size, 0, 1), transform);
     v3.uvCoord = float2(0, 1);
-    v3.color    = particle.Color;
+    v3.color    = triangleStream.color;
     v4.centerpos = mul(float4(size, -size, 0, 1), transform);
     v4.uvCoord = float2(1, 1);
-    v4.color    = particle.Color;
+    v4.color    = triangleStream.color;
 
     triangleStream.Append(v1);
     triangleStream.Append(v2);

@@ -23,9 +23,6 @@ Graphics::Graphics(void)
 	m_Sampler = nullptr;
 	m_VRAMInfo = nullptr;
 
-	m_ParticleBuffer = nullptr;
-	m_ParticleBufferNumOfElements = 0;
-
 	m_VSyncEnabled = false; //DEBUG
 
 	m_NextInstanceId = 1;
@@ -388,8 +385,16 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) 
 {
 	ModelDefinition *model = nullptr;
 	model = getModelFromList(p_ModelId);
-	if(model != nullptr)
+	if(model)
 		model->shader = getShaderFromList(p_ShaderId);
+}
+
+void Graphics::linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId)
+{
+	ParticleDefinition *particles = nullptr;
+	particles = getParticlesFromList(p_ParticlesId);
+	if(particles)
+		particles->shader = getShaderFromList(p_ShaderId);
 }
 
 void Graphics::deleteShader(const char *p_ShaderId)
@@ -441,9 +446,11 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-bool Graphics::createParticleSystemInstance(const char *p_ParticleSystemId, const char *p_filename)
+bool Graphics::createParticleSystemInstance(const char *p_ParticleSystemId, const char *p_Filename)
 {
+	ParticleSystem PS = m_PS->loadParticleSystemFromFile(p_Filename);
 
+	m_ParticleSystemList.push_back(pair<string, ParticleSystem>(p_ParticleSystemId, std::move(PS)));
 
 	return true;
 }
@@ -1029,6 +1036,19 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 {
 	for(auto & s : m_ModelList)
+	{
+		if(s.first == p_Identifier)
+		{
+			return &s.second;
+		}
+	}
+
+	return nullptr;
+}
+
+ParticleDefinition *Graphics::getParticleFromList(string p_Identifier)
+{
+	for(auto & s : m_ParticleList)
 	{
 		if(s.first == p_Identifier)
 		{

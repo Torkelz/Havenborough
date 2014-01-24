@@ -6,13 +6,19 @@
 #include <algorithm>
 
 #include "Buffer.h"
+#include "WrapperFactory.h"
+#include "VRAMInfo.h"
 
-struct cBuffer 
+struct particlecBuffer 
 {
 	DirectX::XMFLOAT4X4 viewM;
 	DirectX::XMFLOAT4X4 projM;
+	DirectX::XMFLOAT4	centerPos;
+	DirectX::XMFLOAT4	color;
 	DirectX::XMFLOAT3	cameraPos;
-
+	DirectX::XMFLOAT2	uvCoord;
+	float				sizeX;
+	float				sizeY;
 };
 
 struct Particle
@@ -53,7 +59,7 @@ private:
 	DirectX::XMFLOAT4X4	*m_ViewMatrix;
 	DirectX::XMFLOAT4X4	*m_ProjectionMatrix;
 
-	Buffer				m_Buffer;
+	Buffer				*m_Buffer;
 
 
 	std::vector<Particle>	m_ParticlesToSys;
@@ -82,13 +88,13 @@ public:
 	ParticleSystem();
 	~ParticleSystem();
 
-	bool loadParticleSystemFromFile(const char* p_filename);
+	ParticleSystem loadParticleSystemFromFile(const char* p_filename);
 
 	void init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
 		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11DepthStencilView* p_DepthStencilView,
 		ID3D11RenderTargetView *p_RenderTarget);
-	void update(float p_DeltaTime, ID3D11DeviceContext* p_DeviceContext);
+	void update(float p_DeltaTime);
 
 	void render();
 	
@@ -97,7 +103,7 @@ private:
 	void emitNewParticles(float p_DeltaTime);
 	void killOldParticles();
 	void updateParticles(float p_DeltaTime);
-	void updateBuffers(ID3D11DeviceContext* p_DeviceContext);
+	void updateBuffers();
 	void createParticleBuffer();
 };
 

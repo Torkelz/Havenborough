@@ -104,11 +104,18 @@ public:
 
 	/**
 	 * Establish a map of shader name to a model name.
-	 *
 	 * @param p_ShaderId name of the shader
 	 * @param p_ModelId name of the model
 	 */
 	virtual void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) = 0;
+
+	
+	/**
+	 * Establish a map of shader name to a particle name.
+	 * @param p_ShaderId name of the shader
+	 * @param p_ModelId name of the particle
+	 */
+	virtual void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) = 0;
 
 	/**
 	* Deletes an existing shader.

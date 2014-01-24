@@ -1,5 +1,7 @@
 #include "ParticleSystem.h"
 
+#include<fstream>
+#include<sstream>
 
 ParticleSystem::ParticleSystem()
 {
@@ -22,16 +24,25 @@ ParticleSystem::ParticleSystem()
 
 ParticleSystem::~ParticleSystem()
 {
+	m_Device = nullptr;
+	m_DeviceContext = nullptr;
+
+	m_DepthStencilView = nullptr;
+	m_RenderTarget = nullptr;
+	SAFE_RELEASE(m_Sampler);
+	SAFE_RELEASE(m_RasterState);
+
+	m_CameraPosition = nullptr;
+	m_ViewMatrix = nullptr;
+	m_ProjectionMatrix = nullptr;
+
+	SAFE_DELETE(m_Buffer);
 }
 
-bool ParticleSystem::loadParticleSystemFromFile(const char* p_filename)
+ParticleSystem ParticleSystem::loadParticleSystemFromFile(const char* p_filename)
 {
 	//use std::istream!
-	//#include<fstream>
-	//#include<sstream>
-
-	//set "m_" variables
-	return false;
+	return;// false;
 }
 
 void ParticleSystem::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
@@ -54,16 +65,23 @@ void ParticleSystem::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceC
 
 void ParticleSystem::createParticleBuffer()
 {
-
-
+	particlecBuffer pcb;
+	pcb.viewM = *m_ViewMatrix;
+	pcb.projM = *m_ProjectionMatrix;
+	pcb.cameraPos = *m_CameraPosition;
+	
 	Buffer::Description cbDesc;
-	cbDesc.usage = Buffer::Usage::CPU_WRITE; //DYNAMIC?
+	cbDesc.initData = &pcb;
+	cbDesc.usage = Buffer::Usage::CPU_WRITE;
 	cbDesc.numOfElements = m_MaxParticles;
-	cbDesc.sizeOfElement = sizeof(cBuffer);
+	cbDesc.sizeOfElement = sizeof(particlecBuffer);
 	cbDesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
+
+	m_Buffer = WrapperFactory::getInstance()->createBuffer(cbDesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(particlecBuffer));
 }
 
-void ParticleSystem::update(float p_DeltaTime, ID3D11DeviceContext* p_DeviceContext)
+void ParticleSystem::update(float p_DeltaTime)
 {
 	killOldParticles();
 
@@ -71,7 +89,7 @@ void ParticleSystem::update(float p_DeltaTime, ID3D11DeviceContext* p_DeviceCont
 
 	updateParticles(p_DeltaTime);
 
-	updateBuffers(p_DeviceContext);
+	updateBuffers();
 }
 
 void ParticleSystem::emitNewParticles(float p_DeltaTime)
@@ -151,9 +169,13 @@ void ParticleSystem::updateParticles(float p_DeltaTime)
 	}
 }
 
-void ParticleSystem::updateBuffers(ID3D11DeviceContext* p_DeviceContext)
+void ParticleSystem::updateBuffers()
 {
-
+	particlecBuffer pcb;
+	pcb.viewM = *m_ViewMatrix;
+	pcb.projM = *m_ProjectionMatrix;
+	pcb.cameraPos = *m_CameraPosition;
+	m_DeviceContext->UpdateSubresource(m_Buffer->getBufferPointer(),NULL,NULL, &pcb, NULL,NULL);
 }
 
 void ParticleSystem::render()
