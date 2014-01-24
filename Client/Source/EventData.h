@@ -183,7 +183,7 @@ public:
 		return "UpdateModelPositionEvent";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -227,7 +227,7 @@ public:
 		return "UpdateModelScaleEvent";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -271,7 +271,7 @@ public:
 		return "UpdateModelRotationEvent";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -315,7 +315,7 @@ public:
 		return "PlayAnimationEvent";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -367,7 +367,7 @@ public:
 		return "AddReachIK_Event";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -428,7 +428,7 @@ public:
 		return "RemoveReachIK_Event";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
