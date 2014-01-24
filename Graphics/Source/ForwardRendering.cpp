@@ -11,6 +11,7 @@ ForwardRendering::ForwardRendering(void)
 	m_RenderTarget = nullptr;
 	m_Sampler = nullptr;
 	m_RasterState = nullptr;
+	m_DepthStencilState = nullptr;
 
 	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
@@ -32,6 +33,7 @@ ForwardRendering::~ForwardRendering(void)
 	m_RenderTarget = nullptr;
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
+	SAFE_RELEASE(m_DepthStencilState);
 	
 	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
@@ -62,6 +64,7 @@ void ForwardRendering::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_Devic
 	createForwardBuffers();
 	createSampler();
 	createRasterState();
+	createDepthStencilState();
 }
 
 void ForwardRendering::addRenderable(DeferredRenderer::Renderable p_Renderable)
@@ -146,6 +149,37 @@ void ForwardRendering::createRasterState()
 	m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
 }
 
+void ForwardRendering::createDepthStencilState(void)
+{
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+
+	//Initialize the description of the stencil state.
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+	//Set up the description of the stencil state.
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = false;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	//Stencil operations if pixel is front-facing.
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing.
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
+}
+
 void ForwardRendering::updateConstantBuffer()
 {
 	cBuffer cb;
@@ -166,6 +200,7 @@ void ForwardRendering::renderForward()
 		m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
 		
 		m_DeviceContext->RSSetState(m_RasterState);
+		m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState,0);
 
 		//Sort objects by the range to the camera
 		std::sort(m_TransparencyObjects.begin(),m_TransparencyObjects.end(),std::bind(&ForwardRendering::depthSortCompareFunc, this, std::placeholders::_1, std::placeholders::_2));
