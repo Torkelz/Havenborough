@@ -609,11 +609,31 @@ HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
 
 		//axis a01
 		p0 = XMVectorGetZ(v0) * ( XMVectorGetY(v2) - XMVectorGetY(v1) ) - XMVectorGetY(v0) * ( XMVectorGetZ(v2) - XMVectorGetZ(v1) );
-		p1 = XMVectorGetZ(v1) * XMVectorGetY(v2) + XMVectorGetY(v1) * XMVectorGetZ(v2);
+		p1 = XMVectorGetZ(v1) * XMVectorGetY(v2) - XMVectorGetY(v1) * XMVectorGetZ(v2);
 		p2 = p1;
 		r = XMVectorGetY(box_Extents) * fabs( XMVectorGetZ(f1) ) + XMVectorGetZ(box_Extents) * fabs( XMVectorGetY(f1) );
 		if(XMMax( -XMMax(p0, p2), XMMin(p0, p2) ) > r)
 			return hit;
+
+		//axis a02
+		p0 = XMVectorGetY(v0) * XMVectorGetZ(v2) - XMVectorGetZ(v0) * XMVectorGetY(v2);
+		p1 = XMVectorGetZ(v1) * ( XMVectorGetY(v0) - XMVectorGetY(v2) ) - XMVectorGetY(v1) * ( XMVectorGetZ(v0) - XMVectorGetZ(v2) );
+		p2 = p0;
+		r = XMVectorGetY(box_Extents) * fabs( XMVectorGetZ(f2) ) + XMVectorGetZ(box_Extents) * fabs( XMVectorGetY(f2) );
+		if(XMMax( -XMMax(p0, p1), XMMin(p0, p1) ) > r)
+			return hit;
+
+		//axis a10
+		p0 = XMVectorGetX(v0) * XMVectorGetZ(v1) - XMVectorGetZ(v0) * XMVectorGetX(v1);
+		p1 = -1000000;
+		p2 = XMVectorGetX(v2) * ( XMVectorGetZ(v1) - XMVectorGetZ(v0) ) - XMVectorGetZ(v2) * ( XMVectorGetX(v1) - XMVectorGetX(v0) );
+		r = XMVectorGetX(box_Extents) * fabs( XMVectorGetZ(f0) ) + XMVectorGetZ(box_Extents) * fabs( XMVectorGetX(f0) );
+		float n = min(p0, p1, p2);
+		float m = max(p0, p1, p2);
+		//if(XMMax( -XMMax(p0, p2), XMMin(p0, p2) ) > r)
+			//return hit;
+		int d = 0;
+
 	}
 
 	hit.intersect = true;
@@ -622,6 +642,16 @@ HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
 	//
 	//hit.intersect = OBBVsPlane(p_OBB, &plane);;
 	return hit;
+}
+
+float Collision::min(const float &p_A, const float &p_B, const float &p_C)
+{
+	return (p_A < p_B) ? (p_A < p_C) ? p_A : p_C : (p_B < p_C) ? p_B : p_C;
+}
+
+float Collision::max(const float &p_A, const float &p_B, const float &p_C)
+{
+	return (p_A > p_B) ? (p_A > p_C) ? p_A : p_C : (p_B > p_C) ? p_B : p_C;
 }
 
 bool Collision::OBBVsPlane(OBB *p_OBB, Plane *p_Plane)

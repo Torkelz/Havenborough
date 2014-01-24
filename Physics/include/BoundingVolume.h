@@ -46,7 +46,7 @@ public:
 		}
 	}
 	/* Updates position for BoundingVolume with translation matrix.
-	 * @param p_Translation, move the AABB in relative coordinates.
+	 * @param p_Translation, move the BV in relative coordinates.
 	 */
 	virtual void updatePosition(DirectX::XMFLOAT4X4& p_Translation) = 0;
 	/**

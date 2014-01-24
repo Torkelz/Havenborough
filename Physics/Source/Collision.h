@@ -123,6 +123,8 @@ public:
 
 private:
 
+	static float min(const float &p_A, const float &p_B, const float &p_C);
+	static float max(const float &p_A, const float &p_B, const float &p_C);
 	static bool SphereVsTriangle(Sphere *p_Sphere, Triangle *p_Triangle);
 
 	static bool OBBVsPlane(OBB *p_OBB, Plane *p_Plane);
