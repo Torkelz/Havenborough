@@ -384,7 +384,6 @@ void GameScene::loadSandboxModels()
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
-		"SKYBOX",
 		"House1",
 		"MarketStand1",
 		"Barrel1",
