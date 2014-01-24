@@ -97,6 +97,9 @@ void BaseGameApp::init()
 	m_Network->initialize();
 
 	m_EventManager.reset(new EventManager());
+
+	m_EventManager->addListener(EventListenerDelegate(&m_InputQueue, &Input::lockMouse), MouseEventDataLock::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::showMouse), MouseEventDataShow::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::startGame), GameStartedEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::gameLeft), GameLeftEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::quitGame), QuitGameEventData::sk_EventType);
@@ -325,4 +328,10 @@ void BaseGameApp::gameLeft(IEventData::Ptr p_Data)
 void BaseGameApp::quitGame(IEventData::Ptr p_Data)
 {
 	m_ShouldQuit = true;
+}
+
+void BaseGameApp::showMouse(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<MouseEventDataShow> data = std::static_pointer_cast<MouseEventDataShow>(p_Data);
+	m_Window.setShowCursor(data->getShowState());
 }

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Client\Source\EventManager.cpp" />
     <ClCompile Include="..\Client\Source\Logger.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp" />
@@ -32,7 +33,10 @@
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
+    <ClCompile Include="..\Sound\Source\Sound.cpp" />
+    <ClCompile Include="..\Sound\Source\SoundLogger.cpp" />
     <ClCompile Include="Source\GraphicsEngine.cpp" />
+    <ClCompile Include="Source\SoundEngine.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -98,12 +102,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)Test\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(BOOST_INC_DIR);$(VLD_INC_DIR);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BOOST_LIB_DIR);$(VLD_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(FMOD_INC_DIR);$(BOOST_INC_DIR);$(IncludePath);$(VLD_INC_DIR)</IncludePath>
+    <LibraryPath>$(FMOD_LIB_DIR);$(BOOST_LIB_DIR);$(LibraryPath);$(VLD_LIB_DIR)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(FMOD_INC_DIR);$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(FMOD_LIB_DIR);$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)Bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -120,6 +124,7 @@
       <SubSystem>Console</SubSystem>
       <EntryPointSymbol>
       </EntryPointSymbol>
+      <AdditionalDependencies>fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -133,7 +138,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -143,6 +148,7 @@
       <EntryPointSymbol>
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>

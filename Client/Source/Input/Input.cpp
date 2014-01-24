@@ -49,3 +49,9 @@ void Input::handleRecords(InputRecord p_Record)
 	m_InputState.updateRecord(p_Record);
 	
 }
+
+void Input::lockMouse(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<MouseEventDataLock> data = std::static_pointer_cast<MouseEventDataLock>(p_Data);
+	m_Translator->lockMouse(data->getLockState());
+}

@@ -46,8 +46,14 @@ void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 		*p_IsCurrentScene = -1;
 		m_ChangeList = false;
 	}
+}
 
-	
+void MenuScene::onFocus()
+{
+	std::shared_ptr<MouseEventDataShow> showMouse(new MouseEventDataShow(true));
+	m_EventManager->queueEvent(showMouse);
+	std::shared_ptr<MouseEventDataLock> lockMouse(new MouseEventDataLock(false));
+	m_EventManager->queueEvent(lockMouse);
 }
 
 void MenuScene::render()

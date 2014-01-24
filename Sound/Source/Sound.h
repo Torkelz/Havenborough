@@ -97,6 +97,13 @@ public:
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
+	float getVolume(const char* p_SoundId) override;
+
+	float getGroupVolume(ISound::ChannelGroup p_Group) override;
+
+	bool getPaused(const char* p_SoundId) override;
+
+	bool getMute(const char* p_SoundId) override;
 private:
 	void errorCheck(FMOD_RESULT p_Result);
 	SoundInstance *getSound(std::string p_SoundId);

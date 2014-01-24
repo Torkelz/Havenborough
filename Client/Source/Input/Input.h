@@ -49,6 +49,8 @@ public:
 	 */
 	const std::vector<InputRecord>& getFrameInputs() const;
 
+	void lockMouse(IEventData::Ptr p_Data);
+
 private:
 	/**
 	 * Handle records.

@@ -6,6 +6,7 @@
 
 #include "InputRecord.h"
 #include "../Window.h"
+#include "../EventData.h"
 
 #include <functional>
 #include <memory>
@@ -66,7 +67,8 @@ protected:
 		std::string	m_Action;
 	};
 	std::vector<MouseButtonRecord> m_MouseButtonMappings;
-
+private:
+	bool m_MouseLocked;
 public:
 	/**
 	 * constructor.
@@ -134,6 +136,13 @@ public:
 	 * @param p_Action The action identifier to translate the button to.
 	 */
 	void addMouseButtonMapping(MouseButton p_Button, const std::string& p_Action);
+
+	/**
+	 * Lock the mouse pointer to the center of the screen or unlock it.
+	 *
+	 * @param p_State true for lock.
+	 */
+	void lockMouse(bool p_State);
 
 protected:
 	/**

@@ -96,4 +96,5 @@ private:
 	void startGame(IEventData::Ptr p_Data);
 	void gameLeft(IEventData::Ptr p_Data);
 	void quitGame(IEventData::Ptr p_Data);
+	void showMouse(IEventData::Ptr p_Data);
 };
