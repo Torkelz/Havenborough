@@ -120,6 +120,11 @@ inline DirectX::XMFLOAT4 Vector3ToXMFLOAT4(const Vector3 *_p, float _w)
 	return DirectX::XMFLOAT4(_p->x, _p->y, _p->z, _w);
 }
 
+inline DirectX::XMVECTOR Vector3ToXMVECTOR(const Vector3 *p_vector, float _w)
+{
+	return DirectX::XMVectorSet(p_vector->x, p_vector->y, p_vector->z, _w);
+};
+
 inline DirectX::XMFLOAT3 Vector4ToXMFLOAT3(const Vector4 *_p)
 {
 	return DirectX::XMFLOAT3(_p->x, _p->y, _p->z);

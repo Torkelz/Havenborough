@@ -20,6 +20,27 @@ public:
 	};
 
 private:
+	enum class ForwardAnimationState
+	{
+		IDLE,
+		WALKING_FORWARD,
+		RUNNING_FORWARD,
+		WALKING_BACKWARD,
+		RUNNING_BACKWARD,
+	};
+
+	enum class SideAnimationState
+	{
+		IDLE,
+		WALKING_LEFT,
+		RUNNING_LEFT,
+		WALKING_RIGHT,
+		RUNNING_RIGHT,
+	};
+
+	ForwardAnimationState m_PrevForwardState;
+	SideAnimationState m_PrevSideState;
+
 	IPhysics *m_Physics;
 	ResourceManager *m_ResourceManager;
 	INetwork *m_Network;

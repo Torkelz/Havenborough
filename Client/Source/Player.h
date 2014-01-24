@@ -35,6 +35,9 @@ private:
 	Vector3 m_ForceMoveStartPosition;	// cm
 	Vector3 m_ForceMoveEndPosition;	// cm
 
+	Vector3 m_CurrentVelocity;
+	Vector3 m_PreviousVelocity;
+
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
 	//while climbing objects.
 	float m_TempHeight; 
@@ -145,6 +148,8 @@ public:
 	 * @return the velocity of the player in cm in world space
 	 */
 	Vector3 getVelocity() const;
+	Vector3 getPreviousVelocity() const;
+	Vector3 getDirection() const;
 
 	std::weak_ptr<Actor> getActor() const;
 	void setActor(std::weak_ptr<Actor> p_Actor);

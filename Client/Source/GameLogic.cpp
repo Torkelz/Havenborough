@@ -127,6 +127,111 @@ void GameLogic::onFrame(float p_DeltaTime)
 		actor->onUpdate(p_DeltaTime);
 	}
 
+	// ##### Model animation update stuff. ######
+	using namespace DirectX;
+	std::shared_ptr<Actor> temp = m_Player.getActor().lock();
+	temp->setRotation(actualViewRot);
+	Vector3 homeMadeTrash = m_Player.getVelocity();
+	XMVECTOR velocity = Vector3ToXMVECTOR(&homeMadeTrash, 0.0f);
+	homeMadeTrash = m_Player.getPreviousVelocity();
+	XMVECTOR previous = Vector3ToXMVECTOR(&homeMadeTrash, 0.0f);
+	homeMadeTrash = m_Player.getDirection();
+	XMVECTOR look = Vector3ToXMVECTOR(&homeMadeTrash, 0.0f);
+	XMMATRIX rotationInverse = XMMatrixInverse(NULL, XMMatrixRotationRollPitchYaw(0.0f, actualViewRot.x, 0.0f)); //Byt till transpose
+	velocity = XMVector3Transform(velocity, rotationInverse);
+	previous = XMVector3Transform(previous, rotationInverse);
+	if (!m_Physics->getBodyInAir(m_Player.getBody()))
+	{
+		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
+
+		ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
+		SideAnimationState currentSideState = SideAnimationState::IDLE;
+
+		static const float runLimit = 100.f;
+		if (XMVectorGetZ(velocity) > runLimit)
+		{
+			currentForwardState = ForwardAnimationState::RUNNING_FORWARD;
+		}
+		else if (XMVectorGetZ(velocity) < -runLimit)
+		{
+			currentForwardState = ForwardAnimationState::RUNNING_BACKWARD;
+		}
+		
+		static const float runSideLimit = 100.f;
+		if (XMVectorGetX(velocity) > runSideLimit)
+		{
+			currentSideState = SideAnimationState::RUNNING_RIGHT;
+		}
+		else if (XMVectorGetX(velocity) < -runSideLimit)
+		{
+			currentSideState = SideAnimationState::RUNNING_LEFT;
+		}
+
+		if (currentForwardState != m_PrevForwardState)
+		{
+			switch (currentForwardState)
+			{
+			case ForwardAnimationState::IDLE:
+				if (currentSideState == SideAnimationState::IDLE)
+				{
+					playAnimation(temp, "Idle");
+				}
+				break;
+
+			case ForwardAnimationState::RUNNING_FORWARD:
+				playAnimation(temp, "Run");
+			}
+		}
+		
+		if (currentSideState != m_PrevSideState)
+		{
+			switch (currentSideState)
+			{
+			case SideAnimationState::IDLE:
+				if (currentForwardState == ForwardAnimationState::IDLE)
+				{
+					playAnimation(temp, "Idle");
+				}
+				break;
+			}
+		}
+
+		m_PrevForwardState = currentForwardState;
+		m_PrevSideState = currentSideState;
+
+		//// Check if the direction has changed.
+		//if (XMVectorGetX(velocity) < -10.f && XMVectorGetX(previous) >= -10.f)
+		//{
+		//	//playAnimation(temp, "Back");
+		//	playAnimation(temp, "Idle");
+		//}
+		//else if(XMVectorGetX(velocity) > 10.f && XMVectorGetX(previous) <= 10.f)
+		//{
+		//	playAnimation(temp, "Idle");
+		//}
+		//else if (XMVectorGetX(velocity) < 10.f && XMVectorGetX(previous) >= 10.f || XMVectorGetX(velocity) > -10.f && XMVectorGetX(previous) <= -10.f)
+		//{
+		//	//playAnimation(temp, "Idle");
+		//}
+
+		//if (XMVectorGetZ(velocity) < -10.f && XMVectorGetZ(previous) >= -10.f)
+		//{
+		//	//playAnimation(temp, "StrafeLeft");
+		//	playAnimation(temp, "Bindpose");
+		//}
+		//else if(XMVectorGetZ(velocity) > 10.f && XMVectorGetZ(previous) <= 10.f)
+		//{
+		//	//playAnimation(temp, "StrafeRight");
+		//	playAnimation(temp, "Run");
+		//}
+		//else if (XMVectorGetZ(velocity) < 10.f && XMVectorGetZ(previous) >= 10.f || XMVectorGetZ(velocity) > -10.f && XMVectorGetZ(previous) <= -10.f)
+		//{
+		//	playAnimation(temp, "Idle");
+		//}
+		//Do regular movement.
+	}
+	// ##### Model animation update stuff end. #####
+
 	updateSandbox(p_DeltaTime);
 }
 
@@ -184,6 +289,8 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
+	playAnimation(m_Player.getActor().lock(), "RunningJump");
+	// Queue midair_up
 }
 
 void GameLogic::toggleIK()
@@ -255,6 +362,9 @@ void GameLogic::playLocalLevel()
 	printer.PushAttribute("y", kneeHeight);
 	printer.CloseElement();
 	printer.CloseElement();
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "WITCH");
+	printer.CloseElement();
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;
@@ -272,6 +382,9 @@ void GameLogic::playLocalLevel()
 	loadSandbox();
 
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
+
+	// DEBUG STUFFZ
+	playAnimation( m_Player.getActor().lock(), "Run" );
 }
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)

@@ -22,6 +22,8 @@ Player::Player(void)
 	m_ForceMoveTime = 1.0f;
 	m_ForceMoveSpeed = 1.f;
 	m_CurrentForceMoveTime = 0.f;
+	m_CurrentVelocity = Vector3(0.0f, 0.0f, 0.0f);
+	m_PreviousVelocity = Vector3(0.0f, 0.0f, 0.0f);
 }
 
 Player::~Player(void)
@@ -154,11 +156,24 @@ void Player::update(float p_DeltaTime)
 			m_CurrentForceMoveTime = 0.f;
 		}
 	}
+
+	m_PreviousVelocity = m_CurrentVelocity;
+	m_CurrentVelocity = m_Physics->getBodyVelocity(getBody());
 }
 
 Vector3 Player::getVelocity() const
 {
-	return m_Physics->getBodyVelocity(getBody());
+	return m_CurrentVelocity;
+}
+
+Vector3 Player::getPreviousVelocity() const
+{
+	return m_PreviousVelocity;
+}
+
+Vector3 Player::getDirection() const
+{
+	return Vector3(m_DirectionX, 0.0f, m_DirectionZ);
 }
 
 std::weak_ptr<Actor> Player::getActor() const

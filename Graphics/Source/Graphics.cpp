@@ -723,10 +723,6 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 {
 	using namespace DirectX;
 
-	m_Eye = Vector3ToXMFLOAT3(&p_Position);
-	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
-	XMVECTOR pos = XMLoadFloat4(&eye);
-
 	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
 
 	static const XMFLOAT4 up(0.f, 1.f, 0.f, 0.f);
@@ -736,6 +732,20 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 
 	static const XMFLOAT4 forward(0.f, 0.f, -1.f, 0.f);
 	XMVECTOR forwardVec = XMLoadFloat4(&forward);
+
+	// Debug character animation temp stuff START
+	XMFLOAT4 offset(0.0f, 10.0f, 500.0f, 0.0f);
+	XMVECTOR offsetVector = XMLoadFloat4(&offset);
+	offsetVector = XMVector4Transform(offsetVector, rotation);
+	XMStoreFloat4(&offset, offsetVector);
+
+	m_Eye = Vector3ToXMFLOAT3(&p_Position);
+	XMFLOAT4 eye(m_Eye.x + offset.x, m_Eye.y + offset.y, m_Eye.z + offset.z, 1.f);
+	// Debug character animation temp stuff END
+
+	//m_Eye = Vector3ToXMFLOAT3(&p_Position);
+	//XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
+	XMVECTOR pos = XMLoadFloat4(&eye);
 
 	XMVECTOR lookAt = pos + XMVector4Transform(forwardVec, rotation);
 
