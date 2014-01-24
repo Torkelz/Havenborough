@@ -29,7 +29,7 @@ void TestGameRound::setup()
 		m_Boxes.push_back(newBox);
 
 		actorId = m_ActorFactory->getNextActorId();
-		Vector3 position(500.f - i * 200.f, m_PlayerSphereRadius, 600.f);
+		Vector3 position(500.f - i * 200.f, m_PlayerSphereRadius + 400.f, 600.f);
 
 		Player::Box box =
 		{

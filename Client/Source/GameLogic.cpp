@@ -178,7 +178,12 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 		m_PlayerViewRotation.y = -PI * 0.45f;
 	}
 
-	m_Physics->setBodyRotation(m_Player.getBody(), Vector3(m_PlayerViewRotation.x , 0.f, 0.f));
+	Vector3 playerRotation = Vector3(m_PlayerViewRotation.x + PI, 0.f, 0.f);
+	Actor::ptr actor = m_Player.getActor().lock();
+	if (actor)
+	{
+		actor->setRotation(playerRotation);
+	}
 }
 
 void GameLogic::playerJump()
