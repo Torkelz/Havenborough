@@ -71,11 +71,11 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping(VK_SPACE, "jump");
 	translator->addKeyboardMapping('C', "connectToServer");
 	translator->addKeyboardMapping('T', "joinTestLevel");
-	translator->addKeyboardMapping('U', "playLocalTest");
+	translator->addKeyboardMapping('J', "playLocalTest");
 
-	translator->addKeyboardMapping('J', "changeSceneP");
-	translator->addKeyboardMapping('K', "pauseScene");
-	translator->addKeyboardMapping('L', "changeSceneN");
+	//translator->addKeyboardMapping('J', "changeSceneP");
+	//translator->addKeyboardMapping('K', "pauseScene");
+	//translator->addKeyboardMapping('L', "changeSceneN");
 	translator->addKeyboardMapping('9', "switchBVDraw");
 	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
 
@@ -127,6 +127,10 @@ void BaseGameApp::run()
 	m_ShouldQuit = false;
 
 	resetTimer();
+
+#ifdef _DEBUG
+	m_GameLogic->playLocalLevel();
+#endif
 
 	while (!m_ShouldQuit)
 	{
