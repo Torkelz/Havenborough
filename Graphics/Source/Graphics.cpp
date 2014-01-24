@@ -253,6 +253,12 @@ void Graphics::shutdown(void)
 	}
 	m_TextureList.clear();
 
+	/*for(auto& Psys : m_ParticleSystemList)
+	{
+		SAFE_DELETE(Psys.second);
+	}
+	m_ParticleSystemList.clear();*/
+
 	while (!m_ModelList.empty())
 	{
 		std::string unremovedName = m_ModelList.front().first;
@@ -430,6 +436,41 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 			return true;
 		}
 	}
+
+	return false;
+}
+
+bool Graphics::createParticleSystem(const char *p_ParticleSystemId, const char *p_filename)
+{
+	/*ID3D11ShaderResourceView *resourceView = m_TextureLoader.createTextureFromFile(p_filename);
+	if(!resourceView)
+	{
+		return false;
+	}
+
+	int size = calculateTextureSize(resourceView);
+	m_VRAMMemInfo->updateUsage(size);
+
+	m_ParticleSystemList.push_back(make_pair(p_ParticleSystemId, resourceView));*/
+
+	return true;
+}
+
+bool Graphics::releaseParticleSystem(const char *p_ParticleSystemId)
+{
+	/*for(auto it = m_ParticleSystemList.begin(); it != m_ParticleSystemList.end(); ++it)
+	{
+		if(strcmp(it->first.c_str(), p_ParticleSystemId) == 0)
+		{
+			ID3D11ShaderResourceView *&m = it->second;
+			int size = calculateTextureSize(m);
+			m_VRAMMemInfo->updateUsage(-size);
+
+			SAFE_RELEASE(m);
+			m_ParticleSystemList.erase(it);
+			return true;
+		}
+	}*/
 
 	return false;
 }

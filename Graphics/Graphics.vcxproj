@@ -95,6 +95,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ParticleSystem.cpp" />
     <ClCompile Include="Source\SkyDome.cpp" />
     <ClCompile Include="Source\ForwardRendering.cpp" />
     <ClCompile Include="Source\AnimationClipLoader.cpp" />
@@ -114,6 +115,7 @@
     <ClCompile Include="Source\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\ParticleSystem.h" />
     <ClInclude Include="Source\ForwardRendering.h" />
     <ClInclude Include="include\ShaderDefinitions.h" />
     <ClInclude Include="Source\SkyDome.h" />
