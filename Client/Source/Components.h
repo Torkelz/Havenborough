@@ -213,6 +213,7 @@ private:
 	Vector3 m_OffsetPositition;
 	Vector3 m_Halfsize;
 	bool m_IsEdge;
+	bool m_RespondToCollision;
 
 public:
 	~AABB_Component() override
@@ -253,15 +254,14 @@ public:
 
 		m_IsEdge = false;
 		p_Data->QueryBoolAttribute("Edge", &m_IsEdge);
-		bool collisionResponse = true;
-		p_Data->QueryBoolAttribute("CollisionResponse", &collisionResponse);
-		m_Physics->setBodyCollisionResponse(m_Body, collisionResponse);
-
+		m_RespondToCollision = true;
+		p_Data->QueryBoolAttribute("CollisionResponse", &m_RespondToCollision);
 	}
 
 	void postInit() override
 	{
 		m_Body = m_Physics->createAABB(0.f, true, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
+		m_Physics->setBodyCollisionResponse(m_Body, m_RespondToCollision);
 	}
 
 	void onUpdate(float p_DeltaTime) override
