@@ -204,7 +204,9 @@ public:
 	virtual void drawFrame(void) = 0;
 
 	/**
-	 * 
+	 * Enable or disable if a model should be rendered with transparency or not, using forward shader.
+	 * @param p_ModelId the model's ID to be set transparency on/off
+	 * @param p_State the state if transparency should be enabled or not, true = transparency, false = no transparency
 	 */
 	virtual void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) = 0;
 

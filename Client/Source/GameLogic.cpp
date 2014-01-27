@@ -69,10 +69,10 @@ void GameLogic::onFrame(float p_DeltaTime)
 				{
 					m_Physics->removeHitDataAt(i);
 				}
-				if(!m_CheckpointSystem.isFinishLine() && m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+				if(!m_CheckpointSystem.reachedFinishLine() && m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
 				{
 					m_CheckpointSystem.changeCheckpoint(m_Objects);
-					if(m_CheckpointSystem.isFinishLine())
+					if(m_CheckpointSystem.reachedFinishLine())
 					{
 						m_Player.setPosition(m_Level.getStartPosition());
 						m_ChangeScene = GoToScene::POSTGAME;
@@ -113,9 +113,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 		data.m_Velocity[0] = playerVel.x;
 		data.m_Velocity[1] = playerVel.y;
 		data.m_Velocity[2] = playerVel.z;
-		//data.m_Velocity[0] = playerVel.x;
-		//data.m_Velocity[1] = playerVel.y;
-		//data.m_Velocity[2] = playerVel.z;
 
 		conn->sendPlayerControl(data);
 	}

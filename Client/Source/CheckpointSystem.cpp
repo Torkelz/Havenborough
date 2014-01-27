@@ -36,7 +36,7 @@ BodyHandle CheckpointSystem::getCurrentCheckpointBodyHandle(void)
 	return m_Checkpoints.back().lock()->getBodyHandles().back();
 }
 
-bool CheckpointSystem::isFinishLine(void)
+bool CheckpointSystem::reachedFinishLine(void)
 {
 	return m_Checkpoints.empty();
 }
@@ -58,9 +58,4 @@ void CheckpointSystem::changeCheckpoint(vector<Actor::ptr> &p_Objects)
 	{
 		m_Checkpoints.back().lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(m_CurrentColorTone);
 	}
-}
-
-std::weak_ptr<Actor> CheckpointSystem::getCurrentActor(void)
-{
-	return m_Checkpoints.back();
 }
