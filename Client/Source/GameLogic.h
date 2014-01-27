@@ -38,8 +38,20 @@ private:
 		RUNNING_RIGHT,
 	};
 
+	enum class JumpAnimationState
+	{
+		IDLE,
+		JUMP,
+		FLYING,
+		FALLING,
+		LIGHT_LANDING,
+		HARD_LANDING,
+	};
+
 	ForwardAnimationState m_PrevForwardState;
 	SideAnimationState m_PrevSideState;
+	JumpAnimationState m_PrevJumpState;
+	float m_FallSpeed;
 
 	IPhysics *m_Physics;
 	ResourceManager *m_ResourceManager;

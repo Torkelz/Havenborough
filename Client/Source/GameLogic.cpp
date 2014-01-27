@@ -28,6 +28,9 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_Connected = false;
 	m_InGame = false;
 	m_PlayingLocal = true;
+
+	// ## ANIMATION STUFFZ, REMOVE LATER ##
+	m_FallSpeed = 0.0f;
 }
 
 void GameLogic::shutdown(void)
@@ -91,12 +94,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime);
 
-	//Actor::ptr strongSkyBox = skyBox.lock();
-	//if (strongSkyBox)
-	//{
-	//	strongSkyBox->setPosition(getPlayerEyePosition());
-	//}
-
 	Vector3 actualViewRot = getPlayerViewRotation();
 	lookDir.x = -sinf(actualViewRot.x) * cosf(actualViewRot.y);
 	lookDir.y = sinf(actualViewRot.y);
@@ -137,7 +134,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	XMVECTOR previous = Vector3ToXMVECTOR(&homeMadeTrash, 0.0f);
 	homeMadeTrash = m_Player.getDirection();
 	XMVECTOR look = Vector3ToXMVECTOR(&homeMadeTrash, 0.0f);
-	XMMATRIX rotationInverse = XMMatrixInverse(NULL, XMMatrixRotationRollPitchYaw(0.0f, actualViewRot.x, 0.0f)); //Byt till transpose
+	XMMATRIX rotationInverse = XMMatrixTranspose(XMMatrixRotationRollPitchYaw(0.0f, actualViewRot.x, 0.0f));
 	velocity = XMVector3Transform(velocity, rotationInverse);
 	previous = XMVector3Transform(previous, rotationInverse);
 	if (!m_Physics->getBodyInAir(m_Player.getBody()))
@@ -198,6 +195,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 		m_PrevForwardState = currentForwardState;
 		m_PrevSideState = currentSideState;
+		m_PrevJumpState = JumpAnimationState::IDLE;
 
 		//// Check if the direction has changed.
 		//if (XMVectorGetX(velocity) < -10.f && XMVectorGetX(previous) >= -10.f)
@@ -229,6 +227,85 @@ void GameLogic::onFrame(float p_DeltaTime)
 		//	playAnimation(temp, "Idle");
 		//}
 		//Do regular movement.
+	}
+	else
+	{
+		static const float runLimit = 100.f;
+		float fallLimit = -10.0f;
+		JumpAnimationState currentJumpState = JumpAnimationState::FLYING; // KÖA DENNA
+
+		if(XMVectorGetY(velocity) < -fallLimit)
+		{
+			currentJumpState = JumpAnimationState::JUMP;
+		}
+		else if(XMVectorGetY(velocity) < fallLimit)
+		{
+			currentJumpState = JumpAnimationState::FALLING;
+		}
+
+		if (XMVectorGetY(velocity) > m_FallSpeed)
+		{
+			m_FallSpeed = XMVectorGetY(velocity);
+		}
+
+		if (XMVectorGetY(velocity) > fallLimit && XMVectorGetY(velocity) < -fallLimit && 
+			m_PrevJumpState != JumpAnimationState::JUMP) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
+		{
+			if(m_FallSpeed >= 200.0f)
+			{
+				currentJumpState = JumpAnimationState::HARD_LANDING;
+			}
+			else
+			{
+				currentJumpState = JumpAnimationState::LIGHT_LANDING;
+			}
+		}
+
+		if (currentJumpState != m_PrevJumpState)
+		{
+			switch (currentJumpState)
+			{
+			case JumpAnimationState::IDLE:
+				if (currentJumpState == JumpAnimationState::IDLE)
+				{
+					playAnimation(temp, "Idle");
+				}
+				break;
+
+			case JumpAnimationState::JUMP:
+				if (m_PrevJumpState != JumpAnimationState::FLYING)
+				{
+					if(XMVectorGetX(velocity) > runLimit || XMVectorGetZ(velocity) > runLimit)
+						playAnimation(temp, "RunningJump");
+					else
+						playAnimation(temp, "StandingJump");
+				}
+				break;
+
+			case JumpAnimationState::FLYING:
+				playAnimation(temp, "Flying");
+				break;
+
+			case JumpAnimationState::HARD_LANDING:
+				playAnimation(temp, "HardLanding");
+				break;
+
+			case JumpAnimationState::LIGHT_LANDING:
+				playAnimation(temp, "NormalLanding");
+				break;
+
+			case JumpAnimationState::FALLING:
+				playAnimation(temp, "Falling");
+				break;
+
+			default: // Just in case so that the code doesn't break, hohohoho
+				break;
+			}
+		}
+
+		m_PrevForwardState = ForwardAnimationState::IDLE;
+		m_PrevSideState = SideAnimationState::IDLE;
+		m_PrevJumpState = currentJumpState;
 	}
 	// ##### Model animation update stuff end. #####
 
