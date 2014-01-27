@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_SUITE(ResourceManagerTest)
 		int id1, id2, id3;
 		BOOST_CHECK_NO_THROW(id1 = rm.loadResource("model", "DZALA"));
 		BOOST_CHECK_GE(id1, 0);
-		BOOST_CHECK_NO_THROW(id2 = rm.loadResource("model", "SKYBOX"));
+		BOOST_CHECK_NO_THROW(id2 = rm.loadResource("model", "House1"));
 		BOOST_CHECK_GE(id2, 0);
 		BOOST_CHECK_NO_THROW(id3 = rm.loadResource("model", "DZALA"));
 		BOOST_CHECK_GE(id3, 0);

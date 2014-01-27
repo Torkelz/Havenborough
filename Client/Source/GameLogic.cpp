@@ -75,7 +75,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 					m_ChangeScene = GoToScene::POSTGAME;
 					m_Physics->removeHitDataAt(i);
 				}
-
 				Logger::log(Logger::Level::TRACE, "Collision reported");
 			}
 		}
@@ -91,11 +90,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime);
 
-	//Actor::ptr strongSkyBox = skyBox.lock();
-	//if (strongSkyBox)
-	//{
-	//	strongSkyBox->setPosition(getPlayerEyePosition());
-	//}
 
 	Vector3 actualViewRot = getPlayerViewRotation();
 	lookDir.x = -sinf(actualViewRot.x) * cosf(actualViewRot.y);
@@ -564,7 +558,6 @@ void GameLogic::loadSandbox()
 	playAnimation(testWitch.lock(), "Run");
 
 	addClimbBox();
-	//skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
 
 	circleWitch = addBasicModel("WITCH", Vector3(0.f, 0.f, 0.f));
 	playAnimation(circleWitch.lock(), "Run");
@@ -572,6 +565,8 @@ void GameLogic::loadSandbox()
 	playAnimation(standingWitch.lock(), "Bomb");
 	wavingWitch = addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
 	playAnimation(wavingWitch.lock(), "Kick");
+	
+	testCheckpoint = addCheckPointActor(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 10.0f, 1.0f), Vector3(1.0f, 1.0f, 0.0f));
 
 	ikTest = addIK_Worm();
 	playAnimation(ikTest.lock(), "Wave");
@@ -628,7 +623,7 @@ void GameLogic::loadSandbox()
 	//static const Vector3 slantedPlaneSize(2000.f, 500.f, 3000.f);
 	//static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
 	//addBoxWithOBB(slantedPlanePosition, slantedPlaneSize * 0.5f, slantedPlaneRotation);
-
+	
 	addBoxWithOBB(Vector3(0.f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(0.0f, 0.0f, 0.0f));
 	addBoxWithOBB(Vector3(-1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
 	addBoxWithOBB(Vector3(1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
@@ -938,6 +933,37 @@ std::weak_ptr<Actor> GameLogic::addCollisionSphere(Vector3 p_Position, float p_R
 	printer.OpenElement("SpherePhysics");
 	printer.PushAttribute("Radius", p_Radius);
 	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+	m_Objects.push_back(actor);
+
+	return actor;
+}
+
+std::weak_ptr<Actor> GameLogic::addCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone)
+{
+	Vector3 AABBScale = p_Scale;
+	AABBScale.x *= 75.f;
+	AABBScale.y *= 500.f;
+	AABBScale.z *= 75.f;
+
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "Checkpoint1");
+	pushVector(printer, "Scale", p_Scale);
+	pushVector(printer, "ColorTone", p_ColorTone);
+	printer.CloseElement();
+	printer.OpenElement("AABBPhysics");
+	printer.PushAttribute("CollisionResponse", false);
+	pushVector(printer, "Halfsize", AABBScale);
+	pushVector(printer, "RelativePosition", Vector3(0.0f, p_Position.y + AABBScale.y, 0.0f));
 	printer.CloseElement();
 	printer.CloseElement();
 

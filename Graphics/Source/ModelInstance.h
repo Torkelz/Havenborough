@@ -31,6 +31,8 @@
 	mutable bool m_IsCalculated;
 	mutable DirectX::XMFLOAT4X4 m_World;
 
+	DirectX::XMFLOAT3 m_ColorTone;
+
 	// Animation data
 	/**
 	 * The matrices that transforms from the animated joint's space to the parent's joint's space.
@@ -98,6 +100,18 @@
 	 * @param p_Scale the new scale.
 	 */
 	void setScale(const DirectX::XMFLOAT3 &p_Scale);
+	/**
+	 * Set the color tone of the model instance.
+	 *
+	 * @param p_ColorTone the color tone.
+	 */
+	void setColorTone(const DirectX::XMFLOAT3 &p_ColorTone);
+	/**
+	 * Gets the color tone of the model instance.
+	 *
+	 * @return the color tone.
+	 */
+	const DirectX::XMFLOAT3 &getColorTone(void) const;
 	 
 	/**
 	 * Update the animation data to the new time.

@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(TranslateStringThatExists)
 {
 	ResourceTranslator rt;
 
-	BOOST_CHECK_NO_THROW(rt.translate("model", "SKYBOX"));
+	BOOST_CHECK_NO_THROW(rt.translate("model", "House1"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

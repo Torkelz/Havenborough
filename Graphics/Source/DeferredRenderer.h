@@ -46,11 +46,15 @@ public:
 		DirectX::XMFLOAT4X4			m_World;
 		DirectX::XMFLOAT4X4			m_invTransposeWorld;
 		const std::vector<DirectX::XMFLOAT4X4> *m_FinalTransforms;
+		const DirectX::XMFLOAT3			*m_ColorTone;
 
-		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World, const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr)
+		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World, 
+			const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr, 
+			const DirectX::XMFLOAT3 *p_ColorTone = nullptr)
 		{
 			m_Model = p_Model;
 			m_World = p_World;
+			m_ColorTone = p_ColorTone;
 
 			using namespace DirectX;
 
