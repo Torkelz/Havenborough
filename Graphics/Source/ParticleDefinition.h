@@ -2,7 +2,6 @@
 
 #include "WrapperFactory.h"
 #include "ShaderStructs.h"
-//#include "ParticleSystem.h" if needed
 
 #include <memory>
 #include <vector>

@@ -95,6 +95,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ParticleInstance.cpp" />
     <ClCompile Include="Source\ParticleFactory.cpp" />
     <ClCompile Include="Source\ParticleSystem.cpp" />
     <ClCompile Include="Source\SkyDome.cpp" />
@@ -116,6 +117,7 @@
     <ClCompile Include="Source\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\ParticleInstance.h" />
     <ClInclude Include="Source\ParticleFactory.h" />
     <ClInclude Include="Source\ParticleDefinition.h" />
     <ClInclude Include="Source\ParticleSystem.h" />
@@ -146,9 +148,7 @@
     <ClInclude Include="Source\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\DeferredShaders\ParticleSystem.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\ParticleSystem.hlsl" />
     <FxCompile Include="Source\DeferredShaders\SkyDome.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>

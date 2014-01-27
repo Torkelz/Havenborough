@@ -10,6 +10,7 @@
 #include "VRAMInfo.h"
 #include "ParticleDefinition.h"
 
+/*
 struct particlecBuffer 
 {
 	DirectX::XMFLOAT4X4 viewM;
@@ -20,7 +21,7 @@ struct particlecBuffer
 	DirectX::XMFLOAT2	uvCoord;
 	float				sizeX;
 	float				sizeY;
-};
+};*/
 
 struct Particle
 {

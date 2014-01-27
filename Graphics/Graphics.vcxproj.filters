@@ -74,6 +74,9 @@
     <ClCompile Include="Source\ParticleFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ParticleInstance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Buffer.h">
@@ -160,6 +163,9 @@
     <ClInclude Include="Source\ParticleFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ParticleInstance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\DeferredShaders\LightPassSpotLight.hlsl">
@@ -192,8 +198,6 @@
     <FxCompile Include="Source\DeferredShaders\ForwardShader.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="Source\DeferredShaders\ParticleSystem.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\ParticleSystem.hlsl" />
   </ItemGroup>
 </Project>

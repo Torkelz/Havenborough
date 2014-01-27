@@ -3,6 +3,7 @@
 #include "ParticleDefinition.h"
 #include "GraphicsExceptions.h"
 
+
 #include <DirectXMath.h>
 #include <vector>
 #include <string>
@@ -68,10 +69,9 @@ protected:
 	~ParticleFactory();
 
 private:
-	Buffer::Description createBufferDescription(const vector<StaticVertex> &p_VertexData, Buffer::Usage p_Usage);
+	Buffer::Description createBufferDescription(const vector<particlecBuffer> &p_Element);
 
-	void loadTextures(ParticleDefinition &particle, const char *p_Filename, unsigned int p_NumOfMaterials,
-		const vector<Material> &p_Materials);
+	void loadTextures(ParticleDefinition &particle, const char *p_Filename, unsigned int p_NumOfMaterials, const vector<Material> &p_Materials);
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
 
 };
