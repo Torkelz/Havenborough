@@ -233,4 +233,24 @@ public:
 	 * Send a Done Loading package singaling that the client has finished loading the level.
 	 */
 	virtual void sendDoneLoading() = 0;
+
+	/**
+	 * Send a Join Game package for a player joining a server game.
+	 *
+	 * @param p_Game the name of the game to join
+	 */
+	virtual void sendJoinGame(const char* p_Game) = 0;
+
+	/**
+	 * Get the name of the game the player tries to join.
+	 *
+	 * @param p_Package a valid reference to a package with the JoinGame type.
+	 * @return the name of the game from the package
+	 */
+	virtual const char* getJoinGameName(Package p_Package) = 0;
+
+	/**
+	 * Send a Leave Game package for a player leaving a server game.
+	 */
+	virtual void sendLeaveGame() = 0;
 };

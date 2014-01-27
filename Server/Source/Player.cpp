@@ -9,3 +9,8 @@ User::wPtr Player::getUser() const
 {
 	return m_User;
 }
+
+void Player::releaseUser()
+{
+	m_User.reset();
+}

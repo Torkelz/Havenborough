@@ -9,7 +9,7 @@ EdgeCollisionResponse::~EdgeCollisionResponse(void)
 {
 }
 
-bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector4 p_EdgePosition, float p_EdgeSizeY, Player *p_Player)
+bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector3 p_EdgePosition, float p_EdgeSizeY, Player *p_Player)
 {
 	if(!p_Player->getForceMove() && p_Hit.isEdge && p_Hit.collider == p_Player->getBody())
 	{
@@ -21,13 +21,13 @@ bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector4 p_EdgePositio
 	return false;
 }
 
-void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector4 p_EdgePosition, XMVECTOR p_VictimNormal,
+void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector3 p_EdgePosition, XMVECTOR p_VictimNormal,
 	float p_EdgeOffsetY)
 {
 	XMFLOAT3 playerPos = p_Player->getCollisionCenter();
 	XMFLOAT3 playerOrigPos = p_Player->getPosition();
 	XMVECTOR playerStartPos = XMLoadFloat3(&playerPos);
-	XMFLOAT4 collisionBodyPos = Vector4ToXMFLOAT4(&p_EdgePosition);
+	XMFLOAT3 collisionBodyPos = p_EdgePosition;
 
 	XMFLOAT3 collisionPosition = XMFLOAT3(collisionBodyPos.x, collisionBodyPos.y, collisionBodyPos.z);
 	XMVECTOR boundingVolumeCenter = XMLoadFloat3(&collisionPosition);

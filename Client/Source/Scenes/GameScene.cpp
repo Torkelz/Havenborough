@@ -37,7 +37,9 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_Graphics->createSkyDome("SKYBOXDDS",50000.f);
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addLight), LightEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeLight), RemoveLightEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createMesh), CreateMeshEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeMesh), RemoveMeshEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelPosition), UpdateModelPositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelScaleEventData::sk_EventType);
@@ -63,11 +65,6 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	{
 		m_ChangeScene = true;
 		m_NewSceneID = (int)m_GameLogic->getChangeScene();
-		
-		std::shared_ptr<MouseEventDataShow> showMouse(new MouseEventDataShow(true));
-		m_EventManager->queueEvent(showMouse);
-		std::shared_ptr<MouseEventDataLock> lockMouse(new MouseEventDataLock(false));
-		m_EventManager->queueEvent(lockMouse);
 	}
 	if(m_ChangeScene)
 	{
@@ -100,6 +97,14 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	}
 }
 
+void GameScene::onFocus()
+{
+	std::shared_ptr<MouseEventDataShow> showMouse(new MouseEventDataShow(false));
+	m_EventManager->queueEvent(showMouse);
+	std::shared_ptr<MouseEventDataLock> lockMouse(new MouseEventDataLock(true));
+	m_EventManager->queueEvent(lockMouse);
+}
+
 void GameScene::render()
 {
 	m_Graphics->setClearColor(Vector4(0,0,0,1));
@@ -107,8 +112,6 @@ void GameScene::render()
 	Vector3 playerPos = m_GameLogic->getPlayerEyePosition();
 	m_Graphics->updateCamera(playerPos, viewRot.x, viewRot.y);
 
-	std::vector<Actor::ptr>& actors = m_GameLogic->getObjects();
-	
 	for (auto& mesh : m_Models)
 	{
 		m_Graphics->renderModel(mesh.modelId);
@@ -231,6 +234,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->testResetLayerAnimation();
 	}
+	else if (p_Action == "leaveGame" && p_Value == 1.f)
+	{
+		m_GameLogic->leaveGame();
+	}
 }
 
 /*########## TEST FUNCTIONS ##########*/
@@ -245,6 +252,18 @@ void GameScene::addLight(IEventData::Ptr p_Data)
 	std::shared_ptr<LightEventData> lightData = std::static_pointer_cast<LightEventData>(p_Data);
 	Light light = lightData->getLight();
 	m_Lights.push_back(light);
+}
+
+void GameScene::removeLight(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveLightEventData> lightData = std::static_pointer_cast<RemoveLightEventData>(p_Data);
+
+	auto remIt = std::remove_if(m_Lights.begin(), m_Lights.end(),
+		[&lightData] (Light& p_Light)
+		{
+			return p_Light.id == lightData->getId();
+		});
+	m_Lights.erase(remIt, m_Lights.end());
 }
 
 void GameScene::createMesh(IEventData::Ptr p_Data)
@@ -263,6 +282,30 @@ void GameScene::createMesh(IEventData::Ptr p_Data)
 	m_Graphics->setModelScale(mesh.modelId, meshData->getScale());
 
 	m_Models.push_back(mesh);
+}
+
+void GameScene::removeMesh(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveMeshEventData> meshData = std::static_pointer_cast<RemoveMeshEventData>(p_Data);
+
+	for (auto& model : m_Models)
+	{
+		if (model.meshId == meshData->getId())
+		{
+			m_ResourceManager->releaseResource(model.resourceId);
+			auto it = std::find(m_ResourceIDs.begin(), m_ResourceIDs.end(), model.resourceId);
+			if (it != m_ResourceIDs.end())
+			{
+				m_ResourceIDs.erase(it);
+			}
+
+			m_Graphics->eraseModelInstance(model.modelId);
+
+			std::swap(model, m_Models.back());
+			m_Models.pop_back();
+			return;
+		}
+	}
 }
 
 void GameScene::updateModelPosition(IEventData::Ptr p_Data)

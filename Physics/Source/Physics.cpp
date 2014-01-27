@@ -359,18 +359,17 @@ void Physics::setBodyCollisionResponse(BodyHandle p_Body, bool p_State)
 	body->setCollisionResponse(p_State);
 }
 
-Vector4 Physics::getBodyPosition(BodyHandle p_Body)
+Vector3 Physics::getBodyPosition(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
-		return Vector4(0.f, 0.f, 0.f, 1.f);
+		return Vector3(0.f, 0.f, 0.f);
 
 	XMFLOAT4 temp = body->getPosition();	// m
-	Vector4 tempvec4;	// cm
 
-	tempvec4 = XMFLOAT4ToVector4(&temp) * 100.f;
+	Vector3 tempvec3(temp.x * 100.f, temp.y * 100.f, temp.z * 100.f);	// cm
 
-	return tempvec4;
+	return tempvec3;
 }
 
 Vector3 Physics::getBodySize(BodyHandle p_Body)
@@ -423,15 +422,15 @@ void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 	body->setVelocity(tempPosition);
 }
 
-Vector4 Physics::getBodyVelocity(BodyHandle p_Body)
+Vector3 Physics::getBodyVelocity(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
-		return Vector4(0.f, 0.f, 0.f, 0.f);
+		return Vector3(0.f, 0.f, 0.f);
 
 	XMFLOAT4 tempVel = body->getVelocity();
 
-	return Vector4(tempVel.x, tempVel.y, tempVel.z, tempVel.w) * 100.f;
+	return Vector3(tempVel.x, tempVel.y, tempVel.z) * 100.f;
 }
 
 void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)

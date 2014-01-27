@@ -144,13 +144,6 @@ public:
 	 */
 	void lockMouse(bool p_State);
 
-	/**
-	 * Hide the mouse pointer or unhide it.
-	 *
-	 * @param p_State true for hide.
-	 */
-	void showMouse(bool p_State);
-
 protected:
 	/**
 	 * Handler function for Win32 raw input messages.

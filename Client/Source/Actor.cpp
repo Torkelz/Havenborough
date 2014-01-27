@@ -12,7 +12,16 @@ Actor::~Actor()
 
 void Actor::initialize(const tinyxml2::XMLElement* p_Data)
 {
+	m_Position = Vector3(0.f, 0.f, 0.f);
+	m_Rotation = Vector3(0.f, 0.f, 0.f);
 
+	p_Data->QueryAttribute("x", &m_Position.x);
+	p_Data->QueryAttribute("y", &m_Position.y);
+	p_Data->QueryAttribute("z", &m_Position.z);
+
+	p_Data->QueryAttribute("yaw", &m_Rotation.x);
+	p_Data->QueryAttribute("pitch", &m_Rotation.y);
+	p_Data->QueryAttribute("roll", &m_Rotation.z);
 }
 
 void Actor::postInit()

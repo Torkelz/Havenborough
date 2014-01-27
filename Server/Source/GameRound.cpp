@@ -1,6 +1,7 @@
 #include "GameRound.h"
 
 #include "GameList.h"
+#include "Lobby.h"
 #include "../../Client/Source/Logger.h"
 
 #include <algorithm>
@@ -16,9 +17,10 @@ GameRound::~GameRound()
 	}
 }
 
-void GameRound::initialize(ActorFactory::ptr p_ActorFactory)
+void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobby)
 {
 	m_ActorFactory = p_ActorFactory;
+	m_ReturnLobby = p_ReturnLobby;
 }
 
 void GameRound::setOwningList(GameList* p_ParentList)
@@ -90,6 +92,13 @@ void GameRound::handlePackages()
 			case PackageType::DONE_LOADING:
 				{
 					user->setState(User::State::WAITING_FOR_START);
+				}
+				break;
+
+			case PackageType::LEAVE_GAME:
+				{
+					m_ReturnLobby->addFreeUser(user);
+					player.releaseUser();
 				}
 				break;
 
@@ -190,8 +199,8 @@ void GameRound::runGame()
 		currentTime = std::chrono::high_resolution_clock::now();
 		const std::chrono::high_resolution_clock::duration frameTime = currentTime - previousTime;
 
-		checkForDisconnectedUsers();
 		handlePackages();
+		checkForDisconnectedUsers();
 		updateLogic(deltaTime);
 		sendUpdates();
 
@@ -204,7 +213,11 @@ void GameRound::runGame()
 
 void GameRound::checkForDisconnectedUsers()
 {
-	auto split = std::partition(m_Players.begin(), m_Players.end(), [] (const Player& p_Player){ return p_Player.getUser().lock(); });
+	auto split = std::partition(m_Players.begin(), m_Players.end(),
+		[] (const Player& p_Player)
+		{
+			return p_Player.getUser().lock();
+		});
 
 	for (auto removePlayer = split; removePlayer != m_Players.end(); ++removePlayer)
 	{

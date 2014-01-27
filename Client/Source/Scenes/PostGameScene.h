@@ -20,6 +20,7 @@ public:
 	void destroy() override;
 
 	void onFrame(float p_DeltaTime, int* p_IsCurrentScene) override;
+	void onFocus() override;
 	void render() override;
 
 	bool getIsVisible() override;

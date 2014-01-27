@@ -66,7 +66,7 @@ private:
 	Light m_Light;
 
 public:
-	static const Type sk_EventType = Type(0x77dd2b5a);
+	static const Type sk_EventType = Type(0x748d2b5a);
 	
 	explicit LightEventData(Light p_Light) :
 		m_Light(p_Light)
@@ -95,6 +95,44 @@ public:
 	Light getLight(void) const
 	{
 		return m_Light;
+	}
+};
+
+class RemoveLightEventData : public BaseEventData
+{
+private:
+	Light::Id m_Id;
+
+public:
+	static const Type sk_EventType = Type(0x128d2b5a);
+	
+	explicit RemoveLightEventData(Light::Id p_Id) :
+		m_Id(p_Id)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new RemoveLightEventData(m_Id));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "RemoveLightEvent";
+	}
+
+	Light::Id getId() const
+	{
+		return m_Id;
 	}
 };
 
@@ -150,6 +188,44 @@ public:
 	}
 };
 
+class RemoveMeshEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+
+public:
+	static const Type sk_EventType = Type(0xdeadebbe);
+
+	RemoveMeshEventData(unsigned int p_Id)
+		:	m_Id(p_Id)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new RemoveMeshEventData(m_Id));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "RemoveMeshEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+};
+
 class UpdateModelPositionEventData : public BaseEventData
 {
 private:
@@ -183,7 +259,7 @@ public:
 		return "UpdateModelPositionEvent";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -227,7 +303,7 @@ public:
 		return "UpdateModelScaleEvent";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -271,7 +347,7 @@ public:
 		return "UpdateModelRotationEvent";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -315,7 +391,7 @@ public:
 		return "PlayAnimationEvent";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -367,7 +443,7 @@ public:
 		return "AddReachIK_Event";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -428,7 +504,7 @@ public:
 		return "RemoveReachIK_Event";
 	}
 
-	int getId() const
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
@@ -436,6 +512,99 @@ public:
 	std::string getReachJoint() const
 	{
 		return m_ReachJoint;
+	}
+};
+
+class GameStartedEventData : public BaseEventData
+{
+private:
+
+public:
+	static const Type sk_EventType = Type(0x38ae3f31);
+
+	GameStartedEventData()
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new GameStartedEventData);
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "GameStartedEvent";
+	}
+};
+
+class GameLeftEventData : public BaseEventData
+{
+private:
+
+public:
+	static const Type sk_EventType = Type(0x846ef45b);
+
+	GameLeftEventData()
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new GameLeftEventData);
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "GameLeftEvent";
+	}
+};
+
+class QuitGameEventData : public BaseEventData
+{
+private:
+
+public:
+	static const Type sk_EventType = Type(0x846e56eb);
+
+	QuitGameEventData()
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new QuitGameEventData);
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "QuitGameEvent";
 	}
 };
 

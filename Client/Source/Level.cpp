@@ -92,7 +92,6 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 		}
 	}
 
-
 	return true;
 }
 
