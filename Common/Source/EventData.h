@@ -1,7 +1,7 @@
 #pragma once
 #include "IEventData.h"
 #include "LightStructs.h"
-#include "../Utilities/XMFloatUtil.h"
+#include "Utilities/XMFloatUtil.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4100)

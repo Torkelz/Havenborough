@@ -5,7 +5,7 @@
 #pragma once
 
 #include "User.h"
-#include "../../Client/Utilities/Util.h"
+#include <Utilities/Util.h>
 
 /**
  * Player contains game specific information as well as the client user.

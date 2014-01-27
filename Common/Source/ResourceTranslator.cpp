@@ -1,5 +1,5 @@
 #include "ResourceTranslator.h"
-#include "ClientExceptions.h"
+#include "CommonExceptions.h"
 
 #include <vector>
 

@@ -1,6 +1,6 @@
 #include "MenuScene.h"
 
-#include "../EventData.h"
+#include <EventData.h>
 
 MenuScene::MenuScene()
 {

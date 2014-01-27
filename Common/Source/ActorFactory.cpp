@@ -1,13 +1,12 @@
 #include "ActorFactory.h"
 
-#include "ClientExceptions.h"
+#include "CommonExceptions.h"
 #include "Components.h"
 
 ActorFactory::ActorFactory()
 	:	m_LastActorId(65536),
 		m_LastModelComponentId(0),
 		m_LastLightComponentId(0),
-		m_Graphics(nullptr),
 		m_Physics(nullptr)
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
@@ -18,11 +17,6 @@ ActorFactory::ActorFactory()
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
 	m_ComponentCreators["Light"] = std::bind(&ActorFactory::createLightComponent, this);
-}
-
-void ActorFactory::setGraphics(IGraphics* p_Graphics)
-{
-	m_Graphics = p_Graphics;
 }
 
 void ActorFactory::setPhysics(IPhysics* p_Physics)
@@ -83,7 +77,7 @@ ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_
 	}
 	else
 	{
-		throw ClientException("Could not find ActorComponent creator named '" + name + "'", __LINE__, __FILE__);
+		throw CommonException("Could not find ActorComponent creator named '" + name + "'", __LINE__, __FILE__);
 	}
 
 	if (component)

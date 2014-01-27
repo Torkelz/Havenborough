@@ -1,6 +1,6 @@
 #include "GameScene.h"
-#include "../Components.h"
-#include "../EventData.h"
+#include <Components.h>
+#include <EventData.h>
 
 GameScene::GameScene()
 {

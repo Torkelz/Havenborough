@@ -7,10 +7,9 @@
 #include "Actor.h"
 #include "ResourceManager.h"
 
-#include <IGraphics.h>
 #include <IPhysics.h>
 
-#include <tinyxml2.h>
+#include <tinyxml2/tinyxml2.h>
 
 #include <functional>
 #include <map>
@@ -25,7 +24,6 @@ private:
 	unsigned int m_LastActorId;
 	unsigned int m_LastModelComponentId;
 	unsigned int m_LastLightComponentId;
-	IGraphics* m_Graphics;
 	IPhysics* m_Physics;
 	EventManager* m_EventManager;
 	ResourceManager* m_ResourceManager;
@@ -46,12 +44,6 @@ public:
 	 */
 	ActorFactory();
 
-	/**
-	 * Set the graphics library to be used when creating components requiring graphics.
-	 *
-	 * @param p_Graphics the graphics library to use
-	 */
-	void setGraphics(IGraphics* p_Graphics);
 	/**
 	 * Set the physics library to be used when creating component requiring physics.
 	 *

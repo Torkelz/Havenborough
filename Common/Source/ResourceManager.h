@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ClientExceptions.h"
+#include "CommonExceptions.h"
 #include "ResourceTranslator.h"
 
 #include <algorithm>

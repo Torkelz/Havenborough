@@ -1,6 +1,6 @@
 #include "TestGameRound.h"
 
-#include "../../Client/Source/Logger.h"
+#include <Logger.h>
 
 #include <algorithm>
 

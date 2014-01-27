@@ -5,7 +5,7 @@
 #include <cstdint>
 
 #include "ShaderDefinitions.h"
-#include "../../Client/Utilities/Util.h"
+#include <Utilities/Util.h>
 
 
 class IGraphics

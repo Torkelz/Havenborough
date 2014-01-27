@@ -10,20 +10,49 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="3rd party\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="Source\Actor.h" />
+    <ClInclude Include="Source\ActorComponent.h" />
+    <ClInclude Include="Source\ActorFactory.h" />
+    <ClInclude Include="Source\CommonExceptions.h" />
+    <ClInclude Include="Source\Components.h" />
+    <ClInclude Include="Source\EventData.h" />
+    <ClInclude Include="Source\EventManager.h" />
+    <ClInclude Include="Source\IEventData.h" />
+    <ClInclude Include="Source\IEventManager.h" />
+    <ClInclude Include="Source\LightStructs.h" />
+    <ClInclude Include="Source\Logger.h" />
+    <ClInclude Include="Source\ResourceManager.h" />
+    <ClInclude Include="Source\ResourceTranslator.h" />
+    <ClInclude Include="Source\Utilities\FastDelegate.h" />
+    <ClInclude Include="Source\Utilities\MemoryUtil.h" />
+    <ClInclude Include="Source\Utilities\Util.h" />
+    <ClInclude Include="Source\Utilities\XMFloatUtil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="Source\Actor.cpp" />
+    <ClCompile Include="Source\ActorFactory.cpp" />
+    <ClCompile Include="Source\EventManager.cpp" />
+    <ClCompile Include="Source\Logger.cpp" />
+    <ClCompile Include="Source\ResourceManager.cpp" />
+    <ClCompile Include="Source\ResourceTranslator.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1DB22D9F-ADDF-4065-9355-DB75F64D13A6}</ProjectGuid>
+    <ProjectGuid>{8C7B8D02-7172-4AE2-A0DF-2E5A5FC9F23F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Physics</RootNamespace>
+    <RootNamespace>Common</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -40,17 +69,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Test\</OutDir>
+    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Bin\</OutDir>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -58,13 +85,16 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PHYSICS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/Source</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
+      <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
   </ItemDefinitionGroup>
@@ -76,43 +106,21 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PHYSICS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
+      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/Source</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\BVLoader.cpp" />
-    <ClCompile Include="Source\AABB.cpp" />
-    <ClCompile Include="Source\Body.cpp" />
-    <ClCompile Include="Source\Collision.cpp" />
-    <ClCompile Include="Source\PhysicsLogger.cpp" />
-    <ClCompile Include="Source\Physics.cpp" />
-    <ClCompile Include="Source\Sphere.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\Hull.h" />
-    <ClInclude Include="include\OBB.h" />
-    <ClInclude Include="Source\BVLoader.h" />
-    <ClInclude Include="include\PhysicsTypes.h" />
-    <ClInclude Include="include\AABB.h" />
-    <ClInclude Include="include\BoundingVolume.h" />
-    <ClInclude Include="include\IPhysics.h" />
-    <ClInclude Include="include\Sphere.h" />
-    <ClInclude Include="Source\Body.h" />
-    <ClInclude Include="Source\Collision.h" />
-    <ClInclude Include="Source\PhysicsLogger.h" />
-    <ClInclude Include="Source\Physics.h" />
-    <ClInclude Include="include\VolumeIncludeAll.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

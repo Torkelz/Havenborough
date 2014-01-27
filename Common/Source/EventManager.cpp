@@ -1,5 +1,5 @@
 #include "EventManager.h"
-#include "ClientExceptions.h"
+#include "CommonExceptions.h"
 #include "Logger.h"
 
 const std::chrono::milliseconds IEventManager::m_MaxProcessTime(std::numeric_limits<long long>::max());

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ActorComponent.h"
-#include "ClientExceptions.h"
+#include "CommonExceptions.h"
 #include "EventData.h"
 #include "ResourceManager.h"
 
@@ -326,7 +326,7 @@ public:
 
 		if (!meshName)
 		{
-			throw ClientException("Collision component lacks mesh", __LINE__, __FILE__);
+			throw CommonException("Collision component lacks mesh", __LINE__, __FILE__);
 		}
 
 		m_MeshResourceId = m_ResourceManager->loadResource("volume", meshName);
@@ -419,7 +419,7 @@ public:
 		const char* mesh = p_Data->Attribute("Mesh");
 		if (!mesh)
 		{
-			throw ClientException("Component lacks mesh", __LINE__, __FILE__);
+			throw CommonException("Component lacks mesh", __LINE__, __FILE__);
 		}
 
 		m_MeshName = std::string(mesh);
@@ -816,7 +816,7 @@ public:
 		}
 		else
 		{
-			throw ClientException("XML Light description missing valid type", __LINE__, __FILE__);
+			throw CommonException("XML Light description missing valid type", __LINE__, __FILE__);
 		}
 	}
 	void postInit() override

@@ -2,7 +2,7 @@
 #include "IScene.h"
 //#include "../Logger.h"
 #include "../GameLogic.h"
-#include "../LightStructs.h"
+#include <LightStructs.h>
 
 class GameScene : public IScene
 {

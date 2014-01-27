@@ -1,5 +1,5 @@
 #include <boost\test\unit_test.hpp>
-#include "..\..\Client\Source\ResourceTranslator.h"
+#include <ResourceTranslator.h>
 #include "..\..\Client\Source\ClientExceptions.h"
 
 BOOST_AUTO_TEST_SUITE(ResourceTranslatorTest)
