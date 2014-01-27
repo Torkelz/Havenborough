@@ -666,14 +666,9 @@ public:
 class MouseEventDataShow : public BaseEventData
 {
 private: 
-	//Parameter for event, can be of any number and type
 	bool m_State;
 
 public:
-	/**
-	* Unique identifier for event data type. This one is an example and for testing.
-	* E.g. IEventData::Type UniqueEventDataName::sk_EventType(unique_hex);
-	*/
 	static const IEventData::Type sk_EventType = Type(0x22dd2b3a);
 	
 	explicit MouseEventDataShow(bool p_HideState) :
@@ -701,13 +696,55 @@ public:
 		return "MouseEventDataShow";
 	}
 
-	/**
-	* Used to get the event data. User defined function.
-	* Can be of any number of functions and have any return type.
-	*/
 	bool getShowState(void) const
 	{
 		return m_State;
+	}
+};
+
+class ChangeColorToneEvent : public BaseEventData
+{
+private: 
+	Vector3 m_ColorTone;
+	unsigned int m_MeshId;
+
+public:
+	static const IEventData::Type sk_EventType = Type(0xbabbab3a);
+	
+	explicit ChangeColorToneEvent(unsigned int p_MeshId, Vector3 p_ColorTone) :
+		m_MeshId(p_MeshId),
+		m_ColorTone(p_ColorTone)
+	{
+	}
+
+	virtual const IEventData::Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new ChangeColorToneEvent(m_MeshId, m_ColorTone));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+		//p_Out << m_ColorTone;
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "ChangeColorToneEvent";
+	}
+
+	Vector3 getColorTone(void) const
+	{
+		return m_ColorTone;
+	}
+
+	unsigned int getMeshId(void) const
+	{
+		return m_MeshId;
 	}
 };
 

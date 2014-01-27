@@ -262,7 +262,7 @@ Actor::ptr ActorFactory::createCollisionSphere(Vector3 p_Position, float p_Radiu
 	return actor;
 }
 
-Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone)
+Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale)
 {
 	Vector3 AABBScale = p_Scale;
 	AABBScale.x *= 75.f;
@@ -274,7 +274,6 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "Checkpoint1");
 	pushVector(printer, "Scale", p_Scale);
-	pushVector(printer, "ColorTone", p_ColorTone);
 	printer.CloseElement();
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);
@@ -387,6 +386,22 @@ Actor::ptr ActorFactory::createPointLight(Vector3 p_Position, float p_Range, Vec
 	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
 
 	return actor;
+}
+
+Actor::ptr ActorFactory::createCheckPointArrow()
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Mesh");
+	pushVector(printer, "Scale", Vector3(1.0f, 1.0f, 1.0f));
+	pushVector(printer, "ColorTone", Vector3(1.0f, 1.0f, 1.0f));
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	return createActor(doc.FirstChildElement("Object"));
 }
 
 ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_Data)

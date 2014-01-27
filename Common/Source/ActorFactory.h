@@ -96,6 +96,8 @@ public:
 	Actor::ptr createDirectionalLight(Vector3 p_Direction, Vector3 p_Color);
 	Actor::ptr createSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);
 	Actor::ptr createPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
+	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
+	Actor::ptr createCheckPointArrow();
 
 protected:
 	/**

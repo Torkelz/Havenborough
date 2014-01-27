@@ -7,6 +7,7 @@
 #include "EdgeCollisionResponse.h"
 #include "EventManager.h"
 #include "Input/Input.h"
+#include "CheckpointSystem.h"
 
 #include <INetwork.h>
 
@@ -31,7 +32,6 @@ private:
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
 	std::vector<int> m_ResourceIDs;
-	std::weak_ptr<Actor> m_FinishLine;
 
 	GoToScene m_ChangeScene;
 
@@ -48,7 +48,8 @@ private:
 	std::weak_ptr<Actor> wavingWitch;
 	std::weak_ptr<Actor> ikTest;
 	std::weak_ptr<Actor> testWitch;
-	std::weak_ptr<Actor> testCheckpoint;
+
+	CheckpointSystem m_CheckpointSystem;
 
 	const static int NUM_BOXES = 16;
 	std::weak_ptr<Actor> rotBoxes[NUM_BOXES];
@@ -65,7 +66,8 @@ public:
 	GameLogic(void);
 	~GameLogic(void);
 
-	void initialize(ResourceManager *p_ResourceManager,	IPhysics *p_Physics, ActorFactory *p_ActorFactory, EventManager *p_EventManager, INetwork *p_Network); 
+	void initialize(ResourceManager *p_ResourceManager,	IPhysics *p_Physics, ActorFactory *p_ActorFactory,
+		EventManager *p_EventManager, INetwork *p_Network); 
 	void shutdown(void);
 
 	std::vector<Actor::ptr> &getObjects();
