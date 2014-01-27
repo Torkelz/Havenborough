@@ -20,6 +20,9 @@
  */
 class ActorFactory
 {
+public:
+	typedef std::shared_ptr<ActorFactory> ptr;
+
 private:
 	unsigned int m_LastActorId;
 	unsigned int m_LastModelComponentId;
@@ -76,6 +79,23 @@ public:
 	 * @param p_Id the id to give to the actor, should be unique.
 	 */
 	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id);
+
+	// ************ Test methods ************
+	Actor::ptr createRotatingBox(Vector3 p_Position, Vector3 p_Scale);
+	Actor::ptr createSkybox(Vector3 p_Scale);
+	Actor::ptr createBasicModel(const std::string& p_Model, Vector3 p_Position);
+	Actor::ptr createIK_Worm();
+	Actor::ptr createBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize);
+	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
+	Actor::ptr createClimbBox();
+	Actor::ptr createClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
+	Actor::ptr createCollisionSphere(Vector3 p_Position, float p_Radius);
+	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone);
+	std::string getPlayerActorDescription(Vector3 p_Position) const;
+	Actor::ptr createPlayerActor(Vector3 p_Position);
+	Actor::ptr createDirectionalLight(Vector3 p_Direction, Vector3 p_Color);
+	Actor::ptr createSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);
+	Actor::ptr createPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
 
 protected:
 	/**

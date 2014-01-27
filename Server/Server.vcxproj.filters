@@ -36,9 +36,6 @@
     <ClCompile Include="Source\GameList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ActorFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\TestGameRound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,9 +63,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\GameList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ActorFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\TestGameRound.h">

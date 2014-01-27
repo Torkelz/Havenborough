@@ -63,6 +63,332 @@ Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data, Actor::
 	return actor;
 }
 
+void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Vec)
+{
+	p_Printer.OpenElement(p_ElementName.c_str());
+	p_Printer.PushAttribute("x", p_Vec.x);
+	p_Printer.PushAttribute("y", p_Vec.y);
+	p_Printer.PushAttribute("z", p_Vec.z);
+	p_Printer.CloseElement();
+}
+
+void pushColor(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Color)
+{
+	p_Printer.OpenElement(p_ElementName.c_str());
+	p_Printer.PushAttribute("r", p_Color.x);
+	p_Printer.PushAttribute("g", p_Color.y);
+	p_Printer.PushAttribute("b", p_Color.z);
+	p_Printer.CloseElement();
+}
+
+Actor::ptr ActorFactory::createRotatingBox(Vector3 p_Position, Vector3 p_Scale)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", p_Scale);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createBasicModel(const std::string& p_Model, Vector3 p_Position)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", p_Model.c_str());
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createIK_Worm()
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "IKTest");
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(Vector3(800.f, 100.f, 200.f));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", p_Halfsize * 2.f);
+	printer.CloseElement();
+	printer.OpenElement("AABBPhysics");
+	pushVector(printer, "Halfsize", p_Halfsize);
+	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", p_Halfsize * 2.f);
+	printer.CloseElement();
+	printer.OpenElement("OBBPhysics");
+	pushVector(printer, "Halfsize", p_Halfsize);
+	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+	actor->setRotation(p_Rotation);
+
+	return actor;
+}
+
+void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Halfsize)
+{
+	p_Printer.OpenElement("AABBPhysics");
+	p_Printer.PushAttribute("Edge", true);
+	pushVector(p_Printer, "Halfsize", p_Halfsize);
+	pushVector(p_Printer, "OffsetPosition", p_Position);
+	p_Printer.CloseElement();
+}
+
+Actor::ptr ActorFactory::createClimbBox()
+{
+	static const Vector3 climbTestPos(0.f, 200.f, 3000.f);
+	static const Vector3 climbTestHalfSize(100.f, 100.f, 100.f);
+
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", climbTestHalfSize * 2.f);
+	printer.CloseElement();
+	addEdge(printer, Vector3(0.f, 0.f, 0.f), climbTestHalfSize);
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(climbTestPos);
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.PushAttribute("x", p_Position.x);
+	printer.PushAttribute("y", p_Position.y);
+	printer.PushAttribute("z", p_Position.z);
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", p_Halfsize * 2.f);
+	printer.CloseElement();
+	printer.OpenElement("AABBPhysics");
+	pushVector(printer, "Halfsize", p_Halfsize);
+	printer.CloseElement();
+	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));
+	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, -p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));
+	addEdge(printer, Vector3(p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
+	addEdge(printer, Vector3(-p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
+	printer.CloseElement();
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createCollisionSphere(Vector3 p_Position, float p_Radius)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Radius", p_Radius);
+	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone)
+{
+	Vector3 AABBScale = p_Scale;
+	AABBScale.x *= 75.f;
+	AABBScale.y *= 500.f;
+	AABBScale.z *= 75.f;
+
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "Checkpoint1");
+	pushVector(printer, "Scale", p_Scale);
+	pushVector(printer, "ColorTone", p_ColorTone);
+	printer.CloseElement();
+	printer.OpenElement("AABBPhysics");
+	printer.PushAttribute("CollisionResponse", false);
+	pushVector(printer, "Halfsize", AABBScale);
+	pushVector(printer, "RelativePosition", Vector3(0.0f, p_Position.y + AABBScale.y, 0.0f));
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+	actor->setPosition(p_Position);
+
+	return actor;
+}
+
+std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.PushAttribute("x", p_Position.x);
+	printer.PushAttribute("y", p_Position.y);
+	printer.PushAttribute("z", p_Position.z);
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "WITCH");
+	printer.CloseElement();
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", 50.f);
+	printer.PushAttribute("Mass", 68.f);
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
+	printer.CloseElement();
+	printer.OpenElement("Pulse");
+	printer.PushAttribute("Length", 0.5f);
+	printer.PushAttribute("Strength", 0.5f);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	return printer.CStr();
+}
+
+Actor::ptr ActorFactory::createPlayerActor(Vector3 p_Position)
+{
+	tinyxml2::XMLDocument doc;
+	doc.Parse(getPlayerActorDescription(p_Position).c_str());
+
+	return createActor(doc.FirstChildElement("Object"));
+}
+
+Actor::ptr ActorFactory::createDirectionalLight(Vector3 p_Direction, Vector3 p_Color)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Light");
+	printer.PushAttribute("Type", "Directional");
+	pushVector(printer, "Direction", p_Direction);
+	pushColor(printer, "Color", p_Color);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Light");
+	printer.PushAttribute("Type", "Spot");
+	printer.PushAttribute("Range", p_Range);
+	pushVector(printer, "Position", p_Position);
+	pushVector(printer, "Direction", p_Direction);
+	printer.OpenElement("Angles");
+	printer.PushAttribute("min", p_MinMaxAngles.x);
+	printer.PushAttribute("max", p_MinMaxAngles.y);
+	printer.CloseElement();
+	pushColor(printer, "Color", p_Color);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Light");
+	printer.PushAttribute("Type", "Point");
+	printer.PushAttribute("Range", p_Range);
+	pushVector(printer, "Position", p_Position);
+	pushColor(printer, "Color", p_Color);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
 ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_Data)
 {
 	std::string name(p_Data->Value());
