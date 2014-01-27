@@ -268,19 +268,19 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 	switch (body->getVolume()->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
-		((AABB*)body->getVolume())->setScale(scale);
+		((AABB*)body->getVolume())->scale(scale);
 		break;
 
 	case BoundingVolume::Type::HULL:
-		((Hull*)body->getVolume())->setScale(scale);
+		((Hull*)body->getVolume())->scale(scale);
 		break;
 
 	case BoundingVolume::Type::OBB:
-		((OBB*)body->getVolume())->setScale(scale);
+		((OBB*)body->getVolume())->scale(scale);
 		break;
 
 	case BoundingVolume::Type::SPHERE:
-		((Sphere*)body->getVolume())->setScale(scale);
+		((Sphere*)body->getVolume())->scale(scale);
 		break;
 	default:
 		break;

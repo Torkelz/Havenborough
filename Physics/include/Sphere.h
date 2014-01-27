@@ -90,7 +90,7 @@ public:
 	* Scales the radius of the sphere.
 	* @param p_scale the X value of the vector is multiplied with the radius in m.
 	*/
-	void setScale(const DirectX::XMVECTOR &p_Scale) override
+	void scale(const DirectX::XMVECTOR &p_Scale) override
 	{
 		setRadius(m_Radius * DirectX::XMVectorGetX(p_Scale));
 	}

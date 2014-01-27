@@ -150,7 +150,7 @@ public:
 	* Scales the ABBB.
 	* @param p_scale vector to scale the box with..
 	*/
-	void setScale(const DirectX::XMVECTOR &p_Scale) override
+	void scale(const DirectX::XMVECTOR &p_Scale) override
 	{
 		DirectX::XMMATRIX m = DirectX::XMMatrixScalingFromVector(p_Scale);
 		DirectX::XMVECTOR s = XMLoadFloat4(&m_Size);
