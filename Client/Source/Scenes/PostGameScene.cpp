@@ -44,6 +44,10 @@ void PostGameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	}
 }
 
+void PostGameScene::onFocus()
+{
+}
+
 void PostGameScene::render()
 {
 	m_Graphics->setClearColor(Vector4(1, 0, 0, 1));

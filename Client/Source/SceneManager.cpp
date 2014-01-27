@@ -7,11 +7,7 @@ SceneManager::SceneManager()
 	m_ResourceManager = nullptr;
 	m_InputQueue = nullptr;
 	m_NowShowing = 0;
-#if _DEBUG
-	m_IsMenuState = false;
-#else
 	m_IsMenuState = true;
-#endif
 }
 
 SceneManager::~SceneManager()
@@ -58,11 +54,9 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 			sceneFail = true;
 		}
 	}
-#if _DEBUG
+
 	m_MenuSceneList[0]->setIsVisible(true);
-#else
-	m_RunSceneList[0]->setIsVisible(true);
-#endif
+	m_MenuSceneList[0]->onFocus();
 	
 	if(sceneFail)
 	{
@@ -101,6 +95,8 @@ void SceneManager::onFrame( float p_DeltaTime )
 		nrScenes = m_NumberOfRunScene;
 	}
 
+	int prevShowing = m_NowShowing;
+
 	for(int i = 0; i < nrScenes; i++)
 	{
 		if(activeList->at(i)->getIsVisible())
@@ -113,19 +109,22 @@ void SceneManager::onFrame( float p_DeltaTime )
 		}
 	}
 
-	if(m_NowShowing != -1)
+	if (m_NowShowing != prevShowing)
 	{
-		changeScene(p_DeltaTime, m_NowShowing);
-	}
-	else
-	{
-		if(m_IsMenuState)
+		if(m_NowShowing != -1)
 		{
-			startRun();
+			changeScene(p_DeltaTime, m_NowShowing);
 		}
 		else
 		{
-			startMenu();
+			if(m_IsMenuState)
+			{
+				startRun();
+			}
+			else
+			{
+				startMenu();
+			}
 		}
 	}
 	activeList = nullptr;
@@ -172,11 +171,13 @@ void SceneManager::changeScene(float p_DeltaTime, int p_NowShowing)
 	if(m_IsMenuState)
 	{
 		m_MenuSceneList[p_NowShowing]->setIsVisible(true);
+		m_MenuSceneList[p_NowShowing]->onFocus();
 		m_MenuSceneList[p_NowShowing]->onFrame(p_DeltaTime,&m_NowShowing);
 	}
 	else
 	{
 		m_RunSceneList[p_NowShowing]->setIsVisible(true);
+		m_RunSceneList[p_NowShowing]->onFocus();
 	}
 }
 
@@ -184,6 +185,7 @@ void SceneManager::startRun()
 {
 	m_IsMenuState = false;
 	m_RunSceneList[0]->setIsVisible(true);
+	m_RunSceneList[0]->onFocus();
 	for(unsigned int i = 1; i < m_NumberOfRunScene; i++)
 	{
 		m_RunSceneList[i]->setIsVisible(false);
@@ -195,6 +197,7 @@ void SceneManager::startMenu()
 {
 	m_IsMenuState = true;
 	m_MenuSceneList[0]->setIsVisible(true);
+	m_MenuSceneList[0]->onFocus();
 	for(unsigned int i = 1; i < m_NumberOfMenuScene; i++)
 	{
 		m_MenuSceneList[i]->setIsVisible(false);

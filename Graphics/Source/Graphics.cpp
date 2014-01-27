@@ -737,10 +737,13 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 	static const XMFLOAT4 forward(0.f, 0.f, -1.f, 0.f);
 	XMVECTOR forwardVec = XMLoadFloat4(&forward);
 
-	XMVECTOR lookAt = pos + XMVector4Transform(forwardVec, rotation);
+	XMVECTOR rotForward = XMVector4Transform(forwardVec, rotation);
+	XMVECTOR flatForward = XMVector4Transform(forwardVec, XMMatrixRotationRollPitchYaw(0.f, p_Yaw, 0.f));
+	flatForward.m128_f32[1] = 0.f;
+	pos += flatForward * 15.f;
 
 	//XMFLOAT4X4 view;
-	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
+	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, rotForward, rotatedUp)));
 }
 
 void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)

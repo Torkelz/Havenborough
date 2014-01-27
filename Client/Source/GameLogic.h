@@ -39,6 +39,8 @@ private:
 	std::vector<Actor::ptr> m_Objects;
 
 	bool m_Connected;
+	bool m_InGame;
+	bool m_PlayingLocal;
 
 	//DEBUG
 	std::weak_ptr<Actor> circleWitch;
@@ -74,8 +76,6 @@ public:
 
 	void onFrame(float p_DeltaTime);
 
-	void setPlayerActor(std::weak_ptr<Actor> p_Actor);
-
 	void setPlayerDirection(Vector2 p_Direction);
 	Vector2 getPlayerDirection() const;
 	BodyHandle getPlayerBodyHandle() const;
@@ -91,6 +91,11 @@ public:
 	void testResetAnimation();
 	void testLayerAnimation();
 	void testResetLayerAnimation();
+	void playLocalLevel();
+
+	void connectToServer(const std::string& p_URL, unsigned short p_Port);
+	void leaveGame();
+	void joinGame(const std::string& p_LevelName);
 
 private:
 	void handleNetwork();
@@ -117,6 +122,9 @@ private:
 	std::weak_ptr<Actor> addClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
 	std::weak_ptr<Actor> addCollisionSphere(Vector3 p_Position, float p_Radius);
 	std::weak_ptr<Actor> addPlayerActor(Vector3 p_Position);
+	std::weak_ptr<Actor> addDirectionalLight(Vector3 p_Direction, Vector3 p_Color);
+	std::weak_ptr<Actor> addSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);
+	std::weak_ptr<Actor> addPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
 
 	void addLights();
 };

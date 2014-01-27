@@ -261,6 +261,7 @@
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
@@ -307,9 +308,6 @@
     <Filter Include="TestLoaders\Files">
       <UniqueIdentifier>{ef828351-f38e-415f-bb85-34accbbec579}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Source\Sample130.tx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Physics\include\AABB.h">
