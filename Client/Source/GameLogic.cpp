@@ -100,18 +100,10 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
 	{
 		PlayerControlData data;
-		data.m_Rotation[0] = actualViewRot.x;
-		data.m_Rotation[1] = actualViewRot.y;
-		data.m_Rotation[2] = actualViewRot.z;
-		Vector3 playerVel = m_Player.getVelocity();
-
-		playerVel = m_Player.getPosition();
-		data.m_Velocity[0] = playerVel.x;
-		data.m_Velocity[1] = playerVel.y;
-		data.m_Velocity[2] = playerVel.z;
-		//data.m_Velocity[0] = playerVel.x;
-		//data.m_Velocity[1] = playerVel.y;
-		//data.m_Velocity[2] = playerVel.z;
+		data.m_Rotation = actualViewRot;
+		data.m_Velocity = m_Player.getPosition();
+		data.m_Rotation.x += 3.1415f;
+		data.m_Rotation.y = 0.f;
 
 		conn->sendPlayerControl(data);
 	}
@@ -313,10 +305,7 @@ void GameLogic::handleNetwork()
 
 						const ObjectInstance& data = instances[i];
 						std::ostringstream msg;
-						msg << "Adding object at (" 
-							<< data.m_Position[0] << ", "
-							<< data.m_Position[1] << ", " 
-							<< data.m_Position[2] << ")";
+						msg << "Adding object at " << data.m_Position;
 						Logger::log(Logger::Level::INFO, msg.str());
 
 						XMLDocument description;
@@ -325,8 +314,8 @@ void GameLogic::handleNetwork()
 						const XMLElement* obj = description.FirstChildElement("Object");
 
 						Actor::ptr actor = m_ActorFactory->createActor(obj, data.m_Id);
-						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
-						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
+						actor->setPosition(data.m_Position);
+						actor->setRotation(data.m_Rotation);
 						m_Objects.push_back(actor);
 					}
 
@@ -365,15 +354,15 @@ void GameLogic::handleNetwork()
 							continue;
 						}
 
-						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
-						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
+						actor->setPosition(data.m_Position);
+						actor->setRotation(data.m_Rotation);
 						
 						std::weak_ptr<MovementInterface> wMove = actor->getComponent<MovementInterface>(3);
 						std::shared_ptr<MovementInterface> shMove = wMove.lock();
 						if (shMove)
 						{
-							shMove->setVelocity(Vector3(data.m_Velocity[0], data.m_Velocity[1], data.m_Velocity[2]));
-							shMove->setRotationalVelocity(Vector3(data.m_RotationVelocity[0], data.m_RotationVelocity[1], data.m_RotationVelocity[2]));
+							shMove->setVelocity(data.m_Velocity);
+							shMove->setRotationalVelocity(data.m_RotationVelocity);
 						}
 					}
 

@@ -12,12 +12,12 @@ BOOST_AUTO_TEST_CASE(TestPackageSerialize)
 	ObjectInstance inst;
 	inst.m_DescriptionIdx = 0;
 	inst.m_Id = 1234;
-	inst.m_Position[0] = 3.f;
-	inst.m_Position[1] = 4.f;
-	inst.m_Position[2] = 5.f;
-	inst.m_Rotation[0] = 7.f;
-	inst.m_Rotation[1] = 8.f;
-	inst.m_Rotation[2] = 9.f;
+	inst.m_Position.x = 3.f;
+	inst.m_Position.y = 4.f;
+	inst.m_Position.z = 5.f;
+	inst.m_Rotation.x = 7.f;
+	inst.m_Rotation.y = 8.f;
+	inst.m_Rotation.z = 9.f;
 	package.m_Object2.push_back(inst);
 
 	std::string serializedData(package.getData());
@@ -30,12 +30,12 @@ BOOST_AUTO_TEST_CASE(TestPackageSerialize)
 	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2.size(), 1);
 	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_DescriptionIdx, inst.m_DescriptionIdx);
 	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Id, inst.m_Id);
-	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Position[0], inst.m_Position[0]);
-	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Position[1], inst.m_Position[1]);
-	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Position[2], inst.m_Position[2]);
-	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Rotation[0], inst.m_Rotation[0]);
-	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Rotation[1], inst.m_Rotation[1]);
-	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Rotation[2], inst.m_Rotation[2]);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Position.x, inst.m_Position.x);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Position.y, inst.m_Position.y);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Position.z, inst.m_Position.z);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Rotation.x, inst.m_Rotation.x);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Rotation.y, inst.m_Rotation.y);
+	BOOST_CHECK_EQUAL(rawDeserializedPackage->m_Object2[0].m_Rotation.z, inst.m_Rotation.z);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

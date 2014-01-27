@@ -1,5 +1,6 @@
 #include "TestGameRound.h"
 
+#include <Components.h>
 #include <Logger.h>
 
 #include <algorithm>
@@ -30,16 +31,9 @@ void TestGameRound::setup()
 
 		Vector3 position(500.f - i * 200.f, m_PlayerSphereRadius + 400.f, 600.f);
 
-		Player::Box box =
-		{
-			i + 100,
-			position,
-			Vector3(0.f, 0.f, 0.f),
-			Vector3(0.f, 0.f, 0.f),
-			Vector3(0.f, 0.f, 0.f)
-		};
-
-		m_Players[i].m_PlayerBox = box;
+		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
+		m_Players[i].setActor(actor);
+		m_Actors.push_back(actor);
 	}
 }
 
@@ -58,9 +52,22 @@ void TestGameRound::sendLevel()
 
 	for (const auto& player : m_Players)
 	{
-		descriptions.push_back(getPlayerBoxDescription(player.m_PlayerBox));
-		cDescriptions.push_back(descriptions.back().c_str());
-		instances.push_back(getBoxInstance(player.m_PlayerBox, descriptions.size() - 1));
+		Actor::ptr actor = player.getActor().lock();
+		if (actor)
+		{
+			descriptions.push_back(m_ActorFactory->getPlayerActorDescription(actor->getPosition()));
+			cDescriptions.push_back(descriptions.back().c_str());
+
+			ObjectInstance inst =
+			{
+				actor->getPosition(),
+				actor->getRotation(),
+				descriptions.size() - 1,
+				actor->getId()
+			};
+
+			instances.push_back(inst);
+		}
 	}
 
 	tinyxml2::XMLPrinter printer;
@@ -81,8 +88,8 @@ void TestGameRound::sendLevel()
 	cDescriptions.push_back(descriptions.back().c_str());
 	ObjectInstance lightData =
 	{
-		{0.f, 0.f, 0.f},
-		{0.f, 0.f, 0.f},
+		Vector3(0.f, 0.f, 0.f),
+		Vector3(0.f, 0.f, 0.f),
 		descriptions.size() - 1,
 		0
 	};
@@ -93,8 +100,12 @@ void TestGameRound::sendLevel()
 		User::ptr user = player.getUser().lock();
 		if (user)
 		{
-			user->getConnection()->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
-			user->getConnection()->sendAssignPlayer(player.m_PlayerBox.actorId);
+			Actor::ptr actor = player.getActor().lock();
+			if (actor)
+			{
+				user->getConnection()->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
+				user->getConnection()->sendAssignPlayer(actor->getId());
+			}
 		}
 	}
 }
@@ -106,9 +117,9 @@ void TestGameRound::updateLogic(float p_DeltaTime)
 		updateBox(box, p_DeltaTime);
 	}
 
-	for (auto& player : m_Players)
+	for (auto& actor : m_Actors)
 	{
-		updatePlayerBox(player.m_PlayerBox, p_DeltaTime);
+		actor->onUpdate(p_DeltaTime);
 	}
 }
 
@@ -123,7 +134,7 @@ void TestGameRound::sendUpdates()
 
 	for (auto& player : m_Players)
 	{
-		data.push_back(getUpdateData(player.m_PlayerBox));
+		data.push_back(getUpdateData(player));
 	}
 
 	for (auto& player : m_Players)
@@ -153,34 +164,46 @@ void TestGameRound::updateBox(TestBox& p_Box, float p_DeltaTime)
 	p_Box.rotationVelocity.z = p_Box.circleRotationSpeed;
 }
 
-void TestGameRound::updatePlayerBox(Player::Box& p_Box, float p_DeltaTime)
-{
-	p_Box.rotation = p_Box.rotation + p_Box.rotationVelocity * p_DeltaTime;
-}
-
 UpdateObjectData TestGameRound::getUpdateData(const TestBox& p_Box)
 {
 	UpdateObjectData data =
 	{
-		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
-		{ p_Box.velocity.x, p_Box.velocity.y, p_Box.velocity.z },
-		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
-		{ p_Box.rotationVelocity.x, p_Box.rotationVelocity.y, p_Box.rotationVelocity.z },
+		p_Box.position,
+		p_Box.velocity,
+		p_Box.rotation,
+		p_Box.rotationVelocity,
 		p_Box.actorId
 	};
 
 	return data;
 }
 
-UpdateObjectData TestGameRound::getUpdateData(const Player::Box& p_Box)
+UpdateObjectData TestGameRound::getUpdateData(const Player& p_Player)
 {
+	Actor::ptr actor = p_Player.getActor().lock();
+	
+	if (!actor)
+	{
+		throw CommonException("Player missing actor", __LINE__, __FILE__);
+	}
+
+	std::shared_ptr<MovementInterface> movement = actor->getComponent<MovementInterface>(MovementInterface::m_ComponentId).lock();
+
+	Vector3 velocity(0.f, 0.f, 0.f);
+	Vector3 rotVelocity(0.f, 0.f, 0.f);
+	if (movement)
+	{
+		velocity = movement->getVelocity();
+		rotVelocity = movement->getRotationalVelocity();
+	}
+
 	UpdateObjectData data =
 	{
-		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
-		{ p_Box.velocity.x, p_Box.velocity.y, p_Box.velocity.z },
-		{ p_Box.rotation.x + 3.1415f, 0.f, p_Box.rotation.z },
-		{ p_Box.rotationVelocity.x, p_Box.rotationVelocity.y, p_Box.rotationVelocity.z },
-		p_Box.actorId
+		actor->getPosition(),
+		velocity,
+		actor->getRotation(),
+		rotVelocity,
+		actor->getId()
 	};
 
 	return data;
@@ -219,30 +242,12 @@ std::string TestGameRound::getBoxDescription(const TestBox& p_Box)
 	return std::string(printer.CStr());
 }
 
-std::string TestGameRound::getPlayerBoxDescription(const Player::Box& p_Box)
-{
-	return m_ActorFactory->getPlayerActorDescription(p_Box.position);
-}
-
 ObjectInstance TestGameRound::getBoxInstance(const TestBox& p_Box, uint16_t p_DescIdx)
 {
 	ObjectInstance inst =
 	{
-		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
-		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
-		p_DescIdx,
-		p_Box.actorId
-	};
-
-	return inst;
-}
-
-ObjectInstance TestGameRound::getBoxInstance(const Player::Box& p_Box, uint16_t p_DescIdx)
-{
-	ObjectInstance inst =
-	{
-		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
-		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
+		p_Box.position,
+		p_Box.rotation,
 		p_DescIdx,
 		p_Box.actorId
 	};

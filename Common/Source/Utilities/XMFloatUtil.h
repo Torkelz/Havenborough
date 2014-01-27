@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
+#include <ostream>
 
 struct Vector2
 {
@@ -45,6 +46,16 @@ struct Vector3
 	Vector3 operator*(float p_Right) const
 	{
 		return Vector3(x * p_Right, y * p_Right, z * p_Right);
+	}
+
+	friend std::ostream& operator<<(std::ostream& p_Stream, const Vector3& p_Vec)
+	{
+		return p_Stream << "(" << p_Vec.x << ", " << p_Vec.y << ", " << p_Vec.z << ")";
+	}
+
+	bool operator==(const Vector3& p_Right) const
+	{
+		return x == p_Right.x && y == p_Right.y && z == p_Right.z;
 	}
 };
 
