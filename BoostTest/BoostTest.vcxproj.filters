@@ -215,7 +215,6 @@
     <ClCompile Include="OBBTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>

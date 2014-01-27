@@ -2,7 +2,7 @@
 
 #include "GameRound.h"
 
-#include <tinyxml2.h>
+#include <tinyxml2/tinyxml2.h>
 
 class TestGameRound : public GameRound
 {
