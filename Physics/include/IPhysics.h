@@ -93,9 +93,9 @@ public:
 	 * Used to get the position of the target body.
 	 *
 	 * @param p_Body is an identifier to know what to work with.
-	 * @return a Vector4 containing the position of the target body in cm
+	 * @return a Vector3 containing the position of the target body in cm
 	 */
-	virtual Vector4 getBodyPosition(BodyHandle p_Body) = 0;
+	virtual Vector3 getBodyPosition(BodyHandle p_Body) = 0;
 
 	/**
 	 * Used to get the size of the target body.
@@ -134,7 +134,7 @@ public:
 	 * @param p_Body what body to get the data from
 	 * @return objects velocity in cm/s
      */
-	virtual Vector4 getBodyVelocity(BodyHandle p_Body) = 0;
+	virtual Vector3 getBodyVelocity(BodyHandle p_Body) = 0;
 	/**
 	 * Edit the scale of the target body's BoundingVolume. When scaling spheres only the x-coordinate is needed. 
 	 *

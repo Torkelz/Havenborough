@@ -95,11 +95,6 @@ void InputTranslator::lockMouse(bool p_State)
 	m_MouseLocked = p_State;
 }
 
-void InputTranslator::showMouse(bool p_State)
-{
-	ShowCursor(p_State);
-}
-
 bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
 {
 	if (!m_RecordFunction)

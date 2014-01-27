@@ -119,6 +119,8 @@ void Network::registerPackages()
 	m_PackagePrototypes.push_back(PackageBase::ptr(new AssignPlayer));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new PlayerControl));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new DoneLoading));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new JoinGame));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new LeaveGame));
 }
 
 void Network::startIO()

@@ -24,10 +24,10 @@ public:
 	* @param p_Player the player to be evaluated with the collision
 	* @return true = player collided with an edge and will be moved, false = player did not collide and has full control
 	*/
-	bool checkCollision(HitData &p_Hit, Vector4 p_EdgePosition, float p_EdgeSizeY, Player *p_Player);
+	bool checkCollision(HitData &p_Hit, Vector3 p_EdgePosition, float p_EdgeSizeY, Player *p_Player);
 
 protected:
-	void handleCollision(Player *p_Player, Vector4 p_EdgePosition, XMVECTOR p_VictimNormal, 
+	void handleCollision(Player *p_Player, Vector3 p_EdgePosition, XMVECTOR p_VictimNormal, 
 		float p_EdgeOffsetY);
 
 	XMVECTOR calculateEndPosition(XMVECTOR p_Normal, XMVECTOR p_PlayerToCenter,

@@ -6,6 +6,7 @@
 ActorFactory::ActorFactory()
 	:	m_LastActorId(65536),
 		m_LastModelComponentId(0),
+		m_LastLightComponentId(0),
 		m_Graphics(nullptr),
 		m_Physics(nullptr)
 {
@@ -16,6 +17,7 @@ ActorFactory::ActorFactory()
 	m_ComponentCreators["Model"] = std::bind(&ActorFactory::createModelComponent, this);
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
+	m_ComponentCreators["Light"] = std::bind(&ActorFactory::createLightComponent, this);
 }
 
 void ActorFactory::setGraphics(IGraphics* p_Graphics)
@@ -146,4 +148,12 @@ ActorComponent::ptr ActorFactory::createMovementComponent()
 ActorComponent::ptr ActorFactory::createPulseComponent()
 {
 	return ActorComponent::ptr(new PulseComponent);
+}
+
+ActorComponent::ptr ActorFactory::createLightComponent()
+{
+	LightComponent* comp = new LightComponent;
+	comp->setId(++m_LastLightComponentId);
+
+	return ActorComponent::ptr(comp);
 }

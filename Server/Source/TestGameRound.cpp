@@ -29,7 +29,7 @@ void TestGameRound::setup()
 		m_Boxes.push_back(newBox);
 
 		actorId = m_ActorFactory->getNextActorId();
-		Vector3 position(500.f - i * 200.f, m_PlayerSphereRadius, 600.f);
+		Vector3 position(500.f - i * 200.f, m_PlayerSphereRadius + 400.f, 600.f);
 
 		Player::Box box =
 		{
@@ -63,6 +63,31 @@ void TestGameRound::sendLevel()
 		cDescriptions.push_back(descriptions.back().c_str());
 		instances.push_back(getBoxInstance(player.m_PlayerBox, descriptions.size() - 1));
 	}
+
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Light");
+	printer.PushAttribute("Type", "Directional");
+	pushVector(printer, "Direction", Vector3(0.f, -1.f, 0.f));
+	static const Vector3 color(1.f, 1.f, 1.f);
+	printer.OpenElement("Color");
+	printer.PushAttribute("r", color.x);
+	printer.PushAttribute("g", color.y);
+	printer.PushAttribute("b", color.z);
+	printer.CloseElement();
+	printer.CloseElement();
+	printer.CloseElement();
+
+	descriptions.push_back(printer.CStr());
+	cDescriptions.push_back(descriptions.back().c_str());
+	ObjectInstance data =
+	{
+		{0.f, 0.f, 0.f},
+		{0.f, 0.f, 0.f},
+		descriptions.size() - 1,
+		m_ActorFactory->getNextActorId()
+	};
+	instances.push_back(data);
 
 	for(auto& player : m_Players)
 	{
@@ -199,22 +224,23 @@ std::string TestGameRound::getPlayerBoxDescription(const Player::Box& p_Box)
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
-	printer.OpenElement("Movement");
-	pushVector(printer, "Velocity", p_Box.velocity);
-	pushVector(printer, "RotationalVelocity", p_Box.rotationVelocity);
-	printer.CloseElement();
+	printer.PushAttribute("x", p_Box.position.x);
+	printer.PushAttribute("y", p_Box.position.y);
+	printer.PushAttribute("z", p_Box.position.z);
+	//printer.OpenElement("Movement");
+	//pushVector(printer, "Velocity", p_Box.velocity);
+	//pushVector(printer, "RotationalVelocity", p_Box.rotationVelocity);
+	//printer.CloseElement();
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "WITCH");
 	static const Vector3 scale(1.f, 1.f, 1.f);
 	pushVector(printer, "Scale", scale);
 	printer.CloseElement();
-	//printer.OpenElement("SpherePhysics");
-	//printer.PushAttribute("Immovable", true);
-	//printer.PushAttribute("Radius", playerSphereRadius);
-	//printer.CloseElement();
-	printer.OpenElement("Pulse");
-	printer.PushAttribute("Length", 0.5f);
-	printer.PushAttribute("Strength", 0.5f);
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", 50.f);
+	printer.PushAttribute("Mass", 68.f);
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
 	printer.CloseElement();
 	printer.CloseElement();
 	return std::string(printer.CStr());
