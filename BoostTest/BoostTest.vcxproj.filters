@@ -29,14 +29,8 @@
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp">
       <Filter>TestNetwork</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\ResourceManager.cpp">
-      <Filter>TestResourceManager\Import</Filter>
-    </ClCompile>
     <ClCompile Include="..\Network\Source\NetworkLogger.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\ResourceTranslator.cpp">
-      <Filter>TestResourceManager\Import</Filter>
     </ClCompile>
     <ClCompile Include="TestResourceManager.cpp">
       <Filter>TestResourceManager</Filter>
@@ -64,9 +58,6 @@
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\Logger.cpp">
-      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
@@ -221,12 +212,6 @@
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\Actor.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\ActorFactory.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
@@ -247,9 +232,6 @@
     </ClCompile>
     <ClCompile Include="HullTest.cpp">
       <Filter>TestPhysics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\EventManager.cpp">
-      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>

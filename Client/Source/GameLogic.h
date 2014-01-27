@@ -1,5 +1,5 @@
 #pragma once
-#include "Actor.h"
+#include <Actor.h>
 #include "ActorFactory.h"
 #include "Logger.h"
 #include "Level.h"

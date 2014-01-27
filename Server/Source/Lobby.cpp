@@ -1,7 +1,7 @@
 #include "Lobby.h"
 
 #include "Server.h"
-#include "../../Client/Source/Logger.h"
+#include <Logger.h>
 
 #include <algorithm>
 

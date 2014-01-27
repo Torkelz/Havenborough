@@ -1,5 +1,5 @@
 #pragma once
-#include "../Utilities/XMFloatUtil.h"
+#include "Utilities/XMFloatUtil.h"
 
 struct Light
 {

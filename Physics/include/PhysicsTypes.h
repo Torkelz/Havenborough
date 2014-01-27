@@ -1,5 +1,5 @@
 #pragma once
-#include "../../Client/Utilities/Util.h"
+#include <Utilities/Util.h>
 typedef unsigned int BodyHandle;
 
 enum class BoundingVolumeType

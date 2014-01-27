@@ -6,8 +6,8 @@
 #include "../ClientExceptions.h"
 #include "../GameLogic.h"
 #include "../Input/Input.h"
-#include "../ResourceManager.h"
-#include "../EventManager.h"
+#include <ResourceManager.h>
+#include <EventManager.h>
 
 #include <memory>
 #include <string>

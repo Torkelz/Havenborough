@@ -110,7 +110,6 @@ void BaseGameApp::init()
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
-	m_ActorFactory.setGraphics(m_Graphics);
 	m_ActorFactory.setEventManager(m_EventManager.get());
 	m_ActorFactory.setResourceManager(m_ResourceManager.get());
 

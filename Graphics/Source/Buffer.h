@@ -1,7 +1,7 @@
 #pragma once
 #include <d3d11.h>
 
-#include "../../Client/Utilities/MemoryUtil.h"
+#include <Utilities/MemoryUtil.h>
 #include "GraphicsExceptions.h"
 
 class Buffer

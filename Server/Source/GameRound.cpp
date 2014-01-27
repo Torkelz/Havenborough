@@ -2,7 +2,7 @@
 
 #include "GameList.h"
 #include "Lobby.h"
-#include "../../Client/Source/Logger.h"
+#include <Logger.h>
 
 #include <algorithm>
 
