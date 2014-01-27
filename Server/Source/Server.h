@@ -10,7 +10,7 @@
 
 #include <INetwork.h>
 
-#include <tinyxml2.h>
+#include <tinyxml2/tinyxml2.h>
 
 #include <mutex>
 #include <thread>

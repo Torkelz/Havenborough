@@ -141,14 +141,15 @@ public:
 
 	int getVRAMUsage(void) override;
 	
-	int createModelInstance(const char *p_ModelId) override;
+	InstanceId createModelInstance(const char *p_ModelId) override;
 	virtual void createSkyDome(const char *p_ModelId, float p_Radius) override;
-	void eraseModelInstance(int p_Instance) override;
-	void setModelPosition(int p_Instance, Vector3 p_Position) override;
-	void setModelRotation(int p_Instance, Vector3 p_YawPitchRoll) override;
-	void setModelScale(int p_Instance, Vector3 p_Scale) override;
-	void applyIK_ReachPoint(int p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target) override;
-	Vector3 getJointPosition(int p_Instance, const char* p_Joint) override;
+	void eraseModelInstance(InstanceId p_Instance) override;
+	void setModelPosition(InstanceId p_Instance, Vector3 p_Position) override;
+	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;
+	void setModelScale(InstanceId p_Instance, Vector3 p_Scale) override;
+	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;
+	void applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target) override;
+	Vector3 getJointPosition(InstanceId p_Instance, const char* p_Joint) override;
 
 	void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) override;
 

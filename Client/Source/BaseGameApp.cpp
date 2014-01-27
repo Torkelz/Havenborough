@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include <tinyxml2.h>
+#include <tinyxml2/tinyxml2.h>
 
 const double pi = 3.14159265358979323846264338;
 

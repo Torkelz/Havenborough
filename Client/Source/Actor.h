@@ -8,7 +8,7 @@
 #include "EventManager.h"
 #include "../Utilities/XMFloatUtil.h"
 #include "IPhysics.h"
-#include <tinyxml2.h>
+#include <tinyxml2/tinyxml2.h>
 
 #include <vector>
 

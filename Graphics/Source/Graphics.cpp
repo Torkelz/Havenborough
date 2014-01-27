@@ -384,7 +384,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		p_ShaderModel, p_Type, p_VertexLayout, p_NumOfElements)));
 }
 
-void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) //TODO: Maybe need to handle if animated or static?
+void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 {
 	ModelDefinition *model = nullptr;
 	model = getModelFromList(p_ModelId);
@@ -477,7 +477,7 @@ bool Graphics::releaseParticleSystemInstance(const char *p_ParticleSystemId)
 	return false;
 }
 
-void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animated or static?
+void Graphics::renderModel(int p_ModelId)
 {
 	for (auto& inst : m_ModelInstances)
 	{
@@ -494,7 +494,8 @@ void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animat
 			{
 				m_Forwardrender->addRenderable(DeferredRenderer::Renderable(temp,
 					inst.second.getWorldMatrix(),
-					&inst.second.getFinalTransform()));
+					&inst.second.getFinalTransform(),
+					&inst.second.getColorTone()));
 			}
 			
 			break;
@@ -655,12 +656,12 @@ int Graphics::getVRAMUsage(void)
 	}
 }
 
-int Graphics::createModelInstance(const char *p_ModelId)
+IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 {
 	ModelDefinition* modelDef = getModelFromList(p_ModelId);
 	if (modelDef == nullptr)
 	{
-		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the mode definition: " + std::string(p_ModelId));
+		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the model definition: " + std::string(p_ModelId));
 		return -1;
 	}
 
@@ -698,43 +699,61 @@ void Graphics::eraseModelInstance(int p_Instance)
 	}
 }
 
-void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
+void Graphics::setModelPosition(InstanceId p_Instance, Vector3 p_Position)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
 			inst.second.setPosition(Vector3ToXMFLOAT3(&p_Position));
-			break;
+			return;
 		}
 	}
+	throw GraphicsException("Failed to set model instance position.", __LINE__, __FILE__);
 }
 
-void Graphics::setModelRotation(int p_Instance, Vector3 p_YawPitchRoll)
+void Graphics::setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
 			inst.second.setRotation(DirectX::XMFLOAT3(p_YawPitchRoll.y, p_YawPitchRoll.x, p_YawPitchRoll.z));
-			break;
+			return;
 		}
 	}
+	throw GraphicsException("Failed to set model instance position.", __LINE__, __FILE__);
+
 }
 
-void Graphics::setModelScale(int p_Instance, Vector3 p_Scale)
+void Graphics::setModelScale(InstanceId p_Instance, Vector3 p_Scale)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
 			inst.second.setScale(DirectX::XMFLOAT3(p_Scale));
-			break;
+			return;
 		}
 	}
+	throw GraphicsException("Failed to set model instance scale.", __LINE__, __FILE__);
+
 }
 
-void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target)
+void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.setColorTone(DirectX::XMFLOAT3(p_ColorTone));
+			return;
+		}
+	}
+	throw GraphicsException("Failed to set model instance color tone.", __LINE__, __FILE__);
+}
+
+void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target)
 {
 	for (auto& inst : m_ModelInstances)
 	{
@@ -746,7 +765,7 @@ void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_TargetJoint, con
 	}
 }
 
-Vector3 Graphics::getJointPosition(int p_Instance, const char* p_Joint)
+Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 {
 	for (auto& inst : m_ModelInstances)
 	{
@@ -808,10 +827,13 @@ void Graphics::setRenderTarget(int p_RenderTarget)
 
 void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata)
 {
-	if (m_ModelFactory)
+	if(!m_ModelFactory)
 	{
+		m_ModelFactory = ModelFactory::getInstance();
+		m_ModelFactory->initialize(&m_TextureList);
 		m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
 	}
+	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
 }
 
 void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)

@@ -280,7 +280,8 @@ void GameScene::createMesh(IEventData::Ptr p_Data)
 		m_Graphics->createModelInstance(meshData->getMeshName().c_str())
 	};
 	m_Graphics->setModelScale(mesh.modelId, meshData->getScale());
-
+	m_Graphics->setModelColorTone(mesh.modelId, meshData->getColorTone());
+	
 	m_Models.push_back(mesh);
 }
 
@@ -430,7 +431,7 @@ void GameScene::loadSandboxModels()
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
-		"SKYBOX",
+		"Checkpoint1",
 		"House1",
 		"MarketStand1",
 		"Barrel1",
@@ -450,7 +451,12 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
 
-		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
+		// TODO : REMOVE WHEN DONE
+		if(model == "Checkpoint1")
+			m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
+		else
+			m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
+		
 	}
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding IK test tube");

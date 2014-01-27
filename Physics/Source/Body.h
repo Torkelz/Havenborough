@@ -29,6 +29,7 @@ protected:
 
 	bool				m_IsImmovable;
 	bool				m_IsEdge;
+	bool				m_CollisionResponse;
 
 	std::unique_ptr<BoundingVolume>	m_Volume;
 public:
@@ -93,6 +94,15 @@ public:
 	* @return a bool, if the body is an edge.
 	*/
 	bool getIsEdge();
+	/**
+	* Set if the body should have collision response.
+	*/
+	void setCollisionResponse(bool p_State);
+	/**
+	* Shall the body react to collision response?
+	* @return a bool, if the body should have collision response.
+	*/
+	bool getCollisionResponse();
 	/**
 	* Get the volume that is connected to the body.
 	* @return body's volume.

@@ -73,7 +73,13 @@
     <ClCompile Include="..\Client\Source\EventManager.cpp">
       <Filter>Sound\SoundInclude</Filter>
     </ClCompile>
-     <ClCompile Include="Source\testProgram.cpp" />
+    <ClCompile Include="Source\testProgram.cpp" />
+    <ClCompile Include="..\Client\Source\ResourceManager.cpp">
+      <Filter>Client\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\ResourceTranslator.cpp">
+      <Filter>Client\ClientImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">
@@ -104,6 +110,12 @@
     </FxCompile>
     <FxCompile Include="Source\testShader_VS.hlsl">
       <Filter>Graphics</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Graphics\Source\DeferredShaders\ForwardShader.hlsl">
+      <Filter>Graphics\GraphicsInclude</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Graphics\Source\DeferredShaders\AnimatedGeometryPass.hlsl">
+      <Filter>Graphics\GraphicsInclude</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

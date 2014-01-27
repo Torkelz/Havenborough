@@ -213,6 +213,7 @@ private:
 	Vector3 m_OffsetPositition;
 	Vector3 m_Halfsize;
 	bool m_IsEdge;
+	bool m_RespondToCollision;
 
 public:
 	~AABB_Component() override
@@ -253,11 +254,14 @@ public:
 
 		m_IsEdge = false;
 		p_Data->QueryBoolAttribute("Edge", &m_IsEdge);
+		m_RespondToCollision = true;
+		p_Data->QueryBoolAttribute("CollisionResponse", &m_RespondToCollision);
 	}
 
 	void postInit() override
 	{
 		m_Body = m_Physics->createAABB(0.f, true, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
+		m_Physics->setBodyCollisionResponse(m_Body, m_RespondToCollision);
 	}
 
 	void onUpdate(float p_DeltaTime) override
@@ -395,6 +399,7 @@ public:
 private:
 	ModelCompId m_Id;
 	Vector3 m_BaseScale;
+	Vector3 m_ColorTone;
 	std::string m_MeshName;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
@@ -422,10 +427,20 @@ public:
 			scale->QueryFloatAttribute("y", &m_BaseScale.y);
 			scale->QueryFloatAttribute("z", &m_BaseScale.z);
 		}
+
+		m_ColorTone = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* tone = p_Data->FirstChildElement("ColorTone");
+		if (tone)
+		{
+			tone->QueryFloatAttribute("x", &m_ColorTone.x);
+			tone->QueryFloatAttribute("y", &m_ColorTone.y);
+			tone->QueryFloatAttribute("z", &m_ColorTone.z);
+		}
 	}
 	void postInit() override
 	{
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName, m_BaseScale)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
+			m_BaseScale, m_ColorTone)));
 	}
 	void updateScale(const std::string& p_CompName, Vector3 p_Scale) override
 	{
