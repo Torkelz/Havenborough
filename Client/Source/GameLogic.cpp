@@ -588,16 +588,11 @@ void GameLogic::loadSandbox()
 	wavingWitch = addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
 	playAnimation(wavingWitch.lock(), "Kick");
 	
-	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 10.0f, 1.0f),
-		Vector3(1.0f, 1.0f, 1.0f)));
-	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f),
-		Vector3(1.0f, 1.0f, 1.0f)));
-	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f),
-		Vector3(1.0f, 1.0f, 1.0f)));
-	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f),
-		Vector3(1.0f, 1.0f, 1.0f)));
-	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f),
-		Vector3(0.0f, 0.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 10.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
 
 	ikTest = addIK_Worm();
 	playAnimation(ikTest.lock(), "Wave");
@@ -977,7 +972,7 @@ std::weak_ptr<Actor> GameLogic::addCollisionSphere(Vector3 p_Position, float p_R
 	return actor;
 }
 
-std::weak_ptr<Actor> GameLogic::addCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone)
+std::weak_ptr<Actor> GameLogic::addCheckPointActor(Vector3 p_Position, Vector3 p_Scale)
 {
 	Vector3 AABBScale = p_Scale;
 	AABBScale.x *= 75.f;
@@ -989,7 +984,6 @@ std::weak_ptr<Actor> GameLogic::addCheckPointActor(Vector3 p_Position, Vector3 p
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "Checkpoint1");
 	pushVector(printer, "Scale", p_Scale);
-	pushVector(printer, "ColorTone", p_ColorTone);
 	printer.CloseElement();
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);

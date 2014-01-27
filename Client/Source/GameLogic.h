@@ -67,7 +67,8 @@ public:
 	GameLogic(void);
 	~GameLogic(void);
 
-	void initialize(ResourceManager *p_ResourceManager,	IPhysics *p_Physics, ActorFactory *p_ActorFactory, EventManager *p_EventManager, INetwork *p_Network); 
+	void initialize(ResourceManager *p_ResourceManager,	IPhysics *p_Physics, ActorFactory *p_ActorFactory,
+		EventManager *p_EventManager, INetwork *p_Network); 
 	void shutdown(void);
 
 	std::vector<Actor::ptr> &getObjects();
@@ -123,10 +124,11 @@ private:
 	std::weak_ptr<Actor> addClimbBox();
 	std::weak_ptr<Actor> addClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
 	std::weak_ptr<Actor> addCollisionSphere(Vector3 p_Position, float p_Radius);
-	std::weak_ptr<Actor> addCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone);
+	std::weak_ptr<Actor> addCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
 	std::weak_ptr<Actor> addPlayerActor(Vector3 p_Position);
 	std::weak_ptr<Actor> addDirectionalLight(Vector3 p_Direction, Vector3 p_Color);
-	std::weak_ptr<Actor> addSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);
+	std::weak_ptr<Actor> addSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles,
+		float p_Range, Vector3 p_Color);
 	std::weak_ptr<Actor> addPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
 
 

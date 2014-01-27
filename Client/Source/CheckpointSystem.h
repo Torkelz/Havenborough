@@ -9,6 +9,7 @@ class CheckpointSystem
 {
 private:
 	std::vector<std::weak_ptr<Actor>> m_Checkpoints;
+	Vector3 m_DefaultColorTone;
 	Vector3 m_CurrentColorTone;
 	Vector3 m_FinishColorTone;
 	
@@ -16,8 +17,8 @@ public:
 	/**
 	*
 	*/
-	CheckpointSystem();
-	CheckpointSystem(Vector3 p_CurrentTone, Vector3 p_FinishTone);
+	CheckpointSystem(Vector3 p_DefaultTone = Vector3(1.0f, 1.0f, 1.0f), Vector3 p_CurrentTone = Vector3(0.2f, 0.2f, 0.9f),
+		Vector3 p_FinishTone = Vector3(0.95f, 0.1f, 0.1f));
 	~CheckpointSystem(void);
 
 	/**
