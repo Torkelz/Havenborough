@@ -69,32 +69,15 @@ void GameLogic::onFrame(float p_DeltaTime)
 				{
 					m_Physics->removeHitDataAt(i);
 				}
-				if(m_FinishLine.lock()->getBodyHandles()[0] == hit.collisionVictim)
+				if(!m_CheckpointSystem.isFinishLine() && m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
 				{
-					m_Player.setPosition(m_Level.getStartPosition());
-					m_ChangeScene = GoToScene::POSTGAME;
-					m_Physics->removeHitDataAt(i);
-				}
-				if(!m_CheckpointSystem.isFinishLine())
-				{
-					if(m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+					m_CheckpointSystem.changeCheckpoint(m_Objects);
+					if(m_CheckpointSystem.isFinishLine())
 					{
-						for(int j = m_Objects.size() - 1; j >= 0; j--)
-						{
-							if(m_Objects.at(j) == m_CheckpointSystem.getCurrentActor().lock())
-							{
-								m_Objects.erase(m_Objects.begin() + j);
-								break;
-							}
-						}
-						m_CheckpointSystem.changeCheckpoint();
-						if(m_CheckpointSystem.isFinishLine())
-						{
-							m_Player.setPosition(m_Level.getStartPosition());
-							m_ChangeScene = GoToScene::POSTGAME;
-						}
-						m_Physics->removeHitDataAt(i);
+						m_Player.setPosition(m_Level.getStartPosition());
+						m_ChangeScene = GoToScene::POSTGAME;
 					}
+					m_Physics->removeHitDataAt(i);
 				}
 				Logger::log(Logger::Level::TRACE, "Collision reported");
 			}
@@ -254,10 +237,8 @@ void GameLogic::playLocalLevel()
 #else
 	m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
-	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
-	//m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
-	m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
 
 	Vector3 startPosition = m_Level.getStartPosition();
 	static const float kneeHeight = 50.f;
@@ -410,7 +391,6 @@ void GameLogic::handleNetwork()
 					m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
-					m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
 
 					conn->sendDoneLoading();
 					m_InGame = true;
@@ -588,7 +568,7 @@ void GameLogic::loadSandbox()
 	wavingWitch = addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
 	playAnimation(wavingWitch.lock(), "Kick");
 	
-	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 10.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(m_Level.getGoalPosition(), Vector3(1.0f, 10.0f, 1.0f)));
 	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
 	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
 	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
@@ -975,9 +955,9 @@ std::weak_ptr<Actor> GameLogic::addCollisionSphere(Vector3 p_Position, float p_R
 std::weak_ptr<Actor> GameLogic::addCheckPointActor(Vector3 p_Position, Vector3 p_Scale)
 {
 	Vector3 AABBScale = p_Scale;
-	AABBScale.x *= 75.f;
+	AABBScale.x *= 100.f;
 	AABBScale.y *= 500.f;
-	AABBScale.z *= 75.f;
+	AABBScale.z *= 100.f;
 
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");

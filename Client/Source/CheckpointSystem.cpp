@@ -41,8 +41,17 @@ bool CheckpointSystem::isFinishLine(void)
 	return m_Checkpoints.empty();
 }
 
-void CheckpointSystem::changeCheckpoint(void)
+void CheckpointSystem::changeCheckpoint(vector<Actor::ptr> &p_Objects)
 {
+	for(int i = p_Objects.size() - 1; i >= 0; i--)
+	{
+		if(p_Objects.at(i) == m_Checkpoints.back().lock())
+		{
+			p_Objects.erase(p_Objects.begin() + i);
+			break;
+		}
+	}
+
 	m_Checkpoints.pop_back();
 
 	if(m_Checkpoints.size() > 1)

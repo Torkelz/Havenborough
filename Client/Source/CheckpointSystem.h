@@ -39,7 +39,7 @@ public:
 	/**
 	*
 	*/
-	void changeCheckpoint(void);
+	void changeCheckpoint(std::vector<Actor::ptr> &p_Objects);
 
 	/**
 	*

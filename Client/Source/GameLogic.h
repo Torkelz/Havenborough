@@ -32,7 +32,6 @@ private:
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
 	std::vector<int> m_ResourceIDs;
-	std::weak_ptr<Actor> m_FinishLine;
 
 	GoToScene m_ChangeScene;
 
