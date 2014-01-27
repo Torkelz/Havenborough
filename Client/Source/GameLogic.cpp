@@ -75,6 +75,27 @@ void GameLogic::onFrame(float p_DeltaTime)
 					m_ChangeScene = GoToScene::POSTGAME;
 					m_Physics->removeHitDataAt(i);
 				}
+				if(!m_CheckpointSystem.isFinishLine())
+				{
+					if(m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+					{
+						for(int j = m_Objects.size() - 1; j >= 0; j--)
+						{
+							if(m_Objects.at(j) == m_CheckpointSystem.getCurrentActor().lock())
+							{
+								m_Objects.erase(m_Objects.begin() + j);
+								break;
+							}
+						}
+						m_CheckpointSystem.changeCheckpoint();
+						if(m_CheckpointSystem.isFinishLine())
+						{
+							m_Player.setPosition(m_Level.getStartPosition());
+							m_ChangeScene = GoToScene::POSTGAME;
+						}
+						m_Physics->removeHitDataAt(i);
+					}
+				}
 				Logger::log(Logger::Level::TRACE, "Collision reported");
 			}
 		}
@@ -547,7 +568,8 @@ void GameLogic::loadSandbox()
 	for (int i = 0; i < NUM_BOXES; i++)
 	{
 		const float scale = 100.f + i * 300.f / NUM_BOXES;
-		addRotatingBox(Vector3((float)(i / 4) * 400.f, 100.f, (float)(i % 4) * 400.f + 4000.f), Vector3(scale, scale, scale));
+		addRotatingBox(Vector3((float)(i / 4) * 400.f, 100.f, (float)(i % 4) * 400.f + 4000.f),
+			Vector3(scale, scale, scale));
 		rotBoxes[i] = m_Objects.back();
 	}
 
@@ -566,7 +588,16 @@ void GameLogic::loadSandbox()
 	wavingWitch = addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
 	playAnimation(wavingWitch.lock(), "Kick");
 	
-	testCheckpoint = addCheckPointActor(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 10.0f, 1.0f), Vector3(1.0f, 1.0f, 0.0f));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 10.0f, 1.0f),
+		Vector3(1.0f, 1.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f),
+		Vector3(1.0f, 1.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f),
+		Vector3(1.0f, 1.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f),
+		Vector3(1.0f, 1.0f, 1.0f)));
+	m_CheckpointSystem.addCheckpoint(addCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f),
+		Vector3(0.0f, 0.0f, 1.0f)));
 
 	ikTest = addIK_Worm();
 	playAnimation(ikTest.lock(), "Wave");

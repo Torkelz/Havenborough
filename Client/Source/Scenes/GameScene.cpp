@@ -46,6 +46,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::playAnimation), PlayAnimationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addReachIK), AddReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
+
 
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = false;
@@ -402,6 +404,20 @@ void GameScene::removeReachIK(IEventData::Ptr p_Data)
 					return;
 				}
 			}
+		}
+	}
+}
+
+void GameScene::changeColorTone(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<ChangeColorToneEvent> data = std::static_pointer_cast<ChangeColorToneEvent>(p_Data);
+
+	for (auto& model : m_Models)
+	{
+		if (model.meshId == data->getMeshId())
+		{
+			m_Graphics->setModelColorTone(model.modelId, data->getColorTone());
+			return;
 		}
 	}
 }

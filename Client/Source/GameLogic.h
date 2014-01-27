@@ -7,6 +7,7 @@
 #include "EdgeCollisionResponse.h"
 #include "EventManager.h"
 #include "Input/Input.h"
+#include "CheckpointSystem.h"
 
 #include <INetwork.h>
 
@@ -48,7 +49,8 @@ private:
 	std::weak_ptr<Actor> wavingWitch;
 	std::weak_ptr<Actor> ikTest;
 	std::weak_ptr<Actor> testWitch;
-	std::weak_ptr<Actor> testCheckpoint;
+
+	CheckpointSystem m_CheckpointSystem;
 
 	const static int NUM_BOXES = 16;
 	std::weak_ptr<Actor> rotBoxes[NUM_BOXES];

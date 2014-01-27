@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\CheckpointSystem.cpp" />
     <ClCompile Include="Source\EventManager.cpp" />
     <ClCompile Include="Source\GameLogic.cpp" />
     <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
@@ -58,6 +59,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\CheckpointSystem.h" />
     <ClInclude Include="Source\EventManager.h" />
     <ClInclude Include="Source\EventData.h" />
     <ClInclude Include="Source\LevelBinaryLoader.h" />

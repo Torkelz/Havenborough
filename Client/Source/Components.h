@@ -9,7 +9,6 @@
 #include "EventData.h"
 #include "ResourceManager.h"
 
-#include <IGraphics.h>
 #include <IPhysics.h>
 
 /**
@@ -383,6 +382,12 @@ public:
 	 * @param p_CompName an identifier of an existing scale
 	 */
 	virtual void removeScale(const std::string& p_CompName) = 0;
+	/**
+	 * Change a color tone for the model.
+	 *
+	 * @param p_ColorTone the color in RGB range 0.0f to 1.0f
+	 */
+	virtual void setColorTone(const Vector3 p_ColorTone) = 0;
 };
 
 /**
@@ -470,6 +475,14 @@ public:
 			}
 		}
 	}
+
+	void setColorTone(const Vector3 p_ColorTone) override
+	{
+		m_ColorTone = p_ColorTone;
+
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new ChangeColorToneEvent(m_Id, m_ColorTone)));
+	}
+
 
 	/**
 	 * Get the model component id from the component.
