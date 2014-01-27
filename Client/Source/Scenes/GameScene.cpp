@@ -280,7 +280,8 @@ void GameScene::createMesh(IEventData::Ptr p_Data)
 		m_Graphics->createModelInstance(meshData->getMeshName().c_str())
 	};
 	m_Graphics->setModelScale(mesh.modelId, meshData->getScale());
-
+	m_Graphics->setModelColorTone(mesh.modelId, meshData->getColorTone());
+	
 	m_Models.push_back(mesh);
 }
 

@@ -250,9 +250,7 @@ public:
 	 * Set the position of an model instance in absolute world coordinates.
 	 *
 	 * @param p_Instance an identifier to a model instance.
-	 * @param p_X position in X direction.
-	 * @param p_Y position in Y direction.
-	 * @param p_Z position in Z direction.
+	 * @param p_Position the new position in the world from origin in cm's
 	 */
 	virtual void setModelPosition(InstanceId p_Instance, Vector3 p_Position) = 0;
 
@@ -260,9 +258,7 @@ public:
 	 * Set the rotation of an model instance in radians.
 	 *
 	 * @param p_Instance an identifier to a model instance.
-	 * @param p_Yaw rotation around the Y axis, left-handed.
-	 * @param p_Pitch rotation around the X axis, left-handed.
-	 * @param p_Roll rotation around the Z axis, left-handed.
+	 * @param p_YawPitchRoll rotation around the YXZ axises, left-handed.
 	 */
 	virtual void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) = 0;
 
@@ -270,11 +266,17 @@ public:
 	 * Set the scale of an model instance.
 	 *
 	 * @param p_Instance an identifier to a model instance.
-	 * @param p_X scale in X direction.
-	 * @param p_Y scale in Y direction.
-	 * @param p_Z scale in Z direction.
+	 * @param p_Scale the model scale, Vector3(1.0f, 1.0f, 1.0f) equals no scale 
 	 */
 	virtual void setModelScale(InstanceId p_Instance, Vector3 p_Scale) = 0;
+
+	/**
+	 * Set the scale of an model instance.
+	 *
+	 * @param p_Instance an identifier to a model instance.
+	 * @param p_ColorTone the color tone to shade the model in, RGB range 0.0f to 1.0f
+	 */
+	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
 	/**
 	 * Updates the model to reach for a point in world space.
@@ -285,7 +287,8 @@ public:
 	 * @param p_BaseJoint the name of the base "shoulder" joint.
 	 * @param p_Target the target position in world space.
 	 */
-	virtual void applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target) = 0;
+	virtual void applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint,
+		const char* p_BaseJoint, Vector3 p_Target) = 0;
 
 	/**
 	 * Get the position of a single joint from a model instance.

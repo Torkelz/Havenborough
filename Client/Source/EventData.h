@@ -142,14 +142,16 @@ private:
 	unsigned int m_Id;
 	std::string m_MeshName;
 	Vector3 m_Scale;
+	Vector3 m_ColorTone;
 
 public:
 	static const Type sk_EventType = Type(0xdeadbeef);
 
-	CreateMeshEventData(unsigned int p_Id, const std::string& p_MeshName, Vector3 p_Scale)
+	CreateMeshEventData(unsigned int p_Id, const std::string& p_MeshName, Vector3 p_Scale, Vector3 p_ColorTone)
 		:	m_Id(p_Id),
 			m_MeshName(p_MeshName),
-			m_Scale(p_Scale)
+			m_Scale(p_Scale),
+			m_ColorTone(p_ColorTone)
 	{
 	}
 
@@ -160,7 +162,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new CreateMeshEventData(m_Id, m_MeshName, m_Scale));
+		return Ptr(new CreateMeshEventData(m_Id, m_MeshName, m_Scale, m_ColorTone));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -185,6 +187,11 @@ public:
 	Vector3 getScale() const
 	{
 		return m_Scale;
+	}
+
+	Vector3 getColorTone() const
+	{
+		return m_ColorTone;
 	}
 };
 
