@@ -126,7 +126,9 @@ public:
 	void drawFrame() override;
 
 	void updateAnimations(float p_DeltaTime) override;
-	void playAnimation(int p_Instance, const char* p_ClipName) override;
+	void playAnimation(int p_Instance, const char* p_ClipName, bool p_Override) override;
+	void queueAnimation(int p_Instance, const char* p_ClipName) override;
+	void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) override;
 
 	int getVRAMUsage(void) override;
 	

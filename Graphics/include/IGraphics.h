@@ -216,7 +216,24 @@ public:
 	 * @param p_Instance the model that should change animation data.
 	 * @param p_ClipName the new animation clip to be played next time update animation is invoked.
 	 */
-	virtual void playAnimation(int p_Instance, const char* p_ClipName) = 0;
+	virtual void playAnimation(int p_Instance, const char* p_ClipName, bool p_Override) = 0;
+
+	/**
+	 * Queue animation.
+	 *
+	 * @param p_Instance the model that should change animation data.
+	 * @param p_ClipName the new animation clip to be queued.
+	 */
+	virtual void queueAnimation(int p_Instance, const char* p_ClipName) = 0;
+
+	/**
+	 * Change weight of an animation track pair.
+	 *
+	 * @param p_Instance the model that should change animation data.
+	 * @param p_Track has the be 0, 2 or 4.
+	 * @param p_Weight a percentual number between 0.0f and 1.0f.
+	 */
+	virtual void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) = 0;
 
 	/**
 	 * Gets the amount of VRAM usage of the program.

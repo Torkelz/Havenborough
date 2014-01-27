@@ -9,12 +9,13 @@ using std::string;
 ModelInstance::ModelInstance()
 	: m_IsCalculated(false)
 {
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		m_Tracks[i].active = false;
 		m_Tracks[i].fadedFrames = 0.0f;
 		m_Tracks[i].currentFrame = 0.0f;
 		m_Tracks[i].destinationFrame = 1.0f;
+		m_Tracks[i].dynamicWeight = 1.0f;
 		m_Tracks[i].clip = AnimationClip();
 	}
 }
@@ -489,35 +490,23 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 	}
 }
 
-void ModelInstance::playClip( AnimationClip p_Clip )
+void ModelInstance::playClip( AnimationClip p_Clip, bool p_Override )
 {
-	// If the main track is already active it suggests that there is already a main
-	// animation active. The new animation should be faded in and then override the
-	// old animation.
-	//m_Tracks[0].active = true;
-	if(p_Clip.m_DestinationTrack == 0 && m_Tracks[0].active)
-	{
-		m_Tracks[2].clip = p_Clip;
-		m_Tracks[2].fadedFrames = 0.0f;
-		m_Tracks[2].active = true;
-		m_Tracks[2].currentFrame = (float)p_Clip.m_Start;
-	}
-	else
-	{
-		m_Tracks[p_Clip.m_DestinationTrack].clip = p_Clip;
-		m_Tracks[p_Clip.m_DestinationTrack].fadedFrames = 0.0f;
-		m_Tracks[p_Clip.m_DestinationTrack].active = true;
-		m_Tracks[p_Clip.m_DestinationTrack].currentFrame = (float)p_Clip.m_Start;
-	}
+	int track;
 
-	// DEBUG to in-activate looping animations on track 1.
-	if(!p_Clip.m_Layered && !p_Clip.m_FadeIn)
-	{
-		m_Tracks[1].active = false;
-	}
+	if(p_Override)
+		track = p_Clip.m_DestinationTrack;
+	else
+		track = p_Clip.m_DestinationTrack + 1;
+	
+	m_Tracks[track].clip = p_Clip;
+	m_Tracks[track].fadedFrames = 0.0f;
+	m_Tracks[track].active = true;
+	m_Tracks[track].currentFrame = (float)p_Clip.m_Start;
+	m_Tracks[track].dynamicWeight = 1.0f;
 }
 
-void ModelInstance::queueClip( AnimationClip p_Clip)
+void ModelInstance::queueClip( AnimationClip p_Clip )
 {
 	m_Queue.push_back(p_Clip);
 }
@@ -528,14 +517,18 @@ bool ModelInstance::playQueuedClip(int p_Track)
 	{
 		for (unsigned int i = 0; i < m_Queue.size(); i++)
 		{
-			// Animations with target track 0 or 2 will always be played on track 2 first.
-			if (m_Queue[i].m_DestinationTrack % 2 == p_Track % 2)
+			if (m_Queue[i].m_DestinationTrack == p_Track)
 			{
-				playClip(m_Queue[i]);
+				playClip(m_Queue[i], false);
 				m_Queue.erase(m_Queue.begin() + i);
 				return true;
 			}
 		}
 	}
 	return false;
+}
+
+void ModelInstance::changeWeight(int p_Track, float p_Weight)
+{
+	m_Tracks[p_Track].dynamicWeight = m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
 }

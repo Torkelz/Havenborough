@@ -574,7 +574,7 @@ void Graphics::updateAnimations(float p_DeltaTime)
 	}
 }
 
-void Graphics::playAnimation(int p_Instance, const char* p_ClipName)
+void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Override)
 {
 	#include "AnimationStructs.h"
 
@@ -590,11 +590,46 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName)
 			// The show must go on!
 			if( modelDef->m_AnimationClips.find(p_ClipName) == modelDef->m_AnimationClips.end() )
 			{
-
 				tempStr = "default";
 			}
 
-			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr));
+			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr), p_Override);
+			break;
+		}
+	}
+}
+
+void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
+{
+	#include "AnimationStructs.h"
+
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			std::string tempStr(p_ClipName);
+
+			// If an illegal string has been put in, just shoot in the default animation.
+			// The show must go on!
+			if( modelDef->m_AnimationClips.find(p_ClipName) == modelDef->m_AnimationClips.end() )
+			{
+				tempStr = "default";
+			}
+
+			inst.second.queueClip(modelDef->m_AnimationClips.at(tempStr));
+			break;
+		}
+	}
+}
+void Graphics::changeAnimationWeight(int p_Instance, int p_Track, float p_Weight)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.changeWeight(p_Track, p_Weight);
 			break;
 		}
 	}

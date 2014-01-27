@@ -231,14 +231,14 @@ void GameLogic::onFrame(float p_DeltaTime)
 	else
 	{
 		static const float runLimit = 100.f;
-		float fallLimit = -10.0f;
+		float flyLimit = 10.0f;
 		JumpAnimationState currentJumpState = JumpAnimationState::FLYING; // KÖA DENNA
 
-		if(XMVectorGetY(velocity) < -fallLimit)
+		if(XMVectorGetY(velocity) < flyLimit)
 		{
 			currentJumpState = JumpAnimationState::JUMP;
 		}
-		else if(XMVectorGetY(velocity) < fallLimit)
+		if(XMVectorGetY(velocity) < -flyLimit)
 		{
 			currentJumpState = JumpAnimationState::FALLING;
 		}
@@ -248,7 +248,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 			m_FallSpeed = XMVectorGetY(velocity);
 		}
 
-		if (XMVectorGetY(velocity) > fallLimit && XMVectorGetY(velocity) < -fallLimit && 
+		if (XMVectorGetY(velocity) < flyLimit && XMVectorGetY(velocity) > -flyLimit && 
 			m_PrevJumpState != JumpAnimationState::JUMP) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
 		{
 			if(m_FallSpeed >= 200.0f)
@@ -268,7 +268,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 			case JumpAnimationState::IDLE:
 				if (currentJumpState == JumpAnimationState::IDLE)
 				{
-					playAnimation(temp, "Idle");
+					playAnimation(temp, "Idle", false);
 				}
 				break;
 
@@ -366,8 +366,6 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
-	playAnimation(m_Player.getActor().lock(), "RunningJump");
-	// Queue midair_up
 }
 
 void GameLogic::toggleIK()
