@@ -656,7 +656,7 @@ void Graphics::eraseModelInstance(int p_Instance)
 	}
 }
 
-void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
+void Graphics::setModelPosition(InstanceId p_Instance, Vector3 p_Position)
 {
 	for (auto& inst : m_ModelInstances)
 	{
@@ -669,7 +669,7 @@ void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
 	throw GraphicsException("Failed to set model instance position.", __LINE__, __FILE__);
 }
 
-void Graphics::setModelRotation(int p_Instance, Vector3 p_YawPitchRoll)
+void Graphics::setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll)
 {
 	for (auto& inst : m_ModelInstances)
 	{
@@ -683,7 +683,7 @@ void Graphics::setModelRotation(int p_Instance, Vector3 p_YawPitchRoll)
 
 }
 
-void Graphics::setModelScale(int p_Instance, Vector3 p_Scale)
+void Graphics::setModelScale(InstanceId p_Instance, Vector3 p_Scale)
 {
 	for (auto& inst : m_ModelInstances)
 	{
@@ -697,7 +697,20 @@ void Graphics::setModelScale(int p_Instance, Vector3 p_Scale)
 
 }
 
-void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target)
+void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.setColorTone(DirectX::XMFLOAT3(p_ColorTone));
+			return;
+		}
+	}
+	throw GraphicsException("Failed to set model instance color tone.", __LINE__, __FILE__);
+}
+
+void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target)
 {
 	for (auto& inst : m_ModelInstances)
 	{
@@ -709,7 +722,7 @@ void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_TargetJoint, con
 	}
 }
 
-Vector3 Graphics::getJointPosition(int p_Instance, const char* p_Joint)
+Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 {
 	for (auto& inst : m_ModelInstances)
 	{

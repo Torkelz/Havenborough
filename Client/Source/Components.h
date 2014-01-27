@@ -399,6 +399,7 @@ public:
 private:
 	ModelCompId m_Id;
 	Vector3 m_BaseScale;
+	Vector3 m_ColorTone;
 	std::string m_MeshName;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
@@ -426,10 +427,20 @@ public:
 			scale->QueryFloatAttribute("y", &m_BaseScale.y);
 			scale->QueryFloatAttribute("z", &m_BaseScale.z);
 		}
+
+		m_ColorTone = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* tone = p_Data->FirstChildElement("ColorTone");
+		if (tone)
+		{
+			tone->QueryFloatAttribute("x", &m_ColorTone.x);
+			tone->QueryFloatAttribute("y", &m_ColorTone.y);
+			tone->QueryFloatAttribute("z", &m_ColorTone.z);
+		}
 	}
 	void postInit() override
 	{
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName, m_BaseScale)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
+			m_BaseScale, m_ColorTone)));
 	}
 	void updateScale(const std::string& p_CompName, Vector3 p_Scale) override
 	{
