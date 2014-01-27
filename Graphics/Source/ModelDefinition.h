@@ -25,41 +25,41 @@ struct ModelDefinition
 	/**
 	 * The shader bound to the model, or nullptr if no shader has been bound.
 	 */
-	Shader						*shader;
+	Shader *shader;
 	/**
-	 * Matrial diffuse textures.
+	 * Material diffuse textures.
 	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> diffuseTexture;
 	/**
-	 * Matrial normal textures.
+	 * Material normal textures.
 	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> normalTexture;
 	/**
-	 * Matrial specular textures.
+	 * Material specular textures.
 	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> specularTexture;
 	/**
 	 * The number of materials in this model.
 	 */
-	unsigned int				numOfMaterials;
+	unsigned int numOfMaterials;
 	/**
 	 * If the model is animated or static.
 	 */
-	bool						m_IsAnimated;
+	bool m_IsAnimated;
 	/**
 	 * If the model is transparent or not.
 	 */
-	bool						m_IsTransparent;
+	bool m_IsTransparent;
 
 	/**
 	 * The animation joints of the model. Contains all static animation data.
 	 */
-	std::vector<Joint>			m_Joints;
+	std::vector<Joint> m_Joints;
 
 	/**
 	 * The animation clips. Address them via a name. E.g. "Walk", "Run", "Laugh"...
 	 */
-	std::map<std::string, AnimationClip>	m_AnimationClips;
+	std::map<std::string, AnimationClip> m_AnimationClips;
 
 	/**
 	 * Move constructor.

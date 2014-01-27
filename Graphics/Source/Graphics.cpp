@@ -441,17 +441,15 @@ void Graphics::renderModel(int p_ModelId)
 		if (inst.first == p_ModelId)
 		{
 			ModelDefinition *temp = getModelFromList(inst.second.getModelName());
-			if(temp->m_IsTransparent == false)
+			if(!temp->m_IsTransparent)
 			{
 				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(temp,
-					inst.second.getWorldMatrix(),
-					&inst.second.getFinalTransform()));
+					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
 			}
 			else
 			{
 				m_Forwardrender->addRenderable(DeferredRenderer::Renderable(temp,
-					inst.second.getWorldMatrix(),
-					&inst.second.getFinalTransform(),
+					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
 					&inst.second.getColorTone()));
 			}
 			
@@ -563,6 +561,18 @@ void Graphics::drawFrame()
 	m_DirectionalLights.clear();
 }
 
+void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)
+{
+	for(auto &model : m_ModelList)
+	{
+		if(model.first == std::string(p_ModelId))
+		{
+			model.second.m_IsTransparent = p_State;
+			break;
+		}
+	}
+}
+
 void Graphics::updateAnimations(float p_DeltaTime)
 {
 	for (auto& model : m_ModelInstances)
@@ -621,7 +631,7 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the model definition: " + std::string(p_ModelId));
 		return -1;
 	}
-
+	
 	ModelInstance instance;
 	instance.setModelName(p_ModelId);
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));

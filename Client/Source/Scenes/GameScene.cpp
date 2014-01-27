@@ -444,7 +444,6 @@ void GameScene::loadSandboxModels()
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
-		"Checkpoint1",
 		"House1",
 		"MarketStand1",
 		"Barrel1",
@@ -463,13 +462,18 @@ void GameScene::loadSandboxModels()
 	for (const std::string& model : preloadedModels)
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());		
+	}
+	static const std::string preloadedModelsTransparent[] =
+	{
+		"Checkpoint1",
+	};
 
-		// TODO : REMOVE WHEN DONE
-		if(model == "Checkpoint1")
-			m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
-		else
-			m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
-		
+	for (const std::string& model : preloadedModelsTransparent)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+		m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
+		m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
 	}
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding IK test tube");

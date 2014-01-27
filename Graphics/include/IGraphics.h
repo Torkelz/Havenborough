@@ -201,7 +201,12 @@ public:
 	/**
 	 * Draw the current frame.
 	 */
-	virtual void drawFrame() = 0;
+	virtual void drawFrame(void) = 0;
+
+	/**
+	 * 
+	 */
+	virtual void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) = 0;
 
 	/**
 	 * Update the animations of all models.

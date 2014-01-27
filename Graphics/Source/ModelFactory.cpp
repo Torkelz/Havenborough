@@ -82,12 +82,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	model.m_IsAnimated = isAnimated;
 
 	modelLoader.clear();
-
-	// TODO: REMOVE WHEN TESTING IS DONE
-	if(std::strcmp(p_Filename, "C:\\Havenborough\\Client\\Bin\\assets/models/Checkpoint.btx") == 0)
-		model.m_IsTransparent = true;
-
-
+	
 	return model;
 }
 
