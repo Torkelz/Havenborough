@@ -39,7 +39,7 @@ ParticleSystem::~ParticleSystem()
 	SAFE_DELETE(m_Buffer);
 }
 
-ParticleSystem ParticleSystem::loadParticleSystemFromFile(const char* p_filename)
+void ParticleSystem::loadParticleSystemFromFile(const char* p_filename)
 {
 	//use std::istream!
 	return;// false;

@@ -8,6 +8,7 @@
 #include "Buffer.h"
 #include "WrapperFactory.h"
 #include "VRAMInfo.h"
+#include "ParticleDefinition.h"
 
 struct particlecBuffer 
 {
@@ -88,7 +89,7 @@ public:
 	ParticleSystem();
 	~ParticleSystem();
 
-	ParticleSystem loadParticleSystemFromFile(const char* p_filename);
+	void loadParticleSystemFromFile(const char* p_filename);
 
 	void init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
 		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,

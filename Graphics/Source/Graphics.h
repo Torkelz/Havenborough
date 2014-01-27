@@ -19,6 +19,7 @@
 #include "VRAMInfo.h"
 
 #include "ParticleSystem.h"
+#include "ParticleDefinition.h"
 
 #include "ShaderStructs.h"
 
@@ -68,7 +69,7 @@ private:
 	int m_NextInstanceId;
 	
 	//Particles
-	vector<pair<string, ParticleSystem*>>  m_ParticleSystemList;
+	vector<pair<string, ParticleDefinition*>>  m_ParticleSystemList;
 	ParticleSystem *m_PS;
 
 	DeferredRenderer *m_DeferredRender;
@@ -173,6 +174,9 @@ private:
 	
 	Shader *getShaderFromList(string p_Identifier);
 	ModelDefinition *getModelFromList(string p_Identifier);
+
+	ParticleDefinition *getParticleFromList(string p_ParticleSystemId);
+
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
 	void Begin(float color[4]);

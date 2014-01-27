@@ -250,12 +250,15 @@ void Graphics::shutdown(void)
 		SAFE_RELEASE(tex.second);
 	}
 	m_TextureList.clear();
-
-	/*for(auto& Psys : m_ParticleSystemList)
+	
+	while (!m_ParticleSystemList.empty())
 	{
-		SAFE_DELETE(Psys.second);
-	}
-	m_ParticleSystemList.clear();*/
+		std::string unremovedName = m_ParticleSystemList.front().first;
+
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
+
+		releaseParticleSystemInstance(unremovedName.c_str());
+	}	
 
 	while (!m_ModelList.empty())
 	{
@@ -392,7 +395,7 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) 
 void Graphics::linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId)
 {
 	ParticleDefinition *particles = nullptr;
-	particles = getParticlesFromList(p_ParticlesId);
+	particles = getParticleFromList(p_ParticlesId);
 	if(particles)
 		particles->shader = getShaderFromList(p_ShaderId);
 }
@@ -448,16 +451,28 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 
 bool Graphics::createParticleSystemInstance(const char *p_ParticleSystemId, const char *p_Filename)
 {
-	ParticleSystem PS = m_PS->loadParticleSystemFromFile(p_Filename);
+	//ParticleDefinition PS = m_PS->loadParticleSystemFromFile(p_Filename);
 
-	m_ParticleSystemList.push_back(pair<string, ParticleSystem>(p_ParticleSystemId, std::move(PS)));
+	//m_ParticleSystemList.push_back(pair<string, ParticleDefinition>(p_ParticleSystemId, std::move(PS)));
 
 	return true;
 }
 
 bool Graphics::releaseParticleSystemInstance(const char *p_ParticleSystemId)
 {
+	for(auto it = m_ParticleSystemList.begin(); it != m_ParticleSystemList.end(); ++it)
+	{
+		if(strcmp(it->first.c_str(), p_ParticleSystemId) == 0)
+		{
+			/*for(unsigned int i = 0; i < it->second.numOfMaterials; i++)
+			{
+				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+			}*/
 
+			m_ParticleSystemList.erase(it);
+			return true;
+		}
+	}
 
 	return false;
 }
@@ -1051,11 +1066,11 @@ ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 
 ParticleDefinition *Graphics::getParticleFromList(string p_Identifier)
 {
-	for(auto & s : m_ParticleList)
+	for(auto & s : m_ParticleSystemList)
 	{
 		if(s.first == p_Identifier)
 		{
-			return &s.second;
+			return s.second;
 		}
 	}
 

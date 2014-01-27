@@ -79,7 +79,7 @@ public:
 	 */
 	ParticleDefinition()
 		:	shader(nullptr),
-			numOfMaterials(0)
+			numOfMaterials(0),
 			m_IsTransparent(false) {}
 
 	~ParticleDefinition(){}
