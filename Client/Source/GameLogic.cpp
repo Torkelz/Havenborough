@@ -1083,6 +1083,17 @@ std::weak_ptr<Actor> GameLogic::addPointLight(Vector3 p_Position, float p_Range,
 	return actor;
 }
 
+std::weak_ptr<Actor> GameLogic::addCheckPointArrow()
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("Mesh");
+	pushVector(printer, "Scale", Vector3(1.0f, 1.0f, 1.0f));
+	pushVector(printer, "ColorTone", Vector3(1.0f, 1.0f, 1.0f));
+	printer.CloseElement();
+	printer.CloseElement();
+}
+
 void GameLogic::addLights()
 {
 	addDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f));

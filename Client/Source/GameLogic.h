@@ -129,6 +129,7 @@ private:
 	std::weak_ptr<Actor> addSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles,
 		float p_Range, Vector3 p_Color);
 	std::weak_ptr<Actor> addPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
+	std::weak_ptr<Actor> addCheckPointArrow();
 
 
 	void addLights();
