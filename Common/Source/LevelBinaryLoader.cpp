@@ -19,17 +19,23 @@ LevelBinaryLoader::~LevelBinaryLoader()
 
 bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 {
-	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
-	if(!input)
+	m_Input.open(p_FilePath, std::istream::in | std::istream::binary);
+	if(!m_Input)
 	{
 		return false;
 	}	
-	m_Header = readHeader(&input);
-	if(m_Header.m_NumberOfModels != 0)m_LevelData = readLevel(&input);
-	if(m_Header.m_NumberOfLights != 0)readLevelLighting(&input);
-	if(m_Header.m_NumberOfCheckPoints != 0)readLevelCheckPoint(&input);
-	input.close();
+
+	readStreamData(&m_Input);
+
 	return true;
+}
+
+void LevelBinaryLoader::readStreamData(std::istream* p_Input)
+{
+	m_Header = readHeader(p_Input);
+	if(m_Header.m_NumberOfModels != 0)m_LevelData = readLevel(p_Input);
+	if(m_Header.m_NumberOfLights != 0)readLevelLighting(p_Input);
+	if(m_Header.m_NumberOfCheckPoints != 0)readLevelCheckPoint(p_Input);
 }
 
 LevelBinaryLoader::Header LevelBinaryLoader::readHeader(std::istream* p_Input)
@@ -109,39 +115,50 @@ void LevelBinaryLoader::readLevelCheckPoint(std::istream* p_Input)
 	p_Input->read(reinterpret_cast<char*>(m_LevelCheckPointList.data()), sizeof(LevelBinaryLoader::CheckPointStruct) * size);
 }
 
-const std::vector<LevelBinaryLoader::ModelData>& LevelBinaryLoader::getModelData()
+const std::vector<LevelBinaryLoader::ModelData>& LevelBinaryLoader::getModelData() const
 {
 	return m_LevelData;
 }
 
-const std::vector<LevelBinaryLoader::DirectionalLight>& LevelBinaryLoader::getDirectionalLightData()
+const std::vector<LevelBinaryLoader::DirectionalLight>& LevelBinaryLoader::getDirectionalLightData() const
 {
 	return m_LevelDirectionalLightList;
 }
 
-const std::vector<LevelBinaryLoader::PointLight>& LevelBinaryLoader::getPointLightData()
+const std::vector<LevelBinaryLoader::PointLight>& LevelBinaryLoader::getPointLightData() const
 {
 	return m_LevelPointLightList;
 }
 
-const std::vector<LevelBinaryLoader::SpotLight>& LevelBinaryLoader::getSpotLightData()
+const std::vector<LevelBinaryLoader::SpotLight>& LevelBinaryLoader::getSpotLightData() const
 {
 	return m_LevelSpotLightList;
 }
 
-DirectX::XMFLOAT3 LevelBinaryLoader::getCheckPointStart()
+DirectX::XMFLOAT3 LevelBinaryLoader::getCheckPointStart() const
 {
 	return m_LevelCheckPointStart;
 }
 
-DirectX::XMFLOAT3 LevelBinaryLoader::getCheckPointEnd()
+DirectX::XMFLOAT3 LevelBinaryLoader::getCheckPointEnd() const
 {
 	return m_LevelCheckPointEnd;
 }
 
-const std::vector<LevelBinaryLoader::CheckPointStruct>& LevelBinaryLoader::getCheckPointData()
+const std::vector<LevelBinaryLoader::CheckPointStruct>& LevelBinaryLoader::getCheckPointData() const
 {
 	return m_LevelCheckPointList;
+}
+
+std::string LevelBinaryLoader::getDataStream() 
+{
+	m_Input.seekg(0);
+	std::streamsize size = m_Input.gcount();
+	std::vector<char> buffer((unsigned int)size);
+	m_Input.read(buffer.data(), size);
+	std::string stream(buffer.begin(), buffer.end());
+	m_Input.seekg(0);
+	return stream;
 }
 
 void LevelBinaryLoader::byteToString(std::istream* p_Input, std::string& p_Return)
@@ -165,4 +182,5 @@ void LevelBinaryLoader::clear()
 	m_LevelDirectionalLightList.clear();
 	m_LevelPointLightList.clear();
 	m_LevelSpotLightList.clear();
+	m_Input.close();
 }

@@ -61,6 +61,8 @@ private:
 	DirectX::XMFLOAT3 m_LevelCheckPointStart;
 	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
 	Header m_Header;
+
+	std::ifstream m_Input;
 public:
 	/**
 	 * Constructor.
@@ -87,53 +89,67 @@ public:
 	bool loadBinaryFile(std::string p_FilePath);
 
 	/**
+	 * Reads information from a stringstream and converts it to vectors of information.
+	 * 
+	 * @param p_Input, input is a istream of compressed information.
+	 */
+	void readStreamData(std::istream* p_Input);
+
+	/**
 	 * Returns information about the models in the level.
 	 *
 	 * @return a vector of ModelData struct. 
 	 */
-	const std::vector<LevelBinaryLoader::ModelData>& getModelData();
+	const std::vector<LevelBinaryLoader::ModelData>& getModelData() const;
 
 	/**
 	 * Returns information about the directional lights in the level.
 	 *
 	 * @return a vector of LightData struct paired with DirectionalLight struct. 
 	 */
-	const std::vector<LevelBinaryLoader::DirectionalLight>& getDirectionalLightData();
+	const std::vector<LevelBinaryLoader::DirectionalLight>& getDirectionalLightData() const;
 
 	/**
 	 * Returns information about the point lights in the level.
 	 *
 	 * @return a vector of LightData struct paired with PointLight struct. 
 	 */
-	const std::vector<LevelBinaryLoader::PointLight>& getPointLightData();
+	const std::vector<LevelBinaryLoader::PointLight>& getPointLightData() const;
 
 	/**
 	 * Returns information about the spot lights in the level.
 	 *
 	 * @return a vector of LightData struct paired with SpotLight struct.  
 	 */
-	const std::vector<LevelBinaryLoader::SpotLight>& getSpotLightData();
+	const std::vector<LevelBinaryLoader::SpotLight>& getSpotLightData() const;
 
 	/**
 	 * Returns information about the start checkpoint in the level.
 	 *
 	 * @return a DirectX::XMFLOAT3 as a position. 
 	 */
-	DirectX::XMFLOAT3 getCheckPointStart();
+	DirectX::XMFLOAT3 getCheckPointStart() const;
 
 	/**
 	 * Returns information about the end checkpoint in the level.
 	 *
 	 * @return a DirectX::XMFLOAT3 as a position. 
 	 */
-	DirectX::XMFLOAT3 getCheckPointEnd();
+	DirectX::XMFLOAT3 getCheckPointEnd() const;
 
 	/**
 	 * Returns information about the checkpoints in the level.
 	 *
 	 * @return a vector of CheckPoint struct. 
 	 */
-	const std::vector<LevelBinaryLoader::CheckPointStruct>& getCheckPointData();
+	const std::vector<LevelBinaryLoader::CheckPointStruct>& getCheckPointData() const;
+
+	/**
+	 * Get the stream information about the file.
+	 *
+	 * @return a const char pointer with binary information, dont forget to get the size of the stream.
+	 */
+	std::string getDataStream();
 
 protected:
 	void byteToInt(std::istream* p_Input, int& p_Return);

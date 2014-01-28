@@ -83,6 +83,10 @@ public:
 	void sendJoinGame(const char* p_Game) override;
 	const char* getJoinGameName(Package p_Package) override;
 
+	void sendLevelData(const char* p_Stream, size_t p_Size) override;
+	const size_t getLevelDataSize(Package p_Package) override;
+	const char* getLevelData(Package p_Package) override;
+
 	void sendLeaveGame() override;
 
 	/**

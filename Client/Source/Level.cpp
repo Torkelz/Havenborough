@@ -48,14 +48,12 @@ void Level::releaseLevel()
 	m_Resources = nullptr;
 }
 
-bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePath, std::vector<Actor::ptr>& p_ActorOut)
+bool Level::loadLevel(std::istream* p_LevelData, std::istream* p_CollisionData, std::vector<Actor::ptr>& p_ActorOut)
 {
-	if(!m_LevelLoader.loadBinaryFile(p_LevelFilePath))
-	{
-		return false;
-	}
+	LevelBinaryLoader levelLoader;
+	levelLoader.readStreamData(p_LevelData);	
 
-	m_LevelData = m_LevelLoader.getModelData();
+	m_LevelData = levelLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelData.size(); i++)
 	{
 		LevelBinaryLoader::ModelData& model = m_LevelData.at(i);
@@ -71,12 +69,12 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 		}
 	}
 	
+	p_LevelData->seekg(0);
+
 	// This will be implemented at a later stage when physics has what it takes!
-	if(!m_CollisionLoader.loadBinaryFile(p_CollisionFilePath))
-	{
-		return false;
-	}
-	m_LevelCollisionData = m_CollisionLoader.getModelData();
+	LevelBinaryLoader collisionLoader;
+	collisionLoader.readStreamData(p_CollisionData);
+	m_LevelCollisionData = collisionLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
 	{
 		LevelBinaryLoader::ModelData& collisionData = m_LevelCollisionData.at(i);
@@ -91,6 +89,8 @@ bool Level::loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePa
 			p_ActorOut.push_back(createCollisionActor(meshName, translation, rotation, scale));
 		}
 	}
+
+	p_CollisionData->seekg(0);
 
 	return true;
 }

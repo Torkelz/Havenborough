@@ -250,6 +250,30 @@ public:
 	virtual const char* getJoinGameName(Package p_Package) = 0;
 
 	/**
+	 * Get the size of the binary stream.
+	 *
+	 * @return size_t pointer with the size of the stream.
+	 */
+	virtual const size_t getLevelDataSize(Package p_Package) = 0;
+
+	/**
+	 * Get the game level information from server,
+	 * use getLevelDataLenght() to prevent the file to stop read at a NULL value.
+	 *
+	 * @param p_Package a valid reference to a package with the LevelData type.
+	 * @return a binary stream with the information.
+	 */
+	virtual const char* getLevelData(Package p_Package) = 0;
+
+	/**
+	 * Send information about the level. 
+	 *
+	 * @param p_Stream is a binary stream with level information.
+	 * @
+	 */
+	virtual void sendLevelData(const char* p_Stream, size_t p_Size) = 0;
+
+	/**
 	 * Send a Leave Game package for a player leaving a server game.
 	 */
 	virtual void sendLeaveGame() = 0;
