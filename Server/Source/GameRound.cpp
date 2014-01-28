@@ -64,62 +64,21 @@ std::string GameRound::getGameType() const
 	return m_TypeName;
 }
 
-void GameRound::handlePackages()
+void GameRound::handleExtraPackage(Player& p_Player, Package p_Package)
 {
-	for(auto& player : m_Players)
+	User::ptr user = p_Player.getUser().lock();
+
+	if (!user)
 	{
-		User::ptr user = player.getUser().lock();
-
-		if (!user)
-		{
-			continue;
-		}
-
-		IConnectionController* con = user->getConnection();
-
-		unsigned int numPackages = con->getNumPackages();
-		for (unsigned int i = 0; i < numPackages; ++i)
-		{
-			Package package = con->getPackage(i);
-			PackageType type = con->getPackageType(package);
-
-			switch (type)
-			{
-			case PackageType::PLAYER_CONTROL:
-				{
-					PlayerControlData playerControlData = con->getPlayerControlData(package);
-
-					Actor::ptr actor = player.getActor().lock();
-					if (actor)
-					{
-						actor->setPosition(playerControlData.m_Velocity);
-						actor->setRotation(playerControlData.m_Rotation);
-					}
-				}
-				break;
-
-			case PackageType::DONE_LOADING:
-				{
-					user->setState(User::State::WAITING_FOR_START);
-				}
-				break;
-
-			case PackageType::LEAVE_GAME:
-				{
-					m_ReturnLobby->addFreeUser(user);
-					player.releaseUser();
-				}
-				break;
-
-			default:
-				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
-				Logger::log(Logger::Level::WARNING, msg);
-				break;
-			}
-		}
-
-		con->clearPackages(numPackages);
+		return;
 	}
+
+	IConnectionController* con = user->getConnection();
+
+	PackageType type = con->getPackageType(p_Package);
+
+	std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
+	Logger::log(Logger::Level::WARNING, msg);
 }
 
 void GameRound::run()
@@ -238,5 +197,62 @@ void GameRound::checkForDisconnectedUsers()
 	if (m_Players.empty())
 	{
 		m_Running = false;
+	}
+}
+
+void GameRound::handlePackages()
+{
+	for(auto& player : m_Players)
+	{
+		User::ptr user = player.getUser().lock();
+
+		if (!user)
+		{
+			continue;
+		}
+
+		IConnectionController* con = user->getConnection();
+
+		unsigned int numPackages = con->getNumPackages();
+		for (unsigned int i = 0; i < numPackages; ++i)
+		{
+			Package package = con->getPackage(i);
+			PackageType type = con->getPackageType(package);
+
+			switch (type)
+			{
+			case PackageType::PLAYER_CONTROL:
+				{
+					PlayerControlData playerControlData = con->getPlayerControlData(package);
+
+					Actor::ptr actor = player.getActor().lock();
+					if (actor)
+					{
+						actor->setPosition(playerControlData.m_Velocity);
+						actor->setRotation(playerControlData.m_Rotation);
+					}
+				}
+				break;
+
+			case PackageType::DONE_LOADING:
+				{
+					user->setState(User::State::WAITING_FOR_START);
+				}
+				break;
+
+			case PackageType::LEAVE_GAME:
+				{
+					m_ReturnLobby->addFreeUser(user);
+					player.releaseUser();
+				}
+				break;
+
+			default:
+				handleExtraPackage(player, package);
+				break;
+			}
+		}
+
+		con->clearPackages(numPackages);
 	}
 }
