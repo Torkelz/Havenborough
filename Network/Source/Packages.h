@@ -275,6 +275,11 @@ typedef Package1Obj<PackageType::PLAYER_CONTROL, PlayerControlData> PlayerContro
  */
 typedef Package1Obj<PackageType::JOIN_GAME, std::string> JoinGame;
 
+/**
+ * A package representing the level data.
+ */
+typedef Package1Obj<PackageType::LEVEL_DATA, std::string> LevelData;
+
 BOOST_IS_BITWISE_SERIALIZABLE(ObjectInstance)
 
 /**

@@ -12,9 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ActorFactory.cpp" />
+    <ClCompile Include="Source\FileGameRound.cpp" />
     <ClCompile Include="Source\GameList.cpp" />
     <ClCompile Include="Source\GameRound.cpp" />
     <ClCompile Include="Source\GameRoundFactory.cpp" />
+    <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\TestGameRound.cpp" />
     <ClCompile Include="Source\Lobby.cpp" />
     <ClCompile Include="Source\Player.cpp" />
@@ -35,9 +37,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\ActorFactory.h" />
+    <ClInclude Include="Source\FileGameRound.h" />
     <ClInclude Include="Source\GameList.h" />
     <ClInclude Include="Source\GameRound.h" />
     <ClInclude Include="Source\GameRoundFactory.h" />
+    <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\TestGameRound.h" />
     <ClInclude Include="Source\Lobby.h" />
     <ClInclude Include="Source\Player.h" />

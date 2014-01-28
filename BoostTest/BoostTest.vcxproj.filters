@@ -173,9 +173,6 @@
     <ClCompile Include="..\Client\Source\Input\Input.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\LevelBinaryLoader.cpp">
-      <Filter>TestLoaders\Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\Input\InputState.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
@@ -243,6 +240,12 @@
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
+    <ClCompile Include="..\Server\Source\LevelBinaryLoader.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\LevelStreamReader.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

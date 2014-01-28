@@ -1,5 +1,5 @@
 #include <ActorFactory.h>
-#include "LevelBinaryLoader.h"
+#include "LevelStreamReader.h"
 #include "IPhysics.h"
 #include "ResourceManager.h"
 #include <Utilities/Util.h>
@@ -11,12 +11,12 @@ private:
 	IPhysics* m_Physics;
 	ResourceManager* m_Resources;
 	ActorFactory* m_ActorFactory;
-	LevelBinaryLoader m_LevelLoader, m_CollisionLoader;
-	std::vector<LevelBinaryLoader::ModelData> m_LevelData, m_LevelCollisionData;
-	std::vector<LevelBinaryLoader::DirectionalLight> m_LevelDirectionalLightList;
-	std::vector<LevelBinaryLoader::PointLight> m_LevelPointLightList;
-	std::vector<LevelBinaryLoader::SpotLight> m_LevelSpotLightList;
-	std::vector<LevelBinaryLoader::CheckPointStruct> m_LevelCheckPointList;
+	LevelStreamReader m_LevelLoader, m_CollisionLoader;
+	std::vector<LevelStreamReader::ModelData> m_LevelData, m_LevelCollisionData;
+	std::vector<LevelStreamReader::DirectionalLight> m_LevelDirectionalLightList;
+	std::vector<LevelStreamReader::PointLight> m_LevelPointLightList;
+	std::vector<LevelStreamReader::SpotLight> m_LevelSpotLightList;
+	std::vector<LevelStreamReader::CheckPointStruct> m_LevelCheckPointList;
 	DirectX::XMFLOAT3 m_LevelCheckPointStart;
 	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
 	DirectX::XMFLOAT3 m_StartPosition;
@@ -81,7 +81,7 @@ public:
 	 * @param p_LevelFilePath the complete path to the environment .txl file.
 	 * @param p_CollisionFilePath the complete path to the collision .txl file.
 	 */
-	bool loadLevel(std::string p_LevelFilePath, std::string p_CollisionFilePath, std::vector<Actor::ptr>& p_ActorOut);
+	bool loadLevel(std::istream* p_LevelData, std::istream* p_CollisionFilePath, std::vector<Actor::ptr>& p_ActorOut);
 
 	/**
 	 * Calls a draw function and send the information about what to draw to the Graphics.

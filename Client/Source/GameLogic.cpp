@@ -1,6 +1,7 @@
 #include "GameLogic.h"
 #include "Components.h"
 #include "EventData.h"
+#include "ClientExceptions.h"
 
 GameLogic::GameLogic(void)
 {
@@ -227,11 +228,21 @@ void GameLogic::playLocalLevel()
 
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
 #ifdef _DEBUG
-	m_Level.loadLevel("../Bin/assets/levels/Level2.btxl", "../Bin/assets/levels/Level2.btxl", m_Objects);
+	std::ifstream input("../Bin/assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
+	if(!input)
+	{
+		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
+	}
+	m_Level.loadLevel(&input, &input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
+	std::ifstream input("../Bin/assets/levels/Level1.2.btxl", std::istream::in | std::istream::binary);
+	if(!input)
+	{
+		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
+	}
+	m_Level.loadLevel(&input, &input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
@@ -381,11 +392,21 @@ void GameLogic::handleNetwork()
 					m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), playerActor);
 
 #ifdef _DEBUG
-					m_Level.loadLevel("../Bin/assets/levels/Level2.btxl", "../Bin/assets/levels/Level2.btxl", m_Objects);
+					std::ifstream input("../Bin/assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
+					if(!input)
+					{
+						throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
+					}
+					m_Level.loadLevel(&input, &input, m_Objects);
 					m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-					m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
+					std::ifstream input("../Bin/assets/levels/Level1.2.btxl", std::istream::in | std::istream::binary);
+					if(!input)
+					{
+						throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
+					}
+					m_Level.loadLevel(&input, &input, m_Objects);
 					m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif

@@ -232,6 +232,27 @@ const char* ConnectionController::getJoinGameName(Package p_Package)
 	return joinGame->m_Object1.c_str();
 }
 
+const char* ConnectionController::getLevelData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	LevelData* levelData = static_cast<LevelData*>(m_ReceivedPackages[p_Package].get());
+	return levelData->m_Object1.c_str();
+}
+
+const size_t ConnectionController::getLevelDataSize(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	LevelData* levelData = static_cast<LevelData*>(m_ReceivedPackages[p_Package].get());
+	return levelData->m_Object1.size();
+}
+
+void ConnectionController::sendLevelData(const char* p_Stream, size_t p_Size)
+{
+	LevelData package;
+	package.m_Object1 = std::string(p_Stream, p_Size);
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
 void ConnectionController::sendLeaveGame()
 {
 	LeaveGame package;

@@ -111,7 +111,7 @@
     <ClCompile Include="..\Client\Source\GameLogic.cpp" />
     <ClCompile Include="..\Client\Source\Level.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />
-    <ClCompile Include="..\Client\Source\LevelBinaryLoader.cpp" />
+    <ClCompile Include="..\Client\Source\LevelStreamReader.cpp" />
     <ClCompile Include="..\Client\Source\Player.cpp" />
     <ClCompile Include="..\Client\Source\RAMInfo.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
@@ -151,6 +151,7 @@
     <ClCompile Include="..\Network\Source\Network.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp" />
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
+    <ClCompile Include="..\Server\Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="AABBTest.cpp" />
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="HullTest.cpp" />
