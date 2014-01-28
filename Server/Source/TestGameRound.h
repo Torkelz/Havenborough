@@ -9,22 +9,7 @@ class TestGameRound : public GameRound
 private:
 	static const float m_PlayerSphereRadius;
 
-	struct TestBox
-	{
-		uint16_t actorId;
-
-		Vector3 position;
-		Vector3 velocity;
-		Vector3 rotation;
-		Vector3 rotationVelocity;
-
-		Vector3 circleCenter;
-		float circleRadius;
-		float circleRotationSpeed;
-		float circleRotation;
-	};
-
-	std::vector<TestBox> m_Boxes;
+	std::vector<Actor::wPtr> m_Boxes;
 
 public:
 	void setup() override;
@@ -35,10 +20,8 @@ private:
 	void sendUpdates() override;
 	void playerDisconnected(Player& p_DisconnectedPlayer) override;
 	
-	void updateBox(TestBox& p_Box, float p_DeltaTime);
-	UpdateObjectData getUpdateData(const TestBox& p_Box);
+	UpdateObjectData getUpdateData(const Actor::ptr p_Box);
 	UpdateObjectData getUpdateData(const Player& p_Player);
 	void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, const Vector3& p_Vec);
-	std::string getBoxDescription(const TestBox& p_Box);
-	ObjectInstance getBoxInstance(const TestBox& p_Box, uint16_t p_DescIdx);
+	ObjectInstance getBoxInstance(Actor::ptr p_Box, uint16_t p_DescIdx);
 };

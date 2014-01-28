@@ -45,7 +45,7 @@ public:
 	/**
 	 * constructor.
 	 */
-	ActorFactory();
+	explicit ActorFactory(unsigned int p_BaseActorId);
 
 	/**
 	 * Set the physics library to be used when creating component requiring physics.
@@ -98,6 +98,8 @@ public:
 	Actor::ptr createPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
 	Actor::ptr createCheckPointArrow();
+	std::string getCircleBoxDescription(Vector3 p_Center, float p_Radius);
+	Actor::ptr createCircleBox(Vector3 p_Center, float p_Radius);
 
 protected:
 	/**
@@ -116,6 +118,7 @@ private:
 	ActorComponent::ptr createBoundingMeshComponent();
 	ActorComponent::ptr createModelComponent();
 	ActorComponent::ptr createMovementComponent();
+	ActorComponent::ptr createCircleMovementComponent();
 	ActorComponent::ptr createPulseComponent();
 	ActorComponent::ptr createLightComponent();
 };

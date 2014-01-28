@@ -622,6 +622,83 @@ public:
 };
 
 /**
+ * Simple linear movement component implementation.
+ */
+class CircleMovementComponent : public MovementInterface
+{
+private:
+	Vector3 m_CircleCenterPosition;
+	float m_CircleAngle;
+	float m_CircleRotationSpeed;
+	float m_CircleRadius;
+
+public:
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		m_CircleCenterPosition = Vector3(0.f, 0.f, 0.f);
+		m_CircleAngle = 0.f;
+		m_CircleRotationSpeed = PI;
+		m_CircleRadius = 100.f;
+
+		const tinyxml2::XMLElement* centerElem = p_Data->FirstChildElement("CircleCenter");
+		if (centerElem)
+		{
+			m_CircleCenterPosition.x = centerElem->FloatAttribute("x");
+			m_CircleCenterPosition.y = centerElem->FloatAttribute("y");
+			m_CircleCenterPosition.z = centerElem->FloatAttribute("z");
+		}
+
+		p_Data->QueryFloatAttribute("StartAngle", &m_CircleAngle);
+		p_Data->QueryFloatAttribute("RotationSpeed", &m_CircleRotationSpeed);
+		p_Data->QueryFloatAttribute("CircleRadius", &m_CircleRadius);
+	}
+
+	void postInit() override
+	{
+		onUpdate(0.f);
+	}
+
+	void onUpdate(float p_DeltaTime) override
+	{
+		m_CircleAngle += m_CircleRotationSpeed * p_DeltaTime;
+		Vector3 newPos = m_CircleCenterPosition;
+		newPos.x += cos(m_CircleAngle) * m_CircleRadius;
+		newPos.z += -sin(m_CircleAngle) * m_CircleRadius;
+		Vector3 newRot(m_CircleAngle, 0.f, m_CircleAngle);
+
+		m_Owner->setPosition(newPos);
+		m_Owner->setRotation(newRot);
+	}
+
+	void setVelocity(Vector3 p_Velocity) override
+	{
+	}
+	Vector3 getVelocity() const override
+	{
+		Vector3 newVel;
+		newVel.x = -sin(m_CircleAngle) * m_CircleRadius * m_CircleRotationSpeed;
+		newVel.y = 0.f;
+		newVel.z = -cos(m_CircleAngle) * m_CircleRadius * m_CircleRotationSpeed;
+		return newVel;
+	}
+	void setRotationalVelocity(Vector3 p_RotVelocity) override
+	{
+	}
+	Vector3 getRotationalVelocity() const override
+	{
+		return Vector3(m_CircleRotationSpeed, 0.f, m_CircleRotationSpeed);
+	}
+	Vector3 getCenterPosition() const
+	{
+		return m_CircleCenterPosition;
+	}
+	float getRadius() const
+	{
+		return m_CircleRadius;
+	}
+};
+
+/**
  * Interface for visibly pulsing an actor.
  */
 class PulseInterface : public ActorComponent

@@ -3,8 +3,8 @@
 #include "CommonExceptions.h"
 #include "Components.h"
 
-ActorFactory::ActorFactory()
-	:	m_LastActorId(65536),
+ActorFactory::ActorFactory(unsigned int p_BaseActorId)
+	:	m_LastActorId(p_BaseActorId),
 		m_LastModelComponentId(0),
 		m_LastLightComponentId(0),
 		m_Physics(nullptr)
@@ -15,6 +15,7 @@ ActorFactory::ActorFactory()
 	m_ComponentCreators["MeshPhysics"] = std::bind(&ActorFactory::createBoundingMeshComponent, this);
 	m_ComponentCreators["Model"] = std::bind(&ActorFactory::createModelComponent, this);
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
+	m_ComponentCreators["CircleMovement"] = std::bind(&ActorFactory::createCircleMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
 	m_ComponentCreators["Light"] = std::bind(&ActorFactory::createLightComponent, this);
 }
@@ -404,6 +405,39 @@ Actor::ptr ActorFactory::createCheckPointArrow()
 	return createActor(doc.FirstChildElement("Object"));
 }
 
+std::string ActorFactory::getCircleBoxDescription(Vector3 p_Center, float p_Radius)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("CircleMovement");
+	printer.PushAttribute("RotationSpeed", PI * 0.1f);
+	printer.PushAttribute("CircleRadius", p_Radius);
+	pushVector(printer, "CircleCenter", p_Center);
+	printer.CloseElement();
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	static const Vector3 scale(100.f, 100.f, 100.f);
+	pushVector(printer, "Scale", scale);
+	printer.CloseElement();
+	printer.OpenElement("OBBPhysics");
+	pushVector(printer, "Halfsize", scale * 0.5f);
+	printer.CloseElement();
+	printer.OpenElement("Pulse");
+	printer.PushAttribute("Length", 0.5f);
+	printer.PushAttribute("Strength", 0.5f);
+	printer.CloseElement();
+	printer.CloseElement();
+	return std::string(printer.CStr());
+}
+
+Actor::ptr ActorFactory::createCircleBox(Vector3 p_Center, float p_Radius)
+{
+	tinyxml2::XMLDocument doc;
+	doc.Parse(getCircleBoxDescription(p_Center, p_Radius).c_str());
+
+	return createActor(doc.FirstChildElement("Object"));
+}
+
 ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_Data)
 {
 	std::string name(p_Data->Value());
@@ -478,6 +512,11 @@ ActorComponent::ptr ActorFactory::createModelComponent()
 ActorComponent::ptr ActorFactory::createMovementComponent()
 {
 	return ActorComponent::ptr(new MovementComponent);
+}
+
+ActorComponent::ptr ActorFactory::createCircleMovementComponent()
+{
+	return ActorComponent::ptr(new CircleMovementComponent);
 }
 
 ActorComponent::ptr ActorFactory::createPulseComponent()

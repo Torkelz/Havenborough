@@ -14,6 +14,10 @@ const double pi = 3.14159265358979323846264338;
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
+BaseGameApp::BaseGameApp()
+	:	m_ActorFactory(0x10000)
+{
+}
 
 void BaseGameApp::init()
 {

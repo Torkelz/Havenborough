@@ -11,23 +11,11 @@ void TestGameRound::setup()
 {
 	for (size_t i = 0; i < m_Players.size(); ++i)
 	{
-		uint16_t actorId = i + 200;
-
-		TestBox newBox =
-		{
-			actorId,
-			Vector3(0.f, 0.f, 0.f),
-			Vector3(0.f, 0.f, 0.f),
-			Vector3(0.f, 0.f, 0.f),
-			Vector3(0.f, 0.f, 0.f),
+		Actor::ptr box = m_ActorFactory->createCircleBox(
 			Vector3(500.f, 200.f + i * 100.f, 400.f),
-			(float)(i + 3) * 100.f,
-			3.14f / 10.f,
-			0.f
-		};
-		updateBox(newBox, 0.f);
-
-		m_Boxes.push_back(newBox);
+			(float)(i + 3) * 100.f);
+		m_Actors.push_back(box);
+		m_Boxes.push_back(box);
 
 		Vector3 position(500.f - i * 200.f, m_PlayerSphereRadius + 400.f, 600.f);
 
@@ -45,9 +33,21 @@ void TestGameRound::sendLevel()
 
 	for (const auto& box : m_Boxes)
 	{
-		descriptions.push_back(getBoxDescription(box));
+		Actor::ptr actor = box.lock();
+		if (!actor)
+		{
+			continue;
+		}
+
+		std::shared_ptr<CircleMovementComponent> comp = actor->getComponent<CircleMovementComponent>(CircleMovementComponent::m_ComponentId).lock();
+		if (!comp)
+		{
+			continue;
+		}
+
+		descriptions.push_back(m_ActorFactory->getCircleBoxDescription(comp->getCenterPosition(), comp->getRadius()));
 		cDescriptions.push_back(descriptions.back().c_str());
-		instances.push_back(getBoxInstance(box, descriptions.size() - 1));
+		instances.push_back(getBoxInstance(actor, descriptions.size() - 1));
 	}
 
 	for (const auto& player : m_Players)
@@ -112,11 +112,6 @@ void TestGameRound::sendLevel()
 
 void TestGameRound::updateLogic(float p_DeltaTime)
 {
-	for (auto& box : m_Boxes)
-	{
-		updateBox(box, p_DeltaTime);
-	}
-
 	for (auto& actor : m_Actors)
 	{
 		actor->onUpdate(p_DeltaTime);
@@ -129,7 +124,11 @@ void TestGameRound::sendUpdates()
 
 	for (auto& box : m_Boxes)
 	{
-		data.push_back(getUpdateData(box));
+		Actor::ptr actor = box.lock();
+		if (actor)
+		{
+			data.push_back(getUpdateData(actor));
+		}
 	}
 
 	for (auto& player : m_Players)
@@ -167,32 +166,25 @@ void TestGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
 	}
 }
 
-void TestGameRound::updateBox(TestBox& p_Box, float p_DeltaTime)
+UpdateObjectData TestGameRound::getUpdateData(const Actor::ptr p_Box)
 {
-	p_Box.circleRotation += p_Box.circleRotationSpeed * p_DeltaTime;
-	p_Box.position.x = p_Box.circleCenter.x + cos(p_Box.circleRotation) * p_Box.circleRadius;
-	p_Box.position.y = p_Box.circleCenter.y;
-	p_Box.position.z = p_Box.circleCenter.z - sin(p_Box.circleRotation) * p_Box.circleRadius;
-	p_Box.velocity.x = -sin(p_Box.circleRotation) * p_Box.circleRadius * p_Box.circleRotationSpeed;
-	p_Box.velocity.y = 0.f;
-	p_Box.velocity.z = -cos(p_Box.circleRotation) * p_Box.circleRadius * p_Box.circleRotationSpeed;
-	p_Box.rotation.x = p_Box.circleRotation;
-	p_Box.rotation.y = 0.f;
-	p_Box.rotation.z = p_Box.circleRotation;
-	p_Box.rotationVelocity.x = p_Box.circleRotationSpeed;
-	p_Box.rotationVelocity.y = 0.f;
-	p_Box.rotationVelocity.z = p_Box.circleRotationSpeed;
-}
+	std::shared_ptr<MovementInterface> movement = p_Box->getComponent<MovementInterface>(MovementInterface::m_ComponentId).lock();
 
-UpdateObjectData TestGameRound::getUpdateData(const TestBox& p_Box)
-{
+	Vector3 velocity(0.f, 0.f, 0.f);
+	Vector3 rotVelocity(0.f, 0.f, 0.f);
+	if (movement)
+	{
+		velocity = movement->getVelocity();
+		rotVelocity = movement->getRotationalVelocity();
+	}
+
 	UpdateObjectData data =
 	{
-		p_Box.position,
-		p_Box.velocity,
-		p_Box.rotation,
-		p_Box.rotationVelocity,
-		p_Box.actorId
+		p_Box->getPosition(),
+		velocity,
+		p_Box->getRotation(),
+		rotVelocity,
+		p_Box->getId()
 	};
 
 	return data;
@@ -238,38 +230,14 @@ void TestGameRound::pushVector(tinyxml2::XMLPrinter& p_Printer, const std::strin
 	p_Printer.CloseElement();
 }
 
-std::string TestGameRound::getBoxDescription(const TestBox& p_Box)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Movement");
-	pushVector(printer, "Velocity", p_Box.velocity);
-	pushVector(printer, "RotationalVelocity", p_Box.rotationVelocity);
-	printer.CloseElement();
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "BOX");
-	static const Vector3 scale(100.f, 100.f, 100.f);
-	pushVector(printer, "Scale", scale);
-	printer.CloseElement();
-	printer.OpenElement("OBBPhysics");
-	pushVector(printer, "Halfsize", scale * 0.5f);
-	printer.CloseElement();
-	printer.OpenElement("Pulse");
-	printer.PushAttribute("Length", 0.5f);
-	printer.PushAttribute("Strength", 0.5f);
-	printer.CloseElement();
-	printer.CloseElement();
-	return std::string(printer.CStr());
-}
-
-ObjectInstance TestGameRound::getBoxInstance(const TestBox& p_Box, uint16_t p_DescIdx)
+ObjectInstance TestGameRound::getBoxInstance(Actor::ptr p_Box, uint16_t p_DescIdx)
 {
 	ObjectInstance inst =
 	{
-		p_Box.position,
-		p_Box.rotation,
+		p_Box->getPosition(),
+		p_Box->getRotation(),
 		p_DescIdx,
-		p_Box.actorId
+		p_Box->getId()
 	};
 
 	return inst;

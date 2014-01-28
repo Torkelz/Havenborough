@@ -24,8 +24,6 @@ private:
 	GameLogic *m_GameLogic;
 	EventManager *m_EventManager;
 
-	ActorFactory m_ActorFactory;
-
 	std::vector<int> m_ResourceIDs;
 	std::vector<Light> m_Lights;
 
