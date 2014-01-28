@@ -2,7 +2,7 @@
 
 #include "Actor.h"
 #include "IPhysics.h"
-#include "../Utilities/Util.h"
+#include <Utilities/Util.h>
 
 #include <DirectXMath.h>
 

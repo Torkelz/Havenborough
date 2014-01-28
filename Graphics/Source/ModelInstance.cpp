@@ -7,7 +7,8 @@ using namespace DirectX;
 using std::string;
 
 ModelInstance::ModelInstance()
-	: m_IsCalculated(false)
+	: m_IsCalculated(false), 
+	m_ColorTone(DirectX::XMFLOAT3(1.f, 1.f, 1.f))
 {
 	for (int i = 0; i < 3; i++)
 	{
@@ -56,6 +57,16 @@ void ModelInstance::setScale(const XMFLOAT3& p_Scale)
 {
 	m_Scale = p_Scale;
 	m_IsCalculated = false;
+}
+
+void ModelInstance::setColorTone(const XMFLOAT3& p_ColorTone)
+{
+	m_ColorTone = p_ColorTone;
+}
+
+const XMFLOAT3 &ModelInstance::getColorTone() const
+{
+	return m_ColorTone;
 }
 
 void ModelInstance::calculateWorldMatrix() const

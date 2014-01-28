@@ -11,24 +11,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\EventManager.cpp" />
+    <ClCompile Include="Source\CheckpointSystem.cpp" />
     <ClCompile Include="Source\GameLogic.cpp" />
-    <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
-    <ClCompile Include="Source\Actor.cpp" />
-    <ClCompile Include="Source\ActorFactory.cpp" />
     <ClCompile Include="Source\Level.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
     <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\RAMInfo.cpp" />
-    <ClCompile Include="Source\ResourceManager.cpp" />
-    <ClCompile Include="Source\ResourceTranslator.cpp" />
     <ClCompile Include="Source\BaseGameApp.cpp" />
     <ClCompile Include="Source\clientProgram.cpp" />
     <ClCompile Include="Source\Input\Input.cpp" />
     <ClCompile Include="Source\Input\InputState.cpp" />
     <ClCompile Include="Source\Input\InputTranslator.cpp" />
-    <ClCompile Include="Source\Logger.cpp" />
     <ClCompile Include="Source\SceneManager.cpp" />
     <ClCompile Include="Source\Scenes\GameScene.cpp" />
     <ClCompile Include="Source\Scenes\MenuScene.cpp" />
@@ -44,6 +38,9 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{8c7b8d02-7172-4ae2-a0df-2e5a5fc9f23f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Graphics\Graphics.vcxproj">
       <Project>{b3860466-45bd-4c0f-bd24-15dc7c96e0f1}</Project>
     </ProjectReference>
@@ -58,26 +55,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\EventManager.h" />
-    <ClInclude Include="Source\EventData.h" />
+    <ClInclude Include="Source\CheckpointSystem.h" />
     <ClInclude Include="Source\LevelBinaryLoader.h" />
-    <ClInclude Include="Source\LightStructs.h" />
     <ClInclude Include="Source\RAMInfo.h" />
-    <ClInclude Include="Utilities\FastDelegate.h" />
     <ClInclude Include="Source\GameLogic.h" />
-    <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />
-    <ClInclude Include="Source\ActorComponent.h" />
-    <ClInclude Include="Source\Actor.h" />
-    <ClInclude Include="Source\ActorFactory.h" />
-    <ClInclude Include="Source\Components.h" />
-    <ClInclude Include="Source\IEventData.h" />
-    <ClInclude Include="Source\IEventManager.h" />
     <ClInclude Include="Source\Level.h" />
     <ClInclude Include="Source\EdgeCollisionResponse.h" />
     <ClInclude Include="Source\Player.h" />
-    <ClInclude Include="Source\Logger.h" />
-    <ClInclude Include="Source\ResourceManager.h" />
-    <ClInclude Include="Source\ResourceTranslator.h" />
     <ClInclude Include="Source\BaseGameApp.h" />
     <ClInclude Include="Source\Input\Input.h" />
     <ClInclude Include="Source\Input\InputRecord.h" />
@@ -90,9 +74,6 @@
     <ClInclude Include="Source\Scenes\MenuScene.h" />
     <ClInclude Include="Source\Scenes\PostGameScene.h" />
     <ClInclude Include="Source\Window.h" />
-    <ClInclude Include="Utilities\MemoryUtil.h" />
-    <ClInclude Include="Utilities\Util.h" />
-    <ClInclude Include="Utilities\XMFloatUtil.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{10229040-9B98-4F55-8CC9-8F1DA231CE04}</ProjectGuid>
@@ -129,14 +110,12 @@
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
     <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
-    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)Bin\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
-    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -146,8 +125,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR);$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR);$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4100;4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -155,7 +134,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)BoostTest\Test\BoostTest.exe --log_level=message</Command>
@@ -171,8 +149,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party/tinyxml2;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR);$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR);$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4100;4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -182,7 +160,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)BoostTest\Bin\BoostTest.exe</Command>

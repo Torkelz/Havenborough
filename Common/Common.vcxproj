@@ -11,52 +11,48 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\GameList.cpp" />
-    <ClCompile Include="Source\GameRound.cpp" />
-    <ClCompile Include="Source\GameRoundFactory.cpp" />
-    <ClCompile Include="Source\TestGameRound.cpp" />
-    <ClCompile Include="Source\Lobby.cpp" />
-    <ClCompile Include="Source\Player.cpp" />
-    <ClCompile Include="Source\serverProgram.cpp" />
-    <ClCompile Include="Source\Server.cpp" />
-    <ClCompile Include="Source\User.cpp" />
+    <ClInclude Include="3rd party\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="Source\Actor.h" />
+    <ClInclude Include="Source\ActorComponent.h" />
+    <ClInclude Include="Source\ActorFactory.h" />
+    <ClInclude Include="Source\CommonExceptions.h" />
+    <ClInclude Include="Source\Components.h" />
+    <ClInclude Include="Source\EventData.h" />
+    <ClInclude Include="Source\EventManager.h" />
+    <ClInclude Include="Source\IEventData.h" />
+    <ClInclude Include="Source\IEventManager.h" />
+    <ClInclude Include="Source\LightStructs.h" />
+    <ClInclude Include="Source\Logger.h" />
+    <ClInclude Include="Source\ResourceManager.h" />
+    <ClInclude Include="Source\ResourceTranslator.h" />
+    <ClInclude Include="Source\Utilities\FastDelegate.h" />
+    <ClInclude Include="Source\Utilities\MemoryUtil.h" />
+    <ClInclude Include="Source\Utilities\Util.h" />
+    <ClInclude Include="Source\Utilities\XMFloatUtil.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vcxproj">
-      <Project>{8c7b8d02-7172-4ae2-a0df-2e5a5fc9f23f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Network\Network.vcxproj">
-      <Project>{618f0468-d053-4ae2-be83-118fe75c6f2e}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Physics\Physics.vcxproj">
-      <Project>{1db22d9f-addf-4065-9355-db75f64d13a6}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Source\GameList.h" />
-    <ClInclude Include="Source\GameRound.h" />
-    <ClInclude Include="Source\GameRoundFactory.h" />
-    <ClInclude Include="Source\TestGameRound.h" />
-    <ClInclude Include="Source\Lobby.h" />
-    <ClInclude Include="Source\Player.h" />
-    <ClInclude Include="Source\Server.h" />
-    <ClInclude Include="Source\ServerExceptions.h" />
-    <ClInclude Include="Source\User.h" />
+    <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="Source\Actor.cpp" />
+    <ClCompile Include="Source\ActorFactory.cpp" />
+    <ClCompile Include="Source\EventManager.cpp" />
+    <ClCompile Include="Source\Logger.cpp" />
+    <ClCompile Include="Source\ResourceManager.cpp" />
+    <ClCompile Include="Source\ResourceTranslator.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{03B04F8A-DF5E-445D-A91D-1C4F7C8398FD}</ProjectGuid>
+    <ProjectGuid>{8C7B8D02-7172-4AE2-A0DF-2E5A5FC9F23F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Server</RootNamespace>
+    <RootNamespace>Common</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -73,19 +69,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Test\</OutDir>
+    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
     <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Bin\</OutDir>
+    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,14 +85,16 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
+      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
   </ItemDefinitionGroup>
@@ -112,15 +106,18 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
+      <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
   </ItemDefinitionGroup>

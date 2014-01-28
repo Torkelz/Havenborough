@@ -1,5 +1,5 @@
 #include "ResourceTranslator.h"
-#include "ClientExceptions.h"
+#include "CommonExceptions.h"
 
 #include <vector>
 
@@ -11,31 +11,23 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 {
 	static const std::pair<std::string, std::string> modelMap[] =
 	{
+		std::make_pair("Arrow", "assets/models/Arrow.btx"),
 		std::make_pair("Barrel1", "assets/models/Barrel1.btx"),
-		std::make_pair("BrownCrate", "assets/models/BrownCrate.btx"),
-		//std::make_pair("Charachter_Witch", "assets/models/Character_Witch.btx"),
+		std::make_pair("Checkpoint1", "assets/models/Checkpoint.btx"),
 		std::make_pair("Crate1", "assets/models/Crate1.btx"),
-		std::make_pair("GreenCrate", "assets/models/GreenCrate.btx"),
 		std::make_pair("House1", "assets/models/house1.btx"),
 		std::make_pair("House2", "assets/models/house2.btx"),
 		std::make_pair("House3", "assets/models/house3.btx"),
-		std::make_pair("LightBlueCrate", "assets/models/LightBlueCrate.btx"),
 		std::make_pair("MarketStand1", "assets/models/MarketStand1.btx"),
 		std::make_pair("MarketStand2", "assets/models/MarketStand2.btx"),
-		//std::make_pair("DZALA", "assets/models/Ninta.btx"),
 		std::make_pair("DZALA", "assets/models/Ninta2.btx"),
-		std::make_pair("OrangeCrate", "assets/models/OrangeCrate.btx"),
-		std::make_pair("RedBlueCrate", "assets/models/RedBlueCrate.btx"),
-		std::make_pair("RedCrate", "assets/models/RedCrate.btx"),
 		std::make_pair("BOX", "assets/models/Sample135.btx"),
 		std::make_pair("Sidewalk1", "assets/models/Sidewalk1.btx"),
-		std::make_pair("SKYBOX", "assets/models/SkyBox.btx"),
 		std::make_pair("Stair1", "assets/models/Stair1.btx"),
 		std::make_pair("StoneBrick2", "assets/models/StoneBrick2.btx"),
 		std::make_pair("Street1", "assets/models/Street1.btx"),
 		std::make_pair("IKTest", "assets/models/testRig.btx"),
 		std::make_pair("Tree1", "assets/models/Tree1.btx"),
-		//std::make_pair("WITCH", "assets/models/Witch.btx"),
 		std::make_pair("WITCH", "assets/models/Witch_5_Running.btx"),
 		std::make_pair("WoodenShed1", "assets/models/WoodenShed.btx"),
 	};
@@ -63,7 +55,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	static const std::pair<std::string, std::string> textureMap[] =
 	{
 		std::make_pair("TEXTURE_NOT_FOUND", "assets/textures/TextureNotFound.png"),
-		std::make_pair("SKYBOXDDS", "assets/SkyBox/d3d_skybox_9.dds"),
+		std::make_pair("SKYBOXDDS", "assets/textures/d3d_skybox_9.dds"),
 	};
 	static const size_t numTextures = sizeof(textureMap) / sizeof(textureMap[0]);
 

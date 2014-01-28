@@ -7,10 +7,9 @@
 #include "Actor.h"
 #include "ResourceManager.h"
 
-#include <IGraphics.h>
 #include <IPhysics.h>
 
-#include <tinyxml2.h>
+#include <tinyxml2/tinyxml2.h>
 
 #include <functional>
 #include <map>
@@ -21,11 +20,13 @@
  */
 class ActorFactory
 {
+public:
+	typedef std::shared_ptr<ActorFactory> ptr;
+
 private:
 	unsigned int m_LastActorId;
 	unsigned int m_LastModelComponentId;
 	unsigned int m_LastLightComponentId;
-	IGraphics* m_Graphics;
 	IPhysics* m_Physics;
 	EventManager* m_EventManager;
 	ResourceManager* m_ResourceManager;
@@ -46,12 +47,6 @@ public:
 	 */
 	ActorFactory();
 
-	/**
-	 * Set the graphics library to be used when creating components requiring graphics.
-	 *
-	 * @param p_Graphics the graphics library to use
-	 */
-	void setGraphics(IGraphics* p_Graphics);
 	/**
 	 * Set the physics library to be used when creating component requiring physics.
 	 *
@@ -84,6 +79,25 @@ public:
 	 * @param p_Id the id to give to the actor, should be unique.
 	 */
 	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id);
+
+	// ************ Test methods ************
+	Actor::ptr createRotatingBox(Vector3 p_Position, Vector3 p_Scale);
+	Actor::ptr createSkybox(Vector3 p_Scale);
+	Actor::ptr createBasicModel(const std::string& p_Model, Vector3 p_Position);
+	Actor::ptr createIK_Worm();
+	Actor::ptr createBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize);
+	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
+	Actor::ptr createClimbBox();
+	Actor::ptr createClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
+	Actor::ptr createCollisionSphere(Vector3 p_Position, float p_Radius);
+	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone);
+	std::string getPlayerActorDescription(Vector3 p_Position) const;
+	Actor::ptr createPlayerActor(Vector3 p_Position);
+	Actor::ptr createDirectionalLight(Vector3 p_Direction, Vector3 p_Color);
+	Actor::ptr createSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);
+	Actor::ptr createPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
+	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
+	Actor::ptr createCheckPointArrow();
 
 protected:
 	/**

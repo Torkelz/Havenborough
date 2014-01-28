@@ -61,7 +61,6 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 		AnimationClipLoader tempLoader = AnimationClipLoader();
 
 		model.m_AnimationClips = tempLoader.load(animationClipName);
-		//tempLoader.~AnimationClipLoader();
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 
@@ -82,6 +81,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	model.m_IsAnimated = isAnimated;
 
 	modelLoader.clear();
+	
 	return model;
 }
 
@@ -153,7 +153,6 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 		diffuse.push_back(std::make_pair(material.m_DiffuseMap, getTextureFromList(material.m_DiffuseMap.c_str())));
 		normal.push_back(std::make_pair(material.m_NormalMap, getTextureFromList(material.m_NormalMap.c_str())));
 		specular.push_back(std::make_pair(material.m_SpecularMap, getTextureFromList(material.m_SpecularMap.c_str())));
-
 	}
 
 	p_Model.diffuseTexture = diffuse;

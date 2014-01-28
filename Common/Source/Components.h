@@ -5,11 +5,10 @@
 #pragma once
 
 #include "ActorComponent.h"
-#include "ClientExceptions.h"
+#include "CommonExceptions.h"
 #include "EventData.h"
 #include "ResourceManager.h"
 
-#include <IGraphics.h>
 #include <IPhysics.h>
 
 /**
@@ -213,6 +212,7 @@ private:
 	Vector3 m_OffsetPositition;
 	Vector3 m_Halfsize;
 	bool m_IsEdge;
+	bool m_RespondToCollision;
 
 public:
 	~AABB_Component() override
@@ -253,11 +253,14 @@ public:
 
 		m_IsEdge = false;
 		p_Data->QueryBoolAttribute("Edge", &m_IsEdge);
+		m_RespondToCollision = true;
+		p_Data->QueryBoolAttribute("CollisionResponse", &m_RespondToCollision);
 	}
 
 	void postInit() override
 	{
 		m_Body = m_Physics->createAABB(0.f, true, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
+		m_Physics->setBodyCollisionResponse(m_Body, m_RespondToCollision);
 	}
 
 	void onUpdate(float p_DeltaTime) override
@@ -323,7 +326,7 @@ public:
 
 		if (!meshName)
 		{
-			throw ClientException("Collision component lacks mesh", __LINE__, __FILE__);
+			throw CommonException("Collision component lacks mesh", __LINE__, __FILE__);
 		}
 
 		m_MeshResourceId = m_ResourceManager->loadResource("volume", meshName);
@@ -379,6 +382,12 @@ public:
 	 * @param p_CompName an identifier of an existing scale
 	 */
 	virtual void removeScale(const std::string& p_CompName) = 0;
+	/**
+	 * Change a color tone for the model.
+	 *
+	 * @param p_ColorTone the color in RGB range 0.0f to 1.0f
+	 */
+	virtual void setColorTone(const Vector3 p_ColorTone) = 0;
 };
 
 /**
@@ -395,6 +404,7 @@ public:
 private:
 	ModelCompId m_Id;
 	Vector3 m_BaseScale;
+	Vector3 m_ColorTone;
 	std::string m_MeshName;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
@@ -409,7 +419,7 @@ public:
 		const char* mesh = p_Data->Attribute("Mesh");
 		if (!mesh)
 		{
-			throw ClientException("Component lacks mesh", __LINE__, __FILE__);
+			throw CommonException("Component lacks mesh", __LINE__, __FILE__);
 		}
 
 		m_MeshName = std::string(mesh);
@@ -422,10 +432,20 @@ public:
 			scale->QueryFloatAttribute("y", &m_BaseScale.y);
 			scale->QueryFloatAttribute("z", &m_BaseScale.z);
 		}
+
+		m_ColorTone = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* tone = p_Data->FirstChildElement("ColorTone");
+		if (tone)
+		{
+			tone->QueryFloatAttribute("x", &m_ColorTone.x);
+			tone->QueryFloatAttribute("y", &m_ColorTone.y);
+			tone->QueryFloatAttribute("z", &m_ColorTone.z);
+		}
 	}
 	void postInit() override
 	{
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName, m_BaseScale)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
+			m_BaseScale, m_ColorTone)));
 	}
 	void updateScale(const std::string& p_CompName, Vector3 p_Scale) override
 	{
@@ -455,6 +475,14 @@ public:
 			}
 		}
 	}
+
+	void setColorTone(const Vector3 p_ColorTone) override
+	{
+		m_ColorTone = p_ColorTone;
+
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new ChangeColorToneEvent(m_Id, m_ColorTone)));
+	}
+
 
 	/**
 	 * Get the model component id from the component.
@@ -788,7 +816,7 @@ public:
 		}
 		else
 		{
-			throw ClientException("XML Light description missing valid type", __LINE__, __FILE__);
+			throw CommonException("XML Light description missing valid type", __LINE__, __FILE__);
 		}
 	}
 	void postInit() override

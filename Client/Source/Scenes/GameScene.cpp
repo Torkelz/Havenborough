@@ -1,6 +1,6 @@
 #include "GameScene.h"
-#include "../Components.h"
-#include "../EventData.h"
+#include <Components.h>
+#include <EventData.h>
 
 GameScene::GameScene()
 {
@@ -46,6 +46,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::playAnimation), PlayAnimationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addReachIK), AddReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
+
 
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = false;
@@ -280,7 +282,8 @@ void GameScene::createMesh(IEventData::Ptr p_Data)
 		m_Graphics->createModelInstance(meshData->getMeshName().c_str())
 	};
 	m_Graphics->setModelScale(mesh.modelId, meshData->getScale());
-
+	m_Graphics->setModelColorTone(mesh.modelId, meshData->getColorTone());
+	
 	m_Models.push_back(mesh);
 }
 
@@ -405,6 +408,20 @@ void GameScene::removeReachIK(IEventData::Ptr p_Data)
 	}
 }
 
+void GameScene::changeColorTone(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<ChangeColorToneEvent> data = std::static_pointer_cast<ChangeColorToneEvent>(p_Data);
+
+	for (auto& model : m_Models)
+	{
+		if (model.meshId == data->getMeshId())
+		{
+			m_Graphics->setModelColorTone(model.modelId, data->getColorTone());
+			return;
+		}
+	}
+}
+
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
 	unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle);
@@ -427,7 +444,6 @@ void GameScene::loadSandboxModels()
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
-		"SKYBOX",
 		"House1",
 		"MarketStand1",
 		"Barrel1",
@@ -446,8 +462,18 @@ void GameScene::loadSandboxModels()
 	for (const std::string& model : preloadedModels)
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());		
+	}
+	static const std::string preloadedModelsTransparent[] =
+	{
+		"Checkpoint1",
+	};
 
-		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());
+	for (const std::string& model : preloadedModelsTransparent)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+		m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
+		m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
 	}
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding IK test tube");
