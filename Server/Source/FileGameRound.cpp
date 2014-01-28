@@ -1,6 +1,8 @@
 #include "FileGameRound.h"
 
-#include <Logger.h>
+#include <Logger.h>+
+#include <fstream>
+#include <sstream>
 
 void FileGameRound::setup()
 {

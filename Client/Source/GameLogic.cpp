@@ -328,25 +328,25 @@ void GameLogic::handleNetwork()
 						m_Objects.push_back(actor);
 					}
 				m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
-#ifdef _DEBUG
-				std::ifstream input("../Bin/assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
-				if(!input)
-				{
-					throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
-				}
-				m_Level.loadLevel(&input, &input, m_Objects);
-				m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
-				m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
-#else
-				std::ifstream input("../Bin/assets/levels/Level1.2.btxl", std::istream::in | std::istream::binary);
-				if(!input)
-				{
-					throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
-				}
-				m_Level.loadLevel(&input, &input, m_Objects);
-				m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
-				m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
-#endif
+//#ifdef _DEBUG
+//				std::ifstream input("../Bin/assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
+//				if(!input)
+//				{
+//					throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
+//				}
+//				m_Level.loadLevel(&input, &input, m_Objects);
+//				m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
+//				m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+//#else
+//				std::ifstream input("../Bin/assets/levels/Level1.2.btxl", std::istream::in | std::istream::binary);
+//				if(!input)
+//				{
+//					throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
+//				}
+//				m_Level.loadLevel(&input, &input, m_Objects);
+//				m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+//				m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+//#endif
 				}
 				break;
 
@@ -471,7 +471,7 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 		GameLogic* self = static_cast<GameLogic*>(p_UserData);
 
 		self->m_Connected = true;
-		self->m_Network->getConnectionToServer()->sendJoinGame("test");
+		//self->m_Network->getConnectionToServer()->sendJoinGame("test");
 
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}

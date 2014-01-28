@@ -152,13 +152,24 @@ const std::vector<LevelBinaryLoader::CheckPointStruct>& LevelBinaryLoader::getCh
 
 std::string LevelBinaryLoader::getDataStream() 
 {
-	m_Input.seekg(0);
-	std::streamsize size = m_Input.gcount();
-	std::vector<char> buffer((unsigned int)size);
-	m_Input.read(buffer.data(), size);
-	std::string stream(buffer.begin(), buffer.end());
-	m_Input.seekg(0);
-	return stream;
+	/*std::streambuf* buffer;
+	buffer = m_Input.rdbuf();
+	std::streamsize size = buffer->in_avail();*/
+	/*m_Input.seekg(0);
+	std::streamsize size = m_Input.gcount();*/
+	m_Input.seekg(0, m_Input.end);
+	std::streampos size = m_Input.tellg();
+	m_Input.seekg(0, m_Input.beg);
+	if(size >= 0)
+	{
+		std::vector<char> buffer((unsigned int)size);
+		m_Input.read(buffer.data(), size);
+		std::string stream(buffer.begin(), buffer.end());
+		return stream;
+	}
+	m_Input.seekg(0, m_Input.beg);
+
+	return NULL;
 }
 
 void LevelBinaryLoader::byteToString(std::istream* p_Input, std::string& p_Return)
