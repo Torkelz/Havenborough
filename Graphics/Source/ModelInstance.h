@@ -13,7 +13,8 @@
  class ModelInstance
  {
  private:
-	struct AnimationTrack{
+	struct AnimationTrack
+	{
 		AnimationClip clip; // Constant animation data
 
 		// Dynamic animation data
@@ -136,7 +137,8 @@
 	 * @param p_Position the position in world space to reach for.
 	 * @param p_Joints the skeleton used for the model.
 	 */
-	void applyIK_ReachPoint(const std::string& p_TargetJointName, const std::string& p_HingeJointName, const std::string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints);
+	void applyIK_ReachPoint(const std::string& p_TargetJointName, const std::string& p_HingeJointName,
+		const std::string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints);
 	/**
 	 * Get the position of a joint.
 	 *
@@ -149,7 +151,7 @@
 	 * Play an animation clip.
 	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
 	 */
-	void playClip( AnimationClip p_Clip );
+	void playClip(AnimationClip p_Clip);
 
  private:
 	void calculateWorldMatrix(void) const;

@@ -37,7 +37,14 @@ private:
 	UINT m_NumOfElements;
 
 public:
+	/**
+	* Constructor.
+	*/
 	Shader(void);
+
+	/**
+	* Destructor.
+	*/
 	~Shader(void);
 	
 	/**

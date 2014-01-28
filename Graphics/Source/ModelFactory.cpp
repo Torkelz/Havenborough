@@ -44,7 +44,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	}
 	else
 	{
-		model.m_Joints = modelLoader.getJoints();
+		model.joints = modelLoader.getJoints();
 
 		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimationVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
@@ -60,7 +60,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 
 		AnimationClipLoader tempLoader = AnimationClipLoader();
 
-		model.m_AnimationClips = tempLoader.load(animationClipName);
+		model.animationClips = tempLoader.load(animationClipName);
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 
@@ -78,7 +78,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	model.vertexBuffer.swap(vertexBuffer);
 	model.drawInterval = tempInterval;
 	model.numOfMaterials = materialData.size();
-	model.m_IsAnimated = isAnimated;
+	model.isAnimated = isAnimated;
 
 	modelLoader.clear();
 	

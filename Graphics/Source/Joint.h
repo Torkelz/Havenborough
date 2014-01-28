@@ -7,7 +7,7 @@
 
 #include <DirectXMath.h>
 
-struct matrixDecomposed
+struct MatrixDecomposed
 {
 	DirectX::XMFLOAT4 rotation;
 	DirectX::XMFLOAT4 scale;
@@ -49,6 +49,7 @@ public:
 	 */
 	std::vector<KeyFrame> m_JointAnimation;
 
+public:
 	/**
 	 * Calculate the animation transformation at a certain frame.
 	 *
@@ -57,6 +58,6 @@ public:
 	 * @return the interpolated transformation.
 	 */
 	DirectX::XMFLOAT4X4 interpolate(float p_FrameTime, float m_DestinationFrameTime) const;
-	matrixDecomposed interpolateEx(float p_FrameTime, float m_DestinationFrameTime) const;
-	matrixDecomposed interpolateEx(matrixDecomposed p_Frame1, matrixDecomposed p_Frame2, float interpolateFraction) const;
+	MatrixDecomposed interpolateEx(float p_FrameTime, float m_DestinationFrameTime) const;
+	MatrixDecomposed interpolateEx(MatrixDecomposed p_Frame1, MatrixDecomposed p_Frame2, float interpolateFraction) const;
 };

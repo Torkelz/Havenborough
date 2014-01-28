@@ -441,7 +441,7 @@ void Graphics::renderModel(int p_ModelId)
 		if (inst.first == p_ModelId)
 		{
 			ModelDefinition *temp = getModelFromList(inst.second.getModelName());
-			if(!temp->m_IsTransparent)
+			if(!temp->isTransparent)
 			{
 				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(temp,
 					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
@@ -567,7 +567,7 @@ void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_Stat
 	{
 		if(model.first == std::string(p_ModelId))
 		{
-			model.second.m_IsTransparent = p_State;
+			model.second.isTransparent = p_State;
 			break;
 		}
 	}
@@ -578,9 +578,9 @@ void Graphics::updateAnimations(float p_DeltaTime)
 	for (auto& model : m_ModelInstances)
 	{
 		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
-		if (modelDef->m_IsAnimated)
+		if (modelDef->isAnimated)
 		{
-			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
+			model.second.updateAnimation(p_DeltaTime, modelDef->joints);
 		}
 	}
 }
@@ -599,13 +599,13 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName)
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->m_AnimationClips.find(p_ClipName) == modelDef->m_AnimationClips.end() )
+			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
 			{
 
 				tempStr = "default";
 			}
 
-			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr));
+			inst.second.playClip(modelDef->animationClips.at(tempStr));
 			break;
 		}
 	}
@@ -639,9 +639,9 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 	int id = m_NextInstanceId++;
 
-	if (modelDef->m_IsAnimated)
+	if (modelDef->isAnimated)
 	{
-		instance.updateAnimation(0.f, modelDef->m_Joints);
+		instance.updateAnimation(0.f, modelDef->joints);
 	}
 
 	m_ModelInstances.push_back(std::make_pair(id, instance));
@@ -720,13 +720,15 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 	throw GraphicsException("Failed to set model instance color tone.", __LINE__, __FILE__);
 }
 
-void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target)
+void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint,
+								  const char* p_BaseJoint, Vector3 p_Target)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.applyIK_ReachPoint(p_TargetJoint, p_HingeJoint, p_BaseJoint, p_Target, getModelFromList(inst.second.getModelName())->m_Joints);
+			inst.second.applyIK_ReachPoint(p_TargetJoint, p_HingeJoint, p_BaseJoint, p_Target,
+				getModelFromList(inst.second.getModelName())->joints);
 			break;
 		}
 	}
@@ -739,7 +741,7 @@ Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 		if (inst.first == p_Instance)
 		{
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->m_Joints);
+			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->joints);
 			
 			return position;
 		}

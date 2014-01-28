@@ -11,8 +11,40 @@
 class IGraphics
 {
 public:
+	/**
+	* Unique ID for a model instance.
+	*/
 	typedef int InstanceId;
+		
+	/**
+	 * Callback for loading a texture to a model.
+	 *
+	 * @param p_ResourceName the resource name of the texture
+	 * @param p_FilePath path to where the texture is located
+	 * @param p_UserData user defined data
+	 */
+	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
 
+	/**
+	 * Callback for releasing a texture to a model.
+	 *
+	 * @param p_ResourceName the resource name of the texture
+	 * @param p_UserData user defined data
+	 */
+	typedef void (*releaseModelTextureCallBack)(const char *p_ResourceName, void *p_Userdata);
+
+	/**
+	 * Callback for logging.
+	 *
+	 * @param p_Level log priority level. Higher is more important.
+	 * @param p_Message the log message.
+	 */
+	typedef void (*clientLogCallback_t)(uint32_t p_Level, const char* p_Message);
+
+public:
+	/**
+	* Destructor.
+	*/
 	virtual ~IGraphics(void)
 	{}
 
@@ -223,7 +255,7 @@ public:
 	 * @param p_Instance the model that should change animation data.
 	 * @param p_ClipName the new animation clip to be played next time update animation is invoked.
 	 */
-	virtual void playAnimation(int p_Instance, const char* p_ClipName) = 0;
+	virtual void playAnimation(InstanceId p_Instance, const char* p_ClipName) = 0;
 
 	/**
 	 * Gets the amount of VRAM usage of the program.
@@ -327,15 +359,6 @@ public:
 	virtual void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) = 0;
 	
 	/**
-	 * Callback for loading a texture to a model.
-	 *
-	 * @param p_ResourceName the resource name of the texture
-	 * @param p_FilePath path to where the texture is located
-	 * @param p_UserData user defined data
-	 */
-	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
-	
-	/**
 	 * Set the function to load a texture to a model.
 	 *
 	 * @param p_LoadModelTexture the function to be called whenever a texture is to be loaded.
@@ -344,28 +367,12 @@ public:
 	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata) = 0;
 
 	/**
-	 * Callback for releasing a texture to a model.
-	 *
-	 * @param p_ResourceName the resource name of the texture
-	 * @param p_UserData user defined data
-	 */
-	typedef void (*releaseModelTextureCallBack)(const char *p_ResourceName, void *p_Userdata);
-	
-	/**
 	 * Set the function to release a texture to a model.
 	 *
 	 * @param p_LoadModelTexture the function to be called whenever a texture is to be released.
 	 * @param p_UserData user defined data
 	 */
 	virtual void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata) = 0;
-
-	/**
-	 * Callback for logging.
-	 *
-	 * @param p_Level log priority level. Higher is more important.
-	 * @param p_Message the log message.
-	 */
-	typedef void (*clientLogCallback_t)(uint32_t p_Level, const char* p_Message);
 
 	/**
 	 * Set the function to handle log messages.
@@ -377,9 +384,6 @@ public:
 
 	/**
 	 * Change the render target.
-	 *
-	 * Nag André about what the number means.
-	 *
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(int p_RenderTarget) = 0;
