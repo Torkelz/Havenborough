@@ -44,6 +44,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelScaleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::playAnimation), PlayAnimationEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::queueAnimation), QueueAnimationEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeAnimationWeight), ChangeAnimationWeightEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addReachIK), AddReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
 
@@ -351,7 +353,31 @@ void GameScene::playAnimation(IEventData::Ptr p_Data)
 	{
 		if(model.meshId == animationData->getId())
 		{
-			m_Graphics->playAnimation(model.modelId, animationData->getAnimationName().c_str());
+			m_Graphics->playAnimation(model.modelId, animationData->getAnimationName().c_str(), animationData->getOverride());
+		}
+	}
+}
+
+void GameScene::queueAnimation(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<QueueAnimationEventData> animationData = std::static_pointer_cast<QueueAnimationEventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == animationData->getId())
+		{
+			m_Graphics->queueAnimation(model.modelId, animationData->getAnimationName().c_str());
+		}
+	}
+}
+
+void GameScene::changeAnimationWeight(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<ChangeAnimationWeightEventData> animationData = std::static_pointer_cast<ChangeAnimationWeightEventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == animationData->getId())
+		{
+			m_Graphics->changeAnimationWeight(model.modelId, animationData->getTrack(), animationData->getWeight());
 		}
 	}
 }

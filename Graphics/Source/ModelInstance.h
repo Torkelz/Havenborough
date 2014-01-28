@@ -166,4 +166,7 @@
 	void updateFinalTransforms(const std::vector<Joint>& p_Joints);
 	bool affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint);
 	bool playQueuedClip(int p_Track);
+	void checkFades();
+	void updateTimeStamp(float p_DeltaTime);
+	matrixDecomposed updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack, matrixDecomposed p_ToParentData);
  };

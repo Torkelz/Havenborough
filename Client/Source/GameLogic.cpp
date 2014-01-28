@@ -128,12 +128,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 	using namespace DirectX;
 	std::shared_ptr<Actor> temp = m_Player.getActor().lock();
 	temp->setRotation(actualViewRot);
-	Vector3 homeMadeTrash = m_Player.getVelocity();
-	XMVECTOR velocity = Vector3ToXMVECTOR(&homeMadeTrash, 0.0f);
-	homeMadeTrash = m_Player.getPreviousVelocity();
-	XMVECTOR previous = Vector3ToXMVECTOR(&homeMadeTrash, 0.0f);
-	homeMadeTrash = m_Player.getDirection();
-	XMVECTOR look = Vector3ToXMVECTOR(&homeMadeTrash, 0.0f);
+	Vector3 tempVector = m_Player.getVelocity();
+	XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
+	tempVector = m_Player.getPreviousVelocity();
+	XMVECTOR previous = Vector3ToXMVECTOR(&tempVector, 0.0f);
+	tempVector = m_Player.getDirection();
+	XMVECTOR look = Vector3ToXMVECTOR(&tempVector, 0.0f);
 	XMMATRIX rotationInverse = XMMatrixTranspose(XMMatrixRotationRollPitchYaw(0.0f, actualViewRot.x, 0.0f));
 	velocity = XMVector3Transform(velocity, rotationInverse);
 	previous = XMVector3Transform(previous, rotationInverse);
@@ -171,12 +171,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 			case ForwardAnimationState::IDLE:
 				if (currentSideState == SideAnimationState::IDLE)
 				{
-					playAnimation(temp, "Idle");
+					playAnimation(temp, "Idle", false);
 				}
 				break;
 
 			case ForwardAnimationState::RUNNING_FORWARD:
-				playAnimation(temp, "Run");
+				playAnimation(temp, "Run", false);
 			}
 		}
 		
@@ -187,7 +187,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 			case SideAnimationState::IDLE:
 				if (currentForwardState == ForwardAnimationState::IDLE)
 				{
-					playAnimation(temp, "Idle");
+					playAnimation(temp, "Idle", false);
 				}
 				break;
 			}
@@ -196,43 +196,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_PrevForwardState = currentForwardState;
 		m_PrevSideState = currentSideState;
 		m_PrevJumpState = JumpAnimationState::IDLE;
-
-		//// Check if the direction has changed.
-		//if (XMVectorGetX(velocity) < -10.f && XMVectorGetX(previous) >= -10.f)
-		//{
-		//	//playAnimation(temp, "Back");
-		//	playAnimation(temp, "Idle");
-		//}
-		//else if(XMVectorGetX(velocity) > 10.f && XMVectorGetX(previous) <= 10.f)
-		//{
-		//	playAnimation(temp, "Idle");
-		//}
-		//else if (XMVectorGetX(velocity) < 10.f && XMVectorGetX(previous) >= 10.f || XMVectorGetX(velocity) > -10.f && XMVectorGetX(previous) <= -10.f)
-		//{
-		//	//playAnimation(temp, "Idle");
-		//}
-
-		//if (XMVectorGetZ(velocity) < -10.f && XMVectorGetZ(previous) >= -10.f)
-		//{
-		//	//playAnimation(temp, "StrafeLeft");
-		//	playAnimation(temp, "Bindpose");
-		//}
-		//else if(XMVectorGetZ(velocity) > 10.f && XMVectorGetZ(previous) <= 10.f)
-		//{
-		//	//playAnimation(temp, "StrafeRight");
-		//	playAnimation(temp, "Run");
-		//}
-		//else if (XMVectorGetZ(velocity) < 10.f && XMVectorGetZ(previous) >= 10.f || XMVectorGetZ(velocity) > -10.f && XMVectorGetZ(previous) <= -10.f)
-		//{
-		//	playAnimation(temp, "Idle");
-		//}
-		//Do regular movement.
 	}
 	else
 	{
 		static const float runLimit = 100.f;
-		float flyLimit = 10.0f;
-		JumpAnimationState currentJumpState = JumpAnimationState::FLYING; // KÖA DENNA
+		float flyLimit = 500.0f;
+		JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
 
 		if(XMVectorGetY(velocity) < flyLimit)
 		{
@@ -248,18 +217,18 @@ void GameLogic::onFrame(float p_DeltaTime)
 			m_FallSpeed = XMVectorGetY(velocity);
 		}
 
-		if (XMVectorGetY(velocity) < flyLimit && XMVectorGetY(velocity) > -flyLimit && 
-			m_PrevJumpState != JumpAnimationState::JUMP) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
-		{
-			if(m_FallSpeed >= 200.0f)
-			{
-				currentJumpState = JumpAnimationState::HARD_LANDING;
-			}
-			else
-			{
-				currentJumpState = JumpAnimationState::LIGHT_LANDING;
-			}
-		}
+		//if (XMVectorGetY(velocity) < flyLimit && XMVectorGetY(velocity) > -flyLimit && 
+		//	m_PrevJumpState != JumpAnimationState::JUMP) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
+		//{
+		//	if(m_FallSpeed >= 200.0f)
+		//	{
+		//		currentJumpState = JumpAnimationState::HARD_LANDING;
+		//	}
+		//	else
+		//	{
+		//		currentJumpState = JumpAnimationState::LIGHT_LANDING;
+		//	}
+		//}
 
 		if (currentJumpState != m_PrevJumpState)
 		{
@@ -276,26 +245,32 @@ void GameLogic::onFrame(float p_DeltaTime)
 				if (m_PrevJumpState != JumpAnimationState::FLYING)
 				{
 					if(XMVectorGetX(velocity) > runLimit || XMVectorGetZ(velocity) > runLimit)
-						playAnimation(temp, "RunningJump");
+					{
+						playAnimation(temp, "RunningJump", false);
+						queueAnimation(temp, "Falling");
+					}
 					else
-						playAnimation(temp, "StandingJump");
+					{
+						playAnimation(temp, "StandingJump", false);
+						queueAnimation(temp, "Falling");
+					}
 				}
 				break;
 
 			case JumpAnimationState::FLYING:
-				playAnimation(temp, "Flying");
+				//playAnimation(temp, "Flying", false);
 				break;
 
 			case JumpAnimationState::HARD_LANDING:
-				playAnimation(temp, "HardLanding");
+				playAnimation(temp, "HardLanding", false);
 				break;
 
 			case JumpAnimationState::LIGHT_LANDING:
-				playAnimation(temp, "NormalLanding");
+				playAnimation(temp, "NormalLanding", false);
 				break;
 
 			case JumpAnimationState::FALLING:
-				playAnimation(temp, "Falling");
+				//playAnimation(temp, "Falling", false);
 				break;
 
 			default: // Just in case so that the code doesn't break, hohohoho
@@ -377,31 +352,34 @@ void GameLogic::toggleIK()
 
 void GameLogic::testBlendAnimation()
 {
-	playAnimation(wavingWitch.lock(), "Bomb");
-	playAnimation(ikTest.lock(), "Spin");
-	playAnimation(testWitch.lock(), "Idle");
+	playAnimation(wavingWitch.lock(), "Bomb", false);
+	playAnimation(ikTest.lock(), "Spin", false);
+	playAnimation(testWitch.lock(), "Idle", false);
 }
 
 void GameLogic::testResetAnimation()
 {
-	playAnimation(wavingWitch.lock(), "Kick");
-	playAnimation(ikTest.lock(), "Wave");
-	playAnimation(testWitch.lock(), "Run");
+	playAnimation(wavingWitch.lock(), "Kick", false);
+	playAnimation(ikTest.lock(), "Wave", false);
+	playAnimation(testWitch.lock(), "Run", false);
 }
 
 void GameLogic::testLayerAnimation()
 {
-	playAnimation(ikTest.lock(), "Wave");
-	playAnimation(wavingWitch.lock(), "Bomb");
-	playAnimation(testWitch.lock(), "Wave");
+	//playAnimation(ikTest.lock(), "Wave", false);
+	//playAnimation(wavingWitch.lock(), "Bomb", false);
+	//playAnimation(testWitch.lock(), "Wave", false);
+	playAnimation(m_Player.getActor().lock(), "LookAround", false);
 }
 
 void GameLogic::testResetLayerAnimation()
 {
-	playAnimation(wavingWitch.lock(), "Kick");
-	playAnimation(ikTest.lock(), "Wave");
-	playAnimation(testWitch.lock(), "Run");
-	playAnimation(testWitch.lock(), "DefLayer1");
+	//playAnimation(wavingWitch.lock(), "Kick", false);
+	//playAnimation(ikTest.lock(), "Wave", false);
+	//playAnimation(testWitch.lock(), "Run", false);
+	//playAnimation(testWitch.lock(), "DefLayer1", false);
+	playAnimation(m_Player.getActor().lock(), "Idle2", false);
+	changeAnimationWeight(m_Player.getActor().lock(), 4, 0.0f);
 }
 
 void GameLogic::playLocalLevel()
@@ -459,7 +437,7 @@ void GameLogic::playLocalLevel()
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 
 	// DEBUG STUFFZ
-	playAnimation( m_Player.getActor().lock(), "Run" );
+	playAnimation( m_Player.getActor().lock(), "Run", false );
 }
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
@@ -744,20 +722,20 @@ void GameLogic::loadSandbox()
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
 	testWitch = addBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f));
-	playAnimation(testWitch.lock(), "Run");
+	playAnimation(testWitch.lock(), "Run", false);
 
 	addClimbBox();
 	//skyBox = addSkybox(Vector3(100.f, 100.f, 100.f));
 
 	circleWitch = addBasicModel("WITCH", Vector3(0.f, 0.f, 0.f));
-	playAnimation(circleWitch.lock(), "Run");
+	playAnimation(circleWitch.lock(), "Run", false);
 	standingWitch = addBasicModel("DZALA", Vector3(1600.f, 0.f, -500.f));
-	playAnimation(standingWitch.lock(), "Bomb");
+	playAnimation(standingWitch.lock(), "Bomb", false);
 	wavingWitch = addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
-	playAnimation(wavingWitch.lock(), "Kick");
+	playAnimation(wavingWitch.lock(), "Kick", false);
 
 	ikTest = addIK_Worm();
-	playAnimation(ikTest.lock(), "Wave");
+	playAnimation(ikTest.lock(), "Wave", false);
 
 	static const unsigned int numTowerBoxes = 5;
 	Vector3 towerBoxSizes[numTowerBoxes] =
@@ -854,7 +832,7 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 	updateIK();
 }
 
-void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
+void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
 {
 	if (!p_Actor)
 	{
@@ -864,7 +842,35 @@ void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
 	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
 	if (comp)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName)));
+		m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName, p_Override)));
+	}
+}
+
+void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
+{
+	if (!p_Actor)
+	{
+		return;
+	}
+
+	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	if (comp)
+	{
+		m_EventManager->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
+	}
+}
+
+void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight)
+{
+	if (!p_Actor)
+	{
+		return;
+	}
+
+	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	if (comp)
+	{
+		m_EventManager->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
 	}
 }
 

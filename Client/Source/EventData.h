@@ -363,12 +363,13 @@ class PlayAnimationEventData : public BaseEventData
 private:
 	unsigned int m_Id;
 	std::string m_AnimationName;
+	bool m_Override;
 
 public:
 	static const Type sk_EventType = Type(0x14dd2b5d);
 
-	PlayAnimationEventData(unsigned int p_Id, std::string p_AnimationName)
-		:	m_Id(p_Id), m_AnimationName(p_AnimationName)
+	PlayAnimationEventData(unsigned int p_Id, std::string p_AnimationName, bool p_Override)
+		:	m_Id(p_Id), m_AnimationName(p_AnimationName), m_Override(p_Override)
 	{
 	}
 
@@ -379,7 +380,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new PlayAnimationEventData(m_Id, m_AnimationName));
+		return Ptr(new PlayAnimationEventData(m_Id, m_AnimationName, m_Override));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -400,6 +401,105 @@ public:
 	{
 		return m_AnimationName;
 	}
+
+	bool getOverride() const
+	{
+		return m_Override;
+	}
+};
+
+class QueueAnimationEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	std::string m_AnimationName;
+
+public:
+	static const Type sk_EventType = Type(0x140d2b5d);
+
+	QueueAnimationEventData(unsigned int p_Id, std::string p_AnimationName)
+		:	m_Id(p_Id), m_AnimationName(p_AnimationName)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new QueueAnimationEventData(m_Id, m_AnimationName));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "QueueAnimationEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+
+	std::string getAnimationName() const
+	{
+		return m_AnimationName;
+	}
+};
+
+class ChangeAnimationWeightEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	int m_Track;
+	float m_Weight;
+
+public:
+	static const Type sk_EventType = Type(0x12334455);
+
+	ChangeAnimationWeightEventData(unsigned int p_Id, int p_Track, float p_Weight)
+		:	m_Id(p_Id), m_Track(p_Track), m_Weight(p_Weight)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new ChangeAnimationWeightEventData(m_Id, m_Track, m_Weight));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "ChangeAnimationWeightEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+
+	int getTrack() const
+	{
+		return m_Track;
+	}
+
+	float getWeight() const
+	{
+		return m_Weight;
+	}
 };
 
 class AddReachIK_EventData : public BaseEventData
@@ -413,7 +513,7 @@ private:
 	Vector3 m_Target;
 
 public:
-	static const Type sk_EventType = Type(0x141d2b5d);
+	static const Type sk_EventType = Type(0x12334544);
 
 	AddReachIK_EventData(unsigned int p_Id, std::string p_RootJoint, std::string p_BendJoint, std::string p_ReachJoint, Vector3 p_Target)
 		:	m_Id(p_Id),

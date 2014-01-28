@@ -593,6 +593,9 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 				tempStr = "default";
 			}
 
+			if(tempStr != "LookAround")
+				break;
+
 			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr), p_Override);
 			break;
 		}

@@ -1,5 +1,5 @@
 *Clip
-na 	Bindpose
+na 	default
 sp 	1.0
 st 	1
 en 	1
@@ -10,7 +10,7 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 0
+fof 	5
 we	1.0
 
 *Clip
@@ -25,7 +25,7 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 0
+fof 	5
 we	1.0
 
 *Clip
@@ -40,12 +40,12 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 0
+fof 	5
 we	1.0
 
 *Clip
 na 	RunningJump
-sp 	1.0
+sp 	0.5
 st 	56
 en 	68
 lo 	0
@@ -55,7 +55,7 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 0
+fof 	5
 we	1.0
 
 *Clip
@@ -70,7 +70,7 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 0
+fof 	5
 we	1.0
 
 *Clip
@@ -85,7 +85,7 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 0
+fof 	5
 we	1.0
 
 *Clip
@@ -100,7 +100,7 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 0
+fof 	5
 we	1.0
 
 *Clip
@@ -115,7 +115,7 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 0
+fof 	5
 we	1.0
 
 *Clip
@@ -130,7 +130,7 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 0
+fof 	5
 we	1.0
 
 *Clip
@@ -143,9 +143,9 @@ f	Hip
 tr	0
 la	0
 fi	1
-fif	5
+fif	3
 fo	0
-fof 0
+fof 	0
 we	1.0
 
 *Clip
@@ -155,12 +155,12 @@ st 	233
 en 	255
 lo 	0
 f	R_UpperArm
-tr	1
+tr	4
 la	1
 fi	1
 fif	6
 fo	1
-fof 9
+fof 	9
 we	1.0
 
 *Clip
@@ -170,10 +170,10 @@ st 	233
 en 	300
 lo 	0
 f	Neck
-tr	1
+tr	4
 la	1
 fi	1
 fif	5
 fo	1
-fof 5
+fof 	5
 we	1.0
