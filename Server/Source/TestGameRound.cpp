@@ -1,5 +1,6 @@
 #include "TestGameRound.h"
 
+#include <Components.h>
 #include <Logger.h>
 
 #include <algorithm>
@@ -10,7 +11,7 @@ void TestGameRound::setup()
 {
 	for (size_t i = 0; i < m_Players.size(); ++i)
 	{
-		uint16_t actorId = m_ActorFactory->getNextActorId();
+		uint16_t actorId = i + 200;
 
 		TestBox newBox =
 		{
@@ -20,7 +21,7 @@ void TestGameRound::setup()
 			Vector3(0.f, 0.f, 0.f),
 			Vector3(0.f, 0.f, 0.f),
 			Vector3(500.f, 200.f + i * 100.f, 400.f),
-			(float)actorId * 100.f,
+			(float)(i + 3) * 100.f,
 			3.14f / 10.f,
 			0.f
 		};
@@ -28,19 +29,11 @@ void TestGameRound::setup()
 
 		m_Boxes.push_back(newBox);
 
-		actorId = m_ActorFactory->getNextActorId();
 		Vector3 position(500.f - i * 200.f, m_PlayerSphereRadius + 400.f, 600.f);
 
-		Player::Box box =
-		{
-			m_ActorFactory->getNextActorId(),
-			position,
-			Vector3(0.f, 0.f, 0.f),
-			Vector3(0.f, 0.f, 0.f),
-			Vector3(0.f, 0.f, 0.f)
-		};
-
-		m_Players[i].m_PlayerBox = box;
+		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
+		m_Players[i].setActor(actor);
+		m_Actors.push_back(actor);
 	}
 }
 
@@ -59,9 +52,22 @@ void TestGameRound::sendLevel()
 
 	for (const auto& player : m_Players)
 	{
-		descriptions.push_back(getPlayerBoxDescription(player.m_PlayerBox));
-		cDescriptions.push_back(descriptions.back().c_str());
-		instances.push_back(getBoxInstance(player.m_PlayerBox, descriptions.size() - 1));
+		Actor::ptr actor = player.getActor().lock();
+		if (actor)
+		{
+			descriptions.push_back(m_ActorFactory->getPlayerActorDescription(actor->getPosition()));
+			cDescriptions.push_back(descriptions.back().c_str());
+
+			ObjectInstance inst =
+			{
+				actor->getPosition(),
+				actor->getRotation(),
+				descriptions.size() - 1,
+				actor->getId()
+			};
+
+			instances.push_back(inst);
+		}
 	}
 
 	tinyxml2::XMLPrinter printer;
@@ -80,22 +86,26 @@ void TestGameRound::sendLevel()
 
 	descriptions.push_back(printer.CStr());
 	cDescriptions.push_back(descriptions.back().c_str());
-	ObjectInstance data =
+	ObjectInstance lightData =
 	{
-		{0.f, 0.f, 0.f},
-		{0.f, 0.f, 0.f},
+		Vector3(0.f, 0.f, 0.f),
+		Vector3(0.f, 0.f, 0.f),
 		descriptions.size() - 1,
-		m_ActorFactory->getNextActorId()
+		0
 	};
-	instances.push_back(data);
+	instances.push_back(lightData);
 
 	for(auto& player : m_Players)
 	{
 		User::ptr user = player.getUser().lock();
 		if (user)
 		{
-			user->getConnection()->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
-			user->getConnection()->sendAssignPlayer(player.m_PlayerBox.actorId);
+			Actor::ptr actor = player.getActor().lock();
+			if (actor)
+			{
+				user->getConnection()->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
+				user->getConnection()->sendAssignPlayer(actor->getId());
+			}
 		}
 	}
 }
@@ -107,9 +117,9 @@ void TestGameRound::updateLogic(float p_DeltaTime)
 		updateBox(box, p_DeltaTime);
 	}
 
-	for (auto& player : m_Players)
+	for (auto& actor : m_Actors)
 	{
-		updatePlayerBox(player.m_PlayerBox, p_DeltaTime);
+		actor->onUpdate(p_DeltaTime);
 	}
 }
 
@@ -124,7 +134,7 @@ void TestGameRound::sendUpdates()
 
 	for (auto& player : m_Players)
 	{
-		data.push_back(getUpdateData(player.m_PlayerBox));
+		data.push_back(getUpdateData(player));
 	}
 
 	for (auto& player : m_Players)
@@ -140,8 +150,8 @@ void TestGameRound::sendUpdates()
 void TestGameRound::updateBox(TestBox& p_Box, float p_DeltaTime)
 {
 	p_Box.circleRotation += p_Box.circleRotationSpeed * p_DeltaTime;
-	p_Box.position.x = p_Box.circleCenter.y + cos(p_Box.circleRotation) * p_Box.circleRadius;
-	p_Box.position.y = p_Box.circleCenter.x;
+	p_Box.position.x = p_Box.circleCenter.x + cos(p_Box.circleRotation) * p_Box.circleRadius;
+	p_Box.position.y = p_Box.circleCenter.y;
 	p_Box.position.z = p_Box.circleCenter.z - sin(p_Box.circleRotation) * p_Box.circleRadius;
 	p_Box.velocity.x = -sin(p_Box.circleRotation) * p_Box.circleRadius * p_Box.circleRotationSpeed;
 	p_Box.velocity.y = 0.f;
@@ -154,34 +164,46 @@ void TestGameRound::updateBox(TestBox& p_Box, float p_DeltaTime)
 	p_Box.rotationVelocity.z = p_Box.circleRotationSpeed;
 }
 
-void TestGameRound::updatePlayerBox(Player::Box& p_Box, float p_DeltaTime)
-{
-	p_Box.rotation = p_Box.rotation + p_Box.rotationVelocity * p_DeltaTime;
-}
-
 UpdateObjectData TestGameRound::getUpdateData(const TestBox& p_Box)
 {
 	UpdateObjectData data =
 	{
-		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
-		{ p_Box.velocity.x, p_Box.velocity.y, p_Box.velocity.z },
-		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
-		{ p_Box.rotationVelocity.x, p_Box.rotationVelocity.y, p_Box.rotationVelocity.z },
+		p_Box.position,
+		p_Box.velocity,
+		p_Box.rotation,
+		p_Box.rotationVelocity,
 		p_Box.actorId
 	};
 
 	return data;
 }
 
-UpdateObjectData TestGameRound::getUpdateData(const Player::Box& p_Box)
+UpdateObjectData TestGameRound::getUpdateData(const Player& p_Player)
 {
+	Actor::ptr actor = p_Player.getActor().lock();
+	
+	if (!actor)
+	{
+		throw CommonException("Player missing actor", __LINE__, __FILE__);
+	}
+
+	std::shared_ptr<MovementInterface> movement = actor->getComponent<MovementInterface>(MovementInterface::m_ComponentId).lock();
+
+	Vector3 velocity(0.f, 0.f, 0.f);
+	Vector3 rotVelocity(0.f, 0.f, 0.f);
+	if (movement)
+	{
+		velocity = movement->getVelocity();
+		rotVelocity = movement->getRotationalVelocity();
+	}
+
 	UpdateObjectData data =
 	{
-		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
-		{ p_Box.velocity.x, p_Box.velocity.y, p_Box.velocity.z },
-		{ p_Box.rotation.x + 3.1415f, 0.f, p_Box.rotation.z },
-		{ p_Box.rotationVelocity.x, p_Box.rotationVelocity.y, p_Box.rotationVelocity.z },
-		p_Box.actorId
+		actor->getPosition(),
+		velocity,
+		actor->getRotation(),
+		rotVelocity,
+		actor->getId()
 	};
 
 	return data;
@@ -220,51 +242,12 @@ std::string TestGameRound::getBoxDescription(const TestBox& p_Box)
 	return std::string(printer.CStr());
 }
 
-std::string TestGameRound::getPlayerBoxDescription(const Player::Box& p_Box)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.PushAttribute("x", p_Box.position.x);
-	printer.PushAttribute("y", p_Box.position.y);
-	printer.PushAttribute("z", p_Box.position.z);
-	//printer.OpenElement("Movement");
-	//pushVector(printer, "Velocity", p_Box.velocity);
-	//pushVector(printer, "RotationalVelocity", p_Box.rotationVelocity);
-	//printer.CloseElement();
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "WITCH");
-	static const Vector3 scale(1.f, 1.f, 1.f);
-	pushVector(printer, "Scale", scale);
-	printer.CloseElement();
-	printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Radius", 50.f);
-	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
-	printer.CloseElement();
-	printer.CloseElement();
-	return std::string(printer.CStr());
-}
-
 ObjectInstance TestGameRound::getBoxInstance(const TestBox& p_Box, uint16_t p_DescIdx)
 {
 	ObjectInstance inst =
 	{
-		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
-		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
-		p_DescIdx,
-		p_Box.actorId
-	};
-
-	return inst;
-}
-
-ObjectInstance TestGameRound::getBoxInstance(const Player::Box& p_Box, uint16_t p_DescIdx)
-{
-	ObjectInstance inst =
-	{
-		{ p_Box.position.x, p_Box.position.y, p_Box.position.z },
-		{ p_Box.rotation.x, p_Box.rotation.y, p_Box.rotation.z },
+		p_Box.position,
+		p_Box.rotation,
 		p_DescIdx,
 		p_Box.actorId
 	};

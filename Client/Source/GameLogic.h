@@ -7,6 +7,7 @@
 #include "EdgeCollisionResponse.h"
 #include "EventManager.h"
 #include "Input/Input.h"
+#include "CheckpointSystem.h"
 
 #include <INetwork.h>
 
@@ -31,7 +32,6 @@ private:
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
 	std::vector<int> m_ResourceIDs;
-	std::weak_ptr<Actor> m_FinishLine;
 
 	GoToScene m_ChangeScene;
 
@@ -48,7 +48,8 @@ private:
 	std::weak_ptr<Actor> wavingWitch;
 	std::weak_ptr<Actor> ikTest;
 	std::weak_ptr<Actor> testWitch;
-	std::weak_ptr<Actor> testCheckpoint;
+
+	CheckpointSystem m_CheckpointSystem;
 
 	const static int NUM_BOXES = 16;
 	std::weak_ptr<Actor> rotBoxes[NUM_BOXES];
@@ -65,7 +66,8 @@ public:
 	GameLogic(void);
 	~GameLogic(void);
 
-	void initialize(ResourceManager *p_ResourceManager,	IPhysics *p_Physics, ActorFactory *p_ActorFactory, EventManager *p_EventManager, INetwork *p_Network); 
+	void initialize(ResourceManager *p_ResourceManager,	IPhysics *p_Physics, ActorFactory *p_ActorFactory,
+		EventManager *p_EventManager, INetwork *p_Network); 
 	void shutdown(void);
 
 	std::vector<Actor::ptr> &getObjects();
@@ -112,21 +114,7 @@ private:
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
 	void updateIK();
 
-	std::weak_ptr<Actor> addRotatingBox(Vector3 p_Position, Vector3 p_Scale);
-	std::weak_ptr<Actor> addSkybox(Vector3 p_Scale);
-	std::weak_ptr<Actor> addBasicModel(const std::string& p_Model, Vector3 p_Position);
-	std::weak_ptr<Actor> addIK_Worm();
-	std::weak_ptr<Actor> addBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize);
-	std::weak_ptr<Actor> addBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
-	std::weak_ptr<Actor> addClimbBox();
-	std::weak_ptr<Actor> addClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
-	std::weak_ptr<Actor> addCollisionSphere(Vector3 p_Position, float p_Radius);
-	std::weak_ptr<Actor> addCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone);
-	std::weak_ptr<Actor> addPlayerActor(Vector3 p_Position);
-	std::weak_ptr<Actor> addDirectionalLight(Vector3 p_Direction, Vector3 p_Color);
-	std::weak_ptr<Actor> addSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);
-	std::weak_ptr<Actor> addPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
-
+	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
 
 	void addLights();
 };

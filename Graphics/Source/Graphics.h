@@ -125,6 +125,8 @@ public:
 	void renderQuad(void) override;
 	void drawFrame() override;
 
+	void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) override;
+
 	void updateAnimations(float p_DeltaTime) override;
 	void playAnimation(int p_Instance, const char* p_ClipName) override;
 

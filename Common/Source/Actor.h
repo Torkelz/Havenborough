@@ -23,6 +23,7 @@ public:
 	 * Shared pointer type.
 	 */
 	typedef std::shared_ptr<Actor> ptr;
+	typedef std::weak_ptr<Actor> wPtr;
 	/**
 	 * Unique actor identification type.
 	 */

@@ -257,6 +257,14 @@ namespace boost
 	namespace serialization
 	{
 		template <typename Archive>
+		inline void serialize(Archive& ar, Vector3& m_Data, const unsigned int /*version*/)
+		{
+			ar & m_Data.x;
+			ar & m_Data.y;
+			ar & m_Data.z;
+		}
+
+		template <typename Archive>
 		inline void serialize(Archive& ar, PlayerControlData& m_Data, const unsigned int /*version*/)
 		{
 			ar & m_Data.m_Velocity;

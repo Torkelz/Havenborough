@@ -21,6 +21,17 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 {
 	m_ActorFactory = p_ActorFactory;
 	m_ReturnLobby = p_ReturnLobby;
+
+	m_ResourceManager.reset(new ResourceManager);
+
+	m_Physics = IPhysics::createPhysics();
+	m_Physics->initialize();
+
+	m_EventManager.reset(new EventManager);
+
+	m_ActorFactory->setEventManager(m_EventManager.get());
+	m_ActorFactory->setPhysics(m_Physics);
+	m_ActorFactory->setResourceManager(m_ResourceManager.get());
 }
 
 void GameRound::setOwningList(GameList* p_ParentList)
@@ -77,15 +88,13 @@ void GameRound::handlePackages()
 			case PackageType::PLAYER_CONTROL:
 				{
 					PlayerControlData playerControlData = con->getPlayerControlData(package);
-					player.m_PlayerBox.position.x = playerControlData.m_Velocity[0];
-					player.m_PlayerBox.position.y = playerControlData.m_Velocity[1];
-					player.m_PlayerBox.position.z = playerControlData.m_Velocity[2];
-					//player.m_PlayerBox.velocity.x = playerControlData.m_Velocity[0];
-					//player.m_PlayerBox.velocity.y = playerControlData.m_Velocity[1];
-					//player.m_PlayerBox.velocity.z = playerControlData.m_Velocity[2];
-					player.m_PlayerBox.rotation.x = playerControlData.m_Rotation[0];
-					player.m_PlayerBox.rotation.y = playerControlData.m_Rotation[1];
-					player.m_PlayerBox.rotation.z = playerControlData.m_Rotation[2];
+
+					Actor::ptr actor = player.getActor().lock();
+					if (actor)
+					{
+						actor->setPosition(playerControlData.m_Velocity);
+						actor->setRotation(playerControlData.m_Rotation);
+					}
 				}
 				break;
 

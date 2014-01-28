@@ -35,12 +35,9 @@ private:
 	void sendUpdates() override;
 	
 	void updateBox(TestBox& p_Box, float p_DeltaTime);
-	void updatePlayerBox(Player::Box& p_Box, float p_DeltaTime);
 	UpdateObjectData getUpdateData(const TestBox& p_Box);
-	UpdateObjectData getUpdateData(const Player::Box& p_Box);
+	UpdateObjectData getUpdateData(const Player& p_Player);
 	void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, const Vector3& p_Vec);
 	std::string getBoxDescription(const TestBox& p_Box);
-	std::string getPlayerBoxDescription(const Player::Box& p_Box);
 	ObjectInstance getBoxInstance(const TestBox& p_Box, uint16_t p_DescIdx);
-	ObjectInstance getBoxInstance(const Player::Box& p_Box, uint16_t p_DescIdx);
 };

@@ -76,6 +76,7 @@ private:
 	void playAnimation(IEventData::Ptr p_Data);
 	void addReachIK(IEventData::Ptr p_Data);
 	void removeReachIK(IEventData::Ptr p_Data);
+	void changeColorTone(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 

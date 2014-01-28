@@ -70,10 +70,14 @@ void GameLogic::onFrame(float p_DeltaTime)
 				{
 					m_Physics->removeHitDataAt(i);
 				}
-				if(m_FinishLine.lock()->getBodyHandles()[0] == hit.collisionVictim)
+				if(!m_CheckpointSystem.reachedFinishLine() && m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
 				{
-					m_Player.setPosition(m_Level.getStartPosition());
-					m_ChangeScene = GoToScene::POSTGAME;
+					m_CheckpointSystem.changeCheckpoint(m_Objects);
+					if(m_CheckpointSystem.reachedFinishLine())
+					{
+						m_Player.setPosition(m_Level.getStartPosition());
+						m_ChangeScene = GoToScene::POSTGAME;
+					}
 					m_Physics->removeHitDataAt(i);
 				}
 				Logger::log(Logger::Level::TRACE, "Collision reported");
@@ -101,18 +105,10 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
 	{
 		PlayerControlData data;
-		data.m_Rotation[0] = actualViewRot.x;
-		data.m_Rotation[1] = actualViewRot.y;
-		data.m_Rotation[2] = actualViewRot.z;
-		Vector3 playerVel = m_Player.getVelocity();
-
-		playerVel = m_Player.getPosition();
-		data.m_Velocity[0] = playerVel.x;
-		data.m_Velocity[1] = playerVel.y;
-		data.m_Velocity[2] = playerVel.z;
-		//data.m_Velocity[0] = playerVel.x;
-		//data.m_Velocity[1] = playerVel.y;
-		//data.m_Velocity[2] = playerVel.z;
+		data.m_Rotation = actualViewRot;
+		data.m_Velocity = m_Player.getPosition();
+		data.m_Rotation.x += 3.1415f;
+		data.m_Rotation.y = 0.f;
 
 		conn->sendPlayerControl(data);
 	}
@@ -235,7 +231,7 @@ void GameLogic::playLocalLevel()
 	}
 	m_Level.loadLevel(&input, &input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
-	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
 	std::ifstream input("../Bin/assets/levels/Level1.2.btxl", std::istream::in | std::istream::binary);
 	if(!input)
@@ -244,34 +240,10 @@ void GameLogic::playLocalLevel()
 	}
 	m_Level.loadLevel(&input, &input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
-	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
-	//m_Physics->createSphere(0.0f, true, XMFLOAT3ToVector3(&(m_Level.getGoalPosition())), 200.0f);
-	m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
 
-	Vector3 startPosition = m_Level.getStartPosition();
-	static const float kneeHeight = 50.f;
-
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.PushAttribute("x", startPosition.x);
-	printer.PushAttribute("y", startPosition.y);
-	printer.PushAttribute("z", startPosition.z);
-	printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Radius", kneeHeight);
-	printer.PushAttribute("Mass", 68.f);
-	printer.OpenElement("OffsetPosition");
-	printer.PushAttribute("y", kneeHeight);
-	printer.CloseElement();
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr playerActor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	m_Objects.push_back(playerActor);
+	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
 	m_Player = Player();
 	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), playerActor);
 
@@ -295,6 +267,7 @@ void GameLogic::leaveGame()
 	{
 		m_Level = Level();
 		m_Objects.clear();
+		m_CheckpointSystem = CheckpointSystem();
 
 		m_InGame = false;
 
@@ -346,10 +319,7 @@ void GameLogic::handleNetwork()
 
 						const ObjectInstance& data = instances[i];
 						std::ostringstream msg;
-						msg << "Adding object at (" 
-							<< data.m_Position[0] << ", "
-							<< data.m_Position[1] << ", " 
-							<< data.m_Position[2] << ")";
+						msg << "Adding object at " << data.m_Position;
 						Logger::log(Logger::Level::INFO, msg.str());
 
 						XMLDocument description;
@@ -358,39 +328,12 @@ void GameLogic::handleNetwork()
 						const XMLElement* obj = description.FirstChildElement("Object");
 
 						Actor::ptr actor = m_ActorFactory->createActor(obj, data.m_Id);
-						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
-						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
+						actor->setPosition(data.m_Position);
+						actor->setRotation(data.m_Rotation);
 						m_Objects.push_back(actor);
 					}
 
 					m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
-
-					Vector3 startPosition = m_Level.getStartPosition();
-					static const float kneeHeight = 50.f;
-
-					tinyxml2::XMLPrinter printer;
-					printer.OpenElement("Object");
-					printer.PushAttribute("x", startPosition.x);
-					printer.PushAttribute("y", startPosition.y);
-					printer.PushAttribute("z", startPosition.z);
-					printer.OpenElement("SpherePhysics");
-					printer.PushAttribute("Immovable", false);
-					printer.PushAttribute("Radius", kneeHeight);
-					printer.PushAttribute("Mass", 68.f);
-					printer.OpenElement("OffsetPosition");
-					printer.PushAttribute("y", kneeHeight);
-					printer.CloseElement();
-					printer.CloseElement();
-					printer.CloseElement();
-
-					tinyxml2::XMLDocument doc;
-					doc.Parse(printer.CStr());
-
-					Actor::ptr playerActor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-					m_Objects.push_back(playerActor);
-					m_Player = Player();
-					m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), playerActor);
-
 #ifdef _DEBUG
 					std::ifstream input("../Bin/assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
 					if(!input)
@@ -410,13 +353,6 @@ void GameLogic::handleNetwork()
 					m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
-					m_FinishLine = addCollisionSphere(m_Level.getGoalPosition(), 200.f);
-
-					conn->sendDoneLoading();
-					m_InGame = true;
-					m_PlayingLocal = false;
-
-					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 				}
 				break;
 
@@ -441,15 +377,15 @@ void GameLogic::handleNetwork()
 							continue;
 						}
 
-						actor->setPosition(Vector3(data.m_Position[0], data.m_Position[1], data.m_Position[2]));
-						actor->setRotation(Vector3(data.m_Rotation[0], data.m_Rotation[1], data.m_Rotation[2]));
+						actor->setPosition(data.m_Position);
+						actor->setRotation(data.m_Rotation);
 						
 						std::weak_ptr<MovementInterface> wMove = actor->getComponent<MovementInterface>(3);
 						std::shared_ptr<MovementInterface> shMove = wMove.lock();
 						if (shMove)
 						{
-							shMove->setVelocity(Vector3(data.m_Velocity[0], data.m_Velocity[1], data.m_Velocity[2]));
-							shMove->setRotationalVelocity(Vector3(data.m_RotationVelocity[0], data.m_RotationVelocity[1], data.m_RotationVelocity[2]));
+							shMove->setVelocity(data.m_Velocity);
+							shMove->setRotationalVelocity(data.m_RotationVelocity);
 						}
 					}
 
@@ -500,8 +436,15 @@ void GameLogic::handleNetwork()
 					Actor::ptr actor = getActor(actorId);
 					if (actor)
 					{
-						m_Player.setActor(actor);
+						m_Player = Player();
+						m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), actor);
 					}
+
+					conn->sendDoneLoading();
+					m_InGame = true;
+					m_PlayingLocal = false;
+
+					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 				}
 				break;
 
@@ -568,28 +511,33 @@ void GameLogic::loadSandbox()
 	for (int i = 0; i < NUM_BOXES; i++)
 	{
 		const float scale = 100.f + i * 300.f / NUM_BOXES;
-		addRotatingBox(Vector3((float)(i / 4) * 400.f, 100.f, (float)(i % 4) * 400.f + 4000.f), Vector3(scale, scale, scale));
-		rotBoxes[i] = m_Objects.back();
+		rotBoxes[i] = addActor(m_ActorFactory->createRotatingBox(Vector3((float)(i / 4) * 400.f, 100.f, (float)(i % 4) * 400.f + 4000.f),
+			Vector3(scale, scale, scale)));
 	}
 
 	//addBoxWithAABB(Vector3(0.f, -250.f, 0.f), Vector3(5000.f, 250.f, 5000.f));
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
-	testWitch = addBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f));
+	addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f)));
 	playAnimation(testWitch.lock(), "Run");
 
-	addClimbBox();
+	m_Objects.push_back(m_ActorFactory->createClimbBox());
 
-	circleWitch = addBasicModel("WITCH", Vector3(0.f, 0.f, 0.f));
+	circleWitch = addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(0.f, 0.f, 0.f)));
 	playAnimation(circleWitch.lock(), "Run");
-	standingWitch = addBasicModel("DZALA", Vector3(1600.f, 0.f, -500.f));
+	standingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1600.f, 0.f, -500.f)));
 	playAnimation(standingWitch.lock(), "Bomb");
-	wavingWitch = addBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f));
+	wavingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f)));
 	playAnimation(wavingWitch.lock(), "Kick");
 	
-	testCheckpoint = addCheckPointActor(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 10.0f, 1.0f), Vector3(1.0f, 1.0f, 0.0f));
+	m_CheckpointSystem = CheckpointSystem();
+	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(m_Level.getGoalPosition(), Vector3(1.0f, 10.0f, 1.0f))));
+	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
 
-	ikTest = addIK_Worm();
+	ikTest = addActor(m_ActorFactory->createIK_Worm());
 	playAnimation(ikTest.lock(), "Wave");
 
 	static const unsigned int numTowerBoxes = 5;
@@ -611,10 +559,10 @@ void GameLogic::loadSandbox()
 
 	for (unsigned int i = 0; i < numTowerBoxes; i++)
 	{
-		addBoxWithAABB(towerBoxPositions[i], towerBoxSizes[i] * 0.5f);
+		addActor(m_ActorFactory->createBoxWithAABB(towerBoxPositions[i], towerBoxSizes[i] * 0.5f));
 	}
 
-	addClimbTowerBox(Vector3(3000.f, 520.f, 4000.f), Vector3(300.f, 200.f, 300.f));
+	addActor(m_ActorFactory->createClimbTowerBox(Vector3(3000.f, 520.f, 4000.f), Vector3(300.f, 200.f, 300.f)));
 	
 	static const unsigned int numRotatedTowerBoxes = 5;
 	Vector3 rotatedTowerBoxSizes[numRotatedTowerBoxes] =
@@ -637,7 +585,7 @@ void GameLogic::loadSandbox()
 
 	for (unsigned int i = 0; i < numRotatedTowerBoxes; i++)
 	{
-		addBoxWithOBB(rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, Vector3(1.f, 0.f, 0.f));
+		addActor(m_ActorFactory->createBoxWithOBB(rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, Vector3(1.f, 0.f, 0.f)));
 	}
 
 	//static const Vector3 slantedPlanePosition(-4000.f, 300.f, 2000.f);
@@ -645,9 +593,9 @@ void GameLogic::loadSandbox()
 	//static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
 	//addBoxWithOBB(slantedPlanePosition, slantedPlaneSize * 0.5f, slantedPlaneRotation);
 	
-	addBoxWithOBB(Vector3(0.f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(0.0f, 0.0f, 0.0f));
-	addBoxWithOBB(Vector3(-1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
-	addBoxWithOBB(Vector3(1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f));
+	addActor(m_ActorFactory->createBoxWithOBB(Vector3(0.f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(0.0f, 0.0f, 0.0f)));
+	addActor(m_ActorFactory->createBoxWithOBB(Vector3(-1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f)));
+	addActor(m_ActorFactory->createBoxWithOBB(Vector3(1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f)));
 	witchCircleAngle = 0.0f;
 
 	addLights();
@@ -758,353 +706,18 @@ IPhysics *GameLogic::getPhysics() const
 	return m_Physics;
 }
 
-void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Vec)
+std::weak_ptr<Actor> GameLogic::addActor(Actor::ptr p_Actor)
 {
-	p_Printer.OpenElement(p_ElementName.c_str());
-	p_Printer.PushAttribute("x", p_Vec.x);
-	p_Printer.PushAttribute("y", p_Vec.y);
-	p_Printer.PushAttribute("z", p_Vec.z);
-	p_Printer.CloseElement();
-}
-
-void pushColor(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Color)
-{
-	p_Printer.OpenElement(p_ElementName.c_str());
-	p_Printer.PushAttribute("r", p_Color.x);
-	p_Printer.PushAttribute("g", p_Color.y);
-	p_Printer.PushAttribute("b", p_Color.z);
-	p_Printer.CloseElement();
-}
-
-std::weak_ptr<Actor> GameLogic::addRotatingBox(Vector3 p_Position, Vector3 p_Scale)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "BOX");
-	pushVector(printer, "Scale", p_Scale);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addBasicModel(const std::string& p_Model, Vector3 p_Position)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", p_Model.c_str());
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addIK_Worm()
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "IKTest");
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(Vector3(800.f, 100.f, 200.f));
-
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "BOX");
-	pushVector(printer, "Scale", p_Halfsize * 2.f);
-	printer.CloseElement();
-	printer.OpenElement("AABBPhysics");
-	pushVector(printer, "Halfsize", p_Halfsize);
-	pushVector(printer, "Position", p_Position);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "BOX");
-	pushVector(printer, "Scale", p_Halfsize * 2.f);
-	printer.CloseElement();
-	printer.OpenElement("OBBPhysics");
-	pushVector(printer, "Halfsize", p_Halfsize);
-	pushVector(printer, "Position", p_Position);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-	actor->setRotation(p_Rotation);
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Halfsize)
-{
-	p_Printer.OpenElement("AABBPhysics");
-	p_Printer.PushAttribute("Edge", true);
-	pushVector(p_Printer, "Halfsize", p_Halfsize);
-	pushVector(p_Printer, "OffsetPosition", p_Position);
-	p_Printer.CloseElement();
-}
-
-std::weak_ptr<Actor> GameLogic::addClimbBox()
-{
-	static const Vector3 climbTestPos(0.f, 200.f, 3000.f);
-	static const Vector3 climbTestHalfSize(100.f, 100.f, 100.f);
-
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "BOX");
-	pushVector(printer, "Scale", climbTestHalfSize * 2.f);
-	printer.CloseElement();
-	addEdge(printer, Vector3(0.f, 0.f, 0.f), climbTestHalfSize);
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(climbTestPos);
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.PushAttribute("x", p_Position.x);
-	printer.PushAttribute("y", p_Position.y);
-	printer.PushAttribute("z", p_Position.z);
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "BOX");
-	pushVector(printer, "Scale", p_Halfsize * 2.f);
-	printer.CloseElement();
-	printer.OpenElement("AABBPhysics");
-	pushVector(printer, "Halfsize", p_Halfsize);
-	printer.CloseElement();
-	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));
-	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, -p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));
-	addEdge(printer, Vector3(p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
-	addEdge(printer, Vector3(-p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
-	printer.CloseElement();
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addCollisionSphere(Vector3 p_Position, float p_Radius)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Radius", p_Radius);
-	pushVector(printer, "Position", p_Position);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone)
-{
-	Vector3 AABBScale = p_Scale;
-	AABBScale.x *= 75.f;
-	AABBScale.y *= 500.f;
-	AABBScale.z *= 75.f;
-
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "Checkpoint1");
-	pushVector(printer, "Scale", p_Scale);
-	pushVector(printer, "ColorTone", p_ColorTone);
-	printer.CloseElement();
-	printer.OpenElement("AABBPhysics");
-	printer.PushAttribute("CollisionResponse", false);
-	pushVector(printer, "Halfsize", AABBScale);
-	pushVector(printer, "RelativePosition", Vector3(0.0f, p_Position.y + AABBScale.y, 0.0f));
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addPlayerActor(Vector3 p_Position)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Movement");
-	pushVector(printer, "Velocity", Vector3(0.f, 0.f, 0.f));
-	pushVector(printer, "RotationalVelocity", Vector3(0.f, 0.f, 0.f));
-	printer.CloseElement();
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "BOX");
-	static const Vector3 scale(50.f, 50.f, 50.f);
-	pushVector(printer, "Scale", scale);
-	printer.CloseElement();
-	printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Immovable", true);
-	printer.PushAttribute("Radius", 50.f);
-	printer.CloseElement();
-	printer.OpenElement("Pulse");
-	printer.PushAttribute("Length", 0.5f);
-	printer.PushAttribute("Strength", 0.5f);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-
-std::weak_ptr<Actor> GameLogic::addDirectionalLight(Vector3 p_Direction, Vector3 p_Color)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Light");
-	printer.PushAttribute("Type", "Directional");
-	pushVector(printer, "Direction", p_Direction);
-	pushColor(printer, "Color", p_Color);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Light");
-	printer.PushAttribute("Type", "Spot");
-	printer.PushAttribute("Range", p_Range);
-	pushVector(printer, "Position", p_Position);
-	pushVector(printer, "Direction", p_Direction);
-	printer.OpenElement("Angles");
-	printer.PushAttribute("min", p_MinMaxAngles.x);
-	printer.PushAttribute("max", p_MinMaxAngles.y);
-	printer.CloseElement();
-	pushColor(printer, "Color", p_Color);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	m_Objects.push_back(actor);
-
-	return actor;
-}
-
-std::weak_ptr<Actor> GameLogic::addPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Light");
-	printer.PushAttribute("Type", "Point");
-	printer.PushAttribute("Range", p_Range);
-	pushVector(printer, "Position", p_Position);
-	pushColor(printer, "Color", p_Color);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	m_Objects.push_back(actor);
-
-	return actor;
+	m_Objects.push_back(p_Actor);
+	return p_Actor;
 }
 
 void GameLogic::addLights()
 {
-	addDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f));
-	addSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
-		Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f, Vector3(0.f,1.f,0.f));
-	addPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f));
-	addPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f));
-	addPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f));
+	addActor(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f)));
+	addActor(m_ActorFactory->createSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
+		Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f, Vector3(0.f,1.f,0.f)));
+	addActor(m_ActorFactory->createPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f)));
+	addActor(m_ActorFactory->createPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
+	addActor(m_ActorFactory->createPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
 }

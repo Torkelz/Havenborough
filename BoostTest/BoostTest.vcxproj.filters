@@ -243,6 +243,9 @@
     <ClCompile Include="..\Server\Source\LevelBinaryLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\CheckpointSystem.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
     <ClCompile Include="..\Client\Source\LevelStreamReader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
