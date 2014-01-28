@@ -225,14 +225,14 @@ void ForwardRendering::renderForward()
 		updateConstantBuffer();
 		for(unsigned int i = 0; i < m_TransparencyObjects.size();i++)
 		{
-			m_TransparencyObjects.at(i).m_Model->vertexBuffer->setBuffer(0);
+			m_TransparencyObjects.at(i).model->vertexBuffer->setBuffer(0);
 
-			if (m_TransparencyObjects.at(i).m_Model->m_IsAnimated)
+			if (m_TransparencyObjects.at(i).model->isAnimated)
 			{
 				cAnimatedObjectBuffer temp;
-				temp.invTransposeWorld = m_TransparencyObjects.at(i).m_invTransposeWorld;
+				temp.invTransposeWorld = m_TransparencyObjects.at(i).invTransposeWorld;
 
-				const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_TransparencyObjects.at(i).m_FinalTransforms;
+				const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_TransparencyObjects.at(i).finalTransforms;
 				for (unsigned int a = 0; a < tempBones->size(); a++)
 					temp.boneTransform[a] = (*tempBones)[a];
 
@@ -241,40 +241,41 @@ void ForwardRendering::renderForward()
 			}
 
 			cObjectBuffer temp;
-			temp.world = m_TransparencyObjects.at(i).m_World;
+			temp.world = m_TransparencyObjects.at(i).world;
 			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
 			m_ObjectConstantBuffer->setBuffer(2);
 
 			//Set the colorshadingConstantBuffer
 			DirectX::XMFLOAT3 color = DirectX::XMFLOAT3(0,0,1);
 			m_DeviceContext->UpdateSubresource(m_ColorShadingConstantBuffer->getBufferPointer(),
-				NULL,NULL,m_TransparencyObjects.at(i).m_ColorTone ,NULL,NULL);
+				NULL,NULL,m_TransparencyObjects.at(i).colorTone ,NULL,NULL);
 			m_ColorShadingConstantBuffer->setBuffer(3);
 
 
 			// Set shader.
-			m_TransparencyObjects.at(i).m_Model->shader->setShader();
+			m_TransparencyObjects.at(i).model->shader->setShader();
 			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-			m_TransparencyObjects.at(i).m_Model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
+			m_TransparencyObjects.at(i).model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
 
-			for(unsigned int j = 0; j < m_TransparencyObjects.at(i).m_Model->numOfMaterials;j++)
+			for(unsigned int j = 0; j < m_TransparencyObjects.at(i).model->numOfMaterials;j++)
 			{
-				ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).m_Model->diffuseTexture[j].second, 
-					m_TransparencyObjects.at(i).m_Model->normalTexture[j].second, 
-					m_TransparencyObjects.at(i).m_Model->specularTexture[j].second 
+				ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).model->diffuseTexture[j].second, 
+					m_TransparencyObjects.at(i).model->normalTexture[j].second, 
+					m_TransparencyObjects.at(i).model->specularTexture[j].second 
 				};
 				m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
-				m_DeviceContext->Draw(m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).second, m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).first);
+				m_DeviceContext->Draw(m_TransparencyObjects.at(i).model->drawInterval.at(j).second,
+					m_TransparencyObjects.at(i).model->drawInterval.at(j).first);
 
 				m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 			}
 
-			m_TransparencyObjects.at(i).m_Model->shader->setBlendState(0, data);
-			m_TransparencyObjects.at(i).m_Model->shader->unSetShader();
+			m_TransparencyObjects.at(i).model->shader->setBlendState(0, data);
+			m_TransparencyObjects.at(i).model->shader->unSetShader();
 			m_ObjectConstantBuffer->unsetBuffer(2);
 			m_AnimatedObjectConstantBuffer->unsetBuffer(3);
-			m_TransparencyObjects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
+			m_TransparencyObjects.at(i).model->vertexBuffer->unsetBuffer(0);
 			m_ColorShadingConstantBuffer->unsetBuffer(3);
 		}
 		m_DeviceContext->PSSetSamplers(0,0,0);
@@ -295,8 +296,8 @@ void ForwardRendering::renderForward()
 
 bool ForwardRendering::depthSortCompareFunc(const DeferredRenderer::Renderable &a, const DeferredRenderer::Renderable &b)
 {
-	DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.m_World._14,a.m_World._24,a.m_World._34);
-	DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.m_World._14,b.m_World._24,b.m_World._34);
+	DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.world._14,a.world._24,a.world._34);
+	DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.world._14,b.world._24,b.world._34);
 
 	DirectX::XMVECTOR aV = DirectX::XMLoadFloat3(&aa);
 	DirectX::XMVECTOR bV = DirectX::XMLoadFloat3(&bb);
