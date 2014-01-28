@@ -310,27 +310,21 @@ void GameLogic::handleNetwork()
 			{
 			case PackageType::CREATE_OBJECTS:
 				{
-					unsigned int numInstances = conn->getNumCreateObjectInstances(package);
-					const ObjectInstance* instances = conn->getCreateObjectInstances(package);
+					unsigned int numInstances = conn->getNumCreateObjects(package);
 					for (unsigned int i = 0; i < numInstances; ++i)
 					{
 						using tinyxml2::XMLAttribute;
 						using tinyxml2::XMLDocument;
 						using tinyxml2::XMLElement;
 
-						const ObjectInstance& data = instances[i];
-						std::ostringstream msg;
-						msg << "Adding object at " << data.m_Position;
-						Logger::log(Logger::Level::INFO, msg.str());
+						const ObjectInstance data = conn->getCreateObjectDescription(package, i);
 
 						XMLDocument description;
-						description.Parse(conn->getCreateObjectDescription(package, data.m_DescriptionIdx));
+						description.Parse(data.m_Description);
 
 						const XMLElement* obj = description.FirstChildElement("Object");
 
 						Actor::ptr actor = m_ActorFactory->createActor(obj, data.m_Id);
-						actor->setPosition(data.m_Position);
-						actor->setRotation(data.m_Rotation);
 						m_Objects.push_back(actor);
 					}
 				m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);

@@ -134,6 +134,8 @@ public:
 		return std::weak_ptr<ComponentType>();
 	}
 
+	void serialize(std::ostream& p_Stream) const;
+
 private:
 	friend class ActorFactory;
 	void addComponent(ActorComponent::ptr p_Component);

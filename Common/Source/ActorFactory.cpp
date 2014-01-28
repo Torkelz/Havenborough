@@ -2,6 +2,7 @@
 
 #include "CommonExceptions.h"
 #include "Components.h"
+#include "XMLHelper.h"
 
 ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	:	m_LastActorId(p_BaseActorId),
@@ -62,24 +63,6 @@ Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data, Actor::
 	actor->postInit();
 
 	return actor;
-}
-
-void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Vec)
-{
-	p_Printer.OpenElement(p_ElementName.c_str());
-	p_Printer.PushAttribute("x", p_Vec.x);
-	p_Printer.PushAttribute("y", p_Vec.y);
-	p_Printer.PushAttribute("z", p_Vec.z);
-	p_Printer.CloseElement();
-}
-
-void pushColor(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Color)
-{
-	p_Printer.OpenElement(p_ElementName.c_str());
-	p_Printer.PushAttribute("r", p_Color.x);
-	p_Printer.PushAttribute("g", p_Color.y);
-	p_Printer.PushAttribute("b", p_Color.z);
-	p_Printer.CloseElement();
 }
 
 Actor::ptr ActorFactory::createRotatingBox(Vector3 p_Position, Vector3 p_Scale)

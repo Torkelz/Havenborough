@@ -4,6 +4,7 @@
 #include <Logger.h>
 
 #include <algorithm>
+#include <sstream>
 
 const float TestGameRound::m_PlayerSphereRadius = 50.f;
 
@@ -17,7 +18,7 @@ void TestGameRound::setup()
 		m_Actors.push_back(box);
 		m_Boxes.push_back(box);
 
-		Vector3 position(500.f - i * 200.f, m_PlayerSphereRadius + 400.f, 600.f);
+		Vector3 position(500.f + i * 200.f, m_PlayerSphereRadius + 400.f, 500.f);
 
 		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
 		m_Players[i].setActor(actor);
@@ -28,46 +29,19 @@ void TestGameRound::setup()
 void TestGameRound::sendLevel()
 {
 	std::vector<std::string> descriptions;
-	std::vector<const char*> cDescriptions;
 	std::vector<ObjectInstance> instances;
 
-	for (const auto& box : m_Boxes)
+	for (const auto& actor : m_Actors)
 	{
-		Actor::ptr actor = box.lock();
-		if (!actor)
+		std::ostringstream descStream;
+		actor->serialize(descStream);
+		descriptions.push_back(descStream.str());
+		ObjectInstance inst =
 		{
-			continue;
-		}
-
-		std::shared_ptr<CircleMovementComponent> comp = actor->getComponent<CircleMovementComponent>(CircleMovementComponent::m_ComponentId).lock();
-		if (!comp)
-		{
-			continue;
-		}
-
-		descriptions.push_back(m_ActorFactory->getCircleBoxDescription(comp->getCenterPosition(), comp->getRadius()));
-		cDescriptions.push_back(descriptions.back().c_str());
-		instances.push_back(getBoxInstance(actor, descriptions.size() - 1));
-	}
-
-	for (const auto& player : m_Players)
-	{
-		Actor::ptr actor = player.getActor().lock();
-		if (actor)
-		{
-			descriptions.push_back(m_ActorFactory->getPlayerActorDescription(actor->getPosition()));
-			cDescriptions.push_back(descriptions.back().c_str());
-
-			ObjectInstance inst =
-			{
-				actor->getPosition(),
-				actor->getRotation(),
-				descriptions.size() - 1,
-				actor->getId()
-			};
-
-			instances.push_back(inst);
-		}
+			descriptions.back().c_str(),
+			actor->getId()
+		};
+		instances.push_back(inst);
 	}
 
 	tinyxml2::XMLPrinter printer;
@@ -85,12 +59,9 @@ void TestGameRound::sendLevel()
 	printer.CloseElement();
 
 	descriptions.push_back(printer.CStr());
-	cDescriptions.push_back(descriptions.back().c_str());
 	ObjectInstance lightData =
 	{
-		Vector3(0.f, 0.f, 0.f),
-		Vector3(0.f, 0.f, 0.f),
-		descriptions.size() - 1,
+		descriptions.back().c_str(),
 		0
 	};
 	instances.push_back(lightData);
@@ -103,7 +74,7 @@ void TestGameRound::sendLevel()
 			Actor::ptr actor = player.getActor().lock();
 			if (actor)
 			{
-				user->getConnection()->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
+				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
 				user->getConnection()->sendAssignPlayer(actor->getId());
 			}
 		}
@@ -228,17 +199,4 @@ void TestGameRound::pushVector(tinyxml2::XMLPrinter& p_Printer, const std::strin
 	p_Printer.PushAttribute("y", p_Vec.y);
 	p_Printer.PushAttribute("z", p_Vec.z);
 	p_Printer.CloseElement();
-}
-
-ObjectInstance TestGameRound::getBoxInstance(Actor::ptr p_Box, uint16_t p_DescIdx)
-{
-	ObjectInstance inst =
-	{
-		p_Box->getPosition(),
-		p_Box->getRotation(),
-		p_DescIdx,
-		p_Box->getId()
-	};
-
-	return inst;
 }

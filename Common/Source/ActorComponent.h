@@ -59,6 +59,13 @@ public:
 	 */
 	virtual Id getComponentId() const = 0;
 
+	/**
+	 * Output an actor description to a printer.
+	 *
+	 * @param p_Printer the printer to output the component description to
+	 */
+	virtual void serialize(tinyxml2::XMLPrinter& p_Printer) const = 0;
+
 private:
 	friend class ActorFactory;
 

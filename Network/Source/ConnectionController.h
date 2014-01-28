@@ -52,11 +52,9 @@ public:
 
 	PackageType getPackageType(Package p_Package) override;
 
-	void sendCreateObjects(const char** p_Descriptions, unsigned int p_NumDescriptions, const ObjectInstance* p_Instances, unsigned int p_NumInstances) override;
-	unsigned int getNumCreateObjectDescriptions(Package p_Package) override;
-	const char* getCreateObjectDescription(Package p_Package, unsigned int p_Description) override;
-	unsigned int getNumCreateObjectInstances(Package p_Package) override;
-	const ObjectInstance* getCreateObjectInstances(Package p_Package) override;
+	void sendCreateObjects(const ObjectInstance* p_Instances, unsigned int p_NumInstances) override;
+	unsigned int getNumCreateObjects(Package p_Package) override;
+	ObjectInstance getCreateObjectDescription(Package p_Package, unsigned int p_Description) override;
 
 	void sendUpdateObjects(const UpdateObjectData* p_ObjectData, unsigned int p_NumObjects, const char** p_ExtraData, unsigned int p_NumExtraData) override;
 	unsigned int getNumUpdateObjectData(Package p_Package) override;

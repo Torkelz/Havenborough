@@ -32,9 +32,8 @@ BOOST_AUTO_TEST_CASE(TestReceivePackage)
 
 	CreateObjects package;
 	static const std::string testDesc = "TestDesc";
-	package.m_Object1.push_back(testDesc);
-	ObjectInstance inst = {Vector3(4.f, 3.f, 7.f), Vector3(0.f, 0.f, 0.f), 0, 123};
-	package.m_Object2.push_back(inst);
+	static const uint32_t testId = 123;
+	package.m_Object1.push_back(std::make_pair(testDesc, testId));
 
 	rawConnectionStub->receiveData((uint16_t)PackageType::CREATE_OBJECTS, package.getData());
 
@@ -44,9 +43,11 @@ BOOST_AUTO_TEST_CASE(TestReceivePackage)
 
 	BOOST_REQUIRE_EQUAL((uint16_t)controller.getPackageType(packageRef), (uint16_t)PackageType::CREATE_OBJECTS);
 
-	const ObjectInstance* objectInstances = controller.getCreateObjectInstances(packageRef);
+	BOOST_REQUIRE_EQUAL(controller.getNumCreateObjects(packageRef), 1);
+	ObjectInstance objectInstance = controller.getCreateObjectDescription(packageRef, 0);
 
-	BOOST_CHECK_EQUAL(objectInstances[0].m_Position, package.m_Object2[0].m_Position);
+	BOOST_CHECK_EQUAL(objectInstance.m_Description, testDesc);
+	BOOST_CHECK_EQUAL(objectInstance.m_Id, testId);
 
 	controller.clearPackages(1);
 

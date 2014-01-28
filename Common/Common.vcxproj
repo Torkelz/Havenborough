@@ -30,6 +30,7 @@
     <ClInclude Include="Source\Utilities\MemoryUtil.h" />
     <ClInclude Include="Source\Utilities\Util.h" />
     <ClInclude Include="Source\Utilities\XMFloatUtil.h" />
+    <ClInclude Include="Source\XMLHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp" />
