@@ -33,6 +33,7 @@ private:
 	void sendLevel() override;
 	void updateLogic(float p_DeltaTime) override;
 	void sendUpdates() override;
+	void playerDisconnected(Player& p_DisconnectedPlayer) override;
 	
 	void updateBox(TestBox& p_Box, float p_DeltaTime);
 	UpdateObjectData getUpdateData(const TestBox& p_Box);

@@ -147,6 +147,26 @@ void TestGameRound::sendUpdates()
 	}
 }
 
+void TestGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
+{
+	Actor::ptr actor = p_DisconnectedPlayer.getActor().lock();
+	if (!actor)
+	{
+		return;
+	}
+
+	uint16_t playerActorId = actor->getId();
+
+	for (auto& player : m_Players)
+	{
+		User::ptr user = player.getUser().lock();
+		if (user)
+		{
+			user->getConnection()->sendRemoveObjects(&playerActorId, 1);
+		}
+	}
+}
+
 void TestGameRound::updateBox(TestBox& p_Box, float p_DeltaTime)
 {
 	p_Box.circleRotation += p_Box.circleRotationSpeed * p_DeltaTime;

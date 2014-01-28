@@ -2,6 +2,8 @@
 
 #include "GameList.h"
 #include "Lobby.h"
+
+#include <Components.h>
 #include <Logger.h>
 
 #include <algorithm>
@@ -41,6 +43,7 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 	m_ResourceManager.reset(new ResourceManager);
 
 	m_Physics = IPhysics::createPhysics();
+	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
 	m_EventManager.reset(new EventManager);
@@ -183,12 +186,14 @@ void GameRound::runGame()
 		currentTime = std::chrono::high_resolution_clock::now();
 		const std::chrono::high_resolution_clock::duration frameTime = currentTime - previousTime;
 
+		deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(frameTime).count();
+
+		m_Physics->update(deltaTime);
+
 		handlePackages();
 		checkForDisconnectedUsers();
 		updateLogic(deltaTime);
 		sendUpdates();
-
-		deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(frameTime).count();
 
 		static const std::chrono::milliseconds sleepDuration(20);
 		std::this_thread::sleep_for(sleepDuration - frameTime);
@@ -246,6 +251,11 @@ void GameRound::handlePackages()
 					{
 						actor->setPosition(playerControlData.m_Velocity);
 						actor->setRotation(playerControlData.m_Rotation);
+						std::shared_ptr<PhysicsInterface> physInt = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+						if (physInt)
+						{
+							m_Physics->setBodyVelocity(physInt->getBodyHandle(), Vector3(0.f, 0.f, 0.f));
+						}
 					}
 				}
 				break;
