@@ -13,7 +13,7 @@ GameRound::ptr GameRoundFactory::createRound(const std::string& p_GameType)
 {
 	if (p_GameType != "test")
 	{
-		ActorFactory::ptr actorFactory(new ActorFactory);
+		ActorFactory::ptr actorFactory(new ActorFactory(0));
 
 		std::shared_ptr<FileGameRound> gameRound(new FileGameRound);
 		gameRound->setFilePath("../../Client/Bin/assets/levels/Level1.2.btxl");

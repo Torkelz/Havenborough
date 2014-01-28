@@ -1,5 +1,7 @@
 #include "LevelBinaryLoader.h"
 
+#include "CommonExceptions.h"
+
 LevelBinaryLoader::LevelBinaryLoader()
 {
 	m_Header.m_NumberOfModels = 0;
@@ -22,7 +24,7 @@ bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 	m_Input.open(p_FilePath, std::istream::in | std::istream::binary);
 	if(!m_Input)
 	{
-		return false;
+		throw CommonException("Could not read level file: " + p_FilePath, __LINE__, __FILE__);
 	}	
 
 	readStreamData(&m_Input);

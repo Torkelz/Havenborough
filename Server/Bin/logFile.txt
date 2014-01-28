@@ -1,9 +1,0 @@
-[2014-01-28 11:48:49] INFO: Starting server
-[2014-01-28 11:48:59] INFO: Client connected
-[2014-01-28 11:49:04] INFO: Starting game round
-[2014-01-28 11:49:04] INFO: Level loaded by clients, starting game
-[2014-01-28 11:49:49] INFO: Game round stopped
-[2014-01-28 11:49:54] INFO: Starting game round
-[2014-01-28 11:49:55] INFO: Level loaded by clients, starting game
-[2014-01-28 11:50:10] INFO: Game round stopped
-[2014-01-28 11:50:11] INFO: Client disconnected
