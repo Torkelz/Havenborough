@@ -157,13 +157,13 @@
     <ClInclude Include="Source\ParticleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ParticleDefinition.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ParticleFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ParticleInstance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ParticleEffectDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

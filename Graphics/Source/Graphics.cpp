@@ -251,9 +251,9 @@ void Graphics::shutdown(void)
 	}
 	m_TextureList.clear();
 	
-	while (!m_ParticleSystemList.empty())
+	while (!m_ParticleEffectDefinitionList.empty())
 	{
-		std::string unremovedName = m_ParticleSystemList.front().first;
+		std::string unremovedName = m_ParticleEffectDefinitionList.front().first;
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
 
@@ -394,7 +394,7 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 
 void Graphics::linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId)
 {
-	ParticleDefinition *particles = nullptr;
+	ParticleEffectDefinition *particles = nullptr;
 	particles = getParticleFromList(p_ParticlesId);
 	if(particles)
 		particles->shader = getShaderFromList(p_ShaderId);
@@ -451,6 +451,12 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 
 bool Graphics::createParticleSystemInstance(const char *p_ParticleSystemId, const char *p_Filename)
 {
+	ParticleEffectDefinition* temp;
+
+	temp = new ParticleEffectDefinition();
+	std::string tempstring = p_ParticleSystemId;
+	m_ParticleEffectDefinitionList.push_back(p_ParticleSystemId, temp);
+
 	//ParticleDefinition PS = m_PS->loadParticleSystemFromFile(p_Filename);
 
 	//m_ParticleSystemList.push_back(pair<string, ParticleDefinition>(p_ParticleSystemId, std::move(PS)));
@@ -460,7 +466,7 @@ bool Graphics::createParticleSystemInstance(const char *p_ParticleSystemId, cons
 
 bool Graphics::releaseParticleSystemInstance(const char *p_ParticleSystemId)
 {
-	for(auto it = m_ParticleSystemList.begin(); it != m_ParticleSystemList.end(); ++it)
+	for(auto it = m_ParticleEffectDefinitionList.begin(); it != m_ParticleEffectDefinitionList.end(); ++it)
 	{
 		if(strcmp(it->first.c_str(), p_ParticleSystemId) == 0)
 		{
@@ -469,7 +475,7 @@ bool Graphics::releaseParticleSystemInstance(const char *p_ParticleSystemId)
 				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 			}*/
 
-			m_ParticleSystemList.erase(it);
+			m_ParticleEffectDefinitionList.erase(it);
 			return true;
 		}
 	}
@@ -1086,9 +1092,9 @@ ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 	return nullptr;
 }
 
-ParticleDefinition *Graphics::getParticleFromList(string p_Identifier)
+ParticleEffectDefinition *Graphics::getParticleFromList(string p_Identifier)
 {
-	for(auto & s : m_ParticleSystemList)
+	for(auto & s : m_ParticleEffectDefinitionList)
 	{
 		if(s.first == p_Identifier)
 		{

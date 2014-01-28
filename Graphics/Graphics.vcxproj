@@ -119,7 +119,7 @@
   <ItemGroup>
     <ClInclude Include="Source\ParticleInstance.h" />
     <ClInclude Include="Source\ParticleFactory.h" />
-    <ClInclude Include="Source\ParticleDefinition.h" />
+    <ClInclude Include="Source\ParticleEffectDefinition.h" />
     <ClInclude Include="Source\ParticleSystem.h" />
     <ClInclude Include="Source\ForwardRendering.h" />
     <ClInclude Include="include\ShaderDefinitions.h" />

@@ -103,7 +103,7 @@ private:
 
 public:
 	/**
-	 * Default contructor. Constructs an object without any data.
+	 * Default constructor. Constructs an object without any data.
 	 */
 	ModelDefinition()
 		:	shader(nullptr),

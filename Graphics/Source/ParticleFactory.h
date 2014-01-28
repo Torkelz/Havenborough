@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ParticleDefinition.h"
+#include "ParticleEffectDefinition.h"
 #include "GraphicsExceptions.h"
 #include "VRAMInfo.h"
 #include "Buffer.h"
@@ -26,12 +26,14 @@ public:
 
 private:
 	static ParticleFactory *m_Instance;
-	vector<pair<string, ID3D11ShaderResourceView*>> *m_TextureList;
+	ID3D11ShaderResourceView *m_DiffuseTexture;
 
 	loadParticleTextureCallBack m_LoadParticleTexture;
 	void *m_LoadParticleTextureUserdata;
 
-
+	DirectX::XMFLOAT4X4 m_ViewMatrix;
+	DirectX::XMFLOAT4X4 m_ProjectionMatrix;
+	DirectX::XMFLOAT3 m_CameraPosition;
 
 public:
 	
@@ -45,7 +47,7 @@ public:
 	* Initialize the factory.
 	* p_TextureList pointer to the texture list pair 
 	*/
-	void initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList);
+	void initialize(ID3D11ShaderResourceView *p_DiffuseTexture);
 
 	/**
 	* Shuts down the factory and releases the memory allocated. Nulls all pointers.
@@ -57,7 +59,8 @@ public:
 	* @param p_Filename the particle file to read
 	* @return copy of the created particle system
 	*/
-	virtual ParticleDefinition createParticleSystem(const char *p_Filename);
+	virtual ParticleEffectDefinition* createParticleSystem(const char* p_Filename, const char* p_EffectName, DirectX::XMFLOAT4X4 *p_ViewMatrix, 
+		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, DirectX::XMFLOAT3 *p_CameraPos);
 	
 	/**
 	* Set the function to load a texture to a particle.
@@ -66,16 +69,16 @@ public:
 	*/
 	void setLoadParticleTextureCallBack(loadParticleTextureCallBack p_LoadParticleTexture, void *p_Userdata);
 
+	ID3D11ShaderResourceView *ParticleFactory::getDiffuseTexture();
 
 protected:
 	ParticleFactory();
 	~ParticleFactory();
 
 private:
-	Buffer createParticleBuffer(unsigned int p_MaxParticles, DirectX::XMFLOAT4X4 *p_ViewMatrix, 
-		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, DirectX::XMFLOAT3 *p_CameraPos);
+	Buffer createParticleBuffer(unsigned int p_MaxParticles);
 
-	void loadTextures(ParticleDefinition &particle, const char *p_Filename, unsigned int p_NumOfMaterials, const vector<Material> &p_Materials);
-	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
+	void loadTexture(ParticleEffectDefinition &particle, const char *p_Filename);
+
 
 };

@@ -19,7 +19,6 @@ cbuffer cbWorld : register(b2)
 struct VSIn
 {
 	float4 centerPos: POSITION;
-	float4 eyePos	: EYEPOSITION;
 	float2 uvCoord	: COORD;
 	float2 size		: SIZE;
 };
@@ -27,7 +26,6 @@ struct VSIn
 struct PSIn
 {
 	float4 centerPos: SV_POSITION;
-	float4 eyePos	: EYEPOSITION;
 	float2 uvCoord	: COORD;
 	float4 color	: COLOR;
 	float2 size		: SIZE;
@@ -45,7 +43,7 @@ PSIn VS(VSIn input)
 	
 	output.centerPos = mul(projection, mul(view, mul(world, input.centerPos)));
 	output.uvCoord = input.uvCoord;
-	output.eyePos = mul(view, input.eyePos);
+	//output.eyePos = mul(view, input.eyePos);
 	//output.wPos = mul(world, input.centerPos);
 
 	return output;
@@ -57,9 +55,9 @@ GSOut GS(point VSIn input[1], inout TriangleStream<PSIn> triangleStream)
 	// We need to create a matrix for the local coordinate system for the billboard of the given particle.
     // One axis points from the particle to the camera, one axis is the camera's side axis (for example to
     // the left) and the third one is perpendicular to both.
-    GSOut outVertex = GSOut[0];
+    GSOut outVertex = (GSOut)0;
 
-	float3 zAxis = normalize(eyePos - outVertex.centerPos);
+	float3 zAxis = normalize(cameraPos - outVertex.centerPos);
 	float3 xAxis = normalize(cross(float3(0,1,0), zAxis));
 	float3 yAxis = cross(zAxis, xAxis);
 

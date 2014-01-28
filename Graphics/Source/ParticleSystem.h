@@ -8,7 +8,7 @@
 #include "Buffer.h"
 #include "WrapperFactory.h"
 #include "VRAMInfo.h"
-#include "ParticleDefinition.h"
+#include "ParticleEffectDefinition.h"
 
 /*
 struct particlecBuffer 
