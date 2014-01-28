@@ -198,6 +198,8 @@
     <FxCompile Include="Source\DeferredShaders\ForwardShader.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="Source\DeferredShaders\ParticleSystem.hlsl" />
+    <FxCompile Include="Source\DeferredShaders\ParticleSystem.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

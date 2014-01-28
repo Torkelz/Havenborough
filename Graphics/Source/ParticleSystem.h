@@ -22,7 +22,7 @@ struct particlecBuffer
 	float				sizeX;
 	float				sizeY;
 };*/
-
+/*
 struct Particle
 {
 	DirectX::XMFLOAT4 Position; //pos from the syspos, in cm
@@ -45,7 +45,7 @@ struct Particle
 		lifeMax = p_LifeMax;
 	}
 };
-
+*/
 class ParticleSystem
 {
 private:

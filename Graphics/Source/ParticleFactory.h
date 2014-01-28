@@ -2,7 +2,8 @@
 
 #include "ParticleDefinition.h"
 #include "GraphicsExceptions.h"
-
+#include "VRAMInfo.h"
+#include "Buffer.h"
 
 #include <DirectXMath.h>
 #include <vector>
@@ -29,6 +30,8 @@ private:
 
 	loadParticleTextureCallBack m_LoadParticleTexture;
 	void *m_LoadParticleTextureUserdata;
+
+
 
 public:
 	
@@ -69,7 +72,8 @@ protected:
 	~ParticleFactory();
 
 private:
-	Buffer::Description createBufferDescription(const vector<particlecBuffer> &p_Element);
+	Buffer createParticleBuffer(unsigned int p_MaxParticles, DirectX::XMFLOAT4X4 *p_ViewMatrix, 
+		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, DirectX::XMFLOAT3 *p_CameraPos);
 
 	void loadTextures(ParticleDefinition &particle, const char *p_Filename, unsigned int p_NumOfMaterials, const vector<Material> &p_Materials);
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);

@@ -7,6 +7,29 @@
 #include <vector>
 #include <map>
 
+struct Particle
+{
+	DirectX::XMFLOAT4 Position; //pos from the syspos, in cm
+	DirectX::XMFLOAT4 Velocity;
+	DirectX::XMFLOAT4 color;
+	float sizeX;
+	float sizeY;
+	float life; //Life for a particle to live before taken away, in s
+	float lifeMax;
+
+	Particle(DirectX::XMFLOAT3 p_Position, DirectX::XMFLOAT3 p_Velocity, DirectX::XMFLOAT4 p_Color,
+		float p_SizeX, float p_SizeY, float p_Life, float p_LifeMax)
+	{
+		Position = DirectX::XMFLOAT4(p_Position.x, p_Position.y, p_Position.z, 1.0f);
+		Velocity = DirectX::XMFLOAT4(p_Velocity.x, p_Velocity.y, p_Velocity.z, 1.0f);
+		color = p_Color;
+		sizeX	= p_SizeX;
+		sizeY	= p_SizeY;
+		life	= p_Life;
+		lifeMax = p_LifeMax;
+	}
+};
+
 /**
  * Representation of the static data associated with a particle system.
  */
@@ -28,7 +51,7 @@ struct ParticleDefinition
 	Shader *shader;
 
 	/**
-	 * Matrial diffuse textures.
+	 * Material diffuse textures.
 	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> diffuseTexture;
 

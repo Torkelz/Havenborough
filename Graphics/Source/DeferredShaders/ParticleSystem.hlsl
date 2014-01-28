@@ -51,34 +51,6 @@ PSIn VS(VSIn input)
 	return output;
 }
 
-/*[maxvertexcount(4)]
-GSIn GS(point VSIn input[1], inout TriangleStream<GSOut> outputStream)
-{
-	float2 vertex0 = input[0].centerpos + mul(float4(float4(-1.0*sizeX, -1.0*sizeY)), world); // 0 ---lower left front
-	float2 vertex1 = input[0].centerpos + mul(float4(float4( 1.0*sizeX, -1.0*sizeY)), world); // 1 +-- LowerRightFront
-	float2 vertex2 = input[0].centerpos + mul(float4(float4(-1.0*sizeX,  1.0*sizeY)), world); // 2 -+- UpperLeftFront
-	float2 vertex3 = input[0].centerpos + mul(float4(float4( 1.0*sizeX,  1.0*sizeY)), world); // 3 ++- UpperRightFront
-	
-	GSOut outVertex = (GSOut)0;
-	outVertex.centerpos = vertex3;
-	outVertex.uvCoord = float2(0.0f, 1.0f);
-	p_outputStream.Append(outVertex);
-
-	outVertex.centerpos = vert1;
-	outVertex.uvCoord = float2(1.0f, 1.0f);
-	p_outputStream.Append(outVertex);
-
-	outVertex.centerpos = vert2;
-	outVertex.uvCoord = float2(0.0f, 0.0f);
-	p_outputStream.Append(outVertex);
-
-	outVertex.centerpos = vert0;
-	outVertex.uvCoord = float2(1.0f, 0.0f);
-	p_outputStream.Append(outVertex);
-
-	p_outputStream.RestartStrip();
-}*/
-
 [maxvertexcount(4)]
 GSOut GS(point VSIn input[1], inout TriangleStream<PSIn> triangleStream)
 {

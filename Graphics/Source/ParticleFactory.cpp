@@ -2,6 +2,17 @@
 
 #include <boost/filesystem.hpp>
 
+
+ParticleFactory::ParticleFactory()
+{
+
+}
+
+ParticleFactory::~ParticleFactory()
+{
+
+}
+
 ParticleFactory *ParticleFactory::m_Instance = nullptr;
 
 ParticleFactory *ParticleFactory::getInstance(void)
@@ -11,6 +22,7 @@ ParticleFactory *ParticleFactory::getInstance(void)
 
 	return m_Instance;
 }
+
 
 void ParticleFactory::initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList)
 {
@@ -36,26 +48,27 @@ void ParticleFactory::setLoadParticleTextureCallBack(loadParticleTextureCallBack
 	m_LoadParticleTextureUserdata = p_Userdata;
 }
 
-ParticleFactory::ParticleFactory()
+Buffer ParticleFactory::createParticleBuffer(unsigned int p_MaxParticles, DirectX::XMFLOAT4X4 *p_ViewMatrix, 
+										   DirectX::XMFLOAT4X4 *p_ProjectionMatrix, DirectX::XMFLOAT3 *p_CameraPos)
 {
+	Buffer *buffer;
 
-}
+	particlecBuffer pcb;
+	pcb.viewM = *p_ViewMatrix;
+	pcb.projM = *p_ProjectionMatrix;
+	pcb.cameraPos = *p_CameraPos;
 
-ParticleFactory::~ParticleFactory()
-{
-
-}
-
-Buffer::Description ParticleFactory::createBufferDescription(const vector<particlecBuffer> &p_Element)
-{
 	Buffer::Description cbDesc;
-	cbDesc.initData = p_Element.data();
+	cbDesc.initData = &pcb;
 	cbDesc.usage = Buffer::Usage::CPU_WRITE;
-	cbDesc.numOfElements = p_Element.size();
+	cbDesc.numOfElements = p_MaxParticles;
 	cbDesc.sizeOfElement = sizeof(particlecBuffer);
 	cbDesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
 
-	return cbDesc;
+	buffer = WrapperFactory::getInstance()->createBuffer(cbDesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(particlecBuffer));
+
+	return *buffer;
 }
 
 void ParticleFactory::loadTextures(ParticleDefinition &p_Particle, const char *p_Filename, unsigned int p_NumOfMaterials,  const vector<Material> &p_Materials)

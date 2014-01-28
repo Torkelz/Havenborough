@@ -3,41 +3,41 @@
 #include<fstream>
 #include<sstream>
 
-ParticleSystem::ParticleSystem()
-{
-	m_SysPosition			= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-	m_SysType				= nullptr;
+//ParticleSystem::ParticleSystem()
+//{
+//	m_SysPosition			= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+//	m_SysType				= nullptr;
+//
+//	m_SysName				= nullptr;
+//	m_TextureFilePath		= nullptr;
+//	m_TextureU				= 0.f;
+//	m_TextureV				= 0.f;
+//	m_ParticleMaxLife		= 0.f;
+//	m_MaxParticles			= 0;
+//	m_ParticlePositionDeviation		= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
+//	m_VelocityDeviation		= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
+//	m_ParticlesPerSecound	= 0.f;
+//	m_CurrentParticleCount	= 0.f;
+//	m_AccumulatedTime		= 0.f;
+//}
 
-	m_SysName				= nullptr;
-	m_TextureFilePath		= nullptr;
-	m_TextureU				= 0.f;
-	m_TextureV				= 0.f;
-	m_ParticleMaxLife		= 0.f;
-	m_MaxParticles			= 0;
-	m_ParticlePositionDeviation		= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	m_VelocityDeviation		= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	m_ParticlesPerSecound	= 0.f;
-	m_CurrentParticleCount	= 0.f;
-	m_AccumulatedTime		= 0.f;
-}
 
-
-ParticleSystem::~ParticleSystem()
-{
-	m_Device = nullptr;
-	m_DeviceContext = nullptr;
-
-	m_DepthStencilView = nullptr;
-	m_RenderTarget = nullptr;
-	SAFE_RELEASE(m_Sampler);
-	SAFE_RELEASE(m_RasterState);
-
-	m_CameraPosition = nullptr;
-	m_ViewMatrix = nullptr;
-	m_ProjectionMatrix = nullptr;
-
-	SAFE_DELETE(m_Buffer);
-}
+//ParticleSystem::~ParticleSystem()
+//{
+//	m_Device = nullptr;
+//	m_DeviceContext = nullptr;
+//
+//	m_DepthStencilView = nullptr;
+//	m_RenderTarget = nullptr;
+//	SAFE_RELEASE(m_Sampler);
+//	SAFE_RELEASE(m_RasterState);
+//
+//	m_CameraPosition = nullptr;
+//	m_ViewMatrix = nullptr;
+//	m_ProjectionMatrix = nullptr;
+//
+//	SAFE_DELETE(m_Buffer);
+//}
 
 void ParticleSystem::loadParticleSystemFromFile(const char* p_filename)
 {
@@ -45,23 +45,24 @@ void ParticleSystem::loadParticleSystemFromFile(const char* p_filename)
 	return;// false;
 }
 
-void ParticleSystem::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
-						  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
-						  DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11DepthStencilView* p_DepthStencilView,
-						  ID3D11RenderTargetView *p_RenderTarget)
-{
-	m_Device = p_Device;
-	m_DeviceContext = p_DeviceContext;
+//void ParticleSystem::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
+//						  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+//						  DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11DepthStencilView* p_DepthStencilView,
+//						  ID3D11RenderTargetView *p_RenderTarget)
+//{
+//	m_Device = p_Device;
+//	m_DeviceContext = p_DeviceContext;
+//
+//	m_DepthStencilView = p_DepthStencilView;
+//	m_RenderTarget = p_RenderTarget;
+//
+//	m_CameraPosition = p_CameraPosition;
+//	m_ViewMatrix = p_ViewMatrix;
+//	m_ProjectionMatrix = p_ProjectionMatrix;
+//
+//	createParticleBuffer();
+//}
 
-	m_DepthStencilView = p_DepthStencilView;
-	m_RenderTarget = p_RenderTarget;
-
-	m_CameraPosition = p_CameraPosition;
-	m_ViewMatrix = p_ViewMatrix;
-	m_ProjectionMatrix = p_ProjectionMatrix;
-
-	createParticleBuffer();
-}
 
 void ParticleSystem::createParticleBuffer()
 {
@@ -81,34 +82,35 @@ void ParticleSystem::createParticleBuffer()
 	VRAMInfo::getInstance()->updateUsage(sizeof(particlecBuffer));
 }
 
-void ParticleSystem::update(float p_DeltaTime)
+
+//void ParticleSystem::update(float p_DeltaTime) //particle instance
+//{
+//	killOldParticles();
+//
+//	emitNewParticles(p_DeltaTime);
+//
+//	updateParticles(p_DeltaTime);
+//
+//	updateBuffers();
+//}
+
+void ParticleSystem::emitNewParticles(float p_DeltaTime) //hlsl förutom update delen
 {
-	killOldParticles();
-
-	emitNewParticles(p_DeltaTime);
-
-	updateParticles(p_DeltaTime);
-
-	updateBuffers();
-}
-
-void ParticleSystem::emitNewParticles(float p_DeltaTime)
-{
-	bool emitParticle = false;
-	DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3();
-	DirectX::XMFLOAT3 tempVelocity = DirectX::XMFLOAT3();
-	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4();
+	//bool emitParticle = false;
+	//DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3();
+	//DirectX::XMFLOAT3 tempVelocity = DirectX::XMFLOAT3();
+	//DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4();
 	
 
 
-	m_AccumulatedTime += p_DeltaTime;
+	//m_AccumulatedTime += p_DeltaTime;
 
-	//check if new particles are to be emitted or not
-	if(m_AccumulatedTime > (1000.f/m_ParticlesPerSecound))
-	{
-		m_AccumulatedTime = 0.f;
-		emitParticle = true;
-	}
+	////check if new particles are to be emitted or not
+	//if(m_AccumulatedTime > (1000.f/m_ParticlesPerSecound)) //update i particle instance
+	//{
+	//	m_AccumulatedTime = 0.f;
+	//	emitParticle = true;
+	//}
 
 	if((emitParticle) && (m_CurrentParticleCount < (m_MaxParticles -1)))
 	{
@@ -137,48 +139,45 @@ void ParticleSystem::emitNewParticles(float p_DeltaTime)
 		//Add the new particle to the others in the same system
 		m_ParticlesToSys.push_back(tempParticle);
 	}
-
-
-
 }
 
-static bool isDying(Particle& p_Particle)
-{
-	return p_Particle.life >= p_Particle.lifeMax;
-}
-
-void ParticleSystem::killOldParticles()
-{
-	//Will go thou the list of particles in the system and remove any particle that are to old
-
-	auto removeIt = std::remove_if(m_ParticlesToSys.begin(),m_ParticlesToSys.end(), isDying);
-	m_ParticlesToSys.erase(removeIt, m_ParticlesToSys.end());
-
-}
-
-void ParticleSystem::updateParticles(float p_DeltaTime)
-{
-	//Update the position of every particle in the system by its velocity and based on the delta time
-	for(auto& part : m_ParticlesToSys)
-	{
-		part.Position = DirectX::XMFLOAT4(((part.Position.x + part.Velocity.x) * p_DeltaTime),
-										  ((part.Position.y + part.Velocity.y) * p_DeltaTime),
-										  ((part.Position.z + part.Velocity.z) * p_DeltaTime),
-										  part.Position.w);
-		part.life += p_DeltaTime;
-	}
-}
-
-void ParticleSystem::updateBuffers()
-{
-	particlecBuffer pcb;
-	pcb.viewM = *m_ViewMatrix;
-	pcb.projM = *m_ProjectionMatrix;
-	pcb.cameraPos = *m_CameraPosition;
-	m_DeviceContext->UpdateSubresource(m_Buffer->getBufferPointer(),NULL,NULL, &pcb, NULL,NULL);
-}
-
-void ParticleSystem::render()
-{
-
-}
+//static bool isDying(Particle& p_Particle) //instance
+//{
+//	return p_Particle.life >= p_Particle.lifeMax;
+//}
+//
+//void ParticleSystem::killOldParticles() //instance
+//{
+//	//Will go thou the list of particles in the system and remove any particle that are to old
+//
+//	auto removeIt = std::remove_if(m_ParticlesToSys.begin(),m_ParticlesToSys.end(), isDying);
+//	m_ParticlesToSys.erase(removeIt, m_ParticlesToSys.end());
+//
+//}
+//
+//void ParticleSystem::updateParticles(float p_DeltaTime) //instance
+//{
+//	//Update the position of every particle in the system by its velocity and based on the delta time
+//	for(auto& part : m_ParticlesToSys)
+//	{
+//		part.Position = DirectX::XMFLOAT4(((part.Position.x + part.Velocity.x) * p_DeltaTime),
+//										  ((part.Position.y + part.Velocity.y) * p_DeltaTime),
+//										  ((part.Position.z + part.Velocity.z) * p_DeltaTime),
+//										  part.Position.w);
+//		part.life += p_DeltaTime;
+//	}
+//}
+//
+//void ParticleSystem::updateBuffers() //instance
+//{
+//	particlecBuffer pcb;
+//	pcb.viewM = *m_ViewMatrix;
+//	pcb.projM = *m_ProjectionMatrix;
+//	pcb.cameraPos = *m_CameraPosition;
+//	m_DeviceContext->UpdateSubresource(m_Buffer->getBufferPointer(),NULL,NULL, &pcb, NULL,NULL);
+//}
+//
+//void ParticleSystem::render() //instance
+//{
+//
+//}
