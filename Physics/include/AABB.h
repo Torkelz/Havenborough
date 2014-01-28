@@ -122,9 +122,9 @@ public:
 	/**
 	* @return the sphere that surround the AABB
 	*/
-	Sphere*	getSphere()
+	Sphere	getSphere() const 
 	{
-		return &m_Sphere;
+		return m_Sphere;
 	}
 	/**
 	 * Return a corner at the index specified.

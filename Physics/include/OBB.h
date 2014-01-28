@@ -91,7 +91,7 @@ public:
 	* Gets the normalized local axes of the OBB
 	* @return m_Axes the OBB Axes.
 	*/
-	DirectX::XMFLOAT4X4 getAxes()
+	const DirectX::XMFLOAT4X4 getAxes()
 	{
 		return m_Axes;
 	}
@@ -100,7 +100,7 @@ public:
 	* Get the half lengths(extents) of the OBB
 	* @return m_Extents, the extents of the OBB in m
 	*/
-	DirectX::XMFLOAT4 getExtents()
+	const DirectX::XMFLOAT4 getExtents()
 	{
 		return m_Extents;
 	}

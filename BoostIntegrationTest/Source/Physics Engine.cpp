@@ -391,13 +391,54 @@ BOOST_AUTO_TEST_CASE(BVLoaderIntegration)
 	BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.x, 1.f, 0.001f);
 	BOOST_CHECK_SMALL(hd.colNorm.y, 0.0001f);
 	BOOST_CHECK_SMALL(hd.colNorm.z, 0.0001f);
-
-
-	BOOST_MESSAGE("");
 }
 #pragma endregion
 
 #pragma region // ## Step 4 ## //
+BOOST_AUTO_TEST_CASE(IPhysicsIntegration)
+{
+	BOOST_MESSAGE(testId + "Testing physics interface");
+	IPhysics * physics;
+	physics = IPhysics::createPhysics();
+	physics->initialize();
+	BOOST_MESSAGE(testId + "Physics engine initialized");
+	BOOST_MESSAGE(testId + "Using physics engine to create bodies with different boudning volumes");
+	BodyHandle aabb = physics->createAABB(40.f, true, Vector3(0.f, 0.f, 0.f), Vector3(100.f, 100.f, 100.f), false);
+	BodyHandle obb = physics->createOBB(40.f, true, Vector3(0.f, 0.f, 0.f), Vector3(100.f, 100.f, 100.f), false);
+	BodyHandle sphere = physics->createSphere(40.f, false, Vector3(0.f, 0.f, 0.f), 100.f);
+	BOOST_MESSAGE(testId + "Using physics engine to load bounding volume from file");
+	BOOST_CHECK(!physics->createBV("Gun Battle","../Source/gun_battle.mp3"));
+	BOOST_CHECK(physics->createBV("Barrel1","../Source/CB_Barrel1.txc"));
+	BodyHandle hull = physics->createBVInstance("Barrel1");
+	BOOST_MESSAGE(testId + "Using physics engine to manipulate the created bodies");
+	physics->setBodyPosition(hull, Vector3(0.f, 1000.f, 0.f));
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(hull).x, 0.f);
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(hull).y, 1000.f);
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(hull).z, 0.f);
+	physics->setBodyPosition(aabb, Vector3(1000.f, 0.f, 0.f));
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(obb).x, 1000.f);
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(obb).y, 0.f);
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(obb).z, 0.f);
+	physics->setBodyPosition(obb, Vector3(0.f, 0.f, 1000.f));
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(aabb).x, 0.f);
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(aabb).y, 0.f);
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(aabb).z, 1000.f);
+	physics->setBodyPosition(sphere, Vector3(-1000.f, 0.f, 0.f));
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(sphere).x, -1000.f);
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(sphere).y, 0.f);
+	BOOST_CHECK_EQUAL(physics->getBodyPosition(sphere).z, 0.f);
 
+	physics->setBodyRotation(obb, Vector3(3.14f/4.f, 0.f, 3.14f/4.f));
+	physics->setBodyRotation(hull, Vector3(3.14f/4.f, 0.f, 0.f));
+
+	physics->setBodyScale(hull, Vector3(2.f, 2.f, 2.f));
+	Vector3 s = physics->getBodySize(hull);
+
+	physics->releaseAllBoundingVolumes();
+	IPhysics::deletePhysics(physics);
+	physics = nullptr;
+	BOOST_CHECK(physics == nullptr);
+	BOOST_MESSAGE("");
+}
 #pragma endregion
 BOOST_AUTO_TEST_SUITE_END()

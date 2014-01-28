@@ -11,7 +11,7 @@ class Hull : public BoundingVolume
 private:
 	Sphere m_Sphere; //Sphere surrounding the hull
 	std::vector<Triangle> m_Triangles; //Triangles that make up the hull
-
+	DirectX::XMFLOAT4	m_Scale;
 
 public:
 	/**
@@ -27,7 +27,7 @@ public:
 		m_Triangles = p_Triangles;
 		m_Type = Type::HULL;
 		float radius = findFarthestDistanceOnTriangle();
-
+		m_Scale = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f);
 		m_Sphere = Sphere( radius, m_Position );
 	}
 
@@ -153,7 +153,7 @@ public:
 	{
 		DirectX::XMVECTOR c1, c2, c3;
 		DirectX::XMMATRIX m = DirectX::XMMatrixScalingFromVector(p_Scale);
-
+		DirectX::XMStoreFloat4(&m_Scale, p_Scale);
 		for(auto &tri : m_Triangles)
 		{
 			c1 = Vector4ToXMVECTOR(&tri.corners[0]);
@@ -207,7 +207,7 @@ public:
 	 * Gets the number of triangles in the hull
 	 * @return size of the triangle list
 	 */
-	unsigned int getTriangleListSize()
+	const unsigned int getTriangleListSize()
 	{
 		return m_Triangles.size();
 	}
@@ -220,6 +220,15 @@ public:
 	{
 		return m_Triangles[p_Index];
 	}
+	/**
+	 * Gets the current scale of the Hull based on it's orginial scale, the default value of scale is XMFLOAT4(1.f, 1.f, 1.f, 0.f).
+	 * @return the hulls current scale.
+	 */
+	const DirectX::XMFLOAT4 getScale()
+	{
+		return m_Scale;
+	}
+
 	/**
 	 * Return a triangle from the hull in world coordinates.
 	 * 

@@ -11,11 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Client\Source\EventManager.cpp" />
-    <ClCompile Include="..\Client\Source\Logger.cpp" />
-    <ClCompile Include="..\Client\Source\ResourceManager.cpp" />
-    <ClCompile Include="..\Client\Source\ResourceTranslator.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Common\Source\EventManager.cpp" />
+    <ClCompile Include="..\Common\Source\Logger.cpp" />
+    <ClCompile Include="..\Common\Source\ResourceManager.cpp" />
+    <ClCompile Include="..\Common\Source\ResourceTranslator.cpp" />
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
@@ -144,7 +144,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(SolutionDir)Sound\include;$(SolutionDir)Common\Source;$(SolutionDir)Common\3rd party</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
@@ -168,7 +168,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(SolutionDir)Sound\include;$(SolutionDir)Common\Source;$(SolutionDir)Common\3rd party</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>

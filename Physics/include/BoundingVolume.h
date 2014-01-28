@@ -69,7 +69,7 @@ public:
 	 * Return the bounding volume type tied to the TYPE enum.
 	 * @return type of the bounding volume.
 	 */
-	Type getType()
+	BoundingVolume::Type getType()
 	{
 		return m_Type;
 	}

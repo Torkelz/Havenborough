@@ -106,6 +106,11 @@ inline Vector3 XMFLOAT3ToVector3(const DirectX::XMFLOAT3 *p_vector)
 	return Vector3(p_vector->x, p_vector->y, p_vector->z);
 };
 
+inline Vector3 XMFLOAT4ToVector3(const DirectX::XMFLOAT4 *p_vector)
+{
+	return Vector3(p_vector->x, p_vector->y, p_vector->z);
+};
+
 inline Vector4 XMFLOAT4ToVector4(const DirectX::XMFLOAT4 *p_vector)
 {
 	return Vector4(p_vector->x, p_vector->y, p_vector->z, p_vector->w);
