@@ -1,6 +1,6 @@
 #include "FileGameRound.h"
 
-#include <Logger.h>+
+#include <Logger.h>
 #include <fstream>
 #include <sstream>
 
@@ -25,27 +25,19 @@ void FileGameRound::setFilePath(std::string p_Filepath)
 void FileGameRound::sendLevel()
 {
 	std::vector<std::string> descriptions;
-	std::vector<const char*> cDescriptions;
 	std::vector<ObjectInstance> instances;
 
-	for (const auto& player : m_Players)
+	for (const auto& actor : m_Actors)
 	{
-		Actor::ptr actor = player.getActor().lock();
-		if (actor)
+		std::ostringstream descStream;
+		actor->serialize(descStream);
+		descriptions.push_back(descStream.str());
+		ObjectInstance inst = 
 		{
-			descriptions.push_back(m_ActorFactory->getPlayerActorDescription(actor->getPosition()));
-			cDescriptions.push_back(descriptions.back().c_str());
-
-			ObjectInstance inst =
-			{
-				actor->getPosition(),
-				actor->getRotation(),
-				descriptions.size() - 1,
-				actor->getId()
-			};
-
-			instances.push_back(inst);
-		}
+			descriptions.back().c_str(),
+			actor->getId()
+		};
+		instances.push_back(inst);
 	}
 
 	tinyxml2::XMLPrinter printer;
@@ -63,12 +55,9 @@ void FileGameRound::sendLevel()
 	printer.CloseElement();
 
 	descriptions.push_back(printer.CStr());
-	cDescriptions.push_back(descriptions.back().c_str());
 	ObjectInstance lightData =
 	{
-		Vector3(0.f, 0.f, 0.f),
-		Vector3(0.f, 0.f, 0.f),
-		descriptions.size() - 1,
+		descriptions.back().c_str(),
 		0
 	};
 	instances.push_back(lightData);
@@ -81,7 +70,7 @@ void FileGameRound::sendLevel()
 			Actor::ptr actor = player.getActor().lock();
 			if(actor)
 			{
-				user->getConnection()->sendCreateObjects(cDescriptions.data(), cDescriptions.size(), instances.data(), instances.size());
+				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
 				std::string stream = m_FileLoader.getDataStream();
 				user->getConnection()->sendLevelData(stream.c_str(), stream.size());
 				user->getConnection()->sendAssignPlayer(actor->getId());
