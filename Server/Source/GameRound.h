@@ -45,6 +45,10 @@ protected:
 
 public:
 	/**
+	 * constructor.
+	 */
+	GameRound();
+	/**
 	 * destructor.
 	 */
 	virtual ~GameRound();

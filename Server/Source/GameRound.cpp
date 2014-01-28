@@ -6,6 +6,14 @@
 
 #include <algorithm>
 
+GameRound::GameRound()
+	:	m_ParentList(nullptr),
+		m_ReturnLobby(nullptr),
+		m_Running(false),
+		m_Physics(nullptr)
+{
+}
+
 GameRound::~GameRound()
 {
 	m_Running = false;
@@ -15,6 +23,14 @@ GameRound::~GameRound()
 	{
 		m_RunThread.detach();
 	}
+
+	m_Actors.clear();
+
+	if (m_Physics)
+	{
+		IPhysics::deletePhysics(m_Physics);
+	}
+	m_Physics = nullptr;
 }
 
 void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobby)
