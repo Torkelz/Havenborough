@@ -23,14 +23,14 @@ BOOST_AUTO_TEST_SUITE(OrientedBoundingBox)
 		obb.updatePosition(mtrans);
 		obb.updatePosition(mtrans);
 
-		BOOST_CHECK_EQUAL(obb.getPosition()->x, -6.f);
-		BOOST_CHECK_EQUAL(obb.getPosition()->y, 2.f);
-		BOOST_CHECK_EQUAL(obb.getPosition()->z, 4.f);
+		BOOST_CHECK_EQUAL(obb.getPosition().x, -6.f);
+		BOOST_CHECK_EQUAL(obb.getPosition().y, 2.f);
+		BOOST_CHECK_EQUAL(obb.getPosition().z, 4.f);
 
 		obb.updatePosition(mtrans);
-		BOOST_CHECK_EQUAL(obb.getPosition()->x, -9.f);
-		BOOST_CHECK_EQUAL(obb.getPosition()->y, 3.f);
-		BOOST_CHECK_EQUAL(obb.getPosition()->z, 6.f);
+		BOOST_CHECK_EQUAL(obb.getPosition().x, -9.f);
+		BOOST_CHECK_EQUAL(obb.getPosition().y, 3.f);
+		BOOST_CHECK_EQUAL(obb.getPosition().z, 6.f);
 	}
 
 

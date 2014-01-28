@@ -2,7 +2,7 @@
 
 using namespace DirectX;
 
-HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume &p_Volume1, BoundingVolume &p_Volume2)
+HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume const &p_Volume1, BoundingVolume const &p_Volume2)
 {
 	BoundingVolume::Type type = p_Volume2.getType();
 
@@ -22,7 +22,7 @@ HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume &p_Volume1, Bou
 	}
 }
 
-HitData Collision::boundingVolumeVsSphere(BoundingVolume &p_Volume, Sphere &p_Sphere)
+HitData Collision::boundingVolumeVsSphere(BoundingVolume const &p_Volume, Sphere const &p_Sphere)
 {
 	BoundingVolume::Type type = p_Volume.getType();
 
@@ -42,7 +42,7 @@ HitData Collision::boundingVolumeVsSphere(BoundingVolume &p_Volume, Sphere &p_Sp
 	}
 }
 
-HitData Collision::boundingVolumeVsAABB(BoundingVolume &p_Volume, AABB &p_AABB)
+HitData Collision::boundingVolumeVsAABB(BoundingVolume const &p_Volume, AABB const &p_AABB)
 {
 	BoundingVolume::Type type = p_Volume.getType();
 	switch(type)
@@ -59,7 +59,7 @@ HitData Collision::boundingVolumeVsAABB(BoundingVolume &p_Volume, AABB &p_AABB)
 	}
 }
 
-HitData Collision::boundingVolumeVsOBB(BoundingVolume &p_Volume, OBB &p_OBB)
+HitData Collision::boundingVolumeVsOBB(BoundingVolume const &p_Volume, OBB const &p_OBB)
 {
 	BoundingVolume::Type type = p_Volume.getType();
 	switch(type)
@@ -76,7 +76,7 @@ HitData Collision::boundingVolumeVsOBB(BoundingVolume &p_Volume, OBB &p_OBB)
 	}
 }
 
-HitData Collision::boundingVolumeVsHull(BoundingVolume &p_Volume, Hull &p_Hull)
+HitData Collision::boundingVolumeVsHull(BoundingVolume const &p_Volume, Hull const &p_Hull)
 {
 	BoundingVolume::Type type = p_Volume.getType();
 	switch(type)
@@ -89,13 +89,13 @@ HitData Collision::boundingVolumeVsHull(BoundingVolume &p_Volume, Hull &p_Hull)
 	}
 }
 
-HitData Collision::sphereVsSphere(Sphere &p_Sphere1, Sphere &p_Sphere2 )
+HitData Collision::sphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Sphere2 )
 {
 	HitData hit = HitData();
 
     XMVECTOR CDiff, vPos;	// m
-	CDiff = XMLoadFloat4(p_Sphere2.getPosition());
-	vPos = XMLoadFloat4(p_Sphere1.getPosition());
+	CDiff = XMLoadFloat4(&p_Sphere2.getPosition());
+	vPos = XMLoadFloat4(&p_Sphere1.getPosition());
 	CDiff = CDiff - vPos;
 	
 	float c = XMVector3LengthSq(CDiff).m128_f32[0];	// m^2
@@ -109,7 +109,7 @@ HitData Collision::sphereVsSphere(Sphere &p_Sphere1, Sphere &p_Sphere2 )
 
 		XMFLOAT4 position;	// m
 		
-		XMVECTOR normalized = XMVector4Normalize( XMLoadFloat4(p_Sphere1.getPosition()) - XMLoadFloat4(p_Sphere2.getPosition()));
+		XMVECTOR normalized = XMVector4Normalize( XMLoadFloat4(&p_Sphere1.getPosition()) - XMLoadFloat4(&p_Sphere2.getPosition()));
 		XMVECTOR hitPos = normalized  * p_Sphere2.getRadius();	// m
 
 		hit.colPos = XMVECTORToVector4(&hitPos) * 100.f;
@@ -127,7 +127,7 @@ HitData Collision::sphereVsSphere(Sphere &p_Sphere1, Sphere &p_Sphere2 )
 	return hit;
 }
 
-HitData Collision::AABBvsAABB(AABB &p_AABB1, AABB &p_AABB2 )
+HitData Collision::AABBvsAABB(AABB const &p_AABB1, AABB const &p_AABB2 )
 {	
 	HitData hit = sphereVsSphere(p_AABB1.getSphere(), p_AABB2.getSphere());
 	if(!hit.intersect)
@@ -153,7 +153,7 @@ HitData Collision::AABBvsAABB(AABB &p_AABB1, AABB &p_AABB2 )
 	return hit;
 }
 
-HitData Collision::AABBvsSphere(AABB &p_AABB, Sphere &p_Sphere)
+HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 {
 	HitData hit = sphereVsSphere(p_AABB.getSphere(), p_Sphere); 
 	if(!hit.intersect)
@@ -169,7 +169,7 @@ HitData Collision::AABBvsSphere(AABB &p_AABB, Sphere &p_Sphere)
 	//find the square of the distance
 	//from the sphere to the box
 
-	XMFLOAT4* spherePos = p_Sphere.getPosition();	// m
+	XMFLOAT4 spherePos = p_Sphere.getPosition();	// m
 	XMFLOAT3 dist = XMFLOAT3(.0f, .0f, .0f);	// m
 
 	//XMFLOAT4* aabbPos = p_AABB.getPosition();
@@ -183,48 +183,48 @@ HitData Collision::AABBvsSphere(AABB &p_AABB, Sphere &p_Sphere)
 	XMFLOAT4 bMax;	// m
 	XMStoreFloat4( &bMax, XMLoadFloat4(&p_AABB.getMax()));
 	// x
-	if( spherePos->x <= bMin.x )
+	if( spherePos.x <= bMin.x )
 	{
 		dist.x = bMin.x;
 	}
-	else if( spherePos->x > bMax.x )
+	else if( spherePos.x > bMax.x )
 	{
 		dist.x = bMax.x;
 	}
 	else
-		dist.x = spherePos->x;
+		dist.x = spherePos.x;
 
-	s = spherePos->x - dist.x;
+	s = spherePos.x - dist.x;
 	d += s*s;
 
 	// y
-	if( spherePos->y <= bMin.y )
+	if( spherePos.y <= bMin.y )
 	{
 		dist.y = bMin.y;
 	}
-	else if( spherePos->y > bMax.y )
+	else if( spherePos.y > bMax.y )
 	{
 		dist.y = bMax.y;
 	}
 	else
-		dist.y = spherePos->y;
+		dist.y = spherePos.y;
 
-	s = spherePos->y - dist.y;
+	s = spherePos.y - dist.y;
 	d += s*s;
 
 	// z
-	if( spherePos->z <= bMin.z )
+	if( spherePos.z <= bMin.z )
 	{
 		dist.z = bMin.z;
 	}
-	else if( spherePos->z > bMax.z )
+	else if( spherePos.z > bMax.z )
 	{
 		dist.z = bMax.z;
 	}
 	else
-		dist.z = spherePos->z;
+		dist.z = spherePos.z;
 
-	s = spherePos->z - dist.z;
+	s = spherePos.z - dist.z;
 	d += s*s;
 
 	if(d <= p_Sphere.getSqrRadius())
@@ -236,7 +236,7 @@ HitData Collision::AABBvsSphere(AABB &p_AABB, Sphere &p_Sphere)
 		hit.colPos.w = 1.f;
 
 		XMFLOAT4 colPos(dist.x, dist.y, dist.z, 1.f);
-		XMVECTOR tempNorm = XMVector4Normalize( XMLoadFloat4(p_Sphere.getPosition()) - XMLoadFloat4(&colPos));
+		XMVECTOR tempNorm = XMVector4Normalize( XMLoadFloat4(&p_Sphere.getPosition()) - XMLoadFloat4(&colPos));
 
 
 
@@ -249,7 +249,7 @@ HitData Collision::AABBvsSphere(AABB &p_AABB, Sphere &p_Sphere)
 	return hit;
 }
 
-HitData Collision::OBBvsOBB(OBB &p_OBB1, OBB &p_OBB2)
+HitData Collision::OBBvsOBB(OBB const &p_OBB1, OBB const &p_OBB2)
 {
 	HitData hit = sphereVsSphere(p_OBB1.getSphere(), p_OBB2.getSphere());
 	if(!hit.intersect)
@@ -258,7 +258,7 @@ HitData Collision::OBBvsOBB(OBB &p_OBB1, OBB &p_OBB2)
 	return seperatingAxisTest(p_OBB1, p_OBB2);
 }
 
-HitData Collision::OBBvsSphere(OBB &p_OBB, Sphere &p_Sphere)
+HitData Collision::OBBvsSphere(OBB const &p_OBB, Sphere const &p_Sphere)
 {
 	HitData hit = sphereVsSphere(p_OBB.getSphere(), p_Sphere);
 	if(!hit.intersect)
@@ -269,7 +269,7 @@ HitData Collision::OBBvsSphere(OBB &p_OBB, Sphere &p_Sphere)
 	XMFLOAT4 dist;	// m
 	
 
-	XMVECTOR sphereCent = XMLoadFloat4(p_Sphere.getPosition());	// m
+	XMVECTOR sphereCent = XMLoadFloat4(&p_Sphere.getPosition());	// m
 	
 	XMVECTOR closestPoint = p_OBB.findClosestPt(sphereCent);	// m
 
@@ -284,13 +284,13 @@ HitData Collision::OBBvsSphere(OBB &p_OBB, Sphere &p_Sphere)
 		hit.colPos.z = XMVectorGetZ(closestPoint) * 100.f;
 		hit.colPos.w = 1.f;
 
-		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere.getPosition()) - closestPoint);
+		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(&p_Sphere.getPosition()) - closestPoint);
 		float l = XMVectorGetX(XMVector4Length(tempNorm));
 		if(l > XMVectorGetX(g_XMEpsilon))
 			hit.colNorm = XMVECTORToVector4(&tempNorm);
 		else
 		{
-			XMVECTOR n = sphereCent - XMLoadFloat4(p_OBB.getPosition());
+			XMVECTOR n = sphereCent - XMLoadFloat4(&p_OBB.getPosition());
 			n = XMVectorSetW(n, 0.f);
 			hit.colNorm = XMVECTORToVector4(&XMVector4Normalize(n));
 		}
@@ -303,7 +303,7 @@ HitData Collision::OBBvsSphere(OBB &p_OBB, Sphere &p_Sphere)
 	return hit;
 }
 
-HitData Collision::OBBvsAABB(OBB &p_OBB, AABB &p_AABB)
+HitData Collision::OBBvsAABB(OBB const &p_OBB, AABB const &p_AABB)
 {
 	HitData hit = sphereVsSphere(p_OBB.getSphere(), p_AABB.getSphere());
 	if(!hit.intersect)
@@ -312,7 +312,7 @@ HitData Collision::OBBvsAABB(OBB &p_OBB, AABB &p_AABB)
 	return seperatingAxisTest(p_OBB, p_AABB);
 }
 
-HitData Collision::HullVsSphere(Hull &p_Hull, Sphere &p_Sphere)
+HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 {
 	HitData hit = sphereVsSphere(p_Hull.getSphere(), p_Sphere);
 	if(!hit.intersect)
@@ -322,13 +322,13 @@ HitData Collision::HullVsSphere(Hull &p_Hull, Sphere &p_Sphere)
 
 	XMVECTOR closestPoint, v, spherePos, point;
 
-	spherePos = XMLoadFloat4(p_Sphere.getPosition());
+	spherePos = XMLoadFloat4(&p_Sphere.getPosition());
 
 	float distance = FLT_MAX;
 
 	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
 	{
-		point = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(*p_Sphere.getPosition(), i));
+		point = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(p_Sphere.getPosition(), i));
 
 		v = point - spherePos;
 
@@ -352,13 +352,13 @@ HitData Collision::HullVsSphere(Hull &p_Hull, Sphere &p_Sphere)
 		hit.colPos.z = XMVectorGetZ(closestPoint) * 100.f;
 		hit.colPos.w = 1.f;
 
-		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(p_Sphere.getPosition()) - closestPoint);
+		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(&p_Sphere.getPosition()) - closestPoint);
 		float l = XMVectorGetX(XMVector4Length(tempNorm));
 		if(l > XMVectorGetX(g_XMEpsilon))
 			hit.colNorm = XMVECTORToVector4(&tempNorm);
 		else
 		{
-			XMVECTOR n = spherePos - XMLoadFloat4(p_Hull.getPosition());
+			XMVECTOR n = spherePos - XMLoadFloat4(&p_Hull.getPosition());
 			n = XMVectorSetW(n, 0.f);
 			hit.colNorm = XMVECTORToVector4(&XMVector4Normalize(n));
 		}
@@ -371,7 +371,7 @@ HitData Collision::HullVsSphere(Hull &p_Hull, Sphere &p_Sphere)
 	return hit;
 }
 
-HitData Collision::seperatingAxisTest(OBB &p_OBB, BoundingVolume &p_vol)
+HitData Collision::seperatingAxisTest(OBB const &p_OBB, BoundingVolume const &p_vol)
 {
 	HitData miss = HitData();
 	float r, ra, rb, overlap = FLT_MAX;
@@ -380,22 +380,22 @@ HitData Collision::seperatingAxisTest(OBB &p_OBB, BoundingVolume &p_vol)
 	XMVECTOR b_Center, b_Extents; // m
 	XMMATRIX b_Axes;
 	XMVECTOR least;
-	const XMVECTOR a_Center = XMLoadFloat4(p_OBB.getPosition());
+	const XMVECTOR a_Center = XMLoadFloat4(&p_OBB.getPosition());
 	const XMMATRIX a_Axes = XMLoadFloat4x4(&p_OBB.getAxes());
 	const XMVECTOR a_Extents = XMLoadFloat4(&p_OBB.getExtents()); 
 
 
 	if(p_vol.getType() == BoundingVolume::Type::OBB)
 	{
-		b_Center = XMLoadFloat4(((OBB&)p_vol).getPosition());
+		b_Center = XMLoadFloat4(&((OBB&)p_vol).getPosition());
 		b_Axes = XMLoadFloat4x4(&((OBB&)p_vol).getAxes());
 		b_Extents = XMLoadFloat4(&((OBB&)p_vol).getExtents());
 	}
 	else
 	{
-		b_Center = XMLoadFloat4(((AABB&)p_vol).getPosition());
+		b_Center = XMLoadFloat4(&((AABB&)p_vol).getPosition());
 		b_Axes = XMMatrixIdentity();
-		b_Extents = XMLoadFloat4(((AABB&)p_vol).getHalfDiagonal());
+		b_Extents = XMLoadFloat4(&((AABB&)p_vol).getHalfDiagonal());
 	}
 	//Compute rotation matrix expressing b in a's coordinate frame
 	for (int i = 0; i < 3; i++)

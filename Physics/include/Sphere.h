@@ -65,7 +65,7 @@ public:
 	* Get the radius of the sphere.
 	* @return the radius of the sphere in m
 	*/
-	float getRadius()
+	float getRadius() const
 	{
 		return m_Radius;
 	}
@@ -73,7 +73,7 @@ public:
 	* Get the squared radius of the sphere.
 	* @return the radius squared in m^2
 	*/
-	float getSqrRadius()
+	float getSqrRadius() const
 	{
 		return m_SqrRadius;
 	}

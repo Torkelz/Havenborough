@@ -62,25 +62,22 @@ void GameLogic::onFrame(float p_DeltaTime)
 		for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
-			if(hit.intersect)
+			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
+				m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 			{
-				if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
-					m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
-				{
-					m_Physics->removeHitDataAt(i);
-				}
-				if(!m_CheckpointSystem.reachedFinishLine() && m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
-				{
-					m_CheckpointSystem.changeCheckpoint(m_Objects);
-					if(m_CheckpointSystem.reachedFinishLine())
-					{
-						m_Player.setPosition(m_Level.getStartPosition());
-						m_ChangeScene = GoToScene::POSTGAME;
-					}
-					m_Physics->removeHitDataAt(i);
-				}
-				Logger::log(Logger::Level::TRACE, "Collision reported");
+				m_Physics->removeHitDataAt(i);
 			}
+			if(!m_CheckpointSystem.reachedFinishLine() && m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+			{
+				m_CheckpointSystem.changeCheckpoint(m_Objects);
+				if(m_CheckpointSystem.reachedFinishLine())
+				{
+					m_Player.setPosition(m_Level.getStartPosition());
+					m_ChangeScene = GoToScene::POSTGAME;
+				}
+				m_Physics->removeHitDataAt(i);
+			}
+			Logger::log(Logger::Level::TRACE, "Collision reported");
 		}
 	}
 

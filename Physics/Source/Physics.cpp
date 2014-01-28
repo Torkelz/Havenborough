@@ -384,7 +384,7 @@ Vector3 Physics::getBodySize(BodyHandle p_Body)
 	switch (body->getVolume()->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
-		temp = XMFLOAT4ToVector3(((AABB*)body->getVolume())->getHalfDiagonal());
+		temp = XMFLOAT4ToVector3(&((AABB*)body->getVolume())->getHalfDiagonal());
 		break;
 	case BoundingVolume::Type::SPHERE:
 		r = ((Sphere*)body->getVolume())->getRadius();

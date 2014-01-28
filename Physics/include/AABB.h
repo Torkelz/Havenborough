@@ -10,7 +10,6 @@ private:
 	DirectX::XMFLOAT4	m_Bottom;
 	DirectX::XMFLOAT4	m_Top;
 	DirectX::XMFLOAT4	m_Bounds[8];
-	std::vector<int>	m_Indices;
 	Sphere				m_Sphere;
 	DirectX::XMFLOAT4	m_HalfDiagonal;
 	DirectX::XMFLOAT4	m_Size;
@@ -21,7 +20,7 @@ public:
 	 * @param p_CenterPos the position in world space in m
 	 * @param p_Size the halfsize of the box in m
 	 */
-	AABB( DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
+	AABB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
 	{
 		m_Position = p_CenterPos;
 		m_Size.x = p_Size.x;
@@ -38,7 +37,6 @@ public:
 	*/
 	~AABB()
 	{
-		m_Indices.clear();
 	}
 	
 	/**
@@ -101,23 +99,23 @@ public:
 	/**
 	* @return the top corner in world coordinates m
 	*/
-	DirectX::XMFLOAT4 getMax()
+	DirectX::XMFLOAT4 getMax() const 
 	{
 		return getBoundWorldCoordAt(7);
 	}
 	/**
 	* @return the bottom corner in world coordinates m
 	*/
-	DirectX::XMFLOAT4 getMin()
+	DirectX::XMFLOAT4 getMin() const
 	{
 		return getBoundWorldCoordAt(0);
 	}
 	/**
 	* @return a vector from center to top corner m
 	*/
-	DirectX::XMFLOAT4* getHalfDiagonal()
+	DirectX::XMFLOAT4 getHalfDiagonal() const
 	{
-		return &m_HalfDiagonal;
+		return m_HalfDiagonal;
 	}
 	/**
 	* @return the sphere that surround the AABB
@@ -132,7 +130,7 @@ public:
 	 * @param p_Index index number in m_Bounds list
 	 * @return a XMFLOAT4 corner.
 	 */
-	DirectX::XMFLOAT4 getBoundAt(unsigned p_Index)
+	DirectX::XMFLOAT4 getBoundAt(unsigned p_Index) const
 	{
 		return m_Bounds[p_Index];
 	}
@@ -142,7 +140,7 @@ public:
 	 * @param p_Index index number in m_Bounds list
 	 * @return a XMFLOAT4 corner.
 	 */
-	DirectX::XMFLOAT4 getBoundWorldCoordAt(unsigned p_Index)
+	DirectX::XMFLOAT4 getBoundWorldCoordAt(unsigned p_Index) const
 	{
 		return DirectX::XMFLOAT4(m_Bounds[p_Index].x + m_Position.x,m_Bounds[p_Index].y + m_Position.y, m_Bounds[p_Index].z + m_Position.z, 1.f);
 	}
