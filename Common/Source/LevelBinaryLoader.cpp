@@ -19,7 +19,7 @@ LevelBinaryLoader::~LevelBinaryLoader()
 	m_LevelSpotLightList.shrink_to_fit();
 }
 
-bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
+void LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 {
 	m_Input.open(p_FilePath, std::istream::in | std::istream::binary);
 	if(!m_Input)
@@ -28,8 +28,6 @@ bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 	}	
 
 	readStreamData(&m_Input);
-
-	return true;
 }
 
 void LevelBinaryLoader::readStreamData(std::istream* p_Input)

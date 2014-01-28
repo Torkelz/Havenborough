@@ -86,7 +86,7 @@ public:
 	 * @param p_FilePath is the complete path to the source file.
 	 * @return bool success = true | fail = false
 	 */
-	bool loadBinaryFile(std::string p_FilePath);
+	void loadBinaryFile(std::string p_FilePath);
 
 	/**
 	 * Reads information from a stringstream and converts it to vectors of information.
