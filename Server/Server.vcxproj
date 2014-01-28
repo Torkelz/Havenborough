@@ -15,7 +15,6 @@
     <ClCompile Include="Source\GameList.cpp" />
     <ClCompile Include="Source\GameRound.cpp" />
     <ClCompile Include="Source\GameRoundFactory.cpp" />
-    <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\TestGameRound.cpp" />
     <ClCompile Include="Source\Lobby.cpp" />
     <ClCompile Include="Source\Player.cpp" />
@@ -39,7 +38,6 @@
     <ClInclude Include="Source\GameList.h" />
     <ClInclude Include="Source\GameRound.h" />
     <ClInclude Include="Source\GameRoundFactory.h" />
-    <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\TestGameRound.h" />
     <ClInclude Include="Source\Lobby.h" />
     <ClInclude Include="Source\Player.h" />

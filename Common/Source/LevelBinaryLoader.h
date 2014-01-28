@@ -61,6 +61,8 @@ private:
 	DirectX::XMFLOAT3 m_LevelCheckPointStart;
 	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
 	Header m_Header;
+
+	std::ifstream m_Input;
 public:
 	/**
 	 * Constructor.
@@ -141,6 +143,13 @@ public:
 	 * @return a vector of CheckPoint struct. 
 	 */
 	const std::vector<LevelBinaryLoader::CheckPointStruct>& getCheckPointData() const;
+
+	/**
+	 * Get the stream information about the file.
+	 *
+	 * @return a const char pointer with binary information, dont forget to get the size of the stream.
+	 */
+	std::string getDataStream();
 
 protected:
 	void byteToInt(std::istream* p_Input, int& p_Return);

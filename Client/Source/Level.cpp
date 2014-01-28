@@ -50,12 +50,13 @@ void Level::releaseLevel()
 
 bool Level::loadLevel(std::istream* p_LevelData, std::istream* p_CollisionData, std::vector<Actor::ptr>& p_ActorOut)
 {
-	m_LevelLoader.readStreamData(p_LevelData);	
+	LevelBinaryLoader levelLoader;
+	levelLoader.readStreamData(p_LevelData);	
 
-	m_LevelData = m_LevelLoader.getModelData();
+	m_LevelData = levelLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelData.size(); i++)
 	{
-		LevelStreamReader::ModelData& model = m_LevelData.at(i);
+		LevelBinaryLoader::ModelData& model = m_LevelData.at(i);
 		std::string meshName = model.m_MeshName;
 
 		for(unsigned int j = 0; j < m_LevelData.at(i).m_Translation.size(); j++)
@@ -71,11 +72,12 @@ bool Level::loadLevel(std::istream* p_LevelData, std::istream* p_CollisionData, 
 	p_LevelData->seekg(0);
 
 	// This will be implemented at a later stage when physics has what it takes!
-	m_CollisionLoader.readStreamData(p_CollisionData);
-	m_LevelCollisionData = m_CollisionLoader.getModelData();
+	LevelBinaryLoader collisionLoader;
+	collisionLoader.readStreamData(p_CollisionData);
+	m_LevelCollisionData = collisionLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
 	{
-		LevelStreamReader::ModelData& collisionData = m_LevelCollisionData.at(i);
+		LevelBinaryLoader::ModelData& collisionData = m_LevelCollisionData.at(i);
 		std::string meshName = collisionData.m_MeshName;
 		
 		for(unsigned int j = 0; j < collisionData.m_Translation.size(); j++)

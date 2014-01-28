@@ -240,13 +240,10 @@
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
-    <ClCompile Include="..\Server\Source\LevelBinaryLoader.cpp">
-      <Filter>TestLoaders\Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\CheckpointSystem.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\LevelStreamReader.cpp">
+    <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
   </ItemGroup>

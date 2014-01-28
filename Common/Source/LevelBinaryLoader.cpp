@@ -19,15 +19,13 @@ LevelBinaryLoader::~LevelBinaryLoader()
 
 bool LevelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 {
-	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
-	if(!input)
+	m_Input.open(p_FilePath, std::istream::in | std::istream::binary);
+	if(!m_Input)
 	{
 		return false;
 	}	
 
-	readStreamData(&input);
-
-	input.close();
+	readStreamData(&m_Input);
 
 	return true;
 }
@@ -152,6 +150,17 @@ const std::vector<LevelBinaryLoader::CheckPointStruct>& LevelBinaryLoader::getCh
 	return m_LevelCheckPointList;
 }
 
+std::string LevelBinaryLoader::getDataStream() 
+{
+	m_Input.seekg(0);
+	std::streamsize size = m_Input.gcount();
+	std::vector<char> buffer((unsigned int)size);
+	m_Input.read(buffer.data(), size);
+	std::string stream(buffer.begin(), buffer.end());
+	m_Input.seekg(0);
+	return stream;
+}
+
 void LevelBinaryLoader::byteToString(std::istream* p_Input, std::string& p_Return)
 {
 	int strLength = 0;
@@ -173,4 +182,5 @@ void LevelBinaryLoader::clear()
 	m_LevelDirectionalLightList.clear();
 	m_LevelPointLightList.clear();
 	m_LevelSpotLightList.clear();
+	m_Input.close();
 }

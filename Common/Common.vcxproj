@@ -21,6 +21,7 @@
     <ClInclude Include="Source\EventManager.h" />
     <ClInclude Include="Source\IEventData.h" />
     <ClInclude Include="Source\IEventManager.h" />
+    <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\LightStructs.h" />
     <ClInclude Include="Source\Logger.h" />
     <ClInclude Include="Source\ResourceManager.h" />
@@ -35,6 +36,7 @@
     <ClCompile Include="Source\Actor.cpp" />
     <ClCompile Include="Source\ActorFactory.cpp" />
     <ClCompile Include="Source\EventManager.cpp" />
+    <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\Logger.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\ResourceTranslator.cpp" />

@@ -15,7 +15,6 @@
     <ClCompile Include="Source\GameLogic.cpp" />
     <ClCompile Include="Source\Level.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
-    <ClCompile Include="Source\LevelStreamReader.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\RAMInfo.cpp" />
     <ClCompile Include="Source\BaseGameApp.cpp" />
@@ -55,7 +54,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\LevelStreamReader.h" />
     <ClInclude Include="Source\CheckpointSystem.h" />
     <ClInclude Include="Source\RAMInfo.h" />
     <ClInclude Include="Source\GameLogic.h" />

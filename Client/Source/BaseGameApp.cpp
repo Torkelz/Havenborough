@@ -71,6 +71,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping(VK_SPACE, "jump");
 	translator->addKeyboardMapping('C', "connectToServer");
 	translator->addKeyboardMapping('T', "joinTestLevel");
+	translator->addKeyboardMapping('Y', "joinServerLevel");
 	translator->addKeyboardMapping('J', "playLocalTest");
 
 	//translator->addKeyboardMapping('J', "changeSceneP");

@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "../../../Server/Source/LevelBinaryLoader.h"
+#include "../../../Common/Source/LevelBinaryLoader.h"
 BOOST_AUTO_TEST_SUITE(TestBinaryLevelLoader)
 
 class testLevelLoader : public LevelBinaryLoader
