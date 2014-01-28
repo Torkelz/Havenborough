@@ -8,7 +8,7 @@ void FileGameRound::setup()
 {
 	for (size_t i = 0; i < m_Players.size(); ++i)
 	{
-		Vector3 position(500.f - i * 200.f, 50 + 400.f, 600.f);
+		Vector3 position(500.f - i * 200.f, 50 + 400.f, 500.f);
 
 		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
 		m_Players[i].setActor(actor);

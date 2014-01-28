@@ -48,7 +48,7 @@ void Level::releaseLevel()
 	m_Resources = nullptr;
 }
 
-bool Level::loadLevel(std::istream* p_LevelData, std::istream* p_CollisionData, std::vector<Actor::ptr>& p_ActorOut)
+bool Level::loadLevel(std::istream& p_LevelData, std::istream& p_CollisionData, std::vector<Actor::ptr>& p_ActorOut)
 {
 	LevelBinaryLoader levelLoader;
 	levelLoader.readStreamData(p_LevelData);	
@@ -69,7 +69,7 @@ bool Level::loadLevel(std::istream* p_LevelData, std::istream* p_CollisionData, 
 		}
 	}
 	
-	p_LevelData->seekg(0);
+	p_LevelData.seekg(0);
 
 	// This will be implemented at a later stage when physics has what it takes!
 	LevelBinaryLoader collisionLoader;
@@ -90,7 +90,7 @@ bool Level::loadLevel(std::istream* p_LevelData, std::istream* p_CollisionData, 
 		}
 	}
 
-	p_CollisionData->seekg(0);
+	p_CollisionData.seekg(0);
 
 	return true;
 }

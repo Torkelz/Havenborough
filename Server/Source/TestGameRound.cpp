@@ -75,6 +75,7 @@ void TestGameRound::sendLevel()
 			if (actor)
 			{
 				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
+				user->getConnection()->sendLevelData("", 0);
 				user->getConnection()->sendAssignPlayer(actor->getId());
 			}
 		}

@@ -93,7 +93,7 @@ public:
 	 * 
 	 * @param p_Input, input is a istream of compressed information.
 	 */
-	void readStreamData(std::istream* p_Input);
+	void readStreamData(std::istream& p_Input);
 
 	/**
 	 * Returns information about the models in the level.
@@ -152,13 +152,13 @@ public:
 	std::string getDataStream();
 
 protected:
-	void byteToInt(std::istream* p_Input, int& p_Return);
-	void byteToString(std::istream* p_Input, std::string& p_Return);
+	void byteToInt(std::istream& p_Input, int& p_Return);
+	void byteToString(std::istream& p_Input, std::string& p_Return);
 	
-	LevelBinaryLoader::Header readHeader(std::istream* p_Input);
-	std::vector<LevelBinaryLoader::ModelData> readLevel(std::istream* p_Input);
-	void readLevelLighting(std::istream* p_Input);
-	void readLevelCheckPoint(std::istream* p_Input);
+	LevelBinaryLoader::Header readHeader(std::istream& p_Input);
+	std::vector<LevelBinaryLoader::ModelData> readLevel(std::istream& p_Input);
+	void readLevelLighting(std::istream& p_Input);
+	void readLevelCheckPoint(std::istream& p_Input);
 
 private:
 	void clearData();
