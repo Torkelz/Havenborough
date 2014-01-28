@@ -14,6 +14,10 @@ public:
 	void setFilePath(std::string p_FilePath);
 
 private:
-	void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, const Vector3& p_Vec);
 	void sendLevel() override;
+	void updateLogic(float p_DeltaTime) override;
+	void sendUpdates() override;
+	void playerDisconnected(Player& p_DisconnectedPlayer);
+
+	UpdateObjectData getUpdateData(const Player& p_Player);
 };

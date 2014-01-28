@@ -22,5 +22,4 @@ private:
 	
 	UpdateObjectData getUpdateData(const Actor::ptr p_Box);
 	UpdateObjectData getUpdateData(const Player& p_Player);
-	void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, const Vector3& p_Vec);
 };

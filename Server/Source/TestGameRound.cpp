@@ -2,6 +2,7 @@
 
 #include <Components.h>
 #include <Logger.h>
+#include <XMLHelper.h>
 
 #include <algorithm>
 #include <sstream>
@@ -191,13 +192,4 @@ UpdateObjectData TestGameRound::getUpdateData(const Player& p_Player)
 	};
 
 	return data;
-}
-
-void TestGameRound::pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, const Vector3& p_Vec)
-{
-	p_Printer.OpenElement(p_ElementName.c_str());
-	p_Printer.PushAttribute("x", p_Vec.x);
-	p_Printer.PushAttribute("y", p_Vec.y);
-	p_Printer.PushAttribute("z", p_Vec.z);
-	p_Printer.CloseElement();
 }

@@ -1,6 +1,9 @@
 #include "FileGameRound.h"
 
+#include <Components.h>
 #include <Logger.h>
+#include <XMLHelper.h>
+
 #include <fstream>
 #include <sstream>
 
@@ -79,11 +82,80 @@ void FileGameRound::sendLevel()
 	}
 }
 
-void FileGameRound::pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, const Vector3& p_Vec)
+void FileGameRound::updateLogic(float p_DeltaTime)
 {
-	p_Printer.OpenElement(p_ElementName.c_str());
-	p_Printer.PushAttribute("x", p_Vec.x);
-	p_Printer.PushAttribute("y", p_Vec.y);
-	p_Printer.PushAttribute("z", p_Vec.z);
-	p_Printer.CloseElement();
+	for (auto& actor : m_Actors)
+	{
+		actor->onUpdate(p_DeltaTime);
+	}
+}
+
+void FileGameRound::sendUpdates()
+{
+	std::vector<UpdateObjectData> data;
+
+	for (auto& player : m_Players)
+	{
+		data.push_back(getUpdateData(player));
+	}
+
+	for (auto& player : m_Players)
+	{
+		User::ptr user = player.getUser().lock();
+		if (user)
+		{
+			user->getConnection()->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
+		}
+	}
+}
+
+void FileGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
+{
+	Actor::ptr actor = p_DisconnectedPlayer.getActor().lock();
+	if (!actor)
+	{
+		return;
+	}
+
+	uint16_t playerActorId = actor->getId();
+
+	for (auto& player : m_Players)
+	{
+		User::ptr user = player.getUser().lock();
+		if (user)
+		{
+			user->getConnection()->sendRemoveObjects(&playerActorId, 1);
+		}
+	}
+}
+
+UpdateObjectData FileGameRound::getUpdateData(const Player& p_Player)
+{
+	Actor::ptr actor = p_Player.getActor().lock();
+	
+	if (!actor)
+	{
+		throw CommonException("Player missing actor", __LINE__, __FILE__);
+	}
+
+	std::shared_ptr<MovementInterface> movement = actor->getComponent<MovementInterface>(MovementInterface::m_ComponentId).lock();
+
+	Vector3 velocity(0.f, 0.f, 0.f);
+	Vector3 rotVelocity(0.f, 0.f, 0.f);
+	if (movement)
+	{
+		velocity = movement->getVelocity();
+		rotVelocity = movement->getRotationalVelocity();
+	}
+
+	UpdateObjectData data =
+	{
+		actor->getPosition(),
+		velocity,
+		actor->getRotation(),
+		rotVelocity,
+		actor->getId()
+	};
+
+	return data;
 }
