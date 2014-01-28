@@ -105,7 +105,8 @@ void GameLogic::onFrame(float p_DeltaTime)
 	{
 		PlayerControlData data;
 		data.m_Rotation = actualViewRot;
-		data.m_Velocity = m_Player.getPosition();
+		data.m_Position = m_Player.getPosition();
+		data.m_Velocity = m_Player.getVelocity();
 		data.m_Rotation.x += 3.1415f;
 		data.m_Rotation.y = 0.f;
 

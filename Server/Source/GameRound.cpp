@@ -249,12 +249,12 @@ void GameRound::handlePackages()
 					Actor::ptr actor = player.getActor().lock();
 					if (actor)
 					{
-						actor->setPosition(playerControlData.m_Velocity);
+						actor->setPosition(playerControlData.m_Position);
 						actor->setRotation(playerControlData.m_Rotation);
 						std::shared_ptr<PhysicsInterface> physInt = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
 						if (physInt)
 						{
-							m_Physics->setBodyVelocity(physInt->getBodyHandle(), Vector3(0.f, 0.f, 0.f));
+							m_Physics->setBodyVelocity(physInt->getBodyHandle(), playerControlData.m_Velocity);
 						}
 					}
 				}

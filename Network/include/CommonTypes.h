@@ -52,6 +52,7 @@ struct UpdateObjectData
 
 struct PlayerControlData
 {
+	Vector3 m_Position;
 	Vector3 m_Velocity;
 	Vector3 m_Rotation;
 };
