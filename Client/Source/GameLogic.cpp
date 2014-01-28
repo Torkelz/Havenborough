@@ -75,8 +75,20 @@ void GameLogic::onFrame(float p_DeltaTime)
 					m_CheckpointSystem.changeCheckpoint(m_Objects);
 					if(m_CheckpointSystem.reachedFinishLine())
 					{
-						m_Player.setPosition(m_Level.getStartPosition());
-						m_ChangeScene = GoToScene::POSTGAME;
+						m_Level = Level();
+						m_Objects.clear();
+						m_CheckpointSystem = CheckpointSystem();
+
+						m_InGame = false;
+
+						IConnectionController* con = m_Network->getConnectionToServer();
+
+						if (!m_PlayingLocal && con && con->isConnected())
+						{
+							con->sendLeaveGame();
+						}
+
+						m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
 					}
 					m_Physics->removeHitDataAt(i);
 				}
@@ -279,7 +291,7 @@ void GameLogic::leaveGame()
 			con->sendLeaveGame();
 		}
 		
-		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData));
+		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(true)));
 	}
 }
 
@@ -630,7 +642,10 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 		}
 	}
 
-	updateIK();
+	if (m_InGame)
+	{
+		updateIK();
+	}
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName)

@@ -556,11 +556,13 @@ public:
 class GameLeftEventData : public BaseEventData
 {
 private:
+	bool m_GoBack;
 
 public:
 	static const Type sk_EventType = Type(0x846ef45b);
 
-	GameLeftEventData()
+	explicit GameLeftEventData(bool p_GoBack)
+		:	m_GoBack(p_GoBack)
 	{
 	}
 
@@ -571,7 +573,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new GameLeftEventData);
+		return Ptr(new GameLeftEventData(m_GoBack));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -581,6 +583,11 @@ public:
 	virtual const char *getName(void) const override
 	{
 		return "GameLeftEvent";
+	}
+
+	bool getGoBack() const
+	{
+		return m_GoBack;
 	}
 };
 

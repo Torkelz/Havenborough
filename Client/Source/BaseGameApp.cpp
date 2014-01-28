@@ -330,7 +330,16 @@ void BaseGameApp::startGame(IEventData::Ptr p_Data)
 
 void BaseGameApp::gameLeft(IEventData::Ptr p_Data)
 {
-	m_SceneManager.startMenu();
+	std::shared_ptr<GameLeftEventData> data = std::static_pointer_cast<GameLeftEventData>(p_Data);
+
+	if (data->getGoBack())
+	{
+		m_SceneManager.startMenu();
+	}
+	else
+	{
+		m_SceneManager.gotoPostGame();
+	}
 }
 
 void BaseGameApp::quitGame(IEventData::Ptr p_Data)
