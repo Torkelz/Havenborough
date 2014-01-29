@@ -6,7 +6,7 @@
 #include "../../Graphics/Source/Shader.h"
 #include "../../Graphics/Source/VRAMInfo.h"
 #include "../../Client/Source/Window.h"
-#include "../../Client/Source/ResourceManager.h"
+#include "../../Common/Source/ResourceManager.h"
 
 #if _DEBUG
 #include <vld.h> 

@@ -91,12 +91,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\BVLoader.cpp" />
-    <ClCompile Include="Source\AABB.cpp" />
     <ClCompile Include="Source\Body.cpp" />
     <ClCompile Include="Source\Collision.cpp" />
     <ClCompile Include="Source\PhysicsLogger.cpp" />
     <ClCompile Include="Source\Physics.cpp" />
-    <ClCompile Include="Source\Sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Hull.h" />

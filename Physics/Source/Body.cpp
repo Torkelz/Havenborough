@@ -18,7 +18,7 @@ Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool 
 	  m_Volume(std::move(p_BoundingVolume)), m_CollisionResponse(true)
 {
 	m_Mass = p_mass;	
-	m_Position			= *m_Volume->getPosition();
+	m_Position			= m_Volume->getPosition();
 	m_NetForce			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Velocity			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Acceleration		= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -73,7 +73,6 @@ Body& Body::operator=(Body&& p_Other)
 
 Body::~Body()
 {
-
 }
 
 void Body::addForce(XMFLOAT4 p_Force)

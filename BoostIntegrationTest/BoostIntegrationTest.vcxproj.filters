@@ -49,9 +49,6 @@
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\Logger.cpp">
-      <Filter>Client\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\Joint.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
@@ -70,14 +67,35 @@
     <ClCompile Include="..\Sound\Source\Sound.cpp">
       <Filter>Sound\SoundInclude</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\EventManager.cpp">
-      <Filter>Sound\SoundInclude</Filter>
-    </ClCompile>
     <ClCompile Include="Source\testProgram.cpp" />
-    <ClCompile Include="..\Client\Source\ResourceManager.cpp">
+    <ClCompile Include="..\Physics\Source\Body.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\BVLoader.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\Collision.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\Physics.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Physics Engine.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\EventManager.cpp">
       <Filter>Client\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\ResourceTranslator.cpp">
+    <ClCompile Include="..\Common\Source\Logger.cpp">
+      <Filter>Client\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\ResourceManager.cpp">
+      <Filter>Client\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\ResourceTranslator.cpp">
       <Filter>Client\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>
@@ -93,6 +111,12 @@
     </Filter>
     <Filter Include="Client\ClientImport">
       <UniqueIdentifier>{626962ff-a4ea-404f-897f-44f282574004}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{52fd29d9-bda6-479a-9365-577e634f7dba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Physics Import">
+      <UniqueIdentifier>{34115e45-de7b-4d84-802d-c166b82b9553}</UniqueIdentifier>
     </Filter>
     <Filter Include="Sound">
       <UniqueIdentifier>{f282d834-7cf2-4265-a93e-2b55849fdbd3}</UniqueIdentifier>
@@ -117,5 +141,25 @@
     <FxCompile Include="..\Graphics\Source\DeferredShaders\AnimatedGeometryPass.hlsl">
       <Filter>Graphics\GraphicsInclude</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Physics\include\BoundingVolume.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\Source\Collision.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\Hull.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\OBB.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\PhysicsTypes.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\Sphere.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,3 +1,10 @@
+
+
+/* 
+ * The tests fail because the hardcoded hinge axis in the IK methods has changed.
+ * Uncomment and retest this code when the hardcode is removed.
+ */
+
 //#include <boost/test/unit_test.hpp>
 //#include "../../Graphics/Source/ModelInstance.h"
 //

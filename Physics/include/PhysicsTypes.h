@@ -55,6 +55,8 @@ struct Triangle
 		corners[1] = corners[1] * p_Size;
 		corners[2] = corners[2] * p_Size;
 	}
+
+	~Triangle(){};
 };
 
 struct HitData
