@@ -44,7 +44,7 @@ int main(int /*argc*/, char* /*argv*/[])
 		game.shutdown();
 		logFile.close();
 #ifdef _DEBUG
-		return EXIT_FAILURE;
+		throw;
 #else
 		return EXIT_FAILURE;
 #endif
