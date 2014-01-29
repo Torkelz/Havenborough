@@ -448,6 +448,7 @@ void GameScene::loadSandboxModels()
 		"MarketStand1",
 		"Barrel1",
 		"Crate1",
+		"Grass1",
 		"House3",
 		"House2",
 		"MarketStand2",

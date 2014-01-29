@@ -91,6 +91,8 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 	m_CheckpointSystem.addCheckpoint(checkActor);
 	p_ActorOut.push_back(checkActor);
 
+
+
 	return true;
 }
 
