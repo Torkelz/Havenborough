@@ -32,7 +32,7 @@ public:
 	 */
 	virtual void initialize(void) = 0;
 	/**
-	 * Initialize Sound and FMOD.
+	 * Updates the FMOD system, shoudl be valled every frame.
 	 */
 	virtual void onFrame(void) = 0;
 	/**
@@ -43,7 +43,7 @@ public:
 	 */
 	virtual bool loadSound(const char *p_SoundId, const char *p_Filename) = 0;
 	/**
-	 * Stream a sound from file
+	 * Stream a sound from file, NOT IMPLEMENTED!
 	 * @param p_SoundId resource name connected to the sound to load.
 	 * @param p_Filename filename of the sound file.
 	 * @param true if the load is successful otherwise false
