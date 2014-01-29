@@ -129,5 +129,7 @@ private:
 
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static HitData seperatingAxisTest(OBB const &p_OBB, BoundingVolume const &p_vol);
+
+	static bool checkR(float p0, float p1, float p2, float R);
 };
 

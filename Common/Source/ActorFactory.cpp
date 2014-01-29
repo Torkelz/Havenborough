@@ -296,7 +296,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	//printer.PushAttribute("Radius", 50.f);
 	//printer.PushAttribute("Mass", 68.f);
 	//pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
-	//printer.CloseElement();
+	printer.CloseElement();
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
 	printer.PushAttribute("Strength", 0.5f);
