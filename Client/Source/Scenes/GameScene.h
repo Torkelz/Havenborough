@@ -72,6 +72,8 @@ private:
 	void updateModelRotation(IEventData::Ptr p_Data);
 	void updateModelScale(IEventData::Ptr p_Data);
 	void playAnimation(IEventData::Ptr p_Data);
+	void queueAnimation(IEventData::Ptr p_Data);
+	void changeAnimationWeight(IEventData::Ptr p_Data);
 	void addReachIK(IEventData::Ptr p_Data);
 	void removeReachIK(IEventData::Ptr p_Data);
 	void changeColorTone(IEventData::Ptr p_Data);

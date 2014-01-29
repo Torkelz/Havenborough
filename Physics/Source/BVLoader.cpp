@@ -20,9 +20,14 @@ void BVLoader::clear()
 bool BVLoader::loadBinaryFile(std::string p_FilePath)
 {
 	clearData();
+
+	//Pick out file extension
+	std::string type = p_FilePath.substr( p_FilePath.length() - 3, 3);
+
+
 	//std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
 	std::ifstream input(p_FilePath, std::istream::in);
-	if(!input)
+	if(!input || type != "txc")
 	{
 		return false;
 	}
