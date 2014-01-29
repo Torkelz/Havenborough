@@ -49,9 +49,6 @@
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\Logger.cpp">
-      <Filter>Client\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\Joint.cpp">
       <Filter>Graphics\GraphicsInclude</Filter>
     </ClCompile>
@@ -70,15 +67,18 @@
     <ClCompile Include="..\Sound\Source\Sound.cpp">
       <Filter>Sound\SoundInclude</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\EventManager.cpp">
-      <Filter>Sound\SoundInclude</Filter>
-    </ClCompile>
     <ClCompile Include="Source\testProgram.cpp" />
-    <ClCompile Include="..\Client\Source\ResourceManager.cpp">
-      <Filter>Client\ClientImport</Filter>
+    <ClCompile Include="..\Common\Source\EventManager.cpp">
+      <Filter>CommonInclude</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\ResourceTranslator.cpp">
-      <Filter>Client\ClientImport</Filter>
+    <ClCompile Include="..\Common\Source\Logger.cpp">
+      <Filter>CommonInclude</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\ResourceManager.cpp">
+      <Filter>CommonInclude</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\ResourceTranslator.cpp">
+      <Filter>CommonInclude</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +99,9 @@
     </Filter>
     <Filter Include="Sound\SoundInclude">
       <UniqueIdentifier>{e7a0c4be-cd38-4852-8cfd-e0e1ebec1b17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CommonInclude">
+      <UniqueIdentifier>{8db99be3-9c36-459d-b5cc-40f2db51b878}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

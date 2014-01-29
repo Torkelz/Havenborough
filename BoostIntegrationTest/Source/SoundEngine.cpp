@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include "ISound.h"
 #include "../../Sound/Source/Sound.h"
-#include "../../Client/Source/EventManager.h"
+#include "../../Common/Source/EventManager.h"
 
 #if _DEBUG
 #include <vld.h> 
