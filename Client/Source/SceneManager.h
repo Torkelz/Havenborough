@@ -75,6 +75,11 @@ public:
 	* Switching to menu scene list.
 	*/
 	void startMenu();
+
+	/**
+	 * FIX ME PLEASE! ALL OF ME!
+	 */
+	void gotoPostGame();
 	
 	/*########## TEST FUNCTIONS ##########*/
 

@@ -5,14 +5,46 @@
 #include <cstdint>
 
 #include "ShaderDefinitions.h"
-#include "../../Client/Utilities/Util.h"
+#include <Utilities/Util.h>
 
 
 class IGraphics
 {
 public:
+	/**
+	* Unique ID for a model instance.
+	*/
 	typedef int InstanceId;
+		
+	/**
+	 * Callback for loading a texture to a model.
+	 *
+	 * @param p_ResourceName the resource name of the texture
+	 * @param p_FilePath path to where the texture is located
+	 * @param p_UserData user defined data
+	 */
+	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
 
+	/**
+	 * Callback for releasing a texture to a model.
+	 *
+	 * @param p_ResourceName the resource name of the texture
+	 * @param p_UserData user defined data
+	 */
+	typedef void (*releaseModelTextureCallBack)(const char *p_ResourceName, void *p_Userdata);
+
+	/**
+	 * Callback for logging.
+	 *
+	 * @param p_Level log priority level. Higher is more important.
+	 * @param p_Message the log message.
+	 */
+	typedef void (*clientLogCallback_t)(uint32_t p_Level, const char* p_Message);
+
+public:
+	/**
+	* Destructor.
+	*/
 	virtual ~IGraphics(void)
 	{}
 
@@ -201,7 +233,14 @@ public:
 	/**
 	 * Draw the current frame.
 	 */
-	virtual void drawFrame() = 0;
+	virtual void drawFrame(void) = 0;
+
+	/**
+	 * Enable or disable if a model should be rendered with transparency or not, using forward shader.
+	 * @param p_ModelId the model's ID to be set transparency on/off
+	 * @param p_State the state if transparency should be enabled or not, true = transparency, false = no transparency
+	 */
+	virtual void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) = 0;
 
 	/**
 	 * Update the animations of all models.
@@ -216,7 +255,7 @@ public:
 	 * @param p_Instance the model that should change animation data.
 	 * @param p_ClipName the new animation clip to be played next time update animation is invoked.
 	 */
-	virtual void playAnimation(int p_Instance, const char* p_ClipName, bool p_Override) = 0;
+	virtual void playAnimation(InstanceId p_Instance, const char* p_ClipName, bool p_Override) = 0;
 
 	/**
 	 * Queue animation.
@@ -224,7 +263,7 @@ public:
 	 * @param p_Instance the model that should change animation data.
 	 * @param p_ClipName the new animation clip to be queued.
 	 */
-	virtual void queueAnimation(int p_Instance, const char* p_ClipName) = 0;
+	virtual void queueAnimation(InstanceId p_Instance, const char* p_ClipName) = 0;
 
 	/**
 	 * Change weight of an animation track pair.
@@ -233,7 +272,7 @@ public:
 	 * @param p_Track has the be 0, 2 or 4.
 	 * @param p_Weight a percentual number between 0.0f and 1.0f.
 	 */
-	virtual void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) = 0;
+	virtual void changeAnimationWeight(InstanceId p_Instance, int p_Track, float p_Weight) = 0;
 
 	/**
 	 * Gets the amount of VRAM usage of the program.
@@ -267,9 +306,7 @@ public:
 	 * Set the position of an model instance in absolute world coordinates.
 	 *
 	 * @param p_Instance an identifier to a model instance.
-	 * @param p_X position in X direction.
-	 * @param p_Y position in Y direction.
-	 * @param p_Z position in Z direction.
+	 * @param p_Position the new position in the world from origin in cm's
 	 */
 	virtual void setModelPosition(InstanceId p_Instance, Vector3 p_Position) = 0;
 
@@ -277,9 +314,7 @@ public:
 	 * Set the rotation of an model instance in radians.
 	 *
 	 * @param p_Instance an identifier to a model instance.
-	 * @param p_Yaw rotation around the Y axis, left-handed.
-	 * @param p_Pitch rotation around the X axis, left-handed.
-	 * @param p_Roll rotation around the Z axis, left-handed.
+	 * @param p_YawPitchRoll rotation around the YXZ axises, left-handed.
 	 */
 	virtual void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) = 0;
 
@@ -287,11 +322,17 @@ public:
 	 * Set the scale of an model instance.
 	 *
 	 * @param p_Instance an identifier to a model instance.
-	 * @param p_X scale in X direction.
-	 * @param p_Y scale in Y direction.
-	 * @param p_Z scale in Z direction.
+	 * @param p_Scale the model scale, Vector3(1.0f, 1.0f, 1.0f) equals no scale 
 	 */
 	virtual void setModelScale(InstanceId p_Instance, Vector3 p_Scale) = 0;
+
+	/**
+	 * Set the scale of an model instance.
+	 *
+	 * @param p_Instance an identifier to a model instance.
+	 * @param p_ColorTone the color tone to shade the model in, RGB range 0.0f to 1.0f
+	 */
+	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
 	/**
 	 * Updates the model to reach for a point in world space.
@@ -302,7 +343,8 @@ public:
 	 * @param p_BaseJoint the name of the base "shoulder" joint.
 	 * @param p_Target the target position in world space.
 	 */
-	virtual void applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target) = 0;
+	virtual void applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint,
+		const char* p_BaseJoint, Vector3 p_Target) = 0;
 
 	/**
 	 * Get the position of a single joint from a model instance.
@@ -334,15 +376,6 @@ public:
 	virtual void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) = 0;
 	
 	/**
-	 * Callback for loading a texture to a model.
-	 *
-	 * @param p_ResourceName the resource name of the texture
-	 * @param p_FilePath path to where the texture is located
-	 * @param p_UserData user defined data
-	 */
-	typedef void (*loadModelTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
-	
-	/**
 	 * Set the function to load a texture to a model.
 	 *
 	 * @param p_LoadModelTexture the function to be called whenever a texture is to be loaded.
@@ -351,28 +384,12 @@ public:
 	virtual void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata) = 0;
 
 	/**
-	 * Callback for releasing a texture to a model.
-	 *
-	 * @param p_ResourceName the resource name of the texture
-	 * @param p_UserData user defined data
-	 */
-	typedef void (*releaseModelTextureCallBack)(const char *p_ResourceName, void *p_Userdata);
-	
-	/**
 	 * Set the function to release a texture to a model.
 	 *
 	 * @param p_LoadModelTexture the function to be called whenever a texture is to be released.
 	 * @param p_UserData user defined data
 	 */
 	virtual void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata) = 0;
-
-	/**
-	 * Callback for logging.
-	 *
-	 * @param p_Level log priority level. Higher is more important.
-	 * @param p_Message the log message.
-	 */
-	typedef void (*clientLogCallback_t)(uint32_t p_Level, const char* p_Message);
 
 	/**
 	 * Set the function to handle log messages.
@@ -384,9 +401,6 @@ public:
 
 	/**
 	 * Change the render target.
-	 *
-	 * Nag André about what the number means.
-	 *
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(int p_RenderTarget) = 0;

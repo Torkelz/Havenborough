@@ -1,7 +1,7 @@
 #include "Lobby.h"
 
 #include "Server.h"
-#include "../../Client/Source/Logger.h"
+#include <Logger.h>
 
 #include <algorithm>
 
@@ -13,6 +13,8 @@ Lobby::Lobby(Server* p_Server)
 
 void Lobby::checkFreeUsers(float p_DeltaTime)
 {
+	std::lock_guard<std::mutex> lock(m_UserLock);
+
 	handlePackages();
 
 	auto removeIt = std::remove_if(m_FreeUsers.begin(), m_FreeUsers.end(),
@@ -57,6 +59,7 @@ void Lobby::addFreeUser(User::wPtr p_User)
 	{
 		user->setState(User::State::LOBBY);
 
+		std::lock_guard<std::mutex> lock(m_UserLock);
 		m_FreeUsers.push_back(p_User);
 	}
 }

@@ -20,6 +20,7 @@ bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, Resource
 {
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
+	m_EventManager = p_EventManager;
 	
 	return true;
 }
@@ -84,7 +85,7 @@ void PostGameScene::registeredInput(std::string p_Action, float p_Value, float p
 	}
 	if(p_Action == "goToMainMenu" && p_Value == 1 && p_PrevValue == 0)
 	{
-		m_ChangeList = true;
+		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(true)));
 	}
 	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
 	{
