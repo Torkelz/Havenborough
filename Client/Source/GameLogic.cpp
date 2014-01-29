@@ -68,10 +68,10 @@ void GameLogic::onFrame(float p_DeltaTime)
 			{
 				m_Physics->removeHitDataAt(i);
 			}
-				if(!m_Level.reachedFinishLine() && m_Level.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+			if(!m_Level.reachedFinishLine() && m_Level.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
 			{
-					m_Level.changeCheckpoint(m_Objects);
-					if(m_Level.reachedFinishLine())
+				m_Level.changeCheckpoint(m_Objects);
+				if(m_Level.reachedFinishLine())
 				{
 						m_Level = Level();
 						m_Objects.clear();
@@ -544,13 +544,6 @@ void GameLogic::loadSandbox()
 	wavingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f)));
 	playAnimation(wavingWitch.lock(), "Kick", false);
 	
-	//m_CheckpointSystem = CheckpointSystem();
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(m_Level.getGoalPosition(), Vector3(1.0f, 10.0f, 1.0f))));
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-
 	ikTest = addActor(m_ActorFactory->createIK_Worm());
 	playAnimation(ikTest.lock(), "Wave", false);
 
@@ -613,7 +606,7 @@ void GameLogic::loadSandbox()
 	addActor(m_ActorFactory->createBoxWithOBB(Vector3(1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f)));
 	witchCircleAngle = 0.0f;
 
-	addLights();
+	//addLights();
 }
 
 void GameLogic::updateSandbox(float p_DeltaTime)
@@ -760,10 +753,10 @@ std::weak_ptr<Actor> GameLogic::addActor(Actor::ptr p_Actor)
 
 void GameLogic::addLights()
 {
-	addActor(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f)));
+	/*addActor(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f)));
 	addActor(m_ActorFactory->createSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
 		Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f, Vector3(0.f,1.f,0.f)));
 	addActor(m_ActorFactory->createPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f)));
 	addActor(m_ActorFactory->createPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
-	addActor(m_ActorFactory->createPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
+	addActor(m_ActorFactory->createPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));*/
 }

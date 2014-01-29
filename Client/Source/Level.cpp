@@ -91,7 +91,26 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 	m_CheckpointSystem.addCheckpoint(checkActor);
 	p_ActorOut.push_back(checkActor);
 
-
+	Actor::ptr directionalActor;
+	Actor::ptr pointActor;
+	Actor::ptr spotActor;
+	for (const auto& directionalLight : levelLoader.getDirectionalLightData())
+	{
+		directionalActor = m_ActorFactory->createDirectionalLight(directionalLight.m_Direction, directionalLight.m_Color);
+		p_ActorOut.push_back(directionalActor);
+	}
+	for (const auto& pointLight : levelLoader.getPointLightData())
+	{
+		pointActor = m_ActorFactory->createPointLight(pointLight.m_Translation, pointLight.m_Intensity * 10000, pointLight.m_Color);
+		p_ActorOut.push_back(pointActor);
+	}
+	Vector2 minMaxAngle;
+	for (const auto& spotLight : levelLoader.getSpotLightData())
+	{
+		minMaxAngle.x = cosf(spotLight.m_ConeAngle); minMaxAngle.y = cosf(spotLight.m_ConeAngle + spotLight.m_PenumbraAngle);
+		spotActor = m_ActorFactory->createSpotLight(spotLight.m_Translation, spotLight.m_Direction, minMaxAngle, spotLight.m_Intensity * 10000, spotLight.m_Color);
+		p_ActorOut.push_back(spotActor);
+	}
 
 	return true;
 }
