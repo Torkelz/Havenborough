@@ -86,6 +86,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 						}
 
 						m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+						return;
 				}
 				m_Physics->removeHitDataAt(i);
 			}

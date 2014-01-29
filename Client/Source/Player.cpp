@@ -173,13 +173,10 @@ void Player::updateAnimation(Vector3 p_Rotation)
 	m_Actor.lock()->setRotation(p_Rotation);
 	Vector3 tempVector = m_CurrentVelocity;
 	XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
-	tempVector = m_PreviousVelocity;
-	XMVECTOR previous = Vector3ToXMVECTOR(&tempVector, 0.0f);
 	tempVector = Vector3(m_DirectionX, 0.0f, m_DirectionZ);
 	XMVECTOR look = Vector3ToXMVECTOR(&tempVector, 0.0f);
 	XMMATRIX rotationInverse = XMMatrixTranspose(XMMatrixRotationRollPitchYaw(0.0f, p_Rotation.x, 0.0f));
 	velocity = XMVector3Transform(velocity, rotationInverse);
-	previous = XMVector3Transform(previous, rotationInverse);
 	if (!m_Physics->getBodyInAir(getBody()))
 	{
 		// Calculate the weight on the strafe track with some trigonometry.
