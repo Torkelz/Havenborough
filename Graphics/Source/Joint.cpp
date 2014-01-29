@@ -65,6 +65,9 @@ matrixDecomposed Joint::interpolateEx(float p_FrameTime, float m_DestinationFram
 
 matrixDecomposed Joint::interpolateEx(matrixDecomposed p_Frame1, matrixDecomposed p_Frame2, float interpolateFraction) const
 {
+	if(interpolateFraction > 1.0f)
+		interpolateFraction = 1.0f;
+
 	using namespace DirectX;
 	
 	XMVECTOR scale1			= XMLoadFloat4(&p_Frame1.scale);

@@ -24,6 +24,7 @@ Player::Player(void)
 	m_CurrentForceMoveTime = 0.f;
 	m_CurrentVelocity = Vector3(0.0f, 0.0f, 0.0f);
 	m_PreviousVelocity = Vector3(0.0f, 0.0f, 0.0f);
+	m_FallSpeed = 0.0f;
 }
 
 Player::~Player(void)
@@ -161,6 +162,169 @@ void Player::update(float p_DeltaTime)
 	m_CurrentVelocity = m_Physics->getBodyVelocity(getBody());
 }
 
+void Player::updateAnimation(Vector3 p_Rotation)
+{
+	using namespace DirectX;
+	m_Actor.lock()->setRotation(p_Rotation);
+	Vector3 tempVector = m_CurrentVelocity;
+	XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
+	tempVector = m_PreviousVelocity;
+	XMVECTOR previous = Vector3ToXMVECTOR(&tempVector, 0.0f);
+	tempVector = Vector3(m_DirectionX, 0.0f, m_DirectionZ);
+	XMVECTOR look = Vector3ToXMVECTOR(&tempVector, 0.0f);
+	XMMATRIX rotationInverse = XMMatrixTranspose(XMMatrixRotationRollPitchYaw(0.0f, p_Rotation.x, 0.0f));
+	velocity = XMVector3Transform(velocity, rotationInverse);
+	previous = XMVector3Transform(previous, rotationInverse);
+	if (!m_Physics->getBodyInAir(getBody()))
+	{
+		// Calculate the weight on the strafe track with some trigonometry.
+		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
+		changeAnimationWeight(2, cosf(angle));
+
+		// Decide what animation to play on the motion tracks.
+		ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
+		SideAnimationState currentSideState = SideAnimationState::IDLE;
+
+		static const float runLimit = 100.f;
+		if (XMVectorGetZ(velocity) > runLimit)
+		{
+			currentForwardState = ForwardAnimationState::RUNNING_FORWARD;
+		}
+		else if (XMVectorGetZ(velocity) < -runLimit)
+		{
+			currentForwardState = ForwardAnimationState::RUNNING_BACKWARD;
+		}
+		
+		static const float runSideLimit = 100.f;
+		if (XMVectorGetX(velocity) > runSideLimit)
+		{
+			currentSideState = SideAnimationState::RUNNING_RIGHT;
+		}
+		else if (XMVectorGetX(velocity) < -runSideLimit)
+		{
+			currentSideState = SideAnimationState::RUNNING_LEFT;
+		}
+
+		if (currentForwardState != m_PrevForwardState)
+		{
+			switch (currentForwardState)
+			{
+			case ForwardAnimationState::IDLE:
+				if (currentSideState == SideAnimationState::IDLE)
+				{
+					playAnimation("Idle", false);
+				}
+				break;
+
+			case ForwardAnimationState::RUNNING_FORWARD:
+				playAnimation("Run", false);
+			}
+		}
+		
+		if (currentSideState != m_PrevSideState)
+		{
+			switch (currentSideState)
+			{
+			case SideAnimationState::IDLE:
+				if (currentForwardState == ForwardAnimationState::IDLE)
+				{
+					playAnimation("Idle", false);
+				}
+				break;
+			}
+		}
+
+		m_PrevForwardState = currentForwardState;
+		m_PrevSideState = currentSideState;
+		m_PrevJumpState = JumpAnimationState::IDLE;
+	}
+	else
+	{
+		static const float runLimit = 100.f;
+		float flyLimit = 500.0f;
+		JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
+
+		if(XMVectorGetY(velocity) < flyLimit)
+		{
+			currentJumpState = JumpAnimationState::JUMP;
+		}
+		if(XMVectorGetY(velocity) < -flyLimit)
+		{
+			currentJumpState = JumpAnimationState::FALLING;
+		}
+
+		if (XMVectorGetY(velocity) > m_FallSpeed)
+		{
+			m_FallSpeed = XMVectorGetY(velocity);
+		}
+
+		//if (XMVectorGetY(velocity) < flyLimit && XMVectorGetY(velocity) > -flyLimit && 
+		//	m_PrevJumpState != JumpAnimationState::JUMP) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
+		//{
+		//	if(m_FallSpeed >= 200.0f)
+		//	{
+		//		currentJumpState = JumpAnimationState::HARD_LANDING;
+		//	}
+		//	else
+		//	{
+		//		currentJumpState = JumpAnimationState::LIGHT_LANDING;
+		//	}
+		//}
+
+		if (currentJumpState != m_PrevJumpState)
+		{
+			switch (currentJumpState)
+			{
+			case JumpAnimationState::IDLE:
+				if (currentJumpState == JumpAnimationState::IDLE)
+				{
+					playAnimation("Idle", false);
+				}
+				break;
+
+			case JumpAnimationState::JUMP:
+				if (m_PrevJumpState != JumpAnimationState::FLYING)
+				{
+					if(XMVectorGetX(velocity) > runLimit || XMVectorGetZ(velocity) > runLimit)
+					{
+						playAnimation("RunningJump", false);
+						queueAnimation("Falling");
+					}
+					else
+					{
+						playAnimation("StandingJump", false);
+						queueAnimation("Falling");
+					}
+				}
+				break;
+
+			case JumpAnimationState::FLYING:
+				//playAnimation(temp, "Flying", false);
+				break;
+
+			case JumpAnimationState::HARD_LANDING:
+				playAnimation("HardLanding", false);
+				break;
+
+			case JumpAnimationState::LIGHT_LANDING:
+				playAnimation("NormalLanding", false);
+				break;
+
+			case JumpAnimationState::FALLING:
+				//playAnimation(temp, "Falling", false);
+				break;
+
+			default: // Just in case so that the code doesn't break, hohohoho
+				break;
+			}
+		}
+
+		m_PrevForwardState = ForwardAnimationState::IDLE;
+		m_PrevSideState = SideAnimationState::IDLE;
+		m_PrevJumpState = currentJumpState;
+	}
+}
+
 Vector3 Player::getVelocity() const
 {
 	return m_CurrentVelocity;
@@ -227,4 +391,31 @@ void Player::move()
 	m_Physics->applyForce(getBody(), XMFLOAT3ToVector3(&forceDiff));
 
 	m_DirectionX = m_DirectionZ = 0.f;
+}
+
+void Player::playAnimation(std::string p_AnimationName, bool p_Override)
+{
+	std::shared_ptr<ModelComponent> comp = m_Actor.lock()->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	if (comp)
+	{
+		m_Actor.lock()->getEventManager()->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName, p_Override)));
+	}
+}
+
+void Player::queueAnimation(std::string p_AnimationName)
+{
+	std::shared_ptr<ModelComponent> comp = m_Actor.lock()->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	if (comp)
+	{
+		m_Actor.lock()->getEventManager()->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
+	}
+}
+
+void Player::changeAnimationWeight(int p_Track, float p_Weight)
+{
+	std::shared_ptr<ModelComponent> comp = m_Actor.lock()->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	if (comp)
+	{
+		m_Actor.lock()->getEventManager()->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
+	}
 }

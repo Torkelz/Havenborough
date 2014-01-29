@@ -152,16 +152,16 @@ matrixDecomposed ModelInstance::updateKeyFrameInformation(Joint p_Joint, unsigne
 	}
 
 	if(m_Tracks[p_CurrentTrack].clip.m_FadeIn)
-		return p_Joint.interpolateEx( p_ToParentData, tempData, (m_Tracks[p_CurrentTrack].fadedFrames / (float)m_Tracks[p_CurrentTrack].clip.m_FadeInFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight);
+		return p_Joint.interpolateEx( p_ToParentData, tempData, (m_Tracks[p_CurrentTrack].fadedFrames / (float)m_Tracks[p_CurrentTrack].clip.m_FadeInFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight * m_Tracks[p_CurrentTrack].dynamicWeight);
 	else if(m_Tracks[p_CurrentTrack].clip.m_FadeOut && !m_Tracks[p_CurrentTrack].clip.m_Loop)
-		return p_Joint.interpolateEx( p_ToParentData, tempData, 1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames / (float)m_Tracks[p_CurrentTrack].clip.m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight) );
+		return p_Joint.interpolateEx( p_ToParentData, tempData, 1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames / (float)m_Tracks[p_CurrentTrack].clip.m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight) * m_Tracks[p_CurrentTrack].dynamicWeight );
 	else
-		return p_Joint.interpolateEx( p_ToParentData, tempData, m_Tracks[p_CurrentTrack].clip.m_Weight );
+		return p_Joint.interpolateEx( p_ToParentData, tempData, m_Tracks[p_CurrentTrack].clip.m_Weight * m_Tracks[p_CurrentTrack].dynamicWeight );
 }
 
 void ModelInstance::checkFades()
 {
-	for (int i = 1; i < 6; i += 2)
+	for (int i = 1; i < 6; i++)
 	{
 		if (m_Tracks[i].clip.m_FadeIn)
 		{
@@ -588,6 +588,6 @@ bool ModelInstance::playQueuedClip(int p_Track)
 
 void ModelInstance::changeWeight(int p_Track, float p_Weight)
 {
-	if(p_Track >= 0 && p_Track < 6)	
+	if(p_Track > 0 && p_Track < 6)	
 		m_Tracks[p_Track].dynamicWeight = m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
 }

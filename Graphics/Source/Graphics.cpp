@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <boost/filesystem.hpp>
+#include "AnimationStructs.h"
 
 using namespace DirectX;
 const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
@@ -576,8 +577,6 @@ void Graphics::updateAnimations(float p_DeltaTime)
 
 void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Override)
 {
-	#include "AnimationStructs.h"
-
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
@@ -593,8 +592,8 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 				tempStr = "default";
 			}
 
-			if(tempStr != "LookAround")
-				break;
+			//if(tempStr != "LookAround")
+			//	break;
 
 			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr), p_Override);
 			break;
@@ -604,8 +603,6 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 
 void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
 {
-	#include "AnimationStructs.h"
-
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)

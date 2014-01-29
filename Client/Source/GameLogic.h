@@ -20,39 +20,6 @@ public:
 	};
 
 private:
-	enum class ForwardAnimationState
-	{
-		IDLE,
-		WALKING_FORWARD,
-		RUNNING_FORWARD,
-		WALKING_BACKWARD,
-		RUNNING_BACKWARD,
-	};
-
-	enum class SideAnimationState
-	{
-		IDLE,
-		WALKING_LEFT,
-		RUNNING_LEFT,
-		WALKING_RIGHT,
-		RUNNING_RIGHT,
-	};
-
-	enum class JumpAnimationState
-	{
-		IDLE,
-		JUMP,
-		FLYING,
-		FALLING,
-		LIGHT_LANDING,
-		HARD_LANDING,
-	};
-
-	ForwardAnimationState m_PrevForwardState;
-	SideAnimationState m_PrevSideState;
-	JumpAnimationState m_PrevJumpState;
-	float m_FallSpeed;
-
 	IPhysics *m_Physics;
 	ResourceManager *m_ResourceManager;
 	INetwork *m_Network;
