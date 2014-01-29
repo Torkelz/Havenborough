@@ -132,6 +132,8 @@ BOOST_AUTO_TEST_CASE(TestCreateLighting)
 	std::string resLight = output.str();
 	char size[] = "\x01\0\0\0";
 	char diff[] = "\x03\0\0\0";
+	float3Trans[0].f *= -1;
+	float3Direction[0].f *= -1;
 	BOOST_CHECK_EQUAL_COLLECTIONS(resLight.begin(), resLight.begin() + 4, diff, diff + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resLight.begin() + 4, resLight.begin() + 8, intTypeD.c , intTypeD.c + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resLight.begin() + 8, resLight.begin() + 12, size , size + sizeof(int));
@@ -225,14 +227,17 @@ BOOST_AUTO_TEST_CASE(TestCreateCheckPoints)
 
 	std::string resPoint = output.str();
 	char size[] = "\x01\0\0\0";
+	float3TransStart[0].f *= -1;
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin(), resPoint.begin() + 4, float3TransStart[0].c, float3TransStart[0].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 4, resPoint.begin() + 8, float3TransStart[1].c, float3TransStart[1].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 8, resPoint.begin() + 12, float3TransStart[2].c, float3TransStart[2].c + sizeof(float));
+	float3TransEnd[0].f *= -1;
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 12, resPoint.begin() + 16, float3TransEnd[0].c, float3TransEnd[0].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 16, resPoint.begin() + 20, float3TransEnd[1].c, float3TransEnd[1].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 20, resPoint.begin() + 24, float3TransEnd[2].c, float3TransEnd[2].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 24, resPoint.begin() + 28, size , size + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 28, resPoint.begin() + 32, number.c , number.c + sizeof(int));
+	float3Trans[0].f *= -1;
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 32, resPoint.begin() + 36, float3Trans[0].c, float3Trans[0].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 36, resPoint.begin() + 40, float3Trans[1].c, float3Trans[1].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 40, resPoint.begin() + 44, float3Trans[2].c, float3Trans[2].c + sizeof(float));
