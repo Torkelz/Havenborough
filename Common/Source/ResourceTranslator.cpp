@@ -28,7 +28,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("Street1", "assets/models/Street1.btx"),
 		std::make_pair("IKTest", "assets/models/testRig.btx"),
 		std::make_pair("Tree1", "assets/models/Tree1.btx"),
-		std::make_pair("WITCH", "assets/models/Witch_5_Running.btx"),
+		std::make_pair("WITCH", "assets/models/Witch_new2.btx"),
 		std::make_pair("WoodenShed1", "assets/models/WoodenShed.btx"),
 	};
 
