@@ -12,6 +12,7 @@ private:
 	ID3D11RenderTargetView	*m_RenderTarget;
 	ID3D11SamplerState		*m_Sampler;
 	ID3D11RasterizerState	*m_RasterState;
+	ID3D11DepthStencilState *m_DepthStencilState;
 
 	DirectX::XMFLOAT3	*m_CameraPosition;
 	DirectX::XMFLOAT4X4	*m_ViewMatrix;
@@ -21,6 +22,8 @@ private:
 	Buffer				*m_ConstantBuffer;
 	Buffer				*m_ObjectConstantBuffer;
 	Buffer				*m_AnimatedObjectConstantBuffer;
+	Buffer				*m_ColorShadingConstantBuffer;
+
 	ID3D11BlendState	*m_TransparencyAdditiveBlend;
 public:
 	ForwardRendering(void);
@@ -62,6 +65,7 @@ private:
 	void createForwardBuffers();
 	void createSampler();
 	void createRasterState();
+	void createDepthStencilState(void);
 	void updateConstantBuffer();
 	bool depthSortCompareFunc(const DeferredRenderer::Renderable &a, const DeferredRenderer::Renderable &b);
 };

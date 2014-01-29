@@ -49,6 +49,11 @@ public:
 	 */
 	const std::vector<InputRecord>& getFrameInputs() const;
 
+	/**
+	 * Listener function for locking the mouse to the center.
+	 *
+	 * @param p_Data event specific data
+	 */
 	void lockMouse(IEventData::Ptr p_Data);
 
 private:

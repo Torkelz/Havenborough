@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "../../Client/Source/Logger.h"
+#include <Logger.h>
 
 BOOST_AUTO_TEST_SUITE(LoggerTest)
 

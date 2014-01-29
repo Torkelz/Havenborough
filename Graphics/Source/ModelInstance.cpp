@@ -7,7 +7,8 @@ using namespace DirectX;
 using std::string;
 
 ModelInstance::ModelInstance()
-	: m_IsCalculated(false)
+	: m_IsCalculated(false), 
+	m_ColorTone(DirectX::XMFLOAT3(1.f, 1.f, 1.f))
 {
 	for (int i = 0; i < 6; i++)
 	{
@@ -59,6 +60,16 @@ void ModelInstance::setScale(const XMFLOAT3& p_Scale)
 	m_IsCalculated = false;
 }
 
+void ModelInstance::setColorTone(const XMFLOAT3& p_ColorTone)
+{
+	m_ColorTone = p_ColorTone;
+}
+
+const XMFLOAT3 &ModelInstance::getColorTone() const
+{
+	return m_ColorTone;
+}
+
 void ModelInstance::calculateWorldMatrix() const
 {
 	XMMATRIX rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&m_Rotation));
@@ -87,7 +98,7 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 	// to be done before IK is calculated and applied.
 	for(unsigned int i = 0; i < numBones; ++i)
 	{
-		matrixDecomposed toParentData;
+		MatrixDecomposed toParentData;
 		// Track 0 is the main track. Do vanilla animation.
 		if(m_Tracks[0].clip.m_AnimationSpeed > 0)
 		{
@@ -139,9 +150,9 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 	updateFinalTransforms(p_Joints);
 }
 
-matrixDecomposed ModelInstance::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack, matrixDecomposed p_ToParentData)
+MatrixDecomposed ModelInstance::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack, MatrixDecomposed p_ToParentData)
 {
-	matrixDecomposed tempData;
+	MatrixDecomposed tempData;
 	if(m_Tracks[p_CurrentTrack].clip.m_AnimationSpeed > 0)
 	{
 		tempData = p_Joint.interpolateEx(m_Tracks[p_CurrentTrack].currentFrame, m_Tracks[p_CurrentTrack].destinationFrame);

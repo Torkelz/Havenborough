@@ -13,7 +13,8 @@
  class ModelInstance
  {
  private:
-	struct AnimationTrack{
+	struct AnimationTrack
+	{
 		AnimationClip clip; // Constant animation data
 
 		// Dynamic animation data
@@ -31,6 +32,8 @@
 	
 	mutable bool m_IsCalculated;
 	mutable DirectX::XMFLOAT4X4 m_World;
+
+	DirectX::XMFLOAT3 m_ColorTone;
 
 	// Animation data
 	/**
@@ -104,6 +107,18 @@
 	 * @param p_Scale the new scale.
 	 */
 	void setScale(const DirectX::XMFLOAT3 &p_Scale);
+	/**
+	 * Set the color tone of the model instance.
+	 *
+	 * @param p_ColorTone the color tone.
+	 */
+	void setColorTone(const DirectX::XMFLOAT3 &p_ColorTone);
+	/**
+	 * Gets the color tone of the model instance.
+	 *
+	 * @return the color tone.
+	 */
+	const DirectX::XMFLOAT3 &getColorTone(void) const;
 	 
 	/**
 	 * Update the animation data to the new time.
@@ -168,5 +183,5 @@
 	bool playQueuedClip(int p_Track);
 	void checkFades();
 	void updateTimeStamp(float p_DeltaTime);
-	matrixDecomposed updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack, matrixDecomposed p_ToParentData);
+	MatrixDecomposed updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack, MatrixDecomposed p_ToParentData);
  };

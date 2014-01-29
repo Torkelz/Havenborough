@@ -9,7 +9,6 @@ private:
 	DirectX::XMFLOAT4X4	m_Axes; // Local x-,y and z-axes
 	DirectX::XMFLOAT4	m_Extents; //Positive half-width extents of OBB along each axis
 	DirectX::XMFLOAT4	m_Corners[8];
-	DirectX::XMFLOAT4X4 m_Rotation;
 	Sphere				m_Sphere;
 
 public:
@@ -23,7 +22,6 @@ public:
 		m_Extents		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
-		DirectX::XMStoreFloat4x4(&m_Rotation, DirectX::XMMatrixIdentity());
 		m_Sphere		= Sphere();
 	}
 
@@ -38,13 +36,11 @@ public:
 		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
-		
-		DirectX::XMStoreFloat4x4(&m_Rotation, DirectX::XMMatrixIdentity());
 
 		m_Extents.x = fabs(p_Extents.x);
 		m_Extents.y = fabs(p_Extents.y);
 		m_Extents.z = fabs(p_Extents.z);
-		m_Extents.w = 0.f;
+		m_Extents.w = 1.f;
 
 		calculateCorners();
 
@@ -53,7 +49,7 @@ public:
 		DirectX::XMVECTOR length = DirectX::XMVector3Length(extentVector);
 		float radius;
 		DirectX::XMStoreFloat(&radius, length);
-		m_Sphere		= Sphere(radius, p_CenterPos);
+		m_Sphere = Sphere(radius, p_CenterPos);
 
 	}
 	/**
@@ -86,7 +82,7 @@ public:
 	* Changes ther center position for the OBB.
 	* @param p_newPosition, new center pos for the OBB.
 	*/
-	void setPosition(DirectX::XMVECTOR p_newPosition)
+	void setPosition(DirectX::XMVECTOR const p_newPosition)
 	{
 		DirectX::XMStoreFloat4(&m_Position, p_newPosition);
 		m_Sphere.updatePosition(m_Position);
@@ -95,7 +91,7 @@ public:
 	* Gets the normalized local axes of the OBB
 	* @return m_Axes the OBB Axes.
 	*/
-	DirectX::XMFLOAT4X4 getAxes()
+	DirectX::XMFLOAT4X4 getAxes() const
 	{
 		return m_Axes;
 	}
@@ -104,25 +100,16 @@ public:
 	* Get the half lengths(extents) of the OBB
 	* @return m_Extents, the extents of the OBB in m
 	*/
-	DirectX::XMFLOAT4 getExtents()
+	DirectX::XMFLOAT4 getExtents() const
 	{
 		return m_Extents;
-	}
-
-	/**
-	* Get the rotation matrix of the OBB. Note not the OBB's axes.
-	* @return m_Rotation 
-	*/
-	DirectX::XMFLOAT4X4 getRotationMatrix()
-	{
-		return m_Rotation;
 	}
 
 	/**
 	* Get the sphere surrounding the OBB.
 	* @return m_Sphere the surrounding sphere
 	*/
-	Sphere getSphere()
+	Sphere getSphere() const
 	{
 		return m_Sphere;
 	}
@@ -131,9 +118,21 @@ public:
 	* Sets the half lengths(extents) of the OBB, which rezizes the box.
 	* @param p_Extents, the new half length of the box.
 	*/
-	void setExtent(const DirectX::XMFLOAT4 &p_Extents)
+	void setExtent(DirectX::XMVECTOR const &p_Extents)
 	{
-		m_Extents = p_Extents;
+		DirectX::XMStoreFloat4(&m_Extents, p_Extents);
+		calculateCorners();
+	}
+	/**
+	* Scales the OBB.
+	* @param p_scale vector to scale the box with..
+	*/
+	void scale(DirectX::XMVECTOR const &p_Scale) override
+	{
+		DirectX::XMMATRIX m = DirectX::XMMatrixScalingFromVector(p_Scale);
+		DirectX::XMVECTOR e = XMLoadFloat4(&m_Extents);
+		e = DirectX::XMVector4Transform(e, m);
+		DirectX::XMStoreFloat4(&m_Extents, e);
 		calculateCorners();
 	}
 
@@ -143,18 +142,18 @@ public:
 	*/
 	void setRotation(const DirectX::XMMATRIX &p_Rot)
 	{
-		XMStoreFloat4x4(&m_Axes, p_Rot);
+        XMStoreFloat4x4(&m_Axes, p_Rot);
 
-		calculateCorners();
-		DirectX::XMVECTOR tempCorners[8];
-		for(int i = 0; i < 8; i++)
-		{
-			tempCorners[i] = DirectX::XMLoadFloat4(&m_Corners[i]);
+        calculateCorners();
+        DirectX::XMVECTOR tempCorners[8];
+        for(int i = 0; i < 8; i++)
+        {
+                tempCorners[i] = DirectX::XMLoadFloat4(&m_Corners[i]);
 
-			tempCorners[i] = DirectX::XMVector4Transform(tempCorners[i], p_Rot);
+                tempCorners[i] = DirectX::XMVector4Transform(tempCorners[i], p_Rot);
 
-			DirectX::XMStoreFloat4(&m_Corners[i], tempCorners[i]);
-		}
+                DirectX::XMStoreFloat4(&m_Corners[i], tempCorners[i]);
+        }
 	}
 	 
 	/**
@@ -162,7 +161,7 @@ public:
 	* @param p_point the point you want to search from
 	* @return closest point in the OBB in m
 	*/
-	DirectX::XMVECTOR findClosestPt(const DirectX::XMVECTOR &p_Point)
+	DirectX::XMVECTOR findClosestPt(DirectX::XMVECTOR const &p_Point) const
 	{
 		DirectX::XMVECTOR tPos		= XMLoadFloat4(&m_Position);
 		DirectX::XMMATRIX tAxes		= XMLoadFloat4x4(&m_Axes);
@@ -203,7 +202,7 @@ public:
 	 * @param p_Index index number in m_Cornerslist
 	 * @return a XMFLOAT4 corner.
 	 */
-	DirectX::XMFLOAT4 getCornerAt(unsigned int p_Index)
+	DirectX::XMFLOAT4 getCornerAt(unsigned int p_Index) const
 	{
 		return m_Corners[p_Index];
 	}
@@ -213,7 +212,7 @@ public:
 	 * @param p_Index index number in m_Bounds list
 	 * @return a XMFLOAT4 corner.
 	 */
-	DirectX::XMFLOAT4 getCornerWorldCoordAt(unsigned p_Index)
+	DirectX::XMFLOAT4 getCornerWorldCoordAt(unsigned p_Index) const
 	{
 		return DirectX::XMFLOAT4(m_Corners[p_Index].x + m_Position.x, m_Corners[p_Index].y + m_Position.y, m_Corners[p_Index].z + m_Position.z, 1.f);
 	}

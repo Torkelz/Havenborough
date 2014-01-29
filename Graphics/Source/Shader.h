@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
-#include "../../Client/Utilities/MemoryUtil.h"
+#include <Utilities/MemoryUtil.h>
 #include "GraphicsExceptions.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
@@ -37,7 +37,14 @@ private:
 	UINT m_NumOfElements;
 
 public:
+	/**
+	* Constructor.
+	*/
 	Shader(void);
+
+	/**
+	* Destructor.
+	*/
 	~Shader(void);
 	
 	/**
