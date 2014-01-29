@@ -139,6 +139,7 @@
     <IncludePath>$(FMOD_INC_DIR);$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
     <LibraryPath>$(FMOD_LIB_DIR);$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)Bin\</OutDir>
+    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

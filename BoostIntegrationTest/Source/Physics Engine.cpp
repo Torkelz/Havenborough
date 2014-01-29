@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE(BVLoaderIntegration)
 {
 	BOOST_MESSAGE(testId + "Testing to create bounding volumes from file");
 	BVLoader bvl;
-	BOOST_MESSAGE(testId + "Loading bounding volumes from file");
+	BOOST_MESSAGE(testId + "Loading bounding volume from file");
 	BOOST_CHECK(!bvl.loadBinaryFile("../Source/gun_battle.mp3"));
 	BOOST_CHECK(bvl.loadBinaryFile("../Bin/assets/volumes/CB_Barrel1.txc"));
 	std::vector<BVLoader::BoundingVolume> BV = bvl.getBoundingVolumes();
@@ -519,7 +519,7 @@ BOOST_AUTO_TEST_CASE(PhysicsResourceIntegration)
 	IPhysics::deletePhysics(physics);
 	physics = nullptr;
 	Body::resetBodyHandleCounter();
-		BOOST_MESSAGE(testId + "Physics integration test COMPLETED! SUCCESS! THE PHYSICS IS FUCKING WORKING! MF!");
+		BOOST_MESSAGE(testId + "Physics integration test completed");
 	BOOST_MESSAGE("");
 	BOOST_MESSAGE("");
 }

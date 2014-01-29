@@ -143,7 +143,7 @@ public:
 	 *
 	 * @param identification for the sound/group to get paused status from.
 	 */
-	virtual bool getMute(const char* p_SoundId) = 0;
+	virtual bool getMasterMute() = 0;
 	
 private:
 
