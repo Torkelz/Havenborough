@@ -38,65 +38,65 @@ public:
 	* Redirect to the appropriate check, when neither BoundingVolumes' type is known.
 	* @return HitData, see HitData definition.
 	*/
-	static HitData boundingVolumeVsBoundingVolume(BoundingVolume* p_Volume1, BoundingVolume* p_Volume2);
+	static HitData boundingVolumeVsBoundingVolume(BoundingVolume const &p_Volume1, BoundingVolume const &p_Volume2);
 	/**
 	* Check for the appropriate collision, a BoundingVolume versus a sphere.
 	* @return HitData, see HitData definition.
 	*/
-	static HitData boundingVolumeVsSphere(BoundingVolume* p_Volume, Sphere* p_Sphere);
+	static HitData boundingVolumeVsSphere(BoundingVolume const &p_Volume, Sphere const &p_Sphere);
 	/**
 	* Check for the appropriate collision, a BoundingVolume versus an AABB.
 	* @return HitData, see HitData definition.
 	*/
-	static HitData boundingVolumeVsAABB(BoundingVolume* p_Volume, AABB* p_AABB);
+	static HitData boundingVolumeVsAABB(BoundingVolume const &p_Volume, const AABB &p_AABB);
 	/**
 	* Check for the appropriate collision, a BoundingVolume versus an OBB.
 	* @return HitData, see HitData definition.
 	*/
-	static HitData boundingVolumeVsOBB(BoundingVolume* p_Volume, OBB* p_OBB);
+	static HitData boundingVolumeVsOBB(BoundingVolume const &p_Volume, const OBB &p_OBB);
 	/**
 	* Check for the appropriate collision, a BoundingVolume versus a Triangle.
 	* @return HitData, see HitData definition.
 	*/
-	static HitData boundingVolumeVsHull(BoundingVolume* p_Volume, Hull* p_Hull);
+	static HitData boundingVolumeVsHull(BoundingVolume const &p_Volume, Hull const &p_Hull);
 	/**
 	* Sphere versus Sphere collision
 	* @return HitData, see HitData definition.
 	*/
-	static HitData sphereVsSphere(Sphere* p_Sphere1, Sphere* p_Sphere2);
+	static HitData sphereVsSphere(Sphere const &p_Sphere1, const Sphere &p_Sphere2);
 	/**
 	* AABB versus AABB collision
 	* ## SphereVsSphere check happens before 
 	* the actual AABBvsAABB collision check. ##
 	* @return HitData, see HitData definition.
 	*/
-	static HitData AABBvsAABB( AABB* p_AABB1, AABB* p_AABB2 );
+	static HitData AABBvsAABB(AABB const &p_AABB1, const AABB &p_AABB2 );
 	/**
 	* AABB versus Sphere collision
 	* ## SphereVsSphere check happens before 
 	* the actual AABBvsAABB collision check. ##
 	* @return HitData, see HitData definition.
 	*/
-	static HitData AABBvsSphere( AABB* p_AABB, Sphere* p_Sphere );
+	static HitData AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere );
 	/**
 	* OBB versus OBB collision test
 	* ## SphereVsSphere check happens before 
 	* the actual AABBvsAABB collision check. ##
 	* @return HitData, see HitData definition.
 	*/
-	static HitData OBBvsOBB(OBB *p_OBB1, OBB *p_OBB2);
+	static HitData OBBvsOBB(OBB const &p_OBB1, OBB const &p_OBB2);
 	/**
 	* OBB versus Sphere collision test
 	* Uses Seperating axes test to check for collision
 	* @return HitData, see HitData definition.
 	*/
-	static HitData OBBvsSphere(OBB *p_OBB, Sphere *p_Sphere);
+	static HitData OBBvsSphere(OBB const &p_OBB, Sphere const &p_Sphere);
 	/**
 	* OBB versus AABB collision test
 	* Uses Seperating axes test to check for collision
 	* @return HitData, see HitData definition.
 	*/
-	static HitData OBBvsAABB(OBB *p_OBB, AABB *p_AABB);
+	static HitData OBBvsAABB(OBB const &p_OBB, AABB const &p_AABB);
 
 	/**
 	 * OBB Versus Hull collision test
@@ -108,11 +108,10 @@ public:
 	* Triangle versus Sphere collision test
 	* @return HitData, see HitData definition.
 	*/
-	static HitData HullVsSphere(Hull* p_Hull, Sphere *p_Sphere);
+	static HitData HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere);
 
 	/**
 	* Given point p and the triangle corners in world coordinates, return point in triangle, closest to p
-	*
 	* @param p_point the point you want to search from
 	* @param p_A, corner[0] of triangle in world coordinates
 	* @param p_B, corner[1] of triangle in world coordinates
@@ -122,7 +121,6 @@ public:
 	static DirectX::XMFLOAT4 findClosestPointOnTriangle(const DirectX::XMFLOAT4 &p_Point, const Vector4 &p_A, const Vector4 &p_B, const Vector4 &p_C);
 
 private:
-
 	static float min(const float &p_A, const float &p_B, const float &p_C);
 	static float max(const float &p_A, const float &p_B, const float &p_C);
 	static bool SphereVsTriangle(Sphere *p_Sphere, Triangle *p_Triangle);
@@ -130,6 +128,6 @@ private:
 	static bool OBBVsPlane(OBB *p_OBB, Plane *p_Plane);
 
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
-	static HitData seperatingAxisTest(OBB *p_OBB, BoundingVolume *p_vol);
+	static HitData seperatingAxisTest(OBB const &p_OBB, BoundingVolume const &p_vol);
 };
 

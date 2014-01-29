@@ -7,7 +7,8 @@ using namespace DirectX;
 using std::string;
 
 ModelInstance::ModelInstance()
-	: m_IsCalculated(false)
+	: m_IsCalculated(false), 
+	m_ColorTone(DirectX::XMFLOAT3(1.f, 1.f, 1.f))
 {
 	for (int i = 0; i < 3; i++)
 	{
@@ -56,6 +57,16 @@ void ModelInstance::setScale(const XMFLOAT3& p_Scale)
 {
 	m_Scale = p_Scale;
 	m_IsCalculated = false;
+}
+
+void ModelInstance::setColorTone(const XMFLOAT3& p_ColorTone)
+{
+	m_ColorTone = p_ColorTone;
+}
+
+const XMFLOAT3 &ModelInstance::getColorTone() const
+{
+	return m_ColorTone;
 }
 
 void ModelInstance::calculateWorldMatrix() const
@@ -174,7 +185,7 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 	// to be done before IK is calculated and applied.
 	for(unsigned int i = 0; i < numBones; ++i)
 	{
-		matrixDecomposed toParentData;
+		MatrixDecomposed toParentData;
 		// Track 0 is the main track. Do vanilla animation.
 		if(m_Tracks[0].clip.m_AnimationSpeed > 0)
 		{
@@ -188,7 +199,7 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 		// Track 2 contains whole body animations. Only layered and full body blends are allowed.
 		if (m_Tracks[2].active)
 		{
-			matrixDecomposed tempData;
+			MatrixDecomposed tempData;
 			if(m_Tracks[2].clip.m_AnimationSpeed > 0)
 			{
 				tempData = p_Joints[i].interpolateEx(m_Tracks[2].currentFrame, m_Tracks[2].destinationFrame);
@@ -218,7 +229,7 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 		{
 			if (affected(p_Joints, i, m_Tracks[1].clip.m_FirstJoint))
 			{
-				matrixDecomposed tempData;
+				MatrixDecomposed tempData;
 				if(m_Tracks[1].clip.m_AnimationSpeed > 0)
 					tempData = p_Joints[i].interpolateEx(m_Tracks[1].currentFrame, m_Tracks[1].destinationFrame);
 				else

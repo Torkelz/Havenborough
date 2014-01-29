@@ -1,4 +1,4 @@
-*Header
+*ObjectHeader*
 #numObj: 370
 
 #MESH Barrel1
@@ -1851,4 +1851,8 @@
 #Rotation: 0.576995 0 0
 #Scale: 1 1 1
 
+*LightHeader*
+#numLights 0
 
+*CheckPointHeader*
+#numCheckpoints 0

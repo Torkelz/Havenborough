@@ -2,7 +2,7 @@
 #include "IScene.h"
 //#include "../Logger.h"
 #include "../GameLogic.h"
-#include "../LightStructs.h"
+#include <LightStructs.h>
 
 class GameScene : public IScene
 {
@@ -23,8 +23,6 @@ private:
 
 	GameLogic *m_GameLogic;
 	EventManager *m_EventManager;
-
-	ActorFactory m_ActorFactory;
 
 	std::vector<int> m_ResourceIDs;
 	std::vector<Light> m_Lights;
@@ -55,6 +53,7 @@ public:
 	void destroy() override;
 
 	void onFrame(float p_DeltaTime, int* p_IsCurrentScene) override;
+	void onFocus() override;
 	void render() override;
 
 	bool getIsVisible() override;
@@ -66,13 +65,16 @@ public:
 
 private:
 	void addLight(IEventData::Ptr p_Data);
+	void removeLight(IEventData::Ptr p_Data);
 	void createMesh(IEventData::Ptr p_Data);
+	void removeMesh(IEventData::Ptr p_Data);
 	void updateModelPosition(IEventData::Ptr p_Data);
 	void updateModelRotation(IEventData::Ptr p_Data);
 	void updateModelScale(IEventData::Ptr p_Data);
 	void playAnimation(IEventData::Ptr p_Data);
 	void addReachIK(IEventData::Ptr p_Data);
 	void removeReachIK(IEventData::Ptr p_Data);
+	void changeColorTone(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 

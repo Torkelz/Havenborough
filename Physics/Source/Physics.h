@@ -47,13 +47,15 @@ public:
 	void removeHitDataAt(unsigned int p_index) override;
 	unsigned int getHitDataSize() override;
 
-	Vector4 getBodyPosition(BodyHandle p_Body) override;
+	void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) override;
+	Vector3 getBodyPosition(BodyHandle p_Body) override;
+
 	Vector3 getBodySize(BodyHandle p_Body) override;
 
 	void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) override;
 
 	void setBodyVelocity(BodyHandle p_Body, Vector3 p_Velocity) override;
-	Vector4 getBodyVelocity(BodyHandle p_Body) override;
+	Vector3 getBodyVelocity(BodyHandle p_Body) override;
 
 	void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) override;
 	void setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale) override;

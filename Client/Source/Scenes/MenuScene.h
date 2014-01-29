@@ -12,7 +12,9 @@ private:
 	bool m_ChangeList;
 
 	IGraphics *m_Graphics;
+	GameLogic *m_GameLogic;
 	EventManager *m_EventManager;
+
 public: 
 	MenuScene();
 	~MenuScene();
@@ -23,6 +25,7 @@ public:
 	void destroy() override;
 
 	void onFrame(float p_DeltaTime, int* p_IsCurrentScene) override;
+	void onFocus() override;
 
 	void render() override;
 		 

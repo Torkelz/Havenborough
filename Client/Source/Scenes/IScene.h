@@ -6,8 +6,8 @@
 #include "../ClientExceptions.h"
 #include "../GameLogic.h"
 #include "../Input/Input.h"
-#include "../ResourceManager.h"
-#include "../EventManager.h"
+#include <ResourceManager.h>
+#include <EventManager.h>
 
 #include <memory>
 #include <string>
@@ -21,6 +21,7 @@ enum class RunScenes
 {
 	GAMEMAIN,
 	GAMEHUD,
+	POST_GAME,
 	GAMEPAUSE
 };
 class IScene
@@ -51,6 +52,11 @@ public:
 	*	if p_IsCurrentScene is -1 this switches from game to menu vice versa
 	*/
 	virtual void onFrame(float p_DeltaTime, int* p_IsCurrentScene) = 0;
+
+	/**
+	 * Signal that the scene has received focus.
+	 */
+	virtual void onFocus() = 0;
 	
 	/**
 	* Render the scene to the screen.

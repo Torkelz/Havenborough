@@ -66,7 +66,20 @@ public:
 	* @param p_PrevValue the previous value for the action, when checked if zero there is no key repeats.
 	*/
 	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue);
-	
+
+	/**
+	* Switching to run scene list.
+	*/
+	void startRun();
+	/**
+	* Switching to menu scene list.
+	*/
+	void startMenu();
+
+	/**
+	 * FIX ME PLEASE! ALL OF ME!
+	 */
+	void gotoPostGame();
 	
 	/*########## TEST FUNCTIONS ##########*/
 
@@ -79,14 +92,6 @@ private:
 	* @param p_NowShowing gives visibility to a new scene.
 	*/
 	void changeScene(float p_DeltaTime, int p_NowShowing);
-	/**
-	* Switching to run scene list.
-	*/
-	void startRun();
-	/**
-	* Switching to menu scene list.
-	*/
-	void startMenu();
 	/**
 	* Update menu scenes
 	*/

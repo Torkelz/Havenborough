@@ -56,44 +56,32 @@ PackageType ConnectionController::getPackageType(Package p_Package)
 		return PackageType::RESERVED;
 }
 
-void ConnectionController::sendCreateObjects(const char** p_Descriptions, unsigned int p_NumDescriptions, const ObjectInstance* p_Instances, unsigned int p_NumInstances)
+void ConnectionController::sendCreateObjects(const ObjectInstance* p_Instances, unsigned int p_NumInstances)
 {
 	CreateObjects package;
-	for (unsigned int i = 0; i < p_NumDescriptions; ++i)
+	for (unsigned int i = 0; i < p_NumInstances; ++i)
 	{
-		package.m_Descriptions.push_back(std::string(p_Descriptions[i]));
+		package.m_Object1.push_back(std::make_pair(std::string(p_Instances[i].m_Description), p_Instances[i].m_Id));
 	}
-	package.m_Instances.assign(p_Instances, p_Instances + p_NumInstances);
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 
-unsigned int ConnectionController::getNumCreateObjectDescriptions(Package p_Package)
+unsigned int ConnectionController::getNumCreateObjects(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	CreateObjects* createObjects = static_cast<CreateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_Descriptions.size();
+	return createObjects->m_Object1.size();
 }
 
-const char* ConnectionController::getCreateObjectDescription(Package p_Package, unsigned int p_Description)
+ObjectInstance ConnectionController::getCreateObjectDescription(Package p_Package, unsigned int p_Description)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	CreateObjects* createObjects = static_cast<CreateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_Descriptions[p_Description].c_str();
-}
-
-unsigned int ConnectionController::getNumCreateObjectInstances(Package p_Package)
-{
-	std::lock_guard<std::mutex> lock(m_ReceivedLock);
-	CreateObjects* createObjects = static_cast<CreateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_Instances.size();
-}
-
-const ObjectInstance* ConnectionController::getCreateObjectInstances(Package p_Package)
-{
-	std::lock_guard<std::mutex> lock(m_ReceivedLock);
-	CreateObjects* createObjects = static_cast<CreateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_Instances.data();
+	ObjectInstance inst;
+	inst.m_Description = createObjects->m_Object1[p_Description].first.c_str();
+	inst.m_Id = createObjects->m_Object1[p_Description].second;
+	return inst;
 }
 
 void ConnectionController::sendUpdateObjects(const UpdateObjectData* p_ObjectData, unsigned int p_NumObjects, const char** p_ExtraData, unsigned int p_NumExtraData)
@@ -101,9 +89,9 @@ void ConnectionController::sendUpdateObjects(const UpdateObjectData* p_ObjectDat
 	UpdateObjects package;
 	for (unsigned int i = 0; i < p_NumExtraData; ++i)
 	{
-		package.m_Extra.push_back(std::string(p_ExtraData[i]));
+		package.m_Object2.push_back(std::string(p_ExtraData[i]));
 	}
-	package.m_ObjectUpdates.assign(p_ObjectData, p_ObjectData + p_NumObjects);
+	package.m_Object1.assign(p_ObjectData, p_ObjectData + p_NumObjects);
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -112,34 +100,34 @@ unsigned int ConnectionController::getNumUpdateObjectData(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_ObjectUpdates.size();
+	return createObjects->m_Object1.size();
 }
 
 const UpdateObjectData* ConnectionController::getUpdateObjectData(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_ObjectUpdates.data();
+	return createObjects->m_Object1.data();
 }
 
 unsigned int ConnectionController::getNumUpdateObjectExtraData(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_Extra.size();
+	return createObjects->m_Object2.size();
 }
 
 const char* ConnectionController::getUpdateObjectExtraData(Package p_Package, unsigned int p_ExtraData)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_Extra[p_ExtraData].c_str();
+	return createObjects->m_Object2[p_ExtraData].c_str();
 }
 
 void ConnectionController::sendRemoveObjects(const uint16_t* p_Objects, unsigned int p_NumObjects)
 {
 	RemoveObjects package;
-	package.m_Objects.assign(p_Objects, p_Objects + p_NumObjects);
+	package.m_Object1.assign(p_Objects, p_Objects + p_NumObjects);
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -148,21 +136,21 @@ unsigned int ConnectionController::getNumRemoveObjectRefs(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	RemoveObjects* removeObjects = static_cast<RemoveObjects*>(m_ReceivedPackages[p_Package].get());
-	return removeObjects->m_Objects.size();
+	return removeObjects->m_Object1.size();
 }
 
 const uint16_t* ConnectionController::getRemoveObjectRefs(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	RemoveObjects* removeObjects = static_cast<RemoveObjects*>(m_ReceivedPackages[p_Package].get());
-	return removeObjects->m_Objects.data();
+	return removeObjects->m_Object1.data();
 }
 
 void ConnectionController::sendObjectAction(uint16_t p_ObjectId, const char* p_Action)
 {
 	ObjectAction package;
-	package.m_Object = p_ObjectId;
-	package.m_Action = p_Action;
+	package.m_Object1 = p_ObjectId;
+	package.m_Object2 = p_Action;
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -171,20 +159,20 @@ uint16_t ConnectionController::getObjectActionId(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	ObjectAction* objectAction = static_cast<ObjectAction*>(m_ReceivedPackages[p_Package].get());
-	return objectAction->m_Object;
+	return objectAction->m_Object1;
 }
 
 const char* ConnectionController::getObjectActionAction(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	ObjectAction* objectAction = static_cast<ObjectAction*>(m_ReceivedPackages[p_Package].get());
-	return objectAction->m_Action.c_str();
+	return objectAction->m_Object2.c_str();
 }
 
 void ConnectionController::sendAssignPlayer(uint16_t p_ObjectId)
 {
 	AssignPlayer package;
-	package.m_Object = p_ObjectId;
+	package.m_Object1 = p_ObjectId;
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -193,13 +181,13 @@ uint16_t ConnectionController::getAssignPlayerObject(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	AssignPlayer* assignPlayer = static_cast<AssignPlayer*>(m_ReceivedPackages[p_Package].get());
-	return assignPlayer->m_Object;
+	return assignPlayer->m_Object1;
 }
 
 void ConnectionController::sendPlayerControl(PlayerControlData p_Data)
 {
 	PlayerControl package;
-	package.m_Data = p_Data;
+	package.m_Object1 = p_Data;
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -208,12 +196,54 @@ PlayerControlData ConnectionController::getPlayerControlData(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	PlayerControl* playerControl = static_cast<PlayerControl*>(m_ReceivedPackages[p_Package].get());
-	return playerControl->m_Data;
+	return playerControl->m_Object1;
 }
 
 void ConnectionController::sendDoneLoading()
 {
 	DoneLoading package;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+void ConnectionController::sendJoinGame(const char* p_Game)
+{
+	JoinGame package;
+	package.m_Object1 = p_Game;
+
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+const char* ConnectionController::getJoinGameName(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
+	return joinGame->m_Object1.c_str();
+}
+
+const char* ConnectionController::getLevelData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	LevelData* levelData = static_cast<LevelData*>(m_ReceivedPackages[p_Package].get());
+	return levelData->m_Object1.c_str();
+}
+
+const size_t ConnectionController::getLevelDataSize(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	LevelData* levelData = static_cast<LevelData*>(m_ReceivedPackages[p_Package].get());
+	return levelData->m_Object1.size();
+}
+
+void ConnectionController::sendLevelData(const char* p_Stream, size_t p_Size)
+{
+	LevelData package;
+	package.m_Object1 = std::string(p_Stream, p_Size);
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+void ConnectionController::sendLeaveGame()
+{
+	LeaveGame package;
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 

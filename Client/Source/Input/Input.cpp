@@ -1,6 +1,6 @@
 #include "Input.h"
 
-#include "../Logger.h"
+#include <Logger.h>
 
 void Input::init(InputTranslator::ptr p_Translator)
 {
@@ -54,10 +54,4 @@ void Input::lockMouse(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<MouseEventDataLock> data = std::static_pointer_cast<MouseEventDataLock>(p_Data);
 	m_Translator->lockMouse(data->getLockState());
-}
-
-void Input::showMouse(IEventData::Ptr p_Data)
-{
-	std::shared_ptr<MouseEventDataShow> data = std::static_pointer_cast<MouseEventDataShow>(p_Data);
-	m_Translator->showMouse(data->getShowState());
 }

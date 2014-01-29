@@ -11,9 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Client\Source\EventManager.cpp" />
-    <ClCompile Include="..\Client\Source\Logger.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Common\Source\EventManager.cpp" />
+    <ClCompile Include="..\Common\Source\Logger.cpp" />
+    <ClCompile Include="..\Common\Source\ResourceManager.cpp" />
+    <ClCompile Include="..\Common\Source\ResourceTranslator.cpp" />
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
@@ -35,11 +37,31 @@
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
     <ClCompile Include="..\Sound\Source\Sound.cpp" />
     <ClCompile Include="..\Sound\Source\SoundLogger.cpp" />
+    <ClCompile Include="..\Physics\Source\Body.cpp" />
+    <ClCompile Include="..\Physics\Source\BVLoader.cpp" />
+    <ClCompile Include="..\Physics\Source\Collision.cpp" />
+    <ClCompile Include="..\Physics\Source\Physics.cpp" />
+    <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
+    <ClCompile Include="Source\Physics Engine.cpp" />
     <ClCompile Include="Source\GraphicsEngine.cpp" />
     <ClCompile Include="Source\SoundEngine.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\Graphics\Source\DeferredShaders\AnimatedGeometryPass.hlsl">
+      <FileType>Document</FileType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Graphics\Source\DeferredShaders\ForwardShader.hlsl">
+      <FileType>Document</FileType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Source\testShader_PS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </EntryPointName>
@@ -70,6 +92,14 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </EntryPointName>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Physics\include\BoundingVolume.h" />
+    <ClInclude Include="..\Physics\include\Hull.h" />
+    <ClInclude Include="..\Physics\include\OBB.h" />
+    <ClInclude Include="..\Physics\include\PhysicsTypes.h" />
+    <ClInclude Include="..\Physics\include\Sphere.h" />
+    <ClInclude Include="..\Physics\Source\Collision.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C0F8B22C-8D50-4C3C-975A-807B498A51A7}</ProjectGuid>
@@ -109,12 +139,13 @@
     <IncludePath>$(FMOD_INC_DIR);$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
     <LibraryPath>$(FMOD_LIB_DIR);$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)Bin\</OutDir>
+    <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(SolutionDir)Sound\include;$(SolutionDir)Common\Source;$(SolutionDir)Common\3rd party</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
@@ -138,7 +169,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(SolutionDir)Sound\include;$(SolutionDir)Common\Source;$(SolutionDir)Common\3rd party</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>

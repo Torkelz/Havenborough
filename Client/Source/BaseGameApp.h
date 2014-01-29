@@ -51,6 +51,11 @@ private:
 	std::unique_ptr<GameLogic> m_GameLogic;
 public:
 	/**
+	 * constructor.
+	 */
+	BaseGameApp();
+
+	/**
 	 * Initialize the game and create a window.
 	 */
 	void init();
@@ -92,4 +97,9 @@ private:
 	void handleInput();
 	void updateLogic();
 	void render();
+	
+	void startGame(IEventData::Ptr p_Data);
+	void gameLeft(IEventData::Ptr p_Data);
+	void quitGame(IEventData::Ptr p_Data);
+	void showMouse(IEventData::Ptr p_Data);
 };

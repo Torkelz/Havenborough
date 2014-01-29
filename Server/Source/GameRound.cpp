@@ -1,9 +1,20 @@
 #include "GameRound.h"
 
 #include "GameList.h"
-#include "../../Client/Source/Logger.h"
+#include "Lobby.h"
+
+#include <Components.h>
+#include <Logger.h>
 
 #include <algorithm>
+
+GameRound::GameRound()
+	:	m_ParentList(nullptr),
+		m_ReturnLobby(nullptr),
+		m_Running(false),
+		m_Physics(nullptr)
+{
+}
 
 GameRound::~GameRound()
 {
@@ -14,11 +25,32 @@ GameRound::~GameRound()
 	{
 		m_RunThread.detach();
 	}
+
+	m_Actors.clear();
+
+	if (m_Physics)
+	{
+		IPhysics::deletePhysics(m_Physics);
+	}
+	m_Physics = nullptr;
 }
 
-void GameRound::initialize(ActorFactory::ptr p_ActorFactory)
+void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobby)
 {
 	m_ActorFactory = p_ActorFactory;
+	m_ReturnLobby = p_ReturnLobby;
+
+	m_ResourceManager.reset(new ResourceManager);
+
+	m_Physics = IPhysics::createPhysics();
+	m_Physics->setLogFunction(&Logger::logRaw);
+	m_Physics->initialize();
+
+	m_EventManager.reset(new EventManager);
+
+	m_ActorFactory->setEventManager(m_EventManager.get());
+	m_ActorFactory->setPhysics(m_Physics);
+	m_ActorFactory->setResourceManager(m_ResourceManager.get());
 }
 
 void GameRound::setOwningList(GameList* p_ParentList)
@@ -51,57 +83,21 @@ std::string GameRound::getGameType() const
 	return m_TypeName;
 }
 
-void GameRound::handlePackages()
+void GameRound::handleExtraPackage(Player& p_Player, Package p_Package)
 {
-	for(auto& player : m_Players)
+	User::ptr user = p_Player.getUser().lock();
+
+	if (!user)
 	{
-		User::ptr user = player.getUser().lock();
-
-		if (!user)
-		{
-			continue;
-		}
-
-		IConnectionController* con = user->getConnection();
-
-		unsigned int numPackages = con->getNumPackages();
-		for (unsigned int i = 0; i < numPackages; ++i)
-		{
-			Package package = con->getPackage(i);
-			PackageType type = con->getPackageType(package);
-
-			switch (type)
-			{
-			case PackageType::PLAYER_CONTROL:
-				{
-					PlayerControlData playerControlData = con->getPlayerControlData(package);
-					player.m_PlayerBox.position.x = playerControlData.m_Velocity[0];
-					player.m_PlayerBox.position.y = playerControlData.m_Velocity[1];
-					player.m_PlayerBox.position.z = playerControlData.m_Velocity[2];
-					//player.m_PlayerBox.velocity.x = playerControlData.m_Velocity[0];
-					//player.m_PlayerBox.velocity.y = playerControlData.m_Velocity[1];
-					//player.m_PlayerBox.velocity.z = playerControlData.m_Velocity[2];
-					player.m_PlayerBox.rotation.x = playerControlData.m_Rotation[0];
-					player.m_PlayerBox.rotation.y = playerControlData.m_Rotation[1];
-					player.m_PlayerBox.rotation.z = playerControlData.m_Rotation[2];
-				}
-				break;
-
-			case PackageType::DONE_LOADING:
-				{
-					user->setState(User::State::WAITING_FOR_START);
-				}
-				break;
-
-			default:
-				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
-				Logger::log(Logger::Level::WARNING, msg);
-				break;
-			}
-		}
-
-		con->clearPackages(numPackages);
+		return;
 	}
+
+	IConnectionController* con = user->getConnection();
+
+	PackageType type = con->getPackageType(p_Package);
+
+	std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
+	Logger::log(Logger::Level::WARNING, msg);
 }
 
 void GameRound::run()
@@ -190,12 +186,14 @@ void GameRound::runGame()
 		currentTime = std::chrono::high_resolution_clock::now();
 		const std::chrono::high_resolution_clock::duration frameTime = currentTime - previousTime;
 
-		checkForDisconnectedUsers();
+		deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(frameTime).count();
+
+		m_Physics->update(deltaTime);
+
 		handlePackages();
+		checkForDisconnectedUsers();
 		updateLogic(deltaTime);
 		sendUpdates();
-
-		deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(frameTime).count();
 
 		static const std::chrono::milliseconds sleepDuration(20);
 		std::this_thread::sleep_for(sleepDuration - frameTime);
@@ -204,7 +202,11 @@ void GameRound::runGame()
 
 void GameRound::checkForDisconnectedUsers()
 {
-	auto split = std::partition(m_Players.begin(), m_Players.end(), [] (const Player& p_Player){ return p_Player.getUser().lock(); });
+	auto split = std::partition(m_Players.begin(), m_Players.end(),
+		[] (const Player& p_Player)
+		{
+			return p_Player.getUser().lock();
+		});
 
 	for (auto removePlayer = split; removePlayer != m_Players.end(); ++removePlayer)
 	{
@@ -216,5 +218,67 @@ void GameRound::checkForDisconnectedUsers()
 	if (m_Players.empty())
 	{
 		m_Running = false;
+	}
+}
+
+void GameRound::handlePackages()
+{
+	for(auto& player : m_Players)
+	{
+		User::ptr user = player.getUser().lock();
+
+		if (!user)
+		{
+			continue;
+		}
+
+		IConnectionController* con = user->getConnection();
+
+		unsigned int numPackages = con->getNumPackages();
+		for (unsigned int i = 0; i < numPackages; ++i)
+		{
+			Package package = con->getPackage(i);
+			PackageType type = con->getPackageType(package);
+
+			switch (type)
+			{
+			case PackageType::PLAYER_CONTROL:
+				{
+					PlayerControlData playerControlData = con->getPlayerControlData(package);
+
+					Actor::ptr actor = player.getActor().lock();
+					if (actor)
+					{
+						actor->setPosition(playerControlData.m_Position);
+						actor->setRotation(playerControlData.m_Rotation);
+						std::shared_ptr<PhysicsInterface> physInt = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+						if (physInt)
+						{
+							m_Physics->setBodyVelocity(physInt->getBodyHandle(), playerControlData.m_Velocity);
+						}
+					}
+				}
+				break;
+
+			case PackageType::DONE_LOADING:
+				{
+					user->setState(User::State::WAITING_FOR_START);
+				}
+				break;
+
+			case PackageType::LEAVE_GAME:
+				{
+					m_ReturnLobby->addFreeUser(user);
+					player.releaseUser();
+				}
+				break;
+
+			default:
+				handleExtraPackage(player, package);
+				break;
+			}
+		}
+
+		con->clearPackages(numPackages);
 	}
 }

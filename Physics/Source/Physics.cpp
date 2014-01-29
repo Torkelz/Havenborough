@@ -78,7 +78,7 @@ void Physics::update(float p_DeltaTime)
 			if(i == j)
 				continue;
 
-			HitData hit = Collision::boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
+			HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(), *m_Bodies[j].getVolume());
 			
 			if(hit.intersect)
 			{
@@ -87,21 +87,24 @@ void Physics::update(float p_DeltaTime)
 				hit.isEdge = m_Bodies.at(j).getIsEdge();
 				m_HitDatas.push_back(hit);
 
-				XMVECTOR temp;		// m
-				XMFLOAT4 tempPos;	// m
-
-				temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m
-				XMStoreFloat4(&tempPos, temp);
-
-				b.setPosition(tempPos);
-
-				if (hit.colNorm.y > 0.68f)
+				if(m_Bodies.at(i).getCollisionResponse() && m_Bodies.at(j).getCollisionResponse())
 				{
-					onSomething = true;
+					XMVECTOR temp;		// m
+					XMFLOAT4 tempPos;	// m
 
-					XMFLOAT4 velocity = b.getVelocity();	// m/s
-					velocity.y = 0.f;
-					b.setVelocity(velocity);
+					temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m
+					XMStoreFloat4(&tempPos, temp);
+
+					b.setPosition(tempPos);
+
+					if (hit.colNorm.y > 0.68f)
+					{
+						onSomething = true;
+
+						XMFLOAT4 velocity = b.getVelocity();	// m/s
+						velocity.y = 0.f;
+						b.setVelocity(velocity);
+					}
 				}
 			}
 		}
@@ -264,23 +267,24 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 	Body* body = findBody(p_BodyHandle);
 	if(body == nullptr)
 		return;
+	XMVECTOR scale = Vector3ToXMVECTOR(&p_Scale, 0.f);
 
 	switch (body->getVolume()->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
-		((AABB*)body->getVolume())->setSize(Vector3ToXMFLOAT4(&p_Scale, 0.f));
+		((AABB*)body->getVolume())->scale(scale);
 		break;
 
 	case BoundingVolume::Type::HULL:
-		((Hull*)body->getVolume())->setScale(p_Scale);
+		((Hull*)body->getVolume())->scale(scale);
 		break;
 
 	case BoundingVolume::Type::OBB:
-		((OBB*)body->getVolume())->setExtent(XMFLOAT4(p_Scale.x, p_Scale.y, p_Scale.z, 0.f));
+		((OBB*)body->getVolume())->scale(scale);
 		break;
 
 	case BoundingVolume::Type::SPHERE:
-		((Sphere*)body->getVolume())->setRadius(p_Scale.x);
+		((Sphere*)body->getVolume())->scale(scale);
 		break;
 	default:
 		break;
@@ -347,18 +351,26 @@ unsigned int Physics::getHitDataSize()
 	return m_HitDatas.size();
 }
 
-Vector4 Physics::getBodyPosition(BodyHandle p_Body)
+void Physics::setBodyCollisionResponse(BodyHandle p_Body, bool p_State)
+{
+	Body *body = findBody(p_Body);
+	if(!body)
+		return;
+
+	body->setCollisionResponse(p_State);
+}
+
+Vector3 Physics::getBodyPosition(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
-		return Vector4(0.f, 0.f, 0.f, 1.f);
+		return Vector3(0.f, 0.f, 0.f);
 
 	XMFLOAT4 temp = body->getPosition();	// m
-	Vector4 tempvec4;	// cm
 
-	tempvec4 = XMFLOAT4ToVector4(&temp) * 100.f;
+	Vector3 tempvec3(temp.x * 100.f, temp.y * 100.f, temp.z * 100.f);	// cm
 
-	return tempvec4;
+	return tempvec3;
 }
 
 Vector3 Physics::getBodySize(BodyHandle p_Body)
@@ -369,16 +381,20 @@ Vector3 Physics::getBodySize(BodyHandle p_Body)
 
 	Vector3 temp;
 	float r;
-	XMFLOAT4 bSize;
 	switch (body->getVolume()->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
-		bSize = *((AABB*)body->getVolume())->getHalfDiagonal();
-		temp = Vector3(bSize.x,bSize.y,bSize.z);
+		temp = XMFLOAT4ToVector3(&((AABB*)body->getVolume())->getHalfDiagonal());
 		break;
 	case BoundingVolume::Type::SPHERE:
 		r = ((Sphere*)body->getVolume())->getRadius();
 		temp = Vector3(r,r,r);
+		break;
+	case BoundingVolume::Type::OBB:
+		temp = XMFLOAT4ToVector3(&((OBB*)body->getVolume())->getExtents());
+		break;
+	case BoundingVolume::Type::HULL:
+		temp = XMFLOAT4ToVector3(&((Hull*)body->getVolume())->getScale());
 		break;
 	default:
 		temp = Vector3(0,0,0);
@@ -411,15 +427,15 @@ void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 	body->setVelocity(tempPosition);
 }
 
-Vector4 Physics::getBodyVelocity(BodyHandle p_Body)
+Vector3 Physics::getBodyVelocity(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
 	if(body == nullptr)
-		return Vector4(0.f, 0.f, 0.f, 0.f);
+		return Vector3(0.f, 0.f, 0.f);
 
 	XMFLOAT4 tempVel = body->getVelocity();
 
-	return Vector4(tempVel.x, tempVel.y, tempVel.z, tempVel.w) * 100.f;
+	return Vector3(tempVel.x, tempVel.y, tempVel.z) * 100.f;
 }
 
 void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)

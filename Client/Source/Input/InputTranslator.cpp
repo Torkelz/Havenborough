@@ -1,7 +1,7 @@
 #include "InputTranslator.h"
 
 #include "../ClientExceptions.h"
-#include "../Logger.h"
+#include <Logger.h>
 
 InputTranslator::InputTranslator()
 	: m_Window(nullptr), m_MouseLocked(false)
@@ -93,11 +93,6 @@ void InputTranslator::addMouseButtonMapping(MouseButton p_Button, const std::str
 void InputTranslator::lockMouse(bool p_State)
 {
 	m_MouseLocked = p_State;
-}
-
-void InputTranslator::showMouse(bool p_State)
-{
-	ShowCursor(p_State);
 }
 
 bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)

@@ -6,7 +6,7 @@
 
 #include "InputRecord.h"
 #include "../Window.h"
-#include "../EventData.h"
+#include <EventData.h>
 
 #include <functional>
 #include <memory>
@@ -143,13 +143,6 @@ public:
 	 * @param p_State true for lock.
 	 */
 	void lockMouse(bool p_State);
-
-	/**
-	 * Hide the mouse pointer or unhide it.
-	 *
-	 * @param p_State true for hide.
-	 */
-	void showMouse(bool p_State);
 
 protected:
 	/**
