@@ -70,14 +70,13 @@ void GameLogic::onFrame(float p_DeltaTime)
 				{
 					m_Physics->removeHitDataAt(i);
 				}
-				if(!m_CheckpointSystem.reachedFinishLine() && m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+				if(!m_Level.reachedFinishLine() && m_Level.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
 				{
-					m_CheckpointSystem.changeCheckpoint(m_Objects);
-					if(m_CheckpointSystem.reachedFinishLine())
+					m_Level.changeCheckpoint(m_Objects);
+					if(m_Level.reachedFinishLine())
 					{
 						m_Level = Level();
 						m_Objects.clear();
-						m_CheckpointSystem = CheckpointSystem();
 
 						m_InGame = false;
 
@@ -242,16 +241,16 @@ void GameLogic::playLocalLevel()
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
-	m_Level.loadLevel(input, input, m_Objects);
+	m_Level.loadLevel(input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("../Bin/assets/levels/Level1.2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("../Bin/assets/levels/Level1.2.1.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
-	m_Level.loadLevel(input, input, m_Objects);
+	m_Level.loadLevel(input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
@@ -280,7 +279,6 @@ void GameLogic::leaveGame()
 	{
 		m_Level = Level();
 		m_Objects.clear();
-		m_CheckpointSystem = CheckpointSystem();
 
 		m_InGame = false;
 
@@ -350,17 +348,17 @@ void GameLogic::handleNetwork()
 					{
 						std::string buffer(conn->getLevelData(package),size);
 						std::istringstream stream(buffer);
-						m_Level.loadLevel(stream, stream, m_Objects);
+						m_Level.loadLevel(stream, m_Objects);
 					}
 					else
 					{
 #ifdef _DEBUG
 						std::string levelFileName("../Bin/assets/levels/Level2.btxl");
 #else
-						std::string levelFileName("../Bin/assets/levels/Level1.2.btxl");
+						std::string levelFileName("../Bin/assets/levels/Level1.2.1.btxl");
 #endif
 						std::ifstream file(levelFileName, std::istream::binary);
-						m_Level.loadLevel(file, file, m_Objects);
+						m_Level.loadLevel(file, m_Objects);
 					}
 					m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.f, -2528.0f)); //TODO: Remove this line when level gets the position from file
@@ -540,12 +538,12 @@ void GameLogic::loadSandbox()
 	wavingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f)));
 	playAnimation(wavingWitch.lock(), "Kick");
 	
-	m_CheckpointSystem = CheckpointSystem();
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(m_Level.getGoalPosition(), Vector3(1.0f, 10.0f, 1.0f))));
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem = CheckpointSystem();
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(m_Level.getGoalPosition(), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
 
 	ikTest = addActor(m_ActorFactory->createIK_Worm());
 	playAnimation(ikTest.lock(), "Wave");
