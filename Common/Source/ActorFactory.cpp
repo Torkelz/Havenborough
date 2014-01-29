@@ -255,6 +255,9 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
+	printer.PushAttribute("x", p_Position.x);
+	printer.PushAttribute("y", p_Position.y);
+	printer.PushAttribute("z", p_Position.z);
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "Checkpoint1");
 	pushVector(printer, "Scale", p_Scale);
@@ -262,7 +265,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);
 	pushVector(printer, "Halfsize", AABBScale);
-	pushVector(printer, "RelativePosition", Vector3(0.0f, p_Position.y + AABBScale.y, 0.0f));
+	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
 	printer.CloseElement();
 
@@ -270,7 +273,6 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	doc.Parse(printer.CStr());
 
 	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
 
 	return actor;
 }
