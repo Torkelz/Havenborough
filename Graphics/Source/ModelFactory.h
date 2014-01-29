@@ -32,8 +32,8 @@ private:
 
 	loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
-public:
 
+public:
 	/**
 	* Gets an instance of the model factory.
 	* @return a pointer to the instance

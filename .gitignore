@@ -31,7 +31,9 @@ testCaseCollection.xml
 *.coverage
 *.cso
 Client/Bin/logFile.txt
+Server/Bin/logFile.txt
 Server/logFile.txt
 BoostIntegrationTest/Bin/debug_log.txt
 BoostIntegrationTest/Bin/release_log.txt
 **/.mayaSwatches/
+*.btx

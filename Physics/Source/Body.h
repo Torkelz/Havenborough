@@ -107,7 +107,7 @@ public:
 	* Get the volume that is connected to the body.
 	* @return body's volume.
 	*/
-	BoundingVolume* getVolume();
+	BoundingVolume *getVolume();
 	/**
 	* Get the current velocity for the body.
 	* @return m_Velocity in m/s.

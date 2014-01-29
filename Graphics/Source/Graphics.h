@@ -16,9 +16,9 @@
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
 #include "ModelInstance.h"
+#include "ModelDefinition.h"
 #include "VRAMInfo.h"
 
-#include "ParticleSystem.h"
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
 
@@ -32,32 +32,32 @@ using std::make_pair;
 class Graphics : public IGraphics
 {
 private:
-	ID3D11Device			*m_Device;
-	ID3D11DeviceContext		*m_DeviceContext;
+	ID3D11Device *m_Device;
+	ID3D11DeviceContext *m_DeviceContext;
 
-	IDXGISwapChain			*m_SwapChain;
-	ID3D11RenderTargetView	*m_RenderTargetView;
+	IDXGISwapChain *m_SwapChain;
+	ID3D11RenderTargetView *m_RenderTargetView;
 	
-	ID3D11RasterizerState	*m_RasterState;
-	ID3D11RasterizerState	*m_RasterStateBV;
+	ID3D11RasterizerState *m_RasterState;
+	ID3D11RasterizerState *m_RasterStateBV;
 
-	ID3D11Texture2D			*m_DepthStencilBuffer;
+	ID3D11Texture2D *m_DepthStencilBuffer;
 	ID3D11DepthStencilState	*m_DepthStencilState;
-	ID3D11DepthStencilView	*m_DepthStencilView;
+	ID3D11DepthStencilView *m_DepthStencilView;
 
-	unsigned int			m_Numerator;
-	unsigned int			m_Denominator;
-	char					m_GraphicsCard[128];
-	int						m_GraphicsMemory;
-	bool					m_VSyncEnabled;
-	float					m_ClearColor[4];
-	int						m_SelectedRenderTarget;
+	unsigned int m_Numerator;
+	unsigned int m_Denominator;
+	char m_GraphicsCard[128];
+	int m_GraphicsMemory;
+	bool m_VSyncEnabled;
+	float m_ClearColor[4];
+	int m_SelectedRenderTarget;
 
 	XMFLOAT4X4 m_ViewMatrix;
 	XMFLOAT4X4 m_ProjectionMatrix;
 	XMFLOAT3 m_Eye;
 
-	static const unsigned int		m_MaxLightsPerLightInstance;
+	static const unsigned int m_MaxLightsPerLightInstance;
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
@@ -66,8 +66,8 @@ private:
 	vector<pair<string, Shader*>> m_ShaderList;
 	vector<pair<string, ModelDefinition>> m_ModelList;
 	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
-	vector<pair<int, ModelInstance>> m_ModelInstances;
-	int m_NextInstanceId;
+	vector<pair<InstanceId, ModelInstance>> m_ModelInstances;
+	InstanceId m_NextInstanceId;
 	
 	//Particles
 	vector<pair<string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
@@ -84,10 +84,10 @@ private:
 	std::vector<Light> m_DirectionalLights;
 
 	//Stuff needed for drawing bounding volumes
-	std::vector<XMFLOAT4>	m_BVTriangles;
-	Buffer					*m_BVBuffer;
-	unsigned int			m_BVBufferNumOfElements;
-	Shader					*m_BVShader;
+	std::vector<XMFLOAT4> m_BVTriangles;
+	Buffer *m_BVBuffer;
+	unsigned int m_BVBufferNumOfElements;
+	Shader *m_BVShader;
 
 	Shader *m_Shader; //DEBUG
 	ID3D11SamplerState *m_Sampler;
@@ -140,19 +140,23 @@ public:
 	
 	void setClearColor(Vector4 p_Color) override;
 
-	void renderModel(int p_ModelId) override;
+	void renderModel(InstanceId p_ModelId) override;
 	virtual void renderSkyDome() override;
 	void renderText(void) override;
 	void renderQuad(void) override;
 	void drawFrame() override;
 
+	void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) override;
+
 	void updateAnimations(float p_DeltaTime) override;
-	void playAnimation(int p_Instance, const char* p_ClipName) override;
+	void playAnimation(int p_Instance, const char* p_ClipName, bool p_Override) override;
+	void queueAnimation(int p_Instance, const char* p_ClipName) override;
+	void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) override;
 
 	int getVRAMUsage(void) override;
 	
 	InstanceId createModelInstance(const char *p_ModelId) override;
-	virtual void createSkyDome(const char *p_ModelId, float p_Radius) override;
+	void createSkyDome(const char *p_ModelId, float p_Radius) override;
 	void eraseModelInstance(InstanceId p_Instance) override;
 	void setModelPosition(InstanceId p_Instance, Vector3 p_Position) override;
 	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;

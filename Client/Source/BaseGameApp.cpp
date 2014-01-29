@@ -14,6 +14,10 @@ const double pi = 3.14159265358979323846264338;
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
+BaseGameApp::BaseGameApp()
+	:	m_ActorFactory(0x10000)
+{
+}
 
 void BaseGameApp::init()
 {
@@ -72,6 +76,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping(VK_SPACE, "jump");
 	translator->addKeyboardMapping('C', "connectToServer");
 	translator->addKeyboardMapping('T', "joinTestLevel");
+	translator->addKeyboardMapping('Y', "joinServerLevel");
 	translator->addKeyboardMapping('J', "playLocalTest");
 
 	//translator->addKeyboardMapping('J', "changeSceneP");
@@ -111,7 +116,6 @@ void BaseGameApp::init()
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
-	m_ActorFactory.setGraphics(m_Graphics);
 	m_ActorFactory.setEventManager(m_EventManager.get());
 	m_ActorFactory.setResourceManager(m_ResourceManager.get());
 
@@ -282,8 +286,8 @@ void BaseGameApp::updateTimer()
 {
 	m_PrevTimeStamp = m_CurrTimeStamp;
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_CurrTimeStamp);
-	m_DeltaTime = (m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt;
-	static const float maxDeltaTime = 1.f / 5.f;
+	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt);// / 10.0f; // To debug the game at low refreshrate.
+	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{
 		Logger::log(Logger::Level::WARNING, "Computer to slow or something");
@@ -327,7 +331,16 @@ void BaseGameApp::startGame(IEventData::Ptr p_Data)
 
 void BaseGameApp::gameLeft(IEventData::Ptr p_Data)
 {
-	m_SceneManager.startMenu();
+	std::shared_ptr<GameLeftEventData> data = std::static_pointer_cast<GameLeftEventData>(p_Data);
+
+	if (data->getGoBack())
+	{
+		m_SceneManager.startMenu();
+	}
+	else
+	{
+		m_SceneManager.gotoPostGame();
+	}
 }
 
 void BaseGameApp::quitGame(IEventData::Ptr p_Data)

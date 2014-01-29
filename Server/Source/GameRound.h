@@ -36,10 +36,18 @@ protected:
 	bool m_Running;
 	std::string m_TypeName;
 
+	std::unique_ptr<EventManager> m_EventManager;
+	IPhysics* m_Physics;
+	std::unique_ptr<ResourceManager> m_ResourceManager;
 	ActorFactory::ptr m_ActorFactory;
+	std::vector<Actor::ptr> m_Actors;
 	std::vector<Player> m_Players;
 
 public:
+	/**
+	 * constructor.
+	 */
+	GameRound();
 	/**
 	 * destructor.
 	 */
@@ -107,8 +115,11 @@ protected:
 	virtual void updateLogic(float p_DeltaTime) {}
 	/**
 	 * Handle any received packages.
+	 *
+	 * @param p_Player the player the package belongs to
+	 * @param p_Package a handle to the package to handle
 	 */
-	virtual void handlePackages();
+	virtual void handleExtraPackage(Player& p_Player, Package p_Package);
 	/**
 	 * Send any needed updates to all players.
 	 */
@@ -128,4 +139,5 @@ private:
 	void sendLevelAndWait();
 	void runGame();
 	void checkForDisconnectedUsers();
+	void handlePackages();
 };

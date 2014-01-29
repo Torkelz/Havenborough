@@ -7,6 +7,7 @@
 #include "GameRoundFactory.h"
 #include "User.h"
 
+#include <mutex>
 #include <vector>
 
 class Server;
@@ -33,6 +34,7 @@ private:
 	Server* m_Server;
 
 	std::vector<AvailableLevel> m_Levels;
+	std::mutex m_UserLock;
 	std::vector<User::wPtr> m_FreeUsers;
 	GameRoundFactory m_GameFactory;
 

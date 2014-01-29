@@ -28,13 +28,13 @@ cbuffer cb : register(b1)
 PSSceneIn VS(VSSceneIn input)
 {
         PSSceneIn output = (PSSceneIn)0;
-		float4x4 trans = {  float4(1,0,0,cameraPos.x),
+        float4x4 trans = {
+						float4(1,0,0,cameraPos.x),
 						float4(0,1,0,cameraPos.y),
 						float4(0,0,1,cameraPos.z),
 						float4(0,0,0,1)};
-        
-        // transform the point into view space
-        output.Pos = mul( projection, mul(view, mul(trans, float4(input.posL,1.0f) ) ));
+         // transform the point into view space
+		output.Pos = mul( projection, mul(view, mul(trans, float4(input.posL,1.0f) ) ));
         output.texC = input.posL;
         
         return output;

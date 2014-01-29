@@ -1,7 +1,7 @@
 #include "InputTranslator.h"
 
 #include "../ClientExceptions.h"
-#include "../Logger.h"
+#include <Logger.h>
 
 InputTranslator::InputTranslator()
 	: m_Window(nullptr), m_MouseLocked(false)

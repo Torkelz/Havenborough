@@ -11,8 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Client\Source\Logger.cpp" />
-    <ClCompile Include="Source\ActorFactory.cpp" />
+    <ClCompile Include="Source\FileGameRound.cpp" />
     <ClCompile Include="Source\GameList.cpp" />
     <ClCompile Include="Source\GameRound.cpp" />
     <ClCompile Include="Source\GameRoundFactory.cpp" />
@@ -35,8 +34,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Client\Source\Logger.h" />
-    <ClInclude Include="Source\ActorFactory.h" />
+    <ClInclude Include="Source\FileGameRound.h" />
     <ClInclude Include="Source\GameList.h" />
     <ClInclude Include="Source\GameRound.h" />
     <ClInclude Include="Source\GameRoundFactory.h" />
@@ -100,7 +98,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/3rd party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,7 +116,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/3rd party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

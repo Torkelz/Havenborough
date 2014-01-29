@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <boost/filesystem.hpp>
+#include "AnimationStructs.h"
 
 using namespace DirectX;
 const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
@@ -517,17 +518,15 @@ void Graphics::renderModel(int p_ModelId)
 		if (inst.first == p_ModelId)
 		{
 			ModelDefinition *temp = getModelFromList(inst.second.getModelName());
-			if(temp->m_IsTransparent == false)
+			if(!temp->isTransparent)
 			{
 				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(temp,
-					inst.second.getWorldMatrix(),
-					&inst.second.getFinalTransform()));
+					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
 			}
 			else
 			{
 				m_Forwardrender->addRenderable(DeferredRenderer::Renderable(temp,
-					inst.second.getWorldMatrix(),
-					&inst.second.getFinalTransform(),
+					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
 					&inst.second.getColorTone()));
 			}
 			
@@ -639,22 +638,32 @@ void Graphics::drawFrame()
 	m_DirectionalLights.clear();
 }
 
+void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)
+{
+	for(auto &model : m_ModelList)
+	{
+		if(model.first == std::string(p_ModelId))
+		{
+			model.second.isTransparent = p_State;
+			break;
+		}
+	}
+}
+
 void Graphics::updateAnimations(float p_DeltaTime)
 {
 	for (auto& model : m_ModelInstances)
 	{
 		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
-		if (modelDef->m_IsAnimated)
+		if (modelDef->isAnimated)
 		{
-			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
+			model.second.updateAnimation(p_DeltaTime, modelDef->joints);
 		}
 	}
 }
 
-void Graphics::playAnimation(int p_Instance, const char* p_ClipName)
+void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Override)
 {
-	#include "AnimationStructs.h"
-
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
@@ -665,13 +674,49 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName)
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->m_AnimationClips.find(p_ClipName) == modelDef->m_AnimationClips.end() )
+			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
 			{
-
 				tempStr = "default";
 			}
 
-			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr));
+			//if(tempStr != "LookAround")
+			//	break;
+
+			inst.second.playClip(modelDef->animationClips.at(tempStr), p_Override);
+			break;
+		}
+	}
+}
+
+void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			std::string tempStr(p_ClipName);
+
+			// If an illegal string has been put in, just shoot in the default animation.
+			// The show must go on!
+			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
+			{
+				tempStr = "default";
+			}
+
+			inst.second.queueClip(modelDef->animationClips.at(tempStr));
+			break;
+		}
+	}
+}
+void Graphics::changeAnimationWeight(int p_Instance, int p_Track, float p_Weight)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.changeWeight(p_Track, p_Weight);
 			break;
 		}
 	}
@@ -697,7 +742,7 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the model definition: " + std::string(p_ModelId));
 		return -1;
 	}
-
+	
 	ModelInstance instance;
 	instance.setModelName(p_ModelId);
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
@@ -705,9 +750,9 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 	int id = m_NextInstanceId++;
 
-	if (modelDef->m_IsAnimated)
+	if (modelDef->isAnimated)
 	{
-		instance.updateAnimation(0.f, modelDef->m_Joints);
+		instance.updateAnimation(0.f, modelDef->joints);
 	}
 
 	m_ModelInstances.push_back(std::make_pair(id, instance));
@@ -786,13 +831,15 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 	throw GraphicsException("Failed to set model instance color tone.", __LINE__, __FILE__);
 }
 
-void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target)
+void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint,
+								  const char* p_BaseJoint, Vector3 p_Target)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.applyIK_ReachPoint(p_TargetJoint, p_HingeJoint, p_BaseJoint, p_Target, getModelFromList(inst.second.getModelName())->m_Joints);
+			inst.second.applyIK_ReachPoint(p_TargetJoint, p_HingeJoint, p_BaseJoint, p_Target,
+				getModelFromList(inst.second.getModelName())->joints);
 			break;
 		}
 	}
@@ -805,7 +852,7 @@ Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 		if (inst.first == p_Instance)
 		{
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->m_Joints);
+			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->joints);
 			
 			return position;
 		}
@@ -818,10 +865,6 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 {
 	using namespace DirectX;
 
-	m_Eye = Vector3ToXMFLOAT3(&p_Position);
-	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
-	XMVECTOR pos = XMLoadFloat4(&eye);
-
 	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
 
 	static const XMFLOAT4 up(0.f, 1.f, 0.f, 0.f);
@@ -831,6 +874,20 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 
 	static const XMFLOAT4 forward(0.f, 0.f, -1.f, 0.f);
 	XMVECTOR forwardVec = XMLoadFloat4(&forward);
+
+	// Debug character animation temp stuff START
+	XMFLOAT4 offset(0.0f, 10.0f, 500.0f, 0.0f);
+	XMVECTOR offsetVector = XMLoadFloat4(&offset);
+	offsetVector = XMVector4Transform(offsetVector, rotation);
+	XMStoreFloat4(&offset, offsetVector);
+
+	m_Eye = Vector3ToXMFLOAT3(&p_Position);
+	XMFLOAT4 eye(m_Eye.x + offset.x, m_Eye.y + offset.y, m_Eye.z + offset.z, 1.f);
+	// Debug character animation temp stuff END
+
+	//m_Eye = Vector3ToXMFLOAT3(&p_Position);
+	//XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
+	XMVECTOR pos = XMLoadFloat4(&eye);
 
 	XMVECTOR rotForward = XMVector4Transform(forwardVec, rotation);
 	XMVECTOR flatForward = XMVector4Transform(forwardVec, XMMatrixRotationRollPitchYaw(0.f, p_Yaw, 0.f));

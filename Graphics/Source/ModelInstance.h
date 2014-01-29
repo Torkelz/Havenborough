@@ -13,7 +13,8 @@
  class ModelInstance
  {
  private:
-	struct AnimationTrack{
+	struct AnimationTrack
+	{
 		AnimationClip clip; // Constant animation data
 
 		// Dynamic animation data
@@ -21,6 +22,7 @@
 		float fadedFrames; // The amount of frames faded.
 		float currentFrame;
 		float destinationFrame;
+		float dynamicWeight;
 	};
 
 	std::string m_ModelName;
@@ -46,15 +48,20 @@
 	std::vector<DirectX::XMFLOAT4X4> m_FinalTransform;
 	/**
 	 * The animation tracks contain the timestamp information and animation clip data needed for animations and blends.
-	 * Track 0 is the main track. It contains whole body animations.
-	 * Track 1 is the first extra track. It has logic for partial body blends, fade in and out.
-	 * Track 2 is the second extra track. It has logic for whole body blends and fade ins.
+	 * Track 0 is the forward track. It contains whole body animations that are in the z-axis in Maya. It also contains
+	 *		axis-less animations like jump and dance.
+	 * Track 1 is the fade in or layered track for track 0.
+	 * Track 2 is the first extra track. It contains whole body animations that are in the x-axis in Maya. E.g. strafe.
+	 * Track 3 is the fade in or layered track for track 2.
+	 * Track 4 is the second extra track. Is supports partial blends like wave and has logic for fade ins and fade outs.
+	 * Track 5 is the fade in or layered track for track 4.
 	 */
-	AnimationTrack m_Tracks[3];
+	AnimationTrack m_Tracks[6];
+	std::vector<AnimationClip> m_Queue;
 
  public:
 	/**
-	 * Contructor. Creates an empty object.
+	 * Constructor. Creates an empty object.
 	 */
 	ModelInstance(void);
 	/**
@@ -136,7 +143,9 @@
 	 * @param p_Position the position in world space to reach for.
 	 * @param p_Joints the skeleton used for the model.
 	 */
-	void applyIK_ReachPoint(const std::string& p_TargetJointName, const std::string& p_HingeJointName, const std::string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints);
+	void applyIK_ReachPoint(const std::string& p_TargetJointName, const std::string& p_HingeJointName, 
+		const std::string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints);
+	
 	/**
 	 * Get the position of a joint.
 	 *
@@ -148,11 +157,31 @@
 	/**
 	 * Play an animation clip.
 	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
+	 * @param p_Override, false if you want standard behavior and true if you want to skip blending etc.
 	 */
-	void playClip( AnimationClip p_Clip );
+	void playClip( AnimationClip p_Clip, bool p_Override );
+
+	/**
+	 * Queue animation clip.
+	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
+	 * NOTE: Queued clips cannot override the main track of a pair.
+	 */
+	void queueClip( AnimationClip p_Clip );
+
+	/**
+	 * Use this function to dynamicly change weight between e.g. the forward and strafe animations.
+	 * @param p_MainTrack the first track in the track pair that has to change weight.
+	 * @param p_Weight the new goal weight.
+	 * NOTE: Can only be used on track pairs.
+	 */
+	void changeWeight(int p_MainTrack, float p_Weight );
 
  private:
 	void calculateWorldMatrix(void) const;
 	void updateFinalTransforms(const std::vector<Joint>& p_Joints);
 	bool affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint);
+	bool playQueuedClip(int p_Track);
+	void checkFades();
+	void updateTimeStamp(float p_DeltaTime);
+	MatrixDecomposed updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack, MatrixDecomposed p_ToParentData);
  };

@@ -1,5 +1,6 @@
 #pragma once
 #include "IScene.h"
+#include "IEventManager.h"
 
 class PostGameScene : public IScene
 {
@@ -9,6 +10,7 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
+	IEventManager* m_EventManager;
 
 	IGraphics *m_Graphics;
 public: 
