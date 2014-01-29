@@ -8,8 +8,10 @@
 #include "CommonExceptions.h"
 #include "EventData.h"
 #include "ResourceManager.h"
+#include "XMLHelper.h"
 
 #include <IPhysics.h>
+
 
 /**
  * Interface for a physics component.
@@ -103,6 +105,15 @@ public:
 		m_Body = m_Physics->createOBB(0.f, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, false);
 	}
 
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("OBBPhysics");
+		p_Printer.PushAttribute("Immovable", m_Immovable);
+		pushVector(p_Printer, "Halfsize", m_Halfsize);
+		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
+		p_Printer.CloseElement();
+	}
+
 	void onUpdate(float p_DeltaTime) override
 	{
 		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
@@ -178,6 +189,16 @@ public:
 	void postInit() override
 	{
 		m_Body = m_Physics->createSphere(m_Mass, m_Immovable, m_Owner->getPosition(), m_Radius);
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("SpherePhysics");
+		p_Printer.PushAttribute("Immovable", m_Immovable);
+		p_Printer.PushAttribute("Radius", m_Radius);
+		p_Printer.PushAttribute("Mass", m_Mass);
+		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
+		p_Printer.CloseElement();
 	}
 
 	void onUpdate(float p_DeltaTime) override
@@ -263,6 +284,16 @@ public:
 		m_Physics->setBodyCollisionResponse(m_Body, m_RespondToCollision);
 	}
 
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("AABBPhysics");
+		p_Printer.PushAttribute("Edge", m_IsEdge);
+		p_Printer.PushAttribute("CollisionResponse", m_RespondToCollision);
+		pushVector(p_Printer, "Halfsize", m_Halfsize);
+		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
+		p_Printer.CloseElement();
+	}
+
 	void onUpdate(float p_DeltaTime) override
 	{
 		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
@@ -293,6 +324,7 @@ private:
 	IPhysics* m_Physics;
 	ResourceManager* m_ResourceManager;
 	Vector3 m_Scale;
+	std::string m_MeshName;
 
 public:
 	~BoundingMeshComponent() override
@@ -329,6 +361,8 @@ public:
 			throw CommonException("Collision component lacks mesh", __LINE__, __FILE__);
 		}
 
+		m_MeshName = meshName;
+
 		m_MeshResourceId = m_ResourceManager->loadResource("volume", meshName);
 
 		m_Scale = Vector3(1.f, 1.f, 1.f);
@@ -342,6 +376,14 @@ public:
 
 		m_Body = m_Physics->createBVInstance(meshName);
 		m_Physics->setBodyScale(m_Body, m_Scale);
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("MeshPhysics");
+		p_Printer.PushAttribute("Mesh", m_MeshName.c_str());
+		pushVector(p_Printer, "Scale", m_Scale);
+		p_Printer.CloseElement();
 	}
 
 	void updatePosition(Vector3 p_Position) override
@@ -447,6 +489,16 @@ public:
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
 			m_BaseScale, m_ColorTone)));
 	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("Model");
+		p_Printer.PushAttribute("Mesh", m_MeshName.c_str());
+		pushVector(p_Printer, "Scale", m_BaseScale);
+		pushVector(p_Printer, "ColorTone", m_ColorTone);
+		p_Printer.CloseElement();
+	}
+
 	void updateScale(const std::string& p_CompName, Vector3 p_Scale) override
 	{
 		for (auto& scale : m_AppliedScales)
@@ -603,6 +655,14 @@ public:
 		m_Owner->setRotation(rot + m_RotVelocity * p_DeltaTime);
 	}
 
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("Movement");
+		pushVector(p_Printer, "Velocity", m_Velocity);
+		pushVector(p_Printer, "RotationalVelocity", m_RotVelocity);
+		p_Printer.CloseElement();
+	}
+
 	void setVelocity(Vector3 p_Velocity) override
 	{
 		m_Velocity = p_Velocity;
@@ -618,6 +678,93 @@ public:
 	Vector3 getRotationalVelocity() const override
 	{
 		return m_RotVelocity;
+	}
+};
+
+/**
+ * Simple linear movement component implementation.
+ */
+class CircleMovementComponent : public MovementInterface
+{
+private:
+	Vector3 m_CircleCenterPosition;
+	float m_CircleAngle;
+	float m_CircleRotationSpeed;
+	float m_CircleRadius;
+
+public:
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		m_CircleCenterPosition = Vector3(0.f, 0.f, 0.f);
+		m_CircleAngle = 0.f;
+		m_CircleRotationSpeed = PI;
+		m_CircleRadius = 100.f;
+
+		const tinyxml2::XMLElement* centerElem = p_Data->FirstChildElement("CircleCenter");
+		if (centerElem)
+		{
+			m_CircleCenterPosition.x = centerElem->FloatAttribute("x");
+			m_CircleCenterPosition.y = centerElem->FloatAttribute("y");
+			m_CircleCenterPosition.z = centerElem->FloatAttribute("z");
+		}
+
+		p_Data->QueryFloatAttribute("StartAngle", &m_CircleAngle);
+		p_Data->QueryFloatAttribute("RotationSpeed", &m_CircleRotationSpeed);
+		p_Data->QueryFloatAttribute("CircleRadius", &m_CircleRadius);
+	}
+
+	void postInit() override
+	{
+		onUpdate(0.f);
+	}
+
+	void onUpdate(float p_DeltaTime) override
+	{
+		m_CircleAngle += m_CircleRotationSpeed * p_DeltaTime;
+		Vector3 newPos = m_CircleCenterPosition;
+		newPos.x += cos(m_CircleAngle) * m_CircleRadius;
+		newPos.z += -sin(m_CircleAngle) * m_CircleRadius;
+		Vector3 newRot(m_CircleAngle, 0.f, m_CircleAngle);
+
+		m_Owner->setPosition(newPos);
+		m_Owner->setRotation(newRot);
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("CircleMovement");
+		p_Printer.PushAttribute("StartAngle", m_CircleAngle);
+		p_Printer.PushAttribute("RotationSpeed", m_CircleRotationSpeed);
+		p_Printer.PushAttribute("CircleRadius", m_CircleRadius);
+		pushVector(p_Printer, "CircleCenter", m_CircleCenterPosition);
+		p_Printer.CloseElement();
+	}
+
+	void setVelocity(Vector3 p_Velocity) override
+	{
+	}
+	Vector3 getVelocity() const override
+	{
+		Vector3 newVel;
+		newVel.x = -sin(m_CircleAngle) * m_CircleRadius * m_CircleRotationSpeed;
+		newVel.y = 0.f;
+		newVel.z = -cos(m_CircleAngle) * m_CircleRadius * m_CircleRotationSpeed;
+		return newVel;
+	}
+	void setRotationalVelocity(Vector3 p_RotVelocity) override
+	{
+	}
+	Vector3 getRotationalVelocity() const override
+	{
+		return Vector3(m_CircleRotationSpeed, 0.f, m_CircleRotationSpeed);
+	}
+	Vector3 getCenterPosition() const
+	{
+		return m_CircleCenterPosition;
+	}
+	float getRadius() const
+	{
+		return m_CircleRadius;
 	}
 };
 
@@ -685,6 +832,14 @@ public:
 				}
 			}
 		}
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("Pulse");
+		p_Printer.PushAttribute("Length", m_PulseLength);
+		p_Printer.PushAttribute("Strength", m_PulseStrength);
+		p_Printer.CloseElement();
 	}
 
 	void pulseOnce() override
@@ -824,6 +979,47 @@ public:
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new LightEventData(m_Light)));
 	}
 
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("Light");
+		switch (m_Light.type)
+		{
+		case Light::Type::DIRECTIONAL:
+			{
+				p_Printer.PushAttribute("Type", "Directional");
+				pushVector(p_Printer, "Direction", m_Light.direction);
+			}
+			break;
+
+		case Light::Type::POINT:
+			{
+				p_Printer.PushAttribute("Type", "Point");
+				p_Printer.PushAttribute("Range", m_Light.range);
+				pushVector(p_Printer, "Position", m_Light.position);
+			}
+			break;
+
+		case Light::Type::SPOT:
+			{
+				p_Printer.PushAttribute("Type", "Spot");
+				p_Printer.PushAttribute("Range", m_Light.range);
+				pushVector(p_Printer, "Position", m_Light.position);
+				pushVector(p_Printer, "Direction", m_Light.direction);
+				p_Printer.OpenElement("Angles");
+				p_Printer.PushAttribute("min", m_Light.spotlightAngles.x);
+				p_Printer.PushAttribute("max", m_Light.spotlightAngles.y);
+				p_Printer.CloseElement();
+			}
+			break;
+
+		default:
+			p_Printer.PushAttribute("Type", "Unknown");
+			break;
+		};
+		pushColor(p_Printer, "Color", m_Light.color);
+		p_Printer.CloseElement();
+	}
+
 	/**
 	 * Get the unique id of the light.
 	 *
@@ -884,6 +1080,14 @@ public:
 			dir->QueryAttribute("y", &m_Direction.y);
 			dir->QueryAttribute("z", &m_Direction.z);
 		}
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("Look");
+		pushVector(p_Printer, "OffsetPosition", m_OffsetPosition);
+		pushVector(p_Printer, "Direction", m_Direction);
+		p_Printer.CloseElement();
 	}
 
 	Vector3 getLookPosition() const override

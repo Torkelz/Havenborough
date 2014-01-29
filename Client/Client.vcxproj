@@ -15,7 +15,6 @@
     <ClCompile Include="Source\GameLogic.cpp" />
     <ClCompile Include="Source\Level.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
-    <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\RAMInfo.cpp" />
     <ClCompile Include="Source\BaseGameApp.cpp" />
@@ -56,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CheckpointSystem.h" />
-    <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\RAMInfo.h" />
     <ClInclude Include="Source\GameLogic.h" />
     <ClInclude Include="Source\Level.h" />

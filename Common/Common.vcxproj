@@ -21,6 +21,7 @@
     <ClInclude Include="Source\EventManager.h" />
     <ClInclude Include="Source\IEventData.h" />
     <ClInclude Include="Source\IEventManager.h" />
+    <ClInclude Include="Source\LevelBinaryLoader.h" />
     <ClInclude Include="Source\LightStructs.h" />
     <ClInclude Include="Source\Logger.h" />
     <ClInclude Include="Source\ResourceManager.h" />
@@ -29,12 +30,14 @@
     <ClInclude Include="Source\Utilities\MemoryUtil.h" />
     <ClInclude Include="Source\Utilities\Util.h" />
     <ClInclude Include="Source\Utilities\XMFloatUtil.h" />
+    <ClInclude Include="Source\XMLHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="Source\Actor.cpp" />
     <ClCompile Include="Source\ActorFactory.cpp" />
     <ClCompile Include="Source\EventManager.cpp" />
+    <ClCompile Include="Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\Logger.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\ResourceTranslator.cpp" />

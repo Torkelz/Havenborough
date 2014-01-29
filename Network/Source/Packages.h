@@ -15,8 +15,9 @@
 #pragma warning(disable : 4244)
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/vector.hpp>
 #pragma warning(pop)
 
 /**
@@ -267,6 +268,7 @@ namespace boost
 		template <typename Archive>
 		inline void serialize(Archive& ar, PlayerControlData& m_Data, const unsigned int /*version*/)
 		{
+			ar & m_Data.m_Position;
 			ar & m_Data.m_Velocity;
 			ar & m_Data.m_Rotation;
 		}
@@ -283,12 +285,15 @@ typedef Package1Obj<PackageType::PLAYER_CONTROL, PlayerControlData> PlayerContro
  */
 typedef Package1Obj<PackageType::JOIN_GAME, std::string> JoinGame;
 
-BOOST_IS_BITWISE_SERIALIZABLE(ObjectInstance)
+/**
+ * A package representing the level data.
+ */
+typedef Package1Obj<PackageType::LEVEL_DATA, std::string> LevelData;
 
 /**
  * A package representing the addition of new objects to the game world.
  */
-typedef Package2Obj<PackageType::CREATE_OBJECTS, std::vector<std::string>, std::vector<ObjectInstance>> CreateObjects;
+typedef Package1Obj<PackageType::CREATE_OBJECTS, std::vector<std::pair<std::string, uint32_t>>> CreateObjects;
 
 BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
 

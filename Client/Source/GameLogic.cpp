@@ -1,6 +1,7 @@
 #include "GameLogic.h"
 #include "Components.h"
 #include "EventData.h"
+#include "ClientExceptions.h"
 
 GameLogic::GameLogic(void)
 {
@@ -72,8 +73,20 @@ void GameLogic::onFrame(float p_DeltaTime)
 				m_CheckpointSystem.changeCheckpoint(m_Objects);
 				if(m_CheckpointSystem.reachedFinishLine())
 				{
-					m_Player.setPosition(m_Level.getStartPosition());
-					m_ChangeScene = GoToScene::POSTGAME;
+						m_Level = Level();
+						m_Objects.clear();
+						m_CheckpointSystem = CheckpointSystem();
+
+						m_InGame = false;
+
+						IConnectionController* con = m_Network->getConnectionToServer();
+
+						if (!m_PlayingLocal && con && con->isConnected())
+						{
+							con->sendLeaveGame();
+						}
+
+						m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
 				}
 				m_Physics->removeHitDataAt(i);
 			}
@@ -102,7 +115,8 @@ void GameLogic::onFrame(float p_DeltaTime)
 	{
 		PlayerControlData data;
 		data.m_Rotation = actualViewRot;
-		data.m_Velocity = m_Player.getPosition();
+		data.m_Position = m_Player.getPosition();
+		data.m_Velocity = m_Player.getVelocity();
 		data.m_Rotation.x += 3.1415f;
 		data.m_Rotation.y = 0.f;
 
@@ -220,11 +234,21 @@ void GameLogic::playLocalLevel()
 
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
 #ifdef _DEBUG
-	m_Level.loadLevel("../Bin/assets/levels/Level2.btxl", "../Bin/assets/levels/Level2.btxl", m_Objects);
+	std::ifstream input("../Bin/assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
+	if(!input)
+	{
+		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
+	}
+	m_Level.loadLevel(input, input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
+	std::ifstream input("../Bin/assets/levels/Level1.2.btxl", std::istream::in | std::istream::binary);
+	if(!input)
+	{
+		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
+	}
+	m_Level.loadLevel(input, input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
@@ -264,7 +288,7 @@ void GameLogic::leaveGame()
 			con->sendLeaveGame();
 		}
 		
-		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData));
+		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(true)));
 	}
 }
 
@@ -295,43 +319,50 @@ void GameLogic::handleNetwork()
 			{
 			case PackageType::CREATE_OBJECTS:
 				{
-					unsigned int numInstances = conn->getNumCreateObjectInstances(package);
-					const ObjectInstance* instances = conn->getCreateObjectInstances(package);
+					unsigned int numInstances = conn->getNumCreateObjects(package);
 					for (unsigned int i = 0; i < numInstances; ++i)
 					{
 						using tinyxml2::XMLAttribute;
 						using tinyxml2::XMLDocument;
 						using tinyxml2::XMLElement;
 
-						const ObjectInstance& data = instances[i];
-						std::ostringstream msg;
-						msg << "Adding object at " << data.m_Position;
-						Logger::log(Logger::Level::INFO, msg.str());
+						const ObjectInstance data = conn->getCreateObjectDescription(package, i);
 
 						XMLDocument description;
-						description.Parse(conn->getCreateObjectDescription(package, data.m_DescriptionIdx));
+						description.Parse(data.m_Description);
 
 						const XMLElement* obj = description.FirstChildElement("Object");
 
 						Actor::ptr actor = m_ActorFactory->createActor(obj, data.m_Id);
-						actor->setPosition(data.m_Position);
-						actor->setRotation(data.m_Rotation);
 						m_Objects.push_back(actor);
 					}
-
-					m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
-#ifdef _DEBUG
-					m_Level.loadLevel("../Bin/assets/levels/Level2.btxl", "../Bin/assets/levels/Level2.btxl", m_Objects);
-					m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
-					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
-#else
-					m_Level.loadLevel("../Bin/assets/levels/Level1.2.btxl", "../Bin/assets/levels/Level1.2.btxl", m_Objects);
-					m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
-					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
-#endif
 				}
 				break;
 
+			case PackageType::LEVEL_DATA:
+				{
+					m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
+					size_t size = conn->getLevelDataSize(package);
+					if (size > 0)
+					{
+						std::string buffer(conn->getLevelData(package),size);
+						std::istringstream stream(buffer);
+						m_Level.loadLevel(stream, stream, m_Objects);
+					}
+					else
+					{
+#ifdef _DEBUG
+						std::string levelFileName("../Bin/assets/levels/Level2.btxl");
+#else
+						std::string levelFileName("../Bin/assets/levels/Level1.2.btxl");
+#endif
+						std::ifstream file(levelFileName, std::istream::binary);
+						m_Level.loadLevel(file, file, m_Objects);
+					}
+					m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
+					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+				}
+				break;
 			case PackageType::UPDATE_OBJECTS:
 				{
 					const unsigned int numUpdates = conn->getNumUpdateObjectData(package);
@@ -442,7 +473,7 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 		GameLogic* self = static_cast<GameLogic*>(p_UserData);
 
 		self->m_Connected = true;
-		self->m_Network->getConnectionToServer()->sendJoinGame("test");
+		//self->m_Network->getConnectionToServer()->sendJoinGame("test");
 
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
@@ -608,7 +639,10 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 		}
 	}
 
-	updateIK();
+	if (m_InGame)
+	{
+		updateIK();
+	}
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName)

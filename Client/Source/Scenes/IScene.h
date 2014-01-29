@@ -21,6 +21,7 @@ enum class RunScenes
 {
 	GAMEMAIN,
 	GAMEHUD,
+	POST_GAME,
 	GAMEPAUSE
 };
 class IScene

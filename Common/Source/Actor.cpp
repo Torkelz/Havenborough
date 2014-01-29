@@ -107,6 +107,28 @@ std::vector<BodyHandle> Actor::getBodyHandles() const
 	return bodies;
 }
 
+void Actor::serialize(std::ostream& p_Stream) const
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+
+	printer.PushAttribute("x", m_Position.x);
+	printer.PushAttribute("y", m_Position.y);
+	printer.PushAttribute("z", m_Position.z);
+	printer.PushAttribute("yaw", m_Rotation.x);
+	printer.PushAttribute("pitch", m_Rotation.y);
+	printer.PushAttribute("roll", m_Rotation.z);
+
+	for (const auto& comp : m_Components)
+	{
+		comp->serialize(printer);
+	}
+
+	printer.CloseElement();
+
+	p_Stream << printer.CStr();
+}
+
 void Actor::addComponent(ActorComponent::ptr p_Component)
 {
 	m_Components.push_back(p_Component);

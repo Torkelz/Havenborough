@@ -30,14 +30,13 @@ enum class PackageType : uint16_t
 	DONE_LOADING,
 	JOIN_GAME,
 	LEAVE_GAME,
+	LEVEL_DATA,
 };
 
 struct ObjectInstance
 {
-	Vector3 m_Position;
-	Vector3 m_Rotation;
-	uint16_t m_DescriptionIdx;
-	uint16_t m_Id;
+	const char* m_Description;
+	uint32_t m_Id;
 };
 
 struct UpdateObjectData
@@ -52,6 +51,7 @@ struct UpdateObjectData
 
 struct PlayerControlData
 {
+	Vector3 m_Position;
 	Vector3 m_Velocity;
 	Vector3 m_Rotation;
 };

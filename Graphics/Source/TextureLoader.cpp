@@ -117,22 +117,14 @@ char* TextureLoader::checkCompability(char* p_FileType)
 	return "err";
 }
 
-HRESULT TextureLoader::CreateWICTextureFromFile(ID3D11Device* d3dDevice,
-                                           ID3D11DeviceContext* d3dContext,
-                                           const wchar_t* fileName,
-                                           ID3D11Resource** texture,
-                                           ID3D11ShaderResourceView** textureView,
-                                           size_t maxsize)
+HRESULT TextureLoader::CreateWICTextureFromFile(ID3D11Device* p_Device, ID3D11DeviceContext* p_Context,
+	const wchar_t* p_FileName, ID3D11Resource** p_Texture, ID3D11ShaderResourceView** p_TextureView, size_t p_MaxSize)
 {
-	return DirectX::CreateWICTextureFromFile(d3dDevice,d3dContext,fileName,texture,textureView,maxsize);
+	return DirectX::CreateWICTextureFromFile(p_Device, p_Context, p_FileName, p_Texture, p_TextureView, p_MaxSize);
 }
 
-HRESULT TextureLoader::CreateDDSTextureFromFile(ID3D11Device* d3dDevice,
-                                           const wchar_t* fileName,
-                                           ID3D11Resource** texture,
-                                           ID3D11ShaderResourceView** textureView,
-                                           size_t maxsize,
-                                           DirectX::DDS_ALPHA_MODE* alphaMode)
+HRESULT TextureLoader::CreateDDSTextureFromFile(ID3D11Device* p_Device, const wchar_t* p_FileName,
+	ID3D11Resource** p_Texture, ID3D11ShaderResourceView** p_TextureView, size_t p_MaxSize, DirectX::DDS_ALPHA_MODE* p_AlphaMode)
 {
-	return DirectX::CreateDDSTextureFromFile(d3dDevice,fileName,texture,textureView,maxsize,alphaMode);
+	return DirectX::CreateDDSTextureFromFile(p_Device, p_FileName, p_Texture, p_TextureView, p_MaxSize, p_AlphaMode);
 }

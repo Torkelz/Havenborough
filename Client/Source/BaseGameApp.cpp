@@ -14,6 +14,10 @@ const double pi = 3.14159265358979323846264338;
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
+BaseGameApp::BaseGameApp()
+	:	m_ActorFactory(0x10000)
+{
+}
 
 void BaseGameApp::init()
 {
@@ -71,6 +75,7 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping(VK_SPACE, "jump");
 	translator->addKeyboardMapping('C', "connectToServer");
 	translator->addKeyboardMapping('T', "joinTestLevel");
+	translator->addKeyboardMapping('Y', "joinServerLevel");
 	translator->addKeyboardMapping('J', "playLocalTest");
 
 	//translator->addKeyboardMapping('J', "changeSceneP");
@@ -325,7 +330,16 @@ void BaseGameApp::startGame(IEventData::Ptr p_Data)
 
 void BaseGameApp::gameLeft(IEventData::Ptr p_Data)
 {
-	m_SceneManager.startMenu();
+	std::shared_ptr<GameLeftEventData> data = std::static_pointer_cast<GameLeftEventData>(p_Data);
+
+	if (data->getGoBack())
+	{
+		m_SceneManager.startMenu();
+	}
+	else
+	{
+		m_SceneManager.gotoPostGame();
+	}
 }
 
 void BaseGameApp::quitGame(IEventData::Ptr p_Data)

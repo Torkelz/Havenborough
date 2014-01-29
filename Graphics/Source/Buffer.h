@@ -98,8 +98,7 @@ public:
 	* @param p_Description buffer description for the buffer to be initialized
 	* @return S_OK if buffer initialized successfully
 	*/
-	HRESULT initialize(ID3D11Device *p_Device,
-		ID3D11DeviceContext *p_DeviceContext, Description &p_Description);
+	HRESULT initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, Description &p_Description);
 	
 	/**
 	* Sets the the buffer to be applied.

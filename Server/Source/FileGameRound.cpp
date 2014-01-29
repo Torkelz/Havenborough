@@ -1,33 +1,31 @@
-#include "TestGameRound.h"
+#include "FileGameRound.h"
 
 #include <Components.h>
 #include <Logger.h>
 #include <XMLHelper.h>
 
-#include <algorithm>
+#include <fstream>
 #include <sstream>
 
-const float TestGameRound::m_PlayerSphereRadius = 50.f;
-
-void TestGameRound::setup()
+void FileGameRound::setup()
 {
 	for (size_t i = 0; i < m_Players.size(); ++i)
 	{
-		Actor::ptr box = m_ActorFactory->createCircleBox(
-			Vector3(500.f, 200.f + i * 100.f, 400.f),
-			(float)(i + 3) * 100.f);
-		m_Actors.push_back(box);
-		m_Boxes.push_back(box);
-
-		Vector3 position(500.f + i * 200.f, m_PlayerSphereRadius + 400.f, 500.f);
+		Vector3 position(500.f - i * 200.f, 50 + 400.f, 500.f);
 
 		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
 		m_Players[i].setActor(actor);
 		m_Actors.push_back(actor);
 	}
+	m_FileLoader.loadBinaryFile(m_FilePath);
 }
 
-void TestGameRound::sendLevel()
+void FileGameRound::setFilePath(std::string p_Filepath)
+{
+	m_FilePath = p_Filepath;
+}
+
+void FileGameRound::sendLevel()
 {
 	std::vector<std::string> descriptions;
 	std::vector<ObjectInstance> instances;
@@ -37,7 +35,7 @@ void TestGameRound::sendLevel()
 		std::ostringstream descStream;
 		actor->serialize(descStream);
 		descriptions.push_back(descStream.str());
-		ObjectInstance inst =
+		ObjectInstance inst = 
 		{
 			descriptions.back().c_str(),
 			actor->getId()
@@ -67,23 +65,24 @@ void TestGameRound::sendLevel()
 	};
 	instances.push_back(lightData);
 
-	for(auto& player : m_Players)
+	for (auto& player : m_Players)
 	{
 		User::ptr user = player.getUser().lock();
 		if (user)
 		{
 			Actor::ptr actor = player.getActor().lock();
-			if (actor)
+			if(actor)
 			{
 				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
-				user->getConnection()->sendLevelData("", 0);
+				std::string stream = m_FileLoader.getDataStream();
+				user->getConnection()->sendLevelData(stream.c_str(), stream.size());
 				user->getConnection()->sendAssignPlayer(actor->getId());
 			}
 		}
 	}
 }
 
-void TestGameRound::updateLogic(float p_DeltaTime)
+void FileGameRound::updateLogic(float p_DeltaTime)
 {
 	for (auto& actor : m_Actors)
 	{
@@ -91,18 +90,9 @@ void TestGameRound::updateLogic(float p_DeltaTime)
 	}
 }
 
-void TestGameRound::sendUpdates()
+void FileGameRound::sendUpdates()
 {
 	std::vector<UpdateObjectData> data;
-
-	for (auto& box : m_Boxes)
-	{
-		Actor::ptr actor = box.lock();
-		if (actor)
-		{
-			data.push_back(getUpdateData(actor));
-		}
-	}
 
 	for (auto& player : m_Players)
 	{
@@ -119,7 +109,7 @@ void TestGameRound::sendUpdates()
 	}
 }
 
-void TestGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
+void FileGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
 {
 	Actor::ptr actor = p_DisconnectedPlayer.getActor().lock();
 	if (!actor)
@@ -139,31 +129,7 @@ void TestGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
 	}
 }
 
-UpdateObjectData TestGameRound::getUpdateData(const Actor::ptr p_Box)
-{
-	std::shared_ptr<MovementInterface> movement = p_Box->getComponent<MovementInterface>(MovementInterface::m_ComponentId).lock();
-
-	Vector3 velocity(0.f, 0.f, 0.f);
-	Vector3 rotVelocity(0.f, 0.f, 0.f);
-	if (movement)
-	{
-		velocity = movement->getVelocity();
-		rotVelocity = movement->getRotationalVelocity();
-	}
-
-	UpdateObjectData data =
-	{
-		p_Box->getPosition(),
-		velocity,
-		p_Box->getRotation(),
-		rotVelocity,
-		p_Box->getId()
-	};
-
-	return data;
-}
-
-UpdateObjectData TestGameRound::getUpdateData(const Player& p_Player)
+UpdateObjectData FileGameRound::getUpdateData(const Player& p_Player)
 {
 	Actor::ptr actor = p_Player.getActor().lock();
 	

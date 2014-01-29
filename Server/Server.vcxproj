@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\FileGameRound.cpp" />
     <ClCompile Include="Source\GameList.cpp" />
     <ClCompile Include="Source\GameRound.cpp" />
     <ClCompile Include="Source\GameRoundFactory.cpp" />
@@ -33,6 +34,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\FileGameRound.h" />
     <ClInclude Include="Source\GameList.h" />
     <ClInclude Include="Source\GameRound.h" />
     <ClInclude Include="Source\GameRoundFactory.h" />
