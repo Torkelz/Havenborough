@@ -1,5 +1,9 @@
 #include "DeferredRenderer.h"
+#include "ConstantBuffers.h"
 #include "VRAMInfo.h"
+#include "ModelBinaryLoader.h"
+#include "SkyDome.h"
+
 
 
 //const unsigned int DeferredRenderer::m_MaxLightsPerLightInstance = 100;

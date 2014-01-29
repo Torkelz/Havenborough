@@ -1,5 +1,8 @@
 #include "AnimationClipLoader.h"
 
+#include <fstream>
+#include <sstream>
+
 AnimationClipLoader::AnimationClipLoader(){}
 AnimationClipLoader::~AnimationClipLoader(){}
 

@@ -1,15 +1,14 @@
 #pragma once
-#define WIN32_LEAN_AND_MEAN
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <vector>
-#include <string>
 #include <d3d11.h>
 #include <dxgi.h>
+#include <IGraphics.h>
+#include <vector>
+#include <string>
 
-#include "../include/IGraphics.h"
-#include "GraphicsExceptions.h"
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
 #include "ForwardRendering.h"
@@ -19,13 +18,6 @@
 #include "ModelDefinition.h"
 #include "VRAMInfo.h"
 
-#include "ShaderStructs.h"
-
-using std::string;
-using std::vector;
-using std::pair;
-using std::make_pair;
-
 class Graphics : public IGraphics
 {
 private:
@@ -34,13 +26,15 @@ private:
 
 	IDXGISwapChain *m_SwapChain;
 	ID3D11RenderTargetView *m_RenderTargetView;
-	
+	ID3D11SamplerState *m_Sampler;
+
 	ID3D11RasterizerState *m_RasterState;
 	ID3D11RasterizerState *m_RasterStateBV;
 
 	ID3D11Texture2D *m_DepthStencilBuffer;
 	ID3D11DepthStencilState	*m_DepthStencilState;
 	ID3D11DepthStencilView *m_DepthStencilView;
+
 
 	unsigned int m_Numerator;
 	unsigned int m_Denominator;
@@ -60,10 +54,10 @@ private:
 	ModelFactory *m_ModelFactory;
 	VRAMInfo *m_VRAMInfo;
 
-	vector<pair<string, Shader*>> m_ShaderList;
-	vector<pair<string, ModelDefinition>> m_ModelList;
-	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
-	vector<pair<InstanceId, ModelInstance>> m_ModelInstances;
+	std::vector<std::pair<std::string, Shader*>> m_ShaderList;
+	std::vector<std::pair<std::string, ModelDefinition>> m_ModelList;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> m_TextureList;
+	std::vector<std::pair<InstanceId, ModelInstance>> m_ModelInstances;
 	InstanceId m_NextInstanceId;
 	
 	DeferredRenderer *m_DeferredRender;
@@ -81,7 +75,6 @@ private:
 	Shader *m_BVShader;
 
 	Shader *m_Shader; //DEBUG
-	ID3D11SamplerState *m_Sampler;
 
 	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;

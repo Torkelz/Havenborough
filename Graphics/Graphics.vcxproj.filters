@@ -97,9 +97,6 @@
     <ClInclude Include="Source\DeferredRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\LightStructs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ModelDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -136,13 +133,22 @@
     <ClInclude Include="Source\SkyDome.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-     <ClInclude Include="Source\VRAMInfo.h">
+    <ClInclude Include="Source\VRAMInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\RAMInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ForwardRendering.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConstantBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -154,9 +160,6 @@
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\dummyVS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl">

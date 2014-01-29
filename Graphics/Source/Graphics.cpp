@@ -1,39 +1,49 @@
 #include "Graphics.h"
 #include "GraphicsLogger.h"
+#include "GraphicsExceptions.h"
+
 
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include "AnimationStructs.h"
 
 using namespace DirectX;
+using std::vector;
+using std::string;
+using std::pair;
+using std::make_pair;
+
 const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
+	
 	m_SwapChain = nullptr;
 	m_RenderTargetView = nullptr;
+	m_Sampler = nullptr;
+
 	m_RasterState = nullptr;
+	m_RasterStateBV = nullptr;
+
 	m_DepthStencilBuffer = nullptr;
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
-	m_RasterStateBV = nullptr;
+
 	m_WrapperFactory = nullptr;
 	m_ModelFactory = nullptr;
-	//m_DeferredRender = nullptr;
-	m_Sampler = nullptr;
 	m_VRAMInfo = nullptr;
 
-	
+	m_DeferredRender = nullptr;
+	m_ForwardRenderer = nullptr;
+
+	m_BVBuffer = nullptr;
+	m_BVShader = nullptr;
+	m_Shader = nullptr;
 
 	m_VSyncEnabled = false; //DEBUG
-
 	m_NextInstanceId = 1;
 	m_SelectedRenderTarget = 3;
-
-	m_Shader = nullptr;
-	m_BVShader = nullptr;
-	m_BVBuffer = nullptr;
 }
 
 Graphics::~Graphics(void)
@@ -446,14 +456,13 @@ void Graphics::renderModel(InstanceId p_ModelId)
 			ModelDefinition *modelDef = getModelFromList(inst.second.getModelName());
 			if(!modelDef->isTransparent)
 			{
-				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(modelDef,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
+				m_DeferredRender->addRenderable(Renderable(modelDef, inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
 			}
 			else
 			{
-				m_ForwardRenderer->addRenderable(DeferredRenderer::Renderable(modelDef,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
-					&inst.second.getColorTone()));
+				m_ForwardRenderer->addRenderable(Renderable(modelDef, inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform(), &inst.second.getColorTone()));
 			}
 			
 			return;

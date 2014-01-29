@@ -1,10 +1,7 @@
 #pragma once
-
 #include "AnimationStructs.h"
-
 #include <map>
-#include <fstream>
-#include <sstream>
+#include <string>
 
 class AnimationClipLoader
 {
@@ -16,4 +13,3 @@ public:
 
 	std::map<std::string, AnimationClip> load(std::string);
 };
-
