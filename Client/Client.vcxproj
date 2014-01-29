@@ -134,7 +134,25 @@
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)BoostTest\Test\BoostTest.exe --log_level=message</Command>
+      <Command>$(SolutionDir)BoostTest\Test\BoostTest.exe --log_level=message
+setlocal enableextensions enabledelayedexpansion
+FOR %%f IN ($(SolutionDir)Client\Assets\models\*.tx) DO (
+IF EXIST $(SolutionDir)Client\Bin\assets\models\%%~nf.btx (
+FOR %%i IN ($(SolutionDir)Client\Assets\models\%%~nf.tx) DO SET DATE1=%%~ti
+FOR %%i IN ($(SolutionDir)Client\Bin\assets\models\%%~nf.btx) DO SET DATE2=%%~ti
+IF NOT "!DATE1!" EQU "!DATE2!" (
+echo date1 !DATE1!
+echo date2 !DATE2!
+call $(SolutionDir)BinaryConverter\Bin\BinaryConverter.exe %%f &gt; NUL
+move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
+copy %%f /b +,, $(SolutionDir)Client\Assets\models\ /y &gt; NUL
+echo Updated the %%~nf.btx to a newer version. 
+) 
+) ELSE (
+call $(SolutionDir)BinaryConverter\Bin\BinaryConverter.exe %%f &gt; NUL
+move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
+echo Converted the new %%~nf.tx file. )
+)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
