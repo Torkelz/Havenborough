@@ -101,14 +101,14 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 	}
 	for (const auto& pointLight : levelLoader.getPointLightData())
 	{
-		pointActor = m_ActorFactory->createPointLight(pointLight.m_Translation, pointLight.m_Intensity * 10000, pointLight.m_Color);
+		pointActor = m_ActorFactory->createPointLight(pointLight.m_Translation, pointLight.m_Intensity * 5000, pointLight.m_Color);
 		p_ActorOut.push_back(pointActor);
 	}
 	Vector2 minMaxAngle;
 	for (const auto& spotLight : levelLoader.getSpotLightData())
 	{
 		minMaxAngle.x = cosf(spotLight.m_ConeAngle); minMaxAngle.y = cosf(spotLight.m_ConeAngle + spotLight.m_PenumbraAngle);
-		spotActor = m_ActorFactory->createSpotLight(spotLight.m_Translation, spotLight.m_Direction, minMaxAngle, spotLight.m_Intensity * 10000, spotLight.m_Color);
+		spotActor = m_ActorFactory->createSpotLight(spotLight.m_Translation, spotLight.m_Direction, minMaxAngle, spotLight.m_Intensity * 5000, spotLight.m_Color);
 		p_ActorOut.push_back(spotActor);
 	}
 

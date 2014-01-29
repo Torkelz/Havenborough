@@ -108,7 +108,6 @@
     <ClCompile Include="..\BinaryConverter\Source\LevelLoader.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp" />
-    <ClCompile Include="..\Client\Source\CheckpointSystem.cpp" />
     <ClCompile Include="..\Client\Source\GameLogic.cpp" />
     <ClCompile Include="..\Client\Source\Level.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />
@@ -119,6 +118,7 @@
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Common\Source\CheckpointSystem.cpp" />
     <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />

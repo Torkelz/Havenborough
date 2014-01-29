@@ -18,16 +18,51 @@ void FileGameRound::setup()
 		m_Actors.push_back(actor);
 	}
 
-	m_Actors.push_back(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.f, 1.f, 1.f)));
-	m_Actors.push_back(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f)));
-	m_Actors.push_back(m_ActorFactory->createSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
-		Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f, Vector3(0.f,1.f,0.f)));
-	m_Actors.push_back(m_ActorFactory->createPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f)));
-	m_Actors.push_back(m_ActorFactory->createPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
-	m_Actors.push_back(m_ActorFactory->createPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
-
 	m_FileLoader.reset(new LevelBinaryLoader);
 	m_FileLoader->loadBinaryFile(m_FilePath);
+
+	Actor::ptr directionalActor;
+	Actor::ptr pointActor;
+	Actor::ptr spotActor;
+	for (const auto& directionalLight : m_FileLoader->getDirectionalLightData())
+	{
+		directionalActor = m_ActorFactory->createDirectionalLight(directionalLight.m_Direction, directionalLight.m_Color);
+		m_Actors.push_back(directionalActor);
+	}
+	for (const auto& pointLight : m_FileLoader->getPointLightData())
+	{
+		pointActor = m_ActorFactory->createPointLight(pointLight.m_Translation, pointLight.m_Intensity * 10000, pointLight.m_Color);
+		m_Actors.push_back(pointActor);
+	}
+	Vector2 minMaxAngle;
+	for (const auto& spotLight : m_FileLoader->getSpotLightData())
+	{
+		minMaxAngle.x = cosf(spotLight.m_ConeAngle); minMaxAngle.y = cosf(spotLight.m_ConeAngle + spotLight.m_PenumbraAngle);
+		spotActor = m_ActorFactory->createSpotLight(spotLight.m_Translation, spotLight.m_Direction, minMaxAngle, spotLight.m_Intensity * 10000, spotLight.m_Color);
+		m_Actors.push_back(spotActor);
+	}
+
+	std::vector<LevelBinaryLoader::CheckPointStruct> checkpoints = m_FileLoader->getCheckPointData();
+	std::sort(checkpoints.begin(), checkpoints.end(),
+		[] (const LevelBinaryLoader::CheckPointStruct& p_Left, const LevelBinaryLoader::CheckPointStruct& p_Right)
+		{
+			return p_Left.m_Number > p_Right.m_Number;
+		});
+	
+	static const Vector3 checkpointScale(1.f, 10.f, 1.f);
+
+	Actor::ptr checkActor = m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointEnd(), checkpointScale);
+	m_CheckpointSystem.addCheckpoint(checkActor);
+	m_Actors.push_back(checkActor);
+	for (const auto& checkpoint : checkpoints)
+	{
+		checkActor = m_ActorFactory->createCheckPointActor(checkpoint.m_Translation, checkpointScale);
+		m_CheckpointSystem.addCheckpoint(checkActor);
+		m_Actors.push_back(checkActor);
+	}
+	checkActor = m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointStart(), checkpointScale);
+	m_CheckpointSystem.addCheckpoint(checkActor);
+	m_Actors.push_back(checkActor);
 }
 
 void FileGameRound::setFilePath(std::string p_Filepath)

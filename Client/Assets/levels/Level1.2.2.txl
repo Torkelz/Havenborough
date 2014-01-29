@@ -1886,7 +1886,7 @@
 
 #Light: directionalLightShape1
 #Translation: 0 3355.663818 0
-Color: 0.12 0.12 0.12
+Color: 0 0 0
 Type: kDirectionalLight
 Intensity: 1
 Direction: 287.88382 -811.762939 -321.125
@@ -1897,7 +1897,7 @@ Color: 0 0.5 0.12
 Type: kSpotLight
 Intensity: 1
 Direction: 0 -1425.282715 80.049324
-ConeAngle: 1.062977 3.45
+ConeAngle: 1.062977 0
 
 #Light: pointLightShape1
 #Translation: 3890.04834 110.806496 -1399.474609
