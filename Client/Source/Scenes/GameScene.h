@@ -44,6 +44,8 @@ private:
 	};
 	std::vector<MeshBinding> m_Models;
 
+	IGraphics::InstanceId m_Particles;
+
 public: 
 	GameScene();
 	~GameScene();

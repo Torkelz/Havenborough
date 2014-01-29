@@ -17,7 +17,8 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 
 	particleSystem.reset(new ParticleEffectDefinition()); 
 
-	particleSystem->diffuseTexture = loadTexture("NONE", "Particle1");
+	particleSystem->diffuseTexture = loadTexture(p_Filename, "Particle1.dds");
+	particleSystem->textureResourceName = "Particle1.dds";
 	particleSystem->maxParticles = 50;
 	particleSystem->particlesPerSec = 2;
 	particleSystem->maxLife = 60.f;
@@ -63,7 +64,6 @@ Buffer* ParticleFactory::createParticleBuffer(unsigned int p_MaxParticles)
 
 ID3D11ShaderResourceView *ParticleFactory::loadTexture(const char *p_Filename, const char *p_Identifier)
 {
-	
 	boost::filesystem::path particlePath(p_Filename);
 	boost::filesystem::path parentDir(particlePath.parent_path().parent_path() / "textures");
 		
@@ -71,8 +71,6 @@ ID3D11ShaderResourceView *ParticleFactory::loadTexture(const char *p_Filename, c
 		"assets/textures/Default_COLOR.dds" : parentDir / p_Identifier;
 
 	m_LoadParticleTexture(p_Identifier, diff.string().c_str(), m_LoadParticleTextureUserdata);
-	
-	
 
 	return getTextureFromList(p_Identifier);
 }

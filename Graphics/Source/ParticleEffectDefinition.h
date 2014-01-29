@@ -51,6 +51,7 @@ struct ParticleEffectDefinition
 	 * Material diffuse textures.
 	 */
 	ID3D11ShaderResourceView* diffuseTexture;
+	std::string textureResourceName;
 
 	unsigned int maxParticles;
 	unsigned int particlesPerSec;

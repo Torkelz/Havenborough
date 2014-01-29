@@ -474,6 +474,7 @@ bool Graphics::releaseParticleEffectDefinition(const char *p_ParticleEffectId)
 
 	if (it != m_ParticleEffectDefinitionList.end())
 	{
+		m_ReleaseModelTexture(it->second->textureResourceName.c_str(), m_ReleaseModelTextureUserdata);
 		m_ParticleEffectDefinitionList.erase(it);
 		return true;
 	}
@@ -929,6 +930,7 @@ void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelT
 		m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
 	}
 	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
+	m_ParticleFactory->setLoadParticleTextureCallBack(p_LoadModelTexture, p_Userdata);
 }
 
 void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)

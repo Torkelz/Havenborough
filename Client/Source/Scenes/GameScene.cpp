@@ -517,6 +517,11 @@ void GameScene::loadSandboxModels()
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
+
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "TestParticle");
+
+	m_Particles = m_Graphics->createParticleEffectInstance("TestParticle");
 }
 
 void GameScene::releaseSandboxModels()
@@ -527,6 +532,9 @@ void GameScene::releaseSandboxModels()
 	}
 	m_ResourceIDs.clear();
 
+	m_Graphics->releaseParticleEffectInstance(m_Particles);
+
 	m_Graphics->deleteShader("DefaultShader");
 	m_Graphics->deleteShader("AnimatedShader");
+	m_Graphics->deleteShader("DefaultParticleShader");
 }

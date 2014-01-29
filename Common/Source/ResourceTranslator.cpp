@@ -56,6 +56,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	{
 		std::make_pair("TEXTURE_NOT_FOUND", "assets/textures/TextureNotFound.png"),
 		std::make_pair("SKYBOXDDS", "assets/textures/Skybox0.dds"),
+		std::make_pair("Particle1", "assets/textures/Particle1.dds"),
 	};
 	static const size_t numTextures = sizeof(textureMap) / sizeof(textureMap[0]);
 
@@ -67,7 +68,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 
 	static const std::pair<std::string, std::string> particleMap[] =
 	{
-		std::make_pair("Particle1", "assets/textures/Particle1.dds"),
+		std::make_pair("TestParticle", "assets/particles/TestParticle.xml"),
 	};
 	static const size_t numParticles = sizeof(particleMap) / sizeof(particleMap[0]);
 

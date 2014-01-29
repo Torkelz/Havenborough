@@ -20,20 +20,20 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
-	bool unreleasedResources = false;
+	std::string unreleasedResources;
 
 	for (auto& type : m_ResourceList)
 	{
 		for (auto& res : type.m_LoadedResources)
 		{
 			type.m_Release(res.m_Name.c_str());
-			unreleasedResources = true;
+			unreleasedResources += res.m_Name + ", ";
 		}
 	}
 
-	if (unreleasedResources)
+	if (!unreleasedResources.empty())
 	{
-		throw ResourceManagerException("Resource not released before shutdown", __LINE__, __FILE__);
+		throw ResourceManagerException("Resource not released before shutdown: " + unreleasedResources, __LINE__, __FILE__);
 	}
 }
 
