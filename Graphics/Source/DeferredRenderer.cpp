@@ -1,7 +1,6 @@
 #include "DeferredRenderer.h"
 #include "VRAMInfo.h"
 
-
 //const unsigned int DeferredRenderer::m_MaxLightsPerLightInstance = 100;
 
 DeferredRenderer::DeferredRenderer()
@@ -185,83 +184,86 @@ void DeferredRenderer::renderGeometry()
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// The textures will be needed to be grabbed from the model later.
-	
 	std::vector<std::vector<Renderable>> ttemp;
+	std::vector<Renderable> ttani;
 	while(m_Objects.size() > 0)
 	{
-		std::vector<Renderable> l;
-		l.push_back(std::move(m_Objects.back()));
-		m_Objects.erase(m_Objects.end() - 1);
-		for(int u = m_Objects.size() - 1; u >= 0; u--)
+		if(!m_Objects.back().model->isAnimated)
 		{
-			if(l.front().model->vertexBuffer ==  m_Objects.at(u).model->vertexBuffer)
+			std::vector<Renderable> l;
+			l.push_back(std::move(m_Objects.back()));
+			m_Objects.erase(m_Objects.end() - 1);
+			for(int u = m_Objects.size() - 1; u >= 0; u--)
 			{
-				l.push_back(std::move(m_Objects.at(u)));
-				m_Objects.erase(m_Objects.begin() + u);
+				if(l.front().model->vertexBuffer ==  m_Objects.at(u).model->vertexBuffer)
+				{
+					l.push_back(std::move(m_Objects.at(u)));
+					m_Objects.erase(m_Objects.begin() + u);
+				}
 			}
-		}
-		ttemp.push_back(l);
-	}
-	
-	m_ConstantBuffer->setBuffer(1);
-	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
-	updateConstantBuffer();
-
-	for( auto &k : ttemp)
-	{
-		if(k.size() == 1)
-		{
-			renderObject(k.front());
+			if(l.size() == 1)
+				ttani.push_back(std::move(l.front()));
+			else
+				ttemp.push_back(l);
 		}
 		else
 		{
-			if(!k.front().model->isAnimated)
-			{
-				UINT Offsets[2] = {0,0};
-				ID3D11Buffer * buffers[] = {k.front().model->vertexBuffer->getBufferPointer(), m_WorldInstanceData->getBufferPointer()};
-				UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
-
-
-				ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
-
-				// Set shader.
-				m_InstancedGeometryShader->setShader();
-				float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-				m_InstancedGeometryShader->setBlendState(m_BlendState2, data);
-				m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
-
-				for(unsigned int u = 0; u < k.front().model->numOfMaterials;u++)
-				{
-					ID3D11ShaderResourceView *srvs[] =  {	k.front().model->diffuseTexture[u].second, 
-															k.front().model->normalTexture[u].second, 
-															k.front().model->specularTexture[u].second 
-														};
-					m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-					D3D11_MAPPED_SUBRESOURCE ms;
-					for(unsigned int i = 0; i < k.size(); i += m_MaxLightsPerLightInstance)
-					{
-						int nrToCpy = (k.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : k.size() - i ;
-						std::vector<DirectX::XMFLOAT4X4> tWorld;
-						for(int j = 0; j < nrToCpy; j++)
-							tWorld.push_back(k.at(i+j).world);
-
-						m_DeviceContext->Map(m_WorldInstanceData->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
-						memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
-						m_DeviceContext->Unmap(m_WorldInstanceData->getBufferPointer(), NULL);
-
-						m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),k.front().model->drawInterval.at(u).first,0);
-					}
-					m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
-				}
-
-				for(unsigned int i = 0; i < 2; i++)
-					m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
-				m_InstancedGeometryShader->setBlendState(0, data);
-				m_InstancedGeometryShader->unSetShader();				
-			}
+			ttani.push_back(std::move(m_Objects.back()));
+			m_Objects.erase(m_Objects.end() - 1);
 		}
 	}
 
+	m_ConstantBuffer->setBuffer(1);
+	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
+	updateConstantBuffer();
+	for( auto &animation : ttani )
+		renderObject(animation);
+
+
+	for( auto &k : ttemp)
+	{
+		UINT Offsets[2] = {0,0};
+		ID3D11Buffer * buffers[] = {k.front().model->vertexBuffer->getBufferPointer(), m_WorldInstanceData->getBufferPointer()};
+		UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
+
+
+		ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
+
+		// Set shader.
+		m_InstancedGeometryShader->setShader();
+		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+		m_InstancedGeometryShader->setBlendState(m_BlendState2, data);
+		m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
+
+		for(unsigned int u = 0; u < k.front().model->numOfMaterials;u++)
+		{
+			ID3D11ShaderResourceView *srvs[] =  {	k.front().model->diffuseTexture[u].second, 
+													k.front().model->normalTexture[u].second, 
+													k.front().model->specularTexture[u].second 
+												};
+			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+			D3D11_MAPPED_SUBRESOURCE ms;
+			for(unsigned int i = 0; i < k.size(); i += m_MaxLightsPerLightInstance)
+			{
+				int nrToCpy = (k.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : k.size() - i ;
+				std::vector<DirectX::XMFLOAT4X4> tWorld;
+				for(int j = 0; j < nrToCpy; j++)
+					tWorld.push_back(k.at(i+j).world);
+
+				m_DeviceContext->Map(m_WorldInstanceData->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+				memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
+				m_DeviceContext->Unmap(m_WorldInstanceData->getBufferPointer(), NULL);
+
+				m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),k.front().model->drawInterval.at(u).first,0);
+			}
+			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+		}
+
+		for(unsigned int i = 0; i < 2; i++)
+			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
+		m_InstancedGeometryShader->setBlendState(0, data);
+		m_InstancedGeometryShader->unSetShader();
+	}
 	/*for( auto &o : m_Objects)
 	{
 		renderObject(o);
