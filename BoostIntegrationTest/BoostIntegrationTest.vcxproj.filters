@@ -5,80 +5,100 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\Buffer.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\Graphics.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\Shader.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\ModelFactory.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\ModelInstance.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\Logger.cpp">
-      <Filter>Client\ClientImport</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\Joint.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoundEngine.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="..\Sound\Source\SoundLogger.cpp">
-      <Filter>Sound\SoundInclude</Filter>
+      <Filter>Sound\SoundImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Sound\Source\Sound.cpp">
-      <Filter>Sound\SoundInclude</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\EventManager.cpp">
-      <Filter>Sound\SoundInclude</Filter>
+      <Filter>Sound\SoundImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\testProgram.cpp" />
-    <ClCompile Include="..\Client\Source\ResourceManager.cpp">
-      <Filter>Client\ClientImport</Filter>
+    <ClCompile Include="..\Common\Source\EventManager.cpp">
+      <Filter>CommonImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\ResourceTranslator.cpp">
-      <Filter>Client\ClientImport</Filter>
+    <ClCompile Include="..\Physics\Source\Body.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\BVLoader.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\Collision.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\Physics.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Physics Engine.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\EventManager.cpp">
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\Logger.cpp">
+      <Filter>CommonImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\ResourceManager.cpp">
+      <Filter>CommonImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\ResourceTranslator.cpp">
+      <Filter>CommonImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,16 +108,25 @@
     <Filter Include="Client">
       <UniqueIdentifier>{92a94797-9a10-48cc-a868-16d8bf2d8781}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics\GraphicsInclude">
-      <UniqueIdentifier>{46fc5674-e54f-44c3-9196-0dc84f2aa191}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Client\ClientImport">
       <UniqueIdentifier>{626962ff-a4ea-404f-897f-44f282574004}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{52fd29d9-bda6-479a-9365-577e634f7dba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Physics Import">
+      <UniqueIdentifier>{34115e45-de7b-4d84-802d-c166b82b9553}</UniqueIdentifier>
     </Filter>
     <Filter Include="Sound">
       <UniqueIdentifier>{f282d834-7cf2-4265-a93e-2b55849fdbd3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Sound\SoundInclude">
+    <Filter Include="CommonImport">
+      <UniqueIdentifier>{8db99be3-9c36-459d-b5cc-40f2db51b878}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\GraphicsImport">
+      <UniqueIdentifier>{46fc5674-e54f-44c3-9196-0dc84f2aa191}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sound\SoundImport">
       <UniqueIdentifier>{e7a0c4be-cd38-4852-8cfd-e0e1ebec1b17}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -112,10 +141,30 @@
       <Filter>Graphics</Filter>
     </FxCompile>
     <FxCompile Include="..\Graphics\Source\DeferredShaders\ForwardShader.hlsl">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </FxCompile>
     <FxCompile Include="..\Graphics\Source\DeferredShaders\AnimatedGeometryPass.hlsl">
-      <Filter>Graphics\GraphicsInclude</Filter>
+      <Filter>Graphics\GraphicsImport</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Physics\include\BoundingVolume.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\Source\Collision.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\Hull.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\OBB.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\PhysicsTypes.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Physics\include\Sphere.h">
+      <Filter>Physics\Physics Import</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

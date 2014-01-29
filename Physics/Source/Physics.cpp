@@ -78,7 +78,7 @@ void Physics::update(float p_DeltaTime)
 			if(i == j)
 				continue;
 
-			HitData hit = Collision::boundingVolumeVsBoundingVolume(b.getVolume(), m_Bodies[j].getVolume());
+			HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(), *m_Bodies[j].getVolume());
 			
 			if(hit.intersect)
 			{
@@ -267,23 +267,24 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 	Body* body = findBody(p_BodyHandle);
 	if(body == nullptr)
 		return;
+	XMVECTOR scale = Vector3ToXMVECTOR(&p_Scale, 0.f);
 
 	switch (body->getVolume()->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
-		((AABB*)body->getVolume())->setSize(Vector3ToXMFLOAT4(&p_Scale, 0.f));
+		((AABB*)body->getVolume())->scale(scale);
 		break;
 
 	case BoundingVolume::Type::HULL:
-		((Hull*)body->getVolume())->setScale(p_Scale);
+		((Hull*)body->getVolume())->scale(scale);
 		break;
 
 	case BoundingVolume::Type::OBB:
-		((OBB*)body->getVolume())->setExtent(XMFLOAT4(p_Scale.x, p_Scale.y, p_Scale.z, 0.f));
+		((OBB*)body->getVolume())->scale(scale);
 		break;
 
 	case BoundingVolume::Type::SPHERE:
-		((Sphere*)body->getVolume())->setRadius(p_Scale.x);
+		((Sphere*)body->getVolume())->scale(scale);
 		break;
 	default:
 		break;
@@ -380,16 +381,20 @@ Vector3 Physics::getBodySize(BodyHandle p_Body)
 
 	Vector3 temp;
 	float r;
-	XMFLOAT4 bSize;
 	switch (body->getVolume()->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
-		bSize = *((AABB*)body->getVolume())->getHalfDiagonal();
-		temp = Vector3(bSize.x,bSize.y,bSize.z);
+		temp = XMFLOAT4ToVector3(&((AABB*)body->getVolume())->getHalfDiagonal());
 		break;
 	case BoundingVolume::Type::SPHERE:
 		r = ((Sphere*)body->getVolume())->getRadius();
 		temp = Vector3(r,r,r);
+		break;
+	case BoundingVolume::Type::OBB:
+		temp = XMFLOAT4ToVector3(&((OBB*)body->getVolume())->getExtents());
+		break;
+	case BoundingVolume::Type::HULL:
+		temp = XMFLOAT4ToVector3(&((Hull*)body->getVolume())->getScale());
 		break;
 	default:
 		temp = Vector3(0,0,0);

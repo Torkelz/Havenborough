@@ -48,16 +48,32 @@ public:
 	 * A list of all of the animations' keyframes, that is interpolated in between frames.
 	 */
 	std::vector<KeyFrame> m_JointAnimation;
-
 public:
 	/**
 	 * Calculate the animation transformation at a certain frame.
 	 *
 	 * @param p_FrameTime the time point to calculate a transformation for.
 	 *			Must be in the range [0.f, n - 1), where n is the number of frames.
+	 * @param p_DestinationFrameTime the time point to interpolate to.
 	 * @return the interpolated transformation.
 	 */
 	DirectX::XMFLOAT4X4 interpolate(float p_FrameTime, float m_DestinationFrameTime) const;
-	MatrixDecomposed interpolateEx(float p_FrameTime, float m_DestinationFrameTime) const;
-	MatrixDecomposed interpolateEx(MatrixDecomposed p_Frame1, MatrixDecomposed p_Frame2, float interpolateFraction) const;
+	/**
+    * Calculate the animation transformation at a certain frame.
+    *
+    * @param p_FrameTime the time point to calculate a transformation for.
+    *	Must be in the range [0.f, n - 1), where n is the number of frames.
+    * @param p_DestinationFrameTime the time point to interpolate to.
+    * @return the interpolated transformation.
+    */
+    MatrixDecomposed interpolateEx(float p_FrameTime, float m_DestinationFrameTime) const;
+    /**
+    * Interpolate between two pre-computed frame data.
+    *
+    * @param first frame
+    * @param second frame
+    * @param weight of the SECOND frame.
+    * @return the interpolated transformation.
+    */
+    MatrixDecomposed interpolateEx(MatrixDecomposed p_Frame1, MatrixDecomposed p_Frame2, float interpolateFraction) const;
 };

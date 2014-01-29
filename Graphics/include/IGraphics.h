@@ -136,11 +136,18 @@ public:
 
 	/**
 	 * Establish a map of shader name to a model name.
-	 *
 	 * @param p_ShaderId name of the shader
 	 * @param p_ModelId name of the model
 	 */
 	virtual void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) = 0;
+
+	
+	/**
+	 * Establish a map of shader name to a particle name.
+	 * @param p_ShaderId name of the shader
+	 * @param p_ModelId name of the particle
+	 */
+	virtual void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) = 0;
 
 	/**
 	* Deletes an existing shader.
@@ -155,7 +162,7 @@ public:
 	 * @param p_Filename the filename of the texture
 	 * @return true if the texture was successfully loaded, otherwise false
 	 */
-	virtual bool createTexture(const char *p_TextureId, const char *p_filename) = 0;
+	virtual bool createTexture(const char *p_TextureId, const char *p_Filename) = 0;
 
 	/**
 	 * Release a previously created texture.
@@ -165,6 +172,27 @@ public:
 	 */
 	virtual bool releaseTexture(const char *p_TextureId) = 0;
 	
+	/** 
+	 * Creates a new particle system and stores in a vector connected with an ID.
+	 *
+	 * @param p_ParticleSystemId the ID of the particle system
+	 * @param p_Filename the filename of the particle system
+	 * @return true if the particle system was successfully loaded, otherwise false
+	 */
+	virtual bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename) = 0;
+
+	/** 
+	 * Release a previously created particle system.
+	 * 
+	 * @param p_ParticleSystemId the ID of the particle system
+	 * @return true if the particle system existed and was successfully released.
+	 */
+	virtual bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) = 0;
+
+	virtual InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) = 0;
+
+	virtual void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) = 0;
+
 	/**
 	 * 
 	 */
@@ -218,7 +246,7 @@ public:
 	 * Renders the created skyDome.
 	 *
 	 */
-	virtual void renderSkyDome() = 0;
+	virtual void renderSkydome() = 0;
 
 	/**
 	 * 
@@ -255,7 +283,24 @@ public:
 	 * @param p_Instance the model that should change animation data.
 	 * @param p_ClipName the new animation clip to be played next time update animation is invoked.
 	 */
-	virtual void playAnimation(InstanceId p_Instance, const char* p_ClipName) = 0;
+	virtual void playAnimation(int p_Instance, const char* p_ClipName, bool p_Override) = 0;
+
+	/**
+	 * Queue animation.
+	 *
+	 * @param p_Instance the model that should change animation data.
+	 * @param p_ClipName the new animation clip to be queued.
+	 */
+	virtual void queueAnimation(int p_Instance, const char* p_ClipName) = 0;
+
+	/**
+	 * Change weight of an animation track pair.
+	 *
+	 * @param p_Instance the model that should change animation data.
+	 * @param p_Track has the be 0, 2 or 4.
+	 * @param p_Weight a percentual number between 0.0f and 1.0f.
+	 */
+	virtual void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) = 0;
 
 	/**
 	 * Gets the amount of VRAM usage of the program.
@@ -276,7 +321,7 @@ public:
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.
 	 */
-	virtual void createSkyDome(const char *p_ModelId, float p_Radius) = 0;
+	virtual void createSkydome(const char *p_TextureResource, float p_Radius) = 0;
 
 	/**
 	 * Erase an existing model instance.
@@ -387,7 +432,6 @@ public:
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(int p_RenderTarget) = 0;
-
 private:
 
 	/**

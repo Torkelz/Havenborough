@@ -47,6 +47,10 @@ void PostGameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 void PostGameScene::onFocus()
 {
+	//std::shared_ptr<MouseEventDataShow> showMouse(new MouseEventDataShow(true));
+	//m_EventManager->queueEvent(showMouse);
+	//std::shared_ptr<MouseEventDataLock> lockMouse(new MouseEventDataLock(false));
+	//m_EventManager->queueEvent(lockMouse);
 }
 
 void PostGameScene::render()

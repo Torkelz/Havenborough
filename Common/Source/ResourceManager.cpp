@@ -20,20 +20,20 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
-	bool unreleasedResources = false;
+	std::string unreleasedResources;
 
 	for (auto& type : m_ResourceList)
 	{
 		for (auto& res : type.m_LoadedResources)
 		{
 			type.m_Release(res.m_Name.c_str());
-			unreleasedResources = true;
+			unreleasedResources += res.m_Name + ", ";
 		}
 	}
 
-	if (unreleasedResources)
+	if (!unreleasedResources.empty())
 	{
-		throw ResourceManagerException("Resource not released before shutdown", __LINE__, __FILE__);
+		throw ResourceManagerException("Resource not released before shutdown: " + unreleasedResources, __LINE__, __FILE__);
 	}
 }
 
@@ -131,7 +131,7 @@ int ResourceManager::loadModelTextureImpl(const char *p_ResourceName, const char
 			}
 			else
 			{
-				throw ResourceManagerException("Error when loading model texture resource!", __LINE__, __FILE__);
+				throw ResourceManagerException(std::string("Error when loading model texture resource: ") + p_FilePath + " (" + p_ResourceName + ")", __LINE__, __FILE__);
 			}
 		}
 	}

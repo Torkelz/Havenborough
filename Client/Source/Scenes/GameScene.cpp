@@ -34,7 +34,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	
 	// Added from Skydome branch
 	m_SkyboxID = m_ResourceManager->loadResource("texture","SKYBOXDDS");
-	m_Graphics->createSkyDome("SKYBOXDDS",50000.f);
+	m_Graphics->createSkydome("SKYBOXDDS",50000.f);
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addLight), LightEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeLight), RemoveLightEventData::sk_EventType);
@@ -44,6 +44,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelScaleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::playAnimation), PlayAnimationEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::queueAnimation), QueueAnimationEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeAnimationWeight), ChangeAnimationWeightEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addReachIK), AddReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
@@ -158,7 +160,7 @@ void GameScene::render()
 	}
 
 	//From skybox branch, move later if needed.
-	m_Graphics->renderSkyDome();
+	m_Graphics->renderSkydome();
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
 }
@@ -354,7 +356,31 @@ void GameScene::playAnimation(IEventData::Ptr p_Data)
 	{
 		if(model.meshId == animationData->getId())
 		{
-			m_Graphics->playAnimation(model.modelId, animationData->getAnimationName().c_str());
+			m_Graphics->playAnimation(model.modelId, animationData->getAnimationName().c_str(), animationData->getOverride());
+		}
+	}
+}
+
+void GameScene::queueAnimation(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<QueueAnimationEventData> animationData = std::static_pointer_cast<QueueAnimationEventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == animationData->getId())
+		{
+			m_Graphics->queueAnimation(model.modelId, animationData->getAnimationName().c_str());
+		}
+	}
+}
+
+void GameScene::changeAnimationWeight(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<ChangeAnimationWeightEventData> animationData = std::static_pointer_cast<ChangeAnimationWeightEventData>(p_Data);
+	for(auto &model : m_Models)
+	{
+		if(model.meshId == animationData->getId())
+		{
+			m_Graphics->changeAnimationWeight(model.modelId, animationData->getTrack(), animationData->getWeight());
 		}
 	}
 }
@@ -441,6 +467,9 @@ void GameScene::loadSandboxModels()
 	m_Graphics->createShader("DefaultShaderForward", L"../../Graphics/Source/DeferredShaders/ForwardShader.hlsl",
 		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
+	m_Graphics->createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl",
+		"VS,PS,GS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
+
 	static const std::string preloadedModels[] =
 	{
 		"BOX",
@@ -488,6 +517,11 @@ void GameScene::loadSandboxModels()
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
+
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "TestParticle");
+
+	m_Particles = m_Graphics->createParticleEffectInstance("TestParticle");
 }
 
 void GameScene::releaseSandboxModels()
@@ -498,6 +532,9 @@ void GameScene::releaseSandboxModels()
 	}
 	m_ResourceIDs.clear();
 
+	m_Graphics->releaseParticleEffectInstance(m_Particles);
+
 	m_Graphics->deleteShader("DefaultShader");
 	m_Graphics->deleteShader("AnimatedShader");
+	m_Graphics->deleteShader("DefaultParticleShader");
 }
