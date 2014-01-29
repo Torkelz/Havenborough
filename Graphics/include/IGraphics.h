@@ -390,7 +390,7 @@ public:
 	 * @param p_PosY camera position Y in absolute world coordinates.
 	 * @param p_PosZ camera position Z in absolute world coordinates.
 	 * @param p_Yaw the camera rotation around the up axis, positive to the right.
-	 * @param p_Pitch the camera pitch, positive up.
+	 * @param p_Pitch the camera pitch, positive down.
 	 */
 	virtual void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) = 0;
 

@@ -16,6 +16,9 @@ private:
 	bool m_RenderDebugBV;
 	int m_SkyboxID;
 
+	bool m_UseThirdPersonCamera;
+	bool m_UseFlippedCamera;
+
 	IGraphics *m_Graphics;
 	ResourceManager *m_ResourceManager;
 	Input *m_InputQueue;

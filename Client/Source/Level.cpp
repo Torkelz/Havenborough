@@ -113,6 +113,8 @@ Actor::ptr Level::createObjectActor(std::string p_MeshName, Vector3 p_Position, 
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	pushRotation(printer, p_Rotation);
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", p_MeshName.c_str());
 	pushVector(printer, "Scale", p_Scale);
@@ -127,8 +129,6 @@ Actor::ptr Level::createObjectActor(std::string p_MeshName, Vector3 p_Position, 
 	doc.Parse(printer.CStr());
 
 	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-	actor->setRotation(p_Rotation);
 
 	return actor;
 }

@@ -14,6 +14,9 @@ GameScene::GameScene()
 	m_Graphics = nullptr;
 	m_InputQueue = nullptr;
 	m_Network = nullptr;
+
+	m_UseThirdPersonCamera = false;
+	m_UseFlippedCamera = false;
 }
 
 GameScene::~GameScene()
@@ -114,6 +117,26 @@ void GameScene::render()
 	m_Graphics->setClearColor(Vector4(0,0,0,1));
 	Vector3 viewRot = m_GameLogic->getPlayerViewRotation();
 	Vector3 playerPos = m_GameLogic->getPlayerEyePosition();
+	
+	if (m_UseFlippedCamera)
+	{
+		viewRot.x += PI;
+	}
+
+	if (m_UseThirdPersonCamera)
+	{
+		// Debug character animation temp stuff START
+		static const XMFLOAT4 offset(0.0f, 0.0f, -500.0f, 0.0f);
+		static const XMVECTOR offsetVector = XMLoadFloat4(&offset);
+		XMMATRIX rotation = XMMatrixRotationRollPitchYaw(viewRot.y, viewRot.x, viewRot.z);
+		XMVECTOR rotOffsetVector = XMVector4Transform(offsetVector, rotation);
+		XMFLOAT3 newPosF;
+		XMStoreFloat3(&newPosF, XMLoadFloat3(&(XMFLOAT3)playerPos) + rotOffsetVector);
+
+		playerPos = newPosF;
+		// Debug character animation temp stuff END
+	}
+
 	m_Graphics->updateCamera(playerPos, viewRot.x, viewRot.y);
 
 	for (auto& mesh : m_Models)
@@ -208,7 +231,7 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	}
 	else if (p_Action == "mouseMoveVert")
 	{
-		m_GameLogic->movePlayerView(0.f, p_Value * sensitivity);
+		m_GameLogic->movePlayerView(0.f, -p_Value * sensitivity);
 	}
 	else if( p_Action == "jump" && p_Value == 1)
 	{
@@ -241,6 +264,14 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if (p_Action == "leaveGame" && p_Value == 1.f)
 	{
 		m_GameLogic->leaveGame();
+	}
+	else if (p_Action == "thirdPersonCamera" && p_Value == 1.f)
+	{
+		m_UseThirdPersonCamera = !m_UseThirdPersonCamera;
+	}
+	else if (p_Action == "flipCamera" && p_Value == 1.f)
+	{
+		m_UseFlippedCamera = !m_UseFlippedCamera;
 	}
 }
 

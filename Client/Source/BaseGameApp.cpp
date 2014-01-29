@@ -85,6 +85,9 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('9', "switchBVDraw");
 	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
 
+	translator->addKeyboardMapping('O', "thirdPersonCamera");
+	translator->addKeyboardMapping('P', "flipCamera");
+
 	translator->addKeyboardMapping('B', "blendAnimation");
 	translator->addKeyboardMapping('N', "resetAnimation");
 	translator->addKeyboardMapping('M', "layerAnimation");

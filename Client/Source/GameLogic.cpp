@@ -105,9 +105,15 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Physics->update(p_DeltaTime);
 
 	Vector3 actualViewRot = getPlayerViewRotation();
-	lookDir.x = -sinf(actualViewRot.x) * cosf(actualViewRot.y);
-	lookDir.y = sinf(actualViewRot.y);
-	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
+	DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationRollPitchYaw(
+		actualViewRot.y, actualViewRot.x, actualViewRot.z);
+	static const DirectX::XMFLOAT4 forward(0.f, 0.f, 1.f, 0.f);
+	static const DirectX::XMVECTOR vecForward = DirectX::XMLoadFloat4(&forward);
+	DirectX::XMVECTOR vecLookDir = DirectX::XMVector4Transform(vecForward, rotMatrix);
+	DirectX::XMFLOAT3 fLookDir;
+	DirectX::XMStoreFloat3(&fLookDir, vecLookDir);
+
+	lookDir = fLookDir;
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
 	if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
@@ -116,7 +122,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 		data.m_Rotation = actualViewRot;
 		data.m_Position = m_Player.getPosition();
 		data.m_Velocity = m_Player.getVelocity();
-		data.m_Rotation.x += 3.1415f;
 		data.m_Rotation.y = 0.f;
 
 		conn->sendPlayerControl(data);
@@ -182,7 +187,7 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 		m_PlayerViewRotation.y = -PI * 0.45f;
 	}
 
-	Vector3 playerRotation = Vector3(m_PlayerViewRotation.x + PI, 0.f, 0.f);
+	Vector3 playerRotation = Vector3(m_PlayerViewRotation.x, 0.f, 0.f);
 	Actor::ptr actor = m_Player.getActor().lock();
 	if (actor)
 	{
