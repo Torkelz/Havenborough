@@ -425,8 +425,8 @@ void GameScene::loadSandboxModels()
 	m_Graphics->createShader("DefaultShaderForward", L"../../Graphics/Source/DeferredShaders/ForwardShader.hlsl",
 		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	m_Graphics->createShader("DefaultParticleShader", L"../../Graphics/Source/ParticleSystem.hlsl",
-		"VS,GS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
+	m_Graphics->createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl",
+		"VS,PS,GS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
 
 	static const std::string preloadedModels[] =
 	{

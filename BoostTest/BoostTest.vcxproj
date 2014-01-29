@@ -138,6 +138,8 @@
     <ClCompile Include="..\Graphics\Source\ModelInstance.cpp">
       <FileType>Document</FileType>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\ParticleFactory.cpp" />
+    <ClCompile Include="..\Graphics\Source\ParticleInstance.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />

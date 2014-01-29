@@ -9,21 +9,28 @@
 
 struct Particle
 {
-	DirectX::XMFLOAT4 Position; //position in the world, in cm
-	DirectX::XMFLOAT4 Velocity;
+	DirectX::XMFLOAT4 position; //position in the world, in cm
+	DirectX::XMFLOAT4 velocity;
 	DirectX::XMFLOAT4 color;
-	float sizeX;
-	float sizeY;
+	DirectX::XMFLOAT2 size;
 	float life; //Life for a particle to live before taken away, in sec
 
-	Particle(DirectX::XMFLOAT3 p_Position, DirectX::XMFLOAT3 p_Velocity, DirectX::XMFLOAT4 p_Color,
-		float p_SizeX, float p_SizeY, float p_Life)
+	Particle()
+		:	position(0.f, 0.f, 0.f, 1.f),
+			velocity(0.f, 0.f, 0.f, 0.f),
+			color(1.f, 0.f, 1.f, 1.f),
+			size(1.f, 1.f),
+			life(10.f)
 	{
-		Position = DirectX::XMFLOAT4(p_Position.x, p_Position.y, p_Position.z, 1.0f);
-		Velocity = DirectX::XMFLOAT4(p_Velocity.x, p_Velocity.y, p_Velocity.z, 1.0f);
+	}
+
+	Particle(DirectX::XMFLOAT3 p_Position, DirectX::XMFLOAT3 p_Velocity, DirectX::XMFLOAT4 p_Color,
+		DirectX::XMFLOAT2 p_Size, float p_Life)
+	{
+		position = DirectX::XMFLOAT4(p_Position.x, p_Position.y, p_Position.z, 1.0f);
+		velocity = DirectX::XMFLOAT4(p_Velocity.x, p_Velocity.y, p_Velocity.z, 1.0f);
 		color = p_Color;
-		sizeX	= p_SizeX;
-		sizeY	= p_SizeY;
+		size = p_Size;
 		life	= p_Life;
 	}
 };
@@ -33,6 +40,8 @@ struct Particle
  */
 struct ParticleEffectDefinition
 {
+	typedef std::shared_ptr<ParticleEffectDefinition> ptr;
+
 	/**
 	 * The shader bound to the model, or nullptr if no shader has been bound.
 	 */
@@ -46,47 +55,13 @@ struct ParticleEffectDefinition
 	unsigned int maxParticles;
 	unsigned int particlesPerSec;
 	float maxLife;
+	DirectX::XMFLOAT2 size; //in cm
 	string particleSystemName;
-	DirectX::XMFLOAT3	particlePositionDeviation;
-	DirectX::XMFLOAT3	velocityDeviation;
-	DirectX::XMFLOAT4	particleColorDeviation;
-
-	/**
-	 * Move constructor.
-	 */
-	ParticleEffectDefinition(ParticleEffectDefinition&& p_Other)
-		:	shader(p_Other.shader),
-			diffuseTexture(p_Other.diffuseTexture),
-			maxParticles(p_Other.maxParticles),
-			maxLife(p_Other.maxLife),
-			particleSystemName(p_Other.particleSystemName),
-			particlesPerSec(p_Other.particlesPerSec),
-			particlePositionDeviation(p_Other.particlePositionDeviation),
-			velocityDeviation(p_Other.velocityDeviation),
-			particleColorDeviation(p_Other.particleColorDeviation)
-
-	{}
-
-	/**
-	 * Move assignment operator. Swaps the data of the two objects.
-	 */
-	ParticleEffectDefinition& operator=(ParticleEffectDefinition&& p_Other)
-	{
-		std::swap(shader, p_Other.shader);
-		std::swap(diffuseTexture, p_Other.diffuseTexture);
-		std::swap(maxParticles, p_Other.maxParticles);
-		std::swap(maxLife, p_Other.maxLife);
-		std::swap(particleSystemName, p_Other.particleSystemName);
-		std::swap(particlesPerSec, p_Other.particlesPerSec);
-		std::swap(particlePositionDeviation, p_Other.particlePositionDeviation);
-		std::swap(velocityDeviation, p_Other.velocityDeviation);
-		std::swap(particleColorDeviation, p_Other.particleColorDeviation);
-
-		return *this;
-	}
+	DirectX::XMFLOAT3	particlePositionDeviation; // in cm
+	DirectX::XMFLOAT3	velocityDeviation; // in cm/s
+	DirectX::XMFLOAT4	particleColorDeviation; // [0,1]
 
 private:
-	ParticleEffectDefinition(const ParticleEffectDefinition&); //removed??
 
 public:
 	/**
@@ -97,6 +72,7 @@ public:
 			diffuseTexture(nullptr),
 			maxParticles(0),
 			maxLife(0),
+			size(0.f, 0.f),
 			particleSystemName("NO NAME FOUND"),
 			particlesPerSec(0),
 			particlePositionDeviation(0.f, 0.f, 0.f),

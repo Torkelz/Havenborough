@@ -261,6 +261,12 @@
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
+    <ClCompile Include="..\Graphics\Source\ParticleFactory.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\ParticleInstance.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

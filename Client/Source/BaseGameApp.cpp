@@ -53,7 +53,7 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseBV, m_Physics, _1));
 	m_ResourceManager->registerFunction( "sound", std::bind(&ISound::loadSound, m_Sound, _1, _2), std::bind(&ISound::releaseSound, m_Sound, _1));
-	m_ResourceManager->registerFunction( "particleSystem", std::bind(&IGraphics::createParticleSystemInstance, m_Graphics, _1, _2), std::bind(&IGraphics::releaseParticleSystemInstance, m_Graphics, _1));
+	m_ResourceManager->registerFunction( "particleSystem", std::bind(&IGraphics::createParticleEffectDefinition, m_Graphics, _1, _2), std::bind(&IGraphics::releaseParticleEffectDefinition, m_Graphics, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);

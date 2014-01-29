@@ -147,7 +147,7 @@ public:
 	 * @param p_Filename the filename of the particle system
 	 * @return true if the particle system was successfully loaded, otherwise false
 	 */
-	virtual bool createParticleSystemInstance(const char *p_ParticleSystemId, const char *p_Filename) = 0;
+	virtual bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename) = 0;
 
 	/** 
 	 * Release a previously created particle system.
@@ -155,7 +155,11 @@ public:
 	 * @param p_ParticleSystemId the ID of the particle system
 	 * @return true if the particle system existed and was successfully released.
 	 */
-	virtual bool releaseParticleSystemInstance(const char *p_ParticleSystemId) = 0;
+	virtual bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) = 0;
+
+	virtual InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) = 0;
+
+	virtual void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) = 0;
 
 	/**
 	 * 

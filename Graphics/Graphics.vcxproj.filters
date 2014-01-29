@@ -68,9 +68,6 @@
     <ClCompile Include="Source\ForwardRendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ParticleSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ParticleFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -154,9 +151,6 @@
     <ClInclude Include="Source\ForwardRendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ParticleSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ParticleFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -198,7 +192,7 @@
     <FxCompile Include="Source\DeferredShaders\ForwardShader.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="Source\DeferredShaders\ParticleSystem.hlsl">
+    <FxCompile Include="..\Client\Bin\assets\shaders\ParticleSystem.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
   </ItemGroup>

@@ -214,6 +214,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_Forwardrender->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
 		m_DepthStencilView, m_RenderTargetView);
 
+	//Particles
+	m_ParticleFactory.reset(new ParticleFactory);
+	m_ParticleFactory->initialize(&m_TextureList);
+
 	return true;
 }
 
@@ -257,7 +261,7 @@ void Graphics::shutdown(void)
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
 
-		releaseParticleSystemInstance(unremovedName.c_str());
+		releaseParticleEffectDefinition(unremovedName.c_str());
 	}	
 
 	while (!m_ModelList.empty())
@@ -394,8 +398,7 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 
 void Graphics::linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId)
 {
-	ParticleEffectDefinition *particles = nullptr;
-	particles = getParticleFromList(p_ParticlesId);
+	ParticleEffectDefinition::ptr particles = getParticleFromList(p_ParticlesId);
 	if(particles)
 		particles->shader = getShaderFromList(p_ShaderId);
 }
@@ -449,38 +452,62 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-bool Graphics::createParticleSystemInstance(const char *p_ParticleSystemId, const char *p_Filename)
+bool Graphics::createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename)
 {
-	ParticleEffectDefinition* temp;
+	ParticleEffectDefinition::ptr temp = m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId);
 
-	temp = new ParticleEffectDefinition();
-	std::string tempstring = p_ParticleSystemId;
-	m_ParticleEffectDefinitionList.push_back(p_ParticleSystemId, temp);
-
-	//ParticleDefinition PS = m_PS->loadParticleSystemFromFile(p_Filename);
-
-	//m_ParticleSystemList.push_back(pair<string, ParticleDefinition>(p_ParticleSystemId, std::move(PS)));
-
+	m_ParticleEffectDefinitionList.push_back(std::make_pair(p_ParticleEffectId,temp));
+	
 	return true;
 }
 
-bool Graphics::releaseParticleSystemInstance(const char *p_ParticleSystemId)
+bool Graphics::releaseParticleEffectDefinition(const char *p_ParticleEffectId)
 {
-	for(auto it = m_ParticleEffectDefinitionList.begin(); it != m_ParticleEffectDefinitionList.end(); ++it)
-	{
-		if(strcmp(it->first.c_str(), p_ParticleSystemId) == 0)
+	auto it = std::find_if(m_ParticleEffectDefinitionList.begin(), m_ParticleEffectDefinitionList.end(),
+		[p_ParticleEffectId] (const std::pair<std::string, ParticleEffectDefinition::ptr>& p_Effect)
 		{
-			/*for(unsigned int i = 0; i < it->second.numOfMaterials; i++)
-			{
-				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-			}*/
+			return p_Effect.first == p_ParticleEffectId;
+		});
 
-			m_ParticleEffectDefinitionList.erase(it);
-			return true;
-		}
+	if (it != m_ParticleEffectDefinitionList.end())
+	{
+		m_ParticleEffectDefinitionList.erase(it);
+		return true;
 	}
 
 	return false;
+}
+
+IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_ParticleEffectId)
+{
+	ParticleEffectDefinition::ptr effectDef = getParticleFromList(p_ParticleEffectId);
+	if (effectDef)
+	{
+		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L,
+			"Attempting to create particle effect instance without loading the effect definition: "
+			+ std::string(p_ParticleEffectId));
+		return -1;
+	}
+
+	ParticleInstance::ptr instance;
+	int id = m_NextParticleInstanceId++;
+
+	m_ParticleEffectInstanceList.push_back(std::make_pair(id, instance));
+
+	return id;
+}
+
+void Graphics::releaseParticleEffectInstance(InstanceId p_ParticleEffectId)
+{
+	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
+		[p_ParticleEffectId] (const std::pair<InstanceId, ParticleInstance::ptr>& p_Effect)
+		{
+			return p_Effect.first == p_ParticleEffectId;
+		});
+	if (it != m_ParticleEffectInstanceList.end())
+	{
+		m_ParticleEffectInstanceList.erase(it);
+	}
 }
 
 void Graphics::renderModel(int p_ModelId)
@@ -1092,7 +1119,7 @@ ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 	return nullptr;
 }
 
-ParticleEffectDefinition *Graphics::getParticleFromList(string p_Identifier)
+ParticleEffectDefinition::ptr Graphics::getParticleFromList(string p_Identifier)
 {
 	for(auto & s : m_ParticleEffectDefinitionList)
 	{
