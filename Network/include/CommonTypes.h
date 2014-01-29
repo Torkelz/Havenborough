@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <Utilities/XMFloatUtil.h>
-
 #include <cstdint>
 
 /**
@@ -30,30 +28,30 @@ enum class PackageType : uint16_t
 	DONE_LOADING,
 	JOIN_GAME,
 	LEAVE_GAME,
-	LEVEL_DATA,
 };
 
 struct ObjectInstance
 {
-	const char* m_Description;
-	uint32_t m_Id;
+	float m_Position[3];
+	float m_Rotation[3];
+	uint16_t m_DescriptionIdx;
+	uint16_t m_Id;
 };
 
 struct UpdateObjectData
 {
-	Vector3 m_Position;
-	Vector3 m_Velocity;
-	Vector3 m_Rotation;
-	Vector3 m_RotationVelocity;
+	float m_Position[3];
+	float m_Velocity[3];
+	float m_Rotation[3];
+	float m_RotationVelocity[3];
 	uint16_t m_Id;
 	uint16_t _padding_;
 };
 
 struct PlayerControlData
 {
-	Vector3 m_Position;
-	Vector3 m_Velocity;
-	Vector3 m_Rotation;
+	float m_Velocity[3];
+	float m_Rotation[3];
 };
 
 /**

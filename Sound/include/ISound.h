@@ -32,7 +32,7 @@ public:
 	 */
 	virtual void initialize(void) = 0;
 	/**
-	 * Updates the FMOD system, shoudl be valled every frame.
+	 * Initialize Sound and FMOD.
 	 */
 	virtual void onFrame(void) = 0;
 	/**
@@ -43,7 +43,7 @@ public:
 	 */
 	virtual bool loadSound(const char *p_SoundId, const char *p_Filename) = 0;
 	/**
-	 * Stream a sound from file, NOT IMPLEMENTED!
+	 * Stream a sound from file
 	 * @param p_SoundId resource name connected to the sound to load.
 	 * @param p_Filename filename of the sound file.
 	 * @param true if the load is successful otherwise false
@@ -143,7 +143,7 @@ public:
 	 *
 	 * @param identification for the sound/group to get paused status from.
 	 */
-	virtual bool getMasterMute() = 0;
+	virtual bool getMute(const char* p_SoundId) = 0;
 	
 private:
 

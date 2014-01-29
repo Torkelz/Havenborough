@@ -7,7 +7,7 @@
 
 #include <DirectXMath.h>
 
-struct MatrixDecomposed
+struct matrixDecomposed
 {
 	DirectX::XMFLOAT4 rotation;
 	DirectX::XMFLOAT4 scale;
@@ -48,7 +48,6 @@ public:
 	 * A list of all of the animations' keyframes, that is interpolated in between frames.
 	 */
 	std::vector<KeyFrame> m_JointAnimation;
-public:
 	/**
 	 * Calculate the animation transformation at a certain frame.
 	 *
@@ -66,7 +65,7 @@ public:
 	 * @param p_DestinationFrameTime the time point to interpolate to.
 	 * @return the interpolated transformation.
 	 */
-	 MatrixDecomposed interpolateEx(float p_FrameTime, float m_DestinationFrameTime) const;
+	matrixDecomposed interpolateEx(float p_FrameTime, float m_DestinationFrameTime) const;
 	/**
 	 * Interpolate between two pre-computed frame data.
 	 *
@@ -75,5 +74,5 @@ public:
 	 * @param weight of the SECOND frame.
 	 * @return the interpolated transformation.
 	 */
-	 MatrixDecomposed interpolateEx(MatrixDecomposed p_Frame1, MatrixDecomposed p_Frame2, float interpolateFraction) const;
+	matrixDecomposed interpolateEx(matrixDecomposed p_Frame1, matrixDecomposed p_Frame2, float interpolateFraction) const;
 };

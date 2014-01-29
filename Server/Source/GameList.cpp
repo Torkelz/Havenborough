@@ -1,7 +1,5 @@
 #include "GameList.h"
 
-#include <Logger.h>
-
 #include <algorithm>
 
 void GameList::addGameRound(GameRound::ptr p_Game)
@@ -9,17 +7,9 @@ void GameList::addGameRound(GameRound::ptr p_Game)
 	std::lock_guard<std::mutex> lock(m_RunningGamesLock);
 
 	m_RunningGames.push_back(p_Game);
-
-	try
-	{
-		p_Game->setOwningList(this);
-		p_Game->setup();
-		p_Game->start();
-	}
-	catch (CommonException& err)
-	{
-		Logger::log(Logger::Level::ERROR_L, err.what());
-	}
+	p_Game->setOwningList(this);
+	p_Game->setup();
+	p_Game->start();
 }
 
 void GameList::removeGameRound()

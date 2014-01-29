@@ -9,9 +9,9 @@
 class TextureLoader
 {
 private:
-	ID3D11Device*			m_Device;
-	ID3D11DeviceContext*	m_DeviceContext;
-	std::vector<char*>		m_CompabilityList;
+	ID3D11Device*				m_Device;
+	ID3D11DeviceContext*		m_DeviceContext;
+	std::vector<char*>			m_CompabilityList;
 public:
 	/**
 	 * Constructor.
@@ -39,18 +39,18 @@ public:
 	 */
 	ID3D11ShaderResourceView* createTextureFromFile(const char* p_Filename);
 protected:
-	virtual HRESULT CreateWICTextureFromFile(ID3D11Device* p_Device,
-                                           ID3D11DeviceContext* p_Context,
-                                           const wchar_t* p_Filename,
-                                           ID3D11Resource** p_Texture,
-                                           ID3D11ShaderResourceView** p_TextureView,
-                                           size_t p_MaxSize);
-	virtual HRESULT CreateDDSTextureFromFile(ID3D11Device* p_Device,
-                                           const wchar_t* p_Filename,
-                                           ID3D11Resource** p_Texture,
-                                           ID3D11ShaderResourceView** p_TextureView,
-                                           size_t p_MaxSize,
-                                           DirectX::DDS_ALPHA_MODE* p_AlphaMode);
+	virtual HRESULT CreateWICTextureFromFile(ID3D11Device* d3dDevice,
+                                           ID3D11DeviceContext* d3dContext,
+                                           const wchar_t* fileName,
+                                           ID3D11Resource** texture,
+                                           ID3D11ShaderResourceView** textureView,
+                                           size_t maxsize);
+	virtual HRESULT CreateDDSTextureFromFile(ID3D11Device* d3dDevice,
+                                           const wchar_t* fileName,
+                                           ID3D11Resource** texture,
+                                           ID3D11ShaderResourceView** textureView,
+                                           size_t maxsize,
+                                           DirectX::DDS_ALPHA_MODE* alphaMode);
 private:
 	char* checkCompability(char* p_FileType);
 };

@@ -11,7 +11,6 @@ ForwardRendering::ForwardRendering(void)
 	m_RenderTarget = nullptr;
 	m_Sampler = nullptr;
 	m_RasterState = nullptr;
-	m_DepthStencilState = nullptr;
 
 	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
@@ -20,8 +19,6 @@ ForwardRendering::ForwardRendering(void)
 	m_ConstantBuffer = nullptr;
 	m_ObjectConstantBuffer = nullptr;
 	m_AnimatedObjectConstantBuffer = nullptr;
-	m_ColorShadingConstantBuffer = nullptr;
-
 	m_TransparencyAdditiveBlend = nullptr;
 }
 
@@ -35,7 +32,6 @@ ForwardRendering::~ForwardRendering(void)
 	m_RenderTarget = nullptr;
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
-	SAFE_RELEASE(m_DepthStencilState);
 	
 	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
@@ -44,8 +40,6 @@ ForwardRendering::~ForwardRendering(void)
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
 	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
-	SAFE_DELETE(m_ColorShadingConstantBuffer);
-
 	SAFE_RELEASE(m_TransparencyAdditiveBlend);
 }
 
@@ -68,7 +62,6 @@ void ForwardRendering::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_Devic
 	createForwardBuffers();
 	createSampler();
 	createRasterState();
-	createDepthStencilState();
 }
 
 void ForwardRendering::addRenderable(DeferredRenderer::Renderable p_Renderable)
@@ -117,10 +110,6 @@ void ForwardRendering::createForwardBuffers()
 	cbdesc.sizeOfElement = sizeof(cAnimatedObjectBuffer);
 	m_AnimatedObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cAnimatedObjectBuffer));
-
-	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
-	m_ColorShadingConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT3));
 }
 void ForwardRendering::createSampler()
 {
@@ -157,37 +146,6 @@ void ForwardRendering::createRasterState()
 	m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
 }
 
-void ForwardRendering::createDepthStencilState(void)
-{
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-
-	//Initialize the description of the stencil state.
-	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-
-	//Set up the description of the stencil state.
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	depthStencilDesc.StencilEnable = false;
-	depthStencilDesc.StencilReadMask = 0xFF;
-	depthStencilDesc.StencilWriteMask = 0xFF;
-
-	//Stencil operations if pixel is front-facing.
-	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Stencil operations if pixel is back-facing.
-	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
-}
-
 void ForwardRendering::updateConstantBuffer()
 {
 	cBuffer cb;
@@ -208,7 +166,6 @@ void ForwardRendering::renderForward()
 		m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
 		
 		m_DeviceContext->RSSetState(m_RasterState);
-		m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState,0);
 
 		//Sort objects by the range to the camera
 		std::sort(m_TransparencyObjects.begin(),m_TransparencyObjects.end(),std::bind(&ForwardRendering::depthSortCompareFunc, this, std::placeholders::_1, std::placeholders::_2));
@@ -225,14 +182,14 @@ void ForwardRendering::renderForward()
 		updateConstantBuffer();
 		for(unsigned int i = 0; i < m_TransparencyObjects.size();i++)
 		{
-			m_TransparencyObjects.at(i).model->vertexBuffer->setBuffer(0);
+			m_TransparencyObjects.at(i).m_Model->vertexBuffer->setBuffer(0);
 
-			if (m_TransparencyObjects.at(i).model->isAnimated)
+			if (m_TransparencyObjects.at(i).m_Model->m_IsAnimated)
 			{
 				cAnimatedObjectBuffer temp;
-				temp.invTransposeWorld = m_TransparencyObjects.at(i).invTransposeWorld;
+				temp.invTransposeWorld = m_TransparencyObjects.at(i).m_invTransposeWorld;
 
-				const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_TransparencyObjects.at(i).finalTransforms;
+				const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_TransparencyObjects.at(i).m_FinalTransforms;
 				for (unsigned int a = 0; a < tempBones->size(); a++)
 					temp.boneTransform[a] = (*tempBones)[a];
 
@@ -241,42 +198,33 @@ void ForwardRendering::renderForward()
 			}
 
 			cObjectBuffer temp;
-			temp.world = m_TransparencyObjects.at(i).world;
+			temp.world = m_TransparencyObjects.at(i).m_World;
 			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
 			m_ObjectConstantBuffer->setBuffer(2);
 
-			//Set the colorshadingConstantBuffer
-			DirectX::XMFLOAT3 color = DirectX::XMFLOAT3(0,0,1);
-			m_DeviceContext->UpdateSubresource(m_ColorShadingConstantBuffer->getBufferPointer(),
-				NULL,NULL,m_TransparencyObjects.at(i).colorTone ,NULL,NULL);
-			m_ColorShadingConstantBuffer->setBuffer(3);
-
-
 			// Set shader.
-			m_TransparencyObjects.at(i).model->shader->setShader();
+			m_TransparencyObjects.at(i).m_Model->shader->setShader();
 			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-			m_TransparencyObjects.at(i).model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
+			m_TransparencyObjects.at(i).m_Model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
 
-			for(unsigned int j = 0; j < m_TransparencyObjects.at(i).model->numOfMaterials;j++)
+			for(unsigned int j = 0; j < m_TransparencyObjects.at(i).m_Model->numOfMaterials;j++)
 			{
-				ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).model->diffuseTexture[j].second, 
-					m_TransparencyObjects.at(i).model->normalTexture[j].second, 
-					m_TransparencyObjects.at(i).model->specularTexture[j].second 
+				ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).m_Model->diffuseTexture[j].second, 
+					m_TransparencyObjects.at(i).m_Model->normalTexture[j].second, 
+					m_TransparencyObjects.at(i).m_Model->specularTexture[j].second 
 				};
 				m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
-				m_DeviceContext->Draw(m_TransparencyObjects.at(i).model->drawInterval.at(j).second,
-					m_TransparencyObjects.at(i).model->drawInterval.at(j).first);
+				m_DeviceContext->Draw(m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).second, m_TransparencyObjects.at(i).m_Model->drawInterval.at(j).first);
 
 				m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 			}
 
-			m_TransparencyObjects.at(i).model->shader->setBlendState(0, data);
-			m_TransparencyObjects.at(i).model->shader->unSetShader();
+			m_TransparencyObjects.at(i).m_Model->shader->setBlendState(0, data);
+			m_TransparencyObjects.at(i).m_Model->shader->unSetShader();
 			m_ObjectConstantBuffer->unsetBuffer(2);
 			m_AnimatedObjectConstantBuffer->unsetBuffer(3);
-			m_TransparencyObjects.at(i).model->vertexBuffer->unsetBuffer(0);
-			m_ColorShadingConstantBuffer->unsetBuffer(3);
+			m_TransparencyObjects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
 		}
 		m_DeviceContext->PSSetSamplers(0,0,0);
 		m_ConstantBuffer->unsetBuffer(1);
@@ -296,8 +244,8 @@ void ForwardRendering::renderForward()
 
 bool ForwardRendering::depthSortCompareFunc(const DeferredRenderer::Renderable &a, const DeferredRenderer::Renderable &b)
 {
-	DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.world._14,a.world._24,a.world._34);
-	DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.world._14,b.world._24,b.world._34);
+	DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.m_World._14,a.m_World._24,a.m_World._34);
+	DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.m_World._14,b.m_World._24,b.m_World._34);
 
 	DirectX::XMVECTOR aV = DirectX::XMLoadFloat3(&aa);
 	DirectX::XMVECTOR bV = DirectX::XMLoadFloat3(&bb);

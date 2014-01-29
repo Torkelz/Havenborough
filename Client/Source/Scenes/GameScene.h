@@ -2,7 +2,7 @@
 #include "IScene.h"
 //#include "../Logger.h"
 #include "../GameLogic.h"
-#include <LightStructs.h>
+#include "../LightStructs.h"
 
 class GameScene : public IScene
 {
@@ -23,6 +23,8 @@ private:
 
 	GameLogic *m_GameLogic;
 	EventManager *m_EventManager;
+
+	ActorFactory m_ActorFactory;
 
 	std::vector<int> m_ResourceIDs;
 	std::vector<Light> m_Lights;
@@ -76,7 +78,6 @@ private:
 	void changeAnimationWeight(IEventData::Ptr p_Data);
 	void addReachIK(IEventData::Ptr p_Data);
 	void removeReachIK(IEventData::Ptr p_Data);
-	void changeColorTone(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 

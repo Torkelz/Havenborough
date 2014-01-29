@@ -71,11 +71,6 @@ XMFLOAT3 Player::getGroundPosition() const
 
 XMFLOAT3 Player::getCollisionCenter() const
 {
-	if (m_Actor.expired())
-	{
-		return Vector3(0.f, 0.f, 0.f);
-	}
-
 	return m_Physics->getBodyPosition(getBody());
 }
 

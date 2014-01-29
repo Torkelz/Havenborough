@@ -1,23 +1,23 @@
 #include <boost/test/unit_test.hpp>
-#include "../../../Common/Source/LevelBinaryLoader.h"
+#include "../../../Client/Source/LevelBinaryLoader.h"
 BOOST_AUTO_TEST_SUITE(TestBinaryLevelLoader)
 
 class testLevelLoader : public LevelBinaryLoader
 {
 public:
-	LevelBinaryLoader::Header testReadHeader(std::istream& p_Input)
+	LevelBinaryLoader::Header testReadHeader(std::istream* p_Input)
 	{
 		return readHeader(p_Input);
 	}
-	std::vector<LevelBinaryLoader::ModelData> testReadLevelData(std::istream& p_Input)
+	std::vector<LevelBinaryLoader::ModelData> testReadLevelData(std::istream* p_Input)
 	{
 		return readLevel(p_Input);
 	}
-	void testReadLight(std::istream& p_Input)
+	void testReadLight(std::istream* p_Input)
 	{
 		return readLevelLighting(p_Input);
 	}
-	void testLevelCheckPointList(std::istream& p_Input)
+	void testLevelCheckPointList(std::istream* p_Input)
 	{
 		return readLevelCheckPoint(p_Input);
 	}
@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(TestReadHeader)
 		"\x05\0\0\0";
 	std::istringstream tempString(std::string(binHeader, binHeader + sizeof(binHeader)));
 	testLevelLoader loader;
-	header = loader.testReadHeader(tempString);
+	header = loader.testReadHeader(&tempString);
 
 	BOOST_CHECK_EQUAL(header.m_NumberOfModels, 1);
 	BOOST_CHECK_EQUAL(header.m_NumberOfLights, 1);
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(TestReadLevelData)
 	std::string meshName = "House1";
 	std::istringstream tempString(std::string(binData, binData + sizeof(binData)));
 	testLevelLoader loader;
-	data = loader.testReadLevelData(tempString);
+	data = loader.testReadLevelData(&tempString);
 	byteFloat bFloat[9] = {15.0f, 764.0f, 0.5f, 512.0f, 512.0f, 512.0f, 0.0f, 0.0f, 0.0f};
 
 	BOOST_CHECK_EQUAL_COLLECTIONS(data.at(0).m_MeshName.begin(), data.at(0).m_MeshName.end(), meshName.begin(), meshName.end() );
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(TestReadLevelLighting)
 		"\0\0\0A";
 	testLevelLoader loader;
 	std::istringstream tempString(std::string(binData, binData + sizeof(binData)));
-	loader.testReadLight(tempString);
+	loader.testReadLight(&tempString);
 
 	std::vector<LevelBinaryLoader::DirectionalLight> directionalLight;
 	std::vector<LevelBinaryLoader::PointLight> pointLight;
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(TestReadLevelCheckPoint)
 
 	testLevelLoader loader;
 	std::istringstream tempString(std::string(binData, binData + sizeof(binData)));
-	loader.testLevelCheckPointList(tempString);
+	loader.testLevelCheckPointList(&tempString);
 
 	std::vector<LevelBinaryLoader::CheckPointStruct> checkPoints;
 	checkPoints.resize(1);

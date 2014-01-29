@@ -14,7 +14,6 @@
  */
 struct ModelDefinition
 {
-public:
 	/**
 	 * The GPU buffer containing the vertex data.
 	 */
@@ -26,53 +25,42 @@ public:
 	/**
 	 * The shader bound to the model, or nullptr if no shader has been bound.
 	 */
-	Shader *shader;
+	Shader						*shader;
 	/**
-	 * Material diffuse textures.
+	 * Matrial diffuse textures.
 	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> diffuseTexture;
 	/**
-	 * Material normal textures.
+	 * Matrial normal textures.
 	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> normalTexture;
 	/**
-	 * Material specular textures.
+	 * Matrial specular textures.
 	 */
 	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> specularTexture;
 	/**
 	 * The number of materials in this model.
 	 */
-	unsigned int numOfMaterials;
+	unsigned int				numOfMaterials;
 	/**
 	 * If the model is animated or static.
 	 */
-	bool isAnimated;
+	bool						m_IsAnimated;
 	/**
 	 * If the model is transparent or not.
 	 */
-	bool isTransparent;
+	bool						m_IsTransparent;
 
 	/**
 	 * The animation joints of the model. Contains all static animation data.
 	 */
-	std::vector<Joint> joints;
+	std::vector<Joint>			m_Joints;
 
 	/**
 	 * The animation clips. Address them via a name. E.g. "Walk", "Run", "Laugh"...
 	 */
-	std::map<std::string, AnimationClip> animationClips;
+	std::map<std::string, AnimationClip>	m_AnimationClips;
 
-public:
-	/**
-	 * Default contructor. Constructs an object without any data.
-	 */
-	ModelDefinition()
-		:	shader(nullptr),
-			numOfMaterials(0),
-			isAnimated(false),
-			isTransparent(false) {}
-
-	~ModelDefinition(){}
 	/**
 	 * Move constructor.
 	 */
@@ -84,10 +72,10 @@ public:
 			normalTexture(p_Other.normalTexture),
 			specularTexture(p_Other.specularTexture),
 			numOfMaterials(p_Other.numOfMaterials),
-			isAnimated(p_Other.isAnimated),
-			isTransparent(p_Other.isTransparent),
-			joints(std::move(p_Other.joints)),
-			animationClips(std::move(p_Other.animationClips))
+			m_IsAnimated(p_Other.m_IsAnimated),
+			m_IsTransparent(p_Other.m_IsTransparent),
+			m_Joints(std::move(p_Other.m_Joints)),
+			m_AnimationClips(std::move(p_Other.m_AnimationClips))
 	{}
 
 	/**
@@ -102,14 +90,25 @@ public:
 		std::swap(normalTexture, p_Other.normalTexture);
 		std::swap(specularTexture, p_Other.specularTexture);
 		std::swap(numOfMaterials, p_Other.numOfMaterials);
-		std::swap(isAnimated, p_Other.isAnimated);
-		std::swap(isTransparent, p_Other.isTransparent);
-		std::swap(joints, p_Other.joints);
-		std::swap(animationClips, p_Other.animationClips);
+		std::swap(m_IsAnimated, p_Other.m_IsAnimated);
+		std::swap(m_IsTransparent, p_Other.m_IsTransparent);
+		std::swap(m_Joints, p_Other.m_Joints);
+		std::swap(m_AnimationClips, p_Other.m_AnimationClips);
 
 		return *this;
 	}
 
 private:
-	ModelDefinition(const ModelDefinition&); //Should never be used, but must be private!
+	ModelDefinition(const ModelDefinition&); // Removed
+
+public:
+	/**
+	 * Default contructor. Constructs an object without any data.
+	 */
+	ModelDefinition()
+		:	shader(nullptr),
+			numOfMaterials(0),
+			m_IsAnimated(false),
+			m_IsTransparent(false) {}
+	~ModelDefinition(){}
 };

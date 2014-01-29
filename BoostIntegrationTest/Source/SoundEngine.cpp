@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include "ISound.h"
 #include "../../Sound/Source/Sound.h"
-#include "../../Common/Source/EventManager.h"
+#include "../../Client/Source/EventManager.h"
 
 #if _DEBUG
 #include <vld.h> 
@@ -189,17 +189,17 @@ BOOST_AUTO_TEST_CASE(TestSound)
 	BOOST_MESSAGE( ID + "Muting default sound and unmuting it.");
 	BOOST_CHECK_NO_THROW(sound->addSoundToGroup(ts.c_str(),ISound::ChannelGroup::MUSIC));
 	BOOST_CHECK_NO_THROW(sound->muteAll(true));
-	BOOST_CHECK_MESSAGE(sound->getMasterMute() == true, ID + "Muting the sound failed.");
+	BOOST_CHECK_MESSAGE(sound->getMute(ts.c_str()) == true, ID + "Muting the sound failed.");
 	BOOST_CHECK_NO_THROW(sound->muteAll(false));
-	BOOST_CHECK_MESSAGE(sound->getMasterMute() == false, ID + "Unmuting the sound failed.");
+	BOOST_CHECK_MESSAGE(sound->getMute(ts.c_str()) == false, ID + "Unmuting the sound failed.");
 
 	BOOST_MESSAGE( ID + "Trying to pass non-valid number 2 and -1 to volume change functions.");
 	BOOST_CHECK_NO_THROW(sound->setSoundVolume(ts.c_str(),-1.0f));
 	BOOST_CHECK_NO_THROW(sound->setSoundVolume(ts.c_str(), 2.0f));
 
-	//BOOST_MESSAGE( ID + "Trying to pass non-valid number 2 and -1 to pause change functions.");
-	//BOOST_CHECK_NO_THROW(sound->pauseSound(ts.c_str(),-1));
-	//BOOST_CHECK_NO_THROW(sound->pauseSound(ts.c_str(), 2));
+	BOOST_MESSAGE( ID + "Trying to pass non-valid number 2 and -1 to pause change functions.");
+	BOOST_CHECK_NO_THROW(sound->pauseSound(ts.c_str(),-1));
+	BOOST_CHECK_NO_THROW(sound->pauseSound(ts.c_str(), 2));
 	// ############### STEP 3 END ###############
 
 	// ############### STEP 4 START ###############

@@ -378,7 +378,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 		p_ShaderModel, p_Type, p_VertexLayout, p_NumOfElements)));
 }
 
-void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
+void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) //TODO: Maybe need to handle if animated or static?
 {
 	ModelDefinition *model = nullptr;
 	model = getModelFromList(p_ModelId);
@@ -435,23 +435,24 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-void Graphics::renderModel(int p_ModelId)
+void Graphics::renderModel(int p_ModelId) //TODO: Maybe need to handle if animated or static?
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_ModelId)
 		{
 			ModelDefinition *temp = getModelFromList(inst.second.getModelName());
-			if(!temp->isTransparent)
+			if(temp->m_IsTransparent == false)
 			{
 				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(temp,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
+					inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
 			}
 			else
 			{
 				m_Forwardrender->addRenderable(DeferredRenderer::Renderable(temp,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
-					&inst.second.getColorTone()));
+					inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
 			}
 			
 			break;
@@ -562,26 +563,14 @@ void Graphics::drawFrame()
 	m_DirectionalLights.clear();
 }
 
-void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)
-{
-	for(auto &model : m_ModelList)
-	{
-		if(model.first == std::string(p_ModelId))
-		{
-			model.second.isTransparent = p_State;
-			break;
-		}
-	}
-}
-
 void Graphics::updateAnimations(float p_DeltaTime)
 {
 	for (auto& model : m_ModelInstances)
 	{
 		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
-		if (modelDef->isAnimated)
+		if (modelDef->m_IsAnimated)
 		{
-			model.second.updateAnimation(p_DeltaTime, modelDef->joints);
+			model.second.updateAnimation(p_DeltaTime, modelDef->m_Joints);
 		}
 	}
 }
@@ -598,7 +587,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
+			if( modelDef->m_AnimationClips.find(p_ClipName) == modelDef->m_AnimationClips.end() )
 			{
 				tempStr = "default";
 			}
@@ -606,7 +595,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 			//if(tempStr != "LookAround")
 			//	break;
 
-			inst.second.playClip(modelDef->animationClips.at(tempStr), p_Override);
+			inst.second.playClip(modelDef->m_AnimationClips.at(tempStr), p_Override);
 			break;
 		}
 	}
@@ -624,12 +613,12 @@ void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
+			if( modelDef->m_AnimationClips.find(p_ClipName) == modelDef->m_AnimationClips.end() )
 			{
 				tempStr = "default";
 			}
 
-			inst.second.queueClip(modelDef->animationClips.at(tempStr));
+			inst.second.queueClip(modelDef->m_AnimationClips.at(tempStr));
 			break;
 		}
 	}
@@ -658,15 +647,15 @@ int Graphics::getVRAMUsage(void)
 	}
 }
 
-IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
+int Graphics::createModelInstance(const char *p_ModelId)
 {
 	ModelDefinition* modelDef = getModelFromList(p_ModelId);
 	if (modelDef == nullptr)
 	{
-		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the model definition: " + std::string(p_ModelId));
+		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the mode definition: " + std::string(p_ModelId));
 		return -1;
 	}
-	
+
 	ModelInstance instance;
 	instance.setModelName(p_ModelId);
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
@@ -674,9 +663,9 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 	int id = m_NextInstanceId++;
 
-	if (modelDef->isAnimated)
+	if (modelDef->m_IsAnimated)
 	{
-		instance.updateAnimation(0.f, modelDef->joints);
+		instance.updateAnimation(0.f, modelDef->m_Joints);
 	}
 
 	m_ModelInstances.push_back(std::make_pair(id, instance));
@@ -701,82 +690,62 @@ void Graphics::eraseModelInstance(int p_Instance)
 	}
 }
 
-void Graphics::setModelPosition(InstanceId p_Instance, Vector3 p_Position)
+void Graphics::setModelPosition(int p_Instance, Vector3 p_Position)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
 			inst.second.setPosition(Vector3ToXMFLOAT3(&p_Position));
-			return;
+			break;
 		}
 	}
-	throw GraphicsException("Failed to set model instance position.", __LINE__, __FILE__);
 }
 
-void Graphics::setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll)
+void Graphics::setModelRotation(int p_Instance, Vector3 p_YawPitchRoll)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
 			inst.second.setRotation(DirectX::XMFLOAT3(p_YawPitchRoll.y, p_YawPitchRoll.x, p_YawPitchRoll.z));
-			return;
+			break;
 		}
 	}
-	throw GraphicsException("Failed to set model instance position.", __LINE__, __FILE__);
-
 }
 
-void Graphics::setModelScale(InstanceId p_Instance, Vector3 p_Scale)
+void Graphics::setModelScale(int p_Instance, Vector3 p_Scale)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
 			inst.second.setScale(DirectX::XMFLOAT3(p_Scale));
-			return;
-		}
-	}
-	throw GraphicsException("Failed to set model instance scale.", __LINE__, __FILE__);
-
-}
-
-void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
-{
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.setColorTone(DirectX::XMFLOAT3(p_ColorTone));
-			return;
-		}
-	}
-	throw GraphicsException("Failed to set model instance color tone.", __LINE__, __FILE__);
-}
-
-void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint,
-								  const char* p_BaseJoint, Vector3 p_Target)
-{
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.applyIK_ReachPoint(p_TargetJoint, p_HingeJoint, p_BaseJoint, p_Target,
-				getModelFromList(inst.second.getModelName())->joints);
 			break;
 		}
 	}
 }
 
-Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
+void Graphics::applyIK_ReachPoint(int p_Instance, const char* p_TargetJoint, const char* p_HingeJoint, const char* p_BaseJoint, Vector3 p_Target)
+{
+	for (auto& inst : m_ModelInstances)
+	{
+		if (inst.first == p_Instance)
+		{
+			inst.second.applyIK_ReachPoint(p_TargetJoint, p_HingeJoint, p_BaseJoint, p_Target, getModelFromList(inst.second.getModelName())->m_Joints);
+			break;
+		}
+	}
+}
+
+Vector3 Graphics::getJointPosition(int p_Instance, const char* p_Joint)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->joints);
+			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->m_Joints);
 			
 			return position;
 		}
@@ -813,13 +782,10 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 	//XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
 	XMVECTOR pos = XMLoadFloat4(&eye);
 
-	XMVECTOR rotForward = XMVector4Transform(forwardVec, rotation);
-	XMVECTOR flatForward = XMVector4Transform(forwardVec, XMMatrixRotationRollPitchYaw(0.f, p_Yaw, 0.f));
-	flatForward.m128_f32[1] = 0.f;
-	pos += flatForward * 15.f;
+	XMVECTOR lookAt = pos + XMVector4Transform(forwardVec, rotation);
 
 	//XMFLOAT4X4 view;
-	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, rotForward, rotatedUp)));
+	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(pos, lookAt, rotatedUp)));
 }
 
 void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)
@@ -841,13 +807,10 @@ void Graphics::setRenderTarget(int p_RenderTarget)
 
 void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void *p_Userdata)
 {
-	if(!m_ModelFactory)
+	if (m_ModelFactory)
 	{
-		m_ModelFactory = ModelFactory::getInstance();
-		m_ModelFactory->initialize(&m_TextureList);
 		m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
 	}
-	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
 }
 
 void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)

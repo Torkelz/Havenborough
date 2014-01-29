@@ -15,10 +15,36 @@ public:
 protected:
 	DirectX::XMFLOAT4	m_Position;
 	DirectX::XMFLOAT4	m_PrevPosition;
+	int					m_Index;
 	Type				m_Type;
 
 public:
 	BoundingVolume(){};
+	/**
+	 * Get a unique index from the volume for comparison.
+	 * @return index of the bounding volume.
+	 */
+	int	getIndex()
+	{
+		return m_Index;
+	}
+	/**
+	 * Compare two bounding volumes to figure out if they are different.
+	 * @param p_volume the volume to compare with.
+	 * @return true if it's the same volume, else return false.
+	 */
+	bool compare(BoundingVolume* p_Volume)
+	{
+		if(p_Volume->getIndex() == m_Index)
+		{
+			return true;
+		}
+
+		else
+		{
+			return false;
+		}
+	}
 	/* Updates position for BoundingVolume with translation matrix.
 	 * @param p_Translation, move the AABB in relative coordinates.
 	 */
@@ -27,9 +53,9 @@ public:
 	 * Get the current position for the bounding volume.
 	 * @return the position of the bounding volume in m
 	 */
-	virtual DirectX::XMFLOAT4 getPosition() const 
+	virtual DirectX::XMFLOAT4* getPosition()
 	{
-		return m_Position;
+		return &m_Position;
 	}
 	/**
 	 * Get the bounding volume position in the last frame.
@@ -43,12 +69,8 @@ public:
 	 * Return the bounding volume type tied to the TYPE enum.
 	 * @return type of the bounding volume.
 	 */
-	BoundingVolume::Type getType() const
+	Type getType()
 	{
 		return m_Type;
 	}
-
-	virtual void scale(DirectX::XMVECTOR const &p_Scale) = 0;
-	
-	virtual ~BoundingVolume(){};
 };

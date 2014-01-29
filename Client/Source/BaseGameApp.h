@@ -51,11 +51,6 @@ private:
 	std::unique_ptr<GameLogic> m_GameLogic;
 public:
 	/**
-	 * constructor.
-	 */
-	BaseGameApp();
-
-	/**
 	 * Initialize the game and create a window.
 	 */
 	void init();

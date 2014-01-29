@@ -42,7 +42,6 @@ Install VLD by running the installer.
 ### Environment Variables ###
 - VLD_INC_DIR: Path to VLD includes, for example 'C:\Program Files (x86)\Visual Leak Detector\include'
 - VLD_LIB_DIR: Path to VLD lib, for example 'C:\Program Files (x86)\Visual Leak Detector\lib\Win32'
-- VLD_DLL_DIR: Path to VLD dll, for example 'C:\Program Files (x86)\Visual Leak Detector\bin\Win32'
 
 ### Settings ###
 

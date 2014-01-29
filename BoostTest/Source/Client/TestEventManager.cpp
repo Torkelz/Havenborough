@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
-#include <EventManager.h>
-#include <EventData.h>
+#include "../../Client/Source/EventManager.h"
+#include "../../Client/Source/EventData.h"
 #include "../../Client/Source/ClientExceptions.h"
 #include <string>
 #include <conio.h>

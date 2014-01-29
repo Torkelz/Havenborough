@@ -39,42 +39,35 @@ public:
 	 * until the model loader is done.
 	 * ### The inverse transpose world matrix is needed to render animations and is not stored 
 	 * ### anywhere else than here. Remember to move it if this struct is deleted.
-
-	 * LOL really? I hear I can break things if I delete it, and the model loader is like done.
 	 */
 	struct Renderable
 	{
-		ModelDefinition *model;
-		DirectX::XMFLOAT4X4 world;
-		DirectX::XMFLOAT4X4 invTransposeWorld;
-		const std::vector<DirectX::XMFLOAT4X4> *finalTransforms;
-		const DirectX::XMFLOAT3 *colorTone;
+		ModelDefinition				*m_Model;
+		DirectX::XMFLOAT4X4			m_World;
+		DirectX::XMFLOAT4X4			m_invTransposeWorld;
+		const std::vector<DirectX::XMFLOAT4X4> *m_FinalTransforms;
 
-		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World,
-			const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr, 
-			const DirectX::XMFLOAT3 *p_ColorTone = nullptr)
+		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World, const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr)
 		{
+			m_Model = p_Model;
+			m_World = p_World;
+
 			using namespace DirectX;
 
-			model = p_Model;
-			world = p_World;
-			colorTone = p_ColorTone;
-			
-			XMStoreFloat4x4(&invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&world)))); 
-			invTransposeWorld._41 = 0.f;
-			invTransposeWorld._42 = 0.f;
-			invTransposeWorld._43 = 0.f;
-			invTransposeWorld._44 = 1.f;
+			XMStoreFloat4x4( &m_invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_World))) ); 
+			m_invTransposeWorld._41 = 0.f;
+			m_invTransposeWorld._42 = 0.f;
+			m_invTransposeWorld._43 = 0.f;
+			m_invTransposeWorld._44 = 1.f;
 
-			finalTransforms = p_FinalTransforms;
+			m_FinalTransforms = p_FinalTransforms;
 		}
 
 		~Renderable()
 		{
-			model = nullptr;
+			m_Model = nullptr;
 		}
 	};
-
 private:
 	std::vector<Renderable>		m_Objects;
 
@@ -85,7 +78,7 @@ private:
 	std::vector<Light>			*m_SpotLights;
 	std::vector<Light>			*m_PointLights;
 	std::vector<Light>			*m_DirectionalLights;
-	unsigned int				m_MaxLightsPerLightInstance;
+	unsigned int	m_MaxLightsPerLightInstance;
 
 	DirectX::XMFLOAT3			*m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
@@ -148,10 +141,11 @@ public:
 	 * @ p_ProjectionMatrix, the projection matrix. Used when rendering.
 	 */
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
-		ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
+		ID3D11DepthStencilView *p_DepthStencilView,
+		unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
-		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, 
 		unsigned int p_MaxLightsPerLightInstance);
 
 	/*
@@ -189,7 +183,7 @@ public:
 private:
 	void renderGeometry();
 
-	void clearRenderTargets(unsigned int nrRT);
+	void clearRenderTargets( unsigned int nrRT );
 
 	void renderLighting();
 	void renderSkyDomeImpl();
@@ -200,7 +194,7 @@ private:
 	void updateLightBuffer();
 
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
-	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC &desc);
+	HRESULT createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc );
 	void createBuffers();
 	void clearRenderTargets();
 	void createSamplerState();

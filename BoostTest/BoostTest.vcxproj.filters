@@ -29,8 +29,14 @@
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp">
       <Filter>TestNetwork</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\ResourceManager.cpp">
+      <Filter>TestResourceManager\Import</Filter>
+    </ClCompile>
     <ClCompile Include="..\Network\Source\NetworkLogger.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\ResourceTranslator.cpp">
+      <Filter>TestResourceManager\Import</Filter>
     </ClCompile>
     <ClCompile Include="TestResourceManager.cpp">
       <Filter>TestResourceManager</Filter>
@@ -58,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Logger.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
@@ -173,6 +182,9 @@
     <ClCompile Include="..\Client\Source\Input\Input.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\LevelBinaryLoader.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Client\Source\Input\InputState.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
@@ -203,11 +215,18 @@
     <ClCompile Include="OBBTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
+    <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Actor.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\ActorFactory.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
@@ -230,6 +249,9 @@
     <ClCompile Include="HullTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\EventManager.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
@@ -240,12 +262,6 @@
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
-    <ClCompile Include="..\Client\Source\CheckpointSystem.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp">
-      <Filter>TestLoaders\Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

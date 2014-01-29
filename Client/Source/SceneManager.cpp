@@ -205,18 +205,6 @@ void SceneManager::startMenu()
 	m_NowShowing = 0;
 }
 
-void SceneManager::gotoPostGame()
-{
-	m_IsMenuState = false;
-	for(unsigned int i = 0; i < m_NumberOfRunScene; i++)
-	{
-		m_RunSceneList[i]->setIsVisible(false);
-	}
-	m_RunSceneList[(size_t)RunScenes::POST_GAME]->setIsVisible(true);
-	m_RunSceneList[(size_t)RunScenes::POST_GAME]->onFocus();
-	m_NowShowing = (size_t)RunScenes::POST_GAME;
-}
-
 void SceneManager::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
 	if(p_Action == "pauseScene" && p_Value == 1)

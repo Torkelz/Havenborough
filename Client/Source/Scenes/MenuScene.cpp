@@ -1,6 +1,6 @@
 #include "MenuScene.h"
 
-#include <EventData.h>
+#include "../EventData.h"
 
 MenuScene::MenuScene()
 {
@@ -98,14 +98,6 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		else if (p_Action == "joinTestLevel")
 		{
 			m_GameLogic->joinGame("test");
-		}
-		else if (p_Action == "joinServerLevel")
-		{
-#ifdef _DEBUG
-			m_GameLogic->joinGame("serverDebugLevel");
-#else
-			m_GameLogic->joinGame("serverLevel");
-#endif
 		}
 		else if (p_Action == "playLocalTest")
 		{

@@ -22,9 +22,9 @@ BOOST_AUTO_TEST_CASE(updatePositionRelative)
 {
 	Sphere* sphere = new Sphere(5.f, DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f));
 
-	BOOST_CHECK_EQUAL(sphere->getPosition().x, 0.f);
-	BOOST_CHECK_EQUAL(sphere->getPosition().y, 0.f);
-	BOOST_CHECK_EQUAL(sphere->getPosition().z, 0.f);
+	BOOST_CHECK_EQUAL(sphere->getPosition()->x, 0.f);
+	BOOST_CHECK_EQUAL(sphere->getPosition()->y, 0.f);
+	BOOST_CHECK_EQUAL(sphere->getPosition()->z, 0.f);
 
 	DirectX::XMFLOAT4X4 temp;
 
@@ -33,9 +33,9 @@ BOOST_AUTO_TEST_CASE(updatePositionRelative)
 	sphere->updatePosition(temp);
 	sphere->updatePosition(temp);
 
-	BOOST_CHECK_EQUAL(sphere->getPosition().x, 2.f);
-	BOOST_CHECK_EQUAL(sphere->getPosition().y, 20.f);
-	BOOST_CHECK_EQUAL(sphere->getPosition().z, 10.f);
+	BOOST_CHECK_EQUAL(sphere->getPosition()->x, 2.f);
+	BOOST_CHECK_EQUAL(sphere->getPosition()->y, 20.f);
+	BOOST_CHECK_EQUAL(sphere->getPosition()->z, 10.f);
 
 	delete sphere;
 }
@@ -49,9 +49,9 @@ BOOST_AUTO_TEST_CASE(updatePositionAbsolute)
 	sphere->updatePosition(temp);
 	sphere->updatePosition(temp);
 
-	BOOST_CHECK_EQUAL(sphere->getPosition().x, 0.f);
-	BOOST_CHECK_EQUAL(sphere->getPosition().y, 10.f);
-	BOOST_CHECK_EQUAL(sphere->getPosition().z, 0.f);
+	BOOST_CHECK_EQUAL(sphere->getPosition()->x, 0.f);
+	BOOST_CHECK_EQUAL(sphere->getPosition()->y, 10.f);
+	BOOST_CHECK_EQUAL(sphere->getPosition()->z, 0.f);
 
 	delete sphere;
 }

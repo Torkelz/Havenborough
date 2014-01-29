@@ -11,7 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\FileGameRound.cpp" />
+    <ClCompile Include="..\Client\Source\Logger.cpp" />
+    <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="Source\ActorFactory.cpp" />
     <ClCompile Include="Source\GameList.cpp" />
     <ClCompile Include="Source\GameRound.cpp" />
     <ClCompile Include="Source\GameRoundFactory.cpp" />
@@ -23,9 +25,6 @@
     <ClCompile Include="Source\User.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vcxproj">
-      <Project>{8c7b8d02-7172-4ae2-a0df-2e5a5fc9f23f}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Network\Network.vcxproj">
       <Project>{618f0468-d053-4ae2-be83-118fe75c6f2e}</Project>
     </ProjectReference>
@@ -34,7 +33,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\FileGameRound.h" />
+    <ClInclude Include="..\Client\Source\Logger.h" />
+    <ClInclude Include="..\Common\3rd party\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="Source\ActorFactory.h" />
     <ClInclude Include="Source\GameList.h" />
     <ClInclude Include="Source\GameRound.h" />
     <ClInclude Include="Source\GameRoundFactory.h" />
@@ -98,7 +99,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/3rd party/tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,7 +117,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Physics/include;$(SolutionDir)Network/include;$(SolutionDir)Common/3rd party/tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

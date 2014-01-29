@@ -6,7 +6,7 @@
 
 #include "InputRecord.h"
 #include "../Window.h"
-#include <EventData.h>
+#include "../EventData.h"
 
 #include <functional>
 #include <memory>

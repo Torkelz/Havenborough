@@ -103,7 +103,7 @@ public:
 
 	bool getPaused(const char* p_SoundId) override;
 
-	bool getMasterMute() override;
+	bool getMute(const char* p_SoundId) override;
 private:
 	void errorCheck(FMOD_RESULT p_Result);
 	SoundInstance *getSound(std::string p_SoundId);

@@ -10,6 +10,7 @@ private:
 	DirectX::XMFLOAT4	m_Bottom;
 	DirectX::XMFLOAT4	m_Top;
 	DirectX::XMFLOAT4	m_Bounds[8];
+	std::vector<int>	m_Indices;
 	Sphere				m_Sphere;
 	DirectX::XMFLOAT4	m_HalfDiagonal;
 	DirectX::XMFLOAT4	m_Size;
@@ -20,7 +21,7 @@ public:
 	 * @param p_CenterPos the position in world space in m
 	 * @param p_Size the halfsize of the box in m
 	 */
-	AABB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
+	AABB( DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
 	{
 		m_Position = p_CenterPos;
 		m_Size.x = p_Size.x;
@@ -37,6 +38,7 @@ public:
 	*/
 	~AABB()
 	{
+		m_Indices.clear();
 	}
 	
 	/**
@@ -97,32 +99,32 @@ public:
 		calculateBounds();
 	}
 	/**
-	* @return the top corner in world coordinates m
+	* @return the top corner in m
 	*/
-	DirectX::XMFLOAT4 getMax() const 
+	DirectX::XMFLOAT4* getMax()
 	{
-		return getBoundWorldCoordAt(7);
+		return &m_Bounds[7];
 	}
 	/**
-	* @return the bottom corner in world coordinates m
+	* @return the bottom corner in m
 	*/
-	DirectX::XMFLOAT4 getMin() const
+	DirectX::XMFLOAT4* getMin()
 	{
-		return getBoundWorldCoordAt(0);
+		return &m_Bounds[0];
 	}
 	/**
-	* @return a vector from center to top corner m
+	* @return a vector from center to top corner in m
 	*/
-	DirectX::XMFLOAT4 getHalfDiagonal() const
+	DirectX::XMFLOAT4* getHalfDiagonal()
 	{
-		return m_HalfDiagonal;
+		return &m_HalfDiagonal;
 	}
 	/**
 	* @return the sphere that surround the AABB
 	*/
-	Sphere	getSphere() const 
+	Sphere*	getSphere()
 	{
-		return m_Sphere;
+		return &m_Sphere;
 	}
 	/**
 	 * Return a corner at the index specified.
@@ -130,7 +132,7 @@ public:
 	 * @param p_Index index number in m_Bounds list
 	 * @return a XMFLOAT4 corner.
 	 */
-	DirectX::XMFLOAT4 getBoundAt(unsigned p_Index) const
+	DirectX::XMFLOAT4 getBoundAt(unsigned p_Index)
 	{
 		return m_Bounds[p_Index];
 	}
@@ -140,20 +142,8 @@ public:
 	 * @param p_Index index number in m_Bounds list
 	 * @return a XMFLOAT4 corner.
 	 */
-	DirectX::XMFLOAT4 getBoundWorldCoordAt(unsigned p_Index) const
+	DirectX::XMFLOAT4 getBoundWorldCoordAt(unsigned p_Index)
 	{
 		return DirectX::XMFLOAT4(m_Bounds[p_Index].x + m_Position.x,m_Bounds[p_Index].y + m_Position.y, m_Bounds[p_Index].z + m_Position.z, 1.f);
-	}
-	/**
-	* Scales the ABBB.
-	* @param p_scale vector to scale the box with..
-	*/
-	void scale(const DirectX::XMVECTOR &p_Scale) override
-	{
-		DirectX::XMMATRIX m = DirectX::XMMatrixScalingFromVector(p_Scale);
-		DirectX::XMVECTOR s = XMLoadFloat4(&m_Size);
-		s = DirectX::XMVector4Transform(s, m);
-		DirectX::XMStoreFloat4(&m_Size, s);
-		calculateBounds();
 	}
 };

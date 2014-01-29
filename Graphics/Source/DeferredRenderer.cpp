@@ -192,14 +192,14 @@ void DeferredRenderer::renderGeometry()
 	updateConstantBuffer();
 	for(unsigned int i = 0; i < m_Objects.size();i++)
 	{
-		m_Objects.at(i).model->vertexBuffer->setBuffer(0);
+		m_Objects.at(i).m_Model->vertexBuffer->setBuffer(0);
 
-		if (m_Objects.at(i).model->isAnimated)
+		if (m_Objects.at(i).m_Model->m_IsAnimated)
 		{
 			cAnimatedObjectBuffer temp;
-			temp.invTransposeWorld = m_Objects.at(i).invTransposeWorld;
+			temp.invTransposeWorld = m_Objects.at(i).m_invTransposeWorld;
 
-			const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_Objects.at(i).finalTransforms;
+			const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_Objects.at(i).m_FinalTransforms;
 			for (unsigned int a = 0; a < tempBones->size(); a++)
 				temp.boneTransform[a] = (*tempBones)[a];
 
@@ -208,33 +208,33 @@ void DeferredRenderer::renderGeometry()
 		}
 
 		cObjectBuffer temp;
-		temp.world = m_Objects.at(i).world;
+		temp.world = m_Objects.at(i).m_World;
 		m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
 		m_ObjectConstantBuffer->setBuffer(2);
 
 		// Set shader.
-		m_Objects.at(i).model->shader->setShader();
+		m_Objects.at(i).m_Model->shader->setShader();
 		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-		m_Objects.at(i).model->shader->setBlendState(m_BlendState2, data);
+		m_Objects.at(i).m_Model->shader->setBlendState(m_BlendState2, data);
 
-		for(unsigned int j = 0; j < m_Objects.at(i).model->numOfMaterials;j++)
+		for(unsigned int j = 0; j < m_Objects.at(i).m_Model->numOfMaterials;j++)
 		{
-			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).model->diffuseTexture[j].second, 
-													m_Objects.at(i).model->normalTexture[j].second, 
-													m_Objects.at(i).model->specularTexture[j].second 
+			ID3D11ShaderResourceView *srvs[] =  {	m_Objects.at(i).m_Model->diffuseTexture[j].second, 
+													m_Objects.at(i).m_Model->normalTexture[j].second, 
+													m_Objects.at(i).m_Model->specularTexture[j].second 
 												};
 			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
-			m_DeviceContext->Draw(m_Objects.at(i).model->drawInterval.at(j).second, m_Objects.at(i).model->drawInterval.at(j).first);
+			m_DeviceContext->Draw(m_Objects.at(i).m_Model->drawInterval.at(j).second, m_Objects.at(i).m_Model->drawInterval.at(j).first);
 
 			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 		}
 
-		m_Objects.at(i).model->shader->setBlendState(0, data);
-		m_Objects.at(i).model->shader->unSetShader();
+		m_Objects.at(i).m_Model->shader->setBlendState(0, data);
+		m_Objects.at(i).m_Model->shader->unSetShader();
 		m_ObjectConstantBuffer->unsetBuffer(2);
 		m_AnimatedObjectConstantBuffer->unsetBuffer(3);
-		m_Objects.at(i).model->vertexBuffer->unsetBuffer(0);
+		m_Objects.at(i).m_Model->vertexBuffer->unsetBuffer(0);
 	}
 	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_ConstantBuffer->unsetBuffer(1);
