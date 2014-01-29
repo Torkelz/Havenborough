@@ -103,7 +103,7 @@ public:
 	 * Uses seperating axis test to check for collision
 	 * @return HitData, see HitData definition.
 	 */
-	static HitData OBBVsHull(OBB *p_OBB, Hull *p_Hull);
+	static HitData OBBVsHull(OBB const &p_OBB, Hull const &p_Hull);
 	/**
 	* Triangle versus Sphere collision test
 	* @return HitData, see HitData definition.
@@ -118,14 +118,14 @@ public:
 	* @param p_C, corner[2] of triangle in world coordinates
 	* @return closest point in the triangle
 	*/
-	static DirectX::XMFLOAT4 findClosestPointOnTriangle(const DirectX::XMFLOAT4 &p_Point, const Vector4 &p_A, const Vector4 &p_B, const Vector4 &p_C);
+	static DirectX::XMFLOAT4 findClosestPointOnTriangle(DirectX::XMFLOAT4 const &p_Point, Vector4 const &p_A, Vector4 const &p_B, Vector4 const &p_C);
 
 private:
-	static float min(const float &p_A, const float &p_B, const float &p_C);
-	static float max(const float &p_A, const float &p_B, const float &p_C);
-	static bool SphereVsTriangle(Sphere *p_Sphere, Triangle *p_Triangle);
+	static float min(float const &p_A, float const &p_B, float const &p_C);
+	static float max(float const &p_A, float const &p_B, float const &p_C);
+	static bool SphereVsTriangle(Sphere const &p_Sphere, Triangle const &p_Triangle);
 
-	static bool OBBVsPlane(OBB *p_OBB, Plane *p_Plane);
+	static bool OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane);
 
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static HitData seperatingAxisTest(OBB const &p_OBB, BoundingVolume const &p_vol);

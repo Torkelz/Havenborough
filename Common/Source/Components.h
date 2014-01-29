@@ -55,9 +55,12 @@ class OBB_Component : public PhysicsInterface
 private:
 	BodyHandle m_Body;
 	IPhysics* m_Physics;
-	Vector3 m_OffsetPositition;
+	float m_Mass;
 	bool m_Immovable;
+	bool m_IsEdge;
+	Vector3 m_OffsetPositition;
 	Vector3 m_Halfsize;
+	
 
 public:
 	~OBB_Component() override
@@ -98,17 +101,25 @@ public:
 
 		m_Immovable = true;
 		p_Data->QueryBoolAttribute("Immovable", &m_Immovable);
+
+		m_Mass = 0.f;
+		p_Data->QueryAttribute("Mass", &m_Mass);
+
+		m_IsEdge = false;
+		p_Data->QueryAttribute("IsEdge", &m_IsEdge);
 	}
 
 	void postInit() override
 	{
-		m_Body = m_Physics->createOBB(0.f, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, false);
+		m_Body = m_Physics->createOBB(m_Mass, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("OBBPhysics");
 		p_Printer.PushAttribute("Immovable", m_Immovable);
+		p_Printer.PushAttribute("Mass", m_Mass);
+		p_Printer.PushAttribute("IsEdge", m_IsEdge);
 		pushVector(p_Printer, "Halfsize", m_Halfsize);
 		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
 		p_Printer.CloseElement();

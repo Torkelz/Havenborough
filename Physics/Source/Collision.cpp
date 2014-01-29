@@ -71,7 +71,7 @@ HitData Collision::boundingVolumeVsOBB(BoundingVolume const &p_Volume, OBB const
 	case BoundingVolume::Type::OBB:
 		return OBBvsOBB((OBB&)p_Volume, p_OBB);
 	case BoundingVolume::Type::HULL:
-		//return OBBVsHull(p_OBB, (Hull*)p_Volume);
+		return OBBVsHull(p_OBB, (Hull&)p_Volume);
 	default:
 		HitData hit = HitData();
 		return hit;
@@ -172,12 +172,8 @@ HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 
 	//find the square of the distance
 	//from the sphere to the box
-
 	XMFLOAT4 spherePos = p_Sphere.getPosition();	// m
 	XMFLOAT3 dist = XMFLOAT3(.0f, .0f, .0f);	// m
-
-	//XMFLOAT4* aabbPos = p_AABB.getPosition();
-	//XMFLOAT4* aabbDiagonal = p_AABB.getHalfDiagonal();
 
 	//if the sphere is outside of the box, find the corner closest to the sphere center in each axis.
 	//else special case for when the sphere center is inside that axis slab.
@@ -332,9 +328,9 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 
 	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
 	{
-		Triangle tri = p_Hull->getTriangleInWorldCoord(i);
+		Triangle tri = p_Hull.getTriangleInWorldCoord(i);
 
-		point = XMLoadFloat4(&findClosestPointOnTriangle(*p_Sphere->getPosition(), tri.corners[0], tri.corners[1], tri.corners[2]));
+		point = XMLoadFloat4(&findClosestPointOnTriangle(p_Sphere.getPosition(), tri.corners[0], tri.corners[1], tri.corners[2]));
 		//point = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(p_Sphere.getPosition(), i));
 		v = point - spherePos;
 
@@ -377,7 +373,7 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 	return hit;
 }
 
-bool Collision::SphereVsTriangle(Sphere *p_Sphere, Triangle *p_Triangle)
+bool Collision::SphereVsTriangle(Sphere const &p_Sphere, Triangle const &p_Triangle)
 {
 	return false;
 }
@@ -568,6 +564,7 @@ HitData Collision::seperatingAxisTest(OBB const &p_OBB, BoundingVolume const &p_
 
  	return hit;
 }
+
 void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
 {
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
@@ -582,9 +579,9 @@ void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_
 	}
 }
 
-HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
+HitData Collision::OBBVsHull(OBB const &p_OBB, Hull const &p_Hull)
 {
-	HitData hit = sphereVsSphere(&p_OBB->getSphere(), &p_Hull->getSphere());
+	HitData hit = sphereVsSphere(p_OBB.getSphere(), p_Hull.getSphere());
 	if(!hit.intersect)
 	{
 		return hit;
@@ -592,15 +589,15 @@ HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
 
 	hit = HitData();
 
-	const XMVECTOR box_Center = XMLoadFloat4(p_OBB->getPosition());
-	const XMMATRIX box_Axes = XMLoadFloat4x4(&p_OBB->getAxes());
-	const XMVECTOR box_Extents = XMLoadFloat4(&p_OBB->getExtents());
+	const XMVECTOR box_Center = XMLoadFloat4(&p_OBB.getPosition());
+	const XMMATRIX box_Axes = XMLoadFloat4x4(&p_OBB.getAxes());
+	const XMVECTOR box_Extents = XMLoadFloat4(&p_OBB.getExtents());
 
-	for(unsigned i = 0; i < p_Hull->getTriangleListSize(); i++)
+	for(unsigned i = 0; i < p_Hull.getTriangleListSize(); i++)
 	{
-		XMVECTOR v0 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[0]);
-		XMVECTOR v1 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[1]);
-		XMVECTOR v2 = Vector4ToXMVECTOR(&p_Hull->getTriangleAt(i).corners[2]);
+		XMVECTOR v0 = Vector4ToXMVECTOR(&p_Hull.getTriangleAt(i).corners[0]);
+		XMVECTOR v1 = Vector4ToXMVECTOR(&p_Hull.getTriangleAt(i).corners[1]);
+		XMVECTOR v2 = Vector4ToXMVECTOR(&p_Hull.getTriangleAt(i).corners[2]);
 
 		v0 = v0 - box_Center;
 		v1 = v1 - box_Center;
@@ -645,7 +642,7 @@ HitData Collision::OBBVsHull(OBB *p_OBB, Hull *p_Hull)
 		float n = min(p0, p1, p2);
 		float m = max(p0, p1, p2);
 		//if(XMMax( -XMMax(p0, p2), XMMin(p0, p2) ) > r)
-			//return hit;
+		//	return hit;
 		int d = 0;
 
 	}
@@ -668,21 +665,21 @@ float Collision::max(const float &p_A, const float &p_B, const float &p_C)
 	return (p_A > p_B) ? (p_A > p_C) ? p_A : p_C : (p_B > p_C) ? p_B : p_C;
 }
 
-bool Collision::OBBVsPlane(OBB *p_OBB, Plane *p_Plane)
+bool Collision::OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane)
 {
-	float ex = p_OBB->getExtents().x;
-	float ey = p_OBB->getExtents().y;
-	float ez = p_OBB->getExtents().z;
+	float ex = p_OBB.getExtents().x;
+	float ey = p_OBB.getExtents().y;
+	float ez = p_OBB.getExtents().z;
 
-	XMMATRIX bAxes = XMLoadFloat4x4(&p_OBB->getAxes());
-	XMVECTOR pn = XMLoadFloat4(&p_Plane->normal);
+	XMMATRIX bAxes = XMLoadFloat4x4(&p_OBB.getAxes());
+	XMVECTOR pn = XMLoadFloat4(&p_Plane.normal);
 
 	float r = ex * fabs(XMVectorGetX( XMVector4Dot(pn, bAxes.r[0]) )) +
 			  ey * fabs(XMVectorGetX( XMVector4Dot(pn, bAxes.r[1]) )) +
 			  ez * fabs(XMVectorGetX( XMVector4Dot(pn, bAxes.r[2]) ));
 
-	XMVECTOR bc = XMLoadFloat4(p_OBB->getPosition());
-	float s = XMVectorGetX( XMVector4Dot(pn, bc) ) - p_Plane->d;
+	XMVECTOR bc = XMLoadFloat4(&p_OBB.getPosition());
+	float s = XMVectorGetX( XMVector4Dot(pn, bc) ) - p_Plane.d;
 
 	return fabs(s) <= r;
 }
