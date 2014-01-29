@@ -136,7 +136,7 @@
     <ClInclude Include="Source\SkyDome.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-     <ClInclude Include="Source\VRAMInfo.h">
+    <ClInclude Include="Source\VRAMInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\RAMInfo.h">
@@ -175,6 +175,9 @@
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\DeferredShaders\ForwardShader.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\GeoInstanceShader.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
   </ItemGroup>

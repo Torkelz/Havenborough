@@ -103,6 +103,8 @@ private:
 	ID3D11BlendState			*m_BlendState;
 	ID3D11BlendState			*m_BlendState2;
 	Buffer						*m_AnimatedObjectConstantBuffer;
+	Buffer						*m_WorldInstanceData;
+	Shader						*m_InstancedGeometryShader;
 
 	ID3D11RasterizerState		*m_RasterState;
 	ID3D11DepthStencilState		*m_DepthState;
@@ -208,5 +210,7 @@ private:
 	void createLightShaders();
 	void loadLightModels();
 	void createLightStates(); //Rasterize and depth state
+
+	void renderObject(Renderable &p_Object);
 };
 
