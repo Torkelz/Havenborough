@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_REQUIRE(graphics->createTexture("barrelColor", "../../Client/Bin/assets/textures/Barrel_COLOR.dds"));
 	BOOST_REQUIRE(graphics->createTexture("barrelNormal", "../../Client/Bin/assets/textures/Barrel_NRM.dds"));
 	BOOST_REQUIRE(graphics->createTexture("barrelSpecular", "../../Client/Bin/assets/textures/Barrel_SPEC.dds"));
-	BOOST_CHECK(graphics->createModel("barrel", "../Source/Barrel1.btx"));
+	BOOST_CHECK(graphics->createModel("barrel", "assets/Barrel1.btx"));
 
 	BOOST_MESSAGE(testId + "Creating model object of Witch_Running_5.btx");
 	BOOST_REQUIRE(graphics->createTexture("bodyColor", "../../Client/Bin/assets/textures/body_COLOR.dds"));
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_REQUIRE(graphics->createTexture("defaultSpecular", "../../Client/Bin/assets/textures/Default_SPEC.dds"));
 	BOOST_REQUIRE(graphics->createTexture("accessoriesColor", "../../Client/Bin/assets/textures/Accessories_COLOR.dds"));
 	BOOST_REQUIRE(graphics->createTexture("accessoriesNormal", "../../Client/Bin/assets/textures/Accessories_NRM.dds"));
-	BOOST_CHECK(graphics->createModel("witch", "../Source/Witch_5_Running.btx"));
+	BOOST_CHECK(graphics->createModel("witch", "assets/Witch_5_Running.btx"));
 
 	//Step 8
 	BOOST_MESSAGE(testId + "Testing Graphics.createShader...");
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	
 	//Step 13
 	BOOST_MESSAGE(testId + "Creating model object of Checkpoint.btx");
-	BOOST_CHECK(graphics->createModel("checkpoint", "../Source/Checkpoint.btx"));
+	BOOST_CHECK(graphics->createModel("checkpoint", "assets/Checkpoint.btx"));
 
 	BOOST_MESSAGE(testId + "Setting model object checkpoint to transparent");
 	BOOST_CHECK_NO_THROW(graphics->setModelDefinitionTransparency("checkpoint", true));
