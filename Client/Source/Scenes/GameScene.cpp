@@ -34,7 +34,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	
 	// Added from Skydome branch
 	m_SkyboxID = m_ResourceManager->loadResource("texture","SKYBOXDDS");
-	m_Graphics->createSkyDome("SKYBOXDDS",50000.f);
+	m_Graphics->createSkydome("SKYBOXDDS",50000.f);
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addLight), LightEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeLight), RemoveLightEventData::sk_EventType);
@@ -160,7 +160,7 @@ void GameScene::render()
 	}
 
 	//From skybox branch, move later if needed.
-	m_Graphics->renderSkyDome();
+	m_Graphics->renderSkydome();
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
 }

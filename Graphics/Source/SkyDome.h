@@ -32,20 +32,6 @@ public:
 	*/
 	std::vector<DirectX::XMFLOAT3> getVertices();
 	
-	/**
-	*
-	*/
-	std::vector<unsigned int> getIndices();
-	
-	/**
-	*
-	*/
-	DirectX::XMFLOAT3* getVertexData();
-	
-	/**
-	*
-	*/
-	unsigned int* getIndicesData();
 private:
 
 	void buildGeoSphere(unsigned int p_NumSubDivisions, float p_Radius);

@@ -4,9 +4,12 @@
 #include "../../Graphics/Source/ModelFactory.h"
 #include "../../Graphics/Source/Buffer.h"
 #include "../../Graphics/Source/Shader.h"
+#include "../../Graphics/Source/SkyDome.h"
 #include "../../Graphics/Source/VRAMInfo.h"
 #include "../../Client/Source/Window.h"
 #include "../../Common/Source/ResourceManager.h"
+
+#include <string>
 
 #if _DEBUG
 #include <vld.h> 
@@ -178,15 +181,15 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_REQUIRE(graphics->createTexture("barrelColor", "../../Client/Bin/assets/textures/Barrel_COLOR.dds"));
 	BOOST_REQUIRE(graphics->createTexture("barrelNormal", "../../Client/Bin/assets/textures/Barrel_NRM.dds"));
 	BOOST_REQUIRE(graphics->createTexture("barrelSpecular", "../../Client/Bin/assets/textures/Barrel_SPEC.dds"));
-	BOOST_CHECK(graphics->createModel("barrel", "../../Client/Bin/assets/models/Barrel1.btx"));
+	BOOST_CHECK(graphics->createModel("barrel", "assets/Barrel1.btx"));
 
+	BOOST_MESSAGE(testId + "Creating model object of Witch_Running_5.btx");
 	BOOST_REQUIRE(graphics->createTexture("bodyColor", "../../Client/Bin/assets/textures/body_COLOR.dds"));
 	BOOST_REQUIRE(graphics->createTexture("bodyNormal", "../../Client/Bin/assets/textures/body_NRM.dds"));
 	BOOST_REQUIRE(graphics->createTexture("defaultSpecular", "../../Client/Bin/assets/textures/Default_SPEC.dds"));
 	BOOST_REQUIRE(graphics->createTexture("accessoriesColor", "../../Client/Bin/assets/textures/Accessories_COLOR.dds"));
 	BOOST_REQUIRE(graphics->createTexture("accessoriesNormal", "../../Client/Bin/assets/textures/Accessories_NRM.dds"));
-	BOOST_MESSAGE(testId + "Creating model object of With_Run_5.btx");
-	BOOST_CHECK(graphics->createModel("witch", "../../Client/Bin/assets/models/Witch_Run_5.btx"));
+	BOOST_CHECK(graphics->createModel("witch", "assets/Witch_5_Running.btx"));
 
 	//Step 8
 	BOOST_MESSAGE(testId + "Testing Graphics.createShader...");
@@ -280,15 +283,75 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_MESSAGE(testId + "Setting scale for non existant instance, expecting GraphicsException");
 	BOOST_CHECK_THROW(graphics->setModelScale(8, Vector3(2.0f, 1.0f, 3.0f)), GraphicsException);
 
+	BOOST_MESSAGE(testId + "Setting color tone for barrels");
+	BOOST_CHECK_NO_THROW(graphics->setModelColorTone(1, Vector3(0.5f, 0.5f, 1.0f)));
+	BOOST_CHECK_NO_THROW(graphics->setModelColorTone(4, Vector3(0.0f, 1.0f, 0.3f)));
+	BOOST_MESSAGE(testId + "Setting color tone for witch");
+	BOOST_CHECK_NO_THROW(graphics->setModelColorTone(6, Vector3(0.5f, 0.0f, 0.7f)));
+
+	BOOST_MESSAGE(testId + "Setting color tone for non existant instance, expecting GraphicsException");
+	BOOST_CHECK_THROW(graphics->setModelColorTone(8, Vector3(1.0f, 1.0f, 1.0f)), GraphicsException);
+
 
 	//Step 12
+	SkyDome *skydome = new SkyDome();
+	BOOST_MESSAGE(testId + "Initializing standalone skydome");
+	BOOST_CHECK(skydome->init(1000.0f));
+	BOOST_MESSAGE(testId + "Checking size of vertices vector to be expected size 240");
+	BOOST_CHECK(skydome->getVertices().size() == 240);
+	BOOST_MESSAGE(testId + "Deleting standalone skydome");
+	SAFE_DELETE(skydome);
+
+	BOOST_MESSAGE(testId + "Creating skydome using Graphics");
+	BOOST_REQUIRE(graphics->createTexture("skydomeTexture", "../../Client/Bin/assets/textures/Skybox0.dds"));
+	BOOST_CHECK_NO_THROW(graphics->createSkydome("skydomeTexture", 1000.0f));
+
+	
+	//Step 13
+	BOOST_MESSAGE(testId + "Creating model object of Checkpoint.btx");
+	BOOST_CHECK(graphics->createModel("checkpoint", "assets/Checkpoint.btx"));
+
+	BOOST_MESSAGE(testId + "Setting model object checkpoint to transparent");
+	BOOST_CHECK_NO_THROW(graphics->setModelDefinitionTransparency("checkpoint", true));
+	BOOST_MESSAGE(testId + "Trying to set non-existing model object to transparent, expecting GraphicsException");
+	BOOST_CHECK_THROW(graphics->setModelDefinitionTransparency("doNotExist", true), GraphicsException);	
+	
+	BOOST_MESSAGE(testId + "Linking checkpoint with forwardShader");
+	graphics->linkShaderToModel("forwardShader", "checkpoint");
+
+	BOOST_MESSAGE(testId + "Creating model instances of checkpoint");
+	BOOST_CHECK_EQUAL(graphics->createModelInstance("checkpoint"), 8);
+	BOOST_CHECK_EQUAL(graphics->createModelInstance("checkpoint"), 9);
 
 
-	//Step 
+	//Step 14
+	BOOST_MESSAGE(testId + "Setting clear color and adding frame lights");
+	graphics->setClearColor(Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+	graphics->useFrameDirectionalLight(Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, -1.0f, 1.0f));
+	graphics->useFramePointLight(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f), 1000.0f);
+	graphics->useFrameSpotLight(Vector3(1.0f, 5.0f, 1.0f), Vector3(1.0f, 1.0f, 1.0f), Vector3(1.0f, -1.0f, 0.0f),
+		Vector2(1.7f, 0.5f), 10000.0f);
+	for(int i = 1; i <= 9; i++)
+	{
+		BOOST_MESSAGE(testId + "Rendering model instance: " + std::to_string(i));
+		BOOST_CHECK_NO_THROW(graphics->renderModel(i));
+	}
+	
+	BOOST_MESSAGE(testId + "Drawing frame using the prepared lights and model instances");
+	BOOST_CHECK_NO_THROW(graphics->drawFrame());
+
+
+	//Step 15
+	BOOST_MESSAGE(testId + "Erasing model instance 6");
+	BOOST_CHECK_NO_THROW(graphics->eraseModelInstance(6));
+	BOOST_MESSAGE(testId + "Erasing non-existant model instance, expecting GraphicsException");
+	BOOST_CHECK_THROW(graphics->eraseModelInstance(10), GraphicsException);
 	BOOST_MESSAGE(testId + "Releasing model object of Barrel1.btx");
 	BOOST_CHECK(graphics->releaseModel("barrel"));
-	BOOST_MESSAGE(testId + "Releasing model object of Witch_Run_5.btx");
+	BOOST_MESSAGE(testId + "Releasing model object of Witch_Running_5.btx");
 	BOOST_CHECK(graphics->releaseModel("witch"));
+	BOOST_MESSAGE(testId + "Releasing model object of Checkpoint.btx");
+	BOOST_CHECK(graphics->releaseModel("checkpoint"));
 	BOOST_CHECK(graphics->releaseTexture("barrelColor"));
 	BOOST_CHECK(graphics->releaseTexture("barrelNormal"));
 	BOOST_CHECK(graphics->releaseTexture("barrelSpecular"));
@@ -298,7 +361,16 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK(graphics->releaseTexture("accessoriesColor"));
 	BOOST_CHECK(graphics->releaseTexture("accessoriesNormal"));
 	
-	//Step
+
+	//Step 16
+	BOOST_MESSAGE(testId + "Deleting shader forwardShader");
+	BOOST_CHECK_NO_THROW(graphics->deleteShader("forwardShader"));
+	BOOST_MESSAGE(testId + "Trying to delete non-existing shader, expecting GraphicsException");
+	BOOST_CHECK_THROW(graphics->deleteShader("nonExistingShader"), GraphicsException);
+
+
+	//Step 17
+	BOOST_MESSAGE(testId + "Shutting down and deleting Graphics");
 	SAFE_DELETE(resourceManager);
 	IGraphics::deleteGraphics(graphics);
 	wrapperFactory = nullptr;

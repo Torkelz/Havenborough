@@ -64,7 +64,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common\Source;$(SolutionDir)Common\3rd party;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -88,7 +88,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common\Source;$(SolutionDir)Common\3rd party;$(SolutionDir)Graphics\include;$(SolutionDir)Physics\include;$(SolutionDir)Network\include;$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

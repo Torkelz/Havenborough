@@ -76,7 +76,7 @@ private:
 	std::unique_ptr<ParticleFactory> m_ParticleFactory;
 
 	DeferredRenderer *m_DeferredRender;
-	ForwardRendering *m_Forwardrender;
+	ForwardRendering *m_ForwardRenderer;
 		
 	//Lights
 	std::vector<Light> m_SpotLights;
@@ -141,7 +141,7 @@ public:
 	void setClearColor(Vector4 p_Color) override;
 
 	void renderModel(InstanceId p_ModelId) override;
-	virtual void renderSkyDome() override;
+	virtual void renderSkydome() override;
 	void renderText(void) override;
 	void renderQuad(void) override;
 	void drawFrame() override;
@@ -156,7 +156,7 @@ public:
 	int getVRAMUsage(void) override;
 	
 	InstanceId createModelInstance(const char *p_ModelId) override;
-	void createSkyDome(const char *p_ModelId, float p_Radius) override;
+	void createSkydome(const char *p_TextureResource, float p_Radius) override;
 	void eraseModelInstance(InstanceId p_Instance) override;
 	void setModelPosition(InstanceId p_Instance, Vector3 p_Position) override;
 	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;
