@@ -41,9 +41,10 @@ int main(int /*argc*/, char* /*argv*/[])
 	catch (std::exception& err)
 	{
 		Logger::log(Logger::Level::FATAL, err.what());
+		game.shutdown();
 		logFile.close();
 #ifdef _DEBUG
-		throw;
+		return EXIT_FAILURE;
 #else
 		return EXIT_FAILURE;
 #endif
