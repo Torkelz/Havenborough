@@ -1,7 +1,5 @@
 #pragma once
-
 #include <string>
-
 
 class ResourceTranslator
 {
@@ -19,4 +17,3 @@ public:
 	 */
 	std::string translate(std::string p_ResourceType, std::string p_ResourceName);
 };
-

@@ -1,7 +1,5 @@
 #include "Logger.h"
-
 #include <iomanip>
-#include <string>
 
 std::mutex Logger::m_Mutex;
 std::unique_ptr<Logger> Logger::m_Instance;

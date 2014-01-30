@@ -1,5 +1,4 @@
 #include "ActorFactory.h"
-
 #include "CommonExceptions.h"
 #include "Components.h"
 #include "XMLHelper.h"

@@ -1,6 +1,6 @@
 #pragma once
 #include "IEventData.h"
-#include "LightStructs.h"
+#include "Light.h"
 #include "Utilities/XMFloatUtil.h"
 
 #pragma warning(push)

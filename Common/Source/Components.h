@@ -1,8 +1,8 @@
 #pragma once
 #include "ActorComponent.h"
-#include "CommonExceptions.h"
 #include "EventData.h"
 #include "ResourceManager.h"
+#include "CommonExceptions.h"
 #include "XMLHelper.h"
 
 #include <IPhysics.h>

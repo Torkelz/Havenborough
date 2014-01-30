@@ -1,7 +1,7 @@
 #pragma once
 #include "IScene.h"
 #include "../GameLogic.h"
-#include <LightStructs.h>
+#include <Light.h>
 
 class GameScene : public IScene
 {
