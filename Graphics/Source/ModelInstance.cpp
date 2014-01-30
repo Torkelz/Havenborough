@@ -518,14 +518,7 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 void ModelInstance::playClip( AnimationClip p_Clip, bool p_Override )
 {
 	int track = p_Clip.m_DestinationTrack;
-	if(track == 4)
-	{
-		m_Tracks[0].active = false;
-		m_Tracks[1].active = false;
-		m_Tracks[2].active = false;
-		m_Tracks[3].active = false;
-		m_Tracks[5].active = false;
-	}
+
 	if(p_Override)
 	{
 		m_Tracks[track].clip = p_Clip;
