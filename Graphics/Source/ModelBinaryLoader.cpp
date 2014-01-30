@@ -1,4 +1,5 @@
 #include "ModelBinaryLoader.h"
+#include <DirectXMath.h>
 
 
 ModelBinaryLoader::ModelBinaryLoader()
@@ -163,7 +164,7 @@ const std::vector<Material>& ModelBinaryLoader::getMaterial()
 	return m_Material;
 }
 
-const std::vector<AnimatedVertex>& ModelBinaryLoader::getAnimationVertexBuffer()
+const std::vector<AnimatedVertex>& ModelBinaryLoader::getAnimatedVertexBuffer()
 {
 	return m_AnimationVertexBuffer;
 }
@@ -173,7 +174,7 @@ const std::vector<Joint>& ModelBinaryLoader::getJoints()
 	return m_Joints;
 }
 
-const std::vector<StaticVertex>& ModelBinaryLoader::getVertexBuffer()
+const std::vector<StaticVertex>& ModelBinaryLoader::getStaticVertexBuffer()
 {
 	return m_VertexBuffer;
 }

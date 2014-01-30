@@ -1,8 +1,11 @@
 #include "DeferredRenderer.h"
+#include "ConstantBuffers.h"
 #include "VRAMInfo.h"
+#include "ModelBinaryLoader.h"
+#include "SkyDome.h"
+#include "WrapperFactory.h"
 #include <algorithm>	// std::sort
 #include <iterator>     // std::back_inserter
-//const unsigned int DeferredRenderer::m_MaxLightsPerLightInstance = 100;
 
 DeferredRenderer::DeferredRenderer()
 		
@@ -114,12 +117,10 @@ DeferredRenderer::~DeferredRenderer(void)
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
-								  ID3D11DepthStencilView *p_DepthStencilView,
-								  unsigned int p_screenWidth, unsigned int p_screenHeight,
-								  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
-								  DirectX::XMFLOAT4X4 *p_ProjectionMatrix,std::vector<Light> *p_SpotLights,
-								  std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
-								  unsigned int p_MaxLightsPerLightInstance)
+	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_screenWidth, unsigned int p_screenHeight,
+	DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
+	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+	unsigned int p_MaxLightsPerLightInstance)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -190,7 +191,10 @@ void DeferredRenderer::renderGeometry()
 
 	// The textures will be needed to be grabbed from the model later.
 
-	std::sort(m_Objects.begin(),m_Objects.end(), [] (Renderable &a,Renderable &b){ return a.model->vertexBuffer > b.model->vertexBuffer;});
+	std::sort(m_Objects.begin(),m_Objects.end(), [] (Renderable &a,Renderable &b)
+	{ 
+		return a.model->vertexBuffer > b.model->vertexBuffer;
+	});
 
 	std::vector<std::vector<Renderable>> ttemp;
 	std::vector<Renderable> ttani;
@@ -263,7 +267,8 @@ void DeferredRenderer::renderGeometry()
 				memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
 				m_DeviceContext->Unmap(m_WorldInstanceData->getBufferPointer(), NULL);
 
-				m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),k.front().model->drawInterval.at(u).first,0);
+				m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),
+					k.front().model->drawInterval.at(u).first,0);
 			}
 			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 		}
@@ -691,7 +696,7 @@ void DeferredRenderer::loadLightModels()
 {
 	ModelBinaryLoader modelLoader;
 	modelLoader.loadBinaryFile("../../Client/Bin/assets/LightModels/SpotLight.btx");
-	const std::vector<StaticVertex>& vertices = modelLoader.getVertexBuffer();
+	const std::vector<StaticVertex>& vertices = modelLoader.getStaticVertexBuffer();
 	std::vector<DirectX::XMFLOAT3> temp;
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{

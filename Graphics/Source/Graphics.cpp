@@ -1,37 +1,46 @@
 #include "Graphics.h"
 #include "GraphicsLogger.h"
+#include "GraphicsExceptions.h"
+#include "VRAMInfo.h"
 
 #include <iostream>
 #include <boost/filesystem.hpp>
-#include "AnimationStructs.h"
 
 using namespace DirectX;
+using std::vector;
+using std::string;
+using std::pair;
+using std::make_pair;
+
 const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
+	
 	m_SwapChain = nullptr;
 	m_RenderTargetView = nullptr;
+	m_Sampler = nullptr;
+
 	m_RasterState = nullptr;
+	m_RasterStateBV = nullptr;
+
 	m_DepthStencilBuffer = nullptr;
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
-	m_RasterStateBV = nullptr;
+
 	m_WrapperFactory = nullptr;
 	m_ModelFactory = nullptr;
-	//m_DeferredRender = nullptr;
-	m_Sampler = nullptr;
-	m_VRAMInfo = nullptr;
 
+	m_DeferredRender = nullptr;
+	m_ForwardRenderer = nullptr;
+
+	m_BVBuffer = nullptr;
+	m_BVShader = nullptr;
+	m_Shader = nullptr;
 	m_VSyncEnabled = false; //DEBUG
-
 	m_NextInstanceId = 1;
 	m_SelectedRenderTarget = 3;
-
-	m_Shader = nullptr;
-	m_BVShader = nullptr;
-	m_BVBuffer = nullptr;
 }
 
 Graphics::~Graphics(void)
@@ -175,7 +184,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Note this is the only time initialize should be called.
 	WrapperFactory::initialize(m_Device, m_DeviceContext);	
 	m_WrapperFactory = WrapperFactory::getInstance();
-	m_VRAMInfo = VRAMInfo::getInstance();
+	VRAMInfo::getInstance();
 	m_ModelFactory = ModelFactory::getInstance();
 	m_ModelFactory->initialize(&m_TextureList);
 
@@ -203,13 +212,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 
-	//ShaderInputElementDescription shaderDesc[] = 
-	//{
-	//	{"POSITION", 0, Format::R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
-	//};
-
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
-															"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);//, shaderDesc, 1);
+		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	m_ForwardRenderer = new ForwardRendering();
 	m_ForwardRenderer->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
@@ -286,7 +290,6 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_SwapChain);
 	SAFE_SHUTDOWN(m_WrapperFactory);
 	SAFE_SHUTDOWN(m_ModelFactory);
-	SAFE_SHUTDOWN(m_VRAMInfo);
 
 	m_Shader = nullptr;
 	SAFE_DELETE(m_BVBuffer);
@@ -429,7 +432,7 @@ bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	}
 
 	int size = calculateTextureSize(resourceView);
-	m_VRAMInfo->updateUsage(size);
+	VRAMInfo::getInstance()->updateUsage(size);
 
 	m_TextureList.push_back(make_pair(p_TextureId, resourceView));
 
@@ -444,7 +447,7 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 		{
 			ID3D11ShaderResourceView *&m = it->second;
 			int size = calculateTextureSize(m);
-			m_VRAMInfo->updateUsage(-size);
+			VRAMInfo::getInstance()->updateUsage(-size);
 
 			SAFE_RELEASE(m);
 			m_TextureList.erase(it);
@@ -523,14 +526,13 @@ void Graphics::renderModel(InstanceId p_ModelId)
 			ModelDefinition *modelDef = getModelFromList(inst.second.getModelName());
 			if(!modelDef->isTransparent)
 			{
-				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(modelDef,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
+				m_DeferredRender->addRenderable(Renderable(modelDef, inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform()));
 			}
 			else
 			{
-				m_ForwardRenderer->addRenderable(DeferredRenderer::Renderable(modelDef,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
-					&inst.second.getColorTone()));
+				m_ForwardRenderer->addRenderable(Renderable(modelDef, inst.second.getWorldMatrix(),
+					&inst.second.getFinalTransform(), &inst.second.getColorTone()));
 			}
 			
 			return;
@@ -731,14 +733,7 @@ void Graphics::changeAnimationWeight(int p_Instance, int p_Track, float p_Weight
 
 int Graphics::getVRAMUsage(void)
 {
-	if (m_VRAMInfo)
-	{
-		return m_VRAMInfo->getUsage();
-	}
-	else
-	{
-		return 0;
-	}
+	return VRAMInfo::getInstance()->getUsage();
 }
 
 IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
@@ -1221,7 +1216,7 @@ int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )
 	SAFE_RELEASE(texture);
 	SAFE_RELEASE(resource);
 
-	return m_VRAMInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
+	return VRAMInfo::getInstance()->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
 }
 
 void Graphics::Begin(float color[4])
@@ -1315,4 +1310,3 @@ void Graphics::DebugDefferedDraw(void)
 	m_Sampler = nullptr;
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
 }
-

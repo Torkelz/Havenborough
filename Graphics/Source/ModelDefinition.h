@@ -1,9 +1,8 @@
 #pragma once
-
 #include "Joint.h"
-#include "ShaderStructs.h"
-#include "WrapperFactory.h"
-#include "AnimationStructs.h"
+#include "AnimationClip.h"
+#include "Buffer.h"
+#include "Shader.h"
 
 #include <memory>
 #include <vector>
@@ -22,7 +21,7 @@ public:
 	/**
 	 * The vertex range for each material.
 	 */
-	std::vector<std::pair<int,int>> drawInterval;
+	std::vector<std::pair<int, int>> drawInterval;
 	/**
 	 * The shader bound to the model, or nullptr if no shader has been bound.
 	 */
@@ -30,15 +29,15 @@ public:
 	/**
 	 * Material diffuse textures.
 	 */
-	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> diffuseTexture;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> diffuseTexture;
 	/**
 	 * Material normal textures.
 	 */
-	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> normalTexture;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> normalTexture;
 	/**
 	 * Material specular textures.
 	 */
-	std::vector<std::pair< std::string, ID3D11ShaderResourceView*>> specularTexture;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> specularTexture;
 	/**
 	 * The number of materials in this model.
 	 */
@@ -118,5 +117,5 @@ public:
 	}
 
 private:
-	ModelDefinition(const ModelDefinition&); //Should never be used, but must be private!
+	ModelDefinition(const ModelDefinition&); //Should never be used, but must exist!
 };

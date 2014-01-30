@@ -1,35 +1,10 @@
 #pragma once
-#pragma comment(lib, "d3d11.lib")
+#include "Light.h"
+#include "Renderable.h"
+
 #include <d3d11.h>
-#include <memory>
-#include <vector>
 #include <DirectXMath.h>
-#include "LightStructs.h"
-#include "TextureLoader.h"
-#include "ModelDefinition.h"
-#include "ModelBinaryLoader.h"
-#include "SkyDome.h"
-
-/*
- * cBuffer contains the matrices needed to render the models and lights.
- */
-struct cBuffer
-{
-	DirectX::XMFLOAT4X4 view;
-	DirectX::XMFLOAT4X4 proj;
-	DirectX::XMFLOAT3	campos;
-};
-
-struct cObjectBuffer
-{
-	DirectX::XMFLOAT4X4 world;
-};
-
-struct cAnimatedObjectBuffer
-{
-	DirectX::XMFLOAT4X4 invTransposeWorld;
-	DirectX::XMFLOAT4X4 boneTransform[96];
-};
+#include <vector>
 
 class DeferredRenderer
 {
@@ -42,38 +17,7 @@ public:
 
 	 * LOL really? I hear I can break things if I delete it, and the model loader is like done.
 	 */
-	struct Renderable
-	{
-		ModelDefinition *model;
-		DirectX::XMFLOAT4X4 world;
-		DirectX::XMFLOAT4X4 invTransposeWorld;
-		const std::vector<DirectX::XMFLOAT4X4> *finalTransforms;
-		const DirectX::XMFLOAT3 *colorTone;
-
-		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World,
-			const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr, 
-			const DirectX::XMFLOAT3 *p_ColorTone = nullptr)
-		{
-			using namespace DirectX;
-
-			model = p_Model;
-			world = p_World;
-			colorTone = p_ColorTone;
-			
-			XMStoreFloat4x4(&invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&world)))); 
-			invTransposeWorld._41 = 0.f;
-			invTransposeWorld._42 = 0.f;
-			invTransposeWorld._43 = 0.f;
-			invTransposeWorld._44 = 1.f;
-
-			finalTransforms = p_FinalTransforms;
-		}
-
-		~Renderable()
-		{
-			model = nullptr;
-		}
-	};
+	
 
 private:
 	std::vector<Renderable>		m_Objects;
@@ -129,12 +73,15 @@ private:
 	bool						m_RenderSkyDome;
 	ID3D11SamplerState			*m_SkyDomeSampler;
 
-
 public:
-	/*
-	 * 
-	 */
-	DeferredRenderer();
+	/**
+	* Constructor. 
+	*/
+	DeferredRenderer(void);
+
+	/**
+	* Destructor.
+	*/
 	~DeferredRenderer(void);
 
 	/*
@@ -177,7 +124,7 @@ public:
 	 */
 	void createSkyDome(ID3D11ShaderResourceView* p_Texture, float p_Radius);
 	/*
-	 * Tells the deffered renderer to render the skyDome created.
+	 * Tells the deferred renderer to render the skyDome created.
 	 */
 	void renderSkyDome();
 
@@ -196,7 +143,7 @@ private:
 	void renderLighting();
 	void renderSkyDomeImpl();
 
-	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, vector<Light> *p_Lights);
+	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, std::vector<Light> *p_Lights);
 
 	void updateConstantBuffer();
 	void updateLightBuffer();

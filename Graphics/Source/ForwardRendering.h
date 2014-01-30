@@ -1,6 +1,5 @@
 #pragma once
-#include "DeferredRenderer.h"
-#include "VRAMInfo.h"
+#include "Renderable.h"
 
 class ForwardRendering
 {
@@ -18,13 +17,14 @@ private:
 	DirectX::XMFLOAT4X4	*m_ViewMatrix;
 	DirectX::XMFLOAT4X4	*m_ProjectionMatrix;
 
-	std::vector<DeferredRenderer::Renderable> m_TransparencyObjects;
-	Buffer				*m_ConstantBuffer;
-	Buffer				*m_ObjectConstantBuffer;
-	Buffer				*m_AnimatedObjectConstantBuffer;
-	Buffer				*m_ColorShadingConstantBuffer;
+	std::vector<Renderable> m_TransparencyObjects;
+	Buffer					*m_ConstantBuffer;
+	Buffer					*m_ObjectConstantBuffer;
+	Buffer					*m_AnimatedObjectConstantBuffer;
+	Buffer					*m_ColorShadingConstantBuffer;
 
-	ID3D11BlendState	*m_TransparencyAdditiveBlend;
+	ID3D11BlendState		*m_TransparencyAdditiveBlend;
+
 public:
 	ForwardRendering(void);
 	~ForwardRendering(void);
@@ -50,7 +50,7 @@ public:
 	 *
 	 * @ p_Renderable, the model that needs to be rendered.
 	 */
-	void addRenderable(DeferredRenderer::Renderable p_Renderable);
+	void addRenderable(Renderable p_Renderable);
 
 	/*
 	 * Call to render the graphics using forward rendering.
@@ -67,6 +67,6 @@ private:
 	void createRasterState();
 	void createDepthStencilState(void);
 	void updateConstantBuffer();
-	bool depthSortCompareFunc(const DeferredRenderer::Renderable &a, const DeferredRenderer::Renderable &b);
+	bool depthSortCompareFunc(const Renderable &a, const Renderable &b);
 };
 

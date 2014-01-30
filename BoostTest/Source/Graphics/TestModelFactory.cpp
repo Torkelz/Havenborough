@@ -3,6 +3,8 @@
 
 BOOST_AUTO_TEST_SUITE(TestModelFactory)
 
+using namespace DirectX;
+
 class BufferStub : public Buffer
 {
 public:

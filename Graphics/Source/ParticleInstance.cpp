@@ -1,5 +1,6 @@
 #include "ParticleInstance.h"
 #include <functional>
+#include <algorithm>
 
 ParticleInstance::ParticleInstance()
 {

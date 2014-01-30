@@ -1,15 +1,14 @@
 #pragma once
-#define WIN32_LEAN_AND_MEAN
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <vector>
-#include <string>
 #include <d3d11.h>
 #include <dxgi.h>
+#include <IGraphics.h>
+#include <vector>
+#include <string>
 
-#include "../include/IGraphics.h"
-#include "GraphicsExceptions.h"
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
 #include "ForwardRendering.h"
@@ -17,17 +16,9 @@
 #include "ModelFactory.h"
 #include "ModelInstance.h"
 #include "ModelDefinition.h"
-#include "VRAMInfo.h"
-
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
 
-#include "ShaderStructs.h"
-
-using std::string;
-using std::vector;
-using std::pair;
-using std::make_pair;
 
 class Graphics : public IGraphics
 {
@@ -37,13 +28,15 @@ private:
 
 	IDXGISwapChain *m_SwapChain;
 	ID3D11RenderTargetView *m_RenderTargetView;
-	
+	ID3D11SamplerState *m_Sampler;
+
 	ID3D11RasterizerState *m_RasterState;
 	ID3D11RasterizerState *m_RasterStateBV;
 
 	ID3D11Texture2D *m_DepthStencilBuffer;
 	ID3D11DepthStencilState	*m_DepthStencilState;
 	ID3D11DepthStencilView *m_DepthStencilView;
+
 
 	unsigned int m_Numerator;
 	unsigned int m_Denominator;
@@ -53,25 +46,24 @@ private:
 	float m_ClearColor[4];
 	int m_SelectedRenderTarget;
 
-	XMFLOAT4X4 m_ViewMatrix;
-	XMFLOAT4X4 m_ProjectionMatrix;
-	XMFLOAT3 m_Eye;
+	DirectX::XMFLOAT4X4 m_ViewMatrix;
+	DirectX::XMFLOAT4X4 m_ProjectionMatrix;
+	DirectX::XMFLOAT3 m_Eye;
 
 	static const unsigned int m_MaxLightsPerLightInstance;
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
-	VRAMInfo *m_VRAMInfo;
 
-	vector<pair<string, Shader*>> m_ShaderList;
-	vector<pair<string, ModelDefinition>> m_ModelList;
-	vector<pair<string, ID3D11ShaderResourceView*>> m_TextureList;
-	vector<pair<InstanceId, ModelInstance>> m_ModelInstances;
+	std::vector<std::pair<std::string, Shader*>> m_ShaderList;
+	std::vector<std::pair<std::string, ModelDefinition>> m_ModelList;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> m_TextureList;
+	std::vector<std::pair<InstanceId, ModelInstance>> m_ModelInstances;
 	InstanceId m_NextInstanceId;
 	
 	//Particles
-	vector<pair<string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
-	vector<pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
+	std::vector<std::pair<std::string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
+	std::vector<std::pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
 	int m_NextParticleInstanceId;
 	std::unique_ptr<ParticleFactory> m_ParticleFactory;
 
@@ -84,13 +76,12 @@ private:
 	std::vector<Light> m_DirectionalLights;
 
 	//Stuff needed for drawing bounding volumes
-	std::vector<XMFLOAT4> m_BVTriangles;
+	std::vector<DirectX::XMFLOAT4> m_BVTriangles;
 	Buffer *m_BVBuffer;
 	unsigned int m_BVBufferNumOfElements;
 	Shader *m_BVShader;
 
 	Shader *m_Shader; //DEBUG
-	ID3D11SamplerState *m_Sampler;
 
 	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;

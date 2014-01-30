@@ -1,10 +1,7 @@
 #pragma once
-
-#include "AnimationStructs.h"
-
+#include "AnimationClip.h"
 #include <map>
-#include <fstream>
-#include <sstream>
+#include <string>
 
 class MattiasLucaseXtremeLoader
 {
@@ -17,4 +14,3 @@ public:
 	std::map<std::string, AnimationClip> loadAnimationClip(std::string);
 	std::map<std::string, IKGroup> loadIKGroup(std::string);
 };
-

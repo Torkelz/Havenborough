@@ -62,9 +62,6 @@
     <ClCompile Include="Source\VRAMInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RAMInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ForwardRendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -103,9 +100,6 @@
     <ClInclude Include="Source\DeferredRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\LightStructs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ModelDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -133,9 +127,6 @@
     <ClInclude Include="include\ShaderDefinitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\AnimationStructs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\AnimationClipLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -145,19 +136,28 @@
     <ClInclude Include="Source\VRAMInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RAMInfo.h">
+    <ClInclude Include="Source\ForwardRendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ForwardRendering.h">
+    <ClInclude Include="Source\Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ParticleFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Renderable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Source\ParticleInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ConstantBuffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Source\ParticleEffectDefinition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AnimationClip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -169,9 +169,6 @@
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\DeferredShaders\DebugShader.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\dummyVS.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\DeferredShaders\GeometryPass.hlsl">
@@ -190,9 +187,6 @@
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\DeferredShaders\ForwardShader.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\DeferredShaders\GeoInstanceShader.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="..\Client\Bin\assets\shaders\ParticleSystem.hlsl">
