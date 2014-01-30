@@ -1,18 +1,12 @@
 #pragma once
-
 #include "ParticleEffectDefinition.h"
 #include "ParticleInstance.h"
-#include "GraphicsExceptions.h"
-#include "VRAMInfo.h"
 #include "Buffer.h"
 
 #include <DirectXMath.h>
 #include <vector>
 #include <string>
-
-using std::vector;
-using std::string;
-using std::pair;
+#include <d3d11.h>
 
 class ParticleFactory
 {
@@ -26,7 +20,7 @@ public:
 	typedef void (*loadParticleTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
 
 private:
-	vector<pair<string, ID3D11ShaderResourceView*>> *m_TextureList;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *m_TextureList;
 
 	loadParticleTextureCallBack m_LoadParticleTexture;
 	void *m_LoadParticleTextureUserdata;
@@ -41,7 +35,7 @@ public:
 	* Initialize the factory.
 	* p_TextureList pointer to the texture list pair 
 	*/
-	void initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList);
+	void initialize(std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *p_TextureList);
 
 	/**
 	* Creates a static particle system with buffers and connects the textures to it.
@@ -64,7 +58,5 @@ private:
 
 	ID3D11ShaderResourceView *loadTexture(const char *p_Filename, const char *p_Identifier);
 
-
-	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
-
+	ID3D11ShaderResourceView *getTextureFromList(std::string p_Identifier);
 };
