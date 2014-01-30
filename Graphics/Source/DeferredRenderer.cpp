@@ -1,6 +1,7 @@
 #include "DeferredRenderer.h"
 #include "VRAMInfo.h"
-
+#include <algorithm>	// std::sort
+#include <iterator>     // std::back_inserter
 //const unsigned int DeferredRenderer::m_MaxLightsPerLightInstance = 100;
 
 DeferredRenderer::DeferredRenderer()
@@ -36,6 +37,9 @@ DeferredRenderer::DeferredRenderer()
 	m_ConstantBuffer = nullptr;
 	m_ObjectConstantBuffer = nullptr;
 	m_AnimatedObjectConstantBuffer = nullptr;
+	m_WorldInstanceData = nullptr;
+	m_InstancedGeometryShader = nullptr;
+
 	m_AllLightBuffer = nullptr;
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
@@ -95,8 +99,11 @@ DeferredRenderer::~DeferredRenderer(void)
 
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
-	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
+
+	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
+	SAFE_DELETE(m_WorldInstanceData);
+	SAFE_DELETE(m_InstancedGeometryShader);	
 
 	SAFE_DELETE(m_SkyDomeBuffer);
 	SAFE_DELETE(m_SkyDomeShader);
@@ -170,8 +177,6 @@ void DeferredRenderer::renderDeferred()
 		renderGeometry();
 		renderLighting();
 	}
-
-	m_Objects.clear();
 	m_RenderSkyDome = false;
 }
 
@@ -184,41 +189,45 @@ void DeferredRenderer::renderGeometry()
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// The textures will be needed to be grabbed from the model later.
+
+	std::sort(m_Objects.begin(),m_Objects.end(), [] (Renderable &a,Renderable &b){ return a.model->vertexBuffer > b.model->vertexBuffer;});
+
 	std::vector<std::vector<Renderable>> ttemp;
 	std::vector<Renderable> ttani;
-	while(m_Objects.size() > 0)
+
+	for(unsigned int i = 0; i < m_Objects.size(); i++)
 	{
-		if(!m_Objects.back().model->isAnimated)
-		{
-			std::vector<Renderable> l;
-			l.push_back(std::move(m_Objects.back()));
-			m_Objects.erase(m_Objects.end() - 1);
-			for(int u = m_Objects.size() - 1; u >= 0; u--)
-			{
-				if(l.front().model->vertexBuffer ==  m_Objects.at(u).model->vertexBuffer)
-				{
-					l.push_back(std::move(m_Objects.at(u)));
-					m_Objects.erase(m_Objects.begin() + u);
-				}
-			}
-			if(l.size() == 1)
-				ttani.push_back(std::move(l.front()));
-			else
-				ttemp.push_back(l);
-		}
+		if(m_Objects.at(i).model->isAnimated)
+			ttani.push_back(std::move(m_Objects.at(i)));
 		else
 		{
-			ttani.push_back(std::move(m_Objects.back()));
-			m_Objects.erase(m_Objects.end() - 1);
+			std::vector<Renderable> l;
+			int current = i;
+			int nr = 0;
+			for(unsigned int j = i + 1; j < m_Objects.size();j++)
+				if(m_Objects.at(current).model->vertexBuffer == m_Objects.at(j).model->vertexBuffer)
+					nr++;
+				else
+					break;
+
+			i += nr;
+
+			if(nr > 1)
+			{
+				std::move(m_Objects.begin() + current, m_Objects.begin() + current + nr + 1, std::back_inserter(l));
+				ttemp.push_back(l);
+			}
+			else
+				ttani.push_back(std::move(m_Objects.at(current)));
 		}
 	}
+	m_Objects.clear();
 
 	m_ConstantBuffer->setBuffer(1);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	updateConstantBuffer();
 	for( auto &animation : ttani )
 		renderObject(animation);
-
 
 	for( auto &k : ttemp)
 	{
