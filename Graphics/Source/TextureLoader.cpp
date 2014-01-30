@@ -53,8 +53,8 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(const char* p_Fil
 	ID3D11Resource*				textureResource = nullptr;
 	ID3D11ShaderResourceView*	textureSRV = nullptr;
 
-	//Convert filename from char pointer to wchar_t
-	//because the texture loader function wants the filename in wchar.
+	//Convert filename from char pointer to wchar_t 
+	//because the texture loader function wants the filename in wchar. 
 	std::vector<wchar_t> filename(strlen(p_Filename)+1);
 	mbstowcs(filename.data(), p_Filename, strlen(p_Filename)+1);
 	filename.end() - 1;
@@ -63,8 +63,8 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(const char* p_Fil
 	//All supported file formats except dds uses the WIC TextureLoader.
 	if(strcmp(result, "wic") == 0)
 	{
-		hr = CreateWICTextureFromFile(m_Device, m_DeviceContext, filename.data(),
-			&textureResource, &textureSRV,0);
+		hr = CreateWICTextureFromFile(m_Device, m_DeviceContext, filename.data(), 
+																		&textureResource, &textureSRV,0);
 		if(FAILED(hr))
 		{
 			throw TextureLoaderException("WIC Texture load failed", __LINE__, __FILE__);
@@ -75,8 +75,8 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(const char* p_Fil
 		//Temporary variable used to save a return value that is not used.
 		DirectX::DDS_ALPHA_MODE mode;
 
-		hr = CreateDDSTextureFromFile(m_Device, filename.data(),
-			&textureResource, &textureSRV, 0, &mode);
+		hr = CreateDDSTextureFromFile(m_Device, filename.data(), 
+														&textureResource, &textureSRV, 0, &mode);
 
 		if(FAILED(hr))
 		{
@@ -119,13 +119,13 @@ char* TextureLoader::checkCompability(char* p_FileType)
 }
 
 HRESULT TextureLoader::CreateWICTextureFromFile(ID3D11Device* p_Device, ID3D11DeviceContext* p_Context,
-												const wchar_t* p_FileName, ID3D11Resource** p_Texture, ID3D11ShaderResourceView** p_TextureView, size_t p_MaxSize)
+	const wchar_t* p_FileName, ID3D11Resource** p_Texture, ID3D11ShaderResourceView** p_TextureView, size_t p_MaxSize)
 {
 	return DirectX::CreateWICTextureFromFile(p_Device, p_Context, p_FileName, p_Texture, p_TextureView, p_MaxSize);
 }
 
 HRESULT TextureLoader::CreateDDSTextureFromFile(ID3D11Device* p_Device, const wchar_t* p_FileName,
-												ID3D11Resource** p_Texture, ID3D11ShaderResourceView** p_TextureView, size_t p_MaxSize, DirectX::DDS_ALPHA_MODE* p_AlphaMode)
+	ID3D11Resource** p_Texture, ID3D11ShaderResourceView** p_TextureView, size_t p_MaxSize, DirectX::DDS_ALPHA_MODE* p_AlphaMode)
 {
 	return DirectX::CreateDDSTextureFromFile(p_Device, p_FileName, p_Texture, p_TextureView, p_MaxSize, p_AlphaMode);
 }

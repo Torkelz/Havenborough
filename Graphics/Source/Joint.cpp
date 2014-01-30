@@ -7,6 +7,7 @@ DirectX::XMFLOAT4X4 Joint::interpolate(float p_FrameTime, float m_DestinationFra
 	KeyFrame first = m_JointAnimation.at(unsigned int(p_FrameTime));
 	KeyFrame second = m_JointAnimation.at((unsigned int)m_DestinationFrameTime);
 
+
 	float dummy;
 	float interpolateFraction2 = modff(p_FrameTime, &dummy);
 	float interpolateFraction1 = 1.f - interpolateFraction2;
@@ -68,7 +69,7 @@ MatrixDecomposed Joint::interpolateEx(MatrixDecomposed p_Frame1, MatrixDecompose
 		interpolateFraction = 1.0f;
 
 	using namespace DirectX;
-
+	
 	XMVECTOR scale1			= XMLoadFloat4(&p_Frame1.scale);
 	XMVECTOR translation1	= XMLoadFloat4(&p_Frame1.translation);
 	XMVECTOR rotation1		= XMLoadFloat4(&p_Frame1.rotation);

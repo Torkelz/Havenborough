@@ -16,10 +16,10 @@ public:
 
 	Particle()
 		:	position(0.f, 0.f, 0.f, 1.f),
-		velocity(0.f, 0.f, 0.f, 0.f),
-		color(1.f, 0.f, 1.f, 1.f),
-		size(1.f, 1.f),
-		life(10.f)
+			velocity(0.f, 0.f, 0.f, 0.f),
+			color(1.f, 0.f, 1.f, 1.f),
+			size(1.f, 1.f),
+			life(10.f)
 	{
 	}
 
@@ -35,21 +35,21 @@ public:
 };
 
 /**
-* Representation of the static data associated with a particle system.
-*/
+ * Representation of the static data associated with a particle system.
+ */
 struct ParticleEffectDefinition
 {
 public:
 	typedef std::shared_ptr<ParticleEffectDefinition> ptr;
 
 	/**
-	* The shader bound to the model, or nullptr if no shader has been bound.
-	*/
+	 * The shader bound to the model, or nullptr if no shader has been bound.
+	 */
 	Shader *shader;
 
 	/**
-	* Material diffuse textures.
-	*/
+	 * Material diffuse textures.
+	 */
 	ID3D11ShaderResourceView* diffuseTexture;
 	std::string textureResourceName;
 
@@ -63,19 +63,19 @@ public:
 	DirectX::XMFLOAT4	particleColorDeviation; // [0,1]
 
 	/**
-	* Default constructor. Constructs an object without any data.
-	*/
+	 * Default constructor. Constructs an object without any data.
+	 */
 	ParticleEffectDefinition()
 		:	shader(nullptr),
-		diffuseTexture(nullptr),
-		maxParticles(0),
-		maxLife(0),
-		size(0.f, 0.f),
-		particleSystemName("NO NAME FOUND"),
-		particlesPerSec(0),
-		particlePositionDeviation(0.f, 0.f, 0.f),
-		velocityDeviation(0.f, 0.f, 0.f),
-		particleColorDeviation(0.f, 0.f, 0.f, 0.f)
+			diffuseTexture(nullptr),
+			maxParticles(0),
+			maxLife(0),
+			size(0.f, 0.f),
+			particleSystemName("NO NAME FOUND"),
+			particlesPerSec(0),
+			particlePositionDeviation(0.f, 0.f, 0.f),
+			velocityDeviation(0.f, 0.f, 0.f),
+			particleColorDeviation(0.f, 0.f, 0.f, 0.f)
 	{}
 
 	~ParticleEffectDefinition(){}

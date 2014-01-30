@@ -18,7 +18,7 @@ struct StaticVertex
 	DirectX::XMFLOAT3 m_Binormal;
 };
 
-struct AnimatedVertex
+struct AnimatedVertex 
 {
 	DirectX::XMFLOAT4 m_Position;
 	DirectX::XMFLOAT3 m_Normal;
@@ -44,7 +44,7 @@ struct IndexDesc
 	int m_Normal;
 	int m_TextureCoord;
 };
-
+	
 struct Material
 {
 	std::string m_MaterialID;
@@ -62,10 +62,11 @@ struct particlecBuffer
 	DirectX::XMFLOAT4	particleColorDeviation;
 	DirectX::XMFLOAT3	particlePositionDeviation;
 	DirectX::XMFLOAT3	velocityDeviation;
-	DirectX::XMFLOAT3	cameraPos;
+	DirectX::XMFLOAT3	cameraPos;	
 	DirectX::XMFLOAT2	uvCoord;
 	float				sizeX;
 	float				sizeY;
+
 };
 
 struct ParticleMaterial

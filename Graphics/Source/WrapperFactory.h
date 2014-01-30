@@ -12,7 +12,7 @@ private:
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 	static WrapperFactory *m_Instance;
-
+	
 public:
 	/**
 	* Gets an instance of the wrapper factory. Note that it still needs to be initialized before calling this function.
@@ -31,7 +31,7 @@ public:
 	* Shuts down the factory and releases the memory allocated. Nulls all pointers.
 	*/
 	virtual void shutdown(void);
-
+	
 	/**
 	* Creates a buffer from a buffer description.
 	* @param p_Description the description the buffer should use

@@ -59,6 +59,7 @@ private:
 	Type m_Type;
 	Usage m_Usage;
 
+	
 public:
 	Buffer(void);
 	virtual ~Buffer(void);
@@ -68,19 +69,19 @@ public:
 	* @return the buffer pointer
 	*/
 	ID3D11Buffer *getBufferPointer(void) const;
-
+	
 	/**
 	* Sets the pointer to the buffer.
 	* @param p_Buffer the buffer pointer
 	*/
 	void setBufferPointer(ID3D11Buffer *p_Buffer);
-
+	
 	/**
 	* Gets the size in bytes of one element in the buffer.
 	* @return the size in bytes
 	*/
 	UINT32 getSizeOfElement(void) const;
-
+	
 	/**
 	* Gets the number of elements in the buffer.
 	* @return the number of elements.
@@ -95,7 +96,7 @@ public:
 	* @return S_OK if buffer initialized successfully
 	*/
 	HRESULT initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, Description &p_Description);
-
+	
 	/**
 	* Sets the the buffer to be applied.
 	* @param p_StartSlot where to start in the buffer
@@ -115,7 +116,7 @@ public:
 	* @return pointer to mapped data
 	*/
 	void *map(void);
-
+	
 	/**
 	* Unmaps the buffer pointer.
 	*/

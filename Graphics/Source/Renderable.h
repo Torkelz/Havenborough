@@ -10,7 +10,7 @@ struct Renderable
 	const DirectX::XMFLOAT3 *colorTone;
 
 	Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World,
-		const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr,
+		const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr, 
 		const DirectX::XMFLOAT3 *p_ColorTone = nullptr)
 	{
 		using namespace DirectX;
@@ -19,7 +19,7 @@ struct Renderable
 		world = p_World;
 		colorTone = p_ColorTone;
 
-		XMStoreFloat4x4(&invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&world))));
+		XMStoreFloat4x4(&invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&world)))); 
 		invTransposeWorld._41 = 0.f;
 		invTransposeWorld._42 = 0.f;
 		invTransposeWorld._43 = 0.f;

@@ -79,7 +79,7 @@ void SkyDome::buildGeoSphere(unsigned int p_NumSubDivisions, float p_Radius)
 	}
 	for(unsigned int i = 0; i < p_NumSubDivisions; i++)
 	{
-		subdivide();
+		subdivide();        
 	}
 
 	// Project m_vertices onto sphere and scale.

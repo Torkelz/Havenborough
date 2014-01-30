@@ -57,7 +57,7 @@ PSIn VS( VSIn input )
 	output.uvCoord = input.uvCoord;
 	output.tangent = normalize(mul(world, float4(input.tangent,0.f)).xyz);
 	output.binormal = normalize(mul(world, float4(input.binormal, 0.f)).xyz);
-
+	
 	return output;
 }
 

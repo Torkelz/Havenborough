@@ -33,7 +33,7 @@ public:
 
 	/**
 	* Initialize the factory.
-	* p_TextureList pointer to the texture list pair
+	* p_TextureList pointer to the texture list pair 
 	*/
 	void initialize(std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *p_TextureList);
 
@@ -60,7 +60,7 @@ public:
 protected:
 	ModelFactory(void);
 	~ModelFactory(void);
-
+	
 private:
 	Buffer::Description createBufferDescription(const std::vector<StaticVertex> &p_VertexData, Buffer::Usage p_Usage);
 	Buffer::Description createBufferDescription(const std::vector<AnimatedVertex> &p_VertexData, Buffer::Usage p_Usage);

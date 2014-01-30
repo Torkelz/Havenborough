@@ -33,7 +33,7 @@ public:
 
 	/**
 	* Initialize the factory.
-	* p_TextureList pointer to the texture list pair
+	* p_TextureList pointer to the texture list pair 
 	*/
 	void initialize(std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *p_TextureList);
 
@@ -45,7 +45,7 @@ public:
 	virtual ParticleEffectDefinition::ptr createParticleEffectDefinition(const char* p_Filename, const char* p_EffectName);
 
 	virtual ParticleInstance::ptr createParticleInstance(ParticleEffectDefinition::ptr p_Effect);
-
+	
 	/**
 	* Set the function to load a texture to a particle.
 	* @param p_LoadParticleTexture the function to be called whenever a texture is to be loaded.

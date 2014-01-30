@@ -43,14 +43,15 @@ void Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceCon
 }
 
 HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-									   const char *p_ShaderModel, Type p_ShaderType,
-									   const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
+	const char *p_ShaderModel, Type p_ShaderType,
+	const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
 {
 	HRESULT result = S_FALSE;
 
 	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
 	ID3DBlob *errorMessage = nullptr;
 	ID3DBlob *shaderData = nullptr;
+
 
 	result = compileShader(p_Filename, p_EntryPoint, p_ShaderModel, shaderFlags, shaderData, errorMessage);
 
@@ -62,7 +63,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 			SAFE_RELEASE(shaderData);
 			std::wstring foo = p_Filename;
 			throw ShaderException("Error when trying to compile shader. Could be missing file: " +
-				std::string(foo.begin(), foo.end()), __LINE__, __FILE__);
+				std::string(foo.begin(), foo.end()), __LINE__, __FILE__);			
 		}
 		else
 		{
@@ -87,6 +88,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 	releaseShader(p_ShaderType);
 	result = createShader(shaderData);
 
+
 	if(FAILED(result))
 	{
 		releaseShader(p_ShaderType);
@@ -102,6 +104,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 
 void Shader::setShader(void)
 {
+
 	m_DeviceContext->IASetInputLayout(m_VertexLayout);
 	m_DeviceContext->VSSetShader(m_VertexShader,0,0);
 
@@ -112,6 +115,7 @@ void Shader::setShader(void)
 	m_DeviceContext->DSSetShader(m_DomainShader, nullptr, 0);
 
 	m_DeviceContext->HSSetShader(m_HullShader, nullptr, 0);
+
 }
 
 void Shader::unSetShader(void)
@@ -139,7 +143,7 @@ void Shader::unSetShader(void)
 }
 
 void Shader::setResource(Type p_ShaderType, UINT p_StartSpot, UINT p_NumOfViews,
-						 ID3D11ShaderResourceView *p_ShaderResource)
+	ID3D11ShaderResourceView *p_ShaderResource)
 {
 	switch(p_ShaderType)
 	{
@@ -172,7 +176,7 @@ void Shader::setResource(Type p_ShaderType, UINT p_StartSpot, UINT p_NumOfViews,
 }
 
 void Shader::setSamplerState(Type p_ShaderType, UINT p_StartSpot, UINT p_NumOfSamples,
-							 ID3D11SamplerState *p_SamplerState)
+	ID3D11SamplerState *p_SamplerState)
 {
 	switch (p_ShaderType)
 	{
@@ -258,13 +262,13 @@ void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)
 		D3D11_SIGNATURE_PARAMETER_DESC parameterDescription;
 		shaderReflection->GetInputParameterDesc(i, &parameterDescription);
 
-		D3D11_INPUT_ELEMENT_DESC elementDescription;
-		elementDescription.SemanticName = parameterDescription.SemanticName;
+		D3D11_INPUT_ELEMENT_DESC elementDescription;   
+		elementDescription.SemanticName = parameterDescription.SemanticName;      
 		elementDescription.SemanticIndex = parameterDescription.SemanticIndex;
 		elementDescription.InputSlot = 0;
 		elementDescription.AlignedByteOffset = byteOffset;
 		elementDescription.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		elementDescription.InstanceDataStepRate = 0;
+		elementDescription.InstanceDataStepRate = 0; 
 
 		if(parameterDescription.Mask == 1)
 		{
@@ -284,7 +288,7 @@ void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)
 		}
 		else if(parameterDescription.Mask <= 3)
 		{
-			if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+			if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
 			{
 				elementDescription.Format = DXGI_FORMAT_R32G32_UINT;
 			}
@@ -300,7 +304,7 @@ void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)
 		}
 		else if(parameterDescription.Mask <= 7)
 		{
-			if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+			if(parameterDescription.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
 			{
 				elementDescription.Format = DXGI_FORMAT_R32G32B32_UINT;
 			}
@@ -343,7 +347,7 @@ void Shader::createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData)
 	SAFE_RELEASE(shaderReflection);
 }
 
-HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
+HRESULT Shader::createShader(ID3DBlob *p_ShaderData) 
 {
 	HRESULT result;
 	switch (m_ShaderType)
@@ -394,7 +398,7 @@ HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
 }
 
 HRESULT Shader::compileShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-							  DWORD p_ShaderFlags, ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage )
+	DWORD p_ShaderFlags, ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage )
 {
 	return D3DCompileFromFile(p_Filename, nullptr, nullptr, p_EntryPoint, p_ShaderModel,
 		p_ShaderFlags, 0, &p_ShaderData, &p_ErrorMessage);

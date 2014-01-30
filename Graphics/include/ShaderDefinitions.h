@@ -10,11 +10,11 @@ enum class ShaderType
 };
 inline bool operator&(ShaderType a, ShaderType b)
 {
-	return static_cast<int>(a) & static_cast<int>(b) ? true : false;
+	return static_cast<int>(a) & static_cast<int>(b) ? true : false; 
 };
 inline ShaderType operator|(ShaderType a, ShaderType b)
 {
-	return static_cast<ShaderType>(static_cast<int>(a) | static_cast<int>(b));
+	return static_cast<ShaderType>(static_cast<int>(a) | static_cast<int>(b)); 
 };
 
 enum class Format
@@ -33,7 +33,7 @@ enum class Format
 struct ShaderInputElementDescription
 {
 	LPCSTR semanticName;
-	UINT semanticIndex;
+	UINT semanticIndex; 
 	Format format;
 	UINT inputSlot;
 	UINT alignedByteOffset;

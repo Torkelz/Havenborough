@@ -22,7 +22,8 @@ void ParticleInstance::init(Buffer* p_Buffer, ParticleEffectDefinition::ptr p_Pa
 	m_ParticleList.resize(m_ParticleEffectDef->maxParticles);
 }
 
-void ParticleInstance::update(float p_DeltaTime)
+
+void ParticleInstance::update(float p_DeltaTime) 
 {
 	killOldParticles();
 
@@ -35,11 +36,12 @@ void ParticleInstance::killOldParticles()
 {
 	//Will go thou the list of particles in the system and remove any particle that are to old
 
-	auto removeIt = std::remove_if(m_ParticleList.begin(),m_ParticleList.end(), [&] (Particle &p)
+	auto removeIt = std::remove_if(m_ParticleList.begin(),m_ParticleList.end(), [&] (Particle &p) 
 	{
 		return p.life >= m_ParticleEffectDef->maxLife;
 	});
 	m_ParticleList.erase(removeIt, m_ParticleList.end());
+
 }
 
 void ParticleInstance::updateParticles(float p_DeltaTime)
@@ -96,9 +98,11 @@ void ParticleInstance::updateBuffers(ID3D11DeviceContext *p_DeviceContext, Direc
 
 void ParticleInstance::render()
 {
+
 }
 
 void ParticleInstance::setPosition(DirectX::XMFLOAT4 p_NewPosition)
 {
 	m_SysPosition = p_NewPosition;
 }
+

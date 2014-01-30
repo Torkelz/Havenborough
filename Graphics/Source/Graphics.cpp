@@ -17,7 +17,7 @@ Graphics::Graphics(void)
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
-
+	
 	m_SwapChain = nullptr;
 	m_RenderTargetView = nullptr;
 	m_Sampler = nullptr;
@@ -53,21 +53,21 @@ IGraphics *IGraphics::createGraphics()
 }
 
 bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen)
-{
+{	
 	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Initializing graphics");
 
 	HRESULT result;
 	IDXGIFactory *factory = nullptr;
 	IDXGIAdapter *adapter = nullptr;
 	IDXGIOutput *adapterOutput = nullptr;
-
+	
 	unsigned int numModes;
 	unsigned int stringLength;
-
+	
 	DXGI_MODE_DESC *displayModeList = nullptr;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
-
+	
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if(FAILED(result))
 	{
@@ -123,7 +123,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	{
 		throw GraphicsException("Error when getting the graphics card description", __LINE__,__FILE__);
 	}
-
+	
 	m_GraphicsMemory = (int)(adapterDesc.DedicatedVideoMemory / MB);
 
 	error = wcstombs_s(&stringLength, m_GraphicsCard, 128, adapterDesc.Description, 128);
@@ -183,6 +183,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	initializeFactories();
 
+	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
+
 	initializeMatrices(p_ScreenWidth, p_ScreenHeight);
 
 	//Deferred Render
@@ -190,9 +192,9 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
 		m_MaxLightsPerLightInstance);
-
+	
 	DebugDefferedDraw();
-	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f));
+	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
 	m_BVBufferNumOfElements = 100;
 	Buffer::Description buffDesc;
 	buffDesc.initData = nullptr;
@@ -200,7 +202,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	buffDesc.sizeOfElement = sizeof(XMFLOAT4);
 	buffDesc.type = Buffer::Type::VERTEX_BUFFER;
 	buffDesc.usage = Buffer::Usage::DEFAULT;
-
+	
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
@@ -209,7 +211,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	m_ForwardRenderer = new ForwardRendering();
-	m_ForwardRenderer->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix,
+	m_ForwardRenderer->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
 		m_DepthStencilView, m_RenderTargetView);
 
 	return true;
@@ -248,7 +250,7 @@ void Graphics::shutdown(void)
 		SAFE_RELEASE(tex.second);
 	}
 	m_TextureList.clear();
-
+	
 	while (!m_ParticleEffectDefinitionList.empty())
 	{
 		string unremovedName = m_ParticleEffectDefinitionList.front().first;
@@ -256,7 +258,7 @@ void Graphics::shutdown(void)
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
 
 		releaseParticleEffectDefinition(unremovedName.c_str());
-	}
+	}	
 
 	while (!m_ModelList.empty())
 	{
@@ -283,7 +285,7 @@ void Graphics::shutdown(void)
 	m_Shader = nullptr;
 	SAFE_DELETE(m_BVBuffer);
 	SAFE_DELETE(m_BVShader);
-
+	
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
 	SAFE_DELETE(m_ForwardRenderer);
@@ -336,7 +338,7 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
-							const char *p_ShaderModel, ShaderType p_Type)
+	const char *p_ShaderModel, ShaderType p_Type)
 {
 	bool found = false;
 	Shader *shader = nullptr;
@@ -362,8 +364,8 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 }
 
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
-							const char *p_ShaderModel, ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout,
-							unsigned int p_NumOfElements)
+	const char *p_ShaderModel, ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout,
+	unsigned int p_NumOfElements)
 
 {
 	if(!(p_Type & ShaderType::VERTEX_SHADER))
@@ -452,7 +454,7 @@ bool Graphics::createParticleEffectDefinition(const char *p_ParticleEffectId, co
 	ParticleEffectDefinition::ptr temp = m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId);
 
 	m_ParticleEffectDefinitionList.push_back(make_pair(p_ParticleEffectId,temp));
-
+	
 	return true;
 }
 
@@ -460,9 +462,9 @@ bool Graphics::releaseParticleEffectDefinition(const char *p_ParticleEffectId)
 {
 	auto it = std::find_if(m_ParticleEffectDefinitionList.begin(), m_ParticleEffectDefinitionList.end(),
 		[p_ParticleEffectId] (const pair<string, ParticleEffectDefinition::ptr>& p_Effect)
-	{
-		return p_Effect.first == p_ParticleEffectId;
-	});
+		{
+			return p_Effect.first == p_ParticleEffectId;
+		});
 
 	if (it != m_ParticleEffectDefinitionList.end())
 	{
@@ -497,9 +499,9 @@ void Graphics::releaseParticleEffectInstance(InstanceId p_ParticleEffectId)
 {
 	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
 		[p_ParticleEffectId] (const pair<InstanceId, ParticleInstance::ptr>& p_Effect)
-	{
-		return p_Effect.first == p_ParticleEffectId;
-	});
+		{
+			return p_Effect.first == p_ParticleEffectId;
+		});
 	if (it != m_ParticleEffectInstanceList.end())
 	{
 		m_ParticleEffectInstanceList.erase(it);
@@ -523,7 +525,7 @@ void Graphics::renderModel(InstanceId p_ModelId)
 				m_ForwardRenderer->addRenderable(Renderable(modelDef, inst.second.getWorldMatrix(),
 					&inst.second.getFinalTransform(), &inst.second.getColorTone()));
 			}
-
+			
 			return;
 		}
 	}
@@ -537,18 +539,22 @@ void Graphics::renderSkydome()
 
 void Graphics::renderText(void)
 {
+	
 }
 
 void Graphics::renderQuad(void)
 {
+
 }
 
 void Graphics::addStaticLight(void)
 {
+
 }
 
 void Graphics::removeStaticLight(void)
 {
+
 }
 
 void Graphics::useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange)
@@ -560,12 +566,12 @@ void Graphics::useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor,
 	m_PointLights.push_back(l);
 }
 void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
-								 Vector2 p_SpotLightAngles,	float p_LightRange)
+	Vector2 p_SpotLightAngles,	float p_LightRange)
 {
 	Light l;
 	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
 	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
-
+	
 	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
 	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
@@ -605,7 +611,7 @@ void Graphics::drawFrame()
 
 	m_DeferredRender->renderDeferred();
 
-	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL);
+	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	if(m_SelectedRenderTarget >= 0 && m_SelectedRenderTarget <=3)
 	{
@@ -613,7 +619,7 @@ void Graphics::drawFrame()
 		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
 		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
-
+		
 		m_Shader->unSetShader();
 	}
 
@@ -631,6 +637,7 @@ void Graphics::drawFrame()
 
 void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)
 {
+	
 	for(auto &model : m_ModelList)
 	{
 		if(model.first == string(p_ModelId))
@@ -729,7 +736,7 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 			string(p_ModelId));
 		return -1;
 	}
-
+	
 	ModelInstance instance;
 	instance.setModelName(p_ModelId);
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
@@ -789,6 +796,7 @@ void Graphics::setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll)
 		}
 	}
 	throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
+
 }
 
 void Graphics::setModelScale(InstanceId p_Instance, Vector3 p_Scale)
@@ -802,6 +810,7 @@ void Graphics::setModelScale(InstanceId p_Instance, Vector3 p_Scale)
 		}
 	}
 	throw GraphicsException("Failed to set model instance scale, vector out of bounds.", __LINE__, __FILE__);
+
 }
 
 void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
@@ -839,7 +848,7 @@ Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 		{
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
 			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->joints);
-
+			
 			return position;
 		}
 	}
@@ -921,7 +930,7 @@ void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
 }
 
 HRESULT Graphics::createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,
-										   bool p_Fullscreen)
+	bool p_Fullscreen)
 {
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	D3D_FEATURE_LEVEL featureLevel;
@@ -984,7 +993,7 @@ HRESULT Graphics::createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p
 	// Set the feature level to DirectX 11.
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1,
+	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1, 
 		D3D11_SDK_VERSION, &swapChainDesc, &m_SwapChain, &m_Device, NULL, &m_DeviceContext);
 }
 
@@ -1014,6 +1023,7 @@ HRESULT Graphics::createDepthStencilBuffer(int p_ScreenWidth, int p_ScreenHeight
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
 
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
+
 
 	//Set up the description of the depth buffer.
 	depthBufferDesc.Width = p_ScreenWidth;
@@ -1096,7 +1106,7 @@ HRESULT Graphics::createRasterizerState(void)
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
-
+	
 	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
 	result =  m_Device->CreateRasterizerState(&rasterDesc, &m_RasterStateBV);
@@ -1242,13 +1252,13 @@ void Graphics::drawBoundingVolumes()
 			buffDesc.sizeOfElement = sizeof(XMFLOAT4);
 			buffDesc.type = Buffer::Type::VERTEX_BUFFER;
 			buffDesc.usage = Buffer::Usage::DEFAULT;
-
+	
 			buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 			VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 			SAFE_DELETE(m_BVBuffer);
 			m_BVBuffer = buffer;
 		}
-		else
+		else 
 		{
 			m_DeviceContext->UpdateSubresource(m_BVBuffer->getBufferPointer(), NULL, NULL, m_BVTriangles.data(), 0, 0);
 			buffer = m_BVBuffer;
@@ -1261,7 +1271,7 @@ void Graphics::drawBoundingVolumes()
 
 		buffer->setBuffer(0);
 		m_BVShader->setShader();
-
+	
 		m_DeviceContext->Draw(m_BVTriangles.size(), 0);
 
 		m_Shader->unSetShader();

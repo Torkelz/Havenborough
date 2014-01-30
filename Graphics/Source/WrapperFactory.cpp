@@ -53,6 +53,7 @@ Buffer *WrapperFactory::createBuffer(Buffer::Description &p_Description)
 			SAFE_DELETE(buffer);
 			return nullptr;
 		}
+		
 	}
 	catch(...)
 	{
@@ -62,7 +63,7 @@ Buffer *WrapperFactory::createBuffer(Buffer::Description &p_Description)
 }
 
 Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-									 ShaderType p_Type)
+	ShaderType p_Type)
 {
 	Shader *shader = new Shader();
 	shader->initialize(m_Device, m_DeviceContext, 0);
@@ -94,7 +95,7 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 }
 
 Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
-									 ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements)
+	ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements)
 {
 	Shader *shader = new Shader();
 	shader->initialize(m_Device, m_DeviceContext, p_NumOfInputElements);
@@ -106,7 +107,7 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 	for(unsigned int i = 0; i < p_NumOfInputElements; i++)
 	{
 		desc[i].SemanticName = p_VertexLayout[i].semanticName;
-		desc[i].SemanticIndex = p_VertexLayout[i].semanticIndex;
+		desc[i].SemanticIndex = p_VertexLayout[i].semanticIndex; 
 		desc[i].Format = (DXGI_FORMAT)p_VertexLayout[i].format;
 		desc[i].InputSlot = p_VertexLayout[i].inputSlot;
 		desc[i].AlignedByteOffset = p_VertexLayout[i].alignedByteOffset;
@@ -127,7 +128,7 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 					break;
 			}
 		}
-
+	
 		SAFE_DELETE_ARRAY(desc);
 
 		return shader;
@@ -141,7 +142,7 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 }
 
 void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-								   const char *p_ShaderModel, ShaderType p_Type)
+	const char *p_ShaderModel, ShaderType p_Type)
 {
 	vector<string> entryPointList = createEntryPointList(p_EntryPoint);
 	string entryPoint;
@@ -174,6 +175,7 @@ WrapperFactory::WrapperFactory(void)
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
 }
+
 
 WrapperFactory::~WrapperFactory(void)
 {
@@ -250,15 +252,18 @@ vector<string> WrapperFactory::createEntryPointList(const char *p_EntryPoint)
 }
 
 void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-								   const char *p_ShaderModel, Shader::Type p_ShaderType)
+	const char *p_ShaderModel, Shader::Type p_ShaderType)
 {
+
 	string temp = getShaderModel(p_ShaderModel, p_ShaderType);
 	p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, nullptr);
+
 }
 
 void WrapperFactory::addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
-								   const char *p_ShaderModel, Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
+	const char *p_ShaderModel, Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
 {
+
 	string temp = getShaderModel(p_ShaderModel, p_ShaderType);
 	p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, p_VertexLayout);
 }
