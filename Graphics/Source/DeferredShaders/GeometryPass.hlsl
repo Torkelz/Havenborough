@@ -54,7 +54,7 @@ PSIn VS( VSIn input )
 	output.uvCoord = input.uvCoord;
 	output.tangent = normalize(mul(world, float4(input.tangent,0.f)).xyz);
 	output.binormal = normalize(mul(world, float4(input.binormal, 0.f)).xyz);
-		
+
 	return output;
 }
 
@@ -62,17 +62,17 @@ PSOut PS( PSIn input )
 {
 	PSOut output;
 	float3 norm				= 0.5f * (input.normal + 1.0f);
-	float4 bumpMap			= normalMap.Sample(m_textureSampler, input.uvCoord);
-	bumpMap					= (bumpMap * 2.0f) - 1.0f;
+		float4 bumpMap			= normalMap.Sample(m_textureSampler, input.uvCoord);
+		bumpMap					= (bumpMap * 2.0f) - 1.0f;
 	float3 normal			= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
-	normal					= 0.5f * (normalize(normal) + 1.0f);
-	
+		normal					= 0.5f * (normalize(normal) + 1.0f);
+
 	float4 diffuseColor = diffuse.Sample(m_textureSampler, input.uvCoord);
 
-	if(diffuseColor.w >= 0.7f)
-		diffuseColor.w = 1.0f;
-	else
-		diffuseColor.w = 0.0f;
+		if(diffuseColor.w >= 0.7f)
+			diffuseColor.w = 1.0f;
+		else
+			diffuseColor.w = 0.0f;
 
 	if(diffuseColor.w == 1.0f)
 	{

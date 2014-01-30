@@ -3,12 +3,11 @@
 
 struct Light
 {
-
 	DirectX::XMFLOAT3	lightPos;
-    DirectX::XMFLOAT3	lightColor;
+	DirectX::XMFLOAT3	lightColor;
 	DirectX::XMFLOAT3	lightDirection;
-    DirectX::XMFLOAT2	spotlightAngles;// X must be smaller than Y
-    float				lightRange;
+	DirectX::XMFLOAT2	spotlightAngles;// X must be smaller than Y
+	float				lightRange;
 
 	Light()
 	{

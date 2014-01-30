@@ -11,7 +11,7 @@
 using std::vector;
 
 DeferredRenderer::DeferredRenderer()
-		
+
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
@@ -109,7 +109,7 @@ DeferredRenderer::~DeferredRenderer(void)
 
 	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
 	SAFE_DELETE(m_WorldInstanceData);
-	SAFE_DELETE(m_InstancedGeometryShader);	
+	SAFE_DELETE(m_InstancedGeometryShader);
 
 	SAFE_DELETE(m_SkyDomeBuffer);
 	SAFE_DELETE(m_SkyDomeShader);
@@ -120,10 +120,10 @@ DeferredRenderer::~DeferredRenderer(void)
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
-	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_screenWidth, unsigned int p_screenHeight,
-	DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
-	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
-	unsigned int p_MaxLightsPerLightInstance)
+								  ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_screenWidth, unsigned int p_screenHeight,
+								  DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
+								  std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+								  unsigned int p_MaxLightsPerLightInstance)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -195,7 +195,7 @@ void DeferredRenderer::renderGeometry()
 	// The textures will be needed to be grabbed from the model later.
 
 	std::sort(m_Objects.begin(),m_Objects.end(), [] (Renderable &a,Renderable &b)
-	{ 
+	{
 		return a.model->vertexBuffer > b.model->vertexBuffer;
 	});
 
@@ -242,7 +242,6 @@ void DeferredRenderer::renderGeometry()
 		ID3D11Buffer * buffers[] = {k.front().model->vertexBuffer->getBufferPointer(), m_WorldInstanceData->getBufferPointer()};
 		UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
 
-
 		ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
 
 		// Set shader.
@@ -253,10 +252,10 @@ void DeferredRenderer::renderGeometry()
 
 		for(unsigned int u = 0; u < k.front().model->numOfMaterials;u++)
 		{
-			ID3D11ShaderResourceView *srvs[] =  {	k.front().model->diffuseTexture[u].second, 
-													k.front().model->normalTexture[u].second, 
-													k.front().model->specularTexture[u].second 
-												};
+			ID3D11ShaderResourceView *srvs[] =  {	k.front().model->diffuseTexture[u].second,
+				k.front().model->normalTexture[u].second,
+				k.front().model->specularTexture[u].second
+			};
 			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 			D3D11_MAPPED_SUBRESOURCE ms;
 			for(unsigned int i = 0; i < k.size(); i += m_MaxLightsPerLightInstance)
@@ -283,8 +282,8 @@ void DeferredRenderer::renderGeometry()
 	}
 	/*for( auto &o : m_Objects)
 	{
-		renderObject(o);
-	}*/	
+	renderObject(o);
+	}*/
 	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_ConstantBuffer->unsetBuffer(1);
 
@@ -313,7 +312,7 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
 	////Select the third render target[3]
-	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], m_DepthStencilView); 
+	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], m_DepthStencilView);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_DeviceContext->RSSetState(m_RasterState);
@@ -348,7 +347,7 @@ void DeferredRenderer::renderSkyDomeImpl()
 	if(m_RenderSkyDome)
 	{
 		////Select the third render target[3]
-		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargets[3], m_DepthStencilView); 
+		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargets[3], m_DepthStencilView);
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_DeviceContext->RSSetState(m_SkyDomeRasterizerState);
 		m_DeviceContext->OMSetDepthStencilState(m_SkyDomeDepthStencilState,0);
@@ -384,10 +383,10 @@ void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float 
 	texture->GetDesc(&textureDesc);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
-    viewDesc.Format = textureDesc.Format;
-    viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-    viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
-    viewDesc.TextureCube.MostDetailedMip = 0;
+	viewDesc.Format = textureDesc.Format;
+	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
+	viewDesc.TextureCube.MostDetailedMip = 0;
 
 	m_Device->CreateShaderResourceView(texture, &viewDesc, &m_SkyDomeSRV);
 	SAFE_RELEASE(texture);
@@ -418,7 +417,6 @@ void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float 
 
 	m_SkyDomeShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SkyDome.hlsl",
 		"VS,PS","5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
 }
 void DeferredRenderer::renderSkyDome()
 {
@@ -428,11 +426,11 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 {
 	switch(i)
 	{
-		case 0: return m_DiffuseSRV;
-		case 1: return m_NormalSRV;
-		case 2: return m_wPositionSRV;
-		case 3: return m_LightSRV;
-		default: return nullptr;
+	case 0: return m_DiffuseSRV;
+	case 1: return m_NormalSRV;
+	case 2: return m_wPositionSRV;
+	case 3: return m_LightSRV;
+	default: return nullptr;
 	}
 }
 
@@ -509,7 +507,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 
 	ID3D11Resource* tt;
 
-	// Make the diffuse texture from the render target.	
+	// Make the diffuse texture from the render target.
 	m_RenderTargets[0]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_DiffuseSRV);
 	SAFE_RELEASE(tt);
@@ -568,7 +566,7 @@ void DeferredRenderer::createBuffers()
 
 	cbdesc.sizeOfElement = sizeof(cAnimatedObjectBuffer);
 	m_AnimatedObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMInfo::getInstance()->updateUsage(sizeof(cAnimatedObjectBuffer));	
+	VRAMInfo::getInstance()->updateUsage(sizeof(cAnimatedObjectBuffer));
 
 	Buffer::Description adesc;
 	adesc.initData = nullptr;
@@ -659,7 +657,7 @@ void DeferredRenderer::createBlendStates()
 
 void DeferredRenderer::createLightShaders()
 {
-	ShaderInputElementDescription shaderDesc[] = 
+	ShaderInputElementDescription shaderDesc[] =
 	{
 		{"POSITION",	0, Format::R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA,	  0},
 		{"LPOSITION",	0, Format::R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA,  1},
@@ -678,7 +676,7 @@ void DeferredRenderer::createLightShaders()
 	m_DirectionalShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/LightPassDirectionalLight.hlsl",
 		"DirectionalLightVS,DirectionalLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 6);
 
-	ShaderInputElementDescription instanceshaderDesc[] = 
+	ShaderInputElementDescription instanceshaderDesc[] =
 	{
 		{"POSITION",0, Format::R32G32B32A32_FLOAT, 0, 0,D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"NORMAL",	0, Format::R32G32B32_FLOAT, 0, 16,	D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -705,7 +703,6 @@ void DeferredRenderer::loadLightModels()
 	{
 		temp.push_back(DirectX::XMFLOAT3(vertices.at(i).m_Position.x,vertices.at(i).m_Position.y,vertices.at(i).m_Position.z));
 	}
-
 
 	Buffer::Description cbdesc;
 	cbdesc.initData = temp.data();
@@ -777,10 +774,10 @@ void DeferredRenderer::renderLight(Shader *p_Shader, Buffer* p_ModelBuffer, vect
 			m_DeviceContext->Map(m_AllLightBuffer->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
 			memcpy(ms.pData, p_Lights->data() + i, sizeof(Light) * nrToCpy);
 			m_DeviceContext->Unmap(m_AllLightBuffer->getBufferPointer(), NULL);
-			
+
 			m_DeviceContext->DrawInstanced(p_ModelBuffer->getNumOfElements(), p_Lights->size(),0,0);
 		}
-		
+
 		for(unsigned int i = 0; i < 2; i++)
 			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
 		p_Shader->unSetShader();
@@ -817,10 +814,10 @@ void DeferredRenderer::renderObject(Renderable &p_Object)
 
 	for(unsigned int j = 0; j < p_Object.model->numOfMaterials;j++)
 	{
-		ID3D11ShaderResourceView *srvs[] =  {	p_Object.model->diffuseTexture[j].second, 
-												p_Object.model->normalTexture[j].second, 
-												p_Object.model->specularTexture[j].second 
-											};
+		ID3D11ShaderResourceView *srvs[] =  {	p_Object.model->diffuseTexture[j].second,
+			p_Object.model->normalTexture[j].second,
+			p_Object.model->specularTexture[j].second
+		};
 		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
 		m_DeviceContext->Draw(p_Object.model->drawInterval.at(j).second, p_Object.model->drawInterval.at(j).first);

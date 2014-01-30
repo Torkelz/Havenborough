@@ -6,7 +6,6 @@
 #include <vector>
 #include <memory>
 
-
 class ParticleInstance
 {
 public:
@@ -16,13 +15,13 @@ private:
 	Buffer				*m_Buffer;
 
 	ParticleEffectDefinition::ptr m_ParticleEffectDef;
-	
+
 	std::vector<Particle>	m_ParticleList;
 	DirectX::XMFLOAT4	m_SysPosition; //world pos, in cm
-	
+
 	unsigned int		m_CurrentParticleCount;
 	float				m_AccumulatedTime;
-	
+
 public:
 	ParticleInstance();
 	~ParticleInstance();

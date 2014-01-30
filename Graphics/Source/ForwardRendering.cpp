@@ -29,7 +29,6 @@ ForwardRendering::ForwardRendering(void)
 	m_TransparencyAdditiveBlend = nullptr;
 }
 
-
 ForwardRendering::~ForwardRendering(void)
 {
 	m_Device = nullptr;
@@ -40,7 +39,7 @@ ForwardRendering::~ForwardRendering(void)
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthStencilState);
-	
+
 	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
@@ -210,7 +209,7 @@ void ForwardRendering::renderForward()
 		ID3D11DepthStencilState *previousDepthState;
 		m_DeviceContext->RSGetState(&previousRasterState);
 		m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
-		
+
 		m_DeviceContext->RSSetState(m_RasterState);
 		m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState,0);
 
@@ -255,7 +254,6 @@ void ForwardRendering::renderForward()
 				NULL,NULL,m_TransparencyObjects.at(i).colorTone ,NULL,NULL);
 			m_ColorShadingConstantBuffer->setBuffer(3);
 
-
 			// Set shader.
 			m_TransparencyObjects.at(i).model->shader->setShader();
 			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
@@ -263,9 +261,9 @@ void ForwardRendering::renderForward()
 
 			for(unsigned int j = 0; j < m_TransparencyObjects.at(i).model->numOfMaterials;j++)
 			{
-				ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).model->diffuseTexture[j].second, 
-					m_TransparencyObjects.at(i).model->normalTexture[j].second, 
-					m_TransparencyObjects.at(i).model->specularTexture[j].second 
+				ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).model->diffuseTexture[j].second,
+					m_TransparencyObjects.at(i).model->normalTexture[j].second,
+					m_TransparencyObjects.at(i).model->specularTexture[j].second
 				};
 				m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
@@ -306,7 +304,7 @@ bool ForwardRendering::depthSortCompareFunc(const Renderable &a, const Renderabl
 	DirectX::XMVECTOR aV = DirectX::XMLoadFloat3(&aa);
 	DirectX::XMVECTOR bV = DirectX::XMLoadFloat3(&bb);
 	DirectX::XMVECTOR eV = DirectX::XMLoadFloat3(m_CameraPosition);
-	
+
 	using DirectX::operator -;
 	DirectX::XMVECTOR aVeVLength = DirectX::XMVector3Length(aV - eV);
 	DirectX::XMVECTOR bVeVLength = DirectX::XMVector3Length(bV - eV);

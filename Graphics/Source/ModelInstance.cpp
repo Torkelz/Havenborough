@@ -7,7 +7,7 @@ using std::string;
 using std::vector;
 
 ModelInstance::ModelInstance()
-	: m_IsCalculated(false), 
+	: m_IsCalculated(false),
 	m_ColorTone(DirectX::XMFLOAT3(1.f, 1.f, 1.f))
 {
 	for (int i = 0; i < 6; i++)
@@ -93,7 +93,7 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Jo
 
 	m_LocalTransforms.resize(numBones);
 
-	// Calculate the local transformations for each joint. Has 
+	// Calculate the local transformations for each joint. Has
 	// to be done before IK is calculated and applied.
 	for(unsigned int i = 0; i < numBones; ++i)
 	{
@@ -151,7 +151,7 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Jo
 }
 
 MatrixDecomposed ModelInstance::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack,
-	MatrixDecomposed p_ToParentData)
+														  MatrixDecomposed p_ToParentData)
 {
 	MatrixDecomposed tempData;
 	if(m_Tracks[p_CurrentTrack].clip.m_AnimationSpeed > 0)
@@ -240,7 +240,7 @@ void ModelInstance::updateTimeStamp(float p_DeltaTime)
 			}
 
 			const unsigned int numKeyframes = (unsigned int)m_Tracks[i].clip.m_End;
-	
+
 			if (m_Tracks[i].clip.m_AnimationSpeed > 0.0f)
 			{
 				m_Tracks[i].destinationFrame = m_Tracks[i].currentFrame + 1.0f;
@@ -305,14 +305,14 @@ const vector<DirectX::XMFLOAT4X4>& ModelInstance::getFinalTransform() const
 }
 
 void ModelInstance::applyIK_ReachPoint(const string& p_TargetJointName, const string& p_HingeJointName,
-	const string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const vector<Joint>& p_Joints)
+									   const string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const vector<Joint>& p_Joints)
 {
 	XMFLOAT4 targetData(p_Position.x, p_Position.y, p_Position.z, 1.f);
 	XMVECTOR target = XMLoadFloat4(&targetData);
 
 	// The algorithm uses three joints, one end joint that wants to reach a target (point).
 	// This joint is not tranformed in it self. The middle joint works like a human elbow and
-	// has only 1 DoF. It will make sure that the "arm" is bent if the target point is closer 
+	// has only 1 DoF. It will make sure that the "arm" is bent if the target point is closer
 	// to the base joint than the length of the "arm" when fully extended. The base joint works
 	// like a human shoulder it has 3 DoF and will make sure that the "arm" is always pointed
 	// towards the target point.
@@ -350,18 +350,18 @@ void ModelInstance::applyIK_ReachPoint(const string& p_TargetJointName, const st
 	XMMATRIX endCombinedTransform = XMMatrixMultiply(
 		world,
 		XMMatrixMultiply(
-			XMLoadFloat4x4(&m_FinalTransform[endJoint->m_ID - 1]),
-			XMLoadFloat4x4(&endJoint->m_TotalJointOffset)));
+		XMLoadFloat4x4(&m_FinalTransform[endJoint->m_ID - 1]),
+		XMLoadFloat4x4(&endJoint->m_TotalJointOffset)));
 	XMMATRIX middleCombinedTransform = XMMatrixMultiply(
 		world,
 		XMMatrixMultiply(
-			XMLoadFloat4x4(&m_FinalTransform[middleJoint->m_ID - 1]),
-			XMLoadFloat4x4(&middleJoint->m_TotalJointOffset)));
+		XMLoadFloat4x4(&m_FinalTransform[middleJoint->m_ID - 1]),
+		XMLoadFloat4x4(&middleJoint->m_TotalJointOffset)));
 	XMMATRIX baseCombinedTransform = XMMatrixMultiply(
 		world,
 		XMMatrixMultiply(
-			XMLoadFloat4x4(&m_FinalTransform[baseJoint->m_ID - 1]),
-			XMLoadFloat4x4(&baseJoint->m_TotalJointOffset)));
+		XMLoadFloat4x4(&m_FinalTransform[baseJoint->m_ID - 1]),
+		XMLoadFloat4x4(&baseJoint->m_TotalJointOffset)));
 
 	XMFLOAT4X4 endCombinedTransformedData;
 	XMFLOAT4X4 middleCombinedTransformedData;
@@ -373,11 +373,11 @@ void ModelInstance::applyIK_ReachPoint(const string& p_TargetJointName, const st
 
 	// The joints' positions in world space is the zero vector in joint space transformed to world space.
 	XMFLOAT4 startPosition(baseCombinedTransformedData._14, baseCombinedTransformedData._24,
-		baseCombinedTransformedData._34, 1.f); 
+		baseCombinedTransformedData._34, 1.f);
 	XMFLOAT4 jointPosition(middleCombinedTransformedData._14, middleCombinedTransformedData._24,
-		middleCombinedTransformedData._34, 1.f); 
+		middleCombinedTransformedData._34, 1.f);
 	XMFLOAT4 endPosition(endCombinedTransformedData._14, endCombinedTransformedData._24,
-		endCombinedTransformedData._34, 1.f); 
+		endCombinedTransformedData._34, 1.f);
 
 	XMVECTOR startPositionV = XMLoadFloat4(&startPosition);
 	XMVECTOR jointPositionV = XMLoadFloat4(&jointPosition);
@@ -469,14 +469,14 @@ DirectX::XMFLOAT3 ModelInstance::getJointPos(const string& p_JointName, const ve
 			XMMATRIX jointCombinedTransform = XMMatrixMultiply(
 				XMLoadFloat4x4(&getWorldMatrix()),
 				XMMatrixMultiply(
-					XMLoadFloat4x4(&m_FinalTransform[joint.m_ID - 1]),
-					XMLoadFloat4x4(&joint.m_TotalJointOffset)));
+				XMLoadFloat4x4(&m_FinalTransform[joint.m_ID - 1]),
+				XMLoadFloat4x4(&joint.m_TotalJointOffset)));
 
 			XMFLOAT4X4 jointCombinedTransformData;
 			XMStoreFloat4x4(&jointCombinedTransformData, jointCombinedTransform);
 
 			XMFLOAT3 jointPosition(jointCombinedTransformData._14, jointCombinedTransformData._24,
-				jointCombinedTransformData._34); 
+				jointCombinedTransformData._34);
 
 			return jointPosition;
 		}
@@ -505,11 +505,11 @@ void ModelInstance::updateFinalTransforms(const vector<Joint>& p_Joints)
 	// Flip the X-axis to solve right-to-left-handed conversion
 	static const XMFLOAT4X4 flipMatrixData(
 		-1.f, 0.f, 0.f, 0.f,
-		 0.f, 1.f, 0.f, 0.f,
-		 0.f, 0.f, 1.f, 0.f,
-		 0.f, 0.f, 0.f, 1.f);
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f);
 	static const XMMATRIX flipMatrix = XMLoadFloat4x4(&flipMatrixData);
-	
+
 	m_FinalTransform.resize(numBones);
 
 	// Use offset to account for bind space coordinates of vertex positions
@@ -517,7 +517,7 @@ void ModelInstance::updateFinalTransforms(const vector<Joint>& p_Joints)
 	{
 		XMMATRIX offSet = XMLoadFloat4x4(&p_Joints[i].m_TotalJointOffset);
 		const XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
-		
+
 		offSet = XMMatrixInverse(nullptr, offSet);
 		XMMATRIX result = XMMatrixMultiply(toRoot, offSet);
 
@@ -557,7 +557,7 @@ void ModelInstance::playClip( AnimationClip p_Clip, bool p_Override )
 				m_Tracks[track + 1].dynamicWeight = 1.0f;
 			}
 			else
-			{	
+			{
 				m_Tracks[track].clip			= 	m_Tracks[track + 1].clip;
 				m_Tracks[track].fadedFrames		= 	m_Tracks[track + 1].fadedFrames;
 				m_Tracks[track].active			= 	m_Tracks[track + 1].active;
@@ -609,6 +609,6 @@ bool ModelInstance::playQueuedClip(int p_Track)
 
 void ModelInstance::changeWeight(int p_Track, float p_Weight)
 {
-	if(p_Track > 0 && p_Track < 6)	
+	if(p_Track > 0 && p_Track < 6)
 		m_Tracks[p_Track].dynamicWeight = m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
 }

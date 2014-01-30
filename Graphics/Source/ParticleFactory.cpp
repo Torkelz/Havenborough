@@ -21,7 +21,7 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 
 	ParticleEffectDefinition::ptr particleSystem;
 
-	particleSystem.reset(new ParticleEffectDefinition()); 
+	particleSystem.reset(new ParticleEffectDefinition());
 
 	particleSystem->diffuseTexture = loadTexture(p_Filename, "Particle1.dds");
 	particleSystem->textureResourceName = "Particle1.dds";
@@ -72,7 +72,7 @@ ID3D11ShaderResourceView *ParticleFactory::loadTexture(const char *p_Filename, c
 {
 	boost::filesystem::path particlePath(p_Filename);
 	boost::filesystem::path parentDir(particlePath.parent_path().parent_path() / "textures");
-		
+
 	boost::filesystem::path diff = (p_Identifier == "NONE" || p_Identifier == "Default_COLOR.dds") ?
 		"assets/textures/Default_COLOR.dds" : parentDir / p_Identifier;
 

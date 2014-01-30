@@ -1,10 +1,8 @@
 #include "ModelBinaryLoader.h"
 #include <DirectXMath.h>
 
-
 ModelBinaryLoader::ModelBinaryLoader()
 {
-
 }
 
 ModelBinaryLoader::~ModelBinaryLoader()
@@ -74,8 +72,6 @@ std::vector<StaticVertex> ModelBinaryLoader::readVertexBuffer(int p_NumberOfVert
 	return vertexBuffer;
 }
 
-
-
 std::vector<AnimatedVertex> ModelBinaryLoader::readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input)
 {
 	std::vector<AnimatedVertex> vertexBuffer(p_NumberOfVertex);
@@ -97,7 +93,7 @@ std::vector<Joint> ModelBinaryLoader::readJointList(int p_NumberOfJoint, int p_N
 		p_Input->read(reinterpret_cast<char*>(temp.m_JointAnimation.data()), sizeof(KeyFrame) * p_NumberOfFrames);
 
 		using namespace DirectX;
-		
+
 		XMMATRIX offset = XMLoadFloat4x4(&temp.m_TotalJointOffset);
 		offset = XMMatrixTranspose(offset);
 		XMStoreFloat4x4(&temp.m_TotalJointOffset, offset);
@@ -155,7 +151,7 @@ bool ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 		m_VertexBuffer = readVertexBuffer(m_FileHeader.m_numVertex, &input);
 	}
 	m_MaterialBuffer = readMaterialBuffer(m_FileHeader.m_numMaterialBuffer, &input);
-	
+
 	return true;
 }
 

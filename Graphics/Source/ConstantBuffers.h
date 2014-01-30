@@ -1,8 +1,8 @@
 #pragma once
 #include <DirectXMath.h>
 /*
- * cBuffer contains the matrices needed to render the models and lights.
- */
+* cBuffer contains the matrices needed to render the models and lights.
+*/
 struct cBuffer
 {
 	DirectX::XMFLOAT4X4 view;

@@ -92,7 +92,6 @@ unsigned int VRAMInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width, i
 			throw MemoryUsageException("Error when determining memory size of texture. Illegal file format or color type.", __LINE__, __FILE__);
 			break;
 		}
-		
 	}
 
 	return result;

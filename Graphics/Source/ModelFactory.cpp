@@ -42,7 +42,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	Buffer::Description bufferDescription;
 	const vector<Material> &materialData = modelLoader.getMaterial();
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
-	
+
 	bool isAnimated = !modelLoader.getAnimatedVertexBuffer().empty();
 
 	if(!isAnimated)
@@ -89,7 +89,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	model.isAnimated = isAnimated;
 
 	modelLoader.clear();
-	
+
 	return model;
 }
 
@@ -115,12 +115,12 @@ Buffer::Description ModelFactory::createBufferDescription(const vector<StaticVer
 	bufferDescription.sizeOfElement = sizeof(StaticVertex);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = p_Usage;
-	
+
 	return bufferDescription;
 }
 
 Buffer::Description ModelFactory::createBufferDescription(const vector<AnimatedVertex> &p_VertexData,
-	Buffer::Usage p_Usage)
+														  Buffer::Usage p_Usage)
 {
 	Buffer::Description bufferDescription;
 	bufferDescription.initData = p_VertexData.data();
@@ -133,7 +133,7 @@ Buffer::Description ModelFactory::createBufferDescription(const vector<AnimatedV
 }
 
 void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename, unsigned int p_NumOfMaterials,
-	const vector<Material> &p_Materials)
+								const vector<Material> &p_Materials)
 {
 	using std::pair;
 

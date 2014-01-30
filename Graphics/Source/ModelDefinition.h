@@ -9,89 +9,89 @@
 #include <map>
 
 /**
- * Representation of the static data associated with a model.
- */
+* Representation of the static data associated with a model.
+*/
 struct ModelDefinition
 {
 public:
 	/**
-	 * The GPU buffer containing the vertex data.
-	 */
+	* The GPU buffer containing the vertex data.
+	*/
 	std::unique_ptr<Buffer> vertexBuffer;
 	/**
-	 * The vertex range for each material.
-	 */
+	* The vertex range for each material.
+	*/
 	std::vector<std::pair<int, int>> drawInterval;
 	/**
-	 * The shader bound to the model, or nullptr if no shader has been bound.
-	 */
+	* The shader bound to the model, or nullptr if no shader has been bound.
+	*/
 	Shader *shader;
 	/**
-	 * Material diffuse textures.
-	 */
+	* Material diffuse textures.
+	*/
 	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> diffuseTexture;
 	/**
-	 * Material normal textures.
-	 */
+	* Material normal textures.
+	*/
 	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> normalTexture;
 	/**
-	 * Material specular textures.
-	 */
+	* Material specular textures.
+	*/
 	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> specularTexture;
 	/**
-	 * The number of materials in this model.
-	 */
+	* The number of materials in this model.
+	*/
 	unsigned int numOfMaterials;
 	/**
-	 * If the model is animated or static.
-	 */
+	* If the model is animated or static.
+	*/
 	bool isAnimated;
 	/**
-	 * If the model is transparent or not.
-	 */
+	* If the model is transparent or not.
+	*/
 	bool isTransparent;
 
 	/**
-	 * The animation joints of the model. Contains all static animation data.
-	 */
+	* The animation joints of the model. Contains all static animation data.
+	*/
 	std::vector<Joint> joints;
 
 	/**
-	 * The animation clips. Address them via a name. E.g. "Walk", "Run", "Laugh"...
-	 */
+	* The animation clips. Address them via a name. E.g. "Walk", "Run", "Laugh"...
+	*/
 	std::map<std::string, AnimationClip> animationClips;
 
 public:
 	/**
-	 * Default contructor. Constructs an object without any data.
-	 */
+	* Default contructor. Constructs an object without any data.
+	*/
 	ModelDefinition()
 		:	shader(nullptr),
-			numOfMaterials(0),
-			isAnimated(false),
-			isTransparent(false) {}
+		numOfMaterials(0),
+		isAnimated(false),
+		isTransparent(false) {}
 
 	~ModelDefinition(){}
 	/**
-	 * Move constructor.
-	 */
+	* Move constructor.
+	*/
 	ModelDefinition(ModelDefinition&& p_Other)
 		:	vertexBuffer(std::move(p_Other.vertexBuffer)),
-			drawInterval(p_Other.drawInterval),
-			shader(p_Other.shader),
-			diffuseTexture(p_Other.diffuseTexture),
-			normalTexture(p_Other.normalTexture),
-			specularTexture(p_Other.specularTexture),
-			numOfMaterials(p_Other.numOfMaterials),
-			isAnimated(p_Other.isAnimated),
-			isTransparent(p_Other.isTransparent),
-			joints(std::move(p_Other.joints)),
-			animationClips(std::move(p_Other.animationClips))
+		drawInterval(p_Other.drawInterval),
+		shader(p_Other.shader),
+		diffuseTexture(p_Other.diffuseTexture),
+		normalTexture(p_Other.normalTexture),
+		specularTexture(p_Other.specularTexture),
+		numOfMaterials(p_Other.numOfMaterials),
+		isAnimated(p_Other.isAnimated),
+		isTransparent(p_Other.isTransparent),
+		joints(std::move(p_Other.joints)),
+		animationClips(std::move(p_Other.animationClips))
 	{}
 
 	/**
-	 * Move assignment operator. Swaps the data of the two objects.
-	 */
+	* Move assignment operator. Swaps the data of the two objects.
+	*/
 	ModelDefinition& operator=(ModelDefinition&& p_Other)
 	{
 		std::swap(vertexBuffer, p_Other.vertexBuffer);

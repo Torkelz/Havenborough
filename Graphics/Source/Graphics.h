@@ -19,7 +19,6 @@
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
 
-
 class Graphics : public IGraphics
 {
 private:
@@ -37,7 +36,6 @@ private:
 	ID3D11DepthStencilState	*m_DepthStencilState;
 	ID3D11DepthStencilView *m_DepthStencilView;
 
-
 	unsigned int m_Numerator;
 	unsigned int m_Denominator;
 	char m_GraphicsCard[128];
@@ -51,7 +49,7 @@ private:
 	DirectX::XMFLOAT3 m_Eye;
 
 	static const unsigned int m_MaxLightsPerLightInstance;
-	TextureLoader m_TextureLoader;	
+	TextureLoader m_TextureLoader;
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
 
@@ -60,7 +58,7 @@ private:
 	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> m_TextureList;
 	std::vector<std::pair<InstanceId, ModelInstance>> m_ModelInstances;
 	InstanceId m_NextInstanceId;
-	
+
 	//Particles
 	std::vector<std::pair<std::string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
 	std::vector<std::pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
@@ -69,7 +67,7 @@ private:
 
 	DeferredRenderer *m_DeferredRender;
 	ForwardRendering *m_ForwardRenderer;
-		
+
 	//Lights
 	std::vector<Light> m_SpotLights;
 	std::vector<Light> m_PointLights;
@@ -85,7 +83,7 @@ private:
 
 	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
-	
+
 	IGraphics::releaseModelTextureCallBack m_ReleaseModelTexture;
 	void *m_ReleaseModelTextureUserdata;
 
@@ -95,7 +93,7 @@ public:
 
 	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) override;
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
-	
+
 	bool createModel(const char *p_ModelId, const char *p_Filename) override;
 	bool releaseModel(const char *p_ModelID) override;
 
@@ -105,11 +103,11 @@ public:
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
 		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements) override;
 	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) override;
-	
+
 	void deleteShader(const char *p_ShaderId) override;
 
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
-	bool releaseTexture(const char *p_TextureID) override;	
+	bool releaseTexture(const char *p_TextureID) override;
 
 	//Particles
 	bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_filename) override;
@@ -120,15 +118,14 @@ public:
 
 	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
 
-
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
-	
+
 	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
 	void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
 		Vector2 p_SpotLightAngles,	float p_LightRange) override;
 	void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) override;
-	
+
 	void setClearColor(Vector4 p_Color) override;
 
 	void renderModel(InstanceId p_ModelId) override;
@@ -145,7 +142,7 @@ public:
 	void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) override;
 
 	int getVRAMUsage(void) override;
-	
+
 	InstanceId createModelInstance(const char *p_ModelId) override;
 	void createSkydome(const char *p_TextureResource, float p_Radius) override;
 	void eraseModelInstance(InstanceId p_Instance) override;
@@ -176,8 +173,10 @@ private:
 	HRESULT createDepthStencilState(void);
 	HRESULT createDepthStencilView(void);
 	HRESULT createRasterizerState(void);
+
+	void initializeFactories(void);
 	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight);
-	
+
 	Shader *getShaderFromList(std::string p_Identifier);
 	ModelDefinition *getModelFromList(std::string p_Identifier);
 

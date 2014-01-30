@@ -22,7 +22,7 @@ private:
 		B8G8R8X8_UNORM = 4,
 		BC3_UNORM = 1,
 	};
-	
+
 	static std::unique_ptr<VRAMInfo> m_Instance;
 	unsigned int m_Usage;
 
@@ -55,7 +55,7 @@ public:
 	unsigned int calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width, int p_Height);
 
 	/*
-	* Updates the video RAM usage counter. Use positive value when storing something in memory, use negative 
+	* Updates the video RAM usage counter. Use positive value when storing something in memory, use negative
 	* when releasing something from memory.
 	* @param p_Size the amount of usage in bytes
 	*/

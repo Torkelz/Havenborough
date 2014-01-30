@@ -19,7 +19,7 @@ VSOutput VS( float4 vertexPosition : POSITION )
 {
 	VSOutput output;
 	output.position = mul( projection, mul(view, vertexPosition) );
-	return output; 
+	return output;
 }
 
 float4 PS( VSOutput input ) :  SV_Target0

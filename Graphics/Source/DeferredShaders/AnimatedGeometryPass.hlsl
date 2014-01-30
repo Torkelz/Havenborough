@@ -64,46 +64,46 @@ PSIn VS(VSIn input)
 	weights[3] = 1.f - input.weights.x - input.weights.y - input.weights.z;
 
 	float4 posL			= float4(0.0f, 0.0f, 0.0f, 0.0f);
-	float3 normalL		= float3(0.0f, 0.0f, 0.0f);
-	float3 tangentL		= float3(0.0f, 0.0f, 0.0f);
-	float3 binormalL	= float3(0.0f, 0.0f, 0.0f);
-	for(int i = 0; i < 4; ++i)
-	{
-	    // Assume no nonuniform scaling when transforming normals, so 
-		// that we do not have to use the inverse-transpose.
-	    posL		+= weights[i] * mul(boneTransform[input.boneId[i] - 1], input.pos);
-		normalL		+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.normal);
-		tangentL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.tangent);
-		binormalL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.binormal);
-	}
-	posL /= posL.w;
+		float3 normalL		= float3(0.0f, 0.0f, 0.0f);
+		float3 tangentL		= float3(0.0f, 0.0f, 0.0f);
+		float3 binormalL	= float3(0.0f, 0.0f, 0.0f);
+		for(int i = 0; i < 4; ++i)
+		{
+			// Assume no nonuniform scaling when transforming normals, so
+			// that we do not have to use the inverse-transpose.
+			posL		+= weights[i] * mul(boneTransform[input.boneId[i] - 1], input.pos);
+			normalL		+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.normal);
+			tangentL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.tangent);
+			binormalL	+= weights[i] * mul((float3x3)boneTransform[input.boneId[i] - 1], input.binormal);
+		}
+		posL /= posL.w;
 
-	output.pos = mul( projection, mul(view, mul(world, posL) ) );
-	output.wpos = mul(world, posL);
+		output.pos = mul( projection, mul(view, mul(world, posL) ) );
+		output.wpos = mul(world, posL);
 
-	output.normal = normalize(mul(worldInvTranspose, float4(normalL, 0.f))).xyz;
-	output.uvCoord = input.uvCoord;
-	output.tangent = normalize(mul(world, float4(tangentL, 0.f))).xyz;
-	output.binormal = normalize(mul(world, float4(binormalL, 0.f))).xyz;
-		
-	return output;
+		output.normal = normalize(mul(worldInvTranspose, float4(normalL, 0.f))).xyz;
+		output.uvCoord = input.uvCoord;
+		output.tangent = normalize(mul(world, float4(tangentL, 0.f))).xyz;
+		output.binormal = normalize(mul(world, float4(binormalL, 0.f))).xyz;
+
+		return output;
 }
 
 PSOut PS( PSIn input )
 {
 	PSOut output;
 	float3 norm				= 0.5f * (input.normal + 1.0f);
-	float4 bumpMap			= (normalMap.Sample(m_textureSampler, input.uvCoord) - 0.5f) * 0.2f + 0.5f;
-	bumpMap					= (bumpMap * 2.0f) - 1.0f;
+		float4 bumpMap			= (normalMap.Sample(m_textureSampler, input.uvCoord) - 0.5f) * 0.2f + 0.5f;
+		bumpMap					= (bumpMap * 2.0f) - 1.0f;
 	float3 normal			= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
-	normal					= 0.5f * (normalize(normal) + 1.0f);
-	
+		normal					= 0.5f * (normalize(normal) + 1.0f);
+
 	float4 diffuseColor = diffuse.Sample(m_textureSampler, input.uvCoord);
 
-	if(diffuseColor.w >= .5f)
-		diffuseColor.w = 1.0f;
-	else
-		diffuseColor.w = 0.0f;
+		if(diffuseColor.w >= .5f)
+			diffuseColor.w = 1.0f;
+		else
+			diffuseColor.w = 0.0f;
 
 	if(diffuseColor.w == 1.0f)
 	{
@@ -117,7 +117,6 @@ PSOut PS( PSIn input )
 	{
 		discard;
 	}
-	
 
 	return output;
 }

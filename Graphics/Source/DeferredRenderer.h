@@ -10,14 +10,13 @@ class DeferredRenderer
 {
 public:
 	/*
-	 * Renderable is a debug struct made with the only purpose to be a placeholder for models
-	 * until the model loader is done.
-	 * ### The inverse transpose world matrix is needed to render animations and is not stored 
-	 * ### anywhere else than here. Remember to move it if this struct is deleted.
+	* Renderable is a debug struct made with the only purpose to be a placeholder for models
+	* until the model loader is done.
+	* ### The inverse transpose world matrix is needed to render animations and is not stored
+	* ### anywhere else than here. Remember to move it if this struct is deleted.
 
-	 * LOL really? I hear I can break things if I delete it, and the model loader is like done.
-	 */
-	
+	* LOL really? I hear I can break things if I delete it, and the model loader is like done.
+	*/
 
 private:
 	std::vector<Renderable>		m_Objects;
@@ -75,7 +74,7 @@ private:
 
 public:
 	/**
-	* Constructor. 
+	* Constructor.
 	*/
 	DeferredRenderer(void);
 
@@ -85,17 +84,17 @@ public:
 	~DeferredRenderer(void);
 
 	/*
-	 * Initialize all the needed variables for rendering.
-	 * 
-	 * @ p_Device, DirectX Device used for rendering
-	 * @ p_DeviceContect, DX device context. Used for rendering.
-	 * @ p_DepthStencilView, used for z-culling when rendering.
-	 * @ p_ScreenWidth, used to initialize render textures.
-	 * @ p_ScreenHeight, used to initialize render textures.
-	 * @ p_CameraPosition, the camera position. Used when rendering.
-	 * @ p_ViewMatrix, the view matrix. Used when rendering.
-	 * @ p_ProjectionMatrix, the projection matrix. Used when rendering.
-	 */
+	* Initialize all the needed variables for rendering.
+	*
+	* @ p_Device, DirectX Device used for rendering
+	* @ p_DeviceContect, DX device context. Used for rendering.
+	* @ p_DepthStencilView, used for z-culling when rendering.
+	* @ p_ScreenWidth, used to initialize render textures.
+	* @ p_ScreenHeight, used to initialize render textures.
+	* @ p_CameraPosition, the camera position. Used when rendering.
+	* @ p_ViewMatrix, the view matrix. Used when rendering.
+	* @ p_ProjectionMatrix, the projection matrix. Used when rendering.
+	*/
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 		ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
@@ -104,35 +103,35 @@ public:
 		unsigned int p_MaxLightsPerLightInstance);
 
 	/*
-	 * Call to render the graphics using deferred rendering.
-	 *
-	 * All the objects that are supposed to be rendered must have been sent to the renderer
-	 * before calling this function.
-	 */
+	* Call to render the graphics using deferred rendering.
+	*
+	* All the objects that are supposed to be rendered must have been sent to the renderer
+	* before calling this function.
+	*/
 	void renderDeferred();
 
 	/*
-	 * Add models to the list of objects to be rendered with deferred rendering.
-	 *
-	 * @ p_Renderable, the model that needs to be rendered.
-	 */
+	* Add models to the list of objects to be rendered with deferred rendering.
+	*
+	* @ p_Renderable, the model that needs to be rendered.
+	*/
 	void addRenderable(Renderable p_Renderable);
 	/*
-	 * Add models to the list of objects to be rendered with deferred rendering.
-	 * @ p_Texture, the texture for the skydome
-	 * @ p_Radius, the radius of the skydome.
-	 */
+	* Add models to the list of objects to be rendered with deferred rendering.
+	* @ p_Texture, the texture for the skydome
+	* @ p_Radius, the radius of the skydome.
+	*/
 	void createSkyDome(ID3D11ShaderResourceView* p_Texture, float p_Radius);
 	/*
-	 * Tells the deferred renderer to render the skyDome created.
-	 */
+	* Tells the deferred renderer to render the skyDome created.
+	*/
 	void renderSkyDome();
 
 	/*
-	 * Use to get specific render targets to put on the back buffer.
-	 * @ i, a number that is associated with a render target view.
-	 * @return, render target if i is a legal number, else nullptr.
-	 */
+	* Use to get specific render targets to put on the back buffer.
+	* @ i, a number that is associated with a render target view.
+	* @return, render target if i is a legal number, else nullptr.
+	*/
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
 
 private:
@@ -160,4 +159,3 @@ private:
 
 	void renderObject(Renderable &p_Object);
 };
-
