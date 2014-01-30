@@ -27,6 +27,7 @@ public:
 
 private:
 	vector<pair<string, ID3D11ShaderResourceView*>> *m_TextureList;
+	ID3D11SamplerState* m_Sampler;
 
 	loadParticleTextureCallBack m_LoadParticleTexture;
 	void *m_LoadParticleTextureUserdata;
@@ -36,12 +37,13 @@ private:
 	DirectX::XMFLOAT3 m_CameraPosition;
 
 public:
+	~ParticleFactory();
 
 	/**
 	* Initialize the factory.
 	* p_TextureList pointer to the texture list pair 
 	*/
-	void initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList);
+	void initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList, ID3D11Device* p_Device);
 
 	/**
 	* Creates a static particle system with buffers and connects the textures to it.
@@ -68,4 +70,5 @@ private:
 
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
 
+	void createSampler(ID3D11Device* p_Device);
 };

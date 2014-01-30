@@ -3,9 +3,9 @@
 SamplerState m_textureSampler	: register(s0);
 Texture2D m_texture				: register(t0);
 
-struct temp
+struct GSIn
 {
-	float4 position;
+	float4 position : SV_POSITION;
 };
 
 cbuffer cb : register(b1)
@@ -21,19 +21,18 @@ struct PSIn
 {
 	float4 position : SV_POSITION;
 	float2 uvCoord	: COORD;
-	float4 color	: COLOR;
-	float2 size		: SIZE;
 };
 
 
-float4 VS(float3 position : POSITION) : SV_POSITION
+GSIn VS(float3 position : POSITION)
 {
-	return float4(position, 1.0f);
+	GSIn res = { float4(position, 1.f) };
+	return res;
 }
 
 // The draw GS just expands points into camera facing quads.
 [maxvertexcount(4)]
-void GS(point temp gIn[1] : SV_POSITION, inout TriangleStream<PSIn> triStream)
+void GS(point GSIn gIn[1], inout TriangleStream<PSIn> triStream)
 {
 	//compute world matrix so that billboard faces the camera
 	float3 t_position;
@@ -43,16 +42,11 @@ void GS(point temp gIn[1] : SV_POSITION, inout TriangleStream<PSIn> triStream)
 
 	float3 look = normalize(eyePosW.xyz - t_position);
 	float3 right = normalize(cross(float3(0,1,0), look));
-	float3 up = float3(0.f, 1.f, 0.f); //to make the particles turn around the y-azis
-	/*float4x4 world;
-	world[0] = float4(right, 0.f);
-	world[1] = float4(up, 0.f);
-	world[2] = float4(look, 0.f);
-	world[3] = float4(gIn[0].position.xyz, 1.f);*/
+	float3 up = cross(look, right);
 
-	float4x4 world = {  float4(right.x,up.x,look.x,gIn[0].position.x),
-						float4(right.y,up.y,look.y,gIn[0].position.y),
-						float4(right.z,up.z,look.z,gIn[0].position.z),
+	float4x4 world = {  float4(-right.x,up.x,look.x,gIn[0].position.x),
+						float4(-right.y,up.y,look.y,gIn[0].position.y),
+						float4(-right.z,up.z,look.z,gIn[0].position.z),
 						float4(0,0,0,1)};
 
 	float4x4 WVP = mul(projection, mul(view, world));
@@ -72,15 +66,15 @@ void GS(point temp gIn[1] : SV_POSITION, inout TriangleStream<PSIn> triStream)
 	//[unroll]
 	float2 quadUVC[] = 
 	{
-		float2(1.f, 0.f),
+		float2(0.f, 1.f),
 		float2(1.f, 1.f),
 		float2(0.f, 0.f),
-		float2(0.f, 1.f)
+		float2(1.f, 0.f),
 	};
 
 	for(int i = 0; i < 4; i++)
 	{
-		gOut.position = mul(v[i], WVP);
+		gOut.position = mul(WVP, v[i]);
 		gOut.uvCoord = quadUVC[i];
 		triStream.Append(gOut);
 	}

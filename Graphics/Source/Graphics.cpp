@@ -27,6 +27,7 @@ Graphics::Graphics(void)
 	m_VSyncEnabled = false; //DEBUG
 
 	m_NextInstanceId = 1;
+	m_NextParticleInstanceId = 1;
 	m_SelectedRenderTarget = 3;
 
 	m_Shader = nullptr;
@@ -217,7 +218,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	//Particles
 	m_ParticleFactory.reset(new ParticleFactory);
-	m_ParticleFactory->initialize(&m_TextureList);
+	m_ParticleFactory->initialize(&m_TextureList, m_Device);
 
 	return true;
 }
@@ -485,7 +486,7 @@ bool Graphics::releaseParticleEffectDefinition(const char *p_ParticleEffectId)
 IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_ParticleEffectId)
 {
 	ParticleEffectDefinition::ptr effectDef = getParticleFromList(p_ParticleEffectId);
-	if (effectDef)
+	if (!effectDef)
 	{
 		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L,
 			"Attempting to create particle effect instance without loading the effect definition: "
@@ -493,7 +494,7 @@ IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_Parti
 		return -1;
 	}
 
-	ParticleInstance::ptr instance;
+	ParticleInstance::ptr instance = m_ParticleFactory->createParticleInstance(effectDef);
 	int id = m_NextParticleInstanceId++;
 
 	m_ParticleEffectInstanceList.push_back(std::make_pair(id, instance));
@@ -511,6 +512,14 @@ void Graphics::releaseParticleEffectInstance(InstanceId p_ParticleEffectId)
 	if (it != m_ParticleEffectInstanceList.end())
 	{
 		m_ParticleEffectInstanceList.erase(it);
+	}
+}
+
+void Graphics::updateParticles(float p_DeltaTime)
+{
+	for (auto& particle : m_ParticleEffectInstanceList)
+	{
+		particle.second->update(p_DeltaTime);
 	}
 }
 

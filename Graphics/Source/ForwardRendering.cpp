@@ -218,7 +218,6 @@ void ForwardRendering::renderForward()
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		m_ConstantBuffer->setBuffer(1);
-		m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 		updateConstantBuffer();
 		for(auto& object : m_TransparencyObjects)
 		{
@@ -232,7 +231,6 @@ void ForwardRendering::renderForward()
 				renderObject(object);
 			}
 		}
-		m_DeviceContext->PSSetSamplers(0,0,0);
 		m_ConstantBuffer->unsetBuffer(1);
 
 		// Unset render targets.
@@ -266,6 +264,7 @@ bool ForwardRendering::depthSortCompareFunc(const DeferredRenderer::Renderable &
 
 void ForwardRendering::renderObject(DeferredRenderer::Renderable& p_Object)
 {
+	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	p_Object.model->vertexBuffer->setBuffer(0);
 
 	if (p_Object.model->isAnimated)
@@ -321,4 +320,5 @@ void ForwardRendering::renderObject(DeferredRenderer::Renderable& p_Object)
 	m_AnimatedObjectConstantBuffer->unsetBuffer(3);
 	p_Object.model->vertexBuffer->unsetBuffer(0);
 	m_ColorShadingConstantBuffer->unsetBuffer(3);
+	m_DeviceContext->PSSetSamplers(0,0,0);
 }

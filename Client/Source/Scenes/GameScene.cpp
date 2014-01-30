@@ -94,6 +94,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->setPlayerDirection(Vector2(forward, right));
 
 	m_Graphics->updateAnimations(p_DeltaTime);
+	m_Graphics->updateParticles(p_DeltaTime);
 
 	for (auto& model : m_Models)
 	{

@@ -193,6 +193,8 @@ public:
 
 	virtual void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) = 0;
 
+	virtual void updateParticles(float p_DeltaTime) = 0;
+
 	/**
 	 * 
 	 */

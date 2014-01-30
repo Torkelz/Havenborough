@@ -3,9 +3,8 @@
 
 ParticleInstance::ParticleInstance()
 {
-	m_SysPosition			= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_SysPosition			= DirectX::XMFLOAT4(0.f, 100.f, 0.f, 0.f);
 
-	m_CurrentParticleCount	= 0;
 	m_AccumulatedTime		= 0.f;
 }
 
@@ -18,7 +17,7 @@ void ParticleInstance::init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_p
 	m_ConstBuffer = p_ConstBuffer;
 	m_ParticleBuffer = p_ParticleBuffer;
 	m_ParticleEffectDef = p_ParticleEffectDefinition;
-	m_ParticleList.resize(m_ParticleEffectDef->maxParticles);
+	m_ParticleList.reserve(m_ParticleEffectDef->maxParticles);
 }
 
 
@@ -48,11 +47,10 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 	//Update the position of every particle in the system by its velocity and based on the delta time
 	for(auto& part : m_ParticleList)
 	{
-		part.position = DirectX::XMFLOAT4(
+		part.position = DirectX::XMFLOAT3(
 			(part.position.x + part.velocity.x * p_DeltaTime),
 			(part.position.y + part.velocity.y * p_DeltaTime),
-			(part.position.z + part.velocity.z * p_DeltaTime),
-			part.position.w);
+			(part.position.z + part.velocity.z * p_DeltaTime));
 		part.life += p_DeltaTime;
 	}
 }
@@ -60,22 +58,22 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 void ParticleInstance::emitNewParticles(float p_DeltaTime)
 {
 	DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3(m_SysPosition.x, m_SysPosition.y, m_SysPosition.z);
-	DirectX::XMFLOAT3 tempVelocity = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
+	DirectX::XMFLOAT3 tempVelocity = DirectX::XMFLOAT3(0.f, 10.f, 0.f);
 	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f);
 
 	bool emitParticle = false;
 	m_AccumulatedTime += p_DeltaTime;
 
+	const float timePerParticle = 1.f / m_ParticleEffectDef->particlesPerSec;
 	//check if new particles are to be emitted or not
-	if(m_AccumulatedTime > (1000.f/m_ParticleEffectDef->particlesPerSec))
+	while (m_AccumulatedTime > timePerParticle)
 	{
-		m_AccumulatedTime = 0.f;
-		emitParticle = true;
-	}
+		m_AccumulatedTime -= timePerParticle;
 
-	if((emitParticle) && (m_CurrentParticleCount < (m_ParticleEffectDef->maxParticles -1)))
-	{
-		m_CurrentParticleCount++;
+		if (m_ParticleList.size() >= m_ParticleEffectDef->maxParticles)
+		{
+			break;
+		}
 
 		//Put all the new data for the new particle into one container
 		Particle tempParticle(tempPos, tempVelocity, tempColor, m_ParticleEffectDef->size, 0.f);
@@ -91,23 +89,47 @@ void ParticleInstance::updateBuffers(ID3D11DeviceContext *p_DeviceContext, Direc
 	particlecBuffer pcb;
 	pcb.viewM = *p_ViewMatrix;
 	pcb.projM = *p_ProjectionMatrix;
-	pcb.cameraPos = *p_CameraPosition;
+	pcb.cameraPos = DirectX::XMFLOAT4(p_CameraPosition->x, p_CameraPosition->y, p_CameraPosition->z, 1.f);
+	pcb.size = m_ParticleEffectDef->size;
 	p_DeviceContext->UpdateSubresource(m_ConstBuffer->getBufferPointer(),NULL,NULL, &pcb, NULL,NULL);
+
+	D3D11_MAPPED_SUBRESOURCE resource = {};
+	p_DeviceContext->Map(m_ParticleBuffer->getBufferPointer(), 0, D3D11_MAP_WRITE_DISCARD, NULL, &resource);
+	DirectX::XMFLOAT3* mappedPos = (DirectX::XMFLOAT3*)resource.pData;
+	for (const auto& part : m_ParticleList)
+	{
+		*mappedPos = part.position;
+		mappedPos++;
+	}
+	p_DeviceContext->Unmap(m_ParticleBuffer->getBufferPointer(), 0);
 }
 
 void ParticleInstance::render(ID3D11DeviceContext* p_Context, ID3D11BlendState* p_BlendState)
 {
+	p_Context->PSSetSamplers(0,1,&m_ParticleEffectDef->sampler);
+	m_ParticleBuffer->setBuffer(0);
 	m_ConstBuffer->setBuffer(1);
 
 	m_ParticleEffectDef->shader->setShader();
 	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
 	m_ParticleEffectDef->shader->setBlendState(p_BlendState, data);
 
+	ID3D11ShaderResourceView *srvs[] =  {
+		m_ParticleEffectDef->diffuseTexture
+	};
+	p_Context->PSSetShaderResources(0, 1, srvs);
+
+	p_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	p_Context->Draw(m_ParticleList.size(), 0);
+
+	static ID3D11ShaderResourceView * const nullsrvs[] = {NULL};
+	p_Context->PSSetShaderResources(0, 1, nullsrvs);
 
 	m_ParticleEffectDef->shader->setBlendState(0, data);
 	m_ParticleEffectDef->shader->unSetShader();
+	m_ParticleBuffer->unsetBuffer(0);
 	m_ConstBuffer->unsetBuffer(1);
+	p_Context->PSSetSamplers(0,0,0);
 }
 
 void ParticleInstance::setPosition(DirectX::XMFLOAT4 p_NewPosition)

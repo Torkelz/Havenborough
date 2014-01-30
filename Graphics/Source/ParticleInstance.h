@@ -20,7 +20,6 @@ private:
 	std::vector<Particle>	m_ParticleList;
 	DirectX::XMFLOAT4	m_SysPosition; //world pos, in cm
 	
-	unsigned int		m_CurrentParticleCount;
 	float				m_AccumulatedTime;
 	
 public:

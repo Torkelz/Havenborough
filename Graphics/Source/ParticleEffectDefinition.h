@@ -9,14 +9,14 @@
 
 struct Particle
 {
-	DirectX::XMFLOAT4 position; //position in the world, in cm
+	DirectX::XMFLOAT3 position; //position in the world, in cm
 	DirectX::XMFLOAT4 velocity;
 	DirectX::XMFLOAT4 color;
 	DirectX::XMFLOAT2 size;
 	float life; //Life for a particle to live before taken away, in sec
 
 	Particle()
-		:	position(0.f, 0.f, 0.f, 1.f),
+		:	position(0.f, 0.f, 0.f),
 			velocity(0.f, 0.f, 0.f, 0.f),
 			color(1.f, 0.f, 1.f, 1.f),
 			size(1.f, 1.f),
@@ -27,7 +27,7 @@ struct Particle
 	Particle(DirectX::XMFLOAT3 p_Position, DirectX::XMFLOAT3 p_Velocity, DirectX::XMFLOAT4 p_Color,
 		DirectX::XMFLOAT2 p_Size, float p_Life)
 	{
-		position = DirectX::XMFLOAT4(p_Position.x, p_Position.y, p_Position.z, 1.0f);
+		position = p_Position;
 		velocity = DirectX::XMFLOAT4(p_Velocity.x, p_Velocity.y, p_Velocity.z, 1.0f);
 		color = p_Color;
 		size = p_Size;
@@ -51,6 +51,7 @@ struct ParticleEffectDefinition
 	 * Material diffuse textures.
 	 */
 	ID3D11ShaderResourceView* diffuseTexture;
+	ID3D11SamplerState* sampler;
 	std::string textureResourceName;
 
 	unsigned int maxParticles;
@@ -83,4 +84,3 @@ public:
 
 	~ParticleEffectDefinition(){}
 };
-
