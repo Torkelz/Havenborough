@@ -1,4 +1,6 @@
 #include "AnimationClipLoader.h"
+#include <fstream>
+#include <sstream>
 
 MattiasLucaseXtremeLoader::MattiasLucaseXtremeLoader(){}
 MattiasLucaseXtremeLoader::~MattiasLucaseXtremeLoader(){}
