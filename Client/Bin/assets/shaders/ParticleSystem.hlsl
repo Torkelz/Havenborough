@@ -1,115 +1,93 @@
 #pragma pack_matrix(row_major)
 
 SamplerState m_textureSampler	: register(s0);
-Texture2D diffuse				: register(t0);
+Texture2D m_texture				: register(t0);
+
+struct temp
+{
+	float4 position;
+};
 
 cbuffer cb : register(b1)
 {
-	float4x4 view;
-	float4x4 projection;
-	float3 cameraPos;
+	float4x4	view;
+	float4x4	projection;
+	float4		eyePosW;
+	float2		size;
 }
 
-cbuffer cbWorld : register(b2)
-{
-	float4x4 world;
 
-}
-
-struct VSInOut
+struct PSIn
 {
-	float4 centerPos: POSITION;
+	float4 position : SV_POSITION;
 	float2 uvCoord	: COORD;
 	float4 color	: COLOR;
 	float2 size		: SIZE;
 };
 
-struct GSOut
-{
-	float4 centerPos: SV_POSITION;
-	float2 uvCoord	: COORD;
-	float4 color	: COLOR;
-};
 
-VSInOut VS(VSInOut input)
+float4 VS(float3 position : POSITION) : SV_POSITION
 {
-	VSInOut output;
-	
-	output.centerPos = mul(projection, mul(view, mul(world, input.centerPos)));
-	output.uvCoord = input.uvCoord;
-	output.color = input.color;
-	output.size = input.size;
-	//output.eyePos = mul(view, input.eyePos);
-	//output.wPos = mul(world, input.centerPos);
-
-	return output;
+	return float4(position, 1.0f);
 }
 
+// The draw GS just expands points into camera facing quads.
 [maxvertexcount(4)]
-void GS(point VSInOut input[1], inout TriangleStream<GSOut> triangleStream)
+void GS(point temp gIn[1] : SV_POSITION, inout TriangleStream<PSIn> triStream)
 {
-	// We need to create a matrix for the local coordinate system for the billboard of the given particle.
-    // One axis points from the particle to the camera, one axis is the camera's side axis (for example to
-    // the left) and the third one is perpendicular to both.
-    GSOut outVertex = (GSOut)0;
+	//compute world matrix so that billboard faces the camera
+	float3 t_position;
+	t_position.x = gIn[0].position.x;
+	t_position.y = gIn[0].position.y;
+	t_position.z = gIn[0].position.z;
 
-	float3 zAxis = normalize(cameraPos - input[0].centerPos.xyz);
-	float3 xAxis = normalize(cross(float3(0,1,0), zAxis));
-	float3 yAxis = cross(zAxis, xAxis);
+	float3 look = normalize(eyePosW.xyz - t_position);
+	float3 right = normalize(cross(float3(0,1,0), look));
+	float3 up = float3(0.f, 1.f, 0.f); //to make the particles turn around the y-azis
+	/*float4x4 world;
+	world[0] = float4(right, 0.f);
+	world[1] = float4(up, 0.f);
+	world[2] = float4(look, 0.f);
+	world[3] = float4(gIn[0].position.xyz, 1.f);*/
 
-	// The matrix to describe the local coordinate system is easily constructed:
-	float4x4 localToWorld;
-	localToWorld._11 = xAxis.x;
-    localToWorld._21 = xAxis.y;
-    localToWorld._31 = xAxis.z;
-    localToWorld._12 = yAxis.x;
-    localToWorld._22 = yAxis.y;
-    localToWorld._32 = yAxis.z;
-    localToWorld._13 = zAxis.x;
-    localToWorld._23 = zAxis.y;
-    localToWorld._33 = zAxis.z;
-	localToWorld._14 = input[0].centerPos.x;
-    localToWorld._24 = input[0].centerPos.y;
-    localToWorld._34 = input[0].centerPos.z;
-    localToWorld._41 = 0;
-    localToWorld._42 = 0;
-    localToWorld._43 = 0;
-    localToWorld._44 = 1;
+	float4x4 world = {  float4(right.x,up.x,look.x,gIn[0].position.x),
+						float4(right.y,up.y,look.y,gIn[0].position.y),
+						float4(right.z,up.z,look.z,gIn[0].position.z),
+						float4(0,0,0,1)};
 
-	// And the matrix to transform from local to screen space.
-    float4x4 transform = localToWorld * world * view * projection;
+	float4x4 WVP = mul(projection, mul(view, world));
+	//compute 4 triangle strip vertices (quad) in local space.
+	//the quad faces down the +Z axis in local space.
+	float halfWidth = 0.5f*size.x;
+	float halfHeight = 0.5f*size.y;
+	float4 v[4];
+	v[0] = float4(-halfWidth, -halfHeight, 0.0f, 1.0f);
+	v[1] = float4(+halfWidth, -halfHeight, 0.0f, 1.0f);
+	v[2] = float4(-halfWidth, +halfHeight, 0.0f, 1.0f);
+	v[3] = float4(+halfWidth, +halfHeight, 0.0f, 1.0f);
 
-	// The positions of that quad is easily described in the local coordinate system:
-    // -z points towards the camera, y points upwards and x towards the right.
-    // The position marks the center of the quad, hence (0, 0, 0) is the center of the quad in
-    // local coordinates and the quad has an edge-length of particle.Size to either side.
-    GSOut v1, v2, v3, v4;
 
-    float size = 0.5f; //????
-    v1.centerPos = mul(float4(-size, size, 0, 1), transform);
-    v1.uvCoord = float2(0, 0);
-    v1.color    = input[0].color;
-    v2.centerPos = mul(float4(size, size, 0, 1), transform);
-    v2.uvCoord = float2(1, 0);
-    v2.color    = input[0].color;
-    v3.centerPos = mul(float4(-size,-size, 0, 1), transform);
-    v3.uvCoord = float2(0, 1);
-    v3.color    = input[0].color;
-    v4.centerPos = mul(float4(size, -size, 0, 1), transform);
-    v4.uvCoord = float2(1, 1);
-    v4.color    = input[0].color;
+	//tansform quad vertices to world space and output them as a triangle strip.
+	PSIn gOut;
+	//[unroll]
+	float2 quadUVC[] = 
+	{
+		float2(1.f, 0.f),
+		float2(1.f, 1.f),
+		float2(0.f, 0.f),
+		float2(0.f, 1.f)
+	};
 
-    triangleStream.Append(v1);
-    triangleStream.Append(v2);
-    triangleStream.Append(v3);
-    triangleStream.Append(v4);
+	for(int i = 0; i < 4; i++)
+	{
+		gOut.position = mul(v[i], WVP);
+		gOut.uvCoord = quadUVC[i];
+		triStream.Append(gOut);
+	}
 }
 
-float4 PS(GSOut input) : SV_TARGET
+float4 PS(PSIn p_input) : SV_TARGET
 {	
-	input.color = diffuse.Sample(m_textureSampler, input.uvCoord);
-	if(input.color.w == 0.f)
-		discard;
-
-	return input.color;
+	float4 temp = m_texture.Sample(m_textureSampler, p_input.uvCoord);
+	return temp;
 }
