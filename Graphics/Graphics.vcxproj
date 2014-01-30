@@ -108,7 +108,6 @@
     <ClCompile Include="Source\ModelBinaryLoader.cpp" />
     <ClCompile Include="Source\ModelFactory.cpp" />
     <ClCompile Include="Source\GraphicsLogger.cpp" />
-    <ClCompile Include="Source\RAMInfo.cpp" />
     <ClCompile Include="Source\TextureLoader.cpp" />
     <ClCompile Include="Source\VRAMInfo.cpp" />
     <ClCompile Include="Source\WICTextureLoader.cpp" />
@@ -138,7 +137,6 @@
     <ClInclude Include="Source\GraphicsLogger.h" />
     <ClInclude Include="Source\ModelFactory.h" />
     <ClInclude Include="Source\ModelInstance.h" />
-    <ClInclude Include="Source\RAMInfo.h" />
     <ClInclude Include="Source\VRAMInfo.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
     <ClInclude Include="Source\WrapperFactory.h" />
