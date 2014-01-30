@@ -19,6 +19,9 @@
 #include "ModelDefinition.h"
 #include "VRAMInfo.h"
 
+#include "ParticleFactory.h"
+#include "ParticleInstance.h"
+
 #include "ShaderStructs.h"
 
 using std::string;
@@ -66,8 +69,14 @@ private:
 	vector<pair<InstanceId, ModelInstance>> m_ModelInstances;
 	InstanceId m_NextInstanceId;
 	
+	//Particles
+	vector<pair<string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
+	vector<pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
+	int m_NextParticleInstanceId;
+	std::unique_ptr<ParticleFactory> m_ParticleFactory;
+
 	DeferredRenderer *m_DeferredRender;
-	ForwardRendering *m_Forwardrender;
+	ForwardRendering *m_ForwardRenderer;
 		
 	//Lights
 	std::vector<Light> m_SpotLights;
@@ -105,10 +114,21 @@ public:
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
 		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements) override;
 	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) override;
+	
 	void deleteShader(const char *p_ShaderId) override;
 
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
 	bool releaseTexture(const char *p_TextureID) override;	
+
+	//Particles
+	bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_filename) override;
+	bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) override;
+
+	InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) override;
+	void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) override;
+
+	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
+
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
@@ -121,7 +141,7 @@ public:
 	void setClearColor(Vector4 p_Color) override;
 
 	void renderModel(InstanceId p_ModelId) override;
-	virtual void renderSkyDome() override;
+	virtual void renderSkydome() override;
 	void renderText(void) override;
 	void renderQuad(void) override;
 	void drawFrame() override;
@@ -136,7 +156,7 @@ public:
 	int getVRAMUsage(void) override;
 	
 	InstanceId createModelInstance(const char *p_ModelId) override;
-	void createSkyDome(const char *p_ModelId, float p_Radius) override;
+	void createSkydome(const char *p_TextureResource, float p_Radius) override;
 	void eraseModelInstance(InstanceId p_Instance) override;
 	void setModelPosition(InstanceId p_Instance, Vector3 p_Position) override;
 	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;
@@ -169,6 +189,9 @@ private:
 	
 	Shader *getShaderFromList(string p_Identifier);
 	ModelDefinition *getModelFromList(string p_Identifier);
+
+	ParticleEffectDefinition::ptr getParticleFromList(string p_ParticleSystemId);
+
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
 	void Begin(float color[4]);

@@ -52,15 +52,9 @@ Vector3 Actor::getPosition() const
 
 void Actor::setPosition(Vector3 p_Position)
 {
-	std::shared_ptr<ModelComponent> comp = getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
-	if(comp)
+	for (auto& comp : m_Components)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(comp->getId(), p_Position)));
-	}
-	std::shared_ptr<BoundingMeshComponent> boundingComp = getComponent<BoundingMeshComponent>(BoundingMeshComponent::m_ComponentId).lock();
-	if(boundingComp)
-	{
-		boundingComp->updatePosition(p_Position);
+		comp->setPosition(p_Position);
 	}
 
 	m_Position = p_Position;
@@ -73,15 +67,9 @@ Vector3 Actor::getRotation() const
 
 void Actor::setRotation(Vector3 p_Rotation)
 {
-	std::shared_ptr<ModelComponent> comp = getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
-	if(comp)
+	for (auto& comp : m_Components)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new UpdateModelRotationEventData(comp->getId(), p_Rotation)));
-	}
-	std::shared_ptr<BoundingMeshComponent> boundingComp = getComponent<BoundingMeshComponent>(BoundingMeshComponent::m_ComponentId).lock();
-	if(boundingComp)
-	{
-		boundingComp->updateRotation(p_Rotation);
+		comp->setRotation(p_Rotation);
 	}
 
 	m_Rotation = p_Rotation;

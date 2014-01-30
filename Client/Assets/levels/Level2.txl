@@ -97,7 +97,65 @@
 #Scale: 1 1 1
 
 *LightHeader*
-#numLights 0
+#numLights 6
+
+#Light: pointLightShape1
+#Translation: -529.860046 841.651917 1800.754517
+Color: 1 1 1
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape2
+#Translation: -4658.789551 589.082458 -196.264526
+Color: 1 1 1
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape3
+#Translation: -3645.930664 436.309692 -2825.826172
+Color: 1 1 1
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape4
+#Translation: -1906.383179 839.248352 -3723.577148
+Color: 1 1 1
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape5
+#Translation: 1181.716675 609.435852 -4415.840332
+Color: 1 1 1
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape6
+#Translation: 4942.175293 833.546997 -3392.910889
+Color: 1 1 1
+Type: kPointLight
+Intensity: 0.3
 
 *CheckPointHeader*
-#numCheckpoints 0
+#numCheckpoints 4
+
+#Type: Start
+Translation: 0.642598 0.803703 0.683939
+
+#Type: CheckPoint
+#NR: 1
+Translation: -4664.067875 0 -200.979303
+
+#Type: CheckPoint
+#NR: 2
+Translation: -3644.158948 0 -2823.400725
+
+#Type: CheckPoint
+#NR: 3
+Translation: -1914.52312 0 -3725.772969
+
+#Type: CheckPoint
+#NR: 4
+Translation: 1182.499005 0 -4425.83076
+
+#Type: End
+Translation: 4939.750618 0 -3393.226911

@@ -114,6 +114,4 @@ private:
 	void updateIK();
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
-
-	void addLights();
 };

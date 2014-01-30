@@ -119,7 +119,7 @@ void TestGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
 		return;
 	}
 
-	uint16_t playerActorId = actor->getId();
+	uint32_t playerActorId = actor->getId();
 
 	for (auto& player : m_Players)
 	{

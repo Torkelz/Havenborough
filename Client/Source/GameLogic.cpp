@@ -68,28 +68,28 @@ void GameLogic::onFrame(float p_DeltaTime)
 			{
 				m_Physics->removeHitDataAt(i);
 			}
-			if(!m_Level.reachedFinishLine() && m_Level.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
-			{
-				m_Level.changeCheckpoint(m_Objects);
-				if(m_Level.reachedFinishLine())
-				{
-						m_Level = Level();
-						m_Objects.clear();
+			//if(!m_Level.reachedFinishLine() && m_Level.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+			//{
+			//	//m_Level.changeCheckpoint(m_Objects);
+			//	if(m_Level.reachedFinishLine())
+			//	{
+			//			m_Level = Level();
+			//			m_Objects.clear();
 
-						m_InGame = false;
+			//			m_InGame = false;
 
-						IConnectionController* con = m_Network->getConnectionToServer();
+			//			IConnectionController* con = m_Network->getConnectionToServer();
 
-						if (!m_PlayingLocal && con && con->isConnected())
-						{
-							con->sendLeaveGame();
-						}
+			//			if (!m_PlayingLocal && con && con->isConnected())
+			//			{
+			//				con->sendLeaveGame();
+			//			}
 
-						m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
-						return;
-				}
-				m_Physics->removeHitDataAt(i);
-			}
+			//			m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+			//			return;
+			//	}
+			//	m_Physics->removeHitDataAt(i);
+			//}
 			Logger::log(Logger::Level::TRACE, "Collision reported");
 		}
 	}
@@ -105,9 +105,15 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Physics->update(p_DeltaTime);
 
 	Vector3 actualViewRot = getPlayerViewRotation();
-	lookDir.x = -sinf(actualViewRot.x) * cosf(actualViewRot.y);
-	lookDir.y = sinf(actualViewRot.y);
-	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
+	DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationRollPitchYaw(
+		actualViewRot.y, actualViewRot.x, actualViewRot.z);
+	static const DirectX::XMFLOAT4 forward(0.f, 0.f, 1.f, 0.f);
+	static const DirectX::XMVECTOR vecForward = DirectX::XMLoadFloat4(&forward);
+	DirectX::XMVECTOR vecLookDir = DirectX::XMVector4Transform(vecForward, rotMatrix);
+	DirectX::XMFLOAT3 fLookDir;
+	DirectX::XMStoreFloat3(&fLookDir, vecLookDir);
+
+	lookDir = fLookDir;
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
 	if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
@@ -116,7 +122,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 		data.m_Rotation = actualViewRot;
 		data.m_Position = m_Player.getPosition();
 		data.m_Velocity = m_Player.getVelocity();
-		data.m_Rotation.x += 3.1415f;
 		data.m_Rotation.y = 0.f;
 
 		conn->sendPlayerControl(data);
@@ -182,7 +187,7 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 		m_PlayerViewRotation.y = -PI * 0.45f;
 	}
 
-	Vector3 playerRotation = Vector3(m_PlayerViewRotation.x + PI, 0.f, 0.f);
+	Vector3 playerRotation = Vector3(m_PlayerViewRotation.x, 0.f, 0.f);
 	Actor::ptr actor = m_Player.getActor().lock();
 	if (actor)
 	{
@@ -249,7 +254,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("../Bin/assets/levels/Level1.2.2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("../Bin/assets/levels/Level1.2.3.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
@@ -362,7 +367,7 @@ void GameLogic::handleNetwork()
 #ifdef _DEBUG
 						std::string levelFileName("../Bin/assets/levels/Level2.btxl");
 #else
-						std::string levelFileName("../Bin/assets/levels/Level1.2.2.btxl");
+						std::string levelFileName("../Bin/assets/levels/Level1.2.3.btxl");
 #endif
 						std::ifstream file(levelFileName, std::istream::binary);
 						m_Level.loadLevel(file, m_Objects);
@@ -403,7 +408,29 @@ void GameLogic::handleNetwork()
 							shMove->setRotationalVelocity(data.m_RotationVelocity);
 						}
 					}
+					int numberOfExtraData = conn->getNumUpdateObjectExtraData(package);
+					for(unsigned int i = 0; i < numberOfExtraData; i++)
+					{
+						const char* updates = conn->getUpdateObjectExtraData(package, i);
 
+						tinyxml2::XMLDocument reader;
+						reader.Parse(updates);
+						tinyxml2::XMLElement* object = reader.FirstChildElement("ObjectUpdate");
+						Actor::Id actorId = -1;
+						object->QueryAttribute("ActorId", &actorId);
+						if(actorId == -1)
+							throw "WRONG!!!";
+						if(object->Attribute("Type", "Color"))
+						{
+							object = object->FirstChildElement("SetColor");
+							if(!object)
+								throw "WRONG!!!";
+							Vector3 color;
+							object->QueryAttribute("r", &color.x);
+							object->QueryAttribute("g", &color.y);
+							object->QueryAttribute("b", &color.z);
+						}
+					}
 					// TODO: Handle extra data
 				}
 				break;
@@ -411,7 +438,7 @@ void GameLogic::handleNetwork()
 			case PackageType::REMOVE_OBJECTS:
 				{
 					const unsigned int numObjects = conn->getNumRemoveObjectRefs(package);
-					const uint16_t* removeObjects = conn->getRemoveObjectRefs(package);
+					const uint32_t* removeObjects = conn->getRemoveObjectRefs(package);
 					for (unsigned int i = 0; i < numObjects; ++i)
 					{
 						removeActor(removeObjects[i]);
@@ -750,14 +777,4 @@ std::weak_ptr<Actor> GameLogic::addActor(Actor::ptr p_Actor)
 {
 	m_Objects.push_back(p_Actor);
 	return p_Actor;
-}
-
-void GameLogic::addLights()
-{
-	/*addActor(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f)));
-	addActor(m_ActorFactory->createSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
-		Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f, Vector3(0.f,1.f,0.f)));
-	addActor(m_ActorFactory->createPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f)));
-	addActor(m_ActorFactory->createPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
-	addActor(m_ActorFactory->createPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));*/
 }

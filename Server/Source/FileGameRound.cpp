@@ -7,6 +7,8 @@
 #include <fstream>
 #include <sstream>
 
+using namespace DirectX;
+
 void FileGameRound::setup()
 {
 	for (size_t i = 0; i < m_Players.size(); ++i)
@@ -20,27 +22,6 @@ void FileGameRound::setup()
 
 	m_FileLoader.reset(new LevelBinaryLoader);
 	m_FileLoader->loadBinaryFile(m_FilePath);
-
-	Actor::ptr directionalActor;
-	Actor::ptr pointActor;
-	Actor::ptr spotActor;
-	for (const auto& directionalLight : m_FileLoader->getDirectionalLightData())
-	{
-		directionalActor = m_ActorFactory->createDirectionalLight(directionalLight.m_Direction, directionalLight.m_Color);
-		m_Actors.push_back(directionalActor);
-	}
-	for (const auto& pointLight : m_FileLoader->getPointLightData())
-	{
-		pointActor = m_ActorFactory->createPointLight(pointLight.m_Translation, pointLight.m_Intensity * 10000, pointLight.m_Color);
-		m_Actors.push_back(pointActor);
-	}
-	Vector2 minMaxAngle;
-	for (const auto& spotLight : m_FileLoader->getSpotLightData())
-	{
-		minMaxAngle.x = cosf(spotLight.m_ConeAngle); minMaxAngle.y = cosf(spotLight.m_ConeAngle + spotLight.m_PenumbraAngle);
-		spotActor = m_ActorFactory->createSpotLight(spotLight.m_Translation, spotLight.m_Direction, minMaxAngle, spotLight.m_Intensity * 10000, spotLight.m_Color);
-		m_Actors.push_back(spotActor);
-	}
 
 	std::vector<LevelBinaryLoader::CheckPointStruct> checkpoints = m_FileLoader->getCheckPointData();
 	std::sort(checkpoints.begin(), checkpoints.end(),
@@ -113,6 +94,18 @@ void FileGameRound::updateLogic(float p_DeltaTime)
 	{
 		actor->onUpdate(p_DeltaTime);
 	}
+	if(m_Physics->getHitDataSize() > 0)
+	{
+		for(int i = m_Physics->getHitDataSize()-1 ; i >= 0; i--)
+		{
+			HitData hit = m_Physics->getHitDataAt(i);
+			if(!m_CheckpointSystem.reachedFinishLine() && 
+				m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+			{				
+				m_SendHitData.push_back(std::make_pair(m_Players[hit.collider-1].getUser(), m_Actors[hit.collisionVictim-1]));
+			}
+		}
+	}	
 }
 
 void FileGameRound::sendUpdates()
@@ -123,13 +116,34 @@ void FileGameRound::sendUpdates()
 	{
 		data.push_back(getUpdateData(player));
 	}
-
 	for (auto& player : m_Players)
 	{
 		User::ptr user = player.getUser().lock();
 		if (user)
 		{
 			user->getConnection()->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
+		}
+	}
+	if(m_SendHitData.size() > 0)
+	for(unsigned int i = 0; i < m_SendHitData.size(); i++)
+	{
+		User::ptr user = m_SendHitData[i].first.lock();
+		if (user)
+		{
+			Actor::ptr actor = m_SendHitData[i].second.lock();
+			if (actor)
+			{
+				Actor::Id id = actor->getId();
+				user->getConnection()->sendRemoveObjects(&id, 1);
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("ObjectUpdate");
+				printer.PushAttribute("ActorId", id-1);
+				printer.PushAttribute("Type", "Color");
+				pushColor(printer, "SetColor", m_CheckpointSystem.changeCheckpoint());
+				printer.CloseElement();
+				const char* info = printer.CStr();
+				user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+			}
 		}
 	}
 }
@@ -142,7 +156,7 @@ void FileGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
 		return;
 	}
 
-	uint16_t playerActorId = actor->getId();
+	Actor::Id playerActorId = actor->getId();
 
 	for (auto& player : m_Players)
 	{

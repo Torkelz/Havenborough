@@ -244,12 +244,12 @@ typedef Signal<PackageType::LEAVE_GAME> LeaveGame;
 /**
  * A package representing the removal of objects in the game world.
  */
-typedef Package1Obj<PackageType::REMOVE_OBJECTS, std::vector<uint16_t>> RemoveObjects;
+typedef Package1Obj<PackageType::REMOVE_OBJECTS, std::vector<uint32_t>> RemoveObjects;
 
 /**
  * A package representing assigning a player to an object.
  */
-typedef Package1Obj<PackageType::ASSIGN_PLAYER, uint16_t> AssignPlayer;
+typedef Package1Obj<PackageType::ASSIGN_PLAYER, uint32_t> AssignPlayer;
 
 BOOST_IS_BITWISE_SERIALIZABLE(PlayerControlData)
 

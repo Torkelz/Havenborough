@@ -36,9 +36,6 @@
     <ClCompile Include="Source\Input\InputState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\EdgeCollisionResponse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Level.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -58,6 +55,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\RAMInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EdgeCollisionResponse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,9 +86,6 @@
     <ClInclude Include="Source\ClientExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\EdgeCollisionResponse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Level.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -111,6 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\RAMInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EdgeCollisionResponse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
