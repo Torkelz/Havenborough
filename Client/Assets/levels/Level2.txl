@@ -97,7 +97,14 @@
 #Scale: 1 1 1
 
 *LightHeader*
-#numLights 6
+#numLights 7
+
+#Light: directionalLightShape1
+#Translation: 0 3355.663818 0
+Color: 1 1 1
+Type: kDirectionalLight
+Intensity: 1
+Direction: 287.88382 -811.762939 -321.125
 
 #Light: pointLightShape1
 #Translation: -529.860046 841.651917 1800.754517

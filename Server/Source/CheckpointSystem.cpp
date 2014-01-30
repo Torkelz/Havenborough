@@ -34,6 +34,10 @@ void CheckpointSystem::addCheckpoint(const std::weak_ptr<Actor> p_Checkpoint)
 
 BodyHandle CheckpointSystem::getCurrentCheckpointBodyHandle(void)
 {
+	if(m_Checkpoints.empty())
+	{
+		return BodyHandle();
+	}
 	return m_Checkpoints.back().lock()->getBodyHandles().back();
 }
 

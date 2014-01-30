@@ -107,10 +107,13 @@ void FileGameRound::updateLogic(float p_DeltaTime)
 
 			if (player && victim)
 			{
-				if(player->getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+				if(!player->reachedFinishLine())
 				{
-					m_SendHitData.push_back(std::make_pair(player, victim));
-					player->changeCheckpoint();
+					if(player->getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+					{
+						m_SendHitData.push_back(std::make_pair(player, victim));
+						player->changeCheckpoint();
+					}
 				}
 			}
 		}
