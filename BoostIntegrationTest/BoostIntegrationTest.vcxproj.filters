@@ -100,6 +100,12 @@
     <ClCompile Include="..\Common\Source\ResourceTranslator.cpp">
       <Filter>CommonImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\ParticleFactory.cpp">
+      <Filter>Graphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\ParticleInstance.cpp">
+      <Filter>Graphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">
