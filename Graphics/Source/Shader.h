@@ -1,13 +1,8 @@
 #pragma once
+#pragma comment(lib, "d3dcompiler.lib")
 #define NUM_OF_SHADER_TYPES 5
 
 #include <d3d11.h>
-#include <d3dcompiler.h>
-
-#include <Utilities/MemoryUtil.h>
-#include "GraphicsExceptions.h"
-
-#pragma comment(lib, "d3dcompiler.lib")
 
 class Shader
 {
@@ -110,7 +105,6 @@ private:
 protected:
 	virtual HRESULT createShader(ID3DBlob *p_ShaderData);
 	virtual void createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData);
-	virtual HRESULT compileShader(LPCWSTR p_Filename, const char *p_EntryPoint,
-		const char *p_ShaderModel, DWORD p_ShaderFlags,
-		ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage);
+	virtual HRESULT compileShader(LPCWSTR p_Filename, const char *p_EntryPoint,	const char *p_ShaderModel, 
+		DWORD p_ShaderFlags, ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage);
 };

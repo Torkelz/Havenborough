@@ -178,12 +178,12 @@ private:
 	HRESULT createRasterizerState(void);
 	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight);
 	
-	Shader *getShaderFromList(string p_Identifier);
-	ModelDefinition *getModelFromList(string p_Identifier);
+	Shader *getShaderFromList(std::string p_Identifier);
+	ModelDefinition *getModelFromList(std::string p_Identifier);
 
-	ParticleEffectDefinition::ptr getParticleFromList(string p_ParticleSystemId);
+	ParticleEffectDefinition::ptr getParticleFromList(std::string p_ParticleSystemId);
 
-	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
+	ID3D11ShaderResourceView *getTextureFromList(std::string p_Identifier);
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
 	void Begin(float color[4]);
 	void End(void);

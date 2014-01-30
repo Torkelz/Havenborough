@@ -4,8 +4,11 @@
 #include "ModelBinaryLoader.h"
 #include "SkyDome.h"
 #include "WrapperFactory.h"
+#include "Utilities/MemoryUtil.h"
 #include <algorithm>	// std::sort
 #include <iterator>     // std::back_inserter
+
+using std::vector;
 
 DeferredRenderer::DeferredRenderer()
 		

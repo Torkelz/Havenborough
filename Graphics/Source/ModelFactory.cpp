@@ -2,6 +2,7 @@
 #include "GraphicsExceptions.h"
 #include "ModelBinaryLoader.h"
 #include "AnimationClipLoader.h"
+#include "Utilities/MemoryUtil.h"
 
 #include <boost/filesystem.hpp>
 

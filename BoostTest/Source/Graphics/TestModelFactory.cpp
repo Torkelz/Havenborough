@@ -4,6 +4,7 @@
 BOOST_AUTO_TEST_SUITE(TestModelFactory)
 
 using namespace DirectX;
+using std::vector;
 
 class BufferStub : public Buffer
 {

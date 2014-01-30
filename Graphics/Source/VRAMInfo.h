@@ -2,6 +2,7 @@
 #define KB 1000
 #define MB (1000 * KB)
 #define OVERHEAD_USAGE (10 * MB) //This is a theoretical overhead for graphics resources in the video memory
+
 #include <memory>
 #include <d3d11.h>
 
@@ -39,7 +40,7 @@ public:
 
 	/*
 	* Gets the amount of video RAM the program uses.
-	* @return the amount in MB
+	* @return the amount in bytes
 	*/
 	int getUsage(void) const;
 

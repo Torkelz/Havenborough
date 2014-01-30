@@ -1,5 +1,10 @@
 #include "WrapperFactory.h"
 #include "VRAMInfo.h"
+#include "GraphicsExceptions.h"
+#include "Utilities/MemoryUtil.h"
+
+using std::string;
+using std::vector;
 
 WrapperFactory *WrapperFactory::m_Instance = nullptr;
 

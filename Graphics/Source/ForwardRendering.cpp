@@ -2,6 +2,7 @@
 #include "ConstantBuffers.h"
 #include "WrapperFactory.h"
 #include "VRAMInfo.h"
+#include "Utilities/MemoryUtil.h"
 #include <algorithm>
 #include <functional>
 
