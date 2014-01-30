@@ -142,8 +142,8 @@
 	 * @param p_Position the position in world space to reach for.
 	 * @param p_Joints the skeleton used for the model.
 	 */
-	void applyIK_ReachPoint(const std::string& p_TargetJointName, const std::string& p_HingeJointName, 
-		const std::string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints);
+	void applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOAT3& p_Position,
+		const std::vector<Joint>& p_Joints);
 	
 	/**
 	 * Get the position of a joint.

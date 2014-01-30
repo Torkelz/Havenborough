@@ -709,10 +709,6 @@ void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_W
 
 void GameLogic::updateIK()
 {
-	static const char* testTargetJoint = "L_Hand";
-	static const char* testHingeJoint = "L_LowerArm";
-	static const char* testBaseJoint = "L_UpperArm";
-
 	Vector3 IK_Target = Vector3(m_Player.getEyePosition()) + lookDir * 200.f;
 
 	if (useIK)
@@ -723,7 +719,8 @@ void GameLogic::updateIK()
 			std::shared_ptr<ModelComponent> comp = strIKTest->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
 			if (comp)
 			{
-				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "joint1", "joint2", "joint3", IK_Target)));
+				// Re-do when IK worms mlx-file is updated.
+				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "Würm", IK_Target)));
 			}
 		}
 		std::shared_ptr<Actor> strWitch = circleWitch.lock();
@@ -732,7 +729,18 @@ void GameLogic::updateIK()
 			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
 			if (comp)
 			{
-				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), testBaseJoint, testHingeJoint, testTargetJoint, IK_Target)));
+				//m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
+			}
+		}
+
+		// Player
+		strWitch = m_Player.getActor().lock();
+		if (strWitch)
+		{
+			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			if (comp)
+			{
+				//m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "LeftArm", IK_Target)));
 			}
 		}
 	}
@@ -744,7 +752,7 @@ void GameLogic::updateIK()
 			std::shared_ptr<ModelComponent> comp = strIKTest->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
 			if (comp)
 			{
-				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "joint3")));
+				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "Würm")));
 			}
 		}
 		std::shared_ptr<Actor> strWitch = circleWitch.lock();
@@ -753,7 +761,18 @@ void GameLogic::updateIK()
 			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
 			if (comp)
 			{
-				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), testTargetJoint)));
+				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
+			}
+		}
+
+		// Player
+		strWitch = m_Player.getActor().lock();
+		if (strWitch)
+		{
+			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			if (comp)
+			{
+				//m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
 			}
 		}
 	}

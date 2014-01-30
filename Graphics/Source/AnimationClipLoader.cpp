@@ -1,12 +1,12 @@
 #include "AnimationClipLoader.h"
-
 #include <fstream>
 #include <sstream>
 
-AnimationClipLoader::AnimationClipLoader(){}
-AnimationClipLoader::~AnimationClipLoader(){}
+MattiasLucaseXtremeLoader::MattiasLucaseXtremeLoader(){}
+MattiasLucaseXtremeLoader::~MattiasLucaseXtremeLoader(){}
 
-std::map<std::string, AnimationClip> AnimationClipLoader::load(std::string p_Filename)
+
+std::map<std::string, AnimationClip> MattiasLucaseXtremeLoader::loadAnimationClip(std::string p_Filename)
 {
 	const char* filename = p_Filename.c_str();
 	std::map<std::string, AnimationClip> returnValue;
@@ -100,8 +100,77 @@ std::map<std::string, AnimationClip> AnimationClipLoader::load(std::string p_Fil
 	}
 	else 
 	{
+		// No file found.
 		returnValue.insert(std::pair<std::string, AnimationClip>("default", ac));
-		//Fråga Sebastian hur man skriver till loggfilen.
+	}
+	
+	return returnValue;
+}
+
+std::map<std::string, IKGroup> MattiasLucaseXtremeLoader::loadIKGroup(std::string p_Filename)
+{
+	const char* filename = p_Filename.c_str();
+	std::map<std::string, IKGroup> returnValue;
+	IKGroup ik = IKGroup();
+	std::ifstream input(filename, std::ifstream::in);
+
+	if(input)
+	{
+		std::string line, key;
+		std::stringstream stringstream;
+
+		while (!input.eof() && std::getline(input, line))
+		{
+			key = "";
+			stringstream = std::stringstream(line);
+			stringstream >> key >> std::ws;
+			if(strcmp(key.c_str(), "*IKgroup") == 0)
+			{
+					std::string line, key;
+
+					// Name
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ik.m_GroupName;
+
+					// Shoulder joint
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ik.m_Shoulder;
+
+					// Elbow joint
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ik.m_Elbow;
+
+					// Hand joint
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ik.m_Hand;
+
+					// Elbow hinge axis X
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ik.m_ElbowHingeAxis.x;
+
+					// Elbow hinge axis Y
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ik.m_ElbowHingeAxis.y;
+
+					// Elbow hinge axis Z
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> ik.m_ElbowHingeAxis.z;
+
+					returnValue.insert( std::pair<std::string, IKGroup>(ik.m_GroupName, ik) );
+			}
+		}
+	}
+	else 
+	{
+		// No file found.
+		returnValue.insert(std::pair<std::string, IKGroup>("default", ik));
 	}
 	
 	return returnValue;

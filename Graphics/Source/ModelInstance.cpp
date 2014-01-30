@@ -304,8 +304,8 @@ const vector<DirectX::XMFLOAT4X4>& ModelInstance::getFinalTransform() const
 	return m_FinalTransform;
 }
 
-void ModelInstance::applyIK_ReachPoint(const string& p_TargetJointName, const string& p_HingeJointName,
-	const string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const vector<Joint>& p_Joints)
+void ModelInstance::applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOAT3& p_Position,
+		const std::vector<Joint>& p_Joints)
 {
 	XMFLOAT4 targetData(p_Position.x, p_Position.y, p_Position.z, 1.f);
 	XMVECTOR target = XMLoadFloat4(&targetData);
@@ -324,15 +324,15 @@ void ModelInstance::applyIK_ReachPoint(const string& p_TargetJointName, const st
 	{
 		const Joint& joint = p_Joints[i];
 
-		if (joint.m_JointName == p_TargetJointName)
+		if (joint.m_JointName == p_Group.m_Hand)
 		{
 			endJoint = &joint;
 		}
-		else if (joint.m_JointName == p_HingeJointName)
+		else if (joint.m_JointName == p_Group.m_Elbow)
 		{
 			middleJoint = &joint;
 		}
-		else if (joint.m_JointName == p_BaseJointName)
+		else if (joint.m_JointName == p_Group.m_Shoulder)
 		{
 			baseJoint = &joint;
 		}
@@ -415,8 +415,8 @@ void ModelInstance::applyIK_ReachPoint(const string& p_TargetJointName, const st
 	float diffJointAngle = wantedJointAngle - currentJointAngle;
 
 	// Asume all "elbows" has the positive Z axis as hinge axis.
-	static const XMFLOAT4 rotationAxisData(0.f, -1.f, 0.f, 0.f);
-	XMVECTOR rotationAxis = XMLoadFloat4(&rotationAxisData);
+	//static const XMFLOAT4 rotationAxisData(0.f, -1.f, 0.f, 0.f);
+	XMVECTOR rotationAxis = XMLoadFloat3(&p_Group.m_ElbowHingeAxis);//XMLoadFloat4(&rotationAxisData);
 	XMMATRIX rotation = XMMatrixRotationAxis(rotationAxis, diffJointAngle);
 
 	// Rotate the local transform of the "elbow" joint

@@ -826,15 +826,24 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 	throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint,
-								  const char* p_BaseJoint, Vector3 p_Target)
+void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_IKGroupName, Vector3 p_Target)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.applyIK_ReachPoint(p_TargetJoint, p_HingeJoint, p_BaseJoint, p_Target,
-				getModelFromList(inst.second.getModelName())->joints);
+			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			std::string tempStr(p_IKGroupName);
+
+			// If an illegal string has been put in, just shoot in the default animation.
+			// The show must go on!
+			if( modelDef->ikGroups.find(p_IKGroupName) == modelDef->ikGroups.end() )
+			{
+				tempStr = "default";
+			}
+
+			inst.second.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, modelDef->joints);
 			break;
 		}
 	}

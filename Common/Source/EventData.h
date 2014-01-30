@@ -513,20 +513,15 @@ class AddReachIK_EventData : public BaseEventData
 {
 private:
 	unsigned int m_Id;
-
-	std::string m_RootJoint;
-	std::string m_BendJoint;
-	std::string m_ReachJoint;
+	std::string m_GroupName;
 	Vector3 m_Target;
 
 public:
 	static const Type sk_EventType = Type(0x12334544);
 
-	AddReachIK_EventData(unsigned int p_Id, std::string p_RootJoint, std::string p_BendJoint, std::string p_ReachJoint, Vector3 p_Target)
+	AddReachIK_EventData(unsigned int p_Id, std::string p_GroupName, Vector3 p_Target)
 		:	m_Id(p_Id),
-			m_RootJoint(p_RootJoint),
-			m_BendJoint(p_BendJoint),
-			m_ReachJoint(p_ReachJoint),
+			m_GroupName(p_GroupName),
 			m_Target(p_Target)
 	{
 	}
@@ -538,7 +533,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new AddReachIK_EventData(m_Id, m_RootJoint, m_BendJoint, m_ReachJoint, m_Target));
+		return Ptr(new AddReachIK_EventData(m_Id, m_GroupName, m_Target));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -555,19 +550,9 @@ public:
 		return m_Id;
 	}
 
-	std::string getRootJoint() const
+	std::string getGroupName() const
 	{
-		return m_RootJoint;
-	}
-
-	std::string getBendJoint() const
-	{
-		return m_BendJoint;
-	}
-
-	std::string getReachJoint() const
-	{
-		return m_ReachJoint;
+		return m_GroupName;
 	}
 
 	Vector3 getTarget() const
@@ -581,14 +566,14 @@ class RemoveReachIK_EventData : public BaseEventData
 private:
 	unsigned int m_Id;
 
-	std::string m_ReachJoint;
+	std::string m_GroupName;
 
 public:
 	static const Type sk_EventType = Type(0x142d2b5d);
 
-	RemoveReachIK_EventData(unsigned int p_Id, std::string p_ReachJoint)
+	RemoveReachIK_EventData(unsigned int p_Id, std::string p_GroupName)
 		:	m_Id(p_Id),
-			m_ReachJoint(p_ReachJoint)
+			m_GroupName(p_GroupName)
 	{
 	}
 
@@ -599,7 +584,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new RemoveReachIK_EventData(m_Id, m_ReachJoint));
+		return Ptr(new RemoveReachIK_EventData(m_Id, m_GroupName));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -616,9 +601,9 @@ public:
 		return m_Id;
 	}
 
-	std::string getReachJoint() const
+	std::string getGroupName() const
 	{
-		return m_ReachJoint;
+		return m_GroupName;
 	}
 };
 

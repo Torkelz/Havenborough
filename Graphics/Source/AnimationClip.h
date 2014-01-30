@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <DirectXMath.h>
 
 struct AnimationClip
 {
@@ -53,3 +54,30 @@ struct AnimationClip
 	}
 };
 
+struct IKGroup
+{
+	std::string			m_GroupName;
+	std::string			m_Shoulder;
+	std::string			m_Elbow;
+	std::string			m_Hand;
+	DirectX::XMFLOAT3	m_ElbowHingeAxis;
+
+	IKGroup()
+	{
+		m_GroupName			= "default";
+		m_Shoulder			= "defaultShoulder";
+		m_Elbow				= "defaultElbow";
+		m_Hand				= "defaultHand";
+		m_ElbowHingeAxis	= DirectX::XMFLOAT3(0.f, -1.f, 0.f);
+	}
+
+	IKGroup(std::string p_GroupName, std::string p_Shoulder, std::string p_Elbow, 
+		std::string p_Hand, DirectX::XMFLOAT3 p_ElbowAxis)	
+	{
+		m_GroupName			= p_GroupName;
+		m_Shoulder			= p_Shoulder;
+		m_Elbow				= p_Elbow;
+		m_Hand				= p_Hand;
+		m_ElbowHingeAxis	= p_ElbowAxis;
+	}
+};
