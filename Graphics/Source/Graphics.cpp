@@ -523,12 +523,14 @@ void Graphics::renderModel(InstanceId p_ModelId)
 			ModelDefinition *modelDef = getModelFromList(inst.second.getModelName());
 			if(!modelDef->isTransparent)
 			{
-				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(modelDef,
+				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(
+					DeferredRenderer::Renderable::Type::DEFERRED_OBJECT, modelDef,
 					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
 			}
 			else
 			{
-				m_ForwardRenderer->addRenderable(DeferredRenderer::Renderable(modelDef,
+				m_ForwardRenderer->addRenderable(DeferredRenderer::Renderable(
+					DeferredRenderer::Renderable::Type::FORWARD_OBJECT, modelDef,
 					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
 					&inst.second.getColorTone()));
 			}
@@ -630,6 +632,10 @@ void Graphics::drawFrame()
 		m_Shader->unSetShader();
 	}
 
+	for (auto& particle : m_ParticleEffectInstanceList)
+	{
+		m_ForwardRenderer->addRenderable(particle.second);
+	}
 	m_ForwardRenderer->renderForward();
 
 	drawBoundingVolumes();

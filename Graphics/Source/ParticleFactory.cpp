@@ -34,7 +34,10 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 ParticleInstance::ptr ParticleFactory::createParticleInstance(ParticleEffectDefinition::ptr p_Effect)
 {
 	ParticleInstance::ptr instance(new ParticleInstance);
-	instance->init(createParticleBuffer(p_Effect->maxParticles), p_Effect);
+	instance->init(
+		createConstBuffer(),
+		createParticleBuffer(p_Effect->maxParticles),
+		p_Effect);
 
 	return instance;
 }
@@ -45,10 +48,8 @@ void ParticleFactory::setLoadParticleTextureCallBack(loadParticleTextureCallBack
 	m_LoadParticleTextureUserdata = p_Userdata;
 }
 
-Buffer* ParticleFactory::createParticleBuffer(unsigned int p_MaxParticles)
+std::shared_ptr<Buffer> ParticleFactory::createParticleBuffer(unsigned int p_MaxParticles)
 {
-	Buffer *buffer;
-
 	Buffer::Description cbDesc;
 	cbDesc.initData = NULL; //can be needing a flag of some sort
 	cbDesc.usage = Buffer::Usage::CPU_WRITE;
@@ -56,7 +57,22 @@ Buffer* ParticleFactory::createParticleBuffer(unsigned int p_MaxParticles)
 	cbDesc.sizeOfElement = sizeof(particlecBuffer);
 	cbDesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
 
-	buffer = WrapperFactory::getInstance()->createBuffer(cbDesc);
+	std::shared_ptr<Buffer> buffer(WrapperFactory::getInstance()->createBuffer(cbDesc));
+	VRAMInfo::getInstance()->updateUsage(sizeof(particlecBuffer));
+
+	return buffer;
+}
+
+std::shared_ptr<Buffer> ParticleFactory::createConstBuffer()
+{
+	Buffer::Description cbDesc;
+	cbDesc.initData = NULL; //can be needing a flag of some sort
+	cbDesc.usage = Buffer::Usage::CPU_WRITE;
+	cbDesc.numOfElements = 1;
+	cbDesc.sizeOfElement = sizeof(particlecBuffer);
+	cbDesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
+
+	std::shared_ptr<Buffer> buffer(WrapperFactory::getInstance()->createBuffer(cbDesc));
 	VRAMInfo::getInstance()->updateUsage(sizeof(particlecBuffer));
 
 	return buffer;

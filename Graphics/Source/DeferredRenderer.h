@@ -8,6 +8,7 @@
 #include "TextureLoader.h"
 #include "ModelDefinition.h"
 #include "ModelBinaryLoader.h"
+#include "ParticleInstance.h"
 #include "SkyDome.h"
 
 /*
@@ -44,18 +45,28 @@ public:
 	 */
 	struct Renderable
 	{
+		enum class Type
+		{
+			DEFERRED_OBJECT,
+			FORWARD_OBJECT,
+			PARTICLE_SYSTEM,
+		};
+
+		Type type;
 		ModelDefinition *model;
+		ParticleInstance::ptr particles;
 		DirectX::XMFLOAT4X4 world;
 		DirectX::XMFLOAT4X4 invTransposeWorld;
 		const std::vector<DirectX::XMFLOAT4X4> *finalTransforms;
 		const DirectX::XMFLOAT3 *colorTone;
 
-		Renderable(ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World,
+		Renderable(Type p_Type, ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World,
 			const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr, 
 			const DirectX::XMFLOAT3 *p_ColorTone = nullptr)
 		{
 			using namespace DirectX;
 
+			type = p_Type;
 			model = p_Model;
 			world = p_World;
 			colorTone = p_ColorTone;
@@ -67,6 +78,17 @@ public:
 			invTransposeWorld._44 = 1.f;
 
 			finalTransforms = p_FinalTransforms;
+		}
+
+		Renderable(ParticleInstance::ptr p_Particles)
+			:	type(Type::PARTICLE_SYSTEM),
+				model(nullptr),
+				particles(p_Particles),
+				world(p_Particles->getWorldMatrix()),
+				invTransposeWorld(),
+				finalTransforms(nullptr),
+				colorTone(nullptr)
+		{
 		}
 
 		~Renderable()

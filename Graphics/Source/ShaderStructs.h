@@ -69,8 +69,3 @@ struct particlecBuffer
 	float				sizeY;
 
 };
-
-struct ParticleMaterial
-{
-	std::string m_DiffuseMap;
-};

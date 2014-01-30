@@ -11,12 +11,12 @@ ParticleInstance::ParticleInstance()
 
 ParticleInstance::~ParticleInstance()
 {
-	m_Buffer = nullptr;
 }
 
-void ParticleInstance::init(Buffer* p_Buffer, ParticleEffectDefinition::ptr p_ParticleEffectDefinition)
+void ParticleInstance::init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_ptr<Buffer> p_ParticleBuffer, ParticleEffectDefinition::ptr p_ParticleEffectDefinition)
 {
-	m_Buffer = p_Buffer;
+	m_ConstBuffer = p_ConstBuffer;
+	m_ParticleBuffer = p_ParticleBuffer;
 	m_ParticleEffectDef = p_ParticleEffectDefinition;
 	m_ParticleList.resize(m_ParticleEffectDef->maxParticles);
 }
@@ -92,16 +92,34 @@ void ParticleInstance::updateBuffers(ID3D11DeviceContext *p_DeviceContext, Direc
 	pcb.viewM = *p_ViewMatrix;
 	pcb.projM = *p_ProjectionMatrix;
 	pcb.cameraPos = *p_CameraPosition;
-	p_DeviceContext->UpdateSubresource(m_Buffer->getBufferPointer(),NULL,NULL, &pcb, NULL,NULL);
+	p_DeviceContext->UpdateSubresource(m_ConstBuffer->getBufferPointer(),NULL,NULL, &pcb, NULL,NULL);
 }
 
-void ParticleInstance::render()
+void ParticleInstance::render(ID3D11DeviceContext* p_Context, ID3D11BlendState* p_BlendState)
 {
+	m_ConstBuffer->setBuffer(1);
 
+	m_ParticleEffectDef->shader->setShader();
+	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+	m_ParticleEffectDef->shader->setBlendState(p_BlendState, data);
+
+	p_Context->Draw(m_ParticleList.size(), 0);
+
+	m_ParticleEffectDef->shader->setBlendState(0, data);
+	m_ParticleEffectDef->shader->unSetShader();
+	m_ConstBuffer->unsetBuffer(1);
 }
 
 void ParticleInstance::setPosition(DirectX::XMFLOAT4 p_NewPosition)
 {
 	m_SysPosition = p_NewPosition;
+}
+
+DirectX::XMFLOAT4X4 ParticleInstance::getWorldMatrix() const
+{
+	DirectX::XMMATRIX world = DirectX::XMMatrixTranslation(m_SysPosition.x, m_SysPosition.y, m_SysPosition.z);
+	DirectX::XMFLOAT4X4 worldF;
+	DirectX::XMStoreFloat4x4(&worldF, world);
+	return worldF;
 }
 

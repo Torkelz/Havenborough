@@ -60,7 +60,8 @@ public:
 	void setLoadParticleTextureCallBack(loadParticleTextureCallBack p_LoadParticleTexture, void *p_Userdata);
 
 private:
-	Buffer* createParticleBuffer(unsigned int p_MaxParticles);
+	std::shared_ptr<Buffer> createParticleBuffer(unsigned int p_MaxParticles);
+	std::shared_ptr<Buffer> createConstBuffer();
 
 	ID3D11ShaderResourceView *loadTexture(const char *p_Filename, const char *p_Identifier);
 
