@@ -1,5 +1,5 @@
 #include "Level.h"
-
+#include "LevelBinaryLoader.h"
 #include <XMLHelper.h>
 
 const Vector3 &Level::getStartPosition(void) const

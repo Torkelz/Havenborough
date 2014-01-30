@@ -1,6 +1,5 @@
 #pragma once
 #include "IScene.h"
-#include "IEventManager.h"
 
 class PostGameScene : public IScene
 {

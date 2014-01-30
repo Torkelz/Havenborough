@@ -1,6 +1,5 @@
 #pragma once
 #include "IScene.h"
-//#include "../Logger.h"
 #include "../GameLogic.h"
 #include <LightStructs.h>
 

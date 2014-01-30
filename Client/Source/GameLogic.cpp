@@ -2,6 +2,11 @@
 #include "Components.h"
 #include "EventData.h"
 #include "ClientExceptions.h"
+#include "Logger.h"
+
+#include <sstream>
+
+using namespace DirectX;
 
 GameLogic::GameLogic(void)
 {
@@ -16,7 +21,8 @@ GameLogic::~GameLogic(void)
 	m_ResourceManager = nullptr;
 }
 
-void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physics, ActorFactory *p_ActorFactory, EventManager *p_EventManager, INetwork *p_Network)
+void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physics, ActorFactory *p_ActorFactory,
+	EventManager *p_EventManager, INetwork *p_Network)
 {
 	m_Physics = p_Physics;
 	m_ResourceManager = p_ResourceManager;

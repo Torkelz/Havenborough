@@ -1,6 +1,9 @@
 #include "GameScene.h"
 #include <Components.h>
 #include <EventData.h>
+#include "Logger.h"
+
+using namespace DirectX;
 
 GameScene::GameScene()
 {

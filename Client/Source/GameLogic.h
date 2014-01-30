@@ -1,7 +1,6 @@
 #pragma once
 #include <Actor.h>
 #include "ActorFactory.h"
-#include "Logger.h"
 #include "Level.h"
 #include "Player.h"
 #include "EdgeCollisionResponse.h"

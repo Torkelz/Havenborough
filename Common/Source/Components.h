@@ -1,9 +1,4 @@
-/**
- * Stuff.
- */
-
 #pragma once
-
 #include "ActorComponent.h"
 #include "CommonExceptions.h"
 #include "EventData.h"
@@ -15,7 +10,7 @@
 
 /**
  * Interface for a physics component.
- * <p>
+ * 
  * Use for things like collisions and forces.
  */
 class PhysicsInterface : public ActorComponent

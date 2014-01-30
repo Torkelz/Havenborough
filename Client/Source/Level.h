@@ -1,11 +1,8 @@
 #pragma once
-
-#include <ActorFactory.h>
 #include "CheckpointSystem.h"
-#include "LevelBinaryLoader.h"
 #include "IPhysics.h"
 #include "ResourceManager.h"
-#include <Utilities/Util.h>
+#include <ActorFactory.h>
 
 class Level
 {
@@ -67,13 +64,13 @@ public:
 	~Level();
 
 	/**
-	 * Releases reasources and de-allocates vector memory.
+	 * Releases resources and deallocates vector memory.
 	 **/
 	void releaseLevel();
 
 	/**
-	 * Loades a .txl file and send the information to Physics and Graphics, 
-	 * the collision map is also a .txl file but loades information about collision.
+	 * Loads a .txl file and send the information to Physics and Graphics, 
+	 * the collision map is also a .txl file but loads information about collision.
 	 *
 	 * @param p_LevelFilePath the complete path to the environment .txl file.
 	 */
@@ -94,7 +91,7 @@ public:
 	
 	/**
 	* Removes the current checkpoint and sets the next checkpoint in the vector to the current checkpoint with corresponding 
-	* tone to be shadede with.
+	* tone to be shaded with.
 	* @param p_Objects vector with Actor objects for the current moment
 	*/
 	void changeCheckpoint(std::vector<Actor::ptr> &p_Objects);
