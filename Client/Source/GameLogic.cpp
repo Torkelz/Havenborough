@@ -68,14 +68,13 @@ void GameLogic::onFrame(float p_DeltaTime)
 			{
 				m_Physics->removeHitDataAt(i);
 			}
-			if(!m_CheckpointSystem.reachedFinishLine() && m_CheckpointSystem.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
+			if(!m_Level.reachedFinishLine() && m_Level.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
 			{
-				m_CheckpointSystem.changeCheckpoint(m_Objects);
-				if(m_CheckpointSystem.reachedFinishLine())
+				m_Level.changeCheckpoint(m_Objects);
+				if(m_Level.reachedFinishLine())
 				{
 						m_Level = Level();
 						m_Objects.clear();
-						m_CheckpointSystem = CheckpointSystem();
 
 						m_InGame = false;
 
@@ -87,6 +86,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 						}
 
 						m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+						return;
 				}
 				m_Physics->removeHitDataAt(i);
 			}
@@ -104,11 +104,16 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime);
 
-
 	Vector3 actualViewRot = getPlayerViewRotation();
-	lookDir.x = -sinf(actualViewRot.x) * cosf(actualViewRot.y);
-	lookDir.y = sinf(actualViewRot.y);
-	lookDir.z = -cosf(actualViewRot.x) * cosf(actualViewRot.y);
+	DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationRollPitchYaw(
+		actualViewRot.y, actualViewRot.x, actualViewRot.z);
+	static const DirectX::XMFLOAT4 forward(0.f, 0.f, 1.f, 0.f);
+	static const DirectX::XMVECTOR vecForward = DirectX::XMLoadFloat4(&forward);
+	DirectX::XMVECTOR vecLookDir = DirectX::XMVector4Transform(vecForward, rotMatrix);
+	DirectX::XMFLOAT3 fLookDir;
+	DirectX::XMStoreFloat3(&fLookDir, vecLookDir);
+
+	lookDir = fLookDir;
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
 	if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
@@ -117,7 +122,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 		data.m_Rotation = actualViewRot;
 		data.m_Position = m_Player.getPosition();
 		data.m_Velocity = m_Player.getVelocity();
-		data.m_Rotation.x += 3.1415f;
 		data.m_Rotation.y = 0.f;
 
 		conn->sendPlayerControl(data);
@@ -127,6 +131,10 @@ void GameLogic::onFrame(float p_DeltaTime)
 	{
 		actor->onUpdate(p_DeltaTime);
 	}
+
+	// ##### Model animation update stuff. ######
+	m_Player.updateAnimation(actualViewRot);
+	// ##### Model animation update stuff end. #####
 
 	updateSandbox(p_DeltaTime);
 }
@@ -179,7 +187,7 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 		m_PlayerViewRotation.y = -PI * 0.45f;
 	}
 
-	Vector3 playerRotation = Vector3(m_PlayerViewRotation.x + PI, 0.f, 0.f);
+	Vector3 playerRotation = Vector3(m_PlayerViewRotation.x, 0.f, 0.f);
 	Actor::ptr actor = m_Player.getActor().lock();
 	if (actor)
 	{
@@ -201,31 +209,34 @@ void GameLogic::toggleIK()
 
 void GameLogic::testBlendAnimation()
 {
-	playAnimation(wavingWitch.lock(), "Bomb");
-	playAnimation(ikTest.lock(), "Spin");
-	playAnimation(testWitch.lock(), "Idle");
+	playAnimation(wavingWitch.lock(), "Bomb", false);
+	playAnimation(ikTest.lock(), "Spin", false);
+	playAnimation(testWitch.lock(), "Idle", false);
 }
 
 void GameLogic::testResetAnimation()
 {
-	playAnimation(wavingWitch.lock(), "Kick");
-	playAnimation(ikTest.lock(), "Wave");
-	playAnimation(testWitch.lock(), "Run");
+	playAnimation(wavingWitch.lock(), "Kick", false);
+	playAnimation(ikTest.lock(), "Wave", false);
+	playAnimation(testWitch.lock(), "Run", false);
 }
 
 void GameLogic::testLayerAnimation()
 {
-	playAnimation(ikTest.lock(), "Wave");
-	playAnimation(wavingWitch.lock(), "Bomb");
-	playAnimation(testWitch.lock(), "Wave");
+	//playAnimation(ikTest.lock(), "Wave", false);
+	//playAnimation(wavingWitch.lock(), "Bomb", false);
+	//playAnimation(testWitch.lock(), "Wave", false);
+	playAnimation(m_Player.getActor().lock(), "LookAround", false);
 }
 
 void GameLogic::testResetLayerAnimation()
 {
-	playAnimation(wavingWitch.lock(), "Kick");
-	playAnimation(ikTest.lock(), "Wave");
-	playAnimation(testWitch.lock(), "Run");
-	playAnimation(testWitch.lock(), "DefLayer1");
+	//playAnimation(wavingWitch.lock(), "Kick", false);
+	//playAnimation(ikTest.lock(), "Wave", false);
+	//playAnimation(testWitch.lock(), "Run", false);
+	//playAnimation(testWitch.lock(), "DefLayer1", false);
+	playAnimation(m_Player.getActor().lock(), "Idle2", false);
+	changeAnimationWeight(m_Player.getActor().lock(), 4, 0.0f);
 }
 
 void GameLogic::playLocalLevel()
@@ -239,16 +250,16 @@ void GameLogic::playLocalLevel()
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
-	m_Level.loadLevel(input, input, m_Objects);
+	m_Level.loadLevel(input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("../Bin/assets/levels/Level1.2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("../Bin/assets/levels/Level1.2.1.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
-	m_Level.loadLevel(input, input, m_Objects);
+	m_Level.loadLevel(input, m_Objects);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
@@ -264,6 +275,9 @@ void GameLogic::playLocalLevel()
 	loadSandbox();
 
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
+
+	// DEBUG STUFFZ
+	playAnimation( m_Player.getActor().lock(), "Run", false );
 }
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
@@ -277,7 +291,6 @@ void GameLogic::leaveGame()
 	{
 		m_Level = Level();
 		m_Objects.clear();
-		m_CheckpointSystem = CheckpointSystem();
 
 		m_InGame = false;
 
@@ -347,20 +360,20 @@ void GameLogic::handleNetwork()
 					{
 						std::string buffer(conn->getLevelData(package),size);
 						std::istringstream stream(buffer);
-						m_Level.loadLevel(stream, stream, m_Objects);
+						m_Level.loadLevel(stream, m_Objects);
 					}
 					else
 					{
 #ifdef _DEBUG
 						std::string levelFileName("../Bin/assets/levels/Level2.btxl");
 #else
-						std::string levelFileName("../Bin/assets/levels/Level1.2.btxl");
+						std::string levelFileName("../Bin/assets/levels/Level1.2.1.btxl");
 #endif
 						std::ifstream file(levelFileName, std::istream::binary);
-						m_Level.loadLevel(file, file, m_Objects);
+						m_Level.loadLevel(file, m_Objects);
 					}
 					m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
-					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 679.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 				}
 				break;
 			case PackageType::UPDATE_OBJECTS:
@@ -526,26 +539,27 @@ void GameLogic::loadSandbox()
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
 	addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f)));
-	playAnimation(testWitch.lock(), "Run");
+	playAnimation(testWitch.lock(), "Run", false);
 
 	m_Objects.push_back(m_ActorFactory->createClimbBox());
 
 	circleWitch = addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(0.f, 0.f, 0.f)));
-	playAnimation(circleWitch.lock(), "Run");
+	playAnimation(circleWitch.lock(), "Run", false);
 	standingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1600.f, 0.f, -500.f)));
-	playAnimation(standingWitch.lock(), "Bomb");
+	playAnimation(standingWitch.lock(), "Bomb", false);
 	wavingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f)));
-	playAnimation(wavingWitch.lock(), "Kick");
+	playAnimation(wavingWitch.lock(), "Kick", false);
 	
-	m_CheckpointSystem = CheckpointSystem();
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(m_Level.getGoalPosition(), Vector3(1.0f, 10.0f, 1.0f))));
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem = CheckpointSystem();
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(m_Level.getGoalPosition(), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
+	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
 
 	ikTest = addActor(m_ActorFactory->createIK_Worm());
-	playAnimation(ikTest.lock(), "Wave");
+	playAnimation(ikTest.lock(), "Wave", false);
+
 
 	static const unsigned int numTowerBoxes = 5;
 	Vector3 towerBoxSizes[numTowerBoxes] =
@@ -645,7 +659,7 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 	}
 }
 
-void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
+void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
 {
 	if (!p_Actor)
 	{
@@ -655,7 +669,35 @@ void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
 	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
 	if (comp)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName)));
+		m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName, p_Override)));
+	}
+}
+
+void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
+{
+	if (!p_Actor)
+	{
+		return;
+	}
+
+	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	if (comp)
+	{
+		m_EventManager->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
+	}
+}
+
+void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight)
+{
+	if (!p_Actor)
+	{
+		return;
+	}
+
+	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	if (comp)
+	{
+		m_EventManager->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
 	}
 }
 

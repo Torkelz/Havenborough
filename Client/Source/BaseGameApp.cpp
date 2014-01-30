@@ -56,7 +56,8 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
 	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseBV, m_Physics, _1));
-	m_ResourceManager->registerFunction("sound", std::bind(&ISound::loadSound, m_Sound, _1, _2), std::bind(&ISound::releaseSound, m_Sound, _1));
+	m_ResourceManager->registerFunction( "sound", std::bind(&ISound::loadSound, m_Sound, _1, _2), std::bind(&ISound::releaseSound, m_Sound, _1));
+	m_ResourceManager->registerFunction( "particleSystem", std::bind(&IGraphics::createParticleEffectDefinition, m_Graphics, _1, _2), std::bind(&IGraphics::releaseParticleEffectDefinition, m_Graphics, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -83,6 +84,9 @@ void BaseGameApp::init()
 	//translator->addKeyboardMapping('L', "changeSceneN");
 	translator->addKeyboardMapping('9', "switchBVDraw");
 	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
+
+	translator->addKeyboardMapping('O', "thirdPersonCamera");
+	translator->addKeyboardMapping('P', "flipCamera");
 
 	translator->addKeyboardMapping('B', "blendAnimation");
 	translator->addKeyboardMapping('N', "resetAnimation");
@@ -285,8 +289,8 @@ void BaseGameApp::updateTimer()
 {
 	m_PrevTimeStamp = m_CurrTimeStamp;
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_CurrTimeStamp);
-	m_DeltaTime = (m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt;
-	static const float maxDeltaTime = 1.f / 5.f;
+	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt);// / 10.0f; // To debug the game at low refreshrate.
+	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{
 		Logger::log(Logger::Level::WARNING, "Computer to slow or something");

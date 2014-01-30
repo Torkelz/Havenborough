@@ -10,12 +10,13 @@ ModelInstance::ModelInstance()
 	: m_IsCalculated(false), 
 	m_ColorTone(DirectX::XMFLOAT3(1.f, 1.f, 1.f))
 {
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		m_Tracks[i].active = false;
 		m_Tracks[i].fadedFrames = 0.0f;
 		m_Tracks[i].currentFrame = 0.0f;
 		m_Tracks[i].destinationFrame = 1.0f;
+		m_Tracks[i].dynamicWeight = 1.0f;
 		m_Tracks[i].clip = AnimationClip();
 	}
 }
@@ -83,11 +84,95 @@ void ModelInstance::calculateWorldMatrix() const
 void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>& p_Joints)
 {
 	using namespace DirectX;
+	// Update time stamp in the direction of the animation speed per track.
+	updateTimeStamp(p_DeltaTime);
 
-	static const float keyfps = 24.0f;
+	// Check if any fade blends are active and if they should end.
+	checkFades();
 
-	// Check if any fade blend are active and if they should end.
-	for (int i = 0; i < 3; i++)
+	const unsigned int numBones = p_Joints.size();
+
+	m_LocalTransforms.resize(numBones);
+
+	// Calculate the local transformations for each joint. Has 
+	// to be done before IK is calculated and applied.
+	for(unsigned int i = 0; i < numBones; ++i)
+	{
+		MatrixDecomposed toParentData;
+		// Track 0 is the main track. Do vanilla animation.
+		if(m_Tracks[0].clip.m_AnimationSpeed > 0)
+		{
+			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].currentFrame, m_Tracks[0].destinationFrame);
+		}
+		else
+		{
+			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].destinationFrame, m_Tracks[0].currentFrame);
+		}
+
+		for(unsigned int currentTrack = 1; currentTrack < 6; currentTrack++)
+		{
+			if (m_Tracks[currentTrack].active)
+			{
+				if (currentTrack > 3)
+				{
+					if (affected(p_Joints, i, m_Tracks[currentTrack].clip.m_FirstJoint))
+					{
+						toParentData = updateKeyFrameInformation(p_Joints[i], currentTrack, toParentData);
+					}
+				}
+				else
+					toParentData = updateKeyFrameInformation(p_Joints[i], currentTrack, toParentData);
+			}
+		}
+
+		if (m_Tracks[4].active)
+		{
+			XMVECTOR temp = XMLoadFloat4(&toParentData.translation);
+			float leng = XMVectorGetX(XMVector3Length(temp));
+			if(leng > 0.0001f)
+				int lollzzz = 0;
+
+			temp = XMLoadFloat4(&toParentData.scale);
+			leng = XMVectorGetX(XMVector3Length(temp));
+			if(leng > 1.733f)
+				int lollzzz = 0;
+		}
+
+		XMMATRIX transMat = XMMatrixTranslationFromVector(XMLoadFloat4(&toParentData.translation));
+		XMMATRIX scaleMat = XMMatrixScalingFromVector(XMLoadFloat4(&toParentData.scale));
+		XMMATRIX rotMat = XMMatrixRotationQuaternion(XMLoadFloat4(&toParentData.rotation));
+		XMMATRIX toParentMatrix = XMMatrixTranspose(scaleMat * rotMat * transMat);
+
+		XMMATRIX toParent = XMMatrixMultiply(XMMatrixTranspose(XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix)), toParentMatrix);
+		XMStoreFloat4x4(&m_LocalTransforms[i], toParent);
+	}
+
+	updateFinalTransforms(p_Joints);
+}
+
+MatrixDecomposed ModelInstance::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack, MatrixDecomposed p_ToParentData)
+{
+	MatrixDecomposed tempData;
+	if(m_Tracks[p_CurrentTrack].clip.m_AnimationSpeed > 0)
+	{
+		tempData = p_Joint.interpolateEx(m_Tracks[p_CurrentTrack].currentFrame, m_Tracks[p_CurrentTrack].destinationFrame);
+	}
+	else
+	{
+		tempData = p_Joint.interpolateEx(m_Tracks[p_CurrentTrack].destinationFrame, m_Tracks[p_CurrentTrack].currentFrame);
+	}
+
+	if(m_Tracks[p_CurrentTrack].clip.m_FadeIn)
+		return p_Joint.interpolateEx( p_ToParentData, tempData, (m_Tracks[p_CurrentTrack].fadedFrames / (float)m_Tracks[p_CurrentTrack].clip.m_FadeInFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight * m_Tracks[p_CurrentTrack].dynamicWeight);
+	else if(m_Tracks[p_CurrentTrack].clip.m_FadeOut && !m_Tracks[p_CurrentTrack].clip.m_Loop)
+		return p_Joint.interpolateEx( p_ToParentData, tempData, 1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames / (float)m_Tracks[p_CurrentTrack].clip.m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight) * m_Tracks[p_CurrentTrack].dynamicWeight );
+	else
+		return p_Joint.interpolateEx( p_ToParentData, tempData, m_Tracks[p_CurrentTrack].clip.m_Weight * m_Tracks[p_CurrentTrack].dynamicWeight );
+}
+
+void ModelInstance::checkFades()
+{
+	for (int i = 1; i < 6; i++)
 	{
 		if (m_Tracks[i].clip.m_FadeIn)
 		{
@@ -95,27 +180,41 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 			{
 				m_Tracks[i].clip.m_FadeIn = false;
 				m_Tracks[i].fadedFrames = 0.0f;
+
 				if(!m_Tracks[i].clip.m_Layered && m_Tracks[i].clip.m_Loop)
 				{
-					m_Tracks[0] = m_Tracks[i];
+					m_Tracks[i - 1] = m_Tracks[i];
 					m_Tracks[i].active = false;
-					m_Tracks[0].active = true;
+					m_Tracks[i - 1].active = true;
 				}
 			}
 		}
-		else if ( m_Tracks[i].clip.m_FadeOut && !m_Tracks[i].clip.m_Loop )
+		if (!m_Tracks[i].clip.m_FadeIn && m_Tracks[i].clip.m_FadeOut)
 		{
-			if( (float)m_Tracks[i].clip.m_End < m_Tracks[i].currentFrame)
+			if ((float)m_Tracks[i].clip.m_FadeOutFrames <= m_Tracks[i].fadedFrames)
+			{
+				m_Tracks[i].clip.m_FadeOut = false;
+				m_Tracks[i].fadedFrames = 0.0f;
+				m_Tracks[i].active = false;
+			}
+		}
+		if( (float)(m_Tracks[i].clip.m_End - m_Tracks[i].clip.m_FadeOutFrames - 1) < m_Tracks[i].currentFrame)
+		{
+			if(!playQueuedClip(i))
 			{
 				m_Tracks[i].active = false;
 			}
 		}
 	}
+}
 
-	// Update time stamp in the direction of the animation speed.
-	for (int i = 0; i < 3; i++)
+void ModelInstance::updateTimeStamp(float p_DeltaTime)
+{
+	static const float keyfps = 24.0f;
+
+	for (int i = 0; i < 6; i++)
 	{
-		if( m_Tracks[i].active)
+		if( m_Tracks[i].active )
 		{
 			float frameStep = p_DeltaTime * keyfps * m_Tracks[i].clip.m_AnimationSpeed;
 			m_Tracks[i].currentFrame += frameStep;
@@ -176,86 +275,6 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 			}
 		}
 	}
-
-	const unsigned int numBones = p_Joints.size();
-
-	m_LocalTransforms.resize(numBones);
-
-	// Calculate the local transformations for each joint. Has 
-	// to be done before IK is calculated and applied.
-	for(unsigned int i = 0; i < numBones; ++i)
-	{
-		MatrixDecomposed toParentData;
-		// Track 0 is the main track. Do vanilla animation.
-		if(m_Tracks[0].clip.m_AnimationSpeed > 0)
-		{
-			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].currentFrame, m_Tracks[0].destinationFrame);
-		}
-		else
-		{
-			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].destinationFrame, m_Tracks[0].currentFrame);
-		}
-
-		// Track 2 contains whole body animations. Only layered and full body blends are allowed.
-		if (m_Tracks[2].active)
-		{
-			MatrixDecomposed tempData;
-			if(m_Tracks[2].clip.m_AnimationSpeed > 0)
-			{
-				tempData = p_Joints[i].interpolateEx(m_Tracks[2].currentFrame, m_Tracks[2].destinationFrame);
-			}
-			else
-			{
-				tempData = p_Joints[i].interpolateEx(m_Tracks[2].destinationFrame, m_Tracks[2].currentFrame);
-			}
-
-			if(m_Tracks[2].clip.m_Loop && !m_Tracks[2].clip.m_Layered)
-			{
-				if(m_Tracks[2].clip.m_FadeIn)
-					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[2].fadedFrames / (float)m_Tracks[2].clip.m_FadeInFrames));
-			}
-			
-			else
-			{
-				if(m_Tracks[2].clip.m_FadeIn)
-				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[2].fadedFrames / (float)m_Tracks[2].clip.m_FadeInFrames) * m_Tracks[2].clip.m_Weight);
-				else
-				toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[2].clip.m_Weight );
-			}
-		}
-
-		// Track 1 should hold partial animations such as waving, spellcasting etc. The skeleton is traversed with the function affected().
-		if (m_Tracks[1].active)
-		{
-			if (affected(p_Joints, i, m_Tracks[1].clip.m_FirstJoint))
-			{
-				MatrixDecomposed tempData;
-				if(m_Tracks[1].clip.m_AnimationSpeed > 0)
-					tempData = p_Joints[i].interpolateEx(m_Tracks[1].currentFrame, m_Tracks[1].destinationFrame);
-				else
-					tempData = p_Joints[i].interpolateEx(m_Tracks[1].destinationFrame, m_Tracks[1].currentFrame);
-
-				if(m_Tracks[1].clip.m_FadeIn)
-					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, (m_Tracks[1].fadedFrames / (float)m_Tracks[1].clip.m_FadeInFrames) * m_Tracks[1].clip.m_Weight );
-				else if(m_Tracks[1].clip.m_FadeOut && !m_Tracks[1].clip.m_Loop)
-				{
-					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, 1.0f - ((m_Tracks[1].fadedFrames / (float)m_Tracks[1].clip.m_FadeOutFrames) * m_Tracks[1].clip.m_Weight) );
-				}
-				else
-					toParentData = p_Joints[i].interpolateEx( toParentData, tempData, m_Tracks[1].clip.m_Weight );
-			}
-		}
-
-		XMMATRIX transMat = XMMatrixTranslationFromVector(XMLoadFloat4(&toParentData.translation));
-		XMMATRIX scaleMat = XMMatrixScalingFromVector(XMLoadFloat4(&toParentData.scale));
-		XMMATRIX rotMat = XMMatrixRotationQuaternion(XMLoadFloat4(&toParentData.rotation));
-		XMMATRIX toParentMatrix = XMMatrixTranspose(scaleMat * rotMat * transMat);
-
-		XMMATRIX toParent = XMMatrixMultiply(XMMatrixTranspose(XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix)), toParentMatrix);
-		XMStoreFloat4x4(&m_LocalTransforms[i], toParent);
-	}
-
-	updateFinalTransforms(p_Joints);
 }
 
 bool ModelInstance::affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint)
@@ -496,30 +515,90 @@ void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
 	}
 }
 
-void ModelInstance::playClip( AnimationClip p_Clip )
+void ModelInstance::playClip( AnimationClip p_Clip, bool p_Override )
 {
-	// If the main track is already active it suggests that there is already a main
-	// animation active. The new animation should be faded in and then override the
-	// old animation.
-	m_Tracks[0].active = true;
-	if(p_Clip.m_DestinationTrack == 0 && m_Tracks[0].active)
+	int track = p_Clip.m_DestinationTrack;
+	if(track == 4)
 	{
-		m_Tracks[2].clip = p_Clip;
-		m_Tracks[2].fadedFrames = 0.0f;
-		m_Tracks[2].active = true;
-		m_Tracks[2].currentFrame = (float)p_Clip.m_Start;
+		m_Tracks[0].active = false;
+		m_Tracks[1].active = false;
+		m_Tracks[2].active = false;
+		m_Tracks[3].active = false;
+		m_Tracks[5].active = false;
+	}
+	if(p_Override)
+	{
+		m_Tracks[track].clip = p_Clip;
+		m_Tracks[track].fadedFrames = 0.0f;
+		m_Tracks[track].active = true;
+		m_Tracks[track].currentFrame = (float)p_Clip.m_Start;
+		m_Tracks[track].dynamicWeight = 1.0f;
 	}
 	else
 	{
-		m_Tracks[p_Clip.m_DestinationTrack].clip = p_Clip;
-		m_Tracks[p_Clip.m_DestinationTrack].fadedFrames = 0.0f;
-		m_Tracks[p_Clip.m_DestinationTrack].active = true;
-		m_Tracks[p_Clip.m_DestinationTrack].currentFrame = (float)p_Clip.m_Start;
-	}
+		if(m_Tracks[track].active)
+		{
+			if(!m_Tracks[track + 1].active)
+			{
+				m_Tracks[track + 1].clip = p_Clip;
+				m_Tracks[track + 1].fadedFrames = 0.0f;
+				m_Tracks[track + 1].active = true;
+				m_Tracks[track + 1].currentFrame = (float)p_Clip.m_Start;
+				m_Tracks[track + 1].dynamicWeight = 1.0f;
+			}
+			else
+			{	
+				m_Tracks[track].clip			= 	m_Tracks[track + 1].clip;
+				m_Tracks[track].fadedFrames		= 	m_Tracks[track + 1].fadedFrames;
+				m_Tracks[track].active			= 	m_Tracks[track + 1].active;
+				m_Tracks[track].currentFrame	= 	m_Tracks[track + 1].currentFrame;
+				m_Tracks[track].dynamicWeight	= 	m_Tracks[track + 1].dynamicWeight;
 
-	// DEBUG to in-activate looping animations on track 1.
-	if(!p_Clip.m_Layered && !p_Clip.m_FadeIn)
-	{
-		m_Tracks[1].active = false;
+				m_Tracks[track + 1].clip = p_Clip;
+				m_Tracks[track + 1].fadedFrames = 0.0f;
+				m_Tracks[track + 1].active = true;
+				m_Tracks[track + 1].currentFrame = (float)p_Clip.m_Start;
+				m_Tracks[track + 1].dynamicWeight = 1.0f;
+			}
+		}
+		else
+		{
+			m_Tracks[track].clip = p_Clip;
+			m_Tracks[track].fadedFrames = 0.0f;
+			m_Tracks[track].active = true;
+			m_Tracks[track].currentFrame = (float)p_Clip.m_Start;
+			m_Tracks[track].dynamicWeight = 1.0f;
+		}
 	}
+}
+
+void ModelInstance::queueClip( AnimationClip p_Clip )
+{
+	m_Queue.push_back(p_Clip);
+}
+
+bool ModelInstance::playQueuedClip(int p_Track)
+{
+	if (p_Track == 1 || p_Track == 3 || p_Track == 5)
+		p_Track--;
+
+	if(!m_Queue.empty())
+	{
+		for (unsigned int i = 0; i < m_Queue.size(); i++)
+		{
+			if (m_Queue[i].m_DestinationTrack == p_Track)
+			{
+				playClip(m_Queue[i], false);
+				m_Queue.erase(m_Queue.begin() + i);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void ModelInstance::changeWeight(int p_Track, float p_Weight)
+{
+	if(p_Track > 0 && p_Track < 6)	
+		m_Tracks[p_Track].dynamicWeight = m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
 }

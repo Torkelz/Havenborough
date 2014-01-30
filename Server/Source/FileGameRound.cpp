@@ -17,7 +17,17 @@ void FileGameRound::setup()
 		m_Players[i].setActor(actor);
 		m_Actors.push_back(actor);
 	}
-	m_FileLoader.loadBinaryFile(m_FilePath);
+
+	m_Actors.push_back(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.f, 1.f, 1.f)));
+	m_Actors.push_back(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f)));
+	m_Actors.push_back(m_ActorFactory->createSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
+		Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f, Vector3(0.f,1.f,0.f)));
+	m_Actors.push_back(m_ActorFactory->createPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f)));
+	m_Actors.push_back(m_ActorFactory->createPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
+	m_Actors.push_back(m_ActorFactory->createPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
+
+	m_FileLoader.reset(new LevelBinaryLoader);
+	m_FileLoader->loadBinaryFile(m_FilePath);
 }
 
 void FileGameRound::setFilePath(std::string p_Filepath)
@@ -43,27 +53,8 @@ void FileGameRound::sendLevel()
 		instances.push_back(inst);
 	}
 
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Light");
-	printer.PushAttribute("Type", "Directional");
-	pushVector(printer, "Direction", Vector3(0.f, -1.f, 0.f));
-	static const Vector3 color(1.f, 1.f, 1.f);
-	printer.OpenElement("Color");
-	printer.PushAttribute("r", color.x);
-	printer.PushAttribute("g", color.y);
-	printer.PushAttribute("b", color.z);
-	printer.CloseElement();
-	printer.CloseElement();
-	printer.CloseElement();
-
-	descriptions.push_back(printer.CStr());
-	ObjectInstance lightData =
-	{
-		descriptions.back().c_str(),
-		0
-	};
-	instances.push_back(lightData);
+	std::string stream = m_FileLoader->getDataStream();
+	m_FileLoader.reset();
 
 	for (auto& player : m_Players)
 	{
@@ -74,7 +65,6 @@ void FileGameRound::sendLevel()
 			if(actor)
 			{
 				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
-				std::string stream = m_FileLoader.getDataStream();
 				user->getConnection()->sendLevelData(stream.c_str(), stream.size());
 				user->getConnection()->sendAssignPlayer(actor->getId());
 			}

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Utilities/XMFloatUtil.h>
 #include <tinyxml2/tinyxml2.h>
 
 #include <memory>
@@ -65,6 +66,20 @@ public:
 	 * @param p_Printer the printer to output the component description to
 	 */
 	virtual void serialize(tinyxml2::XMLPrinter& p_Printer) const = 0;
+
+	/**
+	 * Update the position of the component, given the actors new position.
+	 *
+	 * @param p_Position the owning actors new position
+	 */
+	virtual void setPosition(Vector3 p_Position) {}
+
+	/**
+	 * Update the rotation of the component, given the actors new rotation.
+	 *
+	 * @param p_Rotation the new rotation of the owning actor, in (yaw, pitch, roll), left-handed
+	 */
+	virtual void setRotation(Vector3 p_Rotation) {}
 
 private:
 	friend class ActorFactory;

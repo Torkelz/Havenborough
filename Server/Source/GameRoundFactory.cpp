@@ -26,7 +26,7 @@ GameRound::ptr GameRoundFactory::createRound(const std::string& p_GameType)
 		ActorFactory::ptr actorFactory(new ActorFactory(0));
 
 		std::shared_ptr<FileGameRound> gameRound(new FileGameRound);
-		gameRound->setFilePath("../../Client/Bin/assets/levels/Level1.2.btxl");
+		gameRound->setFilePath("../../Client/Bin/assets/levels/Level1.2.1.btxl");
 		gameRound->setGameType(p_GameType);
 		gameRound->initialize(actorFactory, m_ReturnLobby);
 

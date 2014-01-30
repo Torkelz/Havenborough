@@ -28,7 +28,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("Street1", "assets/models/Street1.btx"),
 		std::make_pair("IKTest", "assets/models/testRig.btx"),
 		std::make_pair("Tree1", "assets/models/Tree1.btx"),
-		std::make_pair("WITCH", "assets/models/Witch_5_Running.btx"),
+		std::make_pair("WITCH", "assets/models/Witch_new2.btx"),
 		std::make_pair("WoodenShed1", "assets/models/WoodenShed.btx"),
 	};
 
@@ -55,7 +55,8 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	static const std::pair<std::string, std::string> textureMap[] =
 	{
 		std::make_pair("TEXTURE_NOT_FOUND", "assets/textures/TextureNotFound.png"),
-		std::make_pair("SKYBOXDDS", "assets/textures/d3d_skybox_9.dds"),
+		std::make_pair("SKYBOXDDS", "assets/textures/Skybox0.dds"),
+		std::make_pair("Particle1", "assets/textures/Particle1.dds"),
 	};
 	static const size_t numTextures = sizeof(textureMap) / sizeof(textureMap[0]);
 
@@ -65,12 +66,19 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	};
 	static const size_t numSounds = sizeof(soundMap) / sizeof(soundMap[0]);
 
+	static const std::pair<std::string, std::string> particleMap[] =
+	{
+		std::make_pair("TestParticle", "assets/particles/TestParticle.xml"),
+	};
+	static const size_t numParticles = sizeof(particleMap) / sizeof(particleMap[0]);
+
 	static const std::pair<std::string, std::vector<const std::pair<std::string, std::string>>> resourceMaps[] =
 	{
 		std::make_pair("model", std::vector<const std::pair<std::string, std::string>>(modelMap, modelMap + numModels)),
 		std::make_pair("texture", std::vector<const std::pair<std::string, std::string>>(textureMap, textureMap + numTextures)),
 		std::make_pair("volume", std::vector<const std::pair<std::string, std::string>>(boundingMap, boundingMap + numBoundingVolumes)),
 		std::make_pair("sound", std::vector<const std::pair<std::string, std::string>>(soundMap, soundMap + numSounds)),
+		std::make_pair("particleSystem", std::vector<const std::pair<std::string, std::string>>(particleMap, particleMap + numParticles)),
 	};
 
 	for (const auto& map : resourceMaps)

@@ -149,13 +149,13 @@ BOOST_AUTO_TEST_CASE(TestSound)
 	BOOST_MESSAGE(ID + "Step 2: Checking the load sound function.");
 	std::string ts = "TestSound";
 	BOOST_MESSAGE(ID + "Adding default sound, 'gun_battle.mp3'...");
-	BOOST_CHECK_NO_THROW(sound->loadSound(ts.c_str(), "../Source/gun_battle.mp3"));
+	BOOST_CHECK_NO_THROW(sound->loadSound(ts.c_str(), "assets/gun_battle.mp3"));
 
 	BOOST_MESSAGE(ID + "Trying to add non-existent sound, 'gun.mp3'...");
-	BOOST_CHECK_THROW(sound->loadSound("FakeSound1", "../Source/gun.mp3"), SoundException);
+	BOOST_CHECK_THROW(sound->loadSound("FakeSound1", "assets/gun.mp3"), SoundException);
 	
 	BOOST_MESSAGE(ID + "Trying to add illegal file, 'gun.txt'...");
-	BOOST_CHECK_THROW(sound->loadSound("FakeSound2", "../Source/gun.txt"), SoundException);
+	BOOST_CHECK_THROW(sound->loadSound("FakeSound2", "assets/gun.txt"), SoundException);
 	// ############### STEP 2 END ###############
 
 	// ############### STEP 3 START ###############

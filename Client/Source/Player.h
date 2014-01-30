@@ -3,6 +3,7 @@
 #include "Actor.h"
 #include "IPhysics.h"
 #include <Utilities/Util.h>
+#include "Components.h"
 
 #include <DirectXMath.h>
 
@@ -11,6 +12,39 @@ using namespace DirectX;
 class Player
 {
 private:
+	enum class ForwardAnimationState
+	{
+		IDLE,
+		WALKING_FORWARD,
+		RUNNING_FORWARD,
+		WALKING_BACKWARD,
+		RUNNING_BACKWARD,
+	};
+
+	enum class SideAnimationState
+	{
+		IDLE,
+		WALKING_LEFT,
+		RUNNING_LEFT,
+		WALKING_RIGHT,
+		RUNNING_RIGHT,
+	};
+
+	enum class JumpAnimationState
+	{
+		IDLE,
+		JUMP,
+		FLYING,
+		FALLING,
+		LIGHT_LANDING,
+		HARD_LANDING,
+	};
+
+	ForwardAnimationState m_PrevForwardState;
+	SideAnimationState m_PrevSideState;
+	JumpAnimationState m_PrevJumpState;
+	float m_FallSpeed;
+
 	XMFLOAT3 m_LookDirection;
 	float m_ViewRotation[2];
 
@@ -34,6 +68,9 @@ private:
 	float m_ForceMoveSpeed;	// cm/s
 	Vector3 m_ForceMoveStartPosition;	// cm
 	Vector3 m_ForceMoveEndPosition;	// cm
+
+	Vector3 m_CurrentVelocity;
+	Vector3 m_PreviousVelocity;
 
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
 	//while climbing objects.
@@ -139,12 +176,16 @@ public:
 	*/
 	void update(float p_DeltaTime);
 
+	void updateAnimation(Vector3 p_Rotation);
+
 	/**
 	 * Get the current velocity of the player.
 	 *
 	 * @return the velocity of the player in cm in world space
 	 */
 	Vector3 getVelocity() const;
+	Vector3 getPreviousVelocity() const;
+	Vector3 getDirection() const;
 
 	/**
 	 * Get the actor that represents the player.
@@ -162,4 +203,7 @@ public:
 private:
 	void jump(float dt);
 	void move(void);
+	void playAnimation(std::string p_AnimationName, bool p_Override);
+	void queueAnimation(std::string p_AnimationName);
+	void changeAnimationWeight(int p_Track, float p_Weight);
 };

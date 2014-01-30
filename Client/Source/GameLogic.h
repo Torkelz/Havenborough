@@ -7,7 +7,6 @@
 #include "EdgeCollisionResponse.h"
 #include "EventManager.h"
 #include "Input/Input.h"
-#include "CheckpointSystem.h"
 
 #include <INetwork.h>
 
@@ -48,8 +47,6 @@ private:
 	std::weak_ptr<Actor> wavingWitch;
 	std::weak_ptr<Actor> ikTest;
 	std::weak_ptr<Actor> testWitch;
-
-	CheckpointSystem m_CheckpointSystem;
 
 	const static int NUM_BOXES = 16;
 	std::weak_ptr<Actor> rotBoxes[NUM_BOXES];
@@ -111,7 +108,9 @@ private:
 	void loadSandbox();
 	void updateSandbox(float p_DeltaTime);
 
-	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
+	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
+	void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
+	void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
 	void updateIK();
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);

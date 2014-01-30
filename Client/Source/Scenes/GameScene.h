@@ -16,6 +16,9 @@ private:
 	bool m_RenderDebugBV;
 	int m_SkyboxID;
 
+	bool m_UseThirdPersonCamera;
+	bool m_UseFlippedCamera;
+
 	IGraphics *m_Graphics;
 	ResourceManager *m_ResourceManager;
 	Input *m_InputQueue;
@@ -43,6 +46,8 @@ private:
 		std::vector<ReachIK> activeIKs;
 	};
 	std::vector<MeshBinding> m_Models;
+
+	IGraphics::InstanceId m_Particles;
 
 public: 
 	GameScene();
@@ -72,6 +77,8 @@ private:
 	void updateModelRotation(IEventData::Ptr p_Data);
 	void updateModelScale(IEventData::Ptr p_Data);
 	void playAnimation(IEventData::Ptr p_Data);
+	void queueAnimation(IEventData::Ptr p_Data);
+	void changeAnimationWeight(IEventData::Ptr p_Data);
 	void addReachIK(IEventData::Ptr p_Data);
 	void removeReachIK(IEventData::Ptr p_Data);
 	void changeColorTone(IEventData::Ptr p_Data);

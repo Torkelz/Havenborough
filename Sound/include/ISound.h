@@ -32,7 +32,7 @@ public:
 	 */
 	virtual void initialize(void) = 0;
 	/**
-	 * Updates the FMOD system, shoudl be valled every frame.
+	 * Updates the FMOD system, should be called every frame.
 	 */
 	virtual void onFrame(void) = 0;
 	/**
