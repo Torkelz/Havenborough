@@ -19,7 +19,6 @@
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
 
-
 class Graphics : public IGraphics
 {
 private:
