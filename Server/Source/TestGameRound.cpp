@@ -22,7 +22,7 @@ void TestGameRound::setup()
 		Vector3 position(500.f + i * 200.f, m_PlayerSphereRadius + 400.f, 500.f);
 
 		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
-		m_Players[i].setActor(actor);
+		m_Players[i]->setActor(actor);
 		m_Actors.push_back(actor);
 	}
 
@@ -61,10 +61,10 @@ void TestGameRound::sendLevel()
 
 	for(auto& player : m_Players)
 	{
-		User::ptr user = player.getUser().lock();
+		User::ptr user = player->getUser().lock();
 		if (user)
 		{
-			Actor::ptr actor = player.getActor().lock();
+			Actor::ptr actor = player->getActor().lock();
 			if (actor)
 			{
 				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
@@ -103,7 +103,7 @@ void TestGameRound::sendUpdates()
 
 	for (auto& player : m_Players)
 	{
-		User::ptr user = player.getUser().lock();
+		User::ptr user = player->getUser().lock();
 		if (user)
 		{
 			user->getConnection()->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
@@ -111,9 +111,9 @@ void TestGameRound::sendUpdates()
 	}
 }
 
-void TestGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
+void TestGameRound::playerDisconnected(Player::ptr p_DisconnectedPlayer)
 {
-	Actor::ptr actor = p_DisconnectedPlayer.getActor().lock();
+	Actor::ptr actor = p_DisconnectedPlayer->getActor().lock();
 	if (!actor)
 	{
 		return;
@@ -123,7 +123,7 @@ void TestGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
 
 	for (auto& player : m_Players)
 	{
-		User::ptr user = player.getUser().lock();
+		User::ptr user = player->getUser().lock();
 		if (user)
 		{
 			user->getConnection()->sendRemoveObjects(&playerActorId, 1);
@@ -155,9 +155,9 @@ UpdateObjectData TestGameRound::getUpdateData(const Actor::ptr p_Box)
 	return data;
 }
 
-UpdateObjectData TestGameRound::getUpdateData(const Player& p_Player)
+UpdateObjectData TestGameRound::getUpdateData(const Player::ptr p_Player)
 {
-	Actor::ptr actor = p_Player.getActor().lock();
+	Actor::ptr actor = p_Player->getActor().lock();
 	
 	if (!actor)
 	{

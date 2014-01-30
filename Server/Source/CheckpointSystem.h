@@ -44,7 +44,7 @@ public:
 	* Checks if the finish line been reached.
 	* @return true if finish line been reached, false if not
 	*/
-	bool reachedFinishLine(void);
+	Actor::Id reachedFinishLine(void);
 
 	/**
 	* Removes the current checkpoint and sets the next checkpoint in the vector to the current checkpoint with corresponding 

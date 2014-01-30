@@ -65,10 +65,10 @@ void GameRound::start()
 
 void GameRound::addNewPlayer(User::wPtr p_User)
 {
-	m_Players.push_back(Player(p_User));
+	m_Players.push_back(Player::ptr(new Player(p_User)));
 }
 
-std::vector<Player> GameRound::getPlayers() const
+std::vector<Player::ptr> GameRound::getPlayers() const
 {
 	return m_Players;
 }
@@ -83,9 +83,9 @@ std::string GameRound::getGameType() const
 	return m_TypeName;
 }
 
-void GameRound::handleExtraPackage(Player& p_Player, Package p_Package)
+void GameRound::handleExtraPackage(Player::ptr p_Player, Package p_Package)
 {
-	User::ptr user = p_Player.getUser().lock();
+	User::ptr user = p_Player->getUser().lock();
 
 	if (!user)
 	{
@@ -137,7 +137,7 @@ void GameRound::sendLevelAndWait()
 
 	for (auto& player : m_Players)
 	{
-		User::ptr user = player.getUser().lock();
+		User::ptr user = player->getUser().lock();
 		if (user)
 		{
 			user->setState(User::State::LOADING_LEVEL);
@@ -154,7 +154,7 @@ void GameRound::sendLevelAndWait()
 
 		for (auto& player : m_Players)
 		{
-			User::ptr user = player.getUser().lock();
+			User::ptr user = player->getUser().lock();
 
 			if (!user)
 			{
@@ -203,9 +203,9 @@ void GameRound::runGame()
 void GameRound::checkForDisconnectedUsers()
 {
 	auto split = std::partition(m_Players.begin(), m_Players.end(),
-		[] (const Player& p_Player)
+		[] (const Player::ptr p_Player)
 		{
-			return p_Player.getUser().lock();
+			return p_Player->getUser().lock();
 		});
 
 	for (auto removePlayer = split; removePlayer != m_Players.end(); ++removePlayer)
@@ -225,7 +225,7 @@ void GameRound::handlePackages()
 {
 	for(auto& player : m_Players)
 	{
-		User::ptr user = player.getUser().lock();
+		User::ptr user = player->getUser().lock();
 
 		if (!user)
 		{
@@ -246,7 +246,7 @@ void GameRound::handlePackages()
 				{
 					PlayerControlData playerControlData = con->getPlayerControlData(package);
 
-					Actor::ptr actor = player.getActor().lock();
+					Actor::ptr actor = player->getActor().lock();
 					if (actor)
 					{
 						actor->setPosition(playerControlData.m_Position);
@@ -269,7 +269,7 @@ void GameRound::handlePackages()
 			case PackageType::LEAVE_GAME:
 				{
 					m_ReturnLobby->addFreeUser(user);
-					player.releaseUser();
+					player->releaseUser();
 				}
 				break;
 

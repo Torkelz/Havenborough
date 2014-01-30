@@ -24,3 +24,23 @@ void Player::setActor(Actor::wPtr p_Actor)
 {
 	m_Actor = p_Actor;
 }
+
+void Player::addCheckpoint(const std::weak_ptr<Actor> p_Checkpoint)
+{
+	m_CheckpointSystem.addCheckpoint(p_Checkpoint);
+}
+
+BodyHandle Player::getCurrentCheckpointBodyHandle(void)
+{
+	return m_CheckpointSystem.getCurrentCheckpointBodyHandle();
+}
+
+Actor::Id Player::reachedFinishLine(void)
+{
+	return m_CheckpointSystem.reachedFinishLine();
+}
+
+Vector3 Player::changeCheckpoint()
+{
+	return m_CheckpointSystem.changeCheckpoint();
+}

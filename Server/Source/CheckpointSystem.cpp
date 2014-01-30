@@ -36,9 +36,9 @@ BodyHandle CheckpointSystem::getCurrentCheckpointBodyHandle(void)
 	return m_Checkpoints.back().lock()->getBodyHandles().back();
 }
 
-bool CheckpointSystem::reachedFinishLine(void)
+Actor::Id CheckpointSystem::reachedFinishLine(void)
 {
-	return m_Checkpoints.empty();
+	return m_Checkpoints.begin()->lock()->getId();
 }
 
 Vector3 CheckpointSystem::changeCheckpoint()
@@ -48,6 +48,10 @@ Vector3 CheckpointSystem::changeCheckpoint()
 	if(m_Checkpoints.size() > 1)
 	{
 		return m_CurrentColorTone;
-		//m_Checkpoints.back().lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(m_CurrentColorTone);
+		
+	}
+	else
+	{
+		return Vector3(0.2f, 0.9f, 0.2f);
 	}
 }
