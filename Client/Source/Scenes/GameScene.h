@@ -32,9 +32,7 @@ private:
 
 	struct ReachIK
 	{
-		std::string rootJoint;
-		std::string bendJoint;
-		std::string reachJoint;
+		std::string group;
 		Vector3 target;
 	};
 

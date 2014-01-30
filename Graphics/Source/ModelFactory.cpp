@@ -58,9 +58,10 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 		}
 		animationClipName += "mlx";
 
-		AnimationClipLoader tempLoader = AnimationClipLoader();
+		MattiasLucaseXtremeLoader tempLoader = MattiasLucaseXtremeLoader();
 
-		model.animationClips = tempLoader.load(animationClipName);
+		model.animationClips	= tempLoader.loadAnimationClip(animationClipName);
+		model.ikGroups			= tempLoader.loadIKGroup(animationClipName);
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 

@@ -62,6 +62,11 @@ public:
 	 */
 	std::map<std::string, AnimationClip> animationClips;
 
+	/**
+	 * An IK group contains the static data needed to perform IK on three joints. Makes Mattias' life simpler.
+	 */
+	std::map<std::string, IKGroup> ikGroups;
+
 public:
 	/**
 	 * Default contructor. Constructs an object without any data.
@@ -87,7 +92,8 @@ public:
 			isAnimated(p_Other.isAnimated),
 			isTransparent(p_Other.isTransparent),
 			joints(std::move(p_Other.joints)),
-			animationClips(std::move(p_Other.animationClips))
+			animationClips(std::move(p_Other.animationClips)),
+			ikGroups(std::move(p_Other.ikGroups))
 	{}
 
 	/**
@@ -106,6 +112,7 @@ public:
 		std::swap(isTransparent, p_Other.isTransparent);
 		std::swap(joints, p_Other.joints);
 		std::swap(animationClips, p_Other.animationClips);
+		std::swap(ikGroups, p_Other.ikGroups);
 
 		return *this;
 	}
