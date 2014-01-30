@@ -366,9 +366,7 @@ void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float 
 	resource->QueryInterface(&texture);
 	texture->GetDesc(&textureDesc);
 
-	
-	
-    D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
     viewDesc.Format = textureDesc.Format;
     viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
     viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
@@ -401,7 +399,8 @@ void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float 
 	rdesc.CullMode = D3D11_CULL_NONE;
 	m_Device->CreateRasterizerState(&rdesc,&m_SkyDomeRasterizerState);
 
-	m_SkyDomeShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SkyDome.hlsl","VS,PS","5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	m_SkyDomeShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SkyDome.hlsl",
+		"VS,PS","5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 }
 void DeferredRenderer::renderSkyDome()
@@ -682,7 +681,7 @@ void DeferredRenderer::createLightShaders()
 void DeferredRenderer::loadLightModels()
 {
 	ModelBinaryLoader modelLoader;
-	modelLoader.loadBinaryFile("assets/LightModels/SpotLight.btx");
+	modelLoader.loadBinaryFile("../../Client/Bin/assets/LightModels/SpotLight.btx");
 	const std::vector<StaticVertex>& vertices = modelLoader.getVertexBuffer();
 	std::vector<DirectX::XMFLOAT3> temp;
 	for(unsigned int i = 0; i < vertices.size(); i++)
@@ -700,7 +699,7 @@ void DeferredRenderer::loadLightModels()
 
 	m_SpotModelBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	temp.clear();
-	modelLoader.loadBinaryFile("assets/LightModels/Sphere2.btx");
+	modelLoader.loadBinaryFile("../../Client/Bin/assets/LightModels/Sphere2.btx");
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
 		temp.push_back(DirectX::XMFLOAT3(vertices.at(i).m_Position.x,vertices.at(i).m_Position.y,vertices.at(i).m_Position.z));

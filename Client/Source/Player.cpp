@@ -170,16 +170,12 @@ void Player::update(float p_DeltaTime)
 void Player::updateAnimation(Vector3 p_Rotation)
 {
 	using namespace DirectX;
-	m_Actor.lock()->setRotation(p_Rotation);
 	Vector3 tempVector = m_CurrentVelocity;
 	XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
-	tempVector = m_PreviousVelocity;
-	XMVECTOR previous = Vector3ToXMVECTOR(&tempVector, 0.0f);
 	tempVector = Vector3(m_DirectionX, 0.0f, m_DirectionZ);
 	XMVECTOR look = Vector3ToXMVECTOR(&tempVector, 0.0f);
 	XMMATRIX rotationInverse = XMMatrixTranspose(XMMatrixRotationRollPitchYaw(0.0f, p_Rotation.x, 0.0f));
 	velocity = XMVector3Transform(velocity, rotationInverse);
-	previous = XMVector3Transform(previous, rotationInverse);
 	if (!m_Physics->getBodyInAir(getBody()))
 	{
 		// Calculate the weight on the strafe track with some trigonometry.
@@ -378,7 +374,7 @@ void Player::move()
 	Vector3 velocity = m_Physics->getBodyVelocity(getBody());
 	XMFLOAT3 currentVelocity = velocity;	// cm/s
 	currentVelocity.y = 0.f;
-	XMFLOAT3 maxVelocity(-m_DirectionX * m_MaxSpeed, 0.f, -m_DirectionZ * m_MaxSpeed);	// cm/s
+	XMFLOAT3 maxVelocity(m_DirectionX * m_MaxSpeed, 0.f, m_DirectionZ * m_MaxSpeed);	// cm/s
 
 	XMFLOAT3 diffVel = XMFLOAT3(0.f, 0.f, 0.f);	// cm/s
 	XMFLOAT3 force = XMFLOAT3(0.f, 0.f, 0.f);		// kg * m/s^2

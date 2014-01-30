@@ -68,6 +68,12 @@
     <ClCompile Include="Source\ForwardRendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ParticleFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ParticleInstance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Buffer.h">
@@ -145,6 +151,15 @@
     <ClInclude Include="Source\ForwardRendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ParticleFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ParticleInstance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ParticleEffectDefinition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\DeferredShaders\LightPassSpotLight.hlsl">
@@ -178,6 +193,9 @@
       <Filter>HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\DeferredShaders\GeoInstanceShader.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Client\Bin\assets\shaders\ParticleSystem.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
   </ItemGroup>

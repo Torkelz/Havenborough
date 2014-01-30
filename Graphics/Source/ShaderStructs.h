@@ -53,3 +53,24 @@ struct Material
 	std::string m_NormalMap;
 	std::string m_SpecularMap;
 };
+
+struct particlecBuffer
+{
+	DirectX::XMFLOAT4X4 viewM;
+	DirectX::XMFLOAT4X4 projM;
+	DirectX::XMFLOAT4	centerPos;
+	DirectX::XMFLOAT4	color;
+	DirectX::XMFLOAT4	particleColorDeviation;
+	DirectX::XMFLOAT3	particlePositionDeviation;
+	DirectX::XMFLOAT3	velocityDeviation;
+	DirectX::XMFLOAT3	cameraPos;	
+	DirectX::XMFLOAT2	uvCoord;
+	float				sizeX;
+	float				sizeY;
+
+};
+
+struct ParticleMaterial
+{
+	std::string m_DiffuseMap;
+};

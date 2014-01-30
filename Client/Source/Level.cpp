@@ -1,21 +1,23 @@
 #include "Level.h"
 
-const DirectX::XMFLOAT3 &Level::getStartPosition(void) const
+#include <XMLHelper.h>
+
+const Vector3 &Level::getStartPosition(void) const
 {
 	return m_StartPosition;
 }
 
-void Level::setStartPosition(const DirectX::XMFLOAT3 &p_StartPosition)
+void Level::setStartPosition(const Vector3 &p_StartPosition)
 {
 	m_StartPosition = p_StartPosition;
 }
 
-const DirectX::XMFLOAT3 &Level::getGoalPosition(void) const
+const Vector3 &Level::getGoalPosition(void) const
 {
 	return m_GoalPosition;
 }
 
-void Level::setGoalPosition(const DirectX::XMFLOAT3 &p_GoalPosition)
+void Level::setGoalPosition(const Vector3 &p_GoalPosition)
 {
 	m_GoalPosition = p_GoalPosition;
 }
@@ -41,19 +43,15 @@ Level::~Level()
 
 void Level::releaseLevel()
 {
-	m_LevelData.clear();
-	m_LevelData.shrink_to_fit();
-	m_LevelCollisionData.clear();
-	m_LevelCollisionData.shrink_to_fit();
 	m_Resources = nullptr;
 }
 
-bool Level::loadLevel(std::istream& p_LevelData, std::istream& p_CollisionData, std::vector<Actor::ptr>& p_ActorOut)
+bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_ActorOut)
 {
 	LevelBinaryLoader levelLoader;
 	levelLoader.readStreamData(p_LevelData);	
 
-	m_LevelData = levelLoader.getModelData();
+	std::vector<LevelBinaryLoader::ModelData> m_LevelData = levelLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelData.size(); i++)
 	{
 		LevelBinaryLoader::ModelData& model = m_LevelData.at(i);
@@ -69,73 +67,58 @@ bool Level::loadLevel(std::istream& p_LevelData, std::istream& p_CollisionData, 
 		}
 	}
 	
-	p_LevelData.seekg(0);
+	p_LevelData.seekg(0, p_LevelData.beg);
 
-	// This will be implemented at a later stage when physics has what it takes!
-	LevelBinaryLoader collisionLoader;
-	collisionLoader.readStreamData(p_CollisionData);
-	m_LevelCollisionData = collisionLoader.getModelData();
-	for(unsigned int i = 0; i < m_LevelCollisionData.size(); i++)
-	{
-		LevelBinaryLoader::ModelData& collisionData = m_LevelCollisionData.at(i);
-		std::string meshName = collisionData.m_MeshName;
-		
-		for(unsigned int j = 0; j < collisionData.m_Translation.size(); j++)
+	std::vector<LevelBinaryLoader::CheckPointStruct> checkpoints = levelLoader.getCheckPointData();
+	std::sort(checkpoints.begin(), checkpoints.end(),
+		[] (const LevelBinaryLoader::CheckPointStruct& p_Left, const LevelBinaryLoader::CheckPointStruct& p_Right)
 		{
-			Vector3 translation = collisionData.m_Translation.at(j);
-			Vector3 rotation = collisionData.m_Rotation.at(j);
-			Vector3 scale = collisionData.m_Scale.at(j);
+			return p_Left.m_Number > p_Right.m_Number;
+		});
+	
+	static const Vector3 checkpointScale(1.f, 10.f, 1.f);
 
-			p_ActorOut.push_back(createCollisionActor(meshName, translation, rotation, scale));
-		}
+	Actor::ptr checkActor = m_ActorFactory->createCheckPointActor(levelLoader.getCheckPointEnd(), checkpointScale);
+	m_CheckpointSystem.addCheckpoint(checkActor);
+	p_ActorOut.push_back(checkActor);
+	for (const auto& checkpoint : checkpoints)
+	{
+		checkActor = m_ActorFactory->createCheckPointActor(checkpoint.m_Translation, checkpointScale);
+		m_CheckpointSystem.addCheckpoint(checkActor);
+		p_ActorOut.push_back(checkActor);
 	}
-
-	p_CollisionData.seekg(0);
+	checkActor = m_ActorFactory->createCheckPointActor(levelLoader.getCheckPointStart(), checkpointScale);
+	m_CheckpointSystem.addCheckpoint(checkActor);
+	p_ActorOut.push_back(checkActor);
 
 	return true;
 }
 
-static void pushVector(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_Vec)
+bool Level::reachedFinishLine()
 {
-	p_Printer.OpenElement(p_ElementName.c_str());
-	p_Printer.PushAttribute("x", p_Vec.x);
-	p_Printer.PushAttribute("y", p_Vec.y);
-	p_Printer.PushAttribute("z", p_Vec.z);
-	p_Printer.CloseElement();
+	return m_CheckpointSystem.reachedFinishLine();
 }
 
-void Level::drawLevel()
+BodyHandle Level::getCurrentCheckpointBodyHandle(void)
 {
-	//for(unsigned int i = 0; i < m_DrawID.size(); i++)
-	//{
-	//	m_Graphics->renderModel(m_DrawID.at(i));
-	//}
+	return m_CheckpointSystem.getCurrentCheckpointBodyHandle();
+}
+	
+void Level::changeCheckpoint(std::vector<Actor::ptr> &p_Objects)
+{
+	m_CheckpointSystem.changeCheckpoint(p_Objects);
 }
 
 Actor::ptr Level::createObjectActor(std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale)
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	pushRotation(printer, p_Rotation);
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", p_MeshName.c_str());
 	pushVector(printer, "Scale", p_Scale);
 	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Position);
-	actor->setRotation(p_Rotation);
-
-	return actor;
-}
-
-Actor::ptr Level::createCollisionActor(std::string p_MeshName, Vector3 p_Translation, Vector3 p_Rotation, Vector3 p_Scale)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
 	printer.OpenElement("MeshPhysics");
 	printer.PushAttribute("Mesh", p_MeshName.c_str());
 	pushVector(printer, "Scale", p_Scale);
@@ -146,8 +129,6 @@ Actor::ptr Level::createCollisionActor(std::string p_MeshName, Vector3 p_Transla
 	doc.Parse(printer.CStr());
 
 	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-	actor->setPosition(p_Translation);
-	actor->setRotation(p_Rotation);
 
 	return actor;
 }
