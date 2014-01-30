@@ -9,16 +9,13 @@
 
 struct Particle
 {
-	DirectX::XMFLOAT3 position; //position in the world, in cm
+	ShaderParticle shaderData;
 	DirectX::XMFLOAT4 velocity;
-	DirectX::XMFLOAT4 color;
 	DirectX::XMFLOAT2 size;
 	float life; //Life for a particle to live before taken away, in sec
 
 	Particle()
-		:	position(0.f, 0.f, 0.f),
-			velocity(0.f, 0.f, 0.f, 0.f),
-			color(1.f, 0.f, 1.f, 1.f),
+		:	velocity(0.f, 0.f, 0.f, 0.f),
 			size(1.f, 1.f),
 			life(10.f)
 	{
@@ -27,9 +24,9 @@ struct Particle
 	Particle(DirectX::XMFLOAT3 p_Position, DirectX::XMFLOAT3 p_Velocity, DirectX::XMFLOAT4 p_Color,
 		DirectX::XMFLOAT2 p_Size, float p_Life)
 	{
-		position = p_Position;
+		shaderData.position = p_Position;
 		velocity = DirectX::XMFLOAT4(p_Velocity.x, p_Velocity.y, p_Velocity.z, 1.0f);
-		color = p_Color;
+		shaderData.color = p_Color;
 		size = p_Size;
 		life	= p_Life;
 	}
@@ -59,8 +56,8 @@ struct ParticleEffectDefinition
 	float maxLife;
 	DirectX::XMFLOAT2 size; //in cm
 	string particleSystemName;
-	DirectX::XMFLOAT3	particlePositionDeviation; // in cm
-	DirectX::XMFLOAT3	velocityDeviation; // in cm/s
+	float				particlePositionDeviation; // in cm
+	float				velocityDeviation; // in cm/s
 	DirectX::XMFLOAT4	particleColorDeviation; // [0,1]
 
 private:
@@ -77,8 +74,8 @@ public:
 			size(0.f, 0.f),
 			particleSystemName("NO NAME FOUND"),
 			particlesPerSec(0),
-			particlePositionDeviation(0.f, 0.f, 0.f),
-			velocityDeviation(0.f, 0.f, 0.f),
+			particlePositionDeviation(0.f),
+			velocityDeviation(0.f),
 			particleColorDeviation(0.f, 0.f, 0.f, 0.f)
 	{}
 

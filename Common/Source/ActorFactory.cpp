@@ -8,6 +8,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	:	m_LastActorId(p_BaseActorId),
 		m_LastModelComponentId(0),
 		m_LastLightComponentId(0),
+		m_LastParticleComponentId(0),
 		m_Physics(nullptr)
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
@@ -19,6 +20,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["CircleMovement"] = std::bind(&ActorFactory::createCircleMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
 	m_ComponentCreators["Light"] = std::bind(&ActorFactory::createLightComponent, this);
+	m_ComponentCreators["Particle"] = std::bind(&ActorFactory::createParticleComponent, this);
 }
 
 void ActorFactory::setPhysics(IPhysics* p_Physics)
@@ -417,6 +419,22 @@ Actor::ptr ActorFactory::createCircleBox(Vector3 p_Center, float p_Radius)
 	return createActor(doc.FirstChildElement("Object"));
 }
 
+Actor::ptr ActorFactory::createParticles( Vector3 p_Position, const std::string& p_Effect )
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", p_Effect.c_str());
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	return createActor(doc.FirstChildElement("Object"));
+}
+
 ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_Data)
 {
 	std::string name(p_Data->Value());
@@ -507,6 +525,14 @@ ActorComponent::ptr ActorFactory::createLightComponent()
 {
 	LightComponent* comp = new LightComponent;
 	comp->setId(++m_LastLightComponentId);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createParticleComponent()
+{
+	ParticleComponent* comp = new ParticleComponent;
+	comp->setId(++m_LastParticleComponentId);
 
 	return ActorComponent::ptr(comp);
 }

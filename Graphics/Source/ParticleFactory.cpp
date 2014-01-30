@@ -26,14 +26,14 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 	particleSystem->diffuseTexture = loadTexture(p_Filename, "Particle1.dds");
 	particleSystem->textureResourceName = "Particle1.dds";
 	particleSystem->sampler = m_Sampler;
-	particleSystem->maxParticles = 50;
-	particleSystem->particlesPerSec = 5;
-	particleSystem->maxLife = 10.f;
+	particleSystem->maxParticles = 600;
+	particleSystem->particlesPerSec = 200;
+	particleSystem->maxLife = 3.f;
 	particleSystem->size = DirectX::XMFLOAT2(10.f, 10.f);
 	particleSystem->particleSystemName = "fire";
-	particleSystem->particlePositionDeviation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	particleSystem->velocityDeviation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	particleSystem->particleColorDeviation = DirectX::XMFLOAT4(0.5f, 0.7f, 0.3f, 0.95f);
+	particleSystem->particlePositionDeviation = 10.f;
+	particleSystem->velocityDeviation = 40.f;
+	particleSystem->particleColorDeviation = DirectX::XMFLOAT4(0.5f, 0.7f, 0.3f, 0.9f);
 
 	return particleSystem;
 }
@@ -61,7 +61,7 @@ std::shared_ptr<Buffer> ParticleFactory::createParticleBuffer(unsigned int p_Max
 	cbDesc.initData = nullptr; //can be needing a flag of some sort
 	cbDesc.usage = Buffer::Usage::CPU_WRITE;
 	cbDesc.numOfElements = p_MaxParticles;
-	cbDesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
+	cbDesc.sizeOfElement = sizeof(ShaderParticle);
 	cbDesc.type = Buffer::Type::VERTEX_BUFFER;
 
 	std::shared_ptr<Buffer> buffer(WrapperFactory::getInstance()->createBuffer(cbDesc));

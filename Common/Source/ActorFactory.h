@@ -27,6 +27,7 @@ private:
 	unsigned int m_LastActorId;
 	unsigned int m_LastModelComponentId;
 	unsigned int m_LastLightComponentId;
+	unsigned int m_LastParticleComponentId;
 	IPhysics* m_Physics;
 	EventManager* m_EventManager;
 	ResourceManager* m_ResourceManager;
@@ -100,6 +101,7 @@ public:
 	Actor::ptr createCheckPointArrow();
 	std::string getCircleBoxDescription(Vector3 p_Center, float p_Radius);
 	Actor::ptr createCircleBox(Vector3 p_Center, float p_Radius);
+	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
 
 protected:
 	/**
@@ -121,4 +123,5 @@ private:
 	ActorComponent::ptr createCircleMovementComponent();
 	ActorComponent::ptr createPulseComponent();
 	ActorComponent::ptr createLightComponent();
+	ActorComponent::ptr createParticleComponent();
 };

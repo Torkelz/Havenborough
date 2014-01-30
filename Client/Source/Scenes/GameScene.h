@@ -47,7 +47,13 @@ private:
 	};
 	std::vector<MeshBinding> m_Models;
 
-	IGraphics::InstanceId m_Particles;
+	struct ParticleBinding
+	{
+		unsigned int particleId;
+		int resourceId;
+		IGraphics::InstanceId instance;
+	};
+	std::vector<ParticleBinding> m_Particles;
 
 public: 
 	GameScene();
@@ -82,6 +88,8 @@ private:
 	void addReachIK(IEventData::Ptr p_Data);
 	void removeReachIK(IEventData::Ptr p_Data);
 	void changeColorTone(IEventData::Ptr p_Data);
+	void createParticleEffect(IEventData::Ptr p_Data);
+	void removeParticleEffect(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 

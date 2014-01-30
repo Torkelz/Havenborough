@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <random>
 
 class ParticleInstance
 {
@@ -21,6 +22,8 @@ private:
 	DirectX::XMFLOAT4	m_SysPosition; //world pos, in cm
 	
 	float				m_AccumulatedTime;
+
+	std::default_random_engine m_RandomEngine;
 	
 public:
 	ParticleInstance();

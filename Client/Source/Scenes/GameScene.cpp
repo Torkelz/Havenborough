@@ -52,6 +52,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addReachIK), AddReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
 
 
 	m_CurrentDebugView = 3;
@@ -480,6 +482,41 @@ void GameScene::changeColorTone(IEventData::Ptr p_Data)
 	}
 }
 
+void GameScene::createParticleEffect(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<CreateParticleEventData> data = std::static_pointer_cast<CreateParticleEventData>(p_Data);
+
+	int resource = m_ResourceManager->loadResource("particleSystem", data->getEffectName());
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", data->getEffectName().c_str());
+
+	ParticleBinding particle =
+	{
+		data->getId(),
+		resource,
+		m_Graphics->createParticleEffectInstance(data->getEffectName().c_str())
+	};
+
+	m_Particles.push_back(particle);
+}
+
+void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveParticleEventData> data = std::static_pointer_cast<RemoveParticleEventData>(p_Data);
+
+	auto it = std::find_if(m_Particles.begin(), m_Particles.end(),
+		[&data] (const ParticleBinding& p_Particle)
+		{
+			return p_Particle.particleId == data->getId();
+		});
+
+	if (it != m_Particles.end())
+	{
+		m_Graphics->releaseParticleEffectInstance(it->instance);
+		m_ResourceManager->releaseResource(it->resourceId);
+		m_Particles.erase(it);
+	}
+}
+
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
 	unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle);
@@ -552,8 +589,6 @@ void GameScene::loadSandboxModels()
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_Graphics->linkShaderToParticles("DefaultParticleShader", "TestParticle");
-
-	m_Particles = m_Graphics->createParticleEffectInstance("TestParticle");
 }
 
 void GameScene::releaseSandboxModels()
@@ -563,8 +598,6 @@ void GameScene::releaseSandboxModels()
 		m_ResourceManager->releaseResource(res);
 	}
 	m_ResourceIDs.clear();
-
-	m_Graphics->releaseParticleEffectInstance(m_Particles);
 
 	m_Graphics->deleteShader("DefaultShader");
 	m_Graphics->deleteShader("AnimatedShader");

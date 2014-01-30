@@ -3,9 +3,16 @@
 SamplerState m_textureSampler	: register(s0);
 Texture2D m_texture				: register(t0);
 
+struct VSIn
+{
+	float3 position	: SV_POSITION;
+	float4 color	: COLOR;
+};
+
 struct GSIn
 {
 	float4 position : SV_POSITION;
+	float4 color	: COLOR;
 };
 
 cbuffer cb : register(b1)
@@ -21,12 +28,18 @@ struct PSIn
 {
 	float4 position : SV_POSITION;
 	float2 uvCoord	: COORD;
+	float4 color	: COLOR;
 };
 
 
-GSIn VS(float3 position : POSITION)
+GSIn VS(VSIn input)
 {
-	GSIn res = { float4(position, 1.f) };
+	GSIn res =
+	{
+		float4(input.position, 1.f),
+		input.color,
+
+	};
 	return res;
 }
 
@@ -76,6 +89,7 @@ void GS(point GSIn gIn[1], inout TriangleStream<PSIn> triStream)
 	{
 		gOut.position = mul(WVP, v[i]);
 		gOut.uvCoord = quadUVC[i];
+		gOut.color = gIn[0].color;
 		triStream.Append(gOut);
 	}
 }
@@ -83,5 +97,5 @@ void GS(point GSIn gIn[1], inout TriangleStream<PSIn> triStream)
 float4 PS(PSIn p_input) : SV_TARGET
 {	
 	float4 temp = m_texture.Sample(m_textureSampler, p_input.uvCoord);
-	return temp;
+	return temp * p_input.color;
 }

@@ -620,6 +620,8 @@ void GameLogic::loadSandbox()
 	witchCircleAngle = 0.0f;
 
 	addLights();
+
+	addActor(m_ActorFactory->createParticles(Vector3(0.f, 100.f, 0.f), "TestParticle"));
 }
 
 void GameLogic::updateSandbox(float p_DeltaTime)

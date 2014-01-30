@@ -1103,3 +1103,69 @@ public:
 		return m_Direction;
 	}
 };
+
+class ParticleInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 7;	/// Unique id
+	virtual Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+};
+
+class ParticleComponent : public ParticleInterface
+{
+private:
+	unsigned int m_ParticleId;
+	std::string m_EffectName;
+
+public:
+	~ParticleComponent()
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveParticleEventData(m_ParticleId)));
+	}
+
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		const char* effectName = p_Data->Attribute("Effect");
+		if (!effectName)
+		{
+			throw CommonException("Missing effect name", __LINE__, __FILE__);
+		}
+
+		m_EffectName = effectName;
+	}
+
+	void postInit() override
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateParticleEventData(m_ParticleId, m_EffectName, m_Owner->getPosition())));
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("Particle");
+		p_Printer.PushAttribute("Effect", m_EffectName.c_str());
+		p_Printer.CloseElement();
+	}
+
+	/**
+	 * Get the unique id of the particle effect.
+	 *
+	 * @return the particle effect's unique identifier
+	 */
+	unsigned int getId() const
+	{
+		return m_ParticleId;
+	}
+
+	/**
+	 * Set a new unique identifier for the particle effect.
+	 *
+	 * @param p_Id the particle effect's id
+	 */
+	void setId(unsigned int p_Id)
+	{
+		m_ParticleId = p_Id;
+	}
+};

@@ -47,10 +47,12 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 	//Update the position of every particle in the system by its velocity and based on the delta time
 	for(auto& part : m_ParticleList)
 	{
-		part.position = DirectX::XMFLOAT3(
-			(part.position.x + part.velocity.x * p_DeltaTime),
-			(part.position.y + part.velocity.y * p_DeltaTime),
-			(part.position.z + part.velocity.z * p_DeltaTime));
+		part.velocity.y += 98.f * p_DeltaTime;
+
+		part.shaderData.position = DirectX::XMFLOAT3(
+			(part.shaderData.position.x + part.velocity.x * p_DeltaTime),
+			(part.shaderData.position.y + part.velocity.y * p_DeltaTime),
+			(part.shaderData.position.z + part.velocity.z * p_DeltaTime));
 		part.life += p_DeltaTime;
 	}
 }
@@ -58,8 +60,7 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 void ParticleInstance::emitNewParticles(float p_DeltaTime)
 {
 	DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3(m_SysPosition.x, m_SysPosition.y, m_SysPosition.z);
-	DirectX::XMFLOAT3 tempVelocity = DirectX::XMFLOAT3(0.f, 10.f, 0.f);
-	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f);
+	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 0.5f);
 
 	bool emitParticle = false;
 	m_AccumulatedTime += p_DeltaTime;
@@ -75,8 +76,21 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 			break;
 		}
 
+		std::uniform_real_distribution<float> velDistribution(-m_ParticleEffectDef->velocityDeviation, m_ParticleEffectDef->velocityDeviation);
+		DirectX::XMFLOAT3 randVel(
+			velDistribution(m_RandomEngine),
+			velDistribution(m_RandomEngine),
+			velDistribution(m_RandomEngine));
+
+		std::uniform_real_distribution<float> oneToOneDistribution(-1.f, 1.f);
+		DirectX::XMFLOAT4 randColorOffset(
+			tempColor.x + oneToOneDistribution(m_RandomEngine) * m_ParticleEffectDef->particleColorDeviation.x,
+			tempColor.y + oneToOneDistribution(m_RandomEngine) * m_ParticleEffectDef->particleColorDeviation.y,
+			tempColor.z + oneToOneDistribution(m_RandomEngine) * m_ParticleEffectDef->particleColorDeviation.z,
+			tempColor.w + oneToOneDistribution(m_RandomEngine) * m_ParticleEffectDef->particleColorDeviation.w);
+
 		//Put all the new data for the new particle into one container
-		Particle tempParticle(tempPos, tempVelocity, tempColor, m_ParticleEffectDef->size, 0.f);
+		Particle tempParticle(tempPos, randVel, randColorOffset, m_ParticleEffectDef->size, 0.f);
 
 		//Add the new particle to the others in the same system
 		m_ParticleList.push_back(tempParticle);
@@ -95,11 +109,11 @@ void ParticleInstance::updateBuffers(ID3D11DeviceContext *p_DeviceContext, Direc
 
 	D3D11_MAPPED_SUBRESOURCE resource = {};
 	p_DeviceContext->Map(m_ParticleBuffer->getBufferPointer(), 0, D3D11_MAP_WRITE_DISCARD, NULL, &resource);
-	DirectX::XMFLOAT3* mappedPos = (DirectX::XMFLOAT3*)resource.pData;
+	ShaderParticle* mappedShaderParticle = (ShaderParticle*)resource.pData;
 	for (const auto& part : m_ParticleList)
 	{
-		*mappedPos = part.position;
-		mappedPos++;
+		*mappedShaderParticle = part.shaderData;
+		mappedShaderParticle++;
 	}
 	p_DeviceContext->Unmap(m_ParticleBuffer->getBufferPointer(), 0);
 }

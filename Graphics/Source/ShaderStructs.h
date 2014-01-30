@@ -67,3 +67,9 @@ struct particlecBuffer
 	//DirectX::XMFLOAT3	velocityDeviation;
 	//DirectX::XMFLOAT2	uvCoord;
 };
+
+struct ShaderParticle
+{
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT4 color;
+};
