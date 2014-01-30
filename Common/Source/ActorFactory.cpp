@@ -279,7 +279,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "WITCH");
 	printer.CloseElement();
-	printer.OpenElement("OBBPhysics");
+	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("Immovable", false);
 	printer.PushAttribute("Mass", 68.f);
 	pushVector(printer, "Halfsize", Vector3(50.f, 50.f, 50.f));

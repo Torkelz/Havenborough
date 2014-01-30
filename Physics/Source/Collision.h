@@ -103,7 +103,7 @@ public:
 	 * Uses seperating axis test to check for collision
 	 * @return HitData, see HitData definition.
 	 */
-	static HitData OBBVsHull(OBB const &p_OBB, Hull const &p_Hull);
+	static HitData OBBVsHull(AABB const &p_OBB, Hull const &p_Hull);
 	/**
 	* Triangle versus Sphere collision test
 	* @return HitData, see HitData definition.
@@ -126,11 +126,13 @@ private:
 	static bool SphereVsTriangle(Sphere const &p_Sphere, Triangle const &p_Triangle);
 
 	static bool OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane);
+	static bool AABBVsPlane(AABB const &p_OBB, Plane const &p_Plane);
 
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_RC, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static HitData seperatingAxisTest(OBB const &p_OBB, BoundingVolume const &p_vol);
 
 	static bool checkR(float p0, float p1, float p2, float R);
+	static bool isZeroVector(DirectX::XMVECTOR p_v);
 };
 

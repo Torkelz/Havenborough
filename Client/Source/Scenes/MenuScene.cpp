@@ -113,7 +113,7 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		}
 		else if (p_Action == "connectToServer")
 		{
-			m_GameLogic->connectToServer("localhost", 31415); //Note: IP to server if running: 194.47.150.5
+			m_GameLogic->connectToServer("194.47.150.197", 31415); //Note: IP to server if running: 194.47.150.5
 		}
 		else if (p_Action == "back")
 		{

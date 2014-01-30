@@ -91,10 +91,10 @@ public:
 		p_Data->QueryBoolAttribute("Immovable", &m_Immovable);
 
 		m_Mass = 0.f;
-		p_Data->QueryAttribute("Mass", &m_Mass);
+		p_Data->QueryFloatAttribute("Mass", &m_Mass);
 
 		m_IsEdge = false;
-		p_Data->QueryAttribute("IsEdge", &m_IsEdge);
+		p_Data->QueryBoolAttribute("IsEdge", &m_IsEdge);
 	}
 
 	void postInit() override
@@ -231,6 +231,8 @@ private:
 	IPhysics* m_Physics;
 	Vector3 m_OffsetPositition;
 	Vector3 m_Halfsize;
+	float m_Mass;
+	bool m_Immovable;
 	bool m_IsEdge;
 	bool m_RespondToCollision;
 
@@ -275,11 +277,16 @@ public:
 		p_Data->QueryBoolAttribute("Edge", &m_IsEdge);
 		m_RespondToCollision = true;
 		p_Data->QueryBoolAttribute("CollisionResponse", &m_RespondToCollision);
+		m_Mass = 0.f;
+		p_Data->QueryFloatAttribute("Mass", &m_Mass);
+		m_Immovable = true;
+		p_Data->QueryBoolAttribute("Immovable", &m_Immovable);
+
 	}
 
 	void postInit() override
 	{
-		m_Body = m_Physics->createAABB(0.f, true, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
+		m_Body = m_Physics->createAABB(m_Mass, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
 		m_Physics->setBodyCollisionResponse(m_Body, m_RespondToCollision);
 	}
 
@@ -287,6 +294,8 @@ public:
 	{
 		p_Printer.OpenElement("AABBPhysics");
 		p_Printer.PushAttribute("Edge", m_IsEdge);
+		p_Printer.PushAttribute("Immovable", m_Immovable);
+		p_Printer.PushAttribute("Mass", m_Mass);
 		p_Printer.PushAttribute("CollisionResponse", m_RespondToCollision);
 		pushVector(p_Printer, "Halfsize", m_Halfsize);
 		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);

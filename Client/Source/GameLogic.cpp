@@ -102,7 +102,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Player.setDirectionZ(cosf(dir));
 	}
 	if(!m_Player.getForceMove())
-		m_Physics->update(p_DeltaTime);
+	{
+		m_Physics->update(p_DeltaTime*0.25f);
+		m_Physics->update(p_DeltaTime*0.25f);
+		m_Physics->update(p_DeltaTime*0.25f);
+		m_Physics->update(p_DeltaTime*0.25f);
+	}
 
 	Vector3 actualViewRot = getPlayerViewRotation();
 	DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationRollPitchYaw(
