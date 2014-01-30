@@ -1,13 +1,10 @@
 #pragma once
-
 #include "Joint.h"
 #include "ShaderStructs.h"
 
 #include <fstream>
-#include <sstream>
-#include <DirectXMath.h>
-#include <memory>
 #include <vector>
+#include <string>
 
 class ModelBinaryLoader
 {

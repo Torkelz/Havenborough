@@ -1,5 +1,5 @@
 #pragma once
-#include "AnimationStructs.h"
+#include "AnimationClip.h"
 #include <map>
 #include <string>
 

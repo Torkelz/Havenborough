@@ -141,7 +141,7 @@ private:
 	void renderLighting();
 	void renderSkyDomeImpl();
 
-	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, vector<Light> *p_Lights);
+	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, std::vector<Light> *p_Lights);
 
 	void updateConstantBuffer();
 	void updateLightBuffer();

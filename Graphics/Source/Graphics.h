@@ -16,7 +16,6 @@
 #include "ModelFactory.h"
 #include "ModelInstance.h"
 #include "ModelDefinition.h"
-#include "VRAMInfo.h"
 
 class Graphics : public IGraphics
 {
@@ -52,7 +51,6 @@ private:
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
-	VRAMInfo *m_VRAMInfo;
 
 	std::vector<std::pair<std::string, Shader*>> m_ShaderList;
 	std::vector<std::pair<std::string, ModelDefinition>> m_ModelList;

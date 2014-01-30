@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Joint.h"
-#include "AnimationStructs.h"
+#include "AnimationClip.h"
 
 #include <DirectXMath.h>
 #include <string>

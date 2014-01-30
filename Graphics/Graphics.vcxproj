@@ -122,7 +122,7 @@
     <ClInclude Include="Source\Renderable.h" />
     <ClInclude Include="Source\SkyDome.h" />
     <ClInclude Include="Source\AnimationClipLoader.h" />
-    <ClInclude Include="Source\AnimationStructs.h" />
+    <ClInclude Include="Source\AnimationClip.h" />
     <ClInclude Include="Source\Joint.h" />
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />

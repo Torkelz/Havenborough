@@ -1,5 +1,6 @@
 #include "ForwardRendering.h"
 #include "ConstantBuffers.h"
+#include "WrapperFactory.h"
 #include "VRAMInfo.h"
 #include <algorithm>
 #include <functional>

@@ -1,4 +1,5 @@
 #include "ModelBinaryLoader.h"
+#include <DirectXMath.h>
 
 
 ModelBinaryLoader::ModelBinaryLoader()
