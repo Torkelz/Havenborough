@@ -8,17 +8,6 @@
 
 class DeferredRenderer
 {
-public:
-	/*
-	 * Renderable is a debug struct made with the only purpose to be a placeholder for models
-	 * until the model loader is done.
-	 * ### The inverse transpose world matrix is needed to render animations and is not stored 
-	 * ### anywhere else than here. Remember to move it if this struct is deleted.
-
-	 * LOL really? I hear I can break things if I delete it, and the model loader is like done.
-	 */
-	
-
 private:
 	std::vector<Renderable>		m_Objects;
 
