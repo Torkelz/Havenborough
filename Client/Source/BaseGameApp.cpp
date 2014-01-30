@@ -1,16 +1,10 @@
 #include "BaseGameApp.h"
-
-#include "ActorFactory.h"
-#include "Components.h"
-#include "Input\InputTranslator.h"
 #include "Logger.h"
 
-#include <iomanip>
 #include <sstream>
+#include <iomanip>
 
-#include <tinyxml2/tinyxml2.h>
-
-const double pi = 3.14159265358979323846264338;
+using namespace DirectX;
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
 
@@ -32,13 +26,16 @@ void BaseGameApp::init()
 
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
-	
 	//TODO: Need some input setting variable to handle fullscreen.
 	bool fullscreen = false;
 	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, fullscreen);
-	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	m_Window.registerCallback(WM_EXITSIZEMOVE, std::bind(&BaseGameApp::handleWindowExitSizeMove, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	m_Window.registerCallback(WM_SIZE, std::bind(&BaseGameApp::handleWindowSize, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1,
+		std::placeholders::_2, std::placeholders::_3));
+	m_Window.registerCallback(WM_EXITSIZEMOVE, std::bind(&BaseGameApp::handleWindowExitSizeMove, this,
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_Window.registerCallback(WM_SIZE, std::bind(&BaseGameApp::handleWindowSize, this, std::placeholders::_1,
+		std::placeholders::_2, std::placeholders::_3));
 
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
@@ -53,11 +50,17 @@ void BaseGameApp::init()
 	using namespace std::placeholders;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager.get());
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager.get());
-	m_ResourceManager->registerFunction( "model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2), std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
-	m_ResourceManager->registerFunction( "texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2), std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
-	m_ResourceManager->registerFunction( "volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2), std::bind(&IPhysics::releaseBV, m_Physics, _1));
-	m_ResourceManager->registerFunction( "sound", std::bind(&ISound::loadSound, m_Sound, _1, _2), std::bind(&ISound::releaseSound, m_Sound, _1));
-	m_ResourceManager->registerFunction( "particleSystem", std::bind(&IGraphics::createParticleEffectDefinition, m_Graphics, _1, _2), std::bind(&IGraphics::releaseParticleEffectDefinition, m_Graphics, _1));
+
+	m_ResourceManager->registerFunction("model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2),
+		std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
+	m_ResourceManager->registerFunction("texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2),
+		std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
+	m_ResourceManager->registerFunction("volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2),
+		std::bind(&IPhysics::releaseBV, m_Physics, _1));
+	m_ResourceManager->registerFunction("sound", std::bind(&ISound::loadSound, m_Sound, _1, _2),
+		std::bind(&ISound::releaseSound, m_Sound, _1));
+	m_ResourceManager->registerFunction("particleSystem", std::bind(&IGraphics::createParticleEffectDefinition, m_Graphics, _1, _2),
+		std::bind(&IGraphics::releaseParticleEffectDefinition, m_Graphics, _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);

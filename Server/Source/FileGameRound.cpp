@@ -110,6 +110,7 @@ void FileGameRound::updateLogic(float p_DeltaTime)
 				if(player->getCurrentCheckpointBodyHandle() == hit.collisionVictim)
 				{
 					m_SendHitData.push_back(std::make_pair(player, victim));
+					player->changeCheckpoint();
 				}
 			}
 		}
@@ -143,14 +144,14 @@ void FileGameRound::sendUpdates()
 			if (actor)
 			{
 				id = actor->getId();
-				if(id != m_SendHitData[i].first->reachedFinishLine())
+				if(!m_SendHitData[i].first->reachedFinishLine())
 				{
 					user->getConnection()->sendRemoveObjects(&id, 1);
 					tinyxml2::XMLPrinter printer;
 					printer.OpenElement("ObjectUpdate");
 					printer.PushAttribute("ActorId", id-1);
 					printer.PushAttribute("Type", "Color");
-					pushColor(printer, "SetColor", m_SendHitData[i].first->changeCheckpoint());
+					pushColor(printer, "SetColor", m_SendHitData[i].first->getCurrentCheckpointColor());
 					printer.CloseElement();
 					const char* info = printer.CStr();
 					user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);

@@ -1,6 +1,7 @@
 #pragma once
-#include "IPhysics.h"
 #include "Player.h"
+
+#include <DirectXMath.h>
 
 class EdgeCollisionResponse
 {
@@ -27,9 +28,9 @@ public:
 	bool checkCollision(HitData &p_Hit, Vector3 p_EdgePosition, float p_EdgeSizeY, Player *p_Player);
 
 protected:
-	void handleCollision(Player *p_Player, Vector3 p_EdgePosition, XMVECTOR p_VictimNormal, 
+	void handleCollision(Player *p_Player, Vector3 p_EdgePosition, DirectX::XMVECTOR p_VictimNormal, 
 		float p_EdgeOffsetY);
 
-	XMVECTOR calculateEndPosition(XMVECTOR p_Normal, XMVECTOR p_PlayerToCenter,
-		XMVECTOR p_BodyCenter, float p_EdgeOffsetY, float p_HeightOffset);
+	DirectX::XMVECTOR calculateEndPosition(DirectX::XMVECTOR p_Normal, DirectX::XMVECTOR p_PlayerToCenter,
+		DirectX::XMVECTOR p_BodyCenter, float p_EdgeOffsetY, float p_HeightOffset);
 };

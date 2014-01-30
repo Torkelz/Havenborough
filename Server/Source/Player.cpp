@@ -35,12 +35,22 @@ BodyHandle Player::getCurrentCheckpointBodyHandle(void)
 	return m_CheckpointSystem.getCurrentCheckpointBodyHandle();
 }
 
-Actor::Id Player::reachedFinishLine(void)
+bool Player::reachedFinishLine(void)
 {
 	return m_CheckpointSystem.reachedFinishLine();
 }
 
-Vector3 Player::changeCheckpoint()
+void Player::changeCheckpoint()
 {
-	return m_CheckpointSystem.changeCheckpoint();
+	m_CheckpointSystem.changeCheckpoint();
+}
+
+Actor::ptr Player::getCurrentCheckpoint(void)
+{
+	return m_CheckpointSystem.getCurrentCheckpoint();
+}
+
+Vector3 Player::getCurrentCheckpointColor()
+{
+	return m_CheckpointSystem.getCurrentCheckpointColor();
 }

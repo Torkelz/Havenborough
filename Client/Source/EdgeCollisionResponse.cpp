@@ -1,6 +1,8 @@
 #include "EdgeCollisionResponse.h"
 #include "ClientExceptions.h"
 
+using namespace DirectX;
+
 EdgeCollisionResponse::EdgeCollisionResponse(void)
 {
 }

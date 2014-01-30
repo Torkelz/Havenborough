@@ -58,27 +58,42 @@ public:
 	void setActor(Actor::wPtr p_Actor);
 
 	/**
-	* Adds a checkpoint to the vector of checkpoints.
-	* @param p_Checkpoint Actor pointer 
-	*/
+	 * Adds a checkpoint to the vector of checkpoints.
+	 *
+	 * @param p_Checkpoint Actor pointer 
+	 */
 	void addCheckpoint(const std::weak_ptr<Actor> p_Checkpoint);
 
-		/**
-	* Gets the current checkpoint's body handle.
-	* @return the BodyHandle
-	*/
+	/**
+	 * Gets the current checkpoint's body handle.
+	 *
+	 * @return the BodyHandle
+	 */
 	BodyHandle getCurrentCheckpointBodyHandle(void);
 
 	/**
-	* Checks if the finish line been reached.
-	* @return true if finish line been reached, false if not
-	*/
-	Actor::Id reachedFinishLine(void);
+     * Checks if the finish line been reached.
+	 *
+     * @return true if finish line been reached, false if not
+     */
+    bool reachedFinishLine(void);
 
 	/**
-	* Removes the current checkpoint and sets the next checkpoint in the vector to the current checkpoint with corresponding 
-	* tone to be shadede with.
-	* @param p_Objects vector with Actor objects for the current moment
-	*/
-	Vector3 changeCheckpoint();
+	 * Checks if the finish line been reached.
+	 *
+	 * @return true if finish line been reached, false if not
+	 */
+	Actor::ptr getCurrentCheckpoint(void);
+
+	/**
+	 * Remove the last item in the vector of checkpoints and set the next one.
+	 */
+	void changeCheckpoint();
+
+	/**
+	 * Returns the next checkpoint corresponding tone to be shaded with.
+	 *
+	 * @return a vector3 with color information in RGB values;
+	 */
+	Vector3 getCurrentCheckpointColor();
 };

@@ -1,12 +1,10 @@
 #pragma once
-#include <string>
-#include <vector>
 #include "Shader.h"
 #include "Buffer.h"
-#include "../include/ShaderDefinitions.h"
+#include "ShaderDefinitions.h"
 
-using std::string;
-using std::vector;
+#include <string>
+#include <vector>
 
 class WrapperFactory
 {
@@ -90,8 +88,8 @@ protected:
 	WrapperFactory(void);
 	virtual ~WrapperFactory(void);
 
-	virtual string getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type);
-	virtual vector<string> createEntryPointList(const char *p_EntryPoint);
+	virtual std::string getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type);
+	virtual std::vector<std::string> createEntryPointList(const char *p_EntryPoint);
 
 	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
 		const char *p_ShaderModel, Shader::Type p_ShaderType);

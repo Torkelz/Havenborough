@@ -1,12 +1,8 @@
-/**
- * <insert funny license text here>
- */
-
 #pragma once
-
 #include "InputRecord.h"
 
 #include <vector>
+#include <string>
 
 /**
  * A representation of a snapshot of the games input.

@@ -1,19 +1,16 @@
 #pragma once
-
-#include "AnimationStructs.h"
-
+#include "AnimationClip.h"
 #include <map>
-#include <fstream>
-#include <sstream>
+#include <string>
 
-class AnimationClipLoader
+class MattiasLucaseXtremeLoader
 {
 private:
 
 public:
-	AnimationClipLoader();
-	~AnimationClipLoader();
+	MattiasLucaseXtremeLoader();
+	~MattiasLucaseXtremeLoader();
 
-	std::map<std::string, AnimationClip> load(std::string);
+	std::map<std::string, AnimationClip> loadAnimationClip(std::string);
+	std::map<std::string, IKGroup> loadIKGroup(std::string);
 };
-

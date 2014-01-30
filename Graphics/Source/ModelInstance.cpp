@@ -1,10 +1,10 @@
 #include "ModelInstance.h"
-
 #include "GraphicsExceptions.h"
 #include "GraphicsLogger.h"
 
 using namespace DirectX;
 using std::string;
+using std::vector;
 
 ModelInstance::ModelInstance()
 	: m_IsCalculated(false), 
@@ -81,9 +81,8 @@ void ModelInstance::calculateWorldMatrix() const
 	m_IsCalculated = true;
 }
 
-void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>& p_Joints)
+void ModelInstance::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Joints)
 {
-	using namespace DirectX;
 	// Update time stamp in the direction of the animation speed per track.
 	updateTimeStamp(p_DeltaTime);
 
@@ -143,14 +142,16 @@ void ModelInstance::updateAnimation(float p_DeltaTime, const std::vector<Joint>&
 		XMMATRIX rotMat = XMMatrixRotationQuaternion(XMLoadFloat4(&toParentData.rotation));
 		XMMATRIX toParentMatrix = XMMatrixTranspose(scaleMat * rotMat * transMat);
 
-		XMMATRIX toParent = XMMatrixMultiply(XMMatrixTranspose(XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix)), toParentMatrix);
+		XMMATRIX toParent = XMMatrixMultiply(XMMatrixTranspose(XMLoadFloat4x4(&p_Joints[i].m_JointOffsetMatrix)),
+			toParentMatrix);
 		XMStoreFloat4x4(&m_LocalTransforms[i], toParent);
 	}
 
 	updateFinalTransforms(p_Joints);
 }
 
-MatrixDecomposed ModelInstance::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack, MatrixDecomposed p_ToParentData)
+MatrixDecomposed ModelInstance::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack,
+	MatrixDecomposed p_ToParentData)
 {
 	MatrixDecomposed tempData;
 	if(m_Tracks[p_CurrentTrack].clip.m_AnimationSpeed > 0)
@@ -163,11 +164,22 @@ MatrixDecomposed ModelInstance::updateKeyFrameInformation(Joint p_Joint, unsigne
 	}
 
 	if(m_Tracks[p_CurrentTrack].clip.m_FadeIn)
-		return p_Joint.interpolateEx( p_ToParentData, tempData, (m_Tracks[p_CurrentTrack].fadedFrames / (float)m_Tracks[p_CurrentTrack].clip.m_FadeInFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight * m_Tracks[p_CurrentTrack].dynamicWeight);
+	{
+		return p_Joint.interpolateEx(p_ToParentData, tempData, (m_Tracks[p_CurrentTrack].fadedFrames /
+			(float)m_Tracks[p_CurrentTrack].clip.m_FadeInFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight *
+			m_Tracks[p_CurrentTrack].dynamicWeight);
+	}
 	else if(m_Tracks[p_CurrentTrack].clip.m_FadeOut && !m_Tracks[p_CurrentTrack].clip.m_Loop)
-		return p_Joint.interpolateEx( p_ToParentData, tempData, 1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames / (float)m_Tracks[p_CurrentTrack].clip.m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight) * m_Tracks[p_CurrentTrack].dynamicWeight );
+	{
+		return p_Joint.interpolateEx(p_ToParentData, tempData, 1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames /
+			(float)m_Tracks[p_CurrentTrack].clip.m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight) *
+			m_Tracks[p_CurrentTrack].dynamicWeight );
+	}
 	else
-		return p_Joint.interpolateEx( p_ToParentData, tempData, m_Tracks[p_CurrentTrack].clip.m_Weight * m_Tracks[p_CurrentTrack].dynamicWeight );
+	{
+		return p_Joint.interpolateEx(p_ToParentData, tempData, m_Tracks[p_CurrentTrack].clip.m_Weight *
+			m_Tracks[p_CurrentTrack].dynamicWeight );
+	}
 }
 
 void ModelInstance::checkFades()
@@ -277,7 +289,7 @@ void ModelInstance::updateTimeStamp(float p_DeltaTime)
 	}
 }
 
-bool ModelInstance::affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint)
+bool ModelInstance::affected(const vector<Joint>& p_Joints, int p_ID, string p_FirstAffectedJoint)
 {
 	// FirstAffectedJode = FAJ
 	if (p_Joints[p_ID].m_JointName == p_FirstAffectedJoint) // The FAJ has been found.
@@ -287,15 +299,14 @@ bool ModelInstance::affected(const std::vector<Joint>& p_Joints, int p_ID, std::
 	else return affected(p_Joints, p_Joints.at(p_ID).m_Parent - 1, p_FirstAffectedJoint); // Neither the root nor the FAJ has been found yet, keep looking.
 }
 
-const std::vector<DirectX::XMFLOAT4X4>& ModelInstance::getFinalTransform() const
+const vector<DirectX::XMFLOAT4X4>& ModelInstance::getFinalTransform() const
 {
 	return m_FinalTransform;
 }
 
-void ModelInstance::applyIK_ReachPoint(const std::string& p_TargetJointName, const std::string& p_HingeJointName, const std::string& p_BaseJointName, const DirectX::XMFLOAT3& p_Position, const std::vector<Joint>& p_Joints)
+void ModelInstance::applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOAT3& p_Position,
+		const std::vector<Joint>& p_Joints)
 {
-	using namespace DirectX;
-
 	XMFLOAT4 targetData(p_Position.x, p_Position.y, p_Position.z, 1.f);
 	XMVECTOR target = XMLoadFloat4(&targetData);
 
@@ -313,15 +324,15 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_TargetJointName, con
 	{
 		const Joint& joint = p_Joints[i];
 
-		if (joint.m_JointName == p_TargetJointName)
+		if (joint.m_JointName == p_Group.m_Hand)
 		{
 			endJoint = &joint;
 		}
-		else if (joint.m_JointName == p_HingeJointName)
+		else if (joint.m_JointName == p_Group.m_Elbow)
 		{
 			middleJoint = &joint;
 		}
-		else if (joint.m_JointName == p_BaseJointName)
+		else if (joint.m_JointName == p_Group.m_Shoulder)
 		{
 			baseJoint = &joint;
 		}
@@ -361,9 +372,12 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_TargetJointName, con
 	XMStoreFloat4x4(&baseCombinedTransformedData, baseCombinedTransform);
 
 	// The joints' positions in world space is the zero vector in joint space transformed to world space.
-	XMFLOAT4 startPosition(baseCombinedTransformedData._14, baseCombinedTransformedData._24, baseCombinedTransformedData._34, 1.f); 
-	XMFLOAT4 jointPosition(middleCombinedTransformedData._14, middleCombinedTransformedData._24, middleCombinedTransformedData._34, 1.f); 
-	XMFLOAT4 endPosition(endCombinedTransformedData._14, endCombinedTransformedData._24, endCombinedTransformedData._34, 1.f); 
+	XMFLOAT4 startPosition(baseCombinedTransformedData._14, baseCombinedTransformedData._24,
+		baseCombinedTransformedData._34, 1.f); 
+	XMFLOAT4 jointPosition(middleCombinedTransformedData._14, middleCombinedTransformedData._24,
+		middleCombinedTransformedData._34, 1.f); 
+	XMFLOAT4 endPosition(endCombinedTransformedData._14, endCombinedTransformedData._24,
+		endCombinedTransformedData._34, 1.f); 
 
 	XMVECTOR startPositionV = XMLoadFloat4(&startPosition);
 	XMVECTOR jointPositionV = XMLoadFloat4(&jointPosition);
@@ -401,12 +415,13 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_TargetJointName, con
 	float diffJointAngle = wantedJointAngle - currentJointAngle;
 
 	// Asume all "elbows" has the positive Z axis as hinge axis.
-	static const XMFLOAT4 rotationAxisData(0.f, -1.f, 0.f, 0.f);
-	XMVECTOR rotationAxis = XMLoadFloat4(&rotationAxisData);
+	//static const XMFLOAT4 rotationAxisData(0.f, -1.f, 0.f, 0.f);
+	XMVECTOR rotationAxis = XMLoadFloat3(&p_Group.m_ElbowHingeAxis);//XMLoadFloat4(&rotationAxisData);
 	XMMATRIX rotation = XMMatrixRotationAxis(rotationAxis, diffJointAngle);
 
 	// Rotate the local transform of the "elbow" joint
-	XMStoreFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1], XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1]), rotation));
+	XMStoreFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1],
+		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1]), rotation));
 
 	XMFLOAT4X4 tempMatrixData = middleCombinedTransformedData;
 	XMMATRIX tempMatrix = XMMatrixTranspose(XMLoadFloat4x4(&tempMatrixData));
@@ -437,13 +452,14 @@ void ModelInstance::applyIK_ReachPoint(const std::string& p_TargetJointName, con
 
 	// Rotate the local transform of the "shoudler" joint
 	rotation = XMMatrixRotationAxis(localAxis, -localAngle);
-	XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1], XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
+	XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1],
+		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
 
 	// Update the resulting child transformations
 	updateFinalTransforms(p_Joints);
 }
 
-DirectX::XMFLOAT3 ModelInstance::getJointPos(const std::string& p_JointName, const std::vector<Joint>& p_Joints)
+DirectX::XMFLOAT3 ModelInstance::getJointPos(const string& p_JointName, const vector<Joint>& p_Joints)
 {
 	for (const auto& joint : p_Joints)
 	{
@@ -459,7 +475,8 @@ DirectX::XMFLOAT3 ModelInstance::getJointPos(const std::string& p_JointName, con
 			XMFLOAT4X4 jointCombinedTransformData;
 			XMStoreFloat4x4(&jointCombinedTransformData, jointCombinedTransform);
 
-			XMFLOAT3 jointPosition(jointCombinedTransformData._14, jointCombinedTransformData._24, jointCombinedTransformData._34); 
+			XMFLOAT3 jointPosition(jointCombinedTransformData._14, jointCombinedTransformData._24,
+				jointCombinedTransformData._34); 
 
 			return jointPosition;
 		}
@@ -468,11 +485,11 @@ DirectX::XMFLOAT3 ModelInstance::getJointPos(const std::string& p_JointName, con
 	throw InvalidArgumentGraphicsException("Joint does not exist: '" + p_JointName + "'", __LINE__, __FILE__);
 }
 
-void ModelInstance::updateFinalTransforms(const std::vector<Joint>& p_Joints)
+void ModelInstance::updateFinalTransforms(const vector<Joint>& p_Joints)
 {
 	const unsigned int numBones = p_Joints.size();
 
-	std::vector<XMFLOAT4X4> toRootTransforms(numBones);
+	vector<XMFLOAT4X4> toRootTransforms(numBones);
 
 	// Accumulate parent transformations
 	toRootTransforms[0] = m_LocalTransforms[0];

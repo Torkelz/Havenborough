@@ -1,6 +1,7 @@
 #include "Player.h"
+#include "Components.h"
 
-#include "ActorFactory.h"
+using namespace DirectX;
 
 Player::Player(void)
 {

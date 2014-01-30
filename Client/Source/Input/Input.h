@@ -1,13 +1,8 @@
-/**
- * This is not the license text you are looking for.
- */
-
 #pragma once
-
-#include "../Window.h"
 #include "InputRecord.h"
 #include "InputState.h"
 #include "InputTranslator.h"
+#include <EventData.h>
 
 #include <vector>
 
@@ -17,10 +12,10 @@
 class Input
 {
 private:
-	InputTranslator::ptr		m_Translator;
+	InputTranslator::ptr m_Translator;
 
-	InputState					m_InputState;
-	std::vector<InputRecord>	m_FrameInputs;
+	InputState m_InputState;
+	std::vector<InputRecord> m_FrameInputs;
 
 public:
 	/**

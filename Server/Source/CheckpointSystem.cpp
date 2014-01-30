@@ -1,4 +1,5 @@
 #include "CheckpointSystem.h"
+#include "Components.h"
 
 using std::vector;
 
@@ -36,19 +37,30 @@ BodyHandle CheckpointSystem::getCurrentCheckpointBodyHandle(void)
 	return m_Checkpoints.back().lock()->getBodyHandles().back();
 }
 
-Actor::Id CheckpointSystem::reachedFinishLine(void)
+bool CheckpointSystem::reachedFinishLine(void)
 {
-	return m_Checkpoints.begin()->lock()->getId();
+	return m_Checkpoints.empty();
 }
 
-Vector3 CheckpointSystem::changeCheckpoint()
+Actor::ptr CheckpointSystem::getCurrentCheckpoint(void)
+{
+	if(m_Checkpoints.empty())
+	{
+		return Actor::ptr();
+	}
+	return m_Checkpoints.back().lock();
+}
+
+void CheckpointSystem::changeCheckpoint()
 {
 	m_Checkpoints.pop_back();
+}	
 
+Vector3 CheckpointSystem::getCurrentCheckpointColor()
+{
 	if(m_Checkpoints.size() > 1)
 	{
-		return m_CurrentColorTone;
-		
+		return m_CurrentColorTone;	
 	}
 	else
 	{

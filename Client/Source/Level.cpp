@@ -1,5 +1,5 @@
 #include "Level.h"
-
+#include "LevelBinaryLoader.h"
 #include <XMLHelper.h>
 
 Level::Level(ResourceManager* p_Resources, IPhysics* p_Physics, ActorFactory* p_ActorFactory)

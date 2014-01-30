@@ -4,9 +4,7 @@
 #define MB (1000 * KB)
 
 #include <windows.h>
-#include <stdio.h>
 #include <Psapi.h>
-
 
 class RAMInfo
 {
@@ -16,7 +14,14 @@ private:
 	SIZE_T m_PhysicalMemUsage;
 	
 public:
+	/**
+	* Constructor.
+	*/
 	RAMInfo(void);
+	
+	/**
+	* Destructor.
+	*/
 	~RAMInfo(void);
 
 	/**

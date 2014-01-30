@@ -1,7 +1,6 @@
 #pragma once
-
 #include <DirectXMath.h>
-#include <vector>
+#include <string>
 
 struct KeyFrame
 {
@@ -58,19 +57,18 @@ struct particlecBuffer
 {
 	DirectX::XMFLOAT4X4 viewM;
 	DirectX::XMFLOAT4X4 projM;
-	DirectX::XMFLOAT4	centerPos;
-	DirectX::XMFLOAT4	color;
-	DirectX::XMFLOAT4	particleColorDeviation;
-	DirectX::XMFLOAT3	particlePositionDeviation;
-	DirectX::XMFLOAT3	velocityDeviation;
-	DirectX::XMFLOAT3	cameraPos;	
-	DirectX::XMFLOAT2	uvCoord;
-	float				sizeX;
-	float				sizeY;
-
+	DirectX::XMFLOAT4	cameraPos;
+	DirectX::XMFLOAT2	size;
+	//DirectX::XMFLOAT4	centerPos;
+	//DirectX::XMFLOAT4	color;
+	//DirectX::XMFLOAT4	particleColorDeviation;
+	//DirectX::XMFLOAT3	particlePositionDeviation;
+	//DirectX::XMFLOAT3	velocityDeviation;
+	//DirectX::XMFLOAT2	uvCoord;
 };
 
-struct ParticleMaterial
+struct ShaderParticle
 {
-	std::string m_DiffuseMap;
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT4 color;
 };

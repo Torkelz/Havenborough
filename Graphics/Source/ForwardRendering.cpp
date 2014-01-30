@@ -1,4 +1,8 @@
 #include "ForwardRendering.h"
+#include "ConstantBuffers.h"
+#include "WrapperFactory.h"
+#include "VRAMInfo.h"
+#include "Utilities/MemoryUtil.h"
 #include <algorithm>
 #include <functional>
 
@@ -71,7 +75,7 @@ void ForwardRendering::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_Devic
 	createDepthStencilState();
 }
 
-void ForwardRendering::addRenderable(DeferredRenderer::Renderable p_Renderable)
+void ForwardRendering::addRenderable(Renderable p_Renderable)
 {
 	m_TransparencyObjects.push_back(p_Renderable);
 }
@@ -217,68 +221,20 @@ void ForwardRendering::renderForward()
 		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTarget, m_DepthStencilView);
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		// The textures will be needed to be grabbed from the model later.
-		ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
-
 		m_ConstantBuffer->setBuffer(1);
-		m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 		updateConstantBuffer();
-		for(unsigned int i = 0; i < m_TransparencyObjects.size();i++)
+		for(auto& object : m_TransparencyObjects)
 		{
-			m_TransparencyObjects.at(i).model->vertexBuffer->setBuffer(0);
-
-			if (m_TransparencyObjects.at(i).model->isAnimated)
+			if (object.type == Renderable::Type::PARTICLE_SYSTEM)
 			{
-				cAnimatedObjectBuffer temp;
-				temp.invTransposeWorld = m_TransparencyObjects.at(i).invTransposeWorld;
-
-				const std::vector<DirectX::XMFLOAT4X4>* tempBones = m_TransparencyObjects.at(i).finalTransforms;
-				for (unsigned int a = 0; a < tempBones->size(); a++)
-					temp.boneTransform[a] = (*tempBones)[a];
-
-				m_DeviceContext->UpdateSubresource(m_AnimatedObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-				m_AnimatedObjectConstantBuffer->setBuffer(3);
+				object.particles->updateBuffers(m_DeviceContext, m_CameraPosition, m_ViewMatrix, m_ProjectionMatrix);
+				object.particles->render(m_DeviceContext, m_TransparencyAdditiveBlend);
 			}
-
-			cObjectBuffer temp;
-			temp.world = m_TransparencyObjects.at(i).world;
-			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-			m_ObjectConstantBuffer->setBuffer(2);
-
-			//Set the colorshadingConstantBuffer
-			DirectX::XMFLOAT3 color = DirectX::XMFLOAT3(0,0,1);
-			m_DeviceContext->UpdateSubresource(m_ColorShadingConstantBuffer->getBufferPointer(),
-				NULL,NULL,m_TransparencyObjects.at(i).colorTone ,NULL,NULL);
-			m_ColorShadingConstantBuffer->setBuffer(3);
-
-
-			// Set shader.
-			m_TransparencyObjects.at(i).model->shader->setShader();
-			float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-			m_TransparencyObjects.at(i).model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
-
-			for(unsigned int j = 0; j < m_TransparencyObjects.at(i).model->numOfMaterials;j++)
+			else
 			{
-				ID3D11ShaderResourceView *srvs[] =  {	m_TransparencyObjects.at(i).model->diffuseTexture[j].second, 
-					m_TransparencyObjects.at(i).model->normalTexture[j].second, 
-					m_TransparencyObjects.at(i).model->specularTexture[j].second 
-				};
-				m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-
-				m_DeviceContext->Draw(m_TransparencyObjects.at(i).model->drawInterval.at(j).second,
-					m_TransparencyObjects.at(i).model->drawInterval.at(j).first);
-
-				m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+				renderObject(object);
 			}
-
-			m_TransparencyObjects.at(i).model->shader->setBlendState(0, data);
-			m_TransparencyObjects.at(i).model->shader->unSetShader();
-			m_ObjectConstantBuffer->unsetBuffer(2);
-			m_AnimatedObjectConstantBuffer->unsetBuffer(3);
-			m_TransparencyObjects.at(i).model->vertexBuffer->unsetBuffer(0);
-			m_ColorShadingConstantBuffer->unsetBuffer(3);
 		}
-		m_DeviceContext->PSSetSamplers(0,0,0);
 		m_ConstantBuffer->unsetBuffer(1);
 
 		// Unset render targets.
@@ -294,7 +250,7 @@ void ForwardRendering::renderForward()
 	}
 }
 
-bool ForwardRendering::depthSortCompareFunc(const DeferredRenderer::Renderable &a, const DeferredRenderer::Renderable &b)
+bool ForwardRendering::depthSortCompareFunc(const Renderable &a, const Renderable &b)
 {
 	DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.world._14,a.world._24,a.world._34);
 	DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.world._14,b.world._24,b.world._34);
@@ -308,4 +264,65 @@ bool ForwardRendering::depthSortCompareFunc(const DeferredRenderer::Renderable &
 	DirectX::XMVECTOR bVeVLength = DirectX::XMVector3Length(bV - eV);
 
 	return aVeVLength.m128_f32[0] > bVeVLength.m128_f32[0];
+}
+
+void ForwardRendering::renderObject(Renderable& p_Object)
+{
+	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
+	p_Object.model->vertexBuffer->setBuffer(0);
+
+	if (p_Object.model->isAnimated)
+	{
+		cAnimatedObjectBuffer temp;
+		temp.invTransposeWorld = p_Object.invTransposeWorld;
+
+		const std::vector<DirectX::XMFLOAT4X4>* tempBones = p_Object.finalTransforms;
+		for (unsigned int a = 0; a < tempBones->size(); a++)
+			temp.boneTransform[a] = (*tempBones)[a];
+
+		m_DeviceContext->UpdateSubresource(m_AnimatedObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+		m_AnimatedObjectConstantBuffer->setBuffer(3);
+	}
+
+	cObjectBuffer temp;
+	temp.world = p_Object.world;
+	m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+	m_ObjectConstantBuffer->setBuffer(2);
+
+	//Set the colorshadingConstantBuffer
+	DirectX::XMFLOAT3 color = DirectX::XMFLOAT3(0,0,1);
+	m_DeviceContext->UpdateSubresource(m_ColorShadingConstantBuffer->getBufferPointer(),
+		NULL,NULL,p_Object.colorTone ,NULL,NULL);
+	m_ColorShadingConstantBuffer->setBuffer(3);
+
+
+	// Set shader.
+	p_Object.model->shader->setShader();
+	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+	p_Object.model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
+
+	for(unsigned int j = 0; j < p_Object.model->numOfMaterials;j++)
+	{
+		ID3D11ShaderResourceView *srvs[] =  {
+			p_Object.model->diffuseTexture[j].second, 
+			p_Object.model->normalTexture[j].second, 
+			p_Object.model->specularTexture[j].second 
+		};
+		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+
+		m_DeviceContext->Draw(p_Object.model->drawInterval.at(j).second,
+			p_Object.model->drawInterval.at(j).first);
+
+		// The textures will be needed to be grabbed from the model later.
+		static ID3D11ShaderResourceView * const nullsrvs[] = {NULL,NULL,NULL};
+		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+	}
+
+	p_Object.model->shader->setBlendState(0, data);
+	p_Object.model->shader->unSetShader();
+	m_ObjectConstantBuffer->unsetBuffer(2);
+	m_AnimatedObjectConstantBuffer->unsetBuffer(3);
+	p_Object.model->vertexBuffer->unsetBuffer(0);
+	m_ColorShadingConstantBuffer->unsetBuffer(3);
+	m_DeviceContext->PSSetSamplers(0,0,0);
 }

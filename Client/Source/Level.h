@@ -1,10 +1,7 @@
 #pragma once
-
-#include <ActorFactory.h>
-#include "LevelBinaryLoader.h"
 #include "IPhysics.h"
 #include "ResourceManager.h"
-#include <Utilities/Util.h>
+#include <ActorFactory.h>
 
 class Level
 {
@@ -64,13 +61,13 @@ public:
 	~Level();
 
 	/**
-	 * Releases reasources and de-allocates vector memory.
+	 * Releases resources and deallocates vector memory.
 	 **/
 	void releaseLevel();
 
 	/**
-	 * Loades a .txl file and send the information to Physics and Graphics, 
-	 * the collision map is also a .txl file but loades information about collision.
+	 * Loads a .txl file and send the information to Physics and Graphics, 
+	 * the collision map is also a .txl file but loads information about collision.
 	 *
 	 * @param p_LevelFilePath the complete path to the environment .txl file.
 	 */

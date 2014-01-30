@@ -1,15 +1,9 @@
 #pragma once
-
-/**
- * LICENSE INFORMATION: error404
- */
-
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #include <functional>
 #include <string>
 #include <vector>
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #include <DirectXMath.h>
 
 /**
@@ -76,42 +70,42 @@ public:
 	 * @param p_WindowSize The size of the window to create (width, height). The caller is
 	 *			responsible for making sure that the values are valid for the platform.
 	 */
-	void		init(const std::string& p_Title, DirectX::XMFLOAT2 p_WindowSize);
+	void init(const std::string& p_Title, DirectX::XMFLOAT2 p_WindowSize);
 	/**
 	 * Closes the window and cleans up any resources used. May be called on an unitialized object.
 	 */
-	void		destroy();
+	void destroy();
 
 	/**
 	 * Poll the system messages and delivers them to any registered callback.
 	 */
-	void		pollMessages();
+	void pollMessages();
 	/**
 	 * Register a callback to be called whenever a specified system message arrives.
 	 *
 	 * @param p_MessageType The system message type to listen to.
 	 * @param p_Callback the callback function to call when the specified message type arrives.
 	 */
-	void		registerCallback(UINT p_MessageType, callbackFunc_t p_Callback);
+	void registerCallback(UINT p_MessageType, callbackFunc_t p_Callback);
 
 	/**
 	 * Get the window handle associated with the window.
 	 *
 	 * @return A Win32 window handle if a window has been created, otherwise NULL.
 	 */
-	HWND		getHandle() const;
+	HWND getHandle() const;
 	/**
 	 * Get the icon handle associated with the window.
 	 *
 	 * @return A icon handle if an icon has been set, otherwise NULL.
 	 */
-	HICON		getIcon() const;
+	HICON getIcon() const;
 	/**
 	 * Set an icon to be used for the window.
 	 *
 	 * @param p_Icon A handle to an icon to be used, or NULL to use a default icon.
 	 */
-	void		setIcon(HICON p_Icon);
+	void setIcon(HICON p_Icon);
 	/**
 	 * Get the last set size of the window.
 	 *
@@ -124,19 +118,19 @@ public:
 	 * @param p_NewSize The size to resize the window to. The caller is responsible
 	 *			for making sure that the size is supported by the platform.
 	 */
-	void		setSize(DirectX::XMFLOAT2 p_NewSize);
+	void setSize(DirectX::XMFLOAT2 p_NewSize);
 	/**
 	 * Get whether the windows cursor is currently shown.
 	 *
 	 * @return true if the cursor is shown, otherwise false.
 	 */
-	bool		getShowCursor() const;
+	bool getShowCursor() const;
 	/**
 	 * Set whether the windows cursor should be shown.
 	 *
 	 * @param p_Show true to show the cursor, false to hide it.
 	 */
-	void		setShowCursor(bool p_Show);
+	void setShowCursor(bool p_Show);
 	/**
 	 * Get the current title of the window.
 	 *
@@ -148,32 +142,32 @@ public:
 	 *
 	 * @param p_NewTitle The new multibyte encoded string to be used as the window title.
 	 */
-	void		setTitle(const std::string& p_NewTitle);
+	void setTitle(const std::string& p_NewTitle);
 	/**
 	 * Get whether the window is currently visible. Visible windows may be
 	 * hidden by other windows or minimized.
 	 *
 	 * @return true if the window is visible and false if it is hidden.
 	 */
-	bool		getIsVisible() const;
+	bool getIsVisible() const;
 	/**
 	 * Set the visibility of the window.
 	 *
 	 * @param p_Visible true to show the window, false to hide it.
 	 */
-	void		setIsVisible(bool p_Visible);
+	void setIsVisible(bool p_Visible);
 	/**
 	 * Get whether the window is currently maximized.
 	 *
 	 * @return true if the window is maximized and false if it is not.
 	 */
-	bool		getIsMaximized() const;
+	bool getIsMaximized() const;
 	/**
 	 * Set the maximized flag of the window.
 	 *
 	 * @param p_Maximized true to set the maximized flag of the window, false not maximized.
 	 */
-	void		setIsMaximized(bool p_Maximized);
+	void setIsMaximized(bool p_Maximized);
 
 private:
 	/**

@@ -4,6 +4,8 @@
 
 BOOST_AUTO_TEST_SUITE(EdgeCollisionResponseTest)
 
+using namespace DirectX;
+
 class DummyPlayer : public Player
 {
 public:

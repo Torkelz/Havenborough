@@ -1,24 +1,20 @@
 #pragma once
-
-#include "WrapperFactory.h"
 #include "ShaderStructs.h"
+#include "Shader.h"
 
 #include <memory>
-#include <vector>
-#include <map>
+#include <string>
 
 struct Particle
 {
-	DirectX::XMFLOAT4 position; //position in the world, in cm
+public:
+	ShaderParticle shaderData;
 	DirectX::XMFLOAT4 velocity;
-	DirectX::XMFLOAT4 color;
 	DirectX::XMFLOAT2 size;
 	float life; //Life for a particle to live before taken away, in sec
 
 	Particle()
-		:	position(0.f, 0.f, 0.f, 1.f),
-			velocity(0.f, 0.f, 0.f, 0.f),
-			color(1.f, 0.f, 1.f, 1.f),
+		:	velocity(0.f, 0.f, 0.f, 0.f),
 			size(1.f, 1.f),
 			life(10.f)
 	{
@@ -27,9 +23,9 @@ struct Particle
 	Particle(DirectX::XMFLOAT3 p_Position, DirectX::XMFLOAT3 p_Velocity, DirectX::XMFLOAT4 p_Color,
 		DirectX::XMFLOAT2 p_Size, float p_Life)
 	{
-		position = DirectX::XMFLOAT4(p_Position.x, p_Position.y, p_Position.z, 1.0f);
+		shaderData.position = p_Position;
 		velocity = DirectX::XMFLOAT4(p_Velocity.x, p_Velocity.y, p_Velocity.z, 1.0f);
-		color = p_Color;
+		shaderData.color = p_Color;
 		size = p_Size;
 		life	= p_Life;
 	}
@@ -40,6 +36,7 @@ struct Particle
  */
 struct ParticleEffectDefinition
 {
+public:
 	typedef std::shared_ptr<ParticleEffectDefinition> ptr;
 
 	/**
@@ -51,20 +48,18 @@ struct ParticleEffectDefinition
 	 * Material diffuse textures.
 	 */
 	ID3D11ShaderResourceView* diffuseTexture;
+	ID3D11SamplerState* sampler;
 	std::string textureResourceName;
 
 	unsigned int maxParticles;
 	unsigned int particlesPerSec;
 	float maxLife;
 	DirectX::XMFLOAT2 size; //in cm
-	string particleSystemName;
-	DirectX::XMFLOAT3	particlePositionDeviation; // in cm
-	DirectX::XMFLOAT3	velocityDeviation; // in cm/s
+	std::string particleSystemName;
+	float				particlePositionDeviation; // in cm
+	float				velocityDeviation; // in cm/s
 	DirectX::XMFLOAT4	particleColorDeviation; // [0,1]
 
-private:
-
-public:
 	/**
 	 * Default constructor. Constructs an object without any data.
 	 */
@@ -76,11 +71,10 @@ public:
 			size(0.f, 0.f),
 			particleSystemName("NO NAME FOUND"),
 			particlesPerSec(0),
-			particlePositionDeviation(0.f, 0.f, 0.f),
-			velocityDeviation(0.f, 0.f, 0.f),
+			particlePositionDeviation(0.f),
+			velocityDeviation(0.f),
 			particleColorDeviation(0.f, 0.f, 0.f, 0.f)
 	{}
 
 	~ParticleEffectDefinition(){}
 };
-

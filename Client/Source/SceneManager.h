@@ -1,14 +1,7 @@
 #pragma once 
-#include "Scenes/MenuScene.h"
-#include "Scenes/GameScene.h"
-#include "Scenes/PostGameScene.h"
+#include "Scenes/IScene.h"
+
 #include <vector>
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
-/*TESTING*/
-#include <iostream>
-
 
 class SceneManager
 {

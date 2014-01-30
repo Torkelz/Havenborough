@@ -1,19 +1,10 @@
 #pragma once
 #include "WrapperFactory.h"
 #include "ModelDefinition.h"
-#include "ModelBinaryLoader.h"
-#include "GraphicsExceptions.h"
-#include "AnimationClipLoader.h"
 
 #include <d3d11.h>
-#include <DirectXMath.h>
 #include <vector>
 #include <string>
-
-using namespace DirectX;
-using std::vector;
-using std::string;
-using std::pair;
 
 class ModelFactory
 {
@@ -28,7 +19,7 @@ public:
 
 private:
 	static ModelFactory *m_Instance;
-	vector<pair<string, ID3D11ShaderResourceView*>> *m_TextureList;
+	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *m_TextureList;
 
 	loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
@@ -44,7 +35,7 @@ public:
 	* Initialize the factory.
 	* p_TextureList pointer to the texture list pair 
 	*/
-	void initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList);
+	void initialize(std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *p_TextureList);
 
 	/**
 	* Shuts down the factory and releases the memory allocated. Nulls all pointers.
@@ -71,11 +62,10 @@ protected:
 	~ModelFactory(void);
 	
 private:
-	Buffer::Description createBufferDescription(const vector<StaticVertex> &p_VertexData, Buffer::Usage p_Usage);
-	Buffer::Description createBufferDescription(const vector<AnimatedVertex> &p_VertexData, Buffer::Usage p_Usage);
+	Buffer::Description createBufferDescription(const std::vector<StaticVertex> &p_VertexData, Buffer::Usage p_Usage);
+	Buffer::Description createBufferDescription(const std::vector<AnimatedVertex> &p_VertexData, Buffer::Usage p_Usage);
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
-		const vector<Material> &p_Materials);
-	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
-
+		const std::vector<Material> &p_Materials);
+	ID3D11ShaderResourceView *getTextureFromList(std::string p_Identifier);
 };

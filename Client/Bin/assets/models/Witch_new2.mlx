@@ -177,3 +177,12 @@ fif	5
 fo	1
 fof 	5
 we	1.0
+
+*IKgroup
+na	LeftArm
+b1	L_UpperArm
+b2	L_LowerArm
+b3	L_Hand
+ikx	0.0
+iky	-1.0
+ikz	0.0
