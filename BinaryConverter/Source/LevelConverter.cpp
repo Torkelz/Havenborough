@@ -116,14 +116,25 @@ void LevelConverter::createLighting(std::ostream* p_Output)
 	{
 		intToByte(m_LevelDirectionalLightList->at(0).first.m_Type, p_Output);
 		intToByte(m_LevelDirectionalLightList->size(), p_Output);
-		p_Output->write(reinterpret_cast<const char*>(m_LevelDirectionalLightList->data()),
+		std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>> tempDirectional = *m_LevelDirectionalLightList;
+		for(auto& tempObj : tempDirectional)
+		{
+			tempObj.first.m_Translation.x *= -1;
+			tempObj.second.m_Direction.x *= -1;
+		}
+		p_Output->write(reinterpret_cast<const char*>(tempDirectional.data()),
 			sizeof(std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>) * m_LevelDirectionalLightList->size());
 	}
 	if(m_LevelPointLightList->size() != 0)
 	{
 		intToByte(m_LevelPointLightList->at(0).first.m_Type, p_Output);
 		intToByte(m_LevelPointLightList->size(), p_Output);
-		p_Output->write(reinterpret_cast<const char*>(m_LevelPointLightList->data()),
+		std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>> tempPoint = *m_LevelPointLightList;
+		for(auto& tempObj : tempPoint)
+		{
+			tempObj.first.m_Translation.x *= -1;
+		}
+		p_Output->write(reinterpret_cast<const char*>(tempPoint.data()),
 			sizeof(std::pair<LevelLoader::LightData, LevelLoader::PointLight>) * m_LevelPointLightList->size());
 		
 	}
@@ -131,7 +142,13 @@ void LevelConverter::createLighting(std::ostream* p_Output)
 	{
 		intToByte(m_LevelSpotLightList->at(0).first.m_Type, p_Output);
 		intToByte(m_LevelSpotLightList->size(), p_Output);
-		p_Output->write(reinterpret_cast<const char*>(m_LevelSpotLightList->data()),
+		std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>> tempSpot = *m_LevelSpotLightList;
+		for(auto& tempObj : tempSpot)
+		{
+			tempObj.first.m_Translation.x *= -1;
+			tempObj.second.m_Direction.x *= -1;
+		}
+		p_Output->write(reinterpret_cast<const char*>(tempSpot.data()),
 			sizeof(std::pair<LevelLoader::LightData, LevelLoader::SpotLight>) * m_LevelSpotLightList->size());
 	}
 }
@@ -141,11 +158,18 @@ void LevelConverter::createCheckPoints(std::ostream* p_Output)
 	DirectX::XMFLOAT3* tempStart,*tempEnd;
 	tempStart = &m_LevelCheckPointStart;
 	tempEnd = &m_LevelCheckPointEnd;
+	tempStart->x *= -1;
+	tempEnd->x *= -1; 
 	p_Output->write(reinterpret_cast<const char*>(tempStart), sizeof(DirectX::XMFLOAT3));
 	p_Output->write(reinterpret_cast<const char*>(tempEnd), sizeof(DirectX::XMFLOAT3));
 	int size = m_LevelCheckPointList->size();
 	intToByte(size, p_Output);
-	p_Output->write(reinterpret_cast<const char*>(m_LevelCheckPointList->data()), sizeof(LevelLoader::CheckPointStruct) * size);
+	std::vector<LevelLoader::CheckPointStruct> tempList =  *m_LevelCheckPointList;
+	for(auto& tempObj : tempList)
+	{
+		tempObj.m_Translation.x *= -1;
+	}
+	p_Output->write(reinterpret_cast<const char*>(tempList.data()), sizeof(LevelLoader::CheckPointStruct) * size);
 }
 
 void LevelConverter::stringToByte(std::string p_String, std::ostream* p_Output)

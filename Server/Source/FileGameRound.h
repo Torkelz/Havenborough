@@ -8,7 +8,7 @@ class FileGameRound : public GameRound
 {
 private:
 	std::string m_FilePath;
-	LevelBinaryLoader m_FileLoader;
+	std::unique_ptr<LevelBinaryLoader> m_FileLoader;
 public:
 	void setup() override;
 	void setFilePath(std::string p_FilePath);

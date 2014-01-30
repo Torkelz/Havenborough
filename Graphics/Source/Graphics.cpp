@@ -38,7 +38,6 @@ Graphics::Graphics(void)
 	m_BVBuffer = nullptr;
 	m_BVShader = nullptr;
 	m_Shader = nullptr;
-
 	m_VSyncEnabled = false; //DEBUG
 	m_NextInstanceId = 1;
 	m_SelectedRenderTarget = 3;
@@ -220,6 +219,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_ForwardRenderer->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
 		m_DepthStencilView, m_RenderTargetView);
 
+	//Particles
+	m_ParticleFactory.reset(new ParticleFactory);
+	m_ParticleFactory->initialize(&m_TextureList);
+
 	return true;
 }
 
@@ -256,6 +259,15 @@ void Graphics::shutdown(void)
 		SAFE_RELEASE(tex.second);
 	}
 	m_TextureList.clear();
+	
+	while (!m_ParticleEffectDefinitionList.empty())
+	{
+		std::string unremovedName = m_ParticleEffectDefinitionList.front().first;
+
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
+
+		releaseParticleEffectDefinition(unremovedName.c_str());
+	}	
 
 	while (!m_ModelList.empty())
 	{
@@ -282,7 +294,7 @@ void Graphics::shutdown(void)
 	m_Shader = nullptr;
 	SAFE_DELETE(m_BVBuffer);
 	SAFE_DELETE(m_BVShader);
-
+	
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
 	SAFE_DELETE(m_ForwardRenderer);
@@ -384,8 +396,15 @@ void Graphics::linkShaderToModel(const char *p_ShaderId, const char *p_ModelId)
 {
 	ModelDefinition *model = nullptr;
 	model = getModelFromList(p_ModelId);
-	if(model != nullptr)
+	if(model)
 		model->shader = getShaderFromList(p_ShaderId);
+}
+
+void Graphics::linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId)
+{
+	ParticleEffectDefinition::ptr particles = getParticleFromList(p_ParticlesId);
+	if(particles)
+		particles->shader = getShaderFromList(p_ShaderId);
 }
 
 void Graphics::deleteShader(const char *p_ShaderId)
@@ -437,6 +456,65 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	}
 
 	return false;
+}
+
+bool Graphics::createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename)
+{
+	ParticleEffectDefinition::ptr temp = m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId);
+
+	m_ParticleEffectDefinitionList.push_back(std::make_pair(p_ParticleEffectId,temp));
+	
+	return true;
+}
+
+bool Graphics::releaseParticleEffectDefinition(const char *p_ParticleEffectId)
+{
+	auto it = std::find_if(m_ParticleEffectDefinitionList.begin(), m_ParticleEffectDefinitionList.end(),
+		[p_ParticleEffectId] (const std::pair<std::string, ParticleEffectDefinition::ptr>& p_Effect)
+		{
+			return p_Effect.first == p_ParticleEffectId;
+		});
+
+	if (it != m_ParticleEffectDefinitionList.end())
+	{
+		m_ReleaseModelTexture(it->second->textureResourceName.c_str(), m_ReleaseModelTextureUserdata);
+		m_ParticleEffectDefinitionList.erase(it);
+		return true;
+	}
+
+	return false;
+}
+
+IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_ParticleEffectId)
+{
+	ParticleEffectDefinition::ptr effectDef = getParticleFromList(p_ParticleEffectId);
+	if (effectDef)
+	{
+		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L,
+			"Attempting to create particle effect instance without loading the effect definition: "
+			+ std::string(p_ParticleEffectId));
+		return -1;
+	}
+
+	ParticleInstance::ptr instance;
+	int id = m_NextParticleInstanceId++;
+
+	m_ParticleEffectInstanceList.push_back(std::make_pair(id, instance));
+
+	return id;
+}
+
+void Graphics::releaseParticleEffectInstance(InstanceId p_ParticleEffectId)
+{
+	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
+		[p_ParticleEffectId] (const std::pair<InstanceId, ParticleInstance::ptr>& p_Effect)
+		{
+			return p_Effect.first == p_ParticleEffectId;
+		});
+	if (it != m_ParticleEffectInstanceList.end())
+	{
+		m_ParticleEffectInstanceList.erase(it);
+	}
 }
 
 void Graphics::renderModel(InstanceId p_ModelId)
@@ -795,21 +873,11 @@ void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
 
 	XMVECTOR rotatedUp = XMVector4Transform(upVec, rotation);
 
-	static const XMFLOAT4 forward(0.f, 0.f, -1.f, 0.f);
+	static const XMFLOAT4 forward(0.f, 0.f, 1.f, 0.f);
 	XMVECTOR forwardVec = XMLoadFloat4(&forward);
 
-	// Debug character animation temp stuff START
-	XMFLOAT4 offset(0.0f, 10.0f, 500.0f, 0.0f);
-	XMVECTOR offsetVector = XMLoadFloat4(&offset);
-	offsetVector = XMVector4Transform(offsetVector, rotation);
-	XMStoreFloat4(&offset, offsetVector);
-
 	m_Eye = Vector3ToXMFLOAT3(&p_Position);
-	XMFLOAT4 eye(m_Eye.x + offset.x, m_Eye.y + offset.y, m_Eye.z + offset.z, 1.f);
-	// Debug character animation temp stuff END
-
-	//m_Eye = Vector3ToXMFLOAT3(&p_Position);
-	//XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
+	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
 	XMVECTOR pos = XMLoadFloat4(&eye);
 
 	XMVECTOR rotForward = XMVector4Transform(forwardVec, rotation);
@@ -847,6 +915,7 @@ void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelT
 		m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
 	}
 	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
+	m_ParticleFactory->setLoadParticleTextureCallBack(p_LoadModelTexture, p_Userdata);
 }
 
 void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void *p_Userdata)
@@ -1093,6 +1162,19 @@ ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 		if(s.first == p_Identifier)
 		{
 			return &s.second;
+		}
+	}
+
+	return nullptr;
+}
+
+ParticleEffectDefinition::ptr Graphics::getParticleFromList(string p_Identifier)
+{
+	for(auto & s : m_ParticleEffectDefinitionList)
+	{
+		if(s.first == p_Identifier)
+		{
+			return s.second;
 		}
 	}
 

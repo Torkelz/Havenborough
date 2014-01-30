@@ -1,4 +1,7 @@
+#pragma once
+
 #include <ActorFactory.h>
+#include "CheckpointSystem.h"
 #include "LevelBinaryLoader.h"
 #include "IPhysics.h"
 #include "ResourceManager.h"
@@ -11,15 +14,10 @@ private:
 	IPhysics* m_Physics;
 	ResourceManager* m_Resources;
 	ActorFactory* m_ActorFactory;
-	std::vector<LevelBinaryLoader::ModelData> m_LevelData, m_LevelCollisionData;
-	std::vector<LevelBinaryLoader::DirectionalLight> m_LevelDirectionalLightList;
-	std::vector<LevelBinaryLoader::PointLight> m_LevelPointLightList;
-	std::vector<LevelBinaryLoader::SpotLight> m_LevelSpotLightList;
-	std::vector<LevelBinaryLoader::CheckPointStruct> m_LevelCheckPointList;
-	DirectX::XMFLOAT3 m_LevelCheckPointStart;
-	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
-	DirectX::XMFLOAT3 m_StartPosition;
-	DirectX::XMFLOAT3 m_GoalPosition;
+	Vector3 m_StartPosition;
+	Vector3 m_GoalPosition;
+
+	CheckpointSystem m_CheckpointSystem;
 
 public:
 	/*
@@ -27,28 +25,28 @@ public:
 	*
 	* @return an XMFLOAT3 with the coordinates in cm
 	*/
-	const DirectX::XMFLOAT3 &getStartPosition(void) const;
+	const Vector3 &getStartPosition(void) const;
 
 	/*
 	* Sets the starting position for a player in cm.
 	*
 	* @param p_StartPosition not in relative coordinates in cm
 	*/
-	void setStartPosition(const DirectX::XMFLOAT3 &p_StartPosition);
+	void setStartPosition(const Vector3 &p_StartPosition);
 
 	/*
 	* Get the position of the goal in cm.
 	*
 	* @return an XMFLOAT3 with the coordinates in cm
 	*/
-	const DirectX::XMFLOAT3 &getGoalPosition(void) const;
+	const Vector3 &getGoalPosition(void) const;
 
 	/*
 	* Set the position of the goal in cm
 	*
 	* @param p_GoalPosition not in relative coordinate in cm
 	*/
-	void setGoalPosition(const DirectX::XMFLOAT3 &p_GoalPosition);
+	void setGoalPosition(const Vector3 &p_GoalPosition);
 
 	/**
 	 * Default constructor
@@ -78,14 +76,28 @@ public:
 	 * the collision map is also a .txl file but loades information about collision.
 	 *
 	 * @param p_LevelFilePath the complete path to the environment .txl file.
-	 * @param p_CollisionFilePath the complete path to the collision .txl file.
 	 */
-	bool loadLevel(std::istream& p_LevelData, std::istream& p_CollisionFilePath, std::vector<Actor::ptr>& p_ActorOut);
+	bool loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_ActorOut);
 
 	/**
-	 * Calls a draw function and send the information about what to draw to the Graphics.
+	 * Checks if the finish line been reached.
+	 *
+	 * @return true if finish line been reached, false if not
 	 */
-	void drawLevel();
+	bool reachedFinishLine();
+
+	/**
+	* Gets the current checkpoint's body handle.
+	* @return the BodyHandle
+	*/
+	BodyHandle getCurrentCheckpointBodyHandle(void);
+	
+	/**
+	* Removes the current checkpoint and sets the next checkpoint in the vector to the current checkpoint with corresponding 
+	* tone to be shadede with.
+	* @param p_Objects vector with Actor objects for the current moment
+	*/
+	void changeCheckpoint(std::vector<Actor::ptr> &p_Objects);
 
 private:
 	Actor::ptr createObjectActor(std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale);

@@ -28,18 +28,6 @@ public:
 	}
 
 	/**
-	 * Update the position, according to the actor.
-	 *
-	 * @param p_Position the new position of the actor
-	 */
-	virtual void updatePosition(Vector3 p_Position) = 0;
-	/**
-	 * Update the rotation, according to the actor.
-	 *
-	 * @param p_Rotation the new rotation of the actor
-	 */
-	virtual void updateRotation(Vector3 p_Rotation) = 0;
-	/**
 	 * Get the body handle of the component.
 	 *
 	 * @return a body handle
@@ -103,6 +91,7 @@ public:
 	void postInit() override
 	{
 		m_Body = m_Physics->createOBB(0.f, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, false);
+		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -121,14 +110,16 @@ public:
 		m_Physics->setBodyRotation(m_Body, rotation);
 	}
 
-	void updatePosition(Vector3 p_Position) override
+	void setPosition(Vector3 p_Position) override
 	{
 		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
 	}
-	void updateRotation(Vector3 p_Rotation) override
+
+	void setRotation(Vector3 p_Rotation) override
 	{
 		m_Physics->setBodyRotation(m_Body, p_Rotation);
 	}
+
 	BodyHandle getBodyHandle() const override
 	{
 		return m_Body;
@@ -188,7 +179,7 @@ public:
 
 	void postInit() override
 	{
-		m_Body = m_Physics->createSphere(m_Mass, m_Immovable, m_Owner->getPosition(), m_Radius);
+		m_Body = m_Physics->createSphere(m_Mass, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Radius);
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -208,14 +199,11 @@ public:
 		m_Physics->setBodyRotation(m_Body, rotation);
 	}
 
-	void updatePosition(Vector3 p_Position) override
+	void setPosition(Vector3 p_Position) override
 	{
 		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
 	}
-	void updateRotation(Vector3 p_Rotation) override
-	{
-		m_Physics->setBodyRotation(m_Body, p_Rotation);
-	}
+
 	BodyHandle getBodyHandle() const override
 	{
 		return m_Body;
@@ -299,14 +287,11 @@ public:
 		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
 	}
 
-	void updatePosition(Vector3 p_Position) override
+	void setPosition(Vector3 p_Position) override
 	{
 		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
 	}
-	void updateRotation(Vector3 p_Rotation) override
-	{
-		m_Physics->setBodyRotation(m_Body, p_Rotation);
-	}
+
 	BodyHandle getBodyHandle() const override
 	{
 		return m_Body;
@@ -373,8 +358,13 @@ public:
 			m_Scale.y = scale->FloatAttribute("y");
 			m_Scale.z = scale->FloatAttribute("z");
 		}
+	}
 
-		m_Body = m_Physics->createBVInstance(meshName);
+	void postInit() override
+	{
+		m_Body = m_Physics->createBVInstance(m_MeshName.c_str());
+		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
+		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
 		m_Physics->setBodyScale(m_Body, m_Scale);
 	}
 
@@ -386,14 +376,16 @@ public:
 		p_Printer.CloseElement();
 	}
 
-	void updatePosition(Vector3 p_Position) override
+	void setPosition(Vector3 p_Position) override
 	{
 		m_Physics->setBodyPosition(m_Body, p_Position);
 	}
-	void updateRotation(Vector3 p_Rotation) override
+
+	void setRotation(Vector3 p_Rotation) override
 	{
 		m_Physics->setBodyRotation(m_Body, p_Rotation);
 	}
+
 	BodyHandle getBodyHandle() const override
 	{
 		return m_Body;
@@ -488,6 +480,8 @@ public:
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
 			m_BaseScale, m_ColorTone)));
+		setPosition(m_Owner->getPosition());
+		setRotation(m_Owner->getRotation());
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -497,6 +491,16 @@ public:
 		pushVector(p_Printer, "Scale", m_BaseScale);
 		pushVector(p_Printer, "ColorTone", m_ColorTone);
 		p_Printer.CloseElement();
+	}
+
+	void setPosition(Vector3 p_Position) override
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(m_Id, p_Position)));
+	}
+
+	void setRotation(Vector3 p_Rotation) override
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelRotationEventData(m_Id, p_Rotation)));
 	}
 
 	void updateScale(const std::string& p_CompName, Vector3 p_Scale) override
@@ -534,7 +538,6 @@ public:
 
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new ChangeColorToneEvent(m_Id, m_ColorTone)));
 	}
-
 
 	/**
 	 * Get the model component id from the component.

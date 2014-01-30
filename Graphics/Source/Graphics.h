@@ -16,6 +16,9 @@
 #include "ModelFactory.h"
 #include "ModelInstance.h"
 #include "ModelDefinition.h"
+#include "ParticleFactory.h"
+#include "ParticleInstance.h"
+
 
 class Graphics : public IGraphics
 {
@@ -58,6 +61,12 @@ private:
 	std::vector<std::pair<InstanceId, ModelInstance>> m_ModelInstances;
 	InstanceId m_NextInstanceId;
 	
+	//Particles
+	vector<pair<string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
+	vector<pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
+	int m_NextParticleInstanceId;
+	std::unique_ptr<ParticleFactory> m_ParticleFactory;
+
 	DeferredRenderer *m_DeferredRender;
 	ForwardRendering *m_ForwardRenderer;
 		
@@ -96,10 +105,21 @@ public:
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type,
 		ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements) override;
 	void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) override;
+	
 	void deleteShader(const char *p_ShaderId) override;
 
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
 	bool releaseTexture(const char *p_TextureID) override;	
+
+	//Particles
+	bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_filename) override;
+	bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) override;
+
+	InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) override;
+	void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) override;
+
+	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
+
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
@@ -160,6 +180,9 @@ private:
 	
 	Shader *getShaderFromList(string p_Identifier);
 	ModelDefinition *getModelFromList(string p_Identifier);
+
+	ParticleEffectDefinition::ptr getParticleFromList(string p_ParticleSystemId);
+
 	ID3D11ShaderResourceView *getTextureFromList(string p_Identifier);
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
 	void Begin(float color[4]);
