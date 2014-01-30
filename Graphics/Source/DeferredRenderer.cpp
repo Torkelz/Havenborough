@@ -625,7 +625,7 @@ void DeferredRenderer::loadLightModels()
 {
 	ModelBinaryLoader modelLoader;
 	modelLoader.loadBinaryFile("../../Client/Bin/assets/LightModels/SpotLight.btx");
-	const std::vector<StaticVertex>& vertices = modelLoader.getVertexBuffer();
+	const std::vector<StaticVertex>& vertices = modelLoader.getStaticVertexBuffer();
 	std::vector<DirectX::XMFLOAT3> temp;
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{

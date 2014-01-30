@@ -46,9 +46,9 @@ private:
 	float m_ClearColor[4];
 	int m_SelectedRenderTarget;
 
-	XMFLOAT4X4 m_ViewMatrix;
-	XMFLOAT4X4 m_ProjectionMatrix;
-	XMFLOAT3 m_Eye;
+	DirectX::XMFLOAT4X4 m_ViewMatrix;
+	DirectX::XMFLOAT4X4 m_ProjectionMatrix;
+	DirectX::XMFLOAT3 m_Eye;
 
 	static const unsigned int m_MaxLightsPerLightInstance;
 	TextureLoader m_TextureLoader;	
@@ -62,8 +62,8 @@ private:
 	InstanceId m_NextInstanceId;
 	
 	//Particles
-	vector<pair<string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
-	vector<pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
+	std::vector<std::pair<std::string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
+	std::vector<std::pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
 	int m_NextParticleInstanceId;
 	std::unique_ptr<ParticleFactory> m_ParticleFactory;
 
@@ -76,7 +76,7 @@ private:
 	std::vector<Light> m_DirectionalLights;
 
 	//Stuff needed for drawing bounding volumes
-	std::vector<XMFLOAT4> m_BVTriangles;
+	std::vector<DirectX::XMFLOAT4> m_BVTriangles;
 	Buffer *m_BVBuffer;
 	unsigned int m_BVBufferNumOfElements;
 	Shader *m_BVShader;

@@ -1,6 +1,13 @@
 #include "ParticleFactory.h"
+#include "WrapperFactory.h"
+#include "GraphicsExceptions.h"
+#include "VRAMInfo.h"
 
 #include <boost/filesystem.hpp>
+
+using std::string;
+using std::vector;
+using std::pair;
 
 void ParticleFactory::initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList)
 {
@@ -11,7 +18,6 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 {
 	//ParticleLoader particleLoader;
 	//particleLoader.loadXMLFile(p_Filename);
-
 
 	ParticleEffectDefinition::ptr particleSystem;
 

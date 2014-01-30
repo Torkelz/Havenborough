@@ -46,7 +46,7 @@ public:
 	/**
 	 * Opens a binary file then reads the information stream and saves the information in vectors of structs.
 	 * 
-	 * @param p_FilePath, the absolut path to the source file.
+	 * @param p_FilePath, the absolute path to the source file.
 	 *
 	 */
 	bool loadBinaryFile(std::string p_FilePath);
@@ -63,7 +63,7 @@ public:
 	 *
 	 * @returns a vector of the struct VertexAnimation.
 	 */
-	const std::vector<AnimatedVertex>& getAnimationVertexBuffer();
+	const std::vector<AnimatedVertex>& getAnimatedVertexBuffer();
 
 	/**
 	 * Returns a vector of joints for the animation. 
@@ -79,10 +79,10 @@ public:
 	 *
 	 * @returns a vector of the struct Vertex.
 	 */
-	const std::vector<StaticVertex>& getVertexBuffer();
+	const std::vector<StaticVertex>& getStaticVertexBuffer();
 
 	/**
-	 * Returns information about waht material is used on a part of the model.
+	 * Returns information about what material is used on a part of the model.
 	 *
 	 * @returns a vector of the struct MaterialBuffer.
 	 */
