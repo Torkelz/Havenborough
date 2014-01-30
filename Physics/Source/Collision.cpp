@@ -616,9 +616,9 @@ HitData Collision::OBBVsHull(AABB const &p_OBB, Hull const &p_Hull)
 	float overlap = FLT_MAX;
 	XMVECTOR least = XMVectorSet(0.f, 0.f, 0.f, 0.f);
 
-	for(unsigned i = 0; i < 1; i++)
+	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
 	{
-
+		
 #pragma region eberly
 
 		/*eberly
@@ -769,6 +769,9 @@ HitData Collision::OBBVsHull(AABB const &p_OBB, Hull const &p_Hull)
 
 #pragma endregion
 
+		float tOverlap = FLT_MAX;
+		XMVECTOR tLeast = g_XMZero;
+
 		Triangle tri = p_Hull.getTriangleInWorldCoord(i);
 		Triangle tri1 = p_Hull.getTriangleAt(i);
 		XMVECTOR v0 = Vector4ToXMVECTOR(&tri.corners[0]);
@@ -783,22 +786,23 @@ HitData Collision::OBBVsHull(AABB const &p_OBB, Hull const &p_Hull)
 		v1 = v1 - box_Center;
 		v2 = v2 - box_Center;
 
-		XMVECTOR f[] = { v1 - v0,
+		XMVECTOR F[] = { v1 - v0,
 						 v2 - v1,
 						 v0 - v2, };
 
 		float p0, p1, p2, r;
 		miss = false;
 
+		//Check axes Aj X Fk 
 		for(int j = 0; j < 3; j++)
 		{
 			for(int k = 0; k < 3; k++)
 			{
-				XMVECTOR a = XMVector3Cross(box_Axes.r[j], f[k]);
-
-				r =	  box_Extents.m128_f32[0] * /*fabs(a.m128_f32[0])*/fabs(XMVector3Dot(box_Axes.r[0], a).m128_f32[0])
-					+ box_Extents.m128_f32[1] * /*fabs(a.m128_f32[1])*/fabs(XMVector3Dot(box_Axes.r[1], a).m128_f32[0])
-					+ box_Extents.m128_f32[2] * /*fabs(a.m128_f32[2]) + EPSILON;*/fabs(XMVector3Dot(box_Axes.r[2], a).m128_f32[0]) + EPSILON;
+				XMVECTOR a = XMVector3Cross(box_Axes.r[j], F[k]);
+				//r = e0 * fabs(A0 * Aj X Fk) + e1 * fabs(A1 * Aj X Fk) + e2 * fabs(A2 * Aj X Fk) + EPSILON
+				r =	  box_Extents.m128_f32[0] * fabs(XMVector3Dot(box_Axes.r[0], a).m128_f32[0])
+					+ box_Extents.m128_f32[1] * fabs(XMVector3Dot(box_Axes.r[1], a).m128_f32[0])
+					+ box_Extents.m128_f32[2] * fabs(XMVector3Dot(box_Axes.r[2], a).m128_f32[0]) + EPSILON;
 
 				p0 = XMVector3Dot(v0, a).m128_f32[0] + EPSILON;
 				p1 = XMVector3Dot(v1, a).m128_f32[0] + EPSILON;
@@ -810,43 +814,51 @@ HitData Collision::OBBVsHull(AABB const &p_OBB, Hull const &p_Hull)
 					miss = true;
 					break;
 				}
-				checkCollisionDepth(p0, p1, p2, r, overlap, a, least);
+				checkCollisionDepth(p0, p1, p2, r, tOverlap, a, tLeast);
 			}
 		}
 
 		if(miss)
 			continue;
+
+		//Check axis A0
 		if(checkR(v0.m128_f32[0], v1.m128_f32[0], v2.m128_f32[0], box_Extents.m128_f32[0]))
 			continue;
-		checkCollisionDepth(v0.m128_f32[0], v1.m128_f32[0], v2.m128_f32[0], box_Extents.m128_f32[0], overlap, box_Axes.r[0], least);
-
+		checkCollisionDepth(v0.m128_f32[0], v1.m128_f32[0], v2.m128_f32[0], box_Extents.m128_f32[0], tOverlap, box_Axes.r[0], tLeast);
+		//Check axis A1
 		if(checkR(v0.m128_f32[1], v1.m128_f32[1], v2.m128_f32[1], box_Extents.m128_f32[1]))
 			continue;
-		checkCollisionDepth(v0.m128_f32[1], v1.m128_f32[1], v2.m128_f32[1], box_Extents.m128_f32[1], overlap, box_Axes.r[1], least);
-
+		checkCollisionDepth(v0.m128_f32[1], v1.m128_f32[1], v2.m128_f32[1], box_Extents.m128_f32[1], tOverlap, box_Axes.r[1], tLeast);
+		//Check axis a2
 		if(checkR(v0.m128_f32[2], v1.m128_f32[2], v2.m128_f32[2], box_Extents.m128_f32[2]))
 			continue;
-		checkCollisionDepth(v0.m128_f32[2], v1.m128_f32[2], v2.m128_f32[2], box_Extents.m128_f32[2], overlap, box_Axes.r[2], least);
+		checkCollisionDepth(v0.m128_f32[2], v1.m128_f32[2], v2.m128_f32[2], box_Extents.m128_f32[2], tOverlap, box_Axes.r[2], tLeast);
 
-		float degenerate = XMVector4Length(XMVector3Cross(f[0], f[1])).m128_f32[0] * 0.5f;
+		//Check for degenerate triangle
+		float degenerate = XMVector4Length(XMVector3Cross(F[0], F[1])).m128_f32[0] * 0.5f;
 		
 		if(degenerate > EPSILON)
 		{
+			//Check axis triangle face normal.
 			Plane p;
-			XMStoreFloat4(&p.normal, XMVector3Cross(f[0], f[1]));
+			XMStoreFloat4(&p.normal, XMVector3Cross(F[0], F[1]));
 			p.d = XMVector3Dot(XMLoadFloat4(&p.normal), v0).m128_f32[0];
 			if(!AABBVsPlane(p_OBB, p))
 				continue;
 		}
-		hit.intersect = true;	
+		
+		hit.intersect = true;
+		//Check if this triangle is closer than the last, if so save the least separeting axis.
+		if(tOverlap <= overlap)
+		{
+			overlap = tOverlap;
+			least = tLeast;
+		}
 	}
-	//if(hit.intersect)
-	//{
-		least = XMVector4Normalize(least);
 
-		hit.colNorm = XMVECTORToVector4(&least);// Vector4(0.f, 1.f, 0.f, 0.f);
-		hit.colLength = overlap * 100.f;
-	//}
+	least = XMVector4Normalize(least);
+	hit.colNorm = XMVECTORToVector4(&least);// Vector4(0.f, 1.f, 0.f, 0.f);
+	hit.colLength = overlap * 100.f;
 
 	return hit;
 }
@@ -979,8 +991,8 @@ bool Collision::isZeroVector(XMVECTOR p_v)
 bool Collision::AABBVsPlane(AABB const &b, Plane const &p)
 {
 	// These two lines not necessary with a (center, extents) AABB representation
-	XMVECTOR c = XMLoadFloat4(&b.getPosition()); // Compute AABB center
-	XMVECTOR e = XMLoadFloat4(&b.getHalfDiagonal());//Max()) - c;// b.max - c; // Compute positive extents
+	XMVECTOR c = XMLoadFloat4(&b.getPosition()); // AABB center
+	XMVECTOR e = XMLoadFloat4(&b.getHalfDiagonal());// b.max - c; // positive extents
 
 	// Compute the projection interval radius of b onto L(t) = b.c + t * p.n
 	float r = e.m128_f32[0]*fabs(p.normal.x) + e.m128_f32[1]*fabs(p.normal.y) + e.m128_f32[2]*fabs(p.normal.z);
