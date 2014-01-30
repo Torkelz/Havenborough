@@ -1,6 +1,14 @@
 #include "ModelFactory.h"
+#include "GraphicsExceptions.h"
+#include "ModelBinaryLoader.h"
+#include "AnimationClipLoader.h"
+#include "Utilities/MemoryUtil.h"
 
 #include <boost/filesystem.hpp>
+
+using std::string;
+using std::vector;
+using std::pair;
 
 ModelFactory *ModelFactory::m_Instance = nullptr;
 
@@ -35,18 +43,18 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	const vector<Material> &materialData = modelLoader.getMaterial();
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
 	
-	bool isAnimated = !modelLoader.getAnimationVertexBuffer().empty();
+	bool isAnimated = !modelLoader.getAnimatedVertexBuffer().empty();
 
 	if(!isAnimated)
 	{
-		const vector<StaticVertex> &vertexData = modelLoader.getVertexBuffer();
+		const vector<StaticVertex> &vertexData = modelLoader.getStaticVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
 	}
 	else
 	{
 		model.joints = modelLoader.getJoints();
 
-		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimationVertexBuffer();
+		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimatedVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
 
 		//Animation clip stuff
@@ -58,9 +66,10 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 		}
 		animationClipName += "mlx";
 
-		AnimationClipLoader tempLoader = AnimationClipLoader();
+		MattiasLucaseXtremeLoader tempLoader = MattiasLucaseXtremeLoader();
 
-		model.animationClips = tempLoader.load(animationClipName);
+		model.animationClips	= tempLoader.loadAnimationClip(animationClipName);
+		model.ikGroups			= tempLoader.loadIKGroup(animationClipName);
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 

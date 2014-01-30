@@ -1,11 +1,9 @@
 #pragma once
-
 #include "ShaderStructs.h"
 
+#include <DirectXMath.h>
 #include <string>
 #include <vector>
-
-#include <DirectXMath.h>
 
 struct MatrixDecomposed
 {

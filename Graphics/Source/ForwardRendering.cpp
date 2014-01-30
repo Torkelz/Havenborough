@@ -1,4 +1,8 @@
 #include "ForwardRendering.h"
+#include "ConstantBuffers.h"
+#include "WrapperFactory.h"
+#include "VRAMInfo.h"
+#include "Utilities/MemoryUtil.h"
 #include <algorithm>
 #include <functional>
 
@@ -71,7 +75,7 @@ void ForwardRendering::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_Devic
 	createDepthStencilState();
 }
 
-void ForwardRendering::addRenderable(DeferredRenderer::Renderable p_Renderable)
+void ForwardRendering::addRenderable(Renderable p_Renderable)
 {
 	m_TransparencyObjects.push_back(p_Renderable);
 }
@@ -221,7 +225,7 @@ void ForwardRendering::renderForward()
 		updateConstantBuffer();
 		for(auto& object : m_TransparencyObjects)
 		{
-			if (object.type == DeferredRenderer::Renderable::Type::PARTICLE_SYSTEM)
+			if (object.type == Renderable::Type::PARTICLE_SYSTEM)
 			{
 				object.particles->updateBuffers(m_DeviceContext, m_CameraPosition, m_ViewMatrix, m_ProjectionMatrix);
 				object.particles->render(m_DeviceContext, m_TransparencyAdditiveBlend);
@@ -246,7 +250,7 @@ void ForwardRendering::renderForward()
 	}
 }
 
-bool ForwardRendering::depthSortCompareFunc(const DeferredRenderer::Renderable &a, const DeferredRenderer::Renderable &b)
+bool ForwardRendering::depthSortCompareFunc(const Renderable &a, const Renderable &b)
 {
 	DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.world._14,a.world._24,a.world._34);
 	DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.world._14,b.world._24,b.world._34);
@@ -262,7 +266,7 @@ bool ForwardRendering::depthSortCompareFunc(const DeferredRenderer::Renderable &
 	return aVeVLength.m128_f32[0] > bVeVLength.m128_f32[0];
 }
 
-void ForwardRendering::renderObject(DeferredRenderer::Renderable& p_Object)
+void ForwardRendering::renderObject(Renderable& p_Object)
 {
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	p_Object.model->vertexBuffer->setBuffer(0);

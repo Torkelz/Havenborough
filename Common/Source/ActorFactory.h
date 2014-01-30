@@ -1,16 +1,9 @@
-/**
- * Stuff.
- */
-
 #pragma once
-
 #include "Actor.h"
 #include "ResourceManager.h"
-
 #include <IPhysics.h>
 
 #include <tinyxml2/tinyxml2.h>
-
 #include <functional>
 #include <map>
 #include <string>

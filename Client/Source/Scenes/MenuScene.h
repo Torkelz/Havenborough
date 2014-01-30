@@ -1,5 +1,4 @@
 #pragma once
-
 #include "IScene.h"
 
 class MenuScene : public IScene

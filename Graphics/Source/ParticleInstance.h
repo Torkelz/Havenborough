@@ -1,11 +1,12 @@
 #pragma once
-
 #include "Buffer.h"
 #include "ParticleEffectDefinition.h"
 
-#include <algorithm>
+#include <DirectXMath.h>
+#include <vector>
 #include <memory>
 #include <random>
+
 
 class ParticleInstance
 {

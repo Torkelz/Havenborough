@@ -1,4 +1,5 @@
 #include "TextureLoader.h"
+#include "GraphicsExceptions.h"
 
 TextureLoader::TextureLoader(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext)
 {

@@ -1,5 +1,4 @@
 #include "InputTranslator.h"
-
 #include "../ClientExceptions.h"
 #include <Logger.h>
 

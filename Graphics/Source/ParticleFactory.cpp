@@ -1,6 +1,14 @@
 #include "ParticleFactory.h"
+#include "WrapperFactory.h"
+#include "GraphicsExceptions.h"
+#include "VRAMInfo.h"
+#include "Utilities/MemoryUtil.h"
 
 #include <boost/filesystem.hpp>
+
+using std::string;
+using std::vector;
+using std::pair;
 
 ParticleFactory::~ParticleFactory()
 {
@@ -17,7 +25,6 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 {
 	//ParticleLoader particleLoader;
 	//particleLoader.loadXMLFile(p_Filename);
-
 
 	ParticleEffectDefinition::ptr particleSystem;
 

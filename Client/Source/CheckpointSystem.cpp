@@ -1,4 +1,5 @@
 #include "CheckpointSystem.h"
+#include "Components.h"
 
 using std::vector;
 

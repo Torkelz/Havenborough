@@ -1,21 +1,18 @@
 #pragma once
-
-#include "Actor.h"
-#include "ActorFactory.h"
 #include <IGraphics.h>
-#include "Input\Input.h"
-#include "IPhysics.h"
+#include <IPhysics.h>
 #include <INetwork.h>
+#include <ISound.h>
+#include "ActorFactory.h"
+#include "Input\Input.h"
 #include "SceneManager.h"
 #include "Window.h"
 #include "RAMInfo.h"
-#include <ISound.h>
 #include "EventManager.h"
-
 #include "ResourceManager.h"
 #include "GameLogic.h"
 
-#include <string>
+#include <DirectXMath.h>
 
 class BaseGameApp
 {
@@ -81,7 +78,7 @@ public:
 	 *
 	 * @return The size (width, height) of the client area of the window.
 	 */
-	XMFLOAT2 getWindowSize() const;
+	DirectX::XMFLOAT2 getWindowSize() const;
 
 private:
 	bool handleWindowClose(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);

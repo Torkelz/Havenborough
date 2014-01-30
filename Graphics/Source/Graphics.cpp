@@ -1,38 +1,47 @@
 #include "Graphics.h"
 #include "GraphicsLogger.h"
+#include "GraphicsExceptions.h"
+#include "VRAMInfo.h"
 
 #include <iostream>
 #include <boost/filesystem.hpp>
-#include "AnimationStructs.h"
 
 using namespace DirectX;
+using std::vector;
+using std::string;
+using std::pair;
+using std::make_pair;
+
 const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
 	m_DeviceContext = nullptr;
+	
 	m_SwapChain = nullptr;
 	m_RenderTargetView = nullptr;
+	m_Sampler = nullptr;
+
 	m_RasterState = nullptr;
+	m_RasterStateBV = nullptr;
+
 	m_DepthStencilBuffer = nullptr;
 	m_DepthStencilState = nullptr;
 	m_DepthStencilView = nullptr;
-	m_RasterStateBV = nullptr;
+
 	m_WrapperFactory = nullptr;
 	m_ModelFactory = nullptr;
-	//m_DeferredRender = nullptr;
-	m_Sampler = nullptr;
-	m_VRAMInfo = nullptr;
 
+	m_DeferredRender = nullptr;
+	m_ForwardRenderer = nullptr;
+
+	m_BVBuffer = nullptr;
+	m_BVShader = nullptr;
+	m_Shader = nullptr;
 	m_VSyncEnabled = false; //DEBUG
-
 	m_NextInstanceId = 1;
 	m_NextParticleInstanceId = 1;
 	m_SelectedRenderTarget = 3;
-
-	m_Shader = nullptr;
-	m_BVShader = nullptr;
-	m_BVBuffer = nullptr;
 }
 
 Graphics::~Graphics(void)
@@ -173,12 +182,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	setViewPort(p_ScreenWidth, p_ScreenHeight);
 
-	//Note this is the only time initialize should be called.
-	WrapperFactory::initialize(m_Device, m_DeviceContext);	
-	m_WrapperFactory = WrapperFactory::getInstance();
-	m_VRAMInfo = VRAMInfo::getInstance();
-	m_ModelFactory = ModelFactory::getInstance();
-	m_ModelFactory->initialize(&m_TextureList);
+	initializeFactories();
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
@@ -204,21 +208,12 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 
-	//ShaderInputElementDescription shaderDesc[] = 
-	//{
-	//	{"POSITION", 0, Format::R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
-	//};
-
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
-															"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);//, shaderDesc, 1);
+		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	m_ForwardRenderer = new ForwardRendering();
 	m_ForwardRenderer->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
 		m_DepthStencilView, m_RenderTargetView);
-
-	//Particles
-	m_ParticleFactory.reset(new ParticleFactory);
-	m_ParticleFactory->initialize(&m_TextureList, m_Device);
 
 	return true;
 }
@@ -259,7 +254,7 @@ void Graphics::shutdown(void)
 	
 	while (!m_ParticleEffectDefinitionList.empty())
 	{
-		std::string unremovedName = m_ParticleEffectDefinitionList.front().first;
+		string unremovedName = m_ParticleEffectDefinitionList.front().first;
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
 
@@ -268,7 +263,7 @@ void Graphics::shutdown(void)
 
 	while (!m_ModelList.empty())
 	{
-		std::string unremovedName = m_ModelList.front().first;
+		string unremovedName = m_ModelList.front().first;
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + unremovedName + "' not removed properly");
 
@@ -287,7 +282,6 @@ void Graphics::shutdown(void)
 	SAFE_RELEASE(m_SwapChain);
 	SAFE_SHUTDOWN(m_WrapperFactory);
 	SAFE_SHUTDOWN(m_ModelFactory);
-	SAFE_SHUTDOWN(m_VRAMInfo);
 
 	m_Shader = nullptr;
 	SAFE_DELETE(m_BVBuffer);
@@ -430,7 +424,7 @@ bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	}
 
 	int size = calculateTextureSize(resourceView);
-	m_VRAMInfo->updateUsage(size);
+	VRAMInfo::getInstance()->updateUsage(size);
 
 	m_TextureList.push_back(make_pair(p_TextureId, resourceView));
 
@@ -445,7 +439,7 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 		{
 			ID3D11ShaderResourceView *&m = it->second;
 			int size = calculateTextureSize(m);
-			m_VRAMInfo->updateUsage(-size);
+			VRAMInfo::getInstance()->updateUsage(-size);
 
 			SAFE_RELEASE(m);
 			m_TextureList.erase(it);
@@ -460,7 +454,7 @@ bool Graphics::createParticleEffectDefinition(const char *p_ParticleEffectId, co
 {
 	ParticleEffectDefinition::ptr temp = m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId);
 
-	m_ParticleEffectDefinitionList.push_back(std::make_pair(p_ParticleEffectId,temp));
+	m_ParticleEffectDefinitionList.push_back(make_pair(p_ParticleEffectId,temp));
 	
 	return true;
 }
@@ -468,7 +462,7 @@ bool Graphics::createParticleEffectDefinition(const char *p_ParticleEffectId, co
 bool Graphics::releaseParticleEffectDefinition(const char *p_ParticleEffectId)
 {
 	auto it = std::find_if(m_ParticleEffectDefinitionList.begin(), m_ParticleEffectDefinitionList.end(),
-		[p_ParticleEffectId] (const std::pair<std::string, ParticleEffectDefinition::ptr>& p_Effect)
+		[p_ParticleEffectId] (const pair<string, ParticleEffectDefinition::ptr>& p_Effect)
 		{
 			return p_Effect.first == p_ParticleEffectId;
 		});
@@ -490,14 +484,14 @@ IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_Parti
 	{
 		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L,
 			"Attempting to create particle effect instance without loading the effect definition: "
-			+ std::string(p_ParticleEffectId));
+			+ string(p_ParticleEffectId));
 		return -1;
 	}
 
 	ParticleInstance::ptr instance = m_ParticleFactory->createParticleInstance(effectDef);
 	int id = m_NextParticleInstanceId++;
 
-	m_ParticleEffectInstanceList.push_back(std::make_pair(id, instance));
+	m_ParticleEffectInstanceList.push_back(make_pair(id, instance));
 
 	return id;
 }
@@ -505,7 +499,7 @@ IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_Parti
 void Graphics::releaseParticleEffectInstance(InstanceId p_ParticleEffectId)
 {
 	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
-		[p_ParticleEffectId] (const std::pair<InstanceId, ParticleInstance::ptr>& p_Effect)
+		[p_ParticleEffectId] (const pair<InstanceId, ParticleInstance::ptr>& p_Effect)
 		{
 			return p_Effect.first == p_ParticleEffectId;
 		});
@@ -532,14 +526,14 @@ void Graphics::renderModel(InstanceId p_ModelId)
 			ModelDefinition *modelDef = getModelFromList(inst.second.getModelName());
 			if(!modelDef->isTransparent)
 			{
-				m_DeferredRender->addRenderable(DeferredRenderer::Renderable(
-					DeferredRenderer::Renderable::Type::DEFERRED_OBJECT, modelDef,
+				m_DeferredRender->addRenderable(Renderable(
+					Renderable::Type::DEFERRED_OBJECT, modelDef,
 					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
 			}
 			else
 			{
-				m_ForwardRenderer->addRenderable(DeferredRenderer::Renderable(
-					DeferredRenderer::Renderable::Type::FORWARD_OBJECT, modelDef,
+				m_ForwardRenderer->addRenderable(Renderable(
+					Renderable::Type::FORWARD_OBJECT, modelDef,
 					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
 					&inst.second.getColorTone()));
 			}
@@ -662,7 +656,7 @@ void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_Stat
 	
 	for(auto &model : m_ModelList)
 	{
-		if(model.first == std::string(p_ModelId))
+		if(model.first == string(p_ModelId))
 		{
 			model.second.isTransparent = p_State;
 			return;
@@ -692,7 +686,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 		{
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
 			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			std::string tempStr(p_ClipName);
+			string tempStr(p_ClipName);
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
@@ -718,7 +712,7 @@ void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
 		{
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
 			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			std::string tempStr(p_ClipName);
+			string tempStr(p_ClipName);
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
@@ -746,14 +740,7 @@ void Graphics::changeAnimationWeight(int p_Instance, int p_Track, float p_Weight
 
 int Graphics::getVRAMUsage(void)
 {
-	if (m_VRAMInfo)
-	{
-		return m_VRAMInfo->getUsage();
-	}
-	else
-	{
-		return 0;
-	}
+	return VRAMInfo::getInstance()->getUsage();
 }
 
 IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
@@ -761,7 +748,8 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 	ModelDefinition *modelDef = getModelFromList(p_ModelId);
 	if (modelDef == nullptr)
 	{
-		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the model definition: " + std::string(p_ModelId));
+		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L, "Attempting to create model instance without loading the model definition: " +
+			string(p_ModelId));
 		return -1;
 	}
 	
@@ -777,14 +765,14 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 		instance.updateAnimation(0.f, modelDef->joints);
 	}
 
-	m_ModelInstances.push_back(std::make_pair(id, instance));
+	m_ModelInstances.push_back(make_pair(id, instance));
 
 	return id;
 }
 
 void Graphics::createSkydome(const char* p_TextureResource, float p_Radius)
 {
-	m_DeferredRender->createSkyDome(getTextureFromList(std::string(p_TextureResource)), p_Radius);
+	m_DeferredRender->createSkyDome(getTextureFromList(string(p_TextureResource)), p_Radius);
 }
 
 void Graphics::eraseModelInstance(InstanceId p_Instance)
@@ -854,15 +842,24 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 	throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint,
-								  const char* p_BaseJoint, Vector3 p_Target)
+void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_IKGroupName, Vector3 p_Target)
 {
 	for (auto& inst : m_ModelInstances)
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.applyIK_ReachPoint(p_TargetJoint, p_HingeJoint, p_BaseJoint, p_Target,
-				getModelFromList(inst.second.getModelName())->joints);
+			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
+			std::string tempStr(p_IKGroupName);
+
+			// If an illegal string has been put in, just shoot in the default animation.
+			// The show must go on!
+			if( modelDef->ikGroups.find(p_IKGroupName) == modelDef->ikGroups.end() )
+			{
+				tempStr = "default";
+			}
+
+			inst.second.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, modelDef->joints);
 			break;
 		}
 	}
@@ -1141,6 +1138,19 @@ HRESULT Graphics::createRasterizerState(void)
 	return result;
 }
 
+void Graphics::initializeFactories(void)
+{
+	//Note this is the only time initialize should be called.
+	WrapperFactory::initialize(m_Device, m_DeviceContext);
+	m_WrapperFactory = WrapperFactory::getInstance();
+	VRAMInfo::getInstance();
+	m_ModelFactory = ModelFactory::getInstance();
+	m_ModelFactory->initialize(&m_TextureList);
+	m_ParticleFactory.reset(new ParticleFactory);
+	m_ParticleFactory->initialize(&m_TextureList, m_Device);
+	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
+}
+
 void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 {
 	XMFLOAT4 eye;
@@ -1227,7 +1237,7 @@ int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )
 	SAFE_RELEASE(texture);
 	SAFE_RELEASE(resource);
 
-	return m_VRAMInfo->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
+	return VRAMInfo::getInstance()->calculateFormatUsage(textureDesc.Format, textureDesc.Width, textureDesc.Height);
 }
 
 void Graphics::Begin(float color[4])
@@ -1321,4 +1331,3 @@ void Graphics::DebugDefferedDraw(void)
 	m_Sampler = nullptr;
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
 }
-

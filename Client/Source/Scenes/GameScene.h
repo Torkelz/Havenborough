@@ -1,8 +1,7 @@
 #pragma once
 #include "IScene.h"
-//#include "../Logger.h"
 #include "../GameLogic.h"
-#include <LightStructs.h>
+#include <Light.h>
 
 class GameScene : public IScene
 {
@@ -32,9 +31,7 @@ private:
 
 	struct ReachIK
 	{
-		std::string rootJoint;
-		std::string bendJoint;
-		std::string reachJoint;
+		std::string group;
 		Vector3 target;
 	};
 

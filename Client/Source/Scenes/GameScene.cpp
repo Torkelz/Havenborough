@@ -1,6 +1,9 @@
 #include "GameScene.h"
 #include <Components.h>
 #include <EventData.h>
+#include "Logger.h"
+
+using namespace DirectX;
 
 GameScene::GameScene()
 {
@@ -102,7 +105,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	{
 		for (const ReachIK& ik : model.activeIKs)
 		{
-			m_Graphics->applyIK_ReachPoint(model.modelId, ik.reachJoint.c_str(), ik.bendJoint.c_str(), ik.rootJoint.c_str(), ik.target);
+			m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
 		}
 	}
 }
@@ -428,15 +431,13 @@ void GameScene::addReachIK(IEventData::Ptr p_Data)
 		{
 			ReachIK ik =
 			{
-				ikData->getRootJoint(),
-				ikData->getBendJoint(),
-				ikData->getReachJoint(),
+				ikData->getGroupName(),
 				ikData->getTarget()
 			};
 
 			for (auto& activeIK : model.activeIKs)
 			{
-				if (activeIK.reachJoint == ikData->getReachJoint())
+				if (activeIK.group == ikData->getGroupName())
 				{
 					activeIK = ik;
 					return;
@@ -457,7 +458,7 @@ void GameScene::removeReachIK(IEventData::Ptr p_Data)
 		{
 			for (auto& ik : model.activeIKs)
 			{
-				if (ik.reachJoint == ikData->getReachJoint())
+				if (ik.group == ikData->getGroupName())
 				{
 					std::swap(ik, model.activeIKs.back());
 					model.activeIKs.pop_back();

@@ -1,5 +1,8 @@
 #include "ResourceManager.h"
+#include "CommonExceptions.h"
 
+using std::string;
+using std::vector;
 
 void ResourceType::setType(string p_Type)
 {
@@ -33,11 +36,13 @@ ResourceManager::~ResourceManager()
 
 	if (!unreleasedResources.empty())
 	{
-		throw ResourceManagerException("Resource not released before shutdown: " + unreleasedResources, __LINE__, __FILE__);
+		throw ResourceManagerException("Resource not released before shutdown: " + unreleasedResources,
+			__LINE__, __FILE__);
 	}
 }
 
-bool ResourceManager::registerFunction(string p_Type, std::function<bool(const char*, const char*)> p_CreateFunc, std::function<bool(const char*)> p_ReleaseFunc)
+bool ResourceManager::registerFunction(string p_Type, std::function<bool(const char*, const char*)> p_CreateFunc,
+	std::function<bool(const char*)> p_ReleaseFunc)
 {
 	for(auto &rl : m_ResourceList)
 	{

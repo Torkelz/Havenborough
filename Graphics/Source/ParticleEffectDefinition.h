@@ -1,14 +1,13 @@
 #pragma once
-
-#include "WrapperFactory.h"
 #include "ShaderStructs.h"
+#include "Shader.h"
 
 #include <memory>
-#include <vector>
-#include <map>
+#include <string>
 
 struct Particle
 {
+public:
 	ShaderParticle shaderData;
 	DirectX::XMFLOAT4 velocity;
 	DirectX::XMFLOAT2 size;
@@ -37,6 +36,7 @@ struct Particle
  */
 struct ParticleEffectDefinition
 {
+public:
 	typedef std::shared_ptr<ParticleEffectDefinition> ptr;
 
 	/**
@@ -55,14 +55,11 @@ struct ParticleEffectDefinition
 	unsigned int particlesPerSec;
 	float maxLife;
 	DirectX::XMFLOAT2 size; //in cm
-	string particleSystemName;
+	std::string particleSystemName;
 	float				particlePositionDeviation; // in cm
 	float				velocityDeviation; // in cm/s
 	DirectX::XMFLOAT4	particleColorDeviation; // [0,1]
 
-private:
-
-public:
 	/**
 	 * Default constructor. Constructs an object without any data.
 	 */

@@ -1,7 +1,6 @@
 #include "BaseGameApp.h"
 #include "Logger.h"
 #include "ClientExceptions.h"
-
 #include <NetworkExceptions.h>
 
 #include <boost/exception/all.hpp>
