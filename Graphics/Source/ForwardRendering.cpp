@@ -294,7 +294,7 @@ void ForwardRendering::renderObject(Renderable& p_Object)
 	m_DeviceContext->UpdateSubresource(m_ColorShadingConstantBuffer->getBufferPointer(),
 		NULL,NULL,p_Object.colorTone ,NULL,NULL);
 	m_ColorShadingConstantBuffer->setBuffer(3);
-
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set shader.
 	p_Object.model->shader->setShader();

@@ -497,6 +497,8 @@ void GameScene::createParticleEffect(IEventData::Ptr p_Data)
 		m_Graphics->createParticleEffectInstance(data->getEffectName().c_str())
 	};
 
+	m_Graphics->setParticleEffectPosition(particle.instance, data->getPosition());
+
 	m_Particles.push_back(particle);
 }
 

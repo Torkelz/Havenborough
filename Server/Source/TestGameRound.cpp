@@ -39,6 +39,12 @@ void TestGameRound::setup()
 	m_Actors.push_back(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
 	m_Actors.push_back(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
 	m_Actors.push_back(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
+
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(4850.0f, 0.0f, -2528.0f), "TestParticle"));
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(-1000.0f, 0.0f, -1000.0f), "TestParticle"));
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(-1000.0f, 0.0f, 1000.0f), "TestParticle"));
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(1000.0f, 0.0f, 1000.0f), "TestParticle"));
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(1000.0f, 0.0f, -1000.0f), "TestParticle"));
 }
 
 void TestGameRound::sendLevel()

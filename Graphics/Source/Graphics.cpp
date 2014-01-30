@@ -509,6 +509,24 @@ void Graphics::releaseParticleEffectInstance(InstanceId p_ParticleEffectId)
 	}
 }
 
+void Graphics::setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position)
+{
+	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
+		[p_ParticleEffectId] (const pair<InstanceId, ParticleInstance::ptr>& p_Effect)
+		{
+			return p_Effect.first == p_ParticleEffectId;
+		});
+	if (it != m_ParticleEffectInstanceList.end())
+	{
+		DirectX::XMFLOAT4 pos(
+			p_Position.x,
+			p_Position.y,
+			p_Position.z,
+			1.f);
+		it->second->setPosition(pos);
+	}
+}
+
 void Graphics::updateParticles(float p_DeltaTime)
 {
 	for (auto& particle : m_ParticleEffectInstanceList)
