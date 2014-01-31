@@ -1,9 +1,11 @@
 #define INITGUID
 #include "Shader.h"
+#include "GraphicsExceptions.h"
+#include "Utilities/MemoryUtil.h"
+
+#include <d3dcompiler.h>
 #include <vector>
 #include <iostream>
-
-
 
 using std::vector;
 

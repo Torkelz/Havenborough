@@ -1,14 +1,7 @@
-/**
- * First comment of the file, please continue.
- */
-
 #pragma once
-
 #include "InputRecord.h"
 #include "../Window.h"
-#include <EventData.h>
 
-#include <functional>
 #include <memory>
 
 /**
@@ -40,11 +33,11 @@ protected:
 	/**
 	 * Function to handle new records.
 	 */
-	recordFunc_t	m_RecordFunction;
+	recordFunc_t m_RecordFunction;
 	/**
 	 * Window to translate events from.
 	 */
-	Window*			m_Window;
+	Window* m_Window;
 
 	struct KeyboardRecord
 	{

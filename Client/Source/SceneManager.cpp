@@ -1,4 +1,7 @@
 #include "SceneManager.h"
+#include "Scenes/GameScene.h"
+#include "Scenes/MenuScene.h"
+#include "Scenes/PostGameScene.h"
 #include "ClientExceptions.h"
 
 SceneManager::SceneManager()

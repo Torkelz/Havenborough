@@ -1,9 +1,4 @@
-/**
- * PLACEHOLDER LICENSE: Be nice!
- */
-
 #pragma once
-
 #include <string>
 
 /**
@@ -21,9 +16,9 @@ struct InputRecord
 	 * [-MAX_LONG, MAX_LONG] for movements.
 	 * Positions and movements use up and right as the positive directions.
 	 */
-	float		m_Value;
+	float m_Value;
 	/**
 	 * The previous input action value. When checked if zero there is no key repeats.
 	 */
-	float		m_PrevValue;
+	float m_PrevValue;
 };

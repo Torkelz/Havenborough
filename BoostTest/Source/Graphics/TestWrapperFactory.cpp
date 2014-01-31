@@ -1,5 +1,10 @@
 #include <boost/test/unit_test.hpp>
 #include "../../Graphics/Source/WrapperFactory.h"
+#include "../../Graphics/Source/GraphicsExceptions.h"
+#include "Utilities/MemoryUtil.h"
+
+using std::string;
+using std::vector;
 
 BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 	

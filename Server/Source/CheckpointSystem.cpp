@@ -1,4 +1,5 @@
 #include "CheckpointSystem.h"
+#include "Components.h"
 
 using std::vector;
 
@@ -33,6 +34,10 @@ void CheckpointSystem::addCheckpoint(const std::weak_ptr<Actor> p_Checkpoint)
 
 BodyHandle CheckpointSystem::getCurrentCheckpointBodyHandle(void)
 {
+	if(m_Checkpoints.empty())
+	{
+		return BodyHandle();
+	}
 	return m_Checkpoints.back().lock()->getBodyHandles().back();
 }
 
@@ -41,21 +46,28 @@ bool CheckpointSystem::reachedFinishLine(void)
 	return m_Checkpoints.empty();
 }
 
-void CheckpointSystem::changeCheckpoint(vector<Actor::ptr> &p_Objects)
+Actor::ptr CheckpointSystem::getCurrentCheckpoint(void)
 {
-	for(int i = p_Objects.size() - 1; i >= 0; i--)
+	if(m_Checkpoints.empty())
 	{
-		if(p_Objects.at(i) == m_Checkpoints.back().lock())
-		{
-			p_Objects.erase(p_Objects.begin() + i);
-			break;
-		}
+		return Actor::ptr();
 	}
+	return m_Checkpoints.back().lock();
+}
 
+void CheckpointSystem::changeCheckpoint()
+{
 	m_Checkpoints.pop_back();
+}	
 
+Vector3 CheckpointSystem::getCurrentCheckpointColor()
+{
 	if(m_Checkpoints.size() > 1)
 	{
-		m_Checkpoints.back().lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(m_CurrentColorTone);
+		return m_CurrentColorTone;	
+	}
+	else
+	{
+		return Vector3(0.2f, 0.9f, 0.2f);
 	}
 }

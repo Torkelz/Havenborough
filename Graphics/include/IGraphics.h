@@ -193,6 +193,10 @@ public:
 
 	virtual void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) = 0;
 
+	virtual void setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position) = 0;
+
+	virtual void updateParticles(float p_DeltaTime) = 0;
+
 	/**
 	 * 
 	 */
@@ -371,8 +375,7 @@ public:
 	 * @param p_BaseJoint the name of the base "shoulder" joint.
 	 * @param p_Target the target position in world space.
 	 */
-	virtual void applyIK_ReachPoint(InstanceId p_Instance, const char* p_TargetJoint, const char* p_HingeJoint,
-		const char* p_BaseJoint, Vector3 p_Target) = 0;
+	virtual void applyIK_ReachPoint(InstanceId p_Instance, const char* p_GroupName, Vector3 p_Target) = 0;
 
 	/**
 	 * Get the position of a single joint from a model instance.
@@ -392,7 +395,7 @@ public:
 	 * @param p_Yaw the camera rotation around the up axis, positive to the right.
 	 * @param p_Pitch the camera pitch, positive down.
 	 */
-	virtual void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) = 0;
+	virtual void updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up) = 0;
 
 	/**
 	 * Add the triangles for a boundingvolume to graphics making it possible to render BV. 

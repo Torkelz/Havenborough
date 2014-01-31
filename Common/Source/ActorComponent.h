@@ -1,9 +1,4 @@
-/**
- * Stuff.
- */
-
 #pragma once
-
 #include <Utilities/XMFloatUtil.h>
 #include <tinyxml2/tinyxml2.h>
 

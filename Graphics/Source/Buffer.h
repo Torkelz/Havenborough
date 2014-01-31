@@ -1,9 +1,6 @@
 #pragma once
 #include <d3d11.h>
 
-#include <Utilities/MemoryUtil.h>
-#include "GraphicsExceptions.h"
-
 class Buffer
 {
 public:

@@ -1,5 +1,5 @@
 #include "GameList.h"
-
+#include "CommonExceptions.h"
 #include <Logger.h>
 
 #include <algorithm>

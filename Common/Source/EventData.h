@@ -1,6 +1,6 @@
 #pragma once
 #include "IEventData.h"
-#include "LightStructs.h"
+#include "Light.h"
 #include "Utilities/XMFloatUtil.h"
 
 #pragma warning(push)
@@ -513,20 +513,15 @@ class AddReachIK_EventData : public BaseEventData
 {
 private:
 	unsigned int m_Id;
-
-	std::string m_RootJoint;
-	std::string m_BendJoint;
-	std::string m_ReachJoint;
+	std::string m_GroupName;
 	Vector3 m_Target;
 
 public:
 	static const Type sk_EventType = Type(0x12334544);
 
-	AddReachIK_EventData(unsigned int p_Id, std::string p_RootJoint, std::string p_BendJoint, std::string p_ReachJoint, Vector3 p_Target)
+	AddReachIK_EventData(unsigned int p_Id, std::string p_GroupName, Vector3 p_Target)
 		:	m_Id(p_Id),
-			m_RootJoint(p_RootJoint),
-			m_BendJoint(p_BendJoint),
-			m_ReachJoint(p_ReachJoint),
+			m_GroupName(p_GroupName),
 			m_Target(p_Target)
 	{
 	}
@@ -538,7 +533,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new AddReachIK_EventData(m_Id, m_RootJoint, m_BendJoint, m_ReachJoint, m_Target));
+		return Ptr(new AddReachIK_EventData(m_Id, m_GroupName, m_Target));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -555,19 +550,9 @@ public:
 		return m_Id;
 	}
 
-	std::string getRootJoint() const
+	std::string getGroupName() const
 	{
-		return m_RootJoint;
-	}
-
-	std::string getBendJoint() const
-	{
-		return m_BendJoint;
-	}
-
-	std::string getReachJoint() const
-	{
-		return m_ReachJoint;
+		return m_GroupName;
 	}
 
 	Vector3 getTarget() const
@@ -581,14 +566,14 @@ class RemoveReachIK_EventData : public BaseEventData
 private:
 	unsigned int m_Id;
 
-	std::string m_ReachJoint;
+	std::string m_GroupName;
 
 public:
 	static const Type sk_EventType = Type(0x142d2b5d);
 
-	RemoveReachIK_EventData(unsigned int p_Id, std::string p_ReachJoint)
+	RemoveReachIK_EventData(unsigned int p_Id, std::string p_GroupName)
 		:	m_Id(p_Id),
-			m_ReachJoint(p_ReachJoint)
+			m_GroupName(p_GroupName)
 	{
 	}
 
@@ -599,7 +584,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new RemoveReachIK_EventData(m_Id, m_ReachJoint));
+		return Ptr(new RemoveReachIK_EventData(m_Id, m_GroupName));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -616,9 +601,9 @@ public:
 		return m_Id;
 	}
 
-	std::string getReachJoint() const
+	std::string getGroupName() const
 	{
-		return m_ReachJoint;
+		return m_GroupName;
 	}
 };
 
@@ -852,6 +837,96 @@ public:
 	unsigned int getMeshId(void) const
 	{
 		return m_MeshId;
+	}
+};
+
+class CreateParticleEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	std::string m_EffectName;
+	Vector3 m_Position;
+
+public:
+	static const Type sk_EventType = Type(0x54456edb);
+
+	CreateParticleEventData(unsigned int p_Id, const std::string& p_EffectName, Vector3 p_Position)
+		:	m_Id(p_Id),
+			m_EffectName(p_EffectName),
+			m_Position(p_Position)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new CreateParticleEventData(m_Id, m_EffectName, m_Position));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "CreateParticleEvent";
+	}
+
+	std::string getEffectName() const
+	{
+		return m_EffectName;
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+
+	Vector3 getPosition() const
+	{
+		return m_Position;
+	}
+};
+
+class RemoveParticleEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+
+public:
+	static const Type sk_EventType = Type(0x82544aeb);
+
+	RemoveParticleEventData(unsigned int p_Id)
+		:	m_Id(p_Id)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new RemoveParticleEventData(m_Id));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "RemoveParticleEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
 	}
 };
 

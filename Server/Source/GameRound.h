@@ -41,7 +41,7 @@ protected:
 	std::unique_ptr<ResourceManager> m_ResourceManager;
 	ActorFactory::ptr m_ActorFactory;
 	std::vector<Actor::ptr> m_Actors;
-	std::vector<Player> m_Players;
+	std::vector<Player::ptr> m_Players;
 
 public:
 	/**
@@ -87,7 +87,7 @@ public:
 	 *
 	 * @return a list of the currently playing players
 	 */
-	std::vector<Player> getPlayers() const;
+	std::vector<Player::ptr> getPlayers() const;
 
 	/**
 	 * Set the type identifier of the game round.
@@ -119,7 +119,7 @@ protected:
 	 * @param p_Player the player the package belongs to
 	 * @param p_Package a handle to the package to handle
 	 */
-	virtual void handleExtraPackage(Player& p_Player, Package p_Package);
+	virtual void handleExtraPackage(Player::ptr p_Player, Package p_Package);
 	/**
 	 * Send any needed updates to all players.
 	 */
@@ -132,7 +132,7 @@ protected:
 	 *
 	 * @param p_DisconnectedPlayer the disconnected player
 	 */
-	virtual void playerDisconnected(Player& p_DisconnectedPlayer) {}
+	virtual void playerDisconnected(Player::ptr p_DisconnectedPlayer) {}
 
 private:
 	void run();

@@ -1,4 +1,6 @@
 #include "Buffer.h"
+#include "Utilities/MemoryUtil.h"
+#include "GraphicsExceptions.h"
 #include "VRAMInfo.h"
 
 Buffer::Buffer(void)

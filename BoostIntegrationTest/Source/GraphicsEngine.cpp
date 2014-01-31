@@ -6,6 +6,7 @@
 #include "../../Graphics/Source/Shader.h"
 #include "../../Graphics/Source/SkyDome.h"
 #include "../../Graphics/Source/VRAMInfo.h"
+#include "../../Graphics/Source/GraphicsExceptions.h"
 #include "../../Client/Source/Window.h"
 #include "../../Common/Source/ResourceManager.h"
 

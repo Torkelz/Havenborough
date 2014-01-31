@@ -1,10 +1,6 @@
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <vector>
-
+#include "Window.h"
 #include "ClientExceptions.h"
 #include "Logger.h"
-#include "Window.h"
 
 const LPCWSTR Window::m_ClassName = L"Havenborough_Game_Client";
 std::vector<std::pair<HWND, Window*>> Window::m_CallbackWindows;

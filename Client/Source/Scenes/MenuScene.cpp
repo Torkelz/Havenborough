@@ -1,7 +1,5 @@
 #include "MenuScene.h"
 
-#include <EventData.h>
-
 MenuScene::MenuScene()
 {
 	m_SceneID = 0;

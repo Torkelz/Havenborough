@@ -1,13 +1,8 @@
 #pragma once
-
 #include "Actor.h"
 #include "IPhysics.h"
-#include <Utilities/Util.h>
-#include "Components.h"
 
 #include <DirectXMath.h>
-
-using namespace DirectX;
 
 class Player
 {
@@ -45,7 +40,7 @@ private:
 	JumpAnimationState m_PrevJumpState;
 	float m_FallSpeed;
 
-	XMFLOAT3 m_LookDirection;
+	DirectX::XMFLOAT3 m_LookDirection;
 	float m_ViewRotation[2];
 
 	IPhysics *m_Physics;
@@ -58,7 +53,7 @@ private:
 	float m_JumpForce;
 	float m_MaxSpeed; // Centimeters per secound
 	float m_AccConstant;
-	XMFLOAT3 m_PrevForce;	// kg * m/s^2
+	DirectX::XMFLOAT3 m_PrevForce;	// kg * m/s^2
 	float m_DirectionX;	// (-1 - +1)
 	float m_DirectionZ;	// (-1 - +1)
 
@@ -68,9 +63,6 @@ private:
 	float m_ForceMoveSpeed;	// cm/s
 	Vector3 m_ForceMoveStartPosition;	// cm
 	Vector3 m_ForceMoveEndPosition;	// cm
-
-	Vector3 m_CurrentVelocity;
-	Vector3 m_PreviousVelocity;
 
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
 	//while climbing objects.
@@ -95,40 +87,40 @@ public:
 	* @param p_Position the starting position of the player in cm
 	* @param p_LookDirection the direction the player will look at when starting
 	*/
-	void initialize(IPhysics *p_Physics, XMFLOAT3 p_LookDirection, std::weak_ptr<Actor> p_Actor);
+	void initialize(IPhysics *p_Physics, DirectX::XMFLOAT3 p_LookDirection, std::weak_ptr<Actor> p_Actor);
 	
 	/**
 	* Sets the position of the player at specified position in the game world.
 	* @param p_Position the position where to place the player
 	*/
-	void setPosition(const XMFLOAT3 &p_Position);
+	void setPosition(const DirectX::XMFLOAT3 &p_Position);
 	
 	/**
 	* Gets the position of the player.
 	* @return the position
 	*/
-	XMFLOAT3 getPosition(void) const;
+	DirectX::XMFLOAT3 getPosition(void) const;
 
 	/**
 	 * Get the eye position of the player.
 	 *
 	 * @return the position of the players eyes
 	 */
-	XMFLOAT3 getEyePosition() const;
+	DirectX::XMFLOAT3 getEyePosition() const;
 
 	/**
 	 * Get the position that would be on the ground if the player would be standing on a flat surface.
 	 *
 	 * @return the ground position of the player
 	 */
-	XMFLOAT3 getGroundPosition() const;
+	DirectX::XMFLOAT3 getGroundPosition() const;
 
 	/**
 	 * Get the center position of the players collision volume.
 	 *
 	 * @return the collision volume center in cm, in world coordinates.
 	 */
-	XMFLOAT3 getCollisionCenter() const;
+	DirectX::XMFLOAT3 getCollisionCenter() const;
 
 	/**
 	* Gets the height of the player.
@@ -176,15 +168,12 @@ public:
 	*/
 	void update(float p_DeltaTime);
 
-	void updateAnimation(Vector3 p_Rotation);
-
 	/**
 	 * Get the current velocity of the player.
 	 *
 	 * @return the velocity of the player in cm in world space
 	 */
 	Vector3 getVelocity() const;
-	Vector3 getPreviousVelocity() const;
 	Vector3 getDirection() const;
 
 	/**

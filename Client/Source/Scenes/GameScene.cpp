@@ -1,6 +1,9 @@
 #include "GameScene.h"
 #include <Components.h>
 #include <EventData.h>
+#include "Logger.h"
+
+using namespace DirectX;
 
 GameScene::GameScene()
 {
@@ -52,6 +55,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addReachIK), AddReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
 
 
 	m_CurrentDebugView = 3;
@@ -94,12 +99,13 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->setPlayerDirection(Vector2(forward, right));
 
 	m_Graphics->updateAnimations(p_DeltaTime);
+	m_Graphics->updateParticles(p_DeltaTime);
 
 	for (auto& model : m_Models)
 	{
 		for (const ReachIK& ik : model.activeIKs)
 		{
-			m_Graphics->applyIK_ReachPoint(model.modelId, ik.reachJoint.c_str(), ik.bendJoint.c_str(), ik.rootJoint.c_str(), ik.target);
+			m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
 		}
 	}
 }
@@ -115,29 +121,24 @@ void GameScene::onFocus()
 void GameScene::render()
 {
 	m_Graphics->setClearColor(Vector4(0,0,0,1));
-	Vector3 viewRot = m_GameLogic->getPlayerViewRotation();
 	Vector3 playerPos = m_GameLogic->getPlayerEyePosition();
+	Vector3 playerForward = m_GameLogic->getPlayerViewForward();
+	Vector3 playerUp = m_GameLogic->getPlayerViewUp();
 	
 	if (m_UseFlippedCamera)
 	{
-		viewRot.x += PI;
+		playerForward.x *= -1.f;
+		playerForward.z *= -1.f;
+		playerUp.x *= -1.f;
+		playerUp.z *= -1.f;
 	}
 
 	if (m_UseThirdPersonCamera)
 	{
-		// Debug character animation temp stuff START
-		static const XMFLOAT4 offset(0.0f, 0.0f, -500.0f, 0.0f);
-		static const XMVECTOR offsetVector = XMLoadFloat4(&offset);
-		XMMATRIX rotation = XMMatrixRotationRollPitchYaw(viewRot.y, viewRot.x, viewRot.z);
-		XMVECTOR rotOffsetVector = XMVector4Transform(offsetVector, rotation);
-		XMFLOAT3 newPosF;
-		XMStoreFloat3(&newPosF, XMLoadFloat3(&(XMFLOAT3)playerPos) + rotOffsetVector);
-
-		playerPos = newPosF;
-		// Debug character animation temp stuff END
+		playerPos = playerPos + playerForward * -500.f;
 	}
 
-	m_Graphics->updateCamera(playerPos, viewRot.x, viewRot.y);
+	m_Graphics->updateCamera(playerPos, playerForward, playerUp);
 
 	for (auto& mesh : m_Models)
 	{
@@ -425,15 +426,13 @@ void GameScene::addReachIK(IEventData::Ptr p_Data)
 		{
 			ReachIK ik =
 			{
-				ikData->getRootJoint(),
-				ikData->getBendJoint(),
-				ikData->getReachJoint(),
+				ikData->getGroupName(),
 				ikData->getTarget()
 			};
 
 			for (auto& activeIK : model.activeIKs)
 			{
-				if (activeIK.reachJoint == ikData->getReachJoint())
+				if (activeIK.group == ikData->getGroupName())
 				{
 					activeIK = ik;
 					return;
@@ -454,7 +453,7 @@ void GameScene::removeReachIK(IEventData::Ptr p_Data)
 		{
 			for (auto& ik : model.activeIKs)
 			{
-				if (ik.reachJoint == ikData->getReachJoint())
+				if (ik.group == ikData->getGroupName())
 				{
 					std::swap(ik, model.activeIKs.back());
 					model.activeIKs.pop_back();
@@ -476,6 +475,43 @@ void GameScene::changeColorTone(IEventData::Ptr p_Data)
 			m_Graphics->setModelColorTone(model.modelId, data->getColorTone());
 			return;
 		}
+	}
+}
+
+void GameScene::createParticleEffect(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<CreateParticleEventData> data = std::static_pointer_cast<CreateParticleEventData>(p_Data);
+
+	int resource = m_ResourceManager->loadResource("particleSystem", data->getEffectName());
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", data->getEffectName().c_str());
+
+	ParticleBinding particle =
+	{
+		data->getId(),
+		resource,
+		m_Graphics->createParticleEffectInstance(data->getEffectName().c_str())
+	};
+
+	m_Graphics->setParticleEffectPosition(particle.instance, data->getPosition());
+
+	m_Particles.push_back(particle);
+}
+
+void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveParticleEventData> data = std::static_pointer_cast<RemoveParticleEventData>(p_Data);
+
+	auto it = std::find_if(m_Particles.begin(), m_Particles.end(),
+		[&data] (const ParticleBinding& p_Particle)
+		{
+			return p_Particle.particleId == data->getId();
+		});
+
+	if (it != m_Particles.end())
+	{
+		m_Graphics->releaseParticleEffectInstance(it->instance);
+		m_ResourceManager->releaseResource(it->resourceId);
+		m_Particles.erase(it);
 	}
 }
 
@@ -508,6 +544,7 @@ void GameScene::loadSandboxModels()
 		"MarketStand1",
 		"Barrel1",
 		"Crate1",
+		"Grass1",
 		"House3",
 		"House2",
 		"MarketStand2",
@@ -551,8 +588,6 @@ void GameScene::loadSandboxModels()
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_Graphics->linkShaderToParticles("DefaultParticleShader", "TestParticle");
-
-	m_Particles = m_Graphics->createParticleEffectInstance("TestParticle");
 }
 
 void GameScene::releaseSandboxModels()
@@ -562,8 +597,6 @@ void GameScene::releaseSandboxModels()
 		m_ResourceManager->releaseResource(res);
 	}
 	m_ResourceIDs.clear();
-
-	m_Graphics->releaseParticleEffectInstance(m_Particles);
 
 	m_Graphics->deleteShader("DefaultShader");
 	m_Graphics->deleteShader("AnimatedShader");

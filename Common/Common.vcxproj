@@ -19,14 +19,15 @@
     <ClInclude Include="Source\Components.h" />
     <ClInclude Include="Source\EventData.h" />
     <ClInclude Include="Source\EventManager.h" />
+    <ClInclude Include="Source\HumanAnimationComponent.h" />
     <ClInclude Include="Source\IEventData.h" />
     <ClInclude Include="Source\IEventManager.h" />
     <ClInclude Include="Source\LevelBinaryLoader.h" />
-    <ClInclude Include="Source\LightStructs.h" />
+    <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\Logger.h" />
     <ClInclude Include="Source\ResourceManager.h" />
     <ClInclude Include="Source\ResourceTranslator.h" />
-    <ClInclude Include="Source\Utilities\FastDelegate.h" />
+    <ClInclude Include="3rd party\FastDelegate.h" />
     <ClInclude Include="Source\Utilities\MemoryUtil.h" />
     <ClInclude Include="Source\Utilities\Util.h" />
     <ClInclude Include="Source\Utilities\XMFloatUtil.h" />

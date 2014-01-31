@@ -1,6 +1,5 @@
 #pragma once
 #include "Actor.h"
-#include "Components.h"
 
 #include <vector>
 #include <memory>
@@ -41,15 +40,25 @@ public:
 	BodyHandle getCurrentCheckpointBodyHandle(void);
 
 	/**
+     * Checks if the finish line been reached.
+     * @return true if finish line been reached, false if not
+     */
+    bool reachedFinishLine(void);
+
+	/**
 	* Checks if the finish line been reached.
 	* @return true if finish line been reached, false if not
 	*/
-	bool reachedFinishLine(void);
+	Actor::ptr getCurrentCheckpoint(void);
 
 	/**
-	* Removes the current checkpoint and sets the next checkpoint in the vector to the current checkpoint with corresponding 
-	* tone to be shadede with.
-	* @param p_Objects vector with Actor objects for the current moment
+	 * Remove the last item in the vector of checkpoints and set the next one.
+	 */
+	void changeCheckpoint();
+
+	/**
+	* Returns the next checkpoint in the vector to the current checkpoint with corresponding tone to be shaded with.
+	* @return a vector3 with color information in RGB values;
 	*/
-	void changeCheckpoint(std::vector<Actor::ptr> &p_Objects);
+	Vector3 getCurrentCheckpointColor();
 };

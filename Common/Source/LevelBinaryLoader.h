@@ -1,9 +1,6 @@
 #pragma once
-
 #include <fstream>
-#include <sstream>
 #include <DirectXMath.h>
-#include <memory>
 #include <vector>
 
 class LevelBinaryLoader
