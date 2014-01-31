@@ -225,30 +225,3 @@ void Player::move()
 
 	m_DirectionX = m_DirectionZ = 0.f;
 }
-
-void Player::playAnimation(std::string p_AnimationName, bool p_Override)
-{
-	std::shared_ptr<ModelComponent> comp = m_Actor.lock()->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
-	if (comp)
-	{
-		m_Actor.lock()->getEventManager()->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName, p_Override)));
-	}
-}
-
-void Player::queueAnimation(std::string p_AnimationName)
-{
-	std::shared_ptr<ModelComponent> comp = m_Actor.lock()->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
-	if (comp)
-	{
-		m_Actor.lock()->getEventManager()->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
-	}
-}
-
-void Player::changeAnimationWeight(int p_Track, float p_Weight)
-{
-	std::shared_ptr<ModelComponent> comp = m_Actor.lock()->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
-	if (comp)
-	{
-		m_Actor.lock()->getEventManager()->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
-	}
-}

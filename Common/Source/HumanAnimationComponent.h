@@ -56,6 +56,7 @@ public:
 	{
 		m_Model = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId);
 		m_EventManager = m_Owner->getEventManager();
+		playAnimation("Idle", false);
 	}
 
 	void onUpdate(float p_DeltaTime) override
@@ -91,13 +92,14 @@ public:
 			tempVector.y = 0.f;
 		}
 		XMVECTOR look = Vector3ToXMVECTOR(&tempVector, 0.0f);
+		look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 		XMMATRIX rotationInverse = XMMatrixTranspose(XMLoadFloat4x4(&lookComp->getRotationMatrix()));
 		velocity = XMVector3Transform(velocity, rotationInverse);
 		if (!isInAir)
 		{
 			// Calculate the weight on the strafe track with some trigonometry.
-			//float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-			//changeAnimationWeight(2, cosf(angle));
+			float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
+			changeAnimationWeight(2, cosf(angle));
 
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
@@ -258,6 +260,15 @@ public:
 		if (comp)
 		{
 			m_EventManager->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
+		}
+	}
+
+	void changeAnimationWeight(int p_Track, float p_Weight)
+	{
+		std::shared_ptr<ModelComponent> comp = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+		if (comp)
+		{
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
 		}
 	}
 };
