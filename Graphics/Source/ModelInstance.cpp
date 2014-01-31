@@ -518,8 +518,8 @@ void ModelInstance::playClip( AnimationClip p_Clip )
 	}
 
 	// DEBUG to in-activate looping animations on track 1.
-	if(!p_Clip.m_Layered && !p_Clip.m_FadeIn)
+	/*if(!p_Clip.m_Layered && !p_Clip.m_FadeIn)
 	{
 		m_Tracks[1].active = false;
-	}
+	}*/
 }

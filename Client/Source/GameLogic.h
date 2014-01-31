@@ -49,6 +49,8 @@ private:
 	std::weak_ptr<Actor> ikTest;
 	std::weak_ptr<Actor> testWitch;
 
+	std::weak_ptr<Actor> Witch_new2;
+
 	CheckpointSystem m_CheckpointSystem;
 
 	const static int NUM_BOXES = 16;

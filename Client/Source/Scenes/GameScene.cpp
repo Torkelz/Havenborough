@@ -476,18 +476,23 @@ void GameScene::loadSandboxModels()
 		m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
 	}
 
-	Logger::log(Logger::Level::DEBUG_L, "Adding IK test tube");
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "IKTest"));
+	static const std::string preloadedAnimatedModels[] =
+	{
+		"IKTest",
+		"DZALA",
+		"WITCH",
+		"Witch_new2",
+	};
+
 	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
 		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated models");
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
-	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
-	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
+	for (const auto& model : preloadedAnimatedModels)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model.c_str()));
+		m_Graphics->linkShaderToModel("AnimatedShader", model.c_str());
+	};
 }
 
 void GameScene::releaseSandboxModels()

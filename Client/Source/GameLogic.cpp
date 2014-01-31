@@ -207,6 +207,8 @@ void GameLogic::testLayerAnimation()
 	playAnimation(ikTest.lock(), "Wave");
 	playAnimation(wavingWitch.lock(), "Bomb");
 	playAnimation(testWitch.lock(), "Wave");
+	
+	playAnimation(Witch_new2.lock(), "Run");
 }
 
 void GameLogic::testResetLayerAnimation()
@@ -508,6 +510,9 @@ void GameLogic::loadSandbox()
 	playAnimation(standingWitch.lock(), "Bomb");
 	wavingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f)));
 	playAnimation(wavingWitch.lock(), "Kick");
+
+	Witch_new2 = addActor(m_ActorFactory->createBasicModel("Witch_new2", Vector3(0.f, 0.f, -200.f)));
+	playAnimation(Witch_new2.lock(), "CastSpell");
 	
 	m_CheckpointSystem = CheckpointSystem();
 	m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(m_Level.getGoalPosition(), Vector3(1.0f, 10.0f, 1.0f))));
