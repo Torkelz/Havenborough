@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include "../../Client/Source/EdgeCollisionResponse.h"
 #include "../../Client/Source/Player.h"
+#include <Utilities/MemoryUtil.h>
 
 BOOST_AUTO_TEST_SUITE(EdgeCollisionResponseTest)
 

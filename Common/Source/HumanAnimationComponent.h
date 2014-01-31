@@ -84,22 +84,21 @@ public:
 		}
 		XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
 
-		tempVector = Vector3(0.f, 0.f, 0.f);
+		//tempVector = Vector3(0.f, 0.f, 0.f);
 		std::shared_ptr<LookInterface> lookComp = m_Owner->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
-		if (lookComp)
-		{
-			tempVector = lookComp->getLookForward();
-			tempVector.y = 0.f;
-		}
-		XMVECTOR look = Vector3ToXMVECTOR(&tempVector, 0.0f);
-		look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
+		//if (lookComp)
+		//{
+		//	tempVector = lookComp->getLookForward();
+		//	tempVector.y = 0.f;
+		//}
+		XMVECTOR look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 		XMMATRIX rotationInverse = XMMatrixTranspose(XMLoadFloat4x4(&lookComp->getRotationMatrix()));
 		velocity = XMVector3Transform(velocity, rotationInverse);
 		if (!isInAir)
 		{
 			// Calculate the weight on the strafe track with some trigonometry.
 			float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-			changeAnimationWeight(2, cosf(angle));
+			changeAnimationWeight(2, cosf(angle)); // Think again. Negative weights are not allowed.
 
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
@@ -234,7 +233,7 @@ public:
 					//playAnimation(temp, "Falling", false);
 					break;
 
-				default: // Just in case so that the code doesn't break, hohohoho
+				default: // Just in case, so that the code doesn't break, hohohoho
 					break;
 				}
 			}

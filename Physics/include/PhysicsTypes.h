@@ -1,5 +1,6 @@
 #pragma once
-#include <Utilities/Util.h>
+#include <Utilities/XMFloatUtil.h>
+
 typedef unsigned int BodyHandle;
 
 enum class BoundingVolumeType

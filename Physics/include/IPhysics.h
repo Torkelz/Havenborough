@@ -1,8 +1,5 @@
 #pragma once
-
 #include "PhysicsTypes.h"
-
-#include <cstdint>
 
 class IPhysics
 {	
@@ -11,21 +8,21 @@ public:
 	__declspec(dllexport) static void deletePhysics(IPhysics* p_Physics);
 
 	/**
-	 * de-constructor
+	 * Deconstructor
 	 */
 	virtual ~IPhysics() {};
 
 	/**
-	 * initalize all the varables
+	 * Initialize all the variables
 	 */
 	virtual void initialize() = 0;
 
 	/**
 	 * Create a boundingVolume sphere with a body.
 	 *
-	 * @param p_Mass is defineing the mass for the body
+	 * @param p_Mass is defining the mass for the body
 	 * @param p_IsImmovable tells if the body are movable
-	 * @param p_Position sets the position for the boundingvolume(sphere). Body gets the same position. cm.
+	 * @param p_Position sets the position for the bounding volume(sphere). Body gets the same position. cm.
 	 * @param p_Radius sets the radius for the sphere in cm
 	 * @return a BodyHandle so it can be mapped outside of Physics
 	 */
@@ -34,7 +31,7 @@ public:
 	/**
 	 * Create a boundingVolume AABB with a body.
 	 *
-	 * @param p_Mass is defineing the mass for the body
+	 * @param p_Mass is defining the mass for the body
 	 * @param p_IsImmovable tells if the body are movable
 	 * @param p_CenterPos the center position for box in world space in cm
 	 * @param p_Extents the half lengths (extents) for the box in cm
@@ -47,7 +44,7 @@ public:
 	 * Create a boundingVolume OBB with a body.
 	 *
 	 * @param p_Mass, define the mass for the body.
-	 * @param p_IsImmovable, tells if the body are movible.
+	 * @param p_IsImmovable, tells if the body are movable.
 	 * @param p_CenterPos, Center of the box.
 	 * @param p_Extents, Box half lengths.
 	 * @return a BodyHandle so it can be mapped outside of Physics.
@@ -61,7 +58,7 @@ public:
 	 */
 	virtual BodyHandle createBVInstance(const char* p_VolumeID) = 0;
 	/**
-	 * Create boundingvolumes based on a level description. Only hulls will be created.
+	 * Create bounding volumes based on a level description. Only hulls will be created.
 	 *
 	 * @param p_VolumeID are the identifier to the volume working with
 	 * @param p_FilePath to the filename of the volume
@@ -200,7 +197,7 @@ public:
 	virtual void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) = 0;
 
 	/**
-	 * Return the boundingvolume from the body.
+	 * Return the bounding volume from the body.
 	 *
 	 * @param p_Body are what body to get the data from
 	 * @return a BoundingVolum pointer

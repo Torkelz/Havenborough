@@ -1,9 +1,5 @@
 #pragma once
-
 #include "IPhysics.h"
-#include <memory>
-
-#include "Collision.h"
 #include "Body.h"
 #include "BVLoader.h"
 
