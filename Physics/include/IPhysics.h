@@ -202,6 +202,13 @@ public:
 	 * @param p_Index are the index number in the vector
 	 */
 	virtual unsigned getBodyOnSomethingSize() = 0;
+
+		/**
+	 * 
+	 *
+	 * 
+	 */
+	virtual bool getBodyLanded(BodyHandle p_Body) = 0;
 	/**
 	 * Vector size, with hitData.
 	 *

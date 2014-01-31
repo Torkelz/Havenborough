@@ -46,6 +46,7 @@ public:
 	bool getBodyOnSomethingAt(unsigned p_Index) override;
 	void removeBodyOnSomethingAt(unsigned p_Index) override;
 	unsigned getBodyOnSomethingSize() override;
+	bool getBodyLanded(BodyHandle p_Body) override;
 
 	void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) override;
 	Vector3 getBodyPosition(BodyHandle p_Body) override;

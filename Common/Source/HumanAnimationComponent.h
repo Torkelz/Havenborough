@@ -152,6 +152,37 @@ public:
 					break;
 				}
 			}
+			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
+			if (physComp->hasLanded()) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
+			{
+				if(m_FallSpeed >= 1000.0f)
+				{
+					currentJumpState = JumpAnimationState::HARD_LANDING;
+				}
+				else
+				{
+					if(m_FallSpeed > 0.0f)
+						currentJumpState = JumpAnimationState::LIGHT_LANDING;
+				}
+				m_FallSpeed = 0.0f;
+			}
+
+			if (currentJumpState != m_PrevJumpState)
+			{
+				switch (currentJumpState)
+				{
+				case JumpAnimationState::HARD_LANDING:
+					playAnimation("HardLanding", false);
+					queueAnimation("Idle");
+					break;
+				case JumpAnimationState::LIGHT_LANDING:
+					playAnimation("NormalLanding", false);
+					queueAnimation("Idle");
+					break;
+				default: // Just in case, so that the code doesn't break, hohohoho
+					break;
+				}
+			}
 
 			m_PrevForwardState = currentForwardState;
 			m_PrevSideState = currentSideState;
@@ -176,9 +207,8 @@ public:
 			{
 				m_FallSpeed = XMVectorGetY(velocity);
 			}
-
-			//if (XMVectorGetY(velocity) < flyLimit && XMVectorGetY(velocity) > -flyLimit && 
-			//	m_PrevJumpState != JumpAnimationState::JUMP) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
+			
+			//if (physComp->hasLanded()) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
 			//{
 			//	if(m_FallSpeed >= 200.0f)
 			//	{
@@ -188,6 +218,7 @@ public:
 			//	{
 			//		currentJumpState = JumpAnimationState::LIGHT_LANDING;
 			//	}
+			//		m_FallSpeed = 0.0f;
 			//}
 
 			if (currentJumpState != m_PrevJumpState)

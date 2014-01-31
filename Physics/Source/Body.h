@@ -31,6 +31,7 @@ protected:
 	bool				m_IsEdge;
 	bool				m_CollisionResponse;
 	BodyHandle			m_LastCollision;
+	bool				m_Landed;
 
 	std::unique_ptr<BoundingVolume>	m_Volume;
 public:
@@ -96,6 +97,17 @@ public:
 	* @p_Bool, sets the bool to this parameter.
 	*/
 	void setOnSomething(bool p_Bool);
+
+	/**
+	* Get the bool for if the body is on a has landed on a surface.
+	* @return true if the body is on a surface, otherwise false.
+	*/
+	bool getLanded();
+	/**
+	* Sets the bool for if the body has landed on a surface.
+	* @p_Bool, sets the bool to this parameter.
+	*/
+	void setLanded(bool p_Bool);
 
 	/**
 	* Is the body immovable(static)?

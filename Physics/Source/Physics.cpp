@@ -97,6 +97,10 @@ void Physics::update(float p_DeltaTime)
 
 					if (hit.colNorm.y > 0.68f)
 					{
+						if(!b.getOnSomething())
+						{
+							b.setLanded(true);
+						}
 						b.setOnSomething(true);
 						b.setLastCollision(hit.collisionVictim);
 
@@ -110,6 +114,7 @@ void Physics::update(float p_DeltaTime)
 			if(b.getVelocity().y > 1.f)
 			{
 				b.setOnSomething(false);
+				b.setLanded(false);
 			}
 		}
 
@@ -358,6 +363,15 @@ unsigned int Physics::getHitDataSize()
 bool Physics::getBodyOnSomethingAt(unsigned int p_Index)
 {
 	return true;
+}
+
+bool Physics::getBodyLanded(BodyHandle p_Body)
+{
+	Body *body = findBody(p_Body);
+	if(!body)
+		return false;
+
+	return body->getLanded();
 }
 
 void Physics::removeBodyOnSomethingAt(unsigned int p_index)
