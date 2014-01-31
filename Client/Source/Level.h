@@ -1,5 +1,4 @@
 #pragma once
-#include "CheckpointSystem.h"
 #include "IPhysics.h"
 #include "ResourceManager.h"
 #include <ActorFactory.h>
@@ -13,8 +12,6 @@ private:
 	ActorFactory* m_ActorFactory;
 	Vector3 m_StartPosition;
 	Vector3 m_GoalPosition;
-
-	CheckpointSystem m_CheckpointSystem;
 
 public:
 	/*
@@ -75,26 +72,6 @@ public:
 	 * @param p_LevelFilePath the complete path to the environment .txl file.
 	 */
 	bool loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_ActorOut);
-
-	/**
-	 * Checks if the finish line been reached.
-	 *
-	 * @return true if finish line been reached, false if not
-	 */
-	bool reachedFinishLine();
-
-	/**
-	* Gets the current checkpoint's body handle.
-	* @return the BodyHandle
-	*/
-	BodyHandle getCurrentCheckpointBodyHandle(void);
-	
-	/**
-	* Removes the current checkpoint and sets the next checkpoint in the vector to the current checkpoint with corresponding 
-	* tone to be shaded with.
-	* @param p_Objects vector with Actor objects for the current moment
-	*/
-	void changeCheckpoint(std::vector<Actor::ptr> &p_Objects);
 
 private:
 	Actor::ptr createObjectActor(std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale);

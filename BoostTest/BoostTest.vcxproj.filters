@@ -152,9 +152,6 @@
     <ClCompile Include="..\Client\Source\Player.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="TestEdgeCollisionResponse.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
@@ -243,14 +240,14 @@
     <ClCompile Include="..\Graphics\Source\ParticleFactory.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\CheckpointSystem.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\ParticleInstance.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

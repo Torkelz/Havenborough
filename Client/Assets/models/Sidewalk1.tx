@@ -6,8 +6,8 @@
 
 *Materials
 Material: Sidewalk:lambert2SG1
-DiffuseMap: StoneTile_COLOR.dds
-NormalMap: StoneTile_NRM.dds
+DiffuseMap: SidewalkStone_COLOR.dds
+NormalMap: SidewalkStone_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 *Vertices

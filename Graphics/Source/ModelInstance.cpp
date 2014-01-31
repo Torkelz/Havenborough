@@ -535,7 +535,6 @@ void ModelInstance::updateFinalTransforms(const vector<Joint>& p_Joints)
 void ModelInstance::playClip( AnimationClip p_Clip, bool p_Override )
 {
 	int track = p_Clip.m_DestinationTrack;
-
 	if(p_Override)
 	{
 		m_Tracks[track].clip = p_Clip;

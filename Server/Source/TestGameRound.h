@@ -18,9 +18,9 @@ private:
 	void sendLevel() override;
 	void updateLogic(float p_DeltaTime) override;
 	void sendUpdates() override;
-	void playerDisconnected(Player& p_DisconnectedPlayer) override;
+	void playerDisconnected(Player::ptr p_DisconnectedPlayer) override;
 	
 	UpdateObjectData getUpdateData(const Actor::ptr p_Box);
-	UpdateObjectData getUpdateData(const Player& p_Player);
-	std::string getExtraData(const Player& p_Player);
+	UpdateObjectData getUpdateData(const Player::ptr p_Player);
+	std::string getExtraData(const Player::ptr p_Player);
 };

@@ -112,7 +112,8 @@ void LevelBinaryLoader::readLevelCheckPoint(std::istream& p_Input)
 	int size;
 	byteToInt(p_Input, size);
 	m_LevelCheckPointList.resize(size);
-	p_Input.read(reinterpret_cast<char*>(m_LevelCheckPointList.data()), sizeof(LevelBinaryLoader::CheckPointStruct) * size);
+	if(size != 0)
+		p_Input.read(reinterpret_cast<char*>(m_LevelCheckPointList.data()), sizeof(LevelBinaryLoader::CheckPointStruct) * size);
 }
 
 const std::vector<LevelBinaryLoader::ModelData>& LevelBinaryLoader::getModelData() const

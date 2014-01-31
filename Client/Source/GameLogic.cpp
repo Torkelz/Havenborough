@@ -74,28 +74,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 			{
 				m_Physics->removeHitDataAt(i);
 			}
-			if(!m_Level.reachedFinishLine() && m_Level.getCurrentCheckpointBodyHandle() == hit.collisionVictim)
-			{
-				m_Level.changeCheckpoint(m_Objects);
-				if(m_Level.reachedFinishLine())
-				{
-						m_Level = Level();
-						m_Objects.clear();
-
-						m_InGame = false;
-
-						IConnectionController* con = m_Network->getConnectionToServer();
-
-						if (!m_PlayingLocal && con && con->isConnected())
-						{
-							con->sendLeaveGame();
-						}
-
-						m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
-						return;
-				}
-				m_Physics->removeHitDataAt(i);
-			}
 			Logger::log(Logger::Level::TRACE, "Collision reported");
 		}
 	}
@@ -540,31 +518,59 @@ void GameLogic::handleNetwork()
 						}
 					}
 
-					const unsigned int numExtraData = conn->getNumUpdateObjectExtraData(package);
-					for (unsigned int i = 0; i < numExtraData; ++i)
+					unsigned int numberOfExtraData = conn->getNumUpdateObjectExtraData(package);
+					for(unsigned int i = 0; i < numberOfExtraData; i++)
 					{
-						tinyxml2::XMLDocument doc;
-						doc.Parse(conn->getUpdateObjectExtraData(package, i));
+						const char* updates = conn->getUpdateObjectExtraData(package, i);
 
-						const tinyxml2::XMLElement* objectUpdate = doc.FirstChildElement("ObjectUpdate");
-						if (objectUpdate)
+						tinyxml2::XMLDocument reader;
+						reader.Parse(updates);
+						tinyxml2::XMLElement* object = reader.FirstChildElement("ObjectUpdate");
+						Actor::Id actorId = -1;
+						object->QueryAttribute("ActorId", &actorId);
+
+						Actor::ptr actor = getActor(actorId);
+						if (!actor)
 						{
-							Actor::Id actorId;
-							objectUpdate->QueryAttribute("ActorId", &actorId);
+							Logger::log(Logger::Level::ERROR_L, "Could not find actor (" + std::to_string(actorId) + ")");
+							continue;
+						}
 
-							Actor::ptr actor = getActor(actorId);
-							if (!actor)
-							{
-								Logger::log(Logger::Level::ERROR_L, "Could not find actor (" + std::to_string(actorId) + ")");
-								continue;
-							}
+						if(object->Attribute("Type", "Color"))
+						{
+							object = object->FirstChildElement("SetColor");
+							if(!object)
+								throw "WRONG!!!";
+							Vector3 color;
+							object->QueryAttribute("r", &color.x);
+							object->QueryAttribute("g", &color.y);
+							object->QueryAttribute("b", &color.z);
+							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
+						}
+						else if(object->Attribute("Type", "GoalReached"))
+						{
+								m_Level = Level();
+								m_Objects.clear();
 
+								m_InGame = false;
+
+								IConnectionController* con = m_Network->getConnectionToServer();
+
+								if (!m_PlayingLocal && con && con->isConnected())
+								{
+									con->sendLeaveGame();
+								}
+
+								m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+						}
+						else if (object->Attribute("Type", "Look"))
+						{
 							if (actor == m_Player.getActor().lock())
 							{
 								continue;
 							}
 
-							const tinyxml2::XMLElement* look = objectUpdate->FirstChildElement("Look");
+							const tinyxml2::XMLElement* look = object->FirstChildElement("Look");
 							if (look)
 							{
 								std::shared_ptr<LookInterface> lookInt = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
@@ -581,14 +587,14 @@ void GameLogic::handleNetwork()
 							}
 						}
 					}
-					// TODO: Handle extra data
+							
 				}
 				break;
 
 			case PackageType::REMOVE_OBJECTS:
 				{
 					const unsigned int numObjects = conn->getNumRemoveObjectRefs(package);
-					const uint16_t* removeObjects = conn->getRemoveObjectRefs(package);
+					const uint32_t* removeObjects = conn->getRemoveObjectRefs(package);
 					for (unsigned int i = 0; i < numObjects; ++i)
 					{
 						removeActor(removeObjects[i]);
@@ -722,13 +728,6 @@ void GameLogic::loadSandbox()
 	wavingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f)));
 	playAnimation(wavingWitch.lock(), "Kick", false);
 	
-	//m_CheckpointSystem = CheckpointSystem();
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(m_Level.getGoalPosition(), Vector3(1.0f, 10.0f, 1.0f))));
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-	//m_CheckpointSystem.addCheckpoint(addActor(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f))));
-
 	ikTest = addActor(m_ActorFactory->createIK_Worm());
 	playAnimation(ikTest.lock(), "Wave", false);
 
@@ -791,7 +790,7 @@ void GameLogic::loadSandbox()
 	addActor(m_ActorFactory->createBoxWithOBB(Vector3(1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f)));
 	witchCircleAngle = 0.0f;
 
-	addLights();
+	//addLights();
 
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 100.f, 0.f), "TestParticle"));
 }
@@ -955,14 +954,4 @@ std::weak_ptr<Actor> GameLogic::addActor(Actor::ptr p_Actor)
 {
 	m_Objects.push_back(p_Actor);
 	return p_Actor;
-}
-
-void GameLogic::addLights()
-{
-	addActor(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f)));
-	addActor(m_ActorFactory->createSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
-		Vector2(cosf(3.14f/12),cosf(3.14f/4)), 2000.f, Vector3(0.f,1.f,0.f)));
-	addActor(m_ActorFactory->createPointLight(Vector3(0.f,0.f,0.f), 2000.f, Vector3(1.f,1.f,1.f)));
-	addActor(m_ActorFactory->createPointLight(Vector3(0.f, 3000.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
-	addActor(m_ActorFactory->createPointLight(Vector3(0.f, 0.f, 3000.f), 2000000.f, Vector3(0.5f, 0.5f, 0.5f)));
 }

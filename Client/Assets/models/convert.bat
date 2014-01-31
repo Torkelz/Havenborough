@@ -1,6 +1,7 @@
 ..\..\..\BinaryConverter\Bin\BinaryConverter.exe Barrel1.tx
 ..\..\..\BinaryConverter\Bin\BinaryConverter.exe Character_Witch.tx
 ..\..\..\BinaryConverter\Bin\BinaryConverter.exe Crate1.tx
+..\..\..\BinaryConverter\Bin\BinaryConverter.exe Grass1.tx
 ..\..\..\BinaryConverter\Bin\BinaryConverter.exe House1.tx
 ..\..\..\BinaryConverter\Bin\BinaryConverter.exe House2.tx
 ..\..\..\BinaryConverter\Bin\BinaryConverter.exe House3.tx
