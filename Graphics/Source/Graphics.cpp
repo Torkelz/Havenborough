@@ -40,6 +40,7 @@ Graphics::Graphics(void)
 	m_Shader = nullptr;
 	m_VSyncEnabled = false; //DEBUG
 	m_NextInstanceId = 1;
+	m_NextParticleInstanceId = 1;
 	m_SelectedRenderTarget = 3;
 }
 
@@ -479,7 +480,7 @@ bool Graphics::releaseParticleEffectDefinition(const char *p_ParticleEffectId)
 IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_ParticleEffectId)
 {
 	ParticleEffectDefinition::ptr effectDef = getParticleFromList(p_ParticleEffectId);
-	if (effectDef)
+	if (!effectDef)
 	{
 		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L,
 			"Attempting to create particle effect instance without loading the effect definition: "
@@ -487,7 +488,7 @@ IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_Parti
 		return -1;
 	}
 
-	ParticleInstance::ptr instance;
+	ParticleInstance::ptr instance = m_ParticleFactory->createParticleInstance(effectDef);
 	int id = m_NextParticleInstanceId++;
 
 	m_ParticleEffectInstanceList.push_back(make_pair(id, instance));
@@ -508,6 +509,32 @@ void Graphics::releaseParticleEffectInstance(InstanceId p_ParticleEffectId)
 	}
 }
 
+void Graphics::setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position)
+{
+	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
+		[p_ParticleEffectId] (const pair<InstanceId, ParticleInstance::ptr>& p_Effect)
+		{
+			return p_Effect.first == p_ParticleEffectId;
+		});
+	if (it != m_ParticleEffectInstanceList.end())
+	{
+		DirectX::XMFLOAT4 pos(
+			p_Position.x,
+			p_Position.y,
+			p_Position.z,
+			1.f);
+		it->second->setPosition(pos);
+	}
+}
+
+void Graphics::updateParticles(float p_DeltaTime)
+{
+	for (auto& particle : m_ParticleEffectInstanceList)
+	{
+		particle.second->update(p_DeltaTime);
+	}
+}
+
 void Graphics::renderModel(InstanceId p_ModelId)
 {
 	for (auto& inst : m_ModelInstances)
@@ -517,13 +544,16 @@ void Graphics::renderModel(InstanceId p_ModelId)
 			ModelDefinition *modelDef = getModelFromList(inst.second.getModelName());
 			if(!modelDef->isTransparent)
 			{
-				m_DeferredRender->addRenderable(Renderable(modelDef, inst.second.getWorldMatrix(),
-					&inst.second.getFinalTransform()));
+				m_DeferredRender->addRenderable(Renderable(
+					Renderable::Type::DEFERRED_OBJECT, modelDef,
+					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
 			}
 			else
 			{
-				m_ForwardRenderer->addRenderable(Renderable(modelDef, inst.second.getWorldMatrix(),
-					&inst.second.getFinalTransform(), &inst.second.getColorTone()));
+				m_ForwardRenderer->addRenderable(Renderable(
+					Renderable::Type::FORWARD_OBJECT, modelDef,
+					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
+					&inst.second.getColorTone()));
 			}
 			
 			return;
@@ -623,6 +653,10 @@ void Graphics::drawFrame()
 		m_Shader->unSetShader();
 	}
 
+	for (auto& particle : m_ParticleEffectInstanceList)
+	{
+		m_ForwardRenderer->addRenderable(particle.second);
+	}
 	m_ForwardRenderer->renderForward();
 
 	drawBoundingVolumes();
@@ -865,29 +899,16 @@ Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 	throw InvalidArgumentGraphicsException("Model instance does not exist", __LINE__, __FILE__);
 }
 
-void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
+void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 {
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
+	XMVECTOR upVec = XMLoadFloat3(&XMFLOAT3(p_Up));
+	XMVECTOR forwardVec = XMLoadFloat3(&XMFLOAT3(p_Forward));
+	XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(p_Position));
 
-	static const XMFLOAT4 up(0.f, 1.f, 0.f, 0.f);
-	XMVECTOR upVec = XMLoadFloat4(&up);
+	pos += forwardVec * 15.f;
+	XMStoreFloat3(&m_Eye, pos);
 
-	XMVECTOR rotatedUp = XMVector4Transform(upVec, rotation);
-
-	static const XMFLOAT4 forward(0.f, 0.f, 1.f, 0.f);
-	XMVECTOR forwardVec = XMLoadFloat4(&forward);
-
-	m_Eye = Vector3ToXMFLOAT3(&p_Position);
-	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
-	XMVECTOR pos = XMLoadFloat4(&eye);
-
-	XMVECTOR rotForward = XMVector4Transform(forwardVec, rotation);
-	XMVECTOR flatForward = XMVector4Transform(forwardVec, XMMatrixRotationRollPitchYaw(0.f, p_Yaw, 0.f));
-	flatForward.m128_f32[1] = 0.f;
-	pos += flatForward * 15.f;
-
-	//XMFLOAT4X4 view;
-	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, rotForward, rotatedUp)));
+	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));
 }
 
 void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)
@@ -1131,7 +1152,7 @@ void Graphics::initializeFactories(void)
 	m_ModelFactory = ModelFactory::getInstance();
 	m_ModelFactory->initialize(&m_TextureList);
 	m_ParticleFactory.reset(new ParticleFactory);
-	m_ParticleFactory->initialize(&m_TextureList);
+	m_ParticleFactory->initialize(&m_TextureList, m_Device);
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 }
 

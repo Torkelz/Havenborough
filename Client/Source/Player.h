@@ -64,9 +64,6 @@ private:
 	Vector3 m_ForceMoveStartPosition;	// cm
 	Vector3 m_ForceMoveEndPosition;	// cm
 
-	Vector3 m_CurrentVelocity;
-	Vector3 m_PreviousVelocity;
-
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
 	//while climbing objects.
 	float m_TempHeight; 
@@ -171,15 +168,12 @@ public:
 	*/
 	void update(float p_DeltaTime);
 
-	void updateAnimation(Vector3 p_Rotation);
-
 	/**
 	 * Get the current velocity of the player.
 	 *
 	 * @return the velocity of the player in cm in world space
 	 */
 	Vector3 getVelocity() const;
-	Vector3 getPreviousVelocity() const;
 	Vector3 getDirection() const;
 
 	/**
@@ -198,7 +192,4 @@ public:
 private:
 	void jump(float dt);
 	void move(void);
-	void playAnimation(std::string p_AnimationName, bool p_Override);
-	void queueAnimation(std::string p_AnimationName);
-	void changeAnimationWeight(int p_Track, float p_Weight);
 };

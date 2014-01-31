@@ -19,6 +19,7 @@
     <ClInclude Include="Source\Components.h" />
     <ClInclude Include="Source\EventData.h" />
     <ClInclude Include="Source\EventManager.h" />
+    <ClInclude Include="Source\HumanAnimationComponent.h" />
     <ClInclude Include="Source\IEventData.h" />
     <ClInclude Include="Source\IEventManager.h" />
     <ClInclude Include="Source\LevelBinaryLoader.h" />

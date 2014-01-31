@@ -52,11 +52,9 @@ private:
 	bool useIK;
 	Vector3 rotBlockRotation;
 
-	Vector3 lookDir;
 	float witchCircleAngle;
 
 	Vector2 m_PlayerDirection;
-	Vector3 m_PlayerViewRotation;
 
 public:
 	GameLogic(void);
@@ -79,6 +77,11 @@ public:
 	BodyHandle getPlayerBodyHandle() const;
 	Vector3 getPlayerEyePosition() const;
 	Vector3 getPlayerViewRotation() const;
+	Vector3 getPlayerViewForward() const;
+	Vector3 getPlayerViewUp() const;
+	Vector3 getPlayerViewRight() const;
+	Vector3 getPlayerRotation() const;
+	DirectX::XMFLOAT4X4 getPlayerViewRotationMatrix() const;
 	void movePlayerView(float p_Yaw, float p_Pitch);
 
 	IPhysics *getPhysics() const;
@@ -113,6 +116,4 @@ private:
 	void updateIK();
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
-
-	void addLights();
 };

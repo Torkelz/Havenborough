@@ -124,7 +124,7 @@ const char* ConnectionController::getUpdateObjectExtraData(Package p_Package, un
 	return createObjects->m_Object2[p_ExtraData].c_str();
 }
 
-void ConnectionController::sendRemoveObjects(const uint16_t* p_Objects, unsigned int p_NumObjects)
+void ConnectionController::sendRemoveObjects(const uint32_t* p_Objects, unsigned int p_NumObjects)
 {
 	RemoveObjects package;
 	package.m_Object1.assign(p_Objects, p_Objects + p_NumObjects);
@@ -139,7 +139,7 @@ unsigned int ConnectionController::getNumRemoveObjectRefs(Package p_Package)
 	return removeObjects->m_Object1.size();
 }
 
-const uint16_t* ConnectionController::getRemoveObjectRefs(Package p_Package)
+const uint32_t* ConnectionController::getRemoveObjectRefs(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	RemoveObjects* removeObjects = static_cast<RemoveObjects*>(m_ReceivedPackages[p_Package].get());

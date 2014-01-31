@@ -34,3 +34,13 @@ inline void pushRotation(tinyxml2::XMLPrinter& p_Printer, Vector3 p_YawPitchRoll
 	p_Printer.PushAttribute("pitch", p_YawPitchRoll.y);
 	p_Printer.PushAttribute("roll", p_YawPitchRoll.z);
 }
+
+inline void queryVector(const tinyxml2::XMLElement* p_Element, Vector3& p_OutVec)
+{
+	if (p_Element)
+	{
+		p_Element->QueryAttribute("x", &p_OutVec.x);
+		p_Element->QueryAttribute("y", &p_OutVec.y);
+		p_Element->QueryAttribute("z", &p_OutVec.z);
+	}
+}

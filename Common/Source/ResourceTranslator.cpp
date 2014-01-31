@@ -15,6 +15,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("Barrel1", "assets/models/Barrel1.btx"),
 		std::make_pair("Checkpoint1", "assets/models/Checkpoint.btx"),
 		std::make_pair("Crate1", "assets/models/Crate1.btx"),
+		std::make_pair("Grass1", "assets/models/Grass1.btx"),
 		std::make_pair("House1", "assets/models/house1.btx"),
 		std::make_pair("House2", "assets/models/house2.btx"),
 		std::make_pair("House3", "assets/models/house3.btx"),
@@ -38,6 +39,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	{
 		std::make_pair("Barrel1", "assets/volumes/CB_Barrel1.txc"),
         std::make_pair("Crate1", "assets/volumes/CB_Crate1.txc"),
+		std::make_pair("Grass1", "assets/volumes/CB_Grass1.txc"),
         std::make_pair("House1", "assets/volumes/CB_House1.txc"),
 		std::make_pair("House2", "assets/volumes/CB_House2.txc"),
         std::make_pair("House3", "assets/volumes/CB_House3.txc"),

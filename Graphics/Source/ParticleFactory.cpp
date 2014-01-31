@@ -2,6 +2,7 @@
 #include "WrapperFactory.h"
 #include "GraphicsExceptions.h"
 #include "VRAMInfo.h"
+#include "Utilities/MemoryUtil.h"
 
 #include <boost/filesystem.hpp>
 
@@ -9,9 +10,15 @@ using std::string;
 using std::vector;
 using std::pair;
 
-void ParticleFactory::initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList)
+ParticleFactory::~ParticleFactory()
+{
+	SAFE_RELEASE(m_Sampler);
+}
+
+void ParticleFactory::initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList, ID3D11Device* p_Device)
 {
 	m_TextureList = p_TextureList;
+	createSampler(p_Device);
 }
 
 ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(const char* p_Filename, const char* p_EffectName)
@@ -25,14 +32,15 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 
 	particleSystem->diffuseTexture = loadTexture(p_Filename, "Particle1.dds");
 	particleSystem->textureResourceName = "Particle1.dds";
-	particleSystem->maxParticles = 50;
-	particleSystem->particlesPerSec = 2;
-	particleSystem->maxLife = 60.f;
-	particleSystem->size = DirectX::XMFLOAT2(1.f, 1.f);
+	particleSystem->sampler = m_Sampler;
+	particleSystem->maxParticles = 600;
+	particleSystem->particlesPerSec = 200;
+	particleSystem->maxLife = 3.f;
+	particleSystem->size = DirectX::XMFLOAT2(10.f, 10.f);
 	particleSystem->particleSystemName = "fire";
-	particleSystem->particlePositionDeviation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	particleSystem->velocityDeviation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	particleSystem->particleColorDeviation = DirectX::XMFLOAT4(0.5f, 0.7f, 0.3f, 0.95f);
+	particleSystem->particlePositionDeviation = 10.f;
+	particleSystem->velocityDeviation = 40.f;
+	particleSystem->particleColorDeviation = DirectX::XMFLOAT4(0.5f, 0.7f, 0.3f, 0.9f);
 
 	return particleSystem;
 }
@@ -40,7 +48,10 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 ParticleInstance::ptr ParticleFactory::createParticleInstance(ParticleEffectDefinition::ptr p_Effect)
 {
 	ParticleInstance::ptr instance(new ParticleInstance);
-	instance->init(createParticleBuffer(p_Effect->maxParticles), p_Effect);
+	instance->init(
+		createConstBuffer(),
+		createParticleBuffer(p_Effect->maxParticles),
+		p_Effect);
 
 	return instance;
 }
@@ -51,18 +62,31 @@ void ParticleFactory::setLoadParticleTextureCallBack(loadParticleTextureCallBack
 	m_LoadParticleTextureUserdata = p_Userdata;
 }
 
-Buffer* ParticleFactory::createParticleBuffer(unsigned int p_MaxParticles)
+std::shared_ptr<Buffer> ParticleFactory::createParticleBuffer(unsigned int p_MaxParticles)
 {
-	Buffer *buffer;
-
 	Buffer::Description cbDesc;
-	cbDesc.initData = NULL; //can be needing a flag of some sort
+	cbDesc.initData = nullptr; //can be needing a flag of some sort
 	cbDesc.usage = Buffer::Usage::CPU_WRITE;
 	cbDesc.numOfElements = p_MaxParticles;
+	cbDesc.sizeOfElement = sizeof(ShaderParticle);
+	cbDesc.type = Buffer::Type::VERTEX_BUFFER;
+
+	std::shared_ptr<Buffer> buffer(WrapperFactory::getInstance()->createBuffer(cbDesc));
+	VRAMInfo::getInstance()->updateUsage(sizeof(particlecBuffer));
+
+	return buffer;
+}
+
+std::shared_ptr<Buffer> ParticleFactory::createConstBuffer()
+{
+	Buffer::Description cbDesc;
+	cbDesc.initData = NULL; //can be needing a flag of some sort
+	cbDesc.usage = Buffer::Usage::DEFAULT;
+	cbDesc.numOfElements = 1;
 	cbDesc.sizeOfElement = sizeof(particlecBuffer);
 	cbDesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
 
-	buffer = WrapperFactory::getInstance()->createBuffer(cbDesc);
+	std::shared_ptr<Buffer> buffer(WrapperFactory::getInstance()->createBuffer(cbDesc));
 	VRAMInfo::getInstance()->updateUsage(sizeof(particlecBuffer));
 
 	return buffer;
@@ -92,4 +116,20 @@ ID3D11ShaderResourceView *ParticleFactory::getTextureFromList(string p_Identifie
 	}
 
 	return nullptr;
+}
+
+void ParticleFactory::createSampler(ID3D11Device* p_Device)
+{
+	D3D11_SAMPLER_DESC sd;
+	ZeroMemory(&sd, sizeof(sd));
+	sd.Filter			= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU			= D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressV			= D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressW			= D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.ComparisonFunc	= D3D11_COMPARISON_NEVER;
+	sd.MinLOD			= 0;
+	sd.MaxLOD           = D3D11_FLOAT32_MAX;
+
+	m_Sampler = nullptr;
+	p_Device->CreateSamplerState( &sd, &m_Sampler );
 }

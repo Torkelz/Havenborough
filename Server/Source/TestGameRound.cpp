@@ -22,7 +22,7 @@ void TestGameRound::setup()
 		Vector3 position(500.f + i * 200.f, m_PlayerSphereRadius + 400.f, 500.f);
 
 		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
-		m_Players[i].setActor(actor);
+		m_Players[i]->setActor(actor);
 		m_Actors.push_back(actor);
 	}
 
@@ -39,6 +39,12 @@ void TestGameRound::setup()
 	m_Actors.push_back(m_ActorFactory->createCheckPointActor(Vector3(-1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
 	m_Actors.push_back(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, 1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
 	m_Actors.push_back(m_ActorFactory->createCheckPointActor(Vector3(1000.0f, 0.0f, -1000.0f), Vector3(1.0f, 10.0f, 1.0f)));
+
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(4850.0f, 0.0f, -2528.0f), "TestParticle"));
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(-1000.0f, 0.0f, -1000.0f), "TestParticle"));
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(-1000.0f, 0.0f, 1000.0f), "TestParticle"));
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(1000.0f, 0.0f, 1000.0f), "TestParticle"));
+	m_Actors.push_back(m_ActorFactory->createParticles(Vector3(1000.0f, 0.0f, -1000.0f), "TestParticle"));
 }
 
 void TestGameRound::sendLevel()
@@ -61,10 +67,10 @@ void TestGameRound::sendLevel()
 
 	for(auto& player : m_Players)
 	{
-		User::ptr user = player.getUser().lock();
+		User::ptr user = player->getUser().lock();
 		if (user)
 		{
-			Actor::ptr actor = player.getActor().lock();
+			Actor::ptr actor = player->getActor().lock();
 			if (actor)
 			{
 				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
@@ -86,6 +92,8 @@ void TestGameRound::updateLogic(float p_DeltaTime)
 void TestGameRound::sendUpdates()
 {
 	std::vector<UpdateObjectData> data;
+	std::vector<std::string> extra;
+	std::vector<const char*> extraC;
 
 	for (auto& box : m_Boxes)
 	{
@@ -99,31 +107,33 @@ void TestGameRound::sendUpdates()
 	for (auto& player : m_Players)
 	{
 		data.push_back(getUpdateData(player));
+		extra.push_back(getExtraData(player));
+		extraC.push_back(extra.back().c_str());
 	}
 
 	for (auto& player : m_Players)
 	{
-		User::ptr user = player.getUser().lock();
+		User::ptr user = player->getUser().lock();
 		if (user)
 		{
-			user->getConnection()->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
+			user->getConnection()->sendUpdateObjects(data.data(), data.size(), extraC.data(), extraC.size());
 		}
 	}
 }
 
-void TestGameRound::playerDisconnected(Player& p_DisconnectedPlayer)
+void TestGameRound::playerDisconnected(Player::ptr p_DisconnectedPlayer)
 {
-	Actor::ptr actor = p_DisconnectedPlayer.getActor().lock();
+	Actor::ptr actor = p_DisconnectedPlayer->getActor().lock();
 	if (!actor)
 	{
 		return;
 	}
 
-	uint16_t playerActorId = actor->getId();
+	uint32_t playerActorId = actor->getId();
 
 	for (auto& player : m_Players)
 	{
-		User::ptr user = player.getUser().lock();
+		User::ptr user = player->getUser().lock();
 		if (user)
 		{
 			user->getConnection()->sendRemoveObjects(&playerActorId, 1);
@@ -155,23 +165,23 @@ UpdateObjectData TestGameRound::getUpdateData(const Actor::ptr p_Box)
 	return data;
 }
 
-UpdateObjectData TestGameRound::getUpdateData(const Player& p_Player)
+UpdateObjectData TestGameRound::getUpdateData(const Player::ptr p_Player)
 {
-	Actor::ptr actor = p_Player.getActor().lock();
+	Actor::ptr actor = p_Player->getActor().lock();
 	
 	if (!actor)
 	{
 		throw CommonException("Player missing actor", __LINE__, __FILE__);
 	}
 
-	std::shared_ptr<MovementInterface> movement = actor->getComponent<MovementInterface>(MovementInterface::m_ComponentId).lock();
+	std::shared_ptr<PhysicsInterface> physComp = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
 
 	Vector3 velocity(0.f, 0.f, 0.f);
 	Vector3 rotVelocity(0.f, 0.f, 0.f);
-	if (movement)
+
+	if (physComp)
 	{
-		velocity = movement->getVelocity();
-		rotVelocity = movement->getRotationalVelocity();
+		velocity = physComp->getVelocity();
 	}
 
 	UpdateObjectData data =
@@ -184,4 +194,16 @@ UpdateObjectData TestGameRound::getUpdateData(const Player& p_Player)
 	};
 
 	return data;
+}
+
+std::string TestGameRound::getExtraData(const Player::ptr p_Player)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("ObjectUpdate");
+	printer.PushAttribute("ActorId", p_Player->getActor().lock()->getId());
+	printer.PushAttribute("Type", "Look");
+	p_Player->getActor().lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock()->serialize(printer);
+	printer.CloseElement();
+
+	return printer.CStr();
 }

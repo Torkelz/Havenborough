@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <memory>
+#include <random>
 
 
 class ParticleInstance
@@ -13,27 +14,30 @@ public:
 	typedef std::shared_ptr<ParticleInstance> ptr;
 
 private:
-	Buffer				*m_Buffer;
+	std::shared_ptr<Buffer> m_ConstBuffer;
+	std::shared_ptr<Buffer> m_ParticleBuffer;
 
 	ParticleEffectDefinition::ptr m_ParticleEffectDef;
 	
 	std::vector<Particle>	m_ParticleList;
 	DirectX::XMFLOAT4	m_SysPosition; //world pos, in cm
 	
-	unsigned int		m_CurrentParticleCount;
 	float				m_AccumulatedTime;
+
+	std::default_random_engine m_RandomEngine;
 	
 public:
 	ParticleInstance();
 	~ParticleInstance();
 
-	void init(Buffer* p_Buffer, ParticleEffectDefinition::ptr p_ParticleEffectDefinition);
+	void init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_ptr<Buffer> p_ParticleBuffer, ParticleEffectDefinition::ptr p_ParticleEffectDefinition);
 	void update(float p_DeltaTime);
 	void updateBuffers(ID3D11DeviceContext *p_DeviceContext, DirectX::XMFLOAT3 *p_CameraPosition,
 		DirectX::XMFLOAT4X4 *p_ViewMatrix, DirectX::XMFLOAT4X4 *p_ProjectionMatrix);
-	void render();
+	void render(ID3D11DeviceContext* p_Context, ID3D11BlendState* p_BlendState);
 
 	void setPosition(DirectX::XMFLOAT4 p_NewPosition);
+	DirectX::XMFLOAT4X4 getWorldMatrix() const;
 
 private:
 	void emitNewParticles(float p_DeltaTime);

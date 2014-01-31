@@ -116,8 +116,10 @@ public:
 
 	InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) override;
 	void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) override;
+	void setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position) override;
 
 	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
+	void updateParticles(float p_DeltaTime) override;
 
 
 	void addStaticLight(void) override;
@@ -155,7 +157,7 @@ public:
 	void applyIK_ReachPoint(InstanceId p_Instance, const char* p_GroupName, Vector3 p_Target) override;
 	Vector3 getJointPosition(InstanceId p_Instance, const char* p_Joint) override;
 
-	void updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch) override;
+	void updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up) override;
 
 	void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) override;
 

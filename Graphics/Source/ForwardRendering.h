@@ -68,5 +68,6 @@ private:
 	void createDepthStencilState(void);
 	void updateConstantBuffer();
 	bool depthSortCompareFunc(const Renderable &a, const Renderable &b);
+	void renderObject(Renderable& p_Object);
 };
 
