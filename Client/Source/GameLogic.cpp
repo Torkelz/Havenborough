@@ -479,6 +479,26 @@ void GameLogic::handleNetwork()
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 				}
 				break;
+			case PackageType::RESULT_GAME:
+				/*{
+					if(object->Attribute("Type", "GoalReached"))
+						{
+								m_Level = Level();
+								m_Objects.clear();
+
+								m_InGame = false;
+
+								IConnectionController* con = m_Network->getConnectionToServer();
+
+								if (!m_PlayingLocal && con && con->isConnected())
+								{
+									con->sendLeaveGame();
+								}
+
+								m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+						}
+				}*/
+				break;
 			case PackageType::UPDATE_OBJECTS:
 				{
 					const unsigned int numUpdates = conn->getNumUpdateObjectData(package);
@@ -546,22 +566,6 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-						}
-						else if(object->Attribute("Type", "GoalReached"))
-						{
-								m_Level = Level();
-								m_Objects.clear();
-
-								m_InGame = false;
-
-								IConnectionController* con = m_Network->getConnectionToServer();
-
-								if (!m_PlayingLocal && con && con->isConnected())
-								{
-									con->sendLeaveGame();
-								}
-
-								m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{

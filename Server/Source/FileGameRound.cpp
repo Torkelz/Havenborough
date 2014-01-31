@@ -169,22 +169,21 @@ void FileGameRound::sendUpdates()
 				}
 			}
 		}
-	}
-
-	if(goalReached)
-	{
-		tinyxml2::XMLPrinter printer;
-		printer.OpenElement("ObjectUpdate");
-		printer.PushAttribute("ActorId", id-1);
-		printer.PushAttribute("Type", "GoalReached");
-		printer.CloseElement();
-		const char* info = printer.CStr();
-		for(auto& player : m_Players)
+		if(goalReached)
 		{
-			player->getUser().lock()->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+			tinyxml2::XMLPrinter printer;
+			printer.OpenElement("ObjectUpdate");
+			printer.PushAttribute("ActorId", id-1);
+			printer.PushAttribute("Type", "GoalReached");
+			printer.CloseElement();
+			const char* info = printer.CStr();
+			for(auto& player : m_Players)
+			{
+				player->getUser().lock()->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+			}
 		}
+		m_SendHitData.clear();
 	}
-	m_SendHitData.clear();
 }
 
 void FileGameRound::playerDisconnected(Player::ptr p_DisconnectedPlayer)

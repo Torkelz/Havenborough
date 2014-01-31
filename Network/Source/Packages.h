@@ -293,6 +293,11 @@ typedef Package1Obj<PackageType::JOIN_GAME, std::string> JoinGame;
 typedef Package1Obj<PackageType::LEVEL_DATA, std::string> LevelData;
 
 /**
+ *
+ */
+typedef Package1Obj<PackageType::RESULT_GAME, std::string> ResultData;
+
+/**
  * A package representing the addition of new objects to the game world.
  */
 typedef Package1Obj<PackageType::CREATE_OBJECTS, std::vector<std::pair<std::string, uint32_t>>> CreateObjects;
