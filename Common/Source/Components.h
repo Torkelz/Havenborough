@@ -4,6 +4,7 @@
 #include "ResourceManager.h"
 #include "CommonExceptions.h"
 #include "XMLHelper.h"
+#include "Utilities/Util.h"
 
 #include <IPhysics.h>
 

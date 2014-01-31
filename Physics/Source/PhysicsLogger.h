@@ -3,10 +3,8 @@
  */
 
 #pragma once
-
 #include <IPhysics.h>
 
-#include <cstdint>
 #include <string>
 
 /**

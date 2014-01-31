@@ -1,7 +1,6 @@
 #pragma once
-
-#include "BoundingVolume.h"
 #include "Sphere.h"
+
 #include <vector>
 
 class AABB : public BoundingVolume
