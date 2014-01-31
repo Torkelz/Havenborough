@@ -26,10 +26,12 @@ protected:
 	float				m_Mass;				// kg
 	float				m_Gravity;			// m/s^2
 	bool				m_InAir;
+	bool				m_OnSomething;
 
 	bool				m_IsImmovable;
 	bool				m_IsEdge;
 	bool				m_CollisionResponse;
+	BodyHandle			m_LastCollision;
 
 	std::unique_ptr<BoundingVolume>	m_Volume;
 public:
@@ -84,6 +86,18 @@ public:
 	* @p_Bool, sets the bool to this parameter.
 	*/
 	void setInAir(bool p_Bool);
+	
+	/**
+	* Get the bool for if the body is on a surface.
+	* @return true if the body is on a surface, otherwise false.
+	*/
+	bool getOnSomething();
+	/**
+	* Sets the bool for if the body is on a surface.
+	* @p_Bool, sets the bool to this parameter.
+	*/
+	void setOnSomething(bool p_Bool);
+
 	/**
 	* Is the body immovable(static)?
 	* @return a bool, if the body is movable or immovable.
@@ -103,6 +117,18 @@ public:
 	* @return a bool, if the body should have collision response.
 	*/
 	bool getCollisionResponse();
+
+	/**
+	* set collision victim
+	* @param p_Body which body that this collided against..
+	*/
+	void setLastCollision(BodyHandle p_Body);
+	/**
+	* get last collision body that happend
+	* @return return the body.
+	*/
+	BodyHandle getLastCollision();
+
 	/**
 	* Get the volume that is connected to the body.
 	* @return body's volume.
