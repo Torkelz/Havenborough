@@ -905,7 +905,10 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 	XMVECTOR forwardVec = XMLoadFloat3(&XMFLOAT3(p_Forward));
 	XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(p_Position));
 
-	pos += forwardVec * 15.f;
+	XMVECTOR flatForward = XMVectorSetY(forwardVec, 0.f);
+	XMVECTOR flatUp = XMVectorSetY(upVec, 0.f);
+	
+	pos += flatForward * 5.f + forwardVec * 20.f + flatUp * 35.f;
 	XMStoreFloat3(&m_Eye, pos);
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));

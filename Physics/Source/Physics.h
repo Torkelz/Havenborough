@@ -43,6 +43,10 @@ public:
 	void removeHitDataAt(unsigned int p_index) override;
 	unsigned int getHitDataSize() override;
 
+	bool getBodyOnSomethingAt(unsigned p_Index) override;
+	void removeBodyOnSomethingAt(unsigned p_Index) override;
+	unsigned getBodyOnSomethingSize() override;
+
 	void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) override;
 	Vector3 getBodyPosition(BodyHandle p_Body) override;
 

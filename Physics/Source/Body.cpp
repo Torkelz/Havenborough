@@ -28,8 +28,11 @@ Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool 
 	m_Gravity			= 0.f;
 
 	m_InAir				= true;
-	m_IsImmovable = p_IsImmovable;
-	m_IsEdge = p_IsEdge;
+	m_OnSomething		= false;
+	m_IsImmovable		= p_IsImmovable;
+	m_IsEdge			= p_IsEdge;
+
+	m_LastCollision		= 0;
 }
 
 Body::Body(Body &&p_Other)
@@ -45,9 +48,11 @@ Body::Body(Body &&p_Other)
 	  m_NewAcceleration(p_Other.m_NewAcceleration),
 	  m_Gravity(p_Other.m_Gravity),
 	  m_InAir(p_Other.m_InAir),
+	  m_OnSomething(p_Other.m_OnSomething),
 	  m_IsImmovable(p_Other.m_IsImmovable),
 	  m_IsEdge(p_Other.m_IsEdge),
-	  m_CollisionResponse(p_Other.m_CollisionResponse)
+	  m_CollisionResponse(p_Other.m_CollisionResponse),
+	  m_LastCollision(p_Other.m_LastCollision)
 {}
 
 Body& Body::operator=(Body&& p_Other)
@@ -64,9 +69,11 @@ Body& Body::operator=(Body&& p_Other)
 	std::swap(m_NewAcceleration, p_Other.m_NewAcceleration);
 	std::swap(m_Gravity, p_Other.m_Gravity);
 	std::swap(m_InAir, p_Other.m_InAir);
+	std::swap(m_OnSomething, p_Other.m_OnSomething);
 	std::swap(m_IsImmovable, p_Other.m_IsImmovable);
 	std::swap(m_IsEdge, p_Other.m_IsEdge);
 	std::swap(m_CollisionResponse, p_Other.m_CollisionResponse);
+	std::swap(m_LastCollision, p_Other.m_LastCollision);
 
 	return *this;
 }
@@ -166,6 +173,16 @@ void Body::setInAir(bool p_bool)
 	m_InAir = p_bool;
 }
 
+bool Body::getOnSomething()
+{
+	return m_OnSomething;
+}
+
+void Body::setOnSomething(bool p_bool)
+{
+	m_OnSomething = p_bool;
+}
+
 bool Body::getIsImmovable()
 {
 	return m_IsImmovable;
@@ -183,6 +200,16 @@ void Body::setCollisionResponse(bool p_State)
 bool Body::getCollisionResponse()
 {
 	return m_CollisionResponse;
+}
+
+void Body::setLastCollision(Body::BodyHandle p_Body)
+{
+	m_LastCollision = p_Body;
+}
+
+Body::BodyHandle Body::getLastCollision()
+{
+	return m_LastCollision;
 }
 
 BoundingVolume* Body::getVolume()

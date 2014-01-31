@@ -186,6 +186,27 @@ public:
 	 *
 	 * @param return m_HitDatas.size
 	 */
+	virtual bool getBodyOnSomethingAt(unsigned p_Index) = 0;
+
+	/**
+	 * Get the hitdata from the vector containing all the collision hitdata for the last frame.
+	 *
+	 * @param p_Indexare the index number in the vector
+	 * @return the hitdata on that index
+	 */
+	virtual void removeBodyOnSomethingAt(unsigned p_Index) = 0;
+
+	/**
+	 * Removes the hitdata from the vector containing all the collision hitdata for the last frame at specific position.
+	 *
+	 * @param p_Index are the index number in the vector
+	 */
+	virtual unsigned getBodyOnSomethingSize() = 0;
+	/**
+	 * Vector size, with hitData.
+	 *
+	 * @param return m_HitDatas.size
+	 */
 	virtual unsigned int getHitDataSize() = 0;
 
 	/**
