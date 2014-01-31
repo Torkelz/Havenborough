@@ -271,6 +271,8 @@ namespace boost
 			ar & m_Data.m_Position;
 			ar & m_Data.m_Velocity;
 			ar & m_Data.m_Rotation;
+			ar & m_Data.m_Forward;
+			ar & m_Data.m_Up;
 		}
 	}
 }

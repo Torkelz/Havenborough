@@ -22,4 +22,5 @@ private:
 	
 	UpdateObjectData getUpdateData(const Actor::ptr p_Box);
 	UpdateObjectData getUpdateData(const Player& p_Player);
+	std::string getExtraData(const Player& p_Player);
 };

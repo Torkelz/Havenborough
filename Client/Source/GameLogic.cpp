@@ -102,33 +102,39 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 	if (m_PlayerDirection.x != 0.f || m_PlayerDirection.y != 0.f)
 	{
-		float dir = atan2f(m_PlayerDirection.y, m_PlayerDirection.x) + m_PlayerViewRotation.x;
+		XMVECTOR forward = XMLoadFloat3(&XMFLOAT3(getPlayerViewForward()));
+		forward = XMVectorSetY(forward, 0.f);
+		forward = XMVector3Normalize(forward);
+		XMVECTOR right = XMLoadFloat3(&XMFLOAT3(getPlayerViewRight()));
+		right = XMVectorSetY(right, 0.f);
+		right = XMVector3Normalize(right);
 
-		m_Player.setDirectionX(sinf(dir));
-		m_Player.setDirectionZ(cosf(dir));
+		XMVECTOR rotDirV = forward * m_PlayerDirection.x + right * m_PlayerDirection.y;
+
+		m_Player.setDirectionX(XMVectorGetX(rotDirV));
+		m_Player.setDirectionZ(XMVectorGetZ(rotDirV));
 	}
 	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime);
 
 	Vector3 actualViewRot = getPlayerViewRotation();
-	DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationRollPitchYaw(
-		actualViewRot.y, actualViewRot.x, actualViewRot.z);
-	static const DirectX::XMFLOAT4 forward(0.f, 0.f, 1.f, 0.f);
-	static const DirectX::XMVECTOR vecForward = DirectX::XMLoadFloat4(&forward);
-	DirectX::XMVECTOR vecLookDir = DirectX::XMVector4Transform(vecForward, rotMatrix);
-	DirectX::XMFLOAT3 fLookDir;
-	DirectX::XMStoreFloat3(&fLookDir, vecLookDir);
-
-	lookDir = fLookDir;
+	Actor::ptr playerActor = m_Player.getActor().lock();
+	if (playerActor)
+	{
+		Vector3 playerRotation = actualViewRot;
+		playerRotation.y = 0.f;
+		playerActor->setRotation(playerRotation);
+	}
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
 	if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
 	{
 		PlayerControlData data;
-		data.m_Rotation = actualViewRot;
+		data.m_Rotation = getPlayerRotation();
 		data.m_Position = m_Player.getPosition();
 		data.m_Velocity = m_Player.getVelocity();
-		data.m_Rotation.y = 0.f;
+		data.m_Forward = getPlayerViewForward();
+		data.m_Up = getPlayerViewUp();
 
 		conn->sendPlayerControl(data);
 	}
@@ -137,10 +143,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 	{
 		actor->onUpdate(p_DeltaTime);
 	}
-
-	// ##### Model animation update stuff. ######
-	m_Player.updateAnimation(actualViewRot);
-	// ##### Model animation update stuff end. #####
 
 	updateSandbox(p_DeltaTime);
 }
@@ -167,38 +169,155 @@ Vector3 GameLogic::getPlayerEyePosition() const
 
 Vector3 GameLogic::getPlayerViewRotation() const
 {
-	return m_PlayerViewRotation;
+	Actor::ptr player = m_Player.getActor().lock();
+	if (!player)
+	{
+		return Vector3(0.f, 0.f, 0.f);
+	}
+
+	using namespace DirectX;
+
+	Vector3 forward = getPlayerViewForward();
+	Vector3 up = getPlayerViewUp();
+	XMVECTOR rightV = XMVector3Cross(XMLoadFloat3(&XMFLOAT3(up)), XMLoadFloat3(&XMFLOAT3(forward)));
+	Vector3 right;
+	XMStoreFloat3((XMFLOAT3*)&right, rightV);
+	Vector3 rotation;
+	if (forward.y == 1.f)
+	{
+		rotation.x = atan2f(right.x, right.z);
+		rotation.y = -PI;
+		rotation.z = 0.f;
+	}
+	else if (forward.y == -1.f)
+	{
+		rotation.x = atan2f(right.x, right.z);
+		rotation.y = PI;
+		rotation.z = 0.f;
+	}
+	else
+	{
+		rotation.x = atan2f(forward.x, forward.z);
+		rotation.y = asinf(-forward.y);
+		rotation.z = atan2f(-right.y, up.y);
+	}
+
+	return rotation;
+}
+
+Vector3 GameLogic::getPlayerViewForward() const
+{
+	Actor::ptr actor = m_Player.getActor().lock();
+	if (!actor)
+	{
+		return Vector3(0.f, 0.f, 1.f);
+	}
+
+	std::shared_ptr<LookInterface> look = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+	if (!look)
+	{
+		return Vector3(0.f, 0.f, 1.f);
+	}
+
+	return look->getLookForward();
+}
+
+Vector3 GameLogic::getPlayerViewUp() const
+{
+	Actor::ptr actor = m_Player.getActor().lock();
+	if (!actor)
+	{
+		return Vector3(0.f, 1.f, 0.f);
+	}
+
+	std::shared_ptr<LookInterface> look = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+	if (!look)
+	{
+		return Vector3(0.f, 1.f, 0.f);
+	}
+
+	return look->getLookUp();
+}
+
+Vector3 GameLogic::getPlayerViewRight() const
+{
+	Actor::ptr actor = m_Player.getActor().lock();
+	if (!actor)
+	{
+		return Vector3(1.f, 0.f, 0.f);
+	}
+
+	std::shared_ptr<LookInterface> look = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+	if (!look)
+	{
+		return Vector3(1.f, 0.f, 0.f);
+	}
+
+	return look->getLookRight();
+}
+
+Vector3 GameLogic::getPlayerRotation() const
+{
+	Actor::ptr actor = m_Player.getActor().lock();
+	if (!actor)
+	{
+		return Vector3(0.f, 0.f, 0.f);
+	}
+
+	return actor->getRotation();
+}
+
+DirectX::XMFLOAT4X4 GameLogic::getPlayerViewRotationMatrix() const
+{
+	Actor::ptr actor = m_Player.getActor().lock();
+	if (!actor)
+	{
+		return XMFLOAT4X4();
+	}
+	
+	std::shared_ptr<LookInterface> look = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+	if (!look)
+	{
+		return XMFLOAT4X4();
+	}
+
+	return look->getRotationMatrix();
 }
 
 void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 {
-	m_PlayerViewRotation.x += p_Yaw;
-	m_PlayerViewRotation.y += p_Pitch;
-
-	if (m_PlayerViewRotation.x > PI)
-	{
-		m_PlayerViewRotation.x -= 2 * PI;
-	}
-	else if (m_PlayerViewRotation.x < -PI)
-	{
-		m_PlayerViewRotation.x += 2 * PI;
-	}
-
-	if (m_PlayerViewRotation.y > PI * 0.45f)
-	{
-		m_PlayerViewRotation.y = PI * 0.45f;
-	}
-	else if (m_PlayerViewRotation.y < -PI * 0.45f)
-	{
-		m_PlayerViewRotation.y = -PI * 0.45f;
-	}
-
-	Vector3 playerRotation = Vector3(m_PlayerViewRotation.x, 0.f, 0.f);
 	Actor::ptr actor = m_Player.getActor().lock();
-	if (actor)
+	if (!actor)
 	{
-		actor->setRotation(playerRotation);
+		return;
 	}
+
+	std::shared_ptr<LookInterface> look = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+	if (!look)
+	{
+		return;
+	}
+
+	XMFLOAT3 forward = look->getLookForward();
+	XMFLOAT3 up = look->getLookUp();
+	XMVECTOR vForward = XMVector3Normalize(XMLoadFloat3(&forward));
+	XMVECTOR vUp = XMVector3Normalize(XMLoadFloat3(&up));
+	XMVECTOR vRight = XMVector3Cross(vUp, vForward);
+
+	XMVECTOR rotationYaw = XMQuaternionRotationRollPitchYaw(0.f, p_Yaw, 0.f);
+	XMVECTOR rotationPitch = XMQuaternionRotationAxis(vRight, p_Pitch);
+	XMVECTOR rotation = XMQuaternionMultiply(rotationPitch, rotationYaw);
+
+	XMStoreFloat3(&forward, XMVector3Rotate(vForward, rotation));
+	XMStoreFloat3(&up, XMVector3Rotate(vUp, rotation));
+
+	if (forward.y > 0.9f || forward.y < -0.9f)
+	{
+		return;
+	}
+
+	look->setLookForward(forward);
+	look->setLookUp(up);
 }
 
 void GameLogic::playerJump()
@@ -406,15 +525,62 @@ void GameLogic::handleNetwork()
 						actor->setPosition(data.m_Position);
 						actor->setRotation(data.m_Rotation);
 						
-						std::weak_ptr<MovementInterface> wMove = actor->getComponent<MovementInterface>(3);
+						std::weak_ptr<MovementInterface> wMove = actor->getComponent<MovementInterface>(MovementInterface::m_ComponentId);
 						std::shared_ptr<MovementInterface> shMove = wMove.lock();
 						if (shMove)
 						{
 							shMove->setVelocity(data.m_Velocity);
 							shMove->setRotationalVelocity(data.m_RotationVelocity);
 						}
+
+						std::shared_ptr<PhysicsInterface> physComp = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+						if (physComp)
+						{
+							m_Physics->setBodyVelocity(physComp->getBodyHandle(), data.m_Velocity);
+						}
 					}
 
+					const unsigned int numExtraData = conn->getNumUpdateObjectExtraData(package);
+					for (unsigned int i = 0; i < numExtraData; ++i)
+					{
+						tinyxml2::XMLDocument doc;
+						doc.Parse(conn->getUpdateObjectExtraData(package, i));
+
+						const tinyxml2::XMLElement* objectUpdate = doc.FirstChildElement("ObjectUpdate");
+						if (objectUpdate)
+						{
+							Actor::Id actorId;
+							objectUpdate->QueryAttribute("ActorId", &actorId);
+
+							Actor::ptr actor = getActor(actorId);
+							if (!actor)
+							{
+								Logger::log(Logger::Level::ERROR_L, "Could not find actor (" + std::to_string(actorId) + ")");
+								continue;
+							}
+
+							if (actor == m_Player.getActor().lock())
+							{
+								continue;
+							}
+
+							const tinyxml2::XMLElement* look = objectUpdate->FirstChildElement("Look");
+							if (look)
+							{
+								std::shared_ptr<LookInterface> lookInt = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+								if (lookInt)
+								{
+									Vector3 forward(0.f, 0.f, 1.f);
+									Vector3 up(0.f, 1.f, 0.f);
+									queryVector(look->FirstChildElement("Forward"), forward);
+									queryVector(look->FirstChildElement("Up"), up);
+
+									lookInt->setLookForward(forward);
+									lookInt->setLookUp(up);
+								}
+							}
+						}
+					}
 					// TODO: Handle extra data
 				}
 				break;
@@ -711,7 +877,7 @@ void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_W
 
 void GameLogic::updateIK()
 {
-	Vector3 IK_Target = Vector3(m_Player.getEyePosition()) + lookDir * 200.f;
+	Vector3 IK_Target = Vector3(m_Player.getEyePosition()) + getPlayerViewForward() * 200.f;
 
 	if (useIK)
 	{

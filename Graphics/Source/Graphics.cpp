@@ -899,29 +899,16 @@ Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 	throw InvalidArgumentGraphicsException("Model instance does not exist", __LINE__, __FILE__);
 }
 
-void Graphics::updateCamera(Vector3 p_Position, float p_Yaw, float p_Pitch)
+void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 {
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Pitch, p_Yaw, 0.f);
+	XMVECTOR upVec = XMLoadFloat3(&XMFLOAT3(p_Up));
+	XMVECTOR forwardVec = XMLoadFloat3(&XMFLOAT3(p_Forward));
+	XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(p_Position));
 
-	static const XMFLOAT4 up(0.f, 1.f, 0.f, 0.f);
-	XMVECTOR upVec = XMLoadFloat4(&up);
+	pos += forwardVec * 15.f;
+	XMStoreFloat3(&m_Eye, pos);
 
-	XMVECTOR rotatedUp = XMVector4Transform(upVec, rotation);
-
-	static const XMFLOAT4 forward(0.f, 0.f, 1.f, 0.f);
-	XMVECTOR forwardVec = XMLoadFloat4(&forward);
-
-	m_Eye = Vector3ToXMFLOAT3(&p_Position);
-	XMFLOAT4 eye(m_Eye.x, m_Eye.y, m_Eye.z, 1.f);
-	XMVECTOR pos = XMLoadFloat4(&eye);
-
-	XMVECTOR rotForward = XMVector4Transform(forwardVec, rotation);
-	XMVECTOR flatForward = XMVector4Transform(forwardVec, XMMatrixRotationRollPitchYaw(0.f, p_Yaw, 0.f));
-	flatForward.m128_f32[1] = 0.f;
-	pos += flatForward * 15.f;
-
-	//XMFLOAT4X4 view;
-	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, rotForward, rotatedUp)));
+	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));
 }
 
 void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)

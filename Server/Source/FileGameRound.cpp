@@ -83,10 +83,14 @@ void FileGameRound::updateLogic(float p_DeltaTime)
 void FileGameRound::sendUpdates()
 {
 	std::vector<UpdateObjectData> data;
+	std::vector<std::string> extra;
+	std::vector<const char*> extraC;
 
 	for (auto& player : m_Players)
 	{
 		data.push_back(getUpdateData(player));
+		extra.push_back(getExtraData(player));
+		extraC.push_back(extra.back().c_str());
 	}
 
 	for (auto& player : m_Players)
@@ -94,7 +98,7 @@ void FileGameRound::sendUpdates()
 		User::ptr user = player.getUser().lock();
 		if (user)
 		{
-			user->getConnection()->sendUpdateObjects(data.data(), data.size(), nullptr, 0);
+			user->getConnection()->sendUpdateObjects(data.data(), data.size(), extraC.data(), extraC.size());
 		}
 	}
 }
@@ -128,14 +132,14 @@ UpdateObjectData FileGameRound::getUpdateData(const Player& p_Player)
 		throw CommonException("Player missing actor", __LINE__, __FILE__);
 	}
 
-	std::shared_ptr<MovementInterface> movement = actor->getComponent<MovementInterface>(MovementInterface::m_ComponentId).lock();
+	std::shared_ptr<PhysicsInterface> physComp = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
 
 	Vector3 velocity(0.f, 0.f, 0.f);
 	Vector3 rotVelocity(0.f, 0.f, 0.f);
-	if (movement)
+
+	if (physComp)
 	{
-		velocity = movement->getVelocity();
-		rotVelocity = movement->getRotationalVelocity();
+		velocity = physComp->getVelocity();
 	}
 
 	UpdateObjectData data =
@@ -148,4 +152,15 @@ UpdateObjectData FileGameRound::getUpdateData(const Player& p_Player)
 	};
 
 	return data;
+}
+
+std::string FileGameRound::getExtraData(const Player& p_Player)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("ObjectUpdate");
+	printer.PushAttribute("ActorId", p_Player.getActor().lock()->getId());
+	p_Player.getActor().lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock()->serialize(printer);
+	printer.CloseElement();
+
+	return printer.CStr();
 }

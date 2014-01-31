@@ -1,6 +1,7 @@
 #include "ActorFactory.h"
 #include "CommonExceptions.h"
 #include "Components.h"
+#include "HumanAnimationComponent.h"
 #include "XMLHelper.h"
 
 ActorFactory::ActorFactory(unsigned int p_BaseActorId)
@@ -20,6 +21,8 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
 	m_ComponentCreators["Light"] = std::bind(&ActorFactory::createLightComponent, this);
 	m_ComponentCreators["Particle"] = std::bind(&ActorFactory::createParticleComponent, this);
+	m_ComponentCreators["Look"] = std::bind(&ActorFactory::createLookComponent, this);
+	m_ComponentCreators["HumanAnimation"] = std::bind(&ActorFactory::createHumanAnimationComponent, this);
 }
 
 void ActorFactory::setPhysics(IPhysics* p_Physics)
@@ -290,6 +293,10 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.PushAttribute("Length", 0.5f);
 	printer.PushAttribute("Strength", 0.5f);
 	printer.CloseElement();
+	printer.OpenElement("Look");
+	printer.CloseElement();
+	printer.OpenElement("HumanAnimation");
+	printer.CloseElement();
 	printer.CloseElement();
 
 	return printer.CStr();
@@ -534,4 +541,14 @@ ActorComponent::ptr ActorFactory::createParticleComponent()
 	comp->setId(++m_LastParticleComponentId);
 
 	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createLookComponent()
+{
+	return ActorComponent::ptr(new LookComponent);
+}
+
+ActorComponent::ptr ActorFactory::createHumanAnimationComponent()
+{
+	return ActorComponent::ptr(new HumanAnimationComponent);
 }

@@ -256,6 +256,12 @@ void GameRound::handlePackages()
 						{
 							m_Physics->setBodyVelocity(physInt->getBodyHandle(), playerControlData.m_Velocity);
 						}
+						std::shared_ptr<LookInterface> lookInt = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+						if (lookInt)
+						{
+							lookInt->setLookForward(playerControlData.m_Forward);
+							lookInt->setLookUp(playerControlData.m_Up);
+						}
 					}
 				}
 				break;

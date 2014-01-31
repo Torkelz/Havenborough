@@ -121,29 +121,24 @@ void GameScene::onFocus()
 void GameScene::render()
 {
 	m_Graphics->setClearColor(Vector4(0,0,0,1));
-	Vector3 viewRot = m_GameLogic->getPlayerViewRotation();
 	Vector3 playerPos = m_GameLogic->getPlayerEyePosition();
+	Vector3 playerForward = m_GameLogic->getPlayerViewForward();
+	Vector3 playerUp = m_GameLogic->getPlayerViewUp();
 	
 	if (m_UseFlippedCamera)
 	{
-		viewRot.x += PI;
+		playerForward.x *= -1.f;
+		playerForward.z *= -1.f;
+		playerUp.x *= -1.f;
+		playerUp.z *= -1.f;
 	}
 
 	if (m_UseThirdPersonCamera)
 	{
-		// Debug character animation temp stuff START
-		static const XMFLOAT4 offset(0.0f, 0.0f, -500.0f, 0.0f);
-		static const XMVECTOR offsetVector = XMLoadFloat4(&offset);
-		XMMATRIX rotation = XMMatrixRotationRollPitchYaw(viewRot.y, viewRot.x, viewRot.z);
-		XMVECTOR rotOffsetVector = XMVector4Transform(offsetVector, rotation);
-		XMFLOAT3 newPosF;
-		XMStoreFloat3(&newPosF, XMLoadFloat3(&(XMFLOAT3)playerPos) + rotOffsetVector);
-
-		playerPos = newPosF;
-		// Debug character animation temp stuff END
+		playerPos = playerPos + playerForward * -500.f;
 	}
 
-	m_Graphics->updateCamera(playerPos, viewRot.x, viewRot.y);
+	m_Graphics->updateCamera(playerPos, playerForward, playerUp);
 
 	for (auto& mesh : m_Models)
 	{

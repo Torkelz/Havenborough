@@ -20,4 +20,5 @@ private:
 	void playerDisconnected(Player& p_DisconnectedPlayer);
 
 	UpdateObjectData getUpdateData(const Player& p_Player);
+	std::string FileGameRound::getExtraData(const Player& p_Player);
 };

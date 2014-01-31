@@ -117,4 +117,6 @@ private:
 	ActorComponent::ptr createPulseComponent();
 	ActorComponent::ptr createLightComponent();
 	ActorComponent::ptr createParticleComponent();
+	ActorComponent::ptr createLookComponent();
+	ActorComponent::ptr createHumanAnimationComponent();
 };
