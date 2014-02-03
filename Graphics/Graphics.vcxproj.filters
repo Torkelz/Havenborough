@@ -192,5 +192,11 @@
     <FxCompile Include="..\Client\Bin\assets\shaders\ParticleSystem.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\GeoInstanceShader.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\DeferredShaders\SSAO.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

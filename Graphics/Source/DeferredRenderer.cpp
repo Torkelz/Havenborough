@@ -7,8 +7,10 @@
 #include "Utilities/MemoryUtil.h"
 #include <algorithm>	// std::sort
 #include <iterator>     // std::back_inserter
+#include <random>
 
 using std::vector;
+using namespace DirectX;
 
 DeferredRenderer::DeferredRenderer()
 		
@@ -30,6 +32,7 @@ DeferredRenderer::DeferredRenderer()
 	m_NormalSRV = nullptr;
 	m_LightSRV = nullptr;
 	m_wPositionSRV = nullptr;
+	m_SSAO_SRV = nullptr;
 
 	m_Sampler = nullptr;
 	m_PointShader = nullptr;
@@ -87,6 +90,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_RELEASE(m_NormalSRV);
 	SAFE_RELEASE(m_LightSRV);
 	SAFE_RELEASE(m_wPositionSRV);
+	SAFE_RELEASE(m_SSAO_SRV);
 
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_BlendState);
@@ -152,6 +156,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	desc.BindFlags			= D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
 	createRenderTargets(desc);
+
+	createRandomTexture(256);
 
 	createShaderResourceViews(desc);
 
@@ -451,47 +457,30 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 	HRESULT result = S_FALSE;
 
 	//Create the render targets
-	ID3D11Texture2D *srvt0, *srvt1, *srvt2, *srvt3;
-	srvt0 = srvt1 = srvt2 = srvt3 = nullptr;
-
-	result = m_Device->CreateTexture2D(&desc, nullptr, &srvt0);
-	if(FAILED(result))
-		return result;
-	result = m_Device->CreateTexture2D(&desc, nullptr, &srvt1);
-	if(FAILED(result))
-		return result;
-	result = m_Device->CreateTexture2D(&desc, nullptr, &srvt2);
-	if(FAILED(result))
-		return result;
-	result = m_Device->CreateTexture2D(&desc, nullptr, &srvt3);
-	if(FAILED(result))
-		return result;
+	ID3D11Texture2D *srv[m_numRenderTargets];
 
 	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
 	rtDesc.Format = desc.Format;
 	rtDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtDesc.Texture2D.MipSlice = 0;
 
-	result = m_Device->CreateRenderTargetView(srvt0, &rtDesc, &m_RenderTargets[0]);
-	if(FAILED(result))
-		return result;
-	result = m_Device->CreateRenderTargetView(srvt1, &rtDesc, &m_RenderTargets[1]);
-	if(FAILED(result))
-		return result;
-	result = m_Device->CreateRenderTargetView(srvt2, &rtDesc, &m_RenderTargets[2]);
-	if(FAILED(result))
-		return result;
-	result = m_Device->CreateRenderTargetView(srvt3, &rtDesc, &m_RenderTargets[3]);
-	if(FAILED(result))
-		return result;
+	for(int i = 0; i < m_numRenderTargets; i++)
+	{
+		srv[i] = nullptr;
 
-	SAFE_RELEASE(srvt0);
-	SAFE_RELEASE(srvt1);
-	SAFE_RELEASE(srvt2);
-	SAFE_RELEASE(srvt3);
-	// Done with the render targets.
+		result = m_Device->CreateTexture2D(&desc, nullptr, &srv[i]);
+		if(FAILED(result))
+			return result;
 
-	unsigned int size = 4 * VRAMInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
+		result = m_Device->CreateRenderTargetView(srv[i], &rtDesc, &m_RenderTargets[i]);
+		if(FAILED(result))
+			return result;
+
+		SAFE_RELEASE(srv[i]);
+	}
+
+	unsigned int size = m_numRenderTargets * VRAMInfo::getInstance()->calculateFormatUsage(desc.Format,
+		desc.Width, desc.Height);
 	VRAMInfo::getInstance()->updateUsage(size);
 
 	return result;
@@ -536,6 +525,14 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	// Make the final texture from the render target.
 	m_RenderTargets[3]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_LightSRV);
+	SAFE_RELEASE(tt);
+	tt = nullptr;
+	if(FAILED(result))
+		return result;
+
+	// SSAO texture
+	m_RenderTargets[4]->GetResource(&tt);
+	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SSAO_SRV);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
@@ -604,6 +601,9 @@ void DeferredRenderer::clearRenderTargets()
 
 	color[0] = color[1] = color[2] = 0.0f;
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[3], color);
+
+	color[0] = color[1] = color[2] = 0.0f;
+	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[4], color);
 }
 
 void DeferredRenderer::createSamplerState()
@@ -785,6 +785,53 @@ void DeferredRenderer::renderLight(Shader *p_Shader, Buffer* p_ModelBuffer, vect
 			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
 		p_Shader->unSetShader();
 	}
+}
+
+void DeferredRenderer::createRandomTexture(unsigned int p_Size)
+{
+	D3D11_TEXTURE2D_DESC textureDesc;
+	ZeroMemory(&textureDesc, sizeof(D3D11_TEXTURE2D_DESC));
+	
+	textureDesc.Width = textureDesc.Height = p_Size;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+
+	std::default_random_engine randomizer;
+	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+	vector<DirectX::XMFLOAT4> initData;
+	for(unsigned int i = 0; i < p_Size * p_Size; i++)
+	{
+		XMFLOAT4 temp = XMFLOAT4(distribution(randomizer), distribution(randomizer), distribution(randomizer), 0.0f);
+		XMVECTOR tempV = XMLoadFloat4(&temp);
+		tempV = XMVector4Normalize(tempV);
+		XMStoreFloat4(&temp, tempV);
+
+		initData.push_back(temp);
+	}
+
+	ID3D11Texture2D *texture;
+
+	D3D11_SUBRESOURCE_DATA subData;
+	subData.SysMemPitch = sizeof(DirectX::XMFLOAT4) * p_Size;
+	subData.SysMemSlicePitch = subData.SysMemPitch * p_Size;
+	subData.pSysMem = initData.data();
+
+	m_Device->CreateTexture2D(&textureDesc, &subData, &texture);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC dssrvdesc;
+	dssrvdesc.Format = dssrvdesc.Format = textureDesc.Format;
+	dssrvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	dssrvdesc.Texture2D.MipLevels = 1;
+	dssrvdesc.Texture2D.MostDetailedMip = 0;
+
+	m_Device->CreateShaderResourceView(texture, &dssrvdesc, &m_SSAO_SRV);
+
+	SAFE_RELEASE(texture);
 }
 
 void DeferredRenderer::renderObject(Renderable &p_Object)

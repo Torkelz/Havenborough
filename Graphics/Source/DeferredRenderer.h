@@ -24,13 +24,14 @@ private:
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
 	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
-	static const unsigned int	m_numRenderTargets = 4;
+	static const unsigned int	m_numRenderTargets = 5;
 	ID3D11RenderTargetView		*m_RenderTargets[m_numRenderTargets];
 
 	ID3D11ShaderResourceView	*m_DiffuseSRV;
 	ID3D11ShaderResourceView	*m_NormalSRV;
 	ID3D11ShaderResourceView	*m_LightSRV;
 	ID3D11ShaderResourceView	*m_wPositionSRV;
+	ID3D11ShaderResourceView	*m_SSAO_SRV;
 
 	ID3D11SamplerState			*m_Sampler;
 	ID3D11BlendState			*m_BlendState;
@@ -146,6 +147,7 @@ private:
 	void createLightShaders();
 	void loadLightModels();
 	void createLightStates(); //Rasterize and depth state
+	void createRandomTexture(unsigned int p_Size);
 
 	void renderObject(Renderable &p_Object);
 };
