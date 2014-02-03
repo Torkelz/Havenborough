@@ -4,7 +4,7 @@
 
 ParticleInstance::ParticleInstance()
 {
-	m_SysPosition			= DirectX::XMFLOAT4(0.f, 100.f, 0.f, 0.f);
+	m_SysPosition			= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); // change pos in the "GameLogic.cpp - LoadSandBox()" createParticles
 
 	m_AccumulatedTime		= 0.f;
 }
@@ -48,7 +48,7 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 	//Update the position of every particle in the system by its velocity and based on the delta time
 	for(auto& part : m_ParticleList)
 	{
-		part.velocity.y += 98.f * p_DeltaTime;
+		part.velocity.y += 40.f * p_DeltaTime;
 
 		part.shaderData.position = DirectX::XMFLOAT3(
 			(part.shaderData.position.x + part.velocity.x * p_DeltaTime),
@@ -61,7 +61,7 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 void ParticleInstance::emitNewParticles(float p_DeltaTime)
 {
 	DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3(m_SysPosition.x, m_SysPosition.y, m_SysPosition.z);
-	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 0.5f);
+	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(0.8f, 0.15f, 0.0f, 0.3f);
 
 	bool emitParticle = false;
 	m_AccumulatedTime += p_DeltaTime;

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "VolumeIncludeAll.h"
 #include "..\include\PhysicsTypes.h"
 

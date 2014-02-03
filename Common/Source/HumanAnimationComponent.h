@@ -56,6 +56,7 @@ public:
 	{
 		m_Model = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId);
 		m_EventManager = m_Owner->getEventManager();
+		playAnimation("Idle", false);
 	}
 
 	void onUpdate(float p_DeltaTime) override
@@ -83,21 +84,21 @@ public:
 		}
 		XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
 
-		tempVector = Vector3(0.f, 0.f, 0.f);
+		//tempVector = Vector3(0.f, 0.f, 0.f);
 		std::shared_ptr<LookInterface> lookComp = m_Owner->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
-		if (lookComp)
-		{
-			tempVector = lookComp->getLookForward();
-			tempVector.y = 0.f;
-		}
-		XMVECTOR look = Vector3ToXMVECTOR(&tempVector, 0.0f);
+		//if (lookComp)
+		//{
+		//	tempVector = lookComp->getLookForward();
+		//	tempVector.y = 0.f;
+		//}
+		XMVECTOR look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 		XMMATRIX rotationInverse = XMMatrixTranspose(XMLoadFloat4x4(&lookComp->getRotationMatrix()));
 		velocity = XMVector3Transform(velocity, rotationInverse);
 		if (!isInAir)
 		{
 			// Calculate the weight on the strafe track with some trigonometry.
-			//float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-			//changeAnimationWeight(2, cosf(angle));
+			float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
+			changeAnimationWeight(2, cosf(angle)); // Think again. Negative weights are not allowed.
 
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
@@ -151,6 +152,37 @@ public:
 					break;
 				}
 			}
+			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
+			if (physComp->hasLanded()) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
+			{
+				if(m_FallSpeed >= 1000.0f)
+				{
+					currentJumpState = JumpAnimationState::HARD_LANDING;
+				}
+				else
+				{
+					if(m_FallSpeed > 0.0f)
+						currentJumpState = JumpAnimationState::LIGHT_LANDING;
+				}
+				m_FallSpeed = 0.0f;
+			}
+
+			if (currentJumpState != m_PrevJumpState)
+			{
+				switch (currentJumpState)
+				{
+				case JumpAnimationState::HARD_LANDING:
+					playAnimation("HardLanding", false);
+					queueAnimation("Idle");
+					break;
+				case JumpAnimationState::LIGHT_LANDING:
+					playAnimation("NormalLanding", false);
+					queueAnimation("Idle");
+					break;
+				default: // Just in case, so that the code doesn't break, hohohoho
+					break;
+				}
+			}
 
 			m_PrevForwardState = currentForwardState;
 			m_PrevSideState = currentSideState;
@@ -175,9 +207,8 @@ public:
 			{
 				m_FallSpeed = XMVectorGetY(velocity);
 			}
-
-			//if (XMVectorGetY(velocity) < flyLimit && XMVectorGetY(velocity) > -flyLimit && 
-			//	m_PrevJumpState != JumpAnimationState::JUMP) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
+			
+			//if (physComp->hasLanded()) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
 			//{
 			//	if(m_FallSpeed >= 200.0f)
 			//	{
@@ -187,6 +218,7 @@ public:
 			//	{
 			//		currentJumpState = JumpAnimationState::LIGHT_LANDING;
 			//	}
+			//		m_FallSpeed = 0.0f;
 			//}
 
 			if (currentJumpState != m_PrevJumpState)
@@ -232,7 +264,7 @@ public:
 					//playAnimation(temp, "Falling", false);
 					break;
 
-				default: // Just in case so that the code doesn't break, hohohoho
+				default: // Just in case, so that the code doesn't break, hohohoho
 					break;
 				}
 			}
@@ -258,6 +290,15 @@ public:
 		if (comp)
 		{
 			m_EventManager->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
+		}
+	}
+
+	void changeAnimationWeight(int p_Track, float p_Weight)
+	{
+		std::shared_ptr<ModelComponent> comp = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+		if (comp)
+		{
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
 		}
 	}
 };

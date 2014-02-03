@@ -797,7 +797,7 @@ void GameLogic::loadSandbox()
 
 	//addLights();
 
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 100.f, 0.f), "TestParticle"));
+	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
 }
 
 void GameLogic::updateSandbox(float p_DeltaTime)

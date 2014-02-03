@@ -1,5 +1,5 @@
 #include "Physics.h"
-
+#include "Collision.h"
 #include "PhysicsLogger.h"
 
 using namespace DirectX;
@@ -66,12 +66,10 @@ void Physics::update(float p_DeltaTime)
 		}
 		else
 		{
-			b.setGravity(0.f);
+			//b.setGravity(0.f);
 		}
 
 		b.update(p_DeltaTime);
-
-		bool onSomething = false;
 
 		for (unsigned j = 0; j < m_Bodies.size(); j++)
 		{
@@ -92,14 +90,19 @@ void Physics::update(float p_DeltaTime)
 					XMVECTOR temp;		// m
 					XMFLOAT4 tempPos;	// m
 
-					temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m
+					temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
 					XMStoreFloat4(&tempPos, temp);
 
 					b.setPosition(tempPos);
 
 					if (hit.colNorm.y > 0.68f)
 					{
-						onSomething = true;
+						if(!b.getOnSomething())
+						{
+							b.setLanded(true);
+						}
+						b.setOnSomething(true);
+						b.setLastCollision(hit.collisionVictim);
 
 						XMFLOAT4 velocity = b.getVelocity();	// m/s
 						velocity.y = 0.f;
@@ -107,9 +110,15 @@ void Physics::update(float p_DeltaTime)
 					}
 				}
 			}
+
+			if(b.getVelocity().y > 1.f)
+			{
+				b.setOnSomething(false);
+				b.setLanded(false);
+			}
 		}
 
-		b.setInAir(!onSomething);
+		b.setInAir(!b.getOnSomething());
 	}
 }
 
@@ -347,6 +356,30 @@ void Physics::removeHitDataAt(unsigned int p_index)
 }
 
 unsigned int Physics::getHitDataSize()
+{
+	return m_HitDatas.size();
+}
+
+bool Physics::getBodyOnSomethingAt(unsigned int p_Index)
+{
+	return true;
+}
+
+bool Physics::getBodyLanded(BodyHandle p_Body)
+{
+	Body *body = findBody(p_Body);
+	if(!body)
+		return false;
+
+	return body->getLanded();
+}
+
+void Physics::removeBodyOnSomethingAt(unsigned int p_index)
+{
+	//m_HitDatas.erase(m_HitDatas.begin() + p_index);
+}
+
+unsigned int Physics::getBodyOnSomethingSize()
 {
 	return m_HitDatas.size();
 }

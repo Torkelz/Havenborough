@@ -33,14 +33,14 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 	particleSystem->diffuseTexture = loadTexture(p_Filename, "Particle1.dds");
 	particleSystem->textureResourceName = "Particle1.dds";
 	particleSystem->sampler = m_Sampler;
-	particleSystem->maxParticles = 600;
-	particleSystem->particlesPerSec = 200;
+	particleSystem->maxParticles = 900;
+	particleSystem->particlesPerSec = 300;
 	particleSystem->maxLife = 3.f;
-	particleSystem->size = DirectX::XMFLOAT2(10.f, 10.f);
+	particleSystem->size = DirectX::XMFLOAT2(8.f, 8.f);
 	particleSystem->particleSystemName = "fire";
 	particleSystem->particlePositionDeviation = 10.f;
 	particleSystem->velocityDeviation = 40.f;
-	particleSystem->particleColorDeviation = DirectX::XMFLOAT4(0.5f, 0.7f, 0.3f, 0.9f);
+	particleSystem->particleColorDeviation = DirectX::XMFLOAT4(0.2f, 0.15f, 0.0f, 0.2f);
 
 	return particleSystem;
 }

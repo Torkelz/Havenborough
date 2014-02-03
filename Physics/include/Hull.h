@@ -1,11 +1,8 @@
 #pragma once
-
-#include "BoundingVolume.h"
 #include "Sphere.h"
 #include "PhysicsTypes.h"
 #include <DirectXMath.h>
 #include <vector>
-#include <utility> 
 
 class Hull : public BoundingVolume
 {

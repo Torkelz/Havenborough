@@ -192,7 +192,4 @@ public:
 private:
 	void jump(float dt);
 	void move(void);
-	void playAnimation(std::string p_AnimationName, bool p_Override);
-	void queueAnimation(std::string p_AnimationName);
-	void changeAnimationWeight(int p_Track, float p_Weight);
 };

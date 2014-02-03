@@ -48,7 +48,13 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 {
 	HRESULT result = S_FALSE;
 
-	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+	DWORD shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG | D3DCOMPILE_IEEE_STRICTNESS;
+
+#ifdef _DEBUG
+	shaderFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL0;
+#else
+	shaderFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#endif
 	ID3DBlob *errorMessage = nullptr;
 	ID3DBlob *shaderData = nullptr;
 
