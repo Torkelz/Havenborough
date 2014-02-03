@@ -8,9 +8,9 @@ private:
 
 	struct Plane
 	{
-		DirectX::XMFLOAT4 normal;
-		float	d;
-
+		DirectX::XMFLOAT4 normal; //Plane normal
+		float	d; //d = dot(n, p) for given point p on plane
+		
 		/**
 		 * Given three noncollinear points (ordered counter clockwise),
 		 * to compute a plane in world coordinates.
@@ -20,13 +20,13 @@ private:
 		 * @param p_C, third point.
 		 * @return return the plane that is created.
 		 */
-		Plane ComputePlane(const DirectX::XMVECTOR &p_A, const DirectX::XMVECTOR &p_B, const DirectX::XMVECTOR &p_C)
+		Plane ComputePlane(DirectX::XMVECTOR const &p_A, DirectX::XMVECTOR const &p_B, DirectX::XMVECTOR const &p_C)
 		{
 			Plane p;
 			using DirectX::operator-;
-			DirectX::XMStoreFloat4(&p.normal, DirectX::XMVector4Normalize( DirectX::XMVector3Cross(p_B - p_A, p_C - p_A) ));
+			DirectX::XMStoreFloat4(&p.normal, DirectX::XMVector3Normalize( DirectX::XMVector3Cross(p_B - p_A, p_C - p_A) ));
 
-			p.d = DirectX::XMVectorGetX(DirectX::XMVector4Dot(DirectX::XMLoadFloat4(&p.normal), p_A ));
+			p.d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMLoadFloat4(&p.normal), p_A ));
 
 			return p;
 		}
@@ -102,7 +102,7 @@ public:
 	 * Uses seperating axis test to check for collision
 	 * @return HitData, see HitData definition.
 	 */
-	static HitData OBBVsHull(AABB const &p_OBB, Hull const &p_Hull);
+	static HitData OBBVsHull(OBB const &p_OBB, Hull const &p_Hull);
 	/**
 	* Triangle versus Sphere collision test
 	* @return HitData, see HitData definition.

@@ -173,7 +173,7 @@ Actor::ptr ActorFactory::createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize
 void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Halfsize)
 {
 	p_Printer.OpenElement("AABBPhysics");
-	p_Printer.PushAttribute("Edge", true);
+	p_Printer.PushAttribute("IsEdge", true);
 	pushVector(p_Printer, "Halfsize", p_Halfsize);
 	pushVector(p_Printer, "OffsetPosition", p_Position);
 	p_Printer.CloseElement();
@@ -283,7 +283,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "WITCH");
 	printer.CloseElement();
-	printer.OpenElement("AABBPhysics");
+	printer.OpenElement("OBBPhysics");
 	printer.PushAttribute("Immovable", false);
 	printer.PushAttribute("Mass", 68.f);
 	pushVector(printer, "Halfsize", Vector3(50.f, 50.f, 50.f));
