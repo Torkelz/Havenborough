@@ -8,9 +8,6 @@
 struct Particle
 {
 public:
-
-	
-
 	ShaderParticle shaderData; //ShaderStruct to define a particle; Position, Color
 	DirectX::XMFLOAT4 velocity; //the velocity of a particle, in cm
 	DirectX::XMFLOAT2 size; //The size of a particle from edge to edge
@@ -58,17 +55,17 @@ public:
 	ID3D11SamplerState* sampler;
 
 	/**
-	 * 
+	 * An identifier to the diffuse texture 
 	 */
 	std::string textureResourceName;
 
 	/**
-	 * 
+	 * How many particles the effect can have active at the same time.
 	 */
 	unsigned int maxParticles;
 	
 	/**
-	 * 
+	 * How many particle the effect can create on a second.
 	 */
 	unsigned int particlesPerSec;
 	
