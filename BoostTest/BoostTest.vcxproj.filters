@@ -249,6 +249,9 @@
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\Animation.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
