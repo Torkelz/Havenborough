@@ -194,9 +194,6 @@
     <ClCompile Include="..\Physics\Source\BVLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
-    <ClCompile Include="TestBVLoader.cpp">
-      <Filter>TestLoaders</Filter>
-    </ClCompile>
     <ClCompile Include="OBBTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>

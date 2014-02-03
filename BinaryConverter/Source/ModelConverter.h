@@ -171,7 +171,8 @@ protected:
 	void intToByte(int p_Int, std::ostream* p_Output);
 	void stringToByte(std::string p_String, std::ostream* p_Output);
 
-	void createHeader(std::ostream* p_Output, std::ostream* p_AnimationOutput);
+	void createHeader(std::ostream* p_Output);
+	void createAnimationHeader(std::ostream* p_AnimationOutput);
 	void createMaterial(std::ostream* p_Output);
 	void createMaterialBuffer(std::ostream* p_Output);
 	void createVertexBuffer(std::ostream* p_Output);
