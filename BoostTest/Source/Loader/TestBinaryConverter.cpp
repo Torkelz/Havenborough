@@ -17,7 +17,7 @@ public:
 
 	void testCreateHeader(std::ostream* p_Output)
 	{
-		createHeader(p_Output);
+		createHeader(p_Output,p_Output);
 	}
 
 	void testCreateMaterial(std::ostream* p_Output)

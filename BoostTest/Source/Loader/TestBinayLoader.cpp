@@ -40,10 +40,10 @@ public:
 		return readVertexBufferAnimation(p_NumberOfVertex, p_Input);
 	}
 
-	std::vector<Joint> testReadJoint(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input)
-	{
-		return readJointList(p_NumberOfJoint, p_NumberOfFrames, p_Input);
-	}
+	//std::vector<Joint> testReadJoint(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input)
+	//{
+	//	return readJointList(p_NumberOfJoint, p_NumberOfFrames, p_Input);
+	//}
 };
 
 BOOST_AUTO_TEST_CASE(TestByteToInt)
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(TestReadHeader)
 	BOOST_CHECK_EQUAL(tempHeader.m_numVertex, 2);
 	BOOST_CHECK_EQUAL(tempHeader.m_numMaterialBuffer, 1);
 	BOOST_CHECK_EQUAL(tempHeader.m_numJoints, 1);
-	BOOST_CHECK_EQUAL(tempHeader.m_numFrames, 3);
+//	BOOST_CHECK_EQUAL(tempHeader.m_numFrames, 3);
 }
 
 BOOST_AUTO_TEST_CASE(TestReadMaterial)
@@ -201,33 +201,33 @@ BOOST_AUTO_TEST_CASE(TestReadVertexBufferAnimation)
 	BOOST_CHECK_EQUAL(tempVertex.at(0).m_Weights.x, 0.9375f);
 }
 
-BOOST_AUTO_TEST_CASE(TestReadJoint)
-{
-	char tempS[] = 
-		"\x11\0\0\0polySurfaceShape1"
-		"\x01\0\0\0"
-		"\x00\0\0\0"
-		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
-		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
-		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
-		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
-		"\0\0pA\0\0pA\0\0pA"
-		"\0\0pA\0\0pA\0\0pA\0\0pA"
-		"\0\0pA\0\0pA\0\0pA";
-
-	std::istringstream tempString(std::string(tempS, tempS + sizeof(tempS)));
-	testBinaryLoader loader;
-	std::vector<Joint> tempJoint;
-
-	tempJoint= loader.testReadJoint(1,1 ,&tempString);
-
-	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointName, "polySurfaceShape1");
-	BOOST_CHECK_EQUAL(tempJoint.at(0).m_ID, 1);
-	BOOST_CHECK_EQUAL(tempJoint.at(0).m_Parent, 0);
-	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointOffsetMatrix._11, 0.5f);
-	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointOffsetMatrix._44, 0.5f);
-	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointAnimation.at(0).m_Trans.x, 15.0f);
-	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointAnimation.at(0).m_Scale.x, 15.0f);
-}
+//BOOST_AUTO_TEST_CASE(TestReadJoint)
+//{
+//	char tempS[] = 
+//		"\x11\0\0\0polySurfaceShape1"
+//		"\x01\0\0\0"
+//		"\x00\0\0\0"
+//		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
+//		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
+//		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
+//		"\0\0\0?\0\0\0?\0\0\0?\0\0\0?"
+//		"\0\0pA\0\0pA\0\0pA"
+//		"\0\0pA\0\0pA\0\0pA\0\0pA"
+//		"\0\0pA\0\0pA\0\0pA";
+//
+//	std::istringstream tempString(std::string(tempS, tempS + sizeof(tempS)));
+//	testBinaryLoader loader;
+//	std::vector<Joint> tempJoint;
+//
+//	tempJoint= loader.testReadJoint(1,1 ,&tempString);
+//
+//	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointName, "polySurfaceShape1");
+//	BOOST_CHECK_EQUAL(tempJoint.at(0).m_ID, 1);
+//	BOOST_CHECK_EQUAL(tempJoint.at(0).m_Parent, 0);
+//	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointOffsetMatrix._11, 0.5f);
+//	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointOffsetMatrix._44, 0.5f);
+//	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointAnimation.at(0).m_Trans.x, 15.0f);
+//	BOOST_CHECK_EQUAL(tempJoint.at(0).m_JointAnimation.at(0).m_Scale.x, 15.0f);
+//}
 
 BOOST_AUTO_TEST_SUITE_END()
