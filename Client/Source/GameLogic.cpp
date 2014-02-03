@@ -94,10 +94,8 @@ void GameLogic::onFrame(float p_DeltaTime)
 	}
 	if(!m_Player.getForceMove())
 	{
-		m_Physics->update(p_DeltaTime*0.25f);
-		m_Physics->update(p_DeltaTime*0.25f);
-		m_Physics->update(p_DeltaTime*0.25f);
-		m_Physics->update(p_DeltaTime*0.25f);
+		m_Physics->update(p_DeltaTime*0.5f);
+		m_Physics->update(p_DeltaTime*0.5f);
 	}
 
 	Vector3 actualViewRot = getPlayerViewRotation();

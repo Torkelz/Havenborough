@@ -304,7 +304,7 @@ public:
 		}
 
 		m_IsEdge = false;
-		p_Data->QueryBoolAttribute("Edge", &m_IsEdge);
+		p_Data->QueryBoolAttribute("IsEdge", &m_IsEdge);
 		m_RespondToCollision = true;
 		p_Data->QueryBoolAttribute("CollisionResponse", &m_RespondToCollision);
 		m_Mass = 0.f;
@@ -323,7 +323,7 @@ public:
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("AABBPhysics");
-		p_Printer.PushAttribute("Edge", m_IsEdge);
+		p_Printer.PushAttribute("IsEdge", m_IsEdge);
 		p_Printer.PushAttribute("Immovable", m_Immovable);
 		p_Printer.PushAttribute("Mass", m_Mass);
 		p_Printer.PushAttribute("CollisionResponse", m_RespondToCollision);
