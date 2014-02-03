@@ -1,4 +1,5 @@
 #include "BaseGameApp.h"
+
 #include "Logger.h"
 
 #include <sstream>
@@ -41,6 +42,8 @@ void BaseGameApp::init()
 	m_Physics->setLogFunction(&Logger::logRaw);
 	m_Physics->initialize();
 
+	m_AnimationLoader.reset(new AnimationLoader);
+
 	m_ResourceManager.reset(new ResourceManager());
 	
 	m_Sound = ISound::createSound();
@@ -51,16 +54,23 @@ void BaseGameApp::init()
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager.get());
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager.get());
 
-	m_ResourceManager->registerFunction("model", std::bind(&IGraphics::createModel, m_Graphics, _1, _2),
+	m_ResourceManager->registerFunction("model",
+		std::bind(&IGraphics::createModel, m_Graphics, _1, _2),
 		std::bind(&IGraphics::releaseModel, m_Graphics, _1) );
 	m_ResourceManager->registerFunction("texture", std::bind(&IGraphics::createTexture, m_Graphics, _1, _2),
 		std::bind(&IGraphics::releaseTexture, m_Graphics, _1));
-	m_ResourceManager->registerFunction("volume", std::bind(&IPhysics::createBV, m_Physics, _1, _2),
+	m_ResourceManager->registerFunction("volume",
+		std::bind(&IPhysics::createBV, m_Physics, _1, _2),
 		std::bind(&IPhysics::releaseBV, m_Physics, _1));
-	m_ResourceManager->registerFunction("sound", std::bind(&ISound::loadSound, m_Sound, _1, _2),
+	m_ResourceManager->registerFunction("sound",
+		std::bind(&ISound::loadSound, m_Sound, _1, _2),
 		std::bind(&ISound::releaseSound, m_Sound, _1));
-	m_ResourceManager->registerFunction("particleSystem", std::bind(&IGraphics::createParticleEffectDefinition, m_Graphics, _1, _2),
+	m_ResourceManager->registerFunction("particleSystem",
+		std::bind(&IGraphics::createParticleEffectDefinition, m_Graphics, _1, _2),
 		std::bind(&IGraphics::releaseParticleEffectDefinition, m_Graphics, _1));
+	m_ResourceManager->registerFunction("animation",
+		std::bind(&AnimationLoader::loadAnimationDataResource, m_AnimationLoader.get(), _1, _2),
+		std::bind(&AnimationLoader::releaseAnimationData, m_AnimationLoader.get(), _1));
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
@@ -172,6 +182,8 @@ void BaseGameApp::shutdown()
 	m_Network = nullptr;
 	
 	m_SceneManager.destroy();
+
+	m_AnimationLoader.reset();
 
 	m_ResourceManager.reset();
 

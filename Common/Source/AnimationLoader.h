@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Joint.h>
+#include "AnimationData.h"
+#include "Joint.h"
+
 #include <fstream>
 #include <vector>
 #include <string>
@@ -16,6 +18,16 @@ class AnimationLoader
 	
 	std::vector<Joint> m_Joints;
 	Header m_FileHeader;
+
+	struct LoadedAnimationData
+	{
+		std::string resourceName;
+		std::string filename;
+		AnimationData::ptr animationData;
+	};
+
+	std::vector<LoadedAnimationData> m_LoadedAnimations;
+
 public:
 	/**
 	 * Constructor.
@@ -41,6 +53,9 @@ public:
 	const std::vector<Joint>& getJoints();
 
 	void loadAnimationData(std::string p_FilePath);
+
+	bool loadAnimationDataResource(const char* p_resourceName, const char* p_FilePath);
+	bool releaseAnimationData(const char* p_FilePath);
 
 protected:
 	void byteToInt(std::istream* p_Input, int& p_Return);

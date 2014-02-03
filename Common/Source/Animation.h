@@ -1,6 +1,7 @@
 #pragma once
 #include "Joint.h"
 #include "AnimationClip.h"
+#include "AnimationData.h"
 
 #include <DirectXMath.h>
 #include <vector>
@@ -42,6 +43,8 @@ private:
 	 */
 	AnimationTrack m_Tracks[6];
 	std::vector<AnimationClip> m_Queue;
+	AnimationData::ptr m_Data;
+
 public:
 	/**
 	 * constructor.
@@ -58,7 +61,7 @@ public:
 	 * @param p_DeltaTime the time since the previous frame.
 	 * @param p_Joints the skeleton to be used for the animation.
 	 */
-	void updateAnimation(float p_DeltaTime, const std::vector<Joint>& p_Joints);
+	void updateAnimation(float p_DeltaTime);
 	/**
 	 * Get the final transformations for the models joints.
 	 *
@@ -74,8 +77,7 @@ public:
 	 * @param p_Position the position in world space to reach for.
 	 * @param p_Joints the skeleton used for the model.
 	 */
-	void applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOAT3& p_Position,
-		const std::vector<Joint>& p_Joints, DirectX::XMFLOAT4X4 p_WorldMatrix);
+	void applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOAT3& p_Position, DirectX::XMFLOAT4X4 p_WorldMatrix);
 	
 	/**
 	 * Get the position of a joint.
@@ -83,8 +85,7 @@ public:
 	 * @param p_JointName the name of an existing joint.
 	 * @param p_Joints the joints associated with the model instance.
 	 */
-	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName, const std::vector<Joint>& p_Joints,
-		DirectX::XMFLOAT4X4 p_WorldMatrix);
+	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName, DirectX::XMFLOAT4X4 p_WorldMatrix);
 
 	/**
 	 * Play an animation clip.
@@ -107,9 +108,12 @@ public:
 	 * NOTE: Can only be used on track pairs.
 	 */
 	void changeWeight(int p_MainTrack, float p_Weight );
+
+	void setAnimationData(AnimationData::ptr p_Data);
+
 private:
-	void updateFinalTransforms(const std::vector<Joint>& p_Joints);
-	bool affected(const std::vector<Joint>& p_Joints, int p_ID, std::string p_FirstAffectedJoint);
+	void updateFinalTransforms();
+	bool affected(int p_ID, std::string p_FirstAffectedJoint);
 	bool playQueuedClip(int p_Track);
 	void checkFades();
 	void updateTimeStamp(float p_DeltaTime);

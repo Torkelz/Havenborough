@@ -21,8 +21,10 @@ Animation::Animation()
 
 Animation::~Animation() {}
 
-void Animation::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Joints)
+void Animation::updateAnimation(float p_DeltaTime)
 {
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	// Update time stamp in the direction of the animation speed per track.
 	updateTimeStamp(p_DeltaTime);
 
@@ -54,7 +56,7 @@ void Animation::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Joints
 			{
 				if (currentTrack > 3)
 				{
-					if (affected(p_Joints, i, m_Tracks[currentTrack].clip.m_FirstJoint))
+					if (affected(i, m_Tracks[currentTrack].clip.m_FirstJoint))
 					{
 						toParentData = updateKeyFrameInformation(p_Joints[i], currentTrack, toParentData);
 					}
@@ -74,7 +76,7 @@ void Animation::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Joints
 		XMStoreFloat4x4(&m_LocalTransforms[i], toParent);
 	}
 
-	updateFinalTransforms(p_Joints);
+	updateFinalTransforms();
 }
 
 MatrixDecomposed Animation::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack,
@@ -216,14 +218,16 @@ void Animation::updateTimeStamp(float p_DeltaTime)
 	}
 }
 
-bool Animation::affected(const vector<Joint>& p_Joints, int p_ID, string p_FirstAffectedJoint)
+bool Animation::affected(int p_ID, string p_FirstAffectedJoint)
 {
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	// FirstAffectedJode = FAJ
 	if (p_Joints[p_ID].m_JointName == p_FirstAffectedJoint) // The FAJ has been found.
 		return true;
 	else if(p_ID == 0) // The root joint has been reached and the FAJ has not been found.
 		return false;
-	else return affected(p_Joints, p_Joints.at(p_ID).m_Parent - 1, p_FirstAffectedJoint); // Neither the root nor the FAJ has been found yet, keep looking.
+	else return affected(p_Joints.at(p_ID).m_Parent - 1, p_FirstAffectedJoint); // Neither the root nor the FAJ has been found yet, keep looking.
 }
 
 const vector<DirectX::XMFLOAT4X4>& Animation::getFinalTransform() const
@@ -231,9 +235,10 @@ const vector<DirectX::XMFLOAT4X4>& Animation::getFinalTransform() const
 	return m_FinalTransform;
 }
 
-void Animation::applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOAT3& p_Position,
-		const std::vector<Joint>& p_Joints, XMFLOAT4X4 p_WorldMatrix)
+void Animation::applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOAT3& p_Position, XMFLOAT4X4 p_WorldMatrix)
 {
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	XMFLOAT4 targetData(p_Position.x, p_Position.y, p_Position.z, 1.f);
 	XMVECTOR target = XMLoadFloat4(&targetData);
 
@@ -383,11 +388,13 @@ void Animation::applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOA
 		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
 
 	// Update the resulting child transformations
-	updateFinalTransforms(p_Joints);
+	updateFinalTransforms();
 }
 
-DirectX::XMFLOAT3 Animation::getJointPos(const string& p_JointName, const vector<Joint>& p_Joints, XMFLOAT4X4 p_WorldMatrix)
+DirectX::XMFLOAT3 Animation::getJointPos(const string& p_JointName, XMFLOAT4X4 p_WorldMatrix)
 {
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	for (const auto& joint : p_Joints)
 	{
 		if (joint.m_JointName == p_JointName)
@@ -412,8 +419,10 @@ DirectX::XMFLOAT3 Animation::getJointPos(const string& p_JointName, const vector
 	throw InvalidArgument("Joint does not exist: '" + p_JointName + "'", __LINE__, __FILE__);
 }
 
-void Animation::updateFinalTransforms(const vector<Joint>& p_Joints)
+void Animation::updateFinalTransforms()
 {
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	const unsigned int numBones = p_Joints.size();
 
 	vector<XMFLOAT4X4> toRootTransforms(numBones);
@@ -537,4 +546,9 @@ void Animation::changeWeight(int p_Track, float p_Weight)
 {
 	if(p_Track > 0 && p_Track < 6)	
 		m_Tracks[p_Track].dynamicWeight = m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
+}
+
+void Animation::setAnimationData(AnimationData::ptr p_Data)
+{
+	m_Data = p_Data;
 }

@@ -1,5 +1,6 @@
 #include "AnimationLoader.h"
 
+#include <algorithm>
 
 AnimationLoader::AnimationLoader(void)
 {
@@ -69,6 +70,35 @@ void AnimationLoader::loadAnimationData(std::string p_FilePath)
 	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
 	m_FileHeader = readHeader(&input);
 	m_Joints = readJointList(m_FileHeader.m_numJoints, m_FileHeader.m_numFrames, &input);
+}
+
+bool AnimationLoader::loadAnimationDataResource(const char* p_ResourceName, const char* p_FilePath)
+{
+	AnimationData::ptr data(new AnimationData);
+	loadAnimationData(p_FilePath);
+	data->joints = getJoints();
+
+	LoadedAnimationData loadedData;
+	loadedData.animationData = data;
+	loadedData.filename = p_FilePath;
+	loadedData.resourceName = p_ResourceName;
+
+	m_LoadedAnimations.push_back(loadedData);
+
+	return true;
+}
+
+bool AnimationLoader::releaseAnimationData(const char* p_ResourceName)
+{
+	auto it = std::remove_if(m_LoadedAnimations.begin(), m_LoadedAnimations.end(),
+		[p_ResourceName] (const LoadedAnimationData& p_Data)
+	{
+		return p_Data.resourceName == p_ResourceName;
+	});
+
+	m_LoadedAnimations.erase(it, m_LoadedAnimations.end());
+
+	return true;
 }
 
 const std::vector<Joint>& AnimationLoader::getJoints()

@@ -1,6 +1,7 @@
 #pragma once
 #include "Joint.h"
 #include "AnimationClip.h"
+#include "AnimationData.h"
 #include "Buffer.h"
 #include "Shader.h"
 
@@ -54,7 +55,7 @@ public:
 	/**
 	 * The animation joints of the model. Contains all static animation data.
 	 */
-	std::vector<Joint> joints;
+	AnimationData::ptr animationData;
 
 	/**
 	 * The animation clips. Address them via a name. E.g. "Walk", "Run", "Laugh"...
@@ -90,7 +91,7 @@ public:
 			numOfMaterials(p_Other.numOfMaterials),
 			isAnimated(p_Other.isAnimated),
 			isTransparent(p_Other.isTransparent),
-			joints(std::move(p_Other.joints)),
+			animationData(std::move(p_Other.animationData)),
 			animationClips(std::move(p_Other.animationClips)),
 			ikGroups(std::move(p_Other.ikGroups))
 	{}
@@ -109,7 +110,7 @@ public:
 		std::swap(numOfMaterials, p_Other.numOfMaterials);
 		std::swap(isAnimated, p_Other.isAnimated);
 		std::swap(isTransparent, p_Other.isTransparent);
-		std::swap(joints, p_Other.joints);
+		std::swap(animationData, p_Other.animationData);
 		std::swap(animationClips, p_Other.animationClips);
 		std::swap(ikGroups, p_Other.ikGroups);
 

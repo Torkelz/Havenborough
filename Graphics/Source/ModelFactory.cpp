@@ -65,7 +65,9 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 
 		AnimationLoader animationLoader;
 		animationLoader.loadAnimationData(atxPath.string());
-		model.joints = animationLoader.getJoints();
+		AnimationData::ptr animationData(new AnimationData);
+		animationData->joints = animationLoader.getJoints();
+		model.animationData = animationData;
 
 		MattiasLucaseXtremeLoader tempLoader = MattiasLucaseXtremeLoader();
 

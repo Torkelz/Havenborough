@@ -14,6 +14,7 @@
     <ClInclude Include="3rd party\tinyxml2\tinyxml2.h" />
     <ClInclude Include="Source\Animation.h" />
     <ClInclude Include="Source\AnimationClip.h" />
+    <ClInclude Include="Source\AnimationData.h" />
     <ClInclude Include="Source\AnimationLoader.h" />
     <ClInclude Include="Source\Actor.h" />
     <ClInclude Include="Source\ActorComponent.h" />
@@ -40,6 +41,7 @@
   <ItemGroup>
     <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="Source\Animation.cpp" />
+    <ClCompile Include="Source\AnimationData.cpp" />
     <ClCompile Include="Source\AnimationLoader.cpp" />
     <ClCompile Include="Source\Actor.cpp" />
     <ClCompile Include="Source\ActorFactory.cpp" />

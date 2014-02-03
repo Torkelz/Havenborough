@@ -691,7 +691,7 @@ void Graphics::updateAnimations(float p_DeltaTime)
 		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
 		if (modelDef->isAnimated)
 		{
-			model.second.m_Animation.updateAnimation(p_DeltaTime, modelDef->joints);
+			model.second.m_Animation.updateAnimation(p_DeltaTime);
 			const std::vector<XMFLOAT4X4>& animationData = model.second.m_Animation.getFinalTransform();
 			animationPose(model.first, animationData.data(), animationData.size());
 		}
@@ -784,12 +784,13 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 			string(p_ModelId));
 		return -1;
 	}
-	
+
 	ModelInstance instance;
 	instance.setModelName(p_ModelId);
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
+	instance.m_Animation.setAnimationData(modelDef->animationData);
 	int id = m_NextInstanceId++;
 
 	m_ModelInstances.push_back(make_pair(id, instance));
@@ -886,7 +887,7 @@ void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_IKGroupNa
 				tempStr = "default";
 			}
 
-			inst.second.m_Animation.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, modelDef->joints, inst.second.getWorldMatrix());
+			inst.second.m_Animation.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, inst.second.getWorldMatrix());
 			const std::vector<XMFLOAT4X4>& animationData = inst.second.m_Animation.getFinalTransform();
 			animationPose(p_Instance, animationData.data(), animationData.size());
 			break;
@@ -901,7 +902,7 @@ Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 		if (inst.first == p_Instance)
 		{
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			XMFLOAT3 position = inst.second.m_Animation.getJointPos(p_Joint, modelDef->joints, inst.second.getWorldMatrix());
+			XMFLOAT3 position = inst.second.m_Animation.getJointPos(p_Joint, inst.second.getWorldMatrix());
 			
 			return position;
 		}
