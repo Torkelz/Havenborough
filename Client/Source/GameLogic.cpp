@@ -792,6 +792,7 @@ void GameLogic::loadSandbox()
 
 	//addLights();
 
+	//Event to create a particle effect on local test rounds
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
 }
 

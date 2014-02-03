@@ -8,9 +8,12 @@
 struct Particle
 {
 public:
-	ShaderParticle shaderData;
-	DirectX::XMFLOAT4 velocity;
-	DirectX::XMFLOAT2 size;
+
+	
+
+	ShaderParticle shaderData; //ShaderStruct to define a particle; Position, Color
+	DirectX::XMFLOAT4 velocity; //the velocity of a particle, in cm
+	DirectX::XMFLOAT2 size; //The size of a particle from edge to edge
 	float life; //Life for a particle to live before taken away, in sec
 
 	Particle()
@@ -48,17 +51,57 @@ public:
 	 * Material diffuse textures.
 	 */
 	ID3D11ShaderResourceView* diffuseTexture;
+
+	/**
+	 * Definition about the usage of the texture.
+	 */
 	ID3D11SamplerState* sampler;
+
+	/**
+	 * 
+	 */
 	std::string textureResourceName;
 
+	/**
+	 * 
+	 */
 	unsigned int maxParticles;
+	
+	/**
+	 * 
+	 */
 	unsigned int particlesPerSec;
+	
+	/**
+	 * How long a particle can live after it was created, in sec.
+	 */
 	float maxLife;
+	
+	/**
+	 * How big a particle are from edge to edge.
+	 */
 	DirectX::XMFLOAT2 size; //in cm
+	
+	/**
+	 * An identifier of the particle effect.
+	 */
 	std::string particleSystemName;
-	float				particlePositionDeviation; // in cm
-	float				velocityDeviation; // in cm/s
-	DirectX::XMFLOAT4	particleColorDeviation; // [0,1]
+	
+	/**
+	 * A factor to tell how much from base Position it can change.
+	 */
+	float particlePositionDeviation;
+	
+	/**
+	 * A factor to tell how much from base velocity it can change.
+	 */
+	float velocityDeviation;
+	
+	/**
+	 * How much it can go in any direction from the base color.
+	 * should not be over 1 or below 0 when added or subtracted with the base color. [0,1]
+	 */
+	DirectX::XMFLOAT4 particleColorDeviation;
 
 	/**
 	 * Default constructor. Constructs an object without any data.
