@@ -67,7 +67,7 @@ void AnimationLoader::loadAnimationData(std::string p_FilePath)
 {
 	clearData();
 	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
-
+	m_FileHeader = readHeader(&input);
 	m_Joints = readJointList(m_FileHeader.m_numJoints, m_FileHeader.m_numFrames, &input);
 }
 
