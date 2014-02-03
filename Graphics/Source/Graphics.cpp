@@ -710,7 +710,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
+			if( modelDef->animationData->animationClips.find(p_ClipName) == modelDef->animationData->animationClips.end() )
 			{
 				tempStr = "default";
 			}
@@ -718,7 +718,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 			//if(tempStr != "LookAround")
 			//	break;
 
-			inst.second.m_Animation.playClip(modelDef->animationClips.at(tempStr), p_Override);
+			inst.second.m_Animation.playClip(modelDef->animationData->animationClips.at(tempStr), p_Override);
 			break;
 		}
 	}
@@ -736,12 +736,12 @@ void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
+			if( modelDef->animationData->animationClips.find(p_ClipName) == modelDef->animationData->animationClips.end() )
 			{
 				tempStr = "default";
 			}
 
-			inst.second.m_Animation.queueClip(modelDef->animationClips.at(tempStr));
+			inst.second.m_Animation.queueClip(modelDef->animationData->animationClips.at(tempStr));
 			break;
 		}
 	}
@@ -882,12 +882,12 @@ void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_IKGroupNa
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->ikGroups.find(p_IKGroupName) == modelDef->ikGroups.end() )
+			if( modelDef->animationData->ikGroups.find(p_IKGroupName) == modelDef->animationData->ikGroups.end() )
 			{
 				tempStr = "default";
 			}
 
-			inst.second.m_Animation.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, inst.second.getWorldMatrix());
+			inst.second.m_Animation.applyIK_ReachPoint(modelDef->animationData->ikGroups.at(p_IKGroupName), p_Target, inst.second.getWorldMatrix());
 			const std::vector<XMFLOAT4X4>& animationData = inst.second.m_Animation.getFinalTransform();
 			animationPose(p_Instance, animationData.data(), animationData.size());
 			break;
