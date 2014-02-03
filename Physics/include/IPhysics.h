@@ -203,10 +203,10 @@ public:
 	 */
 	virtual unsigned getBodyOnSomethingSize() = 0;
 
-		/**
-	 * 
-	 *
-	 * 
+	/**
+	 * A bool that turns on the frame where a body lands ontop of something.
+	 * @param p_Body, the body to check if its landed.
+	 * @return true if this body has landed on something this frame, otherwise false.
 	 */
 	virtual bool getBodyLanded(BodyHandle p_Body) = 0;
 	/**
