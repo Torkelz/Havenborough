@@ -1,8 +1,6 @@
 #pragma once
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <cstdint>
 
 #include "ShaderDefinitions.h"
 #include <Utilities/Util.h>
@@ -305,6 +303,11 @@ public:
 	 * @param p_Weight a percentual number between 0.0f and 1.0f.
 	 */
 	virtual void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) = 0;
+
+	/**
+	 * New
+	 */
+	virtual void animationPose(int p_Instance, const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size) = 0;
 
 	/**
 	 * Gets the amount of VRAM usage of the program.

@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	SAFE_DELETE(skydome);
 
 	BOOST_MESSAGE(testId + "Creating skydome using Graphics");
-	BOOST_REQUIRE(graphics->createTexture("skydomeTexture", "../../Client/Bin/assets/textures/Skybox0.dds"));
+	BOOST_REQUIRE(graphics->createTexture("skydomeTexture", "../../Client/Bin/assets/textures/Skybox1_COLOR.dds"));
 	BOOST_CHECK_NO_THROW(graphics->createSkydome("skydomeTexture", 1000.0f));
 
 	

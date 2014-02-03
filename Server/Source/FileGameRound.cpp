@@ -46,7 +46,10 @@ void FileGameRound::setup()
 		{
 			player->addCheckpoint(checkpoint);
 		}
+	m_Actors.push_back(m_ActorFactory->createParticles(checkpoint->getPosition(), "TestParticle"));
 	}
+
+	goalCount = 0;
 }
 
 void FileGameRound::setFilePath(std::string p_Filepath)
@@ -143,7 +146,8 @@ void FileGameRound::sendUpdates()
 	Actor::Id id;
 	for(unsigned int i = 0; i < m_SendHitData.size(); i++)
 	{
-		User::ptr user = m_SendHitData[i].first->getUser().lock();
+		Player::ptr player = m_SendHitData[i].first;
+		User::ptr user = player->getUser().lock();
 		if (user)
 		{
 			
@@ -165,24 +169,38 @@ void FileGameRound::sendUpdates()
 				}
 				else
 				{
-					goalReached = true;
+					user->getConnection()->sendRemoveObjects(&id, 1);
+					goalCount++;
+					tinyxml2::XMLPrinter printer;
+					printer.OpenElement("GameResult");
+					printer.PushAttribute("Type", "Posistion");
+					printer.PushAttribute("Place", goalCount);
+					printer.CloseElement();
+					const char* info = printer.CStr();
+					user->getConnection()->sendGameResult(&info, 1);
+					m_ResultList.push_back(player->getActor().lock()->getId());
 				}
 			}
 		}
-		if(goalReached)
+		m_SendHitData.clear();
+	}
+	if(m_Players.size() == goalCount)
+	{
+		tinyxml2::XMLPrinter printer;
+		printer.OpenElement("GameResult");
+		printer.PushAttribute("Type", "Result");
+		printer.OpenElement("ResultList");
+		for(int i = 0; i < m_ResultList.size(); i++)
 		{
-			tinyxml2::XMLPrinter printer;
-			printer.OpenElement("ObjectUpdate");
-			printer.PushAttribute("ActorId", id-1);
-			printer.PushAttribute("Type", "GoalReached");
-			printer.CloseElement();
-			const char* info = printer.CStr();
-			for(auto& player : m_Players)
+			printer.PushText(i+1);
+			for(int j = 0; j < m_Players.size(); j++)
 			{
-				player->getUser().lock()->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+				if(m_Players[j]->getActor().lock()->getId() == m_ResultList[i])
+				{
+					printer.PushText(j+1);
+				}
 			}
 		}
-		m_SendHitData.clear();
 	}
 }
 

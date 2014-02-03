@@ -4,6 +4,7 @@
 #include "ResourceManager.h"
 #include "CommonExceptions.h"
 #include "XMLHelper.h"
+#include "Utilities/Util.h"
 
 #include <IPhysics.h>
 
@@ -32,6 +33,8 @@ public:
 	virtual Vector3 getVelocity() const = 0;
 
 	virtual bool isInAir() const = 0;
+
+	virtual bool hasLanded() const = 0;
 };
 
 /**
@@ -133,6 +136,10 @@ public:
 	{
 		return m_Physics->getBodyInAir(m_Body);
 	}
+	bool hasLanded() const override
+	{
+		return m_Physics->getBodyLanded(m_Body);
+	}
 };
 
 /**
@@ -226,6 +233,10 @@ public:
 	bool isInAir() const override
 	{
 		return m_Physics->getBodyInAir(m_Body);
+	}
+	bool hasLanded() const override
+	{
+		return m_Physics->getBodyLanded(m_Body);
 	}
 };
 
@@ -324,6 +335,10 @@ public:
 	bool isInAir() const override
 	{
 		return m_Physics->getBodyInAir(m_Body);
+	}
+	bool hasLanded() const override
+	{
+		return m_Physics->getBodyLanded(m_Body);
 	}
 };
 
@@ -427,6 +442,10 @@ public:
 	bool isInAir() const override
 	{
 		return m_Physics->getBodyInAir(m_Body);
+	}
+	bool hasLanded() const override
+	{
+		return m_Physics->getBodyLanded(m_Body);
 	}
 };
 

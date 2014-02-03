@@ -29,8 +29,6 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("Road3", "assets/models/Road3.btx"),
 		std::make_pair("Road4", "assets/models/Road4.btx"),
 		std::make_pair("Road5", "assets/models/Road5.btx"),
-		std::make_pair("DZALA", "assets/models/Ninta2.btx"),
-		std::make_pair("BOX", "assets/models/Sample135.btx"),
 		std::make_pair("Sidewalk1", "assets/models/Sidewalk1.btx"),
 		std::make_pair("Stair1", "assets/models/Stair1.btx"),
 		std::make_pair("Stallning1", "assets/models/Stallning1.btx"),
@@ -42,7 +40,6 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("Vege1", "assets/models/Vege1.btx"),
 		std::make_pair("Vege2", "assets/models/Vege2.btx"),
 		std::make_pair("Street1", "assets/models/Street1.btx"),
-		std::make_pair("IKTest", "assets/models/testRig.btx"),
 		std::make_pair("Tree1", "assets/models/Tree1.btx"),
 		std::make_pair("WITCH", "assets/models/Witch_new2.btx"),
 		std::make_pair("WoodenShed1", "assets/models/WoodenShed.btx"),
@@ -86,7 +83,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	static const std::pair<std::string, std::string> textureMap[] =
 	{
 		std::make_pair("TEXTURE_NOT_FOUND", "assets/textures/TextureNotFound.png"),
-		std::make_pair("SKYBOXDDS", "assets/textures/Skybox0.dds"),
+		std::make_pair("SKYBOXDDS", "assets/textures/Skybox1_COLOR.dds"),
 		std::make_pair("Particle1", "assets/textures/Particle1.dds"),
 	};
 	static const size_t numTextures = sizeof(textureMap) / sizeof(textureMap[0]);

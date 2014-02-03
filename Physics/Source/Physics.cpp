@@ -1,5 +1,5 @@
 #include "Physics.h"
-
+#include "Collision.h"
 #include "PhysicsLogger.h"
 
 using namespace DirectX;
@@ -50,66 +50,95 @@ void Physics::initialize()
 	m_LoadBVSphereTemplateOnce = true;
 }
 
-void Physics::update(float p_DeltaTime)
+void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 {
-	m_HitDatas.clear();
-	for(unsigned i = 0; i < m_Bodies.size(); i++)
+	int itr = 1;
+
+	float timestep = 1 / (float)(p_FPSCheckLimit * 2.f); 
+
+	if(timestep*2.f < p_DeltaTime)
 	{
-		Body& b = m_Bodies[i];
+		itr = (int)ceil(fabs(p_DeltaTime / timestep - 0.5f)); // When the fps goes under this the game start to update physics more than once / frame.
+		//itr = 1;
 
-		if(b.getIsImmovable())
-			continue;
+		if(itr > 4)
+			itr = 4;
+		else if(itr == 0)
+			itr = 1;
+						
+		p_DeltaTime /= itr;
+	}
 
-		if(b.getInAir())
+	for(int p = 0; p < itr; p++)
+	{
+		m_HitDatas.clear();
+		for(unsigned i = 0; i < m_Bodies.size(); i++)
 		{
-			b.setGravity(m_GlobalGravity);
-		}
-		else
-		{
-			b.setGravity(0.f);
-		}
+			Body& b = m_Bodies[i];
 
-		b.update(p_DeltaTime);
-
-		bool onSomething = false;
-
-		for (unsigned j = 0; j < m_Bodies.size(); j++)
-		{
-			if(i == j)
+			if(b.getIsImmovable())
 				continue;
 
-			HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(), *m_Bodies[j].getVolume());
-			
-			if(hit.intersect)
+			if(b.getInAir())
 			{
-				hit.collider = m_Bodies.at(i).getHandle();
-				hit.collisionVictim = m_Bodies.at(j).getHandle();
-				hit.isEdge = m_Bodies.at(j).getIsEdge();
-				m_HitDatas.push_back(hit);
+				b.setGravity(m_GlobalGravity);
+			}
+			else
+			{
+				//b.setGravity(0.f);
+			}
 
-				if(m_Bodies.at(i).getCollisionResponse() && m_Bodies.at(j).getCollisionResponse())
+			b.update(p_DeltaTime);
+
+			for (unsigned j = 0; j < m_Bodies.size(); j++)
+			{
+				if(i == j)
+					continue;
+
+				HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(), *m_Bodies[j].getVolume());
+			
+				if(hit.intersect)
 				{
-					XMVECTOR temp;		// m
-					XMFLOAT4 tempPos;	// m
+					hit.collider = m_Bodies.at(i).getHandle();
+					hit.collisionVictim = m_Bodies.at(j).getHandle();
+					hit.isEdge = m_Bodies.at(j).getIsEdge();
+					m_HitDatas.push_back(hit);
 
-					temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m
-					XMStoreFloat4(&tempPos, temp);
-
-					b.setPosition(tempPos);
-
-					if (hit.colNorm.y > 0.68f)
+					if(m_Bodies.at(i).getCollisionResponse() && m_Bodies.at(j).getCollisionResponse())
 					{
-						onSomething = true;
+						XMVECTOR temp;		// m
+						XMFLOAT4 tempPos;	// m
 
-						XMFLOAT4 velocity = b.getVelocity();	// m/s
-						velocity.y = 0.f;
-						b.setVelocity(velocity);
+						temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
+						XMStoreFloat4(&tempPos, temp);
+
+						b.setPosition(tempPos);
+
+						if (hit.colNorm.y > 0.68f)
+						{
+							if(!b.getOnSomething())
+							{
+								b.setLanded(true);
+							}
+							b.setOnSomething(true);
+							b.setLastCollision(hit.collisionVictim);
+
+							XMFLOAT4 velocity = b.getVelocity();	// m/s
+							velocity.y = 0.f;
+							b.setVelocity(velocity);
+						}
 					}
 				}
-			}
-		}
 
-		b.setInAir(!onSomething);
+				if(b.getVelocity().y > 1.f)
+				{
+					b.setOnSomething(false);
+					b.setLanded(false);
+				}
+			}
+
+			b.setInAir(!b.getOnSomething());
+		}
 	}
 }
 
@@ -347,6 +376,30 @@ void Physics::removeHitDataAt(unsigned int p_index)
 }
 
 unsigned int Physics::getHitDataSize()
+{
+	return m_HitDatas.size();
+}
+
+bool Physics::getBodyOnSomethingAt(unsigned int p_Index)
+{
+	return true;
+}
+
+bool Physics::getBodyLanded(BodyHandle p_Body)
+{
+	Body *body = findBody(p_Body);
+	if(!body)
+		return false;
+
+	return body->getLanded();
+}
+
+void Physics::removeBodyOnSomethingAt(unsigned int p_index)
+{
+	//m_HitDatas.erase(m_HitDatas.begin() + p_index);
+}
+
+unsigned int Physics::getBodyOnSomethingSize()
 {
 	return m_HitDatas.size();
 }

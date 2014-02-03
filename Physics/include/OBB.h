@@ -1,6 +1,4 @@
 #pragma once
-
-#include "BoundingVolume.h"
 #include "Sphere.h"
 
 class OBB : public BoundingVolume

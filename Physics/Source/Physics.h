@@ -1,9 +1,5 @@
 #pragma once
-
 #include "IPhysics.h"
-#include <memory>
-
-#include "Collision.h"
 #include "Body.h"
 #include "BVLoader.h"
 
@@ -26,7 +22,7 @@ public:
 
 	void initialize() override;
 
-	void update(float p_DeltaTime) override;
+	void update(float p_DeltaTime, unsigned p_FPSCheckLimit) override;
 	void applyForce(BodyHandle p_Body, Vector3 p_Force) override;
 
 	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius) override;
@@ -46,6 +42,11 @@ public:
 	HitData getHitDataAt(unsigned int p_Index) override;
 	void removeHitDataAt(unsigned int p_index) override;
 	unsigned int getHitDataSize() override;
+
+	bool getBodyOnSomethingAt(unsigned p_Index) override;
+	void removeBodyOnSomethingAt(unsigned p_Index) override;
+	unsigned getBodyOnSomethingSize() override;
+	bool getBodyLanded(BodyHandle p_Body) override;
 
 	void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) override;
 	Vector3 getBodyPosition(BodyHandle p_Body) override;

@@ -188,7 +188,7 @@ void GameRound::runGame()
 
 		deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(frameTime).count();
 
-		m_Physics->update(deltaTime);
+		m_Physics->update(deltaTime, 50);
 
 		handlePackages();
 		checkForDisconnectedUsers();

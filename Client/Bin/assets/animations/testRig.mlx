@@ -1,0 +1,38 @@
+*Clip
+na	Wave
+sp	1.0
+st	1
+en	23
+lo	1
+f	joint1
+tr	0
+la	0
+fi	1
+fif	3
+fo	0
+fof	0
+we	0.5
+
+*Clip
+na	Spin
+sp	1.0
+st	25
+en	49
+lo	1
+f	joint1
+tr	0
+la	0
+fi	1
+fif	3
+fo	0
+fof	0
+we	0.5
+
+*IKgroup
+na	Würm
+b1	joint1
+b2	joint2
+b3	joint3
+ikx	0.0
+iky	-1.0
+ikz	0.0
