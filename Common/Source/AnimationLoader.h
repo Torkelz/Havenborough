@@ -10,11 +10,12 @@ class AnimationLoader
 public:
 	struct Header
 	{
-		std::string m_modelName;
-		int m_numJoints;
-		int m_numFrames;
+		std::string m_ModelName;
+		int m_NumJoints;
+		int m_NumFrames;
 	};
-	
+
+private:
 	std::vector<Joint> m_Joints;
 	Header m_FileHeader;
 public:
@@ -41,15 +42,20 @@ public:
 	 */
 	const std::vector<Joint>& getJoints();
 
+	/**
+	 * Opens a binary file then reads the information stream and saves the information in vectors of structs.
+	 * 
+	 * @param p_FilePath, the absolute path to the source file.
+	 */
 	void loadAnimationData(std::string p_FilePath);
 
 protected:
 	void byteToInt(std::istream* p_Input, int& p_Return);
 	void byteToString(std::istream* p_Input, std::string& p_Return);
 
-	AnimationLoader::Header AnimationLoader::readHeader(std::istream* p_Input);
+	Header readHeader(std::istream* p_Input);
 	std::vector<Joint> readJointList(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input);
 private:
-	void AnimationLoader::clearData();
+	void clearData();
 };
 

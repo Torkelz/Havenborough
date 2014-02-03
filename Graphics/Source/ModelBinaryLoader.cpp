@@ -27,11 +27,11 @@ void ModelBinaryLoader::clear()
 ModelBinaryLoader::Header ModelBinaryLoader::readHeader(std::istream* p_Input)
 {
 	Header tempHeader;
-	byteToString(p_Input, tempHeader.m_modelName);
-	byteToInt(p_Input, tempHeader.m_numMaterial);
-	byteToInt(p_Input, tempHeader.m_numVertex);
-	byteToInt(p_Input, tempHeader.m_numMaterialBuffer);
-	byteToInt(p_Input, tempHeader.m_numJoints);
+	byteToString(p_Input, tempHeader.m_ModelName);
+	byteToInt(p_Input, tempHeader.m_NumMaterial);
+	byteToInt(p_Input, tempHeader.m_NumVertex);
+	byteToInt(p_Input, tempHeader.m_NumMaterialBuffer);
+	byteToInt(p_Input, tempHeader.m_NumJoints);
 	return tempHeader;
 }
 
@@ -101,16 +101,16 @@ void ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 		throw;
 	}
 	m_FileHeader = readHeader(&input);
-	m_Material = readMaterial(m_FileHeader.m_numMaterial,&input);
-	if(m_FileHeader.m_numJoints > 0)
+	m_Material = readMaterial(m_FileHeader.m_NumMaterial,&input);
+	if(m_FileHeader.m_NumJoints > 0)
 	{
-		m_AnimationVertexBuffer = readVertexBufferAnimation(m_FileHeader.m_numVertex, &input);
+		m_AnimationVertexBuffer = readVertexBufferAnimation(m_FileHeader.m_NumVertex, &input);
 	}
 	else
 	{
-		m_VertexBuffer = readVertexBuffer(m_FileHeader.m_numVertex, &input);
+		m_VertexBuffer = readVertexBuffer(m_FileHeader.m_NumVertex, &input);
 	}
-	m_MaterialBuffer = readMaterialBuffer(m_FileHeader.m_numMaterialBuffer, &input);
+	m_MaterialBuffer = readMaterialBuffer(m_FileHeader.m_NumMaterialBuffer, &input);
 	
 }
 
@@ -136,10 +136,11 @@ const std::vector<MaterialBuffer>& ModelBinaryLoader::getMaterialBuffer()
 
 void ModelBinaryLoader::clearData()
 {
-	m_FileHeader.m_modelName = "";
-	m_FileHeader.m_numMaterial = 0;
-	m_FileHeader.m_numMaterialBuffer = 0;
-	m_FileHeader.m_numVertex = 0;
+	m_FileHeader.m_ModelName = "";
+	m_FileHeader.m_NumMaterial = 0;
+	m_FileHeader.m_NumMaterialBuffer = 0;
+	m_FileHeader.m_NumVertex = 0;
+	m_FileHeader.m_NumJoints = 0;
 	m_Material.clear();
 	m_AnimationVertexBuffer.clear();
 	m_VertexBuffer.clear();

@@ -15,7 +15,7 @@ void Server::initialize()
 
 	m_Lobby.reset(new Lobby(this));
 	m_Lobby->addAvailableLevel("test", 4);
-	m_Lobby->addAvailableLevel("serverLevel", 4);
+	m_Lobby->addAvailableLevel("serverLevel", 8);
 	m_Lobby->addAvailableLevel("serverDebugLevel", 4);
 	m_Network = INetwork::createNetwork();
 	m_Network->initialize();

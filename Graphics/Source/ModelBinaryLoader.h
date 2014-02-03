@@ -11,11 +11,11 @@ class ModelBinaryLoader
 public:
 	struct Header
 	{
-		std::string m_modelName;
-		int m_numMaterial;
-		int m_numVertex;
-		int m_numMaterialBuffer;
-		int m_numJoints;
+		std::string m_ModelName;
+		int m_NumMaterial;
+		int m_NumVertex;
+		int m_NumMaterialBuffer;
+		int m_NumJoints;
 	};
 
 private:

@@ -537,6 +537,9 @@ void GameScene::loadSandboxModels()
 	m_Graphics->createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl",
 		"VS,PS,GS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
 
+	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
+		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
 	static const std::string preloadedModels[] =
 	{
 		"House1",
@@ -571,12 +574,6 @@ void GameScene::loadSandboxModels()
 		m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
 		m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
 	}
-
-	Logger::log(Logger::Level::DEBUG_L, "Adding IK test tube");
-	//m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "IKTest"));
-	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
-		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	//m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");

@@ -2,6 +2,7 @@
 #include "GraphicsExceptions.h"
 #include "ModelBinaryLoader.h"
 #include "AnimationClipLoader.h"
+#include <AnimationLoader.h>
 #include "Utilities/MemoryUtil.h"
 #include "..\..\Common\Source\AnimationLoader.h"
 #include <boost/filesystem.hpp>
@@ -52,30 +53,25 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	}
 	else
 	{
-		std::vector<char> inputBuffer(strlen(p_Filename)+1);
-		strcpy(inputBuffer.data(), p_Filename);
-		int length = inputBuffer.size();
-		strcpy(inputBuffer.data()+length-5, ".atx");
-		AnimationLoader aniLoader;
-		aniLoader.loadAnimationData(inputBuffer.data());
-		model.joints = aniLoader.getJoints();
 
 		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimatedVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
 
-		//Animation clip stuff
-		const int stringLength = std::strlen(p_Filename);
-		std::string animationClipName;
-		for (int i = 0; i < stringLength - 3; i++)
-		{
-			animationClipName.push_back(p_Filename[i]);
-		}
-		animationClipName += "mlx";
+		boost::filesystem::path filepath(p_Filename);
+		boost::filesystem::path animationsFolder(filepath.parent_path().parent_path() / "animations");
+		boost::filesystem::path baseName(filepath.filename());
+
+		boost::filesystem::path mlxPath((animationsFolder / baseName).replace_extension("mlx"));
+		boost::filesystem::path atxPath((animationsFolder / baseName).replace_extension("atx"));
+
+		AnimationLoader animationLoader;
+		animationLoader.loadAnimationData(atxPath.string());
+		model.joints = animationLoader.getJoints();
 
 		MattiasLucaseXtremeLoader tempLoader = MattiasLucaseXtremeLoader();
 
-		model.animationClips	= tempLoader.loadAnimationClip(animationClipName);
-		model.ikGroups			= tempLoader.loadIKGroup(animationClipName);
+		model.animationClips	= tempLoader.loadAnimationClip(mlxPath.string());
+		model.ikGroups			= tempLoader.loadIKGroup(mlxPath.string());
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 

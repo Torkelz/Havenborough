@@ -120,6 +120,7 @@
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
     <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\Animation.cpp" />
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />

@@ -20,9 +20,9 @@ void AnimationLoader::clear()
 AnimationLoader::Header AnimationLoader::readHeader(std::istream* p_Input)
 {
 	Header tempHeader;
-	byteToString(p_Input, tempHeader.m_modelName);
-	byteToInt(p_Input, tempHeader.m_numJoints);
-	byteToInt(p_Input, tempHeader.m_numFrames);
+	byteToString(p_Input, tempHeader.m_ModelName);
+	byteToInt(p_Input, tempHeader.m_NumJoints);
+	byteToInt(p_Input, tempHeader.m_NumFrames);
 	return tempHeader;
 }
 
@@ -69,7 +69,7 @@ void AnimationLoader::loadAnimationData(std::string p_FilePath)
 	clearData();
 	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
 	m_FileHeader = readHeader(&input);
-	m_Joints = readJointList(m_FileHeader.m_numJoints, m_FileHeader.m_numFrames, &input);
+	m_Joints = readJointList(m_FileHeader.m_NumJoints, m_FileHeader.m_NumFrames, &input);
 
 	input.close();
 }
@@ -95,7 +95,8 @@ void AnimationLoader::byteToInt(std::istream* p_Input, int& p_Return)
 
 void AnimationLoader::clearData()
 {
-	m_FileHeader.m_numFrames = 0;
-	m_FileHeader.m_numJoints = 0;
+	m_FileHeader.m_ModelName = "";
+	m_FileHeader.m_NumFrames = 0;
+	m_FileHeader.m_NumJoints = 0;
 	m_Joints.clear();
 }

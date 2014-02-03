@@ -14,6 +14,9 @@ private:
 	GameLogic *m_GameLogic;
 	EventManager *m_EventManager;
 
+	std::string m_ServerAddress;
+	uint16_t m_ServerPort;
+
 public: 
 	MenuScene();
 	~MenuScene();

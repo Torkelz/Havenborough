@@ -46,6 +46,7 @@ void FileGameRound::setup()
 		{
 			player->addCheckpoint(checkpoint);
 		}
+	m_Actors.push_back(m_ActorFactory->createParticles(checkpoint->getPosition(), "TestParticle"));
 	}
 }
 

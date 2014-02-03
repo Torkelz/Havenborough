@@ -11,21 +11,6 @@ const float TestGameRound::m_PlayerSphereRadius = 50.f;
 
 void TestGameRound::setup()
 {
-	for (size_t i = 0; i < m_Players.size(); ++i)
-	{
-		Actor::ptr box = m_ActorFactory->createCircleBox(
-			Vector3(500.f, 200.f + i * 100.f, 400.f),
-			(float)(i + 3) * 100.f);
-		m_Actors.push_back(box);
-		m_Boxes.push_back(box);
-
-		Vector3 position(500.f + i * 200.f, m_PlayerSphereRadius + 400.f, 500.f);
-
-		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
-		m_Players[i]->setActor(actor);
-		m_Actors.push_back(actor);
-	}
-
 	m_Actors.push_back(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.f, 1.f, 1.f)));
 	m_Actors.push_back(m_ActorFactory->createDirectionalLight(Vector3(0.f, -1.f, 0.f), Vector3(1.0f, 1.0f, 1.0f)));
 	m_Actors.push_back(m_ActorFactory->createSpotLight(Vector3(-1000.f,500.f,0.f), Vector3(0,0,-1),
