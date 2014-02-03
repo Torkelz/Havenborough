@@ -267,9 +267,13 @@ void BaseGameApp::updateDebugInfo()
 	m_TimeToNextMemUpdate = m_MemUpdateDelay;
 
 	std::string test = std::to_string(m_MemoryInfo.getPhysicalMemoryUsage());
-	std::string vMemUsage = "Virtual RAM usage: " + std::to_string(m_MemoryInfo.getVirtualMemoryUsage()) + "B";
-	std::string pMemUsage = "Physical RAM usage: " + std::to_string(m_MemoryInfo.getPhysicalMemoryUsage()) + "B";
-	std::string gMemUsage = "Video usage: " + std::to_string(m_Graphics->getVRAMUsage()) + "B";
+	unsigned int VRUsage = m_MemoryInfo.getVirtualMemoryUsage();
+	unsigned int PRUsage = m_MemoryInfo.getPhysicalMemoryUsage();
+	unsigned int VUsage = m_Graphics->getVRAMUsage();
+	unsigned int BToMB = 1024 * 1024;
+	std::string vMemUsage = "Virtual RAM usage: " + std::to_string(VRUsage) + "B" + " (" + std::to_string(VRUsage/BToMB) + "MB)";
+	std::string pMemUsage = "Physical RAM usage: " + std::to_string(PRUsage) + "B" + " (" + std::to_string(PRUsage/BToMB) + "MB)";
+	std::string gMemUsage = "Video usage: " + std::to_string(VUsage) + "B" + " (" + std::to_string(VUsage/BToMB) + "MB)";
 
 	std::string speed = "DeltaTime: " + std::to_string(m_DeltaTime) + " FPS: " + std::to_string(1.0f/m_DeltaTime);
 
