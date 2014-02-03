@@ -47,8 +47,8 @@ struct PSIn
 
 struct PSOut
 {
-	half4 diffuse	: SV_Target0; // xyz = diffuse color, w = empty
-	half4 normal	: SV_Target1; // xyz = normal.xyz, w = specularPower
+	half4 diffuse	: SV_Target0; // xyz = diffuse color, w = specularPower
+	half4 normal	: SV_Target1; // xyz = normal.xyz, w = depth
 	half4 wPosition	: SV_Target2; // xyz = world position, w = specular intensity
 };
 
@@ -107,8 +107,8 @@ PSOut PS( PSIn input )
 
 	if(diffuseColor.w == 1.0f)
 	{
-		output.diffuse			= float4(diffuseColor.xyz,1.0f);//input.diffuse.xyz;
-		output.normal.w			= 1.0f;//input.specularPower;// 1.0f for debug.
+		output.diffuse			= float4(diffuseColor.xyz, 1.0f);//input.diffuse.xyz; //specular intensity = 1.0f
+		output.normal.w			= input.pos.z / input.pos.w;
 		output.normal.xyz		= normal;
 		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
 		output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;

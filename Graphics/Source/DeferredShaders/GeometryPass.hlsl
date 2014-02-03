@@ -76,7 +76,7 @@ PSOut PS( PSIn input )
 
 	if(diffuseColor.w == 1.0f)
 	{
-		output.diffuse			= float4(diffuseColor.xyz, 1.0f);//input.diffuse.xyz;
+		output.diffuse			= float4(diffuseColor.xyz, 1.0f);//input.diffuse.xyz; //specular intensity = 1.0f
 		output.normal.w			= input.pos.z / input.pos.w;
 		output.normal.xyz		= normal;
 		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
