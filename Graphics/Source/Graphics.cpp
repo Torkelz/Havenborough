@@ -693,7 +693,7 @@ void Graphics::updateAnimations(float p_DeltaTime)
 		{
 			model.second.m_Animation.updateAnimation(p_DeltaTime, modelDef->joints);
 			const std::vector<XMFLOAT4X4>& animationData = model.second.m_Animation.getFinalTransform();
-			model.second.animationPose(animationData.data(), animationData.size());
+			animationPose(model.first, animationData.data(), animationData.size());
 		}
 	}
 }
@@ -888,7 +888,7 @@ void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_IKGroupNa
 
 			inst.second.m_Animation.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, modelDef->joints, inst.second.getWorldMatrix());
 			const std::vector<XMFLOAT4X4>& animationData = inst.second.m_Animation.getFinalTransform();
-			inst.second.animationPose(animationData.data(), animationData.size());
+			animationPose(p_Instance, animationData.data(), animationData.size());
 			break;
 		}
 	}

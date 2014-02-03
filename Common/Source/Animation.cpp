@@ -1,6 +1,6 @@
 #include "Animation.h"
-#include "GraphicsExceptions.h"
-#include "GraphicsLogger.h"
+#include "CommonExceptions.h"
+#include "Logger.h"
 
 using namespace DirectX;
 using std::string;
@@ -409,7 +409,7 @@ DirectX::XMFLOAT3 Animation::getJointPos(const string& p_JointName, const vector
 		}
 	}
 
-	throw InvalidArgumentGraphicsException("Joint does not exist: '" + p_JointName + "'", __LINE__, __FILE__);
+	throw InvalidArgument("Joint does not exist: '" + p_JointName + "'", __LINE__, __FILE__);
 }
 
 void Animation::updateFinalTransforms(const vector<Joint>& p_Joints)

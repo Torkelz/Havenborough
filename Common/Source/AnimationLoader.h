@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\..\Graphics\Source\Joint.h"
+#include <Joint.h>
 #include <fstream>
 #include <vector>
 #include <string>
