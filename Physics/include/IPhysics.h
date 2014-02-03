@@ -144,7 +144,7 @@ public:
 	 * Keeps physics updated, collision checks etc.
 	 *
 	 * @param p_DeltaTime are a timestep
-	 * @param p_FPSCheckLimit, when the fps has reached half of this value the physics update will happend more than once / frame.
+	 * @param p_FPSCheckLimit, when the fps has reached this value the physics update will happend more than once / frame used for making it less likely .
 	 */
 	virtual void update(float p_DeltaTime, unsigned p_FPSCheckLimit) = 0;
 	/**
