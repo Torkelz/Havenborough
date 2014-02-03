@@ -42,28 +42,42 @@ public:
 	void init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_ptr<Buffer> p_ParticleBuffer, ParticleEffectDefinition::ptr p_ParticleEffectDefinition);
 	
 	/**
+	 * Main update function for a particle instance
 	 * 
+	 * @param p_DeltaTime time between frames
 	 */
 	void update(float p_DeltaTime);
 	
 	/**
+	 * Function for updating buffers
 	 * 
+	 * @param p_DeviceContext pointer to device context
+	 * @param p_CameraPosition pointer to the cameras position
+	 * @param p_ViewMatrix pointer to the view matrix
+	 * @param p_ProjectionMatrix to the projection matrix
 	 */
 	void updateBuffers(ID3D11DeviceContext *p_DeviceContext, DirectX::XMFLOAT3 *p_CameraPosition,
 		DirectX::XMFLOAT4X4 *p_ViewMatrix, DirectX::XMFLOAT4X4 *p_ProjectionMatrix);
 	
 	/**
+	 * Main function for rendering the particle effect
 	 * 
+	 * @param p_Context pointer to device context
+	 * @param p_BlendState pointer to the blend state in use
 	 */
 	void render(ID3D11DeviceContext* p_Context, ID3D11BlendState* p_BlendState);
 	
 	/**
+	 * Set the position of the particle instance
 	 * 
+	 * @param p_NewPosition give the particle effect instance a new position, in cm
 	 */
 	void setPosition(DirectX::XMFLOAT4 p_NewPosition);
 	
 	/**
+	 * Function to fetch the world matrix
 	 * 
+	 * @return a XMFLOAT4X4 containing the world matrix
 	 */
 	DirectX::XMFLOAT4X4 getWorldMatrix() const;
 
