@@ -8,6 +8,7 @@ AnimationLoader::AnimationLoader(void)
 
 AnimationLoader::~AnimationLoader(void)
 {
+	clear();
 }
 
 void AnimationLoader::clear()

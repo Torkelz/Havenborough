@@ -7,6 +7,7 @@
 
 class AnimationLoader
 {
+public:
 	struct Header
 	{
 		std::string m_modelName;

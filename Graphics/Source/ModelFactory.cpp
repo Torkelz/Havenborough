@@ -3,7 +3,7 @@
 #include "ModelBinaryLoader.h"
 #include "AnimationClipLoader.h"
 #include "Utilities/MemoryUtil.h"
-
+#include "..\..\Common\Source\AnimationLoader.h"
 #include <boost/filesystem.hpp>
 
 using std::string;
@@ -52,7 +52,13 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	}
 	else
 	{
-//		model.joints = modelLoader.getJoints();
+		std::vector<char> inputBuffer(strlen(p_Filename)+1);
+		strcpy(inputBuffer.data(), p_Filename);
+		int length = inputBuffer.size();
+		strcpy(inputBuffer.data()+length-5, ".atx");
+		AnimationLoader aniLoader;
+		aniLoader.loadAnimationData(inputBuffer.data());
+		model.joints = aniLoader.getJoints();
 
 		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimatedVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.

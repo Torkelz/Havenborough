@@ -96,9 +96,9 @@ void ModelConverter::createHeader(std::ostream* p_Output)
 
 void ModelConverter::createAnimationHeader(std::ostream* p_AnimationOutput)
 {
+	stringToByte(m_MeshName, p_AnimationOutput);
 	intToByte(m_ListOfJointsSize, p_AnimationOutput);
 	intToByte(m_NumberOfFrames, p_AnimationOutput);
-	stringToByte(m_MeshName, p_AnimationOutput);
 }
 
 void ModelConverter::createVertexBuffer(std::ostream* p_Output)

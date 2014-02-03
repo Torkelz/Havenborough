@@ -90,7 +90,6 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 		"\x01\0\0\0"
 		"\x01\0\0\0"
 		"\x01\0\0\0"
-		"\x01\0\0\0"
 		"\x01\0\0\0";
 
 	std::vector<ModelLoader::Material> materials;
@@ -107,7 +106,6 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 	conv.setMaterial(&materials);
 	conv.setIndices(&indexDescs);
 	conv.setListOfJoints(&joints);
-	conv.setNumberOfFrames(1);
 
 	std::ostringstream output;
 	conv.testCreateHeader(&output);
