@@ -116,6 +116,11 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 
 						if (hit.colNorm.y > 0.68f)
 						{
+							XMVECTOR x,z;
+
+							x = XMVector3Orthogonal(Vector4ToXMVECTOR(&hit.colNorm));
+							z = XMVector3Cross(Vector4ToXMVECTOR(&hit.colNorm), x);
+
 							if(!b.getOnSomething())
 							{
 								b.setLanded(true);
@@ -124,7 +129,17 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 							b.setLastCollision(hit.collisionVictim);
 
 							XMFLOAT4 velocity = b.getVelocity();	// m/s
-							velocity.y = 0.f;
+
+							XMVECTOR v;
+
+							v = XMLoadFloat4(&velocity);
+
+
+
+							v.m128_f32[1] = 0.f;
+
+							XMStoreFloat4(&velocity, v);
+
 							b.setVelocity(velocity);
 						}
 					}

@@ -354,7 +354,7 @@ void GameLogic::playLocalLevel()
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
 	m_Level.loadLevel(input, m_Objects);
-	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, -1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
 	std::ifstream input("../Bin/assets/levels/Level1.2.1.btxl", std::istream::in | std::istream::binary);
