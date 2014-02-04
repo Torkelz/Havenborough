@@ -475,8 +475,16 @@ void Animation::updateFinalTransforms()
 	}
 }
 
-void Animation::playClip( const AnimationClip* p_Clip, bool p_Override )
+void Animation::playClip( const std::string& p_ClipName, bool p_Override )
 {
+	auto clip = m_Data->animationClips.find(p_ClipName);
+	if (clip == m_Data->animationClips.end())
+	{
+		return;
+	}
+
+	const AnimationClip* p_Clip = &clip->second;
+
 	int track = p_Clip->m_DestinationTrack;
 	if(p_Override)
 	{
@@ -524,9 +532,15 @@ void Animation::playClip( const AnimationClip* p_Clip, bool p_Override )
 	}
 }
 
-void Animation::queueClip( const AnimationClip* p_Clip )
+void Animation::queueClip( const std::string& p_Clip )
 {
-	m_Queue.push_back(p_Clip);
+	auto clip = m_Data->animationClips.find(p_Clip);
+	if (clip == m_Data->animationClips.end())
+	{
+		return;
+	}
+
+	m_Queue.push_back(&clip->second);
 }
 
 bool Animation::playQueuedClip(int p_Track)
@@ -540,7 +554,7 @@ bool Animation::playQueuedClip(int p_Track)
 		{
 			if (m_Queue[i]->m_DestinationTrack == p_Track)
 			{
-				playClip(m_Queue[i], false);
+				playClip(m_Queue[i]->m_ClipName, false);
 				m_Queue.erase(m_Queue.begin() + i);
 				return true;
 			}
@@ -558,5 +572,5 @@ void Animation::changeWeight(int p_Track, float p_Weight)
 void Animation::setAnimationData(AnimationData::ptr p_Data)
 {
 	m_Data = p_Data;
-	playClip(&m_Data->animationClips["default"], true);
+	playClip("default", true);
 }

@@ -704,21 +704,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 	{
 		if (inst.first == p_Instance)
 		{
-			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			string tempStr(p_ClipName);
-
-			// If an illegal string has been put in, just shoot in the default animation.
-			// The show must go on!
-			if( modelDef->animationData->animationClips.find(p_ClipName) == modelDef->animationData->animationClips.end() )
-			{
-				tempStr = "default";
-			}
-
-			//if(tempStr != "LookAround")
-			//	break;
-
-			inst.second.m_Animation.playClip(&modelDef->animationData->animationClips.at(tempStr), p_Override);
+			inst.second.m_Animation.playClip(p_ClipName, p_Override);
 			break;
 		}
 	}
@@ -730,18 +716,7 @@ void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
 	{
 		if (inst.first == p_Instance)
 		{
-			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			string tempStr(p_ClipName);
-
-			// If an illegal string has been put in, just shoot in the default animation.
-			// The show must go on!
-			if( modelDef->animationData->animationClips.find(p_ClipName) == modelDef->animationData->animationClips.end() )
-			{
-				tempStr = "default";
-			}
-
-			inst.second.m_Animation.queueClip(&modelDef->animationData->animationClips.at(tempStr));
+			inst.second.m_Animation.queueClip(p_ClipName);
 			break;
 		}
 	}

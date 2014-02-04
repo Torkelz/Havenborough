@@ -94,14 +94,14 @@ public:
 	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
 	 * @param p_Override, false if you want standard behavior and true if you want to skip blending etc.
 	 */
-	void playClip( const AnimationClip* p_Clip, bool p_Override );
+	void playClip( const std::string& p_Clip, bool p_Override );
 
 	/**
 	 * Queue animation clip.
 	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
 	 * NOTE: Queued clips cannot override the main track of a pair.
 	 */
-	void queueClip( const AnimationClip* p_Clip );
+	void queueClip( const std::string& p_Clip );
 
 	/**
 	 * Use this function to dynamicly change weight between e.g. the forward and strafe animations.

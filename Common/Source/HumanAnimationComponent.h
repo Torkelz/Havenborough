@@ -84,6 +84,8 @@ public:
 	void onUpdate(float p_DeltaTime) override
 	{
 		updateAnimation();
+		m_Animation.updateAnimation(p_DeltaTime);
+
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -116,6 +118,8 @@ public:
 		{
 			m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName, p_Override)));
 		}
+
+		m_Animation.playClip(p_AnimationName, p_Override);
 	}
 
 	void queueAnimation(std::string p_AnimationName)
@@ -125,6 +129,8 @@ public:
 		{
 			m_EventManager->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
 		}
+
+		m_Animation.queueClip(p_AnimationName);
 	}
 
 	void changeAnimationWeight(int p_Track, float p_Weight)
@@ -134,5 +140,7 @@ public:
 		{
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
 		}
+
+		m_Animation.changeWeight(p_Track, p_Weight);
 	}
 };
