@@ -22,6 +22,8 @@ public:
 		
 		m_InAir				= true;
 		m_IsImmovable		= false;
+
+		DirectX::XMStoreFloat4x4(&m_Orientation, DirectX::XMMatrixIdentity());
 	}
 
 

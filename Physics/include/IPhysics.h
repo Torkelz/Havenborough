@@ -226,6 +226,16 @@ public:
 	virtual void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) = 0;
 
 	/**
+	 * Calculate a direction with a body's frame of reference. Take the vector and rotate it by the axis of the body
+	 * and returns a new direction. 
+	 *
+	 * @param p_BodyHandle are what body to work with.
+	 * @param p_Vector3 the "old" vector.
+	 * @return returns the new vector.
+	 */
+	virtual Vector4 calculateDirectionVector(BodyHandle p_BodyHandle, Vector3 p_Vector) = 0;
+
+	/**
 	 * Return the bounding volume from the body.
 	 *
 	 * @param p_Body are what body to get the data from

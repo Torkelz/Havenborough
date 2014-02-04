@@ -206,6 +206,7 @@ void Player::move()
 	Vector3 velocity = m_Physics->getBodyVelocity(getBody());
 	XMFLOAT3 currentVelocity = velocity;	// cm/s
 	currentVelocity.y = 0.f;
+
 	XMFLOAT3 maxVelocity(m_DirectionX * m_MaxSpeed, 0.f, m_DirectionZ * m_MaxSpeed);	// cm/s
 
 	XMFLOAT3 diffVel = XMFLOAT3(0.f, 0.f, 0.f);	// cm/s
@@ -218,7 +219,12 @@ void Player::move()
 	force.x = diffVel.x / 100.f * m_AccConstant;
 	force.y = diffVel.y / 100.f * m_AccConstant;
 	force.z = diffVel.z / 100.f * m_AccConstant;
-	XMFLOAT3 forceDiff = XMFLOAT3(force.x - m_PrevForce.x, 0.f, force.z - m_PrevForce.z);	// kg * m/s^2
+
+	Vector4 direction = m_Physics->calculateDirectionVector(getBody(), force);
+
+	force = direction.xyz();
+
+	XMFLOAT3 forceDiff = XMFLOAT3(force.x - m_PrevForce.x, force.y - m_PrevForce.y, force.z - m_PrevForce.z);	// kg * m/s^2
 	m_PrevForce = force;
 
 	m_Physics->applyForce(getBody(), XMFLOAT3ToVector3(&forceDiff));

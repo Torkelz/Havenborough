@@ -705,6 +705,8 @@ void GameLogic::loadSandbox()
 
 	witchCircleAngle = 0.0f;
 
+	addActor(m_ActorFactory->createBoxWithOBB(Vector3(-4000.f, 0.f, 1000.f), Vector3(6000.f, 200.f, 6000.f), Vector3(0.3f, 0.f, -0.3f)));
+
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
 }
 

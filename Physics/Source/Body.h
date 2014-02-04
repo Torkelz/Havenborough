@@ -32,6 +32,7 @@ protected:
 	bool				m_CollisionResponse;
 	BodyHandle			m_LastCollision;
 	bool				m_Landed;
+	DirectX::XMFLOAT4X4	m_Orientation;
 
 	std::unique_ptr<BoundingVolume>	m_Volume;
 public:
@@ -174,6 +175,19 @@ public:
 	* reset the BodyHandleCounter. Only use when clearing the body list in physics
 	*/
 	static void resetBodyHandleCounter();
+
+	
+	/**
+	* Get the current orientation for the body
+	* @return m_Orientation.
+	*/
+	DirectX::XMFLOAT4X4 getOrientation();
+	/**
+	* Sets the orientation for the body
+	* @p_Orientation, the new orientation (frame of reference/local coordinate system)
+	*/
+	void setOrientation(DirectX::XMMATRIX const &p_Orientation);
+
 		
 private:
 	/**

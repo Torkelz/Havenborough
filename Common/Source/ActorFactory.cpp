@@ -277,6 +277,26 @@ Actor::ptr ActorFactory::createParticles( Vector3 p_Position, const std::string&
 	return createActor(doc.FirstChildElement("Object"));
 }
 
+Actor::ptr ActorFactory::createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	pushRotation(printer, p_Rotation);
+	printer.OpenElement("OBBPhysics");
+	pushVector(printer, "Halfsize", p_Halfsize);
+	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+return actor;
+}
+
 ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_Data)
 {
 	std::string name(p_Data->Value());

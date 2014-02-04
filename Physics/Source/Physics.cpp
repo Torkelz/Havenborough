@@ -85,7 +85,7 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 			}
 			else
 			{
-				//b.setGravity(0.f);
+				b.setGravity(0.f);
 			}
 
 			b.update(p_DeltaTime);
@@ -115,7 +115,22 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 						b.setPosition(tempPos);
 
 						if (hit.colNorm.y > 0.68f)
-						{
+						{	
+							XMVECTOR x,z;
+
+							x = XMVector4Normalize(XMVector3Orthogonal(Vector4ToXMVECTOR(&hit.colNorm)));
+							z = XMVector4Normalize(XMVector3Cross(Vector4ToXMVECTOR(&hit.colNorm), x));
+
+							XMMATRIX mat = XMMatrixIdentity();
+							mat.r[0] = x;
+							mat.r[0].m128_f32[3] = 0.f;
+							mat.r[1] = Vector4ToXMVECTOR(&hit.colNorm);
+							mat.r[2] = -z;
+
+							//mat = XMMatrixInverse(&XMVectorSet(1.f, 1.f, 1.f, 1.f), mat);
+
+							b.setOrientation(mat);
+
 							if(!b.getOnSomething())
 							{
 								b.setLanded(true);
@@ -127,6 +142,8 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 							velocity.y = 0.f;
 							b.setVelocity(velocity);
 						}
+						else
+							b.setOnSomething(false);
 					}
 				}
 
@@ -134,6 +151,8 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 				{
 					b.setOnSomething(false);
 					b.setLanded(false);
+					XMMATRIX mat = XMMatrixIdentity();
+					b.setOrientation(mat);
 				}
 			}
 
@@ -519,6 +538,20 @@ void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 	}
 
 }
+
+Vector4 Physics::calculateDirectionVector(BodyHandle p_Body, Vector3 p_Vector)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return Vector4(0.f, 0.f, 0.f, 0.f);
+
+	XMFLOAT4X4 mat = body->getOrientation();
+
+	XMVECTOR temp = XMVector4Transform(Vector3ToXMVECTOR(&p_Vector, 0.f), XMLoadFloat4x4(&mat));
+
+	return XMVECTORToVector4(&temp);
+}
+
 
 void Physics::setLogFunction(clientLogCallback_t p_LogCallback)
 {

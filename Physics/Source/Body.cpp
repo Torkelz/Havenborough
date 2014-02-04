@@ -34,6 +34,7 @@ Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool 
 
 	m_LastCollision		= 0;
 	m_Landed			= false;
+	XMStoreFloat4x4(&m_Orientation, XMMatrixIdentity());
 }
 
 Body::Body(Body &&p_Other)
@@ -54,7 +55,8 @@ Body::Body(Body &&p_Other)
 	  m_IsEdge(p_Other.m_IsEdge),
 	  m_CollisionResponse(p_Other.m_CollisionResponse),
 	  m_LastCollision(p_Other.m_LastCollision),
-	  m_Landed(p_Other.m_Landed)
+	  m_Landed(p_Other.m_Landed),
+	  m_Orientation(p_Other.m_Orientation)
 {}
 
 Body& Body::operator=(Body&& p_Other)
@@ -77,6 +79,7 @@ Body& Body::operator=(Body&& p_Other)
 	std::swap(m_CollisionResponse, p_Other.m_CollisionResponse);
 	std::swap(m_LastCollision, p_Other.m_LastCollision);
 	std::swap(m_Landed, p_Other.m_Landed);
+	std::swap(m_Orientation, p_Other.m_Orientation);
 
 	return *this;
 }
@@ -91,6 +94,8 @@ void Body::addForce(XMFLOAT4 p_Force)
 	tempForce = XMLoadFloat4(&p_Force);
 	tempNetForce = XMLoadFloat4(&m_NetForce);
 
+//	tempForce = XMVector4Transform(tempForce, XMLoadFloat4x4(&m_Orientation));
+
 	tempNetForce += tempForce;
 
 	XMStoreFloat4(&m_NetForce, tempNetForce);
@@ -100,7 +105,7 @@ void Body::update(float p_DeltaTime)
 {
 	if(m_IsImmovable)
 		return;
-	
+
 	m_LastAcceleration = m_AvgAcceleration;
 
 	XMFLOAT4 relativePos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);	// cm
@@ -130,6 +135,8 @@ void Body::update(float p_DeltaTime)
 	m_Velocity.z += m_AvgAcceleration.z * p_DeltaTime;
 
 	updateBoundingVolumePosition(relativePos);
+
+	
 	
 	//addGravity();
 }
@@ -275,4 +282,14 @@ float Body::getGravity()
 DirectX::XMFLOAT4 Body::getLastACC()
 {
 	return m_LastAcceleration;
+}
+
+XMFLOAT4X4 Body::getOrientation()
+{
+	return m_Orientation;
+}
+
+void Body::setOrientation(XMMATRIX const &p_Orientation)
+{
+	XMStoreFloat4x4(&m_Orientation, p_Orientation);
 }
