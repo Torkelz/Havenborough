@@ -69,6 +69,25 @@ Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data, Actor::
 	return actor;
 }
 
+Actor::ptr ActorFactory::createRotatingBox(Vector3 p_Position, Vector3 p_Scale)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", p_Scale);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
 Actor::ptr ActorFactory::createBasicModel(const std::string& p_Model, Vector3 p_Position)
 {
 	tinyxml2::XMLPrinter printer;
@@ -87,6 +106,70 @@ Actor::ptr ActorFactory::createBasicModel(const std::string& p_Model, Vector3 p_
 	return actor;
 }
 
+Actor::ptr ActorFactory::createIK_Worm()
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, Vector3(800.f, 100.f, 200.f));
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "IKTest");
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", p_Halfsize * 2.f);
+	printer.CloseElement();
+	printer.OpenElement("AABBPhysics");
+	pushVector(printer, "Halfsize", p_Halfsize);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	pushRotation(printer, p_Rotation);
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", p_Halfsize * 2.f);
+	printer.CloseElement();
+	printer.OpenElement("OBBPhysics");
+	pushVector(printer, "Halfsize", p_Halfsize);
+	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
 void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Halfsize)
 {
 	p_Printer.OpenElement("AABBPhysics");
@@ -94,6 +177,54 @@ void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Half
 	pushVector(p_Printer, "Halfsize", p_Halfsize);
 	pushVector(p_Printer, "OffsetPosition", p_Position);
 	p_Printer.CloseElement();
+}
+
+Actor::ptr ActorFactory::createClimbBox()
+{
+	static const Vector3 climbTestPos(0.f, 200.f, 3000.f);
+	static const Vector3 climbTestHalfSize(100.f, 100.f, 100.f);
+
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, climbTestPos);
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", climbTestHalfSize * 2.f);
+	printer.CloseElement();
+	addEdge(printer, Vector3(0.f, 0.f, 0.f), climbTestHalfSize);
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	pushVector(printer, "Scale", p_Halfsize * 2.f);
+	printer.CloseElement();
+	printer.OpenElement("AABBPhysics");
+	pushVector(printer, "Halfsize", p_Halfsize);
+	printer.CloseElement();
+	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));
+	addEdge(printer, Vector3(0.f, p_Halfsize.y - 50.f, -p_Halfsize.z), Vector3(p_Halfsize.x * 0.9f, 50.f, 10.f));
+	addEdge(printer, Vector3(p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
+	addEdge(printer, Vector3(-p_Halfsize.x, p_Halfsize.y - 50.f, 0.f), Vector3(10.f, 50.f, p_Halfsize.z * 0.9f));
+	printer.CloseElement();
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
 }
 
 Actor::ptr ActorFactory::createCollisionSphere(Vector3 p_Position, float p_Radius)
@@ -257,6 +388,39 @@ Actor::ptr ActorFactory::createCheckPointArrow()
 
 	tinyxml2::XMLDocument doc;
 	doc.Parse(printer.CStr());
+
+	return createActor(doc.FirstChildElement("Object"));
+}
+
+std::string ActorFactory::getCircleBoxDescription(Vector3 p_Center, float p_Radius)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	printer.OpenElement("CircleMovement");
+	printer.PushAttribute("RotationSpeed", PI * 0.1f);
+	printer.PushAttribute("CircleRadius", p_Radius);
+	pushVector(printer, "CircleCenter", p_Center);
+	printer.CloseElement();
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "BOX");
+	static const Vector3 scale(100.f, 100.f, 100.f);
+	pushVector(printer, "Scale", scale);
+	printer.CloseElement();
+	printer.OpenElement("OBBPhysics");
+	pushVector(printer, "Halfsize", scale * 0.5f);
+	printer.CloseElement();
+	printer.OpenElement("Pulse");
+	printer.PushAttribute("Length", 0.5f);
+	printer.PushAttribute("Strength", 0.5f);
+	printer.CloseElement();
+	printer.CloseElement();
+	return std::string(printer.CStr());
+}
+
+Actor::ptr ActorFactory::createCircleBox(Vector3 p_Center, float p_Radius)
+{
+	tinyxml2::XMLDocument doc;
+	doc.Parse(getCircleBoxDescription(p_Center, p_Radius).c_str());
 
 	return createActor(doc.FirstChildElement("Object"));
 }

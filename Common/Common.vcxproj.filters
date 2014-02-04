@@ -78,9 +78,6 @@
     <ClInclude Include="Source\HumanAnimationComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\AnimationLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp">
@@ -105,9 +102,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\LevelBinaryLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\AnimationLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

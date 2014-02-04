@@ -194,6 +194,9 @@
     <ClCompile Include="..\Physics\Source\BVLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestBVLoader.cpp">
+      <Filter>TestLoaders</Filter>
+    </ClCompile>
     <ClCompile Include="OBBTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
@@ -245,12 +248,6 @@
     </ClCompile>
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp">
       <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\Source\AnimationLoader.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\Animation.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

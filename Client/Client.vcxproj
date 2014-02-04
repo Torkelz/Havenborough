@@ -142,7 +142,6 @@ IF NOT "!DATE1!" EQU "!DATE2!" (
 echo Started converting %%~nf
 call $(SolutionDir)BinaryConverter\Test\BinaryConverter.exe %%f &gt; NUL
 move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.atx $(SolutionDir)Client\Bin\assets\animations\ &gt; NUL
 copy %%f /b +,, $(SolutionDir)Client\Assets\models\ /y &gt; NUL
 echo Updated the %%~nf.btx to a newer version. 
 ) 
@@ -150,7 +149,6 @@ echo Updated the %%~nf.btx to a newer version.
 echo Started converting %%~nf
 call $(SolutionDir)BinaryConverter\Test\BinaryConverter.exe %%f &gt; NUL
 move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.atx $(SolutionDir)Client\Bin\assets\animations\ &gt; NUL
 echo Converted the new %%~nf.tx file. )
 )</Command>
     </PostBuildEvent>
@@ -188,7 +186,6 @@ IF NOT "!DATE1!" EQU "!DATE2!" (
 echo Started converting %%~nf
 call $(SolutionDir)BinaryConverter\Bin\BinaryConverter.exe %%f &gt; NUL
 move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.atx $(SolutionDir)Client\Bin\assets\animations\ &gt; NUL
 copy %%f /b +,, $(SolutionDir)Client\Assets\models\ /y &gt; NUL
 echo Updated the %%~nf.btx to a newer version. 
 ) 
@@ -196,7 +193,6 @@ echo Updated the %%~nf.btx to a newer version.
 echo Started converting %%~nf
 call $(SolutionDir)BinaryConverter\Bin\BinaryConverter.exe %%f &gt; NUL
 move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.atx $(SolutionDir)Client\Bin\assets\animations\ &gt; NUL
 echo Converted the new %%~nf.tx file. )
 )</Command>
     </PostBuildEvent>

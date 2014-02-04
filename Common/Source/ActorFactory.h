@@ -78,6 +78,11 @@ public:
 	Actor::ptr createRotatingBox(Vector3 p_Position, Vector3 p_Scale);
 	Actor::ptr createSkybox(Vector3 p_Scale);
 	Actor::ptr createBasicModel(const std::string& p_Model, Vector3 p_Position);
+	Actor::ptr createIK_Worm();
+	Actor::ptr createBoxWithAABB(Vector3 p_Position, Vector3 p_Halfsize);
+	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
+	Actor::ptr createClimbBox();
+	Actor::ptr createClimbTowerBox(Vector3 p_Position, Vector3 p_Halfsize);
 	Actor::ptr createCollisionSphere(Vector3 p_Position, float p_Radius);
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone);
 	std::string getPlayerActorDescription(Vector3 p_Position) const;
@@ -87,6 +92,8 @@ public:
 	Actor::ptr createPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
 	Actor::ptr createCheckPointArrow();
+	std::string getCircleBoxDescription(Vector3 p_Center, float p_Radius);
+	Actor::ptr createCircleBox(Vector3 p_Center, float p_Radius);
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
 
 protected:

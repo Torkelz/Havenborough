@@ -1,5 +1,4 @@
 #pragma once
-
 #include "ActorComponent.h"
 #include "EventManager.h"
 #include "Utilities/XMFloatUtil.h"

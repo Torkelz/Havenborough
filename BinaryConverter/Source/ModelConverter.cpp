@@ -1,6 +1,4 @@
-#pragma warning(disable : 4996)
 #include "ModelConverter.h"
-#include <iostream>
 
 ModelConverter::ModelConverter()
 {
@@ -46,30 +44,16 @@ bool ModelConverter::writeFile(std::string p_FilePath)
 		return false;
 	}
 	std::ofstream output(p_FilePath, std::ostream::out | std::ostream::binary);
-	
 	if(!output)
 	{
 		return false;
 	}
-	createHeader(&output); 
+	createHeader(&output);
 	createMaterial(&output);
 	if(m_WeightsListSize != 0)
 	{
 		createVertexBufferAnimation(&output);
-
-		std::vector<char> outputBuffer(p_FilePath.size()+1);
-		strcpy(outputBuffer.data(), p_FilePath.c_str());
-		int length = outputBuffer.size();
-		strcpy(outputBuffer.data()+length-5, ".atx");
-		std::ofstream outputAnimation(outputBuffer.data(), std::ostream::out | std::ostream::binary);
-		if(!outputAnimation)
-		{
-			return false;
-		}
-		createAnimationHeader(&outputAnimation);
-		createJointBuffer(&outputAnimation);
-		std::cout << outputBuffer.data() << std::endl;
-		outputAnimation.close();
+		createJointBuffer(&output);
 	}
 	else
 	{
@@ -83,6 +67,7 @@ bool ModelConverter::writeFile(std::string p_FilePath)
 
 void ModelConverter::createHeader(std::ostream* p_Output)
 {
+	//assert(m_IndexPerMaterial != nullptr);
 	stringToByte(m_MeshName, p_Output);
 	intToByte(m_MaterialSize, p_Output);
 	for(int i = 0; i < m_IndexPerMaterialSize; i++)
@@ -91,14 +76,8 @@ void ModelConverter::createHeader(std::ostream* p_Output)
 	}
 	intToByte(m_VertexCount, p_Output);
 	intToByte(m_IndexPerMaterialSize, p_Output);
-	intToByte(m_ListOfJointsSize, p_Output);//temporary!
-}
-
-void ModelConverter::createAnimationHeader(std::ostream* p_AnimationOutput)
-{
-	stringToByte(m_MeshName, p_AnimationOutput);
-	intToByte(m_ListOfJointsSize, p_AnimationOutput);
-	intToByte(m_NumberOfFrames, p_AnimationOutput);
+	intToByte(m_ListOfJointsSize, p_Output);
+	intToByte(m_NumberOfFrames, p_Output);
 }
 
 void ModelConverter::createVertexBuffer(std::ostream* p_Output)

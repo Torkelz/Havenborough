@@ -691,9 +691,7 @@ void Graphics::updateAnimations(float p_DeltaTime)
 		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
 		if (modelDef->isAnimated)
 		{
-			model.second.m_Animation.updateAnimation(p_DeltaTime, modelDef->joints);
-			const std::vector<XMFLOAT4X4>& animationData = model.second.m_Animation.getFinalTransform();
-			model.second.animationPose(animationData.data(), animationData.size());
+			model.second.updateAnimation(p_DeltaTime, modelDef->joints);
 		}
 	}
 }
@@ -718,7 +716,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 			//if(tempStr != "LookAround")
 			//	break;
 
-			inst.second.m_Animation.playClip(modelDef->animationClips.at(tempStr), p_Override);
+			inst.second.playClip(modelDef->animationClips.at(tempStr), p_Override);
 			break;
 		}
 	}
@@ -741,7 +739,7 @@ void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
 				tempStr = "default";
 			}
 
-			inst.second.m_Animation.queueClip(modelDef->animationClips.at(tempStr));
+			inst.second.queueClip(modelDef->animationClips.at(tempStr));
 			break;
 		}
 	}
@@ -752,19 +750,7 @@ void Graphics::changeAnimationWeight(int p_Instance, int p_Track, float p_Weight
 	{
 		if (inst.first == p_Instance)
 		{
-			inst.second.m_Animation.changeWeight(p_Track, p_Weight);
-			break;
-		}
-	}
-}
-
-void Graphics::animationPose(int p_Instance, const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size)
-{
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.animationPose(p_Pose, p_Size);
+			inst.second.changeWeight(p_Track, p_Weight);
 			break;
 		}
 	}
@@ -791,6 +777,11 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 	int id = m_NextInstanceId++;
+
+	if (modelDef->isAnimated)
+	{
+		instance.updateAnimation(0.f, modelDef->joints);
+	}
 
 	m_ModelInstances.push_back(make_pair(id, instance));
 
@@ -886,9 +877,7 @@ void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_IKGroupNa
 				tempStr = "default";
 			}
 
-			inst.second.m_Animation.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, modelDef->joints, inst.second.getWorldMatrix());
-			const std::vector<XMFLOAT4X4>& animationData = inst.second.m_Animation.getFinalTransform();
-			inst.second.animationPose(animationData.data(), animationData.size());
+			inst.second.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, modelDef->joints);
 			break;
 		}
 	}
@@ -901,7 +890,7 @@ Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 		if (inst.first == p_Instance)
 		{
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			XMFLOAT3 position = inst.second.m_Animation.getJointPos(p_Joint, modelDef->joints, inst.second.getWorldMatrix());
+			XMFLOAT3 position = inst.second.getJointPos(p_Joint, modelDef->joints);
 			
 			return position;
 		}
