@@ -133,26 +133,7 @@
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)BoostTest\Test\BoostTest.exe --log_level=message
-setlocal enableextensions enabledelayedexpansion
-FOR %%f IN ($(SolutionDir)Client\Assets\models\*.tx) DO (
-IF EXIST $(SolutionDir)Client\Bin\assets\models\%%~nf.btx (
-FOR %%i IN ($(SolutionDir)Client\Assets\models\%%~nf.tx) DO SET DATE1=%%~ti
-FOR %%i IN ($(SolutionDir)Client\Bin\assets\models\%%~nf.btx) DO SET DATE2=%%~ti
-IF NOT "!DATE1!" EQU "!DATE2!" (
-echo Started converting %%~nf
-call $(SolutionDir)BinaryConverter\Test\BinaryConverter.exe %%f &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.atx $(SolutionDir)Client\Bin\assets\animations\ &gt; NUL
-copy %%f /b +,, $(SolutionDir)Client\Assets\models\ /y &gt; NUL
-echo Updated the %%~nf.btx to a newer version. 
-) 
-) ELSE (
-echo Started converting %%~nf
-call $(SolutionDir)BinaryConverter\Test\BinaryConverter.exe %%f &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.atx $(SolutionDir)Client\Bin\assets\animations\ &gt; NUL
-echo Converted the new %%~nf.tx file. )
-)</Command>
+$(ProjectDir)convert.bat  $(SolutionDir)BinaryConverter\Test\BinaryConverter.exe $(SolutionDir)Client\Bin\assets $(SolutionDir)Client\Assets\models</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -179,26 +160,7 @@ echo Converted the new %%~nf.tx file. )
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)BoostTest\Bin\BoostTest.exe
-setlocal enableextensions enabledelayedexpansion
-FOR %%f IN ($(SolutionDir)Client\Assets\models\*.tx) DO (
-IF EXIST $(SolutionDir)Client\Bin\assets\models\%%~nf.btx (
-FOR %%i IN ($(SolutionDir)Client\Assets\models\%%~nf.tx) DO SET DATE1=%%~ti
-FOR %%i IN ($(SolutionDir)Client\Bin\assets\models\%%~nf.btx) DO SET DATE2=%%~ti
-IF NOT "!DATE1!" EQU "!DATE2!" (
-echo Started converting %%~nf
-call $(SolutionDir)BinaryConverter\Bin\BinaryConverter.exe %%f &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.atx $(SolutionDir)Client\Bin\assets\animations\ &gt; NUL
-copy %%f /b +,, $(SolutionDir)Client\Assets\models\ /y &gt; NUL
-echo Updated the %%~nf.btx to a newer version. 
-) 
-) ELSE (
-echo Started converting %%~nf
-call $(SolutionDir)BinaryConverter\Bin\BinaryConverter.exe %%f &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.btx $(SolutionDir)Client\Bin\assets\models\ &gt; NUL
-move /y $(SolutionDir)Client\Assets\models\%%~nf.atx $(SolutionDir)Client\Bin\assets\animations\ &gt; NUL
-echo Converted the new %%~nf.tx file. )
-)</Command>
+$(ProjectDir)convert.bat  $(SolutionDir)BinaryConverter\Bin\BinaryConverter.exe $(SolutionDir)Client\Bin\assets $(SolutionDir)Client\Assets\models</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
