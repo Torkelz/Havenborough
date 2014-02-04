@@ -473,7 +473,14 @@ void GameLogic::handleNetwork()
 				break;
 			case PackageType::RESULT_GAME:
 				{
-					/*if(object->Attribute("Type", "GoalReached"))
+					int numberOfData = conn->getNumGameResultData(package);
+					for(int i = 0; i < numberOfData; i++)
+					{
+						const char* result = conn->getGameResultData(package, i);
+						tinyxml2::XMLDocument reader;
+						reader.Parse(result);
+						tinyxml2::XMLElement* object = reader.FirstChildElement("GameResult");
+						if(object->Attribute("Type", "Result"))
 						{
 								m_Level = Level();
 								m_Objects.clear();
@@ -486,9 +493,33 @@ void GameLogic::handleNetwork()
 								{
 									con->sendLeaveGame();
 								}
-
-								m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
-						}*/
+								
+								object = object->FirstChildElement("ResultList");
+								if(!object)
+								Logger::log(Logger::Level::ERROR_L, "Could not find Object (ResultList)");
+								int size = 0;
+								object->QueryAttribute("VectorSize", &size);
+								if(size == 1)
+								{
+									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+								}
+								else
+								{
+									std::vector<int> GoalList;
+									GoalList.reserve(size);
+									int position;
+									for(int i = 0; i < size; i++)
+									{
+										object->QueryAttribute("Place", &position);
+										GoalList[i] = position;
+									}
+								}
+						}
+						else if(object->Attribute("Type", "Position"))
+						{
+							int b = 0;
+						}
+					}
 				}
 				break;
 			case PackageType::UPDATE_OBJECTS:
@@ -552,7 +583,7 @@ void GameLogic::handleNetwork()
 						{
 							object = object->FirstChildElement("SetColor");
 							if(!object)
-								throw "WRONG!!!";
+								Logger::log(Logger::Level::ERROR_L, "Could not find Object (" + std::to_string(actorId) + ")");
 							Vector3 color;
 							object->QueryAttribute("r", &color.x);
 							object->QueryAttribute("g", &color.y);

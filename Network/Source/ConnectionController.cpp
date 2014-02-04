@@ -247,15 +247,15 @@ void ConnectionController::sendGameResult(const char** p_ExtraData, unsigned int
 unsigned int ConnectionController::getNumGameResultData(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
-	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_Object2.size();
+	ResultData* createObjects = static_cast<ResultData*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Object1.size();
 }
 
 const char* ConnectionController::getGameResultData(Package p_Package, unsigned int p_ExtraData)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
-	UpdateObjects* createObjects = static_cast<UpdateObjects*>(m_ReceivedPackages[p_Package].get());
-	return createObjects->m_Object2[p_ExtraData].c_str();
+	ResultData* createObjects = static_cast<ResultData*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Object1[p_ExtraData].c_str();
 }
 
 void ConnectionController::sendLevelData(const char* p_Stream, size_t p_Size)

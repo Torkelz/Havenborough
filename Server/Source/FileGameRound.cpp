@@ -173,7 +173,7 @@ void FileGameRound::sendUpdates()
 					goalCount++;
 					tinyxml2::XMLPrinter printer;
 					printer.OpenElement("GameResult");
-					printer.PushAttribute("Type", "Posistion");
+					printer.PushAttribute("Type", "Position");
 					printer.PushAttribute("Place", goalCount);
 					printer.CloseElement();
 					const char* info = printer.CStr();
@@ -190,17 +190,19 @@ void FileGameRound::sendUpdates()
 		printer.OpenElement("GameResult");
 		printer.PushAttribute("Type", "Result");
 		printer.OpenElement("ResultList");
+		printer.PushAttribute("VectorSize", m_Players.size());
 		for(int i = 0; i < m_ResultList.size(); i++)
 		{
-			printer.PushText(i+1);
-			for(int j = 0; j < m_Players.size(); j++)
-			{
-				if(m_Players[j]->getActor().lock()->getId() == m_ResultList[i])
-				{
-					printer.PushText(j+1);
-				}
-			}
+			printer.PushAttribute("Place",m_ResultList[i]);
 		}
+		printer.CloseElement();
+		printer.CloseElement();
+		const char* info = printer.CStr();
+		for(auto& player : m_Players)
+		{
+			player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
+		}
+		goalCount = 0;
 	}
 }
 
