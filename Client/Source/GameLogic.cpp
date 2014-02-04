@@ -2,6 +2,7 @@
 #include "Components.h"
 #include "EventData.h"
 #include "ClientExceptions.h"
+#include "HumanAnimationComponent.h"
 #include "Logger.h"
 
 #include <sstream>
@@ -738,10 +739,10 @@ void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, b
 		return;
 	}
 
-	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 	if (comp)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName, p_Override)));
+		comp->playAnimation(p_AnimationName, p_Override);
 	}
 }
 
@@ -752,10 +753,10 @@ void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
 		return;
 	}
 
-	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 	if (comp)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
+		comp->queueAnimation(p_AnimationName);
 	}
 }
 
@@ -766,10 +767,10 @@ void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_W
 		return;
 	}
 
-	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 	if (comp)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
+		comp->changeAnimationWeight(p_Track, p_Weight);
 	}
 }
 

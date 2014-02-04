@@ -86,6 +86,11 @@ public:
 		updateAnimation();
 		m_Animation.updateAnimation(p_DeltaTime);
 
+		std::shared_ptr<ModelComponent> comp = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+		if (comp)
+		{
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform())));
+		}
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -111,36 +116,18 @@ public:
 
 	void updateAnimation();
 
-	void playAnimation(std::string p_AnimationName, bool p_Override)
+	void playAnimation(std::string p_AnimationName, bool p_Override) override
 	{
-		std::shared_ptr<ModelComponent> comp = m_Model.lock();
-		if (comp)
-		{
-			m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName, p_Override)));
-		}
-
 		m_Animation.playClip(p_AnimationName, p_Override);
 	}
 
-	void queueAnimation(std::string p_AnimationName)
+	void queueAnimation(std::string p_AnimationName) override
 	{
-		std::shared_ptr<ModelComponent> comp = m_Model.lock();
-		if (comp)
-		{
-			m_EventManager->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
-		}
-
 		m_Animation.queueClip(p_AnimationName);
 	}
 
-	void changeAnimationWeight(int p_Track, float p_Weight)
+	void changeAnimationWeight(int p_Track, float p_Weight) override
 	{
-		std::shared_ptr<ModelComponent> comp = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
-		if (comp)
-		{
-			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
-		}
-
 		m_Animation.changeWeight(p_Track, p_Weight);
 	}
 };

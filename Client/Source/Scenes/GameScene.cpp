@@ -49,9 +49,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelPosition), UpdateModelPositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelScaleEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::playAnimation), PlayAnimationEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::queueAnimation), QueueAnimationEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeAnimationWeight), ChangeAnimationWeightEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateAnimation), UpdateAnimationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addReachIK), AddReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
@@ -98,14 +96,13 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_GameLogic->setPlayerDirection(Vector2(forward, right));
 
-	m_Graphics->updateAnimations(p_DeltaTime);
 	m_Graphics->updateParticles(p_DeltaTime);
 
 	for (auto& model : m_Models)
 	{
 		for (const ReachIK& ik : model.activeIKs)
 		{
-			m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
+			//m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
 		}
 	}
 }
@@ -381,38 +378,14 @@ void GameScene::updateModelScale(IEventData::Ptr p_Data)
 	}
 }
 
-void GameScene::playAnimation(IEventData::Ptr p_Data)
+void GameScene::updateAnimation(IEventData::Ptr p_Data)
 {
-	std::shared_ptr<PlayAnimationEventData> animationData = std::static_pointer_cast<PlayAnimationEventData>(p_Data);
+	std::shared_ptr<UpdateAnimationEventData> animationData = std::static_pointer_cast<UpdateAnimationEventData>(p_Data);
 	for(auto &model : m_Models)
 	{
 		if(model.meshId == animationData->getId())
 		{
-			m_Graphics->playAnimation(model.modelId, animationData->getAnimationName().c_str(), animationData->getOverride());
-		}
-	}
-}
-
-void GameScene::queueAnimation(IEventData::Ptr p_Data)
-{
-	std::shared_ptr<QueueAnimationEventData> animationData = std::static_pointer_cast<QueueAnimationEventData>(p_Data);
-	for(auto &model : m_Models)
-	{
-		if(model.meshId == animationData->getId())
-		{
-			m_Graphics->queueAnimation(model.modelId, animationData->getAnimationName().c_str());
-		}
-	}
-}
-
-void GameScene::changeAnimationWeight(IEventData::Ptr p_Data)
-{
-	std::shared_ptr<ChangeAnimationWeightEventData> animationData = std::static_pointer_cast<ChangeAnimationWeightEventData>(p_Data);
-	for(auto &model : m_Models)
-	{
-		if(model.meshId == animationData->getId())
-		{
-			m_Graphics->changeAnimationWeight(model.modelId, animationData->getTrack(), animationData->getWeight());
+			m_Graphics->animationPose(model.modelId, animationData->getAnimationData().data(), animationData->getAnimationData().size());
 		}
 	}
 }

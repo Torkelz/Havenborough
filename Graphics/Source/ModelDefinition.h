@@ -52,11 +52,6 @@ public:
 	 */
 	bool isTransparent;
 
-	/**
-	 * The animation of the model. Contains all static animation data.
-	 */
-	AnimationData::ptr animationData;
-
 public:
 	/**
 	 * Default contructor. Constructs an object without any data.
@@ -80,8 +75,7 @@ public:
 			specularTexture(p_Other.specularTexture),
 			numOfMaterials(p_Other.numOfMaterials),
 			isAnimated(p_Other.isAnimated),
-			isTransparent(p_Other.isTransparent),
-			animationData(std::move(p_Other.animationData))
+			isTransparent(p_Other.isTransparent)
 	{}
 
 	/**
@@ -98,7 +92,6 @@ public:
 		std::swap(numOfMaterials, p_Other.numOfMaterials);
 		std::swap(isAnimated, p_Other.isAnimated);
 		std::swap(isTransparent, p_Other.isTransparent);
-		std::swap(animationData, p_Other.animationData);
 
 		return *this;
 	}

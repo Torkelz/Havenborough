@@ -1,7 +1,4 @@
 #pragma once
-#include "Joint.h"
-#include "Animation.h"
-#include "AnimationClip.h"
 
 #include <DirectXMath.h>
 #include <string>
@@ -30,8 +27,6 @@
 	std::vector<DirectX::XMFLOAT4X4> m_FinalTransform;
 
  public:
-
-	Animation m_Animation;
 	/**
 	 * Constructor. Creates an empty object.
 	 */
