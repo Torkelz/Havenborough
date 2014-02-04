@@ -141,4 +141,9 @@ public:
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform())));
 		}
 	}
+
+	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName) override
+	{
+		return m_Animation.getJointPos(p_JointName, m_Owner->getWorldMatrix());
+	}
 };
