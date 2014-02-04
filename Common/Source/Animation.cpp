@@ -15,7 +15,9 @@ Animation::Animation()
 		m_Tracks[i].currentFrame = 0.0f;
 		m_Tracks[i].destinationFrame = 1.0f;
 		m_Tracks[i].dynamicWeight = 1.0f;
-		m_Tracks[i].clip = AnimationClip();
+		m_Tracks[i].clip = nullptr;
+		m_Tracks[i].fadeIn = false;
+		m_Tracks[i].fadeOut = false;
 	}
 }
 
@@ -41,7 +43,7 @@ void Animation::updateAnimation(float p_DeltaTime)
 	{
 		MatrixDecomposed toParentData;
 		// Track 0 is the main track. Do vanilla animation.
-		if(m_Tracks[0].clip.m_AnimationSpeed > 0)
+		if(m_Tracks[0].clip->m_AnimationSpeed > 0)
 		{
 			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].currentFrame, m_Tracks[0].destinationFrame);
 		}
@@ -56,7 +58,7 @@ void Animation::updateAnimation(float p_DeltaTime)
 			{
 				if (currentTrack > 3)
 				{
-					if (affected(i, m_Tracks[currentTrack].clip.m_FirstJoint))
+					if (affected(i, m_Tracks[currentTrack].clip->m_FirstJoint))
 					{
 						toParentData = updateKeyFrameInformation(p_Joints[i], currentTrack, toParentData);
 					}
@@ -83,7 +85,7 @@ MatrixDecomposed Animation::updateKeyFrameInformation(Joint p_Joint, unsigned in
 	MatrixDecomposed p_ToParentData)
 {
 	MatrixDecomposed tempData;
-	if(m_Tracks[p_CurrentTrack].clip.m_AnimationSpeed > 0)
+	if(m_Tracks[p_CurrentTrack].clip->m_AnimationSpeed > 0)
 	{
 		tempData = p_Joint.interpolateEx(m_Tracks[p_CurrentTrack].currentFrame, m_Tracks[p_CurrentTrack].destinationFrame);
 	}
@@ -92,21 +94,21 @@ MatrixDecomposed Animation::updateKeyFrameInformation(Joint p_Joint, unsigned in
 		tempData = p_Joint.interpolateEx(m_Tracks[p_CurrentTrack].destinationFrame, m_Tracks[p_CurrentTrack].currentFrame);
 	}
 
-	if(m_Tracks[p_CurrentTrack].clip.m_FadeIn)
+	if(m_Tracks[p_CurrentTrack].fadeIn)
 	{
 		return p_Joint.interpolateEx(p_ToParentData, tempData, (m_Tracks[p_CurrentTrack].fadedFrames /
-			(float)m_Tracks[p_CurrentTrack].clip.m_FadeInFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight *
+			(float)m_Tracks[p_CurrentTrack].clip->m_FadeInFrames) * m_Tracks[p_CurrentTrack].clip->m_Weight *
 			m_Tracks[p_CurrentTrack].dynamicWeight);
 	}
-	else if(m_Tracks[p_CurrentTrack].clip.m_FadeOut && !m_Tracks[p_CurrentTrack].clip.m_Loop)
+	else if(m_Tracks[p_CurrentTrack].fadeOut && !m_Tracks[p_CurrentTrack].clip->m_Loop)
 	{
 		return p_Joint.interpolateEx(p_ToParentData, tempData, 1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames /
-			(float)m_Tracks[p_CurrentTrack].clip.m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight) *
+			(float)m_Tracks[p_CurrentTrack].clip->m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip->m_Weight) *
 			m_Tracks[p_CurrentTrack].dynamicWeight );
 	}
 	else
 	{
-		return p_Joint.interpolateEx(p_ToParentData, tempData, m_Tracks[p_CurrentTrack].clip.m_Weight *
+		return p_Joint.interpolateEx(p_ToParentData, tempData, m_Tracks[p_CurrentTrack].clip->m_Weight *
 			m_Tracks[p_CurrentTrack].dynamicWeight );
 	}
 }
@@ -115,14 +117,19 @@ void Animation::checkFades()
 {
 	for (int i = 1; i < 6; i++)
 	{
-		if (m_Tracks[i].clip.m_FadeIn)
+		if (!m_Tracks[i].active)
 		{
-			if ((float)m_Tracks[i].clip.m_FadeInFrames <= m_Tracks[i].fadedFrames)
+			continue;
+		}
+
+		if (m_Tracks[i].fadeIn)
+		{
+			if ((float)m_Tracks[i].clip->m_FadeInFrames <= m_Tracks[i].fadedFrames)
 			{
-				m_Tracks[i].clip.m_FadeIn = false;
+				m_Tracks[i].fadeIn = false;
 				m_Tracks[i].fadedFrames = 0.0f;
 
-				if(!m_Tracks[i].clip.m_Layered && m_Tracks[i].clip.m_Loop)
+				if(!m_Tracks[i].clip->m_Layered && m_Tracks[i].clip->m_Loop)
 				{
 					m_Tracks[i - 1] = m_Tracks[i];
 					m_Tracks[i].active = false;
@@ -130,16 +137,16 @@ void Animation::checkFades()
 				}
 			}
 		}
-		if (!m_Tracks[i].clip.m_FadeIn && m_Tracks[i].clip.m_FadeOut)
+		if (!m_Tracks[i].fadeIn && m_Tracks[i].fadeOut)
 		{
-			if ((float)m_Tracks[i].clip.m_FadeOutFrames <= m_Tracks[i].fadedFrames)
+			if ((float)m_Tracks[i].clip->m_FadeOutFrames <= m_Tracks[i].fadedFrames)
 			{
-				m_Tracks[i].clip.m_FadeOut = false;
+				m_Tracks[i].fadeOut = false;
 				m_Tracks[i].fadedFrames = 0.0f;
 				m_Tracks[i].active = false;
 			}
 		}
-		if( (float)(m_Tracks[i].clip.m_End - m_Tracks[i].clip.m_FadeOutFrames - 1) < m_Tracks[i].currentFrame)
+		if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) < m_Tracks[i].currentFrame)
 		{
 			if(!playQueuedClip(i))
 			{
@@ -157,36 +164,36 @@ void Animation::updateTimeStamp(float p_DeltaTime)
 	{
 		if( m_Tracks[i].active )
 		{
-			float frameStep = p_DeltaTime * keyfps * m_Tracks[i].clip.m_AnimationSpeed;
+			float frameStep = p_DeltaTime * keyfps * m_Tracks[i].clip->m_AnimationSpeed;
 			m_Tracks[i].currentFrame += frameStep;
 
-			if (m_Tracks[i].clip.m_FadeIn)
+			if (m_Tracks[i].fadeIn)
 				m_Tracks[i].fadedFrames += abs(frameStep);
-			else if ( m_Tracks[i].clip.m_FadeOut && !m_Tracks[i].clip.m_Loop)
+			else if ( m_Tracks[i].fadeOut && !m_Tracks[i].clip->m_Loop)
 			{
-				if( (float)(m_Tracks[i].clip.m_End - m_Tracks[i].clip.m_FadeOutFrames - 1) <= m_Tracks[i].currentFrame)
+				if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) <= m_Tracks[i].currentFrame)
 					m_Tracks[i].fadedFrames += abs(frameStep);
 			}
 
-			const unsigned int numKeyframes = (unsigned int)m_Tracks[i].clip.m_End;
+			const unsigned int numKeyframes = (unsigned int)m_Tracks[i].clip->m_End;
 	
-			if (m_Tracks[i].clip.m_AnimationSpeed > 0.0f)
+			if (m_Tracks[i].clip->m_AnimationSpeed > 0.0f)
 			{
 				m_Tracks[i].destinationFrame = m_Tracks[i].currentFrame + 1.0f;
 				if (m_Tracks[i].currentFrame >= (float)(numKeyframes))
 				{
-					if(m_Tracks[i].clip.m_Loop)
-						m_Tracks[i].currentFrame = (float)m_Tracks[i].clip.m_Start;
+					if(m_Tracks[i].clip->m_Loop)
+						m_Tracks[i].currentFrame = (float)m_Tracks[i].clip->m_Start;
 					else
 						m_Tracks[i].active = false;
 				}
 				if (m_Tracks[i].destinationFrame >= (float)(numKeyframes))
 				{
-					if(m_Tracks[i].clip.m_Loop)
+					if(m_Tracks[i].clip->m_Loop)
 					{
 						float dummy;
 						float frac = modff(m_Tracks[i].destinationFrame, &dummy);
-						m_Tracks[i].destinationFrame = m_Tracks[i].clip.m_Start + frac;
+						m_Tracks[i].destinationFrame = m_Tracks[i].clip->m_Start + frac;
 					}
 					else
 						m_Tracks[i].active = false;
@@ -194,17 +201,17 @@ void Animation::updateTimeStamp(float p_DeltaTime)
 			}
 			else
 			{
-				if (m_Tracks[i].currentFrame <= m_Tracks[i].clip.m_Start)
+				if (m_Tracks[i].currentFrame <= m_Tracks[i].clip->m_Start)
 				{
-					if(m_Tracks[i].clip.m_Loop)
+					if(m_Tracks[i].clip->m_Loop)
 						m_Tracks[i].currentFrame = (float)(numKeyframes);
 					else
 						m_Tracks[i].active = false;
 				}
 				m_Tracks[i].destinationFrame = m_Tracks[i].currentFrame - 1.0f;
-				if (m_Tracks[i].destinationFrame <= m_Tracks[i].clip.m_Start)
+				if (m_Tracks[i].destinationFrame <= m_Tracks[i].clip->m_Start)
 				{
-					if(m_Tracks[i].clip.m_Loop)
+					if(m_Tracks[i].clip->m_Loop)
 					{
 						float frac = 0.0f;
 						frac = m_Tracks[i].destinationFrame - (int)m_Tracks[i].destinationFrame;
@@ -468,56 +475,56 @@ void Animation::updateFinalTransforms()
 	}
 }
 
-void Animation::playClip( AnimationClip p_Clip, bool p_Override )
+void Animation::playClip( const AnimationClip* p_Clip, bool p_Override )
 {
-	int track = p_Clip.m_DestinationTrack;
+	int track = p_Clip->m_DestinationTrack;
 	if(p_Override)
 	{
 		m_Tracks[track].clip = p_Clip;
 		m_Tracks[track].fadedFrames = 0.0f;
 		m_Tracks[track].active = true;
-		m_Tracks[track].currentFrame = (float)p_Clip.m_Start;
+		m_Tracks[track].currentFrame = (float)p_Clip->m_Start;
 		m_Tracks[track].dynamicWeight = 1.0f;
+		m_Tracks[track].fadeIn = p_Clip->m_FadeIn;
+		m_Tracks[track].fadeOut = p_Clip->m_FadeOut;
 	}
 	else
 	{
 		if(m_Tracks[track].active)
 		{
-			if(!m_Tracks[track + 1].active)
-			{
-				m_Tracks[track + 1].clip = p_Clip;
-				m_Tracks[track + 1].fadedFrames = 0.0f;
-				m_Tracks[track + 1].active = true;
-				m_Tracks[track + 1].currentFrame = (float)p_Clip.m_Start;
-				m_Tracks[track + 1].dynamicWeight = 1.0f;
-			}
-			else
+			if(m_Tracks[track + 1].active)
 			{	
 				m_Tracks[track].clip			= 	m_Tracks[track + 1].clip;
 				m_Tracks[track].fadedFrames		= 	m_Tracks[track + 1].fadedFrames;
 				m_Tracks[track].active			= 	m_Tracks[track + 1].active;
 				m_Tracks[track].currentFrame	= 	m_Tracks[track + 1].currentFrame;
 				m_Tracks[track].dynamicWeight	= 	m_Tracks[track + 1].dynamicWeight;
-
-				m_Tracks[track + 1].clip = p_Clip;
-				m_Tracks[track + 1].fadedFrames = 0.0f;
-				m_Tracks[track + 1].active = true;
-				m_Tracks[track + 1].currentFrame = (float)p_Clip.m_Start;
-				m_Tracks[track + 1].dynamicWeight = 1.0f;
+				m_Tracks[track].fadeIn			= 	m_Tracks[track + 1].fadeIn;
+				m_Tracks[track].fadeOut			= 	m_Tracks[track + 1].fadeOut;
 			}
+
+			m_Tracks[track + 1].clip = p_Clip;
+			m_Tracks[track + 1].fadedFrames = 0.0f;
+			m_Tracks[track + 1].active = true;
+			m_Tracks[track + 1].currentFrame = (float)p_Clip->m_Start;
+			m_Tracks[track + 1].dynamicWeight = 1.0f;
+			m_Tracks[track + 1].fadeIn = p_Clip->m_FadeIn;
+			m_Tracks[track + 1].fadeOut = p_Clip->m_FadeOut;
 		}
 		else
 		{
 			m_Tracks[track].clip = p_Clip;
 			m_Tracks[track].fadedFrames = 0.0f;
 			m_Tracks[track].active = true;
-			m_Tracks[track].currentFrame = (float)p_Clip.m_Start;
+			m_Tracks[track].currentFrame = (float)p_Clip->m_Start;
 			m_Tracks[track].dynamicWeight = 1.0f;
+			m_Tracks[track].fadeIn = p_Clip->m_FadeIn;
+			m_Tracks[track].fadeOut = p_Clip->m_FadeOut;
 		}
 	}
 }
 
-void Animation::queueClip( AnimationClip p_Clip )
+void Animation::queueClip( const AnimationClip* p_Clip )
 {
 	m_Queue.push_back(p_Clip);
 }
@@ -531,7 +538,7 @@ bool Animation::playQueuedClip(int p_Track)
 	{
 		for (unsigned int i = 0; i < m_Queue.size(); i++)
 		{
-			if (m_Queue[i].m_DestinationTrack == p_Track)
+			if (m_Queue[i]->m_DestinationTrack == p_Track)
 			{
 				playClip(m_Queue[i], false);
 				m_Queue.erase(m_Queue.begin() + i);
@@ -551,4 +558,5 @@ void Animation::changeWeight(int p_Track, float p_Weight)
 void Animation::setAnimationData(AnimationData::ptr p_Data)
 {
 	m_Data = p_Data;
+	playClip(&m_Data->animationClips["default"], true);
 }

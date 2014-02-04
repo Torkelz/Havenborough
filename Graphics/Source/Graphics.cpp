@@ -718,7 +718,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 			//if(tempStr != "LookAround")
 			//	break;
 
-			inst.second.m_Animation.playClip(modelDef->animationData->animationClips.at(tempStr), p_Override);
+			inst.second.m_Animation.playClip(&modelDef->animationData->animationClips.at(tempStr), p_Override);
 			break;
 		}
 	}
@@ -741,7 +741,7 @@ void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
 				tempStr = "default";
 			}
 
-			inst.second.m_Animation.queueClip(modelDef->animationData->animationClips.at(tempStr));
+			inst.second.m_Animation.queueClip(&modelDef->animationData->animationClips.at(tempStr));
 			break;
 		}
 	}
@@ -790,7 +790,10 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
-	instance.m_Animation.setAnimationData(modelDef->animationData);
+	if (modelDef->isAnimated)
+	{
+		instance.m_Animation.setAnimationData(modelDef->animationData);
+	}
 	int id = m_NextInstanceId++;
 
 	m_ModelInstances.push_back(make_pair(id, instance));

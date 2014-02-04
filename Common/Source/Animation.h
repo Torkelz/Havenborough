@@ -11,7 +11,7 @@ class Animation
 private:
 	struct AnimationTrack
 	{
-		AnimationClip clip; // Constant animation data
+		const AnimationClip* clip; // Constant animation data
 
 		// Dynamic animation data
 		bool active;
@@ -19,6 +19,8 @@ private:
 		float currentFrame;
 		float destinationFrame;
 		float dynamicWeight;
+		bool fadeIn;
+		bool fadeOut;
 	};
 	// Animation data
 	/**
@@ -42,7 +44,7 @@ private:
 	 * Track 5 is the fade in or layered track for track 4.
 	 */
 	AnimationTrack m_Tracks[6];
-	std::vector<AnimationClip> m_Queue;
+	std::vector<const AnimationClip*> m_Queue;
 	AnimationData::ptr m_Data;
 
 public:
@@ -92,14 +94,14 @@ public:
 	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
 	 * @param p_Override, false if you want standard behavior and true if you want to skip blending etc.
 	 */
-	void playClip( AnimationClip p_Clip, bool p_Override );
+	void playClip( const AnimationClip* p_Clip, bool p_Override );
 
 	/**
 	 * Queue animation clip.
 	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
 	 * NOTE: Queued clips cannot override the main track of a pair.
 	 */
-	void queueClip( AnimationClip p_Clip );
+	void queueClip( const AnimationClip* p_Clip );
 
 	/**
 	 * Use this function to dynamicly change weight between e.g. the forward and strafe animations.
