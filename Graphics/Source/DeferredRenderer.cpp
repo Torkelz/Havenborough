@@ -247,7 +247,7 @@ void DeferredRenderer::renderGeometry()
 	}
 	m_Objects.clear();
 
-	m_ConstantBuffer->setBuffer(1);
+	m_ConstantBuffer->setBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	updateConstantBuffer();
 	for( auto &animation : ttani )
@@ -303,7 +303,7 @@ void DeferredRenderer::renderGeometry()
 		renderObject(o);
 	}*/	
 	m_DeviceContext->PSSetSamplers(0,0,0);
-	m_ConstantBuffer->unsetBuffer(1);
+	m_ConstantBuffer->unsetBuffer(0);
 
 	// Unset render targets.
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
@@ -313,7 +313,8 @@ void DeferredRenderer::renderSSAO(void)
 {
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargets[4], 0);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+	
+	m_SSAO_Shader->setShader();
 	m_ConstantBuffer->setBuffer(0);
 	m_SSAO_ConstantBuffer->setBuffer(1);
 
@@ -330,10 +331,9 @@ void DeferredRenderer::renderSSAO(void)
 		m_SSAO_RandomVecSRV
 	};
 	m_DeviceContext->PSSetShaderResources(0, 2, srvs);
-	
-	m_SSAO_Shader->setShader();
+
+
 	m_DeviceContext->Draw(6, 0);
-	m_SSAO_Shader->unSetShader();
 
 	ID3D11ShaderResourceView *nullSrvs[] = { 0, 0 };
 	m_DeviceContext->PSSetShaderResources(0, 2, nullSrvs);
@@ -341,8 +341,9 @@ void DeferredRenderer::renderSSAO(void)
 	ID3D11SamplerState *nullSamplers[] = { 0, 0	};
 	m_DeviceContext->PSSetSamplers(0, 2, nullSamplers);
 
-	m_ConstantBuffer->unsetBuffer(0);
 	m_SSAO_ConstantBuffer->unsetBuffer(1);
+	m_ConstantBuffer->unsetBuffer(0);
+	m_SSAO_Shader->unSetShader();
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 }
 
@@ -661,6 +662,7 @@ void DeferredRenderer::createBuffers()
 
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
 	cbdesc.initData = &ssaoBuffer;
+	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
 	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
 
 	m_SSAO_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
@@ -980,14 +982,14 @@ void DeferredRenderer::renderObject(Renderable &p_Object)
 			temp.boneTransform[a] = (*tempBones)[a];
 
 		m_DeviceContext->UpdateSubresource(m_AnimatedObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-		m_AnimatedObjectConstantBuffer->setBuffer(3);
+		m_AnimatedObjectConstantBuffer->setBuffer(2);
 	}
 
 	cObjectBuffer temp;
 	temp.world = p_Object.world;
 	
 	m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-	m_ObjectConstantBuffer->setBuffer(2);
+	m_ObjectConstantBuffer->setBuffer(1);
 
 	// Set shader.
 	p_Object.model->shader->setShader();
@@ -1009,7 +1011,7 @@ void DeferredRenderer::renderObject(Renderable &p_Object)
 
 	p_Object.model->shader->setBlendState(0, data);
 	p_Object.model->shader->unSetShader();
-	m_ObjectConstantBuffer->unsetBuffer(2);
-	m_AnimatedObjectConstantBuffer->unsetBuffer(3);
+	m_ObjectConstantBuffer->unsetBuffer(1);
+	m_AnimatedObjectConstantBuffer->unsetBuffer(2);
 	p_Object.model->vertexBuffer->unsetBuffer(0);
 }
