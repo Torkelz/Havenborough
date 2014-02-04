@@ -50,9 +50,6 @@
     <ClCompile Include="Source\ModelInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Joint.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\AnimationClipLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,9 +66,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\ParticleInstance.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -121,9 +115,6 @@
     <ClInclude Include="Source\GraphicsExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Joint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ShaderStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -158,12 +149,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ParticleEffectDefinition.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\AnimationClip.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

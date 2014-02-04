@@ -1,4 +1,6 @@
 #pragma once
+
+#include "Actor.h"
 #include "ActorComponent.h"
 #include "EventData.h"
 #include "ResourceManager.h"

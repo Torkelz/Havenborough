@@ -2,13 +2,6 @@
 #include <DirectXMath.h>
 #include <string>
 
-struct KeyFrame
-{
-	DirectX::XMFLOAT3 m_Trans;
-	DirectX::XMFLOAT4 m_Rot;
-	DirectX::XMFLOAT3 m_Scale;
-};
-
 struct StaticVertex
 {
 	DirectX::XMFLOAT4 m_Position;

@@ -1,6 +1,7 @@
 #pragma once
 #include "Joint.h"
 #include "AnimationClip.h"
+#include "AnimationData.h"
 #include "Buffer.h"
 #include "Shader.h"
 
@@ -52,19 +53,9 @@ public:
 	bool isTransparent;
 
 	/**
-	 * The animation joints of the model. Contains all static animation data.
+	 * The animation of the model. Contains all static animation data.
 	 */
-	std::vector<Joint> joints;
-
-	/**
-	 * The animation clips. Address them via a name. E.g. "Walk", "Run", "Laugh"...
-	 */
-	std::map<std::string, AnimationClip> animationClips;
-
-	/**
-	 * An IK group contains the static data needed to perform IK on three joints. Makes Mattias' life simpler.
-	 */
-	std::map<std::string, IKGroup> ikGroups;
+	AnimationData::ptr animationData;
 
 public:
 	/**
@@ -90,9 +81,7 @@ public:
 			numOfMaterials(p_Other.numOfMaterials),
 			isAnimated(p_Other.isAnimated),
 			isTransparent(p_Other.isTransparent),
-			joints(std::move(p_Other.joints)),
-			animationClips(std::move(p_Other.animationClips)),
-			ikGroups(std::move(p_Other.ikGroups))
+			animationData(std::move(p_Other.animationData))
 	{}
 
 	/**
@@ -109,9 +98,7 @@ public:
 		std::swap(numOfMaterials, p_Other.numOfMaterials);
 		std::swap(isAnimated, p_Other.isAnimated);
 		std::swap(isTransparent, p_Other.isTransparent);
-		std::swap(joints, p_Other.joints);
-		std::swap(animationClips, p_Other.animationClips);
-		std::swap(ikGroups, p_Other.ikGroups);
+		std::swap(animationData, p_Other.animationData);
 
 		return *this;
 	}

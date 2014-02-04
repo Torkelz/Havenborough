@@ -691,9 +691,9 @@ void Graphics::updateAnimations(float p_DeltaTime)
 		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
 		if (modelDef->isAnimated)
 		{
-			model.second.m_Animation.updateAnimation(p_DeltaTime, modelDef->joints);
+			model.second.m_Animation.updateAnimation(p_DeltaTime);
 			const std::vector<XMFLOAT4X4>& animationData = model.second.m_Animation.getFinalTransform();
-			model.second.animationPose(animationData.data(), animationData.size());
+			animationPose(model.first, animationData.data(), animationData.size());
 		}
 	}
 }
@@ -710,7 +710,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
+			if( modelDef->animationData->animationClips.find(p_ClipName) == modelDef->animationData->animationClips.end() )
 			{
 				tempStr = "default";
 			}
@@ -718,7 +718,7 @@ void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Over
 			//if(tempStr != "LookAround")
 			//	break;
 
-			inst.second.m_Animation.playClip(modelDef->animationClips.at(tempStr), p_Override);
+			inst.second.m_Animation.playClip(&modelDef->animationData->animationClips.at(tempStr), p_Override);
 			break;
 		}
 	}
@@ -736,12 +736,12 @@ void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
+			if( modelDef->animationData->animationClips.find(p_ClipName) == modelDef->animationData->animationClips.end() )
 			{
 				tempStr = "default";
 			}
 
-			inst.second.m_Animation.queueClip(modelDef->animationClips.at(tempStr));
+			inst.second.m_Animation.queueClip(&modelDef->animationData->animationClips.at(tempStr));
 			break;
 		}
 	}
@@ -784,12 +784,16 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 			string(p_ModelId));
 		return -1;
 	}
-	
+
 	ModelInstance instance;
 	instance.setModelName(p_ModelId);
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setRotation(XMFLOAT3(0.f, 0.f, 0.f));
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
+	if (modelDef->isAnimated)
+	{
+		instance.m_Animation.setAnimationData(modelDef->animationData);
+	}
 	int id = m_NextInstanceId++;
 
 	m_ModelInstances.push_back(make_pair(id, instance));
@@ -881,14 +885,14 @@ void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_IKGroupNa
 
 			// If an illegal string has been put in, just shoot in the default animation.
 			// The show must go on!
-			if( modelDef->ikGroups.find(p_IKGroupName) == modelDef->ikGroups.end() )
+			if( modelDef->animationData->ikGroups.find(p_IKGroupName) == modelDef->animationData->ikGroups.end() )
 			{
 				tempStr = "default";
 			}
 
-			inst.second.m_Animation.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, modelDef->joints, inst.second.getWorldMatrix());
+			inst.second.m_Animation.applyIK_ReachPoint(modelDef->animationData->ikGroups.at(p_IKGroupName), p_Target, inst.second.getWorldMatrix());
 			const std::vector<XMFLOAT4X4>& animationData = inst.second.m_Animation.getFinalTransform();
-			inst.second.animationPose(animationData.data(), animationData.size());
+			animationPose(p_Instance, animationData.data(), animationData.size());
 			break;
 		}
 	}
@@ -901,7 +905,7 @@ Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
 		if (inst.first == p_Instance)
 		{
 			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			XMFLOAT3 position = inst.second.m_Animation.getJointPos(p_Joint, modelDef->joints, inst.second.getWorldMatrix());
+			XMFLOAT3 position = inst.second.m_Animation.getJointPos(p_Joint, inst.second.getWorldMatrix());
 			
 			return position;
 		}

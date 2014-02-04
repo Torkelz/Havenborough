@@ -196,23 +196,23 @@ void DeferredRenderer::renderGeometry()
 
 	std::sort(m_Objects.begin(),m_Objects.end(), [] (Renderable &a,Renderable &b)
 	{ 
-		return a.model->vertexBuffer > b.model->vertexBuffer;
+		return a.model > b.model;
 	});
 
-	std::vector<std::vector<Renderable>> ttemp;
-	std::vector<Renderable> ttani;
+	std::vector<std::vector<Renderable>> instancedModels;
+	std::vector<Renderable> animatedOrSingle;
 
 	for(unsigned int i = 0; i < m_Objects.size(); i++)
 	{
 		if(m_Objects.at(i).model->isAnimated)
-			ttani.push_back(std::move(m_Objects.at(i)));
+			animatedOrSingle.push_back(std::move(m_Objects.at(i)));
 		else
 		{
 			std::vector<Renderable> l;
 			int current = i;
 			int nr = 0;
 			for(unsigned int j = i + 1; j < m_Objects.size();j++)
-				if(m_Objects.at(current).model->vertexBuffer == m_Objects.at(j).model->vertexBuffer)
+				if(m_Objects.at(current).model == m_Objects.at(j).model)
 					nr++;
 				else
 					break;
@@ -221,11 +221,11 @@ void DeferredRenderer::renderGeometry()
 
 			if(nr >= 1)
 			{
-				std::move(m_Objects.begin() + current, m_Objects.begin() + current + nr + 1, std::back_inserter(l));
-				ttemp.push_back(l);
+				std::move(m_Objects.begin() + current, m_Objects.begin() + i + 1, std::back_inserter(l));
+				instancedModels.push_back(l);
 			}
 			else
-				ttani.push_back(std::move(m_Objects.at(current)));
+				animatedOrSingle.push_back(std::move(m_Objects.at(current)));
 		}
 	}
 	m_Objects.clear();
@@ -233,10 +233,10 @@ void DeferredRenderer::renderGeometry()
 	m_ConstantBuffer->setBuffer(1);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	updateConstantBuffer();
-	for( auto &animation : ttani )
+	for( auto &animation : animatedOrSingle )
 		renderObject(animation);
 
-	for( auto &k : ttemp)
+	for( auto &k : instancedModels)
 	{
 		UINT Offsets[2] = {0,0};
 		ID3D11Buffer * buffers[] = {k.front().model->vertexBuffer->getBufferPointer(), m_WorldInstanceData->getBufferPointer()};

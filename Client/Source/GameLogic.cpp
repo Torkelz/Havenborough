@@ -785,7 +785,7 @@ void GameLogic::updateIK()
 			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
 			if (comp)
 			{
-				//m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
+				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "LeftArm", IK_Target)));
 			}
 		}
 
@@ -796,7 +796,7 @@ void GameLogic::updateIK()
 			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
 			if (comp)
 			{
-				//m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "LeftArm", IK_Target)));
+				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "LeftArm", IK_Target)));
 			}
 		}
 	}
@@ -819,7 +819,7 @@ void GameLogic::updateIK()
 			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
 			if (comp)
 			{
-				//m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
+				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
 			}
 		}
 	}
