@@ -472,6 +472,57 @@ void GameLogic::handleNetwork()
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 				}
 				break;
+			case PackageType::RESULT_GAME:
+				{
+					int numberOfData = conn->getNumGameResultData(package);
+					for(int i = 0; i < numberOfData; i++)
+					{
+						const char* result = conn->getGameResultData(package, i);
+						tinyxml2::XMLDocument reader;
+						reader.Parse(result);
+						tinyxml2::XMLElement* object = reader.FirstChildElement("GameResult");
+						if(object->Attribute("Type", "Result"))
+						{
+								m_Level = Level();
+								m_Objects.clear();
+
+								m_InGame = false;
+
+								IConnectionController* con = m_Network->getConnectionToServer();
+
+								if (!m_PlayingLocal && con && con->isConnected())
+								{
+									con->sendLeaveGame();
+								}
+								
+								object = object->FirstChildElement("ResultList");
+								if(!object)
+								Logger::log(Logger::Level::ERROR_L, "Could not find Object (ResultList)");
+								int size = 0;
+								object->QueryAttribute("VectorSize", &size);
+								if(size == 0)
+								{
+									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+								}
+								else
+								{
+									std::vector<int> GoalList;
+									int position;
+									for(int i = 0; i < size; i++)
+									{
+										object->QueryAttribute("Place", &position);
+										GoalList.push_back(position);
+									}
+									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false))); //DO SOMETHING HERE!!
+								}
+						}
+						else if(object->Attribute("Type", "Position"))
+						{
+							int b = 0; //DO SOMETHING HERE!!
+						}
+					}
+				}
+				break;
 			case PackageType::UPDATE_OBJECTS:
 				{
 					const unsigned int numUpdates = conn->getNumUpdateObjectData(package);
@@ -533,28 +584,12 @@ void GameLogic::handleNetwork()
 						{
 							object = object->FirstChildElement("SetColor");
 							if(!object)
-								throw "WRONG!!!";
+								Logger::log(Logger::Level::ERROR_L, "Could not find Object (" + std::to_string(actorId) + ")");
 							Vector3 color;
 							object->QueryAttribute("r", &color.x);
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-						}
-						else if(object->Attribute("Type", "GoalReached"))
-						{
-								m_Level = Level();
-								m_Objects.clear();
-
-								m_InGame = false;
-
-								IConnectionController* con = m_Network->getConnectionToServer();
-
-								if (!m_PlayingLocal && con && con->isConnected())
-								{
-									con->sendLeaveGame();
-								}
-
-								m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -705,6 +740,7 @@ void GameLogic::loadSandbox()
 
 	witchCircleAngle = 0.0f;
 
+	//Event to create a particle effect on local test rounds
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
 }
 

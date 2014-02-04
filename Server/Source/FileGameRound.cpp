@@ -48,6 +48,8 @@ void FileGameRound::setup()
 		}
 	m_Actors.push_back(m_ActorFactory->createParticles(checkpoint->getPosition(), "TestParticle"));
 	}
+
+	m_GoalCount = 0;
 }
 
 void FileGameRound::setFilePath(std::string p_Filepath)
@@ -144,7 +146,8 @@ void FileGameRound::sendUpdates()
 	Actor::Id id;
 	for(unsigned int i = 0; i < m_SendHitData.size(); i++)
 	{
-		User::ptr user = m_SendHitData[i].first->getUser().lock();
+		Player::ptr player = m_SendHitData[i].first;
+		User::ptr user = player->getUser().lock();
 		if (user)
 		{
 			
@@ -166,26 +169,44 @@ void FileGameRound::sendUpdates()
 				}
 				else
 				{
-					goalReached = true;
+					user->getConnection()->sendRemoveObjects(&id, 1);
+					m_GoalCount++;
+					tinyxml2::XMLPrinter printer;
+					printer.OpenElement("GameResult");
+					printer.PushAttribute("Type", "Position");
+					printer.PushAttribute("Place", m_GoalCount);
+					printer.CloseElement();
+					const char* info = printer.CStr();
+					user->getConnection()->sendGameResult(&info, 1);
+					m_ResultList.push_back(player->getActor().lock()->getId());
 				}
 			}
 		}
+		m_SendHitData.clear();
 	}
-
-	if(goalReached)
+	if(m_Players.size() == m_GoalCount)
 	{
 		tinyxml2::XMLPrinter printer;
-		printer.OpenElement("ObjectUpdate");
-		printer.PushAttribute("ActorId", id-1);
-		printer.PushAttribute("Type", "GoalReached");
+		printer.OpenElement("GameResult");
+		printer.PushAttribute("Type", "Result");
+		printer.OpenElement("ResultList");
+		printer.PushAttribute("VectorSize", m_Players.size());
+		for(unsigned int i = 0; i < m_ResultList.size(); i++)
+		{
+			printer.OpenElement("Place");
+			printer.PushAttribute("Player", m_ResultList[i]);
+			printer.CloseElement();
+		}
+		printer.CloseElement();
 		printer.CloseElement();
 		const char* info = printer.CStr();
 		for(auto& player : m_Players)
 		{
-			player->getUser().lock()->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+			player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
 		}
+		m_GoalCount = 0;
+		m_Running = false;
 	}
-	m_SendHitData.clear();
 }
 
 void FileGameRound::playerDisconnected(Player::ptr p_DisconnectedPlayer)

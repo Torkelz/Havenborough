@@ -393,7 +393,6 @@ public:
 		}
 
 		m_MeshName = meshName;
-
 		m_MeshResourceId = m_ResourceManager->loadResource("volume", meshName);
 
 		m_Scale = Vector3(1.f, 1.f, 1.f);
