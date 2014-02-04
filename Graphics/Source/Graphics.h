@@ -120,7 +120,7 @@ public:
 
 	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
 	void updateParticles(float p_DeltaTime) override;
-
+	/////
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;

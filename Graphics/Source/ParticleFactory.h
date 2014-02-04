@@ -1,7 +1,5 @@
 #pragma once
-#include "ParticleEffectDefinition.h"
 #include "ParticleInstance.h"
-#include "Buffer.h"
 
 #include <DirectXMath.h>
 #include <vector>
