@@ -120,18 +120,14 @@ public:
 	static DirectX::XMFLOAT4 findClosestPointOnTriangle(DirectX::XMFLOAT4 const &p_Point, Vector4 const &p_A, Vector4 const &p_B, Vector4 const &p_C);
 
 private:
-	static float min(float const &p_A, float const &p_B, float const &p_C);
-	static float max(float const &p_A, float const &p_B, float const &p_C);
-	static bool SphereVsTriangle(Sphere const &p_Sphere, Triangle const &p_Triangle);
-
+	static HitData SATBoxVsBox(OBB const &p_OBB, BoundingVolume const &p_vol);
+	static HitData SATBoxVsHull(OBB const &p_OBB, Hull const &p_hull);
+	static HitData SATEberly(OBB const &p_OBB, Hull const &p_hull);
 	static bool OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, DirectX::XMVECTOR &p_Least, float &p_Overlap);
-	static bool AABBVsPlane(OBB const &p_OBB, Plane const &p_Plane);
-
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_RC, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
-	static HitData seperatingAxisTest(OBB const &p_OBB, BoundingVolume const &p_vol);
-
+	static float checkMin(float const &p_A, float const &p_B, float const &p_C);
+	static float checkMax(float const &p_A, float const &p_B, float const &p_C);
 	static bool checkR(float p0, float p1, float p2, float R);
-	static bool isZeroVector(DirectX::XMVECTOR p_v);
 };
 
