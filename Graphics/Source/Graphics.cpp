@@ -795,22 +795,6 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 	throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
-Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
-{
-	//for (auto& inst : m_ModelInstances)
-	//{
-	//	if (inst.first == p_Instance)
-	//	{
-	//		const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-	//		XMFLOAT3 position = inst.second.m_Animation.getJointPos(p_Joint, inst.second.getWorldMatrix());
-	//		
-	//		return position;
-	//	}
-	//}
-
-	throw InvalidArgumentGraphicsException("Model instance does not exist", __LINE__, __FILE__);
-}
-
 void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 {
 	XMVECTOR upVec = XMLoadFloat3(&XMFLOAT3(p_Up));
@@ -820,7 +804,7 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 	XMVECTOR flatForward = XMVectorSetY(forwardVec, 0.f);
 	XMVECTOR flatUp = XMVectorSetY(upVec, 0.f);
 	
-	pos += flatForward * 5.f + forwardVec * 20.f + flatUp * 35.f;
+	pos += flatForward * 0.f + forwardVec * 20.f + flatUp * 0.f;
 	XMStoreFloat3(&m_Eye, pos);
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));
@@ -1087,7 +1071,7 @@ void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye),
 		XMLoadFloat4(&lookAt), XMLoadFloat4(&up))));
 	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(0.25f * 3.14f,
-		(float)p_ScreenWidth / (float)p_ScreenHeight, 10.f, 100000.0f)));
+		(float)p_ScreenWidth / (float)p_ScreenHeight, 5.f, 100000.0f)));
 }
 
 Shader *Graphics::getShaderFromList(string p_Identifier)

@@ -93,6 +93,12 @@
 	 */
 	const std::vector<DirectX::XMFLOAT4X4>& getFinalTransform() const;
 
+	/**
+	 * Set the pose of the model. Requires the model to be animated.
+	 *
+	 * @param p_Pose an array of joint matrices describing the pose
+	 * @param p_Size the number of matrices in p_Pose
+	 */
 	void animationPose(const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size);
 
  private:

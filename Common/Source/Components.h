@@ -1276,4 +1276,5 @@ public:
 	virtual void queueAnimation(std::string p_AnimationName) = 0;
 	virtual void changeAnimationWeight(int p_Track, float p_Weight) = 0;
 	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) = 0;
+	virtual DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName) = 0;
 };

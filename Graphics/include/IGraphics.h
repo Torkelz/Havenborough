@@ -273,7 +273,11 @@ public:
 	virtual void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) = 0;
 
 	/**
-	 * New
+	 * Set the pose of the model. Requires the model to be animated.
+	 *
+	 * @param p_Instance the model instance to update the pose of
+	 * @param p_Pose an array of joint matrices describing the pose
+	 * @param p_Size the number of matrices in p_Pose
 	 */
 	virtual void animationPose(int p_Instance, const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size) = 0;
 
@@ -336,15 +340,6 @@ public:
 	 * @param p_ColorTone the color tone to shade the model in, RGB range 0.0f to 1.0f
 	 */
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
-
-	/**
-	 * Get the position of a single joint from a model instance.
-	 *
-	 * @param p_Instance the instance identifier to retreive the joint from.
-	 * @param p_Joint the identifier of the joint to get the position of.
-	 * @return the position of the joint in world space.
-	 */
-	virtual Vector3 getJointPosition(InstanceId p_Instance, const char* p_Joint) = 0;
 
 	/**
 	 * Update the position and viewing direction of the camera.
