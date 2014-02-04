@@ -61,6 +61,8 @@ public:
 	void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) override;
 	void setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale) override;
 
+	Vector4 calculateDirectionVector(BodyHandle p_BodyHandle, Vector3 p_Vector) override;
+	
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
 	Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) override;

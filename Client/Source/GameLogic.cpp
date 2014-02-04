@@ -780,10 +780,10 @@ void GameLogic::loadSandbox()
 		addActor(m_ActorFactory->createBoxWithOBB(rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, Vector3(1.f, 0.f, 0.f)));
 	}
 
-	//static const Vector3 slantedPlanePosition(-4000.f, 300.f, 2000.f);
-	//static const Vector3 slantedPlaneSize(2000.f, 500.f, 3000.f);
-	//static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
-	//addBoxWithOBB(slantedPlanePosition, slantedPlaneSize * 0.5f, slantedPlaneRotation);
+	static const Vector3 slantedPlanePosition(-4000.f, 300.f, 1000.f);
+	static const Vector3 slantedPlaneSize(4000.f, 500.f, 6000.f);
+	static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
+	addActor(m_ActorFactory->createBoxWithOBB(slantedPlanePosition, slantedPlaneSize * 0.5f, slantedPlaneRotation));
 	
 	addActor(m_ActorFactory->createBoxWithOBB(Vector3(0.f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(0.0f, 0.0f, 0.0f)));
 	addActor(m_ActorFactory->createBoxWithOBB(Vector3(-1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f)));

@@ -33,6 +33,8 @@ protected:
 	BodyHandle			m_LastCollision;
 	bool				m_Landed;
 
+	DirectX::XMFLOAT4X4	m_Orientation;
+
 	std::unique_ptr<BoundingVolume>	m_Volume;
 public:
 	/**
@@ -155,6 +157,18 @@ public:
 	* @p_Velocity is the new velocity in m/s
 	*/
 	void setVelocity(DirectX::XMFLOAT4 p_Velocity);
+
+	/**
+	* Get the current orientation for the body
+	* @return m_Orientation.
+	*/
+	DirectX::XMFLOAT4X4 getOrientation();
+	/**
+	* Sets the orientation for the body
+	* @p_Orientation, the new orientation (frame of reference/local coordinate system)
+	*/
+	void setOrientation(DirectX::XMMATRIX const &p_Orientation);
+
 	/**
 	* Get the body's current position.
 	* @return m_Position in m

@@ -34,6 +34,8 @@ Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool 
 
 	m_LastCollision		= 0;
 	m_Landed			= false;
+	
+	XMStoreFloat4x4(&m_Orientation, XMMatrixIdentity());
 }
 
 Body::Body(Body &&p_Other)
@@ -54,7 +56,8 @@ Body::Body(Body &&p_Other)
 	  m_IsEdge(p_Other.m_IsEdge),
 	  m_CollisionResponse(p_Other.m_CollisionResponse),
 	  m_LastCollision(p_Other.m_LastCollision),
-	  m_Landed(p_Other.m_Landed)
+	  m_Landed(p_Other.m_Landed),
+	  m_Orientation(p_Other.m_Orientation)
 {}
 
 Body& Body::operator=(Body&& p_Other)
@@ -77,6 +80,7 @@ Body& Body::operator=(Body&& p_Other)
 	std::swap(m_CollisionResponse, p_Other.m_CollisionResponse);
 	std::swap(m_LastCollision, p_Other.m_LastCollision);
 	std::swap(m_Landed, p_Other.m_Landed);
+	std::swap(m_Orientation, p_Other.m_Orientation);
 
 	return *this;
 }
@@ -240,6 +244,16 @@ void Body::setVelocity(XMFLOAT4 p_Velocity)
 	m_Velocity.x = p_Velocity.x;
 	m_Velocity.y = p_Velocity.y;
 	m_Velocity.z = p_Velocity.z;
+}
+
+XMFLOAT4X4 Body::getOrientation()
+{
+	return m_Orientation;
+}
+
+void Body::setOrientation(XMMATRIX const &p_Orientation)
+{
+	XMStoreFloat4x4(&m_Orientation, p_Orientation);
 }
 
 XMFLOAT4 Body::getPosition()

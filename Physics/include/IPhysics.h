@@ -139,6 +139,16 @@ public:
 	 * @param p_Scale is a vector3 with all the scale coordinates 
 	 */
 	virtual void setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale) = 0;
+
+	/**
+	 * Calculate a direction with a body's frame of reference. Take the vector and rotate it by the axis of the body
+	 * and returns a new direction. 
+	 *
+	 * @param p_BodyHandle are what body to work with.
+	 * @param p_Vector3 the "old" vector.
+	 * @return returns the new vector.
+	 */
+	virtual Vector4 calculateDirectionVector(BodyHandle p_BodyHandle, Vector3 p_Vector) = 0;
 	
 	/**
 	 * Keeps physics updated, collision checks etc.
