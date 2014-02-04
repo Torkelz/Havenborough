@@ -80,8 +80,6 @@ private:
 	void updateModelRotation(IEventData::Ptr p_Data);
 	void updateModelScale(IEventData::Ptr p_Data);
 	void updateAnimation(IEventData::Ptr p_Data);
-	void addReachIK(IEventData::Ptr p_Data);
-	void removeReachIK(IEventData::Ptr p_Data);
 	void changeColorTone(IEventData::Ptr p_Data);
 	void createParticleEffect(IEventData::Ptr p_Data);
 	void removeParticleEffect(IEventData::Ptr p_Data);

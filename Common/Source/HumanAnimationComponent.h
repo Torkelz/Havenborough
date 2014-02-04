@@ -86,7 +86,7 @@ public:
 		updateAnimation();
 		m_Animation.updateAnimation(p_DeltaTime);
 
-		std::shared_ptr<ModelComponent> comp = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+		std::shared_ptr<ModelComponent> comp = m_Model.lock();
 		if (comp)
 		{
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform())));
@@ -129,5 +129,16 @@ public:
 	void changeAnimationWeight(int p_Track, float p_Weight) override
 	{
 		m_Animation.changeWeight(p_Track, p_Weight);
+	}
+
+	void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) override
+	{
+		m_Animation.applyIK_ReachPoint(p_GroupName, p_Target, m_Owner->getWorldMatrix());
+		
+		std::shared_ptr<ModelComponent> comp = m_Model.lock();
+		if (comp)
+		{
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform())));
+		}
 	}
 };

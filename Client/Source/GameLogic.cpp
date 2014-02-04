@@ -657,7 +657,6 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 		GameLogic* self = static_cast<GameLogic*>(p_UserData);
 
 		self->m_Connected = true;
-		//self->m_Network->getConnectionToServer()->sendJoinGame("test");
 
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
@@ -698,10 +697,10 @@ void GameLogic::loadSandbox()
 	useIK = false;
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
-	addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f)));
+	testWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(1600.0f, 0.0f, 500.0f)));
 	playAnimation(testWitch.lock(), "Run", false);
 
-	circleWitch = addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(0.f, 0.f, 0.f)));
+	circleWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(0.f, 0.f, 0.f)));
 	playAnimation(circleWitch.lock(), "Run", false);
 
 	witchCircleAngle = 0.0f;
@@ -783,10 +782,10 @@ void GameLogic::updateIK()
 		std::shared_ptr<Actor> strWitch = circleWitch.lock();
 		if (strWitch)
 		{
-			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 			if (comp)
 			{
-				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "LeftArm", IK_Target)));
+				comp->applyIK_ReachPoint("LeftArm", IK_Target);
 			}
 		}
 
@@ -794,33 +793,10 @@ void GameLogic::updateIK()
 		strWitch = m_Player.getActor().lock();
 		if (strWitch)
 		{
-			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 			if (comp)
 			{
-				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "LeftArm", IK_Target)));
-			}
-		}
-	}
-	else
-	{
-		std::shared_ptr<Actor> strWitch = circleWitch.lock();
-		if (strWitch)
-		{
-			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
-			if (comp)
-			{
-				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
-			}
-		}
-
-		// Player
-		strWitch = m_Player.getActor().lock();
-		if (strWitch)
-		{
-			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
-			if (comp)
-			{
-				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
+				comp->applyIK_ReachPoint("LeftArm", IK_Target);
 			}
 		}
 	}

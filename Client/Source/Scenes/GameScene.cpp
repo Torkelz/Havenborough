@@ -50,8 +50,6 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelRotation), UpdateModelRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateModelScale), UpdateModelScaleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateAnimation), UpdateAnimationEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::addReachIK), AddReachIK_EventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeReachIK), RemoveReachIK_EventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
@@ -386,53 +384,6 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 		if(model.meshId == animationData->getId())
 		{
 			m_Graphics->animationPose(model.modelId, animationData->getAnimationData().data(), animationData->getAnimationData().size());
-		}
-	}
-}
-
-void GameScene::addReachIK(IEventData::Ptr p_Data)
-{
-	std::shared_ptr<AddReachIK_EventData> ikData = std::static_pointer_cast<AddReachIK_EventData>(p_Data);
-	for(auto &model : m_Models)
-	{
-		if(model.meshId == ikData->getId())
-		{
-			ReachIK ik =
-			{
-				ikData->getGroupName(),
-				ikData->getTarget()
-			};
-
-			for (auto& activeIK : model.activeIKs)
-			{
-				if (activeIK.group == ikData->getGroupName())
-				{
-					activeIK = ik;
-					return;
-				}
-			}
-
-			model.activeIKs.push_back(ik);
-		}
-	}
-}
-
-void GameScene::removeReachIK(IEventData::Ptr p_Data)
-{
-	std::shared_ptr<RemoveReachIK_EventData> ikData = std::static_pointer_cast<RemoveReachIK_EventData>(p_Data);
-	for(auto &model : m_Models)
-	{
-		if(model.meshId == ikData->getId())
-		{
-			for (auto& ik : model.activeIKs)
-			{
-				if (ik.group == ikData->getGroupName())
-				{
-					std::swap(ik, model.activeIKs.back());
-					model.activeIKs.pop_back();
-					return;
-				}
-			}
 		}
 	}
 }

@@ -338,17 +338,6 @@ public:
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
 	/**
-	 * Updates the model to reach for a point in world space.
-	 *
-	 * @param p_Instance an identifier to a model instance.
-	 * @param p_TargetJoint the name of the end joint to change.
-	 * @param p_HingeJoint the name of the "elbow" joint.
-	 * @param p_BaseJoint the name of the base "shoulder" joint.
-	 * @param p_Target the target position in world space.
-	 */
-	virtual void applyIK_ReachPoint(InstanceId p_Instance, const char* p_GroupName, Vector3 p_Target) = 0;
-
-	/**
 	 * Get the position of a single joint from a model instance.
 	 *
 	 * @param p_Instance the instance identifier to retreive the joint from.

@@ -131,6 +131,8 @@ public:
 
 	void serialize(std::ostream& p_Stream) const;
 
+	DirectX::XMFLOAT4X4 getWorldMatrix() const;
+
 private:
 	friend class ActorFactory;
 	void addComponent(ActorComponent::ptr p_Component);

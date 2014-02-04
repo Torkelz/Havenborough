@@ -242,8 +242,16 @@ const vector<DirectX::XMFLOAT4X4>& Animation::getFinalTransform() const
 	return m_FinalTransform;
 }
 
-void Animation::applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOAT3& p_Position, XMFLOAT4X4 p_WorldMatrix)
+void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, XMFLOAT4X4 p_WorldMatrix)
 {
+	auto it = m_Data->ikGroups.find(p_GroupName);
+	if (it == m_Data->ikGroups.end())
+	{
+		return;
+	}
+
+	const IKGroup& p_Group = it->second;
+
 	const std::vector<Joint>& p_Joints = m_Data->joints;
 
 	XMFLOAT4 targetData(p_Position.x, p_Position.y, p_Position.z, 1.f);
