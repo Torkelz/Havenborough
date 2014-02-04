@@ -499,25 +499,25 @@ void GameLogic::handleNetwork()
 								Logger::log(Logger::Level::ERROR_L, "Could not find Object (ResultList)");
 								int size = 0;
 								object->QueryAttribute("VectorSize", &size);
-								if(size == 1)
+								if(size == 0)
 								{
 									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
 								}
 								else
 								{
 									std::vector<int> GoalList;
-									GoalList.reserve(size);
 									int position;
 									for(int i = 0; i < size; i++)
 									{
 										object->QueryAttribute("Place", &position);
-										GoalList[i] = position;
+										GoalList.push_back(position);
 									}
+									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false))); //DO SOMETHING HERE!!
 								}
 						}
 						else if(object->Attribute("Type", "Position"))
 						{
-							int b = 0;
+							int b = 0; //DO SOMETHING HERE!!
 						}
 					}
 				}

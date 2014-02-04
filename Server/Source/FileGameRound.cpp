@@ -191,9 +191,11 @@ void FileGameRound::sendUpdates()
 		printer.PushAttribute("Type", "Result");
 		printer.OpenElement("ResultList");
 		printer.PushAttribute("VectorSize", m_Players.size());
-		for(int i = 0; i < m_ResultList.size(); i++)
+		for(unsigned int i = 0; i < m_ResultList.size(); i++)
 		{
-			printer.PushAttribute("Place",m_ResultList[i]);
+			printer.OpenElement("Place");
+			printer.PushAttribute("Player", m_ResultList[i]);
+			printer.CloseElement();
 		}
 		printer.CloseElement();
 		printer.CloseElement();
