@@ -54,8 +54,8 @@ PSIn VS( VSIn input )
 
 	output.normal = normalize(mul(view, mul(input.vworld, float4(input.normal, 0.f))).xyz);
 	output.uvCoord = input.uvCoord;
-	output.tangent = normalize(mul(input.vworld, float4(input.tangent,0.f)).xyz);
-	output.binormal = normalize(mul(input.vworld, float4(input.binormal, 0.f)).xyz);
+	output.tangent = normalize(mul(view,mul(input.vworld, float4(input.tangent,0.f))).xyz);
+	output.binormal = normalize(mul(view,mul(input.vworld, float4(input.binormal, 0.f))).xyz);
 	output.depth = mul(view, mul(world, input.pos)).z;
 			
 	return output;
