@@ -144,8 +144,9 @@ public:
 	 * Keeps physics updated, collision checks etc.
 	 *
 	 * @param p_DeltaTime are a timestep
+	 * @param p_FPSCheckLimit, when the fps has reached this value the physics update will happend more than once / frame used for making it less likely .
 	 */
-	virtual void update(float p_DeltaTime) = 0;
+	virtual void update(float p_DeltaTime, unsigned p_FPSCheckLimit) = 0;
 	/**
 	 * Apply a force on an object.
 	 *
@@ -203,10 +204,10 @@ public:
 	 */
 	virtual unsigned getBodyOnSomethingSize() = 0;
 
-		/**
-	 * 
-	 *
-	 * 
+	/**
+	 * A bool that turns on the frame where a body lands ontop of something.
+	 * @param p_Body, the body to check if its landed.
+	 * @return true if this body has landed on something this frame, otherwise false.
 	 */
 	virtual bool getBodyLanded(BodyHandle p_Body) = 0;
 	/**

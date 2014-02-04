@@ -121,7 +121,7 @@ public:
 
 	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
 	void updateParticles(float p_DeltaTime) override;
-
+	/////
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
@@ -145,6 +145,7 @@ public:
 	void playAnimation(int p_Instance, const char* p_ClipName, bool p_Override) override;
 	void queueAnimation(int p_Instance, const char* p_ClipName) override;
 	void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) override;
+	void animationPose(int p_Instance, const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size) override;
 
 	int getVRAMUsage(void) override;
 	

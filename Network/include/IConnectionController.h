@@ -251,9 +251,21 @@ public:
 	 * Send information about the level. 
 	 *
 	 * @param p_Stream is a binary stream with level information.
-	 * @
+	 * @param p_Size is the size och the binary stream in bytes.
 	 */
 	virtual void sendLevelData(const char* p_Stream, size_t p_Size) = 0;
+
+	/**
+	 * Send information about who won and what place you got.
+	 *
+	 * @param p_ExtraData is a xml code package that contains information about the game result.
+	 * @param p_NumExtraData dont know yet.
+	 */
+	virtual void sendGameResult(const char** p_ExtraData, unsigned int p_NumExtraData) = 0;
+	
+	virtual unsigned int getNumGameResultData(Package p_Package) = 0;
+	
+	virtual const char* getGameResultData(Package p_Package, unsigned int p_ExtraData) = 0;
 
 	/**
 	 * Send a Leave Game package for a player leaving a server game.

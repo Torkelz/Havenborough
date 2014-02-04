@@ -44,14 +44,14 @@
     <OutDir>$(ProjectDir)Test\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
-    <IncludePath>$(ProjectDir)include;$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(BOOST_INC_DIR);$(SolutionDir)Common/Source;$(IncludePath)</IncludePath>
     <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)Bin\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(ProjectDir)include;$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(BOOST_INC_DIR);$(SolutionDir)Common/Source;$(IncludePath)</IncludePath>
     <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -97,6 +97,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Animation.cpp" />
     <ClCompile Include="Source\ParticleInstance.cpp" />
     <ClCompile Include="Source\ParticleFactory.cpp" />
     <ClCompile Include="Source\SkyDome.cpp" />
@@ -117,6 +118,7 @@
     <ClCompile Include="Source\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Animation.h" />
     <ClInclude Include="Source\ConstantBuffers.h" />
     <ClInclude Include="Source\ParticleInstance.h" />
     <ClInclude Include="Source\ParticleFactory.h" />
@@ -247,6 +249,11 @@
     <ClCompile Include="Source\ModelInstance.cpp">
       <FileType>Document</FileType>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{8c7b8d02-7172-4ae2-a0df-2e5a5fc9f23f}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

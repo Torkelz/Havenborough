@@ -1,7 +1,5 @@
 #pragma once
-#include "ParticleEffectDefinition.h"
 #include "ParticleInstance.h"
-#include "Buffer.h"
 
 #include <DirectXMath.h>
 #include <vector>
@@ -13,6 +11,7 @@ class ParticleFactory
 public:
 	/**
 	* Callback for loading a texture to a particle.
+	*
 	* @param p_ResourceName the resource name of the texture
 	* @param p_FilePath path to where the texture is located
 	* @param p_UserData user defined data
@@ -35,21 +34,32 @@ public:
 
 	/**
 	* Initialize the factory.
-	* p_TextureList pointer to the texture list pair 
+	*
+	* @param p_TextureList pointer to the texture list pair 
+	* @param p_Device pointer to the device
 	*/
 	void initialize(std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *p_TextureList, ID3D11Device* p_Device);
 
 	/**
 	* Creates a static particle system with buffers and connects the textures to it.
+	*
 	* @param p_Filename the particle file to read
-	* @return copy of the created particle system
+	* @param p_EffectName for the new definition
+	* @return copy of the created particle definition
 	*/
 	virtual ParticleEffectDefinition::ptr createParticleEffectDefinition(const char* p_Filename, const char* p_EffectName);
 
+	/**
+	 * Create an instance of a particle effect from an already loaded definition.
+	 *
+	 * @param p_Effect a pointer to what definition to use
+	 * @return a pointer to the new particle instance created
+	 */
 	virtual ParticleInstance::ptr createParticleInstance(ParticleEffectDefinition::ptr p_Effect);
 	
 	/**
 	* Set the function to load a texture to a particle.
+	*
 	* @param p_LoadParticleTexture the function to be called whenever a texture is to be loaded.
 	* @param p_UserData user defined data
 	*/

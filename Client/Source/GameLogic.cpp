@@ -93,7 +93,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Player.setDirectionZ(XMVectorGetZ(rotDirV));
 	}
 	if(!m_Player.getForceMove())
-		m_Physics->update(p_DeltaTime);
+		m_Physics->update(p_DeltaTime, 50);
 
 	Vector3 actualViewRot = getPlayerViewRotation();
 	Actor::ptr playerActor = m_Player.getActor().lock();
@@ -312,30 +312,22 @@ void GameLogic::toggleIK()
 
 void GameLogic::testBlendAnimation()
 {
-	playAnimation(wavingWitch.lock(), "Bomb", false);
-	playAnimation(ikTest.lock(), "Spin", false);
 	playAnimation(testWitch.lock(), "Idle", false);
 }
 
 void GameLogic::testResetAnimation()
 {
-	playAnimation(wavingWitch.lock(), "Kick", false);
-	playAnimation(ikTest.lock(), "Wave", false);
 	playAnimation(testWitch.lock(), "Run", false);
 }
 
 void GameLogic::testLayerAnimation()
 {
-	//playAnimation(ikTest.lock(), "Wave", false);
-	//playAnimation(wavingWitch.lock(), "Bomb", false);
 	//playAnimation(testWitch.lock(), "Wave", false);
 	playAnimation(m_Player.getActor().lock(), "LookAround", false);
 }
 
 void GameLogic::testResetLayerAnimation()
 {
-	//playAnimation(wavingWitch.lock(), "Kick", false);
-	//playAnimation(ikTest.lock(), "Wave", false);
 	//playAnimation(testWitch.lock(), "Run", false);
 	//playAnimation(testWitch.lock(), "DefLayer1", false);
 	playAnimation(m_Player.getActor().lock(), "Idle2", false);
@@ -479,6 +471,57 @@ void GameLogic::handleNetwork()
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 				}
 				break;
+			case PackageType::RESULT_GAME:
+				{
+					int numberOfData = conn->getNumGameResultData(package);
+					for(int i = 0; i < numberOfData; i++)
+					{
+						const char* result = conn->getGameResultData(package, i);
+						tinyxml2::XMLDocument reader;
+						reader.Parse(result);
+						tinyxml2::XMLElement* object = reader.FirstChildElement("GameResult");
+						if(object->Attribute("Type", "Result"))
+						{
+								m_Level = Level();
+								m_Objects.clear();
+
+								m_InGame = false;
+
+								IConnectionController* con = m_Network->getConnectionToServer();
+
+								if (!m_PlayingLocal && con && con->isConnected())
+								{
+									con->sendLeaveGame();
+								}
+								
+								object = object->FirstChildElement("ResultList");
+								if(!object)
+								Logger::log(Logger::Level::ERROR_L, "Could not find Object (ResultList)");
+								int size = 0;
+								object->QueryAttribute("VectorSize", &size);
+								if(size == 0)
+								{
+									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+								}
+								else
+								{
+									std::vector<int> GoalList;
+									int position;
+									for(int i = 0; i < size; i++)
+									{
+										object->QueryAttribute("Place", &position);
+										GoalList.push_back(position);
+									}
+									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false))); //DO SOMETHING HERE!!
+								}
+						}
+						else if(object->Attribute("Type", "Position"))
+						{
+							int b = 0; //DO SOMETHING HERE!!
+						}
+					}
+				}
+				break;
 			case PackageType::UPDATE_OBJECTS:
 				{
 					const unsigned int numUpdates = conn->getNumUpdateObjectData(package);
@@ -540,28 +583,12 @@ void GameLogic::handleNetwork()
 						{
 							object = object->FirstChildElement("SetColor");
 							if(!object)
-								throw "WRONG!!!";
+								Logger::log(Logger::Level::ERROR_L, "Could not find Object (" + std::to_string(actorId) + ")");
 							Vector3 color;
 							object->QueryAttribute("r", &color.x);
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-						}
-						else if(object->Attribute("Type", "GoalReached"))
-						{
-								m_Level = Level();
-								m_Objects.clear();
-
-								m_InGame = false;
-
-								IConnectionController* con = m_Network->getConnectionToServer();
-
-								if (!m_PlayingLocal && con && con->isConnected())
-								{
-									con->sendLeaveGame();
-								}
-
-								m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -704,94 +731,16 @@ void GameLogic::loadSandbox()
 {
 	useIK = false;
 
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug box model instances");
-
-	for (int i = 0; i < NUM_BOXES; i++)
-	{
-		const float scale = 100.f + i * 300.f / NUM_BOXES;
-		rotBoxes[i] = addActor(m_ActorFactory->createRotatingBox(Vector3((float)(i / 4) * 400.f, 100.f, (float)(i % 4) * 400.f + 4000.f),
-			Vector3(scale, scale, scale)));
-	}
-
-	//addBoxWithAABB(Vector3(0.f, -250.f, 0.f), Vector3(5000.f, 250.f, 5000.f));
-
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
 	addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f)));
 	playAnimation(testWitch.lock(), "Run", false);
 
-	m_Objects.push_back(m_ActorFactory->createClimbBox());
-
 	circleWitch = addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(0.f, 0.f, 0.f)));
 	playAnimation(circleWitch.lock(), "Run", false);
-	standingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1600.f, 0.f, -500.f)));
-	playAnimation(standingWitch.lock(), "Bomb", false);
-	wavingWitch = addActor(m_ActorFactory->createBasicModel("DZALA", Vector3(1500.f, 0.f, -500.f)));
-	playAnimation(wavingWitch.lock(), "Kick", false);
-	
-	ikTest = addActor(m_ActorFactory->createIK_Worm());
-	playAnimation(ikTest.lock(), "Wave", false);
 
-
-	static const unsigned int numTowerBoxes = 5;
-	Vector3 towerBoxSizes[numTowerBoxes] =
-	{
-		Vector3(2000.f, 160.f, 2000.f),
-		Vector3(1200.f, 160.f, 1200.f),
-		Vector3(10.f, 800.f, 10.f),
-		Vector3(40.f, 40.f, 40.f),
-	};
-
-	Vector3 towerBoxPositions[numTowerBoxes] =
-	{
-		Vector3(3000.f, 80.f, 4000.f),
-		Vector3(3000.f, 240.f, 4000.f),
-		Vector3(3000.f, 1120.f, 4000.f),
-		Vector3(3000.f, 1540.f, 4000.f),
-	};
-
-	for (unsigned int i = 0; i < numTowerBoxes; i++)
-	{
-		addActor(m_ActorFactory->createBoxWithAABB(towerBoxPositions[i], towerBoxSizes[i] * 0.5f));
-	}
-
-	addActor(m_ActorFactory->createClimbTowerBox(Vector3(3000.f, 520.f, 4000.f), Vector3(300.f, 200.f, 300.f)));
-	
-	static const unsigned int numRotatedTowerBoxes = 5;
-	Vector3 rotatedTowerBoxSizes[numRotatedTowerBoxes] =
-	{
-		Vector3(2000.f, 160.f, 2000.f),
-		Vector3(1200.f, 160.f, 1200.f),
-		Vector3(600.f, 400.f, 600.f),
-		Vector3(10.f, 800.f, 10.f),
-		Vector3(40.f, 40.f, 40.f),
-	};
-
-	Vector3 rotatedTowerBoxPositions[numRotatedTowerBoxes] =
-	{
-		Vector3(-3000.f, 80.f, 4000.f),
-		Vector3(-3000.f, 240.f, 4000.f),
-		Vector3(-3000.f, 520.f, 4000.f),
-		Vector3(-3000.f, 1120.f, 4000.f),
-		Vector3(-3000.f, 1540.f, 4000.f),
-	};
-
-	for (unsigned int i = 0; i < numRotatedTowerBoxes; i++)
-	{
-		addActor(m_ActorFactory->createBoxWithOBB(rotatedTowerBoxPositions[i], rotatedTowerBoxSizes[i] * 0.5f, Vector3(1.f, 0.f, 0.f)));
-	}
-
-	//static const Vector3 slantedPlanePosition(-4000.f, 300.f, 2000.f);
-	//static const Vector3 slantedPlaneSize(2000.f, 500.f, 3000.f);
-	//static const Vector3 slantedPlaneRotation(0.3f, 0.2f, -0.3f);
-	//addBoxWithOBB(slantedPlanePosition, slantedPlaneSize * 0.5f, slantedPlaneRotation);
-	
-	addActor(m_ActorFactory->createBoxWithOBB(Vector3(0.f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(0.0f, 0.0f, 0.0f)));
-	addActor(m_ActorFactory->createBoxWithOBB(Vector3(-1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f)));
-	addActor(m_ActorFactory->createBoxWithOBB(Vector3(1000.0f, 100.0f, 4000.0f), Vector3(200.0f, 100.0f, 200.0f), Vector3(1.0f, 0.0f, 0.0f)));
 	witchCircleAngle = 0.0f;
 
-	//addLights();
-
+	//Event to create a particle effect on local test rounds
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
 }
 
@@ -810,20 +759,6 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 	{
 		strongWitch->setPosition(witchCirclePosition);
 		strongWitch->setRotation(Vector3(witchCircleAngle, 0.f, 0.f));
-	}
-
-	static const Vector3 blockRotationSpeed(0.1f, 0.05f, 0.03f);
-	rotBlockRotation = rotBlockRotation + blockRotationSpeed * p_DeltaTime;
-	
-	for (size_t i = 0; i < NUM_BOXES; ++i)
-	{
-		auto& box = rotBoxes[i];
-
-		Actor::ptr strongBox = box.lock();
-		if (strongBox)
-		{
-			strongBox->setRotation(rotBlockRotation * (float)i);
-		}
 	}
 
 	if (m_InGame)
@@ -880,16 +815,6 @@ void GameLogic::updateIK()
 
 	if (useIK)
 	{
-		std::shared_ptr<Actor> strIKTest = ikTest.lock();
-		if (strIKTest)
-		{
-			std::shared_ptr<ModelComponent> comp = strIKTest->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
-			if (comp)
-			{
-				// Re-do when IK worms mlx-file is updated.
-				m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "Würm", IK_Target)));
-			}
-		}
 		std::shared_ptr<Actor> strWitch = circleWitch.lock();
 		if (strWitch)
 		{
@@ -913,15 +838,6 @@ void GameLogic::updateIK()
 	}
 	else
 	{
-		std::shared_ptr<Actor> strIKTest = ikTest.lock();
-		if (strIKTest)
-		{
-			std::shared_ptr<ModelComponent> comp = strIKTest->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
-			if (comp)
-			{
-				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "Würm")));
-			}
-		}
 		std::shared_ptr<Actor> strWitch = circleWitch.lock();
 		if (strWitch)
 		{

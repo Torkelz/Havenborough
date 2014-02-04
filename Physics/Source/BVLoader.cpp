@@ -43,7 +43,7 @@ bool BVLoader::loadBinaryFile(std::string p_FilePath)
 	}
 	else
 	{
-		return false;
+		//return false;
 	}
 	
 	return true;

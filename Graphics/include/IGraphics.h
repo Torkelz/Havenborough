@@ -59,18 +59,18 @@ public:
 	 * @param p_Hwnd the handle to the window which the graphics should be connected to
 	 * @param p_ScreenWidth input of the window's width
 	 * @param p_ScreenHeight input of the window's height
-	 * @param p_Fullscreen input whether the program should run in fullscreen or not
+	 * @param p_Fullscreen input whether the program should run in full screen or not
 	 * @return true if successful, otherwise false
 	 */
 	virtual bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) = 0;
 
 	/**
-	 * Reinitialize parts of the graphics API when switching fullscreen on/off or changing resoluton.
+	 * Reinitialize parts of the graphics API when switching full screen on/off or changing resolution.
 	 *
 	 * @param p_Hwnd the handle to the window which the graphics should be connected to
 	 * @param p_ScreenWidth input of the window's width
 	 * @param p_ScreenHeight input of the window's height
-	 * @param p_Fullscreen input whether the program should run in fullscreen or not
+	 * @param p_Fullscreen input whether the program should run in full screen or not
 	 * @return true if successful, otherwise false
 	 */
 	virtual bool reInitialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen) = 0;
@@ -92,7 +92,7 @@ public:
 	/**
 	* Release a previously created model.
 	*
-	* @param p_ResourceName the resourcename of the resource
+	* @param p_ResourceName the resource name of the resource
 	* @return true if the resource existed and was successfully released
 	*/
 	virtual bool releaseModel(const char* p_ResourceName) = 0;
@@ -134,21 +134,15 @@ public:
 
 	/**
 	 * Establish a map of shader name to a model name.
+	 *
 	 * @param p_ShaderId name of the shader
 	 * @param p_ModelId name of the model
 	 */
 	virtual void linkShaderToModel(const char *p_ShaderId, const char *p_ModelId) = 0;
 
-	
-	/**
-	 * Establish a map of shader name to a particle name.
-	 * @param p_ShaderId name of the shader
-	 * @param p_ModelId name of the particle
-	 */
-	virtual void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) = 0;
-
 	/**
 	* Deletes an existing shader.
+	*
 	* @param p_ShaderId name of the shader
 	*/
 	virtual void deleteShader(const char *p_ShaderId) = 0;
@@ -187,13 +181,43 @@ public:
 	 */
 	virtual bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) = 0;
 
+	/**
+	 * Call the particle factory to create an instance from a definition
+	 * 
+	 * @param p_ParticleEffectId name and work as an identity pointer
+	 * @return an index in the form of an int
+	 */
 	virtual InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) = 0;
 
+	/**
+	 * Called to release instances of particle effects
+	 * 
+	 * @param p_ParticleEffectId index to what instance to work with
+	 */
 	virtual void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) = 0;
 
+	/**
+	 * Update a particle instances position with a completely new position, in cm
+	 * 
+	 * @param p_ParticleEffectId what instance to work with
+	 * @param p_Position the new position, in cm
+	 */
 	virtual void setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position) = 0;
 
+	/**
+	 * Called when updating the particles
+	 * 
+	 * @param p_DeltaTime time between frames
+	 */
 	virtual void updateParticles(float p_DeltaTime) = 0;
+		
+	/**
+	 * Establish a map of shader name to a particle name.
+	 *
+	 * @param p_ShaderId name of the shader
+	 * @param p_ModelId name of the particle
+	 */
+	virtual void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) = 0;
 
 	/**
 	 * 
@@ -234,6 +258,7 @@ public:
 	
 	/**
 	* Sets which color the final render target should be cleared in.
+	*
 	* @param the color in RGBA, 0 to 1;
 	*/
 	virtual void setClearColor(Vector4 p_Color) = 0;
@@ -246,7 +271,6 @@ public:
 	virtual void renderModel(InstanceId p_ModelId) = 0;
 	/**
 	 * Renders the created skyDome.
-	 *
 	 */
 	virtual void renderSkydome() = 0;
 
@@ -267,6 +291,7 @@ public:
 
 	/**
 	 * Enable or disable if a model should be rendered with transparency or not, using forward shader.
+	 *
 	 * @param p_ModelId the model's ID to be set transparency on/off
 	 * @param p_State the state if transparency should be enabled or not, true = transparency, false = no transparency
 	 */
@@ -305,6 +330,11 @@ public:
 	virtual void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) = 0;
 
 	/**
+	 * New
+	 */
+	virtual void animationPose(int p_Instance, const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size) = 0;
+
+	/**
 	 * Gets the amount of VRAM usage of the program.
 	 *
 	 * @return the usage in MB
@@ -321,6 +351,7 @@ public:
 
 	/**
 	 * Create an instance of a model. Call {@link #eraseModelInstance(int)} to remove.
+	 *
 	 * @param p_ModelId the resource identifier for the model to draw the instance with.
 	 */
 	virtual void createSkydome(const char *p_TextureResource, float p_Radius) = 0;
@@ -378,7 +409,7 @@ public:
 	/**
 	 * Get the position of a single joint from a model instance.
 	 *
-	 * @param p_Instance the instance identifier to retreive the joint from.
+	 * @param p_Instance the instance identifier to retrieve the joint from.
 	 * @param p_Joint the identifier of the joint to get the position of.
 	 * @return the position of the joint in world space.
 	 */
@@ -396,7 +427,7 @@ public:
 	virtual void updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up) = 0;
 
 	/**
-	 * Add the triangles for a boundingvolume to graphics making it possible to render BV. 
+	 * Add the triangles for a bounding volume to graphics making it possible to render BV. 
 	 *
 	 * @param p_Corner1, specified in world coordinates.
 	 * @param p_Corner2, specified in world coordinates.
@@ -430,6 +461,7 @@ public:
 
 	/**
 	 * Change the render target.
+	 *
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(int p_RenderTarget) = 0;

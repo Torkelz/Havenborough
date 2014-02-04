@@ -67,7 +67,7 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(const char* p_Fil
 																		&textureResource, &textureSRV,0);
 		if(FAILED(hr))
 		{
-			throw TextureLoaderException("WIC Texture load failed", __LINE__, __FILE__);
+			throw TextureLoaderException("WIC Texture load failed: " + std::string(p_Filename), __LINE__, __FILE__);
 		}
 	}
 	else
