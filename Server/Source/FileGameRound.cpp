@@ -49,7 +49,7 @@ void FileGameRound::setup()
 	m_Actors.push_back(m_ActorFactory->createParticles(checkpoint->getPosition(), "TestParticle"));
 	}
 
-	goalCount = 0;
+	m_GoalCount = 0;
 }
 
 void FileGameRound::setFilePath(std::string p_Filepath)
@@ -170,11 +170,11 @@ void FileGameRound::sendUpdates()
 				else
 				{
 					user->getConnection()->sendRemoveObjects(&id, 1);
-					goalCount++;
+					m_GoalCount++;
 					tinyxml2::XMLPrinter printer;
 					printer.OpenElement("GameResult");
 					printer.PushAttribute("Type", "Position");
-					printer.PushAttribute("Place", goalCount);
+					printer.PushAttribute("Place", m_GoalCount);
 					printer.CloseElement();
 					const char* info = printer.CStr();
 					user->getConnection()->sendGameResult(&info, 1);
@@ -184,7 +184,7 @@ void FileGameRound::sendUpdates()
 		}
 		m_SendHitData.clear();
 	}
-	if(m_Players.size() == goalCount)
+	if(m_Players.size() == m_GoalCount)
 	{
 		tinyxml2::XMLPrinter printer;
 		printer.OpenElement("GameResult");
@@ -204,7 +204,8 @@ void FileGameRound::sendUpdates()
 		{
 			player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
 		}
-		goalCount = 0;
+		m_GoalCount = 0;
+		m_Running = false;
 	}
 }
 

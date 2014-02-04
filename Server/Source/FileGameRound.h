@@ -13,7 +13,7 @@ private:
 	std::unique_ptr<LevelBinaryLoader> m_FileLoader;
 	std::vector<std::pair<Player::ptr, Actor::wPtr>> m_SendHitData;
 	std::vector<Actor::Id> m_ResultList;
-	int goalCount;
+	int m_GoalCount;
 public:
 	void setup() override;
 	void setFilePath(std::string p_FilePath);
