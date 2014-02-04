@@ -22,7 +22,7 @@ public:
 
 	void initialize() override;
 
-	void update(float p_DeltaTime) override;
+	void update(float p_DeltaTime, unsigned p_FPSCheckLimit) override;
 	void applyForce(BodyHandle p_Body, Vector3 p_Force) override;
 
 	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius) override;

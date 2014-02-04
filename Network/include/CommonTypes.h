@@ -31,6 +31,7 @@ enum class PackageType : uint16_t
 	JOIN_GAME,
 	LEAVE_GAME,
 	LEVEL_DATA,
+	RESULT_GAME,
 };
 
 struct ObjectInstance

@@ -1,5 +1,5 @@
+#pragma once 
 #pragma warning(disable : 4996)
-
 #include "ModelConverter.h"
 #include "ModelLoader.h"
 #include "LevelLoader.h"
@@ -37,9 +37,9 @@ int main(int argc, char* argv[])
 			result = loader.loadFile(argv[1]);
 			if(!result){std::cout<<"Error loading file";return EXIT_FAILURE;}
 			setFileInfo(&loader, &converter);
-			std::cout << outputBuffer.data();
 			result = converter.writeFile(outputBuffer.data());
 			if(!result){std::cout<<"Error writing file";return EXIT_FAILURE;}
+			std::cout << outputBuffer.data();
 			loader.clear();
 			converter.clear();
 			return EXIT_SUCCESS;
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 			setLevelInfo(&levelLoader, &levelConverter);
 			result = levelConverter.writeFile(outputBuffer.data());
 			if(!result){std::cout<<"Error writing file";return EXIT_FAILURE;}
-			std::cout << outputBuffer.data();
+			std::cout << outputBuffer.data() << std::endl;
 			levelLoader.clear();
 			levelConverter.clear();
 			return EXIT_SUCCESS;

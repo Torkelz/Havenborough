@@ -118,7 +118,9 @@
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
     <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\Animation.cpp" />
     <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
@@ -175,7 +177,6 @@
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="SphereTest.cpp" />
-    <ClCompile Include="TestBVLoader.cpp" />
     <ClCompile Include="TestEdgeCollisionResponse.cpp" />
     <ClCompile Include="TestIK.cpp" />
     <ClCompile Include="TestLogger.cpp" />

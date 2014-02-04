@@ -234,6 +234,30 @@ const size_t ConnectionController::getLevelDataSize(Package p_Package)
 	return levelData->m_Object1.size();
 }
 
+void ConnectionController::sendGameResult(const char** p_ExtraData, unsigned int p_NumExtraData)
+{
+	ResultData package;
+	for (unsigned int i = 0; i < p_NumExtraData; ++i)
+	{
+		package.m_Object1.push_back(std::string(p_ExtraData[i]));
+	}
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+unsigned int ConnectionController::getNumGameResultData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	ResultData* createObjects = static_cast<ResultData*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Object1.size();
+}
+
+const char* ConnectionController::getGameResultData(Package p_Package, unsigned int p_ExtraData)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	ResultData* createObjects = static_cast<ResultData*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Object1[p_ExtraData].c_str();
+}
+
 void ConnectionController::sendLevelData(const char* p_Stream, size_t p_Size)
 {
 	LevelData package;

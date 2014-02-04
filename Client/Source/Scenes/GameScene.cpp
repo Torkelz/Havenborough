@@ -537,23 +537,39 @@ void GameScene::loadSandboxModels()
 	m_Graphics->createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl",
 		"VS,PS,GS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
 
+	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
+		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
 	static const std::string preloadedModels[] =
 	{
-		"BOX",
-		"House1",
-		"MarketStand1",
 		"Barrel1",
-		"Crate1",
-		"Grass1",
-		"House3",
-		"House2",
-		"MarketStand2",
-		"Sidewalk1",
-		"StoneBrick2",
-		"Stair1",
-		"Street1",
-		"Tree1",
-		"WoodenShed1",
+        "Crate1", 
+		"Grass1", 
+        "House1", 
+		"House2", 
+        "House3", 
+		"House4", 
+		"House5", 
+        "House6", 
+        "MarketStand1", 
+        "MarketStand2", 
+		"Road1", 
+		"Road2", 
+		"Road3", 
+		"Road4", 
+		"Road5", 
+        "Sidewalk1", 
+        "Stair1",
+		"Stallning1",
+		"Stallning2",
+		"Stallning3",
+		"Stallning4",
+        "StoneBrick2",
+        "Street1",
+        "Tree1",
+		"Vege1",
+		"Vege2",
+        "WoodenShed1",
 	};
 
 	for (const std::string& model : preloadedModels)
@@ -572,16 +588,6 @@ void GameScene::loadSandboxModels()
 		m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
 		m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
 	}
-
-	Logger::log(Logger::Level::DEBUG_L, "Adding IK test tube");
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "IKTest"));
-	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
-		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->linkShaderToModel("AnimatedShader", "IKTest");
-
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated models");
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DZALA"));
-	m_Graphics->linkShaderToModel("AnimatedShader", "DZALA");
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
