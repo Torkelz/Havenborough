@@ -37,3 +37,4 @@ BoostIntegrationTest/Bin/debug_log.txt
 BoostIntegrationTest/Bin/release_log.txt
 **/.mayaSwatches/
 *.btx
+*.atx

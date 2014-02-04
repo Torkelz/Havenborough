@@ -1,5 +1,5 @@
 #pragma once
-#include "Joint.h"
+
 #include "ShaderStructs.h"
 
 #include <fstream>
@@ -11,19 +11,17 @@ class ModelBinaryLoader
 public:
 	struct Header
 	{
-		std::string m_modelName;
-		int m_numMaterial;
-		int m_numVertex;
-		int m_numMaterialBuffer;
-		int m_numJoints;
-		int m_numFrames;
+		std::string m_ModelName;
+		int m_NumMaterial;
+		int m_NumVertex;
+		int m_NumMaterialBuffer;
+		int m_NumJoints;
 	};
 
 private:
 	Header m_FileHeader;
 	std::vector<Material> m_Material;
 	std::vector<AnimatedVertex> m_AnimationVertexBuffer;
-	std::vector<Joint> m_Joints;
 	std::vector<StaticVertex> m_VertexBuffer;
 	std::vector<MaterialBuffer> m_MaterialBuffer;
 
@@ -49,7 +47,7 @@ public:
 	 * @param p_FilePath, the absolute path to the source file.
 	 *
 	 */
-	bool loadBinaryFile(std::string p_FilePath);
+	void loadBinaryFile(std::string p_FilePath);
 	
 	/**
 	 * Returns information about the materials used in the model.
@@ -64,14 +62,6 @@ public:
 	 * @returns a vector of the struct VertexAnimation.
 	 */
 	const std::vector<AnimatedVertex>& getAnimatedVertexBuffer();
-
-	/**
-	 * Returns a vector of joints for the animation. 
-	 ** This will be empty if the source file does not contain any animation.
-	 *
-	 * @returns a vector of the struct Joint.
-	 */
-	const std::vector<Joint>& getJoints();
 
 	/**
 	 * Returns information about vertices. This function does not return animated vertices.
@@ -97,7 +87,6 @@ protected:
 	std::vector<MaterialBuffer> readMaterialBuffer(int p_NumberOfMaterialBuffers, std::istream* p_Input);
 	std::vector<StaticVertex> readVertexBuffer(int p_NumberOfVertex, std::istream* p_Input);
 	std::vector<AnimatedVertex> readVertexBufferAnimation(int p_NumberOfVertex, std::istream* p_Input);	
-	std::vector<Joint> readJointList(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input);
 
 private:
 	void clearData();

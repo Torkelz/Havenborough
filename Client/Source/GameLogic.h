@@ -42,15 +42,9 @@ private:
 
 	//DEBUG
 	std::weak_ptr<Actor> circleWitch;
-	std::weak_ptr<Actor> standingWitch;
-	std::weak_ptr<Actor> wavingWitch;
-	std::weak_ptr<Actor> ikTest;
 	std::weak_ptr<Actor> testWitch;
 
-	const static int NUM_BOXES = 16;
-	std::weak_ptr<Actor> rotBoxes[NUM_BOXES];
 	bool useIK;
-	Vector3 rotBlockRotation;
 
 	float witchCircleAngle;
 
