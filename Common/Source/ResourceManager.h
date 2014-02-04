@@ -51,6 +51,7 @@ protected:
 
 public:
 	ResourceManager();
+	ResourceManager(const boost::filesystem::path& p_RootPath);
 	~ResourceManager();
 
 	
