@@ -219,7 +219,7 @@ void DeferredRenderer::renderGeometry()
 
 			i += nr;
 
-			if(nr > 1)
+			if(nr >= 1)
 			{
 				std::move(m_Objects.begin() + current, m_Objects.begin() + current + nr + 1, std::back_inserter(l));
 				ttemp.push_back(l);
