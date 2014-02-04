@@ -1,6 +1,7 @@
 #pragma once
 #include "Light.h"
 #include "Renderable.h"
+#include "ConstantBuffers.h"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -9,6 +10,12 @@
 class DeferredRenderer
 {
 private:
+	float m_FOV;
+	float m_FarZ;
+	float m_ScreenWidth;
+	float m_ScreenHeight;
+
+
 	std::vector<Renderable>		m_Objects;
 
 	ID3D11Device				*m_Device;
@@ -32,8 +39,11 @@ private:
 	ID3D11ShaderResourceView	*m_LightSRV;
 	ID3D11ShaderResourceView	*m_wPositionSRV;
 	ID3D11ShaderResourceView	*m_SSAO_SRV;
+	ID3D11ShaderResourceView	*m_SSAO_RandomVecSRV;
 
 	ID3D11SamplerState			*m_Sampler;
+	ID3D11SamplerState			*m_SSAO_NormalDepthSampler;
+	ID3D11SamplerState			*m_SSAO_RandomVecSampler;
 	ID3D11BlendState			*m_BlendState;
 	ID3D11BlendState			*m_BlendState2;
 	Buffer						*m_AnimatedObjectConstantBuffer;
@@ -46,6 +56,7 @@ private:
 	Shader						*m_PointShader;
 	Shader						*m_SpotShader;
 	Shader						*m_DirectionalShader;
+	Shader						*m_SSAO_Shader;
 
 	Buffer						*m_PointModelBuffer;
 	Buffer						*m_SpotModelBuffer;
@@ -54,6 +65,7 @@ private:
 	Buffer						*m_ConstantBuffer;
 	Buffer						*m_ObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
+	Buffer						*m_SSAO_ConstantBuffer;
 
 	Buffer						*m_SkyDomeBuffer;
 	Shader						*m_SkyDomeShader;
@@ -91,7 +103,7 @@ public:
 		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
-		unsigned int p_MaxLightsPerLightInstance);
+		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
 
 	/*
 	 * Call to render the graphics using deferred rendering.
@@ -127,6 +139,7 @@ public:
 
 private:
 	void renderGeometry();
+	void renderSSAO(void);
 
 	void clearRenderTargets(unsigned int nrRT);
 
@@ -141,10 +154,11 @@ private:
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
 	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC &desc);
 	void createBuffers();
+	void buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer);
 	void clearRenderTargets();
 	void createSamplerState();
 	void createBlendStates();
-	void createLightShaders();
+	void createShaders();
 	void loadLightModels();
 	void createLightStates(); //Rasterize and depth state
 	void createRandomTexture(unsigned int p_Size);

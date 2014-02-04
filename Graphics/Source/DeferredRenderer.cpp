@@ -1,5 +1,4 @@
 #include "DeferredRenderer.h"
-#include "ConstantBuffers.h"
 #include "VRAMInfo.h"
 #include "ModelBinaryLoader.h"
 #include "SkyDome.h"
@@ -33,11 +32,13 @@ DeferredRenderer::DeferredRenderer()
 	m_LightSRV = nullptr;
 	m_wPositionSRV = nullptr;
 	m_SSAO_SRV = nullptr;
+	m_SSAO_RandomVecSRV = nullptr;
 
 	m_Sampler = nullptr;
 	m_PointShader = nullptr;
 	m_SpotShader = nullptr;
 	m_DirectionalShader = nullptr;
+	m_SSAO_Shader = nullptr;
 
 	m_PointModelBuffer = nullptr;
 	m_SpotModelBuffer = nullptr;
@@ -50,6 +51,7 @@ DeferredRenderer::DeferredRenderer()
 	m_InstancedGeometryShader = nullptr;
 
 	m_AllLightBuffer = nullptr;
+	m_SSAO_ConstantBuffer = nullptr;
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 	m_CameraPosition = nullptr;
@@ -91,6 +93,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_RELEASE(m_LightSRV);
 	SAFE_RELEASE(m_wPositionSRV);
 	SAFE_RELEASE(m_SSAO_SRV);
+	SAFE_RELEASE(m_SSAO_RandomVecSRV);
 
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_BlendState);
@@ -102,6 +105,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_PointShader);
 	SAFE_DELETE(m_SpotShader);
 	SAFE_DELETE(m_DirectionalShader);
+	SAFE_DELETE(m_SSAO_Shader);
 
 	SAFE_DELETE(m_PointModelBuffer);
 	SAFE_DELETE(m_SpotModelBuffer);
@@ -110,6 +114,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
+	SAFE_DELETE(m_SSAO_ConstantBuffer);
 
 	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
 	SAFE_DELETE(m_WorldInstanceData);
@@ -124,10 +129,10 @@ DeferredRenderer::~DeferredRenderer(void)
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
-	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_screenWidth, unsigned int p_screenHeight,
+	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 	DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
 	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
-	unsigned int p_MaxLightsPerLightInstance)
+	unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -146,8 +151,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	//Create render targets with the size of screen width and screen height
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory( &desc, sizeof(desc) );
-	desc.Width				= p_screenWidth;
-	desc.Height				= p_screenHeight;
+	desc.Width				= p_ScreenWidth;
+	desc.Height				= p_ScreenHeight;
 	desc.MipLevels			= 1;
 	desc.ArraySize			= 1;
 	desc.Format				= DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -155,13 +160,18 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	desc.Usage				= D3D11_USAGE_DEFAULT;
 	desc.BindFlags			= D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
+	m_FOV = p_FOV;
+	m_FarZ = p_FarZ;
+	m_ScreenWidth = (float)p_ScreenWidth;
+	m_ScreenHeight = (float)p_ScreenHeight;
+
 	createRenderTargets(desc);
 
 	createRandomTexture(256);
 
 	createShaderResourceViews(desc);
 
-	createLightShaders();
+	createShaders();
 
 	loadLightModels();
 
@@ -185,6 +195,7 @@ void DeferredRenderer::renderDeferred()
 	if(m_Objects.size() > 0)
 	{
 		renderGeometry();
+		renderSSAO();
 		renderLighting();
 	}
 	m_RenderSkyDome = false;
@@ -225,7 +236,7 @@ void DeferredRenderer::renderGeometry()
 
 			i += nr;
 
-			if(nr > 1)
+			if(nr >= 1)
 			{
 				std::move(m_Objects.begin() + current, m_Objects.begin() + current + nr + 1, std::back_inserter(l));
 				ttemp.push_back(l);
@@ -268,7 +279,7 @@ void DeferredRenderer::renderGeometry()
 			for(unsigned int i = 0; i < k.size(); i += m_MaxLightsPerLightInstance)
 			{
 				int nrToCpy = (k.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : k.size() - i ;
-				std::vector<DirectX::XMFLOAT4X4> tWorld;
+				std::vector<XMFLOAT4X4> tWorld;
 				for(int j = 0; j < nrToCpy; j++)
 					tWorld.push_back(k.at(i+j).world);
 
@@ -295,6 +306,43 @@ void DeferredRenderer::renderGeometry()
 	m_ConstantBuffer->unsetBuffer(1);
 
 	// Unset render targets.
+	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
+}
+
+void DeferredRenderer::renderSSAO(void)
+{
+	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargets[4], 0);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_ConstantBuffer->setBuffer(0);
+	m_SSAO_ConstantBuffer->setBuffer(1);
+
+	ID3D11SamplerState *samplers[] =
+	{
+		m_SSAO_NormalDepthSampler,
+		m_SSAO_RandomVecSampler
+	};
+	m_DeviceContext->PSSetSamplers(0, 2,  samplers);
+
+	ID3D11ShaderResourceView *srvs[] =
+	{
+		m_NormalSRV,
+		m_SSAO_RandomVecSRV
+	};
+	m_DeviceContext->PSSetShaderResources(0, 2, srvs);
+	
+	m_SSAO_Shader->setShader();
+	m_DeviceContext->Draw(6, 0);
+	m_SSAO_Shader->unSetShader();
+
+	ID3D11ShaderResourceView *nullSrvs[] = { 0, 0 };
+	m_DeviceContext->PSSetShaderResources(0, 2, nullSrvs);
+
+	ID3D11SamplerState *nullSamplers[] = { 0, 0	};
+	m_DeviceContext->PSSetSamplers(0, 2, nullSamplers);
+
+	m_ConstantBuffer->unsetBuffer(0);
+	m_SSAO_ConstantBuffer->unsetBuffer(1);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 }
 
@@ -367,11 +415,15 @@ void DeferredRenderer::renderSkyDomeImpl()
 		m_SkyDomeBuffer->setBuffer(0);
 
 		m_DeviceContext->Draw(m_SkyDomeBuffer->getNumOfElements(),0);
-
+		
+		m_SkyDomeShader->unSetShader();
 		m_SkyDomeBuffer->unsetBuffer(0);
 		m_SkyDomeShader->unSetShader();
 		m_ConstantBuffer->unsetBuffer(0);
 		m_DeviceContext->PSSetSamplers(0,0,0);
+
+		ID3D11ShaderResourceView * nullsrv[] = {0};
+		m_DeviceContext->PSSetShaderResources(0,1,nullsrv);
 	}
 }
 
@@ -379,6 +431,7 @@ void DeferredRenderer::addRenderable(Renderable p_renderable)
 {
 	m_Objects.push_back(p_renderable);
 }
+
 void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float p_Radius)
 {
 	ID3D11Resource *resource;
@@ -426,10 +479,12 @@ void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float 
 		"VS,PS","5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 }
+
 void DeferredRenderer::renderSkyDome()
 {
 	m_RenderSkyDome = true;
 }
+
 ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 {
 	switch(i)
@@ -438,6 +493,7 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 		case 1: return m_NormalSRV;
 		case 2: return m_wPositionSRV;
 		case 3: return m_LightSRV;
+		case 4: return m_SSAO_SRV;
 		default: return nullptr;
 	}
 }
@@ -586,7 +642,66 @@ void DeferredRenderer::createBuffers()
 	m_WorldInstanceData = WrapperFactory::getInstance()->createBuffer(instanceWorldDesc);
 
 	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_MaxLightsPerLightInstance);
+	
+	cSSAO_Buffer ssaoBuffer;
+
+	float aspect = m_ScreenWidth / m_ScreenHeight;
+	float halfHeight = m_FarZ * std::tanf(0.5f * m_FOV);
+	float halfWidth = aspect * halfHeight;
+
+	ssaoBuffer.corners[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[1] = DirectX::XMFLOAT4(-halfWidth, halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(halfWidth, halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(halfWidth, -halfHeight, m_FarZ, 0);
+	buildSSAO_OffsetVectors(ssaoBuffer);
+	ssaoBuffer.occlusionRadius = 0.5f;
+	ssaoBuffer.surfaceEpsilon = 0.2f;
+	ssaoBuffer.occlusionFadeEnd = 2.0f;
+	ssaoBuffer.occlusionFadeStart = 0.05f;
+
+	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
+	cbdesc.initData = &ssaoBuffer;
+	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
+
+	m_SSAO_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(cSSAO_Buffer));
 }
+
+void DeferredRenderer::buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer)
+{
+	p_Buffer.offsetVectors[0] = XMFLOAT4(1, 1, 1, 0);
+	p_Buffer.offsetVectors[1] = XMFLOAT4(-1, -1, -1, 0);
+
+	p_Buffer.offsetVectors[2] = XMFLOAT4(-1, +1, +1, 0);
+	p_Buffer.offsetVectors[3] = XMFLOAT4(+1, -1, -1, 0);
+
+	p_Buffer.offsetVectors[4] = XMFLOAT4(+1, +1, -1, 0);
+	p_Buffer.offsetVectors[5] = XMFLOAT4(-1, -1, +1, 0);
+
+	p_Buffer.offsetVectors[6] = XMFLOAT4(-1, +1, -1, 0);
+	p_Buffer.offsetVectors[7] = XMFLOAT4(+1, -1, +1, 0);
+	
+	p_Buffer.offsetVectors[8] = XMFLOAT4(-1, 0, 0, 0);
+	p_Buffer.offsetVectors[9] = XMFLOAT4(+1, 0, 0, 0);
+
+	p_Buffer.offsetVectors[10] = XMFLOAT4(0, -1, 0, 0);
+	p_Buffer.offsetVectors[11] = XMFLOAT4(0, +1, 0, 0);
+
+	p_Buffer.offsetVectors[12] = XMFLOAT4(0, 0, -1, 0);
+	p_Buffer.offsetVectors[13] = XMFLOAT4(0, 0, +1, 0);
+
+	std::default_random_engine randomizer;
+	std::uniform_real_distribution<float> distribution(0.25f, 1.0f);
+
+	for(int i = 0; i < 14; i++)
+	{
+		float s = distribution(randomizer);
+		XMVECTOR v = XMLoadFloat4(&p_Buffer.offsetVectors[i]);
+		v = s * XMVector4Normalize(v);
+		XMStoreFloat4(&p_Buffer.offsetVectors[i], v);
+	}
+}
+
 
 void DeferredRenderer::clearRenderTargets()
 {
@@ -603,6 +718,7 @@ void DeferredRenderer::clearRenderTargets()
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[3], color);
 
 	color[0] = color[1] = color[2] = 0.0f;
+	color[3] = 1.0f;
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[4], color);
 }
 
@@ -618,15 +734,27 @@ void DeferredRenderer::createSamplerState()
 	sd.ComparisonFunc   = D3D11_COMPARISON_NEVER;
 	sd.MinLOD			= 0;
 	sd.MaxLOD			= D3D11_FLOAT32_MAX;
-
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
-	// Create texture sampler.
+	
+	// Create skydome texture sampler.
 	sd.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
 	sd.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
 	sd.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
 	sd.Filter			= D3D11_FILTER_ANISOTROPIC;
-
 	m_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
+
+	// Create SSAO random vector texture sampler.
+	sd.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	m_Device->CreateSamplerState(&sd, &m_SSAO_RandomVecSampler);
+	
+	// Create SSAO normal depth texture sampler.
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = 0.0f;
+	sd.BorderColor[3] = 1e5f;
+	m_Device->CreateSamplerState(&sd, &m_SSAO_NormalDepthSampler);
 }
 
 void DeferredRenderer::createBlendStates()
@@ -657,7 +785,7 @@ void DeferredRenderer::createBlendStates()
 	m_Device->CreateBlendState(&bd, &m_BlendState2);
 }
 
-void DeferredRenderer::createLightShaders()
+void DeferredRenderer::createShaders()
 {
 	ShaderInputElementDescription shaderDesc[] = 
 	{
@@ -693,6 +821,9 @@ void DeferredRenderer::createLightShaders()
 
 	m_InstancedGeometryShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/GeoInstanceShader.hlsl",
 		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, instanceshaderDesc, 9);
+
+	m_SSAO_Shader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SSAO.hlsl",
+		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
 
 void DeferredRenderer::loadLightModels()
@@ -829,7 +960,7 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	dssrvdesc.Texture2D.MipLevels = 1;
 	dssrvdesc.Texture2D.MostDetailedMip = 0;
 
-	m_Device->CreateShaderResourceView(texture, &dssrvdesc, &m_SSAO_SRV);
+	m_Device->CreateShaderResourceView(texture, &dssrvdesc, &m_SSAO_RandomVecSRV);
 
 	SAFE_RELEASE(texture);
 }
@@ -854,6 +985,7 @@ void DeferredRenderer::renderObject(Renderable &p_Object)
 
 	cObjectBuffer temp;
 	temp.world = p_Object.world;
+	
 	m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
 	m_ObjectConstantBuffer->setBuffer(2);
 

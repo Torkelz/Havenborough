@@ -94,8 +94,9 @@ void GetGBufferAttributes( in float2 screenPos,
 	float4 normalTexSample = normalTex.Load(sampleIndex).xyzw;	
 
 	float3 normal2 = normalTexSample.xyz;
-	specularPower = diffuseTex.Load(sampleIndex).w;
 	normal = (normal2 * 2.0f) - 1.0f;
+	
+	specularPower = diffuseTex.Load(sampleIndex).w;
 
 	diffuseAlbedo = diffuseTex.Load(sampleIndex).xyz;	
 

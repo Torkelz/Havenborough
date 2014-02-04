@@ -192,7 +192,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
-		m_MaxLightsPerLightInstance);
+		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
 	
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
@@ -643,7 +643,7 @@ void Graphics::drawFrame()
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	if(m_SelectedRenderTarget >= 0 && m_SelectedRenderTarget <=3)
+	if(m_SelectedRenderTarget >= 0 && m_SelectedRenderTarget <= 4)
 	{
 		m_Shader->setShader();
 		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
@@ -653,13 +653,16 @@ void Graphics::drawFrame()
 		m_Shader->unSetShader();
 	}
 
-	for (auto& particle : m_ParticleEffectInstanceList)
+	if(m_SelectedRenderTarget == 3)
 	{
-		m_ForwardRenderer->addRenderable(particle.second);
-	}
-	m_ForwardRenderer->renderForward();
+		for (auto& particle : m_ParticleEffectInstanceList)
+		{
+			m_ForwardRenderer->addRenderable(particle.second);
+		}
+		m_ForwardRenderer->renderForward();
 
-	drawBoundingVolumes();
+		drawBoundingVolumes();
+	}
 
 	End();
 
@@ -916,9 +919,12 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 
 void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)
 {
-	m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner1, 1.f));
-	m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner2, 1.f));
-	m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner3, 1.f));
+	if(m_SelectedRenderTarget == 3)
+	{
+		m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner1, 1.f));
+		m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner2, 1.f));
+		m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner3, 1.f));
+	}
 }
 
 void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
@@ -1165,6 +1171,8 @@ void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 	XMFLOAT4 lookAt;
 	XMFLOAT4 up;
 	m_Eye = XMFLOAT3(0,0,-20);
+	m_FarZ = 100000.0f;
+	m_FOV = 0.25f * PI;
 
 	eye = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
 	lookAt = XMFLOAT4(0,0,0,1);
@@ -1174,8 +1182,8 @@ void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye),
 		XMLoadFloat4(&lookAt), XMLoadFloat4(&up))));
-	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(0.25f * 3.14f,
-		(float)p_ScreenWidth / (float)p_ScreenHeight, 10.f, 100000.0f)));
+	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(m_FOV,
+		(float)p_ScreenWidth / (float)p_ScreenHeight, 10.f, m_FarZ)));
 }
 
 Shader *Graphics::getShaderFromList(string p_Identifier)

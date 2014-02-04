@@ -20,3 +20,13 @@ struct cAnimatedObjectBuffer
 	DirectX::XMFLOAT4X4 invTransposeWorld;
 	DirectX::XMFLOAT4X4 boneTransform[96];
 };
+
+struct cSSAO_Buffer
+{
+	DirectX::XMFLOAT4 corners[4];
+	DirectX::XMFLOAT4 offsetVectors[14];
+	float occlusionRadius;
+	float surfaceEpsilon;
+	float occlusionFadeEnd;
+	float occlusionFadeStart;
+};

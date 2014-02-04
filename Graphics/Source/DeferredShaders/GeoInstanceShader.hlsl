@@ -35,6 +35,7 @@ struct PSIn
 	float2 uvCoord	: COORD;
 	float3 tangent	: TANGENT;
 	float3 binormal	: BINORMAL;
+	float depth		: DEPTH;
 };
 
 struct PSOut
@@ -55,7 +56,8 @@ PSIn VS( VSIn input )
 	output.uvCoord = input.uvCoord;
 	output.tangent = normalize(mul(input.vworld, float4(input.tangent,0.f)).xyz);
 	output.binormal = normalize(mul(input.vworld, float4(input.binormal, 0.f)).xyz);
-		
+	output.depth = mul(view, mul(world, input.pos)).z;
+			
 	return output;
 }
 
@@ -78,8 +80,8 @@ PSOut PS( PSIn input )
 	if(diffuseColor.w == 1.0f)
 	{
 		output.diffuse			= float4(diffuseColor.xyz,1.0f);//input.diffuse.xyz;
-		output.normal.w			= 1.0f;//input.specularPower;// 1.0f for debug.
-		output.normal.xyz		= normal;
+		output.normal.w			= input.depth;
+		output.normal.xyz		= normalize(mul(view, float4(normal, 0.f)).xyz);
 		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
 		output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;
 	}

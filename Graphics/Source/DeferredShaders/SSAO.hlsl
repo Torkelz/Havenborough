@@ -1,11 +1,20 @@
-SamplerState gRandomVectorSampler : register(s0);
-SamplerState gNormalDepthSampler : register (s1);
-Texture2D gNormalDepthMap : register (t0);
-Texture2D gRandomVecMap : register (t1);
+#pragma pack_matrix(row_major)
 
-cbuffer FrustumFarCorners
+SamplerState gNormalDepthSampler : register (s0);
+SamplerState gRandomVectorSampler : register(s1);
+Texture2D gNormalDepthMap : register (t0);
+Texture2D gWPositionMap : register (t1);
+Texture2D gRandomVecMap : register (t2);
+
+cbuffer cb : register(b0)
 {
-	float4x4 gViewToTexSpace;
+	float4x4	view;
+	float4x4	projection;
+	float3		cameraPos;
+};
+
+cbuffer ConstantData : register (b1)
+{
 	float4 corners[4];
 	float4 offsetVectors[14];
 	float occlusionRadius;
@@ -115,7 +124,17 @@ VSOutput VS( uint vID : SV_VERTEXID )
 
 float4 PS(VSOutput vIn) : SV_Target
 {
-	int sampleCount = 14;
+	float4x4 t =
+	{
+		float4(0.5f, 0.0f, 0.0f, 0.5f),
+		float4(0.0f, -0.5f, 0.0f, 0.5f),
+		float4(0.0f, 0.0f, 1.0f, 0.0f),
+		float4(0.0f, 0.0f, 0.0f, 1.0f)
+	};
+
+	float4x4 viewToTexSpace = mul(t, projection);
+
+	const int sampleCount = 14;
 	// p -- the point we are computing the ambient occlusion for.
     // n -- normal vector at p.
     // q -- a random offset from p.
@@ -123,9 +142,10 @@ float4 PS(VSOutput vIn) : SV_Target
 
     // Get viewspace normal and z-coord of this pixel.  The tex-coords for
     // the fullscreen quad we drew are already in uv-space.
-	float4 normalDepth = gNormalDepthMap.SampleLevel(gNormalDepthSampler, vIn.texCoord, 0.0f);
 
-	float3 n = normalDepth.xyz;
+	float4 normalDepth = gNormalDepthMap.SampleLevel(gNormalDepthSampler, vIn.texCoord, 0.0f);
+	
+	float3 n = (normalDepth.xyz * 2.0f) - 1.0f;
 	float pz = normalDepth.w;
 
 	// Reconstruct full view space position (x,y,z).
@@ -134,8 +154,9 @@ float4 PS(VSOutput vIn) : SV_Target
     // t = p.z / pin.ToFarPlane.z
 	float3 p = (pz / vIn.toFarPlane.z) * vIn.toFarPlane;
 
+		//return float4(p,1);
 	// Extract random vector and map from [0,1] --> [-1, +1].
-	float3 randVec = 2.0f * gRandomVecMap.SampleLevel(gRandomVectorSampler, 4.0f * vIn.texCoord, 0.0f).xyz - 1.0f;
+	float3 randVec = 2.0f * gRandomVecMap.SampleLevel(gRandomVectorSampler, 4*vIn.texCoord, 0.0f).xyz - 1.0f;
 
 	float occlusionSum = 0.0f;
 
@@ -155,7 +176,7 @@ float4 PS(VSOutput vIn) : SV_Target
 		float3 q = p + flip * occlusionRadius * offset;
 
 		// Project q and generate projective tex-coords.
-		float4 projQ = mul(float4(q, 1.0f), gViewToTexSpace);
+		float4 projQ = mul(viewToTexSpace, float4(q, 1.0f));
 		projQ /= projQ.w;
 
 		// Find the nearest depth value along the ray from the eye to q (this is not
@@ -192,6 +213,5 @@ float4 PS(VSOutput vIn) : SV_Target
 	float access = 1.0f - occlusionSum;
 
 	// Sharpen the contrast of the SSAO map to make the SSAO affect more dramatic.
-
 	return saturate(access * access * access * access);
 }
