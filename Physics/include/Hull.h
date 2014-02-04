@@ -41,7 +41,7 @@ public:
 	 * Updates position for the hull with a translation matrix.
 	 * @param p_translation, move the hull in relative coordinates.
 	 */
-	void updatePosition(DirectX::XMFLOAT4X4& p_Translation) override
+	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) override
 	{
 		m_PrevPosition = m_Position;
 

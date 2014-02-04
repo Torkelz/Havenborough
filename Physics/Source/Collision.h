@@ -124,8 +124,8 @@ private:
 	static float max(float const &p_A, float const &p_B, float const &p_C);
 	static bool SphereVsTriangle(Sphere const &p_Sphere, Triangle const &p_Triangle);
 
-	static bool OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane);
-	static bool AABBVsPlane(AABB const &p_OBB, Plane const &p_Plane);
+	static bool OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, DirectX::XMVECTOR &p_Least, float &p_Overlap);
+	static bool AABBVsPlane(OBB const &p_OBB, Plane const &p_Plane);
 
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_RC, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
