@@ -101,7 +101,6 @@
     <ClCompile Include="Source\ParticleFactory.cpp" />
     <ClCompile Include="Source\SkyDome.cpp" />
     <ClCompile Include="Source\ForwardRendering.cpp" />
-    <ClCompile Include="Source\AnimationClipLoader.cpp" />
     <ClCompile Include="Source\DeferredRenderer.cpp" />
     <ClCompile Include="Source\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\ModelBinaryLoader.cpp" />
@@ -124,7 +123,6 @@
     <ClInclude Include="include\ShaderDefinitions.h" />
     <ClInclude Include="Source\Renderable.h" />
     <ClInclude Include="Source\SkyDome.h" />
-    <ClInclude Include="Source\AnimationClipLoader.h" />
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />
     <ClInclude Include="Source\Light.h" />

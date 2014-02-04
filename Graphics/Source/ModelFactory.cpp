@@ -64,17 +64,10 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 		boost::filesystem::path mlxPath((animationsFolder / baseName).replace_extension("mlx"));
 		boost::filesystem::path atxPath((animationsFolder / baseName).replace_extension("atx"));
 
-		AnimationData::ptr animationData(new AnimationData);
-
 		AnimationLoader animationLoader;
-		animationLoader.loadAnimationData(atxPath.string());
-		animationData->joints = animationLoader.getJoints();
+		animationLoader.loadAnimationDataResource(atxPath.string().c_str(), atxPath.string().c_str());
 
-		MattiasLucaseXtremeLoader tempLoader;
-		animationData->animationClips	= tempLoader.loadAnimationClip(mlxPath.string());
-		animationData->ikGroups			= tempLoader.loadIKGroup(mlxPath.string());
-
-		model.animationData = animationData;
+		model.animationData = animationLoader.getAnimationData(atxPath.string().c_str());
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 

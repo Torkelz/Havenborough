@@ -134,6 +134,7 @@ void BaseGameApp::init()
 	m_ActorFactory.setPhysics(m_Physics);
 	m_ActorFactory.setEventManager(m_EventManager.get());
 	m_ActorFactory.setResourceManager(m_ResourceManager.get());
+	m_ActorFactory.setAnimationLoader(m_AnimationLoader.get());
 
 	m_GameLogic->initialize(m_ResourceManager.get(), m_Physics, &m_ActorFactory, m_EventManager.get(), m_Network);
 

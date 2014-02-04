@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Animation.h"
+#include "AnimationLoader.h"
 #include "ActorComponent.h"
 #include "Components.h"
 #include "EventManager.h"
@@ -35,6 +37,7 @@ private:
 		HARD_LANDING,
 	};
 
+	Animation m_Animation;
 	ForwardAnimationState m_PrevForwardState;
 	SideAnimationState m_PrevSideState;
 	JumpAnimationState m_PrevJumpState;
@@ -42,14 +45,33 @@ private:
 
 	std::weak_ptr<ModelComponent> m_Model;
 	EventManager* m_EventManager;
+	ResourceManager* m_ResourceManager;
+	std::string m_AnimationName;
+	int m_AnimationResource;
+	AnimationLoader* m_AnimationLoader;
 
 public:
+	~HumanAnimationComponent()
+	{
+		m_ResourceManager->releaseResource(m_AnimationResource);
+	}
+
 	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		m_FallSpeed = 0.f;
 		m_PrevForwardState = ForwardAnimationState::IDLE;
 		m_PrevSideState = SideAnimationState::IDLE;
 		m_PrevJumpState = JumpAnimationState::IDLE;
+
+		const char* resourceName = p_Data->Attribute("Animation");
+		if (!resourceName)
+		{
+			throw CommonException("Human animation component must have animation", __LINE__, __FILE__);
+		}
+
+		m_AnimationName = resourceName;
+		m_AnimationResource = m_ResourceManager->loadResource("animation", m_AnimationName);
+		m_Animation.setAnimationData(m_AnimationLoader->getAnimationData(m_AnimationName.c_str()));
 	}
 
 	void postInit()
@@ -67,7 +89,22 @@ public:
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("HumanAnimation");
+		p_Printer.PushAttribute("Animation", m_AnimationName.c_str());
 		p_Printer.CloseElement();
+	}
+	/**
+	 * Set the resource manager for the component.
+	 *
+	 * @param p_ResourceManager the resource manager to use
+	 */
+	void setResourceManager(ResourceManager* p_ResourceManager)
+	{
+		m_ResourceManager = p_ResourceManager;
+	}
+
+	void setAnimationLoader(AnimationLoader* p_AnimationLoader)
+	{
+		m_AnimationLoader = p_AnimationLoader;
 	}
 
 	void updateAnimation();

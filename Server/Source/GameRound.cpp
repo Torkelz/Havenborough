@@ -48,9 +48,12 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 
 	m_EventManager.reset(new EventManager);
 
+	m_AnimationLoader.reset(new AnimationLoader);
+
 	m_ActorFactory->setEventManager(m_EventManager.get());
 	m_ActorFactory->setPhysics(m_Physics);
 	m_ActorFactory->setResourceManager(m_ResourceManager.get());
+	m_ActorFactory->setAnimationLoader(m_AnimationLoader.get());
 }
 
 void GameRound::setOwningList(GameList* p_ParentList)

@@ -1,6 +1,9 @@
 #include "AnimationLoader.h"
 
+#include "AnimationClipLoader.h"
+
 #include <algorithm>
+#include <boost/filesystem.hpp>
 
 AnimationLoader::AnimationLoader(void)
 {
@@ -80,11 +83,18 @@ bool AnimationLoader::loadAnimationDataResource(const char* p_ResourceName, cons
 	AnimationData::ptr data(new AnimationData);
 	loadAnimationData(p_FilePath);
 	data->joints = getJoints();
+	clearData();
 
 	LoadedAnimationData loadedData;
 	loadedData.animationData = data;
 	loadedData.filename = p_FilePath;
 	loadedData.resourceName = p_ResourceName;
+
+	boost::filesystem::path filepath(p_FilePath);
+	boost::filesystem::path mlxPath(filepath.replace_extension("mlx"));
+
+	data->animationClips = MattiasLucaseXtremeLoader::loadAnimationClip(mlxPath.string());
+	data->ikGroups = MattiasLucaseXtremeLoader::loadIKGroup(mlxPath.string());
 
 	m_LoadedAnimations.push_back(loadedData);
 
@@ -102,6 +112,24 @@ bool AnimationLoader::releaseAnimationData(const char* p_ResourceName)
 	m_LoadedAnimations.erase(it, m_LoadedAnimations.end());
 
 	return true;
+}
+
+AnimationData::ptr AnimationLoader::getAnimationData(const char* p_ResourceName) const
+{
+	auto it = std::find_if(m_LoadedAnimations.begin(), m_LoadedAnimations.end(),
+		[p_ResourceName] (const LoadedAnimationData& p_Data)
+	{
+		return p_Data.resourceName == p_ResourceName;
+	});
+
+	if (it == m_LoadedAnimations.end())
+	{
+		return AnimationData::ptr();
+	}
+	else
+	{
+		return it->animationData;
+	}
 }
 
 const std::vector<Joint>& AnimationLoader::getJoints()

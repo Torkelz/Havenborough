@@ -93,6 +93,9 @@
     <ClInclude Include="Source\AnimationData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\AnimationClipLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp">
@@ -131,7 +134,7 @@
     <ClCompile Include="Source\Joint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\AnimationData.cpp">
+    <ClCompile Include="Source\AnimationClipLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
