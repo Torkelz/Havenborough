@@ -570,7 +570,7 @@ HitData Collision::seperatingAxisTest(OBB const &p_OBB, BoundingVolume const &p_
 void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
 {
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
-	if(lLength > XMVectorGetX(g_XMEpsilon))
+	if(lLength > EPSILON)
 	{
 		p_R = (fabs(p_R) - (p_RA + p_RB)) / lLength;
 		if(p_Overlap > fabs(p_R))
@@ -584,7 +584,7 @@ void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_
 void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_RC ,float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
 {
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
-	if(lLength > XMVectorGetX(g_XMEpsilon))
+	if(lLength > EPSILON)
 	{
 		p_R = (fabs(p_R) - (p_RA + p_RB + p_RC)) / lLength;
 		if(p_Overlap > fabs(p_R))
