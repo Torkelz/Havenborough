@@ -145,7 +145,7 @@ float4 PS(VSOutput vIn) : SV_Target
 
 	float4 normalDepth = gNormalDepthMap.SampleLevel(gNormalDepthSampler, vIn.texCoord, 0.0f);
 	
-	float3 n = (normalDepth.xyz * 2.0f) - 1.0f;
+	float3 n = normalize((normalDepth.xyz * 2.0f) - 1.0f);
 	float pz = normalDepth.w;
 
 	// Reconstruct full view space position (x,y,z).
@@ -154,7 +154,8 @@ float4 PS(VSOutput vIn) : SV_Target
     // t = p.z / pin.ToFarPlane.z
 	float3 p = (pz / vIn.toFarPlane.z) * vIn.toFarPlane;
 
-		//return float4(p,1);
+	//return float4(p,1);
+	
 	// Extract random vector and map from [0,1] --> [-1, +1].
 	float3 randVec = 2.0f * gRandomVecMap.SampleLevel(gRandomVectorSampler, 4*vIn.texCoord, 0.0f).xyz - 1.0f;
 

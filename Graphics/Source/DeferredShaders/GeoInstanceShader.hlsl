@@ -52,7 +52,7 @@ PSIn VS( VSIn input )
 	output.pos = mul( projection, mul(view, mul(input.vworld, input.pos) ) );
 	output.wpos = mul(input.vworld, input.pos);
 
-	output.normal = normalize(mul(input.vworld, float4(input.normal, 0.f)).xyz);
+	output.normal = normalize(mul(view, mul(input.vworld, float4(input.normal, 0.f))).xyz);
 	output.uvCoord = input.uvCoord;
 	output.tangent = normalize(mul(input.vworld, float4(input.tangent,0.f)).xyz);
 	output.binormal = normalize(mul(input.vworld, float4(input.binormal, 0.f)).xyz);
@@ -81,7 +81,7 @@ PSOut PS( PSIn input )
 	{
 		output.diffuse			= float4(diffuseColor.xyz,1.0f);//input.diffuse.xyz;
 		output.normal.w			= input.depth;
-		output.normal.xyz		= normalize(mul(view, float4(normal, 0.f)).xyz);
+		output.normal.xyz		= normal;//normalize(mul((float3x3)view, normal));
 		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
 		output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;
 	}
