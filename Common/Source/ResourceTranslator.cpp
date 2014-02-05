@@ -41,7 +41,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("Vege2", "assets/models/Vege2.btx"),
 		std::make_pair("Street1", "assets/models/Street1.btx"),
 		std::make_pair("Tree1", "assets/models/Tree1.btx"),
-		std::make_pair("WITCH", "assets/models/Witch_new2.btx"),
+		std::make_pair("WITCH", "assets/models/Dzala.btx"),
 		std::make_pair("WoodenShed1", "assets/models/WoodenShed.btx"),
 	};
 
@@ -102,7 +102,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 
 	static const std::pair<std::string, std::string> animationMap[] =
 	{
-		std::make_pair("WITCH", "assets/animations/Witch_new2.atx"),
+		std::make_pair("WITCH", "assets/animations/Dzala.atx"),
 	};
 	static const size_t numAnimations = sizeof(animationMap) / sizeof(animationMap[0]);
 

@@ -43,6 +43,12 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_LookDirection, std::weak
 
 XMFLOAT3 Player::getPosition(void) const
 {
+	Actor::ptr actor = m_Actor.lock();
+	if (actor)
+	{
+		return actor->getPosition();
+	}
+
 	Vector3 pos = getCollisionCenter();
 	pos.y -= m_KneeHeight;
 	return pos;
