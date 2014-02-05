@@ -160,8 +160,8 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("OBBPhysics");
 	printer.PushAttribute("Immovable", false);
 	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "Halfsize", Vector3(50.f, 50.f, 50.f));
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f)); 
+	pushVector(printer, "Halfsize", Vector3(40.f, 40.f, 40.f));
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 40.f, 0.f)); 
 	printer.CloseElement();
 	//printer.OpenElement("SpherePhysics");
 	//printer.PushAttribute("Immovable", false);

@@ -343,7 +343,6 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 		Triangle tri = p_Hull.getTriangleInWorldCoord(i);
 
 		point = XMLoadFloat4(&findClosestPointOnTriangle(p_Sphere.getPosition(), tri.corners[0], tri.corners[1], tri.corners[2]));
-		//point = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(p_Sphere.getPosition(), i));
 		v = point - spherePos;
 
 		float vv = XMVectorGetX(XMVector4Dot(v, v));
@@ -657,9 +656,11 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 	const XMMATRIX box_Axes		= XMLoadFloat4x4(&p_OBB.getAxes());
 	const XMVECTOR box_Extents  = XMLoadFloat4(&p_OBB.getExtents());
 	XMMATRIX invAxes			= XMMatrixInverse(&XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f), box_Axes); 	//not used
+	
 
-	float overlap = FLT_MAX;
-	XMVECTOR least;
+
+	float overlap = FLT_MAX, totalOverlap = 0;
+	XMVECTOR least = g_XMZero;
 	XMVECTOR tVec;
 
 	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
@@ -669,7 +670,6 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		XMVECTOR tLeast = g_XMZero;
 
 		Triangle tri = p_Hull.getTriangleInWorldCoord(i);
-		Triangle tri1 = p_Hull.getTriangleAt(i);
 		XMVECTOR t0 = Vector4ToXMVECTOR(&tri.corners[0]);
 		XMVECTOR t1 = Vector4ToXMVECTOR(&tri.corners[1]);
 		XMVECTOR t2 = Vector4ToXMVECTOR(&tri.corners[2]);
@@ -710,6 +710,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 
 				if(rt > r)
 				{
+					//Seperating axis found, break the test.
 					j = 3;
 					miss = true;
 					break;
@@ -722,38 +723,25 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		if(miss)
 			continue;
 
-		//Check axis A0
-		float min = checkMin(XMVectorGetX(v0), XMVectorGetX(v1), XMVectorGetX(v2));
-		float max = checkMax(XMVectorGetX(v0), XMVectorGetX(v1), XMVectorGetX(v2));
-		float r	  = XMVectorGetX(box_Extents);
-		float t	  = checkMinMax(min, max, r);
+		for(int j = 0; j < 3; j++)
+		{
+			float min = checkMin(v0.m128_f32[j], v1.m128_f32[j], v2.m128_f32[j]);
+			float max = checkMax(v0.m128_f32[j], v1.m128_f32[j], v2.m128_f32[j]);
+			float r	  = box_Extents.m128_f32[j];
+			float t	  = checkMinMax(min, max, r);
 
-		if(t == .0f)
+			if(t == .0f)
+			{
+				//Seperating axis found, break the test.
+				miss = true;
+				break;
+			}
+			else
+				checkCollisionDepth(t, r, tOverlap, box_Axes.r[j], tLeast);
+		}
+
+		if(miss)
 			continue;
-		else
-			checkCollisionDepth(t, r, tOverlap, box_Axes.r[0], tLeast);
-
-		//Check axis A1
-		min = checkMin(XMVectorGetY(v0), XMVectorGetY(v1), XMVectorGetY(v2));
-		max = checkMax(XMVectorGetY(v0), XMVectorGetY(v1), XMVectorGetY(v2));
-		r	  = XMVectorGetY(box_Extents);
-		t	  = checkMinMax(min, max, r);
-
-		if(t == .0f)
-			continue;
-		else
-			checkCollisionDepth(t, r, tOverlap, box_Axes.r[1], tLeast);
-
-		//Check axis a2
-		min = checkMin(XMVectorGetZ(v0), XMVectorGetZ(v1), XMVectorGetZ(v2));
-		max = checkMax(XMVectorGetZ(v0), XMVectorGetZ(v1), XMVectorGetZ(v2));
-		r	  = XMVectorGetY(box_Extents);
-		t	  = checkMinMax(min, max, r);
-
-		if(t == .0f)
-			continue;
-		else
-			checkCollisionDepth(t, r, tOverlap, box_Axes.r[2], tLeast);
 
 		//Check for degenerate triangle
 		float degenerate = XMVector4Length(XMVector3Cross(F[0], F[1])).m128_f32[0] * 0.5f;
@@ -769,12 +757,13 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		
 		hit.intersect = true;
 		hit.colType = Type::OBBVSHULL;
+
 		//Check if this triangle is closer than the last, if so save the least separeting axis.
 		if(tOverlap < overlap)
 		{
 			overlap = tOverlap;
 			least = tLeast;
-			tVec = (t0 + t1 + t2) / 3.f;
+			tVec = (t0 + t1 + t2) * 0.3333333333f;
 		}
 	}
 	if(hit.intersect)
@@ -785,7 +774,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 			least *= -1.f;
 
 		least = XMVector4Normalize(least);
-		hit.colNorm = XMVECTORToVector4(&least);//*/ Vector4(0.f, 1.f, 0.f, 0.f);
+		hit.colNorm = XMVECTORToVector4(&least);
 		hit.colLength = overlap * 100.f;
 	}
 
@@ -1003,8 +992,8 @@ bool Collision::OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, XMVECTOR &p_L
 		float R = fabs(r) - fabs(s);
 		if(p_Overlap > fabs(R))
 		{
-			p_Least = pn;
 			p_Overlap = fabs(R);
+			p_Least = pn;
 		}
 		return true;
 	}
@@ -1032,7 +1021,7 @@ void Collision::checkCollisionDepth(float p_Rt, float p_R, float &p_Overlap, XMV
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
 	if(lLength > EPSILON)
 	{
-		p_R = (fabs(p_R) - p_Rt); // lLength;
+		p_R = (fabs(p_R) - p_Rt);// / lLength;
 		if(p_Overlap > fabs(p_R))
 		{
 			p_Overlap = fabs(p_R);
@@ -1044,9 +1033,9 @@ void Collision::checkCollisionDepth(float p_Rt, float p_R, float &p_Overlap, XMV
 float Collision::checkMinMax(float min, float max, float p_R)
 {
 	if(min > p_R)
-		return 0.0f;
+		return .0f;
 	if(max < -p_R)
-		return 0.0f;
+		return .0f;
 	
 	if(max == min)
 		return max;

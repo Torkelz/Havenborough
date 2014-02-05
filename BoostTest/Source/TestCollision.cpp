@@ -546,7 +546,7 @@ BOOST_AUTO_TEST_CASE(HullvsOBB)
 		triangles.clear();
 		triangles.push_back(Triangle(Vector4( -2.f, 2.f, -2.f, 1.f), Vector4(-2.f, 2.f, 2.f, 1.f), Vector4( 2.f, 2.f, 2.f, 1.f)));
 		h  = Hull(triangles);
-		obb = OBB(DirectX::XMFLOAT4(-0.5f, 1.6f, 0.0f, 1.f), DirectX::XMFLOAT4(.5f, .5f, .5f, 0.f));
+		obb = OBB(DirectX::XMFLOAT4(-0.5f, 2.1f, 0.0f, 1.f), DirectX::XMFLOAT4(.5f, .5f, .5f, 0.f));
 
 		hd = Collision::boundingVolumeVsBoundingVolume(h, obb);
 		BOOST_CHECK(hd.intersect);

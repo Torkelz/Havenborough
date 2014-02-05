@@ -94,7 +94,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Player.setDirectionZ(XMVectorGetZ(rotDirV));
 	}
 	if(!m_Player.getForceMove())
-		m_Physics->update(p_DeltaTime, 50);
+		m_Physics->update(p_DeltaTime, 100);
 
 	Vector3 actualViewRot = getPlayerViewRotation();
 	Actor::ptr playerActor = m_Player.getActor().lock();
@@ -347,7 +347,7 @@ void GameLogic::playLocalLevel()
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
 	m_Level.loadLevel(input, m_Objects);
-	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(3000.f, 2000.0f, 0.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
 	std::ifstream input("../Bin/assets/levels/Level1.2.1.btxl", std::istream::in | std::istream::binary);
@@ -732,11 +732,11 @@ void GameLogic::loadSandbox()
 	useIK = false;
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
-	testWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(1600.0f, 0.0f, 500.0f)));
-	playAnimation(testWitch.lock(), "Run", false);
+	//testWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(1600.0f, 0.0f, 500.0f)));
+	//playAnimation(testWitch.lock(), "Run", false);
 
-	circleWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(0.f, 0.f, 0.f)));
-	playAnimation(circleWitch.lock(), "Run", false);
+	//circleWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(0.f, 0.f, 0.f)));
+	//playAnimation(circleWitch.lock(), "Run", false);
 
 	witchCircleAngle = 0.0f;
 
@@ -746,25 +746,25 @@ void GameLogic::loadSandbox()
 
 void GameLogic::updateSandbox(float p_DeltaTime)
 {
-	static const Vector3 circleCenter(400.f, 0.f, 1500.f);
-	static const float circleRadius = 800.f;
-	static const float witchAngleSpeed = 0.3f;
+	//static const Vector3 circleCenter(400.f, 0.f, 1500.f);
+	//static const float circleRadius = 800.f;
+	//static const float witchAngleSpeed = 0.3f;
 
-	witchCircleAngle += witchAngleSpeed * p_DeltaTime;
-	Vector3 witchCirclePosition(circleCenter);
-	witchCirclePosition.x -= cosf(witchCircleAngle) * circleRadius;
-	witchCirclePosition.z += sinf(witchCircleAngle) * circleRadius;
-	Actor::ptr strongWitch = circleWitch.lock();
-	if (strongWitch)
-	{
-		strongWitch->setPosition(witchCirclePosition);
-		strongWitch->setRotation(Vector3(witchCircleAngle, 0.f, 0.f));
-	}
+	//witchCircleAngle += witchAngleSpeed * p_DeltaTime;
+	//Vector3 witchCirclePosition(circleCenter);
+	//witchCirclePosition.x -= cosf(witchCircleAngle) * circleRadius;
+	//witchCirclePosition.z += sinf(witchCircleAngle) * circleRadius;
+	//Actor::ptr strongWitch = circleWitch.lock();
+	//if (strongWitch)
+	//{
+	//	strongWitch->setPosition(witchCirclePosition);
+	//	strongWitch->setRotation(Vector3(witchCircleAngle, 0.f, 0.f));
+	//}
 
-	if (m_InGame)
-	{
-		updateIK();
-	}
+	//if (m_InGame)
+	//{
+	//	updateIK();
+	//}
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
