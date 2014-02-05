@@ -16,6 +16,9 @@ private:
 	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume ;
 
 	std::vector<DirectX::XMFLOAT3> m_BoxTriangleIndex;
+	float bajs;
+
+
 public:
 	Physics();
 	~Physics();
@@ -43,9 +46,6 @@ public:
 	void removeHitDataAt(unsigned int p_index) override;
 	unsigned int getHitDataSize() override;
 
-	bool getBodyOnSomethingAt(unsigned p_Index) override;
-	void removeBodyOnSomethingAt(unsigned p_Index) override;
-	unsigned getBodyOnSomethingSize() override;
 	bool getBodyLanded(BodyHandle p_Body) override;
 
 	void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) override;
@@ -62,6 +62,7 @@ public:
 	void setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale) override;
 
 	Vector4 calculateDirectionVector(BodyHandle p_BodyHandle, Vector3 p_Vector) override;
+	Vector4 getBodyDirection(BodyHandle p_BodyHandle, unsigned p_Index) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 

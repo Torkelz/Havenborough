@@ -226,6 +226,14 @@ void Player::move()
 	currentVelocity.y = 0.f;
 
 	XMFLOAT3 maxVelocity(m_DirectionX * m_MaxSpeed, 0.f, m_DirectionZ * m_MaxSpeed);	// cm/s
+		
+/*	Vector4 direction = m_Physics->getBodyDirection(getBody(), 0);
+	Vector4 direction1 = m_Physics->getBodyDirection(getBody(), 2);
+
+	XMVECTOR hej = XMVector4AngleBetweenVectors(Vector4ToXMVECTOR(&direction), XMLoadFloat3(&maxVelocity));
+	XMVECTOR hej2 = XMVector4AngleBetweenVectors(Vector4ToXMVECTOR(&direction1), XMLoadFloat3(&maxVelocity));
+
+	XMMATRIX temp = XMMatrixRotationRollPitchYaw(hej.m128_f32[0], hej2.m128_f32[0], 0.f);*/
 
 	XMFLOAT3 diffVel = XMFLOAT3(0.f, 0.f, 0.f);	// cm/s
 	XMFLOAT3 force = XMFLOAT3(0.f, 0.f, 0.f);		// kg * m/s^2
@@ -238,12 +246,16 @@ void Player::move()
 	force.y = diffVel.y / 100.f * m_AccConstant;
 	force.z = diffVel.z / 100.f * m_AccConstant;
 
-	Vector4 direction = m_Physics->calculateDirectionVector(getBody(), force);
+	//Vector4 direction =
 
-	force = direction.xyz();
+	force = m_Physics->calculateDirectionVector(getBody(), force).xyz();
+
+	//XMStoreFloat3(&force, XMVector3Transform(XMLoadFloat3(&force), temp));
+
 
 	XMFLOAT3 forceDiff = XMFLOAT3(force.x - m_PrevForce.x, force.y - m_PrevForce.y, force.z - m_PrevForce.z);	// kg * m/s^2
 	m_PrevForce = force;
+
 
 	m_Physics->applyForce(getBody(), XMFLOAT3ToVector3(&forceDiff));
 

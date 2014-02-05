@@ -5,7 +5,8 @@
 using namespace DirectX;
 
 Physics::Physics(void)
-	: m_GlobalGravity(30.f)
+	: m_GlobalGravity(30.f),
+	  bajs(0.f)
 {}
 
 Physics::~Physics()
@@ -92,6 +93,7 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 			}
 
 			b.update(p_DeltaTime);
+			bajs += p_DeltaTime;
 			
 			b.setLanded(false);
 
@@ -119,22 +121,28 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 
 						b.setPosition(tempPos);
 
-						XMVECTOR x,z;
-
-						x = XMVector4Normalize(XMVector3Orthogonal(Vector4ToXMVECTOR(&hit.colNorm)));
-						z = XMVector4Normalize(XMVector3Cross(Vector4ToXMVECTOR(&hit.colNorm), x));
-
-						XMMATRIX mat = XMMatrixIdentity();
-						mat.r[0] = x;
-						mat.r[0].m128_f32[3] = 0.f;
-						mat.r[1] = Vector4ToXMVECTOR(&hit.colNorm);
-						mat.r[2] = -z;
-
-						b.setOrientation(mat);
 
 						if (hit.colNorm.y > 0.68f)
 						{	
-							
+							XMVECTOR x,z;
+
+							x = XMVector4Normalize(XMVector3Orthogonal(Vector4ToXMVECTOR(&hit.colNorm)));
+							z = XMVector4Normalize(XMVector3Cross(Vector4ToXMVECTOR(&hit.colNorm), x));
+
+							XMMATRIX mat = XMMatrixIdentity();
+							mat.r[0] = x;
+							mat.r[0].m128_f32[3] = 0.f;
+							//mat.r[1] = Vector4ToXMVECTOR(&hit.colNorm);
+							mat.r[2] = -z;
+
+						/*	if(bajs > 1.5f)
+							{
+								PhysicsLogger::log(PhysicsLogger::Level::INFO, "X: x: " + std::to_string(x.m128_f32[0]) + " y: " + std::to_string(x.m128_f32[1]) + " z: " + std::to_string(x.m128_f32[2])  +"\n");
+								PhysicsLogger::log(PhysicsLogger::Level::INFO, "Z: x: " + std::to_string(z.m128_f32[0]) + " y: " + std::to_string(z.m128_f32[1]) + " z: " + std::to_string(z.m128_f32[2]));
+								bajs = 0.f;
+							}
+*/
+							b.setOrientation(mat);
 
 							if(!b.getOnSomething())
 							{
@@ -398,11 +406,6 @@ unsigned int Physics::getHitDataSize()
 	return m_HitDatas.size();
 }
 
-bool Physics::getBodyOnSomethingAt(unsigned int p_Index)
-{
-	return true;
-}
-
 bool Physics::getBodyLanded(BodyHandle p_Body)
 {
 	Body *body = findBody(p_Body);
@@ -410,16 +413,6 @@ bool Physics::getBodyLanded(BodyHandle p_Body)
 		return false;
 
 	return body->getLanded();
-}
-
-void Physics::removeBodyOnSomethingAt(unsigned int p_index)
-{
-	//m_HitDatas.erase(m_HitDatas.begin() + p_index);
-}
-
-unsigned int Physics::getBodyOnSomethingSize()
-{
-	return m_HitDatas.size();
 }
 
 void Physics::setBodyCollisionResponse(BodyHandle p_Body, bool p_State)
@@ -546,9 +539,27 @@ Vector4 Physics::calculateDirectionVector(BodyHandle p_Body, Vector3 p_Vector)
 
 	XMFLOAT4X4 mat = body->getOrientation();
 
+	bajs += 1.f;
+	if(bajs > 25.f)
+	{
+		PhysicsLogger::log(PhysicsLogger::Level::INFO, "X: x: " + std::to_string(mat.m[0][0]) + " y: " + std::to_string(mat.m[0][1]) + " z: " + std::to_string(mat.m[0][2])  +"\n");
+		PhysicsLogger::log(PhysicsLogger::Level::INFO, "Z: x: " + std::to_string(mat.m[2][0]) + " y: " + std::to_string(mat.m[2][1]) + " z: " + std::to_string(mat.m[2][2]));
+		bajs = 0.f;
+	}
 	XMVECTOR temp = XMVector4Transform(Vector3ToXMVECTOR(&p_Vector, 0.f), XMLoadFloat4x4(&mat));
 
 	return XMVECTORToVector4(&temp);
+}
+
+Vector4 Physics::getBodyDirection(BodyHandle p_BodyHandle, unsigned p_Index)
+{
+	Body* body = findBody(p_BodyHandle);
+	if(body == nullptr)
+		return Vector4(0.f, 0.f, 0.f, 0.f);
+
+	XMMATRIX temp = XMLoadFloat4x4(&body->getOrientation());
+
+	return 	XMVECTORToVector4(&temp.r[p_Index]);;
 }
 
 

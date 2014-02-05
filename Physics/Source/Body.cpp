@@ -134,6 +134,7 @@ void Body::update(float p_DeltaTime)
 	m_Velocity.y += m_AvgAcceleration.y * p_DeltaTime;
 	m_Velocity.z += m_AvgAcceleration.z * p_DeltaTime;
 
+
 	updateBoundingVolumePosition(relativePos);
 
 	
@@ -291,5 +292,6 @@ XMFLOAT4X4 Body::getOrientation()
 
 void Body::setOrientation(XMMATRIX const &p_Orientation)
 {
+	//XMMatrixInverse(&XMMatrixDeterminant(p_Orientation), p_Orientation);
 	XMStoreFloat4x4(&m_Orientation, p_Orientation);
 }

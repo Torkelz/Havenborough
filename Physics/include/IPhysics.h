@@ -182,27 +182,6 @@ public:
 	 * @param p_Index are the index number in the vector
 	 */
 	virtual void removeHitDataAt(unsigned int p_index) = 0;
-	/**
-	 * Vector size, with hitData.
-	 *
-	 * @param return m_HitDatas.size
-	 */
-	virtual bool getBodyOnSomethingAt(unsigned p_Index) = 0;
-
-	/**
-	 * Get the hitdata from the vector containing all the collision hitdata for the last frame.
-	 *
-	 * @param p_Indexare the index number in the vector
-	 * @return the hitdata on that index
-	 */
-	virtual void removeBodyOnSomethingAt(unsigned p_Index) = 0;
-
-	/**
-	 * Removes the hitdata from the vector containing all the collision hitdata for the last frame at specific position.
-	 *
-	 * @param p_Index are the index number in the vector
-	 */
-	virtual unsigned getBodyOnSomethingSize() = 0;
 
 	/**
 	 * A bool that turns on the frame where a body lands ontop of something.
@@ -234,6 +213,7 @@ public:
 	 * @return returns the new vector.
 	 */
 	virtual Vector4 calculateDirectionVector(BodyHandle p_BodyHandle, Vector3 p_Vector) = 0;
+	virtual Vector4 getBodyDirection(BodyHandle p_BodyHandle, unsigned p_Index) = 0;
 
 	/**
 	 * Return the bounding volume from the body.
