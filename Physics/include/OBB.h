@@ -61,7 +61,7 @@ public:
 	* Updates position for OBB with translation matrix.
 	* @param p_translation, move the OBB in relative coordinates.
 	*/
-	void updatePosition(DirectX::XMFLOAT4X4& p_Translation) override
+	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) override
 	{
 		m_PrevPosition = m_Position;
 

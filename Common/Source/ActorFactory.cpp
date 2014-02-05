@@ -95,7 +95,7 @@ Actor::ptr ActorFactory::createBasicModel(const std::string& p_Model, Vector3 p_
 void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Halfsize)
 {
 	p_Printer.OpenElement("AABBPhysics");
-	p_Printer.PushAttribute("Edge", true);
+	p_Printer.PushAttribute("IsEdge", true);
 	pushVector(p_Printer, "Halfsize", p_Halfsize);
 	pushVector(p_Printer, "OffsetPosition", p_Position);
 	p_Printer.CloseElement();
@@ -157,12 +157,18 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "WITCH");
 	printer.CloseElement();
-	printer.OpenElement("SpherePhysics");
+	printer.OpenElement("OBBPhysics");
 	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Radius", 50.f);
 	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
+	pushVector(printer, "Halfsize", Vector3(50.f, 50.f, 50.f));
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f)); 
 	printer.CloseElement();
+	//printer.OpenElement("SpherePhysics");
+	//printer.PushAttribute("Immovable", false);
+	//printer.PushAttribute("Radius", 50.f);
+	//printer.PushAttribute("Mass", 68.f);
+	//pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
+	//printer.CloseElement();
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
 	printer.PushAttribute("Strength", 0.5f);

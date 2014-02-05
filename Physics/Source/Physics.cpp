@@ -281,7 +281,7 @@ bool Physics::createBV(const char* p_VolumeID, const char* p_FilePath)
 
 	m_TemplateBVList.push_back(std::pair<std::string, std::vector<BVLoader::BoundingVolume>>(p_VolumeID, tempBV));
 	m_BVLoader.clear();
-	PhysicsLogger::log(PhysicsLogger::Level::INFO, "CreateBV success");
+	//PhysicsLogger::log(PhysicsLogger::Level::INFO, "CreateBV success");
 	return true;
 }
 
