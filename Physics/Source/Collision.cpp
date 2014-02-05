@@ -721,22 +721,22 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 			continue;
 
 		//Check axis A0
-		if(checkR(XMVectorGetX(t0), XMVectorGetX(t1), XMVectorGetX(t2), XMVectorGetX(box_Extents)))
+		if(checkR(XMVectorGetX(v0), XMVectorGetX(v1), XMVectorGetX(v2), XMVectorGetX(box_Extents)))
 			continue;
 		else
-			checkCollisionDepth(XMVectorGetX(t0), XMVectorGetX(t1), XMVectorGetX(t2), XMVectorGetX(box_Extents), tOverlap, box_Axes.r[0], tLeast);
+			checkCollisionDepth(XMVectorGetX(v0), XMVectorGetX(v1), XMVectorGetX(v2), XMVectorGetX(box_Extents), tOverlap, box_Axes.r[0], tLeast);
 
 		//Check axis A1
-		if(checkR(XMVectorGetY(t0), XMVectorGetY(t1), XMVectorGetY(t2), XMVectorGetY(box_Extents)))
+		if(checkR(XMVectorGetY(v0), XMVectorGetY(v1), XMVectorGetY(v2), XMVectorGetY(box_Extents)))
 			continue;
 		else
-			checkCollisionDepth(XMVectorGetY(t0), XMVectorGetY(t1), XMVectorGetY(t2), XMVectorGetY(box_Extents), tOverlap, box_Axes.r[1], tLeast);
+			checkCollisionDepth(XMVectorGetY(v0), XMVectorGetY(v1), XMVectorGetY(v2), XMVectorGetY(box_Extents), tOverlap, box_Axes.r[1], tLeast);
 
 		//Check axis a2
-		if(checkR(XMVectorGetZ(t0), XMVectorGetZ(t1), XMVectorGetZ(t2), XMVectorGetZ(box_Extents)))
+		if(checkR(XMVectorGetZ(v0), XMVectorGetZ(v1), XMVectorGetZ(v2), XMVectorGetZ(box_Extents)))
 			continue;
 		else
-			checkCollisionDepth(XMVectorGetZ(t0), XMVectorGetZ(t1), XMVectorGetZ(t2), XMVectorGetZ(box_Extents), tOverlap, box_Axes.r[2], tLeast);
+			checkCollisionDepth(XMVectorGetZ(v0), XMVectorGetZ(v1), XMVectorGetZ(v2), XMVectorGetZ(box_Extents), tOverlap, box_Axes.r[2], tLeast);
 
 		//Check for degenerate triangle
 		float degenerate = XMVector4Length(XMVector3Cross(F[0], F[1])).m128_f32[0] * 0.5f;
