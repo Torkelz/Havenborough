@@ -1,6 +1,7 @@
 #pragma once
 #include "WrapperFactory.h"
 #include "ModelDefinition.h"
+#include "ShaderStructs.h"
 
 #include <d3d11.h>
 #include <vector>

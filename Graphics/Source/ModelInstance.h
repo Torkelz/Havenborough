@@ -1,7 +1,4 @@
 #pragma once
-#include "Joint.h"
-#include "Animation.h"
-#include "AnimationClip.h"
 
 #include <DirectXMath.h>
 #include <string>
@@ -30,8 +27,6 @@
 	std::vector<DirectX::XMFLOAT4X4> m_FinalTransform;
 
  public:
-
-	Animation m_Animation;
 	/**
 	 * Constructor. Creates an empty object.
 	 */
@@ -98,6 +93,12 @@
 	 */
 	const std::vector<DirectX::XMFLOAT4X4>& getFinalTransform() const;
 
+	/**
+	 * Set the pose of the model. Requires the model to be animated.
+	 *
+	 * @param p_Pose an array of joint matrices describing the pose
+	 * @param p_Size the number of matrices in p_Pose
+	 */
 	void animationPose(const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size);
 
  private:

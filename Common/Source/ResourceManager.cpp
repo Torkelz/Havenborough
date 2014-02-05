@@ -21,6 +21,12 @@ ResourceManager::ResourceManager()
 	m_NextID = 0;
 }
 
+ResourceManager::ResourceManager(const boost::filesystem::path& p_RootPath)
+	:	m_ProjectDirectory(p_RootPath),
+		m_NextID(0)
+{
+}
+
 ResourceManager::~ResourceManager()
 {
 	std::string unreleasedResources;

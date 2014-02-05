@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Actor.h"
+#include "AnimationLoader.h"
 #include "ResourceManager.h"
 #include <IPhysics.h>
 
@@ -24,6 +26,7 @@ private:
 	IPhysics* m_Physics;
 	EventManager* m_EventManager;
 	ResourceManager* m_ResourceManager;
+	AnimationLoader* m_AnimationLoader;
 
 protected:
 	/**
@@ -59,6 +62,8 @@ public:
 	 * @param p_ResourceManager the resource manager to use
 	 */
 	void setResourceManager(ResourceManager* p_ResourceManager);
+
+	void setAnimationLoader(AnimationLoader* p_AnimationLoader);
 
 	/**
 	 * Create an actor from a XML description, with a unique id.
