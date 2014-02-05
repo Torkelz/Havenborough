@@ -97,7 +97,7 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 			tempColor.w + oneToOneDistribution(m_RandomEngine) * m_ParticleEffectDef->particleColorDeviation.w);
 
 		//Put all the new data for the new particle into one container
-		Particle tempParticle(tempPos, randVel, randColorOffset, m_ParticleEffectDef->size, 0.f);
+		Particle tempParticle(randPos, randVel, randColorOffset, m_ParticleEffectDef->size, 0.f);
 
 		//Add the new particle to the others in the same system
 		m_ParticleList.push_back(tempParticle);
