@@ -51,14 +51,14 @@ XMFLOAT3 Player::getPosition(void) const
 XMFLOAT3 Player::getEyePosition() const
 {
 	Actor::ptr actor = m_Actor.lock();
-	/*if (actor)
+	if (actor)
 	{
 		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 		if (comp)
 		{
-			return comp->getJointPos("HeadBase");
+			//return comp->getJointPos("HeadBase");
 		}
-	}*/
+	}
 
 	XMFLOAT3 eyePosition = getPosition();
 	eyePosition.y += m_EyeHeight;
@@ -114,6 +114,7 @@ void Player::setJump(void)
 			Vector3 temp = m_Physics->getBodyVelocity(getBody());
 			m_Physics->setBodyVelocity(getBody(), Vector3(temp.x, 0.f, temp.z));
 		}
+
 		m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
 	}
 }
@@ -212,7 +213,7 @@ void Player::jump(float dt)
 
 	if(m_Physics->getBodyLanded(getBody()))
 	{
-		m_JumpCount = 0;
+		//m_JumpCount = 0;
 	}
 }
 
