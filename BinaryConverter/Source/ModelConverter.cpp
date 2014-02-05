@@ -52,6 +52,7 @@ bool ModelConverter::writeFile(std::string p_FilePath)
 		return false;
 	}
 	createHeader(&output); 
+	createModelHeaderFile(p_FilePath);
 	createMaterial(&output);
 	if(m_WeightsListSize != 0)
 	{
@@ -300,6 +301,42 @@ void ModelConverter::setNumberOfFrames(int p_NumberOfFrames)
 void ModelConverter::setMeshName(std::string p_MeshName)
 {
 	m_MeshName = p_MeshName;
+}
+
+std::string ModelConverter::getPath(std::string p_FilePath)
+{
+	std::string file("ModelHeader.txx");
+	std::vector<char> buffer(p_FilePath.begin(), p_FilePath.end());
+	buffer.push_back(0);
+	char *tmp, *type = nullptr;
+	tmp = strtok(buffer.data(), "\\");
+	while(tmp != nullptr)
+	{
+		type = tmp;
+		tmp = strtok(NULL,"\\");
+	}
+	int length = buffer.size();
+	int size = strlen(type)+1;
+
+	std::string temp;
+	temp.append(p_FilePath.data(), length-size);
+	temp.append(file.data(),file.size());
+	temp.push_back(0);
+	return temp;
+}
+
+bool ModelConverter::createModelHeaderFile(std::string p_FilePath)
+{
+	std::string path = getPath(p_FilePath);
+	std::ofstream headerOutput(path, std::ostream::app);
+	if(!headerOutput)
+	{
+		return false;
+	}
+	stringToByte(m_MeshName, &headerOutput);
+	intToByte(m_Animated, &headerOutput);
+	intToByte(m_Transparency, &headerOutput);
+	intToByte(m_Collidable, &headerOutput);
 }
 
 void ModelConverter::clearData()
