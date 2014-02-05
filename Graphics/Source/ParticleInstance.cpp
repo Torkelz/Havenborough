@@ -83,8 +83,8 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 			velDistribution(m_RandomEngine),
 			velDistribution(m_RandomEngine));
 
-		/*std::uniform_real_distribution<float> posDistribution()
-			XMFLOAT4 randPos(
+		/*std::uniform_real_distribution<float> posDistribution(-m_ParticleEffectDef->particlePositionDeviation, )
+			DirectX::XMFLOAT4 randPos(
 			
 			)*/
 
