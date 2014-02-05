@@ -215,6 +215,8 @@ void DeferredRenderer::renderGeometry()
 	{ 
 		return a.model->vertexBuffer > b.model->vertexBuffer;
 	});
+	
+
 
 	std::vector<std::vector<Renderable>> ttemp;
 	std::vector<Renderable> ttani;
@@ -245,59 +247,64 @@ void DeferredRenderer::renderGeometry()
 				ttani.push_back(std::move(m_Objects.at(current)));
 		}
 	}
-	m_Objects.clear();
+	//m_Objects.clear();
 
 	m_ConstantBuffer->setBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	updateConstantBuffer();
-	for( auto &animation : ttani )
-		renderObject(animation);
 
-	for( auto &k : ttemp)
-	{
-		UINT Offsets[2] = {0,0};
-		ID3D11Buffer * buffers[] = {k.front().model->vertexBuffer->getBufferPointer(), m_WorldInstanceData->getBufferPointer()};
-		UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
+	for(auto &a : m_Objects)
+		renderObject(a);
+	m_Objects.clear();
+
+	/*for( auto &animation : ttani )
+	renderObject(animation);*/
+
+	//for( auto &k : ttemp)
+	//{
+	//	UINT Offsets[2] = {0,0};
+	//	ID3D11Buffer * buffers[] = {k.front().model->vertexBuffer->getBufferPointer(), m_WorldInstanceData->getBufferPointer()};
+	//	UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
 
 
-		ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
+	//	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
 
-		// Set shader.
-		m_InstancedGeometryShader->setShader();
-		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-		m_InstancedGeometryShader->setBlendState(m_BlendState2, data);
-		m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
+	//	// Set shader.
+	//	m_InstancedGeometryShader->setShader();
+	//	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+	//	m_InstancedGeometryShader->setBlendState(m_BlendState2, data);
+	//	m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
 
-		for(unsigned int u = 0; u < k.front().model->numOfMaterials;u++)
-		{
-			ID3D11ShaderResourceView *srvs[] =  {	k.front().model->diffuseTexture[u].second, 
-													k.front().model->normalTexture[u].second, 
-													k.front().model->specularTexture[u].second 
-												};
-			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-			D3D11_MAPPED_SUBRESOURCE ms;
-			for(unsigned int i = 0; i < k.size(); i += m_MaxLightsPerLightInstance)
-			{
-				int nrToCpy = (k.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : k.size() - i ;
-				std::vector<XMFLOAT4X4> tWorld;
-				for(int j = 0; j < nrToCpy; j++)
-					tWorld.push_back(k.at(i+j).world);
+	//	for(unsigned int u = 0; u < k.front().model->numOfMaterials;u++)
+	//	{
+	//		ID3D11ShaderResourceView *srvs[] =  {	k.front().model->diffuseTexture[u].second, 
+	//												k.front().model->normalTexture[u].second, 
+	//												k.front().model->specularTexture[u].second 
+	//											};
+	//		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+	//		D3D11_MAPPED_SUBRESOURCE ms;
+	//		for(unsigned int i = 0; i < k.size(); i += m_MaxLightsPerLightInstance)
+	//		{
+	//			int nrToCpy = (k.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : k.size() - i ;
+	//			std::vector<XMFLOAT4X4> tWorld;
+	//			for(int j = 0; j < nrToCpy; j++)
+	//				tWorld.push_back(k.at(i+j).world);
 
-				m_DeviceContext->Map(m_WorldInstanceData->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
-				memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
-				m_DeviceContext->Unmap(m_WorldInstanceData->getBufferPointer(), NULL);
+	//			m_DeviceContext->Map(m_WorldInstanceData->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+	//			memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
+	//			m_DeviceContext->Unmap(m_WorldInstanceData->getBufferPointer(), NULL);
 
-				m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),
-					k.front().model->drawInterval.at(u).first,0);
-			}
-			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
-		}
+	//			m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),
+	//			k.front().model->drawInterval.at(u).first,0);
+	//		}
+	//		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+	//	}
 
-		for(unsigned int i = 0; i < 2; i++)
-			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
-		m_InstancedGeometryShader->setBlendState(0, data);
-		m_InstancedGeometryShader->unSetShader();
-	}
+	//	for(unsigned int i = 0; i < 2; i++)
+	//		m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
+	//	m_InstancedGeometryShader->setBlendState(0, data);
+	//	m_InstancedGeometryShader->unSetShader();
+	//}
 	/*for( auto &o : m_Objects)
 	{
 		renderObject(o);
@@ -651,14 +658,14 @@ void DeferredRenderer::createBuffers()
 	float halfWidth = aspect * halfHeight;
 
 	ssaoBuffer.corners[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[1] = DirectX::XMFLOAT4(-halfWidth, halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(halfWidth, halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(halfWidth, -halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
 	buildSSAO_OffsetVectors(ssaoBuffer);
-	ssaoBuffer.occlusionRadius = 0.5f;
-	ssaoBuffer.surfaceEpsilon = 0.2f;
-	ssaoBuffer.occlusionFadeEnd = 2.0f;
-	ssaoBuffer.occlusionFadeStart = 0.05f;
+	ssaoBuffer.occlusionRadius	= 25.0f;
+	ssaoBuffer.surfaceEpsilon	= 20.0f;
+	ssaoBuffer.occlusionFadeEnd	= 75.0f;
+	ssaoBuffer.occlusionFadeStart = 5.0f;
 
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
 	cbdesc.initData = &ssaoBuffer;
@@ -928,21 +935,24 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	textureDesc.Width = textureDesc.Height = p_Size;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
 
 	std::default_random_engine randomizer;
-	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
-	vector<DirectX::XMFLOAT4> initData;
+	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+	vector<DirectX::XMFLOAT3> initData;
 	for(unsigned int i = 0; i < p_Size * p_Size; i++)
 	{
-		XMFLOAT4 temp = XMFLOAT4(distribution(randomizer), distribution(randomizer), distribution(randomizer), 0.0f);
-		XMVECTOR tempV = XMLoadFloat4(&temp);
-		tempV = XMVector4Normalize(tempV);
-		XMStoreFloat4(&temp, tempV);
+		XMFLOAT3 temp;
+		XMVECTOR tempV = XMVector3Normalize(XMVectorSet(
+			distribution(randomizer),
+			distribution(randomizer),
+			distribution(randomizer),
+			0.0f));
+		XMStoreFloat3(&temp, tempV);
 
 		initData.push_back(temp);
 	}
@@ -950,14 +960,14 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	ID3D11Texture2D *texture;
 
 	D3D11_SUBRESOURCE_DATA subData;
-	subData.SysMemPitch = sizeof(DirectX::XMFLOAT4) * p_Size;
+	subData.SysMemPitch = sizeof(DirectX::XMFLOAT3) * p_Size;
 	subData.SysMemSlicePitch = subData.SysMemPitch * p_Size;
 	subData.pSysMem = initData.data();
 
 	m_Device->CreateTexture2D(&textureDesc, &subData, &texture);
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC dssrvdesc;
-	dssrvdesc.Format = dssrvdesc.Format = textureDesc.Format;
+	D3D11_SHADER_RESOURCE_VIEW_DESC dssrvdesc = {};
+	dssrvdesc.Format = textureDesc.Format;
 	dssrvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	dssrvdesc.Texture2D.MipLevels = 1;
 	dssrvdesc.Texture2D.MostDetailedMip = 0;

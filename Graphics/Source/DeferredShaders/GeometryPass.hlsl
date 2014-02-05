@@ -51,10 +51,10 @@ PSIn VS( VSIn input )
 	output.pos = mul( projection, mul(view, mul(world, input.pos) ) );
 	output.wpos = mul(world, input.pos);
 
-	output.normal = normalize(mul(view, mul(world, float4(input.normal, 0.f))).xyz);
+	output.normal = normalize(mul(world, float4(input.normal, 0.f)));
 	output.uvCoord = input.uvCoord;
-	output.tangent = normalize(mul(view,mul(world, float4(input.tangent,0.f))).xyz);
-	output.binormal = normalize(mul(view,mul(world, float4(input.binormal, 0.f))).xyz);
+	output.tangent = normalize(mul(world, float4(input.tangent, 0.f)));
+	output.binormal = normalize(mul(world, float4(input.binormal, 0.f)));
 	output.depth = mul(view, mul(world, input.pos)).z;
 
 	return output;
@@ -63,11 +63,12 @@ PSIn VS( VSIn input )
 PSOut PS( PSIn input )
 {
 	PSOut output;
-	float3 norm				= 0.5f * (input.normal + 1.0f);
-	float4 bumpMap			= normalMap.Sample(m_textureSampler, input.uvCoord);
-	bumpMap					= (bumpMap * 2.0f) - 1.0f;
-	float3 normal			= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
-	normal					= 0.5f * (normalize(normal) + 1.0f);
+	float3 norm		= 0.5f * (input.normal + 1.0f);
+	float4 bumpMap	= normalMap.Sample(m_textureSampler, input.uvCoord);
+	bumpMap			= (bumpMap * 2.0f) - 1.0f;
+	float3 normal	= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
+	normal			= mul(view, float4(normal, 0.f));
+	normal			= 0.5f * (normalize(normal) + 1.0f);
 
 
 	float4 diffuseColor = diffuse.Sample(m_textureSampler, input.uvCoord);

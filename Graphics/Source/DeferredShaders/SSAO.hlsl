@@ -3,24 +3,23 @@
 SamplerState gNormalDepthSampler : register (s0);
 SamplerState gRandomVectorSampler : register(s1);
 Texture2D gNormalDepthMap : register (t0);
-Texture2D gWPositionMap : register (t1);
-Texture2D gRandomVecMap : register (t2);
+Texture2D gRandomVecMap : register (t1);
 
 cbuffer cb : register(b0)
 {
-	float4x4	view;
-	float4x4	projection;
-	float3		cameraPos;
+	float4x4	cView;
+	float4x4	cProjection;
+	float3		cCameraPos;
 };
 
 cbuffer ConstantData : register (b1)
 {
-	float4 corners[4];
-	float4 offsetVectors[14];
-	float occlusionRadius;
-	float surfaceEpsilon;
-	float occlusionFadeEnd;
-	float occlusionFadeStart;
+	float4 cCorners[4];
+	float4 cOffsetVectors[14];
+	float cOcclusionRadius;
+	float cSurfaceEpsilon;
+	float cOcclusionFadeEnd;
+	float cOcclusionFadeStart;
 }
 
 struct VSOutput
@@ -52,13 +51,13 @@ float OcclusionFunction(float distZ)
     //
 
 	float occlusion = 0.0f;
-	if(distZ > surfaceEpsilon)
+	if(distZ > cSurfaceEpsilon)
 	{
-		float fadeLength = occlusionFadeEnd - occlusionFadeStart;
+		float fadeLength = cOcclusionFadeEnd - cOcclusionFadeStart;
 
 		// Linearly decrease occlusion from 1 to 0 as distZ goes 
         // from gOcclusionFadeStart to gOcclusionFadeEnd.  
-		occlusion = saturate((occlusionFadeEnd - distZ) / fadeLength);
+		occlusion = saturate((cOcclusionFadeEnd - distZ) / fadeLength);
 	}
 
 	return occlusion;
@@ -117,12 +116,12 @@ VSOutput VS( uint vID : SV_VERTEXID )
 	output.position = float4((output.texCoord * float2(2.0f,-2.0f)) + 
 								float2(-1.0f,1.0f), 0.0f, 1.0f);
 
-	output.toFarPlane = corners[index].xyz;
+	output.toFarPlane = cCorners[index].xyz;
 
 	return output; 
 }
 
-float4 PS(VSOutput vIn) : SV_Target
+float4 PS(VSOutput pIn) : SV_Target
 {
 	float4x4 t =
 	{
@@ -132,7 +131,7 @@ float4 PS(VSOutput vIn) : SV_Target
 		float4(0.0f, 0.0f, 0.0f, 1.0f)
 	};
 
-	float4x4 viewToTexSpace = mul(t, projection);
+	float4x4 viewToTexSpace = mul(t, cProjection);
 
 	const int sampleCount = 14;
 	// p -- the point we are computing the ambient occlusion for.
@@ -143,7 +142,7 @@ float4 PS(VSOutput vIn) : SV_Target
     // Get viewspace normal and z-coord of this pixel.  The tex-coords for
     // the fullscreen quad we drew are already in uv-space.
 
-	float4 normalDepth = gNormalDepthMap.SampleLevel(gNormalDepthSampler, vIn.texCoord, 0.0f);
+	float4 normalDepth = gNormalDepthMap.SampleLevel(gNormalDepthSampler, pIn.texCoord, 0.0f);
 	
 	float3 n = normalize((normalDepth.xyz * 2.0f) - 1.0f);
 	float pz = normalDepth.w;
@@ -152,12 +151,10 @@ float4 PS(VSOutput vIn) : SV_Target
     // Find t such that p = t*vIn.ToFarPlane.
     // p.z = t*pin.ToFarPlane.z
     // t = p.z / pin.ToFarPlane.z
-	float3 p = (pz / vIn.toFarPlane.z) * vIn.toFarPlane;
-
-	//return float4(p,1);
+	float3 p = (pz / pIn.toFarPlane.z) * pIn.toFarPlane;
 	
 	// Extract random vector and map from [0,1] --> [-1, +1].
-	float3 randVec = 2.0f * gRandomVecMap.SampleLevel(gRandomVectorSampler, 4*vIn.texCoord, 0.0f).xyz - 1.0f;
+	float3 randVec = gRandomVecMap.SampleLevel(gRandomVectorSampler, 4.0f * pIn.texCoord, 0.0f).xyz;
 
 	float occlusionSum = 0.0f;
 
@@ -168,13 +165,13 @@ float4 PS(VSOutput vIn) : SV_Target
 		// Are offset vectors are fixed and uniformly distributed (so that our offset vectors
         // do not clump in the same direction).  If we reflect them about a random vector
         // then we get a random uniform distribution of offset vectors.
-		float3 offset = reflect(offsetVectors[i].xyz, randVec);
+		float3 offset = reflect(cOffsetVectors[i].xyz, randVec);
 
 		// Flip offset vector if it is behind the plane defined by (p, n).
 		float flip = sign(dot(offset, n));
 
 		// Sample a point near p within the occlusion radius.
-		float3 q = p + flip * occlusionRadius * offset;
+		float3 q = p + flip * cOcclusionRadius * offset;
 
 		// Project q and generate projective tex-coords.
 		float4 projQ = mul(viewToTexSpace, float4(q, 1.0f));
@@ -201,7 +198,6 @@ float4 PS(VSOutput vIn) : SV_Target
         //     the point we are computing the occlusion of.  If the occluder r is far away
         //     from p, then it does not occlude it.
         //
-
 		float distZ = p.z - r.z;
 		float dp = max(dot(n, normalize(r - p)), 0.0f);
 		float occlusion = dp * OcclusionFunction(distZ);
