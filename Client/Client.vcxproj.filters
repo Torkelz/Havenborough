@@ -114,4 +114,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Bin\assets\shaders\SSAO_Blur.hlsl" />
+    <FxCompile Include="Bin\assets\shaders\SSAO.hlsl" />
+  </ItemGroup>
 </Project>

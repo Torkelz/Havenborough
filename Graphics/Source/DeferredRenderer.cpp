@@ -861,10 +861,10 @@ void DeferredRenderer::createShaders()
 	m_InstancedGeometryShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/GeoInstanceShader.hlsl",
 		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, instanceshaderDesc, 9);
 
-	m_SSAO_Shader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SSAO.hlsl",
+	m_SSAO_Shader = WrapperFactory::getInstance()->createShader(L"assets/shaders/SSAO.hlsl",
 		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	m_SSAO_BlurShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SSAO_Blur.hlsl",
+	m_SSAO_BlurShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/SSAO_Blur.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
 
