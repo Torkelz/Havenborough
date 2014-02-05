@@ -39,6 +39,7 @@ DeferredRenderer::DeferredRenderer()
 	m_SpotShader = nullptr;
 	m_DirectionalShader = nullptr;
 	m_SSAO_Shader = nullptr;
+	m_SSAO_BlurShader = nullptr;
 
 	m_PointModelBuffer = nullptr;
 	m_SpotModelBuffer = nullptr;
@@ -52,6 +53,8 @@ DeferredRenderer::DeferredRenderer()
 
 	m_AllLightBuffer = nullptr;
 	m_SSAO_ConstantBuffer = nullptr;
+	m_SSAO_BlurConstantBuffer = nullptr;
+
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 	m_CameraPosition = nullptr;
@@ -96,6 +99,10 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_RELEASE(m_SSAO_RandomVecSRV);
 
 	SAFE_RELEASE(m_Sampler);
+	SAFE_RELEASE(m_SSAO_NormalDepthSampler);
+	SAFE_RELEASE(m_SSAO_RandomVecSampler);
+	SAFE_RELEASE(m_SSAO_BlurSampler);
+
 	SAFE_RELEASE(m_BlendState);
 	SAFE_RELEASE(m_BlendState2);
 
@@ -106,6 +113,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_SpotShader);
 	SAFE_DELETE(m_DirectionalShader);
 	SAFE_DELETE(m_SSAO_Shader);
+	SAFE_DELETE(m_SSAO_BlurShader);
 
 	SAFE_DELETE(m_PointModelBuffer);
 	SAFE_DELETE(m_SpotModelBuffer);
@@ -115,6 +123,7 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_ObjectConstantBuffer);
 	SAFE_DELETE(m_AllLightBuffer);
 	SAFE_DELETE(m_SSAO_ConstantBuffer);
+	SAFE_DELETE(m_SSAO_BlurConstantBuffer);
 
 	SAFE_DELETE(m_AnimatedObjectConstantBuffer);
 	SAFE_DELETE(m_WorldInstanceData);
@@ -352,6 +361,11 @@ void DeferredRenderer::renderSSAO(void)
 	m_ConstantBuffer->unsetBuffer(0);
 	m_SSAO_Shader->unSetShader();
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
+}
+
+void DeferredRenderer::blurSSAO(void)
+{
+	
 }
 
 void DeferredRenderer::renderLighting()
@@ -674,6 +688,17 @@ void DeferredRenderer::createBuffers()
 
 	m_SSAO_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cSSAO_Buffer));
+
+	cSSAO_BlurBuffer ssaoBlurBuffer;
+	ssaoBlurBuffer.horizontalBlur = true;
+	ssaoBlurBuffer.texelWidth = 1.0f / m_ScreenWidth;
+	ssaoBlurBuffer.texelHeight = 1.0f / m_ScreenHeight;
+
+	cbdesc.sizeOfElement = sizeof(cSSAO_BlurBuffer);
+	cbdesc.initData = &ssaoBlurBuffer;
+	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
+	cbdesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
+	m_SSAO_BlurConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 }
 
 void DeferredRenderer::buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer)
@@ -764,6 +789,11 @@ void DeferredRenderer::createSamplerState()
 	sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = 0.0f;
 	sd.BorderColor[3] = 1e5f;
 	m_Device->CreateSamplerState(&sd, &m_SSAO_NormalDepthSampler);
+
+	// Create SSAO blur texture sampler
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	m_Device->CreateSamplerState(&sd, &m_SSAO_BlurSampler);
 }
 
 void DeferredRenderer::createBlendStates()
@@ -833,6 +863,9 @@ void DeferredRenderer::createShaders()
 
 	m_SSAO_Shader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SSAO.hlsl",
 		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
+	m_SSAO_BlurShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SSAO_Blur.hlsl",
+		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
 
 void DeferredRenderer::loadLightModels()

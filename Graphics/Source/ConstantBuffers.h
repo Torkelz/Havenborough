@@ -30,3 +30,10 @@ struct cSSAO_Buffer
 	float occlusionFadeEnd;
 	float occlusionFadeStart;
 };
+
+struct cSSAO_BlurBuffer
+{
+	bool horizontalBlur;
+	float texelWidth;
+	float texelHeight;
+};

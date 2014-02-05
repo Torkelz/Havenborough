@@ -44,6 +44,8 @@ private:
 	ID3D11SamplerState			*m_Sampler;
 	ID3D11SamplerState			*m_SSAO_NormalDepthSampler;
 	ID3D11SamplerState			*m_SSAO_RandomVecSampler;
+	ID3D11SamplerState			*m_SSAO_BlurSampler;
+
 	ID3D11BlendState			*m_BlendState;
 	ID3D11BlendState			*m_BlendState2;
 	Buffer						*m_AnimatedObjectConstantBuffer;
@@ -57,6 +59,7 @@ private:
 	Shader						*m_SpotShader;
 	Shader						*m_DirectionalShader;
 	Shader						*m_SSAO_Shader;
+	Shader						*m_SSAO_BlurShader;
 
 	Buffer						*m_PointModelBuffer;
 	Buffer						*m_SpotModelBuffer;
@@ -66,6 +69,7 @@ private:
 	Buffer						*m_ObjectConstantBuffer;
 	Buffer						*m_AllLightBuffer;
 	Buffer						*m_SSAO_ConstantBuffer;
+	Buffer						*m_SSAO_BlurConstantBuffer;
 
 	Buffer						*m_SkyDomeBuffer;
 	Shader						*m_SkyDomeShader;
@@ -140,6 +144,7 @@ public:
 private:
 	void renderGeometry();
 	void renderSSAO(void);
+	void blurSSAO(void);
 
 	void clearRenderTargets(unsigned int nrRT);
 
