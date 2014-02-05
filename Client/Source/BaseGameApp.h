@@ -1,16 +1,19 @@
 #pragma once
+
+#include "GameLogic.h"
+#include "Input\Input.h"
+#include "RAMInfo.h"
+#include "SceneManager.h"
+#include "Window.h"
+
+#include <ActorFactory.h>
+#include <AnimationLoader.h>
+#include <EventManager.h>
 #include <IGraphics.h>
 #include <IPhysics.h>
 #include <INetwork.h>
 #include <ISound.h>
-#include "ActorFactory.h"
-#include "Input\Input.h"
-#include "SceneManager.h"
-#include "Window.h"
-#include "RAMInfo.h"
-#include "EventManager.h"
-#include "ResourceManager.h"
-#include "GameLogic.h"
+#include <ResourceManager.h>
 
 #include <DirectXMath.h>
 
@@ -35,6 +38,7 @@ private:
 
 	IPhysics *m_Physics;
 	std::unique_ptr<ResourceManager> m_ResourceManager;
+	std::unique_ptr<AnimationLoader> m_AnimationLoader;
 
 	ActorFactory m_ActorFactory;
 	DirectX::XMFLOAT2 m_NewWindowSize;

@@ -155,9 +155,6 @@
     <ClCompile Include="TestEdgeCollisionResponse.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\Joint.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\BinaryConverter\Source\LevelLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
@@ -199,9 +196,6 @@
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
@@ -246,12 +240,7 @@
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Source\AnimationLoader.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\Animation.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
-    </ClCompile>
+    <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

@@ -40,7 +40,7 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 	m_ActorFactory = p_ActorFactory;
 	m_ReturnLobby = p_ReturnLobby;
 
-	m_ResourceManager.reset(new ResourceManager);
+	m_ResourceManager.reset(new ResourceManager(boost::filesystem::current_path().parent_path().parent_path() / "Client" / "Bin"));
 
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
@@ -48,9 +48,17 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 
 	m_EventManager.reset(new EventManager);
 
+	m_AnimationLoader.reset(new AnimationLoader);
+	
+	using namespace std::placeholders;
+	m_ResourceManager->registerFunction("animation",
+		std::bind(&AnimationLoader::loadAnimationDataResource, m_AnimationLoader.get(), _1, _2),
+		std::bind(&AnimationLoader::releaseAnimationData, m_AnimationLoader.get(), _1));
+
 	m_ActorFactory->setEventManager(m_EventManager.get());
 	m_ActorFactory->setPhysics(m_Physics);
 	m_ActorFactory->setResourceManager(m_ResourceManager.get());
+	m_ActorFactory->setAnimationLoader(m_AnimationLoader.get());
 }
 
 void GameRound::setOwningList(GameList* p_ParentList)
