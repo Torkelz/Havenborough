@@ -1,4 +1,6 @@
 *Header
+#Transparent 0
+#Collidable 1
 #Materials 7
 #MESH House1
 #Vertices 1654

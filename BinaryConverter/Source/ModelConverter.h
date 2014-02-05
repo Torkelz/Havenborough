@@ -48,6 +48,7 @@ private:
 	float m_Start, m_End;
 	int m_NumberOfFrames;
 	int m_MaterialSize, m_IndexPerMaterialSize, m_ListOfJointsSize, m_WeightsListSize;
+	bool m_Transparency, m_Collidable, m_Animated;
 	const std::vector<DirectX::XMFLOAT3> *m_Vertices, *m_Normals, *m_Tangents;
 	const std::vector<DirectX::XMFLOAT2>* m_TextureCoord;
 	const std::vector<ModelLoader::Material>* m_Material;
@@ -89,6 +90,20 @@ public:
 	 * @param p_Vertices is a vector pointer that contains DirectX::XMFLOAT3.
 	 */
 	void setVertices(const std::vector<DirectX::XMFLOAT3>* p_Vertices);
+
+	/**
+	 * This whants a bool value about the transparency. 
+	 *
+	 * @param p_Transparent is a bool variable from source file.
+	 */
+	void setTransparent(bool p_Transparent);
+
+	/**
+	 * This whants a bool value if the object is collide-able or not. 
+	 *
+	 * @param p_Collidable is a bool variable from source file.
+	 */
+	void setCollidable(bool p_Collidable);
 
 	/**
 	 * This whants a pointer to the source information about indices. 

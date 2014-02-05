@@ -400,12 +400,12 @@ const std::vector<DirectX::XMFLOAT3>& ModelLoader::getVertices() const
 	return m_Vertices;
 }
 
-const bool ModelLoader::getTransparent() const
+bool ModelLoader::getTransparent() const
 {
 	return m_Transparent;
 }
 
-const bool ModelLoader::getCollidable() const
+bool ModelLoader::getCollidable() const
 {
 	return m_Collidable;
 }

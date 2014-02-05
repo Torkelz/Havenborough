@@ -98,14 +98,14 @@ public:
 	 * 
 	 * @returns a bool.
 	 */
-	const bool getTransparent() const;
+	bool getTransparent() const;
 
 	/**
 	 * Returns a bool variable that is true if the object is Collidable.
 	 * 
 	 * @returns a bool.
 	 */
-	const bool getCollidable() const;
+	bool getCollidable() const;
 
 	/**
 	 * Returns the stored information about indices as a vector with Float3 values.
