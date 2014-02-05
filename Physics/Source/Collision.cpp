@@ -660,6 +660,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 
 	float overlap = FLT_MAX;
 	XMVECTOR least;
+	XMVECTOR tVec;
 
 	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
 	{
@@ -699,21 +700,22 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 				XMVECTOR a = XMVector3Cross(box_Axes.r[j], F[k]);
 				//r = e0 * fabs(A0 * Aj X Fk) + e1 * fabs(A1 * Aj X Fk) + e2 * fabs(A2 * Aj X Fk) + EPSILON
 				float r =  XMVectorGetX(box_Extents) * fabs(XMVectorGetX(XMVector3Dot(box_Axes.r[0], a)))
-						+ XMVectorGetY(box_Extents) * fabs(XMVectorGetX(XMVector3Dot(box_Axes.r[1], a)))
-						+ XMVectorGetZ(box_Extents) * fabs(XMVectorGetX(XMVector3Dot(box_Axes.r[2], a))) + EPSILON;
+						 + XMVectorGetY(box_Extents) * fabs(XMVectorGetX(XMVector3Dot(box_Axes.r[1], a)))
+						 + XMVectorGetZ(box_Extents) * fabs(XMVectorGetX(XMVector3Dot(box_Axes.r[2], a))) + EPSILON;
 
 				float p0 = XMVectorGetX(XMVector3Dot(v0, a));
 				float p1 = XMVectorGetX(XMVector3Dot(v1, a));
 				float p2 = XMVectorGetX(XMVector3Dot(v2, a));
+				float rt = XMMax(-checkMax(p0,p1,p2), checkMin(p0,p1,p2));
 
-				if(XMMax(-checkMax(p0,p1,p2), checkMin(p0,p1,p2)) > r)
+				if(rt > r)
 				{
 					j = 3;
 					miss = true;
 					break;
 				}
 				else
-					checkCollisionDepth(p0, p1, p2, r, tOverlap, a, tLeast);
+					checkCollisionDepth(rt, r, tOverlap, a, tLeast);
 			}
 		}
 
@@ -721,22 +723,37 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 			continue;
 
 		//Check axis A0
-		if(checkR(XMVectorGetX(v0), XMVectorGetX(v1), XMVectorGetX(v2), XMVectorGetX(box_Extents)))
+		float min = checkMin(XMVectorGetX(v0), XMVectorGetX(v1), XMVectorGetX(v2));
+		float max = checkMax(XMVectorGetX(v0), XMVectorGetX(v1), XMVectorGetX(v2));
+		float r	  = XMVectorGetX(box_Extents);
+		float t	  = checkMinMax(min, max, r);
+
+		if(t == .0f)
 			continue;
 		else
-			checkCollisionDepth(XMVectorGetX(v0), XMVectorGetX(v1), XMVectorGetX(v2), XMVectorGetX(box_Extents), tOverlap, box_Axes.r[0], tLeast);
+			checkCollisionDepth(t, r, tOverlap, box_Axes.r[0], tLeast);
 
 		//Check axis A1
-		if(checkR(XMVectorGetY(v0), XMVectorGetY(v1), XMVectorGetY(v2), XMVectorGetY(box_Extents)))
+		min = checkMin(XMVectorGetY(v0), XMVectorGetY(v1), XMVectorGetY(v2));
+		max = checkMax(XMVectorGetY(v0), XMVectorGetY(v1), XMVectorGetY(v2));
+		r	  = XMVectorGetY(box_Extents);
+		t	  = checkMinMax(min, max, r);
+
+		if(t == .0f)
 			continue;
 		else
-			checkCollisionDepth(XMVectorGetY(v0), XMVectorGetY(v1), XMVectorGetY(v2), XMVectorGetY(box_Extents), tOverlap, box_Axes.r[1], tLeast);
+			checkCollisionDepth(t, r, tOverlap, box_Axes.r[1], tLeast);
 
 		//Check axis a2
-		if(checkR(XMVectorGetZ(v0), XMVectorGetZ(v1), XMVectorGetZ(v2), XMVectorGetZ(box_Extents)))
+		min = checkMin(XMVectorGetZ(v0), XMVectorGetZ(v1), XMVectorGetZ(v2));
+		max = checkMax(XMVectorGetZ(v0), XMVectorGetZ(v1), XMVectorGetZ(v2));
+		r	  = XMVectorGetY(box_Extents);
+		t	  = checkMinMax(min, max, r);
+
+		if(t == .0f)
 			continue;
 		else
-			checkCollisionDepth(XMVectorGetZ(v0), XMVectorGetZ(v1), XMVectorGetZ(v2), XMVectorGetZ(box_Extents), tOverlap, box_Axes.r[2], tLeast);
+			checkCollisionDepth(t, r, tOverlap, box_Axes.r[2], tLeast);
 
 		//Check for degenerate triangle
 		float degenerate = XMVector4Length(XMVector3Cross(F[0], F[1])).m128_f32[0] * 0.5f;
@@ -757,207 +774,215 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		{
 			overlap = tOverlap;
 			least = tLeast;
+			tVec = (t0 + t1 + t2) / 3.f;
 		}
 	}
-
-	least = XMVector4Normalize(least);
-	hit.colNorm = XMVECTORToVector4(&least);//*/ Vector4(0.f, 1.f, 0.f, 0.f);
-	hit.colLength = overlap * 100.f;
-
-	return hit;
-}
-
-HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
-{
-
-	HitData hit = HitData();
-
-	const XMVECTOR C = XMLoadFloat4(&p_OBB.getPosition());
-	const XMMATRIX A		= XMLoadFloat4x4(&p_OBB.getAxes());
-	const XMVECTOR a  = XMLoadFloat4(&p_OBB.getExtents());
-	XMMATRIX invAxes		= XMMatrixInverse(&XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f), A); 	//not used
-
-	float overlap = FLT_MAX;
-	XMVECTOR least;
-
-	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
-	{
-			/*eberly
-		Triangle Vertices U0, U1 and U2.
-		E0 = U1 - U0,
-		E1 = U2 - U0,
-		E2 = E1 - E0,
-		N  = E0 X E1,
-		D  = U0 - C,
-		Obb center = C
-		Obb axes = A0, A1, A2
-		obb extents = a1, a2, a3*/
-		Triangle tri = p_Hull.getTriangleInWorldCoord(i);
-		XMVECTOR U0 = Vector4ToXMVECTOR(&tri.corners[0]);
-		XMVECTOR U1 = Vector4ToXMVECTOR(&tri.corners[1]);
-		XMVECTOR U2 = Vector4ToXMVECTOR(&tri.corners[2]);
-
-		XMVECTOR E0 = U1 - U0;
-		XMVECTOR E1 = U2 - U0;
-		XMVECTOR E2 = E1 - E0;
-		XMVECTOR D = U0 - C;
-		XMVECTOR N = XMVector3Cross(E0, E1);
-		N = XMVector4Normalize(N);
-		float tOverlap = FLT_MAX;
-		XMVECTOR tLeast;
-		
-		//Axis L = N
-		XMVECTOR L  = N;
-		float p0 = XMVector3Dot(N, D).m128_f32[0];
-		float p1 = p0;
-		float p2 = p0;
-		XMVECTOR NA0 = XMVector3Dot(N, A.r[0]);
-		XMVECTOR NA1 = XMVector3Dot(N, A.r[1]);
-		XMVECTOR NA2 = XMVector3Dot(N, A.r[2]);
-
-		float R  = XMVectorGetX(a) * fabs(XMVectorGetX(NA0)) + XMVectorGetY(a) * fabs(XMVectorGetX(NA1)) + XMVectorGetZ(a) * fabs(XMVectorGetX(NA2));
-		if(checkR(p0, p1, p2, R))
-			continue;
-		checkCollisionDepth(p0, p1,p2,R, tOverlap, L, least);
-
-		//Axis A0, A1, A2
-		bool miss = false;
-		for(int j = 0; j < 3; j++)
-		{
-			p0 = XMVector3Dot(A.r[j], D).m128_f32[0];
-			p1 = p0 + XMVector3Dot(A.r[j], E0).m128_f32[0];
-			p2 = p0 + XMVector3Dot(A.r[j], E1).m128_f32[0];
-			float R = a.m128_f32[j];
-
-			if(checkR(p0, p1, p2, R))
-			{
-				miss = true;
-				break;
-			}
-			else
-				checkCollisionDepth(p0, p1, p2, R, tOverlap, A.r[j], tLeast);
-		}
-		if(miss)
-			continue;
-
-		//L = A0 x E0
-		L = XMVector3Cross(A.r[0], E0);
-		p0 = XMVector3Dot(L, D).m128_f32[0];
-		p1 = p0;
-		p2 = p0 + XMVector3Dot(A.r[0], N).m128_f32[0];
-		R = XMVectorGetY(a) * fabs(XMVector3Dot(A.r[2], E0).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[1], E0).m128_f32[0]);
-		if(checkR(p0, p1, p2, R))
-			continue;
-		else
-			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
-
-		// L = A0 x E1
-		L = XMVector3Cross(A.r[0], E1);
-		p0 = XMVector3Dot(L, D).m128_f32[0];
-		p1 = p0 - XMVector3Dot(A.r[0], N).m128_f32[0];
-		p2 = p0;
-		R = XMVectorGetY(a) * fabs(XMVector3Dot(A.r[2], E1).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[1], E1).m128_f32[0]);
-		if(checkR(p0, p1, p2, R))
-			continue;
-		else
-			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
-
-		// L = A0 x E2
-		L = XMVector3Cross(A.r[0], E2);
-		p0 = XMVector3Dot(L, D).m128_f32[0];
-		p1 = p0 - XMVector3Dot(A.r[0], N).m128_f32[0];
-		p2 = p1;
-		R = XMVectorGetY(a) * fabs(XMVector3Dot(A.r[2], E2).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[1], E2).m128_f32[0]);
-		if(checkR(p0, p1, p2, R))
-			continue;
-		else
-			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
-
-		// L = A1 x E0
-		L = XMVector3Cross(A.r[1], E0);
-		p0 = XMVector3Dot(L, D).m128_f32[0];
-		p1 = p0;
-		p2 = p0 + XMVector3Dot(A.r[1], N).m128_f32[0];
-		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[2], E0).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[0], E0).m128_f32[0]);
-		if(checkR(p0, p1, p2, R))
-			continue;
-		else
-			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
-
-		// L = A1 x E1
-		L = XMVector3Cross(A.r[1], E1);
-		p0 = XMVector3Dot(L, D).m128_f32[0];
-		p1 = p0 - XMVector3Dot(A.r[1], N).m128_f32[0];
-		p2 = p0;
-		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[2], E1).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[0], E1).m128_f32[0]);
-		if(checkR(p0, p1, p2, R))
-			continue;
-		else
-			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
-
-		// L = A1 x E2
-		L = XMVector3Cross(A.r[1], E2);
-		p0 = XMVector3Dot(L, D).m128_f32[0];
-		p1 = p0 - XMVector3Dot(A.r[1], N).m128_f32[0];
-		p2 = p1;
-		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[2], E2).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[0], E2).m128_f32[0]);
-		if(checkR(p0, p1, p2, R))
-			continue;
-		else
-			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
-
-		// A2 x E0
-		L = XMVector3Cross(A.r[2], E0);
-		p0 = XMVector3Dot(L, D).m128_f32[0];
-		p1 = p0;
-		p2 = p0 + XMVector3Dot(A.r[2], N).m128_f32[0];
-		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[1], E0).m128_f32[0]) + XMVectorGetY(a) * fabs(XMVector3Dot(A.r[0], E0).m128_f32[0]);
-		if(checkR(p0, p1, p2, R))
-			continue;
-		else
-			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
-
-		// A2 x E1
-		L = XMVector3Cross(A.r[2], E1);
-		p0 = XMVector3Dot(L, D).m128_f32[0];
-		p1 = p0 - XMVector3Dot(A.r[2], N).m128_f32[0];
-		p2 = p0;
-		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[1], E1).m128_f32[0]) + XMVectorGetY(a) * fabs(XMVector3Dot(A.r[0], E1).m128_f32[0]);
-		if(checkR(p0, p1, p2, R))
-			continue;
-		else
-			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
-
-		// A2 x E2
-		L = XMVector3Cross(A.r[2], E2);
-		p0 = XMVector3Dot(L, D).m128_f32[0];
-		p1 = p0 - XMVector3Dot(A.r[2], N).m128_f32[0];
-		p2 = p1;
-		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[1], E2).m128_f32[0]) + XMVectorGetY(a) * fabs(XMVector3Dot(A.r[0], E2).m128_f32[0]);
-		if(checkR(p0, p1, p2, R))
-			continue;
-		else
-			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
-
-		hit.intersect = true;
-		hit.colType = Type::OBBVSHULL;
-
-		if(tOverlap < overlap)
-		{
-			overlap = tOverlap;
-			least = tLeast;
-		}
-	}
-
 	if(hit.intersect)
 	{
+		tVec = tVec - box_Center;
+		float temp = XMVectorGetX(XMVector4Dot(tVec, least));
+		if(temp > 0)
+			least *= -1.f;
+
 		least = XMVector4Normalize(least);
-		hit.colNorm = XMVECTORToVector4(&least);
+		hit.colNorm = XMVECTORToVector4(&least);//*/ Vector4(0.f, 1.f, 0.f, 0.f);
 		hit.colLength = overlap * 100.f;
 	}
-	return hit;
 
+	return hit;
 }
+
+//HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
+//{
+//
+//	HitData hit = HitData();
+//
+//	const XMVECTOR C = XMLoadFloat4(&p_OBB.getPosition());
+//	const XMMATRIX A		= XMLoadFloat4x4(&p_OBB.getAxes());
+//	const XMVECTOR a  = XMLoadFloat4(&p_OBB.getExtents());
+//	XMMATRIX invAxes		= XMMatrixInverse(&XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f), A); 	//not used
+//
+//	float overlap = FLT_MAX;
+//	XMVECTOR least;
+//
+//	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
+//	{
+//			/*eberly
+//		Triangle Vertices U0, U1 and U2.
+//		E0 = U1 - U0,
+//		E1 = U2 - U0,
+//		E2 = E1 - E0,
+//		N  = E0 X E1,
+//		D  = U0 - C,
+//		Obb center = C
+//		Obb axes = A0, A1, A2
+//		obb extents = a1, a2, a3*/
+//		Triangle tri = p_Hull.getTriangleInWorldCoord(i);
+//		XMVECTOR U0 = Vector4ToXMVECTOR(&tri.corners[0]);
+//		XMVECTOR U1 = Vector4ToXMVECTOR(&tri.corners[1]);
+//		XMVECTOR U2 = Vector4ToXMVECTOR(&tri.corners[2]);
+//
+//		XMVECTOR E0 = U1 - U0;
+//		XMVECTOR E1 = U2 - U0;
+//		XMVECTOR E2 = E1 - E0;
+//		XMVECTOR D = U0 - C;
+//		XMVECTOR N = XMVector3Cross(E0, E1);
+//		N = XMVector4Normalize(N);
+//		float tOverlap = FLT_MAX;
+//		XMVECTOR tLeast;
+//		
+//		//Axis L = N
+//		XMVECTOR L  = N;
+//		float p0 = XMVector3Dot(N, D).m128_f32[0];
+//		float p1 = p0;
+//		float p2 = p0;
+//		XMVECTOR NA0 = XMVector3Dot(N, A.r[0]);
+//		XMVECTOR NA1 = XMVector3Dot(N, A.r[1]);
+//		XMVECTOR NA2 = XMVector3Dot(N, A.r[2]);
+//
+//		float R  = XMVectorGetX(a) * fabs(XMVectorGetX(NA0)) + XMVectorGetY(a) * fabs(XMVectorGetX(NA1)) + XMVectorGetZ(a) * fabs(XMVectorGetX(NA2));
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		checkCollisionDepth(p0, p1,p2,R, tOverlap, L, least);
+//
+//		//Axis A0, A1, A2
+//		bool miss = false;
+//		for(int j = 0; j < 3; j++)
+//		{
+//			p0 = XMVector3Dot(A.r[j], D).m128_f32[0];
+//			p1 = p0 + XMVector3Dot(A.r[j], E0).m128_f32[0];
+//			p2 = p0 + XMVector3Dot(A.r[j], E1).m128_f32[0];
+//			float R = a.m128_f32[j];
+//
+//			if(checkR(p0, p1, p2, R))
+//			{
+//				miss = true;
+//				break;
+//			}
+//			else
+//				checkCollisionDepth(p0, p1, p2, R, tOverlap, A.r[j], tLeast);
+//		}
+//		if(miss)
+//			continue;
+//
+//		//L = A0 x E0
+//		L = XMVector3Cross(A.r[0], E0);
+//		p0 = XMVector3Dot(L, D).m128_f32[0];
+//		p1 = p0;
+//		p2 = p0 + XMVector3Dot(A.r[0], N).m128_f32[0];
+//		R = XMVectorGetY(a) * fabs(XMVector3Dot(A.r[2], E0).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[1], E0).m128_f32[0]);
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		else
+//			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
+//
+//		// L = A0 x E1
+//		L = XMVector3Cross(A.r[0], E1);
+//		p0 = XMVector3Dot(L, D).m128_f32[0];
+//		p1 = p0 - XMVector3Dot(A.r[0], N).m128_f32[0];
+//		p2 = p0;
+//		R = XMVectorGetY(a) * fabs(XMVector3Dot(A.r[2], E1).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[1], E1).m128_f32[0]);
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		else
+//			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
+//
+//		// L = A0 x E2
+//		L = XMVector3Cross(A.r[0], E2);
+//		p0 = XMVector3Dot(L, D).m128_f32[0];
+//		p1 = p0 - XMVector3Dot(A.r[0], N).m128_f32[0];
+//		p2 = p1;
+//		R = XMVectorGetY(a) * fabs(XMVector3Dot(A.r[2], E2).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[1], E2).m128_f32[0]);
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		else
+//			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
+//
+//		// L = A1 x E0
+//		L = XMVector3Cross(A.r[1], E0);
+//		p0 = XMVector3Dot(L, D).m128_f32[0];
+//		p1 = p0;
+//		p2 = p0 + XMVector3Dot(A.r[1], N).m128_f32[0];
+//		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[2], E0).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[0], E0).m128_f32[0]);
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		else
+//			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
+//
+//		// L = A1 x E1
+//		L = XMVector3Cross(A.r[1], E1);
+//		p0 = XMVector3Dot(L, D).m128_f32[0];
+//		p1 = p0 - XMVector3Dot(A.r[1], N).m128_f32[0];
+//		p2 = p0;
+//		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[2], E1).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[0], E1).m128_f32[0]);
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		else
+//			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
+//
+//		// L = A1 x E2
+//		L = XMVector3Cross(A.r[1], E2);
+//		p0 = XMVector3Dot(L, D).m128_f32[0];
+//		p1 = p0 - XMVector3Dot(A.r[1], N).m128_f32[0];
+//		p2 = p1;
+//		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[2], E2).m128_f32[0]) + XMVectorGetZ(a) * fabs(XMVector3Dot(A.r[0], E2).m128_f32[0]);
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		else
+//			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
+//
+//		// A2 x E0
+//		L = XMVector3Cross(A.r[2], E0);
+//		p0 = XMVector3Dot(L, D).m128_f32[0];
+//		p1 = p0;
+//		p2 = p0 + XMVector3Dot(A.r[2], N).m128_f32[0];
+//		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[1], E0).m128_f32[0]) + XMVectorGetY(a) * fabs(XMVector3Dot(A.r[0], E0).m128_f32[0]);
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		else
+//			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
+//
+//		// A2 x E1
+//		L = XMVector3Cross(A.r[2], E1);
+//		p0 = XMVector3Dot(L, D).m128_f32[0];
+//		p1 = p0 - XMVector3Dot(A.r[2], N).m128_f32[0];
+//		p2 = p0;
+//		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[1], E1).m128_f32[0]) + XMVectorGetY(a) * fabs(XMVector3Dot(A.r[0], E1).m128_f32[0]);
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		else
+//			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
+//
+//		// A2 x E2
+//		L = XMVector3Cross(A.r[2], E2);
+//		p0 = XMVector3Dot(L, D).m128_f32[0];
+//		p1 = p0 - XMVector3Dot(A.r[2], N).m128_f32[0];
+//		p2 = p1;
+//		R = XMVectorGetX(a) * fabs(XMVector3Dot(A.r[1], E2).m128_f32[0]) + XMVectorGetY(a) * fabs(XMVector3Dot(A.r[0], E2).m128_f32[0]);
+//		if(checkR(p0, p1, p2, R))
+//			continue;
+//		else
+//			checkCollisionDepth(p0, p1,p2,R, tOverlap, L, tLeast);
+//
+//		hit.intersect = true;
+//		hit.colType = Type::OBBVSHULL;
+//
+//		if(tOverlap < overlap)
+//		{
+//			overlap = tOverlap;
+//			least = tLeast;
+//		}
+//	}
+//
+//	if(hit.intersect)
+//	{
+//		least = XMVector4Normalize(least);
+//		hit.colNorm = XMVECTORToVector4(&least);
+//		hit.colLength = overlap * 100.f;
+//	}
+//	return hit;
+//
+//}
 
 bool Collision::OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, XMVECTOR &p_Least, float &p_Overlap)
 {
@@ -1002,12 +1027,12 @@ void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_
 	}
 }
 
-void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_RC ,float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
+void Collision::checkCollisionDepth(float p_Rt, float p_R, float &p_Overlap, XMVECTOR p_L, XMVECTOR &p_Least)
 {
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
 	if(lLength > EPSILON)
 	{
-		p_R = (fabs(p_R) - (p_RA + p_RB + p_RC)) / lLength;
+		p_R = (fabs(p_R) - p_Rt); // lLength;
 		if(p_Overlap > fabs(p_R))
 		{
 			p_Overlap = fabs(p_R);
@@ -1016,12 +1041,17 @@ void Collision::checkCollisionDepth(float p_RA, float p_RB, float p_RC ,float p_
 	}
 }
 
-bool Collision::checkR(float p0, float p1, float p2, float R)
+float Collision::checkMinMax(float min, float max, float p_R)
 {
-	if(checkMin(p0, p1, p2) > R || checkMax(p0, p1, p2) < -R)
-		return true;
+	if(min > p_R)
+		return 0.0f;
+	if(max < -p_R)
+		return 0.0f;
+	
+	if(max == min)
+		return max;
 
-	return false;
+	return -max + min;
 }
 
 float Collision::checkMin(const float &p_A, const float &p_B, const float &p_C)

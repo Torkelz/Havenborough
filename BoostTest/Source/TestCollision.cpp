@@ -488,7 +488,7 @@ BOOST_AUTO_TEST_CASE(HullvsOBB)
 		float size = 2.f;
 		//Back
 		//triangles.push_back(Triangle(Vector4( -size, -size, -size, 1.f), Vector4(-size, size, -size, 1.f), Vector4(size,  size, -size, 1.f)));
-		triangles.push_back(Triangle(Vector4( -size, -size, -size, 1.f), Vector4( size, size, -size, 1.f), Vector4(size, -size, -size, 1.f)));
+		triangles.push_back(Triangle(Vector4( -2.f, -2.f, -2.f, 1.f), Vector4( 2.f, 2.f, -2.f, 1.f), Vector4(2.f, -2.f, -2.f, 1.f)));
 		////top
 		//triangles.push_back(Triangle(Vector4( -size, size, -size, 1.f), Vector4(-size, size, size, 1.f), Vector4( size, size, size, 1.f)));
 		//triangles.push_back(Triangle(Vector4( -size, size, -size, 1.f), Vector4( size, size, size, 1.f), Vector4( size, size, -size, 1.f)));
@@ -516,24 +516,35 @@ BOOST_AUTO_TEST_CASE(HullvsOBB)
 
 		hd = Collision::boundingVolumeVsBoundingVolume(h, obb);
 		BOOST_CHECK(hd.intersect);
+		BOOST_CHECK_SMALL(hd.colNorm.x, 0.0001f);
+		BOOST_CHECK_SMALL(hd.colNorm.y, 0.0001f);
 		BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.z, -1.f ,0.0001f);
+	
 		hd = Collision::boundingVolumeVsBoundingVolume(h, obb1);
 		BOOST_CHECK(hd.intersect);
+		BOOST_CHECK_SMALL(hd.colNorm.x, 0.0001f);
+		BOOST_CHECK_SMALL(hd.colNorm.y, 0.0001f);
 		BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.z, -1.f ,0.0001f);
 		hd = Collision::boundingVolumeVsBoundingVolume(h, obb2);
 		BOOST_CHECK(hd.intersect);
+		BOOST_CHECK_SMALL(hd.colNorm.x, 0.0001f);
+		BOOST_CHECK_SMALL(hd.colNorm.y, 0.0001f);
 		BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.z, -1.f ,0.0001f);
 		hd = Collision::boundingVolumeVsBoundingVolume(h, obb3);
 		BOOST_CHECK(hd.intersect);
+		BOOST_CHECK_SMALL(hd.colNorm.x, 0.0001f);
+		BOOST_CHECK_SMALL(hd.colNorm.y, 0.0001f);
 		BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.z, -1.f ,0.0001f);
 		hd = Collision::boundingVolumeVsBoundingVolume(h, obb4);
 		BOOST_CHECK(hd.intersect);
+		BOOST_CHECK_SMALL(hd.colNorm.x, 0.0001f);
+		BOOST_CHECK_SMALL(hd.colNorm.y, 0.0001f);
 		BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.z, -1.f ,0.0001f);
 		hd = Collision::boundingVolumeVsBoundingVolume(h, obb5);
 		BOOST_CHECK(!hd.intersect);
 
 		triangles.clear();
-		triangles.push_back(Triangle(Vector4( -size, size, -size, 1.f), Vector4(-size, size, size, 1.f), Vector4( size, size, size, 1.f)));
+		triangles.push_back(Triangle(Vector4( -2.f, 2.f, -2.f, 1.f), Vector4(-2.f, 2.f, 2.f, 1.f), Vector4( 2.f, 2.f, 2.f, 1.f)));
 		h  = Hull(triangles);
 		obb = OBB(DirectX::XMFLOAT4(-0.5f, 1.6f, 0.0f, 1.f), DirectX::XMFLOAT4(.5f, .5f, .5f, 0.f));
 
