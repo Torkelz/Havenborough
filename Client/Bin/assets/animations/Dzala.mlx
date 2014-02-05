@@ -304,6 +304,7 @@ z	0
 t	6
 z	45
 t	12
+*EndPath
 
 *Path
 na	Climb2
@@ -319,6 +320,7 @@ z	0
 t	13
 z	47
 t	24
+*EndPath
 
 *Path
 na	Climb3
@@ -332,6 +334,7 @@ z	0
 t	13
 z	53
 t	36
+*EndPath
 
 *Path
 na	Climb4
@@ -345,3 +348,4 @@ z	0
 t	36
 z	38
 t	48
+*EndPath
