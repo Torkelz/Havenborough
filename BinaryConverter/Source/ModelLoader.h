@@ -47,6 +47,7 @@ private:
 	
 	std::string m_MeshName;
 	int m_NumberOfTriangles;
+	bool m_Transparent, m_Collidable;
 	std::vector<IndexDesc> m_Indices;
 
 	float m_Start, m_End;
@@ -90,84 +91,98 @@ public:
 	 *
 	 * @returns a vector of vertices.
 	 */
-	const std::vector<DirectX::XMFLOAT3>& getVertices();
+	const std::vector<DirectX::XMFLOAT3>& getVertices() const;
+
+	/**
+	 * Returns a bool variable that is true if the object is transparent.
+	 * 
+	 * @returns a bool.
+	 */
+	const bool getTransparent() const;
+
+	/**
+	 * Returns a bool variable that is true if the object is Collidable.
+	 * 
+	 * @returns a bool.
+	 */
+	const bool getCollidable() const;
 
 	/**
 	 * Returns the stored information about indices as a vector with Float3 values.
 	 *
 	 * @returns a vector of indices.
 	 */
-	const std::vector<std::vector<ModelLoader::IndexDesc>>& getIndices();
+	const std::vector<std::vector<ModelLoader::IndexDesc>>& getIndices() const;
 
 	/**
 	 * Returns the stored information about the materials that are used by the model.
 	 *
 	 * @returns a vector of material structs.
 	 */
-	const std::vector<ModelLoader::Material>& getMaterial();
+	const std::vector<ModelLoader::Material>& getMaterial() const;
 
 	/**
 	 * Returns the stored information about normal as a vector with Float3.
 	 *
 	 * @returns a vector of normals.
 	 */
-	const std::vector<DirectX::XMFLOAT3>& getNormals();
+	const std::vector<DirectX::XMFLOAT3>& getNormals() const;
 
 	/**
 	 * Returns the stored information about tangents as a vector with Float3. 
 	 *
 	 * @returns a vector of tangents.
 	 */
-	const std::vector<DirectX::XMFLOAT3>& getTangents();
+	const std::vector<DirectX::XMFLOAT3>& getTangents() const;
 
 	/**
 	 * Returns the stored information about uv coordinates as a vector with Float2. 
 	 *
 	 * @returns a vector of texture coords.
 	 */
-	const std::vector<DirectX::XMFLOAT2>& getTextureCoords();
+	const std::vector<DirectX::XMFLOAT2>& getTextureCoords() const;
 	
 	/**
 	 * Returns a paired vector with information about weights and to what joint it is weighted.
 	 *
 	 * @returns a paired vector of weights and joints.
 	 */
-	const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>& getWeightsList();
+	const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>& getWeightsList() const;
 	
 	/**
 	 * Returns a list of joint structs that includes information about animation and parents.
 	 *
 	 * @return a vector of Joint. 
 	 */
-	const std::vector<Joint>& getListOfJoints();
+	const std::vector<Joint>& getListOfJoints() const;
 
 	/**
 	 * Returns the start number for the animation. 
 	 *
 	 * @returns a float with the start value
 	 */
-	float getAnimationStartValue();
+	float getAnimationStartValue() const;
 
 	/**
 	 * Returns the end number for the animation. 
 	 *
 	 * @returns a float with the end value
 	 */
-	float getAnimationEndValue();
+	float getAnimationEndValue() const;
 
 	/**
 	 * Returns the number of frames for the animation.
 	 *
 	 * @returns an in number of frames.
 	 */
-	int getNumberOfFrames();
+	int getNumberOfFrames() const;
 
 	/**
 	 * Returns a mesh name.
 	 *
 	 * @returns a string.
 	 */
-	std::string getMeshName();
+	std::string getMeshName() const;
 
 protected: 
 	void startReading(std::istream& p_Input);

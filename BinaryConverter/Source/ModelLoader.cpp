@@ -121,6 +121,12 @@ void ModelLoader::readHeader(std::istream& p_Input)
 	std::string line, key;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
+	m_Stringstream >> key >> m_Transparent;
+	std::getline(p_Input, line);
+	m_Stringstream = std::stringstream(line);
+	m_Stringstream >> key >> m_Collidable;
+	std::getline(p_Input, line);
+	m_Stringstream = std::stringstream(line);
 	m_Stringstream >> key >> m_NumberOfMaterials;
 	std::getline(p_Input, line);
 	m_Stringstream = std::stringstream(line);
@@ -389,62 +395,72 @@ void ModelLoader::readAnimation(std::istream& p_Input)
 	}
 }
 
-const std::vector<DirectX::XMFLOAT3>& ModelLoader::getVertices()
+const std::vector<DirectX::XMFLOAT3>& ModelLoader::getVertices() const
 {
 	return m_Vertices;
 }
 
-const std::vector<std::vector<ModelLoader::IndexDesc>>& ModelLoader::getIndices()
+const bool ModelLoader::getTransparent() const
+{
+	return m_Transparent;
+}
+
+const bool ModelLoader::getCollidable() const
+{
+	return m_Collidable;
+}
+
+const std::vector<std::vector<ModelLoader::IndexDesc>>& ModelLoader::getIndices() const
 {
 	return m_IndexPerMaterial;
 }
 
-const std::vector<ModelLoader::Material>& ModelLoader::getMaterial()
+const std::vector<ModelLoader::Material>& ModelLoader::getMaterial() const
 {
 	return m_Material;
 }
 
-const std::vector<DirectX::XMFLOAT3>& ModelLoader::getNormals()
+const std::vector<DirectX::XMFLOAT3>& ModelLoader::getNormals() const
 {
 	return m_Normals;
 }
 
-const std::vector<DirectX::XMFLOAT3>& ModelLoader::getTangents()
+const std::vector<DirectX::XMFLOAT3>& ModelLoader::getTangents() const
 {
 	return m_Tangents;
 }
 
-const std::vector<DirectX::XMFLOAT2>& ModelLoader::getTextureCoords()
+const std::vector<DirectX::XMFLOAT2>& ModelLoader::getTextureCoords() const
 {
 	return m_TextureCoord;
 }
 
-const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>& ModelLoader::getWeightsList()
+const std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>>& ModelLoader::getWeightsList() const
 {
 	return m_WeightsList;
 }
 
-const std::vector<ModelLoader::Joint>& ModelLoader::getListOfJoints()
+const std::vector<ModelLoader::Joint>& ModelLoader::getListOfJoints() const
 {
 	return m_ListOfJoints;
 }
 
-float ModelLoader::getAnimationStartValue()
+float ModelLoader::getAnimationStartValue() const
 {
 	return m_Start;
 }
 
-float ModelLoader::getAnimationEndValue()
+float ModelLoader::getAnimationEndValue() const
 {
 	return m_End;
 }
 
-int ModelLoader::getNumberOfFrames()
+int ModelLoader::getNumberOfFrames() const
 {
 	return m_NumberOfFrames;
 }
 
-std::string ModelLoader::getMeshName()
+std::string ModelLoader::getMeshName() const
 {
 	return m_MeshName;
 }
