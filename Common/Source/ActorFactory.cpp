@@ -139,6 +139,9 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, "Halfsize", AABBScale);
 	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", "TestParticle");
+	printer.CloseElement();
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;
