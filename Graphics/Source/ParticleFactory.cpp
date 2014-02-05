@@ -38,7 +38,7 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 	particleSystem->maxLife = 3.f;
 	particleSystem->size = DirectX::XMFLOAT2(8.f, 8.f);
 	particleSystem->particleSystemName = "fire";
-	particleSystem->particlePositionDeviation = 4000000.f;
+	particleSystem->particlePositionDeviation = 40.f;
 	particleSystem->velocityDeviation = 40.f;
 	particleSystem->particleColorDeviation = DirectX::XMFLOAT4(0.2f, 0.15f, 0.0f, 0.2f);
 
