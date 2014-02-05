@@ -99,6 +99,21 @@ float Player::getHeight() const
 	return m_TempHeight;
 }
 
+float Player::getChestHeight() const
+{
+	return m_TempHeight * 0.75f;;
+}
+
+float Player::getWaistHeight() const
+{
+	return m_TempHeight * 0.5f;;
+}
+
+float Player::getKneeHeight() const
+{
+	return m_TempHeight * 0.25f;
+}
+
 BodyHandle Player::getBody(void) const
 {
 	return m_Actor.lock()->getBodyHandles()[0];
@@ -139,14 +154,18 @@ bool Player::getForceMove(void)
 	return m_ForceMove;
 }
 
-void Player::forceMove(Vector3 p_StartPosition, Vector3 p_EndPosition)
+void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal)
 {
 	if(!m_ForceMove)
 	{
 		m_ForceMove = true;
-		m_ForceMoveStartPosition = p_StartPosition;
-		m_ForceMoveEndPosition = p_EndPosition;
 		m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
+		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
+
+		m_ForceMoveY = pp.m_YPath;
+		m_ForceMoveZ = pp.m_ZPath;
+		m_ForceMoveNormal = p_CollisionNormal;
 	}
 }
 
@@ -159,23 +178,35 @@ void Player::update(float p_DeltaTime)
 	}
 	else
 	{
-		float dt = m_CurrentForceMoveTime / m_ForceMoveTime;
+		unsigned int currentFrame = (unsigned int)m_CurrentForceMoveTime;
 
-		XMVECTOR startPos = XMLoadFloat3(&((XMFLOAT3)m_ForceMoveStartPosition));
-		XMVECTOR endPos = XMLoadFloat3(&((XMFLOAT3)m_ForceMoveEndPosition));
+		// Check if you have passed the goal frame.
+		if(currentFrame >= m_ForceMoveY.front().y)
+			m_ForceMoveY.erase(m_ForceMoveY.begin());
+		if(currentFrame >= m_ForceMoveZ.front().y)
+			m_ForceMoveZ.erase(m_ForceMoveZ.begin());
 
-		XMVECTOR currPosition = XMVectorLerp(startPos,
-			endPos, dt);
-		XMFLOAT3 newGroundPosition;
-		XMStoreFloat3(&newGroundPosition, currPosition);
-		setPosition(newGroundPosition);
-
-		m_CurrentForceMoveTime += p_DeltaTime * m_ForceMoveSpeed;
-		if(m_CurrentForceMoveTime > m_ForceMoveTime)
+		// Check if you only have one frame left.
+		if(m_ForceMoveY.empty() && m_ForceMoveZ.empty())
 		{
 			m_ForceMove = false;
 			m_CurrentForceMoveTime = 0.f;
+			return;
 		}
+
+		float timeFrac = m_ForceMoveY.front().y - m_CurrentForceMoveTime;
+		timeFrac = m_ForceMoveY.front().y - timeFrac;
+		timeFrac = timeFrac / m_ForceMoveY.front().y;
+
+		float currentYPos = m_ForceMoveY.front().x * timeFrac;
+
+		timeFrac = m_ForceMoveZ.front().y - m_CurrentForceMoveTime;
+		timeFrac = m_ForceMoveZ.front().y - timeFrac;
+		timeFrac = timeFrac / m_ForceMoveZ.front().y;
+
+		float currentZPos = m_ForceMoveZ.front().x * timeFrac;
+
+		m_CurrentForceMoveTime += p_DeltaTime * 24.0f; // 24 FPS
 	}
 }
 

@@ -582,3 +582,9 @@ void Animation::setAnimationData(AnimationData::ptr p_Data)
 	m_Data = p_Data;
 	playClip("default", true);
 }
+
+
+const AnimationData::ptr Animation::getAnimationData() const
+{
+	return m_Data;
+}

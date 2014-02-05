@@ -113,6 +113,8 @@ public:
 
 	void setAnimationData(AnimationData::ptr p_Data);
 
+	const AnimationData::ptr getAnimationData() const;
+
 private:
 	void updateFinalTransforms();
 	bool affected(int p_ID, std::string p_FirstAffectedJoint);

@@ -146,4 +146,9 @@ public:
 	{
 		return m_Animation.getJointPos(p_JointName, m_Owner->getWorldMatrix());
 	}
+
+	const AnimationPath getAnimationData(std::string p_AnimationId) const override
+	{
+		return m_Animation.getAnimationData().get()->animationPath[p_AnimationId];
+	}
 };
