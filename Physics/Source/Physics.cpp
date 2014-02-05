@@ -85,7 +85,9 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 			}
 			else
 			{
-				b.setGravity(0.f);
+				/*XMMATRIX mat = XMMatrixIdentity();
+				b.setOrientation(mat);*/
+				//b.setGravity(0.f);
 			}
 
 			b.update(p_DeltaTime);
@@ -127,8 +129,6 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 							mat.r[1] = Vector4ToXMVECTOR(&hit.colNorm);
 							mat.r[2] = -z;
 
-							//mat = XMMatrixInverse(&XMVectorSet(1.f, 1.f, 1.f, 1.f), mat);
-
 							b.setOrientation(mat);
 
 							if(!b.getOnSomething())
@@ -136,23 +136,27 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 								b.setLanded(true);
 							}
 							b.setOnSomething(true);
-							b.setLastCollision(hit.collisionVictim);
+							//b.setLastCollision(hit.collisionVictim);
 
 							XMFLOAT4 velocity = b.getVelocity();	// m/s
 							velocity.y = 0.f;
 							b.setVelocity(velocity);
 						}
 						else
-							b.setOnSomething(false);
+						{
+						/*	b.setLanded(false);
+							b.setOnSomething(false);*/
+						}
+
+						
 					}
 				}
 
-				if(b.getVelocity().y > 1.f)
+				if(b.getACC().y > 1.f)
 				{
 					b.setOnSomething(false);
 					b.setLanded(false);
-					XMMATRIX mat = XMMatrixIdentity();
-					b.setOrientation(mat);
+					
 				}
 			}
 
