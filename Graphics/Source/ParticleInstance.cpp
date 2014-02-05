@@ -48,7 +48,7 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 	//Update the position of every particle in the system by its velocity and based on the delta time
 	for(auto& part : m_ParticleList)
 	{
-		part.velocity.y += 40.f * p_DeltaTime;
+		part.velocity.y += 400.f * p_DeltaTime;
 
 		part.shaderData.position = DirectX::XMFLOAT3(
 			(part.shaderData.position.x + part.velocity.x * p_DeltaTime),
