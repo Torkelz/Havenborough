@@ -120,14 +120,11 @@
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
     <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp" />
-    <ClCompile Include="..\Graphics\Source\Animation.cpp" />
-    <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
-    <ClCompile Include="..\Graphics\Source\Joint.cpp" />
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelFactory.cpp" />

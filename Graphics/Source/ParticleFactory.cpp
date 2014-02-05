@@ -65,7 +65,7 @@ void ParticleFactory::setLoadParticleTextureCallBack(loadParticleTextureCallBack
 std::shared_ptr<Buffer> ParticleFactory::createParticleBuffer(unsigned int p_MaxParticles)
 {
 	Buffer::Description cbDesc;
-	cbDesc.initData = nullptr; //can be needing a flag of some sort
+	cbDesc.initData = nullptr;
 	cbDesc.usage = Buffer::Usage::CPU_WRITE;
 	cbDesc.numOfElements = p_MaxParticles;
 	cbDesc.sizeOfElement = sizeof(ShaderParticle);
@@ -80,7 +80,7 @@ std::shared_ptr<Buffer> ParticleFactory::createParticleBuffer(unsigned int p_Max
 std::shared_ptr<Buffer> ParticleFactory::createConstBuffer()
 {
 	Buffer::Description cbDesc;
-	cbDesc.initData = NULL; //can be needing a flag of some sort
+	cbDesc.initData = NULL;
 	cbDesc.usage = Buffer::Usage::DEFAULT;
 	cbDesc.numOfElements = 1;
 	cbDesc.sizeOfElement = sizeof(particlecBuffer);

@@ -1,4 +1,6 @@
 #pragma once
+
+#include "Actor.h"
 #include "ActorComponent.h"
 #include "EventData.h"
 #include "ResourceManager.h"
@@ -411,7 +413,6 @@ public:
 		}
 
 		m_MeshName = meshName;
-
 		m_MeshResourceId = m_ResourceManager->loadResource("volume", meshName);
 
 		m_Scale = Vector3(1.f, 1.f, 1.f);
@@ -1289,4 +1290,10 @@ public:
 	{
 		return m_ComponentId;
 	}
+	
+	virtual void playAnimation(std::string p_AnimationName, bool p_Override) = 0;
+	virtual void queueAnimation(std::string p_AnimationName) = 0;
+	virtual void changeAnimationWeight(int p_Track, float p_Weight) = 0;
+	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) = 0;
+	virtual DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName) = 0;
 };

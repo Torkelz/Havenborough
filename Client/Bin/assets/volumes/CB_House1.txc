@@ -1,6 +1,6 @@
 *Header
 #Materials 0
-#MESH CB_HouseShape1
+#MESH CB_House1
 #Vertices 36
 #Triangles 32
 
@@ -76,4 +76,4 @@ face: 3
 31 | 22 | 28 | 
 28 | 22 | 25 | 
 30 | 29 | 34 | 
-26 | 27 | 35 |
+26 | 27 | 35 | 

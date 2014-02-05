@@ -2,6 +2,7 @@
 #include "Components.h"
 #include "EventData.h"
 #include "ClientExceptions.h"
+#include "HumanAnimationComponent.h"
 #include "Logger.h"
 
 #include <sstream>
@@ -471,6 +472,57 @@ void GameLogic::handleNetwork()
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 				}
 				break;
+			case PackageType::RESULT_GAME:
+				{
+					int numberOfData = conn->getNumGameResultData(package);
+					for(int i = 0; i < numberOfData; i++)
+					{
+						const char* result = conn->getGameResultData(package, i);
+						tinyxml2::XMLDocument reader;
+						reader.Parse(result);
+						tinyxml2::XMLElement* object = reader.FirstChildElement("GameResult");
+						if(object->Attribute("Type", "Result"))
+						{
+								m_Level = Level();
+								m_Objects.clear();
+
+								m_InGame = false;
+
+								IConnectionController* con = m_Network->getConnectionToServer();
+
+								if (!m_PlayingLocal && con && con->isConnected())
+								{
+									con->sendLeaveGame();
+								}
+								
+								object = object->FirstChildElement("ResultList");
+								if(!object)
+								Logger::log(Logger::Level::ERROR_L, "Could not find Object (ResultList)");
+								int size = 0;
+								object->QueryAttribute("VectorSize", &size);
+								if(size == 0)
+								{
+									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+								}
+								else
+								{
+									std::vector<int> GoalList;
+									int position;
+									for(int i = 0; i < size; i++)
+									{
+										object->QueryAttribute("Place", &position);
+										GoalList.push_back(position);
+									}
+									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false))); //DO SOMETHING HERE!!
+								}
+						}
+						else if(object->Attribute("Type", "Position"))
+						{
+							int b = 0; //DO SOMETHING HERE!!
+						}
+					}
+				}
+				break;
 			case PackageType::UPDATE_OBJECTS:
 				{
 					const unsigned int numUpdates = conn->getNumUpdateObjectData(package);
@@ -532,28 +584,12 @@ void GameLogic::handleNetwork()
 						{
 							object = object->FirstChildElement("SetColor");
 							if(!object)
-								throw "WRONG!!!";
+								Logger::log(Logger::Level::ERROR_L, "Could not find Object (" + std::to_string(actorId) + ")");
 							Vector3 color;
 							object->QueryAttribute("r", &color.x);
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-						}
-						else if(object->Attribute("Type", "GoalReached"))
-						{
-								m_Level = Level();
-								m_Objects.clear();
-
-								m_InGame = false;
-
-								IConnectionController* con = m_Network->getConnectionToServer();
-
-								if (!m_PlayingLocal && con && con->isConnected())
-								{
-									con->sendLeaveGame();
-								}
-
-								m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -656,7 +692,6 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 		GameLogic* self = static_cast<GameLogic*>(p_UserData);
 
 		self->m_Connected = true;
-		//self->m_Network->getConnectionToServer()->sendJoinGame("test");
 
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
@@ -697,14 +732,15 @@ void GameLogic::loadSandbox()
 	useIK = false;
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
-	addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(1600.0f, 0.0f, 500.0f)));
+	testWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(1600.0f, 0.0f, 500.0f)));
 	playAnimation(testWitch.lock(), "Run", false);
 
-	circleWitch = addActor(m_ActorFactory->createBasicModel("WITCH", Vector3(0.f, 0.f, 0.f)));
+	circleWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(0.f, 0.f, 0.f)));
 	playAnimation(circleWitch.lock(), "Run", false);
 
 	witchCircleAngle = 0.0f;
 
+	//Event to create a particle effect on local test rounds
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
 }
 
@@ -738,10 +774,10 @@ void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, b
 		return;
 	}
 
-	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 	if (comp)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName, p_Override)));
+		comp->playAnimation(p_AnimationName, p_Override);
 	}
 }
 
@@ -752,10 +788,10 @@ void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
 		return;
 	}
 
-	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 	if (comp)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
+		comp->queueAnimation(p_AnimationName);
 	}
 }
 
@@ -766,10 +802,10 @@ void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_W
 		return;
 	}
 
-	std::shared_ptr<ModelComponent> comp = p_Actor->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
+	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 	if (comp)
 	{
-		m_EventManager->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
+		comp->changeAnimationWeight(p_Track, p_Weight);
 	}
 }
 
@@ -782,10 +818,10 @@ void GameLogic::updateIK()
 		std::shared_ptr<Actor> strWitch = circleWitch.lock();
 		if (strWitch)
 		{
-			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 			if (comp)
 			{
-				//m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
+				comp->applyIK_ReachPoint("LeftArm", IK_Target);
 			}
 		}
 
@@ -793,33 +829,10 @@ void GameLogic::updateIK()
 		strWitch = m_Player.getActor().lock();
 		if (strWitch)
 		{
-			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
+			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 			if (comp)
 			{
-				//m_EventManager->queueEvent(IEventData::Ptr(new AddReachIK_EventData(comp->getId(), "LeftArm", IK_Target)));
-			}
-		}
-	}
-	else
-	{
-		std::shared_ptr<Actor> strWitch = circleWitch.lock();
-		if (strWitch)
-		{
-			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
-			if (comp)
-			{
-				m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
-			}
-		}
-
-		// Player
-		strWitch = m_Player.getActor().lock();
-		if (strWitch)
-		{
-			std::shared_ptr<ModelComponent> comp = strWitch->getComponent<ModelComponent>(ModelComponent::m_ComponentId).lock();
-			if (comp)
-			{
-				//m_EventManager->queueEvent(IEventData::Ptr(new RemoveReachIK_EventData(comp->getId(), "LeftArm")));
+				comp->applyIK_ReachPoint("LeftArm", IK_Target);
 			}
 		}
 	}

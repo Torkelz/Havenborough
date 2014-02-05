@@ -4,9 +4,9 @@
 
 ParticleInstance::ParticleInstance()
 {
-	m_SysPosition			= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); // change pos in the "GameLogic.cpp - LoadSandBox()" createParticles
+	m_SysPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); // change pos in the "GameLogic.cpp - LoadSandBox()" createParticles for local play
 
-	m_AccumulatedTime		= 0.f;
+	m_AccumulatedTime = 0.f;
 }
 
 ParticleInstance::~ParticleInstance()

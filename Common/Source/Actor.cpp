@@ -121,3 +121,16 @@ void Actor::addComponent(ActorComponent::ptr p_Component)
 {
 	m_Components.push_back(p_Component);
 }
+
+DirectX::XMFLOAT4X4 Actor::getWorldMatrix() const
+{
+	using namespace DirectX;
+
+	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(m_Rotation.y, m_Rotation.x, m_Rotation.z);
+	XMMATRIX translation = XMMatrixTranslationFromVector(XMLoadFloat3(&XMFLOAT3(m_Position)));
+
+	XMFLOAT4X4 world;
+	XMStoreFloat4x4(&world, XMMatrixTranspose(rotation * translation));
+
+	return world;
+}

@@ -122,6 +122,7 @@ void Network::registerPackages()
 	m_PackagePrototypes.push_back(PackageBase::ptr(new JoinGame));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new LevelData));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new LeaveGame));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new ResultData));
 }
 
 void Network::startIO()
