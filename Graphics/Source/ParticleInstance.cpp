@@ -63,7 +63,6 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 	DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3(m_SysPosition.x, m_SysPosition.y, m_SysPosition.z);
 	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(0.8f, 0.15f, 0.0f, 0.3f);
 
-	bool emitParticle = false;
 	m_AccumulatedTime += p_DeltaTime;
 
 	const float timePerParticle = 1.f / m_ParticleEffectDef->particlesPerSec;
