@@ -2,9 +2,7 @@
 #include "Buffer.h"
 #include "ParticleEffectDefinition.h"
 
-#include <DirectXMath.h>
 #include <vector>
-#include <memory>
 #include <random>
 
 /**
