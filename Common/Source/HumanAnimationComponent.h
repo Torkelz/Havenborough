@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Animation.h"
+#include "AnimationLoader.h"
 #include "ActorComponent.h"
 #include "Components.h"
 #include "EventManager.h"
@@ -35,6 +37,7 @@ private:
 		HARD_LANDING,
 	};
 
+	Animation m_Animation;
 	ForwardAnimationState m_PrevForwardState;
 	SideAnimationState m_PrevSideState;
 	JumpAnimationState m_PrevJumpState;
@@ -42,17 +45,36 @@ private:
 
 	std::weak_ptr<ModelComponent> m_Model;
 	EventManager* m_EventManager;
+	ResourceManager* m_ResourceManager;
+	std::string m_AnimationName;
+	int m_AnimationResource;
+	AnimationLoader* m_AnimationLoader;
 
 public:
+	~HumanAnimationComponent()
+	{
+		m_ResourceManager->releaseResource(m_AnimationResource);
+	}
+
 	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		m_FallSpeed = 0.f;
 		m_PrevForwardState = ForwardAnimationState::IDLE;
 		m_PrevSideState = SideAnimationState::IDLE;
 		m_PrevJumpState = JumpAnimationState::IDLE;
+
+		const char* resourceName = p_Data->Attribute("Animation");
+		if (!resourceName)
+		{
+			throw CommonException("Human animation component must have animation", __LINE__, __FILE__);
+		}
+
+		m_AnimationName = resourceName;
+		m_AnimationResource = m_ResourceManager->loadResource("animation", m_AnimationName);
+		m_Animation.setAnimationData(m_AnimationLoader->getAnimationData(m_AnimationName.c_str()));
 	}
 
-	void postInit()
+	void postInit() override
 	{
 		m_Model = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId);
 		m_EventManager = m_Owner->getEventManager();
@@ -62,243 +84,66 @@ public:
 	void onUpdate(float p_DeltaTime) override
 	{
 		updateAnimation();
+		m_Animation.updateAnimation(p_DeltaTime);
+
+		std::shared_ptr<ModelComponent> comp = m_Model.lock();
+		if (comp)
+		{
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform())));
+		}
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("HumanAnimation");
+		p_Printer.PushAttribute("Animation", m_AnimationName.c_str());
 		p_Printer.CloseElement();
 	}
-
-	void updateAnimation()
+	/**
+	 * Set the resource manager for the component.
+	 *
+	 * @param p_ResourceManager the resource manager to use
+	 */
+	void setResourceManager(ResourceManager* p_ResourceManager)
 	{
-		using namespace DirectX;
-
-		Vector3 tempVector(0.f, 0.f, 0.f);
-		bool isInAir = true;
-		std::shared_ptr<PhysicsInterface> physComp = m_Owner->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
-		if (physComp)
-		{
-			tempVector = physComp->getVelocity();
-			isInAir = physComp->isInAir();
-		}
-		XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
-
-		//tempVector = Vector3(0.f, 0.f, 0.f);
-		std::shared_ptr<LookInterface> lookComp = m_Owner->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
-		//if (lookComp)
-		//{
-		//	tempVector = lookComp->getLookForward();
-		//	tempVector.y = 0.f;
-		//}
-		XMVECTOR look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
-		XMMATRIX rotationInverse = XMMatrixTranspose(XMLoadFloat4x4(&lookComp->getRotationMatrix()));
-		velocity = XMVector3Transform(velocity, rotationInverse);
-		if (!isInAir)
-		{
-			// Calculate the weight on the strafe track with some trigonometry.
-			float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-			changeAnimationWeight(2, cosf(angle)); // Think again. Negative weights are not allowed.
-
-			// Decide what animation to play on the motion tracks.
-			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
-			SideAnimationState currentSideState = SideAnimationState::IDLE;
-
-			static const float runLimit = 100.f;
-			if (XMVectorGetZ(velocity) > runLimit)
-			{
-				currentForwardState = ForwardAnimationState::RUNNING_FORWARD;
-			}
-			else if (XMVectorGetZ(velocity) < -runLimit)
-			{
-				currentForwardState = ForwardAnimationState::RUNNING_BACKWARD;
-			}
-
-			static const float runSideLimit = 100.f;
-			if (XMVectorGetX(velocity) > runSideLimit)
-			{
-				currentSideState = SideAnimationState::RUNNING_RIGHT;
-			}
-			else if (XMVectorGetX(velocity) < -runSideLimit)
-			{
-				currentSideState = SideAnimationState::RUNNING_LEFT;
-			}
-
-			if (currentForwardState != m_PrevForwardState)
-			{
-				switch (currentForwardState)
-				{
-				case ForwardAnimationState::IDLE:
-					if (currentSideState == SideAnimationState::IDLE)
-					{
-						playAnimation("Idle", false);
-					}
-					break;
-
-				case ForwardAnimationState::RUNNING_FORWARD:
-					playAnimation("Run", false);
-				}
-			}
-
-			if (currentSideState != m_PrevSideState)
-			{
-				switch (currentSideState)
-				{
-				case SideAnimationState::IDLE:
-					if (currentForwardState == ForwardAnimationState::IDLE)
-					{
-						playAnimation("Idle", false);
-					}
-					break;
-				}
-			}
-			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
-			if (physComp->hasLanded()) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
-			{
-				if(m_FallSpeed >= 1000.0f)
-				{
-					currentJumpState = JumpAnimationState::HARD_LANDING;
-				}
-				else
-				{
-					if(m_FallSpeed > 0.0f)
-						currentJumpState = JumpAnimationState::LIGHT_LANDING;
-				}
-				m_FallSpeed = 0.0f;
-			}
-
-			if (currentJumpState != m_PrevJumpState)
-			{
-				switch (currentJumpState)
-				{
-				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
-					queueAnimation("Idle");
-					break;
-				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", false);
-					queueAnimation("Idle");
-					break;
-				default: // Just in case, so that the code doesn't break, hohohoho
-					break;
-				}
-			}
-
-			m_PrevForwardState = currentForwardState;
-			m_PrevSideState = currentSideState;
-			m_PrevJumpState = JumpAnimationState::IDLE;
-		}
-		else
-		{
-			static const float runLimit = 100.f;
-			float flyLimit = 500.0f;
-			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
-
-			if(XMVectorGetY(velocity) < flyLimit)
-			{
-				currentJumpState = JumpAnimationState::JUMP;
-			}
-			if(XMVectorGetY(velocity) < -flyLimit)
-			{
-				currentJumpState = JumpAnimationState::FALLING;
-			}
-
-			if (XMVectorGetY(velocity) > m_FallSpeed)
-			{
-				m_FallSpeed = XMVectorGetY(velocity);
-			}
-			
-			//if (physComp->hasLanded()) //SKA BERO PÅ EN BOOL SOM SÄTTS DÅ BODY SLÅR I MARKEN OAVSETT RIKTNING PÅ Y
-			//{
-			//	if(m_FallSpeed >= 200.0f)
-			//	{
-			//		currentJumpState = JumpAnimationState::HARD_LANDING;
-			//	}
-			//	else
-			//	{
-			//		currentJumpState = JumpAnimationState::LIGHT_LANDING;
-			//	}
-			//		m_FallSpeed = 0.0f;
-			//}
-
-			if (currentJumpState != m_PrevJumpState)
-			{
-				switch (currentJumpState)
-				{
-				case JumpAnimationState::IDLE:
-					if (currentJumpState == JumpAnimationState::IDLE)
-					{
-						playAnimation("Idle", false);
-					}
-					break;
-
-				case JumpAnimationState::JUMP:
-					if (m_PrevJumpState != JumpAnimationState::FLYING)
-					{
-						if(XMVectorGetX(velocity) > runLimit || XMVectorGetZ(velocity) > runLimit)
-						{
-							playAnimation("RunningJump", false);
-							queueAnimation("Falling");
-						}
-						else
-						{
-							playAnimation("StandingJump", false);
-							queueAnimation("Falling");
-						}
-					}
-					break;
-
-				case JumpAnimationState::FLYING:
-					//playAnimation(temp, "Flying", false);
-					break;
-
-				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
-					break;
-
-				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", false);
-					break;
-
-				case JumpAnimationState::FALLING:
-					//playAnimation(temp, "Falling", false);
-					break;
-
-				default: // Just in case, so that the code doesn't break, hohohoho
-					break;
-				}
-			}
-
-			m_PrevForwardState = ForwardAnimationState::IDLE;
-			m_PrevSideState = SideAnimationState::IDLE;
-			m_PrevJumpState = currentJumpState;
-		}
+		m_ResourceManager = p_ResourceManager;
 	}
 
-	void playAnimation(std::string p_AnimationName, bool p_Override)
+	void setAnimationLoader(AnimationLoader* p_AnimationLoader)
 	{
+		m_AnimationLoader = p_AnimationLoader;
+	}
+
+	void updateAnimation();
+
+	void playAnimation(std::string p_AnimationName, bool p_Override) override
+	{
+		m_Animation.playClip(p_AnimationName, p_Override);
+	}
+
+	void queueAnimation(std::string p_AnimationName) override
+	{
+		m_Animation.queueClip(p_AnimationName);
+	}
+
+	void changeAnimationWeight(int p_Track, float p_Weight) override
+	{
+		m_Animation.changeWeight(p_Track, p_Weight);
+	}
+
+	void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) override
+	{
+		m_Animation.applyIK_ReachPoint(p_GroupName, p_Target, m_Owner->getWorldMatrix());
+		
 		std::shared_ptr<ModelComponent> comp = m_Model.lock();
 		if (comp)
 		{
-			m_EventManager->queueEvent(IEventData::Ptr(new PlayAnimationEventData(comp->getId(), p_AnimationName, p_Override)));
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform())));
 		}
 	}
 
-	void queueAnimation(std::string p_AnimationName)
+	DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName) override
 	{
-		std::shared_ptr<ModelComponent> comp = m_Model.lock();
-		if (comp)
-		{
-			m_EventManager->queueEvent(IEventData::Ptr(new QueueAnimationEventData(comp->getId(), p_AnimationName)));
-		}
-	}
-
-	void changeAnimationWeight(int p_Track, float p_Weight)
-	{
-		std::shared_ptr<ModelComponent> comp = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId).lock();
-		if (comp)
-		{
-			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new ChangeAnimationWeightEventData(comp->getId(), p_Track, p_Weight)));
-		}
+		return m_Animation.getJointPos(p_JointName, m_Owner->getWorldMatrix());
 	}
 };

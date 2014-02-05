@@ -298,39 +298,11 @@ public:
 	virtual void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) = 0;
 
 	/**
-	 * Update the animations of all models.
+	 * Set the pose of the model. Requires the model to be animated.
 	 *
-	 * @param p_DeltaTime the time in seconds since the previous frame.
-	 */
-	virtual void updateAnimations(float p_DeltaTime) = 0;
-
-	/**
-	 * Decide what animation that should be played when update animation is invoked.
-	 *
-	 * @param p_Instance the model that should change animation data.
-	 * @param p_ClipName the new animation clip to be played next time update animation is invoked.
-	 */
-	virtual void playAnimation(int p_Instance, const char* p_ClipName, bool p_Override) = 0;
-
-	/**
-	 * Queue animation.
-	 *
-	 * @param p_Instance the model that should change animation data.
-	 * @param p_ClipName the new animation clip to be queued.
-	 */
-	virtual void queueAnimation(int p_Instance, const char* p_ClipName) = 0;
-
-	/**
-	 * Change weight of an animation track pair.
-	 *
-	 * @param p_Instance the model that should change animation data.
-	 * @param p_Track has the be 0, 2 or 4.
-	 * @param p_Weight a percentual number between 0.0f and 1.0f.
-	 */
-	virtual void changeAnimationWeight(int p_Instance, int p_Track, float p_Weight) = 0;
-
-	/**
-	 * New
+	 * @param p_Instance the model instance to update the pose of
+	 * @param p_Pose an array of joint matrices describing the pose
+	 * @param p_Size the number of matrices in p_Pose
 	 */
 	virtual void animationPose(int p_Instance, const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size) = 0;
 
@@ -394,26 +366,6 @@ public:
 	 * @param p_ColorTone the color tone to shade the model in, RGB range 0.0f to 1.0f
 	 */
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
-
-	/**
-	 * Updates the model to reach for a point in world space.
-	 *
-	 * @param p_Instance an identifier to a model instance.
-	 * @param p_TargetJoint the name of the end joint to change.
-	 * @param p_HingeJoint the name of the "elbow" joint.
-	 * @param p_BaseJoint the name of the base "shoulder" joint.
-	 * @param p_Target the target position in world space.
-	 */
-	virtual void applyIK_ReachPoint(InstanceId p_Instance, const char* p_GroupName, Vector3 p_Target) = 0;
-
-	/**
-	 * Get the position of a single joint from a model instance.
-	 *
-	 * @param p_Instance the instance identifier to retrieve the joint from.
-	 * @param p_Joint the identifier of the joint to get the position of.
-	 * @return the position of the joint in world space.
-	 */
-	virtual Vector3 getJointPosition(InstanceId p_Instance, const char* p_Joint) = 0;
 
 	/**
 	 * Update the position and viewing direction of the camera.

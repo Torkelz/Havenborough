@@ -2,10 +2,6 @@
 #include <fstream>
 #include <sstream>
 
-MattiasLucaseXtremeLoader::MattiasLucaseXtremeLoader(){}
-MattiasLucaseXtremeLoader::~MattiasLucaseXtremeLoader(){}
-
-
 std::map<std::string, AnimationClip> MattiasLucaseXtremeLoader::loadAnimationClip(std::string p_Filename)
 {
 	const char* filename = p_Filename.c_str();

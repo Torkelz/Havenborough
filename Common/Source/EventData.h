@@ -365,18 +365,17 @@ public:
 	}
 };
 
-class PlayAnimationEventData : public BaseEventData
+class UpdateAnimationEventData : public BaseEventData
 {
 private:
 	unsigned int m_Id;
-	std::string m_AnimationName;
-	bool m_Override;
+	const std::vector<DirectX::XMFLOAT4X4>& m_AnimationData;
 
 public:
 	static const Type sk_EventType = Type(0x14dd2b5d);
 
-	PlayAnimationEventData(unsigned int p_Id, std::string p_AnimationName, bool p_Override)
-		:	m_Id(p_Id), m_AnimationName(p_AnimationName), m_Override(p_Override)
+	UpdateAnimationEventData(unsigned int p_Id, const std::vector<DirectX::XMFLOAT4X4>& p_AnimationData)
+		:	m_Id(p_Id), m_AnimationData(p_AnimationData)
 	{
 	}
 
@@ -387,7 +386,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new PlayAnimationEventData(m_Id, m_AnimationName, m_Override));
+		return Ptr(new UpdateAnimationEventData(m_Id, m_AnimationData));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -396,7 +395,7 @@ public:
 
 	virtual const char *getName(void) const override
 	{
-		return "PlayAnimationEvent";
+		return "UpdateAnimationEvent";
 	}
 
 	unsigned int getId() const
@@ -404,206 +403,9 @@ public:
 		return m_Id;
 	}
 
-	std::string getAnimationName() const
+	const std::vector<DirectX::XMFLOAT4X4>& getAnimationData() const
 	{
-		return m_AnimationName;
-	}
-
-	bool getOverride() const
-	{
-		return m_Override;
-	}
-};
-
-class QueueAnimationEventData : public BaseEventData
-{
-private:
-	unsigned int m_Id;
-	std::string m_AnimationName;
-
-public:
-	static const Type sk_EventType = Type(0x140d2b5d);
-
-	QueueAnimationEventData(unsigned int p_Id, std::string p_AnimationName)
-		:	m_Id(p_Id), m_AnimationName(p_AnimationName)
-	{
-	}
-
-	virtual const Type &getEventType(void) const override
-	{
-		return sk_EventType;
-	}
-
-	virtual Ptr copy(void) const override
-	{
-		return Ptr(new QueueAnimationEventData(m_Id, m_AnimationName));
-	}
-
-	virtual void serialize(std::ostream &p_Out) const override
-	{
-	}
-
-	virtual const char *getName(void) const override
-	{
-		return "QueueAnimationEvent";
-	}
-
-	unsigned int getId() const
-	{
-		return m_Id;
-	}
-
-	std::string getAnimationName() const
-	{
-		return m_AnimationName;
-	}
-};
-
-class ChangeAnimationWeightEventData : public BaseEventData
-{
-private:
-	unsigned int m_Id;
-	int m_Track;
-	float m_Weight;
-
-public:
-	static const Type sk_EventType = Type(0x12334455);
-
-	ChangeAnimationWeightEventData(unsigned int p_Id, int p_Track, float p_Weight)
-		:	m_Id(p_Id), m_Track(p_Track), m_Weight(p_Weight)
-	{
-	}
-
-	virtual const Type &getEventType(void) const override
-	{
-		return sk_EventType;
-	}
-
-	virtual Ptr copy(void) const override
-	{
-		return Ptr(new ChangeAnimationWeightEventData(m_Id, m_Track, m_Weight));
-	}
-
-	virtual void serialize(std::ostream &p_Out) const override
-	{
-	}
-
-	virtual const char *getName(void) const override
-	{
-		return "ChangeAnimationWeightEvent";
-	}
-
-	unsigned int getId() const
-	{
-		return m_Id;
-	}
-
-	int getTrack() const
-	{
-		return m_Track;
-	}
-
-	float getWeight() const
-	{
-		return m_Weight;
-	}
-};
-
-class AddReachIK_EventData : public BaseEventData
-{
-private:
-	unsigned int m_Id;
-	std::string m_GroupName;
-	Vector3 m_Target;
-
-public:
-	static const Type sk_EventType = Type(0x12334544);
-
-	AddReachIK_EventData(unsigned int p_Id, std::string p_GroupName, Vector3 p_Target)
-		:	m_Id(p_Id),
-			m_GroupName(p_GroupName),
-			m_Target(p_Target)
-	{
-	}
-
-	virtual const Type &getEventType(void) const override
-	{
-		return sk_EventType;
-	}
-
-	virtual Ptr copy(void) const override
-	{
-		return Ptr(new AddReachIK_EventData(m_Id, m_GroupName, m_Target));
-	}
-
-	virtual void serialize(std::ostream &p_Out) const override
-	{
-	}
-
-	virtual const char *getName(void) const override
-	{
-		return "AddReachIK_Event";
-	}
-
-	unsigned int getId() const
-	{
-		return m_Id;
-	}
-
-	std::string getGroupName() const
-	{
-		return m_GroupName;
-	}
-
-	Vector3 getTarget() const
-	{
-		return m_Target;
-	}
-};
-
-class RemoveReachIK_EventData : public BaseEventData
-{
-private:
-	unsigned int m_Id;
-
-	std::string m_GroupName;
-
-public:
-	static const Type sk_EventType = Type(0x142d2b5d);
-
-	RemoveReachIK_EventData(unsigned int p_Id, std::string p_GroupName)
-		:	m_Id(p_Id),
-			m_GroupName(p_GroupName)
-	{
-	}
-
-	virtual const Type &getEventType(void) const override
-	{
-		return sk_EventType;
-	}
-
-	virtual Ptr copy(void) const override
-	{
-		return Ptr(new RemoveReachIK_EventData(m_Id, m_GroupName));
-	}
-
-	virtual void serialize(std::ostream &p_Out) const override
-	{
-	}
-
-	virtual const char *getName(void) const override
-	{
-		return "RemoveReachIK_Event";
-	}
-
-	unsigned int getId() const
-	{
-		return m_Id;
-	}
-
-	std::string getGroupName() const
-	{
-		return m_GroupName;
+		return m_AnimationData;
 	}
 };
 

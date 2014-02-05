@@ -1,6 +1,6 @@
 #include "Animation.h"
-#include "GraphicsExceptions.h"
-#include "GraphicsLogger.h"
+#include "CommonExceptions.h"
+#include "Logger.h"
 
 using namespace DirectX;
 using std::string;
@@ -15,14 +15,18 @@ Animation::Animation()
 		m_Tracks[i].currentFrame = 0.0f;
 		m_Tracks[i].destinationFrame = 1.0f;
 		m_Tracks[i].dynamicWeight = 1.0f;
-		m_Tracks[i].clip = AnimationClip();
+		m_Tracks[i].clip = nullptr;
+		m_Tracks[i].fadeIn = false;
+		m_Tracks[i].fadeOut = false;
 	}
 }
 
 Animation::~Animation() {}
 
-void Animation::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Joints)
+void Animation::updateAnimation(float p_DeltaTime)
 {
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	// Update time stamp in the direction of the animation speed per track.
 	updateTimeStamp(p_DeltaTime);
 
@@ -39,7 +43,7 @@ void Animation::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Joints
 	{
 		MatrixDecomposed toParentData;
 		// Track 0 is the main track. Do vanilla animation.
-		if(m_Tracks[0].clip.m_AnimationSpeed > 0)
+		if(m_Tracks[0].clip->m_AnimationSpeed > 0)
 		{
 			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].currentFrame, m_Tracks[0].destinationFrame);
 		}
@@ -54,7 +58,7 @@ void Animation::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Joints
 			{
 				if (currentTrack > 3)
 				{
-					if (affected(p_Joints, i, m_Tracks[currentTrack].clip.m_FirstJoint))
+					if (affected(i, m_Tracks[currentTrack].clip->m_FirstJoint))
 					{
 						toParentData = updateKeyFrameInformation(p_Joints[i], currentTrack, toParentData);
 					}
@@ -74,14 +78,14 @@ void Animation::updateAnimation(float p_DeltaTime, const vector<Joint>& p_Joints
 		XMStoreFloat4x4(&m_LocalTransforms[i], toParent);
 	}
 
-	updateFinalTransforms(p_Joints);
+	updateFinalTransforms();
 }
 
 MatrixDecomposed Animation::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack,
 	MatrixDecomposed p_ToParentData)
 {
 	MatrixDecomposed tempData;
-	if(m_Tracks[p_CurrentTrack].clip.m_AnimationSpeed > 0)
+	if(m_Tracks[p_CurrentTrack].clip->m_AnimationSpeed > 0)
 	{
 		tempData = p_Joint.interpolateEx(m_Tracks[p_CurrentTrack].currentFrame, m_Tracks[p_CurrentTrack].destinationFrame);
 	}
@@ -90,21 +94,21 @@ MatrixDecomposed Animation::updateKeyFrameInformation(Joint p_Joint, unsigned in
 		tempData = p_Joint.interpolateEx(m_Tracks[p_CurrentTrack].destinationFrame, m_Tracks[p_CurrentTrack].currentFrame);
 	}
 
-	if(m_Tracks[p_CurrentTrack].clip.m_FadeIn)
+	if(m_Tracks[p_CurrentTrack].fadeIn)
 	{
 		return p_Joint.interpolateEx(p_ToParentData, tempData, (m_Tracks[p_CurrentTrack].fadedFrames /
-			(float)m_Tracks[p_CurrentTrack].clip.m_FadeInFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight *
+			(float)m_Tracks[p_CurrentTrack].clip->m_FadeInFrames) * m_Tracks[p_CurrentTrack].clip->m_Weight *
 			m_Tracks[p_CurrentTrack].dynamicWeight);
 	}
-	else if(m_Tracks[p_CurrentTrack].clip.m_FadeOut && !m_Tracks[p_CurrentTrack].clip.m_Loop)
+	else if(m_Tracks[p_CurrentTrack].fadeOut && !m_Tracks[p_CurrentTrack].clip->m_Loop)
 	{
 		return p_Joint.interpolateEx(p_ToParentData, tempData, 1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames /
-			(float)m_Tracks[p_CurrentTrack].clip.m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip.m_Weight) *
+			(float)m_Tracks[p_CurrentTrack].clip->m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip->m_Weight) *
 			m_Tracks[p_CurrentTrack].dynamicWeight );
 	}
 	else
 	{
-		return p_Joint.interpolateEx(p_ToParentData, tempData, m_Tracks[p_CurrentTrack].clip.m_Weight *
+		return p_Joint.interpolateEx(p_ToParentData, tempData, m_Tracks[p_CurrentTrack].clip->m_Weight *
 			m_Tracks[p_CurrentTrack].dynamicWeight );
 	}
 }
@@ -113,14 +117,19 @@ void Animation::checkFades()
 {
 	for (int i = 1; i < 6; i++)
 	{
-		if (m_Tracks[i].clip.m_FadeIn)
+		if (!m_Tracks[i].active)
 		{
-			if ((float)m_Tracks[i].clip.m_FadeInFrames <= m_Tracks[i].fadedFrames)
+			continue;
+		}
+
+		if (m_Tracks[i].fadeIn)
+		{
+			if ((float)m_Tracks[i].clip->m_FadeInFrames <= m_Tracks[i].fadedFrames)
 			{
-				m_Tracks[i].clip.m_FadeIn = false;
+				m_Tracks[i].fadeIn = false;
 				m_Tracks[i].fadedFrames = 0.0f;
 
-				if(!m_Tracks[i].clip.m_Layered && m_Tracks[i].clip.m_Loop)
+				if(!m_Tracks[i].clip->m_Layered && m_Tracks[i].clip->m_Loop)
 				{
 					m_Tracks[i - 1] = m_Tracks[i];
 					m_Tracks[i].active = false;
@@ -128,16 +137,16 @@ void Animation::checkFades()
 				}
 			}
 		}
-		if (!m_Tracks[i].clip.m_FadeIn && m_Tracks[i].clip.m_FadeOut)
+		if (!m_Tracks[i].fadeIn && m_Tracks[i].fadeOut)
 		{
-			if ((float)m_Tracks[i].clip.m_FadeOutFrames <= m_Tracks[i].fadedFrames)
+			if ((float)m_Tracks[i].clip->m_FadeOutFrames <= m_Tracks[i].fadedFrames)
 			{
-				m_Tracks[i].clip.m_FadeOut = false;
+				m_Tracks[i].fadeOut = false;
 				m_Tracks[i].fadedFrames = 0.0f;
 				m_Tracks[i].active = false;
 			}
 		}
-		if( (float)(m_Tracks[i].clip.m_End - m_Tracks[i].clip.m_FadeOutFrames - 1) < m_Tracks[i].currentFrame)
+		if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) < m_Tracks[i].currentFrame)
 		{
 			if(!playQueuedClip(i))
 			{
@@ -155,36 +164,36 @@ void Animation::updateTimeStamp(float p_DeltaTime)
 	{
 		if( m_Tracks[i].active )
 		{
-			float frameStep = p_DeltaTime * keyfps * m_Tracks[i].clip.m_AnimationSpeed;
+			float frameStep = p_DeltaTime * keyfps * m_Tracks[i].clip->m_AnimationSpeed;
 			m_Tracks[i].currentFrame += frameStep;
 
-			if (m_Tracks[i].clip.m_FadeIn)
+			if (m_Tracks[i].fadeIn)
 				m_Tracks[i].fadedFrames += abs(frameStep);
-			else if ( m_Tracks[i].clip.m_FadeOut && !m_Tracks[i].clip.m_Loop)
+			else if ( m_Tracks[i].fadeOut && !m_Tracks[i].clip->m_Loop)
 			{
-				if( (float)(m_Tracks[i].clip.m_End - m_Tracks[i].clip.m_FadeOutFrames - 1) <= m_Tracks[i].currentFrame)
+				if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) <= m_Tracks[i].currentFrame)
 					m_Tracks[i].fadedFrames += abs(frameStep);
 			}
 
-			const unsigned int numKeyframes = (unsigned int)m_Tracks[i].clip.m_End;
+			const unsigned int numKeyframes = (unsigned int)m_Tracks[i].clip->m_End;
 	
-			if (m_Tracks[i].clip.m_AnimationSpeed > 0.0f)
+			if (m_Tracks[i].clip->m_AnimationSpeed > 0.0f)
 			{
 				m_Tracks[i].destinationFrame = m_Tracks[i].currentFrame + 1.0f;
 				if (m_Tracks[i].currentFrame >= (float)(numKeyframes))
 				{
-					if(m_Tracks[i].clip.m_Loop)
-						m_Tracks[i].currentFrame = (float)m_Tracks[i].clip.m_Start;
+					if(m_Tracks[i].clip->m_Loop)
+						m_Tracks[i].currentFrame = (float)m_Tracks[i].clip->m_Start;
 					else
 						m_Tracks[i].active = false;
 				}
 				if (m_Tracks[i].destinationFrame >= (float)(numKeyframes))
 				{
-					if(m_Tracks[i].clip.m_Loop)
+					if(m_Tracks[i].clip->m_Loop)
 					{
 						float dummy;
 						float frac = modff(m_Tracks[i].destinationFrame, &dummy);
-						m_Tracks[i].destinationFrame = m_Tracks[i].clip.m_Start + frac;
+						m_Tracks[i].destinationFrame = m_Tracks[i].clip->m_Start + frac;
 					}
 					else
 						m_Tracks[i].active = false;
@@ -192,17 +201,17 @@ void Animation::updateTimeStamp(float p_DeltaTime)
 			}
 			else
 			{
-				if (m_Tracks[i].currentFrame <= m_Tracks[i].clip.m_Start)
+				if (m_Tracks[i].currentFrame <= m_Tracks[i].clip->m_Start)
 				{
-					if(m_Tracks[i].clip.m_Loop)
+					if(m_Tracks[i].clip->m_Loop)
 						m_Tracks[i].currentFrame = (float)(numKeyframes);
 					else
 						m_Tracks[i].active = false;
 				}
 				m_Tracks[i].destinationFrame = m_Tracks[i].currentFrame - 1.0f;
-				if (m_Tracks[i].destinationFrame <= m_Tracks[i].clip.m_Start)
+				if (m_Tracks[i].destinationFrame <= m_Tracks[i].clip->m_Start)
 				{
-					if(m_Tracks[i].clip.m_Loop)
+					if(m_Tracks[i].clip->m_Loop)
 					{
 						float frac = 0.0f;
 						frac = m_Tracks[i].destinationFrame - (int)m_Tracks[i].destinationFrame;
@@ -216,14 +225,16 @@ void Animation::updateTimeStamp(float p_DeltaTime)
 	}
 }
 
-bool Animation::affected(const vector<Joint>& p_Joints, int p_ID, string p_FirstAffectedJoint)
+bool Animation::affected(int p_ID, string p_FirstAffectedJoint)
 {
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	// FirstAffectedJode = FAJ
 	if (p_Joints[p_ID].m_JointName == p_FirstAffectedJoint) // The FAJ has been found.
 		return true;
 	else if(p_ID == 0) // The root joint has been reached and the FAJ has not been found.
 		return false;
-	else return affected(p_Joints, p_Joints.at(p_ID).m_Parent - 1, p_FirstAffectedJoint); // Neither the root nor the FAJ has been found yet, keep looking.
+	else return affected(p_Joints.at(p_ID).m_Parent - 1, p_FirstAffectedJoint); // Neither the root nor the FAJ has been found yet, keep looking.
 }
 
 const vector<DirectX::XMFLOAT4X4>& Animation::getFinalTransform() const
@@ -231,9 +242,18 @@ const vector<DirectX::XMFLOAT4X4>& Animation::getFinalTransform() const
 	return m_FinalTransform;
 }
 
-void Animation::applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOAT3& p_Position,
-		const std::vector<Joint>& p_Joints, XMFLOAT4X4 p_WorldMatrix)
+void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, XMFLOAT4X4 p_WorldMatrix)
 {
+	auto it = m_Data->ikGroups.find(p_GroupName);
+	if (it == m_Data->ikGroups.end())
+	{
+		return;
+	}
+
+	const IKGroup& p_Group = it->second;
+
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	XMFLOAT4 targetData(p_Position.x, p_Position.y, p_Position.z, 1.f);
 	XMVECTOR target = XMLoadFloat4(&targetData);
 
@@ -383,11 +403,13 @@ void Animation::applyIK_ReachPoint(const IKGroup& p_Group, const DirectX::XMFLOA
 		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
 
 	// Update the resulting child transformations
-	updateFinalTransforms(p_Joints);
+	updateFinalTransforms();
 }
 
-DirectX::XMFLOAT3 Animation::getJointPos(const string& p_JointName, const vector<Joint>& p_Joints, XMFLOAT4X4 p_WorldMatrix)
+DirectX::XMFLOAT3 Animation::getJointPos(const string& p_JointName, XMFLOAT4X4 p_WorldMatrix)
 {
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	for (const auto& joint : p_Joints)
 	{
 		if (joint.m_JointName == p_JointName)
@@ -409,11 +431,13 @@ DirectX::XMFLOAT3 Animation::getJointPos(const string& p_JointName, const vector
 		}
 	}
 
-	throw InvalidArgumentGraphicsException("Joint does not exist: '" + p_JointName + "'", __LINE__, __FILE__);
+	throw InvalidArgument("Joint does not exist: '" + p_JointName + "'", __LINE__, __FILE__);
 }
 
-void Animation::updateFinalTransforms(const vector<Joint>& p_Joints)
+void Animation::updateFinalTransforms()
 {
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
 	const unsigned int numBones = p_Joints.size();
 
 	vector<XMFLOAT4X4> toRootTransforms(numBones);
@@ -459,58 +483,72 @@ void Animation::updateFinalTransforms(const vector<Joint>& p_Joints)
 	}
 }
 
-void Animation::playClip( AnimationClip p_Clip, bool p_Override )
+void Animation::playClip( const std::string& p_ClipName, bool p_Override )
 {
-	int track = p_Clip.m_DestinationTrack;
+	auto clip = m_Data->animationClips.find(p_ClipName);
+	if (clip == m_Data->animationClips.end())
+	{
+		return;
+	}
+
+	const AnimationClip* p_Clip = &clip->second;
+
+	int track = p_Clip->m_DestinationTrack;
 	if(p_Override)
 	{
 		m_Tracks[track].clip = p_Clip;
 		m_Tracks[track].fadedFrames = 0.0f;
 		m_Tracks[track].active = true;
-		m_Tracks[track].currentFrame = (float)p_Clip.m_Start;
+		m_Tracks[track].currentFrame = (float)p_Clip->m_Start;
 		m_Tracks[track].dynamicWeight = 1.0f;
+		m_Tracks[track].fadeIn = p_Clip->m_FadeIn;
+		m_Tracks[track].fadeOut = p_Clip->m_FadeOut;
 	}
 	else
 	{
 		if(m_Tracks[track].active)
 		{
-			if(!m_Tracks[track + 1].active)
-			{
-				m_Tracks[track + 1].clip = p_Clip;
-				m_Tracks[track + 1].fadedFrames = 0.0f;
-				m_Tracks[track + 1].active = true;
-				m_Tracks[track + 1].currentFrame = (float)p_Clip.m_Start;
-				m_Tracks[track + 1].dynamicWeight = 1.0f;
-			}
-			else
+			if(m_Tracks[track + 1].active)
 			{	
 				m_Tracks[track].clip			= 	m_Tracks[track + 1].clip;
 				m_Tracks[track].fadedFrames		= 	m_Tracks[track + 1].fadedFrames;
 				m_Tracks[track].active			= 	m_Tracks[track + 1].active;
 				m_Tracks[track].currentFrame	= 	m_Tracks[track + 1].currentFrame;
 				m_Tracks[track].dynamicWeight	= 	m_Tracks[track + 1].dynamicWeight;
-
-				m_Tracks[track + 1].clip = p_Clip;
-				m_Tracks[track + 1].fadedFrames = 0.0f;
-				m_Tracks[track + 1].active = true;
-				m_Tracks[track + 1].currentFrame = (float)p_Clip.m_Start;
-				m_Tracks[track + 1].dynamicWeight = 1.0f;
+				m_Tracks[track].fadeIn			= 	m_Tracks[track + 1].fadeIn;
+				m_Tracks[track].fadeOut			= 	m_Tracks[track + 1].fadeOut;
 			}
+
+			m_Tracks[track + 1].clip = p_Clip;
+			m_Tracks[track + 1].fadedFrames = 0.0f;
+			m_Tracks[track + 1].active = true;
+			m_Tracks[track + 1].currentFrame = (float)p_Clip->m_Start;
+			m_Tracks[track + 1].dynamicWeight = 1.0f;
+			m_Tracks[track + 1].fadeIn = p_Clip->m_FadeIn;
+			m_Tracks[track + 1].fadeOut = p_Clip->m_FadeOut;
 		}
 		else
 		{
 			m_Tracks[track].clip = p_Clip;
 			m_Tracks[track].fadedFrames = 0.0f;
 			m_Tracks[track].active = true;
-			m_Tracks[track].currentFrame = (float)p_Clip.m_Start;
+			m_Tracks[track].currentFrame = (float)p_Clip->m_Start;
 			m_Tracks[track].dynamicWeight = 1.0f;
+			m_Tracks[track].fadeIn = p_Clip->m_FadeIn;
+			m_Tracks[track].fadeOut = p_Clip->m_FadeOut;
 		}
 	}
 }
 
-void Animation::queueClip( AnimationClip p_Clip )
+void Animation::queueClip( const std::string& p_Clip )
 {
-	m_Queue.push_back(p_Clip);
+	auto clip = m_Data->animationClips.find(p_Clip);
+	if (clip == m_Data->animationClips.end())
+	{
+		return;
+	}
+
+	m_Queue.push_back(&clip->second);
 }
 
 bool Animation::playQueuedClip(int p_Track)
@@ -522,9 +560,9 @@ bool Animation::playQueuedClip(int p_Track)
 	{
 		for (unsigned int i = 0; i < m_Queue.size(); i++)
 		{
-			if (m_Queue[i].m_DestinationTrack == p_Track)
+			if (m_Queue[i]->m_DestinationTrack == p_Track)
 			{
-				playClip(m_Queue[i], false);
+				playClip(m_Queue[i]->m_ClipName, false);
 				m_Queue.erase(m_Queue.begin() + i);
 				return true;
 			}
@@ -537,4 +575,10 @@ void Animation::changeWeight(int p_Track, float p_Weight)
 {
 	if(p_Track > 0 && p_Track < 6)	
 		m_Tracks[p_Track].dynamicWeight = m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
+}
+
+void Animation::setAnimationData(AnimationData::ptr p_Data)
+{
+	m_Data = p_Data;
+	playClip("default", true);
 }
