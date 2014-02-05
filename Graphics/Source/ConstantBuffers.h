@@ -33,7 +33,7 @@ struct cSSAO_Buffer
 
 struct cSSAO_BlurBuffer
 {
-	bool horizontalBlur;
 	float texelWidth;
 	float texelHeight;
+	int horizontalBlur;
 };

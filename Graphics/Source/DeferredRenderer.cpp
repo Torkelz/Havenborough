@@ -205,7 +205,7 @@ void DeferredRenderer::renderDeferred()
 	{
 		renderGeometry();
 		renderSSAO();
-		renderLighting();
+		blurSSAO();
 	}
 	m_RenderSkyDome = false;
 }
@@ -348,7 +348,6 @@ void DeferredRenderer::renderSSAO(void)
 	};
 	m_DeviceContext->PSSetShaderResources(0, 2, srvs);
 
-
 	m_DeviceContext->Draw(6, 0);
 
 	ID3D11ShaderResourceView *nullSrvs[] = { 0, 0 };
@@ -365,7 +364,54 @@ void DeferredRenderer::renderSSAO(void)
 
 void DeferredRenderer::blurSSAO(void)
 {
-	
+	for(int i = 0; i < 4; i++)
+	{
+		SSAO_PingPong(m_SSAO_SRV, m_RenderTargets[3], false);
+		SSAO_PingPong(m_LightSRV, m_RenderTargets[4], true);
+	}
+}
+
+void DeferredRenderer::SSAO_PingPong(ID3D11ShaderResourceView *inputSRV, ID3D11RenderTargetView *outputTarget,
+	bool p_HorizontalBlur)
+{
+	updateSSAO_BlurConstantBuffer(p_HorizontalBlur);
+
+	m_DeviceContext->OMSetRenderTargets(1, &outputTarget, 0);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_SSAO_BlurShader->setShader();
+	m_SSAO_BlurConstantBuffer->setBuffer(0);
+
+	m_DeviceContext->PSSetSamplers(0, 1, &m_SSAO_BlurSampler);
+
+	ID3D11ShaderResourceView *srvs[] =
+	{
+		m_NormalSRV,
+		inputSRV
+	};
+	m_DeviceContext->PSSetShaderResources(0, 2, srvs);
+
+	m_DeviceContext->Draw(6, 0);
+
+	ID3D11ShaderResourceView *nullSrvs[] = { 0, 0 };
+	m_DeviceContext->PSSetShaderResources(0, 2, nullSrvs);
+
+	ID3D11SamplerState *nullSamplers[] = { 0 };
+	m_DeviceContext->PSSetSamplers(0, 1, nullSamplers);
+
+	m_SSAO_BlurConstantBuffer->unsetBuffer(0);
+	m_SSAO_BlurShader->unSetShader();
+	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
+}
+
+void DeferredRenderer::updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur)
+{
+	cSSAO_BlurBuffer blurBuffer;
+	blurBuffer.horizontalBlur = p_HorizontalBlur;
+	blurBuffer.texelWidth = 1.0f / m_ScreenWidth;
+	blurBuffer.texelHeight = 1.0f / m_ScreenHeight;
+	m_DeviceContext->UpdateSubresource(m_SSAO_BlurConstantBuffer->getBufferPointer(), NULL, nullptr, &blurBuffer,
+		NULL, NULL);
 }
 
 void DeferredRenderer::renderLighting()
@@ -697,7 +743,7 @@ void DeferredRenderer::createBuffers()
 	cbdesc.sizeOfElement = sizeof(cSSAO_BlurBuffer);
 	cbdesc.initData = &ssaoBlurBuffer;
 	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
-	cbdesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
+	cbdesc.usage = Buffer::Usage::DEFAULT;
 	m_SSAO_BlurConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 }
 
