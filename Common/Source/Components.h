@@ -1278,4 +1278,6 @@ public:
 	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) = 0;
 	virtual DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName) = 0;
 	virtual const AnimationPath getAnimationData(std::string p_AnimatioId) const = 0;
+	virtual void playClimbAnimation(std::string p_ClimbID) = 0;
+	virtual void resetClimbState() = 0;
 };

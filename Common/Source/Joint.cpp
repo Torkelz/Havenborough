@@ -63,26 +63,27 @@ MatrixDecomposed Joint::interpolateEx(float p_FrameTime, float m_DestinationFram
 	return result;
 }
 
-MatrixDecomposed Joint::interpolateEx(MatrixDecomposed p_Frame1, MatrixDecomposed p_Frame2, float interpolateFraction) const
+MatrixDecomposed Joint::interpolateEx(const MatrixDecomposed& p_Frame1, const MatrixDecomposed& p_Frame2, float interpolateFraction) const
 {
 	if(interpolateFraction > 1.0f)
 		interpolateFraction = 1.0f;
 
 	using namespace DirectX;
-	
-	XMVECTOR scale1			= XMLoadFloat4(&p_Frame1.scale);
-	XMVECTOR translation1	= XMLoadFloat4(&p_Frame1.translation);
-	XMVECTOR rotation1		= XMLoadFloat4(&p_Frame1.rotation);
+	float interpolateFractionInv = 1.f - interpolateFraction;
 
-	XMVECTOR scale2			= XMLoadFloat4(&p_Frame2.scale);
-	XMVECTOR translation2	= XMLoadFloat4(&p_Frame2.translation);
-	XMVECTOR rotation2		= XMLoadFloat4(&p_Frame2.rotation);
+	XMVECTOR scale1			= XMLoadFloat4(&p_Frame1.scale);// * interpolateFractionInv;
+	XMVECTOR translation1	= XMLoadFloat4(&p_Frame1.translation) * interpolateFractionInv;
+	XMVECTOR rotation1		= XMLoadFloat4(&p_Frame1.rotation) * interpolateFractionInv;
+
+	//XMVECTOR scale2			= XMLoadFloat4(&p_Frame2.scale) * interpolateFraction;
+	XMVECTOR translation2	= XMLoadFloat4(&p_Frame2.translation) * interpolateFraction;
+	XMVECTOR rotation2		= XMLoadFloat4(&p_Frame2.rotation) * interpolateFraction;
 
 	MatrixDecomposed result;
 
-	XMStoreFloat4(&result.translation, (translation1 * (1.f - interpolateFraction)) + (translation2 * interpolateFraction));
-	XMStoreFloat4(&result.scale, (scale1 * (1.f - interpolateFraction)) + (scale2 * interpolateFraction));
-	XMStoreFloat4(&result.rotation, (rotation1 * (1.f - interpolateFraction)) + (rotation2 * interpolateFraction));
+	XMStoreFloat4(&result.translation, translation1 + translation2);
+	XMStoreFloat4(&result.scale, scale1);
+	XMStoreFloat4(&result.rotation, rotation1 + rotation2);
 
 	return result;
 }

@@ -162,10 +162,12 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
+		aa.lock()->playClimbAnimation(p_ClimbId);
 
 		m_ForceMoveY = pp.m_YPath;
 		m_ForceMoveZ = pp.m_ZPath;
 		m_ForceMoveNormal = p_CollisionNormal;
+		m_ForceMoveStartPos = getPosition();
 	}
 }
 
@@ -181,32 +183,38 @@ void Player::update(float p_DeltaTime)
 		unsigned int currentFrame = (unsigned int)m_CurrentForceMoveTime;
 
 		// Check if you have passed the goal frame.
-		if(currentFrame >= m_ForceMoveY.front().y)
+		if(currentFrame >= m_ForceMoveY[1].y)
 			m_ForceMoveY.erase(m_ForceMoveY.begin());
-		if(currentFrame >= m_ForceMoveZ.front().y)
+		if(currentFrame >= m_ForceMoveZ[1].y)
 			m_ForceMoveZ.erase(m_ForceMoveZ.begin());
 
 		// Check if you only have one frame left.
-		if(m_ForceMoveY.empty() && m_ForceMoveZ.empty())
+		if(m_ForceMoveY.size() < 2 && m_ForceMoveZ.size() < 2)
 		{
 			m_ForceMove = false;
 			m_CurrentForceMoveTime = 0.f;
+			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+			aa.lock()->resetClimbState();
 			return;
 		}
 
-		float timeFrac = m_ForceMoveY.front().y - m_CurrentForceMoveTime;
-		timeFrac = m_ForceMoveY.front().y - timeFrac;
-		timeFrac = timeFrac / m_ForceMoveY.front().y;
+		float currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveY[0].y);
+		float currentFrameSpan = (m_ForceMoveY[1].y - m_ForceMoveY[0].y);
+		float timeFrac = currentFrameTime / currentFrameSpan;
+		float currentYPos = m_ForceMoveY[0].x + ((m_ForceMoveY[1].x - m_ForceMoveY[0].x) * timeFrac);
 
-		float currentYPos = m_ForceMoveY.front().x * timeFrac;
-
-		timeFrac = m_ForceMoveZ.front().y - m_CurrentForceMoveTime;
-		timeFrac = m_ForceMoveZ.front().y - timeFrac;
-		timeFrac = timeFrac / m_ForceMoveZ.front().y;
-
-		float currentZPos = m_ForceMoveZ.front().x * timeFrac;
+		currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveZ[0].y);
+		currentFrameSpan = (m_ForceMoveZ[1].y - m_ForceMoveZ[0].y);
+		timeFrac = currentFrameTime / currentFrameSpan;
+		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
 
 		m_CurrentForceMoveTime += p_DeltaTime * 24.0f; // 24 FPS
+
+		DirectX::XMFLOAT3 temp;
+		DirectX::XMVECTOR tv = DirectX::XMVectorSet(0,currentYPos,currentZPos,0);
+		DirectX::XMVECTOR tstart = DirectX::XMLoadFloat3(&m_ForceMoveStartPos);
+		DirectX::XMStoreFloat3(&temp, tstart+tv);
+		setPosition(temp);
 	}
 }
 

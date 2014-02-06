@@ -370,6 +370,9 @@ void GameLogic::playLocalLevel()
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 
+	
+	m_Physics->createAABB(50.f, true, Vector3(0,20,0), Vector3(100,100,100), true);
+
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 
 	// DEBUG STUFFZ

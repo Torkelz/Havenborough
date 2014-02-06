@@ -37,11 +37,22 @@ private:
 		HARD_LANDING,
 	};
 
+	enum class ForceMoveState
+	{
+		IDLE,
+		CLIMB1,
+		CLIMB2,
+		CLIMB3,
+		CLIMB4,
+	};
+
 	Animation m_Animation;
 	ForwardAnimationState m_PrevForwardState;
 	SideAnimationState m_PrevSideState;
 	JumpAnimationState m_PrevJumpState;
+	ForceMoveState m_ForceMoveState;
 	float m_FallSpeed;
+	bool m_ForceMove;
 
 	std::weak_ptr<ModelComponent> m_Model;
 	EventManager* m_EventManager;
@@ -62,6 +73,8 @@ public:
 		m_PrevForwardState = ForwardAnimationState::IDLE;
 		m_PrevSideState = SideAnimationState::IDLE;
 		m_PrevJumpState = JumpAnimationState::IDLE;
+		m_ForceMoveState = ForceMoveState::IDLE;
+		m_ForceMove = false;
 
 		const char* resourceName = p_Data->Attribute("Animation");
 		if (!resourceName)
@@ -150,5 +163,16 @@ public:
 	const AnimationPath getAnimationData(std::string p_AnimationId) const override
 	{
 		return m_Animation.getAnimationData().get()->animationPath[p_AnimationId];
+	}
+
+	void playClimbAnimation(std::string p_ClimbID) override
+	{
+		playAnimation(p_ClimbID, false);
+		m_ForceMove = true;
+	}
+
+	void resetClimbState() override
+	{
+		m_ForceMove = false;
 	}
 };

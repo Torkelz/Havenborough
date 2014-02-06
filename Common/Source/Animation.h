@@ -104,6 +104,12 @@ public:
 	void queueClip( const std::string& p_Clip );
 
 	/**
+	 * Purge queue of all elements destined to be on track p_Track.
+	 @param p_Track, the track to be purged.'
+	 */
+	void purgeQueue( const unsigned int p_Track );
+
+	/**
 	 * Use this function to dynamicly change weight between e.g. the forward and strafe animations.
 	 * @param p_MainTrack the first track in the track pair that has to change weight.
 	 * @param p_Weight the new goal weight.
@@ -121,5 +127,5 @@ private:
 	bool playQueuedClip(int p_Track);
 	void checkFades();
 	void updateTimeStamp(float p_DeltaTime);
-	MatrixDecomposed updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack, MatrixDecomposed p_ToParentData);
+	MatrixDecomposed updateKeyFrameInformation(const Joint& p_Joint, unsigned int p_CurrentTrack, const MatrixDecomposed& p_ToParentData);
 };

@@ -66,6 +66,7 @@ private:
 	std::vector<DirectX::XMUINT2> m_ForceMoveY;
 	std::vector<DirectX::XMUINT2> m_ForceMoveZ;
 	DirectX::XMFLOAT3 m_ForceMoveNormal;
+	DirectX::XMFLOAT3 m_ForceMoveStartPos;
 
 
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly

@@ -48,9 +48,9 @@ na 	RunningJump
 sp 	0.5
 st 	56
 en 	68
-lo 	0
+lo 	1
 f	Hip
-tr	1
+tr	0
 la	0
 fi	1
 fif	5
@@ -130,7 +130,7 @@ la	0
 fi	1
 fif	5
 fo	0
-fof 	5
+fof 	10
 we	1.0
 
 *Clip
@@ -295,57 +295,57 @@ ikz	0.0
 *Path
 na	Climb1
 y	0
-t	1
+t	0
 y	42
-t	12
+t	11
 z	0
-t	1
+t	0
 z	0
-t	6
+t	5
 z	45
-t	12
+t	11
 *EndPath
 
 *Path
 na	Climb2
 y	0
-t	1
+t	0
 y	0
-t	7
+t	6
 y	84
-t	24
+t	23
 z	0
-t	1
+t	0
 z	0
-t	13
+t	12
 z	47
-t	24
+t	23
 *EndPath
 
 *Path
 na	Climb3
 y	0
-t	1
+t	0
 y	127
-t	36
+t	35
 z	0
-t	1
+t	0
 z	0
-t	13
+t	12
 z	53
-t	36
+t	35
 *EndPath
 
 *Path
 na	Climb4
 y	0
-t	1
+t	0
 y	169
-t	48
+t	47
 z	0
-t	1
+t	0
 z	0
-t	36
+t	35
 z	38
-t	48
+t	47
 *EndPath

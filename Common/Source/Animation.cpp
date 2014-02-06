@@ -2,6 +2,8 @@
 #include "CommonExceptions.h"
 #include "Logger.h"
 
+#include <algorithm>
+
 using namespace DirectX;
 using std::string;
 using std::vector;
@@ -81,8 +83,8 @@ void Animation::updateAnimation(float p_DeltaTime)
 	updateFinalTransforms();
 }
 
-MatrixDecomposed Animation::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack,
-	MatrixDecomposed p_ToParentData)
+MatrixDecomposed Animation::updateKeyFrameInformation(const Joint& p_Joint, unsigned int p_CurrentTrack,
+	const MatrixDecomposed& p_ToParentData)
 {
 	MatrixDecomposed tempData;
 	if(m_Tracks[p_CurrentTrack].clip->m_AnimationSpeed > 0)
@@ -538,6 +540,8 @@ void Animation::playClip( const std::string& p_ClipName, bool p_Override )
 			m_Tracks[track].fadeOut = p_Clip->m_FadeOut;
 		}
 	}
+
+	purgeQueue(track);
 }
 
 void Animation::queueClip( const std::string& p_Clip )
@@ -563,7 +567,7 @@ bool Animation::playQueuedClip(int p_Track)
 			if (m_Queue[i]->m_DestinationTrack == p_Track)
 			{
 				playClip(m_Queue[i]->m_ClipName, false);
-				m_Queue.erase(m_Queue.begin() + i);
+				//m_Queue.erase(m_Queue.begin() + i);
 				return true;
 			}
 		}
@@ -587,4 +591,15 @@ void Animation::setAnimationData(AnimationData::ptr p_Data)
 const AnimationData::ptr Animation::getAnimationData() const
 {
 	return m_Data;
+}
+
+
+void Animation::purgeQueue(const unsigned int p_Track)
+{
+	if(!m_Queue.empty())
+	{
+		auto start = std::remove_if(m_Queue.begin(), m_Queue.end(), [&] (const AnimationClip* a){ return a->m_DestinationTrack == p_Track; });
+		m_Queue.erase(start, m_Queue.end());
+	}
+	//m_Queue.clear();
 }
