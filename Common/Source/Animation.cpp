@@ -498,13 +498,13 @@ void Animation::playClip( const std::string& p_ClipName, bool p_Override )
 	int track = p_Clip->m_DestinationTrack;
 	if(p_Override)
 	{
-		m_Tracks[track].clip = p_Clip;
-		m_Tracks[track].fadedFrames = 0.0f;
-		m_Tracks[track].active = true;
-		m_Tracks[track].currentFrame = (float)p_Clip->m_Start;
-		m_Tracks[track].dynamicWeight = 1.0f;
-		m_Tracks[track].fadeIn = p_Clip->m_FadeIn;
-		m_Tracks[track].fadeOut = p_Clip->m_FadeOut;
+		m_Tracks[track + 1].clip = p_Clip;
+		m_Tracks[track + 1].fadedFrames = 0.0f;
+		m_Tracks[track + 1].active = true;
+		m_Tracks[track + 1].currentFrame = (float)p_Clip->m_Start;
+		m_Tracks[track + 1].dynamicWeight = 1.0f;
+		m_Tracks[track + 1].fadeIn = p_Clip->m_FadeIn;
+		m_Tracks[track + 1].fadeOut = p_Clip->m_FadeOut;
 	}
 	else
 	{

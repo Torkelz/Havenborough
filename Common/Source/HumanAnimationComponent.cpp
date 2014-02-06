@@ -55,10 +55,10 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentForwardState)
 				{
 				case ForwardAnimationState::IDLE:
-					//if (currentSideState == SideAnimationState::IDLE)
-					//{
+					if (currentSideState == SideAnimationState::IDLE)
+					{
 						playAnimation("Idle2", false);
-					//}
+					}
 					break;
 				case ForwardAnimationState::RUNNING_FORWARD:
 					playAnimation("Run", false);
@@ -77,7 +77,7 @@ void HumanAnimationComponent::updateAnimation()
 				case SideAnimationState::IDLE:
 					if (currentForwardState == ForwardAnimationState::IDLE)
 					{
-						playAnimation("Idle2", false);
+						//playAnimation("Idle2", false);
 					}
 					break;
 
@@ -111,13 +111,19 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentJumpState)
 				{
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
-					//queueAnimation("Idle2");
+					playAnimation("HardLanding", true);
+					if (XMVectorGetZ(velocity) > runLimit)
+						queueAnimation("Run");
+					else
+						queueAnimation("Idle2");
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", false);
-					queueAnimation("Idle2");
+					playAnimation("NormalLanding", true);
+					if (XMVectorGetZ(velocity) > runLimit)
+						queueAnimation("Run");
+					else
+						queueAnimation("Idle2");
 					break;
 
 				default: // Just in case, so that the code doesn't break, hohohoho
