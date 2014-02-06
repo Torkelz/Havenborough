@@ -221,7 +221,7 @@ void DeferredRenderer::renderGeometry()
 
 	// The textures will be needed to be grabbed from the model later.
 
-	std::sort(m_Objects.begin(),m_Objects.end(), [] (Renderable &a,Renderable &b)
+	std::sort(m_Objects.begin(),m_Objects.end(), [] (Renderable &a, Renderable &b)
 	{ 
 		return a.model > b.model;
 	});
@@ -1008,7 +1008,7 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	textureDesc.Width = textureDesc.Height = p_Size;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32_TYPELESS;
 	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.SampleDesc.Count = 1;
@@ -1019,15 +1019,12 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	vector<DirectX::XMFLOAT3> initData;
 	for(unsigned int i = 0; i < p_Size * p_Size; i++)
 	{
-		XMFLOAT3 temp;
-		XMVECTOR tempV = XMVector3Normalize(XMVectorSet(
-			distribution(randomizer),
-			distribution(randomizer),
-			distribution(randomizer),
-			0.0f));
-		XMStoreFloat3(&temp, tempV);
+		XMFLOAT3 randomVec;
+		XMVECTOR temp = XMVector3Normalize(XMVectorSet(distribution(randomizer),
+			distribution(randomizer), distribution(randomizer), 0.0f));
+		XMStoreFloat3(&randomVec, temp);
 
-		initData.push_back(temp);
+		initData.push_back(randomVec);
 	}
 
 	ID3D11Texture2D *texture;
