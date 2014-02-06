@@ -6,29 +6,35 @@
 struct SpellDefinition
 {
 public:
+	enum class Type
+	{
+		EXPLOSION,
+
+	};
+
 	typedef std::shared_ptr<SpellDefinition> ptr;
-
-	//Sphere *spellShpere;
-
+	
 	std::string spellName;
+	Type m_type;
 	float maxTimeToLive; //in sec
-	float effectRange; //in cm
-	float spellSize; //radius on the sphere
+	float explosionRadius; //in cm, explosion radius
+	float flyingSpellSize; //in cm, radius on the flying sphere
 	float effectTime; //in sec
-	float pushPower;
+	float force;
+	float minForce;
 	//float slowPower;
 	//float manaCost;
 
 	SpellDefinition()
-		:	//spellShpere(nullptr),
-			spellName("NO NAME FOUND"),
-			maxTimeToLive(1.f),
-			effectRange(0.f),
-			spellSize(1.f),
-			effectTime(1.f),
-			pushPower(0.f)
-			//slowPower(0.f),
-			//manaCost(0.f)
+		:	spellName("NO NAME FOUND"),
+			maxTimeToLive(-1.f),
+			explosionRadius(-1.f),
+			flyingSpellSize(-1.f),
+			effectTime(-1.f),
+			force(-1.f),
+			minForce(-1.f)
+			//slowPower(-1.f),
+			//manaCost(-1.f)
 	{}
 
 	~SpellDefinition(){}
