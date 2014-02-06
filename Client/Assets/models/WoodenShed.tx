@@ -1,4 +1,6 @@
 *Header
+#Transparent 0
+#Collidable 1
 #Materials 2
 #MESH WoodenShed1
 #Vertices 160

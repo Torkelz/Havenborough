@@ -12,22 +12,25 @@ public:
 	DirectX::XMFLOAT4 velocity; //the velocity of a particle, in cm
 	DirectX::XMFLOAT2 size; //The size of a particle from edge to edge
 	float life; //Life for a particle to live before taken away, in sec
+	float maxLife; //How long or short this particle can live
 
 	Particle()
 		:	velocity(0.f, 0.f, 0.f, 0.f),
 			size(1.f, 1.f),
-			life(10.f)
+			life(0.f),
+			maxLife(3.f)
 	{
 	}
 
 	Particle(DirectX::XMFLOAT3 p_Position, DirectX::XMFLOAT3 p_Velocity, DirectX::XMFLOAT4 p_Color,
-		DirectX::XMFLOAT2 p_Size, float p_Life)
+		DirectX::XMFLOAT2 p_Size, float p_Life, float p_MaxLife)
 	{
 		shaderData.position = p_Position;
 		velocity = DirectX::XMFLOAT4(p_Velocity.x, p_Velocity.y, p_Velocity.z, 1.0f);
 		shaderData.color = p_Color;
 		size = p_Size;
-		life	= p_Life;
+		life = p_Life;
+		maxLife = p_MaxLife;
 	}
 };
 
@@ -75,6 +78,11 @@ public:
 	float maxLife;
 	
 	/**
+	 * How much longer or shorter a particle live from the base life value.
+	 */
+	float maxLifeDeviation;
+
+	/**
 	 * How big a particle are from edge to edge.
 	 */
 	DirectX::XMFLOAT2 size; //in cm
@@ -107,7 +115,8 @@ public:
 		:	shader(nullptr),
 			diffuseTexture(nullptr),
 			maxParticles(0),
-			maxLife(0),
+			maxLife(0.f),
+			maxLifeDeviation(0.f),
 			size(0.f, 0.f),
 			particleSystemName("NO NAME FOUND"),
 			particlesPerSec(0),

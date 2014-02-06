@@ -687,80 +687,6 @@ void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_Stat
 	throw GraphicsException("Failed to set transparency state to ModelDefinition: " + error + " does not exist", __LINE__, __FILE__);
 }
 
-void Graphics::updateAnimations(float p_DeltaTime)
-{
-	for (auto& model : m_ModelInstances)
-	{
-		ModelDefinition* modelDef = getModelFromList(model.second.getModelName());
-		if (modelDef->isAnimated)
-		{
-			model.second.m_Animation.updateAnimation(p_DeltaTime, modelDef->joints);
-			const std::vector<XMFLOAT4X4>& animationData = model.second.m_Animation.getFinalTransform();
-			model.second.animationPose(animationData.data(), animationData.size());
-		}
-	}
-}
-
-void Graphics::playAnimation(int p_Instance, const char* p_ClipName, bool p_Override)
-{
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			string tempStr(p_ClipName);
-
-			// If an illegal string has been put in, just shoot in the default animation.
-			// The show must go on!
-			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
-			{
-				tempStr = "default";
-			}
-
-			//if(tempStr != "LookAround")
-			//	break;
-
-			inst.second.m_Animation.playClip(modelDef->animationClips.at(tempStr), p_Override);
-			break;
-		}
-	}
-}
-
-void Graphics::queueAnimation(int p_Instance, const char* p_ClipName)
-{
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			string tempStr(p_ClipName);
-
-			// If an illegal string has been put in, just shoot in the default animation.
-			// The show must go on!
-			if( modelDef->animationClips.find(p_ClipName) == modelDef->animationClips.end() )
-			{
-				tempStr = "default";
-			}
-
-			inst.second.m_Animation.queueClip(modelDef->animationClips.at(tempStr));
-			break;
-		}
-	}
-}
-void Graphics::changeAnimationWeight(int p_Instance, int p_Track, float p_Weight)
-{
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.m_Animation.changeWeight(p_Track, p_Weight);
-			break;
-		}
-	}
-}
-
 void Graphics::animationPose(int p_Instance, const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size)
 {
 	for (auto& inst : m_ModelInstances)
@@ -787,7 +713,7 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 			string(p_ModelId));
 		return -1;
 	}
-	
+
 	ModelInstance instance;
 	instance.setModelName(p_ModelId);
 	instance.setPosition(XMFLOAT3(0.f, 0.f, 0.f));
@@ -872,47 +798,6 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 	throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::applyIK_ReachPoint(InstanceId p_Instance, const char* p_IKGroupName, Vector3 p_Target)
-{
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			//ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			std::string tempStr(p_IKGroupName);
-
-			// If an illegal string has been put in, just shoot in the default animation.
-			// The show must go on!
-			if( modelDef->ikGroups.find(p_IKGroupName) == modelDef->ikGroups.end() )
-			{
-				tempStr = "default";
-			}
-
-			inst.second.m_Animation.applyIK_ReachPoint(modelDef->ikGroups.at(p_IKGroupName), p_Target, modelDef->joints, inst.second.getWorldMatrix());
-			const std::vector<XMFLOAT4X4>& animationData = inst.second.m_Animation.getFinalTransform();
-			inst.second.animationPose(animationData.data(), animationData.size());
-			break;
-		}
-	}
-}
-
-Vector3 Graphics::getJointPosition(InstanceId p_Instance, const char* p_Joint)
-{
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			const ModelDefinition* modelDef = getModelFromList(inst.second.getModelName());
-			XMFLOAT3 position = inst.second.m_Animation.getJointPos(p_Joint, modelDef->joints, inst.second.getWorldMatrix());
-			
-			return position;
-		}
-	}
-
-	throw InvalidArgumentGraphicsException("Model instance does not exist", __LINE__, __FILE__);
-}
-
 void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 {
 	XMVECTOR upVec = XMLoadFloat3(&XMFLOAT3(p_Up));
@@ -922,7 +807,7 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 	XMVECTOR flatForward = XMVectorSetY(forwardVec, 0.f);
 	XMVECTOR flatUp = XMVectorSetY(upVec, 0.f);
 	
-	pos += flatForward * 5.f + forwardVec * 20.f + flatUp * 35.f;
+	pos += flatForward * 0.f + forwardVec * 20.f + flatUp * 0.f;
 	XMStoreFloat3(&m_Eye, pos);
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));

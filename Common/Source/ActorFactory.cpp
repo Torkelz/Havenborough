@@ -40,6 +40,11 @@ void ActorFactory::setResourceManager(ResourceManager* p_ResourceManager)
 	m_ResourceManager = p_ResourceManager;
 }
 
+void ActorFactory::setAnimationLoader(AnimationLoader* p_AnimationLoader)
+{
+	m_AnimationLoader = p_AnimationLoader;
+}
+
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
 {
 	return createActor(p_Data, getNextActorId());
@@ -134,6 +139,9 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, "Halfsize", AABBScale);
 	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", "TestParticle");
+	printer.CloseElement();
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;
@@ -165,6 +173,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Look");
 	printer.CloseElement();
 	printer.OpenElement("HumanAnimation");
+	printer.PushAttribute("Animation", "WITCH");
 	printer.CloseElement();
 	printer.CloseElement();
 
@@ -386,5 +395,9 @@ ActorComponent::ptr ActorFactory::createLookComponent()
 
 ActorComponent::ptr ActorFactory::createHumanAnimationComponent()
 {
-	return ActorComponent::ptr(new HumanAnimationComponent);
+	HumanAnimationComponent* comp = new HumanAnimationComponent;
+	comp->setResourceManager(m_ResourceManager);
+	comp->setAnimationLoader(m_AnimationLoader);
+
+	return ActorComponent::ptr(comp);
 }

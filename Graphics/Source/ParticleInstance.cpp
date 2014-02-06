@@ -37,7 +37,7 @@ void ParticleInstance::killOldParticles()
 
 	auto removeIt = std::remove_if(m_ParticleList.begin(),m_ParticleList.end(), [&] (Particle &p) 
 	{
-		return p.life >= m_ParticleEffectDef->maxLife;
+		return p.life >= p.maxLife;
 	});
 	m_ParticleList.erase(removeIt, m_ParticleList.end());
 
@@ -48,7 +48,7 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 	//Update the position of every particle in the system by its velocity and based on the delta time
 	for(auto& part : m_ParticleList)
 	{
-		part.velocity.y += 40.f * p_DeltaTime;
+		part.velocity.y += 50.f * p_DeltaTime;
 
 		part.shaderData.position = DirectX::XMFLOAT3(
 			(part.shaderData.position.x + part.velocity.x * p_DeltaTime),
@@ -63,7 +63,6 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 	DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3(m_SysPosition.x, m_SysPosition.y, m_SysPosition.z);
 	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(0.8f, 0.15f, 0.0f, 0.3f);
 
-	bool emitParticle = false;
 	m_AccumulatedTime += p_DeltaTime;
 
 	const float timePerParticle = 1.f / m_ParticleEffectDef->particlesPerSec;
@@ -83,6 +82,15 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 			velDistribution(m_RandomEngine),
 			velDistribution(m_RandomEngine));
 
+		std::uniform_real_distribution<float> posDistribution(-m_ParticleEffectDef->particlePositionDeviation, m_ParticleEffectDef->particlePositionDeviation);
+		DirectX::XMFLOAT3 randPos(
+			tempPos.x + posDistribution(m_RandomEngine),
+			tempPos.y + posDistribution(m_RandomEngine),
+			tempPos.z + posDistribution(m_RandomEngine));
+
+		std::uniform_real_distribution<float> lifeDistribution(-m_ParticleEffectDef->maxLifeDeviation, m_ParticleEffectDef->maxLifeDeviation);
+		float randMaxLife = m_ParticleEffectDef->maxLife + lifeDistribution(m_RandomEngine);
+
 		std::uniform_real_distribution<float> oneToOneDistribution(-1.f, 1.f);
 		DirectX::XMFLOAT4 randColorOffset(
 			tempColor.x + oneToOneDistribution(m_RandomEngine) * m_ParticleEffectDef->particleColorDeviation.x,
@@ -91,7 +99,7 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 			tempColor.w + oneToOneDistribution(m_RandomEngine) * m_ParticleEffectDef->particleColorDeviation.w);
 
 		//Put all the new data for the new particle into one container
-		Particle tempParticle(tempPos, randVel, randColorOffset, m_ParticleEffectDef->size, 0.f);
+		Particle tempParticle(randPos, randVel, randColorOffset, m_ParticleEffectDef->size, 0.f, randMaxLife);
 
 		//Add the new particle to the others in the same system
 		m_ParticleList.push_back(tempParticle);

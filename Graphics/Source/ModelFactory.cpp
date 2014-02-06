@@ -1,8 +1,6 @@
 #include "ModelFactory.h"
 #include "GraphicsExceptions.h"
 #include "ModelBinaryLoader.h"
-#include "AnimationClipLoader.h"
-#include <AnimationLoader.h>
 #include "Utilities/MemoryUtil.h"
 #include "..\..\Common\Source\AnimationLoader.h"
 #include <boost/filesystem.hpp>
@@ -56,22 +54,6 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 
 		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimatedVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
-
-		boost::filesystem::path filepath(p_Filename);
-		boost::filesystem::path animationsFolder(filepath.parent_path().parent_path() / "animations");
-		boost::filesystem::path baseName(filepath.filename());
-
-		boost::filesystem::path mlxPath((animationsFolder / baseName).replace_extension("mlx"));
-		boost::filesystem::path atxPath((animationsFolder / baseName).replace_extension("atx"));
-
-		AnimationLoader animationLoader;
-		animationLoader.loadAnimationData(atxPath.string());
-		model.joints = animationLoader.getJoints();
-
-		MattiasLucaseXtremeLoader tempLoader = MattiasLucaseXtremeLoader();
-
-		model.animationClips	= tempLoader.loadAnimationClip(mlxPath.string());
-		model.ikGroups			= tempLoader.loadIKGroup(mlxPath.string());
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 

@@ -1,4 +1,6 @@
 *Header
+#Transparent 1
+#Collidable 1
 #Materials 2
 #MESH polySurfaceShape3
 #Vertices 476

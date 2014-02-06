@@ -46,7 +46,6 @@ void FileGameRound::setup()
 		{
 			player->addCheckpoint(checkpoint);
 		}
-	m_Actors.push_back(m_ActorFactory->createParticles(checkpoint->getPosition(), "TestParticle"));
 	}
 
 	m_GoalCount = 0;
@@ -144,68 +143,69 @@ void FileGameRound::sendUpdates()
 		}
 	}
 	Actor::Id id;
-	for(unsigned int i = 0; i < m_SendHitData.size(); i++)
+	if(m_GoalCount >= 0)
 	{
-		Player::ptr player = m_SendHitData[i].first;
-		User::ptr user = player->getUser().lock();
-		if (user)
+		for(unsigned int i = 0; i < m_SendHitData.size(); i++)
 		{
-			
-			Actor::ptr actor = m_SendHitData[i].second.lock();
-			if (actor)
+			Player::ptr player = m_SendHitData[i].first;
+			User::ptr user = player->getUser().lock();
+			if (user)
 			{
-				id = actor->getId();
-				if(!m_SendHitData[i].first->reachedFinishLine())
+				Actor::ptr actor = m_SendHitData[i].second.lock();
+				if (actor)
 				{
-					user->getConnection()->sendRemoveObjects(&id, 1);
-					tinyxml2::XMLPrinter printer;
-					printer.OpenElement("ObjectUpdate");
-					printer.PushAttribute("ActorId", id-1);
-					printer.PushAttribute("Type", "Color");
-					pushColor(printer, "SetColor", m_SendHitData[i].first->getCurrentCheckpointColor());
-					printer.CloseElement();
-					const char* info = printer.CStr();
-					user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
-				}
-				else
-				{
-					user->getConnection()->sendRemoveObjects(&id, 1);
-					m_GoalCount++;
-					tinyxml2::XMLPrinter printer;
-					printer.OpenElement("GameResult");
-					printer.PushAttribute("Type", "Position");
-					printer.PushAttribute("Place", m_GoalCount);
-					printer.CloseElement();
-					const char* info = printer.CStr();
-					user->getConnection()->sendGameResult(&info, 1);
-					m_ResultList.push_back(player->getActor().lock()->getId());
+					id = actor->getId();
+					if(!m_SendHitData[i].first->reachedFinishLine())
+					{
+						user->getConnection()->sendRemoveObjects(&id, 1);
+						tinyxml2::XMLPrinter printer;
+						printer.OpenElement("ObjectUpdate");
+						printer.PushAttribute("ActorId", id-1);
+						printer.PushAttribute("Type", "Color");
+						pushColor(printer, "SetColor", m_SendHitData[i].first->getCurrentCheckpointColor());
+						printer.CloseElement();
+						const char* info = printer.CStr();
+						user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+					}
+					else
+					{
+						user->getConnection()->sendRemoveObjects(&id, 1);
+						m_GoalCount++;
+						tinyxml2::XMLPrinter printer;
+						printer.OpenElement("GameResult");
+						printer.PushAttribute("Type", "Position");
+						printer.PushAttribute("Place", m_GoalCount);
+						printer.CloseElement();
+						const char* info = printer.CStr();
+						user->getConnection()->sendGameResult(&info, 1);
+						m_ResultList.push_back(player->getActor().lock()->getId());
+					}
 				}
 			}
+			m_SendHitData.clear();
 		}
-		m_SendHitData.clear();
-	}
-	if(m_Players.size() == m_GoalCount)
-	{
-		tinyxml2::XMLPrinter printer;
-		printer.OpenElement("GameResult");
-		printer.PushAttribute("Type", "Result");
-		printer.OpenElement("ResultList");
-		printer.PushAttribute("VectorSize", m_Players.size());
-		for(unsigned int i = 0; i < m_ResultList.size(); i++)
+		if(m_Players.size() == m_GoalCount)
 		{
-			printer.OpenElement("Place");
-			printer.PushAttribute("Player", m_ResultList[i]);
+			tinyxml2::XMLPrinter printer;
+			printer.OpenElement("GameResult");
+			printer.PushAttribute("Type", "Result");
+			printer.OpenElement("ResultList");
+			printer.PushAttribute("VectorSize", m_Players.size());
+			for(unsigned int i = 0; i < m_ResultList.size(); i++)
+			{
+				printer.OpenElement("Place");
+				printer.PushAttribute("Player", m_ResultList[i]);
+				printer.CloseElement();
+			}
 			printer.CloseElement();
+			printer.CloseElement();
+			const char* info = printer.CStr();
+			for(auto& player : m_Players)
+			{
+				player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
+			}
+			m_GoalCount = -1;
 		}
-		printer.CloseElement();
-		printer.CloseElement();
-		const char* info = printer.CStr();
-		for(auto& player : m_Players)
-		{
-			player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
-		}
-		m_GoalCount = 0;
-		m_Running = false;
 	}
 }
 

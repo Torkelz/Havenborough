@@ -1,6 +1,8 @@
 #pragma once
 #pragma warning(disable : 4996)
-#include "..\..\Graphics\Source\Joint.h"
+#include "AnimationData.h"
+#include "Joint.h"
+
 #include <fstream>
 #include <vector>
 #include <string>
@@ -18,6 +20,16 @@ public:
 private:
 	std::vector<Joint> m_Joints;
 	Header m_FileHeader;
+
+	struct LoadedAnimationData
+	{
+		std::string resourceName;
+		std::string filename;
+		AnimationData::ptr animationData;
+	};
+
+	std::vector<LoadedAnimationData> m_LoadedAnimations;
+
 public:
 	/**
 	 * Constructor.
@@ -34,20 +46,9 @@ public:
 	 */
 	void clear();
 
-	/**
-	 * Returns a vector of joints for the animation. 
-	 ** This will be empty if the source file does not contain any animation.
-	 *
-	 * @returns a vector of the struct Joint.
-	 */
-	const std::vector<Joint>& getJoints();
-
-	/**
-	 * Opens a binary file then reads the information stream and saves the information in vectors of structs.
-	 * 
-	 * @param p_FilePath, the absolute path to the source file.
-	 */
-	void loadAnimationData(std::string p_FilePath);
+	bool loadAnimationDataResource(const char* p_resourceName, const char* p_FilePath);
+	bool releaseAnimationData(const char* p_FilePath);
+	AnimationData::ptr getAnimationData(const char* p_ResourceName) const;
 
 protected:
 	void byteToInt(std::istream* p_Input, int& p_Return);
@@ -57,5 +58,20 @@ protected:
 	std::vector<Joint> readJointList(int p_NumberOfJoint, int p_NumberOfFrames, std::istream* p_Input);
 private:
 	void clearData();
+
+	/**
+	 * Opens a binary file then reads the information stream and saves the information in vectors of structs.
+	 * 
+	 * @param p_FilePath, the absolute path to the source file.
+	 */
+	void loadAnimationData(std::string p_FilePath);
+
+	/**
+	 * Returns a vector of joints for the animation. 
+	 ** This will be empty if the source file does not contain any animation.
+	 *
+	 * @returns a vector of the struct Joint.
+	 */
+	const std::vector<Joint>& getJoints();
 };
 

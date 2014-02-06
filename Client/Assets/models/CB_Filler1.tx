@@ -1,4 +1,6 @@
 *Header
+#Transparent 0
+#Collidable 1
 #Materials 1
 #MESH Filler1
 #Vertices 19

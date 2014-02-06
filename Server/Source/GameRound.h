@@ -39,6 +39,7 @@ protected:
 	std::unique_ptr<EventManager> m_EventManager;
 	IPhysics* m_Physics;
 	std::unique_ptr<ResourceManager> m_ResourceManager;
+	std::unique_ptr<AnimationLoader> m_AnimationLoader;
 	ActorFactory::ptr m_ActorFactory;
 	std::vector<Actor::ptr> m_Actors;
 	std::vector<Player::ptr> m_Players;

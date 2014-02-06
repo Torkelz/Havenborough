@@ -15,7 +15,9 @@ public:
 		int m_NumMaterial;
 		int m_NumVertex;
 		int m_NumMaterialBuffer;
-		int m_NumJoints;
+		bool m_Animated;
+		bool m_Transparent;
+		bool m_CollideAble;
 	};
 
 private:

@@ -1,5 +1,6 @@
 #include "ResourceManager.h"
 #include "CommonExceptions.h"
+#include "Logger.h"
 
 using std::string;
 using std::vector;
@@ -21,6 +22,12 @@ ResourceManager::ResourceManager()
 	m_NextID = 0;
 }
 
+ResourceManager::ResourceManager(const boost::filesystem::path& p_RootPath)
+	:	m_ProjectDirectory(p_RootPath),
+		m_NextID(0)
+{
+}
+
 ResourceManager::~ResourceManager()
 {
 	std::string unreleasedResources;
@@ -36,8 +43,7 @@ ResourceManager::~ResourceManager()
 
 	if (!unreleasedResources.empty())
 	{
-		throw ResourceManagerException("Resource not released before shutdown: " + unreleasedResources,
-			__LINE__, __FILE__);
+		Logger::log(Logger::Level::WARNING, "Resource not released before shutdown: " + unreleasedResources);
 	}
 }
 
