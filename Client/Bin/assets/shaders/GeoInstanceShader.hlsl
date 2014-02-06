@@ -68,7 +68,7 @@ PSOut PS( PSIn input )
 	float4 bumpMap	= normalMap.Sample(m_textureSampler, input.uvCoord);
 	bumpMap			= (bumpMap * 2.0f) - 1.0f;
 	float3 normal	= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
-	normal			= mul(view, float4(normal, 0.f)).xyz;
+	normal			= mul((float3x3)view, normal);
 	normal			= 0.5f * (normalize(normal) + 1.0f);
 	
 	float4 diffuseColor = diffuse.Sample(m_textureSampler, input.uvCoord);

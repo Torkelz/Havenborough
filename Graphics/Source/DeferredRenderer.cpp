@@ -716,10 +716,10 @@ void DeferredRenderer::createBuffers()
 	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
 	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
 	buildSSAO_OffsetVectors(ssaoBuffer);
-	ssaoBuffer.occlusionRadius	= 25.0f;
-	ssaoBuffer.surfaceEpsilon	= 20.0f;
-	ssaoBuffer.occlusionFadeEnd	= 75.0f;
-	ssaoBuffer.occlusionFadeStart = 5.0f;
+	ssaoBuffer.occlusionRadius	= 10.0f;
+	ssaoBuffer.surfaceEpsilon	= 4.0f;
+	ssaoBuffer.occlusionFadeEnd	= 10.0f;
+	ssaoBuffer.occlusionFadeStart = 2.0f;
 
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
 	cbdesc.initData = &ssaoBuffer;
@@ -818,7 +818,7 @@ void DeferredRenderer::createSamplerState()
 	m_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
 
 	// Create SSAO random vector texture sampler.
-	sd.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; //Should be D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	m_Device->CreateSamplerState(&sd, &m_SSAO_RandomVecSampler);
@@ -1008,7 +1008,7 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	textureDesc.Width = textureDesc.Height = p_Size;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32_TYPELESS;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.SampleDesc.Count = 1;
