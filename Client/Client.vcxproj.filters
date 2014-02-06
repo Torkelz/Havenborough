@@ -127,5 +127,35 @@
     <FxCompile Include="Bin\assets\shaders\SSAO_Blur.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\SkyDome.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\GeoInstanceShader.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\LightPassDirectionalLight.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\LightPassPointLight.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\LightPassSpotLight.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\GeometryPass.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\AnimatedGeometryPass.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\BoundingVolume.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\DebugShader.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\ForwardShader.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

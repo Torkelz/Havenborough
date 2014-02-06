@@ -537,7 +537,7 @@ void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float 
 	rdesc.CullMode = D3D11_CULL_NONE;
 	m_Device->CreateRasterizerState(&rdesc,&m_SkyDomeRasterizerState);
 
-	m_SkyDomeShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/SkyDome.hlsl",
+	m_SkyDomeShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/SkyDome.hlsl",
 		"VS,PS","5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 }
@@ -876,13 +876,13 @@ void DeferredRenderer::createShaders()
 		{"RANGE",		0, Format::R32_FLOAT,		1, 44, D3D11_INPUT_PER_INSTANCE_DATA, 1}
 	};
 
-	m_SpotShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/LightPassSpotLight.hlsl",
+	m_SpotShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassSpotLight.hlsl",
 		"SpotLightVS,SpotLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 6);
 
-	m_PointShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/LightPassPointLight.hlsl",
+	m_PointShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassPointLight.hlsl",
 		"PointLightVS,PointLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 6);
 
-	m_DirectionalShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/LightPassDirectionalLight.hlsl",
+	m_DirectionalShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassDirectionalLight.hlsl",
 		"DirectionalLightVS,DirectionalLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 6);
 
 	ShaderInputElementDescription instanceshaderDesc[] = 
@@ -898,7 +898,7 @@ void DeferredRenderer::createShaders()
 		{"WORLD", 3, Format::R32G32B32A32_FLOAT, 1, 48, D3D10_INPUT_PER_INSTANCE_DATA, 1},
 	};
 
-	m_InstancedGeometryShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/GeoInstanceShader.hlsl",
+	m_InstancedGeometryShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/GeoInstanceShader.hlsl",
 		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, instanceshaderDesc, 9);
 
 	m_SSAO_Shader = WrapperFactory::getInstance()->createShader(L"assets/shaders/SSAO.hlsl",

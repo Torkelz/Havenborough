@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_REQUIRE(graphics->createTexture("barrelColor", "../../Client/Bin/assets/textures/Barrel_COLOR.dds"));
 	BOOST_REQUIRE(graphics->createTexture("barrelNormal", "../../Client/Bin/assets/textures/Barrel_NRM.dds"));
 	BOOST_REQUIRE(graphics->createTexture("barrelSpecular", "../../Client/Bin/assets/textures/Barrel_SPEC.dds"));
-	BOOST_CHECK(graphics->createModel("barrel", "assets/Barrel1.btx"));
+	BOOST_CHECK(graphics->createModel("barrel", "../../Client/Bin/assets/models/Barrel1.btx"));
 
 	BOOST_MESSAGE(testId + "Creating model object of Witch_Running_5.btx");
 	BOOST_REQUIRE(graphics->createTexture("bodyColor", "../../Client/Bin/assets/textures/body_COLOR.dds"));
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_REQUIRE(graphics->createTexture("defaultSpecular", "../../Client/Bin/assets/textures/Default_SPEC.dds"));
 	BOOST_REQUIRE(graphics->createTexture("accessoriesColor", "../../Client/Bin/assets/textures/Accessories_COLOR.dds"));
 	BOOST_REQUIRE(graphics->createTexture("accessoriesNormal", "../../Client/Bin/assets/textures/Accessories_NRM.dds"));
-	BOOST_CHECK(graphics->createModel("witch", "assets/Witch_5_Running.btx"));
+	BOOST_CHECK(graphics->createModel("witch", "../../Client/Bin/assets/models/Witch_new2.btx"));
 
 	//Step 8
 	BOOST_MESSAGE(testId + "Testing Graphics.createShader...");
@@ -223,11 +223,11 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 		ShaderType::VERTEX_SHADER, desc, size), ShaderException);
 
 	BOOST_MESSAGE(testId + "Creating ForwardShader.hlsl");
-	BOOST_CHECK_NO_THROW(graphics->createShader("forwardShader", L"../../Graphics/Source/DeferredShaders/ForwardShader.hlsl",
+	BOOST_CHECK_NO_THROW(graphics->createShader("forwardShader", L"../../Client/Bin/assets/shaders/ForwardShader.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER));
 
 	BOOST_MESSAGE(testId + "Creating AnimatedGeometryPass.hlsl");
-	BOOST_CHECK_NO_THROW(graphics->createShader("animatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
+	BOOST_CHECK_NO_THROW(graphics->createShader("animatedShader", L"../../Client/Bin/assets/shaders/AnimatedGeometryPass.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER));
 	BOOST_MESSAGE(testId + "...finished Graphics.createShader");
 
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	
 	//Step 13
 	BOOST_MESSAGE(testId + "Creating model object of Checkpoint.btx");
-	BOOST_CHECK(graphics->createModel("checkpoint", "assets/Checkpoint.btx"));
+	BOOST_CHECK(graphics->createModel("checkpoint", "../../Client/Bin/assets/models/Checkpoint.btx"));
 
 	BOOST_MESSAGE(testId + "Setting model object checkpoint to transparent");
 	BOOST_CHECK_NO_THROW(graphics->setModelDefinitionTransparency("checkpoint", true));

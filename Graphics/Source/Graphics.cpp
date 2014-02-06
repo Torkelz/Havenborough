@@ -208,7 +208,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 
-	m_BVShader = WrapperFactory::getInstance()->createShader(L"../../Graphics/Source/DeferredShaders/BoundingVolume.hlsl",
+	m_BVShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/BoundingVolume.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	m_ForwardRenderer = new ForwardRendering();
@@ -1225,10 +1225,8 @@ void Graphics::drawBoundingVolumes()
 void Graphics::DebugDefferedDraw(void)
 {
 	m_Shader = nullptr;
-	createShader("DebugShader",L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","VS,PS","5_0",
+	createShader("DebugShader", L"assets/shaders/DebugShader.hlsl","VS,PS","5_0",
 		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	//m_WrapperFactory->addShaderStep(m_Shader,L,"VS","5_0",Shader::Type::VERTEX_SHADER);
-	//m_WrapperFactory->addShaderStep(m_Shader,L"../../Graphics/Source/DeferredShaders/DebugShader.hlsl","PS","5_0",Shader::Type::PIXEL_SHADER);
 	m_Shader = getShaderFromList("DebugShader");
 	D3D11_SAMPLER_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
