@@ -1,0 +1,14 @@
+*Header
+#numObj: 2
+
+#MESH EB_mm_1
+#Translation: -22.292053 22.102392 0
+#Rotation: 0 0 0
+#Scale: 9.607055 6.904639 49.057957
+
+#MESH EB_mm_2
+#Translation: 21.663216 22.102392 0
+#Rotation: 0 0 0
+#Scale: 9.607055 6.904639 49.057957
+
+

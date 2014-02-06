@@ -27,11 +27,29 @@ void ModelBinaryLoader::clear()
 ModelBinaryLoader::Header ModelBinaryLoader::readHeader(std::istream* p_Input)
 {
 	Header tempHeader;
+	tempHeader.m_Animated = true;
+	tempHeader.m_Transparent = true;
+	tempHeader.m_CollideAble = true;
+	int tempBool;
 	byteToString(p_Input, tempHeader.m_ModelName);
 	byteToInt(p_Input, tempHeader.m_NumMaterial);
 	byteToInt(p_Input, tempHeader.m_NumVertex);
 	byteToInt(p_Input, tempHeader.m_NumMaterialBuffer);
-	byteToInt(p_Input, tempHeader.m_NumJoints);
+	byteToInt(p_Input, tempBool);
+	if(tempBool == 0)
+	{
+		tempHeader.m_Animated= false;
+	}
+	byteToInt(p_Input, tempBool);
+	if(tempBool == 0)
+	{
+		tempHeader.m_Transparent = false;
+	}
+	byteToInt(p_Input, tempBool);
+	if(tempBool == 0)
+	{
+		tempHeader.m_CollideAble = false;
+	}
 	return tempHeader;
 }
 
@@ -102,7 +120,7 @@ void ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 	}
 	m_FileHeader = readHeader(&input);
 	m_Material = readMaterial(m_FileHeader.m_NumMaterial,&input);
-	if(m_FileHeader.m_NumJoints > 0)
+	if(m_FileHeader.m_Animated)
 	{
 		m_AnimationVertexBuffer = readVertexBufferAnimation(m_FileHeader.m_NumVertex, &input);
 	}
@@ -140,7 +158,9 @@ void ModelBinaryLoader::clearData()
 	m_FileHeader.m_NumMaterial = 0;
 	m_FileHeader.m_NumMaterialBuffer = 0;
 	m_FileHeader.m_NumVertex = 0;
-	m_FileHeader.m_NumJoints = 0;
+	m_FileHeader.m_Animated = false;
+	m_FileHeader.m_CollideAble = false;
+	m_FileHeader.m_Transparent = false;
 	m_Material.clear();
 	m_AnimationVertexBuffer.clear();
 	m_VertexBuffer.clear();

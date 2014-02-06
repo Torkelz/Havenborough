@@ -1,4 +1,6 @@
 *Header
+#Transparent 0
+#Collidable 1
 #Materials 3
 #MESH Road5
 #Vertices 210

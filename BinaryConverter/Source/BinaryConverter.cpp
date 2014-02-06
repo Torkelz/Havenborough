@@ -79,6 +79,8 @@ void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter)
 {
 	p_Converter->setMeshName(p_Loader->getMeshName());
 	p_Converter->setVertices(&p_Loader->getVertices());
+	p_Converter->setTransparent(p_Loader->getTransparent());
+	p_Converter->setCollidable(p_Loader->getCollidable());
 	p_Converter->setNormals(&p_Loader->getNormals());
 	p_Converter->setTextureCoords(&p_Loader->getTextureCoords());
 	p_Converter->setTangents(&p_Loader->getTangents());
