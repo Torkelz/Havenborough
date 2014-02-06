@@ -1,4 +1,6 @@
 *Header
+#Transparent 1
+#Collidable 0
 #Materials 1
 #MESH Vege2
 #Vertices 188

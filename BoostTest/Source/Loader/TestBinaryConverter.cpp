@@ -90,6 +90,8 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 		"\x01\0\0\0"
 		"\x01\0\0\0"
 		"\x01\0\0\0"
+		"\x01\0\0\0"
+		"\0\0\0\0"
 		"\x01\0\0\0";
 
 	std::vector<ModelLoader::Material> materials;
@@ -98,7 +100,6 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 	std::vector<std::vector<ModelLoader::IndexDesc>> indexDescs;
 	indexDescs.push_back(std::vector<ModelLoader::IndexDesc>());
 	indexDescs.back().push_back(ModelLoader::IndexDesc());
-
 	std::vector<ModelLoader::Joint> joints;
 	joints.push_back(ModelLoader::Joint());
 
@@ -106,13 +107,15 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 	conv.setMaterial(&materials);
 	conv.setIndices(&indexDescs);
 	conv.setListOfJoints(&joints);
+	conv.setTransparent(false);
+	conv.setCollidable(true);
 
 	std::ostringstream output;
 	conv.testCreateHeader(&output);
 
 	std::string resHeader = output.str();
 
-	//BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin(), resHeader.end(), binHeader, binHeader + sizeof(binHeader) - 1);
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin(), resHeader.end(), binHeader, binHeader + sizeof(binHeader) - 1);
 }
 
 BOOST_AUTO_TEST_CASE(TestCreateMaterial)

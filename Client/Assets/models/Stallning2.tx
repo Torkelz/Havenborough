@@ -1,4 +1,6 @@
 *Header
+#Transparent 0
+#Collidable 1
 #Materials 3
 #MESH Stallning2
 #Vertices 968

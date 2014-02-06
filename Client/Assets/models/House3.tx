@@ -1,4 +1,6 @@
 *Header
+#Transparent 0
+#Collidable 1
 #Materials 8
 #MESH House3
 #Vertices 899

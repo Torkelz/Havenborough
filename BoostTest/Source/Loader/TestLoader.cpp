@@ -59,7 +59,7 @@ public:
 
 BOOST_AUTO_TEST_CASE(TestHeaderAndMaterialFile)
 {
-	std::string tempString = "#Materials 1 \n#MESH ABC \n#Vertices 8 \n#Triangles 12\n";
+	std::string tempString = "#Tansparent 1 \n#Collidable 0 \n#Materials 1 \n#MESH ABC \n#Vertices 8 \n#Triangles 12\n";
 	std::istringstream tempStream(tempString); 
 	testLoader loader;
 	
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(TestAnimation)
 
 BOOST_AUTO_TEST_CASE(TestMainLoop)
 {
-	std::string tempString = "*Header \n#Materials 1 \n#MESH polySurfaceShape1 \n#Vertices 3 \n#Triangles 1 \n"
+	std::string tempString = "*Header\n #Tansparent 1 \n#Collidable 0 \n#Materials 1 \n#MESH polySurfaceShape1 \n#Vertices 3 \n#Triangles 1 \n"
 	"*Materials \nMaterial: lambert1 \nDiffuseMap: NONE \nNormalMap: NONE \nSpecularMap: NONE \n \n"
 	"*Vertices \nv -0.499455 -0.499619 0.499924 \nv -0.499668 0.501486 0.500748 \nv -0.496855 0.498541 -0.498709 \n\n"
 	"*Normals \nn -0.00028988 -0.000753547 1 \nn -0.0020181 -0.00166746 0.999997 \nn -0.000190268 -0.000774098 1 \n\n"

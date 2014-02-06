@@ -180,6 +180,8 @@ void BaseGameApp::shutdown()
 	m_GameLogic->shutdown();
 	m_GameLogic.reset();
 
+	m_EventManager->processEvents();
+
 	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
 	

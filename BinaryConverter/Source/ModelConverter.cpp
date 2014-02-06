@@ -83,6 +83,7 @@ bool ModelConverter::writeFile(std::string p_FilePath)
 
 void ModelConverter::createHeader(std::ostream* p_Output)
 {
+	m_Animated = true;
 	stringToByte(m_MeshName, p_Output);
 	intToByte(m_MaterialSize, p_Output);
 	for(int i = 0; i < m_IndexPerMaterialSize; i++)
@@ -91,7 +92,13 @@ void ModelConverter::createHeader(std::ostream* p_Output)
 	}
 	intToByte(m_VertexCount, p_Output);
 	intToByte(m_IndexPerMaterialSize, p_Output);
-	intToByte(m_ListOfJointsSize, p_Output);//temporary!
+	if(m_ListOfJoints->size() == 0)
+	{
+		m_Animated = false;
+	}
+	intToByte(m_Animated, p_Output);
+	intToByte(m_Transparency, p_Output);
+	intToByte(m_Collidable, p_Output);
 }
 
 void ModelConverter::createAnimationHeader(std::ostream* p_AnimationOutput)
@@ -224,6 +231,16 @@ void ModelConverter::intToByte(int p_Int, std::ostream* p_Output)
 void ModelConverter::setVertices(const std::vector<DirectX::XMFLOAT3>* p_Vertices)
 {
 	m_Vertices = p_Vertices;
+}
+
+void ModelConverter::setTransparent(bool p_Transparent)
+{
+	m_Transparency = p_Transparent;
+}
+
+void ModelConverter::setCollidable(bool p_Collidable)
+{
+	m_Collidable = p_Collidable;
 }
 
 void ModelConverter::setIndices(const std::vector<std::vector<ModelLoader::IndexDesc>>* p_Indices)

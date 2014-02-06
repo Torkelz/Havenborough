@@ -435,7 +435,7 @@ BOOST_AUTO_TEST_CASE(IPhysicsIntegration)
 	//Sphere falls on hull
 	for(int i = 0; i < 5; i++)
 	{
-		physics->update(dt);
+		physics->update(dt, 50);
 		unsigned int size = physics->getHitDataSize();
 		if(size > 0)
 		{
@@ -455,7 +455,7 @@ BOOST_AUTO_TEST_CASE(IPhysicsIntegration)
 	//Sphere falls on obb
 	for(int i = 0; i < 41; i++)
 	{
-		physics->update(dt);
+		physics->update(dt, 50);
 		unsigned int size = physics->getHitDataSize();
 		if(size > 0 && i > 1)
 		{
@@ -498,7 +498,7 @@ BOOST_AUTO_TEST_CASE(PhysicsResourceIntegration)
 
 	for(int i = 0; i < 41; i++)
 	{
-		physics->update(dt);
+		physics->update(dt, 50);
 		unsigned int size = physics->getHitDataSize();
 		if(size > 0 && i > 1)
 		{
