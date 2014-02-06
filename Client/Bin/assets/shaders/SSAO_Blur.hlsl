@@ -60,9 +60,7 @@ float4 PS(VSOutput pIn) : SV_Target
 	float totalWeight = cWeights[5];
 
 	float4 centerNormalDepth = gNormalDepthMap.SampleLevel(gBlurSampler, pIn.texCoord, 0.0f);
-	float4 CND;
-	CND.xyz= normalize((centerNormalDepth.xyz * 2.0f) - 1.0f);
-	CND.w = centerNormalDepth.w;
+	centerNormalDepth.xyz = normalize((centerNormalDepth.xyz * 2.0f) - 1.0f);
 
 	for(int i = -cBlurRadius; i <= cBlurRadius; ++i)
 	{
@@ -73,15 +71,13 @@ float4 PS(VSOutput pIn) : SV_Target
 		float2 tex = pIn.texCoord + i * texOffset;
 
 		float4 neighborNormalDepth = gNormalDepthMap.SampleLevel(gBlurSampler, tex, 0.0f);
-		float4 NND;
-		NND.xyz = normalize((neighborNormalDepth.xyz * 2.0f) - 1.0f);
-		NND.w = neighborNormalDepth.w;
+		neighborNormalDepth.xyz = normalize((neighborNormalDepth.xyz * 2.0f) - 1.0f);
 
 		// If the center value and neighbor values differ too much (either in 
         // normal or depth), then we assume we are sampling across a discontinuity.
         // We discard such samples from the blur.
-		if(dot(NND.xyz, CND.xyz) >= 0.8f &&
-			abs(NND.a - CND.a) <= 20.f)
+		if(dot(neighborNormalDepth.xyz, centerNormalDepth.xyz) >= 0.8f &&
+			abs(neighborNormalDepth.a - centerNormalDepth.a) <= 20.f)
 		{
 			float weight = cWeights[i + cBlurRadius];
 

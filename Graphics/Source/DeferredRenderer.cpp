@@ -206,6 +206,7 @@ void DeferredRenderer::renderDeferred()
 		renderGeometry();
 		renderSSAO();
 		blurSSAO();
+		renderLighting();
 	}
 	m_RenderSkyDome = false;
 }
@@ -256,68 +257,62 @@ void DeferredRenderer::renderGeometry()
 				ttani.push_back(std::move(m_Objects.at(current)));
 		}
 	}
-	//m_Objects.clear();
+	m_Objects.clear();
 
 	m_ConstantBuffer->setBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	updateConstantBuffer();
 
-	for(auto &a : m_Objects)
-		renderObject(a);
-	m_Objects.clear();
 
-	/*for( auto &animation : ttani )
-	renderObject(animation);*/
+	for( auto &singleObj : ttani )
+		renderObject(singleObj);
 
-	//for( auto &k : ttemp)
-	//{
-	//	UINT Offsets[2] = {0,0};
-	//	ID3D11Buffer * buffers[] = {k.front().model->vertexBuffer->getBufferPointer(), m_WorldInstanceData->getBufferPointer()};
-	//	UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
-
-
-	//	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
-
-	//	// Set shader.
-	//	m_InstancedGeometryShader->setShader();
-	//	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-	//	m_InstancedGeometryShader->setBlendState(m_BlendState2, data);
-	//	m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
-
-	//	for(unsigned int u = 0; u < k.front().model->numOfMaterials;u++)
-	//	{
-	//		ID3D11ShaderResourceView *srvs[] =  {	k.front().model->diffuseTexture[u].second, 
-	//												k.front().model->normalTexture[u].second, 
-	//												k.front().model->specularTexture[u].second 
-	//											};
-	//		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-	//		D3D11_MAPPED_SUBRESOURCE ms;
-	//		for(unsigned int i = 0; i < k.size(); i += m_MaxLightsPerLightInstance)
-	//		{
-	//			int nrToCpy = (k.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : k.size() - i ;
-	//			std::vector<XMFLOAT4X4> tWorld;
-	//			for(int j = 0; j < nrToCpy; j++)
-	//				tWorld.push_back(k.at(i+j).world);
-
-	//			m_DeviceContext->Map(m_WorldInstanceData->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
-	//			memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
-	//			m_DeviceContext->Unmap(m_WorldInstanceData->getBufferPointer(), NULL);
-
-	//			m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),
-	//			k.front().model->drawInterval.at(u).first,0);
-	//		}
-	//		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
-	//	}
-
-	//	for(unsigned int i = 0; i < 2; i++)
-	//		m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
-	//	m_InstancedGeometryShader->setBlendState(0, data);
-	//	m_InstancedGeometryShader->unSetShader();
-	//}
-	/*for( auto &o : m_Objects)
+	for( auto &k : ttemp)
 	{
-		renderObject(o);
-	}*/	
+		UINT Offsets[2] = {0,0};
+		ID3D11Buffer * buffers[] = {k.front().model->vertexBuffer->getBufferPointer(), m_WorldInstanceData->getBufferPointer()};
+		UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
+
+
+		ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
+
+		// Set shader.
+		m_InstancedGeometryShader->setShader();
+		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+		m_InstancedGeometryShader->setBlendState(m_BlendState2, data);
+		m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
+
+		for(unsigned int u = 0; u < k.front().model->numOfMaterials;u++)
+		{
+			ID3D11ShaderResourceView *srvs[] =  {	k.front().model->diffuseTexture[u].second, 
+													k.front().model->normalTexture[u].second, 
+													k.front().model->specularTexture[u].second 
+												};
+			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+			D3D11_MAPPED_SUBRESOURCE ms;
+			for(unsigned int i = 0; i < k.size(); i += m_MaxLightsPerLightInstance)
+			{
+				int nrToCpy = (k.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : k.size() - i ;
+				std::vector<XMFLOAT4X4> tWorld;
+				for(int j = 0; j < nrToCpy; j++)
+					tWorld.push_back(k.at(i+j).world);
+
+				m_DeviceContext->Map(m_WorldInstanceData->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+				memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
+				m_DeviceContext->Unmap(m_WorldInstanceData->getBufferPointer(), NULL);
+
+				m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),
+				k.front().model->drawInterval.at(u).first,0);
+			}
+			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+		}
+
+		for(unsigned int i = 0; i < 2; i++)
+			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
+		m_InstancedGeometryShader->setBlendState(0, data);
+		m_InstancedGeometryShader->unSetShader();
+	}
+
 	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_ConstantBuffer->unsetBuffer(0);
 
@@ -369,6 +364,8 @@ void DeferredRenderer::blurSSAO(void)
 		SSAO_PingPong(m_SSAO_SRV, m_RenderTargets[3], false);
 		SSAO_PingPong(m_LightSRV, m_RenderTargets[4], true);
 	}
+	float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[3], color);
 }
 
 void DeferredRenderer::SSAO_PingPong(ID3D11ShaderResourceView *inputSRV, ID3D11RenderTargetView *outputTarget,
@@ -426,13 +423,13 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
 
 	// Collect the shader resources in an array and create a clear array.
-	ID3D11ShaderResourceView *srvs[] = {m_wPositionSRV, m_NormalSRV, m_DiffuseSRV};
-	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
+	ID3D11ShaderResourceView *srvs[] = {m_wPositionSRV, m_NormalSRV, m_DiffuseSRV, m_SSAO_SRV};
+	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0};
 
 	// Set texture sampler.
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
-	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+	m_DeviceContext->PSSetShaderResources(0, 4, srvs);
 
 	////Select the third render target[3]
 	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], m_DepthStencilView); 
@@ -456,7 +453,7 @@ void DeferredRenderer::renderLighting()
 	renderSkyDomeImpl();
 
 	m_ConstantBuffer->unsetBuffer(0);
-	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 	m_DeviceContext->RSSetState(previousRasterState);
 	m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
