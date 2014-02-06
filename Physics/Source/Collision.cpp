@@ -756,8 +756,9 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		hit.colType = Type::OBBVSHULL;
 		
 		XMVECTOR triC = XMLoadFloat4(&findClosestPointOnTriangle(p_OBB.getPosition(), tri.corners[0], tri.corners[1], tri.corners[2]));
+		
 		XMVECTOR t = triC - box_Center;
-		float l = XMVector3LengthSq(t).m128_f32[0];
+		float l = XMVector3Length(t).m128_f32[0];
 
 		//Check if this triangle is closer than the last, if so save the least separating axis.
 		if(l <= distance)
@@ -994,7 +995,7 @@ bool Collision::OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, XMVECTOR &p_L
 	if(fabs(s) <= r)
 	{
 		float R = (fabs(r) - fabs(s)) / lLength;
-		if(fabs(R) >= p_Overlap)
+		if(p_Overlap <= R)
 		{
 			p_Overlap = fabs(R);
 			p_Least = pn;
