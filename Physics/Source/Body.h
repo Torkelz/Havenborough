@@ -30,9 +30,7 @@ protected:
 	bool				m_IsImmovable;
 	bool				m_IsEdge;
 	bool				m_CollisionResponse;
-	BodyHandle			m_LastCollision;
 	bool				m_Landed;
-	DirectX::XMFLOAT4X4	m_Orientation;
 
 	std::unique_ptr<BoundingVolume>	m_Volume;
 public:
@@ -61,6 +59,13 @@ public:
 	* @p_Force, force to be added. Force in Newton (N = (kg*m)/s^2)
 	*/
 	void addForce(DirectX::XMFLOAT4 p_Force);
+
+	/**
+	 * Add an impulse to the object.
+	 *
+	 * @param p_Impulse the impulse to add, in Newton-seconds (N*s = (kg*m)/s)
+	 */
+	void addImpulse(DirectX::XMFLOAT4 p_Impulse);
 
 	/**
 	* Update loop for a body. Updates acceleration, velocity and position.

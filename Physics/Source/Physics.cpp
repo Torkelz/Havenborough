@@ -80,22 +80,11 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 			if(b.getIsImmovable())
 				continue;
 
-			if(b.getInAir())
-			{
-				b.setGravity(m_GlobalGravity);
-			}
-			else
-			{
-				/*XMMATRIX mat = XMMatrixIdentity();
-				b.setOrientation(mat);*/
-				
-				b.setGravity(0.f);
-			}
-
 			b.update(p_DeltaTime);
-			bajs += p_DeltaTime;
 			
 			b.setLanded(false);
+
+			bool isOnGround = false;
 
 			for (unsigned j = 0; j < m_Bodies.size(); j++)
 			{
@@ -116,53 +105,41 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 						XMVECTOR temp;		// m
 						XMFLOAT4 tempPos;	// m
 
-						temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
-						XMStoreFloat4(&tempPos, temp);
+						XMFLOAT4 vel = b.getVelocity();
+						XMVECTOR vVel = XMLoadFloat4(&vel);
 
-						b.setPosition(tempPos);
-
+						XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
+						XMVECTOR posNorm = vNorm;
 
 						if (hit.colNorm.y > 0.68f)
-						{	
-							XMVECTOR x,z;
-
-							x = XMVector4Normalize(XMVector3Orthogonal(Vector4ToXMVECTOR(&hit.colNorm)));
-							z = XMVector4Normalize(XMVector3Cross(Vector4ToXMVECTOR(&hit.colNorm), x));
-
-							XMMATRIX mat = XMMatrixIdentity();
-							mat.r[0] = x;
-							mat.r[0].m128_f32[3] = 0.f;
-							//mat.r[1] = Vector4ToXMVECTOR(&hit.colNorm);
-							mat.r[2] = -z;
-
-						/*	if(bajs > 1.5f)
-							{
-								PhysicsLogger::log(PhysicsLogger::Level::INFO, "X: x: " + std::to_string(x.m128_f32[0]) + " y: " + std::to_string(x.m128_f32[1]) + " z: " + std::to_string(x.m128_f32[2])  +"\n");
-								PhysicsLogger::log(PhysicsLogger::Level::INFO, "Z: x: " + std::to_string(z.m128_f32[0]) + " y: " + std::to_string(z.m128_f32[1]) + " z: " + std::to_string(z.m128_f32[2]));
-								bajs = 0.f;
-							}
-*/
-							b.setOrientation(mat);
-
+						{
 							if(!b.getOnSomething())
 							{
 								b.setLanded(true);
-								
 							}
-							b.setOnSomething(true);
-							//b.setLastCollision(hit.collisionVictim);
 
-							XMFLOAT4 velocity = b.getVelocity();	// m/s
-							velocity.y = 0.f;
-							b.setVelocity(velocity);
+							isOnGround = true;
+
+							posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+							vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
 						}
+						else
+						{
+							vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
+						}
+
+						XMStoreFloat4(&vel, vVel);
+						b.setVelocity(vel);
+
+						temp = XMLoadFloat4(&b.getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
+						XMStoreFloat4(&tempPos, temp);
+
+						b.setPosition(tempPos);
 					}
 				}
 			}
 
-			if(b.getVelocity().y > 1.f)
-				b.setOnSomething(false);
-
+			b.setOnSomething(isOnGround);
 			b.setInAir(!b.getOnSomething());
 		}
 	}
@@ -177,6 +154,16 @@ void Physics::applyForce(BodyHandle p_Body, Vector3 p_Force)
 	XMFLOAT4 tempForce = Vector3ToXMFLOAT4(&p_Force, 0.f); // kg*m/s^2
 
 	body->addForce(tempForce);
+}
+
+void Physics::applyImpulse(BodyHandle p_Body, Vector3 p_Impulse)
+{
+	Body* body = findBody(p_Body);
+	if (body == nullptr)
+		return;
+
+	XMFLOAT4 fImpulse = Vector3ToXMFLOAT4(&p_Impulse, 0.f);
+	body->addImpulse(fImpulse);
 }
 
 BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius)
@@ -349,6 +336,7 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 {
 	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable, p_IsEdge);
+	m_Bodies.back().setGravity(m_GlobalGravity);
 	return m_Bodies.back().getHandle();
 }
 
@@ -530,38 +518,6 @@ void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 	}
 
 }
-
-Vector4 Physics::calculateDirectionVector(BodyHandle p_Body, Vector3 p_Vector)
-{
-	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return Vector4(0.f, 0.f, 0.f, 0.f);
-
-	XMFLOAT4X4 mat = body->getOrientation();
-
-	bajs += 1.f;
-	if(bajs > 25.f)
-	{
-		PhysicsLogger::log(PhysicsLogger::Level::INFO, "X: x: " + std::to_string(mat.m[0][0]) + " y: " + std::to_string(mat.m[0][1]) + " z: " + std::to_string(mat.m[0][2])  +"\n");
-		PhysicsLogger::log(PhysicsLogger::Level::INFO, "Z: x: " + std::to_string(mat.m[2][0]) + " y: " + std::to_string(mat.m[2][1]) + " z: " + std::to_string(mat.m[2][2]));
-		bajs = 0.f;
-	}
-	XMVECTOR temp = XMVector4Transform(Vector3ToXMVECTOR(&p_Vector, 0.f), XMLoadFloat4x4(&mat));
-
-	return XMVECTORToVector4(&temp);
-}
-
-Vector4 Physics::getBodyDirection(BodyHandle p_BodyHandle, unsigned p_Index)
-{
-	Body* body = findBody(p_BodyHandle);
-	if(body == nullptr)
-		return Vector4(0.f, 0.f, 0.f, 0.f);
-
-	XMMATRIX temp = XMLoadFloat4x4(&body->getOrientation());
-
-	return 	XMVECTORToVector4(&temp.r[p_Index]);;
-}
-
 
 void Physics::setLogFunction(clientLogCallback_t p_LogCallback)
 {

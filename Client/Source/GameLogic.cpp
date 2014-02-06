@@ -73,8 +73,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
 				m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 			{
-				m_Physics->removeHitDataAt(i);
+				//m_Physics->removeHitDataAt(i);
 			}
+
 			Logger::log(Logger::Level::TRACE, "Collision reported");
 		}
 	}

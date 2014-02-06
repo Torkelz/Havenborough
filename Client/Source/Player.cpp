@@ -9,12 +9,11 @@ Player::Player(void)
 	m_JumpCount = 0;
     m_JumpCountMax = 2;
     m_JumpDelay = 0;
-    m_JumpDelayMax = 0.1f;
+    m_JumpDelayMax = 0.2f;
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.15f;
 	m_JumpForce = 6500.f;
 	m_IsJumping = false;
-	m_PrevForce = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_MaxSpeed = 1000.f;
 	m_AccConstant = 250.f;
 	m_DirectionZ = 0.f;
@@ -23,7 +22,7 @@ Player::Player(void)
 	m_ForceMoveTime = 1.0f;
 	m_ForceMoveSpeed = 1.f;
 	m_CurrentForceMoveTime = 0.f;
-	m_FallSpeed = 0.0f;
+	m_GroundNormal = XMFLOAT3(0.f, 1.f, 0.f);
 }
 
 Player::~Player(void)
@@ -111,11 +110,10 @@ void Player::setJump(void)
 	{
 		//m_JumpCount++;
 		m_IsJumping = true;
-		if(m_JumpCount > 0)
-		{
-			Vector3 temp = m_Physics->getBodyVelocity(getBody());
-			m_Physics->setBodyVelocity(getBody(), Vector3(temp.x, 0.f, temp.z));
-		}
+
+		Vector3 temp = m_Physics->getBodyVelocity(getBody());
+		temp.y = 0.f;
+		m_Physics->setBodyVelocity(getBody(), temp);
 
 		m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
 	}
@@ -152,7 +150,11 @@ void Player::update(float p_DeltaTime)
 	if(!m_ForceMove)
 	{
 		jump(p_DeltaTime);
-		move();
+
+		if (!m_Physics->getBodyInAir(getBody()) || m_IsJumping)
+		{
+			move(p_DeltaTime);
+		}
 	}
 	else
 	{
@@ -196,11 +198,22 @@ void Player::setActor(std::weak_ptr<Actor> p_Actor)
 	m_Actor = p_Actor;
 }
 
+DirectX::XMFLOAT3 Player::getGroundNormal() const
+{
+	return m_GroundNormal;
+}
+
+void Player::setGroundNormal(DirectX::XMFLOAT3 p_Normal)
+{
+	m_GroundNormal = p_Normal;
+}
+
 void Player::jump(float dt)
 {
 	if(m_IsJumping)
 	{
 		m_JumpTime += dt;
+		m_JumpDelay += dt;
 		if(m_JumpTime > m_JumpTimeMax)
 		{
 			m_Physics->applyForce(getBody(), Vector3(0.f, -m_JumpForce, 0.f));
@@ -211,6 +224,7 @@ void Player::jump(float dt)
 	if(!m_IsJumping && !m_Physics->getBodyInAir(getBody()))
     {
 		m_JumpCount = 0;
+		m_JumpDelay = 0.f;
     }
 
 	if(m_Physics->getBodyLanded(getBody()))
@@ -219,45 +233,40 @@ void Player::jump(float dt)
 	}
 }
 
-void Player::move()
+void Player::move(float p_DeltaTime)
 {
-	Vector3 velocity = m_Physics->getBodyVelocity(getBody());
-	XMFLOAT3 currentVelocity = velocity;	// cm/s
-	currentVelocity.y = 0.f;
+	XMFLOAT3 velocity = m_Physics->getBodyVelocity(getBody());
+	XMVECTOR currentVelocity = XMLoadFloat3(&velocity);	// cm/s
 
 	XMFLOAT3 maxVelocity(m_DirectionX * m_MaxSpeed, 0.f, m_DirectionZ * m_MaxSpeed);	// cm/s
-		
-/*	Vector4 direction = m_Physics->getBodyDirection(getBody(), 0);
-	Vector4 direction1 = m_Physics->getBodyDirection(getBody(), 2);
+	if (m_IsJumping)
+	{
+		maxVelocity.y = m_MaxSpeed;
+	}
+	XMVECTOR vMaxVelocity = XMLoadFloat3(&maxVelocity);
+	XMVECTOR up = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+	XMVECTOR groundNormal = XMLoadFloat3(&m_GroundNormal);
+	XMVECTOR rotAxis = XMVector3Cross(groundNormal, up);
+	if (XMVector3Dot(rotAxis, rotAxis).m128_f32[0] > 0.001f)
+	{
+		float angle = XMVector3AngleBetweenVectors(groundNormal, up).m128_f32[0];
 
-	XMVECTOR hej = XMVector4AngleBetweenVectors(Vector4ToXMVECTOR(&direction), XMLoadFloat3(&maxVelocity));
-	XMVECTOR hej2 = XMVector4AngleBetweenVectors(Vector4ToXMVECTOR(&direction1), XMLoadFloat3(&maxVelocity));
+		if (angle < PI * 0.3f)
+		{
+			XMMATRIX rotMatrix = XMMatrixRotationAxis(rotAxis, -angle);
+			vMaxVelocity = XMVector3Transform(vMaxVelocity, rotMatrix);
+		}
+	}
 
-	XMMATRIX temp = XMMatrixRotationRollPitchYaw(hej.m128_f32[0], hej2.m128_f32[0], 0.f);*/
+	XMVECTOR diffVel = vMaxVelocity - currentVelocity;	// cm/s
+	XMVECTOR force = diffVel / 100.f * m_AccConstant;		// kg * m/s^2
 
-	XMFLOAT3 diffVel = XMFLOAT3(0.f, 0.f, 0.f);	// cm/s
-	XMFLOAT3 force = XMFLOAT3(0.f, 0.f, 0.f);		// kg * m/s^2
+	XMVECTOR forceDiffImpulse = force * p_DeltaTime;	// kg * m/s
 
-	diffVel.x = maxVelocity.x - currentVelocity.x;
-	diffVel.y = maxVelocity.y - currentVelocity.y;
-	diffVel.z = maxVelocity.z - currentVelocity.z;
+	XMFLOAT3 fForceDiff;
+	XMStoreFloat3(&fForceDiff, forceDiffImpulse);
 
-	force.x = diffVel.x / 100.f * m_AccConstant;
-	force.y = diffVel.y / 100.f * m_AccConstant;
-	force.z = diffVel.z / 100.f * m_AccConstant;
-
-	//Vector4 direction =
-
-	force = m_Physics->calculateDirectionVector(getBody(), force).xyz();
-
-	//XMStoreFloat3(&force, XMVector3Transform(XMLoadFloat3(&force), temp));
-
-
-	XMFLOAT3 forceDiff = XMFLOAT3(force.x - m_PrevForce.x, force.y - m_PrevForce.y, force.z - m_PrevForce.z);	// kg * m/s^2
-	m_PrevForce = force;
-
-
-	m_Physics->applyForce(getBody(), XMFLOAT3ToVector3(&forceDiff));
+	m_Physics->applyImpulse(getBody(), fForceDiff);
 
 	m_DirectionX = m_DirectionZ = 0.f;
 }

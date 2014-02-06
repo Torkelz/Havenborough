@@ -27,6 +27,7 @@ public:
 
 	void update(float p_DeltaTime, unsigned p_FPSCheckLimit) override;
 	void applyForce(BodyHandle p_Body, Vector3 p_Force) override;
+	void applyImpulse(BodyHandle p_Body, Vector3 p_Impulse) override;
 
 	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius) override;
 	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge);
@@ -60,9 +61,6 @@ public:
 
 	void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) override;
 	void setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale) override;
-
-	Vector4 calculateDirectionVector(BodyHandle p_BodyHandle, Vector3 p_Vector) override;
-	Vector4 getBodyDirection(BodyHandle p_BodyHandle, unsigned p_Index) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 

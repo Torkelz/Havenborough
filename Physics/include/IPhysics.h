@@ -155,6 +155,13 @@ public:
 	 */
 	virtual void applyForce(BodyHandle p_Body, Vector3 p_Force) = 0;
 	/**
+	 * Apply an impulse to an object.
+	 *
+	 * @param p_Body the body to apply the impulse on
+	 * @param p_Impulse the impulse to use on the body, in Newton-seconds (N*S = (kg*m)/s)
+	 */
+	virtual void applyImpulse(BodyHandle p_Body, Vector3 p_Impulse) = 0;
+	/**
 	 * Used to change the gravity constant.
 	 *
 	 * @param p_Gravity set the new gravity
@@ -203,17 +210,6 @@ public:
 	 * @param p_State, true if if it should be affected by physics, false if not
 	 */
 	virtual void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) = 0;
-
-	/**
-	 * Calculate a direction with a body's frame of reference. Take the vector and rotate it by the axis of the body
-	 * and returns a new direction. 
-	 *
-	 * @param p_BodyHandle are what body to work with.
-	 * @param p_Vector3 the "old" vector.
-	 * @return returns the new vector.
-	 */
-	virtual Vector4 calculateDirectionVector(BodyHandle p_BodyHandle, Vector3 p_Vector) = 0;
-	virtual Vector4 getBodyDirection(BodyHandle p_BodyHandle, unsigned p_Index) = 0;
 
 	/**
 	 * Return the bounding volume from the body.
