@@ -94,7 +94,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Player.setDirectionZ(XMVectorGetZ(rotDirV));
 	}
 	if(!m_Player.getForceMove())
-		m_Physics->update(p_DeltaTime, 100);
+		m_Physics->update(p_DeltaTime, 50);
 
 	Vector3 actualViewRot = getPlayerViewRotation();
 	Actor::ptr playerActor = m_Player.getActor().lock();
