@@ -219,8 +219,8 @@ void ModelConverter::createJointBuffer(std::ostream* p_Output)
 
 void ModelConverter::stringToByte(std::string p_String, std::ostream* p_Output)
 {
-	unsigned int size = p_String.size();
-	p_Output->write(reinterpret_cast<const char*>(&size), sizeof(unsigned int));
+	int size = p_String.size();
+	p_Output->write(reinterpret_cast<const char*>(&size), sizeof(int));
 	p_Output->write(p_String.data(), p_String.size());
 }
 
@@ -305,7 +305,7 @@ void ModelConverter::setMeshName(std::string p_MeshName)
 
 std::string ModelConverter::getPath(std::string p_FilePath)
 {
-	std::string file("ModelHeader.txx");
+	std::string file("levels\\ModelHeader.txx");
 	std::vector<char> buffer(p_FilePath.begin(), p_FilePath.end());
 	buffer.push_back(0);
 	char *tmp, *type = nullptr;
@@ -316,7 +316,7 @@ std::string ModelConverter::getPath(std::string p_FilePath)
 		tmp = strtok(NULL,"\\");
 	}
 	int length = buffer.size();
-	int size = strlen(type)+1;
+	int size = strlen(type)+8;
 
 	std::string temp;
 	temp.append(p_FilePath.data(), length-size);
@@ -328,7 +328,7 @@ std::string ModelConverter::getPath(std::string p_FilePath)
 bool ModelConverter::createModelHeaderFile(std::string p_FilePath)
 {
 	std::string path = getPath(p_FilePath);
-	std::ofstream headerOutput(path, std::ostream::app);
+	std::ofstream headerOutput(path, std::ofstream::binary | std::ofstream::app);
 	if(!headerOutput)
 	{
 		return false;
@@ -337,6 +337,8 @@ bool ModelConverter::createModelHeaderFile(std::string p_FilePath)
 	intToByte(m_Animated, &headerOutput);
 	intToByte(m_Transparency, &headerOutput);
 	intToByte(m_Collidable, &headerOutput);
+	headerOutput.close();
+	return true;
 }
 
 void ModelConverter::clearData()
