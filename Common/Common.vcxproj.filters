@@ -96,13 +96,13 @@
     <ClInclude Include="Source\AnimationClipLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpellFactory.h">
+    <ClInclude Include="Source\SpellDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpellInstance.h">
+    <ClInclude Include="Source\SpellFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpellDefinition.h">
+    <ClInclude Include="Source\SpellInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -146,10 +146,10 @@
     <ClCompile Include="Source\AnimationClipLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SpellFactory.cpp">
+    <ClCompile Include="Source\SpellFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SpellInstance.cpp">
+    <ClCompile Include="Source\SpellInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

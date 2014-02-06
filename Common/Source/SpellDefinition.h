@@ -11,8 +11,10 @@ public:
 	//Sphere *spellShpere;
 
 	std::string spellName;
-	float effectRange;
-	float spellSize;
+	float maxTimeToLive; //in sec
+	float effectRange; //in cm
+	float spellSize; //radius on the sphere
+	float effectTime; //in sec
 	float pushPower;
 	//float slowPower;
 	//float manaCost;
@@ -20,8 +22,10 @@ public:
 	SpellDefinition()
 		:	//spellShpere(nullptr),
 			spellName("NO NAME FOUND"),
+			maxTimeToLive(1.f),
 			effectRange(0.f),
 			spellSize(1.f),
+			effectTime(1.f),
 			pushPower(0.f)
 			//slowPower(0.f),
 			//manaCost(0.f)
