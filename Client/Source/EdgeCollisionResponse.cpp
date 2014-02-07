@@ -13,11 +13,17 @@ EdgeCollisionResponse::~EdgeCollisionResponse(void)
 
 bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector3 p_EdgePosition, float p_EdgeSizeY, Player *p_Player)
 {
-	if(!p_Player->getForceMove() && p_Hit.isEdge && p_Hit.collider == p_Player->getBody())
+	if(!p_Player->getForceMove() && p_Hit.collider == p_Player->getBody())
 	{
 		XMFLOAT3 collisionNormal = Vector4ToXMFLOAT3(&p_Hit.colNorm);
-		handleCollision(p_Player, p_EdgePosition, XMLoadFloat3(&collisionNormal),
-			p_EdgeSizeY);
+
+		p_Player->setGroundNormal(collisionNormal);
+
+		if (p_Hit.isEdge)
+		{
+			handleCollision(p_Player, p_EdgePosition, XMLoadFloat3(&collisionNormal),
+				p_EdgeSizeY);
+		}
 		return true;
 	}
 	return false;
