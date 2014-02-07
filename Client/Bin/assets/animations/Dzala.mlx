@@ -68,7 +68,7 @@ f	Hip
 tr	0
 la	0
 fi	1
-fif	5
+fif	3
 fo	1
 fof 	5
 we	1.0
@@ -204,8 +204,8 @@ tr	0
 la	0
 fi	1
 fif	5
-fo	1
-fof 5
+fo	0
+fof	5
 we	1.0
 
 *Clip
@@ -219,8 +219,8 @@ tr	0
 la	0
 fi	1
 fif	5
-fo	1
-fof 5
+fo	0
+fof	5
 we	1.0
 
 *Clip
@@ -234,8 +234,8 @@ tr	0
 la	0
 fi	1
 fif	5
-fo	1
-fof 5
+fo	0
+fof	5
 we	1.0
 
 *Clip
@@ -249,8 +249,8 @@ tr	0
 la	0
 fi	1
 fif	5
-fo	1
-fof 5
+fo	0
+fof	5
 we	1.0
 
 *Clip
@@ -295,7 +295,7 @@ la	0
 fi	1
 fif	5
 fo	1
-fof 5
+fof	5
 we	1.0
 
 *IKgroup

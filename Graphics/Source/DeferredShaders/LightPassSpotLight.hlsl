@@ -4,7 +4,7 @@ Texture2D wPosTex					: register (t0);
 Texture2D normalTex					: register (t1);
 Texture2D diffuseTex				: register (t2);
 
-float4x4 calcRotationMatrix(float3 direction, float3 position);
+float4x4 calcRotationMatrix(float3 direction);
 
 float3 CalcLighting(	float3 normal,
 						float3 position,
@@ -64,7 +64,7 @@ VSOutput SpotLightVS(VSInput input)
 						float4(0,s,0,0),
 						float4(0,0,l,0),
 						float4(0,0,0,1)};
-	float4x4 rotat = calcRotationMatrix(input.lightDirection, input.lightPos);
+	float4x4 rotat = calcRotationMatrix(input.lightDirection);
 	float4x4 trans = {  float4(1,0,0,t.x),
 						float4(0,1,0,t.y),
 						float4(0,0,1,t.z),
@@ -178,7 +178,7 @@ float3 CalcLighting(	float3 normal,
 	return saturate(( diffuse + specular ) * attenuation);
 }
 
-float4x4 calcRotationMatrix(float3 direction, float3 position)
+float4x4 calcRotationMatrix(float3 direction)
 {
 	float3 fwd = direction;
 	float3 up = float3(0,1,0);

@@ -65,7 +65,8 @@ private:
 	//Vector3 m_ForceMoveEndPosition;	// cm
 	std::vector<DirectX::XMUINT2> m_ForceMoveY;
 	std::vector<DirectX::XMUINT2> m_ForceMoveZ;
-	DirectX::XMFLOAT3 m_ForceMoveNormal;
+	//DirectX::XMFLOAT3 m_ForceMoveNormal;
+	DirectX::XMFLOAT4X4 m_ForceMoveRotation;
 	DirectX::XMFLOAT3 m_ForceMoveStartPos;
 
 

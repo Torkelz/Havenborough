@@ -91,7 +91,7 @@ public:
 	{
 		m_Model = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId);
 		m_EventManager = m_Owner->getEventManager();
-		playAnimation("Idle", false);
+		//playAnimation("Idle", false);
 	}
 
 	void onUpdate(float p_DeltaTime) override

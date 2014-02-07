@@ -166,8 +166,24 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 
 		m_ForceMoveY = pp.m_YPath;
 		m_ForceMoveZ = pp.m_ZPath;
-		m_ForceMoveNormal = p_CollisionNormal;
+		//m_ForceMoveNormal = p_CollisionNormal;
 		m_ForceMoveStartPos = getPosition();
+
+		XMVECTOR fwd = XMVectorSet(p_CollisionNormal.x,p_CollisionNormal.y,p_CollisionNormal.z,0);
+		
+		fwd *= -1.f;
+		XMVECTOR up = XMVectorSet(0,1,0,0);
+		XMVECTOR side = XMVector3Normalize(XMVector3Cross(up, fwd));
+		up = XMVector3Normalize(XMVector3Cross(side, fwd));
+
+		up *= -1.0f;
+		
+		XMMATRIX a;
+		a.r[0] = side;
+		a.r[1] = up;
+		a.r[2] = fwd;
+		a.r[3] = XMVectorSet(0,0,0,1);
+		XMStoreFloat4x4(&m_ForceMoveRotation, a);
 	}
 }
 
@@ -213,6 +229,10 @@ void Player::update(float p_DeltaTime)
 		DirectX::XMFLOAT3 temp;
 		DirectX::XMVECTOR tv = DirectX::XMVectorSet(0,currentYPos,currentZPos,0);
 		DirectX::XMVECTOR tstart = DirectX::XMLoadFloat3(&m_ForceMoveStartPos);
+		XMMATRIX rotation = XMLoadFloat4x4(&m_ForceMoveRotation);
+
+		tv = XMVector3Transform(tv, rotation);
+
 		DirectX::XMStoreFloat3(&temp, tstart+tv);
 		setPosition(temp);
 	}

@@ -575,7 +575,6 @@ bool Animation::playQueuedClip(int p_Track)
 			if (m_Queue[i]->m_DestinationTrack == p_Track)
 			{
 				playClip(m_Queue[i]->m_ClipName, false);
-				//m_Queue.erase(m_Queue.begin() + i);
 				return true;
 			}
 		}
