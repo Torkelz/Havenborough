@@ -15,7 +15,7 @@ Player::Player(void)
 	m_JumpForce = 6500.f;
 	m_IsJumping = false;
 	m_MaxSpeed = 1000.f;
-	m_AccConstant = 250.f;
+	m_AccConstant = 600.f;
 	m_DirectionZ = 0.f;
 	m_DirectionX = 0.f;
 	m_ForceMove = false;
