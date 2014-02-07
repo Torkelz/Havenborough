@@ -69,10 +69,9 @@ protected:
 private:
 	template<class T>
 	Buffer::Description createBufferDescription(const std::vector<T> &p_VertexData, Buffer::Usage p_Usage);
-	Buffer::Description create2D_BufferDescription(const std::vector<DirectX::XMFLOAT3> &p_VertexData,
-		Buffer::Usage p_Usage);
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
 		const std::vector<Material> &p_Materials);
+	void load2D_Texture(ModelDefinition &model, const char *p_TextureId);
 	ID3D11ShaderResourceView *getTextureFromList(std::string p_Identifier);
 };

@@ -288,7 +288,7 @@ public:
 	/**
 	 * 
 	 */
-	virtual void render2D_Object(void) = 0;
+	virtual void render2D_Object(int p_Id) = 0;
 	
 	/**
 	 * Draw the current frame.

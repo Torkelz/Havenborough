@@ -8,6 +8,7 @@
 using std::string;
 using std::vector;
 using std::pair;
+using namespace DirectX;
 
 ModelFactory *ModelFactory::m_Instance = nullptr;
 
@@ -82,7 +83,25 @@ ModelDefinition ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_T
 {
 	ModelDefinition model;
 
-
+	std::vector<XMFLOAT3> initData;
+	initData.push_back(XMFLOAT3(-p_HalfSize.x, p_HalfSize.y, 0));
+	initData.push_back(XMFLOAT3(-p_HalfSize.x, -p_HalfSize.y, 0));
+	initData.push_back(XMFLOAT3(p_HalfSize.x, -p_HalfSize.y, 0));
+	initData.push_back(XMFLOAT3(-p_HalfSize.x, p_HalfSize.y, 0));
+	initData.push_back(XMFLOAT3(p_HalfSize.x, -p_HalfSize.y, 0));
+	initData.push_back(XMFLOAT3(p_HalfSize.x, p_HalfSize.y, 0));
+	
+	Buffer::Description bufferDescription = createBufferDescription(initData, Buffer::Usage::USAGE_IMMUTABLE);
+	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
+	
+	model.vertexBuffer.swap(vertexBuffer);
+	
+	//TODO: Future Andrés problem
+	//m_LoadModelTexture(material.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
+	
+	model.drawInterval.push_back(std::make_pair(0, 6));
+	model.numOfMaterials = 1;
+	model.isAnimated = false;
 
 	return model;
 }
@@ -108,19 +127,6 @@ Buffer::Description ModelFactory::createBufferDescription(const vector<T> &p_Ver
 	bufferDescription.initData = p_VertexData.data();
 	bufferDescription.numOfElements = p_VertexData.size();
 	bufferDescription.sizeOfElement = sizeof(T);
-	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
-	bufferDescription.usage = p_Usage;
-
-	return bufferDescription;
-}
-
-Buffer::Description ModelFactory::create2D_BufferDescription(const std::vector<DirectX::XMFLOAT3> &p_VertexData,
-	Buffer::Usage p_Usage)
-{
-	Buffer::Description bufferDescription;
-	bufferDescription.initData = p_VertexData.data();
-	bufferDescription.numOfElements = p_VertexData.size();
-	bufferDescription.sizeOfElement = sizeof(XMFLOAT3);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = p_Usage;
 
