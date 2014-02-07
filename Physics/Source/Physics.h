@@ -13,9 +13,10 @@ private:
 	BVLoader m_BVLoader;
 	bool m_LoadBVSphereTemplateOnce;
 	std::vector<std::pair<std::string, std::vector<BVLoader::BoundingVolume>>> m_TemplateBVList;
-	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume ;
+	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume;
 
 	std::vector<DirectX::XMFLOAT3> m_BoxTriangleIndex;
+
 public:
 	Physics();
 	~Physics();
@@ -24,6 +25,7 @@ public:
 
 	void update(float p_DeltaTime, unsigned p_FPSCheckLimit) override;
 	void applyForce(BodyHandle p_Body, Vector3 p_Force) override;
+	void applyImpulse(BodyHandle p_Body, Vector3 p_Impulse) override;
 
 	BodyHandle createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius) override;
 	BodyHandle createAABB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge);
@@ -43,9 +45,6 @@ public:
 	void removeHitDataAt(unsigned int p_index) override;
 	unsigned int getHitDataSize() override;
 
-	bool getBodyOnSomethingAt(unsigned p_Index) override;
-	void removeBodyOnSomethingAt(unsigned p_Index) override;
-	unsigned getBodyOnSomethingSize() override;
 	bool getBodyLanded(BodyHandle p_Body) override;
 
 	void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) override;

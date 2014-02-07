@@ -101,25 +101,13 @@ ModelFactory::~ModelFactory(void)
 {
 }
 
-Buffer::Description ModelFactory::createBufferDescription(const vector<StaticVertex> &p_VertexData, Buffer::Usage p_Usage)
+template<class T>
+Buffer::Description ModelFactory::createBufferDescription(const vector<T> &p_VertexData, Buffer::Usage p_Usage)
 {
 	Buffer::Description bufferDescription;
 	bufferDescription.initData = p_VertexData.data();
 	bufferDescription.numOfElements = p_VertexData.size();
-	bufferDescription.sizeOfElement = sizeof(StaticVertex);
-	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
-	bufferDescription.usage = p_Usage;
-	
-	return bufferDescription;
-}
-
-Buffer::Description ModelFactory::createBufferDescription(const vector<AnimatedVertex> &p_VertexData,
-	Buffer::Usage p_Usage)
-{
-	Buffer::Description bufferDescription;
-	bufferDescription.initData = p_VertexData.data();
-	bufferDescription.numOfElements = p_VertexData.size();
-	bufferDescription.sizeOfElement = sizeof(AnimatedVertex);
+	bufferDescription.sizeOfElement = sizeof(T);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = p_Usage;
 
