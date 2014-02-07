@@ -156,7 +156,17 @@ public:
 	 */
 	void setActor(std::weak_ptr<Actor> p_Actor);
 
+	/**
+	 * The player's ground normal. Ground Normal equals the perpendicular vector from the surface the player is standing on.
+	 * 
+	 * @return the normal.
+	 */
 	DirectX::XMFLOAT3 getGroundNormal() const;
+	/**
+	 * Sets the player's ground normal. Ground Normal equals the perpendicular vector from the surface the player is standing on.
+	 *
+	 * @param p_Normal the new ground normal.
+	 */
 	void setGroundNormal(DirectX::XMFLOAT3 p_Normal);
 
 private:

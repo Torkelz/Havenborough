@@ -13,11 +13,9 @@ private:
 	BVLoader m_BVLoader;
 	bool m_LoadBVSphereTemplateOnce;
 	std::vector<std::pair<std::string, std::vector<BVLoader::BoundingVolume>>> m_TemplateBVList;
-	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume ;
+	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume;
 
 	std::vector<DirectX::XMFLOAT3> m_BoxTriangleIndex;
-	float bajs;
-
 
 public:
 	Physics();
