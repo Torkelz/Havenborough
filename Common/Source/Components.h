@@ -1277,3 +1277,40 @@ public:
 	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) = 0;
 	virtual DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName) = 0;
 };
+
+class SpellInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 9;	/// Unique id
+	virtual Id getComponentId() const override
+	{
+		 return m_ComponentId;
+	}
+
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+
+	}
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+
+	}
+};
+
+class SpellComponent : public SpellInterface
+{
+
+private:
+	unsigned int m_SpellId;
+
+public:
+	/**
+	 * Set a new unique identifier for the spell.
+	 *
+	 * @param p_Id the spell's id
+	 */
+	void setId(unsigned int p_Id)
+	{
+		m_SpellId = p_Id;
+	}
+};

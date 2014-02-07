@@ -23,6 +23,7 @@ private:
 	unsigned int m_LastModelComponentId;
 	unsigned int m_LastLightComponentId;
 	unsigned int m_LastParticleComponentId;
+	unsigned int m_LastSpellComponentId;
 	IPhysics* m_Physics;
 	EventManager* m_EventManager;
 	ResourceManager* m_ResourceManager;
@@ -93,6 +94,7 @@ public:
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
 	Actor::ptr createCheckPointArrow();
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
+	Actor::ptr createSpell(const std::string& p_Spell);
 
 protected:
 	/**
@@ -115,6 +117,7 @@ private:
 	ActorComponent::ptr createPulseComponent();
 	ActorComponent::ptr createLightComponent();
 	ActorComponent::ptr createParticleComponent();
+	ActorComponent::ptr createSpellComponent();
 	ActorComponent::ptr createLookComponent();
 	ActorComponent::ptr createHumanAnimationComponent();
 };

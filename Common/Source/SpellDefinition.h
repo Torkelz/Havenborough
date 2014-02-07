@@ -17,8 +17,9 @@ public:
 	std::string spellName;
 	Type m_type;
 	float maxTimeToLive; //in sec
-	float explosionRadius; //in cm, explosion radius
-	float flyingSpellSize; //in cm, radius on the flying sphere
+	float explosionRadius; //in m, explosion radius
+	float flyingSpellSize; //in m, radius on the flying sphere
+	float flyForce;
 	float effectTime; //in sec
 	float force;
 	float minForce;
@@ -30,6 +31,7 @@ public:
 			maxTimeToLive(-1.f),
 			explosionRadius(-1.f),
 			flyingSpellSize(-1.f),
+			flyForce(-1.f),
 			effectTime(-1.f),
 			force(-1.f),
 			minForce(-1.f)

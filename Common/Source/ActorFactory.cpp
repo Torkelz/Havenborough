@@ -9,6 +9,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 		m_LastModelComponentId(0),
 		m_LastLightComponentId(0),
 		m_LastParticleComponentId(0),
+		m_LastSpellComponentId(0),
 		m_Physics(nullptr)
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
@@ -21,6 +22,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
 	m_ComponentCreators["Light"] = std::bind(&ActorFactory::createLightComponent, this);
 	m_ComponentCreators["Particle"] = std::bind(&ActorFactory::createParticleComponent, this);
+	m_ComponentCreators["Spell"] = std::bind(&ActorFactory::createSpellComponent, this);
 	m_ComponentCreators["Look"] = std::bind(&ActorFactory::createLookComponent, this);
 	m_ComponentCreators["HumanAnimation"] = std::bind(&ActorFactory::createHumanAnimationComponent, this);
 }
@@ -286,6 +288,11 @@ Actor::ptr ActorFactory::createParticles( Vector3 p_Position, const std::string&
 	return createActor(doc.FirstChildElement("Object"));
 }
 
+Actor::ptr ActorFactory::createSpell(const std::string& p_Spell)
+{
+
+}
+
 ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_Data)
 {
 	std::string name(p_Data->Value());
@@ -384,6 +391,14 @@ ActorComponent::ptr ActorFactory::createParticleComponent()
 {
 	ParticleComponent* comp = new ParticleComponent;
 	comp->setId(++m_LastParticleComponentId);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createSpellComponent()
+{
+	SpellComponent* comp = new SpellComponent;
+	comp->setId(++m_LastSpellComponentId);
 
 	return ActorComponent::ptr(comp);
 }

@@ -15,20 +15,20 @@ private:
 	IPhysics *m_Physics;
 	
 	BodyHandle m_Sphere;
-	DirectX::XMFLOAT4 m_SpellPosition; //in cm
+	Vector3 m_SpellPosition; //in cm
 	float m_TimeLived; //in sec
 	bool m_Collision;
 
 public:
-	SpellInstance();
+	SpellInstance(IPhysics *p_Physics);
 	~SpellInstance();
 
-	void init(SpellDefinition::ptr p_SpellDefinition, Vector3 p_Direction, float p_FlyForce);
+	void init(SpellDefinition::ptr p_SpellDefinition, Vector3 p_Direction, Vector3 p_SpellPosition);
 	void update(float p_DeltaTime);
 	
 	void collisionHappened();
 
-	void setPosition(DirectX::XMFLOAT4 p_NewPosition);
+	void setPosition(Vector3 p_NewPosition);
 
 private:
 	void spellHit(SpellDefinition::ptr p_SpellDefinition);

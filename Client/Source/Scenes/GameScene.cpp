@@ -53,7 +53,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
-
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createSpell), CreateSpellEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeSpell), RemoveSpellEventData::sk_EventType);
 
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = false;
@@ -95,6 +96,8 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->setPlayerDirection(Vector2(forward, right));
 
 	m_Graphics->updateParticles(p_DeltaTime);
+
+
 
 	for (auto& model : m_Models)
 	{
@@ -269,6 +272,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_UseFlippedCamera = !m_UseFlippedCamera;
 	}
+	else if(p_Action == "spellCast" && p_Value == 1.f)
+	{
+		
+	}
 }
 
 /*########## TEST FUNCTIONS ##########*/
@@ -437,6 +444,26 @@ void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
 		m_ResourceManager->releaseResource(it->resourceId);
 		m_Particles.erase(it);
 	}
+}
+
+void GameScene::createSpell(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<CreateParticleEventData> data = std::static_pointer_cast<CreateParticleEventData>(p_Data);
+
+	//int resource = m_ResourceManager->loadResource("spell", data->getEffectName());
+
+	SpellBinding spell = 
+	{
+		data->getId,
+		-1,
+		
+	}
+}
+
+void GameScene::removeSpell(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveParticleEventData> data = std::static_pointer_cast<RemoveParticleEventData>(p_Data);
+
 }
 
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)

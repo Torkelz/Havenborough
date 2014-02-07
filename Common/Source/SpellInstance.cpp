@@ -1,10 +1,10 @@
 #include "SpellInstance.h"
 
 
-SpellInstance::SpellInstance()
+SpellInstance::SpellInstance(IPhysics *p_Physics)
 {
-	m_SpellPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-	m_SpellVelocity = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_Physics = p_Physics;
+	m_SpellPosition = Vector3(0.f, 0.f, 0.f);
 	m_TimeLived = 0.f;
 	m_Collision = false;
 }
@@ -14,39 +14,26 @@ SpellInstance::~SpellInstance()
 {
 }
 
-void SpellInstance::init(SpellDefinition::ptr p_SpellDefinition, Vector3 p_Direction, float p_FlyForce)
+void SpellInstance::init(SpellDefinition::ptr p_SpellDefinition, Vector3 p_Direction, Vector3 p_SpellPosition)
 {
 	m_SpellDefinition = p_SpellDefinition;
+	m_SpellPosition = p_SpellPosition;
+	
+	Vector3 ForceDirection = p_Direction * m_SpellDefinition->flyForce;
 
-	Vector3 ForceDirection = Vector3(p_Direction.x * p_FlyForce, p_Direction.y * p_FlyForce, p_Direction.z * p_FlyForce);
-
-	m_Sphere = m_Physics->createSphere(-1.f, false, Vector3(m_SpellPosition.x, m_SpellPosition.y, m_SpellPosition.z), m_SpellDefinition->flyingSpellSize);
+	m_Sphere = m_Physics->createSphere(-1.f, false, m_SpellPosition, m_SpellDefinition->flyingSpellSize);
 	m_Physics->applyForce(m_Sphere, ForceDirection);
 }
 
 void SpellInstance::update(float p_DeltaTime)
 {
-
-
+	m_TimeLived += p_DeltaTime;
 
 	if(m_Collision || m_TimeLived >= m_SpellDefinition->maxTimeToLive)
 	{
 		spellHit(m_SpellDefinition);
 	}
-	else
-	{
-		m_TimeLived += p_DeltaTime;
-	}
 }
-
-//void SpellInstance::moveSpell(float p_DeltaTime)
-//{
-//	m_SpellPosition.x += m_SpellVelocity.x * p_DeltaTime;
-//	m_SpellPosition.y += m_SpellVelocity.y * p_DeltaTime;
-//	m_SpellPosition.z += m_SpellVelocity.z * p_DeltaTime;
-//
-//	m_Physics->setBodyVelocity(m_Sphere,m_SpellVelocity);
-//}
 
 void SpellInstance::spellHit(SpellDefinition::ptr p_SpellDefinition)
 {
@@ -85,6 +72,11 @@ void SpellInstance::explodeSpell(SpellDefinition::ptr p_SpellDefinition)
 	}
 }
 
+void SpellInstance::setPosition(Vector3 p_NewPosition)
+{
+	m_SpellPosition = p_NewPosition;
+}
+
 void SpellInstance::collisionHappened()
 {
 	m_Collision = true;
@@ -95,7 +87,3 @@ void SpellInstance::changeSphereRadius(float p_NewRadius)
 	m_Physics->setBodyScale(m_Sphere, Vector3(p_NewRadius, 0.f, 0.f));
 }
 
-void SpellInstance::setPosition(DirectX::XMFLOAT4 p_NewPosition)
-{
-	m_SpellPosition = p_NewPosition;
-}

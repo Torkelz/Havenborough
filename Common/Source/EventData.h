@@ -732,5 +732,87 @@ public:
 	}
 };
 
+class CreateSpellEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	std::string m_SpellName;
+
+public:
+	static const Type sk_EventType = Type(0xbabb5551);
+
+	CreateSpellEventData(unsigned int p_Id, const std::string& p_SpellName)
+		:	m_Id(p_Id),
+			m_SpellName(p_SpellName)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new CreateSpellEventData(m_Id, m_SpellName));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "CreateSpellEvent";
+	}
+
+	std::string getSpellName() const
+	{
+		return m_SpellName;
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+};
+
+class RemoveSpellEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+
+public:
+	static const Type sk_EventType = Type(0x75448abb);
+
+	RemoveSpellEventData(unsigned int p_Id)
+		:	m_Id(p_Id)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new RemoveSpellEventData(m_Id));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "RemoveSpellEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+};
 
 #pragma warning(pop)

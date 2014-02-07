@@ -410,6 +410,82 @@ void GameLogic::joinGame(const std::string& p_LevelName)
 	}
 }
 
+bool GameLogic::createSpellDefinition(const char *p_SpellId, const char *p_Filename)
+{
+	SpellDefinition::ptr temp = m_SpellFactory->createSpellDefinition(p_SpellId, p_Filename);
+
+	m_SpellDefinitionList.push_back(make_pair(p_SpellId, temp));
+
+	return true;
+}
+
+bool GameLogic::releaseSpellDefinition(const char *p_SpellId)
+{
+	auto it = std::find_if(m_SpellDefinitionList.begin(), m_SpellDefinitionList.end(),
+		[p_SpellId] (const std::pair<std::string, SpellDefinition::ptr>& p_Spell)
+	{
+		return p_Spell.first == p_SpellId;
+	});
+
+	if (it != m_SpellDefinitionList.end())
+	{
+		m_SpellDefinitionList.erase(it);
+		return true;
+	}
+	return false;
+}
+
+int GameLogic::createSpellInstance(const char *p_SpellId)
+{
+	SpellDefinition::ptr spellDef = getSpellFromList(p_SpellId);
+	if (!spellDef)
+	{
+		Logger::log(Logger::Level::ERROR_L,
+			"Attempting to create Spell instance without loading the spell definition: "
+			+ std::string(p_SpellId));
+		return -1;
+	}
+
+	SpellInstance::ptr instance = m_SpellFactory->createSpellInstance(spellDef, getPlayerViewForward(), m_Player.getEyePosition());
+	int id = m_NextSpellInstanceId++;
+
+	m_SpellInstanceList.push_back(std::make_pair(id, instance));
+}
+
+void GameLogic::releaseSpellInstance(int p_SpellId)
+{
+	auto it = std::find_if(m_SpellInstanceList.begin(), m_SpellInstanceList.end(),
+		[p_SpellId] (const std::pair<int, SpellInstance::ptr>& p_Spell) 
+	{
+		return p_Spell.first == p_SpellId;
+	});
+	if (it != m_SpellInstanceList.end())
+	{
+		m_SpellInstanceList.erase(it);
+	}
+}
+SpellDefinition::ptr GameLogic::getSpellFromList(std::string p_Identifier)
+{
+	for(auto & s : m_SpellDefinitionList)
+	{
+		if(s.first == p_Identifier)
+		{
+			return s.second;
+		}
+	}
+
+	return nullptr;
+}
+
+void GameLogic::updateSpells(float p_DeltaTime)
+{
+	for (auto& spell : m_SpellInstanceList)
+	{
+		spell.second->update(p_DeltaTime);
+	}
+}
+
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)
@@ -742,6 +818,8 @@ void GameLogic::loadSandbox()
 
 	//Event to create a particle effect on local test rounds
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
+
+	//addActor(m_ActorFactory->createSpell("TestSpell"));
 }
 
 void GameLogic::updateSandbox(float p_DeltaTime)
