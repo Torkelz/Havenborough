@@ -716,7 +716,7 @@ void DeferredRenderer::createBuffers()
 	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
 	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
 	buildSSAO_OffsetVectors(ssaoBuffer);
-	ssaoBuffer.occlusionRadius	= 10.0f;
+	ssaoBuffer.occlusionRadius	= 5.0f;
 	ssaoBuffer.surfaceEpsilon	= 4.0f;
 	ssaoBuffer.occlusionFadeEnd	= 10.0f;
 	ssaoBuffer.occlusionFadeStart = 2.0f;
