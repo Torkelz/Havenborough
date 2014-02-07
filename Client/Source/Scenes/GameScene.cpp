@@ -211,13 +211,13 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_CurrentDebugView--;
 		if(m_CurrentDebugView < 0)
-			m_CurrentDebugView = 3;
+			m_CurrentDebugView = 4;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
 	{
 		m_CurrentDebugView++;
-		if(m_CurrentDebugView >= 4)
+		if(m_CurrentDebugView >= 5)
 			m_CurrentDebugView = 0;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 	}
@@ -453,15 +453,15 @@ void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 
 void GameScene::loadSandboxModels()
 {
-	m_Graphics->createShader("DefaultShader", L"../../Graphics/Source/DeferredShaders/GeometryPass.hlsl",
+	m_Graphics->createShader("DefaultShader", L"assets/shaders/GeometryPass.hlsl",
 								"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->createShader("DefaultShaderForward", L"../../Graphics/Source/DeferredShaders/ForwardShader.hlsl",
+	m_Graphics->createShader("DefaultShaderForward", L"assets/shaders/ForwardShader.hlsl",
 		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	m_Graphics->createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl",
 		"VS,PS,GS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
 
-	m_Graphics->createShader("AnimatedShader", L"../../Graphics/Source/DeferredShaders/AnimatedGeometryPass.hlsl",
+	m_Graphics->createShader("AnimatedShader", L"assets/shaders/AnimatedGeometryPass.hlsl",
 		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	static const std::string preloadedModels[] =
