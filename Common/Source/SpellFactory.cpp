@@ -32,10 +32,10 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Filename,
 
 	return spell;
 }
-SpellInstance::ptr SpellFactory::createSpellInstance(SpellDefinition::ptr p_Spell)
+SpellInstance::ptr SpellFactory::createSpellInstance(SpellDefinition::ptr p_Spell, Vector3 p_Direction, float p_FlyForce)
 {
 	SpellInstance::ptr instance(new SpellInstance);
-	instance->init(p_Spell);
+	instance->init(p_Spell, p_Direction, p_FlyForce);
 
 	return instance;
 }

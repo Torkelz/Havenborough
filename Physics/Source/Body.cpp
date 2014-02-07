@@ -152,12 +152,21 @@ XMFLOAT4 Body::calculateAcceleration()
 	{
 		return XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	}
-	
-	acc.x = m_NetForce.x/m_Mass;
-	acc.y = m_NetForce.y/m_Mass - m_Gravity;
-	acc.z = m_NetForce.z/m_Mass;
-	acc.w = 0.f;
+	else if (m_Mass == -1.f)
+	{
+		acc.x = m_NetForce.x;
+		acc.y = m_NetForce.y;
+		acc.z = m_NetForce.z;
+	}
+	else
+	{
+		acc.x = m_NetForce.x/m_Mass;
+		acc.y = m_NetForce.y/m_Mass - m_Gravity;
+		acc.z = m_NetForce.z/m_Mass;
+	}
 
+
+	acc.w = 0.f;
 	return acc;
 }
 
