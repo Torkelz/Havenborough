@@ -452,12 +452,12 @@ void GameScene::createSpell(IEventData::Ptr p_Data)
 
 	//int resource = m_ResourceManager->loadResource("spell", data->getEffectName());
 
-	SpellBinding spell = 
-	{
-		data->getId,
-		-1,
-		
-	}
+	//SpellBinding spell = 
+	//{
+	//	data->getId,
+	//	-1,
+	//	
+	//}
 }
 
 void GameScene::removeSpell(IEventData::Ptr p_Data)
