@@ -10,6 +10,12 @@ struct cBuffer
 	DirectX::XMFLOAT3	campos;
 };
 
+struct c2D_ObjectBuffer
+{
+	DirectX::XMFLOAT4X4 view;
+	DirectX::XMFLOAT4X4 proj;
+};
+
 struct cObjectBuffer
 {
 	DirectX::XMFLOAT4X4 world;

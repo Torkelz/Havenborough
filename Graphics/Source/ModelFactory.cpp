@@ -78,6 +78,15 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	return model;
 }
 
+ModelDefinition ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_TextureId)
+{
+	ModelDefinition model;
+
+
+
+	return model;
+}
+
 void ModelFactory::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata)
 {
 	m_LoadModelTexture = p_LoadModelTexture;
@@ -111,6 +120,19 @@ Buffer::Description ModelFactory::createBufferDescription(const vector<AnimatedV
 	bufferDescription.initData = p_VertexData.data();
 	bufferDescription.numOfElements = p_VertexData.size();
 	bufferDescription.sizeOfElement = sizeof(AnimatedVertex);
+	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
+	bufferDescription.usage = p_Usage;
+
+	return bufferDescription;
+}
+
+Buffer::Description ModelFactory::create2D_BufferDescription(const std::vector<DirectX::XMFLOAT3> &p_VertexData,
+	Buffer::Usage p_Usage)
+{
+	Buffer::Description bufferDescription;
+	bufferDescription.initData = p_VertexData.data();
+	bufferDescription.numOfElements = p_VertexData.size();
+	bufferDescription.sizeOfElement = sizeof(XMFLOAT3);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = p_Usage;
 

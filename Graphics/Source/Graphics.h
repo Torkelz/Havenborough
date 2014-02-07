@@ -18,6 +18,7 @@
 #include "ModelDefinition.h"
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
+#include "ScreenRenderer.h"
 
 class Graphics : public IGraphics
 {
@@ -59,8 +60,10 @@ private:
 	std::vector<std::pair<std::string, ModelDefinition>> m_ModelList;
 	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> m_TextureList;
 	std::vector<std::pair<InstanceId, ModelInstance>> m_ModelInstances;
+	std::vector<std::pair<int, Renderable2D>> m_2D_Objects;
 	InstanceId m_NextInstanceId;
-	
+	int m_Next2D_ObjectId;
+
 	//Particles
 	std::vector<std::pair<std::string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
 	std::vector<std::pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
@@ -69,6 +72,7 @@ private:
 
 	DeferredRenderer *m_DeferredRender;
 	ForwardRendering *m_ForwardRenderer;
+	ScreenRenderer *m_ScreenRenderer;
 		
 	//Lights
 	std::vector<Light> m_SpotLights;
@@ -109,7 +113,7 @@ public:
 	void deleteShader(const char *p_ShaderId) override;
 
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
-	bool releaseTexture(const char *p_TextureID) override;	
+	bool releaseTexture(const char *p_TextureId) override;	
 
 	//Particles
 	bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_filename) override;
@@ -122,6 +126,12 @@ public:
 	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
 	void updateParticles(float p_DeltaTime) override;
 	/////
+
+	int create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Rotation,
+		const char *p_TextureId) override;
+
+	int create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotation,
+		const char *p_ModelDefinition) override;
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
@@ -136,7 +146,7 @@ public:
 	void renderModel(InstanceId p_ModelId) override;
 	virtual void renderSkydome() override;
 	void renderText(void) override;
-	void renderQuad(void) override;
+	void render2D_Object(int p_Id) override;
 	void drawFrame() override;
 
 	void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) override;

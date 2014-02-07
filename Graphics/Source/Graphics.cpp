@@ -34,12 +34,14 @@ Graphics::Graphics(void)
 
 	m_DeferredRender = nullptr;
 	m_ForwardRenderer = nullptr;
+	m_ScreenRenderer = nullptr;
 
 	m_BVBuffer = nullptr;
 	m_BVShader = nullptr;
 	m_Shader = nullptr;
 	m_VSyncEnabled = false; //DEBUG
 	m_NextInstanceId = 1;
+	m_Next2D_ObjectId = 1;
 	m_NextParticleInstanceId = 1;
 	m_SelectedRenderTarget = 3;
 }
@@ -188,12 +190,22 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	initializeMatrices(p_ScreenWidth, p_ScreenHeight);
 
-	//Deferred Render
+	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
 		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
 	
+	//Forward renderer
+	m_ForwardRenderer = new ForwardRendering();
+	m_ForwardRenderer->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
+		m_DepthStencilView, m_RenderTargetView);
+
+	//Screen renderer
+	m_ScreenRenderer = new ScreenRenderer();
+	m_ScreenRenderer->initialize(m_Device, m_DeviceContext, &m_ViewMatrix, &m_ProjectionMatrix,
+		m_DepthStencilView, m_RenderTargetView);
+
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
 	m_BVBufferNumOfElements = 100;
@@ -210,10 +222,6 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/BoundingVolume.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
-	m_ForwardRenderer = new ForwardRendering();
-	m_ForwardRenderer->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
-		m_DepthStencilView, m_RenderTargetView);
 
 	return true;
 }
@@ -290,6 +298,8 @@ void Graphics::shutdown(void)
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
 	SAFE_DELETE(m_ForwardRenderer);
+	SAFE_DELETE(m_ScreenRenderer);
+
 	//Clear lights
 	m_PointLights.clear();
 	m_SpotLights.clear();
@@ -535,6 +545,31 @@ void Graphics::updateParticles(float p_DeltaTime)
 	}
 }
 
+int Graphics::create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Rotation, const char *p_TextureId)
+{
+	ModelDefinition model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
+
+	return m_Next2D_ObjectId++;
+}
+
+int Graphics::create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotation, const char *p_ModelDefinition)
+{
+
+
+	return m_Next2D_ObjectId++;
+}
+
+void Graphics::render2D_Object(int p_Id)
+{
+	for(auto &object : m_2D_Objects)
+	{
+		if(object.first == p_Id)
+		{
+			m_ScreenRenderer->add2D_Object(object.second);
+		}
+	}
+}
+
 void Graphics::renderModel(InstanceId p_ModelId)
 {
 	for (auto& inst : m_ModelInstances)
@@ -570,11 +605,6 @@ void Graphics::renderSkydome()
 void Graphics::renderText(void)
 {
 	
-}
-
-void Graphics::renderQuad(void)
-{
-
 }
 
 void Graphics::addStaticLight(void)
@@ -660,8 +690,9 @@ void Graphics::drawFrame()
 			m_ForwardRenderer->addRenderable(particle.second);
 		}
 		m_ForwardRenderer->renderForward();
-
 		drawBoundingVolumes();
+		m_ScreenRenderer->renderObjects();
+
 	}
 
 	End();

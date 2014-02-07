@@ -219,6 +219,12 @@ public:
 	 */
 	virtual void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) = 0;
 
+	virtual int create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Rotation,
+		const char *p_TextureId) = 0;
+
+	virtual int create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotation,
+		const char *p_ModelDefinition) = 0;
+
 	/**
 	 * 
 	 */
@@ -282,7 +288,7 @@ public:
 	/**
 	 * 
 	 */
-	virtual void renderQuad(void) = 0;
+	virtual void render2D_Object(void) = 0;
 	
 	/**
 	 * Draw the current frame.

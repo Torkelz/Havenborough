@@ -2,6 +2,7 @@
 #include "WrapperFactory.h"
 #include "ModelDefinition.h"
 #include "ShaderStructs.h"
+#include "Utilities/XMFloatUtil.h"
 
 #include <d3d11.h>
 #include <vector>
@@ -51,6 +52,9 @@ public:
 	*/
 	virtual ModelDefinition createModel(const char *p_Filename);
 
+
+	virtual ModelDefinition create2D_Model(Vector2 p_HalfSize, const char *p_TextureId);
+
 	/**
 	* Set the function to load a texture to a model.
 	* @param p_LoadModelTexture the function to be called whenever a texture is to be loaded.
@@ -65,6 +69,8 @@ protected:
 private:
 	Buffer::Description createBufferDescription(const std::vector<StaticVertex> &p_VertexData, Buffer::Usage p_Usage);
 	Buffer::Description createBufferDescription(const std::vector<AnimatedVertex> &p_VertexData, Buffer::Usage p_Usage);
+	Buffer::Description create2D_BufferDescription(const std::vector<DirectX::XMFLOAT3> &p_VertexData,
+		Buffer::Usage p_Usage);
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
 		const std::vector<Material> &p_Materials);
