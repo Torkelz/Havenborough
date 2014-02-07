@@ -131,11 +131,14 @@ void Animation::checkFades()
 				m_Tracks[i].fadeIn = false;
 				m_Tracks[i].fadedFrames = 0.0f;
 
-				if(!m_Tracks[i].clip->m_Layered && m_Tracks[i].clip->m_Loop)
+				if(i == 1 || i == 3 || i == 5)
 				{
-					m_Tracks[i - 1] = m_Tracks[i];
-					m_Tracks[i].active = false;
-					m_Tracks[i - 1].active = true;
+					if(!m_Tracks[i].clip->m_Layered && m_Tracks[i].clip->m_Loop)
+					{
+						m_Tracks[i - 1] = m_Tracks[i];
+						m_Tracks[i].active = false;
+						m_Tracks[i - 1].active = true;
+					}
 				}
 			}
 		}
@@ -148,7 +151,7 @@ void Animation::checkFades()
 				m_Tracks[i].active = false;
 			}
 		}
-		if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) < m_Tracks[i].currentFrame)
+		if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) < m_Tracks[i].currentFrame && m_Tracks[i].clip->m_FadeOut)
 		{
 			if(!playQueuedClip(i))
 			{
@@ -505,6 +508,11 @@ void Animation::playClip( const std::string& p_ClipName, bool p_Override )
 		m_Tracks[track + 1].dynamicWeight = 1.0f;
 		m_Tracks[track + 1].fadeIn = p_Clip->m_FadeIn;
 		m_Tracks[track + 1].fadeOut = p_Clip->m_FadeOut;
+
+		for (unsigned int i = track + 2; i < 6; i++)
+		{
+			m_Tracks[i].active = false;
+		}
 	}
 	else
 	{
@@ -577,8 +585,11 @@ bool Animation::playQueuedClip(int p_Track)
 
 void Animation::changeWeight(int p_Track, float p_Weight)
 {
-	if(p_Track > 0 && p_Track < 6)	
-		m_Tracks[p_Track].dynamicWeight = m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
+	if(p_Track > 0 && p_Track < 6)
+	{
+		m_Tracks[p_Track].dynamicWeight = p_Weight;
+		m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
+	}
 }
 
 void Animation::setAnimationData(AnimationData::ptr p_Data)

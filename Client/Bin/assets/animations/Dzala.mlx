@@ -41,20 +41,35 @@ fi	1
 fif	5
 fo	0
 fof 	5
-we	1.0
+we	0.0
+
+*Clip
+na 	IdleSide
+sp 	1.0
+st 	34
+en 	54
+lo 	1
+f	Hip
+tr	2
+la	0
+fi	1
+fif	5
+fo	0
+fof 	5
+we	0.1
 
 *Clip
 na 	RunningJump
-sp 	0.5
+sp 	1.0
 st 	56
 en 	68
-lo 	1
+lo 	0
 f	Hip
 tr	0
 la	0
 fi	1
 fif	5
-fo	0
+fo	1
 fof 	5
 we	1.0
 
@@ -84,7 +99,7 @@ tr	0
 la	0
 fi	1
 fif	5
-fo	0
+fo	1
 fof 	10
 we	1.0
 
@@ -99,7 +114,7 @@ tr	0
 la	0
 fi	1
 fif	5
-fo	0
+fo	1
 fof 	5
 we	1.0
 
@@ -129,7 +144,7 @@ tr	0
 la	0
 fi	1
 fif	5
-fo	0
+fo	1
 fof 	10
 we	1.0
 
@@ -240,7 +255,7 @@ we	1.0
 
 *Clip
 na 	SideStepLeft
-sp 	1.5
+sp 	2.0
 st 	425
 en 	454
 lo 	1
@@ -249,13 +264,13 @@ tr	2
 la	0
 fi	1
 fif	5
-fo	1
-fof 5
+fo	0
+fof	0
 we	1.0
 
 *Clip
 na 	SideStepRight
-sp 	1.5
+sp 	2.0
 st 	457
 en 	486
 lo 	1
@@ -264,8 +279,8 @@ tr	2
 la	0
 fi	1
 fif	5
-fo	1
-fof 5
+fo	0
+fof	0
 we	1.0
 
 *Clip

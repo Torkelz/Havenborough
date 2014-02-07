@@ -24,7 +24,7 @@ void HumanAnimationComponent::updateAnimation()
 		{
 			// Calculate the weight on the strafe track with some trigonometry.
 			float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-			changeAnimationWeight(2, cosf(angle)); // Think again. Negative weights are not allowed.
+			changeAnimationWeight(2, 1 - abs(cosf(angle))); // Think again. Negative weights are not allowed.
 
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
@@ -55,10 +55,7 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentForwardState)
 				{
 				case ForwardAnimationState::IDLE:
-					if (currentSideState == SideAnimationState::IDLE)
-					{
-						playAnimation("Idle2", false);
-					}
+					playAnimation("Idle2", false);
 					break;
 				case ForwardAnimationState::RUNNING_FORWARD:
 					playAnimation("Run", false);
@@ -73,12 +70,8 @@ void HumanAnimationComponent::updateAnimation()
 			{
 				switch (currentSideState)
 				{
-
 				case SideAnimationState::IDLE:
-					if (currentForwardState == ForwardAnimationState::IDLE)
-					{
-						//playAnimation("Idle2", false);
-					}
+					playAnimation("IdleSide", false);
 					break;
 
 				case SideAnimationState::RUNNING_LEFT:
@@ -171,12 +164,12 @@ void HumanAnimationComponent::updateAnimation()
 					{
 						if(XMVectorGetX(velocity) > runLimit || XMVectorGetZ(velocity) > runLimit)
 						{
-							playAnimation("RunningJump", false);
+							playAnimation("RunningJump", true);
 							queueAnimation("Falling");
 						}
 						else
 						{
-							playAnimation("StandingJump", false);
+							playAnimation("StandingJump", true);
 							queueAnimation("Falling");
 						}
 					}
