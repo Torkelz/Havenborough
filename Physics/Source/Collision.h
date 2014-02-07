@@ -24,7 +24,7 @@ private:
 		{
 			Plane p;
 			using DirectX::operator-;
-			DirectX::XMStoreFloat4(&p.normal, DirectX::XMVector3Normalize( DirectX::XMVector3Cross(p_B - p_A, p_C - p_A) ));
+			DirectX::XMStoreFloat4(&p.normal, DirectX::XMVector3Normalize(DirectX::XMVector3Cross(p_B - p_A, p_C - p_B)));
 
 			p.d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMLoadFloat4(&p.normal), p_A ));
 

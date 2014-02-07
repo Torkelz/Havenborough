@@ -39,8 +39,6 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_LookDirection, std::weak
 	m_KneeHeight = 50.f;
 	m_EyeHeight = 165.f;
 	m_Actor = p_Actor;
-	//m_PlayerBody = m_Physics->createOBB(68.f, false, kneePos, Vector3(50.f, 90.f, 50.f), false);
-	//m_PlayerBody = m_Physics->createSphere(68.f, false, kneePos, m_KneeHeight);
 }
 
 XMFLOAT3 Player::getPosition(void) const

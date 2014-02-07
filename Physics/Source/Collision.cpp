@@ -693,7 +693,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 
 		
 		bool miss = false;
-		//Check axes Aj X Fk 
+		//Check axes corresponding to Aj X Fk 
 		for(int j = 0; j < 3; j++)
 		{
 			for(int k = 0; k < 3; k++)
@@ -707,47 +707,47 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 				float p0 = XMVectorGetX(XMVector3Dot(v0, a));
 				float p1 = XMVectorGetX(XMVector3Dot(v1, a));
 				float p2 = XMVectorGetX(XMVector3Dot(v2, a));
-				float rt = XMMax(-checkMax(p0,p1,p2), checkMin(p0,p1,p2));
+				float min = checkMin(p0, p1, p2);
+				float max = checkMax(p0, p1, p2);
+
+				float rt = XMMax(-checkMax(p0,p1,p2), min);
 
 				if(rt > r)
 				{
-					//Seperating axis found, no furter testing needed, break the test.
+					//Seperating axis found, no further testing needed, break the test.
 					j = 3;
 					miss = true;
 					break;
 				}
 				else
-					checkCollisionDepth(rt, r, tOverlap, a, tLeast);
+				{
+					checkCollisionDepth(min, r, tOverlap, a, tLeast);
 			}
 		}
 
 		if(miss)
 			continue;
 
+		//Check axes corresponding to face normals of the OBB
 		for(int j = 0; j < 3; j++)
 		{
 			float min = checkMin(v0.m128_f32[j], v1.m128_f32[j], v2.m128_f32[j]);
-			float max = checkMax(v0.m128_f32[j], v1.m128_f32[j], v2.m128_f32[j]);
-			float r	  = box_Extents.m128_f32[j];
-			float t	  = checkMinMax(min, max, r);
+			float max = checkMax(v0.m128_f32[j], v1.m128_f32[j], v2.m128_f32[j]);		
 
-			if(t == .0f)
+			if(max < -box_Extents.m128_f32[j] || min > box_Extents.m128_f32[j] )
 			{
 				//Seperating axis found, no furter testing needed, break the test.
 				miss = true;
 				break;
 			}
 			else
-				checkCollisionDepth(t, r, tOverlap, box_Axes.r[j], tLeast);
+				checkCollisionDepth(min, box_Extents.m128_f32[j], tOverlap, box_Axes.r[j], tLeast);
 		}
 
 		if(miss)
 			continue;
-
-		//Check for degenerate triangle
-		float degenerate = XMVector4Length(XMVector3Cross(F[0], F[1])).m128_f32[0] * 0.5f;
 		
-		//Check axis triangle face normal.
+		//Check axis corresponding triangle face normal.
 		Plane p = p.ComputePlane(t0, t1, t2);
 		if(!OBBVsPlane(p_OBB, p, tLeast, tOverlap))
 			continue;
@@ -764,9 +764,9 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		if(l <= distance)
 		{	
 			distance = l;
-			overlap = tOverlap / l;
+			overlap = tOverlap;
 			least = tLeast;
-			tVec = triC; //XMLoadFloat4(&findClosestPointOnTriangle(p_OBB.getPosition(), tri.corners[0], tri.corners[1], tri.corners[2]));// 
+			tVec = triC;
 		}
 	}
 	
@@ -988,18 +988,24 @@ bool Collision::OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, XMVECTOR &p_L
 			 + e.y * fabs(XMVectorGetX( XMVector3Dot(bAxes.r[1], pn) ))
 			 + e.z * fabs(XMVectorGetX( XMVector3Dot(bAxes.r[2], pn) ));
 
+	//Compute distance of box center from plane
 	XMVECTOR bc = XMLoadFloat4(&p_OBB.getPosition());
 	float s = XMVectorGetX( XMVector3Dot(pn, bc) ) - p_Plane.d;
-	float lLength = XMVectorGetX(XMVector4LengthSq(pn));
 
+
+	//intersection occurs when distance s falls within [-r, r] interval
 	if(fabs(s) <= r)
 	{
-		float R = (fabs(r) - fabs(s)) / lLength;
-		if(p_Overlap <= R)
+		float lLength = XMVectorGetX(XMVector4LengthSq(pn));
+		float R = (r - fabs(s)) / lLength;
+		if(p_Overlap > fabs(R))
 		{
 			p_Overlap = fabs(R);
 			p_Least = pn;
 		}
+
+
+		//checkCollisionDepth(r, s, r, p_Overlap, pn, p_Least);
 		return true;
 	}
 	else 
