@@ -5,8 +5,7 @@
 using namespace DirectX;
 
 Physics::Physics(void)
-	: m_GlobalGravity(30.f),
-	  bajs(0.f)
+	: m_GlobalGravity(30.f)
 {}
 
 Physics::~Physics()
