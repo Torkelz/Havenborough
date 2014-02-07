@@ -111,7 +111,7 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 						XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
 						XMVECTOR posNorm = vNorm;
 
-						if (hit.colNorm.y > 0.68f)
+						if (hit.colNorm.y > 0.7f)
 						{
 							if(!b.getOnSomething())
 							{

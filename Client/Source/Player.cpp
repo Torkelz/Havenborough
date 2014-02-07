@@ -8,8 +8,8 @@ Player::Player(void)
 	m_Physics = nullptr;
 	m_JumpCount = 0;
     m_JumpCountMax = 2;
-    m_JumpDelay = 0;
-    m_JumpDelayMax = 0.2f;
+    m_JumpDelay = 0.f;
+    m_JumpDelayMax = 0.15f;
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.15f;
 	m_JumpForce = 6500.f;
@@ -113,6 +113,10 @@ void Player::setJump(void)
 
 		Vector3 temp = m_Physics->getBodyVelocity(getBody());
 		temp.y = 0.f;
+
+		temp.x = m_DirectionX * m_MaxSpeed / (m_JumpCount + 1);
+		temp.z = m_DirectionZ * m_MaxSpeed / (m_JumpCount + 1);
+
 		m_Physics->setBodyVelocity(getBody(), temp);
 
 		m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
@@ -224,7 +228,7 @@ void Player::jump(float dt)
 	if(!m_IsJumping && !m_Physics->getBodyInAir(getBody()))
     {
 		m_JumpCount = 0;
-		m_JumpDelay = 0.f;
+		//m_JumpDelay = 0.f;
     }
 
 	if(m_Physics->getBodyLanded(getBody()))
@@ -241,7 +245,7 @@ void Player::move(float p_DeltaTime)
 	XMFLOAT3 maxVelocity(m_DirectionX * m_MaxSpeed, 0.f, m_DirectionZ * m_MaxSpeed);	// cm/s
 	if (m_IsJumping)
 	{
-		maxVelocity.y = m_MaxSpeed;
+		maxVelocity.y = m_MaxSpeed*0.5f;
 	}
 	XMVECTOR vMaxVelocity = XMLoadFloat3(&maxVelocity);
 	XMVECTOR up = XMVectorSet(0.f, 1.f, 0.f, 0.f);
