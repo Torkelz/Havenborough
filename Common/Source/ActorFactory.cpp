@@ -97,7 +97,7 @@ Actor::ptr ActorFactory::createBasicModel(const std::string& p_Model, Vector3 p_
 void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Halfsize)
 {
 	p_Printer.OpenElement("AABBPhysics");
-	p_Printer.PushAttribute("Edge", true);
+	p_Printer.PushAttribute("IsEdge", true);
 	pushVector(p_Printer, "Halfsize", p_Halfsize);
 	pushVector(p_Printer, "OffsetPosition", p_Position);
 	p_Printer.CloseElement();
@@ -162,6 +162,12 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "WITCH");
 	printer.CloseElement();
+	//printer.OpenElement("OBBPhysics");
+	//printer.PushAttribute("Immovable", false);
+	//printer.PushAttribute("Mass", 68.f);
+	//pushVector(printer, "Halfsize", Vector3(50.f, 50.f, 50.f));
+	//pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f)); 
+	//printer.CloseElement();
 	printer.OpenElement("SpherePhysics");
 	printer.PushAttribute("Immovable", false);
 	printer.PushAttribute("Radius", 50.f);
@@ -286,6 +292,26 @@ Actor::ptr ActorFactory::createParticles( Vector3 p_Position, const std::string&
 	doc.Parse(printer.CStr());
 
 	return createActor(doc.FirstChildElement("Object"));
+}
+
+Actor::ptr ActorFactory::createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	pushRotation(printer, p_Rotation);
+	printer.OpenElement("OBBPhysics");
+	pushVector(printer, "Halfsize", p_Halfsize);
+	pushVector(printer, "Position", p_Position);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+return actor;
 }
 
 Actor::ptr ActorFactory::createSpell(const std::string& p_Spell)

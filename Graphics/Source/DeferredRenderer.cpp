@@ -197,12 +197,10 @@ void DeferredRenderer::renderDeferred()
 	// Clear render targets.
 	clearRenderTargets();
 
-	//// Update constant buffer
-	updateConstantBuffer();
-
-	// Render
+	// Update constant buffer and render
 	if(m_Objects.size() > 0)
 	{
+		updateConstantBuffer();
 		renderGeometry();
 		renderSSAO();
 		blurSSAO();
@@ -672,7 +670,6 @@ void DeferredRenderer::createBuffers()
 	cbdesc.sizeOfElement = sizeof(cBuffer);
 	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
 	cbdesc.usage = Buffer::Usage::DEFAULT;
-
 	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
 
@@ -692,7 +689,6 @@ void DeferredRenderer::createBuffers()
 	adesc.type = Buffer::Type::VERTEX_BUFFER;
 	adesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	m_AllLightBuffer = WrapperFactory::getInstance()->createBuffer(adesc);
-
 	VRAMInfo::getInstance()->updateUsage(sizeof(Light) * m_MaxLightsPerLightInstance);
 
 	Buffer::Description instanceWorldDesc;
@@ -702,11 +698,9 @@ void DeferredRenderer::createBuffers()
 	instanceWorldDesc.type = Buffer::Type::VERTEX_BUFFER;
 	instanceWorldDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	m_WorldInstanceData = WrapperFactory::getInstance()->createBuffer(instanceWorldDesc);
-
 	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_MaxLightsPerLightInstance);
 	
 	cSSAO_Buffer ssaoBuffer;
-
 	float aspect = m_ScreenWidth / m_ScreenHeight;
 	float halfHeight = m_FarZ * std::tanf(0.5f * m_FOV);
 	float halfWidth = aspect * halfHeight;
@@ -716,10 +710,10 @@ void DeferredRenderer::createBuffers()
 	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
 	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
 	buildSSAO_OffsetVectors(ssaoBuffer);
-	ssaoBuffer.occlusionRadius	= 25.0f;
-	ssaoBuffer.surfaceEpsilon	= 20.0f;
-	ssaoBuffer.occlusionFadeEnd	= 75.0f;
-	ssaoBuffer.occlusionFadeStart = 5.0f;
+	ssaoBuffer.occlusionRadius	= 5.0f;
+	ssaoBuffer.surfaceEpsilon	= 4.0f;
+	ssaoBuffer.occlusionFadeEnd	= 10.0f;
+	ssaoBuffer.occlusionFadeStart = 2.0f;
 
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
 	cbdesc.initData = &ssaoBuffer;
@@ -739,6 +733,7 @@ void DeferredRenderer::createBuffers()
 	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
 	cbdesc.usage = Buffer::Usage::DEFAULT;
 	m_SSAO_BlurConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(cSSAO_BlurBuffer));
 }
 
 void DeferredRenderer::buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer)
@@ -818,7 +813,7 @@ void DeferredRenderer::createSamplerState()
 	m_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
 
 	// Create SSAO random vector texture sampler.
-	sd.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; //Should be D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	m_Device->CreateSamplerState(&sd, &m_SSAO_RandomVecSampler);
@@ -926,6 +921,8 @@ void DeferredRenderer::loadLightModels()
 	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
 	cbdesc.type = Buffer::Type::VERTEX_BUFFER;
 	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
+	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT3) * temp.size());
+
 
 	m_SpotModelBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	temp.clear();
@@ -938,6 +935,7 @@ void DeferredRenderer::loadLightModels()
 	cbdesc.initData = temp.data();
 	cbdesc.numOfElements = temp.size();
 	m_PointModelBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT3) * temp.size());
 	temp.clear();
 	modelLoader.clear();
 
@@ -951,6 +949,7 @@ void DeferredRenderer::loadLightModels()
 	cbdesc.initData = temp.data();
 	cbdesc.numOfElements = 6;
 	m_DirectionalModelBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT3) * temp.size());
 
 	temp.clear();
 	temp.shrink_to_fit();
@@ -1008,7 +1007,7 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	textureDesc.Width = textureDesc.Height = p_Size;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32_TYPELESS;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.SampleDesc.Count = 1;
@@ -1043,6 +1042,9 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	dssrvdesc.Texture2D.MostDetailedMip = 0;
 
 	m_Device->CreateShaderResourceView(texture, &dssrvdesc, &m_SSAO_RandomVecSRV);
+	unsigned int size = VRAMInfo::getInstance()->calculateFormatUsage(textureDesc.Format,
+		textureDesc.Width, textureDesc.Height);
+	VRAMInfo::getInstance()->updateUsage(size);
 
 	SAFE_RELEASE(texture);
 }

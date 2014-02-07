@@ -95,6 +95,7 @@ public:
 	Actor::ptr createCheckPointArrow();
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
 	Actor::ptr createSpell(const std::string& p_Spell);
+	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
 
 protected:
 	/**
