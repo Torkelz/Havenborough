@@ -197,12 +197,10 @@ void DeferredRenderer::renderDeferred()
 	// Clear render targets.
 	clearRenderTargets();
 
-	//// Update constant buffer
-	updateConstantBuffer();
-
-	// Render
+	// Update constant buffer and render
 	if(m_Objects.size() > 0)
 	{
+		updateConstantBuffer();
 		renderGeometry();
 		renderSSAO();
 		blurSSAO();
