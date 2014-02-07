@@ -43,13 +43,7 @@
     <ClCompile Include="..\Graphics\Source\ModelInstance.cpp">
       <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\AnimationClipLoader.cpp">
-      <Filter>Graphics\GraphicsImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp">
-      <Filter>Graphics\GraphicsImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Graphics\Source\Joint.cpp">
       <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp">
@@ -135,22 +129,58 @@
     <Filter Include="Sound\SoundImport">
       <UniqueIdentifier>{e7a0c4be-cd38-4852-8cfd-e0e1ebec1b17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\HLSL">
+      <UniqueIdentifier>{33446ff9-0be7-4ede-93e4-40691a5bebcb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\testShader_VS_PS.hlsl">
-      <Filter>Graphics</Filter>
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\LightPassPointLight.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\LightPassSpotLight.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\ParticleSystem.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\SkyDome.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\SSAO.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\SSAO_Blur.hlsl">
+      <Filter>Graphics\HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\testShader_PS.hlsl">
-      <Filter>Graphics</Filter>
+      <Filter>Graphics\HLSL</Filter>
     </FxCompile>
     <FxCompile Include="Source\testShader_VS.hlsl">
-      <Filter>Graphics</Filter>
+      <Filter>Graphics\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="..\Graphics\Source\DeferredShaders\ForwardShader.hlsl">
-      <Filter>Graphics\GraphicsImport</Filter>
+    <FxCompile Include="Bin\assets\shaders\LightPassDirectionalLight.hlsl">
+      <Filter>Graphics\HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="..\Graphics\Source\DeferredShaders\AnimatedGeometryPass.hlsl">
-      <Filter>Graphics\GraphicsImport</Filter>
+    <FxCompile Include="Bin\assets\shaders\GeometryPass.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\AnimatedGeometryPass.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\BoundingVolume.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\DebugShader.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\ForwardShader.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\GeoInstanceShader.hlsl">
+      <Filter>Graphics\HLSL</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

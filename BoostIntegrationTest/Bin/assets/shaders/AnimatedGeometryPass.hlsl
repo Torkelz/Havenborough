@@ -5,19 +5,19 @@ Texture2D diffuse				: register(t0);
 Texture2D normalMap				: register(t1);
 Texture2D specular				: register(t2);
 
-cbuffer cb : register(b1)
+cbuffer cb : register(b0)
 {
 	float4x4 view;
 	float4x4 projection;
 	float3	 cameraPos;
 };
 
-cbuffer cbWorld : register(b2)
+cbuffer cbWorld : register(b1)
 {
 	float4x4 world;
 };
 
-cbuffer cbSkinned : register(b3)
+cbuffer cbSkinned : register(b2)
 {
 	//Lower later if we realize we need fewer than 96 bones per character.
 	float4x4 worldInvTranspose;
@@ -43,12 +43,13 @@ struct PSIn
 	float2 uvCoord	: COORD;
 	float3 tangent	: TANGENT;
 	float3 binormal	: BINORMAL;
+	float depth		: DEPTH;
 };
 
 struct PSOut
 {
-	half4 diffuse	: SV_Target0; // xyz = diffuse color, w = empty
-	half4 normal	: SV_Target1; // xyz = normal.xyz, w = specularPower
+	half4 diffuse	: SV_Target0; // xyz = diffuse color, w = specularPower
+	half4 normal	: SV_Target1; // xyz = normal.xyz, w = depth
 	half4 wPosition	: SV_Target2; // xyz = world position, w = specular intensity
 };
 
@@ -85,7 +86,8 @@ PSIn VS(VSIn input)
 	output.uvCoord = input.uvCoord;
 	output.tangent = normalize(mul(world, float4(tangentL, 0.f))).xyz;
 	output.binormal = normalize(mul(world, float4(binormalL, 0.f))).xyz;
-		
+	output.depth = mul(view, mul(world, input.pos)).z;
+
 	return output;
 }
 
@@ -107,9 +109,9 @@ PSOut PS( PSIn input )
 
 	if(diffuseColor.w == 1.0f)
 	{
-		output.diffuse			= float4(diffuseColor.xyz,1.0f);//input.diffuse.xyz;
-		output.normal.w			= 1.0f;//input.specularPower;// 1.0f for debug.
-		output.normal.xyz		= normal;
+		output.diffuse			= float4(diffuseColor.xyz, 1.0f);//input.diffuse.xyz; //specular intensity = 1.0f
+		output.normal.w			= input.depth;
+		output.normal.xyz		= normalize(mul(view, float4(normal, 0.f)).xyz);
 		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
 		output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;
 	}

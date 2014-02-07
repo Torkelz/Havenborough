@@ -1,4 +1,8 @@
 *Header
+#Transparent 0
+#Collidable 1
+#Transparent 1
+#Collidable 0
 #Materials 1
 #MESH Grass1
 #Vertices 8

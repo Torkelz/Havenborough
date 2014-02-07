@@ -35,8 +35,7 @@ private:
 	ID3D11Texture2D *m_DepthStencilBuffer;
 	ID3D11DepthStencilState	*m_DepthStencilState;
 	ID3D11DepthStencilView *m_DepthStencilView;
-
-
+	
 	unsigned int m_Numerator;
 	unsigned int m_Denominator;
 	char m_GraphicsCard[128];
@@ -45,6 +44,8 @@ private:
 	float m_ClearColor[4];
 	int m_SelectedRenderTarget;
 
+	float m_FOV;
+	float m_FarZ;
 	DirectX::XMFLOAT4X4 m_ViewMatrix;
 	DirectX::XMFLOAT4X4 m_ProjectionMatrix;
 	DirectX::XMFLOAT3 m_Eye;

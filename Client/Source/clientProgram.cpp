@@ -28,9 +28,9 @@ int main(int /*argc*/, char* /*argv*/[])
 	Logger::addOutput(Logger::Level::INFO, std::cout);
 	Logger::log(Logger::Level::INFO, "Starting game");
 
-	BaseGameApp game;
 	try
 	{
+		BaseGameApp game;
 		game.init();
 		game.run();
 		game.shutdown();
@@ -40,7 +40,6 @@ int main(int /*argc*/, char* /*argv*/[])
 	catch (std::exception& err)
 	{
 		Logger::log(Logger::Level::FATAL, err.what());
-		game.shutdown();
 		logFile.close();
 #ifdef _DEBUG
 		throw;

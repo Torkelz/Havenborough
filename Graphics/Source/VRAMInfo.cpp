@@ -47,6 +47,11 @@ unsigned int VRAMInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width, i
 			result = Size::R32G32B32_FLOAT * p_Width * p_Height;
 			break;
 		}
+	case DXGI_FORMAT_R32G32B32_TYPELESS:
+		{
+			result = Size::R32G32B32_TYPELESS * p_Width * p_Height;
+			break;
+		}
 	case DXGI_FORMAT_R32G32B32_UINT:
 		{
 			result = Size::R32G32B32_UINT * p_Width * p_Height;
