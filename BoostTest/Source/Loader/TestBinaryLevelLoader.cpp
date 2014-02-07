@@ -53,6 +53,9 @@ BOOST_AUTO_TEST_CASE(TestReadLevelData)
 	char binData[] =
 		"\x01\0\0\0"
 		"\x06\0\0\0House1"
+		"\0\0\0\0"
+		"\0\0\0\0"
+		"\x01\0\0\0"
 		"\x01\0\0\0"
 		"\0\0pA\0\0?D\0\0\0?"
 		"\x01\0\0\0"
@@ -67,6 +70,9 @@ BOOST_AUTO_TEST_CASE(TestReadLevelData)
 	byteFloat bFloat[9] = {15.0f, 764.0f, 0.5f, 512.0f, 512.0f, 512.0f, 0.0f, 0.0f, 0.0f};
 
 	BOOST_CHECK_EQUAL_COLLECTIONS(data.at(0).m_MeshName.begin(), data.at(0).m_MeshName.end(), meshName.begin(), meshName.end() );
+	BOOST_CHECK_EQUAL(data.at(0).m_Animated, false);
+	BOOST_CHECK_EQUAL(data.at(0).m_Transparent, false);
+	BOOST_CHECK_EQUAL(data.at(0).m_CollideAble, true);
 	BOOST_CHECK_EQUAL(data.at(0).m_Translation.at(0).x, bFloat[0].f );
 	BOOST_CHECK_EQUAL(data.at(0).m_Translation.at(0).y, bFloat[1].f );
 	BOOST_CHECK_EQUAL(data.at(0).m_Translation.at(0).z, bFloat[2].f );

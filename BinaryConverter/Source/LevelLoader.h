@@ -152,7 +152,7 @@ public:
 	 *
 	 * @return a vector containing information about model headers.
 	 */
-	const std::vector<ModelHeader> getModelInformation() const;
+	const std::vector<ModelHeader>& getModelInformation() const;
 
 protected:
 	void byteToInt(std::istream& p_Input, int& p_Return);

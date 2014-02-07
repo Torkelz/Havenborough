@@ -105,7 +105,7 @@ void LevelLoader::readModelHeaders(std::string p_FilePath)
 	std::ifstream headerFile(getPath(p_FilePath), std::ifstream::binary);
 	ModelHeader tempHeader;
 	headerFile.seekg(0,std::ifstream::end);
-	int size = headerFile.tellg();
+	std::streamoff size = headerFile.tellg();
 	headerFile.seekg(0,std::ifstream::beg);
 	while(headerFile.tellg() < size)
 	{
@@ -314,7 +314,7 @@ DirectX::XMFLOAT3 LevelLoader::getLevelCheckPointEnd() const
 	return m_CheckPointEnd;
 }
 
-const std::vector<LevelLoader::ModelHeader> LevelLoader::getModelInformation() const
+const std::vector<LevelLoader::ModelHeader>& LevelLoader::getModelInformation() const
 {
 	return m_ModelHeaders;
 }
