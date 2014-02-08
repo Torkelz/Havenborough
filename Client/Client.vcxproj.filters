@@ -157,7 +157,11 @@
     <FxCompile Include="Bin\assets\shaders\ForwardShader.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
-    <FxCompile Include="Bin\assets\shaders\DeferredHelperFunctions.hlsl" />
-    <FxCompile Include="Bin\assets\shaders\LightHelperFunctions.hlsl" />
+    <FxCompile Include="Bin\assets\shaders\LightHelper.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\DeferredHelper.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 #pragma pack_matrix(row_major)
-#include "DeferredHelperFunctions.hlsl"
-#include "LightHelperFunctions.hlsl"
+#include "LightHelper.hlsl"
 
 Texture2D wPosTex	 : register (t0);
 Texture2D normalTex	 : register (t1);
