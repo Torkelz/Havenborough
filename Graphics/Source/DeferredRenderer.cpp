@@ -22,10 +22,12 @@ DeferredRenderer::DeferredRenderer()
 	m_PointLights = nullptr;
 	m_DirectionalLights = nullptr;
 
-	for(int i = 0; i < m_numRenderTargets; i++)
-	{
-		m_RenderTargets[i] = nullptr;
-	}
+	m_RT["Diffuse"] = nullptr;
+	m_RT["Normal"] = nullptr;
+	m_RT["WPosition"] = nullptr;
+	m_RT["Final"] = nullptr;
+	m_RT["SSAO"] = nullptr;
+
 	m_SRV["Diffuse"] = nullptr;
 	m_SRV["Normal"] = nullptr;
 	m_SRV["Light"] = nullptr;
@@ -46,7 +48,7 @@ DeferredRenderer::DeferredRenderer()
 
 	m_Buffer["DefaultConstant"] = nullptr;
 	m_Buffer["ObjectConstant"] = nullptr;
-	m_Buffer["AnimatedCBuffer"] = nullptr;
+	m_Buffer["AnimatedConstant"] = nullptr;
 	m_Buffer["WorldInstance"] = nullptr;
 	m_Shader["IGeometry"] = nullptr;
 
@@ -85,10 +87,9 @@ DeferredRenderer::~DeferredRenderer(void)
 	m_ProjectionMatrix = nullptr;
 	m_CameraPosition = nullptr;
 
-	for(int i = 0; i < m_numRenderTargets; i++)
-	{
-		SAFE_RELEASE(m_RenderTargets[i]);
-	}
+	for(auto &rt : m_RT)
+		SAFE_RELEASE(rt.second);
+	m_RT.clear();
 
 	for(auto &srv : m_SRV)
 		SAFE_RELEASE(srv.second);
@@ -195,9 +196,11 @@ void DeferredRenderer::renderDeferred()
 void DeferredRenderer::renderGeometry()
 {
 	unsigned int nrRT = 3;
-
+	ID3D11RenderTargetView *rtv[] = {
+		m_RT["Diffuse"], m_RT["Normal"], m_RT["WPosition"]
+	};
 	// Set the render targets.
-	m_DeviceContext->OMSetRenderTargets(nrRT, m_RenderTargets, m_DepthStencilView);
+	m_DeviceContext->OMSetRenderTargets(nrRT, rtv, m_DepthStencilView);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// The textures will be needed to be grabbed from the model later.
@@ -300,7 +303,7 @@ void DeferredRenderer::renderGeometry()
 
 void DeferredRenderer::renderSSAO(void)
 {
-	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargets[4], 0);
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT["SSAO"], 0);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	m_Shader["SSAO"]->setShader();
@@ -339,11 +342,11 @@ void DeferredRenderer::blurSSAO(void)
 {
 	for(int i = 0; i < 4; i++)
 	{
-		SSAO_PingPong(m_SRV["SSAO"], m_RenderTargets[3], false);
-		SSAO_PingPong(m_SRV["Light"], m_RenderTargets[4], true);
+		SSAO_PingPong(m_SRV["SSAO"], m_RT["Final"], false);
+		SSAO_PingPong(m_SRV["Light"], m_RT["SSAO"], true);
 	}
 	float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[3], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT["Final"], color);
 }
 
 void DeferredRenderer::SSAO_PingPong(ID3D11ShaderResourceView *inputSRV, ID3D11RenderTargetView *outputTarget,
@@ -391,9 +394,6 @@ void DeferredRenderer::updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur)
 
 void DeferredRenderer::renderLighting()
 {
-	unsigned int activeRenderTarget	= 3;
-	unsigned int nrRT = 1;
-
 	// Store previous States to be set when we exit the method.
 	ID3D11RasterizerState *previousRasterState;
 	ID3D11DepthStencilState *previousDepthState;
@@ -410,7 +410,7 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->PSSetShaderResources(0, 4, srvs);
 
 	////Select the third render target[3]
-	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget], m_DepthStencilView); 
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT["Final"], m_DepthStencilView); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_DeviceContext->RSSetState(m_RasterState);
@@ -425,7 +425,7 @@ void DeferredRenderer::renderLighting()
 	//		Render SpotLights
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//		Render DirectionalLights
-	m_DeviceContext->OMSetRenderTargets(nrRT, &m_RenderTargets[activeRenderTarget],0);
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT["Final"],0);
 	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
 	renderSkyDomeImpl();
@@ -445,7 +445,7 @@ void DeferredRenderer::renderSkyDomeImpl()
 	if(m_RenderSkyDome)
 	{
 		////Select the third render target[3]
-		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargets[3], m_DepthStencilView); 
+		m_DeviceContext->OMSetRenderTargets(1, &m_RT["Final"], m_DepthStencilView); 
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_DeviceContext->RSSetState(m_SkyDomeRasterizerState);
 		m_DeviceContext->OMSetDepthStencilState(m_SkyDomeDepthStencilState,0);
@@ -556,26 +556,23 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 	HRESULT result = S_FALSE;
 
 	//Create the render targets
-	ID3D11Texture2D *srv[m_numRenderTargets];
-
 	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
 	rtDesc.Format = desc.Format;
 	rtDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtDesc.Texture2D.MipSlice = 0;
 
-	for(int i = 0; i < m_numRenderTargets; i++)
+	for(auto &rt : m_RT)
 	{
-		srv[i] = nullptr;
-
-		result = m_Device->CreateTexture2D(&desc, nullptr, &srv[i]);
+		ID3D11Texture2D *temp;
+		result = m_Device->CreateTexture2D(&desc, nullptr, &temp);
 		if(FAILED(result))
 			return result;
 
-		result = m_Device->CreateRenderTargetView(srv[i], &rtDesc, &m_RenderTargets[i]);
+		result = m_Device->CreateRenderTargetView(temp, &rtDesc, &rt.second);
 		if(FAILED(result))
 			return result;
 
-		SAFE_RELEASE(srv[i]);
+		SAFE_RELEASE(temp);
 	}
 
 	unsigned int size = m_numRenderTargets * VRAMInfo::getInstance()->calculateFormatUsage(desc.Format,
@@ -598,7 +595,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	ID3D11Resource* tt;
 
 	// Make the diffuse texture from the render target.	
-	m_RenderTargets[0]->GetResource(&tt);
+	m_RT["Diffuse"]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Diffuse"]);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
@@ -606,7 +603,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 		return result;
 
 	// Make the normal texture from the render target.
-	m_RenderTargets[1]->GetResource(&tt);
+	m_RT["Normal"]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Normal"]);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
@@ -614,7 +611,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 		return result;
 
 	// Make the world position texture from the render target.
-	m_RenderTargets[2]->GetResource(&tt);
+	m_RT["WPosition"]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["WPosition"]);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
@@ -622,7 +619,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 		return result;
 
 	// Make the final texture from the render target.
-	m_RenderTargets[3]->GetResource(&tt);
+	m_RT["Final"]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Light"]);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
@@ -630,7 +627,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 		return result;
 
 	// SSAO texture
-	m_RenderTargets[4]->GetResource(&tt);
+	m_RT["SSAO"]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["SSAO"]);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
@@ -662,7 +659,7 @@ void DeferredRenderer::createBuffers()
 	VRAMInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
 
 	cbdesc.sizeOfElement = sizeof(cAnimatedObjectBuffer);
-	m_Buffer["AnimatedCBuffer"] = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	m_Buffer["AnimatedConstant"] = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cAnimatedObjectBuffer));	
 
 	Buffer::Description adesc;
@@ -758,20 +755,20 @@ void DeferredRenderer::buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer)
 void DeferredRenderer::clearRenderTargets()
 {
 	float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[0], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT["Diffuse"], color);
 
 	color[0] = color[1] = color[2] = 0.5f;
-	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[1], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT["Normal"], color);
 
 	color[0] = color[1] = color[2] = 1.0f;
-	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[2], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT["WPosition"], color);
 
 	color[0] = color[1] = color[2] = 0.0f;
-	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[3], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT["Final"], color);
 
 	color[0] = color[1] = color[2] = 0.0f;
 	color[3] = 1.0f;
-	m_DeviceContext->ClearRenderTargetView(m_RenderTargets[4], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT["SSAO"], color);
 }
 
 void DeferredRenderer::createSamplerState()
@@ -1046,8 +1043,8 @@ void DeferredRenderer::renderObject(Renderable &p_Object)
 		for (unsigned int a = 0; a < tempBones->size(); a++)
 			temp.boneTransform[a] = (*tempBones)[a];
 
-		m_DeviceContext->UpdateSubresource(m_Buffer["AnimatedCBuffer"]->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-		m_Buffer["AnimatedCBuffer"]->setBuffer(2);
+		m_DeviceContext->UpdateSubresource(m_Buffer["AnimatedConstant"]->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+		m_Buffer["AnimatedConstant"]->setBuffer(2);
 	}
 
 	cObjectBuffer temp;
@@ -1077,6 +1074,6 @@ void DeferredRenderer::renderObject(Renderable &p_Object)
 	p_Object.model->shader->setBlendState(0, data);
 	p_Object.model->shader->unSetShader();
 	m_Buffer["ObjectConstant"]->unsetBuffer(1);
-	m_Buffer["AnimatedCBuffer"]->unsetBuffer(2);
+	m_Buffer["AnimatedConstant"]->unsetBuffer(2);
 	p_Object.model->vertexBuffer->unsetBuffer(0);
 }
