@@ -6,6 +6,7 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <vector>
+#include <map>
 
 class DeferredRenderer
 {
@@ -14,7 +15,6 @@ private:
 	float m_FarZ;
 	float m_ScreenWidth;
 	float m_ScreenHeight;
-
 
 	std::vector<Renderable>		m_Objects;
 
@@ -34,43 +34,17 @@ private:
 	static const unsigned int	m_numRenderTargets = 5;
 	ID3D11RenderTargetView		*m_RenderTargets[m_numRenderTargets];
 
-	ID3D11ShaderResourceView	*m_DiffuseSRV;
-	ID3D11ShaderResourceView	*m_NormalSRV;
-	ID3D11ShaderResourceView	*m_LightSRV;
-	ID3D11ShaderResourceView	*m_wPositionSRV;
-	ID3D11ShaderResourceView	*m_SSAO_SRV;
-	ID3D11ShaderResourceView	*m_SSAO_RandomVecSRV;
-
-	ID3D11SamplerState			*m_Sampler;
-	ID3D11SamplerState			*m_SSAO_NormalDepthSampler;
-	ID3D11SamplerState			*m_SSAO_RandomVecSampler;
-	ID3D11SamplerState			*m_SSAO_BlurSampler;
+	std::map<std::string, ID3D11ShaderResourceView*> m_SRV;
+	std::map<std::string, ID3D11SamplerState*> m_Sampler;
+	std::map<std::string, Shader*> m_Shader;
+	std::map<std::string, Buffer*> m_Buffer;
 
 	ID3D11BlendState			*m_BlendState;
 	ID3D11BlendState			*m_BlendState2;
-	Buffer						*m_AnimatedObjectConstantBuffer;
-	Buffer						*m_WorldInstanceData;
-	Shader						*m_InstancedGeometryShader;
 
 	ID3D11RasterizerState		*m_RasterState;
 	ID3D11DepthStencilState		*m_DepthState;
-
-	Shader						*m_PointShader;
-	Shader						*m_SpotShader;
-	Shader						*m_DirectionalShader;
-	Shader						*m_SSAO_Shader;
-	Shader						*m_SSAO_BlurShader;
-
-	Buffer						*m_PointModelBuffer;
-	Buffer						*m_SpotModelBuffer;
-	Buffer						*m_DirectionalModelBuffer;
-
-	Buffer						*m_ConstantBuffer;
-	Buffer						*m_ObjectConstantBuffer;
-	Buffer						*m_AllLightBuffer;
-	Buffer						*m_SSAO_ConstantBuffer;
-	Buffer						*m_SSAO_BlurConstantBuffer;
-
+	
 	Buffer						*m_SkyDomeBuffer;
 	Shader						*m_SkyDomeShader;
 	ID3D11ShaderResourceView	*m_SkyDomeSRV;
