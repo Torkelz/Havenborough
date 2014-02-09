@@ -1,48 +1,134 @@
 #include "SkyDome.h"
+#include "Utilities/MemoryUtil.h"
+#include "VRAMInfo.h"
 
 using namespace DirectX;
 
 SkyDome::SkyDome()
 {
-	m_NumIndices = 0;
+	m_DeviceContext = nullptr;
+	m_SkyDomeBuffer = nullptr;
+	m_SkyDomeShader = nullptr;
+	m_SkyDomeSRV = nullptr;
+	m_SkyDomeDepthStencilState = nullptr;
+	m_SkyDomeRasterizerState = nullptr;
+	m_SkyDomeSampler = nullptr;
 }
 
 SkyDome::~SkyDome()
 {
+	m_DeviceContext = nullptr;
+
+	SAFE_DELETE(m_SkyDomeBuffer);
+	SAFE_DELETE(m_SkyDomeShader);
+	SAFE_RELEASE(m_SkyDomeSRV);
+	SAFE_RELEASE(m_SkyDomeDepthStencilState);
+	SAFE_RELEASE(m_SkyDomeRasterizerState);
+	SAFE_RELEASE(m_SkyDomeSampler);
 }
 
-bool SkyDome::init(float p_Radius)
+bool SkyDome::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, 
+				   ID3D11ShaderResourceView* p_Texture, float p_Radius)
 {
-	buildGeoSphere(1, p_Radius);
+	m_DeviceContext = p_DeviceContext;
+	
+	ID3D11Resource *resource;
+	ID3D11Texture2D *texture;
+	D3D11_TEXTURE2D_DESC textureDesc;
 
-	std::vector<XMFLOAT3> initSkym_vertices(m_Vertices.size());
-	for(unsigned int i = 0; i < m_Vertices.size(); i++)
-	{
-		initSkym_vertices[i].x = 0.5f * m_Vertices[i].x;
-		initSkym_vertices[i].y = 0.5f * m_Vertices[i].y;
-		initSkym_vertices[i].z = 0.5f * m_Vertices[i].z;
-	}
+	p_Texture->GetResource(&resource);
+	resource->QueryInterface(&texture);
+	texture->GetDesc(&textureDesc);
 
-	std::vector<XMFLOAT3> temp;
+	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+	viewDesc.Format = textureDesc.Format;
+	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
+	viewDesc.TextureCube.MostDetailedMip = 0;
 
-	for(unsigned int i = 0; i < m_InitIndices.size();i++)
-	{
-		temp.push_back(m_Vertices.at(m_InitIndices.at(i)));
-	}
-	m_Vertices = temp;
-	m_Vertices.shrink_to_fit();
-	m_InitIndices.clear();
-	m_InitIndices.shrink_to_fit();
-	temp.clear();
-	temp.shrink_to_fit();
+	p_Device->CreateShaderResourceView(texture, &viewDesc, &m_SkyDomeSRV);
+	SAFE_RELEASE(texture);
+	SAFE_RELEASE(resource);
+
+
+	std::vector<DirectX::XMFLOAT3> temp = buildGeoSphere(1, p_Radius);
+	Buffer::Description cbdesc;
+	cbdesc.initData = temp.data();
+	cbdesc.numOfElements = temp.size();
+	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
+	cbdesc.type = Buffer::Type::VERTEX_BUFFER;
+	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
+	m_SkyDomeBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+
+	VRAMInfo::getInstance()->updateUsage(temp.size() * sizeof(DirectX::XMFLOAT3));
+
+	D3D11_DEPTH_STENCIL_DESC dsdesc;
+	ZeroMemory( &dsdesc, sizeof( D3D11_DEPTH_STENCIL_DESC ) );
+	dsdesc.DepthEnable = true;
+	dsdesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsdesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	p_Device->CreateDepthStencilState(&dsdesc, &m_SkyDomeDepthStencilState);
+
+	D3D11_RASTERIZER_DESC rdesc;
+	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
+	rdesc.FillMode = D3D11_FILL_SOLID;
+	rdesc.CullMode = D3D11_CULL_NONE;
+	p_Device->CreateRasterizerState(&rdesc,&m_SkyDomeRasterizerState);
+
+	m_SkyDomeShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/SkyDome.hlsl",
+		"VS,PS","5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
+	// Create texture sampler.
+	D3D11_SAMPLER_DESC sd;
+	ZeroMemory(&sd, sizeof(sd));
+	sd.Filter			= D3D11_FILTER_ANISOTROPIC;
+	sd.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.ComparisonFunc   = D3D11_COMPARISON_NEVER;
+	sd.MinLOD			= 0;
+	sd.MaxLOD			= D3D11_FLOAT32_MAX;
+	p_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
 
 	return true;
 }
 
-void SkyDome::buildGeoSphere(unsigned int p_NumSubDivisions, float p_Radius)
+void SkyDome::RenderSkyDome(ID3D11RenderTargetView *p_RenderTarget, ID3D11DepthStencilView *p_DepthStencilView,
+							Buffer *p_ConstantBuffer)
 {
+	////Select the third render target[3]
+	m_DeviceContext->OMSetRenderTargets(1, &p_RenderTarget, p_DepthStencilView); 
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_DeviceContext->RSSetState(m_SkyDomeRasterizerState);
+	m_DeviceContext->OMSetDepthStencilState(m_SkyDomeDepthStencilState,0);
+	m_DeviceContext->PSSetSamplers(0,1,&m_SkyDomeSampler);
+	m_DeviceContext->PSSetShaderResources(0,1,&m_SkyDomeSRV);
+	//Set constant data
+	p_ConstantBuffer->setBuffer(0);
+
+	m_SkyDomeShader->setShader();
+	m_SkyDomeBuffer->setBuffer(0);
+
+	m_DeviceContext->Draw(m_SkyDomeBuffer->getNumOfElements(),0);
+
+	m_SkyDomeShader->unSetShader();
+	m_SkyDomeBuffer->unsetBuffer(0);
+	m_SkyDomeShader->unSetShader();
+	p_ConstantBuffer->unsetBuffer(0);
+	m_DeviceContext->PSSetSamplers(0,0,0);
+
+	ID3D11ShaderResourceView * nullsrv[] = {0};
+	m_DeviceContext->PSSetShaderResources(0,1,nullsrv);
+}
+
+std::vector<DirectX::XMFLOAT3> SkyDome::buildGeoSphere(unsigned int p_NumSubDivisions, float p_Radius)
+{
+	std::vector<DirectX::XMFLOAT3> Vertices;
+	std::vector<unsigned int> InitIndices;
+	unsigned int m_NumIndices;
+
 	//Put a cap on the number of subdivisions
-	p_NumSubDivisions = std::min(p_NumSubDivisions, unsigned int(5));
+	p_NumSubDivisions = min(p_NumSubDivisions, unsigned int(5));
 
 	//Approximate a sphere by tesselating an icosahedron
 	const float X = 0.525731f;
@@ -66,41 +152,64 @@ void SkyDome::buildGeoSphere(unsigned int p_NumSubDivisions, float p_Radius)
 		10,1,6, 11,0,9, 2,11,9, 5,2,9, 11,2,7
 	};
 
-	m_Vertices.resize(12);
-	m_InitIndices.resize(60);
+	Vertices.resize(12);
+	InitIndices.resize(60);
 
-	for(unsigned int i = 0; i < m_Vertices.capacity(); i++)
+	for(unsigned int i = 0; i < Vertices.capacity(); i++)
 	{
-		m_Vertices[i] = pos[i];
+		Vertices[i] = pos[i];
 	}
-	for(unsigned int i = 0; i < m_InitIndices.capacity(); i++)
+	for(unsigned int i = 0; i < InitIndices.capacity(); i++)
 	{
-		m_InitIndices[i] = k[i];
+		InitIndices[i] = k[i];
 	}
 	for(unsigned int i = 0; i < p_NumSubDivisions; i++)
 	{
-		subdivide();        
+		subdivide(Vertices, InitIndices);        
 	}
 
 	// Project m_vertices onto sphere and scale.
-	for(size_t i = 0; i < m_Vertices.size(); ++i)
+	for(size_t i = 0; i < Vertices.size(); ++i)
 	{
-		XMVECTOR tv = XMLoadFloat3(&m_Vertices[i]);
+		XMVECTOR tv = XMLoadFloat3(&Vertices[i]);
 		tv = XMVector3Normalize(tv);
-		XMStoreFloat3(&m_Vertices[i],tv);
-		m_Vertices[i].x *= p_Radius;
-		m_Vertices[i].y *= p_Radius;
-		m_Vertices[i].z *= p_Radius;
+		XMStoreFloat3(&Vertices[i],tv);
+		Vertices[i].x *= p_Radius;
+		Vertices[i].y *= p_Radius;
+		Vertices[i].z *= p_Radius;
 	}
+
+
+
+	std::vector<XMFLOAT3> initSkym_vertices(Vertices.size());
+	for(unsigned int i = 0; i < Vertices.size(); i++)
+	{
+		initSkym_vertices[i].x = 0.5f * Vertices[i].x;
+		initSkym_vertices[i].y = 0.5f * Vertices[i].y;
+		initSkym_vertices[i].z = 0.5f * Vertices[i].z;
+	}
+
+	std::vector<XMFLOAT3> temp;
+
+	for(unsigned int i = 0; i < InitIndices.size();i++)
+	{
+		temp.push_back(Vertices.at(InitIndices.at(i)));
+	}
+	Vertices.clear();
+	Vertices.shrink_to_fit();
+	InitIndices.clear();
+	InitIndices.shrink_to_fit();
+
+	return temp;
 }
 
-void SkyDome::subdivide()
+void SkyDome::subdivide(std::vector<DirectX::XMFLOAT3> &p_Vertices, std::vector<unsigned int> &p_InitIndices)
 {
-	std::vector<XMFLOAT3> vin = m_Vertices;
-	std::vector<unsigned int> iin = m_InitIndices;
+	std::vector<XMFLOAT3> vin = p_Vertices;
+	std::vector<unsigned int> iin = p_InitIndices;
 
-	m_Vertices.resize(0);
-	m_InitIndices.resize(0);
+	p_Vertices.resize(0);
+	p_InitIndices.resize(0);
 
 	// v1
 	// *
@@ -129,32 +238,34 @@ void SkyDome::subdivide()
 		XMFLOAT3 m2;
 		XMStoreFloat3(&m2,0.5f*(vv0 + vv2));
 
-		m_Vertices.push_back(v0); // 0
-		m_Vertices.push_back(v1); // 1
-		m_Vertices.push_back(v2); // 2
-		m_Vertices.push_back(m0); // 3
-		m_Vertices.push_back(m1); // 4
-		m_Vertices.push_back(m2); // 5
+		p_Vertices.push_back(v0); // 0
+		p_Vertices.push_back(v1); // 1
+		p_Vertices.push_back(v2); // 2
+		p_Vertices.push_back(m0); // 3
+		p_Vertices.push_back(m1); // 4
+		p_Vertices.push_back(m2); // 5
 
-		m_InitIndices.push_back(i*6+0);
-		m_InitIndices.push_back(i*6+3);
-		m_InitIndices.push_back(i*6+5);
+		p_InitIndices.push_back(i*6+0);
+		p_InitIndices.push_back(i*6+3);
+		p_InitIndices.push_back(i*6+5);
 
-		m_InitIndices.push_back(i*6+3);
-		m_InitIndices.push_back(i*6+4);
-		m_InitIndices.push_back(i*6+5);
+		p_InitIndices.push_back(i*6+3);
+		p_InitIndices.push_back(i*6+4);
+		p_InitIndices.push_back(i*6+5);
 
-		m_InitIndices.push_back(i*6+5);
-		m_InitIndices.push_back(i*6+4);
-		m_InitIndices.push_back(i*6+2);
+		p_InitIndices.push_back(i*6+5);
+		p_InitIndices.push_back(i*6+4);
+		p_InitIndices.push_back(i*6+2);
 
-		m_InitIndices.push_back(i*6+3);
-		m_InitIndices.push_back(i*6+1);
-		m_InitIndices.push_back(i*6+4);
+		p_InitIndices.push_back(i*6+3);
+		p_InitIndices.push_back(i*6+1);
+		p_InitIndices.push_back(i*6+4);
 	}
 }
 
-std::vector<XMFLOAT3> SkyDome::getVertices()
-{
-	return m_Vertices;
-}
+//std::vector<XMFLOAT3> SkyDome::getVertices()
+//{
+//	return m_Vertices;
+//}
+
+

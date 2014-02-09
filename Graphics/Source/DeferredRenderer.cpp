@@ -1,7 +1,6 @@
 #include "DeferredRenderer.h"
 #include "VRAMInfo.h"
 #include "ModelBinaryLoader.h"
-#include "SkyDome.h"
 #include "WrapperFactory.h"
 #include "Utilities/MemoryUtil.h"
 #include <algorithm>	// std::sort
@@ -65,12 +64,7 @@ DeferredRenderer::DeferredRenderer()
 	m_BlendState = nullptr;
 	m_BlendState2 = nullptr;
 
-	m_SkyDomeBuffer = nullptr;
-	m_SkyDomeShader = nullptr;
-	m_SkyDomeSRV = nullptr;
-	m_SkyDomeDepthStencilState = nullptr;
-	m_SkyDomeRasterizerState = nullptr;
-	m_SkyDomeSampler = nullptr;
+	m_SkyDome = nullptr;
 }
 
 DeferredRenderer::~DeferredRenderer(void)
@@ -112,13 +106,7 @@ DeferredRenderer::~DeferredRenderer(void)
 
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthState);
-
-	SAFE_DELETE(m_SkyDomeBuffer);
-	SAFE_DELETE(m_SkyDomeShader);
-	SAFE_RELEASE(m_SkyDomeSRV);
-	SAFE_RELEASE(m_SkyDomeDepthStencilState);
-	SAFE_RELEASE(m_SkyDomeRasterizerState);
-	SAFE_RELEASE(m_SkyDomeSampler);
+	SAFE_DELETE(m_SkyDome);
 }
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
@@ -204,42 +192,10 @@ void DeferredRenderer::renderGeometry()
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// The textures will be needed to be grabbed from the model later.
-
-	std::sort(m_Objects.begin(),m_Objects.end(), [] (Renderable &a, Renderable &b)
-	{ 
-		return a.model > b.model;
-	});
-	
 	std::vector<std::vector<Renderable>> instancedModels;
 	std::vector<Renderable> animatedOrSingle;
 
-	for(unsigned int i = 0; i < m_Objects.size(); i++)
-	{
-		if(m_Objects.at(i).model->isAnimated)
-			animatedOrSingle.push_back(std::move(m_Objects.at(i)));
-		else
-		{
-			std::vector<Renderable> l;
-			int current = i;
-			int nr = 0;
-			for(unsigned int j = i + 1; j < m_Objects.size();j++)
-				if(m_Objects.at(current).model == m_Objects.at(j).model)
-					nr++;
-				else
-					break;
-
-			i += nr;
-
-			if(nr >= 1)
-			{
-				std::move(m_Objects.begin() + current, m_Objects.begin() + i + 1, std::back_inserter(l));
-				instancedModels.push_back(l);
-			}
-			else
-				animatedOrSingle.push_back(std::move(m_Objects.at(current)));
-		}
-	}
-	m_Objects.clear();
+	SortRenderables(animatedOrSingle, instancedModels);
 
 	m_Buffer["DefaultConstant"]->setBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler["Default"]);
@@ -249,50 +205,7 @@ void DeferredRenderer::renderGeometry()
 		renderObject(animation);
 
 	for( auto &k : instancedModels)
-	{
-		UINT Offsets[2] = {0,0};
-		ID3D11Buffer * buffers[] = {k.front().model->vertexBuffer->getBufferPointer(), m_Buffer["WorldInstance"]->getBufferPointer()};
-		UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
-
-
-		ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
-
-		// Set shader.
-		m_Shader["IGeometry"]->setShader();
-		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-		m_Shader["IGeometry"]->setBlendState(m_BlendState2, data);
-		m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
-
-		for(unsigned int u = 0; u < k.front().model->numOfMaterials;u++)
-		{
-			ID3D11ShaderResourceView *srvs[] =  {	k.front().model->diffuseTexture[u].second, 
-													k.front().model->normalTexture[u].second, 
-													k.front().model->specularTexture[u].second 
-												};
-			m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-			D3D11_MAPPED_SUBRESOURCE ms;
-			for(unsigned int i = 0; i < k.size(); i += m_MaxLightsPerLightInstance)
-			{
-				int nrToCpy = (k.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : k.size() - i ;
-				std::vector<XMFLOAT4X4> tWorld;
-				for(int j = 0; j < nrToCpy; j++)
-					tWorld.push_back(k.at(i+j).world);
-
-				m_DeviceContext->Map(m_Buffer["WorldInstance"]->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
-				memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
-				m_DeviceContext->Unmap(m_Buffer["WorldInstance"]->getBufferPointer(), NULL);
-
-				m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),
-				k.front().model->drawInterval.at(u).first,0);
-			}
-			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
-		}
-
-		for(unsigned int i = 0; i < 2; i++)
-			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
-		m_Shader["IGeometry"]->setBlendState(0, data);
-		m_Shader["IGeometry"]->unSetShader();
-	}
+		RenderObjectsInstanced(k);
 
 	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
@@ -428,7 +341,8 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT["Final"],0);
 	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
-	renderSkyDomeImpl();
+	if(m_SkyDome && m_RenderSkyDome)
+		m_SkyDome->RenderSkyDome(m_RT["Final"], m_DepthStencilView, m_Buffer["DefaultConstant"]);
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
 	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
@@ -440,36 +354,6 @@ void DeferredRenderer::renderLighting()
 	SAFE_RELEASE(previousDepthState);
 }
 
-void DeferredRenderer::renderSkyDomeImpl()
-{
-	if(m_RenderSkyDome)
-	{
-		////Select the third render target[3]
-		m_DeviceContext->OMSetRenderTargets(1, &m_RT["Final"], m_DepthStencilView); 
-		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_DeviceContext->RSSetState(m_SkyDomeRasterizerState);
-		m_DeviceContext->OMSetDepthStencilState(m_SkyDomeDepthStencilState,0);
-		m_DeviceContext->PSSetSamplers(0,1,&m_SkyDomeSampler);
-		m_DeviceContext->PSSetShaderResources(0,1,&m_SkyDomeSRV);
-		//Set constant data
-		m_Buffer["DefaultConstant"]->setBuffer(0);
-
-		m_SkyDomeShader->setShader();
-		m_SkyDomeBuffer->setBuffer(0);
-
-		m_DeviceContext->Draw(m_SkyDomeBuffer->getNumOfElements(),0);
-		
-		m_SkyDomeShader->unSetShader();
-		m_SkyDomeBuffer->unsetBuffer(0);
-		m_SkyDomeShader->unSetShader();
-		m_Buffer["DefaultConstant"]->unsetBuffer(0);
-		m_DeviceContext->PSSetSamplers(0,0,0);
-
-		ID3D11ShaderResourceView * nullsrv[] = {0};
-		m_DeviceContext->PSSetShaderResources(0,1,nullsrv);
-	}
-}
-
 void DeferredRenderer::addRenderable(Renderable p_renderable)
 {
 	m_Objects.push_back(p_renderable);
@@ -477,50 +361,11 @@ void DeferredRenderer::addRenderable(Renderable p_renderable)
 
 void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float p_Radius)
 {
-	ID3D11Resource *resource;
-	ID3D11Texture2D *texture;
-	D3D11_TEXTURE2D_DESC textureDesc;
+	if(m_SkyDome)
+		SAFE_DELETE(m_SkyDome);
 
-	p_Texture->GetResource(&resource);
-	resource->QueryInterface(&texture);
-	texture->GetDesc(&textureDesc);
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
-    viewDesc.Format = textureDesc.Format;
-    viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-    viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
-    viewDesc.TextureCube.MostDetailedMip = 0;
-
-	m_Device->CreateShaderResourceView(texture, &viewDesc, &m_SkyDomeSRV);
-	SAFE_RELEASE(texture);
-	SAFE_RELEASE(resource);
-
-	SkyDome d;
-	d.init(p_Radius);
-	std::vector<DirectX::XMFLOAT3> tt = d.getVertices();
-	Buffer::Description cbdesc;
-	cbdesc.initData = tt.data();
-	cbdesc.numOfElements = tt.size();
-	cbdesc.sizeOfElement = sizeof(DirectX::XMFLOAT3);
-	cbdesc.type = Buffer::Type::VERTEX_BUFFER;
-	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
-	m_SkyDomeBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	D3D11_DEPTH_STENCIL_DESC dsdesc;
-	ZeroMemory( &dsdesc, sizeof( D3D11_DEPTH_STENCIL_DESC ) );
-	dsdesc.DepthEnable = true;
-	dsdesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	dsdesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	m_Device->CreateDepthStencilState(&dsdesc, &m_SkyDomeDepthStencilState);
-
-	D3D11_RASTERIZER_DESC rdesc;
-	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
-	rdesc.FillMode = D3D11_FILL_SOLID;
-	rdesc.CullMode = D3D11_CULL_NONE;
-	m_Device->CreateRasterizerState(&rdesc,&m_SkyDomeRasterizerState);
-
-	m_SkyDomeShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/SkyDome.hlsl",
-		"VS,PS","5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
+	m_SkyDome = new SkyDome();
+	m_SkyDome->init(m_Device, m_DeviceContext, p_Texture, p_Radius);
 }
 
 void DeferredRenderer::renderSkyDome()
@@ -785,13 +630,6 @@ void DeferredRenderer::createSamplerState()
 	sd.MaxLOD			= D3D11_FLOAT32_MAX;
 	m_Device->CreateSamplerState( &sd, &m_Sampler["Default"] );
 	
-	// Create skydome texture sampler.
-	sd.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.Filter			= D3D11_FILTER_ANISOTROPIC;
-	m_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
-
 	// Create SSAO random vector texture sampler.
 	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; //Should be D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -1076,4 +914,85 @@ void DeferredRenderer::renderObject(Renderable &p_Object)
 	m_Buffer["ObjectConstant"]->unsetBuffer(1);
 	m_Buffer["AnimatedConstant"]->unsetBuffer(2);
 	p_Object.model->vertexBuffer->unsetBuffer(0);
+}
+
+void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels )
+{
+	std::sort(m_Objects.begin(),m_Objects.end(), [] (Renderable &a, Renderable &b)
+	{ 
+		return a.model > b.model;
+	});
+
+	for(unsigned int i = 0; i < m_Objects.size(); i++)
+	{
+		if(m_Objects.at(i).model->isAnimated)
+			animatedOrSingle.push_back(std::move(m_Objects.at(i)));
+		else
+		{
+			std::vector<Renderable> l;
+			int current = i;
+			int nr = 0;
+			for(unsigned int j = i + 1; j < m_Objects.size();j++)
+				if(m_Objects.at(current).model == m_Objects.at(j).model)
+					nr++;
+				else
+					break;
+
+			i += nr;
+
+			if(nr >= 1)
+			{
+				std::move(m_Objects.begin() + current, m_Objects.begin() + i + 1, std::back_inserter(l));
+				instancedModels.push_back(l);
+			}
+			else
+				animatedOrSingle.push_back(std::move(m_Objects.at(current)));
+		}
+	}
+	m_Objects.clear();
+}
+
+void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Objects )
+{
+	UINT Offsets[2] = {0,0};
+	ID3D11Buffer * buffers[] = {p_Objects.front().model->vertexBuffer->getBufferPointer(), m_Buffer["WorldInstance"]->getBufferPointer()};
+	UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
+
+	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
+
+	// Set shader.
+	m_Shader["IGeometry"]->setShader();
+	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+	m_Shader["IGeometry"]->setBlendState(m_BlendState2, data);
+	m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
+
+	for(unsigned int u = 0; u < p_Objects.front().model->numOfMaterials;u++)
+	{
+		ID3D11ShaderResourceView *srvs[] =  {	p_Objects.front().model->diffuseTexture[u].second, 
+			p_Objects.front().model->normalTexture[u].second, 
+			p_Objects.front().model->specularTexture[u].second 
+		};
+		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+		D3D11_MAPPED_SUBRESOURCE ms;
+		for(unsigned int i = 0; i < p_Objects.size(); i += m_MaxLightsPerLightInstance)
+		{
+			int nrToCpy = (p_Objects.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : p_Objects.size() - i ;
+			std::vector<XMFLOAT4X4> tWorld;
+			for(int j = 0; j < nrToCpy; j++)
+				tWorld.push_back(p_Objects.at(i+j).world);
+
+			m_DeviceContext->Map(m_Buffer["WorldInstance"]->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+			memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
+			m_DeviceContext->Unmap(m_Buffer["WorldInstance"]->getBufferPointer(), NULL);
+
+			m_DeviceContext->DrawInstanced(p_Objects.front().model->drawInterval.at(u).second, tWorld.size(),
+				p_Objects.front().model->drawInterval.at(u).first,0);
+		}
+		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+	}
+
+	for(unsigned int i = 0; i < 2; i++)
+		m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
+	m_Shader["IGeometry"]->setBlendState(0, data);
+	m_Shader["IGeometry"]->unSetShader();
 }

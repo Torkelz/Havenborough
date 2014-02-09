@@ -1,6 +1,7 @@
 #pragma once
 #include "Light.h"
 #include "Renderable.h"
+#include "SkyDome.h"
 #include "ConstantBuffers.h"
 
 #include <d3d11.h>
@@ -44,14 +45,9 @@ private:
 
 	ID3D11RasterizerState		*m_RasterState;
 	ID3D11DepthStencilState		*m_DepthState;
-	
-	Buffer						*m_SkyDomeBuffer;
-	Shader						*m_SkyDomeShader;
-	ID3D11ShaderResourceView	*m_SkyDomeSRV;
-	ID3D11DepthStencilState		*m_SkyDomeDepthStencilState;
-	ID3D11RasterizerState		*m_SkyDomeRasterizerState;
+
 	bool						m_RenderSkyDome;
-	ID3D11SamplerState			*m_SkyDomeSampler;
+	SkyDome						*m_SkyDome;
 
 public:
 	/**
@@ -145,5 +141,6 @@ private:
 	void createRandomTexture(unsigned int p_Size);
 
 	void renderObject(Renderable &p_Object);
+	void SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels );
+	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects );
 };
-
