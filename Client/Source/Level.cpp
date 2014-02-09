@@ -44,7 +44,10 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 			Vector3 scale = model.m_Scale.at(j);	
 			tinyxml2::XMLPrinter printer;
 			createObjectActor(&printer, model.m_MeshName, translation, rotation, scale);
-			createCollisionActor(&printer, model.m_MeshName, translation, rotation, scale);
+			if(model.m_CollideAble)
+			{
+				createCollisionActor(&printer, model.m_MeshName, translation, rotation, scale);
+			}
 			p_ActorOut.push_back(createActorPointer(&printer));
 		}
 	}

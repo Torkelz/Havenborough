@@ -42,7 +42,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	const vector<Material> &materialData = modelLoader.getMaterial();
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
 	
-	bool isAnimated = !modelLoader.getAnimatedVertexBuffer().empty();
+	bool isAnimated = modelLoader.getAnimated();
 
 	if(!isAnimated)
 	{
@@ -72,6 +72,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	model.drawInterval = tempInterval;
 	model.numOfMaterials = materialData.size();
 	model.isAnimated = isAnimated;
+	model.isTransparent = modelLoader.getTransparent();
 
 	modelLoader.clear();
 	
