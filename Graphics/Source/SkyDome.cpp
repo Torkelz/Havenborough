@@ -125,7 +125,6 @@ std::vector<DirectX::XMFLOAT3> SkyDome::buildGeoSphere(unsigned int p_NumSubDivi
 {
 	std::vector<DirectX::XMFLOAT3> Vertices;
 	std::vector<unsigned int> InitIndices;
-	unsigned int m_NumIndices;
 
 	//Put a cap on the number of subdivisions
 	p_NumSubDivisions = min(p_NumSubDivisions, unsigned int(5));
