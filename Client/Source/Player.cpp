@@ -224,12 +224,12 @@ void Player::update(float p_DeltaTime)
 		}
 
 		float currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveY[0].y);
-		float currentFrameSpan = (m_ForceMoveY[1].y - m_ForceMoveY[0].y);
+		float currentFrameSpan = ((float)m_ForceMoveY[1].y - (float)m_ForceMoveY[0].y);
 		float timeFrac = currentFrameTime / currentFrameSpan;
 		float currentYPos = m_ForceMoveY[0].x + ((m_ForceMoveY[1].x - m_ForceMoveY[0].x) * timeFrac);
 
 		currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveZ[0].y);
-		currentFrameSpan = (m_ForceMoveZ[1].y - m_ForceMoveZ[0].y);
+		currentFrameSpan = ((float)m_ForceMoveZ[1].y - (float)m_ForceMoveZ[0].y);
 		timeFrac = currentFrameTime / currentFrameSpan;
 		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
 
