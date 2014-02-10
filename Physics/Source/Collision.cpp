@@ -720,7 +720,6 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 					break;
 				}
 				else
-				{
 					checkCollisionDepth(min, r, tOverlap, a, tLeast);
 			}
 		}
@@ -997,7 +996,7 @@ bool Collision::OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, XMVECTOR &p_L
 	if(fabs(s) <= r)
 	{
 		float lLength = XMVectorGetX(XMVector4LengthSq(pn));
-		float R = (r - fabs(s)) / lLength;
+		float R = (r - fabs(s));
 		if(p_Overlap > fabs(R))
 		{
 			p_Overlap = fabs(R);
@@ -1032,7 +1031,7 @@ void Collision::checkCollisionDepth(float p_Rt, float p_R, float &p_Overlap, XMV
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
 	if(lLength > EPSILON)
 	{
-		p_R = (fabs(p_R) - p_Rt) / lLength;
+		p_R = (fabs(p_R) - p_Rt);
 		if(p_Overlap > fabs(p_R))
 		{
 			p_Overlap = fabs(p_R);
