@@ -261,10 +261,3 @@ void SkyDome::subdivide(std::vector<DirectX::XMFLOAT3> &p_Vertices, std::vector<
 		p_InitIndices.push_back(i*6+4);
 	}
 }
-
-//std::vector<XMFLOAT3> SkyDome::getVertices()
-//{
-//	return m_Vertices;
-//}
-
-
