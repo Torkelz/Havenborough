@@ -247,48 +247,23 @@ bool ScreenRenderer::depthSortCompareFunc(const Renderable2D &a, const Renderabl
 
 void ScreenRenderer::renderObject(Renderable2D &p_Object)
 {
-	//m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
-	//p_Object.model->vertexBuffer->setBuffer(0);
+	m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler);
+	
+	p_Object.model->vertexBuffer->setBuffer(0);
 
-	//cObjectBuffer temp;
-	//temp.world = p_Object.world;
-	//m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-	//m_ObjectConstantBuffer->setBuffer(2);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	////Set the colorshadingConstantBuffer
-	//DirectX::XMFLOAT3 color = DirectX::XMFLOAT3(0,0,1);
-	//m_DeviceContext->UpdateSubresource(m_ColorShadingConstantBuffer->getBufferPointer(),
-	//	NULL,NULL,p_Object.colorTone ,NULL,NULL);
-	//m_ColorShadingConstantBuffer->setBuffer(3);
-	//m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// Set shader.
+	p_Object.model->shader->setShader();
+	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+	p_Object.model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
+	m_DeviceContext->PSSetShaderResources(0, 1, &(p_Object.model->diffuseTexture[0].second));
 
-	//// Set shader.
-	//p_Object.model->shader->setShader();
-	//float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-	//p_Object.model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
+	m_DeviceContext->Draw(p_Object.model->drawInterval.at(0).second, p_Object.model->drawInterval.at(0).first);
 
-	//for(unsigned int j = 0; j < p_Object.model->numOfMaterials;j++)
-	//{
-	//	ID3D11ShaderResourceView *srvs[] =  {
-	//		p_Object.model->diffuseTexture[j].second, 
-	//		p_Object.model->normalTexture[j].second, 
-	//		p_Object.model->specularTexture[j].second 
-	//	};
-	//	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-
-	//	m_DeviceContext->Draw(p_Object.model->drawInterval.at(j).second,
-	//		p_Object.model->drawInterval.at(j).first);
-
-	//	// The textures will be needed to be grabbed from the model later.
-	//	static ID3D11ShaderResourceView * const nullsrvs[] = {NULL,NULL,NULL};
-	//	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
-	//}
-
-	//p_Object.model->shader->setBlendState(0, data);
-	//p_Object.model->shader->unSetShader();
-	//m_ObjectConstantBuffer->unsetBuffer(2);
-	//m_AnimatedObjectConstantBuffer->unsetBuffer(3);
-	//p_Object.model->vertexBuffer->unsetBuffer(0);
-	//m_ColorShadingConstantBuffer->unsetBuffer(3);
-	//m_DeviceContext->PSSetSamplers(0,0,0);
+	m_DeviceContext->PSSetShaderResources(0, 1, nullptr);
+	p_Object.model->shader->setBlendState(0, data);
+	p_Object.model->shader->unSetShader();
+	p_Object.model->vertexBuffer->unsetBuffer(0);
+	m_DeviceContext->PSSetSamplers(0,0,0);
 }
