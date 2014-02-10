@@ -23,14 +23,20 @@ VSLightOutput PointLightVS(VSLightInput input)
 {
 	float s = input.lightRange;
 	float3 t = input.lightPos;
-	float4x4 scale = {  float4(s,0,0,0),
-						float4(0,s,0,0),
-						float4(0,0,s,0),
-						float4(0,0,0,1)};
-	float4x4 trans = {  float4(1,0,0,t.x),
-						float4(0,1,0,t.y),
-						float4(0,0,1,t.z),
-						float4(0,0,0,1)};
+	float4x4 scale =
+	{
+		float4(s,0,0,0),
+		float4(0,s,0,0),
+		float4(0,0,s,0),
+		float4(0,0,0,1)
+	};
+	float4x4 trans =
+	{  
+		float4(1,0,0,t.x),
+		float4(0,1,0,t.y),
+		float4(0,0,1,t.z),
+		float4(0,0,0,1)
+	};
 
 	float4 pos = mul(scale, float4(input.vposition,1.0f));
 	pos = mul(trans, pos);

@@ -29,19 +29,24 @@ VSLightOutput SpotLightVS(VSLightInput input)
 	float s = (l*tan(acos(input.spotlightAngles.y)));//sqrt(0.5618f);
 
 	float3 t = input.lightPos;
-	float4x4 scale = {  float4(s,0,0,0),
-						float4(0,s,0,0),
-						float4(0,0,l,0),
-						float4(0,0,0,1)};
-	float4x4 rotat = calcRotationMatrix(input.lightDirection, input.lightPos);
-	float4x4 trans = {  float4(1,0,0,t.x),
-						float4(0,1,0,t.y),
-						float4(0,0,1,t.z),
-						float4(0,0,0,1)};
+	float4x4 scale =
+	{
+		float4(s,0,0,0),
+		float4(0,s,0,0),
+		float4(0,0,l,0),
+		float4(0,0,0,1)
+	};
+	float4x4 rotate = calcRotationMatrix(input.lightDirection, input.lightPos);
+	float4x4 trans = {
+		float4(1,0,0,t.x),
+		float4(0,1,0,t.y),
+		float4(0,0,1,t.z),
+		float4(0,0,0,1)
+	};
 
 	float4 pos = float4(input.vposition,1.0f);
 	pos = mul(scale, pos);
-	pos = mul(rotat, pos);	
+	pos = mul(rotate, pos);	
 	pos = mul(trans, pos);
 
 	float3 direction = input.lightDirection;
