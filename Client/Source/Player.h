@@ -28,13 +28,13 @@ private:
 	float m_ForceMoveTime;
 	float m_CurrentForceMoveTime;
 	float m_ForceMoveSpeed;	// cm/s
-	//Vector3 m_ForceMoveStartPosition;	// cm
-	//Vector3 m_ForceMoveEndPosition;	// cm
 	std::vector<DirectX::XMUINT2> m_ForceMoveY;
 	std::vector<DirectX::XMUINT2> m_ForceMoveZ;
-	//DirectX::XMFLOAT3 m_ForceMoveNormal;
 	DirectX::XMFLOAT4X4 m_ForceMoveRotation;
 	DirectX::XMFLOAT3 m_ForceMoveStartPos;
+	DirectX::XMFLOAT3 m_CenterReachPos;
+	DirectX::XMFLOAT3 m_Side;
+	std::string m_ClimbId;
 
 
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
@@ -135,8 +135,9 @@ public:
 	* Forces the player to change its position. The player can not control the movement.
 	* @param p_StartPosition the starting position of the movement
 	* @param p_EndPostion the position where the movement will end
+	* @param p_BoxPos the center position of the edge box
 	*/
-	void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal);
+	void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos);
 
 	/**
 	* Updates the player's actions such as movement and jumping. If forced movement is active, the position will be updated between two stored positions.
@@ -177,6 +178,8 @@ public:
 	 * @param p_Normal the new ground normal.
 	 */
 	void setGroundNormal(DirectX::XMFLOAT3 p_Normal);
+
+	void updateIKJoints();
 
 private:
 	void jump(float dt);

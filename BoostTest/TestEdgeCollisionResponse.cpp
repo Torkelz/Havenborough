@@ -45,7 +45,7 @@ public:
 		return m_ForceMove;
 	}
 
-	void forceMove(XMVECTOR, XMVECTOR)
+	void forceMove(XMVECTOR, XMVECTOR, XMVECTOR)
 	{
 		if(!m_ForceMove)
 			m_ForceMove = true;
@@ -99,7 +99,7 @@ protected:
 			XMVECTOR playerEndPos =  calculateEndPosition(p_VictimNormal, boundingVolumeCenter - playerStartPos,
 				boundingVolumeCenter, &p_CollisionPosition, playerHeight* 0.5f);
 
-			p_Player->forceMove(playerStartPos, playerEndPos);
+			p_Player->forceMove(playerStartPos, playerEndPos, boundingVolumeCenter);
 		}
 	}
 	
