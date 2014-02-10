@@ -13,7 +13,7 @@ struct cBuffer
 struct c2D_ObjectBuffer
 {
 	DirectX::XMFLOAT4X4 view;
-	DirectX::XMFLOAT4X4 proj;
+	DirectX::XMFLOAT4X4 orthoProj;
 };
 
 struct cObjectBuffer

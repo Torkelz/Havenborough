@@ -127,10 +127,10 @@ public:
 	void updateParticles(float p_DeltaTime) override;
 	/////
 
-	Object2D_ID create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Rotation,
+	Object2D_ID create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation,
 		const char *p_TextureId) override;
 
-	Object2D_ID create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotation,
+	Object2D_ID create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) override;
 
 	void addStaticLight(void) override;
@@ -162,7 +162,7 @@ public:
 	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;
 	void setModelScale(InstanceId p_Instance, Vector3 p_Scale) override;
 	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;
-	void set2D_ObjectPosition(Object2D_ID p_Instance, Vector2 p_Position) override;
+	void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) override;
 	void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) override;
 	void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) override;
 	void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) override;
@@ -190,7 +190,7 @@ private:
 	HRESULT createRasterizerState(void);
 
 	void initializeFactories(void);
-	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight);
+	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight, float p_NearZ, float p_FarZ);
 	
 	Shader *getShaderFromList(std::string p_Identifier);
 	ModelDefinition *getModelFromList(std::string p_Identifier);

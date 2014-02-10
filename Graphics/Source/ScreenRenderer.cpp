@@ -20,7 +20,6 @@ ScreenRenderer::ScreenRenderer(void)
 	m_DepthStencilState = nullptr;
 
 	m_ViewMatrix = nullptr;
-	m_ProjectionMatrix = nullptr;
 
 	m_ConstantBuffer = nullptr;
 	m_ObjectConstantBuffer = nullptr;
@@ -41,16 +40,15 @@ ScreenRenderer::~ScreenRenderer(void)
 	SAFE_RELEASE(m_DepthStencilState);
 	
 	m_ViewMatrix = nullptr;
-	m_ProjectionMatrix = nullptr;
 
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_ObjectConstantBuffer);
-
+	SAFE_DELETE(m_HUD_Shader);
 	SAFE_RELEASE(m_TransparencyAdditiveBlend);
 }
 
 void ScreenRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
-	XMFLOAT4X4 *p_ViewMatrix, XMFLOAT4X4 *p_ProjectionMatrix, ID3D11DepthStencilView* p_DepthStencilView,
+	XMFLOAT4X4 *p_ViewMatrix, XMFLOAT4 p_OrthoData, ID3D11DepthStencilView* p_DepthStencilView,
 	ID3D11RenderTargetView *p_RenderTarget)
 {
 	m_Device = p_Device;
@@ -60,10 +58,14 @@ void ScreenRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_D
 	m_RenderTarget = p_RenderTarget;
 
 	m_ViewMatrix = p_ViewMatrix;
-	m_ProjectionMatrix = p_ProjectionMatrix;
+	XMStoreFloat4x4(&m_OrthoMatrix,
+		XMMatrixOrthographicLH(p_OrthoData.x, p_OrthoData.y, p_OrthoData.z, p_OrthoData.w));
+	
+	m_HUD_Shader = WrapperFactory::getInstance()->createShader(L"assets/shaders/HUD_Shader.hlsl", "VS,PS", "5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	createBlendStates();
-	createForwardBuffers();
+	createBlendState();
+	createBuffers();
 	createSampler();
 	createRasterState();
 	createDepthStencilState();
@@ -74,7 +76,7 @@ void ScreenRenderer::add2D_Object(Renderable2D &p_Object)
 	m_2D_Objects.push_back(p_Object);
 }
 
-void ScreenRenderer::createBlendStates()
+void ScreenRenderer::createBlendState(void)
 {
 	D3D11_BLEND_DESC bd;
 	bd.AlphaToCoverageEnable = false;
@@ -90,11 +92,11 @@ void ScreenRenderer::createBlendStates()
 	m_Device->CreateBlendState(&bd, &m_TransparencyAdditiveBlend);
 }
 
-void ScreenRenderer::createForwardBuffers(void)
+void ScreenRenderer::createBuffers(void)
 {
 	c2D_ObjectBuffer cb;
 	cb.view = *m_ViewMatrix;
-	cb.proj = *m_ProjectionMatrix;
+	cb.orthoProj = m_OrthoMatrix;
 
 	Buffer::Description cbdesc;
 	cbdesc.initData = &cb;
@@ -116,13 +118,13 @@ void ScreenRenderer::createSampler(void)
 {
 	D3D11_SAMPLER_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
-	sd.Filter			= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sd.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.ComparisonFunc	= D3D11_COMPARISON_NEVER;
-	sd.MinLOD			= 0;
-	sd.MaxLOD           = D3D11_FLOAT32_MAX;
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sd.MinLOD = 0;
+	sd.MaxLOD = D3D11_FLOAT32_MAX;
 
 	m_Sampler = nullptr;
 	m_Device->CreateSamplerState(&sd, &m_Sampler);
@@ -137,7 +139,7 @@ void ScreenRenderer::createRasterState(void)
 	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = true;
+	rasterDesc.DepthClipEnable = false;
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	rasterDesc.FrontCounterClockwise = false;
 	rasterDesc.MultisampleEnable = false;
@@ -155,7 +157,7 @@ void ScreenRenderer::createDepthStencilState(void)
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 
 	//Set up the description of the stencil state.
-	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthEnable = false;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
@@ -164,16 +166,16 @@ void ScreenRenderer::createDepthStencilState(void)
 	depthStencilDesc.StencilWriteMask = 0xFF;
 
 	//Stencil operations if pixel is front-facing.
-	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	//depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	//depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	//depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	//depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	// Stencil operations if pixel is back-facing.
-	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	//depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	//depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	//depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	//depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
 }
@@ -182,7 +184,7 @@ void ScreenRenderer::updateConstantBuffer(void)
 {
 	c2D_ObjectBuffer cb;
 	cb.view = *m_ViewMatrix;
-	cb.proj = *m_ProjectionMatrix;
+	cb.orthoProj = m_OrthoMatrix;
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL, NULL, &cb, NULL, NULL);
 }
 
@@ -200,8 +202,8 @@ void ScreenRenderer::renderObjects(void)
 		m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState,0);
 
 		//Sort objects by the range to the camera
-		std::sort(m_2D_Objects.begin(),m_2D_Objects.end(),std::bind(&ScreenRenderer::depthSortCompareFunc,
-			this, std::placeholders::_1, std::placeholders::_2));
+		std::sort(m_2D_Objects.begin(), m_2D_Objects.end(),
+			[] (Renderable2D &a, Renderable2D &b){ return a.position.z <= b.position.z; });
 
 		// Set the render targets.
 		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTarget, m_DepthStencilView);
@@ -227,22 +229,6 @@ void ScreenRenderer::renderObjects(void)
 		SAFE_RELEASE(previousDepthState);
 		m_2D_Objects.clear();
 	}
-}
-
-bool ScreenRenderer::depthSortCompareFunc(const Renderable2D &a, const Renderable2D &b)
-{
-	//DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.world._14,a.world._24,a.world._34);
-	//DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.world._14,b.world._24,b.world._34);
-
-	//DirectX::XMVECTOR aV = DirectX::XMLoadFloat3(&aa);
-	//DirectX::XMVECTOR bV = DirectX::XMLoadFloat3(&bb);
-	//DirectX::XMVECTOR eV = DirectX::XMLoadFloat3(m_CameraPosition);
-	//
-	//using DirectX::operator -;
-	//DirectX::XMVECTOR aVeVLength = DirectX::XMVector3Length(aV - eV);
-	//DirectX::XMVECTOR bVeVLength = DirectX::XMVector3Length(bV - eV);
-
-	return true; //aVeVLength.m128_f32[0] > bVeVLength.m128_f32[0];
 }
 
 void ScreenRenderer::renderObject(Renderable2D &p_Object)

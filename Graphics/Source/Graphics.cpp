@@ -192,7 +192,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
-	initializeMatrices(p_ScreenWidth, p_ScreenHeight);
+	float nearZ = 10.0f;
+	float farZ = 100000.0f;
+
+	initializeMatrices(p_ScreenWidth, p_ScreenHeight, nearZ, farZ);
 
 	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
@@ -207,8 +210,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	//Screen renderer
 	m_ScreenRenderer = new ScreenRenderer();
-	m_ScreenRenderer->initialize(m_Device, m_DeviceContext, &m_ViewMatrix, &m_ProjectionMatrix,
-		m_DepthStencilView, m_RenderTargetView);
+	m_ScreenRenderer->initialize(m_Device, m_DeviceContext, &m_ViewMatrix, 
+		XMFLOAT4((float)p_ScreenWidth, (float)p_ScreenHeight, nearZ, farZ), m_DepthStencilView, m_RenderTargetView);
 
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
@@ -498,7 +501,7 @@ void Graphics::updateParticles(float p_DeltaTime)
 	}
 }
 
-int Graphics::create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Rotation, const char *p_TextureId)
+int Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation, const char *p_TextureId)
 {
 	ModelDefinition *model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
 	
@@ -509,7 +512,7 @@ int Graphics::create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Ro
 	return m_Next2D_ObjectId++;
 }
 
-int Graphics::create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotation, const char *p_ModelDefinition)
+int Graphics::create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation, const char *p_ModelDefinition)
 {
 	ModelDefinition *defintion;
 	for(auto &model : m_ModelList)
@@ -760,10 +763,10 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector2 p_Position)
+void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
-		m_2D_Objects.at(p_Instance).position = Vector2ToXMFLOAT2(&p_Position);
+		m_2D_Objects.at(p_Instance).position = Vector3ToXMFLOAT3(&p_Position);
 	else
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
@@ -1064,13 +1067,13 @@ void Graphics::initializeFactories(void)
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 }
 
-void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
+void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight, float p_NearZ, float p_FarZ )
 {
 	XMFLOAT4 eye;
 	XMFLOAT4 lookAt;
 	XMFLOAT4 up;
 	m_Eye = XMFLOAT3(0,0,-20);
-	m_FarZ = 100000.0f;
+	m_FarZ = p_FarZ;
 	m_FOV = 0.25f * PI;
 
 	eye = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
@@ -1082,7 +1085,7 @@ void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye),
 		XMLoadFloat4(&lookAt), XMLoadFloat4(&up))));
 	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(m_FOV,
-		(float)p_ScreenWidth / (float)p_ScreenHeight, 10.f, m_FarZ)));
+		(float)p_ScreenWidth / (float)p_ScreenHeight, p_NearZ, m_FarZ)));
 }
 
 Shader *Graphics::getShaderFromList(string p_Identifier)

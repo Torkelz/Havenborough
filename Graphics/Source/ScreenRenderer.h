@@ -14,11 +14,14 @@ private:
 	ID3D11DepthStencilState *m_DepthStencilState;
 
 	DirectX::XMFLOAT4X4	*m_ViewMatrix;
-	DirectX::XMFLOAT4X4	*m_ProjectionMatrix;
+	DirectX::XMFLOAT4X4	m_OrthoMatrix;
+
 
 	std::vector<Renderable2D> m_2D_Objects;
 	Buffer *m_ConstantBuffer;
 	Buffer *m_ObjectConstantBuffer;
+
+	Shader *m_HUD_Shader;
 
 	ID3D11BlendState *m_TransparencyAdditiveBlend;
 
@@ -44,7 +47,7 @@ public:
 	* @param p_RenderTarget, make it use the same render target as the other.
 	*/
 	void initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, DirectX::XMFLOAT4X4 *p_ViewMatrix,
-		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11DepthStencilView* p_DepthStencilView,
+		DirectX::XMFLOAT4 p_OrthoData, ID3D11DepthStencilView* p_DepthStencilView,
 		ID3D11RenderTargetView *p_RenderTarget);
 
 	void add2D_Object(Renderable2D &p_Object);
@@ -57,13 +60,12 @@ public:
 	void renderObjects(void);
 
 private:
-	void createBlendStates();
-	void createForwardBuffers();
-	void createSampler();
-	void createRasterState();
+	void createBlendState(void);
+	void createBuffers(void);
+	void createSampler(void);
+	void createRasterState(void);
 	void createDepthStencilState(void);
-	void updateConstantBuffer();
-	bool depthSortCompareFunc(const Renderable2D &a, const Renderable2D &b);
+	void updateConstantBuffer(void);
 	void renderObject(Renderable2D &p_Object);
 };
 

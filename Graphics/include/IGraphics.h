@@ -221,10 +221,10 @@ public:
 	 */
 	virtual void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) = 0;
 
-	virtual int create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Rotation,
+	virtual int create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation,
 		const char *p_TextureId) = 0;
 
-	virtual int create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotation,
+	virtual int create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) = 0;
 
 	/**
@@ -375,7 +375,7 @@ public:
 	 */
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
-	virtual void set2D_ObjectPosition(Object2D_ID p_Instance, Vector2 p_Position) = 0;
+	virtual void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) = 0;
 	virtual void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) = 0;
 	virtual void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) = 0;
 	virtual void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) = 0;
