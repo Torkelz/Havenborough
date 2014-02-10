@@ -143,5 +143,4 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
-    <FxCompile Include="Source\DeferredShaders\GeoInstanceShader.hlsl" />
 </Project>

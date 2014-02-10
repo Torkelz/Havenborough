@@ -31,8 +31,17 @@ private:
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
 	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
-	static const unsigned int	m_numRenderTargets = 5;
-	ID3D11RenderTargetView		*m_RenderTargets[m_numRenderTargets];
+	enum class RenderTargetType : unsigned int
+	{
+		DIFFUSE_COLOR,
+		NORMAL,
+		WORLD_POSITION,
+		FINAL_RESULT,
+		SSAO,
+
+		NUM_RENDER_TARGETS
+	};
+	ID3D11RenderTargetView		*m_RenderTargets[RenderTargetType::NUM_RENDER_TARGETS];
 
 	ID3D11ShaderResourceView	*m_DiffuseSRV;
 	ID3D11ShaderResourceView	*m_NormalSRV;
@@ -165,8 +174,8 @@ private:
 	void updateConstantBuffer();
 	void updateLightBuffer();
 
-	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
-	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC &desc);
+	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC* (&desc)[RenderTargetType::NUM_RENDER_TARGETS]);
+	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC* (&desc)[RenderTargetType::NUM_RENDER_TARGETS]);
 	void createBuffers();
 	void buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer);
 	void clearRenderTargets();
