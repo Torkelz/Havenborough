@@ -5,14 +5,14 @@ Texture2D diffuse				: register(t0);
 Texture2D normalMap				: register(t1);
 Texture2D specular				: register(t2);
 
-cbuffer cb : register(b1)
+cbuffer cb : register(b0)
 {
 	float4x4 view;
 	float4x4 projection;
 	float3	 cameraPos;
 };
 
-cbuffer cbWorld : register(b2)
+cbuffer cbWorld : register(b1)
 {
 	float4x4 world;
 };
@@ -35,6 +35,7 @@ struct PSIn
 	float2 uvCoord	: COORD;
 	float3 tangent	: TANGENT;
 	float3 binormal	: BINORMAL;
+	float depth		: DEPTH;
 };
 
 struct PSOut
@@ -48,25 +49,27 @@ PSIn VS( VSIn input )
 {
 	PSIn output;
 
-	output.pos = mul( projection, mul(view, mul(input.vworld, input.pos) ) );
+	output.pos = mul( projection, mul(view, mul(input.vworld, input.pos)));
 	output.wpos = mul(input.vworld, input.pos);
 
 	output.normal = normalize(mul(input.vworld, float4(input.normal, 0.f)).xyz);
 	output.uvCoord = input.uvCoord;
-	output.tangent = normalize(mul(input.vworld, float4(input.tangent,0.f)).xyz);
+	output.tangent = normalize(mul(input.vworld, float4(input.tangent, 0.f)).xyz);
 	output.binormal = normalize(mul(input.vworld, float4(input.binormal, 0.f)).xyz);
-		
+	output.depth = mul(view, mul(input.vworld, input.pos)).z;
+			
 	return output;
 }
 
 PSOut PS( PSIn input )
 {
 	PSOut output;
-	float3 norm				= 0.5f * (input.normal + 1.0f);
-	float4 bumpMap			= normalMap.Sample(m_textureSampler, input.uvCoord);
-	bumpMap					= (bumpMap * 2.0f) - 1.0f;
-	float3 normal			= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
-	normal					= 0.5f * (normalize(normal) + 1.0f);
+	float3 norm		= 0.5f * (input.normal + 1.0f);
+	float4 bumpMap	= normalMap.Sample(m_textureSampler, input.uvCoord);
+	bumpMap			= (bumpMap * 2.0f) - 1.0f;
+	float3 normal	= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
+	normal			= mul((float3x3)view, normal);
+	normal			= 0.5f * (normalize(normal) + 1.0f);
 	
 	float4 diffuseColor = diffuse.Sample(m_textureSampler, input.uvCoord);
 
@@ -78,8 +81,8 @@ PSOut PS( PSIn input )
 	if(diffuseColor.w == 1.0f)
 	{
 		output.diffuse			= float4(diffuseColor.xyz,1.0f);//input.diffuse.xyz;
-		output.normal.w			= 1.0f;//input.specularPower;// 1.0f for debug.
-		output.normal.xyz		= normal;
+		output.normal.w			= input.depth;
+		output.normal.xyz		= normal;//normalize(mul((float3x3)view, normal));
 		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
 		output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;
 	}

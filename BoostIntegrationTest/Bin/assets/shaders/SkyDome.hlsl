@@ -16,7 +16,7 @@ struct PSSceneIn
         float4 Pos : SV_Position;
 		float3 texC : TEXCOORD;
 };
-cbuffer cb : register(b1)
+cbuffer cb : register(b0)
 {
 	float4x4 view;
 	float4x4 projection;

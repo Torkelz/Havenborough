@@ -39,7 +39,7 @@ public:
 	* Updates position for sphere with matrix.
 	* @param p_translation, move the sphere in relative coordinates.
 	*/
-	void updatePosition( DirectX::XMFLOAT4X4& p_Translation )
+	void updatePosition( DirectX::XMFLOAT4X4 const &p_Translation )
 	{
 		m_PrevPosition = m_Position;
 

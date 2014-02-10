@@ -32,7 +32,6 @@ Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool 
 	m_IsImmovable		= p_IsImmovable;
 	m_IsEdge			= p_IsEdge;
 
-	m_LastCollision		= 0;
 	m_Landed			= false;
 }
 
@@ -53,7 +52,6 @@ Body::Body(Body &&p_Other)
 	  m_IsImmovable(p_Other.m_IsImmovable),
 	  m_IsEdge(p_Other.m_IsEdge),
 	  m_CollisionResponse(p_Other.m_CollisionResponse),
-	  m_LastCollision(p_Other.m_LastCollision),
 	  m_Landed(p_Other.m_Landed)
 {}
 
@@ -75,7 +73,6 @@ Body& Body::operator=(Body&& p_Other)
 	std::swap(m_IsImmovable, p_Other.m_IsImmovable);
 	std::swap(m_IsEdge, p_Other.m_IsEdge);
 	std::swap(m_CollisionResponse, p_Other.m_CollisionResponse);
-	std::swap(m_LastCollision, p_Other.m_LastCollision);
 	std::swap(m_Landed, p_Other.m_Landed);
 
 	return *this;
@@ -91,16 +88,29 @@ void Body::addForce(XMFLOAT4 p_Force)
 	tempForce = XMLoadFloat4(&p_Force);
 	tempNetForce = XMLoadFloat4(&m_NetForce);
 
+//	tempForce = XMVector4Transform(tempForce, XMLoadFloat4x4(&m_Orientation));
+
 	tempNetForce += tempForce;
 
 	XMStoreFloat4(&m_NetForce, tempNetForce);
+}
+
+void Body::addImpulse(DirectX::XMFLOAT4 p_Impulse)
+{
+	if (m_Mass == 0.f)
+		return;
+
+	XMVECTOR vVelocity = XMLoadFloat4(&m_Velocity);
+	XMVECTOR impulse = XMLoadFloat4(&p_Impulse);
+	vVelocity += impulse / m_Mass;
+	XMStoreFloat4(&m_Velocity, vVelocity);
 }
 
 void Body::update(float p_DeltaTime)
 {
 	if(m_IsImmovable)
 		return;
-	
+
 	m_LastAcceleration = m_AvgAcceleration;
 
 	XMFLOAT4 relativePos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);	// cm
@@ -130,8 +140,6 @@ void Body::update(float p_DeltaTime)
 	m_Velocity.z += m_AvgAcceleration.z * p_DeltaTime;
 
 	updateBoundingVolumePosition(relativePos);
-	
-	//addGravity();
 }
 
 void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
@@ -213,16 +221,6 @@ void Body::setCollisionResponse(bool p_State)
 bool Body::getCollisionResponse()
 {
 	return m_CollisionResponse;
-}
-
-void Body::setLastCollision(Body::BodyHandle p_Body)
-{
-	m_LastCollision = p_Body;
-}
-
-Body::BodyHandle Body::getLastCollision()
-{
-	return m_LastCollision;
 }
 
 BoundingVolume* Body::getVolume()

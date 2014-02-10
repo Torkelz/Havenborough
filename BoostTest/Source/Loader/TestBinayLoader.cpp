@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(TestReadHeader)
 	BOOST_CHECK_EQUAL(tempHeader.m_NumMaterial, 5);
 	BOOST_CHECK_EQUAL(tempHeader.m_NumVertex, 2);
 	BOOST_CHECK_EQUAL(tempHeader.m_NumMaterialBuffer, 1);
-	BOOST_CHECK_EQUAL(tempHeader.m_NumJoints, 1);
+	BOOST_CHECK_EQUAL(tempHeader.m_Transparent, false);
 }
 
 BOOST_AUTO_TEST_CASE(TestReadMaterial)

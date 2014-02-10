@@ -71,7 +71,7 @@ public:
 	* Updates position for AABB with translation matrix.
 	* @param p_translation, move the AABB in relative coordinates.
 	*/
-	void updatePosition(DirectX::XMFLOAT4X4& p_Translation)
+	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation)
 	{
 		DirectX::XMMATRIX tempTrans;
 
