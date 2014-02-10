@@ -231,64 +231,64 @@ void ScreenRenderer::renderObjects(void)
 
 bool ScreenRenderer::depthSortCompareFunc(const Renderable2D &a, const Renderable2D &b)
 {
-	DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.world._14,a.world._24,a.world._34);
-	DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.world._14,b.world._24,b.world._34);
+	//DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.world._14,a.world._24,a.world._34);
+	//DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.world._14,b.world._24,b.world._34);
 
-	DirectX::XMVECTOR aV = DirectX::XMLoadFloat3(&aa);
-	DirectX::XMVECTOR bV = DirectX::XMLoadFloat3(&bb);
-	DirectX::XMVECTOR eV = DirectX::XMLoadFloat3(m_CameraPosition);
-	
-	using DirectX::operator -;
-	DirectX::XMVECTOR aVeVLength = DirectX::XMVector3Length(aV - eV);
-	DirectX::XMVECTOR bVeVLength = DirectX::XMVector3Length(bV - eV);
+	//DirectX::XMVECTOR aV = DirectX::XMLoadFloat3(&aa);
+	//DirectX::XMVECTOR bV = DirectX::XMLoadFloat3(&bb);
+	//DirectX::XMVECTOR eV = DirectX::XMLoadFloat3(m_CameraPosition);
+	//
+	//using DirectX::operator -;
+	//DirectX::XMVECTOR aVeVLength = DirectX::XMVector3Length(aV - eV);
+	//DirectX::XMVECTOR bVeVLength = DirectX::XMVector3Length(bV - eV);
 
-	return aVeVLength.m128_f32[0] > bVeVLength.m128_f32[0];
+	return true; //aVeVLength.m128_f32[0] > bVeVLength.m128_f32[0];
 }
 
 void ScreenRenderer::renderObject(Renderable2D &p_Object)
 {
-	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
-	p_Object.model->vertexBuffer->setBuffer(0);
+	//m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
+	//p_Object.model->vertexBuffer->setBuffer(0);
 
-	cObjectBuffer temp;
-	temp.world = p_Object.world;
-	m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
-	m_ObjectConstantBuffer->setBuffer(2);
+	//cObjectBuffer temp;
+	//temp.world = p_Object.world;
+	//m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL,NULL, &temp,NULL,NULL);
+	//m_ObjectConstantBuffer->setBuffer(2);
 
-	//Set the colorshadingConstantBuffer
-	DirectX::XMFLOAT3 color = DirectX::XMFLOAT3(0,0,1);
-	m_DeviceContext->UpdateSubresource(m_ColorShadingConstantBuffer->getBufferPointer(),
-		NULL,NULL,p_Object.colorTone ,NULL,NULL);
-	m_ColorShadingConstantBuffer->setBuffer(3);
-	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	////Set the colorshadingConstantBuffer
+	//DirectX::XMFLOAT3 color = DirectX::XMFLOAT3(0,0,1);
+	//m_DeviceContext->UpdateSubresource(m_ColorShadingConstantBuffer->getBufferPointer(),
+	//	NULL,NULL,p_Object.colorTone ,NULL,NULL);
+	//m_ColorShadingConstantBuffer->setBuffer(3);
+	//m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// Set shader.
-	p_Object.model->shader->setShader();
-	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-	p_Object.model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
+	//// Set shader.
+	//p_Object.model->shader->setShader();
+	//float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+	//p_Object.model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
 
-	for(unsigned int j = 0; j < p_Object.model->numOfMaterials;j++)
-	{
-		ID3D11ShaderResourceView *srvs[] =  {
-			p_Object.model->diffuseTexture[j].second, 
-			p_Object.model->normalTexture[j].second, 
-			p_Object.model->specularTexture[j].second 
-		};
-		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
+	//for(unsigned int j = 0; j < p_Object.model->numOfMaterials;j++)
+	//{
+	//	ID3D11ShaderResourceView *srvs[] =  {
+	//		p_Object.model->diffuseTexture[j].second, 
+	//		p_Object.model->normalTexture[j].second, 
+	//		p_Object.model->specularTexture[j].second 
+	//	};
+	//	m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
-		m_DeviceContext->Draw(p_Object.model->drawInterval.at(j).second,
-			p_Object.model->drawInterval.at(j).first);
+	//	m_DeviceContext->Draw(p_Object.model->drawInterval.at(j).second,
+	//		p_Object.model->drawInterval.at(j).first);
 
-		// The textures will be needed to be grabbed from the model later.
-		static ID3D11ShaderResourceView * const nullsrvs[] = {NULL,NULL,NULL};
-		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
-	}
+	//	// The textures will be needed to be grabbed from the model later.
+	//	static ID3D11ShaderResourceView * const nullsrvs[] = {NULL,NULL,NULL};
+	//	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
+	//}
 
-	p_Object.model->shader->setBlendState(0, data);
-	p_Object.model->shader->unSetShader();
-	m_ObjectConstantBuffer->unsetBuffer(2);
-	m_AnimatedObjectConstantBuffer->unsetBuffer(3);
-	p_Object.model->vertexBuffer->unsetBuffer(0);
-	m_ColorShadingConstantBuffer->unsetBuffer(3);
-	m_DeviceContext->PSSetSamplers(0,0,0);
+	//p_Object.model->shader->setBlendState(0, data);
+	//p_Object.model->shader->unSetShader();
+	//m_ObjectConstantBuffer->unsetBuffer(2);
+	//m_AnimatedObjectConstantBuffer->unsetBuffer(3);
+	//p_Object.model->vertexBuffer->unsetBuffer(0);
+	//m_ColorShadingConstantBuffer->unsetBuffer(3);
+	//m_DeviceContext->PSSetSamplers(0,0,0);
 }
