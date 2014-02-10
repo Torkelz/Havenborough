@@ -140,6 +140,8 @@ void GameScene::render()
 		m_Graphics->renderModel(mesh.modelId);
 	}
 
+	m_Graphics->render2D_Object(1);
+	
 	if(m_RenderDebugBV)
 	{
 		for(auto &object : m_GameLogic->getObjects())
@@ -510,7 +512,7 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	m_Graphics->create2D_Object(Vector3(0,0,0), Vector2(1,1), 0.f, "TEXTURE_NOT_FOUND");
+	m_Graphics->create2D_Object(Vector3(100,-10,0), Vector2(1,1), 0.f, "TEXTURE_NOT_FOUND");
 
 	static const std::string preloadedModelsTransparent[] =
 	{

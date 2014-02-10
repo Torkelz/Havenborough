@@ -26,9 +26,9 @@ struct VS_Output
 VS_Output VS(VS_Input input)
 {
 	VS_Output output;
-	output.position = input.position;
+	output.position = mul(cOrthoProjection, mul(cView, float4(input.position)));
 	output.texCoord = input.texCoord;
-
+	
 	return output;
 }
 

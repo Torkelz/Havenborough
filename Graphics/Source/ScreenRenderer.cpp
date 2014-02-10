@@ -240,16 +240,17 @@ void ScreenRenderer::renderObject(Renderable2D &p_Object)
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set shader.
-	p_Object.model->shader->setShader();
+	m_HUD_Shader->setShader();
 	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-	p_Object.model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
+	//p_Object.model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
 	m_DeviceContext->PSSetShaderResources(0, 1, &(p_Object.model->diffuseTexture[0].second));
 
 	m_DeviceContext->Draw(p_Object.model->drawInterval.at(0).second, p_Object.model->drawInterval.at(0).first);
 
-	m_DeviceContext->PSSetShaderResources(0, 1, nullptr);
-	p_Object.model->shader->setBlendState(0, data);
-	p_Object.model->shader->unSetShader();
+	ID3D11ShaderResourceView *nullSrv = 0;
+	m_DeviceContext->PSSetShaderResources(0, 1, &nullSrv);
+	//p_Object.model->shader->setBlendState(0, data);
+	m_HUD_Shader->unSetShader();
 	p_Object.model->vertexBuffer->unsetBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,0,0);
 }
