@@ -8,6 +8,7 @@ struct cBuffer
 	DirectX::XMFLOAT4X4 view;
 	DirectX::XMFLOAT4X4 proj;
 	DirectX::XMFLOAT3	campos;
+	float padding;
 };
 
 struct cObjectBuffer

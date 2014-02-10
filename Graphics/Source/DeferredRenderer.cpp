@@ -57,7 +57,6 @@ DeferredRenderer::DeferredRenderer()
 
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
-	m_CameraPosition = nullptr;
 
 	m_RasterState = nullptr;
 	m_DepthState = nullptr;
@@ -84,7 +83,6 @@ DeferredRenderer::~DeferredRenderer(void)
 
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
-	m_CameraPosition = nullptr;
 
 	for(int i = 0; i < m_numRenderTargets; i++)
 	{
@@ -139,7 +137,7 @@ DeferredRenderer::~DeferredRenderer(void)
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-	DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
+	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
 	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
 	unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
 {
@@ -197,7 +195,6 @@ void DeferredRenderer::renderDeferred()
 	// Clear render targets.
 	clearRenderTargets();
 
-	// Update constant buffer and render
 	if(m_Objects.size() > 0)
 	{
 		updateConstantBuffer();
@@ -257,7 +254,6 @@ void DeferredRenderer::renderGeometry()
 
 	m_ConstantBuffer->setBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
-	updateConstantBuffer();
 	
 	for( auto &animation : animatedOrSingle )
 		renderObject(animation);
@@ -295,6 +291,7 @@ void DeferredRenderer::renderGeometry()
 				m_DeviceContext->Map(m_WorldInstanceData->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
 				memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
 				m_DeviceContext->Unmap(m_WorldInstanceData->getBufferPointer(), NULL);
+				m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
 
 				m_DeviceContext->DrawInstanced(k.front().model->drawInterval.at(u).second, tWorld.size(),
 				k.front().model->drawInterval.at(u).first,0);
@@ -302,13 +299,16 @@ void DeferredRenderer::renderGeometry()
 			m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 		}
 
-		for(unsigned int i = 0; i < 2; i++)
-			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
+		ID3D11Buffer* noBuffer[] = { nullptr, nullptr };
+		const UINT stride = 0;
+		const UINT offset = 0;
+		m_DeviceContext->IASetVertexBuffers(0, 2, noBuffer, &stride, &offset);
 		m_InstancedGeometryShader->setBlendState(0, data);
 		m_InstancedGeometryShader->unSetShader();
 	}
 
-	m_DeviceContext->PSSetSamplers(0,0,0);
+	ID3D11SamplerState* noState = nullptr;
+	m_DeviceContext->PSSetSamplers(0, 1, &noState);
 	m_ConstantBuffer->unsetBuffer(0);
 
 	// Unset render targets.
@@ -480,7 +480,9 @@ void DeferredRenderer::renderSkyDomeImpl()
 		m_SkyDomeBuffer->unsetBuffer(0);
 		m_SkyDomeShader->unSetShader();
 		m_ConstantBuffer->unsetBuffer(0);
-		m_DeviceContext->PSSetSamplers(0,0,0);
+
+		ID3D11SamplerState* noState = nullptr;
+		m_DeviceContext->PSSetSamplers(0, 1, &noState);
 
 		ID3D11ShaderResourceView * nullsrv[] = {0};
 		m_DeviceContext->PSSetShaderResources(0,1,nullsrv);
@@ -558,13 +560,20 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 	}
 }
 
+void DeferredRenderer::updateCamera(const DirectX::XMFLOAT3& p_CameraPos)
+{
+	m_CameraPosition = p_CameraPos;
+	updateConstantBuffer();
+}
+
 void DeferredRenderer::updateConstantBuffer()
 {
 	cBuffer cb;
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
-	cb.campos = *m_CameraPosition;
-	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
+	cb.campos = m_CameraPosition;
+
+	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb, sizeof(cb), NULL);
 }
 
 HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
@@ -662,7 +671,7 @@ void DeferredRenderer::createBuffers()
 	cBuffer cb;
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
-	cb.campos = *m_CameraPosition;
+	cb.campos = m_CameraPosition;
 
 	Buffer::Description cbdesc;
 	cbdesc.initData = &cb;
@@ -993,8 +1002,10 @@ void DeferredRenderer::renderLight(Shader *p_Shader, Buffer* p_ModelBuffer, vect
 			m_DeviceContext->DrawInstanced(p_ModelBuffer->getNumOfElements(), p_Lights->size(),0,0);
 		}
 		
-		for(unsigned int i = 0; i < 2; i++)
-			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
+		ID3D11Buffer* noBuffers[] = { nullptr, nullptr };
+		const UINT strides[] = { 0, 0 };
+		const UINT offsets[] = { 0, 0 };
+		m_DeviceContext->IASetVertexBuffers(0, 2, noBuffers, strides, offsets);
 		p_Shader->unSetShader();
 	}
 }

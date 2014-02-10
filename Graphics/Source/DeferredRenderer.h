@@ -27,7 +27,7 @@ private:
 	std::vector<Light>			*m_DirectionalLights;
 	unsigned int				m_MaxLightsPerLightInstance;
 
-	DirectX::XMFLOAT3			*m_CameraPosition;
+	DirectX::XMFLOAT3			m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
 	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
@@ -104,7 +104,7 @@ public:
 	 */
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 		ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
 		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
@@ -140,6 +140,13 @@ public:
 	 * @return, render target if i is a legal number, else nullptr.
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
+	
+	/**
+	 * Update the camera information.
+	 *
+	 * @param p_CameraPos the new camera position
+	 */
+	void updateCamera(const DirectX::XMFLOAT3& p_CameraPos);
 
 private:
 	void renderGeometry();

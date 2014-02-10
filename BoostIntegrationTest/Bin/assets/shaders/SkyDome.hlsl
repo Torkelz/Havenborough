@@ -21,6 +21,7 @@ cbuffer cb : register(b0)
 	float4x4 view;
 	float4x4 projection;
 	float3	 cameraPos;
+	float	 padding;
 };
 //-----------------------------------------------------------------------------------------
 // VertexShader: VSScene
