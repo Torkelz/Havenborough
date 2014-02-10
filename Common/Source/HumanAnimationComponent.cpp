@@ -55,13 +55,13 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentForwardState)
 				{
 				case ForwardAnimationState::IDLE:
-					playAnimation("Idle2", false);
+					//playAnimation("Idle2", false);
 					break;
 				case ForwardAnimationState::RUNNING_FORWARD:
-					playAnimation("Run", false);
+					//playAnimation("Run", false);
 					break;
 				case ForwardAnimationState::RUNNING_BACKWARD:
-					playAnimation("BackPaddle", false);
+					//playAnimation("BackPaddle", false);
 					break;
 				}
 			}
@@ -71,15 +71,15 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentSideState)
 				{
 				case SideAnimationState::IDLE:
-					playAnimation("IdleSide", false);
+					//playAnimation("IdleSide", false);
 					break;
 
 				case SideAnimationState::RUNNING_LEFT:
-					playAnimation("SideStepLeft", false);
+					//playAnimation("SideStepLeft", false);
 					break;
 
 				case SideAnimationState::RUNNING_RIGHT:
-					playAnimation("SideStepRight", false);
+					//playAnimation("SideStepRight", false);
 					break;
 				}
 			}
@@ -104,19 +104,19 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentJumpState)
 				{
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", true);
+					/*playAnimation("HardLanding", true);
 					if (XMVectorGetZ(velocity) > runLimit)
 						queueAnimation("Run");
 					else
-						queueAnimation("Idle2");
+						queueAnimation("Idle2");*/
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", true);
+					/*playAnimation("NormalLanding", true);
 					if (XMVectorGetZ(velocity) > runLimit)
 						queueAnimation("Run");
 					else
-						queueAnimation("Idle2");
+						queueAnimation("Idle2");*/
 					break;
 
 				default: // Just in case, so that the code doesn't break, hohohoho
@@ -155,7 +155,7 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::IDLE:
 					if (currentJumpState == JumpAnimationState::IDLE)
 					{
-						playAnimation("Idle", false);
+						//playAnimation("Idle", false);
 					}
 					break;
 
@@ -164,13 +164,13 @@ void HumanAnimationComponent::updateAnimation()
 					{
 						if(XMVectorGetX(velocity) > runLimit || XMVectorGetZ(velocity) > runLimit)
 						{
-							playAnimation("RunningJump", true);
-							queueAnimation("Falling");
+							//playAnimation("RunningJump", true);
+							//queueAnimation("Falling");
 						}
 						else
 						{
-							playAnimation("StandingJump", true);
-							queueAnimation("Falling");
+							//playAnimation("StandingJump", true);
+							//queueAnimation("Falling");
 						}
 					}
 					break;
@@ -180,11 +180,11 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
+					//playAnimation("HardLanding", false);
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", false);
+					//playAnimation("NormalLanding", false);
 					break;
 
 				case JumpAnimationState::FALLING:

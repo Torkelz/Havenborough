@@ -63,7 +63,7 @@ XMFLOAT3 Player::getEyePosition() const
 		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 		if (comp)
 		{
-			return comp->getJointPos("HeadBase");
+			return comp->getJointPos("Hip");
 		}
 	}
 
@@ -163,6 +163,14 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 {
 	if(!m_ForceMove)
 	{
+		XMVECTOR fwd = XMVectorSet(p_CollisionNormal.x, 0.f,p_CollisionNormal.z,0);
+		XMVECTOR len = XMVector3Length(fwd);
+		if (XMVectorGetX(len) == 0.f)
+		{
+			return;
+		}
+		fwd /= len;
+
 		m_ForceMove = true;
 		m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
@@ -173,15 +181,13 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		m_ForceMoveZ = pp.m_ZPath;
 		//m_ForceMoveNormal = p_CollisionNormal;
 		m_ForceMoveStartPos = getPosition();
-
-		XMVECTOR fwd = XMVectorSet(p_CollisionNormal.x,p_CollisionNormal.y,p_CollisionNormal.z,0);
 		
 		fwd *= -1.f;
 		XMVECTOR up = XMVectorSet(0,1,0,0);
 		XMVECTOR side = XMVector3Normalize(XMVector3Cross(up, fwd));
-		up = XMVector3Normalize(XMVector3Cross(side, fwd));
+		//up = XMVector3Normalize(XMVector3Cross(side, fwd));
 
-		up *= -1.0f;
+		//up *= -1.0f;
 		
 		XMMATRIX a;
 		a.r[0] = side;
@@ -223,13 +229,13 @@ void Player::update(float p_DeltaTime)
 			return;
 		}
 
-		float currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveY[0].y);
-		float currentFrameSpan = (m_ForceMoveY[1].y - m_ForceMoveY[0].y);
+		float currentFrameTime = (m_CurrentForceMoveTime - (float)m_ForceMoveY[0].y);
+		float currentFrameSpan = (float)(m_ForceMoveY[1].y - m_ForceMoveY[0].y);
 		float timeFrac = currentFrameTime / currentFrameSpan;
 		float currentYPos = m_ForceMoveY[0].x + ((m_ForceMoveY[1].x - m_ForceMoveY[0].x) * timeFrac);
 
-		currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveZ[0].y);
-		currentFrameSpan = (m_ForceMoveZ[1].y - m_ForceMoveZ[0].y);
+		currentFrameTime = (m_CurrentForceMoveTime - (float)m_ForceMoveZ[0].y);
+		currentFrameSpan = (float)(m_ForceMoveZ[1].y - m_ForceMoveZ[0].y);
 		timeFrac = currentFrameTime / currentFrameSpan;
 		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
 
