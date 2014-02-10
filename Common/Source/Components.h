@@ -51,7 +51,8 @@ private:
 	float m_Mass;
 	bool m_Immovable;
 	bool m_IsEdge;
-	Vector3 m_OffsetPositition;
+	Vector3 m_OffsetPosition;
+	Vector3 m_OffsetRotation;
 	Vector3 m_Halfsize;
 	
 
@@ -73,8 +74,8 @@ public:
 
 	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
-		m_OffsetPositition = Vector3(0.f, 0.f, 0.f);
-
+		m_OffsetPosition = Vector3(0.f, 0.f, 0.f);
+		m_OffsetRotation = Vector3(0.f, 0.f,0.f);
 		m_Halfsize = Vector3(1.f, 1.f, 1.f);
 		const tinyxml2::XMLElement* size = p_Data->FirstChildElement("Halfsize");
 		if (size)
@@ -87,9 +88,15 @@ public:
 		const tinyxml2::XMLElement* relPos = p_Data->FirstChildElement("OffsetPosition");
 		if (relPos)
 		{
-			relPos->QueryAttribute("x", &m_OffsetPositition.x);
-			relPos->QueryAttribute("y", &m_OffsetPositition.y);
-			relPos->QueryAttribute("z", &m_OffsetPositition.z);
+			relPos->QueryAttribute("x", &m_OffsetPosition.x);
+			relPos->QueryAttribute("y", &m_OffsetPosition.y);
+			relPos->QueryAttribute("z", &m_OffsetPosition.z);
+		}
+
+		const tinyxml2::XMLElement* relRot = p_Data->FirstChildElement("OffsetRotation");
+		if(relRot)
+		{
+			queryRotation(relRot, m_OffsetRotation);
 		}
 
 		m_Immovable = true;
@@ -104,8 +111,24 @@ public:
 
 	void postInit() override
 	{
-		m_Body = m_Physics->createOBB(m_Mass, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
-		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
+		using namespace DirectX;
+		XMFLOAT4X4 rotMat = m_Owner->getWorldMatrix();
+		XMMATRIX mRotMat = XMMatrixTranspose(XMLoadFloat4x4(&rotMat));
+		XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(m_OffsetPosition));
+		pos = XMVectorSetW(pos, 1.f);
+		XMVECTOR rotPos = XMVector4Transform(pos, mRotMat);
+		XMFLOAT3 fRotPos;
+		XMStoreFloat3(&fRotPos, rotPos);
+
+		m_Body = m_Physics->createOBB(m_Mass, m_Immovable, fRotPos, m_Halfsize, m_IsEdge);
+
+		Vector3 ownerRot = m_Owner->getRotation();
+		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
+		XMMATRIX compRotation = XMMatrixRotationRollPitchYaw(m_OffsetRotation.y, m_OffsetRotation.x, m_OffsetRotation.z);
+		XMMATRIX multRotation = compRotation * ownerRotation;
+		XMFLOAT4X4 fMultRotation;
+		XMStoreFloat4x4(&fMultRotation, multRotation);
+		m_Physics->setBodyRotationMatrix(m_Body, fMultRotation);
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -115,25 +138,45 @@ public:
 		p_Printer.PushAttribute("Mass", m_Mass);
 		p_Printer.PushAttribute("IsEdge", m_IsEdge);
 		pushVector(p_Printer, "Halfsize", m_Halfsize);
-		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
+		pushVector(p_Printer, "OffsetPosition", m_OffsetPosition);
+		pushRotation(p_Printer, "OffsetRotation", m_OffsetRotation);
 		p_Printer.CloseElement();
 	}
 
 	void onUpdate(float p_DeltaTime) override
 	{
-		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositition);
-		Vector3 rotation = m_Owner->getRotation();
-		m_Physics->setBodyRotation(m_Body, rotation);
+		if (!m_IsEdge)
+		{
+			m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPosition);
+			Vector3 rotation = m_Owner->getRotation();
+			m_Physics->setBodyRotation(m_Body, rotation);
+		}
 	}
 
 	void setPosition(Vector3 p_Position) override
 	{
-		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositition);
+		using namespace DirectX;
+		XMFLOAT4X4 rotMat = m_Owner->getWorldMatrix();
+		XMMATRIX mRotMat = XMMatrixTranspose(XMLoadFloat4x4(&rotMat));
+		XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(m_OffsetPosition));
+		pos = XMVectorSetW(pos, 1.f);
+		XMVECTOR rotPos = XMVector4Transform(pos, mRotMat);
+		XMFLOAT3 fRotPos;
+		XMStoreFloat3(&fRotPos, rotPos);
+
+		m_Physics->setBodyPosition(m_Body, fRotPos);
 	}
 
 	void setRotation(Vector3 p_Rotation) override
 	{
-		m_Physics->setBodyRotation(m_Body, p_Rotation);
+		using namespace DirectX;
+		Vector3 ownerRot = m_Owner->getRotation();
+		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
+		XMMATRIX compRotation = XMMatrixRotationRollPitchYaw(m_OffsetRotation.y, m_OffsetRotation.x, m_OffsetRotation.z);
+		XMMATRIX multRotation = compRotation * ownerRotation;
+		XMFLOAT4X4 fMultRotation;
+		XMStoreFloat4x4(&fMultRotation, multRotation);
+		m_Physics->setBodyRotationMatrix(m_Body, fMultRotation);
 	}
 
 	BodyHandle getBodyHandle() const override

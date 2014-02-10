@@ -1,18 +1,18 @@
 #include "InstanceConverter.h"
 
-LevelConverter::LevelConverter()
+InstanceConverter::InstanceConverter()
 {
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
 }
 
-LevelConverter::~LevelConverter()
+InstanceConverter::~InstanceConverter()
 {
 
 }
 
-void LevelConverter::clear()
+void InstanceConverter::clear()
 {
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
@@ -22,7 +22,7 @@ void LevelConverter::clear()
 	m_LevelCheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
 }
 
-bool LevelConverter::writeFile(std::string p_FilePath)
+bool InstanceConverter::writeFile(std::string p_FilePath)
 {
 	std::ofstream output(p_FilePath, std::ostream::out | std::ostream::binary);
 	if(!output)
@@ -44,14 +44,14 @@ bool LevelConverter::writeFile(std::string p_FilePath)
 	return true;
 }
 
-void LevelConverter::createHeader(std::ostream* p_Output)
+void InstanceConverter::createHeader(std::ostream* p_Output)
 {
 	intToByte(m_Header.m_NumberOfModels, p_Output);
 	intToByte(m_Header.m_NumberOfLights, p_Output);
 	intToByte(m_Header.m_NumberOfCheckPoints, p_Output);
 }
 
-void LevelConverter::createLevel(std::ostream* p_Output)
+void InstanceConverter::createLevel(std::ostream* p_Output)
 {
 	std::vector<ModelData> level;
 	ModelData model;
@@ -61,33 +61,33 @@ void LevelConverter::createLevel(std::ostream* p_Output)
 		model = ModelData();
 		for(unsigned int j = 0; j < level.size(); j++)
 		{
-			if(level.at(j).m_MeshName == m_LevelData->at(i).m_MeshName)
+			if(level.at(j).m_MeshName == m_Data->at(i).m_MeshName)
 			{
-				DirectX::XMFLOAT3 translation = m_LevelData->at(i).m_Translation;
+				DirectX::XMFLOAT3 translation = m_Data->at(i).m_Translation;
 				translation.x *= -1.f;
 				level.at(j).m_Translation.push_back(translation);
 
-				DirectX::XMFLOAT3 rotation = m_LevelData->at(i).m_Rotation;
+				DirectX::XMFLOAT3 rotation = m_Data->at(i).m_Rotation;
 				rotation.x *= -1.f;
 				rotation.z *= -1.f;
 				level.at(j).m_Rotation.push_back(rotation);
-				level.at(j).m_Scale.push_back(m_LevelData->at(i).m_Scale);
+				level.at(j).m_Scale.push_back(m_Data->at(i).m_Scale);
 				written = true;
 				break;
 			}	
 		}
 		if(written != true)
 		{
-			DirectX::XMFLOAT3 translation = m_LevelData->at(i).m_Translation;
+			DirectX::XMFLOAT3 translation = m_Data->at(i).m_Translation;
 			translation.x *= -1.f;
 			model.m_Translation.push_back(translation);
 
-			DirectX::XMFLOAT3 rotation = m_LevelData->at(i).m_Rotation;
+			DirectX::XMFLOAT3 rotation = m_Data->at(i).m_Rotation;
 			rotation.x *= -1.f;
 			rotation.z *= -1.f;
 			model.m_Rotation.push_back(rotation);
-			model.m_Scale.push_back(m_LevelData->at(i).m_Scale);
-			model.m_MeshName = m_LevelData->at(i).m_MeshName;
+			model.m_Scale.push_back(m_Data->at(i).m_Scale);
+			model.m_MeshName = m_Data->at(i).m_MeshName;
 			level.push_back(model);
 		}
 		written = false;
@@ -110,6 +110,12 @@ void LevelConverter::createLevel(std::ostream* p_Output)
 				throw;
 			}
 		}
+		if(m_ModelInformation->size() == 0)
+		{
+			intToByte(0, p_Output);
+			intToByte(0, p_Output);
+			intToByte(1, p_Output);
+		}
 		intToByte(level.at(i).m_Translation.size(), p_Output);
 		p_Output->write(reinterpret_cast<const char*>(level.at(i).m_Translation.data()), sizeof(DirectX::XMFLOAT3) * level.at(i).m_Translation.size());
 		intToByte(level.at(i).m_Rotation.size(), p_Output);
@@ -119,7 +125,7 @@ void LevelConverter::createLevel(std::ostream* p_Output)
 	}
 }
 
-void LevelConverter::createLighting(std::ostream* p_Output)
+void InstanceConverter::createLighting(std::ostream* p_Output)
 {
 	int numberOfDifferentLights = 0;
 	if(m_LevelDirectionalLightList->size() != 0)++numberOfDifferentLights;
@@ -167,7 +173,7 @@ void LevelConverter::createLighting(std::ostream* p_Output)
 	}
 }
 
-void LevelConverter::createCheckPoints(std::ostream* p_Output)
+void InstanceConverter::createCheckPoints(std::ostream* p_Output)
 {
 	DirectX::XMFLOAT3* tempStart,*tempEnd;
 	tempStart = &m_LevelCheckPointStart;
@@ -186,60 +192,60 @@ void LevelConverter::createCheckPoints(std::ostream* p_Output)
 	p_Output->write(reinterpret_cast<const char*>(tempList.data()), sizeof(InstanceLoader::CheckPointStruct) * size);
 }
 
-void LevelConverter::stringToByte(std::string p_String, std::ostream* p_Output)
+void InstanceConverter::stringToByte(std::string p_String, std::ostream* p_Output)
 {
 	unsigned int size = p_String.size();
 	p_Output->write(reinterpret_cast<const char*>(&size), sizeof(unsigned int));
 	p_Output->write(p_String.data(), p_String.size());
 }
 
-void LevelConverter::intToByte(int p_Int, std::ostream* p_Output)
+void InstanceConverter::intToByte(int p_Int, std::ostream* p_Output)
 {
 	p_Output->write(reinterpret_cast<const char*>(&p_Int), sizeof(int));
 }
 
-void LevelConverter::setLevelHead(InstanceLoader::LevelHeader p_Header)
+void InstanceConverter::setLevelHead(InstanceLoader::LevelHeader p_Header)
 {
 	m_Header = p_Header;
 }
 
-void LevelConverter::setLevelModelList(const std::vector<InstanceLoader::ModelStruct>* p_LevelModelList)
+void InstanceConverter::setModelList(const std::vector<InstanceLoader::ModelStruct>* p_LevelModelList)
 {
-	m_LevelData = p_LevelModelList;
-	m_LevelDataSize = m_LevelData->size();
+	m_Data = p_LevelModelList;
+	m_LevelDataSize = m_Data->size();
 }
 
-void LevelConverter::setLevelDirectionalLightList(const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>>* p_LevelDirectionalLightList)
+void InstanceConverter::setLevelDirectionalLightList(const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>>* p_LevelDirectionalLightList)
 {
 	m_LevelDirectionalLightList = p_LevelDirectionalLightList;
 }
 
-void LevelConverter::setLevelPointLightList(const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>>* p_LevelPointLightList)
+void InstanceConverter::setLevelPointLightList(const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>>* p_LevelPointLightList)
 {
 	m_LevelPointLightList = p_LevelPointLightList;
 }
 
-void LevelConverter::setLevelSpotLightList(const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>>* p_LevelSpotLightList)
+void InstanceConverter::setLevelSpotLightList(const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>>* p_LevelSpotLightList)
 {
 	m_LevelSpotLightList = p_LevelSpotLightList;
 }
 
-void LevelConverter::setLevelCheckPointList(const std::vector<InstanceLoader::CheckPointStruct>* p_LevelCheckPointList)
+void InstanceConverter::setLevelCheckPointList(const std::vector<InstanceLoader::CheckPointStruct>* p_LevelCheckPointList)
 {
 	m_LevelCheckPointList = p_LevelCheckPointList;
 }
 
-void LevelConverter::setLevelCheckPointStart(DirectX::XMFLOAT3 p_LevelCheckPointStart)
+void InstanceConverter::setLevelCheckPointStart(DirectX::XMFLOAT3 p_LevelCheckPointStart)
 {
 	m_LevelCheckPointStart = p_LevelCheckPointStart;
 }
 
-void LevelConverter::setLevelCheckPointEnd(DirectX::XMFLOAT3 p_LevelCheckPointEnd)
+void InstanceConverter::setLevelCheckPointEnd(DirectX::XMFLOAT3 p_LevelCheckPointEnd)
 {
 	m_LevelCheckPointEnd = p_LevelCheckPointEnd;
 }
 
-void LevelConverter::setModelInformation(const std::vector<InstanceLoader::ModelHeader>* p_ModelInformation)
+void InstanceConverter::setModelInformation(const std::vector<InstanceLoader::ModelHeader>* p_ModelInformation)
 {
 	m_ModelInformation = p_ModelInformation;
 }

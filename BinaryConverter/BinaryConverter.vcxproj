@@ -80,7 +80,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp" />
     <ClCompile Include="Source\InstanceConverter.cpp" />
     <ClCompile Include="Source\InstanceLoader.cpp" />
     <ClCompile Include="Source\BinaryConverter.cpp" />

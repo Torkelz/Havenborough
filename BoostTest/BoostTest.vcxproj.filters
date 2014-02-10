@@ -228,9 +228,6 @@
     <ClCompile Include="..\Graphics\Source\ParticleInstance.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp">
-      <Filter>TestLoaders\Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
@@ -239,6 +236,9 @@
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
     <ClCompile Include="..\BinaryConverter\Source\InstanceLoader.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\InstanceBinaryLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -24,9 +24,6 @@
     <ClCompile Include="Source\ModelLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\InstanceLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

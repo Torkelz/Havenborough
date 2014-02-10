@@ -14,8 +14,8 @@ InstanceLoader::~InstanceLoader()
 
 void InstanceLoader::clear()
 {
-	m_LevelModelList.clear();
-	m_LevelModelList.shrink_to_fit();
+	m_ModelList.clear();
+	m_ModelList.shrink_to_fit();
 	m_CheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
 	m_CheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
 	m_LevelCheckPointList.clear();
@@ -62,6 +62,11 @@ void InstanceLoader::startReading(std::istream& p_Input)
 			m_Header.m_NumberOfModels = readHeader(p_Input);
 			std::getline(p_Input, line);
 		}
+		else if(key == "*Header")
+		{
+			m_Header.m_NumberOfModels = readHeader(p_Input);
+			std::getline(p_Input, line);
+		}
 		else if(key == "*LightHeader*")
 		{
 			m_Header.m_NumberOfLights = readHeader(p_Input);
@@ -72,7 +77,7 @@ void InstanceLoader::startReading(std::istream& p_Input)
 			m_Header.m_NumberOfCheckPoints = readHeader(p_Input);
 			std::getline(p_Input, line);
 		}
-		else if(key == "#MESH:")
+		else if(key == "#MESH:" || key == "#MESH")
 		{
 			readMeshList(p_Input);
 			std::getline(p_Input, line);
@@ -133,7 +138,7 @@ void InstanceLoader::readMeshList(std::istream& p_Input)
 	m_Stringstream = std::stringstream(line);
 	m_Stringstream >> filler >> tempLevel.m_Scale.x >> tempLevel.m_Scale.y >> tempLevel.m_Scale.z;
 
-	m_LevelModelList.push_back(tempLevel);
+	m_ModelList.push_back(tempLevel);
 }
 
 void InstanceLoader::readLightList(std::istream& p_Input)
@@ -260,7 +265,7 @@ std::string InstanceLoader::getPath(std::string p_FilePath)
 
 void InstanceLoader::clearData()
 {
-	m_LevelModelList.clear();
+	m_ModelList.clear();
 	m_CheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
 	m_CheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
 	m_LevelCheckPointList.clear();
@@ -279,9 +284,9 @@ InstanceLoader::LevelHeader InstanceLoader::getLevelHeader()
 	return m_Header;
 }
 
-const std::vector<InstanceLoader::ModelStruct>& InstanceLoader::getLevelModelList() const
+const std::vector<InstanceLoader::ModelStruct>& InstanceLoader::getModelList() const
 {
-	return m_LevelModelList;
+	return m_ModelList;
 }
 
 const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>>& InstanceLoader::getLevelDirectionalLightList() const

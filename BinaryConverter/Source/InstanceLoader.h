@@ -60,7 +60,7 @@ private:
 	DirectX::XMFLOAT3 m_CheckPointStart;
 	DirectX::XMFLOAT3 m_CheckPointEnd;
 	std::vector<CheckPointStruct> m_LevelCheckPointList;
-	std::vector<ModelStruct> m_LevelModelList;
+	std::vector<ModelStruct> m_ModelList;
 	std::vector<std::pair<LightData,DirectionalLight>> m_LevelDirectionalLightList;
 	std::vector<std::pair<LightData,PointLight>> m_LevelPointLightList;
 	std::vector<std::pair<LightData,SpotLight>> m_LevelSpotLightList;
@@ -102,7 +102,7 @@ public:
 	 *
 	 * @return ModelStruct list.
 	 */
-	const std::vector<InstanceLoader::ModelStruct>& getLevelModelList() const;
+	const std::vector<InstanceLoader::ModelStruct>& getModelList() const;
 
 	/**
 	 * Returns a vector with information about the levels directional lighting.

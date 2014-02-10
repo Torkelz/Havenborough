@@ -6,7 +6,7 @@
 #include <vector>
 #include "InstanceLoader.h"
 
-class LevelConverter
+class InstanceConverter
 {
 private:
 	struct ModelData
@@ -20,7 +20,7 @@ private:
 	DirectX::XMFLOAT3 m_LevelCheckPointStart;
 	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
 	const std::vector<InstanceLoader::CheckPointStruct>* m_LevelCheckPointList;
-	const std::vector<InstanceLoader::ModelStruct>* m_LevelData;
+	const std::vector<InstanceLoader::ModelStruct>* m_Data;
 	const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>>* m_LevelDirectionalLightList;
 	const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>>* m_LevelPointLightList;
 	const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>>* m_LevelSpotLightList;
@@ -31,12 +31,12 @@ public:
 	/**
 	 * Constructor
 	 */
-	LevelConverter();
+	InstanceConverter();
 	
 	/**
 	 * Deconstructor
 	 */
-	~LevelConverter();
+	~InstanceConverter();
 
 	/**
 	 * Call this function after setLevelHead and setLevelModelList
@@ -58,7 +58,7 @@ public:
 	 *
 	 * @param p_LevelModelList, is a vector with models that is unsorted. It expects it to be in .txl format.
 	 */
-	void setLevelModelList(const std::vector<InstanceLoader::ModelStruct>* p_LevelModelList);
+	void setModelList(const std::vector<InstanceLoader::ModelStruct>* p_ModelList);
 
 	/**
 	 * Sets information about the directional lighting used in the level.

@@ -2,7 +2,7 @@
 #include "../../../BinaryConverter/Source/InstanceConverter.h"
 BOOST_AUTO_TEST_SUITE(TestLevelConverter)
 
-class testConv : public LevelConverter
+class testConv : public InstanceConverter
 {
 public:
 	void testCreateHeader(std::ostream* p_Output)
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(TestCreateLevel)
 	modelInfo.at(0).m_Collidable = true;
 
 	conv.setModelInformation(&modelInfo);
-	conv.setLevelModelList(&level);
+	conv.setModelList(&level);
 
 	std::ostringstream output;
 	conv.testCreateLevel(&output);

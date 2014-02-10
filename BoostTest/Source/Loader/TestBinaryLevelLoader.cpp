@@ -1,15 +1,15 @@
 #include <boost/test/unit_test.hpp>
-#include "../../../Common/Source/LevelBinaryLoader.h"
+#include "../../../Common/Source/InstanceBinaryLoader.h"
 BOOST_AUTO_TEST_SUITE(TestBinaryLevelLoader)
 
-class testLevelLoader : public LevelBinaryLoader
+class testLevelLoader : public InstanceBinaryLoader
 {
 public:
-	LevelBinaryLoader::Header testReadHeader(std::istream& p_Input)
+	InstanceBinaryLoader::Header testReadHeader(std::istream& p_Input)
 	{
 		return readHeader(p_Input);
 	}
-	std::vector<LevelBinaryLoader::ModelData> testReadLevelData(std::istream& p_Input)
+	std::vector<InstanceBinaryLoader::ModelData> testReadLevelData(std::istream& p_Input)
 	{
 		return readLevel(p_Input);
 	}
@@ -25,7 +25,7 @@ public:
 
 BOOST_AUTO_TEST_CASE(TestReadHeader)
 {
-	LevelBinaryLoader::Header header;
+	InstanceBinaryLoader::Header header;
 	char binHeader[] =
 		"\x01\0\0\0"
 		"\x01\0\0\0"
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(TestReadLevelData)
 			char c[sizeof(float)];
 		};
 	};
-	std::vector<LevelBinaryLoader::ModelData> data;
+	std::vector<InstanceBinaryLoader::ModelData> data;
 	char binData[] =
 		"\x01\0\0\0"
 		"\x06\0\0\0House1"
@@ -116,9 +116,9 @@ BOOST_AUTO_TEST_CASE(TestReadLevelLighting)
 	std::istringstream tempString(std::string(binData, binData + sizeof(binData)));
 	loader.testReadLight(tempString);
 
-	std::vector<LevelBinaryLoader::DirectionalLight> directionalLight;
-	std::vector<LevelBinaryLoader::PointLight> pointLight;
-	std::vector<LevelBinaryLoader::SpotLight> spotLight;
+	std::vector<InstanceBinaryLoader::DirectionalLight> directionalLight;
+	std::vector<InstanceBinaryLoader::PointLight> pointLight;
+	std::vector<InstanceBinaryLoader::SpotLight> spotLight;
 
 	directionalLight = loader.getDirectionalLightData();
 	pointLight = loader.getPointLightData();
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(TestReadLevelCheckPoint)
 	std::istringstream tempString(std::string(binData, binData + sizeof(binData)));
 	loader.testLevelCheckPointList(tempString);
 
-	std::vector<LevelBinaryLoader::CheckPointStruct> checkPoints;
+	std::vector<InstanceBinaryLoader::CheckPointStruct> checkPoints;
 	checkPoints.resize(1);
 	DirectX::XMFLOAT3 start, end;
 	checkPoints = loader.getCheckPointData();
