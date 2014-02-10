@@ -21,7 +21,7 @@ public:
 
 private:
 	static ModelFactory *m_Instance;
-	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *m_TextureList;
+	std::map<std::string, ID3D11ShaderResourceView*> *m_TextureList;
 
 	loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
@@ -37,7 +37,7 @@ public:
 	* Initialize the factory.
 	* p_TextureList pointer to the texture list pair 
 	*/
-	void initialize(std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *p_TextureList);
+	void initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList);
 
 	/**
 	* Shuts down the factory and releases the memory allocated. Nulls all pointers.

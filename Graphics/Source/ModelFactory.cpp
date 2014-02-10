@@ -20,7 +20,7 @@ ModelFactory *ModelFactory::getInstance(void)
 	return m_Instance;
 }
 
-void ModelFactory::initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList)
+void ModelFactory::initialize(std::map<string, ID3D11ShaderResourceView*> *p_TextureList)
 {
 	if(!m_Instance)
 		throw ModelFactoryException("Error when initializing ModelFactory, no instance exists", __LINE__, __FILE__);
@@ -171,13 +171,5 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 
 ID3D11ShaderResourceView *ModelFactory::getTextureFromList(string p_Identifier)
 {
-	for(auto it = m_TextureList->begin(); it != m_TextureList->end(); ++it)
-	{
-		if(it->first == p_Identifier)
-		{
-			return it->second;
-		}
-	}
-
-	return nullptr;
+	return m_TextureList->at(p_Identifier);
 }
