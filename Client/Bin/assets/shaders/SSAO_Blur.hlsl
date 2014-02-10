@@ -56,10 +56,10 @@ float4 PS(VSOutput pIn) : SV_Target
 	}
 
 	// The center value always contributes to the sum.
-	float4 color = cWeights[5] * gInputImage.SampleLevel(gBlurSampler, pIn.texCoord, 0.0f);
+	float4 color = cWeights[5] * gInputImage.Sample(gBlurSampler, pIn.texCoord);
 	float totalWeight = cWeights[5];
 
-	float4 centerNormalDepth = gNormalDepthMap.SampleLevel(gBlurSampler, pIn.texCoord, 0.0f);
+	float4 centerNormalDepth = gNormalDepthMap.Sample(gBlurSampler, pIn.texCoord);
 	centerNormalDepth.xyz = normalize((centerNormalDepth.xyz * 2.0f) - 1.0f);
 
 	for(int i = -cBlurRadius; i <= cBlurRadius; ++i)
@@ -70,7 +70,7 @@ float4 PS(VSOutput pIn) : SV_Target
 
 		float2 tex = pIn.texCoord + i * texOffset;
 
-		float4 neighborNormalDepth = gNormalDepthMap.SampleLevel(gBlurSampler, tex, 0.0f);
+		float4 neighborNormalDepth = gNormalDepthMap.Sample(gBlurSampler, tex);
 		neighborNormalDepth.xyz = normalize((neighborNormalDepth.xyz * 2.0f) - 1.0f);
 
 		// If the center value and neighbor values differ too much (either in 
@@ -82,7 +82,7 @@ float4 PS(VSOutput pIn) : SV_Target
 			float weight = cWeights[i + cBlurRadius];
 
 			// Add neighbor pixel to blur.
-			color += weight * gInputImage.SampleLevel(gBlurSampler, tex, 0.0f);
+			color += weight * gInputImage.Sample(gBlurSampler, tex);
 			totalWeight += weight;
 		}
 	}
