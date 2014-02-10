@@ -30,7 +30,6 @@ protected:
 	bool				m_IsImmovable;
 	bool				m_IsEdge;
 	bool				m_CollisionResponse;
-	BodyHandle			m_LastCollision;
 	bool				m_Landed;
 
 	std::unique_ptr<BoundingVolume>	m_Volume;
@@ -60,6 +59,13 @@ public:
 	* @p_Force, force to be added. Force in Newton (N = (kg*m)/s^2)
 	*/
 	void addForce(DirectX::XMFLOAT4 p_Force);
+
+	/**
+	 * Add an impulse to the object.
+	 *
+	 * @param p_Impulse the impulse to add, in Newton-seconds (N*s = (kg*m)/s)
+	 */
+	void addImpulse(DirectX::XMFLOAT4 p_Impulse);
 
 	/**
 	* Update loop for a body. Updates acceleration, velocity and position.
@@ -174,6 +180,19 @@ public:
 	* reset the BodyHandleCounter. Only use when clearing the body list in physics
 	*/
 	static void resetBodyHandleCounter();
+
+	
+	/**
+	* Get the current orientation for the body
+	* @return m_Orientation.
+	*/
+	DirectX::XMFLOAT4X4 getOrientation();
+	/**
+	* Sets the orientation for the body
+	* @p_Orientation, the new orientation (frame of reference/local coordinate system)
+	*/
+	void setOrientation(DirectX::XMMATRIX const &p_Orientation);
+
 		
 private:
 	/**

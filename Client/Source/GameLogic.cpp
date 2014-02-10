@@ -73,8 +73,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
 				m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 			{
-				m_Physics->removeHitDataAt(i);
+				//m_Physics->removeHitDataAt(i);
 			}
+
 			Logger::log(Logger::Level::TRACE, "Collision reported");
 		}
 	}
@@ -313,25 +314,25 @@ void GameLogic::toggleIK()
 
 void GameLogic::testBlendAnimation()
 {
-	playAnimation(testWitch.lock(), "Idle", false);
+	//playAnimation(testWitch.lock(), "Idle", false);
 }
 
 void GameLogic::testResetAnimation()
 {
-	playAnimation(testWitch.lock(), "Run", false);
+	//playAnimation(testWitch.lock(), "Run", false);
 }
 
 void GameLogic::testLayerAnimation()
 {
 	//playAnimation(testWitch.lock(), "Wave", false);
-	playAnimation(m_Player.getActor().lock(), "LookAround", false);
+	//playAnimation(m_Player.getActor().lock(), "LookAround", false);
 }
 
 void GameLogic::testResetLayerAnimation()
 {
 	//playAnimation(testWitch.lock(), "Run", false);
 	//playAnimation(testWitch.lock(), "DefLayer1", false);
-	playAnimation(m_Player.getActor().lock(), "Idle2", false);
+	//playAnimation(m_Player.getActor().lock(), "Idle2", false);
 	changeAnimationWeight(m_Player.getActor().lock(), 4, 0.0f);
 }
 
@@ -370,10 +371,14 @@ void GameLogic::playLocalLevel()
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 
+	
+	BodyHandle b = m_Physics->createAABB(50.f, true, Vector3(0,150,0), Vector3(10,100,10), true);
+	m_Physics->setBodyCollisionResponse(b,false);
+
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 
 	// DEBUG STUFFZ
-	playAnimation( m_Player.getActor().lock(), "Run", false );
+	playAnimation( m_Player.getActor().lock(), "Idle", false );
 }
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
@@ -740,7 +745,9 @@ void GameLogic::loadSandbox()
 
 	witchCircleAngle = 0.0f;
 
+	//addActor(m_ActorFactory->createBoxWithOBB(Vector3(-4000.f, 0.f, 1000.f), Vector3(6000.f, 200.f, 6000.f), Vector3(0.f, 0.f, -0.5f)));
 	//Event to create a particle effect on local test rounds
+
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
 }
 

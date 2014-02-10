@@ -88,7 +88,7 @@
 
 #MESH: Street1
 #Translation: 0 0 0
-#Rotation: 0 0 0
+#Rotation: 0 1.574901 0
 #Scale: 1 1 1
 
 #MESH: House2

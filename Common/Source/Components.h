@@ -7,6 +7,7 @@
 #include "CommonExceptions.h"
 #include "XMLHelper.h"
 #include "Utilities/Util.h"
+#include "AnimationClip.h"
 
 #include <IPhysics.h>
 
@@ -47,9 +48,12 @@ class OBB_Component : public PhysicsInterface
 private:
 	BodyHandle m_Body;
 	IPhysics* m_Physics;
-	Vector3 m_OffsetPositition;
+	float m_Mass;
 	bool m_Immovable;
+	bool m_IsEdge;
+	Vector3 m_OffsetPositition;
 	Vector3 m_Halfsize;
+	
 
 public:
 	~OBB_Component() override
@@ -90,11 +94,17 @@ public:
 
 		m_Immovable = true;
 		p_Data->QueryBoolAttribute("Immovable", &m_Immovable);
+
+		m_Mass = 0.f;
+		p_Data->QueryFloatAttribute("Mass", &m_Mass);
+
+		m_IsEdge = false;
+		p_Data->QueryBoolAttribute("IsEdge", &m_IsEdge);
 	}
 
 	void postInit() override
 	{
-		m_Body = m_Physics->createOBB(0.f, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, false);
+		m_Body = m_Physics->createOBB(m_Mass, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
 		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
 	}
 
@@ -102,6 +112,8 @@ public:
 	{
 		p_Printer.OpenElement("OBBPhysics");
 		p_Printer.PushAttribute("Immovable", m_Immovable);
+		p_Printer.PushAttribute("Mass", m_Mass);
+		p_Printer.PushAttribute("IsEdge", m_IsEdge);
 		pushVector(p_Printer, "Halfsize", m_Halfsize);
 		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
 		p_Printer.CloseElement();
@@ -252,6 +264,8 @@ private:
 	IPhysics* m_Physics;
 	Vector3 m_OffsetPositition;
 	Vector3 m_Halfsize;
+	float m_Mass;
+	bool m_Immovable;
 	bool m_IsEdge;
 	bool m_RespondToCollision;
 
@@ -293,21 +307,28 @@ public:
 		}
 
 		m_IsEdge = false;
-		p_Data->QueryBoolAttribute("Edge", &m_IsEdge);
+		p_Data->QueryBoolAttribute("IsEdge", &m_IsEdge);
 		m_RespondToCollision = true;
 		p_Data->QueryBoolAttribute("CollisionResponse", &m_RespondToCollision);
+		m_Mass = 0.f;
+		p_Data->QueryFloatAttribute("Mass", &m_Mass);
+		m_Immovable = true;
+		p_Data->QueryBoolAttribute("Immovable", &m_Immovable);
+
 	}
 
 	void postInit() override
 	{
-		m_Body = m_Physics->createAABB(0.f, true, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
+		m_Body = m_Physics->createAABB(m_Mass, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Halfsize, m_IsEdge);
 		m_Physics->setBodyCollisionResponse(m_Body, m_RespondToCollision);
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("AABBPhysics");
-		p_Printer.PushAttribute("Edge", m_IsEdge);
+		p_Printer.PushAttribute("IsEdge", m_IsEdge);
+		p_Printer.PushAttribute("Immovable", m_Immovable);
+		p_Printer.PushAttribute("Mass", m_Mass);
 		p_Printer.PushAttribute("CollisionResponse", m_RespondToCollision);
 		pushVector(p_Printer, "Halfsize", m_Halfsize);
 		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
@@ -1276,4 +1297,7 @@ public:
 	virtual void changeAnimationWeight(int p_Track, float p_Weight) = 0;
 	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) = 0;
 	virtual DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName) = 0;
+	virtual const AnimationPath getAnimationData(std::string p_AnimatioId) const = 0;
+	virtual void playClimbAnimation(std::string p_ClimbID) = 0;
+	virtual void resetClimbState() = 0;
 };

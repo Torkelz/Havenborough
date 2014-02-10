@@ -79,5 +79,5 @@ public:
     * @param weight of the SECOND frame.
     * @return the interpolated transformation.
     */
-    MatrixDecomposed interpolateEx(MatrixDecomposed p_Frame1, MatrixDecomposed p_Frame2, float interpolateFraction) const;
+    MatrixDecomposed interpolateEx(const MatrixDecomposed& p_Frame1, const MatrixDecomposed& p_Frame2, float interpolateFraction) const;
 };

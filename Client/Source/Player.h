@@ -7,39 +7,6 @@
 class Player
 {
 private:
-	enum class ForwardAnimationState
-	{
-		IDLE,
-		WALKING_FORWARD,
-		RUNNING_FORWARD,
-		WALKING_BACKWARD,
-		RUNNING_BACKWARD,
-	};
-
-	enum class SideAnimationState
-	{
-		IDLE,
-		WALKING_LEFT,
-		RUNNING_LEFT,
-		WALKING_RIGHT,
-		RUNNING_RIGHT,
-	};
-
-	enum class JumpAnimationState
-	{
-		IDLE,
-		JUMP,
-		FLYING,
-		FALLING,
-		LIGHT_LANDING,
-		HARD_LANDING,
-	};
-
-	ForwardAnimationState m_PrevForwardState;
-	SideAnimationState m_PrevSideState;
-	JumpAnimationState m_PrevJumpState;
-	float m_FallSpeed;
-
 	DirectX::XMFLOAT3 m_LookDirection;
 	float m_ViewRotation[2];
 
@@ -53,16 +20,22 @@ private:
 	float m_JumpForce;
 	float m_MaxSpeed; // Centimeters per secound
 	float m_AccConstant;
-	DirectX::XMFLOAT3 m_PrevForce;	// kg * m/s^2
 	float m_DirectionX;	// (-1 - +1)
 	float m_DirectionZ;	// (-1 - +1)
+	DirectX::XMFLOAT3 m_GroundNormal;
 
 	bool m_ForceMove;
 	float m_ForceMoveTime;
 	float m_CurrentForceMoveTime;
 	float m_ForceMoveSpeed;	// cm/s
-	Vector3 m_ForceMoveStartPosition;	// cm
-	Vector3 m_ForceMoveEndPosition;	// cm
+	//Vector3 m_ForceMoveStartPosition;	// cm
+	//Vector3 m_ForceMoveEndPosition;	// cm
+	std::vector<DirectX::XMUINT2> m_ForceMoveY;
+	std::vector<DirectX::XMUINT2> m_ForceMoveZ;
+	//DirectX::XMFLOAT3 m_ForceMoveNormal;
+	DirectX::XMFLOAT4X4 m_ForceMoveRotation;
+	DirectX::XMFLOAT3 m_ForceMoveStartPos;
+
 
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
 	//while climbing objects.
@@ -127,6 +100,9 @@ public:
 	* @return the height
 	*/
 	float getHeight(void) const;
+	float getChestHeight(void) const;
+	float getWaistHeight(void) const;
+	float getKneeHeight(void) const;
 	
 	/**
 	* Gets the body handle of the player.
@@ -160,7 +136,7 @@ public:
 	* @param p_StartPosition the starting position of the movement
 	* @param p_EndPostion the position where the movement will end
 	*/
-	void forceMove(Vector3 p_StartPosition, Vector3 p_EndPosition);
+	void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal);
 
 	/**
 	* Updates the player's actions such as movement and jumping. If forced movement is active, the position will be updated between two stored positions.
@@ -189,7 +165,20 @@ public:
 	 */
 	void setActor(std::weak_ptr<Actor> p_Actor);
 
+	/**
+	 * The player's ground normal. Ground Normal equals the perpendicular vector from the surface the player is standing on.
+	 * 
+	 * @return the normal.
+	 */
+	DirectX::XMFLOAT3 getGroundNormal() const;
+	/**
+	 * Sets the player's ground normal. Ground Normal equals the perpendicular vector from the surface the player is standing on.
+	 *
+	 * @param p_Normal the new ground normal.
+	 */
+	void setGroundNormal(DirectX::XMFLOAT3 p_Normal);
+
 private:
 	void jump(float dt);
-	void move(void);
+	void move(float p_DeltaTime);
 };

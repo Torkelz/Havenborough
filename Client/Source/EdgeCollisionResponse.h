@@ -15,7 +15,7 @@ public:
 	* Desctructor
 	*/
 	~EdgeCollisionResponse(void);
-	
+
 	/**
 	* Checks if a player has collided with an edge. If collision has occurred the player will be moved to a
 	* calculated position.
