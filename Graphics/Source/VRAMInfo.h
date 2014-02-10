@@ -21,7 +21,8 @@ private:
 		R32G32_UINT = 8,
 		R8G8B8A8_UNORM = 4,
 		B8G8R8X8_UNORM = 4,
-		BC3_UNORM = 1,
+		R24G8_TYPELESS = 4,
+		BC3_UNORM = 1
 	};
 	
 	static std::unique_ptr<VRAMInfo> m_Instance;

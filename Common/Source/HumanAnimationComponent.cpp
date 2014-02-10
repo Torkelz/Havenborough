@@ -28,7 +28,7 @@ void HumanAnimationComponent::updateAnimation()
 	{
 		// Calculate the weight on the strafe track with some trigonometry.
 		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-		changeAnimationWeight(2, cosf(angle)); // Think again. Negative weights are not allowed.
+		changeAnimationWeight(2, abs(cosf(angle))); // Think again. Negative weights are not allowed.
 
 		// Decide what animation to play on the motion tracks.
 		ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;

@@ -79,16 +79,11 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 			if(b.getIsImmovable())
 				continue;
 
-			if(b.getInAir())
-			{
-				b.setGravity(m_GlobalGravity);
-			}
-			else
-			{
-				//b.setGravity(0.f);
-			}
-
 			b.update(p_DeltaTime);
+			
+			b.setLanded(false);
+
+			bool isOnGround = false;
 
 			for (unsigned j = 0; j < m_Bodies.size(); j++)
 			{
@@ -109,34 +104,41 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 						XMVECTOR temp;		// m
 						XMFLOAT4 tempPos;	// m
 
-						temp = XMLoadFloat4(&b.getPosition()) + Vector4ToXMVECTOR(&hit.colNorm) * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
-						XMStoreFloat4(&tempPos, temp);
+						XMFLOAT4 vel = b.getVelocity();
+						XMVECTOR vVel = XMLoadFloat4(&vel);
 
-						b.setPosition(tempPos);
+						XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
+						XMVECTOR posNorm = vNorm;
 
-						if (hit.colNorm.y > 0.68f)
+						if (hit.colNorm.y > 0.7f)
 						{
 							if(!b.getOnSomething())
 							{
 								b.setLanded(true);
 							}
-							b.setOnSomething(true);
-							b.setLastCollision(hit.collisionVictim);
 
-							XMFLOAT4 velocity = b.getVelocity();	// m/s
-							velocity.y = 0.f;
-							b.setVelocity(velocity);
+							isOnGround = true;
+
+							posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+							vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
 						}
-					}
-				}
+						else
+						{
+							vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
+						}
 
-				if(b.getVelocity().y > 1.f)
-				{
-					b.setOnSomething(false);
-					b.setLanded(false);
+						XMStoreFloat4(&vel, vVel);
+						b.setVelocity(vel);
+
+						temp = XMLoadFloat4(&b.getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
+						XMStoreFloat4(&tempPos, temp);
+
+						b.setPosition(tempPos);
+					}
 				}
 			}
 
+			b.setOnSomething(isOnGround);
 			b.setInAir(!b.getOnSomething());
 		}
 	}
@@ -151,6 +153,16 @@ void Physics::applyForce(BodyHandle p_Body, Vector3 p_Force)
 	XMFLOAT4 tempForce = Vector3ToXMFLOAT4(&p_Force, 0.f); // kg*m/s^2
 
 	body->addForce(tempForce);
+}
+
+void Physics::applyImpulse(BodyHandle p_Body, Vector3 p_Impulse)
+{
+	Body* body = findBody(p_Body);
+	if (body == nullptr)
+		return;
+
+	XMFLOAT4 fImpulse = Vector3ToXMFLOAT4(&p_Impulse, 0.f);
+	body->addImpulse(fImpulse);
 }
 
 BodyHandle Physics::createSphere(float p_Mass, bool p_IsImmovable, Vector3 p_Position, float p_Radius)
@@ -323,6 +335,7 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 {
 	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable, p_IsEdge);
+	m_Bodies.back().setGravity(m_GlobalGravity);
 	return m_Bodies.back().getHandle();
 }
 
@@ -380,11 +393,6 @@ unsigned int Physics::getHitDataSize()
 	return m_HitDatas.size();
 }
 
-bool Physics::getBodyOnSomethingAt(unsigned int p_Index)
-{
-	return true;
-}
-
 bool Physics::getBodyLanded(BodyHandle p_Body)
 {
 	Body *body = findBody(p_Body);
@@ -392,16 +400,6 @@ bool Physics::getBodyLanded(BodyHandle p_Body)
 		return false;
 
 	return body->getLanded();
-}
-
-void Physics::removeBodyOnSomethingAt(unsigned int p_index)
-{
-	//m_HitDatas.erase(m_HitDatas.begin() + p_index);
-}
-
-unsigned int Physics::getBodyOnSomethingSize()
-{
-	return m_HitDatas.size();
 }
 
 void Physics::setBodyCollisionResponse(BodyHandle p_Body, bool p_State)

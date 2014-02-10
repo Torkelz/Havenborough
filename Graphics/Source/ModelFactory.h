@@ -63,8 +63,8 @@ protected:
 	~ModelFactory(void);
 	
 private:
-	Buffer::Description createBufferDescription(const std::vector<StaticVertex> &p_VertexData, Buffer::Usage p_Usage);
-	Buffer::Description createBufferDescription(const std::vector<AnimatedVertex> &p_VertexData, Buffer::Usage p_Usage);
+	template<class T>
+	Buffer::Description createBufferDescription(const std::vector<T> &p_VertexData, Buffer::Usage p_Usage);
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
 		const std::vector<Material> &p_Materials);

@@ -73,8 +73,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
 				m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
 			{
-				m_Physics->removeHitDataAt(i);
+				//m_Physics->removeHitDataAt(i);
 			}
+
 			Logger::log(Logger::Level::TRACE, "Collision reported");
 		}
 	}
@@ -740,7 +741,9 @@ void GameLogic::loadSandbox()
 
 	witchCircleAngle = 0.0f;
 
+	//addActor(m_ActorFactory->createBoxWithOBB(Vector3(-4000.f, 0.f, 1000.f), Vector3(6000.f, 200.f, 6000.f), Vector3(0.f, 0.f, -0.5f)));
 	//Event to create a particle effect on local test rounds
+
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
 }
 

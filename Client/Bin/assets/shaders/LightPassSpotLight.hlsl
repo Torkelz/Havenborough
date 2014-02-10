@@ -181,7 +181,7 @@ float3 CalcLighting(	float3 normal,
 	
 
 	float nDotL = saturate( dot( normal, L ) );
-	float3 diffuse = nDotL * lightColor * diffuseAlbedo;
+	float3 diffuse = nDotL * lightColor * diffuseAlbedo * pow(ssao, 10);
 
 	// Calculate the specular term
 	float3 V = normalize(cameraPos - position);
@@ -191,7 +191,7 @@ float3 CalcLighting(	float3 normal,
 	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
 							 lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
-	return saturate(( diffuse + specular ) * attenuation * ssao);
+	return saturate(( diffuse + specular ) * attenuation);
 }
 
 float4x4 calcRotationMatrix(float3 direction, float3 position)

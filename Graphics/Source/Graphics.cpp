@@ -946,6 +946,10 @@ HRESULT Graphics::createRenderTargetView(void)
 		return result;
 	}
 
+	D3D11_TEXTURE2D_DESC desc;
+	backBufferPtr->GetDesc(&desc);
+	int usage = VRAMInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
+	VRAMInfo::getInstance()->updateUsage(usage);
 	//Create the render target view with the back buffer pointer.
 	m_Device->CreateRenderTargetView(backBufferPtr, NULL, &m_RenderTargetView);
 	SAFE_RELEASE(backBufferPtr);
@@ -972,6 +976,10 @@ HRESULT Graphics::createDepthStencilBuffer(int p_ScreenWidth, int p_ScreenHeight
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	depthBufferDesc.CPUAccessFlags = 0;
 	depthBufferDesc.MiscFlags = 0;
+
+	unsigned int size = VRAMInfo::getInstance()->calculateFormatUsage(depthBufferDesc.Format,
+		depthBufferDesc.Width, depthBufferDesc.Height);
+	VRAMInfo::getInstance()->updateUsage(size);
 
 	//Create the texture for the depth buffer using the filled out description.
 	return m_Device->CreateTexture2D(&depthBufferDesc, NULL, &m_DepthStencilBuffer);
