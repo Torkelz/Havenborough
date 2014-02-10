@@ -53,7 +53,7 @@ public:
 	virtual ModelDefinition createModel(const char *p_Filename);
 
 
-	virtual ModelDefinition create2D_Model(Vector2 p_HalfSize, const char *p_TextureId);
+	virtual ModelDefinition *create2D_Model(Vector2 p_HalfSize, const char *p_TextureId);
 
 	/**
 	* Set the function to load a texture to a model.

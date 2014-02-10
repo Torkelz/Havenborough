@@ -79,9 +79,9 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	return model;
 }
 
-ModelDefinition ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_TextureId)
+ModelDefinition *ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_TextureId)
 {
-	ModelDefinition model;
+	ModelDefinition *model = new ModelDefinition();
 
 	std::vector<XMFLOAT3> initData;
 	initData.push_back(XMFLOAT3(-p_HalfSize.x, p_HalfSize.y, 0));
@@ -94,14 +94,12 @@ ModelDefinition ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_T
 	Buffer::Description bufferDescription = createBufferDescription(initData, Buffer::Usage::USAGE_IMMUTABLE);
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 	
-	model.vertexBuffer.swap(vertexBuffer);
+	model->vertexBuffer.swap(vertexBuffer);
 	
-	//TODO: Future Andrés problem
-	//m_LoadModelTexture(material.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
-	
-	model.drawInterval.push_back(std::make_pair(0, 6));
-	model.numOfMaterials = 1;
-	model.isAnimated = false;
+	model->diffuseTexture.push_back(make_pair(std::string(p_TextureId), getTextureFromList(p_TextureId)));
+	model->drawInterval.push_back(std::make_pair(0, 6));
+	model->numOfMaterials = 1;
+	model->isAnimated = false;
 
 	return model;
 }

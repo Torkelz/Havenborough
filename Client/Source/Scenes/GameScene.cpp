@@ -501,6 +501,16 @@ void GameScene::loadSandboxModels()
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
 		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());		
 	}
+
+	static const std::string preloadedTextures[] =
+	{
+		"TEXTURE_NOT_FOUND",
+	};
+	for (const std::string &texture : preloadedTextures)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
+	}
+
 	static const std::string preloadedModelsTransparent[] =
 	{
 		"Checkpoint1",

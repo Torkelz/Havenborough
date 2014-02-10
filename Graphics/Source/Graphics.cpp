@@ -5,12 +5,16 @@
 
 #include <iostream>
 #include <boost/filesystem.hpp>
+#include <algorithm>
 
 using namespace DirectX;
 using std::vector;
 using std::string;
 using std::pair;
 using std::make_pair;
+
+typedef vector<pair<IGraphics::Object2D_ID, Renderable2D>>::iterator Renderable2DIterator;
+typedef vector<pair<IGraphics::InstanceId, ModelInstance>>::iterator ModelInstanceIterator;
 
 const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
@@ -320,7 +324,7 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 
 bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelDefinition model =	m_ModelFactory->getInstance()->createModel(p_Filename);
+	ModelDefinition model =	m_ModelFactory->createModel(p_Filename);
 
 	m_ModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
 
@@ -547,14 +551,33 @@ void Graphics::updateParticles(float p_DeltaTime)
 
 int Graphics::create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Rotation, const char *p_TextureId)
 {
-	ModelDefinition model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
+	ModelDefinition *model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
+	
+	m_2D_Objects.push_back(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(model))));
+	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
+	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
 
 	return m_Next2D_ObjectId++;
 }
 
 int Graphics::create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotation, const char *p_ModelDefinition)
 {
+	ModelDefinition *defintion;
+	for(auto &model : m_ModelList)
+	{
+		if(model.first == string(p_ModelDefinition))
+		{
+			defintion = &model.second;
+			break;
+		}
+	}
+	if(!defintion)
+		throw GraphicsException("Failed to find model definition", __LINE__, __FILE__);
 
+	m_2D_Objects.push_back(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(defintion))));
+	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
+	set2D_ObjectScale(m_Next2D_ObjectId, p_Scale);
+	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
 
 	return m_Next2D_ObjectId++;
 }
@@ -827,6 +850,51 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 		}
 	}
 	throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector2 p_Position)
+{
+	//Renderable2DIterator it = std::find(m_2D_Objects.begin(), m_2D_Objects.end(),
+	//	[&] (pair<Object2D_ID, ModelDefinition>&a){return a.first == p_Instance;});
+
+	//if(it != m_2D_Objects.end())
+	//	(*it).second.position = Vector2ToXMFLOAT2(&p_Position); 
+	//else
+	//	throw GraphicsException("Failed to set 2D model position, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale)
+{
+	//Renderable2DIterator it = std::find(m_2D_Objects.begin(), m_2D_Objects.end(),
+	//	[&] (pair<Object2D_ID, ModelDefinition>&a){return a.first == p_Instance;});
+
+	//if(it != m_2D_Objects.end())
+	//	(*it).second.scale = p_Scale; 
+	//else
+	//	throw GraphicsException("Failed to set 2D model scale, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation)
+{
+	//Renderable2DIterator it = std::find(m_2D_Objects.begin(), m_2D_Objects.end(),
+	//	[&] (pair<Object2D_ID, ModelDefinition>&a){return a.first == p_Instance;});
+
+	//if(it != m_2D_Objects.end())
+	//	XMStoreFloat4x4(&(*it).second.rotation, XMMatrixRotationZ(p_Rotation)); 
+	//else
+	//	throw GraphicsException("Failed to set 2D model rotation, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt)
+{
+	//Renderable2DIterator it = std::find(m_2D_Objects.begin(), m_2D_Objects.end(),
+	//	[&] (pair<Object2D_ID, ModelDefinition>&a){return a.first == p_Instance;});
+
+	//if(it != m_2D_Objects.end())
+	//	XMStoreFloat4x4(&(*it).second.rotation, XMMatrixLookAtLH(XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f), 
+	//	XMVectorSet(p_LookAt.x, p_LookAt.y, p_LookAt.z, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f))); 
+	//else
+	//	throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)

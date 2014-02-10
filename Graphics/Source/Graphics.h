@@ -62,7 +62,7 @@ private:
 	std::vector<std::pair<InstanceId, ModelInstance>> m_ModelInstances;
 	std::vector<std::pair<int, Renderable2D>> m_2D_Objects;
 	InstanceId m_NextInstanceId;
-	int m_Next2D_ObjectId;
+	Object2D_ID m_Next2D_ObjectId;
 
 	//Particles
 	std::vector<std::pair<std::string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
@@ -127,10 +127,10 @@ public:
 	void updateParticles(float p_DeltaTime) override;
 	/////
 
-	int create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Rotation,
+	Object2D_ID create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Rotation,
 		const char *p_TextureId) override;
 
-	int create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotation,
+	Object2D_ID create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) override;
 
 	void addStaticLight(void) override;
@@ -162,6 +162,11 @@ public:
 	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;
 	void setModelScale(InstanceId p_Instance, Vector3 p_Scale) override;
 	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;
+	void set2D_ObjectPosition(Object2D_ID p_Instance, Vector2 p_Position) override;
+	void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) override;
+	void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) override;
+	void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) override;
+
 
 	void updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up) override;
 

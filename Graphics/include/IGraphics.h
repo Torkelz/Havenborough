@@ -13,6 +13,8 @@ public:
 	* Unique ID for a model instance.
 	*/
 	typedef int InstanceId;
+
+	typedef int Object2D_ID;
 		
 	/**
 	 * Callback for loading a texture to a model.
@@ -373,6 +375,10 @@ public:
 	 */
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
+	virtual void set2D_ObjectPosition(Object2D_ID p_Instance, Vector2 p_Position) = 0;
+	virtual void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) = 0;
+	virtual void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) = 0;
+	virtual void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) = 0;
 	/**
 	 * Update the position and viewing direction of the camera.
 	 *
