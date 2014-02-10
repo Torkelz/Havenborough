@@ -507,7 +507,7 @@ BOOST_AUTO_TEST_CASE(PhysicsResourceIntegration)
 				HitData hd = physics->getHitDataAt(j);
 				BOOST_CHECK(hd.colType == Type::HULLVSSPHERE);
 				BOOST_CHECK_SMALL(hd.colNorm.x, 0.001f);
-				BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.y, -1.f, 0.0001f);
+				BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.y, 1.f, 0.0001f);
 				BOOST_CHECK_SMALL(hd.colNorm.z, 0.001f);
 			}
 		}

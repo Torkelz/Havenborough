@@ -126,7 +126,6 @@ private:
 	static bool OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, DirectX::XMVECTOR &p_Least, float &p_Overlap);
 	static void checkCollisionDepth(float p_Rt, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
-	//static void checkCollisionDepth(float p_RA, float p_RB, float p_RC, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static float checkMin(float const &p_A, float const &p_B, float const &p_C);
 	static float checkMax(float const &p_A, float const &p_B, float const &p_C);
 	static float checkMinMax(float min, float max, float p_R);
