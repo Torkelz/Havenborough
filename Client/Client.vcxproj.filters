@@ -163,5 +163,8 @@
     <FxCompile Include="Bin\assets\shaders\DeferredHelper.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\HUD_Shader.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
