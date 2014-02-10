@@ -266,7 +266,8 @@ void Graphics::shutdown(void)
 	
 	while (!m_ParticleEffectDefinitionList.empty())
 	{
-		string unremovedName = m_ParticleEffectDefinitionList.front().first;
+		std::map<string, ParticleEffectDefinition::ptr>::iterator it = m_ParticleEffectDefinitionList.begin();
+		string unremovedName = it->first;
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
 
@@ -275,7 +276,9 @@ void Graphics::shutdown(void)
 
 	while (!m_ModelList.empty())
 	{
-		string unremovedName = m_ModelList.front().first;
+		std::map<string, ModelDefinition>::iterator it = m_ModelList.begin();
+
+		string unremovedName = it->first;
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + unremovedName + "' not removed properly");
 
@@ -324,29 +327,23 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 
 bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelDefinition model =	m_ModelFactory->createModel(p_Filename);
-
-	m_ModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
-
+	m_ModelList.insert(pair<string, ModelDefinition>(p_ModelId, std::move(m_ModelFactory->getInstance()->createModel(p_Filename))));
 	return true;
 }
 
 bool Graphics::releaseModel(const char* p_ResourceName)
 {
-	for(auto it = m_ModelList.begin(); it != m_ModelList.end(); ++it)
+	std::string resourceName(p_ResourceName);
+	if(m_ModelList.count(resourceName) > 0)
 	{
-		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
+		for(unsigned int i = 0; i < m_ModelList.at(resourceName).numOfMaterials; i++)
 		{
-			for(unsigned int i = 0; i < it->second.numOfMaterials; i++)
-			{
-				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-				m_ReleaseModelTexture(it->second.normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-			}
-
-			m_ModelList.erase(it);
-			return true;
+			m_ReleaseModelTexture(m_ModelList.at(resourceName).diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+			m_ReleaseModelTexture(m_ModelList.at(resourceName).normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+			m_ReleaseModelTexture(m_ModelList.at(resourceName).specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 		}
+		m_ModelList.erase(resourceName);
+		return true;
 	}
 
 	return false;
@@ -355,26 +352,13 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, ShaderType p_Type)
 {
-	bool found = false;
-	Shader *shader = nullptr;
-
-	for(auto &s : m_ShaderList)
+	if(m_ShaderList.count(std::string(p_shaderId)) > 0)
 	{
-		if(strcmp(s.first.c_str(), p_shaderId) == 0)
-		{
-			found = true;
-			shader = s.second;
-		}
-	}
-
-	if(!found)
-	{
-		shader = m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
-		m_ShaderList.push_back(make_pair(p_shaderId, shader));
+		m_WrapperFactory->addShaderStep(m_ShaderList.at(std::string(p_shaderId)), p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
 	}
 	else
 	{
-		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
+		m_ShaderList.insert(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_Type)));
 	}
 }
 
@@ -386,15 +370,10 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	if(!(p_Type & ShaderType::VERTEX_SHADER))
 		throw ShaderException("Failed to create shader, no vertex shader defined", __LINE__, __FILE__);
 
-	for(auto &s : m_ShaderList)
-	{
-		if(strcmp(s.first.c_str(), p_shaderId) == 0)
-		{
-			throw ShaderException("Failed to create shader, shader already exists", __LINE__, __FILE__);
-		}
-	}
+	if(m_ShaderList.count(std::string(p_shaderId)) > 0)
+		throw ShaderException("Failed to create shader, shader already exists", __LINE__, __FILE__);
 
-	m_ShaderList.push_back(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, p_EntryPoint,
+	m_ShaderList.insert(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, p_EntryPoint,
 		p_ShaderModel, p_Type, p_VertexLayout, p_NumOfElements)));
 }
 
@@ -415,18 +394,14 @@ void Graphics::linkShaderToParticles(const char *p_ShaderId, const char *p_Parti
 
 void Graphics::deleteShader(const char *p_ShaderId)
 {
-	for(auto &s : m_ShaderList)
+	std::string shaderId(p_ShaderId);
+	if(m_ShaderList.count(string(shaderId)) > 0)
 	{
-		if(s.first.compare(p_ShaderId) == 0 )
-		{
-			SAFE_DELETE(s.second);
-			std::swap(s, m_ShaderList.back());
-			m_ShaderList.pop_back();
-			return;
-		}
+		SAFE_DELETE(m_ShaderList.at(shaderId));
+		m_ShaderList.erase(shaderId);
 	}
-	string error = p_ShaderId;
-	throw GraphicsException("Failed to set delete shader: " + error + " does not exist", __LINE__, __FILE__);
+	else
+		throw GraphicsException("Failed to set delete shader: " + shaderId + " does not exist", __LINE__, __FILE__);
 }
 
 bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
@@ -440,55 +415,45 @@ bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	int size = calculateTextureSize(resourceView);
 	VRAMInfo::getInstance()->updateUsage(size);
 
-	m_TextureList.push_back(make_pair(p_TextureId, resourceView));
+	m_TextureList.insert(make_pair(p_TextureId, resourceView));
 
 	return true;
 }
 
 bool Graphics::releaseTexture(const char *p_TextureId)
 {
-	for(auto it = m_TextureList.begin(); it != m_TextureList.end(); ++it)
+	std::string textureId(p_TextureId);
+	if(m_TextureList.count(textureId) > 0)
 	{
-		if(strcmp(it->first.c_str(), p_TextureId) == 0)
-		{
-			ID3D11ShaderResourceView *&m = it->second;
-			int size = calculateTextureSize(m);
-			VRAMInfo::getInstance()->updateUsage(-size);
+		ID3D11ShaderResourceView *&m = m_TextureList.at(textureId);
+		int size = calculateTextureSize(m);
+		VRAMInfo::getInstance()->updateUsage(-size);
 
-			SAFE_RELEASE(m);
-			m_TextureList.erase(it);
-			return true;
-		}
+		SAFE_RELEASE(m);
+		m_TextureList.erase(textureId);
+		return true;
 	}
-
 	return false;
 }
 
 bool Graphics::createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename)
 {
-	ParticleEffectDefinition::ptr temp = m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId);
-
-	m_ParticleEffectDefinitionList.push_back(make_pair(p_ParticleEffectId,temp));
-	
+	m_ParticleEffectDefinitionList.insert(make_pair(p_ParticleEffectId,
+		m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId)));
 	return true;
 }
 
 bool Graphics::releaseParticleEffectDefinition(const char *p_ParticleEffectId)
 {
-	auto it = std::find_if(m_ParticleEffectDefinitionList.begin(), m_ParticleEffectDefinitionList.end(),
-		[p_ParticleEffectId] (const pair<string, ParticleEffectDefinition::ptr>& p_Effect)
-		{
-			return p_Effect.first == p_ParticleEffectId;
-		});
-
-	if (it != m_ParticleEffectDefinitionList.end())
+	std::string id(p_ParticleEffectId);
+	if(m_ParticleEffectDefinitionList.count(id) > 0)
 	{
-		m_ReleaseModelTexture(it->second->textureResourceName.c_str(), m_ReleaseModelTextureUserdata);
-		m_ParticleEffectDefinitionList.erase(it);
+		m_ReleaseModelTexture(m_ParticleEffectDefinitionList.at(id)->textureResourceName.c_str(), m_ReleaseModelTextureUserdata);
+		m_ParticleEffectDefinitionList.erase(id);
 		return true;
 	}
-
-	return false;
+	else
+		return false;
 }
 
 IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_ParticleEffectId)
@@ -505,39 +470,23 @@ IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_Parti
 	ParticleInstance::ptr instance = m_ParticleFactory->createParticleInstance(effectDef);
 	int id = m_NextParticleInstanceId++;
 
-	m_ParticleEffectInstanceList.push_back(make_pair(id, instance));
+	m_ParticleEffectInstanceList.insert(make_pair(id, instance));
 
 	return id;
 }
 
 void Graphics::releaseParticleEffectInstance(InstanceId p_ParticleEffectId)
 {
-	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
-		[p_ParticleEffectId] (const pair<InstanceId, ParticleInstance::ptr>& p_Effect)
-		{
-			return p_Effect.first == p_ParticleEffectId;
-		});
-	if (it != m_ParticleEffectInstanceList.end())
-	{
-		m_ParticleEffectInstanceList.erase(it);
-	}
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
+		m_ParticleEffectInstanceList.erase(p_ParticleEffectId);
 }
 
 void Graphics::setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position)
 {
-	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
-		[p_ParticleEffectId] (const pair<InstanceId, ParticleInstance::ptr>& p_Effect)
-		{
-			return p_Effect.first == p_ParticleEffectId;
-		});
-	if (it != m_ParticleEffectInstanceList.end())
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
 	{
-		DirectX::XMFLOAT4 pos(
-			p_Position.x,
-			p_Position.y,
-			p_Position.z,
-			1.f);
-		it->second->setPosition(pos);
+		DirectX::XMFLOAT4 pos(p_Position.x,	p_Position.y, p_Position.z,	1.f);
+		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setPosition(pos);
 	}
 }
 
@@ -553,7 +502,7 @@ int Graphics::create2D_Object(Vector2 p_Position, Vector2 p_HalfSize, float p_Ro
 {
 	ModelDefinition *model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
 	
-	m_2D_Objects.push_back(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(model))));
+	m_2D_Objects.insert(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(model))));
 	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
 	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
 
@@ -574,7 +523,7 @@ int Graphics::create2D_Object(Vector2 p_Position, float p_Scale, float p_Rotatio
 	if(!defintion)
 		throw GraphicsException("Failed to find model definition", __LINE__, __FILE__);
 
-	m_2D_Objects.push_back(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(defintion))));
+	m_2D_Objects.insert(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(defintion))));
 	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
 	set2D_ObjectScale(m_Next2D_ObjectId, p_Scale);
 	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
@@ -595,29 +544,25 @@ void Graphics::render2D_Object(int p_Id)
 
 void Graphics::renderModel(InstanceId p_ModelId)
 {
-	for (auto& inst : m_ModelInstances)
+	if(m_ModelInstances.count(p_ModelId) > 0)
 	{
-		if (inst.first == p_ModelId)
+		ModelDefinition *modelDef = getModelFromList(m_ModelInstances.at(p_ModelId).getModelName());
+		if(!modelDef->isTransparent)
 		{
-			ModelDefinition *modelDef = getModelFromList(inst.second.getModelName());
-			if(!modelDef->isTransparent)
-			{
-				m_DeferredRender->addRenderable(Renderable(
-					Renderable::Type::DEFERRED_OBJECT, modelDef,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
-			}
-			else
-			{
-				m_ForwardRenderer->addRenderable(Renderable(
-					Renderable::Type::FORWARD_OBJECT, modelDef,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
-					&inst.second.getColorTone()));
-			}
-			
-			return;
+			m_DeferredRender->addRenderable(Renderable(
+				Renderable::Type::DEFERRED_OBJECT, modelDef,
+				m_ModelInstances.at(p_ModelId).getWorldMatrix(), &m_ModelInstances.at(p_ModelId).getFinalTransform()));
+		}
+		else
+		{
+			m_ForwardRenderer->addRenderable(Renderable(
+				Renderable::Type::FORWARD_OBJECT, modelDef,
+				m_ModelInstances.at(p_ModelId).getWorldMatrix(), &m_ModelInstances.at(p_ModelId).getFinalTransform(),
+				&m_ModelInstances.at(p_ModelId).getColorTone()));
 		}
 	}
-	throw GraphicsException("Failed to render model instance, vector out of bounds.", __LINE__, __FILE__);
+	else
+		throw GraphicsException("Failed to render model instance, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::renderSkydome()
@@ -728,29 +673,19 @@ void Graphics::drawFrame()
 
 void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)
 {
-	
-	for(auto &model : m_ModelList)
+	std::string modelId(p_ModelId);
+	if(m_ModelList.count(modelId) > 0)
 	{
-		if(model.first == string(p_ModelId))
-		{
-			model.second.isTransparent = p_State;
-			return;
-		}
+		m_ModelList.at(modelId).isTransparent = p_State;
 	}
-	string error = p_ModelId;
-	throw GraphicsException("Failed to set transparency state to ModelDefinition: " + error + " does not exist", __LINE__, __FILE__);
+	else
+		throw GraphicsException("Failed to set transparency state to ModelDefinition: " + modelId + " does not exist", __LINE__, __FILE__);
 }
 
 void Graphics::animationPose(int p_Instance, const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size)
 {
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.animationPose(p_Pose, p_Size);
-			break;
-		}
-	}
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).animationPose(p_Pose, p_Size);
 }
 
 int Graphics::getVRAMUsage(void)
@@ -775,7 +710,7 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 	int id = m_NextInstanceId++;
 
-	m_ModelInstances.push_back(make_pair(id, instance));
+	m_ModelInstances.insert(make_pair(id, instance));
 
 	return id;
 }
@@ -787,114 +722,75 @@ void Graphics::createSkydome(const char* p_TextureResource, float p_Radius)
 
 void Graphics::eraseModelInstance(InstanceId p_Instance)
 {
-	for (unsigned int i = 0; i < m_ModelInstances.size(); i++)
-	{
-		if (m_ModelInstances.at(i).first == p_Instance)
-		{
-			m_ModelInstances.erase(m_ModelInstances.begin() + i);
-			return;
-		}
-	}
-	throw GraphicsException("Failed to erase model instance, vector out of bounds.", __LINE__, __FILE__);
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.erase(p_Instance);
+	else
+		throw GraphicsException("Failed to erase model instance, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::setModelPosition(InstanceId p_Instance, Vector3 p_Position)
 {
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.setPosition(Vector3ToXMFLOAT3(&p_Position));
-			return;
-		}
-	}
-	throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).setPosition(Vector3ToXMFLOAT3(&p_Position));
+	else
+		throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll)
 {
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.setRotation(DirectX::XMFLOAT3(p_YawPitchRoll.y, p_YawPitchRoll.x, p_YawPitchRoll.z));
-			return;
-		}
-	}
-	throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
-
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).setRotation(DirectX::XMFLOAT3(p_YawPitchRoll.y, p_YawPitchRoll.x, p_YawPitchRoll.z));
+	else
+		throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::setModelScale(InstanceId p_Instance, Vector3 p_Scale)
 {
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.setScale(DirectX::XMFLOAT3(p_Scale));
-			return;
-		}
-	}
-	throw GraphicsException("Failed to set model instance scale, vector out of bounds.", __LINE__, __FILE__);
-
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).setScale(DirectX::XMFLOAT3(p_Scale));
+	else
+		throw GraphicsException("Failed to set model instance scale, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 {
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.setColorTone(DirectX::XMFLOAT3(p_ColorTone));
-			return;
-		}
-	}
-	throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).setColorTone(DirectX::XMFLOAT3(p_ColorTone));
+	else
+		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector2 p_Position)
 {
-	//Renderable2DIterator it = std::find(m_2D_Objects.begin(), m_2D_Objects.end(),
-	//	[&] (pair<Object2D_ID, ModelDefinition>&a){return a.first == p_Instance;});
-
-	//if(it != m_2D_Objects.end())
-	//	(*it).second.position = Vector2ToXMFLOAT2(&p_Position); 
-	//else
-	//	throw GraphicsException("Failed to set 2D model position, vector out of bounds.", __LINE__, __FILE__);
+	if(m_2D_Objects.count(p_Instance) > 0)
+		m_2D_Objects.at(p_Instance).position = Vector2ToXMFLOAT2(&p_Position);
+	else
+		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale)
 {
-	//Renderable2DIterator it = std::find(m_2D_Objects.begin(), m_2D_Objects.end(),
-	//	[&] (pair<Object2D_ID, ModelDefinition>&a){return a.first == p_Instance;});
-
-	//if(it != m_2D_Objects.end())
-	//	(*it).second.scale = p_Scale; 
-	//else
-	//	throw GraphicsException("Failed to set 2D model scale, vector out of bounds.", __LINE__, __FILE__);
+	if(m_2D_Objects.count(p_Instance) > 0)
+		m_2D_Objects.at(p_Instance).scale = p_Scale;
+	else
+		throw GraphicsException("Failed to set 2D model scale, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation)
 {
-	//Renderable2DIterator it = std::find(m_2D_Objects.begin(), m_2D_Objects.end(),
-	//	[&] (pair<Object2D_ID, ModelDefinition>&a){return a.first == p_Instance;});
-
-	//if(it != m_2D_Objects.end())
-	//	XMStoreFloat4x4(&(*it).second.rotation, XMMatrixRotationZ(p_Rotation)); 
-	//else
-	//	throw GraphicsException("Failed to set 2D model rotation, vector out of bounds.", __LINE__, __FILE__);
+	if(m_2D_Objects.count(p_Instance) > 0)
+		XMStoreFloat4x4(&m_2D_Objects.at(p_Instance).rotation, XMMatrixRotationZ(p_Rotation)); 
+	else
+		throw GraphicsException("Failed to set 2D model rotation, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt)
 {
-	//Renderable2DIterator it = std::find(m_2D_Objects.begin(), m_2D_Objects.end(),
-	//	[&] (pair<Object2D_ID, ModelDefinition>&a){return a.first == p_Instance;});
-
-	//if(it != m_2D_Objects.end())
-	//	XMStoreFloat4x4(&(*it).second.rotation, XMMatrixLookAtLH(XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f), 
-	//	XMVectorSet(p_LookAt.x, p_LookAt.y, p_LookAt.z, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f))); 
-	//else
-	//	throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);
+	if(m_2D_Objects.count(p_Instance) > 0)
+		XMStoreFloat4x4(&m_2D_Objects.at(p_Instance).rotation, XMMatrixLookAtLH(XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f), 
+		XMVectorSet(p_LookAt.x, p_LookAt.y, p_LookAt.z, 0.0f), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f))); 
+	else
+		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
@@ -1191,56 +1087,34 @@ void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 
 Shader *Graphics::getShaderFromList(string p_Identifier)
 {
-	Shader *ret = nullptr;
-
-	for(auto & s : m_ShaderList)
-	{
-		if(s.first.compare(p_Identifier) == 0 )
-		{
-			ret = s.second;
-			break;
-		}
-	}
-	return ret;
+	if(m_ShaderList.count(p_Identifier) > 0)
+		return m_ShaderList.at(p_Identifier);
+	else
+		return nullptr;
 }
 
 ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 {
-	for(auto & s : m_ModelList)
-	{
-		if(s.first == p_Identifier)
-		{
-			return &s.second;
-		}
-	}
-
-	return nullptr;
+	if(m_ModelList.count(p_Identifier) > 0)
+		return &m_ModelList.at(p_Identifier);
+	else
+		return nullptr;
 }
 
 ParticleEffectDefinition::ptr Graphics::getParticleFromList(string p_Identifier)
 {
-	for(auto & s : m_ParticleEffectDefinitionList)
-	{
-		if(s.first == p_Identifier)
-		{
-			return s.second;
-		}
-	}
-
-	return nullptr;
+	if(m_ParticleEffectDefinitionList.count(p_Identifier) > 0)
+		return m_ParticleEffectDefinitionList.at(p_Identifier);
+	else
+		return nullptr;
 }
 
 ID3D11ShaderResourceView *Graphics::getTextureFromList(string p_Identifier)
 {
-	for(auto & s : m_TextureList)
-	{
-		if(s.first == p_Identifier)
-		{
-			return s.second;
-		}
-	}
-
-	return nullptr;
+	if(m_TextureList.count(p_Identifier) > 0)
+		return m_TextureList.at(p_Identifier);
+	else
+		return nullptr;
 }
 
 int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )

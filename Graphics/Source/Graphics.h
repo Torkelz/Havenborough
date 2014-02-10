@@ -56,17 +56,17 @@ private:
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
 
-	std::vector<std::pair<std::string, Shader*>> m_ShaderList;
-	std::vector<std::pair<std::string, ModelDefinition>> m_ModelList;
-	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> m_TextureList;
-	std::vector<std::pair<InstanceId, ModelInstance>> m_ModelInstances;
-	std::vector<std::pair<int, Renderable2D>> m_2D_Objects;
+	std::map<std::string, Shader*> m_ShaderList;
+	std::map<std::string, ModelDefinition> m_ModelList;
+	std::map<std::string, ID3D11ShaderResourceView*> m_TextureList;
+	std::map<InstanceId, ModelInstance> m_ModelInstances;
+	std::map<Object2D_ID, Renderable2D> m_2D_Objects;
 	InstanceId m_NextInstanceId;
 	Object2D_ID m_Next2D_ObjectId;
 
 	//Particles
-	std::vector<std::pair<std::string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
-	std::vector<std::pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
+	std::map<std::string, ParticleEffectDefinition::ptr> m_ParticleEffectDefinitionList;
+	std::map<int, ParticleInstance::ptr> m_ParticleEffectInstanceList;
 	int m_NextParticleInstanceId;
 	std::unique_ptr<ParticleFactory> m_ParticleFactory;
 
