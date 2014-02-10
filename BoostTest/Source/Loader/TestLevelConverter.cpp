@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "../../../BinaryConverter/Source/LevelConverter.h"
+#include "../../../BinaryConverter/Source/InstanceConverter.h"
 BOOST_AUTO_TEST_SUITE(TestLevelConverter)
 
 class testConv : public LevelConverter
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 		"\x05\0\0\0"
 		"\x03\0\0\0";
 
-	LevelLoader::LevelHeader header;
+	InstanceLoader::LevelHeader header;
 	header.m_NumberOfModels = 1;
 	header.m_NumberOfLights = 5;
 	header.m_NumberOfCheckPoints = 3;
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(TestCreateLighting)
 		};
 	};
 
-	std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>> directionalLight;
+	std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>> directionalLight;
 	directionalLight.resize(1);
 	byteFloat float3Trans[3];
 	float3Trans[0].f = 0.75f; float3Trans[1].f = 1204.0f; float3Trans[2].f = 0.999f;
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(TestCreateLighting)
 
 	conv.setLevelDirectionalLightList(&directionalLight);
 
-	std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>> pointLight;
+	std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>> pointLight;
 	pointLight.resize(1);
 	float3Trans[0].f = 0.75f; float3Trans[1].f = 1204.0f; float3Trans[2].f = 0.999f;
 	pointLight.at(0).first.m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(TestCreateLighting)
 
 	conv.setLevelPointLightList(&pointLight);
 
-	std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>> spotLight;
+	std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>> spotLight;
 	spotLight.resize(1);
 	float3Trans[0].f = 0.75f; float3Trans[1].f = 1204.0f; float3Trans[2].f = 0.999f;
 	spotLight.at(0).first.m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(TestCreateCheckPoints)
 		};
 	};
 
-	std::vector<LevelLoader::CheckPointStruct> checkPoints;
+	std::vector<InstanceLoader::CheckPointStruct> checkPoints;
 	checkPoints.resize(1);
 	byteInt number;
 	number.i = 3;
@@ -268,8 +268,8 @@ BOOST_AUTO_TEST_CASE(TestCreateLevel)
 		"\x01\0\0\0"
 		"\x04\0\0\0Test";
 
-	std::vector<LevelLoader::ModelStruct> level;
-	std::vector<LevelLoader::ModelHeader> modelInfo;
+	std::vector<InstanceLoader::ModelStruct> level;
+	std::vector<InstanceLoader::ModelHeader> modelInfo;
 	level.resize(1);
 	level.at(0).m_MeshName = "Test";
 	byteFloat float3Trans[3];

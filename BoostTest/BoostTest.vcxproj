@@ -104,8 +104,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\BinaryConverter\Source\LevelConverter.cpp" />
-    <ClCompile Include="..\BinaryConverter\Source\LevelLoader.cpp" />
+    <ClCompile Include="..\BinaryConverter\Source\InstanceConverter.cpp" />
+    <ClCompile Include="..\BinaryConverter\Source\InstanceLoader.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />

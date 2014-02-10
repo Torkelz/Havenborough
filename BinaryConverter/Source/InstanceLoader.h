@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-class LevelLoader
+class InstanceLoader
 {
 public:
 	struct LevelHeader
@@ -71,12 +71,12 @@ public:
 	/**
 	 * Constructor.
 	 */
-	LevelLoader();
+	InstanceLoader();
 
 	/**
 	 * Deconstructor, calls clear(). 
 	 */
-	~LevelLoader();
+	~InstanceLoader();
 
 	/**
 	 * Opens a .txl format file. If file not found this returns false.
@@ -95,35 +95,35 @@ public:
 	 *
 	 * @return LevelHeader struct.
 	 */
-	LevelLoader::LevelHeader getLevelHeader();
+	InstanceLoader::LevelHeader getLevelHeader();
 
 	/**
 	 * Returns a vector with information about the levels models.
 	 *
 	 * @return ModelStruct list.
 	 */
-	const std::vector<LevelLoader::ModelStruct>& getLevelModelList() const;
+	const std::vector<InstanceLoader::ModelStruct>& getLevelModelList() const;
 
 	/**
 	 * Returns a vector with information about the levels directional lighting.
 	 *
 	 * @return DirectionalLight list.
 	 */
-	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>& getLevelDirectionalLightList() const;
+	const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>>& getLevelDirectionalLightList() const;
 
 	/**
 	 * Returns a vector with information about the levels directional lighting.
 	 *
 	 * @return PointLight list.
 	 */
-	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>& getLevelPointLightList() const;
+	const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>>& getLevelPointLightList() const;
 
 	/**
 	 * Returns a vector with information about the levels directional lighting.
 	 *
 	 * @return PointLight list.
 	 */
-	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>& getLevelSpotLightList() const;
+	const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>>& getLevelSpotLightList() const;
 
 	/**
 	 * Returns a vector with information about the levels check points.
@@ -131,7 +131,7 @@ public:
 	 *
 	 * @return CheckPointStruct list.
 	 */
-	const std::vector<LevelLoader::CheckPointStruct>& getLevelCheckPointList() const;
+	const std::vector<InstanceLoader::CheckPointStruct>& getLevelCheckPointList() const;
 
 	/**
 	 * Returns the start point of the map.

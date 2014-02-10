@@ -1,9 +1,9 @@
 #include <boost/test/unit_test.hpp>
-#include "../../../BinaryConverter/Source/LevelLoader.h"
+#include "../../../BinaryConverter/Source/InstanceLoader.h"
 
 BOOST_AUTO_TEST_SUITE(TestLevelLoader)
 
-class testLevelLoader : public LevelLoader
+class testLevelLoader : public InstanceLoader
 {
 public:
 	int testHeader(std::istream& p_Input)

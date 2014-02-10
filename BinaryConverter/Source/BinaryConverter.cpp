@@ -2,21 +2,21 @@
 #pragma warning(disable : 4996)
 #include "ModelConverter.h"
 #include "ModelLoader.h"
-#include "LevelLoader.h"
-#include "LevelConverter.h"
+#include "InstanceLoader.h"
+#include "InstanceConverter.h"
 #include "..\..\Common\Source\LevelBinaryLoader.h"
 #include <iostream>
 
 void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter);
-void setLevelInfo(LevelLoader* p_Loader, LevelConverter* p_Converter);
+void setLevelInfo(InstanceLoader* p_Loader, LevelConverter* p_Converter);
 
 int main(int argc, char* argv[])
 {
 	ModelLoader loader;
 	ModelConverter converter;
-	LevelLoader levelLoader;
+	InstanceLoader instanceLoader;
 	LevelConverter levelConverter;
-	LevelBinaryLoader testLevelLoader;
+	LevelBinaryLoader testInstanceLoader;
 
 	bool result;
 	if(argc == 2)
@@ -52,15 +52,15 @@ int main(int argc, char* argv[])
 			strcpy(outputBuffer.data(), argv[1]);
 			int length = outputBuffer.size();
 			strcpy(outputBuffer.data()+length-6, ".btxl");
-			result = levelLoader.loadLevel(argv[1]);
+			result = instanceLoader.loadLevel(argv[1]);
 			if(!result){std::cout<<"Error loading file";return EXIT_FAILURE;}
-			setLevelInfo(&levelLoader, &levelConverter);
+			setLevelInfo(&instanceLoader, &levelConverter);
 			result = levelConverter.writeFile(outputBuffer.data());
 			if(!result){std::cout<<"Error writing file";return EXIT_FAILURE;}
 			std::cout << outputBuffer.data() << std::endl;
-			levelLoader.clear();
+			instanceLoader.clear();
 			levelConverter.clear();
-			testLevelLoader.loadBinaryFile(outputBuffer.data());
+			testInstanceLoader.loadBinaryFile(outputBuffer.data());
 			return EXIT_SUCCESS;
 		}
 
@@ -96,7 +96,7 @@ void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter)
 	p_Converter->setNumberOfFrames(p_Loader->getNumberOfFrames());
 }
 
-void setLevelInfo(LevelLoader* p_Loader, LevelConverter* p_Converter)
+void setLevelInfo(InstanceLoader* p_Loader, LevelConverter* p_Converter)
 {
 	p_Converter->setLevelHead(p_Loader->getLevelHeader());
 	p_Converter->setLevelModelList(&p_Loader->getLevelModelList());
