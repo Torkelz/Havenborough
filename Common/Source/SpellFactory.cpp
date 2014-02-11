@@ -33,8 +33,8 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	spell->explosionRadius = 500.f;
 	spell->effectTime = 0.5f;
 	spell->maxTimeToLive = 60.f;
-	spell->force = 1.f;
-	spell->minForce = 0.1f;
+	spell->force = 5000.f;
+	spell->minForce = 500.f;
 	spell->spellName = p_Spellname;
 	spell->flyingSpellSize = 10.f;
 	spell->flyForce = 1000.f;

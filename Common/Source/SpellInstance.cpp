@@ -65,6 +65,7 @@ void SpellInstance::update(float p_DeltaTime)
 		Vector3 currentPosition = m_Physics->getBodyPosition(m_Sphere);
 		m_Physics->releaseBody(m_Sphere);
 		m_Sphere = m_Physics->createSphere(0.f, true, currentPosition, m_SpellDefinition->explosionRadius);
+		m_Physics->setBodyCollisionResponse(m_Sphere, false);
 		
 		m_TimeLived = 0.f;
 	}
@@ -98,7 +99,7 @@ void SpellInstance::explodeSpell(SpellDefinition::ptr p_SpellDefinition, float p
 {	
 	for(unsigned i = 0; i < m_Physics->getHitDataSize(); i++)
 	{
-		if(m_Physics->getHitDataAt(i).collider == m_Sphere)
+		if(m_Physics->getHitDataAt(i).collisionVictim == m_Sphere)
 		{
 			HitData temp = m_Physics->getHitDataAt(i);
 
@@ -106,7 +107,7 @@ void SpellInstance::explodeSpell(SpellDefinition::ptr p_SpellDefinition, float p
 
 			Vector4 vTemp = temp.colNorm * (m_SpellDefinition->minForce + forceFactor * m_SpellDefinition->force);
 
-			m_Physics->applyImpulse(temp.collisionVictim, vTemp.xyz() * p_DeltaTime);	
+			m_Physics->applyImpulse(temp.collider, vTemp.xyz() * p_DeltaTime);
 		}
 	}
 }
