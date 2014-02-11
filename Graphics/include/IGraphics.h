@@ -224,6 +224,9 @@ public:
 	 */
 	virtual void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) = 0;
 
+	/**
+	* Creates a 2D object
+	*/
 	virtual int create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation,
 		const char *p_TextureId) = 0;
 

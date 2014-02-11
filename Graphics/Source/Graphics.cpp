@@ -662,7 +662,7 @@ void Graphics::drawFrame()
 		}
 		m_ForwardRenderer->renderForward();
 		drawBoundingVolumes();
-		m_ScreenRenderer->renderObjects();
+		m_ScreenRenderer->renderScreen();
 
 	}
 
@@ -802,22 +802,6 @@ void Graphics::set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt)
 		m_2D_Objects.at(p_Instance).rotation._41 = 0.0f;
 		m_2D_Objects.at(p_Instance).rotation._42 = 0.0f;
 		m_2D_Objects.at(p_Instance).rotation._43 = 0.0f;
-
-		//XMVECTOR direction = XMVectorSet(p_LookAt.x, p_LookAt.y, p_LookAt.z, 0.0f) -
-		//	XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f);
-		//direction = XMVector3Transform(direction, XMLoadFloat4x4(&m_ViewMatrix));
-		//direction = XMVector3Normalize(direction);
-		//XMVECTOR up = XMVectorSet(0,1,0,0);
-		//XMVECTOR side = XMVector3Normalize(XMVector3Cross(up, direction));
-		//up = XMVector3Normalize(XMVector3Cross(side, direction));
-		//XMFLOAT4 u;
-		//XMFLOAT4 s;
-		//XMFLOAT4 d;
-		//XMStoreFloat4(&u, up);
-		//XMStoreFloat4(&s, side);
-		//XMStoreFloat4(&d, direction);
-		//XMMATRIX roation = XMMATRIX(s.x, s.y, s.z, 0, u.x, u.y, u.z, 0, d.x, d.y, d.z, 0, 0, 0, 0, 1);
-		//XMStoreFloat4x4(&m_2D_Objects.at(p_Instance).rotation, roation);
 	}
 	else
 		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);

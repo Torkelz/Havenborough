@@ -57,7 +57,7 @@ public:
 	* All the objects that are supposed to be rendered must have been sent to the renderer
 	* before calling this function.
 	*/
-	void renderObjects(void);
+	void renderScreen(void);
 
 private:
 	void createBlendState(void);

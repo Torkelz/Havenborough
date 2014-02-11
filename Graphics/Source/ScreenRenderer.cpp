@@ -136,7 +136,7 @@ void ScreenRenderer::createRasterState(void)
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.CullMode = D3D11_CULL_FRONT;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = false;
@@ -152,7 +152,25 @@ void ScreenRenderer::createRasterState(void)
 void ScreenRenderer::createDepthStencilState(void)
 {
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {0};
-	depthStencilDesc.DepthEnable = false;
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = false;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	//Stencil operations if pixel is front-facing.
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing.
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
 }
@@ -165,7 +183,7 @@ void ScreenRenderer::updateConstantBuffer(void)
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL, nullptr, &cb, NULL, NULL);
 }
 
-void ScreenRenderer::renderObjects(void)
+void ScreenRenderer::renderScreen(void)
 {
 	if(m_2D_Objects.size() > 0)
 	{
@@ -183,8 +201,7 @@ void ScreenRenderer::renderObjects(void)
 			[] (Renderable2D &a, Renderable2D &b){ return a.position.z > b.position.z; });
 
 		// Set the render targets.
-		//m_DeviceContext->OMSetRenderTargets(1, &m_RenderTarget, m_DepthStencilView);
-		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTarget, nullptr);
+		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTarget, m_DepthStencilView);
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		m_ConstantBuffer->setBuffer(0);
@@ -205,7 +222,7 @@ void ScreenRenderer::renderObjects(void)
 		m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 		m_DeviceContext->RSSetState(previousRasterState);
 		m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
-		
+
 		//float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 		//UINT sampleMask = 0xffffffff;
 		//m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
