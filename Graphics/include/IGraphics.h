@@ -10,10 +10,13 @@ class IGraphics
 {
 public:
 	/**
-	* Unique ID for a model instance.
+	* Unique ID for a model instance, starts on 1.
 	*/
 	typedef int InstanceId;
 
+	/**
+	* Unique ID for a 2D object instance, starts on 1.
+	*/
 	typedef int Object2D_ID;
 		
 	/**
@@ -344,7 +347,7 @@ public:
 	virtual void eraseModelInstance(InstanceId p_Instance) = 0;
 
 	/**
-	 * Set the position of an model instance in absolute world coordinates.
+	 * Set the position of a model instance in absolute world coordinates.
 	 *
 	 * @param p_Instance an identifier to a model instance.
 	 * @param p_Position the new position in the world from origin in cm's
@@ -352,7 +355,7 @@ public:
 	virtual void setModelPosition(InstanceId p_Instance, Vector3 p_Position) = 0;
 
 	/**
-	 * Set the rotation of an model instance in radians.
+	 * Set the rotation of a model instance in radians.
 	 *
 	 * @param p_Instance an identifier to a model instance.
 	 * @param p_YawPitchRoll rotation around the YXZ axises, left-handed.
@@ -360,7 +363,7 @@ public:
 	virtual void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) = 0;
 
 	/**
-	 * Set the scale of an model instance.
+	 * Set the scale of a model instance.
 	 *
 	 * @param p_Instance an identifier to a model instance.
 	 * @param p_Scale the model scale, Vector3(1.0f, 1.0f, 1.0f) equals no scale 
@@ -368,17 +371,42 @@ public:
 	virtual void setModelScale(InstanceId p_Instance, Vector3 p_Scale) = 0;
 
 	/**
-	 * Set the scale of an model instance.
+	 * Set the color tone of a model instance.
 	 *
 	 * @param p_Instance an identifier to a model instance.
 	 * @param p_ColorTone the color tone to shade the model in, RGB range 0.0f to 1.0f
 	 */
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
+	/**
+	* Set the pixel position on screen of a 2D object.
+	* @param p_Instance an identifier to an object
+	* @param p_Position xy the pixel coordinates to place the center of the object, z the position relative to
+	*	other 2D objects where lower z renders in front of higher
+	*/
 	virtual void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) = 0;
+	
+	/**
+	* Set the scale of a 2D object.
+	* @param p_Instance an identifier to an object
+	* @param p_Scale scaling factor where 1.0f is the default model size
+	*/
 	virtual void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) = 0;
+	
+	/**
+	* Set the rotation of a 2D object around the screen z-axis.
+	* @param p_Instance an identifier to an object
+	* @param p_Rotation the rotation in radians, left-handed
+	*/
 	virtual void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) = 0;
+	
+	/**
+	* Set a position in world space which a 2D object should point towards.
+	* @param p_Instance an identifier to an object
+	* @param p_LookAt the position in the world
+	*/
 	virtual void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) = 0;
+	
 	/**
 	 * Update the position and viewing direction of the camera.
 	 *
