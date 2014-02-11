@@ -260,14 +260,35 @@ void Player::updateIKJoints()
 	if(m_ForceMove)
 	{
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
-		if(m_ClimbId == "Climb2")
+		if(m_ClimbId == "Climb1")
+		{
+			//XMVECTOR reachPointR;
+			//reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_Side) * 20);
+			//Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
+			//aa.lock()->applyIK_ReachPoint("RightArm", vReachPointR);
+		}
+
+		else if(m_ClimbId == "Climb2")
 		{
 			XMVECTOR reachPointR;
 			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_Side) * 20);
 			Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
 			aa.lock()->applyIK_ReachPoint("RightArm", vReachPointR);
 		}
-		if(m_ClimbId == "Climb3")
+
+		else if(m_ClimbId == "Climb3")
+		{
+			XMVECTOR reachPoint;
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_Side) * 20);
+			Vector3 vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			aa.lock()->applyIK_ReachPoint("RightArm", vReachPoint);
+
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_Side) * 20);
+			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			aa.lock()->applyIK_ReachPoint("LeftArm", vReachPoint);
+		}
+		
+		else if(m_ClimbId == "Climb4")
 		{
 			XMVECTOR reachPoint;
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_Side) * 20);
