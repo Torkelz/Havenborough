@@ -198,7 +198,6 @@ Vector3 GameLogic::getPlayerViewForward() const
 	{
 		return Vector3(0.f, 0.f, 1.f);
 	}
-
 	return look->getLookForward();
 }
 
@@ -266,6 +265,9 @@ DirectX::XMFLOAT4X4 GameLogic::getPlayerViewRotationMatrix() const
 
 void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 {
+	if(m_Player.getForceMove())
+		return;
+
 	Actor::ptr actor = m_Player.getActor().lock();
 	if (!actor)
 	{

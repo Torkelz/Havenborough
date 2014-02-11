@@ -35,6 +35,7 @@ private:
 	DirectX::XMFLOAT3 m_CenterReachPos;
 	DirectX::XMFLOAT3 m_Side;
 	DirectX::XMFLOAT3 m_EdgeOrientation;
+	DirectX::XMFLOAT3 m_forward;
 	std::string m_ClimbId;
 
 

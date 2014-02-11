@@ -204,6 +204,8 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		XMStoreFloat3(&m_CenterReachPos, vReachPointCenter);
 		XMStoreFloat3(&m_Side, side);
 		m_EdgeOrientation = p_EdgeOrientation;
+		
+		XMStoreFloat3(&m_forward, fwd);
 	}
 }
 
@@ -259,6 +261,13 @@ void Player::update(float p_DeltaTime)
 
 		DirectX::XMStoreFloat3(&temp, tstart+tv);
 		setPosition(temp);
+
+		std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+		if (look)
+		{
+			look->setLookForward(Vector3(m_forward.x, m_forward.y, m_forward.z));
+			look->setLookUp(Vector3(0, 1, 0));
+		}
 	}
 }
 
