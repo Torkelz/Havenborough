@@ -316,7 +316,7 @@ return actor;
 
 Actor::ptr ActorFactory::createSpell(const std::string& p_Spell)
 {
-
+	return Actor::ptr();
 }
 
 ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_Data)
