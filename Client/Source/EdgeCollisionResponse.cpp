@@ -43,13 +43,13 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector3 p_EdgePosi
 			return;
 			//p_Player->forceMove("Climb1", victimNormal);
 		else if(playerOrigPos.y  + p_Player->getWaistHeight() > p_EdgePosition.y)
-			p_Player->forceMove("Climb1", victimNormal, p_EdgePosition);
+			p_Player->forceMove("Climb1", victimNormal, p_EdgePosition, p_EdgeOrientation);
 		else if(playerOrigPos.y  + p_Player->getChestHeight() > p_EdgePosition.y)
-			p_Player->forceMove("Climb2", victimNormal, p_EdgePosition);
+			p_Player->forceMove("Climb3", victimNormal, p_EdgePosition, p_EdgeOrientation);
 		else if(playerOrigPos.y  + p_Player->getHeight() > p_EdgePosition.y)
-			p_Player->forceMove("Climb3", victimNormal, p_EdgePosition);
+			p_Player->forceMove("Climb3", victimNormal, p_EdgePosition, p_EdgeOrientation);
 		else if(playerOrigPos.y  + p_Player->getHeight() + 35.f > p_EdgePosition.y)
-			p_Player->forceMove("Climb4", victimNormal, p_EdgePosition);
+			p_Player->forceMove("Climb4", victimNormal, p_EdgePosition, p_EdgeOrientation);
 		else{}
 	}
 }

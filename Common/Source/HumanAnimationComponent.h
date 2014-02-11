@@ -167,7 +167,7 @@ public:
 
 	void playClimbAnimation(std::string p_ClimbID) override
 	{
-		playAnimation(p_ClimbID, false);
+		playAnimation(p_ClimbID, true);
 		m_ForceMove = true;
 	}
 

@@ -34,6 +34,7 @@ private:
 	DirectX::XMFLOAT3 m_ForceMoveStartPos;
 	DirectX::XMFLOAT3 m_CenterReachPos;
 	DirectX::XMFLOAT3 m_Side;
+	DirectX::XMFLOAT3 m_EdgeOrientation;
 	std::string m_ClimbId;
 
 
@@ -137,7 +138,7 @@ public:
 	* @param p_EndPostion the position where the movement will end
 	* @param p_BoxPos the center position of the edge box
 	*/
-	void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos);
+	void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation);
 
 	/**
 	* Updates the player's actions such as movement and jumping. If forced movement is active, the position will be updated between two stored positions.

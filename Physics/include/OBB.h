@@ -50,7 +50,8 @@ public:
 		float radius;
 		DirectX::XMStoreFloat(&radius, length);
 		m_Sphere = Sphere(radius, p_CenterPos);
-
+		
+		calculateOrientation();
 	}
 	/**
 	* Destructor

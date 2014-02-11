@@ -372,11 +372,11 @@ void GameLogic::playLocalLevel()
 	loadSandbox();
 
 	
-	BodyHandle b = m_Physics->createAABB(50.f, true, Vector3(0,105,0), Vector3(10,10,100), true);
+	BodyHandle b = m_Physics->createOBB(50.f, true, Vector3(0,105,0), Vector3(10,10,100), true);
 	m_Physics->setBodyCollisionResponse(b,false);
-	BodyHandle b1 = m_Physics->createAABB(50.f, true, Vector3(0,30,-210), Vector3(10,10,100), true);
+	BodyHandle b1 = m_Physics->createOBB(50.f, true, Vector3(0,30,-210), Vector3(10,10,100), true);
 	m_Physics->setBodyCollisionResponse(b1,false);
-	BodyHandle b2 = m_Physics->createAABB(50.f, true, Vector3(0,80,210), Vector3(10,10,100), true);
+	BodyHandle b2 = m_Physics->createOBB(50.f, true, Vector3(0,80,210), Vector3(10,10,100), true);
 	m_Physics->setBodyCollisionResponse(b2,false);
 
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
