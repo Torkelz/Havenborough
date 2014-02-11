@@ -40,15 +40,6 @@ private:
 	ActorFactory* m_ActorFactory;
 	std::vector<Actor::ptr> m_Objects;
 
-	//Spells
-	std::unique_ptr<SpellFactory> m_SpellFactory;
-	std::vector<std::pair<std::string, SpellDefinition::ptr>>  m_SpellDefinitionList;
-	std::vector<std::pair<int, SpellInstance::ptr>>  m_SpellInstanceList;
-	int m_NextSpellInstanceId;
-
-	void updateSpells(float p_DeltaTime);
-	///
-
 	bool m_Connected;
 	bool m_InGame;
 	bool m_PlayingLocal;
@@ -104,11 +95,7 @@ public:
 	void leaveGame();
 	void joinGame(const std::string& p_LevelName);
 
-	//Spell
-	bool createSpellDefinition(const char *p_SpellId, const char* p_Filename);
-	bool releaseSpellDefinition(const char *p_SpellId);
-
-	int createSpellInstance(const char *p_SpellId);
+	void throwSpell(const char *p_SpellId);
 	void releaseSpellInstance(int p_SpellId);
 	///
 private:

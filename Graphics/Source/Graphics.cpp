@@ -202,7 +202,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	buffDesc.numOfElements = m_BVBufferNumOfElements;
 	buffDesc.sizeOfElement = sizeof(XMFLOAT4);
 	buffDesc.type = Buffer::Type::VERTEX_BUFFER;
-	buffDesc.usage = Buffer::Usage::DEFAULT;
+	buffDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 
@@ -1185,46 +1185,46 @@ void Graphics::drawBoundingVolumes()
 {
 	if(m_BVTriangles.size() > 0)
 	{
-		Buffer* buffer = nullptr;
-
-		if(m_BVTriangles.size() >= m_BVBufferNumOfElements)
+		if(m_BVTriangles.size() > m_BVBufferNumOfElements)
 		{
+			SAFE_DELETE(m_BVBuffer);
 			VRAMInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
-			m_BVBufferNumOfElements = m_BVTriangles.size() + 1;
+			m_BVBufferNumOfElements *= 2;
+			if (m_BVTriangles.size() > m_BVBufferNumOfElements)
+			{
+				m_BVBufferNumOfElements = m_BVTriangles.size();
+			}
 			Buffer::Description buffDesc;
-			buffDesc.initData = &m_BVTriangles;
+			buffDesc.initData = nullptr;
 			buffDesc.numOfElements = m_BVBufferNumOfElements;
 			buffDesc.sizeOfElement = sizeof(XMFLOAT4);
 			buffDesc.type = Buffer::Type::VERTEX_BUFFER;
-			buffDesc.usage = Buffer::Usage::DEFAULT;
+			buffDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	
-			buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
+			m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 			VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
-			SAFE_DELETE(m_BVBuffer);
-			m_BVBuffer = buffer;
 		}
-		else 
-		{
-			m_DeviceContext->UpdateSubresource(m_BVBuffer->getBufferPointer(), NULL, NULL, m_BVTriangles.data(), 0, 0);
-			buffer = m_BVBuffer;
-		}
+
+		D3D11_MAPPED_SUBRESOURCE resource;
+		m_DeviceContext->Map(m_BVBuffer->getBufferPointer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+		std::copy(m_BVTriangles.begin(), m_BVTriangles.end(), (XMFLOAT4*)resource.pData);
+		m_DeviceContext->Unmap(m_BVBuffer->getBufferPointer(), 0);
 
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 
 		m_DeviceContext->RSSetState(m_RasterStateBV);
 
-		buffer->setBuffer(0);
+		m_BVBuffer->setBuffer(0);
 		m_BVShader->setShader();
 	
 		m_DeviceContext->Draw(m_BVTriangles.size(), 0);
 
 		m_Shader->unSetShader();
-		buffer->unsetBuffer(0);
+		m_BVBuffer->unsetBuffer(0);
 
 		m_DeviceContext->RSSetState(m_RasterState);
 
-		buffer = nullptr;
 		m_BVTriangles.clear();
 	}
 }

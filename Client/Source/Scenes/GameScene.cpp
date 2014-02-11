@@ -53,8 +53,6 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createSpell), CreateSpellEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeSpell), RemoveSpellEventData::sk_EventType);
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
@@ -144,13 +142,19 @@ void GameScene::render()
 
 	if(m_RenderDebugBV)
 	{
-		for(auto &object : m_GameLogic->getObjects())
+		/*for(auto &object : m_GameLogic->getObjects())
 		{
 			for (BodyHandle body : object->getBodyHandles())
 			{
 				renderBoundingVolume(body);
 			}
+		}*/
+
+		for(int bajs = 0; bajs < 200; bajs++)
+		{
+			renderBoundingVolume(bajs);
 		}
+
 		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
 	}
 
@@ -273,7 +277,7 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	}
 	else if(p_Action == "spellCast" && p_Value == 1.f)
 	{
-		
+		m_GameLogic->throwSpell("TestSpell");
 	}
 }
 
@@ -442,40 +446,6 @@ void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
 		m_Graphics->releaseParticleEffectInstance(it->instance);
 		m_ResourceManager->releaseResource(it->resourceId);
 		m_Particles.erase(it);
-	}
-}
-
-void GameScene::createSpell(IEventData::Ptr p_Data)
-{
-	std::shared_ptr<CreateSpellEventData> data = std::static_pointer_cast<CreateSpellEventData>(p_Data);
-
-	int resource = m_ResourceManager->loadResource("spell", data->getSpellName());
-
-	SpellBinding spell = 
-	{
-		data->getId,
-		resource,
-		m_GameLogic->createSpellInstance(data->getSpellName().c_str())
-	};
-
-	m_Spells.push_back(spell);
-}
-
-void GameScene::removeSpell(IEventData::Ptr p_Data)
-{
-	std::shared_ptr<RemoveSpellEventData> data = std::static_pointer_cast<RemoveSpellEventData>(p_Data);
-
-	auto it = std::find_if(m_Spells.begin(), m_Spells.end(),
-		[&data] (const SpellBinding& p_Spell)
-	{
-		return p_Spell.spellId == data->getId();
-	});
-
-	if (it != m_Spells.end())
-	{
-		m_GameLogic->releaseSpellInstance(it->body);
-		m_ResourceManager->releaseResource(it->resourceId);
-		m_Spells.erase(it);
 	}
 }
 

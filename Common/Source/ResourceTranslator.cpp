@@ -100,6 +100,12 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 	};
 	static const size_t numParticles = sizeof(particleMap) / sizeof(particleMap[0]);
 
+	static const std::pair<std::string, std::string> spellMap[] =
+	{
+		std::make_pair("TestSpell", "assets/spells/TestSpell.xml"),
+	};
+	static const size_t numSpells = sizeof(spellMap) / sizeof(spellMap[0]);
+
 	static const std::pair<std::string, std::string> animationMap[] =
 	{
 		std::make_pair("WITCH", "assets/animations/Dzala.atx"),
@@ -113,6 +119,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("volume", std::vector<const std::pair<std::string, std::string>>(boundingMap, boundingMap + numBoundingVolumes)),
 		std::make_pair("sound", std::vector<const std::pair<std::string, std::string>>(soundMap, soundMap + numSounds)),
 		std::make_pair("particleSystem", std::vector<const std::pair<std::string, std::string>>(particleMap, particleMap + numParticles)),
+		std::make_pair("spell", std::vector<const std::pair<std::string, std::string>>(spellMap, spellMap + numSpells)),
 		std::make_pair("animation", std::vector<const std::pair<std::string, std::string>>(animationMap, animationMap + numAnimations)),
 	};
 

@@ -12,6 +12,10 @@ SpellInstance::SpellInstance(IPhysics *p_Physics)
 
 SpellInstance::~SpellInstance()
 {
+	if (m_Sphere != 0)
+	{
+		m_Physics->releaseBody(m_Sphere);
+	}
 }
 
 void SpellInstance::init(SpellDefinition::ptr p_SpellDefinition, Vector3 p_Direction, Vector3 p_SpellPosition)
@@ -21,19 +25,24 @@ void SpellInstance::init(SpellDefinition::ptr p_SpellDefinition, Vector3 p_Direc
 	
 	Vector3 ForceDirection = p_Direction * m_SpellDefinition->flyForce;
 
-	m_Sphere = m_Physics->createSphere(-1.f, false, m_SpellPosition, m_SpellDefinition->flyingSpellSize);
-	m_Physics->applyForce(m_Sphere, ForceDirection);
+	m_Sphere = m_Physics->createSphere(0.f, false, m_SpellPosition, m_SpellDefinition->flyingSpellSize);
+	m_Physics->setBodyVelocity(m_Sphere, ForceDirection);
 }
 
 void SpellInstance::update(float p_DeltaTime)
 {
+	if (m_Sphere == 0)
+	{
+		return;
+	}
+
+	m_TimeLived += p_DeltaTime;
+
 	if(m_Collision)
 	{
 		spellHit(m_SpellDefinition, p_DeltaTime);
 		return;
 	}
-
-	m_TimeLived += p_DeltaTime;
 
 	if(m_TimeLived >= m_SpellDefinition->maxTimeToLive)
 	{
@@ -53,14 +62,22 @@ void SpellInstance::update(float p_DeltaTime)
 
 	if(m_Collision)
 	{
-		changeSphereRadius(m_SpellDefinition->explosionRadius);
-		m_Physics->setBodyVelocity(m_Sphere, Vector3(0.f, 0.f, 0.f));
+		Vector3 currentPosition = m_Physics->getBodyPosition(m_Sphere);
+		m_Physics->releaseBody(m_Sphere);
+		m_Sphere = m_Physics->createSphere(0.f, true, currentPosition, m_SpellDefinition->explosionRadius);
+		
+		m_TimeLived = 0.f;
 	}
 }
 
 void SpellInstance::spellHit(SpellDefinition::ptr p_SpellDefinition, float p_DeltaTime)
 {
-	m_TimeLived = m_SpellDefinition->maxTimeToLive;
+	if (m_TimeLived >= m_SpellDefinition->effectTime)
+	{
+		m_Physics->releaseBody(m_Sphere);
+		m_Sphere = 0;
+			return;
+	}
 
 	switch (m_SpellDefinition->m_type)
 	{
@@ -106,6 +123,6 @@ void SpellInstance::collisionHappened()
 
 void SpellInstance::changeSphereRadius(float p_NewRadius)
 {
-	m_Physics->setBodyScale(m_Sphere, Vector3(p_NewRadius, 0.f, 0.f));
+	m_Physics->setBodyScale(m_Sphere, Vector3(p_NewRadius / m_SpellDefinition->flyingSpellSize, 0.f, 0.f));
 }
 

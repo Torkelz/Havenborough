@@ -1,10 +1,14 @@
 #pragma once
 #include "SpellInstance.h"
 
+#include <map>
+
 class SpellFactory
 {
 private:
 	IPhysics *m_Physics;
+
+	std::map<std::string, SpellDefinition::ptr>  m_SpellDefinitionMap;
 
 public:
 	SpellFactory(IPhysics *p_Physics);
@@ -12,7 +16,9 @@ public:
 
 	void init();
 	virtual SpellDefinition::ptr createSpellDefinition(const char* p_Spellname, const char* p_Filename);
-	virtual SpellInstance::ptr createSpellInstance(SpellDefinition::ptr p_Spell, Vector3 p_Direction, Vector3 p_SpellPosition);
+	bool releaseSpellDefinition(const char* p_Spellname);
+	virtual SpellInstance::ptr createSpellInstance(const std::string& p_Spell, Vector3 p_Direction, Vector3 p_SpellPosition);
+
 
 	void readDefinitionFromFile(const char* p_Filename);
 

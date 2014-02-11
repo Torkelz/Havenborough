@@ -43,6 +43,7 @@ void BaseGameApp::init()
 	m_Physics->initialize();
 
 	m_AnimationLoader.reset(new AnimationLoader);
+	m_SpellFactory.reset(new SpellFactory(m_Physics));
 
 	m_ResourceManager.reset(new ResourceManager());
 	
@@ -70,8 +71,8 @@ void BaseGameApp::init()
 		std::bind(&IGraphics::createParticleEffectDefinition, m_Graphics, _1, _2),
 		std::bind(&IGraphics::releaseParticleEffectDefinition, m_Graphics, _1));
 	m_ResourceManager->registerFunction("spell",
-		std::bind(&GameLogic::createSpellDefinition, m_GameLogic, _1, _2),
-		std::bind(&GameLogic::releaseSpellDefinition, m_GameLogic, _1));
+		std::bind(&SpellFactory::createSpellDefinition, m_SpellFactory.get(), _1, _2),
+		std::bind(&SpellFactory::releaseSpellDefinition, m_SpellFactory.get(), _1));
 	m_ResourceManager->registerFunction("animation",
 		std::bind(&AnimationLoader::loadAnimationDataResource, m_AnimationLoader.get(), _1, _2),
 		std::bind(&AnimationLoader::releaseAnimationData, m_AnimationLoader.get(), _1));
@@ -141,6 +142,7 @@ void BaseGameApp::init()
 	m_ActorFactory.setEventManager(m_EventManager.get());
 	m_ActorFactory.setResourceManager(m_ResourceManager.get());
 	m_ActorFactory.setAnimationLoader(m_AnimationLoader.get());
+	m_ActorFactory.setSpellFactory(m_SpellFactory.get());
 
 	m_GameLogic->initialize(m_ResourceManager.get(), m_Physics, &m_ActorFactory, m_EventManager.get(), m_Network);
 
@@ -192,6 +194,7 @@ void BaseGameApp::shutdown()
 	
 	m_SceneManager.destroy();
 
+	m_SpellFactory.reset();
 	m_AnimationLoader.reset();
 
 	m_ResourceManager.reset();

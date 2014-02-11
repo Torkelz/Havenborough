@@ -41,6 +41,7 @@
     <ClInclude Include="Source\SpellDefinition.h" />
     <ClInclude Include="Source\SpellFactory.h" />
     <ClInclude Include="Source\SpellInstance.h" />
+    <ClInclude Include="Source\SpellComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp" />
@@ -58,6 +59,7 @@
     <ClCompile Include="Source\ResourceTranslator.cpp" />
     <ClCompile Include="Source\SpellFactory.cpp" />
     <ClCompile Include="Source\SpellInstance.cpp" />
+    <ClCompile Include="Source\SpellComponent.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8C7B8D02-7172-4AE2-A0DF-2E5A5FC9F23F}</ProjectGuid>
