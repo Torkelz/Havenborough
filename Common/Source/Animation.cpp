@@ -2,6 +2,8 @@
 #include "CommonExceptions.h"
 #include "Logger.h"
 
+#include <algorithm>
+
 using namespace DirectX;
 using std::string;
 using std::vector;
@@ -81,8 +83,8 @@ void Animation::updateAnimation(float p_DeltaTime)
 	updateFinalTransforms();
 }
 
-MatrixDecomposed Animation::updateKeyFrameInformation(Joint p_Joint, unsigned int p_CurrentTrack,
-	MatrixDecomposed p_ToParentData)
+MatrixDecomposed Animation::updateKeyFrameInformation(const Joint& p_Joint, unsigned int p_CurrentTrack,
+	const MatrixDecomposed& p_ToParentData)
 {
 	MatrixDecomposed tempData;
 	if(m_Tracks[p_CurrentTrack].clip->m_AnimationSpeed > 0)
@@ -129,11 +131,14 @@ void Animation::checkFades()
 				m_Tracks[i].fadeIn = false;
 				m_Tracks[i].fadedFrames = 0.0f;
 
-				if(!m_Tracks[i].clip->m_Layered && m_Tracks[i].clip->m_Loop)
+				if(i == 1 || i == 3 || i == 5)
 				{
-					m_Tracks[i - 1] = m_Tracks[i];
-					m_Tracks[i].active = false;
-					m_Tracks[i - 1].active = true;
+					if(!m_Tracks[i].clip->m_Layered && m_Tracks[i].clip->m_Loop)
+					{
+						m_Tracks[i - 1] = m_Tracks[i];
+						m_Tracks[i].active = false;
+						m_Tracks[i - 1].active = true;
+					}
 				}
 			}
 		}
@@ -146,7 +151,7 @@ void Animation::checkFades()
 				m_Tracks[i].active = false;
 			}
 		}
-		if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) < m_Tracks[i].currentFrame)
+		if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) < m_Tracks[i].currentFrame && m_Tracks[i].clip->m_FadeOut)
 		{
 			if(!playQueuedClip(i))
 			{
@@ -496,13 +501,18 @@ void Animation::playClip( const std::string& p_ClipName, bool p_Override )
 	int track = p_Clip->m_DestinationTrack;
 	if(p_Override)
 	{
-		m_Tracks[track].clip = p_Clip;
-		m_Tracks[track].fadedFrames = 0.0f;
-		m_Tracks[track].active = true;
-		m_Tracks[track].currentFrame = (float)p_Clip->m_Start;
-		m_Tracks[track].dynamicWeight = 1.0f;
-		m_Tracks[track].fadeIn = p_Clip->m_FadeIn;
-		m_Tracks[track].fadeOut = p_Clip->m_FadeOut;
+		m_Tracks[track + 1].clip = p_Clip;
+		m_Tracks[track + 1].fadedFrames = 0.0f;
+		m_Tracks[track + 1].active = true;
+		m_Tracks[track + 1].currentFrame = (float)p_Clip->m_Start;
+		m_Tracks[track + 1].dynamicWeight = 1.0f;
+		m_Tracks[track + 1].fadeIn = p_Clip->m_FadeIn;
+		m_Tracks[track + 1].fadeOut = p_Clip->m_FadeOut;
+
+		for (unsigned int i = track + 2; i < 6; i++)
+		{
+			m_Tracks[i].active = false;
+		}
 	}
 	else
 	{
@@ -538,6 +548,8 @@ void Animation::playClip( const std::string& p_ClipName, bool p_Override )
 			m_Tracks[track].fadeOut = p_Clip->m_FadeOut;
 		}
 	}
+
+	purgeQueue(track);
 }
 
 void Animation::queueClip( const std::string& p_Clip )
@@ -563,7 +575,6 @@ bool Animation::playQueuedClip(int p_Track)
 			if (m_Queue[i]->m_DestinationTrack == p_Track)
 			{
 				playClip(m_Queue[i]->m_ClipName, false);
-				m_Queue.erase(m_Queue.begin() + i);
 				return true;
 			}
 		}
@@ -573,12 +584,32 @@ bool Animation::playQueuedClip(int p_Track)
 
 void Animation::changeWeight(int p_Track, float p_Weight)
 {
-	if(p_Track > 0 && p_Track < 6)	
-		m_Tracks[p_Track].dynamicWeight = m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
+	if(p_Track > 0 && p_Track < 6)
+	{
+		m_Tracks[p_Track].dynamicWeight = p_Weight;
+		m_Tracks[p_Track + 1].dynamicWeight = p_Weight;
+	}
 }
 
 void Animation::setAnimationData(AnimationData::ptr p_Data)
 {
 	m_Data = p_Data;
 	playClip("default", true);
+}
+
+
+const AnimationData::ptr Animation::getAnimationData() const
+{
+	return m_Data;
+}
+
+
+void Animation::purgeQueue(const unsigned int p_Track)
+{
+	if(!m_Queue.empty())
+	{
+		auto start = std::remove_if(m_Queue.begin(), m_Queue.end(), [&] (const AnimationClip* a){ return a->m_DestinationTrack == p_Track; });
+		m_Queue.erase(start, m_Queue.end());
+	}
+	//m_Queue.clear();
 }

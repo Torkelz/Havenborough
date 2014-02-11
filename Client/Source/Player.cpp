@@ -42,6 +42,12 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_LookDirection, std::weak
 
 XMFLOAT3 Player::getPosition(void) const
 {
+	Actor::ptr actor = m_Actor.lock();
+	if (actor)
+	{
+		return actor->getPosition();
+	}
+
 	Vector3 pos = getCollisionCenter();
 	pos.y -= m_KneeHeight;
 	return pos;
@@ -92,6 +98,21 @@ float Player::getHeight() const
 	return m_TempHeight;
 }
 
+float Player::getChestHeight() const
+{
+	return m_TempHeight * 0.75f;;
+}
+
+float Player::getWaistHeight() const
+{
+	return m_TempHeight * 0.5f;;
+}
+
+float Player::getKneeHeight() const
+{
+	return m_TempHeight * 0.25f;
+}
+
 BodyHandle Player::getBody(void) const
 {
 	return m_Actor.lock()->getBodyHandles()[0];
@@ -136,14 +157,36 @@ bool Player::getForceMove(void)
 	return m_ForceMove;
 }
 
-void Player::forceMove(Vector3 p_StartPosition, Vector3 p_EndPosition)
+void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal)
 {
 	if(!m_ForceMove)
 	{
 		m_ForceMove = true;
-		m_ForceMoveStartPosition = p_StartPosition;
-		m_ForceMoveEndPosition = p_EndPosition;
 		m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
+		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
+		aa.lock()->playClimbAnimation(p_ClimbId);
+
+		m_ForceMoveY = pp.m_YPath;
+		m_ForceMoveZ = pp.m_ZPath;
+		//m_ForceMoveNormal = p_CollisionNormal;
+		m_ForceMoveStartPos = getPosition();
+
+		XMVECTOR fwd = XMVectorSet(p_CollisionNormal.x,p_CollisionNormal.y,p_CollisionNormal.z,0);
+		
+		fwd *= -1.f;
+		XMVECTOR up = XMVectorSet(0,1,0,0);
+		XMVECTOR side = XMVector3Normalize(XMVector3Cross(up, fwd));
+		up = XMVector3Normalize(XMVector3Cross(side, fwd));
+
+		up *= -1.0f;
+		
+		XMMATRIX a;
+		a.r[0] = side;
+		a.r[1] = up;
+		a.r[2] = fwd;
+		a.r[3] = XMVectorSet(0,0,0,1);
+		XMStoreFloat4x4(&m_ForceMoveRotation, a);
 	}
 }
 
@@ -160,23 +203,45 @@ void Player::update(float p_DeltaTime)
 	}
 	else
 	{
-		float dt = m_CurrentForceMoveTime / m_ForceMoveTime;
+		unsigned int currentFrame = (unsigned int)m_CurrentForceMoveTime;
 
-		XMVECTOR startPos = XMLoadFloat3(&((XMFLOAT3)m_ForceMoveStartPosition));
-		XMVECTOR endPos = XMLoadFloat3(&((XMFLOAT3)m_ForceMoveEndPosition));
+		// Check if you have passed the goal frame.
+		if(currentFrame >= m_ForceMoveY[1].y)
+			m_ForceMoveY.erase(m_ForceMoveY.begin());
+		if(currentFrame >= m_ForceMoveZ[1].y)
+			m_ForceMoveZ.erase(m_ForceMoveZ.begin());
 
-		XMVECTOR currPosition = XMVectorLerp(startPos,
-			endPos, dt);
-		XMFLOAT3 newGroundPosition;
-		XMStoreFloat3(&newGroundPosition, currPosition);
-		setPosition(newGroundPosition);
-
-		m_CurrentForceMoveTime += p_DeltaTime * m_ForceMoveSpeed;
-		if(m_CurrentForceMoveTime > m_ForceMoveTime)
+		// Check if you only have one frame left.
+		if(m_ForceMoveY.size() < 2 && m_ForceMoveZ.size() < 2)
 		{
 			m_ForceMove = false;
 			m_CurrentForceMoveTime = 0.f;
+			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+			aa.lock()->resetClimbState();
+			return;
 		}
+
+		float currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveY[0].y);
+		float currentFrameSpan = ((float)m_ForceMoveY[1].y - (float)m_ForceMoveY[0].y);
+		float timeFrac = currentFrameTime / currentFrameSpan;
+		float currentYPos = m_ForceMoveY[0].x + ((m_ForceMoveY[1].x - m_ForceMoveY[0].x) * timeFrac);
+
+		currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveZ[0].y);
+		currentFrameSpan = ((float)m_ForceMoveZ[1].y - (float)m_ForceMoveZ[0].y);
+		timeFrac = currentFrameTime / currentFrameSpan;
+		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
+
+		m_CurrentForceMoveTime += p_DeltaTime * 24.0f; // 24 FPS
+
+		DirectX::XMFLOAT3 temp;
+		DirectX::XMVECTOR tv = DirectX::XMVectorSet(0,currentYPos,currentZPos,0);
+		DirectX::XMVECTOR tstart = DirectX::XMLoadFloat3(&m_ForceMoveStartPos);
+		XMMATRIX rotation = XMLoadFloat4x4(&m_ForceMoveRotation);
+
+		tv = XMVector3Transform(tv, rotation);
+
+		DirectX::XMStoreFloat3(&temp, tstart+tv);
+		setPosition(temp);
 	}
 }
 

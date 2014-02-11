@@ -56,14 +56,14 @@ public:
 	 *
 	 * @returns a vector of the struct Material.
 	 */
-	const std::vector<Material>& getMaterial();
+	const std::vector<Material>& getMaterial() const;
 
 	/**
 	 * Returns information about animated vertices in form of a vertexbuffer.
 	 *
 	 * @returns a vector of the struct VertexAnimation.
 	 */
-	const std::vector<AnimatedVertex>& getAnimatedVertexBuffer();
+	const std::vector<AnimatedVertex>& getAnimatedVertexBuffer() const;
 
 	/**
 	 * Returns information about vertices. This function does not return animated vertices.
@@ -71,14 +71,35 @@ public:
 	 *
 	 * @returns a vector of the struct Vertex.
 	 */
-	const std::vector<StaticVertex>& getStaticVertexBuffer();
+	const std::vector<StaticVertex>& getStaticVertexBuffer() const;
 
 	/**
 	 * Returns information about what material is used on a part of the model.
 	 *
 	 * @returns a vector of the struct MaterialBuffer.
 	 */
-	const std::vector<MaterialBuffer>& getMaterialBuffer();
+	const std::vector<MaterialBuffer>& getMaterialBuffer() const;
+
+	/**
+	 * Returns a true or fasle about if the model is animated.
+	 *
+	 * @returns a bool;
+	 */
+	bool getAnimated() const;
+
+	/**
+	 * Returns a true or fasle about if the model is transparent.
+	 *
+	 * @returns a bool;
+	 */
+	bool getTransparent() const;
+
+	/**
+	 * Returns a true or fasle about if the model is collide-able.
+	 *
+	 * @returns a bool;
+	 */
+	bool getCollideAble() const;
 
 protected:
 	void byteToInt(std::istream* p_Input, int& p_Return);

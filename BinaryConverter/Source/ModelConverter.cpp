@@ -52,6 +52,7 @@ bool ModelConverter::writeFile(std::string p_FilePath)
 		return false;
 	}
 	createHeader(&output); 
+	createModelHeaderFile(p_FilePath);
 	createMaterial(&output);
 	if(m_WeightsListSize != 0)
 	{
@@ -218,8 +219,8 @@ void ModelConverter::createJointBuffer(std::ostream* p_Output)
 
 void ModelConverter::stringToByte(std::string p_String, std::ostream* p_Output)
 {
-	unsigned int size = p_String.size();
-	p_Output->write(reinterpret_cast<const char*>(&size), sizeof(unsigned int));
+	int size = p_String.size();
+	p_Output->write(reinterpret_cast<const char*>(&size), sizeof(int));
 	p_Output->write(p_String.data(), p_String.size());
 }
 
@@ -300,6 +301,44 @@ void ModelConverter::setNumberOfFrames(int p_NumberOfFrames)
 void ModelConverter::setMeshName(std::string p_MeshName)
 {
 	m_MeshName = p_MeshName;
+}
+
+std::string ModelConverter::getPath(std::string p_FilePath)
+{
+	std::string file("levels\\ModelHeader.txx");
+	std::vector<char> buffer(p_FilePath.begin(), p_FilePath.end());
+	buffer.push_back(0);
+	char *tmp, *type = nullptr;
+	tmp = strtok(buffer.data(), "\\");
+	while(tmp != nullptr)
+	{
+		type = tmp;
+		tmp = strtok(NULL,"\\");
+	}
+	int length = buffer.size();
+	int size = strlen(type)+8;
+
+	std::string temp;
+	temp.append(p_FilePath.data(), length-size);
+	temp.append(file.data(),file.size());
+	temp.push_back(0);
+	return temp;
+}
+
+bool ModelConverter::createModelHeaderFile(std::string p_FilePath)
+{
+	std::string path = getPath(p_FilePath);
+	std::ofstream headerOutput(path, std::ofstream::binary | std::ofstream::app);
+	if(!headerOutput)
+	{
+		return false;
+	}
+	stringToByte(m_MeshName, &headerOutput);
+	intToByte(m_Animated, &headerOutput);
+	intToByte(m_Transparency, &headerOutput);
+	intToByte(m_Collidable, &headerOutput);
+	headerOutput.close();
+	return true;
 }
 
 void ModelConverter::clearData()
