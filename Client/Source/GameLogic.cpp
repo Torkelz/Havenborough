@@ -379,7 +379,6 @@ void GameLogic::playLocalLevel()
 	BodyHandle b2 = m_Physics->createAABB(50.f, true, Vector3(0,80,210), Vector3(10,10,100), true);
 	m_Physics->setBodyCollisionResponse(b2,false);
 
-
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 
 	// DEBUG STUFFZ

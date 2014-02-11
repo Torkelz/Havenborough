@@ -63,7 +63,7 @@ XMFLOAT3 Player::getEyePosition() const
 		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 		if (comp)
 		{
-			return comp->getJointPos("Hip");
+			return comp->getJointPos("Neck");
 		}
 	}
 
