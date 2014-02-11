@@ -104,12 +104,13 @@ public:
 	void leaveGame();
 	void joinGame(const std::string& p_LevelName);
 
+	//Spell
 	bool createSpellDefinition(const char *p_SpellId, const char* p_Filename);
 	bool releaseSpellDefinition(const char *p_SpellId);
 
 	int createSpellInstance(const char *p_SpellId);
 	void releaseSpellInstance(int p_SpellId);
-
+	///
 private:
 	void handleNetwork();
 	

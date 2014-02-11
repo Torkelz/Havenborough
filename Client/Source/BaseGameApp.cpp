@@ -69,6 +69,9 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction("particleSystem",
 		std::bind(&IGraphics::createParticleEffectDefinition, m_Graphics, _1, _2),
 		std::bind(&IGraphics::releaseParticleEffectDefinition, m_Graphics, _1));
+	m_ResourceManager->registerFunction("spell",
+		std::bind(&GameLogic::createSpellDefinition, m_GameLogic, _1, _2),
+		std::bind(&GameLogic::releaseSpellDefinition, m_GameLogic, _1));
 	m_ResourceManager->registerFunction("animation",
 		std::bind(&AnimationLoader::loadAnimationDataResource, m_AnimationLoader.get(), _1, _2),
 		std::bind(&AnimationLoader::releaseAnimationData, m_AnimationLoader.get(), _1));

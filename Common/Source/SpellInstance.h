@@ -31,8 +31,8 @@ public:
 	void setPosition(Vector3 p_NewPosition);
 
 private:
-	void spellHit(SpellDefinition::ptr p_SpellDefinition);
-	void explodeSpell(SpellDefinition::ptr p_SpellDefinition);
+	void spellHit(SpellDefinition::ptr p_SpellDefinition, float p_DeltaTime);
+	void explodeSpell(SpellDefinition::ptr p_SpellDefinition, float p_DeltaTime);
 	void changeSphereRadius(float p_NewRadius);
 
 };

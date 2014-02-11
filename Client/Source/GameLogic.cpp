@@ -455,6 +455,8 @@ int GameLogic::createSpellInstance(const char *p_SpellId)
 	int id = m_NextSpellInstanceId++;
 
 	m_SpellInstanceList.push_back(std::make_pair(id, instance));
+
+	return id;
 }
 
 void GameLogic::releaseSpellInstance(int p_SpellId)
@@ -469,6 +471,7 @@ void GameLogic::releaseSpellInstance(int p_SpellId)
 		m_SpellInstanceList.erase(it);
 	}
 }
+
 SpellDefinition::ptr GameLogic::getSpellFromList(std::string p_Identifier)
 {
 	for(auto & s : m_SpellDefinitionList)
@@ -849,6 +852,7 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 	if (m_InGame)
 	{
 		updateIK();
+		updateSpells(p_DeltaTime);
 	}
 }
 

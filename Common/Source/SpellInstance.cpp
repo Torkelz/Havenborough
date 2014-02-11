@@ -27,24 +27,46 @@ void SpellInstance::init(SpellDefinition::ptr p_SpellDefinition, Vector3 p_Direc
 
 void SpellInstance::update(float p_DeltaTime)
 {
+	if(m_Collision)
+	{
+		spellHit(m_SpellDefinition, p_DeltaTime);
+		return;
+	}
+
 	m_TimeLived += p_DeltaTime;
 
-	if(m_Collision || m_TimeLived >= m_SpellDefinition->maxTimeToLive)
+	if(m_TimeLived >= m_SpellDefinition->maxTimeToLive)
 	{
-		spellHit(m_SpellDefinition);
+		m_Collision = true;
+	}
+	else
+	{
+		for(unsigned i = 0; i < m_Physics->getHitDataSize(); i++)
+		{
+			if(m_Physics->getHitDataAt(i).collider == m_Sphere)
+			{
+				m_Collision = true;
+				break;
+			}
+		}
+	}
+
+	if(m_Collision)
+	{
+		changeSphereRadius(m_SpellDefinition->explosionRadius);
+		m_Physics->setBodyVelocity(m_Sphere, Vector3(0.f, 0.f, 0.f));
 	}
 }
 
-void SpellInstance::spellHit(SpellDefinition::ptr p_SpellDefinition)
+void SpellInstance::spellHit(SpellDefinition::ptr p_SpellDefinition, float p_DeltaTime)
 {
-	changeSphereRadius(m_SpellDefinition->explosionRadius);
 	m_TimeLived = m_SpellDefinition->maxTimeToLive;
 
 	switch (m_SpellDefinition->m_type)
 	{
 	case SpellDefinition::Type::EXPLOSION:
 		{
-			explodeSpell(p_SpellDefinition);
+			explodeSpell(p_SpellDefinition, p_DeltaTime);
 			break;
 		}
 
@@ -55,8 +77,8 @@ void SpellInstance::spellHit(SpellDefinition::ptr p_SpellDefinition)
 	}
 }
 
-void SpellInstance::explodeSpell(SpellDefinition::ptr p_SpellDefinition)
-{
+void SpellInstance::explodeSpell(SpellDefinition::ptr p_SpellDefinition, float p_DeltaTime)
+{	
 	for(unsigned i = 0; i < m_Physics->getHitDataSize(); i++)
 	{
 		if(m_Physics->getHitDataAt(i).collider == m_Sphere)
@@ -67,7 +89,7 @@ void SpellInstance::explodeSpell(SpellDefinition::ptr p_SpellDefinition)
 
 			Vector4 vTemp = temp.colNorm * (m_SpellDefinition->minForce + forceFactor * m_SpellDefinition->force);
 
-			m_Physics->applyForce(temp.collisionVictim, vTemp.xyz() );
+			m_Physics->applyImpulse(temp.collisionVictim, vTemp.xyz() * p_DeltaTime);	
 		}
 	}
 }
