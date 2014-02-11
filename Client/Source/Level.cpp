@@ -55,14 +55,14 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 			{
 				InstanceBinaryLoader EBLoader;
 				EBLoader.loadBinaryFile(EBPath.string());
-				for(unsigned int k = 0; k < EBLoader.getModelData().size(); k++)
+				const InstanceBinaryLoader::ModelData& eb = EBLoader.getModelData()[0];
+				for(unsigned int k = 0; k < EBLoader.getModelData()[0].m_Translation.size(); k++)
 				{
-					const InstanceBinaryLoader::ModelData& eb = EBLoader.getModelData()[k];
 					ActorFactory::InstanceEdgeBox edge;
-					edge.halfsize = eb.m_Scale[0];
+					edge.halfsize = eb.m_Scale[k];
 					edge.halfsize = edge.halfsize * 0.5f;
-					edge.offsetPosition = eb.m_Translation[0];
-					edge.offsetRotation = eb.m_Rotation[0];
+					edge.offsetPosition = eb.m_Translation[k];
+					edge.offsetRotation = eb.m_Rotation[k];
 					edges.push_back(edge);
 				}
 			}
