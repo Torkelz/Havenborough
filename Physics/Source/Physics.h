@@ -64,6 +64,8 @@ public:
 
 	Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) override;
 	unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle) override;
+
+	Vector3 getBodyOrientation(BodyHandle p_BodyHandle) override;
 		 
 private:
 	Body* findBody(BodyHandle p_Body);

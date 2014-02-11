@@ -8,6 +8,7 @@ private:
 	DirectX::XMFLOAT4	m_Extents; //Positive half-width extents of OBB along each axis
 	DirectX::XMFLOAT4	m_Corners[8];
 	Sphere				m_Sphere;
+	DirectX::XMFLOAT3	m_Orientation; // For edge climbing
 
 public:
 	/**
@@ -21,6 +22,7 @@ public:
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
 		m_Sphere		= Sphere();
+		m_Orientation	= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
 	}
 
 	/**
@@ -152,6 +154,11 @@ public:
 
                 DirectX::XMStoreFloat4(&m_Corners[i], tempCorners[i]);
         }
+
+		calculateOrientation();
+		DirectX::XMVECTOR n = DirectX::XMLoadFloat3(&m_Orientation);
+		n = DirectX::XMVector3Transform(n, p_Rot);
+		DirectX::XMStoreFloat3(&m_Orientation, n);
 	}
 	 
 	/**
@@ -215,6 +222,14 @@ public:
 		return DirectX::XMFLOAT4(m_Corners[p_Index].x + m_Position.x, m_Corners[p_Index].y + m_Position.y, m_Corners[p_Index].z + m_Position.z, 1.f);
 	}
 
+	/**
+	 * Return the line that goes through the box at it's tallest.
+	 */
+	DirectX::XMFLOAT3 getOrientation() const
+	{
+		return m_Orientation;
+	}
+
 private:
 	void calculateCorners()
 	{
@@ -228,4 +243,15 @@ private:
 		m_Corners[7] = DirectX::XMFLOAT4(+ m_Extents.x, + m_Extents.y, + m_Extents.z, 1.f); 
 	}
 
+	void calculateOrientation()
+	{
+		if(m_Extents.x > m_Extents.z)
+			m_Orientation = DirectX::XMFLOAT3(m_Extents.x, m_Extents.y, 0.0f);
+		else
+			m_Orientation = DirectX::XMFLOAT3(0.0f, m_Extents.y, m_Extents.z);
+
+		DirectX::XMVECTOR n = DirectX::XMLoadFloat3(&m_Orientation);
+		n = DirectX::XMVector3Normalize(n);
+		DirectX::XMStoreFloat3(&m_Orientation, n);
+	}
 };

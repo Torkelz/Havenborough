@@ -71,7 +71,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
-				m_Physics->getBodySize(hit.collisionVictim).y, &m_Player))
+				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player))
 			{
 				//m_Physics->removeHitDataAt(i);
 			}

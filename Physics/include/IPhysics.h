@@ -247,4 +247,6 @@ public:
 	 * @return the number of triangles.
 	 */
 	virtual unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle) = 0;
+
+	virtual Vector3 getBodyOrientation(BodyHandle p_Body) = 0;
 };
