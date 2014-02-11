@@ -23,7 +23,7 @@ public:
 	}
 };
 
-BOOST_AUTO_TEST_CASE(TestReadHeader)
+BOOST_AUTO_TEST_CASE(TestReadLevelHeader)
 {
 	InstanceBinaryLoader::Header header;
 	char binHeader[] =

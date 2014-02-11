@@ -75,7 +75,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetPath)</Command>
+      <Command>cd Bin
+$(TargetPath)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -100,7 +101,8 @@
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <PostBuildEvent>
-      <Command>$(TargetPath)</Command>
+      <Command>cd Bin
+$(TargetPath)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

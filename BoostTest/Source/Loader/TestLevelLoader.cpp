@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(TestCheckPointList)
 	BOOST_CHECK_EQUAL(loader.getLevelCheckPointList().at(0).m_Translation.z, 159.208494f);
 }
 
-BOOST_AUTO_TEST_CASE(TestMainLoop)
+BOOST_AUTO_TEST_CASE(TestMainLevelLoop)
 {
 	std::string string = "*ObjectHeader* \n#numObj: 512 \n\n#MESH: House1 \n#Translation: 0 0 0 \n#Rotation: 0 1 0 \n#Scale: 1.138714 1.138714 1.138714\n\n"
 		"*LightHeader*\n#numLights 12\n\n#Light: directionalLightShape1\n#Translation: -64.818832 86.49115 0\nColor: 1 1 1\nType: kDirectionalLight\nIntensity: 1\nDirection: -0.159335 -0.273098 -0.948699\n\n"

@@ -127,69 +127,75 @@ void InstanceConverter::createLevel(std::ostream* p_Output)
 
 void InstanceConverter::createLighting(std::ostream* p_Output)
 {
-	int numberOfDifferentLights = 0;
-	if(m_LevelDirectionalLightList->size() != 0)++numberOfDifferentLights;
-	if(m_LevelPointLightList->size() != 0)++numberOfDifferentLights;
-	if(m_LevelSpotLightList->size() != 0)++numberOfDifferentLights;
-	intToByte(numberOfDifferentLights, p_Output);
-	if(m_LevelDirectionalLightList->size() != 0)
+	if(m_Header.m_NumberOfLights != 0)
 	{
-		intToByte(m_LevelDirectionalLightList->at(0).first.m_Type, p_Output);
-		intToByte(m_LevelDirectionalLightList->size(), p_Output);
-		std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>> tempDirectional = *m_LevelDirectionalLightList;
-		for(auto& tempObj : tempDirectional)
+		int numberOfDifferentLights = 0;
+		if(m_LevelDirectionalLightList->size() != 0)++numberOfDifferentLights;
+		if(m_LevelPointLightList->size() != 0)++numberOfDifferentLights;
+		if(m_LevelSpotLightList->size() != 0)++numberOfDifferentLights;
+		intToByte(numberOfDifferentLights, p_Output);
+		if(m_LevelDirectionalLightList->size() != 0)
 		{
-			tempObj.first.m_Translation.x *= -1;
-			tempObj.second.m_Direction.x *= -1;
+			intToByte(m_LevelDirectionalLightList->at(0).first.m_Type, p_Output);
+			intToByte(m_LevelDirectionalLightList->size(), p_Output);
+			std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>> tempDirectional = *m_LevelDirectionalLightList;
+			for(auto& tempObj : tempDirectional)
+			{
+				tempObj.first.m_Translation.x *= -1;
+				tempObj.second.m_Direction.x *= -1;
+			}
+			p_Output->write(reinterpret_cast<const char*>(tempDirectional.data()),
+				sizeof(std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>) * m_LevelDirectionalLightList->size());
 		}
-		p_Output->write(reinterpret_cast<const char*>(tempDirectional.data()),
-			sizeof(std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>) * m_LevelDirectionalLightList->size());
-	}
-	if(m_LevelPointLightList->size() != 0)
-	{
-		intToByte(m_LevelPointLightList->at(0).first.m_Type, p_Output);
-		intToByte(m_LevelPointLightList->size(), p_Output);
-		std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>> tempPoint = *m_LevelPointLightList;
-		for(auto& tempObj : tempPoint)
+		if(m_LevelPointLightList->size() != 0)
 		{
-			tempObj.first.m_Translation.x *= -1;
-		}
-		p_Output->write(reinterpret_cast<const char*>(tempPoint.data()),
-			sizeof(std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>) * m_LevelPointLightList->size());
+			intToByte(m_LevelPointLightList->at(0).first.m_Type, p_Output);
+			intToByte(m_LevelPointLightList->size(), p_Output);
+			std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>> tempPoint = *m_LevelPointLightList;
+			for(auto& tempObj : tempPoint)
+			{
+				tempObj.first.m_Translation.x *= -1;
+			}
+			p_Output->write(reinterpret_cast<const char*>(tempPoint.data()),
+				sizeof(std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>) * m_LevelPointLightList->size());
 		
-	}
-	if(m_LevelSpotLightList->size() != 0)
-	{
-		intToByte(m_LevelSpotLightList->at(0).first.m_Type, p_Output);
-		intToByte(m_LevelSpotLightList->size(), p_Output);
-		std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>> tempSpot = *m_LevelSpotLightList;
-		for(auto& tempObj : tempSpot)
-		{
-			tempObj.first.m_Translation.x *= -1;
-			tempObj.second.m_Direction.x *= -1;
 		}
-		p_Output->write(reinterpret_cast<const char*>(tempSpot.data()),
-			sizeof(std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>) * m_LevelSpotLightList->size());
+		if(m_LevelSpotLightList->size() != 0)
+		{
+			intToByte(m_LevelSpotLightList->at(0).first.m_Type, p_Output);
+			intToByte(m_LevelSpotLightList->size(), p_Output);
+			std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>> tempSpot = *m_LevelSpotLightList;
+			for(auto& tempObj : tempSpot)
+			{
+				tempObj.first.m_Translation.x *= -1;
+				tempObj.second.m_Direction.x *= -1;
+			}
+			p_Output->write(reinterpret_cast<const char*>(tempSpot.data()),
+				sizeof(std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>) * m_LevelSpotLightList->size());
+		}
 	}
 }
 
 void InstanceConverter::createCheckPoints(std::ostream* p_Output)
 {
-	DirectX::XMFLOAT3* tempStart,*tempEnd;
-	tempStart = &m_LevelCheckPointStart;
-	tempEnd = &m_LevelCheckPointEnd;
-	tempStart->x *= -1;
-	tempEnd->x *= -1; 
-	p_Output->write(reinterpret_cast<const char*>(tempStart), sizeof(DirectX::XMFLOAT3));
-	p_Output->write(reinterpret_cast<const char*>(tempEnd), sizeof(DirectX::XMFLOAT3));
-	int size = m_LevelCheckPointList->size();
-	intToByte(size, p_Output);
-	std::vector<InstanceLoader::CheckPointStruct> tempList =  *m_LevelCheckPointList;
-	for(auto& tempObj : tempList)
+	if(m_Header.m_NumberOfCheckPoints != 0)
 	{
-		tempObj.m_Translation.x *= -1;
+		DirectX::XMFLOAT3* tempStart,*tempEnd;
+		tempStart = &m_LevelCheckPointStart;
+		tempEnd = &m_LevelCheckPointEnd;
+		tempStart->x *= -1;
+		tempEnd->x *= -1; 
+		p_Output->write(reinterpret_cast<const char*>(tempStart), sizeof(DirectX::XMFLOAT3));
+		p_Output->write(reinterpret_cast<const char*>(tempEnd), sizeof(DirectX::XMFLOAT3));
+		int size = m_LevelCheckPointList->size();
+		intToByte(size, p_Output);
+		std::vector<InstanceLoader::CheckPointStruct> tempList =  *m_LevelCheckPointList;
+		for(auto& tempObj : tempList)
+		{
+			tempObj.m_Translation.x *= -1;
+		}
+		p_Output->write(reinterpret_cast<const char*>(tempList.data()), sizeof(InstanceLoader::CheckPointStruct) * size);
 	}
-	p_Output->write(reinterpret_cast<const char*>(tempList.data()), sizeof(InstanceLoader::CheckPointStruct) * size);
 }
 
 void InstanceConverter::stringToByte(std::string p_String, std::ostream* p_Output)
