@@ -200,12 +200,12 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
+		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
 		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
 	
 	//Forward renderer
 	m_ForwardRenderer = new ForwardRendering();
-	m_ForwardRenderer->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
+	m_ForwardRenderer->init(m_Device, m_DeviceContext, m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
 		m_DepthStencilView, m_RenderTargetView);
 
 	//Screen renderer
@@ -809,9 +809,9 @@ void Graphics::set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt)
 
 void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 {
-	XMVECTOR upVec = XMLoadFloat3(&XMFLOAT3(p_Up));
-	XMVECTOR forwardVec = XMLoadFloat3(&XMFLOAT3(p_Forward));
-	XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(p_Position));
+	XMVECTOR upVec = XMVectorSet(p_Up.x, p_Up.y, p_Up.z, 0.f);
+	XMVECTOR forwardVec = XMVectorSet(p_Forward.x, p_Forward.y, p_Forward.z, 0.f);
+	XMVECTOR pos = XMVectorSet(p_Position.x, p_Position.y, p_Position.z, 1.f);
 
 	XMVECTOR flatForward = XMVectorSetY(forwardVec, 0.f);
 	XMVECTOR flatUp = XMVectorSetY(upVec, 0.f);
@@ -820,6 +820,8 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 	XMStoreFloat3(&m_Eye, pos);
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));
+
+	m_ForwardRenderer->updateCamera(m_Eye);
 }
 
 void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)

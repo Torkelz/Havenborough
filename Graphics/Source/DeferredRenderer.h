@@ -28,11 +28,21 @@ private:
 	std::vector<Light>			*m_DirectionalLights;
 	unsigned int				m_MaxLightsPerLightInstance;
 
-	DirectX::XMFLOAT3			*m_CameraPosition;
+	DirectX::XMFLOAT3			m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
 	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
-	static const unsigned int	m_numRenderTargets = 5;
+	enum class RenderTargetType : unsigned int
+	{
+		DIFFUSE_COLOR,
+		NORMAL,
+		WORLD_POSITION,
+		FINAL_RESULT,
+		SSAO,
+
+		NUM_RENDER_TARGETS
+	};
+	ID3D11RenderTargetView		*m_RenderTargets[RenderTargetType::NUM_RENDER_TARGETS];
 
 	std::map<std::string, ID3D11RenderTargetView*> m_RT;
 	std::map<std::string, ID3D11ShaderResourceView*> m_SRV;
@@ -74,7 +84,7 @@ public:
 	 */
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 		ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
 		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
@@ -110,6 +120,13 @@ public:
 	 * @return, render target if i is a legal number, else nullptr.
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
+	
+	/**
+	 * Update the camera information.
+	 *
+	 * @param p_CameraPos the new camera position
+	 */
+	void updateCamera(const DirectX::XMFLOAT3& p_CameraPos);
 
 private:
 	void renderGeometry();
@@ -128,8 +145,8 @@ private:
 	void updateConstantBuffer();
 	void updateLightBuffer();
 
-	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
-	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC &desc);
+	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC* (&desc)[RenderTargetType::NUM_RENDER_TARGETS]);
+	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC* (&desc)[RenderTargetType::NUM_RENDER_TARGETS]);
 	void createBuffers();
 	void buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer);
 	void clearRenderTargets();

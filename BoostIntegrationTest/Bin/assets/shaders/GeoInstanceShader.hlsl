@@ -12,11 +12,6 @@ cbuffer cb : register(b0)
 	float3	 cameraPos;
 };
 
-cbuffer cbWorld : register(b1)
-{
-	float4x4 world;
-};
-
 struct VSIn
 {
 	float4 pos		: POSITION;
