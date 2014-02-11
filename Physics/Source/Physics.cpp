@@ -57,7 +57,7 @@ void Physics::initialize()
 
 	BodyHandle b = createBody(0.f, hull, true, false);
 
-	setBodyPosition(b, Vector3(0.f, -150.f, 0.f));
+	setBodyPosition(b, Vector3(-300.f, -150.f, 0.f));
 }
 
 void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)

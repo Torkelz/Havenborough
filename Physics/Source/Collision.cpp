@@ -657,7 +657,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 	const XMVECTOR box_Center   = XMLoadFloat4(&p_OBB.getPosition());
 	const XMMATRIX box_Axes		= XMLoadFloat4x4(&p_OBB.getAxes());
 	const XMVECTOR box_Extents  = XMLoadFloat4(&p_OBB.getExtents());
-	const XMMATRIX invAxes		= box_Axes; //XMMatrixInverse(&XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f), box_Axes); 
+	const XMMATRIX invAxes		= XMMatrixInverse(&XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f), box_Axes); 
 
 
 	float overlap = FLT_MAX;
@@ -725,7 +725,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 					if(-r < min)
 						checkCollisionDepth(r, min, tOverlap, a, tLeast);
 					else
-						checkCollisionDepth(max, r, tOverlap, a, tLeast);
+						checkCollisionDepth(max, r, tOverlap, a, -tLeast);
 				}
 			}
 		}
@@ -751,7 +751,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 				if(-r < min)
 					checkCollisionDepth(r, min, tOverlap, box_Axes.r[j], tLeast);
 				else
-					checkCollisionDepth(max, -r, tOverlap, box_Axes.r[j], tLeast);
+					checkCollisionDepth(max, -r, tOverlap, box_Axes.r[j], -tLeast);
 			}
 				
 		}
@@ -788,7 +788,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		tVec = tVec - box_Center;
 		float temp = XMVectorGetX(XMVector4Dot(tVec, least));
 		if(temp > 0)
-			least *= -1.f;
+		//	least *= -1.f;
 
 		least = XMVector4Normalize(least);
 
@@ -819,7 +819,7 @@ bool Collision::OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, XMVECTOR &p_L
 	//intersection occurs when distance s falls within [-r, r] interval
 	if(fabs(s) <= r)
 	{
-		float R = (r - fabs(s));
+		float R = (fabs(r) - fabs(s));
 		if(p_Overlap > fabs(R))
 		{
 			p_Overlap = fabs(R);
