@@ -147,9 +147,16 @@ public:
 	{
 		if (!m_IsEdge)
 		{
-			m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPosition);
-			Vector3 rotation = m_Owner->getRotation();
-			m_Physics->setBodyRotation(m_Body, rotation);
+			using namespace DirectX;
+			XMFLOAT4X4 rotMat = m_Owner->getWorldMatrix();
+			XMMATRIX mRotMat = XMMatrixTranspose(XMLoadFloat4x4(&rotMat));
+			XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(m_OffsetPosition));
+			pos = XMVectorSetW(pos, 0.f);
+			XMVECTOR rotPos = XMVector4Transform(pos, mRotMat);
+			XMFLOAT3 fRotPos;
+			XMStoreFloat3(&fRotPos, rotPos);
+
+			m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - fRotPos);
 		}
 	}
 
@@ -159,18 +166,18 @@ public:
 		XMFLOAT4X4 rotMat = m_Owner->getWorldMatrix();
 		XMMATRIX mRotMat = XMMatrixTranspose(XMLoadFloat4x4(&rotMat));
 		XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(m_OffsetPosition));
-		pos = XMVectorSetW(pos, 1.f);
+		pos = XMVectorSetW(pos, 0.f);
 		XMVECTOR rotPos = XMVector4Transform(pos, mRotMat);
 		XMFLOAT3 fRotPos;
 		XMStoreFloat3(&fRotPos, rotPos);
 
-		m_Physics->setBodyPosition(m_Body, fRotPos);
+		m_Physics->setBodyPosition(m_Body, p_Position + fRotPos);
 	}
 
 	void setRotation(Vector3 p_Rotation) override
 	{
 		using namespace DirectX;
-		Vector3 ownerRot = m_Owner->getRotation();
+		Vector3 ownerRot = p_Rotation;
 		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
 		XMMATRIX compRotation = XMMatrixRotationRollPitchYaw(m_OffsetRotation.y, m_OffsetRotation.x, m_OffsetRotation.z);
 		XMMATRIX multRotation = compRotation * ownerRotation;
