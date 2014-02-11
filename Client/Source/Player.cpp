@@ -181,7 +181,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		m_ForceMoveY = pp.m_YPath;
 		m_ForceMoveZ = pp.m_ZPath;
 		m_ForceMoveStartPos = getPosition();
-		
+
 		fwd *= -1.f;
 		XMVECTOR up = XMVectorSet(0,1,0,0);
 		XMVECTOR side = XMVector3Normalize(XMVector3Cross(up, fwd));
@@ -192,6 +192,8 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		a.r[2] = fwd;
 		a.r[3] = XMVectorSet(0,0,0,1);
 		XMStoreFloat4x4(&m_ForceMoveRotation, a);
+
+		float edgeY = p_EdgeOrientation.y;
 
 		XMVECTOR vReachPointCenter = Vector3ToXMVECTOR(&m_Physics->getBodyPosition(getBody()), 0.f) - XMLoadFloat3(&p_BoxPos);
 		bool sig = false;
@@ -206,6 +208,15 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		m_EdgeOrientation = p_EdgeOrientation;
 		
 		XMStoreFloat3(&m_forward, fwd);
+
+		XMVECTOR offsetToStartPos = XMVectorSet(0, m_ForceMoveY.back().x, m_ForceMoveZ.back().x,0);
+		offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
+
+		XMVECTOR sp;
+		sp = vReachPointCenter + XMVectorSet(0,edgeY,0,0) - offsetToStartPos;
+		XMFLOAT3 startPos;
+		XMStoreFloat3(&startPos, sp);
+		setPosition(startPos);
 	}
 }
 

@@ -265,8 +265,8 @@ DirectX::XMFLOAT4X4 GameLogic::getPlayerViewRotationMatrix() const
 
 void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 {
-	if(m_Player.getForceMove())
-		return;
+	/*if(m_Player.getForceMove())
+		return;*/
 
 	Actor::ptr actor = m_Player.getActor().lock();
 	if (!actor)
