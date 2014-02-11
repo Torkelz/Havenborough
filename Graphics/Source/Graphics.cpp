@@ -792,7 +792,7 @@ void Graphics::set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt)
 	if(m_2D_Objects.count(p_Instance) > 0)
 	{
 		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 0.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f);
-		direction = XMVector3Transform(direction, XMLoadFloat4x4(&m_ViewMatrix));
+		direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
 		direction = XMVector3Normalize(direction);
 		XMMATRIX rotation = XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0));
 
