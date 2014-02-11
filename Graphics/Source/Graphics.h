@@ -18,6 +18,7 @@
 #include "ModelDefinition.h"
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
+#include "ScreenRenderer.h"
 
 class Graphics : public IGraphics
 {
@@ -55,20 +56,23 @@ private:
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
 
-	std::vector<std::pair<std::string, Shader*>> m_ShaderList;
-	std::vector<std::pair<std::string, ModelDefinition>> m_ModelList;
-	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> m_TextureList;
-	std::vector<std::pair<InstanceId, ModelInstance>> m_ModelInstances;
+	std::map<std::string, Shader*> m_ShaderList;
+	std::map<std::string, ModelDefinition> m_ModelList;
+	std::map<std::string, ID3D11ShaderResourceView*> m_TextureList;
+	std::map<InstanceId, ModelInstance> m_ModelInstances;
+	std::map<Object2D_ID, Renderable2D> m_2D_Objects;
 	InstanceId m_NextInstanceId;
-	
+	Object2D_ID m_Next2D_ObjectId;
+
 	//Particles
-	std::vector<std::pair<std::string, ParticleEffectDefinition::ptr>>  m_ParticleEffectDefinitionList;
-	std::vector<std::pair<int, ParticleInstance::ptr>>  m_ParticleEffectInstanceList;
+	std::map<std::string, ParticleEffectDefinition::ptr> m_ParticleEffectDefinitionList;
+	std::map<int, ParticleInstance::ptr> m_ParticleEffectInstanceList;
 	int m_NextParticleInstanceId;
 	std::unique_ptr<ParticleFactory> m_ParticleFactory;
 
 	DeferredRenderer *m_DeferredRender;
 	ForwardRendering *m_ForwardRenderer;
+	ScreenRenderer *m_ScreenRenderer;
 		
 	//Lights
 	std::vector<Light> m_SpotLights;
@@ -109,7 +113,7 @@ public:
 	void deleteShader(const char *p_ShaderId) override;
 
 	bool createTexture(const char *p_TextureId, const char *p_filename) override;
-	bool releaseTexture(const char *p_TextureID) override;	
+	bool releaseTexture(const char *p_TextureId) override;	
 
 	//Particles
 	bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_filename) override;
@@ -122,6 +126,12 @@ public:
 	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
 	void updateParticles(float p_DeltaTime) override;
 	/////
+
+	Object2D_ID create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation,
+		const char *p_TextureId) override;
+
+	Object2D_ID create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation,
+		const char *p_ModelDefinition) override;
 
 	void addStaticLight(void) override;
 	void removeStaticLight(void) override;
@@ -136,7 +146,7 @@ public:
 	void renderModel(InstanceId p_ModelId) override;
 	virtual void renderSkydome() override;
 	void renderText(void) override;
-	void renderQuad(void) override;
+	void render2D_Object(int p_Id) override;
 	void drawFrame() override;
 
 	void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) override;
@@ -152,6 +162,11 @@ public:
 	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;
 	void setModelScale(InstanceId p_Instance, Vector3 p_Scale) override;
 	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;
+	void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) override;
+	void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) override;
+	void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) override;
+	void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) override;
+
 
 	void updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up) override;
 
@@ -175,7 +190,7 @@ private:
 	HRESULT createRasterizerState(void);
 
 	void initializeFactories(void);
-	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight);
+	void initializeMatrices(int p_ScreenWidth, int p_ScreenHeight, float p_NearZ, float p_FarZ);
 	
 	Shader *getShaderFromList(std::string p_Identifier);
 	ModelDefinition *getModelFromList(std::string p_Identifier);

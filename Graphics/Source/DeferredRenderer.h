@@ -1,11 +1,13 @@
 #pragma once
 #include "Light.h"
 #include "Renderable.h"
+#include "SkyDome.h"
 #include "ConstantBuffers.h"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <vector>
+#include <map>
 
 class DeferredRenderer
 {
@@ -14,7 +16,6 @@ private:
 	float m_FarZ;
 	float m_ScreenWidth;
 	float m_ScreenHeight;
-
 
 	std::vector<Renderable>		m_Objects;
 
@@ -27,57 +28,26 @@ private:
 	std::vector<Light>			*m_DirectionalLights;
 	unsigned int				m_MaxLightsPerLightInstance;
 
-	DirectX::XMFLOAT3			*m_CameraPosition;
+	DirectX::XMFLOAT3			m_CameraPosition;
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
 	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
 	static const unsigned int	m_numRenderTargets = 5;
-	ID3D11RenderTargetView		*m_RenderTargets[m_numRenderTargets];
 
-	ID3D11ShaderResourceView	*m_DiffuseSRV;
-	ID3D11ShaderResourceView	*m_NormalSRV;
-	ID3D11ShaderResourceView	*m_LightSRV;
-	ID3D11ShaderResourceView	*m_wPositionSRV;
-	ID3D11ShaderResourceView	*m_SSAO_SRV;
-	ID3D11ShaderResourceView	*m_SSAO_RandomVecSRV;
-
-	ID3D11SamplerState			*m_Sampler;
-	ID3D11SamplerState			*m_SSAO_NormalDepthSampler;
-	ID3D11SamplerState			*m_SSAO_RandomVecSampler;
-	ID3D11SamplerState			*m_SSAO_BlurSampler;
+	std::map<std::string, ID3D11RenderTargetView*> m_RT;
+	std::map<std::string, ID3D11ShaderResourceView*> m_SRV;
+	std::map<std::string, ID3D11SamplerState*> m_Sampler;
+	std::map<std::string, Shader*> m_Shader;
+	std::map<std::string, Buffer*> m_Buffer;
 
 	ID3D11BlendState			*m_BlendState;
 	ID3D11BlendState			*m_BlendState2;
-	Buffer						*m_AnimatedObjectConstantBuffer;
-	Buffer						*m_WorldInstanceData;
-	Shader						*m_InstancedGeometryShader;
 
 	ID3D11RasterizerState		*m_RasterState;
 	ID3D11DepthStencilState		*m_DepthState;
 
-	Shader						*m_PointShader;
-	Shader						*m_SpotShader;
-	Shader						*m_DirectionalShader;
-	Shader						*m_SSAO_Shader;
-	Shader						*m_SSAO_BlurShader;
-
-	Buffer						*m_PointModelBuffer;
-	Buffer						*m_SpotModelBuffer;
-	Buffer						*m_DirectionalModelBuffer;
-
-	Buffer						*m_ConstantBuffer;
-	Buffer						*m_ObjectConstantBuffer;
-	Buffer						*m_AllLightBuffer;
-	Buffer						*m_SSAO_ConstantBuffer;
-	Buffer						*m_SSAO_BlurConstantBuffer;
-
-	Buffer						*m_SkyDomeBuffer;
-	Shader						*m_SkyDomeShader;
-	ID3D11ShaderResourceView	*m_SkyDomeSRV;
-	ID3D11DepthStencilState		*m_SkyDomeDepthStencilState;
-	ID3D11RasterizerState		*m_SkyDomeRasterizerState;
 	bool						m_RenderSkyDome;
-	ID3D11SamplerState			*m_SkyDomeSampler;
+	SkyDome						*m_SkyDome;
 
 public:
 	/**
@@ -85,10 +55,12 @@ public:
 	*/
 	DeferredRenderer(void);
 
+
 	/**
 	* Destructor.
 	*/
 	~DeferredRenderer(void);
+
 
 	/*
 	 * Initialize all the needed variables for rendering.
@@ -104,10 +76,11 @@ public:
 	 */
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 		ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
 		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
+
 
 	/*
 	 * Call to render the graphics using deferred rendering.
@@ -116,6 +89,7 @@ public:
 	 * before calling this function.
 	 */
 	void renderDeferred();
+
 
 	/*
 	 * Add models to the list of objects to be rendered with deferred rendering.
@@ -134,12 +108,14 @@ public:
 	 */
 	void renderSkyDome();
 
+
 	/*
 	 * Use to get specific render targets to put on the back buffer.
 	 * @ i, a number that is associated with a render target view.
 	 * @return, render target if i is a legal number, else nullptr.
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
+
 
 private:
 	void renderGeometry();
@@ -148,15 +124,20 @@ private:
 	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*,bool p_HorizontalBlur);
 	void updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur);
 
+
 	void clearRenderTargets(unsigned int nrRT);
+
 
 	void renderLighting();
 	void renderSkyDomeImpl();
 
+
 	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, std::vector<Light> *p_Lights);
+
 
 	void updateConstantBuffer();
 	void updateLightBuffer();
+
 
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
 	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC &desc);
@@ -170,6 +151,8 @@ private:
 	void createLightStates(); //Rasterize and depth state
 	void createRandomTexture(unsigned int p_Size);
 
-	void renderObject(Renderable &p_Object);
-};
 
+	void renderObject(Renderable &p_Object);
+	void SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels );
+	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects );
+};

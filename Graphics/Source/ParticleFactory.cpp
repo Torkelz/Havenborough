@@ -15,7 +15,7 @@ ParticleFactory::~ParticleFactory()
 	SAFE_RELEASE(m_Sampler);
 }
 
-void ParticleFactory::initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList, ID3D11Device* p_Device)
+void ParticleFactory::initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList, ID3D11Device* p_Device)
 {
 	m_TextureList = p_TextureList;
 	createSampler(p_Device);
@@ -108,15 +108,7 @@ ID3D11ShaderResourceView *ParticleFactory::loadTexture(const char *p_Filename, c
 
 ID3D11ShaderResourceView *ParticleFactory::getTextureFromList(string p_Identifier)
 {
-	for(auto it = m_TextureList->begin(); it != m_TextureList->end(); ++it)
-	{
-		if(it->first == p_Identifier)
-		{
-			return it->second;
-		}
-	}
-
-	return nullptr;
+	return m_TextureList->at(p_Identifier);
 }
 
 void ParticleFactory::createSampler(ID3D11Device* p_Device)
