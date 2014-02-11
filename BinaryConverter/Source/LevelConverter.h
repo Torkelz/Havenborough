@@ -24,6 +24,7 @@ private:
 	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>* m_LevelDirectionalLightList;
 	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>* m_LevelPointLightList;
 	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>* m_LevelSpotLightList;
+	const std::vector<LevelLoader::ModelHeader>* m_ModelInformation;
 	LevelLoader::LevelHeader m_Header;
 	int m_LevelDataSize;
 public:
@@ -100,6 +101,13 @@ public:
 	 * @param p_LevelCheckPointEnd, is a DirectX::XMFLOAT3.
 	 */
 	void setLevelCheckPointEnd(DirectX::XMFLOAT3 p_LevelCheckPointEnd);
+
+	/** 
+	 * Set information about the models header.
+	 *
+	 * @param p_ModelInformation, is a vector of LevelLoader ModelHeader
+	 */
+	void setModelInformation(const std::vector<LevelLoader::ModelHeader>* p_ModelInformation);
 
 	/**
 	 * Clears the writer.

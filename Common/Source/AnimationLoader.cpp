@@ -95,6 +95,7 @@ bool AnimationLoader::loadAnimationDataResource(const char* p_ResourceName, cons
 
 	data->animationClips = MattiasLucaseXtremeLoader::loadAnimationClip(mlxPath.string());
 	data->ikGroups = MattiasLucaseXtremeLoader::loadIKGroup(mlxPath.string());
+	data->animationPath = MattiasLucaseXtremeLoader::loadAnimationPath(mlxPath.string());
 
 	m_LoadedAnimations.push_back(loadedData);
 

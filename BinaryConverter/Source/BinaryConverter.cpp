@@ -4,6 +4,7 @@
 #include "ModelLoader.h"
 #include "LevelLoader.h"
 #include "LevelConverter.h"
+#include "..\..\Common\Source\LevelBinaryLoader.h"
 #include <iostream>
 
 void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter);
@@ -15,7 +16,8 @@ int main(int argc, char* argv[])
 	ModelConverter converter;
 	LevelLoader levelLoader;
 	LevelConverter levelConverter;
-	
+	LevelBinaryLoader testLevelLoader;
+
 	bool result;
 	if(argc == 2)
 	{
@@ -58,6 +60,7 @@ int main(int argc, char* argv[])
 			std::cout << outputBuffer.data() << std::endl;
 			levelLoader.clear();
 			levelConverter.clear();
+			testLevelLoader.loadBinaryFile(outputBuffer.data());
 			return EXIT_SUCCESS;
 		}
 
@@ -103,4 +106,5 @@ void setLevelInfo(LevelLoader* p_Loader, LevelConverter* p_Converter)
 	p_Converter->setLevelCheckPointList(&p_Loader->getLevelCheckPointList());
 	p_Converter->setLevelCheckPointStart(p_Loader->getLevelCheckPointStart());
 	p_Converter->setLevelCheckPointEnd(p_Loader->getLevelCheckPointEnd());
+	p_Converter->setModelInformation(&p_Loader->getModelInformation());
 }

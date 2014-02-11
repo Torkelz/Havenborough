@@ -171,3 +171,66 @@ std::map<std::string, IKGroup> MattiasLucaseXtremeLoader::loadIKGroup(std::strin
 	
 	return returnValue;
 }
+
+std::map<std::string, AnimationPath> MattiasLucaseXtremeLoader::loadAnimationPath(std::string p_Filename)
+{
+	const char* filename = p_Filename.c_str();
+	std::map<std::string, AnimationPath> returnValue;
+	
+	std::ifstream input(filename, std::ifstream::in);
+
+	if(input)
+	{
+		std::string line, key;
+		std::stringstream stringstream;
+
+		while (!input.eof() && std::getline(input, line))
+		{
+			key = "";
+			stringstream = std::stringstream(line);
+			stringstream >> key >> std::ws;
+			if(strcmp(key.c_str(), "*Path") == 0)
+			{
+				AnimationPath path = AnimationPath();
+					std::string line, key;
+
+					// Name
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> path.m_PathName;
+					
+					std::getline(input, line);
+					do
+					{
+						unsigned int value, timestamp;
+						bool y = false;
+
+						stringstream = std::stringstream(line);
+						stringstream >> key >> value;
+						
+						y = key == "y" ? true : false;
+
+						std::getline(input, line);
+						stringstream = std::stringstream(line);
+						stringstream >> key >> timestamp;
+
+						if (y)
+							path.m_YPath.push_back(DirectX::XMUINT2(value, timestamp));
+						else
+							path.m_ZPath.push_back(DirectX::XMUINT2(value, timestamp));
+
+						std::getline(input, line);
+					}while(!input.eof() && line != "*EndPath");
+
+					returnValue.insert( std::pair<std::string, AnimationPath>(path.m_PathName, path) );
+			}
+		}
+	}
+	else 
+	{
+		// No file found.
+		returnValue.insert(std::pair<std::string, AnimationPath>("default", AnimationPath()));
+	}
+	
+	return returnValue;
+}

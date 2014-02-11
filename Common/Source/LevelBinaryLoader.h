@@ -15,6 +15,9 @@ public:
 	struct ModelData
 	{
 		std::string m_MeshName;
+		bool m_Animated;
+		bool m_Transparent;
+		bool m_CollideAble;
 		std::vector<DirectX::XMFLOAT3> m_Translation;
 		std::vector<DirectX::XMFLOAT3> m_Rotation;
 		std::vector<DirectX::XMFLOAT3> m_Scale;
@@ -151,6 +154,7 @@ public:
 protected:
 	void byteToInt(std::istream& p_Input, int& p_Return);
 	void byteToString(std::istream& p_Input, std::string& p_Return);
+	void byteToBool(std::istream& p_Input, bool& p_Return);
 	
 	LevelBinaryLoader::Header readHeader(std::istream& p_Input);
 	std::vector<LevelBinaryLoader::ModelData> readLevel(std::istream& p_Input);
