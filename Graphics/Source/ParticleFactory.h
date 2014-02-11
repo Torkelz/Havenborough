@@ -20,10 +20,6 @@ private:
 	loadParticleTextureCallBack m_LoadParticleTexture;
 	void *m_LoadParticleTextureUserdata;
 
-	DirectX::XMFLOAT4X4 m_ViewMatrix;
-	DirectX::XMFLOAT4X4 m_ProjectionMatrix;
-	DirectX::XMFLOAT3 m_CameraPosition;
-
 public:
 	~ParticleFactory();
 

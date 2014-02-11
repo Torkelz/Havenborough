@@ -1,11 +1,12 @@
 #define BOOST_TEST_MODULE "Unit tests for Havenborough"
 #include <boost/test/unit_test.hpp>
 
-#include <CodeCoverage/CodeCoverage.h>
-
 /**
  * Place tests in separate files. Look at TestWindow for example.
  */
+
+/********** UNCOMMENT FOR Code Coverage ***************
+#include <CodeCoverage/CodeCoverage.h>
 
 ExcludeFromCodeCoverage(Exclusion1, L"boost::*");
 ExcludeFromCodeCoverage(Exclusion2, L"boost_132::*");
@@ -24,3 +25,4 @@ ExcludeFromCodeCoverage(Exclusion14, L"fastdelegate::*");
 ExcludeSourceFromCodeCoverage(Exclusion15, L"*\\DDSTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion16, L"*\\WICTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion17, L"*\\boost\\*.hpp");
+//*/
