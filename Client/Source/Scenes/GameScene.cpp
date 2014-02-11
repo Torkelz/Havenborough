@@ -447,22 +447,36 @@ void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
 
 void GameScene::createSpell(IEventData::Ptr p_Data)
 {
-	std::shared_ptr<CreateParticleEventData> data = std::static_pointer_cast<CreateParticleEventData>(p_Data);
+	std::shared_ptr<CreateSpellEventData> data = std::static_pointer_cast<CreateSpellEventData>(p_Data);
 
-	//int resource = m_ResourceManager->loadResource("spell", data->getEffectName());
+	int resource = m_ResourceManager->loadResource("spell", data->getSpellName());
 
-	//SpellBinding spell = 
-	//{
-	//	data->getId,
-	//	-1,
-	//	
-	//}
+	SpellBinding spell = 
+	{
+		data->getId,
+		resource,
+		m_GameLogic->createSpellInstance(data->getSpellName().c_str())
+	};
+
+	m_Spells.push_back(spell);
 }
 
 void GameScene::removeSpell(IEventData::Ptr p_Data)
 {
-	std::shared_ptr<RemoveParticleEventData> data = std::static_pointer_cast<RemoveParticleEventData>(p_Data);
+	std::shared_ptr<RemoveSpellEventData> data = std::static_pointer_cast<RemoveSpellEventData>(p_Data);
 
+	auto it = std::find_if(m_Spells.begin(), m_Spells.end(),
+		[&data] (const SpellBinding& p_Spell)
+	{
+		return p_Spell.spellId == data->getId();
+	});
+
+	if (it != m_Spells.end())
+	{
+		m_GameLogic->releaseSpellInstance(it->body);
+		m_ResourceManager->releaseResource(it->resourceId);
+		m_Spells.erase(it);
+	}
 }
 
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
