@@ -7,6 +7,10 @@
 #include "EventManager.h"
 #include "Input/Input.h"
 
+#include "SpellFactory.h"
+#include "SpellInstance.h"
+#include "PhysicsTypes.h"
+
 #include <INetwork.h>
 
 class GameLogic
@@ -49,7 +53,6 @@ private:
 	float witchCircleAngle;
 
 	Vector2 m_PlayerDirection;
-
 public:
 	GameLogic(void);
 	~GameLogic(void);
@@ -92,6 +95,9 @@ public:
 	void leaveGame();
 	void joinGame(const std::string& p_LevelName);
 
+	void throwSpell(const char *p_SpellId);
+	void releaseSpellInstance(int p_SpellId);
+	///
 private:
 	void handleNetwork();
 	
@@ -99,6 +105,8 @@ private:
 
 	Actor::ptr getActor(Actor::Id p_Actor);
 	void removeActor(Actor::Id p_Actor);
+
+	SpellDefinition::ptr getSpellFromList(std::string p_SpellId);
 
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();

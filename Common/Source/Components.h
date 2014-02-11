@@ -1301,3 +1301,13 @@ public:
 	virtual void playClimbAnimation(std::string p_ClimbID) = 0;
 	virtual void resetClimbState() = 0;
 };
+
+class SpellInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 9;	/// Unique id
+	virtual Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+};

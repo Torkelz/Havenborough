@@ -40,6 +40,7 @@ Graphics::Graphics(void)
 	m_ForwardRenderer = nullptr;
 	m_ScreenRenderer = nullptr;
 
+	m_ConstantBuffer = nullptr;
 	m_BVBuffer = nullptr;
 	m_BVShader = nullptr;
 	m_Shader = nullptr;
@@ -221,8 +222,21 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	buffDesc.numOfElements = m_BVBufferNumOfElements;
 	buffDesc.sizeOfElement = sizeof(XMFLOAT4);
 	buffDesc.type = Buffer::Type::VERTEX_BUFFER;
-	buffDesc.usage = Buffer::Usage::DEFAULT;
+	buffDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	
+	cBuffer cb;
+	cb.view = m_ViewMatrix;
+	cb.proj = m_ProjectionMatrix;
+	cb.campos = m_Eye;
+
+	Buffer::Description cbdesc;
+	cbdesc.initData = &cb;
+	cbdesc.numOfElements = 1;
+	cbdesc.sizeOfElement = sizeof(cBuffer);
+	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
+	cbdesc.usage = Buffer::Usage::DEFAULT;
+	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
@@ -302,6 +316,7 @@ void Graphics::shutdown(void)
 	SAFE_SHUTDOWN(m_ModelFactory);
 
 	m_Shader = nullptr;
+	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_BVBuffer);
 	SAFE_DELETE(m_BVShader);
 	
@@ -821,6 +836,7 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));
 
+	updateConstantBuffer();
 	m_ForwardRenderer->updateCamera(m_Eye);
 }
 
@@ -1174,48 +1190,61 @@ void Graphics::drawBoundingVolumes()
 {
 	if(m_BVTriangles.size() > 0)
 	{
-		Buffer* buffer = nullptr;
-
-		if(m_BVTriangles.size() >= m_BVBufferNumOfElements)
+		if(m_BVTriangles.size() > m_BVBufferNumOfElements)
 		{
+			SAFE_DELETE(m_BVBuffer);
 			VRAMInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
-			m_BVBufferNumOfElements = m_BVTriangles.size() + 1;
+			m_BVBufferNumOfElements *= 2;
+			if (m_BVTriangles.size() > m_BVBufferNumOfElements)
+			{
+				m_BVBufferNumOfElements = m_BVTriangles.size();
+			}
 			Buffer::Description buffDesc;
-			buffDesc.initData = &m_BVTriangles;
+			buffDesc.initData = nullptr;
 			buffDesc.numOfElements = m_BVBufferNumOfElements;
 			buffDesc.sizeOfElement = sizeof(XMFLOAT4);
 			buffDesc.type = Buffer::Type::VERTEX_BUFFER;
-			buffDesc.usage = Buffer::Usage::DEFAULT;
+			buffDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	
-			buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
+			m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 			VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
-			SAFE_DELETE(m_BVBuffer);
-			m_BVBuffer = buffer;
 		}
-		else 
-		{
-			m_DeviceContext->UpdateSubresource(m_BVBuffer->getBufferPointer(), NULL, NULL, m_BVTriangles.data(), 0, 0);
-			buffer = m_BVBuffer;
-		}
+
+		D3D11_MAPPED_SUBRESOURCE resource;
+		m_DeviceContext->Map(m_BVBuffer->getBufferPointer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+		std::copy(m_BVTriangles.begin(), m_BVTriangles.end(), (XMFLOAT4*)resource.pData);
+		m_DeviceContext->Unmap(m_BVBuffer->getBufferPointer(), 0);
 
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 
 		m_DeviceContext->RSSetState(m_RasterStateBV);
 
-		buffer->setBuffer(0);
+		m_BVBuffer->setBuffer(0);
+		m_ConstantBuffer->setBuffer(1);
+		
 		m_BVShader->setShader();
 	
 		m_DeviceContext->Draw(m_BVTriangles.size(), 0);
 
 		m_Shader->unSetShader();
-		buffer->unsetBuffer(0);
+		m_BVBuffer->unsetBuffer(0);
+		m_ConstantBuffer->unsetBuffer(1);
 
 		m_DeviceContext->RSSetState(m_RasterState);
 
-		buffer = nullptr;
 		m_BVTriangles.clear();
 	}
+}
+
+void Graphics::updateConstantBuffer()
+{
+	cBuffer cb;
+	cb.view = m_ViewMatrix;
+	cb.proj = m_ProjectionMatrix;
+	cb.campos = m_Eye;
+
+	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb, sizeof(cb), NULL);
 }
 
 //TODO: Remove later

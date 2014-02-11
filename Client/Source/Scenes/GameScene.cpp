@@ -53,7 +53,6 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
-
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
@@ -94,6 +93,8 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->setPlayerDirection(Vector2(forward, right));
 
 	m_Graphics->updateParticles(p_DeltaTime);
+
+
 
 	for (auto& model : m_Models)
 	{
@@ -141,14 +142,19 @@ void GameScene::render()
 
 	if(m_RenderDebugBV)
 	{
-		for(auto &object : m_GameLogic->getObjects())
+		/*for(auto &object : m_GameLogic->getObjects())
 		{
 			for (BodyHandle body : object->getBodyHandles())
 			{
 				renderBoundingVolume(body);
 			}
+		}*/
+
+		for(int bajs = 0; bajs < 200; bajs++)
+		{
+			renderBoundingVolume(bajs);
 		}
-		renderBoundingVolume(1);
+
 		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
 	}
 
@@ -274,6 +280,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if (p_Action == "flipCamera" && p_Value == 1.f)
 	{
 		m_UseFlippedCamera = !m_UseFlippedCamera;
+	}
+	else if(p_Action == "spellCast" && p_Value == 1.f)
+	{
+		m_GameLogic->throwSpell("TestSpell");
 	}
 }
 

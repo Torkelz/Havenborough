@@ -1,11 +1,7 @@
 #pragma once
 #include "ParticleInstance.h"
 
-#include <DirectXMath.h>
 #include <map>
-#include <string>
-#include <d3d11.h>
-
 class ParticleFactory
 {
 public:

@@ -2,6 +2,7 @@
 #include "CommonExceptions.h"
 #include "Components.h"
 #include "HumanAnimationComponent.h"
+#include "SpellComponent.h"
 #include "XMLHelper.h"
 
 ActorFactory::ActorFactory(unsigned int p_BaseActorId)
@@ -9,6 +10,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 		m_LastModelComponentId(0),
 		m_LastLightComponentId(0),
 		m_LastParticleComponentId(0),
+		m_LastSpellComponentId(0),
 		m_Physics(nullptr)
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
@@ -21,6 +23,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
 	m_ComponentCreators["Light"] = std::bind(&ActorFactory::createLightComponent, this);
 	m_ComponentCreators["Particle"] = std::bind(&ActorFactory::createParticleComponent, this);
+	m_ComponentCreators["Spell"] = std::bind(&ActorFactory::createSpellComponent, this);
 	m_ComponentCreators["Look"] = std::bind(&ActorFactory::createLookComponent, this);
 	m_ComponentCreators["HumanAnimation"] = std::bind(&ActorFactory::createHumanAnimationComponent, this);
 }
@@ -43,6 +46,11 @@ void ActorFactory::setResourceManager(ResourceManager* p_ResourceManager)
 void ActorFactory::setAnimationLoader(AnimationLoader* p_AnimationLoader)
 {
 	m_AnimationLoader = p_AnimationLoader;
+}
+
+void ActorFactory::setSpellFactory(SpellFactory* p_SpellFactory)
+{
+	m_SpellFactory = p_SpellFactory;
 }
 
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
@@ -312,6 +320,25 @@ Actor::ptr ActorFactory::createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize
 return actor;
 }
 
+Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Vector3 p_Direction, Vector3 p_StartPosition)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_StartPosition);
+	printer.OpenElement("Spell");
+	printer.PushAttribute("SpellName", p_Spell.c_str());
+	pushVector(printer, "Direction", p_Direction);
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
 ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_Data)
 {
 	std::string name(p_Data->Value());
@@ -410,6 +437,15 @@ ActorComponent::ptr ActorFactory::createParticleComponent()
 {
 	ParticleComponent* comp = new ParticleComponent;
 	comp->setId(++m_LastParticleComponentId);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createSpellComponent()
+{
+	SpellComponent* comp = new SpellComponent;
+	comp->setResourceManager(m_ResourceManager);
+	comp->setSpellFactory(m_SpellFactory);
 
 	return ActorComponent::ptr(comp);
 }

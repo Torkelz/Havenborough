@@ -415,6 +415,11 @@ void GameLogic::joinGame(const std::string& p_LevelName)
 	}
 }
 
+void GameLogic::throwSpell(const char *p_SpellId)
+{
+	m_Objects.push_back(m_ActorFactory->createSpell(p_SpellId, getPlayerViewForward(), m_Player.getEyePosition()));
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)

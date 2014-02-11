@@ -81,6 +81,7 @@ private:
 
 	//Stuff needed for drawing bounding volumes
 	std::vector<DirectX::XMFLOAT4> m_BVTriangles;
+	Buffer *m_ConstantBuffer;
 	Buffer *m_BVBuffer;
 	unsigned int m_BVBufferNumOfElements;
 	Shader *m_BVShader;
@@ -203,6 +204,7 @@ private:
 	void End(void);
 
 	void drawBoundingVolumes();
+	void updateConstantBuffer();
 
 	//TODO: Remove later
 	void DebugDefferedDraw(void);

@@ -52,6 +52,14 @@ private:
 	};
 	std::vector<ParticleBinding> m_Particles;
 
+	struct SpellBinding
+	{
+		unsigned int spellId;
+		int resourceId;
+		BodyHandle body;
+	};
+	std::vector<SpellBinding> m_Spells;
+
 public: 
 	GameScene();
 	~GameScene();
@@ -83,6 +91,8 @@ private:
 	void changeColorTone(IEventData::Ptr p_Data);
 	void createParticleEffect(IEventData::Ptr p_Data);
 	void removeParticleEffect(IEventData::Ptr p_Data);
+	void createSpell(IEventData::Ptr p_Data);
+	void removeSpell(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 
