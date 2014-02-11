@@ -613,3 +613,22 @@ void Physics::setRotation(BodyHandle p_Body, XMMATRIX& p_Rotation)
 		break;
 	}
 }
+
+Vector3 Physics::getBodyOrientation(BodyHandle p_BodyHandle)
+{
+	Body* body = findBody(p_BodyHandle);
+	if(body == nullptr)
+		return Vector3(0.f, 0.f, 0.f);
+
+	BoundingVolume *volume = body->getVolume();
+
+	switch (volume->getType())
+	{
+	case BoundingVolume::Type::OBB:
+		return ((OBB*)volume)->getOrientation();
+	default:
+		break;
+	}
+
+	return Vector3(0.f, 0.f, 0.f);
+}

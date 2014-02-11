@@ -71,7 +71,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
-				m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
+				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player))
 			{
 				//m_Physics->removeHitDataAt(i);
 			}
@@ -372,8 +372,12 @@ void GameLogic::playLocalLevel()
 	loadSandbox();
 
 	
-	BodyHandle b = m_Physics->createAABB(50.f, true, Vector3(0,150,0), Vector3(10,100,10), true);
+	BodyHandle b = m_Physics->createAABB(50.f, true, Vector3(0,105,0), Vector3(10,10,100), true);
 	m_Physics->setBodyCollisionResponse(b,false);
+	BodyHandle b1 = m_Physics->createAABB(50.f, true, Vector3(0,30,-210), Vector3(10,10,100), true);
+	m_Physics->setBodyCollisionResponse(b1,false);
+	BodyHandle b2 = m_Physics->createAABB(50.f, true, Vector3(0,80,210), Vector3(10,10,100), true);
+	m_Physics->setBodyCollisionResponse(b2,false);
 
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 
@@ -843,6 +847,8 @@ void GameLogic::updateIK()
 			}
 		}
 	}
+
+	m_Player.updateIKJoints();
 }
 
 IPhysics *GameLogic::getPhysics() const

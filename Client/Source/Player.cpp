@@ -63,7 +63,7 @@ XMFLOAT3 Player::getEyePosition() const
 		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 		if (comp)
 		{
-			return comp->getJointPos("HeadBase");
+			return comp->getJointPos("Neck");
 		}
 	}
 
@@ -102,12 +102,12 @@ float Player::getHeight() const
 
 float Player::getChestHeight() const
 {
-	return m_TempHeight * 0.75f;;
+	return m_TempHeight * 0.75f;
 }
 
 float Player::getWaistHeight() const
 {
-	return m_TempHeight * 0.5f;;
+	return m_TempHeight * 0.5f;
 }
 
 float Player::getKneeHeight() const
@@ -159,29 +159,32 @@ bool Player::getForceMove(void)
 	return m_ForceMove;
 }
 
-void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal)
+void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos)
 {
 	if(!m_ForceMove)
 	{
+		XMVECTOR fwd = XMVectorSet(p_CollisionNormal.x, 0.f,p_CollisionNormal.z,0);
+		XMVECTOR len = XMVector3Length(fwd);
+		if (XMVectorGetX(len) == 0.f)
+		{
+			return;
+		}
+		fwd /= len;
+
 		m_ForceMove = true;
 		m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
 		aa.lock()->playClimbAnimation(p_ClimbId);
+		m_ClimbId = p_ClimbId;
 
 		m_ForceMoveY = pp.m_YPath;
 		m_ForceMoveZ = pp.m_ZPath;
-		//m_ForceMoveNormal = p_CollisionNormal;
 		m_ForceMoveStartPos = getPosition();
-
-		XMVECTOR fwd = XMVectorSet(p_CollisionNormal.x,p_CollisionNormal.y,p_CollisionNormal.z,0);
 		
 		fwd *= -1.f;
 		XMVECTOR up = XMVectorSet(0,1,0,0);
 		XMVECTOR side = XMVector3Normalize(XMVector3Cross(up, fwd));
-		up = XMVector3Normalize(XMVector3Cross(side, fwd));
-
-		up *= -1.0f;
 		
 		XMMATRIX a;
 		a.r[0] = side;
@@ -189,6 +192,11 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		a.r[2] = fwd;
 		a.r[3] = XMVectorSet(0,0,0,1);
 		XMStoreFloat4x4(&m_ForceMoveRotation, a);
+
+		XMVECTOR vReachPointCenter = Vector3ToXMVECTOR(&m_Physics->getBodyPosition(getBody()), 0.f) - XMLoadFloat3(&p_BoxPos);
+		vReachPointCenter = (XMVector3Dot(vReachPointCenter, side) * side) + XMLoadFloat3(&p_BoxPos);
+		XMStoreFloat3(&m_CenterReachPos, vReachPointCenter);
+		XMStoreFloat3(&m_Side, side);
 	}
 }
 
@@ -223,13 +231,13 @@ void Player::update(float p_DeltaTime)
 			return;
 		}
 
-		float currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveY[0].y);
-		float currentFrameSpan = ((float)m_ForceMoveY[1].y - (float)m_ForceMoveY[0].y);
+		float currentFrameTime = (m_CurrentForceMoveTime - (float)m_ForceMoveY[0].y);
+		float currentFrameSpan = (float)(m_ForceMoveY[1].y - m_ForceMoveY[0].y);
 		float timeFrac = currentFrameTime / currentFrameSpan;
 		float currentYPos = m_ForceMoveY[0].x + ((m_ForceMoveY[1].x - m_ForceMoveY[0].x) * timeFrac);
 
-		currentFrameTime = (m_CurrentForceMoveTime - m_ForceMoveZ[0].y);
-		currentFrameSpan = ((float)m_ForceMoveZ[1].y - (float)m_ForceMoveZ[0].y);
+		currentFrameTime = (m_CurrentForceMoveTime - (float)m_ForceMoveZ[0].y);
+		currentFrameSpan = (float)(m_ForceMoveZ[1].y - m_ForceMoveZ[0].y);
 		timeFrac = currentFrameTime / currentFrameSpan;
 		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
 
@@ -244,6 +252,53 @@ void Player::update(float p_DeltaTime)
 
 		DirectX::XMStoreFloat3(&temp, tstart+tv);
 		setPosition(temp);
+	}
+}
+
+void Player::updateIKJoints()
+{
+	if(m_ForceMove)
+	{
+		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+		if(m_ClimbId == "Climb1")
+		{
+			//XMVECTOR reachPointR;
+			//reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_Side) * 20);
+			//Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
+			//aa.lock()->applyIK_ReachPoint("RightArm", vReachPointR);
+		}
+
+		else if(m_ClimbId == "Climb2")
+		{
+			XMVECTOR reachPointR;
+			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_Side) * 20);
+			Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
+			aa.lock()->applyIK_ReachPoint("RightArm", vReachPointR);
+		}
+
+		else if(m_ClimbId == "Climb3")
+		{
+			XMVECTOR reachPoint;
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_Side) * 20);
+			Vector3 vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			aa.lock()->applyIK_ReachPoint("RightArm", vReachPoint);
+
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_Side) * 20);
+			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			aa.lock()->applyIK_ReachPoint("LeftArm", vReachPoint);
+		}
+		
+		else if(m_ClimbId == "Climb4")
+		{
+			XMVECTOR reachPoint;
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_Side) * 20);
+			Vector3 vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			aa.lock()->applyIK_ReachPoint("RightArm", vReachPoint);
+
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_Side) * 20);
+			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			aa.lock()->applyIK_ReachPoint("LeftArm", vReachPoint);
+		}
 	}
 }
 
