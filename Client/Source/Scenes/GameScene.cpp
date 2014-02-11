@@ -470,7 +470,7 @@ void GameScene::loadSandboxModels()
 
 	static const std::string preloadedModels[] =
 	{
-		"Arrow",
+		"Arrow1",
 		"Barrel1",
         "Crate1", 
 		"Grass1", 
@@ -515,7 +515,7 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	m_Graphics->create2D_Object(Vector3(0, 300, 2), 10.0f, 0.f, "Arrow");
+	m_Graphics->create2D_Object(Vector3(0, 300, 2), 10.0f, 0.f, "Arrow1");
 
 	static const std::string preloadedModelsTransparent[] =
 	{

@@ -1,5 +1,6 @@
 #pragma once
 #include "ModelDefinition.h"
+#include <DirectXMath.h>
 
 struct Renderable2D
 {
