@@ -295,13 +295,13 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 
 
 	//Step 12
-	SkyDome *skydome = new SkyDome();
-	BOOST_MESSAGE(testId + "Initializing standalone skydome");
-	BOOST_CHECK(skydome->init(1000.0f));
-	BOOST_MESSAGE(testId + "Checking size of vertices vector to be expected size 240");
-	BOOST_CHECK(skydome->getVertices().size() == 240);
-	BOOST_MESSAGE(testId + "Deleting standalone skydome");
-	SAFE_DELETE(skydome);
+	//SkyDome *skydome = new SkyDome();
+	//BOOST_MESSAGE(testId + "Initializing standalone skydome");
+	//BOOST_CHECK(skydome->init(1000.0f));
+	//BOOST_MESSAGE(testId + "Checking size of vertices vector to be expected size 240");
+	//BOOST_CHECK(skydome->getVertices().size() == 240);
+	//BOOST_MESSAGE(testId + "Deleting standalone skydome");
+	//SAFE_DELETE(skydome);
 
 	BOOST_MESSAGE(testId + "Creating skydome using Graphics");
 	BOOST_REQUIRE(graphics->createTexture("skydomeTexture", "../../Client/Bin/assets/textures/Skybox1_COLOR.dds"));

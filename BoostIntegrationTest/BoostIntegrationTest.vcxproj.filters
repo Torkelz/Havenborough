@@ -185,6 +185,9 @@
     <FxCompile Include="Bin\assets\shaders\GeoInstanceShader.hlsl">
       <Filter>Graphics\HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\HUD_Shader.hlsl">
+      <Filter>Graphics\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Physics\include\BoundingVolume.h">

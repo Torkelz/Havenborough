@@ -31,7 +31,7 @@ PSOut PSFunction(PSIn p_Input, float4x4 p_View, Texture2D p_DiffuseTex, Texture2
 	float3 norm		= 0.5f * (p_Input.normal + 1.0f);
 	float4 bumpMap	= p_NormalTex.Sample(p_TextureSampler, p_Input.uvCoord);
 	bumpMap			= (bumpMap * 2.0f) - 1.0f;
-	float3 normal	= p_Input.normal + bumpMap.x * p_Input.tangent + -bumpMap.y * p_Input.binormal;
+	float3 normal	= bumpMap.x * p_Input.tangent + -bumpMap.y * p_Input.binormal + bumpMap.z * p_Input.normal;
 	normal			= mul((float3x3)p_View, normal);
 	normal			= 0.5f * (normalize(normal) + 1.0f);
 

@@ -32,17 +32,7 @@ private:
 	DirectX::XMFLOAT4X4			*m_ViewMatrix;
 	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
 
-	enum class RenderTargetType : unsigned int
-	{
-		DIFFUSE_COLOR,
-		NORMAL,
-		WORLD_POSITION,
-		FINAL_RESULT,
-		SSAO,
-
-		NUM_RENDER_TARGETS
-	};
-	ID3D11RenderTargetView		*m_RenderTargets[RenderTargetType::NUM_RENDER_TARGETS];
+	static const unsigned int	m_numRenderTargets = 5;
 
 	std::map<std::string, ID3D11RenderTargetView*> m_RT;
 	std::map<std::string, ID3D11ShaderResourceView*> m_SRV;
@@ -65,10 +55,12 @@ public:
 	*/
 	DeferredRenderer(void);
 
+
 	/**
 	* Destructor.
 	*/
 	~DeferredRenderer(void);
+
 
 	/*
 	 * Initialize all the needed variables for rendering.
@@ -89,6 +81,7 @@ public:
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
 		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
 
+
 	/*
 	 * Call to render the graphics using deferred rendering.
 	 *
@@ -96,6 +89,7 @@ public:
 	 * before calling this function.
 	 */
 	void renderDeferred();
+
 
 	/*
 	 * Add models to the list of objects to be rendered with deferred rendering.
@@ -114,19 +108,14 @@ public:
 	 */
 	void renderSkyDome();
 
+
 	/*
 	 * Use to get specific render targets to put on the back buffer.
 	 * @ i, a number that is associated with a render target view.
 	 * @return, render target if i is a legal number, else nullptr.
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
-	
-	/**
-	 * Update the camera information.
-	 *
-	 * @param p_CameraPos the new camera position
-	 */
-	void updateCamera(const DirectX::XMFLOAT3& p_CameraPos);
+
 
 private:
 	void renderGeometry();
@@ -135,18 +124,23 @@ private:
 	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*,bool p_HorizontalBlur);
 	void updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur);
 
+
 	void clearRenderTargets(unsigned int nrRT);
+
 
 	void renderLighting();
 	void renderSkyDomeImpl();
 
+
 	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, std::vector<Light> *p_Lights);
+
 
 	void updateConstantBuffer();
 	void updateLightBuffer();
 
-	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC* (&desc)[RenderTargetType::NUM_RENDER_TARGETS]);
-	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC* (&desc)[RenderTargetType::NUM_RENDER_TARGETS]);
+
+	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
+	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC &desc);
 	void createBuffers();
 	void buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer);
 	void clearRenderTargets();
@@ -156,6 +150,7 @@ private:
 	void loadLightModels();
 	void createLightStates(); //Rasterize and depth state
 	void createRandomTexture(unsigned int p_Size);
+
 
 	void renderObject(Renderable &p_Object);
 	void SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels );
