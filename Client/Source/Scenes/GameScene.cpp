@@ -516,7 +516,7 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	m_Graphics->create2D_Object(Vector3(-360, 300, 2), 3.0f, 0.f, "Arrow1");
+	m_Graphics->create2D_Object(Vector3(-500, 300, 2), 1.0f, 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-500, -280, 1), Vector2(80, 80), 0.0f, "TEXTURE_NOT_FOUND");
 
 	static const std::string preloadedModelsTransparent[] =
