@@ -1,6 +1,7 @@
 #pragma once
 #include "ParticleInstance.h"
 
+#include <map>
 class ParticleFactory
 {
 public:
@@ -14,7 +15,7 @@ public:
 	typedef void (*loadParticleTextureCallBack)(const char *p_ResourceName, const char *p_FilePath, void *p_Userdata);
 
 private:
-	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *m_TextureList;
+	std::map<std::string, ID3D11ShaderResourceView*> *m_TextureList;
 	ID3D11SamplerState* m_Sampler;
 
 	loadParticleTextureCallBack m_LoadParticleTexture;
@@ -29,7 +30,7 @@ public:
 	* @param p_TextureList pointer to the texture list pair 
 	* @param p_Device pointer to the device
 	*/
-	void initialize(std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *p_TextureList, ID3D11Device* p_Device);
+	void initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList, ID3D11Device* p_Device);
 
 	/**
 	* Creates a static particle system with buffers and connects the textures to it.

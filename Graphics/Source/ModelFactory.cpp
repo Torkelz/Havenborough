@@ -8,6 +8,7 @@
 using std::string;
 using std::vector;
 using std::pair;
+using namespace DirectX;
 
 ModelFactory *ModelFactory::m_Instance = nullptr;
 
@@ -19,7 +20,7 @@ ModelFactory *ModelFactory::getInstance(void)
 	return m_Instance;
 }
 
-void ModelFactory::initialize(vector<pair<string, ID3D11ShaderResourceView*>> *p_TextureList)
+void ModelFactory::initialize(std::map<string, ID3D11ShaderResourceView*> *p_TextureList)
 {
 	if(!m_Instance)
 		throw ModelFactoryException("Error when initializing ModelFactory, no instance exists", __LINE__, __FILE__);
@@ -76,6 +77,51 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 
 	modelLoader.clear();
 	
+	return model;
+}
+
+ModelDefinition *ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_TextureId)
+{
+	ModelDefinition *model = new ModelDefinition();
+
+	vector<StaticVertex> initData;
+	StaticVertex vertex;
+	vertex.m_Normal = vertex.m_Binormal = vertex.m_Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 0.0f);
+	initData.push_back(vertex);
+
+	Buffer::Description bufferDescription = createBufferDescription(initData, Buffer::Usage::USAGE_IMMUTABLE);
+	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
+	
+	model->vertexBuffer.swap(vertexBuffer);
+	
+	model->diffuseTexture.push_back(make_pair(std::string(p_TextureId), getTextureFromList(p_TextureId)));
+	model->drawInterval.push_back(std::make_pair(0, 6));
+	model->numOfMaterials = 1;
+	model->isAnimated = false;
+
 	return model;
 }
 
@@ -144,13 +190,5 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 
 ID3D11ShaderResourceView *ModelFactory::getTextureFromList(string p_Identifier)
 {
-	for(auto it = m_TextureList->begin(); it != m_TextureList->end(); ++it)
-	{
-		if(it->first == p_Identifier)
-		{
-			return it->second;
-		}
-	}
-
-	return nullptr;
+	return m_TextureList->at(p_Identifier);
 }

@@ -241,6 +241,9 @@
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\ScreenRenderer.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
