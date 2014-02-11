@@ -179,18 +179,18 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK(wrapperFactory != nullptr);
 
 	BOOST_MESSAGE(testId + "Creating model object of Barrel1.btx");
-	BOOST_REQUIRE(graphics->createTexture("barrelColor", "../../Client/Bin/assets/textures/Barrel_COLOR.dds"));
-	BOOST_REQUIRE(graphics->createTexture("barrelNormal", "../../Client/Bin/assets/textures/Barrel_NRM.dds"));
-	BOOST_REQUIRE(graphics->createTexture("barrelSpecular", "../../Client/Bin/assets/textures/Barrel_SPEC.dds"));
+	BOOST_REQUIRE(graphics->createTexture("Barrel_COLOR.dds", "../../Client/Bin/assets/textures/Barrel_COLOR.dds"));
+	BOOST_REQUIRE(graphics->createTexture("Barrel_NRM.dds", "../../Client/Bin/assets/textures/Barrel_NRM.dds"));
+	BOOST_REQUIRE(graphics->createTexture("Barrel_SPEC.dds", "../../Client/Bin/assets/textures/Barrel_SPEC.dds"));
 	BOOST_CHECK(graphics->createModel("barrel", "../../Client/Bin/assets/models/Barrel1.btx"));
 
-	BOOST_MESSAGE(testId + "Creating model object of Witch_Running_5.btx");
-	BOOST_REQUIRE(graphics->createTexture("bodyColor", "../../Client/Bin/assets/textures/body_COLOR.dds"));
-	BOOST_REQUIRE(graphics->createTexture("bodyNormal", "../../Client/Bin/assets/textures/body_NRM.dds"));
-	BOOST_REQUIRE(graphics->createTexture("defaultSpecular", "../../Client/Bin/assets/textures/Default_SPEC.dds"));
-	BOOST_REQUIRE(graphics->createTexture("accessoriesColor", "../../Client/Bin/assets/textures/Accessories_COLOR.dds"));
-	BOOST_REQUIRE(graphics->createTexture("accessoriesNormal", "../../Client/Bin/assets/textures/Accessories_NRM.dds"));
-	BOOST_CHECK(graphics->createModel("witch", "../../Client/Bin/assets/models/Witch_new2.btx"));
+	BOOST_MESSAGE(testId + "Creating model object of Dzala.btx");
+	BOOST_REQUIRE(graphics->createTexture("body_COLOR.dds", "../../Client/Bin/assets/textures/body_COLOR.dds"));
+	BOOST_REQUIRE(graphics->createTexture("body_NRM.dds", "../../Client/Bin/assets/textures/body_NRM.dds"));
+	BOOST_REQUIRE(graphics->createTexture("Default_SPEC.dds", "../../Client/Bin/assets/textures/Default_SPEC.dds"));
+	BOOST_REQUIRE(graphics->createTexture("Accessories_COLOR.dds", "../../Client/Bin/assets/textures/Accessories_COLOR.dds"));
+	BOOST_REQUIRE(graphics->createTexture("Accessories_NRM.dds", "../../Client/Bin/assets/textures/Accessories_NRM.dds"));
+	BOOST_CHECK(graphics->createModel("witch", "../../Client/Bin/assets/models/Dzala.btx"));
 
 	//Step 8
 	BOOST_MESSAGE(testId + "Testing Graphics.createShader...");
