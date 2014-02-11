@@ -8,6 +8,11 @@ cbuffer cb : register (b0)
 	float4x4 cOrthoProjection;
 };
 
+cbuffer cbPos : register (b1)
+{
+	float4x4 cWorld;
+};
+
 struct VS_Input
 {
 	float4 position	: POSITION;
@@ -26,7 +31,7 @@ struct VS_Output
 VS_Output VS(VS_Input input)
 {
 	VS_Output output;
-	output.position = mul(cOrthoProjection, mul(cView, float4(input.position)));
+	output.position = mul(cOrthoProjection, mul(cWorld, float4(input.position.xyz, 1.0f)));
 	output.texCoord = input.texCoord;
 	
 	return output;
@@ -34,5 +39,5 @@ VS_Output VS(VS_Input input)
 
 float4 PS(VS_Output input) : SV_Target
 {
-	return float4(cHUD_Texture.Sample(cTextureSampler, input.texCoord));
+	return cHUD_Texture.Sample(cTextureSampler, input.texCoord);
 }

@@ -151,31 +151,8 @@ void ScreenRenderer::createRasterState(void)
 
 void ScreenRenderer::createDepthStencilState(void)
 {
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-
-	//Initialize the description of the stencil state.
-	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-
-	//Set up the description of the stencil state.
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {0};
 	depthStencilDesc.DepthEnable = false;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	depthStencilDesc.StencilEnable = false;
-	depthStencilDesc.StencilReadMask = 0xFF;
-	depthStencilDesc.StencilWriteMask = 0xFF;
-
-	//Stencil operations if pixel is front-facing.
-	//depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	//depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	//depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	//depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Stencil operations if pixel is back-facing.
-	//depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	//depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	//depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	//depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
 }
@@ -185,7 +162,7 @@ void ScreenRenderer::updateConstantBuffer(void)
 	c2D_ObjectBuffer cb;
 	cb.view = *m_ViewMatrix;
 	cb.orthoProj = m_OrthoMatrix;
-	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL, NULL, &cb, NULL, NULL);
+	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL, nullptr, &cb, NULL, NULL);
 }
 
 void ScreenRenderer::renderObjects(void)
@@ -203,28 +180,36 @@ void ScreenRenderer::renderObjects(void)
 
 		//Sort objects by the range to the camera
 		std::sort(m_2D_Objects.begin(), m_2D_Objects.end(),
-			[] (Renderable2D &a, Renderable2D &b){ return a.position.z <= b.position.z; });
+			[] (Renderable2D &a, Renderable2D &b){ return a.position.z > b.position.z; });
 
 		// Set the render targets.
-		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTarget, m_DepthStencilView);
+		//m_DeviceContext->OMSetRenderTargets(1, &m_RenderTarget, m_DepthStencilView);
+		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTarget, nullptr);
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		m_ConstantBuffer->setBuffer(1);
+		m_ConstantBuffer->setBuffer(0);
+		m_ObjectConstantBuffer->setBuffer(1);
 		updateConstantBuffer();
 
 		for(auto &object : m_2D_Objects)
 		{
+			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL, nullptr,
+				&object.getWorldMatrix(), NULL, NULL);
 			renderObject(object);
 		}
-		m_ConstantBuffer->unsetBuffer(1);
+
+		m_ObjectConstantBuffer->unsetBuffer(1);
+		m_ConstantBuffer->unsetBuffer(0);
 
 		// Unset render targets.
 		m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 		m_DeviceContext->RSSetState(previousRasterState);
 		m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
-		float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-		UINT sampleMask = 0xffffffff;
-		m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
+		
+		//float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+		//UINT sampleMask = 0xffffffff;
+		//m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
+		
 		SAFE_RELEASE(previousRasterState);
 		SAFE_RELEASE(previousDepthState);
 		m_2D_Objects.clear();
@@ -242,14 +227,15 @@ void ScreenRenderer::renderObject(Renderable2D &p_Object)
 	// Set shader.
 	m_HUD_Shader->setShader();
 	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-	//p_Object.model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
+	m_HUD_Shader->setBlendState(m_TransparencyAdditiveBlend, data);
 	m_DeviceContext->PSSetShaderResources(0, 1, &(p_Object.model->diffuseTexture[0].second));
 
 	m_DeviceContext->Draw(p_Object.model->drawInterval.at(0).second, p_Object.model->drawInterval.at(0).first);
 
 	ID3D11ShaderResourceView *nullSrv = 0;
 	m_DeviceContext->PSSetShaderResources(0, 1, &nullSrv);
-	//p_Object.model->shader->setBlendState(0, data);
+	data[0] = data[1] = data[2] = data[3] = 0.0f; 
+	m_HUD_Shader->setBlendState(0, data);
 	m_HUD_Shader->unSetShader();
 	p_Object.model->vertexBuffer->unsetBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,0,0);

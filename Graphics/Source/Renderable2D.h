@@ -17,4 +17,15 @@ struct Renderable2D
 	{
 		model = nullptr;
 	}
+
+	DirectX::XMFLOAT4X4 getWorldMatrix(void)
+	{
+		DirectX::XMFLOAT4X4 returnMatrix;
+		DirectX::XMMATRIX scaleMatrix = DirectX::XMMatrixScaling(scale, scale, scale);
+		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation(position.x, position.y, position.z);
+		DirectX::XMMATRIX rotationMatrix = DirectX::XMLoadFloat4x4(&rotation);
+
+		DirectX::XMStoreFloat4x4(&returnMatrix, DirectX::XMMatrixTranspose(scaleMatrix * rotationMatrix * translationMatrix));
+		return returnMatrix;
+	}
 };

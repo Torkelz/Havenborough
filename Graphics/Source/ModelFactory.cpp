@@ -83,14 +83,34 @@ ModelDefinition *ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_
 {
 	ModelDefinition *model = new ModelDefinition();
 
-	std::vector<XMFLOAT3> initData;
-	initData.push_back(XMFLOAT3(-p_HalfSize.x, p_HalfSize.y, 0));
-	initData.push_back(XMFLOAT3(-p_HalfSize.x, -p_HalfSize.y, 0));
-	initData.push_back(XMFLOAT3(p_HalfSize.x, -p_HalfSize.y, 0));
-	initData.push_back(XMFLOAT3(-p_HalfSize.x, p_HalfSize.y, 0));
-	initData.push_back(XMFLOAT3(p_HalfSize.x, -p_HalfSize.y, 0));
-	initData.push_back(XMFLOAT3(p_HalfSize.x, p_HalfSize.y, 0));
-	
+	vector<StaticVertex> initData;
+	StaticVertex vertex;
+	vertex.m_Normal = vertex.m_Binormal = vertex.m_Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 0.0f);
+	initData.push_back(vertex);
+
 	Buffer::Description bufferDescription = createBufferDescription(initData, Buffer::Usage::USAGE_IMMUTABLE);
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 	
