@@ -96,6 +96,20 @@ void LevelConverter::createLevel(std::ostream* p_Output)
 	for(unsigned int i = 0; i < level.size(); i++)
 	{
 		stringToByte(level.at(i).m_MeshName, p_Output);
+		for(unsigned int j = 0; j < m_ModelInformation->size(); j++)
+		{
+			if(strcmp(level.at(i).m_MeshName.c_str(), m_ModelInformation->at(j).m_MeshName.c_str()) == 0)
+			{
+				intToByte(m_ModelInformation->at(j).m_Animated, p_Output);
+				intToByte(m_ModelInformation->at(j).m_Transparency, p_Output);
+				intToByte(m_ModelInformation->at(j).m_Collidable, p_Output);
+				break;
+			}
+			else if(j == m_ModelInformation->size()-1)
+			{
+				throw;
+			}
+		}
 		intToByte(level.at(i).m_Translation.size(), p_Output);
 		p_Output->write(reinterpret_cast<const char*>(level.at(i).m_Translation.data()), sizeof(DirectX::XMFLOAT3) * level.at(i).m_Translation.size());
 		intToByte(level.at(i).m_Rotation.size(), p_Output);
@@ -223,4 +237,9 @@ void LevelConverter::setLevelCheckPointStart(DirectX::XMFLOAT3 p_LevelCheckPoint
 void LevelConverter::setLevelCheckPointEnd(DirectX::XMFLOAT3 p_LevelCheckPointEnd)
 {
 	m_LevelCheckPointEnd = p_LevelCheckPointEnd;
+}
+
+void LevelConverter::setModelInformation(const std::vector<LevelLoader::ModelHeader>* p_ModelInformation)
+{
+	m_ModelInformation = p_ModelInformation;
 }

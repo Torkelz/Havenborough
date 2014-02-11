@@ -42,8 +42,13 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 			Vector3 translation = model.m_Translation.at(j);
 			Vector3 rotation = model.m_Rotation.at(j);
 			Vector3 scale = model.m_Scale.at(j);	
-
-			p_ActorOut.push_back(createObjectActor(model.m_MeshName, translation, rotation, scale));
+			tinyxml2::XMLPrinter printer;
+			createObjectActor(&printer, model.m_MeshName, translation, rotation, scale);
+			if(model.m_CollideAble)
+			{
+				createCollisionActor(&printer, model.m_MeshName, translation, rotation, scale);
+			}
+			p_ActorOut.push_back(createActorPointer(&printer));
 		}
 	}
 	
@@ -73,24 +78,31 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 	return true;
 }
 
-Actor::ptr Level::createObjectActor(std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale)
+void Level::createObjectActor(tinyxml2::XMLPrinter* p_Printer, std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale)
 {
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	pushVector(printer, p_Position);
-	pushRotation(printer, p_Rotation);
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", p_MeshName.c_str());
-	pushVector(printer, "Scale", p_Scale);
-	printer.CloseElement();
-	printer.OpenElement("MeshPhysics");
-	printer.PushAttribute("Mesh", p_MeshName.c_str());
-	pushVector(printer, "Scale", p_Scale);
-	printer.CloseElement();
-	printer.CloseElement();
+	p_Printer->OpenElement("Object");
+	pushVector(*p_Printer, p_Position);
+	pushRotation(*p_Printer, p_Rotation);
+	p_Printer->OpenElement("Model");
+	p_Printer->PushAttribute("Mesh", p_MeshName.c_str());
+	pushVector(*p_Printer, "Scale", p_Scale);
+	p_Printer->CloseElement();
+}
+
+void Level::createCollisionActor(tinyxml2::XMLPrinter* p_Printer, std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale)
+{
+	p_Printer->OpenElement("MeshPhysics");
+	p_Printer->PushAttribute("Mesh", p_MeshName.c_str());
+	pushVector(*p_Printer, "Scale", p_Scale);
+	p_Printer->CloseElement();
+}
+
+Actor::ptr Level::createActorPointer(tinyxml2::XMLPrinter* p_Printer)
+{
+	p_Printer->CloseElement();
 
 	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
+	doc.Parse(p_Printer->CStr());
 
 	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
 

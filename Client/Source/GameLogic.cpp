@@ -314,25 +314,25 @@ void GameLogic::toggleIK()
 
 void GameLogic::testBlendAnimation()
 {
-	playAnimation(testWitch.lock(), "Idle", false);
+	//playAnimation(testWitch.lock(), "Idle", false);
 }
 
 void GameLogic::testResetAnimation()
 {
-	playAnimation(testWitch.lock(), "Run", false);
+	//playAnimation(testWitch.lock(), "Run", false);
 }
 
 void GameLogic::testLayerAnimation()
 {
 	//playAnimation(testWitch.lock(), "Wave", false);
-	playAnimation(m_Player.getActor().lock(), "LookAround", false);
+	//playAnimation(m_Player.getActor().lock(), "LookAround", false);
 }
 
 void GameLogic::testResetLayerAnimation()
 {
 	//playAnimation(testWitch.lock(), "Run", false);
 	//playAnimation(testWitch.lock(), "DefLayer1", false);
-	playAnimation(m_Player.getActor().lock(), "Idle2", false);
+	//playAnimation(m_Player.getActor().lock(), "Idle2", false);
 	changeAnimationWeight(m_Player.getActor().lock(), 4, 0.0f);
 }
 
@@ -371,10 +371,14 @@ void GameLogic::playLocalLevel()
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 
+	
+	BodyHandle b = m_Physics->createAABB(50.f, true, Vector3(0,150,0), Vector3(10,100,10), true);
+	m_Physics->setBodyCollisionResponse(b,false);
+
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 
 	// DEBUG STUFFZ
-	playAnimation( m_Player.getActor().lock(), "Run", false );
+	playAnimation( m_Player.getActor().lock(), "Idle", false );
 }
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)

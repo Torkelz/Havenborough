@@ -55,7 +55,6 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createSpell), CreateSpellEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeSpell), RemoveSpellEventData::sk_EventType);
-
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = false;
 	loadSandboxModels();

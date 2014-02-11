@@ -15,6 +15,13 @@ public:
 		int m_NumberOfLights;
 		int m_NumberOfCheckPoints;
 	};
+	struct ModelHeader
+	{
+		std::string m_MeshName;
+		int m_Animated;
+		int m_Transparency;
+		int m_Collidable;
+	};
 	struct ModelStruct
 	{
 		std::string m_MeshName;
@@ -59,6 +66,7 @@ private:
 	std::vector<std::pair<LightData,SpotLight>> m_LevelSpotLightList;
 	std::stringstream m_Stringstream;
 	LevelHeader m_Header;
+	std::vector<ModelHeader> m_ModelHeaders;
 public:
 	/**
 	 * Constructor.
@@ -94,28 +102,28 @@ public:
 	 *
 	 * @return ModelStruct list.
 	 */
-	const std::vector<LevelLoader::ModelStruct>& getLevelModelList();
+	const std::vector<LevelLoader::ModelStruct>& getLevelModelList() const;
 
 	/**
 	 * Returns a vector with information about the levels directional lighting.
 	 *
 	 * @return DirectionalLight list.
 	 */
-	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>& getLevelDirectionalLightList();
+	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>& getLevelDirectionalLightList() const;
 
 	/**
 	 * Returns a vector with information about the levels directional lighting.
 	 *
 	 * @return PointLight list.
 	 */
-	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>& getLevelPointLightList();
+	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>& getLevelPointLightList() const;
 
 	/**
 	 * Returns a vector with information about the levels directional lighting.
 	 *
 	 * @return PointLight list.
 	 */
-	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>& getLevelSpotLightList();
+	const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>& getLevelSpotLightList() const;
 
 	/**
 	 * Returns a vector with information about the levels check points.
@@ -123,24 +131,36 @@ public:
 	 *
 	 * @return CheckPointStruct list.
 	 */
-	const std::vector<LevelLoader::CheckPointStruct>& getLevelCheckPointList();
+	const std::vector<LevelLoader::CheckPointStruct>& getLevelCheckPointList() const;
 
 	/**
 	 * Returns the start point of the map.
 	 *
 	 * @return DirectX::XMFLOAT3 with information about the start position.
 	 */
-	DirectX::XMFLOAT3 getLevelCheckPointStart();
+	DirectX::XMFLOAT3 getLevelCheckPointStart() const;
 	
 	/**
 	 * Returns the end point of the map.
 	 *
 	 * @return DirectX::XMFLOAT3 with information about the end position.
 	 */
-	DirectX::XMFLOAT3 getLevelCheckPointEnd();
+	DirectX::XMFLOAT3 getLevelCheckPointEnd() const;
+
+	/**
+	 * Returns information about models headers.
+	 *
+	 * @return a vector containing information about model headers.
+	 */
+	const std::vector<ModelHeader>& getModelInformation() const;
 
 protected:
+	void byteToInt(std::istream& p_Input, int& p_Return);
+	void byteToString(std::istream& p_Input, std::string& p_Return);
+	std::string getPath(std::string p_FilePath);
+
 	void startReading(std::istream& p_Input);
+	void readModelHeaders(std::string p_FilePath);
 	int readHeader(std::istream& p_Input);
 	void readMeshList(std::istream& p_Input);
 	void readLightList(std::istream& p_Input);

@@ -1,7 +1,4 @@
 #pragma once
-#include "Joint.h"
-#include "AnimationClip.h"
-#include "AnimationData.h"
 #include "Buffer.h"
 #include "Shader.h"
 

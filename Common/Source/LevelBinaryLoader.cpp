@@ -58,8 +58,14 @@ std::vector<LevelBinaryLoader::ModelData> LevelBinaryLoader::readLevel(std::istr
 	for(int i = 0; i < numberOfDifferentModels; i++)
 	{
 		ModelData data = ModelData();
+		data.m_Animated = false;
+		data.m_Transparent = false;
+		data.m_CollideAble = false;
 		int size;
 		byteToString(p_Input, data.m_MeshName);
+		byteToBool(p_Input, data.m_Animated);
+		byteToBool(p_Input, data.m_Transparent);
+		byteToBool(p_Input, data.m_CollideAble);
 		byteToInt(p_Input, size);
 		data.m_Translation.resize(size);
 		p_Input.read(reinterpret_cast<char*>(data.m_Translation.data()),sizeof(DirectX::XMFLOAT3) * size);
@@ -153,11 +159,6 @@ const std::vector<LevelBinaryLoader::CheckPointStruct>& LevelBinaryLoader::getCh
 
 std::string LevelBinaryLoader::getDataStream() 
 {
-	/*std::streambuf* buffer;
-	buffer = m_Input.rdbuf();
-	std::streamsize size = buffer->in_avail();*/
-	/*m_Input.seekg(0);
-	std::streamsize size = m_Input.gcount();*/
 	m_Input.seekg(0, m_Input.end);
 	std::streampos size = m_Input.tellg();
 	m_Input.seekg(0, m_Input.beg);
@@ -185,6 +186,17 @@ void LevelBinaryLoader::byteToString(std::istream& p_Input, std::string& p_Retur
 void LevelBinaryLoader::byteToInt(std::istream& p_Input, int& p_Return)
 {
 	p_Input.read((char*)&p_Return, sizeof(int));
+}
+
+void LevelBinaryLoader::byteToBool(std::istream& p_Input, bool& p_Return)
+{
+	p_Return = false;
+	int tempBool;
+	byteToInt(p_Input, tempBool);
+	if(tempBool == 1)
+	{
+		p_Return = true;
+	}
 }
 
 void LevelBinaryLoader::clear()

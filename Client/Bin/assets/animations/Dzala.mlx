@@ -1,0 +1,366 @@
+*Clip
+na 	default
+sp 	1.0
+st 	1
+en 	1
+lo 	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof 	5
+we	1.0
+
+*Clip
+na 	Run
+sp 	1.5
+st 	2
+en 	31
+lo 	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof 	5
+we	1.0
+
+*Clip
+na 	Idle
+sp 	1.0
+st 	34
+en 	54
+lo 	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof 	5
+we	0.0
+
+*Clip
+na 	IdleSide
+sp 	1.0
+st 	34
+en 	54
+lo 	1
+f	Hip
+tr	2
+la	0
+fi	1
+fif	5
+fo	0
+fof 	5
+we	0.1
+
+*Clip
+na 	RunningJump
+sp 	1.0
+st 	56
+en 	68
+lo 	0
+f	Hip
+tr	0
+la	0
+fi	1
+fif	3
+fo	1
+fof 	5
+we	1.0
+
+*Clip
+na 	Falling
+sp 	1.0
+st 	70
+en 	94
+lo 	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof 	10
+we	1.0
+
+*Clip
+na 	NormalLanding
+sp 	1.0
+st 	97
+en 	113
+lo 	0
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	1
+fof 	10
+we	1.0
+
+*Clip
+na 	StandingJump
+sp 	1.0
+st 	116
+en 	128
+lo 	0
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	1
+fof 	5
+we	1.0
+
+*Clip
+na 	Flying
+sp 	1.0
+st 	131
+en 	153
+lo 	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof 	5
+we	1.0
+
+*Clip
+na 	HardLanding
+sp 	1.0
+st 	156
+en 	180
+lo 	0
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	1
+fof 	10
+we	1.0
+
+*Clip
+na 	Idle2
+sp 	1.0
+st 	181
+en 	230
+lo 	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	3
+fo	0
+fof 	0
+we	1.0
+
+*Clip
+na 	CastSpell
+sp 	1.0
+st 	233
+en 	255
+lo 	0
+f	R_UpperArm
+tr	4
+la	1
+fi	1
+fif	6
+fo	1
+fof 	9
+we	1.0
+
+*Clip
+na 	LookAround
+sp 	1.0
+st 	233
+en 	300
+lo 	0
+f	Neck
+tr	4
+la	1
+fi	1
+fif	5
+fo	1
+fof 	5
+we	1.0
+
+*Clip
+na 	Climb1
+sp 	1.0
+st 	301
+en 	312
+lo 	0
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof	5
+we	1.0
+
+*Clip
+na 	Climb2
+sp 	1.0
+st 	314
+en 	337
+lo 	0
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof	5
+we	1.0
+
+*Clip
+na 	Climb3
+sp 	1.0
+st 	339
+en 	374
+lo 	0
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof	5
+we	1.0
+
+*Clip
+na 	Climb4
+sp 	1.0
+st 	376
+en 	423
+lo 	0
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof	5
+we	1.0
+
+*Clip
+na 	SideStepLeft
+sp 	2.0
+st 	425
+en 	454
+lo 	1
+f	Hip
+tr	2
+la	0
+fi	1
+fif	5
+fo	0
+fof	0
+we	1.0
+
+*Clip
+na 	SideStepRight
+sp 	2.0
+st 	457
+en 	486
+lo 	1
+f	Hip
+tr	2
+la	0
+fi	1
+fif	5
+fo	0
+fof	0
+we	1.0
+
+*Clip
+na 	BackPaddle
+sp 	1.0
+st 	489
+en 	519
+lo 	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	1
+fof	5
+we	1.0
+
+*IKgroup
+na	LeftArm
+b1	L_UpperArm
+b2	L_LowerArm
+b3	L_Hand
+ikx	0.0
+iky	-1.0
+ikz	0.0
+
+*Path
+na	Climb1
+y	0
+t	0
+y	42
+t	11
+z	0
+t	0
+z	0
+t	5
+z	45
+t	11
+*EndPath
+
+*Path
+na	Climb2
+y	0
+t	0
+y	0
+t	6
+y	84
+t	23
+z	0
+t	0
+z	0
+t	12
+z	47
+t	23
+*EndPath
+
+*Path
+na	Climb3
+y	0
+t	0
+y	127
+t	35
+z	0
+t	0
+z	0
+t	12
+z	53
+t	35
+*EndPath
+
+*Path
+na	Climb4
+y	0
+t	0
+y	169
+t	47
+z	0
+t	0
+z	0
+t	35
+z	38
+t	47
+*EndPath

@@ -1,5 +1,5 @@
 #pragma once
-#include <string>
+#include <vector>
 #include <DirectXMath.h>
 
 struct AnimationClip
@@ -79,5 +79,24 @@ struct IKGroup
 		m_Elbow				= p_Elbow;
 		m_Hand				= p_Hand;
 		m_ElbowHingeAxis	= p_ElbowAxis;
+	}
+};
+
+struct AnimationPath
+{
+	std::string						m_PathName;
+	std::vector<DirectX::XMUINT2>	m_YPath;
+	std::vector<DirectX::XMUINT2>	m_ZPath;
+
+	AnimationPath()
+	{
+		m_PathName = "default";
+	}
+
+	AnimationPath(std::string p_PathName, std::vector<DirectX::XMUINT2> p_YPath, std::vector<DirectX::XMUINT2> p_ZPath)
+	{
+		m_PathName	= p_PathName;
+		m_YPath		= p_YPath;
+		m_ZPath		= p_ZPath;
 	}
 };

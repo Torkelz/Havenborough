@@ -42,7 +42,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	const vector<Material> &materialData = modelLoader.getMaterial();
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
 	
-	bool isAnimated = !modelLoader.getAnimatedVertexBuffer().empty();
+	bool isAnimated = modelLoader.getAnimated();
 
 	if(!isAnimated)
 	{
@@ -72,6 +72,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	model.drawInterval = tempInterval;
 	model.numOfMaterials = materialData.size();
 	model.isAnimated = isAnimated;
+	model.isTransparent = modelLoader.getTransparent();
 
 	modelLoader.clear();
 	
@@ -92,25 +93,13 @@ ModelFactory::~ModelFactory(void)
 {
 }
 
-Buffer::Description ModelFactory::createBufferDescription(const vector<StaticVertex> &p_VertexData, Buffer::Usage p_Usage)
+template<class T>
+Buffer::Description ModelFactory::createBufferDescription(const vector<T> &p_VertexData, Buffer::Usage p_Usage)
 {
 	Buffer::Description bufferDescription;
 	bufferDescription.initData = p_VertexData.data();
 	bufferDescription.numOfElements = p_VertexData.size();
-	bufferDescription.sizeOfElement = sizeof(StaticVertex);
-	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
-	bufferDescription.usage = p_Usage;
-	
-	return bufferDescription;
-}
-
-Buffer::Description ModelFactory::createBufferDescription(const vector<AnimatedVertex> &p_VertexData,
-	Buffer::Usage p_Usage)
-{
-	Buffer::Description bufferDescription;
-	bufferDescription.initData = p_VertexData.data();
-	bufferDescription.numOfElements = p_VertexData.size();
-	bufferDescription.sizeOfElement = sizeof(AnimatedVertex);
+	bufferDescription.sizeOfElement = sizeof(T);
 	bufferDescription.type = Buffer::Type::VERTEX_BUFFER;
 	bufferDescription.usage = p_Usage;
 

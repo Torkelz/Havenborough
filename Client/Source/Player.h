@@ -28,8 +28,14 @@ private:
 	float m_ForceMoveTime;
 	float m_CurrentForceMoveTime;
 	float m_ForceMoveSpeed;	// cm/s
-	Vector3 m_ForceMoveStartPosition;	// cm
-	Vector3 m_ForceMoveEndPosition;	// cm
+	//Vector3 m_ForceMoveStartPosition;	// cm
+	//Vector3 m_ForceMoveEndPosition;	// cm
+	std::vector<DirectX::XMUINT2> m_ForceMoveY;
+	std::vector<DirectX::XMUINT2> m_ForceMoveZ;
+	//DirectX::XMFLOAT3 m_ForceMoveNormal;
+	DirectX::XMFLOAT4X4 m_ForceMoveRotation;
+	DirectX::XMFLOAT3 m_ForceMoveStartPos;
+
 
 	//May not be temporary. Currently we need to know how long a character is to be able to offset it correctly
 	//while climbing objects.
@@ -94,6 +100,9 @@ public:
 	* @return the height
 	*/
 	float getHeight(void) const;
+	float getChestHeight(void) const;
+	float getWaistHeight(void) const;
+	float getKneeHeight(void) const;
 	
 	/**
 	* Gets the body handle of the player.
@@ -127,7 +136,7 @@ public:
 	* @param p_StartPosition the starting position of the movement
 	* @param p_EndPostion the position where the movement will end
 	*/
-	void forceMove(Vector3 p_StartPosition, Vector3 p_EndPosition);
+	void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal);
 
 	/**
 	* Updates the player's actions such as movement and jumping. If forced movement is active, the position will be updated between two stored positions.
