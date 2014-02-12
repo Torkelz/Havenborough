@@ -31,6 +31,7 @@ private:
 	DirectX::XMFLOAT3 m_EdgeOrientation;
 	DirectX::XMFLOAT3 m_forward;
 	std::string m_ClimbId;
+	DirectX::XMFLOAT3 m_LastSafePosition;
 
 	float m_Height; 
 	float m_EyeHeight;
