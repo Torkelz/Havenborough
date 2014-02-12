@@ -119,7 +119,7 @@ ModelDefinition *ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_
 	
 	model->diffuseTexture.push_back(make_pair(std::string(p_TextureId), getTextureFromList(p_TextureId)));
 	model->drawInterval.push_back(std::make_pair(0, 6));
-	model->numOfMaterials = 1;
+	model->numOfMaterials = 0;
 	model->isAnimated = false;
 
 	return model;

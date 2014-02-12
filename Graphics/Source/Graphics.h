@@ -103,7 +103,6 @@ public:
 	
 	bool createModel(const char *p_ModelId, const char *p_Filename) override;
 	bool releaseModel(const char *p_ModelID) override;
-	bool release2DModel(Object2D_ID p_ModelID);
 	
 	void createShader(const char *p_shaderId, LPCWSTR p_Filename,
 		const char *p_EntryPoint, const char *p_ShaderModel, ShaderType p_Type) override;
@@ -182,6 +181,7 @@ public:
 
 private:
 	void shutdown(void) override;
+	bool release2D_Model(Object2D_ID p_ObjectID);
 
 	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
 	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen);

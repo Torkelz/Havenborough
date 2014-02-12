@@ -306,11 +306,11 @@ void Graphics::shutdown(void)
 	{
 		std::map<Object2D_ID, Renderable2D>::iterator it = m_2D_Objects.begin();
 
-		Object2D_ID unremovedName = it->first;
+		Object2D_ID unremovedId = it->first;
 
-		//GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + itoa() unremovedName + "' not removed properly");
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + std::to_string(unremovedId) + "' not removed properly");
 
-		release2DModel(unremovedName);
+		release2D_Model(unremovedId);
 	}
 
 	SAFE_RELEASE(m_Sampler);
@@ -378,11 +378,15 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 	return false;
 }
 
-bool Graphics::release2DModel(Object2D_ID p_ResourceName)
+bool Graphics::release2D_Model(Object2D_ID p_ObjectId)
 {
-	if(m_2D_Objects.count(p_ResourceName) > 0)
+	if(m_2D_Objects.count(p_ObjectId) > 0)
 	{
-		m_2D_Objects.erase(p_ResourceName);
+		if (m_2D_Objects.at(p_ObjectId).model->numOfMaterials == 0)
+		{
+			SAFE_DELETE(m_2D_Objects.at(p_ObjectId).model);
+		}
+		m_2D_Objects.erase(p_ObjectId);
 		return true;
 	}
 
