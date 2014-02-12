@@ -219,7 +219,6 @@ void ForwardRendering::renderForward()
 		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTarget, m_DepthStencilView);
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		m_ConstantBuffer->setBuffer(1);
 		updateConstantBuffer();
 		for(auto& object : m_TransparencyObjects)
 		{
@@ -233,7 +232,6 @@ void ForwardRendering::renderForward()
 				renderObject(object);
 			}
 		}
-		m_ConstantBuffer->unsetBuffer(1);
 
 		// Unset render targets.
 		m_DeviceContext->OMSetRenderTargets(0, 0, 0);
@@ -271,6 +269,7 @@ bool ForwardRendering::depthSortCompareFunc(const Renderable &a, const Renderabl
 
 void ForwardRendering::renderObject(Renderable& p_Object)
 {
+	m_ConstantBuffer->setBuffer(1);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler);
 	p_Object.model->vertexBuffer->setBuffer(0);
 
@@ -323,6 +322,7 @@ void ForwardRendering::renderObject(Renderable& p_Object)
 
 	p_Object.model->shader->setBlendState(0, data);
 	p_Object.model->shader->unSetShader();
+	m_ConstantBuffer->unsetBuffer(1);
 	m_ObjectConstantBuffer->unsetBuffer(2);
 	m_AnimatedObjectConstantBuffer->unsetBuffer(3);
 	p_Object.model->vertexBuffer->unsetBuffer(0);
