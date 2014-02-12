@@ -54,4 +54,28 @@ BOOST_AUTO_TEST_CASE(TestReceivePackage)
 	BOOST_CHECK_EQUAL(controller.getNumPackages(), 0);
 }
 
+BOOST_AUTO_TEST_CASE(TestSendUpdate)
+{
+	boost::asio::io_service ioService;
+	ConnectionStub* rawConnectionStub = new ConnectionStub(ioService);
+	Connection::ptr conn(rawConnectionStub);
+
+	std::vector<PackageBase::ptr> prototypes;
+	prototypes.push_back(PackageBase::ptr(new UpdateObjects));
+
+	ConnectionController controller(conn, prototypes);
+
+	UpdateObjectData data;
+	data.m_Id = 1;
+	data.m_Position = Vector3(3.f, 4.f, 5.f);
+	data.m_Rotation = Vector3(6.f, 7.f, 8.f);
+	data.m_RotationVelocity = Vector3(9.f, 10.f, 11.f);
+	data.m_Velocity = Vector3(12.f, 13.f, 14.f);
+	std::string extraData("TestExtraData");
+	const char* cExtraData = extraData.c_str();
+	controller.sendUpdateObjects(&data, 1, &cExtraData, 1);
+
+	BOOST_CHECK(true);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

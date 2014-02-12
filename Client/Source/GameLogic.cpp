@@ -376,9 +376,6 @@ void GameLogic::playLocalLevel()
 	m_Physics->setBodyCollisionResponse(b,false);
 
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
-
-	// DEBUG STUFFZ
-	playAnimation( m_Player.getActor().lock(), "Idle", false );
 }
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
