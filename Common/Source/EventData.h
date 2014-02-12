@@ -1,5 +1,7 @@
 #pragma once
 #include "IEventData.h"
+
+#include "Actor.h"
 #include "Light.h"
 #include "Utilities/XMFloatUtil.h"
 
@@ -774,6 +776,44 @@ public:
 	Vector3 getPosition() const
 	{
 		return m_Position;
+	}
+};
+
+class RemoveActorEventData : public BaseEventData
+{
+private:
+	Actor::Id m_Actor;
+
+public:
+	static const Type sk_EventType = Type(0x91615dff);
+
+	RemoveActorEventData(Actor::Id p_Actor)
+		:	m_Actor(p_Actor)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new RemoveActorEventData(m_Actor));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "RemoveActorEvent";
+	}
+
+	unsigned int getActorId() const
+	{
+		return m_Actor;
 	}
 };
 

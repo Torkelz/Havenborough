@@ -87,6 +87,7 @@ public:
 		{
 			m_Physics->releaseBody(m_Sphere);
 			m_Sphere = 0;
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveActorEventData(m_Owner->getId())));
 		}
 
 		if (m_SpellInstance->hasCollided())

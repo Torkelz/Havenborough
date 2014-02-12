@@ -106,7 +106,7 @@ private:
 	Actor::ptr getActor(Actor::Id p_Actor);
 	void removeActor(Actor::Id p_Actor);
 
-	SpellDefinition::ptr getSpellFromList(std::string p_SpellId);
+	void removeActorByEvent(IEventData::Ptr p_Data);
 
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();
