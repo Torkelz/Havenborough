@@ -168,11 +168,11 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 	{
 		const Material &material = p_Materials.at(i);
 		boost::filesystem::path diff = (material.m_DiffuseMap == "NONE" || material.m_DiffuseMap == "Default_COLOR.dds") ?
-			"assets/textures/Default_COLOR.dds" : parentDir / material.m_DiffuseMap;
+			parentDir / "Default_COLOR.dds" : parentDir / material.m_DiffuseMap;
 		boost::filesystem::path norm = (material.m_NormalMap == "NONE" || material.m_NormalMap == "Default_NRM.dds") ?
-			"assets/textures/Default_NRM.dds" : parentDir / material.m_NormalMap;
+			parentDir/ "Default_NRM.dds" : parentDir / material.m_NormalMap;
 		boost::filesystem::path spec = (material.m_SpecularMap == "NONE" || material.m_SpecularMap == "Default_SPEC.dds") ?
-			"assets/textures/Default_SPEC.dds" : parentDir / material.m_SpecularMap;
+			parentDir / "Default_SPEC.dds" : parentDir / material.m_SpecularMap;
 
 		m_LoadModelTexture(material.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
 		m_LoadModelTexture(material.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);
@@ -190,5 +190,8 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 
 ID3D11ShaderResourceView *ModelFactory::getTextureFromList(string p_Identifier)
 {
-	return m_TextureList->at(p_Identifier);
+	if(m_TextureList->count(p_Identifier) > 0)
+		return m_TextureList->at(p_Identifier);
+	else
+		throw GraphicsException("Texture was not found. The " + p_Identifier + " identifier does not exist.", __LINE__, __FILE__);
 }

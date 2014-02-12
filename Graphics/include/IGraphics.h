@@ -154,6 +154,7 @@ public:
 
 	/**
 	 * Creates a new texture and stores in a vector connected with an ID.
+	 * WARNING: Should only be called by the resource manager.
 	 *
 	 * @param p_TextureId the ID of the texture
 	 * @param p_Filename the filename of the texture
