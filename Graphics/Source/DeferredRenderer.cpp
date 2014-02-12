@@ -246,6 +246,7 @@ void DeferredRenderer::renderGeometry()
 
 			if(nr >= 1)
 			{
+				l.reserve(nr);
 				std::move(m_Objects.begin() + current, m_Objects.begin() + i + 1, std::back_inserter(l));
 				instancedModels.push_back(l);
 			}
@@ -289,8 +290,9 @@ void DeferredRenderer::renderGeometry()
 			{
 				int nrToCpy = (k.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : k.size() - i ;
 				std::vector<XMFLOAT4X4> tWorld;
+				tWorld.reserve(nrToCpy);
 				for(int j = 0; j < nrToCpy; j++)
-					tWorld.push_back(k.at(i+j).world);
+					tWorld.push_back(std::move(k.at(i+j).world));
 
 				m_DeviceContext->Map(m_WorldInstanceData->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
 				memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
