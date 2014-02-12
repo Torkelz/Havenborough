@@ -92,24 +92,24 @@ ModelDefinition *ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_
 	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
 	initData.push_back(vertex);
 
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 0.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
 	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
 	vertex.m_UV = XMFLOAT2(0.0f, 1.0f);
 	initData.push_back(vertex);
 
-	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
-	initData.push_back(vertex);
-
 	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
 	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(1.0f, 0.0f);
 	initData.push_back(vertex);
 
 	Buffer::Description bufferDescription = createBufferDescription(initData, Buffer::Usage::USAGE_IMMUTABLE);
