@@ -302,6 +302,17 @@ void Graphics::shutdown(void)
 		releaseModel(unremovedName.c_str());
 	}
 
+	while (!m_2D_Objects.empty())
+	{
+		std::map<Object2D_ID, Renderable2D>::iterator it = m_2D_Objects.begin();
+
+		Object2D_ID unremovedName = it->first;
+
+		//GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + itoa() unremovedName + "' not removed properly");
+
+		release2DModel(unremovedName);
+	}
+
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_RasterStateBV);
@@ -361,6 +372,17 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 			m_ReleaseModelTexture(m_ModelList.at(resourceName).specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 		}
 		m_ModelList.erase(resourceName);
+		return true;
+	}
+
+	return false;
+}
+
+bool Graphics::release2DModel(Object2D_ID p_ResourceName)
+{
+	if(m_2D_Objects.count(p_ResourceName) > 0)
+	{
+		m_2D_Objects.erase(p_ResourceName);
 		return true;
 	}
 
