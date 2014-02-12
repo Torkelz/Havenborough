@@ -53,6 +53,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
@@ -422,31 +423,38 @@ void GameScene::createParticleEffect(IEventData::Ptr p_Data)
 
 	ParticleBinding particle =
 	{
-		data->getId(),
 		resource,
 		m_Graphics->createParticleEffectInstance(data->getEffectName().c_str())
 	};
 
 	m_Graphics->setParticleEffectPosition(particle.instance, data->getPosition());
 
-	m_Particles.push_back(particle);
+	m_Particles[data->getId()] = particle;
 }
 
 void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<RemoveParticleEventData> data = std::static_pointer_cast<RemoveParticleEventData>(p_Data);
 
-	auto it = std::find_if(m_Particles.begin(), m_Particles.end(),
-		[&data] (const ParticleBinding& p_Particle)
-		{
-			return p_Particle.particleId == data->getId();
-		});
+	auto it = m_Particles.find(data->getId());
 
 	if (it != m_Particles.end())
 	{
-		m_Graphics->releaseParticleEffectInstance(it->instance);
-		m_ResourceManager->releaseResource(it->resourceId);
+		m_Graphics->releaseParticleEffectInstance(it->second.instance);
+		m_ResourceManager->releaseResource(it->second.resourceId);
 		m_Particles.erase(it);
+	}
+}
+
+void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateParticlePositionEventData> data = std::static_pointer_cast<UpdateParticlePositionEventData>(p_Data);
+
+	auto it = m_Particles.find(data->getId());
+
+	if (it != m_Particles.end())
+	{
+		m_Graphics->setParticleEffectPosition(it->second.instance, data->getPosition());
 	}
 }
 

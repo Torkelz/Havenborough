@@ -19,6 +19,10 @@ public:
 	~SpellComponent() override
 	{
 		m_ResourceManager->releaseResource(m_SpellId);
+		if (m_Sphere != 0)
+		{
+			m_Physics->releaseBody(m_Sphere);
+		}
 	}
 
 	void initialize(const tinyxml2::XMLElement* p_Data) override
@@ -56,6 +60,8 @@ public:
 		{
 			return;
 		}
+
+		m_Owner->setPosition(m_Physics->getBodyPosition(m_Sphere));
 
 		m_SpellInstance->update(p_DeltaTime);
 

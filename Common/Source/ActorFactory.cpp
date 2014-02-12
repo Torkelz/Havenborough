@@ -329,6 +329,9 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Vector3 p_Direc
 	printer.PushAttribute("SpellName", p_Spell.c_str());
 	pushVector(printer, "Direction", p_Direction);
 	printer.CloseElement();
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", "TestParticle");
+	printer.CloseElement();
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;

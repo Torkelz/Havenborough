@@ -1262,6 +1262,11 @@ public:
 		p_Printer.CloseElement();
 	}
 
+	void setPosition(Vector3 p_Position)
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateParticlePositionEventData(m_ParticleId, p_Position)));
+	}
+
 	/**
 	 * Get the unique id of the particle effect.
 	 *

@@ -732,4 +732,49 @@ public:
 	}
 };
 
+class UpdateParticlePositionEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	Vector3 m_Position;
+
+public:
+	static const Type sk_EventType = Type(0xd02a90fc);
+
+	UpdateParticlePositionEventData(unsigned int p_Id, Vector3 p_Position)
+		:	m_Id(p_Id),
+			m_Position(p_Position)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateParticlePositionEventData(m_Id, m_Position));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateParticlePositionEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+
+	Vector3 getPosition() const
+	{
+		return m_Position;
+	}
+};
+
 #pragma warning(pop)
