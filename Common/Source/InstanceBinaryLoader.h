@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include <vector>
 
-class LevelBinaryLoader
+class InstanceBinaryLoader
 {
 public:
 	struct Header
@@ -15,6 +15,9 @@ public:
 	struct ModelData
 	{
 		std::string m_MeshName;
+		bool m_Animated;
+		bool m_Transparent;
+		bool m_CollideAble;
 		std::vector<DirectX::XMFLOAT3> m_Translation;
 		std::vector<DirectX::XMFLOAT3> m_Rotation;
 		std::vector<DirectX::XMFLOAT3> m_Scale;
@@ -50,11 +53,11 @@ public:
 		DirectX::XMFLOAT3 m_Translation;
 	};
 private: 
-	std::vector<LevelBinaryLoader::ModelData> m_LevelData;
-	std::vector<LevelBinaryLoader::DirectionalLight> m_LevelDirectionalLightList;
-	std::vector<LevelBinaryLoader::PointLight> m_LevelPointLightList;
-	std::vector<LevelBinaryLoader::SpotLight> m_LevelSpotLightList;
-	std::vector<LevelBinaryLoader::CheckPointStruct> m_LevelCheckPointList;
+	std::vector<InstanceBinaryLoader::ModelData> m_LevelData;
+	std::vector<InstanceBinaryLoader::DirectionalLight> m_LevelDirectionalLightList;
+	std::vector<InstanceBinaryLoader::PointLight> m_LevelPointLightList;
+	std::vector<InstanceBinaryLoader::SpotLight> m_LevelSpotLightList;
+	std::vector<InstanceBinaryLoader::CheckPointStruct> m_LevelCheckPointList;
 	DirectX::XMFLOAT3 m_LevelCheckPointStart;
 	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
 	Header m_Header;
@@ -64,12 +67,12 @@ public:
 	/**
 	 * Constructor.
 	 */
-	LevelBinaryLoader();
+	InstanceBinaryLoader();
 
 	/**
 	 * Deconstructor.
 	 */
-	~LevelBinaryLoader();
+	~InstanceBinaryLoader();
 
 	/**
 	 * Clears all vectors and de-allocate memory.
@@ -97,28 +100,28 @@ public:
 	 *
 	 * @return a vector of ModelData struct. 
 	 */
-	const std::vector<LevelBinaryLoader::ModelData>& getModelData() const;
+	const std::vector<InstanceBinaryLoader::ModelData>& getModelData() const;
 
 	/**
 	 * Returns information about the directional lights in the level.
 	 *
 	 * @return a vector of LightData struct paired with DirectionalLight struct. 
 	 */
-	const std::vector<LevelBinaryLoader::DirectionalLight>& getDirectionalLightData() const;
+	const std::vector<InstanceBinaryLoader::DirectionalLight>& getDirectionalLightData() const;
 
 	/**
 	 * Returns information about the point lights in the level.
 	 *
 	 * @return a vector of LightData struct paired with PointLight struct. 
 	 */
-	const std::vector<LevelBinaryLoader::PointLight>& getPointLightData() const;
+	const std::vector<InstanceBinaryLoader::PointLight>& getPointLightData() const;
 
 	/**
 	 * Returns information about the spot lights in the level.
 	 *
 	 * @return a vector of LightData struct paired with SpotLight struct.  
 	 */
-	const std::vector<LevelBinaryLoader::SpotLight>& getSpotLightData() const;
+	const std::vector<InstanceBinaryLoader::SpotLight>& getSpotLightData() const;
 
 	/**
 	 * Returns information about the start checkpoint in the level.
@@ -139,7 +142,7 @@ public:
 	 *
 	 * @return a vector of CheckPoint struct. 
 	 */
-	const std::vector<LevelBinaryLoader::CheckPointStruct>& getCheckPointData() const;
+	const std::vector<InstanceBinaryLoader::CheckPointStruct>& getCheckPointData() const;
 
 	/**
 	 * Get the stream information about the file.
@@ -151,9 +154,10 @@ public:
 protected:
 	void byteToInt(std::istream& p_Input, int& p_Return);
 	void byteToString(std::istream& p_Input, std::string& p_Return);
+	void byteToBool(std::istream& p_Input, bool& p_Return);
 	
-	LevelBinaryLoader::Header readHeader(std::istream& p_Input);
-	std::vector<LevelBinaryLoader::ModelData> readLevel(std::istream& p_Input);
+	InstanceBinaryLoader::Header readHeader(std::istream& p_Input);
+	std::vector<InstanceBinaryLoader::ModelData> readLevel(std::istream& p_Input);
 	void readLevelLighting(std::istream& p_Input);
 	void readLevelCheckPoint(std::istream& p_Input);
 

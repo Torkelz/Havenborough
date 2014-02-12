@@ -38,3 +38,4 @@ BoostIntegrationTest/Bin/release_log.txt
 **/.mayaSwatches/
 *.btx
 *.atx
+*.txx

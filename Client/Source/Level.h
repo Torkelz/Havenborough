@@ -74,6 +74,4 @@ public:
 	bool loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_ActorOut);
 
 private:
-	Actor::ptr createObjectActor(std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale);
-	Actor::ptr createCollisionActor(std::string p_MeshName, Vector3 p_Translation, Vector3 p_Rotation, Vector3 p_Scale);
 };

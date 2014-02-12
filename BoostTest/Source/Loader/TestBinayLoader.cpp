@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(TestByteToString)
 	BOOST_CHECK_EQUAL(result, "polySurfaceShape1");
 }
 
-BOOST_AUTO_TEST_CASE(TestReadHeader)
+BOOST_AUTO_TEST_CASE(TestReadModelHeader)
 {
 	ModelBinaryLoader::Header tempHeader;
 	char binHeader[] =

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameRound.h"
-#include "LevelBinaryLoader.h"
+#include "InstanceBinaryLoader.h"
 
 #include <DirectXMath.h>
 #include <tinyxml2/tinyxml2.h>
@@ -10,7 +10,7 @@ class FileGameRound : public GameRound
 {
 private:
 	std::string m_FilePath;
-	std::unique_ptr<LevelBinaryLoader> m_FileLoader;
+	std::unique_ptr<InstanceBinaryLoader> m_FileLoader;
 	std::vector<std::pair<Player::ptr, Actor::wPtr>> m_SendHitData;
 	std::vector<Actor::Id> m_ResultList;
 	int m_GoalCount;

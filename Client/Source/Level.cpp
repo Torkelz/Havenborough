@@ -1,5 +1,6 @@
 #include "Level.h"
-#include "LevelBinaryLoader.h"
+#include "InstanceBinaryLoader.h"
+#include "boost\filesystem.hpp"
 #include <XMLHelper.h>
 
 Level::Level(ResourceManager* p_Resources, IPhysics* p_Physics, ActorFactory* p_ActorFactory)
@@ -28,22 +29,57 @@ void Level::releaseLevel()
 
 bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_ActorOut)
 {
-	LevelBinaryLoader levelLoader;
+	InstanceBinaryLoader levelLoader;
+	boost::filesystem::path collisionFolder("assets/volumes/edge");
 	levelLoader.readStreamData(p_LevelData);	
 
-	std::vector<LevelBinaryLoader::ModelData> m_LevelData = levelLoader.getModelData();
+	std::vector<InstanceBinaryLoader::ModelData> m_LevelData = levelLoader.getModelData();
 	for(unsigned int i = 0; i < m_LevelData.size(); i++)
 	{
-		LevelBinaryLoader::ModelData& model = m_LevelData.at(i);
-		std::string meshName = model.m_MeshName;
+		InstanceBinaryLoader::ModelData& model = m_LevelData.at(i);
 
-		for(unsigned int j = 0; j < m_LevelData.at(i).m_Translation.size(); j++)
+		ActorFactory::InstanceModel instModel;
+		instModel.meshName = model.m_MeshName;
+
+		std::vector<ActorFactory::InstanceBoundingVolume> volumes;
+		std::vector<ActorFactory::InstanceEdgeBox> edges;
+
+		if(model.m_CollideAble)
 		{
-			Vector3 translation = model.m_Translation.at(j);
-			Vector3 rotation = model.m_Rotation.at(j);
-			Vector3 scale = model.m_Scale.at(j);	
+			ActorFactory::InstanceBoundingVolume volume;
+			volume.meshName = model.m_MeshName;
+			volumes.push_back(volume);
 
-			p_ActorOut.push_back(createObjectActor(model.m_MeshName, translation, rotation, scale));
+			boost::filesystem::path EBPath = collisionFolder/("EB_" + model.m_MeshName + ".btxe");
+			if(boost::filesystem::exists(EBPath))
+			{
+				InstanceBinaryLoader EBLoader;
+				EBLoader.loadBinaryFile(EBPath.string());
+				const InstanceBinaryLoader::ModelData& eb = EBLoader.getModelData()[0];
+				for(unsigned int k = 0; k < EBLoader.getModelData()[0].m_Translation.size(); k++)
+				{
+					ActorFactory::InstanceEdgeBox edge;
+					edge.halfsize = eb.m_Scale[k];
+					edge.halfsize = edge.halfsize * 0.5f;
+					edge.offsetPosition = eb.m_Translation[k];
+					edge.offsetRotation = eb.m_Rotation[k];
+					edges.push_back(edge);
+				}
+			}
+		}
+
+		for(unsigned int j = 0; j < model.m_Translation.size(); j++)
+		{
+			instModel.position = model.m_Translation[j];
+			instModel.rotation = model.m_Rotation[j];
+			instModel.scale = model.m_Scale[j];
+
+			if (model.m_CollideAble)
+			{
+				volumes[0].scale = model.m_Scale[j];
+			}
+
+			p_ActorOut.push_back(m_ActorFactory->createInstanceActor(instModel, volumes, edges));
 		}
 	}
 	
@@ -71,30 +107,6 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 	}
 
 	return true;
-}
-
-Actor::ptr Level::createObjectActor(std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	pushVector(printer, p_Position);
-	pushRotation(printer, p_Rotation);
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", p_MeshName.c_str());
-	pushVector(printer, "Scale", p_Scale);
-	printer.CloseElement();
-	printer.OpenElement("MeshPhysics");
-	printer.PushAttribute("Mesh", p_MeshName.c_str());
-	pushVector(printer, "Scale", p_Scale);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = m_ActorFactory->createActor(doc.FirstChildElement("Object"));
-
-	return actor;
 }
 
 const Vector3 &Level::getStartPosition(void) const

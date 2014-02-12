@@ -1,21 +1,21 @@
-#include "LevelLoader.h"
+#include "InstanceLoader.h"
 
-LevelLoader::LevelLoader()
+InstanceLoader::InstanceLoader()
 {
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
 }
 
-LevelLoader::~LevelLoader()
+InstanceLoader::~InstanceLoader()
 {
 	clear();
 }
 
-void LevelLoader::clear()
+void InstanceLoader::clear()
 {
-	m_LevelModelList.clear();
-	m_LevelModelList.shrink_to_fit();
+	m_ModelList.clear();
+	m_ModelList.shrink_to_fit();
 	m_CheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
 	m_CheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
 	m_LevelCheckPointList.clear();
@@ -30,9 +30,11 @@ void LevelLoader::clear()
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
 	m_Stringstream.clear();
+	m_ModelHeaders.clear();
+	m_ModelHeaders.shrink_to_fit();
 }
 
-bool LevelLoader::loadLevel(std::string p_FilePath)
+bool InstanceLoader::loadLevel(std::string p_FilePath)
 {
 	std::ifstream input(p_FilePath, std::ifstream::in);
 	if(!input)
@@ -41,13 +43,13 @@ bool LevelLoader::loadLevel(std::string p_FilePath)
 	}
 	clearData();
 	startReading(input);
-
+	readModelHeaders(p_FilePath);
 	input.close();
 
 	return true;
 }
 
-void LevelLoader::startReading(std::istream& p_Input)
+void InstanceLoader::startReading(std::istream& p_Input)
 {
 	std::string line, key, filler;
 	while(!p_Input.eof() && std::getline(p_Input, line))
@@ -70,7 +72,7 @@ void LevelLoader::startReading(std::istream& p_Input)
 			m_Header.m_NumberOfCheckPoints = readHeader(p_Input);
 			std::getline(p_Input, line);
 		}
-		else if(key == "#MESH:")
+		else if(key == "#MESH:" || key == "#MESH")
 		{
 			readMeshList(p_Input);
 			std::getline(p_Input, line);
@@ -85,11 +87,10 @@ void LevelLoader::startReading(std::istream& p_Input)
 			readCheckPointList(p_Input);
 			std::getline(p_Input, line);
 		}
-
 	}
 }
 
-int LevelLoader::readHeader(std::istream& p_Input)
+int InstanceLoader::readHeader(std::istream& p_Input)
 {
 	std::string key, line;
 	int result;
@@ -99,7 +100,25 @@ int LevelLoader::readHeader(std::istream& p_Input)
 	return result;
 }
 
-void LevelLoader::readMeshList(std::istream& p_Input)
+void InstanceLoader::readModelHeaders(std::string p_FilePath)
+{
+	std::ifstream headerFile(getPath(p_FilePath), std::ifstream::binary);
+	ModelHeader tempHeader;
+	headerFile.seekg(0,std::ifstream::end);
+	std::streamoff size = headerFile.tellg();
+	headerFile.seekg(0,std::ifstream::beg);
+	while(headerFile.tellg() < size)
+	{
+		byteToString(headerFile, tempHeader.m_MeshName);
+		byteToInt(headerFile, tempHeader.m_Animated);
+		byteToInt(headerFile, tempHeader.m_Transparency);
+		byteToInt(headerFile, tempHeader.m_Collidable);
+		m_ModelHeaders.push_back(tempHeader);
+	}
+	headerFile.close();
+}
+
+void InstanceLoader::readMeshList(std::istream& p_Input)
 {
 	std::string key, filler, line;
 	ModelStruct tempLevel;
@@ -114,10 +133,10 @@ void LevelLoader::readMeshList(std::istream& p_Input)
 	m_Stringstream = std::stringstream(line);
 	m_Stringstream >> filler >> tempLevel.m_Scale.x >> tempLevel.m_Scale.y >> tempLevel.m_Scale.z;
 
-	m_LevelModelList.push_back(tempLevel);
+	m_ModelList.push_back(tempLevel);
 }
 
-void LevelLoader::readLightList(std::istream& p_Input)
+void InstanceLoader::readLightList(std::istream& p_Input)
 {
 	std::string key, filler, line, tempName;
 	LightData tempLight;
@@ -143,9 +162,8 @@ void LevelLoader::readLightList(std::istream& p_Input)
 		m_Stringstream = std::stringstream(line);
 		m_Stringstream >> filler >> tempDirectional.m_Direction.x >> tempDirectional.m_Direction.y >> tempDirectional.m_Direction.z;
 		m_LevelDirectionalLightList.push_back(std::make_pair(tempLight,tempDirectional));
-		return;
 	}
-	if(tempString == "kPointLight")
+	else if(tempString == "kPointLight")
 	{
 		tempLight.m_Type = 1;
 		PointLight tempDirectional;
@@ -153,9 +171,8 @@ void LevelLoader::readLightList(std::istream& p_Input)
 		m_Stringstream = std::stringstream(line);
 		m_Stringstream >> filler >> tempDirectional.m_Intensity;
 		m_LevelPointLightList.push_back(std::make_pair(tempLight,tempDirectional));
-		return;
 	}
-	if(tempString == "kSpotLight")
+	else if(tempString == "kSpotLight")
 	{
 		tempLight.m_Type = 2;
 		SpotLight tempSpot;
@@ -169,11 +186,10 @@ void LevelLoader::readLightList(std::istream& p_Input)
 		m_Stringstream = std::stringstream(line);
 		m_Stringstream >> filler >> tempSpot.m_ConeAngle >> tempSpot.m_PenumbraAngle;
 		m_LevelSpotLightList.push_back(std::make_pair(tempLight,tempSpot));
-		return;
 	}
 }
 
-void LevelLoader::readCheckPointList(std::istream& p_Input)
+void InstanceLoader::readCheckPointList(std::istream& p_Input)
 {
 	std::string key, filler, line;
 	CheckPointStruct tempCheckPoint;
@@ -203,9 +219,45 @@ void LevelLoader::readCheckPointList(std::istream& p_Input)
 	}
 }
 
-void LevelLoader::clearData()
+void InstanceLoader::byteToString(std::istream& p_Input, std::string& p_Return)
 {
-	m_LevelModelList.clear();
+	int strLength = 0;
+	byteToInt(p_Input, strLength);
+	std::vector<char> buffer(strLength);
+	p_Input.read( buffer.data(), strLength);
+	p_Return = std::string(buffer.data(), strLength);
+}
+
+void InstanceLoader::byteToInt(std::istream& p_Input, int& p_Return)
+{
+	p_Input.read((char*)&p_Return, sizeof(int));
+}
+
+std::string InstanceLoader::getPath(std::string p_FilePath)
+{
+	std::string file("ModelHeader.txx");
+	std::vector<char> buffer(p_FilePath.begin(), p_FilePath.end());
+	buffer.push_back(0);
+	char *tmp, *type = nullptr;
+	tmp = strtok(buffer.data(), "\\");
+	while(tmp != nullptr)
+	{
+		type = tmp;
+		tmp = strtok(NULL,"\\");
+	}
+	int length = buffer.size();
+	int size = strlen(type)+1;
+
+	std::string temp;
+	temp.append(p_FilePath.data(), length-size);
+	temp.append(file.data(),file.size());
+	temp.push_back(0);
+	return temp;
+}
+
+void InstanceLoader::clearData()
+{
+	m_ModelList.clear();
 	m_CheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
 	m_CheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
 	m_LevelCheckPointList.clear();
@@ -215,45 +267,51 @@ void LevelLoader::clearData()
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
+	m_ModelHeaders.clear();
 	m_Stringstream.clear();
 }
 
-LevelLoader::LevelHeader LevelLoader::getLevelHeader()
+InstanceLoader::LevelHeader InstanceLoader::getLevelHeader()
 {
 	return m_Header;
 }
 
-const std::vector<LevelLoader::ModelStruct>& LevelLoader::getLevelModelList()
+const std::vector<InstanceLoader::ModelStruct>& InstanceLoader::getModelList() const
 {
-	return m_LevelModelList;
+	return m_ModelList;
 }
 
-const std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>>& LevelLoader::getLevelDirectionalLightList()
+const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>>& InstanceLoader::getLevelDirectionalLightList() const
 {
 	return m_LevelDirectionalLightList;
 }
 
-const std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>>& LevelLoader::getLevelPointLightList()
+const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>>& InstanceLoader::getLevelPointLightList() const
 {
 	return m_LevelPointLightList;
 }
 
-const std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>>& LevelLoader::getLevelSpotLightList()
+const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>>& InstanceLoader::getLevelSpotLightList() const
 {
 	return m_LevelSpotLightList;
 }
 
-const std::vector<LevelLoader::CheckPointStruct>& LevelLoader::getLevelCheckPointList()
+const std::vector<InstanceLoader::CheckPointStruct>& InstanceLoader::getLevelCheckPointList() const
 {
 	return m_LevelCheckPointList;
 }
 
-DirectX::XMFLOAT3 LevelLoader::getLevelCheckPointStart()
+DirectX::XMFLOAT3 InstanceLoader::getLevelCheckPointStart() const
 {
 	return m_CheckPointStart;
 }
 
-DirectX::XMFLOAT3 LevelLoader::getLevelCheckPointEnd()
+DirectX::XMFLOAT3 InstanceLoader::getLevelCheckPointEnd() const
 {
 	return m_CheckPointEnd;
+}
+
+const std::vector<InstanceLoader::ModelHeader>& InstanceLoader::getModelInformation() const
+{
+	return m_ModelHeaders;
 }

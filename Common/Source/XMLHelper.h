@@ -35,6 +35,23 @@ inline void pushRotation(tinyxml2::XMLPrinter& p_Printer, Vector3 p_YawPitchRoll
 	p_Printer.PushAttribute("roll", p_YawPitchRoll.z);
 }
 
+inline void pushRotation(tinyxml2::XMLPrinter& p_Printer, const std::string& p_ElementName, Vector3 p_YawPitchRoll)
+{
+	p_Printer.OpenElement(p_ElementName.c_str());
+	pushRotation(p_Printer, p_YawPitchRoll);
+	p_Printer.CloseElement();
+}
+
+inline void queryRotation(const tinyxml2::XMLElement* p_Element, Vector3& p_OutVec)
+{
+	if (p_Element)
+	{
+		p_Element->QueryAttribute("yaw", &p_OutVec.x);
+		p_Element->QueryAttribute("pitch", &p_OutVec.y);
+		p_Element->QueryAttribute("roll", &p_OutVec.z);
+	}
+}
+
 inline void queryVector(const tinyxml2::XMLElement* p_Element, Vector3& p_OutVec)
 {
 	if (p_Element)

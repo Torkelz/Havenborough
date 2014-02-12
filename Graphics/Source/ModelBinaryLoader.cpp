@@ -132,24 +132,39 @@ void ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 	
 }
 
-const std::vector<Material>& ModelBinaryLoader::getMaterial()
+const std::vector<Material>& ModelBinaryLoader::getMaterial() const
 {
 	return m_Material;
 }
 
-const std::vector<AnimatedVertex>& ModelBinaryLoader::getAnimatedVertexBuffer()
+const std::vector<AnimatedVertex>& ModelBinaryLoader::getAnimatedVertexBuffer() const
 {
 	return m_AnimationVertexBuffer;
 }
 
-const std::vector<StaticVertex>& ModelBinaryLoader::getStaticVertexBuffer()
+const std::vector<StaticVertex>& ModelBinaryLoader::getStaticVertexBuffer() const
 {
 	return m_VertexBuffer;
 }
 
-const std::vector<MaterialBuffer>& ModelBinaryLoader::getMaterialBuffer()
+const std::vector<MaterialBuffer>& ModelBinaryLoader::getMaterialBuffer() const
 {
 	return m_MaterialBuffer;
+}
+
+bool ModelBinaryLoader::getAnimated() const
+{
+	return m_FileHeader.m_Animated;
+}
+
+bool ModelBinaryLoader::getTransparent() const
+{
+	return m_FileHeader.m_Transparent;
+}
+
+bool ModelBinaryLoader::getCollideAble() const
+{
+	return m_FileHeader.m_CollideAble;
 }
 
 void ModelBinaryLoader::clearData()
