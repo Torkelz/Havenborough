@@ -69,9 +69,9 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 		p_DeltaTime /= itr;
 	}
 
+	m_HitDatas.clear();
 	for(int p = 0; p < itr; p++)
 	{
-		m_HitDatas.clear();
 		for(unsigned i = 0; i < m_Bodies.size(); i++)
 		{
 			Body& b = m_Bodies[i];

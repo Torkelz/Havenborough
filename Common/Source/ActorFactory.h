@@ -3,6 +3,8 @@
 #include "Actor.h"
 #include "AnimationLoader.h"
 #include "ResourceManager.h"
+#include "SpellFactory.h"
+
 #include <IPhysics.h>
 
 #include <tinyxml2/tinyxml2.h>
@@ -23,10 +25,12 @@ private:
 	unsigned int m_LastModelComponentId;
 	unsigned int m_LastLightComponentId;
 	unsigned int m_LastParticleComponentId;
+	unsigned int m_LastSpellComponentId;
 	IPhysics* m_Physics;
 	EventManager* m_EventManager;
 	ResourceManager* m_ResourceManager;
 	AnimationLoader* m_AnimationLoader;
+	SpellFactory* m_SpellFactory;
 
 protected:
 	/**
@@ -65,6 +69,8 @@ public:
 
 	void setAnimationLoader(AnimationLoader* p_AnimationLoader);
 
+	void setSpellFactory(SpellFactory* p_SpellFactory);
+
 	/**
 	 * Create an actor from a XML description, with a unique id.
 	 *
@@ -93,6 +99,7 @@ public:
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
 	Actor::ptr createCheckPointArrow();
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
+	Actor::ptr createSpell(const std::string& p_Spell, Vector3 p_Direction, Vector3 p_StartPosition);
 	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
 	struct InstanceModel
 	{
@@ -138,6 +145,7 @@ private:
 	ActorComponent::ptr createPulseComponent();
 	ActorComponent::ptr createLightComponent();
 	ActorComponent::ptr createParticleComponent();
+	ActorComponent::ptr createSpellComponent();
 	ActorComponent::ptr createLookComponent();
 	ActorComponent::ptr createHumanAnimationComponent();
 

@@ -17,7 +17,6 @@ ForwardRendering::ForwardRendering(void)
 	m_RasterState = nullptr;
 	m_DepthStencilState = nullptr;
 
-	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 
@@ -41,7 +40,6 @@ ForwardRendering::~ForwardRendering(void)
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthStencilState);
 	
-	m_CameraPosition = nullptr;
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 
@@ -54,7 +52,7 @@ ForwardRendering::~ForwardRendering(void)
 }
 
 void ForwardRendering::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
-							DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+							DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 							DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11DepthStencilView* p_DepthStencilView,
 							ID3D11RenderTargetView *p_RenderTarget)
 {
@@ -101,7 +99,7 @@ void ForwardRendering::createForwardBuffers()
 	cBuffer cb;
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
-	cb.campos = *m_CameraPosition;
+	cb.campos = m_CameraPosition;
 
 	Buffer::Description cbdesc;
 	cbdesc.initData = &cb;
@@ -197,7 +195,7 @@ void ForwardRendering::updateConstantBuffer()
 	cBuffer cb;
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
-	cb.campos = *m_CameraPosition;
+	cb.campos = m_CameraPosition;
 	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
 }
 
@@ -227,7 +225,7 @@ void ForwardRendering::renderForward()
 		{
 			if (object.type == Renderable::Type::PARTICLE_SYSTEM)
 			{
-				object.particles->updateBuffers(m_DeviceContext, m_CameraPosition, m_ViewMatrix, m_ProjectionMatrix);
+				object.particles->updateBuffers(m_DeviceContext, &m_CameraPosition, m_ViewMatrix, m_ProjectionMatrix);
 				object.particles->render(m_DeviceContext, m_TransparencyAdditiveBlend);
 			}
 			else
@@ -250,6 +248,11 @@ void ForwardRendering::renderForward()
 	}
 }
 
+void ForwardRendering::updateCamera(const DirectX::XMFLOAT3& p_CameraPos)
+{
+	m_CameraPosition = p_CameraPos;
+}
+
 bool ForwardRendering::depthSortCompareFunc(const Renderable &a, const Renderable &b)
 {
 	DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.world._14,a.world._24,a.world._34);
@@ -257,7 +260,7 @@ bool ForwardRendering::depthSortCompareFunc(const Renderable &a, const Renderabl
 
 	DirectX::XMVECTOR aV = DirectX::XMLoadFloat3(&aa);
 	DirectX::XMVECTOR bV = DirectX::XMLoadFloat3(&bb);
-	DirectX::XMVECTOR eV = DirectX::XMLoadFloat3(m_CameraPosition);
+	DirectX::XMVECTOR eV = DirectX::XMLoadFloat3(&m_CameraPosition);
 	
 	using DirectX::operator -;
 	DirectX::XMVECTOR aVeVLength = DirectX::XMVector3Length(aV - eV);
@@ -324,5 +327,6 @@ void ForwardRendering::renderObject(Renderable& p_Object)
 	m_AnimatedObjectConstantBuffer->unsetBuffer(3);
 	p_Object.model->vertexBuffer->unsetBuffer(0);
 	m_ColorShadingConstantBuffer->unsetBuffer(3);
-	m_DeviceContext->PSSetSamplers(0,0,0);
+	ID3D11SamplerState* noState = nullptr;
+	m_DeviceContext->PSSetSamplers(0, 1, &noState);
 }

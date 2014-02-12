@@ -152,7 +152,8 @@ void ParticleInstance::render(ID3D11DeviceContext* p_Context, ID3D11BlendState* 
 	m_ParticleEffectDef->shader->unSetShader();
 	m_ParticleBuffer->unsetBuffer(0);
 	m_ConstBuffer->unsetBuffer(1);
-	p_Context->PSSetSamplers(0,0,0);
+	ID3D11SamplerState* noState = nullptr;
+	p_Context->PSSetSamplers(0, 1, &noState);
 }
 
 void ParticleInstance::setPosition(DirectX::XMFLOAT4 p_NewPosition)

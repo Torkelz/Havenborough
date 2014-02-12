@@ -5,12 +5,16 @@
 
 #include <iostream>
 #include <boost/filesystem.hpp>
+#include <algorithm>
 
 using namespace DirectX;
 using std::vector;
 using std::string;
 using std::pair;
 using std::make_pair;
+
+typedef vector<pair<IGraphics::Object2D_ID, Renderable2D>>::iterator Renderable2DIterator;
+typedef vector<pair<IGraphics::InstanceId, ModelInstance>>::iterator ModelInstanceIterator;
 
 const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
@@ -34,12 +38,15 @@ Graphics::Graphics(void)
 
 	m_DeferredRender = nullptr;
 	m_ForwardRenderer = nullptr;
+	m_ScreenRenderer = nullptr;
 
+	m_ConstantBuffer = nullptr;
 	m_BVBuffer = nullptr;
 	m_BVShader = nullptr;
 	m_Shader = nullptr;
 	m_VSyncEnabled = false; //DEBUG
 	m_NextInstanceId = 1;
+	m_Next2D_ObjectId = 1;
 	m_NextParticleInstanceId = 1;
 	m_SelectedRenderTarget = 3;
 }
@@ -186,14 +193,27 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 
-	initializeMatrices(p_ScreenWidth, p_ScreenHeight);
+	float nearZ = 10.0f;
+	float farZ = 100000.0f;
 
-	//Deferred Render
+	initializeMatrices(p_ScreenWidth, p_ScreenHeight, nearZ, farZ);
+
+	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		&m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
+		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
 		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
 	
+	//Forward renderer
+	m_ForwardRenderer = new ForwardRendering();
+	m_ForwardRenderer->init(m_Device, m_DeviceContext, m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
+		m_DepthStencilView, m_RenderTargetView);
+
+	//Screen renderer
+	m_ScreenRenderer = new ScreenRenderer();
+	m_ScreenRenderer->initialize(m_Device, m_DeviceContext, &m_ViewMatrix, 
+		XMFLOAT4((float)p_ScreenWidth, (float)p_ScreenHeight, nearZ, farZ), m_DepthStencilView, m_RenderTargetView);
+
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
 	m_BVBufferNumOfElements = 100;
@@ -202,18 +222,27 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	buffDesc.numOfElements = m_BVBufferNumOfElements;
 	buffDesc.sizeOfElement = sizeof(XMFLOAT4);
 	buffDesc.type = Buffer::Type::VERTEX_BUFFER;
-	buffDesc.usage = Buffer::Usage::DEFAULT;
+	buffDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	
+	cBuffer cb;
+	cb.view = m_ViewMatrix;
+	cb.proj = m_ProjectionMatrix;
+	cb.campos = m_Eye;
+
+	Buffer::Description cbdesc;
+	cbdesc.initData = &cb;
+	cbdesc.numOfElements = 1;
+	cbdesc.sizeOfElement = sizeof(cBuffer);
+	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
+	cbdesc.usage = Buffer::Usage::DEFAULT;
+	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/BoundingVolume.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
-	m_ForwardRenderer = new ForwardRendering();
-	m_ForwardRenderer->init(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, 
-		m_DepthStencilView, m_RenderTargetView);
 
 	return true;
 }
@@ -254,7 +283,8 @@ void Graphics::shutdown(void)
 	
 	while (!m_ParticleEffectDefinitionList.empty())
 	{
-		string unremovedName = m_ParticleEffectDefinitionList.front().first;
+		std::map<string, ParticleEffectDefinition::ptr>::iterator it = m_ParticleEffectDefinitionList.begin();
+		string unremovedName = it->first;
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
 
@@ -263,11 +293,24 @@ void Graphics::shutdown(void)
 
 	while (!m_ModelList.empty())
 	{
-		string unremovedName = m_ModelList.front().first;
+		std::map<string, ModelDefinition>::iterator it = m_ModelList.begin();
+
+		string unremovedName = it->first;
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + unremovedName + "' not removed properly");
 
 		releaseModel(unremovedName.c_str());
+	}
+
+	while (!m_2D_Objects.empty())
+	{
+		std::map<Object2D_ID, Renderable2D>::iterator it = m_2D_Objects.begin();
+
+		Object2D_ID unremovedId = it->first;
+
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + std::to_string(unremovedId) + "' not removed properly");
+
+		release2D_Model(unremovedId);
 	}
 
 	SAFE_RELEASE(m_Sampler);
@@ -284,12 +327,15 @@ void Graphics::shutdown(void)
 	SAFE_SHUTDOWN(m_ModelFactory);
 
 	m_Shader = nullptr;
+	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_BVBuffer);
 	SAFE_DELETE(m_BVShader);
 	
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
 	SAFE_DELETE(m_ForwardRenderer);
+	SAFE_DELETE(m_ScreenRenderer);
+
 	//Clear lights
 	m_PointLights.clear();
 	m_SpotLights.clear();
@@ -310,29 +356,38 @@ void IGraphics::deleteGraphics(IGraphics *p_Graphics)
 
 bool Graphics::createModel(const char *p_ModelId, const char *p_Filename)
 {
-	ModelDefinition model =	m_ModelFactory->getInstance()->createModel(p_Filename);
-
-	m_ModelList.push_back(pair<string, ModelDefinition>(p_ModelId, std::move(model)));
-
+	m_ModelList.insert(pair<string, ModelDefinition>(p_ModelId, std::move(m_ModelFactory->getInstance()->createModel(p_Filename))));
 	return true;
 }
 
 bool Graphics::releaseModel(const char* p_ResourceName)
 {
-	for(auto it = m_ModelList.begin(); it != m_ModelList.end(); ++it)
+	std::string resourceName(p_ResourceName);
+	if(m_ModelList.count(resourceName) > 0)
 	{
-		if(strcmp(it->first.c_str(), p_ResourceName) == 0)
+		for(unsigned int i = 0; i < m_ModelList.at(resourceName).numOfMaterials; i++)
 		{
-			for(unsigned int i = 0; i < it->second.numOfMaterials; i++)
-			{
-				m_ReleaseModelTexture(it->second.diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-				m_ReleaseModelTexture(it->second.normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-				m_ReleaseModelTexture(it->second.specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-			}
-
-			m_ModelList.erase(it);
-			return true;
+			m_ReleaseModelTexture(m_ModelList.at(resourceName).diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+			m_ReleaseModelTexture(m_ModelList.at(resourceName).normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+			m_ReleaseModelTexture(m_ModelList.at(resourceName).specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
 		}
+		m_ModelList.erase(resourceName);
+		return true;
+	}
+
+	return false;
+}
+
+bool Graphics::release2D_Model(Object2D_ID p_ObjectId)
+{
+	if(m_2D_Objects.count(p_ObjectId) > 0)
+	{
+		if (m_2D_Objects.at(p_ObjectId).model->numOfMaterials == 0)
+		{
+			SAFE_DELETE(m_2D_Objects.at(p_ObjectId).model);
+		}
+		m_2D_Objects.erase(p_ObjectId);
+		return true;
 	}
 
 	return false;
@@ -341,26 +396,13 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const char *p_EntryPoint,
 	const char *p_ShaderModel, ShaderType p_Type)
 {
-	bool found = false;
-	Shader *shader = nullptr;
-
-	for(auto &s : m_ShaderList)
+	if(m_ShaderList.count(std::string(p_shaderId)) > 0)
 	{
-		if(strcmp(s.first.c_str(), p_shaderId) == 0)
-		{
-			found = true;
-			shader = s.second;
-		}
-	}
-
-	if(!found)
-	{
-		shader = m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
-		m_ShaderList.push_back(make_pair(p_shaderId, shader));
+		m_WrapperFactory->addShaderStep(m_ShaderList.at(std::string(p_shaderId)), p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
 	}
 	else
 	{
-		m_WrapperFactory->addShaderStep(shader, p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
+		m_ShaderList.insert(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, p_EntryPoint, p_ShaderModel, p_Type)));
 	}
 }
 
@@ -372,15 +414,10 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	if(!(p_Type & ShaderType::VERTEX_SHADER))
 		throw ShaderException("Failed to create shader, no vertex shader defined", __LINE__, __FILE__);
 
-	for(auto &s : m_ShaderList)
-	{
-		if(strcmp(s.first.c_str(), p_shaderId) == 0)
-		{
-			throw ShaderException("Failed to create shader, shader already exists", __LINE__, __FILE__);
-		}
-	}
+	if(m_ShaderList.count(std::string(p_shaderId)) > 0)
+		throw ShaderException("Failed to create shader, shader already exists", __LINE__, __FILE__);
 
-	m_ShaderList.push_back(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, p_EntryPoint,
+	m_ShaderList.insert(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, p_EntryPoint,
 		p_ShaderModel, p_Type, p_VertexLayout, p_NumOfElements)));
 }
 
@@ -401,18 +438,14 @@ void Graphics::linkShaderToParticles(const char *p_ShaderId, const char *p_Parti
 
 void Graphics::deleteShader(const char *p_ShaderId)
 {
-	for(auto &s : m_ShaderList)
+	std::string shaderId(p_ShaderId);
+	if(m_ShaderList.count(string(shaderId)) > 0)
 	{
-		if(s.first.compare(p_ShaderId) == 0 )
-		{
-			SAFE_DELETE(s.second);
-			std::swap(s, m_ShaderList.back());
-			m_ShaderList.pop_back();
-			return;
-		}
+		SAFE_DELETE(m_ShaderList.at(shaderId));
+		m_ShaderList.erase(shaderId);
 	}
-	string error = p_ShaderId;
-	throw GraphicsException("Failed to set delete shader: " + error + " does not exist", __LINE__, __FILE__);
+	else
+		throw GraphicsException("Failed to set delete shader: " + shaderId + " does not exist", __LINE__, __FILE__);
 }
 
 bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
@@ -426,55 +459,45 @@ bool Graphics::createTexture(const char *p_TextureId, const char *p_Filename)
 	int size = calculateTextureSize(resourceView);
 	VRAMInfo::getInstance()->updateUsage(size);
 
-	m_TextureList.push_back(make_pair(p_TextureId, resourceView));
+	m_TextureList.insert(make_pair(p_TextureId, resourceView));
 
 	return true;
 }
 
 bool Graphics::releaseTexture(const char *p_TextureId)
 {
-	for(auto it = m_TextureList.begin(); it != m_TextureList.end(); ++it)
+	std::string textureId(p_TextureId);
+	if(m_TextureList.count(textureId) > 0)
 	{
-		if(strcmp(it->first.c_str(), p_TextureId) == 0)
-		{
-			ID3D11ShaderResourceView *&m = it->second;
-			int size = calculateTextureSize(m);
-			VRAMInfo::getInstance()->updateUsage(-size);
+		ID3D11ShaderResourceView *&m = m_TextureList.at(textureId);
+		int size = calculateTextureSize(m);
+		VRAMInfo::getInstance()->updateUsage(-size);
 
-			SAFE_RELEASE(m);
-			m_TextureList.erase(it);
-			return true;
-		}
+		SAFE_RELEASE(m);
+		m_TextureList.erase(textureId);
+		return true;
 	}
-
 	return false;
 }
 
 bool Graphics::createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename)
 {
-	ParticleEffectDefinition::ptr temp = m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId);
-
-	m_ParticleEffectDefinitionList.push_back(make_pair(p_ParticleEffectId,temp));
-	
+	m_ParticleEffectDefinitionList.insert(make_pair(p_ParticleEffectId,
+		m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId)));
 	return true;
 }
 
 bool Graphics::releaseParticleEffectDefinition(const char *p_ParticleEffectId)
 {
-	auto it = std::find_if(m_ParticleEffectDefinitionList.begin(), m_ParticleEffectDefinitionList.end(),
-		[p_ParticleEffectId] (const pair<string, ParticleEffectDefinition::ptr>& p_Effect)
-		{
-			return p_Effect.first == p_ParticleEffectId;
-		});
-
-	if (it != m_ParticleEffectDefinitionList.end())
+	std::string id(p_ParticleEffectId);
+	if(m_ParticleEffectDefinitionList.count(id) > 0)
 	{
-		m_ReleaseModelTexture(it->second->textureResourceName.c_str(), m_ReleaseModelTextureUserdata);
-		m_ParticleEffectDefinitionList.erase(it);
+		m_ReleaseModelTexture(m_ParticleEffectDefinitionList.at(id)->textureResourceName.c_str(), m_ReleaseModelTextureUserdata);
+		m_ParticleEffectDefinitionList.erase(id);
 		return true;
 	}
-
-	return false;
+	else
+		return false;
 }
 
 IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_ParticleEffectId)
@@ -491,39 +514,23 @@ IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_Parti
 	ParticleInstance::ptr instance = m_ParticleFactory->createParticleInstance(effectDef);
 	int id = m_NextParticleInstanceId++;
 
-	m_ParticleEffectInstanceList.push_back(make_pair(id, instance));
+	m_ParticleEffectInstanceList.insert(make_pair(id, instance));
 
 	return id;
 }
 
 void Graphics::releaseParticleEffectInstance(InstanceId p_ParticleEffectId)
 {
-	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
-		[p_ParticleEffectId] (const pair<InstanceId, ParticleInstance::ptr>& p_Effect)
-		{
-			return p_Effect.first == p_ParticleEffectId;
-		});
-	if (it != m_ParticleEffectInstanceList.end())
-	{
-		m_ParticleEffectInstanceList.erase(it);
-	}
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
+		m_ParticleEffectInstanceList.erase(p_ParticleEffectId);
 }
 
 void Graphics::setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position)
 {
-	auto it = std::find_if(m_ParticleEffectInstanceList.begin(), m_ParticleEffectInstanceList.end(),
-		[p_ParticleEffectId] (const pair<InstanceId, ParticleInstance::ptr>& p_Effect)
-		{
-			return p_Effect.first == p_ParticleEffectId;
-		});
-	if (it != m_ParticleEffectInstanceList.end())
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
 	{
-		DirectX::XMFLOAT4 pos(
-			p_Position.x,
-			p_Position.y,
-			p_Position.z,
-			1.f);
-		it->second->setPosition(pos);
+		DirectX::XMFLOAT4 pos(p_Position.x,	p_Position.y, p_Position.z,	1.f);
+		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setPosition(pos);
 	}
 }
 
@@ -535,31 +542,71 @@ void Graphics::updateParticles(float p_DeltaTime)
 	}
 }
 
-void Graphics::renderModel(InstanceId p_ModelId)
+int Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation, const char *p_TextureId)
 {
-	for (auto& inst : m_ModelInstances)
+	ModelDefinition *model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
+	
+	m_2D_Objects.insert(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(model))));
+	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
+	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
+
+	return m_Next2D_ObjectId++;
+}
+
+int Graphics::create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation, const char *p_ModelDefinition)
+{
+	ModelDefinition *defintion;
+	for(auto &model : m_ModelList)
 	{
-		if (inst.first == p_ModelId)
+		if(model.first == string(p_ModelDefinition))
 		{
-			ModelDefinition *modelDef = getModelFromList(inst.second.getModelName());
-			if(!modelDef->isTransparent)
-			{
-				m_DeferredRender->addRenderable(Renderable(
-					Renderable::Type::DEFERRED_OBJECT, modelDef,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform()));
-			}
-			else
-			{
-				m_ForwardRenderer->addRenderable(Renderable(
-					Renderable::Type::FORWARD_OBJECT, modelDef,
-					inst.second.getWorldMatrix(), &inst.second.getFinalTransform(),
-					&inst.second.getColorTone()));
-			}
-			
-			return;
+			defintion = &model.second;
+			break;
 		}
 	}
-	throw GraphicsException("Failed to render model instance, vector out of bounds.", __LINE__, __FILE__);
+	if(!defintion)
+		throw GraphicsException("Failed to find model definition", __LINE__, __FILE__);
+
+	m_2D_Objects.insert(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(defintion))));
+	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
+	set2D_ObjectScale(m_Next2D_ObjectId, p_Scale);
+	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
+
+	return m_Next2D_ObjectId++;
+}
+
+void Graphics::render2D_Object(int p_Id)
+{
+	for(auto &object : m_2D_Objects)
+	{
+		if(object.first == p_Id)
+		{
+			m_ScreenRenderer->add2D_Object(object.second);
+		}
+	}
+}
+
+void Graphics::renderModel(InstanceId p_ModelId)
+{
+	if(m_ModelInstances.count(p_ModelId) > 0)
+	{
+		ModelDefinition *modelDef = getModelFromList(m_ModelInstances.at(p_ModelId).getModelName());
+		if(!modelDef->isTransparent)
+		{
+			m_DeferredRender->addRenderable(Renderable(
+				Renderable::Type::DEFERRED_OBJECT, modelDef,
+				m_ModelInstances.at(p_ModelId).getWorldMatrix(), &m_ModelInstances.at(p_ModelId).getFinalTransform()));
+		}
+		else
+		{
+			m_ForwardRenderer->addRenderable(Renderable(
+				Renderable::Type::FORWARD_OBJECT, modelDef,
+				m_ModelInstances.at(p_ModelId).getWorldMatrix(), &m_ModelInstances.at(p_ModelId).getFinalTransform(),
+				&m_ModelInstances.at(p_ModelId).getColorTone()));
+		}
+	}
+	else
+		throw GraphicsException("Failed to render model instance, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::renderSkydome()
@@ -570,11 +617,6 @@ void Graphics::renderSkydome()
 void Graphics::renderText(void)
 {
 	
-}
-
-void Graphics::renderQuad(void)
-{
-
 }
 
 void Graphics::addStaticLight(void)
@@ -660,8 +702,9 @@ void Graphics::drawFrame()
 			m_ForwardRenderer->addRenderable(particle.second);
 		}
 		m_ForwardRenderer->renderForward();
-
 		drawBoundingVolumes();
+		m_ScreenRenderer->renderScreen();
+
 	}
 
 	End();
@@ -674,29 +717,19 @@ void Graphics::drawFrame()
 
 void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)
 {
-	
-	for(auto &model : m_ModelList)
+	std::string modelId(p_ModelId);
+	if(m_ModelList.count(modelId) > 0)
 	{
-		if(model.first == string(p_ModelId))
-		{
-			model.second.isTransparent = p_State;
-			return;
-		}
+		m_ModelList.at(modelId).isTransparent = p_State;
 	}
-	string error = p_ModelId;
-	throw GraphicsException("Failed to set transparency state to ModelDefinition: " + error + " does not exist", __LINE__, __FILE__);
+	else
+		throw GraphicsException("Failed to set transparency state to ModelDefinition: " + modelId + " does not exist", __LINE__, __FILE__);
 }
 
 void Graphics::animationPose(int p_Instance, const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size)
 {
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.animationPose(p_Pose, p_Size);
-			break;
-		}
-	}
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).animationPose(p_Pose, p_Size);
 }
 
 int Graphics::getVRAMUsage(void)
@@ -721,7 +754,7 @@ IGraphics::InstanceId Graphics::createModelInstance(const char *p_ModelId)
 	instance.setScale(XMFLOAT3(1.f, 1.f, 1.f));
 	int id = m_NextInstanceId++;
 
-	m_ModelInstances.push_back(make_pair(id, instance));
+	m_ModelInstances.insert(make_pair(id, instance));
 
 	return id;
 }
@@ -733,76 +766,93 @@ void Graphics::createSkydome(const char* p_TextureResource, float p_Radius)
 
 void Graphics::eraseModelInstance(InstanceId p_Instance)
 {
-	for (unsigned int i = 0; i < m_ModelInstances.size(); i++)
-	{
-		if (m_ModelInstances.at(i).first == p_Instance)
-		{
-			m_ModelInstances.erase(m_ModelInstances.begin() + i);
-			return;
-		}
-	}
-	throw GraphicsException("Failed to erase model instance, vector out of bounds.", __LINE__, __FILE__);
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.erase(p_Instance);
+	else
+		throw GraphicsException("Failed to erase model instance, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::setModelPosition(InstanceId p_Instance, Vector3 p_Position)
 {
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.setPosition(Vector3ToXMFLOAT3(&p_Position));
-			return;
-		}
-	}
-	throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).setPosition(Vector3ToXMFLOAT3(&p_Position));
+	else
+		throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll)
 {
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.setRotation(DirectX::XMFLOAT3(p_YawPitchRoll.y, p_YawPitchRoll.x, p_YawPitchRoll.z));
-			return;
-		}
-	}
-	throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
-
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).setRotation(DirectX::XMFLOAT3(p_YawPitchRoll.y, p_YawPitchRoll.x, p_YawPitchRoll.z));
+	else
+		throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::setModelScale(InstanceId p_Instance, Vector3 p_Scale)
 {
-	for (auto& inst : m_ModelInstances)
-	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.setScale(DirectX::XMFLOAT3(p_Scale));
-			return;
-		}
-	}
-	throw GraphicsException("Failed to set model instance scale, vector out of bounds.", __LINE__, __FILE__);
-
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).setScale(DirectX::XMFLOAT3(p_Scale));
+	else
+		throw GraphicsException("Failed to set model instance scale, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 {
-	for (auto& inst : m_ModelInstances)
+	if(m_ModelInstances.count(p_Instance) > 0)
+		m_ModelInstances.at(p_Instance).setColorTone(DirectX::XMFLOAT3(p_ColorTone));
+	else
+		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position)
+{
+	if(m_2D_Objects.count(p_Instance) > 0)
+		m_2D_Objects.at(p_Instance).position = Vector3ToXMFLOAT3(&p_Position);
+	else
+		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale)
+{
+	if(m_2D_Objects.count(p_Instance) > 0)
+		m_2D_Objects.at(p_Instance).scale = p_Scale;
+	else
+		throw GraphicsException("Failed to set 2D model scale, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation)
+{
+	if(m_2D_Objects.count(p_Instance) > 0)
+		XMStoreFloat4x4(&m_2D_Objects.at(p_Instance).rotation, XMMatrixRotationZ(p_Rotation)); 
+	else
+		throw GraphicsException("Failed to set 2D model rotation, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt)
+{
+	if(m_2D_Objects.count(p_Instance) > 0)
 	{
-		if (inst.first == p_Instance)
-		{
-			inst.second.setColorTone(DirectX::XMFLOAT3(p_ColorTone));
-			return;
-		}
+		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 0.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f);
+		direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
+		direction = XMVector3Normalize(direction);
+		XMMATRIX rotation = XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0));
+
+		XMStoreFloat4x4(&m_2D_Objects.at(p_Instance).rotation, rotation);
+		
+
+		m_2D_Objects.at(p_Instance).rotation._41 = 0.0f;
+		m_2D_Objects.at(p_Instance).rotation._42 = 0.0f;
+		m_2D_Objects.at(p_Instance).rotation._43 = 0.0f;
 	}
-	throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
+	else
+		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 {
-	XMVECTOR upVec = XMLoadFloat3(&XMFLOAT3(p_Up));
-	XMVECTOR forwardVec = XMLoadFloat3(&XMFLOAT3(p_Forward));
-	XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(p_Position));
+	XMVECTOR upVec = XMVectorSet(p_Up.x, p_Up.y, p_Up.z, 0.f);
+	XMVECTOR forwardVec = XMVectorSet(p_Forward.x, p_Forward.y, p_Forward.z, 0.f);
+	XMVECTOR pos = XMVectorSet(p_Position.x, p_Position.y, p_Position.z, 1.f);
 
 	XMVECTOR flatForward = XMVectorSetY(forwardVec, 0.f);
 	XMVECTOR flatUp = XMVectorSetY(upVec, 0.f);
@@ -811,6 +861,10 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 	XMStoreFloat3(&m_Eye, pos);
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));
+
+	updateConstantBuffer();
+	m_DeferredRender->updateCamera(m_Eye);
+	m_ForwardRenderer->updateCamera(m_Eye);
 }
 
 void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)
@@ -1069,13 +1123,13 @@ void Graphics::initializeFactories(void)
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 }
 
-void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
+void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight, float p_NearZ, float p_FarZ )
 {
 	XMFLOAT4 eye;
 	XMFLOAT4 lookAt;
 	XMFLOAT4 up;
 	m_Eye = XMFLOAT3(0,0,-20);
-	m_FarZ = 100000.0f;
+	m_FarZ = p_FarZ;
 	m_FOV = 0.25f * PI;
 
 	eye = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
@@ -1087,61 +1141,39 @@ void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight )
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookAtLH(XMLoadFloat4(&eye),
 		XMLoadFloat4(&lookAt), XMLoadFloat4(&up))));
 	XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(m_FOV,
-		(float)p_ScreenWidth / (float)p_ScreenHeight, 10.f, m_FarZ)));
+		(float)p_ScreenWidth / (float)p_ScreenHeight, p_NearZ, m_FarZ)));
 }
 
 Shader *Graphics::getShaderFromList(string p_Identifier)
 {
-	Shader *ret = nullptr;
-
-	for(auto & s : m_ShaderList)
-	{
-		if(s.first.compare(p_Identifier) == 0 )
-		{
-			ret = s.second;
-			break;
-		}
-	}
-	return ret;
+	if(m_ShaderList.count(p_Identifier) > 0)
+		return m_ShaderList.at(p_Identifier);
+	else
+		return nullptr;
 }
 
 ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 {
-	for(auto & s : m_ModelList)
-	{
-		if(s.first == p_Identifier)
-		{
-			return &s.second;
-		}
-	}
-
-	return nullptr;
+	if(m_ModelList.count(p_Identifier) > 0)
+		return &m_ModelList.at(p_Identifier);
+	else
+		return nullptr;
 }
 
 ParticleEffectDefinition::ptr Graphics::getParticleFromList(string p_Identifier)
 {
-	for(auto & s : m_ParticleEffectDefinitionList)
-	{
-		if(s.first == p_Identifier)
-		{
-			return s.second;
-		}
-	}
-
-	return nullptr;
+	if(m_ParticleEffectDefinitionList.count(p_Identifier) > 0)
+		return m_ParticleEffectDefinitionList.at(p_Identifier);
+	else
+		return nullptr;
 }
 
 ID3D11ShaderResourceView *Graphics::getTextureFromList(string p_Identifier)
 {
-	for(auto & s : m_TextureList)
-	{
-		if(s.first == p_Identifier)
-		{
-			return s.second;
-		}
-	}
-
-	return nullptr;
+	if(m_TextureList.count(p_Identifier) > 0)
+		return m_TextureList.at(p_Identifier);
+	else
+		return nullptr;
 }
 
 int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )
@@ -1185,48 +1217,61 @@ void Graphics::drawBoundingVolumes()
 {
 	if(m_BVTriangles.size() > 0)
 	{
-		Buffer* buffer = nullptr;
-
-		if(m_BVTriangles.size() >= m_BVBufferNumOfElements)
+		if(m_BVTriangles.size() > m_BVBufferNumOfElements)
 		{
+			SAFE_DELETE(m_BVBuffer);
 			VRAMInfo::getInstance()->updateUsage(-(int)(sizeof(XMFLOAT4) * m_BVBufferNumOfElements));
-			m_BVBufferNumOfElements = m_BVTriangles.size() + 1;
+			m_BVBufferNumOfElements *= 2;
+			if (m_BVTriangles.size() > m_BVBufferNumOfElements)
+			{
+				m_BVBufferNumOfElements = m_BVTriangles.size();
+			}
 			Buffer::Description buffDesc;
-			buffDesc.initData = &m_BVTriangles;
+			buffDesc.initData = nullptr;
 			buffDesc.numOfElements = m_BVBufferNumOfElements;
 			buffDesc.sizeOfElement = sizeof(XMFLOAT4);
 			buffDesc.type = Buffer::Type::VERTEX_BUFFER;
-			buffDesc.usage = Buffer::Usage::DEFAULT;
+			buffDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	
-			buffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
+			m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 			VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
-			SAFE_DELETE(m_BVBuffer);
-			m_BVBuffer = buffer;
 		}
-		else 
-		{
-			m_DeviceContext->UpdateSubresource(m_BVBuffer->getBufferPointer(), NULL, NULL, m_BVTriangles.data(), 0, 0);
-			buffer = m_BVBuffer;
-		}
+
+		D3D11_MAPPED_SUBRESOURCE resource;
+		m_DeviceContext->Map(m_BVBuffer->getBufferPointer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+		std::copy(m_BVTriangles.begin(), m_BVTriangles.end(), (XMFLOAT4*)resource.pData);
+		m_DeviceContext->Unmap(m_BVBuffer->getBufferPointer(), 0);
 
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 
 		m_DeviceContext->RSSetState(m_RasterStateBV);
 
-		buffer->setBuffer(0);
+		m_BVBuffer->setBuffer(0);
+		m_ConstantBuffer->setBuffer(1);
+		
 		m_BVShader->setShader();
 	
 		m_DeviceContext->Draw(m_BVTriangles.size(), 0);
 
 		m_Shader->unSetShader();
-		buffer->unsetBuffer(0);
+		m_BVBuffer->unsetBuffer(0);
+		m_ConstantBuffer->unsetBuffer(1);
 
 		m_DeviceContext->RSSetState(m_RasterState);
 
-		buffer = nullptr;
 		m_BVTriangles.clear();
 	}
+}
+
+void Graphics::updateConstantBuffer()
+{
+	cBuffer cb;
+	cb.view = m_ViewMatrix;
+	cb.proj = m_ProjectionMatrix;
+	cb.campos = m_Eye;
+
+	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), NULL,NULL, &cb, sizeof(cb), NULL);
 }
 
 //TODO: Remove later

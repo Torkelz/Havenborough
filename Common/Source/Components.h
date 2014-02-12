@@ -1312,6 +1312,11 @@ public:
 		p_Printer.CloseElement();
 	}
 
+	void setPosition(Vector3 p_Position)
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateParticlePositionEventData(m_ParticleId, p_Position)));
+	}
+
 	/**
 	 * Get the unique id of the particle effect.
 	 *
@@ -1350,4 +1355,21 @@ public:
 	virtual const AnimationPath getAnimationData(std::string p_AnimatioId) const = 0;
 	virtual void playClimbAnimation(std::string p_ClimbID) = 0;
 	virtual void resetClimbState() = 0;
+};
+
+class SpellInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 9;	/// Unique id
+	virtual Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+
+	/**
+	 * Get the body handle of the component.
+	 *
+	 * @return a body handle
+	 */
+	virtual BodyHandle getBodyHandle() const = 0;
 };

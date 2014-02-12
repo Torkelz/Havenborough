@@ -30,6 +30,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_ActorFactory = p_ActorFactory;
 	m_Network = p_Network;
 	m_EventManager = p_EventManager;
+
+	m_EventManager->addListener(EventListenerDelegate(this, &GameLogic::removeActorByEvent), RemoveActorEventData::sk_EventType);
 	
 	m_ChangeScene = GoToScene::NONE;
 
@@ -413,6 +415,11 @@ void GameLogic::joinGame(const std::string& p_LevelName)
 	}
 }
 
+void GameLogic::throwSpell(const char *p_SpellId)
+{
+	m_Objects.push_back(m_ActorFactory->createSpell(p_SpellId, getPlayerViewForward(), m_Player.getEyePosition()));
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)
@@ -728,6 +735,13 @@ void GameLogic::removeActor(Actor::Id p_Actor)
 			return;
 		}
 	}
+}
+
+void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveActorEventData> data = std::static_pointer_cast<RemoveActorEventData>(p_Data);
+
+	removeActor(data->getActorId());
 }
 
 void GameLogic::loadSandbox()
