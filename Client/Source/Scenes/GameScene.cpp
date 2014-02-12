@@ -142,17 +142,12 @@ void GameScene::render()
 
 	if(m_RenderDebugBV)
 	{
-		/*for(auto &object : m_GameLogic->getObjects())
+		for(auto &object : m_GameLogic->getObjects())
 		{
 			for (BodyHandle body : object->getBodyHandles())
 			{
 				renderBoundingVolume(body);
 			}
-		}*/
-
-		for(int bajs = 0; bajs < 200; bajs++)
-		{
-			renderBoundingVolume(bajs);
 		}
 
 		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());

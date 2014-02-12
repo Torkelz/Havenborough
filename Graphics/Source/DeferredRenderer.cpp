@@ -727,7 +727,7 @@ void DeferredRenderer::clearRenderTargets()
 	m_DeviceContext->ClearRenderTargetView(m_RT["Final"], color);
 
 
-	color[0] = color[1] = color[2] = 0.0f;
+	color[0] = color[1] = color[2] = 1.0f;
 	color[3] = 1.0f;
 	m_DeviceContext->ClearRenderTargetView(m_RT["SSAO"], color);
 }

@@ -17,7 +17,7 @@ public:
 	void init();
 	virtual SpellDefinition::ptr createSpellDefinition(const char* p_Spellname, const char* p_Filename);
 	bool releaseSpellDefinition(const char* p_Spellname);
-	virtual SpellInstance::ptr createSpellInstance(const std::string& p_Spell, Vector3 p_Direction, Vector3 p_SpellPosition);
+	virtual SpellInstance::ptr createSpellInstance(const std::string& p_Spell, Vector3 p_Direction);
 
 
 	void readDefinitionFromFile(const char* p_Filename);

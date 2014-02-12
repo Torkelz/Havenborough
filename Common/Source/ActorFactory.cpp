@@ -446,6 +446,7 @@ ActorComponent::ptr ActorFactory::createSpellComponent()
 	SpellComponent* comp = new SpellComponent;
 	comp->setResourceManager(m_ResourceManager);
 	comp->setSpellFactory(m_SpellFactory);
+	comp->setPhysics(m_Physics);
 
 	return ActorComponent::ptr(comp);
 }

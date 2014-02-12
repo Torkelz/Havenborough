@@ -1310,4 +1310,11 @@ public:
 	{
 		return m_ComponentId;
 	}
+
+	/**
+	 * Get the body handle of the component.
+	 *
+	 * @return a body handle
+	 */
+	virtual BodyHandle getBodyHandle() const = 0;
 };
