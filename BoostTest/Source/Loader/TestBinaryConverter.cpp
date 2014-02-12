@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(TestStringToByte)
 	BOOST_CHECK_EQUAL_COLLECTIONS(tempString.begin(), tempString.end(), tempChara, tempChara + sizeof(tempChara) - 1);
 }
 
-BOOST_AUTO_TEST_CASE(TestCreateHeader)
+BOOST_AUTO_TEST_CASE(TestCreateModelHeader)
 {
 	testConv conv;
 

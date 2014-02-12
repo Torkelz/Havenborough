@@ -54,6 +54,8 @@ PSIn VS(VSIn input)
 	float3 normalL		= float3(0.0f, 0.0f, 0.0f);
 	float3 tangentL		= float3(0.0f, 0.0f, 0.0f);
 	float3 binormalL	= float3(0.0f, 0.0f, 0.0f);
+
+	[unroll]
 	for(int i = 0; i < 4; ++i)
 	{
 	    // Assume no nonuniform scaling when transforming normals, so 

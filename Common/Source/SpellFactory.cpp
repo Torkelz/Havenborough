@@ -33,11 +33,11 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	spell->explosionRadius = 500.f;
 	spell->effectTime = 0.5f;
 	spell->maxTimeToLive = 60.f;
-	spell->force = 1.f;
-	spell->minForce = 0.1f;
+	spell->force = 5000.f;
+	spell->minForce = 500.f;
 	spell->spellName = p_Spellname;
 	spell->flyingSpellSize = 10.f;
-	spell->flyForce = 1000.f;
+	spell->flyForce = 3000.f;
 
 	m_SpellDefinitionMap[p_Spellname] = spell;
 
@@ -49,7 +49,7 @@ bool SpellFactory::releaseSpellDefinition(const char *p_SpellId)
 	return m_SpellDefinitionMap.erase(p_SpellId) != 0;
 }
 
-SpellInstance::ptr SpellFactory::createSpellInstance(const std::string& p_Spell, Vector3 p_Direction, Vector3 p_SpellPosition)
+SpellInstance::ptr SpellFactory::createSpellInstance(const std::string& p_Spell, Vector3 p_Direction)
 {
 	auto spellDef = m_SpellDefinitionMap.find(p_Spell);
 	if (spellDef == m_SpellDefinitionMap.end())
@@ -57,8 +57,8 @@ SpellInstance::ptr SpellFactory::createSpellInstance(const std::string& p_Spell,
 		throw CommonException("Can not create spell from a missing spell definition (" + p_Spell + ")", __LINE__, __FILE__);
 	}
 
-	SpellInstance::ptr instance(new SpellInstance(m_Physics));
-	instance->init(spellDef->second, p_Direction, p_SpellPosition);
+	SpellInstance::ptr instance(new SpellInstance);
+	instance->init(spellDef->second, p_Direction);
 
 	return instance;
 }

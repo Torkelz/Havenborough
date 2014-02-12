@@ -12,28 +12,28 @@ public:
 
 private:
 	SpellDefinition::ptr m_SpellDefinition;
-	IPhysics *m_Physics;
-	
-	BodyHandle m_Sphere;
-	Vector3 m_SpellPosition; //in cm
+
 	float m_TimeLived; //in sec
 	bool m_Collision;
+	bool m_IsDead;
+	Vector3 m_Velocity;
 
 public:
-	SpellInstance(IPhysics *p_Physics);
+	SpellInstance();
 	~SpellInstance();
 
-	void init(SpellDefinition::ptr p_SpellDefinition, Vector3 p_Direction, Vector3 p_SpellPosition);
+	void init(SpellDefinition::ptr p_SpellDefinition, Vector3 p_Direction);
 	void update(float p_DeltaTime);
 	
 	void collisionHappened();
-
-	void setPosition(Vector3 p_NewPosition);
+	float getRadius() const;
+	Vector3 getVelocity() const;
+	bool hasCollided() const;
+	bool isDead() const;
+	void spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit);
 
 private:
-	void spellHit(SpellDefinition::ptr p_SpellDefinition, float p_DeltaTime);
-	void explodeSpell(SpellDefinition::ptr p_SpellDefinition, float p_DeltaTime);
-	void changeSphereRadius(float p_NewRadius);
+	void explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit);
 
 };
 
