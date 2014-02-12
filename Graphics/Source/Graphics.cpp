@@ -571,7 +571,7 @@ int Graphics::create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotatio
 	return m_Next2D_ObjectId++;
 }
 
-void Graphics::render2D_Object(int p_Id)
+void Graphics::render2D_Object(Object2D_ID p_Id)
 {
 	for(auto &object : m_2D_Objects)
 	{
@@ -605,7 +605,7 @@ void Graphics::renderModel(InstanceId p_ModelId)
 		throw GraphicsException("Failed to render model instance, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::renderSkydome()
+void Graphics::renderSkydome(void)
 {
 	m_DeferredRender->renderSkyDome();
 }
@@ -613,16 +613,6 @@ void Graphics::renderSkydome()
 void Graphics::renderText(void)
 {
 	
-}
-
-void Graphics::addStaticLight(void)
-{
-
-}
-
-void Graphics::removeStaticLight(void)
-{
-
 }
 
 void Graphics::useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange)
@@ -668,7 +658,7 @@ void Graphics::setClearColor(Vector4 p_Color)
 	m_ClearColor[3] = p_Color.w;
 }
 
-void Graphics::drawFrame()
+void Graphics::drawFrame(void)
 {
 	if (!m_DeviceContext || !m_DeferredRender || !m_ForwardRenderer)
 	{

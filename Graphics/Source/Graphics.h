@@ -135,9 +135,6 @@ public:
 	Object2D_ID create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) override;
 
-	void addStaticLight(void) override;
-	void removeStaticLight(void) override;
-	
 	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
 	void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
 		Vector2 p_SpotLightAngles,	float p_LightRange) override;
@@ -146,10 +143,10 @@ public:
 	void setClearColor(Vector4 p_Color) override;
 
 	void renderModel(InstanceId p_ModelId) override;
-	virtual void renderSkydome() override;
+	virtual void renderSkydome(void) override;
 	void renderText(void) override;
-	void render2D_Object(int p_Id) override;
-	void drawFrame() override;
+	void render2D_Object(Object2D_ID p_Id) override;
+	void drawFrame(void) override;
 
 	void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) override;
 
