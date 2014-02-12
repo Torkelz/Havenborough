@@ -62,11 +62,6 @@ void InstanceLoader::startReading(std::istream& p_Input)
 			m_Header.m_NumberOfModels = readHeader(p_Input);
 			std::getline(p_Input, line);
 		}
-		else if(key == "*Header")
-		{
-			m_Header.m_NumberOfModels = readHeader(p_Input);
-			std::getline(p_Input, line);
-		}
 		else if(key == "*LightHeader*")
 		{
 			m_Header.m_NumberOfLights = readHeader(p_Input);
@@ -167,9 +162,8 @@ void InstanceLoader::readLightList(std::istream& p_Input)
 		m_Stringstream = std::stringstream(line);
 		m_Stringstream >> filler >> tempDirectional.m_Direction.x >> tempDirectional.m_Direction.y >> tempDirectional.m_Direction.z;
 		m_LevelDirectionalLightList.push_back(std::make_pair(tempLight,tempDirectional));
-		return;
 	}
-	if(tempString == "kPointLight")
+	else if(tempString == "kPointLight")
 	{
 		tempLight.m_Type = 1;
 		PointLight tempDirectional;
@@ -177,9 +171,8 @@ void InstanceLoader::readLightList(std::istream& p_Input)
 		m_Stringstream = std::stringstream(line);
 		m_Stringstream >> filler >> tempDirectional.m_Intensity;
 		m_LevelPointLightList.push_back(std::make_pair(tempLight,tempDirectional));
-		return;
 	}
-	if(tempString == "kSpotLight")
+	else if(tempString == "kSpotLight")
 	{
 		tempLight.m_Type = 2;
 		SpotLight tempSpot;
@@ -193,7 +186,6 @@ void InstanceLoader::readLightList(std::istream& p_Input)
 		m_Stringstream = std::stringstream(line);
 		m_Stringstream >> filler >> tempSpot.m_ConeAngle >> tempSpot.m_PenumbraAngle;
 		m_LevelSpotLightList.push_back(std::make_pair(tempLight,tempSpot));
-		return;
 	}
 }
 

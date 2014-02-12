@@ -5,6 +5,9 @@ InstanceConverter::InstanceConverter()
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
+	m_LevelDataSize = 0;
+	m_LevelCheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
+	m_LevelCheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
 }
 
 InstanceConverter::~InstanceConverter()
@@ -56,6 +59,7 @@ void InstanceConverter::createLevel(std::ostream* p_Output)
 	std::vector<ModelData> level;
 	ModelData model;
 	bool written = false;
+	
 	for(int i = 0; i < m_LevelDataSize; i++)
 	{
 		model = ModelData();
@@ -107,14 +111,16 @@ void InstanceConverter::createLevel(std::ostream* p_Output)
 			}
 			else if(j == m_ModelInformation->size()-1)
 			{
-				throw;
+				intToByte(0, p_Output);
+				intToByte(0, p_Output);
+				intToByte(0, p_Output);
 			}
 		}
 		if(m_ModelInformation->size() == 0)
 		{
 			intToByte(0, p_Output);
 			intToByte(0, p_Output);
-			intToByte(1, p_Output);
+			intToByte(0, p_Output);
 		}
 		intToByte(level.at(i).m_Translation.size(), p_Output);
 		p_Output->write(reinterpret_cast<const char*>(level.at(i).m_Translation.data()), sizeof(DirectX::XMFLOAT3) * level.at(i).m_Translation.size());
@@ -178,7 +184,7 @@ void InstanceConverter::createLighting(std::ostream* p_Output)
 
 void InstanceConverter::createCheckPoints(std::ostream* p_Output)
 {
-	if(m_Header.m_NumberOfCheckPoints != 0)
+	if(m_Header.m_NumberOfCheckPoints != 0)	
 	{
 		DirectX::XMFLOAT3* tempStart,*tempEnd;
 		tempStart = &m_LevelCheckPointStart;
