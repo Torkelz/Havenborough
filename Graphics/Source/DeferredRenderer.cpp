@@ -236,8 +236,6 @@ void DeferredRenderer::renderGeometry()
 
 	m_Buffer["DefaultConstant"]->setBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler["Default"]);
-	updateConstantBuffer();
-
 
 	for( auto &animation : animatedOrSingle )
 		renderObject(animation);
@@ -408,12 +406,13 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT["Final"],0);
 	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
+	m_Buffer["DefaultConstant"]->unsetBuffer(0);
+
 
 	if(m_SkyDome && m_RenderSkyDome)
 		m_SkyDome->RenderSkyDome(m_RT["Final"], m_DepthStencilView, m_Buffer["DefaultConstant"]);
 
 
-	m_Buffer["DefaultConstant"]->unsetBuffer(0);
 	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 	m_DeviceContext->RSSetState(previousRasterState);
@@ -460,6 +459,10 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 	}
 }
 
+void DeferredRenderer::updateCamera(DirectX::XMFLOAT3 p_Position)
+{
+	m_CameraPosition = p_Position;
+}
 
 void DeferredRenderer::updateConstantBuffer()
 {

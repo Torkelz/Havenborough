@@ -863,6 +863,7 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));
 
 	updateConstantBuffer();
+	m_DeferredRender->updateCamera(m_Eye);
 	m_ForwardRenderer->updateCamera(m_Eye);
 }
 
