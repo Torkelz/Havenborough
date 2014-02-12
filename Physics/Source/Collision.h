@@ -122,8 +122,9 @@ public:
 private:
 	static HitData SATBoxVsBox(OBB const &p_OBB, BoundingVolume const &p_vol);
 	static HitData SATBoxVsHull(OBB const &p_OBB, Hull const &p_hull);
+	static HitData SATEberly(OBB const &p_OBB, Hull const &p_Hull);
 	static bool OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, DirectX::XMVECTOR &p_Least, float &p_Overlap);
-	static void checkCollisionDepth(float p_Max, float p_Min, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
+	static void checkCollisionDepth(float p_Min0, float p_Max0, float p_Min1, float p_Max1, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static float checkMin(float const &p_A, float const &p_B, float const &p_C);
 	static float checkMax(float const &p_A, float const &p_B, float const &p_C);
