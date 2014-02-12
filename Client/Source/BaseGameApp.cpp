@@ -312,7 +312,7 @@ void BaseGameApp::updateTimer()
 {
 	m_PrevTimeStamp = m_CurrTimeStamp;
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_CurrTimeStamp);
-	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt) / 10.0f; // To debug the game at low refreshrate.
+	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt);// / 10.0f; // To debug the game at low refreshrate.
 	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{

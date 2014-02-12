@@ -39,16 +39,15 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector3 p_EdgePosi
 		DirectX::XMFLOAT3 victimNormal;
 		DirectX::XMStoreFloat3(&victimNormal, p_VictimNormal);
 
-		if(playerOrigPos.y  + p_Player->getKneeHeight() > p_EdgePosition.y)
+		if (playerOrigPos.y + 10 > p_EdgePosition.y)
 			return;
-			//p_Player->forceMove("Climb1", victimNormal);
-		else if(playerOrigPos.y  + p_Player->getWaistHeight() > p_EdgePosition.y)
+		else if(playerOrigPos.y  + p_Player->getKneeHeight() - 20.0f > p_EdgePosition.y)
 			p_Player->forceMove("Climb1", victimNormal, p_EdgePosition, p_EdgeOrientation);
+		else if(playerOrigPos.y  + p_Player->getWaistHeight() > p_EdgePosition.y)
+			p_Player->forceMove("Climb2", victimNormal, p_EdgePosition, p_EdgeOrientation);
 		else if(playerOrigPos.y  + p_Player->getChestHeight() > p_EdgePosition.y)
 			p_Player->forceMove("Climb3", victimNormal, p_EdgePosition, p_EdgeOrientation);
 		else if(playerOrigPos.y  + p_Player->getHeight() > p_EdgePosition.y)
-			p_Player->forceMove("Climb3", victimNormal, p_EdgePosition, p_EdgeOrientation);
-		else if(playerOrigPos.y  + p_Player->getHeight() + 35.f > p_EdgePosition.y)
 			p_Player->forceMove("Climb4", victimNormal, p_EdgePosition, p_EdgeOrientation);
 		else{}
 	}

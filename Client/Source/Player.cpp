@@ -34,8 +34,8 @@ void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_LookDirection, std::weak
 {
 	m_Physics = p_Physics;
 	m_LookDirection = p_LookDirection;
-	m_TempHeight = 180.f;
-	m_KneeHeight = 50.f;
+	m_TempHeight = 170.f;
+	m_KneeHeight = m_TempHeight * 0.25f;
 	m_EyeHeight = 165.f;
 	m_Actor = p_Actor;
 	//m_PlayerBody = m_Physics->createOBB(68.f, false, kneePos, Vector3(50.f, 90.f, 50.f), false);
@@ -193,7 +193,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		a.r[3] = XMVectorSet(0,0,0,1);
 		XMStoreFloat4x4(&m_ForceMoveRotation, a);
 
-		float edgeY = p_EdgeOrientation.y;
+		float edgeY = 10;
 
 		XMVECTOR vReachPointCenter = Vector3ToXMVECTOR(&m_Physics->getBodyPosition(getBody()), 0.f) - XMLoadFloat3(&p_BoxPos);
 		bool sig = false;
@@ -213,10 +213,9 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
 
 		XMVECTOR sp;
-		sp = vReachPointCenter + XMVectorSet(0,edgeY,0,0) - offsetToStartPos;
-		XMFLOAT3 startPos;
-		XMStoreFloat3(&startPos, sp);
-		setPosition(startPos);
+		sp = vReachPointCenter + XMVectorSet(0,edgeY + m_KneeHeight,0,0) + offsetToStartPos;
+		XMStoreFloat3(&m_ForceMoveStartPos, sp);
+		setPosition(m_ForceMoveStartPos);
 	}
 }
 

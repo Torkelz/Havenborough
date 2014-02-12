@@ -152,6 +152,7 @@ void GameScene::render()
 		renderBoundingVolume(23);
 		renderBoundingVolume(24);
 		renderBoundingVolume(25);
+		renderBoundingVolume(26);
 	}
 
 	for(auto &light : m_Lights)

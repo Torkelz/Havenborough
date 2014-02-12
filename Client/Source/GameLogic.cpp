@@ -374,12 +374,13 @@ void GameLogic::playLocalLevel()
 	loadSandbox();
 
 	
-	BodyHandle b = m_Physics->createOBB(50.f, true, Vector3(0,105,0), Vector3(10,10,100), true);
-	m_Physics->setBodyCollisionResponse(b,false);
-	BodyHandle b1 = m_Physics->createOBB(50.f, true, Vector3(0,30,-210), Vector3(10,10,100), true);
-	m_Physics->setBodyCollisionResponse(b1,false);
-	BodyHandle b2 = m_Physics->createOBB(50.f, true, Vector3(0,80,210), Vector3(10,10,100), true);
-	m_Physics->setBodyCollisionResponse(b2,false);
+	BodyHandle b = m_Physics->createOBB(50.f, true, Vector3(0,m_Player.getWaistHeight() - 1.0f,0), Vector3(10,10,100), true);
+	//m_Physics->setBodyCollisionResponse(b,false);
+	BodyHandle b1 = m_Physics->createOBB(50.f, true, Vector3(0,m_Player.getKneeHeight() - 21.0f,-210), Vector3(10,10,100), true);
+	//m_Physics->setBodyCollisionResponse(b1,false);
+	BodyHandle b2 = m_Physics->createOBB(50.f, true, Vector3(0,m_Player.getChestHeight() - 1.0f,210), Vector3(10,10,100), true);
+	BodyHandle b3 = m_Physics->createOBB(50.f, true, Vector3(0,m_Player.getHeight() - 1.0f,420), Vector3(10,10,100), true);
+	//m_Physics->setBodyCollisionResponse(b2,false);
 
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 
