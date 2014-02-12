@@ -1,0 +1,24 @@
+*Header
+#numObj: 4
+
+#MESH: Wagon3
+#Translation: 0 140.232819 89.109856
+#Rotation: 0 0 0
+#Scale: 128.442841 10 10
+
+#MESH: Wagon3
+#Translation: 0 123.493866 -209.094009
+#Rotation: 0 0 0
+#Scale: 93.094666 10 10
+
+#MESH: Wagon3
+#Translation: 63.87204 140.262085 -61.431061
+#Rotation: 1.570796 0 0
+#Scale: 300.764038 10 10
+
+#MESH: Wagon3
+#Translation: -64.240608 140.038727 -61.111134
+#Rotation: 1.570796 0 0
+#Scale: 300.764038 10 10
+
+

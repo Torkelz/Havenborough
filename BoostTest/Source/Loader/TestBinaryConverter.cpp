@@ -35,6 +35,11 @@ public:
 		createVertexBuffer(p_Output);
 	}
 
+	void testCreateAnimationHeader(std::ostream* p_Output)
+	{
+		createAnimationHeader(p_Output);
+	}
+
 	void testCreateVertexBufferAnimated(std::ostream* p_Output)
 	{
 		createVertexBufferAnimation(p_Output);
@@ -44,7 +49,94 @@ public:
 	{
 		createJointBuffer(p_Output);
 	}
+
+	bool testCreateModelHeaderFile(std::string p_FilePath)
+	{
+		return createModelHeaderFile(p_FilePath);
+	}
+
+	bool testWriteFiles(std::string p_FilePath)
+	{
+		return writeFile(p_FilePath);
+	}
 };
+
+BOOST_AUTO_TEST_CASE(TestWriteModelFiles)
+{
+	struct byteFloat
+	{
+		union
+		{
+			float f;
+			char c[sizeof(float)];
+		};
+	};
+
+	struct byteInt
+	{
+		union
+		{
+			int i;
+			char c[sizeof(int)];
+		};
+	};
+
+	testConv conv;
+	bool result;
+	result = conv.testWriteFiles("");
+	BOOST_CHECK_EQUAL(result, false);
+	conv.setMeshName("test");
+	result = conv.testWriteFiles("");
+	BOOST_CHECK_EQUAL(result, false);
+	result = conv.testWriteFiles("..\\Source\\Loader\\models\\testOutput.btx");
+	BOOST_CHECK_EQUAL(result, true);
+	conv.setMeshName("test");
+		std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMINT4>> tempWeight;
+	byteFloat tempFloat4Weight[3];tempFloat4Weight[0].f = 0.f; tempFloat4Weight[1].f = 1.f; tempFloat4Weight[2].f = 2.f;
+	byteInt tempFloat4Joint[4];tempFloat4Joint[0].i = 2; tempFloat4Joint[1].i = 1; tempFloat4Joint[2].i = 2; tempFloat4Joint[3].i = 0;
+	tempWeight.push_back(std::make_pair(
+		DirectX::XMFLOAT3(tempFloat4Weight[0].f, tempFloat4Weight[1].f, tempFloat4Weight[2].f), 
+		DirectX::XMINT4(tempFloat4Joint[0].i, tempFloat4Joint[1].i, tempFloat4Joint[2].i, tempFloat4Joint[3].i)));
+	conv.setWeightsList(&tempWeight);
+	result = conv.testWriteFiles("..\\Source\\Loader\\models\\testOutput.btx");
+	BOOST_CHECK_EQUAL(result, true);
+	tempWeight.clear();
+	tempWeight.shrink_to_fit();
+}
+
+BOOST_AUTO_TEST_CASE(TestCreateModelHeaderFile)
+{
+	testConv conv;
+	bool result;
+	result = conv.testCreateModelHeaderFile("");
+	BOOST_CHECK_EQUAL(result, false);
+	result = conv.testCreateModelHeaderFile("..\\Source\\Loader\\models\\temphex.btx");
+	BOOST_CHECK_EQUAL(result, true);
+}
+
+BOOST_AUTO_TEST_CASE(TestCreateAnimationHeader)
+{
+	struct byteInt
+	{
+		union
+		{
+			int i;
+			char c[sizeof(int)];
+		};
+	};
+	testConv conv;
+	byteInt test;
+	test.i = 4;
+	conv.setMeshName("temp");
+	conv.setNumberOfFrames(test.i);
+	std::vector<ModelLoader::Joint> joints;
+	conv.setListOfJoints(&joints);
+	std::ostringstream output;
+	conv.testCreateAnimationHeader(&output);
+	std::string stream = output.str();
+	BOOST_CHECK_EQUAL_COLLECTIONS(test.c, test.c+sizeof(int), stream.begin(), stream.begin() + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(test.c, test.c+sizeof(int), stream.begin() + 12, stream.end());
+}
 
 BOOST_AUTO_TEST_CASE(TestIntToByte)
 {
@@ -90,7 +182,7 @@ BOOST_AUTO_TEST_CASE(TestCreateModelHeader)
 		"\x01\0\0\0"
 		"\x01\0\0\0"
 		"\x01\0\0\0"
-		"\x01\0\0\0"
+		"\0\0\0\0"
 		"\0\0\0\0"
 		"\x01\0\0\0";
 
@@ -101,7 +193,6 @@ BOOST_AUTO_TEST_CASE(TestCreateModelHeader)
 	indexDescs.push_back(std::vector<ModelLoader::IndexDesc>());
 	indexDescs.back().push_back(ModelLoader::IndexDesc());
 	std::vector<ModelLoader::Joint> joints;
-	joints.push_back(ModelLoader::Joint());
 
 	conv.setMeshName("polySurfaceShape1");
 	conv.setMaterial(&materials);
@@ -172,6 +263,8 @@ BOOST_AUTO_TEST_CASE(TestCreateMaterialBuffer)
 	BOOST_CHECK_EQUAL_COLLECTIONS(resMaterialBuffer.begin(), resMaterialBuffer.end(), binMaterialBuffer, binMaterialBuffer + sizeof(binMaterialBuffer) - 1);
 }
 
+
+
 BOOST_AUTO_TEST_CASE(TestCreateVertexBuffer)
 {
 	testConv conv;
@@ -216,7 +309,7 @@ BOOST_AUTO_TEST_CASE(TestCreateVertexBuffer)
 	indexDesc.push_back(temp);
 	indexList.push_back(indexDesc);
 	
-	conv.setMaterial(&tempMaterial);
+	//conv.setMaterial(&tempMaterial);
 	conv.setIndices(&indexList);
 	conv.setVertices(&tempVertex);
 	conv.setNormals(&tempNormal);

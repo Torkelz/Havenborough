@@ -6,6 +6,11 @@ BOOST_AUTO_TEST_SUITE(TestBinaryModelLoader)
 class testBinaryLoader : public ModelBinaryLoader
 {
 public:
+	void testLoadBinaryFile(std::string p_FilePath)
+	{
+		loadBinaryFile(p_FilePath);
+	}
+
 	void testByteToInt(std::istream* p_Input, int& temp)
 	{
 		byteToInt(p_Input, temp);
@@ -51,6 +56,14 @@ public:
 	}
 };
 
+BOOST_AUTO_TEST_CASE(TestBinaryLoadFile)
+{
+	testBinaryLoader loader;
+
+	BOOST_CHECK_THROW(loader.testLoadBinaryFile(""), std::exception);
+	//loader.testLoadBinaryFile("..\\Source\\Loader\\models\\testNormal.btx");//////////////////////////////////////////////////
+}
+
 BOOST_AUTO_TEST_CASE(TestByteToInt)
 {
 	struct byteInt
@@ -90,7 +103,9 @@ BOOST_AUTO_TEST_CASE(TestReadModelHeader)
 		"\x05\0\0\0"
 		"\x02\0\0\0"
 		"\x01\0\0\0"
-		"\x01\0\0\0";
+		"\0\0\0\0"
+		"\0\0\0\0"
+		"\0\0\0\0";
 	std::istringstream tempString(std::string(binHeader, binHeader + sizeof(binHeader)));
 	testBinaryLoader loader;
 	tempHeader = loader.testReadHeader(&tempString);
@@ -99,6 +114,9 @@ BOOST_AUTO_TEST_CASE(TestReadModelHeader)
 	BOOST_CHECK_EQUAL(tempHeader.m_NumMaterial, 5);
 	BOOST_CHECK_EQUAL(tempHeader.m_NumVertex, 2);
 	BOOST_CHECK_EQUAL(tempHeader.m_NumMaterialBuffer, 1);
+	BOOST_CHECK_EQUAL(tempHeader.m_Transparent, false);
+	BOOST_CHECK_EQUAL(tempHeader.m_Animated, false);
+	BOOST_CHECK_EQUAL(tempHeader.m_CollideAble, false);
 	BOOST_CHECK_EQUAL(tempHeader.m_Transparent, false);
 }
 

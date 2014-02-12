@@ -7,6 +7,11 @@ BOOST_AUTO_TEST_SUITE(TestModelTXLoader)
 class testLoader : public ModelLoader
 {
 public:
+	bool testLoadModel(std::string p_FilePath)
+	{
+		return loadFile(p_FilePath);
+	}
+
 	void testHeader(std::istream& p_Input)
 	{
 		readHeader(p_Input);
@@ -57,6 +62,16 @@ public:
 	}
 };
 
+BOOST_AUTO_TEST_CASE(TestLoadModel)
+{
+	testLoader loader;
+	bool result;
+	result = loader.testLoadModel("");
+	BOOST_CHECK_EQUAL(result, false);
+	result = loader.testLoadModel("..\\Source\\Loader\\testModelLoader.tx");
+	BOOST_CHECK_EQUAL(result, true);
+}
+
 BOOST_AUTO_TEST_CASE(TestHeaderAndMaterialFile)
 {
 	std::string tempString = "#Tansparent 1 \n#Collidable 0 \n#Materials 1 \n#MESH ABC \n#Vertices 8 \n#Triangles 12\n";
@@ -80,7 +95,7 @@ BOOST_AUTO_TEST_CASE(TestHeaderAndMaterialFile)
 
 BOOST_AUTO_TEST_CASE(TestBuildingFaces)
 {
-	std::string tempString = "#Materials 1 \n#MESH ABC \n#Vertices 3 \n#Triangles 1\n";
+	std::string tempString = "#Tansparent 1 \n#Collidable 0 \n#Materials 0 \n#MESH ABC \n#Vertices 3 \n#Triangles 1\n";
 	std::istringstream tempStream(tempString); 
 	testLoader loader;
 	
@@ -126,7 +141,7 @@ BOOST_AUTO_TEST_CASE(TestBuildingFaces)
 	BOOST_CHECK_EQUAL(loader.getTangents().at(0).z , 0);
 
 	tempStream.clear();
-	tempString = "-blinn1 \nface: 3 \n2 / 0 / 1 / 2 | 1 / 1 / 1 / 1 | 0 / 2 / 2 / 2 | \n";
+	tempString = "-blinn1 \nface: 3 \n2 / 0 / 1 / 2 | 1 / 1 / 1 / 1 | 0 / 2 / 2 / 2 | \n\n";
 	tempStream = std::istringstream(tempString);
 
 	loader.testFaces(tempStream);
@@ -215,14 +230,15 @@ BOOST_AUTO_TEST_CASE(TestAnimation)
 
 BOOST_AUTO_TEST_CASE(TestMainLoop)
 {
-	std::string tempString = "*Header\n #Tansparent 1 \n#Collidable 0 \n#Materials 1 \n#MESH polySurfaceShape1 \n#Vertices 3 \n#Triangles 1 \n"
+	std::string tempString = "*Header\n #Tansparent 1 \n#Collidable 0 \n#Materials 2 \n#MESH polySurfaceShape1 \n#Vertices 3 \n#Triangles 1 \n"
 	"*Materials \nMaterial: lambert1 \nDiffuseMap: NONE \nNormalMap: NONE \nSpecularMap: NONE \n \n"
+	"Material: lambert1 \nDiffuseMap: NONE \nNormalMap: NONE \nSpecularMap: NONE \n \n"
 	"*Vertices \nv -0.499455 -0.499619 0.499924 \nv -0.499668 0.501486 0.500748 \nv -0.496855 0.498541 -0.498709 \n\n"
 	"*Normals \nn -0.00028988 -0.000753547 1 \nn -0.0020181 -0.00166746 0.999997 \nn -0.000190268 -0.000774098 1 \n\n"
 	"*UV COORDS \nuv 0.375 0 \nuv 0.375 0.25 \nuv 0.375 0.5 \n\n"
 	"*Tangets \nt 1 -0.000514396 0.000289492 \nt 0.999997 -0.001133 0.00201621 \nt 0.999999 -0.00112993 0.000189394 \n\n"
-	"*FACES \n-lambert1 \nface: 3 \n0 / 0 / 0 / 0 | 2 / 1 / 1 / 2 | 0 / 2 / 2 / 0 | \n\n"
-	"*WEIGHTS \nw 0.993041 0 0 0 \nj 1 0 0 0 \n\n"
+	"*FACES \n-lambert1 \nface: 3 \n0 / 0 / 0 / 0 | 2 / 1 / 1 / 2 | 0 / 2 / 2 / 0 | \n\n-lambert1 \nface: 3 \n0 / 0 / 0 / 0 | 2 / 1 / 1 / 2 | 0 / 2 / 2 / 0 | \n\n"
+	"*WEIGHTS \nw 0.993041 0 0 0 \nj 1 0 0 0 \nw 0.2 0.2 0.2 0.2 \nj 1 1 1 1 \n\n"
 	"*HIERARCHY \njoint1 1 | 0 \n\n"
 	"*JOINT_OFFSET \njoint1 0 1 0 0 -1 0 0 0 0 0 1 0 0 -0.492047 0 1 \n\n"
 	"*ANIMATION \nStart 0.0416667 \nEnd 1 \nNum_frames 1 \n\n\1 \nTrans: 0 -0.492047 0 Rot: 0 0 0 1 Scale: 1 1 1 \n\n";
@@ -232,6 +248,8 @@ BOOST_AUTO_TEST_CASE(TestMainLoop)
 	loader.testStart(tempStream);
 
 	ModelLoader::IndexDesc tempIndex = loader.getIndices().at(0).at(0);
+	BOOST_CHECK_EQUAL(loader.getCollidable(), false);
+	BOOST_CHECK_EQUAL(loader.getTransparent(), true);
 	BOOST_CHECK_EQUAL(loader.getMaterial().at(0).m_MaterialID , "lambert1");
 	BOOST_CHECK_EQUAL(loader.getMaterial().at(0).m_DiffuseMap , "NONE");
 	BOOST_CHECK_EQUAL(loader.getVertices().at(tempIndex.m_Vertex).x , -0.499455f);

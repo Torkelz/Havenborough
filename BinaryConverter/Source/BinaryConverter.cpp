@@ -95,8 +95,8 @@ void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter)
 	p_Converter->setMaterial(&p_Loader->getMaterial());
 	p_Converter->setWeightsList(&p_Loader->getWeightsList());
 	p_Converter->setListOfJoints(&p_Loader->getListOfJoints());
-	p_Converter->setAnimationStartValue(p_Loader->getAnimationStartValue());
-	p_Converter->setAnimationEndValue(p_Loader->getAnimationEndValue());
+	//p_Converter->setAnimationStartValue(p_Loader->getAnimationStartValue());
+	//p_Converter->setAnimationEndValue(p_Loader->getAnimationEndValue());
 	p_Converter->setNumberOfFrames(p_Loader->getNumberOfFrames());
 }
 
