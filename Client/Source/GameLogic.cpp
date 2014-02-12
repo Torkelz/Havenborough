@@ -537,7 +537,7 @@ void GameLogic::handleNetwork()
 					for (unsigned int i = 0; i < numUpdates; ++i)
 					{
 						const UpdateObjectData& data = updates[i];
-						const uint16_t actorId = data.m_Id;
+						const uint32_t actorId = data.m_Id;
 
 						Actor::ptr actor = getActor(actorId);
 						if (!actor)
@@ -678,6 +678,12 @@ void GameLogic::handleNetwork()
 					m_PlayingLocal = false;
 
 					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
+				}
+				break;
+
+			case PackageType::SET_SPAWN:
+				{
+					m_Player.setSpawnPosition(conn->getSetSpawnPositionData(package));
 				}
 				break;
 

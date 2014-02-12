@@ -146,7 +146,7 @@ const uint32_t* ConnectionController::getRemoveObjectRefs(Package p_Package)
 	return removeObjects->m_Object1.data();
 }
 
-void ConnectionController::sendObjectAction(uint16_t p_ObjectId, const char* p_Action)
+void ConnectionController::sendObjectAction(uint32_t p_ObjectId, const char* p_Action)
 {
 	ObjectAction package;
 	package.m_Object1 = p_ObjectId;
@@ -155,7 +155,7 @@ void ConnectionController::sendObjectAction(uint16_t p_ObjectId, const char* p_A
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 
-uint16_t ConnectionController::getObjectActionId(Package p_Package)
+uint32_t ConnectionController::getObjectActionId(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	ObjectAction* objectAction = static_cast<ObjectAction*>(m_ReceivedPackages[p_Package].get());
@@ -169,7 +169,7 @@ const char* ConnectionController::getObjectActionAction(Package p_Package)
 	return objectAction->m_Object2.c_str();
 }
 
-void ConnectionController::sendAssignPlayer(uint16_t p_ObjectId)
+void ConnectionController::sendAssignPlayer(uint32_t p_ObjectId)
 {
 	AssignPlayer package;
 	package.m_Object1 = p_ObjectId;
@@ -177,7 +177,7 @@ void ConnectionController::sendAssignPlayer(uint16_t p_ObjectId)
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 
-uint16_t ConnectionController::getAssignPlayerObject(Package p_Package)
+uint32_t ConnectionController::getAssignPlayerObject(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	AssignPlayer* assignPlayer = static_cast<AssignPlayer*>(m_ReceivedPackages[p_Package].get());
@@ -269,6 +269,20 @@ void ConnectionController::sendLeaveGame()
 {
 	LeaveGame package;
 	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+void ConnectionController::sendSetSpawnPosition(Vector3 p_Position)
+{
+	SetSpawnPosition package;
+	package.m_Object1 = p_Position;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+Vector3 ConnectionController::getSetSpawnPositionData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	SetSpawnPosition* setSpawn = static_cast<SetSpawnPosition*>(m_ReceivedPackages[p_Package].get());
+	return setSpawn->m_Object1;
 }
 
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)

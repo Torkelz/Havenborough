@@ -378,6 +378,11 @@ void Player::setGroundNormal(DirectX::XMFLOAT3 p_Normal)
 	m_GroundNormal = p_Normal;
 }
 
+void Player::setSpawnPosition(Vector3 p_Position)
+{
+	m_LastSafePosition = p_Position;
+}
+
 void Player::jump(float dt)
 {
 	if(m_IsJumping)

@@ -177,6 +177,13 @@ public:
 	 */
 	void setGroundNormal(DirectX::XMFLOAT3 p_Normal);
 
+	/**
+	 * Sets the player's respawn position,  which is used when the player goes out of bounds.
+	 *
+	 * @param p_Position the position where the player will spawn after going to far away
+	 */
+	void setSpawnPosition(Vector3 p_Position);
+
 private:
 	void jump(float dt);
 	void move(float p_DeltaTime);

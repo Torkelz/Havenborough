@@ -165,7 +165,7 @@ public:
 	 * @param p_ObjectId the id of the target object
 	 * @param p_Action a null-terminated string describing the action
 	 */
-	virtual void sendObjectAction(uint16_t p_ObjectId, const char* p_Action) = 0;
+	virtual void sendObjectAction(uint32_t p_ObjectId, const char* p_Action) = 0;
 
 	/**
 	 * Get the id of the object targeted by the package.
@@ -173,7 +173,7 @@ public:
 	 * @param p_Package a valid reference to a package with the ObjectAction type.
 	 * @return the id of an object
 	 */
-	virtual uint16_t getObjectActionId(Package p_Package) = 0;
+	virtual uint32_t getObjectActionId(Package p_Package) = 0;
 
 	/**
 	 * Get the action from the package.
@@ -188,13 +188,13 @@ public:
 	 *
 	 * @param p_ObjectId the id of the object to assign the player to
 	 */
-	virtual void sendAssignPlayer(uint16_t p_ObjectId) = 0;
+	virtual void sendAssignPlayer(uint32_t p_ObjectId) = 0;
 
 	/**
 	 * @param p_Package a valid reference to a package with the AssignPlayer type.
 	 * @return the id of an object
 	 */
-	virtual uint16_t getAssignPlayerObject(Package p_Package) = 0;
+	virtual uint32_t getAssignPlayerObject(Package p_Package) = 0;
 
 	/**
 	 * Send a Player Control package, controlling the players object.
@@ -271,4 +271,19 @@ public:
 	 * Send a Leave Game package for a player leaving a server game.
 	 */
 	virtual void sendLeaveGame() = 0;
+	
+	/**
+	 * Send a package assigning a new spawn position to the player.
+	 *
+	 * @param p_Position the new spawn position in world space, cm.
+	 */
+	virtual void sendSetSpawnPosition(Vector3 p_Position) = 0;
+
+	/**
+	 * Get the position from a set spawn position package.
+	 *
+	 * @param p_Package a valid reference to a package with the SetSpawnPosition type.
+	 * @return the new spawn position
+	 */
+	virtual Vector3 getSetSpawnPositionData(Package p_Package) = 0;
 };
