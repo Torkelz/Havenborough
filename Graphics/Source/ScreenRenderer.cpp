@@ -59,7 +59,7 @@ void ScreenRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_D
 
 	m_ViewMatrix = p_ViewMatrix;
 	XMStoreFloat4x4(&m_OrthoMatrix,
-		XMMatrixOrthographicLH(p_OrthoData.x, p_OrthoData.y, p_OrthoData.z, p_OrthoData.w));
+		XMMatrixTranspose(XMMatrixOrthographicLH(p_OrthoData.x, p_OrthoData.y, p_OrthoData.z, p_OrthoData.w)));
 	
 	m_HUD_Shader = WrapperFactory::getInstance()->createShader(L"assets/shaders/HUD_Shader.hlsl", "VS,PS", "5_0",
 		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
@@ -141,7 +141,7 @@ void ScreenRenderer::createRasterState(void)
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = false;
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.FrontCounterClockwise = true;
+	rasterDesc.FrontCounterClockwise = false;
 	rasterDesc.MultisampleEnable = false;
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
@@ -153,7 +153,7 @@ void ScreenRenderer::createDepthStencilState(void)
 {
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {0};
 	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
 	depthStencilDesc.StencilEnable = false;
@@ -187,6 +187,8 @@ void ScreenRenderer::renderScreen(void)
 {
 	if(m_2D_Objects.size() > 0)
 	{
+		m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.f, 0);
+
 		// Store previous States to be set when we exit the method.
 		ID3D11RasterizerState *previousRasterState;
 		ID3D11DepthStencilState *previousDepthState;
