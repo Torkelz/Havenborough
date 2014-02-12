@@ -3,7 +3,6 @@
 #include "Shader.h"
 
 #include <memory>
-#include <string>
 
 struct Particle
 {

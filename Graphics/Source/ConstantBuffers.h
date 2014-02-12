@@ -11,6 +11,12 @@ struct cBuffer
 	float padding;
 };
 
+struct c2D_ObjectBuffer
+{
+	DirectX::XMFLOAT4X4 view;
+	DirectX::XMFLOAT4X4 orthoProj;
+};
+
 struct cObjectBuffer
 {
 	DirectX::XMFLOAT4X4 world;

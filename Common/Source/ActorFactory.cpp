@@ -2,6 +2,7 @@
 #include "CommonExceptions.h"
 #include "Components.h"
 #include "HumanAnimationComponent.h"
+#include "SpellComponent.h"
 #include "XMLHelper.h"
 
 ActorFactory::ActorFactory(unsigned int p_BaseActorId)
@@ -9,6 +10,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 		m_LastModelComponentId(0),
 		m_LastLightComponentId(0),
 		m_LastParticleComponentId(0),
+		m_LastSpellComponentId(0),
 		m_Physics(nullptr)
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
@@ -21,6 +23,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
 	m_ComponentCreators["Light"] = std::bind(&ActorFactory::createLightComponent, this);
 	m_ComponentCreators["Particle"] = std::bind(&ActorFactory::createParticleComponent, this);
+	m_ComponentCreators["Spell"] = std::bind(&ActorFactory::createSpellComponent, this);
 	m_ComponentCreators["Look"] = std::bind(&ActorFactory::createLookComponent, this);
 	m_ComponentCreators["HumanAnimation"] = std::bind(&ActorFactory::createHumanAnimationComponent, this);
 }
@@ -43,6 +46,11 @@ void ActorFactory::setResourceManager(ResourceManager* p_ResourceManager)
 void ActorFactory::setAnimationLoader(AnimationLoader* p_AnimationLoader)
 {
 	m_AnimationLoader = p_AnimationLoader;
+}
+
+void ActorFactory::setSpellFactory(SpellFactory* p_SpellFactory)
+{
+	m_SpellFactory = p_SpellFactory;
 }
 
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
@@ -160,18 +168,18 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "WITCH");
 	printer.CloseElement();
-	//printer.OpenElement("OBBPhysics");
-	//printer.PushAttribute("Immovable", false);
-	//printer.PushAttribute("Mass", 68.f);
-	//pushVector(printer, "Halfsize", Vector3(50.f, 50.f, 50.f));
-	//pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f)); 
-	//printer.CloseElement();
-	printer.OpenElement("SpherePhysics");
+	printer.OpenElement("OBBPhysics");
 	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Radius", 50.f);
 	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
+	pushVector(printer, "Halfsize", Vector3(30.f, 80.f, 30.f));
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 80.f, 0.f)); 
 	printer.CloseElement();
+	//printer.OpenElement("SpherePhysics");
+	//printer.PushAttribute("Immovable", false);
+	//printer.PushAttribute("Radius", 50.f);
+	//printer.PushAttribute("Mass", 68.f);
+	//pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
+	//printer.CloseElement();
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
 	printer.PushAttribute("Strength", 0.5f);
@@ -309,7 +317,57 @@ Actor::ptr ActorFactory::createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize
 
 	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
 
-return actor;
+	return actor;
+}
+
+Actor::ptr ActorFactory::createInstanceActor(
+		const InstanceModel& p_Model,
+		const std::vector<InstanceBoundingVolume>& p_BoundingVolumes,
+		const std::vector<InstanceEdgeBox>& p_Edges)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Model.position);
+	pushRotation(printer, p_Model.rotation);
+	print(printer, p_Model);
+	for (const auto& volume : p_BoundingVolumes)
+	{
+		print(printer, volume);
+	}
+	for (const auto& edge : p_Edges)
+	{
+		print(printer, edge);
+	}
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Vector3 p_Direction, Vector3 p_StartPosition)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_StartPosition);
+	printer.OpenElement("Spell");
+	printer.PushAttribute("SpellName", p_Spell.c_str());
+	pushVector(printer, "Direction", p_Direction);
+	printer.CloseElement();
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", "TestParticle");
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
 }
 
 ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_Data)
@@ -414,6 +472,16 @@ ActorComponent::ptr ActorFactory::createParticleComponent()
 	return ActorComponent::ptr(comp);
 }
 
+ActorComponent::ptr ActorFactory::createSpellComponent()
+{
+	SpellComponent* comp = new SpellComponent;
+	comp->setResourceManager(m_ResourceManager);
+	comp->setSpellFactory(m_SpellFactory);
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
 ActorComponent::ptr ActorFactory::createLookComponent()
 {
 	return ActorComponent::ptr(new LookComponent);
@@ -426,4 +494,32 @@ ActorComponent::ptr ActorFactory::createHumanAnimationComponent()
 	comp->setAnimationLoader(m_AnimationLoader);
 
 	return ActorComponent::ptr(comp);
+}
+
+void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceModel& p_Model)
+{
+	p_Printer.OpenElement("Model");
+	p_Printer.PushAttribute("Mesh", p_Model.meshName.c_str());
+	pushVector(p_Printer, "Scale", p_Model.scale);
+	p_Printer.CloseElement();
+}
+
+void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceBoundingVolume& p_Volume)
+{
+	p_Printer.OpenElement("MeshPhysics");
+	p_Printer.PushAttribute("Mesh", p_Volume.meshName.c_str());
+	pushVector(p_Printer, "Scale", p_Volume.scale);
+	p_Printer.CloseElement();
+}
+
+void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge)
+{
+	p_Printer.OpenElement("OBBPhysics");
+	p_Printer.PushAttribute("Immovable", true);
+	p_Printer.PushAttribute("Mass", 0.f);
+	p_Printer.PushAttribute("IsEdge", true);
+	pushVector(p_Printer, "Halfsize", p_Edge.halfsize);
+	pushVector(p_Printer, "OffsetPosition", p_Edge.offsetPosition);
+	pushRotation(p_Printer, "OffsetRotation", p_Edge.offsetRotation);
+	p_Printer.CloseElement();
 }

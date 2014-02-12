@@ -58,12 +58,15 @@ public:
 	Vector3 getBodyVelocity(BodyHandle p_Body) override;
 
 	void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) override;
+	void setBodyRotationMatrix(BodyHandle p_Body, DirectX::XMFLOAT4X4 p_Rotation) override;
 	void setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
 	Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) override;
 	unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle) override;
+
+	Vector3 getBodyOrientation(BodyHandle p_BodyHandle) override;
 		 
 private:
 	Body* findBody(BodyHandle p_Body);
@@ -73,5 +76,7 @@ private:
 	BoundingVolume* getVolume(BodyHandle p_Body);
 
 	void fillTriangleIndexList();
+
+	void setRotation(BodyHandle p_Body, DirectX::XMMATRIX& p_Rotation);
 };
 

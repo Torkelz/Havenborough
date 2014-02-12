@@ -99,6 +99,7 @@
   <ItemGroup>
     <ClCompile Include="Source\ParticleInstance.cpp" />
     <ClCompile Include="Source\ParticleFactory.cpp" />
+    <ClCompile Include="Source\ScreenRenderer.cpp" />
     <ClCompile Include="Source\SkyDome.cpp" />
     <ClCompile Include="Source\ForwardRendering.cpp" />
     <ClCompile Include="Source\DeferredRenderer.cpp" />
@@ -115,6 +116,7 @@
     <ClCompile Include="Source\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Renderable2D.h" />
     <ClInclude Include="Source\ConstantBuffers.h" />
     <ClInclude Include="Source\ParticleInstance.h" />
     <ClInclude Include="Source\ParticleFactory.h" />
@@ -122,6 +124,7 @@
     <ClInclude Include="Source\ForwardRendering.h" />
     <ClInclude Include="include\ShaderDefinitions.h" />
     <ClInclude Include="Source\Renderable.h" />
+    <ClInclude Include="Source\ScreenRenderer.h" />
     <ClInclude Include="Source\SkyDome.h" />
     <ClInclude Include="Source\DeferredRenderer.h" />
     <ClInclude Include="Source\DDSTextureLoader.h" />

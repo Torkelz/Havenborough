@@ -28,7 +28,7 @@
     <ClInclude Include="Source\IEventData.h" />
     <ClInclude Include="Source\IEventManager.h" />
     <ClInclude Include="Source\Joint.h" />
-    <ClInclude Include="Source\LevelBinaryLoader.h" />
+    <ClInclude Include="Source\InstanceBinaryLoader.h" />
     <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\Logger.h" />
     <ClInclude Include="Source\ResourceManager.h" />
@@ -38,6 +38,10 @@
     <ClInclude Include="Source\Utilities\Util.h" />
     <ClInclude Include="Source\Utilities\XMFloatUtil.h" />
     <ClInclude Include="Source\XMLHelper.h" />
+    <ClInclude Include="Source\SpellDefinition.h" />
+    <ClInclude Include="Source\SpellFactory.h" />
+    <ClInclude Include="Source\SpellInstance.h" />
+    <ClInclude Include="Source\SpellComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp" />
@@ -49,10 +53,12 @@
     <ClCompile Include="Source\EventManager.cpp" />
     <ClCompile Include="Source\HumanAnimationComponent.cpp" />
     <ClCompile Include="Source\Joint.cpp" />
-    <ClCompile Include="Source\LevelBinaryLoader.cpp" />
+    <ClCompile Include="Source\InstanceBinaryLoader.cpp" />
     <ClCompile Include="Source\Logger.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\ResourceTranslator.cpp" />
+    <ClCompile Include="Source\SpellFactory.cpp" />
+    <ClCompile Include="Source\SpellInstance.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8C7B8D02-7172-4AE2-A0DF-2E5A5FC9F23F}</ProjectGuid>

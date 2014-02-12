@@ -406,6 +406,6 @@ HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
 HRESULT Shader::compileShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
 	DWORD p_ShaderFlags, ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage )
 {
-	return D3DCompileFromFile(p_Filename, nullptr, nullptr, p_EntryPoint, p_ShaderModel,
+	return D3DCompileFromFile(p_Filename, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, p_EntryPoint, p_ShaderModel,
 		p_ShaderFlags, 0, &p_ShaderData, &p_ErrorMessage);
 }

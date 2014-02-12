@@ -69,9 +69,9 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 		p_DeltaTime /= itr;
 	}
 
+	m_HitDatas.clear();
 	for(int p = 0; p < itr; p++)
 	{
-		m_HitDatas.clear();
 		for(unsigned i = 0; i < m_Bodies.size(); i++)
 		{
 			Body& b = m_Bodies[i];
@@ -491,31 +491,14 @@ Vector3 Physics::getBodyVelocity(BodyHandle p_Body)
 
 void Physics::setBodyRotation( BodyHandle p_Body, Vector3 p_Rotation)
 {
-	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return;
-
-	XMFLOAT4X4 temp;
 	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(p_Rotation.y, p_Rotation.x, p_Rotation.z);
+	setRotation(p_Body, rotation);
+}
 
-	XMStoreFloat4x4(&temp, rotation);
-
-	switch (body->getVolume()->getType())
-	{
-	case BoundingVolume::Type::OBB:
-		{
-			((OBB*)body->getVolume())->setRotation(rotation);
-			break;
-		}
-	case BoundingVolume::Type::HULL:
-		{
-			((Hull*)body->getVolume())->setRotation(rotation);
-			break;
-		}
-	default:
-		break;
-	}
-
+void Physics::setBodyRotationMatrix(BodyHandle p_Body, XMFLOAT4X4 p_Rotation)
+{
+	XMMATRIX rotation = XMLoadFloat4x4(&p_Rotation);
+	setRotation(p_Body, rotation);
 }
 
 void Physics::setLogFunction(clientLogCallback_t p_LogCallback)
@@ -606,4 +589,46 @@ unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle)
 	}
 
 	return 0;
+}
+
+void Physics::setRotation(BodyHandle p_Body, XMMATRIX& p_Rotation)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return;
+
+	switch (body->getVolume()->getType())
+	{
+	case BoundingVolume::Type::OBB:
+		{
+			((OBB*)body->getVolume())->setRotation(p_Rotation);
+			break;
+		}
+	case BoundingVolume::Type::HULL:
+		{
+			((Hull*)body->getVolume())->setRotation(p_Rotation);
+			break;
+		}
+	default:
+		break;
+	}
+}
+
+Vector3 Physics::getBodyOrientation(BodyHandle p_BodyHandle)
+{
+	Body* body = findBody(p_BodyHandle);
+	if(body == nullptr)
+		return Vector3(0.f, 0.f, 0.f);
+
+	BoundingVolume *volume = body->getVolume();
+
+	switch (volume->getType())
+	{
+	case BoundingVolume::Type::OBB:
+		return ((OBB*)volume)->getOrientation();
+	default:
+		break;
+	}
+
+	return Vector3(0.f, 0.f, 0.f);
 }

@@ -164,13 +164,18 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 		DXGI_FORMAT::DXGI_FORMAT_BC3_UNORM, 16 , 16)));
 	BOOST_CHECK(graphics->getVRAMUsage() - memUsage == 256);
 	
-
 	//Step 6
 	ResourceManager *resourceManager = new ResourceManager();
+	using namespace std::placeholders;
+	{
+		
+		resourceManager->registerFunction("texture",
+			std::bind(&IGraphics::createTexture, graphics, _1, _2),
+			std::bind(&IGraphics::releaseTexture, graphics, _1));
+	}
 	BOOST_MESSAGE(testId + "Setting callback functions for load/release textures");
 	BOOST_CHECK_NO_THROW(graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, resourceManager));
 	BOOST_CHECK_NO_THROW(graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, resourceManager));
-
 	
 	//Step 7
 	ModelFactory *modelFactory = nullptr;
@@ -179,18 +184,10 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK(wrapperFactory != nullptr);
 
 	BOOST_MESSAGE(testId + "Creating model object of Barrel1.btx");
-	BOOST_REQUIRE(graphics->createTexture("barrelColor", "../../Client/Bin/assets/textures/Barrel_COLOR.dds"));
-	BOOST_REQUIRE(graphics->createTexture("barrelNormal", "../../Client/Bin/assets/textures/Barrel_NRM.dds"));
-	BOOST_REQUIRE(graphics->createTexture("barrelSpecular", "../../Client/Bin/assets/textures/Barrel_SPEC.dds"));
 	BOOST_CHECK(graphics->createModel("barrel", "../../Client/Bin/assets/models/Barrel1.btx"));
 
-	BOOST_MESSAGE(testId + "Creating model object of Witch_Running_5.btx");
-	BOOST_REQUIRE(graphics->createTexture("bodyColor", "../../Client/Bin/assets/textures/body_COLOR.dds"));
-	BOOST_REQUIRE(graphics->createTexture("bodyNormal", "../../Client/Bin/assets/textures/body_NRM.dds"));
-	BOOST_REQUIRE(graphics->createTexture("defaultSpecular", "../../Client/Bin/assets/textures/Default_SPEC.dds"));
-	BOOST_REQUIRE(graphics->createTexture("accessoriesColor", "../../Client/Bin/assets/textures/Accessories_COLOR.dds"));
-	BOOST_REQUIRE(graphics->createTexture("accessoriesNormal", "../../Client/Bin/assets/textures/Accessories_NRM.dds"));
-	BOOST_CHECK(graphics->createModel("witch", "../../Client/Bin/assets/models/Witch_new2.btx"));
+	BOOST_MESSAGE(testId + "Creating model object of Dzala.btx");
+	BOOST_CHECK(graphics->createModel("witch", "../../Client/Bin/assets/models/Dzala.btx"));
 
 	//Step 8
 	BOOST_MESSAGE(testId + "Testing Graphics.createShader...");
@@ -295,13 +292,13 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 
 
 	//Step 12
-	SkyDome *skydome = new SkyDome();
-	BOOST_MESSAGE(testId + "Initializing standalone skydome");
-	BOOST_CHECK(skydome->init(1000.0f));
-	BOOST_MESSAGE(testId + "Checking size of vertices vector to be expected size 240");
-	BOOST_CHECK(skydome->getVertices().size() == 240);
-	BOOST_MESSAGE(testId + "Deleting standalone skydome");
-	SAFE_DELETE(skydome);
+	//SkyDome *skydome = new SkyDome();
+	//BOOST_MESSAGE(testId + "Initializing standalone skydome");
+	//BOOST_CHECK(skydome->init(1000.0f));
+	//BOOST_MESSAGE(testId + "Checking size of vertices vector to be expected size 240");
+	//BOOST_CHECK(skydome->getVertices().size() == 240);
+	//BOOST_MESSAGE(testId + "Deleting standalone skydome");
+	//SAFE_DELETE(skydome);
 
 	BOOST_MESSAGE(testId + "Creating skydome using Graphics");
 	BOOST_REQUIRE(graphics->createTexture("skydomeTexture", "../../Client/Bin/assets/textures/Skybox1_COLOR.dds"));
@@ -353,14 +350,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK(graphics->releaseModel("witch"));
 	BOOST_MESSAGE(testId + "Releasing model object of Checkpoint.btx");
 	BOOST_CHECK(graphics->releaseModel("checkpoint"));
-	BOOST_CHECK(graphics->releaseTexture("barrelColor"));
-	BOOST_CHECK(graphics->releaseTexture("barrelNormal"));
-	BOOST_CHECK(graphics->releaseTexture("barrelSpecular"));
-	BOOST_CHECK(graphics->releaseTexture("bodyColor"));
-	BOOST_CHECK(graphics->releaseTexture("bodyNormal"));
-	BOOST_CHECK(graphics->releaseTexture("defaultSpecular"));
-	BOOST_CHECK(graphics->releaseTexture("accessoriesColor"));
-	BOOST_CHECK(graphics->releaseTexture("accessoriesNormal"));
+	BOOST_CHECK(graphics->releaseTexture("TEXTURE_NOT_FOUND"));
 	
 
 	//Step 16

@@ -202,7 +202,7 @@ std::map<std::string, AnimationPath> MattiasLucaseXtremeLoader::loadAnimationPat
 					std::getline(input, line);
 					do
 					{
-						unsigned int value, timestamp;
+						float value, timestamp;
 						bool y = false;
 
 						stringstream = std::stringstream(line);
@@ -215,9 +215,9 @@ std::map<std::string, AnimationPath> MattiasLucaseXtremeLoader::loadAnimationPat
 						stringstream >> key >> timestamp;
 
 						if (y)
-							path.m_YPath.push_back(DirectX::XMUINT2(value, timestamp));
+							path.m_YPath.push_back(DirectX::XMFLOAT2(value, timestamp));
 						else
-							path.m_ZPath.push_back(DirectX::XMUINT2(value, timestamp));
+							path.m_ZPath.push_back(DirectX::XMFLOAT2(value, timestamp));
 
 						std::getline(input, line);
 					}while(!input.eof() && line != "*EndPath");

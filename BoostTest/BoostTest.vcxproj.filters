@@ -155,14 +155,8 @@
     <ClCompile Include="TestEdgeCollisionResponse.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
-    <ClCompile Include="..\BinaryConverter\Source\LevelLoader.cpp">
-      <Filter>TestLoaders\Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\BinaryConverter\Source\LevelConverter.cpp">
-      <Filter>TestLoaders\Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Input\Input.cpp">
       <Filter>TestClient\ClientImport</Filter>
@@ -234,13 +228,25 @@
     <ClCompile Include="..\Graphics\Source\ParticleInstance.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Source\LevelBinaryLoader.cpp">
-      <Filter>TestLoaders\Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
+    <ClCompile Include="..\Graphics\Source\ScreenRenderer.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BinaryConverter\Source\InstanceConverter.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BinaryConverter\Source\InstanceLoader.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\InstanceBinaryLoader.cpp">
+      <Filter>TestLoaders\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestPlayer.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

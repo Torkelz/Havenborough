@@ -39,6 +39,7 @@ private:
 	IPhysics *m_Physics;
 	std::unique_ptr<ResourceManager> m_ResourceManager;
 	std::unique_ptr<AnimationLoader> m_AnimationLoader;
+	std::unique_ptr<SpellFactory> m_SpellFactory;
 
 	ActorFactory m_ActorFactory;
 	DirectX::XMFLOAT2 m_NewWindowSize;

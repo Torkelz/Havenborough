@@ -53,7 +53,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
-
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_CurrentDebugView = 3;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
@@ -95,13 +95,13 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_Graphics->updateParticles(p_DeltaTime);
 
-	for (auto& model : m_Models)
-	{
-		for (const ReachIK& ik : model.activeIKs)
-		{
-			//m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
-		}
-	}
+	//for (auto& model : m_Models)
+	//{
+	//	for (const ReachIK& ik : model.activeIKs)
+	//	{
+	//		//m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
+	//	}
+	//}
 }
 
 void GameScene::onFocus()
@@ -148,6 +148,7 @@ void GameScene::render()
 				renderBoundingVolume(body);
 			}
 		}
+
 		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
 	}
 
@@ -181,6 +182,12 @@ void GameScene::render()
 	m_Graphics->renderSkydome();
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
+
+	//Render test arrow, remove when HUD scene is implemented
+	m_Graphics->set2D_ObjectLookAt(1, Vector3(0,0,0));
+	m_Graphics->render2D_Object(1);
+	m_Graphics->set2D_ObjectRotationZ(2, playerPos.x);
+	m_Graphics->render2D_Object(2);
 }
 
 bool GameScene::getIsVisible()
@@ -267,6 +274,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if (p_Action == "flipCamera" && p_Value == 1.f)
 	{
 		m_UseFlippedCamera = !m_UseFlippedCamera;
+	}
+	else if(p_Action == "spellCast" && p_Value == 1.f)
+	{
+		m_GameLogic->throwSpell("TestSpell");
 	}
 }
 
@@ -410,31 +421,38 @@ void GameScene::createParticleEffect(IEventData::Ptr p_Data)
 
 	ParticleBinding particle =
 	{
-		data->getId(),
 		resource,
 		m_Graphics->createParticleEffectInstance(data->getEffectName().c_str())
 	};
 
 	m_Graphics->setParticleEffectPosition(particle.instance, data->getPosition());
 
-	m_Particles.push_back(particle);
+	m_Particles[data->getId()] = particle;
 }
 
 void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<RemoveParticleEventData> data = std::static_pointer_cast<RemoveParticleEventData>(p_Data);
 
-	auto it = std::find_if(m_Particles.begin(), m_Particles.end(),
-		[&data] (const ParticleBinding& p_Particle)
-		{
-			return p_Particle.particleId == data->getId();
-		});
+	auto it = m_Particles.find(data->getId());
 
 	if (it != m_Particles.end())
 	{
-		m_Graphics->releaseParticleEffectInstance(it->instance);
-		m_ResourceManager->releaseResource(it->resourceId);
+		m_Graphics->releaseParticleEffectInstance(it->second.instance);
+		m_ResourceManager->releaseResource(it->second.resourceId);
 		m_Particles.erase(it);
+	}
+}
+
+void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateParticlePositionEventData> data = std::static_pointer_cast<UpdateParticlePositionEventData>(p_Data);
+
+	auto it = m_Particles.find(data->getId());
+
+	if (it != m_Particles.end())
+	{
+		m_Graphics->setParticleEffectPosition(it->second.instance, data->getPosition());
 	}
 }
 
@@ -465,6 +483,7 @@ void GameScene::loadSandboxModels()
 
 	static const std::string preloadedModels[] =
 	{
+		"Arrow1",
 		"Barrel1",
         "Crate1", 
 		"Grass1", 
@@ -500,6 +519,18 @@ void GameScene::loadSandboxModels()
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
 		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());		
 	}
+
+	static const std::string preloadedTextures[] =
+	{
+		"TEXTURE_NOT_FOUND",
+	};
+	for (const std::string &texture : preloadedTextures)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
+	}
+	m_Graphics->create2D_Object(Vector3(-500, 300, 2), 1.0f, 0.f, "Arrow1");
+	m_Graphics->create2D_Object(Vector3(-500, -280, 1), Vector2(80, 80), 0.0f, "TEXTURE_NOT_FOUND");
+
 	static const std::string preloadedModelsTransparent[] =
 	{
 		"Checkpoint1",

@@ -80,7 +80,7 @@ ID3D11ShaderResourceView* TextureLoader::createTextureFromFile(const char* p_Fil
 
 		if(FAILED(hr))
 		{
-			throw TextureLoaderException("DDS Texture load failed", __LINE__, __FILE__);
+			throw TextureLoaderException("DDS Texture load failed: " + std::string(p_Filename), __LINE__, __FILE__);
 		}
 	}
 	//Texture resource is used to catch output from the texture creation function but the

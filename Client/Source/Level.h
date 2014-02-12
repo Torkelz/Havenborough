@@ -74,7 +74,4 @@ public:
 	bool loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_ActorOut);
 
 private:
-	void createObjectActor(tinyxml2::XMLPrinter* p_Printer, std::string p_MeshName, Vector3 p_Position, Vector3 p_Rotation, Vector3 p_Scale);
-	void createCollisionActor(tinyxml2::XMLPrinter* p_Printer, std::string p_MeshName, Vector3 p_Translation, Vector3 p_Rotation, Vector3 p_Scale);
-	Actor::ptr createActorPointer(tinyxml2::XMLPrinter* p_Printer);
 };

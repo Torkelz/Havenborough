@@ -126,6 +126,13 @@ public:
 	 */
 	virtual void setBodyRotation(BodyHandle p_Body, Vector3 p_Rotation) = 0;
 	/**
+	 * Edit the rotation of the target body's bounding volume. Only works on OBB and Hull.
+	 *
+	 * @param p_Body are what body to work with
+	 * @param p_Rotation is a matrix representing a rotation
+	 */
+	virtual void setBodyRotationMatrix(BodyHandle p_Body, DirectX::XMFLOAT4X4 p_Rotation) = 0;
+	/**
 	 * Get the velocity for the chosen body.
 	 *
 	 * @param p_Body what body to get the data from
@@ -247,4 +254,6 @@ public:
 	 * @return the number of triangles.
 	 */
 	virtual unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle) = 0;
+
+	virtual Vector3 getBodyOrientation(BodyHandle p_Body) = 0;
 };
