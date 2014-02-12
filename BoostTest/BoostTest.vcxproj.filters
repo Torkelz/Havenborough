@@ -241,6 +241,9 @@
     <ClCompile Include="..\Common\Source\InstanceBinaryLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestPlayer.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

@@ -8,8 +8,6 @@ Player::Player(void)
 	m_Physics = nullptr;
 	m_JumpCount = 0;
     m_JumpCountMax = 2;
-    m_JumpDelay = 0.f;
-    m_JumpDelayMax = 0.15f;
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.15f;
 	m_JumpForce = 6500.f;
@@ -19,10 +17,10 @@ Player::Player(void)
 	m_DirectionZ = 0.f;
 	m_DirectionX = 0.f;
 	m_ForceMove = false;
-	m_ForceMoveTime = 1.0f;
-	m_ForceMoveSpeed = 1.f;
 	m_CurrentForceMoveTime = 0.f;
 	m_GroundNormal = XMFLOAT3(0.f, 1.f, 0.f);
+	m_Height = 170.f;
+	m_EyeHeight = 165.f;
 }
 
 Player::~Player(void)
@@ -30,133 +28,72 @@ Player::~Player(void)
 	m_Physics = nullptr;
 }
 
-void Player::initialize(IPhysics *p_Physics, XMFLOAT3 p_LookDirection, std::weak_ptr<Actor> p_Actor)
+void Player::initialize(IPhysics *p_Physics, std::weak_ptr<Actor> p_Actor)
 {
 	m_Physics = p_Physics;
-	m_LookDirection = p_LookDirection;
-	m_TempHeight = 170.f;
-	m_KneeHeight = m_TempHeight * 0.25f;
-	m_EyeHeight = 165.f;
 	m_Actor = p_Actor;
-	//m_PlayerBody = m_Physics->createOBB(68.f, false, kneePos, Vector3(50.f, 90.f, 50.f), false);
-	//m_PlayerBody = m_Physics->createSphere(68.f, false, kneePos, m_KneeHeight);
 }
 
-XMFLOAT3 Player::getPosition(void) const
+void Player::update(float p_DeltaTime)
 {
-	Actor::ptr actor = m_Actor.lock();
-	if (actor)
+	if(!m_ForceMove)
 	{
-		return actor->getPosition();
-	}
+		jump(p_DeltaTime);
 
-	Vector3 pos = getCollisionCenter();
-	pos.y -= m_KneeHeight;
-	return pos;
-}
-
-XMFLOAT3 Player::getEyePosition() const
-{
-	Actor::ptr actor = m_Actor.lock();
-	if (actor)
-	{
-		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-		if (comp)
+		if (!m_Physics->getBodyInAir(getBody()) || m_IsJumping)
 		{
-			return comp->getJointPos("Neck");
+			move(p_DeltaTime);
 		}
 	}
-
-	XMFLOAT3 eyePosition = getPosition();
-	eyePosition.y += m_EyeHeight;
-	return eyePosition;
-}
-
-void Player::setPosition(const XMFLOAT3 &p_Position)
-{
-	Vector3 kneePos = p_Position;
-	kneePos.y += m_KneeHeight;
-	m_Physics->setBodyPosition(getBody(), kneePos);
-}
-
-
-XMFLOAT3 Player::getGroundPosition() const
-{
-	return getPosition();
-}
-
-XMFLOAT3 Player::getCollisionCenter() const
-{
-	if (m_Actor.expired())
+	else
 	{
-		return Vector3(0.f, 0.f, 0.f);
+		unsigned int currentFrame = (unsigned int)m_CurrentForceMoveTime;
+
+		// Check if you have passed the goal frame.
+		if(currentFrame >= m_ForceMoveY[1].y)
+			m_ForceMoveY.erase(m_ForceMoveY.begin());
+		if(currentFrame >= m_ForceMoveZ[1].y)
+			m_ForceMoveZ.erase(m_ForceMoveZ.begin());
+
+		// Check if you only have one frame left.
+		if(m_ForceMoveY.size() < 2 && m_ForceMoveZ.size() < 2)
+		{
+			m_ForceMove = false;
+			m_CurrentForceMoveTime = 0.f;
+			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+			aa.lock()->resetClimbState();
+			return;
+		}
+
+		float currentFrameTime = m_CurrentForceMoveTime - m_ForceMoveY[0].y;
+		float currentFrameSpan = m_ForceMoveY[1].y - m_ForceMoveY[0].y;
+		float timeFrac = currentFrameTime / currentFrameSpan;
+		float currentYPos = m_ForceMoveY[0].x + ((m_ForceMoveY[1].x - m_ForceMoveY[0].x) * timeFrac);
+
+		currentFrameTime = m_CurrentForceMoveTime - m_ForceMoveZ[0].y;
+		currentFrameSpan = m_ForceMoveZ[1].y - m_ForceMoveZ[0].y;
+		timeFrac = currentFrameTime / currentFrameSpan;
+		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
+
+		m_CurrentForceMoveTime += p_DeltaTime * 24.0f; // 24 FPS
+
+		DirectX::XMFLOAT3 temp;
+		DirectX::XMVECTOR tv = DirectX::XMVectorSet(0,currentYPos,currentZPos,0);
+		DirectX::XMVECTOR tstart = DirectX::XMLoadFloat3(&m_ForceMoveStartPos);
+		XMMATRIX rotation = XMLoadFloat4x4(&m_ForceMoveRotation);
+
+		tv = XMVector3Transform(tv, rotation);
+
+		DirectX::XMStoreFloat3(&temp, tstart+tv);
+		setPosition(temp);
+
+		std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+		if (look)
+		{
+			look->setLookForward(Vector3(m_forward.x, m_forward.y, m_forward.z));
+			look->setLookUp(Vector3(0, 1, 0));
+		}
 	}
-
-	return m_Physics->getBodyPosition(getBody());
-}
-
-float Player::getHeight() const
-{
-	return m_TempHeight;
-}
-
-float Player::getChestHeight() const
-{
-	return m_TempHeight * 0.75f;
-}
-
-float Player::getWaistHeight() const
-{
-	return m_TempHeight * 0.5f;
-}
-
-float Player::getKneeHeight() const
-{
-	return m_TempHeight * 0.25f;
-}
-
-BodyHandle Player::getBody(void) const
-{
-	return m_Actor.lock()->getBodyHandles()[0];
-}
-
-void Player::setJump(void)
-{
-	if(m_Physics->getBodyInAir(getBody()))
-	{
-		m_JumpCount++;
-	}
-
-	if(!m_IsJumping && m_JumpCount < m_JumpCountMax)
-	{
-		//m_JumpCount++;
-		m_IsJumping = true;
-
-		Vector3 temp = m_Physics->getBodyVelocity(getBody());
-		temp.y = 0.f;
-
-		temp.x = m_DirectionX * m_MaxSpeed / (m_JumpCount + 1);
-		temp.z = m_DirectionZ * m_MaxSpeed / (m_JumpCount + 1);
-
-		m_Physics->setBodyVelocity(getBody(), temp);
-
-		m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
-	}
-}
-
-void Player::setDirectionX(float p_DirectionX)
-{
-	m_DirectionX = p_DirectionX;
-}
-
-void Player::setDirectionZ(float p_DirectionZ)
-{
-	m_DirectionZ = p_DirectionZ;
-}
-
-bool Player::getForceMove(void)
-{
-	return m_ForceMove;
 }
 
 void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation)
@@ -193,10 +130,11 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		a.r[3] = XMVectorSet(0,0,0,1);
 		XMStoreFloat4x4(&m_ForceMoveRotation, a);
 
-		float edgeY = 10;
+		float edgeY = p_EdgeOrientation.y;
+		XMStoreFloat3(&p_EdgeOrientation, XMVector3Normalize(XMVectorSet(p_EdgeOrientation.x, p_EdgeOrientation.y, p_EdgeOrientation.z, 0)));
 
 		XMVECTOR vReachPointCenter = Vector3ToXMVECTOR(&m_Physics->getBodyPosition(getBody()), 0.f) - XMLoadFloat3(&p_BoxPos);
-		bool sig = false;
+		
 		if(!(p_EdgeOrientation.x * side.m128_f32[0] >= 0.f && p_EdgeOrientation.z * side.m128_f32[2] >= 0.f))
 			p_EdgeOrientation = XMFLOAT3(-p_EdgeOrientation.x, -p_EdgeOrientation.y, -p_EdgeOrientation.z);
 
@@ -213,71 +151,9 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
 
 		XMVECTOR sp;
-		sp = vReachPointCenter + XMVectorSet(0,edgeY + m_KneeHeight,0,0) + offsetToStartPos;
+		sp = vReachPointCenter + XMVectorSet(0,edgeY + getKneeHeight(),0,0) + offsetToStartPos;
 		XMStoreFloat3(&m_ForceMoveStartPos, sp);
 		setPosition(m_ForceMoveStartPos);
-	}
-}
-
-void Player::update(float p_DeltaTime)
-{
-	if(!m_ForceMove)
-	{
-		jump(p_DeltaTime);
-
-		if (!m_Physics->getBodyInAir(getBody()) || m_IsJumping)
-		{
-			move(p_DeltaTime);
-		}
-	}
-	else
-	{
-		unsigned int currentFrame = (unsigned int)m_CurrentForceMoveTime;
-
-		// Check if you have passed the goal frame.
-		if(currentFrame >= m_ForceMoveY[1].y)
-			m_ForceMoveY.erase(m_ForceMoveY.begin());
-		if(currentFrame >= m_ForceMoveZ[1].y)
-			m_ForceMoveZ.erase(m_ForceMoveZ.begin());
-
-		// Check if you only have one frame left.
-		if(m_ForceMoveY.size() < 2 && m_ForceMoveZ.size() < 2)
-		{
-			m_ForceMove = false;
-			m_CurrentForceMoveTime = 0.f;
-			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
-			aa.lock()->resetClimbState();
-			return;
-		}
-
-		float currentFrameTime = (m_CurrentForceMoveTime - (float)m_ForceMoveY[0].y);
-		float currentFrameSpan = (float)(m_ForceMoveY[1].y - m_ForceMoveY[0].y);
-		float timeFrac = currentFrameTime / currentFrameSpan;
-		float currentYPos = m_ForceMoveY[0].x + ((m_ForceMoveY[1].x - m_ForceMoveY[0].x) * timeFrac);
-
-		currentFrameTime = (m_CurrentForceMoveTime - (float)m_ForceMoveZ[0].y);
-		currentFrameSpan = (float)(m_ForceMoveZ[1].y - m_ForceMoveZ[0].y);
-		timeFrac = currentFrameTime / currentFrameSpan;
-		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
-
-		m_CurrentForceMoveTime += p_DeltaTime * 24.0f; // 24 FPS
-
-		DirectX::XMFLOAT3 temp;
-		DirectX::XMVECTOR tv = DirectX::XMVectorSet(0,currentYPos,currentZPos,0);
-		DirectX::XMVECTOR tstart = DirectX::XMLoadFloat3(&m_ForceMoveStartPos);
-		XMMATRIX rotation = XMLoadFloat4x4(&m_ForceMoveRotation);
-
-		tv = XMVector3Transform(tv, rotation);
-
-		DirectX::XMStoreFloat3(&temp, tstart+tv);
-		setPosition(temp);
-
-		std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
-		if (look)
-		{
-			look->setLookForward(Vector3(m_forward.x, m_forward.y, m_forward.z));
-			look->setLookUp(Vector3(0, 1, 0));
-		}
 	}
 }
 
@@ -288,12 +164,8 @@ void Player::updateIKJoints()
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 		if(m_ClimbId == "Climb1")
 		{
-			//XMVECTOR reachPointR;
-			//reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_Side) * 20);
-			//Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
-			//aa.lock()->applyIK_ReachPoint("RightArm", vReachPointR);
-		}
 
+		}
 		else if(m_ClimbId == "Climb2")
 		{
 			XMVECTOR reachPointR;
@@ -328,6 +200,88 @@ void Player::updateIKJoints()
 	}
 }
 
+void Player::setPosition(const XMFLOAT3 &p_Position)
+{
+	Vector3 kneePos = p_Position;
+	kneePos.y += getKneeHeight();
+	m_Physics->setBodyPosition(getBody(), kneePos);
+}
+
+XMFLOAT3 Player::getPosition(void) const
+{
+	Actor::ptr actor = m_Actor.lock();
+	if (actor)
+	{
+		return actor->getPosition();
+	}
+
+	Vector3 pos = getCollisionCenter();
+	pos.y -= getKneeHeight();
+	return pos;
+}
+
+XMFLOAT3 Player::getEyePosition() const
+{
+	Actor::ptr actor = m_Actor.lock();
+	if (actor)
+	{
+		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+		if (comp)
+		{
+			return comp->getJointPos("Neck");
+		}
+	}
+
+	XMFLOAT3 eyePosition = getPosition();
+	eyePosition.y += m_EyeHeight;
+	return eyePosition;
+}
+
+XMFLOAT3 Player::getGroundPosition() const
+{
+	return getPosition();
+}
+
+XMFLOAT3 Player::getCollisionCenter() const
+{
+	if (m_Actor.expired())
+	{
+		return Vector3(0.f, 0.f, 0.f);
+	}
+
+	return m_Physics->getBodyPosition(getBody());
+}
+
+float Player::getHeight() const
+{
+	return m_Height;
+}
+
+float Player::getChestHeight() const
+{
+	return m_Height * 0.75f;
+}
+
+float Player::getWaistHeight() const
+{
+	return m_Height * 0.5f;
+}
+
+float Player::getKneeHeight() const
+{
+	return m_Height * 0.25f;
+}
+
+BodyHandle Player::getBody(void) const
+{
+	return m_Actor.lock()->getBodyHandles()[0];
+}
+
+bool Player::getForceMove(void)
+{
+	return m_ForceMove;
+}
+
 Vector3 Player::getVelocity() const
 {
 	return m_Physics->getBodyVelocity(getBody());
@@ -336,6 +290,40 @@ Vector3 Player::getVelocity() const
 Vector3 Player::getDirection() const
 {
 	return Vector3(m_DirectionX, 0.0f, m_DirectionZ);
+}
+
+void Player::setJump(void)
+{
+	if(m_Physics->getBodyInAir(getBody()))
+	{
+		m_JumpCount++;
+	}
+
+	if(!m_IsJumping && m_JumpCount < m_JumpCountMax)
+	{
+		//m_JumpCount++;
+		m_IsJumping = true;
+
+		Vector3 temp = m_Physics->getBodyVelocity(getBody());
+		temp.y = 0.f;
+
+		temp.x = m_DirectionX * m_MaxSpeed / (m_JumpCount + 1);
+		temp.z = m_DirectionZ * m_MaxSpeed / (m_JumpCount + 1);
+
+		m_Physics->setBodyVelocity(getBody(), temp);
+
+		m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
+	}
+}
+
+void Player::setDirectionX(float p_DirectionX)
+{
+	m_DirectionX = p_DirectionX;
+}
+
+void Player::setDirectionZ(float p_DirectionZ)
+{
+	m_DirectionZ = p_DirectionZ;
 }
 
 std::weak_ptr<Actor> Player::getActor() const
@@ -363,7 +351,6 @@ void Player::jump(float dt)
 	if(m_IsJumping)
 	{
 		m_JumpTime += dt;
-		m_JumpDelay += dt;
 		if(m_JumpTime > m_JumpTimeMax)
 		{
 			m_Physics->applyForce(getBody(), Vector3(0.f, -m_JumpForce, 0.f));
@@ -374,7 +361,6 @@ void Player::jump(float dt)
 	if(!m_IsJumping && !m_Physics->getBodyInAir(getBody()))
     {
 		m_JumpCount = 0;
-		//m_JumpDelay = 0.f;
     }
 
 	if(m_Physics->getBodyLanded(getBody()))

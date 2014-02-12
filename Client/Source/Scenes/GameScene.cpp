@@ -95,13 +95,13 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_Graphics->updateParticles(p_DeltaTime);
 
-	for (auto& model : m_Models)
-	{
-		for (const ReachIK& ik : model.activeIKs)
-		{
-			//m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
-		}
-	}
+	//for (auto& model : m_Models)
+	//{
+	//	for (const ReachIK& ik : model.activeIKs)
+	//	{
+	//		//m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
+	//	}
+	//}
 }
 
 void GameScene::onFocus()
@@ -149,10 +149,6 @@ void GameScene::render()
 			}
 		}
 		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
-		renderBoundingVolume(23);
-		renderBoundingVolume(24);
-		renderBoundingVolume(25);
-		renderBoundingVolume(26);
 	}
 
 	for(auto &light : m_Lights)

@@ -365,22 +365,13 @@ void GameLogic::playLocalLevel()
 
 	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
 	m_Player = Player();
-	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), playerActor);
+	m_Player.initialize(m_Physics, playerActor);
 
 	m_InGame = true;
 	m_PlayingLocal = true;
 
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
-
-	
-	BodyHandle b = m_Physics->createOBB(50.f, true, Vector3(0,m_Player.getWaistHeight() - 1.0f,0), Vector3(10,10,100), true);
-	//m_Physics->setBodyCollisionResponse(b,false);
-	BodyHandle b1 = m_Physics->createOBB(50.f, true, Vector3(0,m_Player.getKneeHeight() - 21.0f,-210), Vector3(10,10,100), true);
-	//m_Physics->setBodyCollisionResponse(b1,false);
-	BodyHandle b2 = m_Physics->createOBB(50.f, true, Vector3(0,m_Player.getChestHeight() - 1.0f,210), Vector3(10,10,100), true);
-	BodyHandle b3 = m_Physics->createOBB(50.f, true, Vector3(0,m_Player.getHeight() - 1.0f,420), Vector3(10,10,100), true);
-	//m_Physics->setBodyCollisionResponse(b2,false);
 
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 
@@ -530,7 +521,7 @@ void GameLogic::handleNetwork()
 						}
 						else if(object->Attribute("Type", "Position"))
 						{
-							int b = 0; //DO SOMETHING HERE!!
+							//int b = 0; //DO SOMETHING HERE!!
 						}
 					}
 				}
@@ -675,7 +666,7 @@ void GameLogic::handleNetwork()
 					if (actor)
 					{
 						m_Player = Player();
-						m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), actor);
+						m_Player.initialize(m_Physics, actor);
 					}
 
 					conn->sendDoneLoading();

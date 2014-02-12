@@ -224,7 +224,7 @@ public:
 	}
 
 	/**
-	 * Return the line that goes through the box at it's tallest.
+	 * Return the line that goes through the box at it's tallest. It is not normalized.
 	 */
 	DirectX::XMFLOAT3 getOrientation() const
 	{
@@ -252,7 +252,6 @@ private:
 			m_Orientation = DirectX::XMFLOAT3(0.0f, m_Extents.y, m_Extents.z);
 
 		DirectX::XMVECTOR n = DirectX::XMLoadFloat3(&m_Orientation);
-		n = DirectX::XMVector3Normalize(n);
 		DirectX::XMStoreFloat3(&m_Orientation, n);
 	}
 };

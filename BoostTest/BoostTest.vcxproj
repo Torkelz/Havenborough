@@ -181,6 +181,7 @@ $(TargetPath)</Command>
     <ClCompile Include="TestLogger.cpp" />
     <ClCompile Include="Source\Graphics\TestModelFactory.cpp" />
     <ClCompile Include="Source\Client\TestEventManager.cpp" />
+    <ClCompile Include="TestPlayer.cpp" />
     <ClCompile Include="TestResouceTranslator.cpp" />
     <ClCompile Include="TestResourceManager.cpp" />
   </ItemGroup>
