@@ -41,6 +41,7 @@ private:
 	ActorFactory* m_ActorFactory;
 	ActorList::ptr m_Actors;
 
+	bool m_IsConnecting;
 	bool m_Connected;
 	bool m_InGame;
 	bool m_PlayingLocal;

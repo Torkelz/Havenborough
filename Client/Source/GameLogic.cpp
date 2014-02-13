@@ -38,6 +38,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 
 	m_ChangeScene = GoToScene::NONE;
 
+	m_IsConnecting = false;
 	m_Connected = false;
 	m_InGame = false;
 	m_PlayingLocal = true;
@@ -382,7 +383,11 @@ void GameLogic::playLocalLevel()
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
 {
-	m_Network->connectToServer(p_URL.c_str(), p_Port, &connectedCallback, this);
+	if (!m_IsConnecting && !m_Connected)
+	{
+		m_IsConnecting = true;
+		m_Network->connectToServer(p_URL.c_str(), p_Port, &connectedCallback, this);
+	}
 }
 
 void GameLogic::leaveGame()
@@ -717,10 +722,11 @@ void GameLogic::handleNetwork()
 
 void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 {
+	GameLogic* self = static_cast<GameLogic*>(p_UserData);
+	self->m_IsConnecting = false;
+
 	if (p_Res == Result::SUCCESS)
 	{
-		GameLogic* self = static_cast<GameLogic*>(p_UserData);
-
 		self->m_Connected = true;
 
 		Logger::log(Logger::Level::INFO, "Connected successfully");
