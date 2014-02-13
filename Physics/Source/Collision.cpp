@@ -847,7 +847,7 @@ void Collision::checkCollisionDepth(float p_Min0, float p_Max0, float p_Min1, fl
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
 	if(lLength > EPSILON)
 	{
-		//float length = 50.f;
+		//float length = 75.f;
 		//if(lLength > length)
 		//	lLength = length;
 
@@ -894,13 +894,16 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 	//Box inverted axes
 	XMMATRIX invAxes = XMMatrixInverse(&XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f), A);//not used
 
-	float overlap = FLT_MAX, distance = FLT_MAX;
+	float overlap = 0, distance = FLT_MAX;
 	//Least separeting axis
-	XMVECTOR least;
+	XMVECTOR least = XMVectorSet(0.f, 0.f, 0.f, 0.f);
 
 	XMVECTOR tVec;
 
 	unsigned int size = p_Hull.getTriangleListSize();
+
+	std::vector<XMFLOAT4> vecs;
+	XMVECTOR result = XMVectorSet(0.f, 0.f, 0.f, 0.f);
 
 	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
 	{
@@ -929,7 +932,6 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		XMVECTOR N = XMVector3Cross(E0, E1);
 		XMVECTOR D = U0 - C;
 
-
 		float tOverlap = FLT_MAX;
 		//Least separeting axis
 		XMVECTOR tLeast;
@@ -948,7 +950,7 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		float max = p0;
 		if(max < -R || min > R )
 			continue;
-		
+
 		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
 
@@ -1090,33 +1092,78 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 
 		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
+		if (tOverlap == 0.f)
+			continue;
+
 		hit.intersect = true;
 		hit.colType = Type::OBBVSHULL;
+
 		XMVECTOR triC = XMLoadFloat4(&findClosestPointOnTriangle(p_OBB.getPosition(), tri.corners[0], tri.corners[1], tri.corners[2]));
-		XMVECTOR t = triC - C;
-		float l = XMVector3Length(t).m128_f32[0];
+		//XMVECTOR t = triC - C;
+
+		//float l = XMVector3Length(t).m128_f32[0];
+
+		XMVECTOR vec = tLeast * tOverlap;
+		tVec = triC - C;
+
+		float temp = XMVectorGetX(XMVector4Dot(tVec, vec));
+		if(temp > 0)
+			vec *= -1.f;
+
+		bool exist = false;
+		for(unsigned int v = 0; v < vecs.size(); v++)
+		{
+			float dot = fabs(XMVector3Dot(vec, XMLoadFloat4(&vecs[v])).m128_f32[0]);
+			float dot2 = fabs(XMVector3Dot(vec, vec).m128_f32[0]);
+
+			XMVECTOR norm1, norm2;
+
+			if(vecs.size() > 1)
+				int lol = 0;
+
+			norm1 = XMVector4Normalize(vec);
+			norm2 = XMVector4Normalize(XMLoadFloat4(&vecs[v]));
+
+
+			float dotNorm = XMVector4Dot(norm1, norm2).m128_f32[0];
+			if(dotNorm >= 1.f - EPSILON && dotNorm <= 1.f + EPSILON)// || dot < EPSILON && dot > 0.f)
+			//if(XMVector4Equal(norm1, norm2))
+			{
+				exist = true;
+				break;
+			}
+		}
+
+		if(exist)
+			continue;
+		//tVec = triC;
+		
+		XMFLOAT4 tempVec;
+		XMStoreFloat4(&tempVec, vec);
+		vecs.push_back(tempVec);
+
+		result += vec;
 
 		//Check if this triangle is closer than the last, if so save the least separating axis.
-		if(l < distance)
+		/*if(l < distance)
 		{	
 			distance = l;
 			overlap = tOverlap;
 			least = tLeast;
 			tVec = triC;
-		}
+		}*/
 	}
 
 	if(hit.intersect)
 	{
-		tVec = tVec - C;
-		float temp = XMVectorGetX(XMVector4Dot(tVec, least));
-		if(temp > 0)
-			least *= -1.f;
+		float over = XMVector4Length(result).m128_f32[0];
 
-		least = XMVector4Normalize(least);
+		over = fabs(over);
 
-		hit.colNorm = XMVECTORToVector4(&least);
-		hit.colLength = overlap * 100.f;
+		result = XMVector4Normalize(result);
+
+		hit.colNorm = XMVECTORToVector4(&result);
+		hit.colLength = over * 100.f;
 	}
 	return hit;
 
