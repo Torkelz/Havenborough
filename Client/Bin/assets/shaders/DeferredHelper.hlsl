@@ -16,9 +16,9 @@ struct PSIn
 
 struct PSOut
 {
-	half4 diffuse	: SV_Target0; // xyz = diffuse color, w = specularPower
-	half4 normal	: SV_Target1; // xyz = normal.xyz, w = depth
-	half4 wPosition	: SV_Target2; // xyz = world position, w = specular intensity
+	float4 diffuse	: SV_Target0; // xyz = diffuse color, w = specularPower
+	float4 normal	: SV_Target1; // xyz = normal.xyz, w = depth
+	float4 wPosition	: SV_Target2; // xyz = world position, w = specular intensity
 };
 
 //################################

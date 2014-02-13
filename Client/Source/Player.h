@@ -67,7 +67,7 @@ public:
 	* @param p_BoxPos the center position of the edge box
 	* @param p_BoxOrientation the 2D orientation of the box
 	*/
-	void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation);
+	virtual void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation);
 
 	/**
 	 * If the player is in a force move some IK groups might be locked onto points and need updating.
@@ -84,7 +84,7 @@ public:
 	* Gets the position of the player.
 	* @return the position
 	*/
-	DirectX::XMFLOAT3 getPosition(void) const;
+	virtual DirectX::XMFLOAT3 getPosition(void) const;
 
 	/**
 	 * Get the eye position of the player.
@@ -92,6 +92,11 @@ public:
 	 * @return the position of the players eyes
 	 */
 	DirectX::XMFLOAT3 getEyePosition() const;
+
+	/**
+	 *
+	 */
+	DirectX::XMFLOAT3 getRightHandPosition() const;
 
 	/**
 	 * Get the position that would be on the ground if the player would be standing on a flat surface.
@@ -117,16 +122,22 @@ public:
 	float getKneeHeight(void) const;
 	
 	/**
+	 * Sets the player's height to a wanted value.
+	 * @param p_Height, the wanted height
+	 */
+	void setHeight(float p_Height);
+	
+	/**
 	* Gets the body handle of the player.
 	* @return the body handle
 	*/
-	BodyHandle getBody(void) const;
+	virtual BodyHandle getBody(void) const;
 
 	/**
 	* Gets if the player is currently forced to change position.
 	* @return true = the player has no control of movement, false = the player is able to move by itself
 	*/
-	bool getForceMove(void);
+	virtual bool getForceMove(void);
 
 	/**
 	 * Get the current velocity of the player.

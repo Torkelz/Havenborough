@@ -350,7 +350,6 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK(graphics->releaseModel("witch"));
 	BOOST_MESSAGE(testId + "Releasing model object of Checkpoint.btx");
 	BOOST_CHECK(graphics->releaseModel("checkpoint"));
-	BOOST_CHECK(graphics->releaseTexture("TEXTURE_NOT_FOUND"));
 	
 
 	//Step 16

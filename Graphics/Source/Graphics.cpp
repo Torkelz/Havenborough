@@ -48,7 +48,7 @@ Graphics::Graphics(void)
 	m_NextInstanceId = 1;
 	m_Next2D_ObjectId = 1;
 	m_NextParticleInstanceId = 1;
-	m_SelectedRenderTarget = 3;
+	m_SelectedRenderTarget = IGraphics::RenderTarget::FINAL;
 }
 
 Graphics::~Graphics(void)
@@ -675,7 +675,7 @@ void Graphics::drawFrame(void)
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	if(m_SelectedRenderTarget >= 0 && m_SelectedRenderTarget <= 4)
+	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 4)
 	{
 		m_Shader->setShader();
 		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
@@ -685,7 +685,7 @@ void Graphics::drawFrame(void)
 		m_Shader->unSetShader();
 	}
 
-	if(m_SelectedRenderTarget == 3)
+	if(m_SelectedRenderTarget == IGraphics::RenderTarget::FINAL)
 	{
 		for (auto& particle : m_ParticleEffectInstanceList)
 		{
@@ -856,7 +856,7 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 
 void Graphics::addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3)
 {
-	if(m_SelectedRenderTarget == 3)
+	if(m_SelectedRenderTarget == IGraphics::RenderTarget::FINAL)
 	{
 		m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner1, 1.f));
 		m_BVTriangles.push_back(Vector3ToXMFLOAT4(&p_Corner2, 1.f));
@@ -869,7 +869,7 @@ void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 	GraphicsLogger::setLogFunction(p_LogCallback);
 }
 
-void Graphics::setRenderTarget(int p_RenderTarget)
+void Graphics::setRenderTarget(IGraphics::RenderTarget p_RenderTarget)
 {
 	m_SelectedRenderTarget = p_RenderTarget;
 }

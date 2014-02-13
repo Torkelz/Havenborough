@@ -8,6 +8,7 @@
 /********** UNCOMMENT FOR Code Coverage ***************/
 /*#include <CodeCoverage/CodeCoverage.h>
 
+
 ExcludeFromCodeCoverage(Exclusion1, L"boost::*");
 ExcludeFromCodeCoverage(Exclusion2, L"boost_132::*");
 ExcludeFromCodeCoverage(Exclusion3, L"boost_asio_handler_alloc_helpers::*");

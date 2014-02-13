@@ -286,4 +286,17 @@ public:
 	 * @return the new spawn position
 	 */
 	virtual Vector3 getSetSpawnPositionData(Package p_Package) = 0;
+
+	/**
+	 * Send a package to throw a spell.
+	 *
+	 * @param p_SpellName the spell identifier for the spell
+	 * @param p_StartPosition the position the spell starts at
+	 * @param p_Direction the direction the spell is thrown in
+	 */
+	virtual void sendThrowSpell(const char* p_SpellName, Vector3 p_StartPosition, Vector3 p_Direction) = 0;
+
+	virtual const char* getThrowSpellName(Package p_Package) = 0;
+	virtual Vector3 getThrowSpellStartPosition(Package p_Package) = 0;
+	virtual Vector3 getThrowSpellDirection(Package p_Package) = 0;
 };

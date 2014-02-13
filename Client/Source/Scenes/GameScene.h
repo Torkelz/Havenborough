@@ -11,7 +11,7 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
-	int m_CurrentDebugView;
+	IGraphics::RenderTarget m_CurrentDebugView;
 	bool m_RenderDebugBV;
 	int m_SkyboxID;
 

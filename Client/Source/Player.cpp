@@ -269,6 +269,23 @@ XMFLOAT3 Player::getEyePosition() const
 	return eyePosition;
 }
 
+XMFLOAT3 Player::getRightHandPosition() const
+{
+	Actor::ptr actor = m_Actor.lock();
+	if (actor)
+	{
+		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+		if (comp)
+		{
+			return comp->getJointPos("R_Hand");
+		}
+	}
+
+	XMFLOAT3 position = getPosition();
+	position.y += m_EyeHeight;
+	return position;
+}
+
 XMFLOAT3 Player::getGroundPosition() const
 {
 	return getPosition();
@@ -302,6 +319,11 @@ float Player::getWaistHeight() const
 float Player::getKneeHeight() const
 {
 	return m_Height * 0.25f;
+}
+
+void Player::setHeight(float p_Height)
+{
+	m_Height = p_Height;
 }
 
 BodyHandle Player::getBody(void) const

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor.h"
+#include "ActorList.h"
 #include "AnimationLoader.h"
 #include "ResourceManager.h"
 #include "SpellFactory.h"
@@ -31,6 +32,7 @@ private:
 	ResourceManager* m_ResourceManager;
 	AnimationLoader* m_AnimationLoader;
 	SpellFactory* m_SpellFactory;
+	std::weak_ptr<ActorList> m_ActorList;
 
 protected:
 	/**
@@ -71,6 +73,8 @@ public:
 
 	void setSpellFactory(SpellFactory* p_SpellFactory);
 
+	void setActorList(std::weak_ptr<ActorList> p_ActorList);
+
 	/**
 	 * Create an actor from a XML description, with a unique id.
 	 *
@@ -99,7 +103,7 @@ public:
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
 	Actor::ptr createCheckPointArrow();
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
-	Actor::ptr createSpell(const std::string& p_Spell, Vector3 p_Direction, Vector3 p_StartPosition);
+	Actor::ptr createSpell(const std::string& p_Spell, Actor::Id p_CasterId, Vector3 p_Direction, Vector3 p_StartPosition);
 	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
 	struct InstanceModel
 	{

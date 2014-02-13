@@ -1,0 +1,37 @@
+*Clip
+na 	BindPose
+sp 	1.0
+st 	1
+en 	1
+lo 	1
+f	Hip
+tr	0
+la	0
+fi	1
+fif	5
+fo	0
+fof 	5
+we	1.0
+
+*IKgroup
+na	LeftArm
+b1	L_UpperArm
+b2	L_LowerArm
+b3	L_Hand
+ikx	0.0
+iky	-1.0
+ikz	0.0
+
+*Path
+na	Climb1
+y	0
+t	0
+y	42
+t	11
+z	0
+t	0
+z	0
+t	5
+z	45
+t	11
+*EndPath
