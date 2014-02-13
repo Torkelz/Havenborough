@@ -52,6 +52,11 @@ public:
 			m_Caster = m_Owner->findActor(m_CasterId);
 		}
 
+		if (!m_SpellFactory)
+		{
+			return;
+		}
+
 		m_SpellInstance = m_SpellFactory->createSpellInstance(m_SpellName, m_StartDirection);
 		m_Sphere = m_Physics->createSphere(0.f, false, m_Owner->getPosition(), m_SpellInstance->getRadius());
 		m_Physics->setBodyCollisionResponse(m_Sphere, false);
@@ -62,10 +67,8 @@ public:
 	{
 		p_Printer.OpenElement("Spell");
 		p_Printer.PushAttribute("SpellName", m_SpellName.c_str());
-		Actor::ptr caster = m_Caster.lock();
-		if(caster)
-			p_Printer.PushAttribute("CasterId", caster->getId());
-		
+		p_Printer.PushAttribute("CasterId", m_CasterId);
+		pushVector(p_Printer, "Direction", m_StartDirection);
 		p_Printer.CloseElement();
 	}
 

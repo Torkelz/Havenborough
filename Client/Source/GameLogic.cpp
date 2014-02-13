@@ -423,6 +423,12 @@ void GameLogic::throwSpell(const char *p_SpellId)
 	{
 		m_Actors->addActor(m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition()));
 		playAnimation(playerActor, "CastSpell", false);
+
+		IConnectionController *conn = m_Network->getConnectionToServer();
+		if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
+		{
+			conn->sendThrowSpell(p_SpellId, m_Player.getRightHandPosition(), getPlayerViewForward());
+		}
 	}
 }
 

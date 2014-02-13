@@ -11,7 +11,8 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 		m_LastLightComponentId(0),
 		m_LastParticleComponentId(0),
 		m_LastSpellComponentId(0),
-		m_Physics(nullptr)
+		m_Physics(nullptr),
+		m_SpellFactory(nullptr)
 {
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
 	m_ComponentCreators["AABBPhysics"] = std::bind(&ActorFactory::createAABBComponent, this);

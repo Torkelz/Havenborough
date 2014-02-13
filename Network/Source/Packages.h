@@ -227,6 +227,42 @@ public:
 };
 
 /**
+ * Template for packages with a single simple object.
+ */
+template <PackageType type, class obj1, class obj2, class obj3>
+class Package3Obj : public PackageHelper<Package3Obj<type, obj1, obj2, obj3>>
+{
+public:
+	obj1 m_Object1;
+	obj2 m_Object2;
+	obj3 m_Object3;
+
+public:
+	/**
+	 * constructor.
+	 */
+	Package3Obj()
+		: PackageHelper<Package3Obj<type, obj1, obj2, obj3>>(type)
+	{}
+
+	/**
+	 * Serialize the package to or from an archive.
+	 *
+	 * @param <Archive> the archive type to serialize with.
+	 *			Can be either input or output archives.
+	 * @param ar the archive used.
+	 * @param version the desired or given archive version. Ignored.
+	 */
+	template <typename Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & m_Object1;
+		ar & m_Object2;
+		ar & m_Object3;
+	}
+};
+
+/**
  * A package representing that a player is ready to start a game.
  */
 typedef Signal<PackageType::PLAYER_READY> PlayerReady;
@@ -293,7 +329,7 @@ typedef Package1Obj<PackageType::JOIN_GAME, std::string> JoinGame;
 typedef Package1Obj<PackageType::LEVEL_DATA, std::string> LevelData;
 
 /**
- * A package representing the game resault.
+ * A package representing the game result.
  */
 typedef Package1Obj<PackageType::RESULT_GAME, std::vector<std::string>> ResultData;
 
@@ -306,6 +342,26 @@ typedef Package1Obj<PackageType::CREATE_OBJECTS, std::vector<std::pair<std::stri
  * A package representing setting the respawn position of a player.
  */
 typedef Package1Obj<PackageType::SET_SPAWN, Vector3> SetSpawnPosition;
+
+struct ThrowSpellData
+{
+	std::string spellName;
+	Vector3 position;
+	Vector3 direction;
+
+	template <typename Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & spellName;
+		ar & position;
+		ar & direction;
+	}
+};
+
+/**
+ * A player throwing a spell.
+ */
+typedef Package1Obj<PackageType::THROW_SPELL, ThrowSpellData> ThrowSpell;
 
 BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
 

@@ -94,6 +94,11 @@ public:
 	void sendSetSpawnPosition(Vector3 p_Position);
 	Vector3 getSetSpawnPositionData(Package p_Package);
 
+	void sendThrowSpell(const char* p_SpellName, Vector3 p_StartPosition, Vector3 p_Direction) override;
+	const char* getThrowSpellName(Package p_Package) override;
+	Vector3 getThrowSpellStartPosition(Package p_Package) override;
+	Vector3 getThrowSpellDirection(Package p_Package) override;
+
 	/**
 	 * Start the listening loop on the connection.
 	 */
