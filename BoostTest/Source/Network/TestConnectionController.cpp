@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE(TestSendGameResult)
 	BOOST_CHECK_EQUAL(recData, testExtraData);
 }
 
-BOOST_AUTO_TEST_CASE(TestLevelData)
+BOOST_AUTO_TEST_CASE(TestSendLevelData)
 {
 	IConnection::ptr conn(new ConnectionStub);
 
@@ -170,6 +170,102 @@ BOOST_AUTO_TEST_CASE(TestLevelData)
 	const char* recData = controller.getLevelData(packageRef);
 
 	BOOST_CHECK_EQUAL(std::string(recData, testExtraData.size()), testExtraData);
+}
+
+BOOST_AUTO_TEST_CASE(TestSendThrowSpell)
+{
+	IConnection::ptr conn(new ConnectionStub);
+
+	std::vector<PackageBase::ptr> prototypes;
+	prototypes.push_back(PackageBase::ptr(new ThrowSpell));
+
+	ConnectionController controller(conn, prototypes);
+
+	static const std::string testSpellName("TestSpellName");
+	static const Vector3 testStartPosition(1.f, 2.f, 3.f);
+	static const Vector3 testDirection(4.f, 5.f, 6.f);
+
+	controller.sendThrowSpell(testSpellName.c_str(), testStartPosition, testDirection);
+
+	BOOST_REQUIRE_EQUAL(controller.getNumPackages(), 1);
+
+	Package packageRef = controller.getPackage(0);
+	BOOST_REQUIRE_EQUAL((uint16_t)controller.getPackageType(packageRef), (uint16_t)PackageType::THROW_SPELL);
+
+	BOOST_CHECK_EQUAL(controller.getThrowSpellName(packageRef), testSpellName);
+
+	Vector3 recStart = controller.getThrowSpellStartPosition(packageRef);
+	Vector3 recDir = controller.getThrowSpellDirection(packageRef);
+	BOOST_CHECK_EQUAL(recStart.x, testStartPosition.x);
+	BOOST_CHECK_EQUAL(recStart.y, testStartPosition.y);
+	BOOST_CHECK_EQUAL(recStart.z, testStartPosition.z);
+	BOOST_CHECK_EQUAL(recDir.x, testDirection.x);
+	BOOST_CHECK_EQUAL(recDir.y, testDirection.y);
+	BOOST_CHECK_EQUAL(recDir.z, testDirection.z);
+}
+
+BOOST_AUTO_TEST_CASE(TestSendJoinGame)
+{
+	IConnection::ptr conn(new ConnectionStub);
+
+	std::vector<PackageBase::ptr> prototypes;
+	prototypes.push_back(PackageBase::ptr(new JoinGame));
+
+	ConnectionController controller(conn, prototypes);
+
+	static const std::string testGameName("TestGameName");
+
+	controller.sendJoinGame(testGameName.c_str());
+
+	BOOST_REQUIRE_EQUAL(controller.getNumPackages(), 1);
+
+	Package packageRef = controller.getPackage(0);
+	BOOST_REQUIRE_EQUAL((uint16_t)controller.getPackageType(packageRef), (uint16_t)PackageType::JOIN_GAME);
+	BOOST_CHECK_EQUAL(controller.getJoinGameName(packageRef), testGameName);
+}
+
+BOOST_AUTO_TEST_CASE(TestSendObjectAction)
+{
+	IConnection::ptr conn(new ConnectionStub);
+
+	std::vector<PackageBase::ptr> prototypes;
+	prototypes.push_back(PackageBase::ptr(new ObjectAction));
+
+	ConnectionController controller(conn, prototypes);
+
+	static const uint32_t testObjectId = 1234;
+	static const std::string testAction("TestAction random data");
+
+	controller.sendObjectAction(testObjectId, testAction.c_str());
+
+	BOOST_REQUIRE_EQUAL(controller.getNumPackages(), 1);
+
+	Package packageRef = controller.getPackage(0);
+	BOOST_REQUIRE_EQUAL((uint16_t)controller.getPackageType(packageRef), (uint16_t)PackageType::OBJECT_ACTION);
+	BOOST_CHECK_EQUAL(controller.getObjectActionId(packageRef), testObjectId);
+	BOOST_CHECK_EQUAL(controller.getObjectActionAction(packageRef), testAction);
+}
+
+BOOST_AUTO_TEST_CASE(TestSendRemoveObjects)
+{
+	IConnection::ptr conn(new ConnectionStub);
+
+	std::vector<PackageBase::ptr> prototypes;
+	prototypes.push_back(PackageBase::ptr(new RemoveObjects));
+
+	ConnectionController controller(conn, prototypes);
+
+	static const uint32_t testObjectId = 1234;
+	static const std::string testAction("TestAction random data");
+
+	controller.sendRemoveObjects(&testObjectId, 1);
+
+	BOOST_REQUIRE_EQUAL(controller.getNumPackages(), 1);
+
+	Package packageRef = controller.getPackage(0);
+	BOOST_REQUIRE_EQUAL((uint16_t)controller.getPackageType(packageRef), (uint16_t)PackageType::REMOVE_OBJECTS);
+	BOOST_REQUIRE_EQUAL(controller.getNumRemoveObjectRefs(packageRef), 1);
+	BOOST_CHECK_EQUAL(controller.getRemoveObjectRefs(packageRef)[0], testObjectId);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
