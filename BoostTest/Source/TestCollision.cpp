@@ -537,9 +537,6 @@ BOOST_AUTO_TEST_CASE(HullvsOBB)
 		BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.z, -1.f ,0.0001f);
 		hd = Collision::boundingVolumeVsBoundingVolume(h, obb4);
 		BOOST_CHECK(!hd.intersect);
-		//BOOST_CHECK_SMALL(hd.colNorm.x, 0.0001f);
-		//BOOST_CHECK_SMALL(hd.colNorm.y, 0.0001f);
-		//BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.z, -1.f ,0.0001f);
 		hd = Collision::boundingVolumeVsBoundingVolume(h, obb5);
 		BOOST_CHECK(!hd.intersect);
 
