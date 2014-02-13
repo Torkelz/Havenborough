@@ -12,6 +12,15 @@
 class DeferredRenderer
 {
 private:
+	enum class RenderTarget
+	{
+		DIFFUSE,
+		NORMAL,
+		W_POSITION,
+		SSAO,
+		FINAL
+	};
+
 	float m_FOV;
 	float m_FarZ;
 	float m_ScreenWidth;
@@ -34,7 +43,7 @@ private:
 
 	static const unsigned int	m_numRenderTargets = 5;
 
-	std::map<std::string, ID3D11RenderTargetView*> m_RT;
+	std::map<RenderTarget, ID3D11RenderTargetView*> m_RT;
 	std::map<std::string, ID3D11ShaderResourceView*> m_SRV;
 	std::map<std::string, ID3D11SamplerState*> m_Sampler;
 	std::map<std::string, Shader*> m_Shader;
