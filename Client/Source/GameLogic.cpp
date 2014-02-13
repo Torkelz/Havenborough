@@ -783,10 +783,10 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 	//	strongWitch->setRotation(Vector3(witchCircleAngle, 0.f, 0.f));
 	//}
 
-	//if (m_InGame)
-	//{
-	//	updateIK();
-	//}
+	if (m_InGame)
+	{
+		updateIK();
+	}
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)

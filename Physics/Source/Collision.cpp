@@ -847,9 +847,9 @@ void Collision::checkCollisionDepth(float p_Min0, float p_Max0, float p_Min1, fl
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
 	if(lLength > EPSILON)
 	{
-		float length = 5.f;
+		float length = 1000.f;
 		if(lLength > length)
-			lLength = 1;
+			lLength *= 0.5f;
 		float overlap; //= (p_Max - p_Min) / lLength;
 		float d0 = fabs(p_Max0 - p_Min1) / lLength;
 		float d1 = fabs(p_Max1 - p_Min0) / lLength;
@@ -857,6 +857,9 @@ void Collision::checkCollisionDepth(float p_Min0, float p_Max0, float p_Min1, fl
 			overlap = d0;
 		else
 			overlap = d1;
+
+		if(overlap < 0.001f)
+			return;
 
 		if(p_Overlap > fabs(overlap))
 		{
@@ -990,7 +993,7 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
-		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);;
+		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
 		/*
 		if(-R < min)

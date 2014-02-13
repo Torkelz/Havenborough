@@ -148,7 +148,7 @@ void GameScene::render()
 				renderBoundingVolume(body);
 			}
 		}
-
+		renderBoundingVolume(1);
 		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
 	}
 
