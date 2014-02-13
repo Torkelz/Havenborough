@@ -35,8 +35,8 @@ Server/Bin/logFile.txt
 Server/logFile.txt
 BoostIntegrationTest/Bin/debug_log.txt
 BoostIntegrationTest/Bin/release_log.txt
-BoostTest/Bin/BoostTest_test_log.xml
-BoostTest/Bin/BoostTest_test_report.xml
+BoostTest/Bin/*test_log.xml
+BoostTest/Bin/*test_report.xml
 **/.mayaSwatches/
 *.btx
 *.btxl
