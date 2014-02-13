@@ -151,6 +151,7 @@ void Animation::checkFades()
 				m_Tracks[i].active = false;
 			}
 		}
+		// If the clip is supposed to fade out and is closing in on the end of it's duration, start playing the next clip in the queue.t
 		if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) < m_Tracks[i].currentFrame && m_Tracks[i].clip->m_FadeOut)
 		{
 			if(!playQueuedClip(i))
@@ -611,5 +612,4 @@ void Animation::purgeQueue(const unsigned int p_Track)
 		auto start = std::remove_if(m_Queue.begin(), m_Queue.end(), [&] (const AnimationClip* a){ return a->m_DestinationTrack == p_Track; });
 		m_Queue.erase(start, m_Queue.end());
 	}
-	//m_Queue.clear();
 }

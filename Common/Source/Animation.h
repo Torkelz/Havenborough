@@ -105,7 +105,7 @@ public:
 
 	/**
 	 * Purge queue of all elements destined to be on track p_Track.
-	 @param p_Track, the track to be purged.'
+	 @param p_Track, the track to be purged.
 	 */
 	void purgeQueue( const unsigned int p_Track );
 

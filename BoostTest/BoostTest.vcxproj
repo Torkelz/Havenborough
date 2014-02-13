@@ -75,8 +75,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>cd Bin
-$(TargetPath)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -120,6 +120,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Common\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
     <ClCompile Include="..\Common\Source\InstanceBinaryLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
@@ -177,15 +178,17 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="SphereTest.cpp" />
-    <ClCompile Include="TestEdgeCollisionResponse.cpp" />
+    <ClCompile Include="Source\Client\TestEdgeCollisionResponse.cpp" />
+    <ClCompile Include="TestAnimation.cpp" />
     <ClCompile Include="TestIK.cpp" />
     <ClCompile Include="TestLogger.cpp" />
     <ClCompile Include="Source\Graphics\TestModelFactory.cpp" />
     <ClCompile Include="Source\Client\TestEventManager.cpp" />
-    <ClCompile Include="TestPlayer.cpp" />
+    <ClCompile Include="Source\Client\TestPlayer.cpp" />
+    <ClCompile Include="TestMLXLoader.cpp" />
     <ClCompile Include="TestResouceTranslator.cpp" />
     <ClCompile Include="TestResourceManager.cpp" />
-    <ClCompile Include="TestSkyDome.cpp" />
+    <ClCompile Include="Source\Graphics\TestSkyDome.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
