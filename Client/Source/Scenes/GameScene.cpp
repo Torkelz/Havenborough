@@ -523,13 +523,14 @@ void GameScene::loadSandboxModels()
 	static const std::string preloadedTextures[] =
 	{
 		"TEXTURE_NOT_FOUND",
+		"MANA_BAR",
 	};
 	for (const std::string &texture : preloadedTextures)
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
 	m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), 1.f, 0.f, "Arrow1");
-	m_Graphics->create2D_Object(Vector3(-500, -280, 2), Vector2(80, 80), 0.0f, "TEXTURE_NOT_FOUND");
+	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), 0.0f, "MANA_BAR");
 
 	static const std::string preloadedModelsTransparent[] =
 	{
