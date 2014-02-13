@@ -285,6 +285,38 @@ Vector3 ConnectionController::getSetSpawnPositionData(Package p_Package)
 	return setSpawn->m_Object1;
 }
 
+void ConnectionController::sendThrowSpell(const char* p_SpellName, Vector3 p_StartPosition, Vector3 p_Direction)
+{
+	ThrowSpellData data;
+	data.spellName = p_SpellName;
+	data.position = p_StartPosition;
+	data.direction = p_Direction;
+	ThrowSpell package;
+	package.m_Object1 = data;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+const char* ConnectionController::getThrowSpellName(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	ThrowSpell* throwSpell = static_cast<ThrowSpell*>(m_ReceivedPackages[p_Package].get());
+	return throwSpell->m_Object1.spellName.c_str();
+}
+
+Vector3 ConnectionController::getThrowSpellStartPosition(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	ThrowSpell* throwSpell = static_cast<ThrowSpell*>(m_ReceivedPackages[p_Package].get());
+	return throwSpell->m_Object1.position;
+}
+
+Vector3 ConnectionController::getThrowSpellDirection(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	ThrowSpell* throwSpell = static_cast<ThrowSpell*>(m_ReceivedPackages[p_Package].get());
+	return throwSpell->m_Object1.direction;
+}
+
 void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);

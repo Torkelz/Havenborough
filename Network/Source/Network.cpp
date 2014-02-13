@@ -124,6 +124,7 @@ void Network::registerPackages()
 	m_PackagePrototypes.push_back(PackageBase::ptr(new LeaveGame));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new ResultData));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new SetSpawnPosition));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new ThrowSpell));
 }
 
 void Network::startIO()

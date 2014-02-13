@@ -51,7 +51,7 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector3 p_EdgePosi
 
 		if (playerOrigPos.y + p_Player->getHeight() * 0.05f > nearestPoint.y)
 			return;
-		else if(playerOrigPos.y  + p_Player->getKneeHeight() - 20.0f > nearestPoint.y)
+		else if(playerOrigPos.y  + p_Player->getKneeHeight() - p_Player->getHeight() * 0.1f > nearestPoint.y)
 			p_Player->forceMove("Climb1", victimNormal, p_EdgePosition, p_EdgeOrientation);
 		else if(playerOrigPos.y  + p_Player->getWaistHeight() > nearestPoint.y)
 			p_Player->forceMove("Climb2", victimNormal, p_EdgePosition, p_EdgeOrientation);

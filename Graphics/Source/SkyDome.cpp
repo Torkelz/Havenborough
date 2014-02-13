@@ -1,4 +1,5 @@
 #include "SkyDome.h"
+#include "GraphicsExceptions.h"
 #include "Utilities/MemoryUtil.h"
 #include "VRAMInfo.h"
 
@@ -32,26 +33,31 @@ bool SkyDome::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
 {
 	m_DeviceContext = p_DeviceContext;
 	
+	std::vector<DirectX::XMFLOAT3> temp = buildGeoSphere(1, p_Radius);
+
 	ID3D11Resource *resource;
 	ID3D11Texture2D *texture;
 	D3D11_TEXTURE2D_DESC textureDesc;
 
-	p_Texture->GetResource(&resource);
-	resource->QueryInterface(&texture);
-	texture->GetDesc(&textureDesc);
+	if(p_Device && p_Texture)
+	{
+		p_Texture->GetResource(&resource);
+		resource->QueryInterface(&texture);
+		texture->GetDesc(&textureDesc);
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
-	viewDesc.Format = textureDesc.Format;
-	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
-	viewDesc.TextureCube.MostDetailedMip = 0;
+		D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+		viewDesc.Format = textureDesc.Format;
+		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+		viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
+		viewDesc.TextureCube.MostDetailedMip = 0;
 
-	p_Device->CreateShaderResourceView(texture, &viewDesc, &m_SkyDomeSRV);
-	SAFE_RELEASE(texture);
-	SAFE_RELEASE(resource);
+		p_Device->CreateShaderResourceView(texture, &viewDesc, &m_SkyDomeSRV);
+		SAFE_RELEASE(texture);
+		SAFE_RELEASE(resource);
+	}
+	else
+		throw GraphicsException("Skydome: Error when trying to create textureCube. No texture or device.", __LINE__, __FILE__);
 
-
-	std::vector<DirectX::XMFLOAT3> temp = buildGeoSphere(1, p_Radius);
 	Buffer::Description cbdesc;
 	cbdesc.initData = temp.data();
 	cbdesc.numOfElements = temp.size();
@@ -67,13 +73,19 @@ bool SkyDome::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
 	dsdesc.DepthEnable = true;
 	dsdesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsdesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	p_Device->CreateDepthStencilState(&dsdesc, &m_SkyDomeDepthStencilState);
+	if(p_Device)
+		p_Device->CreateDepthStencilState(&dsdesc, &m_SkyDomeDepthStencilState);
+	else
+		throw GraphicsException("Skydome: Error when trying to create depthstencil state. No Device.", __LINE__, __FILE__);
 
 	D3D11_RASTERIZER_DESC rdesc;
 	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
 	rdesc.FillMode = D3D11_FILL_SOLID;
 	rdesc.CullMode = D3D11_CULL_NONE;
-	p_Device->CreateRasterizerState(&rdesc,&m_SkyDomeRasterizerState);
+	if(p_Device)
+		p_Device->CreateRasterizerState(&rdesc,&m_SkyDomeRasterizerState);
+	else
+		throw GraphicsException("Skydome: Error when trying to create Rasterizer state. No Device.", __LINE__, __FILE__);
 
 	m_SkyDomeShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/SkyDome.hlsl",
 		"VS,PS","5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
@@ -88,7 +100,10 @@ bool SkyDome::init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
 	sd.ComparisonFunc   = D3D11_COMPARISON_NEVER;
 	sd.MinLOD			= 0;
 	sd.MaxLOD			= D3D11_FLOAT32_MAX;
-	p_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
+	if(p_Device)
+		p_Device->CreateSamplerState( &sd, &m_SkyDomeSampler );
+	else
+		throw GraphicsException("Skydome: Error when trying to create sampler state. No Device.", __LINE__, __FILE__);
 
 	return true;
 }
@@ -127,7 +142,7 @@ std::vector<DirectX::XMFLOAT3> SkyDome::buildGeoSphere(unsigned int p_NumSubDivi
 	std::vector<unsigned int> InitIndices;
 
 	//Put a cap on the number of subdivisions
-	p_NumSubDivisions = min(p_NumSubDivisions, unsigned int(5));
+	p_NumSubDivisions = !(p_NumSubDivisions < unsigned int(5)) ? unsigned int(5) : p_NumSubDivisions;
 
 	//Approximate a sphere by tesselating an icosahedron
 	const float X = 0.525731f;

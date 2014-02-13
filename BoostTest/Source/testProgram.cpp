@@ -28,4 +28,3 @@ ExcludeSourceFromCodeCoverage(Exclusion15, L"*\\DDSTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion16, L"*\\WICTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion17, L"*\\boost\\*.hpp");
 ExcludeSourceFromCodeCoverage(Exclusion18, L"*\\BoostTest\\*")
-//*/

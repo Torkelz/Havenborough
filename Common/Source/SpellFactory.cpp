@@ -2,9 +2,8 @@
 
 #include "CommonExceptions.h"
 
-SpellFactory::SpellFactory(IPhysics *p_Physics)
+SpellFactory::SpellFactory()
 {
-	m_Physics = p_Physics;
 }
 
 
@@ -29,7 +28,7 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	SpellDefinition::ptr spell;
 	spell.reset(new SpellDefinition());
 
-	spell->m_type = SpellDefinition::Type::EXPLOSION;
+	spell->m_Type = SpellDefinition::Type::EXPLOSION;
 	spell->explosionRadius = 500.f;
 	spell->effectTime = 0.5f;
 	spell->maxTimeToLive = 60.f;
