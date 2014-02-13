@@ -247,6 +247,11 @@
     <ClCompile Include="TestPlayer.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Common\TestXMFloatUtil.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestLight.cpp" />
+    <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
@@ -292,6 +297,12 @@
     </Filter>
     <Filter Include="TestLoaders\Files">
       <UniqueIdentifier>{ef828351-f38e-415f-bb85-34accbbec579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestCommon">
+      <UniqueIdentifier>{91b3a574-4dff-4384-88f3-cd430ffea93c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestCommon\CommonImport">
+      <UniqueIdentifier>{5c55504a-3816-4c29-a087-aff44ad3b38a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

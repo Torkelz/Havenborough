@@ -159,6 +159,9 @@ $(TargetPath)</Command>
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="HullTest.cpp" />
     <ClCompile Include="OBBTest.cpp" />
+    <ClCompile Include="Source\Common\TestLight.cpp" />
+    <ClCompile Include="Source\Common\TestXMFloatUtil.cpp" />
+    <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
     <ClCompile Include="Source\Loader\TestBinaryConverter.cpp" />

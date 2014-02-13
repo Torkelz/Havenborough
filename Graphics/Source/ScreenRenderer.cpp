@@ -3,6 +3,7 @@
 #include "WrapperFactory.h"
 #include "VRAMInfo.h"
 #include "Utilities/MemoryUtil.h"
+#include "GraphicsExceptions.h"
 #include <algorithm>
 #include <functional>
 
@@ -10,7 +11,6 @@ using namespace DirectX;
 
 ScreenRenderer::ScreenRenderer(void)
 {
-	m_Device = nullptr;
 	m_DeviceContext = nullptr;
 
 	m_DepthStencilView = nullptr;
@@ -23,14 +23,13 @@ ScreenRenderer::ScreenRenderer(void)
 
 	m_ConstantBuffer = nullptr;
 	m_ObjectConstantBuffer = nullptr;
-
+	m_HUD_Shader = nullptr;
 	m_TransparencyAdditiveBlend = nullptr;
 }
 
 
 ScreenRenderer::~ScreenRenderer(void)
 {
-	m_Device = nullptr;
 	m_DeviceContext = nullptr;
 
 	m_DepthStencilView = nullptr;
@@ -51,9 +50,14 @@ void ScreenRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_D
 	XMFLOAT4X4 *p_ViewMatrix, XMFLOAT4 p_OrthoData, ID3D11DepthStencilView* p_DepthStencilView,
 	ID3D11RenderTargetView *p_RenderTarget)
 {
-	m_Device = p_Device;
+	D3D11_BLEND_DESC blendDesc = createBlendStateDescription();
+	D3D11_SAMPLER_DESC samplerDesc = createSamplerDescription();
+	D3D11_RASTERIZER_DESC rasterDesc =  createRasterStateDescription();
+	D3D11_DEPTH_STENCIL_DESC depthDesc = createDepthStencilStateDescription();
+	if(!p_Device || !p_DeviceContext)
+		throw GraphicsException("Failed to initialize screen renderer, null devices not allowed", __LINE__, __FILE__);
+	
 	m_DeviceContext = p_DeviceContext;
-
 	m_DepthStencilView = p_DepthStencilView;
 	m_RenderTarget = p_RenderTarget;
 
@@ -64,11 +68,11 @@ void ScreenRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_D
 	m_HUD_Shader = WrapperFactory::getInstance()->createShader(L"assets/shaders/HUD_Shader.hlsl", "VS,PS", "5_0",
 		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	createBlendState();
+	p_Device->CreateBlendState(&blendDesc, &m_TransparencyAdditiveBlend);
+	p_Device->CreateSamplerState(&samplerDesc, &m_Sampler);
+	p_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+	p_Device->CreateDepthStencilState(&depthDesc, &m_DepthStencilState);
 	createBuffers();
-	createSampler();
-	createRasterState();
-	createDepthStencilState();
 }
 
 void ScreenRenderer::add2D_Object(Renderable2D &p_Object)
@@ -76,7 +80,7 @@ void ScreenRenderer::add2D_Object(Renderable2D &p_Object)
 	m_2D_Objects.push_back(p_Object);
 }
 
-void ScreenRenderer::createBlendState(void)
+D3D11_BLEND_DESC ScreenRenderer::createBlendStateDescription(void)
 {
 	D3D11_BLEND_DESC bd;
 	bd.AlphaToCoverageEnable = false;
@@ -89,7 +93,8 @@ void ScreenRenderer::createBlendState(void)
 	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	m_Device->CreateBlendState(&bd, &m_TransparencyAdditiveBlend);
+
+	return bd;
 }
 
 void ScreenRenderer::createBuffers(void)
@@ -114,7 +119,7 @@ void ScreenRenderer::createBuffers(void)
 	VRAMInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
 }
 
-void ScreenRenderer::createSampler(void)
+D3D11_SAMPLER_DESC ScreenRenderer::createSamplerDescription(void)
 {
 	D3D11_SAMPLER_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
@@ -126,53 +131,52 @@ void ScreenRenderer::createSampler(void)
 	sd.MinLOD = 0;
 	sd.MaxLOD = D3D11_FLOAT32_MAX;
 
-	m_Sampler = nullptr;
-	m_Device->CreateSamplerState(&sd, &m_Sampler);
+	return sd;
 }
 
-void ScreenRenderer::createRasterState(void)
+D3D11_RASTERIZER_DESC ScreenRenderer::createRasterStateDescription(void)
 {
-	D3D11_RASTERIZER_DESC rasterDesc;
+	D3D11_RASTERIZER_DESC rd;
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
-	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
-	rasterDesc.DepthBias = 0;
-	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = false;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.MultisampleEnable = false;
-	rasterDesc.ScissorEnable = false;
-	rasterDesc.SlopeScaledDepthBias = 0.0f;
+	rd.AntialiasedLineEnable = false;
+	rd.CullMode = D3D11_CULL_BACK;
+	rd.DepthBias = 0;
+	rd.DepthBiasClamp = 0.0f;
+	rd.DepthClipEnable = false;
+	rd.FillMode = D3D11_FILL_SOLID;
+	rd.FrontCounterClockwise = false;
+	rd.MultisampleEnable = false;
+	rd.ScissorEnable = false;
+	rd.SlopeScaledDepthBias = 0.0f;
 
-	m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+	return rd;
 }
 
-void ScreenRenderer::createDepthStencilState(void)
+D3D11_DEPTH_STENCIL_DESC ScreenRenderer::createDepthStencilStateDescription(void)
 {
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {0};
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	D3D11_DEPTH_STENCIL_DESC sd = {0};
+	sd.DepthEnable = true;
+	sd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	sd.DepthFunc = D3D11_COMPARISON_LESS;
 
-	depthStencilDesc.StencilEnable = false;
-	depthStencilDesc.StencilReadMask = 0xFF;
-	depthStencilDesc.StencilWriteMask = 0xFF;
+	sd.StencilEnable = false;
+	sd.StencilReadMask = 0xFF;
+	sd.StencilWriteMask = 0xFF;
 
 	//Stencil operations if pixel is front-facing.
-	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	sd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	sd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	sd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	sd.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	// Stencil operations if pixel is back-facing.
-	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	sd.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	sd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	sd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	sd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-	m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
+	return sd;
 }
 
 void ScreenRenderer::updateConstantBuffer(void)

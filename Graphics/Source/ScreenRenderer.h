@@ -4,7 +4,6 @@
 class ScreenRenderer
 {
 private:
-	ID3D11Device *m_Device;
 	ID3D11DeviceContext	*m_DeviceContext;
 
 	ID3D11DepthStencilView	*m_DepthStencilView;
@@ -62,11 +61,11 @@ public:
 	void renderScreen(void);
 
 private:
-	void createBlendState(void);
+	D3D11_BLEND_DESC createBlendStateDescription(void);
 	void createBuffers(void);
-	void createSampler(void);
-	void createRasterState(void);
-	void createDepthStencilState(void);
+	D3D11_SAMPLER_DESC createSamplerDescription(void);
+	D3D11_RASTERIZER_DESC createRasterStateDescription(void);
+	D3D11_DEPTH_STENCIL_DESC createDepthStencilStateDescription(void);
 	void updateConstantBuffer(void);
 	void renderObject(Renderable2D &p_Object);
 };

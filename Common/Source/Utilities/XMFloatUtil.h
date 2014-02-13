@@ -12,6 +12,11 @@ struct Vector2
 
 	Vector2(float _x, float _y) : x(_x), y(_y)
 	{}
+
+	bool operator==(const Vector2& p_Right) const
+	{
+		return x == p_Right.x && y == p_Right.y;
+	}
 };
 
 struct Vector3
