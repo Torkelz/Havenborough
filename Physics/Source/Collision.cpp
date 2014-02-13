@@ -847,19 +847,19 @@ void Collision::checkCollisionDepth(float p_Min0, float p_Max0, float p_Min1, fl
 	float lLength = XMVectorGetX(XMVector4LengthSq(p_L));
 	if(lLength > EPSILON)
 	{
-		float length = 1000.f;
-		if(lLength > length)
-			lLength *= 0.5f;
-		float overlap; //= (p_Max - p_Min) / lLength;
+		//float length = 50.f;
+		//if(lLength > length)
+		//	lLength = length;
+
+		float overlap;
 		float d0 = fabs(p_Max0 - p_Min1) / lLength;
+
 		float d1 = fabs(p_Max1 - p_Min0) / lLength;
+
 		if(d0 < d1)
 			overlap = d0;
 		else
 			overlap = d1;
-
-		if(overlap < 0.001f)
-			return;
 
 		if(p_Overlap > fabs(overlap))
 		{
@@ -948,14 +948,9 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		float max = p0;
 		if(max < -R || min > R )
 			continue;
+		
 		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
-	/*	if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
 
-		if(size == 2)
-			int lol = 0;
 
 		//Axis A0, A1, A2
 		bool miss = false;
@@ -974,11 +969,6 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 				break;
 			}
 			checkCollisionDepth(-R, R, min, max, tOverlap, A.r[j], tLeast);
-
-			/*if(-R < min)
-				checkCollisionDepth(min, R, tOverlap, A.r[j], tLeast);
-			else
-				checkCollisionDepth(-R, max, tOverlap, A.r[j], tLeast);*/
 		}
 		if(miss)
 			continue;
@@ -993,13 +983,8 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
+		
 		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
-
-		/*
-		if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
 
 		// L = A0 x E1
 		L = XMVector3Cross(A.r[0], E1);
@@ -1011,13 +996,8 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
+		
 		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
-
-		/*
-		if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
 
 		// L = A0 x E2
 		L = XMVector3Cross(A.r[0], E2);
@@ -1029,13 +1009,8 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
+		
 		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
-
-		/*
-		if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
 
 		// L = A1 x E0
 		L = XMVector3Cross(A.r[1], E0);
@@ -1047,13 +1022,8 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
+		
 		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
-
-		/*
-		if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
 
 		// L = A1 x E1
 		L = XMVector3Cross(A.r[1], E1);
@@ -1065,13 +1035,8 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
-		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
-		/*
-		if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
+		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
 		// L = A1 x E2
 		L = XMVector3Cross(A.r[1], E2);
@@ -1083,13 +1048,8 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
-		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
-		/*
-		if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
+		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
 		// A2 x E0
 		L = XMVector3Cross(A.r[2], E0);
@@ -1101,13 +1061,8 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
-		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
-		/*
-		if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
+		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
 		// A2 x E1
 		L = XMVector3Cross(A.r[2], E1);
@@ -1119,13 +1074,8 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
-		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
-		/*
-		if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
+		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
 		// A2 x E2
 		L = XMVector3Cross(A.r[2], E2);
@@ -1137,13 +1087,8 @@ HitData Collision::SATEberly(OBB const &p_OBB, Hull const &p_Hull)
 		max = checkMax(p0, p1, p2);
 		if(max < -R || min > R )
 			continue;
-		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
-		/*
-		if(-R < min)
-			checkCollisionDepth(min, R, tOverlap, L, tLeast);
-		else
-			checkCollisionDepth(-R, max, tOverlap, L, tLeast);*/
+		checkCollisionDepth(-R, R, min, max, tOverlap, L, tLeast);
 
 		hit.intersect = true;
 		hit.colType = Type::OBBVSHULL;
