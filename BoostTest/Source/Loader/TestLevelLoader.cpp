@@ -6,6 +6,11 @@ BOOST_AUTO_TEST_SUITE(TestLevelLoader)
 class testLevelLoader : public InstanceLoader
 {
 public:
+	bool testLoadFile(std::string p_FilePath)
+	{
+		return loadLevel(p_FilePath);
+	}
+
 	int testHeader(std::istream& p_Input)
 	{
 		return readHeader(p_Input);
@@ -27,6 +32,16 @@ public:
 		startReading(p_Input);
 	}
 };
+
+BOOST_AUTO_TEST_CASE(TestLoadInstanceFile)
+{
+	testLevelLoader loader;
+	bool result;
+	result = loader.testLoadFile("");
+	BOOST_CHECK_EQUAL(result, false);
+	result = loader.testLoadFile("..\\Source\\Loader\\testInstance.txl");
+	BOOST_CHECK_EQUAL(result, true);
+}
 
 BOOST_AUTO_TEST_CASE(TestReadHeader)
 {

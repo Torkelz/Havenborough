@@ -152,9 +152,9 @@ float4 PS(VSOutput pIn) : SV_Target
     // p.z = t*pin.ToFarPlane.z
     // t = p.z / pin.ToFarPlane.z
 	float3 p = (pz / pIn.toFarPlane.z) * pIn.toFarPlane;
-	
+
 	// Extract random vector and map from [0,1] --> [-1, +1].
-	float3 randVec = gRandomVecMap.Sample(gRandomVectorSampler, 4.0f * pIn.texCoord).xyz;
+	float3 randVec = 2.f * gRandomVecMap.Sample(gRandomVectorSampler, 4.f * pIn.texCoord).xyz - 1.f;
 
 	float occlusionSum = 0.0f;
 

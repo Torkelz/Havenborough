@@ -5,7 +5,7 @@
 #include "Utilities/MemoryUtil.h"
 #include <algorithm>	// std::sort
 #include <iterator>     // std::back_inserter
-#include <random>
+//#include <random>
 
 
 using std::vector;
@@ -26,11 +26,11 @@ DeferredRenderer::DeferredRenderer()
 	m_DirectionalLights = nullptr;
 
 
-	m_RT["Diffuse"] = nullptr;
-	m_RT["Normal"] = nullptr;
-	m_RT["WPosition"] = nullptr;
-	m_RT["Final"] = nullptr;
-	m_RT["SSAO"] = nullptr;
+	m_RT[IGraphics::RenderTarget::DIFFUSE] = nullptr;
+	m_RT[IGraphics::RenderTarget::NORMAL] = nullptr;
+	m_RT[IGraphics::RenderTarget::W_POSITION] = nullptr;
+	m_RT[IGraphics::RenderTarget::SSAO] = nullptr;
+	m_RT[IGraphics::RenderTarget::FINAL] = nullptr;
 
 
 	m_SRV["Diffuse"] = nullptr;
@@ -219,7 +219,7 @@ void DeferredRenderer::renderGeometry()
 {
 	unsigned int nrRT = 3;
 	ID3D11RenderTargetView *rtv[] = {
-		m_RT["Diffuse"], m_RT["Normal"], m_RT["WPosition"]
+		m_RT[IGraphics::RenderTarget::DIFFUSE], m_RT[IGraphics::RenderTarget::NORMAL], m_RT[IGraphics::RenderTarget::W_POSITION]
 	};
 	// Set the render targets.
 	m_DeviceContext->OMSetRenderTargets(nrRT, rtv, m_DepthStencilView);
@@ -253,7 +253,7 @@ void DeferredRenderer::renderGeometry()
 
 void DeferredRenderer::renderSSAO(void)
 {
-	m_DeviceContext->OMSetRenderTargets(1, &m_RT["SSAO"], 0);
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::SSAO], 0);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
@@ -298,13 +298,13 @@ void DeferredRenderer::renderSSAO(void)
 
 void DeferredRenderer::blurSSAO(void)
 {
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < 2; i++) //TODO: Should be 4 passes
 	{
-		SSAO_PingPong(m_SRV["SSAO"], m_RT["Final"], false);
-		SSAO_PingPong(m_SRV["Light"], m_RT["SSAO"], true);
+		SSAO_PingPong(m_SRV["SSAO"], m_RT[IGraphics::RenderTarget::FINAL], false);
+		SSAO_PingPong(m_SRV["Light"], m_RT[IGraphics::RenderTarget::SSAO], true);
 	}
 	float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	m_DeviceContext->ClearRenderTargetView(m_RT["Final"], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::FINAL], color);
 }
 
 
@@ -382,7 +382,7 @@ void DeferredRenderer::renderLighting()
 
 
 	////Select the third render target[3]
-	m_DeviceContext->OMSetRenderTargets(1, &m_RT["Final"], m_DepthStencilView); 
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
@@ -400,14 +400,14 @@ void DeferredRenderer::renderLighting()
 	//		Render SpotLights
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//		Render DirectionalLights
-	m_DeviceContext->OMSetRenderTargets(1, &m_RT["Final"],0);
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL],0);
 	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
 
 
 	if(m_SkyDome && m_RenderSkyDome)
-		m_SkyDome->RenderSkyDome(m_RT["Final"], m_DepthStencilView, m_Buffer["DefaultConstant"]);
+		m_SkyDome->RenderSkyDome(m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView, m_Buffer["DefaultConstant"]);
 
 
 	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
@@ -443,15 +443,15 @@ void DeferredRenderer::renderSkyDome()
 }
 
 
-ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
+ID3D11ShaderResourceView* DeferredRenderer::getRT(IGraphics::RenderTarget i)
 {
 	switch(i)
 	{
-	case 0: return m_SRV["Diffuse"];
-	case 1: return m_SRV["Normal"];
-	case 2: return m_SRV["WPosition"];
-	case 3: return m_SRV["Light"];
-	case 4: return m_SRV["SSAO"];
+	case IGraphics::RenderTarget::DIFFUSE: return m_SRV["Diffuse"];
+	case IGraphics::RenderTarget::NORMAL: return m_SRV["Normal"];
+	case IGraphics::RenderTarget::W_POSITION: return m_SRV["WPosition"];
+	case IGraphics::RenderTarget::SSAO: return m_SRV["SSAO"];
+	case IGraphics::RenderTarget::FINAL: return m_SRV["Light"];
 	default: return nullptr;
 	}
 }
@@ -475,7 +475,6 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 {
 	// Create the render target texture
 	HRESULT result = S_FALSE;
-
 
 	//Create the render targets
 	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
@@ -514,7 +513,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC dssrvdesc;
-	dssrvdesc.Format = dssrvdesc.Format = desc.Format;
+	dssrvdesc.Format = desc.Format;
 	dssrvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	dssrvdesc.Texture2D.MipLevels = 1;
 	dssrvdesc.Texture2D.MostDetailedMip = 0;
@@ -524,7 +523,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 
 
 	// Make the diffuse texture from the render target.	
-	m_RT["Diffuse"]->GetResource(&tt);
+	m_RT[IGraphics::RenderTarget::DIFFUSE]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Diffuse"]);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
@@ -533,7 +532,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 
 
 	// Make the normal texture from the render target.
-	m_RT["Normal"]->GetResource(&tt);
+	m_RT[IGraphics::RenderTarget::NORMAL]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Normal"]);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
@@ -542,31 +541,28 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 
 
 	// Make the world position texture from the render target.
-	m_RT["WPosition"]->GetResource(&tt);
+	m_RT[IGraphics::RenderTarget::W_POSITION]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["WPosition"]);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
 
-
-	// Make the final texture from the render target.
-	m_RT["Final"]->GetResource(&tt);
-	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Light"]);
-	SAFE_RELEASE(tt);
-	tt = nullptr;
-	if(FAILED(result))
-		return result;
-
-
 	// SSAO texture
-	m_RT["SSAO"]->GetResource(&tt);
+	m_RT[IGraphics::RenderTarget::SSAO]->GetResource(&tt);
 	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["SSAO"]);
 	SAFE_RELEASE(tt);
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
 
+	// Make the final texture from the render target.
+	m_RT[IGraphics::RenderTarget::FINAL]->GetResource(&tt);
+	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Light"]);
+	SAFE_RELEASE(tt);
+	tt = nullptr;
+	if(FAILED(result))
+		return result;
 
 	return result;
 }
@@ -696,7 +692,6 @@ void DeferredRenderer::buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer)
 	std::default_random_engine randomizer;
 	std::uniform_real_distribution<float> distribution(0.25f, 1.0f);
 
-
 	for(int i = 0; i < 14; i++)
 	{
 		float s = distribution(randomizer);
@@ -712,24 +707,22 @@ void DeferredRenderer::buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer)
 void DeferredRenderer::clearRenderTargets()
 {
 	float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	m_DeviceContext->ClearRenderTargetView(m_RT["Diffuse"], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::DIFFUSE], color);
 
 
 	color[0] = color[1] = color[2] = 0.5f;
-	m_DeviceContext->ClearRenderTargetView(m_RT["Normal"], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::NORMAL], color);
 
 
 	color[0] = color[1] = color[2] = 1.0f;
-	m_DeviceContext->ClearRenderTargetView(m_RT["WPosition"], color);
-
-
-	color[0] = color[1] = color[2] = 0.0f;
-	m_DeviceContext->ClearRenderTargetView(m_RT["Final"], color);
-
+	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::W_POSITION], color);
 
 	color[0] = color[1] = color[2] = 1.0f;
 	color[3] = 1.0f;
-	m_DeviceContext->ClearRenderTargetView(m_RT["SSAO"], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::SSAO], color);
+
+	color[0] = color[1] = color[2] = color[3] = 0.0f;
+	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::FINAL], color);
 }
 
 
@@ -749,13 +742,14 @@ void DeferredRenderer::createSamplerState()
 
 
 	// Create SSAO random vector texture sampler.
-	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; //Should be D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT
+	sd.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;//D3D11_FILTER_MIN_MAG_MIP_POINT; //Should be D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_RandomVec"]);
 
 
 	// Create SSAO normal depth texture sampler.
+	sd.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = 0.0f;
@@ -973,7 +967,7 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	textureDesc.Width = textureDesc.Height = p_Size;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.SampleDesc.Count = 1;
@@ -981,8 +975,9 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 
 
 	std::default_random_engine randomizer;
-	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 	vector<DirectX::XMFLOAT3> initData;
+
 	for(unsigned int i = 0; i < p_Size * p_Size; i++)
 	{
 		XMFLOAT3 randomVec;
@@ -1000,7 +995,7 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 
 	D3D11_SUBRESOURCE_DATA subData;
 	subData.SysMemPitch = sizeof(DirectX::XMFLOAT3) * p_Size;
-	subData.SysMemSlicePitch = subData.SysMemPitch * p_Size;
+	//subData.SysMemSlicePitch = subData.SysMemPitch * p_Size;
 	subData.pSysMem = initData.data();
 
 

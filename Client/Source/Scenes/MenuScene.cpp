@@ -87,7 +87,7 @@ void MenuScene::onFocus()
 void MenuScene::render()
 {
 	m_Graphics->setClearColor(Vector4(0, 1, 0, 1));
-	m_Graphics->setRenderTarget(-1);
+	m_Graphics->setRenderTarget(IGraphics::RenderTarget::NONE);
 }
 
 bool MenuScene::getIsVisible()

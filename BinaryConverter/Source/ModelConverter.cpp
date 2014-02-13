@@ -1,13 +1,11 @@
 #pragma warning(disable : 4996)
 #include "ModelConverter.h"
-#include <iostream>
+#include <fstream>
 
 ModelConverter::ModelConverter()
 {
 	m_NumberOfFrames = 0;
 	m_VertexCount = 0;
-	m_End = 0;
-	m_Start = 0;
 	m_IndexPerMaterial = 0;
 	m_MaterialSize = 0;
 	m_IndexPerMaterialSize = 0;
@@ -24,12 +22,8 @@ void ModelConverter::clear()
 {
 	m_NumberOfFrames = 0;
 	m_VertexCount = 0;
-	m_End = 0;
-	m_Start = 0;
 	m_NumberOfFrames = 0;
 	m_VertexCount = 0;
-	m_End = 0;
-	m_Start = 0;
 	m_IndexPerMaterial = 0;
 	m_MaterialSize = 0;
 	m_IndexPerMaterialSize = 0;
@@ -63,13 +57,8 @@ bool ModelConverter::writeFile(std::string p_FilePath)
 		int length = outputBuffer.size();
 		strcpy(outputBuffer.data()+length-5, ".atx");
 		std::ofstream outputAnimation(outputBuffer.data(), std::ostream::out | std::ostream::binary);
-		if(!outputAnimation)
-		{
-			return false;
-		}
 		createAnimationHeader(&outputAnimation);
 		createJointBuffer(&outputAnimation);
-		std::cout << outputBuffer.data() << std::endl;
 		outputAnimation.close();
 	}
 	else
@@ -93,7 +82,7 @@ void ModelConverter::createHeader(std::ostream* p_Output)
 	}
 	intToByte(m_VertexCount, p_Output);
 	intToByte(m_IndexPerMaterialSize, p_Output);
-	if(m_ListOfJoints->size() == 0)
+	if(m_ListOfJointsSize == 0)
 	{
 		m_Animated = false;
 	}
@@ -111,49 +100,27 @@ void ModelConverter::createAnimationHeader(std::ostream* p_AnimationOutput)
 
 void ModelConverter::createVertexBuffer(std::ostream* p_Output)
 {
-	
-	if(m_MaterialSize != 0)
+	VertexBuffer temp;
+	std::vector<VertexBuffer> tempVertex;
+	for(int i = 0; i < m_IndexPerMaterialSize; i++)
 	{
-		VertexBuffer temp;
-		std::vector<VertexBuffer> tempVertex;
-		for(int i = 0; i < m_IndexPerMaterialSize; i++)
+		int tempsize = m_IndexPerMaterial->at(i).size()-1;
+		for(int j = tempsize; j >= 0 ; j--)
 		{
-			int tempsize = m_IndexPerMaterial->at(i).size()-1;
-			for(int j = tempsize; j >= 0 ; j--)
-			{
-				temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
-				temp.m_Normal = m_Normals->at(m_IndexPerMaterial->at(i).at(j).m_Normal);
-				temp.m_UV = m_TextureCoord->at(m_IndexPerMaterial->at(i).at(j).m_TextureCoord);
-				temp.m_Tangent = m_Tangents->at(m_IndexPerMaterial->at(i).at(j).m_Tangent);
-				DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
-				temp.m_Position.x *= -1.f;
-				temp.m_Normal.x *= -1.f;
-				temp.m_Tangent.x *= -1.f;
-				temp.m_Binormal.x *= -1.f;
-				tempVertex.push_back(temp);
-			}
+			temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
+			temp.m_Normal = m_Normals->at(m_IndexPerMaterial->at(i).at(j).m_Normal);
+			temp.m_UV = m_TextureCoord->at(m_IndexPerMaterial->at(i).at(j).m_TextureCoord);
+			temp.m_Tangent = m_Tangents->at(m_IndexPerMaterial->at(i).at(j).m_Tangent);
+			DirectX::XMStoreFloat3(&temp.m_Binormal, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&temp.m_Tangent),DirectX::XMLoadFloat3(&temp.m_Normal)));
+			temp.m_Position.x *= -1.f;
+			temp.m_Normal.x *= -1.f;
+			temp.m_Tangent.x *= -1.f;
+			temp.m_Binormal.x *= -1.f;
+			tempVertex.push_back(temp);
 		}
-		int size = sizeof(VertexBuffer) * tempVertex.size();
-		p_Output->write(reinterpret_cast<const char*>(tempVertex.data()), size);
 	}
-	else
-	{
-		BoundingVolume temp;
-		std::vector<BoundingVolume> tempBoundingVolume;
-		for(int i = 0; i < m_IndexPerMaterialSize; i++)
-		{
-			int tempsize = m_IndexPerMaterial->at(i).size()-1;
-			for(int j = tempsize; j >= 0 ; j--)
-			{
-				temp.m_Position = DirectX::XMFLOAT4(m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).x,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).y,m_Vertices->at(m_IndexPerMaterial->at(i).at(j).m_Vertex).z, 1.0f);
-				temp.m_Position.x *= -1.f;
-				tempBoundingVolume.push_back(temp);
-			}
-		}
-		int size = sizeof(BoundingVolume) * tempBoundingVolume.size();
-		p_Output->write(reinterpret_cast<const char*>(tempBoundingVolume.data()), size);
-	}
-	
+	int size = sizeof(VertexBuffer) * tempVertex.size();
+	p_Output->write(reinterpret_cast<const char*>(tempVertex.data()), size);	
  }
 
 void ModelConverter::createVertexBufferAnimation(std::ostream* p_Output)
@@ -283,16 +250,6 @@ void ModelConverter::setListOfJoints(const std::vector<ModelLoader::Joint>* p_Li
 	m_ListOfJointsSize = m_ListOfJoints->size();
 }
 
-void ModelConverter::setAnimationStartValue(float p_StartTime)
-{
-	m_Start = p_StartTime;
-}
-
-void ModelConverter::setAnimationEndValue(float p_EndTime)
-{
-	m_End = p_EndTime;
-}
-
 void ModelConverter::setNumberOfFrames(int p_NumberOfFrames)
 {
 	m_NumberOfFrames = p_NumberOfFrames;
@@ -316,9 +273,21 @@ std::string ModelConverter::getPath(std::string p_FilePath)
 		tmp = strtok(NULL,"\\");
 	}
 	int length = buffer.size();
-	int size = strlen(type)+8;
+	int size; 
+	if(type == nullptr)
+	{
+		size = 8;
+	}
+	else
+	{
+		size = strlen(type)+8;
+	}
 
 	std::string temp;
+	if(length < size)
+	{
+		return "..\\error\\0";
+	}
 	temp.append(p_FilePath.data(), length-size);
 	temp.append(file.data(),file.size());
 	temp.push_back(0);
@@ -328,11 +297,42 @@ std::string ModelConverter::getPath(std::string p_FilePath)
 bool ModelConverter::createModelHeaderFile(std::string p_FilePath)
 {
 	std::string path = getPath(p_FilePath);
-	std::ofstream headerOutput(path, std::ofstream::binary | std::ofstream::app);
+	std::fstream headerOutput(path, std::fstream::in | std::fstream::out | std::fstream::binary);
 	if(!headerOutput)
 	{
-		return false;
+		headerOutput.open(path, std::fstream::out | std::fstream::binary);
+		if(!headerOutput)
+		{
+			return false;
+		}
 	}
+	std::string meshName;
+	std::streampos position;
+	int boolValue;
+	headerOutput.seekg(0,std::ifstream::end);
+	std::streamoff size = headerOutput.tellg();
+	headerOutput.seekg(0,std::ifstream::beg);
+	while(headerOutput.tellg() < size)
+	{
+		position = headerOutput.tellg();
+		byteToString(headerOutput, meshName);
+		if(meshName == m_MeshName)
+		{
+			headerOutput.seekp(position);
+			stringToByte(m_MeshName, &headerOutput);
+			intToByte(m_Animated, &headerOutput);
+			intToByte(m_Transparency, &headerOutput);
+			intToByte(m_Collidable, &headerOutput);
+			return true;
+		}
+		else
+		{
+			byteToInt(headerOutput, boolValue);
+			byteToInt(headerOutput, boolValue);
+			byteToInt(headerOutput, boolValue);
+		}
+	}
+	headerOutput.seekp(headerOutput.tellg());
 	stringToByte(m_MeshName, &headerOutput);
 	intToByte(m_Animated, &headerOutput);
 	intToByte(m_Transparency, &headerOutput);
@@ -341,12 +341,24 @@ bool ModelConverter::createModelHeaderFile(std::string p_FilePath)
 	return true;
 }
 
+void ModelConverter::byteToString(std::istream& p_Input, std::string& p_Return)
+{
+	int strLength = 0;
+	byteToInt(p_Input, strLength);
+	std::vector<char> buffer(strLength);
+	p_Input.read( buffer.data(), strLength);
+	p_Return = std::string(buffer.data(), strLength);
+}
+
+void ModelConverter::byteToInt(std::istream& p_Input, int& p_Return)
+{
+	p_Input.read((char*)&p_Return, sizeof(int));
+}
+
 void ModelConverter::clearData()
 {
 	m_NumberOfFrames = 0;
 	m_VertexCount = 0;
-	m_End = 0;
-	m_Start = 0;
 	m_IndexPerMaterial = 0;
 	m_MaterialSize = 0;
 	m_IndexPerMaterialSize = 0;

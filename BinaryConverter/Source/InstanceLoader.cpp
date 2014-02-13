@@ -246,9 +246,20 @@ std::string InstanceLoader::getPath(std::string p_FilePath)
 		tmp = strtok(NULL,"\\");
 	}
 	int length = buffer.size();
-	int size = strlen(type)+1;
-
+	int size;
+	if(type == nullptr)
+	{
+		size = 1;	
+	}
+	else
+	{
+		size = strlen(type)+1;
+	}
 	std::string temp;
+	if(length < size)
+	{
+		return "..\\error\\";
+	}
 	temp.append(p_FilePath.data(), length-size);
 	temp.append(file.data(),file.size());
 	temp.push_back(0);

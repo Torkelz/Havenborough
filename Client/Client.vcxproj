@@ -328,9 +328,7 @@
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <PostBuildEvent>
-      <Command>cd Bin
-$(ProjectDir)convert.bat  $(SolutionDir)BinaryConverter\Test\BinaryConverter.exe $(SolutionDir)Client\Bin\assets $(SolutionDir)Client\Assets\models
-$(SolutionDir)BoostTest\Test\BoostTest.exe --log_level=message</Command>
+      <Command>$(ProjectDir)convert.bat  $(SolutionDir)BinaryConverter\Test\BinaryConverter.exe $(SolutionDir)Client\Bin\assets $(SolutionDir)Client\Assets\models $(SolutionDir)Client\Assets\levels $(SolutionDir)Client\Assets\volumes\edge</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -356,9 +354,7 @@ $(SolutionDir)BoostTest\Test\BoostTest.exe --log_level=message</Command>
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <PostBuildEvent>
-      <Command>cd Bin
-$(ProjectDir)convert.bat  $(SolutionDir)BinaryConverter\Bin\BinaryConverter.exe $(SolutionDir)Client\Bin\assets $(SolutionDir)Client\Assets\models
-$(SolutionDir)BoostTest\Bin\BoostTest.exe</Command>
+      <Command>$(ProjectDir)convert.bat  $(SolutionDir)BinaryConverter\Bin\BinaryConverter.exe $(SolutionDir)Client\Bin\assets $(SolutionDir)Client\Assets\models $(SolutionDir)Client\Assets\levels $(SolutionDir)Client\Assets\volumes\edge</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

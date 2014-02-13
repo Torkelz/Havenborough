@@ -1,6 +1,7 @@
 #pragma once
 #include <Actor.h>
 #include "ActorFactory.h"
+#include "ActorList.h"
 #include "Level.h"
 #include "Player.h"
 #include "EdgeCollisionResponse.h"
@@ -38,7 +39,7 @@ private:
 	GoToScene m_ChangeScene;
 
 	ActorFactory* m_ActorFactory;
-	std::vector<Actor::ptr> m_Objects;
+	ActorList::ptr m_Actors;
 
 	bool m_Connected;
 	bool m_InGame;
@@ -61,7 +62,7 @@ public:
 		EventManager *p_EventManager, INetwork *p_Network); 
 	void shutdown(void);
 
-	std::vector<Actor::ptr> &getObjects();
+	ActorList::ptr getObjects();
 	/**
 	* Gets which scene the game should change to.
 	*/

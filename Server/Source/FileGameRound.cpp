@@ -122,6 +122,65 @@ void FileGameRound::updateLogic(float p_DeltaTime)
 	}
 }
 
+void FileGameRound::handleExtraPackage(Player::ptr p_Player, Package p_Package)
+{
+	User::ptr user = p_Player->getUser().lock();
+	if (!user)
+	{
+		return;
+	}
+
+	IConnectionController* con = user->getConnection();
+	PackageType type = con->getPackageType(p_Package);
+
+	switch (type)
+	{
+	case PackageType::THROW_SPELL:
+		{
+			Actor::ptr playerActor = p_Player->getActor().lock();
+			if (!playerActor)
+			{
+				break;
+			}
+
+			Actor::ptr spellActor = m_ActorFactory->createSpell(
+				con->getThrowSpellName(p_Package),
+				playerActor->getId(),
+				con->getThrowSpellDirection(p_Package),
+				con->getThrowSpellStartPosition(p_Package));
+
+			std::ostringstream outStream;
+			spellActor->serialize(outStream);
+			std::string spellDescription = outStream.str();
+
+			ObjectInstance spellInstance;
+			spellInstance.m_Id = spellActor->getId();
+			spellInstance.m_Description = spellDescription.c_str();
+
+			for (auto& player : m_Players)
+			{
+				if (player == p_Player)
+				{
+					continue;
+				}
+
+				User::ptr otherUser = player->getUser().lock();
+				if (!otherUser)
+				{
+					continue;
+				}
+
+				otherUser->getConnection()->sendCreateObjects(&spellInstance, 1);
+			}
+		}
+		break;
+
+	default:
+		GameRound::handleExtraPackage(p_Player, p_Package);
+		break;
+	}
+}
+
 void FileGameRound::sendUpdates()
 {
 	std::vector<UpdateObjectData> data;

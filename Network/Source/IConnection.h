@@ -9,8 +9,7 @@
 #include <memory>
 
 /**
- * Represents a connetion to a remote computer.
- * Handles sending and receiving of raw data, prefixed with a minimal header.
+ * Interface for a connetion to a remote computer.
  */
 class IConnection
 {
@@ -42,24 +41,26 @@ public:
 	};
 
 public:
+	virtual ~IConnection() {};
+
 	/**
 	 * Check if the connection is currently connected.
 	 *
 	 * @return true if connected, otherwise false
 	 */
-	virtual bool isConnected() const;
+	virtual bool isConnected() const = 0;
 
 	/**
 	 * Disconnect the connection if connected.
 	 */
-	virtual void disconnect();
+	virtual void disconnect() = 0;
 	
 	/**
 	 * Check if an error has been encountered.
 	 *
 	 * @return true if an error has occurred, otherwise false.
 	 */
-	virtual bool hasError() const;
+	virtual bool hasError() const = 0;
 
 	/**
 	 * Writes a buffer of data to the network stream. If the stream
@@ -70,7 +71,7 @@ public:
 	 *		internally. Therefore it is safe to delete the buffer afterwards.
 	 * @param p_ID The package ID to be associated with the data.
 	 */
-	virtual void writeData(const std::string& p_Buffer, uint16_t p_ID);
+	virtual void writeData(const std::string& p_Buffer, uint16_t p_ID) = 0;
 
 	/**
 	 * Set a callback to handle data when received. Data is always a single complete package.
@@ -78,12 +79,12 @@ public:
 	 * @param p_SaveData the callback function to receive incoming data,
 	 *			use the empty function to disable callback.
 	 */
-	virtual void setSaveData(saveDataFunction p_SaveData);
+	virtual void setSaveData(saveDataFunction p_SaveData) = 0;
 
 	/**
 	 * Set a callback to handle after the socket is disconnected.
 	 */
-	virtual void setDisconnectedCallback(disconnectedCallback_t p_DisconnectedCallback);
+	virtual void setDisconnectedCallback(disconnectedCallback_t p_DisconnectedCallback) = 0;
 
 	///**
 	// * Get the socket from the connection.
@@ -96,5 +97,5 @@ public:
 	* Start a reading loop on the connection. The function should
 	* not be called twice on the same connection.
 	*/
-	virtual void startReading();
+	virtual void startReading() = 0;
 };

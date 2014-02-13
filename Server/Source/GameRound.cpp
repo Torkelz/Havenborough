@@ -51,7 +51,7 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 	m_EventManager.reset(new EventManager);
 
 	m_AnimationLoader.reset(new AnimationLoader);
-	m_SpellFactory.reset(new SpellFactory(m_Physics));
+	m_SpellFactory.reset(new SpellFactory);
 	
 	using namespace std::placeholders;
 	m_ResourceManager->registerFunction("animation",

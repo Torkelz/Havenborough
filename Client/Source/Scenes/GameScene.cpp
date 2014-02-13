@@ -54,7 +54,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
-	m_CurrentDebugView = 3;
+	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
 	return true;
@@ -141,9 +141,9 @@ void GameScene::render()
 
 	if(m_RenderDebugBV)
 	{
-		for(auto &object : m_GameLogic->getObjects())
+		for(auto &object : *m_GameLogic->getObjects())
 		{
-			for (BodyHandle body : object->getBodyHandles())
+			for (BodyHandle body : object.second->getBodyHandles())
 			{
 				renderBoundingVolume(body);
 			}
@@ -215,16 +215,16 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	}
 	else if(p_Action ==  "changeViewN" && p_Value == 1)
 	{
-		m_CurrentDebugView--;
-		if(m_CurrentDebugView < 0)
-			m_CurrentDebugView = 4;
+		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+		if((unsigned int)m_CurrentDebugView < 0)
+			m_CurrentDebugView = (IGraphics::RenderTarget)4;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
 	{
-		m_CurrentDebugView++;
-		if(m_CurrentDebugView >= 5)
-			m_CurrentDebugView = 0;
+		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
+		if((unsigned int)m_CurrentDebugView >= 5)
+			m_CurrentDebugView = (IGraphics::RenderTarget)0;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 	}
 	else if (p_Action == "mouseMoveHori")
@@ -523,13 +523,14 @@ void GameScene::loadSandboxModels()
 	static const std::string preloadedTextures[] =
 	{
 		"TEXTURE_NOT_FOUND",
+		"MANA_BAR",
 	};
 	for (const std::string &texture : preloadedTextures)
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
 	m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), 1.f, 0.f, "Arrow1");
-	m_Graphics->create2D_Object(Vector3(-500, -280, 2), Vector2(80, 80), 0.0f, "TEXTURE_NOT_FOUND");
+	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), 0.0f, "MANA_BAR");
 
 	static const std::string preloadedModelsTransparent[] =
 	{

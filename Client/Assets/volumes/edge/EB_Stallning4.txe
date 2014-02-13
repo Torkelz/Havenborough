@@ -1,0 +1,54 @@
+*ObjectHeader*
+#numObj: 10
+
+#MESH: Stallning4
+#Translation: 7.295857 -144.783188 389.62027
+#Rotation: 0 0 0
+#Scale: 218.76828 10 10
+
+#MESH: Stallning4
+#Translation: 5.470888 152.12738 7.65558
+#Rotation: 0 0 0
+#Scale: 189.416779 10 10
+
+#MESH: Stallning4
+#Translation: 3.416579 152.434021 -386.015778
+#Rotation: 0 0 0
+#Scale: 176.488251 10 10
+
+#MESH: Stallning4
+#Translation: 7.295857 455.448883 -386.015778
+#Rotation: 0 0 0
+#Scale: 218.76828 10 10
+
+#MESH: Stallning4
+#Translation: 7.295857 455.142242 7.65558
+#Rotation: 0 0 0
+#Scale: 218.76828 10 10
+
+#MESH: Stallning4
+#Translation: 1.42376 -145.168457 -376.028748
+#Rotation: 0 0 0
+#Scale: 190.506348 10 10
+
+#MESH: Stallning4
+#Translation: 118.570648 -144.519577 204.687927
+#Rotation: 1.570796 0 0
+#Scale: 374.398163 10 10
+
+#MESH: Stallning4
+#Translation: -105.458977 -144.519577 204.687927
+#Rotation: 1.570796 0 0
+#Scale: 374.398163 10 10
+
+#MESH: Stallning4
+#Translation: 118.091034 454.874939 -188.340668
+#Rotation: 1.570796 0 0
+#Scale: 397.500702 10 10
+
+#MESH: Stallning4
+#Translation: -100.537674 455.33371 -188.340668
+#Rotation: 1.570796 0 0
+#Scale: 400.927734 10 10
+
+

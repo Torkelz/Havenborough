@@ -45,7 +45,6 @@ private:
 	std::string m_MeshName;
 	std::vector<ModelLoader::IndexDesc>* m_Indices;
 
-	float m_Start, m_End;
 	int m_NumberOfFrames;
 	int m_MaterialSize, m_IndexPerMaterialSize, m_ListOfJointsSize, m_WeightsListSize;
 	bool m_Transparency, m_Collidable, m_Animated;
@@ -155,20 +154,6 @@ public:
 	void setListOfJoints(const std::vector<ModelLoader::Joint>* p_ListOfJoints);
 
 	/**
-	 * This whants the length of every animation frame. 
-	 *
-	 * @param p_StartTime is a float.
-	 */
-	void setAnimationStartValue(float p_StartTime);
-
-	/**
-	 * This whants the end point of the animation. 
-	 *
-	 * @param p_EndTime is a float.
-	 */
-	void setAnimationEndValue(float p_EndTime);
-
-	/**
 	 * This whants the number of frames in the animation. 
 	 *
 	 * @param p_NumberOfFrames is an int.
@@ -196,5 +181,7 @@ protected:
 	void createJointBuffer(std::ostream* p_Output);
 private:
 	void clearData();
+	void byteToString(std::istream& p_Input, std::string& p_Return);
+	void byteToInt(std::istream& p_Input, int& p_Return);
 	std::string getPath(std::string p_FilePath);
 };

@@ -33,6 +33,7 @@ enum class PackageType : uint16_t
 	LEVEL_DATA,
 	RESULT_GAME,
 	SET_SPAWN,
+	THROW_SPELL,
 };
 
 struct ObjectInstance

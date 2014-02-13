@@ -111,28 +111,14 @@ private:
 
 ModelFactoryStub *ModelFactoryStub::mInstance = nullptr;
 
-//BOOST_AUTO_TEST_CASE(TestCreateStaticModel)
-//{
-//	ModelFactoryStub *factory = ModelFactoryStub::getInstance();
-//
-//	ModelDefinition *model = &factory->createModel("n/a", false);
-//	
-//	BOOST_CHECK(model != nullptr);
-//
-//	//SAFE_DELETE(model);
-//	SAFE_DELETE(factory);
-//}
-//
-//BOOST_AUTO_TEST_CASE(TestCreateAnimatedModel)
-//{
-//	ModelFactoryStub *factory = ModelFactoryStub::getInstance();
-//
-//	ModelDefinition *model = &factory->createModel("n/a", true);
-//
-//	BOOST_CHECK(model != nullptr);
-//
-//	//SAFE_DELETE(model);
-//	SAFE_DELETE(factory);
-//}
+BOOST_AUTO_TEST_CASE(ModelFactory_GetInstance)
+{
+	ModelFactoryStub *factory = ModelFactoryStub::getInstance();
+	BOOST_CHECK(factory);
+	
+
+	delete factory;
+	factory = nullptr;
+}
 
 BOOST_AUTO_TEST_SUITE_END()

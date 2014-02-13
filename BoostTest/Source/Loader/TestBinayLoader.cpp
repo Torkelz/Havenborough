@@ -6,6 +6,11 @@ BOOST_AUTO_TEST_SUITE(TestBinaryModelLoader)
 class testBinaryLoader : public ModelBinaryLoader
 {
 public:
+	void testLoadBinaryFile(std::string p_FilePath)
+	{
+		loadBinaryFile(p_FilePath);
+	}
+
 	void testByteToInt(std::istream* p_Input, int& temp)
 	{
 		byteToInt(p_Input, temp);
@@ -51,6 +56,30 @@ public:
 	}
 };
 
+BOOST_AUTO_TEST_CASE(TestBinaryLoadFile)
+{
+	testBinaryLoader loader;
+
+	BOOST_CHECK_THROW(loader.testLoadBinaryFile(""), std::exception);
+	loader.testLoadBinaryFile("..\\Source\\Loader\\models\\testNormal.btx");
+	BOOST_CHECK_EQUAL(loader.getAnimated(), false);
+	BOOST_CHECK_EQUAL(loader.getAnimatedVertexBuffer().size(), 0);
+	BOOST_CHECK_EQUAL(loader.getCollideAble(), false);
+	BOOST_CHECK_EQUAL(loader.getMaterial().size(), 1);
+	BOOST_CHECK_EQUAL(loader.getMaterialBuffer().size(), 1);
+	BOOST_CHECK_EQUAL(loader.getStaticVertexBuffer().size(), 108);
+	BOOST_CHECK_EQUAL(loader.getTransparent(), false);
+
+	loader.testLoadBinaryFile("..\\Source\\Loader\\models\\testAnimated.btx");
+	BOOST_CHECK_EQUAL(loader.getAnimated(), true);
+	BOOST_CHECK_EQUAL(loader.getAnimatedVertexBuffer().size(), 29079);
+	BOOST_CHECK_EQUAL(loader.getCollideAble(), false);
+	BOOST_CHECK_EQUAL(loader.getMaterial().size(), 2);
+	BOOST_CHECK_EQUAL(loader.getMaterialBuffer().size(), 2);
+	BOOST_CHECK_EQUAL(loader.getStaticVertexBuffer().size(), 0);
+	BOOST_CHECK_EQUAL(loader.getTransparent(), false);
+}
+
 BOOST_AUTO_TEST_CASE(TestByteToInt)
 {
 	struct byteInt
@@ -90,7 +119,9 @@ BOOST_AUTO_TEST_CASE(TestReadModelHeader)
 		"\x05\0\0\0"
 		"\x02\0\0\0"
 		"\x01\0\0\0"
-		"\x01\0\0\0";
+		"\0\0\0\0"
+		"\0\0\0\0"
+		"\0\0\0\0";
 	std::istringstream tempString(std::string(binHeader, binHeader + sizeof(binHeader)));
 	testBinaryLoader loader;
 	tempHeader = loader.testReadHeader(&tempString);
@@ -99,6 +130,9 @@ BOOST_AUTO_TEST_CASE(TestReadModelHeader)
 	BOOST_CHECK_EQUAL(tempHeader.m_NumMaterial, 5);
 	BOOST_CHECK_EQUAL(tempHeader.m_NumVertex, 2);
 	BOOST_CHECK_EQUAL(tempHeader.m_NumMaterialBuffer, 1);
+	BOOST_CHECK_EQUAL(tempHeader.m_Transparent, false);
+	BOOST_CHECK_EQUAL(tempHeader.m_Animated, false);
+	BOOST_CHECK_EQUAL(tempHeader.m_CollideAble, false);
 	BOOST_CHECK_EQUAL(tempHeader.m_Transparent, false);
 }
 

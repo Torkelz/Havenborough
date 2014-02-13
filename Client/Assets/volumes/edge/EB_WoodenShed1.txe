@@ -1,19 +1,19 @@
-*Header
+*ObjectHeader*
 #numObj: 3
 
 #MESH: WoodenShed1
-#Translation: 0 0 0
-#Rotation: 0 0 0
-#Scale: 1 1 1
+#Translation: 2.451714 114.873657 108.893875
+#Rotation: 0 0 -0.190994
+#Scale: 193.146378 10 10
 
 #MESH: WoodenShed1
-#Translation: 0 0 0
-#Rotation: 0 0 0
-#Scale: 1 1 1
+#Translation: 2.452 114.874001 -108.89386
+#Rotation: 0 0 -0.190994
+#Scale: 193.146378 10 10
 
 #MESH: WoodenShed1
-#Translation: 0 0 0
-#Rotation: 0 0 0
-#Scale: 1 1 1
+#Translation: 99.102295 96.095657 0
+#Rotation: 1.570796 0 0
+#Scale: 224.196167 10 10
 
 

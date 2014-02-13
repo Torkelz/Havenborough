@@ -1,14 +1,14 @@
-*Header
+*ObjectHeader*
 #numObj: 2
 
 #MESH: MarketStand1
-#Translation: 0.979148 101.694878 -79.830307
+#Translation: 0 138.538574 84.076614
 #Rotation: 0 0 0
-#Scale: 63.560921 1 1
+#Scale: 317.217529 10 10
 
 #MESH: MarketStand1
-#Translation: 0.912993 138.538574 84.076614
+#Translation: 0 101.694878 -79.830307
 #Rotation: 0 0 0
-#Scale: 63.560921 1 1
+#Scale: 317.217529 10 10
 
 

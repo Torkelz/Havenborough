@@ -120,6 +120,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Common\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
     <ClCompile Include="..\Common\Source\InstanceBinaryLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
@@ -159,6 +160,9 @@ $(TargetPath)</Command>
     <ClCompile Include="BodyTest.cpp" />
     <ClCompile Include="HullTest.cpp" />
     <ClCompile Include="OBBTest.cpp" />
+    <ClCompile Include="Source\Common\TestLight.cpp" />
+    <ClCompile Include="Source\Common\TestXMFloatUtil.cpp" />
+    <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp" />
     <ClCompile Include="Source\Input\TestInput.cpp" />
     <ClCompile Include="..\Physics\Source\Collision.cpp" />
     <ClCompile Include="Source\Loader\TestBinaryConverter.cpp" />
@@ -177,14 +181,17 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
     <ClCompile Include="SphereTest.cpp" />
-    <ClCompile Include="TestEdgeCollisionResponse.cpp" />
+    <ClCompile Include="Source\Client\TestEdgeCollisionResponse.cpp" />
+    <ClCompile Include="TestAnimation.cpp" />
     <ClCompile Include="TestIK.cpp" />
     <ClCompile Include="TestLogger.cpp" />
     <ClCompile Include="Source\Graphics\TestModelFactory.cpp" />
     <ClCompile Include="Source\Client\TestEventManager.cpp" />
-    <ClCompile Include="TestPlayer.cpp" />
+    <ClCompile Include="Source\Client\TestPlayer.cpp" />
+    <ClCompile Include="TestMLXLoader.cpp" />
     <ClCompile Include="TestResouceTranslator.cpp" />
     <ClCompile Include="TestResourceManager.cpp" />
+    <ClCompile Include="Source\Graphics\TestSkyDome.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
