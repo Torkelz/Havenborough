@@ -247,6 +247,9 @@
     <ClCompile Include="TestPlayer.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
+    <ClCompile Include="TestSkyDome.cpp">
+      <Filter>TestGraphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

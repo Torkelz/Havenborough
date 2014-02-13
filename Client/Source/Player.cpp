@@ -304,6 +304,11 @@ float Player::getKneeHeight() const
 	return m_Height * 0.25f;
 }
 
+void Player::setHeight(float p_Height)
+{
+	m_Height = p_Height;
+}
+
 BodyHandle Player::getBody(void) const
 {
 	return m_Actor.lock()->getBodyHandles()[0];

@@ -185,6 +185,7 @@ $(TargetPath)</Command>
     <ClCompile Include="TestPlayer.cpp" />
     <ClCompile Include="TestResouceTranslator.cpp" />
     <ClCompile Include="TestResourceManager.cpp" />
+    <ClCompile Include="TestSkyDome.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
