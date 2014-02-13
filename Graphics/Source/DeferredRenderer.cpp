@@ -298,7 +298,7 @@ void DeferredRenderer::renderSSAO(void)
 
 void DeferredRenderer::blurSSAO(void)
 {
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < 2; i++) //TODO: Should be 4 passes
 	{
 		SSAO_PingPong(m_SRV["SSAO"], m_RT[RenderTarget::FINAL], false);
 		SSAO_PingPong(m_SRV["Light"], m_RT[RenderTarget::SSAO], true);
