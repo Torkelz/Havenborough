@@ -131,6 +131,11 @@ public:
 		m_Physics = p_Physics;
 	}
 
+	/**
+	 * Get the bodyhandle for the bounding volume used in the component.
+	 * 
+	 * @return a bodyhandle to the bounding volume within the component
+	 */
 	BodyHandle getBodyHandle() const override
 	{
 		return m_Sphere;

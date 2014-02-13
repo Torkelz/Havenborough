@@ -75,7 +75,7 @@ bool SpellInstance::isDead() const
 
 void SpellInstance::spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit)
 {
-	switch (m_SpellDefinition->m_type)
+	switch (m_SpellDefinition->m_Type)
 	{
 	case SpellDefinition::Type::EXPLOSION:
 		{
