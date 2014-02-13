@@ -43,7 +43,7 @@ void BaseGameApp::init()
 	m_Physics->initialize();
 
 	m_AnimationLoader.reset(new AnimationLoader);
-	m_SpellFactory.reset(new SpellFactory(m_Physics));
+	m_SpellFactory.reset(new SpellFactory());
 
 	m_ResourceManager.reset(new ResourceManager());
 	

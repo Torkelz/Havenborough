@@ -94,6 +94,11 @@ public:
 	DirectX::XMFLOAT3 getEyePosition() const;
 
 	/**
+	 *
+	 */
+	DirectX::XMFLOAT3 getRightHandPosition() const;
+
+	/**
 	 * Get the position that would be on the ground if the player would be standing on a flat surface.
 	 *
 	 * @return the ground position of the player

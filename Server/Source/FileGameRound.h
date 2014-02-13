@@ -21,8 +21,9 @@ public:
 private:
 	void sendLevel() override;
 	void updateLogic(float p_DeltaTime) override;
+	void handleExtraPackage(Player::ptr p_Player, Package p_Package) override;
 	void sendUpdates() override;
-	void playerDisconnected(Player::ptr p_DisconnectedPlayer);
+	void playerDisconnected(Player::ptr p_DisconnectedPlayer) override;
 
 	UpdateObjectData getUpdateData(const Player::ptr p_Player);
 	std::string getExtraData(const Player::ptr p_Player);

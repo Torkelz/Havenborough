@@ -7,6 +7,8 @@
 
 #include <vector>
 
+class ActorList;
+
 /**
  * Actor serves as a collection of components that work together to implement
  * the majority of the game logic. Create actors by using an ActorFactory.
@@ -30,6 +32,7 @@ private:
 	Vector3 m_Position;
 	Vector3 m_Rotation;
 	EventManager* m_EventManager;
+	std::weak_ptr<ActorList> m_ActorList;
 
 public:
 	/**
@@ -38,7 +41,7 @@ public:
 	 * @param p_Id the unique id to assign to the actor
 	 * @param p_EventManager the manager the actor should pass any events to
 	 */
-	Actor(Id p_Id, EventManager* p_EventManager);
+	Actor(Id p_Id, EventManager* p_EventManager, std::weak_ptr<ActorList> p_ActorList);
 	/**
 	 * destructor.
 	 */
@@ -137,6 +140,14 @@ public:
 	 * @return the world matrix for the actor
 	 */
 	DirectX::XMFLOAT4X4 getWorldMatrix() const;
+
+	/**
+	 * Find an actor from an actor id.
+	 *
+	 * @param p_ActorId the id of the actor to find
+	 * @return an actor if found, otherwise en empty pointer
+	 */
+	Actor::ptr findActor(Actor::Id p_ActorId) const;
 
 private:
 	friend class ActorFactory;

@@ -1,8 +1,10 @@
 #include "Actor.h"
+#include "ActorList.h"
 #include "Components.h"
 
-Actor::Actor(Id p_Id, EventManager* p_EventManager)
-	: m_Id(p_Id), m_EventManager(p_EventManager)
+Actor::Actor(Id p_Id, EventManager* p_EventManager, std::weak_ptr<ActorList> p_ActorList)
+	: m_Id(p_Id), m_EventManager(p_EventManager),
+		m_ActorList(p_ActorList)
 {
 }
 
@@ -141,4 +143,17 @@ DirectX::XMFLOAT4X4 Actor::getWorldMatrix() const
 	XMStoreFloat4x4(&world, XMMatrixTranspose(rotation * translation));
 
 	return world;
+}
+
+Actor::ptr Actor::findActor(Actor::Id p_ActorId) const
+{
+	std::shared_ptr<ActorList> list = m_ActorList.lock();
+	if (list)
+	{
+		return list->findActor(p_ActorId);
+	}
+	else
+	{
+		return Actor::ptr();
+	}
 }

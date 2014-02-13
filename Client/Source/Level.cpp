@@ -27,7 +27,7 @@ void Level::releaseLevel()
 	m_Resources = nullptr;
 }
 
-bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_ActorOut)
+bool Level::loadLevel(std::istream& p_LevelData, ActorList::ptr p_ActorOut)
 {
 	InstanceBinaryLoader levelLoader;
 	boost::filesystem::path collisionFolder("assets/volumes/edge");
@@ -79,7 +79,7 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 				volumes[0].scale = model.m_Scale[j];
 			}
 
-			p_ActorOut.push_back(m_ActorFactory->createInstanceActor(instModel, volumes, edges));
+			p_ActorOut->addActor(m_ActorFactory->createInstanceActor(instModel, volumes, edges));
 		}
 	}
 	
@@ -91,19 +91,19 @@ bool Level::loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_Acto
 	for (const auto& directionalLight : levelLoader.getDirectionalLightData())
 	{
 		directionalActor = m_ActorFactory->createDirectionalLight(directionalLight.m_Direction, directionalLight.m_Color);
-		p_ActorOut.push_back(directionalActor);
+		p_ActorOut->addActor(directionalActor);
 	}
 	for (const auto& pointLight : levelLoader.getPointLightData())
 	{
 		pointActor = m_ActorFactory->createPointLight(pointLight.m_Translation, pointLight.m_Intensity * 5000, pointLight.m_Color);
-		p_ActorOut.push_back(pointActor);
+		p_ActorOut->addActor(pointActor);
 	}
 	Vector2 minMaxAngle;
 	for (const auto& spotLight : levelLoader.getSpotLightData())
 	{
 		minMaxAngle.x = cosf(spotLight.m_ConeAngle); minMaxAngle.y = cosf(spotLight.m_ConeAngle + spotLight.m_PenumbraAngle);
 		spotActor = m_ActorFactory->createSpotLight(spotLight.m_Translation, spotLight.m_Direction, minMaxAngle, spotLight.m_Intensity * 5000, spotLight.m_Color);
-		p_ActorOut.push_back(spotActor);
+		p_ActorOut->addActor(spotActor);
 	}
 
 	return true;
