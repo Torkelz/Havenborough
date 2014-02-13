@@ -2,6 +2,7 @@
 #include "WrapperFactory.h"
 #include "ModelDefinition.h"
 #include "ShaderStructs.h"
+#include "Utilities/XMFloatUtil.h"
 
 #include <d3d11.h>
 #include <vector>
@@ -20,7 +21,7 @@ public:
 
 private:
 	static ModelFactory *m_Instance;
-	std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *m_TextureList;
+	std::map<std::string, ID3D11ShaderResourceView*> *m_TextureList;
 
 	loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
@@ -36,7 +37,7 @@ public:
 	* Initialize the factory.
 	* p_TextureList pointer to the texture list pair 
 	*/
-	void initialize(std::vector<std::pair<std::string, ID3D11ShaderResourceView*>> *p_TextureList);
+	void initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList);
 
 	/**
 	* Shuts down the factory and releases the memory allocated. Nulls all pointers.
@@ -50,6 +51,9 @@ public:
 	* @return copy of the created model
 	*/
 	virtual ModelDefinition createModel(const char *p_Filename);
+
+
+	virtual ModelDefinition *create2D_Model(Vector2 p_HalfSize, const char *p_TextureId);
 
 	/**
 	* Set the function to load a texture to a model.
@@ -68,5 +72,6 @@ private:
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
 		const std::vector<Material> &p_Materials);
+	void load2D_Texture(ModelDefinition &model, const char *p_TextureId);
 	ID3D11ShaderResourceView *getTextureFromList(std::string p_Identifier);
 };

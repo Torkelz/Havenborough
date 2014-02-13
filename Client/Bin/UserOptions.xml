@@ -1,4 +1,4 @@
 <UserOptions>
-	<Server Hostname="localhost" Port="31415" />
-	<!-- Test ip: 194.47.150.29 -->
+	<Server Hostname="194.47.150.44" Port="31415" />
+	<!-- Test ip: 194.47.150.44 -->
 </UserOptions>

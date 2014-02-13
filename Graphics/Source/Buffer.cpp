@@ -242,8 +242,10 @@ HRESULT Buffer::unsetBuffer(UINT32 p_StartSlot)
 	{
 	case Type::VERTEX_BUFFER:
 		{
-			UINT32 offset = 0;
-			m_DeviceContext->IASetVertexBuffers(p_StartSlot, 0, nullptr, 0, &offset);
+			const UINT stride = 0;
+			const UINT offset = 0;
+			ID3D11Buffer* none = nullptr;
+			m_DeviceContext->IASetVertexBuffers(p_StartSlot, 1, &none, &stride, &offset);
 			break;
 		}
 	case Type::INDEX_BUFFER:
@@ -254,17 +256,20 @@ HRESULT Buffer::unsetBuffer(UINT32 p_StartSlot)
 		}
 	case Type::CONSTANT_BUFFER_VS:
 		{
-			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			ID3D11Buffer* none = nullptr;
+			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, 1, &none);
 			break;
 		}
 	case Type::CONSTANT_BUFFER_GS:
 		{
-			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			ID3D11Buffer* none;
+			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, 1, &none);
 			break;
 		}
 	case Type::CONSTANT_BUFFER_PS:
 		{
-			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			ID3D11Buffer* none = nullptr;
+			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, 1, &none);
 			break;
 		}
 	case Type::BUFFER_TYPE_COUNT:
@@ -274,9 +279,10 @@ HRESULT Buffer::unsetBuffer(UINT32 p_StartSlot)
 		}
 	case Type::CONSTANT_BUFFER_ALL:
 		{
-			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, 0, nullptr);
-			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, 0, nullptr);
-			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, 0, nullptr);
+			ID3D11Buffer* none = nullptr;
+			m_DeviceContext->VSSetConstantBuffers(p_StartSlot, 1, &none);
+			m_DeviceContext->GSSetConstantBuffers(p_StartSlot, 1, &none);
+			m_DeviceContext->PSSetConstantBuffers(p_StartSlot, 1, &none);
 			break;
 		}
 	default:

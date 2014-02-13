@@ -27,7 +27,6 @@ private:
 	std::unique_ptr<Lobby> m_Lobby;
 	GameList m_Games;
 
-	uint16_t m_LastActorId;
 	std::vector<User::ptr> m_Users;
 
 	bool m_RemoveBox;

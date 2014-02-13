@@ -7,6 +7,8 @@
 #include "ActorFactory.h"
 #include "Player.h"
 
+#include <SpellFactory.h>
+
 #include <memory>
 #include <thread>
 #include <vector>
@@ -40,6 +42,7 @@ protected:
 	IPhysics* m_Physics;
 	std::unique_ptr<ResourceManager> m_ResourceManager;
 	std::unique_ptr<AnimationLoader> m_AnimationLoader;
+	std::unique_ptr<SpellFactory> m_SpellFactory;
 	ActorFactory::ptr m_ActorFactory;
 	std::vector<Actor::ptr> m_Actors;
 	std::vector<Player::ptr> m_Players;

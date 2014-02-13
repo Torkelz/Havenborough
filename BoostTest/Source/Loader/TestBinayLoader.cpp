@@ -61,7 +61,23 @@ BOOST_AUTO_TEST_CASE(TestBinaryLoadFile)
 	testBinaryLoader loader;
 
 	BOOST_CHECK_THROW(loader.testLoadBinaryFile(""), std::exception);
-	//loader.testLoadBinaryFile("..\\Source\\Loader\\models\\testNormal.btx");//////////////////////////////////////////////////
+	loader.testLoadBinaryFile("..\\Source\\Loader\\models\\testNormal.btx");
+	BOOST_CHECK_EQUAL(loader.getAnimated(), false);
+	BOOST_CHECK_EQUAL(loader.getAnimatedVertexBuffer().size(), 0);
+	BOOST_CHECK_EQUAL(loader.getCollideAble(), false);
+	BOOST_CHECK_EQUAL(loader.getMaterial().size(), 1);
+	BOOST_CHECK_EQUAL(loader.getMaterialBuffer().size(), 1);
+	BOOST_CHECK_EQUAL(loader.getStaticVertexBuffer().size(), 108);
+	BOOST_CHECK_EQUAL(loader.getTransparent(), false);
+
+	loader.testLoadBinaryFile("..\\Source\\Loader\\models\\testAnimated.btx");
+	BOOST_CHECK_EQUAL(loader.getAnimated(), true);
+	BOOST_CHECK_EQUAL(loader.getAnimatedVertexBuffer().size(), 29079);
+	BOOST_CHECK_EQUAL(loader.getCollideAble(), false);
+	BOOST_CHECK_EQUAL(loader.getMaterial().size(), 2);
+	BOOST_CHECK_EQUAL(loader.getMaterialBuffer().size(), 2);
+	BOOST_CHECK_EQUAL(loader.getStaticVertexBuffer().size(), 0);
+	BOOST_CHECK_EQUAL(loader.getTransparent(), false);
 }
 
 BOOST_AUTO_TEST_CASE(TestByteToInt)

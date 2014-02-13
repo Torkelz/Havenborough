@@ -13,7 +13,7 @@ private:
 	ID3D11RasterizerState	*m_RasterState;
 	ID3D11DepthStencilState *m_DepthStencilState;
 
-	DirectX::XMFLOAT3	*m_CameraPosition;
+	DirectX::XMFLOAT3	m_CameraPosition;
 	DirectX::XMFLOAT4X4	*m_ViewMatrix;
 	DirectX::XMFLOAT4X4	*m_ProjectionMatrix;
 
@@ -41,7 +41,7 @@ public:
 	 * @ p_RenderTarget, make it use the same render target as the other.
 	 */
 	void init(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext,
-		DirectX::XMFLOAT3 *p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
+		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11DepthStencilView* p_DepthStencilView,
 		ID3D11RenderTargetView *p_RenderTarget);
 
@@ -59,6 +59,13 @@ public:
 	 * before calling this function.
 	 */
 	void renderForward();
+
+	/**
+	 * Update the camera information.
+	 *
+	 * @param p_CameraPos the new camera position
+	 */
+	void updateCamera(const DirectX::XMFLOAT3& p_CameraPos);
 
 private:
 	void createBlendStates();

@@ -10,9 +10,14 @@ class IGraphics
 {
 public:
 	/**
-	* Unique ID for a model instance.
+	* Unique ID for a model instance, starts on 1.
 	*/
 	typedef int InstanceId;
+
+	/**
+	* Unique ID for a 2D object instance, starts on 1.
+	*/
+	typedef int Object2D_ID;
 		
 	/**
 	 * Callback for loading a texture to a model.
@@ -149,6 +154,7 @@ public:
 
 	/**
 	 * Creates a new texture and stores in a vector connected with an ID.
+	 * WARNING: Should only be called by the resource manager.
 	 *
 	 * @param p_TextureId the ID of the texture
 	 * @param p_Filename the filename of the texture
@@ -220,14 +226,26 @@ public:
 	virtual void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) = 0;
 
 	/**
-	 * 
-	 */
-	virtual void addStaticLight(void) = 0;
+	* Creates a 2D object from a texture to be used by the screen renderer.
+	* @param p_Position the xy-pixel coordinates to place the object on, z the depth in range of 0.0f to 1280.0f
+	* @param p_HalfSize the object's pixel size in xy from the center point
+	* @param p_Rotation the rotation around the z-axis in radians, left-handed
+	* @param p_TextureId the ID of the texture to be used
+	* @return the Object2D ID of the created object
+	*/
+	virtual int create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation,
+		const char *p_TextureId) = 0;
 
 	/**
-	 * 
-	 */
-	virtual void removeStaticLight(void) = 0;
+	* Creates a 2D object from a model definition to be used by the screen renderer.
+	* @param p_Position the xy-pixel coordinates to place the object on, z the depth in range of 0.0f to 1280.0f
+	* @param p_Scale the scaling factor where 1.0f is the default model size
+	* @param p_Rotation the rotation around the z-axis in radians, left-handed
+	* @param p_ModelDefinition the ID of the model definition
+	* @return the Object2D ID of the created object
+	*/
+	virtual int create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation,
+		const char *p_ModelDefinition) = 0;
 
 	/**
 	 * Creates a point light which is removed after each draw.
@@ -270,9 +288,9 @@ public:
 	 */
 	virtual void renderModel(InstanceId p_ModelId) = 0;
 	/**
-	 * Renders the created skyDome.
+	 * Renders the created Skydome.
 	 */
-	virtual void renderSkydome() = 0;
+	virtual void renderSkydome(void) = 0;
 
 	/**
 	 * 
@@ -280,9 +298,10 @@ public:
 	virtual void renderText(void) = 0;
 
 	/**
-	 * 
-	 */
-	virtual void renderQuad(void) = 0;
+	* Renders a 2D object specified with an ID.
+	* @param p_Id the ID of the object to be rendered.
+	*/
+	virtual void render2D_Object(Object2D_ID p_Id) = 0;
 	
 	/**
 	 * Draw the current frame.
@@ -336,7 +355,7 @@ public:
 	virtual void eraseModelInstance(InstanceId p_Instance) = 0;
 
 	/**
-	 * Set the position of an model instance in absolute world coordinates.
+	 * Set the position of a model instance in absolute world coordinates.
 	 *
 	 * @param p_Instance an identifier to a model instance.
 	 * @param p_Position the new position in the world from origin in cm's
@@ -344,7 +363,7 @@ public:
 	virtual void setModelPosition(InstanceId p_Instance, Vector3 p_Position) = 0;
 
 	/**
-	 * Set the rotation of an model instance in radians.
+	 * Set the rotation of a model instance in radians.
 	 *
 	 * @param p_Instance an identifier to a model instance.
 	 * @param p_YawPitchRoll rotation around the YXZ axises, left-handed.
@@ -352,7 +371,7 @@ public:
 	virtual void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) = 0;
 
 	/**
-	 * Set the scale of an model instance.
+	 * Set the scale of a model instance.
 	 *
 	 * @param p_Instance an identifier to a model instance.
 	 * @param p_Scale the model scale, Vector3(1.0f, 1.0f, 1.0f) equals no scale 
@@ -360,13 +379,42 @@ public:
 	virtual void setModelScale(InstanceId p_Instance, Vector3 p_Scale) = 0;
 
 	/**
-	 * Set the scale of an model instance.
+	 * Set the color tone of a model instance.
 	 *
 	 * @param p_Instance an identifier to a model instance.
 	 * @param p_ColorTone the color tone to shade the model in, RGB range 0.0f to 1.0f
 	 */
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
+	/**
+	* Set the pixel position on screen of a 2D object.
+	* @param p_Instance an identifier to an object
+	* @param p_Position xy the pixel coordinates to place the center of the object, z the position relative to
+	*	other 2D objects where lower z renders in front of higher
+	*/
+	virtual void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) = 0;
+	
+	/**
+	* Set the scale of a 2D object.
+	* @param p_Instance an identifier to an object
+	* @param p_Scale scaling factor where 1.0f is the default model size
+	*/
+	virtual void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) = 0;
+	
+	/**
+	* Set the rotation of a 2D object around the screen z-axis.
+	* @param p_Instance an identifier to an object
+	* @param p_Rotation the rotation in radians, left-handed
+	*/
+	virtual void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) = 0;
+	
+	/**
+	* Set a position in world space which a 2D object should point towards.
+	* @param p_Instance an identifier to an object
+	* @param p_LookAt the position in the world
+	*/
+	virtual void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) = 0;
+	
 	/**
 	 * Update the position and viewing direction of the camera.
 	 *

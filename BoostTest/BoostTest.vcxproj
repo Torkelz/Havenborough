@@ -135,6 +135,7 @@ $(TargetPath)</Command>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\ParticleFactory.cpp" />
     <ClCompile Include="..\Graphics\Source\ParticleInstance.cpp" />
+    <ClCompile Include="..\Graphics\Source\ScreenRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
@@ -181,6 +182,7 @@ $(TargetPath)</Command>
     <ClCompile Include="TestLogger.cpp" />
     <ClCompile Include="Source\Graphics\TestModelFactory.cpp" />
     <ClCompile Include="Source\Client\TestEventManager.cpp" />
+    <ClCompile Include="TestPlayer.cpp" />
     <ClCompile Include="TestResouceTranslator.cpp" />
     <ClCompile Include="TestResourceManager.cpp" />
   </ItemGroup>

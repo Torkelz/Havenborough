@@ -90,6 +90,14 @@ std::vector<BodyHandle> Actor::getBodyHandles() const
 		{
 			bodies.push_back(std::static_pointer_cast<PhysicsInterface>(comp)->getBodyHandle());
 		}
+		else if (comp->getComponentId() == SpellInterface::m_ComponentId)
+		{
+			BodyHandle handle = std::static_pointer_cast<SpellInterface>(comp)->getBodyHandle();
+			if (handle != 0)
+			{
+				bodies.push_back(handle);
+			}
+		}
 	}
 	
 	return bodies;

@@ -85,15 +85,15 @@ struct IKGroup
 struct AnimationPath
 {
 	std::string						m_PathName;
-	std::vector<DirectX::XMUINT2>	m_YPath;
-	std::vector<DirectX::XMUINT2>	m_ZPath;
+	std::vector<DirectX::XMFLOAT2>	m_YPath;
+	std::vector<DirectX::XMFLOAT2>	m_ZPath;
 
 	AnimationPath()
 	{
 		m_PathName = "default";
 	}
 
-	AnimationPath(std::string p_PathName, std::vector<DirectX::XMUINT2> p_YPath, std::vector<DirectX::XMUINT2> p_ZPath)
+	AnimationPath(std::string p_PathName, std::vector<DirectX::XMFLOAT2> p_YPath, std::vector<DirectX::XMFLOAT2> p_ZPath)
 	{
 		m_PathName	= p_PathName;
 		m_YPath		= p_YPath;

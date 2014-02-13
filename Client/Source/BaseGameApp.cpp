@@ -43,6 +43,7 @@ void BaseGameApp::init()
 	m_Physics->initialize();
 
 	m_AnimationLoader.reset(new AnimationLoader);
+	m_SpellFactory.reset(new SpellFactory(m_Physics));
 
 	m_ResourceManager.reset(new ResourceManager());
 	
@@ -69,6 +70,9 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction("particleSystem",
 		std::bind(&IGraphics::createParticleEffectDefinition, m_Graphics, _1, _2),
 		std::bind(&IGraphics::releaseParticleEffectDefinition, m_Graphics, _1));
+	m_ResourceManager->registerFunction("spell",
+		std::bind(&SpellFactory::createSpellDefinition, m_SpellFactory.get(), _1, _2),
+		std::bind(&SpellFactory::releaseSpellDefinition, m_SpellFactory.get(), _1));
 	m_ResourceManager->registerFunction("animation",
 		std::bind(&AnimationLoader::loadAnimationDataResource, m_AnimationLoader.get(), _1, _2),
 		std::bind(&AnimationLoader::releaseAnimationData, m_AnimationLoader.get(), _1));
@@ -106,6 +110,8 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('N', "resetAnimation");
 	translator->addKeyboardMapping('M', "layerAnimation");
 	translator->addKeyboardMapping('V', "resetLayerAnimation");
+
+	translator->addMouseButtonMapping(InputTranslator::MouseButton::LEFT, "spellCast");
 	
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
@@ -136,6 +142,7 @@ void BaseGameApp::init()
 	m_ActorFactory.setEventManager(m_EventManager.get());
 	m_ActorFactory.setResourceManager(m_ResourceManager.get());
 	m_ActorFactory.setAnimationLoader(m_AnimationLoader.get());
+	m_ActorFactory.setSpellFactory(m_SpellFactory.get());
 
 	m_GameLogic->initialize(m_ResourceManager.get(), m_Physics, &m_ActorFactory, m_EventManager.get(), m_Network);
 
@@ -187,6 +194,7 @@ void BaseGameApp::shutdown()
 	
 	m_SceneManager.destroy();
 
+	m_SpellFactory.reset();
 	m_AnimationLoader.reset();
 
 	m_ResourceManager.reset();
@@ -312,7 +320,7 @@ void BaseGameApp::updateTimer()
 {
 	m_PrevTimeStamp = m_CurrTimeStamp;
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_CurrTimeStamp);
-	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt);// / 2.0f; // To debug the game at low refreshrate.
+	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt);// / 10.0f; // To debug the game at low refreshrate.
 	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{
