@@ -225,10 +225,6 @@ void ScreenRenderer::renderScreen(void)
 		m_DeviceContext->RSSetState(previousRasterState);
 		m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
 
-		//float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
-		//UINT sampleMask = 0xffffffff;
-		//m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
-		
 		SAFE_RELEASE(previousRasterState);
 		SAFE_RELEASE(previousDepthState);
 		m_2D_Objects.clear();
