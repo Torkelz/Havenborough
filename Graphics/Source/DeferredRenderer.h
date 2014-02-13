@@ -116,6 +116,7 @@ public:
 	 */
 	ID3D11ShaderResourceView* getRT(int i); //DEBUG
 
+	void updateCamera(DirectX::XMFLOAT3 p_Position);
 
 private:
 	void renderGeometry();

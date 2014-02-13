@@ -47,11 +47,11 @@ void Animation::updateAnimation(float p_DeltaTime)
 		// Track 0 is the main track. Do vanilla animation.
 		if(m_Tracks[0].clip->m_AnimationSpeed > 0)
 		{
-			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].currentFrame, m_Tracks[0].destinationFrame);
+			toParentData = std::move(p_Joints[i].interpolateEx(m_Tracks[0].currentFrame, m_Tracks[0].destinationFrame));
 		}
 		else
 		{
-			toParentData = p_Joints[i].interpolateEx(m_Tracks[0].destinationFrame, m_Tracks[0].currentFrame);
+			toParentData = std::move(p_Joints[i].interpolateEx(m_Tracks[0].destinationFrame, m_Tracks[0].currentFrame));
 		}
 
 		for(unsigned int currentTrack = 1; currentTrack < 6; currentTrack++)

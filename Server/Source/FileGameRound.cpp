@@ -19,12 +19,12 @@ void FileGameRound::setup()
 		m_Players[i]->setActor(actor);
 		m_Actors.push_back(actor);
 	}
-	m_FileLoader.reset(new LevelBinaryLoader);
+	m_FileLoader.reset(new InstanceBinaryLoader);
 	m_FileLoader->loadBinaryFile(m_FilePath);
 
-	std::vector<LevelBinaryLoader::CheckPointStruct> checkpoints = m_FileLoader->getCheckPointData();
+	std::vector<InstanceBinaryLoader::CheckPointStruct> checkpoints = m_FileLoader->getCheckPointData();
 	std::sort(checkpoints.begin(), checkpoints.end(),
-		[] (const LevelBinaryLoader::CheckPointStruct& p_Left, const LevelBinaryLoader::CheckPointStruct& p_Right)
+		[] (const InstanceBinaryLoader::CheckPointStruct& p_Left, const InstanceBinaryLoader::CheckPointStruct& p_Right)
 		{
 			return p_Left.m_Number > p_Right.m_Number;
 		});
@@ -158,6 +158,7 @@ void FileGameRound::sendUpdates()
 					if(!m_SendHitData[i].first->reachedFinishLine())
 					{
 						user->getConnection()->sendRemoveObjects(&id, 1);
+						user->getConnection()->sendSetSpawnPosition(actor->getPosition());
 						tinyxml2::XMLPrinter printer;
 						printer.OpenElement("ObjectUpdate");
 						printer.PushAttribute("ActorId", id-1);

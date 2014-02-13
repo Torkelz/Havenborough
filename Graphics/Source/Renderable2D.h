@@ -26,7 +26,7 @@ struct Renderable2D
 		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation(position.x, position.y, position.z);
 		DirectX::XMMATRIX rotationMatrix = DirectX::XMLoadFloat4x4(&rotation);
 
-		DirectX::XMStoreFloat4x4(&returnMatrix, DirectX::XMMatrixTranspose(scaleMatrix * rotationMatrix * translationMatrix));
+		DirectX::XMStoreFloat4x4(&returnMatrix, DirectX::XMMatrixTranspose(rotationMatrix * scaleMatrix * translationMatrix));
 		return returnMatrix;
 	}
 };

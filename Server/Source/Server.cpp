@@ -3,8 +3,7 @@
 #include <Logger.h>
 
 Server::Server()
-	:	m_LastActorId(0),
-		m_RemoveBox(false),
+	:	m_RemoveBox(false),
 		m_PulseObject(false)
 {
 }
@@ -125,7 +124,7 @@ void Server::removeLastBox()
 	//	return;
 	//}
 
-	//const uint16_t objectsToRemove[] = { m_Boxes.back().actorId };
+	//const uint32_t objectsToRemove[] = { m_Boxes.back().actorId };
 	//m_Boxes.pop_back();
 
 	//std::lock_guard<std::mutex> lock(m_UserLock);
@@ -142,7 +141,7 @@ void Server::pulse()
 	//	return;
 	//}
 
-	//const uint16_t object = m_Boxes.front().actorId;
+	//const uint32_t object = m_Boxes.front().actorId;
 
 	//tinyxml2::XMLPrinter printer;
 	//printer.OpenElement("Action");

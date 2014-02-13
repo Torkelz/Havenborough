@@ -46,11 +46,10 @@ private:
 
 	struct ParticleBinding
 	{
-		unsigned int particleId;
 		int resourceId;
 		IGraphics::InstanceId instance;
 	};
-	std::vector<ParticleBinding> m_Particles;
+	std::map<unsigned int, ParticleBinding> m_Particles;
 
 	struct SpellBinding
 	{
@@ -91,8 +90,7 @@ private:
 	void changeColorTone(IEventData::Ptr p_Data);
 	void createParticleEffect(IEventData::Ptr p_Data);
 	void removeParticleEffect(IEventData::Ptr p_Data);
-	void createSpell(IEventData::Ptr p_Data);
-	void removeSpell(IEventData::Ptr p_Data);
+	void updateParticlePosition(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 

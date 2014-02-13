@@ -229,20 +229,15 @@ void DeferredRenderer::renderGeometry()
 	// The textures will be needed to be grabbed from the model later.
 	std::vector<std::vector<Renderable>> instancedModels;
 	std::vector<Renderable> animatedOrSingle;
-
-
+	
 	SortRenderables(animatedOrSingle, instancedModels);
-
 
 	m_Buffer["DefaultConstant"]->setBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler["Default"]);
-	updateConstantBuffer();
-
 
 	for( auto &animation : animatedOrSingle )
 		renderObject(animation);
-
-
+	
 	for( auto &k : instancedModels)
 		RenderObjectsInstanced(k);
 
@@ -408,12 +403,13 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT["Final"],0);
 	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
+	m_Buffer["DefaultConstant"]->unsetBuffer(0);
+
 
 	if(m_SkyDome && m_RenderSkyDome)
 		m_SkyDome->RenderSkyDome(m_RT["Final"], m_DepthStencilView, m_Buffer["DefaultConstant"]);
 
 
-	m_Buffer["DefaultConstant"]->unsetBuffer(0);
 	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 	m_DeviceContext->RSSetState(previousRasterState);
@@ -460,6 +456,10 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(int i)
 	}
 }
 
+void DeferredRenderer::updateCamera(DirectX::XMFLOAT3 p_Position)
+{
+	m_CameraPosition = p_Position;
+}
 
 void DeferredRenderer::updateConstantBuffer()
 {
@@ -727,7 +727,7 @@ void DeferredRenderer::clearRenderTargets()
 	m_DeviceContext->ClearRenderTargetView(m_RT["Final"], color);
 
 
-	color[0] = color[1] = color[2] = 0.0f;
+	color[0] = color[1] = color[2] = 1.0f;
 	color[3] = 1.0f;
 	m_DeviceContext->ClearRenderTargetView(m_RT["SSAO"], color);
 }
@@ -1113,6 +1113,7 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 
 			if(nr >= 1)
 			{
+				l.reserve(nr);
 				std::move(m_Objects.begin() + current, m_Objects.begin() + i + 1, std::back_inserter(l));
 				instancedModels.push_back(l);
 			}
@@ -1153,6 +1154,7 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 		{
 			int nrToCpy = (p_Objects.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : p_Objects.size() - i ;
 			std::vector<XMFLOAT4X4> tWorld;
+			tWorld.reserve(nrToCpy);
 			for(int j = 0; j < nrToCpy; j++)
 				tWorld.push_back(p_Objects.at(i+j).world);
 

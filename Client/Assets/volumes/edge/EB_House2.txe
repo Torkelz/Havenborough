@@ -1,0 +1,39 @@
+*Header
+#numObj: 7
+
+#MESH: House2
+#Translation: -61.635193 508.623932 455.646851
+#Rotation: 1.570796 0 0
+#Scale: 1 1 63.082256
+
+#MESH: House2
+#Translation: -61.634998 508.623901 -1087.38501
+#Rotation: 1.570796 0 0
+#Scale: 1 1 63.082256
+
+#MESH: House2
+#Translation: -320.04715 -206.420761 996.088257
+#Rotation: 1.783726 0.0401426 -0.148736
+#Scale: 1 1 109.712059
+
+#MESH: House2
+#Translation: 202.40419 -205.68129 997.888
+#Rotation: -1.789551 0.0950989 0.0956118
+#Scale: 1 1 109.712059
+
+#MESH: House2
+#Translation: -518.392395 -101.991035 839.095337
+#Rotation: -0.240129 0.274218 -0.0894364
+#Scale: 1 1 93.017044
+
+#MESH: House2
+#Translation: 395.333038 -101.991035 839.095337
+#Rotation: 0.26994 0.246404 0
+#Scale: 1 1 93.017044
+
+#MESH: House2
+#Translation: 579.750305 -143.87616 -300.594147
+#Rotation: 3.141593 0 0
+#Scale: 1 1 239.521011
+
+

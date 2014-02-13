@@ -34,9 +34,9 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 	particleSystem->textureResourceName = "Particle1.dds";
 	particleSystem->sampler = m_Sampler;
 	particleSystem->maxParticles = 900;
-	particleSystem->particlesPerSec = 300;
-	particleSystem->maxLife = 4.f;
-	particleSystem->maxLifeDeviation = 3.f;
+	particleSystem->particlesPerSec = 900;
+	particleSystem->maxLife = 0.6f;
+	particleSystem->maxLifeDeviation = 0.2f;
 	particleSystem->size = DirectX::XMFLOAT2(8.f, 8.f);
 	particleSystem->particleSystemName = "fire";
 	particleSystem->particlePositionDeviation = 10.f;

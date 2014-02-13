@@ -1,9 +1,9 @@
 #include <boost/test/unit_test.hpp>
-#include "../../../BinaryConverter/Source/LevelLoader.h"
+#include "../../../BinaryConverter/Source/InstanceLoader.h"
 
 BOOST_AUTO_TEST_SUITE(TestLevelLoader)
 
-class testLevelLoader : public LevelLoader
+class testLevelLoader : public InstanceLoader
 {
 public:
 	int testHeader(std::istream& p_Input)
@@ -46,16 +46,15 @@ BOOST_AUTO_TEST_CASE(TestReadMeshList)
 	testLevelLoader loader;
 	
 	loader.testMeshList(stream);
-
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Scale.x, 1.13871396f);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Scale.y, 1.13871396f);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Scale.z, 1.13871396f);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Rotation.x, 0);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Rotation.y, 1);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Rotation.z, 0);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Translation.x, 0);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Translation.y, 0);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Translation.z, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Scale.x, 1.13871396f);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Scale.y, 1.13871396f);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Scale.z, 1.13871396f);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Rotation.x, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Rotation.y, 1);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Rotation.z, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Translation.x, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Translation.y, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Translation.z, 0);
 }
 
 BOOST_AUTO_TEST_CASE(TestReadLightList)
@@ -107,16 +106,16 @@ BOOST_AUTO_TEST_CASE(TestMainLoop)
 	BOOST_CHECK_EQUAL(loader.getLevelHeader().m_NumberOfModels, 512);
 	BOOST_CHECK_EQUAL(loader.getLevelHeader().m_NumberOfLights, 12);
 	BOOST_CHECK_EQUAL(loader.getLevelHeader().m_NumberOfCheckPoints, 3);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_MeshName, "House1");
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Scale.x, 1.13871396f);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Scale.y, 1.13871396f);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Scale.z, 1.13871396f);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Rotation.x, 0);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Rotation.y, 1);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Rotation.z, 0);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Translation.x, 0);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Translation.y, 0);
-	BOOST_CHECK_EQUAL(loader.getLevelModelList().at(0).m_Translation.z, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_MeshName, "House1");
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Scale.x, 1.13871396f);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Scale.y, 1.13871396f);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Scale.z, 1.13871396f);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Rotation.x, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Rotation.y, 1);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Rotation.z, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Translation.x, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Translation.y, 0);
+	BOOST_CHECK_EQUAL(loader.getModelList().at(0).m_Translation.z, 0);
 	BOOST_CHECK_EQUAL(loader.getLevelDirectionalLightList().at(0).first.m_Translation.x, -64.818832f);
 	BOOST_CHECK_EQUAL(loader.getLevelDirectionalLightList().at(0).first.m_Translation.y, 86.49115f);
 	BOOST_CHECK_EQUAL(loader.getLevelDirectionalLightList().at(0).first.m_Translation.z, 0.0f);

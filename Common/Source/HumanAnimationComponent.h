@@ -91,7 +91,7 @@ public:
 	{
 		m_Model = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId);
 		m_EventManager = m_Owner->getEventManager();
-		//playAnimation("Idle", false);
+		playAnimation( "Idle", false );
 	}
 
 	void onUpdate(float p_DeltaTime) override
@@ -167,7 +167,7 @@ public:
 
 	void playClimbAnimation(std::string p_ClimbID) override
 	{
-		playAnimation(p_ClimbID, false);
+		playAnimation(p_ClimbID, true);
 		m_ForceMove = true;
 	}
 

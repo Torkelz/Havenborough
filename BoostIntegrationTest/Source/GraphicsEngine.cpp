@@ -164,13 +164,18 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 		DXGI_FORMAT::DXGI_FORMAT_BC3_UNORM, 16 , 16)));
 	BOOST_CHECK(graphics->getVRAMUsage() - memUsage == 256);
 	
-
 	//Step 6
 	ResourceManager *resourceManager = new ResourceManager();
+	using namespace std::placeholders;
+	{
+		
+		resourceManager->registerFunction("texture",
+			std::bind(&IGraphics::createTexture, graphics, _1, _2),
+			std::bind(&IGraphics::releaseTexture, graphics, _1));
+	}
 	BOOST_MESSAGE(testId + "Setting callback functions for load/release textures");
 	BOOST_CHECK_NO_THROW(graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, resourceManager));
 	BOOST_CHECK_NO_THROW(graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, resourceManager));
-
 	
 	//Step 7
 	ModelFactory *modelFactory = nullptr;
@@ -179,17 +184,9 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK(wrapperFactory != nullptr);
 
 	BOOST_MESSAGE(testId + "Creating model object of Barrel1.btx");
-	BOOST_REQUIRE(graphics->createTexture("Barrel_COLOR.dds", "../../Client/Bin/assets/textures/Barrel_COLOR.dds"));
-	BOOST_REQUIRE(graphics->createTexture("Barrel_NRM.dds", "../../Client/Bin/assets/textures/Barrel_NRM.dds"));
-	BOOST_REQUIRE(graphics->createTexture("Barrel_SPEC.dds", "../../Client/Bin/assets/textures/Barrel_SPEC.dds"));
 	BOOST_CHECK(graphics->createModel("barrel", "../../Client/Bin/assets/models/Barrel1.btx"));
 
 	BOOST_MESSAGE(testId + "Creating model object of Dzala.btx");
-	BOOST_REQUIRE(graphics->createTexture("body_COLOR.dds", "../../Client/Bin/assets/textures/body_COLOR.dds"));
-	BOOST_REQUIRE(graphics->createTexture("body_NRM.dds", "../../Client/Bin/assets/textures/body_NRM.dds"));
-	BOOST_REQUIRE(graphics->createTexture("Default_SPEC.dds", "../../Client/Bin/assets/textures/Default_SPEC.dds"));
-	BOOST_REQUIRE(graphics->createTexture("Accessories_COLOR.dds", "../../Client/Bin/assets/textures/Accessories_COLOR.dds"));
-	BOOST_REQUIRE(graphics->createTexture("Accessories_NRM.dds", "../../Client/Bin/assets/textures/Accessories_NRM.dds"));
 	BOOST_CHECK(graphics->createModel("witch", "../../Client/Bin/assets/models/Dzala.btx"));
 
 	//Step 8
@@ -353,14 +350,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK(graphics->releaseModel("witch"));
 	BOOST_MESSAGE(testId + "Releasing model object of Checkpoint.btx");
 	BOOST_CHECK(graphics->releaseModel("checkpoint"));
-	BOOST_CHECK(graphics->releaseTexture("barrelColor"));
-	BOOST_CHECK(graphics->releaseTexture("barrelNormal"));
-	BOOST_CHECK(graphics->releaseTexture("barrelSpecular"));
-	BOOST_CHECK(graphics->releaseTexture("bodyColor"));
-	BOOST_CHECK(graphics->releaseTexture("bodyNormal"));
-	BOOST_CHECK(graphics->releaseTexture("defaultSpecular"));
-	BOOST_CHECK(graphics->releaseTexture("accessoriesColor"));
-	BOOST_CHECK(graphics->releaseTexture("accessoriesNormal"));
+	BOOST_CHECK(graphics->releaseTexture("TEXTURE_NOT_FOUND"));
 	
 
 	//Step 16

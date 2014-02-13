@@ -30,6 +30,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_ActorFactory = p_ActorFactory;
 	m_Network = p_Network;
 	m_EventManager = p_EventManager;
+
+	m_EventManager->addListener(EventListenerDelegate(this, &GameLogic::removeActorByEvent), RemoveActorEventData::sk_EventType);
 	
 	m_ChangeScene = GoToScene::NONE;
 
@@ -71,7 +73,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
 			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
-				m_Physics->getBodySize(hit.collisionVictim).y ,&m_Player))
+				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player))
 			{
 				//m_Physics->removeHitDataAt(i);
 			}
@@ -198,7 +200,6 @@ Vector3 GameLogic::getPlayerViewForward() const
 	{
 		return Vector3(0.f, 0.f, 1.f);
 	}
-
 	return look->getLookForward();
 }
 
@@ -266,6 +267,9 @@ DirectX::XMFLOAT4X4 GameLogic::getPlayerViewRotationMatrix() const
 
 void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 {
+	/*if(m_Player.getForceMove())
+		return;*/
+
 	Actor::ptr actor = m_Player.getActor().lock();
 	if (!actor)
 	{
@@ -363,7 +367,7 @@ void GameLogic::playLocalLevel()
 
 	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
 	m_Player = Player();
-	m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), playerActor);
+	m_Player.initialize(m_Physics, playerActor);
 
 	m_InGame = true;
 	m_PlayingLocal = true;
@@ -371,14 +375,7 @@ void GameLogic::playLocalLevel()
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 
-	
-	//BodyHandle b = m_Physics->createAABB(50.f, true, Vector3(0,150,0), Vector3(10,100,10), true);
-	//m_Physics->setBodyCollisionResponse(b,false);
-
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
-
-	// DEBUG STUFFZ
-	playAnimation( m_Player.getActor().lock(), "Idle", false );
 }
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
@@ -528,7 +525,7 @@ void GameLogic::handleNetwork()
 						}
 						else if(object->Attribute("Type", "Position"))
 						{
-							int b = 0; //DO SOMETHING HERE!!
+							//int b = 0; //DO SOMETHING HERE!!
 						}
 					}
 				}
@@ -540,7 +537,7 @@ void GameLogic::handleNetwork()
 					for (unsigned int i = 0; i < numUpdates; ++i)
 					{
 						const UpdateObjectData& data = updates[i];
-						const uint16_t actorId = data.m_Id;
+						const uint32_t actorId = data.m_Id;
 
 						Actor::ptr actor = getActor(actorId);
 						if (!actor)
@@ -673,7 +670,7 @@ void GameLogic::handleNetwork()
 					if (actor)
 					{
 						m_Player = Player();
-						m_Player.initialize(m_Physics, XMFLOAT3(0.f, 0.f, 1.f), actor);
+						m_Player.initialize(m_Physics, actor);
 					}
 
 					conn->sendDoneLoading();
@@ -681,6 +678,12 @@ void GameLogic::handleNetwork()
 					m_PlayingLocal = false;
 
 					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
+				}
+				break;
+
+			case PackageType::SET_SPAWN:
+				{
+					m_Player.setSpawnPosition(conn->getSetSpawnPositionData(package));
 				}
 				break;
 
@@ -735,6 +738,13 @@ void GameLogic::removeActor(Actor::Id p_Actor)
 			return;
 		}
 	}
+}
+
+void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<RemoveActorEventData> data = std::static_pointer_cast<RemoveActorEventData>(p_Data);
+
+	removeActor(data->getActorId());
 }
 
 void GameLogic::loadSandbox()
@@ -848,6 +858,8 @@ void GameLogic::updateIK()
 			}
 		}
 	}
+
+	m_Player.updateIKJoints();
 }
 
 IPhysics *GameLogic::getPhysics() const
