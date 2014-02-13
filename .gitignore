@@ -39,6 +39,7 @@ BoostTest/Bin/BoostTest_test_log.xml
 BoostTest/Bin/BoostTest_test_report.xml
 **/.mayaSwatches/
 *.btx
+*.btxl
 *.atx
 *.txx
 *.btxe

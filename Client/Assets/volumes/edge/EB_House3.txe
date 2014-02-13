@@ -1,5 +1,5 @@
-*Header
-#numObj: 34
+*ObjectHeader*
+#numObj: 42
 
 #MESH: House3
 #Translation: -1.083424 -336.440399 1140.36792
@@ -143,12 +143,12 @@
 
 #MESH: House3
 #Translation: 1230.634277 -170.151672 -14.650814
-#Rotation: 1.426634 -1.570796 -1.570796
+#Rotation: 1.570796 0 -0.144162
 #Scale: 375.388611 10 10
 
 #MESH: House3
 #Translation: 660.530396 -371.300293 -664.433472
-#Rotation: -0.0198994 0 -0.279527
+#Rotation: -0.033547 -0.00964903 -0.279963
 #Scale: 335.542755 10 10
 
 #MESH: House3
@@ -163,12 +163,52 @@
 
 #MESH: House3
 #Translation: -74.999939 -393.402161 -1071.877563
-#Rotation: 1.314233 -1.570796 -1.570796
+#Rotation: 1.570796 0 -0.256563
 #Scale: 388.184113 10 10
 
 #MESH: House3
 #Translation: -624.999939 -393.05542 -1070.175293
-#Rotation: 1.314233 -1.570796 -1.570796
+#Rotation: 1.570796 0 -0.256563
 #Scale: 388.184113 10 10
+
+#MESH: House3
+#Translation: 1072.296997 103.986084 233.511505
+#Rotation: 0 0 0
+#Scale: 712.818237 10 10
+
+#MESH: House3
+#Translation: 1263.996948 103.986084 1003.011475
+#Rotation: 0 0 0
+#Scale: 329.166931 10 10
+
+#MESH: House3
+#Translation: 1427.500122 103.986176 618.628479
+#Rotation: 1.570796 0 0
+#Scale: 774.017151 10 10
+
+#MESH: House3
+#Translation: -1427.5 103.986099 618.537537
+#Rotation: 1.570796 0 0
+#Scale: 774.017151 10 10
+
+#MESH: House3
+#Translation: -1090.411499 103.986099 1005.771301
+#Rotation: 0 0 0
+#Scale: 684.840332 10 10
+
+#MESH: House3
+#Translation: -1089.610107 103.986099 233.511597
+#Rotation: 0 0 0
+#Scale: 684.840332 10 10
+
+#MESH: House3
+#Translation: -427.500031 103.986069 -96.075661
+#Rotation: 1.570796 0 0
+#Scale: 569.825745 10 10
+
+#MESH: House3
+#Translation: 68.664536 103.986092 -666.488464
+#Rotation: 0 0 0
+#Scale: 338.981781 10 10
 
 

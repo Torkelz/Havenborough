@@ -328,7 +328,7 @@
       <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <PostBuildEvent>
-      <Command>$(ProjectDir)convert.bat  $(SolutionDir)BinaryConverter\Test\BinaryConverter.exe $(SolutionDir)Client\Bin\assets $(SolutionDir)Client\Assets\models</Command>
+      <Command>$(ProjectDir)convert.bat  $(SolutionDir)BinaryConverter\Test\BinaryConverter.exe $(SolutionDir)Client\Bin\assets $(SolutionDir)Client\Assets\models $(SolutionDir)Client\Assets\levels $(SolutionDir)Client\Assets\volumes\edge</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

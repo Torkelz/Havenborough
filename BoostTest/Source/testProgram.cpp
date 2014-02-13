@@ -6,7 +6,7 @@
  */
 
 /********** UNCOMMENT FOR Code Coverage ***************/
-#include <CodeCoverage/CodeCoverage.h>
+/*#include <CodeCoverage/CodeCoverage.h>
 
 ExcludeFromCodeCoverage(Exclusion1, L"boost::*");
 ExcludeFromCodeCoverage(Exclusion2, L"boost_132::*");
@@ -26,4 +26,4 @@ ExcludeSourceFromCodeCoverage(Exclusion15, L"*\\DDSTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion16, L"*\\WICTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion17, L"*\\boost\\*.hpp");
 ExcludeSourceFromCodeCoverage(Exclusion18, L"*\\BoostTest\\*")
-//
+*/

@@ -286,7 +286,7 @@ std::string ModelConverter::getPath(std::string p_FilePath)
 	std::string temp;
 	if(length < size)
 	{
-		return "..\\Source\\Loader\\level\\0";
+		return "..\\error\\0";
 	}
 	temp.append(p_FilePath.data(), length-size);
 	temp.append(file.data(),file.size());
