@@ -2,7 +2,7 @@
 
 #include "NetworkLogger.h"
 
-ConnectionController::ConnectionController(Connection::ptr p_Connection, const std::vector<PackageBase::ptr>& p_Prototypes)
+ConnectionController::ConnectionController(IConnection::ptr p_Connection, const std::vector<PackageBase::ptr>& p_Prototypes)
 	:	m_PackagePrototypes(p_Prototypes),
 		m_Connection(std::move(p_Connection))
 {
@@ -317,7 +317,7 @@ Vector3 ConnectionController::getThrowSpellDirection(Package p_Package)
 	return throwSpell->m_Object1.direction;
 }
 
-void ConnectionController::setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback)
+void ConnectionController::setDisconnectedCallback(IConnection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);
 }

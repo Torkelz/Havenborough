@@ -4,10 +4,12 @@
 
 #pragma once
 
-#include "Connection.h"
+#include "IConnection.h"
 #include "Packages.h"
 
 #include <IConnectionController.h>
+
+#include <mutex>
 
 /**
  * Implementation of the IConnectionController interface.
@@ -21,7 +23,7 @@ public:
 	typedef std::unique_ptr<ConnectionController> ptr;
 
 private:
-	Connection::ptr m_Connection;
+	IConnection::ptr m_Connection;
 
 	const std::vector<PackageBase::ptr>& m_PackagePrototypes;
 	std::vector<PackageBase::ptr> m_ReceivedPackages;
@@ -36,7 +38,7 @@ public:
 	 * @param p_Connection the connection to wrap.
 	 * @param p_Prototypes a list of prototypes representing the supported package types.
 	 */
-	ConnectionController(Connection::ptr p_Connection, const std::vector<PackageBase::ptr>& p_Prototypes);
+	ConnectionController(IConnection::ptr p_Connection, const std::vector<PackageBase::ptr>& p_Prototypes);
 
 	/**
 	 * destructor.
@@ -108,7 +110,7 @@ public:
 	 *
 	 * @param p_DisconnectCallback a callback function.
 	 */
-	void setDisconnectedCallback(Connection::disconnectedCallback_t p_DisconnectCallback);
+	void setDisconnectedCallback(IConnection::disconnectedCallback_t p_DisconnectCallback);
 
 protected:
 	void writeData(const std::string& p_Buffer, uint16_t p_ID);

@@ -93,7 +93,7 @@ void ServerAccept::handleAccept( const boost::system::error_code& error)
 		return;
 	}
 
-    Connection::ptr connection(new Connection(std::move(m_AcceptSocket)));
+    IConnection::ptr connection(new Connection(std::move(m_AcceptSocket)));
 	ConnectionController::ptr clientConnection(new ConnectionController(std::move(connection), m_PackagePrototypes));
 
 	clientConnection->setDisconnectedCallback(std::bind(&ServerAccept::handleDisconnectCallback, this, clientConnection.get()));
