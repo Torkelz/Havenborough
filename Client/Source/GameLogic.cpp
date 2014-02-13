@@ -33,6 +33,9 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameLogic::removeActorByEvent), RemoveActorEventData::sk_EventType);
 	
+	m_Actors.reset(new ActorList);
+	m_ActorFactory->setActorList(m_Actors);
+
 	m_ChangeScene = GoToScene::NONE;
 
 	m_Connected = false;
@@ -46,9 +49,9 @@ void GameLogic::shutdown(void)
 	m_Physics->releaseAllBoundingVolumes();
 }
 
-std::vector<Actor::ptr> &GameLogic::getObjects()
+ActorList::ptr GameLogic::getObjects()
 {
-	return m_Objects;
+	return m_Actors;
 }
 
 GameLogic::GoToScene GameLogic::getChangeScene(void) const
@@ -121,10 +124,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		conn->sendPlayerControl(data);
 	}
 	
-	for (auto& actor : m_Objects)
-	{
-		actor->onUpdate(p_DeltaTime);
-	}
+	m_Actors->onUpdate(p_DeltaTime);
 
 	updateSandbox(p_DeltaTime);
 }
@@ -342,7 +342,9 @@ void GameLogic::testResetLayerAnimation()
 
 void GameLogic::playLocalLevel()
 {
-	m_Objects.clear();
+	m_Actors.reset();
+	m_Actors.reset(new ActorList());
+	m_ActorFactory->setActorList(m_Actors);
 
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
 #ifdef _DEBUG
@@ -351,7 +353,7 @@ void GameLogic::playLocalLevel()
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
-	m_Level.loadLevel(input, m_Objects);
+	m_Level.loadLevel(input, m_Actors);
 	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
@@ -360,7 +362,7 @@ void GameLogic::playLocalLevel()
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
-	m_Level.loadLevel(input, m_Objects);
+	m_Level.loadLevel(input, m_Actors);
 	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
@@ -388,7 +390,9 @@ void GameLogic::leaveGame()
 	if (m_InGame)
 	{
 		m_Level = Level();
-		m_Objects.clear();
+		m_Actors.reset();
+		m_Actors.reset(new ActorList);
+		m_ActorFactory->setActorList(m_Actors);
 
 		m_InGame = false;
 
@@ -414,7 +418,12 @@ void GameLogic::joinGame(const std::string& p_LevelName)
 
 void GameLogic::throwSpell(const char *p_SpellId)
 {
-	m_Objects.push_back(m_ActorFactory->createSpell(p_SpellId, getPlayerViewForward(), m_Player.getEyePosition()));
+	Actor::ptr playerActor = m_Player.getActor().lock();
+	if (playerActor)
+	{
+		m_Actors->addActor(m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition()));
+		playAnimation(playerActor, "CastSpell", false);
+	}
 }
 
 void GameLogic::handleNetwork()
@@ -450,7 +459,7 @@ void GameLogic::handleNetwork()
 						const XMLElement* obj = description.FirstChildElement("Object");
 
 						Actor::ptr actor = m_ActorFactory->createActor(obj, data.m_Id);
-						m_Objects.push_back(actor);
+						m_Actors->addActor(actor);
 					}
 				}
 				break;
@@ -463,7 +472,7 @@ void GameLogic::handleNetwork()
 					{
 						std::string buffer(conn->getLevelData(package),size);
 						std::istringstream stream(buffer);
-						m_Level.loadLevel(stream, m_Objects);
+						m_Level.loadLevel(stream, m_Actors);
 					}
 					else
 					{
@@ -473,7 +482,7 @@ void GameLogic::handleNetwork()
 						std::string levelFileName("../Bin/assets/levels/Level1.2.1.btxl");
 #endif
 						std::ifstream file(levelFileName, std::istream::binary);
-						m_Level.loadLevel(file, m_Objects);
+						m_Level.loadLevel(file, m_Actors);
 					}
 					m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.f, -2528.0f)); //TODO: Remove this line when level gets the position from file
@@ -491,7 +500,9 @@ void GameLogic::handleNetwork()
 						if(object->Attribute("Type", "Result"))
 						{
 								m_Level = Level();
-								m_Objects.clear();
+								m_Actors.reset();
+								m_Actors.reset(new ActorList);
+								m_ActorFactory->setActorList(m_Actors);
 
 								m_InGame = false;
 
@@ -716,28 +727,19 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 
 Actor::ptr GameLogic::getActor(Actor::Id p_Actor)
 {
-	for (auto actor : m_Objects)
+	if (m_Actors)
 	{
-		if (actor->getId() == p_Actor)
-		{
-			return actor;
-		}
+		return m_Actors->findActor(p_Actor);
 	}
-
-	return Actor::ptr();
+	else
+	{
+		return Actor::ptr();
+	}
 }
 
 void GameLogic::removeActor(Actor::Id p_Actor)
 {
-	for (size_t i = 0; i < m_Objects.size(); ++i)
-	{
-		if (m_Objects[i]->getId() == p_Actor)
-		{
-			std::swap(m_Objects[i], m_Objects.back());
-			m_Objects.pop_back();
-			return;
-		}
-	}
+	m_Actors->removeActor(p_Actor);
 }
 
 void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
@@ -869,6 +871,6 @@ IPhysics *GameLogic::getPhysics() const
 
 std::weak_ptr<Actor> GameLogic::addActor(Actor::ptr p_Actor)
 {
-	m_Objects.push_back(p_Actor);
+	m_Actors->addActor(p_Actor);
 	return p_Actor;
 }

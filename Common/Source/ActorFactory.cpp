@@ -53,6 +53,11 @@ void ActorFactory::setSpellFactory(SpellFactory* p_SpellFactory)
 	m_SpellFactory = p_SpellFactory;
 }
 
+void ActorFactory::setActorList(std::weak_ptr<ActorList> p_ActorList)
+{
+	m_ActorList = p_ActorList;
+}
+
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
 {
 	return createActor(p_Data, getNextActorId());
@@ -60,7 +65,7 @@ Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data)
 
 Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id)
 {
-	Actor::ptr actor(new Actor(p_Id, m_EventManager));
+	Actor::ptr actor(new Actor(p_Id, m_EventManager, m_ActorList));
 	actor->initialize(p_Data);
 
 	for (const tinyxml2::XMLElement* node = p_Data->FirstChildElement(); node; node = node->NextSiblingElement())
@@ -348,13 +353,14 @@ Actor::ptr ActorFactory::createInstanceActor(
 	return actor;
 }
 
-Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Vector3 p_Direction, Vector3 p_StartPosition)
+Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_CasterId, Vector3 p_Direction, Vector3 p_StartPosition)
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_StartPosition);
 	printer.OpenElement("Spell");
 	printer.PushAttribute("SpellName", p_Spell.c_str());
+	printer.PushAttribute("CasterId", p_CasterId);
 	pushVector(printer, "Direction", p_Direction);
 	printer.CloseElement();
 	printer.OpenElement("Particle");

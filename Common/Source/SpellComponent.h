@@ -14,6 +14,8 @@ private:
 	Vector3 m_StartDirection;
 	SpellInstance::ptr m_SpellInstance;
 	BodyHandle m_Sphere;
+	Actor::wPtr m_Caster;
+	Actor::Id m_CasterId;
 
 public:
 	~SpellComponent() override
@@ -33,6 +35,9 @@ public:
 			throw CommonException("Missing spell name", __LINE__, __FILE__);
 		}
 
+		m_CasterId = -1;
+		p_Data->QueryAttribute("CasterId", &m_CasterId);
+
 		m_SpellName = spellName;
 		m_SpellId = m_ResourceManager->loadResource("spell", m_SpellName);
 
@@ -42,8 +47,14 @@ public:
 
 	void postInit() override
 	{
+		if (m_CasterId != -1)
+		{
+			m_Caster = m_Owner->findActor(m_CasterId);
+		}
+
 		m_SpellInstance = m_SpellFactory->createSpellInstance(m_SpellName, m_StartDirection);
 		m_Sphere = m_Physics->createSphere(0.f, false, m_Owner->getPosition(), m_SpellInstance->getRadius());
+		m_Physics->setBodyCollisionResponse(m_Sphere, false);
 		m_Physics->setBodyVelocity(m_Sphere, m_SpellInstance->getVelocity());
 	}
 
@@ -51,6 +62,10 @@ public:
 	{
 		p_Printer.OpenElement("Spell");
 		p_Printer.PushAttribute("SpellName", m_SpellName.c_str());
+		Actor::ptr caster = m_Caster.lock();
+		if(caster)
+			p_Printer.PushAttribute("CasterId", caster->getId());
+		
 		p_Printer.CloseElement();
 	}
 
@@ -69,8 +84,19 @@ public:
 		{
 			for(unsigned i = 0; i < m_Physics->getHitDataSize(); i++)
 			{
-				if(m_Physics->getHitDataAt(i).collider == m_Sphere)
+				HitData hit = m_Physics->getHitDataAt(i);
+				if(hit.collider == m_Sphere)
 				{
+					Actor::ptr caster = m_Caster.lock();
+					if(caster)
+					{
+						auto casterBodies = caster->getBodyHandles();
+						if (std::find(casterBodies.begin(), casterBodies.end(), hit.collisionVictim) != casterBodies.end())
+						{
+							continue;
+						}
+					}
+
 					m_SpellInstance->collisionHappened();
 
 					Vector3 currentPosition = m_Physics->getBodyPosition(m_Sphere);

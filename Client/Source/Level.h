@@ -1,7 +1,9 @@
 #pragma once
+
+#include "ActorFactory.h"
+#include "ActorList.h"
 #include "IPhysics.h"
 #include "ResourceManager.h"
-#include <ActorFactory.h>
 
 class Level
 {
@@ -71,7 +73,7 @@ public:
 	 *
 	 * @param p_LevelFilePath the complete path to the environment .txl file.
 	 */
-	bool loadLevel(std::istream& p_LevelData, std::vector<Actor::ptr>& p_ActorOut);
+	bool loadLevel(std::istream& p_LevelData, ActorList::ptr p_ActorOut);
 
 private:
 };
