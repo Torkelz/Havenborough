@@ -476,7 +476,6 @@ HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
 	// Create the render target texture
 	HRESULT result = S_FALSE;
 
-
 	//Create the render targets
 	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
 	rtDesc.Format = desc.Format;
@@ -514,7 +513,7 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC dssrvdesc;
-	dssrvdesc.Format = dssrvdesc.Format = desc.Format;
+	dssrvdesc.Format = desc.Format;
 	dssrvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	dssrvdesc.Texture2D.MipLevels = 1;
 	dssrvdesc.Texture2D.MostDetailedMip = 0;
@@ -548,7 +547,6 @@ HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc 
 	tt = nullptr;
 	if(FAILED(result))
 		return result;
-
 
 	// Make the final texture from the render target.
 	m_RT["Final"]->GetResource(&tt);
@@ -696,10 +694,9 @@ void DeferredRenderer::buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer)
 	std::default_random_engine randomizer;
 	std::uniform_real_distribution<float> distribution(0.25f, 1.0f);
 
-
 	for(int i = 0; i < 14; i++)
 	{
-		float s = distribution(randomizer);
+		float s = 0.25f + ((float)(std::rand()) / (float)RAND_MAX) * 0.75f;//distribution(randomizer);
 		XMVECTOR v = XMLoadFloat4(&p_Buffer.offsetVectors[i]);
 		v = s * XMVector4Normalize(v);
 		XMStoreFloat4(&p_Buffer.offsetVectors[i], v);
@@ -749,13 +746,14 @@ void DeferredRenderer::createSamplerState()
 
 
 	// Create SSAO random vector texture sampler.
-	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; //Should be D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT
+	sd.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;//D3D11_FILTER_MIN_MAG_MIP_POINT; //Should be D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_RandomVec"]);
 
 
 	// Create SSAO normal depth texture sampler.
+	sd.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = 0.0f;
@@ -973,7 +971,7 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	textureDesc.Width = textureDesc.Height = p_Size;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.SampleDesc.Count = 1;
@@ -983,11 +981,12 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	std::default_random_engine randomizer;
 	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
 	vector<DirectX::XMFLOAT3> initData;
+
 	for(unsigned int i = 0; i < p_Size * p_Size; i++)
 	{
 		XMFLOAT3 randomVec;
-		XMVECTOR temp = XMVector3Normalize(XMVectorSet(distribution(randomizer),
-			distribution(randomizer), distribution(randomizer), 0.0f));
+		XMVECTOR temp = XMVector3Normalize(XMVectorSet((float)(rand()) / (float)RAND_MAX,
+			(float)(rand()) / (float)RAND_MAX, (float)(rand()) / (float)RAND_MAX, 0.0f));
 		XMStoreFloat3(&randomVec, temp);
 
 
@@ -1000,7 +999,7 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 
 	D3D11_SUBRESOURCE_DATA subData;
 	subData.SysMemPitch = sizeof(DirectX::XMFLOAT3) * p_Size;
-	subData.SysMemSlicePitch = subData.SysMemPitch * p_Size;
+	//subData.SysMemSlicePitch = subData.SysMemPitch * p_Size;
 	subData.pSysMem = initData.data();
 
 
