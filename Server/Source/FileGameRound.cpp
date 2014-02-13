@@ -158,6 +158,7 @@ void FileGameRound::sendUpdates()
 					if(!m_SendHitData[i].first->reachedFinishLine())
 					{
 						user->getConnection()->sendRemoveObjects(&id, 1);
+						user->getConnection()->sendSetSpawnPosition(actor->getPosition());
 						tinyxml2::XMLPrinter printer;
 						printer.OpenElement("ObjectUpdate");
 						printer.PushAttribute("ActorId", id-1);

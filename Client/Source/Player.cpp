@@ -32,10 +32,42 @@ void Player::initialize(IPhysics *p_Physics, std::weak_ptr<Actor> p_Actor)
 {
 	m_Physics = p_Physics;
 	m_Actor = p_Actor;
+	
+	Actor::ptr strActor = m_Actor.lock();
+	if (strActor)
+	{
+		m_LastSafePosition = strActor->getPosition();
+	}
 }
 
 void Player::update(float p_DeltaTime)
 {
+	static const float respawnFallHeight = -2000.f; // -20m
+	static const float respawnDistance = 100000.f; // 100m
+	static const float respawnDistanceSq = respawnDistance * respawnDistance;
+
+	Actor::ptr strActor = m_Actor.lock();
+	if (strActor)
+	{
+		Vector3 currentPos = strActor->getPosition();
+		const float distanceSq =
+			currentPos.x * currentPos.x +
+			currentPos.y * currentPos.y +
+			currentPos.z * currentPos.z;
+
+		if (currentPos.y < respawnFallHeight
+			|| distanceSq > respawnDistanceSq)
+		{
+			strActor->setPosition(m_LastSafePosition);
+
+			std::shared_ptr<PhysicsInterface> comp = strActor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+			if (comp)
+			{
+				m_Physics->setBodyVelocity(comp->getBodyHandle(), Vector3(0.f, 0.f, 0.f));
+			}
+		}
+	}
+
 	if(!m_ForceMove)
 	{
 		jump(p_DeltaTime);
@@ -344,6 +376,11 @@ DirectX::XMFLOAT3 Player::getGroundNormal() const
 void Player::setGroundNormal(DirectX::XMFLOAT3 p_Normal)
 {
 	m_GroundNormal = p_Normal;
+}
+
+void Player::setSpawnPosition(Vector3 p_Position)
+{
+	m_LastSafePosition = p_Position;
 }
 
 void Player::jump(float dt)

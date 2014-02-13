@@ -302,6 +302,11 @@ typedef Package1Obj<PackageType::RESULT_GAME, std::vector<std::string>> ResultDa
  */
 typedef Package1Obj<PackageType::CREATE_OBJECTS, std::vector<std::pair<std::string, uint32_t>>> CreateObjects;
 
+/**
+ * A package representing setting the respawn position of a player.
+ */
+typedef Package1Obj<PackageType::SET_SPAWN, Vector3> SetSpawnPosition;
+
 BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
 
 /**
@@ -312,4 +317,4 @@ BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
 /**
  * A package representing one objects action in the game world.
  */
-typedef Package2Obj<PackageType::OBJECT_ACTION, uint16_t, std::string> ObjectAction;
+typedef Package2Obj<PackageType::OBJECT_ACTION, uint32_t, std::string> ObjectAction;
