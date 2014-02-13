@@ -47,15 +47,17 @@ public:
 	* @param p_RenderTarget, make it use the same render target as the other.
 	*/
 	void initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, DirectX::XMFLOAT4X4 *p_ViewMatrix,
-		DirectX::XMFLOAT4 p_OrthoData, ID3D11DepthStencilView* p_DepthStencilView,
-		ID3D11RenderTargetView *p_RenderTarget);
+		DirectX::XMFLOAT4 p_OrthoData, ID3D11DepthStencilView *p_DepthStencilView, ID3D11RenderTargetView *p_RenderTarget);
 
+	/**
+	* Adds a specific object to the list of objects to be rendered during the next render call.
+	* @param p_Object the object which should be queued for rendering
+	*/
 	void add2D_Object(Renderable2D &p_Object);
 
 	/**
-	* Call to render the graphics using forward rendering.
-	* All the objects that are supposed to be rendered must have been sent to the renderer
-	* before calling this function.
+	* Call to render objects to specific screen coordinates. All the objects that are supposed to be rendered
+	* must have been added to the list each frame before calling this function.
 	*/
 	void renderScreen(void);
 

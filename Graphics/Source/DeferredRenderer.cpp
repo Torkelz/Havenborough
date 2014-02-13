@@ -229,18 +229,15 @@ void DeferredRenderer::renderGeometry()
 	// The textures will be needed to be grabbed from the model later.
 	std::vector<std::vector<Renderable>> instancedModels;
 	std::vector<Renderable> animatedOrSingle;
-
-
+	
 	SortRenderables(animatedOrSingle, instancedModels);
-
 
 	m_Buffer["DefaultConstant"]->setBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler["Default"]);
 
 	for( auto &animation : animatedOrSingle )
 		renderObject(animation);
-
-
+	
 	for( auto &k : instancedModels)
 		RenderObjectsInstanced(k);
 
@@ -1116,6 +1113,7 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 
 			if(nr >= 1)
 			{
+				l.reserve(nr);
 				std::move(m_Objects.begin() + current, m_Objects.begin() + i + 1, std::back_inserter(l));
 				instancedModels.push_back(l);
 			}
@@ -1156,6 +1154,7 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 		{
 			int nrToCpy = (p_Objects.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : p_Objects.size() - i ;
 			std::vector<XMFLOAT4X4> tWorld;
+			tWorld.reserve(nrToCpy);
 			for(int j = 0; j < nrToCpy; j++)
 				tWorld.push_back(p_Objects.at(i+j).world);
 

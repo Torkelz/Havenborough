@@ -95,15 +95,13 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_Graphics->updateParticles(p_DeltaTime);
 
-
-
-	for (auto& model : m_Models)
-	{
-		for (const ReachIK& ik : model.activeIKs)
-		{
-			//m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
-		}
-	}
+	//for (auto& model : m_Models)
+	//{
+	//	for (const ReachIK& ik : model.activeIKs)
+	//	{
+	//		//m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
+	//	}
+	//}
 }
 
 void GameScene::onFocus()
@@ -188,7 +186,7 @@ void GameScene::render()
 	//Render test arrow, remove when HUD scene is implemented
 	m_Graphics->set2D_ObjectLookAt(1, Vector3(0,0,0));
 	m_Graphics->render2D_Object(1);
-	m_Graphics->set2D_ObjectRotationZ(2, playerPos.x);
+	//m_Graphics->set2D_ObjectRotationZ(2, playerPos.x);
 	m_Graphics->render2D_Object(2);
 }
 
@@ -530,8 +528,8 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	m_Graphics->create2D_Object(Vector3(-500, 300, 2), 1.0f, 0.f, "Arrow1");
-	m_Graphics->create2D_Object(Vector3(-500, -280, 1), Vector2(80, 80), 0.0f, "TEXTURE_NOT_FOUND");
+	m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), 1.f, 0.f, "Arrow1");
+	m_Graphics->create2D_Object(Vector3(-500, -280, 2), Vector2(80, 80), 0.0f, "TEXTURE_NOT_FOUND");
 
 	static const std::string preloadedModelsTransparent[] =
 	{

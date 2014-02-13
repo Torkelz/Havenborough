@@ -2,21 +2,19 @@
 #pragma warning(disable : 4996)
 #include "ModelConverter.h"
 #include "ModelLoader.h"
-#include "LevelLoader.h"
-#include "LevelConverter.h"
-#include "..\..\Common\Source\LevelBinaryLoader.h"
+#include "InstanceLoader.h"
+#include "InstanceConverter.h"
 #include <iostream>
 
 void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter);
-void setLevelInfo(LevelLoader* p_Loader, LevelConverter* p_Converter);
+void setLevelInfo(InstanceLoader* p_Loader, InstanceConverter* p_Converter);
 
 int main(int argc, char* argv[])
 {
 	ModelLoader loader;
 	ModelConverter converter;
-	LevelLoader levelLoader;
-	LevelConverter levelConverter;
-	LevelBinaryLoader testLevelLoader;
+	InstanceLoader instanceLoader;
+	InstanceConverter levelConverter;
 
 	bool result;
 	if(argc == 2)
@@ -46,21 +44,27 @@ int main(int argc, char* argv[])
 			converter.clear();
 			return EXIT_SUCCESS;
 		}
-		if(strcmp(type, "txl") == 0)
+		if(strcmp(type, "txl") == 0 || strcmp(type, "txe") == 0)
 		{
 			std::vector<char> outputBuffer(strlen(argv[1])+2);
 			strcpy(outputBuffer.data(), argv[1]);
 			int length = outputBuffer.size();
-			strcpy(outputBuffer.data()+length-6, ".btxl");
-			result = levelLoader.loadLevel(argv[1]);
+			if(strcmp(type, "txl") == 0)
+			{
+				strcpy(outputBuffer.data()+length-6, ".btxl");
+			}
+			else
+			{
+				strcpy(outputBuffer.data()+length-6, ".btxe");
+			}
+			result = instanceLoader.loadLevel(argv[1]);
 			if(!result){std::cout<<"Error loading file";return EXIT_FAILURE;}
-			setLevelInfo(&levelLoader, &levelConverter);
+			setLevelInfo(&instanceLoader, &levelConverter);
 			result = levelConverter.writeFile(outputBuffer.data());
 			if(!result){std::cout<<"Error writing file";return EXIT_FAILURE;}
 			std::cout << outputBuffer.data() << std::endl;
-			levelLoader.clear();
+			instanceLoader.clear();
 			levelConverter.clear();
-			testLevelLoader.loadBinaryFile(outputBuffer.data());
 			return EXIT_SUCCESS;
 		}
 
@@ -96,10 +100,10 @@ void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter)
 	p_Converter->setNumberOfFrames(p_Loader->getNumberOfFrames());
 }
 
-void setLevelInfo(LevelLoader* p_Loader, LevelConverter* p_Converter)
+void setLevelInfo(InstanceLoader* p_Loader, InstanceConverter* p_Converter)
 {
 	p_Converter->setLevelHead(p_Loader->getLevelHeader());
-	p_Converter->setLevelModelList(&p_Loader->getLevelModelList());
+	p_Converter->setModelList(&p_Loader->getModelList());
 	p_Converter->setLevelDirectionalLightList(&p_Loader->getLevelDirectionalLightList());
 	p_Converter->setLevelPointLightList(&p_Loader->getLevelPointLightList());
 	p_Converter->setLevelSpotLightList(&p_Loader->getLevelSpotLightList());

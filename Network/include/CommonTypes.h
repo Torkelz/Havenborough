@@ -32,6 +32,7 @@ enum class PackageType : uint16_t
 	LEAVE_GAME,
 	LEVEL_DATA,
 	RESULT_GAME,
+	SET_SPAWN,
 };
 
 struct ObjectInstance
@@ -46,8 +47,7 @@ struct UpdateObjectData
 	Vector3 m_Velocity;
 	Vector3 m_Rotation;
 	Vector3 m_RotationVelocity;
-	uint16_t m_Id;
-	uint16_t _padding_;
+	uint32_t m_Id;
 };
 
 struct PlayerControlData

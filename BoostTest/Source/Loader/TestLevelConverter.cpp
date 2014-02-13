@@ -1,10 +1,15 @@
 #include <boost/test/unit_test.hpp>
-#include "../../../BinaryConverter/Source/LevelConverter.h"
+#include "../../../BinaryConverter/Source/InstanceConverter.h"
 BOOST_AUTO_TEST_SUITE(TestLevelConverter)
 
-class testConv : public LevelConverter
+class testConv : public InstanceConverter
 {
 public:
+	bool testWriteFile(std::string p_FilePath)
+	{
+		return writeFile(p_FilePath);
+	}
+
 	void testCreateHeader(std::ostream* p_Output)
 	{
 		createHeader(p_Output);
@@ -26,6 +31,23 @@ public:
 	}
 };
 
+BOOST_AUTO_TEST_CASE(TestWriteLevelFile)
+{
+	testConv conv;
+	bool result;
+	result = conv.testWriteFile("");
+	BOOST_CHECK_EQUAL(result, false);
+	result = conv.testWriteFile("..\\Source\\Loader\\testOutput.btxl");
+	BOOST_CHECK_EQUAL(result, false);
+	InstanceLoader::LevelHeader header;
+	header.m_NumberOfModels = 1;
+	header.m_NumberOfLights = 0;
+	header.m_NumberOfCheckPoints = 0;
+	conv.setLevelHead(header);
+	result = conv.testWriteFile("..\\Source\\Loader\\testOutput.btxl");
+	BOOST_CHECK_EQUAL(result, true);
+}
+
 BOOST_AUTO_TEST_CASE(TestCreateHeader)
 {
 	testConv conv;
@@ -34,7 +56,7 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 		"\x05\0\0\0"
 		"\x03\0\0\0";
 
-	LevelLoader::LevelHeader header;
+	InstanceLoader::LevelHeader header;
 	header.m_NumberOfModels = 1;
 	header.m_NumberOfLights = 5;
 	header.m_NumberOfCheckPoints = 3;
@@ -48,6 +70,7 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin(), resHeader.begin()+4, binHeader, binHeader + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+4, resHeader.begin()+8, binHeader+4, binHeader+4 + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+8, resHeader.end(), binHeader+8, binHeader+8 + sizeof(int));
+	conv.clear();
 }
 
 BOOST_AUTO_TEST_CASE(TestCreateLighting)
@@ -70,7 +93,7 @@ BOOST_AUTO_TEST_CASE(TestCreateLighting)
 		};
 	};
 
-	std::vector<std::pair<LevelLoader::LightData, LevelLoader::DirectionalLight>> directionalLight;
+	std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>> directionalLight;
 	directionalLight.resize(1);
 	byteFloat float3Trans[3];
 	float3Trans[0].f = 0.75f; float3Trans[1].f = 1204.0f; float3Trans[2].f = 0.999f;
@@ -90,7 +113,7 @@ BOOST_AUTO_TEST_CASE(TestCreateLighting)
 
 	conv.setLevelDirectionalLightList(&directionalLight);
 
-	std::vector<std::pair<LevelLoader::LightData, LevelLoader::PointLight>> pointLight;
+	std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>> pointLight;
 	pointLight.resize(1);
 	float3Trans[0].f = 0.75f; float3Trans[1].f = 1204.0f; float3Trans[2].f = 0.999f;
 	pointLight.at(0).first.m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
@@ -104,7 +127,7 @@ BOOST_AUTO_TEST_CASE(TestCreateLighting)
 
 	conv.setLevelPointLightList(&pointLight);
 
-	std::vector<std::pair<LevelLoader::LightData, LevelLoader::SpotLight>> spotLight;
+	std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>> spotLight;
 	spotLight.resize(1);
 	float3Trans[0].f = 0.75f; float3Trans[1].f = 1204.0f; float3Trans[2].f = 0.999f;
 	spotLight.at(0).first.m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
@@ -125,7 +148,11 @@ BOOST_AUTO_TEST_CASE(TestCreateLighting)
 	spotLight.at(0).second.m_PenumbraAngle = floatPenumbraAngle.f;
 
 	conv.setLevelSpotLightList(&spotLight);
-
+	InstanceLoader::LevelHeader header;
+	header.m_NumberOfModels = 0;
+	header.m_NumberOfLights = 1;
+	header.m_NumberOfCheckPoints = 0;
+	conv.setLevelHead(header);
 	std::ostringstream output;
 	conv.testCreateLight(&output);
 
@@ -175,6 +202,7 @@ BOOST_AUTO_TEST_CASE(TestCreateLighting)
 	BOOST_CHECK_EQUAL_COLLECTIONS(resLight.begin() + 144, resLight.begin() + 148, float3Direction[2].c , float3Direction[2].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resLight.begin() + 148, resLight.begin() + 152, floatConeAngle.c , floatConeAngle.c + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resLight.begin() + 152, resLight.begin() + 156, floatPenumbraAngle.c , floatPenumbraAngle.c + sizeof(int));
+	conv.clear();
 }
 
 BOOST_AUTO_TEST_CASE(TestCreateCheckPoints)
@@ -197,7 +225,7 @@ BOOST_AUTO_TEST_CASE(TestCreateCheckPoints)
 		};
 	};
 
-	std::vector<LevelLoader::CheckPointStruct> checkPoints;
+	std::vector<InstanceLoader::CheckPointStruct> checkPoints;
 	checkPoints.resize(1);
 	byteInt number;
 	number.i = 3;
@@ -221,7 +249,11 @@ BOOST_AUTO_TEST_CASE(TestCreateCheckPoints)
 	checkPointsEnd = DirectX::XMFLOAT3(float3TransEnd[0].f, float3TransEnd[1].f, float3TransEnd[2].f);
 
 	conv.setLevelCheckPointEnd(checkPointsEnd);
-
+	InstanceLoader::LevelHeader header;
+	header.m_NumberOfModels = 0;
+	header.m_NumberOfLights = 0;
+	header.m_NumberOfCheckPoints = 1;
+	conv.setLevelHead(header);
 	std::ostringstream output;
 	conv.testCreateCheckPoints(&output);
 
@@ -241,6 +273,7 @@ BOOST_AUTO_TEST_CASE(TestCreateCheckPoints)
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 32, resPoint.begin() + 36, float3Trans[0].c, float3Trans[0].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 36, resPoint.begin() + 40, float3Trans[1].c, float3Trans[1].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 40, resPoint.begin() + 44, float3Trans[2].c, float3Trans[2].c + sizeof(float));
+	conv.clear();
 }
 
 BOOST_AUTO_TEST_CASE(TestCreateLevel)
@@ -265,22 +298,31 @@ BOOST_AUTO_TEST_CASE(TestCreateLevel)
 	};
 
 	static const char binHeader[] = 
-		"\x01\0\0\0"
-		"\x04\0\0\0Test";
+		"\x02\0\0\0"
+		"\x04\0\0\0Test"
+		"\x04\0\0\0Bins";
 
-	std::vector<LevelLoader::ModelStruct> level;
-	std::vector<LevelLoader::ModelHeader> modelInfo;
-	level.resize(1);
+	std::vector<InstanceLoader::ModelStruct> level;
+	std::vector<InstanceLoader::ModelHeader> modelInfo;
+	level.resize(3);
 	level.at(0).m_MeshName = "Test";
+	level.at(1).m_MeshName = "Test";
+	level.at(2).m_MeshName = "Bins";
 	byteFloat float3Trans[3];
 	float3Trans[0].f = 0.75f; float3Trans[1].f = 1204.0f; float3Trans[2].f = 0.999f;
 	level.at(0).m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
+	level.at(1).m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
+	level.at(2).m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
 	byteFloat float3Rot[3];
 	float3Rot[0].f = 75.f; float3Rot[1].f = 14.0f; float3Rot[2].f = 0.999f;
 	level.at(0).m_Rotation = DirectX::XMFLOAT3(float3Rot[0].f, float3Rot[1].f, float3Rot[2].f);
+	level.at(1).m_Rotation = DirectX::XMFLOAT3(float3Rot[0].f, float3Rot[1].f, float3Rot[2].f);
+	level.at(2).m_Rotation = DirectX::XMFLOAT3(float3Rot[0].f, float3Rot[1].f, float3Rot[2].f);
 	byteFloat float3Scal[3];
 	float3Scal[0].f = 7.5f; float3Scal[1].f = 1.40f; float3Scal[2].f = 9.99f;
 	level.at(0).m_Scale = DirectX::XMFLOAT3(float3Scal[0].f, float3Scal[1].f, float3Scal[2].f);
+	level.at(1).m_Scale = DirectX::XMFLOAT3(float3Scal[0].f, float3Scal[1].f, float3Scal[2].f);
+	level.at(2).m_Scale = DirectX::XMFLOAT3(float3Scal[0].f, float3Scal[1].f, float3Scal[2].f);
 	modelInfo.resize(1);
 	modelInfo.at(0).m_MeshName = "Test";
 	modelInfo.at(0).m_Animated = false;
@@ -288,16 +330,20 @@ BOOST_AUTO_TEST_CASE(TestCreateLevel)
 	modelInfo.at(0).m_Collidable = true;
 
 	conv.setModelInformation(&modelInfo);
-	conv.setLevelModelList(&level);
-
+	conv.setModelList(&level);
+	InstanceLoader::LevelHeader header;
+	header.m_NumberOfModels = 2;
+	header.m_NumberOfLights = 0;
+	header.m_NumberOfCheckPoints = 0;
+	conv.setLevelHead(header);
 	std::ostringstream output;
 	conv.testCreateLevel(&output);
 
 	std::string resHeader = output.str();
 	byteInt intFalse; intFalse.i = 0;
 	byteInt intTrue; intTrue.i = 1;
-	char size[] = "\x01\0\0\0";
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin(), resHeader.begin() + 12, binHeader, binHeader + sizeof(binHeader) - 1);
+	char size[] = "\x02\0\0\0";
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin(), resHeader.begin() + 12, binHeader, binHeader + sizeof(binHeader) - 9);
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 12, resHeader.begin() + 16, intFalse.c, intFalse.c + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 16, resHeader.begin() + 20, intFalse.c, intFalse.c + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 20, resHeader.begin() + 24, intTrue.c, intTrue.c + sizeof(int));
@@ -306,16 +352,111 @@ BOOST_AUTO_TEST_CASE(TestCreateLevel)
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 28, resHeader.begin() + 32, float3Trans[0].c , float3Trans[0].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 32, resHeader.begin() + 36, float3Trans[1].c , float3Trans[1].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 36, resHeader.begin() + 40, float3Trans[2].c , float3Trans[2].c + sizeof(float));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 40, resHeader.begin() + 44, size , size + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 52, resHeader.begin() + 56, size , size + sizeof(int));
 	float3Rot[0].f *= -1;
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 44, resHeader.begin() + 48, float3Rot[0].c , float3Rot[0].c + sizeof(float));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 48, resHeader.begin() + 52, float3Rot[1].c , float3Rot[1].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 56, resHeader.begin() + 60, float3Rot[0].c , float3Rot[0].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 60, resHeader.begin() + 64, float3Rot[1].c , float3Rot[1].c + sizeof(float));
 	float3Rot[2].f *= -1;
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 52, resHeader.begin() + 56, float3Rot[2].c , float3Rot[2].c + sizeof(float));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 56, resHeader.begin() + 60, size , size + sizeof(int));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 60, resHeader.begin() + 64, float3Scal[0].c , float3Scal[0].c + sizeof(float));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 64, resHeader.begin() + 68, float3Scal[1].c , float3Scal[1].c + sizeof(float));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 68, resHeader.begin() + 72, float3Scal[2].c , float3Scal[2].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 64, resHeader.begin() + 68, float3Rot[2].c , float3Rot[2].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 80, resHeader.begin() + 84, size , size + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 84, resHeader.begin() + 88, float3Scal[0].c , float3Scal[0].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 88, resHeader.begin() + 92, float3Scal[1].c , float3Scal[1].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 92, resHeader.begin() + 96, float3Scal[2].c , float3Scal[2].c + sizeof(float));
+
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 108, resHeader.begin() + 116, binHeader + 12, binHeader + sizeof(binHeader) - 1);
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 116, resHeader.begin() + 120, intFalse.c, intFalse.c + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 120, resHeader.begin() + 124, intFalse.c, intFalse.c + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 124, resHeader.begin() + 128, intFalse.c, intFalse.c + sizeof(int));
+	conv.clear();
+}
+
+BOOST_AUTO_TEST_CASE(TestBreakCreateLevel)
+{
+	testConv conv;
+	struct byteFloat
+	{
+		union
+		{
+			float f;
+			char c[sizeof(float)];
+		};
+	};
+	
+	struct byteInt
+	{
+		union
+		{
+			int i;
+			char c[sizeof(int)];
+		};
+	};
+
+	static const char binHeader[] = 
+		"\x02\0\0\0"
+		"\x04\0\0\0Test"
+		"\x04\0\0\0Bins";
+
+	std::vector<InstanceLoader::ModelStruct> level;
+	std::vector<InstanceLoader::ModelHeader> modelInfo;
+	level.resize(3);
+	level.at(0).m_MeshName = "Test";
+	level.at(1).m_MeshName = "Test";
+	level.at(2).m_MeshName = "Bins";
+	byteFloat float3Trans[3];
+	float3Trans[0].f = 0.75f; float3Trans[1].f = 1204.0f; float3Trans[2].f = 0.999f;
+	level.at(0).m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
+	level.at(1).m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
+	level.at(2).m_Translation = DirectX::XMFLOAT3(float3Trans[0].f, float3Trans[1].f, float3Trans[2].f);
+	byteFloat float3Rot[3];
+	float3Rot[0].f = 75.f; float3Rot[1].f = 14.0f; float3Rot[2].f = 0.999f;
+	level.at(0).m_Rotation = DirectX::XMFLOAT3(float3Rot[0].f, float3Rot[1].f, float3Rot[2].f);
+	level.at(1).m_Rotation = DirectX::XMFLOAT3(float3Rot[0].f, float3Rot[1].f, float3Rot[2].f);
+	level.at(2).m_Rotation = DirectX::XMFLOAT3(float3Rot[0].f, float3Rot[1].f, float3Rot[2].f);
+	byteFloat float3Scal[3];
+	float3Scal[0].f = 7.5f; float3Scal[1].f = 1.40f; float3Scal[2].f = 9.99f;
+	level.at(0).m_Scale = DirectX::XMFLOAT3(float3Scal[0].f, float3Scal[1].f, float3Scal[2].f);
+	level.at(1).m_Scale = DirectX::XMFLOAT3(float3Scal[0].f, float3Scal[1].f, float3Scal[2].f);
+	level.at(2).m_Scale = DirectX::XMFLOAT3(float3Scal[0].f, float3Scal[1].f, float3Scal[2].f);
+	modelInfo.resize(0);
+
+	conv.setModelInformation(&modelInfo);
+	conv.setModelList(&level);
+	InstanceLoader::LevelHeader header;
+	header.m_NumberOfModels = 3;
+	header.m_NumberOfLights = 0;
+	header.m_NumberOfCheckPoints = 0;
+	conv.setLevelHead(header);
+	std::ostringstream output;
+	conv.testCreateLevel(&output);
+
+	std::string resHeader = output.str();
+	byteInt intFalse; intFalse.i = 0;
+	char size[] = "\x02\0\0\0";
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin(), resHeader.begin() + 12, binHeader, binHeader + sizeof(binHeader) - 9);
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 12, resHeader.begin() + 16, intFalse.c, intFalse.c + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 16, resHeader.begin() + 20, intFalse.c, intFalse.c + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 20, resHeader.begin() + 24, intFalse.c, intFalse.c + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 24, resHeader.begin() + 28, size , size + sizeof(int));
+	float3Trans[0].f *= -1;
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 28, resHeader.begin() + 32, float3Trans[0].c , float3Trans[0].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 32, resHeader.begin() + 36, float3Trans[1].c , float3Trans[1].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 36, resHeader.begin() + 40, float3Trans[2].c , float3Trans[2].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 52, resHeader.begin() + 56, size , size + sizeof(int));
+	float3Rot[0].f *= -1;
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 56, resHeader.begin() + 60, float3Rot[0].c , float3Rot[0].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 60, resHeader.begin() + 64, float3Rot[1].c , float3Rot[1].c + sizeof(float));
+	float3Rot[2].f *= -1;
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 64, resHeader.begin() + 68, float3Rot[2].c , float3Rot[2].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 80, resHeader.begin() + 84, size , size + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 84, resHeader.begin() + 88, float3Scal[0].c , float3Scal[0].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 88, resHeader.begin() + 92, float3Scal[1].c , float3Scal[1].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 92, resHeader.begin() + 96, float3Scal[2].c , float3Scal[2].c + sizeof(float));
+
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 108, resHeader.begin() + 116, binHeader + 12, binHeader + sizeof(binHeader) - 1);
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 116, resHeader.begin() + 120, intFalse.c, intFalse.c + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 120, resHeader.begin() + 124, intFalse.c, intFalse.c + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin() + 124, resHeader.begin() + 128, intFalse.c, intFalse.c + sizeof(int));
+	conv.clear();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

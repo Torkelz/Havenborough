@@ -212,7 +212,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Screen renderer
 	m_ScreenRenderer = new ScreenRenderer();
 	m_ScreenRenderer->initialize(m_Device, m_DeviceContext, &m_ViewMatrix, 
-		XMFLOAT4((float)p_ScreenWidth, (float)p_ScreenHeight, nearZ, farZ), m_DepthStencilView, m_RenderTargetView);
+		XMFLOAT4((float)p_ScreenWidth, (float)p_ScreenHeight, 0.f, (float)p_ScreenWidth), m_DepthStencilView, m_RenderTargetView);
 
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
@@ -575,7 +575,7 @@ int Graphics::create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotatio
 	return m_Next2D_ObjectId++;
 }
 
-void Graphics::render2D_Object(int p_Id)
+void Graphics::render2D_Object(Object2D_ID p_Id)
 {
 	for(auto &object : m_2D_Objects)
 	{
@@ -609,7 +609,7 @@ void Graphics::renderModel(InstanceId p_ModelId)
 		throw GraphicsException("Failed to render model instance, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::renderSkydome()
+void Graphics::renderSkydome(void)
 {
 	m_DeferredRender->renderSkyDome();
 }
@@ -617,16 +617,6 @@ void Graphics::renderSkydome()
 void Graphics::renderText(void)
 {
 	
-}
-
-void Graphics::addStaticLight(void)
-{
-
-}
-
-void Graphics::removeStaticLight(void)
-{
-
 }
 
 void Graphics::useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange)
@@ -672,7 +662,7 @@ void Graphics::setClearColor(Vector4 p_Color)
 	m_ClearColor[3] = p_Color.w;
 }
 
-void Graphics::drawFrame()
+void Graphics::drawFrame(void)
 {
 	if (!m_DeviceContext || !m_DeferredRender || !m_ForwardRenderer)
 	{
@@ -832,17 +822,14 @@ void Graphics::set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
 	{
+		Renderable2D& renderable = m_2D_Objects.at(p_Instance);
+
 		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 0.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f);
 		direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
 		direction = XMVector3Normalize(direction);
-		XMMATRIX rotation = XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0));
+		XMMATRIX rotation = XMMatrixTranspose(XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0)));
 
-		XMStoreFloat4x4(&m_2D_Objects.at(p_Instance).rotation, rotation);
-		
-
-		m_2D_Objects.at(p_Instance).rotation._41 = 0.0f;
-		m_2D_Objects.at(p_Instance).rotation._42 = 0.0f;
-		m_2D_Objects.at(p_Instance).rotation._43 = 0.0f;
+		XMStoreFloat4x4(&renderable.rotation, rotation);
 	}
 	else
 		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);

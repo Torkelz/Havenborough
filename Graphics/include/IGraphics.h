@@ -226,23 +226,26 @@ public:
 	virtual void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) = 0;
 
 	/**
-	* Creates a 2D object
+	* Creates a 2D object from a texture to be used by the screen renderer.
+	* @param p_Position the xy-pixel coordinates to place the object on, z the depth in range of 0.0f to 1280.0f
+	* @param p_HalfSize the object's pixel size in xy from the center point
+	* @param p_Rotation the rotation around the z-axis in radians, left-handed
+	* @param p_TextureId the ID of the texture to be used
+	* @return the Object2D ID of the created object
 	*/
 	virtual int create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation,
 		const char *p_TextureId) = 0;
 
+	/**
+	* Creates a 2D object from a model definition to be used by the screen renderer.
+	* @param p_Position the xy-pixel coordinates to place the object on, z the depth in range of 0.0f to 1280.0f
+	* @param p_Scale the scaling factor where 1.0f is the default model size
+	* @param p_Rotation the rotation around the z-axis in radians, left-handed
+	* @param p_ModelDefinition the ID of the model definition
+	* @return the Object2D ID of the created object
+	*/
 	virtual int create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) = 0;
-
-	/**
-	 * 
-	 */
-	virtual void addStaticLight(void) = 0;
-
-	/**
-	 * 
-	 */
-	virtual void removeStaticLight(void) = 0;
 
 	/**
 	 * Creates a point light which is removed after each draw.
@@ -285,9 +288,9 @@ public:
 	 */
 	virtual void renderModel(InstanceId p_ModelId) = 0;
 	/**
-	 * Renders the created skyDome.
+	 * Renders the created Skydome.
 	 */
-	virtual void renderSkydome() = 0;
+	virtual void renderSkydome(void) = 0;
 
 	/**
 	 * 
@@ -295,9 +298,10 @@ public:
 	virtual void renderText(void) = 0;
 
 	/**
-	 * 
-	 */
-	virtual void render2D_Object(int p_Id) = 0;
+	* Renders a 2D object specified with an ID.
+	* @param p_Id the ID of the object to be rendered.
+	*/
+	virtual void render2D_Object(Object2D_ID p_Id) = 0;
 	
 	/**
 	 * Draw the current frame.

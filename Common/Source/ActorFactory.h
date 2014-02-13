@@ -101,6 +101,28 @@ public:
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
 	Actor::ptr createSpell(const std::string& p_Spell, Vector3 p_Direction, Vector3 p_StartPosition);
 	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
+	struct InstanceModel
+	{
+		Vector3 position;
+		Vector3 rotation;
+		Vector3 scale;
+		std::string meshName;
+	};
+	struct InstanceBoundingVolume
+	{
+		Vector3 scale;
+		std::string meshName;
+	};
+	struct InstanceEdgeBox
+	{
+		Vector3 offsetPosition;
+		Vector3 offsetRotation;
+		Vector3 halfsize;
+	};
+	Actor::ptr createInstanceActor(
+		const InstanceModel& p_Model,
+		const std::vector<InstanceBoundingVolume>& p_BoundingVolumes,
+		const std::vector<InstanceEdgeBox>& p_Edges);
 
 protected:
 	/**
@@ -126,4 +148,8 @@ private:
 	ActorComponent::ptr createSpellComponent();
 	ActorComponent::ptr createLookComponent();
 	ActorComponent::ptr createHumanAnimationComponent();
+
+	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceModel& p_Model);
+	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceBoundingVolume& p_Volume);
+	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge);
 };
