@@ -1,6 +1,6 @@
 #pragma warning(disable : 4996)
 #include "ModelConverter.h"
-#include <iostream>
+#include <fstream>
 
 ModelConverter::ModelConverter()
 {
@@ -59,7 +59,6 @@ bool ModelConverter::writeFile(std::string p_FilePath)
 		std::ofstream outputAnimation(outputBuffer.data(), std::ostream::out | std::ostream::binary);
 		createAnimationHeader(&outputAnimation);
 		createJointBuffer(&outputAnimation);
-		std::cout << outputBuffer.data() << std::endl;
 		outputAnimation.close();
 	}
 	else
@@ -298,17 +297,62 @@ std::string ModelConverter::getPath(std::string p_FilePath)
 bool ModelConverter::createModelHeaderFile(std::string p_FilePath)
 {
 	std::string path = getPath(p_FilePath);
-	std::ofstream headerOutput(path, std::ofstream::binary | std::ofstream::app);
+	std::fstream headerOutput(path, std::fstream::in | std::fstream::out | std::fstream::binary);
 	if(!headerOutput)
 	{
-		return false;
+		headerOutput.open(path, std::fstream::out | std::fstream::binary);
+		if(!headerOutput)
+		{
+			return false;
+		}
 	}
+	std::string meshName;
+	std::streampos position;
+	int boolValue;
+	headerOutput.seekg(0,std::ifstream::end);
+	std::streamoff size = headerOutput.tellg();
+	headerOutput.seekg(0,std::ifstream::beg);
+	while(headerOutput.tellg() < size)
+	{
+		position = headerOutput.tellg();
+		byteToString(headerOutput, meshName);
+		if(meshName == m_MeshName)
+		{
+			headerOutput.seekp(position);
+			stringToByte(m_MeshName, &headerOutput);
+			intToByte(m_Animated, &headerOutput);
+			intToByte(m_Transparency, &headerOutput);
+			intToByte(m_Collidable, &headerOutput);
+			return true;
+		}
+		else
+		{
+			byteToInt(headerOutput, boolValue);
+			byteToInt(headerOutput, boolValue);
+			byteToInt(headerOutput, boolValue);
+		}
+	}
+	headerOutput.seekp(headerOutput.tellg());
 	stringToByte(m_MeshName, &headerOutput);
 	intToByte(m_Animated, &headerOutput);
 	intToByte(m_Transparency, &headerOutput);
 	intToByte(m_Collidable, &headerOutput);
 	headerOutput.close();
 	return true;
+}
+
+void ModelConverter::byteToString(std::istream& p_Input, std::string& p_Return)
+{
+	int strLength = 0;
+	byteToInt(p_Input, strLength);
+	std::vector<char> buffer(strLength);
+	p_Input.read( buffer.data(), strLength);
+	p_Return = std::string(buffer.data(), strLength);
+}
+
+void ModelConverter::byteToInt(std::istream& p_Input, int& p_Return)
+{
+	p_Input.read((char*)&p_Return, sizeof(int));
 }
 
 void ModelConverter::clearData()

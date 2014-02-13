@@ -110,6 +110,7 @@ BOOST_AUTO_TEST_CASE(TestCreateModelHeaderFile)
 	bool result;
 	result = conv.testCreateModelHeaderFile("");
 	BOOST_CHECK_EQUAL(result, false);
+	conv.setMeshName("test");
 	result = conv.testCreateModelHeaderFile("..\\Source\\Loader\\models\\temphex.btx");
 	BOOST_CHECK_EQUAL(result, true);
 }

@@ -181,5 +181,7 @@ protected:
 	void createJointBuffer(std::ostream* p_Output);
 private:
 	void clearData();
+	void byteToString(std::istream& p_Input, std::string& p_Return);
+	void byteToInt(std::istream& p_Input, int& p_Return);
 	std::string getPath(std::string p_FilePath);
 };
