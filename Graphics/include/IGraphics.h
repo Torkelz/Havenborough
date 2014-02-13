@@ -9,6 +9,16 @@
 class IGraphics
 {
 public:
+	enum class RenderTarget : unsigned int
+	{
+		DIFFUSE,
+		NORMAL,
+		W_POSITION,
+		SSAO,
+		FINAL,
+		NONE,
+	};
+
 	/**
 	* Unique ID for a model instance, starts on 1.
 	*/
@@ -464,7 +474,7 @@ public:
 	 *
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
-	virtual void setRenderTarget(int p_RenderTarget) = 0;
+	virtual void setRenderTarget(RenderTarget p_RenderTarget) = 0;
 private:
 
 	/**

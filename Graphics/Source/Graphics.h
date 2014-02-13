@@ -43,7 +43,7 @@ private:
 	int m_GraphicsMemory;
 	bool m_VSyncEnabled;
 	float m_ClearColor[4];
-	int m_SelectedRenderTarget;
+	IGraphics::RenderTarget m_SelectedRenderTarget;
 
 	float m_FOV;
 	float m_FarZ;
@@ -171,7 +171,7 @@ public:
 	void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
-	void setRenderTarget(int p_RenderTarget) override;
+	void setRenderTarget(IGraphics::RenderTarget p_RenderTarget) override;
 
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
 	void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void* p_Userdata) override;

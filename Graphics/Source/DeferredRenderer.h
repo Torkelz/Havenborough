@@ -1,4 +1,5 @@
 #pragma once
+#include "IGraphics.h"
 #include "Light.h"
 #include "Renderable.h"
 #include "SkyDome.h"
@@ -12,15 +13,6 @@
 class DeferredRenderer
 {
 private:
-	enum class RenderTarget
-	{
-		DIFFUSE,
-		NORMAL,
-		W_POSITION,
-		SSAO,
-		FINAL
-	};
-
 	float m_FOV;
 	float m_FarZ;
 	float m_ScreenWidth;
@@ -43,7 +35,7 @@ private:
 
 	static const unsigned int	m_numRenderTargets = 5;
 
-	std::map<RenderTarget, ID3D11RenderTargetView*> m_RT;
+	std::map<IGraphics::RenderTarget, ID3D11RenderTargetView*> m_RT;
 	std::map<std::string, ID3D11ShaderResourceView*> m_SRV;
 	std::map<std::string, ID3D11SamplerState*> m_Sampler;
 	std::map<std::string, Shader*> m_Shader;
@@ -123,7 +115,7 @@ public:
 	 * @ i, a number that is associated with a render target view.
 	 * @return, render target if i is a legal number, else nullptr.
 	 */
-	ID3D11ShaderResourceView* getRT(int i); //DEBUG
+	ID3D11ShaderResourceView* getRT(IGraphics::RenderTarget i); //DEBUG
 
 	void updateCamera(DirectX::XMFLOAT3 p_Position);
 

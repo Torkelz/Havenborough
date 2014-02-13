@@ -54,7 +54,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
-	m_CurrentDebugView = 4; // FINAL render terget in deferred renderer
+	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
 	return true;
@@ -215,16 +215,16 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	}
 	else if(p_Action ==  "changeViewN" && p_Value == 1)
 	{
-		m_CurrentDebugView--;
-		if(m_CurrentDebugView < 0)
-			m_CurrentDebugView = 4;
+		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+		if((unsigned int)m_CurrentDebugView < 0)
+			m_CurrentDebugView = (IGraphics::RenderTarget)4;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
 	{
-		m_CurrentDebugView++;
-		if(m_CurrentDebugView >= 5)
-			m_CurrentDebugView = 0;
+		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
+		if((unsigned int)m_CurrentDebugView >= 5)
+			m_CurrentDebugView = (IGraphics::RenderTarget)0;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 	}
 	else if (p_Action == "mouseMoveHori")
