@@ -29,11 +29,11 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	spell.reset(new SpellDefinition());
 
 	spell->m_Type = SpellDefinition::Type::EXPLOSION;
-	spell->explosionRadius = 500.f;
-	spell->effectTime = 0.5f;
-	spell->maxTimeToLive = 60.f;
-	spell->force = 5000.f;
-	spell->minForce = 500.f;
+	spell->explosionRadius = 300.f;
+	spell->effectTime = 0.1f;
+	spell->maxTimeToLive = 5.f;
+	spell->force = 2000.f;
+	spell->minForce = 2000.f;
 	spell->spellName = p_Spellname;
 	spell->flyingSpellSize = 10.f;
 	spell->flyForce = 3000.f;

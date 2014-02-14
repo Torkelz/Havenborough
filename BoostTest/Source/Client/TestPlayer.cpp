@@ -23,6 +23,7 @@ BOOST_AUTO_TEST_CASE(GetSetHeight)
 {
 	Player player;
 	float heightForTest = 170.0f;
+	player.setHeight(heightForTest);
 	BOOST_CHECK(player.getHeight() == heightForTest);
 	BOOST_CHECK(player.getChestHeight() == heightForTest * 0.75f);
 	BOOST_CHECK(player.getWaistHeight() == heightForTest * 0.5f);

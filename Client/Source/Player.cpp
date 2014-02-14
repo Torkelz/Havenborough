@@ -9,8 +9,8 @@ Player::Player(void)
 	m_JumpCount = 0;
     m_JumpCountMax = 2;
     m_JumpTime = 0.f;
-    m_JumpTimeMax = 0.15f;
-	m_JumpForce = 6500.f;
+    m_JumpTimeMax = 0.2f;
+	m_JumpForce = 3500.f;
 	m_IsJumping = false;
 	m_MaxSpeed = 1000.f;
 	m_AccConstant = 600.f;
@@ -28,9 +28,10 @@ Player::~Player(void)
 	m_Physics = nullptr;
 }
 
-void Player::initialize(IPhysics *p_Physics, std::weak_ptr<Actor> p_Actor)
+void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<Actor> p_Actor)
 {
 	m_Physics = p_Physics;
+	m_Network = p_Network;
 	m_Actor = p_Actor;
 	
 	Actor::ptr strActor = m_Actor.lock();
@@ -94,6 +95,20 @@ void Player::update(float p_DeltaTime)
 			m_CurrentForceMoveTime = 0.f;
 			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 			aa.lock()->resetClimbState();
+			if (m_Network)
+			{
+				IConnectionController* con = m_Network->getConnectionToServer();
+				if (con && con->isConnected())
+				{
+					tinyxml2::XMLPrinter printer;
+					printer.OpenElement("Action");
+					printer.OpenElement("ResetClimb");
+					printer.CloseElement();
+					printer.CloseElement();
+
+					con->sendObjectAction(m_Actor.lock()->getId(), printer.CStr());
+				}
+			}
 			return;
 		}
 
@@ -145,6 +160,21 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
 		aa.lock()->playClimbAnimation(p_ClimbId);
+		if (m_Network)
+		{
+			IConnectionController* con = m_Network->getConnectionToServer();
+			if (con && con->isConnected())
+			{
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("Action");
+				printer.OpenElement("Climb");
+				printer.PushAttribute("Animation", p_ClimbId.c_str());
+				printer.CloseElement();
+				printer.CloseElement();
+
+				con->sendObjectAction(m_Actor.lock()->getId(), printer.CStr());
+			}
+		}
 		m_ClimbId = p_ClimbId;
 
 		m_ForceMoveY = pp.m_YPath;
@@ -260,7 +290,7 @@ XMFLOAT3 Player::getEyePosition() const
 		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 		if (comp)
 		{
-			return comp->getJointPos("Neck");
+			return comp->getJointPos("Head");
 		}
 	}
 
