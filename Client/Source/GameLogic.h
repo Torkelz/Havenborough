@@ -55,6 +55,7 @@ private:
 	float witchCircleAngle;
 
 	Vector2 m_PlayerDirection;
+	Vector3 m_CurrentCheckPointPosition;
 public:
 	GameLogic(void);
 	~GameLogic(void);
@@ -82,6 +83,7 @@ public:
 	Vector3 getPlayerRotation() const;
 	DirectX::XMFLOAT4X4 getPlayerViewRotationMatrix() const;
 	void movePlayerView(float p_Yaw, float p_Pitch);
+	Vector3 getCurrentCheckpointPosition(void) const;
 
 	IPhysics *getPhysics() const;
 
