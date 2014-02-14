@@ -426,14 +426,18 @@ void GameLogic::throwSpell(const char *p_SpellId)
 	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
-		m_Actors->addActor(m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition()));
-		playAnimation(playerActor, "CastSpell", false);
-
-		IConnectionController *conn = m_Network->getConnectionToServer();
-		if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
+		if(!m_Player.getForceMove())
 		{
-			conn->sendThrowSpell(p_SpellId, m_Player.getRightHandPosition(), getPlayerViewForward());
+			m_Actors->addActor(m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition()));
+			playAnimation(playerActor, "CastSpell", false);
+
+			IConnectionController *conn = m_Network->getConnectionToServer();
+			if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
+			{
+				conn->sendThrowSpell(p_SpellId, m_Player.getRightHandPosition(), getPlayerViewForward());
+			}
 		}
+		
 	}
 }
 
