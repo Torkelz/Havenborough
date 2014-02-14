@@ -1,6 +1,6 @@
 *Header
 #Transparent 0
-#Collidable 0
+#Collidable 1
 #Materials 4
 #MESH Flag1
 #Vertices 300

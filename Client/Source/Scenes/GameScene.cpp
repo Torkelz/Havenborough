@@ -505,6 +505,7 @@ void GameScene::loadSandboxModels()
 		"Tunnel1",
 		"Wagon1",
 		"Wagon2",
+		"Wagon3",
 		"Vege1",
 		"Vege2",
 		"WoodenPillar1",
