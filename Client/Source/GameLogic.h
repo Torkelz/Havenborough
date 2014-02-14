@@ -88,11 +88,6 @@ public:
 	IPhysics *getPhysics() const;
 
 	void playerJump();
-	void toggleIK();
-	void testBlendAnimation();
-	void testResetAnimation();
-	void testLayerAnimation();
-	void testResetLayerAnimation();
 	void playLocalLevel();
 
 	void connectToServer(const std::string& p_URL, unsigned short p_Port);
@@ -119,7 +114,6 @@ private:
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
 	void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
 	void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
-	void updateIK();
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
 };

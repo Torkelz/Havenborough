@@ -237,29 +237,9 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->playerJump();
 	}
-	else if (p_Action == "toggleIK" && p_Value == 1.f)
-	{
-		m_GameLogic->toggleIK();
-	}
 	else if( p_Action == "switchBVDraw" && p_Value == 1.f && p_PrevValue == 0)
 	{
 		m_RenderDebugBV = !m_RenderDebugBV;
-	}
-	else if( p_Action == "blendAnimation" && p_Value == 1.0f && p_PrevValue == 0)
-	{
-		m_GameLogic->testBlendAnimation();
-	}
-	else if( p_Action == "resetAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
-	{
-		m_GameLogic->testResetAnimation();
-	}
-	else if( p_Action == "layerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
-	{
-		m_GameLogic->testLayerAnimation();
-	}
-	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
-	{
-		m_GameLogic->testResetLayerAnimation();
 	}
 	else if (p_Action == "leaveGame" && p_Value == 1.f)
 	{

@@ -316,37 +316,6 @@ void GameLogic::playerJump()
 	m_Player.setJump();
 }
 
-void GameLogic::toggleIK()
-{
-	useIK = !useIK;
-}
-
-
-
-void GameLogic::testBlendAnimation()
-{
-	//playAnimation(testWitch.lock(), "Idle", false);
-}
-
-void GameLogic::testResetAnimation()
-{
-	//playAnimation(testWitch.lock(), "Run", false);
-}
-
-void GameLogic::testLayerAnimation()
-{
-	//playAnimation(testWitch.lock(), "Wave", false);
-	//playAnimation(m_Player.getActor().lock(), "LookAround", false);
-}
-
-void GameLogic::testResetLayerAnimation()
-{
-	//playAnimation(testWitch.lock(), "Run", false);
-	//playAnimation(testWitch.lock(), "DefLayer1", false);
-	//playAnimation(m_Player.getActor().lock(), "Idle2", false);
-	changeAnimationWeight(m_Player.getActor().lock(), 4, 0.0f);
-}
-
 void GameLogic::playLocalLevel()
 {
 	m_Actors.reset();
@@ -806,11 +775,6 @@ void GameLogic::updateSandbox(float p_DeltaTime)
 		strongWitch->setPosition(witchCirclePosition);
 		strongWitch->setRotation(Vector3(witchCircleAngle, 0.f, 0.f));
 	}
-
-	if (m_InGame)
-	{
-		updateIK();
-	}
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
@@ -853,37 +817,6 @@ void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_W
 	{
 		comp->changeAnimationWeight(p_Track, p_Weight);
 	}
-}
-
-void GameLogic::updateIK()
-{
-	Vector3 IK_Target = Vector3(m_Player.getEyePosition()) + getPlayerViewForward() * 200.f;
-
-	if (useIK)
-	{
-		std::shared_ptr<Actor> strWitch = circleWitch.lock();
-		if (strWitch)
-		{
-			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-			if (comp)
-			{
-				comp->applyIK_ReachPoint("LeftArm", IK_Target);
-			}
-		}
-
-		// Player
-		strWitch = m_Player.getActor().lock();
-		if (strWitch)
-		{
-			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-			if (comp)
-			{
-				comp->applyIK_ReachPoint("LeftArm", IK_Target);
-			}
-		}
-	}
-
-	m_Player.updateIKJoints();
 }
 
 IPhysics *GameLogic::getPhysics() const
