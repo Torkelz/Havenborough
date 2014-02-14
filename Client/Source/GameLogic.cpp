@@ -13,6 +13,7 @@ GameLogic::GameLogic(void)
 {
 	m_Physics = nullptr;
 	m_ResourceManager = nullptr;
+	m_CurrentCheckPointPosition = Vector3(0.0f, 0.0f, 0.0f);
 }
 
 
@@ -126,8 +127,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 	}
 	
 	m_Actors->onUpdate(p_DeltaTime);
-
-	updateSandbox(p_DeltaTime);
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -305,40 +304,14 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	look->setLookUp(up);
 }
 
+Vector3 GameLogic::getCurrentCheckpointPosition(void) const
+{
+	return m_CurrentCheckPointPosition;
+}
+
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
-}
-
-void GameLogic::toggleIK()
-{
-	useIK = !useIK;
-}
-
-
-
-void GameLogic::testBlendAnimation()
-{
-	//playAnimation(testWitch.lock(), "Idle", false);
-}
-
-void GameLogic::testResetAnimation()
-{
-	//playAnimation(testWitch.lock(), "Run", false);
-}
-
-void GameLogic::testLayerAnimation()
-{
-	//playAnimation(testWitch.lock(), "Wave", false);
-	//playAnimation(m_Player.getActor().lock(), "LookAround", false);
-}
-
-void GameLogic::testResetLayerAnimation()
-{
-	//playAnimation(testWitch.lock(), "Run", false);
-	//playAnimation(testWitch.lock(), "DefLayer1", false);
-	//playAnimation(m_Player.getActor().lock(), "Idle2", false);
-	changeAnimationWeight(m_Player.getActor().lock(), 4, 0.0f);
 }
 
 void GameLogic::playLocalLevel()
@@ -370,7 +343,7 @@ void GameLogic::playLocalLevel()
 
 	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
 	m_Player = Player();
-	m_Player.initialize(m_Physics, playerActor);
+	m_Player.initialize(m_Physics, nullptr, playerActor);
 
 	m_InGame = true;
 	m_PlayingLocal = true;
@@ -623,6 +596,7 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
+							m_CurrentCheckPointPosition = actor->getPosition();
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -676,14 +650,42 @@ void GameLogic::handleNetwork()
 					{
 						Actor::ptr actor = getActor(actorId);
 
-						if (actor->getId())
+						if (actor)
 						{
 							std::shared_ptr<PulseInterface> pulseComp = actor->getComponent<PulseInterface>(PulseComponent::m_ComponentId).lock();
 							if (pulseComp)
 							{
 								pulseComp->pulseOnce();
 							}
-							break;
+						}
+					}
+					else if (std::string(action->Value()) == "Climb")
+					{
+						Actor::ptr actor = getActor(actorId);
+						const char* climbId = action->Attribute("Animation");
+
+						if (actor && climbId)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->playClimbAnimation(climbId);
+							}
+						}
+					}
+					else if (std::string(action->Value()) == "ResetClimb")
+					{
+						Actor::ptr actor = getActor(actorId);
+
+						if (actor)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->resetClimbState();
+							}
 						}
 					}
 				}
@@ -696,7 +698,7 @@ void GameLogic::handleNetwork()
 					if (actor)
 					{
 						m_Player = Player();
-						m_Player.initialize(m_Physics, actor);
+						m_Player.initialize(m_Physics, m_Network, actor);
 					}
 
 					conn->sendDoneLoading();
@@ -767,43 +769,8 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 
 void GameLogic::loadSandbox()
 {
-	useIK = false;
-
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
-	testWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(1600.0f, 0.0f, 500.0f)));
-	playAnimation(testWitch.lock(), "Run", false);
-
-	circleWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(0.f, 0.f, 0.f)));
-	playAnimation(circleWitch.lock(), "Run", false);
-
-	witchCircleAngle = 0.0f;
-
 	//Event to create a particle effect on local test rounds
-
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
-}
-
-void GameLogic::updateSandbox(float p_DeltaTime)
-{
-	static const Vector3 circleCenter(400.f, 0.f, 1500.f);
-	static const float circleRadius = 800.f;
-	static const float witchAngleSpeed = 0.3f;
-
-	witchCircleAngle += witchAngleSpeed * p_DeltaTime;
-	Vector3 witchCirclePosition(circleCenter);
-	witchCirclePosition.x -= cosf(witchCircleAngle) * circleRadius;
-	witchCirclePosition.z += sinf(witchCircleAngle) * circleRadius;
-	Actor::ptr strongWitch = circleWitch.lock();
-	if (strongWitch)
-	{
-		strongWitch->setPosition(witchCirclePosition);
-		strongWitch->setRotation(Vector3(witchCircleAngle, 0.f, 0.f));
-	}
-
-	if (m_InGame)
-	{
-		updateIK();
-	}
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
@@ -846,37 +813,6 @@ void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_W
 	{
 		comp->changeAnimationWeight(p_Track, p_Weight);
 	}
-}
-
-void GameLogic::updateIK()
-{
-	Vector3 IK_Target = Vector3(m_Player.getEyePosition()) + getPlayerViewForward() * 200.f;
-
-	if (useIK)
-	{
-		std::shared_ptr<Actor> strWitch = circleWitch.lock();
-		if (strWitch)
-		{
-			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-			if (comp)
-			{
-				comp->applyIK_ReachPoint("LeftArm", IK_Target);
-			}
-		}
-
-		// Player
-		strWitch = m_Player.getActor().lock();
-		if (strWitch)
-		{
-			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-			if (comp)
-			{
-				comp->applyIK_ReachPoint("LeftArm", IK_Target);
-			}
-		}
-	}
-
-	m_Player.updateIKJoints();
 }
 
 IPhysics *GameLogic::getPhysics() const

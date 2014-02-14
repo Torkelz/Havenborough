@@ -121,6 +121,9 @@ public:
 		XMStoreFloat3(&fRotPos, rotPos);
 
 		m_Body = m_Physics->createOBB(m_Mass, m_Immovable, fRotPos, m_Halfsize, m_IsEdge);
+		if(m_IsEdge)
+			m_Physics->setBodyCollisionResponse(m_Body, false);
+
 
 		Vector3 ownerRot = m_Owner->getRotation();
 		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);

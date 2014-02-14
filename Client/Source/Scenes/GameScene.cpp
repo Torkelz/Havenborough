@@ -183,9 +183,8 @@ void GameScene::render()
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
 
 	//Render test arrow, remove when HUD scene is implemented
-	m_Graphics->set2D_ObjectLookAt(1, Vector3(0,0,0));
-	m_Graphics->render2D_Object(1);
-	//m_Graphics->set2D_ObjectRotationZ(2, playerPos.x);
+	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
+	m_Graphics->render2D_Object(m_GUI_ArrowId);
 	m_Graphics->render2D_Object(2);
 }
 
@@ -238,29 +237,9 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->playerJump();
 	}
-	else if (p_Action == "toggleIK" && p_Value == 1.f)
-	{
-		m_GameLogic->toggleIK();
-	}
 	else if( p_Action == "switchBVDraw" && p_Value == 1.f && p_PrevValue == 0)
 	{
 		m_RenderDebugBV = !m_RenderDebugBV;
-	}
-	else if( p_Action == "blendAnimation" && p_Value == 1.0f && p_PrevValue == 0)
-	{
-		m_GameLogic->testBlendAnimation();
-	}
-	else if( p_Action == "resetAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
-	{
-		m_GameLogic->testResetAnimation();
-	}
-	else if( p_Action == "layerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
-	{
-		m_GameLogic->testLayerAnimation();
-	}
-	else if( p_Action == "resetLayerAnimation" && p_Value == 1.0f && p_PrevValue == 0 )
-	{
-		m_GameLogic->testResetLayerAnimation();
 	}
 	else if (p_Action == "leaveGame" && p_Value == 1.f)
 	{
@@ -528,7 +507,7 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), 1.f, 0.f, "Arrow1");
+	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), 1.f, 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), 0.0f, "MANA_BAR");
 
 	static const std::string preloadedModelsTransparent[] =
