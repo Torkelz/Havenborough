@@ -345,7 +345,7 @@ void GameLogic::playLocalLevel()
 
 	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
 	m_Player = Player();
-	m_Player.initialize(m_Physics, playerActor);
+	m_Player.initialize(m_Physics, nullptr, playerActor);
 
 	m_InGame = true;
 	m_PlayingLocal = true;
@@ -652,14 +652,28 @@ void GameLogic::handleNetwork()
 					{
 						Actor::ptr actor = getActor(actorId);
 
-						if (actor->getId())
+						if (actor)
 						{
 							std::shared_ptr<PulseInterface> pulseComp = actor->getComponent<PulseInterface>(PulseComponent::m_ComponentId).lock();
 							if (pulseComp)
 							{
 								pulseComp->pulseOnce();
 							}
-							break;
+						}
+					}
+					else if (std::string(action->Value()) == "Climb")
+					{
+						Actor::ptr actor = getActor(actorId);
+						const char* climbId = action->Attribute("Animation");
+
+						if (actor && climbId)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->playClimbAnimation(climbId);
+							}
 						}
 					}
 				}
@@ -672,7 +686,7 @@ void GameLogic::handleNetwork()
 					if (actor)
 					{
 						m_Player = Player();
-						m_Player.initialize(m_Physics, actor);
+						m_Player.initialize(m_Physics, m_Network, actor);
 					}
 
 					conn->sendDoneLoading();
