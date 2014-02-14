@@ -850,7 +850,7 @@ void DeferredRenderer::createShaders()
 void DeferredRenderer::loadLightModels()
 {
 	ModelBinaryLoader modelLoader;
-	modelLoader.loadBinaryFile("../../Client/Bin/assets/LightModels/SpotLight.btx");
+	modelLoader.loadBinaryFile("assets/LightModels/SpotLight.btx");
 	const std::vector<StaticVertex>& vertices = modelLoader.getStaticVertexBuffer();
 	std::vector<DirectX::XMFLOAT3> temp;
 	for(unsigned int i = 0; i < vertices.size(); i++)
@@ -874,7 +874,7 @@ void DeferredRenderer::loadLightModels()
 
 	m_Buffer["SpotLightModel"] = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	temp.clear();
-	modelLoader.loadBinaryFile("../../Client/Bin/assets/LightModels/Sphere2.btx");
+	modelLoader.loadBinaryFile("assets/LightModels/Sphere2.btx");
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
 		temp.push_back(DirectX::XMFLOAT3(vertices.at(i).m_Position.x,vertices.at(i).m_Position.y,vertices.at(i).m_Position.z));

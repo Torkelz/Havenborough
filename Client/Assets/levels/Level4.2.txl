@@ -1,5 +1,5 @@
 *ObjectHeader*
-#numObj: 283
+#numObj: 281
 
 #MESH: Top1
 #Translation: 0 0 0
@@ -1291,16 +1291,6 @@
 #Rotation: -2.525222 1.196884 1.813069
 #Scale: 1.782466 1.782466 1.782466
 
-#MESH: StoneChunk1
-#Translation: -2346.905029 1138.950317 -2132.452148
-#Rotation: 0 0 0
-#Scale: 1 1 1
-
-#MESH: WoodenPillar1
-#Translation: -2234.897461 1138.950317 -1875.689819
-#Rotation: 0 1.570796 0
-#Scale: 1 1 1
-
 #MESH: WoodenPillar1
 #Translation: -10682.90332 3119.78418 -11749.766602
 #Rotation: 2.776558 -0.0203618 0.0972193
@@ -1447,4 +1437,30 @@ Type: kPointLight
 Intensity: 0.75
 
 *CheckPointHeader*
-#numCheckpoints 0
+#numCheckpoints 5
+
+#Type: Start
+Translation: 0 79.058657 444.815786
+
+#Type: CheckPoint
+#NR: 2
+Translation: 230.665557 726.935117 2753.893367
+
+#Type: CheckPoint
+#NR: 1
+Translation: 2007.076435 896.932441 1195.306239
+
+#Type: CheckPoint
+#NR: 3
+Translation: -2126.580917 932.60173 2057.278534
+
+#Type: CheckPoint
+#NR: 4
+Translation: -237.697983 760.452543 -2141.12422
+
+#Type: CheckPoint
+#NR: 5
+Translation: -1583.16305 3461.966675 -3166.76412
+
+#Type: End
+Translation: 0 75.440226 -271.169022
