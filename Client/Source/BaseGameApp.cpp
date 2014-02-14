@@ -183,14 +183,14 @@ void BaseGameApp::run()
 void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
+
+	INetwork::deleteNetwork(m_Network);	
+	m_Network = nullptr;
 	
 	m_GameLogic->shutdown();
 	m_GameLogic.reset();
 
 	m_EventManager->processEvents();
-
-	INetwork::deleteNetwork(m_Network);	
-	m_Network = nullptr;
 	
 	m_SceneManager.destroy();
 

@@ -49,7 +49,7 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector3 p_EdgePosi
 		DirectX::XMFLOAT3 victimNormal;
 		DirectX::XMStoreFloat3(&victimNormal, p_VictimNormal);
 
-		if (playerOrigPos.y + p_Player->getHeight() * 0.05f > nearestPoint.y)
+		if (playerOrigPos.y + p_Player->getHeight() * 0.1f > nearestPoint.y)
 			return;
 		else if(playerOrigPos.y  + p_Player->getKneeHeight() - p_Player->getHeight() * 0.1f > nearestPoint.y)
 			p_Player->forceMove("Climb1", victimNormal, p_EdgePosition, p_EdgeOrientation);

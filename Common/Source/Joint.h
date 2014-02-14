@@ -61,7 +61,7 @@ public:
 	 * @param p_DestinationFrameTime the time point to interpolate to.
 	 * @return the interpolated transformation.
 	 */
-	DirectX::XMFLOAT4X4 interpolate(float p_FrameTime, float m_DestinationFrameTime) const;
+	//DirectX::XMFLOAT4X4 interpolate(float p_FrameTime, float m_DestinationFrameTime) const;
 	/**
     * Calculate the animation transformation at a certain frame.
     *
