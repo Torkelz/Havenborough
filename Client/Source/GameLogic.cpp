@@ -676,6 +676,20 @@ void GameLogic::handleNetwork()
 							}
 						}
 					}
+					else if (std::string(action->Value()) == "ResetClimb")
+					{
+						Actor::ptr actor = getActor(actorId);
+
+						if (actor)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->resetClimbState();
+							}
+						}
+					}
 				}
 				break;
 

@@ -95,6 +95,20 @@ void Player::update(float p_DeltaTime)
 			m_CurrentForceMoveTime = 0.f;
 			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 			aa.lock()->resetClimbState();
+			if (m_Network)
+			{
+				IConnectionController* con = m_Network->getConnectionToServer();
+				if (con && con->isConnected())
+				{
+					tinyxml2::XMLPrinter printer;
+					printer.OpenElement("Action");
+					printer.OpenElement("ResetClimb");
+					printer.CloseElement();
+					printer.CloseElement();
+
+					con->sendObjectAction(m_Actor.lock()->getId(), printer.CStr());
+				}
+			}
 			return;
 		}
 
