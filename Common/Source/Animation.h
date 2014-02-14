@@ -94,14 +94,14 @@ public:
 	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
 	 * @param p_Override, false if you want standard behavior and true if you want to skip blending etc.
 	 */
-	void playClip( const std::string& p_Clip, bool p_Override );
+	virtual void playClip( const std::string& p_Clip, bool p_Override );
 
 	/**
 	 * Queue animation clip.
 	 * @param p_Clip the AnimationClip struct contains all the frame and blend information needed.
 	 * NOTE: Queued clips cannot override the main track of a pair.
 	 */
-	void queueClip( const std::string& p_Clip );
+	virtual void queueClip( const std::string& p_Clip );
 
 	/**
 	 * Purge queue of all elements destined to be on track p_Track.

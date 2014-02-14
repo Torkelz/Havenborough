@@ -116,7 +116,7 @@ void ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
 	if(!input)
 	{
-		throw std::exception("File could not be opened");
+		throw std::exception((std::string("File could not be opened: ") + p_FilePath).c_str());
 	}
 	m_FileHeader = readHeader(&input);
 	m_Material = readMaterial(m_FileHeader.m_NumMaterial,&input);

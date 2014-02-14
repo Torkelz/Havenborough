@@ -32,12 +32,6 @@
     <ClCompile Include="..\Network\Source\NetworkLogger.cpp">
       <Filter>TestNetwork\NetworkImport</Filter>
     </ClCompile>
-    <ClCompile Include="TestResourceManager.cpp">
-      <Filter>TestResourceManager</Filter>
-    </ClCompile>
-    <ClCompile Include="TestResouceTranslator.cpp">
-      <Filter>TestResourceManager</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\Input\Input.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
@@ -53,9 +47,6 @@
     <ClCompile Include="Source\SceneManager\TestSceneManager.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TestWindow.cpp">
-      <Filter>TestClient</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
@@ -64,9 +55,6 @@
     </ClCompile>
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp">
       <Filter>TestPhysics\PhysicsImport</Filter>
-    </ClCompile>
-    <ClCompile Include="TestLogger.cpp">
-      <Filter>TestClient</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
@@ -122,14 +110,8 @@
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="AABBTest.cpp">
-      <Filter>TestPhysics</Filter>
-    </ClCompile>
     <ClCompile Include="..\Physics\Source\Body.cpp">
       <Filter>TestPhysics\PhysicsImport</Filter>
-    </ClCompile>
-    <ClCompile Include="BodyTest.cpp">
-      <Filter>TestPhysics</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\Buffer.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
@@ -139,12 +121,6 @@
     </ClCompile>
     <ClCompile Include="..\Physics\Source\Physics.cpp">
       <Filter>TestPhysics\PhysicsImport</Filter>
-    </ClCompile>
-    <ClCompile Include="SphereTest.cpp">
-      <Filter>TestPhysics</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\TestCollision.cpp">
-      <Filter>TestPhysics</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\TestModelFactory.cpp">
       <Filter>TestGraphics</Filter>
@@ -170,9 +146,6 @@
     <ClCompile Include="Source\Loader\TestLevelLoader.cpp">
       <Filter>TestLoaders</Filter>
     </ClCompile>
-    <ClCompile Include="TestIK.cpp">
-      <Filter>TestGraphics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Loader\TestBinaryLevelLoader.cpp">
       <Filter>TestLoaders</Filter>
     </ClCompile>
@@ -181,9 +154,6 @@
     </ClCompile>
     <ClCompile Include="..\Physics\Source\BVLoader.cpp">
       <Filter>TestLoaders\Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OBBTest.cpp">
-      <Filter>TestPhysics</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
@@ -205,9 +175,6 @@
     </ClCompile>
     <ClCompile Include="Source\Client\TestEventManager.cpp">
       <Filter>TestClient</Filter>
-    </ClCompile>
-    <ClCompile Include="HullTest.cpp">
-      <Filter>TestPhysics</Filter>
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
@@ -257,9 +224,39 @@
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="TestMLXLoader.cpp" />
     <ClCompile Include="..\Common\Source\AnimationClipLoader.cpp" />
-    <ClCompile Include="TestAnimation.cpp" />
+    <ClCompile Include="Source\Physics\HullTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Physics\OBBTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Physics\AABBTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Physics\BodyTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Physics\SphereTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestLogger.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestResouceTranslator.cpp">
+      <Filter>TestResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestResourceManager.cpp">
+      <Filter>TestResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestAnimation.cpp" />
+    <ClCompile Include="Source\Common\TestMLXLoader.cpp" />
+    <ClCompile Include="Source\Physics\TestCollision.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TestWindow.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

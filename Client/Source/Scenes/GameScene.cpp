@@ -186,6 +186,7 @@ void GameScene::render()
 	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
 	m_Graphics->render2D_Object(m_GUI_ArrowId);
 	m_Graphics->render2D_Object(2);
+	m_Graphics->renderModel(zane);
 }
 
 bool GameScene::getIsVisible()
@@ -463,7 +464,9 @@ void GameScene::loadSandboxModels()
 	{
 		"Arrow1",
 		"Barrel1",
+		"BrokenPlattform1",
         "Crate1", 
+		"Flag1",
 		"Grass1", 
         "House1", 
 		"House2", 
@@ -471,6 +474,8 @@ void GameScene::loadSandboxModels()
 		"House4", 
 		"House5", 
         "House6", 
+		"Island1",
+		"Island3",
         "MarketStand1", 
         "MarketStand2", 
 		"Road1", 
@@ -479,17 +484,33 @@ void GameScene::loadSandboxModels()
 		"Road4", 
 		"Road5", 
         "Sidewalk1", 
+		"Sign1",
         "Stair1",
 		"Stallning1",
 		"Stallning2",
 		"Stallning3",
 		"Stallning4",
-        "StoneBrick2",
+		"StandingLamp1",
+		"Stone1",
+		"Stone2",
+		"Stone3",
+		"StoneAltar1",
+		"StoneBrick2",
+		"StoneChunk1",
         "Street1",
+		"Top1",
+		"Top1Sidewalk",
+		"Top3",
         "Tree1",
+		"Tunnel1",
+		"Wagon1",
+		"Wagon2",
+		"Wagon3",
 		"Vege1",
 		"Vege2",
+		"WoodenPillar1",
         "WoodenShed1",
+		"Zane"
 	};
 
 	for (const std::string& model : preloadedModels)
@@ -497,6 +518,11 @@ void GameScene::loadSandboxModels()
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
 		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());		
 	}
+
+	zane = m_Graphics->createModelInstance("Zane");
+	m_Graphics->setModelPosition(zane, Vector3(100,100,100));
+	m_Graphics->setModelRotation(zane, Vector3(PI,0,0));
+
 
 	static const std::string preloadedTextures[] =
 	{
@@ -507,7 +533,7 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), 1.f, 0.f, "Arrow1");
+	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), 0.5f, 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), 0.0f, "MANA_BAR");
 
 	static const std::string preloadedModelsTransparent[] =

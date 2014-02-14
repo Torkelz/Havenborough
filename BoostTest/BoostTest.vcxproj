@@ -156,10 +156,10 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Network\Source\Network.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp" />
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
-    <ClCompile Include="AABBTest.cpp" />
-    <ClCompile Include="BodyTest.cpp" />
-    <ClCompile Include="HullTest.cpp" />
-    <ClCompile Include="OBBTest.cpp" />
+    <ClCompile Include="Source\Physics\AABBTest.cpp" />
+    <ClCompile Include="Source\Physics\BodyTest.cpp" />
+    <ClCompile Include="Source\Physics\HullTest.cpp" />
+    <ClCompile Include="Source\Physics\OBBTest.cpp" />
     <ClCompile Include="Source\Common\TestLight.cpp" />
     <ClCompile Include="Source\Common\TestXMFloatUtil.cpp" />
     <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp" />
@@ -175,22 +175,21 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Network\TestSerialize.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
     <ClCompile Include="Source\SceneManager\TestSceneManager.cpp" />
-    <ClCompile Include="Source\TestWindow.cpp" />
-    <ClCompile Include="Source\TestCollision.cpp" />
+    <ClCompile Include="Source\Client\TestWindow.cpp" />
+    <ClCompile Include="Source\Physics\TestCollision.cpp" />
     <ClCompile Include="Source\Graphics\TestWrapperFactory.cpp" />
     <ClCompile Include="Source\Graphics\TestTextureLoader.cpp" />
     <ClCompile Include="Source\Network\TestNetworkServerClient.cpp" />
-    <ClCompile Include="SphereTest.cpp" />
+    <ClCompile Include="Source\Physics\SphereTest.cpp" />
     <ClCompile Include="Source\Client\TestEdgeCollisionResponse.cpp" />
-    <ClCompile Include="TestAnimation.cpp" />
-    <ClCompile Include="TestIK.cpp" />
-    <ClCompile Include="TestLogger.cpp" />
+    <ClCompile Include="Source\Common\TestAnimation.cpp" />
+    <ClCompile Include="Source\Common\TestLogger.cpp" />
     <ClCompile Include="Source\Graphics\TestModelFactory.cpp" />
     <ClCompile Include="Source\Client\TestEventManager.cpp" />
     <ClCompile Include="Source\Client\TestPlayer.cpp" />
-    <ClCompile Include="TestMLXLoader.cpp" />
-    <ClCompile Include="TestResouceTranslator.cpp" />
-    <ClCompile Include="TestResourceManager.cpp" />
+    <ClCompile Include="Source\Common\TestMLXLoader.cpp" />
+    <ClCompile Include="Source\Common\TestResouceTranslator.cpp" />
+    <ClCompile Include="Source\Common\TestResourceManager.cpp" />
     <ClCompile Include="Source\Graphics\TestSkyDome.cpp" />
   </ItemGroup>
   <ItemGroup>
