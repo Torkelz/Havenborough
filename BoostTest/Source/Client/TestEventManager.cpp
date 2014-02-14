@@ -174,38 +174,25 @@ BOOST_AUTO_TEST_CASE(EventManager_TickUpdateWithMemberFunction)
 /**
 * EventData tests
 */
-BOOST_AUTO_TEST_CASE(TestEventDataTest)
-{
-	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
-
-	BOOST_CHECK(Harbinger->directInterventionIsNecessary() == true);
-
-	std::string name(Harbinger->getName());
-	BOOST_CHECK(name == "TestEvent");
-
-	IEventData::Type eventCheck(0x77dd2b3a);
-	BOOST_CHECK(Harbinger->getEventType() == eventCheck);
-
-	std::shared_ptr<TestEventData> Sovereign = std::static_pointer_cast<TestEventData>(Harbinger->copy());
-	BOOST_CHECK(Sovereign->directInterventionIsNecessary() == true);
-}
-
 BOOST_AUTO_TEST_CASE(LightEventDataTest)
 {
 	Light light;
 	light.position = Vector3(100.f, 10.0f, 10.0f);
 	std::shared_ptr<LightEventData> eventData(new LightEventData(light));
 
-	BOOST_CHECK(eventData->directInterventionIsNecessary() == true);
+	Light newLight;
+	newLight = eventData->getLight();
+	BOOST_CHECK(newLight.position == Vector3(100.f, 10.0f, 10.0f));
 
-	std::string type(eventData->getName());
-	BOOST_CHECK(type == "TestEvent");
+	std::string name(eventData->getName());
+	BOOST_CHECK(name == "LightEvent");
 
 	IEventData::Type eventCheck(0x748d2b5a);
 	BOOST_CHECK(eventData->getEventType() == eventCheck);
 
-	std::shared_ptr<LightEventData> Sovereign = std::static_pointer_cast<LightEventData>(eventData->copy());
-	BOOST_CHECK(Sovereign->directInterventionIsNecessary() == true);
+	std::shared_ptr<LightEventData> newEventData = std::static_pointer_cast<LightEventData>(eventData->copy());
+	newLight = newEventData->getLight();
+	BOOST_CHECK(newLight.position == Vector3(100.f, 10.0f, 10.0f));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

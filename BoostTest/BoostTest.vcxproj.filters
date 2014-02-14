@@ -248,22 +248,22 @@
     <ClCompile Include="Source\Client\TestWindow.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp">
+      <Filter>TestGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestAnimation.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
     <ClCompile Include="..\Common\Source\AnimationLoader.cpp">
       <Filter>TestCommon</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\Source\AnimationClipLoader.cpp">
       <Filter>TestCommon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Common\TestMLXLoader.cpp">
-      <Filter>TestCommon</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Common\TestAnimation.cpp">
-      <Filter>TestCommon</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp">
-      <Filter>TestGraphics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Common\TestLight.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestMLXLoader.cpp">
       <Filter>TestCommon</Filter>
     </ClCompile>
     <ClCompile Include="Source\Client\TestEventManager.cpp">
