@@ -8,7 +8,8 @@ public:
 		AABBOX,
 		SPHERE,
 		OBB,
-		HULL
+		HULL,
+		NONE
 	};
 
 protected:

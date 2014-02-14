@@ -1,4 +1,5 @@
 #include "Collision.h"
+#include "PhysicsExceptions.h"
 #define EPSILON XMVectorGetX(g_XMEpsilon)
 using namespace DirectX;
 
@@ -19,8 +20,7 @@ HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume const &p_Volume
 	case BoundingVolume::Type::HULL:
 		return boundingVolumeVsHull(p_Volume1, (Hull&)p_Volume2);
 	default:
-		HitData hit = HitData();
-		return hit;
+		throw CollisionException("Collision error! Bounding volume type does not exist!", __LINE__, __FILE__);
 	}
 }
 
@@ -39,8 +39,7 @@ HitData Collision::boundingVolumeVsSphere(BoundingVolume const &p_Volume, Sphere
 	case BoundingVolume::Type::HULL:
 		return HullVsSphere((Hull&)p_Volume, p_Sphere);
 	default:
-		HitData hit = HitData();
-		return hit;
+		throw CollisionException("Collision error! Bounding volume type does not exist!", __LINE__, __FILE__);
 	}
 }
 
@@ -56,8 +55,7 @@ HitData Collision::boundingVolumeVsAABB(BoundingVolume const &p_Volume, AABB con
 	case BoundingVolume::Type::OBB:
 		return OBBvsAABB((OBB&)p_Volume, p_AABB);
 	default:
-		HitData hit = HitData();
-		return hit;
+		throw CollisionException("Collision error! Bounding volume type does not exist!", __LINE__, __FILE__);
 	}
 }
 
@@ -75,8 +73,7 @@ HitData Collision::boundingVolumeVsOBB(BoundingVolume const &p_Volume, OBB const
 	case BoundingVolume::Type::HULL:
 		return OBBVsHull(p_OBB, (Hull&)p_Volume);
 	default:
-		HitData hit = HitData();
-		return hit;
+		throw CollisionException("Collision error! Bounding volume type does not exist!", __LINE__, __FILE__);
 	}
 }
 
@@ -90,8 +87,7 @@ HitData Collision::boundingVolumeVsHull(BoundingVolume const &p_Volume, Hull con
 	case BoundingVolume::Type::OBB:
 		return OBBVsHull((OBB&)p_Volume, p_Hull);
 	default:
-		HitData hit = HitData();
-		return hit;
+		throw CollisionException("Collision error! Bounding volume type does not exist!", __LINE__, __FILE__);
 	}
 }
 
@@ -341,7 +337,7 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 	{
 		Triangle triangle = p_Hull.getTriangleInWorldCoord(i);
 
-		point = XMLoadFloat4(&triangle.findClosestPointOnTriangle(p_Sphere.getPosition(), triangle.corners[0], triangle.corners[1], triangle.corners[2]));
+		point = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(p_Sphere.getPosition(), i));
 		v = point - spherePos;
 
 		float vv = XMVectorGetX(XMVector4Dot(v, v));
@@ -640,10 +636,11 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 			p1 = p0 + XMVectorGetX(XMVector3Dot(L, E0));
 			float p2 = p0 + XMVectorGetX(XMVector3Dot(L, E1));
 			R = a.m128_f32[j];
-			float min = checkMin(p0, p1, p2);
-			float max = checkMax(p0, p1, p2);
+			p0 = XMMax(p0, XMMax(p1,p2));
+			p1 = XMMin(p0, XMMin(p1,p2));
+			
 
-			if(!checkCollision(L, min, max, R, overlap, least))
+			if(!checkCollision(L, p0, p1, R, overlap, least))
 			{
 				miss = true;
 				break;
@@ -736,7 +733,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		//Minimum translation vector for this triangle in the hull.
 		XMVECTOR triangleMTV = least * overlap;
 
-		XMVECTOR trianglePoint = XMLoadFloat4(&triangle.findClosestPointOnTriangle(p_OBB.getPosition(), triangle.corners[0], triangle.corners[1], triangle.corners[2]));
+		XMVECTOR trianglePoint = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(p_OBB.getPosition(), i));
 		XMVECTOR boxCenterToTriangle = trianglePoint - C;
 
 		//Check the direction of the MTV to see if we need to change it.
