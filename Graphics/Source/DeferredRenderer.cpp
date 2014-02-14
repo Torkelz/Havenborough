@@ -750,8 +750,8 @@ void DeferredRenderer::createSamplerState()
 
 	// Create SSAO normal depth texture sampler.
 	sd.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = 0.0f;
 	sd.BorderColor[3] = 1e5f;
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_NormalDepth"]);
