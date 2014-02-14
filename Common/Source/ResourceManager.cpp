@@ -103,6 +103,9 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 			}
 		}
 	}
+#ifdef DEBUG
+	throw ResourceManagerException(std::string("Error when loading resource! create function for ") + p_ResourceType + "s not registered!", __LINE__, __FILE__);
+#endif
 
 	return -1;
 }
@@ -146,7 +149,9 @@ int ResourceManager::loadModelTextureImpl(const char *p_ResourceName, const char
 			}
 		}
 	}
-
+#ifdef DEBUG
+	throw ResourceManagerException(std::string("Error when loading model texture ") + p_FilePath + " (" + p_ResourceName + "). create function for textures not registered!", __LINE__, __FILE__);
+#endif
 	return -1;
 }
 
@@ -176,7 +181,6 @@ bool ResourceManager::releaseResource(int p_ID)
 #ifdef DEBUG
 	throw ResourceManagerException("Releasing a resource that does not exist?", __LINE__, __FILE__);
 #endif
-
 	return false;
 }
 

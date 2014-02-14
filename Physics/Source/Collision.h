@@ -4,34 +4,6 @@
 
 class Collision
 {
-private:
-
-	struct Plane
-	{
-		DirectX::XMFLOAT4 normal; //Plane normal
-		float	d; //d = dot(n, p) for given point p on plane
-		
-		/**
-		 * Given three noncollinear points (ordered counter clockwise),
-		 * to compute a plane in world coordinates.
-		 *
-		 * @param p_A, first point.
-		 * @param p_B, second point.
-		 * @param p_C, third point.
-		 * @return return the plane that is created.
-		 */
-		Plane ComputePlane(DirectX::XMVECTOR const &p_A, DirectX::XMVECTOR const &p_B, DirectX::XMVECTOR const &p_C)
-		{
-			Plane p;
-			using DirectX::operator-;
-			DirectX::XMStoreFloat4(&p.normal, DirectX::XMVector3Normalize( DirectX::XMVector3Cross(p_B - p_A, p_C - p_A) ));
-
-			p.d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMLoadFloat4(&p.normal), p_A ));
-
-			return p;
-		}
-	};
-
 public:
 	/**
 	* Redirect to the appropriate check, when neither BoundingVolumes' type is known.
@@ -109,26 +81,13 @@ public:
 	*/
 	static HitData HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere);
 
-	/**
-	* Given point p and the triangle corners in world coordinates, return point in triangle, closest to p
-	* @param p_point the point you want to search from
-	* @param p_A, corner[0] of triangle in world coordinates
-	* @param p_B, corner[1] of triangle in world coordinates
-	* @param p_C, corner[2] of triangle in world coordinates
-	* @return closest point in the triangle
-	*/
-	static DirectX::XMFLOAT4 findClosestPointOnTriangle(DirectX::XMFLOAT4 const &p_Point, Vector4 const &p_A, Vector4 const &p_B, Vector4 const &p_C);
-
 private:
 	static HitData SATBoxVsBox(OBB const &p_OBB, BoundingVolume const &p_vol);
-	static HitData SATBoxVsHull(OBB const &p_OBB, Hull const &p_hull);
-	static HitData SATEberly(OBB const &p_OBB, Hull const &p_hull);
-	static bool OBBVsPlane(OBB const &p_OBB, Plane const &p_Plane, DirectX::XMVECTOR &p_Least, float &p_Overlap);
-	static void checkCollisionDepth(float p_Rt, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
+	static HitData SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull);
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
-	//static void checkCollisionDepth(float p_RA, float p_RB, float p_RC, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
+	static bool checkCollision(DirectX::XMVECTOR p_Axis, float p_TriangleProjection0, float p_TriangleProjection1,
+							   float p_BoxProjection, float &p_Overlap, DirectX::XMVECTOR &p_Least);
 	static float checkMin(float const &p_A, float const &p_B, float const &p_C);
 	static float checkMax(float const &p_A, float const &p_B, float const &p_C);
-	static float checkMinMax(float min, float max, float p_R);
 };
 
