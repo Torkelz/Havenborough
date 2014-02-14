@@ -48,17 +48,6 @@ void Physics::initialize()
 
 	fillTriangleIndexList();
 	m_LoadBVSphereTemplateOnce = true;
-
-	std::vector<Triangle> triangles;
-	float size = 2.f;
-	//triangles.push_back(Triangle(Vector4( -size, size, -size, 1.f), Vector4(-size, size, size, 1.f), Vector4( size, size, size, 1.f)));
-	triangles.push_back(Triangle(Vector4( size, 0.f, size, 1.f), Vector4( -size, 0.f, size, 1.f), Vector4( -size, 0.f, -size, 1.f)));
-	triangles.push_back(Triangle(Vector4( size, 0.f, -size, 1.f), Vector4( size, 0.f, size, 1.f), Vector4( -size, 0.f, -size, 1.f)));
-	Hull *hull = new Hull(triangles);
-
-	BodyHandle b = createBody(0.f, hull, true, false);
-
-	setBodyPosition(b, Vector3(-300.f, 100.f, 0.f));
 }
 
 void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
