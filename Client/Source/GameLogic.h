@@ -47,13 +47,6 @@ private:
 	bool m_PlayingLocal;
 
 	//DEBUG
-	std::weak_ptr<Actor> circleWitch;
-	std::weak_ptr<Actor> testWitch;
-
-	bool useIK;
-
-	float witchCircleAngle;
-
 	Vector2 m_PlayerDirection;
 	Vector3 m_CurrentCheckPointPosition;
 public:
@@ -109,7 +102,6 @@ private:
 
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();
-	void updateSandbox(float p_DeltaTime);
 
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
 	void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);

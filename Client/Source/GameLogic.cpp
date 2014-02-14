@@ -127,8 +127,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 	}
 	
 	m_Actors->onUpdate(p_DeltaTime);
-
-	updateSandbox(p_DeltaTime);
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -743,38 +741,8 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 
 void GameLogic::loadSandbox()
 {
-	useIK = false;
-
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
-	testWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(1600.0f, 0.0f, 500.0f)));
-	playAnimation(testWitch.lock(), "Run", false);
-
-	circleWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(0.f, 0.f, 0.f)));
-	playAnimation(circleWitch.lock(), "Run", false);
-
-	witchCircleAngle = 0.0f;
-
 	//Event to create a particle effect on local test rounds
-
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
-}
-
-void GameLogic::updateSandbox(float p_DeltaTime)
-{
-	static const Vector3 circleCenter(400.f, 0.f, 1500.f);
-	static const float circleRadius = 800.f;
-	static const float witchAngleSpeed = 0.3f;
-
-	witchCircleAngle += witchAngleSpeed * p_DeltaTime;
-	Vector3 witchCirclePosition(circleCenter);
-	witchCirclePosition.x -= cosf(witchCircleAngle) * circleRadius;
-	witchCirclePosition.z += sinf(witchCircleAngle) * circleRadius;
-	Actor::ptr strongWitch = circleWitch.lock();
-	if (strongWitch)
-	{
-		strongWitch->setPosition(witchCirclePosition);
-		strongWitch->setRotation(Vector3(witchCircleAngle, 0.f, 0.f));
-	}
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
