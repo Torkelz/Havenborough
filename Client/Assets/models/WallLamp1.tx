@@ -1,6 +1,6 @@
 *Header
 #Transparent 0
-#Collidable 0
+#Collidable 1
 #Materials 1
 #MESH WallLamp1
 #Vertices 56
