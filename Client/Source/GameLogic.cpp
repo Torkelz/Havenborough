@@ -13,6 +13,7 @@ GameLogic::GameLogic(void)
 {
 	m_Physics = nullptr;
 	m_ResourceManager = nullptr;
+	m_CurrentCheckPointPosition = Vector3(0.0f, 0.0f, 0.0f);
 }
 
 
@@ -305,6 +306,11 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	look->setLookUp(up);
 }
 
+Vector3 GameLogic::getCurrentCheckpointPosition(void) const
+{
+	return m_CurrentCheckPointPosition;
+}
+
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
@@ -426,14 +432,18 @@ void GameLogic::throwSpell(const char *p_SpellId)
 	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
-		m_Actors->addActor(m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition()));
-		playAnimation(playerActor, "CastSpell", false);
-
-		IConnectionController *conn = m_Network->getConnectionToServer();
-		if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
+		if(!m_Player.getForceMove())
 		{
-			conn->sendThrowSpell(p_SpellId, m_Player.getRightHandPosition(), getPlayerViewForward());
+			m_Actors->addActor(m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition()));
+			playAnimation(playerActor, "CastSpell", false);
+
+			IConnectionController *conn = m_Network->getConnectionToServer();
+			if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
+			{
+				conn->sendThrowSpell(p_SpellId, m_Player.getRightHandPosition(), getPlayerViewForward());
+			}
 		}
+		
 	}
 }
 
@@ -619,6 +629,7 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
+							m_CurrentCheckPointPosition = actor->getPosition();
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
