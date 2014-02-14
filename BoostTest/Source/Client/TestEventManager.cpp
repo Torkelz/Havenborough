@@ -32,6 +32,9 @@ public:
 	bool getValue(){return a;}
 };
 
+/**
+* Example test of event data
+*/
 BOOST_AUTO_TEST_CASE(TestEventDataTest)
 {
 	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
@@ -48,7 +51,11 @@ BOOST_AUTO_TEST_CASE(TestEventDataTest)
 	BOOST_CHECK(Sovereign->directInterventionIsNecessary() == true);
 }
 
-BOOST_AUTO_TEST_CASE(TestEventManagerAddListener)
+
+/**
+* EventManager tests
+*/
+BOOST_AUTO_TEST_CASE(EventManager_AddListener)
 {
 	EventManager testEventManager;
 	EventListenerDelegate delegater(&TestEventManager::testDelegate);
@@ -59,7 +66,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerAddListener)
 	BOOST_CHECK_THROW(testEventManager.addListener(delegater, eventCheck), EventException);
 }
 
-BOOST_AUTO_TEST_CASE(TestEventManagerRemoveListener)
+BOOST_AUTO_TEST_CASE(EventManager_RemoveListener)
 {
 	EventManager testEventManager;
 	EventListenerDelegate delegater(&TestEventManager::testDelegate);
@@ -73,7 +80,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerRemoveListener)
 	BOOST_CHECK(testEventManager.removeListener(delegater, eventCheck) == false);
 }
 
-BOOST_AUTO_TEST_CASE(TestEventManagerTriggerTriggerEvent)
+BOOST_AUTO_TEST_CASE(EventManager_TriggerTriggerEvent)
 {
 	EventManager testEventManager;
 	EventListenerDelegate delegater(&TestEventManager::testDelegate);
@@ -87,7 +94,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerTriggerTriggerEvent)
 	BOOST_CHECK(testEventManager.triggerTriggerEvent(Harbinger) == true);
 }
 
-BOOST_AUTO_TEST_CASE(TestEventManagerQueueEvent)
+BOOST_AUTO_TEST_CASE(EventManager_QueueEvent)
 {
 	EventManager testEventManager;
 	EventListenerDelegate delegater(&TestEventManager::testDelegate);
@@ -100,7 +107,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerQueueEvent)
 	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
 }
 
-BOOST_AUTO_TEST_CASE(TestEventManagerAbortEvent)
+BOOST_AUTO_TEST_CASE(EventManager_AbortEvent)
 {
 	EventManager testEventManager;
 	EventListenerDelegate delegater(&TestEventManager::testDelegate);
@@ -122,7 +129,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerAbortEvent)
 	BOOST_CHECK(testEventManager.abortEvent(eventCheck, false) == true);
 }
 
-BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdate)
+BOOST_AUTO_TEST_CASE(EventManager_TickUpdate)
 {
 	EventManager testEventManager;
 	EventListenerDelegate delegater(&TestEventManager::testDelegate);
@@ -147,7 +154,7 @@ BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdate)
 	BOOST_CHECK(testEventManager.processEvents(processTime) == false);
 }
 
-BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdateWithMemberFunction)
+BOOST_AUTO_TEST_CASE(EventManager_TickUpdateWithMemberFunction)
 {
 	EventManager testEventManager;
 	dummy d;
@@ -161,6 +168,44 @@ BOOST_AUTO_TEST_CASE(TestEventManagerTickUpdateWithMemberFunction)
 	BOOST_CHECK(testEventManager.queueEvent(Harbinger) == true);
 	BOOST_CHECK(testEventManager.processEvents(harvestTime) == true);
 	BOOST_CHECK(d.getValue() == true);
+}
+
+
+/**
+* EventData tests
+*/
+BOOST_AUTO_TEST_CASE(TestEventDataTest)
+{
+	std::shared_ptr<TestEventData> Harbinger(new TestEventData(true));
+
+	BOOST_CHECK(Harbinger->directInterventionIsNecessary() == true);
+
+	std::string name(Harbinger->getName());
+	BOOST_CHECK(name == "TestEvent");
+
+	IEventData::Type eventCheck(0x77dd2b3a);
+	BOOST_CHECK(Harbinger->getEventType() == eventCheck);
+
+	std::shared_ptr<TestEventData> Sovereign = std::static_pointer_cast<TestEventData>(Harbinger->copy());
+	BOOST_CHECK(Sovereign->directInterventionIsNecessary() == true);
+}
+
+BOOST_AUTO_TEST_CASE(LightEventDataTest)
+{
+	Light light;
+	light.position = Vector3(100.f, 10.0f, 10.0f);
+	std::shared_ptr<LightEventData> eventData(new LightEventData(light));
+
+	BOOST_CHECK(eventData->directInterventionIsNecessary() == true);
+
+	std::string type(eventData->getName());
+	BOOST_CHECK(type == "TestEvent");
+
+	IEventData::Type eventCheck(0x748d2b5a);
+	BOOST_CHECK(eventData->getEventType() == eventCheck);
+
+	std::shared_ptr<LightEventData> Sovereign = std::static_pointer_cast<LightEventData>(eventData->copy());
+	BOOST_CHECK(Sovereign->directInterventionIsNecessary() == true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
