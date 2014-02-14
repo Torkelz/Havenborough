@@ -9,8 +9,8 @@ Player::Player(void)
 	m_JumpCount = 0;
     m_JumpCountMax = 2;
     m_JumpTime = 0.f;
-    m_JumpTimeMax = 0.15f;
-	m_JumpForce = 6500.f;
+    m_JumpTimeMax = 0.2f;
+	m_JumpForce = 3500.f;
 	m_IsJumping = false;
 	m_MaxSpeed = 1000.f;
 	m_AccConstant = 600.f;

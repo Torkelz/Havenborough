@@ -5,6 +5,7 @@ SpellInstance::SpellInstance()
 {
 	m_TimeLived = 0.f;
 	m_Collision = false;
+	m_IsColliding = false;
 	m_IsDead = false;
 }
 
@@ -23,6 +24,8 @@ void SpellInstance::update(float p_DeltaTime)
 {
 	m_TimeLived += p_DeltaTime;
 
+	m_IsColliding = false;
+
 	if(m_Collision)
 	{
 		if (m_TimeLived >= m_SpellDefinition->effectTime)
@@ -35,12 +38,13 @@ void SpellInstance::update(float p_DeltaTime)
 
 	if(m_TimeLived >= m_SpellDefinition->maxTimeToLive)
 	{
-		m_Collision = true;
+		collisionHappened();
 	}
 }
 
 void SpellInstance::collisionHappened()
 {
+	m_IsColliding = true;
 	m_Collision = true;
 
 	m_TimeLived = 0.f;
@@ -88,6 +92,11 @@ void SpellInstance::spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitDa
 			break;
 		}
 	}
+}
+
+bool SpellInstance::isColliding() const
+{
+	return m_IsColliding;
 }
 
 void SpellInstance::explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit)
