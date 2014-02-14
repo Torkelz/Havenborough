@@ -95,12 +95,11 @@ HitData Collision::sphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Spher
 {
 	HitData hit = HitData();
 
-    XMVECTOR CDiff, vPos;	// m
-	CDiff = XMLoadFloat4(&p_Sphere2.getPosition());
-	vPos = XMLoadFloat4(&p_Sphere1.getPosition());
-	CDiff = CDiff - vPos;
+	XMVECTOR s1Pos = XMLoadFloat4(&p_Sphere1.getPosition());
+	XMVECTOR s2Pos = XMLoadFloat4(&p_Sphere2.getPosition());
+	XMVECTOR CDiff = s2Pos - s1Pos;
 	
-	float c = XMVector3LengthSq(CDiff).m128_f32[0];	// m^2
+	float c = XMVectorGetX(XMVector3LengthSq(CDiff)); // m^2
 	float rSum = p_Sphere2.getRadius() + p_Sphere1.getRadius();	// m
     float rSumSqr = rSum*rSum;	// m^2
 
@@ -111,15 +110,11 @@ HitData Collision::sphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Spher
 
 		XMFLOAT4 position;	// m
 		
-		XMVECTOR normalized = XMVector4Normalize( XMLoadFloat4(&p_Sphere1.getPosition()) - XMLoadFloat4(&p_Sphere2.getPosition()));
+		XMVECTOR normalized = XMVector4Normalize((s1Pos - s2Pos));
 		XMVECTOR hitPos = normalized  * p_Sphere2.getRadius();	// m
 
 		hit.colPos = XMVECTORToVector4(&hitPos) * 100.f;
-
-		hit.colNorm.x = normalized.m128_f32[0];
-		hit.colNorm.y = normalized.m128_f32[1];
-		hit.colNorm.z = normalized.m128_f32[2];
-		hit.colNorm.w = normalized.m128_f32[3];
+		hit.colNorm = XMVECTORToVector4(&normalized);
 
 		hit.colLength = (rSum - sqrtf(c)) * 100.f;
 
@@ -176,10 +171,9 @@ HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 	//if the sphere is outside of the box, find the corner closest to the sphere center in each axis.
 	//else special case for when the sphere center is inside that axis slab.
 
-	XMFLOAT4 bMin;	// m
-	XMStoreFloat4( &bMin, XMLoadFloat4(&p_AABB.getMin()));
-	XMFLOAT4 bMax;	// m
-	XMStoreFloat4( &bMax, XMLoadFloat4(&p_AABB.getMax()));
+	XMFLOAT4 bMin = p_AABB.getMin();	// m
+	XMFLOAT4 bMax = p_AABB.getMax();	// m
+
 	// x
 	if( spherePos.x <= bMin.x )
 	{
@@ -233,10 +227,10 @@ HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 		hit.colPos.z = dist.z * 100.f;
 		hit.colPos.w = 1.f;
 
-		XMFLOAT4 colPos(dist.x, dist.y, dist.z, 1.f);
-		XMVECTOR tempNorm = XMVector4Normalize( XMLoadFloat4(&p_Sphere.getPosition()) - XMLoadFloat4(&colPos));
-
-
+		//XMFLOAT4 colPos(dist.x, dist.y, dist.z, 1.f);
+		XMVECTOR colPos = XMLoadFloat3(&dist);
+		colPos = XMVectorSetW(colPos, 1.f);
+		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(&spherePos) - colPos);
 
 		hit.colNorm = XMVECTORToVector4(&tempNorm);
 		hit.colLength = (p_Sphere.getRadius() - sqrtf(d)) * 100.f;
@@ -327,18 +321,18 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 
 	hit = HitData();
 
-	XMVECTOR closestPoint, v, spherePos, point;
+	
 
-	spherePos = XMLoadFloat4(&p_Sphere.getPosition());
+	XMVECTOR spherePos = XMLoadFloat4(&p_Sphere.getPosition());
 
 	float distance = FLT_MAX;
-
+	XMVECTOR closestPoint = g_XMZero;
 	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
 	{
 		Triangle triangle = p_Hull.getTriangleInWorldCoord(i);
 
-		point = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(p_Sphere.getPosition(), i));
-		v = point - spherePos;
+		XMVECTOR point = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(p_Sphere.getPosition(), i));
+		XMVECTOR v = point - spherePos;
 
 		float vv = XMVectorGetX(XMVector4Dot(v, v));
 
@@ -636,11 +630,11 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 			p1 = p0 + XMVectorGetX(XMVector3Dot(L, E0));
 			float p2 = p0 + XMVectorGetX(XMVector3Dot(L, E1));
 			R = a.m128_f32[j];
-			p0 = XMMax(p0, XMMax(p1,p2));
-			p1 = XMMin(p0, XMMin(p1,p2));
+			float max = XMMax(p0, XMMax(p1,p2));
+			float min = XMMin(p0, XMMin(p1,p2));
 			
 
-			if(!checkCollision(L, p0, p1, R, overlap, least))
+			if(!checkCollision(L, min, max, R, overlap, least))
 			{
 				miss = true;
 				break;
