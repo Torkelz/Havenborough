@@ -28,21 +28,21 @@ ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(co
 
 	ParticleEffectDefinition::ptr particleSystem;
 
-	particleSystem.reset(new ParticleEffectDefinition()); 
+	particleSystem.reset(new ParticleEffectDefinition());
 
+	particleSystem->particleSystemName = "fire";
 	particleSystem->diffuseTexture = loadTexture(p_Filename, "Particle1.dds");
 	particleSystem->textureResourceName = "Particle1.dds";
-	particleSystem->sampler = m_Sampler;
 	particleSystem->maxParticles = 900;
 	particleSystem->particlesPerSec = 900;
 	particleSystem->maxLife = 0.6f;
 	particleSystem->maxLifeDeviation = 0.2f;
 	particleSystem->size = DirectX::XMFLOAT2(8.f, 8.f);
-	particleSystem->particleSystemName = "fire";
 	particleSystem->particlePositionDeviation = 10.f;
 	particleSystem->velocityDeviation = 40.f;
 	particleSystem->particleColorDeviation = DirectX::XMFLOAT4(0.2f, 0.15f, 0.0f, 0.2f);
 
+	particleSystem->sampler = m_Sampler;
 	return particleSystem;
 }
 
