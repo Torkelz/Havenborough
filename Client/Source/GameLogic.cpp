@@ -465,9 +465,9 @@ void GameLogic::handleNetwork()
 					else
 					{
 #ifdef _DEBUG
-						std::string levelFileName("../Bin/assets/levels/Level2.btxl");
+						std::string levelFileName("assets/levels/Level2.btxl");
 #else
-						std::string levelFileName("../Bin/assets/levels/Level1.2.1.btxl");
+						std::string levelFileName("assets/levels/Level1.2.1.btxl");
 #endif
 						std::ifstream file(levelFileName, std::istream::binary);
 						m_Level.loadLevel(file, m_Actors);
