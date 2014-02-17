@@ -1,6 +1,8 @@
 #include "ModelBinaryLoader.h"
-#include <DirectXMath.h>
 
+#include "GraphicsExceptions.h"
+
+#include <DirectXMath.h>
 
 ModelBinaryLoader::ModelBinaryLoader()
 {
@@ -116,7 +118,7 @@ void ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 	std::ifstream input(p_FilePath, std::istream::in | std::istream::binary);
 	if(!input)
 	{
-		throw std::exception((std::string("File could not be opened: ") + p_FilePath).c_str());
+		throw GraphicsException("File could not be opened: " + p_FilePath, __LINE__, __FILE__);
 	}
 	m_FileHeader = readHeader(&input);
 	m_Material = readMaterial(m_FileHeader.m_NumMaterial,&input);
