@@ -34,6 +34,7 @@ void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<
 	m_Network = p_Network;
 	m_Actor = p_Actor;
 	
+
 	Actor::ptr strActor = m_Actor.lock();
 	if (strActor)
 	{
@@ -73,7 +74,7 @@ void Player::update(float p_DeltaTime)
 	{
 		jump(p_DeltaTime);
 
-		if (!m_Physics->getBodyInAir(getBody()) || m_IsJumping)
+		if (!m_Physics->getBodyInAir(getBody(0)) || m_IsJumping)
 		{
 			move(p_DeltaTime);
 		}
@@ -141,6 +142,14 @@ void Player::update(float p_DeltaTime)
 			look->setLookUp(Vector3(0, 1, 0));
 		}
 	}
+	Vector3 left = getFootPosition("L_Foot");
+	Vector3 right = getFootPosition("R_Foot");
+	left.y = left.y + 10.f;
+	right.y = right.y + 10.f;
+	m_Physics->setBodyPosition(getBody(2), left);
+	m_Physics->setBodyPosition(getBody(3), right);
+
+	m_Physics->setBodyVelocity(getBody(1), m_Physics->getBodyVelocity(getBody(0)));
 }
 
 void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation)
@@ -156,7 +165,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		fwd /= len;
 
 		m_ForceMove = true;
-		m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
+		m_Physics->setBodyVelocity(getBody(0), Vector3(0,0,0));
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
 		aa.lock()->playClimbAnimation(p_ClimbId);
@@ -195,7 +204,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		float edgeY = p_EdgeOrientation.y;
 		XMStoreFloat3(&p_EdgeOrientation, XMVector3Normalize(XMVectorSet(p_EdgeOrientation.x, p_EdgeOrientation.y, p_EdgeOrientation.z, 0)));
 
-		XMVECTOR vReachPointCenter = Vector3ToXMVECTOR(&m_Physics->getBodyPosition(getBody()), 0.f) - XMLoadFloat3(&p_BoxPos);
+		XMVECTOR vReachPointCenter = Vector3ToXMVECTOR(&m_Physics->getBodyPosition(getBody(0)), 0.f) - XMLoadFloat3(&p_BoxPos);
 		
 		if(!(p_EdgeOrientation.x * side.m128_f32[0] >= 0.f && p_EdgeOrientation.z * side.m128_f32[2] >= 0.f))
 			p_EdgeOrientation = XMFLOAT3(-p_EdgeOrientation.x, -p_EdgeOrientation.y, -p_EdgeOrientation.z);
@@ -266,7 +275,7 @@ void Player::setPosition(const XMFLOAT3 &p_Position)
 {
 	Vector3 kneePos = p_Position;
 	kneePos.y += getKneeHeight();
-	m_Physics->setBodyPosition(getBody(), kneePos);
+	m_Physics->setBodyPosition(getBody(0), kneePos);
 }
 
 XMFLOAT3 Player::getPosition(void) const
@@ -299,6 +308,21 @@ XMFLOAT3 Player::getEyePosition() const
 	return eyePosition;
 }
 
+XMFLOAT3 Player::getFootPosition(std::string p_Joint) const
+{
+	Actor::ptr actor = m_Actor.lock();
+	if (actor)
+	{
+		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+		if (comp)
+		{
+			return comp->getJointPos(p_Joint);
+		}
+	}
+
+	return getPosition();
+}
+
 XMFLOAT3 Player::getRightHandPosition() const
 {
 	Actor::ptr actor = m_Actor.lock();
@@ -328,7 +352,7 @@ XMFLOAT3 Player::getCollisionCenter() const
 		return Vector3(0.f, 0.f, 0.f);
 	}
 
-	return m_Physics->getBodyPosition(getBody());
+	return m_Physics->getBodyPosition(getBody(0));
 }
 
 float Player::getHeight() const
@@ -356,9 +380,9 @@ void Player::setHeight(float p_Height)
 	m_Height = p_Height;
 }
 
-BodyHandle Player::getBody(void) const
+BodyHandle Player::getBody(int p_Index) const
 {
-	return m_Actor.lock()->getBodyHandles()[0];
+	return m_Actor.lock()->getBodyHandles()[p_Index];
 }
 
 bool Player::getForceMove(void)
@@ -368,7 +392,7 @@ bool Player::getForceMove(void)
 
 Vector3 Player::getVelocity() const
 {
-	return m_Physics->getBodyVelocity(getBody());
+	return m_Physics->getBodyVelocity(getBody(0));
 }
 
 Vector3 Player::getDirection() const
@@ -378,7 +402,7 @@ Vector3 Player::getDirection() const
 
 void Player::setJump(void)
 {
-	if(m_Physics->getBodyInAir(getBody()))
+	if(m_Physics->getBodyInAir(getBody(0)))
 	{
 		m_JumpCount++;
 	}
@@ -388,15 +412,17 @@ void Player::setJump(void)
 		//m_JumpCount++;
 		m_IsJumping = true;
 
-		Vector3 temp = m_Physics->getBodyVelocity(getBody());
+		Vector3 temp = m_Physics->getBodyVelocity(getBody(0));
 		temp.y = 0.f;
 
 		temp.x = m_DirectionX * m_MaxSpeed / (m_JumpCount + 1);
 		temp.z = m_DirectionZ * m_MaxSpeed / (m_JumpCount + 1);
 
-		m_Physics->setBodyVelocity(getBody(), temp);
+		m_Physics->setBodyVelocity(getBody(0), temp);
+		m_Physics->setBodyVelocity(getBody(1), temp);
 
-		m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
+		m_Physics->applyForce(getBody(0), Vector3(0.f, m_JumpForce, 0.f));
+		m_Physics->applyForce(getBody(1), Vector3(0.f, m_JumpForce, 0.f));
 	}
 }
 
@@ -442,17 +468,17 @@ void Player::jump(float dt)
 		m_JumpTime += dt;
 		if(m_JumpTime > m_JumpTimeMax)
 		{
-			m_Physics->applyForce(getBody(), Vector3(0.f, -m_JumpForce, 0.f));
+			m_Physics->applyForce(getBody(0), Vector3(0.f, -m_JumpForce, 0.f));
 			m_IsJumping = false;
 			m_JumpTime = 0.f;
 		}
 	}
-	if(!m_IsJumping && !m_Physics->getBodyInAir(getBody()))
+	if(!m_IsJumping && !m_Physics->getBodyInAir(getBody(0)))
     {
 		m_JumpCount = 0;
     }
 
-	if(m_Physics->getBodyLanded(getBody()))
+	if(m_Physics->getBodyLanded(getBody(0)))
 	{
 		//m_JumpCount = 0;
 	}
@@ -460,7 +486,7 @@ void Player::jump(float dt)
 
 void Player::move(float p_DeltaTime)
 {
-	XMFLOAT3 velocity = m_Physics->getBodyVelocity(getBody());
+	XMFLOAT3 velocity = m_Physics->getBodyVelocity(getBody(0));
 	XMVECTOR currentVelocity = XMLoadFloat3(&velocity);	// cm/s
 
 	XMFLOAT3 maxVelocity(m_DirectionX * m_MaxSpeed, 0.f, m_DirectionZ * m_MaxSpeed);	// cm/s
@@ -491,7 +517,7 @@ void Player::move(float p_DeltaTime)
 	XMFLOAT3 fForceDiff;
 	XMStoreFloat3(&fForceDiff, forceDiffImpulse);
 
-	m_Physics->applyImpulse(getBody(), fForceDiff);
+	m_Physics->applyImpulse(getBody(0), fForceDiff);
 
 	m_DirectionX = m_DirectionZ = 0.f;
 }

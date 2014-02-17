@@ -174,18 +174,40 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "WITCH");
 	printer.CloseElement();
+
+	//Leg sphere
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", 20.f);
+	printer.PushAttribute("Mass", 68.f);
+	printer.PushAttribute("CollisionResponse", true);
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 20.f, 0.f));
+	printer.CloseElement();
+
+	//Body OBB
 	printer.OpenElement("OBBPhysics");
 	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "Halfsize", Vector3(30.f, 80.f, 30.f));
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 80.f, 0.f)); 
+	printer.PushAttribute("Mass", 0.f);
+	pushVector(printer, "Halfsize", Vector3(30.f, 55.f, 30.f));
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 115.f, 0.f)); 
 	printer.CloseElement();
-	//printer.OpenElement("SpherePhysics");
-	//printer.PushAttribute("Immovable", false);
-	//printer.PushAttribute("Radius", 50.f);
-	//printer.PushAttribute("Mass", 68.f);
-	//pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
-	//printer.CloseElement();
+
+	//Left foot sphere
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", 10.f);
+	printer.PushAttribute("Mass", 68.f);
+	printer.PushAttribute("CollisionResponse", false);
+	printer.CloseElement();
+
+	//Right foot sphere
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", 10.f);
+	printer.PushAttribute("Mass", 68.f);
+	printer.PushAttribute("CollisionResponse", false);
+	printer.CloseElement();
+
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
 	printer.PushAttribute("Strength", 0.5f);

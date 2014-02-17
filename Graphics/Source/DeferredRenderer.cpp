@@ -207,8 +207,8 @@ void DeferredRenderer::renderDeferred()
 	{
 		updateConstantBuffer();
 		renderGeometry();
-		renderSSAO();
-		blurSSAO();
+		//renderSSAO();
+		//blurSSAO();
 		renderLighting();
 	}
 	m_RenderSkyDome = false;

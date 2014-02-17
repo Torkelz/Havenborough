@@ -70,7 +70,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 		return;
 	}
 
-	m_Player.update(p_DeltaTime);
 
 	if(m_Physics->getHitDataSize() > 0)
 	{
@@ -127,6 +126,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	}
 	
 	m_Actors->onUpdate(p_DeltaTime);
+	m_Player.update(p_DeltaTime);
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -141,7 +141,7 @@ Vector2 GameLogic::getPlayerDirection() const
 
 BodyHandle GameLogic::getPlayerBodyHandle() const
 {
-	return m_Player.getBody();
+	return m_Player.getBody(0);
 }
 
 Vector3 GameLogic::getPlayerEyePosition() const
@@ -322,7 +322,7 @@ void GameLogic::playLocalLevel()
 
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
 #ifdef _DEBUG
-	std::ifstream input("assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level1.2.1.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);

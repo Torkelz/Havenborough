@@ -221,6 +221,7 @@ private:
 	float m_Radius;
 	float m_Mass;
 	bool m_Immovable;
+	bool m_CollisionResponse;
 
 public:
 	~CollisionSphereComponent() override
@@ -258,11 +259,16 @@ public:
 
 		m_Mass = 0.f;
 		p_Data->QueryAttribute("Mass", &m_Mass);
+
+		m_CollisionResponse = true;
+		p_Data->QueryBoolAttribute("CollisionResponse", &m_CollisionResponse);
 	}
 
 	void postInit() override
 	{
 		m_Body = m_Physics->createSphere(m_Mass, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Radius);
+		m_Physics->setBodyCollisionResponse(m_Body, m_CollisionResponse);
+
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -271,6 +277,7 @@ public:
 		p_Printer.PushAttribute("Immovable", m_Immovable);
 		p_Printer.PushAttribute("Radius", m_Radius);
 		p_Printer.PushAttribute("Mass", m_Mass);
+		p_Printer.PushAttribute("CollisionResponse", m_CollisionResponse);
 		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
 		p_Printer.CloseElement();
 	}

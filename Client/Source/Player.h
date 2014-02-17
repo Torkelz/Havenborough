@@ -98,6 +98,11 @@ public:
 	/**
 	 *
 	 */
+	DirectX::XMFLOAT3 getFootPosition(std::string p_Joint) const;
+
+	/**
+	 *
+	 */
 	DirectX::XMFLOAT3 getRightHandPosition() const;
 
 	/**
@@ -133,7 +138,7 @@ public:
 	* Gets the body handle of the player.
 	* @return the body handle
 	*/
-	virtual BodyHandle getBody(void) const;
+	virtual BodyHandle getBody(int p_Index) const;
 
 	/**
 	* Gets if the player is currently forced to change position.

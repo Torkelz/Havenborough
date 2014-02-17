@@ -141,14 +141,17 @@ void GameScene::render()
 
 	if(m_RenderDebugBV)
 	{
-		for(auto &object : *m_GameLogic->getObjects())
-		{
-			for (BodyHandle body : object.second->getBodyHandles())
-			{
-				renderBoundingVolume(body);
-			}
-		}
+		//for(auto &object : *m_GameLogic->getObjects())
+		//{
+		//	for (BodyHandle body : object.second->getBodyHandles())
+		//	{
+		//		//renderBoundingVolume(body);
+		//	}
+		//}
 		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
+		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle() + 1);
+		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle() + 2);
+		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle() + 3);
 	}
 
 	for(auto &light : m_Lights)
