@@ -775,7 +775,7 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 void GameLogic::loadSandbox()
 {
 	//Event to create a particle effect on local test rounds
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
+	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
