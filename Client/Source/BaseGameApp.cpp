@@ -112,6 +112,8 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('V', "resetLayerAnimation");
 
 	translator->addMouseButtonMapping(InputTranslator::MouseButton::LEFT, "spellCast");
+	translator->addMouseButtonMapping(InputTranslator::MouseButton::RIGHT, "ClimbEdge");
+
 	
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");

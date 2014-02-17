@@ -277,6 +277,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->throwSpell("TestSpell");
 	}
+	else if(p_Action == "ClimbEdge")
+	{
+		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
+	}
 }
 
 /*########## TEST FUNCTIONS ##########*/
