@@ -367,9 +367,14 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	float currentJointAngle = XMScalarACos(XMVector3Dot(-nmlStartToJoint, nmlJointToEnd).m128_f32[0]);
 	float diffJointAngle = wantedJointAngle - currentJointAngle;
 
-	// Asume all "elbows" has the positive Z axis as hinge axis.
-	//static const XMFLOAT4 rotationAxisData(0.f, -1.f, 0.f, 0.f);
-	XMVECTOR rotationAxis = XMLoadFloat3(&p_Group.m_ElbowHingeAxis);//XMLoadFloat4(&rotationAxisData);
+	// TEST CONSTRAINTS
+	if( diffJointAngle < 0.0f)
+		diffJointAngle  = 0.0f;
+	else if(diffJointAngle > 180.0f)
+		diffJointAngle = 180.f;
+
+	// Use the loaded hinge axis.
+	XMVECTOR rotationAxis = XMLoadFloat3(&p_Group.m_ElbowHingeAxis);
 	XMMATRIX rotation = XMMatrixRotationAxis(rotationAxis, diffJointAngle);
 
 	// Rotate the local transform of the "elbow" joint
@@ -399,6 +404,9 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	{
 		return;
 	}
+
+	// TEST CONSTRAINTS
+	localAxis.m128_f32[2] = fabs(localAxis.m128_f32[2]);
 
 	localAxis = XMVector3Normalize(localAxis);
 	float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
