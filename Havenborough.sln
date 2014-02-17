@@ -21,8 +21,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BinaryConverter", "BinaryCo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{8C7B8D02-7172-4AE2-A0DF-2E5A5FC9F23F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Launcher", "Launcher\Launcher.csproj", "{2434459F-B49A-4F7A-86E5-30FB96DA0269}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,16 +149,6 @@ Global
 		{8C7B8D02-7172-4AE2-A0DF-2E5A5FC9F23F}.Release|Mixed Platforms.Deploy.0 = Release|Win32
 		{8C7B8D02-7172-4AE2-A0DF-2E5A5FC9F23F}.Release|Win32.ActiveCfg = Release|Win32
 		{8C7B8D02-7172-4AE2-A0DF-2E5A5FC9F23F}.Release|Win32.Build.0 = Release|Win32
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{2434459F-B49A-4F7A-86E5-30FB96DA0269}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
