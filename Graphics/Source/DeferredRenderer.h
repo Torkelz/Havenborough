@@ -50,6 +50,11 @@ private:
 	bool						m_RenderSkyDome;
 	SkyDome						*m_SkyDome;
 
+	ID3D11ShaderResourceView*	m_DepthMapSRV;
+	ID3D11DepthStencilView*		m_DepthMapDSV;
+	UINT						m_Width;
+	UINT						m_Height;
+
 public:
 	/**
 	* Constructor. 
@@ -81,6 +86,13 @@ public:
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
 		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
+
+	/*
+	* Creates the shadow map Texture2D desc, depthMap, depthStencilViewDesc, ShaderResourceViewDesc.
+	*
+	*/
+	void initializeShadowMap(UINT width, UINT height);
+
 
 
 	/*
@@ -120,10 +132,10 @@ public:
 	void updateCamera(DirectX::XMFLOAT3 p_Position);
 
 private:
-	void renderGeometry();
+	void renderGeometry(ID3D11DepthStencilView*, unsigned int, ID3D11RenderTargetView* rtv[]);
 	void renderSSAO(void);
 	void blurSSAO(void);
-	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*,bool p_HorizontalBlur);
+	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*, bool p_HorizontalBlur);
 	void updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur);
 
 
@@ -137,7 +149,7 @@ private:
 	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, std::vector<Light> *p_Lights);
 
 
-	void updateConstantBuffer();
+	void updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix);
 	void updateLightBuffer();
 
 

@@ -42,6 +42,7 @@ DeferredRenderer::DeferredRenderer()
 
 
 	m_Sampler["Default"] = nullptr;
+	m_Sampler["ShadowMap"] = nullptr;
 	m_Shader["PointLight"] = nullptr;
 	m_Shader["SpotLight"] = nullptr;
 	m_Shader["DirectionalLight"] = nullptr;
@@ -76,6 +77,10 @@ DeferredRenderer::DeferredRenderer()
 
 
 	m_SkyDome = nullptr;
+
+	m_DepthMapDSV = nullptr;
+	m_DepthMapSRV= nullptr;
+
 }
 
 
@@ -126,6 +131,9 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_RELEASE(m_RasterState);
 	SAFE_RELEASE(m_DepthState);
 	SAFE_DELETE(m_SkyDome);
+
+	SAFE_RELEASE(m_DepthMapDSV);
+	SAFE_RELEASE(m_DepthMapSRV);
 }
 
 
@@ -171,6 +179,9 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_ScreenHeight = (float)p_ScreenHeight;
 
 
+	initializeShadowMap(m_ScreenWidth, m_ScreenHeight); //size of Shadow Map
+
+
 	createRenderTargets(desc);
 
 
@@ -195,6 +206,45 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	createBuffers();
 }
 
+void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
+{
+	m_Height = height;
+	m_Width = width;
+
+	D3D11_TEXTURE2D_DESC texDesc;
+    texDesc.Width     = m_Width;
+    texDesc.Height    = m_Height;
+    texDesc.MipLevels = 1;
+    texDesc.ArraySize = 1;
+    texDesc.Format    = DXGI_FORMAT_R32_TYPELESS;
+    texDesc.SampleDesc.Count   = 1;  
+    texDesc.SampleDesc.Quality = 0;  
+    texDesc.Usage          = D3D11_USAGE_DEFAULT;
+    texDesc.BindFlags      = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+    texDesc.CPUAccessFlags = 0; 
+    texDesc.MiscFlags      = 0;
+
+	ID3D11Texture2D* depthMap = 0;
+	HRESULT hr = m_Device->CreateTexture2D(&texDesc, 0, &depthMap);
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	dsvDesc.Flags = 0;
+    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    dsvDesc.Texture2D.MipSlice = 0;
+    hr = m_Device->CreateDepthStencilView(depthMap, &dsvDesc, &m_DepthMapDSV);
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+   hr =  m_Device->CreateShaderResourceView(depthMap, &srvDesc, &m_DepthMapSRV);
+	
+    // View saves a reference to the texture so we can release our reference.
+    SAFE_RELEASE(depthMap);
+}
+
 
 void DeferredRenderer::renderDeferred()
 {
@@ -205,24 +255,42 @@ void DeferredRenderer::renderDeferred()
 	// Update constant buffer and render
 	if(m_Objects.size() > 0)
 	{
-		updateConstantBuffer();
-		renderGeometry();
+		m_DeviceContext->ClearDepthStencilView(m_DepthMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		
+		unsigned int nrRT = 3;
+		ID3D11RenderTargetView *smrtv[] = {0,0,0};
+		
+		XMFLOAT4X4 lightview;
+		XMStoreFloat4x4(&lightview, XMMatrixTranspose(XMMatrixLookToLH(XMLoadFloat3(&m_CameraPosition) + XMVectorSet(0, 1500, 0, 0), XMVectorSet(0, -1, 0, 0), XMVectorSet(-1, 0, 0, 0))));
+		
+		XMFLOAT4X4 lightproj;
+		XMStoreFloat4x4(&lightproj, XMMatrixTranspose(XMMatrixOrthographicLH(8000, 8000, 1, 10000)));
+
+
+		updateConstantBuffer(lightview, lightproj);
+		renderGeometry(m_DepthMapDSV, nrRT, smrtv);
+
+		ID3D11RenderTargetView *rtv[] = {
+		m_RT[IGraphics::RenderTarget::DIFFUSE], m_RT[IGraphics::RenderTarget::NORMAL], m_RT[IGraphics::RenderTarget::W_POSITION]
+		};
+
+		updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
+		renderGeometry(m_DepthStencilView, nrRT, rtv);
 		renderSSAO();
 		blurSSAO();
 		renderLighting();
+
+		m_Objects.clear();
+		
 	}
 	m_RenderSkyDome = false;
 }
 
 
-void DeferredRenderer::renderGeometry()
+void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[])
 {
-	unsigned int nrRT = 3;
-	ID3D11RenderTargetView *rtv[] = {
-		m_RT[IGraphics::RenderTarget::DIFFUSE], m_RT[IGraphics::RenderTarget::NORMAL], m_RT[IGraphics::RenderTarget::W_POSITION]
-	};
 	// Set the render targets.
-	m_DeviceContext->OMSetRenderTargets(nrRT, rtv, m_DepthStencilView);
+	m_DeviceContext->OMSetRenderTargets(nrRT, rtv, p_DepthStencilView);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
@@ -371,15 +439,16 @@ void DeferredRenderer::renderLighting()
 
 
 	// Collect the shader resources in an array and create a clear array.
-	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"]};
-	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0};
+	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_DepthMapSRV};
+	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0,0};
 
 
 	// Set texture sampler.
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
-	m_DeviceContext->PSSetShaderResources(0, 4, srvs);
+	m_DeviceContext->PSSetShaderResources(0, 5, srvs);
 
+	m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler["ShadowMap"]);
 
 	////Select the third render target[3]
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView); 
@@ -401,16 +470,28 @@ void DeferredRenderer::renderLighting()
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//		Render DirectionalLights
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL],0);
+
+	XMFLOAT4X4 lightview;
+	XMStoreFloat4x4(&lightview, XMMatrixTranspose(XMMatrixLookToLH(XMLoadFloat3(&m_CameraPosition) + XMVectorSet(0, 500, 0, 0), XMVectorSet(0, -1, 0, 0), XMVectorSet(-1, 0, 0, 0))));
+	XMFLOAT4X4 lightproj;
+	XMStoreFloat4x4(&lightproj, XMMatrixTranspose(XMMatrixOrthographicLH(8000, 8000, 1, 10000)));
+	updateConstantBuffer(lightview, lightproj);
+
+
+
+
 	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
-
+	updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
 
 	if(m_SkyDome && m_RenderSkyDome)
 		m_SkyDome->RenderSkyDome(m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView, m_Buffer["DefaultConstant"]);
 
+	
+	m_DeviceContext->PSSetSamplers(0, 0,0 );
 
-	m_DeviceContext->PSSetShaderResources(0, 4, nullsrvs);
+	m_DeviceContext->PSSetShaderResources(0, 5, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 	m_DeviceContext->RSSetState(previousRasterState);
 	m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
@@ -461,11 +542,11 @@ void DeferredRenderer::updateCamera(DirectX::XMFLOAT3 p_Position)
 	m_CameraPosition = p_Position;
 }
 
-void DeferredRenderer::updateConstantBuffer()
+void DeferredRenderer::updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix)
 {
 	cBuffer cb;
-	cb.view = *m_ViewMatrix;
-	cb.proj = *m_ProjectionMatrix;
+	cb.view = p_ViewMatrix;
+	cb.proj = p_ProjMatrix;
 	cb.campos = m_CameraPosition;
 	m_DeviceContext->UpdateSubresource(m_Buffer["DefaultConstant"]->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
 }
@@ -761,6 +842,15 @@ void DeferredRenderer::createSamplerState()
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_Blur"]);
+
+	// Create Shadow map texture sampler
+	sd.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = sd.BorderColor[3] = 0.f;
+	sd.ComparisonFunc = D3D11_COMPARISON_LESS;
+	m_Device->CreateSamplerState(&sd, &m_Sampler["ShadowMap"]);
 }
 
 
@@ -921,6 +1011,9 @@ void DeferredRenderer::createLightStates()
 	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
 	rdesc.FillMode = D3D11_FILL_SOLID;
 	rdesc.CullMode = D3D11_CULL_FRONT;
+	/*rdesc.DepthBias = 1000000;
+	rdesc.DepthBiasClamp = 0.0f;
+	rdesc.SlopeScaledDepthBias = 1.0f;*/
 	m_Device->CreateRasterizerState(&rdesc,&m_RasterState);
 }
 
@@ -1116,7 +1209,6 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 				animatedOrSingle.push_back(std::move(m_Objects.at(current)));
 		}
 	}
-	m_Objects.clear();
 }
 
 
