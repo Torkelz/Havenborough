@@ -92,7 +92,6 @@ void Player::update(float p_DeltaTime)
 		if(m_ForceMoveY.size() < 2 && m_ForceMoveZ.size() < 2)
 		{
 			m_ForceMove = false;
-			m_Climb = false;
 			m_CurrentForceMoveTime = 0.f;
 			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 			aa.lock()->resetClimbState();
