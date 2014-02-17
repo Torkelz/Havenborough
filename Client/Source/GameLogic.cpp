@@ -414,6 +414,11 @@ void GameLogic::throwSpell(const char *p_SpellId)
 	}
 }
 
+void GameLogic::setPlayerClimb(bool p_State)
+{
+	m_Player.setClimbing(p_State);
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)

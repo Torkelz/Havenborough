@@ -88,8 +88,15 @@ public:
 	void joinGame(const std::string& p_LevelName);
 
 	void throwSpell(const char *p_SpellId);
-	void releaseSpellInstance(int p_SpellId);
-	///
+	//void releaseSpellInstance(int p_SpellId);
+
+	/**
+	 * Activates the ability for the player to climb edges.
+	 *
+	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
+	 */
+	void setPlayerClimb(bool p_State);
+	
 private:
 	void handleNetwork();
 	
