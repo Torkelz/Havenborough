@@ -8,13 +8,18 @@
 class Settings
 {
 public:
+	struct MouseStruct
+	{
+		std::string movement;
+		std::string position;
+		Axis axis;
+	};
 	typedef std::vector<std::pair<std::string, unsigned short>> vectorpairKeyMap;
-	typedef std::vector<std::pair<std::string, Axis>> vectorpairmouseMap;
 	typedef std::vector<std::pair<std::string, MouseButton>> vectorpairMouseButtonMap;
 
 private:
 	vectorpairKeyMap m_KeyMap;
-	vectorpairmouseMap m_MouseMap;
+	std::vector<MouseStruct> m_MouseMap;
 	vectorpairMouseButtonMap m_MouseButtonMap;
 public:
 	Settings(void);
@@ -23,7 +28,7 @@ public:
 	void initialize(std::string p_FilePath);
 
 	const vectorpairKeyMap &getKeyMap() const;
-	const vectorpairmouseMap &getMouseMap() const;
+	const std::vector<MouseStruct> &getMouseMap() const;
 	const vectorpairMouseButtonMap &getMouseButtonMap() const;
 private:
 	void loadControls(tinyxml2::XMLElement *p_Element);

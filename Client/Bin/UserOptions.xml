@@ -27,11 +27,11 @@
 		<KeyMap command="resetAnimation" key="N"/>
 		<KeyMap command="layerAnimation" key="M"/>
 		<KeyMap command="resetLayerAnimation" key="V"/>
-		<MouseMap command="mouseMoveHori" key="Vertical"/>
-		<MouseMap command="mouseMoveVert" key="Horizontal"/>
-		<MouseButtonMap command="spellCast" key="Left"/>
-		<MouseButtonMap command="ClimbEdge" key="Right"/>
-		<MouseButtonMap command="gogogogo" key="Left"/>
-		<MouseButtonMap command="rollMe!" key="Middle"/>
+		<MouseMap command="mouseMoveHori" position="mousePosHori" movement="Horizontal"/>
+		<MouseMap command="mouseMoveVert" position="mousePosVert" movement="Vertical"/>
+		<MouseButtonMap command="spellCast" button="Left"/>
+		<MouseButtonMap command="ClimbEdge" button="Right"/>
+		<MouseButtonMap command="gogogogo" button="Left"/>
+		<MouseButtonMap command="rollMe!" button="Middle"/>
 	</Controls>
 </UserOptions>

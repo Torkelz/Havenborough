@@ -64,18 +64,22 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 		}
 		else if(elementName == "MouseMap")
 		{
-			std::string keyValue(element->Attribute("key"));
+			MouseStruct m;
+			m.movement = std::string(commandValue);
+			m.position = (element->Attribute("position"));
+			std::string keyValue(element->Attribute("movement"));
 			Axis value;
 			if(keyValue == "Vertical")
 				value = Axis::VERTICAL;
 			else if(keyValue == "Horizontal")
 				value = Axis::HORIZONTAL;
 
-			m_MouseMap.push_back(make_pair(std::string(commandValue), value));
+			m.axis = value;
+			m_MouseMap.push_back(m);
 		}
 		else if(elementName == "MouseButtonMap")
 		{
-			std::string keyValue(element->Attribute("key"));
+			std::string keyValue(element->Attribute("button"));
 			MouseButton value;
 			if(keyValue == "Left")
 				value = MouseButton::LEFT;
@@ -93,18 +97,17 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 	}
 }
 
-const std::vector<std::pair<std::string, unsigned short>> & Settings::getKeyMap() const
+const Settings::vectorpairKeyMap &Settings::getKeyMap() const
 {
 	return m_KeyMap;
 }
 
-const std::vector<std::pair<std::string, Axis>> & Settings::getMouseMap() const
+const std::vector<Settings::MouseStruct> &Settings::getMouseMap() const
 {
 	return m_MouseMap;
 }
 
-const std::vector<std::pair<std::string, MouseButton>> & Settings::getMouseButtonMap() const
+const Settings::vectorpairMouseButtonMap &Settings::getMouseButtonMap() const
 {
 	return m_MouseButtonMap;
 }
-

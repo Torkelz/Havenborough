@@ -84,50 +84,22 @@ void BaseGameApp::init()
 	Settings settings;
 	settings.initialize("UserOptions.xml");
 
+	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
+
+	//Adding the loaded keymaps to the translator
 	const Settings::vectorpairKeyMap keys = settings.getKeyMap();
 	for(auto k : keys)
 		translator->addKeyboardMapping(k.second, k.first);
 
-	//TODO: This should be loaded from file
-	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
-	//translator->addKeyboardMapping(VK_ESCAPE, "back");
-	//translator->addKeyboardMapping(VK_ESCAPE, "leaveGame");
-	//translator->addKeyboardMapping('W', "moveForward");
-	//translator->addKeyboardMapping('S', "moveBackward");
-	//translator->addKeyboardMapping('A', "moveLeft");
-	//translator->addKeyboardMapping('D', "moveRight");
-	//translator->addKeyboardMapping('Z', "changeViewN");
-	//translator->addKeyboardMapping('X', "changeViewP");
-	//translator->addKeyboardMapping('I', "toggleIK");
-	//translator->addKeyboardMapping(VK_SPACE, "jump");
-	//translator->addKeyboardMapping('C', "connectToServer");
-	//translator->addKeyboardMapping('T', "joinTestLevel");
-	//translator->addKeyboardMapping('Y', "joinServerLevel");
-	//translator->addKeyboardMapping('J', "playLocalTest");
+	//Adding the loaded mousemaps to the translator
+	const std::vector<Settings::MouseStruct> mousekeys = settings.getMouseMap();
+	for(auto k : mousekeys)
+		translator->addMouseMapping(k.axis, k.position, k.movement);
 
-	//translator->addKeyboardMapping('J', "changeSceneP");
-	//translator->addKeyboardMapping('K', "pauseScene");
-	//translator->addKeyboardMapping('L', "changeSceneN");
-	//translator->addKeyboardMapping('9', "switchBVDraw");
-	//translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
-
-	//translator->addKeyboardMapping('O', "thirdPersonCamera");
-	//translator->addKeyboardMapping('P', "flipCamera");
-
-	//translator->addKeyboardMapping('B', "blendAnimation");
-	//translator->addKeyboardMapping('N', "resetAnimation");
-	//translator->addKeyboardMapping('M', "layerAnimation");
-	//translator->addKeyboardMapping('V', "resetLayerAnimation");
-
-	translator->addMouseButtonMapping(MouseButton::LEFT, "spellCast");
-	translator->addMouseButtonMapping(MouseButton::RIGHT, "ClimbEdge");
-
-	
-	translator->addMouseMapping(Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
-	translator->addMouseMapping(Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
-
-	translator->addMouseButtonMapping(MouseButton::LEFT, "gogogogo");
-	translator->addMouseButtonMapping(MouseButton::MIDDLE, "rollMe!");
+	//Adding the loaded mousebuttonmaps to the translator
+	const Settings::vectorpairMouseButtonMap mousebuttonKeys = settings.getMouseButtonMap();
+	for(auto k : mousebuttonKeys)
+		translator->addMouseButtonMapping(k.second, k.first);
 
 	m_InputQueue.init(std::move(translator));
 
