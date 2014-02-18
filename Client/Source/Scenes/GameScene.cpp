@@ -261,6 +261,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->throwSpell("TestSpell");
 	}
+	else if(p_Action == "ClimbEdge")
+	{
+		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
+	}
 }
 
 /*########## TEST FUNCTIONS ##########*/
@@ -536,8 +540,8 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), 0.5f, 0.f, "Arrow1");
-	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), 0.0f, "MANA_BAR");
+	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
+	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 
 	static const std::string preloadedModelsTransparent[] =
 	{

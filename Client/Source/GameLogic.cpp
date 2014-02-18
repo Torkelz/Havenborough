@@ -127,6 +127,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	
 	m_Actors->onUpdate(p_DeltaTime);
 	m_Player.update(p_DeltaTime);
+	m_Player.updateIKJoints();
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -414,6 +415,11 @@ void GameLogic::throwSpell(const char *p_SpellId)
 	}
 }
 
+void GameLogic::setPlayerClimb(bool p_State)
+{
+	m_Player.setClimbing(p_State);
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)
@@ -465,9 +471,9 @@ void GameLogic::handleNetwork()
 					else
 					{
 #ifdef _DEBUG
-						std::string levelFileName("../Bin/assets/levels/Level2.btxl");
+						std::string levelFileName("assets/levels/Level2.btxl");
 #else
-						std::string levelFileName("../Bin/assets/levels/Level1.2.1.btxl");
+						std::string levelFileName("assets/levels/Level1.2.1.btxl");
 #endif
 						std::ifstream file(levelFileName, std::istream::binary);
 						m_Level.loadLevel(file, m_Actors);

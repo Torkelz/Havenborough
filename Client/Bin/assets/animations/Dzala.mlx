@@ -304,7 +304,7 @@ b1	L_UpperArm
 b2	L_LowerArm
 b3	L_Hand
 ikx	0.0
-iky	-1.0
+iky	1.0
 ikz	0.0
 
 *IKgroup
@@ -313,7 +313,7 @@ b1	R_UpperArm
 b2	R_LowerArm
 b3	R_Hand
 ikx	0.0
-iky	-1.0
+iky	1.0
 ikz	0.0
 
 *Path

@@ -22,7 +22,7 @@ private:
 	float m_DirectionZ;	// (-1 - +1)
 	DirectX::XMFLOAT3 m_GroundNormal;
 
-	bool m_ForceMove;
+	bool m_ForceMove, m_Climb;
 	float m_CurrentForceMoveTime;
 	std::vector<DirectX::XMFLOAT2> m_ForceMoveY;
 	std::vector<DirectX::XMFLOAT2> m_ForceMoveZ;
@@ -201,6 +201,13 @@ public:
 	 * @param p_Position the position where the player will spawn after going to far away
 	 */
 	void setSpawnPosition(Vector3 p_Position);
+
+	/**
+	 * Activates the ability for the player to climb edges.
+	 *
+	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
+	 */
+	void setClimbing(bool p_State);
 
 private:
 	void jump(float dt);

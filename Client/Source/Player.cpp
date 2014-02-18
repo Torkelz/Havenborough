@@ -21,6 +21,7 @@ Player::Player(void)
 	m_GroundNormal = XMFLOAT3(0.f, 1.f, 0.f);
 	m_Height = 170.f;
 	m_EyeHeight = 165.f;
+	m_Climb = false;
 }
 
 Player::~Player(void)
@@ -154,7 +155,7 @@ void Player::update(float p_DeltaTime)
 
 void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation)
 {
-	if(!m_ForceMove)
+	if(!m_ForceMove && m_Climb)
 	{
 		XMVECTOR fwd = XMVectorSet(p_CollisionNormal.x, 0.f,p_CollisionNormal.z,0);
 		XMVECTOR len = XMVector3Length(fwd);
@@ -459,6 +460,11 @@ void Player::setGroundNormal(DirectX::XMFLOAT3 p_Normal)
 void Player::setSpawnPosition(Vector3 p_Position)
 {
 	m_LastSafePosition = p_Position;
+}
+
+void Player::setClimbing(bool p_State)
+{
+	m_Climb = p_State;
 }
 
 void Player::jump(float dt)

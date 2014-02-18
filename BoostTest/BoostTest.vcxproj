@@ -191,6 +191,7 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Common\TestResouceTranslator.cpp" />
     <ClCompile Include="Source\Common\TestResourceManager.cpp" />
     <ClCompile Include="Source\Graphics\TestSkyDome.cpp" />
+    <ClCompile Include="Source\TestTweakSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
