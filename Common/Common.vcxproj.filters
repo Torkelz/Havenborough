@@ -117,6 +117,9 @@
     <ClInclude Include="Source\ActorList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\TweakSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp">
@@ -165,6 +168,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\ActorList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TweakSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

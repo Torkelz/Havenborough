@@ -257,6 +257,9 @@
     <ClCompile Include="Source\Client\TestWindow.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
+    <ClCompile Include="Source\TestTweakSettings.cpp">
+      <Filter>TestSettings</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
@@ -308,6 +311,9 @@
     </Filter>
     <Filter Include="TestCommon\CommonImport">
       <UniqueIdentifier>{5c55504a-3816-4c29-a087-aff44ad3b38a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestSettings">
+      <UniqueIdentifier>{2dc209c3-062e-4658-9a32-d9a66735df2c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
