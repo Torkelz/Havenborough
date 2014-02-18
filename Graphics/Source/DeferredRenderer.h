@@ -55,6 +55,12 @@ private:
 	UINT						m_Width;
 	UINT						m_Height;
 
+	float						m_ViewHW;
+	DirectX::XMFLOAT4X4			m_LightView;
+	DirectX::XMFLOAT4X4			m_LightProjection;
+	D3D11_VIEWPORT				m_LightViewport;
+
+
 public:
 	/**
 	* Constructor. 
@@ -169,4 +175,6 @@ private:
 	void renderObject(Renderable &p_Object);
 	void SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels );
 	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects );
+
+	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 };

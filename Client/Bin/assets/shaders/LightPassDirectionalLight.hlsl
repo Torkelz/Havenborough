@@ -7,12 +7,12 @@ Texture2D diffuseTex : register (t2);
 Texture2D SSAO_Tex	 : register (t3);
 Texture2D ShadowMap  : register (t4);
 
-SamplerState shadowMapSampler : register (s0);
+SamplerComparisonState shadowMapSampler : register (s0);
 
 
 float3 CalcLighting( float3 normal, float3 position, float3 diffuseAlbedo, float3 specularAlbedo,
 	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor,	float3 ssao, float percentage);
-float CalcShadowFactor(float2 uv);
+float CalcShadowFactor(float3 uv);
 
 cbuffer cb : register(b0)
 {
@@ -65,7 +65,7 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 
 
 	float3 lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
-		specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, CalcShadowFactor(lightPos.xy));
+		specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, CalcShadowFactor(lightPos.xyz));
 
 	return float4( lighting, 1.0f );
 }
@@ -82,7 +82,12 @@ float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3
 	L = mul(view, float4(L, 0.f)).xyz;
 
 	float nDotL = saturate( dot( normal, L ) );
-	float3 diffuse = nDotL * lightColor * diffuseAlbedo * pow(ssao, 10) * percentage;
+	float3 diffuse = nDotL * lightColor * diffuseAlbedo * pow(ssao, 10);
+
+	float4 pvpos = mul(projection, mul(view, float4(position,1.f)));
+
+	//if(pvpos.z >= percentage)
+		diffuse *= percentage;
 
 	// Calculate the specular term
 	float3 V = normalize(cameraPos - position);
@@ -97,10 +102,10 @@ float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3
 }
 
 
-float CalcShadowFactor(float2 uv)
+float CalcShadowFactor(float3 uv)
 {
-	const float dx = 1.f / 1080.f;
-	const float dy = 1.f / 720.f;
+	const float dx = 1.f / (1080.f);
+	const float dy = 1.f / (720.f);
 
 	float percentLit = 0.0f;
 	const float2 offsets[9] = 
@@ -110,10 +115,15 @@ float CalcShadowFactor(float2 uv)
 		float2(-dx,  +dy), float2(0.0f,  +dy), float2(dx,  +dy)
 	};
 
+	//float bias = 0.005;
+	//float visibility = 1.0;
+	//if( texture2D( shadowmap
+	//
+
 	[unroll]
 	for(int i = 0; i < 9; ++i)
 	{
-		percentLit += ShadowMap.Sample(shadowMapSampler, uv + offsets[i]).x;
+		percentLit += ShadowMap.SampleCmpLevelZero(shadowMapSampler, uv.xy + offsets[i], uv.z).x;
 		//percentLit += ShadowMap.Load(int3(uv + offsets[i],0)).x;
 	}
 	return percentLit /= 9.f;
