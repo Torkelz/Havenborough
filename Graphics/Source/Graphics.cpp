@@ -892,6 +892,16 @@ void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_Rele
 	m_ReleaseModelTextureUserdata = p_Userdata;
 }
 
+void Graphics::enableVsync(bool p_State)
+{
+	m_VSyncEnabled = p_State;
+}
+
+void Graphics::enableSSAO(bool p_State)
+{
+	m_DeferredRender->enableSSAO(p_State);
+}
+
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
 {
 	D3D11_VIEWPORT viewport;

@@ -6,6 +6,7 @@
 
 Settings::Settings(void)
 {
+	m_Resolution = Vector2(1080,720);
 }
 
 
@@ -28,8 +29,9 @@ void Settings::initialize(std::string p_FilePath)
 	for(element = root->FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
 	{
 		std::string elementName = element->Value();
-		if(elementName == "Options")
+		if(elementName == "Settings")
 		{
+			loadSettings(element);
 		}
 		else if(elementName == "Controls")
 		{
@@ -97,6 +99,25 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 	}
 }
 
+void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
+{
+	tinyxml2::XMLElement *element = nullptr;
+	for(element = p_Element->FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
+	{
+		std::string elementName = element->Value();
+
+		if(elementName == "Resolution")
+		{
+			m_Resolution.x = element->FloatAttribute("width");
+			m_Resolution.y = element->FloatAttribute("height");
+		}
+		else
+		{
+			m_SettingsEnabled[elementName] = element->BoolAttribute("enabled");
+		}
+	}
+}
+
 const Settings::vectorpairKeyMap &Settings::getKeyMap() const
 {
 	return m_KeyMap;
@@ -110,4 +131,21 @@ const std::vector<Settings::MouseStruct> &Settings::getMouseMap() const
 const Settings::vectorpairMouseButtonMap &Settings::getMouseButtonMap() const
 {
 	return m_MouseButtonMap;
+}
+
+const bool Settings::getIsSettingEnabled(std::string p_SettingName) const
+{
+	if (m_SettingsEnabled.count(p_SettingName) > 0)
+	{
+		return m_SettingsEnabled.at(p_SettingName);
+	} 
+	else
+	{
+		throw ClientException("The setting with name: " + p_SettingName + ", was not found.", __LINE__, __FILE__);
+	}
+}
+
+const Vector2 Settings::getResolution() const
+{
+	return m_Resolution;
 }

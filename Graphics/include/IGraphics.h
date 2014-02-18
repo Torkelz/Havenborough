@@ -475,6 +475,20 @@ public:
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(RenderTarget p_RenderTarget) = 0;
+	
+	/*
+	 * Enables or disables Vsync depending on parameter.
+	 *
+	 * @param p_State, true enables Vsync. false disables Vsync.
+	 */
+	virtual void enableVsync(bool p_State) = 0;
+
+	/*
+	 * Enables or disables SSAO depending on parameter.
+	 *
+	 * @param p_State, true enables SSAO. false disables SSAO.
+	 */
+	virtual void enableSSAO(bool p_State) = 0;
 private:
 
 	/**

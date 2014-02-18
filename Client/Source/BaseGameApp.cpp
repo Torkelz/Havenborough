@@ -18,19 +18,24 @@ BaseGameApp::BaseGameApp()
 void BaseGameApp::init()
 {
 	Logger::log(Logger::Level::INFO, "Initializing game app");
+	Settings settings;
+	settings.initialize("UserOptions.xml");
+
 
 	m_GameLogic = nullptr;
 
 	m_MemUpdateDelay = 0.1f;
 	m_TimeToNextMemUpdate = 0.f;
 	
-	m_Window.init(getGameTitle(), getWindowSize());
-
+	m_Window.init(getGameTitle(), Vector2ToXMFLOAT2(&settings.getResolution()));
+	
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
-	//TODO: Need some input setting variable to handle fullscreen.
-	bool fullscreen = false;
-	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, fullscreen);
+
+	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, settings.getIsSettingEnabled("Fullscreen"));
+
+	m_Graphics->enableSSAO(settings.getIsSettingEnabled("SSAO"));
+	m_Graphics->enableVsync(settings.getIsSettingEnabled("VSync"));
 
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1,
 		std::placeholders::_2, std::placeholders::_3));
@@ -80,9 +85,6 @@ void BaseGameApp::init()
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
-	
-	Settings settings;
-	settings.initialize("UserOptions.xml");
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
 

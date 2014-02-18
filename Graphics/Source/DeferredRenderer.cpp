@@ -74,8 +74,9 @@ DeferredRenderer::DeferredRenderer()
 	m_BlendState = nullptr;
 	m_BlendState2 = nullptr;
 
-
 	m_SkyDome = nullptr;
+
+	m_SSAO = false;
 }
 
 
@@ -207,8 +208,11 @@ void DeferredRenderer::renderDeferred()
 	{
 		updateConstantBuffer();
 		renderGeometry();
-		renderSSAO();
-		blurSSAO();
+		if(m_SSAO)
+		{
+			renderSSAO();
+			blurSSAO();
+		}
 		renderLighting();
 	}
 	m_RenderSkyDome = false;
@@ -459,6 +463,11 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(IGraphics::RenderTarget i)
 void DeferredRenderer::updateCamera(DirectX::XMFLOAT3 p_Position)
 {
 	m_CameraPosition = p_Position;
+}
+
+void DeferredRenderer::enableSSAO(bool p_State)
+{
+	m_SSAO = p_State;
 }
 
 void DeferredRenderer::updateConstantBuffer()

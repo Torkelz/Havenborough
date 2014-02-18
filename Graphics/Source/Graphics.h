@@ -175,7 +175,8 @@ public:
 
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
 	void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void* p_Userdata) override;
-
+	void enableVsync(bool p_State) override;
+	void enableSSAO(bool p_State) override;
 private:
 	void shutdown(void) override;
 	bool release2D_Model(Object2D_ID p_ObjectID);
