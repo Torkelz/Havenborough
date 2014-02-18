@@ -8,7 +8,7 @@
 
 *Materials
 Material: MatVege1
-DiffuseMap: Vege1.dds
+DiffuseMap: Vege1_COLOR.dds
 NormalMap: Default_NRM.dds
 SpecularMap: Default_SPEC.dds
 

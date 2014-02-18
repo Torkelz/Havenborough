@@ -20,6 +20,7 @@ private:
 	float m_TimeLived; //in sec
 	bool m_Collision;
 	bool m_IsDead;
+	bool m_IsColliding;
 	Vector3 m_Velocity;
 
 public:
@@ -87,6 +88,8 @@ public:
 	 * @param p_Hit all the hitdata about the colliding bodyhandle
 	 */
 	void spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit);
+
+	bool isColliding() const;
 
 private:
 	void explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit);

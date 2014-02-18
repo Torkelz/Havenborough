@@ -542,18 +542,20 @@ void Graphics::updateParticles(float p_DeltaTime)
 	}
 }
 
-int Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation, const char *p_TextureId)
+int Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
+	const char *p_TextureId)
 {
 	ModelDefinition *model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
 	
 	m_2D_Objects.insert(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(model))));
 	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
+	set2D_ObjectScale(m_Next2D_ObjectId, p_Scale);
 	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
 
 	return m_Next2D_ObjectId++;
 }
 
-int Graphics::create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation, const char *p_ModelDefinition)
+int Graphics::create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation, const char *p_ModelDefinition)
 {
 	ModelDefinition *defintion;
 	for(auto &model : m_ModelList)
@@ -802,7 +804,7 @@ void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position)
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale)
+void Graphics::set2D_ObjectScale(Object2D_ID p_Instance, Vector3 p_Scale)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
 		m_2D_Objects.at(p_Instance).scale = p_Scale;
@@ -844,7 +846,7 @@ void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 	XMVECTOR flatForward = XMVectorSetY(forwardVec, 0.f);
 	XMVECTOR flatUp = XMVectorSetY(upVec, 0.f);
 	
-	pos += flatForward * 0.f + forwardVec * 20.f + flatUp * 0.f;
+	pos += flatForward * 0.f + forwardVec * 10.f + flatUp * 0.f;
 	XMStoreFloat3(&m_Eye, pos);
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));

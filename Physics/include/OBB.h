@@ -28,7 +28,7 @@ public:
 	/**
 	* Constructor
 	* @param p_CenterPos the center position of the box
-	* @param p_Extents the box half lengths
+	* @param p_Extents the box positive half lengths
 	*/
 	OBB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Extents)
 	{
@@ -37,10 +37,10 @@ public:
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
 
-		m_Extents.x = fabs(p_Extents.x);
-		m_Extents.y = fabs(p_Extents.y);
-		m_Extents.z = fabs(p_Extents.z);
-		m_Extents.w = 1.f;
+		m_Extents.x = p_Extents.x;
+		m_Extents.y = p_Extents.y;
+		m_Extents.z = p_Extents.z;
+		m_Extents.w = 0.f;
 
 		calculateCorners();
 

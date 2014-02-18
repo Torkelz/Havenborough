@@ -90,7 +90,6 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('D', "moveRight");
 	translator->addKeyboardMapping('Z', "changeViewN");
 	translator->addKeyboardMapping('X', "changeViewP");
-	translator->addKeyboardMapping('I', "toggleIK");
 	translator->addKeyboardMapping(VK_SPACE, "jump");
 	translator->addKeyboardMapping('C', "connectToServer");
 	translator->addKeyboardMapping('T', "joinTestLevel");
@@ -106,12 +105,9 @@ void BaseGameApp::init()
 	translator->addKeyboardMapping('O', "thirdPersonCamera");
 	translator->addKeyboardMapping('P', "flipCamera");
 
-	translator->addKeyboardMapping('B', "blendAnimation");
-	translator->addKeyboardMapping('N', "resetAnimation");
-	translator->addKeyboardMapping('M', "layerAnimation");
-	translator->addKeyboardMapping('V', "resetLayerAnimation");
-
 	translator->addMouseButtonMapping(InputTranslator::MouseButton::LEFT, "spellCast");
+	translator->addMouseButtonMapping(InputTranslator::MouseButton::RIGHT, "ClimbEdge");
+
 	
 	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
 	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");

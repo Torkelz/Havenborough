@@ -1,0 +1,119 @@
+*ObjectHeader*
+#numObj: 23
+
+#MESH: House4
+#Translation: 366.280212 339.716064 435.84787
+#Rotation: 0 0 0
+#Scale: 10 10 88.968536
+
+#MESH: House4
+#Translation: 275.059082 348.626892 480.26181
+#Rotation: 1.570796 0 0
+#Scale: 10 10 183.007217
+
+#MESH: House4
+#Translation: 0 375.959198 -386.996735
+#Rotation: 1.570796 0 0
+#Scale: 10 10 1131.824951
+
+#MESH: House4
+#Translation: 183.696518 339.716064 437.643829
+#Rotation: 0 0 0
+#Scale: 10 10 86.001846
+
+#MESH: House4
+#Translation: 0 375.959198 364.889496
+#Rotation: 1.570796 0 0
+#Scale: 10 10 1131.825073
+
+#MESH: House4
+#Translation: 559.144836 375.959198 -13.133942
+#Rotation: 0 0 0
+#Scale: 10 10 755.465027
+
+#MESH: House4
+#Translation: -559.144836 375.959198 -11.675756
+#Rotation: 0 0 0
+#Scale: 10 10 755.465027
+
+#MESH: House4
+#Translation: -442.437561 509.446899 -246.042007
+#Rotation: 0 0 0
+#Scale: 10 10 100.834793
+
+#MESH: House4
+#Translation: -342.498413 509.446899 -245.321182
+#Rotation: 0 0 0
+#Scale: 10 10 100.834793
+
+#MESH: House4
+#Translation: -253.334747 459.516205 -246.880295
+#Rotation: 0 0 0
+#Scale: 10 10 81.149826
+
+#MESH: House4
+#Translation: -392.995544 509.446899 -196.155365
+#Rotation: 1.570796 0 0
+#Scale: 10 10 100.834793
+
+#MESH: House4
+#Translation: -391.92984 509.446899 -296.094543
+#Rotation: 1.570796 0 0
+#Scale: 10 10 100.834793
+
+#MESH: House4
+#Translation: -293.384399 459.516205 -286.711304
+#Rotation: 1.570796 0 0
+#Scale: 10 10 82.856453
+
+#MESH: House4
+#Translation: -293.310059 459.516205 -205.53862
+#Rotation: 1.570796 0 0
+#Scale: 10 10 82.856453
+
+#MESH: House4
+#Translation: -299.297302 349.219269 -511.252991
+#Rotation: 1.570796 0 0
+#Scale: 10 10 183.007217
+
+#MESH: House4
+#Translation: 275.151886 349.44928 -511.252991
+#Rotation: 1.570796 0 0
+#Scale: 10 10 183.007217
+
+#MESH: House4
+#Translation: 366.280243 340.525818 -465.850952
+#Rotation: 0 0 0
+#Scale: 10 10 96.333633
+
+#MESH: House4
+#Translation: 183.648285 343.562317 -463.277527
+#Rotation: 0 0 0
+#Scale: 10 10 96.333633
+
+#MESH: House4
+#Translation: -208.060089 340.801483 -463.94809
+#Rotation: 0 0 0
+#Scale: 10 10 96.333633
+
+#MESH: House4
+#Translation: -390.643799 340.801483 -463.389099
+#Rotation: 0 0 0
+#Scale: 10 10 96.333633
+
+#MESH: House4
+#Translation: -349.215942 340.657776 437.233398
+#Rotation: 0 0 0
+#Scale: 10 10 86.001846
+
+#MESH: House4
+#Translation: -257.549835 350.227814 480.261841
+#Rotation: 1.570796 0 0
+#Scale: 10 10 183.007217
+
+#MESH: House4
+#Translation: -166.632248 340.657776 435.966461
+#Rotation: 0 0 0
+#Scale: 10 10 88.968536
+
+

@@ -60,6 +60,9 @@ private:
 	};
 	std::vector<SpellBinding> m_Spells;
 
+	//DEBUG
+	IGraphics::InstanceId zane;
+
 public: 
 	GameScene();
 	~GameScene();
