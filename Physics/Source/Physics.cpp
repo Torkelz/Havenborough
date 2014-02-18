@@ -222,9 +222,11 @@ void Physics::addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3
 		return;
 
 	Vector3 convPosition = p_CenterPos * 0.01f;	// m
+	Vector3 convExtents = p_Extents * 0.01f;
 	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f); // m
+	XMFLOAT4 tempExt	= Vector3ToXMFLOAT4(&convExtents, 0.f);	// m
 
-	OBB* obb = new OBB(tempPosition, Vector3ToXMFLOAT4(&p_Extents, 0.f));
+	OBB* obb = new OBB(tempPosition, tempExt);
 
 	body->addVolume(BoundingVolume::ptr(obb));
 }
@@ -501,7 +503,8 @@ void Physics::setBodyVolumePosition( BodyHandle p_Body, unsigned p_Volume, Vecto
 	if(body == nullptr)
 		return;
 
-	body->setVolumePosition(p_Volume, Vector3ToXMVECTOR(&p_Position, 1.f));
+	Vector3 convPosition = p_Position * 0.01f;	// m
+	body->setVolumePosition(p_Volume, Vector3ToXMVECTOR(&convPosition, 1.f));
 }
 
 

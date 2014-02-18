@@ -143,14 +143,19 @@ void Player::update(float p_DeltaTime)
 			look->setLookUp(Vector3(0, 1, 0));
 		}
 	}
-	Vector3 left = getFootPosition("L_Foot");
-	Vector3 right = getFootPosition("R_Foot");
-	left.y = left.y + 10.f;
-	right.y = right.y + 10.f;
-	m_Physics->setBodyVolumePosition(getBody(), 2, left);
-	m_Physics->setBodyVolumePosition(getBody(), 3, right);
 
-	//m_Physics->setBodyVelocity(getBody(), m_Physics->getBodyVelocity(getBody()));
+
+	std::shared_ptr<PhysicsInterface> foot = m_Actor.lock()->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+	if (foot)
+	{
+		Vector3 left = getFootPosition("L_Foot");
+		left.y = left.y + 10.f;
+		m_Physics->setBodyVolumePosition(foot->getBodyHandle(), 2, left);
+			
+		Vector3 right = getFootPosition("R_Foot");
+		right.y = right.y + 10.f;
+		m_Physics->setBodyVolumePosition(foot->getBodyHandle(), 3, right);
+	}
 }
 
 void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation)

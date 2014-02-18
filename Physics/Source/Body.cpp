@@ -154,10 +154,10 @@ void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
 
 	XMStoreFloat4x4(&tempTrans, matTrans);
 
-	m_Volumes[0]->updatePosition(tempTrans);
+	///m_Volumes[0]->updatePosition(tempTrans);
 
-	//for(auto &v : m_Volumes)
-	//	v->updatePosition(tempTrans);
+	for(auto &v : m_Volumes)
+		v->updatePosition(tempTrans);
 }
 
 XMFLOAT4 Body::calculateAcceleration()

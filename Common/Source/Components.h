@@ -646,7 +646,6 @@ public:
 		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphere, m_RadiusFoot);
 		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphere, m_RadiusFoot);
 
-		//m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
 		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
 		m_Physics->setBodyScale(m_Body, m_Scale);
 	}
@@ -670,17 +669,6 @@ public:
 		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositionSphere);
 		Vector3 rotation = m_Owner->getRotation();
 		m_Physics->setBodyRotation(m_Body, rotation);
-
-		/*using namespace DirectX;
-		XMFLOAT4X4 rotMat = m_Owner->getWorldMatrix();
-		XMMATRIX mRotMat = XMMatrixTranspose(XMLoadFloat4x4(&rotMat));
-		XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(m_OffsetPositionBox));
-		pos = XMVectorSetW(pos, 0.f);
-		XMVECTOR rotPos = XMVector4Transform(pos, mRotMat);
-		XMFLOAT3 fRotPos;
-		XMStoreFloat3(&fRotPos, rotPos);
-
-		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - fRotPos);*/
 	}
 
 	void setPosition(Vector3 p_Position) override
