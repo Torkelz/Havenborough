@@ -2,7 +2,7 @@
 #include "ClientExceptions.h"
 
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <Windows.h> //For VK_* defines
 
 Settings::Settings(void)
 {

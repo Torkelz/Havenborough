@@ -257,6 +257,10 @@
     <ClCompile Include="Source\Client\TestWindow.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\Settings.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TestSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
