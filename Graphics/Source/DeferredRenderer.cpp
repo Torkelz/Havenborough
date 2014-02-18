@@ -1,8 +1,12 @@
 #include "DeferredRenderer.h"
-#include "VRAMInfo.h"
+
 #include "ModelBinaryLoader.h"
-#include "WrapperFactory.h"
 #include "Utilities/MemoryUtil.h"
+#include "VRAMInfo.h"
+#include "WrapperFactory.h"
+
+#include <TweakSettings.h>
+
 #include <algorithm>	// std::sort
 #include <iterator>     // std::back_inserter
 //#include <random>
@@ -193,6 +197,41 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	createBlendStates();
 	createLightStates();
 	createBuffers();
+
+
+	TweakSettings* settings = TweakSettings::getInstance();
+
+	settings->setSetting("ssao.radius", 5.f);
+	settings->setListener("ssao.radius", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
+
+	settings->setSetting("ssao.epsilon", 4.f);
+	settings->setListener("ssao.epsilon", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
+
+	settings->setSetting("ssao.fadeEnd", 10.f);
+	settings->setListener("ssao.fadeEnd", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
+
+	settings->setSetting("ssao.fadeStart", 2.f);
+	settings->setListener("ssao.fadeStart", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
 }
 
 
@@ -360,6 +399,33 @@ void DeferredRenderer::updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur)
 		NULL, NULL);
 }
 
+void DeferredRenderer::updateSSAO_VarConstantBuffer()
+{
+	cSSAO_Buffer ssaoBuffer;
+	float aspect = m_ScreenWidth / m_ScreenHeight;
+	float halfHeight = m_FarZ * std::tanf(0.5f * m_FOV);
+	float halfWidth = aspect * halfHeight;
+
+	ssaoBuffer.corners[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
+	buildSSAO_OffsetVectors(ssaoBuffer);
+
+	ssaoBuffer.occlusionRadius	= 5.0f;
+	ssaoBuffer.surfaceEpsilon	= 4.0f;
+	ssaoBuffer.occlusionFadeEnd	= 10.0f;
+	ssaoBuffer.occlusionFadeStart = 2.0f;
+
+	TweakSettings* settings = TweakSettings::getInstance();
+	settings->querySetting("ssao.radius", ssaoBuffer.occlusionRadius);
+	settings->querySetting("ssao.epsilon", ssaoBuffer.surfaceEpsilon);
+	settings->querySetting("ssao.fadeEnd", ssaoBuffer.occlusionFadeEnd);
+	settings->querySetting("ssao.fadeStart", ssaoBuffer.occlusionFadeStart);
+
+	m_DeviceContext->UpdateSubresource(m_Buffer["SSAOConstant"]->getBufferPointer(),
+		NULL, nullptr, &ssaoBuffer, NULL, NULL);
+}
 
 void DeferredRenderer::renderLighting()
 {
@@ -617,32 +683,15 @@ void DeferredRenderer::createBuffers()
 	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_MaxLightsPerLightInstance);
 
 
-	cSSAO_Buffer ssaoBuffer;
-	float aspect = m_ScreenWidth / m_ScreenHeight;
-	float halfHeight = m_FarZ * std::tanf(0.5f * m_FOV);
-	float halfWidth = aspect * halfHeight;
-
-
-	ssaoBuffer.corners[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
-	buildSSAO_OffsetVectors(ssaoBuffer);
-	ssaoBuffer.occlusionRadius	= 5.0f;
-	ssaoBuffer.surfaceEpsilon	= 4.0f;
-	ssaoBuffer.occlusionFadeEnd	= 10.0f;
-	ssaoBuffer.occlusionFadeStart = 2.0f;
-
-
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
-	cbdesc.initData = &ssaoBuffer;
+	cbdesc.initData = nullptr;
 	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
-	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
-
+	cbdesc.usage = Buffer::Usage::DEFAULT;
 
 	m_Buffer["SSAOConstant"] = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cSSAO_Buffer));
 
+	updateSSAO_VarConstantBuffer();
 
 	cSSAO_BlurBuffer ssaoBlurBuffer;
 	ssaoBlurBuffer.horizontalBlur = true;

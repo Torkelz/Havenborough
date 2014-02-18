@@ -1,7 +1,9 @@
 #include "GameScene.h"
+
 #include <Components.h>
 #include <EventData.h>
 #include "Logger.h"
+#include <TweakSettings.h>
 
 using namespace DirectX;
 
@@ -57,6 +59,10 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
+
+	TweakSettings* tweakSettings = TweakSettings::getInstance();
+	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
+
 	return true;
 }
 

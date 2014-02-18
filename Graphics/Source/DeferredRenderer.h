@@ -125,6 +125,7 @@ private:
 	void blurSSAO(void);
 	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*,bool p_HorizontalBlur);
 	void updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur);
+	void updateSSAO_VarConstantBuffer();
 
 
 	void clearRenderTargets(unsigned int nrRT);

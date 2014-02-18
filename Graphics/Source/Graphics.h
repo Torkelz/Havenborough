@@ -171,6 +171,7 @@ public:
 	void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
+	void setTweaker(TweakSettings* p_Tweaker) override;
 	void setRenderTarget(IGraphics::RenderTarget p_RenderTarget) override;
 
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
