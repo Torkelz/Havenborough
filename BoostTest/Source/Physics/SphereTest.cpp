@@ -44,10 +44,10 @@ BOOST_AUTO_TEST_CASE(updatePositionAbsolute)
 {
 	Sphere* sphere = new Sphere(5.f, DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f));
 
-	DirectX::XMFLOAT4 temp = DirectX::XMFLOAT4(0.f, 10.f, 0.f, 1.f);
+	DirectX::XMVECTOR temp = DirectX::XMVectorSet(0.f, 10.f, 0.f, 1.f);
 
-	sphere->updatePosition(temp);
-	sphere->updatePosition(temp);
+	sphere->setPosition(temp);
+	sphere->setPosition(temp);
 
 	BOOST_CHECK_EQUAL(sphere->getPosition().x, 0.f);
 	BOOST_CHECK_EQUAL(sphere->getPosition().y, 10.f);

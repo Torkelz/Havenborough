@@ -77,16 +77,16 @@ public:
 
 		DirectX::XMStoreFloat4(&m_Position, vCenterPos);
 								  
-		m_Sphere.updatePosition(m_Position);
+		m_Sphere.setPosition(vCenterPos);
 	}
 	/**
 	* Changes ther center position for the OBB.
 	* @param p_newPosition, new center pos for the OBB.
 	*/
-	void setPosition(DirectX::XMVECTOR const p_newPosition)
+	void setPosition(DirectX::XMVECTOR const &p_newPosition) override
 	{
 		DirectX::XMStoreFloat4(&m_Position, p_newPosition);
-		m_Sphere.updatePosition(m_Position);
+		m_Sphere.setPosition(p_newPosition);
 	}
 	/**
 	* Gets the normalized local axes of the OBB
@@ -141,7 +141,7 @@ public:
 	* Sets the rotation matrix of the OBB and rotates its Axes accordingly.
 	* @param p_Rotation matrix to rotate the axes with.
 	*/
-	void setRotation(const DirectX::XMMATRIX &p_Rot)
+	void setRotation(DirectX::XMMATRIX const &p_Rot) override
 	{
         XMStoreFloat4x4(&m_Axes, p_Rot);
 

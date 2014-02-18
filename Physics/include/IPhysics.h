@@ -128,7 +128,15 @@ public:
 	 * @param p_Body are what body to work with
 	 * @param p_Position is a vector3 with all the position coordinates in cm
 	 */
-	virtual void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) = 0;
+	virtual void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) = 0;	
+	
+	/**
+	 * Edit the position of the target body's volume.
+	 *
+	 * @param p_Body are what body to work with
+	 * @param p_Position is a vector3 with all the position coordinates in cm
+	 */
+	virtual void setBodyVolumePosition(BodyHandle p_Body, unsigned p_Volume, Vector3 p_Position) = 0;
 
 	/**
 	 * Sets the velocity for a body.
@@ -239,22 +247,6 @@ public:
 	virtual void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) = 0;
 
 	/**
-	 * Manipulate a body with hitdata. Causing collision response.
-	 *
-	 * @param p_Body the body which should react to collision.
-	 * @param p_Hit, the information that is needed for handling a collision.
-	 */
-
-
-	/**
-	 * Return the bounding volume from the body.
-	 *
-	 * @param p_Body are what body to get the data from
-	 * @return a BoundingVolum pointer
-	 */
-	//virtual BoundingVolume* getVolume(BodyHandle p_Body) = 0;
-
-	/**
 	 * Callback for logging.
 	 *
 	 * @param p_Level log priority level. Higher is more important
@@ -274,14 +266,23 @@ public:
 	 * Get a made up triangle from a body so that its boundingvolume can be drawn.
 	 * @param p_Body are what body to work with
 	 * @param p_TriangleIndex, which triangle to draw. Works similar to a index buffer.
+	 * @param p_BoundingVolume, which bounding volume in the body.
 	 */
-	virtual Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) = 0;
+	virtual Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex, int p_BoundingVolume) = 0;
 	/**
 	 * Returns the number of triangles from the body's boundingvolume.
 	 * @param p_BodyHandle what body to work with.
+	 * @param p_BoundingVolume, which bounding volume in the body.
 	 * @return the number of triangles.
 	 */
-	virtual unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle) = 0;
+	virtual unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_BoundingVolume) = 0;
+
+	/**
+	 * Returns the number of bounding volumes that exzist in the body.
+	 * @param p_BodyHandle what body to work with.
+	 * @return the number of volumes in the specdified body.
+	 */
+	virtual unsigned int getNrOfVolumesInBody(BodyHandle p_BodyHandle) = 0; 
 
 	virtual Vector3 getBodyOrientation(BodyHandle p_Body) = 0;
 };

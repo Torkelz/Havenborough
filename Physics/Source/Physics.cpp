@@ -203,19 +203,32 @@ BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_Center
 
 void Physics::addSphereToBody(BodyHandle p_BodyHandle, Vector3 p_Position, float p_Radius)
 {
+	Body* body = findBody(p_BodyHandle);
+	if (body == nullptr)
+		return;
+
 	Vector3 convPosition = p_Position * 0.01f;	// m
 	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f); // m
 
 	Sphere* sphere = new Sphere(p_Radius / 100.f, tempPosition);
 
-	m_Bodies[p_BodyHandle].addVolume(BoundingVolume::ptr(sphere));
-
+	body->addVolume(BoundingVolume::ptr(sphere));
 }
 
 void Physics::addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) 
 {
+	Body* body = findBody(p_BodyHandle);
+	if (body == nullptr)
+		return;
 
+	Vector3 convPosition = p_CenterPos * 0.01f;	// m
+	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f); // m
+
+	OBB* obb = new OBB(tempPosition, Vector3ToXMFLOAT4(&p_Extents, 0.f));
+
+	body->addVolume(BoundingVolume::ptr(obb));
 }
+
 BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 {
 	std::vector<BVLoader::BoundingVolume> tempBV;
@@ -481,6 +494,17 @@ void Physics::setBodyPosition( BodyHandle p_Body, Vector3 p_Position)
 
 	body->setPosition(tempPosition);
 }
+
+void Physics::setBodyVolumePosition( BodyHandle p_Body, unsigned p_Volume, Vector3 p_Position)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return;
+
+	body->setVolumePosition(p_Volume, Vector3ToXMVECTOR(&p_Position, 1.f));
+}
+
+
 void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 {
 	Body* body = findBody(p_Body);
@@ -521,14 +545,14 @@ void Physics::setLogFunction(clientLogCallback_t p_LogCallback)
 	PhysicsLogger::setLogFunction(p_LogCallback);
 }
 
-Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex)
+Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex, int p_BoundingVolume)
 {
 	Body* body = findBody(p_BodyHandle);
 	Triangle trig;
 	if(body == nullptr)
 		return trig;
-
-	BoundingVolume *volume = body->getVolume();
+	
+	BoundingVolume *volume = body->getVolume(p_BoundingVolume);
 
 	switch (volume->getType())
 	{
@@ -536,8 +560,8 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);
 			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.x)) * 100.f,
-										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.y)) * 100.f,
-										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.z)) * 100.f);
+											XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.y)) * 100.f,
+											XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.z)) * 100.f);
 
 			return triangle;
 		}
@@ -547,20 +571,20 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 			triangle.uniformScale(100.f);
 			return triangle;
 		}
-		
+			
 	case BoundingVolume::Type::OBB:
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);
 			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.x)) * 100.f,
-										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.y)) * 100.f,
-										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.z)) * 100.f);
+											XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.y)) * 100.f,
+											XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.z)) * 100.f);
 			return triangle;
 		}
 	case BoundingVolume::Type::SPHERE:
 		{
 			Triangle triangle = Triangle(XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3).m_Postition    ),
-										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 1).m_Postition),
-										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 2).m_Postition));
+											XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 1).m_Postition),
+											XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 2).m_Postition));
 			triangle.uniformScale(((Sphere*)volume)->getRadius());
 			triangle.translate(XMFLOAT4ToVector4(&body->getPosition()));
 			triangle.uniformScale(100.f);
@@ -572,13 +596,13 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 
 	return trig;
 }
-unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle)
+unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_BoundingVolume)
 {
 	Body* body = findBody(p_BodyHandle);
 	if(body == nullptr)
 		return 0;
 
-	BoundingVolume *volume = body->getVolume();
+	BoundingVolume *volume = body->getVolume(p_BoundingVolume);
 
 	switch (volume->getType())
 	{
@@ -612,21 +636,16 @@ void Physics::setRotation(BodyHandle p_Body, XMMATRIX& p_Rotation)
 	if(body == nullptr)
 		return;
 
-	switch (body->getVolume()->getType())
-	{
-	case BoundingVolume::Type::OBB:
-		{
-			((OBB*)body->getVolume())->setRotation(p_Rotation);
-			break;
-		}
-	case BoundingVolume::Type::HULL:
-		{
-			((Hull*)body->getVolume())->setRotation(p_Rotation);
-			break;
-		}
-	default:
-		break;
-	}
+	body->setRotation(p_Rotation);
+}
+
+unsigned int Physics::getNrOfVolumesInBody(BodyHandle p_BodyHandle)
+{
+	Body* body = findBody(p_BodyHandle);
+	if(body == nullptr)
+		return 0;
+
+	return body->getVolumeListSize();
 }
 
 Vector3 Physics::getBodyOrientation(BodyHandle p_BodyHandle)

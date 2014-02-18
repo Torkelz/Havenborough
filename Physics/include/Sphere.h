@@ -39,7 +39,7 @@ public:
 	* Updates position for sphere with matrix.
 	* @param p_translation, move the sphere in relative coordinates.
 	*/
-	void updatePosition( DirectX::XMFLOAT4X4 const &p_Translation )
+	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) override
 	{
 		m_PrevPosition = m_Position;
 
@@ -47,7 +47,7 @@ public:
 
 		tempTrans = XMLoadFloat4x4(&p_Translation);
 
-		DirectX::XMVECTOR v = XMLoadFloat4(&m_Position); //XMVectorSet(0.f, 0.f, 0.f, 1.f);//
+		DirectX::XMVECTOR v = XMLoadFloat4(&m_Position);
 
 		XMStoreFloat4(&m_Position, XMVector4Transform(v, tempTrans));
 	}
@@ -55,10 +55,10 @@ public:
 	* Updates position for sphere with position, used by aabb's sphere.
 	* @param p_position, set current position to this.
 	*/
-	void updatePosition(DirectX::XMFLOAT4& p_Position)
+	void setPosition(DirectX::XMVECTOR const &p_Position) override
 	{
 		m_PrevPosition = m_Position;
-		m_Position = p_Position;
+		XMStoreFloat4(&m_Position, p_Position);
 	}
 	/**
 	* Get the radius of the sphere.
@@ -92,5 +92,14 @@ public:
 	void scale(const DirectX::XMVECTOR &p_Scale) override
 	{
 		setRadius(m_Radius * DirectX::XMVectorGetX(p_Scale));
+	}
+
+	/**
+	* Does nothing since an sphere can not be rotated.
+	* @param p_Rotation vector to scale the box with..
+	*/
+	void setRotation(DirectX::XMMATRIX const &p_Rotation) override
+	{
+		
 	}
 };

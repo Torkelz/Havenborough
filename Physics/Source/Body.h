@@ -83,7 +83,6 @@ public:
 	* @p_Gravity, how much gravity shall the new gravity be.
 	*/
 	void setGravity(float p_Gravity);
-	
 	/**
 	* Get the bool for if the body is in the air.
 	* @return true if the body is in the air, otherwise false.
@@ -106,6 +105,7 @@ public:
 	*/
 	void setOnSomething(bool p_Bool);
 
+	void setRotation(DirectX::XMMATRIX const &p_Rotation);
 	/**
 	* Get the bool for if the body is on a has landed on a surface.
 	* @return true if the body is on a surface, otherwise false.
@@ -149,10 +149,27 @@ public:
 	BodyHandle getLastCollision();
 
 	/**
-	* Get the volume that is connected to the body.
+	* Get the first volume that is connected to the body.
 	* @return body's volume.
 	*/
-	BoundingVolume *getVolume();
+	BoundingVolume *getVolume();		
+	/**
+	* Get the chosen volume that is connected to the body.
+	* @param p_Volume, what volume to get.
+	* @return body's volume.
+	*/
+	BoundingVolume *getVolume(unsigned p_Volume);
+
+	unsigned int getVolumeListSize();
+	/**
+	* Set the chosen volume's position that is connected to the body.
+	* @param p_Volume, which volume to move 
+	* @param p_Position, the new position for the chosen volume.
+	*/
+	void setVolumePosition(unsigned p_Volume, DirectX::XMVECTOR const &p_Position);
+
+
+
 	/**
 	* Get the current velocity for the body.
 	* @return m_Velocity in m/s.

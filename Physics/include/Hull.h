@@ -54,7 +54,13 @@ public:
 
 		DirectX::XMStoreFloat4(&m_Position, centerPos);
 								  
-		m_Sphere.updatePosition(m_Position);
+		m_Sphere.setPosition(centerPos);
+	}
+
+	void setPosition(DirectX::XMVECTOR const &p_newPosition) override
+	{
+		DirectX::XMStoreFloat4(&m_Position, p_newPosition);
+		m_Sphere.setPosition(p_newPosition);
 	}
 	
 	/**
@@ -88,7 +94,7 @@ public:
 	 * Rotates all the trangles in the hull
 	 * @param p_Rotation matrix to rotate the triangles with.
 	 */
-	void setRotation(DirectX::XMMATRIX const &p_Rotation)
+	void setRotation(DirectX::XMMATRIX const &p_Rotation) override
 	{
 		DirectX::XMVECTOR c1, c2, c3;
 		for(auto& tri : m_Triangles)

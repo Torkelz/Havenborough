@@ -14,6 +14,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 		m_Physics(nullptr),
 		m_SpellFactory(nullptr)
 {
+	m_ComponentCreators["PlayerPhysics"] = std::bind(&ActorFactory::createPlayerComponent, this);
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
 	m_ComponentCreators["AABBPhysics"] = std::bind(&ActorFactory::createAABBComponent, this);
 	m_ComponentCreators["SpherePhysics"] = std::bind(&ActorFactory::createCollisionSphereComponent, this);
@@ -175,38 +176,47 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.PushAttribute("Mesh", "WITCH");
 	printer.CloseElement();
 
-	//Leg sphere
-	printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Radius", 30.f);
-	printer.PushAttribute("Mass", 68.f);
-	printer.PushAttribute("CollisionResponse", true);
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 30.f, 0.f));
-	printer.CloseElement();
-
-	//Body OBB
-	printer.OpenElement("OBBPhysics");
-	printer.PushAttribute("Immovable", false);
+	printer.OpenElement("PlayerPhysics");
+	printer.PushAttribute("RadiusCenter", 30.f);
+	printer.PushAttribute("RadiusFoot", 10.f);
 	printer.PushAttribute("Mass", 68.f);
 	pushVector(printer, "Halfsize", Vector3(30.f, 55.f, 30.f));
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 115.f, 0.f)); 
+	pushVector(printer, "OffsetPositionSphere", Vector3(0.f, 30.f, 0.f));
+	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 115.f, 0.f));
 	printer.CloseElement();
 
-	//Left foot sphere
-	printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Radius", 10.f);
-	printer.PushAttribute("Mass", 68.f);
-	printer.PushAttribute("CollisionResponse", false);
-	printer.CloseElement();
+	//Leg sphere
+	//printer.OpenElement("SpherePhysics");
+	//printer.PushAttribute("Immovable", false);
+	//printer.PushAttribute("Radius", 30.f);
+	//printer.PushAttribute("Mass", 68.f);
+	//printer.PushAttribute("CollisionResponse", true);
+	//pushVector(printer, "OffsetPosition", Vector3(0.f, 30.f, 0.f));
+	//printer.CloseElement();
 
-	//Right foot sphere
-	printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Radius", 10.f);
-	printer.PushAttribute("Mass", 68.f);
-	printer.PushAttribute("CollisionResponse", false);
-	printer.CloseElement();
+	////Body OBB
+	//printer.OpenElement("OBBPhysics");
+	//printer.PushAttribute("Immovable", false);
+	//printer.PushAttribute("Mass", 68.f);
+	//pushVector(printer, "Halfsize", Vector3(30.f, 55.f, 30.f));
+	//pushVector(printer, "OffsetPosition", Vector3(0.f, 115.f, 0.f)); 
+	//printer.CloseElement();
+
+	////Left foot sphere
+	//printer.OpenElement("SpherePhysics");
+	//printer.PushAttribute("Immovable", false);
+	//printer.PushAttribute("Radius", 10.f);
+	//printer.PushAttribute("Mass", 68.f);
+	//printer.PushAttribute("CollisionResponse", false);
+	//printer.CloseElement();
+
+	////Right foot sphere
+	//printer.OpenElement("SpherePhysics");
+	//printer.PushAttribute("Immovable", false);
+	//printer.PushAttribute("Radius", 10.f);
+	//printer.PushAttribute("Mass", 68.f);
+	//printer.PushAttribute("CollisionResponse", false);
+	//printer.CloseElement();
 
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
@@ -427,6 +437,14 @@ ActorComponent::ptr ActorFactory::createComponent(const tinyxml2::XMLElement* p_
 unsigned int ActorFactory::getNextActorId()
 {
 	return ++m_LastActorId;
+}
+
+ActorComponent::ptr ActorFactory::createPlayerComponent()
+{
+	PlayerBodyComponent* comp = new PlayerBodyComponent;
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
 }
 
 ActorComponent::ptr ActorFactory::createOBBComponent()

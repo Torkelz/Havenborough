@@ -25,7 +25,12 @@ public:
 	/* Updates position for BoundingVolume with translation matrix.
 	 * @param p_Translation, move the BV in relative coordinates.
 	 */
-	virtual void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) = 0;
+	virtual void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) = 0;	
+	
+	/* sets position for BoundingVolume with a new position.
+	 * @param p_Position, move the BV in to this position.
+	 */
+	virtual void setPosition(DirectX::XMVECTOR const &p_Position) = 0;
 	/**
 	 * Get the current position for the bounding volume.
 	 * @return the position of the bounding volume in m
@@ -52,6 +57,8 @@ public:
 	}
 
 	virtual void scale(DirectX::XMVECTOR const &p_Scale) = 0;
+
+	virtual void setRotation(DirectX::XMMATRIX const &p_Rotation) = 0;
 	
 	virtual ~BoundingVolume(){};
 };

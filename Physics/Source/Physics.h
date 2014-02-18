@@ -56,6 +56,7 @@ public:
 	Vector3 getBodySize(BodyHandle p_Body) override;
 
 	void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) override;
+	void setBodyVolumePosition(BodyHandle p_Body, unsigned p_Volume, Vector3 p_Position) override;
 
 	void setBodyVelocity(BodyHandle p_Body, Vector3 p_Velocity) override;
 	Vector3 getBodyVelocity(BodyHandle p_Body) override;
@@ -66,9 +67,9 @@ public:
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
-	Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) override;
-	unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle) override;
-
+	Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex, int p_BoundingVolume) override;
+	unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_BoundingVolume) override;
+	unsigned int getNrOfVolumesInBody(BodyHandle p_BodyHandle);
 	Vector3 getBodyOrientation(BodyHandle p_BodyHandle) override;
 		 
 private:

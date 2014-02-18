@@ -154,8 +154,10 @@ void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
 
 	XMStoreFloat4x4(&tempTrans, matTrans);
 
-	for(auto &v : m_Volumes)
-		v->updatePosition(tempTrans);
+	m_Volumes[0]->updatePosition(tempTrans);
+
+	//for(auto &v : m_Volumes)
+	//	v->updatePosition(tempTrans);
 }
 
 XMFLOAT4 Body::calculateAcceleration()
@@ -203,6 +205,12 @@ void Body::setOnSomething(bool p_bool)
 	m_OnSomething = p_bool;
 }
 
+void Body::setRotation(XMMATRIX const &p_Rotation)
+{
+	for(auto &v : m_Volumes)
+		v->setRotation(p_Rotation);
+}
+
 bool Body::getLanded()
 {
 	return m_Landed;
@@ -235,6 +243,21 @@ bool Body::getCollisionResponse()
 BoundingVolume* Body::getVolume()
 {
 	return m_Volumes.at(0).get();
+}
+
+BoundingVolume* Body::getVolume(unsigned p_Volume)
+{
+	return m_Volumes.at(p_Volume).get();
+}
+
+unsigned int Body::getVolumeListSize()
+{
+	return m_Volumes.size();
+}
+
+void Body::setVolumePosition(unsigned p_Volume, DirectX::XMVECTOR const &p_Position)
+{
+	m_Volumes.at(p_Volume)->setPosition(p_Position);
 }
 
 XMFLOAT4 Body::getVelocity()

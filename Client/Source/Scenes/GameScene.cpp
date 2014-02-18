@@ -141,17 +141,14 @@ void GameScene::render()
 
 	if(m_RenderDebugBV)
 	{
-		//for(auto &object : *m_GameLogic->getObjects())
-		//{
-		//	for (BodyHandle body : object.second->getBodyHandles())
-		//	{
-		//		//renderBoundingVolume(body);
-		//	}
-		//}
+		for(auto &object : *m_GameLogic->getObjects())
+		{
+			for (BodyHandle body : object.second->getBodyHandles())
+			{
+				renderBoundingVolume(body);
+			}
+		}
 		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
-		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle() + 1);
-		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle() + 2);
-		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle() + 3);
 	}
 
 	for(auto &light : m_Lights)
@@ -444,13 +441,18 @@ void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
-	unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle);
+	unsigned int nrVolumes = m_GameLogic->getPhysics()->getNrOfVolumesInBody(p_BodyHandle);
 
-	for(unsigned int i = 0; i < size; i++)
+	for(unsigned int j = 0; j < nrVolumes; j++)
 	{
-		Triangle triangle;
-		triangle = m_GameLogic->getPhysics()->getTriangleFromBody(p_BodyHandle, i);
-		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle, j);
+
+		for(unsigned int i = 0; i < size; i++)
+		{
+			Triangle triangle;
+			triangle = m_GameLogic->getPhysics()->getTriangleFromBody(p_BodyHandle, i, j);
+			m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		}
 	}
 }
 

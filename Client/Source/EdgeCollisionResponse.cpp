@@ -13,7 +13,7 @@ EdgeCollisionResponse::~EdgeCollisionResponse(void)
 
 bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector3 p_EdgePosition, Vector3 p_EdgeOrientation, Player *p_Player)
 {
-	if(!p_Player->getForceMove() && p_Hit.collider == p_Player->getBody(0))
+	if(!p_Player->getForceMove() && p_Hit.collider == p_Player->getBody())
 	{
 		XMFLOAT3 collisionNormal = Vector4ToXMFLOAT3(&p_Hit.colNorm);
 
@@ -25,7 +25,7 @@ bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector3 p_EdgePositio
 		{
 			for(unsigned i = 0; i < actor->getBodyHandles().size(); i++)
 			{
-				if(p_Player->getBody(i) == p_Hit.collisionVictim)
+				if(p_Player->getBody() == p_Hit.collisionVictim)
 					isPlayerBody = true;
 			}
 		}

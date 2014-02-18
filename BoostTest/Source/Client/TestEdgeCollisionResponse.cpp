@@ -25,7 +25,7 @@ public:
 
 	}
 
-	BodyHandle getBody(int p_Index) const override
+	BodyHandle getBody() const override
 	{
 		return m_Body;
 	}

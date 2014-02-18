@@ -138,7 +138,7 @@ public:
 	* Gets the body handle of the player.
 	* @return the body handle
 	*/
-	virtual BodyHandle getBody(int p_Index) const;
+	virtual BodyHandle getBody() const;
 
 	/**
 	* Gets if the player is currently forced to change position.

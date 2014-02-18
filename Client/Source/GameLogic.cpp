@@ -142,7 +142,7 @@ Vector2 GameLogic::getPlayerDirection() const
 
 BodyHandle GameLogic::getPlayerBodyHandle() const
 {
-	return m_Player.getBody(0);
+	return m_Player.getBody();
 }
 
 Vector3 GameLogic::getPlayerEyePosition() const

@@ -139,6 +139,7 @@ protected:
 private:
 	unsigned int getNextActorId();
 
+	ActorComponent::ptr createPlayerComponent();
 	ActorComponent::ptr createOBBComponent();
 	ActorComponent::ptr createAABBComponent();
 	ActorComponent::ptr createCollisionSphereComponent();
