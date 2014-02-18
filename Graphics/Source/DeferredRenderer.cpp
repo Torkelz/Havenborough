@@ -2,6 +2,7 @@
 
 #include "ModelBinaryLoader.h"
 #include "Utilities/MemoryUtil.h"
+#include "GraphicsExceptions.h"
 #include "VRAMInfo.h"
 #include "WrapperFactory.h"
 
@@ -174,6 +175,10 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_ScreenWidth = (float)p_ScreenWidth;
 	m_ScreenHeight = (float)p_ScreenHeight;
 
+
+	if(!m_Device || !m_DeviceContext)
+		throw DeferredRenderException("Failed to initialize deferred renderer, nullpointers not allowed",
+		__LINE__, __FILE__);
 
 	createRenderTargets(desc);
 
