@@ -322,7 +322,7 @@ void GameLogic::playLocalLevel()
 
 	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
 #ifdef _DEBUG
-	std::ifstream input("../Bin/assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("../Bin/assets/levels/Level1.2.1.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);

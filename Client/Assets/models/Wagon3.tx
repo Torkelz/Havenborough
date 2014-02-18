@@ -2,7 +2,7 @@
 #Transparent 0
 #Collidable 1
 #Materials 2
-#MESH WagonShape3
+#MESH Wagon3
 #Vertices 1300
 #Triangles 2178
 

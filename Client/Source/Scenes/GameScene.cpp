@@ -486,10 +486,10 @@ void GameScene::loadSandboxModels()
         "Sidewalk1", 
 		"Sign1",
         "Stair1",
-		"Stallning1",
-		"Stallning2",
-		"Stallning3",
-		"Stallning4",
+		"Scaffold1",
+		"Scaffold2",
+		"Scaffold3",
+		"Scaffold4",
 		"StandingLamp1",
 		"Stone1",
 		"Stone2",
@@ -510,7 +510,7 @@ void GameScene::loadSandboxModels()
 		"Vege2",
 		"WoodenPillar1",
         "WoodenShed1",
-		"Zane"
+		"ZaneFirewind"
 	};
 
 	for (const std::string& model : preloadedModels)
@@ -519,7 +519,7 @@ void GameScene::loadSandboxModels()
 		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());		
 	}
 
-	zane = m_Graphics->createModelInstance("Zane");
+	zane = m_Graphics->createModelInstance("ZaneFirewind");
 	m_Graphics->setModelPosition(zane, Vector3(100,100,100));
 	m_Graphics->setModelRotation(zane, Vector3(PI,0,0));
 

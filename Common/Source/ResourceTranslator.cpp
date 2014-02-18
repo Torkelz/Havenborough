@@ -26,12 +26,12 @@ void ResourceTranslator::loadResourceList(std::istream& p_FileData)
 	tinyxml2::XMLError error = resourceList.Parse(buffer.data());
 	if(error)
 	{
-		throw CommonException("Error parsing resource data. Error code: " + std::to_string(error), __LINE__, __FILE__);
+		throw ResourceManagerException("Error parsing resource data. Error code: " + std::to_string(error), __LINE__, __FILE__);
 	}
 	tinyxml2::XMLElement* resourceFile = resourceList.FirstChildElement("Resources");
 	if(resourceFile == nullptr)
 	{
-		throw CommonException("File was not of Resource .xml type.", __LINE__, __FILE__);
+		throw ResourceManagerException("File was not of Resource .xml type.", __LINE__, __FILE__);
 	}
 	
 	for(const tinyxml2::XMLElement* resourceType = resourceFile->FirstChildElement("ResourceType"); resourceType; resourceType = resourceType->NextSiblingElement("ResourceType"))
@@ -128,12 +128,12 @@ std::pair<std::string, std::string> ResourceTranslator::readValues(const tinyxml
 	name = p_Element->Attribute("Name");
 	if(name == nullptr)
 	{
-		CommonException("Resource attribute was not found!", __LINE__, __FILE__);
+		ResourceManagerException("Resource attribute was not found!", __LINE__, __FILE__);
 	}
 	path = p_Element->Attribute("Path");
 	if(path == nullptr)
 	{
-		CommonException("Resource path was not read!", __LINE__, __FILE__);
+		ResourceManagerException("Resource path was not read!", __LINE__, __FILE__);
 	}
 	return std::make_pair<std::string, std::string>(std::string(name), std::string(path));
 }

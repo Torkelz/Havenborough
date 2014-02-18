@@ -68,8 +68,11 @@ BOOST_AUTO_TEST_SUITE(ResourceManagerTest)
 		TestResource tr;
 		using namespace std::placeholders;
 		rm.registerFunction("model", std::bind(&TestResource::create, tr, _1, _2), std::bind(&TestResource::release, tr, _1));
-
+#ifdef DEBUG
+		BOOST_CHECK_THROW(rm.releaseResource(0), ResourceManagerException);
+#else
 		BOOST_CHECK_EQUAL(rm.releaseResource(0), false);
+#endif
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
