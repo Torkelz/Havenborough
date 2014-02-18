@@ -1,6 +1,7 @@
 #include "BaseGameApp.h"
 
 #include "Logger.h"
+#include "Settings.h"
 
 #include <sstream>
 #include <iomanip>
@@ -80,46 +81,53 @@ void BaseGameApp::init()
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
 	
+	Settings settings;
+	settings.initialize("UserOptions.xml");
+
+	const Settings::vectorpairKeyMap keys = settings.getKeyMap();
+	for(auto k : keys)
+		translator->addKeyboardMapping(k.second, k.first);
+
 	//TODO: This should be loaded from file
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
-	translator->addKeyboardMapping(VK_ESCAPE, "back");
-	translator->addKeyboardMapping(VK_ESCAPE, "leaveGame");
-	translator->addKeyboardMapping('W', "moveForward");
-	translator->addKeyboardMapping('S', "moveBackward");
-	translator->addKeyboardMapping('A', "moveLeft");
-	translator->addKeyboardMapping('D', "moveRight");
-	translator->addKeyboardMapping('Z', "changeViewN");
-	translator->addKeyboardMapping('X', "changeViewP");
-	translator->addKeyboardMapping('I', "toggleIK");
-	translator->addKeyboardMapping(VK_SPACE, "jump");
-	translator->addKeyboardMapping('C', "connectToServer");
-	translator->addKeyboardMapping('T', "joinTestLevel");
-	translator->addKeyboardMapping('Y', "joinServerLevel");
-	translator->addKeyboardMapping('J', "playLocalTest");
+	//translator->addKeyboardMapping(VK_ESCAPE, "back");
+	//translator->addKeyboardMapping(VK_ESCAPE, "leaveGame");
+	//translator->addKeyboardMapping('W', "moveForward");
+	//translator->addKeyboardMapping('S', "moveBackward");
+	//translator->addKeyboardMapping('A', "moveLeft");
+	//translator->addKeyboardMapping('D', "moveRight");
+	//translator->addKeyboardMapping('Z', "changeViewN");
+	//translator->addKeyboardMapping('X', "changeViewP");
+	//translator->addKeyboardMapping('I', "toggleIK");
+	//translator->addKeyboardMapping(VK_SPACE, "jump");
+	//translator->addKeyboardMapping('C', "connectToServer");
+	//translator->addKeyboardMapping('T', "joinTestLevel");
+	//translator->addKeyboardMapping('Y', "joinServerLevel");
+	//translator->addKeyboardMapping('J', "playLocalTest");
 
 	//translator->addKeyboardMapping('J', "changeSceneP");
 	//translator->addKeyboardMapping('K', "pauseScene");
 	//translator->addKeyboardMapping('L', "changeSceneN");
-	translator->addKeyboardMapping('9', "switchBVDraw");
-	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
+	//translator->addKeyboardMapping('9', "switchBVDraw");
+	//translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
 
-	translator->addKeyboardMapping('O', "thirdPersonCamera");
-	translator->addKeyboardMapping('P', "flipCamera");
+	//translator->addKeyboardMapping('O', "thirdPersonCamera");
+	//translator->addKeyboardMapping('P', "flipCamera");
 
-	translator->addKeyboardMapping('B', "blendAnimation");
-	translator->addKeyboardMapping('N', "resetAnimation");
-	translator->addKeyboardMapping('M', "layerAnimation");
-	translator->addKeyboardMapping('V', "resetLayerAnimation");
+	//translator->addKeyboardMapping('B', "blendAnimation");
+	//translator->addKeyboardMapping('N', "resetAnimation");
+	//translator->addKeyboardMapping('M', "layerAnimation");
+	//translator->addKeyboardMapping('V', "resetLayerAnimation");
 
-	translator->addMouseButtonMapping(InputTranslator::MouseButton::LEFT, "spellCast");
-	translator->addMouseButtonMapping(InputTranslator::MouseButton::RIGHT, "ClimbEdge");
+	translator->addMouseButtonMapping(MouseButton::LEFT, "spellCast");
+	translator->addMouseButtonMapping(MouseButton::RIGHT, "ClimbEdge");
 
 	
-	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
-	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
+	translator->addMouseMapping(Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
+	translator->addMouseMapping(Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
 
-	translator->addMouseButtonMapping(InputTranslator::MouseButton::LEFT, "gogogogo");
-	translator->addMouseButtonMapping(InputTranslator::MouseButton::MIDDLE, "rollMe!");
+	translator->addMouseButtonMapping(MouseButton::LEFT, "gogogogo");
+	translator->addMouseButtonMapping(MouseButton::MIDDLE, "rollMe!");
 
 	m_InputQueue.init(std::move(translator));
 

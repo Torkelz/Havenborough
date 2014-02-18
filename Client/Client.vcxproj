@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Settings.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
     <ClCompile Include="Source\GameLogic.cpp" />
     <ClCompile Include="Source\Level.cpp" />
@@ -53,6 +54,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Input\InputTranslatorEnums.h" />
+    <ClInclude Include="Source\Settings.h" />
     <ClInclude Include="Source\EdgeCollisionResponse.h" />
     <ClInclude Include="Source\RAMInfo.h" />
     <ClInclude Include="Source\GameLogic.h" />
