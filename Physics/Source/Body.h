@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include "BoundingVolume.h"
 
-#include <memory>
+#include <vector>
 
 class Body
 {
@@ -32,7 +32,8 @@ protected:
 	bool				m_CollisionResponse;
 	bool				m_Landed;
 
-	std::unique_ptr<BoundingVolume>	m_Volume;
+	std::vector<BoundingVolume::ptr> m_Volumes;
+
 public:
 	/**
 	* Body Constructor, initialize all variables.
@@ -40,7 +41,7 @@ public:
 	* @p_Volume, pointer to the body's BoundingVolume.
 	* @p_IsImmovable, should a body be immovable(static)?
 	*/
-	Body(float p_Mass, std::unique_ptr<BoundingVolume> p_Volume, bool p_IsImmovable, bool p_IsEdge);
+	Body(float p_Mass, BoundingVolume::ptr p_Volume, bool p_IsImmovable, bool p_IsEdge);
 	/**
 	* Move constructor, needed because c++11 is not fully integrated to VS2012.
 	*/
@@ -67,6 +68,7 @@ public:
 	 */
 	void addImpulse(DirectX::XMFLOAT4 p_Impulse);
 
+	void addVolume(BoundingVolume::ptr p_Volume);
 	/**
 	* Update loop for a body. Updates acceleration, velocity and position.
 	*/

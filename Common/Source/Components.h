@@ -533,6 +533,162 @@ public:
 };
 
 /**
+ * Player body component
+ */
+class PlayerBodyComponent : public PhysicsInterface
+{
+private:
+	BodyHandle m_Body;
+	IPhysics* m_Physics;
+	float m_RadiusCenter;
+	float m_RadiusFoot;
+	float m_Mass;
+	Vector3 m_OffsetPositionSphere;
+	Vector3 m_OffsetPositionBox;
+	Vector3 m_OffsetPositionFoot;
+	Vector3 m_OffsetRotation;
+	Vector3 m_Halfsize;
+	Vector3 m_Scale;
+
+public:
+	~PlayerBodyComponent() override
+	{
+		m_Physics->releaseBody(m_Body);
+	}
+	
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
+	void setPhysics(IPhysics* p_Physics)
+	{
+		m_Physics = p_Physics;
+	}
+
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		m_RadiusCenter = 1.f;
+		p_Data->QueryFloatAttribute("RadiusCenter", &m_RadiusCenter);
+		m_RadiusFoot = 1.f;
+		p_Data->QueryFloatAttribute("RadiusFoot", &m_RadiusFoot);
+		m_Mass = 1.f;
+		p_Data->QueryFloatAttribute("Mass", &m_Mass);
+
+		m_Scale = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
+		if (scale)
+		{
+			m_Scale.x = scale->FloatAttribute("x");
+			m_Scale.y = scale->FloatAttribute("y");
+			m_Scale.z = scale->FloatAttribute("z");
+		}
+
+		m_Halfsize = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* size = p_Data->FirstChildElement("Halfsize");
+		if (size)
+		{
+			m_Halfsize.x = size->FloatAttribute("x");
+			m_Halfsize.y = size->FloatAttribute("y");
+			m_Halfsize.z = size->FloatAttribute("z");
+		}
+
+		m_OffsetPositionSphere = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosSphere = p_Data->FirstChildElement("OffsetPositionSphere");
+		if (relPosSphere)
+		{
+			relPosSphere->QueryAttribute("x", &m_OffsetPositionSphere.x);
+			relPosSphere->QueryAttribute("y", &m_OffsetPositionSphere.y);
+			relPosSphere->QueryAttribute("z", &m_OffsetPositionSphere.z);
+		}
+
+		m_OffsetPositionBox = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosBox = p_Data->FirstChildElement("OffsetPositionBox");
+		if (relPosBox)
+		{
+			relPosBox->QueryAttribute("x", &m_OffsetPositionBox.x);
+			relPosBox->QueryAttribute("y", &m_OffsetPositionBox.y);
+			relPosBox->QueryAttribute("z", &m_OffsetPositionBox.z);
+		}
+
+		m_OffsetPositionFoot = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosFoot = p_Data->FirstChildElement("OffsetPositionFoot");
+		if (relPosFoot)
+		{
+			relPosFoot->QueryAttribute("x", &m_OffsetPositionFoot.x);
+			relPosFoot->QueryAttribute("y", &m_OffsetPositionFoot.y);
+			relPosFoot->QueryAttribute("z", &m_OffsetPositionFoot.z);
+		}
+
+		m_OffsetRotation = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relRot = p_Data->FirstChildElement("OffsetRotation");
+		if(relRot)
+		{
+			queryRotation(relRot, m_OffsetRotation);
+		}
+
+
+	}
+
+	void postInit() override
+	{
+		m_Body = m_Physics->createSphere(m_Mass, false, m_OffsetPositionSphere, m_RadiusCenter);
+		m_Physics->addSphereToBody(m_Body, m_OffsetPositionFoot, m_RadiusFoot);
+		m_Physics->addSphereToBody(m_Body, m_OffsetPositionFoot, m_RadiusFoot);
+		m_Physics->addOBBToBody(m_Body, m_OffsetPositionBox, m_Halfsize, false);
+
+		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
+		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
+		m_Physics->setBodyScale(m_Body, m_Scale);
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("PlayerPhysics");
+		pushVector(p_Printer, "Scale", m_Scale);
+		pushVector(p_Printer, "HalfSize", m_Halfsize);
+		pushVector(p_Printer, "OffsetPositionSphere", m_OffsetPositionSphere);
+		pushVector(p_Printer, "OffsetPositionBox", m_OffsetPositionBox);
+		pushVector(p_Printer, "OffsetPositionFoot", m_OffsetPositionFoot);
+		pushVector(p_Printer, "OffsetRotation", m_OffsetRotation);
+		p_Printer.PushAttribute("RadiusCenter", m_RadiusCenter);
+		p_Printer.PushAttribute("RadiusFoot", m_RadiusFoot);
+		p_Printer.PushAttribute("Mass", m_Mass);
+		p_Printer.CloseElement();
+	}
+
+	void setPosition(Vector3 p_Position) override
+	{
+		m_Physics->setBodyPosition(m_Body, p_Position);
+	}
+
+	void setRotation(Vector3 p_Rotation) override
+	{
+		m_Physics->setBodyRotation(m_Body, p_Rotation);
+	}
+
+	BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
+	}
+
+	Vector3 getVelocity() const override
+	{
+		return m_Physics->getBodyVelocity(m_Body);
+	}
+
+	bool isInAir() const override
+	{
+		return m_Physics->getBodyInAir(m_Body);
+	}
+	bool hasLanded() const override
+	{
+		return m_Physics->getBodyLanded(m_Body);
+	}
+};
+
+
+/**
  * Interface for model components.
  */
 class ModelInterface : public ActorComponent

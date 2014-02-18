@@ -13,12 +13,12 @@ void Body::resetBodyHandleCounter()
 	m_NextHandle = 1;
 }
 
-Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
-	: m_Handle(getNextHandle()),
-	  m_Volume(std::move(p_BoundingVolume)), m_CollisionResponse(true)
+Body::Body(float p_mass, BoundingVolume::ptr p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
+	: m_Handle(getNextHandle()), m_CollisionResponse(true)
 {
+	m_Volumes.push_back(std::move(p_BoundingVolume));
 	m_Mass = p_mass;	
-	m_Position			= m_Volume->getPosition();
+	m_Position			= m_Volumes.at(0)->getPosition();
 	m_NetForce			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Velocity			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Acceleration		= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -37,7 +37,7 @@ Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool 
 
 Body::Body(Body &&p_Other)
 	: m_Handle(p_Other.m_Handle),
-	  m_Volume(std::move(p_Other.m_Volume)),
+	  m_Volumes(std::move(p_Other.m_Volumes)),
 	  m_Mass(p_Other.m_Mass),
 	  m_Position(p_Other.m_Position),
 	  m_NetForce(p_Other.m_NetForce),
@@ -58,7 +58,7 @@ Body::Body(Body &&p_Other)
 Body& Body::operator=(Body&& p_Other)
 {
 	std::swap(m_Handle, p_Other.m_Handle);
-	std::swap(m_Volume, p_Other.m_Volume);
+	std::swap(m_Volumes, p_Other.m_Volumes);
 	std::swap(m_Mass, p_Other.m_Mass);
 	std::swap(m_Position, p_Other.m_Position);
 	std::swap(m_NetForce, p_Other.m_NetForce);
@@ -106,6 +106,11 @@ void Body::addImpulse(DirectX::XMFLOAT4 p_Impulse)
 	XMStoreFloat4(&m_Velocity, vVelocity);
 }
 
+void Body::addVolume(BoundingVolume::ptr p_Volume)
+{
+	m_Volumes.push_back(std::move(p_Volume));
+}
+
 void Body::update(float p_DeltaTime)
 {
 	if(m_IsImmovable)
@@ -149,7 +154,8 @@ void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
 
 	XMStoreFloat4x4(&tempTrans, matTrans);
 
-	m_Volume->updatePosition(tempTrans);
+	for(auto &v : m_Volumes)
+		v->updatePosition(tempTrans);
 }
 
 XMFLOAT4 Body::calculateAcceleration()
@@ -228,7 +234,7 @@ bool Body::getCollisionResponse()
 
 BoundingVolume* Body::getVolume()
 {
-	return m_Volume.get();
+	return m_Volumes.at(0).get();
 }
 
 XMFLOAT4 Body::getVelocity()

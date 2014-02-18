@@ -17,7 +17,21 @@ bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector3 p_EdgePositio
 	{
 		XMFLOAT3 collisionNormal = Vector4ToXMFLOAT3(&p_Hit.colNorm);
 
-		p_Player->setGroundNormal(collisionNormal);
+		Actor::ptr actor = p_Player->getActor().lock();
+
+		bool isPlayerBody = false;
+
+		if(actor)
+		{
+			for(unsigned i = 0; i < actor->getBodyHandles().size(); i++)
+			{
+				if(p_Player->getBody(i) == p_Hit.collisionVictim)
+					isPlayerBody = true;
+			}
+		}
+
+		if(!isPlayerBody)
+			p_Player->setGroundNormal(collisionNormal);
 
 		if (p_Hit.isEdge)
 		{

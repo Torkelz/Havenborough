@@ -201,6 +201,21 @@ BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_Center
 	return createBody(p_Mass, obb, p_IsImmovable, p_IsEdge);
 }
 
+void Physics::addSphereToBody(BodyHandle p_BodyHandle, Vector3 p_Position, float p_Radius)
+{
+	Vector3 convPosition = p_Position * 0.01f;	// m
+	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f); // m
+
+	Sphere* sphere = new Sphere(p_Radius / 100.f, tempPosition);
+
+	m_Bodies[p_BodyHandle].addVolume(BoundingVolume::ptr(sphere));
+
+}
+
+void Physics::addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) 
+{
+
+}
 BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 {
 	std::vector<BVLoader::BoundingVolume> tempBV;

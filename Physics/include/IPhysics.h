@@ -47,6 +47,7 @@ public:
 	 * @param p_IsImmovable, tells if the body are movable.
 	 * @param p_CenterPos, Center of the box.
 	 * @param p_Extents, Box half lengths.
+	 * @param p_IsEdge true if the bounding volume should be an edge, otherwise false
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
 	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
@@ -65,6 +66,25 @@ public:
 	 * @return true if the volume was successfully created, otherwise false
 	 */
 	virtual bool createBV(const char* p_VolumeID, const char* p_FilePath) = 0;
+
+	/**
+	 * Add a boundingVolume Sphere to an existing body.
+	 *
+	 * @param p_BodyHandle, which body to add the volume to.
+	 * @param p_CenterPos, Center of the box.
+	 * @param p_Extents, Box half lengths.
+	 */
+	virtual void addSphereToBody(BodyHandle p_BodyHandle, Vector3 p_Position, float p_Radius) = 0;
+
+	/**
+	 * Add a boundingVolume OBB to an existing body.
+	 *
+	 * @param p_BodyHandle, which body to add the volume to.
+	 * @param p_CenterPos, Center of the box.
+	 * @param p_Extents, Box half lengths.
+	 * @param p_IsEdge true if the bounding volume should be an edge, otherwise false
+	 */
+	virtual void addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
 
 	/**
 	 * Release a previously created volume.
@@ -217,6 +237,14 @@ public:
 	 * @param p_State, true if if it should be affected by physics, false if not
 	 */
 	virtual void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) = 0;
+
+	/**
+	 * Manipulate a body with hitdata. Causing collision response.
+	 *
+	 * @param p_Body the body which should react to collision.
+	 * @param p_Hit, the information that is needed for handling a collision.
+	 */
+
 
 	/**
 	 * Return the bounding volume from the body.

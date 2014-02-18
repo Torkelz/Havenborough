@@ -420,10 +420,8 @@ void Player::setJump(void)
 		temp.z = m_DirectionZ * m_MaxSpeed / (m_JumpCount + 1);
 
 		m_Physics->setBodyVelocity(getBody(0), temp);
-		m_Physics->setBodyVelocity(getBody(1), temp);
 
 		m_Physics->applyForce(getBody(0), Vector3(0.f, m_JumpForce, 0.f));
-		m_Physics->applyForce(getBody(1), Vector3(0.f, m_JumpForce, 0.f));
 	}
 }
 

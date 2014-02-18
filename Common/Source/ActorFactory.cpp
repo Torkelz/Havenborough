@@ -178,16 +178,16 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	//Leg sphere
 	printer.OpenElement("SpherePhysics");
 	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Radius", 20.f);
+	printer.PushAttribute("Radius", 30.f);
 	printer.PushAttribute("Mass", 68.f);
 	printer.PushAttribute("CollisionResponse", true);
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 20.f, 0.f));
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 30.f, 0.f));
 	printer.CloseElement();
 
 	//Body OBB
 	printer.OpenElement("OBBPhysics");
 	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Mass", 0.f);
+	printer.PushAttribute("Mass", 68.f);
 	pushVector(printer, "Halfsize", Vector3(30.f, 55.f, 30.f));
 	pushVector(printer, "OffsetPosition", Vector3(0.f, 115.f, 0.f)); 
 	printer.CloseElement();

@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
+#include <memory>
 
 class BoundingVolume
 {
@@ -18,6 +19,8 @@ protected:
 	Type				m_Type;
 
 public:
+	typedef std::unique_ptr<BoundingVolume> ptr;
+
 	BoundingVolume(){};
 	/* Updates position for BoundingVolume with translation matrix.
 	 * @param p_Translation, move the BV in relative coordinates.
