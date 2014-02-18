@@ -367,22 +367,20 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	float currentJointAngle = XMScalarACos(XMVector3Dot(-nmlStartToJoint, nmlJointToEnd).m128_f32[0]);
 	float diffJointAngle = wantedJointAngle - currentJointAngle;
 
-	// TEST CONSTRAINTS
-	if( diffJointAngle < 0.0f)
-		diffJointAngle  = 0.0f;
-	else if(diffJointAngle > 180.0f)
-		diffJointAngle = 180.f;
+	XMFLOAT4X4 tempMatrixData = middleCombinedTransformedData;
+	XMMATRIX tempMatrix = XMMatrixTranspose(XMLoadFloat4x4(&tempMatrixData));
+	XMVECTOR trueHinge = XMVector3Cross(startToJoint, jointToEnd);
+	trueHinge = XMVector3Transform(trueHinge, XMMatrixInverse(nullptr, tempMatrix));
+	trueHinge = XMVector3Normalize(trueHinge);
 
 	// Use the loaded hinge axis.
 	XMVECTOR rotationAxis = XMLoadFloat3(&p_Group.m_ElbowHingeAxis);
+	rotationAxis = trueHinge;
 	XMMATRIX rotation = XMMatrixRotationAxis(rotationAxis, diffJointAngle);
 
 	// Rotate the local transform of the "elbow" joint
 	XMStoreFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1],
 		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1]), rotation));
-
-	XMFLOAT4X4 tempMatrixData = middleCombinedTransformedData;
-	XMMATRIX tempMatrix = XMMatrixTranspose(XMLoadFloat4x4(&tempMatrixData));
 
 	// Move the end joint in world space
 	XMVECTOR worldHingeAxis = XMVector4Transform(rotationAxis, tempMatrix);
@@ -405,12 +403,15 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 		return;
 	}
 
-	// TEST CONSTRAINTS
-	localAxis.m128_f32[2] = fabs(localAxis.m128_f32[2]);
-
 	localAxis = XMVector3Normalize(localAxis);
 	float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
+	
+	XMVECTOR middleVector = XMLoadFloat4(&XMFLOAT4(-0.5f, 0.f,-0.5f,0.0f));
+	middleVector = XMVector3Normalize(middleVector);
+	float localDiff = XMVector3AngleBetweenNormals(localAxis, middleVector).m128_f32[0];
 
+	//localAxis = middleVector;
+	
 	// Rotate the local transform of the "shoulder" joint
 	rotation = XMMatrixRotationAxis(localAxis, -localAngle);
 	XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1],

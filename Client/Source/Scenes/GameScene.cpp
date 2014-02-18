@@ -376,7 +376,21 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 	{
 		if(model.meshId == animationData->getId())
 		{
-			m_Graphics->animationPose(model.modelId, animationData->getAnimationData().data(), animationData->getAnimationData().size());
+			const std::vector<DirectX::XMFLOAT4X4>& animation = animationData->getAnimationData();
+			m_Graphics->animationPose(model.modelId, animation.data(), animation.size());
+
+			const AnimationData::ptr poseData = animationData->getAnimation();
+			for (unsigned int i = 0; i < animation.size(); ++i)
+			{
+				XMMATRIX toBind = XMLoadFloat4x4(&poseData->joints[i].m_TotalJointOffset);
+				XMMATRIX toObject = XMLoadFloat4x4(&animation[i]);
+				XMMATRIX toWorld = XMLoadFloat4x4(&animationData->getWorld());
+				XMMATRIX objectTransform = toWorld * toObject * toBind;
+				XMFLOAT4X4 fTransform;
+				XMStoreFloat4x4(&fTransform, objectTransform);
+
+				m_Graphics->renderJoint(fTransform);
+			}
 		}
 	}
 }
@@ -514,7 +528,8 @@ void GameScene::loadSandboxModels()
 		"Vege2",
 		"WoodenPillar1",
         "WoodenShed1",
-		"Zane"
+		"Zane",
+		"DebugJoint",
 	};
 
 	for (const std::string& model : preloadedModels)

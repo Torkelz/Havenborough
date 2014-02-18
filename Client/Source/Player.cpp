@@ -10,7 +10,7 @@ Player::Player(void)
     m_JumpCountMax = 2;
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
-	m_JumpForce = 3500.f;
+	m_JumpForce = 10000.f;
 	m_IsJumping = false;
 	m_MaxSpeed = 1000.f;
 	m_AccConstant = 600.f;
@@ -232,7 +232,7 @@ void Player::updateIKJoints()
 		else if(m_ClimbId == "Climb2")
 		{
 			XMVECTOR reachPointR;
-			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
+			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 0);
 			Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
 			aa.lock()->applyIK_ReachPoint("RightArm", vReachPointR);
 		}
