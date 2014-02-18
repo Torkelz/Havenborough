@@ -361,6 +361,8 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 		wantedJointAngle = XMScalarACos(cosAngle);
 	}
 
+	wantedJointAngle = 3.14f;
+
 	XMVECTOR nmlStartToJoint = XMVector4Normalize(startToJoint);
 	XMVECTOR nmlJointToEnd = XMVector4Normalize(jointToEnd);
 
@@ -390,32 +392,32 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	XMVECTOR newEndPosition = newJointToEnd + jointPositionV;
 
 	// Transform positions to the joint space of the "shoulder"
-	XMMATRIX mtxToLocal = XMMatrixTranspose(XMMatrixInverse(nullptr, baseCombinedTransform));
-	XMVECTOR localNewEnd = XMVector3Transform(newEndPosition, mtxToLocal);
-	XMVECTOR localTarget = XMVector3TransformCoord(target, mtxToLocal);
-	localNewEnd = XMVector3Normalize(localNewEnd);
-	localTarget = XMVector3Normalize(localTarget);
+	//XMMATRIX mtxToLocal = XMMatrixTranspose(XMMatrixInverse(nullptr, baseCombinedTransform));
+	//XMVECTOR localNewEnd = XMVector3Transform(newEndPosition, mtxToLocal);
+	//XMVECTOR localTarget = XMVector3TransformCoord(target, mtxToLocal);
+	//localNewEnd = XMVector3Normalize(localNewEnd);
+	//localTarget = XMVector3Normalize(localTarget);
 
 	// Calculate the axis for the shortest rotation
-	XMVECTOR localAxis = XMVector3Cross(localNewEnd, localTarget);
-	if (XMVector3Length(localAxis).m128_f32[0] == 0.f)
-	{
-		return;
-	}
-
-	localAxis = XMVector3Normalize(localAxis);
-	float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
-	
-	XMVECTOR middleVector = XMLoadFloat4(&XMFLOAT4(-0.5f, 0.f,-0.5f,0.0f));
-	middleVector = XMVector3Normalize(middleVector);
-	float localDiff = XMVector3AngleBetweenNormals(localAxis, middleVector).m128_f32[0];
+	//XMVECTOR localAxis = XMVector3Cross(localNewEnd, localTarget);
+	//if (XMVector3Length(localAxis).m128_f32[0] == 0.f)
+	//{
+	//	return;
+	//}
+	//
+	//localAxis = XMVector3Normalize(localAxis);
+	//float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
+	//
+	//XMVECTOR middleVector = XMLoadFloat4(&XMFLOAT4(-0.5f, 0.f,-0.5f,0.0f));
+	//middleVector = XMVector3Normalize(middleVector);
+	//float localDiff = XMVector3AngleBetweenNormals(localAxis, middleVector).m128_f32[0];
 
 	//localAxis = middleVector;
 	
 	// Rotate the local transform of the "shoulder" joint
-	rotation = XMMatrixRotationAxis(localAxis, -localAngle);
-	XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1],
-		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
+	//rotation = XMMatrixRotationAxis(localAxis, -localAngle);
+	//XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1],
+		//XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
 
 	// Update the resulting child transformations
 	updateFinalTransforms();
