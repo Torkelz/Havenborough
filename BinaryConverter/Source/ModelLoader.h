@@ -84,7 +84,7 @@ public:
 	 * @param p_FilePath, the absolute path to the requested file.
 	 * @return false if something is wrong when loading file.
 	 */
-	bool loadFile(std::string p_FilePath);
+	bool loadFile(std::string p_FilePath, std::string p_ResourceListLocation);
 
 	/**
 	 * Returns the stored information about vertices as a vector with Float3 values. 
@@ -210,5 +210,7 @@ protected:
 	void readAnimation(std::istream& p_Input);
 
 private:
+	void printOutResourceInfo(std::string p_ResourceListLocation);
 	void clearData();
+
 };

@@ -16,25 +16,25 @@ int main(int argc, char* argv[])
 	InstanceLoader instanceLoader;
 	InstanceConverter levelConverter;
 
-	bool result;
-	if(argc == 2)
+	std::vector<char> buffer(strlen(argv[1])+1);
+	strcpy(buffer.data(), argv[1]);
+	char *tmp, *type = nullptr;
+	tmp = strtok(buffer.data(), ".");
+	while(tmp != nullptr)
 	{
-		std::vector<char> buffer(strlen(argv[1])+1);
-		strcpy(buffer.data(), argv[1]);
-		char *tmp, *type = nullptr;
-		tmp = strtok(buffer.data(), ".");
-		while(tmp != nullptr)
-		{
-			type = tmp;
-			tmp = strtok(NULL,".");
-		}
+		type = tmp;
+		tmp = strtok(NULL,".");
+	}
+	bool result;
+	if(argc == 3)
+	{
 		if(strcmp(type, "tx") == 0)
 		{
 			std::vector<char> outputBuffer(strlen(argv[1])+2);
 			strcpy(outputBuffer.data(), argv[1]);
 			int length = outputBuffer.size();
 			strcpy(outputBuffer.data()+length-5, ".btx");
-			result = loader.loadFile(argv[1]);
+			result = loader.loadFile(argv[1], argv[2]);
 			if(!result){std::cout<<"Error loading file";return EXIT_FAILURE;}
 			setFileInfo(&loader, &converter);
 			result = converter.writeFile(outputBuffer.data());
@@ -44,6 +44,15 @@ int main(int argc, char* argv[])
 			converter.clear();
 			return EXIT_SUCCESS;
 		}
+		std::cout << argv[0] << " does not support files of type: " << type << std::endl
+			<< "Supported types are: " << std::endl << "      .tx" << std::endl << "      .txl"
+			<< std::endl << ".tx files needs 2 arguments, filename and resourcelist.";
+
+
+		return EXIT_FAILURE;
+	}
+	else if(argc == 2)
+	{
 		if(strcmp(type, "txl") == 0 || strcmp(type, "txe") == 0)
 		{
 			std::vector<char> outputBuffer(strlen(argv[1])+2);
@@ -67,9 +76,8 @@ int main(int argc, char* argv[])
 			levelConverter.clear();
 			return EXIT_SUCCESS;
 		}
-
 		std::cout << argv[0] << " does not support files of type: " << type << std::endl
-			<< "Supported types are: " << std::endl << "      .tx" << std::endl << "      .txl";
+			<< "Supported types are: " << std::endl << "      .txe" << std::endl << "      .txl";
 
 
 		return EXIT_FAILURE;

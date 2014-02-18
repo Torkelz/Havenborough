@@ -1,8 +1,6 @@
 #include "ResourceTranslator.h"
 #include "CommonExceptions.h"
 
-#include <vector>
-
 ResourceTranslator::ResourceTranslator(){}
 
 ResourceTranslator::~ResourceTranslator(){}

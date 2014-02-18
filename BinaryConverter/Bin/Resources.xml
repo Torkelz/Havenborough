@@ -1,0 +1,88 @@
+<Resources>
+    <ResourceType Type="model">
+        <Resource Name="Aqueduct1" Path="assets/models/Aqueduct1.btx"/>
+        <Resource Name="AqueducttEnd1" Path="assets/models/AqueducttEnd1.btx"/>
+        <Resource Name="Arrow" Path="assets/models/Arrow.btx"/>
+        <Resource Name="Arrow1" Path="assets/models/Arrow1.btx"/>
+        <Resource Name="Barrel1" Path="assets/models/Barrel1.btx"/>
+        <Resource Name="Checkpoint1" Path="assets/models/Checkpoint.btx"/>
+        <Resource Name="Crate1" Path="assets/models/Crate1.btx"/>
+        <Resource Name="Grass1" Path="assets/models/Grass1.btx"/>
+        <Resource Name="House1" Path="assets/models/house1.btx"/>
+        <Resource Name="House2" Path="assets/models/house2.btx"/>
+        <Resource Name="House3" Path="assets/models/house3.btx"/>
+        <Resource Name="House4" Path="assets/models/house4.btx"/>
+        <Resource Name="House5" Path="assets/models/house5.btx"/>
+        <Resource Name="House6" Path="assets/models/house6.btx"/>
+        <Resource Name="MarketStand1" Path="assets/models/MarketStand1.btx"/>
+        <Resource Name="MarketStand2" Path="assets/models/MarketStand2.btx"/>
+        <Resource Name="Road1" Path="assets/models/Road1.btx"/>
+        <Resource Name="Road2" Path="assets/models/Road2.btx"/>
+        <Resource Name="Road3" Path="assets/models/Road3.btx"/>
+        <Resource Name="Road4" Path="assets/models/Road4.btx"/>
+        <Resource Name="Road5" Path="assets/models/Road5.btx"/>
+        <Resource Name="Sidewalk1" Path="assets/models/Sidewalk1.btx"/>
+        <Resource Name="Stair1" Path="assets/models/Stair1.btx"/>
+        <Resource Name="Scaffold1" Path="assets/models/Scaffold1.btx"/>
+        <Resource Name="Scaffold2" Path="assets/models/Scaffold2.btx"/>
+        <Resource Name="Scaffold3" Path="assets/models/Scaffold3.btx"/>
+        <Resource Name="Scaffold4" Path="assets/models/Scaffold4.btx"/>
+        <Resource Name="StoneBrick1" Path="assets/models/StoneBrick1.btx"/>
+        <Resource Name="StoneBrick2" Path="assets/models/StoneBrick2.btx"/>
+        <Resource Name="Vege1" Path="assets/models/Vege1.btx"/>
+        <Resource Name="Vege2" Path="assets/models/Vege2.btx"/>
+        <Resource Name="Street1" Path="assets/models/Street1.btx"/>
+        <Resource Name="Tree1" Path="assets/models/Tree1.btx"/>
+        <Resource Name="Dzala" Path="assets/models/Dzala.btx"/>
+        <Resource Name="WoodenShed1" Path="assets/models/WoodenShed1.btx"/>
+        <Resource Name="ZaneFirewind" Path="assets/models/ZaneFirewind.btx"/>
+    </ResourceType>
+    <ResourceType Type="volume">
+        <Resource Name="Barrel1" Path="assets/volumes/CB_Barrel1.txc"/>
+        <Resource Name="Crate1" Path="assets/volumes/CB_Crate1.txc"/>
+        <Resource Name="Grass1" Path="assets/volumes/temp/CB_Grass1.txc"/>
+        <Resource Name="House1" Path="assets/volumes/CB_House1.txc"/>
+        <Resource Name="House2" Path="assets/volumes/CB_House2.txc"/>
+        <Resource Name="House3" Path="assets/volumes/CB_House3.txc"/>
+        <Resource Name="House4" Path="assets/volumes/CB_House4.txc"/>
+        <Resource Name="House5" Path="assets/volumes/CB_House5.txc"/>
+        <Resource Name="House6" Path="assets/volumes/CB_House6.txc"/>
+        <Resource Name="MarketStand1" Path="assets/volumes/CB_MarketStand1.txc"/>
+        <Resource Name="MarketStand2" Path="assets/volumes/CB_MarketStand2.txc"/>
+        <Resource Name="Road1" Path="assets/volumes/CB_Road1.txc"/>
+        <Resource Name="Road2" Path="assets/volumes/CB_Road2.txc"/>
+        <Resource Name="Road3" Path="assets/volumes/CB_Road3.txc"/>
+        <Resource Name="Road4" Path="assets/volumes/CB_Road4.txc"/>
+        <Resource Name="Road5" Path="assets/volumes/CB_Road5.txc"/>
+        <Resource Name="Sidewalk1" Path="assets/volumes/CB_Sidewalk1.txc"/>
+        <Resource Name="Stair1" Path="assets/volumes/CB_Stair1.txc"/>
+        <Resource Name="Scaffold1" Path="assets/volumes/CB_Scaffold1.txc"/>
+        <Resource Name="Scaffold2" Path="assets/volumes/CB_Scaffold2.txc"/>
+        <Resource Name="Scaffold3" Path="assets/volumes/CB_Scaffold3.txc"/>
+        <Resource Name="Scaffold4" Path="assets/volumes/CB_Scaffold4.txc"/>
+        <Resource Name="StoneBrick2" Path="assets/volumes/CB_StoneBrick2.txc"/>
+        <Resource Name="Street1" Path="assets/volumes/CB_Street1.txc"/>
+        <Resource Name="Tree1" Path="assets/volumes/CB_Tree1.txc"/>
+        <Resource Name="Vege1" Path="assets/volumes/temp/CB_Vege1.txc"/>
+        <Resource Name="Vege2" Path="assets/volumes/temp/CB_Vege2.txc"/>
+        <Resource Name="WoodenShed1" Path="assets/volumes/CB_WoodenShed1.txc"/>
+    </ResourceType>
+    <ResourceType Type="texture">
+        <Resource Name="TEXTURE_NOT_FOUND" Path="assets/textures/TextureNotFound_COLOR.dds"/>
+        <Resource Name="MANA_BAR" Path="assets/textures/manabar.dds"/>
+        <Resource Name="SKYBOXDDS" Path="assets/textures/Skybox1_COLOR.dds"/>
+        <Resource Name="Particle1" Path="assets/textures/Particle1.dds"/>
+    </ResourceType>
+    <ResourceType Type="sound">
+        <Resource Name="Background" Path="assets/sounds/Mainbackground.mp3"/>
+    </ResourceType>
+    <ResourceType Type="particle">
+        <Resource Name="TestParticle" Path="assets/particles/TestParticle.xml"/>
+    </ResourceType>
+    <ResourceType Type="spell">
+        <Resource Name="TestSpell" Path="assets/spells/TestSpell.xml"/>
+    </ResourceType>
+    <ResourceType Type="animation">
+        <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>
+    </ResourceType>
+</Resources>

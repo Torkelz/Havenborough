@@ -9,7 +9,7 @@ FOR %%i IN (%3\%%~nf.tx) DO SET DATE1=%%~ti
 FOR %%i IN (%2\models\%%~nf.btx) DO SET DATE2=%%~ti
 IF NOT "!DATE1!" EQU "!DATE2!" (
 echo Started converting %%~nf
-call %1 %%f > NUL
+call %1 %2 %%f > NUL
 move /y %3\%%~nf.btx %2\models\ > NUL
 IF EXIST %3\%%~nf.atx (
 move /y %3\%%~nf.atx %2\animations\ > NUL
@@ -19,7 +19,7 @@ echo Updated the %%~nf.btx to a newer version.
 ) 
 ) ELSE (
 echo Started converting %%~nf
-call %1 %%f > NUL
+call %1 %2 %%f > NUL
 move /y %3\%%~nf.btx %2\models\ > NUL
 IF EXIST %3\%%~nf.atx (
 move /y %3\%%~nf.atx %2\animations\ > NUL

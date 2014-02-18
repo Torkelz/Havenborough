@@ -55,6 +55,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,6 +92,11 @@
     <ClInclude Include="Source\InstanceLoader.h" />
     <ClInclude Include="Source\ModelConverter.h" />
     <ClInclude Include="Source\ModelLoader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{8c7b8d02-7172-4ae2-a0df-2e5a5fc9f23f}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
