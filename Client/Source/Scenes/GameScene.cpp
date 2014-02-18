@@ -555,8 +555,8 @@ void GameScene::loadSandboxModels()
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "fire"));
-	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "TestParticle");
 }
 
 void GameScene::releaseSandboxModels()

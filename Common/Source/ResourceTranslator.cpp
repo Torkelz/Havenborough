@@ -101,7 +101,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 
 	static const std::pair<std::string, std::string> particleMap[] =
 	{
-		std::make_pair("fire", "assets/particles/fire.xml"),
+		std::make_pair("TestParticle", "assets/particles/particleEffects.xml"),
 	};
 	static const size_t numParticles = sizeof(particleMap) / sizeof(particleMap[0]);
 

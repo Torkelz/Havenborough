@@ -480,10 +480,15 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-bool Graphics::createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename)
+bool Graphics::createParticleEffectDefinition(const char *p_FileId, const char *p_FilePath)
 {
-	m_ParticleEffectDefinitionList.insert(make_pair(p_ParticleEffectId,
-		m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId)));
+	std::vector<ParticleEffectDefinition::ptr> tempList = m_ParticleFactory->createParticleEffectDefinition(p_FilePath);
+	
+	for (unsigned int i = 0; i < tempList.size(); i++)
+	{
+		m_ParticleEffectDefinitionList.insert(make_pair(tempList[i]->particleSystemName, tempList[i]));
+	}
+
 	return true;
 }
 

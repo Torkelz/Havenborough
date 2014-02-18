@@ -117,7 +117,7 @@ public:
 	bool releaseTexture(const char *p_TextureId) override;	
 
 	//Particles
-	bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_filename) override;
+	bool createParticleEffectDefinition(const char *p_FileId, const char *p_filePath) override;
 	bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) override;
 
 	InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) override;
