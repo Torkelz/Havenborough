@@ -272,6 +272,15 @@
     <ClCompile Include="Source\TestTweakSettings.cpp">
       <Filter>TestSettings</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Common\TestHumanAnimationComponent.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TestRAM_Info.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp">
+      <Filter>TestGraphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
