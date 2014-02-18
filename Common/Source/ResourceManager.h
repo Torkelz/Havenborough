@@ -65,6 +65,8 @@ public:
 	bool registerFunction(std::string p_Type, std::function<bool(const char*, const char*)> p_CreateFunc,
 		std::function<bool(const char*)> p_ReleaseFunc);
 	
+	void loadDataFromFile(std::string p_FilePath);
+
 	/**
 	 * Loads a resource.
 	 * @param p_ResourceType type of resource

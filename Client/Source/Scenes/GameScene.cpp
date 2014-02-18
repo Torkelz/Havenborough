@@ -548,8 +548,8 @@ void GameScene::loadSandboxModels()
 		m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
 	}
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
-	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Dzala"));
+	m_Graphics->linkShaderToModel("AnimatedShader", "Dzala");
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_Graphics->linkShaderToParticles("DefaultParticleShader", "TestParticle");

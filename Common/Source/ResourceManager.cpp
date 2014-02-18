@@ -1,6 +1,7 @@
 #include "ResourceManager.h"
 #include "CommonExceptions.h"
 #include "Logger.h"
+#include <istream>
 
 using std::string;
 using std::vector;
@@ -66,6 +67,15 @@ bool ResourceManager::registerFunction(string p_Type, std::function<bool(const c
 	return true;
 }
 
+void ResourceManager::loadDataFromFile(std::string p_FilePath)
+{
+	std::ifstream file(p_FilePath, std::ifstream::in);
+	if(!file)
+	{
+		throw CommonException("Load resource file failed!", __LINE__, __FILE__);
+	}
+	m_ResourceTranslator.loadResourceList(file);
+}
 
 int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 {
