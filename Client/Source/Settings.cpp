@@ -62,7 +62,7 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 			else			
 				keyValue = (unsigned short)*value;
 
-			m_KeyMap.push_back(make_pair(std::string(commandValue), keyValue));
+			m_KeyMap.insert(make_pair(std::string(commandValue), keyValue));
 		}
 		else if(elementName == "MouseMap")
 		{
@@ -94,7 +94,7 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 			else if(keyValue == "Extra_2")
 				value = MouseButton::EXTRA_2;
 
-			m_MouseButtonMap.push_back(make_pair(std::string(commandValue), value));
+			m_MouseButtonMap.insert(make_pair(std::string(commandValue), value));
 		}
 	}
 }
@@ -118,7 +118,7 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 	}
 }
 
-const Settings::vectorpairKeyMap &Settings::getKeyMap() const
+const std::map<std::string, unsigned short> &Settings::getKeyMap() const
 {
 	return m_KeyMap;
 }
@@ -128,7 +128,7 @@ const std::vector<Settings::MouseStruct> &Settings::getMouseMap() const
 	return m_MouseMap;
 }
 
-const Settings::vectorpairMouseButtonMap &Settings::getMouseButtonMap() const
+const std::map<std::string, MouseButton> &Settings::getMouseButtonMap() const
 {
 	return m_MouseButtonMap;
 }

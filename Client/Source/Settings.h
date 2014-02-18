@@ -16,13 +16,10 @@ public:
 		std::string position;
 		Axis axis;
 	};
-
-	typedef std::vector<std::pair<std::string, unsigned short>> vectorpairKeyMap;
-	typedef std::vector<std::pair<std::string, MouseButton>> vectorpairMouseButtonMap;
 private:
-	vectorpairKeyMap m_KeyMap;
+	std::map<std::string, unsigned short> m_KeyMap;
 	std::vector<MouseStruct> m_MouseMap;
-	vectorpairMouseButtonMap m_MouseButtonMap;
+	std::map<std::string, MouseButton> m_MouseButtonMap;
 
 	std::map<std::string, bool> m_SettingsEnabled;
 	Vector2 m_Resolution;
@@ -31,14 +28,42 @@ public:
 	~Settings(void);
 
 	/*
-	 * 
+	 * Initialize and load the settings file.
+	 *
+	 * @param p_FilePath, the path and filename to the .xml settings file.
 	 */
 	void initialize(std::string p_FilePath);
 
-	const vectorpairKeyMap &getKeyMap() const;
+	/*
+	 * Get key mapping.
+	 *
+	 * @return the keymapping read from options file.
+	 */
+	const std::map<std::string, unsigned short> &getKeyMap() const;
+	/*
+	 * Get the mouse mapping.
+	 *
+	 * @return the mouse mapping read from options file.
+	 */
 	const std::vector<MouseStruct> &getMouseMap() const;
-	const vectorpairMouseButtonMap &getMouseButtonMap() const;
+	/*
+	 * Get the mouse button mapping.
+	 *
+	 * @return the mouse button mapping read from options file.
+	 */
+	const std::map<std::string, MouseButton> &getMouseButtonMap() const;
+	/*
+	 * Get true or false for settings.
+	 *
+	 * @param p_SettingName, the name of the setting to receive if it is true or false.
+	 * @return true or false depending on setting read from file.
+	 */
 	const bool getIsSettingEnabled(std::string p_SettingName) const;
+	/*
+	 * Get the window size which is read from file.
+	 *
+	 * @return the window size as a Vector2.
+	 */
 	const Vector2 getResolution() const;
 private:
 	void loadControls(tinyxml2::XMLElement *p_Element);

@@ -89,7 +89,7 @@ void BaseGameApp::init()
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
 
 	//Adding the loaded keymaps to the translator
-	const Settings::vectorpairKeyMap keys = settings.getKeyMap();
+	const std::map<std::string, unsigned short> keys = settings.getKeyMap();
 	for(auto k : keys)
 		translator->addKeyboardMapping(k.second, k.first);
 
@@ -99,7 +99,7 @@ void BaseGameApp::init()
 		translator->addMouseMapping(k.axis, k.position, k.movement);
 
 	//Adding the loaded mousebuttonmaps to the translator
-	const Settings::vectorpairMouseButtonMap mousebuttonKeys = settings.getMouseButtonMap();
+	const std::map<std::string, MouseButton> mousebuttonKeys = settings.getMouseButtonMap();
 	for(auto k : mousebuttonKeys)
 		translator->addMouseButtonMapping(k.second, k.first);
 
