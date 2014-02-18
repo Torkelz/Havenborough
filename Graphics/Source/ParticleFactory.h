@@ -62,7 +62,7 @@ private:
 	std::shared_ptr<Buffer> createParticleBuffer(unsigned int p_MaxParticles);
 	std::shared_ptr<Buffer> createConstBuffer();
 
-	ID3D11ShaderResourceView *loadTexture(const char *p_Filename, const char *p_Identifier);
+	ID3D11ShaderResourceView *loadTexture(const char *p_Filepath, const char *p_Identifier);
 
 	ID3D11ShaderResourceView *getTextureFromList(std::string p_Identifier);
 	void createSampler(ID3D11Device* p_Device);

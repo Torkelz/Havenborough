@@ -2,7 +2,7 @@
 	<Effect effectName="fire">
 		<DiffuseTexture textureResourceName="Particle1.dds" />
 		<MaxParticles maxParticles="900" />
-		<ParticlesPerSec ParticlesPerSec="900" />
+		<ParticlesPerSec particlesPerSec="900" />
 		<MaxLife maxLife="0.6" />
 		<MaxLifeDeviation maxLifeDeviation="0.2" />
 		<ParticleSize X="8.0" Y="8.0" />
