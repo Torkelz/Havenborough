@@ -5,6 +5,7 @@
 #include "Utilities/XMFloatUtil.h"
 
 #include <d3d11.h>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -22,6 +23,7 @@ public:
 private:
 	static ModelFactory *m_Instance;
 	std::map<std::string, ID3D11ShaderResourceView*> *m_TextureList;
+	std::map<std::string, Shader*> *m_ShaderList;
 
 	loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
@@ -35,9 +37,11 @@ public:
 
 	/**
 	* Initialize the factory.
-	* p_TextureList pointer to the texture list pair 
+	* @param p_TextureList pointer to the texture map with the available textures
+	* @param p_ShaderList pointer to the shader map with the available shaders
 	*/
-	void initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList);
+	void initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList,
+		std::map<std::string, Shader*> *p_ShaderList);
 
 	/**
 	* Shuts down the factory and releases the memory allocated. Nulls all pointers.

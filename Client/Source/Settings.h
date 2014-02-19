@@ -29,6 +29,7 @@ public:
 
 	/*
 	 * Initialize and load the settings file.
+	 * Throws an Client exception if any error occurs.
 	 *
 	 * @param p_FilePath, the path and filename to the .xml settings file.
 	 */
@@ -61,6 +62,7 @@ public:
 	const bool getIsSettingEnabled(std::string p_SettingName) const;
 	/*
 	 * Get the window size which is read from file.
+	 * If no resolution was read from file the default value is (1280,720)
 	 *
 	 * @return the window size as a Vector2.
 	 */

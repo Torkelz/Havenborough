@@ -7,10 +7,12 @@
     <LocalDebuggerCommandArguments>--log_level=message &gt; debug_log.txt</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)Bin</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerEnvironment>Path=$(FMOD_DLL_DIR);$(VLD_DLL_DIR)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommandArguments>--log_level=message &gt; release_log.txt</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)Bin</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerEnvironment>Path=$(FMOD_DLL_DIR);$(VLD_DLL_DIR)</LocalDebuggerEnvironment>
   </PropertyGroup>
 </Project>
