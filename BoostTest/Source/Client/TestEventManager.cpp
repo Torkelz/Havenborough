@@ -7,6 +7,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include "Animation.h"
+
 BOOST_AUTO_TEST_SUITE(TestEventManager)
 
 bool testFlag = false;
@@ -289,7 +291,10 @@ BOOST_AUTO_TEST_CASE(UpdateAnimationEventDataTest)
 {
 	std::vector<DirectX::XMFLOAT4X4> matrix;
 	matrix.push_back(DirectX::XMFLOAT4X4(1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4));
-	std::shared_ptr<UpdateAnimationEventData> eventData(new UpdateAnimationEventData(2, matrix));
+	DirectX::XMFLOAT4X4 world;
+	DirectX::XMStoreFloat4x4(&world, DirectX::XMMatrixIdentity());
+	Animation anim;
+	std::shared_ptr<UpdateAnimationEventData> eventData(new UpdateAnimationEventData(2, matrix, anim.getAnimationData(), world));
 
 	BOOST_CHECK(eventData->getName() == "UpdateAnimationEvent");
 	BOOST_CHECK(eventData->getEventType() == 0x14dd2b5d);
