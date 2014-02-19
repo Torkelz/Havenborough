@@ -29,7 +29,6 @@ protected:
 
 	bool				m_IsImmovable;
 	bool				m_IsEdge;
-	bool				m_CollisionResponse;
 	bool				m_Landed;
 
 	std::vector<BoundingVolume::ptr> m_Volumes;
@@ -128,15 +127,22 @@ public:
 	*/
 	bool getIsEdge();
 	/**
-	* Set if the body should have collision response.
+	* Set if the all volumes in the body should have collision response
+	* @param p_State, true if the volumes should react to collision otherwise false.
 	*/
 	void setCollisionResponse(bool p_State);
 	/**
-	* Shall the body react to collision response?
-	* @return a bool, if the body should have collision response.
+	* Set if a volume in the body should react to collision response.
+	* @param p_Volume, which volume in the body.
+	* @param p_State, true if the volume should react to collision
 	*/
-	bool getCollisionResponse();
-
+	void setCollisionResponse(int p_Volume, bool p_State);
+	/**
+	* Shall a volume in the body react to collision response?
+	* @param p_Volume, which volume in the body.
+	* @return a bool, if the volume should have collision response.
+	*/
+	bool getCollisionResponse(int p_Volume);
 	/**
 	* set collision victim
 	* @param p_Body which body that this collided against..
@@ -159,7 +165,10 @@ public:
 	* @return body's volume.
 	*/
 	BoundingVolume *getVolume(unsigned p_Volume);
-
+	/**
+	* Gets how many bounding volumes this body has
+	* @return the size of the list containing volumes.
+	*/
 	unsigned int getVolumeListSize();
 	/**
 	* Set the chosen volume's position that is connected to the body.
@@ -167,9 +176,6 @@ public:
 	* @param p_Position, the new position for the chosen volume.
 	*/
 	void setVolumePosition(unsigned p_Volume, DirectX::XMVECTOR const &p_Position);
-
-
-
 	/**
 	* Get the current velocity for the body.
 	* @return m_Velocity in m/s.
@@ -199,8 +205,6 @@ public:
 	* reset the BodyHandleCounter. Only use when clearing the body list in physics
 	*/
 	static void resetBodyHandleCounter();
-
-	
 	/**
 	* Get the current orientation for the body
 	* @return m_Orientation.

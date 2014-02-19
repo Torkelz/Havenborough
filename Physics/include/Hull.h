@@ -19,7 +19,7 @@ public:
 	 */
 	Hull(std::vector<Triangle> p_Triangles)
 	{
-		
+		m_BodyHandle = 0;
 		m_Position = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 		m_PrevPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 		m_Triangles = p_Triangles;
@@ -27,6 +27,7 @@ public:
 		float radius = findFarthestDistanceOnTriangle();
 		m_Scale = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f);
 		m_Sphere = Sphere( radius, m_Position );
+		m_CollisionResponse = true;
 	}
 
 	/**

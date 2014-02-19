@@ -241,11 +241,19 @@ public:
 	/**
 	 * Sets if a specific body should interact with physics or just check if the volume has been hit.
 	 *
-	 * @param p_Body the body which should not have any physical interaction
+	 * @param p_Body the body which to change the interaction on.
 	 * @param p_State, true if if it should be affected by physics, false if not
 	 */
 	virtual void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) = 0;
 
+	/**
+	 * Sets if a specific volume in a body should interact with physics or just check if the volume has been hit.
+	 *
+	 * @param p_Body which body the volume belongs to.
+	 * @param p_Volume, the volume which to change the interaction on.
+	 * @param p_State, true if if it should be affected by physics, false if not
+	 */
+	virtual void setBodyVolumeCollisionResponse(BodyHandle p_Body, int p_Volume, bool p_State) = 0;
 	/**
 	 * Callback for logging.
 	 *

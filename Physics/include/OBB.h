@@ -16,6 +16,7 @@ public:
 	*/
 	OBB()
 	{
+		m_BodyHandle	= 0;
 		m_Position		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); //OBB Center Point
 		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Extents		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -23,6 +24,7 @@ public:
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
 		m_Sphere		= Sphere();
 		m_Orientation	= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
+		m_CollisionResponse = true;
 	}
 
 	/**
@@ -32,6 +34,7 @@ public:
 	*/
 	OBB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Extents)
 	{
+		m_BodyHandle	= 0;
 		m_Position		= p_CenterPos; //OBB Center Point.
 		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Type			= Type::OBB;

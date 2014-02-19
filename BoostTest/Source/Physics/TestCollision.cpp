@@ -8,6 +8,7 @@ public:
 	DummyBoundingVolume()
 	{
 		m_Type = Type::NONE;
+		m_BodyHandle = 0;
 	}
 	~DummyBoundingVolume(){}
 

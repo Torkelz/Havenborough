@@ -90,50 +90,54 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 				if(i == j)
 					continue;
 
-				HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(), *m_Bodies[j].getVolume());
-			
-				if(hit.intersect)
+
+				for(unsigned int k = 0; k < b.getVolumeListSize(); k++)
 				{
-					hit.collider = m_Bodies.at(i).getHandle();
-					hit.collisionVictim = m_Bodies.at(j).getHandle();
-					hit.isEdge = m_Bodies.at(j).getIsEdge();
-					m_HitDatas.push_back(hit);
-
-					if(m_Bodies.at(i).getCollisionResponse() && m_Bodies.at(j).getCollisionResponse())
+					HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *m_Bodies[j].getVolume());
+			
+					if(hit.intersect)
 					{
-						XMVECTOR temp;		// m
-						XMFLOAT4 tempPos;	// m
+						hit.collider = m_Bodies.at(i).getHandle();
+						hit.collisionVictim = m_Bodies.at(j).getHandle();
+						hit.isEdge = m_Bodies.at(j).getIsEdge();
+						m_HitDatas.push_back(hit);
 
-						XMFLOAT4 vel = b.getVelocity();
-						XMVECTOR vVel = XMLoadFloat4(&vel);
-
-						XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
-						XMVECTOR posNorm = vNorm;
-
-						if (hit.colNorm.y > 0.7f)
+						if(m_Bodies.at(i).getCollisionResponse(k) && m_Bodies.at(j).getCollisionResponse(0))
 						{
-							if(!b.getOnSomething())
+							XMVECTOR temp;		// m
+							XMFLOAT4 tempPos;	// m
+
+							XMFLOAT4 vel = b.getVelocity();
+							XMVECTOR vVel = XMLoadFloat4(&vel);
+
+							XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
+							XMVECTOR posNorm = vNorm;
+
+							if (hit.colNorm.y > 0.7f)
 							{
-								b.setLanded(true);
+								if(!b.getOnSomething())
+								{
+									b.setLanded(true);
+								}
+
+								isOnGround = true;
+
+								posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+								vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
+							}
+							else
+							{
+								vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
 							}
 
-							isOnGround = true;
+							XMStoreFloat4(&vel, vVel);
+							b.setVelocity(vel);
 
-							posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-							vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
+							temp = XMLoadFloat4(&b.getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
+							XMStoreFloat4(&tempPos, temp);
+
+							b.setPosition(tempPos);
 						}
-						else
-						{
-							vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
-						}
-
-						XMStoreFloat4(&vel, vVel);
-						b.setVelocity(vel);
-
-						temp = XMLoadFloat4(&b.getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
-						XMStoreFloat4(&tempPos, temp);
-
-						b.setPosition(tempPos);
 					}
 				}
 			}
@@ -441,6 +445,15 @@ void Physics::setBodyCollisionResponse(BodyHandle p_Body, bool p_State)
 	body->setCollisionResponse(p_State);
 }
 
+void Physics::setBodyVolumeCollisionResponse(BodyHandle p_Body, int p_Volume, bool p_State)
+{
+	Body *body = findBody(p_Body);
+	if(!body)
+		return;
+
+	body->setCollisionResponse(p_Volume, p_State);
+}
+
 Vector3 Physics::getBodyPosition(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
@@ -589,7 +602,7 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 											XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 1).m_Postition),
 											XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 2).m_Postition));
 			triangle.uniformScale(((Sphere*)volume)->getRadius());
-			triangle.translate(XMFLOAT4ToVector4(&body->getPosition()));
+			triangle.translate(XMFLOAT4ToVector4(&volume->getPosition()));
 			triangle.uniformScale(100.f);
 			return triangle;
 		}

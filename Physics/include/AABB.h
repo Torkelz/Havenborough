@@ -21,6 +21,7 @@ public:
 	 */
 	AABB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
 	{
+		m_BodyHandle = 0;
 		m_Position = p_CenterPos;
 		m_Size.x = p_Size.x;
 		m_Size.y = p_Size.y;
@@ -30,6 +31,7 @@ public:
 		m_Type		= Type::AABBOX;
 
 		calculateBounds();
+		m_CollisionResponse = true;
 	}
 	/**
 	* Destructor

@@ -14,9 +14,12 @@ void Body::resetBodyHandleCounter()
 }
 
 Body::Body(float p_mass, BoundingVolume::ptr p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
-	: m_Handle(getNextHandle()), m_CollisionResponse(true)
+	: m_Handle(getNextHandle())
 {
 	m_Volumes.push_back(std::move(p_BoundingVolume));
+
+	m_Volumes.at(0)->setBodyHandle(m_Handle);
+
 	m_Mass = p_mass;	
 	m_Position			= m_Volumes.at(0)->getPosition();
 	m_NetForce			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -51,7 +54,6 @@ Body::Body(Body &&p_Other)
 	  m_OnSomething(p_Other.m_OnSomething),
 	  m_IsImmovable(p_Other.m_IsImmovable),
 	  m_IsEdge(p_Other.m_IsEdge),
-	  m_CollisionResponse(p_Other.m_CollisionResponse),
 	  m_Landed(p_Other.m_Landed)
 {}
 
@@ -72,7 +74,6 @@ Body& Body::operator=(Body&& p_Other)
 	std::swap(m_OnSomething, p_Other.m_OnSomething);
 	std::swap(m_IsImmovable, p_Other.m_IsImmovable);
 	std::swap(m_IsEdge, p_Other.m_IsEdge);
-	std::swap(m_CollisionResponse, p_Other.m_CollisionResponse);
 	std::swap(m_Landed, p_Other.m_Landed);
 
 	return *this;
@@ -108,6 +109,7 @@ void Body::addImpulse(DirectX::XMFLOAT4 p_Impulse)
 
 void Body::addVolume(BoundingVolume::ptr p_Volume)
 {
+	p_Volume->setBodyHandle(m_Handle);
 	m_Volumes.push_back(std::move(p_Volume));
 }
 
@@ -153,8 +155,6 @@ void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
 	XMFLOAT4X4 tempTrans;
 
 	XMStoreFloat4x4(&tempTrans, matTrans);
-
-	///m_Volumes[0]->updatePosition(tempTrans);
 
 	for(auto &v : m_Volumes)
 		v->updatePosition(tempTrans);
@@ -232,12 +232,18 @@ bool Body::getIsEdge()
 
 void Body::setCollisionResponse(bool p_State)
 {
-	m_CollisionResponse = p_State;
+	for(unsigned int i = 0; i < m_Volumes.size(); i++)
+		m_Volumes.at(i)->setCollisionResponse(p_State);
 }
 
-bool Body::getCollisionResponse()
+void Body::setCollisionResponse(int p_Volume, bool p_State)
 {
-	return m_CollisionResponse;
+	m_Volumes.at(p_Volume)->setCollisionResponse(p_State);
+}
+
+bool Body::getCollisionResponse(int p_Volume)
+{
+	return m_Volumes.at(p_Volume)->getCollisionResponse();
 }
 
 BoundingVolume* Body::getVolume()

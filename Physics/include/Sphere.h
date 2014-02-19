@@ -13,10 +13,12 @@ public:
 	*/
 	Sphere()
 	{
+		m_BodyHandle = 0;
 		setRadius(0.0f);
 		m_Position = DirectX::XMFLOAT4(0.f,0.f,0.f,1.f);
 
 		m_Type = Type::SPHERE;
+		m_CollisionResponse = true;
 	}
 	/**
 	* Constructor, set radius and position to the inputs, calculate sqrRadius.
@@ -25,6 +27,7 @@ public:
 	*/
 	Sphere(float p_Radius, DirectX::XMFLOAT4 p_Pos) : BoundingVolume()
 	{
+		m_BodyHandle = 0;
 		setRadius(p_Radius);
 		m_Position = p_Pos;
 		

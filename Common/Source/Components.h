@@ -490,8 +490,8 @@ public:
 	{
 		m_Body = m_Physics->createBVInstance(m_MeshName.c_str());
 		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
-		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
 		m_Physics->setBodyScale(m_Body, m_Scale);
+		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -646,6 +646,9 @@ public:
 		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphere, m_RadiusFoot);
 		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphere, m_RadiusFoot);
 
+		m_Physics->setBodyVolumeCollisionResponse(m_Body, 2, false);
+		m_Physics->setBodyVolumeCollisionResponse(m_Body, 3, false);
+
 		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
 		m_Physics->setBodyScale(m_Body, m_Scale);
 	}
@@ -674,17 +677,6 @@ public:
 	void setPosition(Vector3 p_Position) override
 	{
 		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositionSphere);
-
-		using namespace DirectX;
-		XMFLOAT4X4 rotMat = m_Owner->getWorldMatrix();
-		XMMATRIX mRotMat = XMMatrixTranspose(XMLoadFloat4x4(&rotMat));
-		XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(m_OffsetPositionBox));
-		pos = XMVectorSetW(pos, 0.f);
-		XMVECTOR rotPos = XMVector4Transform(pos, mRotMat);
-		XMFLOAT3 fRotPos;
-		XMStoreFloat3(&fRotPos, rotPos);
-
-		//m_Physics->setBodyVolumePosition(m_Body, 1, p_Position + fRotPos);
 	}
 
 	void setRotation(Vector3 p_Rotation) override

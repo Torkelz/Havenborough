@@ -7,6 +7,10 @@ using namespace DirectX;
 
 HitData Collision::boundingVolumeVsBoundingVolume(BoundingVolume const &p_Volume1, BoundingVolume const &p_Volume2)
 {
+	if(p_Volume1.getBodyHandle() == p_Volume2.getBodyHandle())
+		if(p_Volume1.getBodyHandle() != 0)
+				return HitData();
+
 	BoundingVolume::Type type = p_Volume2.getType();
 
 	switch(type)

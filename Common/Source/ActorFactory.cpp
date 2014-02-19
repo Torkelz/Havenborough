@@ -180,10 +180,25 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.PushAttribute("RadiusCenter", 30.f);
 	printer.PushAttribute("RadiusFoot", 10.f);
 	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "Halfsize", Vector3(30.f, 55.f, 30.f));
+	pushVector(printer, "Halfsize", Vector3(25.f, 80.f, 25.f));
 	pushVector(printer, "OffsetPositionSphere", Vector3(0.f, 30.f, 0.f));
-	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 115.f, 0.f));
+	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 100.f, 0.f));
 	printer.CloseElement();
+
+	//printer.OpenElement("OBBPhysics");
+	//printer.PushAttribute("Mass", 68.f);
+	//printer.PushAttribute("Immovable", false);
+	//printer.PushAttribute("IsEdge", false);
+	//pushVector(printer, "Halfsize", Vector3(30.f, 80.f, 30.f));
+	//pushVector(printer, "OffsetPosition", Vector3(0.f, 80.f, 0.f));
+	//printer.CloseElement();
+
+	//printer.OpenElement("SpherePhysics");
+	//printer.PushAttribute("Mass", 68.f);
+	//printer.PushAttribute("Radius", 30.f);
+	//printer.PushAttribute("Immovable", false);
+	//pushVector(printer, "OffsetPosition", Vector3(0.f, 30.f, 0.f));
+	//printer.CloseElement();
 
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);

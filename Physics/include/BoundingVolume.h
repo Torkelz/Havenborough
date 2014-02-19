@@ -17,6 +17,8 @@ protected:
 	DirectX::XMFLOAT4	m_Position;
 	DirectX::XMFLOAT4	m_PrevPosition;
 	Type				m_Type;
+	bool				m_CollisionResponse;
+	unsigned int		m_BodyHandle;
 
 public:
 	typedef std::unique_ptr<BoundingVolume> ptr;
@@ -55,10 +57,44 @@ public:
 	{
 		return m_Type;
 	}
-
+	/**
+	 * Set if the boundingVolume should have collision response or not.
+	 * @param p_ShouldRespond, true if the volume should respond to collisions otherwise false
+	 */
+	void setCollisionResponse(bool p_ShouldRespond)
+	{
+		m_CollisionResponse = p_ShouldRespond;
+	}
+	/**
+	 * Should the volume respond to collision or not.
+	 * @return p_ShouldRespond, true if the volume should respond to collisions otherwise false
+	 */
+	bool getCollisionResponse() const
+	{
+		return m_CollisionResponse;
+	}
+	/**
+	 * Scales the volume.
+	 * @param p_Scale, Scale vector to use when scaling.
+	 */
 	virtual void scale(DirectX::XMVECTOR const &p_Scale) = 0;
 
+	/**
+	 * Rotates the volume.
+	 * @param p_Rotation, Rotation vector containing RollPitchYaw
+	 * Note! Spheres and AABB can not be rotated!
+	 */
 	virtual void setRotation(DirectX::XMMATRIX const &p_Rotation) = 0;
 	
+	unsigned int getBodyHandle() const
+	{
+		return m_BodyHandle;
+	}
+
+	void setBodyHandle(unsigned int p_BodyHandle)
+	{
+		m_BodyHandle = p_BodyHandle;
+	}
+
 	virtual ~BoundingVolume(){};
 };

@@ -51,6 +51,7 @@ public:
 	bool getBodyLanded(BodyHandle p_Body) override;
 
 	void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) override;
+	void setBodyVolumeCollisionResponse(BodyHandle p_Body, int volume, bool p_State) override;
 	Vector3 getBodyPosition(BodyHandle p_Body) override;
 
 	Vector3 getBodySize(BodyHandle p_Body) override;
