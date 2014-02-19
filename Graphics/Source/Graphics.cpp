@@ -6,6 +6,7 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <algorithm>
+#include <d3d11_1.h>
 
 using namespace DirectX;
 using std::vector;
@@ -151,6 +152,10 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 		throw GraphicsException("Error when creating the device and swap chain", __LINE__,__FILE__);
 	}
 
+	/*ID3D11Device1* device1 = nullptr;
+	HRESULT hrr = m_Device->QueryInterface(__uuidof (ID3D11Device1), (void **) &device1);
+	m_Device = device1;*/
+
 	result = createRenderTargetView();
 	if(FAILED(result))
 	{
@@ -243,7 +248,52 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	m_BVShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/BoundingVolume.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	
+	
+	ID3D11Texture2D *tex;
+	D3D11_TEXTURE2D_DESC desc = {0};
+	desc.ArraySize          = 1 ;
+	desc.BindFlags          = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE ;
+	desc.CPUAccessFlags     = 0;
+	desc.Format             = DXGI_FORMAT_B8G8R8A8_UNORM;
+	desc.Width              = p_ScreenWidth;
+	desc.Height             = p_ScreenHeight;
+	desc.MipLevels          = 1;
+	desc.MiscFlags          = D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX ; // because it will be shared between d3d10.1/d2d1 and d3d11
+	desc.SampleDesc.Count   = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage              = D3D11_USAGE_DEFAULT;
 
+
+	m_Device->CreateTexture2D(&desc,nullptr,&tex);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc ;
+	srvDesc.Format = DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM ;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION::D3D11_SRV_DIMENSION_TEXTURE2D ;
+	D3D11_TEX2D_SRV tex2dsrv;
+	tex2dsrv.MipLevels = -1;
+	tex2dsrv.MostDetailedMip = 0;
+	srvDesc.Texture2D = tex2dsrv;
+	m_Device->CreateShaderResourceView(tex, &srvDesc, &textSRV);
+
+	tex->QueryInterface<IDXGIKeyedMutex>(&dxgiKeyedMutex11);
+	
+	
+	IDXGISurface *renderTarget = nullptr;
+	IDXGIResource *dxgiResource;
+	HANDLE hand;
+	ID3D11Resource *res;
+	tex->QueryInterface(&dxgiResource);
+	dxgiResource->GetSharedHandle(&hand);
+	dxgiResource->QueryInterface(&dxgiKeyedMutex10);
+	HRESULT hr = m_Device->OpenSharedResource( hand, __uuidof(IDXGISurface1), (void**)&renderTarget);
+	
+	
+	
+	
+	textRender.initialize(&p_Hwnd, renderTarget);
+
+	
 	return true;
 }
 
@@ -666,6 +716,8 @@ void Graphics::setClearColor(Vector4 p_Color)
 
 void Graphics::drawFrame(void)
 {
+	
+
 	if (!m_DeviceContext || !m_DeferredRender || !m_ForwardRenderer)
 	{
 		throw GraphicsException("", __LINE__, __FILE__);
@@ -673,6 +725,11 @@ void Graphics::drawFrame(void)
 
 	Begin(m_ClearColor);
 
+	dxgiKeyedMutex10->AcquireSync(0, INFINITE);
+	textRender.draw();
+	dxgiKeyedMutex10->ReleaseSync(1);
+
+	dxgiKeyedMutex11->AcquireSync(1, INFINITE);
 	m_DeferredRender->renderDeferred();
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
@@ -681,6 +738,7 @@ void Graphics::drawFrame(void)
 	{
 		m_Shader->setShader();
 		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
+		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 1, 1, textSRV);
 		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
 		
@@ -693,14 +751,13 @@ void Graphics::drawFrame(void)
 		{
 			m_ForwardRenderer->addRenderable(particle.second);
 		}
-		m_ForwardRenderer->renderForward();
-		drawBoundingVolumes();
-		m_ScreenRenderer->renderScreen();
+		//m_ForwardRenderer->renderForward();
+		//drawBoundingVolumes();
+		//m_ScreenRenderer->renderScreen();
 
 	}
-
 	End();
-
+	dxgiKeyedMutex11->ReleaseSync(0);
 	//Delete lights
 	m_PointLights.clear();
 	m_SpotLights.clear();
@@ -971,7 +1028,7 @@ HRESULT Graphics::createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p
 	// Set the feature level to DirectX 11.
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1, 
+	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_BGRA_SUPPORT, &featureLevel, 1, 
 		D3D11_SDK_VERSION, &swapChainDesc, &m_SwapChain, &m_Device, NULL, &m_DeviceContext);
 }
 
@@ -991,6 +1048,7 @@ HRESULT Graphics::createRenderTargetView(void)
 
 	D3D11_TEXTURE2D_DESC desc;
 	backBufferPtr->GetDesc(&desc);
+	desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
 	int usage = VRAMInfo::getInstance()->calculateFormatUsage(desc.Format, desc.Width, desc.Height);
 	VRAMInfo::getInstance()->updateUsage(usage);
 	//Create the render target view with the back buffer pointer.

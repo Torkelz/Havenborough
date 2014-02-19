@@ -19,6 +19,7 @@
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
 #include "ScreenRenderer.h"
+#include "SimpleText.h"
 
 class Graphics : public IGraphics
 {
@@ -93,6 +94,11 @@ private:
 	
 	IGraphics::releaseModelTextureCallBack m_ReleaseModelTexture;
 	void *m_ReleaseModelTextureUserdata;
+
+	SimpleText textRender;
+
+	ID3D11ShaderResourceView *textSRV;
+	IDXGIKeyedMutex *dxgiKeyedMutex10, *dxgiKeyedMutex11;
 
 public:
 	Graphics(void);
