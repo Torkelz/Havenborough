@@ -54,7 +54,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateAnimation), UpdateAnimationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffectInstance), RemoveParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
@@ -219,9 +219,11 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	}
 	else if(p_Action ==  "changeViewN" && p_Value == 1)
 	{
-		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
-		if((unsigned int)m_CurrentDebugView < 0)
+		if((unsigned int)m_CurrentDebugView == 0)
 			m_CurrentDebugView = (IGraphics::RenderTarget)4;
+		else
+			m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+
 		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
@@ -403,13 +405,10 @@ void GameScene::changeColorTone(IEventData::Ptr p_Data)
 void GameScene::createParticleEffect(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<CreateParticleEventData> data = std::static_pointer_cast<CreateParticleEventData>(p_Data);
-
-	int resource = m_ResourceManager->loadResource("particleSystem", data->getEffectName());
-	m_Graphics->linkShaderToParticles("DefaultParticleShader", data->getEffectName().c_str());
-
+	
 	ParticleBinding particle =
 	{
-		resource,
+		data->getEffectName(),
 		m_Graphics->createParticleEffectInstance(data->getEffectName().c_str())
 	};
 
@@ -418,7 +417,7 @@ void GameScene::createParticleEffect(IEventData::Ptr p_Data)
 	m_Particles[data->getId()] = particle;
 }
 
-void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
+void GameScene::removeParticleEffectInstance(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<RemoveParticleEventData> data = std::static_pointer_cast<RemoveParticleEventData>(p_Data);
 
@@ -427,10 +426,10 @@ void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
 	if (it != m_Particles.end())
 	{
 		m_Graphics->releaseParticleEffectInstance(it->second.instance);
-		m_ResourceManager->releaseResource(it->second.resourceId);
 		m_Particles.erase(it);
 	}
 }
+
 
 void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 {
@@ -540,7 +539,7 @@ void GameScene::loadSandboxModels()
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "fire"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");
 }
 
