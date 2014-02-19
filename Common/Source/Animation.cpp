@@ -361,63 +361,64 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 		wantedJointAngle = XMScalarACos(cosAngle);
 	}
 
-	wantedJointAngle = 3.14f;
-
-	XMVECTOR nmlStartToJoint = XMVector4Normalize(startToJoint);
-	XMVECTOR nmlJointToEnd = XMVector4Normalize(jointToEnd);
+	XMVECTOR nmlStartToJoint = XMVector3Normalize(startToJoint);
+	XMVECTOR nmlJointToEnd = XMVector3Normalize(jointToEnd);
 
 	float currentJointAngle = XMScalarACos(XMVector3Dot(-nmlStartToJoint, nmlJointToEnd).m128_f32[0]);
 	float diffJointAngle = wantedJointAngle - currentJointAngle;
 
-	XMFLOAT4X4 tempMatrixData = middleCombinedTransformedData;
-	XMMATRIX tempMatrix = XMMatrixTranspose(XMLoadFloat4x4(&tempMatrixData));
-	XMVECTOR trueHinge = XMVector3Cross(startToJoint, jointToEnd);
-	trueHinge = XMVector3Transform(trueHinge, XMMatrixInverse(nullptr, tempMatrix));
-	trueHinge = XMVector3Normalize(trueHinge);
+	XMVECTOR rotationAxis = XMVector3Cross(-nmlStartToJoint, nmlJointToEnd);
+	rotationAxis = XMVector3Transform(rotationAxis, XMMatrixTranspose(middleCombinedTransform));
+	rotationAxis = XMVector3Normalize(rotationAxis);
 
-	// Use the loaded hinge axis.
-	XMVECTOR rotationAxis = XMLoadFloat3(&p_Group.m_ElbowHingeAxis);
-	rotationAxis = trueHinge;
-	XMMATRIX rotation = XMMatrixRotationAxis(rotationAxis, diffJointAngle);
+	XMVECTOR objectJointToStart = XMVector4Transform(XMVectorSet(0.f, 0.f, 0.f, 1.f), XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1]))));
+	XMVECTOR objectJointToEnd = XMVector4Transform(XMVectorSet(0.f, 0.f, 0.f, 1.f), XMMatrixTranspose(XMLoadFloat4x4(&m_LocalTransforms[endJoint->m_ID - 1])));
+
+	XMVECTOR objectRotationAxis = XMVector3Cross(objectJointToStart, objectJointToEnd);
+	objectRotationAxis = XMVector3Normalize(objectRotationAxis);
+
+	XMMATRIX rotation = XMMatrixRotationAxis(-objectRotationAxis, diffJointAngle);
 
 	// Rotate the local transform of the "elbow" joint
 	XMStoreFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1],
 		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1]), rotation));
 
 	// Move the end joint in world space
-	XMVECTOR worldHingeAxis = XMVector4Transform(rotationAxis, tempMatrix);
+	XMVECTOR worldHingeAxis = XMVector3Transform(-objectRotationAxis, middleCombinedTransform);
+	worldHingeAxis = XMVectorSetW(worldHingeAxis, 0.f);
 	rotation = XMMatrixRotationAxis(worldHingeAxis, diffJointAngle);
-	XMVECTOR newJointToEnd = XMVector4Transform(jointToEnd, rotation);
+	XMVECTOR newJointToEnd = XMVector3Transform(jointToEnd, rotation);
+	newJointToEnd = XMVectorSetW(newJointToEnd, 0.f);
 
 	XMVECTOR newEndPosition = newJointToEnd + jointPositionV;
 
 	// Transform positions to the joint space of the "shoulder"
-	//XMMATRIX mtxToLocal = XMMatrixTranspose(XMMatrixInverse(nullptr, baseCombinedTransform));
-	//XMVECTOR localNewEnd = XMVector3Transform(newEndPosition, mtxToLocal);
-	//XMVECTOR localTarget = XMVector3TransformCoord(target, mtxToLocal);
-	//localNewEnd = XMVector3Normalize(localNewEnd);
-	//localTarget = XMVector3Normalize(localTarget);
+	XMMATRIX mtxToLocal = XMMatrixTranspose(XMMatrixInverse(nullptr, baseCombinedTransform));
+	XMVECTOR localNewEnd = XMVector3Transform(newEndPosition, mtxToLocal);
+	XMVECTOR localTarget = XMVector3TransformCoord(target, mtxToLocal);
+	localNewEnd = XMVector3Normalize(localNewEnd);
+	localTarget = XMVector3Normalize(localTarget);
 
 	// Calculate the axis for the shortest rotation
-	//XMVECTOR localAxis = XMVector3Cross(localNewEnd, localTarget);
-	//if (XMVector3Length(localAxis).m128_f32[0] == 0.f)
-	//{
-	//	return;
-	//}
-	//
-	//localAxis = XMVector3Normalize(localAxis);
-	//float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
-	//
-	//XMVECTOR middleVector = XMLoadFloat4(&XMFLOAT4(-0.5f, 0.f,-0.5f,0.0f));
-	//middleVector = XMVector3Normalize(middleVector);
-	//float localDiff = XMVector3AngleBetweenNormals(localAxis, middleVector).m128_f32[0];
+	XMVECTOR localAxis = XMVector3Cross(localNewEnd, localTarget);
+	if (XMVector3Length(localAxis).m128_f32[0] == 0.f)
+	{
+		return;
+	}
+	
+	localAxis = XMVector3Normalize(localAxis);
+	float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
+	
+	XMVECTOR middleVector = XMLoadFloat4(&XMFLOAT4(-0.5f, 0.f,-0.5f,0.0f));
+	middleVector = XMVector3Normalize(middleVector);
+	float localDiff = XMVector3AngleBetweenNormals(localAxis, middleVector).m128_f32[0];
 
 	//localAxis = middleVector;
 	
 	// Rotate the local transform of the "shoulder" joint
-	//rotation = XMMatrixRotationAxis(localAxis, -localAngle);
-	//XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1],
-		//XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
+	rotation = XMMatrixRotationAxis(localAxis, -localAngle);
+	XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1],
+		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
 
 	// Update the resulting child transformations
 	updateFinalTransforms();
