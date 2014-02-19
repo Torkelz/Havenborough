@@ -93,7 +93,7 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 					}
 					catch (std::invalid_argument* e)
 					{
-						throw;// ClientException("Settings tried to map \""+sValue+"\"." + std::string(e->what()), __LINE__, __FILE__);
+						throw ClientException("Settings tried to map \""+sValue+"\"." + std::string(e->what()), __LINE__, __FILE__);
 					}
 					catch (std::out_of_range* e)
 					{
