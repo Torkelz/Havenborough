@@ -61,6 +61,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	{
 		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimatedVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
+		model.shader = m_ShaderList->at("DefaultAnimatedShader");
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 

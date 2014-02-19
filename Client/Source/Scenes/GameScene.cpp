@@ -192,7 +192,6 @@ void GameScene::render()
 	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
 	m_Graphics->render2D_Object(m_GUI_ArrowId);
 	m_Graphics->render2D_Object(2);
-	m_Graphics->renderModel(zane);
 }
 
 bool GameScene::getIsVisible()
@@ -508,19 +507,13 @@ void GameScene::loadSandboxModels()
 		"Vege1",
 		"Vege2",
 		"WoodenPillar1",
-        "WoodenShed1",
-		"Zane"
+        "WoodenShed1"
 	};
 
 	for (const std::string& model : preloadedModels)
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));	
 	}
-
-	zane = m_Graphics->createModelInstance("Zane");
-	m_Graphics->setModelPosition(zane, Vector3(100,100,100));
-	m_Graphics->setModelRotation(zane, Vector3(PI,0,0));
-
 
 	static const std::string preloadedTextures[] =
 	{
@@ -546,7 +539,6 @@ void GameScene::loadSandboxModels()
 	}
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
-	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "fire"));
 	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");

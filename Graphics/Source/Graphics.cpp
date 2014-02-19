@@ -912,7 +912,7 @@ void Graphics::createDefaultShaders(void)
 		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl", "VS,PS,GS", "5_0",
 		ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
-	createShader("AnimatedShader", L"assets/shaders/AnimatedGeometryPass.hlsl",	"VS,PS","5_0",
+	createShader("DefaultAnimatedShader", L"assets/shaders/AnimatedGeometryPass.hlsl",	"VS,PS","5_0",
 		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	// Debug shaders 
