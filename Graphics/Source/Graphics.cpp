@@ -510,7 +510,7 @@ IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_Parti
 	{
 		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L,
 			"Attempting to create particle effect instance without loading the effect definition: "
-			+ string(p_ParticleEffectId));
+			+ string(p_ParticleEffectId) );
 		return -1;
 	}
 

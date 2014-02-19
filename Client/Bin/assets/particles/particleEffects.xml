@@ -1,24 +1,24 @@
 <Particle>
 	<Effect effectName="fire">
-		<DiffuseTexture textureResourceName="Particle1.dds" />
-		<MaxParticles maxParticles="900" />
-		<ParticlesPerSec particlesPerSec="900" />
-		<MaxLife maxLife="0.6" />
-		<MaxLifeDeviation maxLifeDeviation="0.2" />
-		<ParticleSize X="8.0" Y="8.0" />
-		<PositionDeviation positionDeviation="10.0" />
-		<VelocityDeviation velocityDeviation="40.0" />
-		<ColorDeviation X="0.2" Y="0.15" Z="0.0" A="0.2" />
+		<DiffuseTexture textureResourceName="Particle1.dds"/>
+		<MaxParticles maxParticles="900"/>
+		<ParticlesPerSec particlesPerSec="900"/>
+		<MaxLife maxLife="0.6"/>
+		<MaxLifeDeviation maxLifeDeviation="0.2"/>
+		<ParticleSize X="8.0" Y="8.0"/>
+		<PositionDeviation positionDeviation="10.0"/>
+		<VelocityDeviation velocityDeviation="40.0"/>
+		<ColorDeviation X="0.2" Y="0.15" Z="0.0" A="0.2"/>
 	</Effect>
 	<Effect effectName="water">
-		<DiffuseTexture textureResourceName="Particle1.dds" />
-		<MaxParticles maxParticles="9000" />
-		<ParticlesPerSec particlesPerSec="9000" />
-		<MaxLife maxLife="1.6" />
-		<MaxLifeDeviation maxLifeDeviation="0.2" />
-		<ParticleSize X="4.0" Y="4.0" />
-		<PositionDeviation positionDeviation="2.0" />
-		<VelocityDeviation velocityDeviation="10.0" />
-		<ColorDeviation X="0.2" Y="0.15" Z="0.0" A="0.2" />
+		<DiffuseTexture textureResourceName="Particle1.dds"/>
+		<MaxParticles maxParticles="9000"/>
+		<ParticlesPerSec particlesPerSec="9000"/>
+		<MaxLife maxLife="1.6"/>
+		<MaxLifeDeviation maxLifeDeviation="0.2"/>
+		<ParticleSize X="4.0" Y="4.0"/>
+		<PositionDeviation positionDeviation="2.0"/>
+		<VelocityDeviation velocityDeviation="10.0"/>
+		<ColorDeviation X="0.2" Y="0.15" Z="0.0" A="0.2"/>
 	</Effect>
 </Particle>

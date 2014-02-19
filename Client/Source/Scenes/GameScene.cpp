@@ -559,6 +559,7 @@ void GameScene::loadSandboxModels()
 	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "water");
 	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");
 }
 

@@ -25,9 +25,7 @@ void ParticleFactory::initialize(std::map<std::string, ID3D11ShaderResourceView*
 
 std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffectDefinition(const char* p_FilePath)
 {	
-	std:vector<ParticleEffectDefinition::ptr> listOfDefinitions;
-	ParticleEffectDefinition::ptr particleSystem;
-	particleSystem.reset(new ParticleEffectDefinition());
+	std::vector<ParticleEffectDefinition::ptr> listOfDefinitions;
 
 	std::vector<char> buffer;
 	const char* name;
@@ -55,9 +53,12 @@ std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffect
 		throw GraphicsException("File not of type 'Particle'", __LINE__, __FILE__);
 	}
 
-	for(tinyxml2::XMLElement* Effect = particlesFile->FirstChildElement("Effect"); particlesFile; 
-		particlesFile = particlesFile->NextSiblingElement("Effect"))
+	for(tinyxml2::XMLElement* Effect = particlesFile->FirstChildElement("Effect"); Effect; 
+		Effect = Effect->NextSiblingElement("Effect"))
 	{
+		ParticleEffectDefinition::ptr particleSystem;
+		particleSystem.reset(new ParticleEffectDefinition());
+
 		particleSystem->particleSystemName = Effect->Attribute("effectName");
 	
 		tinyxml2::XMLElement* EffectAttributes = Effect->FirstChildElement("DiffuseTexture");
@@ -105,7 +106,7 @@ std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffect
 		particleSystem->sampler = m_Sampler;
 
 		listOfDefinitions.push_back(particleSystem);
-}
+	}
 	return listOfDefinitions;
 }
 
