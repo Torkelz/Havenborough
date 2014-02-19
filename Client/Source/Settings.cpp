@@ -47,41 +47,89 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 	{
 		std::string elementName = element->Value();
 		const char* commandValue = element->Attribute("command");
+		if(!commandValue)
+			throw ClientException("Settings tried to load the attribute \"command\" from element: " + elementName + ".", __LINE__, __FILE__);
 
 		if(elementName == "KeyMap")
 		{
 			const char* value = element->Attribute("key");
+			if(!value)
+				throw ClientException("Settings tried to load the attribute \"key\" from element: " + elementName + ".", __LINE__, __FILE__);
+
 			std::string sValue(value);
 			unsigned short keyValue;
-			if(sValue == "Escape")
-				keyValue = VK_ESCAPE;
-			else if(sValue == "Space")
-				keyValue = VK_SPACE;
-			else if(sValue == "Return")
-				keyValue = VK_RETURN;
-			else			
-				keyValue = (unsigned short)*value;
+
+			if (sValue.length() == 1 && sValue[0] >= 'A' && sValue[0] <= 'Z')
+			{
+				keyValue = sValue[0];
+			}
+			else
+			{
+				if(sValue == "Escape")
+					keyValue = VK_ESCAPE;
+				else if(sValue == "Space")
+					keyValue = VK_SPACE;
+				else if(sValue == "Return")
+					keyValue = VK_RETURN;
+				else if(sValue == "LShift")
+					keyValue = VK_LSHIFT;
+				else if(sValue == "RShift")
+					keyValue = VK_RSHIFT;
+				else if(sValue == "LCtrl")
+					keyValue = VK_LCONTROL;
+				else if(sValue == "RCtrl")
+					keyValue = VK_RCONTROL;
+				else
+				{
+					try
+					{
+						int val = std::stoi(sValue);
+#undef max
+						if (val < 0 || val > std::numeric_limits<unsigned short>::max())
+						{
+							throw std::out_of_range("Value is not a short");
+						}
+						keyValue = (unsigned short)val;
+					}
+					catch (std::invalid_argument* e)
+					{
+						throw;// ClientException("Settings tried to map \""+sValue+"\"." + std::string(e->what()), __LINE__, __FILE__);
+					}
+					catch (std::out_of_range* e)
+					{
+						throw ClientException("Settings tried to map \""+sValue+"\". The value is out of range. " + std::string(e->what()), __LINE__, __FILE__);
+					}
+				}
+			}
 
 			m_KeyMap.insert(make_pair(std::string(commandValue), keyValue));
 		}
 		else if(elementName == "MouseMap")
 		{
+			const char* pValue = element->Attribute("position");
+			const char* mValue = element->Attribute("movement");
+			if (!mValue || !pValue)
+				throw ClientException("Settings tried to load the attribute \"movement\" or \"position\" from element: " + elementName + ".", __LINE__, __FILE__);
+
 			MouseStruct m;
 			m.movement = std::string(commandValue);
-			m.position = (element->Attribute("position"));
-			std::string keyValue(element->Attribute("movement"));
-			Axis value;
-			if(keyValue == "Vertical")
-				value = Axis::VERTICAL;
-			else if(keyValue == "Horizontal")
-				value = Axis::HORIZONTAL;
+			m.position = pValue;
+			std::string keyValue(mValue);
 
-			m.axis = value;
+			if(keyValue == "Vertical")
+				m.axis = Axis::VERTICAL;
+			else if(keyValue == "Horizontal")
+				m.axis = Axis::HORIZONTAL;
+
 			m_MouseMap.push_back(m);
 		}
 		else if(elementName == "MouseButtonMap")
 		{
-			std::string keyValue(element->Attribute("button"));
+			const char* bValue = element->Attribute("button");
+			if (!bValue)
+				throw ClientException("Settings tried to load the attribute \"button\" from element: " + elementName + ".", __LINE__, __FILE__);
+
+			std::string keyValue(bValue);
 			MouseButton value;
 			if(keyValue == "Left")
 				value = MouseButton::LEFT;
@@ -108,12 +156,23 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 
 		if(elementName == "Resolution")
 		{
-			m_Resolution.x = element->FloatAttribute("width");
-			m_Resolution.y = element->FloatAttribute("height");
+			tinyxml2::XMLError res;
+			res = element->QueryFloatAttribute("width", &m_Resolution.x);
+			if(res == tinyxml2::XML_SUCCESS)
+				res = element->QueryFloatAttribute("height", &m_Resolution.y);
+
+			if(res != tinyxml2::XML_SUCCESS)
+				throw ClientException("Settings tried to load the attribute \"height\" or \"width\" from element: " + elementName + ".", __LINE__, __FILE__);
 		}
 		else
 		{
-			m_SettingsEnabled[elementName] = element->BoolAttribute("enabled");
+			bool enabled = false;
+			tinyxml2::XMLError res;
+			res = element->QueryBoolAttribute("enabled", &enabled);
+			if(res != tinyxml2::XML_SUCCESS)
+				throw ClientException("Settings tried to load the attribute \"enabled\" from element: " + elementName + ".", __LINE__, __FILE__);
+
+			m_SettingsEnabled[elementName] = enabled;
 		}
 	}
 }
