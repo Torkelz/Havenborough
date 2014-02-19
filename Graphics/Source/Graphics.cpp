@@ -897,6 +897,17 @@ void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_Rele
 	m_ReleaseModelTextureUserdata = p_Userdata;
 }
 
+void Graphics::renderJoint(DirectX::XMFLOAT4X4 p_World)
+{
+	ModelDefinition* jointDef = getModelFromList("DebugJoint");
+	if (jointDef)
+	{
+		m_DeferredRender->addRenderable(Renderable(
+		Renderable::Type::DEFERRED_OBJECT, jointDef,
+		p_World));
+	}
+}
+
 void Graphics::enableVsync(bool p_State)
 {
 	m_VSyncEnabled = p_State;

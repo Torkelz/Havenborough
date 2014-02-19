@@ -47,6 +47,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("WITCH", "assets/models/Dzala.btx"),
 		std::make_pair("WoodenShed1", "assets/models/WoodenShed.btx"),
 		std::make_pair("Zane", "assets/models/ZaneFirewind.btx"),
+		std::make_pair("DebugJoint", "assets/models/Pivot1.btx"),
 	};
 
 	static const size_t numModels = sizeof(modelMap) / sizeof(modelMap[0]);

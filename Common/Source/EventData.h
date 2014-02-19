@@ -2,6 +2,7 @@
 #include "IEventData.h"
 
 #include "Actor.h"
+#include "AnimationData.h"
 #include "Light.h"
 #include "Utilities/XMFloatUtil.h"
 
@@ -372,12 +373,15 @@ class UpdateAnimationEventData : public BaseEventData
 private:
 	unsigned int m_Id;
 	const std::vector<DirectX::XMFLOAT4X4>& m_AnimationData;
+	const AnimationData::ptr m_Animation;
+	const DirectX::XMFLOAT4X4 m_World;
 
 public:
 	static const Type sk_EventType = Type(0x14dd2b5d);
 
-	UpdateAnimationEventData(unsigned int p_Id, const std::vector<DirectX::XMFLOAT4X4>& p_AnimationData)
-		:	m_Id(p_Id), m_AnimationData(p_AnimationData)
+	UpdateAnimationEventData(unsigned int p_Id, const std::vector<DirectX::XMFLOAT4X4>& p_AnimationData, AnimationData::ptr p_Animation,
+		DirectX::XMFLOAT4X4 p_World)
+		:	m_Id(p_Id), m_AnimationData(p_AnimationData), m_Animation(p_Animation), m_World(p_World)
 	{
 	}
 
@@ -388,7 +392,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new UpdateAnimationEventData(m_Id, m_AnimationData));
+		return Ptr(new UpdateAnimationEventData(m_Id, m_AnimationData, m_Animation, m_World));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -408,6 +412,16 @@ public:
 	const std::vector<DirectX::XMFLOAT4X4>& getAnimationData() const
 	{
 		return m_AnimationData;
+	}
+
+	const AnimationData::ptr getAnimation() const
+	{
+		return m_Animation;
+	}
+
+	const DirectX::XMFLOAT4X4 getWorld() const
+	{
+		return m_World;
 	}
 };
 

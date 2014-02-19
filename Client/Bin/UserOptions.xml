@@ -23,7 +23,6 @@
 		<KeyMap command="moveRight" key="D"/>
 		<KeyMap command="changeViewN" key="Z"/>
 		<KeyMap command="changeViewP" key="X"/>
-		<KeyMap command="toggleIK" key="I"/>
 		<KeyMap command="jump" key="Space"/>
 		<KeyMap command="connectToServer" key="C"/>
 		<KeyMap command="joinTestLevel" key="T"/>
@@ -37,6 +36,7 @@
 		<KeyMap command="resetAnimation" key="N"/>
 		<KeyMap command="layerAnimation" key="M"/>
 		<KeyMap command="resetLayerAnimation" key="V"/>
+		<KeyMap command="DrawPivots" key="I"/>
 		<MouseMap command="mouseMoveHori" position="mousePosHori" movement="Horizontal"/>
 		<MouseMap command="mouseMoveVert" position="mousePosVert" movement="Vertical"/>
 		<MouseButtonMap command="spellCast" button="Left"/>

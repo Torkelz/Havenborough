@@ -483,6 +483,8 @@ public:
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(RenderTarget p_RenderTarget) = 0;
+
+	virtual void renderJoint(DirectX::XMFLOAT4X4 p_World) = 0;
 	
 	/*
 	 * Enables or disables Vsync depending on parameter.

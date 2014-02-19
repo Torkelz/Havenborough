@@ -29,6 +29,7 @@ void BaseGameApp::init()
 
 	m_MemUpdateDelay = 0.1f;
 	m_TimeToNextMemUpdate = 0.f;
+	m_TimeModifier = 1.f;
 	
 	m_Window.init(getGameTitle(), Vector2ToXMFLOAT2(&settings.getResolution()));
 	
@@ -90,6 +91,7 @@ void BaseGameApp::init()
 	translator->init(&m_Window);
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
+	translator->addKeyboardMapping('0', "slowMode");
 
 	//Adding the loaded keymaps to the translator
 	const std::map<std::string, unsigned short> keys = settings.getKeyMap();
@@ -312,7 +314,7 @@ void BaseGameApp::updateTimer()
 {
 	m_PrevTimeStamp = m_CurrTimeStamp;
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_CurrTimeStamp);
-	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt);// / 10.0f; // To debug the game at low refreshrate.
+	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt) / m_TimeModifier;
 	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{
@@ -331,6 +333,18 @@ void BaseGameApp::handleInput()
 
 		// Pass keystrokes to all active scenes.
 		m_SceneManager.registeredInput(in.m_Action, in.m_Value, in.m_PrevValue);
+
+		if (in.m_Action == "slowMode" && in.m_Value > 0.5f)
+		{
+			if (m_TimeModifier == 1.f)
+			{
+				m_TimeModifier = 10.f;
+			}
+			else
+			{
+				m_TimeModifier = 1.f;
+			}
+		}
 	}
 }
 

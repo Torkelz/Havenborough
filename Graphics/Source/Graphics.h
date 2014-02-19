@@ -174,7 +174,9 @@ public:
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
 	void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void* p_Userdata) override;
 	void enableVsync(bool p_State) override;
+	void renderJoint(DirectX::XMFLOAT4X4 p_World) override;
 	void enableSSAO(bool p_State) override;
+
 private:
 	void createDefaultShaders(void) override;
 	void shutdown(void) override;
