@@ -457,19 +457,6 @@ void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 
 void GameScene::loadSandboxModels()
 {
-	//static const std::string preloadedModelsTransparent[] =
-	//{
-	//	"Checkpoint1",
-	//};
-
-	//for (const std::string& model : preloadedModelsTransparent)
-	//{
-	//	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
-	//	m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
-	//}
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Dzala"));
-
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "fire"));
 
 
