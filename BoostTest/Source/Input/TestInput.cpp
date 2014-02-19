@@ -142,10 +142,10 @@ BOOST_AUTO_TEST_CASE(TestInputRegisteredMouse)
 	static const std::string leftButton("testLeftButton");
 	static const std::string button5("testButton5");
 
-	fakeTranslator->addMouseMapping(InputTranslator::Axis::VERTICAL, posVertAction, moveVertAction);
-	fakeTranslator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, posHoriAction, moveHoriAction);
-	fakeTranslator->addMouseButtonMapping(InputTranslator::MouseButton::LEFT, leftButton);
-	fakeTranslator->addMouseButtonMapping(InputTranslator::MouseButton::EXTRA_2, button5);
+	fakeTranslator->addMouseMapping(Axis::VERTICAL, posVertAction, moveVertAction);
+	fakeTranslator->addMouseMapping(Axis::HORIZONTAL, posHoriAction, moveHoriAction);
+	fakeTranslator->addMouseButtonMapping(MouseButton::LEFT, leftButton);
+	fakeTranslator->addMouseButtonMapping(MouseButton::EXTRA_2, button5);
 
 	Input input;
 	input.init(std::move(fakeTranslator));

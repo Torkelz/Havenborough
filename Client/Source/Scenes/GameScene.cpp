@@ -1,7 +1,9 @@
 #include "GameScene.h"
+
 #include <Components.h>
 #include <EventData.h>
 #include "Logger.h"
+#include <TweakSettings.h>
 
 using namespace DirectX;
 
@@ -57,6 +59,10 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
+
+	TweakSettings* tweakSettings = TweakSettings::getInstance();
+	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
+
 	return true;
 }
 
@@ -257,6 +263,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if(p_Action == "spellCast" && p_Value == 1.f)
 	{
 		m_GameLogic->throwSpell("TestSpell");
+	}
+	else if(p_Action == "ClimbEdge")
+	{
+		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
 	}
 }
 
@@ -533,8 +543,8 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), 0.5f, 0.f, "Arrow1");
-	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), 0.0f, "MANA_BAR");
+	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
+	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 
 	static const std::string preloadedModelsTransparent[] =
 	{
@@ -551,8 +561,8 @@ void GameScene::loadSandboxModels()
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Dzala"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "Dzala");
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
-	m_Graphics->linkShaderToParticles("DefaultParticleShader", "TestParticle");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "fire"));
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");
 }
 
 void GameScene::releaseSandboxModels()

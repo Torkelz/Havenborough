@@ -100,7 +100,7 @@
         <Resource Name="Background" Path="assets/sounds/Mainbackground.mp3"/>
     </ResourceType>
     <ResourceType Type="particle">
-        <Resource Name="TestParticle" Path="assets/particles/TestParticle.xml"/>
+        <Resource Name="fire" Path="assets/particles/fire.xml"/>
     </ResourceType>
     <ResourceType Type="spell">
         <Resource Name="TestSpell" Path="assets/spells/TestSpell.xml"/>

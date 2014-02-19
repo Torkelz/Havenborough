@@ -154,7 +154,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
 	printer.OpenElement("Particle");
-	printer.PushAttribute("Effect", "TestParticle");
+	printer.PushAttribute("Effect", "fire");
 	printer.CloseElement();
 	printer.CloseElement();
 
@@ -365,7 +365,7 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	pushVector(printer, "Direction", p_Direction);
 	printer.CloseElement();
 	printer.OpenElement("Particle");
-	printer.PushAttribute("Effect", "TestParticle");
+	printer.PushAttribute("Effect", "fire");
 	printer.CloseElement();
 	printer.CloseElement();
 

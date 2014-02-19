@@ -405,12 +405,14 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 	tinyxml2::XMLError error = resource.LoadFile(p_ResourceListLocation.c_str());
 	if(error != tinyxml2::XML_NO_ERROR)
 	{
-		std::cout << "Notification: File: " << p_ResourceListLocation << " \nWas not found." << std::endl;
+		std::cout << "Notification: File: " << p_ResourceListLocation << " was not found." << std::endl;
+		return;
 	}
 	tinyxml2::XMLElement* element = resource.FirstChildElement();
 	if(!element)
 	{
-		std::cout << "Notification: File: " << p_ResourceListLocation << " \nWas not a of right type." << std::endl;
+		std::cout << "Notification: File: " << p_ResourceListLocation << " was not of right type." << std::endl;
+		return;
 	}
 	for(tinyxml2::XMLElement* resourceType = element->FirstChildElement(); resourceType; resourceType = resourceType->NextSiblingElement())
 	{
@@ -432,7 +434,11 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 		}
 		else if(resourceType->Attribute("Type", "volume"))
 		{
-
+			if(m_Collidable)
+			{
+				std::string collision("CB_");
+				collision.append(m_MeshName);
+			}
 		}
 	}
 	resource.SaveFile(p_ResourceListLocation.c_str());

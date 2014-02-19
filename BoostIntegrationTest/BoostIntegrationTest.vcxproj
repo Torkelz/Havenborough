@@ -259,7 +259,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)Test\</OutDir>
+    <OutDir>$(ProjectDir)Bin\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(FMOD_INC_DIR);$(BOOST_INC_DIR);$(IncludePath);$(VLD_INC_DIR)</IncludePath>
     <LibraryPath>$(FMOD_LIB_DIR);$(BOOST_LIB_DIR);$(LibraryPath);$(VLD_LIB_DIR)</LibraryPath>

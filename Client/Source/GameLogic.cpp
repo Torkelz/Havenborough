@@ -127,6 +127,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	}
 	
 	m_Actors->onUpdate(p_DeltaTime);
+	m_Player.updateIKJoints();
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -331,7 +332,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("../Bin/assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
@@ -414,6 +415,11 @@ void GameLogic::throwSpell(const char *p_SpellId)
 	}
 }
 
+void GameLogic::setPlayerClimb(bool p_State)
+{
+	m_Player.setClimbing(p_State);
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)
@@ -465,9 +471,9 @@ void GameLogic::handleNetwork()
 					else
 					{
 #ifdef _DEBUG
-						std::string levelFileName("../Bin/assets/levels/Level2.btxl");
+						std::string levelFileName("assets/levels/Level2.btxl");
 #else
-						std::string levelFileName("../Bin/assets/levels/Level1.2.1.btxl");
+						std::string levelFileName("assets/levels/Level1.2.1.btxl");
 #endif
 						std::ifstream file(levelFileName, std::istream::binary);
 						m_Level.loadLevel(file, m_Actors);
@@ -770,7 +776,7 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 void GameLogic::loadSandbox()
 {
 	//Event to create a particle effect on local test rounds
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
+	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)

@@ -109,7 +109,7 @@ int ResourceManager::loadResource(string p_ResourceType, string p_ResourceName)
 			}
 			else
 			{
-				throw ResourceManagerException("Error when loading resource!", __LINE__, __FILE__);
+				throw ResourceManagerException("Error when loading resource: '" + p_ResourceType + ":" + p_ResourceName + "' (" + filePath.string() + ")", __LINE__, __FILE__);
 			}
 		}
 	}

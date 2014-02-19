@@ -108,15 +108,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 			}
 		}
 	}
-	
-	if (p_ResourceType == "model")
-	{
-		return "assets/models/" + p_ResourceName + ".btx";
-	}
-	else if (p_ResourceType == "volume")
-	{
-		return "assets/volumes/CB_" + p_ResourceName + ".txc";
-	}
+
 	throw ResourceManagerException("Unknown resource: '" + p_ResourceType + ":" + p_ResourceName + "'", __LINE__, __FILE__);
 }
 

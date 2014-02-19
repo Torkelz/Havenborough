@@ -1,8 +1,13 @@
 #include "DeferredRenderer.h"
-#include "VRAMInfo.h"
+
 #include "ModelBinaryLoader.h"
-#include "WrapperFactory.h"
 #include "Utilities/MemoryUtil.h"
+#include "GraphicsExceptions.h"
+#include "VRAMInfo.h"
+#include "WrapperFactory.h"
+
+#include <TweakSettings.h>
+
 #include <algorithm>	// std::sort
 #include <iterator>     // std::back_inserter
 //#include <random>
@@ -74,8 +79,9 @@ DeferredRenderer::DeferredRenderer()
 	m_BlendState = nullptr;
 	m_BlendState2 = nullptr;
 
-
 	m_SkyDome = nullptr;
+
+	m_SSAO = false;
 }
 
 
@@ -171,6 +177,10 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_ScreenHeight = (float)p_ScreenHeight;
 
 
+	if(!m_Device || !m_DeviceContext)
+		throw DeferredRenderException("Failed to initialize deferred renderer, nullpointers not allowed",
+		__LINE__, __FILE__);
+
 	createRenderTargets(desc);
 
 
@@ -193,6 +203,41 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	createBlendStates();
 	createLightStates();
 	createBuffers();
+
+
+	TweakSettings* settings = TweakSettings::getInstance();
+
+	settings->setSetting("ssao.radius", 5.f);
+	settings->setListener("ssao.radius", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
+
+	settings->setSetting("ssao.epsilon", 4.f);
+	settings->setListener("ssao.epsilon", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
+
+	settings->setSetting("ssao.fadeEnd", 10.f);
+	settings->setListener("ssao.fadeEnd", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
+
+	settings->setSetting("ssao.fadeStart", 2.f);
+	settings->setListener("ssao.fadeStart", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
 }
 
 
@@ -207,8 +252,11 @@ void DeferredRenderer::renderDeferred()
 	{
 		updateConstantBuffer();
 		renderGeometry();
-		renderSSAO();
-		blurSSAO();
+		if(m_SSAO)
+		{
+			renderSSAO();
+			blurSSAO();
+		}
 		renderLighting();
 	}
 	m_RenderSkyDome = false;
@@ -360,6 +408,33 @@ void DeferredRenderer::updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur)
 		NULL, NULL);
 }
 
+void DeferredRenderer::updateSSAO_VarConstantBuffer()
+{
+	cSSAO_Buffer ssaoBuffer;
+	float aspect = m_ScreenWidth / m_ScreenHeight;
+	float halfHeight = m_FarZ * std::tanf(0.5f * m_FOV);
+	float halfWidth = aspect * halfHeight;
+
+	ssaoBuffer.corners[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
+	buildSSAO_OffsetVectors(ssaoBuffer);
+
+	ssaoBuffer.occlusionRadius	= 5.0f;
+	ssaoBuffer.surfaceEpsilon	= 4.0f;
+	ssaoBuffer.occlusionFadeEnd	= 10.0f;
+	ssaoBuffer.occlusionFadeStart = 2.0f;
+
+	TweakSettings* settings = TweakSettings::getInstance();
+	settings->querySetting("ssao.radius", ssaoBuffer.occlusionRadius);
+	settings->querySetting("ssao.epsilon", ssaoBuffer.surfaceEpsilon);
+	settings->querySetting("ssao.fadeEnd", ssaoBuffer.occlusionFadeEnd);
+	settings->querySetting("ssao.fadeStart", ssaoBuffer.occlusionFadeStart);
+
+	m_DeviceContext->UpdateSubresource(m_Buffer["SSAOConstant"]->getBufferPointer(),
+		NULL, nullptr, &ssaoBuffer, NULL, NULL);
+}
 
 void DeferredRenderer::renderLighting()
 {
@@ -459,6 +534,11 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(IGraphics::RenderTarget i)
 void DeferredRenderer::updateCamera(DirectX::XMFLOAT3 p_Position)
 {
 	m_CameraPosition = p_Position;
+}
+
+void DeferredRenderer::enableSSAO(bool p_State)
+{
+	m_SSAO = p_State;
 }
 
 void DeferredRenderer::updateConstantBuffer()
@@ -617,32 +697,15 @@ void DeferredRenderer::createBuffers()
 	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_MaxLightsPerLightInstance);
 
 
-	cSSAO_Buffer ssaoBuffer;
-	float aspect = m_ScreenWidth / m_ScreenHeight;
-	float halfHeight = m_FarZ * std::tanf(0.5f * m_FOV);
-	float halfWidth = aspect * halfHeight;
-
-
-	ssaoBuffer.corners[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
-	buildSSAO_OffsetVectors(ssaoBuffer);
-	ssaoBuffer.occlusionRadius	= 5.0f;
-	ssaoBuffer.surfaceEpsilon	= 4.0f;
-	ssaoBuffer.occlusionFadeEnd	= 10.0f;
-	ssaoBuffer.occlusionFadeStart = 2.0f;
-
-
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
-	cbdesc.initData = &ssaoBuffer;
+	cbdesc.initData = nullptr;
 	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
-	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
-
+	cbdesc.usage = Buffer::Usage::DEFAULT;
 
 	m_Buffer["SSAOConstant"] = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cSSAO_Buffer));
 
+	updateSSAO_VarConstantBuffer();
 
 	cSSAO_BlurBuffer ssaoBlurBuffer;
 	ssaoBlurBuffer.horizontalBlur = true;
@@ -750,8 +813,8 @@ void DeferredRenderer::createSamplerState()
 
 	// Create SSAO normal depth texture sampler.
 	sd.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = 0.0f;
 	sd.BorderColor[3] = 1e5f;
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_NormalDepth"]);
@@ -850,7 +913,7 @@ void DeferredRenderer::createShaders()
 void DeferredRenderer::loadLightModels()
 {
 	ModelBinaryLoader modelLoader;
-	modelLoader.loadBinaryFile("../../Client/Bin/assets/LightModels/SpotLight.btx");
+	modelLoader.loadBinaryFile("assets/LightModels/SpotLight.btx");
 	const std::vector<StaticVertex>& vertices = modelLoader.getStaticVertexBuffer();
 	std::vector<DirectX::XMFLOAT3> temp;
 	for(unsigned int i = 0; i < vertices.size(); i++)
@@ -874,7 +937,7 @@ void DeferredRenderer::loadLightModels()
 
 	m_Buffer["SpotLightModel"] = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	temp.clear();
-	modelLoader.loadBinaryFile("../../Client/Bin/assets/LightModels/Sphere2.btx");
+	modelLoader.loadBinaryFile("assets/LightModels/Sphere2.btx");
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
 		temp.push_back(DirectX::XMFLOAT3(vertices.at(i).m_Position.x,vertices.at(i).m_Position.y,vertices.at(i).m_Position.z));
