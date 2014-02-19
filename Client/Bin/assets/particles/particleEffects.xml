@@ -8,11 +8,11 @@
 		<Attribute sX="8.0" sY="8.0"/>
 		<Attribute positionDeviation="10.0"/>
 		<Attribute vbX="0.0" vbY="0.0" vbZ="0.0" vdX="40.0" vdY="40.0" vdZ="40.0"/>
-		<Attribute cbX="0.2" cbY="0.15" cbZ="0.0" cbA="0.2" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
+		<Attribute cbX="0.8" cbY="0.15" cbZ="0.0" cbA="0.3" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
 	</Effect>
-	<Effect effectName="water">
+	<Effect effectName="smoke">
 		<Texture resourceName="Particle1.dds"/>
-		<Attribute maxParticles="9000"/>
+		<Attribute maxParticles="900"/>
 		<Attribute particlesPerSec="9000"/>
 		<Attribute maxLife="1.6"/>
 		<Attribute maxLifeDeviation="0.2"/>
