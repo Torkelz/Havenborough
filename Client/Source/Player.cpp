@@ -259,6 +259,11 @@ void Player::updateIKJoints()
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
 			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
 			aa.lock()->applyIK_ReachPoint("LeftArm", vReachPoint);
+			
+			XMFLOAT3 temp1 = aa.lock()->getJointPos("R_Hand");
+			XMFLOAT3 temp2 = aa.lock()->getJointPos("L_Hand");
+
+			int i = 42;
 		}
 	}
 }

@@ -368,7 +368,6 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	float diffJointAngle = wantedJointAngle - currentJointAngle;
 
 	XMVECTOR rotationAxis = XMVector3Cross(-nmlStartToJoint, nmlJointToEnd);
-	rotationAxis = XMVector3Transform(rotationAxis, XMMatrixTranspose(middleCombinedTransform));
 	rotationAxis = XMVector3Normalize(rotationAxis);
 
 	XMVECTOR objectJointToStart = XMVector4Transform(XMVectorSet(0.f, 0.f, 0.f, 1.f), XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1]))));
@@ -384,7 +383,7 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1]), rotation));
 
 	// Move the end joint in world space
-	XMVECTOR worldHingeAxis = XMVector3Transform(-objectRotationAxis, middleCombinedTransform);
+	XMVECTOR worldHingeAxis = rotationAxis;
 	worldHingeAxis = XMVectorSetW(worldHingeAxis, 0.f);
 	rotation = XMMatrixRotationAxis(worldHingeAxis, diffJointAngle);
 	XMVECTOR newJointToEnd = XMVector3Transform(jointToEnd, rotation);
@@ -408,12 +407,6 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	
 	localAxis = XMVector3Normalize(localAxis);
 	float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
-	
-	XMVECTOR middleVector = XMLoadFloat4(&XMFLOAT4(-0.5f, 0.f,-0.5f,0.0f));
-	middleVector = XMVector3Normalize(middleVector);
-	float localDiff = XMVector3AngleBetweenNormals(localAxis, middleVector).m128_f32[0];
-
-	//localAxis = middleVector;
 	
 	// Rotate the local transform of the "shoulder" joint
 	rotation = XMMatrixRotationAxis(localAxis, -localAngle);
