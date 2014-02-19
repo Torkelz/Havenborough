@@ -514,8 +514,7 @@ void GameScene::loadSandboxModels()
 
 	for (const std::string& model : preloadedModels)
 	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
-		m_Graphics->linkShaderToModel("DefaultDeferredShader", model.c_str());		
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));	
 	}
 
 	zane = m_Graphics->createModelInstance("Zane");
@@ -544,7 +543,6 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
 		m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
-		m_Graphics->linkShaderToModel("DefaultForwardShader", model.c_str());
 	}
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));

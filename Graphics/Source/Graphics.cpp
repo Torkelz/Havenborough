@@ -881,7 +881,7 @@ void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelT
 	if(!m_ModelFactory)
 	{
 		m_ModelFactory = ModelFactory::getInstance();
-		m_ModelFactory->initialize(&m_TextureList);
+		m_ModelFactory->initialize(&m_TextureList, &m_ShaderList);
 		m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
 	}
 	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
@@ -1134,7 +1134,7 @@ void Graphics::initializeFactories(void)
 	m_WrapperFactory = WrapperFactory::getInstance();
 	VRAMInfo::getInstance();
 	m_ModelFactory = ModelFactory::getInstance();
-	m_ModelFactory->initialize(&m_TextureList);
+	m_ModelFactory->initialize(&m_TextureList, &m_ShaderList);
 	m_ParticleFactory.reset(new ParticleFactory);
 	m_ParticleFactory->initialize(&m_TextureList, m_Device);
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
