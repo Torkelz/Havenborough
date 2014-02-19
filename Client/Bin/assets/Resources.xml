@@ -52,7 +52,7 @@
         <Resource Name="Fireplace1" Path="assets/models/Fireplace1.btx"/>
         <Resource Name="Dzala" Path="assets/models/Dzala.btx"/>
         <Resource Name="Crate1" Path="assets/models/Crate1.btx"/>
-        <Resource Name="Checkpoint" Path="assets/models/Checkpoint.btx"/>
+        <Resource Name="Checkpoint1" Path="assets/models/Checkpoint1.btx"/>
         <Resource Name="BrokenPlattform1" Path="assets/models/BrokenPlattform1.btx"/>
         <Resource Name="Barrel1" Path="assets/models/Barrel1.btx"/>
         <Resource Name="Arrow1" Path="assets/models/Arrow1.btx"/>
