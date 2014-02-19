@@ -422,14 +422,14 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 			{
 				if(leafNode->Attribute("Name", m_MeshName.c_str()))
 				{
-					printUpdate(leafNode);
+					printUpdate(leafNode, "assets/models/", ".btx");
 					found = true;
 					break;
 				}
 			}
 			if(!found)
 			{
-				printNew(resource, resourceType);
+				printNew(resource, resourceType, "assets/models/", ".btx");
 			}
 		}
 		else if(resourceType->Attribute("Type", "volume"))
@@ -438,8 +438,22 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 			{
 				std::string collision("CB_");
 				collision.append(m_MeshName);
+				for(tinyxml2::XMLElement* leafNode = resourceType->FirstChildElement(); leafNode; leafNode = leafNode->NextSiblingElement())
+				{
+					if(leafNode->Attribute("Name", collision.c_str()))
+					{
+						printUpdate(leafNode, "assets/volumes/CB_", ".txc");
+						found = true;
+						break;
+					}
+				}
+				if(!found)
+				{
+					printNew(resource, resourceType, "assets/volumes/CB_", ".txc");
+				}
 			}
 		}
+		found = false;
 	}
 	resource.SaveFile(p_ResourceListLocation.c_str());
 	if(error != tinyxml2::XML_NO_ERROR)
@@ -448,22 +462,20 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 	}
 }
 
-void ModelLoader::printUpdate(tinyxml2::XMLElement* p_Ele)
+void ModelLoader::printUpdate(tinyxml2::XMLElement* p_Ele, std::string p_Path, std::string p_Extension)
 {
-	std::string path = "assets/models/";
-	path.append(m_MeshName);
-	path.append(".btx");
-	p_Ele->SetAttribute("Path", path.c_str());
+	p_Path.append(m_MeshName);
+	p_Path.append(p_Extension);
+	p_Ele->SetAttribute("Path", p_Path.c_str());
 }
 
-void ModelLoader::printNew(tinyxml2::XMLDocument& p_Doc, tinyxml2::XMLElement* p_Ele)
+void ModelLoader::printNew(tinyxml2::XMLDocument& p_Doc, tinyxml2::XMLElement* p_Ele, std::string p_Path, std::string p_Extension)
 {
 	tinyxml2::XMLElement* newLeaf = p_Doc.NewElement("Resource");
 	newLeaf->SetAttribute("Name", m_MeshName.c_str());
-	std::string path = "assets/models/";
-	path.append(m_MeshName);
-	path.append(".btx");
-	newLeaf->SetAttribute("Path", path.c_str());
+	p_Path.append(m_MeshName);
+	p_Path.append(p_Extension);
+	newLeaf->SetAttribute("Path", p_Path.c_str());
 	p_Ele->InsertFirstChild(newLeaf);
 }
 
