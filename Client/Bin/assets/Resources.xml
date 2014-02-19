@@ -99,7 +99,7 @@
     <ResourceType Type="sound">
         <Resource Name="Background" Path="assets/sounds/Mainbackground.mp3"/>
     </ResourceType>
-    <ResourceType Type="particle">
+    <ResourceType Type="particleSystem">
         <Resource Name="fire" Path="assets/particles/fire.xml"/>
     </ResourceType>
     <ResourceType Type="spell">

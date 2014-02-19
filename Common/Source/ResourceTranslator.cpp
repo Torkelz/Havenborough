@@ -7,21 +7,13 @@ ResourceTranslator::~ResourceTranslator(){}
 
 void ResourceTranslator::loadResourceList(std::istream& p_FileData)
 {
-	std::vector<const std::pair<std::string, std::string>> modelMap;
-	std::vector<const std::pair<std::string, std::string>> volumeMap;
-	std::vector<const std::pair<std::string, std::string>> textureMap;
-	std::vector<const std::pair<std::string, std::string>> soundMap;
-	std::vector<const std::pair<std::string, std::string>> particleMap;
-	std::vector<const std::pair<std::string, std::string>> spellMap;
-	std::vector<const std::pair<std::string, std::string>> animationMap;
 	std::vector<char> buffer;
 	p_FileData >> std::noskipws;
 	std::copy(std::istream_iterator<char>(p_FileData), std::istream_iterator<char>(), std::back_inserter(buffer));
-	buffer.push_back('\0');
 
 	tinyxml2::XMLDocument resourceList;
 
-	tinyxml2::XMLError error = resourceList.Parse(buffer.data());
+	tinyxml2::XMLError error = resourceList.Parse(buffer.data(), buffer.size());
 	if(error)
 	{
 		throw ResourceManagerException("Error parsing resource data. Error code: " + std::to_string(error), __LINE__, __FILE__);
@@ -34,63 +26,18 @@ void ResourceTranslator::loadResourceList(std::istream& p_FileData)
 	
 	for(const tinyxml2::XMLElement* resourceType = resourceFile->FirstChildElement("ResourceType"); resourceType; resourceType = resourceType->NextSiblingElement("ResourceType"))
 	{
-		if(resourceType->Attribute("Type", "model"))
+		const char* type = resourceType->Attribute("Type");
+		if (!type)
+			continue;
+
+		m_MappedResources.push_back(std::make_pair(type, std::vector<const std::pair<std::string, std::string>>()));
+		auto& map = m_MappedResources.back().second;
+
+		for(const tinyxml2::XMLElement* resource = resourceType->FirstChildElement("Resource"); resource; resource = resource->NextSiblingElement("Resource"))
 		{
-			for(const tinyxml2::XMLElement* resource = resourceType->FirstChildElement("Resource"); resource; resource = resource->NextSiblingElement("Resource"))
-			{
-				modelMap.push_back(readValues(resource));
-			}
-		}
-		else if(resourceType->Attribute("Type", "volume"))
-		{
-			for(const tinyxml2::XMLElement* resource = resourceType->FirstChildElement("Resource"); resource; resource = resource->NextSiblingElement("Resource"))
-			{
-				volumeMap.push_back(readValues(resource));
-			}
-		}
-		else if(resourceType->Attribute("Type", "texture"))
-		{
-			for(const tinyxml2::XMLElement* resource = resourceType->FirstChildElement("Resource"); resource; resource = resource->NextSiblingElement("Resource"))
-			{
-				textureMap.push_back(readValues(resource));
-			}
-		}
-		else if(resourceType->Attribute("Type", "sound"))
-		{
-			for(const tinyxml2::XMLElement* resource = resourceType->FirstChildElement("Resource"); resource; resource = resource->NextSiblingElement("Resource"))
-			{
-				soundMap.push_back(readValues(resource));
-			}
-		}
-		else if(resourceType->Attribute("Type", "particle"))
-		{
-			for(const tinyxml2::XMLElement* resource = resourceType->FirstChildElement("Resource"); resource; resource = resource->NextSiblingElement("Resource"))
-			{
-				particleMap.push_back(readValues(resource));
-			}
-		}
-		else if(resourceType->Attribute("Type", "spell"))
-		{
-			for(const tinyxml2::XMLElement* resource = resourceType->FirstChildElement("Resource"); resource; resource = resource->NextSiblingElement("Resource"))
-			{
-				spellMap.push_back(readValues(resource));
-			}
-		}
-		else if(resourceType->Attribute("Type", "animation"))
-		{
-			for(const tinyxml2::XMLElement* resource = resourceType->FirstChildElement("Resource"); resource; resource = resource->NextSiblingElement("Resource"))
-			{
-				animationMap.push_back(readValues(resource));
-			}
+			map.push_back(readValues(resource));
 		}
 	}
-	m_MappedResources.push_back(std::make_pair("model", modelMap));
-	m_MappedResources.push_back(std::make_pair("texture", textureMap));
-	m_MappedResources.push_back(std::make_pair("volume", volumeMap));
-	m_MappedResources.push_back(std::make_pair("sound", soundMap));
-	m_MappedResources.push_back(std::make_pair("particleSystem", particleMap));
-	m_MappedResources.push_back(std::make_pair("spell", spellMap));
-	m_MappedResources.push_back(std::make_pair("animation", animationMap));
 }
 
 std::string ResourceTranslator::translate(std::string p_ResourceType, std::string p_ResourceName)
