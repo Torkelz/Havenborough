@@ -72,6 +72,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/Source;$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(SolutionDir)Graphics\include;$(BOOST_INC_DIR);$(SolutionDir)Sound\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
