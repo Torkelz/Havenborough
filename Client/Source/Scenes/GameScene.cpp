@@ -1,7 +1,9 @@
 #include "GameScene.h"
+
 #include <Components.h>
 #include <EventData.h>
 #include "Logger.h"
+#include <TweakSettings.h>
 
 using namespace DirectX;
 
@@ -57,6 +59,10 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
+
+	TweakSettings* tweakSettings = TweakSettings::getInstance();
+	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
+
 	return true;
 }
 
@@ -560,8 +566,8 @@ void GameScene::loadSandboxModels()
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
 	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
-	m_Graphics->linkShaderToParticles("DefaultParticleShader", "TestParticle");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "fire"));
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");
 }
 
 void GameScene::releaseSandboxModels()

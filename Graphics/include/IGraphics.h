@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include "ShaderDefinitions.h"
+#include <TweakSettings.h>
 #include <Utilities/Util.h>
 
 
@@ -468,6 +469,13 @@ public:
 	 *			be logged from this component. Set to null to disable logging.
 	 */
 	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
+
+	/**
+	 * Set the tweaker object to use to tweak variables at runtime.
+	 *
+	 * @param p_Tweaker pointer to the master tweaker
+	 */
+	virtual void setTweaker(TweakSettings* p_Tweaker) = 0;
 
 	/**
 	 * Change the render target.

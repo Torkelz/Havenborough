@@ -871,6 +871,11 @@ void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 	GraphicsLogger::setLogFunction(p_LogCallback);
 }
 
+void Graphics::setTweaker(TweakSettings* p_Tweaker)
+{
+	TweakSettings::initializeSlave(p_Tweaker);
+}
+
 void Graphics::setRenderTarget(IGraphics::RenderTarget p_RenderTarget)
 {
 	m_SelectedRenderTarget = p_RenderTarget;

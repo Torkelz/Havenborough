@@ -75,6 +75,7 @@ BOOST_AUTO_TEST_CASE(TestTweakSettingsListener)
 
 BOOST_AUTO_TEST_CASE(TestTweakSettingsSingleton)
 {
+	TweakSettings::initializeMaster();
 	TweakSettings* settings1 = TweakSettings::getInstance();
 	TweakSettings* settings2 = TweakSettings::getInstance();
 	BOOST_CHECK_EQUAL(settings1, settings2);
@@ -85,11 +86,14 @@ BOOST_AUTO_TEST_CASE(TestTweakSettingsSingleton)
 
 	settings1->setSetting("TestSetting", testVal1);
 	TweakSettings::shutdown();
+	TweakSettings::initializeMaster();
 	settings1 = TweakSettings::getInstance();
 	
 	int val = testVal2;
 	settings1->querySetting("TestSetting", val);
 	BOOST_CHECK_EQUAL(val, testVal2);
+
+	TweakSettings::shutdown();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
