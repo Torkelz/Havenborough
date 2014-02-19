@@ -189,8 +189,6 @@ void BaseGameApp::shutdown()
 	m_SpellFactory.reset();
 	m_AnimationLoader.reset();
 
-	m_ResourceManager.reset();
-
 	m_InputQueue.destroy();
 	
 	IPhysics::deletePhysics(m_Physics);
@@ -201,6 +199,8 @@ void BaseGameApp::shutdown()
 
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
+
+	m_ResourceManager.reset();
 
 	m_EventManager.reset();
 
