@@ -1,0 +1,5 @@
+<Resources>
+    <ResourceType Type="model">
+        <Resource Name="" Path="assets/models/.btx"/>
+    </ResourceType>
+</Resources>

@@ -189,8 +189,8 @@ void GameScene::render()
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
 
 	//Render test arrow, remove when HUD scene is implemented
-	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
-	m_Graphics->render2D_Object(m_GUI_ArrowId);
+	//m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
+	//m_Graphics->render2D_Object(m_GUI_ArrowId);
 	m_Graphics->render2D_Object(2);
 }
 
@@ -457,77 +457,20 @@ void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 
 void GameScene::loadSandboxModels()
 {
-	static const std::string preloadedModels[] =
-	{
-		"Arrow1",
-		"Barrel1",
-		"BrokenPlattform1",
-        "Crate1", 
-		"Flag1",
-		"Grass1", 
-        "House1", 
-		"House2", 
-        "House3", 
-		"House4", 
-		"House5", 
-        "House6", 
-		"Island1",
-		"Island3",
-        "MarketStand1", 
-        "MarketStand2", 
-		"Road1", 
-		"Road2", 
-		"Road3", 
-		"Road4", 
-		"Road5", 
-        "Sidewalk1", 
-		"Sign1",
-        "Stair1",
-		"Stallning1",
-		"Stallning2",
-		"Stallning3",
-		"Stallning4",
-		"StandingLamp1",
-		"Stone1",
-		"Stone2",
-		"Stone3",
-		"StoneAltar1",
-		"StoneBrick2",
-		"StoneChunk1",
-        "Street1",
-		"Top1",
-		"Top1Sidewalk",
-		"Top3",
-        "Tree1",
-		"Tunnel1",
-		"Wagon1",
-		"Wagon2",
-		"Wagon3",
-		"Vege1",
-		"Vege2",
-		"WoodenPillar1",
-        "WoodenShed1"
-	};
+	//static const std::string preloadedModelsTransparent[] =
+	//{
+	//	"Checkpoint1",
+	//};
 
-	for (const std::string& model : preloadedModels)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));	
-	}
+	//for (const std::string& model : preloadedModelsTransparent)
+	//{
+	//	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
+	//	m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
+	//}
 
-	static const std::string preloadedModelsTransparent[] =
-	{
-		"Checkpoint1",
-	};
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Dzala"));
 
-	for (const std::string& model : preloadedModelsTransparent)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
-		m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
-	}
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "fire"));
 
 
 	//Separate to GUI function and refactor? /Pontus
@@ -540,7 +483,7 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
+	//m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 }
 

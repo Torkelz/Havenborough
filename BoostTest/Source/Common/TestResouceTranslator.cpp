@@ -16,7 +16,9 @@ BOOST_AUTO_TEST_CASE(TranslateRandomString)
 BOOST_AUTO_TEST_CASE(TranslateStringThatExists)
 {
 	ResourceTranslator rt;
-
+	std::string string = "<Resources><ResourceType Type=\"model\"><Resource Name=\"House1\" Path=\"assets/models/House1.btx\"/></ResourceType></Resources>";
+	std::istringstream path(string);
+	rt.loadResourceList(path);
 	BOOST_CHECK_NO_THROW(rt.translate("model", "House1"));
 }
 

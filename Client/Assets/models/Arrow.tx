@@ -2,7 +2,7 @@
 #Transparent 0
 #Collidable 0
 #Materials 1
-#MESH pCubeShape1
+#MESH Arrow
 #Vertices 20
 #Triangles 36
 

@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+#include "tinyxml2\tinyxml2.h"
+
 class ModelLoader
 {
 public:
@@ -84,7 +86,7 @@ public:
 	 * @param p_FilePath, the absolute path to the requested file.
 	 * @return false if something is wrong when loading file.
 	 */
-	bool loadFile(std::string p_FilePath);
+	bool loadFile(std::string p_FilePath, std::string p_ResourceListLocation);
 
 	/**
 	 * Returns the stored information about vertices as a vector with Float3 values. 
@@ -210,5 +212,9 @@ protected:
 	void readAnimation(std::istream& p_Input);
 
 private:
+	void printOutResourceInfo(std::string p_ResourceListLocation);
+	void printUpdate(tinyxml2::XMLElement* p_Ele);
+	void printNew(tinyxml2::XMLDocument& p_Doc, tinyxml2::XMLElement* p_Ele);
 	void clearData();
+
 };

@@ -37,7 +37,7 @@ std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffect
 	std::ifstream file(p_FilePath);
 	if(!file)
 	{
-		throw GraphicsException("File failed to load", __LINE__, __FILE__);
+		throw GraphicsException("Failed to load file: " + string(p_FilePath), __LINE__, __FILE__);
 	}
 	file >> std::noskipws;
 
