@@ -514,18 +514,6 @@ void GameScene::loadSandboxModels()
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));	
 	}
 
-	static const std::string preloadedTextures[] =
-	{
-		"TEXTURE_NOT_FOUND",
-		"MANA_BAR",
-	};
-	for (const std::string &texture : preloadedTextures)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
-	}
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
-	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
-
 	static const std::string preloadedModelsTransparent[] =
 	{
 		"Checkpoint1",
@@ -540,7 +528,20 @@ void GameScene::loadSandboxModels()
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
-	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");
+
+
+	//Separate to GUI function and refactor? /Pontus
+	static const std::string preloadedTextures[] =
+	{
+		"TEXTURE_NOT_FOUND",
+		"MANA_BAR",
+	};
+	for (const std::string &texture : preloadedTextures)
+	{
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
+	}
+	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
+	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 }
 
 void GameScene::releaseSandboxModels()
