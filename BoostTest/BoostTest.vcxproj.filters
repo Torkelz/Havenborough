@@ -173,9 +173,6 @@
     <ClCompile Include="..\Client\Source\GameLogic.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Client\TestEventManager.cpp">
-      <Filter>TestClient</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
@@ -194,7 +191,6 @@
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\ScreenRenderer.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
@@ -219,12 +215,9 @@
     <ClCompile Include="Source\Graphics\TestSkyDome.cpp">
       <Filter>TestGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Common\TestLight.cpp" />
-    <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Source\AnimationClipLoader.cpp" />
     <ClCompile Include="Source\Physics\HullTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
@@ -249,18 +242,48 @@
     <ClCompile Include="Source\Common\TestResourceManager.cpp">
       <Filter>TestResourceManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Common\TestAnimation.cpp" />
-    <ClCompile Include="Source\Common\TestMLXLoader.cpp" />
     <ClCompile Include="Source\Physics\TestCollision.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
     <ClCompile Include="Source\Client\TestWindow.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\Settings.cpp">
+	<ClCompile Include="..\Client\Source\Settings.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Client\TestSettings.cpp" />
+    <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp">
+      <Filter>TestGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestAnimation.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\AnimationLoader.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Source\AnimationClipLoader.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestLight.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestMLXLoader.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TestEventManager.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TestTweakSettings.cpp">
+      <Filter>TestSettings</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestHumanAnimationComponent.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TestRAM_Info.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp">
+      <Filter>TestGraphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
@@ -312,6 +335,9 @@
     </Filter>
     <Filter Include="TestCommon\CommonImport">
       <UniqueIdentifier>{5c55504a-3816-4c29-a087-aff44ad3b38a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestSettings">
+      <UniqueIdentifier>{2dc209c3-062e-4658-9a32-d9a66735df2c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

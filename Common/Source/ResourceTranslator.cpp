@@ -11,6 +11,9 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 {
 	static const std::pair<std::string, std::string> modelMap[] =
 	{
+		std::make_pair("Aqueduct1", "assets/models/Aqueduct1.btx"),
+		std::make_pair("AqueducttEnd1", "assets/models/AqueducttEnd1.btx"),
+		std::make_pair("Arrow", "assets/models/Arrow.btx"),
 		std::make_pair("Arrow1", "assets/models/Arrow1.btx"),
 		std::make_pair("Barrel1", "assets/models/Barrel1.btx"),
 		std::make_pair("Checkpoint1", "assets/models/Checkpoint.btx"),
@@ -43,6 +46,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		std::make_pair("Tree1", "assets/models/Tree1.btx"),
 		std::make_pair("WITCH", "assets/models/Dzala.btx"),
 		std::make_pair("WoodenShed1", "assets/models/WoodenShed.btx"),
+		std::make_pair("Zane", "assets/models/ZaneFirewind.btx"),
 	};
 
 	static const size_t numModels = sizeof(modelMap) / sizeof(modelMap[0]);
@@ -97,7 +101,7 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 
 	static const std::pair<std::string, std::string> particleMap[] =
 	{
-		std::make_pair("TestParticle", "assets/particles/TestParticle.xml"),
+		std::make_pair("fire", "assets/particles/fire.xml"),
 	};
 	static const size_t numParticles = sizeof(particleMap) / sizeof(particleMap[0]);
 
@@ -138,5 +142,13 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 		}
 	}
 	
+	if (p_ResourceType == "model")
+	{
+		return "assets/models/" + p_ResourceName + ".btx";
+	}
+	else if (p_ResourceType == "volume")
+	{
+		return "assets/volumes/CB_" + p_ResourceName + ".txc";
+	}
 	throw ResourceManagerException("Unknown resource: '" + p_ResourceType + ":" + p_ResourceName + "'", __LINE__, __FILE__);
 }

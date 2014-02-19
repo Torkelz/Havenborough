@@ -158,6 +158,8 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Network\Source\ServerAccept.cpp" />
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
     <ClCompile Include="Source\Client\TestSettings.cpp" />
+    <ClCompile Include="Source\Client\TestRAM_Info.cpp" />
+    <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp" />
     <ClCompile Include="Source\Physics\AABBTest.cpp" />
     <ClCompile Include="Source\Physics\BodyTest.cpp" />
     <ClCompile Include="Source\Physics\HullTest.cpp" />
@@ -193,6 +195,8 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Common\TestResouceTranslator.cpp" />
     <ClCompile Include="Source\Common\TestResourceManager.cpp" />
     <ClCompile Include="Source\Graphics\TestSkyDome.cpp" />
+    <ClCompile Include="Source\TestTweakSettings.cpp" />
+    <ClCompile Include="Source\Common\TestHumanAnimationComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

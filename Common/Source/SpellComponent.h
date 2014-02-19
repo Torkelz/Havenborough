@@ -102,14 +102,17 @@ public:
 
 					m_SpellInstance->collisionHappened();
 
-					Vector3 currentPosition = m_Physics->getBodyPosition(m_Sphere);
-					m_Physics->releaseBody(m_Sphere);
-					m_Sphere = m_Physics->createSphere(0.f, true, currentPosition, m_SpellInstance->getRadius());
-					m_Physics->setBodyCollisionResponse(m_Sphere, false);
-
 					break;
 				}
 			}
+		}
+
+		if (m_SpellInstance->isColliding())
+		{
+			Vector3 currentPosition = m_Physics->getBodyPosition(m_Sphere);
+			m_Physics->releaseBody(m_Sphere);
+			m_Sphere = m_Physics->createSphere(0.f, true, currentPosition, m_SpellInstance->getRadius());
+			m_Physics->setBodyCollisionResponse(m_Sphere, false);
 		}
 
 		if (m_SpellInstance->isDead())

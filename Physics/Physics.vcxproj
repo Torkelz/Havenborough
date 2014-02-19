@@ -99,6 +99,7 @@
   <ItemGroup>
     <ClInclude Include="include\Hull.h" />
     <ClInclude Include="include\OBB.h" />
+    <ClInclude Include="Source\PhysicsExceptions.h" />
     <ClInclude Include="Source\BVLoader.h" />
     <ClInclude Include="include\PhysicsTypes.h" />
     <ClInclude Include="include\AABB.h" />

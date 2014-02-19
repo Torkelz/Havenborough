@@ -1,0 +1,99 @@
+*ObjectHeader*
+#numObj: 19
+
+#MESH: House5
+#Translation: -365.813721 375.118927 704.904419
+#Rotation: 0 0 0
+#Scale: 571.592285 10 10
+
+#MESH: House5
+#Translation: 278.187683 375.118927 17.389069
+#Rotation: 0 0 0
+#Scale: 710.397766 10 10
+
+#MESH: House5
+#Translation: -8.523355 375.118927 -768.757935
+#Rotation: 0 0 0
+#Scale: 1283.816284 10 10
+
+#MESH: House5
+#Translation: 629.455322 375.118927 -374.800537
+#Rotation: 1.570796 0 0
+#Scale: 789.806152 10 10
+
+#MESH: House5
+#Translation: 718.475037 349.750061 -379.096466
+#Rotation: 1.570796 0 0
+#Scale: 184.860397 10 10
+
+#MESH: House5
+#Translation: -82.999329 375.118927 362.248718
+#Rotation: 1.570796 0 0
+#Scale: 692.780273 10 10
+
+#MESH: House5
+#Translation: -651.514893 375.118927 -33.677971
+#Rotation: 1.570796 0 0
+#Scale: 1477.784546 10 10
+
+#MESH: House5
+#Translation: -363.368256 346.044708 852.591797
+#Rotation: 0 0 0
+#Scale: 184.016922 10 10
+
+#MESH: House5
+#Translation: -453.040497 340.963196 795.596069
+#Rotation: 1.570796 0 0
+#Scale: 114.594093 10 10
+
+#MESH: House5
+#Translation: -270.456757 340.963196 795.828491
+#Rotation: 1.570796 0 0
+#Scale: 114.594093 10 10
+
+#MESH: House5
+#Translation: 686.72522 341.808807 -288.770996
+#Rotation: 0 0 0
+#Scale: 67.75264 10 10
+
+#MESH: House5
+#Translation: 684.63739 341.808807 -471.354736
+#Rotation: 0 0 0
+#Scale: 67.75264 10 10
+
+#MESH: House5
+#Translation: 455.002594 507.905914 -614.429321
+#Rotation: 0 0 0
+#Scale: 102.058578 10 10
+
+#MESH: House5
+#Translation: 455.172791 507.905914 -513.567261
+#Rotation: 0 0 0
+#Scale: 102.058578 10 10
+
+#MESH: House5
+#Translation: 504.90976 507.905914 -564.980103
+#Rotation: 1.570796 0 0
+#Scale: 102.058578 10 10
+
+#MESH: House5
+#Translation: 404.047699 507.905914 -565.099548
+#Rotation: 1.570796 0 0
+#Scale: 102.058578 10 10
+
+#MESH: House5
+#Translation: 348.58136 459.516205 -605.752319
+#Rotation: 0 0 0
+#Scale: 81.588615 10 10
+
+#MESH: House5
+#Translation: 348.820953 459.516205 -524.57959
+#Rotation: 0 0 0
+#Scale: 81.588615 10 10
+
+#MESH: House5
+#Translation: 307.754028 459.516205 -565.278564
+#Rotation: 1.570796 0 0
+#Scale: 88.949341 10 10
+
+

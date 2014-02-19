@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include "ShaderDefinitions.h"
+#include <TweakSettings.h>
 #include <Utilities/Util.h>
 
 
@@ -243,7 +244,7 @@ public:
 	* @param p_TextureId the ID of the texture to be used
 	* @return the Object2D ID of the created object
 	*/
-	virtual int create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation,
+	virtual int create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
 		const char *p_TextureId) = 0;
 
 	/**
@@ -254,7 +255,7 @@ public:
 	* @param p_ModelDefinition the ID of the model definition
 	* @return the Object2D ID of the created object
 	*/
-	virtual int create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation,
+	virtual int create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) = 0;
 
 	/**
@@ -405,11 +406,11 @@ public:
 	virtual void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) = 0;
 	
 	/**
-	* Set the scale of a 2D object.
+	* Set the scale of a 2D object in xyz.
 	* @param p_Instance an identifier to an object
 	* @param p_Scale scaling factor where 1.0f is the default model size
 	*/
-	virtual void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) = 0;
+	virtual void set2D_ObjectScale(Object2D_ID p_Instance, Vector3 p_Scale) = 0;
 	
 	/**
 	* Set the rotation of a 2D object around the screen z-axis.
@@ -468,6 +469,13 @@ public:
 	 *			be logged from this component. Set to null to disable logging.
 	 */
 	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
+
+	/**
+	 * Set the tweaker object to use to tweak variables at runtime.
+	 *
+	 * @param p_Tweaker pointer to the master tweaker
+	 */
+	virtual void setTweaker(TweakSettings* p_Tweaker) = 0;
 
 	/**
 	 * Change the render target.

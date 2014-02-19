@@ -175,6 +175,29 @@ void FileGameRound::handleExtraPackage(Player::ptr p_Player, Package p_Package)
 		}
 		break;
 
+	case PackageType::OBJECT_ACTION:
+		{
+			Actor::Id actor = con->getObjectActionId(p_Package);
+			const char* action = con->getObjectActionAction(p_Package);
+
+			for (auto& player : m_Players)
+			{
+				if (player == p_Player)
+				{
+					continue;
+				}
+
+				User::ptr otherUser = player->getUser().lock();
+				if (!otherUser)
+				{
+					continue;
+				}
+
+				otherUser->getConnection()->sendObjectAction(actor, action);
+			}
+		}
+		break;
+
 	default:
 		GameRound::handleExtraPackage(p_Player, p_Package);
 		break;

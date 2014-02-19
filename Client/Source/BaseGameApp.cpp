@@ -1,7 +1,8 @@
 #include "BaseGameApp.h"
 
-#include "Logger.h"
+#include <Logger.h>
 #include "Settings.h"
+#include <TweakCommand.h>
 
 #include <sstream>
 #include <iomanip>
@@ -22,6 +23,8 @@ void BaseGameApp::init()
 	settings.initialize("UserOptions.xml");
 
 
+	TweakSettings::initializeMaster();
+
 	m_GameLogic = nullptr;
 
 	m_MemUpdateDelay = 0.1f;
@@ -31,7 +34,7 @@ void BaseGameApp::init()
 	
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
-
+	m_Graphics->setTweaker(TweakSettings::getInstance());
 	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, settings.getIsSettingEnabled("Fullscreen"));
 
 	m_Graphics->enableSSAO(settings.getIsSettingEnabled("SSAO"));
@@ -132,6 +135,10 @@ void BaseGameApp::init()
 
 	// Set Current Size
 	m_NewWindowSize = m_Window.getSize();
+
+	m_CommandManager.reset(new CommandManager);
+	m_CommandManager->registerCommand(Command::ptr(new TweakCommand));
+	m_ConsoleReader.reset(new ConsoleReader(m_CommandManager));
 }
 
 void BaseGameApp::run()
@@ -150,6 +157,7 @@ void BaseGameApp::run()
 	{
 		Logger::log(Logger::Level::TRACE, "New frame");
 
+		m_ConsoleReader->handleInput();
 		m_InputQueue.onFrame();
 		m_Window.pollMessages();
 

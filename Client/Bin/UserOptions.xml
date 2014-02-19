@@ -1,5 +1,5 @@
 <UserOptions>
-	<Server Hostname="localhost" Port="31415" />
+	<Server Hostname="194.47.150.5" Port="31415" />
 	<!-- Test ip: 194.47.150.44 -->
 	<Settings>
 		<SSAO enabled="false"/>
