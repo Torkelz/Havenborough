@@ -1,5 +1,6 @@
 #pragma once
 #include "ParticleInstance.h"
+#include "ResourceTranslator.h"
 
 #include <map>
 class ParticleFactory
@@ -39,7 +40,7 @@ public:
 	* @param p_EffectName for the new definition
 	* @return copy of the created particle definition
 	*/
-	virtual ParticleEffectDefinition::ptr createParticleEffectDefinition(const char* p_Filename, const char* p_EffectName);
+	virtual ParticleEffectDefinition::ptr createParticleEffectDefinition(const char* p_FilePath, const char* p_EffectName);
 
 	/**
 	 * Create an instance of a particle effect from an already loaded definition.
@@ -61,7 +62,7 @@ private:
 	std::shared_ptr<Buffer> createParticleBuffer(unsigned int p_MaxParticles);
 	std::shared_ptr<Buffer> createConstBuffer();
 
-	ID3D11ShaderResourceView *loadTexture(const char *p_Filename, const char *p_Identifier);
+	ID3D11ShaderResourceView *loadTexture(const char *p_Filepath, const char *p_Identifier);
 
 	ID3D11ShaderResourceView *getTextureFromList(std::string p_Identifier);
 	void createSampler(ID3D11Device* p_Device);

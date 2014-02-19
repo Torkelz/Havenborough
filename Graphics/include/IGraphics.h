@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include "ShaderDefinitions.h"
+#include <TweakSettings.h>
 #include <Utilities/Util.h>
 
 
@@ -470,11 +471,32 @@ public:
 	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
 
 	/**
+	 * Set the tweaker object to use to tweak variables at runtime.
+	 *
+	 * @param p_Tweaker pointer to the master tweaker
+	 */
+	virtual void setTweaker(TweakSettings* p_Tweaker) = 0;
+
+	/**
 	 * Change the render target.
 	 *
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(RenderTarget p_RenderTarget) = 0;
+	
+	/*
+	 * Enables or disables Vsync depending on parameter.
+	 *
+	 * @param p_State, true enables Vsync. false disables Vsync.
+	 */
+	virtual void enableVsync(bool p_State) = 0;
+
+	/*
+	 * Enables or disables SSAO depending on parameter.
+	 *
+	 * @param p_State, true enables SSAO. false disables SSAO.
+	 */
+	virtual void enableSSAO(bool p_State) = 0;
 private:
 
 	/**

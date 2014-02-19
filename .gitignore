@@ -32,6 +32,7 @@ testCaseCollection.xml
 *.cso
 Client/Bin/logFile.txt
 Client/Bin/serverLogFile.txt
+Client/Bin/tweakSettings.xml
 BoostIntegrationTest/Bin/debug_log.txt
 BoostIntegrationTest/Bin/release_log.txt
 *test_log.xml

@@ -3,6 +3,8 @@
 #include "GraphicsExceptions.h"
 #include "VRAMInfo.h"
 #include "Utilities/MemoryUtil.h"
+#include "../3rd party/tinyxml2/tinyxml2.h"
+#include "GraphicsExceptions.h"
 
 #include <boost/filesystem.hpp>
 
@@ -21,28 +23,104 @@ void ParticleFactory::initialize(std::map<std::string, ID3D11ShaderResourceView*
 	createSampler(p_Device);
 }
 
-ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(const char* p_Filename, const char* p_EffectName)
-{
-	//ParticleLoader particleLoader;
-	//particleLoader.loadXMLFile(p_Filename);
-
+ParticleEffectDefinition::ptr ParticleFactory::createParticleEffectDefinition(const char* p_FilePath, const char* p_EffectName)
+{	
 	ParticleEffectDefinition::ptr particleSystem;
+	particleSystem.reset(new ParticleEffectDefinition());
 
-	particleSystem.reset(new ParticleEffectDefinition()); 
+	std::vector<char> buffer;
+	const char* name;
 
-	particleSystem->diffuseTexture = loadTexture(p_Filename, "Particle1.dds");
+	std::ifstream file(p_FilePath);
+	if(!file)
+	{
+		throw GraphicsException("File failed to load", __LINE__, __FILE__);
+	}
+	file >> std::noskipws;
+
+	std::copy(std::istream_iterator<char>(file), std::istream_iterator<char>(), std::back_inserter(buffer));
+	buffer.push_back('\0');
+
+	tinyxml2::XMLDocument particlesList;
+
+	tinyxml2::XMLError error = particlesList.Parse(buffer.data());
+	if(error)
+	{
+		throw GraphicsException("File not of type 'XML'",__LINE__, __FILE__);
+	}
+	tinyxml2::XMLElement* particlesFile = particlesList.FirstChildElement("Particle");
+	if(particlesFile == nullptr)
+	{
+		throw GraphicsException("File not of type 'Particle'", __LINE__, __FILE__);
+	}
+	//forloop
+	tinyxml2::XMLElement* Effect = particlesFile->FirstChildElement("Effect");
+	if(Effect == nullptr)
+	{
+		throw GraphicsException("File not containing any effects", __LINE__, __FILE__);
+	}
+
+	if(Effect->Attribute("effectName", p_EffectName))
+	{
+		particleSystem->particleSystemName = p_EffectName;
+	}
+	
+	tinyxml2::XMLElement* EffectAttributes = Effect->FirstChildElement("DiffuseTexture");
+	if (EffectAttributes == nullptr)
+	{
+		throw GraphicsException("File not containing any more children", __LINE__, __FILE__);
+	}
+
+	name = EffectAttributes->Attribute("textureResourceName");
+	if (name == nullptr)
+	{
+		throw GraphicsException("File not containing any texture name", __LINE__, __FILE__);
+	}
+	particleSystem->textureResourceName = name;
+
+	EffectAttributes = EffectAttributes->NextSiblingElement();	
+	particleSystem->maxParticles = EffectAttributes->IntAttribute("maxParticles");
+	
+	EffectAttributes = EffectAttributes->NextSiblingElement();
+	particleSystem->particlesPerSec = EffectAttributes->IntAttribute("particlesPerSec");
+
+	EffectAttributes = EffectAttributes->NextSiblingElement();
+	particleSystem->maxLife = EffectAttributes->FloatAttribute("maxLife");
+
+	EffectAttributes = EffectAttributes->NextSiblingElement();
+	particleSystem->maxLifeDeviation = EffectAttributes->FloatAttribute("maxLifeDeviation");
+
+	EffectAttributes = EffectAttributes->NextSiblingElement();
+	particleSystem->size.x = EffectAttributes->FloatAttribute("X");
+	particleSystem->size.y = EffectAttributes->FloatAttribute("Y");
+
+	EffectAttributes = EffectAttributes->NextSiblingElement();
+	particleSystem->particlePositionDeviation = EffectAttributes->FloatAttribute("positionDeviation");
+
+	EffectAttributes = EffectAttributes->NextSiblingElement();
+	particleSystem->velocityDeviation = EffectAttributes->FloatAttribute("velocityDeviation");
+
+	EffectAttributes = EffectAttributes->NextSiblingElement();
+	particleSystem->particleColorDeviation.x = EffectAttributes->FloatAttribute("X");
+	particleSystem->particleColorDeviation.y = EffectAttributes->FloatAttribute("Y");
+	particleSystem->particleColorDeviation.z = EffectAttributes->FloatAttribute("Z");
+	particleSystem->particleColorDeviation.w = EffectAttributes->FloatAttribute("A");
+
+	int lol = 0;
+
+	/*
 	particleSystem->textureResourceName = "Particle1.dds";
-	particleSystem->sampler = m_Sampler;
 	particleSystem->maxParticles = 900;
 	particleSystem->particlesPerSec = 900;
 	particleSystem->maxLife = 0.6f;
 	particleSystem->maxLifeDeviation = 0.2f;
 	particleSystem->size = DirectX::XMFLOAT2(8.f, 8.f);
-	particleSystem->particleSystemName = "fire";
 	particleSystem->particlePositionDeviation = 10.f;
 	particleSystem->velocityDeviation = 40.f;
 	particleSystem->particleColorDeviation = DirectX::XMFLOAT4(0.2f, 0.15f, 0.0f, 0.2f);
-
+	*/
+	particleSystem->diffuseTexture = loadTexture(p_FilePath, particleSystem->textureResourceName.c_str());
+	particleSystem->sampler = m_Sampler;
 	return particleSystem;
 }
 
@@ -93,9 +171,9 @@ std::shared_ptr<Buffer> ParticleFactory::createConstBuffer()
 	return buffer;
 }
 
-ID3D11ShaderResourceView *ParticleFactory::loadTexture(const char *p_Filename, const char *p_Identifier)
+ID3D11ShaderResourceView *ParticleFactory::loadTexture(const char *p_Filepath, const char *p_Identifier)
 {
-	boost::filesystem::path particlePath(p_Filename);
+	boost::filesystem::path particlePath(p_Filepath);
 	boost::filesystem::path parentDir(particlePath.parent_path().parent_path() / "textures");
 		
 	boost::filesystem::path diff = (p_Identifier == "NONE" || p_Identifier == "Default_COLOR.dds") ?
