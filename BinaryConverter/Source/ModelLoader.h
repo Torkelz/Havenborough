@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+#include "tinyxml2\tinyxml2.h"
+
 class ModelLoader
 {
 public:
@@ -211,6 +213,8 @@ protected:
 
 private:
 	void printOutResourceInfo(std::string p_ResourceListLocation);
+	void printUpdate(tinyxml2::XMLElement* p_Ele);
+	void printNew(tinyxml2::XMLDocument& p_Doc, tinyxml2::XMLElement* p_Ele);
 	void clearData();
 
 };

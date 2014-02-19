@@ -1,6 +1,6 @@
 <Resources>
     <ResourceType Type="model">
-        <Resource Name="Aqueduct1" Path="assets/models/Aqueduct1.btx"/>
+        <Resource Name="Aqueduct1" Path="assets/models/hejhoppAqueduct1.btx"/>
         <Resource Name="AqueducttEnd1" Path="assets/models/AqueducttEnd1.btx"/>
         <Resource Name="Arrow" Path="assets/models/Arrow.btx"/>
         <Resource Name="Arrow1" Path="assets/models/Arrow1.btx"/>

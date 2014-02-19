@@ -1,5 +1,4 @@
 #include "ModelLoader.h"
-#include "tinyxml2\tinyxml2.h"
 #include <iostream>
 
 ModelLoader::ModelLoader()
@@ -57,6 +56,7 @@ bool ModelLoader::loadFile(std::string p_FilePath, std::string p_ResourceListLoc
 	}
 	startReading(input);
 	printOutResourceInfo(p_ResourceListLocation);
+
 	input.close();
 
 	return true;
@@ -405,12 +405,12 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 	tinyxml2::XMLError error = resource.LoadFile(p_ResourceListLocation.c_str());
 	if(error != tinyxml2::XML_NO_ERROR)
 	{
-		std::cout << "Notification: File: " << p_ResourceListLocation << " \nWas not found.";
+		std::cout << "Notification: File: " << p_ResourceListLocation << " \nWas not found." << std::endl;
 	}
 	tinyxml2::XMLElement* element = resource.FirstChildElement();
 	if(!element)
 	{
-		std::cout << "Notification: File: " << p_ResourceListLocation << " \nWas not a of right type.";
+		std::cout << "Notification: File: " << p_ResourceListLocation << " \nWas not a of right type." << std::endl;
 	}
 	for(tinyxml2::XMLElement* resourceType = element->FirstChildElement(); resourceType; resourceType = resourceType->NextSiblingElement())
 	{
@@ -420,29 +420,45 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 			{
 				if(leafNode->Attribute("Name", m_MeshName.c_str()))
 				{
-					resourceType->DeleteChild(leafNode);
-					error = resource.SaveFile(p_ResourceListLocation.c_str());
+					printUpdate(leafNode);
 					found = true;
-					if(error != tinyxml2::XML_NO_ERROR)
-					{
-						int b = 0;
-					}
 					break;
 				}
 			}
 			if(!found)
 			{
-				tinyxml2::XMLElement* newLeaf = resource.NewElement("Resource");
-				newLeaf->SetAttribute("Name", m_MeshName.c_str());
-				std::string path = "assets/models/";
-				path.append(m_MeshName);
-				path.append(".btx");
-				newLeaf->SetAttribute("Path", path.c_str());
-				resourceType->InsertFirstChild(newLeaf);
+				printNew(resource, resourceType);
 			}
+		}
+		else if(resourceType->Attribute("Type", "volume"))
+		{
+
 		}
 	}
 	resource.SaveFile(p_ResourceListLocation.c_str());
+	if(error != tinyxml2::XML_NO_ERROR)
+	{
+		std::cout << "Could not save file: " << p_ResourceListLocation << std::endl;
+	}
+}
+
+void ModelLoader::printUpdate(tinyxml2::XMLElement* p_Ele)
+{
+	std::string path = "assets/models/";
+	path.append(m_MeshName);
+	path.append(".btx");
+	p_Ele->SetAttribute("Path", path.c_str());
+}
+
+void ModelLoader::printNew(tinyxml2::XMLDocument& p_Doc, tinyxml2::XMLElement* p_Ele)
+{
+	tinyxml2::XMLElement* newLeaf = p_Doc.NewElement("Resource");
+	newLeaf->SetAttribute("Name", m_MeshName.c_str());
+	std::string path = "assets/models/";
+	path.append(m_MeshName);
+	path.append(".btx");
+	newLeaf->SetAttribute("Path", path.c_str());
+	p_Ele->InsertFirstChild(newLeaf);
 }
 
 const std::vector<DirectX::XMFLOAT3>& ModelLoader::getVertices() const
