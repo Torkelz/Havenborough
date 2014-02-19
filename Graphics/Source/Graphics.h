@@ -84,9 +84,6 @@ private:
 	Buffer *m_ConstantBuffer;
 	Buffer *m_BVBuffer;
 	unsigned int m_BVBufferNumOfElements;
-	Shader *m_BVShader;
-
-	Shader *m_Shader; //DEBUG
 
 	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;

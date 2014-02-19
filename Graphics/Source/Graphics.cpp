@@ -42,8 +42,6 @@ Graphics::Graphics(void)
 
 	m_ConstantBuffer = nullptr;
 	m_BVBuffer = nullptr;
-	m_BVShader = nullptr;
-	m_Shader = nullptr;
 	m_VSyncEnabled = false; //DEBUG
 	m_NextInstanceId = 1;
 	m_Next2D_ObjectId = 1;
@@ -324,7 +322,6 @@ void Graphics::shutdown(void)
 	SAFE_SHUTDOWN(m_WrapperFactory);
 	SAFE_SHUTDOWN(m_ModelFactory);
 
-	m_Shader = nullptr;
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_BVBuffer);
 	
@@ -676,12 +673,12 @@ void Graphics::drawFrame(void)
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 4)
 	{
-		m_Shader->setShader();
-		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
-		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
+		m_ShaderList.at("DeferredShader")->setShader();
+		m_ShaderList.at("DeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
+		m_ShaderList.at("DeferredShader")->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
 		
-		m_Shader->unSetShader();
+		m_ShaderList.at("DeferredShader")->unSetShader();
 	}
 
 	if(m_SelectedRenderTarget == IGraphics::RenderTarget::FINAL)
@@ -908,12 +905,10 @@ void Graphics::enableSSAO(bool p_State)
 
 void Graphics::createDefaultShaders(void)
 {
-	createShader("DebugShader", L"assets/shaders/DebugShader.hlsl","VS,PS","5_0",
+	createShader("DeferredShader", L"assets/shaders/DebugShader.hlsl","VS,PS","5_0",
 		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	createShader("DebugBV_Shader", L"assets/shaders/BoundingVolume.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
-	m_BVShader = getShaderFromList("DebugBV_Shader");
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
@@ -1261,11 +1256,11 @@ void Graphics::drawBoundingVolumes()
 		m_BVBuffer->setBuffer(0);
 		m_ConstantBuffer->setBuffer(1);
 		
-		m_BVShader->setShader();
+		m_ShaderList.at("DebugBV_Shader")->setShader();
 	
 		m_DeviceContext->Draw(m_BVTriangles.size(), 0);
 
-		m_Shader->unSetShader();
+		m_ShaderList.at("DeferredShader")->unSetShader();
 		m_BVBuffer->unsetBuffer(0);
 		m_ConstantBuffer->unsetBuffer(1);
 
@@ -1288,16 +1283,15 @@ void Graphics::updateConstantBuffer()
 //TODO: Remove later
 void Graphics::DebugDefferedDraw(void)
 {
-	m_Shader = getShaderFromList("DebugShader");
 	D3D11_SAMPLER_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
-	sd.Filter		= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sd.AddressU     = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressV		= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressW		 = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.ComparisonFunc                = D3D11_COMPARISON_NEVER;
-	sd.MinLOD                       = 0;
-	sd.MaxLOD                        = D3D11_FLOAT32_MAX;
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sd.MinLOD = 0;
+	sd.MaxLOD = D3D11_FLOAT32_MAX;
 
 	m_Sampler = nullptr;
 	m_Device->CreateSamplerState( &sd, &m_Sampler );
