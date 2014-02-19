@@ -63,6 +63,7 @@ DeferredRenderer::DeferredRenderer()
 
 
 	m_Buffer["LightConstant"] = nullptr;
+	m_Buffer["LightViewProj"] = nullptr;
 	m_Buffer["SSAOConstant"] = nullptr;
 	m_Buffer["SSAOConstant_Blur"] = nullptr;
 
@@ -180,7 +181,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	UINT resolution = 4096;
 	initializeShadowMap(resolution, resolution); //size of Shadow Map
 	m_ViewHW = 5000.f;
-	XMStoreFloat4x4(&m_LightProjection, XMMatrixTranspose(XMMatrixOrthographicLH(m_ViewHW, m_ViewHW, 0.f, 10000)));
+	XMStoreFloat4x4(&m_LightProjection, XMMatrixTranspose(XMMatrixOrthographicLH(m_ViewHW, m_ViewHW, -20000.f, 20000)));
 
 	createRenderTargets(desc);
 
@@ -208,6 +209,9 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
 {
+	//use typeless format because the DSV is going to interpret the
+	//bits as DXGI_FORMAT_D24_UNORM_S8_UNIT, whereas the SRV is going
+	//to interpret the bits as DXGI_FORMAT_R24_UNORM_X8_TYPELESS.
 	D3D11_TEXTURE2D_DESC texDesc;
     texDesc.Width     = width;
     texDesc.Height    = height;
@@ -224,20 +228,23 @@ void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
 	ID3D11Texture2D* depthMap = 0;
 	HRESULT hr = m_Device->CreateTexture2D(&texDesc, 0, &depthMap);
 
+	//render from light
     D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	dsvDesc.Flags = 0;
     dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
     dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     dsvDesc.Texture2D.MipSlice = 0;
     hr = m_Device->CreateDepthStencilView(depthMap, &dsvDesc, &m_DepthMapDSV);
-
+	
+	//render to backbuffert from the camera
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
     srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
     srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
-   hr =  m_Device->CreateShaderResourceView(depthMap, &srvDesc, &m_DepthMapSRV);
+	hr =  m_Device->CreateShaderResourceView(depthMap, &srvDesc, &m_DepthMapSRV);
 
+	//viewport that  matches the shadow map dimensions.
 	m_LightViewport.Width = (float)width;
 	m_LightViewport.Height = (float)height;
 	m_LightViewport.MinDepth = 0.0f;
@@ -261,7 +268,7 @@ void DeferredRenderer::renderDeferred()
 	{
 		m_DeviceContext->ClearDepthStencilView(m_DepthMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 		
-		unsigned int nrRT = 3;
+		unsigned int nrRT = 0;
 		
 		//Shadow Map
 		ID3D11RenderTargetView *smrtv[] = {0,0,0};
@@ -272,23 +279,24 @@ void DeferredRenderer::renderDeferred()
 
 		m_DeviceContext->RSSetState(m_RasterState);
 
+		//create new viewport
 		D3D11_VIEWPORT prevViewport;
 		UINT numViewPort = 1;
 		m_DeviceContext->RSGetViewports(&numViewPort, &prevViewport);
 		m_DeviceContext->RSSetViewports(1, &m_LightViewport);
-
-		for(int i = 0; i < 1/*m_DirectionalLights->size()*/; i++)
-		{
-			updateLightView(m_DirectionalLights->at(i).lightDirection);
-			updateConstantBuffer(m_LightView, m_LightProjection);
-			renderGeometry(m_DepthMapDSV, nrRT, smrtv);
-		}
+		
+		//update and render Shadow map
+		updateLightView(m_DirectionalLights->at(0).lightDirection); //light 0
+		updateConstantBuffer(m_LightView, m_LightProjection);
+		renderGeometry(m_DepthMapDSV, nrRT, smrtv);
 
 		m_DeviceContext->RSSetViewports(1, &prevViewport);
 		
 		m_DeviceContext->RSSetState(previousRasterState);
 		SAFE_RELEASE(previousRasterState);
-		
+
+		//reset values and render other
+		nrRT = 3;
 		ID3D11RenderTargetView *rtv[] = {
 		m_RT[IGraphics::RenderTarget::DIFFUSE], m_RT[IGraphics::RenderTarget::NORMAL], m_RT[IGraphics::RenderTarget::W_POSITION]
 		};
@@ -469,7 +477,7 @@ void DeferredRenderer::renderLighting()
 
 	m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler["ShadowMap"]);
 
-	////Select the third render target[3]
+	//Select the third render target[3]
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -484,23 +492,24 @@ void DeferredRenderer::renderLighting()
 
 
 	//		Render PointLights
-	renderLight(m_Shader["PointLight"], m_Buffer["PointLightModel"], m_PointLights);
+	//renderLight(m_Shader["PointLight"], m_Buffer["PointLightModel"], m_PointLights);
 	//		Render SpotLights
-	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
+	//renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
+	
 	//		Render DirectionalLights
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0);
 
 	//		Render Shadow Map
-	for(int i = 0; i < 1/*m_DirectionalLights->size()*/; i++)
-	{
-		updateLightView(m_DirectionalLights->at(i).lightDirection);
-		updateConstantBuffer(m_LightView, m_LightProjection);
-		renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
-	}
+	updateLightView(m_DirectionalLights->at(0).lightDirection); //light 0
+	updateLightBuffer();
+	m_Buffer["LightViewProj"]->setBuffer(1);
+	updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
 	
+	m_DirectionalLights->resize(1);
+	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
-	updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
+	m_Buffer["LightViewProj"]->unsetBuffer(1);
 
 	if(m_SkyDome && m_RenderSkyDome)
 		m_SkyDome->RenderSkyDome(m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView, m_Buffer["DefaultConstant"]);
@@ -568,6 +577,15 @@ void DeferredRenderer::updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, Di
 	cb.proj = p_ProjMatrix;
 	cb.campos = m_CameraPosition;
 	m_DeviceContext->UpdateSubresource(m_Buffer["DefaultConstant"]->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
+}
+
+
+void DeferredRenderer::updateLightBuffer()
+{
+	cLightBuffer cb;
+	cb.view = m_LightView;
+	cb.projection = m_LightProjection;
+	m_DeviceContext->UpdateSubresource(m_Buffer["LightViewProj"]->getBufferPointer(), NULL, NULL, &cb, NULL, NULL);
 }
 
 
@@ -705,6 +723,15 @@ void DeferredRenderer::createBuffers()
 	adesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	m_Buffer["LightConstant"] = WrapperFactory::getInstance()->createBuffer(adesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(Light) * m_MaxLightsPerLightInstance);
+
+	Buffer::Description lightDesc;
+	lightDesc.initData = nullptr;
+	lightDesc.numOfElements = 1;
+	lightDesc.sizeOfElement = sizeof(cLightBuffer);
+	lightDesc.type = Buffer::Type::CONSTANT_BUFFER_PS;
+	lightDesc.usage = Buffer::Usage::DEFAULT;
+	m_Buffer["LightViewProj"] = WrapperFactory::getInstance()->createBuffer(lightDesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(cLightBuffer));
 
 
 	Buffer::Description instanceWorldDesc;
@@ -861,7 +888,7 @@ void DeferredRenderer::createSamplerState()
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_Blur"]);
 
 	// Create Shadow map texture sampler
-	sd.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+	sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
@@ -1043,7 +1070,6 @@ void DeferredRenderer::renderLight(Shader *p_Shader, Buffer* p_ModelBuffer, vect
 		UINT Offsets[2] = {0,0};
 		ID3D11Buffer * buffers[] = {p_ModelBuffer->getBufferPointer(), m_Buffer["LightConstant"]->getBufferPointer()};
 		UINT Stride[2] = {sizeof(DirectX::XMFLOAT3), sizeof(Light)};
-
 
 		p_Shader->setShader();
 		m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
@@ -1285,5 +1311,5 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 void DeferredRenderer::updateLightView(DirectX::XMFLOAT3 p_Dir)
 {
 	XMVECTOR pos = XMVectorSet(m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z, 1.f);
-	XMStoreFloat4x4(&m_LightView, XMMatrixTranspose(XMMatrixLookToLH(pos - 1000.f * XMVectorSet(p_Dir.x, p_Dir.y, p_Dir.z ,0.0f), XMVectorSet(p_Dir.x, p_Dir.y, p_Dir.z ,0.0f) , XMVectorSet(0, 1, 0, 0))));
+	XMStoreFloat4x4(&m_LightView, XMMatrixTranspose(XMMatrixLookToLH(pos, XMVectorSet(p_Dir.x, p_Dir.y, p_Dir.z ,0.0f) , XMVectorSet(0, 1, 0, 0))));
 }

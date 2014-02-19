@@ -214,9 +214,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	}
 	else if(p_Action ==  "changeViewN" && p_Value == 1)
 	{
-		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
-		if((unsigned int)m_CurrentDebugView < 0)
+		if((unsigned int)m_CurrentDebugView == 0)
 			m_CurrentDebugView = (IGraphics::RenderTarget)4;
+		else
+			m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
 		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
 	else if(p_Action ==  "changeViewP" && p_Value == 1)

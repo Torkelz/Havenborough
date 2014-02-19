@@ -9,10 +9,10 @@ Texture2D ShadowMap  : register (t4);
 
 SamplerComparisonState shadowMapSampler : register (s0);
 
-
 float3 CalcLighting( float3 normal, float3 position, float3 diffuseAlbedo, float3 specularAlbedo,
-	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor,	float3 ssao, float percentage);
+	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor,	float3 ssao, float blurPercentage, float calcPercentage);
 float CalcShadowFactor(float3 uv);
+float Blur(float3 uv);
 
 cbuffer cb : register(b0)
 {
@@ -20,6 +20,12 @@ cbuffer cb : register(b0)
 	float4x4	projection;
 	float3		cameraPos;
 };
+
+cbuffer lightMat : register(b1)
+{
+	float4x4	lightView;
+	float4x4	lightProjection;
+}
 
 //############################
 // Shader step: Vertex Shader
@@ -30,7 +36,7 @@ VSLightOutput DirectionalLightVS(VSLightInput input)
 	output.vposition		= float4(input.vposition,1.0f);
 	output.lightPos			= input.lightPos;
 	output.lightColor		= input.lightColor;	
-	output.lightDirection	= input.lightDirection;	
+	output.lightDirection	= input.lightDirection;
 	output.spotlightAngles	= input.spotlightAngles;	
 	output.lightRange		= input.lightRange;
 	return output;
@@ -60,12 +66,13 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 		float4(0.0f, 0.0f, 0.0f, 1.0f)
 	};
 
-	float4 lightPos = mul(t, mul(projection, mul(view, float4(position, 1.0f))));
+	float4 lightPos = mul(t, mul(lightProjection, mul(lightView, float4(position, 1.0f))));
 	lightPos.xyz /= lightPos.w;
-
+	lightPos.z *= 1.0f;
+	lightPos.z += -0.00f;
 
 	float3 lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
-		specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, CalcShadowFactor(lightPos.xyz));
+		specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, Blur(lightPos.xyz), CalcShadowFactor(lightPos.xyz));
 
 	return float4( lighting, 1.0f );
 }
@@ -75,19 +82,18 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 //		HELPER FUNCTIONS
 //################################
 float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3 specularAlbedo,
-	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor,	float3 ssao, float percentage)
+	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor,	float3 ssao, float blurPercentage, float calcPercentage)
 {
 	float attenuation = 1.0f;
 	float3 L = -lightDirection;
 	L = mul(view, float4(L, 0.f)).xyz;
+	
+	//if (dot(mul((float3x3)view, float3(0.f, 0.f, 1.f)), normal) < 0.f) return float3(0.f, 0.f, 1.f);
 
 	float nDotL = saturate( dot( normal, L ) );
 	float3 diffuse = nDotL * lightColor * diffuseAlbedo * pow(ssao, 10);
 
-	float4 pvpos = mul(projection, mul(view, float4(position,1.f)));
-
-	//if(pvpos.z >= percentage)
-		diffuse *= percentage;
+	diffuse *=  blurPercentage * calcPercentage;
 
 	// Calculate the specular term
 	float3 V = normalize(cameraPos - position);
@@ -101,30 +107,56 @@ float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3
 	return saturate(( diffuse + specular) * attenuation);
 }
 
+//texel size
+static const float SMAP_SIZE = 4096.0f;
+static const float SMAP_DX = 1.0f / SMAP_SIZE;
+
+
 
 float CalcShadowFactor(float3 uv)
 {
-	const float dx = 1.f / (1080.f);
-	const float dy = 1.f / (720.f);
-
 	float percentLit = 0.0f;
-	const float2 offsets[9] = 
+
+	float value = 0.f;
+	float coefficients[21] = 
 	{
-		float2(-dx,  -dy), float2(0.0f,  -dy), float2(dx,  -dy),
-		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
-		float2(-dx,  +dy), float2(0.0f,  +dy), float2(dx,  +dy)
+		0.000272337, 0.00089296, 0.002583865, 0.00659813, 0.014869116,
+		0.029570767, 0.051898313, 0.080381679, 0.109868729, 0.132526984,
+		0.14107424,
+		0.132526984, 0.109868729, 0.080381679, 0.051898313, 0.029570767,
+		0.014869116, 0.00659813, 0.002583865, 0.00089296, 0.000272337
 	};
 
-	//float bias = 0.005;
-	//float visibility = 1.0;
-	//if( texture2D( shadowmap
-	//
-
 	[unroll]
-	for(int i = 0; i < 9; ++i)
+	for(int i = 0; i < 21; i++)
 	{
-		percentLit += ShadowMap.SampleCmpLevelZero(shadowMapSampler, uv.xy + offsets[i], uv.z).x;
-		//percentLit += ShadowMap.Load(int3(uv + offsets[i],0)).x;
+		value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x + (i - 10) * SMAP_DX, uv.y), uv.z) * coefficients[i];
 	}
-	return percentLit /= 9.f;
+	percentLit = value;
+	return percentLit;
+}
+
+
+#define SAMPLE_COUNT 3
+float2 Offsets[SAMPLE_COUNT];
+
+float log_space(float w0, float d1, float w1, float d2)
+{
+	return (d1 + log(w0 + (w1 * exp(d2-d1))));
+}
+
+float Blur(float3 uv)
+{
+	float v, B, B2;
+	float w = (1.0/SAMPLE_COUNT);
+	B = ShadowMap.SampleCmpLevelZero(shadowMapSampler, uv.xy + Offsets[0], uv.z);
+	B2 = ShadowMap.SampleCmpLevelZero(shadowMapSampler, uv.xy + Offsets[1], uv.z);
+	v = log_space(w, B, w, B2);
+
+	for (int i = 2; i < SAMPLE_COUNT; i++)
+	{
+		B = ShadowMap.SampleCmpLevelZero(shadowMapSampler, uv.xy + Offsets[i], uv.z);
+		v = log_space(1.0, v, w, B);
+	}
+	return v;
 }
