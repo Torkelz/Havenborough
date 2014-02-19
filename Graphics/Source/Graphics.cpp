@@ -280,13 +280,11 @@ void Graphics::shutdown(void)
 		SAFE_RELEASE(tex.second);
 	}
 	m_TextureList.clear();
-	
+		
 	while (!m_ParticleEffectDefinitionList.empty())
 	{
 		std::map<string, ParticleEffectDefinition::ptr>::iterator it = m_ParticleEffectDefinitionList.begin();
 		string unremovedName = it->first;
-
-		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
 
 		releaseParticleEffectDefinition(unremovedName.c_str());
 	}	

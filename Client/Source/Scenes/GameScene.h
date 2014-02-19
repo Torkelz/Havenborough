@@ -94,7 +94,6 @@ private:
 	void changeColorTone(IEventData::Ptr p_Data);
 	void createParticleEffect(IEventData::Ptr p_Data);
 	void removeParticleEffectInstance(IEventData::Ptr p_Data);
-	void removeParticleEffectDefinition(IEventData::Ptr p_Data);
 	void updateParticlePosition(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);

@@ -426,18 +426,6 @@ void GameScene::removeParticleEffectInstance(IEventData::Ptr p_Data)
 	}
 }
 
-//void GameScene::removeParticleEffectDefinition(IEventData::Ptr p_Data)
-//{
-//	std::shared_ptr<RemoveParticleEventData> data = std::static_pointer_cast<RemoveParticleEventData>(p_Data);
-//
-//	auto it = m_Particles.find(data->getId());
-//
-//	if (it != m_Particles.end())
-//	{
-//		m_Graphics->releaseParticleEffectDefinition(it->second.instance);
-//		m_Particles.erase(it);
-//	}
-//}
 
 void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 {
