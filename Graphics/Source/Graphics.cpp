@@ -192,7 +192,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	initializeFactories();
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
-
+	createDefaultShaders();
+	
 	float nearZ = 10.0f;
 	float farZ = 100000.0f;
 
@@ -237,12 +238,9 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	cbdesc.usage = Buffer::Usage::DEFAULT;
 	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
+	
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
-
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
-
-	m_BVShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/BoundingVolume.hlsl",
-		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	return true;
 }
@@ -269,19 +267,19 @@ void Graphics::shutdown(void)
 		m_SwapChain->SetFullscreenState(false, NULL);
 	}
 
-	for(auto &s : m_ShaderList)
+	for(auto &shader : m_ShaderList)
 	{
-		SAFE_DELETE(s.second);
+		SAFE_DELETE(shader.second);
 	}
 	m_ShaderList.clear();
 
-	for (auto& tex : m_TextureList)
+	for(auto &texture : m_TextureList)
 	{
-		SAFE_RELEASE(tex.second);
+		SAFE_RELEASE(texture.second);
 	}
 	m_TextureList.clear();
 	
-	while (!m_ParticleEffectDefinitionList.empty())
+	while(!m_ParticleEffectDefinitionList.empty())
 	{
 		std::map<string, ParticleEffectDefinition::ptr>::iterator it = m_ParticleEffectDefinitionList.begin();
 		string unremovedName = it->first;
@@ -291,7 +289,7 @@ void Graphics::shutdown(void)
 		releaseParticleEffectDefinition(unremovedName.c_str());
 	}	
 
-	while (!m_ModelList.empty())
+	while(!m_ModelList.empty())
 	{
 		std::map<string, ModelDefinition>::iterator it = m_ModelList.begin();
 
@@ -302,7 +300,7 @@ void Graphics::shutdown(void)
 		releaseModel(unremovedName.c_str());
 	}
 
-	while (!m_2D_Objects.empty())
+	while(!m_2D_Objects.empty())
 	{
 		std::map<Object2D_ID, Renderable2D>::iterator it = m_2D_Objects.begin();
 
@@ -329,7 +327,6 @@ void Graphics::shutdown(void)
 	m_Shader = nullptr;
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_BVBuffer);
-	SAFE_DELETE(m_BVShader);
 	
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
@@ -894,6 +891,16 @@ void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_Rele
 	m_ReleaseModelTextureUserdata = p_Userdata;
 }
 
+void Graphics::createDefaultShaders(void)
+{
+	createShader("DebugShader", L"assets/shaders/DebugShader.hlsl","VS,PS","5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	createShader("DebugBV_Shader", L"assets/shaders/BoundingVolume.hlsl",
+		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
+	m_BVShader = getShaderFromList("DebugBV_Shader");
+}
+
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
 {
 	D3D11_VIEWPORT viewport;
@@ -1266,9 +1273,6 @@ void Graphics::updateConstantBuffer()
 //TODO: Remove later
 void Graphics::DebugDefferedDraw(void)
 {
-	m_Shader = nullptr;
-	createShader("DebugShader", L"assets/shaders/DebugShader.hlsl","VS,PS","5_0",
-		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	m_Shader = getShaderFromList("DebugShader");
 	D3D11_SAMPLER_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));

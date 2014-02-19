@@ -177,6 +177,7 @@ public:
 	void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void* p_Userdata) override;
 
 private:
+	void createDefaultShaders(void) override;
 	void shutdown(void) override;
 	bool release2D_Model(Object2D_ID p_ObjectID);
 

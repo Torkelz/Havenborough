@@ -481,4 +481,9 @@ private:
 	 * Release the sub resources allocated by the graphics API.
 	 */
 	virtual void shutdown(void) = 0;
+
+	/**
+	* Creates the least necessary shaders to run the game.
+	*/
+	virtual void createDefaultShaders(void) = 0;
 };
