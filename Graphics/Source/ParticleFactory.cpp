@@ -61,13 +61,13 @@ std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffect
 
 		particleSystem->particleSystemName = Effect->Attribute("effectName");
 	
-		tinyxml2::XMLElement* EffectAttributes = Effect->FirstChildElement("DiffuseTexture");
+		tinyxml2::XMLElement* EffectAttributes = Effect->FirstChildElement("Texture");
 		if (EffectAttributes == nullptr)
 		{
 			throw GraphicsException("File not containing any more children", __LINE__, __FILE__);
 		}
 
-		name = EffectAttributes->Attribute("textureResourceName");
+		name = EffectAttributes->Attribute("resourceName");
 		if (name == nullptr)
 		{
 			throw GraphicsException("File not containing any texture name", __LINE__, __FILE__);
@@ -87,20 +87,20 @@ std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffect
 		particleSystem->maxLifeDeviation = EffectAttributes->FloatAttribute("maxLifeDeviation");
 
 		EffectAttributes = EffectAttributes->NextSiblingElement();
-		particleSystem->size.x = EffectAttributes->FloatAttribute("X");
-		particleSystem->size.y = EffectAttributes->FloatAttribute("Y");
+		particleSystem->size.x = EffectAttributes->FloatAttribute("sX");
+		particleSystem->size.y = EffectAttributes->FloatAttribute("sY");
 
 		EffectAttributes = EffectAttributes->NextSiblingElement();
 		particleSystem->particlePositionDeviation = EffectAttributes->FloatAttribute("positionDeviation");
 
 		EffectAttributes = EffectAttributes->NextSiblingElement();
-		particleSystem->velocityDeviation = EffectAttributes->FloatAttribute("velocityDeviation");
+		particleSystem->velocityDeviation = EffectAttributes->FloatAttribute("vdX");
 
 		EffectAttributes = EffectAttributes->NextSiblingElement();
-		particleSystem->particleColorDeviation.x = EffectAttributes->FloatAttribute("X");
-		particleSystem->particleColorDeviation.y = EffectAttributes->FloatAttribute("Y");
-		particleSystem->particleColorDeviation.z = EffectAttributes->FloatAttribute("Z");
-		particleSystem->particleColorDeviation.w = EffectAttributes->FloatAttribute("A");
+		particleSystem->particleColorDeviation.x = EffectAttributes->FloatAttribute("cdX");
+		particleSystem->particleColorDeviation.y = EffectAttributes->FloatAttribute("cdY");
+		particleSystem->particleColorDeviation.z = EffectAttributes->FloatAttribute("cdZ");
+		particleSystem->particleColorDeviation.w = EffectAttributes->FloatAttribute("cdA");
 
 		particleSystem->diffuseTexture = loadTexture(p_FilePath, particleSystem->textureResourceName.c_str());
 		particleSystem->sampler = m_Sampler;

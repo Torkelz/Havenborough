@@ -29,7 +29,7 @@
 		<KeyMap command="joinTestLevel" key="T"/>
 		<KeyMap command="joinServerLevel" key="Y"/>
 		<KeyMap command="playLocalTest" key="J"/>
-		<KeyMap command="switchBVDraw" key="9"/>
+		<KeyMap command="switchBVDraw" key="57"/>
 		<KeyMap command="goToMainMenu" key="Return"/>
 		<KeyMap command="thirdPersonCamera" key="O"/>
 		<KeyMap command="flipCamera" key="P"/>
