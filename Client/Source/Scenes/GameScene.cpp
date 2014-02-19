@@ -459,17 +459,6 @@ void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 
 void GameScene::loadSandboxModels()
 {
-	m_Graphics->createShader("DefaultShader", L"assets/shaders/GeometryPass.hlsl",
-								"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->createShader("DefaultShaderForward", L"assets/shaders/ForwardShader.hlsl",
-		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
-	m_Graphics->createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl",
-		"VS,PS,GS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
-
-	m_Graphics->createShader("AnimatedShader", L"assets/shaders/AnimatedGeometryPass.hlsl",
-		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
 	static const std::string preloadedModels[] =
 	{
 		"Arrow1",
@@ -526,7 +515,7 @@ void GameScene::loadSandboxModels()
 	for (const std::string& model : preloadedModels)
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
-		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());		
+		m_Graphics->linkShaderToModel("DefaultDeferredShader", model.c_str());		
 	}
 
 	zane = m_Graphics->createModelInstance("Zane");
@@ -555,7 +544,7 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
 		m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
-		m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
+		m_Graphics->linkShaderToModel("DefaultForwardShader", model.c_str());
 	}
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
@@ -572,8 +561,4 @@ void GameScene::releaseSandboxModels()
 		m_ResourceManager->releaseResource(res);
 	}
 	m_ResourceIDs.clear();
-
-	m_Graphics->deleteShader("DefaultShader");
-	m_Graphics->deleteShader("AnimatedShader");
-	m_Graphics->deleteShader("DefaultParticleShader");
 }

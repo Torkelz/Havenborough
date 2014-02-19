@@ -265,11 +265,12 @@ void Graphics::shutdown(void)
 		m_SwapChain->SetFullscreenState(false, NULL);
 	}
 
-	for(auto &shader : m_ShaderList)
+	while(!m_ShaderList.empty())
 	{
-		SAFE_DELETE(shader.second);
-	}
-	m_ShaderList.clear();
+		std::map<string, Shader*>::iterator it = m_ShaderList.begin();
+		string unremovedName = it->first;
+		deleteShader(it->first.c_str());
+	}	
 
 	for(auto &texture : m_TextureList)
 	{
@@ -673,12 +674,12 @@ void Graphics::drawFrame(void)
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 4)
 	{
-		m_ShaderList.at("DeferredShader")->setShader();
-		m_ShaderList.at("DeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
-		m_ShaderList.at("DeferredShader")->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
+		m_ShaderList.at("DebugDeferredShader")->setShader();
+		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
+		m_ShaderList.at("DebugDeferredShader")->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
 		
-		m_ShaderList.at("DeferredShader")->unSetShader();
+		m_ShaderList.at("DebugDeferredShader")->unSetShader();
 	}
 
 	if(m_SelectedRenderTarget == IGraphics::RenderTarget::FINAL)
@@ -905,7 +906,17 @@ void Graphics::enableSSAO(bool p_State)
 
 void Graphics::createDefaultShaders(void)
 {
-	createShader("DeferredShader", L"assets/shaders/DebugShader.hlsl","VS,PS","5_0",
+	createShader("DefaultDeferredShader", L"assets/shaders/GeometryPass.hlsl", "VS,PS","5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	createShader("DefaultForwardShader", L"assets/shaders/ForwardShader.hlsl", "VS,PS","5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl", "VS,PS,GS", "5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
+	createShader("AnimatedShader", L"assets/shaders/AnimatedGeometryPass.hlsl",	"VS,PS","5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
+	// Debug shaders 
+	createShader("DebugDeferredShader", L"assets/shaders/DebugShader.hlsl","VS,PS","5_0",
 		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 	createShader("DebugBV_Shader", L"assets/shaders/BoundingVolume.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
@@ -1260,7 +1271,7 @@ void Graphics::drawBoundingVolumes()
 	
 		m_DeviceContext->Draw(m_BVTriangles.size(), 0);
 
-		m_ShaderList.at("DeferredShader")->unSetShader();
+		m_ShaderList.at("DebugDeferredShader")->unSetShader();
 		m_BVBuffer->unsetBuffer(0);
 		m_ConstantBuffer->unsetBuffer(1);
 
