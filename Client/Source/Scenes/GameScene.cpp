@@ -1,7 +1,9 @@
 #include "GameScene.h"
+
 #include <Components.h>
 #include <EventData.h>
 #include "Logger.h"
+#include <TweakSettings.h>
 
 using namespace DirectX;
 
@@ -52,11 +54,15 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateAnimation), UpdateAnimationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::changeColorTone), ChangeColorToneEvent::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffect), RemoveParticleEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffectInstance), RemoveParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	loadSandboxModels();
+
+	TweakSettings* tweakSettings = TweakSettings::getInstance();
+	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
+
 	return true;
 }
 
@@ -186,7 +192,6 @@ void GameScene::render()
 	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
 	m_Graphics->render2D_Object(m_GUI_ArrowId);
 	m_Graphics->render2D_Object(2);
-	m_Graphics->renderModel(zane);
 }
 
 bool GameScene::getIsVisible()
@@ -214,9 +219,11 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	}
 	else if(p_Action ==  "changeViewN" && p_Value == 1)
 	{
-		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
-		if((unsigned int)m_CurrentDebugView < 0)
+		if((unsigned int)m_CurrentDebugView == 0)
 			m_CurrentDebugView = (IGraphics::RenderTarget)4;
+		else
+			m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+
 		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 	}
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
@@ -415,13 +422,10 @@ void GameScene::changeColorTone(IEventData::Ptr p_Data)
 void GameScene::createParticleEffect(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<CreateParticleEventData> data = std::static_pointer_cast<CreateParticleEventData>(p_Data);
-
-	int resource = m_ResourceManager->loadResource("particleSystem", data->getEffectName());
-	m_Graphics->linkShaderToParticles("DefaultParticleShader", data->getEffectName().c_str());
-
+	
 	ParticleBinding particle =
 	{
-		resource,
+		data->getEffectName(),
 		m_Graphics->createParticleEffectInstance(data->getEffectName().c_str())
 	};
 
@@ -430,7 +434,7 @@ void GameScene::createParticleEffect(IEventData::Ptr p_Data)
 	m_Particles[data->getId()] = particle;
 }
 
-void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
+void GameScene::removeParticleEffectInstance(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<RemoveParticleEventData> data = std::static_pointer_cast<RemoveParticleEventData>(p_Data);
 
@@ -439,10 +443,10 @@ void GameScene::removeParticleEffect(IEventData::Ptr p_Data)
 	if (it != m_Particles.end())
 	{
 		m_Graphics->releaseParticleEffectInstance(it->second.instance);
-		m_ResourceManager->releaseResource(it->second.resourceId);
 		m_Particles.erase(it);
 	}
 }
+
 
 void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 {
@@ -470,17 +474,6 @@ void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 
 void GameScene::loadSandboxModels()
 {
-	m_Graphics->createShader("DefaultShader", L"assets/shaders/GeometryPass.hlsl",
-								"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Graphics->createShader("DefaultShaderForward", L"assets/shaders/ForwardShader.hlsl",
-		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
-	m_Graphics->createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl",
-		"VS,PS,GS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
-
-	m_Graphics->createShader("AnimatedShader", L"assets/shaders/AnimatedGeometryPass.hlsl",
-		"VS,PS","5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-
 	static const std::string preloadedModels[] =
 	{
 		"Arrow1",
@@ -530,21 +523,14 @@ void GameScene::loadSandboxModels()
 		"Vege1",
 		"Vege2",
 		"WoodenPillar1",
-        "WoodenShed1",
-		"Zane",
+        "WoodenShed1"
 		"DebugJoint",
 	};
 
 	for (const std::string& model : preloadedModels)
 	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
-		m_Graphics->linkShaderToModel("DefaultShader", model.c_str());		
+		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));	
 	}
-
-	zane = m_Graphics->createModelInstance("Zane");
-	m_Graphics->setModelPosition(zane, Vector3(100,100,100));
-	m_Graphics->setModelRotation(zane, Vector3(PI,0,0));
-
 
 	static const std::string preloadedTextures[] =
 	{
@@ -567,14 +553,13 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
 		m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
-		m_Graphics->linkShaderToModel("DefaultShaderForward", model.c_str());
 	}
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
-	m_Graphics->linkShaderToModel("AnimatedShader", "WITCH");
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
-	m_Graphics->linkShaderToParticles("DefaultParticleShader", "TestParticle");
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "water");
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");
 }
 
 void GameScene::releaseSandboxModels()
@@ -584,8 +569,4 @@ void GameScene::releaseSandboxModels()
 		m_ResourceManager->releaseResource(res);
 	}
 	m_ResourceIDs.clear();
-
-	m_Graphics->deleteShader("DefaultShader");
-	m_Graphics->deleteShader("AnimatedShader");
-	m_Graphics->deleteShader("DefaultParticleShader");
 }

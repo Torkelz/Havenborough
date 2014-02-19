@@ -47,7 +47,7 @@ private:
 
 	struct ParticleBinding
 	{
-		int resourceId;
+		std::string effectName;
 		IGraphics::InstanceId instance;
 	};
 	std::map<unsigned int, ParticleBinding> m_Particles;
@@ -59,9 +59,6 @@ private:
 		BodyHandle body;
 	};
 	std::vector<SpellBinding> m_Spells;
-
-	//DEBUG
-	IGraphics::InstanceId zane;
 
 public: 
 	GameScene();
@@ -93,7 +90,7 @@ private:
 	void updateAnimation(IEventData::Ptr p_Data);
 	void changeColorTone(IEventData::Ptr p_Data);
 	void createParticleEffect(IEventData::Ptr p_Data);
-	void removeParticleEffect(IEventData::Ptr p_Data);
+	void removeParticleEffectInstance(IEventData::Ptr p_Data);
 	void updateParticlePosition(IEventData::Ptr p_Data);
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
