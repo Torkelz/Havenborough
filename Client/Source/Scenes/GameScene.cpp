@@ -404,10 +404,7 @@ void GameScene::changeColorTone(IEventData::Ptr p_Data)
 void GameScene::createParticleEffect(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<CreateParticleEventData> data = std::static_pointer_cast<CreateParticleEventData>(p_Data);
-
-	//int resource = m_ResourceManager->loadResource("particleSystem", data->getEffectName());
-	//m_Graphics->linkShaderToParticles("DefaultParticleShader", data->getEffectName().c_str());
-
+	
 	ParticleBinding particle =
 	{
 		data->getEffectName(),
