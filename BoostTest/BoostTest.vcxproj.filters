@@ -263,6 +263,12 @@
     <ClCompile Include="..\Graphics\Source\SimpleText.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextureCreator.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextResource.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

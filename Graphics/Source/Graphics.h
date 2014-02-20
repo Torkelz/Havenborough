@@ -19,7 +19,7 @@
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
 #include "ScreenRenderer.h"
-#include "SimpleText.h"
+#include "TextureCreator.h"
 
 class Graphics : public IGraphics
 {
@@ -95,7 +95,7 @@ private:
 	IGraphics::releaseModelTextureCallBack m_ReleaseModelTexture;
 	void *m_ReleaseModelTextureUserdata;
 
-	SimpleText textRender;
+	TextureCreator m_TextureCreator;
 
 	ID3D11ShaderResourceView *textSRV;
 	IDXGIKeyedMutex *dxgiKeyedMutex10, *dxgiKeyedMutex11;

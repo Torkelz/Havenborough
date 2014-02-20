@@ -40,6 +40,7 @@ void TextureCreator::shutdown()
 	m_Device = nullptr;
 	SAFE_RELEASE(m_D2DFactory);
 	SAFE_RELEASE(m_WriteFactory);
+
 	m_TextResources.clear();
 }
 
@@ -47,40 +48,56 @@ void TextureCreator::createText(std::string p_Identifier, const wchar_t *p_Text,
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 		throw TextureCreationException("Tried to create an already existing text with identifier: " + p_Identifier, __LINE__, __FILE__);
-	
-	IDWriteTextFormat *TextFormat;
-	ID2D1RenderTarget *RenderTarget;
-	ID2D1SolidColorBrush *Brush;
+	IDWriteTextFormat *textFormat = nullptr;
+	ID2D1RenderTarget *renderTarget = nullptr;
+	ID2D1SolidColorBrush *brush = nullptr;
 	ID3D11ShaderResourceView *SRV = createSRV(p_Rect);
+	IDXGISurface *surface = getIDXGISurfaceFromSRV(SRV);
+
 	HRESULT hr = m_WriteFactory->CreateTextFormat(L"Gabriola", NULL, DWRITE_FONT_WEIGHT_REGULAR,
-		DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 72.f, L"en-us", &TextFormat);
+	DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 72.f, L"en-us", &textFormat);
 
 	if(SUCCEEDED(hr))
 	{
-		hr = TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+		hr = textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	}
 	if(SUCCEEDED(hr))
 	{
-		hr = TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-		TextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
+		hr = textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
 	}
-
-	hr = m_D2DFactory->CreateDxgiSurfaceRenderTarget(getIDXGISurfaceFromSRV(SRV), &m_DefaultProperties,
-		&RenderTarget);
-
 	if(SUCCEEDED(hr))
 	{
-		hr = RenderTarget->CreateSolidColorBrush(D2D1::ColorF(p_Color.x,p_Color.y,p_Color.z,p_Color.w), &Brush);
+		hr = m_D2DFactory->CreateDxgiSurfaceRenderTarget(surface, &m_DefaultProperties,
+			&renderTarget);
 	}
+	SAFE_RELEASE(surface);
+	if(SUCCEEDED(hr))
+	{
+		hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(p_Color.x,p_Color.y,p_Color.z,p_Color.w), &brush);
+	}
+	if(SUCCEEDED(hr))
+	{
+		//TextResource aa = TextResource(renderTarget, SRV, textFormat, brush, p_Rect);
+ 		m_TextResources.insert(std::pair<std::string, TextResource>(p_Identifier, 
+ 			TextResource(renderTarget, SRV, textFormat, brush, p_Rect)));
+		//m_TextResources.at(p_Identifier).draw(p_Text);
 
-	m_TextResources.at(p_Identifier) = TextResource(RenderTarget, SRV, TextFormat, Brush, p_Rect);
-	m_TextResources.at(p_Identifier).Draw(p_Text);
+	}
+	else
+	{
+		SAFE_RELEASE(brush);
+		SAFE_RELEASE(renderTarget);
+		SAFE_RELEASE(textFormat);
+		SAFE_RELEASE(SRV);
+		throw TextureCreationException("Text to texture creation failed.", __LINE__, __FILE__);
+	}
 }
 
 void TextureCreator::updateText(std::string p_Identifier, const wchar_t *p_Text)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
-		return m_TextResources.at(p_Identifier).Draw(p_Text);
+		return m_TextResources.at(p_Identifier).draw(p_Text);
 	else
 		throw TextureCreationException("Failed to update text with identifier: " + p_Identifier, __LINE__, __FILE__);
 }

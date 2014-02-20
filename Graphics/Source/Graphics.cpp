@@ -280,7 +280,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//
 	//
 	//textRender.initialize(&p_Hwnd, renderTarget);
-
+	m_TextureCreator.initialize(m_Device);
+	m_TextureCreator.createText("TEST", L"Havenborough", D2D1::RectF(0.f,0.f,1280.f,720.f), Vector4(0,0,0,1));
 	
 	return true;
 }
@@ -301,6 +302,8 @@ bool Graphics::reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, 
 void Graphics::shutdown(void)
 {
 	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Shutting down graphics");
+
+	m_TextureCreator.shutdown();
 
 	if(m_SwapChain)
 	{
@@ -1014,7 +1017,7 @@ HRESULT Graphics::createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p
 	// Set the feature level to DirectX 11.
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1, 
+	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_BGRA_SUPPORT, &featureLevel, 1, 
 		D3D11_SDK_VERSION, &swapChainDesc, &m_SwapChain, &m_Device, NULL, &m_DeviceContext);
 }
 
