@@ -899,7 +899,7 @@ void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_Rele
 
 void Graphics::renderJoint(DirectX::XMFLOAT4X4 p_World)
 {
-	ModelDefinition* jointDef = getModelFromList("DebugJoint");
+	ModelDefinition* jointDef = getModelFromList("Pivot1");
 	if (jointDef)
 	{
 		m_DeferredRender->addRenderable(Renderable(
