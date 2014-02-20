@@ -1,0 +1,6 @@
+<Resources>
+    <ResourceType Type="model">
+        <Resource Name="Dzala" Path="assets/models/Dzala.btx"/>
+        <Resource Name="House1" Path="assets/models/House1.btx"/>
+	</ResourceType>
+</Resources>

@@ -489,9 +489,9 @@ public:
 	void postInit() override
 	{
 		m_Body = m_Physics->createBVInstance(m_MeshName.c_str());
-		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
 		m_Physics->setBodyScale(m_Body, m_Scale);
 		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
+		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override

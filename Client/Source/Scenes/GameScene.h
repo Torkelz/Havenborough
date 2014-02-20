@@ -96,6 +96,6 @@ private:
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 
-	void loadSandboxModels();
-	void releaseSandboxModels();
+	void preLoadModels();
+	void releasePreLoadedModels();
 };

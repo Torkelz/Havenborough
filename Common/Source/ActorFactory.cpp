@@ -173,7 +173,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Object");
 	pushVector(printer, p_Position);
 	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "WITCH");
+	printer.PushAttribute("Mesh", "Dzala");
 	printer.CloseElement();
 
 	printer.OpenElement("PlayerPhysics");
@@ -193,7 +193,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Look");
 	printer.CloseElement();
 	printer.OpenElement("HumanAnimation");
-	printer.PushAttribute("Animation", "WITCH");
+	printer.PushAttribute("Animation", "Dzala");
 	printer.CloseElement();
 	printer.CloseElement();
 
@@ -365,7 +365,10 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	pushVector(printer, "Direction", p_Direction);
 	printer.CloseElement();
 	printer.OpenElement("Particle");
-	printer.PushAttribute("Effect", "fire");
+	printer.PushAttribute("Effect", "magic");
+	printer.CloseElement();
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", "magicProjectile");
 	printer.CloseElement();
 	printer.CloseElement();
 
