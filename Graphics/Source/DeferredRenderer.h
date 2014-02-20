@@ -61,6 +61,7 @@ private:
 	DirectX::XMFLOAT4X4			m_LightView;
 	DirectX::XMFLOAT4X4			m_LightProjection;
 	D3D11_VIEWPORT				m_LightViewport;
+	unsigned int				m_MaxNumDirectionalShadows;
 
 
 public:
@@ -182,5 +183,5 @@ private:
 	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects );
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
-	void renderDirectionalLights(unsigned int p_MaxNumShadows);
+	void renderDirectionalLights();
 };

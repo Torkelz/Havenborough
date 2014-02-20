@@ -238,6 +238,16 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 			updateSSAO_VarConstantBuffer();
 		}
 	));
+	settings->setListener("shadows.maxDirectional", std::function<void(int)>(
+		[&] (int p_Value)
+		{
+			if (m_MaxNumDirectionalShadows >= 0)
+			{
+				m_MaxNumDirectionalShadows = p_Value;
+			}
+		}
+	));
+	settings->setSetting("shadows.maxDirectional", 1);
 }
 
 void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
@@ -507,7 +517,7 @@ void DeferredRenderer::renderLighting()
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
 
-	renderDirectionalLights(1);
+	renderDirectionalLights();
 
 	//Set constant data
 	m_Buffer["DefaultConstant"]->setBuffer(0);
@@ -1321,7 +1331,7 @@ void DeferredRenderer::updateLightView(DirectX::XMFLOAT3 p_Dir)
 	XMStoreFloat4x4(&m_LightView, XMMatrixTranspose(XMMatrixLookToLH(pos, XMVectorSet(p_Dir.x, p_Dir.y, p_Dir.z ,0.0f) , XMVectorSet(0, 1, 0, 0))));
 }
 
-void DeferredRenderer::renderDirectionalLights(unsigned int p_MaxNumShadows)
+void DeferredRenderer::renderDirectionalLights()
 {
 	ID3D11DepthStencilState* previousDepthState;
 	m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
@@ -1342,7 +1352,7 @@ void DeferredRenderer::renderDirectionalLights(unsigned int p_MaxNumShadows)
 
 		m_DeviceContext->ClearDepthStencilView(m_DepthMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-		if (i <= p_MaxNumShadows)
+		if (i <= m_MaxNumDirectionalShadows)
 		{
 			//create new viewport
 			D3D11_VIEWPORT prevViewport;
