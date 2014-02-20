@@ -18,6 +18,7 @@ protected:
 	DirectX::XMFLOAT4	m_PrevPosition;
 	Type				m_Type;
 	bool				m_CollisionResponse;
+	int					m_IDInBody;
 	unsigned int		m_BodyHandle;
 
 public:
@@ -94,6 +95,16 @@ public:
 	void setBodyHandle(unsigned int p_BodyHandle)
 	{
 		m_BodyHandle = p_BodyHandle;
+	}
+
+	void setIDInBody(int p_IDInBody)
+	{
+		m_IDInBody = p_IDInBody;
+	}
+
+	int getIDInBody() const
+	{
+		return m_IDInBody;
 	}
 
 	virtual ~BoundingVolume(){};

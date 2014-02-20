@@ -28,6 +28,7 @@ public:
 		m_Scale = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f);
 		m_Sphere = Sphere( radius, m_Position );
 		m_CollisionResponse = true;
+		m_IDInBody = 0;
 	}
 
 	/**

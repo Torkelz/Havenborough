@@ -128,7 +128,7 @@ void GameScene::render()
 
 	if (m_UseThirdPersonCamera)
 	{
-		playerPos = playerPos + playerForward * -200.f;
+		playerPos = playerPos + playerForward * -500.f;
 	}
 
 	m_Graphics->updateCamera(playerPos, playerForward, playerUp);

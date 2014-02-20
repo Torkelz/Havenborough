@@ -32,7 +32,6 @@ protected:
 	bool				m_Landed;
 
 	std::vector<BoundingVolume::ptr> m_Volumes;
-
 public:
 	/**
 	* Body Constructor, initialize all variables.
@@ -143,6 +142,8 @@ public:
 	* @return a bool, if the volume should have collision response.
 	*/
 	bool getCollisionResponse(int p_Volume);
+
+	int getIDInBody(int p_Volume);
 	/**
 	* set collision victim
 	* @param p_Body which body that this collided against..

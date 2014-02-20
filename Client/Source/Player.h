@@ -20,6 +20,7 @@ private:
 	float m_AccConstant;
 	float m_DirectionX;	// (-1 - +1)
 	float m_DirectionZ;	// (-1 - +1)
+	float m_ClimbOffset; // Offset to position the player correctly when climbing. Needed because the sphere is positioned under the characters center.
 	DirectX::XMFLOAT3 m_GroundNormal;
 
 	bool m_ForceMove, m_Climb;

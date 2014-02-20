@@ -110,6 +110,7 @@ void Body::addImpulse(DirectX::XMFLOAT4 p_Impulse)
 void Body::addVolume(BoundingVolume::ptr p_Volume)
 {
 	p_Volume->setBodyHandle(m_Handle);
+	p_Volume->setIDInBody(m_Volumes.size());
 	m_Volumes.push_back(std::move(p_Volume));
 }
 
@@ -244,6 +245,11 @@ void Body::setCollisionResponse(int p_Volume, bool p_State)
 bool Body::getCollisionResponse(int p_Volume)
 {
 	return m_Volumes.at(p_Volume)->getCollisionResponse();
+}
+
+int Body::getIDInBody(int p_Volume)
+{
+	return m_Volumes.at(p_Volume)->getIDInBody();
 }
 
 BoundingVolume* Body::getVolume()

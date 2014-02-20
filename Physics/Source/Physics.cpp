@@ -98,6 +98,7 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 					if(hit.intersect)
 					{
 						hit.collider = m_Bodies.at(i).getHandle();
+						hit.IDInBody = k;
 						hit.collisionVictim = m_Bodies.at(j).getHandle();
 						hit.isEdge = m_Bodies.at(j).getIsEdge();
 						m_HitDatas.push_back(hit);
@@ -138,6 +139,7 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 
 							b.setPosition(tempPos);
 						}
+
 					}
 				}
 			}
@@ -453,6 +455,7 @@ void Physics::setBodyVolumeCollisionResponse(BodyHandle p_Body, int p_Volume, bo
 
 	body->setCollisionResponse(p_Volume, p_State);
 }
+
 
 Vector3 Physics::getBodyPosition(BodyHandle p_Body)
 {

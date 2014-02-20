@@ -144,21 +144,6 @@ std::map<std::string, IKGroup> MattiasLucaseXtremeLoader::loadIKGroup(std::strin
 					stringstream = std::stringstream(line);
 					stringstream >> key >> ik.m_Hand;
 
-					// Elbow hinge axis X
-					std::getline(input, line);
-					stringstream = std::stringstream(line);
-					stringstream >> key >> ik.m_ElbowHingeAxis.x;
-
-					// Elbow hinge axis Y
-					std::getline(input, line);
-					stringstream = std::stringstream(line);
-					stringstream >> key >> ik.m_ElbowHingeAxis.y;
-
-					// Elbow hinge axis Z
-					std::getline(input, line);
-					stringstream = std::stringstream(line);
-					stringstream >> key >> ik.m_ElbowHingeAxis.z;
-
 					returnValue.insert( std::pair<std::string, IKGroup>(ik.m_GroupName, ik) );
 			}
 		}

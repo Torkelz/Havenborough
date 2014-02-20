@@ -25,6 +25,7 @@ public:
 		m_Sphere		= Sphere();
 		m_Orientation	= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
 		m_CollisionResponse = true;
+		m_IDInBody = 0; 
 	}
 
 	/**
@@ -55,6 +56,7 @@ public:
 		m_Sphere = Sphere(radius, p_CenterPos);
 		
 		calculateOrientation();
+		m_IDInBody = 0;
 	}
 	/**
 	* Destructor

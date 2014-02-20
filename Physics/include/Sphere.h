@@ -19,6 +19,7 @@ public:
 
 		m_Type = Type::SPHERE;
 		m_CollisionResponse = true;
+		m_IDInBody = 0;
 	}
 	/**
 	* Constructor, set radius and position to the inputs, calculate sqrRadius.
@@ -32,6 +33,7 @@ public:
 		m_Position = p_Pos;
 		
 		m_Type = Type::SPHERE;
+		m_IDInBody = 0;
 	}
 	~Sphere()
 	{

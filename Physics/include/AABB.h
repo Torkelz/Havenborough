@@ -32,6 +32,7 @@ public:
 
 		calculateBounds();
 		m_CollisionResponse = true;
+		m_IDInBody = 0;
 	}
 	/**
 	* Destructor
