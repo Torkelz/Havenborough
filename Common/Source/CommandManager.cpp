@@ -7,6 +7,11 @@
 
 void CommandManager::registerCommand(Command::ptr p_Command)
 {
+	if (!p_Command)
+	{
+		throw InvalidArgument("Empty command is not allowed", __LINE__, __FILE__);
+	}
+
 	m_Commands[p_Command->getName()] = p_Command;
 }
 

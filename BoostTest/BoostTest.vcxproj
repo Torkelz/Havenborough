@@ -121,8 +121,6 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Settings.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
-    <ClCompile Include="..\Common\Source\AnimationClipLoader.cpp" />
-    <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
     <ClCompile Include="..\Common\Source\InstanceBinaryLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
