@@ -34,7 +34,7 @@ void SimpleText::initialize(HWND *p_Hwnd, IDXGISurface *p_RenderTarget)
 			reinterpret_cast<IUnknown**>(&m_WriteFactory));
 	}
 
-	m_Text = L"Havenborough Let's play";
+	m_Text = L"Havenborough€ Let's play sdlhiafslasdfiuldfbladsbfadsbasdiulasdfiubfadiu";
 	m_TextLength = (UINT32)wcslen(m_Text);
 
 	if(SUCCEEDED(hr))
@@ -51,8 +51,8 @@ void SimpleText::initialize(HWND *p_Hwnd, IDXGISurface *p_RenderTarget)
 	if(SUCCEEDED(hr))
 	{
 		hr = m_TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		m_TextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
 	}
-
 	GetClientRect(*p_Hwnd, &rc);
 
 	D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
@@ -81,7 +81,7 @@ void SimpleText::initialize(HWND *p_Hwnd, IDXGISurface *p_RenderTarget)
 			hr = m_RenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &m_BlackBrush);
 		}
 	}
-
+	draw();
 }
 
 void SimpleText::draw()
@@ -95,12 +95,17 @@ void SimpleText::draw()
 		static_cast<FLOAT>(rc.bottom - rc.top)// / dpiScaleY
 		);
 	m_RenderTarget->BeginDraw();
-	m_RenderTarget->SetTransform(D2D1::IdentityMatrix());
+	D2D1::Matrix3x2F dd;
+	dd.Scale(2,2,D2D1::Point2F(0,0));
+	//D2D1MakeSkewMatrix(150,-150,D2D1::Point2F(600,500),&dd);
+	m_RenderTarget->SetTransform(D2D1::Matrix3x2F::Scale(D2D1::Size(2.f,2.f),D2D1::Point2F(layoutRect.right*0.5f,layoutRect.bottom * 0.5f)));
 	m_RenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
-	//m_RenderTarget->DrawText(m_Text, m_TextLength, m_TextFormat, layoutRect, m_BlackBrush);
+	m_RenderTarget->DrawText(m_Text, m_TextLength, m_TextFormat, layoutRect, m_BlackBrush);
+	//m_RenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
-	m_RenderTarget->EndDraw();
+	HRESULT hr = m_RenderTarget->EndDraw();
+	int i = 0;
 }
 
 
