@@ -56,9 +56,9 @@
         <Resource Name="BrokenPlattform1" Path="assets/models/BrokenPlattform1.btx"/>
         <Resource Name="Barrel1" Path="assets/models/Barrel1.btx"/>
         <Resource Name="Arrow1" Path="assets/models/Arrow1.btx"/>
-        <Resource Name="Arrow" Path="assets/models/Arrow.btx"/>
         <Resource Name="AqueductEnd1" Path="assets/models/AqueductEnd1.btx"/>
         <Resource Name="Aqueduct1" Path="assets/models/Aqueduct1.btx"/>
+        <Resource Name="DebugJoint" Path="assets/models/Pivot1.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Barrel1" Path="assets/volumes/CB_Barrel1.txc"/>
@@ -100,7 +100,7 @@
         <Resource Name="Background" Path="assets/sounds/Mainbackground.mp3"/>
     </ResourceType>
     <ResourceType Type="particleSystem">
-        <Resource Name="fire" Path="assets/particles/fire.xml"/>
+        <Resource Name="fire" Path="assets/particles/particleEffects.xml"/>
     </ResourceType>
     <ResourceType Type="spell">
         <Resource Name="TestSpell" Path="assets/spells/TestSpell.xml"/>

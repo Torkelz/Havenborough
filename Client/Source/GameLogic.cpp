@@ -323,7 +323,7 @@ void GameLogic::playLocalLevel()
 
 	m_Level = Level(m_ResourceManager, m_ActorFactory);
 #ifdef _DEBUG
-	std::ifstream input("../Bin/assets/levels/Level1.2.1.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
@@ -776,7 +776,7 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 void GameLogic::loadSandbox()
 {
 	//Event to create a particle effect on local test rounds
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
+	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)

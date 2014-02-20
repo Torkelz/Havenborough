@@ -22,6 +22,7 @@ GameScene::GameScene()
 
 	m_UseThirdPersonCamera = false;
 	m_UseFlippedCamera = false;
+	m_DebugAnimations = false;
 }
 
 GameScene::~GameScene()
@@ -58,7 +59,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
-	loadSandboxModels();
+	preLoadModels();
 
 	TweakSettings* tweakSettings = TweakSettings::getInstance();
 	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
@@ -68,7 +69,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 
 void GameScene::destroy()
 {
-	releaseSandboxModels();
+	releasePreLoadedModels();
 	m_ResourceManager->releaseResource(m_SkyboxID);
 }
 
@@ -100,14 +101,6 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->setPlayerDirection(Vector2(forward, right));
 
 	m_Graphics->updateParticles(p_DeltaTime);
-
-	//for (auto& model : m_Models)
-	//{
-	//	for (const ReachIK& ik : model.activeIKs)
-	//	{
-	//		//m_Graphics->applyIK_ReachPoint(model.modelId, ik.group.c_str(), ik.target);
-	//	}
-	//}
 }
 
 void GameScene::onFocus()
@@ -135,7 +128,7 @@ void GameScene::render()
 
 	if (m_UseThirdPersonCamera)
 	{
-		playerPos = playerPos + playerForward * -500.f;
+		playerPos = playerPos + playerForward * -200.f;
 	}
 
 	m_Graphics->updateCamera(playerPos, playerForward, playerUp);
@@ -189,8 +182,8 @@ void GameScene::render()
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
 
 	//Render test arrow, remove when HUD scene is implemented
-	//m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
-	//m_Graphics->render2D_Object(m_GUI_ArrowId);
+	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
+	m_Graphics->render2D_Object(m_GUI_ArrowId);
 	m_Graphics->render2D_Object(2);
 }
 
@@ -268,6 +261,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if(p_Action == "ClimbEdge")
 	{
 		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
+	}
+	else if(p_Action == "DrawPivots" && p_Value == 1.f)
+	{
+		m_DebugAnimations = !m_DebugAnimations;
 	}
 }
 
@@ -383,7 +380,27 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 	{
 		if(model.meshId == animationData->getId())
 		{
-			m_Graphics->animationPose(model.modelId, animationData->getAnimationData().data(), animationData->getAnimationData().size());
+			const std::vector<DirectX::XMFLOAT4X4>& animation = animationData->getAnimationData();
+			m_Graphics->animationPose(model.modelId, animation.data(), animation.size());
+
+			const AnimationData::ptr poseData = animationData->getAnimation();
+			if( m_DebugAnimations )
+			{
+				for (unsigned int i = 0; i < animation.size(); ++i)
+				{
+					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 )
+					{
+						XMMATRIX toBind = XMLoadFloat4x4(&poseData->joints[i].m_TotalJointOffset);
+						XMMATRIX toObject = XMLoadFloat4x4(&animation[i]);
+						XMMATRIX toWorld = XMLoadFloat4x4(&animationData->getWorld());
+						XMMATRIX objectTransform = toWorld * toObject * toBind;
+						XMFLOAT4X4 fTransform;
+						XMStoreFloat4x4(&fTransform, objectTransform);
+
+						m_Graphics->renderJoint(fTransform);
+					}
+				}
+			}
 		}
 	}
 }
@@ -455,12 +472,17 @@ void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 	}
 }
 
-void GameScene::loadSandboxModels()
+void GameScene::preLoadModels()
 {
+	//DO NOT MAKE ANY CALLS TO GRAPHICS IN HERE!
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "fire"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DebugJoint"));
+	
 
 
-	//Separate to GUI function and refactor? /Pontus
+
+
+	//Separate to GUI function and refactor? /Pontus, DO NOT TUCH!
 	static const std::string preloadedTextures[] =
 	{
 		"TEXTURE_NOT_FOUND",
@@ -470,11 +492,12 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
-	//m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
+	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 }
 
-void GameScene::releaseSandboxModels()
+void GameScene::releasePreLoadedModels()
 {
 	for (int res : m_ResourceIDs)
 	{

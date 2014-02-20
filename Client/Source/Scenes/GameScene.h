@@ -18,6 +18,7 @@ private:
 
 	bool m_UseThirdPersonCamera;
 	bool m_UseFlippedCamera;
+	bool m_DebugAnimations;
 
 	IGraphics *m_Graphics;
 	ResourceManager *m_ResourceManager;
@@ -95,6 +96,6 @@ private:
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 
-	void loadSandboxModels();
-	void releaseSandboxModels();
+	void preLoadModels();
+	void releasePreLoadedModels();
 };

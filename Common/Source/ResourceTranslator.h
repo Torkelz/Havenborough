@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "..\3rd party\tinyxml2\tinyxml2.h"
+#include <tinyxml2\tinyxml2.h>
 
 class ResourceTranslator
 {
