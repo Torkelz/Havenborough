@@ -78,5 +78,10 @@ BOOST_AUTO_TEST_SUITE(ResourceManagerTest)
 		BOOST_CHECK_EQUAL(rm.releaseResource(0), false);
 #endif
 	}
+	BOOST_AUTO_TEST_CASE(LoadResourceDataFromFile)
+	{
+		ResourceManager rm;
+		BOOST_CHECK_THROW(rm.loadDataFromFile(""), ResourceManagerException);
+	}
 
 BOOST_AUTO_TEST_SUITE_END()

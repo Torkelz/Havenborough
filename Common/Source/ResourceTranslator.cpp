@@ -54,8 +54,8 @@ std::string ResourceTranslator::translate(std::string p_ResourceType, std::strin
 			}
 		}
 	}
-
-	throw ResourceManagerException("Unknown resource: '" + p_ResourceType + ":" + p_ResourceName + "'", __LINE__, __FILE__);
+	std::string Error("Unknown resource: '" + p_ResourceType + ":" + p_ResourceName + "'");
+	throw ResourceManagerException(Error, __LINE__, __FILE__);
 }
 
 std::pair<std::string, std::string> ResourceTranslator::readValues(const tinyxml2::XMLElement* p_Element)
@@ -64,12 +64,12 @@ std::pair<std::string, std::string> ResourceTranslator::readValues(const tinyxml
 	name = p_Element->Attribute("Name");
 	if(name == nullptr)
 	{
-		ResourceManagerException("Resource attribute was not found!", __LINE__, __FILE__);
+		throw ResourceManagerException("Resource attribute was not found!", __LINE__, __FILE__);
 	}
 	path = p_Element->Attribute("Path");
 	if(path == nullptr)
 	{
-		ResourceManagerException("Resource path was not read!", __LINE__, __FILE__);
+		throw ResourceManagerException("Resource path was not read!", __LINE__, __FILE__);
 	}
 	return std::make_pair<std::string, std::string>(std::string(name), std::string(path));
 }
