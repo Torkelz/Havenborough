@@ -1,0 +1,40 @@
+[2014-02-14 11:11:36] INFO: Starting server
+[2014-02-14 11:11:39] INFO: Client connected
+[2014-02-14 11:11:49] INFO: Client connected
+[2014-02-14 11:11:50] INFO: Client connected
+[2014-02-14 11:11:55] INFO: Initializing physics
+[2014-02-14 11:11:55] INFO: Starting game round
+[2014-02-14 11:11:55] INFO: Level loaded by clients, starting game
+[2014-02-14 11:12:00] INFO: Initializing physics
+[2014-02-14 11:12:00] INFO: Starting game round
+[2014-02-14 11:12:00] INFO: Level loaded by clients, starting game
+[2014-02-14 11:12:06] INFO: Client disconnected
+[2014-02-14 11:12:09] INFO: Game round stopped
+[2014-02-14 11:12:09] INFO: Shutting down physics
+[2014-02-14 11:12:16] INFO: Game round stopped
+[2014-02-14 11:12:16] INFO: Shutting down physics
+[2014-02-14 11:12:17] INFO: Client disconnected
+[2014-02-14 11:12:20] INFO: Client disconnected
+[2014-02-14 11:12:51] INFO: Client connected
+[2014-02-14 11:13:05] INFO: Client disconnected
+[2014-02-14 11:13:09] INFO: Client connected
+[2014-02-14 11:13:16] INFO: Initializing physics
+[2014-02-14 11:13:16] INFO: Starting game round
+[2014-02-14 11:13:17] INFO: Level loaded by clients, starting game
+[2014-02-14 11:13:18] INFO: Game round stopped
+[2014-02-14 11:13:18] INFO: Shutting down physics
+[2014-02-14 11:13:18] INFO: Client disconnected
+[2014-02-14 11:14:10] INFO: Client connected
+[2014-02-14 11:14:15] INFO: Initializing physics
+[2014-02-14 11:14:15] INFO: Starting game round
+[2014-02-14 11:14:15] INFO: Level loaded by clients, starting game
+[2014-02-14 11:14:19] INFO: Game round stopped
+[2014-02-14 11:14:19] INFO: Shutting down physics
+[2014-02-14 11:14:35] INFO: Client connected
+[2014-02-14 11:14:55] INFO: Client connected
+[2014-02-14 11:15:19] INFO: Initializing physics
+[2014-02-14 11:15:19] INFO: Starting game round
+[2014-02-14 11:15:20] INFO: Level loaded by clients, starting game
+[2014-02-14 11:34:58] INFO: Game round stopped
+[2014-02-14 11:34:58] INFO: Shutting down physics
+[2014-02-14 11:34:58] INFO: Client disconnected

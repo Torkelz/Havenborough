@@ -8,7 +8,7 @@
 
 *Materials
 Material: Lamp
-DiffuseMap: WallLamp_COLOR.dds
+DiffuseMap: WallLamp1_COLOR.dds
 NormalMap: Default_NRM.dds
 SpecularMap: Default_SPEC.dds
 

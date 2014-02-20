@@ -17,9 +17,11 @@ ParticleFactory::~ParticleFactory()
 	SAFE_RELEASE(m_Sampler);
 }
 
-void ParticleFactory::initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList, ID3D11Device* p_Device)
+void ParticleFactory::initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList,
+	std::map<string, Shader*> *p_ShaderList, ID3D11Device *p_Device)
 {
 	m_TextureList = p_TextureList;
+	m_ShaderList = p_ShaderList;
 	createSampler(p_Device);
 }
 
@@ -33,7 +35,7 @@ std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffect
 	std::ifstream file(p_FilePath);
 	if(!file)
 	{
-		throw GraphicsException("File failed to load", __LINE__, __FILE__);
+		throw GraphicsException("Failed to load file: " + string(p_FilePath), __LINE__, __FILE__);
 	}
 	file >> std::noskipws;
 
@@ -113,6 +115,7 @@ std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffect
 
 		particleSystem->diffuseTexture = loadTexture(p_FilePath, particleSystem->textureResourceName.c_str());
 		particleSystem->sampler = m_Sampler;
+		particleSystem->shader = m_ShaderList->at("DefaultParticleShader");
 
 		listOfDefinitions.push_back(particleSystem);
 	}
