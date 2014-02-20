@@ -365,7 +365,10 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	pushVector(printer, "Direction", p_Direction);
 	printer.CloseElement();
 	printer.OpenElement("Particle");
-	printer.PushAttribute("Effect", "fire");
+	printer.PushAttribute("Effect", "magic");
+	printer.CloseElement();
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", "magicProjectile");
 	printer.CloseElement();
 	printer.CloseElement();
 

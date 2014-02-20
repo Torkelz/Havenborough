@@ -94,7 +94,12 @@ std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffect
 		particleSystem->particlePositionDeviation = EffectAttributes->FloatAttribute("positionDeviation");
 
 		EffectAttributes = EffectAttributes->NextSiblingElement();
+		particleSystem->velocitybase.x = EffectAttributes->FloatAttribute("vbX");
+		particleSystem->velocitybase.y = EffectAttributes->FloatAttribute("vbY");
+		particleSystem->velocitybase.z = EffectAttributes->FloatAttribute("vbZ");
 		particleSystem->velocityDeviation.x = EffectAttributes->FloatAttribute("vdX");
+		particleSystem->velocityDeviation.y = EffectAttributes->FloatAttribute("vdY");
+		particleSystem->velocityDeviation.z = EffectAttributes->FloatAttribute("vdZ");
 
 		EffectAttributes = EffectAttributes->NextSiblingElement();
 		particleSystem->particleColorBase.x = EffectAttributes->FloatAttribute("cbX");

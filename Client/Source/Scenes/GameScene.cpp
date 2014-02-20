@@ -557,9 +557,11 @@ void GameScene::loadSandboxModels()
 
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
 
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "ParticleEffects"));
 	m_Graphics->linkShaderToParticles("DefaultParticleShader", "smoke");
 	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "magic");
+	m_Graphics->linkShaderToParticles("DefaultParticleShader", "magicProjectile");
 }
 
 void GameScene::releaseSandboxModels()
