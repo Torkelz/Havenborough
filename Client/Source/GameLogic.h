@@ -79,6 +79,7 @@ public:
 	Vector3 getCurrentCheckpointPosition(void) const;
 
 	const float getPlayerCurrentMana(void);
+	const float getPlayerPreviousMana(void);
 
 	IPhysics *getPhysics() const;
 

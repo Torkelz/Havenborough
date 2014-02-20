@@ -8,6 +8,7 @@ struct Renderable2D
 	ModelDefinition *model;
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT4X4 rotation;
+	Vector2 halfSize;
 	Vector3 scale;
 	
 	Renderable2D(ModelDefinition *p_Definition) :

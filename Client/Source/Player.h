@@ -12,8 +12,6 @@ private:
 	INetwork *m_Network;
 	std::weak_ptr<Actor> m_Actor;
 
-	float m_DebugTime;
-
 	bool m_IsJumping;
 	int m_JumpCount, m_JumpCountMax;
     float m_JumpTime, m_JumpTimeMax;
@@ -24,8 +22,8 @@ private:
 	float m_DirectionZ;	// (-1 - +1)
 	DirectX::XMFLOAT3 m_GroundNormal;
 
-	float m_CurrentMana, m_MaxMana, m_ManaRegenerationSlow, m_ManaRegenerationFast;
-	bool m_IsAtMaxSpeed;
+	float m_CurrentMana, m_PreviousMana, m_MaxMana, m_ManaRegenerationSlow, m_ManaRegenerationFast;
+	bool m_IsAtMaxSpeed, m_IsPreviousManaSet;
 
 	bool m_ForceMove, m_Climb;
 	float m_CurrentForceMoveTime;
@@ -92,6 +90,12 @@ public:
 	 * Returns the current mana for the player.
 	 *
 	 * @return player's current mana
+	 */
+	float getPreviousMana();
+	/**
+	 * Returns the previous mana from the last frame.
+	 *
+	 * @return player's previous mana
 	 */
 	float getCurrentMana();
 	/**

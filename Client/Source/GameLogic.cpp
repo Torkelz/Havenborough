@@ -315,6 +315,11 @@ const float GameLogic::getPlayerCurrentMana(void)
 	return m_Player.getCurrentMana();
 }
 
+const float GameLogic::getPlayerPreviousMana(void)
+{
+	return m_Player.getPreviousMana();
+}
+
 void GameLogic::playerJump()
 {
 	m_Player.setJump();

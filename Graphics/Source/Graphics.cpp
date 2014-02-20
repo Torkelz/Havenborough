@@ -546,6 +546,7 @@ int Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_
 	ModelDefinition *model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
 	
 	m_2D_Objects.insert(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(model))));
+	m_2D_Objects.at(m_Next2D_ObjectId).halfSize = p_HalfSize;
 	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
 	set2D_ObjectScale(m_Next2D_ObjectId, p_Scale);
 	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
@@ -792,6 +793,22 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 		m_ModelInstances.at(p_Instance).setColorTone(DirectX::XMFLOAT3(p_ColorTone));
 	else
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
+}
+
+Vector3 Graphics::get2D_ObjectPosition(Object2D_ID p_Instance)
+{
+	if(m_2D_Objects.count(p_Instance) > 0)
+		return m_2D_Objects.at(p_Instance).position;
+	else
+		throw GraphicsException("Failed to get model instance color tone, vector out of bounds.", __LINE__, __FILE__);
+}
+
+Vector2 Graphics::get2D_ObjectHalfSize(Object2D_ID p_Instance)
+{
+	if(m_2D_Objects.count(p_Instance) > 0)
+		return m_2D_Objects.at(p_Instance).halfSize;
+	else
+		throw GraphicsException("Failed to get 2D model halfsize, vector out of bounds.", __LINE__, __FILE__);
 }
 
 void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position)
