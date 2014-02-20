@@ -181,6 +181,17 @@ void GameScene::render()
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
 
+	
+	float playerMana = m_GameLogic->getPlayerCurrentMana() / 100.f;
+	float playerPrevMana = m_GameLogic->getPlayerPreviousMana() / 100.f;
+
+	m_Graphics->set2D_ObjectScale(2, Vector3(playerMana, 1.f, 0.f));
+
+	Vector2 barSize = m_Graphics->get2D_ObjectHalfSize(2);
+	Vector3 barPos = m_Graphics->get2D_ObjectPosition(2);
+
+	m_Graphics->set2D_ObjectPosition(2, Vector3(barPos.x + ((playerMana - playerPrevMana) * barSize.x), barPos.y, barPos.z));
+
 	//Render test arrow, remove when HUD scene is implemented
 	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
 	m_Graphics->render2D_Object(m_GUI_ArrowId);

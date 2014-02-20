@@ -55,6 +55,11 @@ void ActorFactory::setSpellFactory(SpellFactory* p_SpellFactory)
 	m_SpellFactory = p_SpellFactory;
 }
 
+SpellFactory* ActorFactory::getSpellFactory()
+{
+	return m_SpellFactory;
+}
+
 void ActorFactory::setActorList(std::weak_ptr<ActorList> p_ActorList)
 {
 	m_ActorList = p_ActorList;

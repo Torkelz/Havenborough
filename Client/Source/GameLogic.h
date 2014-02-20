@@ -78,6 +78,9 @@ public:
 	void movePlayerView(float p_Yaw, float p_Pitch);
 	Vector3 getCurrentCheckpointPosition(void) const;
 
+	const float getPlayerCurrentMana(void);
+	const float getPlayerPreviousMana(void);
+
 	IPhysics *getPhysics() const;
 
 	void playerJump();
