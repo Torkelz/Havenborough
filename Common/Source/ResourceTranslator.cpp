@@ -14,12 +14,12 @@ void ResourceTranslator::loadResourceList(std::istream& p_FileData)
 	tinyxml2::XMLDocument resourceList;
 
 	tinyxml2::XMLError error = resourceList.Parse(buffer.data(), buffer.size());
-	if(error)
+	if(error != tinyxml2::XML_NO_ERROR)
 	{
 		throw ResourceManagerException("Error parsing resource data. Error code: " + std::to_string(error), __LINE__, __FILE__);
 	}
 	tinyxml2::XMLElement* resourceFile = resourceList.FirstChildElement("Resources");
-	if(resourceFile == nullptr)
+	if(!resourceFile)
 	{
 		throw ResourceManagerException("File was not of Resource .xml type.", __LINE__, __FILE__);
 	}
