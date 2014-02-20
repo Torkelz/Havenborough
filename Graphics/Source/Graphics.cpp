@@ -505,7 +505,7 @@ IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_Parti
 	{
 		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L,
 			"Attempting to create particle effect instance without loading the effect definition: "
-			+ string(p_ParticleEffectId));
+			+ string(p_ParticleEffectId) );
 		return -1;
 	}
 
@@ -895,6 +895,17 @@ void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_Rele
 {
 	m_ReleaseModelTexture = p_ReleaseModelTexture;
 	m_ReleaseModelTextureUserdata = p_Userdata;
+}
+
+void Graphics::renderJoint(DirectX::XMFLOAT4X4 p_World)
+{
+	ModelDefinition* jointDef = getModelFromList("DebugJoint");
+	if (jointDef)
+	{
+		m_DeferredRender->addRenderable(Renderable(
+		Renderable::Type::DEFERRED_OBJECT, jointDef,
+		p_World));
+	}
 }
 
 void Graphics::enableVsync(bool p_State)

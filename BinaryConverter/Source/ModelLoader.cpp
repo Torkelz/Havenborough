@@ -418,54 +418,61 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 		element = resource.FirstChildElement("Resources");
 	}
 
-	tinyxml2::XMLElement* resourceType;
-	for(resourceType = element->FirstChildElement("ResourceType"); resourceType; resourceType = resourceType->NextSiblingElement("ResourceType"))
+	tinyxml2::XMLElement* resourceType = searchForElement(resource, element, "ResourceType", "Type", "model"); 
+	tinyxml2::XMLElement* leafNode = searchForElement(resource, resourceType, "Resource", "Name", m_MeshName);
+
+	std::string path = "assets/models/"; 
+	path.append(m_MeshName);
+	path.append(".btx");
+	printPath(leafNode, path);
+
+	if(m_Collidable)
 	{
-		if(resourceType->Attribute("Type", "model"))
-			break;
+		resourceType = searchForElement(resource, element, "ResourceType", "Type", "volume");
+		leafNode = searchForElement(resource, resourceType, "Resource", "Name", m_MeshName);
+		std::string path = "assets/volumes/CB_"; 
+		path.append(m_MeshName);
+		path.append(".txc");
+		printPath(leafNode, path);
+	}
+	if(m_WeightsList.size() > 0)
+	{
+		resourceType = searchForElement(resource, element, "ResourceType", "Type", "animation");
+		leafNode = searchForElement(resource, resourceType, "Resource", "Name", m_MeshName);
+		std::string path = "assets/animations/"; 
+		path.append(m_MeshName);
+		path.append(".atx");
+		printPath(leafNode, path);
 	}
 
-	if (!resourceType)
-	{
-		resourceType = resource.NewElement("ResourceType");
-		resourceType->SetAttribute("Type", "model");
-		element->InsertEndChild(resourceType);
-	}
-
-	tinyxml2::XMLElement* leafNode;
-	for(leafNode = resourceType->FirstChildElement(); leafNode; leafNode = leafNode->NextSiblingElement())
-	{
-		if(leafNode->Attribute("Name", m_MeshName.c_str()))
-			break;
-	}
-
-	if (!leafNode)
-	{
-		leafNode = resource.NewElement("Resource");
-		leafNode->SetAttribute("Name", m_MeshName.c_str());
-		resourceType->InsertEndChild(leafNode);
-	}
-
-	printUpdate(leafNode);
-
-	resource.SaveFile(p_ResourceListLocation.c_str());
+	error = resource.SaveFile(p_ResourceListLocation.c_str());
 	if(error != tinyxml2::XML_NO_ERROR)
 	{
 		std::cout << "Could not save file: " << p_ResourceListLocation << std::endl;
 	}
 }
 
-void ModelLoader::printUpdate(tinyxml2::XMLElement* p_Ele)
+void ModelLoader::printPath(tinyxml2::XMLElement* p_Ele, std::string p_Path)
 {
-	/*p_Ele->SetAttribute("Path", p_Path.c_str());*/
+	p_Ele->SetAttribute("Path", p_Path.c_str());
 }
 
-void ModelLoader::printNew(tinyxml2::XMLDocument& p_Doc, tinyxml2::XMLElement* p_Ele)
+tinyxml2::XMLElement* ModelLoader::searchForElement(tinyxml2::XMLDocument& p_Doc, tinyxml2::XMLElement* p_Parent, std::string p_ElementName, std::string p_Attribute, std::string p_AttributeValue)
 {
-	//tinyxml2::XMLElement* newLeaf = p_Doc.NewElement("Resource");
-	//newLeaf->SetAttribute("Name", m_MeshName.c_str());
-	//newLeaf->SetAttribute("Path", p_Path.c_str());
-	//p_Ele->InsertFirstChild(newLeaf);
+	tinyxml2::XMLElement* child;
+	for(child = p_Parent->FirstChildElement(p_ElementName.c_str()); child; child = child->NextSiblingElement(p_ElementName.c_str()))
+	{
+		if(child->Attribute(p_Attribute.c_str(), p_AttributeValue.c_str()))
+			break;
+	}
+
+	if (!child)
+	{
+		child = p_Doc.NewElement(p_ElementName.c_str());
+		child->SetAttribute(p_Attribute.c_str(), p_AttributeValue.c_str());
+		p_Parent->InsertEndChild(child);
+	}
+	return child;
 }
 
 const std::vector<DirectX::XMFLOAT3>& ModelLoader::getVertices() const

@@ -2,4 +2,7 @@
     <ResourceType Type="model">
         <Resource Name="" Path="assets/models/.btx"/>
     </ResourceType>
+    <ResourceType Type="volume">
+        <Resource Name="" Path="assets/volumes/CB_.txc"/>
+    </ResourceType>
 </Resources>

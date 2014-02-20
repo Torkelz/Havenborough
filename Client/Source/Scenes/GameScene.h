@@ -18,6 +18,7 @@ private:
 
 	bool m_UseThirdPersonCamera;
 	bool m_UseFlippedCamera;
+	bool m_DebugAnimations;
 
 	IGraphics *m_Graphics;
 	ResourceManager *m_ResourceManager;
