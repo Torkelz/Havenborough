@@ -42,4 +42,21 @@ BOOST_AUTO_TEST_CASE(GetSetgroundNormal)
 	BOOST_CHECK(player.getGroundNormal().z == 0);
 }
 
+BOOST_AUTO_TEST_CASE(GetSetMana)
+{
+	Player player;
+	float maxMana = player.getMaxMana();
+
+	BOOST_CHECK(player.getCurrentMana() == maxMana);
+
+	player.setCurrentMana(0.f);
+	BOOST_CHECK_EQUAL(player.getCurrentMana(), 0.f);
+
+	player.setCurrentMana(-10.f);
+	BOOST_CHECK_EQUAL(player.getCurrentMana(), 0.f);
+
+	player.setCurrentMana(maxMana + 10.f);
+	BOOST_CHECK_EQUAL(player.getCurrentMana(), maxMana);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

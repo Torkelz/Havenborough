@@ -253,7 +253,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 
 void Player::setCurrentMana(float p_Mana)
 {
-	if(p_Mana < m_MaxMana && p_Mana > 0.f)
+	if(p_Mana <= m_MaxMana && p_Mana >= 0.f)
 	{
 		m_PreviousMana = m_CurrentMana;
 		m_CurrentMana = p_Mana;
