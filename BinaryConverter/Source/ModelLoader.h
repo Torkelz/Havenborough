@@ -213,8 +213,8 @@ protected:
 
 private:
 	void printOutResourceInfo(std::string p_ResourceListLocation);
-	void printUpdate(tinyxml2::XMLElement* p_Ele, std::string p_Path, std::string p_Extension);
-	void printNew(tinyxml2::XMLDocument& p_Doc, tinyxml2::XMLElement* p_Ele, std::string p_Path, std::string p_Extension);
+	void printUpdate(tinyxml2::XMLElement* p_Ele);
+	void printNew(tinyxml2::XMLDocument& p_Doc, tinyxml2::XMLElement* p_Ele);
 	void clearData();
 
 };

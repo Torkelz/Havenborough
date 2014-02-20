@@ -17,6 +17,7 @@ public:
 
 private:
 	std::map<std::string, ID3D11ShaderResourceView*> *m_TextureList;
+	std::map<std::string, Shader*> *m_ShaderList;
 	ID3D11SamplerState* m_Sampler;
 
 	loadParticleTextureCallBack m_LoadParticleTexture;
@@ -28,19 +29,20 @@ public:
 	/**
 	* Initialize the factory.
 	*
-	* @param p_TextureList pointer to the texture list pair 
+	* @param p_TextureList pointer to the texture map with the available textures
+	* @param p_ShaderList pointer to the shader map with the available shaders
 	* @param p_Device pointer to the device
 	*/
-	void initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList, ID3D11Device* p_Device);
+	void initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList, 
+		std::map<std::string, Shader*> *p_ShaderList, ID3D11Device *p_Device);
 
 	/**
-	* Creates a static particle system with buffers and connects the textures to it.
+	* Creates a list of static particle systems with buffers and connects the textures to it.
 	*
-	* @param p_Filename the particle file to read
-	* @param p_EffectName for the new definition
-	* @return copy of the created particle definition
+	* @param p_FilePath the name of the file where the definitions are stored
+	* @return list of definitions
 	*/
-	virtual ParticleEffectDefinition::ptr createParticleEffectDefinition(const char* p_FilePath, const char* p_EffectName);
+	virtual std::vector<ParticleEffectDefinition::ptr> createParticleEffectDefinition(const char* p_FilePath);
 
 	/**
 	 * Create an instance of a particle effect from an already loaded definition.

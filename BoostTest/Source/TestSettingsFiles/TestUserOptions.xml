@@ -1,11 +1,11 @@
 <UserOptions>
-	<Server Hostname="localhost" Port="31415" />
+	<Server Hostname="194.47.150.5" Port="31415" />
 	<!-- Test ip: 194.47.150.44 -->
 	<Settings>
-		<SSAO enabled="true"/>
+		<SSAO enabled="false"/>
 		<VSync enabled="false"/>
 		<Fullscreen enabled="false"/>
-		<Resolution width="1280" height="720"/>
+		<Resolution width="1380" height="725"/>
 	</Settings>
 	<Controls>
 		<!--
@@ -16,6 +16,10 @@
 		Right Ctrl: RCrtl
 		-->
 		<KeyMap command="back" key="Escape"/>
+		<KeyMap command="back" key="LShift"/>
+		<KeyMap command="back" key="RShift"/>
+		<KeyMap command="back" key="RCtrl"/>
+		<KeyMap command="back" key="LCtrl"/>
 		<KeyMap command="leaveGame" key="Escape"/>
 		<KeyMap command="moveForward" key="W"/>
 		<KeyMap command="moveBackward" key="S"/>
@@ -29,7 +33,7 @@
 		<KeyMap command="joinTestLevel" key="T"/>
 		<KeyMap command="joinServerLevel" key="Y"/>
 		<KeyMap command="playLocalTest" key="J"/>
-		<KeyMap command="switchBVDraw" key="57"/>
+		<KeyMap command="switchBVDraw" key="9"/>
 		<KeyMap command="goToMainMenu" key="Return"/>
 		<KeyMap command="thirdPersonCamera" key="O"/>
 		<KeyMap command="flipCamera" key="P"/>
@@ -43,5 +47,7 @@
 		<MouseButtonMap command="ClimbEdge" button="Right"/>
 		<MouseButtonMap command="gogogogo" button="Left"/>
 		<MouseButtonMap command="rollMe!" button="Middle"/>
+		<MouseButtonMap command="rollMe!" button="Extra_1"/>
+		<MouseButtonMap command="rollMe!" button="Extra_2"/>
 	</Controls>
 </UserOptions>

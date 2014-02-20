@@ -2,14 +2,12 @@
 
 #include "ActorFactory.h"
 #include "ActorList.h"
-#include "IPhysics.h"
 #include "ResourceManager.h"
 
 class Level
 {
 public:
 private:
-	IPhysics* m_Physics;
 	ResourceManager* m_Resources;
 	ActorFactory* m_ActorFactory;
 	Vector3 m_StartPosition;
@@ -55,7 +53,7 @@ public:
 	 * @param p_Resources, Creates a reference to the main resource source. 
 	 * @param p_Physics, Creates a reference to the main physic source.
 	 **/
-	Level(ResourceManager* p_Resources, IPhysics* p_Physics, ActorFactory* p_ActorFactory);
+	Level(ResourceManager* p_Resources, ActorFactory* p_ActorFactory);
 
 	/**
 	 * Destructor
