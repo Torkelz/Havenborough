@@ -32,17 +32,6 @@ TextResource::TextResource(ID2D1RenderTarget* p_RT, ID3D11ShaderResourceView *p_
 
 }
 
-//TextResource &TextResource::operator=(TextResource p_Other)
-//{
-//	std::swap(m_ShaderResourceView, p_Other.m_ShaderResourceView);
-//	std::swap(m_RenderTarget, p_Other.m_RenderTarget);
-//	std::swap(m_TextFormat, p_Other.m_TextFormat);
-//	std::swap(m_Brush, p_Other.m_Brush);
-//	std::swap(m_LayoutRect, p_Other.m_LayoutRect);
-//
-//	return *this;
-//}
-
 TextResource &TextResource::operator=(TextResource &&p_Other)
 {
 	std::swap(m_ShaderResourceView, p_Other.m_ShaderResourceView);
@@ -66,6 +55,7 @@ void TextResource::release()
 	SAFE_RELEASE(m_ShaderResourceView);
 	SAFE_RELEASE(m_Brush);
 }
+
 void TextResource::draw( const wchar_t *p_Text )
 {
 	m_RenderTarget->BeginDraw();
