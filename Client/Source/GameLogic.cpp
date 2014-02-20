@@ -331,7 +331,7 @@ void GameLogic::playLocalLevel()
 	m_Actors.reset(new ActorList());
 	m_ActorFactory->setActorList(m_Actors);
 
-	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
+	m_Level = Level(m_ResourceManager, m_ActorFactory);
 #ifdef _DEBUG
 	std::ifstream input("assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
 	if(!input)
@@ -483,7 +483,7 @@ void GameLogic::handleNetwork()
 
 			case PackageType::LEVEL_DATA:
 				{
-					m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
+					m_Level = Level(m_ResourceManager, m_ActorFactory);
 					size_t size = conn->getLevelDataSize(package);
 					if (size > 0)
 					{
@@ -494,7 +494,7 @@ void GameLogic::handleNetwork()
 					else
 					{
 #ifdef _DEBUG
-						std::string levelFileName("assets/levels/Level2.btxl");
+						std::string levelFileName("assets/levels/Level1.2.1.btxl");
 #else
 						std::string levelFileName("assets/levels/Level1.2.1.btxl");
 #endif
@@ -798,8 +798,12 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 
 void GameLogic::loadSandbox()
 {
-	//Event to create a particle effect on local test rounds
+	// Only use for testing and debug purposes. When adding something put a comment with your name and todays date.
+	// No permanent implementations in this function is allowed.
+
+	//Fredrik, 2014-02-20
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
+	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)

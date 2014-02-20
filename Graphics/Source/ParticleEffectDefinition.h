@@ -97,6 +97,11 @@ public:
 	float particlePositionDeviation;
 	
 	/**
+	 * A base velocity made for this definition.
+	 */
+	DirectX::XMFLOAT3 velocitybase;
+
+	/**
 	 * A factor to tell how much from base velocity it can change.
 	 */
 	DirectX::XMFLOAT3 velocityDeviation;

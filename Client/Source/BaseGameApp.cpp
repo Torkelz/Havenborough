@@ -56,7 +56,6 @@ void BaseGameApp::init()
 	m_SpellFactory.reset(new SpellFactory());
 
 	m_ResourceManager.reset(new ResourceManager());
-	
 	m_Sound = ISound::createSound();
 	m_Sound->setLogFunction(&Logger::logRaw);
 	m_Sound->initialize();
@@ -86,6 +85,7 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction("animation",
 		std::bind(&AnimationLoader::loadAnimationDataResource, m_AnimationLoader.get(), _1, _2),
 		std::bind(&AnimationLoader::releaseAnimationData, m_AnimationLoader.get(), _1));
+	m_ResourceManager->loadDataFromFile("assets\\Resources.xml");
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);

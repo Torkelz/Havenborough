@@ -59,7 +59,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
-	loadSandboxModels();
+	preLoadModels();
 
 	TweakSettings* tweakSettings = TweakSettings::getInstance();
 	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
@@ -69,7 +69,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 
 void GameScene::destroy()
 {
-	releaseSandboxModels();
+	releasePreLoadedModels();
 	m_ResourceManager->releaseResource(m_SkyboxID);
 }
 
@@ -483,66 +483,17 @@ void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 	}
 }
 
-void GameScene::loadSandboxModels()
+void GameScene::preLoadModels()
 {
-	static const std::string preloadedModels[] =
-	{
-		"Arrow1",
-		"Barrel1",
-		"BrokenPlattform1",
-        "Crate1", 
-		"Flag1",
-		"Grass1", 
-        "House1", 
-		"House2", 
-        "House3", 
-		"House4", 
-		"House5", 
-        "House6", 
-		"Island1",
-		"Island3",
-        "MarketStand1", 
-        "MarketStand2", 
-		"Road1", 
-		"Road2", 
-		"Road3", 
-		"Road4", 
-		"Road5", 
-        "Sidewalk1", 
-		"Sign1",
-        "Stair1",
-		"Stallning1",
-		"Stallning2",
-		"Stallning3",
-		"Stallning4",
-		"StandingLamp1",
-		"Stone1",
-		"Stone2",
-		"Stone3",
-		"StoneAltar1",
-		"StoneBrick2",
-		"StoneChunk1",
-        "Street1",
-		"Top1",
-		"Top1Sidewalk",
-		"Top3",
-        "Tree1",
-		"Tunnel1",
-		"Wagon1",
-		"Wagon2",
-		"Wagon3",
-		"Vege1",
-		"Vege2",
-		"WoodenPillar1",
-        "WoodenShed1",
-		"DebugJoint",
-	};
+	//DO NOT MAKE ANY CALLS TO GRAPHICS IN HERE!
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Pivot1"));
+	
 
-	for (const std::string& model : preloadedModels)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));	
-	}
 
+
+
+	//Separate to GUI function and refactor? /Pontus, DO NOT TOUCH!
 	static const std::string preloadedTextures[] =
 	{
 		"TEXTURE_NOT_FOUND",
@@ -552,28 +503,13 @@ void GameScene::loadSandboxModels()
 	{
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
 	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
-
-	static const std::string preloadedModelsTransparent[] =
-	{
-		"Checkpoint1",
-	};
-
-	for (const std::string& model : preloadedModelsTransparent)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", model));
-		m_Graphics->setModelDefinitionTransparency(model.c_str(), true);
-	}
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "WITCH"));
-
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
-	m_Graphics->linkShaderToParticles("DefaultParticleShader", "smoke");
-	m_Graphics->linkShaderToParticles("DefaultParticleShader", "fire");
 }
 
-void GameScene::releaseSandboxModels()
+void GameScene::releasePreLoadedModels()
+
 {
 	for (int res : m_ResourceIDs)
 	{
