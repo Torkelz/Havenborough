@@ -72,7 +72,7 @@ void ResourceManager::loadDataFromFile(std::string p_FilePath)
 	std::ifstream file(p_FilePath, std::ifstream::in);
 	if(!file)
 	{
-		throw CommonException("Load resource file failed!", __LINE__, __FILE__);
+		throw ResourceManagerException("Load resource file failed!", __LINE__, __FILE__);
 	}
 	m_ResourceTranslator.loadResourceList(file);
 }

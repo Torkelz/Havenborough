@@ -7,9 +7,14 @@ BOOST_AUTO_TEST_SUITE(TestModelTXLoader)
 class testLoader : public ModelLoader
 {
 public:
-	bool testLoadModel(std::string p_FilePath)
+	bool testLoadModel(std::string p_FilePath, std::string p_Path)
 	{
-		return loadFile(p_FilePath, "..\\Source\\Loader");
+		return loadFile(p_FilePath, p_Path);
+	}
+
+	void testPrintOut(std::string p_ResourceListLocation)
+	{
+		printOutResourceInfo(p_ResourceListLocation);
 	}
 
 	void testHeader(std::istream& p_Input)
@@ -66,10 +71,18 @@ BOOST_AUTO_TEST_CASE(TestLoadModel)
 {
 	testLoader loader;
 	bool result;
-	result = loader.testLoadModel("");
+	result = loader.testLoadModel("", "WADDA\\WADDA");
 	BOOST_CHECK_EQUAL(result, false);
-	result = loader.testLoadModel("..\\Source\\Loader\\testModelLoader.tx");
+	result = loader.testLoadModel("..\\Source\\Loader\\testModelLoader.tx", "../Source/Loader");
 	BOOST_CHECK_EQUAL(result, true);
+}
+
+BOOST_AUTO_TEST_CASE(TestPrintOut)
+{
+	testLoader loader;
+	bool result;
+	BOOST_CHECK_THROW(loader.testPrintOut("WADDA/WADDA"), std::exception);
+	BOOST_CHECK_THROW(loader.testPrintOut("../Source/Loader/broken"), std::exception);
 }
 
 BOOST_AUTO_TEST_CASE(TestHeaderAndMaterialFile)
