@@ -177,11 +177,13 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.CloseElement();
 
 	printer.OpenElement("PlayerPhysics");
-	printer.PushAttribute("RadiusCenter", 30.f);
+	printer.PushAttribute("RadiusMain", 30.f);
 	printer.PushAttribute("RadiusAnkle", 10.f);
+	printer.PushAttribute("RadiusHead", 25.f);
 	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "Halfsize", Vector3(25.f, 80.f, 25.f));
-	pushVector(printer, "OffsetPositionSphere", Vector3(0.f, 40.f, 0.f));
+	pushVector(printer, "Halfsize", Vector3(25.f, 60.f, 25.f));
+	pushVector(printer, "OffsetPositionSphereMain", Vector3(0.f, 40.f, 0.f));
+	pushVector(printer, "OffsetPositionSphereHead", Vector3(0.f, 140.f, 0.f));
 	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 110.f, 0.f));
 	printer.CloseElement();
 

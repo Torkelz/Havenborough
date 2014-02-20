@@ -152,6 +152,9 @@ void Player::update(float p_DeltaTime)
 	Vector3 right = getFootPosition("R_Ankle");
 	right.y = right.y + 5.f;
 	m_Physics->setBodyVolumePosition(getBody(), 3, right);
+
+	Vector3 eye = getEyePosition();
+	m_Physics->setBodyVolumePosition(getBody(), 4, eye);
 }
 
 void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation)
@@ -277,7 +280,9 @@ void Player::updateIKJoints()
 		for(int i = 0; i < hitsSize; i++)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
-			if(hit.IDInBody == 2)
+
+			
+			if(hit.IDInBody == 2 && hit.colType != Type::SPHEREVSSPHERE)
 			{
 				std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 				hit.colPos.y += 5.0f;
@@ -299,7 +304,7 @@ void Player::updateIKJoints()
 
 				aa.lock()->applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos));
 			}
-			if(hit.IDInBody == 3)
+			if(hit.IDInBody == 3 && hit.colType != Type::SPHEREVSSPHERE)
 			{
 				std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 				hit.colPos.y += 5.0f;
