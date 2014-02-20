@@ -310,6 +310,11 @@ Vector3 GameLogic::getCurrentCheckpointPosition(void) const
 	return m_CurrentCheckPointPosition;
 }
 
+const float GameLogic::getPlayerCurrentMana(void)
+{
+	return m_Player.getCurrentMana();
+}
+
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
@@ -397,7 +402,7 @@ void GameLogic::joinGame(const std::string& p_LevelName)
 
 void GameLogic::throwSpell(const char *p_SpellId)
 {
-	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", "..");
+	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // definitely should NOT be here.
 
 	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)

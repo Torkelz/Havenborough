@@ -185,6 +185,11 @@ void GameScene::render()
 	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
 	m_Graphics->render2D_Object(m_GUI_ArrowId);
 	m_Graphics->render2D_Object(2);
+
+	float playerMana = m_GameLogic->getPlayerCurrentMana();
+
+	m_Graphics->set2D_ObjectScale(2, Vector3(0.f, playerMana / 100.f, 0.f));
+
 }
 
 bool GameScene::getIsVisible()
