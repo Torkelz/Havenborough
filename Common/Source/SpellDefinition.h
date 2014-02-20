@@ -80,7 +80,7 @@ public:
 	/**
 	 * how much the spell will cost on use.
 	 */
-	//float manaCost;
+	float manaCost;
 
 	SpellDefinition()
 		:	spellName("NO NAME FOUND"),
@@ -90,9 +90,9 @@ public:
 			flyForce(-1.f),
 			effectTime(-1.f),
 			force(-1.f),
-			minForce(-1.f)
+			minForce(-1.f),
 			//slowFactor(-1.f),
-			//manaCost(-1.f)
+			manaCost(-1.f)
 	{}
 
 	~SpellDefinition(){}

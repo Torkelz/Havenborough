@@ -58,6 +58,7 @@ public:
 		}
 
 		m_SpellInstance = m_SpellFactory->createSpellInstance(m_SpellName, m_StartDirection);
+
 		m_Sphere = m_Physics->createSphere(0.f, false, m_Owner->getPosition(), m_SpellInstance->getRadius());
 		m_Physics->setBodyCollisionResponse(m_Sphere, false);
 		m_Physics->setBodyVelocity(m_Sphere, m_SpellInstance->getVelocity());

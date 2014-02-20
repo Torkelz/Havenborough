@@ -12,6 +12,8 @@ private:
 	INetwork *m_Network;
 	std::weak_ptr<Actor> m_Actor;
 
+	float m_DebugTime;
+
 	bool m_IsJumping;
 	int m_JumpCount, m_JumpCountMax;
     float m_JumpTime, m_JumpTimeMax;
@@ -21,6 +23,9 @@ private:
 	float m_DirectionX;	// (-1 - +1)
 	float m_DirectionZ;	// (-1 - +1)
 	DirectX::XMFLOAT3 m_GroundNormal;
+
+	float m_CurrentMana, m_MaxMana, m_ManaRegenerationSlow, m_ManaRegenerationFast;
+	bool m_IsAtMaxSpeed;
 
 	bool m_ForceMove, m_Climb;
 	float m_CurrentForceMoveTime;
@@ -75,6 +80,33 @@ public:
 	 * If the player is in a force move some IK groups might be locked onto points and need updating.
 	 */
 	void updateIKJoints();
+
+	/**
+	 * Sets the current mana. It isn't possible to set current mana higher than the Maximum mana and lower than 0.
+	 * 
+	 *
+	 * @param p_Mana, new mana for the player
+	 */
+	void setCurrentMana(float p_Mana);
+	/**
+	 * Returns the current mana for the player.
+	 *
+	 * @return player's current mana
+	 */
+	float getCurrentMana();
+	/**
+	 * Returns the maximum mana.
+	 *
+	 * @return players maximum mana
+	 */
+	float getMaxMana();
+
+	/**
+	 * Returns if the player is running at max speed.
+	 *
+	 * @return true if the player is running at max speed.
+	 */
+	bool getIsAtMaxSpeed();
 
 	/**
 	* Sets the position of the player at specified position in the game world.
