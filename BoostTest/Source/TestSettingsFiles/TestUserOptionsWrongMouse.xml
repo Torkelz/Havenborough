@@ -1,0 +1,53 @@
+<UserOptions>
+	<Server Hostname="194.47.150.5" Port="31415" />
+	<!-- Test ip: 194.47.150.44 -->
+	<Settings>
+		<SSAO enabled="false"/>
+		<VSync enabled="false"/>
+		<Fullscreen enabled="false"/>
+		<Resolution width="1380" height="725"/>
+	</Settings>
+	<Controls>
+		<!--
+		KEY : Key code
+		Left shift: LShift
+		Right shift: RShift
+		Left Ctrl: LCtrl
+		Right Ctrl: RCrtl
+		-->
+		<KeyMap command="back" key="Escape"/>
+		<KeyMap command="back" key="LShift"/>
+		<KeyMap command="back" key="RShift"/>
+		<KeyMap command="back" key="RCtrl"/>
+		<KeyMap command="back" key="LCtrl"/>
+		<KeyMap command="leaveGame" key="Escape"/>
+		<KeyMap command="moveForward" key="W"/>
+		<KeyMap command="moveBackward" key="S"/>
+		<KeyMap command="moveLeft" key="A"/>
+		<KeyMap command="moveRight" key="D"/>
+		<KeyMap command="changeViewN" key="Z"/>
+		<KeyMap command="changeViewP" key="X"/>
+		<KeyMap command="toggleIK" key="I"/>
+		<KeyMap command="jump" key="Space"/>
+		<KeyMap command="connectToServer" key="C"/>
+		<KeyMap command="joinTestLevel" key="T"/>
+		<KeyMap command="joinServerLevel" key="Y"/>
+		<KeyMap command="playLocalTest" key="J"/>
+		<KeyMap command="switchBVDraw" key="9"/>
+		<KeyMap command="goToMainMenu" key="Return"/>
+		<KeyMap command="thirdPersonCamera" key="O"/>
+		<KeyMap command="flipCamera" key="P"/>
+		<KeyMap command="blendAnimation" key="B"/>
+		<KeyMap command="resetAnimation" key="N"/>
+		<KeyMap command="layerAnimation" key="M"/>
+		<KeyMap command="resetLayerAnimation" key="V"/>
+		<MouseMap command="mouseMoveHori" possition="mousePosHori" movement="Horizontal"/>
+		<MouseMap command="mouseMoveVert" position="mousePosVert" movement="Vertical"/>
+		<MouseButtonMap command="spellCast" button="Left"/>
+		<MouseButtonMap command="ClimbEdge" button="Right"/>
+		<MouseButtonMap command="gogogogo" button="Left"/>
+		<MouseButtonMap command="rollMe!" button="Middle"/>
+		<MouseButtonMap command="rollMe!" button="Extra_1"/>
+		<MouseButtonMap command="rollMe!" button="Extra_2"/>
+	</Controls>
+</UserOptions>

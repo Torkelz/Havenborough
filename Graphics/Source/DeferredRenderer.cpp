@@ -79,8 +79,9 @@ DeferredRenderer::DeferredRenderer()
 	m_BlendState = nullptr;
 	m_BlendState2 = nullptr;
 
-
 	m_SkyDome = nullptr;
+
+	m_SSAO = false;
 }
 
 
@@ -135,27 +136,24 @@ DeferredRenderer::~DeferredRenderer(void)
 
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
-								  ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-								  DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
-								  std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
-								  unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
+	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
+	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
+	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+	unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
 	m_DepthStencilView	= p_DepthStencilView;
 
-
 	m_CameraPosition	= p_CameraPosition;
 	m_ViewMatrix		= p_ViewMatrix;
 	m_ProjectionMatrix	= p_ProjectionMatrix;
-
 
 	m_SpotLights = p_SpotLights;
 	m_PointLights = p_PointLights;
 	m_DirectionalLights = p_DirectionalLights;
 	m_RenderSkyDome = false;
 	m_MaxLightsPerLightInstance = p_MaxLightsPerLightInstance;
-
 
 	//Create render targets with the size of screen width and screen height
 	D3D11_TEXTURE2D_DESC desc;
@@ -169,12 +167,10 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	desc.Usage				= D3D11_USAGE_DEFAULT;
 	desc.BindFlags			= D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
-
 	m_FOV = p_FOV;
 	m_FarZ = p_FarZ;
 	m_ScreenWidth = (float)p_ScreenWidth;
 	m_ScreenHeight = (float)p_ScreenHeight;
-
 
 	if(!m_Device || !m_DeviceContext)
 		throw DeferredRenderException("Failed to initialize deferred renderer, nullpointers not allowed",
@@ -182,27 +178,20 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 	createRenderTargets(desc);
 
-
 	createRandomTexture(256);
-
 
 	createShaderResourceViews(desc);
 
-
 	createShaders();
 
-
 	loadLightModels();
-
 
 	// Create sampler state and blend state for Alpha rendering.
 	createSamplerState();
 
-
 	createBlendStates();
 	createLightStates();
 	createBuffers();
-
 
 	TweakSettings* settings = TweakSettings::getInstance();
 
@@ -245,14 +234,16 @@ void DeferredRenderer::renderDeferred()
 	// Clear render targets.
 	clearRenderTargets();
 
-
 	// Update constant buffer and render
 	if(m_Objects.size() > 0)
 	{
 		updateConstantBuffer();
 		renderGeometry();
-		renderSSAO();
-		blurSSAO();
+		if(m_SSAO)
+		{
+			renderSSAO();
+			blurSSAO();
+		}
 		renderLighting();
 	}
 	m_RenderSkyDome = false;
@@ -530,6 +521,11 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(IGraphics::RenderTarget i)
 void DeferredRenderer::updateCamera(DirectX::XMFLOAT3 p_Position)
 {
 	m_CameraPosition = p_Position;
+}
+
+void DeferredRenderer::enableSSAO(bool p_State)
+{
+	m_SSAO = p_State;
 }
 
 void DeferredRenderer::updateConstantBuffer()

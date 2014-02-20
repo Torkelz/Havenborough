@@ -1,6 +1,7 @@
 #pragma once
 #include "InputRecord.h"
 #include "../Window.h"
+#include "InputTranslatorEnums.h"
 
 #include <memory>
 
@@ -19,15 +20,6 @@ public:
 	 * A smart pointer.
 	 */
 	typedef std::unique_ptr<InputTranslator> ptr;
-
-	/**
-	 * Axis enum.
-	 */
-	enum class Axis
-	{
-		HORIZONTAL,
-		VERTICAL
-	};
 
 protected:
 	/**
@@ -105,21 +97,6 @@ public:
 	 * @param p_MovementAction The action that mouse movements will be translated to.
 	 */
 	void addMouseMapping(Axis p_Axis, const std::string& p_PositionAction, const std::string& p_MovementAction);
-
-	/**
-	 * Standard mouse buttons.
-	 */
-	enum class MouseButton
-	{
-		LEFT,
-		RIGHT,
-		/**
-		 * Also mouse wheel button
-		 */
-		MIDDLE,
-		EXTRA_1,
-		EXTRA_2,
-	};
 
 	/**
 	 * Add a new mouse button mapping to the translation. Duplicate calls will

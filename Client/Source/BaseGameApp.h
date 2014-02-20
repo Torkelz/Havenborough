@@ -30,6 +30,7 @@ private:
 	RAMInfo m_MemoryInfo;
 	float m_MemUpdateDelay;
 	float m_TimeToNextMemUpdate;
+	float m_TimeModifier;
 
 	INetwork* m_Network;
 	ConsoleReader::ptr m_ConsoleReader;

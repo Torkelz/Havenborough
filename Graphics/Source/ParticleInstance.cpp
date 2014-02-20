@@ -61,8 +61,11 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 void ParticleInstance::emitNewParticles(float p_DeltaTime)
 {
 	DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3(m_SysPosition.x, m_SysPosition.y, m_SysPosition.z);
-	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(0.8f, 0.15f, 0.0f, 0.3f);
-
+	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(m_ParticleEffectDef->particleColorBase.x,
+													m_ParticleEffectDef->particleColorBase.y,
+													m_ParticleEffectDef->particleColorBase.z,
+													m_ParticleEffectDef->particleColorBase.w);
+	
 	m_AccumulatedTime += p_DeltaTime;
 
 	const float timePerParticle = 1.f / m_ParticleEffectDef->particlesPerSec;
@@ -76,7 +79,7 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 			break;
 		}
 
-		std::uniform_real_distribution<float> velDistribution(-m_ParticleEffectDef->velocityDeviation, m_ParticleEffectDef->velocityDeviation);
+		std::uniform_real_distribution<float> velDistribution(-m_ParticleEffectDef->velocityDeviation.x, m_ParticleEffectDef->velocityDeviation.x);
 		DirectX::XMFLOAT3 randVel(
 			velDistribution(m_RandomEngine),
 			velDistribution(m_RandomEngine),

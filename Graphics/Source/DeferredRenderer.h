@@ -18,20 +18,20 @@ private:
 	float m_ScreenWidth;
 	float m_ScreenHeight;
 
-	std::vector<Renderable>		m_Objects;
+	std::vector<Renderable>	m_Objects;
 
-	ID3D11Device				*m_Device;
-	ID3D11DeviceContext			*m_DeviceContext;
-	ID3D11DepthStencilView		*m_DepthStencilView;
+	ID3D11Device			*m_Device;
+	ID3D11DeviceContext		*m_DeviceContext;
+	ID3D11DepthStencilView	*m_DepthStencilView;
 
-	std::vector<Light>			*m_SpotLights;
-	std::vector<Light>			*m_PointLights;
-	std::vector<Light>			*m_DirectionalLights;
-	unsigned int				m_MaxLightsPerLightInstance;
+	std::vector<Light>		*m_SpotLights;
+	std::vector<Light>		*m_PointLights;
+	std::vector<Light>		*m_DirectionalLights;
+	unsigned int			m_MaxLightsPerLightInstance;
 
-	DirectX::XMFLOAT3			m_CameraPosition;
-	DirectX::XMFLOAT4X4			*m_ViewMatrix;
-	DirectX::XMFLOAT4X4			*m_ProjectionMatrix;
+	DirectX::XMFLOAT3		m_CameraPosition;
+	DirectX::XMFLOAT4X4		*m_ViewMatrix;
+	DirectX::XMFLOAT4X4		*m_ProjectionMatrix;
 
 	static const unsigned int	m_numRenderTargets = 5;
 
@@ -41,14 +41,16 @@ private:
 	std::map<std::string, Shader*> m_Shader;
 	std::map<std::string, Buffer*> m_Buffer;
 
-	ID3D11BlendState			*m_BlendState;
-	ID3D11BlendState			*m_BlendState2;
+	ID3D11BlendState	*m_BlendState;
+	ID3D11BlendState	*m_BlendState2;
 
-	ID3D11RasterizerState		*m_RasterState;
-	ID3D11DepthStencilState		*m_DepthState;
+	ID3D11RasterizerState	*m_RasterState;
+	ID3D11DepthStencilState	*m_DepthState;
 
-	bool						m_RenderSkyDome;
-	SkyDome						*m_SkyDome;
+	bool	m_RenderSkyDome;
+	SkyDome	*m_SkyDome;
+
+	bool	m_SSAO;
 
 public:
 	/**
@@ -118,6 +120,8 @@ public:
 	ID3D11ShaderResourceView* getRT(IGraphics::RenderTarget i); //DEBUG
 
 	void updateCamera(DirectX::XMFLOAT3 p_Position);
+
+	void enableSSAO(bool p_State);
 
 private:
 	void renderGeometry();
