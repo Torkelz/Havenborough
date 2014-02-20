@@ -15,7 +15,10 @@ int main(int argc, char* argv[])
 	ModelConverter converter;
 	InstanceLoader instanceLoader;
 	InstanceConverter levelConverter;
-
+	if(argc == 1)
+	{
+		return EXIT_FAILURE;
+	}
 	std::vector<char> buffer(strlen(argv[1])+1);
 	strcpy(buffer.data(), argv[1]);
 	char *tmp, *type = nullptr;

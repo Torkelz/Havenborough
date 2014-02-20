@@ -27,12 +27,11 @@ void ResourceTranslator::loadResourceList(std::istream& p_FileData)
 	for(const tinyxml2::XMLElement* resourceType = resourceFile->FirstChildElement("ResourceType"); resourceType; resourceType = resourceType->NextSiblingElement("ResourceType"))
 	{
 		const char* type = resourceType->Attribute("Type");
-		if (!type)
+		if(!type)
 			continue;
 
 		m_MappedResources.push_back(std::make_pair(type, std::vector<const std::pair<std::string, std::string>>()));
 		auto& map = m_MappedResources.back().second;
-
 		for(const tinyxml2::XMLElement* resource = resourceType->FirstChildElement("Resource"); resource; resource = resource->NextSiblingElement("Resource"))
 		{
 			map.push_back(readValues(resource));

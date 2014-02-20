@@ -475,14 +475,14 @@ void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 void GameScene::preLoadModels()
 {
 	//DO NOT MAKE ANY CALLS TO GRAPHICS IN HERE!
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "fire"));
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "DebugJoint"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
+	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Pivot1"));
 	
 
 
 
 
-	//Separate to GUI function and refactor? /Pontus, DO NOT TUCH!
+	//Separate to GUI function and refactor? /Pontus, DO NOT TOUCH!
 	static const std::string preloadedTextures[] =
 	{
 		"TEXTURE_NOT_FOUND",
