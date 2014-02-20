@@ -266,37 +266,8 @@ void DeferredRenderer::renderDeferred()
 	// Update constant buffer and render
 	if(m_Objects.size() > 0)
 	{
-		m_DeviceContext->ClearDepthStencilView(m_DepthMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
-		
-		unsigned int nrRT = 0;
-		
-		//Shadow Map
-		ID3D11RenderTargetView *smrtv[] = {0,0,0};
-		
-		
-		ID3D11RasterizerState *previousRasterState;
-		m_DeviceContext->RSGetState(&previousRasterState);
-
-		m_DeviceContext->RSSetState(m_RasterState);
-
-		//create new viewport
-		D3D11_VIEWPORT prevViewport;
-		UINT numViewPort = 1;
-		m_DeviceContext->RSGetViewports(&numViewPort, &prevViewport);
-		m_DeviceContext->RSSetViewports(1, &m_LightViewport);
-		
-		//update and render Shadow map
-		updateLightView(m_DirectionalLights->at(0).lightDirection); //light 0
-		updateConstantBuffer(m_LightView, m_LightProjection);
-		renderGeometry(m_DepthMapDSV, nrRT, smrtv);
-
-		m_DeviceContext->RSSetViewports(1, &prevViewport);
-		
-		m_DeviceContext->RSSetState(previousRasterState);
-		SAFE_RELEASE(previousRasterState);
-
 		//reset values and render other
-		nrRT = 3;
+		unsigned int nrRT = 3;
 		ID3D11RenderTargetView *rtv[] = {
 		m_RT[IGraphics::RenderTarget::DIFFUSE], m_RT[IGraphics::RenderTarget::NORMAL], m_RT[IGraphics::RenderTarget::W_POSITION]
 		};
@@ -464,52 +435,38 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->RSGetState(&previousRasterState);
 	m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
 
+	m_DeviceContext->RSSetState(m_RasterState);
 
 	// Collect the shader resources in an array and create a clear array.
 	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_DepthMapSRV};
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0,0};
 
-
-	// Set texture sampler.
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
-	m_DeviceContext->PSSetShaderResources(0, 5, srvs);
 
+	renderDirectionalLights(1);
+
+	//Set constant data
+	m_Buffer["DefaultConstant"]->setBuffer(0);
+
+	// Set texture sampler.
+	m_DeviceContext->PSSetShaderResources(0, 5, srvs);
 	m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler["ShadowMap"]);
 
 	//Select the third render target[3]
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-
-	m_DeviceContext->RSSetState(m_RasterState);
 	m_DeviceContext->OMSetDepthStencilState(m_DepthState,0);
 	m_DeviceContext->OMSetBlendState(m_BlendState, blendFactor, sampleMask);
 
 
-	//Set constant data
-	m_Buffer["DefaultConstant"]->setBuffer(0);
-
-
 	//		Render PointLights
-	//renderLight(m_Shader["PointLight"], m_Buffer["PointLightModel"], m_PointLights);
+	renderLight(m_Shader["PointLight"], m_Buffer["PointLightModel"], m_PointLights);
 	//		Render SpotLights
-	//renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
-	
-	//		Render DirectionalLights
-	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0);
-
-	//		Render Shadow Map
-	updateLightView(m_DirectionalLights->at(0).lightDirection); //light 0
-	updateLightBuffer();
-	m_Buffer["LightViewProj"]->setBuffer(1);
-	updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
-	
-	m_DirectionalLights->resize(1);
-	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
+	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
-	m_Buffer["LightViewProj"]->unsetBuffer(1);
 
 	if(m_SkyDome && m_RenderSkyDome)
 		m_SkyDome->RenderSkyDome(m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView, m_Buffer["DefaultConstant"]);
@@ -888,7 +845,7 @@ void DeferredRenderer::createSamplerState()
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_Blur"]);
 
 	// Create Shadow map texture sampler
-	sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	sd.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
@@ -1312,4 +1269,88 @@ void DeferredRenderer::updateLightView(DirectX::XMFLOAT3 p_Dir)
 {
 	XMVECTOR pos = XMVectorSet(m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z, 1.f);
 	XMStoreFloat4x4(&m_LightView, XMMatrixTranspose(XMMatrixLookToLH(pos, XMVectorSet(p_Dir.x, p_Dir.y, p_Dir.z ,0.0f) , XMVectorSet(0, 1, 0, 0))));
+}
+
+void DeferredRenderer::renderDirectionalLights(unsigned int p_MaxNumShadows)
+{
+	ID3D11DepthStencilState* previousDepthState;
+	m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
+
+	//Shadow Map
+	unsigned int nrRT = 0;
+	ID3D11RenderTargetView *noRTV = nullptr;
+	
+	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_DepthMapSRV};
+
+	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+	UINT sampleMask = 0xffffffff;
+
+	for(unsigned int i = m_DirectionalLights->size(); i > 0; --i)
+	{
+		Light& dirLight = m_DirectionalLights->at(i - 1);
+		updateLightView(dirLight.lightDirection); //light 0
+
+		m_DeviceContext->ClearDepthStencilView(m_DepthMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+		if (i <= p_MaxNumShadows)
+		{
+			//create new viewport
+			D3D11_VIEWPORT prevViewport;
+			UINT numViewPort = 1;
+			m_DeviceContext->RSGetViewports(&numViewPort, &prevViewport);
+			m_DeviceContext->RSSetViewports(1, &m_LightViewport);
+
+			//update and render Shadow map
+			updateConstantBuffer(m_LightView, m_LightProjection);
+
+			renderGeometry(m_DepthMapDSV, nrRT, &noRTV);
+
+			m_DeviceContext->RSSetViewports(1, &prevViewport);
+		}
+
+		// Set texture sampler.
+		m_DeviceContext->PSSetShaderResources(0, 5, srvs);
+
+		m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler["ShadowMap"]);
+
+		//Select the third render target[3]
+		m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView); 
+
+		m_DeviceContext->OMSetDepthStencilState(m_DepthState,0);
+		m_DeviceContext->OMSetBlendState(m_BlendState, blendFactor, sampleMask);
+
+
+	
+		//		Render DirectionalLights
+		m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0);
+
+		//		Render Shadow Map
+		updateLightBuffer();
+		updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
+
+		//Set constant data
+		m_Buffer["DefaultConstant"]->setBuffer(0);
+		m_Buffer["LightViewProj"]->setBuffer(1);
+
+		m_Buffer["DirectionalLightModel"]->setBuffer(0);
+		m_Buffer["LightConstant"]->setBuffer(1);
+
+		m_Shader["DirectionalLight"]->setShader();
+
+		D3D11_MAPPED_SUBRESOURCE ms;
+		m_DeviceContext->Map(m_Buffer["LightConstant"]->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+		memcpy(ms.pData, &dirLight, sizeof(Light));
+		m_DeviceContext->Unmap(m_Buffer["LightConstant"]->getBufferPointer(), NULL);
+
+
+		m_DeviceContext->Draw(m_Buffer["DirectionalLightModel"]->getNumOfElements(), 0);
+
+		m_Shader["DirectionalLight"]->unSetShader();
+
+		m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
+		m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
+	}
+
+	m_Buffer["LightViewProj"]->unsetBuffer(1);
+	SAFE_RELEASE(previousDepthState);
 }

@@ -177,4 +177,5 @@ private:
 	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects );
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
+	void renderDirectionalLights(unsigned int p_MaxNumShadows);
 };
