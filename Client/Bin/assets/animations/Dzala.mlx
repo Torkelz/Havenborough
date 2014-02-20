@@ -314,13 +314,25 @@ b3	R_Hand
 na LeftLeg
 b1 L_UpperLeg
 b2 L_LowerLeg
-b3 L_Foot
+b3 L_Ankle
+
+*IKgroup
+na LeftFoot
+b1 L_Ankle
+b2 L_Foot
+b3 L_FootBase
 
 *IKgroup
 na RightLeg
 b1 R_UpperLeg
 b2 R_LowerLeg
-b3 R_Foot
+b3 R_Ankle
+
+*IKgroup
+na RightFoot
+b1 R_Ankle
+b2 R_Foot
+b3 R_FootBase
 
 *Path
 na	Climb1

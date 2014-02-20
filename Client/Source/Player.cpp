@@ -146,32 +146,12 @@ void Player::update(float p_DeltaTime)
 	}
 
 	Vector3 left = getFootPosition("L_Ankle");
-
 	left.y = left.y + 5.f;
 	m_Physics->setBodyVolumePosition(getBody(), 2, left);
 		
 	Vector3 right = getFootPosition("R_Ankle");
 	right.y = right.y + 5.f;
 	m_Physics->setBodyVolumePosition(getBody(), 3, right);
-
-
-	int hitsSize = m_Physics->getHitDataSize();
-	for(int i = 0; i < hitsSize; i++)
-	{
-		HitData hit = m_Physics->getHitDataAt(i);
-		if(hit.IDInBody == 2)
-		{
-			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
-			hit.colPos.y += 5.0f;
-			aa.lock()->applyIK_ReachPoint("LeftLeg", Vector4ToXMFLOAT3(&hit.colPos));
-		}
-		if(hit.IDInBody == 3)
-		{
-			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
-			hit.colPos.y += 5.0f;
-			aa.lock()->applyIK_ReachPoint("RightLeg", Vector4ToXMFLOAT3(&hit.colPos));
-		}
-	}
 }
 
 void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation)
@@ -289,6 +269,58 @@ void Player::updateIKJoints()
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
 			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
 			aa.lock()->applyIK_ReachPoint("LeftArm", vReachPoint);
+		}
+	}
+	else
+	{
+		int hitsSize = m_Physics->getHitDataSize();
+		for(int i = 0; i < hitsSize; i++)
+		{
+			HitData hit = m_Physics->getHitDataAt(i);
+			if(hit.IDInBody == 2)
+			{
+				std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+				hit.colPos.y += 5.0f;
+				aa.lock()->applyIK_ReachPoint("LeftLeg", Vector4ToXMFLOAT3(&hit.colPos));
+
+				DirectX::XMFLOAT3 anklePos = aa.lock()->getJointPos("L_Ankle");
+				DirectX::XMFLOAT3 toePos = aa.lock()->getJointPos("L_FootBase");
+				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
+				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
+
+				vToe = vToe - vAnkle;
+				vToe.m128_f32[1] = 0.f;
+			
+				vToe = DirectX::XMVector3Normalize(vToe);
+				vToe *= 20.0f;
+				vToe += vAnkle;
+				vToe.m128_f32[1] = hit.colPos.y;
+				hit.colPos = XMVECTORToVector4(&vToe);
+
+				aa.lock()->applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos));
+			}
+			if(hit.IDInBody == 3)
+			{
+				std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+				hit.colPos.y += 5.0f;
+				aa.lock()->applyIK_ReachPoint("RightLeg", Vector4ToXMFLOAT3(&hit.colPos));
+
+				DirectX::XMFLOAT3 anklePos = aa.lock()->getJointPos("R_Ankle");
+				DirectX::XMFLOAT3 toePos = aa.lock()->getJointPos("R_FootBase");
+				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
+				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
+
+				vToe = vToe - vAnkle;
+				vToe.m128_f32[1] = 0.f;
+			
+				vToe = DirectX::XMVector3Normalize(vToe);
+				vToe *= 20.0f;
+				vToe += vAnkle;
+				vToe.m128_f32[1] = hit.colPos.y;
+				hit.colPos = XMVECTORToVector4(&vToe);
+
+				aa.lock()->applyIK_ReachPoint("RightFoot", Vector4ToXMFLOAT3(&hit.colPos));
+			}
 		}
 	}
 }

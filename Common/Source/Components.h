@@ -541,7 +541,7 @@ private:
 	BodyHandle m_Body;
 	IPhysics* m_Physics;
 	float m_RadiusCenter;
-	float m_RadiusFoot;
+	float m_RadiusAnkle;
 	float m_Mass;
 	Vector3 m_OffsetPositionSphere;
 	Vector3 m_OffsetPositionBox;
@@ -569,8 +569,8 @@ public:
 	{
 		m_RadiusCenter = 1.f;
 		p_Data->QueryFloatAttribute("RadiusCenter", &m_RadiusCenter);
-		m_RadiusFoot = 1.f;
-		p_Data->QueryFloatAttribute("RadiusFoot", &m_RadiusFoot);
+		m_RadiusAnkle = 1.f;
+		p_Data->QueryFloatAttribute("RadiusAnkle", &m_RadiusAnkle);
 		m_Mass = 1.f;
 		p_Data->QueryFloatAttribute("Mass", &m_Mass);
 
@@ -643,8 +643,8 @@ public:
 		XMStoreFloat4x4(&fMultRotation, multRotation);
 		m_Physics->setBodyRotationMatrix(m_Body, fMultRotation);
 
-		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphere, m_RadiusFoot);
-		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphere, m_RadiusFoot);
+		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphere, m_RadiusAnkle);
+		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphere, m_RadiusAnkle);
 
 		m_Physics->setBodyVolumeCollisionResponse(m_Body, 2, false);
 		m_Physics->setBodyVolumeCollisionResponse(m_Body, 3, false);
@@ -657,7 +657,7 @@ public:
 	{
 		p_Printer.OpenElement("PlayerPhysics");
 		p_Printer.PushAttribute("RadiusCenter", m_RadiusCenter);
-		p_Printer.PushAttribute("RadiusFoot", m_RadiusFoot);
+		p_Printer.PushAttribute("RadiusAnkle", m_RadiusAnkle);
 		p_Printer.PushAttribute("Mass", m_Mass);
 		pushVector(p_Printer, "Scale", m_Scale);
 		pushVector(p_Printer, "HalfSize", m_Halfsize);
