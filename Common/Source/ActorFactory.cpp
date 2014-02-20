@@ -154,7 +154,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
 	printer.OpenElement("Particle");
-	printer.PushAttribute("Effect", "TestParticle");
+	printer.PushAttribute("Effect", "fire");
 	printer.CloseElement();
 	printer.CloseElement();
 
@@ -172,7 +172,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Object");
 	pushVector(printer, p_Position);
 	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "WITCH");
+	printer.PushAttribute("Mesh", "Dzala");
 	printer.CloseElement();
 	printer.OpenElement("OBBPhysics");
 	printer.PushAttribute("Immovable", false);
@@ -180,12 +180,12 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	pushVector(printer, "Halfsize", Vector3(30.f, 80.f, 30.f));
 	pushVector(printer, "OffsetPosition", Vector3(0.f, 80.f, 0.f)); 
 	printer.CloseElement();
-	//printer.OpenElement("SpherePhysics");
-	//printer.PushAttribute("Immovable", false);
-	//printer.PushAttribute("Radius", 50.f);
-	//printer.PushAttribute("Mass", 68.f);
-	//pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
-	//printer.CloseElement();
+	/*printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", 50.f);
+	printer.PushAttribute("Mass", 68.f);
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
+	printer.CloseElement();*/
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
 	printer.PushAttribute("Strength", 0.5f);
@@ -193,7 +193,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Look");
 	printer.CloseElement();
 	printer.OpenElement("HumanAnimation");
-	printer.PushAttribute("Animation", "WITCH");
+	printer.PushAttribute("Animation", "Dzala");
 	printer.CloseElement();
 	printer.CloseElement();
 
@@ -365,7 +365,10 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	pushVector(printer, "Direction", p_Direction);
 	printer.CloseElement();
 	printer.OpenElement("Particle");
-	printer.PushAttribute("Effect", "TestParticle");
+	printer.PushAttribute("Effect", "magic");
+	printer.CloseElement();
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", "magicProjectile");
 	printer.CloseElement();
 	printer.CloseElement();
 

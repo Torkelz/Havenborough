@@ -7,6 +7,7 @@
 
 using std::string;
 using std::vector;
+using std::map;
 using std::pair;
 using namespace DirectX;
 
@@ -20,12 +21,13 @@ ModelFactory *ModelFactory::getInstance(void)
 	return m_Instance;
 }
 
-void ModelFactory::initialize(std::map<string, ID3D11ShaderResourceView*> *p_TextureList)
+void ModelFactory::initialize(map<string, ID3D11ShaderResourceView*> *p_TextureList, map<string, Shader*> *p_ShaderList)
 {
 	if(!m_Instance)
 		throw ModelFactoryException("Error when initializing ModelFactory, no instance exists", __LINE__, __FILE__);
 
 	m_TextureList = p_TextureList;
+	m_ShaderList = p_ShaderList;
 }
 
 void ModelFactory::shutdown(void)
@@ -44,17 +46,22 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
 	
 	bool isAnimated = modelLoader.getAnimated();
+	bool isGradient = modelLoader.getTransparent();
 
 	if(!isAnimated)
 	{
 		const vector<StaticVertex> &vertexData = modelLoader.getStaticVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
+		if(isGradient)
+			model.shader = m_ShaderList->at("DefaultForwardShader");
+		else
+			model.shader = m_ShaderList->at("DefaultDeferredShader");
 	}
 	else
 	{
-
 		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimatedVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
+		model.shader = m_ShaderList->at("DefaultAnimatedShader");
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 

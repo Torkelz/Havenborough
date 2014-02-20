@@ -48,8 +48,6 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 	//Update the position of every particle in the system by its velocity and based on the delta time
 	for(auto& part : m_ParticleList)
 	{
-		part.velocity.y += 50.f * p_DeltaTime;
-
 		part.shaderData.position = DirectX::XMFLOAT3(
 			(part.shaderData.position.x + part.velocity.x * p_DeltaTime),
 			(part.shaderData.position.y + part.velocity.y * p_DeltaTime),
@@ -61,8 +59,11 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 void ParticleInstance::emitNewParticles(float p_DeltaTime)
 {
 	DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3(m_SysPosition.x, m_SysPosition.y, m_SysPosition.z);
-	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(0.8f, 0.15f, 0.0f, 0.3f);
-
+	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(m_ParticleEffectDef->particleColorBase.x,
+													m_ParticleEffectDef->particleColorBase.y,
+													m_ParticleEffectDef->particleColorBase.z,
+													m_ParticleEffectDef->particleColorBase.w);
+	
 	m_AccumulatedTime += p_DeltaTime;
 
 	const float timePerParticle = 1.f / m_ParticleEffectDef->particlesPerSec;
@@ -76,21 +77,28 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 			break;
 		}
 
-		std::uniform_real_distribution<float> velDistribution(-m_ParticleEffectDef->velocityDeviation, m_ParticleEffectDef->velocityDeviation);
+		//Velocity
+		std::uniform_real_distribution<float> velDistributionX(-m_ParticleEffectDef->velocityDeviation.x, m_ParticleEffectDef->velocityDeviation.x);
+		std::uniform_real_distribution<float> velDistributionY(-m_ParticleEffectDef->velocityDeviation.y, m_ParticleEffectDef->velocityDeviation.y);
+		std::uniform_real_distribution<float> velDistributionZ(-m_ParticleEffectDef->velocityDeviation.z, m_ParticleEffectDef->velocityDeviation.z);
 		DirectX::XMFLOAT3 randVel(
-			velDistribution(m_RandomEngine),
-			velDistribution(m_RandomEngine),
-			velDistribution(m_RandomEngine));
+			m_ParticleEffectDef->velocitybase.x + velDistributionX(m_RandomEngine),		
+			m_ParticleEffectDef->velocitybase.y + velDistributionY(m_RandomEngine),
+			m_ParticleEffectDef->velocitybase.z + velDistributionZ(m_RandomEngine));
 
+
+		//Position
 		std::uniform_real_distribution<float> posDistribution(-m_ParticleEffectDef->particlePositionDeviation, m_ParticleEffectDef->particlePositionDeviation);
 		DirectX::XMFLOAT3 randPos(
 			tempPos.x + posDistribution(m_RandomEngine),
 			tempPos.y + posDistribution(m_RandomEngine),
 			tempPos.z + posDistribution(m_RandomEngine));
 
+		//Life
 		std::uniform_real_distribution<float> lifeDistribution(-m_ParticleEffectDef->maxLifeDeviation, m_ParticleEffectDef->maxLifeDeviation);
 		float randMaxLife = m_ParticleEffectDef->maxLife + lifeDistribution(m_RandomEngine);
 
+		//Color
 		std::uniform_real_distribution<float> oneToOneDistribution(-1.f, 1.f);
 		DirectX::XMFLOAT4 randColorOffset(
 			tempColor.x + oneToOneDistribution(m_RandomEngine) * m_ParticleEffectDef->particleColorDeviation.x,

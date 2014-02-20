@@ -1,6 +1,8 @@
 #include "BaseGameApp.h"
 
-#include "Logger.h"
+#include <Logger.h>
+#include "Settings.h"
+#include <TweakCommand.h>
 
 #include <sstream>
 #include <iomanip>
@@ -17,19 +19,27 @@ BaseGameApp::BaseGameApp()
 void BaseGameApp::init()
 {
 	Logger::log(Logger::Level::INFO, "Initializing game app");
+	Settings settings;
+	settings.initialize("UserOptions.xml");
+
+
+	TweakSettings::initializeMaster();
 
 	m_GameLogic = nullptr;
 
 	m_MemUpdateDelay = 0.1f;
 	m_TimeToNextMemUpdate = 0.f;
+	m_TimeModifier = 1.f;
 	
-	m_Window.init(getGameTitle(), getWindowSize());
-
+	m_Window.init(getGameTitle(), Vector2ToXMFLOAT2(&settings.getResolution()));
+	
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
-	//TODO: Need some input setting variable to handle fullscreen.
-	bool fullscreen = false;
-	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, fullscreen);
+	m_Graphics->setTweaker(TweakSettings::getInstance());
+	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, settings.getIsSettingEnabled("Fullscreen"));
+
+	m_Graphics->enableSSAO(settings.getIsSettingEnabled("SSAO"));
+	m_Graphics->enableVsync(settings.getIsSettingEnabled("VSync"));
 
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1,
 		std::placeholders::_2, std::placeholders::_3));
@@ -46,7 +56,6 @@ void BaseGameApp::init()
 	m_SpellFactory.reset(new SpellFactory());
 
 	m_ResourceManager.reset(new ResourceManager());
-	
 	m_Sound = ISound::createSound();
 	m_Sound->setLogFunction(&Logger::logRaw);
 	m_Sound->initialize();
@@ -76,44 +85,28 @@ void BaseGameApp::init()
 	m_ResourceManager->registerFunction("animation",
 		std::bind(&AnimationLoader::loadAnimationDataResource, m_AnimationLoader.get(), _1, _2),
 		std::bind(&AnimationLoader::releaseAnimationData, m_AnimationLoader.get(), _1));
+	m_ResourceManager->loadDataFromFile("assets\\Resources.xml");
 
 	InputTranslator::ptr translator(new InputTranslator);
 	translator->init(&m_Window);
-	
-	//TODO: This should be loaded from file
+
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
-	translator->addKeyboardMapping(VK_ESCAPE, "back");
-	translator->addKeyboardMapping(VK_ESCAPE, "leaveGame");
-	translator->addKeyboardMapping('W', "moveForward");
-	translator->addKeyboardMapping('S', "moveBackward");
-	translator->addKeyboardMapping('A', "moveLeft");
-	translator->addKeyboardMapping('D', "moveRight");
-	translator->addKeyboardMapping('Z', "changeViewN");
-	translator->addKeyboardMapping('X', "changeViewP");
-	translator->addKeyboardMapping(VK_SPACE, "jump");
-	translator->addKeyboardMapping('C', "connectToServer");
-	translator->addKeyboardMapping('T', "joinTestLevel");
-	translator->addKeyboardMapping('Y', "joinServerLevel");
-	translator->addKeyboardMapping('J', "playLocalTest");
+	translator->addKeyboardMapping('0', "slowMode");
 
-	//translator->addKeyboardMapping('J', "changeSceneP");
-	//translator->addKeyboardMapping('K', "pauseScene");
-	//translator->addKeyboardMapping('L', "changeSceneN");
-	translator->addKeyboardMapping('9', "switchBVDraw");
-	translator->addKeyboardMapping(VK_RETURN, "goToMainMenu");
+	//Adding the loaded keymaps to the translator
+	const std::map<std::string, unsigned short> keys = settings.getKeyMap();
+	for(auto k : keys)
+		translator->addKeyboardMapping(k.second, k.first);
 
-	translator->addKeyboardMapping('O', "thirdPersonCamera");
-	translator->addKeyboardMapping('P', "flipCamera");
+	//Adding the loaded mousemaps to the translator
+	const std::vector<Settings::MouseStruct> mousekeys = settings.getMouseMap();
+	for(auto k : mousekeys)
+		translator->addMouseMapping(k.axis, k.position, k.movement);
 
-	translator->addMouseButtonMapping(InputTranslator::MouseButton::LEFT, "spellCast");
-	translator->addMouseButtonMapping(InputTranslator::MouseButton::RIGHT, "ClimbEdge");
-
-	
-	translator->addMouseMapping(InputTranslator::Axis::HORIZONTAL, "mousePosHori", "mouseMoveHori");
-	translator->addMouseMapping(InputTranslator::Axis::VERTICAL, "mousePosVert", "mouseMoveVert");
-
-	translator->addMouseButtonMapping(InputTranslator::MouseButton::LEFT, "gogogogo");
-	translator->addMouseButtonMapping(InputTranslator::MouseButton::MIDDLE, "rollMe!");
+	//Adding the loaded mousebuttonmaps to the translator
+	const std::map<std::string, MouseButton> mousebuttonKeys = settings.getMouseButtonMap();
+	for(auto k : mousebuttonKeys)
+		translator->addMouseButtonMapping(k.second, k.first);
 
 	m_InputQueue.init(std::move(translator));
 
@@ -144,6 +137,10 @@ void BaseGameApp::init()
 
 	// Set Current Size
 	m_NewWindowSize = m_Window.getSize();
+
+	m_CommandManager.reset(new CommandManager);
+	m_CommandManager->registerCommand(Command::ptr(new TweakCommand));
+	m_ConsoleReader.reset(new ConsoleReader(m_CommandManager));
 }
 
 void BaseGameApp::run()
@@ -162,6 +159,7 @@ void BaseGameApp::run()
 	{
 		Logger::log(Logger::Level::TRACE, "New frame");
 
+		m_ConsoleReader->handleInput();
 		m_InputQueue.onFrame();
 		m_Window.pollMessages();
 
@@ -193,8 +191,6 @@ void BaseGameApp::shutdown()
 	m_SpellFactory.reset();
 	m_AnimationLoader.reset();
 
-	m_ResourceManager.reset();
-
 	m_InputQueue.destroy();
 	
 	IPhysics::deletePhysics(m_Physics);
@@ -205,6 +201,8 @@ void BaseGameApp::shutdown()
 
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
+
+	m_ResourceManager.reset();
 
 	m_EventManager.reset();
 
@@ -316,7 +314,7 @@ void BaseGameApp::updateTimer()
 {
 	m_PrevTimeStamp = m_CurrTimeStamp;
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_CurrTimeStamp);
-	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt);// / 10.0f; // To debug the game at low refreshrate.
+	m_DeltaTime = ((m_CurrTimeStamp - m_PrevTimeStamp) * m_SecsPerCnt) / m_TimeModifier;
 	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{
@@ -335,6 +333,18 @@ void BaseGameApp::handleInput()
 
 		// Pass keystrokes to all active scenes.
 		m_SceneManager.registeredInput(in.m_Action, in.m_Value, in.m_PrevValue);
+
+		if (in.m_Action == "slowMode" && in.m_Value > 0.5f)
+		{
+			if (m_TimeModifier == 1.f)
+			{
+				m_TimeModifier = 10.f;
+			}
+			else
+			{
+				m_TimeModifier = 1.f;
+			}
+		}
 	}
 }
 

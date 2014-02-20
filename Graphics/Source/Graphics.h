@@ -85,9 +85,6 @@ private:
 	Buffer *m_ConstantBuffer;
 	Buffer *m_BVBuffer;
 	unsigned int m_BVBufferNumOfElements;
-	Shader *m_BVShader;
-
-	Shader *m_Shader; //DEBUG
 
 	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
@@ -123,7 +120,7 @@ public:
 	bool releaseTexture(const char *p_TextureId) override;	
 
 	//Particles
-	bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_filename) override;
+	bool createParticleEffectDefinition(const char *p_FileId, const char *p_filePath) override;
 	bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) override;
 
 	InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) override;
@@ -177,12 +174,17 @@ public:
 	void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
+	void setTweaker(TweakSettings* p_Tweaker) override;
 	void setRenderTarget(IGraphics::RenderTarget p_RenderTarget) override;
 
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
 	void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void* p_Userdata) override;
+	void enableVsync(bool p_State) override;
+	void renderJoint(DirectX::XMFLOAT4X4 p_World) override;
+	void enableSSAO(bool p_State) override;
 
 private:
+	void createDefaultShaders(void) override;
 	void shutdown(void) override;
 	bool release2D_Model(Object2D_ID p_ObjectID);
 

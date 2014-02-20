@@ -8,12 +8,14 @@
 
 #include <ActorFactory.h>
 #include <AnimationLoader.h>
+#include <ConsoleReader.h>
 #include <EventManager.h>
 #include <IGraphics.h>
 #include <IPhysics.h>
 #include <INetwork.h>
 #include <ISound.h>
 #include <ResourceManager.h>
+#include <TweakSettings.h>
 
 #include <DirectXMath.h>
 
@@ -28,8 +30,11 @@ private:
 	RAMInfo m_MemoryInfo;
 	float m_MemUpdateDelay;
 	float m_TimeToNextMemUpdate;
+	float m_TimeModifier;
 
 	INetwork* m_Network;
+	ConsoleReader::ptr m_ConsoleReader;
+	CommandManager::ptr m_CommandManager;
 
 	bool m_ShouldQuit;
 

@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include "ShaderDefinitions.h"
+#include <TweakSettings.h>
 #include <Utilities/Util.h>
 
 
@@ -187,7 +188,7 @@ public:
 	 * @param p_Filename the filename of the particle system
 	 * @return true if the particle system was successfully loaded, otherwise false
 	 */
-	virtual bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename) = 0;
+	virtual bool createParticleEffectDefinition(const char *p_FileId, const char *p_FilePath) = 0;
 
 	/** 
 	 * Release a previously created particle system.
@@ -470,15 +471,43 @@ public:
 	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
 
 	/**
+	 * Set the tweaker object to use to tweak variables at runtime.
+	 *
+	 * @param p_Tweaker pointer to the master tweaker
+	 */
+	virtual void setTweaker(TweakSettings* p_Tweaker) = 0;
+
+	/**
 	 * Change the render target.
 	 *
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(RenderTarget p_RenderTarget) = 0;
+
+	virtual void renderJoint(DirectX::XMFLOAT4X4 p_World) = 0;
+	
+	/*
+	 * Enables or disables Vsync depending on parameter.
+	 *
+	 * @param p_State, true enables Vsync. false disables Vsync.
+	 */
+	virtual void enableVsync(bool p_State) = 0;
+
+	/*
+	 * Enables or disables SSAO depending on parameter.
+	 *
+	 * @param p_State, true enables SSAO. false disables SSAO.
+	 */
+	virtual void enableSSAO(bool p_State) = 0;
 private:
 
 	/**
 	 * Release the sub resources allocated by the graphics API.
 	 */
 	virtual void shutdown(void) = 0;
+
+	/**
+	* Creates the least necessary shaders to run the game.
+	*/
+	virtual void createDefaultShaders(void) = 0;
 };
