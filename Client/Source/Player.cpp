@@ -253,12 +253,15 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 
 void Player::setCurrentMana(float p_Mana)
 {
-	if(p_Mana <= m_MaxMana && p_Mana >= 0.f)
-	{
-		m_PreviousMana = m_CurrentMana;
-		m_CurrentMana = p_Mana;
-		m_IsPreviousManaSet = true;
-	}
+	if(p_Mana > m_MaxMana)
+		p_Mana = m_MaxMana;
+	else if(p_Mana < 0.f)
+		p_Mana = 0.f;
+
+	m_PreviousMana = m_CurrentMana;
+	m_CurrentMana = p_Mana;
+	m_IsPreviousManaSet = true;
+	
 }
 
 float Player::getPreviousMana()
@@ -315,11 +318,6 @@ void Player::updateIKJoints()
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
 			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
 			aa.lock()->applyIK_ReachPoint("LeftArm", vReachPoint);
-			
-			XMFLOAT3 temp1 = aa.lock()->getJointPos("R_Hand");
-			XMFLOAT3 temp2 = aa.lock()->getJointPos("L_Hand");
-
-			int i = 42;
 		}
 	}
 }
@@ -535,7 +533,6 @@ void Player::move(float p_DeltaTime)
 	if (m_IsJumping)
 	{
 		maxVelocity.y = m_MaxSpeed*0.5f;
-		int lol = 0;
 	}
 	XMVECTOR vMaxVelocity = XMLoadFloat3(&maxVelocity);
 	XMVECTOR up = XMVectorSet(0.f, 1.f, 0.f, 0.f);
