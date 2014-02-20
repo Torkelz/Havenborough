@@ -498,6 +498,7 @@ void GameScene::preLoadModels()
 }
 
 void GameScene::releasePreLoadedModels()
+
 {
 	for (int res : m_ResourceIDs)
 	{

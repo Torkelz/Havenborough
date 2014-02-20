@@ -780,6 +780,7 @@ void GameLogic::loadSandbox()
 
 	//Fredrik, 2014-02-20
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
+	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
