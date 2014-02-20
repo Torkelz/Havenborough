@@ -107,12 +107,13 @@ private:
 
 	void removeActorByEvent(IEventData::Ptr p_Data);
 
-	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
-	void loadSandbox();
-
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
 	void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
 	void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
+
+
+	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
+	void loadSandbox();
 };

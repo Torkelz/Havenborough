@@ -775,7 +775,10 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 
 void GameLogic::loadSandbox()
 {
-	//Event to create a particle effect on local test rounds
+	// Only use for testing and debug purposes. When adding something put a comment with your name and todays date.
+	// No permanent implementations in this function is allowed.
+
+	//Fredrik, 2014-02-20
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
 }
 
