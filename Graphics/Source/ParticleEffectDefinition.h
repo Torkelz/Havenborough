@@ -97,10 +97,20 @@ public:
 	float particlePositionDeviation;
 	
 	/**
+	 * A base velocity made for this definition.
+	 */
+	DirectX::XMFLOAT3 velocitybase;
+
+	/**
 	 * A factor to tell how much from base velocity it can change.
 	 */
-	float velocityDeviation;
+	DirectX::XMFLOAT3 velocityDeviation;
 	
+	/**
+	 * A base color made for this definition.
+	 */
+	DirectX::XMFLOAT4 particleColorBase;
+
 	/**
 	 * How much it can go in any direction from the base color.
 	 * should not be over 1 or below 0 when added or subtracted with the base color. [0,1]
@@ -120,7 +130,8 @@ public:
 			particleSystemName("NO NAME FOUND"),
 			particlesPerSec(0),
 			particlePositionDeviation(0.f),
-			velocityDeviation(0.f),
+			velocityDeviation(0.f, 0.f, 0.f),
+			particleColorBase(0.f, 0.f, 0.f, 0.f),
 			particleColorDeviation(0.f, 0.f, 0.f, 0.f)
 	{}
 

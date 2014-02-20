@@ -1,8 +1,13 @@
 #include "DeferredRenderer.h"
-#include "VRAMInfo.h"
+
 #include "ModelBinaryLoader.h"
-#include "WrapperFactory.h"
 #include "Utilities/MemoryUtil.h"
+#include "GraphicsExceptions.h"
+#include "VRAMInfo.h"
+#include "WrapperFactory.h"
+
+#include <TweakSettings.h>
+
 #include <algorithm>	// std::sort
 #include <iterator>     // std::back_inserter
 //#include <random>
@@ -76,9 +81,9 @@ DeferredRenderer::DeferredRenderer()
 	m_BlendState = nullptr;
 	m_BlendState2 = nullptr;
 
-
 	m_SkyDome = nullptr;
 
+	m_SSAO = false;
 	m_DepthMapDSV = nullptr;
 	m_DepthMapSRV= nullptr;
 }
@@ -138,27 +143,24 @@ DeferredRenderer::~DeferredRenderer(void)
 
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
-								  ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-								  DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
-								  std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
-								  unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
+	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
+	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
+	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+	unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
 	m_DepthStencilView	= p_DepthStencilView;
 
-
 	m_CameraPosition	= p_CameraPosition;
 	m_ViewMatrix		= p_ViewMatrix;
 	m_ProjectionMatrix	= p_ProjectionMatrix;
-
 
 	m_SpotLights = p_SpotLights;
 	m_PointLights = p_PointLights;
 	m_DirectionalLights = p_DirectionalLights;
 	m_RenderSkyDome = false;
 	m_MaxLightsPerLightInstance = p_MaxLightsPerLightInstance;
-
 
 	//Create render targets with the size of screen width and screen height
 	D3D11_TEXTURE2D_DESC desc;
@@ -172,12 +174,15 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	desc.Usage				= D3D11_USAGE_DEFAULT;
 	desc.BindFlags			= D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 
-
 	m_FOV = p_FOV;
 	m_FarZ = p_FarZ;
 	m_ScreenWidth = (float)p_ScreenWidth;
 	m_ScreenHeight = (float)p_ScreenHeight;
 
+	if(!m_Device || !m_DeviceContext)
+		throw DeferredRenderException("Failed to initialize deferred renderer, nullpointers not allowed",
+		__LINE__, __FILE__);
+		
 	UINT resolution = 4096;
 	initializeShadowMap(resolution, resolution); //size of Shadow Map
 	m_ViewHW = 5000.f;
@@ -185,26 +190,54 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 
 	createRenderTargets(desc);
 
-
 	createRandomTexture(256);
-
 
 	createShaderResourceViews(desc);
 
-
 	createShaders();
 
-
 	loadLightModels();
-
 
 	// Create sampler state and blend state for Alpha rendering.
 	createSamplerState();
 
-
 	createBlendStates();
 	createLightStates();
 	createBuffers();
+
+	TweakSettings* settings = TweakSettings::getInstance();
+
+	settings->setSetting("ssao.radius", 5.f);
+	settings->setListener("ssao.radius", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
+
+	settings->setSetting("ssao.epsilon", 4.f);
+	settings->setListener("ssao.epsilon", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
+
+	settings->setSetting("ssao.fadeEnd", 10.f);
+	settings->setListener("ssao.fadeEnd", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
+
+	settings->setSetting("ssao.fadeStart", 2.f);
+	settings->setListener("ssao.fadeStart", std::function<void(float)>(
+		[&] (float)
+		{
+			updateSSAO_VarConstantBuffer();
+		}
+	));
 }
 
 void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
@@ -262,7 +295,6 @@ void DeferredRenderer::renderDeferred()
 	// Clear render targets.
 	clearRenderTargets();
 
-
 	// Update constant buffer and render
 	if(m_Objects.size() > 0)
 	{
@@ -271,15 +303,19 @@ void DeferredRenderer::renderDeferred()
 		ID3D11RenderTargetView *rtv[] = {
 		m_RT[IGraphics::RenderTarget::DIFFUSE], m_RT[IGraphics::RenderTarget::NORMAL], m_RT[IGraphics::RenderTarget::W_POSITION]
 		};
-
+		
 		updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
 		renderGeometry(m_DepthStencilView, nrRT, rtv);
-		renderSSAO();
-		blurSSAO();
+
+		if(m_SSAO)
+		{
+			renderSSAO();
+			blurSSAO();
+		}
+		
 		renderLighting();
 
 		m_Objects.clear();
-		
 	}
 	m_RenderSkyDome = false;
 }
@@ -426,6 +462,33 @@ void DeferredRenderer::updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur)
 		NULL, NULL);
 }
 
+void DeferredRenderer::updateSSAO_VarConstantBuffer()
+{
+	cSSAO_Buffer ssaoBuffer;
+	float aspect = m_ScreenWidth / m_ScreenHeight;
+	float halfHeight = m_FarZ * std::tanf(0.5f * m_FOV);
+	float halfWidth = aspect * halfHeight;
+
+	ssaoBuffer.corners[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
+	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
+	buildSSAO_OffsetVectors(ssaoBuffer);
+
+	ssaoBuffer.occlusionRadius	= 5.0f;
+	ssaoBuffer.surfaceEpsilon	= 4.0f;
+	ssaoBuffer.occlusionFadeEnd	= 10.0f;
+	ssaoBuffer.occlusionFadeStart = 2.0f;
+
+	TweakSettings* settings = TweakSettings::getInstance();
+	settings->querySetting("ssao.radius", ssaoBuffer.occlusionRadius);
+	settings->querySetting("ssao.epsilon", ssaoBuffer.surfaceEpsilon);
+	settings->querySetting("ssao.fadeEnd", ssaoBuffer.occlusionFadeEnd);
+	settings->querySetting("ssao.fadeStart", ssaoBuffer.occlusionFadeStart);
+
+	m_DeviceContext->UpdateSubresource(m_Buffer["SSAOConstant"]->getBufferPointer(),
+		NULL, nullptr, &ssaoBuffer, NULL, NULL);
+}
 
 void DeferredRenderer::renderLighting()
 {
@@ -512,7 +575,7 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(IGraphics::RenderTarget i)
 	switch(i)
 	{
 	case IGraphics::RenderTarget::DIFFUSE: return m_SRV["Diffuse"];
-	case IGraphics::RenderTarget::NORMAL: return m_DepthMapSRV;//m_SRV["Normal"];
+	case IGraphics::RenderTarget::NORMAL: return m_SRV["Normal"];
 	case IGraphics::RenderTarget::W_POSITION: return m_SRV["WPosition"];
 	case IGraphics::RenderTarget::SSAO: return m_SRV["SSAO"];
 	case IGraphics::RenderTarget::FINAL: return m_SRV["Light"];
@@ -526,6 +589,10 @@ void DeferredRenderer::updateCamera(DirectX::XMFLOAT3 p_Position)
 	m_CameraPosition = p_Position;
 }
 
+void DeferredRenderer::enableSSAO(bool p_State)
+{
+	m_SSAO = p_State;
+}
 
 void DeferredRenderer::updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix)
 {
@@ -701,32 +768,15 @@ void DeferredRenderer::createBuffers()
 	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_MaxLightsPerLightInstance);
 
 
-	cSSAO_Buffer ssaoBuffer;
-	float aspect = m_ScreenWidth / m_ScreenHeight;
-	float halfHeight = m_FarZ * std::tanf(0.5f * m_FOV);
-	float halfWidth = aspect * halfHeight;
-
-
-	ssaoBuffer.corners[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[1] = DirectX::XMFLOAT4(-halfWidth, +halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[2] = DirectX::XMFLOAT4(+halfWidth, +halfHeight, m_FarZ, 0);
-	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
-	buildSSAO_OffsetVectors(ssaoBuffer);
-	ssaoBuffer.occlusionRadius	= 5.0f;
-	ssaoBuffer.surfaceEpsilon	= 4.0f;
-	ssaoBuffer.occlusionFadeEnd	= 10.0f;
-	ssaoBuffer.occlusionFadeStart = 2.0f;
-
-
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
-	cbdesc.initData = &ssaoBuffer;
+	cbdesc.initData = nullptr;
 	cbdesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
-	cbdesc.usage = Buffer::Usage::USAGE_IMMUTABLE;
-
+	cbdesc.usage = Buffer::Usage::DEFAULT;
 
 	m_Buffer["SSAOConstant"] = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cSSAO_Buffer));
 
+	updateSSAO_VarConstantBuffer();
 
 	cSSAO_BlurBuffer ssaoBlurBuffer;
 	ssaoBlurBuffer.horizontalBlur = true;

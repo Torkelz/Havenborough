@@ -42,8 +42,6 @@ Graphics::Graphics(void)
 
 	m_ConstantBuffer = nullptr;
 	m_BVBuffer = nullptr;
-	m_BVShader = nullptr;
-	m_Shader = nullptr;
 	m_VSyncEnabled = false; //DEBUG
 	m_NextInstanceId = 1;
 	m_Next2D_ObjectId = 1;
@@ -192,7 +190,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	initializeFactories();
 
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
-
+	createDefaultShaders();
+	
 	float nearZ = 10.0f;
 	float farZ = 100000.0f;
 
@@ -237,12 +236,9 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	cbdesc.usage = Buffer::Usage::DEFAULT;
 	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
+	
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
-
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
-
-	m_BVShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/BoundingVolume.hlsl",
-		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
 	return true;
 }
@@ -269,29 +265,28 @@ void Graphics::shutdown(void)
 		m_SwapChain->SetFullscreenState(false, NULL);
 	}
 
-	for(auto &s : m_ShaderList)
+	while(!m_ShaderList.empty())
 	{
-		SAFE_DELETE(s.second);
-	}
-	m_ShaderList.clear();
+		std::map<string, Shader*>::iterator it = m_ShaderList.begin();
+		string unremovedName = it->first;
+		deleteShader(it->first.c_str());
+	}	
 
-	for (auto& tex : m_TextureList)
+	for(auto &texture : m_TextureList)
 	{
-		SAFE_RELEASE(tex.second);
+		SAFE_RELEASE(texture.second);
 	}
 	m_TextureList.clear();
-	
-	while (!m_ParticleEffectDefinitionList.empty())
+		
+	while(!m_ParticleEffectDefinitionList.empty())
 	{
 		std::map<string, ParticleEffectDefinition::ptr>::iterator it = m_ParticleEffectDefinitionList.begin();
 		string unremovedName = it->first;
 
-		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Particle '" + unremovedName + "' not removed properly");
-
 		releaseParticleEffectDefinition(unremovedName.c_str());
 	}	
 
-	while (!m_ModelList.empty())
+	while(!m_ModelList.empty())
 	{
 		std::map<string, ModelDefinition>::iterator it = m_ModelList.begin();
 
@@ -302,7 +297,7 @@ void Graphics::shutdown(void)
 		releaseModel(unremovedName.c_str());
 	}
 
-	while (!m_2D_Objects.empty())
+	while(!m_2D_Objects.empty())
 	{
 		std::map<Object2D_ID, Renderable2D>::iterator it = m_2D_Objects.begin();
 
@@ -326,10 +321,8 @@ void Graphics::shutdown(void)
 	SAFE_SHUTDOWN(m_WrapperFactory);
 	SAFE_SHUTDOWN(m_ModelFactory);
 
-	m_Shader = nullptr;
 	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_DELETE(m_BVBuffer);
-	SAFE_DELETE(m_BVShader);
 	
 	//Deferred render
 	SAFE_DELETE(m_DeferredRender);
@@ -480,10 +473,15 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-bool Graphics::createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename)
+bool Graphics::createParticleEffectDefinition(const char *p_FileId, const char *p_FilePath)
 {
-	m_ParticleEffectDefinitionList.insert(make_pair(p_ParticleEffectId,
-		m_ParticleFactory->createParticleEffectDefinition(p_Filename, p_ParticleEffectId)));
+	std::vector<ParticleEffectDefinition::ptr> tempList = m_ParticleFactory->createParticleEffectDefinition(p_FilePath);
+	
+	for (unsigned int i = 0; i < tempList.size(); i++)
+	{
+		m_ParticleEffectDefinitionList.insert(make_pair(tempList[i]->particleSystemName, tempList[i]));
+	}
+
 	return true;
 }
 
@@ -507,7 +505,7 @@ IGraphics::InstanceId Graphics::createParticleEffectInstance(const char *p_Parti
 	{
 		GraphicsLogger::log(GraphicsLogger::Level::ERROR_L,
 			"Attempting to create particle effect instance without loading the effect definition: "
-			+ string(p_ParticleEffectId));
+			+ string(p_ParticleEffectId) );
 		return -1;
 	}
 
@@ -542,18 +540,20 @@ void Graphics::updateParticles(float p_DeltaTime)
 	}
 }
 
-int Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation, const char *p_TextureId)
+int Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
+	const char *p_TextureId)
 {
 	ModelDefinition *model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
 	
 	m_2D_Objects.insert(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(model))));
 	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
+	set2D_ObjectScale(m_Next2D_ObjectId, p_Scale);
 	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
 
 	return m_Next2D_ObjectId++;
 }
 
-int Graphics::create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation, const char *p_ModelDefinition)
+int Graphics::create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation, const char *p_ModelDefinition)
 {
 	ModelDefinition *defintion;
 	for(auto &model : m_ModelList)
@@ -677,12 +677,12 @@ void Graphics::drawFrame(void)
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 4)
 	{
-		m_Shader->setShader();
-		m_Shader->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
-		m_Shader->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
+		m_ShaderList.at("DebugDeferredShader")->setShader();
+		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
+		m_ShaderList.at("DebugDeferredShader")->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
 		
-		m_Shader->unSetShader();
+		m_ShaderList.at("DebugDeferredShader")->unSetShader();
 	}
 
 	if(m_SelectedRenderTarget == IGraphics::RenderTarget::FINAL)
@@ -802,7 +802,7 @@ void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position)
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale)
+void Graphics::set2D_ObjectScale(Object2D_ID p_Instance, Vector3 p_Scale)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
 		m_2D_Objects.at(p_Instance).scale = p_Scale;
@@ -869,6 +869,11 @@ void Graphics::setLogFunction(clientLogCallback_t p_LogCallback)
 	GraphicsLogger::setLogFunction(p_LogCallback);
 }
 
+void Graphics::setTweaker(TweakSettings* p_Tweaker)
+{
+	TweakSettings::initializeSlave(p_Tweaker);
+}
+
 void Graphics::setRenderTarget(IGraphics::RenderTarget p_RenderTarget)
 {
 	m_SelectedRenderTarget = p_RenderTarget;
@@ -879,7 +884,7 @@ void Graphics::setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelT
 	if(!m_ModelFactory)
 	{
 		m_ModelFactory = ModelFactory::getInstance();
-		m_ModelFactory->initialize(&m_TextureList);
+		m_ModelFactory->initialize(&m_TextureList, &m_ShaderList);
 		m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
 	}
 	m_ModelFactory->setLoadModelTextureCallBack(p_LoadModelTexture, p_Userdata);
@@ -890,6 +895,45 @@ void Graphics::setReleaseModelTextureCallBack(releaseModelTextureCallBack p_Rele
 {
 	m_ReleaseModelTexture = p_ReleaseModelTexture;
 	m_ReleaseModelTextureUserdata = p_Userdata;
+}
+
+void Graphics::renderJoint(DirectX::XMFLOAT4X4 p_World)
+{
+	ModelDefinition* jointDef = getModelFromList("Pivot1");
+	if (jointDef)
+	{
+		m_DeferredRender->addRenderable(Renderable(
+		Renderable::Type::DEFERRED_OBJECT, jointDef,
+		p_World));
+	}
+}
+
+void Graphics::enableVsync(bool p_State)
+{
+	m_VSyncEnabled = p_State;
+}
+
+void Graphics::enableSSAO(bool p_State)
+{
+	m_DeferredRender->enableSSAO(p_State);
+}
+
+void Graphics::createDefaultShaders(void)
+{
+	createShader("DefaultDeferredShader", L"assets/shaders/GeometryPass.hlsl", "VS,PS","5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	createShader("DefaultForwardShader", L"assets/shaders/ForwardShader.hlsl", "VS,PS","5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	createShader("DefaultParticleShader", L"assets/shaders/ParticleSystem.hlsl", "VS,PS,GS", "5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
+	createShader("DefaultAnimatedShader", L"assets/shaders/AnimatedGeometryPass.hlsl",	"VS,PS","5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
+	// Debug shaders 
+	createShader("DebugDeferredShader", L"assets/shaders/DebugShader.hlsl","VS,PS","5_0",
+		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	createShader("DebugBV_Shader", L"assets/shaders/BoundingVolume.hlsl",
+		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
 
 void Graphics::setViewPort(int p_ScreenWidth, int p_ScreenHeight)
@@ -1104,9 +1148,9 @@ void Graphics::initializeFactories(void)
 	m_WrapperFactory = WrapperFactory::getInstance();
 	VRAMInfo::getInstance();
 	m_ModelFactory = ModelFactory::getInstance();
-	m_ModelFactory->initialize(&m_TextureList);
+	m_ModelFactory->initialize(&m_TextureList, &m_ShaderList);
 	m_ParticleFactory.reset(new ParticleFactory);
-	m_ParticleFactory->initialize(&m_TextureList, m_Device);
+	m_ParticleFactory->initialize(&m_TextureList, &m_ShaderList, m_Device);
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 }
 
@@ -1237,11 +1281,11 @@ void Graphics::drawBoundingVolumes()
 		m_BVBuffer->setBuffer(0);
 		m_ConstantBuffer->setBuffer(1);
 		
-		m_BVShader->setShader();
+		m_ShaderList.at("DebugBV_Shader")->setShader();
 	
 		m_DeviceContext->Draw(m_BVTriangles.size(), 0);
 
-		m_Shader->unSetShader();
+		m_ShaderList.at("DebugDeferredShader")->unSetShader();
 		m_BVBuffer->unsetBuffer(0);
 		m_ConstantBuffer->unsetBuffer(1);
 
@@ -1264,19 +1308,15 @@ void Graphics::updateConstantBuffer()
 //TODO: Remove later
 void Graphics::DebugDefferedDraw(void)
 {
-	m_Shader = nullptr;
-	createShader("DebugShader", L"assets/shaders/DebugShader.hlsl","VS,PS","5_0",
-		ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
-	m_Shader = getShaderFromList("DebugShader");
 	D3D11_SAMPLER_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
-	sd.Filter		= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sd.AddressU     = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressV		= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressW		 = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.ComparisonFunc                = D3D11_COMPARISON_NEVER;
-	sd.MinLOD                       = 0;
-	sd.MaxLOD                        = D3D11_FLOAT32_MAX;
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sd.MinLOD = 0;
+	sd.MaxLOD = D3D11_FLOAT32_MAX;
 
 	m_Sampler = nullptr;
 	m_Device->CreateSamplerState( &sd, &m_Sampler );

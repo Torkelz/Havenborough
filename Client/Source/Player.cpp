@@ -21,6 +21,7 @@ Player::Player(void)
 	m_GroundNormal = XMFLOAT3(0.f, 1.f, 0.f);
 	m_Height = 170.f;
 	m_EyeHeight = 165.f;
+	m_Climb = false;
 }
 
 Player::~Player(void)
@@ -145,7 +146,7 @@ void Player::update(float p_DeltaTime)
 
 void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation)
 {
-	if(!m_ForceMove)
+	if(!m_ForceMove && m_Climb)
 	{
 		XMVECTOR fwd = XMVectorSet(p_CollisionNormal.x, 0.f,p_CollisionNormal.z,0);
 		XMVECTOR len = XMVector3Length(fwd);
@@ -231,7 +232,7 @@ void Player::updateIKJoints()
 		else if(m_ClimbId == "Climb2")
 		{
 			XMVECTOR reachPointR;
-			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
+			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 0);
 			Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
 			aa.lock()->applyIK_ReachPoint("RightArm", vReachPointR);
 		}
@@ -258,6 +259,11 @@ void Player::updateIKJoints()
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
 			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
 			aa.lock()->applyIK_ReachPoint("LeftArm", vReachPoint);
+			
+			XMFLOAT3 temp1 = aa.lock()->getJointPos("R_Hand");
+			XMFLOAT3 temp2 = aa.lock()->getJointPos("L_Hand");
+
+			int i = 42;
 		}
 	}
 }
@@ -433,6 +439,11 @@ void Player::setGroundNormal(DirectX::XMFLOAT3 p_Normal)
 void Player::setSpawnPosition(Vector3 p_Position)
 {
 	m_LastSafePosition = p_Position;
+}
+
+void Player::setClimbing(bool p_State)
+{
+	m_Climb = p_State;
 }
 
 void Player::jump(float dt)

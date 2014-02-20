@@ -3,10 +3,9 @@
 #include "boost\filesystem.hpp"
 #include <XMLHelper.h>
 
-Level::Level(ResourceManager* p_Resources, IPhysics* p_Physics, ActorFactory* p_ActorFactory)
+Level::Level(ResourceManager* p_Resources, ActorFactory* p_ActorFactory)
 {
 	m_Resources = p_Resources;
-	m_Physics = p_Physics;
 	m_ActorFactory = p_ActorFactory;
 
 	m_StartPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -16,7 +15,6 @@ Level::Level(ResourceManager* p_Resources, IPhysics* p_Physics, ActorFactory* p_
 Level::~Level()
 {
 	m_Resources = nullptr;
-	m_Physics = nullptr;
 
 	m_StartPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_GoalPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);

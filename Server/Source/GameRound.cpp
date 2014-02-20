@@ -42,7 +42,8 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 	m_ActorFactory = p_ActorFactory;
 	m_ReturnLobby = p_ReturnLobby;
 
-	m_ResourceManager.reset(new ResourceManager(boost::filesystem::current_path().parent_path().parent_path() / "Client" / "Bin"));
+	m_ResourceManager.reset(new ResourceManager(boost::filesystem::current_path()));
+	m_ResourceManager->loadDataFromFile("assets/Resources.xml");
 
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);

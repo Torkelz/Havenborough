@@ -84,9 +84,6 @@ private:
 	Buffer *m_ConstantBuffer;
 	Buffer *m_BVBuffer;
 	unsigned int m_BVBufferNumOfElements;
-	Shader *m_BVShader;
-
-	Shader *m_Shader; //DEBUG
 
 	IGraphics::loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
@@ -117,7 +114,7 @@ public:
 	bool releaseTexture(const char *p_TextureId) override;	
 
 	//Particles
-	bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_filename) override;
+	bool createParticleEffectDefinition(const char *p_FileId, const char *p_filePath) override;
 	bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) override;
 
 	InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) override;
@@ -128,10 +125,10 @@ public:
 	void updateParticles(float p_DeltaTime) override;
 	/////
 
-	Object2D_ID create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation,
+	Object2D_ID create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
 		const char *p_TextureId) override;
 
-	Object2D_ID create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation,
+	Object2D_ID create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) override;
 
 	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
@@ -161,7 +158,7 @@ public:
 	void setModelScale(InstanceId p_Instance, Vector3 p_Scale) override;
 	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;
 	void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) override;
-	void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) override;
+	void set2D_ObjectScale(Object2D_ID p_Instance, Vector3 p_Scale) override;
 	void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) override;
 	void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) override;
 
@@ -171,12 +168,17 @@ public:
 	void addBVTriangle(Vector3 p_Corner1, Vector3 p_Corner2, Vector3 p_Corner3) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
+	void setTweaker(TweakSettings* p_Tweaker) override;
 	void setRenderTarget(IGraphics::RenderTarget p_RenderTarget) override;
 
 	void setLoadModelTextureCallBack(loadModelTextureCallBack p_LoadModelTexture, void* p_Userdata) override;
 	void setReleaseModelTextureCallBack(releaseModelTextureCallBack p_ReleaseModelTexture, void* p_Userdata) override;
+	void enableVsync(bool p_State) override;
+	void renderJoint(DirectX::XMFLOAT4X4 p_World) override;
+	void enableSSAO(bool p_State) override;
 
 private:
+	void createDefaultShaders(void) override;
 	void shutdown(void) override;
 	bool release2D_Model(Object2D_ID p_ObjectID);
 

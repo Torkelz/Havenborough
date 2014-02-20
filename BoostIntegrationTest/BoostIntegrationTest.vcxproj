@@ -12,10 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Client\Source\Window.cpp" />
+    <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="..\Common\Source\EventManager.cpp" />
     <ClCompile Include="..\Common\Source\Logger.cpp" />
     <ClCompile Include="..\Common\Source\ResourceManager.cpp" />
     <ClCompile Include="..\Common\Source\ResourceTranslator.cpp" />
+    <ClCompile Include="..\Common\Source\TweakSettings.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
@@ -259,7 +261,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)Test\</OutDir>
+    <OutDir>$(ProjectDir)Bin\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(FMOD_INC_DIR);$(BOOST_INC_DIR);$(IncludePath);$(VLD_INC_DIR)</IncludePath>
     <LibraryPath>$(FMOD_LIB_DIR);$(BOOST_LIB_DIR);$(LibraryPath);$(VLD_LIB_DIR)</LibraryPath>

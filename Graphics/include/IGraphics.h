@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include "ShaderDefinitions.h"
+#include <TweakSettings.h>
 #include <Utilities/Util.h>
 
 
@@ -187,7 +188,7 @@ public:
 	 * @param p_Filename the filename of the particle system
 	 * @return true if the particle system was successfully loaded, otherwise false
 	 */
-	virtual bool createParticleEffectDefinition(const char *p_ParticleEffectId, const char *p_Filename) = 0;
+	virtual bool createParticleEffectDefinition(const char *p_FileId, const char *p_FilePath) = 0;
 
 	/** 
 	 * Release a previously created particle system.
@@ -243,7 +244,7 @@ public:
 	* @param p_TextureId the ID of the texture to be used
 	* @return the Object2D ID of the created object
 	*/
-	virtual int create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, float p_Rotation,
+	virtual int create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
 		const char *p_TextureId) = 0;
 
 	/**
@@ -254,7 +255,7 @@ public:
 	* @param p_ModelDefinition the ID of the model definition
 	* @return the Object2D ID of the created object
 	*/
-	virtual int create2D_Object(Vector3 p_Position, float p_Scale, float p_Rotation,
+	virtual int create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) = 0;
 
 	/**
@@ -405,11 +406,11 @@ public:
 	virtual void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) = 0;
 	
 	/**
-	* Set the scale of a 2D object.
+	* Set the scale of a 2D object in xyz.
 	* @param p_Instance an identifier to an object
 	* @param p_Scale scaling factor where 1.0f is the default model size
 	*/
-	virtual void set2D_ObjectScale(Object2D_ID p_Instance, float p_Scale) = 0;
+	virtual void set2D_ObjectScale(Object2D_ID p_Instance, Vector3 p_Scale) = 0;
 	
 	/**
 	* Set the rotation of a 2D object around the screen z-axis.
@@ -470,15 +471,43 @@ public:
 	virtual void setLogFunction(clientLogCallback_t p_LogCallback) = 0;
 
 	/**
+	 * Set the tweaker object to use to tweak variables at runtime.
+	 *
+	 * @param p_Tweaker pointer to the master tweaker
+	 */
+	virtual void setTweaker(TweakSettings* p_Tweaker) = 0;
+
+	/**
 	 * Change the render target.
 	 *
 	 * @param p_RenderTarget the render target to display on the next drawFrame call
 	 */
 	virtual void setRenderTarget(RenderTarget p_RenderTarget) = 0;
+
+	virtual void renderJoint(DirectX::XMFLOAT4X4 p_World) = 0;
+	
+	/*
+	 * Enables or disables Vsync depending on parameter.
+	 *
+	 * @param p_State, true enables Vsync. false disables Vsync.
+	 */
+	virtual void enableVsync(bool p_State) = 0;
+
+	/*
+	 * Enables or disables SSAO depending on parameter.
+	 *
+	 * @param p_State, true enables SSAO. false disables SSAO.
+	 */
+	virtual void enableSSAO(bool p_State) = 0;
 private:
 
 	/**
 	 * Release the sub resources allocated by the graphics API.
 	 */
 	virtual void shutdown(void) = 0;
+
+	/**
+	* Creates the least necessary shaders to run the game.
+	*/
+	virtual void createDefaultShaders(void) = 0;
 };

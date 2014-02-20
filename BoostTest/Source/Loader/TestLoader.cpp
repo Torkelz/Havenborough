@@ -9,7 +9,7 @@ class testLoader : public ModelLoader
 public:
 	bool testLoadModel(std::string p_FilePath)
 	{
-		return loadFile(p_FilePath);
+		return loadFile(p_FilePath, "..\\Source\\Loader");
 	}
 
 	void testHeader(std::istream& p_Input)

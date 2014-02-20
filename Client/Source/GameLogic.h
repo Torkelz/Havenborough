@@ -88,8 +88,15 @@ public:
 	void joinGame(const std::string& p_LevelName);
 
 	void throwSpell(const char *p_SpellId);
-	void releaseSpellInstance(int p_SpellId);
-	///
+	//void releaseSpellInstance(int p_SpellId);
+
+	/**
+	 * Activates the ability for the player to climb edges.
+	 *
+	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
+	 */
+	void setPlayerClimb(bool p_State);
+	
 private:
 	void handleNetwork();
 	
@@ -100,12 +107,13 @@ private:
 
 	void removeActorByEvent(IEventData::Ptr p_Data);
 
-	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
-	void loadSandbox();
-
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
 	void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
 	void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
+
+
+	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
+	void loadSandbox();
 };
