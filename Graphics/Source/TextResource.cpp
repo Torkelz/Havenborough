@@ -29,7 +29,6 @@ TextResource::TextResource(ID2D1RenderTarget* p_RT, ID3D11ShaderResourceView *p_
 	ID2D1SolidColorBrush *p_Brush, D2D1_RECT_F p_Rectangle) 
 	: m_ShaderResourceView(p_SRV), m_RenderTarget(p_RT), m_TextFormat(p_TextFormat), m_Brush(p_Brush), m_LayoutRect(p_Rectangle)
 {
-
 }
 
 TextResource &TextResource::operator=(TextResource &&p_Other)
@@ -64,7 +63,7 @@ void TextResource::draw( const wchar_t *p_Text )
 	m_RenderTarget->EndDraw();
 }
 
-const ID3D11ShaderResourceView *TextResource::getSRV() const
+ID3D11ShaderResourceView *TextResource::getSRV() const
 {
 	return m_ShaderResourceView;
 }

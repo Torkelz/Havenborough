@@ -23,7 +23,7 @@ public:
 
 	void draw(const wchar_t *p_Text);
 
-	const ID3D11ShaderResourceView *getSRV() const;
+	ID3D11ShaderResourceView *getSRV() const;
 
 	void release();
 

@@ -44,10 +44,12 @@ void TextureCreator::shutdown()
 	m_TextResources.clear();
 }
 
-void TextureCreator::createText(std::string p_Identifier, const wchar_t *p_Text, D2D1_RECT_F p_Rect, Vector4 p_Color)
+int TextureCreator::createText(std::string p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+								const char *p_Font, float p_FontSize, Vector4 p_Color)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
-		throw TextureCreationException("Tried to create an already existing text with identifier: " + p_Identifier, __LINE__, __FILE__);
+		throw TextureCreationException("Tried to create an already existing text with identifier: " + p_Identifier,
+		__LINE__, __FILE__);
 	IDWriteTextFormat *textFormat = nullptr;
 	ID2D1RenderTarget *renderTarget = nullptr;
 	ID2D1SolidColorBrush *brush = nullptr;
@@ -55,7 +57,7 @@ void TextureCreator::createText(std::string p_Identifier, const wchar_t *p_Text,
 	IDXGISurface *surface = getIDXGISurfaceFromSRV(SRV);
 
 	HRESULT hr = m_WriteFactory->CreateTextFormat(L"Gabriola", NULL, DWRITE_FONT_WEIGHT_REGULAR,
-	DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 72.f, L"en-us", &textFormat);
+		DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 72.f, L"en-us", &textFormat);
 
 	if(SUCCEEDED(hr))
 	{
@@ -78,10 +80,9 @@ void TextureCreator::createText(std::string p_Identifier, const wchar_t *p_Text,
 	}
 	if(SUCCEEDED(hr))
 	{
-		//TextResource aa = TextResource(renderTarget, SRV, textFormat, brush, p_Rect);
- 		m_TextResources.insert(std::pair<std::string, TextResource>(p_Identifier, 
- 			TextResource(renderTarget, SRV, textFormat, brush, p_Rect)));
-		//m_TextResources.at(p_Identifier).draw(p_Text);
+		m_TextResources.insert(std::pair<std::string, TextResource>(p_Identifier, 
+			TextResource(renderTarget, SRV, textFormat, brush, p_Rect)));
+		m_TextResources.at(p_Identifier).draw(p_Text);
 
 	}
 	else
@@ -92,6 +93,61 @@ void TextureCreator::createText(std::string p_Identifier, const wchar_t *p_Text,
 		SAFE_RELEASE(SRV);
 		throw TextureCreationException("Text to texture creation failed.", __LINE__, __FILE__);
 	}
+	return 0;
+}
+
+int TextureCreator::createText(std::string p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+			   const char *p_Font, float p_FontSize, Vector4 p_Color, TEXT_ALIGNMENT p_TextAlignment,
+			   PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping)
+{
+	if(m_TextResources.count(p_Identifier) > 0)
+		throw TextureCreationException("Tried to create an already existing text with identifier: " + p_Identifier,
+		__LINE__, __FILE__);
+	IDWriteTextFormat *textFormat = nullptr;
+	ID2D1RenderTarget *renderTarget = nullptr;
+	ID2D1SolidColorBrush *brush = nullptr;
+	ID3D11ShaderResourceView *SRV = createSRV(p_Rect);
+	IDXGISurface *surface = getIDXGISurfaceFromSRV(SRV);
+
+	HRESULT hr = m_WriteFactory->CreateTextFormat(L"Gabriola", NULL, DWRITE_FONT_WEIGHT_REGULAR,
+		DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 72.f, L"en-us", &textFormat);
+
+	if(SUCCEEDED(hr))
+	{
+		hr = textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	}
+	if(SUCCEEDED(hr))
+	{
+		hr = textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
+	}
+	if(SUCCEEDED(hr))
+	{
+		hr = m_D2DFactory->CreateDxgiSurfaceRenderTarget(surface, &m_DefaultProperties,
+			&renderTarget);
+	}
+	SAFE_RELEASE(surface);
+	if(SUCCEEDED(hr))
+	{
+		hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(p_Color.x,p_Color.y,p_Color.z,p_Color.w), &brush);
+	}
+	if(SUCCEEDED(hr))
+	{
+		m_TextResources.insert(std::pair<std::string, TextResource>(p_Identifier, 
+			TextResource(renderTarget, SRV, textFormat, brush, p_Rect)));
+		m_TextResources.at(p_Identifier).draw(p_Text);
+
+	}
+	else
+	{
+		SAFE_RELEASE(brush);
+		SAFE_RELEASE(renderTarget);
+		SAFE_RELEASE(textFormat);
+		SAFE_RELEASE(SRV);
+		throw TextureCreationException("Text to texture creation failed.", __LINE__, __FILE__);
+	}
+
+	return 0;
 }
 
 void TextureCreator::updateText(std::string p_Identifier, const wchar_t *p_Text)
@@ -102,7 +158,16 @@ void TextureCreator::updateText(std::string p_Identifier, const wchar_t *p_Text)
 		throw TextureCreationException("Failed to update text with identifier: " + p_Identifier, __LINE__, __FILE__);
 }
 
-const ID3D11ShaderResourceView *TextureCreator::getSRV(std::string p_Identifier) const
+void TextureCreator::deleteText(std::string p_Identifier)
+{
+	if(m_TextResources.count(p_Identifier) > 0)
+		m_TextResources.erase(p_Identifier);
+	else
+		throw TextureCreationException("Failed to delete text with identifier: " + p_Identifier, __LINE__, __FILE__);
+
+}
+
+ID3D11ShaderResourceView *TextureCreator::getSRV(std::string p_Identifier) const
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 		return m_TextResources.at(p_Identifier).getSRV();

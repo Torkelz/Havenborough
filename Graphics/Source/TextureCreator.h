@@ -1,5 +1,4 @@
 #pragma once
-
 #pragma comment(lib, "Dwrite")
 #pragma comment(lib, "D2d1")
 
@@ -10,6 +9,7 @@
 #include <map>
 
 #include "TextResource.h"
+#include "TextEnums.h"
 #include "Utilities/XMFloatUtil.h"
 
 class TextureCreator
@@ -28,11 +28,18 @@ public:
 	~TextureCreator(void);
 
 	void initialize(ID3D11Device *p_Device);
-	void shutdown();
-	void createText(std::string p_Identifier, const wchar_t *p_Text, D2D1_RECT_F p_Rect, Vector4 p_Color);
-	void updateText(std::string p_Identifier, const wchar_t *p_Text);
+	void shutdown(void);
 
-	const ID3D11ShaderResourceView *getSRV(std::string p_Identifier) const;
+	int createText(std::string p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+		const char *p_Font, float p_FontSize, Vector4 p_Color);
+	int createText(std::string p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+		const char *p_Font, float p_FontSize, Vector4 p_Color, TEXT_ALIGNMENT p_TextAlignment,
+		PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping);
+
+	void updateText(std::string p_Identifier, const wchar_t *p_Text);
+	void deleteText(std::string p_Identifier);
+
+	ID3D11ShaderResourceView *getSRV(std::string p_Identifier) const;
 
 private:
 	ID3D11ShaderResourceView *createSRV(D2D1_RECT_F p_Rect);

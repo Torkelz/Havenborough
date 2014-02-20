@@ -6,7 +6,6 @@
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <algorithm>
-//#include <d3d11_1.h>
 
 using namespace DirectX;
 using std::vector;
@@ -14,7 +13,7 @@ using std::string;
 using std::pair;
 using std::make_pair;
 
-typedef vector<pair<IGraphics::Object2D_ID, Renderable2D>>::iterator Renderable2DIterator;
+typedef vector<pair<IGraphics::Object2D_Id, Renderable2D>>::iterator Renderable2DIterator;
 typedef vector<pair<IGraphics::InstanceId, ModelInstance>>::iterator ModelInstanceIterator;
 
 const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
@@ -150,10 +149,6 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 		throw GraphicsException("Error when creating the device and swap chain", __LINE__,__FILE__);
 	}
 
-	/*ID3D11Device1* device1 = nullptr;
-	HRESULT hrr = m_Device->QueryInterface(__uuidof (ID3D11Device1), (void **) &device1);
-	m_Device = device1;*/
-
 	result = createRenderTargetView();
 	if(FAILED(result))
 	{
@@ -245,40 +240,9 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 
-	
-	//ID3D11Texture2D *tex;
-	//D3D11_TEXTURE2D_DESC desc = {0};
-	//desc.ArraySize          = 1 ;
-	//desc.BindFlags          = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE ;
-	//desc.CPUAccessFlags     = 0;
-	//desc.Format             = DXGI_FORMAT_B8G8R8A8_UNORM;
-	//desc.Width              = p_ScreenWidth;
-	//desc.Height             = p_ScreenHeight;
-	//desc.MipLevels          = 1;
-	//desc.MiscFlags          = 0;//D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX ; // because it will be shared between d3d10.1/d2d1 and d3d11
-	//desc.SampleDesc.Count   = 1;
-	//desc.SampleDesc.Quality = 0;
-	//desc.Usage              = D3D11_USAGE_DEFAULT;
-
-
-	//m_Device->CreateTexture2D(&desc,nullptr,&tex);
-	//m_Device->CreateShaderResourceView(tex, nullptr, &textSRV);
-	//IDXGISurface *renderTarget = nullptr;
-	////IDXGIResource *dxgiResource;
-	////HANDLE hand;
-	////ID3D11Resource *res;
-	//tex->QueryInterface(&renderTarget);
-	////dxgiResource->GetSharedHandle(&hand);
-	////dxgiResource->QueryInterface(&dxgiKeyedMutex10);
-	//HRESULT hr;// = m_Device->OpenSharedResource( hand, __uuidof(IDXGISurface1), (void**)&renderTarget);
-	//
-	////hr = m_SwapChain->GetBuffer(0, IID_PPV_ARGS(&renderTarget));
-	//
-	//
-	//textRender.initialize(&p_Hwnd, renderTarget);
 	m_TextureCreator.initialize(m_Device);
-	m_TextureCreator.createText("TEST", L"Havenborough", D2D1::RectF(0.f,0.f,1280.f,720.f), Vector4(0,0,0,1));
-	
+	m_TextureCreator.createText("TEST", L"Havenborough is a effing great game yo'", D2D1::RectF(0.f,0.f,320.0f, 320.f), Vector4(1,0,1,1));
+
 	return true;
 }
 
@@ -340,9 +304,9 @@ void Graphics::shutdown(void)
 
 	while(!m_2D_Objects.empty())
 	{
-		std::map<Object2D_ID, Renderable2D>::iterator it = m_2D_Objects.begin();
+		std::map<Object2D_Id, Renderable2D>::iterator it = m_2D_Objects.begin();
 
-		Object2D_ID unremovedId = it->first;
+		Object2D_Id unremovedId = it->first;
 
 		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + std::to_string(unremovedId) + "' not removed properly");
 
@@ -412,7 +376,7 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 	return false;
 }
 
-bool Graphics::release2D_Model(Object2D_ID p_ObjectId)
+bool Graphics::release2D_Model(Object2D_Id p_ObjectId)
 {
 	if(m_2D_Objects.count(p_ObjectId) > 0)
 	{
@@ -581,8 +545,8 @@ void Graphics::updateParticles(float p_DeltaTime)
 	}
 }
 
-int Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
-	const char *p_TextureId)
+IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale,
+	float p_Rotation, const char *p_TextureId)
 {
 	ModelDefinition *model = m_ModelFactory->create2D_Model(p_HalfSize, p_TextureId);
 	
@@ -594,7 +558,8 @@ int Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_
 	return m_Next2D_ObjectId++;
 }
 
-int Graphics::create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation, const char *p_ModelDefinition)
+IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
+	const char *p_ModelDefinition)
 {
 	ModelDefinition *defintion;
 	for(auto &model : m_ModelList)
@@ -616,7 +581,21 @@ int Graphics::create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotat
 	return m_Next2D_ObjectId++;
 }
 
-void Graphics::render2D_Object(Object2D_ID p_Id)
+IGraphics::Text_Id Graphics::createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+	const char *p_Font, float p_FontSize, Vector4 p_FontColor)
+{
+	return m_TextureCreator.createText(string(p_Identifier), p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor);
+}
+
+IGraphics::Text_Id Graphics::createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+	const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
+	PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping)
+{
+	return m_TextureCreator.createText(string(p_Identifier), p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor,
+		p_TextAlignment, p_ParagraphAlignment, p_WordWrapping);
+}
+
+void Graphics::render2D_Object(Object2D_Id p_Id)
 {
 	for(auto &object : m_2D_Objects)
 	{
@@ -713,10 +692,6 @@ void Graphics::drawFrame(void)
 	}
 	Begin(m_ClearColor);
 
-	//dxgiKeyedMutex10->AcquireSync(0, INFINITE);
-	//dxgiKeyedMutex10->ReleaseSync(1);
-
-	//dxgiKeyedMutex11->AcquireSync(1, INFINITE);
 	m_DeferredRender->renderDeferred();
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
@@ -724,10 +699,11 @@ void Graphics::drawFrame(void)
 	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 4)
 	{
 		m_ShaderList.at("DebugDeferredShader")->setShader();
-		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, m_DeferredRender->getRT(m_SelectedRenderTarget));
+		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, 
+			//m_DeferredRender->getRT(m_SelectedRenderTarget));
+			m_TextureCreator.getSRV("TEST"));
 		m_ShaderList.at("DebugDeferredShader")->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
-		//textRender.draw();
 		m_ShaderList.at("DebugDeferredShader")->unSetShader();
 	}
 
@@ -737,14 +713,13 @@ void Graphics::drawFrame(void)
 		{
 			m_ForwardRenderer->addRenderable(particle.second);
 		}
-		//m_ForwardRenderer->renderForward();
-		//drawBoundingVolumes();
-		//m_ScreenRenderer->renderScreen();
+		m_ForwardRenderer->renderForward();
+		drawBoundingVolumes();
+		m_ScreenRenderer->renderScreen();
 
 	}
 	End();
-	//dxgiKeyedMutex11->ReleaseSync(0);
-	//Delete lights
+
 	m_PointLights.clear();
 	m_SpotLights.clear();
 	m_DirectionalLights.clear();
@@ -839,7 +814,7 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position)
+void Graphics::set2D_ObjectPosition(Object2D_Id p_Instance, Vector3 p_Position)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
 		m_2D_Objects.at(p_Instance).position = Vector3ToXMFLOAT3(&p_Position);
@@ -847,7 +822,7 @@ void Graphics::set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position)
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::set2D_ObjectScale(Object2D_ID p_Instance, Vector3 p_Scale)
+void Graphics::set2D_ObjectScale(Object2D_Id p_Instance, Vector3 p_Scale)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
 		m_2D_Objects.at(p_Instance).scale = p_Scale;
@@ -855,7 +830,7 @@ void Graphics::set2D_ObjectScale(Object2D_ID p_Instance, Vector3 p_Scale)
 		throw GraphicsException("Failed to set 2D model scale, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation)
+void Graphics::set2D_ObjectRotationZ(Object2D_Id p_Instance, float p_Rotation)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
 		XMStoreFloat4x4(&m_2D_Objects.at(p_Instance).rotation, XMMatrixRotationZ(p_Rotation)); 
@@ -863,7 +838,7 @@ void Graphics::set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation)
 		throw GraphicsException("Failed to set 2D model rotation, vector out of bounds.", __LINE__, __FILE__);
 }
 
-void Graphics::set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt)
+void Graphics::set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
 	{
@@ -1225,7 +1200,8 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 	if(m_ShaderList.count(p_Identifier) > 0)
 		return m_ShaderList.at(p_Identifier);
 	else
-		return nullptr;
+		throw GraphicsException("Failed to get shader from list, vector out of bounds:" + p_Identifier,
+		__LINE__, __FILE__);
 }
 
 ModelDefinition *Graphics::getModelFromList(string p_Identifier)
@@ -1233,7 +1209,8 @@ ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 	if(m_ModelList.count(p_Identifier) > 0)
 		return &m_ModelList.at(p_Identifier);
 	else
-		return nullptr;
+		throw GraphicsException("Failed to get model from list, vector out of bounds: " + p_Identifier,
+		__LINE__, __FILE__);
 }
 
 ParticleEffectDefinition::ptr Graphics::getParticleFromList(string p_Identifier)
@@ -1241,7 +1218,8 @@ ParticleEffectDefinition::ptr Graphics::getParticleFromList(string p_Identifier)
 	if(m_ParticleEffectDefinitionList.count(p_Identifier) > 0)
 		return m_ParticleEffectDefinitionList.at(p_Identifier);
 	else
-		return nullptr;
+		throw GraphicsException("Failed to get particle from list, vector out of bounds:" + p_Identifier,
+		__LINE__, __FILE__);
 }
 
 ID3D11ShaderResourceView *Graphics::getTextureFromList(string p_Identifier)
@@ -1249,7 +1227,8 @@ ID3D11ShaderResourceView *Graphics::getTextureFromList(string p_Identifier)
 	if(m_TextureList.count(p_Identifier) > 0)
 		return m_TextureList.at(p_Identifier);
 	else
-		return nullptr;
+		throw GraphicsException("Failed to get texture from list, vector out of bounds: " + p_Identifier,
+		__LINE__, __FILE__);
 }
 
 int Graphics::calculateTextureSize(ID3D11ShaderResourceView *resourceView )

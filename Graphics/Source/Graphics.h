@@ -61,9 +61,9 @@ private:
 	std::map<std::string, ModelDefinition> m_ModelList;
 	std::map<std::string, ID3D11ShaderResourceView*> m_TextureList;
 	std::map<InstanceId, ModelInstance> m_ModelInstances;
-	std::map<Object2D_ID, Renderable2D> m_2D_Objects;
+	std::map<Object2D_Id, Renderable2D> m_2D_Objects;
 	InstanceId m_NextInstanceId;
-	Object2D_ID m_Next2D_ObjectId;
+	Object2D_Id m_Next2D_ObjectId;
 
 	//Particles
 	std::map<std::string, ParticleEffectDefinition::ptr> m_ParticleEffectDefinitionList;
@@ -131,11 +131,16 @@ public:
 	void updateParticles(float p_DeltaTime) override;
 	/////
 
-	Object2D_ID create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
+	Object2D_Id create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
 		const char *p_TextureId) override;
-
-	Object2D_ID create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
+	Object2D_Id create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) override;
+
+	Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+		const char *p_Font, float p_FontSize, Vector4 p_FontColor) override;
+	Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+		const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
+		PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping) override;
 
 	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
 	void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
@@ -147,7 +152,7 @@ public:
 	void renderModel(InstanceId p_ModelId) override;
 	virtual void renderSkydome(void) override;
 	void renderText(void) override;
-	void render2D_Object(Object2D_ID p_Id) override;
+	void render2D_Object(Object2D_Id p_Id) override;
 	void drawFrame(void) override;
 
 	void setModelDefinitionTransparency(const char *p_ModelId, bool p_State) override;
@@ -163,11 +168,10 @@ public:
 	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;
 	void setModelScale(InstanceId p_Instance, Vector3 p_Scale) override;
 	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;
-	void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) override;
-	void set2D_ObjectScale(Object2D_ID p_Instance, Vector3 p_Scale) override;
-	void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) override;
-	void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) override;
-
+	void set2D_ObjectPosition(Object2D_Id p_Instance, Vector3 p_Position) override;
+	void set2D_ObjectScale(Object2D_Id p_Instance, Vector3 p_Scale) override;
+	void set2D_ObjectRotationZ(Object2D_Id p_Instance, float p_Rotation) override;
+	void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) override;
 
 	void updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up) override;
 
@@ -186,7 +190,7 @@ public:
 private:
 	void createDefaultShaders(void) override;
 	void shutdown(void) override;
-	bool release2D_Model(Object2D_ID p_ObjectID);
+	bool release2D_Model(Object2D_Id p_ObjectID);
 
 	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
 	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen);
@@ -201,10 +205,9 @@ private:
 	
 	Shader *getShaderFromList(std::string p_Identifier);
 	ModelDefinition *getModelFromList(std::string p_Identifier);
-
 	ParticleEffectDefinition::ptr getParticleFromList(std::string p_ParticleSystemId);
-
 	ID3D11ShaderResourceView *getTextureFromList(std::string p_Identifier);
+	
 	int calculateTextureSize(ID3D11ShaderResourceView *p_Texture);
 	void Begin(float color[4]);
 	void End(void);

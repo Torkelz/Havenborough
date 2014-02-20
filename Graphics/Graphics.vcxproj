@@ -139,6 +139,7 @@
     <ClInclude Include="Source\GraphicsLogger.h" />
     <ClInclude Include="Source\ModelFactory.h" />
     <ClInclude Include="Source\ModelInstance.h" />
+    <ClInclude Include="include\TextEnums.h" />
     <ClInclude Include="Source\TextResource.h" />
     <ClInclude Include="Source\VRAMInfo.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
