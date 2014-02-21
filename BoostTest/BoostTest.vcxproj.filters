@@ -275,7 +275,18 @@
     <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp">
       <Filter>TestGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Client\TestSettings.cpp" />
+    <ClCompile Include="..\Graphics\Source\SimpleText.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextResource.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextFactory.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TestSettings.cpp">
+      <Filter>TestSettings</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Common\TestTweakCommand.cpp">
       <Filter>TestSettings</Filter>
     </ClCompile>

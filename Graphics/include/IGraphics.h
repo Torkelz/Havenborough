@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include "ShaderDefinitions.h"
+#include "TextEnums.h"
 #include <TweakSettings.h>
 #include <Utilities/Util.h>
 
@@ -28,7 +29,12 @@ public:
 	/**
 	* Unique ID for a 2D object instance, starts on 1.
 	*/
-	typedef int Object2D_ID;
+	typedef int Object2D_Id;
+
+	/**
+	* Unique ID for a text instance, starts on 1.
+	*/
+	typedef int Text_Id;
 		
 	/**
 	 * Callback for loading a texture to a model.
@@ -244,7 +250,7 @@ public:
 	* @param p_TextureId the ID of the texture to be used
 	* @return the Object2D ID of the created object
 	*/
-	virtual int create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
+	virtual Object2D_Id create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
 		const char *p_TextureId) = 0;
 
 	/**
@@ -255,8 +261,21 @@ public:
 	* @param p_ModelDefinition the ID of the model definition
 	* @return the Object2D ID of the created object
 	*/
-	virtual int create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
+	virtual Object2D_Id create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) = 0;
+
+	/**
+	* 
+	*/
+	virtual Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+		const char *p_Font, float p_FontSize, Vector4 p_FontColor) = 0;
+
+	/**
+	* 
+	*/
+	virtual Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+		const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
+		PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping) = 0;
 
 	/**
 	 * Creates a point light which is removed after each draw.
@@ -312,7 +331,7 @@ public:
 	* Renders a 2D object specified with an ID.
 	* @param p_Id the ID of the object to be rendered.
 	*/
-	virtual void render2D_Object(Object2D_ID p_Id) = 0;
+	virtual void render2D_Object(Object2D_Id p_Id) = 0;
 	
 	/**
 	 * Draw the current frame.
@@ -397,46 +416,46 @@ public:
 	 */
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
-
 	/**
 	* Get the pixel position on screen of a 2D object.
 	* @param p_Instance an identifier to an object
 	*/
-	virtual Vector3 get2D_ObjectPosition(Object2D_ID p_Instance) = 0;
+	virtual Vector3 get2D_ObjectPosition(Object2D_Id p_Instance) = 0;
 	
 	/**
 	* Get the scale of a 2D object in xyz.
 	* @param p_Instance an identifier to an object
 	*/
-	virtual Vector2 get2D_ObjectHalfSize(Object2D_ID p_Instance) = 0;
+	virtual Vector2 get2D_ObjectHalfSize(Object2D_Id p_Instance) = 0;
+
 	/**
 	* Set the pixel position on screen of a 2D object.
 	* @param p_Instance an identifier to an object
 	* @param p_Position xy the pixel coordinates to place the center of the object, z the position relative to
 	*	other 2D objects where lower z renders in front of higher
 	*/
-	virtual void set2D_ObjectPosition(Object2D_ID p_Instance, Vector3 p_Position) = 0;
+	virtual void set2D_ObjectPosition(Object2D_Id p_Instance, Vector3 p_Position) = 0;
 	
 	/**
 	* Set the scale of a 2D object in xyz.
 	* @param p_Instance an identifier to an object
 	* @param p_Scale scaling factor where 1.0f is the default model size
 	*/
-	virtual void set2D_ObjectScale(Object2D_ID p_Instance, Vector3 p_Scale) = 0;
+	virtual void set2D_ObjectScale(Object2D_Id p_Instance, Vector3 p_Scale) = 0;
 	
 	/**
 	* Set the rotation of a 2D object around the screen z-axis.
 	* @param p_Instance an identifier to an object
 	* @param p_Rotation the rotation in radians, left-handed
 	*/
-	virtual void set2D_ObjectRotationZ(Object2D_ID p_Instance, float p_Rotation) = 0;
+	virtual void set2D_ObjectRotationZ(Object2D_Id p_Instance, float p_Rotation) = 0;
 	
 	/**
 	* Set a position in world space which a 2D object should point towards.
 	* @param p_Instance an identifier to an object
 	* @param p_LookAt the position in the world
 	*/
-	virtual void set2D_ObjectLookAt(Object2D_ID p_Instance, Vector3 p_LookAt) = 0;
+	virtual void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) = 0;
 	
 	/**
 	 * Update the position and viewing direction of the camera.
@@ -496,6 +515,9 @@ public:
 	 */
 	virtual void setRenderTarget(RenderTarget p_RenderTarget) = 0;
 
+	/**
+	* Sebbobi: What does the world mean?
+	*/
 	virtual void renderJoint(DirectX::XMFLOAT4X4 p_World) = 0;
 	
 	/*

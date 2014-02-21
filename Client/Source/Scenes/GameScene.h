@@ -12,7 +12,7 @@ private:
 	bool m_ChangeScene;
 	bool m_ChangeList;
 	IGraphics::RenderTarget m_CurrentDebugView;
-	IGraphics::Object2D_ID m_GUI_ArrowId;
+	IGraphics::Object2D_Id m_GUI_ArrowId;
 	bool m_RenderDebugBV;
 	int m_SkyboxID;
 

@@ -109,6 +109,9 @@
     <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp">
       <Filter>CommonImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextFactory.cpp">
+      <Filter>Graphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">
