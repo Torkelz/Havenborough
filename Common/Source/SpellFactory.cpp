@@ -20,7 +20,7 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 {
 	if (m_SpellDefinitionMap.count(p_Spellname) > 0)
 	{
-		throw CommonException("Spell " + std::string(p_Spellname) + " already loaded", __LINE__, __FILE__);
+		//throw CommonException("Spell " + std::string(p_Spellname) + " already loaded", __LINE__, __FILE__);
 	}
 
 	//readDefinitionFromFile(p_Filename);
@@ -37,6 +37,7 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	spell->spellName = p_Spellname;
 	spell->flyingSpellSize = 30.f;
 	spell->flyForce = 3000.f;
+	spell->manaCost = 70.f;
 
 	m_SpellDefinitionMap[p_Spellname] = spell;
 
@@ -65,4 +66,17 @@ SpellInstance::ptr SpellFactory::createSpellInstance(const std::string& p_Spell,
 void SpellFactory::readDefinitionFromFile(const char* p_Filename)
 {
 
+}
+
+const float SpellFactory::getManaCostFromSpellDefinition(const char* p_SpellName)
+{
+	for(auto& sd : m_SpellDefinitionMap)
+	{
+		if(std::strcmp(sd.first.c_str(), p_SpellName) == 0)
+		{
+			return sd.second->manaCost;
+		}
+	}
+
+	return FLT_MAX;
 }

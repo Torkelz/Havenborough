@@ -1,11 +1,20 @@
+/**
+ *
+ */
 #pragma once
 
 #include "Command.h"
 #include "TweakSettings.h"
 
+/**
+ * Command for changing tweakable settings during runtime.
+ */
 class TweakCommand : public Command
 {
 public:
+	/**
+	 * The name of the command.
+	 */
 	static const std::string m_CommandName;
 
 public:

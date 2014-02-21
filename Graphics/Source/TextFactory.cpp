@@ -219,7 +219,7 @@ void TextFactory::setTextSize(std::string p_Identifier, float p_Size)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
-		m_TextResources.at(p_Identifier).m_TextFormat
+		//m_TextResources.at(p_Identifier).m_TextFormat
 		m_TextResources.at(p_Identifier).draw();
 	}
 	else

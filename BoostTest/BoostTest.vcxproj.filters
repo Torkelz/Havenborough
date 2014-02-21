@@ -257,12 +257,6 @@
     <ClCompile Include="Source\Common\TestAnimation.cpp">
       <Filter>TestCommon</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Source\AnimationLoader.cpp">
-      <Filter>TestCommon</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\Source\AnimationClipLoader.cpp">
-      <Filter>TestCommon</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Common\TestLight.cpp">
       <Filter>TestCommon</Filter>
     </ClCompile>

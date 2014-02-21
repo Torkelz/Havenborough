@@ -72,6 +72,7 @@ public:
 	void setAnimationLoader(AnimationLoader* p_AnimationLoader);
 
 	void setSpellFactory(SpellFactory* p_SpellFactory);
+	SpellFactory* getSpellFactory();
 
 	void setActorList(std::weak_ptr<ActorList> p_ActorList);
 

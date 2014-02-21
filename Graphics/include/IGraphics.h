@@ -417,6 +417,18 @@ public:
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
 	/**
+	* Get the pixel position on screen of a 2D object.
+	* @param p_Instance an identifier to an object
+	*/
+	virtual Vector3 get2D_ObjectPosition(Object2D_Id p_Instance) = 0;
+	
+	/**
+	* Get the scale of a 2D object in xyz.
+	* @param p_Instance an identifier to an object
+	*/
+	virtual Vector2 get2D_ObjectHalfSize(Object2D_Id p_Instance) = 0;
+
+	/**
 	* Set the pixel position on screen of a 2D object.
 	* @param p_Instance an identifier to an object
 	* @param p_Position xy the pixel coordinates to place the center of the object, z the position relative to

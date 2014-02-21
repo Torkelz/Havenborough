@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Components.h"
+#include <Logger.h>
 
 using namespace DirectX;
 
@@ -22,6 +23,13 @@ Player::Player(void)
 	m_Height = 170.f;
 	m_EyeHeight = 165.f;
 	m_Climb = false;
+	m_CurrentMana = 100.f;
+	m_PreviousMana = m_CurrentMana;
+	m_MaxMana = 100.f;
+	m_ManaRegenerationSlow = 2.f;
+	m_ManaRegenerationFast = 6.f;
+	m_IsAtMaxSpeed = false;
+	m_IsPreviousManaSet = false;
 }
 
 Player::~Player(void)
@@ -43,7 +51,28 @@ void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<
 }
 
 void Player::update(float p_DeltaTime)
-{
+{	
+	if(!m_IsPreviousManaSet)
+		m_PreviousMana = m_CurrentMana;
+	else
+		m_IsPreviousManaSet = false;
+
+	Vector3 v3Vel = m_Physics->getBodyVelocity(getBody());
+	float v = XMVector4Length(Vector3ToXMVECTOR(&v3Vel, 0.f)).m128_f32[0];
+	if(v >= m_MaxSpeed - 50.f)
+	{
+		m_IsAtMaxSpeed = true;
+		m_CurrentMana += m_ManaRegenerationFast * p_DeltaTime;
+	}
+	else
+	{
+		m_IsAtMaxSpeed = false;
+		m_CurrentMana += m_ManaRegenerationSlow * p_DeltaTime;
+	}
+
+	if(m_CurrentMana >= m_MaxMana)
+		m_CurrentMana = m_MaxMana;
+
 	static const float respawnFallHeight = -2000.f; // -20m
 	static const float respawnDistance = 100000.f; // 100m
 	static const float respawnDistanceSq = respawnDistance * respawnDistance;
@@ -69,6 +98,8 @@ void Player::update(float p_DeltaTime)
 			}
 		}
 	}
+
+
 
 	if(!m_ForceMove)
 	{
@@ -220,6 +251,34 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 	}
 }
 
+void Player::setCurrentMana(float p_Mana)
+{
+	if(p_Mana > m_MaxMana)
+		p_Mana = m_MaxMana;
+	else if(p_Mana < 0.f)
+		p_Mana = 0.f;
+
+	m_PreviousMana = m_CurrentMana;
+	m_CurrentMana = p_Mana;
+	m_IsPreviousManaSet = true;
+	
+}
+
+float Player::getPreviousMana()
+{
+	return m_PreviousMana;
+}
+
+float Player::getCurrentMana()
+{
+	return m_CurrentMana;
+}
+
+float Player::getMaxMana()
+{
+	return m_MaxMana;
+}
+
 void Player::updateIKJoints()
 {
 	if(m_ForceMove)
@@ -259,11 +318,6 @@ void Player::updateIKJoints()
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
 			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
 			aa.lock()->applyIK_ReachPoint("LeftArm", vReachPoint);
-			
-			XMFLOAT3 temp1 = aa.lock()->getJointPos("R_Hand");
-			XMFLOAT3 temp2 = aa.lock()->getJointPos("L_Hand");
-
-			int i = 42;
 		}
 	}
 }
@@ -475,6 +529,7 @@ void Player::move(float p_DeltaTime)
 	XMVECTOR currentVelocity = XMLoadFloat3(&velocity);	// cm/s
 
 	XMFLOAT3 maxVelocity(m_DirectionX * m_MaxSpeed, 0.f, m_DirectionZ * m_MaxSpeed);	// cm/s
+	
 	if (m_IsJumping)
 	{
 		maxVelocity.y = m_MaxSpeed*0.5f;
@@ -495,6 +550,7 @@ void Player::move(float p_DeltaTime)
 	}
 
 	XMVECTOR diffVel = vMaxVelocity - currentVelocity;	// cm/s
+	
 	XMVECTOR force = diffVel / 100.f * m_AccConstant;		// kg * m/s^2
 
 	XMVECTOR forceDiffImpulse = force * p_DeltaTime;	// kg * m/s

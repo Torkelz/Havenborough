@@ -167,9 +167,11 @@ public:
 	void setModelPosition(InstanceId p_Instance, Vector3 p_Position) override;
 	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;
 	void setModelScale(InstanceId p_Instance, Vector3 p_Scale) override;
-	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;
+	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;	
 	void set2D_ObjectPosition(Object2D_Id p_Instance, Vector3 p_Position) override;
 	void set2D_ObjectScale(Object2D_Id p_Instance, Vector3 p_Scale) override;
+	Vector3 get2D_ObjectPosition(Object2D_Id p_Instance) override;
+	Vector2 get2D_ObjectHalfSize(Object2D_Id p_Instance) override;
 	void set2D_ObjectRotationZ(Object2D_Id p_Instance, float p_Rotation) override;
 	void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) override;
 

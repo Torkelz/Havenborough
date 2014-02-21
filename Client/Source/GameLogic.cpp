@@ -310,6 +310,16 @@ Vector3 GameLogic::getCurrentCheckpointPosition(void) const
 	return m_CurrentCheckPointPosition;
 }
 
+const float GameLogic::getPlayerCurrentMana(void)
+{
+	return m_Player.getCurrentMana();
+}
+
+const float GameLogic::getPlayerPreviousMana(void)
+{
+	return m_Player.getPreviousMana();
+}
+
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
@@ -397,12 +407,25 @@ void GameLogic::joinGame(const std::string& p_LevelName)
 
 void GameLogic::throwSpell(const char *p_SpellId)
 {
+	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // definitely should NOT be here.
+
 	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
 		if(!m_Player.getForceMove())
 		{
-			m_Actors->addActor(m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition()));
+
+			float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition(p_SpellId);
+			float playerMana = m_Player.getCurrentMana();
+
+			if(manaCost > playerMana)
+				return;
+
+			m_Player.setCurrentMana(playerMana - manaCost);
+
+			Actor::ptr spell = m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition());
+			m_Actors->addActor(spell);
+
 			playAnimation(playerActor, "CastSpell", false);
 
 			IConnectionController *conn = m_Network->getConnectionToServer();
