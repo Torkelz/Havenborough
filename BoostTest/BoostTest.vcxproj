@@ -157,6 +157,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
     <ClCompile Include="Source\Client\TestSettings.cpp" />
     <ClCompile Include="Source\Client\TestRAM_Info.cpp" />
+    <ClCompile Include="Source\Common\TestTweakCommand.cpp" />
     <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp" />
     <ClCompile Include="Source\Physics\AABBTest.cpp" />
     <ClCompile Include="Source\Physics\BodyTest.cpp" />
@@ -193,7 +194,7 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Common\TestResouceTranslator.cpp" />
     <ClCompile Include="Source\Common\TestResourceManager.cpp" />
     <ClCompile Include="Source\Graphics\TestSkyDome.cpp" />
-    <ClCompile Include="Source\TestTweakSettings.cpp" />
+    <ClCompile Include="Source\Common\TestTweakSettings.cpp" />
     <ClCompile Include="Source\Common\TestHumanAnimationComponent.cpp" />
   </ItemGroup>
   <ItemGroup>

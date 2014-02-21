@@ -56,16 +56,14 @@ void TweakSettings::saveSettings(std::ostream& p_Out) const
 
 void TweakSettings::loadSettings(std::istream& p_In)
 {
-	p_In.seekg(0, std::istream::end);
-	std::streampos filesize = p_In.tellg();
-	if (filesize <= 0)
+	std::streamoff streamsize = getStreamsize(p_In);
+	if (streamsize == 0)
 	{
-		return;
+		throw InvalidArgument("Invalid stream", __LINE__, __FILE__);
 	}
-	p_In.seekg(0, std::istream::beg);
 
-	std::vector<char> buffer((unsigned int)filesize);
-	p_In.read(buffer.data(), filesize);
+	std::vector<char> buffer((size_t)streamsize);
+	p_In.read(buffer.data(), buffer.size());
 
 	tinyxml2::XMLDocument doc;
 	doc.Parse(buffer.data(), buffer.size());
@@ -73,7 +71,7 @@ void TweakSettings::loadSettings(std::istream& p_In)
 	const tinyxml2::XMLElement* root = doc.FirstChildElement("TweakSettings");
 	if (!root)
 	{
-		return;
+		throw InvalidArgument("XML missing root element 'TweakSettings'", __LINE__, __FILE__);
 	}
 
 	for (const tinyxml2::XMLElement* setting = root->FirstChildElement("Setting");
@@ -218,4 +216,13 @@ void TweakSettings::setListener(const std::string& p_Setting, std::function<void
 				p_Listener(false);
 			}
 		};
+}
+
+std::streamoff TweakSettings::getStreamsize(std::istream& p_Stream)
+{
+	p_Stream.seekg(0, std::istream::end);
+	std::streampos streamsize = p_Stream.tellg();
+	p_Stream.seekg(0, std::istream::beg);
+
+	return std::max(std::streampos(0), streamsize);
 }

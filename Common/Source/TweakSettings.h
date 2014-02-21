@@ -193,4 +193,7 @@ public:
 	 * @param p_Listener the listener that should be called when the setting change
 	 */
 	void setListener(const std::string& p_Setting, std::function<void(bool)> p_Listener);
+
+private:
+	static std::streamoff getStreamsize(std::istream& p_Stream);
 };

@@ -248,7 +248,7 @@
     <ClCompile Include="Source\Client\TestWindow.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
-	<ClCompile Include="..\Client\Source\Settings.cpp">
+    <ClCompile Include="..\Client\Source\Settings.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp">
@@ -266,9 +266,6 @@
     <ClCompile Include="Source\Client\TestEventManager.cpp">
       <Filter>TestCommon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TestTweakSettings.cpp">
-      <Filter>TestSettings</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Common\TestHumanAnimationComponent.cpp">
       <Filter>TestCommon</Filter>
     </ClCompile>
@@ -277,6 +274,13 @@
     </ClCompile>
     <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp">
       <Filter>TestGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TestSettings.cpp" />
+    <ClCompile Include="Source\Common\TestTweakCommand.cpp">
+      <Filter>TestSettings</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Common\TestTweakSettings.cpp">
+      <Filter>TestSettings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
