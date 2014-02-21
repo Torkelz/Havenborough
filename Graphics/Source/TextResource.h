@@ -10,18 +10,20 @@ public:
 	IDWriteTextFormat *m_TextFormat;
 	ID2D1SolidColorBrush *m_Brush;
 	D2D1_RECT_F m_LayoutRect;
-
+	const wchar_t *m_Text;
+	D2D1::ColorF m_ClearColor;
 
 	TextResource();
 	TextResource(TextResource &&p_Other);
 	TextResource(ID2D1RenderTarget* p_RT, ID3D11ShaderResourceView *p_SRV, IDWriteTextFormat *p_TextFormat,
-		ID2D1SolidColorBrush *p_Brush, D2D1_RECT_F p_Rectangle);
+		ID2D1SolidColorBrush *p_Brush, D2D1_RECT_F p_Rectangle, const wchar_t *p_Text,
+		D2D1::ColorF p_ClearColor = D2D1::ColorF(0,0,0,0));
 	~TextResource();
 
 	//TextResource &operator=(TextResource p_Other);
 	TextResource &operator=(TextResource &&p_Other);
 
-	void draw(const wchar_t *p_Text);
+	void draw();
 
 	ID3D11ShaderResourceView *getSRV() const;
 

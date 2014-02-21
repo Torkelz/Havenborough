@@ -240,9 +240,11 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 
-	m_TextureCreator.initialize(m_Device);
-	m_TextureCreator.createText("TEST", L"Havenborough is a effing great game yo'", D2D1::RectF(0.f,0.f,320.0f, 320.f), Vector4(1,0,1,1));
-
+	m_TextFactory.createText("TEST", L"Havenborough is an effing great game yo'", Vector2(320.f, 320.f),
+		"Gabriola", 48.f, Vector4(1,0,1,1));
+	m_TextFactory.setBackgroundColor("TEST", Vector4(1,0,0,1));
+	m_TextFactory.setWordWrapping("TEST", WORD_WRAPPING::NO_WRAP);
+	m_TextFactory.setTextColor("TEST", Vector4(1,1,1,1));
 	return true;
 }
 
@@ -263,7 +265,7 @@ void Graphics::shutdown(void)
 {
 	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Shutting down graphics");
 
-	m_TextureCreator.shutdown();
+	m_TextFactory.shutdown();
 
 	if(m_SwapChain)
 	{
@@ -584,14 +586,14 @@ IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_S
 IGraphics::Text_Id Graphics::createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
 	const char *p_Font, float p_FontSize, Vector4 p_FontColor)
 {
-	return m_TextureCreator.createText(string(p_Identifier), p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor);
+	return m_TextFactory.createText(string(p_Identifier), p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor);
 }
 
 IGraphics::Text_Id Graphics::createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
 	const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
 	PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping)
 {
-	return m_TextureCreator.createText(string(p_Identifier), p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor,
+	return m_TextFactory.createText(string(p_Identifier), p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor,
 		p_TextAlignment, p_ParagraphAlignment, p_WordWrapping);
 }
 
@@ -701,7 +703,7 @@ void Graphics::drawFrame(void)
 		m_ShaderList.at("DebugDeferredShader")->setShader();
 		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, 
 			//m_DeferredRender->getRT(m_SelectedRenderTarget));
-			m_TextureCreator.getSRV("TEST"));
+			m_TextFactory.getSRV("TEST"));
 		m_ShaderList.at("DebugDeferredShader")->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
 		m_ShaderList.at("DebugDeferredShader")->unSetShader();
@@ -1172,9 +1174,10 @@ void Graphics::initializeFactories(void)
 	m_ParticleFactory.reset(new ParticleFactory);
 	m_ParticleFactory->initialize(&m_TextureList, &m_ShaderList, m_Device);
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
+	m_TextFactory.initialize(m_Device);
 }
 
-void Graphics::initializeMatrices( int p_ScreenWidth, int p_ScreenHeight, float p_NearZ, float p_FarZ )
+void Graphics::initializeMatrices(int p_ScreenWidth, int p_ScreenHeight, float p_NearZ, float p_FarZ)
 {
 	XMFLOAT4 eye;
 	XMFLOAT4 lookAt;

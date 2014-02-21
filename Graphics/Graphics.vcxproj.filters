@@ -68,10 +68,10 @@
     <ClCompile Include="Source\SimpleText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TextureCreator.cpp">
+    <ClCompile Include="Source\TextResource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TextResource.cpp">
+    <ClCompile Include="Source\TextFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -166,10 +166,10 @@
     <ClInclude Include="Source\TextResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TextureCreator.h">
+    <ClInclude Include="include\TextEnums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\TextEnums.h">
+    <ClInclude Include="Source\TextFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

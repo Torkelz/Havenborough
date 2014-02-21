@@ -116,7 +116,7 @@
     <ClCompile Include="Source\Buffer.cpp" />
     <ClCompile Include="Source\Graphics.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
-    <ClCompile Include="Source\TextureCreator.cpp" />
+    <ClCompile Include="Source\TextFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\SimpleText.h" />
@@ -150,7 +150,7 @@
     <ClInclude Include="Source\Graphics.h" />
     <ClInclude Include="include\IGraphics.h" />
     <ClInclude Include="Source\TextureLoader.h" />
-    <ClInclude Include="Source\TextureCreator.h" />
+    <ClInclude Include="Source\TextFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ModelInstance.cpp">

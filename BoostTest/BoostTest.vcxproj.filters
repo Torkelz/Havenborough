@@ -248,7 +248,7 @@
     <ClCompile Include="Source\Client\TestWindow.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
-	<ClCompile Include="..\Client\Source\Settings.cpp">
+    <ClCompile Include="..\Client\Source\Settings.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\TestScreenRenderer.cpp">
@@ -287,10 +287,11 @@
     <ClCompile Include="..\Graphics\Source\SimpleText.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\TextureCreator.cpp">
+    <ClCompile Include="..\Graphics\Source\TextResource.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\TextResource.cpp">
+    <ClCompile Include="Source\Client\TestSettings.cpp" />
+    <ClCompile Include="..\Graphics\Source\TextFactory.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
   </ItemGroup>
