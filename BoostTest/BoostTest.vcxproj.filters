@@ -285,6 +285,9 @@
     <ClCompile Include="Source\Common\TestCommandManager.cpp">
       <Filter>TestSettings</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Common\TestStreamReader.cpp">
+      <Filter>TestSettings</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

@@ -8,7 +8,7 @@
 
 #include <ActorFactory.h>
 #include <AnimationLoader.h>
-#include <ConsoleReader.h>
+#include <StreamReader.h>
 #include <EventManager.h>
 #include <IGraphics.h>
 #include <IPhysics.h>
@@ -33,7 +33,7 @@ private:
 	float m_TimeModifier;
 
 	INetwork* m_Network;
-	ConsoleReader::ptr m_ConsoleReader;
+	StreamReader::ptr m_ConsoleReader;
 	CommandManager::ptr m_CommandManager;
 
 	bool m_ShouldQuit;
