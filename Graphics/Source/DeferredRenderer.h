@@ -51,6 +51,7 @@ private:
 	SkyDome	*m_SkyDome;
 
 	bool	m_SSAO;
+	float m_SSAO_Resolution_Scale;
 
 public:
 	/**
@@ -146,8 +147,8 @@ private:
 	void updateLightBuffer();
 
 
-	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
-	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC &desc);
+	ID3D11RenderTargetView *createRenderTarget(D3D11_TEXTURE2D_DESC &desc);
+	ID3D11ShaderResourceView *createShaderResourceView(D3D11_TEXTURE2D_DESC &desc, ID3D11RenderTargetView *p_Rendertarget);
 	void createBuffers();
 	void buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer);
 	void clearRenderTargets();

@@ -18,6 +18,7 @@ public:
 		W_POSITION,
 		SSAO,
 		FINAL,
+		SSAOPing,
 		NONE,
 	};
 
