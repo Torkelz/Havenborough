@@ -166,14 +166,6 @@ BOOST_AUTO_TEST_CASE(BodyTest_Volumes)
 	BoundingVolume::ptr fakeVolume2(new DummyBoundingVolume());
 	body.addVolume(std::move(fakeVolume2));
 	BOOST_CHECK_EQUAL(body.getVolumeListSize(), 2);
-	
-	BOOST_CHECK(body.getCollisionResponse(0));
-
-	body.setCollisionResponse(1, false);
-	BOOST_CHECK(!body.getCollisionResponse(1));
-
-	body.setCollisionResponse(true);
-	BOOST_CHECK(body.getCollisionResponse(1));
 
 	body.setVolumePosition(0, DirectX::XMVectorSet(1.f, 2.f, 3.f, 1.f));
 

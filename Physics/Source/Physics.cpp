@@ -221,7 +221,7 @@ void Physics::addSphereToBody(BodyHandle p_BodyHandle, Vector3 p_Position, float
 	body->addVolume(BoundingVolume::ptr(sphere));
 }
 
-void Physics::addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) 
+void Physics::addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents) 
 {
 	Body* body = findBody(p_BodyHandle);
 	if (body == nullptr)
@@ -417,11 +417,6 @@ BoundingVolume* Physics::getVolume(BodyHandle p_Body)
 HitData Physics::getHitDataAt(unsigned int p_Index)
 {
 	return m_HitDatas.at(p_Index);
-}
-
-void Physics::removeHitDataAt(unsigned int p_index)
-{
-	m_HitDatas.erase(m_HitDatas.begin() + p_index);
 }
 
 unsigned int Physics::getHitDataSize()

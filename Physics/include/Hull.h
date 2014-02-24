@@ -21,7 +21,6 @@ public:
 	{
 		m_BodyHandle = 0;
 		m_Position = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
-		m_PrevPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 		m_Triangles = p_Triangles;
 		m_Type = Type::HULL;
 		float radius = findFarthestDistanceOnTriangle();
@@ -45,8 +44,6 @@ public:
 	 */
 	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) override
 	{
-		m_PrevPosition = m_Position;
-
 		DirectX::XMMATRIX tempTrans;
 		tempTrans = DirectX::XMLoadFloat4x4(&p_Translation);
 
@@ -155,7 +152,7 @@ public:
 	 * @param p_Index index number in triangle list
 	 * @return a triangle in world coordinates.
 	 */
-	Triangle getTriangleInWorldCoord(unsigned p_Index) const
+	Triangle getTriangleInWorldCoord(unsigned int p_Index) const
 	{
 		Triangle triangle;
 		triangle = m_Triangles[p_Index];
