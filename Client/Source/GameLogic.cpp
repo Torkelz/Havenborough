@@ -747,6 +747,18 @@ void GameLogic::handleNetwork()
 				}
 				break;
 
+			case PackageType::START_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(false);
+					// TODO
+					// Start countdown logic and use draw countdown.
+				}
+				break;
+			case PackageType::DONE_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(true);
+				}
+				break;
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);

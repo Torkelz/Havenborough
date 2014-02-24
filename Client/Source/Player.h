@@ -41,7 +41,7 @@ private:
 
 	float m_Height; 
 	float m_EyeHeight;
-
+	bool m_AllowedToMove;
 public:
 	/**
 	* Constructor
@@ -240,6 +240,8 @@ public:
 	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
 	 */
 	void setClimbing(bool p_State);
+
+	void setAllowedToMove(bool p_State);
 
 private:
 	void jump(float dt);
