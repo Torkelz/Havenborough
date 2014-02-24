@@ -252,7 +252,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_TextFactory.setWordWrapping(1, WORD_WRAPPING::NO_WRAP);
 	m_TextFactory.setTextColor(1, Vector4(1,1,1,1));
 
-	createText(L"TROLOLol", Vector2(320.f, 320.f), "Gabriola", 48.f, Vector4(1,0,1,1), Vector3(0,300,0), 1.f, 0.f);
+	createText(L"TROLOLol", Vector2(160.f, 160.f), "Gabriola", 48.f, Vector4(1,0,1,1), Vector3(0,300,0), 10.f, PI);
 	return true;
 }
 

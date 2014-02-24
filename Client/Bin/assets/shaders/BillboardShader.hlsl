@@ -85,7 +85,7 @@ void GS(point VSIn gIn[1], inout TriangleStream<PSIn> triStream)
 
 	for(int i = 0; i < 4; i++)
 	{
-		gOut.position = mul(WVP, v[i]);
+		gOut.position = mul(WVP, mul(rotation, mul(scale, v[i])));
 		gOut.texCoord = quadUVC[i];
 		triStream.Append(gOut);
 	}
