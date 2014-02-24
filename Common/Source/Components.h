@@ -32,11 +32,23 @@ public:
 	 * @return a body handle
 	 */
 	virtual BodyHandle getBodyHandle() const = 0;
-
+	/**
+	 * Get the body velocity of the component.
+	 *
+	 * @return velocity
+	 */
 	virtual Vector3 getVelocity() const = 0;
-
+	/**
+	 * Get if the components body is in the air.
+	 *
+	 * @return true if it the body is in the air otherwise false.
+	 */
 	virtual bool isInAir() const = 0;
-
+	/**
+	 * Get if the components body has landed .
+	 *
+	 * @return velocity
+	 */
 	virtual bool hasLanded() const = 0;
 };
 
@@ -567,6 +579,11 @@ public:
 		m_Physics = p_Physics;
 	}
 
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
 	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		m_RadiusMain = 1.f;

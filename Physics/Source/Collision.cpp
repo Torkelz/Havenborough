@@ -824,14 +824,3 @@ bool Collision::checkCollision(XMVECTOR p_Axis, float p_TriangleProjection0, flo
 	}
 	return true;
 }
-
-float Collision::checkMin(const float &p_A, const float &p_B, const float &p_C)
-{
-	return (p_A < p_B) ? (p_A < p_C) ? p_A : p_C : (p_B < p_C) ? p_B : p_C;
-}
-
-float Collision::checkMax(const float &p_A, const float &p_B, const float &p_C)
-{
-	return (p_A > p_B) ? (p_A > p_C) ? p_A : p_C : (p_B > p_C) ? p_B : p_C;
-}
-
