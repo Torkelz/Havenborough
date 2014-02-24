@@ -657,7 +657,7 @@ void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, 
 	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
 	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
 	
-	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMFLOAT3 lightDirection = p_LightDirection;
 	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
 	XMStoreFloat3(&l.lightDirection, lightDirectionV);
@@ -670,7 +670,7 @@ void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDir
 	Light l;
 	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
 
-	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMFLOAT3 lightDirection = p_LightDirection;
 	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
 	XMStoreFloat3(&l.lightDirection, lightDirectionV);
@@ -788,7 +788,7 @@ void Graphics::eraseModelInstance(InstanceId p_Instance)
 void Graphics::setModelPosition(InstanceId p_Instance, Vector3 p_Position)
 {
 	if(m_ModelInstances.count(p_Instance) > 0)
-		m_ModelInstances.at(p_Instance).setPosition(Vector3ToXMFLOAT3(&p_Position));
+		m_ModelInstances.at(p_Instance).setPosition(p_Position);
 	else
 		throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
 }
@@ -836,7 +836,7 @@ Vector2 Graphics::get2D_ObjectHalfSize(Object2D_Id p_Instance)
 void Graphics::set2D_ObjectPosition(Object2D_Id p_Instance, Vector3 p_Position)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
-		m_2D_Objects.at(p_Instance).position = Vector3ToXMFLOAT3(&p_Position);
+		m_2D_Objects.at(p_Instance).position = p_Position;
 	else
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }

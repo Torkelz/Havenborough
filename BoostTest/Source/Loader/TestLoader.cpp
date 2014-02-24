@@ -80,7 +80,6 @@ BOOST_AUTO_TEST_CASE(TestLoadModel)
 BOOST_AUTO_TEST_CASE(TestPrintOut)
 {
 	testLoader loader;
-	bool result;
 	BOOST_CHECK_THROW(loader.testPrintOut("WADDA/WADDA"), std::exception);
 	BOOST_CHECK_THROW(loader.testPrintOut("../Source/Loader/broken"), std::exception);
 }
