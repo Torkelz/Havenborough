@@ -58,6 +58,9 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 	m_ResourceManager->registerFunction("animation",
 		std::bind(&AnimationLoader::loadAnimationDataResource, m_AnimationLoader.get(), _1, _2),
 		std::bind(&AnimationLoader::releaseAnimationData, m_AnimationLoader.get(), _1));
+	m_ResourceManager->registerFunction("spell",
+		std::bind(&SpellFactory::createSpellDefinition, m_SpellFactory.get(), _1, _2),
+		std::bind(&SpellFactory::releaseSpellDefinition, m_SpellFactory.get(), _1));
 
 	m_ActorFactory->setEventManager(m_EventManager.get());
 	m_ActorFactory->setPhysics(m_Physics);

@@ -202,3 +202,98 @@ void HumanAnimationComponent::updateAnimation()
 		}
 	}
 }
+
+void HumanAnimationComponent::updateIKJoints()
+{
+	using namespace DirectX;
+	if(m_ForceMove)
+	{
+		if(m_ClimbId == "Climb1")
+		{
+
+		}
+		else if(m_ClimbId == "Climb2")
+		{
+			XMVECTOR reachPointR;
+			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 0);
+			Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
+			applyIK_ReachPoint("RightArm", vReachPointR);
+		}
+
+		else if(m_ClimbId == "Climb3")
+		{
+			XMVECTOR reachPoint;
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+			Vector3 vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			applyIK_ReachPoint("RightArm", vReachPoint);
+
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			applyIK_ReachPoint("LeftArm", vReachPoint);
+		}
+		
+		else if(m_ClimbId == "Climb4")
+		{
+			XMVECTOR reachPoint;
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+			Vector3 vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			applyIK_ReachPoint("RightArm", vReachPoint);
+
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			applyIK_ReachPoint("LeftArm", vReachPoint);
+		}
+	}
+	else
+	{
+		int hitsSize = m_Physics->getHitDataSize();
+		for(int i = 0; i < hitsSize; i++)
+		{
+			HitData hit = m_Physics->getHitDataAt(i);
+
+			
+			if(hit.IDInBody == 2 && hit.colType != Type::SPHEREVSSPHERE && hit.collider == m_Owner->getBodyHandles()[0])
+			{
+				hit.colPos.y += 5.0f;
+				applyIK_ReachPoint("LeftLeg", Vector4ToXMFLOAT3(&hit.colPos));
+
+				DirectX::XMFLOAT3 anklePos = getJointPos("L_Ankle");
+				DirectX::XMFLOAT3 toePos = getJointPos("L_FootBase");
+				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
+				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
+
+				vToe = vToe - vAnkle;
+				vToe.m128_f32[1] = 0.f;
+			
+				vToe = DirectX::XMVector3Normalize(vToe);
+				vToe *= 20.0f;
+				vToe += vAnkle;
+				vToe.m128_f32[1] = hit.colPos.y;
+				hit.colPos = XMVECTORToVector4(&vToe);
+
+				applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos));
+			}
+			if(hit.IDInBody == 3 && hit.colType != Type::SPHEREVSSPHERE && hit.collider == m_Owner->getBodyHandles()[0])
+			{
+				hit.colPos.y += 5.0f;
+				applyIK_ReachPoint("RightLeg", Vector4ToXMFLOAT3(&hit.colPos));
+
+				DirectX::XMFLOAT3 anklePos = getJointPos("R_Ankle");
+				DirectX::XMFLOAT3 toePos = getJointPos("R_FootBase");
+				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
+				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
+
+				vToe = vToe - vAnkle;
+				vToe.m128_f32[1] = 0.f;
+			
+				vToe = DirectX::XMVector3Normalize(vToe);
+				vToe *= 20.0f;
+				vToe += vAnkle;
+				vToe.m128_f32[1] = hit.colPos.y;
+				hit.colPos = XMVECTORToVector4(&vToe);
+
+				applyIK_ReachPoint("RightFoot", Vector4ToXMFLOAT3(&hit.colPos));
+			}
+		}
+	}
+}

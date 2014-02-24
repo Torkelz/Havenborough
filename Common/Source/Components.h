@@ -1564,6 +1564,8 @@ public:
 	virtual const AnimationPath getAnimationData(std::string p_AnimatioId) const = 0;
 	virtual void playClimbAnimation(std::string p_ClimbID) = 0;
 	virtual void resetClimbState() = 0;
+	virtual void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos) = 0;
+	virtual void setPhysics(IPhysics *p_Physics) = 0;
 };
 
 class SpellInterface : public ActorComponent
