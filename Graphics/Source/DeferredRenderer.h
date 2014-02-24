@@ -183,5 +183,6 @@ private:
 	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects );
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
+	void updateLightProjection(float p_viewHW);
 	void renderDirectionalLights();
 };

@@ -69,11 +69,26 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 	float4 lightPos = mul(t, mul(lightProjection, mul(lightView, float4(position, 1.0f))));
 	lightPos.xyz /= lightPos.w;
 	lightPos.z *= 1.0f;
-	lightPos.z += -0.00f;
+	lightPos.z += -0.00005f;
 
-	float3 lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
-		specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, Blur(lightPos.xyz), CalcShadowFactor(lightPos.xyz));
-
+	
+	float3 lighting = 0;
+	if(2 / lightProjection._11 >= 5000.f)
+	{
+		if(lightPos.x < 0.4f || lightPos.x > 0.6f || lightPos.y < 0.4f || lightPos.y > 0.6f)
+		{
+			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
+				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, Blur(lightPos.xyz), CalcShadowFactor(lightPos.xyz));
+		}
+	}
+	else
+	{
+		if(lightPos.x > 0.f && lightPos.x < 1.f && lightPos.y > 0.f && lightPos.y < 1.f)
+		{
+			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
+				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, Blur(lightPos.xyz), CalcShadowFactor(lightPos.xyz));
+		}
+	}
 	return float4( lighting, 1.0f );
 }
 
@@ -84,6 +99,7 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3 specularAlbedo,
 	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor,	float3 ssao, float blurPercentage, float calcPercentage)
 {
+
 	float attenuation = 1.0f;
 	float3 L = -lightDirection;
 	L = mul(view, float4(L, 0.f)).xyz;
@@ -130,10 +146,12 @@ float CalcShadowFactor(float3 uv)
 	[unroll]
 	for(int i = 0; i < 21; i++)
 	{
-		value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x + (i - 10) * SMAP_DX, uv.y), uv.z) * coefficients[i];
+		value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x + (i - 10) * SMAP_DX, uv.y  + (i - 10) * SMAP_DX), uv.z) * coefficients[i];
 	}
 	percentLit = value;
+
 	return percentLit;
+
 }
 
 
@@ -158,5 +176,6 @@ float Blur(float3 uv)
 		B = ShadowMap.SampleCmpLevelZero(shadowMapSampler, uv.xy + Offsets[i], uv.z);
 		v = log_space(1.0, v, w, B);
 	}
+
 	return v;
 }
