@@ -31,6 +31,7 @@ Player::Player(void)
 	m_ManaRegenerationFast = 6.f;
 	m_IsAtMaxSpeed = false;
 	m_IsPreviousManaSet = false;
+	m_AllowedToMove = true;
 }
 
 Player::~Player(void)
@@ -105,11 +106,20 @@ void Player::update(float p_DeltaTime)
 
 	if(!m_ForceMove)
 	{
-		jump(p_DeltaTime);
-
-		if (!m_Physics->getBodyInAir(getBody()) || m_IsJumping)
+		if(m_AllowedToMove)
 		{
-			move(p_DeltaTime);
+			jump(p_DeltaTime);
+
+			if (!m_Physics->getBodyInAir(getBody()) || m_IsJumping)
+			{
+				move(p_DeltaTime);
+			}
+		}
+		else
+		{
+			std::shared_ptr<PhysicsInterface> comp = strActor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+			Vector3 fel = m_Physics->getBodyVelocity(comp->getBodyHandle());
+			m_Physics->setBodyVelocity(comp->getBodyHandle(), Vector3(0.f, fel.y, 0.f));
 		}
 	}
 	else
@@ -289,10 +299,13 @@ float Player::getMaxMana()
 
 void Player::setPosition(const XMFLOAT3 &p_Position)
 {
-	Vector3 kneePos = p_Position;
-	kneePos.y += getKneeHeight();
-	kneePos.y -= m_ClimbOffset;
-	m_Physics->setBodyPosition(getBody(), kneePos);
+	if(m_AllowedToMove)
+	{
+		Vector3 kneePos = p_Position;
+		kneePos.y += getKneeHeight();
+		kneePos.y -= m_ClimbOffset;
+		m_Physics->setBodyPosition(getBody(), kneePos);
+	}
 }
 
 XMFLOAT3 Player::getPosition(void) const
@@ -419,25 +432,28 @@ Vector3 Player::getDirection() const
 
 void Player::setJump(void)
 {
-	if(m_Physics->getBodyInAir(getBody()))
+	if(m_AllowedToMove)
 	{
-		m_JumpCount++;
-	}
+		if(m_Physics->getBodyInAir(getBody()))
+		{
+			m_JumpCount++;
+		}
 
-	if(!m_IsJumping && m_JumpCount < m_JumpCountMax)
-	{
-		//m_JumpCount++;
-		m_IsJumping = true;
+		if(!m_IsJumping && m_JumpCount < m_JumpCountMax)
+		{
+			//m_JumpCount++;
+			m_IsJumping = true;
 
-		Vector3 temp = m_Physics->getBodyVelocity(getBody());
-		temp.y = 0.f;
+			Vector3 temp = m_Physics->getBodyVelocity(getBody());
+			temp.y = 0.f;
 
-		temp.x = m_DirectionX * m_MaxSpeed / (m_JumpCount + 1);
-		temp.z = m_DirectionZ * m_MaxSpeed / (m_JumpCount + 1);
+			temp.x = m_DirectionX * m_MaxSpeed / (m_JumpCount + 1);
+			temp.z = m_DirectionZ * m_MaxSpeed / (m_JumpCount + 1);
 
-		m_Physics->setBodyVelocity(getBody(), temp);
+			m_Physics->setBodyVelocity(getBody(), temp);
 
-		m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
+			m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
+		}
 	}
 }
 
@@ -481,6 +497,11 @@ void Player::setClimbing(bool p_State)
 	m_Climb = p_State;
 }
 
+void Player::setAllowedToMove(bool p_State)
+{
+	m_AllowedToMove = p_State;
+}
+
 void Player::jump(float dt)
 {
 	if(m_IsJumping)
@@ -494,9 +515,9 @@ void Player::jump(float dt)
 		}
 	}
 	if(!m_IsJumping && !m_Physics->getBodyInAir(getBody()))
-    {
+	{
 		m_JumpCount = 0;
-    }
+	}
 
 	if(m_Physics->getBodyLanded(getBody()))
 	{

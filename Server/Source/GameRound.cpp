@@ -183,6 +183,7 @@ void GameRound::sendLevelAndWait()
 			}
 		}
 
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 
@@ -194,6 +195,32 @@ void GameRound::runGame()
 	std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point previousTime;
 	float deltaTime = 0.001f;
+
+	for (auto& player : m_Players)
+	{
+		User::ptr user = player->getUser().lock();
+
+		if (!user)
+		{
+			continue;
+		}
+
+		user->getConnection()->sendStartCountdown();
+	}
+
+	std::this_thread::sleep_for(std::chrono::seconds(3));
+	
+	for (auto& player : m_Players)
+	{
+		User::ptr user = player->getUser().lock();
+
+		if (!user)
+		{
+			continue;
+		}
+
+		user->getConnection()->sendDoneCountdown();
+	}
 
 	while (m_Running)
 	{

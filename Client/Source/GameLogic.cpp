@@ -128,6 +128,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
 {
+	const float dirLengthSq = p_Direction.x * p_Direction.x + p_Direction.y * p_Direction.y;
+	if (dirLengthSq > 1.f)
+	{
+		const float div = 1.f / sqrtf(dirLengthSq);
+		p_Direction = p_Direction * div;
+	}
 	m_PlayerDirection = p_Direction;
 }
 
@@ -747,6 +753,18 @@ void GameLogic::handleNetwork()
 				}
 				break;
 
+			case PackageType::START_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(false);
+					// TODO
+					// Start countdown logic and use draw countdown.
+				}
+				break;
+			case PackageType::DONE_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(true);
+				}
+				break;
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);

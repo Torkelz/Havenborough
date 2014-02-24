@@ -22,7 +22,6 @@ enum class RunScenes
 };
 class IScene
 {
-private:
 public: 
 	typedef std::shared_ptr<IScene> ptr;
 	
