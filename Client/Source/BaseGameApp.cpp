@@ -31,7 +31,7 @@ void BaseGameApp::init()
 	m_TimeToNextMemUpdate = 0.f;
 	m_TimeModifier = 1.f;
 	
-	m_Window.init(getGameTitle(), Vector2ToXMFLOAT2(&settings.getResolution()));
+	m_Window.init(getGameTitle(), settings.getResolution());
 	
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);

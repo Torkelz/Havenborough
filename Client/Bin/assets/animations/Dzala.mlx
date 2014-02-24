@@ -298,6 +298,66 @@ fo	1
 fof	5
 we	1.0
 
+*Clip
+na 	BodyLand
+sp 	1.0
+st 	522
+en 	545
+lo 	0
+f	Hip
+tr	4
+la	1
+fi	1
+fif	6
+fo	1
+fof	6
+we	0.5
+
+*Clip
+na 	SideJumpRight
+sp 	1.0
+st 	547
+en 	559
+lo 	1
+f	Hip
+tr	2
+la	0
+fi	1
+fif	5
+fo	0
+fof	0
+we	1.0
+
+*Clip
+na 	SideJumpLeft
+sp 	1.0
+st 	561
+en 	573
+lo 	1
+f	Hip
+tr	2
+la	0
+fi	1
+fif	5
+fo	0
+fof	0
+we	1.0
+
+*Clip
+na 	Wave
+sp 	1.0
+st 	233
+en 	299
+lo 	0
+f	L_UpperArm
+tr	4
+la	1
+fi	1
+fif	6
+fo	1
+fof	6
+we	1.0
+
 *IKgroup
 na	LeftArm
 b1	L_UpperArm

@@ -41,7 +41,7 @@ private:
 
 	float m_Height; 
 	float m_EyeHeight;
-
+	bool m_AllowedToMove;
 public:
 	/**
 	* Constructor
@@ -74,11 +74,6 @@ public:
 	* @param p_BoxOrientation the 2D orientation of the box
 	*/
 	virtual void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation);
-
-	/**
-	 * If the player is in a force move some IK groups might be locked onto points and need updating.
-	 */
-	void updateIKJoints();
 
 	/**
 	 * Sets the current mana. It isn't possible to set current mana higher than the Maximum mana and lower than 0.
@@ -245,6 +240,8 @@ public:
 	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
 	 */
 	void setClimbing(bool p_State);
+
+	void setAllowedToMove(bool p_State);
 
 private:
 	void jump(float dt);

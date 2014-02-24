@@ -5,6 +5,7 @@
 #include "ActorComponent.h"
 #include "Components.h"
 #include "EventManager.h"
+#include "IPhysics.h"
 
 class HumanAnimationComponent : public AnimationInterface
 {
@@ -61,6 +62,11 @@ private:
 	int m_AnimationResource;
 	AnimationLoader* m_AnimationLoader;
 
+	DirectX::XMFLOAT3 m_CenterReachPos;
+	DirectX::XMFLOAT3 m_EdgeOrientation;
+	IPhysics		*m_Physics;
+	std::string		m_ClimbId;
+
 public:
 	~HumanAnimationComponent()
 	{
@@ -87,6 +93,11 @@ public:
 		m_Animation.setAnimationData(m_AnimationLoader->getAnimationData(m_AnimationName.c_str()));
 	}
 
+	void setPhysics(IPhysics *p_Physics) override
+	{
+		m_Physics = p_Physics;
+	}
+
 	void postInit() override
 	{
 		m_Model = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId);
@@ -98,6 +109,19 @@ public:
 	{
 		updateAnimation();
 		m_Animation.updateAnimation(p_DeltaTime);
+
+		Vector3 left = getJointPos("L_Ankle");
+		left.y = left.y + 5.f;
+		m_Physics->setBodyVolumePosition(m_Owner->getBodyHandles()[0], 2, left);
+			
+		Vector3 right = getJointPos("R_Ankle");
+		right.y = right.y + 5.f;
+		m_Physics->setBodyVolumePosition(m_Owner->getBodyHandles()[0], 3, right);
+
+		Vector3 eye = getJointPos("Head");
+		m_Physics->setBodyVolumePosition(m_Owner->getBodyHandles()[0], 4, eye);
+
+		updateIKJoints();
 
 		std::shared_ptr<ModelComponent> comp = m_Model.lock();
 		if (comp)
@@ -169,10 +193,19 @@ public:
 	{
 		playAnimation(p_ClimbID, true);
 		m_ForceMove = true;
+		m_ClimbId = p_ClimbID;
 	}
 
 	void resetClimbState() override
 	{
 		m_ForceMove = false;
 	}
+
+	void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos) override
+	{
+		m_EdgeOrientation = p_EdgeOrientation;
+		m_CenterReachPos = p_CenterReachPos;
+	}
+
+	void updateIKJoints();
 };

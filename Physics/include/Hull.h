@@ -84,9 +84,9 @@ public:
 			c2 = DirectX::XMVector4Transform(c2, m);
 			c3 = DirectX::XMVector4Transform(c3, m);
 
-			tri.corners[0] = XMVECTORToVector4(&c1); 
-			tri.corners[1] = XMVECTORToVector4(&c2); 
-			tri.corners[2] = XMVECTORToVector4(&c3);
+			tri.corners[0] = c1; 
+			tri.corners[1] = c2; 
+			tri.corners[2] = c3;
 		}
 		float radius = findFarthestDistanceOnTriangle();
 		m_Sphere.setRadius(radius);
@@ -109,9 +109,9 @@ public:
 			c2 = XMVector4Transform(c2, p_Rotation);
 			c3 = XMVector4Transform(c3, p_Rotation);
 
-			tri.corners[0] = XMVECTORToVector4(&c1);
-			tri.corners[1] = XMVECTORToVector4(&c2);
-			tri.corners[2] = XMVECTORToVector4(&c3);
+			tri.corners[0] = c1;
+			tri.corners[1] = c2;
+			tri.corners[2] = c3;
 		}
 	}
 	/**
@@ -160,9 +160,9 @@ public:
 		Triangle triangle;
 		triangle = m_Triangles[p_Index];
 
-		triangle.corners[0] = triangle.corners[0] + XMFLOAT4ToVector4(&m_Position);
-		triangle.corners[1] = triangle.corners[1] + XMFLOAT4ToVector4(&m_Position);
-		triangle.corners[2] = triangle.corners[2] + XMFLOAT4ToVector4(&m_Position);
+		triangle.corners[0] = triangle.corners[0] + m_Position;
+		triangle.corners[1] = triangle.corners[1] + m_Position;
+		triangle.corners[2] = triangle.corners[2] + m_Position;
 
 		triangle.corners[0].w = 1.f;
 		triangle.corners[1].w = 1.f;

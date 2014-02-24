@@ -58,6 +58,9 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 	m_ResourceManager->registerFunction("animation",
 		std::bind(&AnimationLoader::loadAnimationDataResource, m_AnimationLoader.get(), _1, _2),
 		std::bind(&AnimationLoader::releaseAnimationData, m_AnimationLoader.get(), _1));
+	m_ResourceManager->registerFunction("spell",
+		std::bind(&SpellFactory::createSpellDefinition, m_SpellFactory.get(), _1, _2),
+		std::bind(&SpellFactory::releaseSpellDefinition, m_SpellFactory.get(), _1));
 
 	m_ActorFactory->setEventManager(m_EventManager.get());
 	m_ActorFactory->setPhysics(m_Physics);
@@ -180,6 +183,7 @@ void GameRound::sendLevelAndWait()
 			}
 		}
 
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 
@@ -191,6 +195,32 @@ void GameRound::runGame()
 	std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point previousTime;
 	float deltaTime = 0.001f;
+
+	for (auto& player : m_Players)
+	{
+		User::ptr user = player->getUser().lock();
+
+		if (!user)
+		{
+			continue;
+		}
+
+		user->getConnection()->sendStartCountdown();
+	}
+
+	std::this_thread::sleep_for(std::chrono::seconds(3));
+	
+	for (auto& player : m_Players)
+	{
+		User::ptr user = player->getUser().lock();
+
+		if (!user)
+		{
+			continue;
+		}
+
+		user->getConnection()->sendDoneCountdown();
+	}
 
 	while (m_Running)
 	{
