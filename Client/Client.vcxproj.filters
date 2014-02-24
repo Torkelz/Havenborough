@@ -175,5 +175,6 @@
     <FxCompile Include="Bin\assets\shaders\HUD_Shader.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\BillboardShader.hlsl" />
   </ItemGroup>
 </Project>

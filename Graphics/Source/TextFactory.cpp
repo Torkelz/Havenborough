@@ -45,13 +45,9 @@ void TextFactory::shutdown()
 	m_TextResources.clear();
 }
 
-int TextFactory::createText(std::string p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_TextureSize,
 	const char *p_Font, float p_FontSize, Vector4 p_Color)
 {
-	if(m_TextResources.count(p_Identifier) > 0)
-		throw TextureCreationException("Tried to create an already existing text with identifier: " + p_Identifier,
-		__LINE__, __FILE__);
-
 	IDWriteTextFormat *textFormat = nullptr;
 	ID2D1RenderTarget *renderTarget = nullptr;
 	ID2D1SolidColorBrush *brush = nullptr;
@@ -82,10 +78,10 @@ int TextFactory::createText(std::string p_Identifier, const wchar_t *p_Text, Vec
 							p_Color.w), &brush);
 						if(SUCCEEDED(hr))
 						{
-							m_TextResources.insert(std::pair<std::string, TextResource>(p_Identifier, 
+							m_TextResources.insert(std::pair<Text_Id, TextResource>(m_NextTextId, 
 								TextResource(renderTarget, SRV, textFormat, brush,
 								D2D1::RectF(0.0f, 0.0f,	p_TextureSize.x, p_TextureSize.y), p_Text)));
-							m_TextResources.at(p_Identifier).draw();
+							m_TextResources.at(m_NextTextId).draw();
 						}
 					}
 				}
@@ -103,17 +99,13 @@ int TextFactory::createText(std::string p_Identifier, const wchar_t *p_Text, Vec
 		throw TextureCreationException("Text to texture creation failed.", __LINE__, __FILE__);
 	}
 
-	return ++m_NextTextId;
+	return m_NextTextId++;
 }
 
-int TextFactory::createText(std::string p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_TextureSize,
 	const char *p_Font, float p_FontSize, Vector4 p_Color, TEXT_ALIGNMENT p_TextAlignment,
 	PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping)
 {
-	if(m_TextResources.count(p_Identifier) > 0)
-		throw TextureCreationException("Tried to create an already existing text with identifier: " + p_Identifier,
-		__LINE__, __FILE__);
-
 	IDWriteTextFormat *textFormat = nullptr;
 	ID2D1RenderTarget *renderTarget = nullptr;
 	ID2D1SolidColorBrush *brush = nullptr;
@@ -144,10 +136,10 @@ int TextFactory::createText(std::string p_Identifier, const wchar_t *p_Text, Vec
 							p_Color.w), &brush);
 						if(SUCCEEDED(hr))
 						{
-							m_TextResources.insert(std::pair<std::string, TextResource>(p_Identifier, 
+							m_TextResources.insert(std::pair<Text_Id, TextResource>(m_NextTextId, 
 								TextResource(renderTarget, SRV, textFormat, brush,
 								D2D1::RectF(0.0f, 0.0f, p_TextureSize.x, p_TextureSize.y), p_Text)));
-							m_TextResources.at(p_Identifier).draw();
+							m_TextResources.at(m_NextTextId).draw();
 
 						}
 					}
@@ -166,10 +158,10 @@ int TextFactory::createText(std::string p_Identifier, const wchar_t *p_Text, Vec
 		throw TextureCreationException("Text to texture creation failed.", __LINE__, __FILE__);
 	}
 
-	return ++m_NextTextId;
+	return m_NextTextId++;
 }
 
-void TextFactory::updateText(std::string p_Identifier, const wchar_t *p_Text)
+void TextFactory::updateText(Text_Id p_Identifier, const wchar_t *p_Text)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
@@ -177,19 +169,21 @@ void TextFactory::updateText(std::string p_Identifier, const wchar_t *p_Text)
 		m_TextResources.at(p_Identifier).draw();
 	}
 	else
-		throw TextureCreationException("Failed to update text with identifier: " + p_Identifier, __LINE__, __FILE__);
+		throw TextureCreationException("Failed to update text with identifier: " +
+		std::to_string(p_Identifier), __LINE__, __FILE__);
 }
 
-void TextFactory::deleteText(std::string p_Identifier)
+void TextFactory::deleteText(Text_Id p_Identifier)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 		m_TextResources.erase(p_Identifier);
 	else
-		throw TextureCreationException("Failed to delete text with identifier: " + p_Identifier, __LINE__, __FILE__);
+		throw TextureCreationException("Failed to delete text with identifier: " + 
+		std::to_string(p_Identifier), __LINE__, __FILE__);
 
 }
 
-void TextFactory::setTextColor(std::string p_Identifier, Vector4 p_Color)
+void TextFactory::setTextColor(Text_Id p_Identifier, Vector4 p_Color)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
@@ -197,12 +191,12 @@ void TextFactory::setTextColor(std::string p_Identifier, Vector4 p_Color)
 		m_TextResources.at(p_Identifier).draw();
 	}
 	else
-		throw TextureCreationException("Failed to delete text with identifier: " + p_Identifier, __LINE__, __FILE__);
+		throw TextureCreationException("Failed to delete text with identifier: " + 
+		std::to_string(p_Identifier), __LINE__, __FILE__);
 
 }
 
-
-void TextFactory::setBackgroundColor(std::string p_Identifier, Vector4 p_Color)
+void TextFactory::setBackgroundColor(Text_Id p_Identifier, Vector4 p_Color)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
@@ -210,24 +204,12 @@ void TextFactory::setBackgroundColor(std::string p_Identifier, Vector4 p_Color)
 		m_TextResources.at(p_Identifier).draw();
 	}
 	else
-		throw TextureCreationException("Failed to delete text with identifier: " + p_Identifier, __LINE__, __FILE__);
+		throw TextureCreationException("Failed to delete text with identifier: " + 
+		std::to_string(p_Identifier), __LINE__, __FILE__);
 
 }
 
-
-void TextFactory::setTextSize(std::string p_Identifier, float p_Size)
-{
-	if(m_TextResources.count(p_Identifier) > 0)
-	{
-		//m_TextResources.at(p_Identifier).m_TextFormat
-		m_TextResources.at(p_Identifier).draw();
-	}
-	else
-		throw TextureCreationException("Failed to delete text with identifier: " + p_Identifier, __LINE__, __FILE__);
-
-}
-
-void TextFactory::setTextAlignment(std::string p_Identifier, TEXT_ALIGNMENT p_Alignment)
+void TextFactory::setTextAlignment(Text_Id p_Identifier, TEXT_ALIGNMENT p_Alignment)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
@@ -235,11 +217,12 @@ void TextFactory::setTextAlignment(std::string p_Identifier, TEXT_ALIGNMENT p_Al
 		m_TextResources.at(p_Identifier).draw();
 	}
 	else
-		throw TextureCreationException("Failed to delete text with identifier: " + p_Identifier, __LINE__, __FILE__);
+		throw TextureCreationException("Failed to delete text with identifier: " + 
+		std::to_string(p_Identifier), __LINE__, __FILE__);
 
 }
 
-void TextFactory::setParagraphAlignment(std::string p_Identifier, PARAGRAPH_ALIGNMENT p_Alignment)
+void TextFactory::setParagraphAlignment(Text_Id p_Identifier, PARAGRAPH_ALIGNMENT p_Alignment)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
@@ -247,11 +230,12 @@ void TextFactory::setParagraphAlignment(std::string p_Identifier, PARAGRAPH_ALIG
 		m_TextResources.at(p_Identifier).draw();
 	}
 	else
-		throw TextureCreationException("Failed to delete text with identifier: " + p_Identifier, __LINE__, __FILE__);
+		throw TextureCreationException("Failed to delete text with identifier: " +
+		std::to_string(p_Identifier), __LINE__, __FILE__);
 
 }
 
-void TextFactory::setWordWrapping(std::string p_Identifier, WORD_WRAPPING p_Wrapping)
+void TextFactory::setWordWrapping(Text_Id p_Identifier, WORD_WRAPPING p_Wrapping)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
@@ -259,16 +243,17 @@ void TextFactory::setWordWrapping(std::string p_Identifier, WORD_WRAPPING p_Wrap
 		m_TextResources.at(p_Identifier).draw();
 	}
 	else
-		throw TextureCreationException("Failed to delete text with identifier: " + p_Identifier, __LINE__, __FILE__);
+		throw TextureCreationException("Failed to delete text with identifier: " + 
+		std::to_string(p_Identifier), __LINE__, __FILE__);
 }
 
-ID3D11ShaderResourceView *TextFactory::getSRV(std::string p_Identifier) const
+ID3D11ShaderResourceView *TextFactory::getSRV(Text_Id p_Identifier) const
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 		return m_TextResources.at(p_Identifier).getSRV();
 	else
-		throw TextureCreationException("Failed to get ShaderResourceView with identifier: " + p_Identifier,
-		__LINE__, __FILE__);
+		throw TextureCreationException("Failed to get ShaderResourceView with identifier: " +
+		std::to_string(p_Identifier), __LINE__, __FILE__);
 }
 
 ID3D11ShaderResourceView *TextFactory::createSRV(Vector2 p_TextureSize)

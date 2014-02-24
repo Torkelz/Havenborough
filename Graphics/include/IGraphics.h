@@ -267,15 +267,15 @@ public:
 	/**
 	* 
 	*/
-	virtual Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
-		const char *p_Font, float p_FontSize, Vector4 p_FontColor) = 0;
+	virtual Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,
+		Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation) = 0;
 
 	/**
 	* 
 	*/
-	virtual Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
-		const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
-		PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping) = 0;
+	virtual Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,
+		Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment, PARAGRAPH_ALIGNMENT p_ParagraphAlignment, 
+		WORD_WRAPPING p_WordWrapping, Vector3 p_Position, float p_Scale, float p_Rotation) = 0;
 
 	/**
 	 * Creates a point light which is removed after each draw.
