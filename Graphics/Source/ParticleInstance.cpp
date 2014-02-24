@@ -5,7 +5,7 @@
 ParticleInstance::ParticleInstance()
 {
 	m_SysPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); // change pos in the "GameLogic.cpp - LoadSandBox()" createParticles for local play
-
+	m_SysRotation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
 	m_AccumulatedTime = 0.f;
 }
 
@@ -86,6 +86,14 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 			m_ParticleEffectDef->velocitybase.y + velDistributionY(m_RandomEngine),
 			m_ParticleEffectDef->velocitybase.z + velDistributionZ(m_RandomEngine));
 
+		DirectX::XMMATRIX tempRotationM = DirectX::XMMatrixRotationRollPitchYaw(m_SysRotation.y, 
+																				m_SysRotation.x, 
+																				m_SysRotation.z);
+		DirectX::XMVECTOR tempVEC = DirectX::XMLoadFloat3(&randVel);
+
+		tempVEC = DirectX::XMVector3Transform(tempVEC, tempRotationM);
+
+		DirectX::XMStoreFloat3(&randVel, tempVEC);
 
 		//Position
 		std::uniform_real_distribution<float> posDistribution(-m_ParticleEffectDef->particlePositionDeviation, m_ParticleEffectDef->particlePositionDeviation);
@@ -177,3 +185,12 @@ DirectX::XMFLOAT4X4 ParticleInstance::getWorldMatrix() const
 	return worldF;
 }
 
+DirectX::XMFLOAT3 ParticleInstance::getSysRotation() const
+{
+	return m_SysRotation;
+}
+
+void ParticleInstance::setSysRotation(DirectX::XMFLOAT3 p_NewSysRotation)
+{
+	m_SysRotation = p_NewSysRotation;
+}

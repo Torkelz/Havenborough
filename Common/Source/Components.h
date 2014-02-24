@@ -1543,6 +1543,11 @@ public:
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateParticlePositionEventData(m_ParticleId, p_Position)));
 	}
 
+	void setRotation(Vector3 p_Rotation) override
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateParticleRotationEventData(m_ParticleId, p_Rotation)));
+	}
+
 	/**
 	 * Get the unique id of the particle effect.
 	 *

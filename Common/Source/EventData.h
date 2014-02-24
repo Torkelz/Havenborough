@@ -793,6 +793,51 @@ public:
 	}
 };
 
+class UpdateParticleRotationEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	Vector3 m_Rotation;
+
+public:
+	static const Type sk_EventType = Type(0xd02a90fc);
+
+	UpdateParticleRotationEventData(unsigned int p_Id, Vector3 p_Rotation)
+		:	m_Id(p_Id),
+		m_Rotation(p_Rotation)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateParticleRotationEventData(m_Id, m_Rotation));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateParticleRotationEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+
+	Vector3 getRotation() const
+	{
+		return m_Rotation;
+	}
+};
+
 class RemoveActorEventData : public BaseEventData
 {
 private:

@@ -43,6 +43,17 @@
 		<Velocity vbX="100.0" vbY="15.0" vbZ="100.0" vdX="200.0" vdY="50.0" vdZ="200.0"/>
 		<Color cbX="0.4" cbY="0.0" cbZ="0.6" cbA="0.2" cdX="0.2" cdY="0.0" cdZ="0.2" cdA="0.2"/>
 	</Effect>
+	<Effect effectName="waterSpray">
+		<Texture resourceName="Particle1.dds"/>
+		<MaxCount maxParticles="900"/>
+		<EmitPerSec particlesPerSec="900"/>
+		<BaseLife maxLife="1.0"/>
+		<LifeDeviation maxLifeDeviation="0.05"/>
+		<Size sX="5.0" sY="5.0"/>
+		<PositionDeviation positionDeviation="0.002"/>
+		<Velocity vbX="100.0" vbY="11.0" vbZ="0.0" vdX="0.0" vdY="0.0" vdZ="0.0"/>
+		<Color cbX="0.0" cbY="0.0" cbZ="0.8" cbA="0.1" cdX="0.0" cdY="0.0" cdZ="0.1" cdA="0.02"/>
+	</Effect>
 </Particle>
 <!--
 //A basic description for creating a particle definition or finding what something are.

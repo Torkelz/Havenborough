@@ -57,6 +57,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffectInstance), RemoveParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	preLoadModels();
@@ -458,7 +459,6 @@ void GameScene::removeParticleEffectInstance(IEventData::Ptr p_Data)
 	}
 }
 
-
 void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<UpdateParticlePositionEventData> data = std::static_pointer_cast<UpdateParticlePositionEventData>(p_Data);
@@ -468,6 +468,18 @@ void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 	if (it != m_Particles.end())
 	{
 		m_Graphics->setParticleEffectPosition(it->second.instance, data->getPosition());
+	}
+}
+
+void GameScene::updateParticleRotation(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateParticleRotationEventData> data = std::static_pointer_cast<UpdateParticleRotationEventData>(p_Data);
+
+	auto it = m_Particles.find(data->getId());
+
+	if (it != m_Particles.end())
+	{
+		m_Graphics->setParticleEffectRotation(it->second.instance, data->getRotation());
 	}
 }
 
