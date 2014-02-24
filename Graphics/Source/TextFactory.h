@@ -15,6 +15,7 @@
 class TextFactory
 {
 private:
+	typedef int Text_Id;
 	ID2D1Factory *m_D2DFactory;
 	IDWriteFactory *m_WriteFactory;
 	ID3D11Device *m_Device;
@@ -22,7 +23,7 @@ private:
 	Vector2 m_Dpi;
 	D2D1_RENDER_TARGET_PROPERTIES m_DefaultProperties;
 	
-	std::map<std::string, TextResource> m_TextResources;
+	std::map<Text_Id, TextResource> m_TextResources;
 
 	int m_NextTextId;
 public:
@@ -32,9 +33,9 @@ public:
 	void initialize(ID3D11Device *p_Device);
 	void shutdown(void);
 
-	int createText(std::string p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize,
 		const char *p_Font, float p_FontSize, Vector4 p_Color);
-	int createText(std::string p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize,
 		const char *p_Font, float p_FontSize, Vector4 p_Color, TEXT_ALIGNMENT p_TextAlignment,
 		PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping);
 
@@ -43,17 +44,17 @@ public:
 	* @param p_Identifier the ID of the text object to be changed
 	* @param p_Text the text to be rendered
 	*/
-	void updateText(std::string p_Identifier, const wchar_t *p_Text);
+	void updateText(Text_Id p_Identifier, const wchar_t *p_Text);
 
-	void deleteText(std::string p_Identifier);
-	void setTextColor(std::string p_Identifier, Vector4 p_Color);
-	void setBackgroundColor(std::string p_Identifier, Vector4 p_Color);
-	void setTextSize(std::string p_Identifier, float p_Size);
-	void setTextAlignment(std::string p_Identifier, TEXT_ALIGNMENT p_Alignment);
-	void setParagraphAlignment(std::string p_Identifier, PARAGRAPH_ALIGNMENT p_Alignment);
-	void setWordWrapping(std::string p_Identifier, WORD_WRAPPING p_Wrapping);
+	void deleteText(Text_Id p_Identifier);
+	void setTextColor(Text_Id p_Identifier, Vector4 p_Color);
+	void setBackgroundColor(Text_Id p_Identifier, Vector4 p_Color);
+	void setTextSize(Text_Id p_Identifier, float p_Size);
+	void setTextAlignment(Text_Id p_Identifier, TEXT_ALIGNMENT p_Alignment);
+	void setParagraphAlignment(Text_Id p_Identifier, PARAGRAPH_ALIGNMENT p_Alignment);
+	void setWordWrapping(Text_Id p_Identifier, WORD_WRAPPING p_Wrapping);
 
-	ID3D11ShaderResourceView *getSRV(std::string p_Identifier) const;
+	ID3D11ShaderResourceView *getSRV(Text_Id p_Identifier) const;
 
 private:
 	ID3D11ShaderResourceView *createSRV(Vector2 p_TextureSize);

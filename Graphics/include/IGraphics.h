@@ -267,13 +267,13 @@ public:
 	/**
 	* 
 	*/
-	virtual Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+	virtual Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize,
 		const char *p_Font, float p_FontSize, Vector4 p_FontColor) = 0;
 
 	/**
 	* 
 	*/
-	virtual Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
+	virtual Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize,
 		const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
 		PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping) = 0;
 
