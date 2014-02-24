@@ -216,7 +216,7 @@ void HumanAnimationComponent::updateIKJoints()
 		{
 			XMVECTOR reachPointR;
 			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 0);
-			Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
+			Vector3 vReachPointR = Vector4(reachPointR).xyz();
 			applyIK_ReachPoint("RightArm", vReachPointR);
 		}
 
@@ -224,11 +224,11 @@ void HumanAnimationComponent::updateIKJoints()
 		{
 			XMVECTOR reachPoint;
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
-			Vector3 vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			Vector3 vReachPoint = Vector4(reachPoint).xyz();
 			applyIK_ReachPoint("RightArm", vReachPoint);
 
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
-			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			vReachPoint = Vector4(reachPoint).xyz();
 			applyIK_ReachPoint("LeftArm", vReachPoint);
 		}
 		
@@ -236,11 +236,11 @@ void HumanAnimationComponent::updateIKJoints()
 		{
 			XMVECTOR reachPoint;
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
-			Vector3 vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			Vector3 vReachPoint = Vector4(reachPoint).xyz();
 			applyIK_ReachPoint("RightArm", vReachPoint);
 
 			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
-			vReachPoint = XMVECTORToVector4(&reachPoint).xyz();
+			vReachPoint = Vector4(reachPoint).xyz();
 			applyIK_ReachPoint("LeftArm", vReachPoint);
 		}
 	}
@@ -269,7 +269,7 @@ void HumanAnimationComponent::updateIKJoints()
 				vToe *= 20.0f;
 				vToe += vAnkle;
 				vToe.m128_f32[1] = hit.colPos.y;
-				hit.colPos = XMVECTORToVector4(&vToe);
+				hit.colPos = vToe;
 
 				applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos));
 			}
@@ -290,7 +290,7 @@ void HumanAnimationComponent::updateIKJoints()
 				vToe *= 20.0f;
 				vToe += vAnkle;
 				vToe.m128_f32[1] = hit.colPos.y;
-				hit.colPos = XMVECTORToVector4(&vToe);
+				hit.colPos = vToe;
 
 				applyIK_ReachPoint("RightFoot", Vector4ToXMFLOAT3(&hit.colPos));
 			}
