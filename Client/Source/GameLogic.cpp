@@ -43,6 +43,9 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_Connected = false;
 	m_InGame = false;
 	m_PlayingLocal = true;
+
+	m_PlayerTimeDifference = 0.f;
+	m_PlayerPositionInRace = 0;
 }
 
 void GameLogic::shutdown(void)
@@ -671,10 +674,8 @@ void GameLogic::handleNetwork()
 						tinyxml2::XMLElement* object = reader.FirstChildElement("RacePositions");
 						if(object->Attribute("Type", "Place"))
 						{
-							int racePosition = 0;
-							float timeDiff = 0.f;
-							object->QueryAttribute("Place", &racePosition);	
-							object->QueryAttribute("Time", &timeDiff);
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
+							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							int lol = 0;
 						}
 					}

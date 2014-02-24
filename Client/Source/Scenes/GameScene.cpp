@@ -4,7 +4,7 @@
 #include <EventData.h>
 #include "Logger.h"
 #include <TweakSettings.h>
-
+#include <sstream>
 using namespace DirectX;
 
 GameScene::GameScene()
@@ -196,6 +196,22 @@ void GameScene::render()
 	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
 	m_Graphics->render2D_Object(m_GUI_ArrowId);
 	m_Graphics->render2D_Object(2);
+	m_Graphics->render2D_Object(3);
+
+	std::stringstream ss;
+	ss.precision(2);
+	float timeDiff = m_GameLogic->getPlayerTimeDifference();
+	float floorTimeDiff = floorf(timeDiff);
+	float timeDiffFrac = (timeDiff - floorTimeDiff) * 100.f;
+
+	if(floorTimeDiff > 9.99f)
+		ss << floorTimeDiff << "." << timeDiffFrac;
+	else
+		ss << "0" << floorTimeDiff << "." << timeDiffFrac;
+
+	std::string hej = ss.str();
+
+	m_Graphics->updateText(1, std::wstring(hej.begin(), hej.end()).c_str());
 }
 
 bool GameScene::getIsVisible()
@@ -507,6 +523,9 @@ void GameScene::preLoadModels()
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
 	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
+	std::string tt = "Bla: " + std::to_string(m_GameLogic->getPlayerTimeDifference());
+	m_Graphics->createText(std::wstring(tt.begin(), tt.end()).c_str(), Vector2(80.f, 50.f), "Verdana", 12.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f);
+	m_Graphics->create2D_Object(Vector3(400, -320, 2), Vector3(1,1,1), 0.f, 1);
 }
 
 void GameScene::releasePreLoadedModels()
