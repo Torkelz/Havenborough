@@ -305,4 +305,7 @@ public:
 	virtual const char* getThrowSpellName(Package p_Package) = 0;
 	virtual Vector3 getThrowSpellStartPosition(Package p_Package) = 0;
 	virtual Vector3 getThrowSpellDirection(Package p_Package) = 0;
+
+	virtual void sendStartCountdown() = 0;
+	virtual void sendDoneCountdown() = 0;
 };

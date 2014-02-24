@@ -35,6 +35,8 @@ enum class PackageType : uint16_t
 	RESULT_GAME,
 	SET_SPAWN,
 	THROW_SPELL,
+	START_COUNTDOWN,
+	DONE_COUNTDOWN,
 };
 
 struct ObjectInstance

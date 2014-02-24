@@ -370,3 +370,15 @@ void ConnectionController::savePackageCallBack(uint16_t p_ID, const std::string&
 	std::string msg("Received unregistered package type: " + std::to_string(p_ID));
 	NetworkLogger::log(NetworkLogger::Level::WARNING, msg);
 }
+
+void ConnectionController::sendStartCountdown()
+{
+	StartCountdown package;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+void ConnectionController::sendDoneCountdown()
+{
+	DoneCountdown package;
+	writeData(package.getData(), (uint16_t)package.getType());
+}

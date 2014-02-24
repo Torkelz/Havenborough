@@ -105,6 +105,9 @@ public:
 	Vector3 getThrowSpellStartPosition(Package p_Package) override;
 	Vector3 getThrowSpellDirection(Package p_Package) override;
 
+	void sendStartCountdown() override;
+	void sendDoneCountdown() override;
+
 	/**
 	 * Start the listening loop on the connection.
 	 */

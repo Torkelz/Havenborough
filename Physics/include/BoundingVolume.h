@@ -102,10 +102,5 @@ public:
 		m_IDInBody = p_IDInBody;
 	}
 
-	int getIDInBody() const
-	{
-		return m_IDInBody;
-	}
-
 	virtual ~BoundingVolume(){};
 };

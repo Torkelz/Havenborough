@@ -370,7 +370,7 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 
 BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 {
-	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable, p_IsEdge);
+	m_Bodies.emplace_back(p_Mass, BoundingVolume::ptr(p_BoundingVolume), p_IsImmovable, p_IsEdge);
 	m_Bodies.back().setGravity(m_GlobalGravity);
 	return m_Bodies.back().getHandle();
 }

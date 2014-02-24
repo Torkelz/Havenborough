@@ -124,7 +124,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 	
 	m_Actors->onUpdate(p_DeltaTime);
 	m_Player.update(p_DeltaTime);
-	m_Player.updateIKJoints();
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -720,6 +719,12 @@ void GameLogic::handleNetwork()
 						Actor::ptr actor = getActor(actorId);
 						const char* climbId = action->Attribute("Animation");
 
+						Vector3 orientation = Vector3(0.f, 1.f, 1.f);
+						Vector3 center = Vector3(0.f, 0.f, 0.f);
+
+						queryVector(action->FirstChildElement("Orientation"), orientation);
+						queryVector(action->FirstChildElement("Center"), center);
+
 						if (actor && climbId)
 						{
 							std::shared_ptr<AnimationInterface> comp = 
@@ -727,6 +732,7 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->playClimbAnimation(climbId);
+								comp->updateIKData(orientation, center);
 							}
 						}
 					}
@@ -771,6 +777,18 @@ void GameLogic::handleNetwork()
 				}
 				break;
 
+			case PackageType::START_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(false);
+					// TODO
+					// Start countdown logic and use draw countdown.
+				}
+				break;
+			case PackageType::DONE_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(true);
+				}
+				break;
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);
