@@ -140,6 +140,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Graphics\Source\SimpleText.cpp" />
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
     <ClCompile Include="..\Graphics\Source\TextFactory.cpp" />
+    <ClCompile Include="..\Graphics\Source\TextRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\TextResource.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp" />

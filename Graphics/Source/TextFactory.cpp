@@ -99,7 +99,7 @@ TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_Te
 		throw TextureCreationException("Text to texture creation failed.", __LINE__, __FILE__);
 	}
 
-	return ++m_NextTextId;
+	return m_NextTextId++;
 }
 
 TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_TextureSize,
@@ -158,7 +158,7 @@ TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_Te
 		throw TextureCreationException("Text to texture creation failed.", __LINE__, __FILE__);
 	}
 
-	return ++m_NextTextId;
+	return m_NextTextId++;
 }
 
 void TextFactory::updateText(Text_Id p_Identifier, const wchar_t *p_Text)

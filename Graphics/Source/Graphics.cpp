@@ -39,6 +39,7 @@ Graphics::Graphics(void)
 	m_DeferredRender = nullptr;
 	m_ForwardRenderer = nullptr;
 	m_ScreenRenderer = nullptr;
+	m_TextRenderer = nullptr;
 
 	m_ConstantBuffer = nullptr;
 	m_BVBuffer = nullptr;
@@ -213,6 +214,11 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_ScreenRenderer->initialize(m_Device, m_DeviceContext, &m_ViewMatrix, 
 		XMFLOAT4((float)p_ScreenWidth, (float)p_ScreenHeight, 0.f, (float)p_ScreenWidth), m_DepthStencilView, m_RenderTargetView);
 
+	//Text renderer
+	m_TextRenderer = new TextRenderer();
+	m_TextRenderer->initialize(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix,
+		m_RenderTargetView);
+
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
 	m_BVBufferNumOfElements = 100;
@@ -245,6 +251,8 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_TextFactory.setBackgroundColor(1, Vector4(1,0,0,1));
 	m_TextFactory.setWordWrapping(1, WORD_WRAPPING::NO_WRAP);
 	m_TextFactory.setTextColor(1, Vector4(1,1,1,1));
+
+	createText(L"TROLOLol", Vector2(320.f, 320.f), "Gabriola", 48.f, Vector4(1,0,1,1), Vector3(0,300,0), 1.f, 0.f);
 	return true;
 }
 
@@ -335,6 +343,7 @@ void Graphics::shutdown(void)
 	SAFE_DELETE(m_DeferredRender);
 	SAFE_DELETE(m_ForwardRenderer);
 	SAFE_DELETE(m_ScreenRenderer);
+	SAFE_DELETE(m_TextRenderer);
 
 	//Clear lights
 	m_PointLights.clear();
@@ -584,18 +593,24 @@ IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_S
 	return m_Next2D_ObjectId++;
 }
 
-IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_TextureSize,
-	const char *p_Font, float p_FontSize, Vector4 p_FontColor)
+IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font,
+	float p_FontSize, Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation)
 {
-	return m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor);
+	Text_Id id = m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor);
+	m_TextRenderer->addTextObject(id, TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id)));
+	return id;
 }
 
-IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_TextureSize,
-	const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
-	PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping)
+IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font,
+	float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment, PARAGRAPH_ALIGNMENT p_ParagraphAlignment,
+	WORD_WRAPPING p_WordWrapping, Vector3 p_Position, float p_Scale, float p_Rotation)
 {
-	return m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor,
+	Text_Id id = m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor,
 		p_TextAlignment, p_ParagraphAlignment, p_WordWrapping);
+	m_TextRenderer->addTextObject(id, TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id)));
+	return id;
 }
 
 void Graphics::render2D_Object(Object2D_Id p_Id)
@@ -703,8 +718,8 @@ void Graphics::drawFrame(void)
 	{
 		m_ShaderList.at("DebugDeferredShader")->setShader();
 		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, 
-			//m_DeferredRender->getRT(m_SelectedRenderTarget));
-			m_TextFactory.getSRV(1));
+			m_DeferredRender->getRT(m_SelectedRenderTarget));
+			//m_TextFactory.getSRV(1));
 		m_ShaderList.at("DebugDeferredShader")->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
 		m_ShaderList.at("DebugDeferredShader")->unSetShader();
@@ -717,6 +732,8 @@ void Graphics::drawFrame(void)
 			m_ForwardRenderer->addRenderable(particle.second);
 		}
 		m_ForwardRenderer->renderForward();
+		m_TextRenderer->renderTextObject(2);
+		m_TextRenderer->renderFrame();
 		drawBoundingVolumes();
 		m_ScreenRenderer->renderScreen();
 

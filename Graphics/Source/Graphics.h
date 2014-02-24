@@ -12,13 +12,14 @@
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
 #include "ForwardRendering.h"
+#include "ScreenRenderer.h"
+#include "TextRenderer.h"
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
 #include "ModelInstance.h"
 #include "ModelDefinition.h"
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
-#include "ScreenRenderer.h"
 #include "TextFactory.h"
 
 class Graphics : public IGraphics
@@ -74,6 +75,7 @@ private:
 	DeferredRenderer *m_DeferredRender;
 	ForwardRendering *m_ForwardRenderer;
 	ScreenRenderer *m_ScreenRenderer;
+	TextRenderer *m_TextRenderer;
 		
 	//Lights
 	std::vector<Light> m_SpotLights;
@@ -136,11 +138,11 @@ public:
 	Object2D_Id create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) override;
 
-	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize,
-		const char *p_Font, float p_FontSize, Vector4 p_FontColor) override;
-	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize,
-		const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
-		PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping) override;
+	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,
+		Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation) override;
+	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,
+		Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment, PARAGRAPH_ALIGNMENT p_ParagraphAlignment,
+		WORD_WRAPPING p_WordWrapping, Vector3 p_Position, float p_Scale, float p_Rotation) override;
 
 	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
 	void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
