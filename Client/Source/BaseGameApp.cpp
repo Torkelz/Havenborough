@@ -60,7 +60,8 @@ void BaseGameApp::init()
 	m_Sound->setLogFunction(&Logger::logRaw);
 	m_Sound->initialize();
 
-	using namespace std::placeholders;
+	using std::placeholders::_1;
+	using std::placeholders::_2;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager.get());
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager.get());
 
@@ -140,7 +141,7 @@ void BaseGameApp::init()
 
 	m_CommandManager.reset(new CommandManager);
 	m_CommandManager->registerCommand(Command::ptr(new TweakCommand));
-	m_ConsoleReader.reset(new ConsoleReader(m_CommandManager));
+	m_ConsoleReader.reset(new StreamReader(m_CommandManager, std::cin));
 }
 
 void BaseGameApp::run()
