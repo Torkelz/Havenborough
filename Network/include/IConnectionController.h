@@ -300,6 +300,13 @@ public:
 	virtual Vector3 getThrowSpellStartPosition(Package p_Package) = 0;
 	virtual Vector3 getThrowSpellDirection(Package p_Package) = 0;
 
+	/**
+	 * Send a package to start countdown on clients.
+	 */
 	virtual void sendStartCountdown() = 0;
+
+	/**
+	 * Send a package to release players from countdown freeze.
+	 */
 	virtual void sendDoneCountdown() = 0;
 };
