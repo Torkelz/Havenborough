@@ -221,7 +221,7 @@ public:
 	}
 };
 
-class TextureCreationException : public GraphicsException
+class TextFactoryException : public GraphicsException
 {
 public:
 	/**
@@ -231,7 +231,7 @@ public:
 		* @param p_Line The line of the exception (use __LINE__)
 		* @param p_File The file of the exception (use __FILE__)
 		*/
-	TextureCreationException(const std::string& p_What, int p_Line, const std::string& p_File)
+	TextFactoryException(const std::string& p_What, int p_Line, const std::string& p_File)
 			: GraphicsException(p_What, p_Line, p_File)
 	{
 	}

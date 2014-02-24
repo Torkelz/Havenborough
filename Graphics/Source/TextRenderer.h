@@ -62,9 +62,20 @@ private:
 	ID3D11BlendState *m_TransparencyAdditiveBlend;
 
 public:
+	/**
+	* Constructor.
+	*/
 	TextRenderer(void);
+
+	/**
+	* Destructor.
+	*/
 	~TextRenderer(void);
 
+	/**
+	* Initializes the text renderer.
+	* @
+	*/
 	void initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, DirectX::XMFLOAT3 *p_CameraPosition,
 		DirectX::XMFLOAT4X4 *p_ViewMatrix, DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11RenderTargetView *p_RenderTarget);
 
