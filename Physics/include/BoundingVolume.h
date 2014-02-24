@@ -15,7 +15,6 @@ public:
 
 protected:
 	DirectX::XMFLOAT4	m_Position;
-	DirectX::XMFLOAT4	m_PrevPosition;
 	Type				m_Type;
 	bool				m_CollisionResponse;
 	int					m_IDInBody;
@@ -41,14 +40,6 @@ public:
 	virtual DirectX::XMFLOAT4 getPosition() const 
 	{
 		return m_Position;
-	}
-	/**
-	 * Get the bounding volume position in the last frame.
-	 * @return the previus position of the bounding volume in m
-	 */
-	DirectX::XMFLOAT4* getPrevPosition()
-	{
-		return &m_PrevPosition;
 	}
 	/**
 	 * Return the bounding volume type tied to the TYPE enum.
@@ -97,7 +88,7 @@ public:
 		m_BodyHandle = p_BodyHandle;
 	}
 
-	void setIDInBody(int p_IDInBody)
+	void setIDInBody(unsigned int p_IDInBody)
 	{
 		m_IDInBody = p_IDInBody;
 	}

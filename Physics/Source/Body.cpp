@@ -241,12 +241,12 @@ void Body::setCollisionResponse(bool p_State)
 		m_Volumes.at(i)->setCollisionResponse(p_State);
 }
 
-void Body::setCollisionResponse(int p_Volume, bool p_State)
+void Body::setCollisionResponse(unsigned int p_Volume, bool p_State)
 {
 	m_Volumes.at(p_Volume)->setCollisionResponse(p_State);
 }
 
-bool Body::getCollisionResponse(int p_Volume)
+bool Body::getCollisionResponse(unsigned int p_Volume)
 {
 	return m_Volumes.at(p_Volume)->getCollisionResponse();
 }

@@ -18,7 +18,6 @@ public:
 	{
 		m_BodyHandle	= 0;
 		m_Position		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); //OBB Center Point
-		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Extents		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
@@ -37,7 +36,6 @@ public:
 	{
 		m_BodyHandle	= 0;
 		m_Position		= p_CenterPos; //OBB Center Point.
-		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
 
@@ -71,8 +69,6 @@ public:
 	*/
 	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) override
 	{
-		m_PrevPosition = m_Position;
-
 		DirectX::XMMATRIX mTrans;
 		mTrans = DirectX::XMLoadFloat4x4(&p_Translation);
 
@@ -223,7 +219,7 @@ public:
 	 * @param p_Index index number in m_Bounds list
 	 * @return a XMFLOAT4 corner.
 	 */
-	DirectX::XMFLOAT4 getCornerWorldCoordAt(unsigned p_Index) const
+	DirectX::XMFLOAT4 getCornerWorldCoordAt(unsigned int p_Index) const
 	{
 		return DirectX::XMFLOAT4(m_Corners[p_Index].x + m_Position.x, m_Corners[p_Index].y + m_Position.y, m_Corners[p_Index].z + m_Position.z, 1.f);
 	}
