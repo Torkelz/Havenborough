@@ -1,6 +1,7 @@
 #include "TextRenderer.h"
 #include "VRAMInfo.h"
 #include "Utilities/MemoryUtil.h"
+#include "GraphicsExceptions.h"
 
 #include <functional>
 #include <algorithm>
@@ -36,7 +37,8 @@ void TextRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Dev
 	XMFLOAT4X4 *p_ViewMatrix, XMFLOAT4X4 *p_ProjectionMatrix, ID3D11RenderTargetView *p_RenderTarget)
 {
 	if(!p_Device || !p_DeviceContext)
-		throw 
+		throw TextRendererException("Failed to initialize text renderer, nullpointers are not allowed. ",
+		__LINE__, __FILE__);
 	m_Device = p_Device;
 	m_DeviceContext = p_DeviceContext;
 	m_CameraPosition = p_CameraPosition;
