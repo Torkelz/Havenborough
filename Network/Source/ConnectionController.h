@@ -83,6 +83,10 @@ public:
 	void sendJoinGame(const char* p_Game) override;
 	const char* getJoinGameName(Package p_Package) override;
 
+	void sendRacePosition(const char** p_ExtraData, unsigned int p_NumExtraData) override;
+	unsigned int getNumRacePositionsData(Package p_Package) override;
+	const char* getRacePositionsData(Package p_Package, unsigned int p_ExtraData) override;
+
 	void sendGameResult(const char** p_ExtraData, unsigned int p_NumExtraData) override;
 	unsigned int getNumGameResultData(Package p_Package) override;
 	const char* getGameResultData(Package p_Package, unsigned int p_ExtraData) override;

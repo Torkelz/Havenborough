@@ -46,6 +46,9 @@ private:
 	bool m_InGame;
 	bool m_PlayingLocal;
 
+	unsigned int m_PlayerPositionInRace;
+	float m_PlayerTimeDifference; //The difference in time to the first player.
+
 	//DEBUG
 	Vector2 m_PlayerDirection;
 	Vector3 m_CurrentCheckPointPosition;
@@ -91,6 +94,19 @@ public:
 	void joinGame(const std::string& p_LevelName);
 
 	void throwSpell(const char *p_SpellId);
+
+	/**
+	 * A position in the race sent from the server.
+	 *
+	 * @return client's position 
+	 */
+	unsigned int getPlayerPositionInRace();
+	/**
+	 * The difference in time to the first player.
+	 *
+	 * @return the difference in time
+	 */
+	float getPlayerTimeDifference();
 	//void releaseSpellInstance(int p_SpellId);
 
 	/**

@@ -435,6 +435,16 @@ void GameLogic::throwSpell(const char *p_SpellId)
 	}
 }
 
+unsigned int GameLogic::getPlayerPositionInRace()
+{
+	return m_PlayerPositionInRace;
+}
+
+float GameLogic::getPlayerTimeDifference()
+{
+	return m_PlayerTimeDifference;
+}
+
 void GameLogic::setPlayerClimb(bool p_State)
 {
 	m_Player.setClimbing(p_State);
@@ -649,6 +659,26 @@ void GameLogic::handleNetwork()
 						}
 					}
 							
+				}
+				break;
+			case PackageType::GAME_POSITIONS:
+				{
+					int numberOfData = conn->getNumRacePositionsData(package);
+					for(int i = 0; i < numberOfData; i++)
+					{
+						const char* result = conn->getRacePositionsData(package, i);
+						tinyxml2::XMLDocument reader;
+						reader.Parse(result);
+						tinyxml2::XMLElement* object = reader.FirstChildElement("RacePositions");
+						if(object->Attribute("Type", "Place"))
+						{
+							int racePosition = 0;
+							float timeDiff = 0.f;
+							object->QueryAttribute("Place", &racePosition);	
+							object->QueryAttribute("Time", &timeDiff);
+							int lol = 0;
+						}
+					}
 				}
 				break;
 

@@ -31,6 +31,7 @@ enum class PackageType : uint16_t
 	JOIN_GAME,
 	LEAVE_GAME,
 	LEVEL_DATA,
+	GAME_POSITIONS,
 	RESULT_GAME,
 	SET_SPAWN,
 	THROW_SPELL,
