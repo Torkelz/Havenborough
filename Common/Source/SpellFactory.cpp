@@ -20,7 +20,7 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 {
 	if (m_SpellDefinitionMap.count(p_Spellname) > 0)
 	{
-		throw CommonException("Spell " + std::string(p_Spellname) + " already loaded", __LINE__, __FILE__);
+		//throw CommonException("Spell " + std::string(p_Spellname) + " already loaded", __LINE__, __FILE__);
 	}
 
 	//readDefinitionFromFile(p_Filename);
@@ -29,14 +29,15 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	spell.reset(new SpellDefinition());
 
 	spell->m_Type = SpellDefinition::Type::EXPLOSION;
-	spell->explosionRadius = 500.f;
-	spell->effectTime = 0.5f;
-	spell->maxTimeToLive = 60.f;
-	spell->force = 5000.f;
-	spell->minForce = 500.f;
+	spell->explosionRadius = 400.f;
+	spell->effectTime = 0.1f;
+	spell->maxTimeToLive = 5.f;
+	spell->force = 3000.f;
+	spell->minForce = 3000.f;
 	spell->spellName = p_Spellname;
-	spell->flyingSpellSize = 10.f;
+	spell->flyingSpellSize = 30.f;
 	spell->flyForce = 3000.f;
+	spell->manaCost = 70.f;
 
 	m_SpellDefinitionMap[p_Spellname] = spell;
 
@@ -65,4 +66,17 @@ SpellInstance::ptr SpellFactory::createSpellInstance(const std::string& p_Spell,
 void SpellFactory::readDefinitionFromFile(const char* p_Filename)
 {
 
+}
+
+const float SpellFactory::getManaCostFromSpellDefinition(const char* p_SpellName)
+{
+	for(auto& sd : m_SpellDefinitionMap)
+	{
+		if(std::strcmp(sd.first.c_str(), p_SpellName) == 0)
+		{
+			return sd.second->manaCost;
+		}
+	}
+
+	return FLT_MAX;
 }

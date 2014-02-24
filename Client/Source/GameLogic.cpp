@@ -70,18 +70,14 @@ void GameLogic::onFrame(float p_DeltaTime)
 		return;
 	}
 
-	m_Player.update(p_DeltaTime);
 
 	if(m_Physics->getHitDataSize() > 0)
 	{
 		for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
-			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
-				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player))
-			{
-				//m_Physics->removeHitDataAt(i);
-			}
+			m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
+				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player);
 
 			Logger::log(Logger::Level::TRACE, "Collision reported");
 		}
@@ -102,7 +98,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Player.setDirectionZ(XMVectorGetZ(rotDirV));
 	}
 	if(!m_Player.getForceMove())
-		m_Physics->update(p_DeltaTime, 50);
+		m_Physics->update(p_DeltaTime, 100);
 
 	Vector3 actualViewRot = getPlayerViewRotation();
 	Actor::ptr playerActor = m_Player.getActor().lock();
@@ -127,8 +123,8 @@ void GameLogic::onFrame(float p_DeltaTime)
 	}
 	
 	m_Actors->onUpdate(p_DeltaTime);
-
-	updateSandbox(p_DeltaTime);
+	m_Player.update(p_DeltaTime);
+	m_Player.updateIKJoints();
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -311,40 +307,19 @@ Vector3 GameLogic::getCurrentCheckpointPosition(void) const
 	return m_CurrentCheckPointPosition;
 }
 
+const float GameLogic::getPlayerCurrentMana(void)
+{
+	return m_Player.getCurrentMana();
+}
+
+const float GameLogic::getPlayerPreviousMana(void)
+{
+	return m_Player.getPreviousMana();
+}
+
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
-}
-
-void GameLogic::toggleIK()
-{
-	useIK = !useIK;
-}
-
-
-
-void GameLogic::testBlendAnimation()
-{
-	//playAnimation(testWitch.lock(), "Idle", false);
-}
-
-void GameLogic::testResetAnimation()
-{
-	//playAnimation(testWitch.lock(), "Run", false);
-}
-
-void GameLogic::testLayerAnimation()
-{
-	//playAnimation(testWitch.lock(), "Wave", false);
-	//playAnimation(m_Player.getActor().lock(), "LookAround", false);
-}
-
-void GameLogic::testResetLayerAnimation()
-{
-	//playAnimation(testWitch.lock(), "Run", false);
-	//playAnimation(testWitch.lock(), "DefLayer1", false);
-	//playAnimation(m_Player.getActor().lock(), "Idle2", false);
-	changeAnimationWeight(m_Player.getActor().lock(), 4, 0.0f);
 }
 
 void GameLogic::playLocalLevel()
@@ -353,9 +328,9 @@ void GameLogic::playLocalLevel()
 	m_Actors.reset(new ActorList());
 	m_ActorFactory->setActorList(m_Actors);
 
-	m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
+	m_Level = Level(m_ResourceManager, m_ActorFactory);
 #ifdef _DEBUG
-	std::ifstream input("../Bin/assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
@@ -364,7 +339,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("../Bin/assets/levels/Level1.2.1.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
@@ -376,7 +351,7 @@ void GameLogic::playLocalLevel()
 
 	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
 	m_Player = Player();
-	m_Player.initialize(m_Physics, playerActor);
+	m_Player.initialize(m_Physics, nullptr, playerActor);
 
 	m_InGame = true;
 	m_PlayingLocal = true;
@@ -429,12 +404,25 @@ void GameLogic::joinGame(const std::string& p_LevelName)
 
 void GameLogic::throwSpell(const char *p_SpellId)
 {
+	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // definitely should NOT be here.
+
 	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
 		if(!m_Player.getForceMove())
 		{
-			m_Actors->addActor(m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition()));
+
+			float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition(p_SpellId);
+			float playerMana = m_Player.getCurrentMana();
+
+			if(manaCost > playerMana)
+				return;
+
+			m_Player.setCurrentMana(playerMana - manaCost);
+
+			Actor::ptr spell = m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition());
+			m_Actors->addActor(spell);
+
 			playAnimation(playerActor, "CastSpell", false);
 
 			IConnectionController *conn = m_Network->getConnectionToServer();
@@ -492,7 +480,7 @@ void GameLogic::handleNetwork()
 
 			case PackageType::LEVEL_DATA:
 				{
-					m_Level = Level(m_ResourceManager, m_Physics, m_ActorFactory);
+					m_Level = Level(m_ResourceManager, m_ActorFactory);
 					size_t size = conn->getLevelDataSize(package);
 					if (size > 0)
 					{
@@ -503,9 +491,9 @@ void GameLogic::handleNetwork()
 					else
 					{
 #ifdef _DEBUG
-						std::string levelFileName("../Bin/assets/levels/Level2.btxl");
+						std::string levelFileName("assets/levels/Level1.2.1.btxl");
 #else
-						std::string levelFileName("../Bin/assets/levels/Level1.2.1.btxl");
+						std::string levelFileName("assets/levels/Level1.2.1.btxl");
 #endif
 						std::ifstream file(levelFileName, std::istream::binary);
 						m_Level.loadLevel(file, m_Actors);
@@ -688,14 +676,42 @@ void GameLogic::handleNetwork()
 					{
 						Actor::ptr actor = getActor(actorId);
 
-						if (actor->getId())
+						if (actor)
 						{
 							std::shared_ptr<PulseInterface> pulseComp = actor->getComponent<PulseInterface>(PulseComponent::m_ComponentId).lock();
 							if (pulseComp)
 							{
 								pulseComp->pulseOnce();
 							}
-							break;
+						}
+					}
+					else if (std::string(action->Value()) == "Climb")
+					{
+						Actor::ptr actor = getActor(actorId);
+						const char* climbId = action->Attribute("Animation");
+
+						if (actor && climbId)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->playClimbAnimation(climbId);
+							}
+						}
+					}
+					else if (std::string(action->Value()) == "ResetClimb")
+					{
+						Actor::ptr actor = getActor(actorId);
+
+						if (actor)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->resetClimbState();
+							}
 						}
 					}
 				}
@@ -708,7 +724,7 @@ void GameLogic::handleNetwork()
 					if (actor)
 					{
 						m_Player = Player();
-						m_Player.initialize(m_Physics, actor);
+						m_Player.initialize(m_Physics, m_Network, actor);
 					}
 
 					conn->sendDoneLoading();
@@ -779,43 +795,12 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 
 void GameLogic::loadSandbox()
 {
-	useIK = false;
+	// Only use for testing and debug purposes. When adding something put a comment with your name and todays date.
+	// No permanent implementations in this function is allowed.
 
-	Logger::log(Logger::Level::DEBUG_L, "Adding debug animated Witch");
-	testWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(1600.0f, 0.0f, 500.0f)));
-	playAnimation(testWitch.lock(), "Run", false);
-
-	circleWitch = addActor(m_ActorFactory->createPlayerActor(Vector3(0.f, 0.f, 0.f)));
-	playAnimation(circleWitch.lock(), "Run", false);
-
-	witchCircleAngle = 0.0f;
-
-	//Event to create a particle effect on local test rounds
-
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "TestParticle"));
-}
-
-void GameLogic::updateSandbox(float p_DeltaTime)
-{
-	static const Vector3 circleCenter(400.f, 0.f, 1500.f);
-	static const float circleRadius = 800.f;
-	static const float witchAngleSpeed = 0.3f;
-
-	witchCircleAngle += witchAngleSpeed * p_DeltaTime;
-	Vector3 witchCirclePosition(circleCenter);
-	witchCirclePosition.x -= cosf(witchCircleAngle) * circleRadius;
-	witchCirclePosition.z += sinf(witchCircleAngle) * circleRadius;
-	Actor::ptr strongWitch = circleWitch.lock();
-	if (strongWitch)
-	{
-		strongWitch->setPosition(witchCirclePosition);
-		strongWitch->setRotation(Vector3(witchCircleAngle, 0.f, 0.f));
-	}
-
-	if (m_InGame)
-	{
-		updateIK();
-	}
+	//Fredrik, 2014-02-20
+	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
+	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
@@ -858,37 +843,6 @@ void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_W
 	{
 		comp->changeAnimationWeight(p_Track, p_Weight);
 	}
-}
-
-void GameLogic::updateIK()
-{
-	Vector3 IK_Target = Vector3(m_Player.getEyePosition()) + getPlayerViewForward() * 200.f;
-
-	if (useIK)
-	{
-		std::shared_ptr<Actor> strWitch = circleWitch.lock();
-		if (strWitch)
-		{
-			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-			if (comp)
-			{
-				comp->applyIK_ReachPoint("LeftArm", IK_Target);
-			}
-		}
-
-		// Player
-		strWitch = m_Player.getActor().lock();
-		if (strWitch)
-		{
-			std::shared_ptr<AnimationInterface> comp = strWitch->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-			if (comp)
-			{
-				comp->applyIK_ReachPoint("LeftArm", IK_Target);
-			}
-		}
-	}
-
-	m_Player.updateIKJoints();
 }
 
 IPhysics *GameLogic::getPhysics() const

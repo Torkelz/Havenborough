@@ -5,6 +5,7 @@
 #include "Utilities/XMFloatUtil.h"
 
 #include <d3d11.h>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -22,6 +23,7 @@ public:
 private:
 	static ModelFactory *m_Instance;
 	std::map<std::string, ID3D11ShaderResourceView*> *m_TextureList;
+	std::map<std::string, Shader*> *m_ShaderList;
 
 	loadModelTextureCallBack m_LoadModelTexture;
 	void *m_LoadModelTextureUserdata;
@@ -35,9 +37,11 @@ public:
 
 	/**
 	* Initialize the factory.
-	* p_TextureList pointer to the texture list pair 
+	* @param p_TextureList pointer to the texture map with the available textures
+	* @param p_ShaderList pointer to the shader map with the available shaders
 	*/
-	void initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList);
+	void initialize(std::map<std::string, ID3D11ShaderResourceView*> *p_TextureList,
+		std::map<std::string, Shader*> *p_ShaderList);
 
 	/**
 	* Shuts down the factory and releases the memory allocated. Nulls all pointers.
@@ -45,15 +49,26 @@ public:
 	virtual void shutdown(void);
 
 	/**
-	* Creates a static model with buffers and connects the textures to it.
+	* Creates a model with buffers and default shader and connects the textures to it.
 	* @param p_Filename the model file to read
-	* @param p_IsAnimated check whether the model should be animated or not, true = animated, false = static
 	* @return copy of the created model
 	*/
 	virtual ModelDefinition createModel(const char *p_Filename);
 
-
+	/**
+	* Creates a quad model with with a texture attached to it.
+	* @param p_HalfSize the size from the center point to the xy-edges
+	* @param p_TextureId the texture to be used
+	* @return copy of the created quad
+	*/
 	virtual ModelDefinition *create2D_Model(Vector2 p_HalfSize, const char *p_TextureId);
+
+	/**
+	* Creates a quad model from a texture with the texture attached to it.
+	* @param p_Texture the texture to be used
+	* @return copy of the created quad
+	*/
+	virtual ModelDefinition *create2D_Model(ID3D11ShaderResourceView *p_Texture);
 
 	/**
 	* Set the function to load a texture to a model.
@@ -69,6 +84,7 @@ protected:
 private:
 	template<class T>
 	Buffer::Description createBufferDescription(const std::vector<T> &p_VertexData, Buffer::Usage p_Usage);
+	void create2D_VertexBuffer(ModelDefinition *p_Model, Vector2 p_HalfSize);
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
 		const std::vector<Material> &p_Materials);

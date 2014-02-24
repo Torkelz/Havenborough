@@ -102,7 +102,7 @@ public:
 		std::shared_ptr<ModelComponent> comp = m_Model.lock();
 		if (comp)
 		{
-			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform())));
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform(), m_Animation.getAnimationData(), m_Owner->getWorldMatrix())));
 		}
 	}
 
@@ -151,7 +151,7 @@ public:
 		std::shared_ptr<ModelComponent> comp = m_Model.lock();
 		if (comp)
 		{
-			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform())));
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform(), m_Animation.getAnimationData(), m_Owner->getWorldMatrix())));
 		}
 	}
 

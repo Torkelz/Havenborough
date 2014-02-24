@@ -21,6 +21,7 @@ public:
 	 */
 	AABB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
 	{
+		m_BodyHandle = 0;
 		m_Position = p_CenterPos;
 		m_Size.x = p_Size.x;
 		m_Size.y = p_Size.y;
@@ -30,6 +31,8 @@ public:
 		m_Type		= Type::AABBOX;
 
 		calculateBounds();
+		m_CollisionResponse = true;
+		m_IDInBody = 0;
 	}
 	/**
 	* Destructor
@@ -63,7 +66,6 @@ public:
 		vDiag *= 0.5f;
 
 		m_Sphere.setRadius(XMVector3Length(vDiag).m128_f32[0]);
-		m_Sphere.updatePosition(m_Position);
 
 		DirectX::XMStoreFloat4(&m_HalfDiagonal, vDiag);
 	}
@@ -85,7 +87,15 @@ public:
 		XMStoreFloat4(&m_Position, tPos);
 
 		calculateBounds();
+		m_Sphere.setPosition(tPos);
 	}
+
+	void setPosition(DirectX::XMVECTOR const &p_newPosition) override
+	{
+		DirectX::XMStoreFloat4(&m_Position, p_newPosition);
+		m_Sphere.setPosition(p_newPosition);
+	}
+
 	/**
 	 * Sets a new size for AABB and recalculates.
 	 * @param p_Size, new size.
@@ -154,5 +164,13 @@ public:
 		s = DirectX::XMVector4Transform(s, m);
 		DirectX::XMStoreFloat4(&m_Size, s);
 		calculateBounds();
+	}
+	/**
+	* Does nothing since an AABB can not be rotated.
+	* @param p_Rotation vector to scale the box with..
+	*/
+	void setRotation(DirectX::XMMATRIX const &p_Rotation) override
+	{
+		
 	}
 };

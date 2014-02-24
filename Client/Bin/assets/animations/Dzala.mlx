@@ -303,18 +303,36 @@ na	LeftArm
 b1	L_UpperArm
 b2	L_LowerArm
 b3	L_Hand
-ikx	0.0
-iky	-1.0
-ikz	0.0
 
 *IKgroup
 na	RightArm
 b1	R_UpperArm
 b2	R_LowerArm
 b3	R_Hand
-ikx	0.0
-iky	-1.0
-ikz	0.0
+
+*IKgroup
+na LeftLeg
+b1 L_UpperLeg
+b2 L_LowerLeg
+b3 L_Ankle
+
+*IKgroup
+na LeftFoot
+b1 L_Ankle
+b2 L_Foot
+b3 L_FootBase
+
+*IKgroup
+na RightLeg
+b1 R_UpperLeg
+b2 R_LowerLeg
+b3 R_Ankle
+
+*IKgroup
+na RightFoot
+b1 R_Ankle
+b2 R_Foot
+b3 R_FootBase
 
 *Path
 na	Climb1

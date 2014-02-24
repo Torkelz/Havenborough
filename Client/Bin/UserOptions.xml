@@ -1,4 +1,47 @@
 <UserOptions>
 	<Server Hostname="localhost" Port="31415" />
 	<!-- Test ip: 194.47.150.44 -->
+	<Settings>
+		<SSAO enabled="true"/>
+		<VSync enabled="false"/>
+		<Fullscreen enabled="false"/>
+		<Resolution width="1280" height="720"/>
+	</Settings>
+	<Controls>
+		<!--
+		KEY : Key code
+		Left shift: LShift
+		Right shift: RShift
+		Left Ctrl: LCtrl
+		Right Ctrl: RCrtl
+		-->
+		<KeyMap command="back" key="Escape"/>
+		<KeyMap command="leaveGame" key="Escape"/>
+		<KeyMap command="moveForward" key="W"/>
+		<KeyMap command="moveBackward" key="S"/>
+		<KeyMap command="moveLeft" key="A"/>
+		<KeyMap command="moveRight" key="D"/>
+		<KeyMap command="changeViewN" key="Z"/>
+		<KeyMap command="changeViewP" key="X"/>
+		<KeyMap command="jump" key="Space"/>
+		<KeyMap command="connectToServer" key="C"/>
+		<KeyMap command="joinTestLevel" key="T"/>
+		<KeyMap command="joinServerLevel" key="Y"/>
+		<KeyMap command="playLocalTest" key="J"/>
+		<KeyMap command="switchBVDraw" key="57"/>
+		<KeyMap command="goToMainMenu" key="Return"/>
+		<KeyMap command="thirdPersonCamera" key="O"/>
+		<KeyMap command="flipCamera" key="P"/>
+		<KeyMap command="blendAnimation" key="B"/>
+		<KeyMap command="resetAnimation" key="N"/>
+		<KeyMap command="layerAnimation" key="M"/>
+		<KeyMap command="resetLayerAnimation" key="V"/>
+		<KeyMap command="DrawPivots" key="I"/>
+		<MouseMap command="mouseMoveHori" position="mousePosHori" movement="Horizontal"/>
+		<MouseMap command="mouseMoveVert" position="mousePosVert" movement="Vertical"/>
+		<MouseButtonMap command="spellCast" button="Left"/>
+		<MouseButtonMap command="ClimbEdge" button="Right"/>
+		<MouseButtonMap command="gogogogo" button="Left"/>
+		<MouseButtonMap command="rollMe!" button="Middle"/>
+	</Controls>
 </UserOptions>

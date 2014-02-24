@@ -16,6 +16,7 @@ public:
 	*/
 	OBB()
 	{
+		m_BodyHandle	= 0;
 		m_Position		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); //OBB Center Point
 		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Extents		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -23,24 +24,27 @@ public:
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
 		m_Sphere		= Sphere();
 		m_Orientation	= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
+		m_CollisionResponse = true;
+		m_IDInBody = 0; 
 	}
 
 	/**
 	* Constructor
 	* @param p_CenterPos the center position of the box
-	* @param p_Extents the box half lengths
+	* @param p_Extents the box positive half lengths
 	*/
 	OBB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Extents)
 	{
+		m_BodyHandle	= 0;
 		m_Position		= p_CenterPos; //OBB Center Point.
 		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
 
-		m_Extents.x = fabs(p_Extents.x);
-		m_Extents.y = fabs(p_Extents.y);
-		m_Extents.z = fabs(p_Extents.z);
-		m_Extents.w = 1.f;
+		m_Extents.x = p_Extents.x;
+		m_Extents.y = p_Extents.y;
+		m_Extents.z = p_Extents.z;
+		m_Extents.w = 0.f;
 
 		calculateCorners();
 
@@ -52,6 +56,7 @@ public:
 		m_Sphere = Sphere(radius, p_CenterPos);
 		
 		calculateOrientation();
+		m_IDInBody = 0;
 	}
 	/**
 	* Destructor
@@ -77,16 +82,16 @@ public:
 
 		DirectX::XMStoreFloat4(&m_Position, vCenterPos);
 								  
-		m_Sphere.updatePosition(m_Position);
+		m_Sphere.setPosition(vCenterPos);
 	}
 	/**
 	* Changes ther center position for the OBB.
 	* @param p_newPosition, new center pos for the OBB.
 	*/
-	void setPosition(DirectX::XMVECTOR const p_newPosition)
+	void setPosition(DirectX::XMVECTOR const &p_newPosition) override
 	{
 		DirectX::XMStoreFloat4(&m_Position, p_newPosition);
-		m_Sphere.updatePosition(m_Position);
+		m_Sphere.setPosition(p_newPosition);
 	}
 	/**
 	* Gets the normalized local axes of the OBB
@@ -141,7 +146,7 @@ public:
 	* Sets the rotation matrix of the OBB and rotates its Axes accordingly.
 	* @param p_Rotation matrix to rotate the axes with.
 	*/
-	void setRotation(const DirectX::XMMATRIX &p_Rot)
+	void setRotation(DirectX::XMMATRIX const &p_Rot) override
 	{
         XMStoreFloat4x4(&m_Axes, p_Rot);
 

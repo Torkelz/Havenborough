@@ -19,7 +19,7 @@ public:
 	 */
 	Hull(std::vector<Triangle> p_Triangles)
 	{
-		
+		m_BodyHandle = 0;
 		m_Position = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 		m_PrevPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 		m_Triangles = p_Triangles;
@@ -27,6 +27,8 @@ public:
 		float radius = findFarthestDistanceOnTriangle();
 		m_Scale = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f);
 		m_Sphere = Sphere( radius, m_Position );
+		m_CollisionResponse = true;
+		m_IDInBody = 0;
 	}
 
 	/**
@@ -54,7 +56,13 @@ public:
 
 		DirectX::XMStoreFloat4(&m_Position, centerPos);
 								  
-		m_Sphere.updatePosition(m_Position);
+		m_Sphere.setPosition(centerPos);
+	}
+
+	void setPosition(DirectX::XMVECTOR const &p_newPosition) override
+	{
+		DirectX::XMStoreFloat4(&m_Position, p_newPosition);
+		m_Sphere.setPosition(p_newPosition);
 	}
 	
 	/**
@@ -88,7 +96,7 @@ public:
 	 * Rotates all the trangles in the hull
 	 * @param p_Rotation matrix to rotate the triangles with.
 	 */
-	void setRotation(DirectX::XMMATRIX const &p_Rotation)
+	void setRotation(DirectX::XMMATRIX const &p_Rotation) override
 	{
 		DirectX::XMVECTOR c1, c2, c3;
 		for(auto& tri : m_Triangles)
@@ -161,6 +169,96 @@ public:
 		triangle.corners[2].w = 1.f;
 
 		return triangle;
+	}
+
+		/**
+	* Given point p and the triangle corners in world coordinates, return point in triangle, closest to p
+	* @param p_point the point you want to search from
+	* @param p_A, corner[0] of triangle in world coordinates
+	* @param p_B, corner[1] of triangle in world coordinates
+	* @param p_C, corner[2] of triangle in world coordinates
+	* @return closest point in the triangle
+	*/
+	DirectX::XMFLOAT4 findClosestPointOnTriangle(DirectX::XMFLOAT4 const &p_Point, int p_TriangleIndex) const
+	{
+		Triangle triangle = getTriangleInWorldCoord(p_TriangleIndex);
+
+		DirectX::XMVECTOR a = Vector4ToXMVECTOR(&triangle.corners[0]);
+		DirectX::XMVECTOR b = Vector4ToXMVECTOR(&triangle.corners[1]);
+		DirectX::XMVECTOR c = Vector4ToXMVECTOR(&triangle.corners[2]);
+		DirectX::XMVECTOR pos = DirectX::XMLoadFloat4(&p_Point);
+
+		using DirectX::operator-;
+		using DirectX::operator*;
+		using DirectX::operator+;
+
+		DirectX::XMVECTOR ab = b - a;
+		DirectX::XMVECTOR ac = c - a;
+		DirectX::XMVECTOR ap = pos - a;
+
+		float d1 = DirectX::XMVector4Dot(ab, ap).m128_f32[0];
+		float d2 = DirectX::XMVector4Dot(ac, ap).m128_f32[0];
+			
+		DirectX::XMFLOAT4 ret;
+		if(d1 <= 0.f && d2 <= 0.f)
+		{
+			DirectX::XMStoreFloat4(&ret, a);
+			return ret;
+		}
+
+		DirectX::XMVECTOR bp = pos - b;
+		float d3 = DirectX::XMVector4Dot(ab, bp).m128_f32[0];
+		float d4 = DirectX::XMVector4Dot(ac, bp).m128_f32[0];
+
+		if(d3 >= 0.f && d4 <= d3)
+		{
+			DirectX::XMStoreFloat4(&ret, b);
+			return ret;
+		}
+
+		float vc = d1*d4 - d3*d2;
+		using DirectX::operator*;
+		using DirectX::operator+;
+
+		if(vc <= 0.f && d1 >= 0.f && d3 <= 0.f)
+		{
+			float v = d1 / (d1 - d3);	
+			DirectX::XMStoreFloat4(&ret, a + v * ab);
+			return ret;
+		}
+
+		DirectX::XMVECTOR cp = pos - c;
+		float d5 = DirectX::XMVector3Dot(ab, cp).m128_f32[0];
+		float d6 = DirectX::XMVector3Dot(ac, cp).m128_f32[0];
+
+		if(d6 >= 0.f && d5 <= d6)
+		{
+			DirectX::XMStoreFloat4(&ret, c);
+			return ret;
+		}
+
+		float vb = d5*d2 - d1*d6;
+		if(vb <= 0.f && d2 >= 0.f && d6 <= 0.f)
+		{
+			float w = d2 / (d2 - d6);
+			DirectX::XMStoreFloat4(&ret, a + w * ac);
+			return ret;
+		}
+
+		float va = d3*d6 - d5*d4;
+		if(va <= 0.f && (d4 - d3) >= 0.f && (d5 - d6) >= 0.f)
+		{
+			float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+			DirectX::XMStoreFloat4(&ret, b + w * ( c - b ));
+			return ret;
+		}
+
+		float denom = 1.f / ( va + vb + vc);
+
+		float v = vb * denom;
+		float w = vc * denom;
+		DirectX::XMStoreFloat4(&ret, a + ab * v + ac * w);
+		return ret;
 	}
 private:
 	float findFarthestDistanceOnTriangle() const

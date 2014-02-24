@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Components.h"
+#include <Logger.h>
 
 using namespace DirectX;
 
@@ -9,8 +10,8 @@ Player::Player(void)
 	m_JumpCount = 0;
     m_JumpCountMax = 2;
     m_JumpTime = 0.f;
-    m_JumpTimeMax = 0.15f;
-	m_JumpForce = 6500.f;
+    m_JumpTimeMax = 0.2f;
+	m_JumpForce = 3500.f;
 	m_IsJumping = false;
 	m_MaxSpeed = 1000.f;
 	m_AccConstant = 600.f;
@@ -22,6 +23,14 @@ Player::Player(void)
 	m_Height = 170.f;
 	m_EyeHeight = 165.f;
 	m_Climb = false;
+	m_ClimbOffset = 50.f;
+	m_CurrentMana = 100.f;
+	m_PreviousMana = m_CurrentMana;
+	m_MaxMana = 100.f;
+	m_ManaRegenerationSlow = 2.f;
+	m_ManaRegenerationFast = 6.f;
+	m_IsAtMaxSpeed = false;
+	m_IsPreviousManaSet = false;
 }
 
 Player::~Player(void)
@@ -29,11 +38,13 @@ Player::~Player(void)
 	m_Physics = nullptr;
 }
 
-void Player::initialize(IPhysics *p_Physics, std::weak_ptr<Actor> p_Actor)
+void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<Actor> p_Actor)
 {
 	m_Physics = p_Physics;
+	m_Network = p_Network;
 	m_Actor = p_Actor;
 	
+
 	Actor::ptr strActor = m_Actor.lock();
 	if (strActor)
 	{
@@ -42,7 +53,28 @@ void Player::initialize(IPhysics *p_Physics, std::weak_ptr<Actor> p_Actor)
 }
 
 void Player::update(float p_DeltaTime)
-{
+{	
+	if(!m_IsPreviousManaSet)
+		m_PreviousMana = m_CurrentMana;
+	else
+		m_IsPreviousManaSet = false;
+
+	Vector3 v3Vel = m_Physics->getBodyVelocity(getBody());
+	float v = XMVector4Length(Vector3ToXMVECTOR(&v3Vel, 0.f)).m128_f32[0];
+	if(v >= m_MaxSpeed - 50.f)
+	{
+		m_IsAtMaxSpeed = true;
+		m_CurrentMana += m_ManaRegenerationFast * p_DeltaTime;
+	}
+	else
+	{
+		m_IsAtMaxSpeed = false;
+		m_CurrentMana += m_ManaRegenerationSlow * p_DeltaTime;
+	}
+
+	if(m_CurrentMana >= m_MaxMana)
+		m_CurrentMana = m_MaxMana;
+
 	static const float respawnFallHeight = -2000.f; // -20m
 	static const float respawnDistance = 100000.f; // 100m
 	static const float respawnDistanceSq = respawnDistance * respawnDistance;
@@ -68,6 +100,8 @@ void Player::update(float p_DeltaTime)
 			}
 		}
 	}
+
+
 
 	if(!m_ForceMove)
 	{
@@ -95,6 +129,20 @@ void Player::update(float p_DeltaTime)
 			m_CurrentForceMoveTime = 0.f;
 			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 			aa.lock()->resetClimbState();
+			if (m_Network)
+			{
+				IConnectionController* con = m_Network->getConnectionToServer();
+				if (con && con->isConnected())
+				{
+					tinyxml2::XMLPrinter printer;
+					printer.OpenElement("Action");
+					printer.OpenElement("ResetClimb");
+					printer.CloseElement();
+					printer.CloseElement();
+
+					con->sendObjectAction(m_Actor.lock()->getId(), printer.CStr());
+				}
+			}
 			return;
 		}
 
@@ -127,6 +175,17 @@ void Player::update(float p_DeltaTime)
 			look->setLookUp(Vector3(0, 1, 0));
 		}
 	}
+
+	Vector3 left = getFootPosition("L_Ankle");
+	left.y = left.y + 5.f;
+	m_Physics->setBodyVolumePosition(getBody(), 2, left);
+		
+	Vector3 right = getFootPosition("R_Ankle");
+	right.y = right.y + 5.f;
+	m_Physics->setBodyVolumePosition(getBody(), 3, right);
+
+	Vector3 eye = getEyePosition();
+	m_Physics->setBodyVolumePosition(getBody(), 4, eye);
 }
 
 void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation)
@@ -146,6 +205,21 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
 		aa.lock()->playClimbAnimation(p_ClimbId);
+		if (m_Network)
+		{
+			IConnectionController* con = m_Network->getConnectionToServer();
+			if (con && con->isConnected())
+			{
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("Action");
+				printer.OpenElement("Climb");
+				printer.PushAttribute("Animation", p_ClimbId.c_str());
+				printer.CloseElement();
+				printer.CloseElement();
+
+				con->sendObjectAction(m_Actor.lock()->getId(), printer.CStr());
+			}
+		}
 		m_ClimbId = p_ClimbId;
 
 		m_ForceMoveY = pp.m_YPath;
@@ -190,6 +264,34 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 	}
 }
 
+void Player::setCurrentMana(float p_Mana)
+{
+	if(p_Mana > m_MaxMana)
+		p_Mana = m_MaxMana;
+	else if(p_Mana < 0.f)
+		p_Mana = 0.f;
+
+	m_PreviousMana = m_CurrentMana;
+	m_CurrentMana = p_Mana;
+	m_IsPreviousManaSet = true;
+	
+}
+
+float Player::getPreviousMana()
+{
+	return m_PreviousMana;
+}
+
+float Player::getCurrentMana()
+{
+	return m_CurrentMana;
+}
+
+float Player::getMaxMana()
+{
+	return m_MaxMana;
+}
+
 void Player::updateIKJoints()
 {
 	if(m_ForceMove)
@@ -202,7 +304,7 @@ void Player::updateIKJoints()
 		else if(m_ClimbId == "Climb2")
 		{
 			XMVECTOR reachPointR;
-			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
+			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 0);
 			Vector3 vReachPointR = XMVECTORToVector4(&reachPointR).xyz();
 			aa.lock()->applyIK_ReachPoint("RightArm", vReachPointR);
 		}
@@ -231,12 +333,67 @@ void Player::updateIKJoints()
 			aa.lock()->applyIK_ReachPoint("LeftArm", vReachPoint);
 		}
 	}
+	else
+	{
+		int hitsSize = m_Physics->getHitDataSize();
+		for(int i = 0; i < hitsSize; i++)
+		{
+			HitData hit = m_Physics->getHitDataAt(i);
+
+			
+			if(hit.IDInBody == 2 && hit.colType != Type::SPHEREVSSPHERE)
+			{
+				std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+				hit.colPos.y += 5.0f;
+				aa.lock()->applyIK_ReachPoint("LeftLeg", Vector4ToXMFLOAT3(&hit.colPos));
+
+				DirectX::XMFLOAT3 anklePos = aa.lock()->getJointPos("L_Ankle");
+				DirectX::XMFLOAT3 toePos = aa.lock()->getJointPos("L_FootBase");
+				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
+				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
+
+				vToe = vToe - vAnkle;
+				vToe.m128_f32[1] = 0.f;
+			
+				vToe = DirectX::XMVector3Normalize(vToe);
+				vToe *= 20.0f;
+				vToe += vAnkle;
+				vToe.m128_f32[1] = hit.colPos.y;
+				hit.colPos = XMVECTORToVector4(&vToe);
+
+				aa.lock()->applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos));
+			}
+			if(hit.IDInBody == 3 && hit.colType != Type::SPHEREVSSPHERE)
+			{
+				std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+				hit.colPos.y += 5.0f;
+				aa.lock()->applyIK_ReachPoint("RightLeg", Vector4ToXMFLOAT3(&hit.colPos));
+
+				DirectX::XMFLOAT3 anklePos = aa.lock()->getJointPos("R_Ankle");
+				DirectX::XMFLOAT3 toePos = aa.lock()->getJointPos("R_FootBase");
+				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
+				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
+
+				vToe = vToe - vAnkle;
+				vToe.m128_f32[1] = 0.f;
+			
+				vToe = DirectX::XMVector3Normalize(vToe);
+				vToe *= 20.0f;
+				vToe += vAnkle;
+				vToe.m128_f32[1] = hit.colPos.y;
+				hit.colPos = XMVECTORToVector4(&vToe);
+
+				aa.lock()->applyIK_ReachPoint("RightFoot", Vector4ToXMFLOAT3(&hit.colPos));
+			}
+		}
+	}
 }
 
 void Player::setPosition(const XMFLOAT3 &p_Position)
 {
 	Vector3 kneePos = p_Position;
 	kneePos.y += getKneeHeight();
+	kneePos.y -= m_ClimbOffset;
 	m_Physics->setBodyPosition(getBody(), kneePos);
 }
 
@@ -261,13 +418,28 @@ XMFLOAT3 Player::getEyePosition() const
 		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 		if (comp)
 		{
-			return comp->getJointPos("Neck");
+			return comp->getJointPos("Head");
 		}
 	}
 
 	XMFLOAT3 eyePosition = getPosition();
 	eyePosition.y += m_EyeHeight;
 	return eyePosition;
+}
+
+XMFLOAT3 Player::getFootPosition(std::string p_Joint) const
+{
+	Actor::ptr actor = m_Actor.lock();
+	if (actor)
+	{
+		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+		if (comp)
+		{
+			return comp->getJointPos(p_Joint);
+		}
+	}
+
+	return getPosition();
 }
 
 XMFLOAT3 Player::getRightHandPosition() const
@@ -327,7 +499,7 @@ void Player::setHeight(float p_Height)
 	m_Height = p_Height;
 }
 
-BodyHandle Player::getBody(void) const
+BodyHandle Player::getBody() const
 {
 	return m_Actor.lock()->getBodyHandles()[0];
 }
@@ -440,6 +612,7 @@ void Player::move(float p_DeltaTime)
 	XMVECTOR currentVelocity = XMLoadFloat3(&velocity);	// cm/s
 
 	XMFLOAT3 maxVelocity(m_DirectionX * m_MaxSpeed, 0.f, m_DirectionZ * m_MaxSpeed);	// cm/s
+	
 	if (m_IsJumping)
 	{
 		maxVelocity.y = m_MaxSpeed*0.5f;
@@ -460,6 +633,7 @@ void Player::move(float p_DeltaTime)
 	}
 
 	XMVECTOR diffVel = vMaxVelocity - currentVelocity;	// cm/s
+	
 	XMVECTOR force = diffVel / 100.f * m_AccConstant;		// kg * m/s^2
 
 	XMVECTOR forceDiffImpulse = force * p_DeltaTime;	// kg * m/s

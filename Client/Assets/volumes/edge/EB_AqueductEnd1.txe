@@ -1,0 +1,24 @@
+*ObjectHeader*
+#numObj: 4
+
+#MESH: AqueductEnd1
+#Translation: -65.275795 739.217957 0
+#Rotation: 0 0 0
+#Scale: 10 10 52.954781
+
+#MESH: AqueductEnd1
+#Translation: 65.275795 739.217957 0
+#Rotation: 0 0 0
+#Scale: 10 10 52.954781
+
+#MESH: AqueductEnd1
+#Translation: 0 739.217957 -26.158859
+#Rotation: 1.570796 0 0
+#Scale: 10 10 132.768784
+
+#MESH: AqueductEnd1
+#Translation: 0 739.217957 26.158859
+#Rotation: 1.570796 0 0
+#Scale: 10 10 132.768784
+
+

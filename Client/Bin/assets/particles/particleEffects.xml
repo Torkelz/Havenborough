@@ -1,0 +1,70 @@
+<Particle>
+	<Effect effectName="fire">
+		<Texture resourceName="Particle1.dds"/>
+		<MaxCount maxParticles="900"/>
+		<EmitPerSec particlesPerSec="900"/>
+		<BaseLife maxLife="0.6"/>
+		<LifeDeviation maxLifeDeviation="0.2"/>
+		<Size sX="8.0" sY="8.0"/>
+		<PositionDeviation positionDeviation="10.0"/>
+		<Velocity vbX="0.0" vbY="60.0" vbZ="0.0" vdX="15.0" vdY="20.0" vdZ="15.0"/>
+		<Color cbX="0.8" cbY="0.15" cbZ="0.0" cbA="0.3" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
+	</Effect>
+	<Effect effectName="smoke">
+		<Texture resourceName="Particle1.dds"/>
+		<MaxCount maxParticles="1200"/>
+		<EmitPerSec particlesPerSec="9000"/>
+		<BaseLife maxLife="0.8"/>
+		<LifeDeviation maxLifeDeviation="0.3"/>
+		<Size sX="4.0" sY="4.0"/>
+		<PositionDeviation positionDeviation="2.0"/>
+		<Velocity vbX="0.0" vbY="100.0" vbZ="0.0" vdX="10.0" vdY="10.0" vdZ="10.0"/>
+		<Color cbX="0.2" cbY="0.15" cbZ="0.0" cbA="0.2" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
+	</Effect>
+	<Effect effectName="magic">
+		<Texture resourceName="Particle1.dds"/>
+		<MaxCount maxParticles="9000"/>
+		<EmitPerSec particlesPerSec="9000"/>
+		<BaseLife maxLife="0.9"/>
+		<LifeDeviation maxLifeDeviation="0.2"/>
+		<Size sX="3.0" sY="3.0"/>
+		<PositionDeviation positionDeviation="2.0"/>
+		<Velocity vbX="25.0" vbY="15.0" vbZ="25.0" vdX="50.0" vdY="30.0" vdZ="50.0"/>
+		<Color cbX="0.2" cbY="0.0" cbZ="0.8" cbA="0.2" cdX="0.2" cdY="0.0" cdZ="0.2" cdA="0.2"/>
+	</Effect>
+	<Effect effectName="magicProjectile">
+		<Texture resourceName="Particle1.dds"/>
+		<MaxCount maxParticles="900"/>
+		<EmitPerSec particlesPerSec="90000"/>
+		<BaseLife maxLife="0.01"/>
+		<LifeDeviation maxLifeDeviation="0.01"/>
+		<Size sX="10.0" sY="10.0"/>
+		<PositionDeviation positionDeviation="2.0"/>
+		<Velocity vbX="100.0" vbY="15.0" vbZ="100.0" vdX="200.0" vdY="50.0" vdZ="200.0"/>
+		<Color cbX="0.4" cbY="0.0" cbZ="0.6" cbA="0.2" cdX="0.2" cdY="0.0" cdZ="0.2" cdA="0.2"/>
+	</Effect>
+</Particle>
+<!--
+//A basic description for creating a particle definition or finding what something are.
+//a unique identifier for this definition.
+	<Effect effectName="fire">
+	//Texture name and the file type used by this definition.
+		<Texture resourceName="Particle1.dds"/>
+	//How many particles this definition can have living at the same time.
+		<MaxCount maxParticles="900"/>
+	//How many particles that this definition can create every second.
+		<EmitPerSec particlesPerSec="900"/>
+	//A base life value.
+		<BaseLife maxLife="0.6"/>
+	//How much more or less lifetime a particle can have.
+		<LifeDeviation maxLifeDeviation="0.2"/>
+	//How big a particle are.
+		<Size sX="8.0" sY="8.0"/>
+	//How much from the start position the new particle can spawn.
+		<PositionDeviation positionDeviation="10.0"/>
+	//First 3 are the base velocity value, the other 3 are how much deviation from the base.
+		<Velocity vbX="0.0" vbY="60.0" vbZ="0.0" vdX="15.0" vdY="20.0" vdZ="15.0"/>
+	//First 4 are the base color value, the other 4 are how much deviation from the base.
+		<Color cbX="0.8" cbY="0.15" cbZ="0.0" cbA="0.3" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
+	</Effect>
+-->

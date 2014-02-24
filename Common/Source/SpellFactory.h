@@ -54,5 +54,14 @@ public:
 	 * @param p_Filename are the name of the file to read from
 	 */
 	void readDefinitionFromFile(const char* p_Filename);
+
+	/**
+	 * Returns the mana cost for a spell by checking against existing spelldefinitions. 
+	 * If it doens't find the spell it returns FLT_MAX.
+	 *
+	 * @param SpellName to find the right type of spell in the definition
+	 * @return return the mana cost for the spell
+	 */
+	const float getManaCostFromSpellDefinition(const char* p_SpellName);
 };
 

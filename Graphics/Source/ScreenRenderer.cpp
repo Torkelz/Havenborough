@@ -140,7 +140,7 @@ D3D11_RASTERIZER_DESC ScreenRenderer::createRasterStateDescription(void)
 
 	//Setup the raster description which will determine how and what polygons will be drawn.
 	rd.AntialiasedLineEnable = false;
-	rd.CullMode = D3D11_CULL_BACK;
+	rd.CullMode = D3D11_CULL_NONE;
 	rd.DepthBias = 0;
 	rd.DepthBiasClamp = 0.0f;
 	rd.DepthClipEnable = false;

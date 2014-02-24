@@ -47,13 +47,6 @@ private:
 	bool m_PlayingLocal;
 
 	//DEBUG
-	std::weak_ptr<Actor> circleWitch;
-	std::weak_ptr<Actor> testWitch;
-
-	bool useIK;
-
-	float witchCircleAngle;
-
 	Vector2 m_PlayerDirection;
 	Vector3 m_CurrentCheckPointPosition;
 public:
@@ -85,14 +78,12 @@ public:
 	void movePlayerView(float p_Yaw, float p_Pitch);
 	Vector3 getCurrentCheckpointPosition(void) const;
 
+	const float getPlayerCurrentMana(void);
+	const float getPlayerPreviousMana(void);
+
 	IPhysics *getPhysics() const;
 
 	void playerJump();
-	void toggleIK();
-	void testBlendAnimation();
-	void testResetAnimation();
-	void testLayerAnimation();
-	void testResetLayerAnimation();
 	void playLocalLevel();
 
 	void connectToServer(const std::string& p_URL, unsigned short p_Port);
@@ -119,14 +110,13 @@ private:
 
 	void removeActorByEvent(IEventData::Ptr p_Data);
 
-	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
-	void loadSandbox();
-	void updateSandbox(float p_DeltaTime);
-
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
 	void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
 	void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
-	void updateIK();
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
+
+
+	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
+	void loadSandbox();
 };

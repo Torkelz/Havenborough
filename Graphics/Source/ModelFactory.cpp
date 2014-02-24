@@ -7,6 +7,7 @@
 
 using std::string;
 using std::vector;
+using std::map;
 using std::pair;
 using namespace DirectX;
 
@@ -20,12 +21,13 @@ ModelFactory *ModelFactory::getInstance(void)
 	return m_Instance;
 }
 
-void ModelFactory::initialize(std::map<string, ID3D11ShaderResourceView*> *p_TextureList)
+void ModelFactory::initialize(map<string, ID3D11ShaderResourceView*> *p_TextureList, map<string, Shader*> *p_ShaderList)
 {
 	if(!m_Instance)
 		throw ModelFactoryException("Error when initializing ModelFactory, no instance exists", __LINE__, __FILE__);
 
 	m_TextureList = p_TextureList;
+	m_ShaderList = p_ShaderList;
 }
 
 void ModelFactory::shutdown(void)
@@ -44,17 +46,22 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
 	
 	bool isAnimated = modelLoader.getAnimated();
+	bool isGradient = modelLoader.getTransparent();
 
 	if(!isAnimated)
 	{
 		const vector<StaticVertex> &vertexData = modelLoader.getStaticVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
+		if(isGradient)
+			model.shader = m_ShaderList->at("DefaultForwardShader");
+		else
+			model.shader = m_ShaderList->at("DefaultDeferredShader");
 	}
 	else
 	{
-
 		const vector<AnimatedVertex> &vertexData = modelLoader.getAnimatedVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
+		model.shader = m_ShaderList->at("DefaultAnimatedShader");
 	}
 	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
 
@@ -84,40 +91,32 @@ ModelDefinition *ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_
 {
 	ModelDefinition *model = new ModelDefinition();
 
-	vector<StaticVertex> initData;
-	StaticVertex vertex;
-	vertex.m_Normal = vertex.m_Binormal = vertex.m_Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
-	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(1.0f, 0.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(0.0f, 1.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
-	initData.push_back(vertex);
-
-	Buffer::Description bufferDescription = createBufferDescription(initData, Buffer::Usage::USAGE_IMMUTABLE);
-	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
-	
-	model->vertexBuffer.swap(vertexBuffer);
+	create2D_VertexBuffer(model, p_HalfSize);
 	
 	model->diffuseTexture.push_back(make_pair(std::string(p_TextureId), getTextureFromList(p_TextureId)));
+	model->drawInterval.push_back(std::make_pair(0, 6));
+	model->numOfMaterials = 0;
+	model->isAnimated = false;
+
+	return model;
+}
+
+ModelDefinition *ModelFactory::create2D_Model(ID3D11ShaderResourceView *p_Texture)
+{
+	ModelDefinition *model = new ModelDefinition();
+	ID3D11Resource *resource;
+	ID3D11Texture2D *texture;
+	D3D11_TEXTURE2D_DESC textureDesc;
+
+	p_Texture->GetResource(&resource);
+	resource->QueryInterface(&texture);
+	texture->GetDesc(&textureDesc);
+	Vector2 halfSize(textureDesc.Width * 0.5f, textureDesc.Height * 0.5f);
+	SAFE_RELEASE(texture);
+
+	create2D_VertexBuffer(model, halfSize);
+
+	model->diffuseTexture.push_back(make_pair(std::string("Text"), p_Texture));
 	model->drawInterval.push_back(std::make_pair(0, 6));
 	model->numOfMaterials = 0;
 	model->isAnimated = false;
@@ -152,6 +151,42 @@ Buffer::Description ModelFactory::createBufferDescription(const vector<T> &p_Ver
 	return bufferDescription;
 }
 
+void ModelFactory::create2D_VertexBuffer(ModelDefinition *p_Model, Vector2 p_HalfSize)
+{
+	vector<StaticVertex> initData;
+	StaticVertex vertex;
+	vertex.m_Normal = vertex.m_Binormal = vertex.m_Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 0.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
+	initData.push_back(vertex);
+
+	Buffer::Description bufferDescription = createBufferDescription(initData, Buffer::Usage::USAGE_IMMUTABLE);
+	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
+
+	p_Model->vertexBuffer.swap(vertexBuffer);
+}
+
 void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename, unsigned int p_NumOfMaterials,
 	const vector<Material> &p_Materials)
 {
@@ -173,6 +208,9 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 			parentDir/ "Default_NRM.dds" : parentDir / material.m_NormalMap;
 		boost::filesystem::path spec = (material.m_SpecularMap == "NONE" || material.m_SpecularMap == "Default_SPEC.dds") ?
 			parentDir / "Default_SPEC.dds" : parentDir / material.m_SpecularMap;
+
+		if (material.m_DiffuseMap == "WallStoneBrick_COLOR.dds")
+			int dummy = 42;
 
 		m_LoadModelTexture(material.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
 		m_LoadModelTexture(material.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);

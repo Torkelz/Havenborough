@@ -221,6 +221,7 @@ private:
 	float m_Radius;
 	float m_Mass;
 	bool m_Immovable;
+	bool m_CollisionResponse;
 
 public:
 	~CollisionSphereComponent() override
@@ -258,11 +259,16 @@ public:
 
 		m_Mass = 0.f;
 		p_Data->QueryAttribute("Mass", &m_Mass);
+
+		m_CollisionResponse = true;
+		p_Data->QueryBoolAttribute("CollisionResponse", &m_CollisionResponse);
 	}
 
 	void postInit() override
 	{
 		m_Body = m_Physics->createSphere(m_Mass, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Radius);
+		m_Physics->setBodyCollisionResponse(m_Body, m_CollisionResponse);
+
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -271,6 +277,7 @@ public:
 		p_Printer.PushAttribute("Immovable", m_Immovable);
 		p_Printer.PushAttribute("Radius", m_Radius);
 		p_Printer.PushAttribute("Mass", m_Mass);
+		p_Printer.PushAttribute("CollisionResponse", m_CollisionResponse);
 		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
 		p_Printer.CloseElement();
 	}
@@ -482,9 +489,9 @@ public:
 	void postInit() override
 	{
 		m_Body = m_Physics->createBVInstance(m_MeshName.c_str());
-		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
-		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
 		m_Physics->setBodyScale(m_Body, m_Scale);
+		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
+		m_Physics->setBodyPosition(m_Body, m_Owner->getPosition());
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -524,6 +531,205 @@ public:
 		return m_Physics->getBodyLanded(m_Body);
 	}
 };
+
+/**
+ * Player body component
+ */
+class PlayerBodyComponent : public PhysicsInterface
+{
+private:
+	BodyHandle m_Body;
+	IPhysics* m_Physics;
+	float m_RadiusMain;
+	float m_RadiusAnkle;
+	float m_RadiusHead;
+	float m_Mass;
+	Vector3 m_OffsetPositionSphereMain;
+	Vector3 m_OffsetPositionSphereHead;
+	Vector3 m_OffsetPositionBox;
+	Vector3 m_OffsetRotation;
+	Vector3 m_Halfsize;
+	Vector3 m_Scale;
+
+public:
+	~PlayerBodyComponent() override
+	{
+		m_Physics->releaseBody(m_Body);
+	}
+	
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
+	void setPhysics(IPhysics* p_Physics)
+	{
+		m_Physics = p_Physics;
+	}
+
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		m_RadiusMain = 1.f;
+		p_Data->QueryFloatAttribute("RadiusMain", &m_RadiusMain);
+		m_RadiusAnkle = 1.f;
+		p_Data->QueryFloatAttribute("RadiusAnkle", &m_RadiusAnkle);
+		m_RadiusHead = 1.f;
+		p_Data->QueryFloatAttribute("RadiusHead", &m_RadiusHead);
+		m_Mass = 1.f;
+		p_Data->QueryFloatAttribute("Mass", &m_Mass);
+
+		m_Scale = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
+		if (scale)
+		{
+			m_Scale.x = scale->FloatAttribute("x");
+			m_Scale.y = scale->FloatAttribute("y");
+			m_Scale.z = scale->FloatAttribute("z");
+		}
+
+		m_Halfsize = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* size = p_Data->FirstChildElement("Halfsize");
+		if (size)
+		{
+			m_Halfsize.x = size->FloatAttribute("x");
+			m_Halfsize.y = size->FloatAttribute("y");
+			m_Halfsize.z = size->FloatAttribute("z");
+		}
+
+		m_OffsetPositionSphereHead = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosSphereHead = p_Data->FirstChildElement("OffsetPositionSphereHead");
+		if (relPosSphereHead)
+		{
+			relPosSphereHead->QueryAttribute("x", &m_OffsetPositionSphereHead.x);
+			relPosSphereHead->QueryAttribute("y", &m_OffsetPositionSphereHead.y);
+			relPosSphereHead->QueryAttribute("z", &m_OffsetPositionSphereHead.z);
+		}
+
+		m_OffsetPositionSphereMain = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosSphereMain = p_Data->FirstChildElement("OffsetPositionSphereMain");
+		if (relPosSphereMain)
+		{
+			relPosSphereMain->QueryAttribute("x", &m_OffsetPositionSphereMain.x);
+			relPosSphereMain->QueryAttribute("y", &m_OffsetPositionSphereMain.y);
+			relPosSphereMain->QueryAttribute("z", &m_OffsetPositionSphereMain.z);
+		}
+
+		m_OffsetPositionBox = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosBox = p_Data->FirstChildElement("OffsetPositionBox");
+		if (relPosBox)
+		{
+			relPosBox->QueryAttribute("x", &m_OffsetPositionBox.x);
+			relPosBox->QueryAttribute("y", &m_OffsetPositionBox.y);
+			relPosBox->QueryAttribute("z", &m_OffsetPositionBox.z);
+		}
+
+		m_OffsetRotation = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relRot = p_Data->FirstChildElement("OffsetRotation");
+		if(relRot)
+		{
+			queryRotation(relRot, m_OffsetRotation);
+		}
+
+
+	}
+
+	void postInit() override
+	{
+		m_Body = m_Physics->createSphere(m_Mass, false, m_Owner->getPosition() + m_OffsetPositionSphereMain, m_RadiusMain);
+		
+		using namespace DirectX;
+		XMFLOAT4X4 rotMat = m_Owner->getWorldMatrix();
+		XMMATRIX mRotMat = XMMatrixTranspose(XMLoadFloat4x4(&rotMat));
+		XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(m_OffsetPositionBox));
+		pos = XMVectorSetW(pos, 1.f);
+		XMVECTOR rotPos = XMVector4Transform(pos, mRotMat);
+		XMFLOAT3 fRotPos;
+		XMStoreFloat3(&fRotPos, rotPos);
+		
+		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionBox, m_Halfsize, false);
+
+		Vector3 ownerRot = m_Owner->getRotation();
+		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
+		XMMATRIX compRotation = XMMatrixRotationRollPitchYaw(m_OffsetRotation.y, m_OffsetRotation.x, m_OffsetRotation.z);
+		XMMATRIX multRotation = compRotation * ownerRotation;
+		XMFLOAT4X4 fMultRotation;
+		XMStoreFloat4x4(&fMultRotation, multRotation);
+		m_Physics->setBodyRotationMatrix(m_Body, fMultRotation);
+
+		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereMain, m_RadiusAnkle);
+		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereMain, m_RadiusAnkle);
+
+		m_Physics->setBodyVolumeCollisionResponse(m_Body, 2, false);
+		m_Physics->setBodyVolumeCollisionResponse(m_Body, 3, false);
+
+		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereHead, m_RadiusHead);
+
+		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
+		m_Physics->setBodyScale(m_Body, m_Scale);
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("PlayerPhysics");
+		p_Printer.PushAttribute("RadiusMain", m_RadiusMain);
+		p_Printer.PushAttribute("RadiusAnkle", m_RadiusAnkle);
+		p_Printer.PushAttribute("RadiusHead", m_RadiusHead);
+		p_Printer.PushAttribute("Mass", m_Mass);
+		pushVector(p_Printer, "Scale", m_Scale);
+		pushVector(p_Printer, "Halfsize", m_Halfsize);
+		pushVector(p_Printer, "OffsetPositionSphereMain", m_OffsetPositionSphereMain);
+		pushVector(p_Printer, "OffsetPositionSphereHead", m_OffsetPositionSphereHead);
+		pushVector(p_Printer, "OffsetPositionBox", m_OffsetPositionBox);
+		pushVector(p_Printer, "OffsetRotation", m_OffsetRotation);
+		p_Printer.CloseElement();
+	}
+
+	void onUpdate(float p_DeltaTime) override
+	{
+		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositionSphereMain);
+		Vector3 rotation = m_Owner->getRotation();
+		m_Physics->setBodyRotation(m_Body, rotation);
+
+
+	}
+
+	void setPosition(Vector3 p_Position) override
+	{
+		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositionSphereMain);
+	}
+
+	void setRotation(Vector3 p_Rotation) override
+	{
+		using namespace DirectX;
+		Vector3 ownerRot = p_Rotation;
+		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
+		XMMATRIX compRotation = XMMatrixRotationRollPitchYaw(m_OffsetRotation.y, m_OffsetRotation.x, m_OffsetRotation.z);
+		XMMATRIX multRotation = compRotation * ownerRotation;
+		XMFLOAT4X4 fMultRotation;
+		XMStoreFloat4x4(&fMultRotation, multRotation);
+		m_Physics->setBodyRotationMatrix(m_Body, fMultRotation);
+	}
+
+	BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
+	}
+
+	Vector3 getVelocity() const override
+	{
+		return m_Physics->getBodyVelocity(m_Body);
+	}
+
+	bool isInAir() const override
+	{
+		return m_Physics->getBodyInAir(m_Body);
+	}
+	bool hasLanded() const override
+	{
+		return m_Physics->getBodyLanded(m_Body);
+	}
+};
+
 
 /**
  * Interface for model components.

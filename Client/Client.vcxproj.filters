@@ -63,6 +63,9 @@
     <ClCompile Include="Source\EdgeCollisionResponse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Window.h">
@@ -116,6 +119,12 @@
     <ClInclude Include="Source\EdgeCollisionResponse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Input\InputTranslatorEnums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Bin\assets\shaders\ParticleSystem.hlsl">
@@ -166,5 +175,6 @@
     <FxCompile Include="Bin\assets\shaders\HUD_Shader.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\BillboardShader.hlsl" />
   </ItemGroup>
 </Project>

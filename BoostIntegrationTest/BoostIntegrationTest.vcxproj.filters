@@ -103,6 +103,18 @@
     <ClCompile Include="..\Graphics\Source\ScreenRenderer.cpp">
       <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Common\Source\TweakSettings.cpp">
+      <Filter>CommonImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\3rd party\tinyxml2\tinyxml2.cpp">
+      <Filter>CommonImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextFactory.cpp">
+      <Filter>Graphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextRenderer.cpp">
+      <Filter>Graphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">

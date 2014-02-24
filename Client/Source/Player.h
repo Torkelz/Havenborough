@@ -1,5 +1,6 @@
 #pragma once
 #include "Actor.h"
+#include "INetwork.h"
 #include "IPhysics.h"
 
 #include <DirectXMath.h>
@@ -8,6 +9,7 @@ class Player
 {
 private:
 	IPhysics *m_Physics;
+	INetwork *m_Network;
 	std::weak_ptr<Actor> m_Actor;
 
 	bool m_IsJumping;
@@ -18,7 +20,11 @@ private:
 	float m_AccConstant;
 	float m_DirectionX;	// (-1 - +1)
 	float m_DirectionZ;	// (-1 - +1)
+	float m_ClimbOffset; // Offset to position the player correctly when climbing. Needed because the sphere is positioned under the characters center.
 	DirectX::XMFLOAT3 m_GroundNormal;
+
+	float m_CurrentMana, m_PreviousMana, m_MaxMana, m_ManaRegenerationSlow, m_ManaRegenerationFast;
+	bool m_IsAtMaxSpeed, m_IsPreviousManaSet;
 
 	bool m_ForceMove, m_Climb;
 	float m_CurrentForceMoveTime;
@@ -52,7 +58,7 @@ public:
 	* @param p_Physics a pointer to the physics engine
 	* @param p_Actor the player actor
 	*/
-	void initialize(IPhysics *p_Physics, std::weak_ptr<Actor> p_Actor);
+	void initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<Actor> p_Actor);
 	
 	/**
 	* Updates the player's actions such as movement and jumping. If forced movement is active, the position will be updated between two stored positions.
@@ -75,6 +81,39 @@ public:
 	void updateIKJoints();
 
 	/**
+	 * Sets the current mana. It isn't possible to set current mana higher than the Maximum mana and lower than 0.
+	 * 
+	 *
+	 * @param p_Mana, new mana for the player
+	 */
+	void setCurrentMana(float p_Mana);
+	/**
+	 * Returns the current mana for the player.
+	 *
+	 * @return player's current mana
+	 */
+	float getPreviousMana();
+	/**
+	 * Returns the previous mana from the last frame.
+	 *
+	 * @return player's previous mana
+	 */
+	float getCurrentMana();
+	/**
+	 * Returns the maximum mana.
+	 *
+	 * @return players maximum mana
+	 */
+	float getMaxMana();
+
+	/**
+	 * Returns if the player is running at max speed.
+	 *
+	 * @return true if the player is running at max speed.
+	 */
+	bool getIsAtMaxSpeed();
+
+	/**
 	* Sets the position of the player at specified position in the game world.
 	* @param p_Position the position where to place the player
 	*/
@@ -92,6 +131,11 @@ public:
 	 * @return the position of the players eyes
 	 */
 	DirectX::XMFLOAT3 getEyePosition() const;
+
+	/**
+	 *
+	 */
+	DirectX::XMFLOAT3 getFootPosition(std::string p_Joint) const;
 
 	/**
 	 *
@@ -131,7 +175,7 @@ public:
 	* Gets the body handle of the player.
 	* @return the body handle
 	*/
-	virtual BodyHandle getBody(void) const;
+	virtual BodyHandle getBody() const;
 
 	/**
 	* Gets if the player is currently forced to change position.

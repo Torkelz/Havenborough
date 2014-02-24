@@ -119,9 +119,8 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Client\Source\Scenes\GameScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
+    <ClCompile Include="..\Client\Source\Settings.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
-    <ClCompile Include="..\Common\Source\AnimationClipLoader.cpp" />
-    <ClCompile Include="..\Common\Source\AnimationLoader.cpp" />
     <ClCompile Include="..\Common\Source\InstanceBinaryLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
@@ -138,7 +137,11 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Graphics\Source\ParticleInstance.cpp" />
     <ClCompile Include="..\Graphics\Source\ScreenRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
+    <ClCompile Include="..\Graphics\Source\SimpleText.cpp" />
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
+    <ClCompile Include="..\Graphics\Source\TextFactory.cpp" />
+    <ClCompile Include="..\Graphics\Source\TextRenderer.cpp" />
+    <ClCompile Include="..\Graphics\Source\TextResource.cpp" />
     <ClCompile Include="..\Graphics\Source\TextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
@@ -156,6 +159,12 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Network\Source\Network.cpp" />
     <ClCompile Include="..\Network\Source\ServerAccept.cpp" />
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
+    <ClCompile Include="Source\Client\TestSettings.cpp" />
+    <ClCompile Include="Source\Client\TestRAM_Info.cpp" />
+    <ClCompile Include="Source\Common\TestCommandManager.cpp" />
+    <ClCompile Include="Source\Common\TestStreamReader.cpp" />
+    <ClCompile Include="Source\Common\TestTweakCommand.cpp" />
+    <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp" />
     <ClCompile Include="Source\Physics\AABBTest.cpp" />
     <ClCompile Include="Source\Physics\BodyTest.cpp" />
     <ClCompile Include="Source\Physics\HullTest.cpp" />
@@ -191,6 +200,8 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Common\TestResouceTranslator.cpp" />
     <ClCompile Include="Source\Common\TestResourceManager.cpp" />
     <ClCompile Include="Source\Graphics\TestSkyDome.cpp" />
+    <ClCompile Include="Source\Common\TestTweakSettings.cpp" />
+    <ClCompile Include="Source\Common\TestHumanAnimationComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

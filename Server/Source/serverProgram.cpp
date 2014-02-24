@@ -45,7 +45,7 @@ void printUnknownCommand()
 
 int main(int argc, char* argv[])
 {
-	std::ofstream logFile("logFile.txt", std::ofstream::trunc);
+	std::ofstream logFile("serverLogFile.txt", std::ofstream::trunc);
 
 	Logger::addOutput(Logger::Level::TRACE, logFile);
 	Logger::addOutput(Logger::Level::INFO, std::cout);
