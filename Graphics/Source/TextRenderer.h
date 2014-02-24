@@ -59,6 +59,7 @@ private:
 
 	ID3D11SamplerState *m_Sampler;
 	ID3D11RasterizerState *m_RasterState;
+	ID3D11BlendState *m_TransparencyAdditiveBlend;
 
 public:
 	TextRenderer(void);
@@ -83,5 +84,12 @@ public:
 	void setRotation(TextId p_Instance, float p_Rotation);
 
 private:
+	void createBuffers(void);
+	void createSamplerState(void);
+	void createBlendState(void);
+	void createRasterizerState(void);
+
+	void updateConstantBuffers(void);
+
 	bool depthSortCompareFunc(const TextInstance &a, const TextInstance &b);
 };

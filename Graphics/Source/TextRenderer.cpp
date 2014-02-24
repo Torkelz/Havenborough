@@ -42,50 +42,14 @@ void TextRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Dev
 	m_ProjectionMatrix = p_ProjectionMatrix;
 	m_RenderTargetView = p_RenderTarget;
 
-	cBuffer cb;
-	cb.campos = *m_CameraPosition;
-	cb.view = *m_ViewMatrix;
-	cb.proj = *m_ProjectionMatrix;
-	Buffer::Description bufferDesc;
-	bufferDesc.initData = &cb;
-	bufferDesc.numOfElements = 1;
-	bufferDesc.sizeOfElement = sizeof(cBuffer);
-	bufferDesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
-	bufferDesc.usage = Buffer::Usage::DEFAULT;
-	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(bufferDesc);
-	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
-
-	bufferDesc.initData = nullptr;
-	bufferDesc.sizeOfElement = sizeof(TextInstanceShaderData);
-	bufferDesc.type = Buffer::Type::VERTEX_BUFFER;
-	m_Buffer = WrapperFactory::getInstance()->createBuffer(bufferDesc);
+	createBuffers();
 
 	m_Shader = WrapperFactory::getInstance()->createShader(L"assets/shaders/BillboardShader.hlsl", "VS,PS,GS", "5_0",
 		ShaderType::VERTEX_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::PIXEL_SHADER);
 
-	D3D11_SAMPLER_DESC sd;
-	ZeroMemory(&sd, sizeof(sd));
-	sd.Filter			= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sd.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.ComparisonFunc	= D3D11_COMPARISON_NEVER;
-	sd.MinLOD			= 0;
-	sd.MaxLOD           = D3D11_FLOAT32_MAX;
-	m_Device->CreateSamplerState( &sd, &m_Sampler );
-	D3D11_RASTERIZER_DESC rasterDesc;
-	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_NONE;
-	rasterDesc.DepthBias = 0;
-	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.MultisampleEnable = false;
-	rasterDesc.ScissorEnable = false;
-	rasterDesc.SlopeScaledDepthBias = 0.0f;
-
-	m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+	createBlendState();
+	createSamplerState();
+	createRasterizerState();
 }
 
 void TextRenderer::addTextObject(TextId p_Instance, TextInstance &p_Object)
@@ -132,15 +96,12 @@ void TextRenderer::renderFrame(void)
 		m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 		m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler);
 
-		cBuffer cb;
-		cb.campos = *m_CameraPosition;
-		cb.view = *m_ViewMatrix;
-		cb.proj = *m_ProjectionMatrix;
+		updateConstantBuffers();
 
-		m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), 0,nullptr, &cb, 0, 0);
-		m_ConstantBuffer->setBuffer(0);
 		m_Shader->setShader();
 		m_Buffer->setBuffer(0);
+		float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
+		m_Shader->setBlendState(m_TransparencyAdditiveBlend, data);
 		for(auto& object : m_RenderList)
 		{
 			m_DeviceContext->UpdateSubresource(m_Buffer->getBufferPointer(), 0, nullptr, &object.data, 0, 0);
@@ -148,6 +109,7 @@ void TextRenderer::renderFrame(void)
 
 			m_DeviceContext->Draw(1,0);
 		}
+		m_Shader->setBlendState(0, data);
 		m_Buffer->unsetBuffer(0);
 		m_Shader->unSetShader();
 		m_ConstantBuffer->unsetBuffer(0);
@@ -191,15 +153,92 @@ void TextRenderer::setRotation(TextId p_Instance, float p_Rotation)
 		throw;
 }
 
-bool TextRenderer::depthSortCompareFunc( const TextInstance &a, const TextInstance &b )
+void TextRenderer::createBuffers(void)
 {
-	DirectX::XMVECTOR aV = Vector3ToXMVECTOR(&a.data.position, 1.0f);
-	DirectX::XMVECTOR bV = Vector3ToXMVECTOR(&b.data.position, 1.0f);
-	DirectX::XMVECTOR eV = DirectX::XMLoadFloat3(m_CameraPosition);
+	cBuffer cb;
+	cb.campos = *m_CameraPosition;
+	cb.view = *m_ViewMatrix;
+	cb.proj = *m_ProjectionMatrix;
+	Buffer::Description bufferDesc;
+	bufferDesc.initData = &cb;
+	bufferDesc.numOfElements = 1;
+	bufferDesc.sizeOfElement = sizeof(cBuffer);
+	bufferDesc.type = Buffer::Type::CONSTANT_BUFFER_ALL;
+	bufferDesc.usage = Buffer::Usage::DEFAULT;
+	m_ConstantBuffer = WrapperFactory::getInstance()->createBuffer(bufferDesc);
+	VRAMInfo::getInstance()->updateUsage(sizeof(cBuffer));
 
-	using DirectX::operator -;
-	DirectX::XMVECTOR aVeVLength = DirectX::XMVector3Length(aV - eV);
-	DirectX::XMVECTOR bVeVLength = DirectX::XMVector3Length(bV - eV);
+	bufferDesc.initData = nullptr;
+	bufferDesc.sizeOfElement = sizeof(TextInstanceShaderData);
+	bufferDesc.type = Buffer::Type::VERTEX_BUFFER;
+	m_Buffer = WrapperFactory::getInstance()->createBuffer(bufferDesc);
+}
+
+void TextRenderer::createSamplerState(void)
+{
+	D3D11_SAMPLER_DESC sd;
+	ZeroMemory(&sd, sizeof(sd));
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sd.MinLOD = 0;
+	sd.MaxLOD = D3D11_FLOAT32_MAX;
+	m_Device->CreateSamplerState( &sd, &m_Sampler );
+}
+
+void TextRenderer::createBlendState(void)
+{
+	D3D11_BLEND_DESC bd;
+	bd.AlphaToCoverageEnable = false;
+	bd.IndependentBlendEnable = false;
+	bd.RenderTarget[0].BlendEnable = true;
+	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	bd.RenderTarget[0].DestBlend =  D3D11_BLEND_INV_SRC_ALPHA;
+	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	m_Device->CreateBlendState(&bd, &m_TransparencyAdditiveBlend);
+}
+
+void TextRenderer::createRasterizerState(void)
+{
+	D3D11_RASTERIZER_DESC rd;
+	rd.AntialiasedLineEnable = false;
+	rd.CullMode = D3D11_CULL_NONE;
+	rd.DepthBias = 0;
+	rd.DepthBiasClamp = 0.0f;
+	rd.DepthClipEnable = true;
+	rd.FillMode = D3D11_FILL_SOLID;
+	rd.FrontCounterClockwise = false;
+	rd.MultisampleEnable = false;
+	rd.ScissorEnable = false;
+	rd.SlopeScaledDepthBias = 0.0f;
+	m_Device->CreateRasterizerState(&rd, &m_RasterState);
+}
+
+void TextRenderer::updateConstantBuffers(void)
+{
+	cBuffer cb;
+	cb.campos = *m_CameraPosition;
+	cb.view = *m_ViewMatrix;
+	cb.proj = *m_ProjectionMatrix;
+
+	m_DeviceContext->UpdateSubresource(m_ConstantBuffer->getBufferPointer(), 0,nullptr, &cb, 0, 0);
+	m_ConstantBuffer->setBuffer(0);
+}
+
+bool TextRenderer::depthSortCompareFunc(const TextInstance &a, const TextInstance &b)
+{
+	XMVECTOR aV = Vector3ToXMVECTOR(&a.data.position, 1.0f);
+	XMVECTOR bV = Vector3ToXMVECTOR(&b.data.position, 1.0f);
+	XMVECTOR eV = XMLoadFloat3(m_CameraPosition);
+
+	XMVECTOR aVeVLength = XMVector3Length(aV - eV);
+	XMVECTOR bVeVLength = XMVector3Length(bV - eV);
 
 	return aVeVLength.m128_f32[0] > bVeVLength.m128_f32[0];
 }
