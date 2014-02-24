@@ -76,11 +76,6 @@ public:
 	virtual void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation);
 
 	/**
-	 * If the player is in a force move some IK groups might be locked onto points and need updating.
-	 */
-	void updateIKJoints();
-
-	/**
 	 * Sets the current mana. It isn't possible to set current mana higher than the Maximum mana and lower than 0.
 	 * 
 	 *

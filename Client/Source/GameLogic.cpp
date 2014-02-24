@@ -124,7 +124,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 	
 	m_Actors->onUpdate(p_DeltaTime);
 	m_Player.update(p_DeltaTime);
-	m_Player.updateIKJoints();
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -690,6 +689,12 @@ void GameLogic::handleNetwork()
 						Actor::ptr actor = getActor(actorId);
 						const char* climbId = action->Attribute("Animation");
 
+						Vector3 orientation = Vector3(0.f, 1.f, 1.f);
+						Vector3 center = Vector3(0.f, 0.f, 0.f);
+
+						queryVector(action->FirstChildElement("Orientation"), orientation);
+						queryVector(action->FirstChildElement("Center"), center);
+
 						if (actor && climbId)
 						{
 							std::shared_ptr<AnimationInterface> comp = 
@@ -697,6 +702,7 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->playClimbAnimation(climbId);
+								comp->updateIKData(orientation, center);
 							}
 						}
 					}
