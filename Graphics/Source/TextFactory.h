@@ -49,7 +49,6 @@ public:
 	void deleteText(Text_Id p_Identifier);
 	void setTextColor(Text_Id p_Identifier, Vector4 p_Color);
 	void setBackgroundColor(Text_Id p_Identifier, Vector4 p_Color);
-	void setTextSize(Text_Id p_Identifier, float p_Size);
 	void setTextAlignment(Text_Id p_Identifier, TEXT_ALIGNMENT p_Alignment);
 	void setParagraphAlignment(Text_Id p_Identifier, PARAGRAPH_ALIGNMENT p_Alignment);
 	void setWordWrapping(Text_Id p_Identifier, WORD_WRAPPING p_Wrapping);

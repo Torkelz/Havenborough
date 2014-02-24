@@ -494,10 +494,6 @@ void GameScene::preLoadModels()
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Pivot1"));
 	
-
-
-
-
 	//Separate to GUI function and refactor? /Pontus, DO NOT TOUCH!
 	static const std::string preloadedTextures[] =
 	{

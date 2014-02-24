@@ -39,10 +39,13 @@ void GS(point VSIn gIn[1], inout TriangleStream<PSIn> triStream)
 	float3 right = normalize(cross(float3(0, 1, 0), look));
 	float3 up = cross(look, right);
 
-	float4x4 world = {  float4(-right.x, up.x,look.x, gIn[0].position.x),
-						float4(-right.y, up.y,look.y, gIn[0].position.y),
-						float4(-right.z, up.z,look.z, gIn[0].position.z),
-						float4(0, 0, 0, 1)};
+	float4x4 world =
+	{
+		float4(-right.x, up.x,look.x, gIn[0].position.x),
+		float4(-right.y, up.y,look.y, gIn[0].position.y),
+		float4(-right.z, up.z,look.z, gIn[0].position.z),
+		float4(0, 0, 0, 1)
+	};
 
 	float4x4 scale =
 	{
@@ -96,8 +99,6 @@ void GS(point VSIn gIn[1], inout TriangleStream<PSIn> triStream)
 float4 PS(PSIn p_Input) : SV_Target
 {
 	float4 color = diffuseTex.Sample(textureSampler, p_Input.texCoord);
-	if(color.w < 0.5f)
-		discard;
 	
 	return color;
 }

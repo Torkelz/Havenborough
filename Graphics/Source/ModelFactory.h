@@ -49,15 +49,26 @@ public:
 	virtual void shutdown(void);
 
 	/**
-	* Creates a static model with buffers and connects the textures to it.
+	* Creates a model with buffers and default shader and connects the textures to it.
 	* @param p_Filename the model file to read
-	* @param p_IsAnimated check whether the model should be animated or not, true = animated, false = static
 	* @return copy of the created model
 	*/
 	virtual ModelDefinition createModel(const char *p_Filename);
 
-
+	/**
+	* Creates a quad model with with a texture attached to it.
+	* @param p_HalfSize the size from the center point to the xy-edges
+	* @param p_TextureId the texture to be used
+	* @return copy of the created quad
+	*/
 	virtual ModelDefinition *create2D_Model(Vector2 p_HalfSize, const char *p_TextureId);
+
+	/**
+	* Creates a quad model from a texture with the texture attached to it.
+	* @param p_Texture the texture to be used
+	* @return copy of the created quad
+	*/
+	virtual ModelDefinition *create2D_Model(ID3D11ShaderResourceView *p_Texture);
 
 	/**
 	* Set the function to load a texture to a model.
@@ -73,6 +84,7 @@ protected:
 private:
 	template<class T>
 	Buffer::Description createBufferDescription(const std::vector<T> &p_VertexData, Buffer::Usage p_Usage);
+	void create2D_VertexBuffer(ModelDefinition *p_Model, Vector2 p_HalfSize);
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
 		const std::vector<Material> &p_Materials);
