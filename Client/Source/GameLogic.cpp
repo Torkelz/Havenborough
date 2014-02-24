@@ -128,6 +128,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
 {
+	const float dirLengthSq = p_Direction.x * p_Direction.x + p_Direction.y * p_Direction.y;
+	if (dirLengthSq > 1.f)
+	{
+		const float div = 1.f / sqrtf(dirLengthSq);
+		p_Direction = p_Direction * div;
+	}
 	m_PlayerDirection = p_Direction;
 }
 
