@@ -73,26 +73,62 @@ public:
 	~TextRenderer(void);
 
 	/**
-	* Initializes the text renderer.
-	* @
+	* Initializes all needed variables for rendering text. Throws exception if failing.
+	* @param p_Device the DirectX device used for rendering
+	* @param p_DeviceContex the DirectX device context used for rendering
+	* @param p_CameraPosition the position of the camera, used when rendering
+	* @param p_ViewMatrix the view matrix, used when rendering
+	* @param p_ProjectionMatrix the projection matrix, used when rendering
+	* @param p_RenderTarget the target to render to, should be the same as the others
 	*/
 	void initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, DirectX::XMFLOAT3 *p_CameraPosition,
 		DirectX::XMFLOAT4X4 *p_ViewMatrix, DirectX::XMFLOAT4X4 *p_ProjectionMatrix, ID3D11RenderTargetView *p_RenderTarget);
 
-	void addTextObject(TextId p_Instance, TextInstance &p_Object);
-	void removeTextObject(TextId p_Instance);
-	
-	void renderTextObject(TextId p_Instance);
+	/**
+	* Adds a new text object to a list of all existing objects. Throws exception if ID already exists.
+	* @param p_InstanceId the ID of the text object when created
+	* @param p_Object the text object
+	*/
+	void addTextObject(TextId p_InstanceId, TextInstance &p_Object);
+
+	/**
+	* Removes a text object from the list of all existing objects. Throws exception if ID does not exist.
+	* @param p_InstanceId the ID of the object to be removed
+	*/
+	void removeTextObject(TextId p_InstanceId);
 	
 	/**
-	* Call to render objects to specific screen coordinates. All the objects that are supposed to be rendered
-	* must have been added to the list each frame before calling this function.
+	* Adds a text object to be rendered next time renderFrame is called. Throws exception ID does not exist.
+	* @param p_InstanceId the ID of the object to be rendered
+	*/
+	void renderTextObject(TextId p_InstanceId);
+	
+	/**
+	* Call to render text objects. All the objects that are supposed to be rendered
+	* must have been added to the list by #renderTextObject each frame before calling this function.
 	*/
 	void renderFrame(void);
 
-	void setPosition(TextId p_Instance, Vector3 p_Position);
-	void setScale(TextId p_Instance, float p_Scale);
-	void setRotation(TextId p_Instance, float p_Rotation);
+	/**
+	* Sets a position in world space for a text object. Throws exception if ID does not exist.
+	* @param p_InstanceId the ID of the text object
+	* @param p_Position the world position the text should be rendered at, in cm's
+	*/
+	void setPosition(TextId p_InstanceId, Vector3 p_Position);
+
+	/**
+	* Sets a uniform scaling factor of a text object. Throws exception if ID does not exist.
+	* @param p_InstanceId the ID of the text object
+	* @param p_Scale the scale for the object, 1.0f is default value
+	*/
+	void setScale(TextId p_InstanceId, float p_Scale);
+
+	/**
+	* Sets a rotation around the z-axis of the text in model space. Throws exception if ID does not exist.
+	* @param p_InstanceId the ID of the text object
+	* @param p_Rotation the rotation in radians
+	*/
+	void setRotation(TextId p_InstanceId, float p_Rotation);
 
 private:
 	void createBuffers(void);
