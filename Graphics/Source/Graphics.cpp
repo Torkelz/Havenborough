@@ -880,13 +880,9 @@ void Graphics::set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt)
 	if(m_2D_Objects.count(p_Instance) > 0)
 	{
 		Renderable2D& renderable = m_2D_Objects.at(p_Instance);
-
-		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 0.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f);
-		direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
-		direction = XMVector3Normalize(direction);
-		XMMATRIX rotation = XMMatrixTranspose(XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0)));
-
-		XMStoreFloat4x4(&renderable.rotation, rotation);
+		XMVECTOR lookAt = XMVector3Transform(Vector3ToXMVECTOR(&p_LookAt, 1.0f), XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
+		XMMATRIX rotation = XMMatrixLookToLH(g_XMZero, lookAt,XMVectorSet(0,1,0,0));
+		XMStoreFloat4x4(&renderable.rotation, XMMatrixTranspose(rotation));
 	}
 	else
 		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);
