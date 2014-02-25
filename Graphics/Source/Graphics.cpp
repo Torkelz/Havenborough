@@ -863,7 +863,7 @@ void Graphics::set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt)
 	{
 		Renderable2D& renderable = m_2D_Objects.at(p_Instance);
 
-		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 1.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 1.0f);
+		//XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 1.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 1.0f);
 		//XMVECTOR up = XMVectorSet(0,1,0,0);
 		//XMVECTOR side = XMVector3Normalize(XMVector3Cross(up, direction));
 		//up = XMVector3Normalize(XMVector3Cross(side, direction));
@@ -878,17 +878,17 @@ void Graphics::set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt)
 		//rot._41 = 0.f;     rot._42 = 0.f;     rot._43 = 0.f;     rot._44 = 1.f;
 
 		//direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
-		direction = XMVector3Normalize(direction);
+		//direction = XMVector3Normalize(direction);
 
 		XMVECTOR lookAt = XMVector3Transform(Vector3ToXMVECTOR(&p_LookAt, 1.0f), XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
 
 		XMMATRIX rotation;// = XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0));
 		rotation = XMMatrixLookAtRH(g_XMZero, lookAt,XMVectorSet(0,1,0,0));
-		XMFLOAT4X4 tempView = m_ViewMatrix;
-		tempView._14 = 0.f;
-		tempView._24 = 0.f;
-		tempView._34 = 0.f;
-		tempView._44 = 1.f;
+		//XMFLOAT4X4 tempView = m_ViewMatrix;
+		//tempView._14 = 0.f;
+		//tempView._24 = 0.f;
+		//tempView._34 = 0.f;
+		//tempView._44 = 1.f;
 		//renderable.rotation = rot;
 		XMStoreFloat4x4(&renderable.rotation, XMMatrixTranspose(rotation));
 
