@@ -318,7 +318,7 @@ na 	SideJumpRight
 sp 	1.0
 st 	547
 en 	559
-lo 	1
+lo 	0
 f	Hip
 tr	2
 la	0
@@ -333,7 +333,7 @@ na 	SideJumpLeft
 sp 	1.0
 st 	561
 en 	573
-lo 	1
+lo 	0
 f	Hip
 tr	2
 la	0
