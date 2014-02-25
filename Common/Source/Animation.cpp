@@ -151,12 +151,12 @@ void Animation::checkFades()
 				m_Tracks[i].active = false;
 			}
 		}
-		// If the clip is supposed to fade out and is closing in on the end of it's duration, start playing the next clip in the queue.t
+		// If the clip is supposed to fade out and is closing in on the end of it's duration, start playing the next clip in the queue.
 		if( (float)(m_Tracks[i].clip->m_End - m_Tracks[i].clip->m_FadeOutFrames - 1) < m_Tracks[i].currentFrame && m_Tracks[i].clip->m_FadeOut)
 		{
 			if(!playQueuedClip(i))
 			{
-				m_Tracks[i].active = false;
+				//m_Tracks[i].active = false;
 			}
 		}
 	}
