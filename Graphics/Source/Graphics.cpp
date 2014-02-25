@@ -201,7 +201,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
+		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights, &m_ShadowMappedLight, 
 		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
 	
 	//Forward renderer
@@ -541,6 +541,24 @@ void Graphics::setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 
 	}
 }
 
+void Graphics::setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 p_Rotation)
+{
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
+	{
+		DirectX::XMFLOAT3 rot(p_Rotation.x,	p_Rotation.y, p_Rotation.z);
+		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setSysRotation(rot);
+	}
+}
+
+void Graphics::setParticleEffectBaseColor(InstanceId p_ParticleEffectId, Vector4 p_BaseColor)
+{
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
+	{
+		DirectX::XMFLOAT4 baseColor(p_BaseColor.x,	p_BaseColor.y, p_BaseColor.z, p_BaseColor.w);
+		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setSysBaseColor(baseColor);
+	}
+}
+
 void Graphics::updateParticles(float p_DeltaTime)
 {
 	for (auto& particle : m_ParticleEffectInstanceList)
@@ -678,7 +696,7 @@ void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, 
 	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
 	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
 	
-	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMFLOAT3 lightDirection = p_LightDirection;
 	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
 	XMStoreFloat3(&l.lightDirection, lightDirectionV);
@@ -686,16 +704,31 @@ void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, 
 	l.lightRange = p_LightRange;
 	m_SpotLights.push_back(l);
 }
-void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection)
+void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection, float p_Intensity)
 {
 	Light l;
 	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
 
-	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMFLOAT3 lightDirection = p_LightDirection;
 	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
 	XMStoreFloat3(&l.lightDirection, lightDirectionV);
-	m_DirectionalLights.push_back(l);
+	l.lightIntensity = p_Intensity;
+
+	if(m_ShadowMappedLight.lightIntensity == 0)
+	{
+		m_ShadowMappedLight = l;
+	}
+	else if(m_ShadowMappedLight.lightIntensity > l.lightIntensity)
+	{
+		m_DirectionalLights.push_back(l);
+	}
+	else
+	{
+		m_DirectionalLights.push_back(m_ShadowMappedLight);
+		m_ShadowMappedLight = l;
+	}
+
 }
 
 void Graphics::setClearColor(Vector4 p_Color)
@@ -806,7 +839,7 @@ void Graphics::eraseModelInstance(InstanceId p_Instance)
 void Graphics::setModelPosition(InstanceId p_Instance, Vector3 p_Position)
 {
 	if(m_ModelInstances.count(p_Instance) > 0)
-		m_ModelInstances.at(p_Instance).setPosition(Vector3ToXMFLOAT3(&p_Position));
+		m_ModelInstances.at(p_Instance).setPosition(p_Position);
 	else
 		throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
 }
@@ -854,7 +887,7 @@ Vector2 Graphics::get2D_ObjectHalfSize(Object2D_Id p_Instance)
 void Graphics::set2D_ObjectPosition(Object2D_Id p_Instance, Vector3 p_Position)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
-		m_2D_Objects.at(p_Instance).position = Vector3ToXMFLOAT3(&p_Position);
+		m_2D_Objects.at(p_Instance).position = p_Position;
 	else
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
@@ -880,13 +913,9 @@ void Graphics::set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt)
 	if(m_2D_Objects.count(p_Instance) > 0)
 	{
 		Renderable2D& renderable = m_2D_Objects.at(p_Instance);
-
-		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 0.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f);
-		direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
-		direction = XMVector3Normalize(direction);
-		XMMATRIX rotation = XMMatrixTranspose(XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0)));
-
-		XMStoreFloat4x4(&renderable.rotation, rotation);
+		XMVECTOR lookAt = XMVector3Transform(Vector3ToXMVECTOR(&p_LookAt, 1.0f), XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
+		XMMATRIX rotation = XMMatrixLookToLH(g_XMZero, lookAt,XMVectorSet(0,1,0,0));
+		XMStoreFloat4x4(&renderable.rotation, XMMatrixTranspose(rotation));
 	}
 	else
 		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);

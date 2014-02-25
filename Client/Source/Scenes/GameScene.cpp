@@ -57,6 +57,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffectInstance), RemoveParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	preLoadModels();
@@ -154,18 +156,18 @@ void GameScene::render()
 	{
 		switch(light.type)
 		{
-		case Light::Type::DIRECTIONAL:
+		case LightClass::Type::DIRECTIONAL:
 			{
-				m_Graphics->useFrameDirectionalLight(light.color, light.direction);
+				m_Graphics->useFrameDirectionalLight(light.color, light.direction, light.intensity);
 				break;
 			}
-		case Light::Type::POINT:
+		case LightClass::Type::POINT:
 			{
 				m_Graphics->useFramePointLight(light.position, light.color, light.range);
 
 				break;
 			}
-		case Light::Type::SPOT:
+		case LightClass::Type::SPOT:
 			{
 				m_Graphics->useFrameSpotLight(light.position, light.color, light.direction,
 					light.spotlightAngles, light.range);
@@ -305,7 +307,7 @@ int GameScene::getID()
 void GameScene::addLight(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<LightEventData> lightData = std::static_pointer_cast<LightEventData>(p_Data);
-	Light light = lightData->getLight();
+	LightClass light = lightData->getLight();
 	m_Lights.push_back(light);
 }
 
@@ -314,7 +316,7 @@ void GameScene::removeLight(IEventData::Ptr p_Data)
 	std::shared_ptr<RemoveLightEventData> lightData = std::static_pointer_cast<RemoveLightEventData>(p_Data);
 
 	auto remIt = std::remove_if(m_Lights.begin(), m_Lights.end(),
-		[&lightData] (Light& p_Light)
+		[&lightData] (LightClass& p_Light)
 		{
 			return p_Light.id == lightData->getId();
 		});
@@ -474,7 +476,6 @@ void GameScene::removeParticleEffectInstance(IEventData::Ptr p_Data)
 	}
 }
 
-
 void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<UpdateParticlePositionEventData> data = std::static_pointer_cast<UpdateParticlePositionEventData>(p_Data);
@@ -484,6 +485,30 @@ void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 	if (it != m_Particles.end())
 	{
 		m_Graphics->setParticleEffectPosition(it->second.instance, data->getPosition());
+	}
+}
+
+void GameScene::updateParticleRotation(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateParticleRotationEventData> data = std::static_pointer_cast<UpdateParticleRotationEventData>(p_Data);
+
+	auto it = m_Particles.find(data->getId());
+
+	if (it != m_Particles.end())
+	{
+		m_Graphics->setParticleEffectRotation(it->second.instance, data->getRotation());
+	}
+}
+
+void GameScene::updateParticleBaseColor(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateParticleBaseColorEventData> data = std::static_pointer_cast<UpdateParticleBaseColorEventData>(p_Data);
+
+	auto it = m_Particles.find(data->getId());
+
+	if (it != m_Particles.end())
+	{
+		m_Graphics->setParticleEffectBaseColor(it->second.instance, data->getBaseColor());
 	}
 }
 
@@ -521,7 +546,7 @@ void GameScene::preLoadModels()
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
+	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(0, 300, 150.f), Vector3(0.3f, 0.3f, 0.3f), 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 	std::string tt = "Bla: " + std::to_string(m_GameLogic->getPlayerTimeDifference());
 	m_Graphics->createText(std::wstring(tt.begin(), tt.end()).c_str(), Vector2(80.f, 50.f), "Verdana", 12.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f);

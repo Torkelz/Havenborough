@@ -135,13 +135,13 @@ public:
 	* @param p_Volume, which volume in the body.
 	* @param p_State, true if the volume should react to collision
 	*/
-	void setCollisionResponse(int p_Volume, bool p_State);
+	void setCollisionResponse(unsigned int p_Volume, bool p_State);
 	/**
 	* Shall a volume in the body react to collision response?
 	* @param p_Volume, which volume in the body.
 	* @return a bool, if the volume should have collision response.
 	*/
-	bool getCollisionResponse(int p_Volume);
+	bool getCollisionResponse(unsigned int p_Volume);
 
 	/**
 	* set collision victim

@@ -82,9 +82,8 @@ public:
 	 * @param p_BodyHandle, which body to add the volume to.
 	 * @param p_CenterPos, Center of the box.
 	 * @param p_Extents, Box half lengths.
-	 * @param p_IsEdge true if the bounding volume should be an edge, otherwise false
 	 */
-	virtual void addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
+	virtual void addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents) = 0;
 
 	/**
 	 * Release a previously created volume.
@@ -219,13 +218,6 @@ public:
 	virtual HitData getHitDataAt(unsigned int p_Index) = 0;
 
 	/**
-	 * Removes the hitdata from the vector containing all the collision hitdata for the last frame at specific position.
-	 *
-	 * @param p_Index are the index number in the vector
-	 */
-	virtual void removeHitDataAt(unsigned int p_index) = 0;
-
-	/**
 	 * A bool that turns on the frame where a body lands ontop of something.
 	 * @param p_Body, the body to check if its landed.
 	 * @return true if this body has landed on something this frame, otherwise false.
@@ -292,5 +284,10 @@ public:
 	 */
 	virtual unsigned int getNrOfVolumesInBody(BodyHandle p_BodyHandle) = 0; 
 
+	/**
+	 * Returns the 2D orientation of a body's main bounding volume.
+	 * @param p_Body, which body to get orientation from.
+	 * @returns the orientation of specified body.
+	 */
 	virtual Vector3 getBodyOrientation(BodyHandle p_Body) = 0;
 };

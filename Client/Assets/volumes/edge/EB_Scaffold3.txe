@@ -1,42 +1,42 @@
 *ObjectHeader*
 #numObj: 8
 
-#MESH: Stallning3
+#MESH: Scaffold3
 #Translation: 0 5.047947 559.643433
 #Rotation: 0 0 0
 #Scale: 222.290298 10 10
 
-#MESH: Stallning3
+#MESH: Scaffold3
 #Translation: 0 303.257996 213.748199
 #Rotation: 0 0 0
 #Scale: 222.290298 10 10
 
-#MESH: Stallning3
+#MESH: Scaffold3
 #Translation: 0 303.317474 -558.207336
 #Rotation: 0 0 0
 #Scale: 222.290298 10 10
 
-#MESH: Stallning3
+#MESH: Scaffold3
 #Translation: -2.519679 6.29759 -548.709595
 #Rotation: 0 0 0
 #Scale: 187.781555 10 10
 
-#MESH: Stallning3
+#MESH: Scaffold3
 #Translation: 112.274551 303.294678 -174.53215
 #Rotation: 1.570796 0 0
 #Scale: 776.611389 10 10
 
-#MESH: Stallning3
+#MESH: Scaffold3
 #Translation: -107.538574 303.294678 -174.53215
 #Rotation: 1.570796 0 0
 #Scale: 776.611389 10 10
 
-#MESH: Stallning3
+#MESH: Scaffold3
 #Translation: -111.976173 6.468356 379.706573
 #Rotation: 1.570796 0 0
 #Scale: 362.513855 10 10
 
-#MESH: Stallning3
+#MESH: Scaffold3
 #Translation: 111.905914 6.468356 379.706573
 #Rotation: 1.570796 0 0
 #Scale: 362.513855 10 10

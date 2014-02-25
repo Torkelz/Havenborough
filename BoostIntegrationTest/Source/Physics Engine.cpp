@@ -315,9 +315,9 @@ BOOST_AUTO_TEST_CASE(BVLoaderIntegration)
 	Triangle triangle;
 	for(unsigned int i = 0; i < BV.size()/3; i++)
 	{
-		triangle.corners[0] = XMFLOAT4ToVector4(&BV[i * 3].m_Postition);
-		triangle.corners[1] = XMFLOAT4ToVector4(&BV[i * 3 + 1].m_Postition);
-		triangle.corners[2] = XMFLOAT4ToVector4(&BV[i * 3 + 2].m_Postition);
+		triangle.corners[0] = BV[i * 3].m_Postition;
+		triangle.corners[1] = BV[i * 3 + 1].m_Postition;
+		triangle.corners[2] = BV[i * 3 + 2].m_Postition;
 
 		triangles.push_back(triangle);
 	}
@@ -338,9 +338,9 @@ BOOST_AUTO_TEST_CASE(BVLoaderIntegration)
 	triangles.clear();
 	for(unsigned int i = 0; i < BV.size()/3; i++)
 	{
-		triangle.corners[0] = XMFLOAT4ToVector4(&BV[i * 3].m_Postition);
-		triangle.corners[1] = XMFLOAT4ToVector4(&BV[i * 3 + 1].m_Postition);
-		triangle.corners[2] = XMFLOAT4ToVector4(&BV[i * 3 + 2].m_Postition);
+		triangle.corners[0] = BV[i * 3].m_Postition;
+		triangle.corners[1] = BV[i * 3 + 1].m_Postition;
+		triangle.corners[2] = BV[i * 3 + 2].m_Postition;
 
 		triangles.push_back(triangle);
 	}
