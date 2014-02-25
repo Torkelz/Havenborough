@@ -220,8 +220,9 @@ public:
 	 * Send a Join Game package for a player joining a server game.
 	 *
 	 * @param p_Game the name of the game to join
+	 * @param p_Username the name the user wants to use
 	 */
-	virtual void sendJoinGame(const char* p_Game) = 0;
+	virtual void sendJoinGame(const char* p_Game, const char* p_Username) = 0;
 
 	/**
 	 * Get the name of the game the player tries to join.
@@ -230,6 +231,14 @@ public:
 	 * @return the name of the game from the package
 	 */
 	virtual const char* getJoinGameName(Package p_Package) = 0;
+
+	/**
+	 * Get the name of the player trying to join.
+	 *
+	 * @param p_Package a valid reference to a package with the JoinGame type.
+	 * @return the name of the player from the package
+	 */
+	virtual const char* getJoinGameUsername(Package p_Package) = 0;
 
 	/**
 	 * Get the size of the binary stream.

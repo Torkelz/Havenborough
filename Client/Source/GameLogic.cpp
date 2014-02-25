@@ -45,6 +45,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_Connected = false;
 	m_InGame = false;
 	m_PlayingLocal = true;
+	m_StartLocal = false;
 }
 
 void GameLogic::shutdown(void)
@@ -67,11 +68,16 @@ void GameLogic::onFrame(float p_DeltaTime)
 {
 	handleNetwork();
 
+	if (m_StartLocal)
+	{
+		playLocalLevel();
+		m_StartLocal = false;
+	}
+
 	if (!m_InGame)
 	{
 		return;
 	}
-
 
 	if(m_Physics->getHitDataSize() > 0)
 	{
@@ -382,10 +388,14 @@ void GameLogic::playLocalLevel()
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 }
 
-void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
+void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port,
+								const std::string& p_LevelName, const std::string& p_Username)
 {
 	if (!m_IsConnecting && !m_Connected)
 	{
+		m_LevelName = p_LevelName;
+		m_Username = p_Username;
+
 		m_IsConnecting = true;
 		m_Network->connectToServer(p_URL.c_str(), p_Port, &connectedCallback, this);
 	}
@@ -410,15 +420,6 @@ void GameLogic::leaveGame()
 		}
 		
 		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(true)));
-	}
-}
-
-void GameLogic::joinGame(const std::string& p_LevelName)
-{
-	IConnectionController* con = m_Network->getConnectionToServer();
-	if (!m_InGame && con && con->isConnected())
-	{
-		con->sendJoinGame(p_LevelName.c_str());
 	}
 }
 
@@ -793,6 +794,15 @@ void GameLogic::handleNetwork()
 	}
 }
 
+void GameLogic::joinGame()
+{
+	IConnectionController* con = m_Network->getConnectionToServer();
+	if (!m_InGame && con && con->isConnected())
+	{
+		con->sendJoinGame(m_LevelName.c_str(), m_Username.c_str());
+	}
+}
+
 void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 {
 	GameLogic* self = static_cast<GameLogic*>(p_UserData);
@@ -801,11 +811,14 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 	if (p_Res == Result::SUCCESS)
 	{
 		self->m_Connected = true;
+		self->joinGame();
 
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
 	else
 	{
+		self->m_StartLocal = true;
+
 		Logger::log(Logger::Level::WARNING, "Connection failed");
 	}
 }

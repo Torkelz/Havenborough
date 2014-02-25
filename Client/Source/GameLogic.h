@@ -31,6 +31,8 @@ private:
 
 	Level m_Level;
 	Player m_Player;
+	std::string m_LevelName;
+	std::string m_Username;
 	
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
@@ -47,6 +49,7 @@ private:
 	bool m_Connected;
 	bool m_InGame;
 	bool m_PlayingLocal;
+	bool m_StartLocal;
 	float m_CountdownTimer;
 	bool m_RenderGo;
 
@@ -90,9 +93,9 @@ public:
 	void playerJump();
 	void playLocalLevel();
 
-	void connectToServer(const std::string& p_URL, unsigned short p_Port);
+	void connectToServer(const std::string& p_URL, unsigned short p_Port,
+		const std::string& p_LevelName, const std::string& p_Username);
 	void leaveGame();
-	void joinGame(const std::string& p_LevelName);
 
 	void throwSpell(const char *p_SpellId);
 	//void releaseSpellInstance(int p_SpellId);
@@ -106,6 +109,7 @@ public:
 	
 private:
 	void handleNetwork();
+	void joinGame();
 	
 	static void connectedCallback(Result p_Res, void* p_UserData);
 

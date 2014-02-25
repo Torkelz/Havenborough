@@ -205,10 +205,11 @@ void ConnectionController::sendDoneLoading()
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 
-void ConnectionController::sendJoinGame(const char* p_Game)
+void ConnectionController::sendJoinGame(const char* p_Game, const char* p_Username)
 {
 	JoinGame package;
 	package.m_Object1 = p_Game;
+	package.m_Object2 = p_Username;
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -218,6 +219,13 @@ const char* ConnectionController::getJoinGameName(Package p_Package)
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
 	return joinGame->m_Object1.c_str();
+}
+
+const char* ConnectionController::getJoinGameUsername(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
+	return joinGame->m_Object2.c_str();
 }
 
 const char* ConnectionController::getLevelData(Package p_Package)
