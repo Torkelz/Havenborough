@@ -91,40 +91,32 @@ ModelDefinition *ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_
 {
 	ModelDefinition *model = new ModelDefinition();
 
-	vector<StaticVertex> initData;
-	StaticVertex vertex;
-	vertex.m_Normal = vertex.m_Binormal = vertex.m_Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
-	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(1.0f, 0.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(0.0f, 1.0f);
-	initData.push_back(vertex);
-
-	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
-	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
-	initData.push_back(vertex);
-
-	Buffer::Description bufferDescription = createBufferDescription(initData, Buffer::Usage::USAGE_IMMUTABLE);
-	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
-	
-	model->vertexBuffer.swap(vertexBuffer);
+	create2D_VertexBuffer(model, p_HalfSize);
 	
 	model->diffuseTexture.push_back(make_pair(std::string(p_TextureId), getTextureFromList(p_TextureId)));
+	model->drawInterval.push_back(std::make_pair(0, 6));
+	model->numOfMaterials = 0;
+	model->isAnimated = false;
+
+	return model;
+}
+
+ModelDefinition *ModelFactory::create2D_Model(ID3D11ShaderResourceView *p_Texture)
+{
+	ModelDefinition *model = new ModelDefinition();
+	ID3D11Resource *resource;
+	ID3D11Texture2D *texture;
+	D3D11_TEXTURE2D_DESC textureDesc;
+
+	p_Texture->GetResource(&resource);
+	resource->QueryInterface(&texture);
+	texture->GetDesc(&textureDesc);
+	Vector2 halfSize(textureDesc.Width * 0.5f, textureDesc.Height * 0.5f);
+	SAFE_RELEASE(texture);
+
+	create2D_VertexBuffer(model, halfSize);
+
+	model->diffuseTexture.push_back(make_pair(std::string("Text"), p_Texture));
 	model->drawInterval.push_back(std::make_pair(0, 6));
 	model->numOfMaterials = 0;
 	model->isAnimated = false;
@@ -157,6 +149,42 @@ Buffer::Description ModelFactory::createBufferDescription(const vector<T> &p_Ver
 	bufferDescription.usage = p_Usage;
 
 	return bufferDescription;
+}
+
+void ModelFactory::create2D_VertexBuffer(ModelDefinition *p_Model, Vector2 p_HalfSize)
+{
+	vector<StaticVertex> initData;
+	StaticVertex vertex;
+	vertex.m_Normal = vertex.m_Binormal = vertex.m_Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 0.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(1.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, -p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 1.0f);
+	initData.push_back(vertex);
+
+	vertex.m_Position = XMFLOAT4(-p_HalfSize.x, p_HalfSize.y, 0.0f, 1.0f);
+	vertex.m_UV = XMFLOAT2(0.0f, 0.0f);
+	initData.push_back(vertex);
+
+	Buffer::Description bufferDescription = createBufferDescription(initData, Buffer::Usage::USAGE_IMMUTABLE);
+	std::unique_ptr<Buffer> vertexBuffer(WrapperFactory::getInstance()->createBuffer(bufferDescription));
+
+	p_Model->vertexBuffer.swap(vertexBuffer);
 }
 
 void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename, unsigned int p_NumOfMaterials,

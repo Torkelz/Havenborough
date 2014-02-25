@@ -28,6 +28,10 @@ GameRound::~GameRound()
 
 	m_Actors.clear();
 
+	m_ResourceManager->unregisterResourceType("animation");
+	m_AnimationLoader.reset();
+
+	m_ResourceManager->unregisterResourceType("spell");
 	m_SpellFactory.reset();
 
 	if (m_Physics)
@@ -208,7 +212,25 @@ void GameRound::runGame()
 		user->getConnection()->sendStartCountdown();
 	}
 
-	std::this_thread::sleep_for(std::chrono::seconds(3));
+	typedef std::chrono::high_resolution_clock clock;
+	clock::time_point waitEnd = clock::now() + std::chrono::seconds(3);
+
+	while (clock::now() < waitEnd)
+	{
+		previousTime = currentTime;
+		currentTime = std::chrono::high_resolution_clock::now();
+		const clock::duration frameTime = currentTime - previousTime;
+
+		m_Physics->update(deltaTime, 50);
+
+		handlePackages();
+		checkForDisconnectedUsers();
+		updateLogic(deltaTime);
+		sendUpdates();
+
+		static const std::chrono::milliseconds sleepDuration(20);
+		std::this_thread::sleep_for(sleepDuration - frameTime);
+	}
 	
 	for (auto& player : m_Players)
 	{

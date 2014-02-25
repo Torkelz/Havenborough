@@ -253,6 +253,7 @@ public:
 	virtual Object2D_Id create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
 		const char *p_TextureId) = 0;
 
+	virtual Object2D_Id create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation, Text_Id p_TextureId) = 0;
 	/**
 	* Creates a 2D object from a model definition to be used by the screen renderer.
 	* @param p_Position the xy-pixel coordinates to place the object on, z the depth in range of 0.0f to 1280.0f
@@ -267,15 +268,15 @@ public:
 	/**
 	* 
 	*/
-	virtual Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
-		const char *p_Font, float p_FontSize, Vector4 p_FontColor) = 0;
+	virtual Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,
+		Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation) = 0;
 
 	/**
 	* 
 	*/
-	virtual Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
-		const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
-		PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping) = 0;
+	virtual Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,
+		Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment, PARAGRAPH_ALIGNMENT p_ParagraphAlignment, 
+		WORD_WRAPPING p_WordWrapping, Vector3 p_Position, float p_Scale, float p_Rotation) = 0;
 
 	/**
 	 * Creates a point light which is removed after each draw.
@@ -325,7 +326,7 @@ public:
 	/**
 	 * 
 	 */
-	virtual void renderText(void) = 0;
+	virtual void renderText(Text_Id p_Id) = 0;
 
 	/**
 	* Renders a 2D object specified with an ID.
@@ -457,6 +458,17 @@ public:
 	*/
 	virtual void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) = 0;
 	
+	virtual void updateText(Text_Id p_Identifier, const wchar_t *p_Text) = 0;
+	virtual void deleteText(Text_Id p_Identifier) = 0;
+	virtual void setTextColor(Text_Id p_Identifier, Vector4 p_Color) = 0;
+	virtual void setTextBackgroundColor(Text_Id p_Identifier, Vector4 p_Color) = 0;
+	virtual void setTextAlignment(Text_Id p_Identifier, TEXT_ALIGNMENT p_Alignment) = 0;
+	virtual void setTextParagraphAlignment(Text_Id p_Identifier, PARAGRAPH_ALIGNMENT p_Alignment) = 0;
+	virtual void setTextWordWrapping(Text_Id p_Identifier, WORD_WRAPPING p_Wrapping) = 0;
+	virtual void setTextPosition(Text_Id p_Identifier, Vector3 p_Position) = 0;
+	virtual void setTextScale(Text_Id p_Identifier, float p_Scale) = 0;
+	virtual void setTextRotation(Text_Id p_Identifier, float p_Rotation) = 0;
+
 	/**
 	 * Update the position and viewing direction of the camera.
 	 *

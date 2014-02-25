@@ -299,6 +299,9 @@
     <ClCompile Include="Source\Common\TestStreamReader.cpp">
       <Filter>TestSettings</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextRenderer.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
