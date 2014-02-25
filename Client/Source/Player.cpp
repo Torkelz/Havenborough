@@ -153,7 +153,6 @@ void Player::update(float p_DeltaTime)
 					con->sendObjectAction(m_Actor.lock()->getId(), printer.CStr());
 				}
 			}
-			m_Physics->resetForceOnBody(getBody());
 			return;
 		}
 
@@ -232,6 +231,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 
 		XMVECTOR vEdgeOrientation = XMLoadFloat3(&p_EdgeOrientation);
 
+		// The goldener path code
 		vReachPointCenter = (XMVector3Dot(vReachPointCenter, vEdgeOrientation) * vEdgeOrientation) + XMLoadFloat3(&p_BoxPos);
 		XMStoreFloat3(&m_CenterReachPos, vReachPointCenter);
 		XMStoreFloat3(&m_Side, side);
@@ -255,9 +255,24 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 			m_ForceMoveZ[1].x += sp.m128_f32[2];
 
 		m_ForceMoveStartPos.y += getKneeHeight();
+		// The goldener path code END
 
+		// The golden path code
+		//vReachPointCenter = (XMVector3Dot(vReachPointCenter, vEdgeOrientation) * vEdgeOrientation) + XMLoadFloat3(&p_BoxPos);
+		//XMStoreFloat3(&m_CenterReachPos, vReachPointCenter);
+		//XMStoreFloat3(&m_Side, side);
+		//m_EdgeOrientation = p_EdgeOrientation;
+		//
+		//XMStoreFloat3(&m_forward, fwd);
+		//
+		//XMVECTOR offsetToStartPos = XMVectorSet(0, m_ForceMoveY.back().x, m_ForceMoveZ.back().x,0);
+		//offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
+		//
+		//XMVECTOR sp;
+		//sp = vReachPointCenter + XMVectorSet(0,edgeY + getKneeHeight(),0,0) + offsetToStartPos;
 		//XMStoreFloat3(&m_ForceMoveStartPos, sp);
 		//setPosition(m_ForceMoveStartPos);
+		// The golden path code END
 		
 		if (m_Network)
 		{
