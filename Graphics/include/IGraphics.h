@@ -227,6 +227,9 @@ public:
 	 */
 	virtual void setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position) = 0;
 
+	virtual void setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 p_Rotation) = 0;
+
+	virtual void setParticleEffectBaseColor(InstanceId p_ParticleEffectId, Vector4 p_BaseColor) = 0;
 	/**
 	 * Called when updating the particles
 	 * 

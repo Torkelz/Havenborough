@@ -104,6 +104,7 @@ public:
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
 	Actor::ptr createCheckPointArrow();
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
+	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect, Vector4 p_BaseColor);
 	Actor::ptr createSpell(const std::string& p_Spell, Actor::Id p_CasterId, Vector3 p_Direction, Vector3 p_StartPosition);
 	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
 	struct InstanceModel
