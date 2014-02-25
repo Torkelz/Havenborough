@@ -128,7 +128,7 @@ void GameScene::render()
 
 	if (m_UseThirdPersonCamera)
 	{
-		playerPos = playerPos + playerForward * -200.f;
+		playerPos = playerPos + playerForward * -500.f;
 	}
 
 	m_Graphics->updateCamera(playerPos, playerForward, playerUp);
@@ -180,6 +180,17 @@ void GameScene::render()
 	m_Graphics->renderSkydome();
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
+
+	
+	float playerMana = m_GameLogic->getPlayerCurrentMana() / 100.f;
+	float playerPrevMana = m_GameLogic->getPlayerPreviousMana() / 100.f;
+
+	m_Graphics->set2D_ObjectScale(2, Vector3(playerMana, 1.f, 0.f));
+
+	Vector2 barSize = m_Graphics->get2D_ObjectHalfSize(2);
+	Vector3 barPos = m_Graphics->get2D_ObjectPosition(2);
+
+	m_Graphics->set2D_ObjectPosition(2, Vector3(barPos.x + ((playerMana - playerPrevMana) * barSize.x), barPos.y, barPos.z));
 
 	//Render test arrow, remove when HUD scene is implemented
 	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
@@ -462,13 +473,18 @@ void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
-	unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle);
+	unsigned int nrVolumes = m_GameLogic->getPhysics()->getNrOfVolumesInBody(p_BodyHandle);
 
-	for(unsigned int i = 0; i < size; i++)
+	for(unsigned int j = 0; j < nrVolumes; j++)
 	{
-		Triangle triangle;
-		triangle = m_GameLogic->getPhysics()->getTriangleFromBody(p_BodyHandle, i);
-		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle, j);
+
+		for(unsigned int i = 0; i < size; i++)
+		{
+			Triangle triangle;
+			triangle = m_GameLogic->getPhysics()->getTriangleFromBody(p_BodyHandle, i, j);
+			m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		}
 	}
 }
 
@@ -478,10 +494,6 @@ void GameScene::preLoadModels()
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Pivot1"));
 	
-
-
-
-
 	//Separate to GUI function and refactor? /Pontus, DO NOT TOUCH!
 	static const std::string preloadedTextures[] =
 	{
@@ -493,7 +505,7 @@ void GameScene::preLoadModels()
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
+	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(0, 300, 150.f), Vector3(0.3f, 0.3f, 0.3f), 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 }
 

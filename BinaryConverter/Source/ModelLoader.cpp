@@ -411,7 +411,7 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 	}
 	else if(error != tinyxml2::XML_NO_ERROR)
 	{
-		std::cerr << "Loading xml file failed, error code: " << error;
+		throw std::exception("File could not be opened.");
 	}
 	else
 	{
@@ -448,7 +448,7 @@ void ModelLoader::printOutResourceInfo(std::string p_ResourceListLocation)
 	error = resource.SaveFile(p_ResourceListLocation.c_str());
 	if(error != tinyxml2::XML_NO_ERROR)
 	{
-		std::cout << "Could not save file: " << p_ResourceListLocation << std::endl;
+		throw std::exception("Error saving file, check output path");
 	}
 }
 

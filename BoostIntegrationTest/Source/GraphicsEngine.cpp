@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	Window window;
 	Vector2 winSize = Vector2(1280, 720);
 	BOOST_MESSAGE(testId + "Creating window");
-	BOOST_CHECK_NO_THROW(window.init("Test Graphics", Vector2ToXMFLOAT2(&winSize)));
+	BOOST_CHECK_NO_THROW(window.init("Test Graphics", winSize));
 
 	IGraphics *graphics = IGraphics::createGraphics();
 	BOOST_MESSAGE(testId + "Checking init graphics with window");

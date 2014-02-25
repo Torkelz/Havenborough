@@ -107,6 +107,7 @@
     <ClCompile Include="Source\ModelBinaryLoader.cpp" />
     <ClCompile Include="Source\ModelFactory.cpp" />
     <ClCompile Include="Source\GraphicsLogger.cpp" />
+    <ClCompile Include="Source\TextResource.cpp" />
     <ClCompile Include="Source\TextureLoader.cpp" />
     <ClCompile Include="Source\VRAMInfo.cpp" />
     <ClCompile Include="Source\WICTextureLoader.cpp" />
@@ -114,6 +115,8 @@
     <ClCompile Include="Source\Buffer.cpp" />
     <ClCompile Include="Source\Graphics.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
+    <ClCompile Include="Source\TextFactory.cpp" />
+    <ClCompile Include="Source\TextRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Renderable2D.h" />
@@ -135,6 +138,8 @@
     <ClInclude Include="Source\GraphicsLogger.h" />
     <ClInclude Include="Source\ModelFactory.h" />
     <ClInclude Include="Source\ModelInstance.h" />
+    <ClInclude Include="include\TextEnums.h" />
+    <ClInclude Include="Source\TextResource.h" />
     <ClInclude Include="Source\VRAMInfo.h" />
     <ClInclude Include="Source\WICTextureLoader.h" />
     <ClInclude Include="Source\WrapperFactory.h" />
@@ -144,6 +149,8 @@
     <ClInclude Include="Source\Graphics.h" />
     <ClInclude Include="include\IGraphics.h" />
     <ClInclude Include="Source\TextureLoader.h" />
+    <ClInclude Include="Source\TextFactory.h" />
+    <ClInclude Include="Source\TextRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ModelInstance.cpp">

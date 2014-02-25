@@ -70,6 +70,7 @@ struct HitData
 	BodyHandle		collider;
 	BodyHandle		collisionVictim;
 	bool			isEdge;
+	int			    IDInBody;
 
 	HitData()
 	{
@@ -80,5 +81,6 @@ struct HitData
 		colLength	= -1.f;
 		collider = collisionVictim = 0;
 		isEdge = false;
+		IDInBody = 0;
 	}
 };

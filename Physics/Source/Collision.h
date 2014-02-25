@@ -87,7 +87,5 @@ private:
 	static void checkCollisionDepth(float p_RA, float p_RB, float p_R, float &p_Overlap, DirectX::XMVECTOR p_L, DirectX::XMVECTOR &p_Least);
 	static bool checkCollision(DirectX::XMVECTOR p_Axis, float p_TriangleProjection0, float p_TriangleProjection1,
 							   float p_BoxProjection, float &p_Overlap, DirectX::XMVECTOR &p_Least);
-	static float checkMin(float const &p_A, float const &p_B, float const &p_C);
-	static float checkMax(float const &p_A, float const &p_B, float const &p_C);
 };
 

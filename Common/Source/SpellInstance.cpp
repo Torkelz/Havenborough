@@ -103,7 +103,7 @@ void SpellInstance::explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const H
 {
 	float forceFactor = p_Hit.colLength / m_SpellDefinition->explosionRadius;
 
-	Vector4 vTemp = (p_Hit.colNorm * (m_SpellDefinition->minForce + forceFactor * m_SpellDefinition->force) * -1.f);
+	Vector4 vTemp = (p_Hit.colNorm * (m_SpellDefinition->minForce + forceFactor * m_SpellDefinition->force));
 
 	p_Physics->applyImpulse(p_Hit.collider, vTemp.xyz() * p_DeltaTime);
 }

@@ -220,3 +220,36 @@ public:
 	{
 	}
 };
+
+class TextFactoryException : public GraphicsException
+{
+public:
+	/**
+		* constructor.
+		*
+		* @param p_What A message describing the error
+		* @param p_Line The line of the exception (use __LINE__)
+		* @param p_File The file of the exception (use __FILE__)
+		*/
+	TextFactoryException(const std::string& p_What, int p_Line, const std::string& p_File)
+			: GraphicsException(p_What, p_Line, p_File)
+	{
+	}
+};
+
+
+class TextRendererException : public GraphicsException
+{
+public:
+	/**
+		* constructor.
+		*
+		* @param p_What A message describing the error
+		* @param p_Line The line of the exception (use __LINE__)
+		* @param p_File The file of the exception (use __FILE__)
+		*/
+	TextRendererException(const std::string& p_What, int p_Line, const std::string& p_File)
+			: GraphicsException(p_What, p_Line, p_File)
+	{
+	}
+};

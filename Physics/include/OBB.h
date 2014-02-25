@@ -16,13 +16,15 @@ public:
 	*/
 	OBB()
 	{
+		m_BodyHandle	= 0;
 		m_Position		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); //OBB Center Point
-		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Extents		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
 		m_Sphere		= Sphere();
 		m_Orientation	= DirectX::XMFLOAT3(0.f, 0.f, 0.f);
+		m_CollisionResponse = true;
+		m_IDInBody = 0; 
 	}
 
 	/**
@@ -32,8 +34,8 @@ public:
 	*/
 	OBB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Extents)
 	{
+		m_BodyHandle	= 0;
 		m_Position		= p_CenterPos; //OBB Center Point.
-		m_PrevPosition	= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 		m_Type			= Type::OBB;
 		DirectX::XMStoreFloat4x4(&m_Axes, DirectX::XMMatrixIdentity());
 
@@ -52,6 +54,7 @@ public:
 		m_Sphere = Sphere(radius, p_CenterPos);
 		
 		calculateOrientation();
+		m_IDInBody = 0;
 	}
 	/**
 	* Destructor
@@ -66,8 +69,6 @@ public:
 	*/
 	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) override
 	{
-		m_PrevPosition = m_Position;
-
 		DirectX::XMMATRIX mTrans;
 		mTrans = DirectX::XMLoadFloat4x4(&p_Translation);
 
@@ -77,16 +78,16 @@ public:
 
 		DirectX::XMStoreFloat4(&m_Position, vCenterPos);
 								  
-		m_Sphere.updatePosition(m_Position);
+		m_Sphere.setPosition(vCenterPos);
 	}
 	/**
 	* Changes ther center position for the OBB.
 	* @param p_newPosition, new center pos for the OBB.
 	*/
-	void setPosition(DirectX::XMVECTOR const p_newPosition)
+	void setPosition(DirectX::XMVECTOR const &p_newPosition) override
 	{
 		DirectX::XMStoreFloat4(&m_Position, p_newPosition);
-		m_Sphere.updatePosition(m_Position);
+		m_Sphere.setPosition(p_newPosition);
 	}
 	/**
 	* Gets the normalized local axes of the OBB
@@ -141,7 +142,7 @@ public:
 	* Sets the rotation matrix of the OBB and rotates its Axes accordingly.
 	* @param p_Rotation matrix to rotate the axes with.
 	*/
-	void setRotation(const DirectX::XMMATRIX &p_Rot)
+	void setRotation(DirectX::XMMATRIX const &p_Rot) override
 	{
         XMStoreFloat4x4(&m_Axes, p_Rot);
 
@@ -218,7 +219,7 @@ public:
 	 * @param p_Index index number in m_Bounds list
 	 * @return a XMFLOAT4 corner.
 	 */
-	DirectX::XMFLOAT4 getCornerWorldCoordAt(unsigned p_Index) const
+	DirectX::XMFLOAT4 getCornerWorldCoordAt(unsigned int p_Index) const
 	{
 		return DirectX::XMFLOAT4(m_Corners[p_Index].x + m_Position.x, m_Corners[p_Index].y + m_Position.y, m_Corners[p_Index].z + m_Position.z, 1.f);
 	}

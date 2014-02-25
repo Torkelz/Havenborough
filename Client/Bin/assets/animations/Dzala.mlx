@@ -298,23 +298,101 @@ fo	1
 fof	5
 we	1.0
 
+*Clip
+na 	BodyLand
+sp 	1.0
+st 	522
+en 	545
+lo 	0
+f	Hip
+tr	4
+la	1
+fi	1
+fif	6
+fo	1
+fof	6
+we	0.5
+
+*Clip
+na 	SideJumpRight
+sp 	1.0
+st 	547
+en 	559
+lo 	1
+f	Hip
+tr	2
+la	0
+fi	1
+fif	5
+fo	0
+fof	0
+we	1.0
+
+*Clip
+na 	SideJumpLeft
+sp 	1.0
+st 	561
+en 	573
+lo 	1
+f	Hip
+tr	2
+la	0
+fi	1
+fif	5
+fo	0
+fof	0
+we	1.0
+
+*Clip
+na 	Wave
+sp 	1.0
+st 	233
+en 	299
+lo 	0
+f	L_UpperArm
+tr	4
+la	1
+fi	1
+fif	6
+fo	1
+fof	6
+we	1.0
+
 *IKgroup
 na	LeftArm
 b1	L_UpperArm
 b2	L_LowerArm
 b3	L_Hand
-ikx	0.0
-iky	1.0
-ikz	0.0
 
 *IKgroup
 na	RightArm
 b1	R_UpperArm
 b2	R_LowerArm
 b3	R_Hand
-ikx	0.0
-iky	1.0
-ikz	0.0
+
+*IKgroup
+na LeftLeg
+b1 L_UpperLeg
+b2 L_LowerLeg
+b3 L_Ankle
+
+*IKgroup
+na LeftFoot
+b1 L_Ankle
+b2 L_Foot
+b3 L_FootBase
+
+*IKgroup
+na RightLeg
+b1 R_UpperLeg
+b2 R_LowerLeg
+b3 R_Ankle
+
+*IKgroup
+na RightFoot
+b1 R_Ankle
+b2 R_Foot
+b3 R_FootBase
 
 *Path
 na	Climb1

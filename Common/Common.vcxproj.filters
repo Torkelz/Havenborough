@@ -117,9 +117,6 @@
     <ClInclude Include="Source\TweakSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ConsoleReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\CommandManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -130,6 +127,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\LightClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StreamReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -185,13 +185,13 @@
     <ClCompile Include="Source\TweakSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ConsoleReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\CommandManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\TweakCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\StreamReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

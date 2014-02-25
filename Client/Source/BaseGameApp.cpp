@@ -31,7 +31,7 @@ void BaseGameApp::init()
 	m_TimeToNextMemUpdate = 0.f;
 	m_TimeModifier = 1.f;
 	
-	m_Window.init(getGameTitle(), Vector2ToXMFLOAT2(&settings.getResolution()));
+	m_Window.init(getGameTitle(), settings.getResolution());
 	
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
@@ -60,7 +60,8 @@ void BaseGameApp::init()
 	m_Sound->setLogFunction(&Logger::logRaw);
 	m_Sound->initialize();
 
-	using namespace std::placeholders;
+	using std::placeholders::_1;
+	using std::placeholders::_2;
 	m_Graphics->setLoadModelTextureCallBack(&ResourceManager::loadModelTexture, m_ResourceManager.get());
 	m_Graphics->setReleaseModelTextureCallBack(&ResourceManager::releaseModelTexture, m_ResourceManager.get());
 
@@ -140,7 +141,7 @@ void BaseGameApp::init()
 
 	m_CommandManager.reset(new CommandManager);
 	m_CommandManager->registerCommand(Command::ptr(new TweakCommand));
-	m_ConsoleReader.reset(new ConsoleReader(m_CommandManager));
+	m_ConsoleReader.reset(new StreamReader(m_CommandManager, std::cin));
 }
 
 void BaseGameApp::run()
@@ -178,6 +179,8 @@ void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
 
+	m_ResourceManager->setReleaseImmediately(true);
+
 	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
 	
@@ -188,17 +191,25 @@ void BaseGameApp::shutdown()
 	
 	m_SceneManager.destroy();
 
+	m_ResourceManager->unregisterResourceType("spell");
 	m_SpellFactory.reset();
+
+	m_ResourceManager->unregisterResourceType("animation");
 	m_AnimationLoader.reset();
 
 	m_InputQueue.destroy();
 	
+	m_ResourceManager->unregisterResourceType("volume");
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
 
+	m_ResourceManager->unregisterResourceType("sound");
 	ISound::deleteSound(m_Sound);
 	m_Sound = nullptr;
 
+	m_ResourceManager->unregisterResourceType("model");
+	m_ResourceManager->unregisterResourceType("particleSystem");
+	m_ResourceManager->unregisterResourceType("texture");
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
 

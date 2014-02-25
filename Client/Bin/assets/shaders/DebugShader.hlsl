@@ -1,4 +1,5 @@
 Texture2D debugTex				: register (t0);
+
 SamplerState m_textureSampler	: register (s0);
 
 //##################################
@@ -35,7 +36,7 @@ float4 PS( VSOutput input ) :  SV_Target0
 	float2 screenPos = input.texCoord;
 	//uint3 texCoord = uint3(input.texCoord, 0);
 	// Sample the texture and draw it on the screen quad.
-	return float4(debugTex.Sample(m_textureSampler, screenPos).xyz,1.0f);
+	return  float4(debugTex.Sample(m_textureSampler, screenPos).xyz, 1.0f);
 	//float4 s = debugTex.Sample(m_textureSampler, screenPos).xyzw;
 	//return float4(s.x,s.x,s.x, 1.f);
 }

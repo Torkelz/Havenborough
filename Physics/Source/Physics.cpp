@@ -90,50 +90,56 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 				if(i == j)
 					continue;
 
-				HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(), *m_Bodies[j].getVolume());
-			
-				if(hit.intersect)
+
+				for(unsigned int k = 0; k < b.getVolumeListSize(); k++)
 				{
-					hit.collider = m_Bodies.at(i).getHandle();
-					hit.collisionVictim = m_Bodies.at(j).getHandle();
-					hit.isEdge = m_Bodies.at(j).getIsEdge();
-					m_HitDatas.push_back(hit);
-
-					if(m_Bodies.at(i).getCollisionResponse() && m_Bodies.at(j).getCollisionResponse())
+					HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *m_Bodies[j].getVolume());
+			
+					if(hit.intersect)
 					{
-						XMVECTOR temp;		// m
-						XMFLOAT4 tempPos;	// m
+						hit.collider = m_Bodies.at(i).getHandle();
+						hit.IDInBody = k;
+						hit.collisionVictim = m_Bodies.at(j).getHandle();
+						hit.isEdge = m_Bodies.at(j).getIsEdge();
+						m_HitDatas.push_back(hit);
 
-						XMFLOAT4 vel = b.getVelocity();
-						XMVECTOR vVel = XMLoadFloat4(&vel);
-
-						XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
-						XMVECTOR posNorm = vNorm;
-
-						if (hit.colNorm.y > 0.7f)
+						if(m_Bodies.at(i).getCollisionResponse(k) && m_Bodies.at(j).getCollisionResponse(0))
 						{
-							if(!b.getOnSomething())
+							XMVECTOR temp;		// m
+							XMFLOAT4 tempPos;	// m
+
+							XMFLOAT4 vel = b.getVelocity();
+							XMVECTOR vVel = XMLoadFloat4(&vel);
+
+							XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
+							XMVECTOR posNorm = vNorm;
+
+							if (hit.colNorm.y > 0.7f)
 							{
-								b.setLanded(true);
+								if(!b.getOnSomething())
+								{
+									b.setLanded(true);
+								}
+
+								isOnGround = true;
+
+								posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+								vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
+							}
+							else
+							{
+								vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
 							}
 
-							isOnGround = true;
+							XMStoreFloat4(&vel, vVel);
+							b.setVelocity(vel);
 
-							posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-							vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
+							temp = XMLoadFloat4(&b.getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
+							XMStoreFloat4(&tempPos, temp);
+
+							b.setPosition(tempPos);
 						}
-						else
-						{
-							vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
-						}
 
-						XMStoreFloat4(&vel, vVel);
-						b.setVelocity(vel);
-
-						temp = XMLoadFloat4(&b.getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
-						XMStoreFloat4(&tempPos, temp);
-
-						b.setPosition(tempPos);
 					}
 				}
 			}
@@ -201,6 +207,36 @@ BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_Center
 	return createBody(p_Mass, obb, p_IsImmovable, p_IsEdge);
 }
 
+void Physics::addSphereToBody(BodyHandle p_BodyHandle, Vector3 p_Position, float p_Radius)
+{
+	Body* body = findBody(p_BodyHandle);
+	if (body == nullptr)
+		return;
+
+	Vector3 convPosition = p_Position * 0.01f;	// m
+	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f); // m
+
+	Sphere* sphere = new Sphere(p_Radius / 100.f, tempPosition);
+
+	body->addVolume(BoundingVolume::ptr(sphere));
+}
+
+void Physics::addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents) 
+{
+	Body* body = findBody(p_BodyHandle);
+	if (body == nullptr)
+		return;
+
+	Vector3 convPosition = p_CenterPos * 0.01f;	// m
+	Vector3 convExtents = p_Extents * 0.01f;
+	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f); // m
+	XMFLOAT4 tempExt	= Vector3ToXMFLOAT4(&convExtents, 0.f);	// m
+
+	OBB* obb = new OBB(tempPosition, tempExt);
+
+	body->addVolume(BoundingVolume::ptr(obb));
+}
+
 BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 {
 	std::vector<BVLoader::BoundingVolume> tempBV;
@@ -224,9 +260,9 @@ BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 
 	for(unsigned i = 0; i < tempBV.size() / 3; i++)
 	{
-		triangle.corners[0] = XMFLOAT4ToVector4(&tempBV[i * 3].m_Postition);
-		triangle.corners[1] = XMFLOAT4ToVector4(&tempBV[i * 3 + 1].m_Postition);
-		triangle.corners[2] = XMFLOAT4ToVector4(&tempBV[i * 3 + 2].m_Postition);
+		triangle.corners[0] = tempBV[i * 3].m_Postition;
+		triangle.corners[1] = tempBV[i * 3 + 1].m_Postition;
+		triangle.corners[2] = tempBV[i * 3 + 2].m_Postition;
 
 		triangles.push_back(triangle);
 	}
@@ -334,7 +370,7 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 
 BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 {
-	m_Bodies.emplace_back(p_Mass, std::unique_ptr<BoundingVolume>(p_BoundingVolume), p_IsImmovable, p_IsEdge);
+	m_Bodies.emplace_back(p_Mass, BoundingVolume::ptr(p_BoundingVolume), p_IsImmovable, p_IsEdge);
 	m_Bodies.back().setGravity(m_GlobalGravity);
 	return m_Bodies.back().getHandle();
 }
@@ -383,11 +419,6 @@ HitData Physics::getHitDataAt(unsigned int p_Index)
 	return m_HitDatas.at(p_Index);
 }
 
-void Physics::removeHitDataAt(unsigned int p_index)
-{
-	m_HitDatas.erase(m_HitDatas.begin() + p_index);
-}
-
 unsigned int Physics::getHitDataSize()
 {
 	return m_HitDatas.size();
@@ -410,6 +441,16 @@ void Physics::setBodyCollisionResponse(BodyHandle p_Body, bool p_State)
 
 	body->setCollisionResponse(p_State);
 }
+
+void Physics::setBodyVolumeCollisionResponse(BodyHandle p_Body, int p_Volume, bool p_State)
+{
+	Body *body = findBody(p_Body);
+	if(!body)
+		return;
+
+	body->setCollisionResponse(p_Volume, p_State);
+}
+
 
 Vector3 Physics::getBodyPosition(BodyHandle p_Body)
 {
@@ -466,6 +507,18 @@ void Physics::setBodyPosition( BodyHandle p_Body, Vector3 p_Position)
 
 	body->setPosition(tempPosition);
 }
+
+void Physics::setBodyVolumePosition( BodyHandle p_Body, unsigned p_Volume, Vector3 p_Position)
+{
+	Body* body = findBody(p_Body);
+	if(body == nullptr)
+		return;
+
+	Vector3 convPosition = p_Position * 0.01f;	// m
+	body->setVolumePosition(p_Volume, Vector3ToXMVECTOR(&convPosition, 1.f));
+}
+
+
 void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 {
 	Body* body = findBody(p_Body);
@@ -506,23 +559,23 @@ void Physics::setLogFunction(clientLogCallback_t p_LogCallback)
 	PhysicsLogger::setLogFunction(p_LogCallback);
 }
 
-Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex)
+Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex, int p_BoundingVolume)
 {
 	Body* body = findBody(p_BodyHandle);
 	Triangle trig;
 	if(body == nullptr)
 		return trig;
-
-	BoundingVolume *volume = body->getVolume();
+	
+	BoundingVolume *volume = body->getVolume(p_BoundingVolume);
 
 	switch (volume->getType())
 	{
 	case BoundingVolume::Type::AABBOX:
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);
-			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.x)) * 100.f,
-										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.y)) * 100.f,
-										 XMFLOAT4ToVector4(&((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.z)) * 100.f);
+			Triangle triangle = Triangle(Vector4(((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.x)) * 100.f,
+										Vector4(((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.y)) * 100.f,
+										Vector4(((AABB*)volume)->getBoundWorldCoordAt((int)triangleIndex.z)) * 100.f);
 
 			return triangle;
 		}
@@ -532,22 +585,22 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 			triangle.uniformScale(100.f);
 			return triangle;
 		}
-		
+			
 	case BoundingVolume::Type::OBB:
 		{
 			XMFLOAT3 triangleIndex = m_BoxTriangleIndex.at(p_TriangleIndex);
-			Triangle triangle = Triangle(XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.x)) * 100.f,
-										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.y)) * 100.f,
-										 XMFLOAT4ToVector4(&((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.z)) * 100.f);
+			Triangle triangle = Triangle(Vector4(((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.x)) * 100.f,
+											Vector4(((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.y)) * 100.f,
+											Vector4(((OBB*)volume)->getCornerWorldCoordAt((int)triangleIndex.z)) * 100.f);
 			return triangle;
 		}
 	case BoundingVolume::Type::SPHERE:
 		{
-			Triangle triangle = Triangle(XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3).m_Postition    ),
-										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 1).m_Postition),
-										 XMFLOAT4ToVector4(&m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 2).m_Postition));
+			Triangle triangle = Triangle(Vector4(m_sphereBoundingVolume.at(p_TriangleIndex * 3).m_Postition    ),
+											Vector4(m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 1).m_Postition),
+											Vector4(m_sphereBoundingVolume.at(p_TriangleIndex * 3 + 2).m_Postition));
 			triangle.uniformScale(((Sphere*)volume)->getRadius());
-			triangle.translate(XMFLOAT4ToVector4(&body->getPosition()));
+			triangle.translate(volume->getPosition());
 			triangle.uniformScale(100.f);
 			return triangle;
 		}
@@ -557,13 +610,13 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 
 	return trig;
 }
-unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle)
+unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_BoundingVolume)
 {
 	Body* body = findBody(p_BodyHandle);
 	if(body == nullptr)
 		return 0;
 
-	BoundingVolume *volume = body->getVolume();
+	BoundingVolume *volume = body->getVolume(p_BoundingVolume);
 
 	switch (volume->getType())
 	{
@@ -597,21 +650,16 @@ void Physics::setRotation(BodyHandle p_Body, XMMATRIX& p_Rotation)
 	if(body == nullptr)
 		return;
 
-	switch (body->getVolume()->getType())
-	{
-	case BoundingVolume::Type::OBB:
-		{
-			((OBB*)body->getVolume())->setRotation(p_Rotation);
-			break;
-		}
-	case BoundingVolume::Type::HULL:
-		{
-			((Hull*)body->getVolume())->setRotation(p_Rotation);
-			break;
-		}
-	default:
-		break;
-	}
+	body->setRotation(p_Rotation);
+}
+
+unsigned int Physics::getNrOfVolumesInBody(BodyHandle p_BodyHandle)
+{
+	Body* body = findBody(p_BodyHandle);
+	if(body == nullptr)
+		return 0;
+
+	return body->getVolumeListSize();
 }
 
 Vector3 Physics::getBodyOrientation(BodyHandle p_BodyHandle)

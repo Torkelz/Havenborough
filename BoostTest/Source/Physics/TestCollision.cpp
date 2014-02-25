@@ -8,6 +8,7 @@ public:
 	DummyBoundingVolume()
 	{
 		m_Type = Type::NONE;
+		m_BodyHandle = 0;
 	}
 	~DummyBoundingVolume(){}
 
@@ -15,8 +16,18 @@ public:
 	{
 		
 	}
+	
+	void setPosition(DirectX::XMVECTOR const &p_Position) override
+	{
+		
+	}
 
 	void scale(DirectX::XMVECTOR const &p_Scale) override
+	{
+		
+	}
+
+	void setRotation(DirectX::XMMATRIX const &p_Rotation) override
 	{
 		
 	}
@@ -412,13 +423,13 @@ BOOST_AUTO_TEST_CASE(HullvsSphereHit)
 
 		BOOST_CHECK(hd.intersect);
 
-		s.updatePosition(DirectX::XMFLOAT4(2.2f, 0.f, 0.f, 1.f));
+		s.setPosition(DirectX::XMVectorSet(2.2f, 0.f, 0.f, 1.f));
 
 		hd = Collision::boundingVolumeVsBoundingVolume(h, s);
 
 		BOOST_CHECK(hd.intersect);
 
-		s.updatePosition(DirectX::XMFLOAT4(3.1f, 0.f, 0.f, 1.f));
+		s.setPosition(DirectX::XMVectorSet(3.1f, 0.f, 0.f, 1.f));
 
 		hd = Collision::boundingVolumeVsBoundingVolume(h, s);
 

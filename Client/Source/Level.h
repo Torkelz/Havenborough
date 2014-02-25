@@ -6,7 +6,6 @@
 
 class Level
 {
-public:
 private:
 	ResourceManager* m_Resources;
 	ActorFactory* m_ActorFactory;
@@ -72,6 +71,4 @@ public:
 	 * @param p_LevelFilePath the complete path to the environment .txl file.
 	 */
 	bool loadLevel(std::istream& p_LevelData, ActorList::ptr p_ActorOut);
-
-private:
 };

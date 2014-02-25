@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include "BoundingVolume.h"
 
-#include <memory>
+#include <vector>
 
 class Body
 {
@@ -29,10 +29,9 @@ protected:
 
 	bool				m_IsImmovable;
 	bool				m_IsEdge;
-	bool				m_CollisionResponse;
 	bool				m_Landed;
 
-	std::unique_ptr<BoundingVolume>	m_Volume;
+	std::vector<BoundingVolume::ptr> m_Volumes;
 public:
 	/**
 	* Body Constructor, initialize all variables.
@@ -40,7 +39,7 @@ public:
 	* @p_Volume, pointer to the body's BoundingVolume.
 	* @p_IsImmovable, should a body be immovable(static)?
 	*/
-	Body(float p_Mass, std::unique_ptr<BoundingVolume> p_Volume, bool p_IsImmovable, bool p_IsEdge);
+	Body(float p_Mass, BoundingVolume::ptr p_Volume, bool p_IsImmovable, bool p_IsEdge);
 	/**
 	* Move constructor, needed because c++11 is not fully integrated to VS2012.
 	*/
@@ -67,6 +66,7 @@ public:
 	 */
 	void addImpulse(DirectX::XMFLOAT4 p_Impulse);
 
+	void addVolume(BoundingVolume::ptr p_Volume);
 	/**
 	* Update loop for a body. Updates acceleration, velocity and position.
 	*/
@@ -81,7 +81,6 @@ public:
 	* @p_Gravity, how much gravity shall the new gravity be.
 	*/
 	void setGravity(float p_Gravity);
-	
 	/**
 	* Get the bool for if the body is in the air.
 	* @return true if the body is in the air, otherwise false.
@@ -104,6 +103,7 @@ public:
 	*/
 	void setOnSomething(bool p_Bool);
 
+	void setRotation(DirectX::XMMATRIX const &p_Rotation);
 	/**
 	* Get the bool for if the body is on a has landed on a surface.
 	* @return true if the body is on a surface, otherwise false.
@@ -126,14 +126,22 @@ public:
 	*/
 	bool getIsEdge();
 	/**
-	* Set if the body should have collision response.
+	* Set if the all volumes in the body should have collision response
+	* @param p_State, true if the volumes should react to collision otherwise false.
 	*/
 	void setCollisionResponse(bool p_State);
 	/**
-	* Shall the body react to collision response?
-	* @return a bool, if the body should have collision response.
+	* Set if a volume in the body should react to collision response.
+	* @param p_Volume, which volume in the body.
+	* @param p_State, true if the volume should react to collision
 	*/
-	bool getCollisionResponse();
+	void setCollisionResponse(unsigned int p_Volume, bool p_State);
+	/**
+	* Shall a volume in the body react to collision response?
+	* @param p_Volume, which volume in the body.
+	* @return a bool, if the volume should have collision response.
+	*/
+	bool getCollisionResponse(unsigned int p_Volume);
 
 	/**
 	* set collision victim
@@ -147,10 +155,27 @@ public:
 	BodyHandle getLastCollision();
 
 	/**
-	* Get the volume that is connected to the body.
+	* Get the first volume that is connected to the body.
 	* @return body's volume.
 	*/
-	BoundingVolume *getVolume();
+	BoundingVolume *getVolume();		
+	/**
+	* Get the chosen volume that is connected to the body.
+	* @param p_Volume, what volume to get.
+	* @return body's volume.
+	*/
+	BoundingVolume *getVolume(unsigned int p_Volume);
+	/**
+	* Get how many bounding volumes this body has
+	* @return the size of the list containing volumes.
+	*/
+	unsigned int getVolumeListSize();
+	/**
+	* Set the chosen volume's position that is connected to the body.
+	* @param p_Volume, which volume to move 
+	* @param p_Position, the new position for the chosen volume.
+	*/
+	void setVolumePosition(unsigned int p_Volume, DirectX::XMVECTOR const &p_Position);
 	/**
 	* Get the current velocity for the body.
 	* @return m_Velocity in m/s.
@@ -180,8 +205,6 @@ public:
 	* reset the BodyHandleCounter. Only use when clearing the body list in physics
 	*/
 	static void resetBodyHandleCounter();
-
-	
 	/**
 	* Get the current orientation for the body
 	* @return m_Orientation.

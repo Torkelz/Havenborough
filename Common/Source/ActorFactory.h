@@ -72,6 +72,7 @@ public:
 	void setAnimationLoader(AnimationLoader* p_AnimationLoader);
 
 	void setSpellFactory(SpellFactory* p_SpellFactory);
+	SpellFactory* getSpellFactory();
 
 	void setActorList(std::weak_ptr<ActorList> p_ActorList);
 
@@ -139,6 +140,7 @@ protected:
 private:
 	unsigned int getNextActorId();
 
+	ActorComponent::ptr createPlayerComponent();
 	ActorComponent::ptr createOBBComponent();
 	ActorComponent::ptr createAABBComponent();
 	ActorComponent::ptr createCollisionSphereComponent();

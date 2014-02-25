@@ -1,4 +1,5 @@
 #include "Body.h"
+#include "PhysicsExceptions.h"
 
 using namespace DirectX;
 
@@ -13,12 +14,20 @@ void Body::resetBodyHandleCounter()
 	m_NextHandle = 1;
 }
 
-Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
-	: m_Handle(getNextHandle()),
-	  m_Volume(std::move(p_BoundingVolume)), m_CollisionResponse(true)
+Body::Body(float p_mass, BoundingVolume::ptr p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
+	: m_Handle(getNextHandle())
 {
-	m_Mass = p_mass;	
-	m_Position			= m_Volume->getPosition();
+	if(!p_BoundingVolume)
+		m_Position = XMFLOAT4(0.f, 0.f, 0.f, 1.f);
+	else
+	{
+		m_Volumes.push_back(std::move(p_BoundingVolume));
+		m_Volumes.at(0)->setBodyHandle(m_Handle);
+		m_Position = m_Volumes.at(0)->getPosition();
+	}
+		
+
+	m_Mass				= p_mass;	
 	m_NetForce			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Velocity			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Acceleration		= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -26,18 +35,16 @@ Body::Body(float p_mass, std::unique_ptr<BoundingVolume> p_BoundingVolume, bool 
 	m_AvgAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_NewAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Gravity			= 0.f;
-
 	m_InAir				= true;
 	m_OnSomething		= false;
 	m_IsImmovable		= p_IsImmovable;
 	m_IsEdge			= p_IsEdge;
-
 	m_Landed			= false;
 }
 
 Body::Body(Body &&p_Other)
 	: m_Handle(p_Other.m_Handle),
-	  m_Volume(std::move(p_Other.m_Volume)),
+	  m_Volumes(std::move(p_Other.m_Volumes)),
 	  m_Mass(p_Other.m_Mass),
 	  m_Position(p_Other.m_Position),
 	  m_NetForce(p_Other.m_NetForce),
@@ -51,14 +58,13 @@ Body::Body(Body &&p_Other)
 	  m_OnSomething(p_Other.m_OnSomething),
 	  m_IsImmovable(p_Other.m_IsImmovable),
 	  m_IsEdge(p_Other.m_IsEdge),
-	  m_CollisionResponse(p_Other.m_CollisionResponse),
 	  m_Landed(p_Other.m_Landed)
 {}
 
 Body& Body::operator=(Body&& p_Other)
 {
 	std::swap(m_Handle, p_Other.m_Handle);
-	std::swap(m_Volume, p_Other.m_Volume);
+	std::swap(m_Volumes, p_Other.m_Volumes);
 	std::swap(m_Mass, p_Other.m_Mass);
 	std::swap(m_Position, p_Other.m_Position);
 	std::swap(m_NetForce, p_Other.m_NetForce);
@@ -72,7 +78,6 @@ Body& Body::operator=(Body&& p_Other)
 	std::swap(m_OnSomething, p_Other.m_OnSomething);
 	std::swap(m_IsImmovable, p_Other.m_IsImmovable);
 	std::swap(m_IsEdge, p_Other.m_IsEdge);
-	std::swap(m_CollisionResponse, p_Other.m_CollisionResponse);
 	std::swap(m_Landed, p_Other.m_Landed);
 
 	return *this;
@@ -104,6 +109,13 @@ void Body::addImpulse(DirectX::XMFLOAT4 p_Impulse)
 	XMVECTOR impulse = XMLoadFloat4(&p_Impulse);
 	vVelocity += impulse / m_Mass;
 	XMStoreFloat4(&m_Velocity, vVelocity);
+}
+
+void Body::addVolume(BoundingVolume::ptr p_Volume)
+{
+	p_Volume->setBodyHandle(m_Handle);
+	p_Volume->setIDInBody(m_Volumes.size());
+	m_Volumes.push_back(std::move(p_Volume));
 }
 
 void Body::update(float p_DeltaTime)
@@ -149,7 +161,8 @@ void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
 
 	XMStoreFloat4x4(&tempTrans, matTrans);
 
-	m_Volume->updatePosition(tempTrans);
+	for(auto &v : m_Volumes)
+		v->updatePosition(tempTrans);
 }
 
 XMFLOAT4 Body::calculateAcceleration()
@@ -197,6 +210,12 @@ void Body::setOnSomething(bool p_bool)
 	m_OnSomething = p_bool;
 }
 
+void Body::setRotation(XMMATRIX const &p_Rotation)
+{
+	for(auto &v : m_Volumes)
+		v->setRotation(p_Rotation);
+}
+
 bool Body::getLanded()
 {
 	return m_Landed;
@@ -218,17 +237,38 @@ bool Body::getIsEdge()
 
 void Body::setCollisionResponse(bool p_State)
 {
-	m_CollisionResponse = p_State;
+	for(unsigned int i = 0; i < m_Volumes.size(); i++)
+		m_Volumes.at(i)->setCollisionResponse(p_State);
 }
 
-bool Body::getCollisionResponse()
+void Body::setCollisionResponse(unsigned int p_Volume, bool p_State)
 {
-	return m_CollisionResponse;
+	m_Volumes.at(p_Volume)->setCollisionResponse(p_State);
+}
+
+bool Body::getCollisionResponse(unsigned int p_Volume)
+{
+	return m_Volumes.at(p_Volume)->getCollisionResponse();
 }
 
 BoundingVolume* Body::getVolume()
 {
-	return m_Volume.get();
+	return m_Volumes.at(0).get();
+}
+
+BoundingVolume* Body::getVolume(unsigned p_Volume)
+{
+	return m_Volumes.at(p_Volume).get();
+}
+
+unsigned int Body::getVolumeListSize()
+{
+	return m_Volumes.size();
+}
+
+void Body::setVolumePosition(unsigned p_Volume, DirectX::XMVECTOR const &p_Position)
+{
+	m_Volumes.at(p_Volume)->setPosition(p_Position);
 }
 
 XMFLOAT4 Body::getVelocity()

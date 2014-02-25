@@ -14,6 +14,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 		m_Physics(nullptr),
 		m_SpellFactory(nullptr)
 {
+	m_ComponentCreators["PlayerPhysics"] = std::bind(&ActorFactory::createPlayerComponent, this);
 	m_ComponentCreators["OBBPhysics"] = std::bind(&ActorFactory::createOBBComponent, this);
 	m_ComponentCreators["AABBPhysics"] = std::bind(&ActorFactory::createAABBComponent, this);
 	m_ComponentCreators["SpherePhysics"] = std::bind(&ActorFactory::createCollisionSphereComponent, this);
@@ -52,6 +53,11 @@ void ActorFactory::setAnimationLoader(AnimationLoader* p_AnimationLoader)
 void ActorFactory::setSpellFactory(SpellFactory* p_SpellFactory)
 {
 	m_SpellFactory = p_SpellFactory;
+}
+
+SpellFactory* ActorFactory::getSpellFactory()
+{
+	return m_SpellFactory;
 }
 
 void ActorFactory::setActorList(std::weak_ptr<ActorList> p_ActorList)
@@ -174,18 +180,19 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "Dzala");
 	printer.CloseElement();
-	printer.OpenElement("OBBPhysics");
-	printer.PushAttribute("Immovable", false);
+
+	printer.OpenElement("PlayerPhysics");
+	printer.PushAttribute("RadiusMain", 30.f);
+	printer.PushAttribute("RadiusAnkle", 10.f);
+	printer.PushAttribute("RadiusHead", 25.f);
 	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "Halfsize", Vector3(30.f, 80.f, 30.f));
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 80.f, 0.f)); 
+	pushVector(printer, "Halfsize", Vector3(25.f, 60.f, 25.f));
+	pushVector(printer, "OffsetPositionSphereMain", Vector3(0.f, 40.f, 0.f));
+	pushVector(printer, "OffsetPositionSphereHead", Vector3(0.f, 140.f, 0.f));
+	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 110.f, 0.f));
 	printer.CloseElement();
-	/*printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Immovable", false);
-	printer.PushAttribute("Radius", 50.f);
-	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 50.f, 0.f));
-	printer.CloseElement();*/
+
+
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
 	printer.PushAttribute("Strength", 0.5f);
@@ -413,6 +420,14 @@ unsigned int ActorFactory::getNextActorId()
 	return ++m_LastActorId;
 }
 
+ActorComponent::ptr ActorFactory::createPlayerComponent()
+{
+	PlayerBodyComponent* comp = new PlayerBodyComponent;
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
 ActorComponent::ptr ActorFactory::createOBBComponent()
 {
 	OBB_Component* comp = new OBB_Component;
@@ -505,6 +520,7 @@ ActorComponent::ptr ActorFactory::createHumanAnimationComponent()
 	HumanAnimationComponent* comp = new HumanAnimationComponent;
 	comp->setResourceManager(m_ResourceManager);
 	comp->setAnimationLoader(m_AnimationLoader);
+	comp->setPhysics(m_Physics);
 
 	return ActorComponent::ptr(comp);
 }

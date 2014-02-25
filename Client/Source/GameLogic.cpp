@@ -70,18 +70,14 @@ void GameLogic::onFrame(float p_DeltaTime)
 		return;
 	}
 
-	m_Player.update(p_DeltaTime);
 
 	if(m_Physics->getHitDataSize() > 0)
 	{
 		for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
-			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
-				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player))
-			{
-				//m_Physics->removeHitDataAt(i);
-			}
+			m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
+				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player);
 
 			Logger::log(Logger::Level::TRACE, "Collision reported");
 		}
@@ -127,11 +123,17 @@ void GameLogic::onFrame(float p_DeltaTime)
 	}
 	
 	m_Actors->onUpdate(p_DeltaTime);
-	m_Player.updateIKJoints();
+	m_Player.update(p_DeltaTime);
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
 {
+	const float dirLengthSq = p_Direction.x * p_Direction.x + p_Direction.y * p_Direction.y;
+	if (dirLengthSq > 1.f)
+	{
+		const float div = 1.f / sqrtf(dirLengthSq);
+		p_Direction = p_Direction * div;
+	}
 	m_PlayerDirection = p_Direction;
 }
 
@@ -310,6 +312,16 @@ Vector3 GameLogic::getCurrentCheckpointPosition(void) const
 	return m_CurrentCheckPointPosition;
 }
 
+const float GameLogic::getPlayerCurrentMana(void)
+{
+	return m_Player.getCurrentMana();
+}
+
+const float GameLogic::getPlayerPreviousMana(void)
+{
+	return m_Player.getPreviousMana();
+}
+
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
@@ -397,12 +409,25 @@ void GameLogic::joinGame(const std::string& p_LevelName)
 
 void GameLogic::throwSpell(const char *p_SpellId)
 {
+	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // definitely should NOT be here.
+
 	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
 		if(!m_Player.getForceMove())
 		{
-			m_Actors->addActor(m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition()));
+
+			float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition(p_SpellId);
+			float playerMana = m_Player.getCurrentMana();
+
+			if(manaCost > playerMana)
+				return;
+
+			m_Player.setCurrentMana(playerMana - manaCost);
+
+			Actor::ptr spell = m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition());
+			m_Actors->addActor(spell);
+
 			playAnimation(playerActor, "CastSpell", false);
 
 			IConnectionController *conn = m_Network->getConnectionToServer();
@@ -670,6 +695,12 @@ void GameLogic::handleNetwork()
 						Actor::ptr actor = getActor(actorId);
 						const char* climbId = action->Attribute("Animation");
 
+						Vector3 orientation = Vector3(0.f, 1.f, 1.f);
+						Vector3 center = Vector3(0.f, 0.f, 0.f);
+
+						queryVector(action->FirstChildElement("Orientation"), orientation);
+						queryVector(action->FirstChildElement("Center"), center);
+
 						if (actor && climbId)
 						{
 							std::shared_ptr<AnimationInterface> comp = 
@@ -677,6 +708,7 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->playClimbAnimation(climbId);
+								comp->updateIKData(orientation, center);
 							}
 						}
 					}
@@ -721,6 +753,18 @@ void GameLogic::handleNetwork()
 				}
 				break;
 
+			case PackageType::START_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(false);
+					// TODO
+					// Start countdown logic and use draw countdown.
+				}
+				break;
+			case PackageType::DONE_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(true);
+				}
+				break;
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);
