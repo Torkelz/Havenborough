@@ -1,31 +1,31 @@
 <Particle>
 	<Effect effectName="fire">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="900"/>
-		<EmitPerSec particlesPerSec="900"/>
-		<BaseLife maxLife="0.6"/>
-		<LifeDeviation maxLifeDeviation="0.2"/>
-		<Size sX="8.0" sY="8.0"/>
+		<MaxCount maxParticles="500"/>
+		<EmitPerSec particlesPerSec="450"/>
+		<BaseLife maxLife="0.5"/>
+		<LifeDeviation maxLifeDeviation="0.1"/>
+		<Size sX="7.0" sY="7.0"/>
 		<PositionDeviation positionDeviation="10.0"/>
-		<Velocity vbX="0.0" vbY="60.0" vbZ="0.0" vdX="15.0" vdY="20.0" vdZ="15.0"/>
+		<Velocity vbX="0.0" vbY="60.0" vbZ="0.0" vdX="50.0" vdY="20.0" vdZ="50.0"/>
 		<Color cbX="0.8" cbY="0.15" cbZ="0.0" cbA="0.3" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
 	</Effect>
 	<Effect effectName="smoke">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="1200"/>
-		<EmitPerSec particlesPerSec="9000"/>
-		<BaseLife maxLife="0.8"/>
-		<LifeDeviation maxLifeDeviation="0.3"/>
-		<Size sX="4.0" sY="4.0"/>
-		<PositionDeviation positionDeviation="2.0"/>
-		<Velocity vbX="0.0" vbY="100.0" vbZ="0.0" vdX="10.0" vdY="10.0" vdZ="10.0"/>
-		<Color cbX="0.2" cbY="0.15" cbZ="0.0" cbA="0.2" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
+		<MaxCount maxParticles="800"/>
+		<EmitPerSec particlesPerSec="800"/>
+		<BaseLife maxLife="0.5"/>
+		<LifeDeviation maxLifeDeviation="0.2"/>
+		<Size sX="8.0" sY="8.0"/>
+		<PositionDeviation positionDeviation="11.0"/>
+		<Velocity vbX="0.0" vbY="100.0" vbZ="0.0" vdX="40.0" vdY="10.0" vdZ="40.0"/>
+		<Color cbX="0.2" cbY="0.05" cbZ="0.0" cbA="0.4" cdX="0.1" cdY="0.05" cdZ="0.0" cdA="0.2"/>
 	</Effect>
 	<Effect effectName="magic">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="9000"/>
-		<EmitPerSec particlesPerSec="9000"/>
-		<BaseLife maxLife="0.9"/>
+		<MaxCount maxParticles="3000"/>
+		<EmitPerSec particlesPerSec="1500"/>
+		<BaseLife maxLife="0.5"/>
 		<LifeDeviation maxLifeDeviation="0.2"/>
 		<Size sX="3.0" sY="3.0"/>
 		<PositionDeviation positionDeviation="2.0"/>
