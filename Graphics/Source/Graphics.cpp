@@ -548,6 +548,15 @@ void Graphics::setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 
 	}
 }
 
+void Graphics::setParticleEffectBaseColor(InstanceId p_ParticleEffectId, Vector4 p_BaseColor)
+{
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
+	{
+		DirectX::XMFLOAT4 baseColor(p_BaseColor.x,	p_BaseColor.y, p_BaseColor.z, p_BaseColor.w);
+		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setSysBaseColor(baseColor);
+	}
+}
+
 void Graphics::updateParticles(float p_DeltaTime)
 {
 	for (auto& particle : m_ParticleEffectInstanceList)

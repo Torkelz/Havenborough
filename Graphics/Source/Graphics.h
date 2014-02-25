@@ -127,6 +127,7 @@ public:
 	void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) override;
 	void setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position) override;
 	void setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 p_Rotation) override;
+	void setParticleEffectBaseColor(InstanceId p_ParticleEffectId, Vector4 p_BaseColor) override;
 
 	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
 	void updateParticles(float p_DeltaTime) override;

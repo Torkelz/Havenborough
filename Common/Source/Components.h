@@ -1501,6 +1501,8 @@ public:
 	{
 		return m_ComponentId;
 	}
+
+	virtual void setBaseColor(Vector4 p_NewBaseColor) = 0;
 };
 
 class ParticleComponent : public ParticleInterface
@@ -1508,6 +1510,7 @@ class ParticleComponent : public ParticleInterface
 private:
 	unsigned int m_ParticleId;
 	std::string m_EffectName;
+	Vector4 m_BaseColor;
 
 public:
 	~ParticleComponent()
@@ -1522,6 +1525,8 @@ public:
 		{
 			throw CommonException("Missing effect name", __LINE__, __FILE__);
 		}
+		m_BaseColor = Vector4(-1.f, -1.f, -1.f, -1.f);
+		queryColor(p_Data->FirstChildElement("BaseColor"), m_BaseColor);
 
 		m_EffectName = effectName;
 	}
@@ -1529,12 +1534,20 @@ public:
 	void postInit() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateParticleEventData(m_ParticleId, m_EffectName, m_Owner->getPosition())));
+		if (m_BaseColor.x != -1.f)
+		{
+			setBaseColor(m_BaseColor);
+		}
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("Particle");
 		p_Printer.PushAttribute("Effect", m_EffectName.c_str());
+		if (m_BaseColor.x != -1.f)
+		{
+			pushColor(p_Printer, "BaseColor", m_BaseColor);
+		}
 		p_Printer.CloseElement();
 	}
 
@@ -1546,6 +1559,12 @@ public:
 	void setRotation(Vector3 p_Rotation) override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateParticleRotationEventData(m_ParticleId, p_Rotation)));
+	}
+
+	void setBaseColor(Vector4 p_BaseColor) override
+	{
+		m_BaseColor = p_BaseColor;
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateParticleBaseColorEventData(m_ParticleId, p_BaseColor)));
 	}
 
 	/**

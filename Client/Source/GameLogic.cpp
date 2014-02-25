@@ -38,7 +38,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_ActorFactory->setActorList(m_Actors);
 
 	m_ChangeScene = GoToScene::NONE;
-
+	
 	m_IsConnecting = false;
 	m_Connected = false;
 	m_InGame = false;
@@ -121,9 +121,19 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 		conn->sendPlayerControl(data);
 	}
-	
+
 	m_Actors->onUpdate(p_DeltaTime);
 	m_Player.update(p_DeltaTime);
+
+	Actor::ptr tempActor = m_PlayerSparks.lock();
+	if(tempActor)
+	{
+		std::shared_ptr<ParticleInterface> temp = tempActor->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId).lock();
+		if (temp)
+		{
+			temp->setPosition(m_Player.getEyePosition());
+		}
+	}
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -364,6 +374,8 @@ void GameLogic::playLocalLevel()
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 
+	m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
+
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 }
 
@@ -505,6 +517,9 @@ void GameLogic::handleNetwork()
 					}
 					m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+
+					//Sparks flying around the player, client side.
+					m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 				}
 				break;
 			case PackageType::RESULT_GAME:
@@ -823,16 +838,23 @@ void GameLogic::loadSandbox()
 	// No permanent implementations in this function is allowed.
 
 	//Fredrik, 2014-02-20, 2014-02-24
-	std::vector<Actor::ptr> ALIST;
+	//std::vector<Actor::ptr> ALIST;
 
 
-
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
-	Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "waterSpray");
-	a->setRotation(Vector3(3.0f, 0.0f, 0.0f));
-	addActor(a);
+	 
+	//addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
+	//addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
+	//addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 	
+	//Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "waterSpray");
+	//a->setRotation(Vector3(3.0f, 0.0f, 0.0f));
+	//addActor(a);
+
+	//std::shared_ptr<ParticleInterface> temp = a->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId).lock();
+	//if (temp)
+	//{
+	//	temp->setBaseColor(Vector4(0.f, 0.8f, 0.f, 0.5f));
+	//}
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)

@@ -19,6 +19,14 @@ void ParticleInstance::init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_p
 	m_ParticleBuffer = p_ParticleBuffer;
 	m_ParticleEffectDef = p_ParticleEffectDefinition;
 	m_ParticleList.reserve(m_ParticleEffectDef->maxParticles);
+
+	if (m_ParticleEffectDef->particleColorBase.x != -1)
+	{	
+		m_SysBaseColor = DirectX::XMFLOAT4(m_ParticleEffectDef->particleColorBase.x,
+										   m_ParticleEffectDef->particleColorBase.y,
+										   m_ParticleEffectDef->particleColorBase.z,
+										   m_ParticleEffectDef->particleColorBase.w);
+	}
 }
 
 
@@ -59,10 +67,7 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 void ParticleInstance::emitNewParticles(float p_DeltaTime)
 {
 	DirectX::XMFLOAT3 tempPos = DirectX::XMFLOAT3(m_SysPosition.x, m_SysPosition.y, m_SysPosition.z);
-	DirectX::XMFLOAT4 tempColor = DirectX::XMFLOAT4(m_ParticleEffectDef->particleColorBase.x,
-													m_ParticleEffectDef->particleColorBase.y,
-													m_ParticleEffectDef->particleColorBase.z,
-													m_ParticleEffectDef->particleColorBase.w);
+	DirectX::XMFLOAT4 tempColor = m_SysBaseColor;
 	
 	m_AccumulatedTime += p_DeltaTime;
 
@@ -193,4 +198,14 @@ DirectX::XMFLOAT3 ParticleInstance::getSysRotation() const
 void ParticleInstance::setSysRotation(DirectX::XMFLOAT3 p_NewSysRotation)
 {
 	m_SysRotation = p_NewSysRotation;
+}
+
+DirectX::XMFLOAT4 ParticleInstance::getSysBaseColor() const
+{
+	return m_SysBaseColor;
+}
+
+void ParticleInstance::setSysBaseColor(DirectX::XMFLOAT4 p_NewSysBaseColor)
+{
+	m_SysBaseColor = p_NewSysBaseColor;
 }

@@ -22,6 +22,7 @@ private:
 	std::vector<Particle>	m_ParticleList;
 	DirectX::XMFLOAT4		m_SysPosition; //world pos, in cm
 	DirectX::XMFLOAT3		m_SysRotation;
+	DirectX::XMFLOAT4		m_SysBaseColor;
 
 	float m_AccumulatedTime;
 
@@ -83,6 +84,10 @@ public:
 	DirectX::XMFLOAT3 getSysRotation() const;
 
 	void setSysRotation(DirectX::XMFLOAT3 p_NewSysRotation);
+
+	DirectX::XMFLOAT4 getSysBaseColor() const;
+
+	void setSysBaseColor(DirectX::XMFLOAT4 p_NewSysBaseColor);
 
 private:
 	void emitNewParticles(float p_DeltaTime);

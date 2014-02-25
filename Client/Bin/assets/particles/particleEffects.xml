@@ -54,6 +54,17 @@
 		<Velocity vbX="100.0" vbY="0.0" vbZ="0.0" vdX="0.0" vdY="0.0" vdZ="0.0"/>
 		<Color cbX="0.0" cbY="0.0" cbZ="0.8" cbA="0.1" cdX="0.0" cdY="0.0" cdZ="0.1" cdA="0.02"/>
 	</Effect>
+	<Effect effectName="magicSurroundings">
+		<Texture resourceName="Particle1.dds"/>
+		<MaxCount maxParticles="300"/>
+		<EmitPerSec particlesPerSec="60"/>
+		<BaseLife maxLife="1.0"/>
+		<LifeDeviation maxLifeDeviation="0.5"/>
+		<Size sX="2.0" sY="2.0"/>
+		<PositionDeviation positionDeviation="400.0"/>
+		<Velocity vbX="0.0" vbY="30.0" vbZ="0.0" vdX="3.0" vdY="10.0" vdZ="3.0"/>
+		<Color cbX="-1.0" cbY="-1.0" cbZ="-1.0" cbA="-1.0" cdX="0.0" cdY="0.0" cdZ="0.0" cdA="0.0"/>
+	</Effect>
 </Particle>
 <!--
 //A basic description for creating a particle definition or finding what something are.
