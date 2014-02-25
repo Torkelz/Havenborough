@@ -169,7 +169,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	desc.Height				= p_ScreenHeight;
 	desc.MipLevels			= 1;
 	desc.ArraySize			= 1;
-	desc.Format				= DXGI_FORMAT_R16G16B16A16_FLOAT;
+	desc.Format				= DXGI_FORMAT_R32G32B32A32_FLOAT;
 	desc.SampleDesc.Count	= 1;
 	desc.Usage				= D3D11_USAGE_DEFAULT;
 	desc.BindFlags			= D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -516,7 +516,7 @@ void DeferredRenderer::renderLighting()
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
 
-	renderDirectionalLights();
+	renderDirectionalLights(m_DirectionalLights->at(0));
 
 	//Set constant data
 	m_Buffer["DefaultConstant"]->setBuffer(0);
@@ -537,6 +537,11 @@ void DeferredRenderer::renderLighting()
 	renderLight(m_Shader["PointLight"], m_Buffer["PointLightModel"], m_PointLights);
 	//		Render SpotLights
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
+	//DirectionalLights except number one
+	std::vector<Light> directional(m_DirectionalLights->begin()+1, m_DirectionalLights->end());
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0); 
+	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], &directional);
+
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
 
@@ -613,11 +618,13 @@ void DeferredRenderer::updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, Di
 }
 
 
-void DeferredRenderer::updateLightBuffer()
+void DeferredRenderer::updateLightBuffer(bool p_Big, bool p_ShadowMapped)
 {
 	cLightBuffer cb;
 	cb.view = m_LightView;
 	cb.projection = m_LightProjection;
+	cb.big = p_Big; 
+	cb.shadowMapped = p_ShadowMapped;
 	m_DeviceContext->UpdateSubresource(m_Buffer["LightViewProj"]->getBufferPointer(), NULL, NULL, &cb, NULL, NULL);
 }
 
@@ -1333,7 +1340,7 @@ void DeferredRenderer::updateLightProjection(float p_viewHW)
 	XMStoreFloat4x4(&m_LightProjection, XMMatrixTranspose(XMMatrixOrthographicLH(m_ViewHW, m_ViewHW, -20000.f, 20000)));
 }
 
-void DeferredRenderer::renderDirectionalLights()
+void DeferredRenderer::renderDirectionalLights(Light p_Directional)
 {
 	ID3D11DepthStencilState* previousDepthState;
 	m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
@@ -1346,19 +1353,15 @@ void DeferredRenderer::renderDirectionalLights()
 
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
-	m_DirectionalLights->resize(1);
-	for(unsigned int i = m_DirectionalLights->size(); i > 0; --i)
-	{
-		Light& dirLight = m_DirectionalLights->at(i - 1);
+
+		Light& dirLight = p_Directional;
 		updateLightView(dirLight.lightDirection); //light 0
 
 		for(int j = 0; j < 2; j++)
 		{
 			m_DeviceContext->ClearDepthStencilView(m_DepthMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-			if (i <= m_MaxNumDirectionalShadows)
-			{
-			
+
 				//create new viewport
 				D3D11_VIEWPORT prevViewport;
 				UINT numViewPort = 1;
@@ -1366,9 +1369,9 @@ void DeferredRenderer::renderDirectionalLights()
 				m_DeviceContext->RSSetViewports(1, &m_LightViewport);
 
 				if(j==0)
-					updateLightProjection(5000.f);
+					updateLightProjection(10000.f);
 				else
-					updateLightProjection(1000.f);
+					updateLightProjection(2000.f);
 
 				//update and render Shadow map
 				updateConstantBuffer(m_LightView, m_LightProjection);
@@ -1376,7 +1379,7 @@ void DeferredRenderer::renderDirectionalLights()
 				renderGeometry(m_DepthMapDSV, nrRT, &noRTV);
 
 				m_DeviceContext->RSSetViewports(1, &prevViewport);
-			}
+
 
 			// Set texture sampler.
 			m_DeviceContext->PSSetShaderResources(0, 5, srvs);
@@ -1394,7 +1397,11 @@ void DeferredRenderer::renderDirectionalLights()
 			m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0);
 
 			//		Render Shadow Map
-			updateLightBuffer();
+			if(j == 0)
+				updateLightBuffer(true,true);
+			else
+				updateLightBuffer(false, true);
+
 			updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
 
 			//Set constant data
@@ -1419,7 +1426,6 @@ void DeferredRenderer::renderDirectionalLights()
 			m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
 			m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
 		}
-	}
 
 	m_Buffer["LightViewProj"]->unsetBuffer(1);
 	SAFE_RELEASE(previousDepthState);

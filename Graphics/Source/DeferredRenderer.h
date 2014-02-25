@@ -162,7 +162,7 @@ private:
 
 
 	void updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix);
-	void updateLightBuffer();
+	void updateLightBuffer(bool p_Big, bool p_ShadowMapped);
 
 
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
@@ -184,5 +184,5 @@ private:
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 	void updateLightProjection(float p_viewHW);
-	void renderDirectionalLights();
+	void renderDirectionalLights(Light p_Directional);
 };

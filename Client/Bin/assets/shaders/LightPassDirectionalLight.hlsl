@@ -25,6 +25,8 @@ cbuffer lightMat : register(b1)
 {
 	float4x4	lightView;
 	float4x4	lightProjection;
+	int		big;
+	int		shadowMapped;
 }
 
 //############################
@@ -68,14 +70,19 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 
 	float4 lightPos = mul(t, mul(lightProjection, mul(lightView, float4(position, 1.0f))));
 	lightPos.xyz /= lightPos.w;
-	lightPos.z *= 1.0f;
-	lightPos.z += -0.00005f;
+	lightPos.z *= 0.9999888f;
+	lightPos.z += -0.000000055f;
 
 	
 	float3 lighting = 0;
-	if(2 / lightProjection._11 >= 5000.f)
+	if(shadowMapped == 0)
 	{
-		if(lightPos.x < 0.4f || lightPos.x > 0.6f || lightPos.y < 0.4f || lightPos.y > 0.6f)
+		lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
+				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, 0, 0);
+	}
+	else if(big == 0)
+	{
+		if(lightPos.x > 0.f && lightPos.x < 1.f && lightPos.y > 0.f && lightPos.y < 1.f)
 		{
 			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
 				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, Blur(lightPos.xyz), CalcShadowFactor(lightPos.xyz));
@@ -83,7 +90,7 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 	}
 	else
 	{
-		if(lightPos.x > 0.f && lightPos.x < 1.f && lightPos.y > 0.f && lightPos.y < 1.f)
+		if(lightPos.x < 0.4f || lightPos.x > 0.6f || lightPos.y < 0.4f || lightPos.y > 0.6f)
 		{
 			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
 				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, Blur(lightPos.xyz), CalcShadowFactor(lightPos.xyz));
@@ -108,8 +115,8 @@ float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3
 
 	float nDotL = saturate( dot( normal, L ) );
 	float3 diffuse = nDotL * lightColor * diffuseAlbedo * pow(ssao, 10);
-
-	diffuse *=  blurPercentage * calcPercentage;
+	if(shadowMapped != 0)
+		diffuse *=  blurPercentage * calcPercentage;
 
 	// Calculate the specular term
 	float3 V = normalize(cameraPos - position);
