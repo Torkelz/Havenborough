@@ -433,7 +433,15 @@ void GameLogic::throwSpell(const char *p_SpellId)
 			IConnectionController *conn = m_Network->getConnectionToServer();
 			if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
 			{
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("Action");
+				printer.OpenElement("CastSpell");
+				printer.PushAttribute("Animation", "CastSpell");
+				printer.CloseElement();
+				printer.CloseElement();
+
 				conn->sendThrowSpell(p_SpellId, m_Player.getRightHandPosition(), getPlayerViewForward());
+				conn->sendObjectAction(playerActor->getId(), printer.CStr());
 			}
 		}
 		
@@ -723,6 +731,21 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->resetClimbState();
+							}
+						}
+					}
+					else if (std::string(action->Value()) == "CastSpell")
+					{
+						Actor::ptr actor = getActor(actorId);
+						const char* animId = action->Attribute("Animation");
+
+						if (actor && animId)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->playAnimation(animId, false);
 							}
 						}
 					}

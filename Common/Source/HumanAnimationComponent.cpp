@@ -40,7 +40,7 @@ void HumanAnimationComponent::updateAnimation()
 				currentForwardState = ForwardAnimationState::RUNNING_BACKWARD;
 			}
 
-			static const float runSideLimit = 100.f;
+			static const float runSideLimit = 10.f;
 			if (XMVectorGetX(velocity) > runSideLimit)
 			{
 				currentSideState = SideAnimationState::RUNNING_RIGHT;
@@ -49,6 +49,8 @@ void HumanAnimationComponent::updateAnimation()
 			{
 				currentSideState = SideAnimationState::RUNNING_LEFT;
 			}
+			else
+				changeAnimationWeight(2, 0.0f);
 
 			if (currentForwardState != m_PrevForwardState)
 			{
@@ -71,7 +73,7 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentSideState)
 				{
 				case SideAnimationState::IDLE:
-					playAnimation("IdleSide", false);
+					//playAnimation("IdleSide", false);
 					break;
 
 				case SideAnimationState::RUNNING_LEFT:
