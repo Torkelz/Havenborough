@@ -541,6 +541,24 @@ void Graphics::setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 
 	}
 }
 
+void Graphics::setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 p_Rotation)
+{
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
+	{
+		DirectX::XMFLOAT3 rot(p_Rotation.x,	p_Rotation.y, p_Rotation.z);
+		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setSysRotation(rot);
+	}
+}
+
+void Graphics::setParticleEffectBaseColor(InstanceId p_ParticleEffectId, Vector4 p_BaseColor)
+{
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
+	{
+		DirectX::XMFLOAT4 baseColor(p_BaseColor.x,	p_BaseColor.y, p_BaseColor.z, p_BaseColor.w);
+		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setSysBaseColor(baseColor);
+	}
+}
+
 void Graphics::updateParticles(float p_DeltaTime)
 {
 	for (auto& particle : m_ParticleEffectInstanceList)
@@ -880,13 +898,9 @@ void Graphics::set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt)
 	if(m_2D_Objects.count(p_Instance) > 0)
 	{
 		Renderable2D& renderable = m_2D_Objects.at(p_Instance);
-
-		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 0.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f);
-		direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
-		direction = XMVector3Normalize(direction);
-		XMMATRIX rotation = XMMatrixTranspose(XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0)));
-
-		XMStoreFloat4x4(&renderable.rotation, rotation);
+		XMVECTOR lookAt = XMVector3Transform(Vector3ToXMVECTOR(&p_LookAt, 1.0f), XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
+		XMMATRIX rotation = XMMatrixLookToLH(g_XMZero, lookAt,XMVectorSet(0,1,0,0));
+		XMStoreFloat4x4(&renderable.rotation, XMMatrixTranspose(rotation));
 	}
 	else
 		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);

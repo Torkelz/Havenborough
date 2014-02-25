@@ -192,7 +192,6 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 110.f, 0.f));
 	printer.CloseElement();
 
-
 	printer.OpenElement("Pulse");
 	printer.PushAttribute("Length", 0.5f);
 	printer.PushAttribute("Strength", 0.5f);
@@ -304,6 +303,23 @@ Actor::ptr ActorFactory::createParticles( Vector3 p_Position, const std::string&
 	pushVector(printer, p_Position);
 	printer.OpenElement("Particle");
 	printer.PushAttribute("Effect", p_Effect.c_str());
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	return createActor(doc.FirstChildElement("Object"));
+}
+
+Actor::ptr ActorFactory::createParticles( Vector3 p_Position, const std::string& p_Effect, Vector4 p_BaseColor )
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", p_Effect.c_str());
+	pushColor(printer, "BaseColor", p_BaseColor);
 	printer.CloseElement();
 	printer.CloseElement();
 

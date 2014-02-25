@@ -20,9 +20,11 @@ private:
 	ParticleEffectDefinition::ptr m_ParticleEffectDef;
 	
 	std::vector<Particle>	m_ParticleList;
-	DirectX::XMFLOAT4	m_SysPosition; //world pos, in cm
-	
-	float				m_AccumulatedTime;
+	DirectX::XMFLOAT4		m_SysPosition; //world pos, in cm
+	DirectX::XMFLOAT3		m_SysRotation;
+	DirectX::XMFLOAT4		m_SysBaseColor;
+
+	float m_AccumulatedTime;
 
 	std::default_random_engine m_RandomEngine;
 	
@@ -78,6 +80,14 @@ public:
 	 * @return a XMFLOAT4X4 containing the world matrix
 	 */
 	DirectX::XMFLOAT4X4 getWorldMatrix() const;
+
+	DirectX::XMFLOAT3 getSysRotation() const;
+
+	void setSysRotation(DirectX::XMFLOAT3 p_NewSysRotation);
+
+	DirectX::XMFLOAT4 getSysBaseColor() const;
+
+	void setSysBaseColor(DirectX::XMFLOAT4 p_NewSysBaseColor);
 
 private:
 	void emitNewParticles(float p_DeltaTime);
