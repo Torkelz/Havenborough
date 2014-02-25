@@ -9,6 +9,7 @@ struct VSLightInput
 	float3	lightDirection	: DIRECTION;
     float2	spotlightAngles	: ANGLE;
     float	lightRange		: RANGE;
+	float	lightIntensity	: INTENSITY;
 };
 
 struct VSLightOutput
@@ -19,6 +20,7 @@ struct VSLightOutput
 	float3	lightDirection	: DIRECTION;
     float2	spotlightAngles	: ANGLE;
     float	lightRange		: RANGE;
+	float	lightIntensity	: INTENSITY;
 };
 
 //################################

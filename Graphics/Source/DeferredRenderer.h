@@ -27,6 +27,7 @@ private:
 	std::vector<Light>		*m_SpotLights;
 	std::vector<Light>		*m_PointLights;
 	std::vector<Light>		*m_DirectionalLights;
+	Light					*m_ShadowMappedLight;
 	unsigned int			m_MaxLightsPerLightInstance;
 
 	DirectX::XMFLOAT3		m_CameraPosition;
@@ -51,6 +52,18 @@ private:
 	SkyDome	*m_SkyDome;
 
 	bool	m_SSAO;
+
+	ID3D11ShaderResourceView*	m_DepthMapSRV;
+	ID3D11DepthStencilView*		m_DepthMapDSV;
+	UINT						m_Width;
+	UINT						m_Height;
+
+	float						m_ViewHW;
+	DirectX::XMFLOAT4X4			m_LightView;
+	DirectX::XMFLOAT4X4			m_LightProjection;
+	D3D11_VIEWPORT				m_LightViewport;
+	unsigned int				m_MaxNumDirectionalShadows;
+
 
 public:
 	/**
@@ -81,8 +94,15 @@ public:
 		ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
-		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
 		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
+
+	/*
+	* Creates the shadow map Texture2D desc, depthMap, depthStencilViewDesc, ShaderResourceViewDesc.
+	*
+	*/
+	void initializeShadowMap(UINT width, UINT height);
+
 
 
 	/*
@@ -124,10 +144,10 @@ public:
 	void enableSSAO(bool p_State);
 
 private:
-	void renderGeometry();
+	void renderGeometry(ID3D11DepthStencilView*, unsigned int, ID3D11RenderTargetView* rtv[]);
 	void renderSSAO(void);
 	void blurSSAO(void);
-	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*,bool p_HorizontalBlur);
+	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*, bool p_HorizontalBlur);
 	void updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur);
 	void updateSSAO_VarConstantBuffer();
 
@@ -142,8 +162,8 @@ private:
 	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, std::vector<Light> *p_Lights);
 
 
-	void updateConstantBuffer();
-	void updateLightBuffer();
+	void updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix);
+	void updateLightBuffer(bool p_Big, bool p_ShadowMapped);
 
 
 	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
@@ -162,4 +182,8 @@ private:
 	void renderObject(Renderable &p_Object);
 	void SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels );
 	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects );
+
+	void updateLightView(DirectX::XMFLOAT3 p_Dir);
+	void updateLightProjection(float p_viewHW);
+	void renderDirectionalLights(Light p_Directional);
 };

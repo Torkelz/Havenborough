@@ -3,7 +3,7 @@
 
 #include "Actor.h"
 #include "AnimationData.h"
-#include "Light.h"
+#include "LightClass.h"
 #include "Utilities/XMFloatUtil.h"
 
 #pragma warning(push)
@@ -66,12 +66,12 @@ public:
 class LightEventData : public BaseEventData
 {
 private:
-	Light m_Light;
+	LightClass m_Light;
 
 public:
 	static const Type sk_EventType = Type(0x748d2b5a);
 	
-	explicit LightEventData(Light p_Light) :
+	explicit LightEventData(LightClass p_Light) :
 		m_Light(p_Light)
 	{
 	}
@@ -95,7 +95,7 @@ public:
 		return "LightEvent";
 	}
 
-	Light getLight(void) const
+	LightClass getLight(void) const
 	{
 		return m_Light;
 	}
@@ -104,12 +104,12 @@ public:
 class RemoveLightEventData : public BaseEventData
 {
 private:
-	Light::Id m_Id;
+	LightClass::Id m_Id;
 
 public:
 	static const Type sk_EventType = Type(0x128d2b5a);
 	
-	explicit RemoveLightEventData(Light::Id p_Id) :
+	explicit RemoveLightEventData(LightClass::Id p_Id) :
 		m_Id(p_Id)
 	{
 	}
@@ -133,7 +133,7 @@ public:
 		return "RemoveLightEvent";
 	}
 
-	Light::Id getId() const
+	LightClass::Id getId() const
 	{
 		return m_Id;
 	}

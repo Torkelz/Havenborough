@@ -214,13 +214,16 @@ Actor::ptr ActorFactory::createPlayerActor(Vector3 p_Position)
 	return createActor(doc.FirstChildElement("Object"));
 }
 
-Actor::ptr ActorFactory::createDirectionalLight(Vector3 p_Direction, Vector3 p_Color)
+Actor::ptr ActorFactory::createDirectionalLight(Vector3 p_Direction, Vector3 p_Color, float p_Intensity)
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	printer.OpenElement("Light");
 	printer.PushAttribute("Type", "Directional");
 	pushVector(printer, "Direction", p_Direction);
+	printer.OpenElement("Intensity");
+	printer.PushAttribute("Intensity", p_Intensity);
+	printer.CloseElement();
 	pushColor(printer, "Color", p_Color);
 	printer.CloseElement();
 	printer.CloseElement();

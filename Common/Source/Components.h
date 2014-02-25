@@ -1226,7 +1226,7 @@ public:
 class LightComponent : public LightInterface
 {
 private:
-	Light m_Light;
+	LightClass m_Light;
 
 public:
 	~LightComponent() override
@@ -1260,7 +1260,7 @@ public:
 				col->QueryAttribute("b", &color.z);
 			}
 
-			m_Light = Light::createPointLight(position, range, color);
+			m_Light = LightClass::createPointLight(position, range, color);
 		}
 		else if (p_Data->Attribute("Type", "Spot"))
 		{
@@ -1303,13 +1303,13 @@ public:
 				ang->QueryAttribute("max", &angles.y);
 			}
 
-			m_Light = Light::createSpotLight(position, direction, angles, range, color);
+			m_Light = LightClass::createSpotLight(position, direction, angles, range, color);
 		}
 		else if (p_Data->Attribute("Type", "Directional"))
 		{
 			Vector3 direction(0.f, -1.f, 0.f);
 			Vector3 color(1.f, 1.f, 1.f);
-
+			float intensity;
 			const tinyxml2::XMLElement* dir = p_Data->FirstChildElement("Direction");
 			if (dir)
 			{
@@ -1317,7 +1317,11 @@ public:
 				dir->QueryAttribute("y", &direction.y);
 				dir->QueryAttribute("z", &direction.z);
 			}
-
+			const tinyxml2::XMLElement* intens = p_Data->FirstChildElement("Intensity");
+			if(intens)
+			{
+				intens->QueryAttribute("Intensity", &intensity);
+			}
 			const tinyxml2::XMLElement* col = p_Data->FirstChildElement("Color");
 			if (col)
 			{
@@ -1325,8 +1329,8 @@ public:
 				col->QueryAttribute("g", &color.y);
 				col->QueryAttribute("b", &color.z);
 			}
-
-			m_Light = Light::createDirectionalLight(direction, color);
+			
+			m_Light = LightClass::createDirectionalLight(direction, color, intensity);
 		}
 		else
 		{
@@ -1343,14 +1347,17 @@ public:
 		p_Printer.OpenElement("Light");
 		switch (m_Light.type)
 		{
-		case Light::Type::DIRECTIONAL:
+		case LightClass::Type::DIRECTIONAL:
 			{
 				p_Printer.PushAttribute("Type", "Directional");
 				pushVector(p_Printer, "Direction", m_Light.direction);
+				p_Printer.OpenElement("Intensity");
+				p_Printer.PushAttribute("Intensity", m_Light.intensity);
+				p_Printer.CloseElement();
 			}
 			break;
 
-		case Light::Type::POINT:
+		case LightClass::Type::POINT:
 			{
 				p_Printer.PushAttribute("Type", "Point");
 				p_Printer.PushAttribute("Range", m_Light.range);
@@ -1358,7 +1365,7 @@ public:
 			}
 			break;
 
-		case Light::Type::SPOT:
+		case LightClass::Type::SPOT:
 			{
 				p_Printer.PushAttribute("Type", "Spot");
 				p_Printer.PushAttribute("Range", m_Light.range);
@@ -1384,7 +1391,7 @@ public:
 	 *
 	 * @return the lights unique identifier
 	 */
-	Light::Id getId() const
+	LightClass::Id getId() const
 	{
 		return m_Light.id;
 	}
@@ -1394,7 +1401,7 @@ public:
 	 *
 	 * @param p_Id the light's id
 	 */
-	void setId(Light::Id p_Id)
+	void setId(LightClass::Id p_Id)
 	{
 		m_Light.id = p_Id;
 	}
