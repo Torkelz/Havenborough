@@ -215,8 +215,10 @@ public:
 	* @p_Orientation, the new orientation (frame of reference/local coordinate system)
 	*/
 	void setOrientation(DirectX::XMMATRIX const &p_Orientation);
-
-		
+	/**
+	* Resets all force and velocity on a body.
+	*/
+	void resetForce();		
 private:
 	/**
 	 * Calculates the new acceleration in m/s^2.

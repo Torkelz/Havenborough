@@ -153,6 +153,7 @@ void Player::update(float p_DeltaTime)
 					con->sendObjectAction(m_Actor.lock()->getId(), printer.CStr());
 				}
 			}
+			m_Physics->resetForceOnBody(getBody());
 			return;
 		}
 
