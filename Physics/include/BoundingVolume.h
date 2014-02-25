@@ -77,17 +77,27 @@ public:
 	 * Note! Spheres and AABB can not be rotated!
 	 */
 	virtual void setRotation(DirectX::XMMATRIX const &p_Rotation) = 0;
-	
+	/**
+	 * Which body handle is this volume connected to
+	 * @return bodyhandle to the body containing this volume. Has bodyhandle 0 if its not assigned to a body
+	 */
 	unsigned int getBodyHandle() const
 	{
 		return m_BodyHandle;
 	}
-
+	/**
+	 * sets which body this volume should be connected to.
+	 * @param p_BodyHandle, which body to connect the volume to
+	 */
 	void setBodyHandle(unsigned int p_BodyHandle)
 	{
 		m_BodyHandle = p_BodyHandle;
 	}
-
+	/**
+	 * Rotates the volume.
+	 * @param p_Rotation, Rotation vector containing RollPitchYaw
+	 * Note! Spheres and AABB can not be rotated!
+	 */
 	void setIDInBody(unsigned int p_IDInBody)
 	{
 		m_IDInBody = p_IDInBody;
