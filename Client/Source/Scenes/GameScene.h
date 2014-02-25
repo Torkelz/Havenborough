@@ -61,6 +61,10 @@ private:
 	};
 	std::vector<SpellBinding> m_Spells;
 
+	int m_CountdownTextHandle;
+	int m_GUI_Countdown;
+	bool m_RenderCountdown;
+
 public: 
 	GameScene();
 	~GameScene();
@@ -93,6 +97,8 @@ private:
 	void createParticleEffect(IEventData::Ptr p_Data);
 	void removeParticleEffectInstance(IEventData::Ptr p_Data);
 	void updateParticlePosition(IEventData::Ptr p_Data);
+	void updateGraphicalCountdown(IEventData::Ptr p_Data);
+
 	
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 
