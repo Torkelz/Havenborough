@@ -86,7 +86,7 @@ public:
 		return m_BodyHandle;
 	}
 	/**
-	 * sets which body this volume should be connected to.
+	 * Sets which body this volume should be connected to.
 	 * @param p_BodyHandle, which body to connect the volume to
 	 */
 	void setBodyHandle(unsigned int p_BodyHandle)
@@ -94,14 +94,16 @@ public:
 		m_BodyHandle = p_BodyHandle;
 	}
 	/**
-	 * Rotates the volume.
-	 * @param p_Rotation, Rotation vector containing RollPitchYaw
+	 * Set which id this volume has in a body.
+	 * @param p_IDInBody, which id the volume should have in the body
 	 * Note! Spheres and AABB can not be rotated!
 	 */
 	void setIDInBody(unsigned int p_IDInBody)
 	{
 		m_IDInBody = p_IDInBody;
 	}
-
+	/**
+	 * Destructor
+	 */
 	virtual ~BoundingVolume(){};
 };
