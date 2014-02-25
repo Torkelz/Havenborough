@@ -117,8 +117,8 @@ HitData Collision::sphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Spher
 		XMVECTOR normalized = XMVector4Normalize((s1Pos - s2Pos));
 		XMVECTOR hitPos = normalized  * p_Sphere2.getRadius();	// m
 
-		hit.colPos = XMVECTORToVector4(&hitPos) * 100.f;
-		hit.colNorm = XMVECTORToVector4(&normalized);
+		hit.colPos = hitPos * 100.f;
+		hit.colNorm = normalized;
 
 		hit.colLength = (rSum - sqrtf(c)) * 100.f;
 
@@ -236,7 +236,7 @@ HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 		colPos = XMVectorSetW(colPos, 1.f);
 		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(&spherePos) - colPos);
 
-		hit.colNorm = XMVECTORToVector4(&tempNorm);
+		hit.colNorm = tempNorm;
 		hit.colLength = (p_Sphere.getRadius() - sqrtf(d)) * 100.f;
 
 		hit.colType = Type::AABBVSSPHERE;
@@ -283,12 +283,12 @@ HitData Collision::OBBvsSphere(OBB const &p_OBB, Sphere const &p_Sphere)
 		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(&p_Sphere.getPosition()) - closestPoint);
 		float l = XMVectorGetX(XMVector4Length(tempNorm));
 		if(l > XMVectorGetX(g_XMEpsilon))
-			hit.colNorm = XMVECTORToVector4(&tempNorm);
+			hit.colNorm = tempNorm;
 		else
 		{
 			XMVECTOR n = sphereCent - XMLoadFloat4(&p_OBB.getPosition());
 			n = XMVectorSetW(n, 0.f);
-			hit.colNorm = XMVECTORToVector4(&XMVector4Normalize(n));
+			hit.colNorm = XMVector4Normalize(n);
 		}
 			
 		
@@ -363,12 +363,12 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 
 		float l = XMVectorGetX(XMVector4Length(tempNorm));
 		if(l > XMVectorGetX(g_XMEpsilon))
-			hit.colNorm = XMVECTORToVector4(&tempNorm);
+			hit.colNorm = tempNorm;
 		else
 		{
 			XMVECTOR n = spherePos - XMLoadFloat4(&p_Hull.getPosition());
 			n = XMVectorSetW(n, 0.f);
-			hit.colNorm = XMVECTORToVector4(&XMVector4Normalize(n));
+			hit.colNorm = XMVector4Normalize(n);
 		}
 		hit.colLength = (p_Sphere.getRadius() - sqrtf(distance)) * 100.f;
 		hit.colType = Type::HULLVSSPHERE;
@@ -555,7 +555,7 @@ HitData Collision::SATBoxVsBox(OBB const &p_OBB, BoundingVolume const &p_vol)
 		least *= -1.f;
 	HitData hit = HitData();
 	hit.intersect = true;
-	hit.colNorm = XMVECTORToVector4(&XMVector4Normalize(least));
+	hit.colNorm = XMVector4Normalize(least);
 	hit.colLength = overlap * 100.f;
 
 	if(p_vol.getType() == BoundingVolume::Type::OBB)
@@ -774,7 +774,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		//The normalized MTV is our collision normal 
 		MTV = XMVector4Normalize(MTV);
 
-		hit.colNorm = XMVECTORToVector4(&MTV);
+		hit.colNorm = MTV;
 		hit.colLength = depth * 100.f;
 	}
 	return hit;
@@ -824,14 +824,3 @@ bool Collision::checkCollision(XMVECTOR p_Axis, float p_TriangleProjection0, flo
 	}
 	return true;
 }
-
-float Collision::checkMin(const float &p_A, const float &p_B, const float &p_C)
-{
-	return (p_A < p_B) ? (p_A < p_C) ? p_A : p_C : (p_B < p_C) ? p_B : p_C;
-}
-
-float Collision::checkMax(const float &p_A, const float &p_B, const float &p_C)
-{
-	return (p_A > p_B) ? (p_A > p_C) ? p_A : p_C : (p_B > p_C) ? p_B : p_C;
-}
-

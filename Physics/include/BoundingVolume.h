@@ -15,7 +15,6 @@ public:
 
 protected:
 	DirectX::XMFLOAT4	m_Position;
-	DirectX::XMFLOAT4	m_PrevPosition;
 	Type				m_Type;
 	bool				m_CollisionResponse;
 	int					m_IDInBody;
@@ -41,14 +40,6 @@ public:
 	virtual DirectX::XMFLOAT4 getPosition() const 
 	{
 		return m_Position;
-	}
-	/**
-	 * Get the bounding volume position in the last frame.
-	 * @return the previus position of the bounding volume in m
-	 */
-	DirectX::XMFLOAT4* getPrevPosition()
-	{
-		return &m_PrevPosition;
 	}
 	/**
 	 * Return the bounding volume type tied to the TYPE enum.
@@ -86,26 +77,33 @@ public:
 	 * Note! Spheres and AABB can not be rotated!
 	 */
 	virtual void setRotation(DirectX::XMMATRIX const &p_Rotation) = 0;
-	
+	/**
+	 * Which body handle is this volume connected to
+	 * @return bodyhandle to the body containing this volume. Has bodyhandle 0 if its not assigned to a body
+	 */
 	unsigned int getBodyHandle() const
 	{
 		return m_BodyHandle;
 	}
-
+	/**
+	 * Sets which body this volume should be connected to.
+	 * @param p_BodyHandle, which body to connect the volume to
+	 */
 	void setBodyHandle(unsigned int p_BodyHandle)
 	{
 		m_BodyHandle = p_BodyHandle;
 	}
-
-	void setIDInBody(int p_IDInBody)
+	/**
+	 * Set which id this volume has in a body.
+	 * @param p_IDInBody, which id the volume should have in the body
+	 * Note! Spheres and AABB can not be rotated!
+	 */
+	void setIDInBody(unsigned int p_IDInBody)
 	{
 		m_IDInBody = p_IDInBody;
 	}
-
-	int getIDInBody() const
-	{
-		return m_IDInBody;
-	}
-
+	/**
+	 * Destructor
+	 */
 	virtual ~BoundingVolume(){};
 };

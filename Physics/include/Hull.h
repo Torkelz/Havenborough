@@ -21,7 +21,6 @@ public:
 	{
 		m_BodyHandle = 0;
 		m_Position = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
-		m_PrevPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 		m_Triangles = p_Triangles;
 		m_Type = Type::HULL;
 		float radius = findFarthestDistanceOnTriangle();
@@ -45,8 +44,6 @@ public:
 	 */
 	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) override
 	{
-		m_PrevPosition = m_Position;
-
 		DirectX::XMMATRIX tempTrans;
 		tempTrans = DirectX::XMLoadFloat4x4(&p_Translation);
 
@@ -84,9 +81,9 @@ public:
 			c2 = DirectX::XMVector4Transform(c2, m);
 			c3 = DirectX::XMVector4Transform(c3, m);
 
-			tri.corners[0] = XMVECTORToVector4(&c1); 
-			tri.corners[1] = XMVECTORToVector4(&c2); 
-			tri.corners[2] = XMVECTORToVector4(&c3);
+			tri.corners[0] = c1; 
+			tri.corners[1] = c2; 
+			tri.corners[2] = c3;
 		}
 		float radius = findFarthestDistanceOnTriangle();
 		m_Sphere.setRadius(radius);
@@ -109,9 +106,9 @@ public:
 			c2 = XMVector4Transform(c2, p_Rotation);
 			c3 = XMVector4Transform(c3, p_Rotation);
 
-			tri.corners[0] = XMVECTORToVector4(&c1);
-			tri.corners[1] = XMVECTORToVector4(&c2);
-			tri.corners[2] = XMVECTORToVector4(&c3);
+			tri.corners[0] = c1;
+			tri.corners[1] = c2;
+			tri.corners[2] = c3;
 		}
 	}
 	/**
@@ -155,14 +152,14 @@ public:
 	 * @param p_Index index number in triangle list
 	 * @return a triangle in world coordinates.
 	 */
-	Triangle getTriangleInWorldCoord(unsigned p_Index) const
+	Triangle getTriangleInWorldCoord(unsigned int p_Index) const
 	{
 		Triangle triangle;
 		triangle = m_Triangles[p_Index];
 
-		triangle.corners[0] = triangle.corners[0] + XMFLOAT4ToVector4(&m_Position);
-		triangle.corners[1] = triangle.corners[1] + XMFLOAT4ToVector4(&m_Position);
-		triangle.corners[2] = triangle.corners[2] + XMFLOAT4ToVector4(&m_Position);
+		triangle.corners[0] = triangle.corners[0] + m_Position;
+		triangle.corners[1] = triangle.corners[1] + m_Position;
+		triangle.corners[2] = triangle.corners[2] + m_Position;
 
 		triangle.corners[0].w = 1.f;
 		triangle.corners[1].w = 1.f;

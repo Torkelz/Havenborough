@@ -1,4 +1,5 @@
 #include "Body.h"
+#include "PhysicsExceptions.h"
 
 using namespace DirectX;
 
@@ -16,12 +17,17 @@ void Body::resetBodyHandleCounter()
 Body::Body(float p_mass, BoundingVolume::ptr p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 	: m_Handle(getNextHandle())
 {
-	m_Volumes.push_back(std::move(p_BoundingVolume));
+	if(!p_BoundingVolume)
+		m_Position = XMFLOAT4(0.f, 0.f, 0.f, 1.f);
+	else
+	{
+		m_Volumes.push_back(std::move(p_BoundingVolume));
+		m_Volumes.at(0)->setBodyHandle(m_Handle);
+		m_Position = m_Volumes.at(0)->getPosition();
+	}
+		
 
-	m_Volumes.at(0)->setBodyHandle(m_Handle);
-
-	m_Mass = p_mass;	
-	m_Position			= m_Volumes.at(0)->getPosition();
+	m_Mass				= p_mass;	
 	m_NetForce			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Velocity			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Acceleration		= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -29,12 +35,10 @@ Body::Body(float p_mass, BoundingVolume::ptr p_BoundingVolume, bool p_IsImmovabl
 	m_AvgAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_NewAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_Gravity			= 0.f;
-
 	m_InAir				= true;
 	m_OnSomething		= false;
 	m_IsImmovable		= p_IsImmovable;
 	m_IsEdge			= p_IsEdge;
-
 	m_Landed			= false;
 }
 
@@ -237,19 +241,14 @@ void Body::setCollisionResponse(bool p_State)
 		m_Volumes.at(i)->setCollisionResponse(p_State);
 }
 
-void Body::setCollisionResponse(int p_Volume, bool p_State)
+void Body::setCollisionResponse(unsigned int p_Volume, bool p_State)
 {
 	m_Volumes.at(p_Volume)->setCollisionResponse(p_State);
 }
 
-bool Body::getCollisionResponse(int p_Volume)
+bool Body::getCollisionResponse(unsigned int p_Volume)
 {
 	return m_Volumes.at(p_Volume)->getCollisionResponse();
-}
-
-int Body::getIDInBody(int p_Volume)
-{
-	return m_Volumes.at(p_Volume)->getIDInBody();
 }
 
 BoundingVolume* Body::getVolume()

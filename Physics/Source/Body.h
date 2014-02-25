@@ -135,15 +135,14 @@ public:
 	* @param p_Volume, which volume in the body.
 	* @param p_State, true if the volume should react to collision
 	*/
-	void setCollisionResponse(int p_Volume, bool p_State);
+	void setCollisionResponse(unsigned int p_Volume, bool p_State);
 	/**
 	* Shall a volume in the body react to collision response?
 	* @param p_Volume, which volume in the body.
 	* @return a bool, if the volume should have collision response.
 	*/
-	bool getCollisionResponse(int p_Volume);
+	bool getCollisionResponse(unsigned int p_Volume);
 
-	int getIDInBody(int p_Volume);
 	/**
 	* set collision victim
 	* @param p_Body which body that this collided against..
@@ -165,9 +164,9 @@ public:
 	* @param p_Volume, what volume to get.
 	* @return body's volume.
 	*/
-	BoundingVolume *getVolume(unsigned p_Volume);
+	BoundingVolume *getVolume(unsigned int p_Volume);
 	/**
-	* Gets how many bounding volumes this body has
+	* Get how many bounding volumes this body has
 	* @return the size of the list containing volumes.
 	*/
 	unsigned int getVolumeListSize();
@@ -176,7 +175,7 @@ public:
 	* @param p_Volume, which volume to move 
 	* @param p_Position, the new position for the chosen volume.
 	*/
-	void setVolumePosition(unsigned p_Volume, DirectX::XMVECTOR const &p_Position);
+	void setVolumePosition(unsigned int p_Volume, DirectX::XMVECTOR const &p_Position);
 	/**
 	* Get the current velocity for the body.
 	* @return m_Velocity in m/s.

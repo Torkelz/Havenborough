@@ -278,6 +278,16 @@ typedef Signal<PackageType::DONE_LOADING> DoneLoading;
 typedef Signal<PackageType::LEAVE_GAME> LeaveGame;
 
 /**
+ * A package representing that all players are ready to start the game.
+ */
+typedef Signal<PackageType::START_COUNTDOWN> StartCountdown;
+
+/**
+ * A package representing that all players can start running.
+ */
+typedef Signal<PackageType::DONE_COUNTDOWN> DoneCountdown;
+
+/**
  * A package representing the removal of objects in the game world.
  */
 typedef Package1Obj<PackageType::REMOVE_OBJECTS, std::vector<uint32_t>> RemoveObjects;

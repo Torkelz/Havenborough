@@ -32,11 +32,23 @@ public:
 	 * @return a body handle
 	 */
 	virtual BodyHandle getBodyHandle() const = 0;
-
+	/**
+	 * Get the body velocity of the component.
+	 *
+	 * @return velocity
+	 */
 	virtual Vector3 getVelocity() const = 0;
-
+	/**
+	 * Get if the components body is in the air.
+	 *
+	 * @return true if it the body is in the air otherwise false.
+	 */
 	virtual bool isInAir() const = 0;
-
+	/**
+	 * Get if the components body has landed .
+	 *
+	 * @return velocity
+	 */
 	virtual bool hasLanded() const = 0;
 };
 
@@ -567,6 +579,11 @@ public:
 		m_Physics = p_Physics;
 	}
 
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
 	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		m_RadiusMain = 1.f;
@@ -646,7 +663,7 @@ public:
 		XMFLOAT3 fRotPos;
 		XMStoreFloat3(&fRotPos, rotPos);
 		
-		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionBox, m_Halfsize, false);
+		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionBox, m_Halfsize);
 
 		Vector3 ownerRot = m_Owner->getRotation();
 		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
@@ -1556,14 +1573,69 @@ public:
 		return m_ComponentId;
 	}
 	
+	/**
+	 * Poll the animation component to play a new animation clip.
+	 * @param p_AnimationName, the name of the wanted clip.
+	 * @param p_Override, specify if the clip should override active clips.
+	 */
 	virtual void playAnimation(std::string p_AnimationName, bool p_Override) = 0;
+
+	/**
+	 * Poll the animation component to queue a new animation clip.
+	 * @param p_AnimationName, the name of the wanted clip.
+	 */
 	virtual void queueAnimation(std::string p_AnimationName) = 0;
+
+	/**
+	 * Change the influence of an animation track pair.
+	 * @param p_Track, first track number in the pair.
+	 * @param p_Weight, the wanted influence.
+	 */
 	virtual void changeAnimationWeight(int p_Track, float p_Weight) = 0;
+
+	/**
+	 * Calculate 3-joint IK to reach for a specified point.
+	 * @param p_GroupName, the wanted IK-group.
+	 * @param p_Target, 3D point to reach for.
+	 */
 	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) = 0;
+
+	/**
+	 * @param p_JointName, the name of the joint to get the position of.
+	 * @return the joint position in World space.
+	 */
 	virtual DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName) = 0;
-	virtual const AnimationPath getAnimationData(std::string p_AnimatioId) const = 0;
+
+	/**
+	 * Poll the animation to return a specified animation path for climbing.
+	 * @param p_AnimationId, the name of the animation path.
+	 * @return the wanted animation path.
+	 */
+	virtual const AnimationPath getAnimationData(std::string p_AnimationId) const = 0;
+
+	/**
+	 * Automaticly plays the specified climb animation and locks all other animations from running.
+	 * @param p_ClimbId, the name of the wanted climb animation.
+	 */
 	virtual void playClimbAnimation(std::string p_ClimbID) = 0;
+
+	/**
+	 * Unlock the animations.
+	 */
 	virtual void resetClimbState() = 0;
+
+	/**
+	 * Update the needed data for climb IK.
+	 * @param p_EdgeOrientation, the calculated orientation of the edge.
+	 * @param p_CenterReachPos, the center position that the IK uses.
+	 */
+	virtual void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos) = 0;
+
+	/**
+	 * The animation component needs physics for some of its calculations.
+	 * @param p_Physics, a pointer to the physics engine.
+	 */
+	virtual void setPhysics(IPhysics *p_Physics) = 0;
 };
 
 class SpellInterface : public ActorComponent

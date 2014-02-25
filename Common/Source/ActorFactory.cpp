@@ -517,6 +517,7 @@ ActorComponent::ptr ActorFactory::createHumanAnimationComponent()
 	HumanAnimationComponent* comp = new HumanAnimationComponent;
 	comp->setResourceManager(m_ResourceManager);
 	comp->setAnimationLoader(m_AnimationLoader);
+	comp->setPhysics(m_Physics);
 
 	return ActorComponent::ptr(comp);
 }
