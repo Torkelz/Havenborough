@@ -1888,37 +1888,37 @@
 #Translation: -529.860046 841.651917 1800.754517
 Color: 1 1 1
 Type: kPointLight
-Intensity: 0.3
+Intensity: 0.6
 
 #Light: pointLightShape2
 #Translation: -4658.789551 589.082458 -196.264526
 Color: 1 1 1
 Type: kPointLight
-Intensity: 0.3
+Intensity: 0.6
 
 #Light: pointLightShape3
 #Translation: -3645.930664 436.309692 -2825.826172
 Color: 1 1 1
 Type: kPointLight
-Intensity: 0.3
+Intensity: 0.6
 
 #Light: pointLightShape4
 #Translation: -1906.383179 839.248352 -3723.577148
 Color: 1 1 1
 Type: kPointLight
-Intensity: 0.3
+Intensity: 0.6
 
 #Light: pointLightShape5
 #Translation: 1181.716675 609.435852 -4415.840332
 Color: 1 1 1
 Type: kPointLight
-Intensity: 0.3
+Intensity: 0.6
 
 #Light: pointLightShape6
 #Translation: 4942.175293 833.546997 -3392.910889
 Color: 1 1 1
 Type: kPointLight
-Intensity: 0.3
+Intensity: 0.6
 
 *CheckPointHeader*
 #numCheckpoints 4

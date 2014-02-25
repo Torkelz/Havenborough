@@ -2097,14 +2097,7 @@
 #Scale: 4.521039 4.521039 4.521039
 
 *LightHeader*
-#numLights 1
-
-#Light: directionalLightShape1
-#Translation: 0 3355.663818 0
-Color: 1 1 1
-Type: kDirectionalLight
-Intensity: 1
-Direction: 287.88382 -811.762939 -321.125
+#numLights 0
 
 *CheckPointHeader*
 #numCheckpoints 0

@@ -9,7 +9,7 @@
 *Materials
 Material: Grass_mat
 DiffuseMap: Grass1_COLOR.dds
-NormalMap: Grass1_NORMAL.dds
+NormalMap: Grass1_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 *Vertices
