@@ -28,6 +28,10 @@ GameRound::~GameRound()
 
 	m_Actors.clear();
 
+	m_ResourceManager->unregisterResourceType("animation");
+	m_AnimationLoader.reset();
+
+	m_ResourceManager->unregisterResourceType("spell");
 	m_SpellFactory.reset();
 
 	if (m_Physics)
