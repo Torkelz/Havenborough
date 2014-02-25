@@ -116,11 +116,11 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", true);
+					playAnimation("BodyLand", false);
 					if (XMVectorGetZ(velocity) > runLimit)
-						queueAnimation("Run");
+						playAnimation("Run", false);
 					else
-						queueAnimation("Idle2");
+						playAnimation("Idle2", false);
 					break;
 
 				default: // Just in case, so that the code doesn't break, hohohoho
@@ -184,11 +184,19 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
+					playAnimation("HardLanding", true);
+					if (XMVectorGetZ(velocity) > runLimit)
+						queueAnimation("Run");
+					else
+						queueAnimation("Idle2");
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", false);
+					playAnimation("BodyLand", false);
+					if (XMVectorGetZ(velocity) > runLimit)
+						playAnimation("Run", false);
+					else
+						playAnimation("Idle2", false);
 					break;
 
 				case JumpAnimationState::FALLING:
