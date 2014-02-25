@@ -2,9 +2,9 @@
   <Server Hostname="localhost" Port="31415" />
   <!-- Test ip: 194.47.150.44 -->
   <Settings>
-    <SSAO enabled="true" />
+    <SSAO enabled="false" />
     <VSync enabled="false" />
-    <Fullscreen enabled="false" />
+    <Fullscreen enabled="true" />
     <Resolution width="1280" height="720" />
   </Settings>
   <Controls>
@@ -41,7 +41,5 @@
     <MouseMap command="mouseMoveVert" position="mousePosVert" movement="Vertical" />
     <MouseButtonMap command="spellCast" button="Left" />
     <MouseButtonMap command="ClimbEdge" button="Right" />
-    <MouseButtonMap command="gogogogo" button="Left" />
-    <MouseButtonMap command="rollMe!" button="Middle" />
   </Controls>
 </UserOptions>

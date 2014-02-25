@@ -23,12 +23,17 @@ namespace Havenborough_Launcher
     {
         public MainWindow()
         {
+            ImageBrush backgroundBrush = new ImageBrush();
+            backgroundBrush.ImageSource = new BitmapImage(new Uri(@"assets\textures\launcher_background.jpg",
+                UriKind.Relative));
+           
             InitializeComponent();
             string appPath = System.IO.Path.GetDirectoryName(
                 System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
             var xmlDataProvider = this.Resources["DataProvider"] as XmlDataProvider;
             if (xmlDataProvider != null)
-                xmlDataProvider.Source = new Uri(System.IO.Path.Combine(appPath, "@/../../../Client/Bin/UserOptions.xml"));
+                xmlDataProvider.Source = new Uri(System.IO.Path.Combine(appPath, "UserOptions.xml"));
+            this.Background = backgroundBrush;
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
@@ -36,7 +41,7 @@ namespace Havenborough_Launcher
             var dataProvider = (this.Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null) return;
             string appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var source = new Uri(System.IO.Path.Combine(appPath, "@/../../../Client/Bin/UserOptions.xml"));
+            var source = new Uri(System.IO.Path.Combine(appPath, "UserOptions.xml"));
             dataProvider.Document.Save(source.LocalPath);
         }
 
@@ -89,5 +94,9 @@ namespace Havenborough_Launcher
 
         #endregion
     }
+    //public class DropDownConverter : IValueConverter
+    //{
+    //    public object Convert()
+    //}
 }
 
