@@ -54,7 +54,7 @@ std::vector<std::string> Server::getUserNames()
 
 	for (auto& user : m_Users)
 	{
-		names.push_back(std::to_string((intptr_t)user->getConnection()));
+		names.push_back(user->getUsername());
 	}
 
 	return names;
