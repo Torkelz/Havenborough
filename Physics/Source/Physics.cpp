@@ -1,6 +1,7 @@
 #include "Physics.h"
 #include "Collision.h"
 #include "PhysicsLogger.h"
+#include "PhysicsExceptions.h"
 
 using namespace DirectX;
 
@@ -679,4 +680,13 @@ Vector3 Physics::getBodyOrientation(BodyHandle p_BodyHandle)
 	}
 
 	return Vector3(0.f, 0.f, 0.f);
+}
+
+void Physics::resetForceOnBody(BodyHandle p_BodyHandle)
+{
+	Body *body = findBody(p_BodyHandle);
+	if(!body)
+		throw PhysicsException("Error! Trying to reset force on non existing body!", __LINE__, __FILE__);
+
+	body->resetForce();
 }

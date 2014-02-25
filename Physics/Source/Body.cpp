@@ -317,3 +317,12 @@ DirectX::XMFLOAT4 Body::getLastACC()
 {
 	return m_LastAcceleration;
 }
+
+void Body::resetForce()
+{
+	m_NetForce			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_Velocity			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_Acceleration		= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_AvgAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_NewAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+}
