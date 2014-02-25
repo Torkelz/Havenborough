@@ -13,7 +13,7 @@ GameLogic::GameLogic(void)
 {
 	m_Physics = nullptr;
 	m_ResourceManager = nullptr;
-	m_CurrentCheckPointPosition = Vector3(0.0f, 0.0f, 0.0f);
+	m_CurrentCheckPointPosition = Vector3(4000,0,-200);//Vector3(0.0f, 0.0f, 0.0f);
 }
 
 
@@ -627,7 +627,7 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-							m_CurrentCheckPointPosition = actor->getPosition();
+							m_CurrentCheckPointPosition = Vector3(4000,0,-200);// actor->getPosition();
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -823,8 +823,8 @@ void GameLogic::loadSandbox()
 	// No permanent implementations in this function is allowed.
 
 	//Fredrik, 2014-02-20
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
+	addActor(m_ActorFactory->createParticles(Vector3(4000.f, 80.f, -200.f), "smoke"));
+	addActor(m_ActorFactory->createParticles(Vector3(4000.f, 80.f, -200.f), "fire"));
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)

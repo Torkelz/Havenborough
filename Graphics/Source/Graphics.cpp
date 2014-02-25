@@ -863,12 +863,46 @@ void Graphics::set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt)
 	{
 		Renderable2D& renderable = m_2D_Objects.at(p_Instance);
 
-		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 0.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f);
-		direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
-		direction = XMVector3Normalize(direction);
-		XMMATRIX rotation = XMMatrixTranspose(XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0)));
+		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 1.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 1.0f);
+		//XMVECTOR up = XMVectorSet(0,1,0,0);
+		//XMVECTOR side = XMVector3Normalize(XMVector3Cross(up, direction));
+		//up = XMVector3Normalize(XMVector3Cross(side, direction));
+		//XMFLOAT3 dir, upf, sidef;
+		//XMStoreFloat3(&dir, XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix))));
+		//XMStoreFloat3(&upf, XMVector3Transform(up, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix))));
+		//XMStoreFloat3(&sidef, XMVector3Transform(side, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix))));
+		//XMFLOAT4X4 rot;
+		//rot._11 = sidef.x; rot._12 = sidef.y; rot._13 = sidef.z; rot._14 = 0.f;
+		//rot._21 = upf.x;   rot._22 = upf.y;   rot._23 = upf.z;   rot._24 = 0.f;
+		//rot._31 = dir.x;   rot._32 = dir.y;   rot._33 = dir.z;   rot._34 = 0.f;
+		//rot._41 = 0.f;     rot._42 = 0.f;     rot._43 = 0.f;     rot._44 = 1.f;
 
-		XMStoreFloat4x4(&renderable.rotation, rotation);
+		//direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
+		direction = XMVector3Normalize(direction);
+
+		XMVECTOR lookAt = XMVector3Transform(Vector3ToXMVECTOR(&p_LookAt, 1.0f), XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
+
+		XMMATRIX rotation;// = XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0));
+		rotation = XMMatrixLookAtRH(g_XMZero, lookAt,XMVectorSet(0,1,0,0));
+		XMFLOAT4X4 tempView = m_ViewMatrix;
+		tempView._14 = 0.f;
+		tempView._24 = 0.f;
+		tempView._34 = 0.f;
+		tempView._44 = 1.f;
+		//renderable.rotation = rot;
+		XMStoreFloat4x4(&renderable.rotation, XMMatrixTranspose(rotation));
+
+
+	//	float3 fwd = direction;
+	//float3 up = float3(0,1,0);
+	//float3 side = normalize(cross(up,fwd));
+	//up = normalize(cross(side,fwd));
+
+	//float4x4 rotation = {float4(side.x,side.y,side.z,0),
+	//					float4(up.x, up.y,up.z,0),
+	//					float4(fwd.x,fwd.y,fwd.z,0),
+	//					float4(0,0,0,1)
+	//					};
 	}
 	else
 		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);

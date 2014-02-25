@@ -97,7 +97,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\SimpleText.cpp" />
     <ClCompile Include="Source\ParticleInstance.cpp" />
     <ClCompile Include="Source\ParticleFactory.cpp" />
     <ClCompile Include="Source\ScreenRenderer.cpp" />
@@ -119,7 +118,6 @@
     <ClCompile Include="Source\TextFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\SimpleText.h" />
     <ClInclude Include="Source\Renderable2D.h" />
     <ClInclude Include="Source\ConstantBuffers.h" />
     <ClInclude Include="Source\ParticleInstance.h" />

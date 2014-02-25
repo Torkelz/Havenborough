@@ -137,7 +137,6 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Graphics\Source\ParticleInstance.cpp" />
     <ClCompile Include="..\Graphics\Source\ScreenRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\Shader.cpp" />
-    <ClCompile Include="..\Graphics\Source\SimpleText.cpp" />
     <ClCompile Include="..\Graphics\Source\SkyDome.cpp" />
     <ClCompile Include="..\Graphics\Source\TextFactory.cpp" />
     <ClCompile Include="..\Graphics\Source\TextResource.cpp" />
