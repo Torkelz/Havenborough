@@ -24,11 +24,11 @@ namespace Havenborough_Launcher
         public MainWindow()
         {
             InitializeComponent();
-            //string appPath = System.IO.Path.GetDirectoryName(
-            //    System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            //var xmlDataProvider = this.Resources["DataProvider"] as XmlDataProvider;
-            //if (xmlDataProvider != null)
-            //    xmlDataProvider.Source = new Uri(System.IO.Path.Combine(appPath, "@/../../assets/UserOptions.xml"));
+            string appPath = System.IO.Path.GetDirectoryName(
+                System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
+            var xmlDataProvider = this.Resources["DataProvider"] as XmlDataProvider;
+            if (xmlDataProvider != null)
+                xmlDataProvider.Source = new Uri(System.IO.Path.Combine(appPath, "@/../../../Client/Bin/UserOptions.xml"));
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
@@ -36,7 +36,7 @@ namespace Havenborough_Launcher
             var dataProvider = (this.Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null) return;
             string appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var source = new Uri(System.IO.Path.Combine(appPath, "@/../../assets/UserOptions.xml"));
+            var source = new Uri(System.IO.Path.Combine(appPath, "@/../../../Client/Bin/UserOptions.xml"));
             dataProvider.Document.Save(source.LocalPath);
         }
 
@@ -84,7 +84,7 @@ namespace Havenborough_Launcher
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
 
-            return value.ToString();
+            return value.ToString().ToLower();
         }
 
         #endregion
