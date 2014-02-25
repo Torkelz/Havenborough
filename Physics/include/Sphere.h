@@ -46,8 +46,6 @@ public:
 	*/
 	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) override
 	{
-		m_PrevPosition = m_Position;
-
 		DirectX::XMMATRIX tempTrans;
 
 		tempTrans = XMLoadFloat4x4(&p_Translation);
@@ -62,7 +60,6 @@ public:
 	*/
 	void setPosition(DirectX::XMVECTOR const &p_Position) override
 	{
-		m_PrevPosition = m_Position;
 		XMStoreFloat4(&m_Position, p_Position);
 	}
 	/**
