@@ -57,28 +57,28 @@ void TextRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Dev
 	createRasterizerState();
 }
 
-void TextRenderer::addTextObject(TextId p_Instance, TextInstance &p_Object)
+void TextRenderer::addTextObject(TextId p_InstanceId, TextInstance &p_Object)
 {
-	if(m_TextList.count(p_Instance) > 0)		
-		throw TextRendererException("Failed to add text object, ID already exists: " + std::to_string(p_Instance),
+	if(m_TextList.count(p_InstanceId) > 0)		
+		throw TextRendererException("Failed to add text object, ID already exists: " + std::to_string(p_InstanceId),
 			__LINE__, __FILE__);
 
-	m_TextList.insert(std::pair<TextId, TextInstance>(p_Instance, p_Object));
+	m_TextList.insert(std::pair<TextId, TextInstance>(p_InstanceId, p_Object));
 }
 
-void TextRenderer::removeTextObject(TextId p_Instance)
+void TextRenderer::removeTextObject(TextId p_InstanceId)
 {
-	if(m_TextList.count(p_Instance) > 0)
-		m_TextList.erase(p_Instance);
+	if(m_TextList.count(p_InstanceId) > 0)
+		m_TextList.erase(p_InstanceId);
 	else
-		throw TextRendererException("Failed to remove text object, ID does not exist: " + std::to_string(p_Instance),
+		throw TextRendererException("Failed to remove text object, ID does not exist: " + std::to_string(p_InstanceId),
 			__LINE__, __FILE__);
 }
 
-void TextRenderer::renderTextObject(TextId p_Instance)
+void TextRenderer::renderTextObject(TextId p_InstanceId)
 {
-	if(m_TextList.count(p_Instance) > 0)
-		m_RenderList.push_back(m_TextList.at(p_Instance));
+	if(m_TextList.count(p_InstanceId) > 0)
+		m_RenderList.push_back(m_TextList.at(p_InstanceId));
 	else
 		throw;
 }
@@ -137,10 +137,10 @@ void TextRenderer::renderFrame(void)
 	}
 }
 
-void TextRenderer::setPosition(TextId p_Instance, Vector3 p_Position)
+void TextRenderer::setPosition(TextId p_InstanceId, Vector3 p_Position)
 {
-	if(m_TextList.count(p_Instance) > 0)
-		m_TextList.at(p_Instance).data.position = p_Position;
+	if(m_TextList.count(p_InstanceId) > 0)
+		m_TextList.at(p_InstanceId).data.position = p_Position;
 	else
 		throw;
 }
