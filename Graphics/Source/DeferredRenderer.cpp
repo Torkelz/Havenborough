@@ -145,13 +145,13 @@ DeferredRenderer::~DeferredRenderer(void)
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
-	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
 	unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
 	m_DepthStencilView	= p_DepthStencilView;
-
+	m_ShadowMappedLight = p_ShadowMappedLight;
 	m_CameraPosition	= p_CameraPosition;
 	m_ViewMatrix		= p_ViewMatrix;
 	m_ProjectionMatrix	= p_ProjectionMatrix;
@@ -516,7 +516,7 @@ void DeferredRenderer::renderLighting()
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
 
-	renderDirectionalLights(m_DirectionalLights->at(0));
+	renderDirectionalLights(*m_ShadowMappedLight);
 
 	//Set constant data
 	m_Buffer["DefaultConstant"]->setBuffer(0);
@@ -538,9 +538,8 @@ void DeferredRenderer::renderLighting()
 	//		Render SpotLights
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//DirectionalLights except number one
-	std::vector<Light> directional(m_DirectionalLights->begin()+1, m_DirectionalLights->end());
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0); 
-	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], &directional);
+	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
@@ -962,20 +961,21 @@ void DeferredRenderer::createShaders()
 		{"COLOR",		0, Format::R32G32B32_FLOAT, 1, 12, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 		{"DIRECTION",	0, Format::R32G32B32_FLOAT, 1, 24, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 		{"ANGLE",		0, Format::R32G32_FLOAT,	1, 36, D3D11_INPUT_PER_INSTANCE_DATA, 1},
-		{"RANGE",		0, Format::R32_FLOAT,		1, 44, D3D11_INPUT_PER_INSTANCE_DATA, 1}
+		{"RANGE",		0, Format::R32_FLOAT,		1, 44, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{"INTENSITY",	0, Format::R32_FLOAT,		1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 	};
 
 
 	m_Shader["SpotLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassSpotLight.hlsl",
-		"SpotLightVS,SpotLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 6);
+		"SpotLightVS,SpotLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 
 
 	m_Shader["PointLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassPointLight.hlsl",
-		"PointLightVS,PointLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 6);
+		"PointLightVS,PointLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 
 
 	m_Shader["DirectionalLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassDirectionalLight.hlsl",
-		"DirectionalLightVS,DirectionalLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 6);
+		"DirectionalLightVS,DirectionalLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 
 
 	ShaderInputElementDescription instanceshaderDesc[] = 
@@ -1362,23 +1362,23 @@ void DeferredRenderer::renderDirectionalLights(Light p_Directional)
 			m_DeviceContext->ClearDepthStencilView(m_DepthMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 
-				//create new viewport
-				D3D11_VIEWPORT prevViewport;
-				UINT numViewPort = 1;
-				m_DeviceContext->RSGetViewports(&numViewPort, &prevViewport);
-				m_DeviceContext->RSSetViewports(1, &m_LightViewport);
+			//create new viewport
+			D3D11_VIEWPORT prevViewport;
+			UINT numViewPort = 1;
+			m_DeviceContext->RSGetViewports(&numViewPort, &prevViewport);
+			m_DeviceContext->RSSetViewports(1, &m_LightViewport);
 
-				if(j==0)
-					updateLightProjection(10000.f);
-				else
-					updateLightProjection(2000.f);
+			if(j==0)
+				updateLightProjection(10000.f);
+			else
+				updateLightProjection(2000.f);
 
-				//update and render Shadow map
-				updateConstantBuffer(m_LightView, m_LightProjection);
+			//update and render Shadow map
+			updateConstantBuffer(m_LightView, m_LightProjection);
 
-				renderGeometry(m_DepthMapDSV, nrRT, &noRTV);
+			renderGeometry(m_DepthMapDSV, nrRT, &noRTV);
 
-				m_DeviceContext->RSSetViewports(1, &prevViewport);
+			m_DeviceContext->RSSetViewports(1, &prevViewport);
 
 
 			// Set texture sampler.

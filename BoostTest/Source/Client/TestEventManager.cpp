@@ -178,14 +178,14 @@ BOOST_AUTO_TEST_CASE(EventManager_TickUpdateWithMemberFunction)
 */
 BOOST_AUTO_TEST_CASE(LightEventDataTest)
 {
-	Light light;
+	LightClass light;
 	light.position = Vector3(100.f, 10.0f, 10.0f);
 	std::shared_ptr<LightEventData> eventData(new LightEventData(light));
 
 	BOOST_CHECK(eventData->getName() == "LightEvent");
 	BOOST_CHECK(eventData->getEventType() == 0x748d2b5a);
 
-	Light newLight;
+	LightClass newLight;
 	newLight = eventData->getLight();
 	BOOST_CHECK(newLight.position == Vector3(100.f, 10.0f, 10.0f));
 
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(LightEventDataTest)
 
 BOOST_AUTO_TEST_CASE(RemoveLightEventDataTest)
 {
-	Light::Id lightId = 2;
+	LightClass::Id lightId = 2;
 	std::shared_ptr<RemoveLightEventData> eventData(new RemoveLightEventData(lightId));
 
 	BOOST_CHECK(eventData->getName() == "RemoveLightEvent");

@@ -97,7 +97,7 @@ public:
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone);
 	std::string getPlayerActorDescription(Vector3 p_Position) const;
 	Actor::ptr createPlayerActor(Vector3 p_Position);
-	Actor::ptr createDirectionalLight(Vector3 p_Direction, Vector3 p_Color);
+	Actor::ptr createDirectionalLight(Vector3 p_Direction, Vector3 p_Color, float p_Intensity);
 	Actor::ptr createSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);
 	Actor::ptr createPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);

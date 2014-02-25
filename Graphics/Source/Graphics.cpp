@@ -200,7 +200,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
+		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights, &m_ShadowMappedLight, 
 		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
 	
 	//Forward renderer
@@ -642,7 +642,7 @@ void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, 
 	l.lightRange = p_LightRange;
 	m_SpotLights.push_back(l);
 }
-void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection)
+void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection, float p_Intensity)
 {
 	Light l;
 	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
@@ -651,7 +651,22 @@ void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDir
 	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
 	XMStoreFloat3(&l.lightDirection, lightDirectionV);
-	m_DirectionalLights.push_back(l);
+	l.lightIntensity = p_Intensity;
+
+	if(m_ShadowMappedLight.lightIntensity == 0)
+	{
+		m_ShadowMappedLight = l;
+	}
+	else if(m_ShadowMappedLight.lightIntensity > l.lightIntensity)
+	{
+		m_DirectionalLights.push_back(l);
+	}
+	else
+	{
+		m_DirectionalLights.push_back(m_ShadowMappedLight);
+		m_ShadowMappedLight = l;
+	}
+
 }
 
 void Graphics::setClearColor(Vector4 p_Color)

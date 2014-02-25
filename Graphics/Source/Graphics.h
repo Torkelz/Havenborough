@@ -75,9 +75,10 @@ private:
 	ScreenRenderer *m_ScreenRenderer;
 		
 	//Lights
-	std::vector<Light> m_SpotLights;
-	std::vector<Light> m_PointLights;
-	std::vector<Light> m_DirectionalLights;
+	std::vector<Light>	m_SpotLights;
+	std::vector<Light>	m_PointLights;
+	std::vector<Light>	m_DirectionalLights;
+	Light				m_ShadowMappedLight;
 
 	//Stuff needed for drawing bounding volumes
 	std::vector<DirectX::XMFLOAT4> m_BVTriangles;
@@ -134,7 +135,7 @@ public:
 	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
 	void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
 		Vector2 p_SpotLightAngles,	float p_LightRange) override;
-	void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) override;
+	void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection, float p_Intensity) override;
 	
 	void setClearColor(Vector4 p_Color) override;
 

@@ -283,7 +283,7 @@ public:
 	 * @ p_LightColor, the color of the light.
 	 * @ p_LightDirection, the direction of the directional light.
 	 */
-	virtual void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) = 0;
+	virtual void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection, float p_Intensity) = 0;
 	
 	/**
 	* Sets which color the final render target should be cleared in.

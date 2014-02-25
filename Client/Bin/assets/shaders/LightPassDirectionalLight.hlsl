@@ -10,7 +10,7 @@ Texture2D ShadowMap  : register (t4);
 SamplerComparisonState shadowMapSampler : register (s0);
 
 float3 CalcLighting( float3 normal, float3 position, float3 diffuseAlbedo, float3 specularAlbedo,
-	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor,	float3 ssao, float blurPercentage, float calcPercentage);
+	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor, float3 ssao, float blurPercentage, float calcPercentage);
 float CalcShadowFactor(float3 uv);
 float Blur(float3 uv);
 
@@ -37,10 +37,11 @@ VSLightOutput DirectionalLightVS(VSLightInput input)
 	VSLightOutput output;
 	output.vposition		= float4(input.vposition,1.0f);
 	output.lightPos			= input.lightPos;
-	output.lightColor		= input.lightColor;	
+	output.lightColor		= input.lightColor;
 	output.lightDirection	= input.lightDirection;
-	output.spotlightAngles	= input.spotlightAngles;	
+	output.spotlightAngles	= input.spotlightAngles;
 	output.lightRange		= input.lightRange;
+	output.lightIntensity	= input.lightIntensity;
 	return output;
 }
 
@@ -96,7 +97,7 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, Blur(lightPos.xyz), CalcShadowFactor(lightPos.xyz));
 		}
 	}
-	return float4( lighting, 1.0f );
+	return float4( lighting * input.lightIntensity, 1.0f );
 }
 
 
@@ -104,7 +105,7 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 //		HELPER FUNCTIONS
 //################################
 float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3 specularAlbedo,
-	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor,	float3 ssao, float blurPercentage, float calcPercentage)
+	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor, float3 ssao, float blurPercentage, float calcPercentage)
 {
 
 	float attenuation = 1.0f;

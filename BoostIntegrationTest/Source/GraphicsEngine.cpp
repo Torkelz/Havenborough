@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	//Step 14
 	BOOST_MESSAGE(testId + "Setting clear color and adding frame lights");
 	graphics->setClearColor(Vector4(0.0f, 0.0f, 0.0f, 0.0f));
-	graphics->useFrameDirectionalLight(Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, -1.0f, 1.0f));
+	graphics->useFrameDirectionalLight(Vector3(1.0f, 1.0f, 1.0f), Vector3(0.0f, -1.0f, 1.0f), 1);
 	graphics->useFramePointLight(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f), 1000.0f);
 	graphics->useFrameSpotLight(Vector3(1.0f, 5.0f, 1.0f), Vector3(1.0f, 1.0f, 1.0f), Vector3(1.0f, -1.0f, 0.0f),
 		Vector2(1.7f, 0.5f), 10000.0f);

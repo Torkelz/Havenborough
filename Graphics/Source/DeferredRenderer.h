@@ -27,6 +27,7 @@ private:
 	std::vector<Light>		*m_SpotLights;
 	std::vector<Light>		*m_PointLights;
 	std::vector<Light>		*m_DirectionalLights;
+	Light					*m_ShadowMappedLight;
 	unsigned int			m_MaxLightsPerLightInstance;
 
 	DirectX::XMFLOAT3		m_CameraPosition;
@@ -93,7 +94,7 @@ public:
 		ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
-		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights,
+		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
 		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
 
 	/*

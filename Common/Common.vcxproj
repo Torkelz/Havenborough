@@ -33,7 +33,7 @@
     <ClInclude Include="Source\IEventManager.h" />
     <ClInclude Include="Source\Joint.h" />
     <ClInclude Include="Source\InstanceBinaryLoader.h" />
-    <ClInclude Include="Source\Light.h" />
+    <ClInclude Include="Source\LightClass.h" />
     <ClInclude Include="Source\Logger.h" />
     <ClInclude Include="Source\ResourceManager.h" />
     <ClInclude Include="Source\ResourceTranslator.h" />

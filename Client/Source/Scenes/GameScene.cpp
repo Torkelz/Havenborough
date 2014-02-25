@@ -154,18 +154,18 @@ void GameScene::render()
 	{
 		switch(light.type)
 		{
-		case Light::Type::DIRECTIONAL:
+		case LightClass::Type::DIRECTIONAL:
 			{
-				m_Graphics->useFrameDirectionalLight(light.color, light.direction);
+				m_Graphics->useFrameDirectionalLight(light.color, light.direction, light.intensity);
 				break;
 			}
-		case Light::Type::POINT:
+		case LightClass::Type::POINT:
 			{
 				m_Graphics->useFramePointLight(light.position, light.color, light.range);
 
 				break;
 			}
-		case Light::Type::SPOT:
+		case LightClass::Type::SPOT:
 			{
 				m_Graphics->useFrameSpotLight(light.position, light.color, light.direction,
 					light.spotlightAngles, light.range);
@@ -278,7 +278,7 @@ int GameScene::getID()
 void GameScene::addLight(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<LightEventData> lightData = std::static_pointer_cast<LightEventData>(p_Data);
-	Light light = lightData->getLight();
+	LightClass light = lightData->getLight();
 	m_Lights.push_back(light);
 }
 
@@ -287,7 +287,7 @@ void GameScene::removeLight(IEventData::Ptr p_Data)
 	std::shared_ptr<RemoveLightEventData> lightData = std::static_pointer_cast<RemoveLightEventData>(p_Data);
 
 	auto remIt = std::remove_if(m_Lights.begin(), m_Lights.end(),
-		[&lightData] (Light& p_Light)
+		[&lightData] (LightClass& p_Light)
 		{
 			return p_Light.id == lightData->getId();
 		});
