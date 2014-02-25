@@ -318,4 +318,34 @@ public:
 	 * Send a package to release players from countdown freeze.
 	 */
 	virtual void sendDoneCountdown() = 0;
+
+	/**
+	 * Send a package to request avilable games.
+	 */
+	virtual void sendRequestGames() = 0;
+
+	/**
+	 * Send a package with a list of available games.
+	 *
+	 * @param p_Games array of available games
+	 * @param p_NumGames number of games in list
+	 */
+	virtual void sendGameList(const AvailableGameData* p_Games, unsigned int p_NumGames) = 0;
+
+	/**
+	 * Get the number of games in the package.
+	 *
+	 * @param p_Package a valid reference to a package with the GameList type.
+	 * @return the number of games in the package
+	 */
+	virtual unsigned int getNumGameListGames(Package p_Package) = 0;
+
+	/**
+	 * Gets one of the available games in the package.
+	 *
+	 * @param p_Package a valid reference to a package with the GameList type.
+	 * @param p_GameIdx the index of the game to retreive
+	 * @return an array of available games on the server
+	 */
+	virtual AvailableGameData getGameListGame(Package p_Package, unsigned int p_GameIdx) = 0;
 };

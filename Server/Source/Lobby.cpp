@@ -135,6 +135,24 @@ void Lobby::handlePackagesForOneUser(User::wPtr p_User)
 				return;
 			}
 
+		case PackageType::REQUEST_GAMES:
+			{
+				std::vector<AvailableGameData> games(m_Levels.size());
+
+				for (size_t i = 0; i < games.size(); ++i)
+				{
+					const auto& level = m_Levels[i];
+					auto& availGame = games[i];
+
+					availGame.levelName = level.m_LevelName.c_str();
+					availGame.waitingPlayers = level.m_JoinedUsers.size();
+					availGame.maxPlayers = level.m_MaxPlayers;
+				}
+
+				con->sendGameList(games.data(), games.size());
+			}
+			break;
+
 		default:
 			std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 			Logger::log(Logger::Level::WARNING, msg);

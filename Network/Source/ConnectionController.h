@@ -105,6 +105,12 @@ public:
 	void sendStartCountdown() override;
 	void sendDoneCountdown() override;
 
+	void sendRequestGames() override;
+
+	void sendGameList(const AvailableGameData* p_Games, unsigned int p_NumGames) override;
+	unsigned int getNumGameListGames(Package p_Package) override;
+	AvailableGameData getGameListGame(Package p_Package, unsigned int p_GameIdx) override;
+
 	/**
 	 * Start the listening loop on the connection.
 	 */
