@@ -13,6 +13,7 @@
 *.a
 
 *.vcxproj.user
+*.csproj.user
 Debug/
 *.sdf
 *.suo
