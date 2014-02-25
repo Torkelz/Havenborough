@@ -243,9 +243,21 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
 
 		XMVECTOR sp;
-		sp = vReachPointCenter + XMVectorSet(0,edgeY + getKneeHeight(),0,0) + offsetToStartPos;
-		XMStoreFloat3(&m_ForceMoveStartPos, sp);
-		setPosition(m_ForceMoveStartPos);
+		sp = vReachPointCenter + offsetToStartPos;
+
+		XMVECTOR asp;
+		asp = XMLoadFloat3(&m_ForceMoveStartPos);
+		sp = sp - asp;
+		m_ForceMoveY[1].x += sp.m128_f32[1];
+		if(m_EdgeOrientation.x > 0.0f)
+			m_ForceMoveZ[1].x += sp.m128_f32[0];
+		else
+			m_ForceMoveZ[1].x += sp.m128_f32[2];
+
+		m_ForceMoveStartPos.y += getKneeHeight();
+
+		//XMStoreFloat3(&m_ForceMoveStartPos, sp);
+		//setPosition(m_ForceMoveStartPos);
 		
 		if (m_Network)
 		{
