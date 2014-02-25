@@ -14,6 +14,8 @@ GameLogic::GameLogic(void)
 	m_Physics = nullptr;
 	m_ResourceManager = nullptr;
 	m_CurrentCheckPointPosition = Vector3(0.0f, 0.0f, 0.0f);
+	m_CountdownTimer = 0.f;
+	m_RenderGo = false;
 }
 
 
@@ -125,6 +127,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	m_Actors->onUpdate(p_DeltaTime);
 	m_Player.update(p_DeltaTime);
 
+	updateCountdownTimer(p_DeltaTime);
 	Actor::ptr tempActor = m_PlayerSparks.lock();
 	if(tempActor)
 	{
@@ -771,8 +774,7 @@ void GameLogic::handleNetwork()
 			case PackageType::START_COUNTDOWN:
 				{
 					m_Player.setAllowedToMove(false);
-					// TODO
-					// Start countdown logic and use draw countdown.
+					m_CountdownTimer = 3.0f;
 				}
 				break;
 			case PackageType::DONE_COUNTDOWN:
@@ -830,6 +832,48 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 	std::shared_ptr<RemoveActorEventData> data = std::static_pointer_cast<RemoveActorEventData>(p_Data);
 
 	removeActor(data->getActorId());
+}
+
+void GameLogic::updateCountdownTimer(float p_DeltaTime)
+{
+	if(!m_Player.getAllowedToMove() && m_CountdownTimer - p_DeltaTime >= 0.f)
+	{
+		Vector4 color;
+		m_CountdownTimer -= p_DeltaTime;
+		int floorCountdown = (int)ceilf(m_CountdownTimer);
+		std::wstring text = std::to_wstring(floorCountdown);
+		float origScale = 3.f;
+		float scale = 1.f - abs(m_CountdownTimer - (float)floorCountdown);
+		switch (floorCountdown)
+		{
+			case 3:	color = Vector4(1,0,0,1); break;
+			case 2:	color = Vector4(1.f,0.4f,0,1); break;
+			case 1:
+				{
+					color = Vector4(0.8f,0.8f,0,1); 
+					if(scale < 0.1f)
+					{
+						m_RenderGo = true;
+						m_CountdownTimer = 1.0f;
+					}
+					break;
+				}
+		}
+		if(!m_RenderGo)
+			m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+	}
+	else if(m_RenderGo)
+	{
+		Vector4 color = Vector4(0,1,0,1); 
+		std::wstring text = L"GO";
+		float scale = m_CountdownTimer - (int)floorf(m_CountdownTimer);
+		float origScale = 3.f;
+
+		m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+		m_CountdownTimer -= p_DeltaTime;
+		if(!(m_CountdownTimer - p_DeltaTime >= 0.f))
+			m_RenderGo = false;
+	}
 }
 
 void GameLogic::loadSandbox()
