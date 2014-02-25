@@ -5,6 +5,7 @@
 
 #include <functional>
 #include <algorithm>
+#include <string>
 
 using namespace DirectX;
 
@@ -58,8 +59,9 @@ void TextRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_Dev
 
 void TextRenderer::addTextObject(TextId p_Instance, TextInstance &p_Object)
 {
-	if(m_TextList.count(p_Instance) > 0)
-		throw;
+	if(m_TextList.count(p_Instance) > 0)		
+		throw TextRendererException("Failed to add text object, ID already exists: " + std::to_string(p_Instance),
+			__LINE__, __FILE__);
 
 	m_TextList.insert(std::pair<TextId, TextInstance>(p_Instance, p_Object));
 }
@@ -69,7 +71,8 @@ void TextRenderer::removeTextObject(TextId p_Instance)
 	if(m_TextList.count(p_Instance) > 0)
 		m_TextList.erase(p_Instance);
 	else
-		throw;
+		throw TextRendererException("Failed to remove text object, ID does not exist: " + std::to_string(p_Instance),
+			__LINE__, __FILE__);
 }
 
 void TextRenderer::renderTextObject(TextId p_Instance)
