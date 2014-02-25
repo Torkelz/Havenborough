@@ -46,17 +46,17 @@ we	0.0
 *Clip
 na 	IdleSide
 sp 	1.0
-st 	34
-en 	54
+st 	181
+en 	230
 lo 	1
 f	Hip
 tr	2
 la	0
 fi	1
-fif	5
+fif	3
 fo	0
-fof 	5
-we	0.1
+fof 	0
+we	1.0
 
 *Clip
 na 	RunningJump
