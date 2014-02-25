@@ -73,10 +73,6 @@
         <Resource Name="WallLamp1" Path="assets/models/WallLamp1.btx"/>
         <Resource Name="WoodenPillar1" Path="assets/models/WoodenPillar1.btx"/>
         <Resource Name="WoodenShed1" Path="assets/models/WoodenShed1.btx"/>
-        <Resource Name="ZaneFirewind" Path="assets/models/ZaneFirewind.btx"/>
-        <Resource Name="polySurfaceShape3" Path="assets/models/polySurfaceShape3.btx"/>
-        <Resource Name="Witch" Path="assets/models/Witch.btx"/>
-        <Resource Name="StoneBrick1Shape" Path="assets/models/StoneBrick1Shape.btx"/>
         <Resource Name="Minque6" Path="assets/models/Minque6.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
@@ -86,6 +82,7 @@
         <Resource Name="BrokenPlattform1" Path="assets/volumes/CB_BrokenPlattform1.txc"/>
         <Resource Name="Checkpoint1" Path="assets/volumes/CB_Checkpoint1.txc"/>
         <Resource Name="Crate1" Path="assets/volumes/CB_Crate1.txc"/>
+        <Resource Name="Dzala" Path="assets/volumes/CB_Dzala.txc"/>
         <Resource Name="Fireplace1" Path="assets/volumes/CB_Fireplace1.txc"/>
         <Resource Name="Flag1" Path="assets/volumes/CB_Flag1.txc"/>
         <Resource Name="Flag2" Path="assets/volumes/CB_Flag2.txc"/>
@@ -132,15 +129,9 @@
         <Resource Name="WallLamp1" Path="assets/volumes/CB_WallLamp1.txc"/>
         <Resource Name="WoodenPillar1" Path="assets/volumes/CB_WoodenPillar1.txc"/>
         <Resource Name="WoodenShed1" Path="assets/volumes/CB_WoodenShed1.txc"/>
-        <Resource Name="ZaneFirewind" Path="assets/volumes/CB_ZaneFirewind.txc"/>
-        <Resource Name="Dzala" Path="assets/volumes/CB_Dzala.txc"/>
-        <Resource Name="polySurfaceShape3" Path="assets/volumes/CB_polySurfaceShape3.txc"/>
-        <Resource Name="Witch" Path="assets/volumes/CB_Witch.txc"/>
-        <Resource Name="StoneBrick1Shape" Path="assets/volumes/CB_StoneBrick1Shape.txc"/>
         <Resource Name="Minque6" Path="assets/volumes/CB_Minque6.txc"/>
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>
-        <Resource Name="Witch" Path="assets/animations/Witch.atx"/>
     </ResourceType>
 </Resources>
