@@ -269,7 +269,8 @@ void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
 
 	ID3D11Texture2D* depthMap = 0;
 	HRESULT hr = m_Device->CreateTexture2D(&texDesc, 0, &depthMap);
-
+	int val = VRAMInfo::getInstance()->calculateFormatUsage(texDesc.Format, width, height);
+	VRAMInfo::getInstance()->updateUsage(val);
 	//render from light
     D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	dsvDesc.Flags = 0;

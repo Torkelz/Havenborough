@@ -82,6 +82,11 @@ unsigned int VRAMInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width, i
 			result = Size::R24G8_TYPELESS * p_Width * p_Height;
 			break;
 		}
+	case DXGI_FORMAT_R32_TYPELESS:
+		{
+			result = Size::R32_TYPLESS * p_Width * p_Height;
+			break;
+		}
 	case DXGI_FORMAT_BC3_UNORM:
 		{
 			result = Size::BC3_UNORM * p_Width * p_Height;

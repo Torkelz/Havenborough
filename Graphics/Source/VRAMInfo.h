@@ -22,6 +22,7 @@ private:
 		R8G8B8A8_UNORM = 4,
 		B8G8R8X8_UNORM = 4,
 		R24G8_TYPELESS = 4,
+		R32_TYPLESS = 4,
 		BC3_UNORM = 1
 	};
 	
@@ -48,7 +49,7 @@ public:
 
 	/*
 	* Calculates the video RAM usage by texture format.
-	* when releasing something from memory.
+	* Should also be called when releasing something from memory.
 	* @param p_Format the format of the texture
 	* @param p_Width the width of the texture in pixels
 	* @param p_Height the height of the texture in pixels

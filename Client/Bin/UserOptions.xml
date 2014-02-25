@@ -2,7 +2,7 @@
 	<Server Hostname="localhost" Port="31415" />
 	<!-- Test ip: 194.47.150.44 -->
 	<Settings>
-		<SSAO enabled="true"/>
+		<SSAO enabled="false"/>
 		<VSync enabled="false"/>
 		<Fullscreen enabled="false"/>
 		<Resolution width="1280" height="720"/>
