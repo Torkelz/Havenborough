@@ -20,12 +20,12 @@ void HumanAnimationComponent::updateAnimation()
 		XMVECTOR look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 		XMMATRIX rotationInverse = XMMatrixTranspose(XMLoadFloat4x4(&lookComp->getRotationMatrix()));
 		velocity = XMVector3Transform(velocity, rotationInverse);
+
+		// Calculate the weight on the strafe track with some trigonometry.
+		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
+		changeAnimationWeight(2, 1 - abs(cosf(angle))); // Think again. Negative weights are not allowed.
 		if (!isInAir)
 		{
-			// Calculate the weight on the strafe track with some trigonometry.
-			float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-			changeAnimationWeight(2, 1 - abs(cosf(angle))); // Think again. Negative weights are not allowed.
-
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
 			SideAnimationState currentSideState = SideAnimationState::IDLE;
@@ -166,7 +166,7 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::JUMP:
 					if (m_PrevJumpState != JumpAnimationState::FLYING)
 					{
-						if(XMVectorGetX(velocity) > runLimit || XMVectorGetZ(velocity) > runLimit)
+						if(XMVectorGetZ(velocity) > runLimit)
 						{
 							playAnimation("RunningJump", true);
 							queueAnimation("Falling");
@@ -174,6 +174,17 @@ void HumanAnimationComponent::updateAnimation()
 						else
 						{
 							playAnimation("StandingJump", true);
+							queueAnimation("Falling");
+						}
+
+						if (XMVectorGetX(velocity) > runLimit)
+						{
+							playAnimation("SideJumpRight", false);
+							queueAnimation("Falling");
+						}
+						else if (XMVectorGetX(velocity) < -runLimit)
+						{
+							playAnimation("SideJumpLeft", false);
 							queueAnimation("Falling");
 						}
 					}
