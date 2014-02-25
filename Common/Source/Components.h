@@ -663,7 +663,7 @@ public:
 		XMFLOAT3 fRotPos;
 		XMStoreFloat3(&fRotPos, rotPos);
 		
-		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionBox, m_Halfsize, false);
+		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionBox, m_Halfsize);
 
 		Vector3 ownerRot = m_Owner->getRotation();
 		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);

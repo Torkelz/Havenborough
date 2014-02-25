@@ -519,10 +519,6 @@ void GameScene::preLoadModels()
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Pivot1"));
 	
-
-
-
-
 	//Separate to GUI function and refactor? /Pontus, DO NOT TOUCH!
 	static const std::string preloadedTextures[] =
 	{
@@ -534,7 +530,7 @@ void GameScene::preLoadModels()
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
+	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(0, 300, 150.f), Vector3(0.3f, 0.3f, 0.3f), 0.f, "Arrow1");
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 }
 

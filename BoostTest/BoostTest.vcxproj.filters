@@ -275,9 +275,6 @@
     <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp">
       <Filter>TestGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\SimpleText.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\TextResource.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
@@ -298,6 +295,9 @@
     </ClCompile>
     <ClCompile Include="Source\Common\TestStreamReader.cpp">
       <Filter>TestSettings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextRenderer.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
