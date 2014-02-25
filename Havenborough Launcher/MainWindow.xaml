@@ -7,7 +7,7 @@
         <local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
         
-        <XmlDataProvider x:Key="DataProvider" Source="assets\UserOptions.xml" />
+        <XmlDataProvider x:Key="DataProvider" />
     </Window.Resources>
     <Grid x:Name="MainGrid">
         <Grid.Background>

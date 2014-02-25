@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,21 +29,22 @@ namespace Havenborough_Launcher
                 UriKind.Relative));
            
             InitializeComponent();
-            string appPath = System.IO.Path.GetDirectoryName(
-                System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
             var xmlDataProvider = this.Resources["DataProvider"] as XmlDataProvider;
             if (xmlDataProvider != null)
-                xmlDataProvider.Source = new Uri(System.IO.Path.Combine(appPath, "UserOptions.xml"));
+                xmlDataProvider.Source = new Uri(System.IO.Path.GetFullPath("UserOptions.xml"));
             this.Background = backgroundBrush;
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             var dataProvider = (this.Resources["DataProvider"] as XmlDataProvider);
-            if (dataProvider == null) return;
-            string appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var source = new Uri(System.IO.Path.Combine(appPath, "UserOptions.xml"));
-            dataProvider.Document.Save(source.LocalPath);
+            if (dataProvider == null)
+                return;
+
+            string source = dataProvider.Source.LocalPath;
+            dataProvider.Document.Save(source);
+
+            Process.Start("Client.exe");
         }
 
         //private void inventoryTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
