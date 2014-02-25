@@ -45,10 +45,10 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source.LocalPath);
         }
 
-        private void inventoryTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+        //private void inventoryTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
 
-        }
+        //}
     }   
     public class BoolInverterConverter : IValueConverter
     {
@@ -94,9 +94,25 @@ namespace Havenborough_Launcher
 
         #endregion
     }
-    //public class DropDownConverter : IValueConverter
-    //{
-    //    public object Convert()
-    //}
+    public class DropDownConverter : IValueConverter
+    {
+        #region IValueConverter Members
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return int.Parse(value.ToString());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value.ToString();
+        }
+
+        #endregion
+    }
+
+    public class DropDownString
+    {
+        public string ValueString { get; set; }
+    }
 }
 
