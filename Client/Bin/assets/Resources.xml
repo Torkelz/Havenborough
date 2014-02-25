@@ -129,6 +129,7 @@
         <Resource Name="WoodenPillar1" Path="assets/volumes/CB_WoodenPillar1.txc"/>
         <Resource Name="WoodenShed1" Path="assets/volumes/CB_WoodenShed1.txc"/>
         <Resource Name="ZaneFirewind" Path="assets/volumes/CB_ZaneFirewind.txc"/>
+        <Resource Name="Dzala" Path="assets/volumes/CB_Dzala.txc"/>
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>
