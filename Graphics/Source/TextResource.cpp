@@ -9,7 +9,7 @@ TextResource::TextResource() :
 	m_RenderTarget(nullptr),
 	m_TextFormat(nullptr),
 	m_Brush(nullptr),
-	m_Text(nullptr),
+	m_Text(L""),
 	m_ClearColor(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.0f))
 {
 }
@@ -27,11 +27,11 @@ TextResource::TextResource(TextResource &&p_Other)
 	p_Other.m_RenderTarget = nullptr;
 	p_Other.m_TextFormat = nullptr;
 	p_Other.m_Brush = nullptr;
-	p_Other.m_Text = nullptr;
+	p_Other.m_Text = L"";
 }
 
 TextResource::TextResource(ID2D1RenderTarget* p_RT, ID3D11ShaderResourceView *p_SRV, IDWriteTextFormat *p_TextFormat, 
-	ID2D1SolidColorBrush *p_Brush, D2D1_RECT_F p_Rectangle, const wchar_t *p_Text,
+	ID2D1SolidColorBrush *p_Brush, D2D1_RECT_F p_Rectangle, std::wstring p_Text,
 	D2D1::ColorF p_ClearColor /* = D2D::ColorF(0.0f, 0.0f, 0.0f, 0.0f) */) 
 	: m_ShaderResourceView(p_SRV), m_RenderTarget(p_RT), m_TextFormat(p_TextFormat), m_Brush(p_Brush),
 	m_LayoutRect(p_Rectangle), m_ClearColor(p_ClearColor), m_Text(p_Text)
@@ -68,7 +68,7 @@ void TextResource::draw()
 {
 	m_RenderTarget->BeginDraw();
 	m_RenderTarget->Clear(m_ClearColor);
-	m_RenderTarget->DrawText(m_Text, (UINT32)wcslen(m_Text), m_TextFormat, m_LayoutRect, m_Brush);
+	m_RenderTarget->DrawText(m_Text.c_str(), (UINT32)wcslen(m_Text.c_str()), m_TextFormat, m_LayoutRect, m_Brush);
 	m_RenderTarget->EndDraw();
 }
 

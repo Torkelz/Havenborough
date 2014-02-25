@@ -47,6 +47,8 @@ private:
 	bool m_Connected;
 	bool m_InGame;
 	bool m_PlayingLocal;
+	float m_CountdownTimer;
+	bool m_RenderGo;
 
 	//DEBUG
 	Vector2 m_PlayerDirection;
@@ -118,6 +120,7 @@ private:
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
 
+	void updateCountdownTimer(float p_DeltaTime);
 
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();

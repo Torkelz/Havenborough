@@ -922,4 +922,52 @@ public:
 	}
 };
 
+class UpdateGraphicalCountdown : public BaseEventData
+{
+private:
+	std::wstring m_Text;
+	Vector4 m_Color;
+	Vector3 m_Scale;
+
+public:
+	static const Type sk_EventType = Type(0x01015dff);
+
+	UpdateGraphicalCountdown(std::wstring p_Text, Vector4 p_Color, Vector3 p_Scale)
+		:	m_Text(p_Text), m_Color(p_Color), m_Scale(p_Scale)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateGraphicalCountdown(m_Text, m_Color, m_Scale));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateGraphicalCountdown";
+	}
+
+	std::wstring getText() const
+	{
+		return m_Text;
+	}
+	Vector4 getColor() const
+	{
+		return m_Color;
+	}
+	Vector3 getScale() const
+	{
+		return m_Scale;
+	}
+};
+
 #pragma warning(pop)
