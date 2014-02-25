@@ -543,7 +543,7 @@ void Graphics::setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 
 {
 	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
 	{
-		DirectX::XMFLOAT4 rot(p_Rotation.x,	p_Rotation.y, p_Rotation.z,	1.f);
+		DirectX::XMFLOAT3 rot(p_Rotation.x,	p_Rotation.y, p_Rotation.z);
 		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setSysRotation(rot);
 	}
 }

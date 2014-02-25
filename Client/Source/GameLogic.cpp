@@ -829,8 +829,8 @@ void GameLogic::loadSandbox()
 
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
 	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
-	Actor::ptr a = m_ActorFactory->createParticles(Vector3(50.f, 100.f, 20.f), "waterSpray");
-	a->setRotation(Vector3(0.0f, 1.0f, 0.0f));
+	Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "waterSpray");
+	a->setRotation(Vector3(3.0f, 0.0f, 0.0f));
 	addActor(a);
 	
 }

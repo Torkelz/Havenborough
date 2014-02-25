@@ -800,7 +800,7 @@ private:
 	Vector3 m_Rotation;
 
 public:
-	static const Type sk_EventType = Type(0xd02a90fc);
+	static const Type sk_EventType = Type(0xe738ee21);
 
 	UpdateParticleRotationEventData(unsigned int p_Id, Vector3 p_Rotation)
 		:	m_Id(p_Id),
