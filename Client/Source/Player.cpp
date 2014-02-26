@@ -23,7 +23,7 @@ Player::Player(void)
 	m_Height = 170.f;
 	m_EyeHeight = 165.f;
 	m_Climb = false;
-	m_ClimbOffset = 50.f;
+	m_ClimbOffset = 0.f;
 	m_CurrentMana = 100.f;
 	m_PreviousMana = m_CurrentMana;
 	m_MaxMana = 100.f;
@@ -224,54 +224,57 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		float edgeY = p_EdgeOrientation.y;
 		XMStoreFloat3(&p_EdgeOrientation, XMVector3Normalize(XMVectorSet(p_EdgeOrientation.x, p_EdgeOrientation.y, p_EdgeOrientation.z, 0)));
 
-		XMVECTOR vReachPointCenter = Vector3ToXMVECTOR(&m_Physics->getBodyPosition(getBody()), 0.f) - XMLoadFloat3(&p_BoxPos);
+		XMFLOAT3 playerOrigPos = getPosition();
+		XMVECTOR vReachPointCenter = XMLoadFloat3(&playerOrigPos) - XMLoadFloat3(&p_BoxPos);
+		//XMVECTOR vReachPointCenter = Vector3ToXMVECTOR(&m_Physics->getBodyPosition(getBody()), 0.f) - XMLoadFloat3(&p_BoxPos);
 		
+		// Check if the orientation needs to be flipped to avoid that the arms cross during IK calcs.
 		if(!(p_EdgeOrientation.x * side.m128_f32[0] >= 0.f && p_EdgeOrientation.z * side.m128_f32[2] >= 0.f))
 			p_EdgeOrientation = XMFLOAT3(-p_EdgeOrientation.x, -p_EdgeOrientation.y, -p_EdgeOrientation.z);
 
 		XMVECTOR vEdgeOrientation = XMLoadFloat3(&p_EdgeOrientation);
 
 		// The goldener path code
+		/*vReachPointCenter = (XMVector3Dot(vReachPointCenter, vEdgeOrientation) * vEdgeOrientation) + XMLoadFloat3(&p_BoxPos);
+		XMStoreFloat3(&m_CenterReachPos, vReachPointCenter);
+		XMStoreFloat3(&m_Side, side);
+		m_EdgeOrientation = p_EdgeOrientation;
+		
+		XMStoreFloat3(&m_forward, fwd);
+		XMVECTOR offsetToStartPos = XMVectorSet(0, m_ForceMoveY.back().x, m_ForceMoveZ.back().x,0);
+		offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
+		
+		XMVECTOR sp;
+		sp = vReachPointCenter + XMVectorSet(0,edgeY,0,0) + offsetToStartPos;
+		
+		XMVECTOR asp;
+		//m_ForceMoveStartPos.y += getKneeHeight();
+		asp = XMLoadFloat3(&m_ForceMoveStartPos);
+		//asp.m128_f32[1] += getKneeHeight();
+		sp = sp - asp;
+		m_ForceMoveY[1].x += sp.m128_f32[1];
+		if(m_EdgeOrientation.x > 0.0f)
+			m_ForceMoveZ[1].x += sp.m128_f32[0];
+		else
+			m_ForceMoveZ[1].x += sp.m128_f32[2];*/
+		
+		// The goldener path code END
+
+		// The golden path code
 		vReachPointCenter = (XMVector3Dot(vReachPointCenter, vEdgeOrientation) * vEdgeOrientation) + XMLoadFloat3(&p_BoxPos);
 		XMStoreFloat3(&m_CenterReachPos, vReachPointCenter);
 		XMStoreFloat3(&m_Side, side);
 		m_EdgeOrientation = p_EdgeOrientation;
 		
 		XMStoreFloat3(&m_forward, fwd);
-
+		
 		XMVECTOR offsetToStartPos = XMVectorSet(0, m_ForceMoveY.back().x, m_ForceMoveZ.back().x,0);
 		offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
-
+		
 		XMVECTOR sp;
-		sp = vReachPointCenter + offsetToStartPos;
-
-		XMVECTOR asp;
-		asp = XMLoadFloat3(&m_ForceMoveStartPos);
-		sp = sp - asp;
-		m_ForceMoveY[1].x += sp.m128_f32[1];
-		if(m_EdgeOrientation.x > 0.0f)
-			m_ForceMoveZ[1].x += sp.m128_f32[0];
-		else
-			m_ForceMoveZ[1].x += sp.m128_f32[2];
-
-		m_ForceMoveStartPos.y += getKneeHeight();
-		// The goldener path code END
-
-		// The golden path code
-		//vReachPointCenter = (XMVector3Dot(vReachPointCenter, vEdgeOrientation) * vEdgeOrientation) + XMLoadFloat3(&p_BoxPos);
-		//XMStoreFloat3(&m_CenterReachPos, vReachPointCenter);
-		//XMStoreFloat3(&m_Side, side);
-		//m_EdgeOrientation = p_EdgeOrientation;
-		//
-		//XMStoreFloat3(&m_forward, fwd);
-		//
-		//XMVECTOR offsetToStartPos = XMVectorSet(0, m_ForceMoveY.back().x, m_ForceMoveZ.back().x,0);
-		//offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
-		//
-		//XMVECTOR sp;
-		//sp = vReachPointCenter + XMVectorSet(0,edgeY + getKneeHeight(),0,0) + offsetToStartPos;
-		//XMStoreFloat3(&m_ForceMoveStartPos, sp);
-		//setPosition(m_ForceMoveStartPos);
+		sp = vReachPointCenter + XMVectorSet(0,edgeY,0,0) + offsetToStartPos;
+		XMStoreFloat3(&m_ForceMoveStartPos, sp);
+		setPosition(m_ForceMoveStartPos);
 		// The golden path code END
 		
 		if (m_Network)
