@@ -41,4 +41,9 @@
 		<MouseButtonMap command="gogogogo" button="Left"/>
 		<MouseButtonMap command="rollMe!" button="Middle"/>
 	</Controls>
+  <HUD>
+    <Manabar x="0" y="-320" z="3" scale="1" />
+    <Arrow x="0" y="300" z="150" scale="0.3" />
+    <Countdown x="0" y="0" z="0" scale="2" />
+  </HUD>
 </UserOptions>

@@ -1,5 +1,6 @@
 #pragma once
 #include "IScene.h"
+#include "../Settings.h"
 
 class HUDScene : public IScene
 {
@@ -19,6 +20,7 @@ private:
 
 	std::map<std::string, int> m_GUI;
 	std::map<std::string, int> m_TextHandle;
+	std::map<std::string, Settings::HUDSettings> m_HUDSettings;
 
 	bool m_RenderCountdown;
 public: 
@@ -40,6 +42,8 @@ public:
 	void setIsVisible(bool p_SetVisible) override;
 		 
 	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue) override;
+
+	void setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings);
 
 private:
 	void createGUIElement(std::string p_GUIIdentifier, int p_Id);

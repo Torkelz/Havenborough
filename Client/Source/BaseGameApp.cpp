@@ -3,6 +3,7 @@
 #include <Logger.h>
 #include "Settings.h"
 #include <TweakCommand.h>
+#include "Scenes/HUDScene.h"
 
 #include <sstream>
 #include <iomanip>
@@ -125,7 +126,7 @@ void BaseGameApp::init()
 
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
-					
+	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings());
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);

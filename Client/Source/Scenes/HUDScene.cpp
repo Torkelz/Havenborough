@@ -39,7 +39,6 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateGraphicalCountdown), UpdateGraphicalCountdownEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateGraphicalManabar), UpdateGraphicalManabarEventData::sk_EventType);
 
-	preLoadModels();
 	return true;
 }
 
@@ -102,6 +101,12 @@ void HUDScene::registeredInput(std::string p_Action, float p_Value, float p_Prev
 {
 }
 
+void HUDScene::setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings)
+{
+	m_HUDSettings = p_Settings;
+	preLoadModels();
+}
+
 void HUDScene::createGUIElement(std::string p_GUIIdentifier, int p_Id)
 {
 	if(m_GUI.count(p_GUIIdentifier) > 0)
@@ -156,14 +161,43 @@ void HUDScene::preLoadModels()
 		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
 	}
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
-	createGUIElement("Arrow",m_Graphics->create2D_Object(Vector3(0, 300, 150.f), Vector3(0.3f, 0.3f, 0.3f), 0.f, "Arrow1"));
-	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(-400, -320, 3), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR"));
+
+	Vector3 pos = Vector3(0, 300, 150.f);
+	Vector3 scale = Vector3(0.3f, 0.3f, 0.3f);
+	std::string id = "Arrow";
+	if(m_HUDSettings.count(id) > 0)
+	{
+		pos = m_HUDSettings.at(id).position;
+		float s = m_HUDSettings.at(id).scale;
+		scale = Vector3(s, s, s);
+	}
+	createGUIElement("Arrow",m_Graphics->create2D_Object(pos, scale, 0.f, "Arrow1"));
+
+	pos = Vector3(-400, -320, 3);
+	scale = Vector3(1.0f, 1.0f, 1.0f);
+	id = "Manabar";
+	if(m_HUDSettings.count(id) > 0)
+	{
+		pos = m_HUDSettings.at(id).position;
+		float s = m_HUDSettings.at(id).scale;
+		scale = Vector3(s, s, s);
+	}
+	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(160, 30), scale, 0.0f, "MANA_BAR"));
 
 	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
-	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector3(1,1,1), 0.f, m_TextHandle["ManabarCounter"]));
+	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 2), scale, 0.f, m_TextHandle["ManabarCounter"]));
 
+	pos = Vector3(0, 0, 0);
+	scale = Vector3(2.0f, 2.0f, 2.0f);
+	id = "Countdown";
+	if(m_HUDSettings.count(id) > 0)
+	{
+		pos = m_HUDSettings.at(id).position;
+		float s = m_HUDSettings.at(id).scale;
+		scale = Vector3(s, s, s);
+	}
 	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
-	createGUIElement("Countdown", m_Graphics->create2D_Object(Vector3(0,0,0), Vector3(2,2,2), 0.f, m_TextHandle["Countdown"]));
+	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
 }
 
 void HUDScene::releasePreLoadedModels()

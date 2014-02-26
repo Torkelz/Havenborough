@@ -224,6 +224,11 @@ void SceneManager::gotoPostGame()
 	m_NowShowing = (size_t)RunScenes::POST_GAME;
 }
 
+IScene::ptr SceneManager::getScene(RunScenes p_Scene)
+{
+	return m_RunSceneList[(size_t)p_Scene];
+}
+
 void SceneManager::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
 	if(p_Action == "pauseScene" && p_Value == 1)
