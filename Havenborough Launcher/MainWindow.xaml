@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Havenborough_Launcher"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        Title="Havenborough Launcher" Height="550" Width="800"
-        ResizeMode="NoResize">
+        Title="Havenborough Launcher" Height="550" Width="800" Foreground="White" ResizeMode="NoResize">
+        
     <Controls:MetroWindow.Resources>
         <local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
@@ -12,9 +12,6 @@
         <XmlDataProvider x:Key="DataProvider" />
     </Controls:MetroWindow.Resources>
     <Grid x:Name="MainGrid">
-        <Grid.Background>
-            <ImageBrush Stretch="Fill" ></ImageBrush>
-        </Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="60*" />
             <ColumnDefinition Width="40*" />
@@ -97,7 +94,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <Label Content="MOUSE KEY BINDINGS" FontWeight="Bold" />
+                    <Label Content="MOUSE KEY BINDINGS" />
                     <ListBox x:Name="MousebuttonMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseButtonMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
