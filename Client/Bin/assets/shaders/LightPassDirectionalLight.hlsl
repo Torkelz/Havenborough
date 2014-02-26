@@ -1,6 +1,10 @@
 #pragma pack_matrix(row_major)
 #include "LightHelper.hlsl"
 
+#ifndef SHADOW_RES
+#define SHADOW_RES 1024
+#endif
+
 Texture2D wPosTex	 : register (t0);
 Texture2D normalTex	 : register (t1);
 Texture2D diffuseTex : register (t2);
@@ -132,7 +136,7 @@ float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3
 }
 
 //texel size
-static const float SMAP_SIZE = 4096.0f;
+static const float SMAP_SIZE = SHADOW_RES;
 static const float SMAP_DX = 1.0f / SMAP_SIZE;
 
 

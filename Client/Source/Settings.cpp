@@ -7,6 +7,7 @@
 Settings::Settings(void)
 {
 	m_Resolution = Vector2(1080,720);
+	m_ShadowMapResolution = 512;
 }
 
 
@@ -164,6 +165,13 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 			if(res != tinyxml2::XML_SUCCESS)
 				throw ClientException("Settings tried to load the attribute \"height\" or \"width\" from element: " + elementName + ".", __LINE__, __FILE__);
 		}
+		else if(elementName == "ShadowResolution")
+		{
+			tinyxml2::XMLError res;
+			res = element->QueryIntAttribute("square", &m_ShadowMapResolution);
+			if(res != tinyxml2::XML_SUCCESS)
+				throw ClientException("Settings tried to load the attribute \"square\" from element: " + elementName + ".", __LINE__, __FILE__);
+		}
 		else
 		{
 			bool enabled = false;
@@ -207,4 +215,9 @@ const bool Settings::getIsSettingEnabled(std::string p_SettingName) const
 const Vector2 Settings::getResolution() const
 {
 	return m_Resolution;
+}
+
+const int Settings::getShadowMapResolution() const
+{
+	return m_ShadowMapResolution;
 }

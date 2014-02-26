@@ -144,7 +144,7 @@ DeferredRenderer::~DeferredRenderer(void)
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
+	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix, int p_ShadowMapResolution,
 	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
 	unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
 {
@@ -155,7 +155,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_CameraPosition	= p_CameraPosition;
 	m_ViewMatrix		= p_ViewMatrix;
 	m_ProjectionMatrix	= p_ProjectionMatrix;
-
+	m_ShadowMapResolution = p_ShadowMapResolution;
 	m_SpotLights = p_SpotLights;
 	m_PointLights = p_PointLights;
 	m_DirectionalLights = p_DirectionalLights;
@@ -184,7 +184,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		__LINE__, __FILE__);
 	
 	//Shadow map
-	UINT resolution = 4096; //size of Shadow Map
+	UINT resolution = m_ShadowMapResolution; //size of Shadow Map
 	initializeShadowMap(resolution, resolution);	
 
 	createRenderTargets(desc);
@@ -516,9 +516,10 @@ void DeferredRenderer::renderLighting()
 
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
-
-	renderDirectionalLights(*m_ShadowMappedLight);
-
+	if(m_ShadowMap)
+	{
+		renderDirectionalLights(*m_ShadowMappedLight);
+	}
 	//Set constant data
 	m_Buffer["DefaultConstant"]->setBuffer(0);
 
@@ -606,6 +607,11 @@ void DeferredRenderer::updateCamera(DirectX::XMFLOAT3 p_Position)
 void DeferredRenderer::enableSSAO(bool p_State)
 {
 	m_SSAO = p_State;
+}
+
+void DeferredRenderer::enableShadowMap(bool p_State)
+{
+	m_ShadowMap = p_State;
 }
 
 void DeferredRenderer::updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix)
@@ -967,15 +973,15 @@ void DeferredRenderer::createShaders()
 	};
 
 
-	m_Shader["SpotLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassSpotLight.hlsl",
+	m_Shader["SpotLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassSpotLight.hlsl", nullptr,
 		"SpotLightVS,SpotLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 
 
-	m_Shader["PointLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassPointLight.hlsl",
+	m_Shader["PointLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassPointLight.hlsl", nullptr,
 		"PointLightVS,PointLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
-
-
-	m_Shader["DirectionalLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassDirectionalLight.hlsl",
+	std::string resolution = std::to_string(m_ShadowMapResolution);
+	D3D_SHADER_MACRO preDefines[2] = {{ "SHADOW_RES", resolution.c_str()}, nullptr};
+	m_Shader["DirectionalLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassDirectionalLight.hlsl", preDefines,
 		"DirectionalLightVS,DirectionalLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 
 
@@ -993,7 +999,7 @@ void DeferredRenderer::createShaders()
 	};
 
 
-	m_Shader["IGeometry"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/GeoInstanceShader.hlsl",
+	m_Shader["IGeometry"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/GeoInstanceShader.hlsl", nullptr,
 		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, instanceshaderDesc, 9);
 
 
@@ -1004,7 +1010,6 @@ void DeferredRenderer::createShaders()
 	m_Shader["SSAO_Blur"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/SSAO_Blur.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
-
 
 void DeferredRenderer::loadLightModels()
 {

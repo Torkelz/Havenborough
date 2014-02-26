@@ -23,6 +23,7 @@ private:
 
 	std::map<std::string, bool> m_SettingsEnabled;
 	Vector2 m_Resolution;
+	int m_ShadowMapResolution;
 public:
 	Settings(void);
 	~Settings(void);
@@ -67,6 +68,13 @@ public:
 	 * @return the window size as a Vector2.
 	 */
 	const Vector2 getResolution() const;
+	/*
+	 * Get the shadow map resolution from settings.
+	 * If no resolution was read from file the default value is (512)
+	 *
+	 * @return the map size as an integer.
+	 */
+	const int getShadowMapResolution() const;
 private:
 	void loadControls(tinyxml2::XMLElement *p_Element);
 	void loadSettings(tinyxml2::XMLElement *p_Element);
