@@ -13,7 +13,6 @@ GameLogic::GameLogic(void)
 {
 	m_Physics = nullptr;
 	m_ResourceManager = nullptr;
-	m_CurrentCheckPointPosition = Vector3(0.0f, 0.0f, 0.0f);
 	m_CountdownTimer = 0.f;
 	m_RenderGo = false;
 }
@@ -324,21 +323,6 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 
 	look->setLookForward(forward);
 	look->setLookUp(up);
-}
-
-Vector3 GameLogic::getCurrentCheckpointPosition(void) const
-{
-	return m_CurrentCheckPointPosition;
-}
-
-const float GameLogic::getPlayerCurrentMana(void)
-{
-	return m_Player.getCurrentMana();
-}
-
-const float GameLogic::getPlayerPreviousMana(void)
-{
-	return m_Player.getPreviousMana();
 }
 
 void GameLogic::playerJump()
@@ -679,7 +663,8 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-							m_CurrentCheckPointPosition = actor->getPosition();
+
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(actor->getPosition())));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -958,7 +943,7 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 				}
 		}
 		if(!m_RenderGo)
-			m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+			m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdownEventData(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
 	}
 	else if(m_RenderGo)
 	{
@@ -967,7 +952,7 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 		float scale = m_CountdownTimer - (int)floorf(m_CountdownTimer);
 		float origScale = 3.f;
 
-		m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+		m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdownEventData(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
 		m_CountdownTimer -= p_DeltaTime;
 		if(!(m_CountdownTimer - p_DeltaTime >= 0.f))
 			m_RenderGo = false;
