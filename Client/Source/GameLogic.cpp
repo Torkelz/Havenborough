@@ -331,16 +331,6 @@ Vector3 GameLogic::getCurrentCheckpointPosition(void) const
 	return m_CurrentCheckPointPosition;
 }
 
-const float GameLogic::getPlayerCurrentMana(void)
-{
-	return m_Player.getCurrentMana();
-}
-
-const float GameLogic::getPlayerPreviousMana(void)
-{
-	return m_Player.getPreviousMana();
-}
-
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
@@ -895,7 +885,7 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 				}
 		}
 		if(!m_RenderGo)
-			m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+			m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdownEventData(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
 	}
 	else if(m_RenderGo)
 	{
@@ -904,7 +894,7 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 		float scale = m_CountdownTimer - (int)floorf(m_CountdownTimer);
 		float origScale = 3.f;
 
-		m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+		m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdownEventData(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
 		m_CountdownTimer -= p_DeltaTime;
 		if(!(m_CountdownTimer - p_DeltaTime >= 0.f))
 			m_RenderGo = false;

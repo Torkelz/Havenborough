@@ -117,6 +117,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Client\Source\RAMInfo.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\GameScene.cpp" />
+    <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Settings.cpp" />

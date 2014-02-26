@@ -2,6 +2,7 @@
 #include "Scenes/GameScene.h"
 #include "Scenes/MenuScene.h"
 #include "Scenes/PostGameScene.h"
+#include "Scenes/HUDScene.h"
 #include "ClientExceptions.h"
 
 SceneManager::SceneManager()
@@ -29,14 +30,15 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	m_GameLogic = p_GameLogic;
 
 	m_MenuSceneList.resize(2);
-	m_RunSceneList.resize(3);
+	m_RunSceneList.resize(4);
 
 	m_MenuSceneList[0] = IScene::ptr(new MenuScene);
 	m_MenuSceneList[1] = IScene::ptr(new MenuScene);
 
 	m_RunSceneList[0] = IScene::ptr(new GameScene);
-	m_RunSceneList[1] = IScene::ptr(new MenuScene);
-	m_RunSceneList[2] = IScene::ptr(new PostGameScene);
+	m_RunSceneList[1] = IScene::ptr(new HUDScene);
+	m_RunSceneList[2] = IScene::ptr(new MenuScene);
+	m_RunSceneList[3] = IScene::ptr(new PostGameScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
 	m_NumberOfRunScene = m_RunSceneList.size();
@@ -189,7 +191,9 @@ void SceneManager::startRun()
 	m_IsMenuState = false;
 	m_RunSceneList[0]->setIsVisible(true);
 	m_RunSceneList[0]->onFocus();
-	for(unsigned int i = 1; i < m_NumberOfRunScene; i++)
+	m_RunSceneList[1]->setIsVisible(true);
+
+	for(unsigned int i = 2; i < m_NumberOfRunScene; i++)
 	{
 		m_RunSceneList[i]->setIsVisible(false);
 	}
