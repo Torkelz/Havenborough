@@ -95,7 +95,7 @@ public:
 			for(unsigned i = 0; i < m_Physics->getHitDataSize(); i++)
 			{
 				HitData hit = m_Physics->getHitDataAt(i);
-				if(hit.collider == m_Sphere || hit.collisionVictim == m_Sphere);
+				if((hit.collider == m_Sphere && hit.collisionVictim != casterBody) || (hit.collisionVictim == m_Sphere && hit.collider != casterBody))
 				{
 					Actor::ptr caster = m_Caster.lock();
 					if(caster)
