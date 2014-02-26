@@ -441,7 +441,6 @@ void Player::setJump(void)
 
 		if(!m_IsJumping && m_JumpCount < m_JumpCountMax)
 		{
-			//m_JumpCount++;
 			m_IsJumping = true;
 
 			Vector3 temp = m_Physics->getBodyVelocity(getBody());
@@ -514,7 +513,7 @@ void Player::jump(float dt)
 		m_JumpTime += dt;
 		if(m_JumpTime > m_JumpTimeMax)
 		{
-			m_Physics->applyForce(getBody(), Vector3(0.f, -m_JumpForce, 0.f));
+ 			m_Physics->applyForce(getBody(), Vector3(0.f, -m_JumpForce, 0.f));
 			m_IsJumping = false;
 			m_JumpTime = 0.f;
 		}
@@ -522,11 +521,6 @@ void Player::jump(float dt)
 	if(!m_IsJumping && !m_Physics->getBodyInAir(getBody()))
 	{
 		m_JumpCount = 0;
-	}
-
-	if(m_Physics->getBodyLanded(getBody()))
-	{
-		//m_JumpCount = 0;
 	}
 }
 
