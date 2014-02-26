@@ -7,6 +7,10 @@
 Settings::Settings(void)
 {
 	m_Resolution = Vector2(1080,720);
+	m_LevelName = "serverLevel";
+	m_Username = "Player";
+	m_ServerURL = "localhost";
+	m_ServerPort = 31415;
 }
 
 
@@ -36,6 +40,14 @@ void Settings::initialize(std::string p_FilePath)
 		else if(elementName == "Controls")
 		{
 			loadControls(element);
+		}
+		else if (elementName == "Game")
+		{
+			loadGame(element);
+		}
+		else if (elementName == "Server")
+		{
+			loadServer(element);
 		}
 	}
 }
@@ -177,6 +189,37 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 	}
 }
 
+void Settings::loadGame(const tinyxml2::XMLElement *p_Element)
+{
+	const char* level = p_Element->Attribute("Level");
+	if (level)
+	{
+		m_LevelName = level;
+	}
+
+	const char* username = p_Element->Attribute("Username");
+	if (username)
+	{
+		m_Username = username;
+	}
+}
+
+void Settings::loadServer(const tinyxml2::XMLElement *p_Element)
+{
+	const char* address = p_Element->Attribute("Hostname");
+	if (address)
+	{
+		m_ServerURL = address;
+	}
+
+	unsigned int tPort = m_ServerPort;
+	p_Element->QueryAttribute("Port", &tPort);
+	if (tPort <= std::numeric_limits<uint16_t>::max())
+	{
+		m_ServerPort = tPort;
+	}
+}
+
 const std::map<std::string, unsigned short> &Settings::getKeyMap() const
 {
 	return m_KeyMap;
@@ -207,4 +250,24 @@ const bool Settings::getIsSettingEnabled(std::string p_SettingName) const
 const Vector2 Settings::getResolution() const
 {
 	return m_Resolution;
+}
+
+const std::string& Settings::getLevelName() const
+{
+	return m_LevelName;
+}
+
+const std::string& Settings::getUsername() const
+{
+	return m_Username;
+}
+
+const std::string& Settings::getServerURL() const
+{
+	return m_ServerURL;
+}
+
+unsigned short int Settings::getServerPort() const
+{
+	return m_ServerPort;
 }

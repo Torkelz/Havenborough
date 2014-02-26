@@ -80,8 +80,9 @@ public:
 
 	void sendDoneLoading() override;
 
-	void sendJoinGame(const char* p_Game) override;
+	void sendJoinGame(const char* p_Game, const char* p_Username) override;
 	const char* getJoinGameName(Package p_Package) override;
+	const char* getJoinGameUsername(Package p_Package) override;
 
 	void sendGameResult(const char** p_ExtraData, unsigned int p_NumExtraData) override;
 	unsigned int getNumGameResultData(Package p_Package) override;
@@ -103,6 +104,12 @@ public:
 
 	void sendStartCountdown() override;
 	void sendDoneCountdown() override;
+
+	void sendRequestGames() override;
+
+	void sendGameList(const AvailableGameData* p_Games, unsigned int p_NumGames) override;
+	unsigned int getNumGameListGames(Package p_Package) override;
+	AvailableGameData getGameListGame(Package p_Package, unsigned int p_GameIdx) override;
 
 	/**
 	 * Start the listening loop on the connection.

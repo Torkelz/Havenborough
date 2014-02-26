@@ -1,6 +1,7 @@
 #pragma once
 #include <d2d1.h>
 #include <d3d11.h>
+#include <string>
 
 class TextResource
 {
@@ -10,13 +11,13 @@ public:
 	IDWriteTextFormat *m_TextFormat;
 	ID2D1SolidColorBrush *m_Brush;
 	D2D1_RECT_F m_LayoutRect;
-	const wchar_t *m_Text;
+	std::wstring m_Text;
 	D2D1::ColorF m_ClearColor;
 
 	TextResource();
 	TextResource(TextResource &&p_Other);
 	TextResource(ID2D1RenderTarget* p_RT, ID3D11ShaderResourceView *p_SRV, IDWriteTextFormat *p_TextFormat,
-		ID2D1SolidColorBrush *p_Brush, D2D1_RECT_F p_Rectangle, const wchar_t *p_Text,
+		ID2D1SolidColorBrush *p_Brush, D2D1_RECT_F p_Rectangle, std::wstring p_Text,
 		D2D1::ColorF p_ClearColor = D2D1::ColorF(0,0,0,0));
 	~TextResource();
 

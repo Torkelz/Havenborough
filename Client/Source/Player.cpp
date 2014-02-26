@@ -530,6 +530,11 @@ void Player::setAllowedToMove(bool p_State)
 	m_AllowedToMove = p_State;
 }
 
+const bool Player::getAllowedToMove() const
+{
+	return m_AllowedToMove;
+}
+
 void Player::jump(float dt)
 {
 	if(m_IsJumping)

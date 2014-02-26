@@ -241,7 +241,18 @@ public:
 	 */
 	void setClimbing(bool p_State);
 
+	/**
+	 * Activates the ability for the player to move.
+	 *
+	 * @param p_State true if the player should be able to move. false if the player should not be able to move.
+	 */
 	void setAllowedToMove(bool p_State);
+	/**
+	 * Gets the state if the player is allowed to move or not.
+	 *
+	 * @return true if the player should be able to move. false if the player should not be able to move.
+	 */
+	const bool getAllowedToMove() const;
 
 private:
 	void jump(float dt);

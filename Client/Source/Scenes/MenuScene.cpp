@@ -26,36 +26,6 @@ bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_GameLogic = p_GameLogic;
 	m_EventManager = p_EventManager;
 
-	m_ServerAddress = "localhost";
-	m_ServerPort = 31415;
-
-	tinyxml2::XMLDocument doc;
-	tinyxml2::XMLError res = doc.LoadFile("UserOptions.xml");
-	if (res == tinyxml2::XML_NO_ERROR)
-	{
-		tinyxml2::XMLElement* options = doc.FirstChildElement("UserOptions");
-		if (options)
-		{
-			tinyxml2::XMLElement* server = options->FirstChildElement("Server");
-			if (server)
-			{
-				const char* address = server->Attribute("Hostname");
-				if (address)
-				{
-					m_ServerAddress = address;
-				}
-
-				unsigned int tPort = m_ServerPort;
-				server->QueryAttribute("Port", &tPort);
-#undef max
-				if (tPort <= std::numeric_limits<uint16_t>::max())
-				{
-					m_ServerPort = tPort;
-				}
-			}
-		}
-	}
-
 	return true;
 }
 
@@ -122,26 +92,6 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		else if(p_Action == "changeSceneP")
 		{
 			m_ChangeList = true;
-		}
-		else if (p_Action == "joinTestLevel")
-		{
-			m_GameLogic->joinGame("test");
-		}
-		else if (p_Action == "joinServerLevel")
-		{
-#ifdef _DEBUG
-			m_GameLogic->joinGame("serverDebugLevel");
-#else
-			m_GameLogic->joinGame("serverLevel");
-#endif
-		}
-		else if (p_Action == "playLocalTest")
-		{
-			m_GameLogic->playLocalLevel();
-		}
-		else if (p_Action == "connectToServer")
-		{
-			m_GameLogic->connectToServer(m_ServerAddress, m_ServerPort);
 		}
 		else if (p_Action == "back")
 		{

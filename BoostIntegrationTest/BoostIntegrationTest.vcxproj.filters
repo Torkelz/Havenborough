@@ -112,6 +112,12 @@
     <ClCompile Include="..\Graphics\Source\TextFactory.cpp">
       <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextRenderer.cpp">
+      <Filter>Graphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextResource.cpp">
+      <Filter>Graphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">

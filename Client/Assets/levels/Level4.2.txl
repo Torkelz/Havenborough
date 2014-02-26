@@ -1,10 +1,5 @@
 *ObjectHeader*
-#numObj: 419
-
-#MESH: Top1
-#Translation: 0 0 0
-#Rotation: 0 0 0
-#Scale: 1 1 1
+#numObj: 418
 
 #MESH: Island1
 #Translation: 0 0 0
@@ -14,11 +9,6 @@
 #MESH: House1
 #Translation: -1718.131958 399.514709 -1018.416016
 #Rotation: -0.34661 -0.000391594 0.0116491
-#Scale: 1 1 1
-
-#MESH: House2
-#Translation: -1769.979004 431.054749 2173.092529
-#Rotation: 1.134752 0 0.044124
 #Scale: 1 1 1
 
 #MESH: House1
@@ -472,7 +462,7 @@
 #Scale: 0.795393 0.795393 0.795393
 
 #MESH: House4
-#Translation: -2152.775391 603.315857 659.4021
+#Translation: -2152.242432 555.114929 659.626953
 #Rotation: 2.824291 0.000984139 -0.0119558
 #Scale: 1 1 1
 
@@ -497,18 +487,13 @@
 #Scale: 4.098002 4.098002 4.098002
 
 #MESH: Tree1
-#Translation: 1322.087891 402.731232 756.752258
+#Translation: -1436.272461 537.466858 -1854.708008
 #Rotation: 0 0 0
 #Scale: 1 1 1
 
 #MESH: House1
 #Translation: 2845.791748 393.536957 -30.953751
 #Rotation: -2.69198 0.00859989 -0.00786755
-#Scale: 1 1 1
-
-#MESH: Top1Sidewalk
-#Translation: 268.599884 63.563656 1173.286621
-#Rotation: 0 0 0
 #Scale: 1 1 1
 
 #MESH: StoneBrick2
@@ -1182,12 +1167,12 @@
 #Scale: 1 1 1
 
 #MESH: Tree1
-#Translation: 1322.087891 235.021912 535.374329
+#Translation: -1659.031738 366.997406 -1867.877808
 #Rotation: 1.659092 0 0
 #Scale: 0.478654 0.478654 0.478654
 
 #MESH: Tree1
-#Translation: 1097.751709 304.319794 915.102234
+#Translation: -1749.349976 393.347351 -1705.065308
 #Rotation: -3.090367 0 0
 #Scale: 0.678363 0.678363 0.678363
 
@@ -2096,6 +2081,16 @@
 #Rotation: -2.447597 0.22187 -0.0910045
 #Scale: 4.521039 4.521039 4.521039
 
+#MESH: House2
+#Translation: -2148.398193 75.131172 2091.933838
+#Rotation: 1.159304 0.0313382 -0.0131628
+#Scale: 1 1 1
+
+#MESH: Top1
+#Translation: 0 0 0
+#Rotation: 0 0 0
+#Scale: 1 1 1
+
 *LightHeader*
 #numLights 6
 
@@ -2157,7 +2152,7 @@ Translation: 1999.355795 918.333651 1099.503001
 
 #Type: CheckPoint
 #NR: 3
-Translation: -2053.337651 934.244795 2130.692945
+Translation: -2053.337651 965.518512 2111.073032
 
 #Type: CheckPoint
 #NR: 4
