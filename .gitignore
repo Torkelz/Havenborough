@@ -45,6 +45,7 @@ BoostIntegrationTest/Bin/release_log.txt
 *.txx
 *.btxe
 *.tmp
+*.vshost.exe.manifest
 packages/
 Havenborough Launcher/packages.config
 Client/Bin/MahApps.Metro.xml
