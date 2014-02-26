@@ -201,7 +201,7 @@ void GameScene::render()
 	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
 	m_Graphics->render2D_Object(m_GUI_ArrowId);
 	m_Graphics->render2D_Object(2);
-	m_Graphics->render2D_Object(3);
+	m_Graphics->render2D_Object(4);
 
 	std::stringstream ss;
 	ss.precision(2);
