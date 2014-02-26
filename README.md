@@ -59,3 +59,12 @@ https://vld.codeplex.com/wikipage?title=Using%20Visual%20Leak%20Detector&referri
 - Change to Debug configuration. 
 - In the Command Arguments add '--log_level=message > debug_log.txt'. 
 - On the same page in the field Working Directory set it to '$(ProjectDir)Bin'.
+
+
+### MahApps.Metro ###
+- Start the Havenborough Solution as usual.
+- Press Ctrl+Q (allows you to type in quick launch)
+- Type the following: nuget
+- Press on NuGet Package Manager Console
+- In the console that just popped up type: Install-Package MahApps.Metro
+- Once installed you should be able to build the Havenborough Launcher

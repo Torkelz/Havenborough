@@ -592,7 +592,7 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(IGraphics::RenderTarget i)
 	case IGraphics::RenderTarget::DIFFUSE: return m_SRV["Diffuse"];
 	case IGraphics::RenderTarget::NORMAL: return m_SRV["Normal"];
 	case IGraphics::RenderTarget::W_POSITION: return m_SRV["WPosition"];
-	case IGraphics::RenderTarget::SSAO: return m_DepthMapSRV;//m_SRV["SSAO"];
+	case IGraphics::RenderTarget::SSAO: return m_SRV["SSAO"];
 	case IGraphics::RenderTarget::FINAL: return m_SRV["Light"];
 	default: return nullptr;
 	}

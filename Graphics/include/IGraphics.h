@@ -457,7 +457,7 @@ public:
 	virtual Vector3 get2D_ObjectPosition(Object2D_Id p_Instance) = 0;
 	
 	/**
-	* Get the scale of a 2D object in xyz.
+	* Get the size of a 2D object in xyz.
 	* @param p_Instance an identifier to an object
 	*/
 	virtual Vector2 get2D_ObjectHalfSize(Object2D_Id p_Instance) = 0;
@@ -490,6 +490,13 @@ public:
 	* @param p_LookAt the position in the world
 	*/
 	virtual void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) = 0;
+	
+	/**
+	* releases a 2D model
+	* @param p_ObjectID an identifier to an object
+	* @return true if it succeds to remove. false if it did not.
+	*/
+	virtual bool release2D_Model(Object2D_Id p_ObjectID) = 0;
 	
 	/**
 	* Change the rendered text of an existing text object.
