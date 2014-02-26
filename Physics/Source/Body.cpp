@@ -93,8 +93,6 @@ void Body::addForce(XMFLOAT4 p_Force)
 	tempForce = XMLoadFloat4(&p_Force);
 	tempNetForce = XMLoadFloat4(&m_NetForce);
 
-//	tempForce = XMVector4Transform(tempForce, XMLoadFloat4x4(&m_Orientation));
-
 	tempNetForce += tempForce;
 
 	XMStoreFloat4(&m_NetForce, tempNetForce);
