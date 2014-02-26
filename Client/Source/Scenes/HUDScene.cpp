@@ -77,6 +77,7 @@ void HUDScene::render()
 {
 	m_Graphics->render2D_Object(m_GUI["Arrow"]);
 	m_Graphics->render2D_Object(m_GUI["Manabar"]);
+	m_Graphics->render2D_Object(m_GUI["ManabarChange"]);
 	m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
 
 	if(m_RenderCountdown)
@@ -139,17 +140,24 @@ void HUDScene::updateGraphicalCountdown(IEventData::Ptr p_Data)
 void HUDScene::updateGraphicalManabar(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<UpdateGraphicalManabarEventData> data = std::static_pointer_cast<UpdateGraphicalManabarEventData>(p_Data);
-
-	m_Graphics->set2D_ObjectScale(m_GUI["Manabar"], Vector3(data->getCurrentMana(), 1.f, 0.f));
+	Vector3 s = Vector3(1,1,1);
+	std::string id = "Manabar";
+	if(m_HUDSettings.count(id) > 0)
+	{
+		float ss = m_HUDSettings.at(id).scale;
+		s = Vector3(ss,ss,ss);
+	}
+	m_Graphics->set2D_ObjectScale(m_GUI["ManabarChange"], Vector3(data->getCurrentMana() * s.x, s.y, 0.f));
 
 	m_Graphics->updateText(m_TextHandle["ManabarCounter"], std::to_wstring((int)(data->getCurrentMana() * 100)).c_str());
 
-	Vector2 barSize = m_Graphics->get2D_ObjectHalfSize(m_GUI["Manabar"]);
-	Vector3 barPos = m_Graphics->get2D_ObjectPosition(m_GUI["Manabar"]);
+	Vector2 barSize = m_Graphics->get2D_ObjectHalfSize(m_GUI["ManabarChange"]);
+	barSize.x *= s.x;
+	Vector3 barPos = m_Graphics->get2D_ObjectPosition(m_GUI["ManabarChange"]);
 	m_Graphics->set2D_ObjectPosition(m_GUI["ManabarCounter"], Vector3(barPos.x, barPos.y, 2));
 
 	barPos = Vector3(barPos.x + (data->getDiffCurrPrevious() * barSize.x), barPos.y, barPos.z);
-	m_Graphics->set2D_ObjectPosition(m_GUI["Manabar"], barPos);
+	m_Graphics->set2D_ObjectPosition(m_GUI["ManabarChange"], barPos);
 }
 
 void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
@@ -165,6 +173,7 @@ void HUDScene::preLoadModels()
 	{
 		"TEXTURE_NOT_FOUND",
 		"MANA_BAR",
+		"MANA_BARCHANGE",
 	};
 	for (const std::string &texture : preloadedTextures)
 	{
@@ -192,10 +201,11 @@ void HUDScene::preLoadModels()
 		float s = m_HUDSettings.at(id).scale;
 		scale = Vector3(s, s, s);
 	}
-	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(160, 30), scale, 0.0f, "MANA_BAR"));
+	createGUIElement("ManabarChange", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(140, 30), scale, 0.0f, "MANA_BARCHANGE"));
+	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 4), Vector2(144, 28), scale, 0.0f, "MANA_BAR"));
 
 	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
-	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 2), scale, 0.f, m_TextHandle["ManabarCounter"]));
+	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 2), Vector3(1,1,1), 0.f, m_TextHandle["ManabarCounter"]));
 
 	pos = Vector3(0, 0, 0);
 	scale = Vector3(2.0f, 2.0f, 2.0f);

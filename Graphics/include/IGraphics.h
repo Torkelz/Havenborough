@@ -457,7 +457,7 @@ public:
 	virtual Vector3 get2D_ObjectPosition(Object2D_Id p_Instance) = 0;
 	
 	/**
-	* Get the scale of a 2D object in xyz.
+	* Get the size of a 2D object in xyz.
 	* @param p_Instance an identifier to an object
 	*/
 	virtual Vector2 get2D_ObjectHalfSize(Object2D_Id p_Instance) = 0;
