@@ -227,6 +227,9 @@ public:
 	 */
 	virtual void setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position) = 0;
 
+	virtual void setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 p_Rotation) = 0;
+
+	virtual void setParticleEffectBaseColor(InstanceId p_ParticleEffectId, Vector4 p_BaseColor) = 0;
 	/**
 	 * Called when updating the particles
 	 * 
@@ -332,7 +335,7 @@ public:
 	 * @ p_LightColor, the color of the light.
 	 * @ p_LightDirection, the direction of the directional light.
 	 */
-	virtual void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) = 0;
+	virtual void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection, float p_Intensity) = 0;
 	
 	/**
 	* Sets which color the final render target should be cleared in.

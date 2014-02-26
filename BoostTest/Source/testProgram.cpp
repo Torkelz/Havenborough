@@ -6,7 +6,7 @@
  */
 
 /********** UNCOMMENT FOR Code Coverage ***************/
-#include <CodeCoverage/CodeCoverage.h>
+/*#include <CodeCoverage/CodeCoverage.h>
 
 
 ExcludeFromCodeCoverage(Exclusion1, L"boost::*");

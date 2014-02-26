@@ -167,7 +167,7 @@ void TextFactory::updateText(Text_Id p_Identifier, const wchar_t *p_Text)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
-		m_TextResources.at(p_Identifier).m_Text = p_Text;
+		m_TextResources.at(p_Identifier).m_Text = std::wstring(p_Text);
 		m_TextResources.at(p_Identifier).draw();
 	}
 	else
@@ -189,7 +189,7 @@ void TextFactory::setTextColor(Text_Id p_Identifier, Vector4 p_Color)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
-		m_TextResources.at(p_Identifier).m_Brush->SetColor(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.z));
+		m_TextResources.at(p_Identifier).m_Brush->SetColor(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w));
 		m_TextResources.at(p_Identifier).draw();
 	}
 	else

@@ -3,7 +3,7 @@
 
 #include "Actor.h"
 #include "AnimationData.h"
-#include "Light.h"
+#include "LightClass.h"
 #include "Utilities/XMFloatUtil.h"
 
 #pragma warning(push)
@@ -66,12 +66,12 @@ public:
 class LightEventData : public BaseEventData
 {
 private:
-	Light m_Light;
+	LightClass m_Light;
 
 public:
 	static const Type sk_EventType = Type(0x748d2b5a);
 	
-	explicit LightEventData(Light p_Light) :
+	explicit LightEventData(LightClass p_Light) :
 		m_Light(p_Light)
 	{
 	}
@@ -95,7 +95,7 @@ public:
 		return "LightEvent";
 	}
 
-	Light getLight(void) const
+	LightClass getLight(void) const
 	{
 		return m_Light;
 	}
@@ -104,12 +104,12 @@ public:
 class RemoveLightEventData : public BaseEventData
 {
 private:
-	Light::Id m_Id;
+	LightClass::Id m_Id;
 
 public:
 	static const Type sk_EventType = Type(0x128d2b5a);
 	
-	explicit RemoveLightEventData(Light::Id p_Id) :
+	explicit RemoveLightEventData(LightClass::Id p_Id) :
 		m_Id(p_Id)
 	{
 	}
@@ -133,7 +133,7 @@ public:
 		return "RemoveLightEvent";
 	}
 
-	Light::Id getId() const
+	LightClass::Id getId() const
 	{
 		return m_Id;
 	}
@@ -793,6 +793,97 @@ public:
 	}
 };
 
+class UpdateParticleRotationEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	Vector3 m_Rotation;
+
+public:
+	static const Type sk_EventType = Type(0xe738ee21);
+
+	UpdateParticleRotationEventData(unsigned int p_Id, Vector3 p_Rotation)
+		:	m_Id(p_Id),
+		m_Rotation(p_Rotation)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateParticleRotationEventData(m_Id, m_Rotation));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateParticleRotationEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+
+	Vector3 getRotation() const
+	{
+		return m_Rotation;
+	}
+};
+
+
+class UpdateParticleBaseColorEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	Vector4 m_BaseColor;
+
+public:
+	static const Type sk_EventType = Type(0xdab6df88);
+
+	UpdateParticleBaseColorEventData(unsigned int p_Id, Vector4 p_BaseColor)
+		:	m_Id(p_Id),
+		m_BaseColor(p_BaseColor)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateParticleBaseColorEventData(m_Id, m_BaseColor));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateParticleBaseColorEvent";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+
+	Vector4 getBaseColor() const
+	{
+		return m_BaseColor;
+	}
+};
+
 class RemoveActorEventData : public BaseEventData
 {
 private:
@@ -828,6 +919,54 @@ public:
 	unsigned int getActorId() const
 	{
 		return m_Actor;
+	}
+};
+
+class UpdateGraphicalCountdown : public BaseEventData
+{
+private:
+	std::wstring m_Text;
+	Vector4 m_Color;
+	Vector3 m_Scale;
+
+public:
+	static const Type sk_EventType = Type(0x01015dff);
+
+	UpdateGraphicalCountdown(std::wstring p_Text, Vector4 p_Color, Vector3 p_Scale)
+		:	m_Text(p_Text), m_Color(p_Color), m_Scale(p_Scale)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateGraphicalCountdown(m_Text, m_Color, m_Scale));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateGraphicalCountdown";
+	}
+
+	std::wstring getText() const
+	{
+		return m_Text;
+	}
+	Vector4 getColor() const
+	{
+		return m_Color;
+	}
+	Vector3 getScale() const
+	{
+		return m_Scale;
 	}
 };
 

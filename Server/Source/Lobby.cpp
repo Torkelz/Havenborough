@@ -126,12 +126,32 @@ void Lobby::handlePackagesForOneUser(User::wPtr p_User)
 		{
 		case PackageType::JOIN_GAME:
 			{
-				std::string levelName = con->getJoinGameName(package);
+				const std::string levelName = con->getJoinGameName(package);
+				const std::string username = con->getJoinGameUsername(package);
+				user->setUsername(username);
 				joinLevel(user, levelName);
 
 				con->clearPackages(i + 1);
 				return;
 			}
+
+		case PackageType::REQUEST_GAMES:
+			{
+				std::vector<AvailableGameData> games(m_Levels.size());
+
+				for (size_t i = 0; i < games.size(); ++i)
+				{
+					const auto& level = m_Levels[i];
+					auto& availGame = games[i];
+
+					availGame.levelName = level.m_LevelName.c_str();
+					availGame.waitingPlayers = level.m_JoinedUsers.size();
+					availGame.maxPlayers = level.m_MaxPlayers;
+				}
+
+				con->sendGameList(games.data(), games.size());
+			}
+			break;
 
 		default:
 			std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));

@@ -348,9 +348,6 @@
     <Filter Include="TestCommon">
       <UniqueIdentifier>{91b3a574-4dff-4384-88f3-cd430ffea93c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TestCommon\CommonImport">
-      <UniqueIdentifier>{5c55504a-3816-4c29-a087-aff44ad3b38a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="TestSettings">
       <UniqueIdentifier>{2dc209c3-062e-4658-9a32-d9a66735df2c}</UniqueIdentifier>
     </Filter>

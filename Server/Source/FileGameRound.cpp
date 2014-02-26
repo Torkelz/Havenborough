@@ -310,6 +310,12 @@ void FileGameRound::playerDisconnected(Player::ptr p_DisconnectedPlayer)
 			user->getConnection()->sendRemoveObjects(&playerActorId, 1);
 		}
 	}
+
+	auto it = std::find(m_Actors.begin(), m_Actors.end(), actor);
+	if (it != m_Actors.end())
+	{
+		m_Actors.erase(it);
+	}
 }
 
 UpdateObjectData FileGameRound::getUpdateData(const Player::ptr p_Player)

@@ -56,6 +56,12 @@ private:
 	float m_DeltaTime;
 	
 	std::unique_ptr<GameLogic> m_GameLogic;
+
+	std::string m_ServerURL;
+	unsigned short int m_ServerPort;
+	std::string m_LevelName;
+	std::string m_Username;
+
 public:
 	/**
 	 * constructor.

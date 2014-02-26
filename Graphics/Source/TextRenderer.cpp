@@ -17,8 +17,13 @@ TextRenderer::TextRenderer(void)
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 	m_RenderTargetView = nullptr;
+	m_Shader = nullptr;
+	m_Buffer = nullptr;
+	m_ConstantBuffer = nullptr;
 	m_Sampler = nullptr;
 	m_RasterState = nullptr;
+	m_TransparencyAdditiveBlend = nullptr;
+
 }
 
 TextRenderer::~TextRenderer(void)
@@ -29,9 +34,12 @@ TextRenderer::~TextRenderer(void)
 	m_ViewMatrix = nullptr;
 	m_ProjectionMatrix = nullptr;
 	m_RenderTargetView = nullptr;
-
+	SAFE_DELETE(m_Shader);
+	SAFE_DELETE(m_Buffer);
+	SAFE_DELETE(m_ConstantBuffer);
 	SAFE_RELEASE(m_Sampler);
 	SAFE_RELEASE(m_RasterState);
+	SAFE_RELEASE(m_TransparencyAdditiveBlend);
 }
 
 void TextRenderer::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceContext, XMFLOAT3 *p_CameraPosition,
