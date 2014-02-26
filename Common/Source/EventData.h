@@ -884,6 +884,51 @@ public:
 	}
 };
 
+class SpellhitEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	Vector4 m_BaseColor;
+
+public:
+	static const Type sk_EventType = Type(0xca743787);
+
+	SpellhitEventData(unsigned int p_Id, Vector4 p_BaseColor)
+		:	m_Id(p_Id),
+		m_BaseColor(p_BaseColor)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new SpellhitEventData(m_Id, m_BaseColor));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "SpellhitEventData";
+	}
+
+	unsigned int getId() const
+	{
+		return m_Id;
+	}
+
+	Vector4 getBaseColor() const
+	{
+		return m_BaseColor;
+	}
+};
+
 class RemoveActorEventData : public BaseEventData
 {
 private:
