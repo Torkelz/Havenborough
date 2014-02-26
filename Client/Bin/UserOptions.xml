@@ -1,6 +1,7 @@
 <UserOptions>
 	<Server Hostname="localhost" Port="31415" />
 	<!-- Test ip: 194.47.150.44 -->
+	<Game Level="serverLevel" Username="Player" />
 	<Settings>
 		<SSAO enabled="false"/>
 		<ShadowMap enabled="false"/>

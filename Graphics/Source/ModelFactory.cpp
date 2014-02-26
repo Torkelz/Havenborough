@@ -113,7 +113,7 @@ ModelDefinition *ModelFactory::create2D_Model(ID3D11ShaderResourceView *p_Textur
 	texture->GetDesc(&textureDesc);
 	Vector2 halfSize(textureDesc.Width * 0.5f, textureDesc.Height * 0.5f);
 	SAFE_RELEASE(texture);
-
+	SAFE_RELEASE(resource);
 	create2D_VertexBuffer(model, halfSize);
 
 	model->diffuseTexture.push_back(make_pair(std::string("Text"), p_Texture));

@@ -2,7 +2,8 @@
 
 User::User(IConnectionController* p_Connection)
 	:	m_Connection(p_Connection),
-		m_State(State::LOBBY)
+		m_State(State::LOBBY),
+		m_Username("UnknownUser")
 {
 }
 
@@ -19,4 +20,14 @@ User::State User::getState() const
 void User::setState(State p_NewState)
 {
 	m_State = p_NewState;
+}
+
+const std::string& User::getUsername() const
+{
+	return m_Username;
+}
+
+void User::setUsername(const std::string& p_Username)
+{
+	m_Username = p_Username;
 }

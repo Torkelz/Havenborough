@@ -40,6 +40,7 @@ public:
 private:
 	State m_State;
 	IConnectionController* m_Connection;
+	std::string m_Username;
 
 public:
 	/**
@@ -68,4 +69,17 @@ public:
 	 * @param p_NewState the new state
 	 */
 	void setState(State p_NewState);
+
+	/**
+	 * Gets the name of the user.
+	 *
+	 * @return the name of the user
+	 */
+	const std::string& getUsername() const;
+	/**
+	 * Sets a new username for the user.
+	 *
+	 * @param p_Username the new username for the user
+	 */
+	void setUsername(const std::string& p_Username);
 };

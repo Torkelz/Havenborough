@@ -14,6 +14,8 @@ GameLogic::GameLogic(void)
 	m_Physics = nullptr;
 	m_ResourceManager = nullptr;
 	m_CurrentCheckPointPosition = Vector3(0.0f, 0.0f, 0.0f);
+	m_CountdownTimer = 0.f;
+	m_RenderGo = false;
 }
 
 
@@ -43,7 +45,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_Connected = false;
 	m_InGame = false;
 	m_PlayingLocal = true;
-
+	m_StartLocal = false;
 	m_PlayerTimeDifference = 0.f;
 	m_PlayerPositionInRace = 0;
 }
@@ -68,11 +70,16 @@ void GameLogic::onFrame(float p_DeltaTime)
 {
 	handleNetwork();
 
+	if (m_StartLocal)
+	{
+		playLocalLevel();
+		m_StartLocal = false;
+	}
+
 	if (!m_InGame)
 	{
 		return;
 	}
-
 
 	if(m_Physics->getHitDataSize() > 0)
 	{
@@ -128,6 +135,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	m_Actors->onUpdate(p_DeltaTime);
 	m_Player.update(p_DeltaTime);
 
+	updateCountdownTimer(p_DeltaTime);
 	Actor::ptr tempActor = m_PlayerSparks.lock();
 	if(tempActor)
 	{
@@ -382,10 +390,14 @@ void GameLogic::playLocalLevel()
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 }
 
-void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
+void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port,
+								const std::string& p_LevelName, const std::string& p_Username)
 {
 	if (!m_IsConnecting && !m_Connected)
 	{
+		m_LevelName = p_LevelName;
+		m_Username = p_Username;
+
 		m_IsConnecting = true;
 		m_Network->connectToServer(p_URL.c_str(), p_Port, &connectedCallback, this);
 	}
@@ -410,15 +422,6 @@ void GameLogic::leaveGame()
 		}
 		
 		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(true)));
-	}
-}
-
-void GameLogic::joinGame(const std::string& p_LevelName)
-{
-	IConnectionController* con = m_Network->getConnectionToServer();
-	if (!m_InGame && con && con->isConnected())
-	{
-		con->sendJoinGame(p_LevelName.c_str());
 	}
 }
 
@@ -802,8 +805,7 @@ void GameLogic::handleNetwork()
 			case PackageType::START_COUNTDOWN:
 				{
 					m_Player.setAllowedToMove(false);
-					// TODO
-					// Start countdown logic and use draw countdown.
+					m_CountdownTimer = 3.0f;
 				}
 				break;
 			case PackageType::DONE_COUNTDOWN:
@@ -811,6 +813,21 @@ void GameLogic::handleNetwork()
 					m_Player.setAllowedToMove(true);
 				}
 				break;
+
+			case PackageType::GAME_LIST:
+				{
+					const unsigned int numGames = conn->getNumGameListGames(package);
+					Logger::log(Logger::Level::INFO, "Available games: " + std::to_string(numGames));
+					for (size_t i = 0; i < numGames; ++i)
+					{
+						const AvailableGameData game = conn->getGameListGame(package, i);
+						Logger::log(Logger::Level::INFO, std::string(game.levelName) +
+							" (" + std::to_string(game.waitingPlayers) +
+							"/" + std::to_string(game.maxPlayers) + ')');
+					}
+				}
+				break;
+
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);
@@ -819,6 +836,15 @@ void GameLogic::handleNetwork()
 		}
 
 		conn->clearPackages(numPackages);
+	}
+}
+
+void GameLogic::joinGame()
+{
+	IConnectionController* con = m_Network->getConnectionToServer();
+	if (!m_InGame && con && con->isConnected())
+	{
+		con->sendJoinGame(m_LevelName.c_str(), m_Username.c_str());
 	}
 }
 
@@ -831,10 +857,20 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 	{
 		self->m_Connected = true;
 
+		IConnectionController* con = self->m_Network->getConnectionToServer();
+		if (con && con->isConnected())
+		{
+			con->sendRequestGames();
+		}
+
+		self->joinGame();
+
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
 	else
 	{
+		self->m_StartLocal = true;
+
 		Logger::log(Logger::Level::WARNING, "Connection failed");
 	}
 }
@@ -861,6 +897,48 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 	std::shared_ptr<RemoveActorEventData> data = std::static_pointer_cast<RemoveActorEventData>(p_Data);
 
 	removeActor(data->getActorId());
+}
+
+void GameLogic::updateCountdownTimer(float p_DeltaTime)
+{
+	if(!m_Player.getAllowedToMove() && m_CountdownTimer - p_DeltaTime >= 0.f)
+	{
+		Vector4 color;
+		m_CountdownTimer -= p_DeltaTime;
+		int floorCountdown = (int)ceilf(m_CountdownTimer);
+		std::wstring text = std::to_wstring(floorCountdown);
+		float origScale = 3.f;
+		float scale = 1.f - abs(m_CountdownTimer - (float)floorCountdown);
+		switch (floorCountdown)
+		{
+			case 3:	color = Vector4(1,0,0,1); break;
+			case 2:	color = Vector4(1.f,0.4f,0,1); break;
+			case 1:
+				{
+					color = Vector4(0.8f,0.8f,0,1); 
+					if(scale < 0.1f)
+					{
+						m_RenderGo = true;
+						m_CountdownTimer = 1.0f;
+					}
+					break;
+				}
+		}
+		if(!m_RenderGo)
+			m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+	}
+	else if(m_RenderGo)
+	{
+		Vector4 color = Vector4(0,1,0,1); 
+		std::wstring text = L"GO";
+		float scale = m_CountdownTimer - (int)floorf(m_CountdownTimer);
+		float origScale = 3.f;
+
+		m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+		m_CountdownTimer -= p_DeltaTime;
+		if(!(m_CountdownTimer - p_DeltaTime >= 0.f))
+			m_RenderGo = false;
+	}
 }
 
 void GameLogic::loadSandbox()

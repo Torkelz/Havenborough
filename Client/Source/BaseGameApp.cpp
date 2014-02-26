@@ -144,6 +144,11 @@ void BaseGameApp::init()
 	m_CommandManager.reset(new CommandManager);
 	m_CommandManager->registerCommand(Command::ptr(new TweakCommand));
 	m_ConsoleReader.reset(new StreamReader(m_CommandManager, std::cin));
+
+	m_ServerURL = settings.getServerURL();
+	m_ServerPort = settings.getServerPort();
+	m_LevelName = settings.getLevelName();
+	m_Username = settings.getUsername();
 }
 
 void BaseGameApp::run()
@@ -154,9 +159,7 @@ void BaseGameApp::run()
 
 	resetTimer();
 
-#ifdef _DEBUG
-	m_GameLogic->playLocalLevel();
-#endif
+	m_GameLogic->connectToServer(m_ServerURL, m_ServerPort, m_LevelName, m_Username);
 
 	while (!m_ShouldQuit)
 	{

@@ -23,6 +23,7 @@ GameScene::GameScene()
 	m_UseThirdPersonCamera = false;
 	m_UseFlippedCamera = false;
 	m_DebugAnimations = false;
+	m_RenderCountdown = false;
 }
 
 GameScene::~GameScene()
@@ -59,6 +60,8 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateGraphicalCountdown), UpdateGraphicalCountdown::sk_EventType);
+
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	preLoadModels();
@@ -203,6 +206,11 @@ void GameScene::render()
 	std::stringstream ss;
 	ss.precision(2);
 	float timeDiff = m_GameLogic->getPlayerTimeDifference();
+	if(m_RenderCountdown)
+	{
+		m_Graphics->render2D_Object(m_GUI_Countdown);
+		m_RenderCountdown = false;
+	}
 	float floorTimeDiff = floorf(timeDiff);
 	float timeDiffFrac = (timeDiff - floorTimeDiff) * 100.f;
 
@@ -512,6 +520,16 @@ void GameScene::updateParticleBaseColor(IEventData::Ptr p_Data)
 	}
 }
 
+void GameScene::updateGraphicalCountdown(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateGraphicalCountdown> data = std::static_pointer_cast<UpdateGraphicalCountdown>(p_Data);
+
+	m_Graphics->updateText(m_CountdownTextHandle, data->getText().c_str());
+	m_Graphics->setTextColor(m_CountdownTextHandle, data->getColor());
+	m_Graphics->set2D_ObjectScale(m_GUI_Countdown, data->getScale());
+	m_RenderCountdown = true;
+}
+
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
 	unsigned int nrVolumes = m_GameLogic->getPhysics()->getNrOfVolumesInBody(p_BodyHandle);
@@ -550,6 +568,8 @@ void GameScene::preLoadModels()
 	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 	std::string tt = "Bla: " + std::to_string(m_GameLogic->getPlayerTimeDifference());
 	m_Graphics->createText(std::wstring(tt.begin(), tt.end()).c_str(), Vector2(80.f, 50.f), "Verdana", 12.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f);
+	m_CountdownTextHandle = m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f);
+	m_GUI_Countdown = m_Graphics->create2D_Object(Vector3(0,0,0), Vector3(2,2,2), 0.f, m_CountdownTextHandle);
 	m_Graphics->create2D_Object(Vector3(400, -320, 2), Vector3(1,1,1), 0.f, 1);
 }
 

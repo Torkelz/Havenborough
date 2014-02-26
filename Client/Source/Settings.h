@@ -24,6 +24,12 @@ private:
 	std::map<std::string, bool> m_SettingsEnabled;
 	Vector2 m_Resolution;
 	int m_ShadowMapResolution;
+
+	std::string m_ServerURL;
+	unsigned short int m_ServerPort;
+	std::string m_LevelName;
+	std::string m_Username;
+
 public:
 	Settings(void);
 	~Settings(void);
@@ -75,8 +81,34 @@ public:
 	 * @return the map size as an integer.
 	 */
 	const int getShadowMapResolution() const;
+	/**
+	 * Gets the name of the level to play.
+	 *
+	 * @return the level name
+	 */
+	const std::string& getLevelName() const;
+	/**
+	 * Gets the username to display to other players.
+	 *
+	 * @return the players name
+	 */
+	const std::string& getUsername() const;
+	/**
+	 * Gets the URL address of the server to connect to.
+	 *
+	 * @return a string representation of a server address
+	 */
+	const std::string& getServerURL() const;
+	/**
+	 * Gets the port number to connect to on the server.
+	 *
+	 * @return the port number, [0, 65535]
+	 */
+	unsigned short int getServerPort() const;
+
 private:
 	void loadControls(tinyxml2::XMLElement *p_Element);
 	void loadSettings(tinyxml2::XMLElement *p_Element);
+	void loadGame(const tinyxml2::XMLElement *p_Element);
+	void loadServer(const tinyxml2::XMLElement *p_Element);
 };
-

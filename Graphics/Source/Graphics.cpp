@@ -1061,6 +1061,7 @@ void Graphics::enableSSAO(bool p_State)
 
 void Graphics::enableShadowMap(bool p_State)
 {
+	m_ShadowMap = p_State;
 	m_DeferredRender->enableShadowMap(p_State);
 }
 
