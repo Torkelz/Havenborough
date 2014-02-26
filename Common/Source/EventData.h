@@ -887,15 +887,15 @@ public:
 class SpellhitEventData : public BaseEventData
 {
 private:
-	unsigned int m_Id;
-	Vector4 m_BaseColor;
+	Actor::ptr m_SpellActor;
+	Vector3 m_Position;
 
 public:
 	static const Type sk_EventType = Type(0xca743787);
 
-	SpellhitEventData(unsigned int p_Id, Vector4 p_BaseColor)
-		:	m_Id(p_Id),
-		m_BaseColor(p_BaseColor)
+	SpellhitEventData(Actor::ptr p_SpellActor, Vector3 p_Position)
+		:	m_SpellActor(p_SpellActor),
+			m_Position(p_Position)
 	{
 	}
 
@@ -906,7 +906,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new SpellhitEventData(m_Id, m_BaseColor));
+		return Ptr(new SpellhitEventData(m_SpellActor, m_Position));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -918,14 +918,14 @@ public:
 		return "SpellhitEventData";
 	}
 
-	unsigned int getId() const
+	Actor::ptr getSpellActor() const
 	{
-		return m_Id;
+		return m_SpellActor;
 	}
 
-	Vector4 getBaseColor() const
+	Vector3 getPosition() const
 	{
-		return m_BaseColor;
+		return m_Position;
 	}
 };
 
