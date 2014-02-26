@@ -1,5 +1,5 @@
 #include "Components.h"
-
+#include "Logger.h"
 #include "SpellFactory.h"
 
 class SpellComponent : public SpellInterface
@@ -100,7 +100,7 @@ public:
 							continue;
 						}
 					}
-
+					Logger::log(Logger::Level::INFO, "SpellHit");
 					m_SpellInstance->collisionHappened();
 
 					break;
