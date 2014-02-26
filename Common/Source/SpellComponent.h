@@ -83,13 +83,19 @@ public:
 		m_Owner->setPosition(m_Physics->getBodyPosition(m_Sphere));
 
 		m_SpellInstance->update(p_DeltaTime);
+		Actor::ptr actor = m_Caster.lock();
+		BodyHandle casterBody = 0;
+		if(actor)
+		{
+			casterBody = actor->getBodyHandles().at(0);
+		}
 
 		if (!m_SpellInstance->hasCollided())
 		{
 			for(unsigned i = 0; i < m_Physics->getHitDataSize(); i++)
 			{
 				HitData hit = m_Physics->getHitDataAt(i);
-				if(hit.collider == m_Sphere)
+				if(hit.collider == m_Sphere || hit.collisionVictim == m_Sphere);
 				{
 					Actor::ptr caster = m_Caster.lock();
 					if(caster)
@@ -100,9 +106,7 @@ public:
 							continue;
 						}
 					}
-					Logger::log(Logger::Level::INFO, "SpellHit");
 					m_SpellInstance->collisionHappened();
-
 					break;
 				}
 			}
