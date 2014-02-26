@@ -38,6 +38,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateGraphicalCountdown), UpdateGraphicalCountdownEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateGraphicalManabar), UpdateGraphicalManabarEventData::sk_EventType);
+	preLoadModels();
 
 	return true;
 }
@@ -99,10 +100,12 @@ void HUDScene::setIsVisible(bool p_SetVisible)
 
 void HUDScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
+
 }
 
 void HUDScene::setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings)
 {
+	releasePreLoadedModels();
 	m_HUDSettings = p_Settings;
 	preLoadModels();
 }
@@ -214,6 +217,10 @@ void HUDScene::releasePreLoadedModels()
 		m_Graphics->release2D_Model(id.second);
 	}
 	m_GUI.clear();
+	for(auto id : m_TextHandle)
+	{
+		m_Graphics->release2D_Model(id.second);
+	}
 	m_TextHandle.clear();
 	m_HUDSettings.clear();
 }
@@ -222,4 +229,13 @@ void HUDScene::releasePreLoadedModels()
 int HUDScene::getID()
 {
 	return m_SceneID;
+}
+
+void HUDScene::createGUIElementTest(std::string p_GUIIdentifier, int p_Id)
+{
+	createGUIElement(p_GUIIdentifier, p_Id);
+}
+void HUDScene::createTextElementTest(std::string p_TextIdentifier, int p_Id)
+{
+	createTextElement(p_TextIdentifier, p_Id);
 }

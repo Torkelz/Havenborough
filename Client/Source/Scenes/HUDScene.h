@@ -43,8 +43,12 @@ public:
 		 
 	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue) override;
 
-	void setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings);
 
+	/*
+	 * Sets settings read from Settings.cpp to use with the hud.
+	 * @param p_Settings all settings read from Useroptions.xml
+	 */
+	void setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings);
 private:
 	void createGUIElement(std::string p_GUIIdentifier, int p_Id);
 	void createTextElement(std::string p_TextIdentifier, int p_Id);
@@ -57,4 +61,7 @@ private:
 public:
 	/*########## TEST FUNCTIONS ##########*/
 	int	getID() override;
+
+	void createGUIElementTest(std::string p_GUIIdentifier, int p_Id);
+	void createTextElementTest(std::string p_TextIdentifier, int p_Id);
 };

@@ -302,6 +302,7 @@
     <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Client\TextHUDScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
