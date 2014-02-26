@@ -49,6 +49,10 @@ void Settings::initialize(std::string p_FilePath)
 		{
 			loadServer(element);
 		}
+		else if(elementName == "HUD")
+		{
+			loadHUD(element);
+		}
 	}
 }
 
@@ -220,6 +224,34 @@ void Settings::loadServer(const tinyxml2::XMLElement *p_Element)
 	}
 }
 
+void Settings::loadHUD(tinyxml2::XMLElement *p_Element)
+{
+	tinyxml2::XMLElement *element = nullptr;
+	for(element = p_Element->FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
+	{
+		std::string elementName = element->Value();
+		if(m_HUDSettings.count(elementName) > 0)
+				throw ClientException("Settings tried to load an already loaded element: " + elementName + ".", __LINE__, __FILE__);
+
+		tinyxml2::XMLError res;
+		HUDSettings hudSett;
+		res = element->QueryFloatAttribute("x", &hudSett.position.x);
+		if(res == tinyxml2::XML_SUCCESS)
+			res = element->QueryFloatAttribute("y", &hudSett.position.y);
+		if(res == tinyxml2::XML_SUCCESS)
+			res = element->QueryFloatAttribute("z", &hudSett.position.z);
+
+		if(res != tinyxml2::XML_SUCCESS)
+				throw ClientException("Settings tried to load the position from element: " + elementName + ".", __LINE__, __FILE__);
+
+		res = element->QueryFloatAttribute("scale", &hudSett.scale);
+		if(res != tinyxml2::XML_SUCCESS)
+				throw ClientException("Settings tried to load the scale from element: " + elementName + ".", __LINE__, __FILE__);
+		
+		m_HUDSettings.insert(std::pair<std::string, HUDSettings>(elementName, hudSett));
+	}
+}
+
 const std::map<std::string, unsigned short> &Settings::getKeyMap() const
 {
 	return m_KeyMap;
@@ -270,4 +302,9 @@ const std::string& Settings::getServerURL() const
 unsigned short int Settings::getServerPort() const
 {
 	return m_ServerPort;
+}
+
+std::map<std::string, Settings::HUDSettings> Settings::getHUDSettings() const
+{
+	return m_HUDSettings;
 }

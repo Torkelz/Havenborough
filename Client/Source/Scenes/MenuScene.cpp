@@ -15,6 +15,8 @@ MenuScene::~MenuScene()
 {
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
+	m_GameLogic = nullptr;
+	m_ResourceManager = nullptr;
 }
 
 bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
@@ -25,11 +27,19 @@ bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_Graphics = p_Graphics;
 	m_GameLogic = p_GameLogic;
 	m_EventManager = p_EventManager;
+	m_ResourceManager = p_ResourceManager;
+
+	m_LoadScreenResourceID = m_ResourceManager->loadResource("texture", "LoadingScreen");
+	m_LoadScreenGraphicsID = m_Graphics->create2D_Object(Vector3(0.f, 0.f, 0.f), Vector2(680, 360), Vector3(1.f, 1.f, 1.f), 0.f, "LoadingScreen");
 
 	return true;
 }
 
-void MenuScene::destroy(){}
+void MenuScene::destroy()
+{
+	m_Graphics->release2D_Model(m_LoadScreenGraphicsID);
+	m_ResourceManager->releaseResource(m_LoadScreenResourceID);
+}
 
 void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 {
@@ -57,7 +67,8 @@ void MenuScene::onFocus()
 void MenuScene::render()
 {
 	m_Graphics->setClearColor(Vector4(0, 1, 0, 1));
-	m_Graphics->setRenderTarget(IGraphics::RenderTarget::NONE);
+	m_Graphics->setRenderTarget(IGraphics::RenderTarget::FINAL);
+	m_Graphics->render2D_Object(m_LoadScreenGraphicsID);
 }
 
 bool MenuScene::getIsVisible()

@@ -180,6 +180,7 @@ public:
 	Vector2 get2D_ObjectHalfSize(Object2D_Id p_Instance) override;
 	void set2D_ObjectRotationZ(Object2D_Id p_Instance, float p_Rotation) override;
 	void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) override;
+	bool release2D_Model(Object2D_Id p_ObjectID) override;
 	void updateText(Text_Id p_Identifier, const wchar_t *p_Text) override;
 	void deleteText(Text_Id p_Identifier) override;
 	void setTextColor(Text_Id p_Identifier, Vector4 p_Color) override;
@@ -208,7 +209,6 @@ public:
 private:
 	void createDefaultShaders(void) override;
 	void shutdown(void) override;
-	bool release2D_Model(Object2D_Id p_ObjectID);
 
 	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
 	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen);

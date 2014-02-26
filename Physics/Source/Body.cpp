@@ -93,8 +93,6 @@ void Body::addForce(XMFLOAT4 p_Force)
 	tempForce = XMLoadFloat4(&p_Force);
 	tempNetForce = XMLoadFloat4(&m_NetForce);
 
-//	tempForce = XMVector4Transform(tempForce, XMLoadFloat4x4(&m_Orientation));
-
 	tempNetForce += tempForce;
 
 	XMStoreFloat4(&m_NetForce, tempNetForce);
@@ -316,4 +314,13 @@ float Body::getGravity()
 DirectX::XMFLOAT4 Body::getLastACC()
 {
 	return m_LastAcceleration;
+}
+
+void Body::resetForce()
+{
+	m_NetForce			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_Velocity			= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_Acceleration		= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_AvgAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	m_NewAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 }

@@ -3,6 +3,7 @@
 #include <Logger.h>
 #include "Settings.h"
 #include <TweakCommand.h>
+#include "Scenes/HUDScene.h"
 
 #include <sstream>
 #include <iomanip>
@@ -93,6 +94,7 @@ void BaseGameApp::init()
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
 	translator->addKeyboardMapping('0', "slowMode");
+	translator->addKeyboardMapping('1', "fastMode");
 
 	//Adding the loaded keymaps to the translator
 	const std::map<std::string, unsigned short> keys = settings.getKeyMap();
@@ -125,7 +127,7 @@ void BaseGameApp::init()
 
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
-					
+	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings());
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
@@ -350,7 +352,7 @@ void BaseGameApp::handleInput()
 
 		if (in.m_Action == "slowMode" && in.m_Value > 0.5f)
 		{
-			if (m_TimeModifier == 1.f)
+			if (m_TimeModifier <= 1.f)
 			{
 				m_TimeModifier = 10.f;
 			}
@@ -358,6 +360,13 @@ void BaseGameApp::handleInput()
 			{
 				m_TimeModifier = 1.f;
 			}
+		}
+
+		if(in.m_Action == "fastMode" && in.m_Value > 0.5f)
+		{
+			if (m_TimeModifier >= 1.0f)
+				m_TimeModifier = 0.1f;
+			else m_TimeModifier = 1.0f;
 		}
 	}
 }
