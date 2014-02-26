@@ -22,6 +22,8 @@ namespace Havenborough_Launcher
     /// </summary>
     public partial class MainWindow : Window
     {
+        private GameList gameList;
+
         public MainWindow()
         {
             ImageBrush backgroundBrush = new ImageBrush();
@@ -33,6 +35,22 @@ namespace Havenborough_Launcher
             if (xmlDataProvider != null)
                 xmlDataProvider.Source = new Uri(System.IO.Path.GetFullPath("UserOptions.xml"));
             this.Background = backgroundBrush;
+
+            gameList = new GameList(
+                (GameList.Game[] p_Games) =>
+                {
+                    gameListBox.Dispatcher.Invoke(() =>
+                        {
+                            string gameText = "";
+                            foreach (GameList.Game game in p_Games)
+                            {
+                                gameText += game.name + " (" + game.waitingPlayers + '/' + game.maxPlayers + ")\n";
+                            }
+
+                            gameListBox.Text = gameText;
+                        });
+                });
+            gameList.Refresh();
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
@@ -45,6 +63,11 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source);
 
             //Process.Start("Client.exe");
+        }
+
+        private void Refresh_OnClick(object sender, RoutedEventArgs e)
+        {
+            gameList.Refresh();
         }
     }   
     public class BoolInverterConverter : IValueConverter
