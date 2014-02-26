@@ -238,7 +238,7 @@ void HumanAnimationComponent::updateIKJoints()
 		else if(m_ClimbId == "Climb2")
 		{
 			XMVECTOR reachPointR;
-			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 0);
+			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
 			Vector3 vReachPointR = Vector4(reachPointR).xyz();
 			applyIK_ReachPoint("RightArm", vReachPointR);
 		}
