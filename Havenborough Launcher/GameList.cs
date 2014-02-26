@@ -1,29 +1,78 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace Havenborough_Launcher
 {
     class GameList
     {
-        public class Game
+        public class Game : INotifyPropertyChanged
         {
-            public string name;
-            public int waitingPlayers;
-            public int maxPlayers;
+            private string name;
+            private int waitingPlayers;
+            private int maxPlayers;
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public string Name
+            {
+                get { return name; }
+                set
+                {
+                    name = value;
+                    OnPropertyChanged("Name");
+                }
+            }
+
+            public int WaitingPlayers
+            {
+                get { return waitingPlayers; }
+                set
+                {
+                    waitingPlayers = value;
+                    OnPropertyChanged("WaitingPlayers");
+                }
+            }
+
+            public int MaxPlayers
+            {
+                get { return maxPlayers; }
+                set
+                {
+                    maxPlayers = value;
+                    OnPropertyChanged("MaxPlayers");
+                }
+            }
+
+            protected void OnPropertyChanged(string name)
+            {
+                PropertyChangedEventHandler handler = PropertyChanged;
+                if (handler != null)
+                {
+                    handler(this, new PropertyChangedEventArgs(name));
+                }
+            }
+
+            public override string ToString()
+            {
+                return Name + " (" + WaitingPlayers + "/" + MaxPlayers + ")";
+            }
         }
 
         Task refreshTask;
-        Action<Game[]> onRefresh;
+        Dispatcher dispatcher;
 
-        public GameList(Action<Game[]> p_OnRefresh)
+        public ObservableCollection<Game> Games { get; set; }
+
+        public GameList()
         {
-            onRefresh = p_OnRefresh;
+            dispatcher = Dispatcher.CurrentDispatcher;
+            Games = new ObservableCollection<Game>();
         }
 
         public void Refresh()
@@ -68,7 +117,14 @@ namespace Havenborough_Launcher
                 if (data == null)
                     return;
 
-                onRefresh(TranslateData(data));
+                dispatcher.Invoke(() =>
+                {
+                    Games.Clear();
+                    foreach (Game game in TranslateData(data))
+                    {
+                        Games.Add(game);
+                    }
+                });
             });
         }
 
@@ -140,13 +196,13 @@ namespace Havenborough_Launcher
                 int stringLength = BitConverter.ToInt32(p_Data, currPos);
                 currPos += 4;
 
-                g.name = enc.GetString(p_Data, currPos, stringLength);
+                g.Name = enc.GetString(p_Data, currPos, stringLength);
                 currPos += stringLength;
 
-                g.waitingPlayers = BitConverter.ToInt16(p_Data, currPos);
+                g.WaitingPlayers = BitConverter.ToInt16(p_Data, currPos);
                 currPos += 2;
 
-                g.maxPlayers = BitConverter.ToInt16(p_Data, currPos);
+                g.MaxPlayers = BitConverter.ToInt16(p_Data, currPos);
                 currPos += 2;
 
                 games[i] = g;

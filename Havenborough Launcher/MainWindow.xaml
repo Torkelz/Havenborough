@@ -7,7 +7,13 @@
     <Controls:MetroWindow.Resources>
         <local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
+        <local:GameList x:Key="gameDataSource" />
         <XmlDataProvider x:Key="DataProvider" />
+        <DataTemplate x:Key="gameListTemplate">
+            <StackPanel Margin="3">
+                <TextBlock Text="{Binding}" />
+            </StackPanel>
+        </DataTemplate>
     </Controls:MetroWindow.Resources>
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
@@ -65,15 +71,19 @@
                 </StackPanel>
             </Grid>
             <Grid Grid.Row="1">
-                <Button Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick">
+                <Grid.DataContext>
+                    <Binding Source="{StaticResource gameDataSource}" />
+                </Grid.DataContext>
+                <Button x:Name="launchButton" IsEnabled="False" Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick">
                     LAUNCH
                 </Button>
                 <Button Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="Refresh_OnClick" Margin="325,27,50,27">
                     Refresh
                 </Button>
-                <TextBox Margin="0,0,351,0" x:Name="gameListBox">
-                    Some text
-                </TextBox>
+                <ListBox x:Name="gameListView" Margin="10,0,312,10" ItemsSource="{Binding Path=Games}"
+                         ItemTemplate="{StaticResource gameListTemplate}"
+                         IsSynchronizedWithCurrentItem="True"
+                         SelectionChanged="OnSelectedGameChanged"/>
             </Grid>
         </Grid>
         <Grid Grid.Column="1" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Controls/*}" Margin="0,10,0,10">

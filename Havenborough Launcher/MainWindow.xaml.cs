@@ -1,20 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
 using MahApps.Metro.Controls;
+using System.Windows.Controls;
 
 namespace Havenborough_Launcher
 {
@@ -23,8 +15,6 @@ namespace Havenborough_Launcher
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        private GameList gameList;
-
         public MainWindow()
         {
             ImageBrush backgroundBrush = new ImageBrush();
@@ -37,21 +27,9 @@ namespace Havenborough_Launcher
                 xmlDataProvider.Source = new Uri(System.IO.Path.GetFullPath("UserOptions.xml"));
             this.Background = backgroundBrush;
 
-            gameList = new GameList(
-                (GameList.Game[] p_Games) =>
-                {
-                    gameListBox.Dispatcher.Invoke(() =>
-                        {
-                            string gameText = "";
-                            foreach (GameList.Game game in p_Games)
-                            {
-                                gameText += game.name + " (" + game.waitingPlayers + '/' + game.maxPlayers + ")\n";
-                            }
-
-                            gameListBox.Text = gameText;
-                        });
-                });
-            gameList.Refresh();
+            GameList gameList = this.Resources["gameDataSource"] as GameList;
+            if (gameList != null)
+                gameList.Refresh();
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
@@ -68,7 +46,44 @@ namespace Havenborough_Launcher
 
         private void Refresh_OnClick(object sender, RoutedEventArgs e)
         {
-            gameList.Refresh();
+            GameList gameList = this.Resources["gameDataSource"] as GameList;
+            if (gameList != null)
+                gameList.Refresh();
+        }
+
+        private void OnSelectedGameChanged(object sender, SelectionChangedEventArgs args)
+        {
+            GameList.Game selectedGame = gameListView.SelectedItem as GameList.Game;
+            if (selectedGame == null ||
+                selectedGame.Name == null ||
+                selectedGame.Name.Length == 0)
+            {
+                launchButton.IsEnabled = false;
+                return;
+            }
+
+            var dataProvider = (this.Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+
+            XmlElement rootNode = dataProvider.Document["UserOptions"];
+            if (rootNode == null)
+            {
+                return;
+            }
+
+            XmlElement gameNode = rootNode["Game"];
+            if (gameNode == null)
+            {
+                gameNode = dataProvider.Document.CreateElement("Game");
+                rootNode.AppendChild(gameNode);
+            }
+
+            XmlAttribute levelAttribute = dataProvider.Document.CreateAttribute("Level");
+            levelAttribute.Value = selectedGame.Name;
+            gameNode.Attributes.SetNamedItem(levelAttribute);
+
+            launchButton.IsEnabled = true;
         }
     }   
     public class BoolInverterConverter : IValueConverter
