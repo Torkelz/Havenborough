@@ -492,6 +492,13 @@ public:
 	virtual void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) = 0;
 	
 	/**
+	* releases a 2D model
+	* @param p_ObjectID an identifier to an object
+	* @return true if it succeds to remove. false if it did not.
+	*/
+	virtual bool release2D_Model(Object2D_Id p_ObjectID) = 0;
+	
+	/**
 	* Change the rendered text of an existing text object.
 	* @param p_Identifier the ID of the text object to be changed
 	* @param p_Text the text to be rendered
