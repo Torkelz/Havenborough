@@ -264,7 +264,7 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_DebugAnimations = !m_DebugAnimations;
 	}
-	else if(p_Action == "Wave" && p_Value == 1.0f)
+	else if(p_Action == "wave" && p_Value == 1.0f)
 	{
 		m_GameLogic->playerWave();
 	}

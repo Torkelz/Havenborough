@@ -34,7 +34,7 @@
 		<KeyMap command="layerAnimation" key="M"/>
 		<KeyMap command="resetLayerAnimation" key="V"/>
 		<KeyMap command="DrawPivots" key="I"/>
-		<KeyMap command="Wave" key="Q"/>
+		<KeyMap command="wave" key="Q"/>
 		<MouseMap command="mouseMoveHori" position="mousePosHori" movement="Horizontal"/>
 		<MouseMap command="mouseMoveVert" position="mousePosVert" movement="Vertical"/>
 		<MouseButtonMap command="spellCast" button="Left"/>
