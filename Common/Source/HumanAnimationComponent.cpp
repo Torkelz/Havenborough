@@ -233,7 +233,6 @@ void HumanAnimationComponent::updateIKJoints()
 	{
 		if(m_ClimbId == "Climb1")
 		{
-
 		}
 		else if(m_ClimbId == "Climb2")
 		{
