@@ -25,10 +25,6 @@
 		<KeyMap command="changeViewN" key="Z"/>
 		<KeyMap command="changeViewP" key="X"/>
 		<KeyMap command="jump" key="Space"/>
-		<KeyMap command="connectToServer" key="C"/>
-		<KeyMap command="joinTestLevel" key="T"/>
-		<KeyMap command="joinServerLevel" key="Y"/>
-		<KeyMap command="playLocalTest" key="J"/>
 		<KeyMap command="switchBVDraw" key="57"/>
 		<KeyMap command="goToMainMenu" key="Return"/>
 		<KeyMap command="thirdPersonCamera" key="O"/>
@@ -38,6 +34,7 @@
 		<KeyMap command="layerAnimation" key="M"/>
 		<KeyMap command="resetLayerAnimation" key="V"/>
 		<KeyMap command="DrawPivots" key="I"/>
+		<KeyMap command="Wave" key="Q"/>
 		<MouseMap command="mouseMoveHori" position="mousePosHori" movement="Horizontal"/>
 		<MouseMap command="mouseMoveVert" position="mousePosVert" movement="Vertical"/>
 		<MouseButtonMap command="spellCast" button="Left"/>
@@ -45,4 +42,9 @@
 		<MouseButtonMap command="gogogogo" button="Left"/>
 		<MouseButtonMap command="rollMe!" button="Middle"/>
 	</Controls>
+  <HUD>
+    <Manabar x="0" y="-320" z="3" scale="0.5" />
+    <Arrow x="0" y="300" z="150" scale="0.3" />
+    <Countdown x="0" y="0" z="0" scale="2" />
+  </HUD>
 </UserOptions>

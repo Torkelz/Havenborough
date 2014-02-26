@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(CheckCollisionCorrectIDBelowPos)
 
 	Vector3 pos = Vector3(0.0f, 4.0f, 0.0f);
 	
-	data.colNorm = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+	data.colNorm = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
 	data.colPos = Vector4(0.5f, 3.5f, 0.0f, 0.0f);
 	data.collisionVictim = 1;
 	data.collider = 2;
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(CheckCollisionCorrectIDKneeHeightPos)
 
 	Vector3 pos = Vector3(0.0f, 4.0f, 0.0f);
 
-	data.colNorm = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+	data.colNorm = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
 	data.colPos = Vector4(0.5f, 3.5f, 0.0f, 0.0f);
 	data.collisionVictim = 1;
 	data.collider = 2;
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(CheckCollisionCorrectIDAbovePos)
 
 	Vector3 pos = Vector3(0.0f, 4.0f, 0.0f);
 
-	data.colNorm = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+	data.colNorm = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
 	data.colPos = Vector4(0.5f, 3.5f, 0.0f, 0.0f);
 	data.collisionVictim = 1;
 	data.collider = 2;
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(CheckCollisionCorrectIDKneeHeight)
 
 	Vector3 pos = Vector3(0.0f, 4.0f, 0.0f);
 
-	data.colNorm = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+	data.colNorm = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
 	data.colPos = Vector4(0.5f, 3.5f, 0.0f, 0.0f);
 	data.collisionVictim = 1;
 	data.collider = 2;
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(CheckCollisionCorrectIDChestHeight)
 
 	Vector3 pos = Vector3(0.0f, 4.0f, 0.0f);
 
-	data.colNorm = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+	data.colNorm = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
 	data.colPos = Vector4(0.5f, 3.5f, 0.0f, 0.0f);
 	data.collisionVictim = 1;
 	data.collider = 2;
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(CheckCollisionCorrectIDHeight)
 
 	Vector3 pos = Vector3(0.0f, 4.0f, 0.0f);
 
-	data.colNorm = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+	data.colNorm = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
 	data.colPos = Vector4(0.5f, 3.5f, 0.0f, 0.0f);
 	data.collisionVictim = 1;
 	data.collider = 2;
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(CheckCollisionCorrectIDReturn)
 
 	Vector3 pos = Vector3(0.0f, 4.0f, 0.0f);
 
-	data.colNorm = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+	data.colNorm = Vector4(0.0f, 0.0f, -1.0f, 0.0f);
 	data.colPos = Vector4(0.5f, 3.5f, 0.0f, 0.0f);
 	data.collisionVictim = 1;
 	data.collider = 2;

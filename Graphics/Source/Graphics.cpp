@@ -311,7 +311,7 @@ void Graphics::shutdown(void)
 
 		Object2D_Id unremovedId = it->first;
 
-		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + std::to_string(unremovedId) + "' not removed properly");
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "2DModel '" + std::to_string(unremovedId) + "' not removed properly");
 
 		release2D_Model(unremovedId);
 	}

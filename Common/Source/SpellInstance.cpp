@@ -1,6 +1,5 @@
 #include "SpellInstance.h"
 
-
 SpellInstance::SpellInstance()
 {
 	m_TimeLived = 0.f;
@@ -101,9 +100,13 @@ bool SpellInstance::isColliding() const
 
 void SpellInstance::explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit)
 {
-	float forceFactor = p_Hit.colLength / m_SpellDefinition->explosionRadius;
-
-	Vector4 vTemp = (p_Hit.colNorm * (m_SpellDefinition->minForce + forceFactor * m_SpellDefinition->force));
-
-	p_Physics->applyImpulse(p_Hit.collider, vTemp.xyz() * p_DeltaTime);
+	float modifier = -1.f;
+	if(p_Hit.IDInBody == 1)
+	{
+		float forceFactor = p_Hit.colLength / m_SpellDefinition->explosionRadius;
+		Vector4 vTemp = (p_Hit.colNorm * (m_SpellDefinition->minForce + forceFactor * m_SpellDefinition->force) * modifier);
+		
+	
+		p_Physics->applyImpulse(p_Hit.collider, vTemp.xyz() * p_DeltaTime);
+	}
 }

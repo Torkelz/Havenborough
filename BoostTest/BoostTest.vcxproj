@@ -117,6 +117,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Client\Source\RAMInfo.cpp" />
     <ClCompile Include="..\Client\Source\SceneManager.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\GameScene.cpp" />
+    <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Settings.cpp" />
@@ -160,6 +161,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
     <ClCompile Include="Source\Client\TestSettings.cpp" />
     <ClCompile Include="Source\Client\TestRAM_Info.cpp" />
+    <ClCompile Include="Source\Client\TextHUDScene.cpp" />
     <ClCompile Include="Source\Common\TestCommandManager.cpp" />
     <ClCompile Include="Source\Common\TestStreamReader.cpp" />
     <ClCompile Include="Source\Common\TestTweakCommand.cpp" />

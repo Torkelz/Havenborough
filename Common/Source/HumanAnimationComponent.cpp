@@ -20,12 +20,12 @@ void HumanAnimationComponent::updateAnimation()
 		XMVECTOR look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 		XMMATRIX rotationInverse = XMMatrixTranspose(XMLoadFloat4x4(&lookComp->getRotationMatrix()));
 		velocity = XMVector3Transform(velocity, rotationInverse);
+
+		// Calculate the weight on the strafe track with some trigonometry.
+		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
+		changeAnimationWeight(2, 1 - abs(cosf(angle))); // Think again. Negative weights are not allowed.
 		if (!isInAir)
 		{
-			// Calculate the weight on the strafe track with some trigonometry.
-			float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-			changeAnimationWeight(2, 1 - abs(cosf(angle))); // Think again. Negative weights are not allowed.
-
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
 			SideAnimationState currentSideState = SideAnimationState::IDLE;
@@ -48,6 +48,10 @@ void HumanAnimationComponent::updateAnimation()
 			else if (XMVectorGetX(velocity) < -runSideLimit)
 			{
 				currentSideState = SideAnimationState::RUNNING_LEFT;
+			}
+			else if (XMVectorGetX(velocity) >= -10.f && XMVectorGetX(velocity) <= 10.f )
+			{
+				changeAnimationWeight(2, 0.0f);
 			}
 
 			if (currentForwardState != m_PrevForwardState)
@@ -112,11 +116,11 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", true);
+					playAnimation("BodyLand", false);
 					if (XMVectorGetZ(velocity) > runLimit)
-						queueAnimation("Run");
+						playAnimation("Run", false);
 					else
-						queueAnimation("Idle2");
+						playAnimation("Idle2", false);
 					break;
 
 				default: // Just in case, so that the code doesn't break, hohohoho
@@ -162,7 +166,7 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::JUMP:
 					if (m_PrevJumpState != JumpAnimationState::FLYING)
 					{
-						if(XMVectorGetX(velocity) > runLimit || XMVectorGetZ(velocity) > runLimit)
+						if(XMVectorGetZ(velocity) > runLimit)
 						{
 							playAnimation("RunningJump", true);
 							queueAnimation("Falling");
@@ -170,6 +174,17 @@ void HumanAnimationComponent::updateAnimation()
 						else
 						{
 							playAnimation("StandingJump", true);
+							queueAnimation("Falling");
+						}
+
+						if (XMVectorGetX(velocity) > runLimit)
+						{
+							playAnimation("SideJumpRight", false);
+							queueAnimation("Falling");
+						}
+						else if (XMVectorGetX(velocity) < -runLimit)
+						{
+							playAnimation("SideJumpLeft", false);
 							queueAnimation("Falling");
 						}
 					}
@@ -180,11 +195,19 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
+					playAnimation("HardLanding", true);
+					if (XMVectorGetZ(velocity) > runLimit)
+						queueAnimation("Run");
+					else
+						queueAnimation("Idle2");
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", false);
+					playAnimation("BodyLand", false);
+					if (XMVectorGetZ(velocity) > runLimit)
+						playAnimation("Run", false);
+					else
+						playAnimation("Idle2", false);
 					break;
 
 				case JumpAnimationState::FALLING:
@@ -210,12 +233,11 @@ void HumanAnimationComponent::updateIKJoints()
 	{
 		if(m_ClimbId == "Climb1")
 		{
-
 		}
 		else if(m_ClimbId == "Climb2")
 		{
 			XMVECTOR reachPointR;
-			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 0);
+			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
 			Vector3 vReachPointR = Vector4(reachPointR).xyz();
 			applyIK_ReachPoint("RightArm", vReachPointR);
 		}

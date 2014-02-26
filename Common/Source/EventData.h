@@ -967,7 +967,7 @@ public:
 	}
 };
 
-class UpdateGraphicalCountdown : public BaseEventData
+class UpdateGraphicalCountdownEventData : public BaseEventData
 {
 private:
 	std::wstring m_Text;
@@ -977,7 +977,7 @@ private:
 public:
 	static const Type sk_EventType = Type(0x01015dff);
 
-	UpdateGraphicalCountdown(std::wstring p_Text, Vector4 p_Color, Vector3 p_Scale)
+	UpdateGraphicalCountdownEventData(std::wstring p_Text, Vector4 p_Color, Vector3 p_Scale)
 		:	m_Text(p_Text), m_Color(p_Color), m_Scale(p_Scale)
 	{
 	}
@@ -989,7 +989,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new UpdateGraphicalCountdown(m_Text, m_Color, m_Scale));
+		return Ptr(new UpdateGraphicalCountdownEventData(m_Text, m_Color, m_Scale));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -998,7 +998,7 @@ public:
 
 	virtual const char *getName(void) const override
 	{
-		return "UpdateGraphicalCountdown";
+		return "UpdateGraphicalCountdownEventData";
 	}
 
 	std::wstring getText() const
@@ -1015,4 +1015,89 @@ public:
 	}
 };
 
+class UpdateGraphicalManabarEventData : public BaseEventData
+{
+private:
+	float m_CurrentMana;
+	float m_PreviousMana;
+
+public:
+	static const Type sk_EventType = Type(0x51515dff);
+
+	UpdateGraphicalManabarEventData(float p_CurrentMana, float p_PrevioudMana)
+		:	m_CurrentMana(p_CurrentMana), m_PreviousMana(p_PrevioudMana)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateGraphicalManabarEventData(m_CurrentMana, m_PreviousMana));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateGraphicalManabarEventData";
+	}
+
+	float getCurrentMana() const
+	{
+		return m_CurrentMana;
+	}
+
+	float getPrevioudMana() const
+	{
+		return m_PreviousMana;
+	}
+	float getDiffCurrPrevious() const
+	{
+		return m_CurrentMana - m_PreviousMana;
+	}
+};
+
+class UpdateCheckpointPositionEventData : public BaseEventData
+{
+private:
+	Vector3 m_Position;
+
+public:
+	static const Type sk_EventType = Type(0x59515dff);
+
+	UpdateCheckpointPositionEventData(Vector3 p_Position)
+		:	m_Position(p_Position)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateCheckpointPositionEventData(m_Position));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateGraphicalManabarEventData";
+	}
+
+	Vector3 getPosition() const
+	{
+		return m_Position;
+	}
+};
 #pragma warning(pop)
