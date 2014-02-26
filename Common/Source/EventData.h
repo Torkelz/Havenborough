@@ -1018,4 +1018,41 @@ public:
 	}
 };
 
+class UpdateCheckpointPositionEventData : public BaseEventData
+{
+private:
+	Vector3 m_Position;
+
+public:
+	static const Type sk_EventType = Type(0x59515dff);
+
+	UpdateCheckpointPositionEventData(Vector3 p_Position)
+		:	m_Position(p_Position)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateCheckpointPositionEventData(m_Position));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateGraphicalManabarEventData";
+	}
+
+	Vector3 getPosition() const
+	{
+		return m_Position;
+	}
+};
 #pragma warning(pop)

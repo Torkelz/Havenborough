@@ -13,7 +13,6 @@ GameLogic::GameLogic(void)
 {
 	m_Physics = nullptr;
 	m_ResourceManager = nullptr;
-	m_CurrentCheckPointPosition = Vector3(0.0f, 0.0f, 0.0f);
 	m_CountdownTimer = 0.f;
 	m_RenderGo = false;
 }
@@ -326,11 +325,6 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	look->setLookUp(up);
 }
 
-Vector3 GameLogic::getCurrentCheckpointPosition(void) const
-{
-	return m_CurrentCheckPointPosition;
-}
-
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
@@ -636,7 +630,8 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-							m_CurrentCheckPointPosition = actor->getPosition();
+
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(actor->getPosition())));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{

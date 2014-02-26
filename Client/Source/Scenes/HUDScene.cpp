@@ -11,17 +11,13 @@ HUDScene::HUDScene()
 	m_ChangeList = false;
 
 	m_Graphics = nullptr;
-	m_GameLogic = nullptr;
 	m_EventManager = nullptr;
 	m_ResourceManager = nullptr;
-
-	m_RenderCountdown = false;
 }
 
 HUDScene::~HUDScene()
 {
 	m_Graphics = nullptr;
-	m_GameLogic = nullptr;
 	m_EventManager = nullptr;
 	m_ResourceManager = nullptr;
 }
@@ -32,12 +28,16 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_SceneID = p_SceneID;
 
 	m_Graphics = p_Graphics;
-	m_GameLogic = p_GameLogic;
 	m_EventManager = p_EventManager;
 	m_ResourceManager = p_ResourceManager;
 
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateGraphicalCountdown), UpdateGraphicalCountdownEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateGraphicalManabar), UpdateGraphicalManabarEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateCheckpointPosition), UpdateCheckpointPositionEventData::sk_EventType);
+
+	m_CheckpointPosition = Vector3(0,0,0);
+	m_RenderCountdown = false;
+
 	preLoadModels();
 
 	return true;
@@ -62,7 +62,7 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 		m_ChangeList = false;
 	}
 
-	m_Graphics->set2D_ObjectLookAt(m_GUI["Arrow"], m_GameLogic->getCurrentCheckpointPosition());
+	m_Graphics->set2D_ObjectLookAt(m_GUI["Arrow"], m_CheckpointPosition);
 }
 
 void HUDScene::onFocus()
@@ -150,6 +150,13 @@ void HUDScene::updateGraphicalManabar(IEventData::Ptr p_Data)
 
 	barPos = Vector3(barPos.x + (data->getDiffCurrPrevious() * barSize.x), barPos.y, barPos.z);
 	m_Graphics->set2D_ObjectPosition(m_GUI["Manabar"], barPos);
+}
+
+void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateCheckpointPositionEventData> data = std::static_pointer_cast<UpdateCheckpointPositionEventData>(p_Data);
+
+	m_CheckpointPosition = data->getPosition();
 }
 
 void HUDScene::preLoadModels()

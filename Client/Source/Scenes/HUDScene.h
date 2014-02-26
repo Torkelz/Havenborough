@@ -12,7 +12,6 @@ private:
 	bool m_ChangeList;
 
 	IGraphics *m_Graphics;
-	GameLogic *m_GameLogic;
 	EventManager *m_EventManager;
 	ResourceManager *m_ResourceManager;
 
@@ -23,6 +22,7 @@ private:
 	std::map<std::string, Settings::HUDSettings> m_HUDSettings;
 
 	bool m_RenderCountdown;
+	Vector3 m_CheckpointPosition;
 public: 
 	HUDScene();
 	~HUDScene();
@@ -55,6 +55,8 @@ private:
 
 	void updateGraphicalCountdown(IEventData::Ptr p_Data);
 	void updateGraphicalManabar(IEventData::Ptr p_Data);
+	void updateCheckpointPosition(IEventData::Ptr p_Data);
+
 
 	void preLoadModels();
 	void releasePreLoadedModels();
