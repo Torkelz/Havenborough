@@ -5,6 +5,7 @@
         <Resource Name="MANA_BAR" Path="assets/textures/manabar_changebar.png"/>
         <Resource Name="SKYBOXDDS" Path="assets/textures/Skybox1_COLOR.dds"/>
         <Resource Name="Particle1" Path="assets/textures/Particle1.dds"/>
+		    <Resource Name="LoadingScreen" Path="assets/textures/LoadingScreen.dds"/>
     </ResourceType>
     <ResourceType Type="sound">
         <Resource Name="Background" Path="assets/sounds/Mainbackground.mp3"/>

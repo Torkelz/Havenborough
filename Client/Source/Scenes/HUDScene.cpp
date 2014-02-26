@@ -236,7 +236,7 @@ void HUDScene::releasePreLoadedModels()
 	m_GUI.clear();
 	for(auto id : m_TextHandle)
 	{
-		m_Graphics->release2D_Model(id.second);
+		m_Graphics->deleteText(id.second);
 	}
 	m_TextHandle.clear();
 	m_HUDSettings.clear();
