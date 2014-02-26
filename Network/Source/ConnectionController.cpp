@@ -205,10 +205,11 @@ void ConnectionController::sendDoneLoading()
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 
-void ConnectionController::sendJoinGame(const char* p_Game)
+void ConnectionController::sendJoinGame(const char* p_Game, const char* p_Username)
 {
 	JoinGame package;
 	package.m_Object1 = p_Game;
+	package.m_Object2 = p_Username;
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -218,6 +219,13 @@ const char* ConnectionController::getJoinGameName(Package p_Package)
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
 	return joinGame->m_Object1.c_str();
+}
+
+const char* ConnectionController::getJoinGameUsername(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
+	return joinGame->m_Object2.c_str();
 }
 
 const char* ConnectionController::getLevelData(Package p_Package)
@@ -317,6 +325,63 @@ Vector3 ConnectionController::getThrowSpellDirection(Package p_Package)
 	return throwSpell->m_Object1.direction;
 }
 
+void ConnectionController::sendStartCountdown()
+{
+	StartCountdown package;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+void ConnectionController::sendDoneCountdown()
+{
+	DoneCountdown package;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+void ConnectionController::sendRequestGames()
+{
+	RequestGames package;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+void ConnectionController::sendGameList(const AvailableGameData* p_Games, unsigned int p_NumGames)
+{
+	GameList package;
+	package.m_Object1.reserve(p_NumGames);
+
+	for (size_t i = 0; i < p_NumGames; ++i)
+	{
+		AvailableGame data;
+		data.levelName = p_Games[i].levelName;
+		data.waitingPlayers = p_Games[i].waitingPlayers;
+		data.maxPlayers = p_Games[i].maxPlayers;
+
+		package.m_Object1.push_back(data);
+	}
+
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+unsigned int ConnectionController::getNumGameListGames(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	GameList* gameList = static_cast<GameList*>(m_ReceivedPackages[p_Package].get());
+	return gameList->m_Object1.size();
+}
+
+AvailableGameData ConnectionController::getGameListGame(Package p_Package, unsigned int p_GameIdx)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	GameList* gameList = static_cast<GameList*>(m_ReceivedPackages[p_Package].get());
+	const AvailableGame& game = gameList->m_Object1[p_GameIdx];
+
+	AvailableGameData data;
+	data.levelName = game.levelName.c_str();
+	data.waitingPlayers = game.waitingPlayers;
+	data.maxPlayers = game.maxPlayers;
+
+	return data;
+}
+
 void ConnectionController::setDisconnectedCallback(IConnection::disconnectedCallback_t p_DisconnectCallback)
 {
 	m_Connection->setDisconnectedCallback(p_DisconnectCallback);
@@ -345,16 +410,4 @@ void ConnectionController::savePackageCallBack(uint16_t p_ID, const std::string&
 
 	std::string msg("Received unregistered package type: " + std::to_string(p_ID));
 	NetworkLogger::log(NetworkLogger::Level::WARNING, msg);
-}
-
-void ConnectionController::sendStartCountdown()
-{
-	StartCountdown package;
-	writeData(package.getData(), (uint16_t)package.getType());
-}
-
-void ConnectionController::sendDoneCountdown()
-{
-	DoneCountdown package;
-	writeData(package.getData(), (uint16_t)package.getType());
 }
