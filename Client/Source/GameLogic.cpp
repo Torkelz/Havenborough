@@ -464,6 +464,31 @@ void GameLogic::throwSpell(const char *p_SpellId)
 	}
 }
 
+void GameLogic::playerWave()
+{
+	Actor::ptr playerActor = m_Player.getActor().lock();
+	if (playerActor)
+	{
+		if(!m_Player.getForceMove())
+		{
+			playAnimation(playerActor, "Wave", false);
+
+			IConnectionController *conn = m_Network->getConnectionToServer();
+			if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
+			{
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("Action");
+				printer.OpenElement("Wave");
+				printer.PushAttribute("Animation", "Wave");
+				printer.CloseElement();
+				printer.CloseElement();
+				conn->sendObjectAction(playerActor->getId(), printer.CStr());
+			}
+		}
+		
+	}
+}
+
 void GameLogic::setPlayerClimb(bool p_State)
 {
 	m_Player.setClimbing(p_State);
@@ -768,6 +793,21 @@ void GameLogic::handleNetwork()
 							}
 						}
 					}
+					else if (std::string(action->Value()) == "Wave")
+					{
+						Actor::ptr actor = getActor(actorId);
+						const char* animId = action->Attribute("Animation");
+
+						if (actor && animId)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->playAnimation(animId, false);
+							}
+						}
+					}
 				}
 				break;
 
@@ -973,33 +1013,33 @@ void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, b
 	}
 }
 
-void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
-{
-	if (!p_Actor)
-	{
-		return;
-	}
-
-	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-	if (comp)
-	{
-		comp->queueAnimation(p_AnimationName);
-	}
-}
-
-void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight)
-{
-	if (!p_Actor)
-	{
-		return;
-	}
-
-	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-	if (comp)
-	{
-		comp->changeAnimationWeight(p_Track, p_Weight);
-	}
-}
+//void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
+//{
+//	if (!p_Actor)
+//	{
+//		return;
+//	}
+//
+//	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+//	if (comp)
+//	{
+//		comp->queueAnimation(p_AnimationName);
+//	}
+//}
+//
+//void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight)
+//{
+//	if (!p_Actor)
+//	{
+//		return;
+//	}
+//
+//	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+//	if (comp)
+//	{
+//		comp->changeAnimationWeight(p_Track, p_Weight);
+//	}
+//}
 
 IPhysics *GameLogic::getPhysics() const
 {

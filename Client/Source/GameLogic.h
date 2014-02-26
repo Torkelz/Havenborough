@@ -101,6 +101,12 @@ public:
 	//void releaseSpellInstance(int p_SpellId);
 
 	/**
+	 * Response to when someone presses the wave button.
+	 * Sends an event to the server and the animation system.
+	 */
+	void playerWave();
+
+	/**
 	 * Activates the ability for the player to climb edges.
 	 *
 	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
@@ -119,8 +125,8 @@ private:
 	void removeActorByEvent(IEventData::Ptr p_Data);
 
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
-	void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
-	void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
+	//void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
+	//void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
 
