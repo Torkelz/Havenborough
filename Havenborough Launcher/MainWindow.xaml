@@ -6,7 +6,7 @@
     <Window.Resources>
         <local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
-        
+        <local:DropDownConverter x:Key="DropDownConverter" />
         <XmlDataProvider x:Key="DataProvider" />
     </Window.Resources>
     <Grid x:Name="MainGrid">
@@ -24,24 +24,36 @@
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <StackPanel Orientation="Vertical" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Server}">
+                        <TextBlock FontSize="16" Text="Hostname" Width="80" />
+                        <TextBox Text="{Binding XPath=@Hostname, Mode=TwoWay}" Width="200" />
+                        <TextBlock FontSize="16" Text="Port" Margin="5,0,0,0" Width="35"/>
+                        <TextBox Text="{Binding XPath=@Port, Mode=TwoWay}" Width="50" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Game}">
+                        <TextBlock FontSize="16" Text="Username" Width="80" />
+                        <TextBox Text="{Binding XPath=@Username, Mode=TwoWay}" Width="200" />
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Fullscreen}">
-                        <TextBlock FontSize="16" Text="Fullscreen: " />
-                        <CheckBox IsChecked="{Binding XPath=@enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />
+                        <CheckBox IsChecked="{Binding XPath=@enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
+                        <TextBlock FontSize="16" Text="Fullscreen" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/VSync}">
-                        <TextBlock FontSize="16" Text="Vertical Sync: " />
-                        <CheckBox IsChecked="{Binding XPath=@enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />
+                        <CheckBox IsChecked="{Binding XPath=@enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
+                        <TextBlock FontSize="16" Text="Vertical Sync" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/SSAO}">
-                        <TextBlock FontSize="16" Text="SSAO: " />
-                        <CheckBox IsChecked="{Binding XPath=@enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />
+                        <CheckBox IsChecked="{Binding XPath=@enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
+                        <TextBlock FontSize="16" Text="SSAO" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
-                        <TextBlock FontSize="16" Text="Resolution: " />
-                        <ComboBox>
-                            <ComboBoxItem Name="res1">1280</ComboBoxItem>
-                            <ComboBoxItem Name="res2">1920</ComboBoxItem>
-                        </ComboBox>
+                        <TextBlock FontSize="16" Text="Resolution" />
+                        <TextBox Text="{Binding XPath=@width, Mode=TwoWay}" Width="50" />
+                        <TextBox Text="{Binding XPath=@height, Mode=TwoWay}" Width="50" />
+                        <!--<ComboBox SelectionChanged="ComboBox_SelectionChanged">
+                            <ComboBoxItem>1280</ComboBoxItem>
+                            <ComboBoxItem>1920</ComboBoxItem>
+                        </ComboBox>-->
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -51,43 +63,43 @@
                 </Button>
             </Grid>
         </Grid>
-        <Grid Grid.Column="1" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Controls/*}" Margin="0, 10, 0, 10">
+        <Grid Grid.Column="1" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Controls/*}" Margin="0,10,0,10">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                 <StackPanel>
-                <Label Content="Keyboard"></Label>
-                <ListBox x:Name="KeyMap"  ItemsSource="{Binding XPath=/UserOptions/Controls/KeyMap}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="{Binding XPath=@command,Mode=TwoWay}"></Label>
-                                <TextBox Text="{Binding XPath=@key,Mode=TwoWay}"></TextBox>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <Label Content="MOUSE"></Label>
-                <ListBox x:Name="MouseMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseMap}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="{Binding XPath=@command,Mode=TwoWay}"></Label>
-                                <TextBox Text="{Binding XPath=@position,Mode=TwoWay}"></TextBox>
-                                <TextBox Text="{Binding XPath=@movement,Mode=TwoWay}"></TextBox>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <Label Content="MouseButtonMap"></Label>
-                <ListBox x:Name="MousebuttonMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseButtonMap}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="{Binding XPath=@command,Mode=TwoWay}"></Label>
-                                <TextBox Text="{Binding XPath=@button,Mode=TwoWay}"></TextBox>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                    <Label Content="KEY BINDINGS" FontWeight="Bold" />
+                    <ListBox x:Name="KeyMap"  ItemsSource="{Binding XPath=/UserOptions/Controls/KeyMap}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{Binding XPath=@command,Mode=TwoWay}"></Label>
+                                    <TextBox Text="{Binding XPath=@key,Mode=TwoWay}"></TextBox>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Label Content="ORIENTATION CONTROLS" FontWeight="Bold" />
+                    <ListBox x:Name="MouseMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseMap}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{Binding XPath=@command,Mode=TwoWay}"></Label>
+                                    <TextBox Text="{Binding XPath=@position,Mode=TwoWay}"></TextBox>
+                                    <TextBox Text="{Binding XPath=@movement,Mode=TwoWay}"></TextBox>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Label Content="MOUSE KEY BINDINGS" FontWeight="Bold" />
+                    <ListBox x:Name="MousebuttonMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseButtonMap}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{Binding XPath=@command,Mode=TwoWay}"></Label>
+                                    <TextBox Text="{Binding XPath=@button,Mode=TwoWay}"></TextBox>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
