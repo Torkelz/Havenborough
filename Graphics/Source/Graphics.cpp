@@ -565,6 +565,20 @@ void Graphics::updateParticles(float p_DeltaTime)
 	{
 		particle.second->update(p_DeltaTime);
 	}
+
+	auto iter = m_ParticleEffectInstanceList.begin();
+	auto endIter = m_ParticleEffectInstanceList.end();
+	for (; iter != endIter; )
+	{
+		if (iter->second->getSeppuku() == true)
+		{
+			m_ParticleEffectInstanceList.erase(iter++);
+		}
+		else
+		{
+			iter++;
+		}
+	}
 }
 
 IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale,

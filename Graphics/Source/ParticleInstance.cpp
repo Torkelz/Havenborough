@@ -7,6 +7,9 @@ ParticleInstance::ParticleInstance()
 	m_SysPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); // change pos in the "GameLogic.cpp - LoadSandBox()" createParticles for local play
 	m_SysRotation = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
 	m_AccumulatedTime = 0.f;
+	m_SysLife = 0.f;
+	m_SysMaxLife = -1.f;
+	m_Seppuku = false;
 }
 
 ParticleInstance::~ParticleInstance()
@@ -27,6 +30,10 @@ void ParticleInstance::init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_p
 										   m_ParticleEffectDef->particleColorBase.z,
 										   m_ParticleEffectDef->particleColorBase.w);
 	}
+	if (m_ParticleEffectDef->sysMaxLife > 0)
+	{
+		m_SysMaxLife = m_ParticleEffectDef->sysMaxLife;
+	}
 }
 
 
@@ -37,6 +44,16 @@ void ParticleInstance::update(float p_DeltaTime)
 	emitNewParticles(p_DeltaTime);
 
 	updateParticles(p_DeltaTime);
+
+	if (m_SysMaxLife > 0)
+	{
+		m_SysLife += p_DeltaTime;
+	
+		if (m_SysLife >= m_SysMaxLife)
+		{
+			setSeppuku(true);
+		}
+	}
 }
 
 void ParticleInstance::killOldParticles()
@@ -60,6 +77,7 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 			(part.shaderData.position.x + part.velocity.x * p_DeltaTime),
 			(part.shaderData.position.y + part.velocity.y * p_DeltaTime),
 			(part.shaderData.position.z + part.velocity.z * p_DeltaTime));
+		part.shaderData.color.w *= 0.95f;
 		part.life += p_DeltaTime;
 	}
 }
@@ -208,4 +226,14 @@ DirectX::XMFLOAT4 ParticleInstance::getSysBaseColor() const
 void ParticleInstance::setSysBaseColor(DirectX::XMFLOAT4 p_NewSysBaseColor)
 {
 	m_SysBaseColor = p_NewSysBaseColor;
+}
+
+bool ParticleInstance::getSeppuku() const
+{
+	return m_Seppuku;
+}
+
+void ParticleInstance::setSeppuku(bool p_DoSeppuku)
+{
+	m_Seppuku = p_DoSeppuku;
 }

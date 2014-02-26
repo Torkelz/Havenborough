@@ -72,6 +72,12 @@ public:
 	unsigned int particlesPerSec;
 	
 	/**
+	 * How long the system using this definition can live,
+	 * any number under zero will make it permanent, in sec.
+	 */
+	float sysMaxLife;
+
+	/**
 	 * How long a particle can live after it was created, in sec.
 	 */
 	float maxLife;
@@ -124,6 +130,7 @@ public:
 		:	shader(nullptr),
 			diffuseTexture(nullptr),
 			maxParticles(0),
+			sysMaxLife(-1),
 			maxLife(0.f),
 			maxLifeDeviation(0.f),
 			size(0.f, 0.f),
