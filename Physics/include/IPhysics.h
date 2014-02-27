@@ -290,4 +290,9 @@ public:
 	 * @returns the orientation of specified body.
 	 */
 	virtual Vector3 getBodyOrientation(BodyHandle p_Body) = 0;
+	/**
+	 * Resets all force and velocity on a body.
+	 * @param p_Body, which body to reset.
+	 */
+	virtual void resetForceOnBody(BodyHandle p_Body) = 0;
 };

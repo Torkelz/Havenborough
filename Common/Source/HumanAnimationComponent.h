@@ -192,6 +192,7 @@ public:
 	void playClimbAnimation(std::string p_ClimbID) override
 	{
 		playAnimation(p_ClimbID, true);
+		queueAnimation("Idle2");
 		m_ForceMove = true;
 		m_ClimbId = p_ClimbID;
 	}

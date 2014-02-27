@@ -4,7 +4,7 @@
 #include <EventData.h>
 #include "Logger.h"
 #include <TweakSettings.h>
-#include <sstream>
+
 using namespace DirectX;
 
 GameScene::GameScene()
@@ -23,7 +23,6 @@ GameScene::GameScene()
 	m_UseThirdPersonCamera = false;
 	m_UseFlippedCamera = false;
 	m_DebugAnimations = false;
-	m_RenderCountdown = false;
 }
 
 GameScene::~GameScene()
@@ -60,7 +59,6 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateGraphicalCountdown), UpdateGraphicalCountdown::sk_EventType);
 
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
@@ -185,43 +183,9 @@ void GameScene::render()
 	m_Graphics->renderSkydome();
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
-
-	
-	float playerMana = m_GameLogic->getPlayerCurrentMana() / 100.f;
-	float playerPrevMana = m_GameLogic->getPlayerPreviousMana() / 100.f;
-
-	m_Graphics->set2D_ObjectScale(2, Vector3(playerMana, 1.f, 0.f));
-
-	Vector2 barSize = m_Graphics->get2D_ObjectHalfSize(2);
-	Vector3 barPos = m_Graphics->get2D_ObjectPosition(2);
-
-	m_Graphics->set2D_ObjectPosition(2, Vector3(barPos.x + ((playerMana - playerPrevMana) * barSize.x), barPos.y, barPos.z));
-
-	//Render test arrow, remove when HUD scene is implemented
-	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
-	m_Graphics->render2D_Object(m_GUI_ArrowId);
-	m_Graphics->render2D_Object(2);
 	m_Graphics->render2D_Object(4);
 
-	std::stringstream ss;
-	ss.precision(2);
-	float timeDiff = m_GameLogic->getPlayerTimeDifference();
-	if(m_RenderCountdown)
-	{
-		m_Graphics->render2D_Object(m_GUI_Countdown);
-		m_RenderCountdown = false;
-	}
-	float floorTimeDiff = floorf(timeDiff);
-	float timeDiffFrac = (timeDiff - floorTimeDiff) * 100.f;
-
-	if(floorTimeDiff > 9.99f)
-		ss << floorTimeDiff << "." << timeDiffFrac;
-	else
-		ss << "0" << floorTimeDiff << "." << timeDiffFrac;
-
-	std::string hej = ss.str();
-
-	m_Graphics->updateText(1, std::wstring(hej.begin(), hej.end()).c_str());
+	
 }
 
 bool GameScene::getIsVisible()
@@ -259,7 +223,7 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
 	{
 		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
-		if((unsigned int)m_CurrentDebugView >= 5)
+		if((unsigned int)m_CurrentDebugView >= 6)
 			m_CurrentDebugView = (IGraphics::RenderTarget)0;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 	}
@@ -302,6 +266,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if(p_Action == "DrawPivots" && p_Value == 1.f)
 	{
 		m_DebugAnimations = !m_DebugAnimations;
+	}
+	else if(p_Action == "Wave" && p_Value == 1.0f)
+	{
+		m_GameLogic->playerWave();
 	}
 }
 
@@ -520,16 +488,6 @@ void GameScene::updateParticleBaseColor(IEventData::Ptr p_Data)
 	}
 }
 
-void GameScene::updateGraphicalCountdown(IEventData::Ptr p_Data)
-{
-	std::shared_ptr<UpdateGraphicalCountdown> data = std::static_pointer_cast<UpdateGraphicalCountdown>(p_Data);
-
-	m_Graphics->updateText(m_CountdownTextHandle, data->getText().c_str());
-	m_Graphics->setTextColor(m_CountdownTextHandle, data->getColor());
-	m_Graphics->set2D_ObjectScale(m_GUI_Countdown, data->getScale());
-	m_RenderCountdown = true;
-}
-
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
 	unsigned int nrVolumes = m_GameLogic->getPhysics()->getNrOfVolumesInBody(p_BodyHandle);
@@ -552,25 +510,7 @@ void GameScene::preLoadModels()
 	//DO NOT MAKE ANY CALLS TO GRAPHICS IN HERE!
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Pivot1"));
-	
-	//Separate to GUI function and refactor? /Pontus, DO NOT TOUCH!
-	static const std::string preloadedTextures[] =
-	{
-		"TEXTURE_NOT_FOUND",
-		"MANA_BAR",
-	};
-	for (const std::string &texture : preloadedTextures)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
-	}
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(0, 300, 150.f), Vector3(0.3f, 0.3f, 0.3f), 0.f, "Arrow1");
-	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
-	std::string tt = "Bla: " + std::to_string(m_GameLogic->getPlayerTimeDifference());
-	m_Graphics->createText(std::wstring(tt.begin(), tt.end()).c_str(), Vector2(80.f, 50.f), "Verdana", 12.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f);
-	m_CountdownTextHandle = m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f);
-	m_GUI_Countdown = m_Graphics->create2D_Object(Vector3(0,0,0), Vector3(2,2,2), 0.f, m_CountdownTextHandle);
-	m_Graphics->create2D_Object(Vector3(400, -320, 2), Vector3(1,1,1), 0.f, 1);
+
 }
 
 void GameScene::releasePreLoadedModels()

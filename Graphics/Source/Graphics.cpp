@@ -311,7 +311,7 @@ void Graphics::shutdown(void)
 
 		Object2D_Id unremovedId = it->first;
 
-		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + std::to_string(unremovedId) + "' not removed properly");
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "2DModel '" + std::to_string(unremovedId) + "' not removed properly");
 
 		release2D_Model(unremovedId);
 	}
@@ -755,7 +755,7 @@ void Graphics::drawFrame(void)
 	m_DeferredRender->renderDeferred();
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 4)
+	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 5)
 	{
 		m_ShaderList.at("DebugDeferredShader")->setShader();
 		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, 

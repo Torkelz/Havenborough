@@ -36,6 +36,7 @@ DeferredRenderer::DeferredRenderer()
 	m_RT[IGraphics::RenderTarget::W_POSITION] = nullptr;
 	m_RT[IGraphics::RenderTarget::SSAO] = nullptr;
 	m_RT[IGraphics::RenderTarget::FINAL] = nullptr;
+	m_RT[IGraphics::RenderTarget::CSM] = nullptr;
 
 
 	m_SRV["Diffuse"] = nullptr;
@@ -43,6 +44,7 @@ DeferredRenderer::DeferredRenderer()
 	m_SRV["Light"] = nullptr;
 	m_SRV["WPosition"] = nullptr;
 	m_SRV["SSAO"] = nullptr;
+	m_SRV["CSM"] = nullptr;
 	m_SRV["SSAO_RandomVec"] = nullptr;
 
 
@@ -85,7 +87,6 @@ DeferredRenderer::DeferredRenderer()
 
 	m_SSAO = false;
 	m_DepthMapDSV = nullptr;
-	m_DepthMapSRV= nullptr;
 }
 
 
@@ -138,7 +139,6 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_SkyDome);
 
 	SAFE_RELEASE(m_DepthMapDSV);
-	SAFE_RELEASE(m_DepthMapSRV);
 }
 
 
@@ -285,7 +285,7 @@ void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
     srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
-	hr =  m_Device->CreateShaderResourceView(depthMap, &srvDesc, &m_DepthMapSRV);
+	hr =  m_Device->CreateShaderResourceView(depthMap, &srvDesc, &m_SRV["CSM"]);
 
 	//viewport that  matches the shadow map dimensions.
 	m_LightViewport.Width = (float)width;
@@ -511,7 +511,7 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->RSSetState(m_RasterState);
 
 	// Collect the shader resources in an array and create a clear array.
-	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_DepthMapSRV};
+	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_SRV["CSM"]};
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0,0};
 
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -541,7 +541,8 @@ void DeferredRenderer::renderLighting()
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//DirectionalLights except number one
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0); 
-	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
+	if(m_DirectionalLights->size() > 0)
+		renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
@@ -592,7 +593,8 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(IGraphics::RenderTarget i)
 	case IGraphics::RenderTarget::DIFFUSE: return m_SRV["Diffuse"];
 	case IGraphics::RenderTarget::NORMAL: return m_SRV["Normal"];
 	case IGraphics::RenderTarget::W_POSITION: return m_SRV["WPosition"];
-	case IGraphics::RenderTarget::SSAO: return m_DepthMapSRV;//m_SRV["SSAO"];
+	case IGraphics::RenderTarget::SSAO: return m_SRV["SSAO"];
+	case IGraphics::RenderTarget::CSM: return m_SRV["CSM"];
 	case IGraphics::RenderTarget::FINAL: return m_SRV["Light"];
 	default: return nullptr;
 	}
@@ -1355,7 +1357,7 @@ void DeferredRenderer::renderDirectionalLights(Light p_Directional)
 	unsigned int nrRT = 0;
 	ID3D11RenderTargetView *noRTV = nullptr;
 	
-	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_DepthMapSRV};
+	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_SRV["CSM"]};
 
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;

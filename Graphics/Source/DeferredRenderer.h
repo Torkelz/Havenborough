@@ -55,7 +55,6 @@ private:
 	bool	m_ShadowMap;
 	int		m_ShadowMapResolution;
 
-	ID3D11ShaderResourceView*	m_DepthMapSRV;
 	ID3D11DepthStencilView*		m_DepthMapDSV;
 	UINT						m_Width;
 	UINT						m_Height;

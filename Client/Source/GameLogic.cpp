@@ -13,7 +13,6 @@ GameLogic::GameLogic(void)
 {
 	m_Physics = nullptr;
 	m_ResourceManager = nullptr;
-	m_CurrentCheckPointPosition = Vector3(0.0f, 0.0f, 0.0f);
 	m_CountdownTimer = 0.f;
 	m_RenderGo = false;
 }
@@ -328,21 +327,6 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	look->setLookUp(up);
 }
 
-Vector3 GameLogic::getCurrentCheckpointPosition(void) const
-{
-	return m_CurrentCheckPointPosition;
-}
-
-const float GameLogic::getPlayerCurrentMana(void)
-{
-	return m_Player.getCurrentMana();
-}
-
-const float GameLogic::getPlayerPreviousMana(void)
-{
-	return m_Player.getPreviousMana();
-}
-
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
@@ -451,7 +435,40 @@ void GameLogic::throwSpell(const char *p_SpellId)
 			IConnectionController *conn = m_Network->getConnectionToServer();
 			if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
 			{
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("Action");
+				printer.OpenElement("CastSpell");
+				printer.PushAttribute("Animation", "CastSpell");
+				printer.CloseElement();
+				printer.CloseElement();
+
 				conn->sendThrowSpell(p_SpellId, m_Player.getRightHandPosition(), getPlayerViewForward());
+				conn->sendObjectAction(playerActor->getId(), printer.CStr());
+			}
+		}
+		
+	}
+}
+
+void GameLogic::playerWave()
+{
+	Actor::ptr playerActor = m_Player.getActor().lock();
+	if (playerActor)
+	{
+		if(!m_Player.getForceMove())
+		{
+			playAnimation(playerActor, "Wave", false);
+
+			IConnectionController *conn = m_Network->getConnectionToServer();
+			if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
+			{
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("Action");
+				printer.OpenElement("Wave");
+				printer.PushAttribute("Animation", "Wave");
+				printer.CloseElement();
+				printer.CloseElement();
+				conn->sendObjectAction(playerActor->getId(), printer.CStr());
 			}
 		}
 		
@@ -658,7 +675,8 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-							m_CurrentCheckPointPosition = actor->getPosition();
+
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(actor->getPosition())));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -700,7 +718,8 @@ void GameLogic::handleNetwork()
 						{
 							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
-							int lol = 0;
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
+							//m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 						}
 					}
 				}
@@ -772,6 +791,36 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->resetClimbState();
+							}
+						}
+					}
+					else if (std::string(action->Value()) == "CastSpell")
+					{
+						Actor::ptr actor = getActor(actorId);
+						const char* animId = action->Attribute("Animation");
+
+						if (actor && animId)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->playAnimation(animId, false);
+							}
+						}
+					}
+					else if (std::string(action->Value()) == "Wave")
+					{
+						Actor::ptr actor = getActor(actorId);
+						const char* animId = action->Attribute("Animation");
+
+						if (actor && animId)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->playAnimation(animId, false);
 							}
 						}
 					}
@@ -925,7 +974,7 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 				}
 		}
 		if(!m_RenderGo)
-			m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+			m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdownEventData(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
 	}
 	else if(m_RenderGo)
 	{
@@ -934,7 +983,7 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 		float scale = m_CountdownTimer - (int)floorf(m_CountdownTimer);
 		float origScale = 3.f;
 
-		m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdown(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+		m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdownEventData(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
 		m_CountdownTimer -= p_DeltaTime;
 		if(!(m_CountdownTimer - p_DeltaTime >= 0.f))
 			m_RenderGo = false;
@@ -980,33 +1029,33 @@ void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, b
 	}
 }
 
-void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
-{
-	if (!p_Actor)
-	{
-		return;
-	}
-
-	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-	if (comp)
-	{
-		comp->queueAnimation(p_AnimationName);
-	}
-}
-
-void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight)
-{
-	if (!p_Actor)
-	{
-		return;
-	}
-
-	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-	if (comp)
-	{
-		comp->changeAnimationWeight(p_Track, p_Weight);
-	}
-}
+//void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
+//{
+//	if (!p_Actor)
+//	{
+//		return;
+//	}
+//
+//	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+//	if (comp)
+//	{
+//		comp->queueAnimation(p_AnimationName);
+//	}
+//}
+//
+//void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight)
+//{
+//	if (!p_Actor)
+//	{
+//		return;
+//	}
+//
+//	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+//	if (comp)
+//	{
+//		comp->changeAnimationWeight(p_Track, p_Weight);
+//	}
+//}
 
 IPhysics *GameLogic::getPhysics() const
 {

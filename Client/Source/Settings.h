@@ -16,12 +16,18 @@ public:
 		std::string position;
 		Axis axis;
 	};
+	struct HUDSettings
+	{
+		Vector3 position;
+		float scale;
+	};
 private:
 	std::map<std::string, unsigned short> m_KeyMap;
 	std::vector<MouseStruct> m_MouseMap;
 	std::map<std::string, MouseButton> m_MouseButtonMap;
 
 	std::map<std::string, bool> m_SettingsEnabled;
+	std::map<std::string, HUDSettings> m_HUDSettings;
 	Vector2 m_Resolution;
 	int m_ShadowMapResolution;
 
@@ -105,10 +111,17 @@ public:
 	 * @return the port number, [0, 65535]
 	 */
 	unsigned short int getServerPort() const;
+	/**
+	 * Gets the port number to connect to on the server.
+	 *
+	 * @return the port number, [0, 65535]
+	 */
+	std::map<std::string, HUDSettings> getHUDSettings() const;
 
 private:
 	void loadControls(tinyxml2::XMLElement *p_Element);
 	void loadSettings(tinyxml2::XMLElement *p_Element);
 	void loadGame(const tinyxml2::XMLElement *p_Element);
 	void loadServer(const tinyxml2::XMLElement *p_Element);
+	void loadHUD(tinyxml2::XMLElement *p_Element);
 };
