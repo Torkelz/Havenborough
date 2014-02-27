@@ -51,6 +51,7 @@ BOOST_AUTO_TEST_SUITE(ResourceManagerTest)
 		rm.loadDataFromFile("..\\Source\\Common\\Resources.xml");
 		using namespace std::placeholders;
 		rm.registerFunction("model", std::bind(&TestResource::create, tr, _1, _2), std::bind(&TestResource::release, tr, _1));
+		rm.setReleaseImmediately(true);
 
 		int id1, id2, id3;
 		BOOST_CHECK_NO_THROW(id1 = rm.loadResource("model", "Dzala"));
@@ -78,7 +79,9 @@ BOOST_AUTO_TEST_SUITE(ResourceManagerTest)
 		rm.releaseModelTextureImpl("MANA_BARCHANGE");
 		rm.releaseModelTextureImpl("MANA_BAR");
 
-		BOOST_CHECK_GE(rm.getResourceList().size(), 0);
+		unsigned int zero = 0;
+
+		BOOST_CHECK_GE(rm.getResourceList().size(), zero);
 
 		rm.unregisterResourceType("texture");
 	}
