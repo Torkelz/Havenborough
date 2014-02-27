@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using System.Xml;
 using MahApps.Metro.Controls;
 using System.Windows.Controls;
+using System.Collections.Generic;
 
 namespace Havenborough_Launcher
 {
@@ -120,6 +121,28 @@ namespace Havenborough_Launcher
             gameNode.Attributes.SetNamedItem(levelAttribute);
 
             launchButton.IsEnabled = true;
+        }
+
+        private void ShadowResolutionLoad(object sender, RoutedEventArgs e)
+        {
+            List<ShadowResolution> data = new List<ShadowResolution>();
+            data.Add(new ShadowResolution("V.High", "4096"));
+            data.Add(new ShadowResolution("High", "2048"));
+            data.Add(new ShadowResolution("Medium", "1024"));
+            data.Add(new ShadowResolution("Low", "512"));
+            var comboBox = sender as ComboBox;
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 2;
+        }
+
+        private void ShadowResolutionSelection(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            string value = comboBox.SelectedItem.ToString();
+        }
+
+        private void CharacterLoad(object sender, RoutedEventArgs e)
+        {
         }
     }   
     public class BoolInverterConverter : IValueConverter
