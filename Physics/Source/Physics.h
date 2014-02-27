@@ -82,5 +82,7 @@ private:
 	void fillTriangleIndexList();
 
 	void setRotation(BodyHandle p_Body, DirectX::XMMATRIX& p_Rotation);
+
+	void handleCollision(int p_Collider, int p_ColliderVolumeId, int p_Victim, bool &p_IsOnGround);
 };
 

@@ -91,62 +91,70 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 				if(i == j)
 					continue;
 
-
 				for(unsigned int k = 0; k < b.getVolumeListSize(); k++)
 				{
-					HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *m_Bodies[j].getVolume());
-			
-					if(hit.intersect)
-					{
-						hit.collider = m_Bodies.at(i).getHandle();
-						hit.IDInBody = k;
-						hit.collisionVictim = m_Bodies.at(j).getHandle();
-						hit.isEdge = m_Bodies.at(j).getIsEdge();
-						m_HitDatas.push_back(hit);
-
-						if(m_Bodies.at(i).getCollisionResponse(k) && m_Bodies.at(j).getCollisionResponse(0))
-						{
-							XMVECTOR temp;		// m
-							XMFLOAT4 tempPos;	// m
-
-							XMFLOAT4 vel = b.getVelocity();
-							XMVECTOR vVel = XMLoadFloat4(&vel);
-
-							XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
-							XMVECTOR posNorm = vNorm;
-
-							if (hit.colNorm.y > 0.7f)
-							{
-								if(!b.getOnSomething())
-								{
-									b.setLanded(true);
-								}
-
-								isOnGround = true;
-
-								posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-								vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
-							}
-							else
-							{
-								vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
-							}
-
-							XMStoreFloat4(&vel, vVel);
-							b.setVelocity(vel);
-
-							temp = XMLoadFloat4(&b.getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
-							XMStoreFloat4(&tempPos, temp);
-
-							b.setPosition(tempPos);
-						}
-
-					}
+					handleCollision(i, k, j, isOnGround);
 				}
 			}
 
 			b.setOnSomething(isOnGround);
 			b.setInAir(!b.getOnSomething());
+		}
+	}
+
+}
+
+void Physics::handleCollision(int p_Collider, int ColliderVolumeId, int p_Victim, bool &p_IsOnGround)
+{
+	for(unsigned int i = 0; i < m_Bodies.at(p_Victim).getVolumeListSize(); i++)
+	{
+		HitData hit = Collision::boundingVolumeVsBoundingVolume(*m_Bodies.at(p_Collider).getVolume(ColliderVolumeId), *m_Bodies.at(p_Victim).getVolume(i));
+			
+		if(hit.intersect)
+		{
+			hit.collider = m_Bodies.at(i).getHandle();
+			hit.IDInBody = ColliderVolumeId;
+			hit.collisionVictim = m_Bodies.at(p_Victim).getHandle();
+			hit.isEdge = m_Bodies.at(p_Victim).getIsEdge();
+			m_HitDatas.push_back(hit);
+
+			if(m_Bodies.at(p_Collider).getCollisionResponse(ColliderVolumeId) && m_Bodies.at(p_Victim).getCollisionResponse(i))
+			{
+				XMVECTOR temp;		// m
+				XMFLOAT4 tempPos;	// m
+
+				XMFLOAT4 vel = m_Bodies.at(p_Collider).getVelocity();
+				XMVECTOR vVel = XMLoadFloat4(&vel);
+
+				XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
+				XMVECTOR posNorm = vNorm;
+
+				if (hit.colNorm.y > 0.7f)
+				{
+					if(!m_Bodies.at(p_Collider).getOnSomething())
+					{
+						m_Bodies.at(p_Collider).setLanded(true);
+					}
+
+					p_IsOnGround = true;
+
+					posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+					vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
+				}
+				else
+				{
+					vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
+				}
+
+				XMStoreFloat4(&vel, vVel);
+				m_Bodies.at(p_Collider).setVelocity(vel);
+
+				temp = XMLoadFloat4(&m_Bodies.at(p_Collider).getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
+				XMStoreFloat4(&tempPos, temp);
+
+				m_Bodies.at(p_Collider).setPosition(tempPos);
+			}
+
 		}
 	}
 }
