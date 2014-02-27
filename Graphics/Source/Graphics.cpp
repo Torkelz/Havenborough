@@ -745,6 +745,10 @@ void Graphics::drawFrame(void)
 	{
 		throw GraphicsException("", __LINE__, __FILE__);
 	}
+	//Update text resources
+	m_TextFactory.update();
+
+
 	Begin(m_ClearColor);
 
 	m_DeferredRender->renderDeferred();

@@ -38,6 +38,12 @@ void TextFactory::initialize(ID3D11Device *p_Device)
 		D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), m_Dpi.x, m_Dpi.y);
 }
 
+void TextFactory::update(void)
+{
+	for(auto &r : m_TextResources)
+		r.second.draw();
+}
+
 void TextFactory::shutdown(void)
 {
 	m_Device = nullptr;
@@ -142,7 +148,6 @@ TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_Te
 								TextResource(renderTarget, SRV, textFormat, brush,
 								D2D1::RectF(0.0f, 0.0f, p_TextureSize.x, p_TextureSize.y), p_Text)));
 							m_TextResources.at(m_NextTextId).draw();
-
 						}
 					}
 				}
@@ -167,12 +172,17 @@ void TextFactory::updateText(Text_Id p_Identifier, const wchar_t *p_Text)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
-		m_TextResources.at(p_Identifier).m_Text = std::wstring(p_Text);
-		m_TextResources.at(p_Identifier).draw();
+		std::wstring text = std::wstring(p_Text);
+		if(m_TextResources.at(p_Identifier).m_Text != text)
+		{
+			m_TextResources.at(p_Identifier).m_Text = text;
+			m_TextResources.at(p_Identifier).m_Update = true;
+			//m_TextResources.at(p_Identifier).draw();
+		}
 	}
 	else
 		throw TextFactoryException("Failed to update text with identifier: " +
-		std::to_string(p_Identifier), __LINE__, __FILE__);
+			std::to_string(p_Identifier), __LINE__, __FILE__);
 }
 
 void TextFactory::deleteText(Text_Id p_Identifier)
@@ -190,7 +200,8 @@ void TextFactory::setTextColor(Text_Id p_Identifier, Vector4 p_Color)
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
 		m_TextResources.at(p_Identifier).m_Brush->SetColor(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w));
-		m_TextResources.at(p_Identifier).draw();
+		m_TextResources.at(p_Identifier).m_Update = true;
+		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
@@ -203,7 +214,8 @@ void TextFactory::setBackgroundColor(Text_Id p_Identifier, Vector4 p_Color)
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
 		m_TextResources.at(p_Identifier).m_ClearColor = D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w);
-		m_TextResources.at(p_Identifier).draw();
+		m_TextResources.at(p_Identifier).m_Update = true;
+		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
@@ -216,7 +228,8 @@ void TextFactory::setTextAlignment(Text_Id p_Identifier, TEXT_ALIGNMENT p_Alignm
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
 		setTextAlignment(m_TextResources.at(p_Identifier).m_TextFormat, p_Alignment);
-		m_TextResources.at(p_Identifier).draw();
+		m_TextResources.at(p_Identifier).m_Update = true;
+		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
@@ -229,7 +242,8 @@ void TextFactory::setParagraphAlignment(Text_Id p_Identifier, PARAGRAPH_ALIGNMEN
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
 		setParagraphAlignment(m_TextResources.at(p_Identifier).m_TextFormat, p_Alignment);
-		m_TextResources.at(p_Identifier).draw();
+		m_TextResources.at(p_Identifier).m_Update = true;
+		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " +
@@ -242,7 +256,8 @@ void TextFactory::setWordWrapping(Text_Id p_Identifier, WORD_WRAPPING p_Wrapping
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
 		setWordWrapping(m_TextResources.at(p_Identifier).m_TextFormat, p_Wrapping);
-		m_TextResources.at(p_Identifier).draw();
+		m_TextResources.at(p_Identifier).m_Update = true;
+		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
