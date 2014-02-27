@@ -175,14 +175,10 @@ void HUDScene::updatePlayerTime(IEventData::Ptr p_Data)
 	float floorTimeDiff = floorf(timeDiff);
 	float timeDiffFrac = (timeDiff - floorTimeDiff) * 100.f;
 
-	if(floorTimeDiff > 9.99f)
-		ss << floorTimeDiff << "." << timeDiffFrac;
-	else
-		ss << "0" << floorTimeDiff << "." << timeDiffFrac;
+	ss << floorTimeDiff << "." << timeDiffFrac;
+	std::string string = ss.str();
 
-	std::string hej = ss.str();
-
-	m_Graphics->updateText(m_TextHandle["Time"], std::wstring(hej.begin(), hej.end()).c_str());
+	m_Graphics->updateText(m_TextHandle["Time"], std::wstring(string.begin(), string.end()).c_str());
 }
 
 void HUDScene::updatePlayerRacePosition(IEventData::Ptr p_Data)

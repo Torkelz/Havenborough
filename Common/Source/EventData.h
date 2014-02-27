@@ -1062,7 +1062,7 @@ private:
 	float m_Time;
 
 public:
-	static const Type sk_EventType = Type(0x3cd9fd2b);
+	static const Type sk_EventType = Type(0x6d441ab5);
 
 	UpdatePlayerTimeEventData(float p_Time)
 		:	m_Time(p_Time)
