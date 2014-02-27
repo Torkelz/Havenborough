@@ -62,7 +62,7 @@ https://vld.codeplex.com/wikipage?title=Using%20Visual%20Leak%20Detector&referri
 
 
 ### MahApps.Metro ###
-- Start the Havenborough Solution as usual.
+- Start the Havenborough Solution as usual. Set Havenborough Launcher as StartUp Project. (May need to restart Visual Studio afterwards.)
 - Press Ctrl+Q (allows you to type in quick launch)
 - Type the following: nuget
 - Press on NuGet Package Manager Console
