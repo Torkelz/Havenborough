@@ -27,9 +27,7 @@ namespace Havenborough_Launcher
                 xmlDataProvider.Source = new Uri(System.IO.Path.GetFullPath("UserOptions.xml"));
             this.Background = backgroundBrush;
 
-            GameList gameList = this.Resources["gameDataSource"] as GameList;
-            if (gameList != null)
-                gameList.Refresh();
+            RefreshGameList();
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
@@ -46,9 +44,47 @@ namespace Havenborough_Launcher
 
         private void Refresh_OnClick(object sender, RoutedEventArgs e)
         {
+            RefreshGameList();
+        }
+
+        private void RefreshGameList()
+        {
+            var dataProvider = (this.Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+
+            XmlDocument doc;
+            if (dataProvider.Document == null)
+            {
+                doc = new XmlDocument();
+                doc.Load(dataProvider.Source.LocalPath);
+            }
+            else
+            {
+                doc = dataProvider.Document;
+            }
+
+            XmlElement rootNode = doc["UserOptions"];
+            if (rootNode == null)
+                return;
+
+            XmlElement serverNode = rootNode["Server"];
+            if (serverNode == null)
+                return;
+
+            XmlNode hostNode = serverNode.Attributes.GetNamedItem("Hostname");
+            string host = "localhost";
+            if (hostNode != null)
+                host = hostNode.Value;
+
+            XmlNode portNode = serverNode.Attributes.GetNamedItem("Port");
+            int port = 31415;
+            if (portNode != null)
+                int.TryParse(portNode.Value, out port);
+
             GameList gameList = this.Resources["gameDataSource"] as GameList;
             if (gameList != null)
-                gameList.Refresh();
+                gameList.Refresh(host, port);
         }
 
         private void OnSelectedGameChanged(object sender, SelectionChangedEventArgs args)
