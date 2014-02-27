@@ -66,7 +66,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
                         <TextBox Text="{Binding XPath=@Size, Mode=TwoWay}" Width="50" Margin="0,0,5,0"/>
-                        <TextBlock FontSize="16" Text="Shadow map resolution" />
+                        <TextBlock FontSize="16" Text="Shadow resolution" />
                     </StackPanel>
                 </StackPanel>
             </Grid>
