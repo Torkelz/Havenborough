@@ -17,6 +17,8 @@ BOOST_AUTO_TEST_CASE(GetSet)
 	player.setDirectionX(1);
 	player.setDirectionZ(2);
 	BOOST_CHECK(player.getDirection() == Vector3(1,0,2));
+	player.setAllowedToMove(true);
+	BOOST_CHECK(player.getAllowedToMove() == true);
 }
 
 BOOST_AUTO_TEST_CASE(GetSetHeight)
@@ -51,12 +53,15 @@ BOOST_AUTO_TEST_CASE(GetSetMana)
 
 	player.setCurrentMana(0.f);
 	BOOST_CHECK_EQUAL(player.getCurrentMana(), 0.f);
+	BOOST_CHECK_EQUAL(player.getPreviousMana(), maxMana);
 
 	player.setCurrentMana(-10.f);
 	BOOST_CHECK_EQUAL(player.getCurrentMana(), 0.f);
+	BOOST_CHECK_EQUAL(player.getPreviousMana(), 0.f);
 
 	player.setCurrentMana(maxMana + 10.f);
 	BOOST_CHECK_EQUAL(player.getCurrentMana(), maxMana);
+	BOOST_CHECK_EQUAL(player.getPreviousMana(), 0.f);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
