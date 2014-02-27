@@ -9,7 +9,7 @@ ParticleInstance::ParticleInstance()
 	m_AccumulatedTime = 0.f;
 	m_SysLife = 0.f;
 	m_SysMaxLife = -1.f;
-	m_Seppuku = false;
+	//m_Seppuku = false;
 }
 
 ParticleInstance::~ParticleInstance()
@@ -39,21 +39,19 @@ void ParticleInstance::init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_p
 
 void ParticleInstance::update(float p_DeltaTime) 
 {
-	killOldParticles();
-
-	emitNewParticles(p_DeltaTime);
-
-	updateParticles(p_DeltaTime);
-
 	if (m_SysMaxLife > 0)
 	{
-		m_SysLife += p_DeltaTime;
-	
-		if (m_SysLife >= m_SysMaxLife)
-		{
-			setSeppuku(true);
-		}
+		m_SysLife += p_DeltaTime;	
 	}
+	
+	killOldParticles();
+
+	if (m_SysLife <= m_SysMaxLife || m_SysMaxLife == -1)
+	{
+		emitNewParticles(p_DeltaTime);
+	}
+	
+	updateParticles(p_DeltaTime);
 }
 
 void ParticleInstance::killOldParticles()
@@ -228,12 +226,12 @@ void ParticleInstance::setSysBaseColor(DirectX::XMFLOAT4 p_NewSysBaseColor)
 	m_SysBaseColor = p_NewSysBaseColor;
 }
 
-bool ParticleInstance::getSeppuku() const
-{
-	return m_Seppuku;
-}
-
-void ParticleInstance::setSeppuku(bool p_DoSeppuku)
-{
-	m_Seppuku = p_DoSeppuku;
-}
+//bool ParticleInstance::getSeppuku() const
+//{
+//	return m_Seppuku;
+//}
+//
+//void ParticleInstance::setSeppuku(bool p_DoSeppuku)
+//{
+//	m_Seppuku = p_DoSeppuku;
+//}
