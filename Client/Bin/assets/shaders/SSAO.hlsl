@@ -10,6 +10,7 @@ cbuffer cb : register(b0)
 	float4x4	cView;
 	float4x4	cProjection;
 	float3		cCameraPos;
+	float		cSSAOScale;
 };
 
 cbuffer ConstantData : register (b1)
