@@ -5,7 +5,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         Title="Havenborough Launcher" Height="550" Width="800" ResizeMode="NoResize">
     <Controls:MetroWindow.Resources>
-        <local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />
+        <!--<local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />-->
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
         <local:GameList x:Key="gameDataSource" />
         <XmlDataProvider x:Key="DataProvider" />
@@ -20,8 +20,8 @@
     </Controls:MetroWindow.Resources>
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60*" />
-            <ColumnDefinition Width="40*" />
+            <ColumnDefinition Width="65*" />
+            <ColumnDefinition Width="35*" />
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
@@ -40,10 +40,15 @@
                         <TextBlock FontSize="16" Text="Username" Width="80" />
                         <TextBox Text="{Binding XPath=@Username, Mode=TwoWay}" Width="200" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Game}">
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
+                        <ComboBox Loaded="CharacterNameLoad" SelectionChanged="CharacterNameSelection" Width="100" Margin="0,0,5,0"
+                                  Text="{Binding XPath=@Name, Mode=OneWayToSource}" />
                         <TextBlock FontSize="16" Text="Character" Width="80" />
-                        <ComboBox Loaded="ShadowResolutionLoad" SelectionChanged="ShadowResolutionSelection" Width="150" Margin="0,0,5,0"
-                                  ItemTemplate="{StaticResource shadowResTemplate}" Text="{Binding XPath=@Size, Mode=OneWayToSource}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
+                        <ComboBox Loaded="CharacterStyleLoad" SelectionChanged="CharacterStyleSelection" Width="100" Margin="0,0,5,0"
+                                  Text="{Binding XPath=@Style, Mode=OneWayToSource}" />
+                        <TextBlock FontSize="16" Text="Style" Width="80" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" >
                     </StackPanel>
@@ -87,13 +92,13 @@
                          SelectionChanged="OnSelectedGameChanged"/>
                     </StackPanel>
                     <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
-                        <Button x:Name="launchButton" IsEnabled="True" Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick">
+                        <Button x:Name="LaunchButton" IsEnabled="True" Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick">
                             LAUNCH
                         </Button>
                     </StackPanel>
                     <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                         <Button Width="100" Height="50" HorizontalAlignment="Right" FontSize="16" FontWeight="Bold" Click="Refresh_OnClick">
-                            Refresh
+                            REFRESH
                         </Button>
                     </StackPanel>    
                 </StackPanel>
@@ -107,8 +112,8 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding XPath=@Key,Mode=TwoWay}" Width="50" TextAlignment="Center" />
-                                    <Label Content="{Binding XPath=@Display,Mode=TwoWay}" />
+                                    <TextBox Text="{Binding XPath=@Key, Mode=TwoWay}" Width="50" TextAlignment="Center" />
+                                    <Label Content="{Binding XPath=@Display, Mode=TwoWay}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
