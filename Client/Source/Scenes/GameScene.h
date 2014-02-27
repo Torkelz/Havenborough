@@ -6,6 +6,7 @@
 class GameScene : public IScene
 {
 private:
+	int m_ExtraParticleID;
 	int m_SceneID;
 	bool m_Visible;
 	int  m_NewSceneID;
@@ -95,6 +96,7 @@ private:
 	void updateParticlePosition(IEventData::Ptr p_Data);
 	void updateParticleRotation(IEventData::Ptr p_Data);
 	void updateParticleBaseColor(IEventData::Ptr p_Data);
+	void spellHit(IEventData::Ptr p_Data);
 
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 
