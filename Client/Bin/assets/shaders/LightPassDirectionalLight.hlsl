@@ -26,6 +26,7 @@ cbuffer cb : register(b0)
 	float4x4	view;
 	float4x4	projection;
 	float3		cameraPos;
+	float		ssaoScale;
 };
 
 cbuffer lightMat : register(b1)
@@ -65,7 +66,7 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 	float3 ssao;
 	
 	// Sample the G-Buffer properties from the textures
-	GetGBufferAttributes(input.vposition.xy, normalTex, diffuseTex, SSAO_Tex, wPosTex,
+	GetGBufferAttributes(input.vposition.xy, ssaoScale, normalTex, diffuseTex, SSAO_Tex, wPosTex,
 		normal, diffuseAlbedo, specularAlbedo, ssao, position, specularPower);
 	
 	float4x4 t =

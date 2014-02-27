@@ -55,6 +55,7 @@ public:
 		
 		calculateOrientation();
 		m_IDInBody = 0;
+		m_CollisionResponse = true;
 	}
 	/**
 	* Destructor

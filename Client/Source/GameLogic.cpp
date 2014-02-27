@@ -47,6 +47,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_StartLocal = false;
 	m_PlayerTimeDifference = 0.f;
 	m_PlayerPositionInRace = 0;
+
+	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // Maybe not here.
 }
 
 void GameLogic::shutdown(void)
@@ -130,9 +132,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 		conn->sendPlayerControl(data);
 	}
-
-	m_Actors->onUpdate(p_DeltaTime);
 	m_Player.update(p_DeltaTime);
+	m_Actors->onUpdate(p_DeltaTime);
+	
 
 	updateCountdownTimer(p_DeltaTime);
 	Actor::ptr tempActor = m_PlayerSparks.lock();
@@ -314,11 +316,13 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	XMVECTOR rotationYaw = XMQuaternionRotationRollPitchYaw(0.f, p_Yaw, 0.f);
 	XMVECTOR rotationPitch = XMQuaternionRotationAxis(vRight, p_Pitch);
 	XMVECTOR rotation = XMQuaternionMultiply(rotationPitch, rotationYaw);
+	XMVECTOR newUp = XMVector3Rotate(vUp, rotation);
 
 	XMStoreFloat3(&forward, XMVector3Rotate(vForward, rotation));
-	XMStoreFloat3(&up, XMVector3Rotate(vUp, rotation));
+	XMStoreFloat3(&up, newUp);
 
-	if (forward.y > 0.9f || forward.y < -0.9f)
+	if (forward.y > 0.9f || forward.y < -0.9f ||
+		XMVectorGetX(XMVector3Dot(XMVectorSet(0.f, 1.f, 0.f, 0.f), newUp)) < 0.f)
 	{
 		return;
 	}
@@ -346,7 +350,7 @@ void GameLogic::playLocalLevel()
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
 	m_Level.loadLevel(input, m_Actors);
-	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(0.f, 10.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
 	std::ifstream input("assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
@@ -369,7 +373,7 @@ void GameLogic::playLocalLevel()
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 
-	m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
+	m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.2f, 0.0f, 0.8f, 0.7f)));
 
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 }
@@ -405,26 +409,20 @@ void GameLogic::leaveGame()
 			con->sendLeaveGame();
 		}
 		
-		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(true)));
+		m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
 	}
 }
 
 void GameLogic::throwSpell(const char *p_SpellId)
 {
-	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // definitely should NOT be here.
+	float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition(p_SpellId);
+	float playerMana = m_Player.getCurrentMana();
 
 	Actor::ptr playerActor = m_Player.getActor().lock();
-	if (playerActor)
+	if (playerActor && manaCost <= playerMana)
 	{
 		if(!m_Player.getForceMove())
 		{
-
-			float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition(p_SpellId);
-			float playerMana = m_Player.getCurrentMana();
-
-			if(manaCost > playerMana)
-				return;
-
 			m_Player.setCurrentMana(playerMana - manaCost);
 
 			Actor::ptr spell = m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition());
@@ -446,7 +444,6 @@ void GameLogic::throwSpell(const char *p_SpellId)
 				conn->sendObjectAction(playerActor->getId(), printer.CStr());
 			}
 		}
-		
 	}
 }
 
@@ -471,7 +468,6 @@ void GameLogic::playerWave()
 				conn->sendObjectAction(playerActor->getId(), printer.CStr());
 			}
 		}
-		
 	}
 }
 
@@ -587,7 +583,7 @@ void GameLogic::handleNetwork()
 								object->QueryAttribute("VectorSize", &size);
 								if(size == 0)
 								{
-									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
 								}
 								else
 								{
@@ -598,7 +594,7 @@ void GameLogic::handleNetwork()
 										object->QueryAttribute("Place", &position);
 										GoalList.push_back(position);
 									}
-									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false))); //DO SOMETHING HERE!!
+									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
 								}
 						}
 						else if(object->Attribute("Type", "Position"))
@@ -723,6 +719,11 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+						}
+						if(object->Attribute("Type", "Placing"))
+						{
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 						}
 					}
@@ -867,20 +868,6 @@ void GameLogic::handleNetwork()
 				}
 				break;
 
-			case PackageType::GAME_LIST:
-				{
-					const unsigned int numGames = conn->getNumGameListGames(package);
-					Logger::log(Logger::Level::INFO, "Available games: " + std::to_string(numGames));
-					for (size_t i = 0; i < numGames; ++i)
-					{
-						const AvailableGameData game = conn->getGameListGame(package, i);
-						Logger::log(Logger::Level::INFO, std::string(game.levelName) +
-							" (" + std::to_string(game.waitingPlayers) +
-							"/" + std::to_string(game.maxPlayers) + ')');
-					}
-				}
-				break;
-
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);
@@ -909,13 +896,6 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 	if (p_Res == Result::SUCCESS)
 	{
 		self->m_Connected = true;
-
-		IConnectionController* con = self->m_Network->getConnectionToServer();
-		if (con && con->isConnected())
-		{
-			con->sendRequestGames();
-		}
-
 		self->joinGame();
 
 		Logger::log(Logger::Level::INFO, "Connected successfully");
@@ -999,18 +979,14 @@ void GameLogic::loadSandbox()
 	// Only use for testing and debug purposes. When adding something put a comment with your name and todays date.
 	// No permanent implementations in this function is allowed.
 
-	//Fredrik, 2014-02-20, 2014-02-24
-	//std::vector<Actor::ptr> ALIST;
-
-
-	 
-	//addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
-	//addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
+	//Fredrik, 2014-02-20, 2014-02-24	 
+	addActor(m_ActorFactory->createParticles(Vector3(50.f, 140.f, 0.f), "smoke"));
+	addActor(m_ActorFactory->createParticles(Vector3(50.f, 120.f, 0.f), "fire"));
 	//addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 	
-	//Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "waterSpray");
-	//a->setRotation(Vector3(3.0f, 0.0f, 0.0f));
-	//addActor(a);
+	Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "waterSpray");
+	a->setRotation(Vector3(3.0f, 0.0f, 0.0f));
+	addActor(a);
 
 	//std::shared_ptr<ParticleInterface> temp = a->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId).lock();
 	//if (temp)

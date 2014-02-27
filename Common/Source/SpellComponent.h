@@ -118,6 +118,7 @@ public:
 			m_Physics->releaseBody(m_Sphere);
 			m_Sphere = m_Physics->createSphere(0.f, true, currentPosition, m_SpellInstance->getRadius());
 			m_Physics->setBodyCollisionResponse(m_Sphere, false);
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitEventData(*m_Owner, currentPosition)));
 		}
 
 		if (m_SpellInstance->isDead())

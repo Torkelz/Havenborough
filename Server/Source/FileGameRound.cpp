@@ -290,26 +290,24 @@ void FileGameRound::sendUpdates()
 					}
 				}
 			}
-			tinyxml2::XMLPrinter printer;
-			printer.OpenElement("RacePositions");
-			printer.PushAttribute("Type", "Place");
-			Actor::ptr playerActor  = player->getActor().lock();
-			if(!playerActor)
+			for(auto& players : m_Players)
 			{
-				break;
-			}
-			printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
-			printer.PushAttribute("Time",  m_PlayerPositionList[0]->getClockedTime() - player->getClockedTime());
-			printer.CloseElement();
-			const char* info = printer.CStr();
-			for(auto& player : m_Players)
-			{
-				User::ptr user = player->getUser().lock();
+				User::ptr user = players->getUser().lock();
 				if(!user)
 				{
 					continue;
 				}
-				
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("RacePositions");
+				printer.PushAttribute("Type", "Placing");
+				Actor::ptr playerActor  = players->getActor().lock();
+				if(!playerActor)
+				{
+					break;
+				}
+				printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
+				printer.CloseElement();
+				const char* info = printer.CStr();
 				user->getConnection()->sendRacePosition(&info,1);
 			}
 			m_SendHitData.clear();

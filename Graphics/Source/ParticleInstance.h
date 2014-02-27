@@ -23,6 +23,9 @@ private:
 	DirectX::XMFLOAT4		m_SysPosition; //world pos, in cm
 	DirectX::XMFLOAT3		m_SysRotation;
 	DirectX::XMFLOAT4		m_SysBaseColor;
+	float					m_SysLife;
+	float					m_SysMaxLife;
+	bool					m_Seppuku;
 
 	float m_AccumulatedTime;
 
@@ -88,6 +91,10 @@ public:
 	DirectX::XMFLOAT4 getSysBaseColor() const;
 
 	void setSysBaseColor(DirectX::XMFLOAT4 p_NewSysBaseColor);
+
+	bool getSeppuku() const;
+
+	void setSeppuku(bool p_DoSeppuku);
 
 private:
 	void emitNewParticles(float p_DeltaTime);

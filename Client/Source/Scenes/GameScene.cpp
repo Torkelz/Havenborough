@@ -34,6 +34,7 @@ GameScene::~GameScene()
 bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
 	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
+	m_ExtraParticleID = 500000;
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
 	m_InputQueue = p_InputQueue;
@@ -59,6 +60,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::spellHit), SpellHitEventData::sk_EventType);
 
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
@@ -150,7 +152,6 @@ void GameScene::render()
 				renderBoundingVolume(body);
 			}
 		}
-		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
 	}
 
 	for(auto &light : m_Lights)
@@ -486,6 +487,13 @@ void GameScene::updateParticleBaseColor(IEventData::Ptr p_Data)
 	{
 		m_Graphics->setParticleEffectBaseColor(it->second.instance, data->getBaseColor());
 	}
+}
+
+void GameScene::spellHit(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<SpellHitEventData> data = std::static_pointer_cast<SpellHitEventData>(p_Data);
+
+	m_EventManager->queueEvent((IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExsplosion", data->getPosition()))));
 }
 
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)

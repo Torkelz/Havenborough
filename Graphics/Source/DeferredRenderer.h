@@ -53,6 +53,7 @@ private:
 
 	bool	m_SSAO;
 	bool	m_ShadowMap;
+	float m_SSAO_Resolution_Scale;
 	float		m_ShadowBigSize, m_ShadowSmallSize;
 	int		m_ShadowMapResolution;
 	float	m_ShadowMapBorder;
@@ -171,8 +172,8 @@ private:
 	void updateLightBuffer(bool p_Big, bool p_ShadowMapped);
 
 
-	HRESULT createRenderTargets(D3D11_TEXTURE2D_DESC &desc);
-	HRESULT createShaderResourceViews(D3D11_TEXTURE2D_DESC &desc);
+	ID3D11RenderTargetView *createRenderTarget(D3D11_TEXTURE2D_DESC &desc);
+	ID3D11ShaderResourceView *createShaderResourceView(D3D11_TEXTURE2D_DESC &desc, ID3D11RenderTargetView *p_Rendertarget);
 	void createBuffers();
 	void buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer);
 	void clearRenderTargets();

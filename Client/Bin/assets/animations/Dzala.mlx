@@ -324,8 +324,8 @@ tr	2
 la	0
 fi	1
 fif	5
-fo	0
-fof	0
+fo	1
+fof	5
 we	1.0
 
 *Clip
@@ -339,8 +339,8 @@ tr	2
 la	0
 fi	1
 fif	5
-fo	0
-fof	0
+fo	1
+fof	5
 we	1.0
 
 *Clip

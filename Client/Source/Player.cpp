@@ -117,9 +117,12 @@ void Player::update(float p_DeltaTime)
 		}
 		else
 		{
-			std::shared_ptr<PhysicsInterface> comp = strActor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
-			Vector3 fel = m_Physics->getBodyVelocity(comp->getBodyHandle());
-			m_Physics->setBodyVelocity(comp->getBodyHandle(), Vector3(0.f, fel.y, 0.f));
+			if(strActor)
+			{
+				std::shared_ptr<PhysicsInterface> comp = strActor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+				Vector3 fel = m_Physics->getBodyVelocity(comp->getBodyHandle());
+				m_Physics->setBodyVelocity(comp->getBodyHandle(), Vector3(0.f, fel.y, 0.f));
+			}
 		}
 	}
 	else
@@ -474,9 +477,6 @@ void Player::setJump(void)
 
 			Vector3 temp = m_Physics->getBodyVelocity(getBody());
 			temp.y = 0.f;
-
-			temp.x = m_DirectionX * m_MaxSpeed / (m_JumpCount + 1);
-			temp.z = m_DirectionZ * m_MaxSpeed / (m_JumpCount + 1);
 
 			m_Physics->setBodyVelocity(getBody(), temp);
 
