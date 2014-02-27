@@ -6,10 +6,10 @@
 		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="0.5"/>
 		<LifeDeviation maxLifeDeviation="0.1"/>
-		<Size sX="7.0" sY="7.0"/>
+		<Size sX="17.5" sY="17.5"/>
 		<PositionDeviation positionDeviation="10.0"/>
 		<Velocity vbX="0.0" vbY="60.0" vbZ="0.0" vdX="50.0" vdY="20.0" vdZ="50.0"/>
-		<Color cbX="0.8" cbY="0.15" cbZ="0.0" cbA="0.6" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
+		<Color cbX="1.0" cbY="1.0" cbZ="1.0" cbA="0.6" cdX="0.0" cdY="0.0" cdZ="0.0" cdA="0.2"/>
 	</Effect>
 <!--<Effect effectName="smoke">
 		<Texture resourceName="Smoke2.dds"/>
@@ -30,9 +30,9 @@
 		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="0.5"/>
 		<LifeDeviation maxLifeDeviation="0.2"/>
-		<Size sX="8.0" sY="8.0"/>
+		<Size sX="20.0" sY="20.0"/>
 		<PositionDeviation positionDeviation="11.0"/>
-		<Velocity vbX="0.0" vbY="100.0" vbZ="0.0" vdX="40.0" vdY="10.0" vdZ="40.0"/>
+		<Velocity vbX="0.0" vbY="100.0" vbZ="0.0" vdX="60.0" vdY="20.0" vdZ="60.0"/>
 		<Color cbX="0.2" cbY="0.05" cbZ="0.0" cbA="0.8" cdX="0.1" cdY="0.05" cdZ="0.0" cdA="0.2"/>
 	</Effect>
 	<Effect effectName="magic">
@@ -66,7 +66,7 @@
 		<SysLife sysMaxLife="10.0"/>
 		<BaseLife maxLife="10.0"/>
 		<LifeDeviation maxLifeDeviation="0.0"/>
-		<Size sX="4.0" sY="4.0"/>
+		<Size sX="25.0" sY="25.0"/>
 		<PositionDeviation positionDeviation="5.0"/>
 		<Velocity vbX="0.0" vbY="0.0" vbZ="0.0" vdX="300.0" vdY="300.0" vdZ="300.0"/>
 		<Color cbX="0.5" cbY="0.5" cbZ="0.5" cbA="0.7" cdX="0.5" cdY="0.5" cdZ="0.5" cdA="0.1"/>

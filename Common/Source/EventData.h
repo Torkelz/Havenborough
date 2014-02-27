@@ -884,16 +884,16 @@ public:
 	}
 };
 
-class SpellhitEventData : public BaseEventData
+class SpellHitEventData : public BaseEventData
 {
 private:
-	Actor::ptr m_SpellActor;
+	Actor m_SpellActor;
 	Vector3 m_Position;
 
 public:
 	static const Type sk_EventType = Type(0xca743787);
 
-	SpellhitEventData(Actor::ptr p_SpellActor, Vector3 p_Position)
+	SpellHitEventData(Actor p_SpellActor, Vector3 p_Position)
 		:	m_SpellActor(p_SpellActor),
 			m_Position(p_Position)
 	{
@@ -906,7 +906,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new SpellhitEventData(m_SpellActor, m_Position));
+		return Ptr(new SpellHitEventData(m_SpellActor, m_Position));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -915,10 +915,10 @@ public:
 
 	virtual const char *getName(void) const override
 	{
-		return "SpellhitEventData";
+		return "SpellHitEventData";
 	}
 
-	Actor::ptr getSpellActor() const
+	Actor getSpellActor() const
 	{
 		return m_SpellActor;
 	}
