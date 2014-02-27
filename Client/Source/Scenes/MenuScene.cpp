@@ -30,7 +30,7 @@ bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_ResourceManager = p_ResourceManager;
 
 	m_LoadScreenResourceID = m_ResourceManager->loadResource("texture", "LoadingScreen");
-	m_LoadScreenGraphicsID = m_Graphics->create2D_Object(Vector3(0.f, 0.f, 0.f), Vector2(680, 360), Vector3(1.f, 1.f, 1.f), 0.f, "LoadingScreen");
+	m_LoadScreenGraphicsID = m_Graphics->create2D_Object(Vector3(0.f, 0.f, 0.f), Vector2(640, 360), Vector3(1.f, 1.f, 1.f), 0.f, "LoadingScreen");
 
 	return true;
 }
