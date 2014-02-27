@@ -62,13 +62,13 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 	for(element = p_Element->FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
 	{
 		std::string elementName = element->Value();
-		const char* commandValue = element->Attribute("command");
+		const char* commandValue = element->Attribute("Command");
 		if(!commandValue)
 			throw ClientException("Settings tried to load the attribute \"command\" from element: " + elementName + ".", __LINE__, __FILE__);
 
 		if(elementName == "KeyMap")
 		{
-			const char* value = element->Attribute("key");
+			const char* value = element->Attribute("Key");
 			if(!value)
 				throw ClientException("Settings tried to load the attribute \"key\" from element: " + elementName + ".", __LINE__, __FILE__);
 
@@ -122,8 +122,8 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 		}
 		else if(elementName == "MouseMap")
 		{
-			const char* pValue = element->Attribute("position");
-			const char* mValue = element->Attribute("movement");
+			const char* pValue = element->Attribute("Position");
+			const char* mValue = element->Attribute("Movement");
 			if (!mValue || !pValue)
 				throw ClientException("Settings tried to load the attribute \"movement\" or \"position\" from element: " + elementName + ".", __LINE__, __FILE__);
 
@@ -141,7 +141,7 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 		}
 		else if(elementName == "MouseButtonMap")
 		{
-			const char* bValue = element->Attribute("button");
+			const char* bValue = element->Attribute("Button");
 			if (!bValue)
 				throw ClientException("Settings tried to load the attribute \"button\" from element: " + elementName + ".", __LINE__, __FILE__);
 
@@ -173,9 +173,9 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 		if(elementName == "Resolution")
 		{
 			tinyxml2::XMLError res;
-			res = element->QueryFloatAttribute("width", &m_Resolution.x);
+			res = element->QueryFloatAttribute("Width", &m_Resolution.x);
 			if(res == tinyxml2::XML_SUCCESS)
-				res = element->QueryFloatAttribute("height", &m_Resolution.y);
+				res = element->QueryFloatAttribute("Height", &m_Resolution.y);
 
 			if(res != tinyxml2::XML_SUCCESS)
 				throw ClientException("Settings tried to load the attribute \"height\" or \"width\" from element: " + elementName + ".", __LINE__, __FILE__);
@@ -184,7 +184,7 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 		{
 			bool enabled = false;
 			tinyxml2::XMLError res;
-			res = element->QueryBoolAttribute("enabled", &enabled);
+			res = element->QueryBoolAttribute("Enabled", &enabled);
 			if(res != tinyxml2::XML_SUCCESS)
 				throw ClientException("Settings tried to load the attribute \"enabled\" from element: " + elementName + ".", __LINE__, __FILE__);
 

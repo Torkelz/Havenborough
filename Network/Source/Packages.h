@@ -294,6 +294,9 @@ typedef Signal<PackageType::DONE_COUNTDOWN> DoneCountdown;
  */
 typedef Signal<PackageType::REQUEST_GAMES> RequestGames;
 
+BOOST_CLASS_IMPLEMENTATION(RequestGames, boost::serialization::object_serializable)
+BOOST_CLASS_TRACKING(RequestGames, boost::serialization::track_never)
+
 /**
  * A package representing the removal of objects in the game world.
  */
