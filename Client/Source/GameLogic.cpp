@@ -47,6 +47,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_StartLocal = false;
 	m_PlayerTimeDifference = 0.f;
 	m_PlayerPositionInRace = 0;
+
+	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // Maybe not here.
 }
 
 void GameLogic::shutdown(void)
@@ -369,7 +371,7 @@ void GameLogic::playLocalLevel()
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 
-	m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
+	m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.2f, 0.0f, 0.8f, 0.7f)));
 
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 }
@@ -411,20 +413,14 @@ void GameLogic::leaveGame()
 
 void GameLogic::throwSpell(const char *p_SpellId)
 {
-	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // definitely should NOT be here.
+	float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition(p_SpellId);
+	float playerMana = m_Player.getCurrentMana();
 
 	Actor::ptr playerActor = m_Player.getActor().lock();
-	if (playerActor)
+	if (playerActor && manaCost <= playerMana)
 	{
 		if(!m_Player.getForceMove())
 		{
-
-			float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition(p_SpellId);
-			float playerMana = m_Player.getCurrentMana();
-
-			if(manaCost > playerMana)
-				return;
-
 			m_Player.setCurrentMana(playerMana - manaCost);
 
 			Actor::ptr spell = m_ActorFactory->createSpell(p_SpellId, playerActor->getId(), getPlayerViewForward(), m_Player.getRightHandPosition());
@@ -446,7 +442,6 @@ void GameLogic::throwSpell(const char *p_SpellId)
 				conn->sendObjectAction(playerActor->getId(), printer.CStr());
 			}
 		}
-		
 	}
 }
 
@@ -471,7 +466,6 @@ void GameLogic::playerWave()
 				conn->sendObjectAction(playerActor->getId(), printer.CStr());
 			}
 		}
-		
 	}
 }
 
@@ -995,18 +989,14 @@ void GameLogic::loadSandbox()
 	// Only use for testing and debug purposes. When adding something put a comment with your name and todays date.
 	// No permanent implementations in this function is allowed.
 
-	//Fredrik, 2014-02-20, 2014-02-24
-	//std::vector<Actor::ptr> ALIST;
-
-
-	 
-	//addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
-	//addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
+	//Fredrik, 2014-02-20, 2014-02-24	 
+	addActor(m_ActorFactory->createParticles(Vector3(50.f, 140.f, 0.f), "smoke"));
+	addActor(m_ActorFactory->createParticles(Vector3(50.f, 120.f, 0.f), "fire"));
 	//addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 	
-	//Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "waterSpray");
-	//a->setRotation(Vector3(3.0f, 0.0f, 0.0f));
-	//addActor(a);
+	Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "waterSpray");
+	a->setRotation(Vector3(3.0f, 0.0f, 0.0f));
+	addActor(a);
 
 	//std::shared_ptr<ParticleInterface> temp = a->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId).lock();
 	//if (temp)

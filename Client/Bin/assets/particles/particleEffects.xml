@@ -1,63 +1,93 @@
 <Particle>
 	<Effect effectName="fire">
-		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="900"/>
-		<EmitPerSec particlesPerSec="900"/>
-		<BaseLife maxLife="0.6"/>
-		<LifeDeviation maxLifeDeviation="0.2"/>
-		<Size sX="8.0" sY="8.0"/>
+		<Texture resourceName="Fire1.dds"/>
+		<MaxCount maxParticles="500"/>
+		<EmitPerSec particlesPerSec="450"/>
+		<SysLife sysMaxLife="-1.0"/>
+		<BaseLife maxLife="0.5"/>
+		<LifeDeviation maxLifeDeviation="0.1"/>
+		<Size sX="17.5" sY="17.5"/>
 		<PositionDeviation positionDeviation="10.0"/>
-		<Velocity vbX="0.0" vbY="60.0" vbZ="0.0" vdX="15.0" vdY="20.0" vdZ="15.0"/>
-		<Color cbX="0.8" cbY="0.15" cbZ="0.0" cbA="0.3" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
+		<Velocity vbX="0.0" vbY="60.0" vbZ="0.0" vdX="50.0" vdY="20.0" vdZ="50.0"/>
+		<Color cbX="1.0" cbY="1.0" cbZ="1.0" cbA="0.6" cdX="0.0" cdY="0.0" cdZ="0.0" cdA="0.2"/>
 	</Effect>
+<!--<Effect effectName="smoke">
+		<Texture resourceName="Smoke2.dds"/>
+		<MaxCount maxParticles="1"/>
+		<EmitPerSec particlesPerSec="1"/>
+		<SysLife sysMaxLife="-1.0"/>
+		<BaseLife maxLife="50000.5"/>
+		<LifeDeviation maxLifeDeviation="0.2"/>
+		<Size sX="16.0" sY="16.0"/>
+		<PositionDeviation positionDeviation="0.0"/>
+		<Velocity vbX="0.0" vbY="0.0" vbZ="0.0" vdX="0.0" vdY="0.0" vdZ="0.0"/>
+		<Color cbX="0.2" cbY="0.05" cbZ="0.0" cbA="0.8" cdX="0.1" cdY="0.05" cdZ="0.0" cdA="0.2"/>
+	</Effect> -->
 	<Effect effectName="smoke">
-		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="1200"/>
-		<EmitPerSec particlesPerSec="9000"/>
-		<BaseLife maxLife="0.8"/>
-		<LifeDeviation maxLifeDeviation="0.3"/>
-		<Size sX="4.0" sY="4.0"/>
-		<PositionDeviation positionDeviation="2.0"/>
-		<Velocity vbX="0.0" vbY="100.0" vbZ="0.0" vdX="10.0" vdY="10.0" vdZ="10.0"/>
-		<Color cbX="0.2" cbY="0.15" cbZ="0.0" cbA="0.2" cdX="0.2" cdY="0.15" cdZ="0.0" cdA="0.2"/>
+		<Texture resourceName="Smoke3.dds"/>
+		<MaxCount maxParticles="800"/>
+		<EmitPerSec particlesPerSec="800"/>
+		<SysLife sysMaxLife="-1.0"/>
+		<BaseLife maxLife="0.5"/>
+		<LifeDeviation maxLifeDeviation="0.2"/>
+		<Size sX="20.0" sY="20.0"/>
+		<PositionDeviation positionDeviation="11.0"/>
+		<Velocity vbX="0.0" vbY="100.0" vbZ="0.0" vdX="60.0" vdY="20.0" vdZ="60.0"/>
+		<Color cbX="0.2" cbY="0.05" cbZ="0.0" cbA="0.8" cdX="0.1" cdY="0.05" cdZ="0.0" cdA="0.2"/>
 	</Effect>
 	<Effect effectName="magic">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="9000"/>
-		<EmitPerSec particlesPerSec="9000"/>
-		<BaseLife maxLife="0.9"/>
+		<MaxCount maxParticles="750"/>
+		<EmitPerSec particlesPerSec="1500"/>
+		<SysLife sysMaxLife="-1.0"/>
+		<BaseLife maxLife="0.5"/>
 		<LifeDeviation maxLifeDeviation="0.2"/>
 		<Size sX="3.0" sY="3.0"/>
 		<PositionDeviation positionDeviation="2.0"/>
 		<Velocity vbX="25.0" vbY="15.0" vbZ="25.0" vdX="50.0" vdY="30.0" vdZ="50.0"/>
-		<Color cbX="0.2" cbY="0.0" cbZ="0.8" cbA="0.2" cdX="0.2" cdY="0.0" cdZ="0.2" cdA="0.2"/>
+		<Color cbX="0.2" cbY="0.0" cbZ="0.8" cbA="0.4" cdX="0.2" cdY="0.0" cdZ="0.2" cdA="0.2"/>
 	</Effect>
 	<Effect effectName="magicProjectile">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="900"/>
-		<EmitPerSec particlesPerSec="90000"/>
+		<MaxCount maxParticles="50"/>
+		<EmitPerSec particlesPerSec="500"/>
+		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="0.01"/>
 		<LifeDeviation maxLifeDeviation="0.01"/>
 		<Size sX="10.0" sY="10.0"/>
 		<PositionDeviation positionDeviation="2.0"/>
 		<Velocity vbX="100.0" vbY="15.0" vbZ="100.0" vdX="200.0" vdY="50.0" vdZ="200.0"/>
-		<Color cbX="0.4" cbY="0.0" cbZ="0.6" cbA="0.2" cdX="0.2" cdY="0.0" cdZ="0.2" cdA="0.2"/>
+		<Color cbX="0.4" cbY="0.0" cbZ="0.6" cbA="0.4" cdX="0.2" cdY="0.0" cdZ="0.2" cdA="0.2"/>
+	</Effect>
+	<Effect effectName="spellExsplosion">
+		<Texture resourceName="Particle1.dds"/>
+		<MaxCount maxParticles="300"/>
+		<EmitPerSec particlesPerSec="1800"/>
+		<SysLife sysMaxLife="3.0"/>
+		<BaseLife maxLife="3.0"/>
+		<LifeDeviation maxLifeDeviation="0.0"/>
+		<Size sX="10.0" sY="10.0"/>
+		<PositionDeviation positionDeviation="5.0"/>
+		<Velocity vbX="0.0" vbY="0.0" vbZ="0.0" vdX="100.0" vdY="100.0" vdZ="100.0"/>
+		<Color cbX="0.5" cbY="0.5" cbZ="0.5" cbA="0.9" cdX="0.5" cdY="0.5" cdZ="0.5" cdA="0.1"/>
 	</Effect>
 	<Effect effectName="waterSpray">
-		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="900"/>
-		<EmitPerSec particlesPerSec="900"/>
+		<Texture resourceName="Water1.dds"/>
+		<MaxCount maxParticles="10"/>
+		<EmitPerSec particlesPerSec="1"/>
+		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="1.0"/>
 		<LifeDeviation maxLifeDeviation="0.05"/>
 		<Size sX="5.0" sY="5.0"/>
 		<PositionDeviation positionDeviation="0.002"/>
 		<Velocity vbX="100.0" vbY="0.0" vbZ="0.0" vdX="0.0" vdY="0.0" vdZ="0.0"/>
-		<Color cbX="0.0" cbY="0.0" cbZ="0.8" cbA="0.1" cdX="0.0" cdY="0.0" cdZ="0.1" cdA="0.02"/>
+		<Color cbX="0.0" cbY="0.0" cbZ="0.8" cbA="0.8" cdX="0.0" cdY="0.0" cdZ="0.1" cdA="0.02"/>
 	</Effect>
 	<Effect effectName="magicSurroundings">
 		<Texture resourceName="Particle1.dds"/>
 		<MaxCount maxParticles="300"/>
 		<EmitPerSec particlesPerSec="60"/>
+		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="1.0"/>
 		<LifeDeviation maxLifeDeviation="0.5"/>
 		<Size sX="2.0" sY="2.0"/>
@@ -76,6 +106,8 @@
 		<MaxCount maxParticles="900"/>
 	//How many particles that this definition can create every second.
 		<EmitPerSec particlesPerSec="900"/>
+	//How long an effect instance exist before being removed when using this effect, less then zero means it's persistent
+		<SysLife sysMaxLife="-1.0"/>
 	//A base life value.
 		<BaseLife maxLife="0.6"/>
 	//How much more or less lifetime a particle can have.

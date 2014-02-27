@@ -13,6 +13,7 @@ public:
 	D2D1_RECT_F m_LayoutRect;
 	std::wstring m_Text;
 	D2D1::ColorF m_ClearColor;
+	bool m_Update;
 
 	TextResource();
 	TextResource(TextResource &&p_Other);

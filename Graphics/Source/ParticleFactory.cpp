@@ -83,6 +83,9 @@ std::vector<ParticleEffectDefinition::ptr> ParticleFactory::createParticleEffect
 		particleSystem->particlesPerSec = EffectAttributes->IntAttribute("particlesPerSec");
 
 		EffectAttributes = EffectAttributes->NextSiblingElement();
+		particleSystem->sysMaxLife = EffectAttributes->FloatAttribute("sysMaxLife");
+
+		EffectAttributes = EffectAttributes->NextSiblingElement();
 		particleSystem->maxLife = EffectAttributes->FloatAttribute("maxLife");
 
 		EffectAttributes = EffectAttributes->NextSiblingElement();

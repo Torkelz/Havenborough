@@ -44,6 +44,12 @@ public:
 	void initialize(ID3D11Device *p_Device);
 
 	/**
+	* Updates all the texts that have the m_Update flag set to true.
+	* Used to batch together draw calls.
+	*/
+	void update(void);
+
+	/**
 	* Shuts the text factory down and releases the text resources created.
 	*/
 	void shutdown(void);
