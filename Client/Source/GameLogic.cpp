@@ -45,6 +45,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_InGame = false;
 	m_PlayingLocal = true;
 	m_StartLocal = false;
+	m_PlayerTimeDifference = 0.f;
+	m_PlayerPositionInRace = 0;
 }
 
 void GameLogic::shutdown(void)
@@ -128,9 +130,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 		conn->sendPlayerControl(data);
 	}
-
-	m_Actors->onUpdate(p_DeltaTime);
 	m_Player.update(p_DeltaTime);
+	m_Actors->onUpdate(p_DeltaTime);
+	
 
 	updateCountdownTimer(p_DeltaTime);
 	Actor::ptr tempActor = m_PlayerSparks.lock();
@@ -344,7 +346,7 @@ void GameLogic::playLocalLevel()
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
 	m_Level.loadLevel(input, m_Actors);
-	m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(0.f, 10.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
 	std::ifstream input("assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
@@ -471,6 +473,16 @@ void GameLogic::playerWave()
 		}
 		
 	}
+}
+
+unsigned int GameLogic::getPlayerPositionInRace()
+{
+	return m_PlayerPositionInRace;
+}
+
+float GameLogic::getPlayerTimeDifference()
+{
+	return m_PlayerTimeDifference;
 }
 
 void GameLogic::setPlayerClimb(bool p_State)
@@ -691,6 +703,25 @@ void GameLogic::handleNetwork()
 						}
 					}
 							
+				}
+				break;
+			case PackageType::GAME_POSITIONS:
+				{
+					int numberOfData = conn->getNumRacePositionsData(package);
+					for(int i = 0; i < numberOfData; i++)
+					{
+						const char* result = conn->getRacePositionsData(package, i);
+						tinyxml2::XMLDocument reader;
+						reader.Parse(result);
+						tinyxml2::XMLElement* object = reader.FirstChildElement("RacePositions");
+						if(object->Attribute("Type", "Place"))
+						{
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
+							object->QueryAttribute("Time", &m_PlayerTimeDifference);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
+							//m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+						}
+					}
 				}
 				break;
 

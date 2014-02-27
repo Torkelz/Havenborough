@@ -475,9 +475,6 @@ void Player::setJump(void)
 			Vector3 temp = m_Physics->getBodyVelocity(getBody());
 			temp.y = 0.f;
 
-			temp.x = m_DirectionX * m_MaxSpeed / (m_JumpCount + 1);
-			temp.z = m_DirectionZ * m_MaxSpeed / (m_JumpCount + 1);
-
 			m_Physics->setBodyVelocity(getBody(), temp);
 
 			m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));

@@ -17,6 +17,7 @@ cbuffer cb : register(b0)
 	float4x4	view;
 	float4x4	projection;
 	float3		cameraPos;
+	float		ssaoScale;
 };
 
 //###########################
@@ -83,7 +84,7 @@ float4 SpotLightPS(VSLightOutput input) : SV_TARGET
 	float3 ssao;
 	
 	// Sample the G-Buffer properties from the textures
-	GetGBufferAttributes(input.vposition.xy, normalTex, diffuseTex, SSAO_Tex, wPosTex,
+	GetGBufferAttributes(input.vposition.xy, ssaoScale, normalTex, diffuseTex, SSAO_Tex, wPosTex,
 		normal, diffuseAlbedo, specularAlbedo, ssao, position, specularPower);
 
 	float3 lighting = CalcLighting(normal, position, diffuseAlbedo,	specularAlbedo, 

@@ -242,6 +242,30 @@ const size_t ConnectionController::getLevelDataSize(Package p_Package)
 	return levelData->m_Object1.size();
 }
 
+void ConnectionController::sendRacePosition(const char** p_ExtraData, unsigned int p_NumExtraData)
+{
+	GamePositions package;
+	for(unsigned int i = 0; i < p_NumExtraData; i++)
+	{
+		package.m_Object1.push_back(std::string(p_ExtraData[i]));
+	}
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+unsigned int ConnectionController::getNumRacePositionsData(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	GamePositions* createObjects = static_cast<GamePositions*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Object1.size();
+}
+
+const char* ConnectionController::getRacePositionsData(Package p_Package, unsigned int p_ExtraData)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	GamePositions* createObjects = static_cast<GamePositions*>(m_ReceivedPackages[p_Package].get());
+	return createObjects->m_Object1[p_ExtraData].c_str();
+}
+
 void ConnectionController::sendGameResult(const char** p_ExtraData, unsigned int p_NumExtraData)
 {
 	ResultData package;
@@ -411,3 +435,4 @@ void ConnectionController::savePackageCallBack(uint16_t p_ID, const std::string&
 	std::string msg("Received unregistered package type: " + std::to_string(p_ID));
 	NetworkLogger::log(NetworkLogger::Level::WARNING, msg);
 }
+

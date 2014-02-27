@@ -35,7 +35,9 @@ DeferredRenderer::DeferredRenderer()
 	m_RT[IGraphics::RenderTarget::NORMAL] = nullptr;
 	m_RT[IGraphics::RenderTarget::W_POSITION] = nullptr;
 	m_RT[IGraphics::RenderTarget::SSAO] = nullptr;
+	m_RT[IGraphics::RenderTarget::SSAOPing] = nullptr;
 	m_RT[IGraphics::RenderTarget::FINAL] = nullptr;
+	m_RT[IGraphics::RenderTarget::CSM] = nullptr;
 
 
 	m_SRV["Diffuse"] = nullptr;
@@ -43,6 +45,8 @@ DeferredRenderer::DeferredRenderer()
 	m_SRV["Light"] = nullptr;
 	m_SRV["WPosition"] = nullptr;
 	m_SRV["SSAO"] = nullptr;
+	m_SRV["CSM"] = nullptr;
+	m_SRV["SSAOPing"] = nullptr;
 	m_SRV["SSAO_RandomVec"] = nullptr;
 
 
@@ -85,7 +89,6 @@ DeferredRenderer::DeferredRenderer()
 
 	m_SSAO = false;
 	m_DepthMapDSV = nullptr;
-	m_DepthMapSRV= nullptr;
 }
 
 
@@ -138,13 +141,12 @@ DeferredRenderer::~DeferredRenderer(void)
 	SAFE_DELETE(m_SkyDome);
 
 	SAFE_RELEASE(m_DepthMapDSV);
-	SAFE_RELEASE(m_DepthMapSRV);
 }
 
 
 void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
-	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix,
+	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix, int p_ShadowMapResolution,
 	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
 	unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
 {
@@ -155,7 +157,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_CameraPosition	= p_CameraPosition;
 	m_ViewMatrix		= p_ViewMatrix;
 	m_ProjectionMatrix	= p_ProjectionMatrix;
-
+	m_ShadowMapResolution = p_ShadowMapResolution;
 	m_SpotLights = p_SpotLights;
 	m_PointLights = p_PointLights;
 	m_DirectionalLights = p_DirectionalLights;
@@ -183,16 +185,36 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		throw DeferredRenderException("Failed to initialize deferred renderer, nullpointers not allowed",
 		__LINE__, __FILE__);
 	
+	//DXGI_FORMAT_R32G32B32A32_FLOAT 
+	m_RT[IGraphics::RenderTarget::W_POSITION] = createRenderTarget(desc);
+	m_SRV["WPosition"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::W_POSITION]);
 	//Shadow map
-	UINT resolution = 4096; //size of Shadow Map
+	UINT resolution = m_ShadowMapResolution; //size of Shadow Map
 	initializeShadowMap(resolution, resolution);	
 
-	createRenderTargets(desc);
 
+	//DXGI_FORMAT_R16G16B16A16_FLOAT
+	desc.Format	= DXGI_FORMAT_R16G16B16A16_FLOAT;
+	m_RT[IGraphics::RenderTarget::DIFFUSE] = createRenderTarget(desc);
+	m_SRV["Diffuse"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::DIFFUSE]);
+
+	m_RT[IGraphics::RenderTarget::NORMAL] = createRenderTarget(desc);
+	m_SRV["Normal"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::NORMAL]);
+
+	m_RT[IGraphics::RenderTarget::FINAL] = createRenderTarget(desc);
+	m_SRV["Light"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::FINAL]);
+
+	m_SSAO_Resolution_Scale = 1.f;
+
+	desc.Width	= (UINT)(p_ScreenWidth * m_SSAO_Resolution_Scale);
+	desc.Height	= (UINT)(p_ScreenHeight * m_SSAO_Resolution_Scale);
+	m_RT[IGraphics::RenderTarget::SSAO] = createRenderTarget(desc);
+	m_SRV["SSAO"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::SSAO]);
+	m_RT[IGraphics::RenderTarget::SSAOPing] = createRenderTarget(desc);
+	m_SRV["SSAOPing"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::SSAOPing]);
+	
 	createRandomTexture(256);
-
-	createShaderResourceViews(desc);
-
+	
 	createShaders();
 
 	loadLightModels();
@@ -271,7 +293,6 @@ void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
 	HRESULT hr = m_Device->CreateTexture2D(&texDesc, 0, &depthMap);
 	int val = VRAMInfo::getInstance()->calculateFormatUsage(texDesc.Format, width, height);
 	VRAMInfo::getInstance()->updateUsage(val);
-
 	//render from light
     D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	dsvDesc.Flags = 0;
@@ -286,7 +307,7 @@ void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
     srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
-	hr =  m_Device->CreateShaderResourceView(depthMap, &srvDesc, &m_DepthMapSRV);
+	hr =  m_Device->CreateShaderResourceView(depthMap, &srvDesc, &m_SRV["CSM"]);
 
 	//viewport that  matches the shadow map dimensions.
 	m_LightViewport.Width = (float)width;
@@ -320,8 +341,18 @@ void DeferredRenderer::renderDeferred()
 
 		if(m_SSAO)
 		{
+			D3D11_VIEWPORT vp, oldVP;
+			unsigned int nrVP = 1;
+			m_DeviceContext->RSGetViewports(&nrVP, &oldVP);
+			vp = oldVP;
+			vp.Height = m_ScreenHeight * m_SSAO_Resolution_Scale;
+			vp.Width =  m_ScreenWidth * m_SSAO_Resolution_Scale;
+			m_DeviceContext->RSSetViewports(1, &vp);
+
 			renderSSAO();
 			blurSSAO();
+
+			m_DeviceContext->RSSetViewports(1, &oldVP);
 		}
 		
 		renderLighting();
@@ -411,13 +442,13 @@ void DeferredRenderer::renderSSAO(void)
 
 void DeferredRenderer::blurSSAO(void)
 {
-	for(int i = 0; i < 2; i++) //TODO: Should be 4 passes
+	for(int i = 0; i < 4; i++) //TODO: Should be 4 passes
 	{
-		SSAO_PingPong(m_SRV["SSAO"], m_RT[IGraphics::RenderTarget::FINAL], false);
-		SSAO_PingPong(m_SRV["Light"], m_RT[IGraphics::RenderTarget::SSAO], true);
+		SSAO_PingPong(m_SRV["SSAO"], m_RT[IGraphics::RenderTarget::SSAOPing], false);
+		SSAO_PingPong(m_SRV["SSAOPing"], m_RT[IGraphics::RenderTarget::SSAO], true);
 	}
-	float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::FINAL], color);
+	//float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	//m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::FINAL], color);
 }
 
 
@@ -512,14 +543,15 @@ void DeferredRenderer::renderLighting()
 	m_DeviceContext->RSSetState(m_RasterState);
 
 	// Collect the shader resources in an array and create a clear array.
-	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_DepthMapSRV};
+	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_SRV["CSM"]};
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0,0};
 
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
-
-	renderDirectionalLights(*m_ShadowMappedLight);
-
+	if(m_ShadowMap)
+	{
+		renderDirectionalLights(*m_ShadowMappedLight);
+	}
 	//Set constant data
 	m_Buffer["DefaultConstant"]->setBuffer(0);
 
@@ -541,7 +573,8 @@ void DeferredRenderer::renderLighting()
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//DirectionalLights except number one
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0); 
-	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
+	if(m_DirectionalLights->size() > 0)
+		renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
@@ -593,6 +626,7 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(IGraphics::RenderTarget i)
 	case IGraphics::RenderTarget::NORMAL: return m_SRV["Normal"];
 	case IGraphics::RenderTarget::W_POSITION: return m_SRV["WPosition"];
 	case IGraphics::RenderTarget::SSAO: return m_SRV["SSAO"];
+	case IGraphics::RenderTarget::CSM: return m_SRV["CSM"];
 	case IGraphics::RenderTarget::FINAL: return m_SRV["Light"];
 	default: return nullptr;
 	}
@@ -609,12 +643,18 @@ void DeferredRenderer::enableSSAO(bool p_State)
 	m_SSAO = p_State;
 }
 
+void DeferredRenderer::enableShadowMap(bool p_State)
+{
+	m_ShadowMap = p_State;
+}
+
 void DeferredRenderer::updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix)
 {
 	cBuffer cb;
 	cb.view = p_ViewMatrix;
 	cb.proj = p_ProjMatrix;
 	cb.campos = m_CameraPosition;
+	cb.ssaoScale = m_SSAO_Resolution_Scale;
 	m_DeviceContext->UpdateSubresource(m_Buffer["DefaultConstant"]->getBufferPointer(), NULL,NULL, &cb,NULL,NULL);
 }
 
@@ -630,100 +670,52 @@ void DeferredRenderer::updateLightBuffer(bool p_Big, bool p_ShadowMapped)
 }
 
 
-HRESULT DeferredRenderer::createRenderTargets(D3D11_TEXTURE2D_DESC &desc)
+ID3D11RenderTargetView *DeferredRenderer::createRenderTarget(D3D11_TEXTURE2D_DESC &desc)
 {
 	// Create the render target texture
 	HRESULT result = S_FALSE;
-
+	ID3D11RenderTargetView* ret = nullptr;
 	//Create the render targets
 	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
 	rtDesc.Format = desc.Format;
 	rtDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtDesc.Texture2D.MipSlice = 0;
 
-
-	for(auto &rt : m_RT)
-	{
-		ID3D11Texture2D *temp;
-		result = m_Device->CreateTexture2D(&desc, nullptr, &temp);
-		if(FAILED(result))
-			return result;
+	ID3D11Texture2D *temp;
+	result = m_Device->CreateTexture2D(&desc, nullptr, &temp);
+	if(FAILED(result))
+		throw GraphicsException("Error creating Texture2D while creating a render target.", __LINE__, __FILE__);
 
 
-		result = m_Device->CreateRenderTargetView(temp, &rtDesc, &rt.second);
-		if(FAILED(result))
-			return result;
+	result = m_Device->CreateRenderTargetView(temp, &rtDesc, &ret);
+	SAFE_RELEASE(temp);
 
+	if(FAILED(result))
+		throw GraphicsException("Error creating a render target.", __LINE__, __FILE__);
 
-		SAFE_RELEASE(temp);
-	}
+	VRAMInfo::getInstance()->updateUsage(VRAMInfo::getInstance()->calculateFormatUsage(desc.Format,
+		desc.Width, desc.Height));
 
-	unsigned int size = m_numRenderTargets * VRAMInfo::getInstance()->calculateFormatUsage(desc.Format,
-		desc.Width, desc.Height);
-	VRAMInfo::getInstance()->updateUsage(size);
-
-	return result;
+	return ret;
 }
 
 
-HRESULT DeferredRenderer::createShaderResourceViews( D3D11_TEXTURE2D_DESC &desc )
+ID3D11ShaderResourceView *DeferredRenderer::createShaderResourceView( D3D11_TEXTURE2D_DESC &desc, ID3D11RenderTargetView *p_Rendertarget)
 {
-	HRESULT result = E_FAIL;
-
-
 	D3D11_SHADER_RESOURCE_VIEW_DESC dssrvdesc;
 	dssrvdesc.Format = desc.Format;
 	dssrvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	dssrvdesc.Texture2D.MipLevels = 1;
 	dssrvdesc.Texture2D.MostDetailedMip = 0;
 
-
+	ID3D11ShaderResourceView* ret = nullptr;
 	ID3D11Resource* tt;
-
-
-	// Make the diffuse texture from the render target.	
-	m_RT[IGraphics::RenderTarget::DIFFUSE]->GetResource(&tt);
-	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Diffuse"]);
+	p_Rendertarget->GetResource(&tt);
+	HRESULT result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &ret);
 	SAFE_RELEASE(tt);
-	tt = nullptr;
 	if(FAILED(result))
-		return result;
-
-
-	// Make the normal texture from the render target.
-	m_RT[IGraphics::RenderTarget::NORMAL]->GetResource(&tt);
-	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Normal"]);
-	SAFE_RELEASE(tt);
-	tt = nullptr;
-	if(FAILED(result))
-		return result;
-
-
-	// Make the world position texture from the render target.
-	m_RT[IGraphics::RenderTarget::W_POSITION]->GetResource(&tt);
-	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["WPosition"]);
-	SAFE_RELEASE(tt);
-	tt = nullptr;
-	if(FAILED(result))
-		return result;
-
-	// SSAO texture
-	m_RT[IGraphics::RenderTarget::SSAO]->GetResource(&tt);
-	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["SSAO"]);
-	SAFE_RELEASE(tt);
-	tt = nullptr;
-	if(FAILED(result))
-		return result;
-
-	// Make the final texture from the render target.
-	m_RT[IGraphics::RenderTarget::FINAL]->GetResource(&tt);
-	result = m_Device->CreateShaderResourceView(tt, &dssrvdesc, &m_SRV["Light"]);
-	SAFE_RELEASE(tt);
-	tt = nullptr;
-	if(FAILED(result))
-		return result;
-
-	return result;
+		throw GraphicsException("Error when creating shader resource view from render target.", __LINE__, __FILE__);
+	return ret;
 }
 
 
@@ -733,6 +725,7 @@ void DeferredRenderer::createBuffers()
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
 	cb.campos = m_CameraPosition;
+	cb.ssaoScale = m_SSAO_Resolution_Scale;
 
 
 	Buffer::Description cbdesc;
@@ -869,6 +862,7 @@ void DeferredRenderer::clearRenderTargets()
 	color[0] = color[1] = color[2] = 1.0f;
 	color[3] = 1.0f;
 	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::SSAO], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::SSAOPing], color);
 
 	color[0] = color[1] = color[2] = color[3] = 0.0f;
 	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::FINAL], color);
@@ -968,15 +962,15 @@ void DeferredRenderer::createShaders()
 	};
 
 
-	m_Shader["SpotLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassSpotLight.hlsl",
+	m_Shader["SpotLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassSpotLight.hlsl", nullptr,
 		"SpotLightVS,SpotLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 
 
-	m_Shader["PointLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassPointLight.hlsl",
+	m_Shader["PointLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassPointLight.hlsl", nullptr,
 		"PointLightVS,PointLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
-
-
-	m_Shader["DirectionalLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassDirectionalLight.hlsl",
+	std::string resolution = std::to_string(m_ShadowMapResolution);
+	D3D_SHADER_MACRO preDefines[2] = {{ "SHADOW_RES", resolution.c_str()}, nullptr};
+	m_Shader["DirectionalLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassDirectionalLight.hlsl", preDefines,
 		"DirectionalLightVS,DirectionalLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 
 
@@ -994,7 +988,7 @@ void DeferredRenderer::createShaders()
 	};
 
 
-	m_Shader["IGeometry"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/GeoInstanceShader.hlsl",
+	m_Shader["IGeometry"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/GeoInstanceShader.hlsl", nullptr,
 		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, instanceshaderDesc, 9);
 
 
@@ -1005,7 +999,6 @@ void DeferredRenderer::createShaders()
 	m_Shader["SSAO_Blur"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/SSAO_Blur.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
-
 
 void DeferredRenderer::loadLightModels()
 {
@@ -1351,7 +1344,7 @@ void DeferredRenderer::renderDirectionalLights(Light p_Directional)
 	unsigned int nrRT = 0;
 	ID3D11RenderTargetView *noRTV = nullptr;
 	
-	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_DepthMapSRV};
+	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_SRV["CSM"]};
 
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;

@@ -29,6 +29,7 @@ private:
 	std::map<std::string, bool> m_SettingsEnabled;
 	std::map<std::string, HUDSettings> m_HUDSettings;
 	Vector2 m_Resolution;
+	int m_ShadowMapResolution;
 
 	std::string m_ServerURL;
 	unsigned short int m_ServerPort;
@@ -79,6 +80,13 @@ public:
 	 * @return the window size as a Vector2.
 	 */
 	const Vector2 getResolution() const;
+	/*
+	 * Get the shadow map resolution from settings.
+	 * If no resolution was read from file the default value is (512)
+	 *
+	 * @return the map size as an integer.
+	 */
+	const int getShadowMapResolution() const;
 	/**
 	 * Gets the name of the level to play.
 	 *

@@ -1,7 +1,7 @@
 #include "HUDScene.h"
 #include "../ClientExceptions.h"
 #include <EventData.h>
-
+#include <sstream>
 HUDScene::HUDScene()
 {
 	m_SceneID = 0;
@@ -9,7 +9,7 @@ HUDScene::HUDScene()
 	m_NewSceneID = 0;
 	m_ChangeScene = false;
 	m_ChangeList = false;
-
+	m_PlayerTime = 0;
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
 	m_ResourceManager = nullptr;
@@ -34,6 +34,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateGraphicalCountdown), UpdateGraphicalCountdownEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateGraphicalManabar), UpdateGraphicalManabarEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateCheckpointPosition), UpdateCheckpointPositionEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerTime), UpdatePlayerTimeEventData::sk_EventType);
 
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
@@ -79,6 +80,7 @@ void HUDScene::render()
 	m_Graphics->render2D_Object(m_GUI["Manabar"]);
 	m_Graphics->render2D_Object(m_GUI["ManabarChange"]);
 	m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
+	m_Graphics->render2D_Object(m_GUI["Time"]);
 
 	if(m_RenderCountdown)
 	{
@@ -160,6 +162,26 @@ void HUDScene::updateGraphicalManabar(IEventData::Ptr p_Data)
 	m_Graphics->set2D_ObjectPosition(m_GUI["ManabarChange"], barPos);
 }
 
+void HUDScene::updatePlayerTime(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdatePlayerTimeEventData> data = std::static_pointer_cast<UpdatePlayerTimeEventData>(p_Data);
+
+	std::stringstream ss;
+	ss.precision(2);
+	float timeDiff = data->getTime();
+	float floorTimeDiff = floorf(timeDiff);
+	float timeDiffFrac = (timeDiff - floorTimeDiff) * 100.f;
+
+	if(floorTimeDiff > 9.99f)
+		ss << floorTimeDiff << "." << timeDiffFrac;
+	else
+		ss << "0" << floorTimeDiff << "." << timeDiffFrac;
+
+	std::string hej = ss.str();
+
+	m_Graphics->updateText(m_TextHandle["Time"], std::wstring(hej.begin(), hej.end()).c_str());
+}
+
 void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<UpdateCheckpointPositionEventData> data = std::static_pointer_cast<UpdateCheckpointPositionEventData>(p_Data);
@@ -218,6 +240,9 @@ void HUDScene::preLoadModels()
 	}
 	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
+
+	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(80.f, 50.f), "Verdana", 20.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
+	createGUIElement("Time", m_Graphics->create2D_Object(Vector3(400, -320, 2), Vector3(1,1,1), 0.f, m_TextHandle["Time"]));
 }
 
 void HUDScene::releasePreLoadedModels()
