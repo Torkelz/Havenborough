@@ -139,7 +139,7 @@ namespace Havenborough_Launcher
         void SendRequest(Socket p_ClientSocket)
         {
             const short packageSize = 4;
-            const short requestId = 18;
+            const short requestId = 1;
 
             byte[] request = new byte[4];
             BitConverter.GetBytes(packageSize).CopyTo(request, 0);

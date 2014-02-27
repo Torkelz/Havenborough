@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 			virtual ULONG STDMETHODCALLTYPE AddRef() { return 0; };
 		};
 
-		HRESULT compileShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+		HRESULT compileShader(LPCWSTR p_Filename, D3D_SHADER_MACRO *p_Defines, const char *p_EntryPoint,
 			const char *p_ShaderModel, DWORD p_ShaderFlags,
 			ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage) override
 		{
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 					{
 						entryPoint = entryPointList.back();
 						entryPointList.pop_back();
-						addShaderStep(shader, p_Filename, entryPoint.c_str(), p_ShaderModel,
+						addShaderStep(shader, p_Filename, nullptr, entryPoint.c_str(), p_ShaderModel,
 							Shader::Type(i));
 						if(entryPointList.size() == 0)
 							break;
@@ -147,18 +147,18 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 			}
 		}
 
-		void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+		void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, D3D_SHADER_MACRO *p_Defines, const char *p_EntryPoint, const char *p_ShaderModel,
 			Shader::Type p_ShaderType) override
 		{
 			std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
-			p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, nullptr);
+			p_Shader->compileAndCreateShader(p_Filename, p_Defines, p_EntryPoint, temp.c_str(), p_ShaderType, nullptr);
 		}
 
-		void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+		void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, D3D_SHADER_MACRO *p_Defines, const char *p_EntryPoint, const char *p_ShaderModel,
 			Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout) override
 		{
 			std::string temp = getShaderModel(p_ShaderModel, p_ShaderType);
-			p_Shader->compileAndCreateShader(p_Filename, p_EntryPoint, temp.c_str(), p_ShaderType, p_VertexLayout);
+			p_Shader->compileAndCreateShader(p_Filename, p_Defines, p_EntryPoint, temp.c_str(), p_ShaderType, p_VertexLayout);
 		}
 
 		Buffer *createBuffer(Buffer::Description &p_Description)
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		};
 
-		BOOST_CHECK_THROW(shady.compileAndCreateShader(L"dummy.hlsl", "vs_main", "vs_5_0", Shader::Type::VERTEX_SHADER, desc),
+		BOOST_CHECK_THROW(shady.compileAndCreateShader(L"dummy.hlsl", 0, "vs_main", "vs_5_0", Shader::Type::VERTEX_SHADER, desc),
 			ShaderException);
 	}
 
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		shady = new DummyShader();
 		shady->initialize(nullptr, nullptr, size);
 
-		BOOST_CHECK_NO_THROW(wraps->addShaderStep(shady, L"Source/dummy.hlsl", "main", "5_0",
+		BOOST_CHECK_NO_THROW(wraps->addShaderStep(shady, L"Source/dummy.hlsl", 0, "main", "5_0",
 			Shader::Type::VERTEX_SHADER, desc));
 
 		BOOST_CHECK(shady != nullptr);
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_SUITE(TestWrapperFactory)
 		shady = new DummyShader();
 		shady->initialize(nullptr, nullptr, 0);
 
-		BOOST_CHECK_NO_THROW(wraps->addShaderStep(shady, L"Source/dummy.hlsl", "main", "5_0",
+		BOOST_CHECK_NO_THROW(wraps->addShaderStep(shady, L"Source/dummy.hlsl", 0, "main", "5_0",
 			Shader::Type::VERTEX_SHADER));
 
 		BOOST_CHECK(shady != nullptr);

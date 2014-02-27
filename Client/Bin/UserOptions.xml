@@ -8,7 +8,7 @@
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
-    <!--<ShadowMapResolution Size="512" />-->
+		<ShadowMapResolution Size="2048"/>
   </Settings>
   <Controls>
     <!--
