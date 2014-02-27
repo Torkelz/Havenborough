@@ -6,10 +6,10 @@
   <Settings>
     <SSAO Enabled="false" />
     <ShadowMap Enabled="true" />
-    <VSync Enabled="true" />
+    <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
-    <ShadowMapResolution Size="1024" />
+    <ShadowMapResolution Size="512" />
   </Settings>
   <Controls>
     <!--

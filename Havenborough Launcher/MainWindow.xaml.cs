@@ -44,7 +44,7 @@ namespace Havenborough_Launcher
             string source = dataProvider.Source.LocalPath;
             dataProvider.Document.Save(source);
 
-            //Process.Start("Client.exe");
+            Process.Start("Client.exe");
         }
 
         private void Refresh_OnClick(object sender, RoutedEventArgs e)

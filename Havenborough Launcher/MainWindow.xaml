@@ -92,9 +92,7 @@
                          SelectionChanged="OnSelectedGameChanged"/>
                     </StackPanel>
                     <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
-                        <Button x:Name="LaunchButton" IsEnabled="True" Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick">
-                            LAUNCH
-                        </Button>
+                        <Button x:Name="LaunchButton" IsEnabled="False" Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick" Content="LAUNCH"/>
                     </StackPanel>
                     <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                         <Button Width="100" Height="50" HorizontalAlignment="Right" FontSize="16" FontWeight="Bold" Click="Refresh_OnClick">
