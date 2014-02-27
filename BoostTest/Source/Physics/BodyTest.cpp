@@ -10,6 +10,7 @@ public:
 	{
 		m_Type = Type::NONE;
 		m_BodyHandle = 0;
+		m_CollisionResponse = true;
 	}
 	~DummyBoundingVolume(){}
 
@@ -181,6 +182,13 @@ BOOST_AUTO_TEST_CASE(BodyTest_Volumes)
 	BOOST_CHECK(pos2.y != 2.f);
 	BOOST_CHECK(pos2.z != 3.f);
 
+	BOOST_CHECK(body.getCollisionResponse(0) == true);
+	body.setCollisionResponse(0, false);
+	BOOST_CHECK(body.getCollisionResponse(0) == false);
+
+	body.setCollisionResponse(false);
+	BOOST_CHECK(body.getCollisionResponse(0) == false);
+
 	
 }
 
@@ -210,6 +218,7 @@ BOOST_AUTO_TEST_CASE(BodyTest_Gets_Sets)
 	Body body4 = Body(1.f, nullptr, false, false);
 
 	BOOST_CHECK_EQUAL(body4.getHandle(), 1);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()
