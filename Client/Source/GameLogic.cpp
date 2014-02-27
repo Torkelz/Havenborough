@@ -603,7 +603,8 @@ void GameLogic::handleNetwork()
 						}
 						else if(object->Attribute("Type", "Position"))
 						{
-							//int b = 0; //DO SOMETHING HERE!!
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 						}
 					}
 				}
@@ -722,7 +723,7 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
-							//m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 						}
 					}
 				}

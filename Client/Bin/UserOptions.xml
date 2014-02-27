@@ -1,49 +1,47 @@
 <UserOptions>
-	<Server Hostname="localhost" Port="31415" />
-	<!-- Test ip: 194.47.150.44 -->
-	<Game Level="serverDebugLevel" Username="Player" />
-	<Settings>
-		<SSAO enabled="false"/>
-		<ShadowMap enabled="false"/>
-		<VSync enabled="false"/>
-		<Fullscreen enabled="false"/>
-		<Resolution width="1280" height="720"/>
-		<ShadowMapResolution Size="2048"/>
-	</Settings>
-	<Controls>
-		<!--
+  <Server Hostname="localhost" Port="31415" />
+  <!-- Test ip: 194.47.150.44 -->
+  <Game Level="serverLevel" Username="Player" />
+  <Settings>
+    <SSAO Enabled="false" />
+    <ShadowMap Enabled="false" />
+    <VSync Enabled="false" />
+    <Fullscreen Enabled="false" />
+    <Resolution Width="1280" Height="720" />
+    <ShadowMapResolution Size="512" />
+  </Settings>
+  <Controls>
+    <!--
 		KEY : Key code
 		Left shift: LShift
 		Right shift: RShift
 		Left Ctrl: LCtrl
 		Right Ctrl: RCrtl
 		-->
-		<KeyMap command="back" key="Escape"/>
-		<KeyMap command="leaveGame" key="Escape"/>
-		<KeyMap command="moveForward" key="W"/>
-		<KeyMap command="moveBackward" key="S"/>
-		<KeyMap command="moveLeft" key="A"/>
-		<KeyMap command="moveRight" key="D"/>
-		<KeyMap command="changeViewN" key="Z"/>
-		<KeyMap command="changeViewP" key="X"/>
-		<KeyMap command="jump" key="Space"/>
-		<KeyMap command="switchBVDraw" key="57"/>
-		<KeyMap command="goToMainMenu" key="Return"/>
-		<KeyMap command="thirdPersonCamera" key="O"/>
-		<KeyMap command="flipCamera" key="P"/>
-		<KeyMap command="blendAnimation" key="B"/>
-		<KeyMap command="resetAnimation" key="N"/>
-		<KeyMap command="layerAnimation" key="M"/>
-		<KeyMap command="resetLayerAnimation" key="V"/>
-		<KeyMap command="DrawPivots" key="I"/>
-		<KeyMap command="Wave" key="Q"/>
-		<MouseMap command="mouseMoveHori" position="mousePosHori" movement="Horizontal"/>
-		<MouseMap command="mouseMoveVert" position="mousePosVert" movement="Vertical"/>
-		<MouseButtonMap command="spellCast" button="Left"/>
-		<MouseButtonMap command="ClimbEdge" button="Right"/>
-		<MouseButtonMap command="gogogogo" button="Left"/>
-		<MouseButtonMap command="rollMe!" button="Middle"/>
-	</Controls>
+    <KeyMap Display="Back where?" Command="back" Key="Escape" />
+    <KeyMap Display="Leave game" Command="leaveGame" Key="Escape" />
+    <KeyMap Display="Movement forwards" Command="moveForward" Key="W" />
+    <KeyMap Display="Movement backwads" Command="moveBackward" Key="S" />
+    <KeyMap Display="Strafe left" Command="moveLeft" Key="A" />
+    <KeyMap Display="Strafe right" Command="moveRight" Key="D" />
+    <KeyMap Display="Jump" Command="jump" Key="Space" />
+    <KeyMap Display="Wave" Command="wave" Key="Q" />
+    <KeyMap Display="Climb" Command="climbEdge" Key="E" />
+    <KeyMap Display="Cast spell" Command="spellCast" Key="F" />
+    <!--Debug related-->
+    <KeyMap Display="Next deferred view" Command="changeViewN" Key="Z" />
+    <KeyMap Display="Prev deferred view" Command="changeViewP" Key="X" />
+    <KeyMap Display="Draw pivots" Command="DrawPivots" Key="C" />
+    <KeyMap Display="Turn on bounding vol" Command="switchBVDraw" Key="V" />
+    <KeyMap Display="Main menu?" Command="goToMainMenu" Key="Return" />
+    <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="O" />
+    <KeyMap Display="Look back" Command="flipCamera" Key="P" />
+    <!--Mouse input-->
+    <MouseMap Display="MouseMoveHori" Command="mouseMoveHori" Position="mousePosHori" Movement="Horizontal" />
+    <MouseMap Display="MouseMoveVert" Command="mouseMoveVert" Position="mousePosVert" Movement="Vertical" />
+    <MouseButtonMap Display="Cast spell" Command="spellCast" Button="Left" />
+    <MouseButtonMap Display="Climb" Command="climbEdge" Button="Right" />
+  </Controls>
   <HUD>
     <Manabar x="0" y="-320" z="3" scale="0.5" />
     <Arrow x="0" y="300" z="150" scale="0.3" />

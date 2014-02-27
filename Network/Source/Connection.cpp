@@ -117,9 +117,15 @@ void Connection::handleReadHeader(const boost::system::error_code& p_Error, std:
 
 	Header header;
 	header = *((Header*)m_ReadBuffer.data());
-	m_ReadBuffer.resize(header.m_Size);
+	size_t dataSize = header.m_Size - sizeof(Header);
+
+	if (m_ReadBuffer.size() < header.m_Size)
+	{
+		m_ReadBuffer.resize(header.m_Size);
+	}
+
 	boost::asio::async_read(m_Socket,
-		boost::asio::buffer(&m_ReadBuffer[sizeof(Header)], header.m_Size - sizeof(Header)),
+		boost::asio::buffer(m_ReadBuffer.data() + sizeof(Header), dataSize),
 		std::bind(&Connection::handleReadData, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 }
 
@@ -153,7 +159,7 @@ void Connection::handleReadData(const boost::system::error_code& p_Error, std::s
 	if (m_SaveData)
 	{
 		Header* header = (Header*)m_ReadBuffer.data();
-		std::string data(&m_ReadBuffer[sizeof(Header)], header->m_Size - sizeof(Header));
+		std::string data(m_ReadBuffer.data() + sizeof(Header), header->m_Size - sizeof(Header));
 		m_SaveData(header->m_TypeID, data);
 	}
 

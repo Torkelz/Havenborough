@@ -29,16 +29,14 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	m_InputQueue = p_InputQueue;
 	m_GameLogic = p_GameLogic;
 
-	m_MenuSceneList.resize(2);
-	m_RunSceneList.resize(4);
+	m_MenuSceneList.resize(1);
+	m_RunSceneList.resize(3);
 
 	m_MenuSceneList[0] = IScene::ptr(new MenuScene);
-	m_MenuSceneList[1] = IScene::ptr(new MenuScene);
 
 	m_RunSceneList[0] = IScene::ptr(new GameScene);
 	m_RunSceneList[1] = IScene::ptr(new HUDScene);
-	m_RunSceneList[2] = IScene::ptr(new MenuScene);
-	m_RunSceneList[3] = IScene::ptr(new PostGameScene);
+	m_RunSceneList[2] = IScene::ptr(new PostGameScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
 	m_NumberOfRunScene = m_RunSceneList.size();

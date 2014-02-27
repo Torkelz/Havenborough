@@ -259,15 +259,15 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->throwSpell("TestSpell");
 	}
-	else if(p_Action == "ClimbEdge")
+	else if(p_Action == "climbEdge")
 	{
 		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
 	}
-	else if(p_Action == "DrawPivots" && p_Value == 1.f)
+	else if(p_Action == "drawPivots" && p_Value == 1.f)
 	{
 		m_DebugAnimations = !m_DebugAnimations;
 	}
-	else if(p_Action == "Wave" && p_Value == 1.0f)
+	else if(p_Action == "wave" && p_Value == 1.0f)
 	{
 		m_GameLogic->playerWave();
 	}
