@@ -316,11 +316,13 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	XMVECTOR rotationYaw = XMQuaternionRotationRollPitchYaw(0.f, p_Yaw, 0.f);
 	XMVECTOR rotationPitch = XMQuaternionRotationAxis(vRight, p_Pitch);
 	XMVECTOR rotation = XMQuaternionMultiply(rotationPitch, rotationYaw);
+	XMVECTOR newUp = XMVector3Rotate(vUp, rotation);
 
 	XMStoreFloat3(&forward, XMVector3Rotate(vForward, rotation));
-	XMStoreFloat3(&up, XMVector3Rotate(vUp, rotation));
+	XMStoreFloat3(&up, newUp);
 
-	if (forward.y > 0.9f || forward.y < -0.9f)
+	if (forward.y > 0.9f || forward.y < -0.9f ||
+		XMVectorGetX(XMVector3Dot(XMVectorSet(0.f, 1.f, 0.f, 0.f), newUp)) < 0.f)
 	{
 		return;
 	}
