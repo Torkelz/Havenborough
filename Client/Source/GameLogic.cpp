@@ -857,20 +857,6 @@ void GameLogic::handleNetwork()
 				}
 				break;
 
-			case PackageType::GAME_LIST:
-				{
-					const unsigned int numGames = conn->getNumGameListGames(package);
-					Logger::log(Logger::Level::INFO, "Available games: " + std::to_string(numGames));
-					for (size_t i = 0; i < numGames; ++i)
-					{
-						const AvailableGameData game = conn->getGameListGame(package, i);
-						Logger::log(Logger::Level::INFO, std::string(game.levelName) +
-							" (" + std::to_string(game.waitingPlayers) +
-							"/" + std::to_string(game.maxPlayers) + ')');
-					}
-				}
-				break;
-
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);
@@ -899,13 +885,6 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 	if (p_Res == Result::SUCCESS)
 	{
 		self->m_Connected = true;
-
-		IConnectionController* con = self->m_Network->getConnectionToServer();
-		if (con && con->isConnected())
-		{
-			con->sendRequestGames();
-		}
-
 		self->joinGame();
 
 		Logger::log(Logger::Level::INFO, "Connected successfully");
