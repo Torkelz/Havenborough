@@ -84,6 +84,7 @@ TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_Te
 					{
 						hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, 
 							p_Color.w), &brush);
+						renderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
 						if(SUCCEEDED(hr))
 						{
 							m_TextResources.insert(std::pair<Text_Id, TextResource>(m_NextTextId, 
