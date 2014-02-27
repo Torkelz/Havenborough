@@ -46,9 +46,22 @@ void FileGameRound::setup()
 		{
 			player->addCheckpoint(checkpoint);
 		}
-	}
+	}	
+
+	//for(auto& player : m_Players)
+	//{
+	//	Actor::ptr actor = player->getActor().lock();
+	//	if(!actor)
+	//	{
+	//		break;
+	//	}
+	//	m_PlayerPositionList.push_back(actor->getId());
+	//}
+
+	m_PlayerPositionList = m_Players;
 
 	m_GoalCount = 0;
+	m_Time = 0.f;
 }
 
 void FileGameRound::setFilePath(std::string p_Filepath)
@@ -95,6 +108,7 @@ void FileGameRound::sendLevel()
 
 void FileGameRound::updateLogic(float p_DeltaTime)
 {
+	m_Time += p_DeltaTime;
 	for (auto& actor : m_Actors)
 	{
 		actor->onUpdate(p_DeltaTime);
@@ -115,6 +129,8 @@ void FileGameRound::updateLogic(float p_DeltaTime)
 					{
 						m_SendHitData.push_back(std::make_pair(player, victim));
 						player->changeCheckpoint();
+						player->clockPosition(m_Time);
+						rearrangePlayerPosition();
 					}
 				}
 			}
@@ -245,10 +261,24 @@ void FileGameRound::sendUpdates()
 						printer.OpenElement("ObjectUpdate");
 						printer.PushAttribute("ActorId", id-1);
 						printer.PushAttribute("Type", "Color");
-						pushColor(printer, "SetColor", m_SendHitData[i].first->getCurrentCheckpointColor());
+						pushColor(printer, "SetColor", player->getCurrentCheckpointColor());
 						printer.CloseElement();
 						const char* info = printer.CStr();
 						user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+
+						printer.ClearBuffer();
+						printer.OpenElement("RacePositions");
+						printer.PushAttribute("Type", "Place");
+						Actor::ptr playerActor  = player->getActor().lock();
+						if(!playerActor)
+						{
+							break;
+						}
+						printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
+						printer.PushAttribute("Time",  player->getClockedTime() - m_PlayerPositionList[0]->getClockedTime());
+						printer.CloseElement();
+						info = printer.CStr();
+						user->getConnection()->sendRacePosition(&info, 1);
 					}
 					else
 					{
@@ -409,4 +439,50 @@ Actor::ptr FileGameRound::findActor(BodyHandle p_Body)
 	{
 		return *actorIt;
 	}
+}
+
+void FileGameRound::rearrangePlayerPosition()
+{
+	std::vector<Player::ptr> temp = m_PlayerPositionList;
+
+	for(unsigned int i = 0; i < temp.size() - 1; i++)
+	{
+		for(unsigned int j = i + 1; j < temp.size(); j++)
+		{
+			if(temp[i]->getNrOfCheckpointsTaken() < temp[j]->getNrOfCheckpointsTaken())
+			{
+				Player::ptr tempPlayer = temp[i];
+				temp[i] = temp[j];
+				temp[j] = tempPlayer;
+			}
+			else if(temp[i]->getNrOfCheckpointsTaken() == temp[j]->getNrOfCheckpointsTaken())
+			{
+				if(temp[i]->getClockedTime() > temp[j]->getClockedTime())
+				{
+					Player::ptr tempPlayer = temp[i];
+					temp[i] = temp[j];
+					temp[j] = tempPlayer;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	m_PlayerPositionList = temp;
+}
+
+unsigned int FileGameRound::getPlayerPos(Actor::Id p_Player)
+{
+	for(unsigned int i = 0; i < m_PlayerPositionList.size(); i++)
+	{
+		Actor::ptr actor = m_PlayerPositionList[i]->getActor().lock();
+		if(actor->getId() == p_Player)
+		{
+			return i+1;
+		}
+	}
+	throw std::exception("Error in function getPlayerPos!", __LINE__);
 }

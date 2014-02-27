@@ -45,6 +45,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_InGame = false;
 	m_PlayingLocal = true;
 	m_StartLocal = false;
+	m_PlayerTimeDifference = 0.f;
+	m_PlayerPositionInRace = 0;
 }
 
 void GameLogic::shutdown(void)
@@ -473,6 +475,16 @@ void GameLogic::playerWave()
 	}
 }
 
+unsigned int GameLogic::getPlayerPositionInRace()
+{
+	return m_PlayerPositionInRace;
+}
+
+float GameLogic::getPlayerTimeDifference()
+{
+	return m_PlayerTimeDifference;
+}
+
 void GameLogic::setPlayerClimb(bool p_State)
 {
 	m_Player.setClimbing(p_State);
@@ -691,6 +703,25 @@ void GameLogic::handleNetwork()
 						}
 					}
 							
+				}
+				break;
+			case PackageType::GAME_POSITIONS:
+				{
+					int numberOfData = conn->getNumRacePositionsData(package);
+					for(int i = 0; i < numberOfData; i++)
+					{
+						const char* result = conn->getRacePositionsData(package, i);
+						tinyxml2::XMLDocument reader;
+						reader.Parse(result);
+						tinyxml2::XMLElement* object = reader.FirstChildElement("RacePositions");
+						if(object->Attribute("Type", "Place"))
+						{
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
+							object->QueryAttribute("Time", &m_PlayerTimeDifference);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
+							//m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+						}
+					}
 				}
 				break;
 

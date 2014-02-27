@@ -56,6 +56,7 @@ public:
 	/**
 	* Automatically creates a shader based on user defined layout. Should only be used if defining a vertex shader.
 	* @param p_Filename the shader file to read
+	* @param p_Defines sets defines in shader files to a value.
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g. "mainVS,mainPS,mainGS,mainHS,mainDS",
 	*		 note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
@@ -66,13 +67,14 @@ public:
 	* @param p_VertexLayout the user defined vertex layout shader should use
 	* @param p_NumOfElement the number of elements in the layout
 	*/
-	virtual Shader *createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+	virtual Shader *createShader(LPCWSTR p_Filename, D3D_SHADER_MACRO *p_Defines, const char *p_EntryPoint, const char *p_ShaderModel,
 		ShaderType p_Type, ShaderInputElementDescription *p_VertexLayout, unsigned int p_NumOfInputElements);
 
 	/**
 	* Automatically creates a new shader step to a shader based on layout in the shader file.
 	* @param p_Shader the shader object where to store the new shader
 	* @param p_Filename the shader file to read
+	* @param p_Defines sets defines in shader files to a value.
 	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g. "mainVS,mainPS,mainGS,mainHS,mainDS",
 	*		 note this order is important to be kept but all steps are not necessary,
 	*		 note the ',' is the separator
@@ -81,7 +83,7 @@ public:
 	*		 ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER,
 	*		 note that an exception will occur if trying to add vertex shader step
 	*/
-	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, D3D_SHADER_MACRO *p_Defines, const char *p_EntryPoint,
 		const char *p_ShaderModel, ShaderType p_Type);
 
 protected:
@@ -91,8 +93,8 @@ protected:
 	virtual std::string getShaderModel(const char *p_ShaderVersion, Shader::Type p_Type);
 	virtual std::vector<std::string> createEntryPointList(const char *p_EntryPoint);
 
-	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, D3D_SHADER_MACRO *p_Defines, const char *p_EntryPoint,
 		const char *p_ShaderModel, Shader::Type p_ShaderType);
-	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, const char *p_EntryPoint,
+	virtual void addShaderStep(Shader *p_Shader, LPCWSTR p_Filename, D3D_SHADER_MACRO *p_Defines, const char *p_EntryPoint,
 		const char *p_ShaderModel, Shader::Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
 };

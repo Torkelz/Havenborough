@@ -49,7 +49,7 @@ public:
 
 	/*
 	* Calculates the video RAM usage by texture format.
-	* when releasing something from memory.
+	* Should also be called when releasing something from memory.
 	* @param p_Format the format of the texture
 	* @param p_Width the width of the texture in pixels
 	* @param p_Height the height of the texture in pixels

@@ -183,6 +183,9 @@ void GameScene::render()
 	m_Graphics->renderSkydome();
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
+	m_Graphics->render2D_Object(4);
+
+	
 }
 
 bool GameScene::getIsVisible()
@@ -220,7 +223,7 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
 	{
 		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
-		if((unsigned int)m_CurrentDebugView >= 5)
+		if((unsigned int)m_CurrentDebugView >= 6)
 			m_CurrentDebugView = (IGraphics::RenderTarget)0;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 	}
@@ -507,6 +510,7 @@ void GameScene::preLoadModels()
 	//DO NOT MAKE ANY CALLS TO GRAPHICS IN HERE!
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Pivot1"));
+
 }
 
 void GameScene::releasePreLoadedModels()

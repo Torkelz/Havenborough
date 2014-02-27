@@ -52,8 +52,9 @@ private:
 	SkyDome	*m_SkyDome;
 
 	bool	m_SSAO;
+	bool	m_ShadowMap;
+	int		m_ShadowMapResolution;
 
-	ID3D11ShaderResourceView*	m_DepthMapSRV;
 	ID3D11DepthStencilView*		m_DepthMapDSV;
 	UINT						m_Width;
 	UINT						m_Height;
@@ -93,7 +94,7 @@ public:
 	void initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext,
 		ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
-		DirectX::XMFLOAT4X4 *p_ProjectionMatrix, std::vector<Light> *p_SpotLights,
+		DirectX::XMFLOAT4X4 *p_ProjectionMatrix,int p_ShadowMapResolution, std::vector<Light> *p_SpotLights,
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
 		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
 
@@ -142,6 +143,8 @@ public:
 	void updateCamera(DirectX::XMFLOAT3 p_Position);
 
 	void enableSSAO(bool p_State);
+
+	void enableShadowMap(bool p_State);
 
 private:
 	void renderGeometry(ID3D11DepthStencilView*, unsigned int, ID3D11RenderTargetView* rtv[]);
