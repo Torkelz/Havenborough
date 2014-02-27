@@ -190,5 +190,5 @@ private:
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 	void updateLightProjection(float p_viewHW);
-	void renderDirectionalLights(Light p_Directional);
+	void renderShadowMap(Light p_Directional);
 };

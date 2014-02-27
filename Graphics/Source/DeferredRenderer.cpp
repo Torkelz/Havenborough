@@ -524,7 +524,7 @@ void DeferredRenderer::renderLighting()
 	UINT sampleMask = 0xffffffff;
 	if(m_ShadowMap)
 	{
-		renderDirectionalLights(*m_ShadowMappedLight);
+		renderShadowMap(*m_ShadowMappedLight);
 	}
 	//Set constant data
 	m_Buffer["DefaultConstant"]->setBuffer(0);
@@ -547,8 +547,7 @@ void DeferredRenderer::renderLighting()
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//DirectionalLights except number one
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0); 
-	if(m_DirectionalLights->size() > 0)
-		renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
+	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
@@ -925,13 +924,14 @@ void DeferredRenderer::createSamplerState()
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_Blur"]);
 
 	// Create Shadow map texture sampler
-	sd.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+	sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.BorderColor[0] = 1.f;
 	sd.BorderColor[1] = sd.BorderColor[2] = sd.BorderColor[3] = 0.f;
-	sd.ComparisonFunc = D3D11_COMPARISON_LESS;
+	sd.ComparisonFunc = D3D11_COMPARISON_LESS;;
+
 	m_Device->CreateSamplerState(&sd, &m_Sampler["ShadowMap"]);
 }
 
@@ -1355,7 +1355,7 @@ void DeferredRenderer::updateLightProjection(float p_viewHW)
 	XMStoreFloat4x4(&m_LightProjection, XMMatrixTranspose(XMMatrixOrthographicLH(m_ViewHW, m_ViewHW, -20000.f, 20000)));
 }
 
-void DeferredRenderer::renderDirectionalLights(Light p_Directional)
+void DeferredRenderer::renderShadowMap(Light p_Directional)
 {
 	ID3D11DepthStencilState* previousDepthState;
 	m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);

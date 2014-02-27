@@ -46,17 +46,7 @@ void FileGameRound::setup()
 		{
 			player->addCheckpoint(checkpoint);
 		}
-	}	
-
-	//for(auto& player : m_Players)
-	//{
-	//	Actor::ptr actor = player->getActor().lock();
-	//	if(!actor)
-	//	{
-	//		break;
-	//	}
-	//	m_PlayerPositionList.push_back(actor->getId());
-	//}
+	}
 
 	m_PlayerPositionList = m_Players;
 
@@ -297,6 +287,28 @@ void FileGameRound::sendUpdates()
 					}
 				}
 			}
+			tinyxml2::XMLPrinter printer;
+			printer.OpenElement("RacePositions");
+			printer.PushAttribute("Type", "Place");
+			Actor::ptr playerActor  = player->getActor().lock();
+			if(!playerActor)
+			{
+				break;
+			}
+			printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
+			printer.PushAttribute("Time",  m_PlayerPositionList[0]->getClockedTime() - player->getClockedTime());
+			printer.CloseElement();
+			const char* info = printer.CStr();
+			for(auto& player : m_Players)
+			{
+				User::ptr user = player->getUser().lock();
+				if(!user)
+				{
+					continue;
+				}
+				
+				user->getConnection()->sendRacePosition(&info,1);
+			}
 			m_SendHitData.clear();
 		}
 		if(m_Players.size() == m_GoalCount)
@@ -481,6 +493,10 @@ unsigned int FileGameRound::getPlayerPos(Actor::Id p_Player)
 	for(unsigned int i = 0; i < m_PlayerPositionList.size(); i++)
 	{
 		Actor::ptr actor = m_PlayerPositionList[i]->getActor().lock();
+		if(!actor)
+		{
+			return i;/////////////////////////////////////////////
+		}
 		if(actor->getId() == p_Player)
 		{
 			return i+1;
