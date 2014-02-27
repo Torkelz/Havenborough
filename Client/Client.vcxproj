@@ -26,7 +26,6 @@
     <ClCompile Include="Source\SceneManager.cpp" />
     <ClCompile Include="Source\Scenes\GameScene.cpp" />
     <ClCompile Include="Source\Scenes\MenuScene.cpp" />
-    <ClCompile Include="Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -73,7 +72,6 @@
     <ClInclude Include="Source\Scenes\GameScene.h" />
     <ClInclude Include="Source\Scenes\IScene.h" />
     <ClInclude Include="Source\Scenes\MenuScene.h" />
-    <ClInclude Include="Source\Scenes\PostGameScene.h" />
     <ClInclude Include="Source\Window.h" />
   </ItemGroup>
   <ItemGroup>

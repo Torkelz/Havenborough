@@ -456,44 +456,6 @@ public:
 	}
 };
 
-class GameLeftEventData : public BaseEventData
-{
-private:
-	bool m_GoBack;
-
-public:
-	static const Type sk_EventType = Type(0x846ef45b);
-
-	explicit GameLeftEventData(bool p_GoBack)
-		:	m_GoBack(p_GoBack)
-	{
-	}
-
-	virtual const Type &getEventType(void) const override
-	{
-		return sk_EventType;
-	}
-
-	virtual Ptr copy(void) const override
-	{
-		return Ptr(new GameLeftEventData(m_GoBack));
-	}
-
-	virtual void serialize(std::ostream &p_Out) const override
-	{
-	}
-
-	virtual const char *getName(void) const override
-	{
-		return "GameLeftEvent";
-	}
-
-	bool getGoBack() const
-	{
-		return m_GoBack;
-	}
-};
-
 class QuitGameEventData : public BaseEventData
 {
 private:

@@ -407,7 +407,7 @@ void GameLogic::leaveGame()
 			con->sendLeaveGame();
 		}
 		
-		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(true)));
+		m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
 	}
 }
 
@@ -581,7 +581,7 @@ void GameLogic::handleNetwork()
 								object->QueryAttribute("VectorSize", &size);
 								if(size == 0)
 								{
-									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
 								}
 								else
 								{
@@ -592,7 +592,7 @@ void GameLogic::handleNetwork()
 										object->QueryAttribute("Place", &position);
 										GoalList.push_back(position);
 									}
-									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false))); //DO SOMETHING HERE!!
+									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
 								}
 						}
 						else if(object->Attribute("Type", "Position"))
