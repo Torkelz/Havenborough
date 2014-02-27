@@ -20,12 +20,12 @@ void HumanAnimationComponent::updateAnimation()
 		XMVECTOR look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 		XMMATRIX rotationInverse = XMMatrixTranspose(XMLoadFloat4x4(&lookComp->getRotationMatrix()));
 		velocity = XMVector3Transform(velocity, rotationInverse);
+
+		// Calculate the weight on the strafe track with some trigonometry.
+		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
+		changeAnimationWeight(2, 1 - abs(cosf(angle))); // Think again. Negative weights are not allowed.
 		if (!isInAir)
 		{
-			// Calculate the weight on the strafe track with some trigonometry.
-			float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-			changeAnimationWeight(2, 1 - abs(cosf(angle))); // Think again. Negative weights are not allowed.
-
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
 			SideAnimationState currentSideState = SideAnimationState::IDLE;
@@ -48,6 +48,10 @@ void HumanAnimationComponent::updateAnimation()
 			else if (XMVectorGetX(velocity) < -runSideLimit)
 			{
 				currentSideState = SideAnimationState::RUNNING_LEFT;
+			}
+			else if (XMVectorGetX(velocity) >= -10.f && XMVectorGetX(velocity) <= 10.f )
+			{
+				changeAnimationWeight(2, 0.0f);
 			}
 
 			if (currentForwardState != m_PrevForwardState)
@@ -112,11 +116,11 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", true);
+					playAnimation("BodyLand", false);
 					if (XMVectorGetZ(velocity) > runLimit)
-						queueAnimation("Run");
+						playAnimation("Run", false);
 					else
-						queueAnimation("Idle2");
+						playAnimation("Idle2", false);
 					break;
 
 				default: // Just in case, so that the code doesn't break, hohohoho
@@ -162,7 +166,7 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::JUMP:
 					if (m_PrevJumpState != JumpAnimationState::FLYING)
 					{
-						if(XMVectorGetX(velocity) > runLimit || XMVectorGetZ(velocity) > runLimit)
+						if(XMVectorGetZ(velocity) > runLimit)
 						{
 							playAnimation("RunningJump", true);
 							queueAnimation("Falling");
@@ -170,6 +174,17 @@ void HumanAnimationComponent::updateAnimation()
 						else
 						{
 							playAnimation("StandingJump", true);
+							queueAnimation("Falling");
+						}
+
+						if (XMVectorGetX(velocity) > runLimit)
+						{
+							playAnimation("SideJumpRight", false);
+							queueAnimation("Falling");
+						}
+						else if (XMVectorGetX(velocity) < -runLimit)
+						{
+							playAnimation("SideJumpLeft", false);
 							queueAnimation("Falling");
 						}
 					}
@@ -180,11 +195,19 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
+					playAnimation("HardLanding", true);
+					if (XMVectorGetZ(velocity) > runLimit)
+						queueAnimation("Run");
+					else
+						queueAnimation("Idle2");
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
-					playAnimation("NormalLanding", false);
+					playAnimation("BodyLand", false);
+					if (XMVectorGetZ(velocity) > runLimit)
+						playAnimation("Run", false);
+					else
+						playAnimation("Idle2", false);
 					break;
 
 				case JumpAnimationState::FALLING:
@@ -199,6 +222,100 @@ void HumanAnimationComponent::updateAnimation()
 			m_PrevForwardState = ForwardAnimationState::WALKING_FORWARD;
 			m_PrevSideState = SideAnimationState::IDLE;
 			m_PrevJumpState = currentJumpState;
+		}
+	}
+}
+
+void HumanAnimationComponent::updateIKJoints()
+{
+	using namespace DirectX;
+	if(m_ForceMove)
+	{
+		if(m_ClimbId == "Climb1")
+		{
+		}
+		else if(m_ClimbId == "Climb2")
+		{
+			XMVECTOR reachPointR;
+			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
+			Vector3 vReachPointR = Vector4(reachPointR).xyz();
+			applyIK_ReachPoint("RightArm", vReachPointR);
+		}
+
+		else if(m_ClimbId == "Climb3")
+		{
+			XMVECTOR reachPoint;
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+			Vector3 vReachPoint = Vector4(reachPoint).xyz();
+			applyIK_ReachPoint("RightArm", vReachPoint);
+
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+			vReachPoint = Vector4(reachPoint).xyz();
+			applyIK_ReachPoint("LeftArm", vReachPoint);
+		}
+		
+		else if(m_ClimbId == "Climb4")
+		{
+			XMVECTOR reachPoint;
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+			Vector3 vReachPoint = Vector4(reachPoint).xyz();
+			applyIK_ReachPoint("RightArm", vReachPoint);
+
+			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+			vReachPoint = Vector4(reachPoint).xyz();
+			applyIK_ReachPoint("LeftArm", vReachPoint);
+		}
+	}
+	else
+	{
+		int hitsSize = m_Physics->getHitDataSize();
+		for(int i = 0; i < hitsSize; i++)
+		{
+			HitData hit = m_Physics->getHitDataAt(i);
+
+			
+			if(hit.IDInBody == 2 && hit.colType != Type::SPHEREVSSPHERE && hit.collider == m_Owner->getBodyHandles()[0])
+			{
+				hit.colPos.y += 5.0f;
+				applyIK_ReachPoint("LeftLeg", Vector4ToXMFLOAT3(&hit.colPos));
+
+				DirectX::XMFLOAT3 anklePos = getJointPos("L_Ankle");
+				DirectX::XMFLOAT3 toePos = getJointPos("L_FootBase");
+				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
+				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
+
+				vToe = vToe - vAnkle;
+				vToe.m128_f32[1] = 0.f;
+			
+				vToe = DirectX::XMVector3Normalize(vToe);
+				vToe *= 20.0f;
+				vToe += vAnkle;
+				vToe.m128_f32[1] = hit.colPos.y;
+				hit.colPos = vToe;
+
+				applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos));
+			}
+			if(hit.IDInBody == 3 && hit.colType != Type::SPHEREVSSPHERE && hit.collider == m_Owner->getBodyHandles()[0])
+			{
+				hit.colPos.y += 5.0f;
+				applyIK_ReachPoint("RightLeg", Vector4ToXMFLOAT3(&hit.colPos));
+
+				DirectX::XMFLOAT3 anklePos = getJointPos("R_Ankle");
+				DirectX::XMFLOAT3 toePos = getJointPos("R_FootBase");
+				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
+				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
+
+				vToe = vToe - vAnkle;
+				vToe.m128_f32[1] = 0.f;
+			
+				vToe = DirectX::XMVector3Normalize(vToe);
+				vToe *= 20.0f;
+				vToe += vAnkle;
+				vToe.m128_f32[1] = hit.colPos.y;
+				hit.colPos = vToe;
+
+				applyIK_ReachPoint("RightFoot", Vector4ToXMFLOAT3(&hit.colPos));
+			}
 		}
 	}
 }

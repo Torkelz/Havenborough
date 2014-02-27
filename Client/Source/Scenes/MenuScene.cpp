@@ -15,6 +15,8 @@ MenuScene::~MenuScene()
 {
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
+	m_GameLogic = nullptr;
+	m_ResourceManager = nullptr;
 }
 
 bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
@@ -25,41 +27,19 @@ bool MenuScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_Graphics = p_Graphics;
 	m_GameLogic = p_GameLogic;
 	m_EventManager = p_EventManager;
+	m_ResourceManager = p_ResourceManager;
 
-	m_ServerAddress = "localhost";
-	m_ServerPort = 31415;
-
-	tinyxml2::XMLDocument doc;
-	tinyxml2::XMLError res = doc.LoadFile("UserOptions.xml");
-	if (res == tinyxml2::XML_NO_ERROR)
-	{
-		tinyxml2::XMLElement* options = doc.FirstChildElement("UserOptions");
-		if (options)
-		{
-			tinyxml2::XMLElement* server = options->FirstChildElement("Server");
-			if (server)
-			{
-				const char* address = server->Attribute("Hostname");
-				if (address)
-				{
-					m_ServerAddress = address;
-				}
-
-				unsigned int tPort = m_ServerPort;
-				server->QueryAttribute("Port", &tPort);
-#undef max
-				if (tPort <= std::numeric_limits<uint16_t>::max())
-				{
-					m_ServerPort = tPort;
-				}
-			}
-		}
-	}
+	m_LoadScreenResourceID = m_ResourceManager->loadResource("texture", "LoadingScreen");
+	m_LoadScreenGraphicsID = m_Graphics->create2D_Object(Vector3(0.f, 0.f, 0.f), Vector2(680, 360), Vector3(1.f, 1.f, 1.f), 0.f, "LoadingScreen");
 
 	return true;
 }
 
-void MenuScene::destroy(){}
+void MenuScene::destroy()
+{
+	m_Graphics->release2D_Model(m_LoadScreenGraphicsID);
+	m_ResourceManager->releaseResource(m_LoadScreenResourceID);
+}
 
 void MenuScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 {
@@ -87,7 +67,8 @@ void MenuScene::onFocus()
 void MenuScene::render()
 {
 	m_Graphics->setClearColor(Vector4(0, 1, 0, 1));
-	m_Graphics->setRenderTarget(IGraphics::RenderTarget::NONE);
+	m_Graphics->setRenderTarget(IGraphics::RenderTarget::FINAL);
+	m_Graphics->render2D_Object(m_LoadScreenGraphicsID);
 }
 
 bool MenuScene::getIsVisible()
@@ -122,26 +103,6 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		else if(p_Action == "changeSceneP")
 		{
 			m_ChangeList = true;
-		}
-		else if (p_Action == "joinTestLevel")
-		{
-			m_GameLogic->joinGame("test");
-		}
-		else if (p_Action == "joinServerLevel")
-		{
-#ifdef _DEBUG
-			m_GameLogic->joinGame("serverDebugLevel");
-#else
-			m_GameLogic->joinGame("serverLevel");
-#endif
-		}
-		else if (p_Action == "playLocalTest")
-		{
-			m_GameLogic->playLocalLevel();
-		}
-		else if (p_Action == "connectToServer")
-		{
-			m_GameLogic->connectToServer(m_ServerAddress, m_ServerPort);
 		}
 		else if (p_Action == "back")
 		{

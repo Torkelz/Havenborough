@@ -1,7 +1,7 @@
 #pragma once
 #include "IScene.h"
 #include "../GameLogic.h"
-#include <Light.h>
+#include <LightClass.h>
 
 class GameScene : public IScene
 {
@@ -29,7 +29,7 @@ private:
 	EventManager *m_EventManager;
 
 	std::vector<int> m_ResourceIDs;
-	std::vector<Light> m_Lights;
+	std::vector<LightClass> m_Lights;
 
 	struct ReachIK
 	{
@@ -93,7 +93,9 @@ private:
 	void createParticleEffect(IEventData::Ptr p_Data);
 	void removeParticleEffectInstance(IEventData::Ptr p_Data);
 	void updateParticlePosition(IEventData::Ptr p_Data);
-	
+	void updateParticleRotation(IEventData::Ptr p_Data);
+	void updateParticleBaseColor(IEventData::Ptr p_Data);
+
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 
 	void preLoadModels();

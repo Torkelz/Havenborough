@@ -8,12 +8,12 @@
 
 *Materials
 Material: blinn1
-DiffuseMap: pillarTrans.dds
+DiffuseMap: Checkpoint1_COLOR.dds
 NormalMap: Default_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 Material: blinn2
-DiffuseMap: DotTrans.dds
+DiffuseMap: Checkpoint2_COLOR.dds
 NormalMap: Default_NRM.dds
 SpecularMap: Default_SPEC.dds
 

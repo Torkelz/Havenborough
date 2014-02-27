@@ -125,6 +125,10 @@ void Network::registerPackages()
 	m_PackagePrototypes.push_back(PackageBase::ptr(new ResultData));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new SetSpawnPosition));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new ThrowSpell));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new StartCountdown));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new DoneCountdown));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new RequestGames));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new GameList));
 }
 
 void Network::startIO()

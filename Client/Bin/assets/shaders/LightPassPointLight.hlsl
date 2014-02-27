@@ -45,10 +45,11 @@ VSLightOutput PointLightVS(VSLightInput input)
 	VSLightOutput output;
 	output.vposition		= mul(projection, mul(view, pos));
 	output.lightPos			= input.lightPos;
-	output.lightColor		= input.lightColor;	
-	output.lightDirection	= input.lightDirection;	
-	output.spotlightAngles	= input.spotlightAngles;	
+	output.lightColor		= input.lightColor;
+	output.lightDirection	= input.lightDirection;
+	output.spotlightAngles	= input.spotlightAngles;
 	output.lightRange		= input.lightRange;
+	output.lightIntensity	= input.lightIntensity;
 	return output;
 }
 //############################

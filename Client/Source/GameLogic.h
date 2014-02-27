@@ -31,6 +31,8 @@ private:
 
 	Level m_Level;
 	Player m_Player;
+	std::string m_LevelName;
+	std::string m_Username;
 	
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
@@ -41,14 +43,18 @@ private:
 	ActorFactory* m_ActorFactory;
 	ActorList::ptr m_Actors;
 
+	Actor::wPtr m_PlayerSparks;
+
 	bool m_IsConnecting;
 	bool m_Connected;
 	bool m_InGame;
 	bool m_PlayingLocal;
+	bool m_StartLocal;
+	float m_CountdownTimer;
+	bool m_RenderGo;
 
 	//DEBUG
 	Vector2 m_PlayerDirection;
-	Vector3 m_CurrentCheckPointPosition;
 public:
 	GameLogic(void);
 	~GameLogic(void);
@@ -76,22 +82,24 @@ public:
 	Vector3 getPlayerRotation() const;
 	DirectX::XMFLOAT4X4 getPlayerViewRotationMatrix() const;
 	void movePlayerView(float p_Yaw, float p_Pitch);
-	Vector3 getCurrentCheckpointPosition(void) const;
-
-	const float getPlayerCurrentMana(void);
-	const float getPlayerPreviousMana(void);
 
 	IPhysics *getPhysics() const;
 
 	void playerJump();
 	void playLocalLevel();
 
-	void connectToServer(const std::string& p_URL, unsigned short p_Port);
+	void connectToServer(const std::string& p_URL, unsigned short p_Port,
+		const std::string& p_LevelName, const std::string& p_Username);
 	void leaveGame();
-	void joinGame(const std::string& p_LevelName);
 
 	void throwSpell(const char *p_SpellId);
 	//void releaseSpellInstance(int p_SpellId);
+
+	/**
+	 * Response to when someone presses the wave button.
+	 * Sends an event to the server and the animation system.
+	 */
+	void playerWave();
 
 	/**
 	 * Activates the ability for the player to climb edges.
@@ -102,6 +110,7 @@ public:
 	
 private:
 	void handleNetwork();
+	void joinGame();
 	
 	static void connectedCallback(Result p_Res, void* p_UserData);
 
@@ -111,11 +120,12 @@ private:
 	void removeActorByEvent(IEventData::Ptr p_Data);
 
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
-	void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
-	void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
+	//void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
+	//void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
 
+	void updateCountdownTimer(float p_DeltaTime);
 
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();

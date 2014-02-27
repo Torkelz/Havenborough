@@ -13,6 +13,7 @@
 *.a
 
 *.vcxproj.user
+*.csproj.user
 Debug/
 *.sdf
 *.suo
@@ -44,3 +45,7 @@ BoostIntegrationTest/Bin/release_log.txt
 *.txx
 *.btxe
 *.tmp
+*.vshost.exe.manifest
+packages/
+Havenborough Launcher/packages.config
+Client/Bin/MahApps.Metro.xml

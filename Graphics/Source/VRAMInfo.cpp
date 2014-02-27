@@ -92,6 +92,11 @@ unsigned int VRAMInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width, i
 			result = 0;
 			break;
 		}
+	case DXGI_FORMAT_R32_TYPELESS:
+		{
+			result = Size::R32_TYPELESS * p_Width * p_Height;
+			break;
+		}
 	case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
 		{
 			throw MemoryUsageException("Trying to load SRGB texture.", __LINE__, __FILE__);

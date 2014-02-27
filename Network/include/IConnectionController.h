@@ -220,8 +220,9 @@ public:
 	 * Send a Join Game package for a player joining a server game.
 	 *
 	 * @param p_Game the name of the game to join
+	 * @param p_Username the name the user wants to use
 	 */
-	virtual void sendJoinGame(const char* p_Game) = 0;
+	virtual void sendJoinGame(const char* p_Game, const char* p_Username) = 0;
 
 	/**
 	 * Get the name of the game the player tries to join.
@@ -230,6 +231,14 @@ public:
 	 * @return the name of the game from the package
 	 */
 	virtual const char* getJoinGameName(Package p_Package) = 0;
+
+	/**
+	 * Get the name of the player trying to join.
+	 *
+	 * @param p_Package a valid reference to a package with the JoinGame type.
+	 * @return the name of the player from the package
+	 */
+	virtual const char* getJoinGameUsername(Package p_Package) = 0;
 
 	/**
 	 * Get the size of the binary stream.
@@ -299,4 +308,44 @@ public:
 	virtual const char* getThrowSpellName(Package p_Package) = 0;
 	virtual Vector3 getThrowSpellStartPosition(Package p_Package) = 0;
 	virtual Vector3 getThrowSpellDirection(Package p_Package) = 0;
+
+	/**
+	 * Send a package to start countdown on clients.
+	 */
+	virtual void sendStartCountdown() = 0;
+
+	/**
+	 * Send a package to release players from countdown freeze.
+	 */
+	virtual void sendDoneCountdown() = 0;
+
+	/**
+	 * Send a package to request avilable games.
+	 */
+	virtual void sendRequestGames() = 0;
+
+	/**
+	 * Send a package with a list of available games.
+	 *
+	 * @param p_Games array of available games
+	 * @param p_NumGames number of games in list
+	 */
+	virtual void sendGameList(const AvailableGameData* p_Games, unsigned int p_NumGames) = 0;
+
+	/**
+	 * Get the number of games in the package.
+	 *
+	 * @param p_Package a valid reference to a package with the GameList type.
+	 * @return the number of games in the package
+	 */
+	virtual unsigned int getNumGameListGames(Package p_Package) = 0;
+
+	/**
+	 * Gets one of the available games in the package.
+	 *
+	 * @param p_Package a valid reference to a package with the GameList type.
+	 * @param p_GameIdx the index of the game to retreive
+	 * @return an array of available games on the server
+	 */
+	virtual AvailableGameData getGameListGame(Package p_Package, unsigned int p_GameIdx) = 0;
 };

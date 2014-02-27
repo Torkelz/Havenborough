@@ -32,11 +32,23 @@ public:
 	 * @return a body handle
 	 */
 	virtual BodyHandle getBodyHandle() const = 0;
-
+	/**
+	 * Get the body velocity of the component.
+	 *
+	 * @return velocity
+	 */
 	virtual Vector3 getVelocity() const = 0;
-
+	/**
+	 * Get if the components body is in the air.
+	 *
+	 * @return true if it the body is in the air otherwise false.
+	 */
 	virtual bool isInAir() const = 0;
-
+	/**
+	 * Get if the components body has landed .
+	 *
+	 * @return velocity
+	 */
 	virtual bool hasLanded() const = 0;
 };
 
@@ -221,6 +233,7 @@ private:
 	float m_Radius;
 	float m_Mass;
 	bool m_Immovable;
+	bool m_CollisionResponse;
 
 public:
 	~CollisionSphereComponent() override
@@ -258,11 +271,16 @@ public:
 
 		m_Mass = 0.f;
 		p_Data->QueryAttribute("Mass", &m_Mass);
+
+		m_CollisionResponse = true;
+		p_Data->QueryBoolAttribute("CollisionResponse", &m_CollisionResponse);
 	}
 
 	void postInit() override
 	{
 		m_Body = m_Physics->createSphere(m_Mass, m_Immovable, m_Owner->getPosition() + m_OffsetPositition, m_Radius);
+		m_Physics->setBodyCollisionResponse(m_Body, m_CollisionResponse);
+
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -271,6 +289,7 @@ public:
 		p_Printer.PushAttribute("Immovable", m_Immovable);
 		p_Printer.PushAttribute("Radius", m_Radius);
 		p_Printer.PushAttribute("Mass", m_Mass);
+		p_Printer.PushAttribute("CollisionResponse", m_CollisionResponse);
 		pushVector(p_Printer, "OffsetPosition", m_OffsetPositition);
 		p_Printer.CloseElement();
 	}
@@ -524,6 +543,210 @@ public:
 		return m_Physics->getBodyLanded(m_Body);
 	}
 };
+
+/**
+ * Player body component
+ */
+class PlayerBodyComponent : public PhysicsInterface
+{
+private:
+	BodyHandle m_Body;
+	IPhysics* m_Physics;
+	float m_RadiusMain;
+	float m_RadiusAnkle;
+	float m_RadiusHead;
+	float m_Mass;
+	Vector3 m_OffsetPositionSphereMain;
+	Vector3 m_OffsetPositionSphereHead;
+	Vector3 m_OffsetPositionBox;
+	Vector3 m_OffsetRotation;
+	Vector3 m_Halfsize;
+	Vector3 m_Scale;
+
+public:
+	~PlayerBodyComponent() override
+	{
+		m_Physics->releaseBody(m_Body);
+	}
+	
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
+	void setPhysics(IPhysics* p_Physics)
+	{
+		m_Physics = p_Physics;
+	}
+
+	/**
+	 * Set the physics to use for the component.
+	 *
+	 * @param p_Physics the physics library to use
+	 */
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		m_RadiusMain = 1.f;
+		p_Data->QueryFloatAttribute("RadiusMain", &m_RadiusMain);
+		m_RadiusAnkle = 1.f;
+		p_Data->QueryFloatAttribute("RadiusAnkle", &m_RadiusAnkle);
+		m_RadiusHead = 1.f;
+		p_Data->QueryFloatAttribute("RadiusHead", &m_RadiusHead);
+		m_Mass = 1.f;
+		p_Data->QueryFloatAttribute("Mass", &m_Mass);
+
+		m_Scale = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
+		if (scale)
+		{
+			m_Scale.x = scale->FloatAttribute("x");
+			m_Scale.y = scale->FloatAttribute("y");
+			m_Scale.z = scale->FloatAttribute("z");
+		}
+
+		m_Halfsize = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* size = p_Data->FirstChildElement("Halfsize");
+		if (size)
+		{
+			m_Halfsize.x = size->FloatAttribute("x");
+			m_Halfsize.y = size->FloatAttribute("y");
+			m_Halfsize.z = size->FloatAttribute("z");
+		}
+
+		m_OffsetPositionSphereHead = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosSphereHead = p_Data->FirstChildElement("OffsetPositionSphereHead");
+		if (relPosSphereHead)
+		{
+			relPosSphereHead->QueryAttribute("x", &m_OffsetPositionSphereHead.x);
+			relPosSphereHead->QueryAttribute("y", &m_OffsetPositionSphereHead.y);
+			relPosSphereHead->QueryAttribute("z", &m_OffsetPositionSphereHead.z);
+		}
+
+		m_OffsetPositionSphereMain = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosSphereMain = p_Data->FirstChildElement("OffsetPositionSphereMain");
+		if (relPosSphereMain)
+		{
+			relPosSphereMain->QueryAttribute("x", &m_OffsetPositionSphereMain.x);
+			relPosSphereMain->QueryAttribute("y", &m_OffsetPositionSphereMain.y);
+			relPosSphereMain->QueryAttribute("z", &m_OffsetPositionSphereMain.z);
+		}
+
+		m_OffsetPositionBox = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosBox = p_Data->FirstChildElement("OffsetPositionBox");
+		if (relPosBox)
+		{
+			relPosBox->QueryAttribute("x", &m_OffsetPositionBox.x);
+			relPosBox->QueryAttribute("y", &m_OffsetPositionBox.y);
+			relPosBox->QueryAttribute("z", &m_OffsetPositionBox.z);
+		}
+
+		m_OffsetRotation = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relRot = p_Data->FirstChildElement("OffsetRotation");
+		if(relRot)
+		{
+			queryRotation(relRot, m_OffsetRotation);
+		}
+
+
+	}
+
+	void postInit() override
+	{
+		m_Body = m_Physics->createSphere(m_Mass, false, m_Owner->getPosition() + m_OffsetPositionSphereMain, m_RadiusMain);
+		
+		using namespace DirectX;
+		XMFLOAT4X4 rotMat = m_Owner->getWorldMatrix();
+		XMMATRIX mRotMat = XMMatrixTranspose(XMLoadFloat4x4(&rotMat));
+		XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(m_OffsetPositionBox));
+		pos = XMVectorSetW(pos, 1.f);
+		XMVECTOR rotPos = XMVector4Transform(pos, mRotMat);
+		XMFLOAT3 fRotPos;
+		XMStoreFloat3(&fRotPos, rotPos);
+		
+		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionBox, m_Halfsize);
+
+		Vector3 ownerRot = m_Owner->getRotation();
+		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
+		XMMATRIX compRotation = XMMatrixRotationRollPitchYaw(m_OffsetRotation.y, m_OffsetRotation.x, m_OffsetRotation.z);
+		XMMATRIX multRotation = compRotation * ownerRotation;
+		XMFLOAT4X4 fMultRotation;
+		XMStoreFloat4x4(&fMultRotation, multRotation);
+		m_Physics->setBodyRotationMatrix(m_Body, fMultRotation);
+
+		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereMain, m_RadiusAnkle);
+		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereMain, m_RadiusAnkle);
+
+		m_Physics->setBodyVolumeCollisionResponse(m_Body, 2, false);
+		m_Physics->setBodyVolumeCollisionResponse(m_Body, 3, false);
+
+		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereHead, m_RadiusHead);
+
+		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
+		m_Physics->setBodyScale(m_Body, m_Scale);
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("PlayerPhysics");
+		p_Printer.PushAttribute("RadiusMain", m_RadiusMain);
+		p_Printer.PushAttribute("RadiusAnkle", m_RadiusAnkle);
+		p_Printer.PushAttribute("RadiusHead", m_RadiusHead);
+		p_Printer.PushAttribute("Mass", m_Mass);
+		pushVector(p_Printer, "Scale", m_Scale);
+		pushVector(p_Printer, "Halfsize", m_Halfsize);
+		pushVector(p_Printer, "OffsetPositionSphereMain", m_OffsetPositionSphereMain);
+		pushVector(p_Printer, "OffsetPositionSphereHead", m_OffsetPositionSphereHead);
+		pushVector(p_Printer, "OffsetPositionBox", m_OffsetPositionBox);
+		pushVector(p_Printer, "OffsetRotation", m_OffsetRotation);
+		p_Printer.CloseElement();
+	}
+
+	void onUpdate(float p_DeltaTime) override
+	{
+		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositionSphereMain);
+		Vector3 rotation = m_Owner->getRotation();
+		m_Physics->setBodyRotation(m_Body, rotation);
+
+
+	}
+
+	void setPosition(Vector3 p_Position) override
+	{
+		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositionSphereMain);
+	}
+
+	void setRotation(Vector3 p_Rotation) override
+	{
+		using namespace DirectX;
+		Vector3 ownerRot = p_Rotation;
+		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
+		XMMATRIX compRotation = XMMatrixRotationRollPitchYaw(m_OffsetRotation.y, m_OffsetRotation.x, m_OffsetRotation.z);
+		XMMATRIX multRotation = compRotation * ownerRotation;
+		XMFLOAT4X4 fMultRotation;
+		XMStoreFloat4x4(&fMultRotation, multRotation);
+		m_Physics->setBodyRotationMatrix(m_Body, fMultRotation);
+	}
+
+	BodyHandle getBodyHandle() const override
+	{
+		return m_Body;
+	}
+
+	Vector3 getVelocity() const override
+	{
+		return m_Physics->getBodyVelocity(m_Body);
+	}
+
+	bool isInAir() const override
+	{
+		return m_Physics->getBodyInAir(m_Body);
+	}
+	bool hasLanded() const override
+	{
+		return m_Physics->getBodyLanded(m_Body);
+	}
+};
+
 
 /**
  * Interface for model components.
@@ -1003,7 +1226,7 @@ public:
 class LightComponent : public LightInterface
 {
 private:
-	Light m_Light;
+	LightClass m_Light;
 
 public:
 	~LightComponent() override
@@ -1037,7 +1260,7 @@ public:
 				col->QueryAttribute("b", &color.z);
 			}
 
-			m_Light = Light::createPointLight(position, range, color);
+			m_Light = LightClass::createPointLight(position, range, color);
 		}
 		else if (p_Data->Attribute("Type", "Spot"))
 		{
@@ -1080,13 +1303,13 @@ public:
 				ang->QueryAttribute("max", &angles.y);
 			}
 
-			m_Light = Light::createSpotLight(position, direction, angles, range, color);
+			m_Light = LightClass::createSpotLight(position, direction, angles, range, color);
 		}
 		else if (p_Data->Attribute("Type", "Directional"))
 		{
 			Vector3 direction(0.f, -1.f, 0.f);
 			Vector3 color(1.f, 1.f, 1.f);
-
+			float intensity;
 			const tinyxml2::XMLElement* dir = p_Data->FirstChildElement("Direction");
 			if (dir)
 			{
@@ -1094,7 +1317,11 @@ public:
 				dir->QueryAttribute("y", &direction.y);
 				dir->QueryAttribute("z", &direction.z);
 			}
-
+			const tinyxml2::XMLElement* intens = p_Data->FirstChildElement("Intensity");
+			if(intens)
+			{
+				intens->QueryAttribute("Intensity", &intensity);
+			}
 			const tinyxml2::XMLElement* col = p_Data->FirstChildElement("Color");
 			if (col)
 			{
@@ -1102,8 +1329,8 @@ public:
 				col->QueryAttribute("g", &color.y);
 				col->QueryAttribute("b", &color.z);
 			}
-
-			m_Light = Light::createDirectionalLight(direction, color);
+			
+			m_Light = LightClass::createDirectionalLight(direction, color, intensity);
 		}
 		else
 		{
@@ -1120,14 +1347,17 @@ public:
 		p_Printer.OpenElement("Light");
 		switch (m_Light.type)
 		{
-		case Light::Type::DIRECTIONAL:
+		case LightClass::Type::DIRECTIONAL:
 			{
 				p_Printer.PushAttribute("Type", "Directional");
 				pushVector(p_Printer, "Direction", m_Light.direction);
+				p_Printer.OpenElement("Intensity");
+				p_Printer.PushAttribute("Intensity", m_Light.intensity);
+				p_Printer.CloseElement();
 			}
 			break;
 
-		case Light::Type::POINT:
+		case LightClass::Type::POINT:
 			{
 				p_Printer.PushAttribute("Type", "Point");
 				p_Printer.PushAttribute("Range", m_Light.range);
@@ -1135,7 +1365,7 @@ public:
 			}
 			break;
 
-		case Light::Type::SPOT:
+		case LightClass::Type::SPOT:
 			{
 				p_Printer.PushAttribute("Type", "Spot");
 				p_Printer.PushAttribute("Range", m_Light.range);
@@ -1161,7 +1391,7 @@ public:
 	 *
 	 * @return the lights unique identifier
 	 */
-	Light::Id getId() const
+	LightClass::Id getId() const
 	{
 		return m_Light.id;
 	}
@@ -1171,7 +1401,7 @@ public:
 	 *
 	 * @param p_Id the light's id
 	 */
-	void setId(Light::Id p_Id)
+	void setId(LightClass::Id p_Id)
 	{
 		m_Light.id = p_Id;
 	}
@@ -1278,6 +1508,8 @@ public:
 	{
 		return m_ComponentId;
 	}
+
+	virtual void setBaseColor(Vector4 p_NewBaseColor) = 0;
 };
 
 class ParticleComponent : public ParticleInterface
@@ -1285,6 +1517,7 @@ class ParticleComponent : public ParticleInterface
 private:
 	unsigned int m_ParticleId;
 	std::string m_EffectName;
+	Vector4 m_BaseColor;
 
 public:
 	~ParticleComponent()
@@ -1299,6 +1532,8 @@ public:
 		{
 			throw CommonException("Missing effect name", __LINE__, __FILE__);
 		}
+		m_BaseColor = Vector4(-1.f, -1.f, -1.f, -1.f);
+		queryColor(p_Data->FirstChildElement("BaseColor"), m_BaseColor);
 
 		m_EffectName = effectName;
 	}
@@ -1306,18 +1541,37 @@ public:
 	void postInit() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateParticleEventData(m_ParticleId, m_EffectName, m_Owner->getPosition())));
+		if (m_BaseColor.x != -1.f)
+		{
+			setBaseColor(m_BaseColor);
+		}
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("Particle");
 		p_Printer.PushAttribute("Effect", m_EffectName.c_str());
+		if (m_BaseColor.x != -1.f)
+		{
+			pushColor(p_Printer, "BaseColor", m_BaseColor);
+		}
 		p_Printer.CloseElement();
 	}
 
 	void setPosition(Vector3 p_Position)
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateParticlePositionEventData(m_ParticleId, p_Position)));
+	}
+
+	void setRotation(Vector3 p_Rotation) override
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateParticleRotationEventData(m_ParticleId, p_Rotation)));
+	}
+
+	void setBaseColor(Vector4 p_BaseColor) override
+	{
+		m_BaseColor = p_BaseColor;
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateParticleBaseColorEventData(m_ParticleId, p_BaseColor)));
 	}
 
 	/**
@@ -1350,14 +1604,69 @@ public:
 		return m_ComponentId;
 	}
 	
+	/**
+	 * Poll the animation component to play a new animation clip.
+	 * @param p_AnimationName, the name of the wanted clip.
+	 * @param p_Override, specify if the clip should override active clips.
+	 */
 	virtual void playAnimation(std::string p_AnimationName, bool p_Override) = 0;
+
+	/**
+	 * Poll the animation component to queue a new animation clip.
+	 * @param p_AnimationName, the name of the wanted clip.
+	 */
 	virtual void queueAnimation(std::string p_AnimationName) = 0;
+
+	/**
+	 * Change the influence of an animation track pair.
+	 * @param p_Track, first track number in the pair.
+	 * @param p_Weight, the wanted influence.
+	 */
 	virtual void changeAnimationWeight(int p_Track, float p_Weight) = 0;
+
+	/**
+	 * Calculate 3-joint IK to reach for a specified point.
+	 * @param p_GroupName, the wanted IK-group.
+	 * @param p_Target, 3D point to reach for.
+	 */
 	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) = 0;
+
+	/**
+	 * @param p_JointName, the name of the joint to get the position of.
+	 * @return the joint position in World space.
+	 */
 	virtual DirectX::XMFLOAT3 getJointPos(const std::string& p_JointName) = 0;
-	virtual const AnimationPath getAnimationData(std::string p_AnimatioId) const = 0;
+
+	/**
+	 * Poll the animation to return a specified animation path for climbing.
+	 * @param p_AnimationId, the name of the animation path.
+	 * @return the wanted animation path.
+	 */
+	virtual const AnimationPath getAnimationData(std::string p_AnimationId) const = 0;
+
+	/**
+	 * Automaticly plays the specified climb animation and locks all other animations from running.
+	 * @param p_ClimbId, the name of the wanted climb animation.
+	 */
 	virtual void playClimbAnimation(std::string p_ClimbID) = 0;
+
+	/**
+	 * Unlock the animations.
+	 */
 	virtual void resetClimbState() = 0;
+
+	/**
+	 * Update the needed data for climb IK.
+	 * @param p_EdgeOrientation, the calculated orientation of the edge.
+	 * @param p_CenterReachPos, the center position that the IK uses.
+	 */
+	virtual void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos) = 0;
+
+	/**
+	 * The animation component needs physics for some of its calculations.
+	 * @param p_Physics, a pointer to the physics engine.
+	 */
+	virtual void setPhysics(IPhysics *p_Physics) = 0;
 };
 
 class SpellInterface : public ActorComponent

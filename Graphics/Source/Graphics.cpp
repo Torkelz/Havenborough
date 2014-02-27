@@ -39,6 +39,7 @@ Graphics::Graphics(void)
 	m_DeferredRender = nullptr;
 	m_ForwardRenderer = nullptr;
 	m_ScreenRenderer = nullptr;
+	m_TextRenderer = nullptr;
 
 	m_ConstantBuffer = nullptr;
 	m_BVBuffer = nullptr;
@@ -200,7 +201,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights,
+		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights, &m_ShadowMappedLight, 
 		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
 	
 	//Forward renderer
@@ -212,6 +213,11 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_ScreenRenderer = new ScreenRenderer();
 	m_ScreenRenderer->initialize(m_Device, m_DeviceContext, &m_ViewMatrix, 
 		XMFLOAT4((float)p_ScreenWidth, (float)p_ScreenHeight, 0.f, (float)p_ScreenWidth), m_DepthStencilView, m_RenderTargetView);
+
+	//Text renderer
+	m_TextRenderer = new TextRenderer();
+	m_TextRenderer->initialize(m_Device, m_DeviceContext, &m_Eye, &m_ViewMatrix, &m_ProjectionMatrix,
+		m_RenderTargetView);
 
 	DebugDefferedDraw();
 	setClearColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f)); 
@@ -240,11 +246,6 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
 
-	m_TextFactory.createText("TEST", L"Havenborough is an effing great game yo'", Vector2(320.f, 320.f),
-		"Gabriola", 48.f, Vector4(1,0,1,1));
-	m_TextFactory.setBackgroundColor("TEST", Vector4(1,0,0,1));
-	m_TextFactory.setWordWrapping("TEST", WORD_WRAPPING::NO_WRAP);
-	m_TextFactory.setTextColor("TEST", Vector4(1,1,1,1));
 	return true;
 }
 
@@ -310,7 +311,7 @@ void Graphics::shutdown(void)
 
 		Object2D_Id unremovedId = it->first;
 
-		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "Model '" + std::to_string(unremovedId) + "' not removed properly");
+		GraphicsLogger::log(GraphicsLogger::Level::WARNING, "2DModel '" + std::to_string(unremovedId) + "' not removed properly");
 
 		release2D_Model(unremovedId);
 	}
@@ -335,6 +336,7 @@ void Graphics::shutdown(void)
 	SAFE_DELETE(m_DeferredRender);
 	SAFE_DELETE(m_ForwardRenderer);
 	SAFE_DELETE(m_ScreenRenderer);
+	SAFE_DELETE(m_TextRenderer);
 
 	//Clear lights
 	m_PointLights.clear();
@@ -539,6 +541,24 @@ void Graphics::setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 
 	}
 }
 
+void Graphics::setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 p_Rotation)
+{
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
+	{
+		DirectX::XMFLOAT3 rot(p_Rotation.x,	p_Rotation.y, p_Rotation.z);
+		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setSysRotation(rot);
+	}
+}
+
+void Graphics::setParticleEffectBaseColor(InstanceId p_ParticleEffectId, Vector4 p_BaseColor)
+{
+	if(m_ParticleEffectInstanceList.count(p_ParticleEffectId) > 0)
+	{
+		DirectX::XMFLOAT4 baseColor(p_BaseColor.x,	p_BaseColor.y, p_BaseColor.z, p_BaseColor.w);
+		m_ParticleEffectInstanceList.at(p_ParticleEffectId)->setSysBaseColor(baseColor);
+	}
+}
+
 void Graphics::updateParticles(float p_DeltaTime)
 {
 	for (auto& particle : m_ParticleEffectInstanceList)
@@ -554,6 +574,19 @@ IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector2 p_H
 	
 	m_2D_Objects.insert(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(model))));
 	m_2D_Objects.at(m_Next2D_ObjectId).halfSize = p_HalfSize;
+	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
+	set2D_ObjectScale(m_Next2D_ObjectId, p_Scale);
+	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
+
+	return m_Next2D_ObjectId++;
+}
+
+IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
+	IGraphics::Text_Id p_TextureId)
+{
+	ModelDefinition *model = m_ModelFactory->create2D_Model(m_TextFactory.getSRV(p_TextureId));
+
+	m_2D_Objects.insert(make_pair(m_Next2D_ObjectId, Renderable2D(std::move(model))));
 	set2D_ObjectPosition(m_Next2D_ObjectId, p_Position);
 	set2D_ObjectScale(m_Next2D_ObjectId, p_Scale);
 	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
@@ -584,18 +617,24 @@ IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_S
 	return m_Next2D_ObjectId++;
 }
 
-IGraphics::Text_Id Graphics::createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
-	const char *p_Font, float p_FontSize, Vector4 p_FontColor)
+IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font,
+	float p_FontSize, Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation)
 {
-	return m_TextFactory.createText(string(p_Identifier), p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor);
+	Text_Id id = m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor);
+	m_TextRenderer->addTextObject(id, TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id)));
+	return id;
 }
 
-IGraphics::Text_Id Graphics::createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
-	const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
-	PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping)
+IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font,
+	float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment, PARAGRAPH_ALIGNMENT p_ParagraphAlignment,
+	WORD_WRAPPING p_WordWrapping, Vector3 p_Position, float p_Scale, float p_Rotation)
 {
-	return m_TextFactory.createText(string(p_Identifier), p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor,
+	Text_Id id = m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor,
 		p_TextAlignment, p_ParagraphAlignment, p_WordWrapping);
+	m_TextRenderer->addTextObject(id, TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id)));
+	return id;
 }
 
 void Graphics::render2D_Object(Object2D_Id p_Id)
@@ -637,9 +676,9 @@ void Graphics::renderSkydome(void)
 	m_DeferredRender->renderSkyDome();
 }
 
-void Graphics::renderText(void)
+void Graphics::renderText(IGraphics::Text_Id p_Id)
 {
-	
+	m_TextRenderer->renderTextObject(p_Id);
 }
 
 void Graphics::useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange)
@@ -657,7 +696,7 @@ void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, 
 	l.lightPos = XMFLOAT3(p_LightPosition.x,p_LightPosition.y,p_LightPosition.z);
 	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
 	
-	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMFLOAT3 lightDirection = p_LightDirection;
 	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
 	XMStoreFloat3(&l.lightDirection, lightDirectionV);
@@ -665,16 +704,31 @@ void Graphics::useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, 
 	l.lightRange = p_LightRange;
 	m_SpotLights.push_back(l);
 }
-void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection)
+void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection, float p_Intensity)
 {
 	Light l;
 	l.lightColor = XMFLOAT3(p_LightColor.x,p_LightColor.y,p_LightColor.z);
 
-	XMFLOAT3 lightDirection = Vector3ToXMFLOAT3(&p_LightDirection);
+	XMFLOAT3 lightDirection = p_LightDirection;
 	XMVECTOR lightDirectionV = XMVector3Normalize(XMLoadFloat3(&lightDirection));
 
 	XMStoreFloat3(&l.lightDirection, lightDirectionV);
-	m_DirectionalLights.push_back(l);
+	l.lightIntensity = p_Intensity;
+
+	if(m_ShadowMappedLight.lightIntensity == 0)
+	{
+		m_ShadowMappedLight = l;
+	}
+	else if(m_ShadowMappedLight.lightIntensity > l.lightIntensity)
+	{
+		m_DirectionalLights.push_back(l);
+	}
+	else
+	{
+		m_DirectionalLights.push_back(m_ShadowMappedLight);
+		m_ShadowMappedLight = l;
+	}
+
 }
 
 void Graphics::setClearColor(Vector4 p_Color)
@@ -687,8 +741,6 @@ void Graphics::setClearColor(Vector4 p_Color)
 
 void Graphics::drawFrame(void)
 {
-	
-
 	if (!m_DeviceContext || !m_DeferredRender || !m_ForwardRenderer)
 	{
 		throw GraphicsException("", __LINE__, __FILE__);
@@ -696,7 +748,6 @@ void Graphics::drawFrame(void)
 	Begin(m_ClearColor);
 
 	m_DeferredRender->renderDeferred();
-
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 4)
@@ -704,7 +755,6 @@ void Graphics::drawFrame(void)
 		m_ShaderList.at("DebugDeferredShader")->setShader();
 		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, 
 			m_DeferredRender->getRT(m_SelectedRenderTarget));
-			//m_TextFactory.getSRV("TEST"));
 		m_ShaderList.at("DebugDeferredShader")->setSamplerState(Shader::Type::PIXEL_SHADER, 0, 1, m_Sampler);
 		m_DeviceContext->Draw(6, 0);
 		m_ShaderList.at("DebugDeferredShader")->unSetShader();
@@ -717,6 +767,7 @@ void Graphics::drawFrame(void)
 			m_ForwardRenderer->addRenderable(particle.second);
 		}
 		m_ForwardRenderer->renderForward();
+		m_TextRenderer->renderFrame();
 		drawBoundingVolumes();
 		m_ScreenRenderer->renderScreen();
 
@@ -788,7 +839,7 @@ void Graphics::eraseModelInstance(InstanceId p_Instance)
 void Graphics::setModelPosition(InstanceId p_Instance, Vector3 p_Position)
 {
 	if(m_ModelInstances.count(p_Instance) > 0)
-		m_ModelInstances.at(p_Instance).setPosition(Vector3ToXMFLOAT3(&p_Position));
+		m_ModelInstances.at(p_Instance).setPosition(p_Position);
 	else
 		throw GraphicsException("Failed to set model instance position, vector out of bounds.", __LINE__, __FILE__);
 }
@@ -836,7 +887,7 @@ Vector2 Graphics::get2D_ObjectHalfSize(Object2D_Id p_Instance)
 void Graphics::set2D_ObjectPosition(Object2D_Id p_Instance, Vector3 p_Position)
 {
 	if(m_2D_Objects.count(p_Instance) > 0)
-		m_2D_Objects.at(p_Instance).position = Vector3ToXMFLOAT3(&p_Position);
+		m_2D_Objects.at(p_Instance).position = p_Position;
 	else
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
 }
@@ -862,16 +913,62 @@ void Graphics::set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt)
 	if(m_2D_Objects.count(p_Instance) > 0)
 	{
 		Renderable2D& renderable = m_2D_Objects.at(p_Instance);
-
-		XMVECTOR direction = Vector3ToXMVECTOR(&p_LookAt, 0.0f) - XMVectorSet(m_Eye.x, m_Eye.y, m_Eye.z, 0.0f);
-		direction = XMVector3Transform(direction, XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
-		direction = XMVector3Normalize(direction);
-		XMMATRIX rotation = XMMatrixTranspose(XMMatrixLookToLH(g_XMZero, direction, XMVectorSet(0,1,0,0)));
-
-		XMStoreFloat4x4(&renderable.rotation, rotation);
+		XMVECTOR lookAt = XMVector3Transform(Vector3ToXMVECTOR(&p_LookAt, 1.0f), XMMatrixTranspose(XMLoadFloat4x4(&m_ViewMatrix)));
+		XMMATRIX rotation = XMMatrixLookToLH(g_XMZero, lookAt,XMVectorSet(0,1,0,0));
+		XMStoreFloat4x4(&renderable.rotation, XMMatrixTranspose(rotation));
 	}
 	else
 		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::updateText(Text_Id p_Identifier, const wchar_t *p_Text)
+{
+	m_TextFactory.updateText(p_Identifier, p_Text);
+}
+
+void Graphics::deleteText(Text_Id p_Identifier)
+{
+	m_TextFactory.deleteText(p_Identifier);
+}
+
+void Graphics::setTextColor(Text_Id p_Identifier, Vector4 p_Color)
+{
+	m_TextFactory.setTextColor(p_Identifier, p_Color);
+}
+
+void Graphics::setTextBackgroundColor(Text_Id p_Identifier, Vector4 p_Color)
+{
+	m_TextFactory.setBackgroundColor(p_Identifier, p_Color);
+}
+
+void Graphics::setTextAlignment(Text_Id p_Identifier, TEXT_ALIGNMENT p_Alignment)
+{
+	m_TextFactory.setTextAlignment(p_Identifier, p_Alignment);
+}
+
+void Graphics::setTextParagraphAlignment(Text_Id p_Identifier, PARAGRAPH_ALIGNMENT p_Alignment)
+{
+	m_TextFactory.setParagraphAlignment(p_Identifier, p_Alignment);
+}
+
+void Graphics::setTextWordWrapping(Text_Id p_Identifier, WORD_WRAPPING p_Wrapping)
+{
+	m_TextFactory.setWordWrapping(p_Identifier, p_Wrapping);
+}
+
+void Graphics::setTextPosition(Text_Id p_Identifier, Vector3 p_Position)
+{
+	m_TextRenderer->setPosition(p_Identifier, p_Position);
+}
+
+void Graphics::setTextScale(Text_Id p_Identifier, float p_Scale)
+{
+	m_TextRenderer->setScale(p_Identifier, p_Scale);
+}
+
+void Graphics::setTextRotation(Text_Id p_Identifier, float p_Rotation)
+{
+	m_TextRenderer->setRotation(p_Identifier, p_Rotation);
 }
 
 void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)

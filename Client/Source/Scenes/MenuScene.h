@@ -9,13 +9,13 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
+	int m_LoadScreenResourceID;
+	IGraphics::Object2D_Id m_LoadScreenGraphicsID;
 
 	IGraphics *m_Graphics;
 	GameLogic *m_GameLogic;
 	EventManager *m_EventManager;
-
-	std::string m_ServerAddress;
-	uint16_t m_ServerPort;
+	ResourceManager *m_ResourceManager;
 
 public: 
 	MenuScene();

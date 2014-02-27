@@ -16,6 +16,8 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
+#include <boost/serialization/level.hpp>
+#include <boost/serialization/tracking.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
 #pragma warning(pop)
@@ -278,6 +280,24 @@ typedef Signal<PackageType::DONE_LOADING> DoneLoading;
 typedef Signal<PackageType::LEAVE_GAME> LeaveGame;
 
 /**
+ * A package representing that all players are ready to start the game.
+ */
+typedef Signal<PackageType::START_COUNTDOWN> StartCountdown;
+
+/**
+ * A package representing that all players can start running.
+ */
+typedef Signal<PackageType::DONE_COUNTDOWN> DoneCountdown;
+
+/**
+ * A package for requesting available games.
+ */
+typedef Signal<PackageType::REQUEST_GAMES> RequestGames;
+
+BOOST_CLASS_IMPLEMENTATION(RequestGames, boost::serialization::object_serializable)
+BOOST_CLASS_TRACKING(RequestGames, boost::serialization::track_never)
+
+/**
  * A package representing the removal of objects in the game world.
  */
 typedef Package1Obj<PackageType::REMOVE_OBJECTS, std::vector<uint32_t>> RemoveObjects;
@@ -319,11 +339,6 @@ namespace boost
 typedef Package1Obj<PackageType::PLAYER_CONTROL, PlayerControlData> PlayerControl;
 
 /**
- * A package representing the player joining a game.
- */
-typedef Package1Obj<PackageType::JOIN_GAME, std::string> JoinGame;
-
-/**
  * A package representing the level data.
  */
 typedef Package1Obj<PackageType::LEVEL_DATA, std::string> LevelData;
@@ -363,6 +378,35 @@ struct ThrowSpellData
  */
 typedef Package1Obj<PackageType::THROW_SPELL, ThrowSpellData> ThrowSpell;
 
+struct AvailableGame
+{
+	std::string levelName;
+	uint16_t waitingPlayers;
+	uint16_t maxPlayers;
+
+	template <typename Archive>
+	void  serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & levelName;
+		ar & waitingPlayers;
+		ar & maxPlayers;
+	}
+};
+
+BOOST_CLASS_IMPLEMENTATION(AvailableGame, boost::serialization::object_serializable)
+BOOST_CLASS_TRACKING(AvailableGame, boost::serialization::track_never)
+
+BOOST_CLASS_IMPLEMENTATION(std::vector<AvailableGame>, boost::serialization::object_serializable)
+BOOST_CLASS_TRACKING(std::vector<AvailableGame>, boost::serialization::track_never)
+
+/**
+ * List of available games in the server.
+ */
+ typedef Package1Obj<PackageType::GAME_LIST, std::vector<AvailableGame>> GameList;
+
+BOOST_CLASS_IMPLEMENTATION(GameList, boost::serialization::object_serializable)
+BOOST_CLASS_TRACKING(GameList, boost::serialization::track_never)
+
 BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
 
 /**
@@ -374,3 +418,8 @@ BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
  * A package representing one objects action in the game world.
  */
 typedef Package2Obj<PackageType::OBJECT_ACTION, uint32_t, std::string> ObjectAction;
+
+/**
+ * A package representing the player joining a game.
+ */
+typedef Package2Obj<PackageType::JOIN_GAME, std::string, std::string> JoinGame;

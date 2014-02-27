@@ -19,14 +19,15 @@ public:
 	 */
 	Hull(std::vector<Triangle> p_Triangles)
 	{
-		
+		m_BodyHandle = 0;
 		m_Position = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
-		m_PrevPosition = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
 		m_Triangles = p_Triangles;
 		m_Type = Type::HULL;
 		float radius = findFarthestDistanceOnTriangle();
 		m_Scale = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f);
 		m_Sphere = Sphere( radius, m_Position );
+		m_CollisionResponse = true;
+		m_IDInBody = 0;
 	}
 
 	/**
@@ -43,8 +44,6 @@ public:
 	 */
 	void updatePosition(DirectX::XMFLOAT4X4 const &p_Translation) override
 	{
-		m_PrevPosition = m_Position;
-
 		DirectX::XMMATRIX tempTrans;
 		tempTrans = DirectX::XMLoadFloat4x4(&p_Translation);
 
@@ -54,7 +53,13 @@ public:
 
 		DirectX::XMStoreFloat4(&m_Position, centerPos);
 								  
-		m_Sphere.updatePosition(m_Position);
+		m_Sphere.setPosition(centerPos);
+	}
+
+	void setPosition(DirectX::XMVECTOR const &p_newPosition) override
+	{
+		DirectX::XMStoreFloat4(&m_Position, p_newPosition);
+		m_Sphere.setPosition(p_newPosition);
 	}
 	
 	/**
@@ -76,9 +81,9 @@ public:
 			c2 = DirectX::XMVector4Transform(c2, m);
 			c3 = DirectX::XMVector4Transform(c3, m);
 
-			tri.corners[0] = XMVECTORToVector4(&c1); 
-			tri.corners[1] = XMVECTORToVector4(&c2); 
-			tri.corners[2] = XMVECTORToVector4(&c3);
+			tri.corners[0] = c1; 
+			tri.corners[1] = c2; 
+			tri.corners[2] = c3;
 		}
 		float radius = findFarthestDistanceOnTriangle();
 		m_Sphere.setRadius(radius);
@@ -88,7 +93,7 @@ public:
 	 * Rotates all the trangles in the hull
 	 * @param p_Rotation matrix to rotate the triangles with.
 	 */
-	void setRotation(DirectX::XMMATRIX const &p_Rotation)
+	void setRotation(DirectX::XMMATRIX const &p_Rotation) override
 	{
 		DirectX::XMVECTOR c1, c2, c3;
 		for(auto& tri : m_Triangles)
@@ -101,9 +106,9 @@ public:
 			c2 = XMVector4Transform(c2, p_Rotation);
 			c3 = XMVector4Transform(c3, p_Rotation);
 
-			tri.corners[0] = XMVECTORToVector4(&c1);
-			tri.corners[1] = XMVECTORToVector4(&c2);
-			tri.corners[2] = XMVECTORToVector4(&c3);
+			tri.corners[0] = c1;
+			tri.corners[1] = c2;
+			tri.corners[2] = c3;
 		}
 	}
 	/**
@@ -147,14 +152,14 @@ public:
 	 * @param p_Index index number in triangle list
 	 * @return a triangle in world coordinates.
 	 */
-	Triangle getTriangleInWorldCoord(unsigned p_Index) const
+	Triangle getTriangleInWorldCoord(unsigned int p_Index) const
 	{
 		Triangle triangle;
 		triangle = m_Triangles[p_Index];
 
-		triangle.corners[0] = triangle.corners[0] + XMFLOAT4ToVector4(&m_Position);
-		triangle.corners[1] = triangle.corners[1] + XMFLOAT4ToVector4(&m_Position);
-		triangle.corners[2] = triangle.corners[2] + XMFLOAT4ToVector4(&m_Position);
+		triangle.corners[0] = triangle.corners[0] + m_Position;
+		triangle.corners[1] = triangle.corners[1] + m_Position;
+		triangle.corners[2] = triangle.corners[2] + m_Position;
 
 		triangle.corners[0].w = 1.f;
 		triangle.corners[1].w = 1.f;

@@ -1,5 +1,6 @@
 #include "EdgeCollisionResponse.h"
 #include "ClientExceptions.h"
+#include "Components.h"
 
 using namespace DirectX;
 
@@ -17,7 +18,21 @@ bool EdgeCollisionResponse::checkCollision(HitData &p_Hit, Vector3 p_EdgePositio
 	{
 		XMFLOAT3 collisionNormal = Vector4ToXMFLOAT3(&p_Hit.colNorm);
 
-		p_Player->setGroundNormal(collisionNormal);
+		Actor::ptr actor = p_Player->getActor().lock();
+
+		bool isPlayerBody = false;
+
+		if(actor)
+		{
+			for(unsigned i = 0; i < actor->getBodyHandles().size(); i++)
+			{
+				if(p_Player->getBody() == p_Hit.collisionVictim)
+					isPlayerBody = true;
+			}
+		}
+
+		if(!isPlayerBody)
+			p_Player->setGroundNormal(collisionNormal);
 
 		if (p_Hit.isEdge)
 		{
@@ -43,22 +58,36 @@ void EdgeCollisionResponse::handleCollision(Player *p_Player, Vector3 p_EdgePosi
 	XMFLOAT3 nearestPoint;
 	XMStoreFloat3(&nearestPoint, vReachPointCenter);
 
-
-	if(playerOrigPos.y < nearestPoint.y)
+	XMVECTOR look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
+	Actor::ptr actor = p_Player->getActor().lock();
+	if(actor)
 	{
-		DirectX::XMFLOAT3 victimNormal;
-		DirectX::XMStoreFloat3(&victimNormal, p_VictimNormal);
+		std::shared_ptr<LookInterface> lookComp = p_Player->getActor().lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+		XMMATRIX rotation = XMLoadFloat4x4(&lookComp->getRotationMatrix());
+		look = XMVector3Transform(look, rotation);
+		look = XMVectorSet(look.m128_f32[0], 0.0f, look.m128_f32[2], 0.0f);
+	}
+	XMVECTOR victimNormalProjected = XMVectorSet(p_VictimNormal.m128_f32[0], 0.0f, p_VictimNormal.m128_f32[2], 0.0f);
+	float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, victimNormalProjected));
 
-		if (playerOrigPos.y + p_Player->getHeight() * 0.1f > nearestPoint.y)
-			return;
-		else if(playerOrigPos.y  + p_Player->getKneeHeight() - p_Player->getHeight() * 0.1f > nearestPoint.y)
-			p_Player->forceMove("Climb1", victimNormal, p_EdgePosition, p_EdgeOrientation);
-		else if(playerOrigPos.y  + p_Player->getWaistHeight() > nearestPoint.y)
-			p_Player->forceMove("Climb2", victimNormal, p_EdgePosition, p_EdgeOrientation);
-		else if(playerOrigPos.y  + p_Player->getChestHeight() > nearestPoint.y)
-			p_Player->forceMove("Climb3", victimNormal, p_EdgePosition, p_EdgeOrientation);
-		else if(playerOrigPos.y  + p_Player->getHeight() > nearestPoint.y)
-			p_Player->forceMove("Climb4", victimNormal, p_EdgePosition, p_EdgeOrientation);
-		else{}
+	if(angle >= 2.3625f && angle <= 3.9375f)
+	{
+		if(playerOrigPos.y < nearestPoint.y)
+		{
+			DirectX::XMFLOAT3 victimNormal;
+			DirectX::XMStoreFloat3(&victimNormal, p_VictimNormal);
+
+			if (playerOrigPos.y + p_Player->getHeight() * 0.1f > nearestPoint.y)
+				return;
+			else if(playerOrigPos.y  + p_Player->getKneeHeight() - p_Player->getHeight() * 0.1f > nearestPoint.y)
+				p_Player->forceMove("Climb1", victimNormal, p_EdgePosition, p_EdgeOrientation);
+			else if(playerOrigPos.y  + p_Player->getWaistHeight() > nearestPoint.y)
+				p_Player->forceMove("Climb2", victimNormal, p_EdgePosition, p_EdgeOrientation);
+			else if(playerOrigPos.y  + p_Player->getChestHeight() > nearestPoint.y)
+				p_Player->forceMove("Climb3", victimNormal, p_EdgePosition, p_EdgeOrientation);
+			else if(playerOrigPos.y  + p_Player->getHeight() > nearestPoint.y)
+				p_Player->forceMove("Climb4", victimNormal, p_EdgePosition, p_EdgeOrientation);
+			else{}
+		}
 	}
 }

@@ -10,13 +10,14 @@ void ResourceType::setType(string p_Type)
 {
 	m_Type = p_Type;
 }
-string ResourceType::getType()
+const string& ResourceType::getType() const
 {
 	return m_Type;
 }
 
 
 ResourceManager::ResourceManager()
+	: m_ReleaseImmediately(false)
 {
 	m_ProjectDirectory = boost::filesystem::current_path();
 	
@@ -25,26 +26,25 @@ ResourceManager::ResourceManager()
 
 ResourceManager::ResourceManager(const boost::filesystem::path& p_RootPath)
 	:	m_ProjectDirectory(p_RootPath),
-		m_NextID(0)
+		m_NextID(0),
+		m_ReleaseImmediately(false)
 {
 }
 
 ResourceManager::~ResourceManager()
 {
-	std::string unreleasedResources;
-
 	for (auto& type : m_ResourceList)
 	{
 		for (auto& res : type.m_LoadedResources)
 		{
-			type.m_Release(res.m_Name.c_str());
-			unreleasedResources += res.m_Name + ", ";
-		}
-	}
+			if (res.m_Count > 0)
+			{
+				Logger::log(Logger::Level::WARNING,
+					"Resource not released before shutdown: '" + type.getType() + ':' + res.m_Name + '\'');
+			}
 
-	if (!unreleasedResources.empty())
-	{
-		Logger::log(Logger::Level::WARNING, "Resource not released before shutdown: " + unreleasedResources);
+			type.m_Release(res.m_Name.c_str());
+		}
 	}
 }
 
@@ -65,6 +65,31 @@ bool ResourceManager::registerFunction(string p_Type, std::function<bool(const c
 	temp.m_Release = p_ReleaseFunc;
 	m_ResourceList.push_back(temp);
 	return true;
+}
+
+void ResourceManager::unregisterResourceType(const std::string& p_Type)
+{
+	auto it = std::find_if(m_ResourceList.begin(), m_ResourceList.end(),
+		[&] (const ResourceType& p_ListType)
+		{
+			return p_ListType.getType() == p_Type;
+		});
+
+	if (it != m_ResourceList.end())
+	{
+		for (auto& res : it->m_LoadedResources)
+		{
+			if (res.m_Count > 0)
+			{
+				Logger::log(Logger::Level::WARNING,
+					"Resource not released before unregistering resource type: '" + it->getType() + ':' + res.m_Name + '\'');
+			}
+
+			it->m_Release(res.m_Name.c_str());
+		}
+
+		m_ResourceList.erase(it);
+	}
 }
 
 void ResourceManager::loadDataFromFile(std::string p_FilePath)
@@ -177,7 +202,7 @@ bool ResourceManager::releaseResource(int p_ID)
 			{
 				r.m_Count--;
 
-				if (r.m_Count <= 0)
+				if (r.m_Count <= 0 && m_ReleaseImmediately)
 				{
 					rl.m_Release(r.m_Name.c_str());
 					rl.m_LoadedResources.erase(it);
@@ -192,6 +217,37 @@ bool ResourceManager::releaseResource(int p_ID)
 	throw ResourceManagerException("Releasing a resource that does not exist?", __LINE__, __FILE__);
 #endif
 	return false;
+}
+
+void ResourceManager::releaseUnusedResources()
+{
+	for (auto& resType : m_ResourceList)
+	{
+		auto& resources = resType.m_LoadedResources;
+
+		const auto partitionPoint = std::partition(resources.begin(), resources.end(),
+			[] (const ResourceType::Resource& p_Res)
+			{
+				return p_Res.m_Count > 0;
+			});
+
+		for (auto it = partitionPoint; it != resources.end(); ++it)
+		{
+			resType.m_Release(it->m_Name.c_str());
+		}
+
+		resources.erase(partitionPoint, resources.end());
+	}
+}
+
+void ResourceManager::setReleaseImmediately(bool p_Release)
+{
+	if (!m_ReleaseImmediately && p_Release)
+	{
+		releaseUnusedResources();
+	}
+
+	m_ReleaseImmediately = p_Release;
 }
 
 void ResourceManager::releaseModelTexture(const char *p_ResourceName, void *p_Userdata)
@@ -211,7 +267,7 @@ void ResourceManager::releaseModelTextureImpl(const char *p_ResourceName)
 			{
 				r.m_Count--;
 
-				if (r.m_Count <= 0)
+				if (r.m_Count <= 0 && m_ReleaseImmediately)
 				{
 					rl.m_Release(r.m_Name.c_str());
 					rl.m_LoadedResources.erase(it);

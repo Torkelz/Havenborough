@@ -8,8 +8,8 @@
 
 *Materials
 Material: Stair_mat
-DiffuseMap: Stair_COLOR.dds
-NormalMap: Stair_NRM.dds
+DiffuseMap: Stair1_COLOR.dds
+NormalMap: Stair1_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 *Vertices

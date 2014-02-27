@@ -57,6 +57,9 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createParticleEffect), CreateParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeParticleEffectInstance), RemoveParticleEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
+
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
 	preLoadModels();
@@ -128,7 +131,7 @@ void GameScene::render()
 
 	if (m_UseThirdPersonCamera)
 	{
-		playerPos = playerPos + playerForward * -200.f;
+		playerPos = playerPos + playerForward * -500.f;
 	}
 
 	m_Graphics->updateCamera(playerPos, playerForward, playerUp);
@@ -154,18 +157,18 @@ void GameScene::render()
 	{
 		switch(light.type)
 		{
-		case Light::Type::DIRECTIONAL:
+		case LightClass::Type::DIRECTIONAL:
 			{
-				m_Graphics->useFrameDirectionalLight(light.color, light.direction);
+				m_Graphics->useFrameDirectionalLight(light.color, light.direction, light.intensity);
 				break;
 			}
-		case Light::Type::POINT:
+		case LightClass::Type::POINT:
 			{
 				m_Graphics->useFramePointLight(light.position, light.color, light.range);
 
 				break;
 			}
-		case Light::Type::SPOT:
+		case LightClass::Type::SPOT:
 			{
 				m_Graphics->useFrameSpotLight(light.position, light.color, light.direction,
 					light.spotlightAngles, light.range);
@@ -180,22 +183,6 @@ void GameScene::render()
 	m_Graphics->renderSkydome();
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
-
-	
-	float playerMana = m_GameLogic->getPlayerCurrentMana() / 100.f;
-	float playerPrevMana = m_GameLogic->getPlayerPreviousMana() / 100.f;
-
-	m_Graphics->set2D_ObjectScale(2, Vector3(playerMana, 1.f, 0.f));
-
-	Vector2 barSize = m_Graphics->get2D_ObjectHalfSize(2);
-	Vector3 barPos = m_Graphics->get2D_ObjectPosition(2);
-
-	m_Graphics->set2D_ObjectPosition(2, Vector3(barPos.x + ((playerMana - playerPrevMana) * barSize.x), barPos.y, barPos.z));
-
-	//Render test arrow, remove when HUD scene is implemented
-	m_Graphics->set2D_ObjectLookAt(m_GUI_ArrowId, m_GameLogic->getCurrentCheckpointPosition());
-	m_Graphics->render2D_Object(m_GUI_ArrowId);
-	m_Graphics->render2D_Object(2);
 }
 
 bool GameScene::getIsVisible()
@@ -269,13 +256,17 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->throwSpell("TestSpell");
 	}
-	else if(p_Action == "ClimbEdge")
+	else if(p_Action == "climbEdge")
 	{
 		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
 	}
-	else if(p_Action == "DrawPivots" && p_Value == 1.f)
+	else if(p_Action == "drawPivots" && p_Value == 1.f)
 	{
 		m_DebugAnimations = !m_DebugAnimations;
+	}
+	else if(p_Action == "wave" && p_Value == 1.0f)
+	{
+		m_GameLogic->playerWave();
 	}
 }
 
@@ -289,7 +280,7 @@ int GameScene::getID()
 void GameScene::addLight(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<LightEventData> lightData = std::static_pointer_cast<LightEventData>(p_Data);
-	Light light = lightData->getLight();
+	LightClass light = lightData->getLight();
 	m_Lights.push_back(light);
 }
 
@@ -298,7 +289,7 @@ void GameScene::removeLight(IEventData::Ptr p_Data)
 	std::shared_ptr<RemoveLightEventData> lightData = std::static_pointer_cast<RemoveLightEventData>(p_Data);
 
 	auto remIt = std::remove_if(m_Lights.begin(), m_Lights.end(),
-		[&lightData] (Light& p_Light)
+		[&lightData] (LightClass& p_Light)
 		{
 			return p_Light.id == lightData->getId();
 		});
@@ -458,7 +449,6 @@ void GameScene::removeParticleEffectInstance(IEventData::Ptr p_Data)
 	}
 }
 
-
 void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<UpdateParticlePositionEventData> data = std::static_pointer_cast<UpdateParticlePositionEventData>(p_Data);
@@ -471,15 +461,44 @@ void GameScene::updateParticlePosition(IEventData::Ptr p_Data)
 	}
 }
 
+void GameScene::updateParticleRotation(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateParticleRotationEventData> data = std::static_pointer_cast<UpdateParticleRotationEventData>(p_Data);
+
+	auto it = m_Particles.find(data->getId());
+
+	if (it != m_Particles.end())
+	{
+		m_Graphics->setParticleEffectRotation(it->second.instance, data->getRotation());
+	}
+}
+
+void GameScene::updateParticleBaseColor(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateParticleBaseColorEventData> data = std::static_pointer_cast<UpdateParticleBaseColorEventData>(p_Data);
+
+	auto it = m_Particles.find(data->getId());
+
+	if (it != m_Particles.end())
+	{
+		m_Graphics->setParticleEffectBaseColor(it->second.instance, data->getBaseColor());
+	}
+}
+
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
-	unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle);
+	unsigned int nrVolumes = m_GameLogic->getPhysics()->getNrOfVolumesInBody(p_BodyHandle);
 
-	for(unsigned int i = 0; i < size; i++)
+	for(unsigned int j = 0; j < nrVolumes; j++)
 	{
-		Triangle triangle;
-		triangle = m_GameLogic->getPhysics()->getTriangleFromBody(p_BodyHandle, i);
-		m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		unsigned int size =  m_GameLogic->getPhysics()->getNrOfTrianglesFromBody(p_BodyHandle, j);
+
+		for(unsigned int i = 0; i < size; i++)
+		{
+			Triangle triangle;
+			triangle = m_GameLogic->getPhysics()->getTriangleFromBody(p_BodyHandle, i, j);
+			m_Graphics->addBVTriangle(triangle.corners[0].xyz(), triangle.corners[1].xyz(), triangle.corners[2].xyz());
+		}
 	}
 }
 
@@ -488,24 +507,6 @@ void GameScene::preLoadModels()
 	//DO NOT MAKE ANY CALLS TO GRAPHICS IN HERE!
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Pivot1"));
-	
-
-
-
-
-	//Separate to GUI function and refactor? /Pontus, DO NOT TOUCH!
-	static const std::string preloadedTextures[] =
-	{
-		"TEXTURE_NOT_FOUND",
-		"MANA_BAR",
-	};
-	for (const std::string &texture : preloadedTextures)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
-	}
-	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
-	m_GUI_ArrowId = m_Graphics->create2D_Object(Vector3(-500, 300, 150.f), Vector3(1.0f, 1.0f, 1.0f), 0.f, "Arrow1");
-	m_Graphics->create2D_Object(Vector3(-400, -320, 2), Vector2(160, 30), Vector3(1.0f, 1.0f, 1.0f), 0.0f, "MANA_BAR");
 }
 
 void GameScene::releasePreLoadedModels()

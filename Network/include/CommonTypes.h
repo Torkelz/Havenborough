@@ -34,6 +34,10 @@ enum class PackageType : uint16_t
 	RESULT_GAME,
 	SET_SPAWN,
 	THROW_SPELL,
+	START_COUNTDOWN,
+	DONE_COUNTDOWN,
+	REQUEST_GAMES,
+	GAME_LIST,
 };
 
 struct ObjectInstance
@@ -72,3 +76,10 @@ enum class Result
  * Callback type for reporting that an action has been completed.
  */
 typedef void (*actionDoneCallback)(Result, void* p_UserData);
+
+struct AvailableGameData
+{
+	const char* levelName;
+	uint16_t waitingPlayers;
+	uint16_t maxPlayers;
+};

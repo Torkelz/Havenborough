@@ -20,6 +20,7 @@ private:
 	float m_AccConstant;
 	float m_DirectionX;	// (-1 - +1)
 	float m_DirectionZ;	// (-1 - +1)
+	float m_ClimbOffset; // Offset to position the player correctly when climbing. Needed because the sphere is positioned under the characters center.
 	DirectX::XMFLOAT3 m_GroundNormal;
 
 	float m_CurrentMana, m_PreviousMana, m_MaxMana, m_ManaRegenerationSlow, m_ManaRegenerationFast;
@@ -40,7 +41,7 @@ private:
 
 	float m_Height; 
 	float m_EyeHeight;
-
+	bool m_AllowedToMove;
 public:
 	/**
 	* Constructor
@@ -73,11 +74,6 @@ public:
 	* @param p_BoxOrientation the 2D orientation of the box
 	*/
 	virtual void forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNormal, DirectX::XMFLOAT3 p_BoxPos, DirectX::XMFLOAT3 p_EdgeOrientation);
-
-	/**
-	 * If the player is in a force move some IK groups might be locked onto points and need updating.
-	 */
-	void updateIKJoints();
 
 	/**
 	 * Sets the current mana. It isn't possible to set current mana higher than the Maximum mana and lower than 0.
@@ -134,6 +130,11 @@ public:
 	/**
 	 *
 	 */
+	DirectX::XMFLOAT3 getFootPosition(std::string p_Joint) const;
+
+	/**
+	 *
+	 */
 	DirectX::XMFLOAT3 getRightHandPosition() const;
 
 	/**
@@ -169,7 +170,7 @@ public:
 	* Gets the body handle of the player.
 	* @return the body handle
 	*/
-	virtual BodyHandle getBody(void) const;
+	virtual BodyHandle getBody() const;
 
 	/**
 	* Gets if the player is currently forced to change position.
@@ -239,6 +240,19 @@ public:
 	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
 	 */
 	void setClimbing(bool p_State);
+
+	/**
+	 * Activates the ability for the player to move.
+	 *
+	 * @param p_State true if the player should be able to move. false if the player should not be able to move.
+	 */
+	void setAllowedToMove(bool p_State);
+	/**
+	 * Gets the state if the player is allowed to move or not.
+	 *
+	 * @return true if the player should be able to move. false if the player should not be able to move.
+	 */
+	const bool getAllowedToMove() const;
 
 private:
 	void jump(float dt);

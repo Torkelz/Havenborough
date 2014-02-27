@@ -16,13 +16,25 @@ public:
 		std::string position;
 		Axis axis;
 	};
+	struct HUDSettings
+	{
+		Vector3 position;
+		float scale;
+	};
 private:
 	std::map<std::string, unsigned short> m_KeyMap;
 	std::vector<MouseStruct> m_MouseMap;
 	std::map<std::string, MouseButton> m_MouseButtonMap;
 
 	std::map<std::string, bool> m_SettingsEnabled;
+	std::map<std::string, HUDSettings> m_HUDSettings;
 	Vector2 m_Resolution;
+
+	std::string m_ServerURL;
+	unsigned short int m_ServerPort;
+	std::string m_LevelName;
+	std::string m_Username;
+
 public:
 	Settings(void);
 	~Settings(void);
@@ -67,8 +79,41 @@ public:
 	 * @return the window size as a Vector2.
 	 */
 	const Vector2 getResolution() const;
+	/**
+	 * Gets the name of the level to play.
+	 *
+	 * @return the level name
+	 */
+	const std::string& getLevelName() const;
+	/**
+	 * Gets the username to display to other players.
+	 *
+	 * @return the players name
+	 */
+	const std::string& getUsername() const;
+	/**
+	 * Gets the URL address of the server to connect to.
+	 *
+	 * @return a string representation of a server address
+	 */
+	const std::string& getServerURL() const;
+	/**
+	 * Gets the port number to connect to on the server.
+	 *
+	 * @return the port number, [0, 65535]
+	 */
+	unsigned short int getServerPort() const;
+	/**
+	 * Gets the port number to connect to on the server.
+	 *
+	 * @return the port number, [0, 65535]
+	 */
+	std::map<std::string, HUDSettings> getHUDSettings() const;
+
 private:
 	void loadControls(tinyxml2::XMLElement *p_Element);
 	void loadSettings(tinyxml2::XMLElement *p_Element);
+	void loadGame(const tinyxml2::XMLElement *p_Element);
+	void loadServer(const tinyxml2::XMLElement *p_Element);
+	void loadHUD(tinyxml2::XMLElement *p_Element);
 };
-

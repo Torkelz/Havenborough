@@ -13,7 +13,8 @@ GameLogic::GameLogic(void)
 {
 	m_Physics = nullptr;
 	m_ResourceManager = nullptr;
-	m_CurrentCheckPointPosition = Vector3(0.0f, 0.0f, 0.0f);
+	m_CountdownTimer = 0.f;
+	m_RenderGo = false;
 }
 
 
@@ -38,11 +39,12 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_ActorFactory->setActorList(m_Actors);
 
 	m_ChangeScene = GoToScene::NONE;
-
+	
 	m_IsConnecting = false;
 	m_Connected = false;
 	m_InGame = false;
 	m_PlayingLocal = true;
+	m_StartLocal = false;
 }
 
 void GameLogic::shutdown(void)
@@ -65,23 +67,24 @@ void GameLogic::onFrame(float p_DeltaTime)
 {
 	handleNetwork();
 
+	if (m_StartLocal)
+	{
+		playLocalLevel();
+		m_StartLocal = false;
+	}
+
 	if (!m_InGame)
 	{
 		return;
 	}
-
-	m_Player.update(p_DeltaTime);
 
 	if(m_Physics->getHitDataSize() > 0)
 	{
 		for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
-			if(m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
-				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player))
-			{
-				//m_Physics->removeHitDataAt(i);
-			}
+			m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
+				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player);
 
 			Logger::log(Logger::Level::TRACE, "Collision reported");
 		}
@@ -125,13 +128,30 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 		conn->sendPlayerControl(data);
 	}
-	
+
 	m_Actors->onUpdate(p_DeltaTime);
-	m_Player.updateIKJoints();
+	m_Player.update(p_DeltaTime);
+
+	updateCountdownTimer(p_DeltaTime);
+	Actor::ptr tempActor = m_PlayerSparks.lock();
+	if(tempActor)
+	{
+		std::shared_ptr<ParticleInterface> temp = tempActor->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId).lock();
+		if (temp)
+		{
+			temp->setPosition(m_Player.getEyePosition());
+		}
+	}
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
 {
+	const float dirLengthSq = p_Direction.x * p_Direction.x + p_Direction.y * p_Direction.y;
+	if (dirLengthSq > 1.f)
+	{
+		const float div = 1.f / sqrtf(dirLengthSq);
+		p_Direction = p_Direction * div;
+	}
 	m_PlayerDirection = p_Direction;
 }
 
@@ -305,21 +325,6 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	look->setLookUp(up);
 }
 
-Vector3 GameLogic::getCurrentCheckpointPosition(void) const
-{
-	return m_CurrentCheckPointPosition;
-}
-
-const float GameLogic::getPlayerCurrentMana(void)
-{
-	return m_Player.getCurrentMana();
-}
-
-const float GameLogic::getPlayerPreviousMana(void)
-{
-	return m_Player.getPreviousMana();
-}
-
 void GameLogic::playerJump()
 {
 	m_Player.setJump();
@@ -362,13 +367,19 @@ void GameLogic::playLocalLevel()
 	//TODO: Remove later when we actually have a level to load.
 	loadSandbox();
 
+	m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
+
 	m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 }
 
-void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port)
+void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port,
+								const std::string& p_LevelName, const std::string& p_Username)
 {
 	if (!m_IsConnecting && !m_Connected)
 	{
+		m_LevelName = p_LevelName;
+		m_Username = p_Username;
+
 		m_IsConnecting = true;
 		m_Network->connectToServer(p_URL.c_str(), p_Port, &connectedCallback, this);
 	}
@@ -393,15 +404,6 @@ void GameLogic::leaveGame()
 		}
 		
 		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(true)));
-	}
-}
-
-void GameLogic::joinGame(const std::string& p_LevelName)
-{
-	IConnectionController* con = m_Network->getConnectionToServer();
-	if (!m_InGame && con && con->isConnected())
-	{
-		con->sendJoinGame(p_LevelName.c_str());
 	}
 }
 
@@ -431,7 +433,40 @@ void GameLogic::throwSpell(const char *p_SpellId)
 			IConnectionController *conn = m_Network->getConnectionToServer();
 			if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
 			{
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("Action");
+				printer.OpenElement("CastSpell");
+				printer.PushAttribute("Animation", "CastSpell");
+				printer.CloseElement();
+				printer.CloseElement();
+
 				conn->sendThrowSpell(p_SpellId, m_Player.getRightHandPosition(), getPlayerViewForward());
+				conn->sendObjectAction(playerActor->getId(), printer.CStr());
+			}
+		}
+		
+	}
+}
+
+void GameLogic::playerWave()
+{
+	Actor::ptr playerActor = m_Player.getActor().lock();
+	if (playerActor)
+	{
+		if(!m_Player.getForceMove())
+		{
+			playAnimation(playerActor, "Wave", false);
+
+			IConnectionController *conn = m_Network->getConnectionToServer();
+			if (m_InGame && !m_PlayingLocal && conn && conn->isConnected())
+			{
+				tinyxml2::XMLPrinter printer;
+				printer.OpenElement("Action");
+				printer.OpenElement("Wave");
+				printer.PushAttribute("Animation", "Wave");
+				printer.CloseElement();
+				printer.CloseElement();
+				conn->sendObjectAction(playerActor->getId(), printer.CStr());
 			}
 		}
 		
@@ -503,6 +538,9 @@ void GameLogic::handleNetwork()
 					}
 					m_Level.setStartPosition(XMFLOAT3(0.f, 1000.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 					m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.f, -2528.0f)); //TODO: Remove this line when level gets the position from file
+
+					//Sparks flying around the player, client side.
+					m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 				}
 				break;
 			case PackageType::RESULT_GAME:
@@ -625,7 +663,8 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-							m_CurrentCheckPointPosition = actor->getPosition();
+
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(actor->getPosition())));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -693,6 +732,12 @@ void GameLogic::handleNetwork()
 						Actor::ptr actor = getActor(actorId);
 						const char* climbId = action->Attribute("Animation");
 
+						Vector3 orientation = Vector3(0.f, 1.f, 1.f);
+						Vector3 center = Vector3(0.f, 0.f, 0.f);
+
+						queryVector(action->FirstChildElement("Orientation"), orientation);
+						queryVector(action->FirstChildElement("Center"), center);
+
 						if (actor && climbId)
 						{
 							std::shared_ptr<AnimationInterface> comp = 
@@ -700,6 +745,7 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->playClimbAnimation(climbId);
+								comp->updateIKData(orientation, center);
 							}
 						}
 					}
@@ -714,6 +760,36 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->resetClimbState();
+							}
+						}
+					}
+					else if (std::string(action->Value()) == "CastSpell")
+					{
+						Actor::ptr actor = getActor(actorId);
+						const char* animId = action->Attribute("Animation");
+
+						if (actor && animId)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->playAnimation(animId, false);
+							}
+						}
+					}
+					else if (std::string(action->Value()) == "Wave")
+					{
+						Actor::ptr actor = getActor(actorId);
+						const char* animId = action->Attribute("Animation");
+
+						if (actor && animId)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->playAnimation(animId, false);
 							}
 						}
 					}
@@ -744,6 +820,32 @@ void GameLogic::handleNetwork()
 				}
 				break;
 
+			case PackageType::START_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(false);
+					m_CountdownTimer = 3.0f;
+				}
+				break;
+			case PackageType::DONE_COUNTDOWN:
+				{
+					m_Player.setAllowedToMove(true);
+				}
+				break;
+
+			case PackageType::GAME_LIST:
+				{
+					const unsigned int numGames = conn->getNumGameListGames(package);
+					Logger::log(Logger::Level::INFO, "Available games: " + std::to_string(numGames));
+					for (size_t i = 0; i < numGames; ++i)
+					{
+						const AvailableGameData game = conn->getGameListGame(package, i);
+						Logger::log(Logger::Level::INFO, std::string(game.levelName) +
+							" (" + std::to_string(game.waitingPlayers) +
+							"/" + std::to_string(game.maxPlayers) + ')');
+					}
+				}
+				break;
+
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);
@@ -752,6 +854,15 @@ void GameLogic::handleNetwork()
 		}
 
 		conn->clearPackages(numPackages);
+	}
+}
+
+void GameLogic::joinGame()
+{
+	IConnectionController* con = m_Network->getConnectionToServer();
+	if (!m_InGame && con && con->isConnected())
+	{
+		con->sendJoinGame(m_LevelName.c_str(), m_Username.c_str());
 	}
 }
 
@@ -764,10 +875,20 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 	{
 		self->m_Connected = true;
 
+		IConnectionController* con = self->m_Network->getConnectionToServer();
+		if (con && con->isConnected())
+		{
+			con->sendRequestGames();
+		}
+
+		self->joinGame();
+
 		Logger::log(Logger::Level::INFO, "Connected successfully");
 	}
 	else
 	{
+		self->m_StartLocal = true;
+
 		Logger::log(Logger::Level::WARNING, "Connection failed");
 	}
 }
@@ -796,14 +917,71 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 	removeActor(data->getActorId());
 }
 
+void GameLogic::updateCountdownTimer(float p_DeltaTime)
+{
+	if(!m_Player.getAllowedToMove() && m_CountdownTimer - p_DeltaTime >= 0.f)
+	{
+		Vector4 color;
+		m_CountdownTimer -= p_DeltaTime;
+		int floorCountdown = (int)ceilf(m_CountdownTimer);
+		std::wstring text = std::to_wstring(floorCountdown);
+		float origScale = 3.f;
+		float scale = 1.f - abs(m_CountdownTimer - (float)floorCountdown);
+		switch (floorCountdown)
+		{
+			case 3:	color = Vector4(1,0,0,1); break;
+			case 2:	color = Vector4(1.f,0.4f,0,1); break;
+			case 1:
+				{
+					color = Vector4(0.8f,0.8f,0,1); 
+					if(scale < 0.1f)
+					{
+						m_RenderGo = true;
+						m_CountdownTimer = 1.0f;
+					}
+					break;
+				}
+		}
+		if(!m_RenderGo)
+			m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdownEventData(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+	}
+	else if(m_RenderGo)
+	{
+		Vector4 color = Vector4(0,1,0,1); 
+		std::wstring text = L"GO";
+		float scale = m_CountdownTimer - (int)floorf(m_CountdownTimer);
+		float origScale = 3.f;
+
+		m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalCountdownEventData(text, color, Vector3(scale * origScale, scale * origScale, scale * origScale))));
+		m_CountdownTimer -= p_DeltaTime;
+		if(!(m_CountdownTimer - p_DeltaTime >= 0.f))
+			m_RenderGo = false;
+	}
+}
+
 void GameLogic::loadSandbox()
 {
 	// Only use for testing and debug purposes. When adding something put a comment with your name and todays date.
 	// No permanent implementations in this function is allowed.
 
-	//Fredrik, 2014-02-20
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
-	addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
+	//Fredrik, 2014-02-20, 2014-02-24
+	//std::vector<Actor::ptr> ALIST;
+
+
+	 
+	//addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "smoke"));
+	//addActor(m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "fire"));
+	//addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
+	
+	//Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "waterSpray");
+	//a->setRotation(Vector3(3.0f, 0.0f, 0.0f));
+	//addActor(a);
+
+	//std::shared_ptr<ParticleInterface> temp = a->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId).lock();
+	//if (temp)
+	//{
+	//	temp->setBaseColor(Vector4(0.f, 0.8f, 0.f, 0.5f));
+	//}
 }
 
 void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override)
@@ -820,33 +998,33 @@ void GameLogic::playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, b
 	}
 }
 
-void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
-{
-	if (!p_Actor)
-	{
-		return;
-	}
-
-	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-	if (comp)
-	{
-		comp->queueAnimation(p_AnimationName);
-	}
-}
-
-void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight)
-{
-	if (!p_Actor)
-	{
-		return;
-	}
-
-	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-	if (comp)
-	{
-		comp->changeAnimationWeight(p_Track, p_Weight);
-	}
-}
+//void GameLogic::queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName)
+//{
+//	if (!p_Actor)
+//	{
+//		return;
+//	}
+//
+//	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+//	if (comp)
+//	{
+//		comp->queueAnimation(p_AnimationName);
+//	}
+//}
+//
+//void GameLogic::changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight)
+//{
+//	if (!p_Actor)
+//	{
+//		return;
+//	}
+//
+//	std::shared_ptr<AnimationInterface> comp = p_Actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+//	if (comp)
+//	{
+//		comp->changeAnimationWeight(p_Track, p_Weight);
+//	}
+//}
 
 IPhysics *GameLogic::getPhysics() const
 {

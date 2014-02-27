@@ -44,3 +44,11 @@ struct cSSAO_BlurBuffer
 	float texelHeight;
 	int horizontalBlur;
 };
+
+struct cLightBuffer
+{
+	DirectX::XMFLOAT4X4 view;
+	DirectX::XMFLOAT4X4 projection;
+	int big;
+	int shadowMapped;
+};

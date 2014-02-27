@@ -275,9 +275,6 @@
     <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp">
       <Filter>TestGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Source\SimpleText.cpp">
-      <Filter>TestGraphics\GraphicsImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\TextResource.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
@@ -299,6 +296,13 @@
     <ClCompile Include="Source\Common\TestStreamReader.cpp">
       <Filter>TestSettings</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\TextRenderer.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TextHUDScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">
@@ -347,9 +351,6 @@
     </Filter>
     <Filter Include="TestCommon">
       <UniqueIdentifier>{91b3a574-4dff-4384-88f3-cd430ffea93c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TestCommon\CommonImport">
-      <UniqueIdentifier>{5c55504a-3816-4c29-a087-aff44ad3b38a}</UniqueIdentifier>
     </Filter>
     <Filter Include="TestSettings">
       <UniqueIdentifier>{2dc209c3-062e-4658-9a32-d9a66735df2c}</UniqueIdentifier>

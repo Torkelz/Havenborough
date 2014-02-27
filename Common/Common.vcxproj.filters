@@ -75,9 +75,6 @@
     <ClInclude Include="3rd party\FastDelegate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\HumanAnimationComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -127,6 +124,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\TweakCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LightClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\StreamReader.h">

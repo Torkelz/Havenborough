@@ -47,6 +47,7 @@ public:
 	 * @param p_IsImmovable, tells if the body are movable.
 	 * @param p_CenterPos, Center of the box.
 	 * @param p_Extents, Box half lengths.
+	 * @param p_IsEdge true if the bounding volume should be an edge, otherwise false
 	 * @return a BodyHandle so it can be mapped outside of Physics.
 	 */
 	virtual BodyHandle createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_CenterPos, Vector3 p_Extents, bool p_IsEdge) = 0;
@@ -65,6 +66,24 @@ public:
 	 * @return true if the volume was successfully created, otherwise false
 	 */
 	virtual bool createBV(const char* p_VolumeID, const char* p_FilePath) = 0;
+
+	/**
+	 * Add a boundingVolume Sphere to an existing body.
+	 *
+	 * @param p_BodyHandle, which body to add the volume to.
+	 * @param p_CenterPos, Center of the box.
+	 * @param p_Extents, Box half lengths.
+	 */
+	virtual void addSphereToBody(BodyHandle p_BodyHandle, Vector3 p_Position, float p_Radius) = 0;
+
+	/**
+	 * Add a boundingVolume OBB to an existing body.
+	 *
+	 * @param p_BodyHandle, which body to add the volume to.
+	 * @param p_CenterPos, Center of the box.
+	 * @param p_Extents, Box half lengths.
+	 */
+	virtual void addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents) = 0;
 
 	/**
 	 * Release a previously created volume.
@@ -108,7 +127,15 @@ public:
 	 * @param p_Body are what body to work with
 	 * @param p_Position is a vector3 with all the position coordinates in cm
 	 */
-	virtual void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) = 0;
+	virtual void setBodyPosition(BodyHandle p_Body, Vector3 p_Position) = 0;	
+	
+	/**
+	 * Edit the position of the target body's volume.
+	 *
+	 * @param p_Body are what body to work with
+	 * @param p_Position is a vector3 with all the position coordinates in cm
+	 */
+	virtual void setBodyVolumePosition(BodyHandle p_Body, unsigned p_Volume, Vector3 p_Position) = 0;
 
 	/**
 	 * Sets the velocity for a body.
@@ -191,13 +218,6 @@ public:
 	virtual HitData getHitDataAt(unsigned int p_Index) = 0;
 
 	/**
-	 * Removes the hitdata from the vector containing all the collision hitdata for the last frame at specific position.
-	 *
-	 * @param p_Index are the index number in the vector
-	 */
-	virtual void removeHitDataAt(unsigned int p_index) = 0;
-
-	/**
 	 * A bool that turns on the frame where a body lands ontop of something.
 	 * @param p_Body, the body to check if its landed.
 	 * @return true if this body has landed on something this frame, otherwise false.
@@ -213,19 +233,19 @@ public:
 	/**
 	 * Sets if a specific body should interact with physics or just check if the volume has been hit.
 	 *
-	 * @param p_Body the body which should not have any physical interaction
+	 * @param p_Body the body which to change the interaction on.
 	 * @param p_State, true if if it should be affected by physics, false if not
 	 */
 	virtual void setBodyCollisionResponse(BodyHandle p_Body, bool p_State) = 0;
 
 	/**
-	 * Return the bounding volume from the body.
+	 * Sets if a specific volume in a body should interact with physics or just check if the volume has been hit.
 	 *
-	 * @param p_Body are what body to get the data from
-	 * @return a BoundingVolum pointer
+	 * @param p_Body which body the volume belongs to.
+	 * @param p_Volume, the volume which to change the interaction on.
+	 * @param p_State, true if if it should be affected by physics, false if not
 	 */
-	//virtual BoundingVolume* getVolume(BodyHandle p_Body) = 0;
-
+	virtual void setBodyVolumeCollisionResponse(BodyHandle p_Body, int p_Volume, bool p_State) = 0;
 	/**
 	 * Callback for logging.
 	 *
@@ -246,14 +266,33 @@ public:
 	 * Get a made up triangle from a body so that its boundingvolume can be drawn.
 	 * @param p_Body are what body to work with
 	 * @param p_TriangleIndex, which triangle to draw. Works similar to a index buffer.
+	 * @param p_BoundingVolume, which bounding volume in the body.
 	 */
-	virtual Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex) = 0;
+	virtual Triangle getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_TriangleIndex, int p_BoundingVolume) = 0;
 	/**
 	 * Returns the number of triangles from the body's boundingvolume.
 	 * @param p_BodyHandle what body to work with.
+	 * @param p_BoundingVolume, which bounding volume in the body.
 	 * @return the number of triangles.
 	 */
-	virtual unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle) = 0;
+	virtual unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_BoundingVolume) = 0;
 
+	/**
+	 * Returns the number of bounding volumes that exzist in the body.
+	 * @param p_BodyHandle what body to work with.
+	 * @return the number of volumes in the specdified body.
+	 */
+	virtual unsigned int getNrOfVolumesInBody(BodyHandle p_BodyHandle) = 0; 
+
+	/**
+	 * Returns the 2D orientation of a body's main bounding volume.
+	 * @param p_Body, which body to get orientation from.
+	 * @returns the orientation of specified body.
+	 */
 	virtual Vector3 getBodyOrientation(BodyHandle p_Body) = 0;
+	/**
+	 * Resets all force and velocity on a body.
+	 * @param p_Body, which body to reset.
+	 */
+	virtual void resetForceOnBody(BodyHandle p_Body) = 0;
 };

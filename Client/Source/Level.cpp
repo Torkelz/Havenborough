@@ -88,7 +88,7 @@ bool Level::loadLevel(std::istream& p_LevelData, ActorList::ptr p_ActorOut)
 	Actor::ptr spotActor;
 	for (const auto& directionalLight : levelLoader.getDirectionalLightData())
 	{
-		directionalActor = m_ActorFactory->createDirectionalLight(directionalLight.m_Direction, directionalLight.m_Color);
+		directionalActor = m_ActorFactory->createDirectionalLight(directionalLight.m_Direction, directionalLight.m_Color, directionalLight.m_Intensity);
 		p_ActorOut->addActor(directionalActor);
 	}
 	for (const auto& pointLight : levelLoader.getPointLightData())

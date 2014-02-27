@@ -5,7 +5,7 @@
  * Place tests in separate files. Look at TestWindow for example.
  */
 
-/********** UNCOMMENT FOR Code Coverage ***************/
+/********** UNCOMMENT FOR Code Coverage ***************
 #include <CodeCoverage/CodeCoverage.h>
 
 
@@ -27,4 +27,4 @@ ExcludeSourceFromCodeCoverage(Exclusion15, L"*\\DDSTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion16, L"*\\WICTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion17, L"*\\boost\\*.hpp");
 ExcludeSourceFromCodeCoverage(Exclusion18, L"*\\BoostTest\\*")
-//*/
+ExcludeFromCodeCoverage(Exclusion19, L"D2D1::*")//*/

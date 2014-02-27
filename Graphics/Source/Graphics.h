@@ -12,13 +12,14 @@
 #include "TextureLoader.h"
 #include "DeferredRenderer.h"
 #include "ForwardRendering.h"
+#include "ScreenRenderer.h"
+#include "TextRenderer.h"
 #include "WrapperFactory.h"
 #include "ModelFactory.h"
 #include "ModelInstance.h"
 #include "ModelDefinition.h"
 #include "ParticleFactory.h"
 #include "ParticleInstance.h"
-#include "ScreenRenderer.h"
 #include "TextFactory.h"
 
 class Graphics : public IGraphics
@@ -74,11 +75,13 @@ private:
 	DeferredRenderer *m_DeferredRender;
 	ForwardRendering *m_ForwardRenderer;
 	ScreenRenderer *m_ScreenRenderer;
+	TextRenderer *m_TextRenderer;
 		
 	//Lights
-	std::vector<Light> m_SpotLights;
-	std::vector<Light> m_PointLights;
-	std::vector<Light> m_DirectionalLights;
+	std::vector<Light>	m_SpotLights;
+	std::vector<Light>	m_PointLights;
+	std::vector<Light>	m_DirectionalLights;
+	Light				m_ShadowMappedLight;
 
 	//Stuff needed for drawing bounding volumes
 	std::vector<DirectX::XMFLOAT4> m_BVTriangles;
@@ -126,6 +129,8 @@ public:
 	InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) override;
 	void releaseParticleEffectInstance(InstanceId p_ParticleEffectId) override;
 	void setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position) override;
+	void setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 p_Rotation) override;
+	void setParticleEffectBaseColor(InstanceId p_ParticleEffectId, Vector4 p_BaseColor) override;
 
 	void linkShaderToParticles(const char *p_ShaderId, const char *p_ParticlesId) override;
 	void updateParticles(float p_DeltaTime) override;
@@ -133,25 +138,26 @@ public:
 
 	Object2D_Id create2D_Object(Vector3 p_Position, Vector2 p_HalfSize, Vector3 p_Scale, float p_Rotation,
 		const char *p_TextureId) override;
+	Object2D_Id create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation, Text_Id p_TextureId) override;
 	Object2D_Id create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) override;
 
-	Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
-		const char *p_Font, float p_FontSize, Vector4 p_FontColor) override;
-	Text_Id createText(const char *p_Identifier, const wchar_t *p_Text, Vector2 p_TextureSize,
-		const char *p_Font, float p_FontSize, Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment,
-		PARAGRAPH_ALIGNMENT p_ParagraphAlignment, WORD_WRAPPING p_WordWrapping) override;
+	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,
+		Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation) override;
+	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,
+		Vector4 p_FontColor, TEXT_ALIGNMENT p_TextAlignment, PARAGRAPH_ALIGNMENT p_ParagraphAlignment,
+		WORD_WRAPPING p_WordWrapping, Vector3 p_Position, float p_Scale, float p_Rotation) override;
 
 	void useFramePointLight(Vector3 p_LightPosition, Vector3 p_LightColor, float p_LightRange) override;
 	void useFrameSpotLight(Vector3 p_LightPosition, Vector3 p_LightColor, Vector3 p_LightDirection,
 		Vector2 p_SpotLightAngles,	float p_LightRange) override;
-	void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection) override;
+	void useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDirection, float p_Intensity) override;
 	
 	void setClearColor(Vector4 p_Color) override;
 
 	void renderModel(InstanceId p_ModelId) override;
 	virtual void renderSkydome(void) override;
-	void renderText(void) override;
+	void renderText(Text_Id p_Id) override;
 	void render2D_Object(Object2D_Id p_Id) override;
 	void drawFrame(void) override;
 
@@ -174,6 +180,17 @@ public:
 	Vector2 get2D_ObjectHalfSize(Object2D_Id p_Instance) override;
 	void set2D_ObjectRotationZ(Object2D_Id p_Instance, float p_Rotation) override;
 	void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) override;
+	bool release2D_Model(Object2D_Id p_ObjectID) override;
+	void updateText(Text_Id p_Identifier, const wchar_t *p_Text) override;
+	void deleteText(Text_Id p_Identifier) override;
+	void setTextColor(Text_Id p_Identifier, Vector4 p_Color) override;
+	void setTextBackgroundColor(Text_Id p_Identifier, Vector4 p_Color) override;
+	void setTextAlignment(Text_Id p_Identifier, TEXT_ALIGNMENT p_Alignment) override;
+	void setTextParagraphAlignment(Text_Id p_Identifier, PARAGRAPH_ALIGNMENT p_Alignment) override;
+	void setTextWordWrapping(Text_Id p_Identifier, WORD_WRAPPING p_Wrapping) override;
+	void setTextPosition(Text_Id p_Identifier, Vector3 p_Position) override;
+	void setTextScale(Text_Id p_Identifier, float p_Scale) override;
+	void setTextRotation(Text_Id p_Identifier, float p_Rotation) override;
 
 	void updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up) override;
 
@@ -192,7 +209,6 @@ public:
 private:
 	void createDefaultShaders(void) override;
 	void shutdown(void) override;
-	bool release2D_Model(Object2D_Id p_ObjectID);
 
 	void setViewPort(int p_ScreenWidth, int p_ScreenHeight);
 	HRESULT createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen);

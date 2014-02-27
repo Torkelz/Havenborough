@@ -3,6 +3,7 @@
 #include <Logger.h>
 #include "Settings.h"
 #include <TweakCommand.h>
+#include "Scenes/HUDScene.h"
 
 #include <sstream>
 #include <iomanip>
@@ -31,7 +32,7 @@ void BaseGameApp::init()
 	m_TimeToNextMemUpdate = 0.f;
 	m_TimeModifier = 1.f;
 	
-	m_Window.init(getGameTitle(), Vector2ToXMFLOAT2(&settings.getResolution()));
+	m_Window.init(getGameTitle(), settings.getResolution());
 	
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
@@ -93,6 +94,7 @@ void BaseGameApp::init()
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
 	translator->addKeyboardMapping('0', "slowMode");
+	translator->addKeyboardMapping('1', "fastMode");
 
 	//Adding the loaded keymaps to the translator
 	const std::map<std::string, unsigned short> keys = settings.getKeyMap();
@@ -125,7 +127,7 @@ void BaseGameApp::init()
 
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
-					
+	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings());
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
@@ -142,6 +144,11 @@ void BaseGameApp::init()
 	m_CommandManager.reset(new CommandManager);
 	m_CommandManager->registerCommand(Command::ptr(new TweakCommand));
 	m_ConsoleReader.reset(new StreamReader(m_CommandManager, std::cin));
+
+	m_ServerURL = settings.getServerURL();
+	m_ServerPort = settings.getServerPort();
+	m_LevelName = settings.getLevelName();
+	m_Username = settings.getUsername();
 }
 
 void BaseGameApp::run()
@@ -152,9 +159,7 @@ void BaseGameApp::run()
 
 	resetTimer();
 
-#ifdef _DEBUG
-	m_GameLogic->playLocalLevel();
-#endif
+	m_GameLogic->connectToServer(m_ServerURL, m_ServerPort, m_LevelName, m_Username);
 
 	while (!m_ShouldQuit)
 	{
@@ -179,6 +184,8 @@ void BaseGameApp::shutdown()
 {
 	Logger::log(Logger::Level::INFO, "Shutting down the game app");
 
+	m_ResourceManager->setReleaseImmediately(true);
+
 	INetwork::deleteNetwork(m_Network);	
 	m_Network = nullptr;
 	
@@ -189,17 +196,25 @@ void BaseGameApp::shutdown()
 	
 	m_SceneManager.destroy();
 
+	m_ResourceManager->unregisterResourceType("spell");
 	m_SpellFactory.reset();
+
+	m_ResourceManager->unregisterResourceType("animation");
 	m_AnimationLoader.reset();
 
 	m_InputQueue.destroy();
 	
+	m_ResourceManager->unregisterResourceType("volume");
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
 
+	m_ResourceManager->unregisterResourceType("sound");
 	ISound::deleteSound(m_Sound);
 	m_Sound = nullptr;
 
+	m_ResourceManager->unregisterResourceType("model");
+	m_ResourceManager->unregisterResourceType("particleSystem");
+	m_ResourceManager->unregisterResourceType("texture");
 	IGraphics::deleteGraphics(m_Graphics);
 	m_Graphics = nullptr;
 
@@ -337,7 +352,7 @@ void BaseGameApp::handleInput()
 
 		if (in.m_Action == "slowMode" && in.m_Value > 0.5f)
 		{
-			if (m_TimeModifier == 1.f)
+			if (m_TimeModifier <= 1.f)
 			{
 				m_TimeModifier = 10.f;
 			}
@@ -345,6 +360,13 @@ void BaseGameApp::handleInput()
 			{
 				m_TimeModifier = 1.f;
 			}
+		}
+
+		if(in.m_Action == "fastMode" && in.m_Value > 0.5f)
+		{
+			if (m_TimeModifier >= 1.0f)
+				m_TimeModifier = 0.1f;
+			else m_TimeModifier = 1.0f;
 		}
 	}
 }

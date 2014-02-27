@@ -7,6 +7,10 @@
 Settings::Settings(void)
 {
 	m_Resolution = Vector2(1080,720);
+	m_LevelName = "serverLevel";
+	m_Username = "Player";
+	m_ServerURL = "localhost";
+	m_ServerPort = 31415;
 }
 
 
@@ -37,6 +41,18 @@ void Settings::initialize(std::string p_FilePath)
 		{
 			loadControls(element);
 		}
+		else if (elementName == "Game")
+		{
+			loadGame(element);
+		}
+		else if (elementName == "Server")
+		{
+			loadServer(element);
+		}
+		else if(elementName == "HUD")
+		{
+			loadHUD(element);
+		}
 	}
 }
 
@@ -46,13 +62,13 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 	for(element = p_Element->FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
 	{
 		std::string elementName = element->Value();
-		const char* commandValue = element->Attribute("command");
+		const char* commandValue = element->Attribute("Command");
 		if(!commandValue)
 			throw ClientException("Settings tried to load the attribute \"command\" from element: " + elementName + ".", __LINE__, __FILE__);
 
 		if(elementName == "KeyMap")
 		{
-			const char* value = element->Attribute("key");
+			const char* value = element->Attribute("Key");
 			if(!value)
 				throw ClientException("Settings tried to load the attribute \"key\" from element: " + elementName + ".", __LINE__, __FILE__);
 
@@ -106,8 +122,8 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 		}
 		else if(elementName == "MouseMap")
 		{
-			const char* pValue = element->Attribute("position");
-			const char* mValue = element->Attribute("movement");
+			const char* pValue = element->Attribute("Position");
+			const char* mValue = element->Attribute("Movement");
 			if (!mValue || !pValue)
 				throw ClientException("Settings tried to load the attribute \"movement\" or \"position\" from element: " + elementName + ".", __LINE__, __FILE__);
 
@@ -125,7 +141,7 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 		}
 		else if(elementName == "MouseButtonMap")
 		{
-			const char* bValue = element->Attribute("button");
+			const char* bValue = element->Attribute("Button");
 			if (!bValue)
 				throw ClientException("Settings tried to load the attribute \"button\" from element: " + elementName + ".", __LINE__, __FILE__);
 
@@ -157,9 +173,9 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 		if(elementName == "Resolution")
 		{
 			tinyxml2::XMLError res;
-			res = element->QueryFloatAttribute("width", &m_Resolution.x);
+			res = element->QueryFloatAttribute("Width", &m_Resolution.x);
 			if(res == tinyxml2::XML_SUCCESS)
-				res = element->QueryFloatAttribute("height", &m_Resolution.y);
+				res = element->QueryFloatAttribute("Height", &m_Resolution.y);
 
 			if(res != tinyxml2::XML_SUCCESS)
 				throw ClientException("Settings tried to load the attribute \"height\" or \"width\" from element: " + elementName + ".", __LINE__, __FILE__);
@@ -168,12 +184,71 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 		{
 			bool enabled = false;
 			tinyxml2::XMLError res;
-			res = element->QueryBoolAttribute("enabled", &enabled);
+			res = element->QueryBoolAttribute("Enabled", &enabled);
 			if(res != tinyxml2::XML_SUCCESS)
 				throw ClientException("Settings tried to load the attribute \"enabled\" from element: " + elementName + ".", __LINE__, __FILE__);
 
 			m_SettingsEnabled[elementName] = enabled;
 		}
+	}
+}
+
+void Settings::loadGame(const tinyxml2::XMLElement *p_Element)
+{
+	const char* level = p_Element->Attribute("Level");
+	if (level)
+	{
+		m_LevelName = level;
+	}
+
+	const char* username = p_Element->Attribute("Username");
+	if (username)
+	{
+		m_Username = username;
+	}
+}
+
+void Settings::loadServer(const tinyxml2::XMLElement *p_Element)
+{
+	const char* address = p_Element->Attribute("Hostname");
+	if (address)
+	{
+		m_ServerURL = address;
+	}
+
+	unsigned int tPort = m_ServerPort;
+	p_Element->QueryAttribute("Port", &tPort);
+	if (tPort <= std::numeric_limits<uint16_t>::max())
+	{
+		m_ServerPort = tPort;
+	}
+}
+
+void Settings::loadHUD(tinyxml2::XMLElement *p_Element)
+{
+	tinyxml2::XMLElement *element = nullptr;
+	for(element = p_Element->FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
+	{
+		std::string elementName = element->Value();
+		if(m_HUDSettings.count(elementName) > 0)
+				throw ClientException("Settings tried to load an already loaded element: " + elementName + ".", __LINE__, __FILE__);
+
+		tinyxml2::XMLError res;
+		HUDSettings hudSett;
+		res = element->QueryFloatAttribute("x", &hudSett.position.x);
+		if(res == tinyxml2::XML_SUCCESS)
+			res = element->QueryFloatAttribute("y", &hudSett.position.y);
+		if(res == tinyxml2::XML_SUCCESS)
+			res = element->QueryFloatAttribute("z", &hudSett.position.z);
+
+		if(res != tinyxml2::XML_SUCCESS)
+				throw ClientException("Settings tried to load the position from element: " + elementName + ".", __LINE__, __FILE__);
+
+		res = element->QueryFloatAttribute("scale", &hudSett.scale);
+		if(res != tinyxml2::XML_SUCCESS)
+				throw ClientException("Settings tried to load the scale from element: " + elementName + ".", __LINE__, __FILE__);
+		
+		m_HUDSettings.insert(std::pair<std::string, HUDSettings>(elementName, hudSett));
 	}
 }
 
@@ -207,4 +282,29 @@ const bool Settings::getIsSettingEnabled(std::string p_SettingName) const
 const Vector2 Settings::getResolution() const
 {
 	return m_Resolution;
+}
+
+const std::string& Settings::getLevelName() const
+{
+	return m_LevelName;
+}
+
+const std::string& Settings::getUsername() const
+{
+	return m_Username;
+}
+
+const std::string& Settings::getServerURL() const
+{
+	return m_ServerURL;
+}
+
+unsigned short int Settings::getServerPort() const
+{
+	return m_ServerPort;
+}
+
+std::map<std::string, Settings::HUDSettings> Settings::getHUDSettings() const
+{
+	return m_HUDSettings;
 }
