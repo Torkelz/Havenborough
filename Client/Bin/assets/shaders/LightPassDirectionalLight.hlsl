@@ -4,6 +4,9 @@
 #ifndef SHADOW_RES
 #define SHADOW_RES 1024
 #endif
+#ifndef SHADOW_BORDER
+#define SHADOW_BORDER 0
+#endif
 
 Texture2D wPosTex	 : register (t0);
 Texture2D normalTex	 : register (t1);
@@ -80,10 +83,12 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 
 	
 	float3 lighting = 0;
+	float innerBorder = SHADOW_BORDER;
+	float outerBorder = 1 - SHADOW_BORDER;
 	if(shadowMapped == 0)
 	{
 		lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
-				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, 0, 0);
+				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, 1, 1);
 	}
 	else if(big == 0)
 	{
@@ -95,7 +100,7 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 	}
 	else
 	{
-		if(lightPos.x < 0.4f || lightPos.x > 0.6f || lightPos.y < 0.4f || lightPos.y > 0.6f)
+		if(lightPos.x < innerBorder || lightPos.x > outerBorder || lightPos.y < innerBorder || lightPos.y > outerBorder)
 		{
 			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
 				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, Blur(lightPos.xyz), CalcShadowFactor(lightPos.xyz));
@@ -120,8 +125,8 @@ float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3
 
 	float nDotL = saturate( dot( normal, L ) );
 	float3 diffuse = nDotL * lightColor * diffuseAlbedo * pow(ssao, 10);
-	if(shadowMapped != 0)
-		diffuse *=  blurPercentage * calcPercentage;
+	
+	diffuse *=  blurPercentage * calcPercentage;
 
 	// Calculate the specular term
 	float3 V = normalize(cameraPos - position);

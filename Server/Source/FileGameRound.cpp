@@ -99,6 +99,7 @@ void FileGameRound::sendLevel()
 			if(actor)
 			{
 				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
+				user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
 				user->getConnection()->sendLevelData(stream.c_str(), stream.size());
 				user->getConnection()->sendAssignPlayer(actor->getId());
 			}
@@ -265,6 +266,7 @@ void FileGameRound::sendUpdates()
 						printer.CloseElement();
 						const char* info = printer.CStr();
 						user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+						user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
 
 						printer.ClearBuffer();
 						printer.OpenElement("RacePositions");

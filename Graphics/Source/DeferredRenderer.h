@@ -53,7 +53,9 @@ private:
 
 	bool	m_SSAO;
 	bool	m_ShadowMap;
+	float		m_ShadowBigSize, m_ShadowSmallSize;
 	int		m_ShadowMapResolution;
+	float	m_ShadowMapBorder;
 
 	ID3D11DepthStencilView*		m_DepthMapDSV;
 	UINT						m_Width;

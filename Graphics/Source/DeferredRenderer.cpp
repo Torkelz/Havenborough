@@ -184,6 +184,12 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 		__LINE__, __FILE__);
 	
 	//Shadow map
+	m_ShadowBigSize = 10000.0f;
+	m_ShadowSmallSize = 2000.0f;
+	float percentage = m_ShadowSmallSize/m_ShadowBigSize;
+	percentage = percentage * 0.5f;
+	percentage = 0.5f - percentage;
+	m_ShadowMapBorder = percentage;
 	UINT resolution = m_ShadowMapResolution; //size of Shadow Map
 	initializeShadowMap(resolution, resolution);	
 
@@ -982,7 +988,8 @@ void DeferredRenderer::createShaders()
 	m_Shader["PointLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassPointLight.hlsl", nullptr,
 		"PointLightVS,PointLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 	std::string resolution = std::to_string(m_ShadowMapResolution);
-	D3D_SHADER_MACRO preDefines[2] = {{ "SHADOW_RES", resolution.c_str()}, nullptr};
+	std::string border = std::to_string(m_ShadowMapBorder);
+	D3D_SHADER_MACRO preDefines[3] = {{ "SHADOW_RES", resolution.c_str()}, { "SHADOW_BORDER", border.c_str()}, nullptr};
 	m_Shader["DirectionalLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassDirectionalLight.hlsl", preDefines,
 		"DirectionalLightVS,DirectionalLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 
@@ -1377,9 +1384,9 @@ void DeferredRenderer::renderDirectionalLights(Light p_Directional)
 			m_DeviceContext->RSSetViewports(1, &m_LightViewport);
 
 			if(j==0)
-				updateLightProjection(10000.f);
+				updateLightProjection(m_ShadowBigSize);
 			else
-				updateLightProjection(2000.f);
+				updateLightProjection(m_ShadowSmallSize);
 
 			//update and render Shadow map
 			updateConstantBuffer(m_LightView, m_LightProjection);
