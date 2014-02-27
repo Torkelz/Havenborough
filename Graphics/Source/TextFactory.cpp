@@ -177,7 +177,6 @@ void TextFactory::updateText(Text_Id p_Identifier, const wchar_t *p_Text)
 		{
 			m_TextResources.at(p_Identifier).m_Text = text;
 			m_TextResources.at(p_Identifier).m_Update = true;
-			//m_TextResources.at(p_Identifier).draw();
 		}
 	}
 	else
@@ -201,7 +200,6 @@ void TextFactory::setTextColor(Text_Id p_Identifier, Vector4 p_Color)
 	{
 		m_TextResources.at(p_Identifier).m_Brush->SetColor(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w));
 		m_TextResources.at(p_Identifier).m_Update = true;
-		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
@@ -215,7 +213,6 @@ void TextFactory::setBackgroundColor(Text_Id p_Identifier, Vector4 p_Color)
 	{
 		m_TextResources.at(p_Identifier).m_ClearColor = D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w);
 		m_TextResources.at(p_Identifier).m_Update = true;
-		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
@@ -229,7 +226,6 @@ void TextFactory::setTextAlignment(Text_Id p_Identifier, TEXT_ALIGNMENT p_Alignm
 	{
 		setTextAlignment(m_TextResources.at(p_Identifier).m_TextFormat, p_Alignment);
 		m_TextResources.at(p_Identifier).m_Update = true;
-		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
@@ -243,7 +239,6 @@ void TextFactory::setParagraphAlignment(Text_Id p_Identifier, PARAGRAPH_ALIGNMEN
 	{
 		setParagraphAlignment(m_TextResources.at(p_Identifier).m_TextFormat, p_Alignment);
 		m_TextResources.at(p_Identifier).m_Update = true;
-		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " +
@@ -257,7 +252,6 @@ void TextFactory::setWordWrapping(Text_Id p_Identifier, WORD_WRAPPING p_Wrapping
 	{
 		setWordWrapping(m_TextResources.at(p_Identifier).m_TextFormat, p_Wrapping);
 		m_TextResources.at(p_Identifier).m_Update = true;
-		//m_TextResources.at(p_Identifier).draw();
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
