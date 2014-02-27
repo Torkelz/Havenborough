@@ -201,7 +201,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
-		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, &m_SpotLights, &m_PointLights, &m_DirectionalLights, &m_ShadowMappedLight, 
+		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, m_ShadowMapResolution, &m_SpotLights, &m_PointLights, &m_DirectionalLights, &m_ShadowMappedLight, 
 		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
 	
 	//Forward renderer
@@ -400,7 +400,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 {
 	if(m_ShaderList.count(std::string(p_shaderId)) > 0)
 	{
-		m_WrapperFactory->addShaderStep(m_ShaderList.at(std::string(p_shaderId)), p_Filename, p_EntryPoint, p_ShaderModel, p_Type);
+		m_WrapperFactory->addShaderStep(m_ShaderList.at(std::string(p_shaderId)), p_Filename, nullptr, p_EntryPoint, p_ShaderModel, p_Type);
 	}
 	else
 	{
@@ -419,7 +419,7 @@ void Graphics::createShader(const char *p_shaderId, LPCWSTR p_Filename, const ch
 	if(m_ShaderList.count(std::string(p_shaderId)) > 0)
 		throw ShaderException("Failed to create shader, shader already exists", __LINE__, __FILE__);
 
-	m_ShaderList.insert(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, p_EntryPoint,
+	m_ShaderList.insert(make_pair(p_shaderId, m_WrapperFactory->createShader(p_Filename, nullptr, p_EntryPoint,
 		p_ShaderModel, p_Type, p_VertexLayout, p_NumOfElements)));
 }
 
@@ -714,21 +714,26 @@ void Graphics::useFrameDirectionalLight(Vector3 p_LightColor, Vector3 p_LightDir
 
 	XMStoreFloat3(&l.lightDirection, lightDirectionV);
 	l.lightIntensity = p_Intensity;
-
-	if(m_ShadowMappedLight.lightIntensity == 0)
+	if(m_ShadowMap != false)
 	{
-		m_ShadowMappedLight = l;
-	}
-	else if(m_ShadowMappedLight.lightIntensity > l.lightIntensity)
-	{
-		m_DirectionalLights.push_back(l);
+		if(m_ShadowMappedLight.lightIntensity == 0)
+		{
+			m_ShadowMappedLight = l;
+		}
+		else if(m_ShadowMappedLight.lightIntensity > l.lightIntensity)
+		{
+			m_DirectionalLights.push_back(l);
+		}
+		else
+		{
+			m_DirectionalLights.push_back(m_ShadowMappedLight);
+			m_ShadowMappedLight = l;
+		}
 	}
 	else
 	{
-		m_DirectionalLights.push_back(m_ShadowMappedLight);
-		m_ShadowMappedLight = l;
+		m_DirectionalLights.push_back(l);
 	}
-
 }
 
 void Graphics::setClearColor(Vector4 p_Color)
@@ -754,7 +759,7 @@ void Graphics::drawFrame(void)
 	m_DeferredRender->renderDeferred();
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 4)
+	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 5)
 	{
 		m_ShaderList.at("DebugDeferredShader")->setShader();
 		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, 
@@ -1057,6 +1062,18 @@ void Graphics::enableSSAO(bool p_State)
 {
 	m_DeferredRender->enableSSAO(p_State);
 }
+
+void Graphics::enableShadowMap(bool p_State)
+{
+	m_ShadowMap = p_State;
+	m_DeferredRender->enableShadowMap(p_State);
+}
+
+void Graphics::setShadowMapResolution(int p_ShadowMapResolution)
+{
+	m_ShadowMapResolution = p_ShadowMapResolution;
+}
+
 
 void Graphics::createDefaultShaders(void)
 {

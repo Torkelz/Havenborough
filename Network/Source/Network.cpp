@@ -123,6 +123,7 @@ void Network::registerPackages()
 	m_PackagePrototypes.push_back(PackageBase::ptr(new LevelData));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new LeaveGame));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new ResultData));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new GamePositions));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new SetSpawnPosition));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new ThrowSpell));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new StartCountdown));

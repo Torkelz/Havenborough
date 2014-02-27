@@ -42,7 +42,7 @@ void Shader::initialize(ID3D11Device *p_Device, ID3D11DeviceContext *p_DeviceCon
 	m_NumOfElements = p_NumOfElements;
 }
 
-HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint,
+HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, D3D_SHADER_MACRO* p_Defines, const char *p_EntryPoint,
 	const char *p_ShaderModel, Type p_ShaderType,
 	const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout)
 {
@@ -59,7 +59,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPo
 	ID3DBlob *shaderData = nullptr;
 
 
-	result = compileShader(p_Filename, p_EntryPoint, p_ShaderModel, shaderFlags, shaderData, errorMessage);
+	result = compileShader(p_Filename, p_Defines, p_EntryPoint, p_ShaderModel, shaderFlags, shaderData, errorMessage);
 
 	if(FAILED(result))
 	{
@@ -403,9 +403,9 @@ HRESULT Shader::createShader(ID3DBlob *p_ShaderData)
 	return result;
 }
 
-HRESULT Shader::compileShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+HRESULT Shader::compileShader(LPCWSTR p_Filename, D3D_SHADER_MACRO* p_Defines, const char *p_EntryPoint, const char *p_ShaderModel,
 	DWORD p_ShaderFlags, ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage )
 {
-	return D3DCompileFromFile(p_Filename, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, p_EntryPoint, p_ShaderModel,
+	return D3DCompileFromFile(p_Filename, p_Defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, p_EntryPoint, p_ShaderModel,
 		p_ShaderFlags, 0, &p_ShaderData, &p_ErrorMessage);
 }

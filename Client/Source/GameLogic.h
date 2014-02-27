@@ -53,6 +53,9 @@ private:
 	float m_CountdownTimer;
 	bool m_RenderGo;
 
+	unsigned int m_PlayerPositionInRace;
+	float m_PlayerTimeDifference; //The difference in time to the first player.
+
 	//DEBUG
 	Vector2 m_PlayerDirection;
 public:
@@ -93,6 +96,19 @@ public:
 	void leaveGame();
 
 	void throwSpell(const char *p_SpellId);
+
+	/**
+	 * A position in the race sent from the server.
+	 *
+	 * @return client's position 
+	 */
+	unsigned int getPlayerPositionInRace();
+	/**
+	 * The difference in time to the first player.
+	 *
+	 * @return the difference in time
+	 */
+	float getPlayerTimeDifference();
 	//void releaseSpellInstance(int p_SpellId);
 
 	/**

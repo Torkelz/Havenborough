@@ -31,7 +31,7 @@ public:
 		m_BodyHandle = 0;
 		setRadius(p_Radius);
 		m_Position = p_Pos;
-		
+		m_CollisionResponse = true;
 		m_Type = Type::SPHERE;
 		m_IDInBody = 0;
 	}

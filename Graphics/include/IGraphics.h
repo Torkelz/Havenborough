@@ -18,6 +18,8 @@ public:
 		W_POSITION,
 		SSAO,
 		FINAL,
+		SSAOPing,
+		CSM,
 		NONE,
 	};
 
@@ -642,6 +644,21 @@ public:
 	 * @param p_State, true enables SSAO. false disables SSAO.
 	 */
 	virtual void enableSSAO(bool p_State) = 0;
+
+	/*
+	 * Enables or disables Shadow Map depending on parameter.
+	 *
+	 * @param p_State, true enables shadow mapping. false disables shadow mapping.
+	 */
+	virtual void enableShadowMap(bool p_State) = 0;
+
+	/*
+	 * Set the shadow map resolution size.
+	 *
+	 * @param p_ShadowMapResolution is the size of one side of the quadric map.
+	 */
+	virtual void setShadowMapResolution(int p_ShadowMapResolution) = 0;
+
 private:
 
 	/**

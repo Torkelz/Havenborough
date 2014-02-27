@@ -100,6 +100,9 @@ private:
 	ID3D11ShaderResourceView *textSRV;
 	IDXGIKeyedMutex *dxgiKeyedMutex10, *dxgiKeyedMutex11;
 
+	bool m_ShadowMap;
+	int m_ShadowMapResolution;
+
 public:
 	Graphics(void);
 	~Graphics(void);
@@ -205,6 +208,8 @@ public:
 	void enableVsync(bool p_State) override;
 	void renderJoint(DirectX::XMFLOAT4X4 p_World) override;
 	void enableSSAO(bool p_State) override;
+	void enableShadowMap(bool p_State) override;
+	void setShadowMapResolution(int p_ShadowMapResolution) override;
 
 private:
 	void createDefaultShaders(void) override;
