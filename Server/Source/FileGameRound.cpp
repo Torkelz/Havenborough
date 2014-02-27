@@ -277,7 +277,10 @@ void FileGameRound::sendUpdates()
 							break;
 						}
 						printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
-						printer.PushAttribute("Time",  m_PlayerPositionList[0]->getClockedTime() - player->getClockedTime());
+						unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
+						float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
+						float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
+						printer.PushAttribute("Time",  leadTime - playerTime);
 						printer.CloseElement();
 						info = printer.CStr();
 						user->getConnection()->sendRacePosition(&info, 1);
@@ -451,15 +454,17 @@ void FileGameRound::rearrangePlayerPosition()
 	{
 		for(unsigned int j = i + 1; j < temp.size(); j++)
 		{
-			if(temp[i]->getNrOfCheckpointsTaken() < temp[j]->getNrOfCheckpointsTaken())
+			unsigned int iCheckPointTaken = temp[i]->getNrOfCheckpointsTaken();
+			unsigned int jCheckPointTaken = temp[j]->getNrOfCheckpointsTaken();
+			if(iCheckPointTaken < jCheckPointTaken)
 			{
 				Player::ptr tempPlayer = temp[i];
 				temp[i] = temp[j];
 				temp[j] = tempPlayer;
 			}
-			else if(temp[i]->getNrOfCheckpointsTaken() == temp[j]->getNrOfCheckpointsTaken())
+			else if(iCheckPointTaken == jCheckPointTaken)
 			{
-				if(temp[i]->getClockedTime() > temp[j]->getClockedTime())
+				if(temp[i]->getClockedTimeAtCheckpoint(iCheckPointTaken) > temp[j]->getClockedTimeAtCheckpoint(jCheckPointTaken))
 				{
 					Player::ptr tempPlayer = temp[i];
 					temp[i] = temp[j];
