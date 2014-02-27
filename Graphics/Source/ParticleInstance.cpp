@@ -41,7 +41,12 @@ void ParticleInstance::update(float p_DeltaTime)
 {
 	if (m_SysMaxLife > 0)
 	{
-		m_SysLife += p_DeltaTime;	
+		m_SysLife += p_DeltaTime;
+		
+		if (m_SysLife >= m_SysMaxLife)
+		{
+			setSeppuku(true);
+		}	
 	}
 	
 	killOldParticles();
@@ -75,7 +80,7 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 			(part.shaderData.position.x + part.velocity.x * p_DeltaTime),
 			(part.shaderData.position.y + part.velocity.y * p_DeltaTime),
 			(part.shaderData.position.z + part.velocity.z * p_DeltaTime));
-		part.shaderData.color.w *= 0.95f;
+		part.shaderData.color.w *= 1 - (part.life/part.maxLife);
 		part.life += p_DeltaTime;
 	}
 }
@@ -226,12 +231,12 @@ void ParticleInstance::setSysBaseColor(DirectX::XMFLOAT4 p_NewSysBaseColor)
 	m_SysBaseColor = p_NewSysBaseColor;
 }
 
-//bool ParticleInstance::getSeppuku() const
-//{
-//	return m_Seppuku;
-//}
-//
-//void ParticleInstance::setSeppuku(bool p_DoSeppuku)
-//{
-//	m_Seppuku = p_DoSeppuku;
-//}
+bool ParticleInstance::getSeppuku() const
+{
+	return m_Seppuku;
+}
+
+void ParticleInstance::setSeppuku(bool p_DoSeppuku)
+{
+	m_Seppuku = p_DoSeppuku;
+}
