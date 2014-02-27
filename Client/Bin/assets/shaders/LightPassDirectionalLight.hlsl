@@ -14,7 +14,7 @@ cbuffer cb : register(b0)
 	float4x4	view;
 	float4x4	projection;
 	float3		cameraPos;
-	float4		ssaoScale;
+	float		ssaoScale;
 };
 
 //############################

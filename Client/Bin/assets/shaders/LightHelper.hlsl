@@ -38,7 +38,9 @@ void GetGBufferAttributes(in float2 p_ScreenPos,in float p_SSAOScale, in Texture
 	p_DiffuseAlbedo = diffuseTexSample.xyz;	
 	p_SpecularPower = diffuseTexSample.w;
 
-	p_SSAO = p_SSAO_Tex.Load(sampleIndex * p_SSAOScale).xyz;
+	int3 scaledScreenPos = int3(p_ScreenPos * p_SSAOScale, 0);
+	//scaledScreenPos *= p_SSAOScale;
+	p_SSAO = p_SSAO_Tex.Load(scaledScreenPos).xyz;
 
 	float4 wPosTexSample = p_WPosTex.Load(sampleIndex).xyzw;	
 	p_Position = wPosTexSample.xyz;

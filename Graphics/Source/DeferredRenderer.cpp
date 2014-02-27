@@ -626,6 +626,7 @@ void DeferredRenderer::createBuffers()
 	cb.view = *m_ViewMatrix;
 	cb.proj = *m_ProjectionMatrix;
 	cb.campos = m_CameraPosition;
+	cb.ssaoScale = m_SSAO_Resolution_Scale;
 
 
 	Buffer::Description cbdesc;
