@@ -1,7 +1,6 @@
 #include "SceneManager.h"
 #include "Scenes/GameScene.h"
 #include "Scenes/MenuScene.h"
-#include "Scenes/PostGameScene.h"
 #include "Scenes/HUDScene.h"
 #include "ClientExceptions.h"
 
@@ -30,13 +29,12 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	m_GameLogic = p_GameLogic;
 
 	m_MenuSceneList.resize(1);
-	m_RunSceneList.resize(3);
+	m_RunSceneList.resize(2);
 
 	m_MenuSceneList[0] = IScene::ptr(new MenuScene);
 
 	m_RunSceneList[0] = IScene::ptr(new GameScene);
 	m_RunSceneList[1] = IScene::ptr(new HUDScene);
-	m_RunSceneList[2] = IScene::ptr(new PostGameScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
 	m_NumberOfRunScene = m_RunSceneList.size();

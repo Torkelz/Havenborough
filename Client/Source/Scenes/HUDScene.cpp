@@ -35,6 +35,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateGraphicalManabar), UpdateGraphicalManabarEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateCheckpointPosition), UpdateCheckpointPositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerTime), UpdatePlayerTimeEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerRacePosition), UpdatePlayerRaceEventData::sk_EventType);
 
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
@@ -81,6 +82,8 @@ void HUDScene::render()
 	m_Graphics->render2D_Object(m_GUI["ManabarChange"]);
 	m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
 	m_Graphics->render2D_Object(m_GUI["Time"]);
+	m_Graphics->render2D_Object(m_GUI["RacePos"]);
+	m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
 
 	if(m_RenderCountdown)
 	{
@@ -172,14 +175,21 @@ void HUDScene::updatePlayerTime(IEventData::Ptr p_Data)
 	float floorTimeDiff = floorf(timeDiff);
 	float timeDiffFrac = (timeDiff - floorTimeDiff) * 100.f;
 
-	if(floorTimeDiff > 9.99f)
-		ss << floorTimeDiff << "." << timeDiffFrac;
-	else
-		ss << "0" << floorTimeDiff << "." << timeDiffFrac;
+	ss << floorTimeDiff << "." << timeDiffFrac;
+	std::string string = ss.str();
 
-	std::string hej = ss.str();
+	m_Graphics->updateText(m_TextHandle["Time"], std::wstring(string.begin(), string.end()).c_str());
+}
 
-	m_Graphics->updateText(m_TextHandle["Time"], std::wstring(hej.begin(), hej.end()).c_str());
+void HUDScene::updatePlayerRacePosition(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdatePlayerRaceEventData> data = std::static_pointer_cast<UpdatePlayerRaceEventData>(p_Data);
+
+	int racePos = data->getPosition();
+	std::string position("Position: ");
+	position.append(std::to_string(racePos));
+	m_Graphics->updateText(m_TextHandle["RacePos"], std::wstring(position.begin(), position.end()).c_str());
+	m_Graphics->updateText(m_TextHandle["RacePosBG"], std::wstring(position.begin(), position.end()).c_str());
 }
 
 void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
@@ -243,6 +253,13 @@ void HUDScene::preLoadModels()
 
 	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(80.f, 50.f), "Verdana", 20.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(Vector3(400, -320, 2), Vector3(1,1,1), 0.f, m_TextHandle["Time"]));
+
+	createTextElement("RacePos", m_Graphics->createText(L"Position: 0", Vector2(200, 65), "Segoe UI", 42, Vector4(0.0509803921568627f, 0.1882352941176471f, 0.6392156862745098f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createGUIElement("RacePos", m_Graphics->create2D_Object(Vector3(400, 320, 2), Vector3(1,1,1), 0.f, m_TextHandle["RacePos"]));
+
+	createTextElement("RacePosBG", m_Graphics->createText(L"Position: 0", Vector2(204, 69), "Segoe UI", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(398, 318, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
+
 }
 
 void HUDScene::releasePreLoadedModels()

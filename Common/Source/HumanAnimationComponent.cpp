@@ -108,7 +108,7 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentJumpState)
 				{
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", true);
+					playAnimation("HardLanding", false);
 					if (XMVectorGetZ(velocity) > runLimit)
 						queueAnimation("Run");
 					else
@@ -118,9 +118,9 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::LIGHT_LANDING:
 					playAnimation("BodyLand", false);
 					if (XMVectorGetZ(velocity) > runLimit)
-						playAnimation("Run", false);
+						queueAnimation("Run");
 					else
-						playAnimation("Idle2", false);
+						queueAnimation("Idle2");
 					break;
 
 				default: // Just in case, so that the code doesn't break, hohohoho
@@ -134,6 +134,9 @@ void HumanAnimationComponent::updateAnimation()
 		}
 		else
 		{
+			float weight = 1 - (abs(cosf(angle)));
+			if(weight > 0.8f)
+				int lol = 42;
 			static const float runLimit = 100.f;
 			float flyLimit = 500.0f;
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
@@ -171,20 +174,19 @@ void HumanAnimationComponent::updateAnimation()
 							playAnimation("RunningJump", true);
 							queueAnimation("Falling");
 						}
-						else
-						{
-							playAnimation("StandingJump", true);
-							queueAnimation("Falling");
-						}
-
-						if (XMVectorGetX(velocity) > runLimit)
+						else if (XMVectorGetX(velocity) > runLimit)
 						{
 							playAnimation("SideJumpRight", false);
-							queueAnimation("Falling");
+							queueAnimation("FallingSide");
 						}
 						else if (XMVectorGetX(velocity) < -runLimit)
 						{
 							playAnimation("SideJumpLeft", false);
+							queueAnimation("FallingSide");
+						}
+						else
+						{
+							playAnimation("StandingJump", false);
 							queueAnimation("Falling");
 						}
 					}
@@ -195,7 +197,7 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", true);
+					playAnimation("HardLanding", false);
 					if (XMVectorGetZ(velocity) > runLimit)
 						queueAnimation("Run");
 					else
@@ -205,9 +207,9 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::LIGHT_LANDING:
 					playAnimation("BodyLand", false);
 					if (XMVectorGetZ(velocity) > runLimit)
-						playAnimation("Run", false);
+						queueAnimation("Run");
 					else
-						playAnimation("Idle2", false);
+						queueAnimation("Idle2");
 					break;
 
 				case JumpAnimationState::FALLING:

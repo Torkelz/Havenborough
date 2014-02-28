@@ -2,13 +2,14 @@
   <Server Hostname="localhost" Port="31415" />
   <!-- Test ip: 194.47.150.44 -->
   <Game Level="serverLevel" Username="Player" />
+  <Character Name="Dzala" Style="Green" />
   <Settings>
     <SSAO Enabled="false" />
-    <ShadowMap Enabled="false" />
+    <ShadowMap Enabled="true" />
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
-		<ShadowMapResolution Size="2048"/>
+    <ShadowMapResolution Size="1024" />
   </Settings>
   <Controls>
     <!--

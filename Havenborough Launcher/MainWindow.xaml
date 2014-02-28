@@ -5,7 +5,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         Title="Havenborough Launcher" Height="550" Width="800" ResizeMode="NoResize">
     <Controls:MetroWindow.Resources>
-        <local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />
+        <!--<local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />-->
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
         <local:GameList x:Key="gameDataSource" />
         <XmlDataProvider x:Key="DataProvider" />
@@ -14,11 +14,14 @@
                 <TextBlock Text="{Binding}" />
             </StackPanel>
         </DataTemplate>
+        <DataTemplate x:Key="shadowResTemplate">
+            <TextBlock Text="{Binding Path=Display}" />
+        </DataTemplate>
     </Controls:MetroWindow.Resources>
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60*" />
-            <ColumnDefinition Width="40*" />
+            <ColumnDefinition Width="65*" />
+            <ColumnDefinition Width="35*" />
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
@@ -37,12 +40,36 @@
                         <TextBlock FontSize="16" Text="Username" Width="80" />
                         <TextBox Text="{Binding XPath=@Username, Mode=TwoWay}" Width="200" />
                     </StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50*" />
-                            <ColumnDefinition Width="50*" />
-                        </Grid.ColumnDefinitions>
-                    </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
+                        <ComboBox Loaded="CharacterNameLoad" SelectionChanged="CharacterNameSelection" Width="100" Margin="0,0,5,0"
+                                  Text="{Binding XPath=@Name, Mode=OneWayToSource}" />
+                        <TextBlock FontSize="16" Text="Character" Width="80" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
+                        <ComboBox Loaded="CharacterStyleLoad" SelectionChanged="CharacterStyleSelection" Width="100" Margin="0,0,5,0"
+                                  Text="{Binding XPath=@Style, Mode=OneWayToSource}" />
+                        <TextBlock FontSize="16" Text="Style" Width="80" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" >
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
+                        <TextBox Text="{Binding XPath=@Width, Mode=TwoWay}" Width="50" />
+                        <TextBox Text="{Binding XPath=@Height, Mode=TwoWay}" Width="50" Margin="0,0,5,0"/>
+                        <TextBlock FontSize="16" Text="Resolution" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
+                        <ComboBox Loaded="ShadowResolutionLoad" SelectionChanged="ShadowResolutionSelection" Width="80" Margin="0,0,5,0"
+                                  ItemTemplate="{StaticResource shadowResTemplate}" Text="{Binding XPath=@Size, Mode=OneWayToSource}" />
+                        <TextBlock FontSize="16" Text="Shadows" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMap}">
+                        <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
+                        <TextBlock FontSize="16" Text="Shadow Map" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/SSAO}">
+                        <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
+                        <TextBlock FontSize="16" Text="SSAO" />
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Fullscreen}">
                         <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
                         <TextBlock FontSize="16" Text="Fullscreen" />
@@ -51,39 +78,28 @@
                         <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
                         <TextBlock FontSize="16" Text="Vertical Sync" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/SSAO}">
-                        <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
-                        <TextBlock FontSize="16" Text="SSAO" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMap}">
-                        <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
-                        <TextBlock FontSize="16" Text="Shadow Map" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
-                        <TextBox Text="{Binding XPath=@Width, Mode=TwoWay}" Width="50" />
-                        <TextBox Text="{Binding XPath=@Height, Mode=TwoWay}" Width="50" Margin="0,0,5,0"/>
-                        <TextBlock FontSize="16" Text="Resolution" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
-                        <TextBox Text="{Binding XPath=@Size, Mode=TwoWay}" Width="50" Margin="0,0,5,0"/>
-                        <TextBlock FontSize="16" Text="Shadow resolution" />
-                    </StackPanel>
                 </StackPanel>
             </Grid>
-            <Grid Grid.Row="1">
-                <Grid.DataContext>
-                    <Binding Source="{StaticResource gameDataSource}" />
-                </Grid.DataContext>
-                <Button x:Name="launchButton" IsEnabled="False" Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick">
-                    LAUNCH
-                </Button>
-                <Button Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="Refresh_OnClick" Margin="325,27,50,27">
-                    Refresh
-                </Button>
-                <ListBox x:Name="gameListView" Margin="10,0,312,10" ItemsSource="{Binding Path=Games}"
+            <Grid Grid.Row="1" Margin="10,0,0,10">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.DataContext>
+                        <Binding Source="{StaticResource gameDataSource}" />
+                    </StackPanel.DataContext>
+                    <StackPanel Margin="0,0,10,0" VerticalAlignment="Center">
+                        <ListBox x:Name="gameListView" BorderThickness="1" BorderBrush="White" Height="90" Width="150" ItemsSource="{Binding Path=Games}"
                          ItemTemplate="{StaticResource gameListTemplate}"
                          IsSynchronizedWithCurrentItem="True"
                          SelectionChanged="OnSelectedGameChanged"/>
+                    </StackPanel>
+                    <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
+                        <Button x:Name="LaunchButton" IsEnabled="False" Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick" Content="LAUNCH"/>
+                    </StackPanel>
+                    <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
+                        <Button Width="100" Height="50" HorizontalAlignment="Right" FontSize="16" FontWeight="Bold" Click="Refresh_OnClick">
+                            REFRESH
+                        </Button>
+                    </StackPanel>    
+                </StackPanel>
             </Grid>
         </Grid>
         <Grid Grid.Column="1" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Controls/*}" Margin="0,10,0,10">
@@ -94,8 +110,8 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding XPath=@Key,Mode=TwoWay}" Width="50" TextAlignment="Center" />
-                                    <Label Content="{Binding XPath=@Display,Mode=TwoWay}" />
+                                    <TextBox Text="{Binding XPath=@Key, Mode=TwoWay}" Width="50" TextAlignment="Center" />
+                                    <Label Content="{Binding XPath=@Display, Mode=TwoWay}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

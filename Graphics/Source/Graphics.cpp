@@ -766,6 +766,10 @@ void Graphics::drawFrame(void)
 	{
 		throw GraphicsException("", __LINE__, __FILE__);
 	}
+	//Update text resources
+	m_TextFactory.update();
+
+
 	Begin(m_ClearColor);
 
 	m_DeferredRender->renderDeferred();
@@ -798,6 +802,7 @@ void Graphics::drawFrame(void)
 	m_PointLights.clear();
 	m_SpotLights.clear();
 	m_DirectionalLights.clear();
+	m_ShadowMappedLight = Light();
 }
 
 void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)

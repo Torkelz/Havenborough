@@ -152,7 +152,6 @@ void GameScene::render()
 				renderBoundingVolume(body);
 			}
 		}
-		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
 	}
 
 	for(auto &light : m_Lights)
