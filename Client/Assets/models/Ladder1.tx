@@ -8,8 +8,8 @@
 
 *Materials
 Material: WoodenPlank
-DiffuseMap: Wood2_Texture.dds
-NormalMap: Wood2_NORMAL.dds
+DiffuseMap: Wood2_COLOR.dds
+NormalMap: Wood2_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 *Vertices

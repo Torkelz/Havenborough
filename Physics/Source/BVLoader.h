@@ -17,9 +17,7 @@ public:
 		std::string m_modelName;
 		int m_numMaterial;
 		int m_numVertex;
-		int m_numMaterialBuffer;
-		int m_numJoints;
-		int m_numFrames;
+		int m_numFaces;
 	};
 
 private:	
@@ -54,13 +52,11 @@ public:
 	 * @returns a vector of the struct BoundingVolume.
 	 */
 	const std::vector<BVLoader::BoundingVolume>& getBoundingVolumes();
+	//void byteToInt(std::istream* p_Input, int& p_Return);
+	//void byteToString(std::istream* p_Input, std::string& p_Return);
 
-protected:	
-	void byteToInt(std::istream* p_Input, int& p_Return);
-	void byteToString(std::istream* p_Input, std::string& p_Return);
-
-	BVLoader::Header readHeader(std::istream* p_Input);
-	std::vector<BVLoader::BoundingVolume> readBoundingVolume(std::istream* p_Input);
+	void readHeader(std::istream* p_Input);
+	void readBoundingVolume(std::istream* p_Input);
 
 private:
 	void clearData();

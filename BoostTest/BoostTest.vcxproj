@@ -167,6 +167,7 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp" />
     <ClCompile Include="Source\Physics\AABBTest.cpp" />
     <ClCompile Include="Source\Physics\BodyTest.cpp" />
+    <ClCompile Include="Source\Physics\BVLoaderTest.cpp" />
     <ClCompile Include="Source\Physics\HullTest.cpp" />
     <ClCompile Include="Source\Physics\OBBTest.cpp" />
     <ClCompile Include="Source\Common\TestLight.cpp" />
