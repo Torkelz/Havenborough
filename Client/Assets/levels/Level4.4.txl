@@ -1767,7 +1767,7 @@
 #Scale: 1 1 1
 
 *LightHeader*
-#numLights 2
+#numLights 6
 
 #Light: directionalLightShape1
 #Translation: -3184.466553 4827.981934 866.384521
@@ -1777,8 +1777,32 @@ Intensity: 1
 Direction: 0.776358 -0.630194 -0.0111228
 
 #Light: pointLightShape1
-#Translation: 3735.956055 0 0
+#Translation: 12953.266602 3107.225586 -3434.089355
+Color: 0.529412 0.57171 1
+Type: kPointLight
+Intensity: 1
+
+#Light: pointLightShape2
+#Translation: 19168.912109 3812.980469 -2037.864868
 Color: 1 1 1
+Type: kPointLight
+Intensity: 1
+
+#Light: pointLightShape3
+#Translation: 19227.1875 5226.839355 -2140.619141
+Color: 0.539 1 0.735832
+Type: kPointLight
+Intensity: 1
+
+#Light: pointLightShape4
+#Translation: 15376.223633 5226.839355 -11365.295898
+Color: 1 0.588235 0.588235
+Type: kPointLight
+Intensity: 1
+
+#Light: pointLightShape5
+#Translation: 10146.703125 5259.400391 -3434.089355
+Color: 1 0.849791 0.539
 Type: kPointLight
 Intensity: 1
 
@@ -1809,16 +1833,16 @@ Translation: -1865.002335 764.967285 4068.340049
 Translation: 89.693527 788.647949 2241.382561
 
 #Type: CheckPoint
-#NR: 5
+#NR: 6
 Translation: 791.607862 1227.873065 -239.419029
 
 #Type: CheckPoint
-#NR: 7
+#NR: 8
 Translation: 16213.315413 6576.713551 -5380.183548
 
 #Type: End
 Translation: 27829.037268 8891.851765 -4843.709164
 
 #Type: CheckPoint
-#NR: 6
+#NR: 7
 Translation: 15386.903028 4802.004534 -9990.285265
