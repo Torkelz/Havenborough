@@ -240,6 +240,9 @@ void FileGameRound::sendUpdates()
 			User::ptr user = player->getUser().lock();
 			if (user)
 			{
+				unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
+				float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
+				float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
 				Actor::ptr actor = m_SendHitData[i].second.lock();
 				if (actor)
 				{
@@ -267,9 +270,7 @@ void FileGameRound::sendUpdates()
 							break;
 						}
 						printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
-						unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
-						float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
-						float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
+						
 						printer.PushAttribute("Time",  leadTime - playerTime);
 						printer.CloseElement();
 						info = printer.CStr();
@@ -283,6 +284,7 @@ void FileGameRound::sendUpdates()
 						printer.OpenElement("GameResult");
 						printer.PushAttribute("Type", "Position");
 						printer.PushAttribute("Place", m_GoalCount);
+						printer.PushAttribute("Time", leadTime - playerTime);
 						printer.CloseElement();
 						const char* info = printer.CStr();
 						user->getConnection()->sendGameResult(&info, 1);
@@ -321,8 +323,20 @@ void FileGameRound::sendUpdates()
 			printer.PushAttribute("VectorSize", m_Players.size());
 			for(unsigned int i = 0; i < m_ResultList.size(); i++)
 			{
+				float time;
 				printer.OpenElement("Place");
 				printer.PushAttribute("Player", m_ResultList[i]);
+				for(auto& player : m_Players)
+				{
+					if(player->getActor().lock()->getId() == m_ResultList[i])
+					{
+						unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
+						float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
+						float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
+						time = leadTime - playerTime;
+					}
+				}
+				printer.PushAttribute("Time", time);
 				printer.CloseElement();
 			}
 			printer.CloseElement();

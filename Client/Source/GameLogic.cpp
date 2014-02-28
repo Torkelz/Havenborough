@@ -587,12 +587,14 @@ void GameLogic::handleNetwork()
 								}
 								else
 								{
-									std::vector<int> GoalList;
+									std::vector<std::pair<int, float>> GoalList;
 									int position;
+									float time;
 									for(int i = 0; i < size; i++)
 									{
 										object->QueryAttribute("Place", &position);
-										GoalList.push_back(position);
+										object->QueryAttribute("Time", &time);
+										GoalList.push_back(std::make_pair(position, time));
 									}
 									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
 								}
@@ -601,6 +603,8 @@ void GameLogic::handleNetwork()
 						{
 							object->QueryAttribute("Place", &m_PlayerPositionInRace);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							object->QueryAttribute("Time", &m_PlayerTimeDifference);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 						}
 					}
 				}
