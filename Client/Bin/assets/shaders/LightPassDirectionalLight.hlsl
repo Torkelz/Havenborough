@@ -179,7 +179,6 @@ float CalcShadowFactor(float3 uv, float nDotL)
 		for(int i = 0; i < 21; i++)
 		{
 			value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x + (i - 10) * SMAP_DX, uv.y + (i - 10) * SMAP_DX), uv.z) * coefficients[i];
-			//value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x, uv.y + (i - 10) * SMAP_DX), uv.z) * coefficients[i];
 		}
 		percentLit = value;// * 0.5f;
 	 }
