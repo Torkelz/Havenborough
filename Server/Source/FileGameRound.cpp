@@ -323,7 +323,7 @@ void FileGameRound::sendUpdates()
 			printer.PushAttribute("VectorSize", m_Players.size());
 			for(unsigned int i = 0; i < m_ResultList.size(); i++)
 			{
-				float time;
+				float time = 0;
 				printer.OpenElement("Place");
 				printer.PushAttribute("Player", m_ResultList[i]);
 				for(auto& player : m_Players)
@@ -346,7 +346,6 @@ void FileGameRound::sendUpdates()
 			{
 				player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
 			}
-			m_GoalCount = -1;
 		}
 	}
 }
@@ -367,7 +366,16 @@ void FileGameRound::playerDisconnected(Player::ptr p_DisconnectedPlayer)
 		if (user)
 		{
 			user->getConnection()->sendRemoveObjects(&playerActorId, 1);
+			m_GoalCount--;
+			if(m_GoalCount < 0)
+				m_GoalCount = 0;
 		}
+	}
+
+	auto playerPosition = std::find(m_PlayerPositionList.begin(), m_PlayerPositionList.end(), p_DisconnectedPlayer);
+	if (playerPosition != m_PlayerPositionList.end())
+	{
+		m_PlayerPositionList.erase(playerPosition);
 	}
 
 	auto it = std::find(m_Actors.begin(), m_Actors.end(), actor);
