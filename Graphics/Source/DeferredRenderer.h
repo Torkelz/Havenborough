@@ -166,6 +166,7 @@ private:
 
 
 	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, std::vector<Light> *p_Lights);
+	void renderAmbientLight(Buffer *p_ModelBuffer);
 
 
 	void updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix);
