@@ -8,8 +8,8 @@
 
 *Materials
 Material: Brick
-DiffuseMap: brickwall1_COLOR.dds
-NormalMap: brickwall1_NORMAL.dds
+DiffuseMap: Brickwall1_COLOR.dds
+NormalMap: Brickwall1_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 *Vertices
