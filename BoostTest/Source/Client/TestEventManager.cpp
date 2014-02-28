@@ -318,19 +318,6 @@ BOOST_AUTO_TEST_CASE(GameStartedEventDataTest)
 	BOOST_CHECK(newEventData->getName() == "GameStartedEvent");
 }
 
-BOOST_AUTO_TEST_CASE(GameLeftEventDataTest)
-{
-	std::shared_ptr<GameLeftEventData> eventData(new GameLeftEventData(true));
-
-	BOOST_CHECK(eventData->getName() == "GameLeftEvent");
-	BOOST_CHECK(eventData->getEventType() == 0x846ef45b);
-
-	BOOST_CHECK(eventData->getGoBack());
-
-	std::shared_ptr<GameLeftEventData> newEventData = std::static_pointer_cast<GameLeftEventData>(eventData->copy());
-	BOOST_CHECK(newEventData->getGoBack());
-}
-
 BOOST_AUTO_TEST_CASE(QuitGameEventDataTest)
 {
 	std::shared_ptr<QuitGameEventData> eventData(new QuitGameEventData());

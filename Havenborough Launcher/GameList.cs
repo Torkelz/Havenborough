@@ -75,14 +75,14 @@ namespace Havenborough_Launcher
             Games = new ObservableCollection<Game>();
         }
 
-        public void Refresh()
+        public void Refresh(string p_Host, int p_Port)
         {
             refreshTask = Task.Run(() =>
             {
                 byte[] data = null;
                 try
                 {
-                    using (Socket clientSocket = Connect())
+                    using (Socket clientSocket = Connect(p_Host, p_Port))
                     {
                         SendRequest(clientSocket);
                         data = ReadResponse(clientSocket);
@@ -128,10 +128,10 @@ namespace Havenborough_Launcher
             });
         }
 
-        Socket Connect()
+        Socket Connect(string p_Host, int p_Port)
         {
             Socket clientSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            clientSocket.Connect("localhost", 31415);
+            clientSocket.Connect(p_Host, p_Port);
 
             return clientSocket;
         }
