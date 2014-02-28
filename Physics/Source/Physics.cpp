@@ -95,35 +95,35 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 				{
 					handleCollision(i, k, j, isOnGround);
 				}
-			}
 
-			b.setOnSomething(isOnGround);
-			b.setInAir(!b.getOnSomething());
+				b.setOnSomething(isOnGround);
+				b.setInAir(!b.getOnSomething());
+			}
 		}
 	}
-
 }
 
 void Physics::handleCollision(int p_Collider, int ColliderVolumeId, int p_Victim, bool &p_IsOnGround)
 {
+	Body& b = m_Bodies[p_Collider];
 	for(unsigned int i = 0; i < m_Bodies.at(p_Victim).getVolumeListSize(); i++)
 	{
-		HitData hit = Collision::boundingVolumeVsBoundingVolume(*m_Bodies.at(p_Collider).getVolume(ColliderVolumeId), *m_Bodies.at(p_Victim).getVolume(i));
+		HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(ColliderVolumeId), *m_Bodies.at(p_Victim).getVolume(i));
 			
 		if(hit.intersect)
 		{
-			hit.collider = m_Bodies.at(i).getHandle();
+			hit.collider = b.getHandle();
 			hit.IDInBody = ColliderVolumeId;
 			hit.collisionVictim = m_Bodies.at(p_Victim).getHandle();
 			hit.isEdge = m_Bodies.at(p_Victim).getIsEdge();
 			m_HitDatas.push_back(hit);
 
-			if(m_Bodies.at(p_Collider).getCollisionResponse(ColliderVolumeId) && m_Bodies.at(p_Victim).getCollisionResponse(i))
+			if(b.getCollisionResponse(ColliderVolumeId) && m_Bodies.at(p_Victim).getCollisionResponse(i))
 			{
 				XMVECTOR temp;		// m
 				XMFLOAT4 tempPos;	// m
 
-				XMFLOAT4 vel = m_Bodies.at(p_Collider).getVelocity();
+				XMFLOAT4 vel = b.getVelocity();
 				XMVECTOR vVel = XMLoadFloat4(&vel);
 
 				XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
@@ -131,9 +131,9 @@ void Physics::handleCollision(int p_Collider, int ColliderVolumeId, int p_Victim
 
 				if (hit.colNorm.y > 0.7f)
 				{
-					if(!m_Bodies.at(p_Collider).getOnSomething())
+					if(!b.getOnSomething())
 					{
-						m_Bodies.at(p_Collider).setLanded(true);
+						b.setLanded(true);
 					}
 
 					p_IsOnGround = true;
@@ -147,12 +147,14 @@ void Physics::handleCollision(int p_Collider, int ColliderVolumeId, int p_Victim
 				}
 
 				XMStoreFloat4(&vel, vVel);
-				m_Bodies.at(p_Collider).setVelocity(vel);
+				b.setVelocity(vel);
 
-				temp = XMLoadFloat4(&m_Bodies.at(p_Collider).getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
+				temp = XMLoadFloat4(&b.getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
 				XMStoreFloat4(&tempPos, temp);
 
-				m_Bodies.at(p_Collider).setPosition(tempPos);
+				b.setPosition(tempPos);
+				if(m_Bodies.at(p_Collider).getVolumeListSize() == 5 && m_Bodies.at(p_Victim).getVolumeListSize() == 5)
+						PhysicsLogger::log(PhysicsLogger::Level::INFO, "Player Collision occrued!");
 			}
 
 		}
