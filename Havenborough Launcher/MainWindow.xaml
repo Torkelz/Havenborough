@@ -5,7 +5,6 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         Title="Havenborough Launcher" Height="575" Width="825" ResizeMode="NoResize">
     <Controls:MetroWindow.Resources>
-        <!--<local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />-->
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
         <local:GameList x:Key="GameDataSource" />
         <XmlDataProvider x:Key="DataProvider" />
@@ -16,6 +15,9 @@
         </DataTemplate>
         <DataTemplate x:Key="ShadowResTemplate">
             <TextBlock Text="{Binding Path=Display}" />
+        </DataTemplate>
+        <DataTemplate x:Key="ScreenResTemplate">
+            <TextBlock Text="{Binding Path=Display}" DataContext="{Binding Path=Width}"/>
         </DataTemplate>
     </Controls:MetroWindow.Resources>
     <Grid x:Name="MainGrid">
@@ -51,13 +53,13 @@
                     <StackPanel Orientation="Horizontal" >
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"  Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
-                        <TextBox Text="{Binding XPath=@Width, Mode=TwoWay}" Width="50" />
-                        <TextBox Text="{Binding XPath=@Height, Mode=TwoWay}" Width="50" Margin="0,0,5,0"/>
+                        <ComboBox Loaded="ScreenResolutionLoad" Width="100" Margin="0,0,5,0" ItemTemplate="{StaticResource ScreenResTemplate}"
+                                  DataContext="{Binding Mode=OneWayToSource, XPath=@Width}"/>
                         <TextBlock FontSize="16" Text="Resolution" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
                         <ComboBox Loaded="ShadowResolutionLoad" Width="100" Margin="0,0,5,0" ItemTemplate="{StaticResource ShadowResTemplate}"
-                                  Text="{Binding Mode=OneWayToSource, XPath=@Size}" />
+                               Text="{Binding Mode=OneWayToSource, XPath=@Size}" />
                         <TextBlock FontSize="16" Text="Shadows" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMap}">
@@ -89,7 +91,7 @@
                                  SelectionChanged="OnSelectedGameChanged"/>
                     </StackPanel>
                     <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
-                        <Button x:Name="LaunchButton" IsEnabled="False" Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick"
+                        <Button x:Name="LaunchButton" IsEnabled="True" Width="100" Height="50" FontSize="16" FontWeight="Bold" Click="ButtonBase_OnClick"
                                 Content="LAUNCH"/>
                     </StackPanel>
                     <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">

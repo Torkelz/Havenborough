@@ -43,7 +43,7 @@ namespace Havenborough_Launcher
             string source = dataProvider.Source.LocalPath;
             dataProvider.Document.Save(source);
 
-            Process.Start("Client.exe");
+            //Process.Start("Client.exe");
         }
 
         private void Refresh_OnClick(object sender, RoutedEventArgs e)
@@ -141,6 +141,22 @@ namespace Havenborough_Launcher
 
             comboBox.ItemsSource = data;
             comboBox.SelectedIndex = 2;
+        }
+
+        private void ScreenResolutionLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<ScreenResolution>
+            {
+                new ScreenResolution("1920", "1080", "1920x1080"),
+                new ScreenResolution("1280", "720", "1280x720"),
+                
+            };
+            var comboBox = sender as ComboBox;
+            if(comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 1;
         }
 
         private void CharacterNameLoad(object sender, RoutedEventArgs e)
