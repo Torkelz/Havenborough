@@ -11,17 +11,19 @@ using namespace DirectX;
 
 void FileGameRound::setup()
 {
-	static const Vector3 basePos(4120.f, 90.f, 4336.f);
+	m_FileLoader.reset(new InstanceBinaryLoader);
+	m_FileLoader->loadBinaryFile(m_FilePath);
+
+	const Vector3 basePos = Vector3(m_FileLoader->getCheckPointStart()) + Vector3(0.f, 100.f, 0.f);
+	const float angle = 2 * PI / m_Players.size();
 	for (size_t i = 0; i < m_Players.size(); ++i)
 	{
-		Vector3 position = basePos + Vector3(i * -200.f, 0.f, 0.f);
+		Vector3 position = basePos + Vector3(sinf(i * angle), 0.f, cosf(i * angle)) * 200.f;
 
 		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
 		m_Players[i]->setActor(actor);
 		m_Actors.push_back(actor);
 	}
-	m_FileLoader.reset(new InstanceBinaryLoader);
-	m_FileLoader->loadBinaryFile(m_FilePath);
 
 	std::vector<InstanceBinaryLoader::CheckPointStruct> checkpoints = m_FileLoader->getCheckPointData();
 	std::sort(checkpoints.begin(), checkpoints.end(),
@@ -38,7 +40,6 @@ void FileGameRound::setup()
 	{
 		checkpointList.push_back(m_ActorFactory->createCheckPointActor(checkpoint.m_Translation, checkpointScale));
 	}
-	checkpointList.push_back(m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointStart(), checkpointScale));
 
 	for (const auto& checkpoint : checkpointList)
 	{
