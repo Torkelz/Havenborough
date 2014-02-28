@@ -189,6 +189,12 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_RT[IGraphics::RenderTarget::W_POSITION] = createRenderTarget(desc);
 	m_SRV["WPosition"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::W_POSITION]);
 	//Shadow map
+	m_ShadowBigSize = 10000.0f;
+	m_ShadowSmallSize = 2000.0f;
+	float percentage = m_ShadowSmallSize/m_ShadowBigSize;
+	percentage = percentage * 0.5f;
+	percentage = 0.5f - percentage;
+	m_ShadowMapBorder = percentage;
 	UINT resolution = m_ShadowMapResolution; //size of Shadow Map
 	initializeShadowMap(resolution, resolution);	
 
@@ -550,7 +556,7 @@ void DeferredRenderer::renderLighting()
 	UINT sampleMask = 0xffffffff;
 	if(m_ShadowMap)
 	{
-		renderDirectionalLights(*m_ShadowMappedLight);
+		renderShadowMap(*m_ShadowMappedLight);
 	}
 	//Set constant data
 	m_Buffer["DefaultConstant"]->setBuffer(0);
@@ -573,9 +579,9 @@ void DeferredRenderer::renderLighting()
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//DirectionalLights except number one
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0); 
-	if(m_DirectionalLights->size() > 0)
-		renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
+	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
+	renderAmbientLight(m_Buffer["DirectionalLightModel"]);
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
 
@@ -906,13 +912,14 @@ void DeferredRenderer::createSamplerState()
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_Blur"]);
 
 	// Create Shadow map texture sampler
-	sd.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+	sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.BorderColor[0] = 1.f;
 	sd.BorderColor[1] = sd.BorderColor[2] = sd.BorderColor[3] = 0.f;
-	sd.ComparisonFunc = D3D11_COMPARISON_LESS;
+	sd.ComparisonFunc = D3D11_COMPARISON_LESS;;
+
 	m_Device->CreateSamplerState(&sd, &m_Sampler["ShadowMap"]);
 }
 
@@ -969,7 +976,8 @@ void DeferredRenderer::createShaders()
 	m_Shader["PointLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassPointLight.hlsl", nullptr,
 		"PointLightVS,PointLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 	std::string resolution = std::to_string(m_ShadowMapResolution);
-	D3D_SHADER_MACRO preDefines[2] = {{ "SHADOW_RES", resolution.c_str()}, nullptr};
+	std::string border = std::to_string(m_ShadowMapBorder);
+	D3D_SHADER_MACRO preDefines[3] = {{ "SHADOW_RES", resolution.c_str()}, { "SHADOW_BORDER", border.c_str()}, nullptr};
 	m_Shader["DirectionalLight"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassDirectionalLight.hlsl", preDefines,
 		"DirectionalLightVS,DirectionalLightPS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, shaderDesc, 7);
 
@@ -997,6 +1005,9 @@ void DeferredRenderer::createShaders()
 
 
 	m_Shader["SSAO_Blur"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/SSAO_Blur.hlsl",
+		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
+	m_Shader["Ambient"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassAmbient.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
 
@@ -1107,6 +1118,21 @@ void DeferredRenderer::renderLight(Shader *p_Shader, Buffer* p_ModelBuffer, vect
 			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
 		p_Shader->unSetShader();
 	}
+}
+
+
+void DeferredRenderer::renderAmbientLight(Buffer* p_ModelBuffer)
+{
+	m_Shader["Ambient"]->setShader();
+	p_ModelBuffer->setBuffer(0);
+	
+	ID3D11ShaderResourceView *srvs[] = {m_SRV["Diffuse"]};
+	m_DeviceContext->PSSetShaderResources(0, 1, srvs);
+
+	m_DeviceContext->Draw(p_ModelBuffer->getNumOfElements(), 0);
+
+	p_ModelBuffer->unsetBuffer(0);
+	m_Shader["Ambient"]->unSetShader();
 }
 
 
@@ -1336,7 +1362,7 @@ void DeferredRenderer::updateLightProjection(float p_viewHW)
 	XMStoreFloat4x4(&m_LightProjection, XMMatrixTranspose(XMMatrixOrthographicLH(m_ViewHW, m_ViewHW, -20000.f, 20000)));
 }
 
-void DeferredRenderer::renderDirectionalLights(Light p_Directional)
+void DeferredRenderer::renderShadowMap(Light p_Directional)
 {
 	ID3D11DepthStencilState* previousDepthState;
 	m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
@@ -1365,9 +1391,9 @@ void DeferredRenderer::renderDirectionalLights(Light p_Directional)
 			m_DeviceContext->RSSetViewports(1, &m_LightViewport);
 
 			if(j==0)
-				updateLightProjection(10000.f);
+				updateLightProjection(m_ShadowBigSize);
 			else
-				updateLightProjection(2000.f);
+				updateLightProjection(m_ShadowSmallSize);
 
 			//update and render Shadow map
 			updateConstantBuffer(m_LightView, m_LightProjection);

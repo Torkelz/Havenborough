@@ -264,6 +264,10 @@ public:
 	 */
 	virtual void sendLevelData(const char* p_Stream, size_t p_Size) = 0;
 
+	virtual void sendCurrentCheckpoint(Vector3 p_Position) = 0;
+
+	virtual Vector3 getCurrentCheckpoint(Package p_Package) = 0;
+
 	virtual void sendRacePosition(const char** p_ExtraData, unsigned int p_NumExtraData) = 0;
 
 	virtual unsigned int getNumRacePositionsData(Package p_Package) = 0;

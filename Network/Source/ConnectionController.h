@@ -98,6 +98,9 @@ public:
 
 	void sendLeaveGame() override;
 
+	void sendCurrentCheckpoint(Vector3 p_Position) override;
+	Vector3 getCurrentCheckpoint(Package p_Package) override;
+
 	void sendSetSpawnPosition(Vector3 p_Position);
 	Vector3 getSetSpawnPositionData(Package p_Package);
 

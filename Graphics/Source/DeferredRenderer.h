@@ -54,7 +54,9 @@ private:
 	bool	m_SSAO;
 	bool	m_ShadowMap;
 	float m_SSAO_Resolution_Scale;
+	float		m_ShadowBigSize, m_ShadowSmallSize;
 	int		m_ShadowMapResolution;
+	float	m_ShadowMapBorder;
 
 	ID3D11DepthStencilView*		m_DepthMapDSV;
 	UINT						m_Width;
@@ -162,6 +164,7 @@ private:
 
 
 	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, std::vector<Light> *p_Lights);
+	void renderAmbientLight(Buffer *p_ModelBuffer);
 
 
 	void updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix);
@@ -187,5 +190,5 @@ private:
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 	void updateLightProjection(float p_viewHW);
-	void renderDirectionalLights(Light p_Directional);
+	void renderShadowMap(Light p_Directional);
 };

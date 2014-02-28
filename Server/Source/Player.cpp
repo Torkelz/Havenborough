@@ -61,13 +61,16 @@ unsigned int Player::getNrOfCheckpointsTaken()
 	return m_NrOfCheckpointsTaken;
 }
 
-float Player::getClockedTime()
+float Player::getClockedTimeAtCheckpoint(unsigned int p_Checkpoint)
 {
-	return m_ClockTime;
+	if(p_Checkpoint > 0)
+		return m_ClockTime[p_Checkpoint - 1];
+	else
+		return 0.f;
 }
 
 void Player::clockPosition(float p_Time)
 {
 	m_NrOfCheckpointsTaken++;
-	m_ClockTime = p_Time;
+	m_ClockTime.push_back(p_Time);
 }
