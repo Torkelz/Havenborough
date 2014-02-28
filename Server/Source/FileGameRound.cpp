@@ -9,16 +9,19 @@
 
 using namespace DirectX;
 
+static const float spawnEpsilon = 100.f;
+
 void FileGameRound::setup()
 {
 	m_FileLoader.reset(new InstanceBinaryLoader);
 	m_FileLoader->loadBinaryFile(m_FilePath);
 
-	const Vector3 basePos = Vector3(m_FileLoader->getCheckPointStart()) + Vector3(0.f, 100.f, 0.f);
+	const Vector3 basePos = Vector3(m_FileLoader->getCheckPointStart()) + Vector3(0.f, spawnEpsilon, 0.f);
 	const float angle = 2 * PI / m_Players.size();
 	for (size_t i = 0; i < m_Players.size(); ++i)
 	{
-		Vector3 position = basePos + Vector3(sinf(i * angle), 0.f, cosf(i * angle)) * 200.f;
+		static const float spawnCircleRadius = 200.f;
+		Vector3 position = basePos + Vector3(sinf(i * angle), 0.f, cosf(i * angle)) * spawnCircleRadius;
 
 		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
 		m_Players[i]->setActor(actor);
@@ -91,7 +94,7 @@ void FileGameRound::sendLevel()
 			if(actor)
 			{
 				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
-				user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
+				user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
 				user->getConnection()->sendLevelData(stream.c_str(), stream.size());
 				user->getConnection()->sendAssignPlayer(actor->getId());
 			}
@@ -252,7 +255,7 @@ void FileGameRound::sendUpdates()
 					if(!m_SendHitData[i].first->reachedFinishLine())
 					{
 						user->getConnection()->sendRemoveObjects(&id, 1);
-						user->getConnection()->sendSetSpawnPosition(actor->getPosition());
+						user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
 						tinyxml2::XMLPrinter printer;
 						printer.OpenElement("ObjectUpdate");
 						printer.PushAttribute("ActorId", id-1);
