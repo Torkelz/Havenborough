@@ -37,7 +37,7 @@
 	</Effect>
 	<Effect effectName="magic">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="100"/>
+		<MaxCount maxParticles="300"/>
 		<EmitPerSec particlesPerSec="200"/>
 		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="2.0"/>
@@ -85,8 +85,8 @@
 	</Effect>
 	<Effect effectName="magicSurroundings">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="64"/>
-		<EmitPerSec particlesPerSec="64"/>
+		<MaxCount maxParticles="120"/>
+		<EmitPerSec particlesPerSec="120"/>
 		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="1.0"/>
 		<LifeDeviation maxLifeDeviation="0.3"/>
