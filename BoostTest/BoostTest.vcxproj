@@ -165,6 +165,7 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Common\TestStreamReader.cpp" />
     <ClCompile Include="Source\Common\TestTweakCommand.cpp" />
     <ClCompile Include="Source\Graphics\TestDeferredRenderer.cpp" />
+    <ClCompile Include="Source\Graphics\TestParticleInstance.cpp" />
     <ClCompile Include="Source\Physics\AABBTest.cpp" />
     <ClCompile Include="Source\Physics\BodyTest.cpp" />
     <ClCompile Include="Source\Physics\BVLoaderTest.cpp" />

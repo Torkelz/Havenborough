@@ -1,6 +1,7 @@
 #include "ParticleInstance.h"
 #include <functional>
 #include <algorithm>
+#include "GraphicsExceptions.h"
 
 ParticleInstance::ParticleInstance()
 {
@@ -18,6 +19,9 @@ ParticleInstance::~ParticleInstance()
 
 void ParticleInstance::init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_ptr<Buffer> p_ParticleBuffer, ParticleEffectDefinition::ptr p_ParticleEffectDefinition)
 {
+	if(!p_ConstBuffer || !p_ParticleBuffer || !p_ParticleEffectDefinition)
+		throw ParticleException("Invalid init arguments.", __LINE__, __FILE__);
+
 	m_ConstBuffer = p_ConstBuffer;
 	m_ParticleBuffer = p_ParticleBuffer;
 	m_ParticleEffectDef = p_ParticleEffectDefinition;

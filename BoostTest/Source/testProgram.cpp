@@ -26,5 +26,8 @@ ExcludeFromCodeCoverage(Exclusion14, L"fastdelegate::*");
 ExcludeSourceFromCodeCoverage(Exclusion15, L"*\\DDSTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion16, L"*\\WICTextureLoader.cpp");
 ExcludeSourceFromCodeCoverage(Exclusion17, L"*\\boost\\*.hpp");
-ExcludeSourceFromCodeCoverage(Exclusion18, L"*\\BoostTest\\*")
-ExcludeFromCodeCoverage(Exclusion19, L"D2D1::*")//*/
+ExcludeSourceFromCodeCoverage(Exclusion18, L"*\\BoostTest\\*");
+ExcludeFromCodeCoverage(Exclusion19, L"D2D1::*");
+ExcludeSourceFromCodeCoverage(Exclusion20, L"*\\Graphics.cpp*");
+ExcludeSourceFromCodeCoverage(Exclusion21, L"*\\Physics.cpp*");
+//*/

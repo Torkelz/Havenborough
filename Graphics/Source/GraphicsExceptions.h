@@ -253,3 +253,18 @@ public:
 	{
 	}
 };
+class ParticleException : public GraphicsException
+{
+public:
+	/**
+		* constructor.
+		*
+		* @param p_What A message describing the error
+		* @param p_Line The line of the exception (use __LINE__)
+		* @param p_File The file of the exception (use __FILE__)
+		*/
+	ParticleException(const std::string& p_What, int p_Line, const std::string& p_File)
+			: GraphicsException(p_What, p_Line, p_File)
+	{
+	}
+};

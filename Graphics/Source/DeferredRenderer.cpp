@@ -770,12 +770,12 @@ void DeferredRenderer::createBuffers()
 
 	Buffer::Description instanceWorldDesc;
 	instanceWorldDesc.initData = nullptr;
-	instanceWorldDesc.numOfElements = m_MaxLightsPerLightInstance;
+	instanceWorldDesc.numOfElements = 50; // Minimum
 	instanceWorldDesc.sizeOfElement = sizeof(DirectX::XMFLOAT4X4);
 	instanceWorldDesc.type = Buffer::Type::VERTEX_BUFFER;
-	instanceWorldDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
+	instanceWorldDesc.usage = Buffer::Usage::DEFAULT;
 	m_Buffer["WorldInstance"] = WrapperFactory::getInstance()->createBuffer(instanceWorldDesc);
-	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_MaxLightsPerLightInstance);
+	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * 50);
 
 
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
@@ -1273,13 +1273,25 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 
 void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Objects )
 {
+	if(p_Objects.size() > m_Buffer["WorldInstance"]->getNumOfElements())
+	{
+		VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_Buffer["WorldInstance"]->getNumOfElements() * -1);
+		SAFE_DELETE(m_Buffer["WorldInstance"]);
+		Buffer::Description instanceWorldDesc;
+		instanceWorldDesc.initData = nullptr;
+		instanceWorldDesc.numOfElements = p_Objects.size() + 10;
+		instanceWorldDesc.sizeOfElement = sizeof(DirectX::XMFLOAT4X4);
+		instanceWorldDesc.type = Buffer::Type::VERTEX_BUFFER;
+		instanceWorldDesc.usage = Buffer::Usage::DEFAULT;
+		m_Buffer["WorldInstance"] = WrapperFactory::getInstance()->createBuffer(instanceWorldDesc);
+		VRAMInfo::getInstance()->updateUsage(instanceWorldDesc.sizeOfElement * instanceWorldDesc.numOfElements);
+	}
+
 	UINT Offsets[2] = {0,0};
 	ID3D11Buffer * buffers[] = {p_Objects.front().model->vertexBuffer->getBufferPointer(), m_Buffer["WorldInstance"]->getBufferPointer()};
 	UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
 
-
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
-
 
 	// Set shader.
 	m_Shader["IGeometry"]->setShader();
@@ -1287,7 +1299,12 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 	m_Shader["IGeometry"]->setBlendState(m_BlendState2, data);
 	m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
 
+	std::vector<XMFLOAT4X4> tWorld;
+	tWorld.reserve(p_Objects.size());
+	for(int j = 0; j < p_Objects.size(); j++)
+		tWorld.push_back(p_Objects.at(j).world);
 
+	m_DeviceContext->UpdateSubresource(m_Buffer["WorldInstance"]->getBufferPointer(), 0, nullptr, tWorld.data(), 0, 0);
 	for(unsigned int u = 0; u < p_Objects.front().model->numOfMaterials;u++)
 	{
 		ID3D11ShaderResourceView *srvs[] =  {	p_Objects.front().model->diffuseTexture[u].second, 
@@ -1295,27 +1312,11 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 			p_Objects.front().model->specularTexture[u].second 
 		};
 		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-		D3D11_MAPPED_SUBRESOURCE ms;
-		for(unsigned int i = 0; i < p_Objects.size(); i += m_MaxLightsPerLightInstance)
-		{
-			int nrToCpy = (p_Objects.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : p_Objects.size() - i ;
-			std::vector<XMFLOAT4X4> tWorld;
-			tWorld.reserve(nrToCpy);
-			for(int j = 0; j < nrToCpy; j++)
-				tWorld.push_back(p_Objects.at(i+j).world);
 
-
-			m_DeviceContext->Map(m_Buffer["WorldInstance"]->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
-			memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
-			m_DeviceContext->Unmap(m_Buffer["WorldInstance"]->getBufferPointer(), NULL);
-
-
-			m_DeviceContext->DrawInstanced(p_Objects.front().model->drawInterval.at(u).second, tWorld.size(),
-				p_Objects.front().model->drawInterval.at(u).first,0);
-		}
+		m_DeviceContext->DrawInstanced(p_Objects.front().model->drawInterval.at(u).second, tWorld.size(),
+			p_Objects.front().model->drawInterval.at(u).first,0);
 		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	}
-
 
 	for(unsigned int i = 0; i < 2; i++)
 		m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);

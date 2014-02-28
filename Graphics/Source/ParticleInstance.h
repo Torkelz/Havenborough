@@ -95,7 +95,6 @@ public:
 	bool getSeppuku() const;
 
 	void setSeppuku(bool p_DoSeppuku);
-
 private:
 	void emitNewParticles(float p_DeltaTime);
 	static bool isDying(Particle& p_Particle);

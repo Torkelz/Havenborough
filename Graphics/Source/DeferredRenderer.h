@@ -65,8 +65,6 @@ private:
 	DirectX::XMFLOAT4X4			m_LightProjection;
 	D3D11_VIEWPORT				m_LightViewport;
 	unsigned int				m_MaxNumDirectionalShadows;
-
-
 public:
 	/**
 	* Constructor. 

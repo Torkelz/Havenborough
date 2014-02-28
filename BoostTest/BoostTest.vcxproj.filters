@@ -296,12 +296,17 @@
     <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Client\TextHUDScene.cpp" />
     <ClCompile Include="Source\Physics\BVLoaderTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
     <ClCompile Include="..\Physics\Source\BVLoader.cpp">
       <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TextHUDScene.cpp">
+      <Filter>TestCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\TestParticleInstance.cpp">
+      <Filter>TestGraphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
