@@ -996,7 +996,7 @@ void GameLogic::loadSandbox()
 	// No permanent implementations in this function is allowed.
 
 	//Fredrik, 2014-02-20, 2014-02-24	 
-	addActor(m_ActorFactory->createParticles(Vector3(50.f, 140.f, 0.f), "smoke"));
+	addActor(m_ActorFactory->createParticles(Vector3(50.f, 130.f, 0.f), "smoke"));
 	addActor(m_ActorFactory->createParticles(Vector3(50.f, 120.f, 0.f), "fire"));
 	//addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 	
