@@ -43,6 +43,17 @@ GameRound::ptr GameRoundFactory::createRound(const std::string& p_GameType)
 
 		return gameRound;
 	}
+	else if (p_GameType == "serverLevel2")
+	{
+		ActorFactory::ptr actorFactory(new ActorFactory(0));
+
+		std::shared_ptr<FileGameRound> gameRound(new FileGameRound);
+		gameRound->setFilePath("assets/levels/Level4.4.btxl");
+		gameRound->setGameType(p_GameType);
+		gameRound->initialize(actorFactory, m_ReturnLobby);
+
+		return gameRound;
+	}
 	else if (p_GameType == "serverDebugLevel")
 	{
 		ActorFactory::ptr actorFactory(new ActorFactory(0));
