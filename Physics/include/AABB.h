@@ -14,7 +14,16 @@ private:
 	DirectX::XMFLOAT4	m_Size;
 	
 public:
-	AABB(){}
+	AABB()
+	{
+		m_BodyHandle = 0;
+		m_Position = DirectX::XMFLOAT4(0.f,0.f,0.f,1.f);
+		m_Size = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+		m_Type = Type::AABBOX;
+		m_CollisionResponse = true;
+		calculateBounds();
+		m_IDInBody = 0;
+	}
 	/**
 	 * @param p_CenterPos the position in world space in m
 	 * @param p_Size the halfsize of the box in m

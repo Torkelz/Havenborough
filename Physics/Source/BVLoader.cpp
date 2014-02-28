@@ -13,7 +13,7 @@ BVLoader::~BVLoader(void)
 
 void BVLoader::clear()
 {
-	m_BoundingVolume.clear();
+	clearData();
 	m_BoundingVolume.shrink_to_fit();
 }
 
@@ -31,7 +31,7 @@ bool BVLoader::loadBinaryFile(std::string p_FilePath)
 	{
 		return false;
 	}
-	m_FileHeader = readHeader(&input);
+	readHeader(&input);
 
 	if(m_FileHeader.m_numMaterial != 0)
 	{
@@ -39,7 +39,7 @@ bool BVLoader::loadBinaryFile(std::string p_FilePath)
 	}
 	if(m_FileHeader.m_numVertex > 0)
 	{
-		m_BoundingVolume = readBoundingVolume(&input);
+		readBoundingVolume(&input);
 	}
 	else
 	{
@@ -49,7 +49,7 @@ bool BVLoader::loadBinaryFile(std::string p_FilePath)
 	return true;
 }
 
-BVLoader::Header BVLoader::readHeader(std::istream* p_Input)
+void BVLoader::readHeader(std::istream* p_Input)
 {
 	Header tempHeader;
 	std::string line;
@@ -72,13 +72,13 @@ BVLoader::Header BVLoader::readHeader(std::istream* p_Input)
 	ss >> temp >> tempHeader.m_numVertex;
 	std::getline(*p_Input, line);
 	ss = std::stringstream(line);
-	ss >> temp >> tempHeader.m_numFrames;
+	ss >> temp >> tempHeader.m_numFaces;
 
-	return tempHeader;
+	m_FileHeader = tempHeader;
 }
 
 
-std::vector<BVLoader::BoundingVolume> BVLoader::readBoundingVolume(std::istream* p_Input)
+void BVLoader::readBoundingVolume(std::istream* p_Input)
 {
 	std::vector<BoundingVolume> boundingVolume;//(p_NumberOfVertex);
 	std::vector<DirectX::XMFLOAT4> tempVertices;
@@ -107,7 +107,7 @@ std::vector<BVLoader::BoundingVolume> BVLoader::readBoundingVolume(std::istream*
 	std::getline(*p_Input, line);
 	
 
-	for(int i = 0; i < m_FileHeader.m_numFrames; i++)
+	for(int i = 0; i < m_FileHeader.m_numFaces; i++)
 	{
 		std::getline(*p_Input, line);
 		ss = std::stringstream(line);
@@ -117,7 +117,7 @@ std::vector<BVLoader::BoundingVolume> BVLoader::readBoundingVolume(std::istream*
 		tempFaces.push_back(tempFace);
 	}
 
-	for(int i = 0; i < m_FileHeader.m_numFrames; i++)
+	for(int i = 0; i < m_FileHeader.m_numFaces; i++)
 	{
 		BoundingVolume tempBV;
 
@@ -130,22 +130,22 @@ std::vector<BVLoader::BoundingVolume> BVLoader::readBoundingVolume(std::istream*
 	}
 
 	boundingVolume.shrink_to_fit();
-	return boundingVolume;
+	m_BoundingVolume = boundingVolume;
 }
 
-void BVLoader::byteToString(std::istream* p_Input, std::string& p_Return)
-{
-	int strLength = 0;
-	byteToInt(p_Input, strLength);
-	std::vector<char> buffer(strLength);
-	p_Input->read( buffer.data(), strLength);
-	p_Return = std::string(buffer.data(), strLength);
-}
+//void BVLoader::byteToString(std::istream* p_Input, std::string& p_Return)
+//{
+//	int strLength = 0;
+//	byteToInt(p_Input, strLength);
+//	std::vector<char> buffer(strLength);
+//	p_Input->read( buffer.data(), strLength);
+//	p_Return = std::string(buffer.data(), strLength);
+//}
 
-void BVLoader::byteToInt(std::istream* p_Input, int& p_Return)
-{
-	p_Input->read((char*)&p_Return, sizeof(int));
-}
+//void BVLoader::byteToInt(std::istream* p_Input, int& p_Return)
+//{
+//	p_Input->read((char*)&p_Return, sizeof(int));
+//}
 
 BVLoader::Header BVLoader::getLevelHeader()
 {
@@ -160,10 +160,8 @@ const std::vector<BVLoader::BoundingVolume>& BVLoader::getBoundingVolumes()
 void BVLoader::clearData()
 {
 	m_FileHeader.m_modelName = "";
-	m_FileHeader.m_numFrames = 0;
-	m_FileHeader.m_numJoints = 0;
+	m_FileHeader.m_numFaces = 0;
 	m_FileHeader.m_numMaterial = 0;
-	m_FileHeader.m_numMaterialBuffer = 0;
 	m_FileHeader.m_numVertex = 0;
 	m_BoundingVolume.clear();
 }

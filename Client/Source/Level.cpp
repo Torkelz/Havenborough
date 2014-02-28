@@ -15,6 +15,7 @@ Level::Level(ResourceManager* p_Resources, ActorFactory* p_ActorFactory)
 Level::~Level()
 {
 	m_Resources = nullptr;
+	m_ActorFactory = nullptr;
 
 	m_StartPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_GoalPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);

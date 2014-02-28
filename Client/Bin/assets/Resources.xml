@@ -76,6 +76,26 @@
         <Resource Name="WoodenPillar1" Path="assets/models/WoodenPillar1.btx"/>
         <Resource Name="WoodenShed1" Path="assets/models/WoodenShed1.btx"/>
         <Resource Name="Minque6" Path="assets/models/Minque6.btx"/>
+        <Resource Name="Bench1" Path="assets/models/Bench1.btx"/>
+        <Resource Name="Bench2" Path="assets/models/Bench2.btx"/>
+        <Resource Name="CastleBigHouse1" Path="assets/models/CastleBigHouse1.btx"/>
+        <Resource Name="CastleSmallHouse1" Path="assets/models/CastleSmallHouse1.btx"/>
+        <Resource Name="CastleStariway1" Path="assets/models/CastleStariway1.btx"/>
+        <Resource Name="CastleTower1" Path="assets/models/CastleTower1.btx"/>
+        <Resource Name="CastleTower2" Path="assets/models/CastleTower2.btx"/>
+        <Resource Name="CastleWall1" Path="assets/models/CastleWall1.btx"/>
+        <Resource Name="CastleWall2" Path="assets/models/CastleWall2.btx"/>
+        <Resource Name="CastleWall3" Path="assets/models/CastleWall3.btx"/>
+        <Resource Name="CastleWall4" Path="assets/models/CastleWall4.btx"/>
+        <Resource Name="CastleWall5" Path="assets/models/CastleWall5.btx"/>
+        <Resource Name="CastleWall6" Path="assets/models/CastleWall6.btx"/>
+        <Resource Name="CastleWall7" Path="assets/models/CastleWall7.btx"/>
+        <Resource Name="CaveLowerSection1" Path="assets/models/CaveLowerSection1.btx"/>
+        <Resource Name="CaveMiddleSection1" Path="assets/models/CaveMiddleSection1.btx"/>
+        <Resource Name="CaveUpperSection1" Path="assets/models/CaveUpperSection1.btx"/>
+        <Resource Name="CaveWall1" Path="assets/models/CaveWall1.btx"/>
+        <Resource Name="Island2" Path="assets/models/Island2.btx"/>
+        <Resource Name="Island2Top1" Path="assets/models/Island2Top1.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Aqueduct1" Path="assets/volumes/CB_Aqueduct1.txc"/>
@@ -132,6 +152,26 @@
         <Resource Name="WoodenPillar1" Path="assets/volumes/CB_WoodenPillar1.txc"/>
         <Resource Name="WoodenShed1" Path="assets/volumes/CB_WoodenShed1.txc"/>
         <Resource Name="Minque6" Path="assets/volumes/CB_Minque6.txc"/>
+        <Resource Name="Bench1" Path="assets/volumes/CB_Bench1.txc"/>
+        <Resource Name="Bench2" Path="assets/volumes/CB_Bench2.txc"/>
+        <Resource Name="CastleBigHouse1" Path="assets/volumes/CB_CastleBigHouse1.txc"/>
+        <Resource Name="CastleSmallHouse1" Path="assets/volumes/CB_CastleSmallHouse1.txc"/>
+        <Resource Name="CastleStariway1" Path="assets/volumes/CB_CastleStariway1.txc"/>
+        <Resource Name="CastleTower1" Path="assets/volumes/CB_CastleTower1.txc"/>
+        <Resource Name="CastleTower2" Path="assets/volumes/CB_CastleTower2.txc"/>
+        <Resource Name="CastleWall1" Path="assets/volumes/CB_CastleWall1.txc"/>
+        <Resource Name="CastleWall2" Path="assets/volumes/CB_CastleWall2.txc"/>
+        <Resource Name="CastleWall3" Path="assets/volumes/CB_CastleWall3.txc"/>
+        <Resource Name="CastleWall4" Path="assets/volumes/CB_CastleWall4.txc"/>
+        <Resource Name="CastleWall5" Path="assets/volumes/CB_CastleWall5.txc"/>
+        <Resource Name="CastleWall6" Path="assets/volumes/CB_CastleWall6.txc"/>
+        <Resource Name="CastleWall7" Path="assets/volumes/CB_CastleWall7.txc"/>
+        <Resource Name="CaveLowerSection1" Path="assets/volumes/CB_CaveLowerSection1.txc"/>
+        <Resource Name="CaveMiddleSection1" Path="assets/volumes/CB_CaveMiddleSection1.txc"/>
+        <Resource Name="CaveUpperSection1" Path="assets/volumes/CB_CaveUpperSection1.txc"/>
+        <Resource Name="CaveWall1" Path="assets/volumes/CB_CaveWall1.txc"/>
+        <Resource Name="Island2" Path="assets/volumes/CB_Island2.txc"/>
+        <Resource Name="Island2Top1" Path="assets/volumes/CB_Island2Top1.txc"/>
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>

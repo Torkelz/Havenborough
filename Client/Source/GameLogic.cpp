@@ -353,7 +353,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setStartPosition(XMFLOAT3(0.f, 10.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level4.4.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
@@ -984,7 +984,7 @@ void GameLogic::loadSandbox()
 	// No permanent implementations in this function is allowed.
 
 	//Fredrik, 2014-02-20, 2014-02-24	 
-	addActor(m_ActorFactory->createParticles(Vector3(50.f, 140.f, 0.f), "smoke"));
+	addActor(m_ActorFactory->createParticles(Vector3(50.f, 130.f, 0.f), "smoke"));
 	addActor(m_ActorFactory->createParticles(Vector3(50.f, 120.f, 0.f), "fire"));
 	//addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 	

@@ -57,7 +57,7 @@ public:
 	* Add force to the netForce(Total) for the object.
 	* @p_Force, force to be added. Force in Newton (N = (kg*m)/s^2)
 	*/
-	void addForce(DirectX::XMFLOAT4 p_Force);
+	virtual void addForce(DirectX::XMFLOAT4 p_Force);
 
 	/**
 	 * Add an impulse to the object.
@@ -200,7 +200,7 @@ public:
 	* Return the BodyHandle index of the body, its unique number.
 	* @return m_Handle;
 	*/
-	BodyHandle getHandle() { return m_Handle; }
+	virtual BodyHandle getHandle() { return m_Handle; }
 	/*
 	* reset the BodyHandleCounter. Only use when clearing the body list in physics
 	*/
