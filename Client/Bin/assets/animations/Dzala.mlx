@@ -89,6 +89,21 @@ fof 	10
 we	1.0
 
 *Clip
+na 	FallingSide
+sp 	1.0
+st 	70
+en 	94
+lo 	1
+f	Hip
+tr	2
+la	0
+fi	1
+fif	5
+fo	0
+fof 	10
+we	1.0
+
+*Clip
 na 	NormalLanding
 sp 	1.0
 st 	97
@@ -323,7 +338,7 @@ f	Hip
 tr	2
 la	0
 fi	1
-fif	5
+fif	3
 fo	1
 fof	5
 we	1.0
@@ -338,7 +353,7 @@ f	Hip
 tr	2
 la	0
 fi	1
-fif	5
+fif	3
 fo	1
 fof	5
 we	1.0

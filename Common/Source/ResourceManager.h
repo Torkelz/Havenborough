@@ -121,8 +121,9 @@ public:
 	void setReleaseImmediately(bool p_Release);
 
 	static void releaseModelTexture(const char *p_ResournceName, void* p_Userdata);
+
+	const std::vector<ResourceType> getResourceList();
 	
-private:
 	int loadModelTextureImpl(const char *p_ResourceName, const char *p_FilePath);
 	void releaseModelTextureImpl(const char *p_ResourceName);
 };

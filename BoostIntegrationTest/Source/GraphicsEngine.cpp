@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK(testShader != nullptr);
 
 	BOOST_MESSAGE(testId + "Trying to add shader step which does not exist, expecting ShaderException");
-	BOOST_CHECK_THROW(wrapperFactory->addShaderStep(testShader, L"../Source/testShader_VS_PS.hlsl", "mainGS", "5_0",
+	BOOST_CHECK_THROW(wrapperFactory->addShaderStep(testShader, L"../Source/testShader_VS_PS.hlsl", nullptr, "mainGS", "5_0",
 		ShaderType::GEOMETRY_SHADER), ShaderException);
 	SAFE_DELETE(testShader);
 
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 		ShaderType::VERTEX_SHADER));
 
 	BOOST_MESSAGE(testId + "Adding pixel shader with WrapperFactory");
-	BOOST_CHECK_NO_THROW(wrapperFactory->addShaderStep(testShader, L"../Source/testShader_PS.hlsl", "mainPS", "5_0",
+	BOOST_CHECK_NO_THROW(wrapperFactory->addShaderStep(testShader, L"../Source/testShader_PS.hlsl", nullptr, "mainPS", "5_0",
 		ShaderType::PIXEL_SHADER));
 	SAFE_DELETE(testShader);
 
@@ -125,16 +125,16 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	int size = sizeof(desc) / sizeof(D3D11_INPUT_ELEMENT_DESC);
 
 	BOOST_MESSAGE(testId + "Creating vertex shader with user defined input description");
-	BOOST_CHECK_NO_THROW(testShader = wrapperFactory->createShader(L"../Source/testShader_VS.hlsl", "mainVS", "5_0",
+	BOOST_CHECK_NO_THROW(testShader = wrapperFactory->createShader(L"../Source/testShader_VS.hlsl", nullptr, "mainVS", "5_0",
 		ShaderType::VERTEX_SHADER, desc, size));
 
 	BOOST_MESSAGE(testId + "Trying to add vertex shader to already existing vertex shader, expecting WrapperFactoryException");
-	BOOST_CHECK_THROW(wrapperFactory->addShaderStep(testShader, L"../Source/testShader_VS.hlsl", "mainVS", "5_0",
+	BOOST_CHECK_THROW(wrapperFactory->addShaderStep(testShader, L"../Source/testShader_VS.hlsl", nullptr, "mainVS", "5_0",
 		ShaderType::VERTEX_SHADER), WrapperFactoryException);
 	SAFE_DELETE(testShader);
 
 	BOOST_MESSAGE(testId + "Trying to create vertex shader with user defined input description, wrong shader model, expecting ShaderException");
-	BOOST_CHECK_THROW(testShader = wrapperFactory->createShader(L"../Source/testShader_VS.hlsl", "mainVS", "5_5",
+	BOOST_CHECK_THROW(testShader = wrapperFactory->createShader(L"../Source/testShader_VS.hlsl", nullptr, "mainVS", "5_5",
 		ShaderType::VERTEX_SHADER, desc, size), ShaderException);
 	SAFE_DELETE(testShader);
 	BOOST_MESSAGE(testId + "...finished WrapperFactory");

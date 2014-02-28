@@ -316,11 +316,13 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	XMVECTOR rotationYaw = XMQuaternionRotationRollPitchYaw(0.f, p_Yaw, 0.f);
 	XMVECTOR rotationPitch = XMQuaternionRotationAxis(vRight, p_Pitch);
 	XMVECTOR rotation = XMQuaternionMultiply(rotationPitch, rotationYaw);
+	XMVECTOR newUp = XMVector3Rotate(vUp, rotation);
 
 	XMStoreFloat3(&forward, XMVector3Rotate(vForward, rotation));
-	XMStoreFloat3(&up, XMVector3Rotate(vUp, rotation));
+	XMStoreFloat3(&up, newUp);
 
-	if (forward.y > 0.9f || forward.y < -0.9f)
+	if (forward.y > 0.9f || forward.y < -0.9f ||
+		XMVectorGetX(XMVector3Dot(XMVectorSet(0.f, 1.f, 0.f, 0.f), newUp)) < 0.f)
 	{
 		return;
 	}
@@ -351,7 +353,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setStartPosition(XMFLOAT3(0.f, 10.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level4.3.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
@@ -407,7 +409,7 @@ void GameLogic::leaveGame()
 			con->sendLeaveGame();
 		}
 		
-		m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(true)));
+		m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
 	}
 }
 
@@ -581,25 +583,35 @@ void GameLogic::handleNetwork()
 								object->QueryAttribute("VectorSize", &size);
 								if(size == 0)
 								{
-									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false)));
+									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
 								}
 								else
 								{
-									std::vector<int> GoalList;
+									std::vector<std::pair<int, float>> GoalList;
 									int position;
+									float time;
 									for(int i = 0; i < size; i++)
 									{
 										object->QueryAttribute("Place", &position);
-										GoalList.push_back(position);
+										object->QueryAttribute("Time", &time);
+										GoalList.push_back(std::make_pair(position, time));
 									}
-									m_EventManager->queueEvent(IEventData::Ptr(new GameLeftEventData(false))); //DO SOMETHING HERE!!
+									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
 								}
 						}
 						else if(object->Attribute("Type", "Position"))
 						{
-							//int b = 0; //DO SOMETHING HERE!!
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							object->QueryAttribute("Time", &m_PlayerTimeDifference);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 						}
 					}
+				}
+				break;
+			case PackageType::CURRENT_CHECKPOINT:
+				{
+					m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(conn->getCurrentCheckpoint(package))));
 				}
 				break;
 			case PackageType::UPDATE_OBJECTS:
@@ -669,8 +681,6 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-
-							m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(actor->getPosition())));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -713,7 +723,12 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
-							//m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+						}
+						if(object->Attribute("Type", "Placing"))
+						{
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 						}
 					}
 				}
@@ -857,20 +872,6 @@ void GameLogic::handleNetwork()
 				}
 				break;
 
-			case PackageType::GAME_LIST:
-				{
-					const unsigned int numGames = conn->getNumGameListGames(package);
-					Logger::log(Logger::Level::INFO, "Available games: " + std::to_string(numGames));
-					for (size_t i = 0; i < numGames; ++i)
-					{
-						const AvailableGameData game = conn->getGameListGame(package, i);
-						Logger::log(Logger::Level::INFO, std::string(game.levelName) +
-							" (" + std::to_string(game.waitingPlayers) +
-							"/" + std::to_string(game.maxPlayers) + ')');
-					}
-				}
-				break;
-
 			default:
 				std::string msg("Received unhandled package of type " + std::to_string((uint16_t)type));
 				Logger::log(Logger::Level::WARNING, msg);
@@ -899,13 +900,6 @@ void GameLogic::connectedCallback(Result p_Res, void* p_UserData)
 	if (p_Res == Result::SUCCESS)
 	{
 		self->m_Connected = true;
-
-		IConnectionController* con = self->m_Network->getConnectionToServer();
-		if (con && con->isConnected())
-		{
-			con->sendRequestGames();
-		}
-
 		self->joinGame();
 
 		Logger::log(Logger::Level::INFO, "Connected successfully");

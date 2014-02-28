@@ -1,0 +1,24 @@
+*ObjectHeader*
+#numObj: 4
+
+#MESH: Bench1
+#Translation: 0 25.95332 32.074249
+#Rotation: 0 0 0
+#Scale: 236.433456 10 10
+
+#MESH: Bench1
+#Translation: 0 26.112919 -32.167267
+#Rotation: 0 0 0
+#Scale: 236.433456 10 10
+
+#MESH: Bench1
+#Translation: -117.548004 25.95332 0
+#Rotation: 1.570796 0 0
+#Scale: 70.938316 10 10
+
+#MESH: Bench1
+#Translation: 117.548004 25.95332 0
+#Rotation: 1.570796 0 0
+#Scale: 70.938316 10 10
+
+

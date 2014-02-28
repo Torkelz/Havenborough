@@ -152,13 +152,7 @@
     <ClCompile Include="..\Client\Source\Level.cpp">
       <Filter>TestLoaders\Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Physics\Source\BVLoader.cpp">
-      <Filter>TestLoaders\Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\Window.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\Scenes\GameScene.cpp">
@@ -303,6 +297,12 @@
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="Source\Client\TextHUDScene.cpp" />
+    <ClCompile Include="Source\Physics\BVLoaderTest.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\BVLoader.cpp">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

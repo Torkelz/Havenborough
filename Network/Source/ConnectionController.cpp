@@ -297,6 +297,20 @@ void ConnectionController::sendLevelData(const char* p_Stream, size_t p_Size)
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 
+void ConnectionController::sendCurrentCheckpoint(Vector3 p_Position)
+{
+	CurrentCheckpoint package;
+	package.m_Object1 = p_Position;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+Vector3 ConnectionController::getCurrentCheckpoint(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	CurrentCheckpoint* checkpoint = static_cast<CurrentCheckpoint*>(m_ReceivedPackages[p_Package].get());
+	return checkpoint->m_Object1;
+}
+
 void ConnectionController::sendLeaveGame()
 {
 	LeaveGame package;

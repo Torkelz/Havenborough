@@ -255,6 +255,11 @@ void ResourceManager::releaseModelTexture(const char *p_ResourceName, void *p_Us
 	((ResourceManager*)p_Userdata)->releaseModelTextureImpl(p_ResourceName);
 }
 
+const std::vector<ResourceType> ResourceManager::getResourceList()
+{
+	return m_ResourceList;
+}
+
 void ResourceManager::releaseModelTextureImpl(const char *p_ResourceName)
 {
 	for(auto &rl : m_ResourceList)

@@ -31,8 +31,27 @@ BOOST_AUTO_TEST_SUITE(OrientedBoundingBox)
 		BOOST_CHECK_EQUAL(obb.getPosition().x, -9.f);
 		BOOST_CHECK_EQUAL(obb.getPosition().y, 3.f);
 		BOOST_CHECK_EQUAL(obb.getPosition().z, 6.f);
-	}
 
+		obb.setPosition(DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f));
+
+		BOOST_CHECK_EQUAL(obb.getPosition().x, 0.f);
+		BOOST_CHECK_EQUAL(obb.getPosition().y, 0.f);
+		BOOST_CHECK_EQUAL(obb.getPosition().z, 0.f);
+	}
+	BOOST_AUTO_TEST_CASE(scaleOBB)
+	{
+		OBB obb = OBB(DirectX::XMFLOAT4(0.f,0.f,0.f,1.f), DirectX::XMFLOAT4(1.f, 1.f, 1.f, 0.f));
+		
+		BOOST_CHECK_EQUAL(obb.getExtents().x, 1.f); 
+		BOOST_CHECK_EQUAL(obb.getExtents().y, 1.f); 
+		BOOST_CHECK_EQUAL(obb.getExtents().z, 1.f); 
+
+		obb.scale(DirectX::XMVectorSet(2.f, 2.f, 2.f, 0.f));
+
+		BOOST_CHECK_EQUAL(obb.getExtents().x, 2.f); 
+		BOOST_CHECK_EQUAL(obb.getExtents().y, 2.f); 
+		BOOST_CHECK_EQUAL(obb.getExtents().z, 2.f); 
+	}
 
 
 BOOST_AUTO_TEST_SUITE_END()
