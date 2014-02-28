@@ -9,20 +9,19 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml;
-using MahApps.Metro.Controls;
 
 namespace Havenborough_Launcher
 {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : MetroWindow
+    public partial class MainWindow
     {
         public MainWindow()
         {
             var backgroundBrush = new ImageBrush
             {
-                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher.jpg",
+                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg",
                     UriKind.Relative))
             };
 
@@ -87,14 +86,14 @@ namespace Havenborough_Launcher
             if (portNode != null)
                 int.TryParse(portNode.Value, out port);
 
-            var gameList = Resources["gameDataSource"] as GameList;
+            var gameList = Resources["GameDataSource"] as GameList;
             if (gameList != null)
                 gameList.Refresh(host, port);
         }
 
         private void OnSelectedGameChanged(object sender, SelectionChangedEventArgs args)
         {
-            var selectedGame = gameListView.SelectedItem as GameList.Game;
+            var selectedGame = GameListView.SelectedItem as GameList.Game;
             if (selectedGame == null ||
                 selectedGame.Name == null ||
                 selectedGame.Name.Length == 0)
@@ -144,15 +143,6 @@ namespace Havenborough_Launcher
             comboBox.SelectedIndex = 2;
         }
 
-        private void ShadowResolutionSelection(object sender, SelectionChangedEventArgs e)
-        {
-            var comboBox = sender as ComboBox;
-            if(comboBox == null)
-                return;
-
-            var value = comboBox.SelectedItem.ToString();   
-        }
-
         private void CharacterNameLoad(object sender, RoutedEventArgs e)
         {
             var data = new List<string>
@@ -168,15 +158,6 @@ namespace Havenborough_Launcher
             comboBox.SelectedIndex = 0;
         }
 
-        private void CharacterNameSelection(object sender, SelectionChangedEventArgs e)
-        {
-            var comboBox = sender as ComboBox;
-            if (comboBox == null)
-                return;
-
-            var value = comboBox.SelectedItem.ToString();
-        }
-
         private void CharacterStyleLoad(object sender, RoutedEventArgs e)
         {
             var data = new List<string>
@@ -184,7 +165,7 @@ namespace Havenborough_Launcher
                 "Green",
                 "Blue",
                 "Red",
-                "Yellow"
+                "Black"
             };
             var comboBox = sender as ComboBox;
             if (comboBox == null)
@@ -192,15 +173,6 @@ namespace Havenborough_Launcher
 
             comboBox.ItemsSource = data;
             comboBox.SelectedIndex = 0;
-        }
-
-        private void CharacterStyleSelection(object sender, SelectionChangedEventArgs e)
-        {
-            var comboBox = sender as ComboBox;
-            if (comboBox == null)
-                return;
-
-            var value = comboBox.SelectedItem.ToString();
         }
     }
 

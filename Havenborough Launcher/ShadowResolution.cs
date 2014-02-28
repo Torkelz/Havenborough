@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Havenborough_Launcher
+﻿namespace Havenborough_Launcher
 {
     class ShadowResolution
     {
         public string Display
         { get; set; }
-        public string size;
+        public string Size;
 
-        public ShadowResolution(string _display, string _size)
+        public ShadowResolution(string display, string size)
         {
-            Display = _display;
-            size = _size;
+            Display = display;
+            Size = size;
         }
 
         public override string ToString()
         {
-            return size;
+            return Size;
         }
     }
 }
