@@ -26,17 +26,26 @@ struct VSLightOutput
 //################################
 //		HELPER FUNCTIONS
 //################################
+
+float4 GetGBufferDiffuseSpec(in int3 p_SampleIndex, in Texture2D p_DiffuseTex)
+{
+	return p_DiffuseTex.Load(p_SampleIndex);
+}
+
+float3 GetGBufferNormal(in int3 p_SampleIndex, in Texture2D p_NormalTex)
+{
+	return p_NormalTex.Load(p_SampleIndex).xyz * 2.f - 1.f;
+}
+
 void GetGBufferAttributes(in float2 p_ScreenPos,in float p_SSAOScale, in Texture2D p_NormalTex, in Texture2D p_DiffuseTex,
 	in Texture2D p_SSAO_Tex, in Texture2D p_WPosTex, out float3 p_Normal, out float3 p_DiffuseAlbedo,
 	out float3 p_SpecularAlbedo, out float3 p_SSAO, out float3 p_Position, out float p_SpecularPower)
 {
 	int3 sampleIndex = int3(p_ScreenPos,0);
-	float4 normalTexSample = p_NormalTex.Load(sampleIndex).xyzw;	
 
-	p_Normal = (normalTexSample.xyz * 2.0f) - 1.0f;
-	
-	float4 diffuseTexSample = p_DiffuseTex.Load(sampleIndex).xyzw;
+	p_Normal = GetGBufferNormal(sampleIndex, p_NormalTex);
 
+	float4 diffuseTexSample = GetGBufferDiffuseSpec(sampleIndex, p_DiffuseTex);
 	p_DiffuseAlbedo = diffuseTexSample.xyz;	
 	p_SpecularPower = diffuseTexSample.w;
 

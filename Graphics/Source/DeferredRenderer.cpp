@@ -576,6 +576,7 @@ void DeferredRenderer::renderLighting()
 	if(m_DirectionalLights->size() > 0)
 		renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
+	renderAmbientLight(m_Buffer["DirectionalLightModel"]);
 
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
 
@@ -998,6 +999,9 @@ void DeferredRenderer::createShaders()
 
 	m_Shader["SSAO_Blur"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/SSAO_Blur.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
+	m_Shader["Ambient"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassAmbient.hlsl",
+		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
 
 void DeferredRenderer::loadLightModels()
@@ -1107,6 +1111,21 @@ void DeferredRenderer::renderLight(Shader *p_Shader, Buffer* p_ModelBuffer, vect
 			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
 		p_Shader->unSetShader();
 	}
+}
+
+
+void DeferredRenderer::renderAmbientLight(Buffer* p_ModelBuffer)
+{
+	m_Shader["Ambient"]->setShader();
+	p_ModelBuffer->setBuffer(0);
+	
+	ID3D11ShaderResourceView *srvs[] = {m_SRV["Diffuse"]};
+	m_DeviceContext->PSSetShaderResources(0, 1, srvs);
+
+	m_DeviceContext->Draw(p_ModelBuffer->getNumOfElements(), 0);
+
+	p_ModelBuffer->unsetBuffer(0);
+	m_Shader["Ambient"]->unSetShader();
 }
 
 
