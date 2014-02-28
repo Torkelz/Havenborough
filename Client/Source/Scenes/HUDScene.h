@@ -10,6 +10,7 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
+	float m_PlayerTime;
 
 	IGraphics *m_Graphics;
 	EventManager *m_EventManager;
@@ -56,6 +57,7 @@ private:
 	void updateGraphicalCountdown(IEventData::Ptr p_Data);
 	void updateGraphicalManabar(IEventData::Ptr p_Data);
 	void updateCheckpointPosition(IEventData::Ptr p_Data);
+	void updatePlayerTime(IEventData::Ptr p_Data);
 
 
 	void preLoadModels();

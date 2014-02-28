@@ -348,6 +348,8 @@ typedef Package1Obj<PackageType::LEVEL_DATA, std::string> LevelData;
  */
 typedef Package1Obj<PackageType::RESULT_GAME, std::vector<std::string>> ResultData;
 
+typedef Package1Obj<PackageType::GAME_POSITIONS, std::vector<std::string>> GamePositions;
+
 /**
  * A package representing the addition of new objects to the game world.
  */

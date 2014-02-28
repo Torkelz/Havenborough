@@ -34,6 +34,7 @@ GameScene::~GameScene()
 bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
 	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
+	m_ExtraParticleID = 500000;
 	m_SceneID = p_SceneID;
 	m_Graphics = p_Graphics;
 	m_InputQueue = p_InputQueue;
@@ -59,6 +60,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticlePosition), UpdateParticlePositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::spellHit), SpellHitEventData::sk_EventType);
 
 	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
 	m_RenderDebugBV = false;
@@ -150,7 +152,6 @@ void GameScene::render()
 				renderBoundingVolume(body);
 			}
 		}
-		renderBoundingVolume(m_GameLogic->getPlayerBodyHandle());
 	}
 
 	for(auto &light : m_Lights)
@@ -183,6 +184,9 @@ void GameScene::render()
 	m_Graphics->renderSkydome();
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
+	m_Graphics->render2D_Object(4);
+
+	
 }
 
 bool GameScene::getIsVisible()
@@ -220,7 +224,7 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if(p_Action ==  "changeViewP" && p_Value == 1)
 	{
 		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
-		if((unsigned int)m_CurrentDebugView >= 5)
+		if((unsigned int)m_CurrentDebugView >= 6)
 			m_CurrentDebugView = (IGraphics::RenderTarget)0;
 		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 	}
@@ -485,6 +489,13 @@ void GameScene::updateParticleBaseColor(IEventData::Ptr p_Data)
 	}
 }
 
+void GameScene::spellHit(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<SpellHitEventData> data = std::static_pointer_cast<SpellHitEventData>(p_Data);
+
+	m_EventManager->queueEvent((IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExsplosion", data->getPosition()))));
+}
+
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
 	unsigned int nrVolumes = m_GameLogic->getPhysics()->getNrOfVolumesInBody(p_BodyHandle);
@@ -507,6 +518,7 @@ void GameScene::preLoadModels()
 	//DO NOT MAKE ANY CALLS TO GRAPHICS IN HERE!
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("particleSystem", "TestParticle"));
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Pivot1"));
+
 }
 
 void GameScene::releasePreLoadedModels()

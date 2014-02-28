@@ -58,7 +58,7 @@ public:
 	* @param p_ShaderType the type of shader to create
 	* @param p_VertexLayout the user defined vertex layout shader should use
 	*/
-	HRESULT compileAndCreateShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
+	HRESULT compileAndCreateShader(LPCWSTR p_Filename, D3D_SHADER_MACRO* p_Defines, const char *p_EntryPoint, const char *p_ShaderModel,
 		Type p_ShaderType, const D3D11_INPUT_ELEMENT_DESC *p_VertexLayout);
 
 	/**
@@ -105,6 +105,6 @@ private:
 protected:
 	virtual HRESULT createShader(ID3DBlob *p_ShaderData);
 	virtual void createInputLayoutFromShaderSignature(ID3DBlob *p_ShaderData);
-	virtual HRESULT compileShader(LPCWSTR p_Filename, const char *p_EntryPoint,	const char *p_ShaderModel, 
+	virtual HRESULT compileShader(LPCWSTR p_Filename, D3D_SHADER_MACRO* p_Defines, const char *p_EntryPoint,	const char *p_ShaderModel, 
 		DWORD p_ShaderFlags, ID3DBlob *&p_ShaderData, ID3DBlob *&p_ErrorMessage);
 };

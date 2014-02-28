@@ -37,9 +37,11 @@ void BaseGameApp::init()
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
 	m_Graphics->setTweaker(TweakSettings::getInstance());
+	m_Graphics->setShadowMapResolution(settings.getShadowMapResolution());
 	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, settings.getIsSettingEnabled("Fullscreen"));
 
 	m_Graphics->enableSSAO(settings.getIsSettingEnabled("SSAO"));
+	m_Graphics->enableShadowMap(settings.getIsSettingEnabled("ShadowMap"));
 	m_Graphics->enableVsync(settings.getIsSettingEnabled("VSync"));
 
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1,
@@ -122,7 +124,6 @@ void BaseGameApp::init()
 	m_EventManager->addListener(EventListenerDelegate(&m_InputQueue, &Input::lockMouse), MouseEventDataLock::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::showMouse), MouseEventDataShow::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::startGame), GameStartedEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::gameLeft), GameLeftEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &BaseGameApp::quitGame), QuitGameEventData::sk_EventType);
 
 	m_GameLogic.reset(new GameLogic());
@@ -390,20 +391,6 @@ void BaseGameApp::render()
 void BaseGameApp::startGame(IEventData::Ptr p_Data)
 {
 	m_SceneManager.startRun();
-}
-
-void BaseGameApp::gameLeft(IEventData::Ptr p_Data)
-{
-	std::shared_ptr<GameLeftEventData> data = std::static_pointer_cast<GameLeftEventData>(p_Data);
-
-	if (data->getGoBack())
-	{
-		m_SceneManager.startMenu();
-	}
-	else
-	{
-		m_SceneManager.gotoPostGame();
-	}
 }
 
 void BaseGameApp::quitGame(IEventData::Ptr p_Data)

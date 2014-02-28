@@ -20,6 +20,9 @@ private:
 	Actor::wPtr m_Actor;
 	CheckpointSystem m_CheckpointSystem;
 
+	unsigned int m_NrOfCheckpointsTaken;
+	float m_ClockTime;
+
 public:
 
 	typedef std::shared_ptr<Player> ptr;
@@ -96,4 +99,23 @@ public:
 	 * @return a vector3 with color information in RGB values;
 	 */
 	Vector3 getCurrentCheckpointColor();
+	/**
+	 * Returns the number of checkpoints the player has taken.
+	 *
+	 * @return the number of checkpoints taken
+	 */
+	unsigned int getNrOfCheckpointsTaken();
+	/**
+	 * Returns the time when a player entered the last checkpoint.
+	 *
+	 * @return clocked time.
+	 */
+	float getClockedTime();
+
+	/**
+	 * Clocks the player's time and increments the number of checkpoints taken.
+	 *
+	 * @param p_Time the current time of the server when a player collides with a checkpoint
+	 */
+	void clockPosition(float p_Time);
 };

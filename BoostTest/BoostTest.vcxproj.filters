@@ -155,9 +155,6 @@
     <ClCompile Include="..\Client\Source\Window.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="..\Client\Source\Scenes\GameScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>

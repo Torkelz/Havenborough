@@ -1,62 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
 using MahApps.Metro.Controls;
 
 namespace Havenborough_Launcher
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        private GameList gameList;
-
         public MainWindow()
         {
-            ImageBrush backgroundBrush = new ImageBrush();
-            backgroundBrush.ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher.jpg",
-                UriKind.Relative));
-           
+            var backgroundBrush = new ImageBrush
+            {
+                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher.jpg",
+                    UriKind.Relative))
+            };
+
             InitializeComponent();
-            var xmlDataProvider = this.Resources["DataProvider"] as XmlDataProvider;
+            var xmlDataProvider = Resources["DataProvider"] as XmlDataProvider;
             if (xmlDataProvider != null)
-                xmlDataProvider.Source = new Uri(System.IO.Path.GetFullPath("UserOptions.xml"));
-            this.Background = backgroundBrush;
+                xmlDataProvider.Source = new Uri(Path.GetFullPath("UserOptions.xml"));
+            Background = backgroundBrush;
 
-            gameList = new GameList(
-                (GameList.Game[] p_Games) =>
-                {
-                    gameListBox.Dispatcher.Invoke(() =>
-                        {
-                            string gameText = "";
-                            foreach (GameList.Game game in p_Games)
-                            {
-                                gameText += game.name + " (" + game.waitingPlayers + '/' + game.maxPlayers + ")\n";
-                            }
-
-                            gameListBox.Text = gameText;
-                        });
-                });
-            gameList.Refresh();
+            RefreshGameList();
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            var dataProvider = (this.Resources["DataProvider"] as XmlDataProvider);
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
                 return;
 
@@ -68,48 +49,199 @@ namespace Havenborough_Launcher
 
         private void Refresh_OnClick(object sender, RoutedEventArgs e)
         {
-            gameList.Refresh();
+            RefreshGameList();
         }
-    }   
+
+        private void RefreshGameList()
+        {
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+
+            XmlDocument doc;
+            if (dataProvider.Document == null)
+            {
+                doc = new XmlDocument();
+                doc.Load(dataProvider.Source.LocalPath);
+            }
+            else
+            {
+                doc = dataProvider.Document;
+            }
+
+            XmlElement rootNode = doc["UserOptions"];
+            if (rootNode == null)
+                return;
+
+            XmlElement serverNode = rootNode["Server"];
+            if (serverNode == null)
+                return;
+
+            XmlNode hostNode = serverNode.Attributes.GetNamedItem("Hostname");
+            string host = "localhost";
+            if (hostNode != null)
+                host = hostNode.Value;
+
+            XmlNode portNode = serverNode.Attributes.GetNamedItem("Port");
+            int port = 31415;
+            if (portNode != null)
+                int.TryParse(portNode.Value, out port);
+
+            var gameList = Resources["gameDataSource"] as GameList;
+            if (gameList != null)
+                gameList.Refresh(host, port);
+        }
+
+        private void OnSelectedGameChanged(object sender, SelectionChangedEventArgs args)
+        {
+            var selectedGame = gameListView.SelectedItem as GameList.Game;
+            if (selectedGame == null ||
+                selectedGame.Name == null ||
+                selectedGame.Name.Length == 0)
+            {
+                LaunchButton.IsEnabled = false;
+                return;
+            }
+
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+
+            XmlElement rootNode = dataProvider.Document["UserOptions"];
+            if (rootNode == null)
+            {
+                return;
+            }
+
+            XmlElement gameNode = rootNode["Game"];
+            if (gameNode == null)
+            {
+                gameNode = dataProvider.Document.CreateElement("Game");
+                rootNode.AppendChild(gameNode);
+            }
+
+            XmlAttribute levelAttribute = dataProvider.Document.CreateAttribute("Level");
+            levelAttribute.Value = selectedGame.Name;
+            gameNode.Attributes.SetNamedItem(levelAttribute);
+
+            LaunchButton.IsEnabled = true;
+        }
+
+        private void ShadowResolutionLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<ShadowResolution>
+            {
+                new ShadowResolution("V.High", "4096"),
+                new ShadowResolution("High", "2048"),
+                new ShadowResolution("Medium", "1024"),
+                new ShadowResolution("Low", "512")
+            };
+            var comboBox = sender as ComboBox;
+            if(comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 2;
+        }
+
+        private void ShadowResolutionSelection(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if(comboBox == null)
+                return;
+
+            var value = comboBox.SelectedItem.ToString();   
+        }
+
+        private void CharacterNameLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<string>
+            {
+                "Dzala",
+                "Zane"
+            };
+            var comboBox = sender as ComboBox;
+            if(comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 0;
+        }
+
+        private void CharacterNameSelection(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            var value = comboBox.SelectedItem.ToString();
+        }
+
+        private void CharacterStyleLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<string>
+            {
+                "Green",
+                "Blue",
+                "Red",
+                "Yellow"
+            };
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 0;
+        }
+
+        private void CharacterStyleSelection(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            var value = comboBox.SelectedItem.ToString();
+        }
+    }
+
     public class BoolInverterConverter : IValueConverter
     {
         #region IValueConverter Members
 
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool)
             {
-                return !(bool)value;
+                return !(bool) value;
             }
 
 
             return !bool.Parse(value.ToString());
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool)
             {
-                return !(bool)value;
+                return !(bool) value;
             }
             return !bool.Parse(value.ToString());
         }
 
         #endregion
     }
+
     public class StringToBoolConverter : IValueConverter
     {
         #region IValueConverter Members
 
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-
             return bool.Parse(value.ToString());
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-
             return value.ToString().ToLower();
         }
 

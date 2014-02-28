@@ -19,6 +19,8 @@ typedef unsigned int Package;
 enum class PackageType : uint16_t
 {
 	RESERVED = 0,
+	REQUEST_GAMES = 1,
+	GAME_LIST = 2,
 	PLAYER_READY,
 	CREATE_OBJECTS,
 	REMOVE_OBJECTS,
@@ -31,13 +33,13 @@ enum class PackageType : uint16_t
 	JOIN_GAME,
 	LEAVE_GAME,
 	LEVEL_DATA,
+	GAME_POSITIONS,
 	RESULT_GAME,
 	SET_SPAWN,
 	THROW_SPELL,
 	START_COUNTDOWN,
 	DONE_COUNTDOWN,
-	REQUEST_GAMES,
-	GAME_LIST,
+	
 };
 
 struct ObjectInstance

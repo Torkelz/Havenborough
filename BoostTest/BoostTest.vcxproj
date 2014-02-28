@@ -119,7 +119,6 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Client\Source\Scenes\GameScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
-    <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Settings.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Common\Source\InstanceBinaryLoader.cpp" />

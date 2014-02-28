@@ -1,7 +1,8 @@
 #include "Player.h"
 
 Player::Player(User::wPtr p_User)
-	:	m_User(p_User)
+	:	m_User(p_User), 
+		m_NrOfCheckpointsTaken(0)
 {
 }
 
@@ -53,4 +54,20 @@ Actor::ptr Player::getCurrentCheckpoint(void)
 Vector3 Player::getCurrentCheckpointColor()
 {
 	return m_CheckpointSystem.getCurrentCheckpointColor();
+}
+
+unsigned int Player::getNrOfCheckpointsTaken()
+{
+	return m_NrOfCheckpointsTaken;
+}
+
+float Player::getClockedTime()
+{
+	return m_ClockTime;
+}
+
+void Player::clockPosition(float p_Time)
+{
+	m_NrOfCheckpointsTaken++;
+	m_ClockTime = p_Time;
 }
