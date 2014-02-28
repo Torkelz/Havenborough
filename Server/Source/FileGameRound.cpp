@@ -11,9 +11,10 @@ using namespace DirectX;
 
 void FileGameRound::setup()
 {
+	static const Vector3 basePos(4120.f, 90.f, 4336.f);
 	for (size_t i = 0; i < m_Players.size(); ++i)
 	{
-		Vector3 position(500.f - i * 200.f, 50 + 400.f, 500.f);
+		Vector3 position = basePos + Vector3(i * -200.f, 0.f, 0.f);
 
 		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
 		m_Players[i]->setActor(actor);
