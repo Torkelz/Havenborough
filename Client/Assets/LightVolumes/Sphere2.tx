@@ -1,6 +1,4 @@
 *Header
-#Transparent 0
-#Collidable 0
 #Materials 1
 #MESH pSphereShape2
 #Vertices 134
