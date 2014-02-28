@@ -2,10 +2,10 @@
 	<Effect effectName="fire">
 		<Texture resourceName="Fire1.dds"/>
 		<MaxCount maxParticles="50"/>
-		<EmitPerSec particlesPerSec="100"/>
+		<EmitPerSec particlesPerSec="75"/>
 		<SysLife sysMaxLife="-1.0"/>
-		<BaseLife maxLife="1.0"/>
-		<LifeDeviation maxLifeDeviation="0.3"/>
+		<BaseLife maxLife="1.5"/>
+		<LifeDeviation maxLifeDeviation="1.0"/>
 		<Size sX="10" sY="10"/>
 		<PositionDeviation positionDeviation="5.0"/>
 		<Velocity vbX="0.0" vbY="10.0" vbZ="0.0" vdX="0.0" vdY="5.0" vdZ="0.0"/>
