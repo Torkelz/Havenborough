@@ -22,6 +22,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{8C7B8D02-7172-4AE2-A0DF-2E5A5FC9F23F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Havenborough Launcher", "Havenborough Launcher\Havenborough Launcher.csproj", "{1320B496-AA83-4BC7-9B3A-BFF9CF78766F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{10229040-9B98-4F55-8CC9-8F1DA231CE04} = {10229040-9B98-4F55-8CC9-8F1DA231CE04}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -189,8 +189,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_RT[IGraphics::RenderTarget::W_POSITION] = createRenderTarget(desc);
 	m_SRV["WPosition"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::W_POSITION]);
 	//Shadow map
-	m_ShadowBigSize = 10000.0f;
-	m_ShadowSmallSize = 2000.0f;
+	m_ShadowBigSize = 20000.0f;
+	m_ShadowSmallSize = 3000.0f;
 	float percentage = m_ShadowSmallSize/m_ShadowBigSize;
 	percentage = percentage * 0.5f;
 	percentage = 0.5f - percentage;
@@ -912,7 +912,7 @@ void DeferredRenderer::createSamplerState()
 	m_Device->CreateSamplerState(&sd, &m_Sampler["SSAO_Blur"]);
 
 	// Create Shadow map texture sampler
-	sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+	sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 	sd.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
