@@ -587,21 +587,31 @@ void GameLogic::handleNetwork()
 								}
 								else
 								{
-									std::vector<int> GoalList;
+									std::vector<std::pair<int, float>> GoalList;
 									int position;
+									float time;
 									for(int i = 0; i < size; i++)
 									{
 										object->QueryAttribute("Place", &position);
-										GoalList.push_back(position);
+										object->QueryAttribute("Time", &time);
+										GoalList.push_back(std::make_pair(position, time));
 									}
 									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
 								}
 						}
 						else if(object->Attribute("Type", "Position"))
 						{
-							//int b = 0; //DO SOMETHING HERE!!
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							object->QueryAttribute("Time", &m_PlayerTimeDifference);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 						}
 					}
+				}
+				break;
+			case PackageType::CURRENT_CHECKPOINT:
+				{
+					m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(conn->getCurrentCheckpoint(package))));
 				}
 				break;
 			case PackageType::UPDATE_OBJECTS:
@@ -671,8 +681,6 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-
-							m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(actor->getPosition())));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -715,7 +723,12 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
-							//m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+						}
+						if(object->Attribute("Type", "Placing"))
+						{
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 						}
 					}
 				}

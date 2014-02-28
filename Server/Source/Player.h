@@ -21,7 +21,7 @@ private:
 	CheckpointSystem m_CheckpointSystem;
 
 	unsigned int m_NrOfCheckpointsTaken;
-	float m_ClockTime;
+	std::vector<float> m_ClockTime;
 
 public:
 
@@ -106,11 +106,12 @@ public:
 	 */
 	unsigned int getNrOfCheckpointsTaken();
 	/**
-	 * Returns the time when a player entered the last checkpoint.
+	 * Returns the time when a player entered a checkpoint.
 	 *
+	 * @param Checkpoint's number, NOT index.
 	 * @return clocked time.
 	 */
-	float getClockedTime();
+	float getClockedTimeAtCheckpoint(unsigned int p_Checkpoint);
 
 	/**
 	 * Clocks the player's time and increments the number of checkpoints taken.
