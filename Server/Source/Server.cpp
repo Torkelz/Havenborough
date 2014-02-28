@@ -101,20 +101,23 @@ void Server::clientConnected(IConnectionController* p_Connection, void* p_UserDa
 
 void Server::clientDisconnected(IConnectionController* p_Connection, void* p_UserData)
 {
-	Logger::log(Logger::Level::INFO, "Client disconnected");
-
 	Server* obj = static_cast<Server*>(p_UserData);
 
 	std::lock_guard<std::mutex> lock(obj->m_UserLock);
 
 	for(unsigned int i = 0; i < obj->m_Users.size(); i++)
 	{
-		if(obj->m_Users[i]->getConnection() == p_Connection)
+		User::ptr user = obj->m_Users[i];
+		if(user->getConnection() == p_Connection)
 		{
+			Logger::log(Logger::Level::INFO, user->getUsername() + " disconnected");
+
 			obj->m_Users.erase(obj->m_Users.begin() + i);
-			break;
+			return;
 		}
 	}
+	
+	Logger::log(Logger::Level::INFO, "Some unknown client disconnected");
 }
 
 void Server::removeLastBox()
