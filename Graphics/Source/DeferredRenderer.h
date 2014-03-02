@@ -150,7 +150,8 @@ public:
 	void enableShadowMap(bool p_State);
 
 private:
-	void renderGeometry(ID3D11DepthStencilView*, unsigned int, ID3D11RenderTargetView* rtv[]);
+	void renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[],
+		const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 	void renderSSAO(void);
 	void blurSSAO(void);
 	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*, bool p_HorizontalBlur);
@@ -161,7 +162,7 @@ private:
 	void clearRenderTargets(unsigned int nrRT);
 
 
-	void renderLighting();
+	void renderLighting(const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 	void renderSkyDomeImpl();
 
 
@@ -192,5 +193,5 @@ private:
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 	void updateLightProjection(float p_viewHW);
-	void renderShadowMap(Light p_Directional);
+	void renderShadowMap(Light p_Directional, const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 };

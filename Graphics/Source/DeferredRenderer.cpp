@@ -343,7 +343,13 @@ void DeferredRenderer::renderDeferred()
 		};
 		
 		updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
-		renderGeometry(m_DepthStencilView, nrRT, rtv);
+
+		std::vector<std::vector<Renderable>> instancedModels;
+		std::vector<Renderable> animatedOrSingle;
+
+		SortRenderables(animatedOrSingle, instancedModels);
+
+		renderGeometry(m_DepthStencilView, nrRT, rtv, instancedModels, animatedOrSingle);
 
 		if(m_SSAO)
 		{
@@ -361,7 +367,7 @@ void DeferredRenderer::renderDeferred()
 			m_DeviceContext->RSSetViewports(1, &oldVP);
 		}
 		
-		renderLighting();
+		renderLighting(instancedModels, animatedOrSingle);
 
 		m_Objects.clear();
 	}
@@ -369,7 +375,8 @@ void DeferredRenderer::renderDeferred()
 }
 
 
-void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[])
+void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[],
+	const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle)
 {
 	// Set the render targets.
 	m_DeviceContext->OMSetRenderTargets(nrRT, rtv, p_DepthStencilView);
@@ -377,18 +384,13 @@ void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView
 
 
 	// The textures will be needed to be grabbed from the model later.
-	std::vector<std::vector<Renderable>> instancedModels;
-	std::vector<Renderable> animatedOrSingle;
-	
-	SortRenderables(animatedOrSingle, instancedModels);
-
 	m_Buffer["DefaultConstant"]->setBuffer(0);
 	m_DeviceContext->PSSetSamplers(0,1,&m_Sampler["Default"]);
 
-	for( auto &animation : animatedOrSingle )
+	for( auto animation : p_AnimatedOrSingle )
 		renderObject(animation);
 	
-	for( auto &k : instancedModels)
+	for( auto k : p_InstancedModels)
 		RenderObjectsInstanced(k);
 
 
@@ -538,7 +540,7 @@ void DeferredRenderer::updateSSAO_VarConstantBuffer()
 		NULL, nullptr, &ssaoBuffer, NULL, NULL);
 }
 
-void DeferredRenderer::renderLighting()
+void DeferredRenderer::renderLighting(const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle)
 {
 	// Store previous States to be set when we exit the method.
 	ID3D11RasterizerState *previousRasterState;
@@ -556,7 +558,7 @@ void DeferredRenderer::renderLighting()
 	UINT sampleMask = 0xffffffff;
 	if(m_ShadowMap)
 	{
-		renderShadowMap(*m_ShadowMappedLight);
+		renderShadowMap(*m_ShadowMappedLight, p_InstancedModels, p_AnimatedOrSingle);
 	}
 	//Set constant data
 	m_Buffer["DefaultConstant"]->setBuffer(0);
@@ -776,12 +778,12 @@ void DeferredRenderer::createBuffers()
 
 	Buffer::Description instanceWorldDesc;
 	instanceWorldDesc.initData = nullptr;
-	instanceWorldDesc.numOfElements = m_MaxLightsPerLightInstance;
+	instanceWorldDesc.numOfElements = 50;
 	instanceWorldDesc.sizeOfElement = sizeof(DirectX::XMFLOAT4X4);
 	instanceWorldDesc.type = Buffer::Type::VERTEX_BUFFER;
 	instanceWorldDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	m_Buffer["WorldInstance"] = WrapperFactory::getInstance()->createBuffer(instanceWorldDesc);
-	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_MaxLightsPerLightInstance);
+	VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * 50);
 
 
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
@@ -1299,6 +1301,22 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 
 void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Objects )
 {
+	if(p_Objects.size() >  m_Buffer["WorldInstance"]->getNumOfElements())
+	{
+		VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_Buffer["WorldInstance"]->getNumOfElements() * -1);
+		SAFE_DELETE(m_Buffer["WorldInstance"]);
+		Buffer::Description instanceWorldDesc;
+		instanceWorldDesc.initData = nullptr;
+		instanceWorldDesc.numOfElements = p_Objects.size() + 5;
+		instanceWorldDesc.sizeOfElement = sizeof(DirectX::XMFLOAT4X4);
+		instanceWorldDesc.type = Buffer::Type::VERTEX_BUFFER;
+		instanceWorldDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
+		m_Buffer["WorldInstance"] = WrapperFactory::getInstance()->createBuffer(instanceWorldDesc);
+		VRAMInfo::getInstance()->updateUsage(sizeof(DirectX::XMFLOAT4X4) * m_MaxLightsPerLightInstance);
+	}
+
+
+
 	UINT Offsets[2] = {0,0};
 	ID3D11Buffer * buffers[] = {p_Objects.front().model->vertexBuffer->getBufferPointer(), m_Buffer["WorldInstance"]->getBufferPointer()};
 	UINT Stride[2] = {60, sizeof(DirectX::XMFLOAT4X4)};
@@ -1313,6 +1331,15 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 	m_Shader["IGeometry"]->setBlendState(m_BlendState2, data);
 	m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
 
+	D3D11_MAPPED_SUBRESOURCE ms;
+
+	m_DeviceContext->Map(m_Buffer["WorldInstance"]->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+
+	XMFLOAT4X4 *ptr = (XMFLOAT4X4 *)ms.pData;
+	for(unsigned int j = 0; j < p_Objects.size(); j++)
+		ptr[j] = p_Objects[j].world;
+
+	m_DeviceContext->Unmap(m_Buffer["WorldInstance"]->getBufferPointer(), NULL);
 
 	for(unsigned int u = 0; u < p_Objects.front().model->numOfMaterials;u++)
 	{
@@ -1321,24 +1348,10 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 			p_Objects.front().model->specularTexture[u].second 
 		};
 		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
-		D3D11_MAPPED_SUBRESOURCE ms;
-		for(unsigned int i = 0; i < p_Objects.size(); i += m_MaxLightsPerLightInstance)
-		{
-			int nrToCpy = (p_Objects.size() - i >= m_MaxLightsPerLightInstance) ? m_MaxLightsPerLightInstance : p_Objects.size() - i ;
-			std::vector<XMFLOAT4X4> tWorld;
-			tWorld.reserve(nrToCpy);
-			for(int j = 0; j < nrToCpy; j++)
-				tWorld.push_back(p_Objects.at(i+j).world);
-
-
-			m_DeviceContext->Map(m_Buffer["WorldInstance"]->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
-			memcpy(ms.pData, tWorld.data(), sizeof(DirectX::XMFLOAT4X4) * tWorld.size());
-			m_DeviceContext->Unmap(m_Buffer["WorldInstance"]->getBufferPointer(), NULL);
-
-
-			m_DeviceContext->DrawInstanced(p_Objects.front().model->drawInterval.at(u).second, tWorld.size(),
-				p_Objects.front().model->drawInterval.at(u).first,0);
-		}
+		
+		m_DeviceContext->DrawInstanced(p_Objects.front().model->drawInterval.at(u).second, p_Objects.size(),
+			p_Objects.front().model->drawInterval.at(u).first,0);
+		
 		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	}
 
@@ -1361,7 +1374,7 @@ void DeferredRenderer::updateLightProjection(float p_viewHW)
 	XMStoreFloat4x4(&m_LightProjection, XMMatrixTranspose(XMMatrixOrthographicLH(m_ViewHW, m_ViewHW, -20000.f, 20000)));
 }
 
-void DeferredRenderer::renderShadowMap(Light p_Directional)
+void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle)
 {
 	ID3D11DepthStencilState* previousDepthState;
 	m_DeviceContext->OMGetDepthStencilState(&previousDepthState,0);
@@ -1397,7 +1410,7 @@ void DeferredRenderer::renderShadowMap(Light p_Directional)
 			//update and render Shadow map
 			updateConstantBuffer(m_LightView, m_LightProjection);
 
-			renderGeometry(m_DepthMapDSV, nrRT, &noRTV);
+			renderGeometry(m_DepthMapDSV, nrRT, &noRTV, p_InstancedModels, p_AnimatedOrSingle);
 
 			m_DeviceContext->RSSetViewports(1, &prevViewport);
 
