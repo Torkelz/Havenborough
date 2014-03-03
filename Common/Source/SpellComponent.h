@@ -58,8 +58,12 @@ public:
 		}
 
 		m_SpellInstance = m_SpellFactory->createSpellInstance(m_SpellName, m_StartDirection);
+		m_Sphere = m_Physics->createOBB(0.f, false, m_Owner->getPosition(), m_SpellInstance->getSize(), false);
 
-		m_Sphere = m_Physics->createSphere(0.f, false, m_Owner->getPosition(), m_SpellInstance->getRadius());
+		DirectX::XMFLOAT4X4 rot = m_Caster.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock()->getRotationMatrix();
+		
+		m_Physics->setBodyRotationMatrix(m_Sphere, rot);
+
 		m_Physics->setBodyCollisionResponse(m_Sphere, false);
 		m_Physics->setBodyVelocity(m_Sphere, m_SpellInstance->getVelocity());
 	}
@@ -89,6 +93,8 @@ public:
 		{
 			casterBody = actor->getBodyHandles().at(0);
 		}
+		
+		HitData boom;
 
 		if (!m_SpellInstance->hasCollided())
 		{
@@ -106,6 +112,7 @@ public:
 							continue;
 						}
 					}
+					boom = hit;
 					m_SpellInstance->collisionHappened();
 					break;
 				}
@@ -114,7 +121,7 @@ public:
 
 		if (m_SpellInstance->isColliding())
 		{
-			Vector3 currentPosition = m_Physics->getBodyPosition(m_Sphere);
+			Vector3 currentPosition = m_Physics->getBodyPosition(m_Sphere) + boom.colNorm.xyz() * boom.colLength;
 			m_Physics->releaseBody(m_Sphere);
 			m_Sphere = m_Physics->createSphere(0.f, true, currentPosition, m_SpellInstance->getRadius());
 			m_Physics->setBodyCollisionResponse(m_Sphere, false);
