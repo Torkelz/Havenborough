@@ -9,12 +9,12 @@
 *Materials
 Material: Sign
 DiffuseMap: Sign1_COLOR.dds
-NormalMap: Default_NRM.dds
+NormalMap: Sign1_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 Material: DarkWood
 DiffuseMap: WoodDark_COLOR.dds
-NormalMap: Default_NRM.dds
+NormalMap: WoodDark_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 Material: Steel

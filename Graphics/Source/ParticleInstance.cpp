@@ -80,7 +80,7 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 			(part.shaderData.position.x + part.velocity.x * p_DeltaTime),
 			(part.shaderData.position.y + part.velocity.y * p_DeltaTime),
 			(part.shaderData.position.z + part.velocity.z * p_DeltaTime));
-		part.shaderData.color.w *= 1 - (part.life/part.maxLife);
+		part.shaderData.color.w = m_ParticleEffectDef->particleColorBase.w * (1 - (part.life/part.maxLife));
 		part.life += p_DeltaTime;
 	}
 }

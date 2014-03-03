@@ -493,7 +493,7 @@ void GameScene::spellHit(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<SpellHitEventData> data = std::static_pointer_cast<SpellHitEventData>(p_Data);
 
-	m_EventManager->queueEvent((IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExsplosion", data->getPosition()))));
+	m_EventManager->queueEvent((IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExplosion", data->getPosition()))));
 }
 
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)

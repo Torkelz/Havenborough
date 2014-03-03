@@ -29,14 +29,14 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	spell.reset(new SpellDefinition());
 
 	spell->m_Type = SpellDefinition::Type::EXPLOSION;
-	spell->explosionRadius = 400.f;
+	spell->explosionRadius = 600.f;
 	spell->effectTime = 0.1f;
 	spell->maxTimeToLive = 5.f;
-	spell->force = 3000.f;
-	spell->minForce = 1000.f;
+	spell->force = 5000.f;
+	spell->minForce = 8000.f;
 	spell->spellName = p_Spellname;
-	spell->flyingSpellSize = 20.f;
-	spell->flyForce = 3000.f;
+	spell->flyingSpellSize = 40.f;
+	spell->flyForce = 6000.f;
 	spell->manaCost = 70.f;
 
 	m_SpellDefinitionMap[p_Spellname] = spell;

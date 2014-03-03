@@ -1066,13 +1066,13 @@ public:
 class UpdatePlayerTimeEventData : public BaseEventData
 {
 private:
-	float m_Position;
+	float m_Time;
 
 public:
-	static const Type sk_EventType = Type(0x3cd9fd2b);
+	static const Type sk_EventType = Type(0x6d441ab5);
 
-	UpdatePlayerTimeEventData(float p_Position)
-		:	m_Position(p_Position)
+	UpdatePlayerTimeEventData(float p_Time)
+		:	m_Time(p_Time)
 	{
 	}
 
@@ -1083,7 +1083,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new UpdatePlayerTimeEventData(m_Position));
+		return Ptr(new UpdatePlayerTimeEventData(m_Time));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1096,6 +1096,44 @@ public:
 	}
 
 	float getTime() const
+	{
+		return m_Time;
+	}
+};
+
+class UpdatePlayerRaceEventData : public BaseEventData
+{
+private:
+	int m_Position;
+
+public:
+	static const Type sk_EventType = Type(0x3cd9fd2b);
+
+	UpdatePlayerRaceEventData(int p_Position)
+		:	m_Position(p_Position)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdatePlayerRaceEventData(m_Position));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdatePlayerRaceEventData";
+	}
+
+	int getPosition() const
 	{
 		return m_Position;
 	}

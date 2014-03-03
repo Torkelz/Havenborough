@@ -59,8 +59,9 @@ public:
 	 * @param p_LevelName the name used to identify the level
 	 * @param p_MaxPlayers the maximum number of players that
 	 *				can connect before the game should start
+	 * @param p_WaitTime the max time a game waits for more players
 	 */
-	void addAvailableLevel(const std::string& p_LevelName, unsigned int p_MaxPlayers);
+	void addAvailableLevel(const std::string& p_LevelName, unsigned int p_MaxPlayers, float p_WaitTime);
 	/**
 	 * Add an user to the lobby.
 	 *

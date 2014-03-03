@@ -9,7 +9,7 @@
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
-    <ShadowMapResolution Size="512" />
+    <ShadowMapResolution Size="1024" />
   </Settings>
   <Controls>
     <!--
@@ -44,7 +44,7 @@
     <MouseButtonMap Display="Climb" Command="climbEdge" Button="Right" />
   </Controls>
   <HUD>
-    <Manabar x="0" y="-320" z="3" scale="0.5" />
+    <Manabar x="0" y="-320" z="3" scale="0.75" />
     <Arrow x="0" y="300" z="150" scale="0.3" />
     <Countdown x="0" y="0" z="0" scale="2" />
   </HUD>

@@ -58,7 +58,7 @@ private:
 	void updateGraphicalManabar(IEventData::Ptr p_Data);
 	void updateCheckpointPosition(IEventData::Ptr p_Data);
 	void updatePlayerTime(IEventData::Ptr p_Data);
-
+	void updatePlayerRacePosition(IEventData::Ptr p_Data);
 
 	void preLoadModels();
 	void releasePreLoadedModels();

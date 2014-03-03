@@ -13,38 +13,38 @@ namespace Havenborough_Launcher
     {
         public class Game : INotifyPropertyChanged
         {
-            private string name;
-            private int waitingPlayers;
-            private int maxPlayers;
+            private string _name;
+            private int _waitingPlayers;
+            private int _maxPlayers;
 
             public event PropertyChangedEventHandler PropertyChanged;
 
             public string Name
             {
-                get { return name; }
+                get { return _name; }
                 set
                 {
-                    name = value;
+                    _name = value;
                     OnPropertyChanged("Name");
                 }
             }
 
             public int WaitingPlayers
             {
-                get { return waitingPlayers; }
+                get { return _waitingPlayers; }
                 set
                 {
-                    waitingPlayers = value;
+                    _waitingPlayers = value;
                     OnPropertyChanged("WaitingPlayers");
                 }
             }
 
             public int MaxPlayers
             {
-                get { return maxPlayers; }
+                get { return _maxPlayers; }
                 set
                 {
-                    maxPlayers = value;
+                    _maxPlayers = value;
                     OnPropertyChanged("MaxPlayers");
                 }
             }
@@ -64,25 +64,24 @@ namespace Havenborough_Launcher
             }
         }
 
-        Task refreshTask;
-        Dispatcher dispatcher;
+        readonly Dispatcher _dispatcher;
 
         public ObservableCollection<Game> Games { get; set; }
 
         public GameList()
         {
-            dispatcher = Dispatcher.CurrentDispatcher;
+            _dispatcher = Dispatcher.CurrentDispatcher;
             Games = new ObservableCollection<Game>();
         }
 
-        public void Refresh(string p_Host, int p_Port)
+        public void Refresh(string host, int port)
         {
-            refreshTask = Task.Run(() =>
+            Task.Run(() =>
             {
                 byte[] data = null;
                 try
                 {
-                    using (Socket clientSocket = Connect(p_Host, p_Port))
+                    using (Socket clientSocket = Connect(host, port))
                     {
                         SendRequest(clientSocket);
                         data = ReadResponse(clientSocket);
@@ -117,7 +116,7 @@ namespace Havenborough_Launcher
                 if (data == null)
                     return;
 
-                dispatcher.Invoke(() =>
+                _dispatcher.Invoke(() =>
                 {
                     Games.Clear();
                     foreach (Game game in TranslateData(data))
@@ -128,15 +127,15 @@ namespace Havenborough_Launcher
             });
         }
 
-        Socket Connect(string p_Host, int p_Port)
+        Socket Connect(string host, int port)
         {
             Socket clientSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            clientSocket.Connect(p_Host, p_Port);
+            clientSocket.Connect(host, port);
 
             return clientSocket;
         }
 
-        void SendRequest(Socket p_ClientSocket)
+        void SendRequest(Socket clientSocket)
         {
             const short packageSize = 4;
             const short requestId = 1;
@@ -145,45 +144,44 @@ namespace Havenborough_Launcher
             BitConverter.GetBytes(packageSize).CopyTo(request, 0);
             BitConverter.GetBytes(requestId).CopyTo(request, 2);
 
-            p_ClientSocket.Send(request);
+            clientSocket.Send(request);
         }
 
-        byte[] ReadResponse(Socket p_ClientSocket)
+        byte[] ReadResponse(Socket clientSocket)
         {
             byte[] header = new byte[4];
-            ReceiveAll(p_ClientSocket, header, 4);
+            ReceiveAll(clientSocket, header, 4);
 
             short length = BitConverter.ToInt16(header, 0);
-            short id = BitConverter.ToInt16(header, 2);
 
             byte[] data = new byte[length - 4];
-            ReceiveAll(p_ClientSocket, data, length - 4);
+            ReceiveAll(clientSocket, data, length - 4);
 
             return data;
         }
 
-        void ReceiveAll(Socket p_ClientSocket, byte[] p_Buffer, int p_Size)
+        void ReceiveAll(Socket clientSocket, byte[] buffer, int size)
         {
-            int receivedBytes = p_ClientSocket.Receive(p_Buffer);
+            int receivedBytes = clientSocket.Receive(buffer);
 
             int totalReceived = receivedBytes;
-            while (receivedBytes > 0 && totalReceived < p_Size)
+            while (receivedBytes > 0 && totalReceived < size)
             {
-                receivedBytes = p_ClientSocket.Receive(p_Buffer, totalReceived, p_Size - totalReceived, SocketFlags.None);
+                receivedBytes = clientSocket.Receive(buffer, totalReceived, size - totalReceived, SocketFlags.None);
                 totalReceived += receivedBytes;
             }
 
-            if (totalReceived < p_Size)
+            if (totalReceived < size)
             {
                 throw new SocketException();
             }
         }
 
-        Game[] TranslateData(byte[] p_Data)
+        Game[] TranslateData(byte[] data)
         {
-            Debug.Assert(p_Data.Length >= 8);
+            Debug.Assert(data.Length >= 8);
 
-            long numGames = BitConverter.ToInt64(p_Data, 0);
+            long numGames = BitConverter.ToInt64(data, 0);
             int currPos = 8;
             Game[] games = new Game[numGames];
 
@@ -193,16 +191,16 @@ namespace Havenborough_Launcher
             {
                 Game g = new Game();
 
-                int stringLength = BitConverter.ToInt32(p_Data, currPos);
+                int stringLength = BitConverter.ToInt32(data, currPos);
                 currPos += 4;
 
-                g.Name = enc.GetString(p_Data, currPos, stringLength);
+                g.Name = enc.GetString(data, currPos, stringLength);
                 currPos += stringLength;
 
-                g.WaitingPlayers = BitConverter.ToInt16(p_Data, currPos);
+                g.WaitingPlayers = BitConverter.ToInt16(data, currPos);
                 currPos += 2;
 
-                g.MaxPlayers = BitConverter.ToInt16(p_Data, currPos);
+                g.MaxPlayers = BitConverter.ToInt16(data, currPos);
                 currPos += 2;
 
                 games[i] = g;

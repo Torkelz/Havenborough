@@ -353,7 +353,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setStartPosition(XMFLOAT3(0.f, 10.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("assets/levels/Level4.2.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level4.4.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
@@ -587,21 +587,31 @@ void GameLogic::handleNetwork()
 								}
 								else
 								{
-									std::vector<int> GoalList;
+									std::vector<std::pair<int, float>> GoalList;
 									int position;
+									float time;
 									for(int i = 0; i < size; i++)
 									{
 										object->QueryAttribute("Place", &position);
-										GoalList.push_back(position);
+										object->QueryAttribute("Time", &time);
+										GoalList.push_back(std::make_pair(position, time));
 									}
 									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
 								}
 						}
 						else if(object->Attribute("Type", "Position"))
 						{
-							//int b = 0; //DO SOMETHING HERE!!
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							object->QueryAttribute("Time", &m_PlayerTimeDifference);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 						}
 					}
+				}
+				break;
+			case PackageType::CURRENT_CHECKPOINT:
+				{
+					m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(conn->getCurrentCheckpoint(package))));
 				}
 				break;
 			case PackageType::UPDATE_OBJECTS:
@@ -671,8 +681,6 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
 							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
-
-							m_EventManager->queueEvent(IEventData::Ptr(new UpdateCheckpointPositionEventData(actor->getPosition())));
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -715,7 +723,12 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
-							//m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+						}
+						if(object->Attribute("Type", "Placing"))
+						{
+							object->QueryAttribute("Place", &m_PlayerPositionInRace);
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 						}
 					}
 				}
@@ -971,7 +984,7 @@ void GameLogic::loadSandbox()
 	// No permanent implementations in this function is allowed.
 
 	//Fredrik, 2014-02-20, 2014-02-24	 
-	addActor(m_ActorFactory->createParticles(Vector3(50.f, 140.f, 0.f), "smoke"));
+	addActor(m_ActorFactory->createParticles(Vector3(50.f, 130.f, 0.f), "smoke"));
 	addActor(m_ActorFactory->createParticles(Vector3(50.f, 120.f, 0.f), "fire"));
 	//addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 	

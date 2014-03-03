@@ -21,7 +21,7 @@ GameRound::ptr GameRoundFactory::createRound(const std::string& p_GameType)
 
 	//	return gameRound; 
 	//}
-	if (p_GameType == "test")
+	if (p_GameType == "Old Town")
 	{
 		ActorFactory::ptr actorFactory(new ActorFactory(0));
 
@@ -32,18 +32,18 @@ GameRound::ptr GameRoundFactory::createRound(const std::string& p_GameType)
 
 		return gameRound;
 	}
-	else if (p_GameType == "serverLevel")
+	else if (p_GameType == "Havenborough Castle")
 	{
 		ActorFactory::ptr actorFactory(new ActorFactory(0));
 
 		std::shared_ptr<FileGameRound> gameRound(new FileGameRound);
-		gameRound->setFilePath("assets/levels/Level4.2.btxl");
+		gameRound->setFilePath("assets/levels/Level4.4.btxl");
 		gameRound->setGameType(p_GameType);
 		gameRound->initialize(actorFactory, m_ReturnLobby);
 
 		return gameRound;
 	}
-	else if (p_GameType == "serverDebugLevel")
+	else if (p_GameType == "Test Level")
 	{
 		ActorFactory::ptr actorFactory(new ActorFactory(0));
 
