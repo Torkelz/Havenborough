@@ -1,5 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include "../../Client/Source/Player.h"
+
+#include <ActorFactory.h>
 #include <Utilities/MemoryUtil.h>
 
 BOOST_AUTO_TEST_SUITE(PlayerTest)
@@ -12,10 +14,20 @@ using namespace DirectX;
 BOOST_AUTO_TEST_CASE(GetSet)
 {
 	Player player;
+	ActorFactory factory(0);
+	static const char* playerDesc =
+		"<Object>"
+		"	<RunControl />"
+		"</Object>";
+	tinyxml2::XMLDocument doc;
+	doc.Parse(playerDesc);
+
+	Actor::ptr runActor(factory.createActor(doc.FirstChildElement("Object")));
+	player.setActor(runActor);
+
 	BOOST_CHECK(player.getForceMove() == false);
 	BOOST_CHECK(player.getDirection() == Vector3(0,0,0));
-	player.setDirectionX(1);
-	player.setDirectionZ(2);
+	player.setDirection(Vector3(1.f, 0.f, 2.f));
 	BOOST_CHECK(player.getDirection() == Vector3(1,0,2));
 	player.setAllowedToMove(true);
 	BOOST_CHECK(player.getAllowedToMove() == true);
@@ -35,13 +47,25 @@ BOOST_AUTO_TEST_CASE(GetSetHeight)
 BOOST_AUTO_TEST_CASE(GetSetgroundNormal)
 {
 	Player player;
-	BOOST_CHECK(player.getGroundNormal().x == 0);
-	BOOST_CHECK(player.getGroundNormal().y == 1);
-	BOOST_CHECK(player.getGroundNormal().z == 0);
+	ActorFactory factory(0);
+	static const char* playerDesc =
+		"<Object>"
+		"	<RunControl />"
+		"</Object>";
+	tinyxml2::XMLDocument doc;
+	doc.Parse(playerDesc);
+
+	Actor::ptr runActor(factory.createActor(doc.FirstChildElement("Object")));
+	player.setActor(runActor);
+
+	BOOST_CHECK_EQUAL(player.getGroundNormal().x, 0);
+	BOOST_CHECK_EQUAL(player.getGroundNormal().y, 1);
+	BOOST_CHECK_EQUAL(player.getGroundNormal().z, 0);
 	player.setGroundNormal(XMFLOAT3(1,0,0));
-	BOOST_CHECK(player.getGroundNormal().x == 1);
-	BOOST_CHECK(player.getGroundNormal().y == 0);
-	BOOST_CHECK(player.getGroundNormal().z == 0);
+	DirectX::XMFLOAT3 norm = player.getGroundNormal();
+	BOOST_CHECK_EQUAL(norm.x, 1);
+	BOOST_CHECK_EQUAL(norm.y, 0);
+	BOOST_CHECK_EQUAL(norm.z, 0);
 }
 
 BOOST_AUTO_TEST_CASE(GetSetMana)

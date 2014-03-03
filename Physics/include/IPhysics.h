@@ -204,6 +204,12 @@ public:
 	 */
 	virtual void setGlobalGravity(float p_Gravity) = 0;
 	/**
+	 * Sets the amount of gravity the body should be affected by.
+	 *
+	 * @param p_Gravity the gravity constant to apply to this body from now on, in m/s^2.
+	 */
+	virtual void setBodyGravity(BodyHandle p_Body, float p_Gravity) = 0;
+	/**
      * Get if the target body is in the air (affected by gravity)
      *
 	 * @param p_Body the body to work with.

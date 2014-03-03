@@ -12,16 +12,10 @@ private:
 	INetwork *m_Network;
 	std::weak_ptr<Actor> m_Actor;
 
-	bool m_IsJumping;
 	int m_JumpCount, m_JumpCountMax;
     float m_JumpTime, m_JumpTimeMax;
 	float m_JumpForce;
-	float m_MaxSpeed; // Centimeters per secound
-	float m_AccConstant;
-	float m_DirectionX;	// (-1 - +1)
-	float m_DirectionZ;	// (-1 - +1)
 	float m_ClimbOffset; // Offset to position the player correctly when climbing. Needed because the sphere is positioned under the characters center.
-	DirectX::XMFLOAT3 m_GroundNormal;
 
 	float m_CurrentMana, m_PreviousMana, m_MaxMana, m_ManaRegenerationSlow, m_ManaRegenerationFast;
 	bool m_IsAtMaxSpeed, m_IsPreviousManaSet;
@@ -193,14 +187,9 @@ public:
 	void setJump(void);
 	
 	/**
-	* Sets the player's x-direction.
+	* Sets the player's direction.
 	*/
-	void setDirectionX(float p_DirectionX);
-	
-	/**
-	* Sets the player's z-direction.
-	*/
-	void setDirectionZ(float p_DirectionZ);
+	void setDirection(Vector3 p_Direction);
 
 	/**
 	 * Get the actor that represents the player.

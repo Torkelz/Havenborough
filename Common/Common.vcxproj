@@ -25,6 +25,9 @@
     <ClInclude Include="Source\CommandManager.h" />
     <ClInclude Include="Source\CommonExceptions.h" />
     <ClInclude Include="Source\Components.h" />
+    <ClInclude Include="Source\FlyingControlComponent.h" />
+    <ClInclude Include="Source\LookComponent.h" />
+    <ClInclude Include="Source\RunControlComponent.h" />
     <ClInclude Include="Source\StreamReader.h" />
     <ClInclude Include="Source\EventData.h" />
     <ClInclude Include="Source\EventManager.h" />
@@ -58,6 +61,9 @@
     <ClCompile Include="Source\Actor.cpp" />
     <ClCompile Include="Source\ActorFactory.cpp" />
     <ClCompile Include="Source\CommandManager.cpp" />
+    <ClCompile Include="Source\FlyingControlComponent.cpp" />
+    <ClCompile Include="Source\LookComponent.cpp" />
+    <ClCompile Include="Source\RunControlComponent.cpp" />
     <ClCompile Include="Source\StreamReader.cpp" />
     <ClCompile Include="Source\EventManager.cpp" />
     <ClCompile Include="Source\HumanAnimationComponent.cpp" />

@@ -23,6 +23,8 @@
     <KeyMap Display="Leave game" Command="leaveGame" Key="Escape" />
     <KeyMap Display="Movement forwards" Command="moveForward" Key="W" />
     <KeyMap Display="Movement backwads" Command="moveBackward" Key="S" />
+	<KeyMap Display="Movement up" Command="moveUp" Key="Space" />
+	<KeyMap Display="Movement down" Command="moveDown" Key="16" />
     <KeyMap Display="Strafe left" Command="moveLeft" Key="A" />
     <KeyMap Display="Strafe right" Command="moveRight" Key="D" />
     <KeyMap Display="Jump" Command="jump" Key="Space" />
