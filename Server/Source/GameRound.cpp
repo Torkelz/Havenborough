@@ -51,7 +51,7 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
-	m_Physics->initialize();
+	m_Physics->initialize(true);
 
 	m_EventManager.reset(new EventManager);
 

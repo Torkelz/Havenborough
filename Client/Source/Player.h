@@ -28,6 +28,7 @@ private:
 
 	bool m_ForceMove, m_Climb;
 	float m_CurrentForceMoveTime;
+	float m_ClimbSpeedUp;
 	std::vector<DirectX::XMFLOAT2> m_ForceMoveY;
 	std::vector<DirectX::XMFLOAT2> m_ForceMoveZ;
 	DirectX::XMFLOAT4X4 m_ForceMoveRotation;

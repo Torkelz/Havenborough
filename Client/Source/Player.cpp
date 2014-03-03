@@ -11,7 +11,7 @@ Player::Player(void)
     m_JumpCountMax = 2;
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
-	m_JumpForce = 3500.f;
+	m_JumpForce = 4500.f;
 	m_IsJumping = false;
 	m_MaxSpeed = 1000.f;
 	m_AccConstant = 600.f;
@@ -27,11 +27,12 @@ Player::Player(void)
 	m_CurrentMana = 100.f;
 	m_PreviousMana = m_CurrentMana;
 	m_MaxMana = 100.f;
-	m_ManaRegenerationSlow = 2.f;
-	m_ManaRegenerationFast = 6.f;
+	m_ManaRegenerationSlow = 3.f;
+	m_ManaRegenerationFast = 10.f;
 	m_IsAtMaxSpeed = false;
 	m_IsPreviousManaSet = false;
 	m_AllowedToMove = true;
+	m_ClimbSpeedUp = 1.0f;
 }
 
 Player::~Player(void)
@@ -169,7 +170,7 @@ void Player::update(float p_DeltaTime)
 		timeFrac = currentFrameTime / currentFrameSpan;
 		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
 
-		m_CurrentForceMoveTime += p_DeltaTime * 24.0f; // 24 FPS
+		m_CurrentForceMoveTime += p_DeltaTime * 24.0f * m_ClimbSpeedUp; // 24 FPS
 
 		DirectX::XMFLOAT3 temp;
 		DirectX::XMVECTOR tv = DirectX::XMVectorSet(0,currentYPos,currentZPos,0);
@@ -203,7 +204,14 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		fwd /= len;
 
 		m_ForceMove = true;
-		m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
+		
+		//if(p_ClimbId == "Climb3" || p_ClimbId == "Climb4")
+		//{
+			m_Physics->resetForceOnBody(getBody());
+			m_IsJumping = false;
+			m_JumpCount = 0;
+		//}
+		//m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
 		aa.lock()->playClimbAnimation(p_ClimbId);
@@ -211,6 +219,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 
 		m_ForceMoveY = pp.m_YPath;
 		m_ForceMoveZ = pp.m_ZPath;
+		m_ClimbSpeedUp = pp.m_Speed;
 		m_ForceMoveStartPos = getPosition();
 
 		fwd *= -1.f;
