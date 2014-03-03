@@ -14,14 +14,14 @@ private:
 	bool m_LoadBVSphereTemplateOnce;
 	std::vector<std::pair<std::string, std::vector<BVLoader::BoundingVolume>>> m_TemplateBVList;
 	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume;
-
+	bool m_IsServer;
 	std::vector<DirectX::XMFLOAT3> m_BoxTriangleIndex;
 
 public:
 	Physics();
 	~Physics();
 
-	void initialize() override;
+	void initialize(bool p_IsServer) override;
 
 	void update(float p_DeltaTime, unsigned p_FPSCheckLimit) override;
 	void applyForce(BodyHandle p_Body, Vector3 p_Force) override;
@@ -83,6 +83,6 @@ private:
 
 	void setRotation(BodyHandle p_Body, DirectX::XMMATRIX& p_Rotation);
 
-	void handleCollision(int p_Collider, int p_ColliderVolumeId, int p_Victim, bool &p_IsOnGround);
+	void handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, int p_Victim, int p_VictimVolumeID, bool &p_IsOnGround);
 };
 

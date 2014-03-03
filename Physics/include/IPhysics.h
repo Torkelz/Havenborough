@@ -14,8 +14,10 @@ public:
 
 	/**
 	 * Initialize all the variables
+	 * @param p_IsServer, used to determine wether the collisions should modify body position or not, 
+	 * true if the server is initializing the physics, false when the clients do.
 	 */
-	virtual void initialize() = 0;
+	virtual void initialize(bool p_IsServer) = 0;
 
 	/**
 	 * Create a boundingVolume sphere with a body.
