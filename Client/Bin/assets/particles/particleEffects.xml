@@ -68,8 +68,8 @@
 		<LifeDeviation maxLifeDeviation="0.0"/>
 		<Size sX="10.0" sY="10.0"/>
 		<PositionDeviation positionDeviation="5.0"/>
-		<Velocity vbX="0.0" vbY="0.0" vbZ="0.0" vdX="1000.0" vdY="1000.0" vdZ="1000.0"/>
-		<Color cbX="0.5" cbY="0.5" cbZ="0.5" cbA="0.9" cdX="0.5" cdY="0.5" cdZ="0.5" cdA="0.1"/>
+		<Velocity vbX="0.0" vbY="0.0" vbZ="0.0" vdX="500.0" vdY="500.0" vdZ="500.0"/>
+		<Color cbX="0.3" cbY="0.0" cbZ="0.8" cbA="0.9" cdX="0.2" cdY="0.0" cdZ="0.5" cdA="0.1"/>
 	</Effect>
 	<Effect effectName="waterSpray">
 		<Texture resourceName="Water1.dds"/>

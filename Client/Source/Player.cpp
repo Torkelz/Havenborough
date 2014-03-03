@@ -27,8 +27,8 @@ Player::Player(void)
 	m_CurrentMana = 100.f;
 	m_PreviousMana = m_CurrentMana;
 	m_MaxMana = 100.f;
-	m_ManaRegenerationSlow = 2.f;
-	m_ManaRegenerationFast = 6.f;
+	m_ManaRegenerationSlow = 3.f;
+	m_ManaRegenerationFast = 10.f;
 	m_IsAtMaxSpeed = false;
 	m_IsPreviousManaSet = false;
 	m_AllowedToMove = true;

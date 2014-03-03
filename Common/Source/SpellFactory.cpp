@@ -36,8 +36,8 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	spell->minForce = 8000.f;
 	spell->spellName = p_Spellname;
 	spell->flyingSpellSize = 40.f;
-	spell->flyForce = 6000.f;
-	spell->manaCost = 70.f;
+	spell->flyForce = 5000.f;
+	spell->manaCost = 55.f;
 
 	m_SpellDefinitionMap[p_Spellname] = spell;
 
