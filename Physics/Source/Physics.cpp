@@ -153,8 +153,6 @@ void Physics::handleCollision(int p_Collider, int ColliderVolumeId, int p_Victim
 				XMStoreFloat4(&tempPos, temp);
 
 				b.setPosition(tempPos);
-				if(m_Bodies.at(p_Collider).getVolumeListSize() == 5 && m_Bodies.at(p_Victim).getVolumeListSize() == 5)
-						PhysicsLogger::log(PhysicsLogger::Level::INFO, "Player Collision occrued!");
 			}
 
 		}
