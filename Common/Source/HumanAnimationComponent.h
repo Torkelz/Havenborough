@@ -209,4 +209,15 @@ public:
 	}
 
 	void updateIKJoints();
+
+	void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Target, float p_MaxAngle) override
+	{
+		m_Animation.applyLookAtIK(p_GroupName, p_Target, m_Owner->getWorldMatrix(), p_MaxAngle);
+		
+		std::shared_ptr<ModelComponent> comp = m_Model.lock();
+		if (comp)
+		{
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform(), m_Animation.getAnimationData(), m_Owner->getWorldMatrix())));
+		}
+	}
 };

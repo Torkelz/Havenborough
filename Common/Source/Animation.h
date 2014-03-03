@@ -117,6 +117,8 @@ public:
 	 */
 	void changeWeight(int p_MainTrack, float p_Weight );
 
+	void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, DirectX::XMFLOAT4X4 p_WorldMatrix, float p_MaxAngle);
+
 	void setAnimationData(AnimationData::ptr p_Data);
 
 	const AnimationData::ptr getAnimationData() const;

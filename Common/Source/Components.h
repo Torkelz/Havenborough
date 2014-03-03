@@ -1667,6 +1667,8 @@ public:
 	 * @param p_Physics, a pointer to the physics engine.
 	 */
 	virtual void setPhysics(IPhysics *p_Physics) = 0;
+
+	virtual void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Target, float p_MaxAngle) = 0;
 };
 
 class SpellInterface : public ActorComponent

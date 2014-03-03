@@ -594,18 +594,121 @@ void Animation::changeWeight(int p_Track, float p_Weight)
 	}
 }
 
+void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, DirectX::XMFLOAT4X4 p_WorldMatrix, float p_MaxAngle)
+{
+	auto it = m_Data->ikGroups.find(p_GroupName);
+	if (it == m_Data->ikGroups.end())
+	{
+		return;
+	}
+
+	const IKGroup& p_Group = it->second;
+
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
+	XMFLOAT4 targetData(p_Position.x, p_Position.y, p_Position.z, 1.f);
+	XMVECTOR target = XMLoadFloat4(&targetData);
+
+	// The algorithm uses three joints, one end joint that wants to reach a target (point).
+	// This joint is not tranformed in it self. The middle joint works like a human elbow and
+	// has only 1 DoF. It will make sure that the "arm" is bent if the target point is closer 
+	// to the base joint than the length of the "arm" when fully extended. The base joint works
+	// like a human shoulder it has 3 DoF and will make sure that the "arm" is always pointed
+	// towards the target point.
+	const Joint* neckJoint = nullptr;
+	const Joint* headJoint = nullptr;
+
+	for (unsigned int i = 0; i < p_Joints.size(); i++)
+	{
+		const Joint& joint = p_Joints[i];
+
+		if (joint.m_JointName == p_Group.m_Hand)
+		{
+			neckJoint = &joint;
+		}
+		else if (joint.m_JointName == p_Group.m_Elbow)
+		{
+			headJoint = &joint;
+		}
+	}
+
+	// The algorithm requires all three joints
+	if (neckJoint == nullptr || headJoint == nullptr)
+	{
+		return;
+	}
+
+	XMMATRIX world = XMLoadFloat4x4(&p_WorldMatrix);
+
+	// Calculate matrices for transforming vectors from joint spaces to world space
+	XMMATRIX neckCombinedTransform = XMMatrixMultiply(
+		world,
+		XMMatrixMultiply(
+			XMLoadFloat4x4(&m_FinalTransform[neckJoint->m_ID - 1]),
+			XMLoadFloat4x4(&neckJoint->m_TotalJointOffset)));
+	XMMATRIX headCombinedTransform = XMMatrixMultiply(
+		world,
+		XMMatrixMultiply(
+			XMLoadFloat4x4(&m_FinalTransform[headJoint->m_ID - 1]),
+			XMLoadFloat4x4(&headJoint->m_TotalJointOffset)));
+
+	XMFLOAT4X4 neckCombinedTransformedData;
+	XMFLOAT4X4 headCombinedTransformedData;
+
+	XMStoreFloat4x4(&neckCombinedTransformedData, neckCombinedTransform);
+	XMStoreFloat4x4(&headCombinedTransformedData, headCombinedTransform);
+
+	// The joints' positions in world space is the zero vector in joint space transformed to world space.
+	XMFLOAT4 jointPosition(headCombinedTransformedData._14, headCombinedTransformedData._24,
+		headCombinedTransformedData._34, 1.f); 
+	XMFLOAT4 neckPosition(neckCombinedTransformedData._14, neckCombinedTransformedData._24,
+		neckCombinedTransformedData._34, 1.f); 
+
+	XMVECTOR headPositionV = XMLoadFloat4(&jointPosition);
+	XMVECTOR neckPositionV = XMLoadFloat4(&neckPosition);
+
+	XMVECTOR targetToHead = headPositionV - target;
+	XMVECTOR headToNeck = neckPositionV - headPositionV;
+
+	float distStartToHead = XMVector4Length(targetToHead).m128_f32[0];
+	float distHeadToEnd = XMVector4Length(headToNeck).m128_f32[0];
+
+	float wantedJointAngle = 0.f;
+
+	// Normalize look at target
+	XMVECTOR target =  XMLoadFloat3(&p_Position);
+	target = XMVector3Normalize(target);
+	// Get the standard look at vector
+	XMVECTOR headForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	headForward = XMVector3Transform(headForward, world);
+	// Get rotation axis and angle
+	XMVECTOR rotationAxis;
+	rotationAxis = XMVector3Cross(headForward, target);
+	rotationAxis = XMVector3Normalize(rotationAxis);
+	float wantedJointAngle = acosf(XMVector3Dot(headForward, target).m128_f32[0]);
+	// Limit angle
+	wantedJointAngle = std::min( wantedJointAngle, p_MaxAngle );
+	// Apply the transformation to the bone
+	XMMATRIX rotation;
+	rotation = XMMatrixRotationAxis(rotationAxis, wantedJointAngle);
+
+	XMStoreFloat4x4(&m_LocalTransforms[neckJoint->m_ID - 1],
+	XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[neckJoint->m_ID - 1]), rotation));
+
+	// Update the resulting child transformations
+	updateFinalTransforms();
+}
+
 void Animation::setAnimationData(AnimationData::ptr p_Data)
 {
 	m_Data = p_Data;
 	playClip("default", true);
 }
 
-
 const AnimationData::ptr Animation::getAnimationData() const
 {
 	return m_Data;
 }
-
 
 void Animation::purgeQueue(const unsigned int p_Track)
 {
