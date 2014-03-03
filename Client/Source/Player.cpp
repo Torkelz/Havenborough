@@ -45,6 +45,7 @@ void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<
 	m_Network = p_Network;
 	m_Actor = p_Actor;
 	
+	setCurrentMana(0.f);
 
 	Actor::ptr strActor = m_Actor.lock();
 	if (strActor)
