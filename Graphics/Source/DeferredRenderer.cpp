@@ -212,7 +212,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_RT[IGraphics::RenderTarget::FINAL] = createRenderTarget(desc);
 	m_SRV["Light"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::FINAL]);
 
-	m_SSAO_ResolutionScale = 0.5f;
+	m_SSAO_ResolutionScale = 1.0f;
 
 	desc.Width	= (UINT)(p_ScreenWidth * m_SSAO_ResolutionScale);
 	desc.Height	= (UINT)(p_ScreenHeight * m_SSAO_ResolutionScale);
@@ -334,6 +334,7 @@ void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
 
 void DeferredRenderer::renderDeferred()
 {
+	//TIMER_START(m_Timer);
 	// Clear render targets.
 	clearRenderTargets();
 
@@ -373,6 +374,7 @@ void DeferredRenderer::renderDeferred()
 		m_Objects.clear();
 	}
 	m_RenderSkyDome = false;
+	//TIMER_STOP(m_Timer);
 }
 
 
@@ -457,46 +459,17 @@ void DeferredRenderer::renderSSAO(void)
 
 void DeferredRenderer::blurSSAO(void)
 {
+	m_Shader["SSAO_Blur"]->setShader();
+	m_Buffer["SSAOConstant_Blur"]->setBuffer(0);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler["SSAO_Blur"]);
+
 	for(int i = 0; i < 4; i++) //TODO: Should be 4 passes
 	{
 		SSAO_PingPong(m_SRV["SSAO"], m_RT[IGraphics::RenderTarget::SSAOPing], false);
 		SSAO_PingPong(m_SRV["SSAOPing"], m_RT[IGraphics::RenderTarget::SSAO], true);
 	}
-	//float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	//m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::FINAL], color);
-}
-
-void DeferredRenderer::SSAO_PingPong(ID3D11ShaderResourceView *inputSRV, ID3D11RenderTargetView *outputTarget,
-									 bool p_HorizontalBlur)
-{
-	updateSSAO_BlurConstantBuffer(p_HorizontalBlur);
-
-
-	m_DeviceContext->OMSetRenderTargets(1, &outputTarget, 0);
-	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-
-	m_Shader["SSAO_Blur"]->setShader();
-	m_Buffer["SSAOConstant_Blur"]->setBuffer(0);
-
-
-	m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler["SSAO_Blur"]);
-
-
-	ID3D11ShaderResourceView *srvs[] =
-	{
-		m_SRV["Normal"],
-		inputSRV
-	};
-	m_DeviceContext->PSSetShaderResources(0, 2, srvs);
-
-
-	m_DeviceContext->Draw(6, 0);
-
-
-	ID3D11ShaderResourceView *nullSrvs[] = { 0, 0 };
-	m_DeviceContext->PSSetShaderResources(0, 2, nullSrvs);
-
 
 	ID3D11SamplerState *nullSamplers[] = { 0 };
 	m_DeviceContext->PSSetSamplers(0, 1, nullSamplers);
@@ -504,6 +477,27 @@ void DeferredRenderer::SSAO_PingPong(ID3D11ShaderResourceView *inputSRV, ID3D11R
 
 	m_Buffer["SSAOConstant_Blur"]->unsetBuffer(0);
 	m_Shader["SSAO_Blur"]->unSetShader();
+	//float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	//m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::FINAL], color);
+}
+
+void DeferredRenderer::SSAO_PingPong(ID3D11ShaderResourceView *p_InputSRV, ID3D11RenderTargetView *p_OutputTarget,
+									 bool p_HorizontalBlur)
+{
+	updateSSAO_BlurConstantBuffer(p_HorizontalBlur);
+
+	m_DeviceContext->OMSetRenderTargets(1, &p_OutputTarget, 0);
+	ID3D11ShaderResourceView *srvs[] =
+	{
+		m_SRV["Normal"],
+		p_InputSRV
+	};
+
+	m_DeviceContext->PSSetShaderResources(0, 2, srvs);
+	m_DeviceContext->Draw(6, 0);
+
+	ID3D11ShaderResourceView *nullSrvs[] = { 0, 0 };
+	m_DeviceContext->PSSetShaderResources(0, 2, nullSrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
 }
 
@@ -1267,6 +1261,22 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 				animatedOrSingle.push_back(std::move(m_Objects.at(current)));
 		}
 	}
+
+	std::sort(animatedOrSingle.begin(), animatedOrSingle.end(), [&](Renderable &a, Renderable &b)
+		{
+			DirectX::XMFLOAT3 aa = DirectX::XMFLOAT3(a.world._14,a.world._24,a.world._34);
+			DirectX::XMFLOAT3 bb = DirectX::XMFLOAT3(b.world._14,b.world._24,b.world._34);
+
+			DirectX::XMVECTOR aV = DirectX::XMLoadFloat3(&aa);
+			DirectX::XMVECTOR bV = DirectX::XMLoadFloat3(&bb);
+			DirectX::XMVECTOR eV = DirectX::XMLoadFloat3(&m_CameraPosition);
+
+			using DirectX::operator -;
+			DirectX::XMVECTOR aVeVLength = DirectX::XMVector3Length(aV - eV);
+			DirectX::XMVECTOR bVeVLength = DirectX::XMVector3Length(bV - eV);
+
+			return aVeVLength.m128_f32[0] > bVeVLength.m128_f32[0];
+	});
 }
 
 void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Objects )

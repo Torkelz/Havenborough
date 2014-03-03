@@ -774,9 +774,9 @@ void Graphics::drawFrame(void)
 
 
 	Begin(m_ClearColor);
-	TIMER_START(timer);
+	//TIMER_START(timer);
 	m_DeferredRender->renderDeferred();
-	TIMER_STOP(timer);
+	//TIMER_STOP(timer);
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 5)

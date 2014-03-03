@@ -23,8 +23,9 @@ public:
 	void Start();
 	void Stop();
 
+	//Returns in MS
 	double GetTime();
-
+	//Returns in MS
 	void GetAverageTime(double &p_Average);
 	void resetAverageTimer();
 };

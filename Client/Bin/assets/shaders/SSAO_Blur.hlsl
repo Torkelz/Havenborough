@@ -39,11 +39,15 @@ VSOutput VS(uint vID : SV_VERTEXID)
 
 float4 PS(VSOutput pIn) : SV_Target
 {
-	static const float cWeights[11] =
+	//static const float cWeights[11] =
+	//{
+	//	0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f
+	//};
+	static const float cWeights[7] =
 	{
-		0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f
+		0.05f, 0.175f, 0.2f, 0.25f, 0.2f, 0.175f, 0.05f
 	};
-	static const int cBlurRadius = 5;
+	static const int cBlurRadius = 3;
 
 	float2 texOffset;
 	if(cHorizontalBlur)
@@ -56,12 +60,13 @@ float4 PS(VSOutput pIn) : SV_Target
 	}
 
 	// The center value always contributes to the sum.
-	float4 color = cWeights[5] * gInputImage.Sample(gBlurSampler, pIn.texCoord);
-	float totalWeight = cWeights[5];
+	float4 color = cWeights[cBlurRadius] * gInputImage.Sample(gBlurSampler, pIn.texCoord);
+	float totalWeight = cWeights[cBlurRadius];
 
 	float4 centerNormalDepth = gNormalDepthMap.Sample(gBlurSampler, pIn.texCoord);
 	centerNormalDepth.xyz = normalize((centerNormalDepth.xyz * 2.0f) - 1.0f);
-
+	
+	[unroll(cBlurRadius * 2)]
 	for(int i = -cBlurRadius; i <= cBlurRadius; ++i)
 	{
 		// We already added in the center weight.
@@ -71,6 +76,7 @@ float4 PS(VSOutput pIn) : SV_Target
 		float2 tex = pIn.texCoord + i * texOffset;
 
 		float4 neighborNormalDepth = gNormalDepthMap.Sample(gBlurSampler, tex);
+
 		neighborNormalDepth.xyz = normalize((neighborNormalDepth.xyz * 2.0f) - 1.0f);
 
 		// If the center value and neighbor values differ too much (either in 
