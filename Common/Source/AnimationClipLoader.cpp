@@ -183,6 +183,11 @@ std::map<std::string, AnimationPath> MattiasLucaseXtremeLoader::loadAnimationPat
 					std::getline(input, line);
 					stringstream = std::stringstream(line);
 					stringstream >> key >> path.m_PathName;
+
+					// Speed
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> path.m_Speed;
 					
 					std::getline(input, line);
 					do

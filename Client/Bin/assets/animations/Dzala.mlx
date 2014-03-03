@@ -210,7 +210,7 @@ we	1.0
 
 *Clip
 na 	Climb1
-sp 	1.0
+sp 	1.3
 st 	301
 en 	312
 lo 	0
@@ -225,7 +225,7 @@ we	1.0
 
 *Clip
 na 	Climb2
-sp 	1.0
+sp 	1.35
 st 	314
 en 	337
 lo 	0
@@ -240,7 +240,7 @@ we	1.0
 
 *Clip
 na 	Climb3
-sp 	1.0
+sp 	1.2
 st 	339
 en 	374
 lo 	0
@@ -255,7 +255,7 @@ we	1.0
 
 *Clip
 na 	Climb4
-sp 	1.0
+sp 	1.2
 st 	376
 en 	423
 lo 	0
@@ -411,6 +411,7 @@ b3 R_FootBase
 
 *Path
 na	Climb1
+sp	1.3
 y	0
 t	0
 y	42
@@ -425,6 +426,7 @@ t	11
 
 *Path
 na	Climb2
+sp	1.35
 y	0
 t	0
 y	0
@@ -441,6 +443,7 @@ t	23
 
 *Path
 na	Climb3
+sp	1.2
 y	0
 t	0
 y	127
@@ -455,6 +458,7 @@ t	35
 
 *Path
 na	Climb4
+sp	1.2
 y	0
 t	0
 y	169

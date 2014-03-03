@@ -49,16 +49,14 @@ void SpellInstance::collisionHappened()
 	m_TimeLived = 0.f;
 }
 
+Vector3 SpellInstance::getSize() const
+{
+	return m_SpellDefinition->flyingSpellSize;
+}
+
 float SpellInstance::getRadius() const
 {
-	if (m_Collision)
-	{
-		return m_SpellDefinition->explosionRadius;
-	}
-	else
-	{
-		return m_SpellDefinition->flyingSpellSize;
-	}
+	return m_SpellDefinition->explosionRadius;
 }
 
 Vector3 SpellInstance::getVelocity() const
