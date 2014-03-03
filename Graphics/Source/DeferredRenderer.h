@@ -4,6 +4,7 @@
 #include "Renderable.h"
 #include "SkyDome.h"
 #include "ConstantBuffers.h"
+#include "GPUTimer.h"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -53,7 +54,7 @@ private:
 
 	bool	m_SSAO;
 	bool	m_ShadowMap;
-	float m_SSAO_Resolution_Scale;
+	float m_SSAO_ResolutionScale;
 	float		m_ShadowBigSize, m_ShadowSmallSize;
 	int		m_ShadowMapResolution;
 	float	m_ShadowMapBorder;
@@ -68,7 +69,7 @@ private:
 	D3D11_VIEWPORT				m_LightViewport;
 	unsigned int				m_MaxNumDirectionalShadows;
 
-
+	GPUTimer *m_Timer;
 public:
 	/**
 	* Constructor. 

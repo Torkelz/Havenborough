@@ -72,15 +72,23 @@ struct HitData
 	bool			isEdge;
 	int			    IDInBody;
 
-	HitData()
+	HitData() : colPos(Vector4(0.f, 0.f, 0.f, 0.f)),
+		colNorm(Vector4(0.f, 0.f, 0.f, 0.f)),
+		intersect(false),
+		colType(Type::NONE),
+		colLength(-1.0f),
+		collider(0),
+		collisionVictim(0),
+		isEdge(false),
+		IDInBody(0)
 	{
-		colPos		= Vector4(0.f, 0.f, 0.f, 0.f);
-		colNorm		= Vector4(0.f, 0.f, 0.f, 0.f);
-		intersect	= false;
-		colType		= Type::NONE;
-		colLength	= -1.f;
-		collider = collisionVictim = 0;
-		isEdge = false;
-		IDInBody = 0;
+		//colPos		= Vector4(0.f, 0.f, 0.f, 0.f);
+		//colNorm		= Vector4(0.f, 0.f, 0.f, 0.f);
+		//intersect	= false;
+		//colType		= Type::NONE;
+		//colLength	= -1.f;
+		//collider = collisionVictim = 0;
+		//isEdge = false;
+		//IDInBody = 0;
 	}
 };

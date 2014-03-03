@@ -12,13 +12,15 @@ GPUTimer::GPUTimer(ID3D11Device* d3dDevice, ID3D11DeviceContext* d3dDeviceContex
 	desc.Query = D3D11_QUERY_TIMESTAMP;
 	m_Device->CreateQuery(&desc, &m_Start);
 	m_Device->CreateQuery(&desc, &m_Stop);
+
+	m_MaxSamples = 20;
 }
 
 GPUTimer::~GPUTimer()
 {
 	if(m_Start)		m_Start->Release();
-	if(m_Stop)		m_Start->Release();
-	if(m_Disjoint)	m_Start->Release();
+	if(m_Stop)		m_Stop->Release();
+	if(m_Disjoint)	m_Disjoint->Release();
 }
 
 void GPUTimer::Start()
@@ -55,4 +57,24 @@ double GPUTimer::GetTime()
 	}
 
 	return time;
+}
+
+void GPUTimer::GetAverageTime(double &p_Average)
+{
+	if(m_Samples.size() >= m_MaxSamples)
+	{
+		double temp = 0;
+		for(double a : m_Samples)
+			temp += a;
+		temp /= m_Samples.size();
+		m_Samples.clear();
+		p_Average = temp;
+	}
+	else
+		m_Samples.push_back(GetTime());
+}
+
+void GPUTimer::resetAverageTimer()
+{
+	m_Samples.clear();
 }

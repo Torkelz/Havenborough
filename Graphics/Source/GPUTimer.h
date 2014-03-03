@@ -2,6 +2,7 @@
 #pragma warning (disable : 4005)
 
 #include <D3D11.h>
+#include <vector>
 
 class GPUTimer
 {
@@ -11,6 +12,9 @@ class GPUTimer
 
 	ID3D11Device*			m_Device;
 	ID3D11DeviceContext*	m_DeviceContext;
+	std::vector<double> m_Samples;
+
+	unsigned int m_MaxSamples;
 
 public:
 	explicit GPUTimer(ID3D11Device* p_Device, ID3D11DeviceContext* p_DeviceContext);
@@ -20,4 +24,7 @@ public:
 	void Stop();
 
 	double GetTime();
+
+	void GetAverageTime(double &p_Average);
+	void resetAverageTimer();
 };

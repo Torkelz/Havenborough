@@ -1,10 +1,10 @@
 <UserOptions>
   <Server Hostname="localhost" Port="31415" />
   <!-- Test ip: 194.47.150.44 -->
-  <Game Level="serverLevel" Username="Player" />
-  <Character Name="Dzala" Style="Green" />
+  <Game Level="serverLevel2" Username="Player" />
+  <Character Name="Dzala" Style="Black" />
   <Settings>
-    <SSAO Enabled="false" />
+    <SSAO Enabled="true" />
     <ShadowMap Enabled="true" />
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
