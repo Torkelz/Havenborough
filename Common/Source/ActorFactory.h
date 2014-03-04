@@ -108,6 +108,8 @@ public:
 	Actor::ptr createSpell(const std::string& p_Spell, Actor::Id p_CasterId, Vector3 p_Direction, Vector3 p_StartPosition);
 	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
 	Actor::ptr createFlyingCamera(Vector3 p_Position);
+	Actor::ptr createSplineCamera(Vector3 p_Position);
+
 	struct InstanceModel
 	{
 		Vector3 position;
@@ -157,6 +159,7 @@ private:
 	ActorComponent::ptr createLookComponent();
 	ActorComponent::ptr createHumanAnimationComponent();
 	ActorComponent::ptr createFlyingControlComponent();
+	ActorComponent::ptr createSplineControlComponent();
 	ActorComponent::ptr createRunControlComponent();
 
 	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceModel& p_Model);

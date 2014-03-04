@@ -4,6 +4,7 @@
 #include "ClientExceptions.h"
 #include "HumanAnimationComponent.h"
 #include "Logger.h"
+#include "SplineControlComponent.h"
 
 #include <sstream>
 
@@ -373,7 +374,8 @@ void GameLogic::playLocalLevel()
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
-	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
+	//std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
+	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createSplineCamera(m_Level.getStartPosition()));
 	m_Player = Player();
 	m_Player.initialize(m_Physics, nullptr, playerActor);
 
@@ -494,6 +496,36 @@ float GameLogic::getPlayerTimeDifference()
 void GameLogic::setPlayerClimb(bool p_State)
 {
 	m_Player.setClimbing(p_State);
+}
+
+void GameLogic::recordSpline()
+{
+	std::shared_ptr<SplineControlComponent> moveComp = m_Player.getActor().lock()->getComponent<SplineControlComponent>(SplineControlComponent::m_ComponentId).lock();
+
+	if(moveComp)
+	{
+		moveComp->recordPoint();
+	}
+}
+
+void GameLogic::removeLastSplineRecord()
+{
+	std::shared_ptr<SplineControlComponent> moveComp = m_Player.getActor().lock()->getComponent<SplineControlComponent>(SplineControlComponent::m_ComponentId).lock();
+
+	if(moveComp)
+	{
+		moveComp->removePreviousPoint();
+	}
+}
+
+void GameLogic::clearSplineSequence()
+{
+	std::shared_ptr<SplineControlComponent> moveComp = m_Player.getActor().lock()->getComponent<SplineControlComponent>(SplineControlComponent::m_ComponentId).lock();
+
+	if(moveComp)
+	{
+		moveComp->clearSequence();
+	}
 }
 
 void GameLogic::handleNetwork()

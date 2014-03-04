@@ -123,6 +123,23 @@ public:
 	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
 	 */
 	void setPlayerClimb(bool p_State);
+
+	/**
+	 * Records a spline point. Position, look direction and up direction is saved.
+	 *
+	 */
+
+	void recordSpline();
+	/**
+	 * Removes last added spline point.
+	 *
+	 */
+	void removeLastSplineRecord();
+	/**
+	 * Clear current spline sequence.
+	 *
+	 */
+	void clearSplineSequence();
 	
 private:
 	void handleNetwork();

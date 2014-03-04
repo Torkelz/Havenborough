@@ -28,6 +28,7 @@
     <ClInclude Include="Source\FlyingControlComponent.h" />
     <ClInclude Include="Source\LookComponent.h" />
     <ClInclude Include="Source\RunControlComponent.h" />
+    <ClInclude Include="Source\SplineControlComponent.h" />
     <ClInclude Include="Source\StreamReader.h" />
     <ClInclude Include="Source\EventData.h" />
     <ClInclude Include="Source\EventManager.h" />
@@ -64,6 +65,7 @@
     <ClCompile Include="Source\FlyingControlComponent.cpp" />
     <ClCompile Include="Source\LookComponent.cpp" />
     <ClCompile Include="Source\RunControlComponent.cpp" />
+    <ClCompile Include="Source\SplineControlComponent.cpp" />
     <ClCompile Include="Source\StreamReader.cpp" />
     <ClCompile Include="Source\EventManager.cpp" />
     <ClCompile Include="Source\HumanAnimationComponent.cpp" />
