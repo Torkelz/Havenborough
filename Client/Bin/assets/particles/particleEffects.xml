@@ -97,10 +97,10 @@
 	</Effect>
 	<Effect effectName="checkpointSwirl">
 		<Texture resourceName="Water1.dds"/>
-		<MaxCount maxParticles="120"/>
+		<MaxCount maxParticles="250"/>
 		<EmitPerSec particlesPerSec="15"/>
 		<SysLife sysMaxLife="-1.0"/>
-		<BaseLife maxLife="8.0"/>
+		<BaseLife maxLife="15.0"/>
 		<LifeDeviation maxLifeDeviation="0.2"/>
 		<Size sX="10.0" sY="10.0"/>
 		<PositionDeviation positionDeviation="60.0"/>
