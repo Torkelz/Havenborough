@@ -189,8 +189,18 @@ void HUDScene::updatePlayerRacePosition(IEventData::Ptr p_Data)
 	std::shared_ptr<UpdatePlayerRaceEventData> data = std::static_pointer_cast<UpdatePlayerRaceEventData>(p_Data);
 
 	int racePos = data->getPosition();
-	std::string position("Position: ");
+	static const char* positions[] = {"st","nd","rd","th"};
+	std::string position;
 	position.append(std::to_string(racePos));
+	if(racePos >= 4)
+	{
+		position.append(positions[4]);
+	}
+	else
+	{
+		position.append(positions[racePos]);
+	}
+
 	m_Graphics->updateText(m_TextHandle["RacePos"], std::wstring(position.begin(), position.end()).c_str());
 	m_Graphics->updateText(m_TextHandle["RacePosBG"], std::wstring(position.begin(), position.end()).c_str());
 }
@@ -274,13 +284,13 @@ void HUDScene::preLoadModels()
 	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
 
-	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(80.f, 50.f), "Cash Currency", 20.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
+	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(80.f, 50.f), "Aniron", 20.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(Vector3(400, -320, 2), Vector3(1,1,1), 0.f, m_TextHandle["Time"]));
 
-	createTextElement("RacePos", m_Graphics->createText(L"Position: 0", Vector2(200, 65), "Aniron", 42, Vector4(0.0509803921568627f, 0.1882352941176471f, 0.6392156862745098f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePos", m_Graphics->createText(L"1st", Vector2(200, 65), "Aniron", 42, Vector4(0.0509803921568627f, 0.1882352941176471f, 0.6392156862745098f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePos", m_Graphics->create2D_Object(Vector3(400, 320, 2), Vector3(1,1,1), 0.f, m_TextHandle["RacePos"]));
 
-	createTextElement("RacePosBG", m_Graphics->createText(L"Position: 0", Vector2(204, 69), "Aniron", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePosBG", m_Graphics->createText(L"1st", Vector2(204, 69), "Aniron", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(398, 318, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
 
 	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(204, 69), "Aniron", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));

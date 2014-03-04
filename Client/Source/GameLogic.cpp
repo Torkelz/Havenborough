@@ -608,7 +608,7 @@ void GameLogic::handleNetwork()
 										object->QueryAttribute("Time", &time);
 										GoalList.push_back(std::make_pair(position, time));
 									}
-									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
+									//m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
 								}
 						}
 						else if(object->Attribute("Type", "Position"))
