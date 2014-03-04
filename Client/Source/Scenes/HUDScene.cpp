@@ -203,7 +203,6 @@ void HUDScene::preLoadModels()
 {
 	static const std::string preloadedTextures[] =
 	{
-		"TEXTURE_NOT_FOUND",
 		"MANA_BAR",
 		"MANA_BARCHANGE",
 	};
