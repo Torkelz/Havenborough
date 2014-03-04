@@ -95,6 +95,18 @@
 		<Velocity vbX="0.0" vbY="30.0" vbZ="0.0" vdX="3.0" vdY="10.0" vdZ="3.0"/>
 		<Color cbX="-1.0" cbY="-1.0" cbZ="-1.0" cbA="-1.0" cdX="0.0" cdY="0.0" cdZ="0.0" cdA="0.0"/>
 	</Effect>
+	<Effect effectName="checkpointSwirl">
+		<Texture resourceName="Water1.dds"/>
+		<MaxCount maxParticles="120"/>
+		<EmitPerSec particlesPerSec="15"/>
+		<SysLife sysMaxLife="-1.0"/>
+		<BaseLife maxLife="8.0"/>
+		<LifeDeviation maxLifeDeviation="0.2"/>
+		<Size sX="10.0" sY="10.0"/>
+		<PositionDeviation positionDeviation="60.0"/>
+		<Velocity vbX="0.0" vbY="30.0" vbZ="0.0" vdX="0.0" vdY="10.0" vdZ="0.0"/>
+		<Color cbX="0.0" cbY="1.0" cbZ="0.0" cbA="1.0" cdX="0.0" cdY="0.0" cdZ="0.0" cdA="0.0"/>
+	</Effect>
 </Particle>
 <!--
 //A basic description for creating a particle definition or finding what something are.

@@ -165,7 +165,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
 	printer.OpenElement("Particle");
-	printer.PushAttribute("Effect", "fire");
+	printer.PushAttribute("Effect", "checkpointSwirl");
 	printer.CloseElement();
 	printer.CloseElement();
 

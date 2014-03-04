@@ -1434,6 +1434,9 @@ public:
 	}
 
 	virtual void setBaseColor(Vector4 p_NewBaseColor) = 0;
+	//virtual void setRotation(Vector3 p_NewRotation) = 0;
+	//virtual void setOffsetPosition(Vector3 p_NewPosition) = 0;
+
 };
 
 class ParticleComponent : public ParticleInterface
@@ -1442,6 +1445,8 @@ private:
 	unsigned int m_ParticleId;
 	std::string m_EffectName;
 	Vector4 m_BaseColor;
+	Vector3 m_OffsetPosition;
+	Vector3 m_Rotation;
 
 public:
 	~ParticleComponent()
@@ -1458,6 +1463,8 @@ public:
 		}
 		m_BaseColor = Vector4(-1.f, -1.f, -1.f, -1.f);
 		queryColor(p_Data->FirstChildElement("BaseColor"), m_BaseColor);
+		queryVector(p_Data->FirstChildElement("OffsetPosition"), m_OffsetPosition);
+		queryRotation(p_Data->FirstChildElement("Rotation"), m_Rotation);
 
 		m_EffectName = effectName;
 	}
