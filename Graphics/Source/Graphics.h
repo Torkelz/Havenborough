@@ -57,6 +57,7 @@ private:
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
+	TextFactory m_TextFactory;
 
 	std::map<std::string, Shader*> m_ShaderList;
 	std::map<std::string, ModelDefinition> m_ModelList;
@@ -94,11 +95,6 @@ private:
 	
 	IGraphics::releaseModelTextureCallBack m_ReleaseModelTexture;
 	void *m_ReleaseModelTextureUserdata;
-
-	TextFactory m_TextFactory;
-
-	ID3D11ShaderResourceView *textSRV;
-	IDXGIKeyedMutex *dxgiKeyedMutex10, *dxgiKeyedMutex11;
 
 	bool m_ShadowMap;
 	int m_ShadowMapResolution;
