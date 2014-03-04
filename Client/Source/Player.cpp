@@ -19,9 +19,9 @@ Player::Player(void)
 	m_EyeHeight = 165.f;
 	m_Climb = false;
 	m_ClimbOffset = 0.f;
-	m_CurrentMana = 100.f;
-	m_PreviousMana = m_CurrentMana;
 	m_MaxMana = 100.f;
+	m_CurrentMana = m_MaxMana;
+	m_PreviousMana = m_CurrentMana;
 	m_ManaRegenerationSlow = 3.f;
 	m_ManaRegenerationFast = 10.f;
 	m_IsAtMaxSpeed = false;
