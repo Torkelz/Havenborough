@@ -228,10 +228,23 @@ public:
 	 * @param p_Position the new position, in cm
 	 */
 	virtual void setParticleEffectPosition(InstanceId p_ParticleEffectId, Vector3 p_Position) = 0;
-
+	
+	/**
+	 * Update the rotation of a particle instance, in radians
+	 * 
+	 * @param p_ParticleEffectId what instance to work with
+	 * @param p_Rotation the new rotation it will get
+	 */
 	virtual void setParticleEffectRotation(InstanceId p_ParticleEffectId, Vector3 p_Rotation) = 0;
-
+	
+	/**
+	 * Update the base color of a particle instance, [0,1]
+	 * 
+	 * @param p_ParticleEffectId what instance to work with
+	 * @param p_BaseColor the new base color of the instance
+	 */
 	virtual void setParticleEffectBaseColor(InstanceId p_ParticleEffectId, Vector4 p_BaseColor) = 0;
+	
 	/**
 	 * Called when updating the particles
 	 * 

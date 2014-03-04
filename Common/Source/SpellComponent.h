@@ -18,6 +18,9 @@ private:
 	Actor::Id m_CasterId;
 
 public:
+	/**
+	 * De-constructor for this component
+	 */
 	~SpellComponent() override
 	{
 		m_ResourceManager->releaseResource(m_SpellId);
@@ -27,6 +30,11 @@ public:
 		}
 	}
 
+	/**
+	 * Function called to initialize variables withing this component
+	 * 
+	 * @param p_Data XML-document containing variable information
+	 */
 	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		const char* spellName = p_Data->Attribute("SpellName");
@@ -45,6 +53,9 @@ public:
 		queryVector(p_Data->FirstChildElement("Direction"), m_StartDirection);
 	}
 
+	/**
+	 * Function called after initialize to apply variables with the new initialized variables
+	 */
 	void postInit() override
 	{
 		if (m_CasterId != -1)
@@ -68,6 +79,11 @@ public:
 		m_Physics->setBodyVelocity(m_Body, m_SpellInstance->getVelocity());
 	}
 
+	/**
+	 * Called to make an virtual XML-document to send over the network
+	 * 
+	 * @param p_Printer a XML-printer used to write an virtual XML-document
+	 */
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("Spell");
@@ -77,6 +93,11 @@ public:
 		p_Printer.CloseElement();
 	}
 
+	/**
+	 * Called when an update wave pulses through, updating the spell and its components
+	 * 
+	 * @param p_DeltaTime an time step between frames
+	 */
 	void onUpdate(float p_DeltaTime) override
 	{
 		if (m_Body == 0)

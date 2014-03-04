@@ -93,6 +93,11 @@ public:
 	 */
 	void spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit);
 
+	/**
+	 * Called to see the status of the m_IsColliding bool.
+	 * 
+	 * @return a bool status, true if a collision happen else false
+	 */
 	bool isColliding() const;
 
 private:
