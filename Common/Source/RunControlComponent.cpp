@@ -51,6 +51,7 @@ void RunControlComponent::move(float p_DeltaTime)
 	
 		if (getIsJumping())
 		{
+			m_GroundNormal = XMFLOAT3(0.f, 1.f, 0.f);
 			maxVelocity.y = getMaxSpeed() * 0.5f;
 		}
 		XMVECTOR vMaxVelocity = XMLoadFloat3(&maxVelocity);
