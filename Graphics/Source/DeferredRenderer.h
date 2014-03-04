@@ -4,7 +4,7 @@
 #include "Renderable.h"
 #include "SkyDome.h"
 #include "ConstantBuffers.h"
-#include "GPUTimer.h"
+//#include "GPUTimer.h"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -18,13 +18,12 @@ private:
 	float m_FarZ;
 	float m_ScreenWidth;
 	float m_ScreenHeight;
-
-	std::vector<Renderable>	m_Objects;
-
+	
 	ID3D11Device			*m_Device;
 	ID3D11DeviceContext		*m_DeviceContext;
 	ID3D11DepthStencilView	*m_DepthStencilView;
 
+	std::vector<Renderable>	m_Objects;
 	std::vector<Light>		*m_SpotLights;
 	std::vector<Light>		*m_PointLights;
 	std::vector<Light>		*m_DirectionalLights;
@@ -69,7 +68,7 @@ private:
 	D3D11_VIEWPORT				m_LightViewport;
 	unsigned int				m_MaxNumDirectionalShadows;
 
-	GPUTimer *m_Timer;
+	//GPUTimer *m_Timer;
 public:
 	/**
 	* Constructor. 
@@ -81,7 +80,6 @@ public:
 	* Destructor.
 	*/
 	~DeferredRenderer(void);
-
 
 	/*
 	 * Initialize all the needed variables for rendering.
@@ -108,16 +106,13 @@ public:
 	*/
 	void initializeShadowMap(UINT width, UINT height);
 
-
-
 	/*
 	 * Call to render the graphics using deferred rendering.
 	 *
 	 * All the objects that are supposed to be rendered must have been sent to the renderer
 	 * before calling this function.
 	 */
-	void renderDeferred();
-
+	void renderDeferred(void);
 
 	/*
 	 * Add models to the list of objects to be rendered with deferred rendering.
@@ -125,17 +120,18 @@ public:
 	 * @ p_Renderable, the model that needs to be rendered.
 	 */
 	void addRenderable(Renderable p_Renderable);
+
 	/*
 	 * Add models to the list of objects to be rendered with deferred rendering.
 	 * @ p_Texture, the texture for the skydome
 	 * @ p_Radius, the radius of the skydome.
 	 */
 	void createSkyDome(ID3D11ShaderResourceView* p_Texture, float p_Radius);
+
 	/*
 	 * Tells the deferred renderer to render the skyDome created.
 	 */
-	void renderSkyDome();
-
+	void renderSkyDome(void);
 
 	/*
 	 * Use to get specific render targets to put on the back buffer.

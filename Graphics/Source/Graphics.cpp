@@ -7,8 +7,8 @@
 #include <boost/filesystem.hpp>
 #include <algorithm>
 
-#define TIMER_START(x) { x->Start(); }
-#define TIMER_STOP(x) { x->Stop(); double time = 0; x->GetAverageTime(time); if(time > 0) GraphicsLogger::log(GraphicsLogger::Level::INFO, std::to_string(time)); }
+//#define TIMER_START(x) { x->Start(); }
+//#define TIMER_STOP(x) { x->Stop(); double time = 0; x->GetAverageTime(time); if(time > 0) GraphicsLogger::log(GraphicsLogger::Level::INFO, std::to_string(time)); }
 using namespace DirectX;
 using std::vector;
 using std::string;
@@ -247,7 +247,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	m_BVBuffer = WrapperFactory::getInstance()->createBuffer(buffDesc);
 	VRAMInfo::getInstance()->updateUsage(sizeof(XMFLOAT4) * m_BVBufferNumOfElements);
-	timer = new GPUTimer(m_Device, m_DeviceContext);
+
 	return true;
 }
 
@@ -774,9 +774,7 @@ void Graphics::drawFrame(void)
 
 
 	Begin(m_ClearColor);
-	//TIMER_START(timer);
 	m_DeferredRender->renderDeferred();
-	//TIMER_STOP(timer);
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 5)
