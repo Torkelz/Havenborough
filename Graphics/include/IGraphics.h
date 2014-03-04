@@ -196,7 +196,7 @@ public:
 	 * @param p_Filename the filename of the particle system
 	 * @return true if the particle system was successfully loaded, otherwise false
 	 */
-	virtual bool createParticleEffectDefinition(const char *p_FileId, const char *p_FilePath) = 0;
+	virtual bool createParticleEffectDefinition(const char * /*p_FileId*/, const char *p_FilePath) = 0;
 
 	/** 
 	 * Release a previously created particle system.

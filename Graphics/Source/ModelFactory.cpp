@@ -209,9 +209,6 @@ void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename
 		boost::filesystem::path spec = (material.m_SpecularMap == "NONE" || material.m_SpecularMap == "Default_SPEC.dds") ?
 			parentDir / "Default_SPEC.dds" : parentDir / material.m_SpecularMap;
 
-		if (material.m_DiffuseMap == "WallStoneBrick_COLOR.dds")
-			int dummy = 42;
-
 		m_LoadModelTexture(material.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
 		m_LoadModelTexture(material.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);
 		m_LoadModelTexture(material.m_SpecularMap.c_str(), spec.string().c_str(), m_LoadModelTextureUserdata);
