@@ -10,7 +10,7 @@ private:
 	float m_MaxSpeed;
 	float m_MaxSpeedDefault;
 	float m_MaxSpeedCurrent;
-	float m_MaxSpeedAccelerationFactor; // factor to increase maxspeed
+	float m_MaxSpeedAccelerationFactor; // factor to increase currentspeed to maxspeed
 	float m_AccConstant;
 
 	Vector3 m_RunningDirection;
