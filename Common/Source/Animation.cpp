@@ -624,11 +624,11 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 
 		if (joint.m_JointName == p_Group.m_Hand)
 		{
-			neckJoint = &joint;
+			headJoint = &joint;
 		}
 		else if (joint.m_JointName == p_Group.m_Elbow)
 		{
-			headJoint = &joint;
+			neckJoint = &joint;
 		}
 	}
 
