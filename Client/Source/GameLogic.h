@@ -57,7 +57,7 @@ private:
 	float m_PlayerTimeDifference; //The difference in time to the first player.
 
 	//DEBUG
-	Vector2 m_PlayerDirection;
+	Vector3 m_PlayerDirection;
 public:
 	GameLogic(void);
 	~GameLogic(void);
@@ -74,8 +74,8 @@ public:
 
 	void onFrame(float p_DeltaTime);
 
-	void setPlayerDirection(Vector2 p_Direction);
-	Vector2 getPlayerDirection() const;
+	void setPlayerDirection(Vector3 p_Direction);
+	Vector3 getPlayerDirection() const;
 	BodyHandle getPlayerBodyHandle() const;
 	Vector3 getPlayerEyePosition() const;
 	Vector3 getPlayerViewRotation() const;

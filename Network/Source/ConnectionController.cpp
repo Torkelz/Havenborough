@@ -33,6 +33,7 @@ void ConnectionController::startListening()
 
 unsigned int ConnectionController::getNumPackages()
 {
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	return m_ReceivedPackages.size();
 }
 

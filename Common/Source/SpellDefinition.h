@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include "Utilities/XMFloatUtil.h"
 
 struct SpellDefinition
 {
@@ -46,7 +47,7 @@ public:
 	 * How big the spell are when it's flying in the air.
 	 * in m
 	 */
-	float flyingSpellSize;
+	Vector3 flyingSpellSize;
 	
 	/**
 	 * How fast a spell will fly in the air.
@@ -86,7 +87,7 @@ public:
 		:	spellName("NO NAME FOUND"),
 			maxTimeToLive(-1.f),
 			explosionRadius(-1.f),
-			flyingSpellSize(-1.f),
+			flyingSpellSize(Vector3(0.f, 0.f, 0.f)),
 			flyForce(-1.f),
 			effectTime(-1.f),
 			force(-1.f),

@@ -778,7 +778,7 @@ void Graphics::drawFrame(void)
 	m_DeferredRender->renderDeferred();
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 5)
+	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 6)
 	{
 		m_ShaderList.at("DebugDeferredShader")->setShader();
 		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, 

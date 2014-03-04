@@ -14,8 +14,10 @@ public:
 
 	/**
 	 * Initialize all the variables
+	 * @param p_IsServer, used to determine wether the collisions should modify body position or not, 
+	 * true if the server is initializing the physics, false when the clients do.
 	 */
-	virtual void initialize() = 0;
+	virtual void initialize(bool p_IsServer) = 0;
 
 	/**
 	 * Create a boundingVolume sphere with a body.
@@ -201,6 +203,12 @@ public:
 	 * @param p_Gravity set the new gravity
 	 */
 	virtual void setGlobalGravity(float p_Gravity) = 0;
+	/**
+	 * Sets the amount of gravity the body should be affected by.
+	 *
+	 * @param p_Gravity the gravity constant to apply to this body from now on, in m/s^2.
+	 */
+	virtual void setBodyGravity(BodyHandle p_Body, float p_Gravity) = 0;
 	/**
      * Get if the target body is in the air (affected by gravity)
      *

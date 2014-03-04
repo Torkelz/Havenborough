@@ -102,8 +102,9 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 	float right = state.getValue("moveRight") - state.getValue("moveLeft");
+	float up = state.getValue("moveUp") - state.getValue("moveDown");
 
-	m_GameLogic->setPlayerDirection(Vector2(forward, right));
+	m_GameLogic->setPlayerDirection(Vector3(forward, up, right));
 
 	m_Graphics->updateParticles(p_DeltaTime);
 }

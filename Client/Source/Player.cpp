@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Components.h"
+#include "RunControlComponent.h"
 #include <Logger.h>
 
 using namespace DirectX;
@@ -11,27 +12,22 @@ Player::Player(void)
     m_JumpCountMax = 2;
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
-	m_JumpForce = 3500.f;
-	m_IsJumping = false;
-	m_MaxSpeed = 1000.f;
-	m_AccConstant = 600.f;
-	m_DirectionZ = 0.f;
-	m_DirectionX = 0.f;
+	m_JumpForce = 4000.f;
 	m_ForceMove = false;
 	m_CurrentForceMoveTime = 0.f;
-	m_GroundNormal = XMFLOAT3(0.f, 1.f, 0.f);
 	m_Height = 170.f;
 	m_EyeHeight = 165.f;
 	m_Climb = false;
 	m_ClimbOffset = 0.f;
-	m_CurrentMana = 100.f;
-	m_PreviousMana = m_CurrentMana;
 	m_MaxMana = 100.f;
-	m_ManaRegenerationSlow = 2.f;
-	m_ManaRegenerationFast = 6.f;
+	m_CurrentMana = m_MaxMana;
+	m_PreviousMana = m_CurrentMana;
+	m_ManaRegenerationSlow = 3.f;
+	m_ManaRegenerationFast = 10.f;
 	m_IsAtMaxSpeed = false;
 	m_IsPreviousManaSet = false;
 	m_AllowedToMove = true;
+	m_ClimbSpeedUp = 1.0f;
 }
 
 Player::~Player(void)
@@ -45,6 +41,7 @@ void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<
 	m_Network = p_Network;
 	m_Actor = p_Actor;
 	
+	setCurrentMana(0.f);
 
 	Actor::ptr strActor = m_Actor.lock();
 	if (strActor)
@@ -62,7 +59,8 @@ void Player::update(float p_DeltaTime)
 
 	Vector3 v3Vel = m_Physics->getBodyVelocity(getBody());
 	float v = XMVector4Length(Vector3ToXMVECTOR(&v3Vel, 0.f)).m128_f32[0];
-	if(v >= m_MaxSpeed - 50.f)
+	std::shared_ptr<MovementControlInterface> moveComp = m_Actor.lock()->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+	if(moveComp && v >= moveComp->getMaxSpeed() - 50.f)
 	{
 		m_IsAtMaxSpeed = true;
 		m_CurrentMana += m_ManaRegenerationFast * p_DeltaTime;
@@ -109,10 +107,14 @@ void Player::update(float p_DeltaTime)
 		if(m_AllowedToMove)
 		{
 			jump(p_DeltaTime);
-
-			if (!m_Physics->getBodyInAir(getBody()) || m_IsJumping)
+			
+			if (strActor)
 			{
-				move(p_DeltaTime);
+				std::shared_ptr<MovementControlInterface> comp = strActor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+				if (comp)
+				{
+					comp->move(p_DeltaTime);
+				}
 			}
 		}
 		else
@@ -169,7 +171,7 @@ void Player::update(float p_DeltaTime)
 		timeFrac = currentFrameTime / currentFrameSpan;
 		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
 
-		m_CurrentForceMoveTime += p_DeltaTime * 24.0f; // 24 FPS
+		m_CurrentForceMoveTime += p_DeltaTime * 24.0f * m_ClimbSpeedUp; // 24 FPS
 
 		DirectX::XMFLOAT3 temp;
 		DirectX::XMVECTOR tv = DirectX::XMVectorSet(0,currentYPos,currentZPos,0);
@@ -203,7 +205,25 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		fwd /= len;
 
 		m_ForceMove = true;
-		m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
+		
+		//if(p_ClimbId == "Climb3" || p_ClimbId == "Climb4")
+		//{
+			m_Physics->resetForceOnBody(getBody());
+			
+			Actor::ptr actor = m_Actor.lock();
+			if (actor)
+			{
+				std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+				std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
+
+				if (runComp)
+				{
+					runComp->setIsJumping(false);
+				}
+			}
+			m_JumpCount = 0;
+		//}
+		//m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
 		aa.lock()->playClimbAnimation(p_ClimbId);
@@ -211,6 +231,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 
 		m_ForceMoveY = pp.m_YPath;
 		m_ForceMoveZ = pp.m_ZPath;
+		m_ClimbSpeedUp = pp.m_Speed;
 		m_ForceMoveStartPos = getPosition();
 
 		fwd *= -1.f;
@@ -358,10 +379,10 @@ XMFLOAT3 Player::getEyePosition() const
 	Actor::ptr actor = m_Actor.lock();
 	if (actor)
 	{
-		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+		std::shared_ptr<LookInterface> comp = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
 		if (comp)
 		{
-			return comp->getJointPos("Head");
+			return comp->getLookPosition();
 		}
 	}
 
@@ -459,7 +480,19 @@ Vector3 Player::getVelocity() const
 
 Vector3 Player::getDirection() const
 {
-	return Vector3(m_DirectionX, 0.0f, m_DirectionZ);
+	Actor::ptr actor = m_Actor.lock();
+	if (!actor)
+	{
+		return Vector3(0.f, 0.f, 0.f);
+	}
+
+	std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+	if (!comp)
+	{
+		return Vector3(0.f, 0.f, 0.f);
+	}
+
+	return comp->getLocalDirection();
 }
 
 void Player::setJump(void)
@@ -470,10 +503,17 @@ void Player::setJump(void)
 		{
 			m_JumpCount++;
 		}
+		
+		Actor::ptr actor = m_Actor.lock();
+		if (!actor)
+			return;
 
-		if(!m_IsJumping && m_JumpCount < m_JumpCountMax)
+		std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+		std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
+
+		if(runComp && !runComp->getIsJumping() && m_JumpCount < m_JumpCountMax)
 		{
-			m_IsJumping = true;
+			runComp->setIsJumping(true);
 
 			Vector3 temp = m_Physics->getBodyVelocity(getBody());
 			temp.y = 0.f;
@@ -485,14 +525,21 @@ void Player::setJump(void)
 	}
 }
 
-void Player::setDirectionX(float p_DirectionX)
+void Player::setDirection(Vector3 p_Direction)
 {
-	m_DirectionX = p_DirectionX;
-}
+	Actor::ptr actor = m_Actor.lock();
+	if (!actor)
+	{
+		return;
+	}
 
-void Player::setDirectionZ(float p_DirectionZ)
-{
-	m_DirectionZ = p_DirectionZ;
+	std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+	if (!comp)
+	{
+		return;
+	}
+
+	return comp->setLocalDirection(p_Direction);
 }
 
 std::weak_ptr<Actor> Player::getActor() const
@@ -507,12 +554,38 @@ void Player::setActor(std::weak_ptr<Actor> p_Actor)
 
 DirectX::XMFLOAT3 Player::getGroundNormal() const
 {
-	return m_GroundNormal;
+	Actor::ptr actor = m_Actor.lock();
+	if (!actor)
+	{
+		return XMFLOAT3(0.f, 1.f, 0.f);
+	}
+	
+	std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+	std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
+	if (!runComp)
+	{
+		return XMFLOAT3(0.f, 1.f, 0.f);
+	}
+
+	return runComp->getGroundNormal();
 }
 
 void Player::setGroundNormal(DirectX::XMFLOAT3 p_Normal)
 {
-	m_GroundNormal = p_Normal;
+	Actor::ptr actor = m_Actor.lock();
+	if (!actor)
+	{
+		return;
+	}
+	
+	std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+	std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
+	if (!runComp)
+	{
+		return;
+	}
+
+	runComp->setGroundNormal(p_Normal);
 }
 
 void Player::setSpawnPosition(Vector3 p_Position)
@@ -537,58 +610,28 @@ const bool Player::getAllowedToMove() const
 
 void Player::jump(float dt)
 {
-	if(m_IsJumping)
+	Actor::ptr actor = m_Actor.lock();
+	if (!actor)
+		return;
+
+	std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+	std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
+
+	if (!runComp)
+		return;
+
+	if(runComp->getIsJumping())
 	{
 		m_JumpTime += dt;
 		if(m_JumpTime > m_JumpTimeMax)
 		{
  			m_Physics->applyForce(getBody(), Vector3(0.f, -m_JumpForce, 0.f));
-			m_IsJumping = false;
+			runComp->setIsJumping(false);
 			m_JumpTime = 0.f;
 		}
 	}
-	if(!m_IsJumping && !m_Physics->getBodyInAir(getBody()))
+	if(!runComp->getIsJumping() && !m_Physics->getBodyInAir(getBody()))
 	{
 		m_JumpCount = 0;
 	}
-}
-
-void Player::move(float p_DeltaTime)
-{
-	XMFLOAT3 velocity = m_Physics->getBodyVelocity(getBody());
-	XMVECTOR currentVelocity = XMLoadFloat3(&velocity);	// cm/s
-
-	XMFLOAT3 maxVelocity(m_DirectionX * m_MaxSpeed, 0.f, m_DirectionZ * m_MaxSpeed);	// cm/s
-	
-	if (m_IsJumping)
-	{
-		maxVelocity.y = m_MaxSpeed*0.5f;
-	}
-	XMVECTOR vMaxVelocity = XMLoadFloat3(&maxVelocity);
-	XMVECTOR up = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-	XMVECTOR groundNormal = XMLoadFloat3(&m_GroundNormal);
-	XMVECTOR rotAxis = XMVector3Cross(groundNormal, up);
-	if (XMVector3Dot(rotAxis, rotAxis).m128_f32[0] > 0.001f)
-	{
-		float angle = XMVector3AngleBetweenVectors(groundNormal, up).m128_f32[0];
-
-		if (angle < PI * 0.3f)
-		{
-			XMMATRIX rotMatrix = XMMatrixRotationAxis(rotAxis, -angle);
-			vMaxVelocity = XMVector3Transform(vMaxVelocity, rotMatrix);
-		}
-	}
-
-	XMVECTOR diffVel = vMaxVelocity - currentVelocity;	// cm/s
-	
-	XMVECTOR force = diffVel / 100.f * m_AccConstant;		// kg * m/s^2
-
-	XMVECTOR forceDiffImpulse = force * p_DeltaTime;	// kg * m/s
-
-	XMFLOAT3 fForceDiff;
-	XMStoreFloat3(&fForceDiff, forceDiffImpulse);
-
-	m_Physics->applyImpulse(getBody(), fForceDiff);
-
-	m_DirectionX = m_DirectionZ = 0.f;
 }

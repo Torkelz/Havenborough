@@ -1,7 +1,10 @@
 #include "ActorFactory.h"
 #include "CommonExceptions.h"
 #include "Components.h"
+#include "FlyingControlComponent.h"
 #include "HumanAnimationComponent.h"
+#include "LookComponent.h"
+#include "RunControlComponent.h"
 #include "SpellComponent.h"
 #include "XMLHelper.h"
 
@@ -28,6 +31,8 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["Spell"] = std::bind(&ActorFactory::createSpellComponent, this);
 	m_ComponentCreators["Look"] = std::bind(&ActorFactory::createLookComponent, this);
 	m_ComponentCreators["HumanAnimation"] = std::bind(&ActorFactory::createHumanAnimationComponent, this);
+	m_ComponentCreators["FlyingControl"] = std::bind(&ActorFactory::createFlyingControlComponent, this);
+	m_ComponentCreators["RunControl"] = std::bind(&ActorFactory::createRunControlComponent, this);
 }
 
 void ActorFactory::setPhysics(IPhysics* p_Physics)
@@ -201,6 +206,10 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("HumanAnimation");
 	printer.PushAttribute("Animation", "Dzala");
 	printer.CloseElement();
+	printer.OpenElement("RunControl");
+	printer.PushAttribute("MaxSpeed", 1000.f);
+	printer.PushAttribute("Acceleration", 600.f);
+	printer.CloseElement();
 	printer.CloseElement();
 
 	return printer.CStr();
@@ -346,6 +355,33 @@ Actor::ptr ActorFactory::createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize
 
 	tinyxml2::XMLDocument doc;
 	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createFlyingCamera(Vector3 p_Position)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", 50.f);
+	printer.PushAttribute("Mass", 70.f);
+	printer.PushAttribute("CollisionResponse", true);
+	printer.CloseElement();
+	printer.OpenElement("FlyingControl");
+	printer.PushAttribute("MaxSpeed", 1000.f);
+	printer.PushAttribute("Acceleration", 600.f);
+	printer.CloseElement();
+	printer.OpenElement("Look");
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr(), printer.CStrSize());
 
 	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
 
@@ -536,6 +572,22 @@ ActorComponent::ptr ActorFactory::createHumanAnimationComponent()
 	HumanAnimationComponent* comp = new HumanAnimationComponent;
 	comp->setResourceManager(m_ResourceManager);
 	comp->setAnimationLoader(m_AnimationLoader);
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createFlyingControlComponent()
+{
+	FlyingControlComponent* comp = new FlyingControlComponent;
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createRunControlComponent()
+{
+	RunControlComponent* comp = new RunControlComponent;
 	comp->setPhysics(m_Physics);
 
 	return ActorComponent::ptr(comp);

@@ -125,6 +125,7 @@ public:
 			if (comp->getComponentId() == m_Id)
 			{
 				std::shared_ptr<ComponentType> sub(std::static_pointer_cast<ComponentType>(comp));
+				assert(sub == std::dynamic_pointer_cast<ComponentType>(comp));
 				return std::weak_ptr<ComponentType>(sub);
 			}
 		}
