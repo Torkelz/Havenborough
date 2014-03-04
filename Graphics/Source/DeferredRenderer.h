@@ -4,6 +4,7 @@
 #include "Renderable.h"
 #include "SkyDome.h"
 #include "ConstantBuffers.h"
+//#include "GPUTimer.h"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -17,22 +18,20 @@ private:
 	float m_FarZ;
 	float m_ScreenWidth;
 	float m_ScreenHeight;
-
-	std::vector<Renderable>	m_Objects;
-
+	
 	ID3D11Device			*m_Device;
 	ID3D11DeviceContext		*m_DeviceContext;
 	ID3D11DepthStencilView	*m_DepthStencilView;
 
+	std::vector<Renderable>	m_Objects;
 	std::vector<Light>		*m_SpotLights;
 	std::vector<Light>		*m_PointLights;
 	std::vector<Light>		*m_DirectionalLights;
 	Light					*m_ShadowMappedLight;
-	unsigned int			m_MaxLightsPerLightInstance;
 
-	DirectX::XMFLOAT3		m_CameraPosition;
-	DirectX::XMFLOAT4X4		*m_ViewMatrix;
-	DirectX::XMFLOAT4X4		*m_ProjectionMatrix;
+	DirectX::XMFLOAT3	m_CameraPosition;
+	DirectX::XMFLOAT4X4	*m_ViewMatrix;
+	DirectX::XMFLOAT4X4	*m_ProjectionMatrix;
 
 	static const unsigned int	m_numRenderTargets = 5;
 
@@ -42,33 +41,34 @@ private:
 	std::map<std::string, Shader*> m_Shader;
 	std::map<std::string, Buffer*> m_Buffer;
 
-	ID3D11BlendState	*m_BlendState;
-	ID3D11BlendState	*m_BlendState2;
+	ID3D11BlendState *m_BlendState;
+	ID3D11BlendState *m_BlendState2;
 
 	ID3D11RasterizerState	*m_RasterState;
 	ID3D11DepthStencilState	*m_DepthState;
 
-	bool	m_RenderSkyDome;
+	bool m_RenderSkyDome;
 	SkyDome	*m_SkyDome;
 
-	bool	m_SSAO;
-	bool	m_ShadowMap;
-	float m_SSAO_Resolution_Scale;
-	float		m_ShadowBigSize, m_ShadowSmallSize;
-	int		m_ShadowMapResolution;
-	float	m_ShadowMapBorder;
+	bool m_SSAO;
+	bool m_ShadowMap;
+	float m_SSAO_ResolutionScale;
+	float m_ShadowBigSize;
+	float m_ShadowSmallSize;
+	int m_ShadowMapResolution;
+	float m_ShadowMapBorder;
 
-	ID3D11DepthStencilView*		m_DepthMapDSV;
-	UINT						m_Width;
-	UINT						m_Height;
+	ID3D11DepthStencilView*	m_DepthMapDSV;
+	UINT m_Width;
+	UINT m_Height;
 
-	float						m_ViewHW;
-	DirectX::XMFLOAT4X4			m_LightView;
-	DirectX::XMFLOAT4X4			m_LightProjection;
-	D3D11_VIEWPORT				m_LightViewport;
-	unsigned int				m_MaxNumDirectionalShadows;
+	float				m_ViewHW;
+	DirectX::XMFLOAT4X4	m_LightView;
+	DirectX::XMFLOAT4X4	m_LightProjection;
+	D3D11_VIEWPORT		m_LightViewport;
+	unsigned int		m_MaxNumDirectionalShadows;
 
-
+	//GPUTimer *m_Timer;
 public:
 	/**
 	* Constructor. 
@@ -80,7 +80,6 @@ public:
 	* Destructor.
 	*/
 	~DeferredRenderer(void);
-
 
 	/*
 	 * Initialize all the needed variables for rendering.
@@ -99,7 +98,8 @@ public:
 		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix,int p_ShadowMapResolution, std::vector<Light> *p_SpotLights,
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
-		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
+		float p_FOV, float p_FarZ);
+
 
 	/*
 	* Creates the shadow map Texture2D desc, depthMap, depthStencilViewDesc, ShaderResourceViewDesc.
@@ -107,16 +107,13 @@ public:
 	*/
 	void initializeShadowMap(UINT width, UINT height);
 
-
-
 	/*
 	 * Call to render the graphics using deferred rendering.
 	 *
 	 * All the objects that are supposed to be rendered must have been sent to the renderer
 	 * before calling this function.
 	 */
-	void renderDeferred();
-
+	void renderDeferred(void);
 
 	/*
 	 * Add models to the list of objects to be rendered with deferred rendering.
@@ -124,17 +121,18 @@ public:
 	 * @ p_Renderable, the model that needs to be rendered.
 	 */
 	void addRenderable(Renderable p_Renderable);
+
 	/*
 	 * Add models to the list of objects to be rendered with deferred rendering.
 	 * @ p_Texture, the texture for the skydome
 	 * @ p_Radius, the radius of the skydome.
 	 */
 	void createSkyDome(ID3D11ShaderResourceView* p_Texture, float p_Radius);
+
 	/*
 	 * Tells the deferred renderer to render the skyDome created.
 	 */
-	void renderSkyDome();
-
+	void renderSkyDome(void);
 
 	/*
 	 * Use to get specific render targets to put on the back buffer.
@@ -150,7 +148,8 @@ public:
 	void enableShadowMap(bool p_State);
 
 private:
-	void renderGeometry(ID3D11DepthStencilView*, unsigned int, ID3D11RenderTargetView* rtv[]);
+	void renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[],
+		const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 	void renderSSAO(void);
 	void blurSSAO(void);
 	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*, bool p_HorizontalBlur);
@@ -161,7 +160,7 @@ private:
 	void clearRenderTargets(unsigned int nrRT);
 
 
-	void renderLighting();
+	void renderLighting(const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 	void renderSkyDomeImpl();
 
 
@@ -192,5 +191,6 @@ private:
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 	void updateLightProjection(float p_viewHW);
-	void renderShadowMap(Light p_Directional);
+	void renderShadowMap(Light p_Directional, const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
+	void registerTweakSettings();
 };
