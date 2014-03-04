@@ -57,7 +57,7 @@ int main(int /*argc*/, char* /*argv*/[])
 		return EXIT_FAILURE;
 #endif
 	}
-
+	_CrtDumpMemoryLeaks();
 	logFile.close();
 	return EXIT_SUCCESS;
 }

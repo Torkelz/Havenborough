@@ -1,25 +1,37 @@
 #include "RunControlComponent.h"
+#include "TweakSettings.h"
 
 RunControlComponent::RunControlComponent()
 	: m_Physics(nullptr),
 	m_PhysicsComp(),
 	m_IsJumping(false),
 	m_MaxSpeed(0.f),
+	m_MaxSpeedDefault(0.f),
+	m_MaxSpeedCurrent(0.f),
+	m_MaxSpeedAccelerationFactor(100.f),
 	m_AccConstant(0.f),
 	m_GroundNormal(0.f, 1.f, 0.f)
 {
+	TweakSettings::getInstance()->setListener(std::string("maxspeed"), std::function<void(float)>(std::bind(&RunControlComponent::setMaxSpeed, this, std::placeholders::_1)));
+	TweakSettings::getInstance()->setListener(std::string("acc"), std::function<void(float)>(std::bind(&RunControlComponent::setAccelerationConstant, this, std::placeholders::_1)));
+	TweakSettings::getInstance()->setListener(std::string("maxSpeedFactor"), std::function<void(float)>(std::bind(&RunControlComponent::setMaxSpeedAccelerationFactor, this, std::placeholders::_1)));
+	TweakSettings::getInstance()->setListener(std::string("maxSpeedDefault"), std::function<void(float)>(std::bind(&RunControlComponent::setMaxSpeedDefault, this, std::placeholders::_1)));
 }
 
 void RunControlComponent::initialize(const tinyxml2::XMLElement* p_Data)
 {
 	p_Data->QueryAttribute("MaxSpeed", &m_MaxSpeed);
+	p_Data->QueryAttribute("MaxSpeedDefault", &m_MaxSpeedDefault);
 	p_Data->QueryAttribute("Acceleration", &m_AccConstant);
+
+	m_MaxSpeedCurrent = m_MaxSpeedDefault;
 }
 
 void RunControlComponent::serialize(tinyxml2::XMLPrinter& p_Printer) const
 {
 	p_Printer.OpenElement("RunControl");
 	p_Printer.PushAttribute("MaxSpeed", m_MaxSpeed);
+	p_Printer.PushAttribute("MaxSpeedDefault", m_MaxSpeedDefault);
 	p_Printer.PushAttribute("Acceleration", m_AccConstant);
 	p_Printer.CloseElement();
 }
@@ -46,12 +58,13 @@ void RunControlComponent::move(float p_DeltaTime)
 		XMFLOAT3 velocity = m_Physics->getBodyVelocity(body);
 		XMVECTOR currentVelocity = XMLoadFloat3(&velocity);	// cm/s
 
-		XMFLOAT3 maxVelocity(m_RunningDirection.x * getMaxSpeed(),
-			0.f, m_RunningDirection.z * getMaxSpeed());	// cm/s
+		XMFLOAT3 maxVelocity(m_RunningDirection.x * getMaxSpeedCurrent(),
+			0.f, m_RunningDirection.z * getMaxSpeedCurrent());	// cm/s
 	
 		if (getIsJumping())
 		{
-			maxVelocity.y = getMaxSpeed() * 0.5f;
+			m_GroundNormal = XMFLOAT3(0.f, 1.f, 0.f);
+			//maxVelocity.y = getMaxSpeedDefault() * 0.5f;
 		}
 		XMVECTOR vMaxVelocity = XMLoadFloat3(&maxVelocity);
 		XMVECTOR up = XMVectorSet(0.f, 1.f, 0.f, 0.f);
@@ -66,6 +79,18 @@ void RunControlComponent::move(float p_DeltaTime)
 				XMMATRIX rotMatrix = XMMatrixRotationAxis(rotAxis, -angle);
 				vMaxVelocity = XMVector3Transform(vMaxVelocity, rotMatrix);
 			}
+		}
+
+		float speed = XMVector4Length(currentVelocity).m128_f32[0];
+		if(speed >= m_MaxSpeedDefault - 100)
+		{
+			m_MaxSpeedCurrent += m_MaxSpeedAccelerationFactor * p_DeltaTime;
+			if(m_MaxSpeedCurrent >= m_MaxSpeed)
+				m_MaxSpeedCurrent = m_MaxSpeed;
+		}
+		else
+		{
+			m_MaxSpeedCurrent = m_MaxSpeedDefault;
 		}
 
 		XMVECTOR diffVel = vMaxVelocity - currentVelocity;	// cm/s
@@ -101,6 +126,31 @@ float RunControlComponent::getMaxSpeed() const
 void RunControlComponent::setMaxSpeed(float p_Speed)
 {
 	m_MaxSpeed = p_Speed;
+}
+
+float RunControlComponent::getMaxSpeedDefault() const
+{
+	return m_MaxSpeedDefault;
+}
+
+void RunControlComponent::setMaxSpeedDefault(float p_Speed)
+{
+	m_MaxSpeedDefault = p_Speed;
+}
+
+float RunControlComponent::getMaxSpeedCurrent() const
+{
+	return m_MaxSpeedCurrent;
+}
+
+void RunControlComponent::setAccelerationConstant(float p_Acceleration)
+{
+	m_AccConstant = p_Acceleration;
+}
+
+void RunControlComponent::setMaxSpeedAccelerationFactor(float p_Factor)
+{
+	m_MaxSpeedAccelerationFactor = p_Factor;
 }
 
 bool RunControlComponent::getIsJumping() const

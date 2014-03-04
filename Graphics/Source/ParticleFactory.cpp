@@ -177,7 +177,7 @@ ID3D11ShaderResourceView *ParticleFactory::loadTexture(const char *p_Filepath, c
 	boost::filesystem::path particlePath(p_Filepath);
 	boost::filesystem::path parentDir(particlePath.parent_path().parent_path() / "textures");
 		
-	boost::filesystem::path diff = (p_Identifier == "NONE" || p_Identifier == "Default_COLOR.dds") ?
+	boost::filesystem::path diff = (std::string(p_Identifier) == "NONE" || std::string(p_Identifier) == "Default_COLOR.dds") ?
 		"assets/textures/Default_COLOR.dds" : parentDir / p_Identifier;
 
 	m_LoadParticleTexture(p_Identifier, diff.string().c_str(), m_LoadParticleTextureUserdata);

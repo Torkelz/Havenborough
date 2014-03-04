@@ -84,16 +84,46 @@ public:
 	 */
 	DirectX::XMFLOAT4X4 getWorldMatrix() const;
 
+	/**
+	 * Called to get the current rotation of the system
+	 * 
+	 * @return the current systems rotation, (yaw, pitch, roll)
+	 */
 	DirectX::XMFLOAT3 getSysRotation() const;
 
+	/**
+	 * Called to set an new rotation for the system, based from the default rotation (no rotation)
+	 * 
+	 * @param p_NewSysRotation a new rotation for the system, (yaw, pitch, roll)
+	 */
 	void setSysRotation(DirectX::XMFLOAT3 p_NewSysRotation);
 
+	/**
+	 * Called to get what the systems base color are
+	 * 
+	 * @return the base color for this system, [0,1]
+	 */
 	DirectX::XMFLOAT4 getSysBaseColor() const;
 
+	/**
+	 * Called to set a new base color for the system
+	 * 
+	 * @param p_NewSysBaseColor a new base color for the system, [0,1]
+	 */
 	void setSysBaseColor(DirectX::XMFLOAT4 p_NewSysBaseColor);
 
+	/**
+	 * Called to see if it's time for the system to tell if it should be removed
+	 * 
+	 * @return true if it's time to remove it else false
+	 */
 	bool getSeppuku() const;
 
+	/**
+	 * Called to change the bool if it should be removed or not
+	 * 
+	 * @param p_DoSeppuku the new value of the bool, true if it's time to remove the system
+	 */
 	void setSeppuku(bool p_DoSeppuku);
 
 private:
