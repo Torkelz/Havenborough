@@ -21,6 +21,7 @@
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
+    <ClCompile Include="..\Graphics\Source\FontCollectionLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp" />

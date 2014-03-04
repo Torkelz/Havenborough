@@ -11,6 +11,8 @@ private:
 	bool m_ChangeScene;
 	bool m_ChangeList;
 	float m_PlayerTime;
+	unsigned int m_NumberOfCheckpoints;
+	std::string m_TakenCheckpoints;
 
 	IGraphics *m_Graphics;
 	EventManager *m_EventManager;
@@ -59,6 +61,8 @@ private:
 	void updateCheckpointPosition(IEventData::Ptr p_Data);
 	void updatePlayerTime(IEventData::Ptr p_Data);
 	void updatePlayerRacePosition(IEventData::Ptr p_Data);
+	void updateNrOfCheckpoints(IEventData::Ptr p_Data);
+	void updateTakenCheckpoints(IEventData::Ptr p_Data);
 
 	void preLoadModels();
 	void releasePreLoadedModels();

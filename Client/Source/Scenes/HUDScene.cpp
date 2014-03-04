@@ -36,6 +36,8 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateCheckpointPosition), UpdateCheckpointPositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerTime), UpdatePlayerTimeEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerRacePosition), UpdatePlayerRaceEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateNrOfCheckpoints), GetNrOfCheckpoints::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateTakenCheckpoints), UpdateTakenCheckpoints::sk_EventType);
 
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
@@ -84,6 +86,7 @@ void HUDScene::render()
 	m_Graphics->render2D_Object(m_GUI["Time"]);
 	m_Graphics->render2D_Object(m_GUI["RacePos"]);
 	m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
+	m_Graphics->render2D_Object(m_GUI["Checkpoints"]);
 
 	if(m_RenderCountdown)
 	{
@@ -199,6 +202,26 @@ void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
 	m_CheckpointPosition = data->getPosition();
 }
 
+void HUDScene::updateNrOfCheckpoints(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<GetNrOfCheckpoints> data = std::static_pointer_cast<GetNrOfCheckpoints>(p_Data);
+	m_TakenCheckpoints = "0 / ";
+	m_NumberOfCheckpoints = data->getNumberOfCheckpoints();
+	m_TakenCheckpoints.append(std::to_string(m_NumberOfCheckpoints));
+	m_Graphics->updateText(m_TextHandle["Checkpoints"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
+}
+
+void HUDScene::updateTakenCheckpoints(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<UpdateTakenCheckpoints> data = std::static_pointer_cast<UpdateTakenCheckpoints>(p_Data);
+	unsigned int number = data->getNumberOfCheckpointsTaken();
+	m_TakenCheckpoints.clear();
+	m_TakenCheckpoints = std::to_string(number);
+	m_TakenCheckpoints.append(" / ");
+	m_TakenCheckpoints.append(std::to_string(m_NumberOfCheckpoints));
+	m_Graphics->updateText(m_TextHandle["Checkpoints"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
+}
+
 void HUDScene::preLoadModels()
 {
 	static const std::string preloadedTextures[] =
@@ -251,14 +274,17 @@ void HUDScene::preLoadModels()
 	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
 
-	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(80.f, 50.f), "Verdana", 20.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
+	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(80.f, 50.f), "Cash Currency", 20.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(Vector3(400, -320, 2), Vector3(1,1,1), 0.f, m_TextHandle["Time"]));
 
-	createTextElement("RacePos", m_Graphics->createText(L"Position: 0", Vector2(200, 65), "Segoe UI", 42, Vector4(0.0509803921568627f, 0.1882352941176471f, 0.6392156862745098f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePos", m_Graphics->createText(L"Position: 0", Vector2(200, 65), "Aniron", 42, Vector4(0.0509803921568627f, 0.1882352941176471f, 0.6392156862745098f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePos", m_Graphics->create2D_Object(Vector3(400, 320, 2), Vector3(1,1,1), 0.f, m_TextHandle["RacePos"]));
 
-	createTextElement("RacePosBG", m_Graphics->createText(L"Position: 0", Vector2(204, 69), "Segoe UI", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePosBG", m_Graphics->createText(L"Position: 0", Vector2(204, 69), "Aniron", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(398, 318, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
+
+	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(204, 69), "Aniron", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createGUIElement("Checkpoints", m_Graphics->create2D_Object(Vector3(398, 218, 3), Vector3(1,1,1), 0.f, m_TextHandle["Checkpoints"]));
 
 }
 

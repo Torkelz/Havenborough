@@ -1,4 +1,5 @@
 #include "TextFactory.h"
+#include "FontCollectionLoader.h"
 #include "GraphicsExceptions.h"
 #include "Utilities/MemoryUtil.h"
 #include <vector>
@@ -10,6 +11,7 @@ TextFactory::TextFactory(void)
 	m_Device = nullptr;
 	m_Dpi = Vector2(0.0f, 0.0f);
 	m_NextTextId = 1;
+	m_FileFontCollection = nullptr;
 }
 
 
@@ -22,7 +24,7 @@ void TextFactory::initialize(ID3D11Device *p_Device)
 	if(!p_Device)
 		throw TextFactoryException("Failed to initialize TextFactory, nullpointer not allowed. ", __LINE__, __FILE__);
 	m_Device = p_Device;
-
+	
 	HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_D2DFactory);
 	if(FAILED(hr))
 		throw TextFactoryException("Failed to create D2DFactory. ", __LINE__, __FILE__);
@@ -31,8 +33,16 @@ void TextFactory::initialize(ID3D11Device *p_Device)
 
 	hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
 		reinterpret_cast<IUnknown**>(&m_WriteFactory));
+
+
 	if(FAILED(hr))
 		throw TextFactoryException("Failed to create WriteFactory. ", __LINE__, __FILE__);
+
+	char fullpath[1024];
+	_fullpath(fullpath, "assets/fonts", 1024);
+
+	if (FAILED(m_FontContext.CreateFontCollection(m_WriteFactory, fullpath, &m_FileFontCollection)))
+		throw TextFactoryException("Failed to create file font collection.", __LINE__, __FILE__);
 
 	m_DefaultProperties = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
 		D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), m_Dpi.x, m_Dpi.y);
@@ -46,6 +56,9 @@ void TextFactory::update(void)
 
 void TextFactory::shutdown(void)
 {
+	SAFE_RELEASE(m_FileFontCollection);
+	m_FontContext.shutdown();
+
 	m_Device = nullptr;
 	SAFE_RELEASE(m_D2DFactory);
 	SAFE_RELEASE(m_WriteFactory);
@@ -65,8 +78,14 @@ TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_Te
 	std::vector<wchar_t> wc(strlen(p_Font)+1);
 	mbstowcs (wc.data(), p_Font, wc.size());
 
-	HRESULT hr = m_WriteFactory->CreateTextFormat(wc.data(), NULL, DWRITE_FONT_WEIGHT_REGULAR,
-		DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, p_FontSize, L"en-us", &textFormat);
+	HRESULT hr = m_WriteFactory->CreateTextFormat(wc.data(), m_FileFontCollection, DWRITE_FONT_WEIGHT_REGULAR,
+			DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, p_FontSize, L"en-us", &textFormat);
+
+	if (FAILED(hr))
+	{
+		hr = m_WriteFactory->CreateTextFormat(wc.data(), NULL, DWRITE_FONT_WEIGHT_REGULAR,
+			DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, p_FontSize, L"en-us", &textFormat);
+	}
 
 	if(SUCCEEDED(hr))
 	{
