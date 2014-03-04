@@ -69,8 +69,6 @@ int main(int /*argc*/, char* /*argv*/[])
 		logFile.close();
 	}
 
-	new char;
-
 	DUMP_LEAKS;
 	return EXIT_SUCCESS;
 }
