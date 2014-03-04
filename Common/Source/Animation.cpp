@@ -625,6 +625,7 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 		if (joint.m_JointName == p_Group.m_Hand)
 		{
 			headJoint = &joint;
+			break;
 		}
 	}
 
@@ -661,15 +662,19 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 	headToTarget = XMVector3Normalize(headToTarget);
 	// Get the standard look at vector
 	XMVECTOR headForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	//world = XMMatrixTranspose(world);
 	headForward = XMVector3Transform(headForward, world);
 	headForward = XMVector3Normalize(headForward);
 	// Get rotation axis and angle
 	XMVECTOR rotationAxis;
 	rotationAxis = XMVector3Cross(headForward, headToTarget);
 	rotationAxis = XMVector3Normalize(rotationAxis);
+	// Basicly the rotation axis has to compensate for Mayas ultimate twisting and none respect for all mathematics.
+	rotationAxis = XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
 	wantedJointAngle = acosf(XMVector3Dot(headForward, headToTarget).m128_f32[0]);
 	// Limit angle
 	wantedJointAngle = std::min( wantedJointAngle, p_MaxAngle );
+	// Limit angle does also not work since the look vector is in the middle of the cone you want to allow the head to move inside.
 	// Apply the transformation to the bone
 	XMMATRIX rotation;
 	rotation = XMMatrixRotationAxis(rotationAxis, wantedJointAngle);

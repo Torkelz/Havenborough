@@ -151,7 +151,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!animation)
 		return;
 	
-	animation->applyLookAtIK("Head", XMFLOAT3(0.f, 10000.0f,0.f), 1.0f);
+	animation->applyLookAtIK("Head", XMFLOAT3(4939.750618f, 0.0f, -3393.226911f), 1.0f);
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
