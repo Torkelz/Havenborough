@@ -18,7 +18,6 @@ using std::make_pair;
 typedef vector<pair<IGraphics::Object2D_Id, Renderable2D>>::iterator Renderable2DIterator;
 typedef vector<pair<IGraphics::InstanceId, ModelInstance>>::iterator ModelInstanceIterator;
 
-const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
@@ -204,7 +203,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, m_ShadowMapResolution, &m_SpotLights, &m_PointLights, &m_DirectionalLights, &m_ShadowMappedLight, 
-		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
+		m_FOV, m_FarZ);
 	
 	//Forward renderer
 	m_ForwardRenderer = new ForwardRendering();
@@ -486,7 +485,7 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-bool Graphics::createParticleEffectDefinition(const char *p_FileId, const char *p_FilePath)
+bool Graphics::createParticleEffectDefinition(const char * /*p_FileId*/, const char *p_FilePath)
 {
 	std::vector<ParticleEffectDefinition::ptr> tempList = m_ParticleFactory->createParticleEffectDefinition(p_FilePath);
 	
@@ -615,7 +614,7 @@ IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_S
 IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 	const char *p_ModelDefinition)
 {
-	ModelDefinition *defintion;
+	ModelDefinition *defintion = nullptr;
 	for(auto &model : m_ModelList)
 	{
 		if(model.first == string(p_ModelDefinition))
@@ -639,8 +638,9 @@ IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_Texture
 	float p_FontSize, Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation)
 {
 	Text_Id id = m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor);
-	m_TextRenderer->addTextObject(id, TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
-		m_TextFactory.getSRV(id)));
+	TextRenderer::TextInstance temp = TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id));
+	m_TextRenderer->addTextObject(id, temp);
 	return id;
 }
 
@@ -650,8 +650,9 @@ IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_Texture
 {
 	Text_Id id = m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor,
 		p_TextAlignment, p_ParagraphAlignment, p_WordWrapping);
-	m_TextRenderer->addTextObject(id, TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
-		m_TextFactory.getSRV(id)));
+	TextRenderer::TextInstance temp = TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id));
+	m_TextRenderer->addTextObject(id, temp);
 	return id;
 }
 

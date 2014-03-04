@@ -54,7 +54,6 @@ private:
 	DirectX::XMFLOAT4X4 m_ProjectionMatrix;
 	DirectX::XMFLOAT3 m_Eye;
 
-	static const unsigned int m_MaxLightsPerLightInstance;
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
@@ -127,7 +126,7 @@ public:
 	bool releaseTexture(const char *p_TextureId) override;	
 
 	//Particles
-	bool createParticleEffectDefinition(const char *p_FileId, const char *p_filePath) override;
+	bool createParticleEffectDefinition(const char * /*p_FileId*/, const char *p_filePath) override;
 	bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) override;
 
 	InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) override;

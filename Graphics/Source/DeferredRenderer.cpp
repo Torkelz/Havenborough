@@ -120,7 +120,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix, int p_ShadowMapResolution,
 	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
-	unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ)
+	float p_FOV, float p_FarZ)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -134,7 +134,10 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_PointLights = p_PointLights;
 	m_DirectionalLights = p_DirectionalLights;
 	m_RenderSkyDome = false;
-	m_MaxLightsPerLightInstance = p_MaxLightsPerLightInstance;
+	m_FOV = p_FOV;
+	m_FarZ = p_FarZ;
+	m_ScreenWidth = (float)p_ScreenWidth;
+	m_ScreenHeight = (float)p_ScreenHeight;
 
 	//Create render targets with the size of screen width and screen height
 	D3D11_TEXTURE2D_DESC desc;
@@ -147,11 +150,6 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	desc.SampleDesc.Count	= 1;
 	desc.Usage				= D3D11_USAGE_DEFAULT;
 	desc.BindFlags			= D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-
-	m_FOV = p_FOV;
-	m_FarZ = p_FarZ;
-	m_ScreenWidth = (float)p_ScreenWidth;
-	m_ScreenHeight = (float)p_ScreenHeight;
 
 	if(!m_Device || !m_DeviceContext)
 		throw DeferredRenderException("Failed to initialize deferred renderer, nullpointers not allowed",
@@ -203,49 +201,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	createLightStates();
 	createBuffers();
 
-	TweakSettings* settings = TweakSettings::getInstance();
-
-	settings->setSetting("ssao.radius", 5.f);
-	settings->setListener("ssao.radius", std::function<void(float)>(
-		[&] (float)
-		{
-			updateSSAO_VarConstantBuffer();
-		}
-	));
-
-	settings->setSetting("ssao.epsilon", 4.f);
-	settings->setListener("ssao.epsilon", std::function<void(float)>(
-		[&] (float)
-		{
-			updateSSAO_VarConstantBuffer();
-		}
-	));
-
-	settings->setSetting("ssao.fadeEnd", 10.f);
-	settings->setListener("ssao.fadeEnd", std::function<void(float)>(
-		[&] (float)
-		{
-			updateSSAO_VarConstantBuffer();
-		}
-	));
-
-	settings->setSetting("ssao.fadeStart", 2.f);
-	settings->setListener("ssao.fadeStart", std::function<void(float)>(
-		[&] (float)
-		{
-			updateSSAO_VarConstantBuffer();
-		}
-	));
-	settings->setListener("shadows.maxDirectional", std::function<void(int)>(
-		[&] (int p_Value)
-		{
-			if (m_MaxNumDirectionalShadows >= 0)
-			{
-				m_MaxNumDirectionalShadows = p_Value;
-			}
-		}
-	));
-	settings->setSetting("shadows.maxDirectional", 1);
+	registerTweakSettings();
 }
 
 void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
@@ -506,12 +462,10 @@ void DeferredRenderer::renderLighting(const std::vector<std::vector<Renderable>>
 
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
-	//TIMER_START(m_Timer);
 	if(m_ShadowMap)
 	{
 		renderShadowMap(*m_ShadowMappedLight, p_InstancedModels, p_AnimatedOrSingle);
 	}
-	//TIMER_STOP(m_Timer);
 	//Set constant data
 	m_Buffer["DefaultConstant"]->setBuffer(0);
 
@@ -526,10 +480,9 @@ void DeferredRenderer::renderLighting(const std::vector<std::vector<Renderable>>
 	m_DeviceContext->OMSetDepthStencilState(m_DepthState,0);
 	m_DeviceContext->OMSetBlendState(m_BlendState, blendFactor, sampleMask);
 
-
-	//		Render PointLights
+	//Render PointLights
 	renderLight(m_Shader["PointLight"], m_Buffer["PointLightModel"], m_PointLights);
-	//		Render SpotLights
+	//Render SpotLights
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//DirectionalLights except number one
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0); 
@@ -562,7 +515,6 @@ void DeferredRenderer::createSkyDome(ID3D11ShaderResourceView* p_Texture, float 
 {
 	if(m_SkyDome)
 		SAFE_DELETE(m_SkyDome);
-
 
 	m_SkyDome = new SkyDome();
 	m_SkyDome->init(m_Device, m_DeviceContext, p_Texture, p_Radius);
@@ -637,7 +589,6 @@ ID3D11RenderTargetView *DeferredRenderer::createRenderTarget(D3D11_TEXTURE2D_DES
 	result = m_Device->CreateTexture2D(&desc, nullptr, &temp);
 	if(FAILED(result))
 		throw GraphicsException("Error creating Texture2D while creating a render target.", __LINE__, __FILE__);
-
 
 	result = m_Device->CreateRenderTargetView(temp, &rtDesc, &ret);
 	SAFE_RELEASE(temp);
@@ -721,7 +672,6 @@ void DeferredRenderer::createBuffers()
 	instanceWorldDesc.usage = Buffer::Usage::CPU_WRITE_DISCARD;
 	m_Buffer["WorldInstance"] = WrapperFactory::getInstance()->createBuffer(instanceWorldDesc);
 	VRAMInfo::getInstance()->updateUsage(instanceWorldDesc.sizeOfElement);
-
 
 	cbdesc.sizeOfElement = sizeof(cSSAO_Buffer);
 	cbdesc.initData = nullptr;
@@ -985,7 +935,6 @@ void DeferredRenderer::createLightStates()
 	dsdesc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
 	m_Device->CreateDepthStencilState(&dsdesc, &m_DepthState);
 
-
 	D3D11_RASTERIZER_DESC rdesc;
 	ZeroMemory( &rdesc, sizeof( D3D11_RASTERIZER_DESC ) );
 	rdesc.FillMode = D3D11_FILL_SOLID;
@@ -1146,7 +1095,6 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 		return a.model > b.model;
 	});
 
-
 	for(unsigned int i = 0; i < m_Objects.size(); i++)
 	{
 		if(m_Objects.at(i).model->isAnimated)
@@ -1162,9 +1110,7 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 				else
 					break;
 
-
 			i += nr;
-
 
 			if(nr >= 1)
 			{
@@ -1285,7 +1231,6 @@ void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<st
 	{
 		m_DeviceContext->ClearDepthStencilView(m_DepthMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-
 		//create new viewport
 		D3D11_VIEWPORT prevViewport;
 		UINT numViewPort = 1;
@@ -1304,7 +1249,6 @@ void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<st
 
 		m_DeviceContext->RSSetViewports(1, &prevViewport);
 
-
 		// Set texture sampler.
 		m_DeviceContext->PSSetShaderResources(0, 5, srvs);
 
@@ -1316,11 +1260,10 @@ void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<st
 		m_DeviceContext->OMSetDepthStencilState(m_DepthState,0);
 		m_DeviceContext->OMSetBlendState(m_BlendState, blendFactor, sampleMask);
 
-
-		//		Render DirectionalLights
+		//Render DirectionalLights
 		m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0);
 
-		//		Render Shadow Map
+		//Render Shadow Map
 		if(j == 0)
 			updateLightBuffer(true,true);
 		else
@@ -1342,7 +1285,6 @@ void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<st
 		memcpy(ms.pData, &dirLight, sizeof(Light));
 		m_DeviceContext->Unmap(m_Buffer["LightConstant"]->getBufferPointer(), NULL);
 
-
 		m_DeviceContext->Draw(m_Buffer["DirectionalLightModel"]->getNumOfElements(), 0);
 
 		m_Shader["DirectionalLight"]->unSetShader();
@@ -1353,4 +1295,51 @@ void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<st
 
 	m_Buffer["LightViewProj"]->unsetBuffer(1);
 	SAFE_RELEASE(previousDepthState);
+}
+
+void DeferredRenderer::registerTweakSettings()
+{
+	TweakSettings* settings = TweakSettings::getInstance();
+
+	settings->setSetting("ssao.radius", 5.f);
+	settings->setListener("ssao.radius", std::function<void(float)>(
+		[&] (float)
+	{
+		updateSSAO_VarConstantBuffer();
+	}
+	));
+
+	settings->setSetting("ssao.epsilon", 4.f);
+	settings->setListener("ssao.epsilon", std::function<void(float)>(
+		[&] (float)
+	{
+		updateSSAO_VarConstantBuffer();
+	}
+	));
+
+	settings->setSetting("ssao.fadeEnd", 10.f);
+	settings->setListener("ssao.fadeEnd", std::function<void(float)>(
+		[&] (float)
+	{
+		updateSSAO_VarConstantBuffer();
+	}
+	));
+
+	settings->setSetting("ssao.fadeStart", 2.f);
+	settings->setListener("ssao.fadeStart", std::function<void(float)>(
+		[&] (float)
+	{
+		updateSSAO_VarConstantBuffer();
+	}
+	));
+	settings->setListener("shadows.maxDirectional", std::function<void(int)>(
+		[&] (int p_Value)
+	{
+		if (m_MaxNumDirectionalShadows >= 0)
+		{
+			m_MaxNumDirectionalShadows = p_Value;
+		}
+	}
+	));
+	settings->setSetting("shadows.maxDirectional", 1);
 }

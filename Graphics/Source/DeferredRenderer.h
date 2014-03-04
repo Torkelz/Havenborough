@@ -28,11 +28,10 @@ private:
 	std::vector<Light>		*m_PointLights;
 	std::vector<Light>		*m_DirectionalLights;
 	Light					*m_ShadowMappedLight;
-	unsigned int			m_MaxLightsPerLightInstance;
 
-	DirectX::XMFLOAT3		m_CameraPosition;
-	DirectX::XMFLOAT4X4		*m_ViewMatrix;
-	DirectX::XMFLOAT4X4		*m_ProjectionMatrix;
+	DirectX::XMFLOAT3	m_CameraPosition;
+	DirectX::XMFLOAT4X4	*m_ViewMatrix;
+	DirectX::XMFLOAT4X4	*m_ProjectionMatrix;
 
 	static const unsigned int	m_numRenderTargets = 5;
 
@@ -42,31 +41,32 @@ private:
 	std::map<std::string, Shader*> m_Shader;
 	std::map<std::string, Buffer*> m_Buffer;
 
-	ID3D11BlendState	*m_BlendState;
-	ID3D11BlendState	*m_BlendState2;
+	ID3D11BlendState *m_BlendState;
+	ID3D11BlendState *m_BlendState2;
 
 	ID3D11RasterizerState	*m_RasterState;
 	ID3D11DepthStencilState	*m_DepthState;
 
-	bool	m_RenderSkyDome;
+	bool m_RenderSkyDome;
 	SkyDome	*m_SkyDome;
 
-	bool	m_SSAO;
-	bool	m_ShadowMap;
+	bool m_SSAO;
+	bool m_ShadowMap;
 	float m_SSAO_ResolutionScale;
-	float		m_ShadowBigSize, m_ShadowSmallSize;
-	int		m_ShadowMapResolution;
-	float	m_ShadowMapBorder;
+	float m_ShadowBigSize;
+	float m_ShadowSmallSize;
+	int m_ShadowMapResolution;
+	float m_ShadowMapBorder;
 
-	ID3D11DepthStencilView*		m_DepthMapDSV;
-	UINT						m_Width;
-	UINT						m_Height;
+	ID3D11DepthStencilView*	m_DepthMapDSV;
+	UINT m_Width;
+	UINT m_Height;
 
-	float						m_ViewHW;
-	DirectX::XMFLOAT4X4			m_LightView;
-	DirectX::XMFLOAT4X4			m_LightProjection;
-	D3D11_VIEWPORT				m_LightViewport;
-	unsigned int				m_MaxNumDirectionalShadows;
+	float				m_ViewHW;
+	DirectX::XMFLOAT4X4	m_LightView;
+	DirectX::XMFLOAT4X4	m_LightProjection;
+	D3D11_VIEWPORT		m_LightViewport;
+	unsigned int		m_MaxNumDirectionalShadows;
 
 	//GPUTimer *m_Timer;
 public:
@@ -98,7 +98,8 @@ public:
 		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix,int p_ShadowMapResolution, std::vector<Light> *p_SpotLights,
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
-		unsigned int p_MaxLightsPerLightInstance, float p_FOV, float p_FarZ);
+		float p_FOV, float p_FarZ);
+
 
 	/*
 	* Creates the shadow map Texture2D desc, depthMap, depthStencilViewDesc, ShaderResourceViewDesc.
@@ -191,4 +192,5 @@ private:
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 	void updateLightProjection(float p_viewHW);
 	void renderShadowMap(Light p_Directional, const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
+	void registerTweakSettings();
 };
