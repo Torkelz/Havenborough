@@ -151,7 +151,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!animation)
 		return;
 	
-	animation->applyLookAtIK("Head", XMFLOAT3(0.0f,1.0f,0.0f), 2.0f);
+	animation->applyLookAtIK("Head", XMFLOAT3(0.f, 10000.0f,0.f), 1.0f);
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -333,8 +333,8 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 		return;
 	}
 
-	XMVECTOR actorPos = Vector3ToXMVECTOR(&actor->getPosition(), 1.0f);
-	actorPos += vForward;
+	XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
+	actorPos += vForward * 10;
 	XMStoreFloat3(&m_lookAtPos, actorPos);
 
 	look->setLookForward(forward);

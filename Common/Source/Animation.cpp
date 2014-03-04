@@ -479,6 +479,7 @@ void Animation::updateFinalTransforms()
 		
 		offSet = XMMatrixInverse(nullptr, offSet);
 		XMMATRIX result = XMMatrixMultiply(toRoot, offSet);
+		//result = offSet;
 
 		result = XMMatrixMultiply(flipMatrix, result);
 
@@ -615,7 +616,6 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 	// to the base joint than the length of the "arm" when fully extended. The base joint works
 	// like a human shoulder it has 3 DoF and will make sure that the "arm" is always pointed
 	// towards the target point.
-	const Joint* neckJoint = nullptr;
 	const Joint* headJoint = nullptr;
 
 	for (unsigned int i = 0; i < p_Joints.size(); i++)
@@ -626,14 +626,10 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 		{
 			headJoint = &joint;
 		}
-		else if (joint.m_JointName == p_Group.m_Elbow)
-		{
-			neckJoint = &joint;
-		}
 	}
 
 	// The algorithm requires all three joints
-	if (neckJoint == nullptr || headJoint == nullptr)
+	if (headJoint == nullptr)
 	{
 		return;
 	}
@@ -641,58 +637,45 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 	XMMATRIX world = XMLoadFloat4x4(&p_WorldMatrix);
 
 	// Calculate matrices for transforming vectors from joint spaces to world space
-	XMMATRIX neckCombinedTransform = XMMatrixMultiply(
-		world,
-		XMMatrixMultiply(
-			XMLoadFloat4x4(&m_FinalTransform[neckJoint->m_ID - 1]),
-			XMLoadFloat4x4(&neckJoint->m_TotalJointOffset)));
 	XMMATRIX headCombinedTransform = XMMatrixMultiply(
 		world,
 		XMMatrixMultiply(
 			XMLoadFloat4x4(&m_FinalTransform[headJoint->m_ID - 1]),
 			XMLoadFloat4x4(&headJoint->m_TotalJointOffset)));
-
-	XMFLOAT4X4 neckCombinedTransformedData;
 	XMFLOAT4X4 headCombinedTransformedData;
-
-	XMStoreFloat4x4(&neckCombinedTransformedData, neckCombinedTransform);
 	XMStoreFloat4x4(&headCombinedTransformedData, headCombinedTransform);
 
 	// The joints' positions in world space is the zero vector in joint space transformed to world space.
-	XMFLOAT4 jointPosition(headCombinedTransformedData._14, headCombinedTransformedData._24,
+	XMFLOAT4 headPosition(headCombinedTransformedData._14, headCombinedTransformedData._24,
 		headCombinedTransformedData._34, 1.f); 
-	XMFLOAT4 neckPosition(neckCombinedTransformedData._14, neckCombinedTransformedData._24,
-		neckCombinedTransformedData._34, 1.f); 
 
-	XMVECTOR headPositionV = XMLoadFloat4(&jointPosition);
-	XMVECTOR neckPositionV = XMLoadFloat4(&neckPosition);
+	XMVECTOR headPositionV = XMLoadFloat4(&headPosition);
 
-	XMVECTOR targetToHead = headPositionV - target;
-	XMVECTOR headToNeck = neckPositionV - headPositionV;
-
-	float distStartToHead = XMVector4Length(targetToHead).m128_f32[0];
-	float distHeadToEnd = XMVector4Length(headToNeck).m128_f32[0];
+	XMVECTOR headToTarget =  target - headPositionV;
 
 	float wantedJointAngle = 0.f;
 
+	//target = headToTarget;
+
 	// Normalize look at target
-	target = XMVector3Normalize(target);
+	headToTarget = XMVector3Normalize(headToTarget);
 	// Get the standard look at vector
 	XMVECTOR headForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	headForward = XMVector3Transform(headForward, world);
+	headForward = XMVector3Normalize(headForward);
 	// Get rotation axis and angle
 	XMVECTOR rotationAxis;
-	rotationAxis = XMVector3Cross(headForward, target);
+	rotationAxis = XMVector3Cross(headForward, headToTarget);
 	rotationAxis = XMVector3Normalize(rotationAxis);
-	wantedJointAngle = acosf(XMVector3Dot(headForward, target).m128_f32[0]);
+	wantedJointAngle = acosf(XMVector3Dot(headForward, headToTarget).m128_f32[0]);
 	// Limit angle
 	wantedJointAngle = std::min( wantedJointAngle, p_MaxAngle );
 	// Apply the transformation to the bone
 	XMMATRIX rotation;
 	rotation = XMMatrixRotationAxis(rotationAxis, wantedJointAngle);
 
-	XMStoreFloat4x4(&m_LocalTransforms[neckJoint->m_ID - 1],
-	XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[neckJoint->m_ID - 1]), rotation));
+	XMStoreFloat4x4(&m_LocalTransforms[headJoint->m_ID - 1],
+	XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[headJoint->m_ID - 1]), rotation));
 
 	// Update the resulting child transformations
 	updateFinalTransforms();

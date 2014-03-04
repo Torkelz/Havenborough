@@ -264,7 +264,7 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
 	}
-	else if(p_Action == "drawPivots" && p_Value == 1.f)
+	else if(p_Action == "DrawPivots" && p_Value == 1.f)
 	{
 		m_DebugAnimations = !m_DebugAnimations;
 	}
@@ -394,7 +394,7 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 			{
 				for (unsigned int i = 0; i < animation.size(); ++i)
 				{
-					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 )
+					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 || i == 4 || i == 3 )
 					{
 						XMMATRIX toBind = XMLoadFloat4x4(&poseData->joints[i].m_TotalJointOffset);
 						XMMATRIX toObject = XMLoadFloat4x4(&animation[i]);
