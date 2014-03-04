@@ -8,6 +8,9 @@ private:
 	IPhysics* m_Physics;
 	std::weak_ptr<PhysicsInterface> m_PhysicsComp;
 	float m_MaxSpeed;
+	float m_MaxSpeedDefault;
+	float m_MaxSpeedCurrent;
+	float m_MaxSpeedAccelerationFactor; // factor to increase maxspeed
 	float m_AccConstant;
 
 	Vector3 m_RunningDirection;
@@ -28,6 +31,14 @@ public:
 
 	float getMaxSpeed() const override;
 	void setMaxSpeed(float p_Speed) override;
+
+	float getMaxSpeedDefault() const override;
+	void setMaxSpeedDefault(float p_Factor);
+
+	float getMaxSpeedCurrent() const;
+
+	void setAccelerationConstant(float p_Acceleration);
+	void setMaxSpeedAccelerationFactor(float p_Factor);
 
 	bool getIsJumping() const;
 	void setIsJumping(bool p_Jumping);

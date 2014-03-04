@@ -84,6 +84,11 @@ void FlyingControlComponent::setMaxSpeed(float p_Speed)
 	m_MaxSpeed = p_Speed;
 }
 
+float FlyingControlComponent::getMaxSpeedDefault() const
+{
+	return m_MaxSpeed;
+}
+
 void FlyingControlComponent::setPhysics(IPhysics* p_Physics)
 {
 	m_Physics = p_Physics;
