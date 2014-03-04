@@ -676,7 +676,6 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 	float wantedJointAngle = 0.f;
 
 	// Normalize look at target
-	XMVECTOR target =  XMLoadFloat3(&p_Position);
 	target = XMVector3Normalize(target);
 	// Get the standard look at vector
 	XMVECTOR headForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
@@ -685,7 +684,7 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 	XMVECTOR rotationAxis;
 	rotationAxis = XMVector3Cross(headForward, target);
 	rotationAxis = XMVector3Normalize(rotationAxis);
-	float wantedJointAngle = acosf(XMVector3Dot(headForward, target).m128_f32[0]);
+	wantedJointAngle = acosf(XMVector3Dot(headForward, target).m128_f32[0]);
 	// Limit angle
 	wantedJointAngle = std::min( wantedJointAngle, p_MaxAngle );
 	// Apply the transformation to the bone
