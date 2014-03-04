@@ -106,6 +106,19 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 				}
 				if(!m_IsServer)
 				{
+					//b.setOnSomething(isOnGround);
+					//if(!b.getInAir() && !isOnGround)
+					//{
+					//	b.addFallTime(p_DeltaTime);
+
+					//	if(b.getFallTime() > b.getFallTolerance())
+					//	{
+					//		b.setInAir(true);
+					//		b.setFallTime(0.f);
+					//	}
+					//}
+					//else
+					//	b.setInAir(false);
 					b.setOnSomething(isOnGround);
 					b.setInAir(!b.getOnSomething());
 				}
@@ -156,7 +169,7 @@ void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolum
 			XMStoreFloat4(&vel, vVel);
 			b.setVelocity(vel);
 
-			temp = XMLoadFloat4(&b.getPosition()) + posNorm * p_Hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
+			temp = XMLoadFloat4(&b.getPosition()) + posNorm * p_Hit.colLength;
 			XMStoreFloat4(&tempPos, temp);
 
 			b.setPosition(tempPos);

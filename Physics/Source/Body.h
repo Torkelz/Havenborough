@@ -24,6 +24,8 @@ protected:
 	DirectX::XMFLOAT4	m_NewAcceleration;	// m/s^2
 	float				m_Mass;				// kg
 	float				m_Gravity;			// m/s^2
+	float				m_fallTime;
+	float				m_fallTolerance;
 	bool				m_InAir;
 	bool				m_OnSomething;
 
@@ -218,7 +220,18 @@ public:
 	/**
 	* Resets all force and velocity on a body.
 	*/
-	void resetForce();		
+	void resetForce();
+
+	float getFallTolerance();
+
+	void setFallTolerance(float p_Tolerance);
+
+	float getFallTime();
+
+	void addFallTime(float p_DeltaTime);
+
+	void setFallTime(float p_newTime);
+
 private:
 	/**
 	 * Calculates the new acceleration in m/s^2.
