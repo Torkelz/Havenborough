@@ -143,6 +143,11 @@ void SplineControlComponent::setMaxSpeed(float p_Speed)
 	m_MaxSpeed = p_Speed;
 }
 
+float SplineControlComponent::getMaxSpeedDefault() const
+{
+	return m_MaxSpeed;
+}
+
 void SplineControlComponent::setPhysics(IPhysics* p_Physics)
 {
 	m_Physics = p_Physics;
@@ -165,6 +170,18 @@ void SplineControlComponent::removePreviousPoint()
 {
 	if(m_Sequences.size() > 0 && m_Sequences.at(m_SplineSequence).m_Positions.size() > 0)
 	{
+		std::shared_ptr<PhysicsInterface> comp = m_PhysicsComp.lock();
+		std::shared_ptr<LookInterface> lookComp = m_LookComp.lock();
+
+		if (!comp || !lookComp)
+			return;
+		BodyHandle body = comp->getBodyHandle();
+
+		m_Physics->setBodyPosition(body, m_Sequences.at(m_SplineSequence).m_Positions.back());
+
+		lookComp->setLookForward(m_Sequences.at(m_SplineSequence).m_LookForward.back());
+		lookComp->setLookUp(m_Sequences.at(m_SplineSequence).m_LookUp.back());
+
 		m_Sequences.at(m_SplineSequence).m_Positions.pop_back();
 		m_Sequences.at(m_SplineSequence).m_LookForward.pop_back();
 		m_Sequences.at(m_SplineSequence).m_LookUp.pop_back();

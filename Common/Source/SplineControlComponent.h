@@ -40,6 +40,7 @@ public:
 
 	float getMaxSpeed() const override;
 	void setMaxSpeed(float p_Speed) override;
+	float getMaxSpeedDefault() const override;
 
 	void setPhysics(IPhysics* p_Physics);
 
