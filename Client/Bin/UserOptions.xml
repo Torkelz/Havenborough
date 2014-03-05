@@ -10,8 +10,8 @@
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
     <ShadowMapResolution Size="1024" />
-    <FOV Value="60" />
-    <MouseSensitivity Value="0.5" />
+    <!--<FOV Value="60" />
+    <MouseSensitivity Value="0.5" />-->
   </Settings>
   <Controls>
     <!--
