@@ -137,12 +137,13 @@ public:
 	 * Records a spline point. Position, look direction and up direction is saved.
 	 *
 	 */
-
 	void recordSpline();
+
 	/**
 	 * Removes last added spline point.
 	 *
 	 */
+
 	void removeLastSplineRecord();
 	/**
 	 * Clear current spline sequence.

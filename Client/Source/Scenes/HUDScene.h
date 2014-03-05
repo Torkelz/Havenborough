@@ -10,7 +10,6 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
-	float m_PlayerTime;
 
 	IGraphics *m_Graphics;
 	EventManager *m_EventManager;

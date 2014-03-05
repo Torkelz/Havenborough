@@ -47,8 +47,22 @@ public:
 
 	void setPhysics(IPhysics* p_Physics);
 
+	/**
+	 * Records a spline point. The position, look direction, camera up and timespan.
+	 *
+	 */
 	void recordPoint();
+
+	/**
+	 * Removes a spline point and set the camera to the last point.
+	 *
+	 */
 	void removePreviousPoint();
+
+	/**
+	 * Clears current sequence
+	 *
+	 */
 	void clearSequence();
 private:
 	void runSpline(int p_Sequence);

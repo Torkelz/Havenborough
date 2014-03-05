@@ -9,7 +9,6 @@ HUDScene::HUDScene()
 	m_NewSceneID = 0;
 	m_ChangeScene = false;
 	m_ChangeList = false;
-	m_PlayerTime = 0;
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
 	m_ResourceManager = nullptr;
