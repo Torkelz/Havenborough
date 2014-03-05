@@ -28,12 +28,13 @@
                 <RowDefinition Height="30*" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" VerticalAlignment="Top">
+                
                 <StackPanel Orientation="Vertical" Margin="10" HorizontalAlignment="Left">
                     <StackPanel x:Name="Player" Orientation="Vertical" HorizontalAlignment="Left" Width="200" Margin="0,0,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Game}">
                         <TextBlock FontSize="14" Text="Playername" />
                         <TextBox Text="{Binding Mode=TwoWay, XPath=@Username}" />
                     </StackPanel>
-                    <StackPanel x:Name="Character"  Orientation="Horizontal" HorizontalAlignment="Left" Width="200" Margin="0,0,0,30">
+                    <StackPanel x:Name="Character"  Orientation="Horizontal" HorizontalAlignment="Left" Width="200" Margin="0,0,0,25">
                         <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="95"  DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
                             <TextBlock FontSize="14" Text="Character" />
                             <ComboBox Loaded="CharacterNameLoad" Text="{Binding Mode=OneWayToSource, XPath=@Name}" />
@@ -43,7 +44,7 @@
                             <ComboBox Loaded="CharacterStyleLoad" Text="{Binding XPath=@Style, Mode=OneWayToSource}" />
                         </StackPanel>
                     </StackPanel>
-                    <StackPanel x:Name="ScreenSettings" Orientation="Vertical" HorizontalAlignment="Left" Width="200" Margin="0,0,0,30">
+                    <StackPanel x:Name="ScreenSettings" Orientation="Vertical" HorizontalAlignment="Left" Width="200" Margin="0,0,0,25">
                         <StackPanel Orientation="Vertical"  Margin="0,0,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
                             <TextBlock FontSize="14" Text="Resolution" />
                             <StackPanel Orientation="Horizontal">
@@ -70,7 +71,7 @@
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Width="95" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
                             <TextBlock FontSize="14" Text="Shadows" />
                             <ComboBox Loaded="ShadowResolutionLoad" ItemTemplate="{StaticResource ShadowResTemplate}"
-                                  Text="{Binding XPath=@Size, Mode=OneWayToSource}" />
+                                Text="{Binding XPath=@Size, Mode=OneWayToSource}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMap}">
                             <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />
@@ -95,16 +96,20 @@
                         <StackPanel.DataContext>
                             <Binding Source="{StaticResource GameDataSource}" />
                         </StackPanel.DataContext>
-                        <StackPanel Margin="0,0,10,0" VerticalAlignment="Center">
+                            <Button x:Name="HostServerButton" Width="100" Height="110" FontSize="16" FontWeight="Bold" Margin="0,0,10,0" 
+                                    Click="HostServerButton_OnClick">
+                                <TextBlock FontSize="16" FontWeight="Bold" TextWrapping="Wrap" Text="HOST SERVER"></TextBlock>
+                            </Button>
+                        <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <ListBox x:Name="GameListView" BorderThickness="1" BorderBrush="White" Height="110" Width="250" ItemsSource="{Binding Path=Games}" 
                                      ItemTemplate="{StaticResource GameListTemplate}" IsSynchronizedWithCurrentItem="True"
-                                     SelectionChanged="OnSelectedGameChanged"/>
+                                     SelectionChanged="OnSelectedGameChanged" />
                         </StackPanel>
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <Button Width="100" Height="50" FontSize="16" FontWeight="Bold" Margin="0,0,0,5" Click="Refresh_OnClick"
-                                    Content="REFRESH"/>
+                                Content="REFRESH"/>
                             <Button x:Name="LaunchButton" IsEnabled="True" Width="100" Height="50" FontSize="16" FontWeight="Bold"
-                                    Margin="0,5,0,0"  Click="ButtonBase_OnClick" Content="LAUNCH"/>
+                                    Margin="0,5,0,0"  Click="Launch_OnClick" Content="LAUNCH"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
@@ -114,10 +119,10 @@
             <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                 <StackPanel>
                     <StackPanel Orientation="Vertical" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/MouseSensitivity}">
-                        <TextBlock FontSize="16" Text="Mouse Sensitivty"/>
+                        <TextBlock FontSize="14" Text="Mouse Sensitivty"/>
                         <Slider x:Name="MouseSenseSlider"  Width="100" Value="{Binding XPath=@Value, Mode=TwoWay}" Minimum="0.1" Maximum="1"
                                 HorizontalAlignment="Left" ValueChanged="SliderChanged" />
-                        <TextBlock x:Name="MouseSensValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
+                        <TextBlock x:Name="MouseSenseValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
                     </StackPanel>
                     <Label Content="KEY BINDINGS" FontWeight="Bold" />
                     <ListBox x:Name="KeyMap"  ItemsSource="{Binding XPath=/UserOptions/Controls/KeyMap}">
