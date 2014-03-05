@@ -7,7 +7,7 @@
 Settings::Settings(void)
 {
 	m_Resolution = Vector2(1080,720);
-	m_ShadowMapResolution = 512;
+	m_SettingsValue["ShadowMap"] = 512.f;
 	m_LevelName = "serverLevel";
 	m_Username = "Player";
 	m_ServerURL = "localhost";
@@ -180,36 +180,24 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 			if(res != tinyxml2::XML_SUCCESS)
 				throw ClientException("Settings tried to load the attribute \"height\" or \"width\" from element: " + elementName + ".", __LINE__, __FILE__);
 		}
-		else if(elementName == "ShadowMapResolution")
-		{
-			tinyxml2::XMLError res;
-			res = element->QueryIntAttribute("Value", &m_ShadowMapResolution);
-			if(res != tinyxml2::XML_SUCCESS)
-				throw ClientException("Settings tried to load the attribute \"square\" from element: " + elementName + ".", __LINE__, __FILE__);
-		}
-		else if(elementName == "FOV")
-		{
-			tinyxml2::XMLError res;
-			res = element->QueryFloatAttribute("Value", &m_FOV);
-			if(res != tinyxml2::XML_SUCCESS)
-				throw ClientException("Settings tried to load the attribute \"square\" from element: " + elementName + ".", __LINE__, __FILE__);
-		}
-		else if(elementName == "MouseSensitivity")
-		{
-			tinyxml2::XMLError res;
-			res = element->QueryFloatAttribute("Value", &m_MouseSensitivity);
-			if(res != tinyxml2::XML_SUCCESS)
-				throw ClientException("Settings tried to load the attribute \"square\" from element: " + elementName + ".", __LINE__, __FILE__);
-		}
 		else
 		{
 			bool enabled = false;
+			float value = 0.f;
 			tinyxml2::XMLError res;
 			res = element->QueryBoolAttribute("Enabled", &enabled);
+			if(res == tinyxml2::XML_NO_ATTRIBUTE)
+			{
+				res = element->QueryFloatAttribute("Value", &value);
+				m_SettingsValue[elementName] = value;
+			}
+			else
+			{
+				m_SettingsEnabled[elementName] = enabled;
+			}
+
 			if(res != tinyxml2::XML_SUCCESS)
 				throw ClientException("Settings tried to load the attribute \"enabled\" from element: " + elementName + ".", __LINE__, __FILE__);
-
-			m_SettingsEnabled[elementName] = enabled;
 		}
 	}
 }
@@ -293,6 +281,18 @@ const bool Settings::getIsSettingEnabled(std::string p_SettingName) const
 	if (m_SettingsEnabled.count(p_SettingName) > 0)
 	{
 		return m_SettingsEnabled.at(p_SettingName);
+	} 
+	else
+	{
+		throw ClientException("The setting with name: " + p_SettingName + ", was not found.", __LINE__, __FILE__);
+	}
+}
+
+const float Settings::getIsSettingValue(std::string p_SettingName) const
+{
+	if (m_SettingsValue.count(p_SettingName) > 0)
+	{
+		return m_SettingsValue.at(p_SettingName);
 	} 
 	else
 	{
