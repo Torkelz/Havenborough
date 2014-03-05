@@ -158,7 +158,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	//printer.OpenElement("Model");
 	//printer.PushAttribute("Mesh", "Checkpoint1");
 	//pushVector(printer, "Scale", p_Scale);
-	printer.CloseElement();
+	//printer.CloseElement();
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);
 	pushVector(printer, "Halfsize", AABBScale);
