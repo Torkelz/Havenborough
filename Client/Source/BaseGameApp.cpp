@@ -8,8 +8,6 @@
 #include <sstream>
 #include <iomanip>
 
-#include <vld.h>
-
 using namespace DirectX;
 
 const std::string BaseGameApp::m_GameTitle = "The Apprentice of Havenborough";
@@ -146,9 +144,7 @@ void BaseGameApp::init()
 
 	m_CommandManager.reset(new CommandManager);
 	m_CommandManager->registerCommand(Command::ptr(new TweakCommand));
-	VLDDisable();
 	m_ConsoleReader.reset(new StreamReader(m_CommandManager, std::cin));
-	VLDEnable();
 
 	m_ServerURL = settings.getServerURL();
 	m_ServerPort = settings.getServerPort();
