@@ -13,6 +13,9 @@ Player::Player(void)
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
 	m_JumpForce = 8000.0f;
+	m_FallTolerance = 0.25f;
+	m_FallTime = 0.f;
+	m_IsFalling = true;
 	m_ForceMove = false;
 	m_CurrentForceMoveTime = 0.f;
 	m_Height = 170.f;
@@ -125,6 +128,21 @@ void Player::update(float p_DeltaTime)
 						m_Physics->setBodyPosition(getBody(), moved);
 					}
 				}
+			}
+
+			if(!m_Physics->getBodyOnSomething(getBody()))
+			{
+				m_FallTime += p_DeltaTime;
+
+				if(m_FallTime > m_FallTolerance)
+				{
+					m_FallTime = 0.f;
+					m_IsFalling = true;
+				}
+			}
+			else
+			{
+				m_IsFalling = false;
 			}
 			
 			if (strActor)
@@ -518,7 +536,7 @@ void Player::setJump(void)
 {
 	if(m_AllowedToMove)
 	{
-		if(m_Physics->getBodyInAir(getBody()))
+		if(m_IsFalling)
 		{
 			m_JumpCount++;
 		}
@@ -625,6 +643,11 @@ void Player::setAllowedToMove(bool p_State)
 const bool Player::getAllowedToMove() const
 {
 	return m_AllowedToMove;
+}
+
+const bool Player::getIsFalling() const
+{
+	return m_IsFalling;
 }
 
 void Player::jump(float dt)

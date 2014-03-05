@@ -109,24 +109,7 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 			if(!m_IsServer)
 			{
 				b.setOnSomething(isOnGround);
-
-				if(!b.getOnSomething())
-				{
-					if(!b.getInAir())
-					{
-						b.addFallTime(p_DeltaTime);
-
-						if(b.getFallTime() > b.getFallTolerance())
-						{
-							b.setInAir(true);
-							b.setFallTime(0.f);
-						}
-					}
-				}
-				else
-				{
-					b.setInAir(false);
-				}
+				b.setInAir(!isOnGround);
 			}
 		}
 	}
@@ -445,6 +428,15 @@ bool Physics::getBodyInAir(BodyHandle p_Body)
             return false;
 
     return body->getInAir();
+}
+
+bool Physics::getBodyOnSomething(BodyHandle p_Body)
+{
+    Body* body = findBody(p_Body);
+    if(body == nullptr)
+            return false;
+
+	return body->getOnSomething();
 }
 
 BoundingVolume* Physics::getVolume(BodyHandle p_Body)
