@@ -112,12 +112,12 @@
     <OutDir>$(ProjectDir)Test\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
-    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath);$(VLD_LIB_DIR)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)Bin\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath);$(VLD_LIB_DIR)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,7 +126,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party;$(VLD_INC_DIR);$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
@@ -147,7 +147,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party;$(VLD_INC_DIR);$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>

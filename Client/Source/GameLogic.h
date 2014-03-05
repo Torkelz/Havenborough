@@ -9,7 +9,6 @@
 #include "Input/Input.h"
 
 #include "SpellFactory.h"
-#include "SpellInstance.h"
 #include "PhysicsTypes.h"
 
 #include <INetwork.h>
@@ -67,6 +66,7 @@ public:
 	void shutdown(void);
 
 	ActorList::ptr getObjects();
+	
 	/**
 	* Gets which scene the game should change to.
 	*/
@@ -95,6 +95,11 @@ public:
 		const std::string& p_LevelName, const std::string& p_Username);
 	void leaveGame();
 
+	/**
+	 * Called when a spell should be thrown, and all checks for a valid throw will be checked against the spell definition.
+	 * 
+	 * @param p_SpellId what spell to work with
+	 */
 	void throwSpell(const char *p_SpellId);
 
 	/**

@@ -1,4 +1,5 @@
 #include <Logger.h>
+#include <TweakSettings.h>
 
 #include "Server.h"
 
@@ -51,6 +52,8 @@ int main(int argc, char* argv[])
 	Logger::addOutput(Logger::Level::INFO, std::cout);
 	Logger::log(Logger::Level::INFO, "Starting server");
 
+	TweakSettings::initializeMaster();
+
 	server.initialize();
 	server.run();
 
@@ -82,4 +85,6 @@ int main(int argc, char* argv[])
 	}
 
 	server.shutdown();
+
+	TweakSettings::shutdown();
 }
