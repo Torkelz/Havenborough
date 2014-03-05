@@ -13,6 +13,7 @@ HUDScene::HUDScene()
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
 	m_ResourceManager = nullptr;
+	m_RenderHUD = true;
 }
 
 HUDScene::~HUDScene()
@@ -36,6 +37,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateCheckpointPosition), UpdateCheckpointPositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerTime), UpdatePlayerTimeEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerRacePosition), UpdatePlayerRaceEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::activateHUD), activateHUDEventData::sk_EventType);
 
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
@@ -77,18 +79,21 @@ void HUDScene::onFocus()
 
 void HUDScene::render()
 {
-	m_Graphics->render2D_Object(m_GUI["Arrow"]);
-	m_Graphics->render2D_Object(m_GUI["Manabar"]);
-	m_Graphics->render2D_Object(m_GUI["ManabarChange"]);
-	m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
-	m_Graphics->render2D_Object(m_GUI["Time"]);
-	m_Graphics->render2D_Object(m_GUI["RacePos"]);
-	m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
-
-	if(m_RenderCountdown)
+	if(m_RenderHUD)
 	{
-		m_Graphics->render2D_Object(m_GUI["Countdown"]);
-		m_RenderCountdown = false;
+		m_Graphics->render2D_Object(m_GUI["Arrow"]);
+		m_Graphics->render2D_Object(m_GUI["Manabar"]);
+		m_Graphics->render2D_Object(m_GUI["ManabarChange"]);
+		m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
+		m_Graphics->render2D_Object(m_GUI["Time"]);
+		m_Graphics->render2D_Object(m_GUI["RacePos"]);
+		m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
+
+		if(m_RenderCountdown)
+		{
+			m_Graphics->render2D_Object(m_GUI["Countdown"]);
+			m_RenderCountdown = false;
+		}
 	}
 }
 
@@ -197,6 +202,13 @@ void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
 	std::shared_ptr<UpdateCheckpointPositionEventData> data = std::static_pointer_cast<UpdateCheckpointPositionEventData>(p_Data);
 
 	m_CheckpointPosition = data->getPosition();
+}
+
+void HUDScene::activateHUD(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<activateHUDEventData> data = std::static_pointer_cast<activateHUDEventData>(p_Data);
+
+	m_RenderHUD = data->getState();
 }
 
 void HUDScene::preLoadModels()

@@ -51,8 +51,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_PlayerPositionInRace = 0;
 
 	TweakSettings* settings = TweakSettings::getInstance();
-	settings->setSetting("cameramode",2);
-	settings->setListener("cameramode", std::function<void(int)>(
+	settings->setSetting("camera.mode",2);
+	settings->setListener("camera.mode", std::function<void(int)>(
 		[&] (int p_Mode)
 	{
 		changeCameraMode(p_Mode);
@@ -1039,20 +1039,24 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		if(m_SplineCamera.expired())
 			m_SplineCamera = addActor(m_ActorFactory->createSplineCamera(m_Level.getStartPosition()));
 		Logger::log(Logger::Level::INFO, "Changed to spline camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_SplineCamera);
 		break;
 	case 1:
 		if(m_FlyingCamera.expired())
 			m_FlyingCamera = addActor(m_ActorFactory->createFlyingCamera(m_Level.getStartPosition()));
 		Logger::log(Logger::Level::INFO, "Changed to flying camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_FlyingCamera);
 		break;
 	case 2:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
 		break;
 	default:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
 		break;
 	}
