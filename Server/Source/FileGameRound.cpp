@@ -285,6 +285,7 @@ void FileGameRound::sendUpdates()
 					}
 					else
 					{
+						user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
 						user->getConnection()->sendRemoveObjects(&id, 1);
 						m_GoalCount++;
 						tinyxml2::XMLPrinter printer;
