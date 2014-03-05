@@ -196,7 +196,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	float nearZ = 10.0f;
 	float farZ = 100000.0f;
-	m_FOV = p_FOV;
+	m_FOV = 2 * PI / 360.0f * p_FOV;
 	initializeMatrices(p_ScreenWidth, p_ScreenHeight, nearZ, farZ);
 
 	//Deferred renderer
