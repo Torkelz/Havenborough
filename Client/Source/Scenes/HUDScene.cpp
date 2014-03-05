@@ -194,11 +194,11 @@ void HUDScene::updatePlayerRacePosition(IEventData::Ptr p_Data)
 	position.append(std::to_string(racePos));
 	if(racePos >= 4)
 	{
-		position.append(positions[4]);
+		position.append(positions[3]);
 	}
 	else
 	{
-		position.append(positions[racePos]);
+		position.append(positions[racePos-1]);
 	}
 
 	m_Graphics->updateText(m_TextHandle["RacePos"], std::wstring(position.begin(), position.end()).c_str());

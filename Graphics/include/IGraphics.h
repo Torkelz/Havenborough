@@ -18,8 +18,8 @@ public:
 		W_POSITION,
 		SSAO,
 		FINAL,
-		SSAOPing,
 		CSM,
+		SSAOPing,
 		NONE,
 	};
 
