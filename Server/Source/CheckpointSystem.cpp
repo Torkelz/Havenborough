@@ -16,7 +16,7 @@ CheckpointSystem::~CheckpointSystem(void)
 
 void CheckpointSystem::addCheckpoint(const std::weak_ptr<Actor> p_Checkpoint)
 {
-	std::weak_ptr<ModelInterface> mI = p_Checkpoint.lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
+	//std::weak_ptr<ModelInterface> mI = p_Checkpoint.lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
 
 	//if(m_Checkpoints.empty())
 	//{
