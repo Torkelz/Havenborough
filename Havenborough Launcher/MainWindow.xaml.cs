@@ -174,6 +174,40 @@ namespace Havenborough_Launcher
             comboBox.ItemsSource = data;
             comboBox.SelectedIndex = 0;
         }
+
+        private void SliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            var slider = sender as Slider;
+            if (slider == null || FovValue == null || MouseSensValue == null)
+                return;
+
+            switch (slider.Name)
+            {
+                case "FovSlider":
+                    FovValue.Text = ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
+                    if ((int) slider.Value == 110)
+                        FovValue.Text = "Quake Pro";
+                    break;
+                case "MouseSenseSlider":
+                {
+                    var val = slider.Value.ToString(CultureInfo.InvariantCulture);
+                    switch (val.Length)
+                    {
+                        case 1:
+                            MouseSensValue.Text = val;
+                            break;
+                        case 3:
+                            MouseSensValue.Text = val.Substring(0, 3);
+                            break;
+                        default:
+                            MouseSensValue.Text = val.Substring(0, 4);
+                            break;
+                    }
+                }
+                    break;
+            }
+               
+        }
     }
 
     public class BoolInverterConverter : IValueConverter

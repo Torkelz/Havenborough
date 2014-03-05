@@ -5,7 +5,6 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         Title="Havenborough Launcher" Height="625" Width="875" ResizeMode="NoResize">
     <Controls:MetroWindow.Resources>
-        <!--<local:BoolInverterConverter x:Key="BoolToOppositeBoolConverterValueConverter" />-->
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
         <local:GameList x:Key="GameDataSource" />
         <XmlDataProvider x:Key="DataProvider" />
@@ -34,7 +33,7 @@
                         <TextBlock FontSize="14" Text="Playername" />
                         <TextBox Text="{Binding Mode=TwoWay, XPath=@Username}" />
                     </StackPanel>
-                    <StackPanel x:Name="Character"  Orientation="Horizontal" HorizontalAlignment="Left" Width="200" Margin="0,0,0,20">
+                    <StackPanel x:Name="Character"  Orientation="Horizontal" HorizontalAlignment="Left" Width="200" Margin="0,0,0,30">
                         <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="95"  DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
                             <TextBlock FontSize="14" Text="Character" />
                             <ComboBox Loaded="CharacterNameLoad" Text="{Binding Mode=OneWayToSource, XPath=@Name}" />
@@ -44,49 +43,43 @@
                             <ComboBox Loaded="CharacterStyleLoad" Text="{Binding XPath=@Style, Mode=OneWayToSource}" />
                         </StackPanel>
                     </StackPanel>
-                    <StackPanel x:Name="ScreenSettings" Orientation="Horizontal" HorizontalAlignment="Left" Width="200" Margin="0,0,0,20">
-                        <StackPanel Orientation="Vertical"  Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
-                            <TextBlock FontSize="16" Text="Resolution" />
+                    <StackPanel x:Name="ScreenSettings" Orientation="Vertical" HorizontalAlignment="Left" Width="200" Margin="0,0,0,30">
+                        <StackPanel Orientation="Vertical"  Margin="0,0,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
+                            <TextBlock FontSize="14" Text="Resolution" />
                             <StackPanel Orientation="Horizontal">
                                 <TextBox Text="{Binding XPath=@Width, Mode=TwoWay}" Width="50" />
                                 <TextBox Text="{Binding XPath=@Height, Mode=TwoWay}" Width="50" Margin="0,0,5,0"/>
                             </StackPanel>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Fullscreen}">
+                            <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />
+                            <TextBlock FontSize="14" Text="Fullscreen" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/VSync}">
+                            <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />
+                            <TextBlock FontSize="14" Text="Vertical Sync" />
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/FOV}">
+                            <TextBlock FontSize="14" Text="FOV"/>
+                            <Slider x:Name="FovSlider"  Value="{Binding XPath=@Value, Mode=TwoWay}" Width="95" Minimum="35" Maximum="70"
+                                    HorizontalAlignment="Left" ValueChanged="SliderChanged"/>
+                            <TextBlock x:Name="FovValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Fullscreen}">
-                        <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
-                        <TextBlock FontSize="16" Text="Fullscreen" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/VSync}">
-                        <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
-                        <TextBlock FontSize="16" Text="Vertical Sync" />
-                    </StackPanel>
-                    
-                    
-                    
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
-                        <ComboBox Loaded="ShadowResolutionLoad" Width="100" Margin="0,0,5,0" ItemTemplate="{StaticResource ShadowResTemplate}"
+                    <StackPanel x:Name="ShadowSettings" Orientation="Vertical" HorizontalAlignment="Left" Width="200">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Width="95" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
+                            <TextBlock FontSize="14" Text="Shadows" />
+                            <ComboBox Loaded="ShadowResolutionLoad" ItemTemplate="{StaticResource ShadowResTemplate}"
                                   Text="{Binding XPath=@Size, Mode=OneWayToSource}" />
-                        <TextBlock FontSize="16" Text="Shadows" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Horizontal" Margin="0,5,10,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMap}" Width="119">
-                            <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" Margin="0,5,5,0" />
-                            <TextBlock FontSize="16" Text="Shadow Map" Width="131" />
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,5,337,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/SSAO}" Width="107">
-                            <CheckBox IsChecked="{Binding Converter={StaticResource StringToBoolConverter}, Mode=TwoWay, XPath=@Enabled}" Margin="0,5,5,0" />
-                            <TextBlock FontSize="16" Text="SSAO" />
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMap}">
+                            <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />
+                            <TextBlock FontSize="14" Text="Shadow Map"/>
                         </StackPanel>
-                    </StackPanel>
-                   
-                    <StackPanel Orientation="Vertical" Margin="0,5,0,5" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/FOV}">
-                        <TextBlock FontSize="16" Text="FOV"/>
-                        <Slider Value="{Binding XPath=@Value, Mode=TwoWay}" Width="100" Minimum="70" Maximum="110" HorizontalAlignment="Left" />
-                    </StackPanel>
-                    <StackPanel Orientation="Vertical" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/MouseSensitivity}">
-                        <TextBlock FontSize="16" Text="Mouse Sensitivty"/>
-                        <Slider Width="100" Value="{Binding XPath=@Value, Mode=TwoWay}" Minimum="0" Maximum="1"  HorizontalAlignment="Left"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/SSAO}">
+                            <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />
+                            <TextBlock FontSize="14" Text="SSAO" />
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -114,13 +107,18 @@
                                     Margin="0,5,0,0"  Click="ButtonBase_OnClick" Content="LAUNCH"/>
                         </StackPanel>
                     </StackPanel>
-
                 </StackPanel>
             </Grid>
         </Grid>
         <Grid Grid.Column="1" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Controls/*}" Margin="0,10,0,10">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                 <StackPanel>
+                    <StackPanel Orientation="Vertical" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/MouseSensitivity}">
+                        <TextBlock FontSize="16" Text="Mouse Sensitivty"/>
+                        <Slider x:Name="MouseSenseSlider"  Width="100" Value="{Binding XPath=@Value, Mode=TwoWay}" Minimum="0.1" Maximum="1"
+                                HorizontalAlignment="Left" ValueChanged="SliderChanged" />
+                        <TextBlock x:Name="MouseSensValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
+                    </StackPanel>
                     <Label Content="KEY BINDINGS" FontWeight="Bold" />
                     <ListBox x:Name="KeyMap"  ItemsSource="{Binding XPath=/UserOptions/Controls/KeyMap}">
                         <ListBox.ItemTemplate>
