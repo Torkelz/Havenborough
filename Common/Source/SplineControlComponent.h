@@ -21,10 +21,13 @@ private:
 		std::vector<Vector3> m_Positions;
 		std::vector<Vector3> m_LookForward;
 		std::vector<Vector3> m_LookUp;
+		std::vector<float> m_Time;
 	};
 	std::vector<sequence> m_Sequences;
 
-	float m_Lifetime;
+	float m_CurrentTime;
+	float m_RecTimeBetweenPoint;
+	unsigned int m_CurrentPoint;
 
 public:
 	SplineControlComponent();
@@ -57,7 +60,7 @@ private:
 	void currentSequence();
 	void selectSequence(unsigned int p_Sequence);
 
-	Vector3 catMullRom(const std::vector<Vector3> &p_Path, float p_Lifetime);
+	Vector3 catMullRom(const std::vector<Vector3> &p_Path, unsigned int p_CurrPoint, float p_Percentage);
 
 	void defaultMove(float p_DeltaTime);
 };

@@ -8,9 +8,10 @@ SplineControlComponent::SplineControlComponent()
 	m_MaxSpeed(0.f),
 	m_AccConstant(0.f),
 	m_SplineActivated(false),
-	m_Lifetime(0.0f),
+	m_CurrentTime(0.0f),
 	m_LookComp(),
-	m_SplineSequence(0)
+	m_SplineSequence(0),
+	m_RecTimeBetweenPoint(0.f)
 {
 }
 
@@ -83,6 +84,8 @@ void SplineControlComponent::postInit()
 
 	m_Sequences.push_back(sequence());
 	m_SplineSequence = 0;
+	m_CurrentPoint = 0;
+	m_RecTimeBetweenPoint = 0.f;
 }
 
 void SplineControlComponent::move(float p_DeltaTime)
@@ -98,27 +101,44 @@ void SplineControlComponent::move(float p_DeltaTime)
 		const std::vector<Vector3> &positions = m_Sequences.at(m_SplineSequence).m_Positions;
 		const std::vector<Vector3> &lookForward = m_Sequences.at(m_SplineSequence).m_LookForward;
 		const std::vector<Vector3> &lookUp = m_Sequences.at(m_SplineSequence).m_LookUp;
+		const std::vector<float> &time = m_Sequences.at(m_SplineSequence).m_Time;
 
+		m_CurrentTime += p_DeltaTime;
+		//if((unsigned int)m_Lifetime > positions.size() - 2)
+		//{
+		//	m_Lifetime = 0.f;
+		//	m_SplineActivated = false;
+		//	return;
+		//}
+		float nextTime = time.at(m_CurrentPoint + 1);
 
-		BodyHandle body = comp->getBodyHandle();
-
-		using namespace DirectX;
-		m_Lifetime += p_DeltaTime;
-		if((unsigned int)m_Lifetime > positions.size() - 2)
+		if(m_CurrentTime >= nextTime)
 		{
-			m_Lifetime = 0.f;
+			m_CurrentPoint++;
+			m_CurrentTime -= nextTime;
+		}
+
+		if(m_CurrentPoint > time.size() - 2)
+		{
+			m_CurrentTime = 0.f;
+			m_CurrentPoint = 0;
 			m_SplineActivated = false;
 			return;
 		}
-		m_Physics->setBodyPosition(body, catMullRom(positions, m_Lifetime));
+		float percentage = m_CurrentTime / nextTime;
 
-		lookComp->setLookForward(catMullRom(lookForward, m_Lifetime));
-		lookComp->setLookUp(catMullRom(lookUp, m_Lifetime));
 
-		m_FlyingDirection = Vector3();
+		BodyHandle body = comp->getBodyHandle();
+		m_Physics->setBodyPosition(body, catMullRom(positions, m_CurrentPoint, percentage));
+
+		lookComp->setLookForward(catMullRom(lookForward, m_CurrentPoint, percentage));
+		lookComp->setLookUp(catMullRom(lookUp, m_CurrentPoint, percentage));
+
+		//m_FlyingDirection = Vector3();
 	}
 	else
 	{
+		m_RecTimeBetweenPoint += p_DeltaTime;
 		defaultMove(p_DeltaTime);
 	}
 }
@@ -161,10 +181,21 @@ void SplineControlComponent::recordPoint()
 	if (!comp || !lookComp)
 		return;
 	
+	//If first time set time to 0.
+	if(m_Sequences.at(m_SplineSequence).m_Time.empty())
+		m_RecTimeBetweenPoint = 0.f;
+
+	//Limit the record time to 20s
+	static const float timeLimit = 20.f;
+	m_RecTimeBetweenPoint = (m_RecTimeBetweenPoint >= timeLimit) ? timeLimit : m_RecTimeBetweenPoint;
+
 	BodyHandle body = comp->getBodyHandle();
 	m_Sequences.at(m_SplineSequence).m_Positions.push_back(m_Physics->getBodyPosition(body));
 	m_Sequences.at(m_SplineSequence).m_LookForward.push_back(lookComp->getLookForward());
 	m_Sequences.at(m_SplineSequence).m_LookUp.push_back(lookComp->getLookUp());
+	m_Sequences.at(m_SplineSequence).m_Time.push_back(m_RecTimeBetweenPoint);
+
+	m_RecTimeBetweenPoint = 0.f;
 }
 void SplineControlComponent::removePreviousPoint()
 {
@@ -185,6 +216,8 @@ void SplineControlComponent::removePreviousPoint()
 		m_Sequences.at(m_SplineSequence).m_Positions.pop_back();
 		m_Sequences.at(m_SplineSequence).m_LookForward.pop_back();
 		m_Sequences.at(m_SplineSequence).m_LookUp.pop_back();
+		m_Sequences.at(m_SplineSequence).m_Time.pop_back();
+		m_RecTimeBetweenPoint = 0.f;
 	}
 }
 void SplineControlComponent::clearSequence()
@@ -205,6 +238,11 @@ void SplineControlComponent::runSpline(int p_Sequence)
 			m_SplineActivated = true;
 			m_SplineSequence = p_Sequence;
 		}
+	}
+	else
+	{
+		std::string msg = "Valid spline values: " + std::string(" to ") + std::to_string(m_Sequences.size() - 1);
+		Logger::log(Logger::Level::INFO, msg);
 	}
 }
 
@@ -243,6 +281,10 @@ void SplineControlComponent::savePath(const std::string &p_Filename)
 			ele->SetAttribute("z", m_Sequences.at(j).m_LookUp[i].z);
 			node->InsertEndChild(ele);
 
+			ele = doc.NewElement("Time");
+			ele->SetAttribute("s", m_Sequences.at(j).m_Time[i]);
+			node->InsertEndChild(ele);
+
 			sele->InsertEndChild(node);
 		}
 		doc.InsertEndChild(sele);
@@ -277,13 +319,14 @@ void SplineControlComponent::loadPath(const std::string &p_Filename)
 
 	m_Sequences.clear();
 	tinyxml2::XMLElement *seqElement = nullptr;
-	//For every node tag
+	//For every sequence tag
 	std::vector<Vector3> pos, forward, up;
 	for(seqElement = root; seqElement != nullptr; seqElement = seqElement->NextSiblingElement())
 	{
 		tinyxml2::XMLElement *element = nullptr;
 		//For every node tag
 		std::vector<Vector3> pos, forward, up;
+		std::vector<float> t;
 		for(element = seqElement->FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
 		{
 			Vector3 temp;
@@ -293,7 +336,6 @@ void SplineControlComponent::loadPath(const std::string &p_Filename)
 			posElement->QueryFloatAttribute("x", &temp.x);
 			posElement->QueryFloatAttribute("y", &temp.y);
 			posElement->QueryFloatAttribute("z", &temp.z);
-
 			pos.push_back(temp);
 			//Forward
 			posElement = posElement->NextSiblingElement();
@@ -301,7 +343,6 @@ void SplineControlComponent::loadPath(const std::string &p_Filename)
 			posElement->QueryFloatAttribute("x", &temp.x);
 			posElement->QueryFloatAttribute("y", &temp.y);
 			posElement->QueryFloatAttribute("z", &temp.z);
-
 			forward.push_back(temp);
 			//Up
 			posElement = posElement->NextSiblingElement();
@@ -309,13 +350,18 @@ void SplineControlComponent::loadPath(const std::string &p_Filename)
 			posElement->QueryFloatAttribute("x", &temp.x);
 			posElement->QueryFloatAttribute("y", &temp.y);
 			posElement->QueryFloatAttribute("z", &temp.z);
-
 			up.push_back(temp);
+			//Time
+			posElement = posElement->NextSiblingElement();
+			float time = 0.f;
+			posElement->QueryFloatAttribute("s", &time);
+			t.push_back(time);
 		}
 		sequence s;
 		s.m_Positions = pos;
 		s.m_LookForward = forward;
 		s.m_LookUp = up;
+		s.m_Time = t;
 		m_Sequences.push_back(s);
 	}
 }
@@ -352,6 +398,7 @@ void SplineControlComponent::selectSequence(unsigned int p_Sequence)
 
 		lookComp->setLookForward(lookForward.back());
 		lookComp->setLookUp(lookUp.back());
+		m_RecTimeBetweenPoint = 0.f;
 	}
 	else
 	{
@@ -360,29 +407,25 @@ void SplineControlComponent::selectSequence(unsigned int p_Sequence)
 	}
 }
 
-Vector3 SplineControlComponent::catMullRom(const std::vector<Vector3> &p_Path, float p_Lifetime)
+Vector3 SplineControlComponent::catMullRom(const std::vector<Vector3> &p_Path, unsigned int p_CurrPoint, float p_Percentage)
 {
-	using namespace DirectX;
-	unsigned int lifeTime = (unsigned int)p_Lifetime;
-	float proc = p_Lifetime - lifeTime;
+	DirectX::XMVECTOR p0, p4;
 
-	XMVECTOR p0, p4;
-
-	if(lifeTime == 0)
-		p0 = Vector3ToXMVECTOR(&p_Path.at(lifeTime), 1.f);
+	if(p_CurrPoint == 0)
+		p0 = Vector3ToXMVECTOR(&p_Path.at(p_CurrPoint), 1.f);
 	else
-		p0 = Vector3ToXMVECTOR(&p_Path.at(lifeTime - 1), 1.f);
+		p0 = Vector3ToXMVECTOR(&p_Path.at(p_CurrPoint - 1), 1.f);
 
-	if(lifeTime + 2 > p_Path.size() - 1)
-		p4 = Vector3ToXMVECTOR(&p_Path.at(lifeTime + 1), 1.f);
+	if(p_CurrPoint + 2 > p_Path.size() - 1)
+		p4 = Vector3ToXMVECTOR(&p_Path.at(p_CurrPoint + 1), 1.f);
 	else
-		p4 = Vector3ToXMVECTOR(&p_Path.at(lifeTime + 2), 1.f);
+		p4 = Vector3ToXMVECTOR(&p_Path.at(p_CurrPoint + 2), 1.f);
 
-	XMVECTOR ret = DirectX::XMVectorCatmullRom(p0, Vector3ToXMVECTOR(&p_Path.at(lifeTime), 1.f),
-		Vector3ToXMVECTOR(&p_Path.at(lifeTime + 1), 1.f), p4, proc);
+	DirectX::XMVECTOR ret = DirectX::XMVectorCatmullRom(p0, Vector3ToXMVECTOR(&p_Path.at(p_CurrPoint), 1.f),
+		Vector3ToXMVECTOR(&p_Path.at(p_CurrPoint + 1), 1.f), p4, p_Percentage);
 
-	XMFLOAT3 retPos;
-	XMStoreFloat3(&retPos, ret);
+	DirectX::XMFLOAT3 retPos;
+	DirectX::XMStoreFloat3(&retPos, ret);
 	return retPos;
 }
 
