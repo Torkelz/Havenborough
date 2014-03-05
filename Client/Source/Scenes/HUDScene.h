@@ -63,6 +63,8 @@ private:
 
 	void preLoadModels();
 	void releasePreLoadedModels();
+
+	void getHUDSettings( std::string id, Vector3 &pos, Vector3 &scale );
 public:
 	/*########## TEST FUNCTIONS ##########*/
 	int	getID() override;

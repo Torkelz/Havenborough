@@ -1,6 +1,7 @@
 #include "SplineControlComponent.h"
 #include "TweakSettings.h"
 #include "Logger.h"
+#include "CommonExceptions.h"
 
 SplineControlComponent::SplineControlComponent()
 	: m_Physics(nullptr),
@@ -82,10 +83,7 @@ void SplineControlComponent::postInit()
 		selectSequence(p_Sequence);
 	}));
 
-	m_Sequences.push_back(sequence());
-	m_SplineSequence = 0;
-	m_CurrentPoint = 0;
-	m_RecTimeBetweenPoint = 0.f;
+	reset();
 }
 
 void SplineControlComponent::move(float p_DeltaTime)
@@ -96,7 +94,7 @@ void SplineControlComponent::move(float p_DeltaTime)
 		std::shared_ptr<LookInterface> lookComp = m_LookComp.lock();
 		
 		if (!comp || !lookComp)
-			return;
+			throw ComponentException("Error when retrieving interfaces for move.", __LINE__, __FILE__);
 
 		const std::vector<Vector3> &positions = m_Sequences.at(m_SplineSequence).m_Positions;
 		const std::vector<Vector3> &lookForward = m_Sequences.at(m_SplineSequence).m_LookForward;
@@ -104,12 +102,7 @@ void SplineControlComponent::move(float p_DeltaTime)
 		const std::vector<float> &time = m_Sequences.at(m_SplineSequence).m_Time;
 
 		m_CurrentTime += p_DeltaTime;
-		//if((unsigned int)m_Lifetime > positions.size() - 2)
-		//{
-		//	m_Lifetime = 0.f;
-		//	m_SplineActivated = false;
-		//	return;
-		//}
+
 		float nextTime = time.at(m_CurrentPoint + 1);
 
 		if(m_CurrentTime >= nextTime)
@@ -173,13 +166,13 @@ void SplineControlComponent::setPhysics(IPhysics* p_Physics)
 	m_Physics = p_Physics;
 }
 
-void SplineControlComponent::recordPoint()
+bool SplineControlComponent::recordPoint()
 {
 	std::shared_ptr<PhysicsInterface> comp = m_PhysicsComp.lock();
 	std::shared_ptr<LookInterface> lookComp = m_LookComp.lock();
 
 	if (!comp || !lookComp)
-		return;
+		return false;
 	
 	//If first time set time to 0.
 	if(m_Sequences.at(m_SplineSequence).m_Time.empty())
@@ -196,8 +189,9 @@ void SplineControlComponent::recordPoint()
 	m_Sequences.at(m_SplineSequence).m_Time.push_back(m_RecTimeBetweenPoint);
 
 	m_RecTimeBetweenPoint = 0.f;
+	return true;
 }
-void SplineControlComponent::removePreviousPoint()
+bool SplineControlComponent::removePreviousPoint()
 {
 	if(m_Sequences.size() > 0 && m_Sequences.at(m_SplineSequence).m_Positions.size() > 0)
 	{
@@ -205,7 +199,7 @@ void SplineControlComponent::removePreviousPoint()
 		std::shared_ptr<LookInterface> lookComp = m_LookComp.lock();
 
 		if (!comp || !lookComp)
-			return;
+			return false;
 		BodyHandle body = comp->getBodyHandle();
 
 		m_Physics->setBodyPosition(body, m_Sequences.at(m_SplineSequence).m_Positions.back());
@@ -218,7 +212,10 @@ void SplineControlComponent::removePreviousPoint()
 		m_Sequences.at(m_SplineSequence).m_LookUp.pop_back();
 		m_Sequences.at(m_SplineSequence).m_Time.pop_back();
 		m_RecTimeBetweenPoint = 0.f;
+		return true;
 	}
+	else
+		return false;
 }
 void SplineControlComponent::clearSequence()
 {
@@ -246,8 +243,14 @@ void SplineControlComponent::runSpline(int p_Sequence)
 	}
 }
 
-void SplineControlComponent::savePath(const std::string &p_Filename)
+bool SplineControlComponent::savePath(const std::string &p_Filename)
 {
+	if(m_Sequences.size() == 1 && m_Sequences.front().m_Time.empty())
+	{
+		Logger::log(Logger::Level::INFO, "Nothing to save.");
+		return false;
+	}
+
 	using namespace tinyxml2;
 	XMLDocument doc;
 	doc.InsertFirstChild(doc.NewDeclaration());
@@ -293,11 +296,19 @@ void SplineControlComponent::savePath(const std::string &p_Filename)
 	path = path / std::string(p_Filename + ".xml");
 
 	XMLError res = doc.SaveFile(path.string().c_str());
-	if(res != XML_NO_ERROR)
-		int dummy = 0;
+	if(res == XML_NO_ERROR)
+	{
+		Logger::log(Logger::Level::INFO, "Successfully saved " + std::string(p_Filename + ".xml"));
+		return true;
+	}
+	else
+	{
+		Logger::log(Logger::Level::INFO, "Failed to save " + std::string(p_Filename + ".xml"));
+		return false;
+	}
 }
 
-void SplineControlComponent::loadPath(const std::string &p_Filename)
+bool SplineControlComponent::loadPath(const std::string &p_Filename)
 {
 	boost::filesystem::path path = boost::filesystem::initial_path();
 	path = path / std::string(p_Filename + ".xml");
@@ -307,14 +318,14 @@ void SplineControlComponent::loadPath(const std::string &p_Filename)
 	if(res != tinyxml2::XML_NO_ERROR)
 	{
 		Logger::log(Logger::Level::INFO, "Failed to open " + std::string(p_Filename + ".xml"));
-		return;
+		return false;
 	}
 	
 	tinyxml2::XMLElement *root = doc.FirstChildElement();
 	if(root == nullptr)
 	{
 		Logger::log(Logger::Level::INFO, "Failed to read root in " + std::string(p_Filename + ".xml"));
-		return;
+		return false;
 	}
 
 	m_Sequences.clear();
@@ -364,6 +375,7 @@ void SplineControlComponent::loadPath(const std::string &p_Filename)
 		s.m_Time = t;
 		m_Sequences.push_back(s);
 	}
+	return true;
 }
 
 void SplineControlComponent::newSequence()
@@ -458,4 +470,43 @@ void SplineControlComponent::defaultMove(float p_DeltaTime)
 	m_Physics->applyImpulse(body, fForceDiff);
 
 	m_FlyingDirection = Vector3();
+}
+
+/**
+ * Methods used for testing purposes. Should only be used for testing.
+ *
+ */
+bool SplineControlComponent::savePathTest(const std::string &p_Filename)
+{
+	return savePath(p_Filename);
+}
+bool SplineControlComponent::loadPathTest(const std::string &p_Filename)
+{
+	return loadPath(p_Filename);
+}
+
+void SplineControlComponent::recordPointTest(Vector3 p,Vector3 f,Vector3 u,float t)
+{
+	m_Sequences.at(m_SplineSequence).m_Positions.push_back(p);
+	m_Sequences.at(m_SplineSequence).m_LookForward.push_back(f);
+	m_Sequences.at(m_SplineSequence).m_LookUp.push_back(u);
+	m_Sequences.at(m_SplineSequence).m_Time.push_back(t);
+}
+void SplineControlComponent::setComponents(std::weak_ptr<PhysicsInterface> p, std::weak_ptr<LookInterface> l)
+{
+	m_LookComp = l;
+	m_PhysicsComp = p;
+}
+
+void SplineControlComponent::reset()
+{
+	m_Sequences.push_back(sequence());
+	m_SplineSequence = 0;
+	m_CurrentPoint = 0;
+	m_RecTimeBetweenPoint = 0.f;
+}
+
+void SplineControlComponent::runSplineTest(unsigned int p)
+{
+	runSpline(p);
 }

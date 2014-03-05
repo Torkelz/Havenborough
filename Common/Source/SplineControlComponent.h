@@ -50,25 +50,38 @@ public:
 	/**
 	 * Records a spline point. The position, look direction, camera up and timespan.
 	 *
+	 * @return true if successful, false if it did not record.
 	 */
-	void recordPoint();
+	bool recordPoint();
 
 	/**
 	 * Removes a spline point and set the camera to the last point.
 	 *
+	 * @return true if successful, false if it did not remove a point
 	 */
-	void removePreviousPoint();
+	bool removePreviousPoint();
 
 	/**
 	 * Clears current sequence
 	 *
 	 */
 	void clearSequence();
+
+	/**
+	 * Methods used for testing purposes. Should only be used for testing.
+	 *
+	 */
+	bool savePathTest(const std::string &p_Filename);
+	bool loadPathTest(const std::string &p_Filename);
+	void recordPointTest(Vector3 p,Vector3 f,Vector3 u,float t);
+	void runSplineTest(unsigned int p);
+	void setComponents(std::weak_ptr<PhysicsInterface> p, std::weak_ptr<LookInterface> l);
+	void reset();
 private:
 	void runSpline(int p_Sequence);
 	
-	void savePath(const std::string &p_Filename);
-	void loadPath(const std::string &p_Filename);
+	bool savePath(const std::string &p_Filename);
+	bool loadPath(const std::string &p_Filename);
 
 	void newSequence();
 	void currentSequence();
