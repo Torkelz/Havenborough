@@ -8,7 +8,7 @@ RunControlComponent::RunControlComponent()
 	m_MaxSpeed(0.f),
 	m_MaxSpeedDefault(0.f),
 	m_MaxSpeedCurrent(0.f),
-	m_MaxSpeedAccelerationFactor(100.f),
+	m_MaxSpeedAccelerationFactor(125.f),
 	m_AccConstant(0.f),
 	m_GroundNormal(0.f, 1.f, 0.f)
 {

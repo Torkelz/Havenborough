@@ -33,6 +33,8 @@ protected:
 	bool				m_IsEdge;
 	bool				m_Landed;
 
+	bool				m_LiftOff;
+
 	std::vector<BoundingVolume::ptr> m_Volumes;
 public:
 	/**
@@ -231,6 +233,17 @@ public:
 	void addFallTime(float p_DeltaTime);
 
 	void setFallTime(float p_newTime);
+
+	/**
+	* Get the bool for if the body is on a has landed on a surface.
+	* @return true if the body is on a surface, otherwise false.
+	*/
+	bool getLiftOff();
+	/**
+	* Sets the bool for if the body has landed on a surface.
+	* @p_Bool, sets the bool to this parameter.
+	*/
+	void setLiftOff(bool p_Bool);
 
 private:
 	/**

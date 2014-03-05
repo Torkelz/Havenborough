@@ -15,7 +15,7 @@ void Body::resetBodyHandleCounter()
 }
 
 Body::Body(float p_mass, BoundingVolume::ptr p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
-	: m_Handle(getNextHandle()), m_fallTolerance(0.1f)
+	: m_Handle(getNextHandle()), m_fallTolerance(0.2f)
 {
 	if(!p_BoundingVolume)
 		m_Position = XMFLOAT4(0.f, 0.f, 0.f, 1.f);
@@ -41,6 +41,7 @@ Body::Body(float p_mass, BoundingVolume::ptr p_BoundingVolume, bool p_IsImmovabl
 	m_IsEdge			= p_IsEdge;
 	m_Landed			= false;
 	m_fallTime			= 0.f;
+	m_LiftOff			= false;
 }
 
 Body::Body(Body &&p_Other)
@@ -349,4 +350,14 @@ void Body::addFallTime(float p_DeltaTime)
 void Body::setFallTime(float p_newTime)
 {
 	m_fallTime = p_newTime;
+}
+
+bool Body::getLiftOff()
+{
+	return m_LiftOff;
+}
+
+void Body::setLiftOff(bool p_bool)
+{
+	m_LiftOff = p_bool;
 }

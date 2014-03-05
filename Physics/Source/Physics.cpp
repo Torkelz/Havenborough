@@ -83,7 +83,7 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 				continue;
 
 			b.update(p_DeltaTime);
-			
+
 			b.setLanded(false);
 
 			bool isOnGround = false;
@@ -104,23 +104,28 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 						}
 					}
 				}
-				if(!m_IsServer)
-				{
-					//b.setOnSomething(isOnGround);
-					//if(!b.getInAir() && !isOnGround)
-					//{
-					//	b.addFallTime(p_DeltaTime);
+			}
 
-					//	if(b.getFallTime() > b.getFallTolerance())
-					//	{
-					//		b.setInAir(true);
-					//		b.setFallTime(0.f);
-					//	}
-					//}
-					//else
-					//	b.setInAir(false);
-					b.setOnSomething(isOnGround);
-					b.setInAir(!b.getOnSomething());
+			if(!m_IsServer)
+			{
+				b.setOnSomething(isOnGround);
+
+				if(!b.getOnSomething())
+				{
+					if(!b.getInAir())
+					{
+						b.addFallTime(p_DeltaTime);
+
+						if(b.getFallTime() > b.getFallTolerance())
+						{
+							b.setInAir(true);
+							b.setFallTime(0.f);
+						}
+					}
+				}
+				else
+				{
+					b.setInAir(false);
 				}
 			}
 		}
@@ -156,6 +161,7 @@ void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolum
 					b.setLanded(true);
 				}
 
+				
 				p_IsOnGround = true;
 
 				posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
