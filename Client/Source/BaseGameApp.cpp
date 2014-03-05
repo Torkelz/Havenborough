@@ -6,8 +6,9 @@
 #include "Scenes/HUDScene.h"
 #include "Scenes/GameScene.h"
 
-#include <sstream>
 #include <iomanip>
+#include <memory>
+#include <sstream>
 
 using namespace DirectX;
 
@@ -309,13 +310,25 @@ void BaseGameApp::updateDebugInfo()
 	unsigned int PRUsage = m_MemoryInfo.getPhysicalMemoryUsage();
 	unsigned int VUsage = m_Graphics->getVRAMUsage();
 	unsigned int BToMB = 1024 * 1024;
-	std::string vMemUsage = "Virtual RAM usage: " + std::to_string(VRUsage) + "B" + " (" + std::to_string(VRUsage/BToMB) + "MB)";
-	std::string pMemUsage = "Physical RAM usage: " + std::to_string(PRUsage) + "B" + " (" + std::to_string(PRUsage/BToMB) + "MB)";
-	std::string gMemUsage = "Video usage: " + std::to_string(VUsage) + "B" + " (" + std::to_string(VUsage/BToMB) + "MB)";
+	std::string vMemUsage = std::to_string(VRUsage) + "B" + " (" + std::to_string(VRUsage/BToMB) + "MB)";
+	std::string pMemUsage = std::to_string(PRUsage) + "B" + " (" + std::to_string(PRUsage/BToMB) + "MB)";
+	std::string gMemUsage = std::to_string(VUsage) + "B" + " (" + std::to_string(VUsage/BToMB) + "MB)";
 
-	std::string speed = "DeltaTime: " + std::to_string(m_DeltaTime) + " FPS: " + std::to_string(1.0f/m_DeltaTime);
+	std::shared_ptr<HUDScene> hud_Scene = std::dynamic_pointer_cast<HUDScene>(m_SceneManager.getScene(RunScenes::GAMEHUD));
+	if (hud_Scene)
+	{
+		DebugInfo& info = hud_Scene->getDebugInfo();
 
-	m_Window.setTitle(getGameTitle() + " | " + vMemUsage + " | " + pMemUsage + " | " + gMemUsage + " | " + speed);
+		info.updateDebugInfo("Virtual RAM", vMemUsage);
+		info.updateDebugInfo("Physical RAM", pMemUsage);
+		info.updateDebugInfo("Video RAM", gMemUsage);
+
+		char buffer[10];
+		std::sprintf(buffer, "%.1f", 1.0f / m_DeltaTime);
+		info.updateDebugInfo("FPS", buffer);
+		std::sprintf(buffer, "%.1f ms", m_DeltaTime * 1000.f);
+		info.updateDebugInfo("DeltaTime", buffer);
+	}
 }
 
 void BaseGameApp::resetTimer()

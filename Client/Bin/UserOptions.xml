@@ -41,6 +41,7 @@
     <KeyMap Display="Main menu?" Command="goToMainMenu" Key="Return" />
     <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="O" />
     <KeyMap Display="Look back" Command="flipCamera" Key="P" />
+	<KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="114" />
     <KeyMap Display="Spline Record" Command="splineRecord" Key="R" />
     <KeyMap Display="Spline Remove" Command="splineRemove" Key="T" />
     <KeyMap Display="Spline Clear" Command="splineClear" Key="Y" />

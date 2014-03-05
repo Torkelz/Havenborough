@@ -13,6 +13,7 @@ HUDScene::HUDScene()
 	m_EventManager = nullptr;
 	m_ResourceManager = nullptr;
 	m_RenderHUD = true;
+	m_ShowDebugInfo = false;
 }
 
 HUDScene::~HUDScene()
@@ -66,6 +67,27 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 	}
 
 	m_Graphics->set2D_ObjectLookAt(m_GUI["Arrow"], m_CheckpointPosition);
+
+	if (m_ShowDebugInfo)
+	{
+		std::string debugTextKey;
+		for (const auto& val : m_DebugInfo.getInfoList())
+		{
+			debugTextKey += val.first + '\n';
+		}
+		std::vector<wchar_t> wText(debugTextKey.length() + 1);
+		mbstowcs(wText.data(), debugTextKey.data(), debugTextKey.length() + 1);
+		m_Graphics->updateText(m_TextHandle["DebugTextKey"], wText.data());
+
+		std::string debugTextValue;
+		for (const auto& val : m_DebugInfo.getInfoList())
+		{
+			debugTextValue += val.second + '\n';
+		}
+		wText.resize(debugTextValue.length() + 1);
+		mbstowcs(wText.data(), debugTextValue.data(), debugTextValue.length() + 1);
+		m_Graphics->updateText(m_TextHandle["DebugTextValue"], wText.data());
+	}
 }
 
 void HUDScene::onFocus()
@@ -87,6 +109,11 @@ void HUDScene::render()
 		m_Graphics->render2D_Object(m_GUI["Time"]);
 		m_Graphics->render2D_Object(m_GUI["RacePos"]);
 		m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
+	if (m_ShowDebugInfo)
+	{
+		m_Graphics->render2D_Object(m_GUI["DebugTextKey"]);
+		m_Graphics->render2D_Object(m_GUI["DebugTextValue"]);
+	}
 
 		if(m_RenderCountdown)
 		{
@@ -110,7 +137,13 @@ void HUDScene::setIsVisible(bool p_SetVisible)
 
 void HUDScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-
+	if (p_Value > 0.5f)
+	{
+		if (p_Action == "toggleDebugInfo")
+		{
+			m_ShowDebugInfo = !m_ShowDebugInfo;
+		}
+	}
 }
 
 void HUDScene::setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings)
@@ -118,6 +151,11 @@ void HUDScene::setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Set
 	releasePreLoadedModels();
 	m_HUDSettings = p_Settings;
 	preLoadModels();
+}
+
+DebugInfo& HUDScene::getDebugInfo()
+{
+	return m_DebugInfo;
 }
 
 void HUDScene::createGUIElement(std::string p_GUIIdentifier, int p_Id)
@@ -258,7 +296,18 @@ void HUDScene::preLoadModels()
 
 	createTextElement("RacePosBG", m_Graphics->createText(L"Position: 0", Vector2(204, 69), "Segoe UI", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(398, 318, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
-
+	
+	createTextElement("DebugTextKey", m_Graphics->createText(L"", Vector2(300.f, 400.f), "Segoe UI", 30, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	m_Graphics->setTextAlignment(m_TextHandle["DebugTextKey"], TEXT_ALIGNMENT::LEADING);
+	m_Graphics->setTextParagraphAlignment(m_TextHandle["DebugTextKey"], PARAGRAPH_ALIGNMENT::NEAR_ALIGNMENT);
+	m_Graphics->setTextBackgroundColor(m_TextHandle["DebugTextKey"], Vector4(0.f, 0.f, 0.f, 0.4f));
+	createGUIElement("DebugTextKey", m_Graphics->create2D_Object(Vector3(-490.f, 160.f, 3.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextKey"]));
+	
+	createTextElement("DebugTextValue", m_Graphics->createText(L"", Vector2(300.f, 400.f), "Segoe UI", 30, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	m_Graphics->setTextAlignment(m_TextHandle["DebugTextValue"], TEXT_ALIGNMENT::LEADING);
+	m_Graphics->setTextParagraphAlignment(m_TextHandle["DebugTextValue"], PARAGRAPH_ALIGNMENT::NEAR_ALIGNMENT);
+	m_Graphics->setTextBackgroundColor(m_TextHandle["DebugTextValue"], Vector4(0.f, 0.f, 0.f, 0.4f));
+	createGUIElement("DebugTextValue", m_Graphics->create2D_Object(Vector3(-190.f, 160.f, 3.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextValue"]));
 }
 
 void HUDScene::releasePreLoadedModels()
