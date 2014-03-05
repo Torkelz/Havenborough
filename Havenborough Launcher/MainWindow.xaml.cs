@@ -195,7 +195,7 @@ namespace Havenborough_Launcher
             {
                 case "FovSlider":
                     FovValue.Text = ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
-                    if ((int) slider.Value == 110)
+                    if ((int) slider.Value == 70)
                         FovValue.Text = "Quake Pro";
                     break;
                 case "MouseSenseSlider":
