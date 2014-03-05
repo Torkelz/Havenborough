@@ -149,15 +149,15 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 {
 	Vector3 AABBScale = p_Scale;
 	AABBScale.x *= 75.f;
-	AABBScale.y *= 500.f;
+	AABBScale.y *= 60.f;
 	AABBScale.z *= 75.f;
 
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_Position);
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "Checkpoint1");
-	pushVector(printer, "Scale", p_Scale);
+	//printer.OpenElement("Model");
+	//printer.PushAttribute("Mesh", "Checkpoint1");
+	//pushVector(printer, "Scale", p_Scale);
 	printer.CloseElement();
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);

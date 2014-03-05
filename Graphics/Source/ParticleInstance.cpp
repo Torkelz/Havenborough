@@ -1,6 +1,7 @@
 #include "ParticleInstance.h"
 #include <functional>
 #include <algorithm>
+#include <chrono>
 
 ParticleInstance::ParticleInstance()
 {
@@ -9,7 +10,7 @@ ParticleInstance::ParticleInstance()
 	m_AccumulatedTime = 0.f;
 	m_SysLife = 0.f;
 	m_SysMaxLife = -1.f;
-	//m_Seppuku = false;
+	m_Seppuku = false;
 }
 
 ParticleInstance::~ParticleInstance()
@@ -23,6 +24,8 @@ void ParticleInstance::init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_p
 	m_ParticleEffectDef = p_ParticleEffectDefinition;
 	m_ParticleList.reserve(m_ParticleEffectDef->maxParticles);
 
+	m_RandomEngine.seed(std::chrono::system_clock::now().time_since_epoch().count());
+	
 	if (m_ParticleEffectDef->particleColorBase.x != -1)
 	{	
 		m_SysBaseColor = DirectX::XMFLOAT4(m_ParticleEffectDef->particleColorBase.x,
@@ -80,7 +83,9 @@ void ParticleInstance::updateParticles(float p_DeltaTime)
 			(part.shaderData.position.x + part.velocity.x * p_DeltaTime),
 			(part.shaderData.position.y + part.velocity.y * p_DeltaTime),
 			(part.shaderData.position.z + part.velocity.z * p_DeltaTime));
+		
 		part.shaderData.color.w = m_ParticleEffectDef->particleColorBase.w * (1 - (part.life/part.maxLife));
+		
 		part.life += p_DeltaTime;
 	}
 }
@@ -96,6 +101,8 @@ void ParticleInstance::emitNewParticles(float p_DeltaTime)
 	//check if new particles are to be emitted or not
 	while (m_AccumulatedTime > timePerParticle)
 	{
+		
+
 		m_AccumulatedTime -= timePerParticle;
 
 		if (m_ParticleList.size() >= m_ParticleEffectDef->maxParticles)

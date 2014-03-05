@@ -18,16 +18,16 @@ void CheckpointSystem::addCheckpoint(const std::weak_ptr<Actor> p_Checkpoint)
 {
 	std::weak_ptr<ModelInterface> mI = p_Checkpoint.lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
 
-	if(m_Checkpoints.empty())
-	{
-		mI.lock()->setColorTone(m_FinishColorTone);
-	}
-	else if(m_Checkpoints.size() > 1)
-	{
-		mI.lock()->setColorTone(m_CurrentColorTone);
-		mI = m_Checkpoints.back().lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
-		mI.lock()->setColorTone(m_DefaultColorTone);
-	}
+	//if(m_Checkpoints.empty())
+	//{
+	//	mI.lock()->setColorTone(m_FinishColorTone);
+	//}
+	//else if(m_Checkpoints.size() > 1)
+	//{
+	//	mI.lock()->setColorTone(m_CurrentColorTone);
+	//	mI = m_Checkpoints.back().lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
+	//	mI.lock()->setColorTone(m_DefaultColorTone);
+	//}
 
 	m_Checkpoints.push_back(p_Checkpoint);
 }
