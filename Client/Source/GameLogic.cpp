@@ -4,6 +4,8 @@
 #include "ClientExceptions.h"
 #include "HumanAnimationComponent.h"
 #include "Logger.h"
+#include "SplineControlComponent.h"
+#include "TweakSettings.h"
 
 #include <sstream>
 
@@ -47,6 +49,14 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_StartLocal = false;
 	m_PlayerTimeDifference = 0.f;
 	m_PlayerPositionInRace = 0;
+
+	TweakSettings* settings = TweakSettings::getInstance();
+	settings->setSetting("camera.mode",2);
+	settings->setListener("camera.mode", std::function<void(int)>(
+		[&] (int p_Mode)
+	{
+		changeCameraMode(p_Mode);
+	}));
 
 	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // Maybe not here.
 }
@@ -373,9 +383,10 @@ void GameLogic::playLocalLevel()
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
-	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
+	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
+	
 	m_Player = Player();
-	m_Player.initialize(m_Physics, nullptr, playerActor);
+	m_Player.initialize(m_Physics, nullptr, m_PlayerDefault);
 
 	m_InGame = true;
 	m_PlayingLocal = true;
@@ -494,6 +505,36 @@ float GameLogic::getPlayerTimeDifference()
 void GameLogic::setPlayerClimb(bool p_State)
 {
 	m_Player.setClimbing(p_State);
+}
+
+void GameLogic::recordSpline()
+{
+	std::shared_ptr<SplineControlComponent> moveComp = m_Player.getActor().lock()->getComponent<SplineControlComponent>(SplineControlComponent::m_ComponentId).lock();
+
+	if(moveComp)
+	{
+		moveComp->recordPoint();
+	}
+}
+
+void GameLogic::removeLastSplineRecord()
+{
+	std::shared_ptr<SplineControlComponent> moveComp = m_Player.getActor().lock()->getComponent<SplineControlComponent>(SplineControlComponent::m_ComponentId).lock();
+
+	if(moveComp)
+	{
+		moveComp->removePreviousPoint();
+	}
+}
+
+void GameLogic::clearSplineSequence()
+{
+	std::shared_ptr<SplineControlComponent> moveComp = m_Player.getActor().lock()->getComponent<SplineControlComponent>(SplineControlComponent::m_ComponentId).lock();
+
+	if(moveComp)
+	{
+		moveComp->clearSequence();
+	}
 }
 
 void GameLogic::handleNetwork()
@@ -855,6 +896,7 @@ void GameLogic::handleNetwork()
 					{
 						m_Player = Player();
 						m_Player.initialize(m_Physics, m_Network, actor);
+						m_PlayerDefault = actor;
 					}
 
 					conn->sendDoneLoading();
@@ -986,6 +1028,37 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 		m_CountdownTimer -= p_DeltaTime;
 		if(!(m_CountdownTimer - p_DeltaTime >= 0.f))
 			m_RenderGo = false;
+	}
+}
+
+void GameLogic::changeCameraMode(unsigned int p_Mode)
+{
+	switch (p_Mode)
+	{
+	case 0:
+		if(m_SplineCamera.expired())
+			m_SplineCamera = addActor(m_ActorFactory->createSplineCamera(m_Level.getStartPosition()));
+		Logger::log(Logger::Level::INFO, "Changed to spline camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
+		m_Player.setActor(m_SplineCamera);
+		break;
+	case 1:
+		if(m_FlyingCamera.expired())
+			m_FlyingCamera = addActor(m_ActorFactory->createFlyingCamera(m_Level.getStartPosition()));
+		Logger::log(Logger::Level::INFO, "Changed to flying camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
+		m_Player.setActor(m_FlyingCamera);
+		break;
+	case 2:
+		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
+		m_Player.setActor(m_PlayerDefault);
+		break;
+	default:
+		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
+		m_Player.setActor(m_PlayerDefault);
+		break;
 	}
 }
 

@@ -44,6 +44,10 @@ private:
 
 	Actor::wPtr m_PlayerSparks;
 
+	Actor::wPtr m_FlyingCamera;
+	Actor::wPtr m_SplineCamera;
+	Actor::wPtr m_PlayerDefault;
+
 	bool m_IsConnecting;
 	bool m_Connected;
 	bool m_InGame;
@@ -128,6 +132,24 @@ public:
 	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
 	 */
 	void setPlayerClimb(bool p_State);
+
+	/**
+	 * Records a spline point. Position, look direction and up direction is saved.
+	 *
+	 */
+	void recordSpline();
+
+	/**
+	 * Removes last added spline point.
+	 *
+	 */
+
+	void removeLastSplineRecord();
+	/**
+	 * Clear current spline sequence.
+	 *
+	 */
+	void clearSplineSequence();
 	
 private:
 	void handleNetwork();
@@ -147,6 +169,8 @@ private:
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
 
 	void updateCountdownTimer(float p_DeltaTime);
+
+	void changeCameraMode(unsigned int p_Mode);
 
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();

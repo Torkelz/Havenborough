@@ -275,6 +275,18 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->playerWave();
 	}
+	else if(p_Action == "splineRecord" && p_Value == 1.0f)
+	{
+		m_GameLogic->recordSpline();
+	}
+	else if(p_Action == "splineRemove" && p_Value == 1.0f)
+	{
+		m_GameLogic->removeLastSplineRecord();
+	}
+	else if(p_Action == "splineClear" && p_Value == 1.0f)
+	{
+		m_GameLogic->clearSplineSequence();
+	}
 }
 
 void GameScene::setMouseSensitivity(float p_Value)

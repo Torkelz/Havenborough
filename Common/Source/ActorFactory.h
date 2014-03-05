@@ -91,23 +91,19 @@ public:
 	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id);
 
 	// ************ Test methods ************
-	Actor::ptr createRotatingBox(Vector3 p_Position, Vector3 p_Scale);
-	Actor::ptr createSkybox(Vector3 p_Scale);
-	Actor::ptr createBasicModel(const std::string& p_Model, Vector3 p_Position);
-	Actor::ptr createCollisionSphere(Vector3 p_Position, float p_Radius);
-	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone);
 	std::string getPlayerActorDescription(Vector3 p_Position) const;
+	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
+	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone);
 	Actor::ptr createPlayerActor(Vector3 p_Position);
 	Actor::ptr createDirectionalLight(Vector3 p_Direction, Vector3 p_Color, float p_Intensity);
 	Actor::ptr createSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);
 	Actor::ptr createPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
-	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
-	Actor::ptr createCheckPointArrow();
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect, Vector4 p_BaseColor);
 	Actor::ptr createSpell(const std::string& p_Spell, Actor::Id p_CasterId, Vector3 p_Direction, Vector3 p_StartPosition);
-	Actor::ptr createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation);
 	Actor::ptr createFlyingCamera(Vector3 p_Position);
+	Actor::ptr createSplineCamera(Vector3 p_Position);
+
 	struct InstanceModel
 	{
 		Vector3 position;
@@ -157,6 +153,7 @@ private:
 	ActorComponent::ptr createLookComponent();
 	ActorComponent::ptr createHumanAnimationComponent();
 	ActorComponent::ptr createFlyingControlComponent();
+	ActorComponent::ptr createSplineControlComponent();
 	ActorComponent::ptr createRunControlComponent();
 
 	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceModel& p_Model);

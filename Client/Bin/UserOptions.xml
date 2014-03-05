@@ -41,6 +41,9 @@
     <KeyMap Display="Main menu?" Command="goToMainMenu" Key="Return" />
     <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="O" />
     <KeyMap Display="Look back" Command="flipCamera" Key="P" />
+    <KeyMap Display="Spline Record" Command="splineRecord" Key="R" />
+    <KeyMap Display="Spline Remove" Command="splineRemove" Key="T" />
+    <KeyMap Display="Spline Clear" Command="splineClear" Key="Y" />
     <!--Mouse input-->
     <MouseMap Display="MouseMoveHori" Command="mouseMoveHori" Position="mousePosHori" Movement="Horizontal" />
     <MouseMap Display="MouseMoveVert" Command="mouseMoveVert" Position="mousePosVert" Movement="Vertical" />

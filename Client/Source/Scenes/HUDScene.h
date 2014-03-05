@@ -10,7 +10,6 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
-	float m_PlayerTime;
 
 	IGraphics *m_Graphics;
 	EventManager *m_EventManager;
@@ -23,6 +22,7 @@ private:
 	std::map<std::string, Settings::HUDSettings> m_HUDSettings;
 
 	bool m_RenderCountdown;
+	bool m_RenderHUD;
 	Vector3 m_CheckpointPosition;
 public: 
 	HUDScene();
@@ -59,9 +59,12 @@ private:
 	void updateCheckpointPosition(IEventData::Ptr p_Data);
 	void updatePlayerTime(IEventData::Ptr p_Data);
 	void updatePlayerRacePosition(IEventData::Ptr p_Data);
+	void activateHUD(IEventData::Ptr p_Data);
 
 	void preLoadModels();
 	void releasePreLoadedModels();
+
+	void getHUDSettings( std::string id, Vector3 &pos, Vector3 &scale );
 public:
 	/*########## TEST FUNCTIONS ##########*/
 	int	getID() override;
