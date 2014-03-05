@@ -178,7 +178,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Object");
 	pushVector(printer, p_Position);
 	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "Dzala");
+	printer.PushAttribute("Mesh", "Zane");
 	printer.CloseElement();
 
 	printer.OpenElement("PlayerPhysics");
@@ -199,7 +199,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.OpenElement("Look");
 	printer.CloseElement();
 	printer.OpenElement("HumanAnimation");
-	printer.PushAttribute("Animation", "Dzala");
+	printer.PushAttribute("Animation", "Zane");
 	printer.CloseElement();
 	printer.CloseElement();
 

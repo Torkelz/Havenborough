@@ -2,7 +2,7 @@
   <Server Hostname="localhost" Port="31415" />
   <!-- Test ip: 194.47.150.44 -->
   <Game Level="Test Level" Username="Player" />
-  <Character Name="Dzala" Style="Green" />
+  <Character Name="Zane" Style="Green" />
   <Settings>
     <SSAO Enabled="false" />
     <ShadowMap Enabled="false" />

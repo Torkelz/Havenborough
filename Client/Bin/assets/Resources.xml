@@ -96,6 +96,7 @@
         <Resource Name="CaveWall1" Path="assets/models/CaveWall1.btx"/>
         <Resource Name="Island2" Path="assets/models/Island2.btx"/>
         <Resource Name="Island2Top1" Path="assets/models/Island2Top1.btx"/>
+        <Resource Name="Zane" Path="assets/models/Zane.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Aqueduct1" Path="assets/volumes/CB_Aqueduct1.txc"/>
@@ -175,5 +176,6 @@
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>
+        <Resource Name="Zane" Path="assets/animations/Zane.atx"/>
     </ResourceType>
 </Resources>
