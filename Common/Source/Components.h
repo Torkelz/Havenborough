@@ -1625,4 +1625,5 @@ public:
 	virtual void setLocalDirection(const Vector3& p_Direction) = 0;
 	virtual float getMaxSpeed() const = 0;
 	virtual void setMaxSpeed(float p_Speed) = 0;
+	virtual float getMaxSpeedDefault() const = 0;
 };

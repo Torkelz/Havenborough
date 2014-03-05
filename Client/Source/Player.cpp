@@ -12,7 +12,7 @@ Player::Player(void)
     m_JumpCountMax = 2;
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
-	m_JumpForce = 4000.f;
+	m_JumpForce = 7000.f;
 	m_ForceMove = false;
 	m_CurrentForceMoveTime = 0.f;
 	m_Height = 170.f;
@@ -60,7 +60,7 @@ void Player::update(float p_DeltaTime)
 	Vector3 v3Vel = m_Physics->getBodyVelocity(getBody());
 	float v = XMVector4Length(Vector3ToXMVECTOR(&v3Vel, 0.f)).m128_f32[0];
 	std::shared_ptr<MovementControlInterface> moveComp = m_Actor.lock()->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
-	if(moveComp && v >= moveComp->getMaxSpeed() - 50.f)
+	if(moveComp && v >= moveComp->getMaxSpeedDefault() - 100.f)
 	{
 		m_IsAtMaxSpeed = true;
 		m_CurrentMana += m_ManaRegenerationFast * p_DeltaTime;
