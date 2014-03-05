@@ -412,8 +412,8 @@ b3 R_FootBase
 *IKgroup
 na Head
 b1 notUsed
-b2 Neck
-b3 Head
+b2 notUsed
+b3 Neck
 
 *Path
 na	Climb1

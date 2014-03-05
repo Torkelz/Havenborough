@@ -150,8 +150,15 @@ void GameLogic::onFrame(float p_DeltaTime)
 	std::shared_ptr<AnimationInterface> animation = playerActor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
 	if(!animation)
 		return;
+
+	XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
+	XMVECTOR vForward = XMLoadFloat3(&m_lookAtPos);
+	//vForward.m128_f32[0] = -vForward.m128_f32[0]; 
+	actorPos += vForward * 10;
+	XMFLOAT3 tempLook;
+	XMStoreFloat3(&tempLook, actorPos);
 	
-	animation->applyLookAtIK("Head", XMFLOAT3(4939.750618f, 0.0f, -3393.226911f), 1.0f);
+	animation->applyLookAtIK("Head", tempLook, 1.0f);
 }
 
 void GameLogic::setPlayerDirection(Vector2 p_Direction)
@@ -333,9 +340,7 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 		return;
 	}
 
-	XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
-	actorPos += vForward * 10;
-	XMStoreFloat3(&m_lookAtPos, actorPos);
+	XMStoreFloat3(&m_lookAtPos, vForward);
 
 	look->setLookForward(forward);
 	look->setLookUp(up);

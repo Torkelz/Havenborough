@@ -610,12 +610,6 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 	XMFLOAT4 targetData(p_Position.x, p_Position.y, p_Position.z, 1.f);
 	XMVECTOR target = XMLoadFloat4(&targetData);
 
-	// The algorithm uses three joints, one end joint that wants to reach a target (point).
-	// This joint is not tranformed in it self. The middle joint works like a human elbow and
-	// has only 1 DoF. It will make sure that the "arm" is bent if the target point is closer 
-	// to the base joint than the length of the "arm" when fully extended. The base joint works
-	// like a human shoulder it has 3 DoF and will make sure that the "arm" is always pointed
-	// towards the target point.
 	const Joint* headJoint = nullptr;
 
 	for (unsigned int i = 0; i < p_Joints.size(); i++)
@@ -656,25 +650,24 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 
 	float wantedJointAngle = 0.f;
 
-	//target = headToTarget;
-
 	// Normalize look at target
 	headToTarget = XMVector3Normalize(headToTarget);
 	// Get the standard look at vector
 	XMVECTOR headForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-	//world = XMMatrixTranspose(world);
 	headForward = XMVector3Transform(headForward, world);
 	headForward = XMVector3Normalize(headForward);
+	headForward.m128_f32[0] = -headForward.m128_f32[0];
+
 	// Get rotation axis and angle
 	XMVECTOR rotationAxis;
 	rotationAxis = XMVector3Cross(headForward, headToTarget);
 	rotationAxis = XMVector3Normalize(rotationAxis);
-	// Basicly the rotation axis has to compensate for Mayas ultimate twisting and none respect for all mathematics.
-	rotationAxis = XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
+	XMMATRIX headCombinedTransformInverse = XMMatrixInverse(nullptr, headCombinedTransform);
+	rotationAxis = XMVector3Transform(rotationAxis, headCombinedTransform);
 	wantedJointAngle = acosf(XMVector3Dot(headForward, headToTarget).m128_f32[0]);
+
 	// Limit angle
 	wantedJointAngle = std::min( wantedJointAngle, p_MaxAngle );
-	// Limit angle does also not work since the look vector is in the middle of the cone you want to allow the head to move inside.
 	// Apply the transformation to the bone
 	XMMATRIX rotation;
 	rotation = XMMatrixRotationAxis(rotationAxis, wantedJointAngle);
