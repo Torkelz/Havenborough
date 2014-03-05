@@ -23,6 +23,8 @@ GameScene::GameScene()
 	m_UseThirdPersonCamera = false;
 	m_UseFlippedCamera = false;
 	m_DebugAnimations = false;
+
+	m_ViewSensitivity = 0.01f;
 }
 
 GameScene::~GameScene()
@@ -202,7 +204,7 @@ void GameScene::setIsVisible(bool p_SetVisible)
 
 void GameScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	static const float sensitivity = 0.01f;
+
 	
 	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
 	{
@@ -231,11 +233,11 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	}
 	else if (p_Action == "mouseMoveHori")
 	{
-		m_GameLogic->movePlayerView(p_Value * sensitivity, 0.f);
+		m_GameLogic->movePlayerView(p_Value * m_ViewSensitivity, 0.f);
 	}
 	else if (p_Action == "mouseMoveVert")
 	{
-		m_GameLogic->movePlayerView(0.f, -p_Value * sensitivity);
+		m_GameLogic->movePlayerView(0.f, -p_Value * m_ViewSensitivity);
 	}
 	else if( p_Action == "jump" && p_Value == 1)
 	{
@@ -275,6 +277,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	}
 }
 
+void GameScene::setMouseSensitivity(float p_Value)
+{
+	m_ViewSensitivity *= p_Value;
+}
 /*########## TEST FUNCTIONS ##########*/
 
 int GameScene::getID()

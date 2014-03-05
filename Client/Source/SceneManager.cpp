@@ -55,7 +55,6 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 			sceneFail = true;
 		}
 	}
-
 	m_MenuSceneList[0]->setIsVisible(true);
 	m_MenuSceneList[0]->onFocus();
 	

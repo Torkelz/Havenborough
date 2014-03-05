@@ -288,7 +288,7 @@ const bool Settings::getIsSettingEnabled(std::string p_SettingName) const
 	}
 }
 
-const float Settings::getIsSettingValue(std::string p_SettingName) const
+const float Settings::getSettingValue(std::string p_SettingName) const
 {
 	if (m_SettingsValue.count(p_SettingName) > 0)
 	{
@@ -303,21 +303,6 @@ const float Settings::getIsSettingValue(std::string p_SettingName) const
 const Vector2 Settings::getResolution() const
 {
 	return m_Resolution;
-}
-
-const int Settings::getShadowMapResolution() const
-{
-	return m_ShadowMapResolution;
-}
-
-const float Settings::getFOV(void) const
-{
-	return m_FOV;
-}
-
-const float Settings::getMouseSensitivity(void) const
-{
-	return m_MouseSensitivity;
 }
 
 const std::string& Settings::getLevelName() const

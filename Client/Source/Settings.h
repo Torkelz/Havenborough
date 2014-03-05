@@ -79,7 +79,7 @@ public:
 	 * @param p_SettingName, the name of the setting to receive float value of.
 	 * @return float value depending on setting read from file.
 	 */
-	const float getIsSettingValue(std::string p_SettingName) const;
+	const float getSettingValue(std::string p_SettingName) const;
 	/*
 	 * Get the window size which is read from file.
 	 * If no resolution was read from file the default value is (1280,720)
@@ -87,25 +87,6 @@ public:
 	 * @return the window size as a Vector2.
 	 */
 	const Vector2 getResolution() const;
-	/*
-	 * Get the shadow map resolution from settings.
-	 * If no resolution was read from file the default value is (512)
-	 *
-	 * @return the map size as an integer.
-	 */
-	const int getShadowMapResolution() const;
-	/**
-	* Gets the field of view.
-	* If no FOV was read from file the default value is (60).
-	* @return the field of view
-	*/
-	const float getFOV(void) const;
-	/**
-	* Gets the mouse sensitivity scaling factor.
-	* If no value was read from file the default values is (0.5).
-	* @return the sensitivity factor
-	*/
-	const float getMouseSensitivity(void) const;
 	/**
 	 * Gets the name of the level to play.
 	 *

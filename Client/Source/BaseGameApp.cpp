@@ -4,6 +4,7 @@
 #include "Settings.h"
 #include <TweakCommand.h>
 #include "Scenes/HUDScene.h"
+#include "Scenes/GameScene.h"
 
 #include <sstream>
 #include <iomanip>
@@ -37,9 +38,9 @@ void BaseGameApp::init()
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
 	m_Graphics->setTweaker(TweakSettings::getInstance());
-	m_Graphics->setShadowMapResolution(settings.getShadowMapResolution());
+	m_Graphics->setShadowMapResolution((int)settings.getSettingValue("ShadowMap"));
 	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y,
-		settings.getIsSettingEnabled("Fullscreen"), settings.getFOV());
+		settings.getIsSettingEnabled("Fullscreen"), settings.getSettingValue("FOV"));
 
 	m_Graphics->enableSSAO(settings.getIsSettingEnabled("SSAO"));
 	m_Graphics->enableShadowMap(settings.getIsSettingEnabled("ShadowMap"));
@@ -130,6 +131,7 @@ void BaseGameApp::init()
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
 	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings());
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
