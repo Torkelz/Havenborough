@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath);$(VLD_LIB_DIR)</LibraryPath>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Test\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -51,7 +51,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(BOOST_INC_DIR);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath);$(VLD_LIB_DIR)</LibraryPath>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(ProjectDir)Bin\</OutDir>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
