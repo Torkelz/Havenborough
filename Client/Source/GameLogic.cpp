@@ -5,6 +5,7 @@
 #include "HumanAnimationComponent.h"
 #include "Logger.h"
 
+#include <math.h>
 #include <sstream>
 
 using namespace DirectX;
@@ -15,6 +16,8 @@ GameLogic::GameLogic(void)
 	m_ResourceManager = nullptr;
 	m_CountdownTimer = 0.f;
 	m_RenderGo = false;
+	m_PreviousLegalPlayerBodyRotation = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	m_lookAtPos = XMFLOAT3(0.0f, 0.0f, 1.0f);
 }
 
 
@@ -111,13 +114,39 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime, 100);
 
-	Vector3 actualViewRot = getPlayerViewRotation();
+	XMVECTOR actualViewRot = Vector3ToXMVECTOR(&getPlayerViewRotation(), 0.0f);
 	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
-		Vector3 playerRotation = actualViewRot;
-		playerRotation.y = 0.f;
-		playerActor->setRotation(playerRotation);
+		XMVECTOR playerRotation = actualViewRot;
+		playerRotation.m128_f32[1] = 0.f;
+		XMMATRIX rotation = XMMatrixRotationRollPitchYaw(playerRotation.m128_f32[1], playerRotation.m128_f32[0], playerRotation.m128_f32[2]);
+		playerRotation = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+		playerRotation = XMVector3Transform(playerRotation, rotation);
+
+		float currentAngle = acosf(XMVector3Dot(XMVectorSet(0.f, 0.f, 1.f, 0.f), playerRotation).m128_f32[0]);
+		if (playerRotation.m128_f32[0] < 0.f)
+		{
+			currentAngle = -currentAngle;
+		}
+
+		Vector3 previousPlayerRotation = playerActor->getRotation();
+		float angleDiff = previousPlayerRotation.x - currentAngle;
+		angleDiff += (angleDiff > PI) ? -2.f * PI : (angleDiff < -PI) ? 2 * PI : 0.f;
+
+		float maxOffset = 1.f;
+
+		BodyHandle playerBody = getPlayerBodyHandle();
+		XMVECTOR speed = Vector3ToXMVECTOR(&m_Physics->getBodyVelocity(playerBody), 0.0f);
+		speed = XMVector3Length(speed);
+		maxOffset /= speed.m128_f32[0] + 1.0f;
+
+		if (fabs(angleDiff) > maxOffset)
+		{
+			float offset = angleDiff < 0.f ? -maxOffset : maxOffset;
+
+			playerActor->setRotation(Vector3(currentAngle + offset, 0.f, 0.f));
+		}
 	}
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
@@ -153,7 +182,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 	XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
 	XMVECTOR vForward = XMLoadFloat3(&m_lookAtPos);
-	//vForward.m128_f32[0] = -vForward.m128_f32[0]; 
 	actorPos += vForward * 10;
 	XMFLOAT3 tempLook;
 	XMStoreFloat3(&tempLook, actorPos);

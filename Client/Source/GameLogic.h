@@ -57,6 +57,7 @@ private:
 	float m_PlayerTimeDifference; //The difference in time to the first player.
 
 	DirectX::XMFLOAT3 m_lookAtPos;
+	DirectX::XMFLOAT3 m_PreviousLegalPlayerBodyRotation;
 
 	//DEBUG
 	Vector2 m_PlayerDirection;
