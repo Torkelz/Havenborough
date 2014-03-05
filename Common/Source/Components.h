@@ -11,7 +11,6 @@
 
 #include <IPhysics.h>
 
-
 /**
  * Interface for a physics component.
  * 
@@ -1626,4 +1625,126 @@ public:
 	virtual float getMaxSpeed() const = 0;
 	virtual void setMaxSpeed(float p_Speed) = 0;
 	virtual float getMaxSpeedDefault() const = 0;
+};
+
+/**
+ * Interface for model components.
+ */
+class TextInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 11;	/// Unique id
+	Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+
+	virtual void setOffsetPosition(Vector3 p_Position) = 0;
+
+	virtual void setText(std::string p_Text) = 0;
+
+	///**
+	// * Update the scale of the model.
+	// *
+	// * @param p_CompName an identifier to keep track of the scale to keep track of it
+	// * @param p_Scale the new scale
+	// */
+	//virtual void updateScale(const std::string& p_CompName, Vector3 p_Scale) = 0;
+	///**
+	// * Remove a scale from the model.
+	// *
+	// * @param p_CompName an identifier of an existing scale
+	// */
+	//virtual void removeScale(const std::string& p_CompName) = 0;
+	///**
+	// * Change a color tone for the model.
+	// *
+	// * @param p_ColorTone the color in RGB range 0.0f to 1.0f
+	// */
+	//virtual void setColorTone(const Vector3 p_ColorTone) = 0;
+};
+
+
+class TextComponent : public TextInterface
+{
+private:
+	std::string m_Text;
+	std::string m_Font;
+	float m_FontSize;
+	Vector4 m_FontColor;
+	Vector3 m_OffsetPosition;
+	float m_Scale;
+	float m_Rotation;
+
+public:
+	~TextComponent() override
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveLightEventData(m_Light.id)));
+	}
+
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		const char* text = p_Data->Attribute("Text");
+		if (!text)
+		{
+			throw CommonException("Component lacks text", __LINE__, __FILE__);
+		}
+
+		m_Text = std::string(text);
+
+		m_Font = "Verdana";
+		const tinyxml2::XMLElement* textSettings = p_Data->FirstChildElement("TextSettings");
+		if (textSettings)
+		{
+			const char* font = textSettings->Attribute("Font");
+			if(font != nullptr)
+				m_Font = font;
+
+			textSettings->QueryFloatAttribute("FontSize", &m_FontSize);
+			textSettings->QueryFloatAttribute("Scale", &m_Scale);
+			textSettings->QueryFloatAttribute("Rotation", &m_Rotation);
+		}
+
+		m_FontColor = Vector4(1.f, 1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* tone = p_Data->FirstChildElement("FontColor");
+		if (tone)
+		{
+			tone->QueryFloatAttribute("x", &m_FontColor.x);
+			tone->QueryFloatAttribute("y", &m_FontColor.y);
+			tone->QueryFloatAttribute("z", &m_FontColor.z);
+		}
+
+		m_OffsetPosition = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* tone = p_Data->FirstChildElement("OffsetPosition");
+		if (tone)
+		{
+			tone->QueryFloatAttribute("x", &m_OffsetPosition.x);
+			tone->QueryFloatAttribute("y", &m_OffsetPosition.y);
+			tone->QueryFloatAttribute("z", &m_OffsetPosition.z);
+		}
+
+	}
+	void postInit() override
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
+			m_BaseScale, m_ColorTone)));
+		setPosition(m_Owner->getPosition());
+		setRotation(m_Owner->getRotation());
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("TextComponent");
+		p_Printer.PushAttribute("Text", m_Text.c_str());
+		p_Printer.OpenElement("TextSettings");
+		p_Printer.PushAttribute("Font", m_Font.c_str());
+		p_Printer.PushAttribute("FontSize", m_FontSize);
+		p_Printer.PushAttribute("Scale", m_Scale);
+		p_Printer.PushAttribute("Rotation", m_Rotation);
+		p_Printer.CloseElement();
+		Vector3 color = Vector3(m_FontColor.x, m_FontColor.y, m_FontColor.z);
+		pushVector(p_Printer, "FontColor", color);
+		pushVector(p_Printer, "OffsetPosition", m_OffsetPosition);
+		p_Printer.CloseElement();
+	}
 };

@@ -186,8 +186,6 @@ void GameScene::render()
 
 	m_Graphics->setRenderTarget(m_CurrentDebugView);
 	m_Graphics->render2D_Object(4);
-
-	
 }
 
 bool GameScene::getIsVisible()

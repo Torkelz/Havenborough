@@ -62,13 +62,13 @@ BOOST_AUTO_TEST_CASE(SplineSave)
 
 	testComp.setComponents(p,l);
 	testComp.setPhysics(&ps);
-	BOOST_CHECK(testComp.savePathTest("dd") == false);
+	BOOST_CHECK(testComp.savePathTest("SplineTest") == false);
 
 	testComp.recordPoint();
-	BOOST_CHECK(testComp.savePathTest("dd") == true);
+	BOOST_CHECK(testComp.savePathTest("SplineTest") == true);
 
 	testComp.removePreviousPoint();
-	BOOST_CHECK(testComp.savePathTest("dd") == false);
+	BOOST_CHECK(testComp.savePathTest("SplineTest") == false);
 }
 
 BOOST_AUTO_TEST_CASE(SplineMove)
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(SplineLoad)
 	SplineControlComponent testComp;
 	testComp.initialize(doc.FirstChildElement("SplineControl"));
 
-	BOOST_CHECK(testComp.loadPathTest("dd") == true);
+	BOOST_CHECK(testComp.loadPathTest("SplineTest") == true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
