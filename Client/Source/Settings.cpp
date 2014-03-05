@@ -170,7 +170,6 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 	for(element = p_Element->FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
 	{
 		std::string elementName = element->Value();
-
 		if(elementName == "Resolution")
 		{
 			tinyxml2::XMLError res;
@@ -184,7 +183,21 @@ void Settings::loadSettings(tinyxml2::XMLElement *p_Element)
 		else if(elementName == "ShadowMapResolution")
 		{
 			tinyxml2::XMLError res;
-			res = element->QueryIntAttribute("Size", &m_ShadowMapResolution);
+			res = element->QueryIntAttribute("Value", &m_ShadowMapResolution);
+			if(res != tinyxml2::XML_SUCCESS)
+				throw ClientException("Settings tried to load the attribute \"square\" from element: " + elementName + ".", __LINE__, __FILE__);
+		}
+		else if(elementName == "FOV")
+		{
+			tinyxml2::XMLError res;
+			res = element->QueryFloatAttribute("Value", &m_FOV);
+			if(res != tinyxml2::XML_SUCCESS)
+				throw ClientException("Settings tried to load the attribute \"square\" from element: " + elementName + ".", __LINE__, __FILE__);
+		}
+		else if(elementName == "MouseSensitivity")
+		{
+			tinyxml2::XMLError res;
+			res = element->QueryFloatAttribute("Value", &m_MouseSensitivity);
 			if(res != tinyxml2::XML_SUCCESS)
 				throw ClientException("Settings tried to load the attribute \"square\" from element: " + elementName + ".", __LINE__, __FILE__);
 		}
@@ -295,6 +308,16 @@ const Vector2 Settings::getResolution() const
 const int Settings::getShadowMapResolution() const
 {
 	return m_ShadowMapResolution;
+}
+
+const float Settings::getFOV(void) const
+{
+	return m_FOV;
+}
+
+const float Settings::getMouseSensitivity(void) const
+{
+	return m_MouseSensitivity;
 }
 
 const std::string& Settings::getLevelName() const

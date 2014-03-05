@@ -38,7 +38,8 @@ void BaseGameApp::init()
 	m_Graphics->setLogFunction(&Logger::logRaw);
 	m_Graphics->setTweaker(TweakSettings::getInstance());
 	m_Graphics->setShadowMapResolution(settings.getShadowMapResolution());
-	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, settings.getIsSettingEnabled("Fullscreen"));
+	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y,
+		settings.getIsSettingEnabled("Fullscreen"), settings.getFOV());
 
 	m_Graphics->enableSSAO(settings.getIsSettingEnabled("SSAO"));
 	m_Graphics->enableShadowMap(settings.getIsSettingEnabled("ShadowMap"));

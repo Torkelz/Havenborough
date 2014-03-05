@@ -60,7 +60,7 @@ IGraphics *IGraphics::createGraphics()
 	return new Graphics();
 }
 
-bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen)
+bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen, float p_FOV)
 {	
 	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Initializing graphics");
 
@@ -196,7 +196,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	float nearZ = 10.0f;
 	float farZ = 100000.0f;
-
+	m_FOV = p_FOV;
 	initializeMatrices(p_ScreenWidth, p_ScreenHeight, nearZ, farZ);
 
 	//Deferred renderer
@@ -1340,7 +1340,6 @@ void Graphics::initializeMatrices(int p_ScreenWidth, int p_ScreenHeight, float p
 	XMFLOAT4 up;
 	m_Eye = XMFLOAT3(0,0,-20);
 	m_FarZ = p_FarZ;
-	m_FOV = 0.25f * PI;
 
 	eye = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
 	lookAt = XMFLOAT4(0,0,0,1);

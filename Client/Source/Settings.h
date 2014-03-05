@@ -30,6 +30,8 @@ private:
 	std::map<std::string, HUDSettings> m_HUDSettings;
 	Vector2 m_Resolution;
 	int m_ShadowMapResolution;
+	float m_FOV;
+	float m_MouseSensitivity;
 
 	std::string m_ServerURL;
 	unsigned short int m_ServerPort;
@@ -87,6 +89,18 @@ public:
 	 * @return the map size as an integer.
 	 */
 	const int getShadowMapResolution() const;
+	/**
+	* Gets the field of view.
+	* If no FOV was read from file the default value is (60).
+	* @return the field of view
+	*/
+	const float getFOV(void) const;
+	/**
+	* Gets the mouse sensitivity scaling factor.
+	* If no value was read from file the default values is (0.5).
+	* @return the sensitivity factor
+	*/
+	const float getMouseSensitivity(void) const;
 	/**
 	 * Gets the name of the level to play.
 	 *
