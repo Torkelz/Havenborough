@@ -207,7 +207,8 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.PushAttribute("Animation", "Dzala");
 	printer.CloseElement();
 	printer.OpenElement("RunControl");
-	printer.PushAttribute("MaxSpeed", 1000.f);
+	printer.PushAttribute("MaxSpeed", 1350.f);
+	printer.PushAttribute("MaxSpeedDefault", 900.f);
 	printer.PushAttribute("Acceleration", 600.f);
 	printer.CloseElement();
 	printer.CloseElement();

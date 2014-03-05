@@ -2,6 +2,7 @@
 #include "../../Client/Source/Player.h"
 
 #include <ActorFactory.h>
+#include <TweakSettings.h>
 #include <Utilities/MemoryUtil.h>
 
 BOOST_AUTO_TEST_SUITE(PlayerTest)
@@ -13,6 +14,8 @@ using namespace DirectX;
  */
 BOOST_AUTO_TEST_CASE(GetSet)
 {
+	TweakSettings::initializeMaster();
+
 	Player player;
 	ActorFactory factory(0);
 	static const char* playerDesc =
@@ -31,6 +34,8 @@ BOOST_AUTO_TEST_CASE(GetSet)
 	BOOST_CHECK(player.getDirection() == Vector3(1,0,2));
 	player.setAllowedToMove(true);
 	BOOST_CHECK(player.getAllowedToMove() == true);
+
+	TweakSettings::shutdown();
 }
 
 BOOST_AUTO_TEST_CASE(GetSetHeight)
@@ -46,6 +51,8 @@ BOOST_AUTO_TEST_CASE(GetSetHeight)
 
 BOOST_AUTO_TEST_CASE(GetSetgroundNormal)
 {
+	TweakSettings::initializeMaster();
+
 	Player player;
 	ActorFactory factory(0);
 	static const char* playerDesc =
@@ -66,6 +73,8 @@ BOOST_AUTO_TEST_CASE(GetSetgroundNormal)
 	BOOST_CHECK_EQUAL(norm.x, 1);
 	BOOST_CHECK_EQUAL(norm.y, 0);
 	BOOST_CHECK_EQUAL(norm.z, 0);
+
+	TweakSettings::shutdown();
 }
 
 BOOST_AUTO_TEST_CASE(GetSetMana)
