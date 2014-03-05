@@ -43,12 +43,13 @@ Body* Physics::findBody(BodyHandle p_Body)
 	return nullptr;
 }
 
-void Physics::initialize()
+void Physics::initialize(bool p_IsServer)
 {
 	PhysicsLogger::log(PhysicsLogger::Level::INFO, "Initializing physics");
 
 	fillTriangleIndexList();
 	m_LoadBVSphereTemplateOnce = true;
+	m_IsServer = p_IsServer;
 }
 
 void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
@@ -71,9 +72,10 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 	}
 
 	m_HitDatas.clear();
+	unsigned int nrOfBodies = m_Bodies.size();
 	for(int p = 0; p < itr; p++)
 	{
-		for(unsigned i = 0; i < m_Bodies.size(); i++)
+		for(unsigned i = 0; i < nrOfBodies; i++)
 		{
 			Body& b = m_Bodies[i];
 
@@ -85,76 +87,79 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 			b.setLanded(false);
 
 			bool isOnGround = false;
-
-			for (unsigned j = 0; j < m_Bodies.size(); j++)
+			
+			for (unsigned j = 0; j < nrOfBodies; j++)
 			{
 				if(i == j)
 					continue;
 
 				for(unsigned int k = 0; k < b.getVolumeListSize(); k++)
 				{
-					handleCollision(i, k, j, isOnGround);
+					for(unsigned int l = 0; l < m_Bodies.at(j).getVolumeListSize(); l++)
+					{
+						HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *m_Bodies.at(j).getVolume(l));
+						if(hit.intersect)
+						{
+							handleCollision(hit , i, k, j, l, isOnGround);
+						}
+					}
 				}
-
-				b.setOnSomething(isOnGround);
-				b.setInAir(!b.getOnSomething());
+				if(!m_IsServer)
+				{
+					b.setOnSomething(isOnGround);
+					b.setInAir(!b.getOnSomething());
+				}
 			}
 		}
 	}
 }
 
-void Physics::handleCollision(int p_Collider, int ColliderVolumeId, int p_Victim, bool &p_IsOnGround)
+void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, int p_Victim, int p_VictimVolumeID, bool &p_IsOnGround)
 {
 	Body& b = m_Bodies[p_Collider];
-	for(unsigned int i = 0; i < m_Bodies.at(p_Victim).getVolumeListSize(); i++)
+	p_Hit.collider = b.getHandle();
+	p_Hit.IDInBody = p_ColliderVolumeId;
+	p_Hit.collisionVictim = m_Bodies.at(p_Victim).getHandle();
+	p_Hit.isEdge = m_Bodies.at(p_Victim).getIsEdge();
+	m_HitDatas.push_back(p_Hit);
+
+	if(!m_IsServer)
 	{
-		HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(ColliderVolumeId), *m_Bodies.at(p_Victim).getVolume(i));
-			
-		if(hit.intersect)
+		if(b.getCollisionResponse(p_ColliderVolumeId) && m_Bodies.at(p_Victim).getCollisionResponse(p_VictimVolumeID))
 		{
-			hit.collider = b.getHandle();
-			hit.IDInBody = ColliderVolumeId;
-			hit.collisionVictim = m_Bodies.at(p_Victim).getHandle();
-			hit.isEdge = m_Bodies.at(p_Victim).getIsEdge();
-			m_HitDatas.push_back(hit);
+			XMVECTOR temp;		// m
+			XMFLOAT4 tempPos;	// m
 
-			if(b.getCollisionResponse(ColliderVolumeId) && m_Bodies.at(p_Victim).getCollisionResponse(i))
+			XMFLOAT4 vel = b.getVelocity();
+			XMVECTOR vVel = XMLoadFloat4(&vel);
+
+			XMVECTOR vNorm = Vector4ToXMVECTOR(&p_Hit.colNorm);
+			XMVECTOR posNorm = vNorm;
+
+			if (p_Hit.colNorm.y > 0.7f)
 			{
-				XMVECTOR temp;		// m
-				XMFLOAT4 tempPos;	// m
-
-				XMFLOAT4 vel = b.getVelocity();
-				XMVECTOR vVel = XMLoadFloat4(&vel);
-
-				XMVECTOR vNorm = Vector4ToXMVECTOR(&hit.colNorm);
-				XMVECTOR posNorm = vNorm;
-
-				if (hit.colNorm.y > 0.7f)
+				if(!b.getOnSomething())
 				{
-					if(!b.getOnSomething())
-					{
-						b.setLanded(true);
-					}
-
-					p_IsOnGround = true;
-
-					posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-					vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
-				}
-				else
-				{
-					vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
+					b.setLanded(true);
 				}
 
-				XMStoreFloat4(&vel, vVel);
-				b.setVelocity(vel);
+				p_IsOnGround = true;
 
-				temp = XMLoadFloat4(&b.getPosition()) + posNorm * hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
-				XMStoreFloat4(&tempPos, temp);
-
-				b.setPosition(tempPos);
+				posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+				vVel = vVel - XMVector3Dot(vVel, vNorm) / XMVector3Dot(posNorm, vNorm) * posNorm;
+			}
+			else
+			{
+				vVel -= XMVector4Dot(vVel, vNorm) * vNorm;
 			}
 
+			XMStoreFloat4(&vel, vVel);
+			b.setVelocity(vel);
+
+			temp = XMLoadFloat4(&b.getPosition()) + posNorm * p_Hit.colLength / 100.f;	// m remove subdivision. check collision collength, collength * 100.f
+			XMStoreFloat4(&tempPos, temp);
+
+			b.setPosition(tempPos);
 		}
 	}
 }
@@ -403,6 +408,15 @@ void Physics::fillTriangleIndexList()
 void Physics::setGlobalGravity(float p_Gravity)
 {
 	m_GlobalGravity = p_Gravity;
+}
+
+void Physics::setBodyGravity(BodyHandle p_Body, float p_Gravity)
+{
+	Body* body = findBody(p_Body);
+	if (body == nullptr)
+		return;
+
+	body->setGravity(p_Gravity);
 }
 
 bool Physics::getBodyInAir(BodyHandle p_Body)

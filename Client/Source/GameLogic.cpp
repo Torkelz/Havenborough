@@ -94,7 +94,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 		}
 	}
 
-	if (m_PlayerDirection.x != 0.f || m_PlayerDirection.y != 0.f)
+	if (m_PlayerDirection.x != 0.f ||
+		m_PlayerDirection.y != 0.f ||
+		m_PlayerDirection.z != 0.f)
 	{
 		XMVECTOR forward = XMLoadFloat3(&XMFLOAT3(getPlayerViewForward()));
 		forward = XMVectorSetY(forward, 0.f);
@@ -102,11 +104,16 @@ void GameLogic::onFrame(float p_DeltaTime)
 		XMVECTOR right = XMLoadFloat3(&XMFLOAT3(getPlayerViewRight()));
 		right = XMVectorSetY(right, 0.f);
 		right = XMVector3Normalize(right);
+		XMVECTOR up = XMVectorSet(0.f, 1.f, 0.f, 0.f);
 
-		XMVECTOR rotDirV = forward * m_PlayerDirection.x + right * m_PlayerDirection.y;
+		XMVECTOR rotDirV =
+			forward * m_PlayerDirection.x +
+			up * m_PlayerDirection.y +
+			right * m_PlayerDirection.z;
 
-		m_Player.setDirectionX(XMVectorGetX(rotDirV));
-		m_Player.setDirectionZ(XMVectorGetZ(rotDirV));
+		Vector3 rotDir;
+		XMStoreFloat3(&rotDir, rotDirV);
+		m_Player.setDirection(rotDir);
 	}
 	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime, 100);
@@ -148,9 +155,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 	}
 }
 
-void GameLogic::setPlayerDirection(Vector2 p_Direction)
+void GameLogic::setPlayerDirection(Vector3 p_Direction)
 {
-	const float dirLengthSq = p_Direction.x * p_Direction.x + p_Direction.y * p_Direction.y;
+	const float dirLengthSq =
+		p_Direction.x * p_Direction.x +
+		p_Direction.y * p_Direction.y +
+		p_Direction.z * p_Direction.z;
 	if (dirLengthSq > 1.f)
 	{
 		const float div = 1.f / sqrtf(dirLengthSq);
@@ -159,7 +169,7 @@ void GameLogic::setPlayerDirection(Vector2 p_Direction)
 	m_PlayerDirection = p_Direction;
 }
 
-Vector2 GameLogic::getPlayerDirection() const
+Vector3 GameLogic::getPlayerDirection() const
 {
 	return m_PlayerDirection;
 }
@@ -736,6 +746,7 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							m_Player.setCurrentMana(m_Player.getMaxMana());
 						}
 						if(object->Attribute("Type", "Placing"))
 						{

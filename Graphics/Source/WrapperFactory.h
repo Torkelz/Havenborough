@@ -54,6 +54,21 @@ public:
 		ShaderType p_Type);
 
 	/**
+	* Automatically creates a shader based on layout in the shader file.
+	* @param p_Filename the shader file to read
+	* @param p_Defines sets defines in shader files to a value.
+	* @param p_EntryPoint the main entry point in the shader file, can be combined as e.g. "mainVS,mainPS,mainGS,mainHS,mainDS",
+	*		 note this order is important to be kept but all steps are not necessary,
+	*		 note the ',' is the separator
+	* @param p_ShaderModel the shader model version to be used, e.g. "5_0"
+	* @param p_ShaderType the shader types to be created, can be combined as
+	*		 ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER | ShaderType::GEOMETRY_SHADER | ShaderType::HULL_SHADER | ShaderType::DOMAIN_SHADER,
+	* @return pointer to the shader object
+	*/
+	virtual Shader *createShader(LPCWSTR p_Filename, D3D_SHADER_MACRO *p_Defines, const char *p_EntryPoint, const char *p_ShaderModel,
+		ShaderType p_Type);
+
+	/**
 	* Automatically creates a shader based on user defined layout. Should only be used if defining a vertex shader.
 	* @param p_Filename the shader file to read
 	* @param p_Defines sets defines in shader files to a value.

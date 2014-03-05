@@ -306,6 +306,9 @@
     <ClCompile Include="..\Graphics\Source\FontCollectionLoader.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\GPUTimer.cpp">
+      <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

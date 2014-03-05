@@ -2,6 +2,7 @@
 
 #include <Components.h>
 #include <Logger.h>
+#include <LookComponent.h>
 #include <XMLHelper.h>
 
 #include <fstream>
@@ -297,6 +298,54 @@ void FileGameRound::sendUpdates()
 						const char* info = printer.CStr();
 						user->getConnection()->sendGameResult(&info, 1);
 						m_ResultList.push_back(player->getActor().lock()->getId());
+						
+						Actor::ptr oldPlayerActor = player->getActor().lock();
+						Actor::ptr flyingCamera = m_ActorFactory->createFlyingCamera(
+							oldPlayerActor->getComponent<LookComponent>(LookComponent::m_ComponentId).lock()->getLookPosition());
+						m_Actors.push_back(flyingCamera);
+
+						std::ostringstream oStream;
+						flyingCamera->serialize(oStream);
+						ObjectInstance inst;
+						std::string desc = oStream.str();
+						inst.m_Description = desc.c_str();
+						inst.m_Id = flyingCamera->getId();
+
+						for (auto& otherPlayer : m_Players)
+						{
+							User::ptr otherUser = otherPlayer->getUser().lock();
+							if(!otherUser)
+							{
+								continue;
+							}
+							otherUser->getConnection()->sendCreateObjects(&inst, 1);
+						}
+
+						user->getConnection()->sendAssignPlayer(inst.m_Id);
+
+						Actor::Id oldPlayerId = oldPlayerActor->getId();
+
+						for (auto& player : m_Players)
+						{
+							User::ptr otherUser = player->getUser().lock();
+							if(!otherUser)
+							{
+								continue;
+							}
+							otherUser->getConnection()->sendRemoveObjects(&oldPlayerId, 1);
+						}
+
+						auto actorIt = std::find_if(m_Actors.begin(), m_Actors.end(),
+							[&] (Actor::ptr p_Actor)
+							{
+								return p_Actor->getId() == oldPlayerId;
+							});
+						if (actorIt != m_Actors.end())
+						{
+							m_Actors.erase(actorIt);
+						}
+
+						player->setActor(flyingCamera);
 					}
 				}
 			}

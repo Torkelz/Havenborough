@@ -77,6 +77,9 @@
     <ClCompile Include="Source\FontCollectionLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\GPUTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Buffer.h">
@@ -173,6 +176,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\TextRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GPUTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FontCollectionLoader.h">

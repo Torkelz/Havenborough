@@ -9,7 +9,6 @@
 #include "Input/Input.h"
 
 #include "SpellFactory.h"
-#include "SpellInstance.h"
 #include "PhysicsTypes.h"
 
 #include <INetwork.h>
@@ -57,7 +56,7 @@ private:
 	float m_PlayerTimeDifference; //The difference in time to the first player.
 
 	//DEBUG
-	Vector2 m_PlayerDirection;
+	Vector3 m_PlayerDirection;
 public:
 	GameLogic(void);
 	~GameLogic(void);
@@ -67,6 +66,7 @@ public:
 	void shutdown(void);
 
 	ActorList::ptr getObjects();
+	
 	/**
 	* Gets which scene the game should change to.
 	*/
@@ -74,8 +74,8 @@ public:
 
 	void onFrame(float p_DeltaTime);
 
-	void setPlayerDirection(Vector2 p_Direction);
-	Vector2 getPlayerDirection() const;
+	void setPlayerDirection(Vector3 p_Direction);
+	Vector3 getPlayerDirection() const;
 	BodyHandle getPlayerBodyHandle() const;
 	Vector3 getPlayerEyePosition() const;
 	Vector3 getPlayerViewRotation() const;
@@ -95,6 +95,11 @@ public:
 		const std::string& p_LevelName, const std::string& p_Username);
 	void leaveGame();
 
+	/**
+	 * Called when a spell should be thrown, and all checks for a valid throw will be checked against the spell definition.
+	 * 
+	 * @param p_SpellId what spell to work with
+	 */
 	void throwSpell(const char *p_SpellId);
 
 	/**

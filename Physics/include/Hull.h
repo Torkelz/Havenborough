@@ -154,18 +154,22 @@ public:
 	 */
 	Triangle getTriangleInWorldCoord(unsigned int p_Index) const
 	{
-		Triangle triangle;
-		triangle = m_Triangles[p_Index];
+		//Triangle triangle;
+		//triangle = m_Triangles[p_Index];
 
-		triangle.corners[0] = triangle.corners[0] + m_Position;
-		triangle.corners[1] = triangle.corners[1] + m_Position;
-		triangle.corners[2] = triangle.corners[2] + m_Position;
+		//triangle.corners[0] = triangle.corners[0] + m_Position;
+		//triangle.corners[1] = triangle.corners[1] + m_Position;
+		//triangle.corners[2] = triangle.corners[2] + m_Position;
 
-		triangle.corners[0].w = 1.f;
-		triangle.corners[1].w = 1.f;
-		triangle.corners[2].w = 1.f;
+		//triangle.corners[0].w = 1.f;
+		//triangle.corners[1].w = 1.f;
+		//triangle.corners[2].w = 1.f;
 
-		return triangle;
+		//return triangle;
+
+		return Triangle(Vector4(m_Triangles[p_Index].corners[0].x + m_Position.x, m_Triangles[p_Index].corners[0].y + m_Position.y, m_Triangles[p_Index].corners[0].z + m_Position.z, 1.0f),
+			Vector4(m_Triangles[p_Index].corners[1].x + m_Position.x, m_Triangles[p_Index].corners[1].y + m_Position.y, m_Triangles[p_Index].corners[1].z + m_Position.z, 1.0f),
+			Vector4(m_Triangles[p_Index].corners[2].x + m_Position.x, m_Triangles[p_Index].corners[2].y + m_Position.y, m_Triangles[p_Index].corners[2].z + m_Position.z, 1.0f));
 	}
 
 		/**

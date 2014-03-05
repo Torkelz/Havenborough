@@ -121,6 +121,9 @@
     <ClCompile Include="..\Graphics\Source\FontCollectionLoader.cpp">
       <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Graphics\Source\GPUTimer.cpp">
+      <Filter>Graphics\GraphicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">

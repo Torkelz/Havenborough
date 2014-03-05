@@ -23,6 +23,7 @@
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
     <ClCompile Include="..\Graphics\Source\FontCollectionLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp" />
+    <ClCompile Include="..\Graphics\Source\GPUTimer.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp" />
     <ClCompile Include="..\Graphics\Source\ModelBinaryLoader.cpp" />

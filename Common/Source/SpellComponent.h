@@ -13,20 +13,28 @@ private:
 	IPhysics* m_Physics;
 	Vector3 m_StartDirection;
 	SpellInstance::ptr m_SpellInstance;
-	BodyHandle m_Sphere;
+	BodyHandle m_Body;
 	Actor::wPtr m_Caster;
 	Actor::Id m_CasterId;
 
 public:
+	/**
+	 * De-constructor for this component
+	 */
 	~SpellComponent() override
 	{
 		m_ResourceManager->releaseResource(m_SpellId);
-		if (m_Sphere != 0)
+		if (m_Body != 0)
 		{
-			m_Physics->releaseBody(m_Sphere);
+			m_Physics->releaseBody(m_Body);
 		}
 	}
 
+	/**
+	 * Function called to initialize variables withing this component
+	 * 
+	 * @param p_Data XML-document containing variable information
+	 */
 	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		const char* spellName = p_Data->Attribute("SpellName");
@@ -45,6 +53,9 @@ public:
 		queryVector(p_Data->FirstChildElement("Direction"), m_StartDirection);
 	}
 
+	/**
+	 * Function called after initialize to apply variables with the new initialized variables
+	 */
 	void postInit() override
 	{
 		if (m_CasterId != -1)
@@ -58,12 +69,21 @@ public:
 		}
 
 		m_SpellInstance = m_SpellFactory->createSpellInstance(m_SpellName, m_StartDirection);
+		m_Body = m_Physics->createOBB(0.f, false, m_Owner->getPosition(), m_SpellInstance->getSize(), false);
 
-		m_Sphere = m_Physics->createSphere(0.f, false, m_Owner->getPosition(), m_SpellInstance->getRadius());
-		m_Physics->setBodyCollisionResponse(m_Sphere, false);
-		m_Physics->setBodyVelocity(m_Sphere, m_SpellInstance->getVelocity());
+		DirectX::XMFLOAT4X4 rot = m_Caster.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock()->getRotationMatrix();
+		
+		m_Physics->setBodyRotationMatrix(m_Body, rot);
+
+		m_Physics->setBodyCollisionResponse(m_Body, false);
+		m_Physics->setBodyVelocity(m_Body, m_SpellInstance->getVelocity());
 	}
 
+	/**
+	 * Called to make an virtual XML-document to send over the network
+	 * 
+	 * @param p_Printer a XML-printer used to write an virtual XML-document
+	 */
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("Spell");
@@ -73,14 +93,19 @@ public:
 		p_Printer.CloseElement();
 	}
 
+	/**
+	 * Called when an update wave pulses through, updating the spell and its components
+	 * 
+	 * @param p_DeltaTime an time step between frames
+	 */
 	void onUpdate(float p_DeltaTime) override
 	{
-		if (m_Sphere == 0)
+		if (m_Body == 0)
 		{
 			return;
 		}
 
-		m_Owner->setPosition(m_Physics->getBodyPosition(m_Sphere));
+		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body));
 
 		m_SpellInstance->update(p_DeltaTime);
 		Actor::ptr actor = m_Caster.lock();
@@ -89,13 +114,15 @@ public:
 		{
 			casterBody = actor->getBodyHandles().at(0);
 		}
+		
+		HitData boom;
 
 		if (!m_SpellInstance->hasCollided())
 		{
 			for(unsigned i = 0; i < m_Physics->getHitDataSize(); i++)
 			{
 				HitData hit = m_Physics->getHitDataAt(i);
-				if((hit.collider == m_Sphere && hit.collisionVictim != casterBody) || (hit.collisionVictim == m_Sphere && hit.collider != casterBody))
+				if((hit.collider == m_Body && hit.collisionVictim != casterBody) || (hit.collisionVictim == m_Body && hit.collider != casterBody))
 				{
 					Actor::ptr caster = m_Caster.lock();
 					if(caster)
@@ -106,6 +133,7 @@ public:
 							continue;
 						}
 					}
+					boom = hit;
 					m_SpellInstance->collisionHappened();
 					break;
 				}
@@ -114,17 +142,17 @@ public:
 
 		if (m_SpellInstance->isColliding())
 		{
-			Vector3 currentPosition = m_Physics->getBodyPosition(m_Sphere);
-			m_Physics->releaseBody(m_Sphere);
-			m_Sphere = m_Physics->createSphere(0.f, true, currentPosition, m_SpellInstance->getRadius());
-			m_Physics->setBodyCollisionResponse(m_Sphere, false);
+			Vector3 currentPosition = m_Physics->getBodyPosition(m_Body) + boom.colNorm.xyz() * boom.colLength;
+			m_Physics->releaseBody(m_Body);
+			m_Body = m_Physics->createSphere(0.f, true, currentPosition, m_SpellInstance->getRadius());
+			m_Physics->setBodyCollisionResponse(m_Body, false);
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitEventData(*m_Owner, currentPosition)));
 		}
 
 		if (m_SpellInstance->isDead())
 		{
-			m_Physics->releaseBody(m_Sphere);
-			m_Sphere = 0;
+			m_Physics->releaseBody(m_Body);
+			m_Body = 0;
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveActorEventData(m_Owner->getId())));
 		}
 
@@ -132,7 +160,7 @@ public:
 		{
 			for(unsigned i = 0; i < m_Physics->getHitDataSize(); i++)
 			{
-				if(m_Physics->getHitDataAt(i).collisionVictim == m_Sphere)
+				if(m_Physics->getHitDataAt(i).collisionVictim == m_Body)
 				{
 					m_SpellInstance->spellHit(p_DeltaTime, m_Physics, m_Physics->getHitDataAt(i));
 				}
@@ -176,6 +204,6 @@ public:
 	 */
 	BodyHandle getBodyHandle() const override
 	{
-		return m_Sphere;
+		return m_Body;
 	}
 };
