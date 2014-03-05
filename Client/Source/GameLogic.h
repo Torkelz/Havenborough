@@ -44,6 +44,10 @@ private:
 
 	Actor::wPtr m_PlayerSparks;
 
+	Actor::wPtr m_FlyingCamera;
+	Actor::wPtr m_SplineCamera;
+	Actor::wPtr m_PlayerDefault;
+
 	bool m_IsConnecting;
 	bool m_Connected;
 	bool m_InGame;
@@ -164,6 +168,8 @@ private:
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
 
 	void updateCountdownTimer(float p_DeltaTime);
+
+	void changeCameraMode(unsigned int p_Mode);
 
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();
