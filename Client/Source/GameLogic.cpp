@@ -141,7 +141,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		speed = XMVector3Length(speed);
 		maxOffset /= speed.m128_f32[0] + 1.0f;
 
-		if (fabs(angleDiff) > maxOffset)
+		if (fabs(angleDiff) > maxOffset && !m_Player.getForceMove())
 		{
 			float offset = angleDiff < 0.f ? -maxOffset : maxOffset;
 
