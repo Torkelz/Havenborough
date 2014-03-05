@@ -309,4 +309,7 @@ public:
 	 * @param p_Body, which body to reset.
 	 */
 	virtual void resetForceOnBody(BodyHandle p_Body) = 0;
+
+	virtual void setBodyForceCollisionNormal(BodyHandle p_Body, bool p_Bool) = 0;
+
 };

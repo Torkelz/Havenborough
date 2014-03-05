@@ -13,9 +13,8 @@ Player::Player(void)
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
 	m_JumpForce = 8000.0f;
-	m_FallTolerance = 0.25f;
+	m_FallTolerance = 0.75f;
 	m_FallTime = 0.f;
-	m_IsFalling = true;
 	m_ForceMove = false;
 	m_CurrentForceMoveTime = 0.f;
 	m_Height = 170.f;
@@ -110,6 +109,8 @@ void Player::update(float p_DeltaTime)
 		if(m_AllowedToMove)
 		{
 			jump(p_DeltaTime);
+						
+			//m_Physics->setBodyForceCollisionNormal(getBody(), false);
 
 			unsigned int hitSize = m_Physics->getHitDataSize();
 			for(unsigned int i = 0; i < hitSize; i++)
@@ -118,33 +119,45 @@ void Player::update(float p_DeltaTime)
 				
 				if(hit.collider == getBody())
 				{
-					if(hit.colNorm.y < 0.7f && hit.colNorm.y >= 0.5f)
+					Vector3 colPos = m_Physics->getBodyPosition(hit.collisionVictim);
+					colPos = colPos + hit.colNorm.xyz() * hit.colLength;
+
+					Vector3 curPos = m_Physics->getBodyPosition(getBody());
+
+					if(curPos.y > colPos.y && curPos.y - 29.f < colPos.y)
 					{
-						Vector3 moved = m_Physics->getBodyPosition(getBody());
-						Vector3 size = m_Physics->getBodySize(hit.collisionVictim);
+						//curPos.y += 15.f;
+						//m_Physics->setBodyPosition(getBody(), curPos);
+						m_Physics->setBodyForceCollisionNormal(getBody(), true);
+						break;
+					}
+				}
+			}
+			Actor::ptr actor = m_Actor.lock();
+			if (actor)
+			{
+				std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+				std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
 
+				if (runComp)
+				{
+					if(!m_Physics->getBodyOnSomething(getBody()))
+					{
+						m_FallTime += p_DeltaTime;
 
-						moved = moved + Vector3(0.f, 1.f, 0.f) * 15.f;
-						m_Physics->setBodyPosition(getBody(), moved);
+						if(m_FallTime > m_FallTolerance)
+						{
+							m_FallTime = 0.f;
+							runComp->setIsFalling(true);
+						}
+					}
+					else
+					{
+						runComp->setIsFalling(false);
 					}
 				}
 			}
 
-			if(!m_Physics->getBodyOnSomething(getBody()))
-			{
-				m_FallTime += p_DeltaTime;
-
-				if(m_FallTime > m_FallTolerance)
-				{
-					m_FallTime = 0.f;
-					m_IsFalling = true;
-				}
-			}
-			else
-			{
-				m_IsFalling = false;
-			}
-			
 			if (strActor)
 			{
 				std::shared_ptr<MovementControlInterface> comp = strActor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
@@ -535,29 +548,31 @@ Vector3 Player::getDirection() const
 void Player::setJump(void)
 {
 	if(m_AllowedToMove)
-	{
-		if(m_IsFalling)
-		{
-			m_JumpCount++;
-		}
-		
+	{		
 		Actor::ptr actor = m_Actor.lock();
 		if (!actor)
 			return;
 
 		std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
 		std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
-
-		if(runComp && !runComp->getIsJumping() && m_JumpCount < m_JumpCountMax)
+		if(runComp)
 		{
-			runComp->setIsJumping(true);
+			if(runComp->getIsFalling())
+			{
+				m_JumpCount++;
+			}
 
-			Vector3 temp = m_Physics->getBodyVelocity(getBody());
-			temp.y = 0.f;
+			if(!runComp->getIsJumping() && m_JumpCount < m_JumpCountMax)
+			{
+				runComp->setIsJumping(true);
 
-			m_Physics->setBodyVelocity(getBody(), temp);
+				Vector3 temp = m_Physics->getBodyVelocity(getBody());
+				temp.y = 0.f;
 
-			m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
+				m_Physics->setBodyVelocity(getBody(), temp);
+
+				m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
+			}
 		}
 	}
 }
@@ -643,11 +658,6 @@ void Player::setAllowedToMove(bool p_State)
 const bool Player::getAllowedToMove() const
 {
 	return m_AllowedToMove;
-}
-
-const bool Player::getIsFalling() const
-{
-	return m_IsFalling;
 }
 
 void Player::jump(float dt)

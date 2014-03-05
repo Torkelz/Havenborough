@@ -73,7 +73,9 @@ public:
 	unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_BoundingVolume) override;
 	unsigned int getNrOfVolumesInBody(BodyHandle p_BodyHandle);
 	Vector3 getBodyOrientation(BodyHandle p_BodyHandle) override;
-	void resetForceOnBody(BodyHandle p_BodyHandle) override;	 
+	void resetForceOnBody(BodyHandle p_BodyHandle) override;	
+
+	void setBodyForceCollisionNormal(BodyHandle p_Body, bool p_Bool) override;
 private:
 	Body* findBody(BodyHandle p_Body);
 	

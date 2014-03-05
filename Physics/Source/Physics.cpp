@@ -144,7 +144,6 @@ void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolum
 					b.setLanded(true);
 				}
 
-				
 				p_IsOnGround = true;
 
 				posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
@@ -157,6 +156,11 @@ void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolum
 
 			XMStoreFloat4(&vel, vVel);
 			b.setVelocity(vel);
+
+			if(b.getForceCollisionNormal())
+			{
+				posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+			}
 
 			temp = XMLoadFloat4(&b.getPosition()) + posNorm * p_Hit.colLength;
 			XMStoreFloat4(&tempPos, temp);
@@ -722,4 +726,13 @@ void Physics::resetForceOnBody(BodyHandle p_BodyHandle)
 		throw PhysicsException("Error! Trying to reset force on non existing body!", __LINE__, __FILE__);
 
 	body->resetForce();
+}
+
+void Physics::setBodyForceCollisionNormal(BodyHandle p_BodyHandle, bool p_Bool)
+{
+	Body *body = findBody(p_BodyHandle);
+	if(!body)
+		throw PhysicsException("Error! Trying to reset force on non existing body!", __LINE__, __FILE__);
+
+	body->setForceCollisionNormal(p_Bool);
 }

@@ -31,6 +31,8 @@ protected:
 	bool				m_IsEdge;
 	bool				m_Landed;
 
+	bool				m_ForceCollisionNormal;
+
 	std::vector<BoundingVolume::ptr> m_Volumes;
 public:
 	/**
@@ -219,6 +221,9 @@ public:
 	* Resets all force and velocity on a body.
 	*/
 	void resetForce();
+
+	void setForceCollisionNormal(bool p_Bool);
+	bool getForceCollisionNormal() const;
 
 private:
 	/**

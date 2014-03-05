@@ -14,6 +14,7 @@ private:
 	float m_AccConstant;
 
 	Vector3 m_RunningDirection;
+	bool m_isFalling;
 	bool m_IsJumping;
 	Vector3 m_GroundNormal;
 
@@ -39,6 +40,9 @@ public:
 
 	void setAccelerationConstant(float p_Acceleration);
 	void setMaxSpeedAccelerationFactor(float p_Factor);
+
+	bool getIsFalling() const;
+	void setIsFalling(bool p_IsFalling);
 
 	bool getIsJumping() const;
 	void setIsJumping(bool p_Jumping);
