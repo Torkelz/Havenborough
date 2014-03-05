@@ -27,11 +27,9 @@ private:
 	std::map<std::string, MouseButton> m_MouseButtonMap;
 
 	std::map<std::string, bool> m_SettingsEnabled;
+	std::map<std::string, float> m_SettingsValue;
 	std::map<std::string, HUDSettings> m_HUDSettings;
 	Vector2 m_Resolution;
-	int m_ShadowMapResolution;
-	float m_FOV;
-	float m_MouseSensitivity;
 
 	std::string m_ServerURL;
 	unsigned short int m_ServerPort;
@@ -75,6 +73,13 @@ public:
 	 * @return true or false depending on setting read from file.
 	 */
 	const bool getIsSettingEnabled(std::string p_SettingName) const;
+	/*
+	 * Get float value for settings.
+	 *
+	 * @param p_SettingName, the name of the setting to receive float value of.
+	 * @return float value depending on setting read from file.
+	 */
+	const float getIsSettingValue(std::string p_SettingName) const;
 	/*
 	 * Get the window size which is read from file.
 	 * If no resolution was read from file the default value is (1280,720)
