@@ -9,7 +9,6 @@ HUDScene::HUDScene()
 	m_NewSceneID = 0;
 	m_ChangeScene = false;
 	m_ChangeList = false;
-	m_PlayerTime = 0;
 	m_FadeOut = false;
 	m_TimeTimerMax = 10.0f;
 	m_TimeTimerStartFade = 5.0f;
@@ -17,6 +16,7 @@ HUDScene::HUDScene()
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
 	m_ResourceManager = nullptr;
+	m_RenderHUD = true;
 }
 
 HUDScene::~HUDScene()
@@ -41,6 +41,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerTime), UpdatePlayerTimeEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerRacePosition), UpdatePlayerRaceEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::setNrOfCheckpoints), GetNrOfCheckpoints::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::activateHUD), activateHUDEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateTakenCheckpoints), UpdateTakenCheckpoints::sk_EventType);
 
 	m_CheckpointPosition = Vector3(0,0,0);
@@ -125,19 +126,22 @@ void HUDScene::onFocus()
 
 void HUDScene::render()
 {
-	m_Graphics->render2D_Object(m_GUI["Arrow"]);
-	m_Graphics->render2D_Object(m_GUI["Manabar"]);
-	m_Graphics->render2D_Object(m_GUI["ManabarChange"]);
-	m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
-	m_Graphics->render2D_Object(m_GUI["Time"]);
-	m_Graphics->render2D_Object(m_GUI["RacePos"]);
-	m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
+	if(m_RenderHUD)
+	{
+		m_Graphics->render2D_Object(m_GUI["Arrow"]);
+		m_Graphics->render2D_Object(m_GUI["Manabar"]);
+		m_Graphics->render2D_Object(m_GUI["ManabarChange"]);
+		m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
+		m_Graphics->render2D_Object(m_GUI["Time"]);
+		m_Graphics->render2D_Object(m_GUI["RacePos"]);
+		m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
 	m_Graphics->render2D_Object(m_GUI["Checkpoints"]);
 
-	if(m_RenderCountdown)
-	{
-		m_Graphics->render2D_Object(m_GUI["Countdown"]);
-		m_RenderCountdown = false;
+		if(m_RenderCountdown)
+		{
+			m_Graphics->render2D_Object(m_GUI["Countdown"]);
+			m_RenderCountdown = false;
+		}
 	}
 }
 
@@ -263,6 +267,13 @@ void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
 	m_CheckpointPosition = data->getPosition();
 }
 
+void HUDScene::activateHUD(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<activateHUDEventData> data = std::static_pointer_cast<activateHUDEventData>(p_Data);
+
+	m_RenderHUD = data->getState();
+}
+
 void HUDScene::setNrOfCheckpoints(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<GetNrOfCheckpoints> data = std::static_pointer_cast<GetNrOfCheckpoints>(p_Data);
@@ -300,23 +311,15 @@ void HUDScene::preLoadModels()
 	Vector3 pos = Vector3(0, 300, 150.f);
 	Vector3 scale = Vector3(0.3f, 0.3f, 0.3f);
 	std::string id = "Arrow";
-	if(m_HUDSettings.count(id) > 0)
-	{
-		pos = m_HUDSettings.at(id).position;
-		float s = m_HUDSettings.at(id).scale;
-		scale = Vector3(s, s, s);
-	}
+	getHUDSettings(id, pos, scale);
+
 	createGUIElement("Arrow",m_Graphics->create2D_Object(pos, scale, 0.f, "Arrow1"));
 
 	pos = Vector3(-400, -320, 3);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "Manabar";
-	if(m_HUDSettings.count(id) > 0)
-	{
-		pos = m_HUDSettings.at(id).position;
-		float s = m_HUDSettings.at(id).scale;
-		scale = Vector3(s, s, s);
-	}
+	getHUDSettings(id, pos, scale);
+
 	createGUIElement("ManabarChange", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(140, 30), scale, 0.0f, "MANA_BARCHANGE"));
 	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 4), Vector2(144, 28), scale, 0.0f, "MANA_BAR"));
 
@@ -326,12 +329,8 @@ void HUDScene::preLoadModels()
 	pos = Vector3(0, 0, 0);
 	scale = Vector3(2.0f, 2.0f, 2.0f);
 	id = "Countdown";
-	if(m_HUDSettings.count(id) > 0)
-	{
-		pos = m_HUDSettings.at(id).position;
-		float s = m_HUDSettings.at(id).scale;
-		scale = Vector3(s, s, s);
-	}
+	getHUDSettings(id, pos, scale);
+
 	
 	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
@@ -339,25 +338,27 @@ void HUDScene::preLoadModels()
 	pos = Vector3(420, 250, 1);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "Time";
-	if(m_HUDSettings.count(id) > 0)
-	{
-		pos = m_HUDSettings.at(id).position;
-		float s = m_HUDSettings.at(id).scale;
-		scale = Vector3(s, s, s);
-	}
+	getHUDSettings(id,pos,scale);
 	m_TimePosition = pos;
 	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(120.f, 70.f), "Aniron", 72.f, Vector4(m_TimeColor, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(m_TimePosition, scale, 0.f, m_TextHandle["Time"]));
 
-
+	pos = Vector3(-450, 320, 2);
+	scale = Vector3(1.0f, 1.0f, 1.0f);
+	id = "RacePos";
+	getHUDSettings(id,pos,scale);
 	createTextElement("RacePos", m_Graphics->createText(L"0", Vector2(200, 65), "Aniron", 42, Vector4(0.0509803921568627f, 0.1882352941176471f, 0.6392156862745098f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	createGUIElement("RacePos", m_Graphics->create2D_Object(Vector3(-450, 320, 2), Vector3(1,1,1), 0.f, m_TextHandle["RacePos"]));
+	createGUIElement("RacePos", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["RacePos"]));
 
 	createTextElement("RacePosBG", m_Graphics->createText(L"0", Vector2(204, 69), "Aniron", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(-448, 318, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
+	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
 
+	pos = Vector3(418, 318, 3);
+	scale = Vector3(1.0f, 1.0f, 1.0f);
+	id = "Checkpoints";
+	getHUDSettings(id,pos,scale);
 	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(204, 69), "Aniron", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	createGUIElement("Checkpoints", m_Graphics->create2D_Object(Vector3(418, 318, 3), Vector3(1,1,1), 0.f, m_TextHandle["Checkpoints"]));
+	createGUIElement("Checkpoints", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Checkpoints"]));
 
 }
 
@@ -396,4 +397,14 @@ void HUDScene::createGUIElementTest(std::string p_GUIIdentifier, int p_Id)
 void HUDScene::createTextElementTest(std::string p_TextIdentifier, int p_Id)
 {
 	createTextElement(p_TextIdentifier, p_Id);
+}
+
+void HUDScene::getHUDSettings( std::string id, Vector3 &pos, Vector3 &scale )
+{
+	if(m_HUDSettings.count(id) > 0)
+	{
+		pos = m_HUDSettings.at(id).position;
+		float s = m_HUDSettings.at(id).scale;
+		scale = Vector3(s, s, s);
+	}
 }

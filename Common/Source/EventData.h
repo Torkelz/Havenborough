@@ -1139,6 +1139,44 @@ public:
 	}
 };
 
+class activateHUDEventData : public BaseEventData
+{
+private:
+	bool m_State;
+
+public:
+	static const Type sk_EventType = Type(0x7cd2fd2b);
+
+	activateHUDEventData(bool p_State)
+		:	m_State(p_State)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new activateHUDEventData(m_State));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdatePlayerRaceEventData";
+	}
+
+	bool getState() const
+	{
+		return m_State;
+	}
+};
+
 class GetNrOfCheckpoints : public BaseEventData
 {
 private:

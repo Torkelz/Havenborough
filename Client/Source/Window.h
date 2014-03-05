@@ -45,6 +45,7 @@ private:
 	bool		m_IsVisible;
 	bool		m_Initialized;
 	bool		m_Maximized;
+	DWORD		m_WindowStyle;
 
 public:
 	/**

@@ -10,7 +10,6 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
-	float m_PlayerTime;
 	unsigned int m_NumberOfCheckpoints;
 	std::string m_TakenCheckpoints;
 	Vector3 m_TimeColor, m_TimePosition, m_TimeScale;
@@ -29,6 +28,7 @@ private:
 	std::map<std::string, Settings::HUDSettings> m_HUDSettings;
 
 	bool m_RenderCountdown;
+	bool m_RenderHUD;
 	Vector3 m_CheckpointPosition;
 public: 
 	HUDScene();
@@ -66,10 +66,13 @@ private:
 	void updatePlayerTime(IEventData::Ptr p_Data);
 	void updatePlayerRacePosition(IEventData::Ptr p_Data);
 	void updateTakenCheckpoints(IEventData::Ptr p_Data);
+	void activateHUD(IEventData::Ptr p_Data);
 	void setNrOfCheckpoints(IEventData::Ptr p_Data);
 
 	void preLoadModels();
 	void releasePreLoadedModels();
+
+	void getHUDSettings( std::string id, Vector3 &pos, Vector3 &scale );
 public:
 	/*########## TEST FUNCTIONS ##########*/
 	int	getID() override;
