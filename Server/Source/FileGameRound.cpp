@@ -256,12 +256,21 @@ void FileGameRound::sendUpdates()
 					if(!m_SendHitData[i].first->reachedFinishLine())
 					{
 						user->getConnection()->sendRemoveObjects(&id, 1);
-						user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));						
-						//send evet to player to change color of the particles!
-						user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
-						
+						user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
 						tinyxml2::XMLPrinter printer;
+
+						printer.OpenElement("ObjectUpdate");
+						printer.PushAttribute("ActorId", id-1);
+						printer.PushAttribute("Type", "Color");
+						pushColor(printer, "SetColor", player->getCurrentCheckpointColor());
+						printer.CloseElement();
+						const char* info = printer.CStr();
+						user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+
+						user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
+
 						
+						printer.ClearBuffer();
 						printer.OpenElement("RacePositions");
 						printer.PushAttribute("Type", "Place");
 						Actor::ptr playerActor  = player->getActor().lock();
@@ -273,7 +282,7 @@ void FileGameRound::sendUpdates()
 						
 						printer.PushAttribute("Time",  leadTime - playerTime);
 						printer.CloseElement();
-						const char* info = printer.CStr();
+						info = printer.CStr();
 						user->getConnection()->sendRacePosition(&info, 1);
 					}
 					else

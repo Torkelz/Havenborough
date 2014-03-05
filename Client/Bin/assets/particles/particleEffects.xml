@@ -105,7 +105,7 @@
 		<Size sX="10.0" sY="10.0"/>
 		<PositionDeviation positionDeviation="60.0"/>
 		<Velocity vbX="0.0" vbY="60.0" vbZ="0.0" vdX="0.0" vdY="10.0" vdZ="0.0"/>
-		<Color cbX="0.0" cbY="1.0" cbZ="0.0" cbA="1.0" cdX="0.0" cdY="0.0" cdZ="0.0" cdA="0.0"/>
+		<Color cbX="1.0" cbY="1.0" cbZ="1.0" cbA="1.0" cdX="0.0" cdY="0.0" cdZ="0.0" cdA="0.0"/>
 	</Effect>
 </Particle>
 <!--
