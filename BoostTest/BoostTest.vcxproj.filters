@@ -47,9 +47,6 @@
     <ClCompile Include="Source\SceneManager\TestSceneManager.cpp">
       <Filter>TestClient</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\Window.cpp">
-      <Filter>TestClient</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Source\GraphicsLogger.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
@@ -296,7 +293,6 @@
     <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Client\TextHUDScene.cpp" />
     <ClCompile Include="Source\Physics\BVLoaderTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
@@ -305,6 +301,18 @@
     </ClCompile>
     <ClCompile Include="..\Graphics\Source\GPUTimer.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TestSplineCamera.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Client\TextHUDScene.cpp">
+      <Filter>TestClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Window.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\DebugInfo.cpp">
+      <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

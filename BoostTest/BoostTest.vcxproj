@@ -110,6 +110,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\BinaryConverter\Source\InstanceLoader.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp" />
+    <ClCompile Include="..\Client\Source\DebugInfo.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />
     <ClCompile Include="..\Client\Source\GameLogic.cpp" />
     <ClCompile Include="..\Client\Source\Level.cpp" />
@@ -161,6 +162,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Physics\Source\PhysicsLogger.cpp" />
     <ClCompile Include="Source\Client\TestSettings.cpp" />
     <ClCompile Include="Source\Client\TestRAM_Info.cpp" />
+    <ClCompile Include="Source\Client\TestSplineCamera.cpp" />
     <ClCompile Include="Source\Client\TextHUDScene.cpp" />
     <ClCompile Include="Source\Common\TestCommandManager.cpp" />
     <ClCompile Include="Source\Common\TestStreamReader.cpp" />

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\DebugInfo.cpp" />
     <ClCompile Include="Source\Scenes\HUDScene.cpp" />
     <ClCompile Include="Source\Settings.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
@@ -54,6 +55,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\DebugInfo.h" />
     <ClInclude Include="Source\Scenes\HUDScene.h" />
     <ClInclude Include="Source\Input\InputTranslatorEnums.h" />
     <ClInclude Include="Source\Settings.h" />
