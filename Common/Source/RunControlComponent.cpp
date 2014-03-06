@@ -83,7 +83,7 @@ void RunControlComponent::move(float p_DeltaTime)
 		}
 
 		float speed = XMVector4Length(currentVelocity).m128_f32[0];
-		if(speed >= m_MaxSpeedDefault - 100)
+		if(speed >= m_MaxSpeedDefault - 1.f)
 		{
 			m_MaxSpeedCurrent += m_MaxSpeedAccelerationFactor * p_DeltaTime;
 			if(m_MaxSpeedCurrent >= m_MaxSpeed)

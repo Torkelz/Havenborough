@@ -559,8 +559,10 @@ private:
 	Vector3 m_OffsetPositionSphereMain;
 	Vector3 m_OffsetPositionSphereHead;
 	Vector3 m_OffsetPositionBox;
+	Vector3 m_OffsetPositionStepBox;
 	Vector3 m_OffsetRotation;
-	Vector3 m_Halfsize;
+	Vector3 m_HalfsizeBox;
+	Vector3 m_HalfsizeStepBox;
 	Vector3 m_Scale;
 
 public:
@@ -604,13 +606,22 @@ public:
 			m_Scale.z = scale->FloatAttribute("z");
 		}
 
-		m_Halfsize = Vector3(1.f, 1.f, 1.f);
-		const tinyxml2::XMLElement* size = p_Data->FirstChildElement("Halfsize");
-		if (size)
+		m_HalfsizeBox = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* sizeBox = p_Data->FirstChildElement("HalfsizeBox");
+		if (sizeBox)
 		{
-			m_Halfsize.x = size->FloatAttribute("x");
-			m_Halfsize.y = size->FloatAttribute("y");
-			m_Halfsize.z = size->FloatAttribute("z");
+			m_HalfsizeBox.x = sizeBox->FloatAttribute("x");
+			m_HalfsizeBox.y = sizeBox->FloatAttribute("y");
+			m_HalfsizeBox.z = sizeBox->FloatAttribute("z");
+		}
+
+		m_HalfsizeStepBox = Vector3(1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* sizeBoxStep = p_Data->FirstChildElement("HalfsizeStepBox");
+		if (sizeBoxStep)
+		{
+			m_HalfsizeStepBox.x = sizeBoxStep->FloatAttribute("x");
+			m_HalfsizeStepBox.y = sizeBoxStep->FloatAttribute("y");
+			m_HalfsizeStepBox.z = sizeBoxStep->FloatAttribute("z");
 		}
 
 		m_OffsetPositionSphereHead = Vector3(0.f, 0.f, 0.f);
@@ -640,6 +651,15 @@ public:
 			relPosBox->QueryAttribute("z", &m_OffsetPositionBox.z);
 		}
 
+		m_OffsetPositionStepBox = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* relPosStepBox = p_Data->FirstChildElement("OffsetPositionStepBox");
+		if (relPosStepBox)
+		{
+			relPosStepBox->QueryAttribute("x", &m_OffsetPositionStepBox.x);
+			relPosStepBox->QueryAttribute("y", &m_OffsetPositionStepBox.y);
+			relPosStepBox->QueryAttribute("z", &m_OffsetPositionStepBox.z);
+		}
+
 		m_OffsetRotation = Vector3(0.f, 0.f, 0.f);
 		const tinyxml2::XMLElement* relRot = p_Data->FirstChildElement("OffsetRotation");
 		if(relRot)
@@ -663,7 +683,7 @@ public:
 		XMFLOAT3 fRotPos;
 		XMStoreFloat3(&fRotPos, rotPos);
 		
-		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionBox, m_Halfsize);
+		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionBox, m_HalfsizeBox);
 
 		Vector3 ownerRot = m_Owner->getRotation();
 		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
@@ -681,6 +701,9 @@ public:
 
 		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereHead, m_RadiusHead);
 
+		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionStepBox, m_HalfsizeStepBox);
+		m_Physics->setBodyVolumeCollisionResponse(m_Body, 5, false);
+
 		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
 		m_Physics->setBodyScale(m_Body, m_Scale);
 	}
@@ -693,10 +716,12 @@ public:
 		p_Printer.PushAttribute("RadiusHead", m_RadiusHead);
 		p_Printer.PushAttribute("Mass", m_Mass);
 		pushVector(p_Printer, "Scale", m_Scale);
-		pushVector(p_Printer, "Halfsize", m_Halfsize);
+		pushVector(p_Printer, "HalfsizeBox", m_HalfsizeBox);
+		pushVector(p_Printer, "HalfsizeStepBox", m_HalfsizeStepBox);
 		pushVector(p_Printer, "OffsetPositionSphereMain", m_OffsetPositionSphereMain);
 		pushVector(p_Printer, "OffsetPositionSphereHead", m_OffsetPositionSphereHead);
 		pushVector(p_Printer, "OffsetPositionBox", m_OffsetPositionBox);
+		pushVector(p_Printer, "OffsetPositionStepBox", m_OffsetPositionStepBox);
 		pushVector(p_Printer, "OffsetRotation", m_OffsetRotation);
 		p_Printer.CloseElement();
 	}

@@ -12,7 +12,7 @@ Player::Player(void)
     m_JumpCountMax = 2;
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
-	m_JumpForce = 8000.0f;
+	m_JumpForce = 8200.0f;
 	m_FallTolerance = 0.25f;
 	m_FallTime = 0.f;
 	m_ForceMove = false;
@@ -119,15 +119,7 @@ void Player::update(float p_DeltaTime)
 				
 				if(hit.collider == getBody())
 				{
-					Vector3 colPos = m_Physics->getBodyPosition(hit.collisionVictim);
-
-					Vector3 curPos = m_Physics->getBodyPosition(getBody());
-
-					if(curPos.y > colPos.y && curPos.y - 30.f < colPos.y)
-					{
-						m_Physics->setBodyForceCollisionNormal(getBody(), hit.collisionVictim, true);
-						break;
-					}
+					
 				}
 			}
 			Actor::ptr actor = m_Actor.lock();
@@ -544,7 +536,7 @@ Vector3 Player::getDirection() const
 
 void Player::setJump(void)
 {
-	if(m_AllowedToMove)
+	if(m_AllowedToMove && !m_ForceMove)
 	{		
 		Actor::ptr actor = m_Actor.lock();
 		if (!actor)

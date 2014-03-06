@@ -100,7 +100,7 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 						HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *m_Bodies.at(j).getVolume(l));
 						if(hit.intersect)
 						{
-							handleCollision(hit , i, k, j, l, isOnGround);
+							handleCollision(hit, i, k, j, l, isOnGround);
 						}
 					}
 				}
@@ -157,10 +157,6 @@ void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolum
 			XMStoreFloat4(&vel, vVel);
 			b.setVelocity(vel);
 
-			if(b.getForceCollisionNormal())
-			{
-				posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-			}
 
 			temp = XMLoadFloat4(&b.getPosition()) + posNorm * p_Hit.colLength;
 			XMStoreFloat4(&tempPos, temp);
