@@ -204,32 +204,95 @@ void GameScene::setIsVisible(bool p_SetVisible)
 
 void GameScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-
+	bool handled = false;
 	
-	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
+	// Binary triggers
+	if (p_Value > 0.5f && p_PrevValue <= 0.5f)
 	{
-		m_NewSceneID = (int)RunScenes::GAMEPAUSE;
-		m_ChangeScene = true;
-	}
-	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
-	{
-		m_ChangeList = true;
-	}
-	else if(p_Action ==  "changeViewN" && p_Value == 1)
-	{
-		if((unsigned int)m_CurrentDebugView == 0)
-			m_CurrentDebugView = (IGraphics::RenderTarget)4;
-		else
-			m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+		handled = true;
 
-		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
+		if(p_Action == "changeSceneN")
+		{
+			m_NewSceneID = (int)RunScenes::GAMEPAUSE;
+			m_ChangeScene = true;
+		}
+		else if(p_Action == "changeSceneP")
+		{
+			m_ChangeList = true;
+		}
+		else if(p_Action ==  "changeViewN")
+		{
+			if((unsigned int)m_CurrentDebugView == 0)
+				m_CurrentDebugView = (IGraphics::RenderTarget)4;
+			else
+				m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+
+			Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
+		}
+		else if(p_Action ==  "changeViewP")
+		{
+			m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
+			if((unsigned int)m_CurrentDebugView >= 6)
+				m_CurrentDebugView = (IGraphics::RenderTarget)0;
+			Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
+		}
+		else if( p_Action == "jump")
+		{
+			m_GameLogic->playerJump();
+		}
+		else if( p_Action == "switchBVDraw")
+		{
+			m_RenderDebugBV = !m_RenderDebugBV;
+		}
+		else if (p_Action == "leaveGame")
+		{
+			m_GameLogic->leaveGame();
+		}
+		else if (p_Action == "thirdPersonCamera")
+		{
+			m_UseThirdPersonCamera = !m_UseThirdPersonCamera;
+		}
+		else if (p_Action == "flipCamera")
+		{
+			m_UseFlippedCamera = !m_UseFlippedCamera;
+		}
+		else if(p_Action == "spellCast")
+		{
+			m_GameLogic->throwSpell("TestSpell");
+		}
+		else if(p_Action == "drawPivots")
+		{
+			m_DebugAnimations = !m_DebugAnimations;
+		}
+		else if(p_Action == "wave")
+		{
+			m_GameLogic->playerWave();
+		}
+		else if(p_Action == "splineRecord")
+		{
+			m_GameLogic->recordSpline();
+		}
+		else if(p_Action == "splineRemove")
+		{
+			m_GameLogic->removeLastSplineRecord();
+		}
+		else if(p_Action == "splineClear")
+		{
+			m_GameLogic->clearSplineSequence();
+		}
+		else
+		{
+			handled = false;
+		}
 	}
-	else if(p_Action ==  "changeViewP" && p_Value == 1)
+
+	if (handled)
+		return;
+
+	// Analog triggers
+	if(p_Action == "climbEdge")
 	{
-		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
-		if((unsigned int)m_CurrentDebugView >= 6)
-			m_CurrentDebugView = (IGraphics::RenderTarget)0;
-		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
+		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
 	}
 	else if (p_Action == "mouseMoveHori")
 	{
@@ -238,54 +301,6 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	else if (p_Action == "mouseMoveVert")
 	{
 		m_GameLogic->movePlayerView(0.f, -p_Value * m_ViewSensitivity);
-	}
-	else if( p_Action == "jump" && p_Value == 1)
-	{
-		m_GameLogic->playerJump();
-	}
-	else if( p_Action == "switchBVDraw" && p_Value == 1.f && p_PrevValue == 0)
-	{
-		m_RenderDebugBV = !m_RenderDebugBV;
-	}
-	else if (p_Action == "leaveGame" && p_Value == 1.f)
-	{
-		m_GameLogic->leaveGame();
-	}
-	else if (p_Action == "thirdPersonCamera" && p_Value == 1.f)
-	{
-		m_UseThirdPersonCamera = !m_UseThirdPersonCamera;
-	}
-	else if (p_Action == "flipCamera" && p_Value == 1.f)
-	{
-		m_UseFlippedCamera = !m_UseFlippedCamera;
-	}
-	else if(p_Action == "spellCast" && p_Value == 1.f)
-	{
-		m_GameLogic->throwSpell("TestSpell");
-	}
-	else if(p_Action == "climbEdge")
-	{
-		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
-	}
-	else if(p_Action == "drawPivots" && p_Value == 1.f)
-	{
-		m_DebugAnimations = !m_DebugAnimations;
-	}
-	else if(p_Action == "wave" && p_Value == 1.0f)
-	{
-		m_GameLogic->playerWave();
-	}
-	else if(p_Action == "splineRecord" && p_Value == 1.0f)
-	{
-		m_GameLogic->recordSpline();
-	}
-	else if(p_Action == "splineRemove" && p_Value == 1.0f)
-	{
-		m_GameLogic->removeLastSplineRecord();
-	}
-	else if(p_Action == "splineClear" && p_Value == 1.0f)
-	{
-		m_GameLogic->clearSplineSequence();
 	}
 }
 
@@ -413,7 +428,7 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 			{
 				for (unsigned int i = 0; i < animation.size(); ++i)
 				{
-					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 )
+					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 || i == 4 || i == 3 )
 					{
 						XMMATRIX toBind = XMLoadFloat4x4(&poseData->joints[i].m_TotalJointOffset);
 						XMMATRIX toObject = XMLoadFloat4x4(&animation[i]);

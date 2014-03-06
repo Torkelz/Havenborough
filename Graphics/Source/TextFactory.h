@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <map>
 
+#include "FontCollectionLoader.h"
 #include "TextResource.h"
 #include "TextEnums.h"
 #include "Utilities/XMFloatUtil.h"
@@ -19,6 +20,8 @@ private:
 	ID2D1Factory *m_D2DFactory;
 	IDWriteFactory *m_WriteFactory;
 	ID3D11Device *m_Device;
+	FontContext m_FontContext;
+	IDWriteFontCollection* m_FileFontCollection;
 
 	Vector2 m_Dpi;
 	D2D1_RENDER_TARGET_PROPERTIES m_DefaultProperties;

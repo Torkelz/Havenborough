@@ -1176,4 +1176,80 @@ public:
 		return m_State;
 	}
 };
+
+class GetNrOfCheckpoints : public BaseEventData
+{
+private:
+	int m_NrOfCheckpoints;
+
+public:
+	static const Type sk_EventType = Type(0x381c71c3);
+
+	GetNrOfCheckpoints(unsigned int p_NrOfCheckpoints)
+		:	m_NrOfCheckpoints(p_NrOfCheckpoints)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new GetNrOfCheckpoints(m_NrOfCheckpoints));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateNrOfCheckpoints";
+	}
+
+	int getNumberOfCheckpoints() const
+	{
+		return m_NrOfCheckpoints;
+	}
+};
+
+class UpdateTakenCheckpoints : public BaseEventData
+{
+private:
+	int m_TakenCheckpoints;
+
+public:
+	static const Type sk_EventType = Type(0xdc022c82);
+
+	UpdateTakenCheckpoints(unsigned int p_TakenCheckpoints)
+		:	m_TakenCheckpoints(p_TakenCheckpoints)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateTakenCheckpoints(m_TakenCheckpoints));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateTakenCheckpoints";
+	}
+
+	int getNumberOfCheckpointsTaken() const
+	{
+		return m_TakenCheckpoints;
+	}
+};
 #pragma warning(pop)

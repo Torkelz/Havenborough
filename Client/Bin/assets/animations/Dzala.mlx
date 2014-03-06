@@ -409,6 +409,12 @@ b1 R_Ankle
 b2 R_Foot
 b3 R_FootBase
 
+*IKgroup
+na Head
+b1 notUsed
+b2 notUsed
+b3 Neck
+
 *Path
 na	Climb1
 sp	1.3

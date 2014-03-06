@@ -186,7 +186,7 @@ void HumanAnimationComponent::updateAnimation()
 						}
 						else
 						{
-							playAnimation("StandingJump", false);
+							playAnimation("StandingJump", true);
 							queueAnimation("Falling");
 						}
 					}

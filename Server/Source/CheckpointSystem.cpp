@@ -77,3 +77,8 @@ Vector3 CheckpointSystem::getCurrentCheckpointColor()
 		return Vector3(0.2f, 0.9f, 0.2f);
 	}
 }
+
+unsigned int CheckpointSystem::getNrOfCheckpoints()
+{
+	return m_Checkpoints.size();
+}
