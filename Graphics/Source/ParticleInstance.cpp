@@ -24,7 +24,7 @@ void ParticleInstance::init(std::shared_ptr<Buffer> p_ConstBuffer, std::shared_p
 	m_ParticleEffectDef = p_ParticleEffectDefinition;
 	m_ParticleList.reserve(m_ParticleEffectDef->maxParticles);
 
-	m_RandomEngine.seed(std::chrono::system_clock::now().time_since_epoch().count());
+	m_RandomEngine.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
 	
 	if (m_ParticleEffectDef->particleColorBase.x != -1)
 	{	

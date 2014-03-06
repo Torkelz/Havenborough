@@ -120,10 +120,10 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_Position);
-	//printer.OpenElement("Model");
-	//printer.PushAttribute("Mesh", "Checkpoint1");
-	//pushVector(printer, "Scale", p_Scale);
-	//printer.CloseElement();
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "Checkpoint1");
+	pushVector(printer, "OffsetPosition", Vector3(0,160,0));
+	printer.CloseElement();
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);
 	pushVector(printer, "Halfsize", AABBScale);

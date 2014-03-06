@@ -16,17 +16,23 @@ CheckpointSystem::~CheckpointSystem(void)
 
 void CheckpointSystem::addCheckpoint(const std::weak_ptr<Actor> p_Checkpoint)
 {
-	std::weak_ptr<ParticleInterface> mI = p_Checkpoint.lock()->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId);
+	std::weak_ptr<ParticleInterface> pI = p_Checkpoint.lock()->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId);
+	std::weak_ptr<ModelInterface> mI = p_Checkpoint.lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
 
 	if(m_Checkpoints.empty())
 	{
-		mI.lock()->setBaseColor(Vector4(m_FinishColorTone, 1.0f));
+		pI.lock()->setBaseColor(Vector4(m_FinishColorTone, 1.0f));
+		mI.lock()->setColorTone(m_FinishColorTone);
 	}
 	else if(m_Checkpoints.size() > 1)
 	{
-		mI.lock()->setBaseColor(Vector4(m_CurrentColorTone, 1.0f));
-		mI = m_Checkpoints.back().lock()->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId);
-		mI.lock()->setBaseColor(Vector4(m_DefaultColorTone, 1.0f));
+		pI.lock()->setBaseColor(Vector4(m_CurrentColorTone, 1.0f));
+		pI = m_Checkpoints.back().lock()->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId);
+		pI.lock()->setBaseColor(Vector4(m_DefaultColorTone, 1.0f));
+
+		mI.lock()->setColorTone(m_CurrentColorTone);
+		mI = m_Checkpoints.back().lock()->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
+		mI.lock()->setColorTone(m_DefaultColorTone);
 	}
 
 	m_Checkpoints.push_back(p_Checkpoint);

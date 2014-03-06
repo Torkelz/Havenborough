@@ -737,6 +737,12 @@ void GameLogic::handleNetwork()
 							{
 								particleComponent->setBaseColor(Vector4(color, 1.0f));
 							}
+
+							std::shared_ptr<ModelInterface> modelComponent = actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock();
+							if (modelComponent)
+							{
+								modelComponent->setColorTone(color);
+							}
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
