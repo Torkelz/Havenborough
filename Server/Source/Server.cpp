@@ -199,6 +199,7 @@ void Server::addGamesFromFile(const std::string& p_Filename)
 	if (!listElem)
 		return;
 
+	unsigned int numAddedGames = 0;
 	for (const tinyxml2::XMLElement* levelElem = listElem->FirstChildElement("Level");
 		levelElem;
 		levelElem = levelElem->NextSiblingElement("Level"))
@@ -213,6 +214,9 @@ void Server::addGamesFromFile(const std::string& p_Filename)
 		if (levelName && levelPath && levelMaxPlayers > 0)
 		{
 			m_Lobby->addAvailableLevel(levelName, levelPath, (unsigned int)levelMaxPlayers, levelTimeOut);
+			++numAddedGames;
 		}
 	}
+
+	Logger::log(Logger::Level::INFO, "Added " + std::to_string(numAddedGames) + " levels from file");
 }

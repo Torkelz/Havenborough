@@ -351,7 +351,7 @@ void BaseGameApp::updateTimer()
 	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{
-		Logger::log(Logger::Level::WARNING, "Computer to slow or something");
+		Logger::log(Logger::Level::WARNING, "Computer too slow or something");
 		m_DeltaTime = maxDeltaTime;
 	}
 }
