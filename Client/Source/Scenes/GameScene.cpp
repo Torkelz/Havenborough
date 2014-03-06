@@ -188,15 +188,14 @@ void GameScene::render()
 	//From skybox branch, move later if needed.
 	m_Graphics->renderSkydome();
 
-	m_Graphics->setRenderTarget(m_CurrentDebugView);
-	m_Graphics->render2D_Object(4);
-
 	for( auto &wText : m_WorldText)
 	{
 		//Skip rendering own player tag.
 		if(m_GameLogic->getPlayerTextComponentId() != wText.first)
 			m_Graphics->renderText(wText.second);
 	}
+
+	m_Graphics->setRenderTarget(m_CurrentDebugView);
 }
 
 bool GameScene::getIsVisible()
