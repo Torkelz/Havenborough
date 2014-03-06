@@ -7,7 +7,7 @@
 #include <boost/filesystem.hpp>
 
 /////////////////////////////FONT COLLECTION LOADER/////////////////////////////
-IDWriteFontCollectionLoader* FontCollectionLoader::instance_(
+std::unique_ptr<IDWriteFontCollectionLoader> FontCollectionLoader::instance_(
 	new FontCollectionLoader()
 	);
 
@@ -179,7 +179,7 @@ HRESULT STDMETHODCALLTYPE FontFileEnumerator::GetCurrentFontFile(OUT IDWriteFont
 /////////////////////////////FONT FILE ENMUMERATOR/////////////////////////////
 
 /////////////////////////////FONT FILE LOADER/////////////////////////////
-IDWriteFontFileLoader* FontFileLoader::instance_(
+std::unique_ptr<IDWriteFontFileLoader> FontFileLoader::instance_(
     new(std::nothrow) FontFileLoader()
     );
 
