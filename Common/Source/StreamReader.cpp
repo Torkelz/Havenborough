@@ -6,9 +6,11 @@
 
 StreamReader::StreamReader(CommandManager::ptr p_CommandManager, std::istream& p_InputStream)
 	: m_CommandManager(p_CommandManager),
-	m_InputStream(p_InputStream),
-	m_ReadThread(&StreamReader::read, this)
+	m_InputStream(p_InputStream)
 {
+	VLDDisable();
+	m_ReadThread = boost::thread(&StreamReader::read, this);
+	VLDEnable();
 }
 
 StreamReader::~StreamReader()

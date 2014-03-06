@@ -17,24 +17,28 @@ namespace Havenborough_Launcher
     /// </summary>
     public partial class MainWindow
     {
+        private const string ClientExec = "Client.exe";
+        private const string ServerExec = "Server.exe";
+
         public MainWindow()
         {
-            var backgroundBrush = new ImageBrush
+            InitializeComponent();
+
+            var xmlDataProvider = Resources["DataProvider"] as XmlDataProvider;
+            if (xmlDataProvider != null)
+                xmlDataProvider.Source = new Uri(Path.GetFullPath("UserOptions.xml"));
+
+            Background = new ImageBrush
             {
                 ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg",
                     UriKind.Relative))
             };
-
-            InitializeComponent();
-            var xmlDataProvider = Resources["DataProvider"] as XmlDataProvider;
-            if (xmlDataProvider != null)
-                xmlDataProvider.Source = new Uri(Path.GetFullPath("UserOptions.xml"));
-            Background = backgroundBrush;
+            Icon = BitmapFrame.Create(new Uri(@"Havenborough.ico", UriKind.RelativeOrAbsolute));
 
             RefreshGameList();
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        private void Launch_OnClick(object sender, RoutedEventArgs e)
         {
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
@@ -43,11 +47,17 @@ namespace Havenborough_Launcher
             string source = dataProvider.Source.LocalPath;
             dataProvider.Document.Save(source);
 
-            Process.Start("Client.exe");
+            Process.Start(ClientExec);
         }
 
         private void Refresh_OnClick(object sender, RoutedEventArgs e)
         {
+            RefreshGameList();
+        }
+
+        private void HostServerButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Process.Start(ServerExec);
             RefreshGameList();
         }
 
@@ -173,6 +183,40 @@ namespace Havenborough_Launcher
 
             comboBox.ItemsSource = data;
             comboBox.SelectedIndex = 0;
+        }
+
+        private void SliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            var slider = sender as Slider;
+            if (slider == null || FovValue == null || MouseSenseValue == null)
+                return;
+
+            switch (slider.Name)
+            {
+                case "FovSlider":
+                    FovValue.Text = ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
+                    if ((int) slider.Value == 70)
+                        FovValue.Text = "Quake Pro";
+                    break;
+                case "MouseSenseSlider":
+                {
+                    var val = slider.Value.ToString(CultureInfo.InvariantCulture);
+                    switch (val.Length)
+                    {
+                        case 1:
+                            MouseSenseValue.Text = val;
+                            break;
+                        case 3:
+                            MouseSenseValue.Text = val.Substring(0, 3);
+                            break;
+                        default:
+                            MouseSenseValue.Text = val.Substring(0, 4);
+                            break;
+                    }
+                }
+                    break;
+            }
+               
         }
     }
 

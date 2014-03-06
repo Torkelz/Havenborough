@@ -55,7 +55,6 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 			sceneFail = true;
 		}
 	}
-
 	m_MenuSceneList[0]->setIsVisible(true);
 	m_MenuSceneList[0]->onFocus();
 	
@@ -259,7 +258,6 @@ void SceneManager::passInput(std::string p_Action, float p_Value, float p_PrevVa
 		if(activeList->at(i)->getIsVisible())
 		{
 			activeList->at(i)->registeredInput(p_Action, p_Value, p_PrevValue);
-			i = nrScenes;
 		}
 	}
 	activeList = nullptr;

@@ -27,7 +27,7 @@ void InputTranslator::init(Window* p_Window)
 	// Generic keyboard
 	inputDevices[1].usUsagePage	= 0x01;
 	inputDevices[1].usUsage		= 0x06;
-	inputDevices[1].dwFlags		= RIDEV_NOLEGACY;
+	inputDevices[1].dwFlags		= 0;
 	inputDevices[1].hwndTarget	= 0;
 
 	if (RegisterRawInputDevices(&inputDevices[0], 2, sizeof(inputDevices[0])) == FALSE)
