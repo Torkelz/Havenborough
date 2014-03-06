@@ -1,0 +1,5 @@
+<Resources>
+    <ResourceType Type="volume">
+        <Resource Name="Barrel1" Path="assets/volumes/CB_Barrel1.txc"/>
+    </ResourceType>
+</Resources>
