@@ -1572,7 +1572,7 @@ public:
 	 * @param p_GroupName, the wanted IK-group.
 	 * @param p_Target, 3D point to reach for.
 	 */
-	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) = 0;
+	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target, float p_Weight) = 0;
 
 	/**
 	 * @param p_JointName, the name of the joint to get the position of.
@@ -1603,7 +1603,7 @@ public:
 	 * @param p_EdgeOrientation, the calculated orientation of the edge.
 	 * @param p_CenterReachPos, the center position that the IK uses.
 	 */
-	virtual void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos) = 0;
+	virtual void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos, std::string p_grabName) = 0;
 
 	/**
 	 * The animation component needs physics for some of its calculations.
