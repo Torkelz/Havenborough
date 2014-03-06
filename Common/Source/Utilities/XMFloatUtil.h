@@ -78,7 +78,7 @@ struct Vector4 : public DirectX::XMFLOAT4
 	Vector4(float _x, float _y, float _z, float _w)
 		: DirectX::XMFLOAT4(_x, _y, _z, _w)
 	{}
-
+	
 	Vector4(Vector3& _vec, float _w)
 		: DirectX::XMFLOAT4(_vec.x, _vec.y, _vec.z, _w)
 	{}

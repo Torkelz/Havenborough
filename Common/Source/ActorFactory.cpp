@@ -116,7 +116,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 {
 	Vector3 AABBScale = p_Scale;
 	AABBScale.x *= 75.f;
-	AABBScale.y *= 500.f;
+	AABBScale.y *= 60.f;
 	AABBScale.z *= 75.f;
 
 	tinyxml2::XMLPrinter printer;
@@ -124,7 +124,8 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, p_Position);
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "Checkpoint1");
-	pushVector(printer, "Scale", p_Scale);
+	pushVector(printer, "Scale", Vector3(0.8f, 0.8f, 0.8f));
+	pushVector(printer, "OffsetPosition", Vector3(0,200,0));
 	printer.CloseElement();
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);
@@ -132,7 +133,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
 	printer.OpenElement("Particle");
-	printer.PushAttribute("Effect", "fire");
+	printer.PushAttribute("Effect", "checkpointSwirl");
 	printer.CloseElement();
 	printer.CloseElement();
 

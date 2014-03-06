@@ -19,7 +19,7 @@ public:
 	* @param p_CurrentTone the tone which the current checkpoint should be shaded in, RGB 0.0f to 1.0f, default is blue
 	* @param p_FinishTone the tone which the finish line should be shaded in, RGB 0.0f to 1.0f, default is red
 	*/
-	CheckpointSystem(Vector3 p_DefaultTone = Vector3(1.0f, 1.0f, 1.0f), Vector3 p_CurrentTone = Vector3(0.2f, 0.2f, 0.9f),
+	CheckpointSystem(Vector3 p_DefaultTone = Vector3(1.0f, 1.0f, 1.0f), Vector3 p_CurrentTone = Vector3(0.027f, 0.231f, 0.376f),
 		Vector3 p_FinishTone = Vector3(0.95f, 0.1f, 0.1f));
 	
 	/**

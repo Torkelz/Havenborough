@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <vector>
 #include <dwrite.h>
 
@@ -55,7 +56,7 @@ class FontCollectionLoader : public IDWriteFontCollectionLoader
 private:
 	ULONG refCount_;
 
-	static IDWriteFontCollectionLoader* instance_;
+	static std::unique_ptr<IDWriteFontCollectionLoader> instance_;
 
 public:
 	FontCollectionLoader(void) : refCount_(0)
@@ -75,7 +76,7 @@ public:
 
 	static IDWriteFontCollectionLoader* GetLoader()
 	{
-		return instance_;
+		return instance_.get();
 	}
 
 	static bool IsLoaderInitialized()
@@ -120,7 +121,7 @@ class FontFileLoader : public IDWriteFontFileLoader
 private:
 	ULONG refCount_;
 
-	static IDWriteFontFileLoader* instance_;
+	static std::unique_ptr<IDWriteFontFileLoader> instance_;
 
 public:
 	FontFileLoader() : refCount_(0)
@@ -142,7 +143,7 @@ public:
 	// Gets singleton loader instance.
 	static IDWriteFontFileLoader* GetLoader()
 	{
-		return instance_;
+		return instance_.get();
 	}
 
 	static bool IsLoaderInitialized()
