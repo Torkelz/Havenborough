@@ -63,6 +63,9 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::spellHit), SpellHitEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createWorldText), createWorldTextEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeWorldText), removeWorldTextEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateWorldTextPosition), updateWorldTextPositionEventData::sk_EventType);
 
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::FINAL);
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::SSAO);
@@ -184,16 +187,19 @@ void GameScene::render()
 				break;
 			}
 		}
-		
 	}
 
 	//From skybox branch, move later if needed.
 	m_Graphics->renderSkydome();
 
 	m_Graphics->setRenderTarget(m_SelectableRenderTargets[m_CurrentDebugView]);
-	m_Graphics->render2D_Object(4);
-
 	
+	for( auto &wText : m_WorldText)
+	{
+		//Skip rendering own player tag.
+		if(m_GameLogic->getPlayerTextComponentId() != wText.first)
+			m_Graphics->renderText(wText.second);
+	}
 }
 
 bool GameScene::getIsVisible()
@@ -274,17 +280,24 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		{
 			m_GameLogic->playerWave();
 		}
-		else if(p_Action == "splineRecord")
+		else if (m_GameLogic->getSplineCameraActive())
 		{
-			m_GameLogic->recordSpline();
-		}
-		else if(p_Action == "splineRemove")
-		{
-			m_GameLogic->removeLastSplineRecord();
-		}
-		else if(p_Action == "splineClear")
-		{
-			m_GameLogic->clearSplineSequence();
+			if(p_Action == "splineRecord")
+			{
+				m_GameLogic->recordSpline();
+			}
+			else if(p_Action == "splineRemove")
+			{
+				m_GameLogic->removeLastSplineRecord();
+			}
+			else if(p_Action == "splineClear")
+			{
+				m_GameLogic->clearSplineSequence();
+			}
+			else
+			{
+				handled = false;
+			}
 		}
 		else
 		{
@@ -434,7 +447,7 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 			{
 				for (unsigned int i = 0; i < animation.size(); ++i)
 				{
-					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 )
+					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 || i == 4 || i == 3 )
 					{
 						XMMATRIX toBind = XMLoadFloat4x4(&poseData->joints[i].m_TotalJointOffset);
 						XMMATRIX toObject = XMLoadFloat4x4(&animation[i]);
@@ -534,6 +547,39 @@ void GameScene::spellHit(IEventData::Ptr p_Data)
 	std::shared_ptr<SpellHitEventData> data = std::static_pointer_cast<SpellHitEventData>(p_Data);
 
 	m_EventManager->queueEvent((IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExplosion", data->getPosition()))));
+}
+
+void GameScene::createWorldText(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<createWorldTextEventData> data = std::static_pointer_cast<createWorldTextEventData>(p_Data);
+
+	IGraphics::Text_Id id = m_Graphics->createText(data->getText().c_str(), data->getFont().c_str(), data->getFontSize(),
+		data->getFontColor(), data->getPosition(), data->getScale(), data->getRotation());
+
+	m_Graphics->setTextBackgroundColor(id, data->getBackgroundColor());
+
+	m_WorldText[data->getComponentId()] = id;
+}
+
+void GameScene::removeWorldText(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<removeWorldTextEventData> data = std::static_pointer_cast<removeWorldTextEventData>(p_Data);
+
+	if(m_WorldText.count(data->getId()) > 0)
+	{
+		m_Graphics->deleteText(m_WorldText.at(data->getId()));
+		m_WorldText.erase(data->getId());
+	}
+}
+
+void GameScene::updateWorldTextPosition(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<updateWorldTextPositionEventData> data = std::static_pointer_cast<updateWorldTextPositionEventData>(p_Data);
+
+	if(m_WorldText.count(data->getId()) > 0)
+	{
+		m_Graphics->setTextPosition(m_WorldText.at(data->getId()), data->getPosition());
+	}
 }
 
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)

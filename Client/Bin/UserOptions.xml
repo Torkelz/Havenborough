@@ -5,7 +5,7 @@
   <Character Name="Dzala" Style="Green" />
   <Settings>
     <SSAO Enabled="true" />
-    <ShadowMap Enabled="true" />
+    <ShadowMap Enabled="false" />
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
@@ -52,8 +52,12 @@
     <MouseButtonMap Display="Climb" Command="climbEdge" Button="Right" />
   </Controls>
   <HUD>
+    <!-- Positions in 1280x720 resolution. Will automatically adjust depending on resolution -->
     <Manabar x="0" y="-320" z="3" scale="0.75" />
     <Arrow x="0" y="300" z="150" scale="0.3" />
     <Countdown x="0" y="0" z="0" scale="2" />
+    <Time x="420" y="250" z="0" scale="1"/>
+    <RacePos x="-450" y="320" z="1" scale="1"/>
+    <Checkpoints x="418" y="318" z="3" scale="1"/>
   </HUD>
 </UserOptions>

@@ -47,6 +47,7 @@ private:
 	Actor::wPtr m_FlyingCamera;
 	Actor::wPtr m_SplineCamera;
 	Actor::wPtr m_PlayerDefault;
+	bool m_SplineCameraActive;
 
 	bool m_IsConnecting;
 	bool m_Connected;
@@ -58,6 +59,9 @@ private:
 
 	unsigned int m_PlayerPositionInRace;
 	float m_PlayerTimeDifference; //The difference in time to the first player.
+
+	DirectX::XMFLOAT3 m_lookAtPos;
+	DirectX::XMFLOAT3 m_PreviousLegalPlayerBodyRotation;
 
 	//DEBUG
 	Vector3 m_PlayerDirection;
@@ -145,11 +149,26 @@ public:
 	 */
 
 	void removeLastSplineRecord();
+
 	/**
 	 * Clear current spline sequence.
 	 *
 	 */
 	void clearSplineSequence();
+
+	/**
+	 * Get the state of the spline camera. 
+	 *
+	 * @return true if spline camera is active. false if not active.
+	 */
+	bool getSplineCameraActive();
+
+	/**
+	 * Get player text component id.
+	 *
+	 * @return the id of the players text component id.
+	 */
+	unsigned int getPlayerTextComponentId();
 	
 private:
 	void handleNetwork();

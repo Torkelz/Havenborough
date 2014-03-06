@@ -245,7 +245,7 @@ const vector<DirectX::XMFLOAT4X4>& Animation::getFinalTransform() const
 	return m_FinalTransform;
 }
 
-void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, XMFLOAT4X4 p_WorldMatrix)
+void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, XMFLOAT4X4 p_WorldMatrix, float p_Weight)
 {
 	auto it = m_Data->ikGroups.find(p_GroupName);
 	if (it == m_Data->ikGroups.end())
@@ -373,7 +373,7 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	XMVECTOR objectRotationAxis = XMVector3Cross(objectJointToStart, objectJointToEnd);
 	objectRotationAxis = XMVector3Normalize(objectRotationAxis);
 
-	XMMATRIX rotation = XMMatrixRotationAxis(-objectRotationAxis, diffJointAngle);
+	XMMATRIX rotation = XMMatrixRotationAxis(-objectRotationAxis, diffJointAngle * p_Weight);
 
 	// Rotate the local transform of the "elbow" joint
 	XMStoreFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1],
@@ -406,7 +406,7 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
 	
 	// Rotate the local transform of the "shoulder" joint
-	rotation = XMMatrixRotationAxis(localAxis, -localAngle);
+	rotation = XMMatrixRotationAxis(localAxis, -localAngle * p_Weight);
 	XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1],
 		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
 
@@ -479,6 +479,7 @@ void Animation::updateFinalTransforms()
 		
 		offSet = XMMatrixInverse(nullptr, offSet);
 		XMMATRIX result = XMMatrixMultiply(toRoot, offSet);
+		//result = offSet;
 
 		result = XMMatrixMultiply(flipMatrix, result);
 
@@ -594,18 +595,100 @@ void Animation::changeWeight(int p_Track, float p_Weight)
 	}
 }
 
+void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, DirectX::XMFLOAT4X4 p_WorldMatrix, float p_MaxAngle)
+{
+	auto it = m_Data->ikGroups.find(p_GroupName);
+	if (it == m_Data->ikGroups.end())
+	{
+		return;
+	}
+
+	const IKGroup& p_Group = it->second;
+
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+
+	XMFLOAT4 targetData(p_Position.x, p_Position.y, p_Position.z, 1.f);
+	XMVECTOR target = XMLoadFloat4(&targetData);
+
+	const Joint* headJoint = nullptr;
+
+	for (unsigned int i = 0; i < p_Joints.size(); i++)
+	{
+		const Joint& joint = p_Joints[i];
+
+		if (joint.m_JointName == p_Group.m_Hand)
+		{
+			headJoint = &joint;
+			break;
+		}
+	}
+
+	// The algorithm requires all three joints
+	if (headJoint == nullptr)
+	{
+		return;
+	}
+
+	XMMATRIX world = XMLoadFloat4x4(&p_WorldMatrix);
+
+	// Calculate matrices for transforming vectors from joint spaces to world space
+	XMMATRIX headCombinedTransform = XMMatrixMultiply(
+		world,
+		XMMatrixMultiply(
+			XMLoadFloat4x4(&m_FinalTransform[headJoint->m_ID - 1]),
+			XMLoadFloat4x4(&headJoint->m_TotalJointOffset)));
+	XMFLOAT4X4 headCombinedTransformedData;
+	XMStoreFloat4x4(&headCombinedTransformedData, headCombinedTransform);
+
+	// The joints' positions in world space is the zero vector in joint space transformed to world space.
+	XMFLOAT4 headPosition(headCombinedTransformedData._14, headCombinedTransformedData._24,
+		headCombinedTransformedData._34, 1.f); 
+
+	XMVECTOR headPositionV = XMLoadFloat4(&headPosition);
+
+	XMVECTOR headToTarget =  target - headPositionV;
+
+	float wantedJointAngle = 0.f;
+
+	// Normalize look at target
+	headToTarget = XMVector3Normalize(headToTarget);
+	// Get the standard look at vector
+	XMVECTOR headForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	headForward = XMVector3Transform(headForward, world);
+	headForward = XMVector3Normalize(headForward);
+	headForward.m128_f32[0] = -headForward.m128_f32[0];
+
+	// Get rotation axis and angle
+	XMVECTOR rotationAxis;
+	rotationAxis = XMVector3Cross(headForward, headToTarget);
+	rotationAxis = XMVector3Normalize(rotationAxis);
+	XMMATRIX headCombinedTransformInverse = XMMatrixInverse(nullptr, headCombinedTransform);
+	rotationAxis = XMVector3Transform(rotationAxis, headCombinedTransform);
+	wantedJointAngle = acosf(XMVector3Dot(headForward, headToTarget).m128_f32[0]);
+
+	// Limit angle
+	wantedJointAngle = std::min( wantedJointAngle, p_MaxAngle );
+	// Apply the transformation to the bone
+	XMMATRIX rotation;
+	rotation = XMMatrixRotationAxis(rotationAxis, wantedJointAngle);
+
+	XMStoreFloat4x4(&m_LocalTransforms[headJoint->m_ID - 1],
+	XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[headJoint->m_ID - 1]), rotation));
+
+	// Update the resulting child transformations
+	updateFinalTransforms();
+}
+
 void Animation::setAnimationData(AnimationData::ptr p_Data)
 {
 	m_Data = p_Data;
 	playClip("default", true);
 }
 
-
 const AnimationData::ptr Animation::getAnimationData() const
 {
 	return m_Data;
 }
-
 
 void Animation::purgeQueue(const unsigned int p_Track)
 {

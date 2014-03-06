@@ -131,7 +131,8 @@ void BaseGameApp::init()
 
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
-	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings());
+	Vector2 resolution(m_Window.getSize().x, m_Window.getSize().y);
+	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings(), resolution);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
 	m_MemoryInfo.update();
 	
@@ -351,7 +352,7 @@ void BaseGameApp::updateTimer()
 	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{
-		Logger::log(Logger::Level::WARNING, "Computer to slow or something");
+		Logger::log(Logger::Level::WARNING, "Computer too slow or something");
 		m_DeltaTime = maxDeltaTime;
 	}
 }

@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE(IPhysicsIntegration)
 	BOOST_MESSAGE(testId + "Testing physics interface");
 	IPhysics * physics;
 	physics = IPhysics::createPhysics();
-	physics->initialize();
+	physics->initialize(false);
 	BOOST_MESSAGE(testId + "Physics engine initialized");
 	BOOST_MESSAGE(testId + "Using physics engine to create bodies with different bounding volumes");
 	BodyHandle aabb = physics->createAABB(40.f, true, Vector3(0.f, 0.f, 0.f), Vector3(100.f, 100.f, 100.f), false);
@@ -482,7 +482,7 @@ BOOST_AUTO_TEST_CASE(PhysicsResourceIntegration)
 {
 	BOOST_MESSAGE(testId + "Testing to load bounding volumes through the resource manager");
 	IPhysics *physics = IPhysics::createPhysics();
-	physics->initialize();
+	physics->initialize(false);
 	BOOST_MESSAGE(testId + "Initializing the resource manager");
 	std::unique_ptr<ResourceManager> resourceManager(new ResourceManager);
 	using namespace std::placeholders;

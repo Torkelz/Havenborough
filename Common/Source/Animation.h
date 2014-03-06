@@ -79,7 +79,7 @@ public:
 	 * @param p_Position the position in world space to reach for.
 	 * @param p_Joints the skeleton used for the model.
 	 */
-	void applyIK_ReachPoint(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, DirectX::XMFLOAT4X4 p_WorldMatrix);
+	void applyIK_ReachPoint(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, DirectX::XMFLOAT4X4 p_WorldMatrix, float p_Weight);
 	
 	/**
 	 * Get the position of a joint.
@@ -116,6 +116,8 @@ public:
 	 * NOTE: Can only be used on track pairs.
 	 */
 	void changeWeight(int p_MainTrack, float p_Weight );
+
+	void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, DirectX::XMFLOAT4X4 p_WorldMatrix, float p_MaxAngle);
 
 	void setAnimationData(AnimationData::ptr p_Data);
 

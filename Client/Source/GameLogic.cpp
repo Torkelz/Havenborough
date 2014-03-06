@@ -7,6 +7,7 @@
 #include "SplineControlComponent.h"
 #include "TweakSettings.h"
 
+#include <math.h>
 #include <sstream>
 
 using namespace DirectX;
@@ -17,6 +18,9 @@ GameLogic::GameLogic(void)
 	m_ResourceManager = nullptr;
 	m_CountdownTimer = 0.f;
 	m_RenderGo = false;
+	m_PreviousLegalPlayerBodyRotation = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	m_lookAtPos = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	m_SplineCameraActive = false;
 }
 
 
@@ -128,13 +132,39 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime, 100);
 
-	Vector3 actualViewRot = getPlayerViewRotation();
+	XMVECTOR actualViewRot = Vector3ToXMVECTOR(&getPlayerViewRotation(), 0.0f);
 	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
-		Vector3 playerRotation = actualViewRot;
-		playerRotation.y = 0.f;
-		playerActor->setRotation(playerRotation);
+		XMVECTOR playerRotation = actualViewRot;
+		playerRotation.m128_f32[1] = 0.f;
+		XMMATRIX rotation = XMMatrixRotationRollPitchYaw(playerRotation.m128_f32[1], playerRotation.m128_f32[0], playerRotation.m128_f32[2]);
+		playerRotation = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+		playerRotation = XMVector3Transform(playerRotation, rotation);
+
+		float currentAngle = acosf(XMVector3Dot(XMVectorSet(0.f, 0.f, 1.f, 0.f), playerRotation).m128_f32[0]);
+		if (playerRotation.m128_f32[0] < 0.f)
+		{
+			currentAngle = -currentAngle;
+		}
+
+		Vector3 previousPlayerRotation = playerActor->getRotation();
+		float angleDiff = previousPlayerRotation.x - currentAngle;
+		angleDiff += (angleDiff > PI) ? -2.f * PI : (angleDiff < -PI) ? 2 * PI : 0.f;
+
+		float maxOffset = 1.f;
+
+		BodyHandle playerBody = getPlayerBodyHandle();
+		XMVECTOR speed = Vector3ToXMVECTOR(&m_Physics->getBodyVelocity(playerBody), 0.0f);
+		speed = XMVector3Length(speed);
+		maxOffset /= speed.m128_f32[0] + 1.0f;
+
+		if (fabs(angleDiff) > maxOffset && !m_Player.getForceMove())
+		{
+			float offset = angleDiff < 0.f ? -maxOffset : maxOffset;
+
+			playerActor->setRotation(Vector3(currentAngle + offset, 0.f, 0.f));
+		}
 	}
 
 	IConnectionController *conn = m_Network->getConnectionToServer();
@@ -163,6 +193,18 @@ void GameLogic::onFrame(float p_DeltaTime)
 			temp->setPosition(m_Player.getEyePosition());
 		}
 	}
+
+	std::shared_ptr<AnimationInterface> animation = playerActor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+	if(!animation)
+		return;
+
+	XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
+	XMVECTOR vForward = XMLoadFloat3(&m_lookAtPos);
+	actorPos += vForward * 10;
+	XMFLOAT3 tempLook;
+	XMStoreFloat3(&tempLook, actorPos);
+	
+	animation->applyLookAtIK("Head", tempLook, 1.0f);
 }
 
 void GameLogic::setPlayerDirection(Vector3 p_Direction)
@@ -347,6 +389,8 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 		return;
 	}
 
+	XMStoreFloat3(&m_lookAtPos, vForward);
+
 	look->setLookForward(forward);
 	look->setLookUp(up);
 }
@@ -383,7 +427,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
-	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
+	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition(), m_Username));
 	
 	m_Player = Player();
 	m_Player.initialize(m_Physics, nullptr, m_PlayerDefault);
@@ -537,6 +581,28 @@ void GameLogic::clearSplineSequence()
 	}
 }
 
+bool GameLogic::getSplineCameraActive()
+{
+	return m_SplineCameraActive;
+}
+
+unsigned int GameLogic::getPlayerTextComponentId()
+{
+	Actor::ptr actor = m_Player.getActor().lock();
+	unsigned int id = 0;
+
+	if(actor)
+	{
+		std::shared_ptr<TextInterface> comp = actor->getComponent<TextInterface>(TextInterface::m_ComponentId).lock();
+
+		if(comp)
+		{
+			id = comp->getId();
+		}
+	}
+	return id;
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)
@@ -600,6 +666,18 @@ void GameLogic::handleNetwork()
 
 					//Sparks flying around the player, client side.
 					m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
+				}
+				break;
+			case PackageType::NUMBER_OF_CHECKPOINTS:
+				{
+					unsigned int numberOfCheckpoints = conn->getNrOfCheckpoints(package);
+					m_EventManager->queueEvent(IEventData::Ptr(new GetNrOfCheckpoints(numberOfCheckpoints)));
+				}
+				break;
+			case PackageType::TAKEN_CHECKPOINTS:
+				{
+					unsigned int numberTaken = conn->getTakenCheckpoints(package);
+					m_EventManager->queueEvent(IEventData::Ptr(new UpdateTakenCheckpoints(numberTaken)));
 				}
 				break;
 			case PackageType::RESULT_GAME:
@@ -731,7 +809,18 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("r", &color.x);
 							object->QueryAttribute("g", &color.y);
 							object->QueryAttribute("b", &color.z);
-							actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock()->setColorTone(color);
+							
+							std::shared_ptr<ParticleInterface> particleComponent = actor->getComponent<ParticleInterface>(ParticleInterface::m_ComponentId).lock();
+							if (particleComponent)
+							{
+								particleComponent->setBaseColor(Vector4(color, 1.0f));
+							}
+
+							std::shared_ptr<ModelInterface> modelComponent = actor->getComponent<ModelInterface>(ModelInterface::m_ComponentId).lock();
+							if (modelComponent)
+							{
+								modelComponent->setColorTone(color);
+							}
 						}
 						else if (object->Attribute("Type", "Look"))
 						{
@@ -837,7 +926,7 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->playClimbAnimation(climbId);
-								comp->updateIKData(orientation, center);
+								comp->updateIKData(orientation, center, climbId);
 							}
 						}
 					}
@@ -1033,6 +1122,7 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 
 void GameLogic::changeCameraMode(unsigned int p_Mode)
 {
+	m_SplineCameraActive = false;
 	switch (p_Mode)
 	{
 	case 0:
@@ -1041,6 +1131,7 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		Logger::log(Logger::Level::INFO, "Changed to spline camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_SplineCamera);
+		m_SplineCameraActive = true;
 		break;
 	case 1:
 		if(m_FlyingCamera.expired())
@@ -1072,7 +1163,7 @@ void GameLogic::loadSandbox()
 	addActor(m_ActorFactory->createParticles(Vector3(50.f, 120.f, 0.f), "fire"));
 	//addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 	
-	Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "waterSpray");
+	Actor::ptr a = m_ActorFactory->createParticles(Vector3(0.f, 80.f, 0.f), "checkpointSwirl");
 	a->setRotation(Vector3(3.0f, 0.0f, 0.0f));
 	addActor(a);
 

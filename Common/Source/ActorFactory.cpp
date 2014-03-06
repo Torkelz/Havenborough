@@ -15,6 +15,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 		m_LastLightComponentId(0),
 		m_LastParticleComponentId(0),
 		m_LastSpellComponentId(0),
+		m_LastTextComponentId(0),
 		m_Physics(nullptr),
 		m_SpellFactory(nullptr)
 {
@@ -35,6 +36,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["FlyingControl"] = std::bind(&ActorFactory::createFlyingControlComponent, this);
 	m_ComponentCreators["SplineControl"] = std::bind(&ActorFactory::createSplineControlComponent, this);
 	m_ComponentCreators["RunControl"] = std::bind(&ActorFactory::createRunControlComponent, this);
+	m_ComponentCreators["TextComponent"] = std::bind(&ActorFactory::createTextComponent, this);
 }
 
 void ActorFactory::setPhysics(IPhysics* p_Physics)
@@ -114,7 +116,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 {
 	Vector3 AABBScale = p_Scale;
 	AABBScale.x *= 75.f;
-	AABBScale.y *= 500.f;
+	AABBScale.y *= 60.f;
 	AABBScale.z *= 75.f;
 
 	tinyxml2::XMLPrinter printer;
@@ -122,7 +124,8 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, p_Position);
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "Checkpoint1");
-	pushVector(printer, "Scale", p_Scale);
+	pushVector(printer, "Scale", Vector3(0.8f, 0.8f, 0.8f));
+	pushVector(printer, "OffsetPosition", Vector3(0,200,0));
 	printer.CloseElement();
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);
@@ -130,7 +133,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
 	printer.OpenElement("Particle");
-	printer.PushAttribute("Effect", "fire");
+	printer.PushAttribute("Effect", "checkpointSwirl");
 	printer.CloseElement();
 	printer.CloseElement();
 
@@ -142,7 +145,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	return actor;
 }
 
-std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
+std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::string p_Username) const
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
@@ -160,6 +163,19 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	pushVector(printer, "OffsetPositionSphereMain", Vector3(0.f, 35.f, 0.f));
 	pushVector(printer, "OffsetPositionSphereHead", Vector3(0.f, 140.f, 0.f));
 	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 110.f, 0.f));
+	printer.CloseElement();
+
+	printer.OpenElement("TextComponent");
+	printer.PushAttribute("Text", p_Username.c_str());
+	printer.OpenElement("TextSettings");
+	printer.PushAttribute("Font", "Segoe UI");
+	printer.PushAttribute("FontSize", 20);
+	printer.PushAttribute("Scale", 1);
+	printer.PushAttribute("Rotation", 0);
+	printer.CloseElement();
+	pushColor(printer, "BackgroundColor", Vector4(0.f, 0.f, 0.f, 0.4f));
+	pushColor(printer, "FontColor", Vector4(0.8f, 0.8f, 0.8f, 1.f));
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 190.f, 0.f));
 	printer.CloseElement();
 
 	printer.OpenElement("Pulse");
@@ -181,10 +197,10 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	return printer.CStr();
 }
 
-Actor::ptr ActorFactory::createPlayerActor(Vector3 p_Position)
+Actor::ptr ActorFactory::createPlayerActor(Vector3 p_Position, std::string p_Username)
 {
 	tinyxml2::XMLDocument doc;
-	doc.Parse(getPlayerActorDescription(p_Position).c_str());
+	doc.Parse(getPlayerActorDescription(p_Position, p_Username).c_str());
 
 	return createActor(doc.FirstChildElement("Object"));
 }
@@ -555,6 +571,13 @@ ActorComponent::ptr ActorFactory::createRunControlComponent()
 	RunControlComponent* comp = new RunControlComponent;
 	comp->setPhysics(m_Physics);
 
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createTextComponent()
+{
+	TextComponent* comp = new TextComponent;
+	comp->setId(++m_LastTextComponentId);
 	return ActorComponent::ptr(comp);
 }
 

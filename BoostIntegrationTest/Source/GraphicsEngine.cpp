@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 
 	IGraphics *graphics = IGraphics::createGraphics();
 	BOOST_MESSAGE(testId + "Checking init graphics with window");
-	BOOST_CHECK(graphics->initialize(window.getHandle(), (int)winSize.x, (int)winSize.y, false));
+	BOOST_CHECK(graphics->initialize(window.getHandle(), (int)winSize.x, (int)winSize.y, false,45.0f));
 	
 
 	//Step 2

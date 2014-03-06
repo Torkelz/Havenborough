@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 #include <DirectXMath.h>
 
 struct AnimationClip
@@ -97,5 +98,76 @@ struct AnimationPath
 		m_Speed		= p_Speed;
 		m_YPath		= p_YPath;
 		m_ZPath		= p_ZPath;
+	}
+};
+
+struct IKGrab
+{
+	std::string			m_Target;
+	bool				m_Active;
+	float				m_Start;
+	float				m_End;
+	float				m_FadeInTime;
+	float				m_FadeOutTime;
+	float				m_Faded;
+	bool				m_FadeIn;
+
+	IKGrab()
+	{
+		m_Target = "default";
+	}
+};
+
+struct IKGrabShell
+{
+	std::string							m_Name;
+	float								m_Speed;
+	std::map<std::string, IKGrab>		m_Grabs;
+	float								m_CurrentFrame;
+	float								m_Weight;
+
+	void updateTimeStamps(float dt)
+	{
+		m_CurrentFrame += dt * 24.0f * m_Speed;
+		for (auto &grab : m_Grabs)
+		{
+			if (grab.second.m_Start > m_CurrentFrame)
+			{
+				grab.second.m_Active = false;
+			}
+			else if (grab.second.m_End > m_CurrentFrame)
+			{
+				grab.second.m_Active = true;
+			}
+			else
+			{
+				grab.second.m_Active = false;
+			}
+
+			if(grab.second.m_FadeIn)
+			{
+				grab.second.m_Faded += dt * 24.0f * m_Speed;
+				if (grab.second.m_Faded > grab.second.m_FadeInTime)
+				{
+					grab.second.m_FadeIn = false;
+					m_Weight = 1.0f;
+					grab.second.m_Faded = 0.0f;
+				}
+				else
+				{
+					m_Weight = grab.second.m_Faded / grab.second.m_FadeInTime;
+				}
+			}
+			else if (m_CurrentFrame > grab.second.m_End - grab.second.m_FadeOutTime)
+			{
+				grab.second.m_Faded += dt * 24.0f * m_Speed;
+				m_Weight = 1.0f - (grab.second.m_Faded / grab.second.m_FadeOutTime);
+			}
+		}
+	}
+
+	IKGrabShell()
+	{
+		m_Name = "default";
 	}
 };

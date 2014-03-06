@@ -8,7 +8,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)Bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerEnvironment>PATH=$(SolutionDir)Graphics\Bin;$(SolutionDir)Physics\Bin;$(SolutionDir)Network\Bin;$(SolutionDir)Sound\Bin;$(FMOD_DLL_DIR);$(VLD_DLL_DIR)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>PATH=$(SolutionDir)Graphics\Bin;$(SolutionDir)Physics\Bin;$(SolutionDir)Network\Bin;$(SolutionDir)Sound\Bin;$(FMOD_DLL_DIR)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup>
     <ShowAllFiles>false</ShowAllFiles>

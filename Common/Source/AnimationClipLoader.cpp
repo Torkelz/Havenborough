@@ -224,3 +224,83 @@ std::map<std::string, AnimationPath> MattiasLucaseXtremeLoader::loadAnimationPat
 	
 	return returnValue;
 }
+
+std::map<std::string, IKGrabShell> MattiasLucaseXtremeLoader::loadIKGrabs(std::string p_Filename)
+{
+	const char* filename = p_Filename.c_str();
+	std::map<std::string, IKGrabShell> returnValue;
+	
+	std::ifstream input(filename, std::ifstream::in);
+
+	if(input)
+	{
+		std::string line, key;
+		std::stringstream stringstream;
+
+		while (!input.eof() && std::getline(input, line))
+		{
+			key = "";
+			stringstream = std::stringstream(line);
+			stringstream >> key >> std::ws;
+			if(strcmp(key.c_str(), "*IKgrab") == 0)
+			{
+				IKGrabShell shell = IKGrabShell();
+					std::string line, key;
+
+					// Name
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> shell.m_Name;
+
+					// Speed
+					std::getline(input, line);
+					stringstream = std::stringstream(line);
+					stringstream >> key >> shell.m_Speed;
+					
+					std::getline(input, line);
+					do
+					{
+						IKGrab grab;
+
+						stringstream = std::stringstream(line);
+						stringstream >> key >> grab.m_Target;
+
+						std::getline(input, line);
+						stringstream = std::stringstream(line);
+						stringstream >> key >> grab.m_FadeIn;
+
+						std::getline(input, line);
+						stringstream = std::stringstream(line);
+						stringstream >> key >> grab.m_FadeInTime;
+
+						std::getline(input, line);
+						stringstream = std::stringstream(line);
+						stringstream >> key >> grab.m_FadeOutTime;
+
+						std::getline(input, line);
+						stringstream = std::stringstream(line);
+						stringstream >> key >> grab.m_Start;
+
+						std::getline(input, line);
+						stringstream = std::stringstream(line);
+						stringstream >> key >> grab.m_End;
+
+						grab.m_Faded = 1.0;
+						
+						shell.m_Grabs.insert( std::pair<std::string, IKGrab>(grab.m_Target, grab) );
+
+						std::getline(input, line);
+					}while(!input.eof() && line != "*EndGrab");
+
+					returnValue.insert( std::pair<std::string, IKGrabShell>(shell.m_Name, shell) );
+			}
+		}
+	}
+	else 
+	{
+		// No file found.
+		returnValue.insert(std::pair<std::string, IKGrabShell>("default", IKGrabShell()));
+	}
+	
+	return returnValue;
+}
