@@ -32,7 +32,7 @@ DeferredRenderer::DeferredRenderer()
 	m_RT[IGraphics::RenderTarget::W_POSITION] = nullptr;
 	m_RT[IGraphics::RenderTarget::SSAO] = nullptr;
 	m_RT[IGraphics::RenderTarget::SSAOPing] = nullptr;
-	m_RT[IGraphics::RenderTarget::FINAL] = nullptr;
+	m_RT[IGraphics::RenderTarget::LIGHT] = nullptr;
 	m_RT[IGraphics::RenderTarget::CSM] = nullptr;
 
 	m_SRV["Diffuse"] = nullptr;
@@ -176,8 +176,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	m_RT[IGraphics::RenderTarget::NORMAL] = createRenderTarget(desc);
 	m_SRV["Normal"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::NORMAL]);
 
-	m_RT[IGraphics::RenderTarget::FINAL] = createRenderTarget(desc);
-	m_SRV["Light"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::FINAL]);
+	m_RT[IGraphics::RenderTarget::LIGHT] = createRenderTarget(desc);
+	m_SRV["Light"] = createShaderResourceView(desc, m_RT[IGraphics::RenderTarget::LIGHT]);
 
 	m_SSAO_ResolutionScale = 1.0f;
 
@@ -475,7 +475,7 @@ void DeferredRenderer::renderLighting(const std::vector<std::vector<Renderable>>
 	m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler["ShadowMap"]);
 
 	//Select the final rendertarget
-	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView); 
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::LIGHT], m_DepthStencilView); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_DeviceContext->OMSetDepthStencilState(m_DepthState,0);
@@ -486,7 +486,7 @@ void DeferredRenderer::renderLighting(const std::vector<std::vector<Renderable>>
 	//Render SpotLights
 	renderLight(m_Shader["SpotLight"], m_Buffer["SpotLightModel"], m_SpotLights);
 	//DirectionalLights except number one
-	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0); 
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::LIGHT], 0); 
 	renderLight(m_Shader["DirectionalLight"], m_Buffer["DirectionalLightModel"], m_DirectionalLights);
 
 	renderAmbientLight(m_Buffer["DirectionalLightModel"]);
@@ -544,7 +544,7 @@ ID3D11ShaderResourceView* DeferredRenderer::getRT(IGraphics::RenderTarget i)
 	case IGraphics::RenderTarget::W_POSITION: return m_SRV["WPosition"];
 	case IGraphics::RenderTarget::SSAO: return m_SRV["SSAO"];
 	case IGraphics::RenderTarget::CSM: return m_SRV["CSM"];
-	case IGraphics::RenderTarget::FINAL: return m_SRV["Light"];
+	case IGraphics::RenderTarget::LIGHT: return m_SRV["Light"];
 	default: return nullptr;
 	}
 }
@@ -758,7 +758,7 @@ void DeferredRenderer::clearRenderTargets()
 	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::SSAOPing], color);
 
 	color[0] = color[1] = color[2] = color[3] = 0.0f;
-	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::FINAL], color);
+	m_DeviceContext->ClearRenderTargetView(m_RT[IGraphics::RenderTarget::LIGHT], color);
 }
 
 void DeferredRenderer::createSamplerState()
@@ -886,8 +886,10 @@ void DeferredRenderer::createShaders()
 	m_Shader["Ambient"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassAmbient.hlsl",
 		ambientDefine, "VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	m_Shader["DistanceFog"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/DistanceFog.hlsl",
-		"DistanceFogVS,DistanceFogPS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	m_FogColor = std::string("0.3f,0.3f,0.45f");
+	m_MinFogDistance = 3000.0f;
+	m_MaxFogDistance = 20000.0f;
+	recompileFogShader();
 }
 
 void DeferredRenderer::loadLightModels()
@@ -1269,13 +1271,13 @@ void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<st
 		m_DeviceContext->PSSetSamplers(0, 1, &m_Sampler["ShadowMap"]);
 
 		//Select the final render target
-		m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView); 
+		m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::LIGHT], m_DepthStencilView); 
 
 		m_DeviceContext->OMSetDepthStencilState(m_DepthState,0);
 		m_DeviceContext->OMSetBlendState(m_BlendState, blendFactor, sampleMask);
 
 		//Render DirectionalLights
-		m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::FINAL], 0);
+		m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::LIGHT], 0);
 
 		//Render Shadow Map
 		if(j == 0)
@@ -1369,4 +1371,60 @@ void DeferredRenderer::registerTweakSettings()
 				ambientDefine, "VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 		}
 	));
+
+	settings->setSetting("fog.color", m_FogColor);
+	settings->setListener("fog.color", std::function<void(const std::string&)>(
+		[&] (const std::string& p_Value)
+	{
+		m_FogColor = p_Value;
+		recompileFogShader();
+	}
+	));
+
+	settings->setSetting("fog.minDistance", m_MinFogDistance);
+	settings->setListener("fog.minDistance", std::function<void(float)>(
+		[&] (float p_Value)
+	{
+		m_MinFogDistance = p_Value;
+		recompileFogShader();
+	}
+	));
+	
+	settings->setSetting("fog.maxDistance", m_MaxFogDistance);
+	settings->setListener("fog.maxDistance", std::function<void(float)>(
+		[&] (float p_Value)
+	{
+		m_MaxFogDistance = p_Value;
+		recompileFogShader();
+	}
+	));
+}
+
+void DeferredRenderer::recompileFogShader(void)
+{
+
+	std::string color = "float4(" + m_FogColor + ",1.0f)";
+	std::string minDistance = std::to_string(m_MinFogDistance) + "f";
+	std::string maxDistance = std::to_string(m_MaxFogDistance) + "f";
+	D3D_SHADER_MACRO fogDefine[4] =
+	{
+		{ "FOG_COLOR", color.c_str() },
+		{ "MIN_DISTANCE", minDistance.c_str() },
+		{ "MAX_DISTANCE", maxDistance.c_str() },
+		nullptr
+	};
+
+	Shader *tempFogShader = nullptr;
+	try
+	{
+		tempFogShader = WrapperFactory::getInstance()->createShader(L"assets/shaders/DistanceFog.hlsl",
+		fogDefine, "DistanceFogVS,DistanceFogPS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+	}
+	catch (...)
+	{
+		return;
+	}
+
+	SAFE_DELETE(m_Shader["DistanceFog"]);
+	m_Shader["DistanceFog"] = tempFogShader;
 }
