@@ -334,6 +334,16 @@ namespace boost
 }
 
 /**
+ * A package representing the number of checkpoints.
+ */
+typedef Package1Obj<PackageType::NUMBER_OF_CHECKPOINTS, unsigned int> NumberOfCheckpoints;
+
+/**
+ * A package representing the number of checkpoints taken by a player.
+ */
+typedef Package1Obj<PackageType::TAKEN_CHECKPOINTS, unsigned int> TakenCheckpoints;
+
+/**
  * A package representing the player controlling its object.
  */
 typedef Package1Obj<PackageType::PLAYER_CONTROL, PlayerControlData> PlayerControl;
@@ -348,8 +358,14 @@ typedef Package1Obj<PackageType::LEVEL_DATA, std::string> LevelData;
  */
 typedef Package1Obj<PackageType::RESULT_GAME, std::vector<std::string>> ResultData;
 
+/**
+ * A package representing the current checkpoint.
+ */
 typedef Package1Obj<PackageType::CURRENT_CHECKPOINT, Vector3> CurrentCheckpoint;
 
+/**
+ * A package representing the players positions.
+ */
 typedef Package1Obj<PackageType::GAME_POSITIONS, std::vector<std::string>> GamePositions;
 
 /**

@@ -241,6 +241,21 @@ public:
 	virtual const char* getJoinGameUsername(Package p_Package) = 0;
 
 	/**
+	 * Send information about how many checkpoints the level contains.
+	 *
+	 * @param p_NrOfCheckpoints, the number of checkpoints in the level.
+	 */
+	virtual void sendNrOfCheckpoints(unsigned int p_NrOfCheckpoints) = 0;
+
+	/**
+	 * Unpack information about how many checkpoints there is in the level.
+	 *
+	 * @param p_Package a valid reference to a package with the number of checkpoints.
+	 * @return unsigend int number of checkpoints.
+	 */
+	virtual unsigned int getNrOfCheckpoints(Package p_Package) = 0;
+
+	/**
 	 * Get the size of the binary stream.
 	 *
 	 * @return size_t pointer with the size of the stream.
@@ -264,14 +279,44 @@ public:
 	 */
 	virtual void sendLevelData(const char* p_Stream, size_t p_Size) = 0;
 
+	/**
+	 * Send information about the current checkpoint to a specific player id.
+	 *
+	 * @param p_Position, is the position or the new checkpoint.
+	 */
 	virtual void sendCurrentCheckpoint(Vector3 p_Position) = 0;
 
+	/**
+	 * Unpack information about the current checkpoint.
+	 *
+	 * @param p_Package, is the package that is going to get unpacked.
+	 * @return a Vector3 with the package information.
+	 */
 	virtual Vector3 getCurrentCheckpoint(Package p_Package) = 0;
 
+	/**
+	 * Sends information about player position in the race.
+	 *
+	 * @param p_ExtraData, information about the race position.
+	 * @param p_NumExtraData, how much information that is written in the extra data.
+	 */
 	virtual void sendRacePosition(const char** p_ExtraData, unsigned int p_NumExtraData) = 0;
 
+	/**
+	 * Get the number of extra data that consists in the package.
+	 *
+	 * @param p_Package, the information that is unpacked.
+	 * @return a unsigned int size.
+	 */
 	virtual unsigned int getNumRacePositionsData(Package p_Package) = 0;
 
+	/**
+	 * Unpackes all the information about race positions in the game.
+	 *
+	 * @param p_Package, is the package that is unpacked.
+	 * @param p_ExtraData, is the number of information that is unpacked.
+	 * @return const char pointer stream with the information written in xml.
+	 */
 	virtual const char* getRacePositionsData(Package p_Package, unsigned int p_ExtraData) = 0;
 
 	/**
@@ -282,8 +327,21 @@ public:
 	 */
 	virtual void sendGameResult(const char** p_ExtraData, unsigned int p_NumExtraData) = 0;
 	
+	/**
+	 * Get how much information the package includes.
+	 *
+	 * @param p_Package, is the package that is unpacked.
+	 * @return  unsigned int size.
+	 */
 	virtual unsigned int getNumGameResultData(Package p_Package) = 0;
 	
+	/**
+	 * Unpackes information about the game result in the end of the race.
+	 *
+	 * @param p_Package, is the package that is unpacked.
+	 * @param p_ExtraData, is the number of information that the package includes.
+	 * @return const char pointer stream with the information written in xml.
+	 */
 	virtual const char* getGameResultData(Package p_Package, unsigned int p_ExtraData) = 0;
 
 	/**
@@ -305,6 +363,21 @@ public:
 	 * @return the new spawn position
 	 */
 	virtual Vector3 getSetSpawnPositionData(Package p_Package) = 0;
+
+	/**
+	 * Send information on how many checkpoints a player has taken.
+	 *
+	 * @param p_TakenCheckpoints is the number of checkpoints that a player has reached.
+	 */
+	virtual void sendTakenCheckpoints(unsigned int p_TakenCheckpoints) = 0;
+
+	/**
+	 * Get information about how many checkpoints a player has taken. 
+	 *
+	 * @param p_Package is the referenced package containing inforamtion about the checkpoints.
+	 * @return unsigned int number.
+	 */
+	virtual unsigned int getTakenCheckpoints(Package p_Package) = 0;
 
 	/**
 	 * Send a package to throw a spell.

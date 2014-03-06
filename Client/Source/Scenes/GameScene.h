@@ -63,6 +63,8 @@ private:
 	};
 	std::vector<SpellBinding> m_Spells;
 
+	//Text Component id, Graphics Text id
+	std::map<unsigned int, unsigned int> m_WorldText;
 public: 
 	GameScene();
 	~GameScene();
@@ -103,6 +105,10 @@ private:
 	void updateParticleRotation(IEventData::Ptr p_Data);
 	void updateParticleBaseColor(IEventData::Ptr p_Data);
 	void spellHit(IEventData::Ptr p_Data);
+
+	void createWorldText(IEventData::Ptr p_Data);
+	void removeWorldText(IEventData::Ptr p_Data);
+	void updateWorldTextPosition(IEventData::Ptr p_Data);
 
 	void renderBoundingVolume(BodyHandle p_BoundingVolume);
 
