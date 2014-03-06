@@ -291,6 +291,34 @@ const char* ConnectionController::getGameResultData(Package p_Package, unsigned 
 	return createObjects->m_Object1[p_ExtraData].c_str();
 }
 
+void ConnectionController::sendNrOfCheckpoints(unsigned int p_NrOfCheckpoints)
+{
+	NumberOfCheckpoints package;
+	package.m_Object1 = p_NrOfCheckpoints;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+unsigned int ConnectionController::getNrOfCheckpoints(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	NumberOfCheckpoints* number = static_cast<NumberOfCheckpoints*>(m_ReceivedPackages[p_Package].get());
+	return number->m_Object1;
+}
+
+void ConnectionController::sendTakenCheckpoints(unsigned int p_TakenChekpoints)
+{
+	TakenCheckpoints package;
+	package.m_Object1 = p_TakenChekpoints;
+	writeData(package.getData(), (uint16_t)package.getType());
+}
+
+unsigned int ConnectionController::getTakenCheckpoints(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	TakenCheckpoints* number = static_cast<TakenCheckpoints*>(m_ReceivedPackages[p_Package].get());
+	return number->m_Object1;
+}
+
 void ConnectionController::sendLevelData(const char* p_Stream, size_t p_Size)
 {
 	LevelData package;

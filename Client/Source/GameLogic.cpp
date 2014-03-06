@@ -645,6 +645,18 @@ void GameLogic::handleNetwork()
 					m_PlayerSparks = addActor(m_ActorFactory->createParticles(Vector3(0.f, -20.f, 0.f), "magicSurroundings", Vector4(0.f, 0.8f, 0.f, 0.5f)));
 				}
 				break;
+			case PackageType::NUMBER_OF_CHECKPOINTS:
+				{
+					unsigned int numberOfCheckpoints = conn->getNrOfCheckpoints(package);
+					m_EventManager->queueEvent(IEventData::Ptr(new GetNrOfCheckpoints(numberOfCheckpoints)));
+				}
+				break;
+			case PackageType::TAKEN_CHECKPOINTS:
+				{
+					unsigned int numberTaken = conn->getTakenCheckpoints(package);
+					m_EventManager->queueEvent(IEventData::Ptr(new UpdateTakenCheckpoints(numberTaken)));
+				}
+				break;
 			case PackageType::RESULT_GAME:
 				{
 					int numberOfData = conn->getNumGameResultData(package);

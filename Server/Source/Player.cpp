@@ -74,3 +74,8 @@ void Player::clockPosition(float p_Time)
 	m_NrOfCheckpointsTaken++;
 	m_ClockTime.push_back(p_Time);
 }
+
+unsigned int Player::getNumberOfCheckpoints()
+{
+	return m_CheckpointSystem.getNrOfCheckpoints();
+}

@@ -41,13 +41,13 @@ public:
 
 	/**
      * Checks if the finish line been reached.
-     * @return true if finish line been reached, false if not
+     * @return true if finish line been reached, false if not.
      */
     bool reachedFinishLine(void);
 
 	/**
 	* Checks if the finish line been reached.
-	* @return true if finish line been reached, false if not
+	* @return true if finish line been reached, false if not.
 	*/
 	Actor::ptr getCurrentCheckpoint(void);
 
@@ -58,7 +58,14 @@ public:
 
 	/**
 	* Returns the next checkpoint in the vector to the current checkpoint with corresponding tone to be shaded with.
-	* @return a vector3 with color information in RGB values;
+	* @return a vector3 with color information in RGB values.
 	*/
 	Vector3 getCurrentCheckpointColor();
+
+	/**
+	 * Returns the number of checkpoints loaded from the level.
+	 *
+	 * @return an unsinged int size.
+	 */
+	unsigned int getNrOfCheckpoints();
 };
