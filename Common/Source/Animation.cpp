@@ -245,7 +245,7 @@ const vector<DirectX::XMFLOAT4X4>& Animation::getFinalTransform() const
 	return m_FinalTransform;
 }
 
-void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, XMFLOAT4X4 p_WorldMatrix)
+void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, XMFLOAT4X4 p_WorldMatrix, float p_Weight)
 {
 	auto it = m_Data->ikGroups.find(p_GroupName);
 	if (it == m_Data->ikGroups.end())
@@ -373,7 +373,7 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	XMVECTOR objectRotationAxis = XMVector3Cross(objectJointToStart, objectJointToEnd);
 	objectRotationAxis = XMVector3Normalize(objectRotationAxis);
 
-	XMMATRIX rotation = XMMatrixRotationAxis(-objectRotationAxis, diffJointAngle);
+	XMMATRIX rotation = XMMatrixRotationAxis(-objectRotationAxis, diffJointAngle * p_Weight);
 
 	// Rotate the local transform of the "elbow" joint
 	XMStoreFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1],
@@ -406,7 +406,7 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 	float localAngle = XMScalarACos(XMVector3Dot(localNewEnd, localTarget).m128_f32[0]);
 	
 	// Rotate the local transform of the "shoulder" joint
-	rotation = XMMatrixRotationAxis(localAxis, -localAngle);
+	rotation = XMMatrixRotationAxis(localAxis, -localAngle * p_Weight);
 	XMStoreFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1],
 		XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[baseJoint->m_ID - 1]), rotation));
 

@@ -926,7 +926,7 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->playClimbAnimation(climbId);
-								comp->updateIKData(orientation, center);
+								comp->updateIKData(orientation, center, climbId);
 							}
 						}
 					}

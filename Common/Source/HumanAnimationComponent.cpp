@@ -23,7 +23,7 @@ void HumanAnimationComponent::updateAnimation()
 
 		// Calculate the weight on the strafe track with some trigonometry.
 		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
-		changeAnimationWeight(2, 1 - abs(cosf(angle))); // Think again. Negative weights are not allowed.
+		changeAnimationWeight(2, 1 - abs(cosf(angle)));
 		if (!isInAir)
 		{
 			// Decide what animation to play on the motion tracks.
@@ -228,44 +228,61 @@ void HumanAnimationComponent::updateAnimation()
 	}
 }
 
-void HumanAnimationComponent::updateIKJoints()
+void HumanAnimationComponent::updateIKJoints(float dt)
 {
 	using namespace DirectX;
 	if(m_ForceMove)
 	{
+		m_Shell.updateTimeStamps(dt);
 		if(m_ClimbId == "Climb1")
 		{
 		}
 		else if(m_ClimbId == "Climb2")
 		{
-			XMVECTOR reachPointR;
-			reachPointR = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
-			Vector3 vReachPointR = Vector4(reachPointR).xyz();
-			applyIK_ReachPoint("RightArm", vReachPointR);
+			if(m_Shell.m_Grabs.at("RightArm").m_Active)
+			{
+				XMVECTOR reachPoint;
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
+				Vector3 vReachPointR = Vector4(reachPoint).xyz();
+				applyIK_ReachPoint("RightArm", vReachPointR, m_Shell.m_Weight);
+			}
 		}
 
 		else if(m_ClimbId == "Climb3")
 		{
 			XMVECTOR reachPoint;
-			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
-			Vector3 vReachPoint = Vector4(reachPoint).xyz();
-			applyIK_ReachPoint("RightArm", vReachPoint);
-
-			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
-			vReachPoint = Vector4(reachPoint).xyz();
-			applyIK_ReachPoint("LeftArm", vReachPoint);
+			Vector3 vReachPoint;
+			if(m_Shell.m_Grabs.at("RightArm").m_Active)
+			{
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				vReachPoint = Vector4(reachPoint).xyz();
+				applyIK_ReachPoint("RightArm", vReachPoint, m_Shell.m_Weight);
+			}
+			if(m_Shell.m_Grabs.at("LeftArm").m_Active)
+			{
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				vReachPoint = Vector4(reachPoint).xyz();
+				applyIK_ReachPoint("LeftArm", vReachPoint, m_Shell.m_Weight);
+			}
 		}
 		
 		else if(m_ClimbId == "Climb4")
 		{
 			XMVECTOR reachPoint;
-			reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
-			Vector3 vReachPoint = Vector4(reachPoint).xyz();
-			applyIK_ReachPoint("RightArm", vReachPoint);
+			Vector3 vReachPoint;
+			if(m_Shell.m_Grabs.at("RightArm").m_Active)
+			{
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				vReachPoint = Vector4(reachPoint).xyz();
+				applyIK_ReachPoint("RightArm", vReachPoint, m_Shell.m_Weight);
+			}
 
-			reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
-			vReachPoint = Vector4(reachPoint).xyz();
-			applyIK_ReachPoint("LeftArm", vReachPoint);
+			if(m_Shell.m_Grabs.at("LeftArm").m_Active)
+			{
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				vReachPoint = Vector4(reachPoint).xyz();
+				applyIK_ReachPoint("LeftArm", vReachPoint, m_Shell.m_Weight);
+			}
 		}
 	}
 	else
@@ -279,7 +296,7 @@ void HumanAnimationComponent::updateIKJoints()
 			if(hit.IDInBody == 2 && hit.colType != Type::SPHEREVSSPHERE && hit.collider == m_Owner->getBodyHandles()[0])
 			{
 				hit.colPos.y += 5.0f;
-				applyIK_ReachPoint("LeftLeg", Vector4ToXMFLOAT3(&hit.colPos));
+				applyIK_ReachPoint("LeftLeg", Vector4ToXMFLOAT3(&hit.colPos), 1.0f);
 
 				DirectX::XMFLOAT3 anklePos = getJointPos("L_Ankle");
 				DirectX::XMFLOAT3 toePos = getJointPos("L_FootBase");
@@ -295,12 +312,12 @@ void HumanAnimationComponent::updateIKJoints()
 				vToe.m128_f32[1] = hit.colPos.y;
 				hit.colPos = vToe;
 
-				applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos));
+				applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos), 1.0f);
 			}
 			if(hit.IDInBody == 3 && hit.colType != Type::SPHEREVSSPHERE && hit.collider == m_Owner->getBodyHandles()[0])
 			{
 				hit.colPos.y += 5.0f;
-				applyIK_ReachPoint("RightLeg", Vector4ToXMFLOAT3(&hit.colPos));
+				applyIK_ReachPoint("RightLeg", Vector4ToXMFLOAT3(&hit.colPos), 1.0f);
 
 				DirectX::XMFLOAT3 anklePos = getJointPos("R_Ankle");
 				DirectX::XMFLOAT3 toePos = getJointPos("R_FootBase");
@@ -316,7 +333,7 @@ void HumanAnimationComponent::updateIKJoints()
 				vToe.m128_f32[1] = hit.colPos.y;
 				hit.colPos = vToe;
 
-				applyIK_ReachPoint("RightFoot", Vector4ToXMFLOAT3(&hit.colPos));
+				applyIK_ReachPoint("RightFoot", Vector4ToXMFLOAT3(&hit.colPos), 1.0f);
 			}
 		}
 	}
