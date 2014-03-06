@@ -39,8 +39,13 @@ void Lobby::checkFreeUsers(float p_DeltaTime)
 	}
 }
 
-void Lobby::addAvailableLevel(const std::string& p_LevelName, unsigned int p_MaxPlayers, float p_WaitTime)
+void Lobby::addAvailableLevel(const std::string& p_LevelName,
+							  const std::string& p_LevelPath,
+							  unsigned int p_MaxPlayers,
+							  float p_WaitTime)
 {
+	m_GameFactory.addLevelPath(p_LevelName, p_LevelPath);
+
 	AvailableLevel level =
 	{
 		std::vector<User::wPtr>(),

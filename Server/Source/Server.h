@@ -91,4 +91,5 @@ private:
 	void removeLastBox();
 	void pulse();
 	void updateClients();
+	void addGamesFromFile(const std::string& p_Filename);
 };
