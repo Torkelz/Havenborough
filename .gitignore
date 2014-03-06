@@ -49,3 +49,7 @@ BoostIntegrationTest/Bin/release_log.txt
 packages/
 Havenborough Launcher/packages.config
 Client/Bin/MahApps.Metro.xml
+
+
+#Temporary until Anderlé pushes his stuff
+dd.xml
