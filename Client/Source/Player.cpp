@@ -318,7 +318,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 			}
 		}
 
-		aa.lock()->updateIKData(m_EdgeOrientation, m_CenterReachPos);
+		aa.lock()->updateIKData(m_EdgeOrientation, m_CenterReachPos, p_ClimbId);
 	}
 }
 

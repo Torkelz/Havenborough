@@ -66,6 +66,7 @@ private:
 	DirectX::XMFLOAT3 m_EdgeOrientation;
 	IPhysics		*m_Physics;
 	std::string		m_ClimbId;
+	IKGrabShell		m_Shell;
 
 public:
 	~HumanAnimationComponent()
@@ -121,7 +122,7 @@ public:
 		Vector3 eye = getJointPos("Head");
 		m_Physics->setBodyVolumePosition(m_Owner->getBodyHandles()[0], 4, eye);
 
-		updateIKJoints();
+		updateIKJoints(p_DeltaTime);
 
 		std::shared_ptr<ModelComponent> comp = m_Model.lock();
 		if (comp)
@@ -168,9 +169,9 @@ public:
 		m_Animation.changeWeight(p_Track, p_Weight);
 	}
 
-	void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) override
+	void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target, float p_Weight) override
 	{
-		m_Animation.applyIK_ReachPoint(p_GroupName, p_Target, m_Owner->getWorldMatrix());
+		m_Animation.applyIK_ReachPoint(p_GroupName, p_Target, m_Owner->getWorldMatrix(), p_Weight);
 		
 		std::shared_ptr<ModelComponent> comp = m_Model.lock();
 		if (comp)
@@ -202,13 +203,15 @@ public:
 		m_ForceMove = false;
 	}
 
-	void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos) override
+	void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos, std::string grabName) override
 	{
 		m_EdgeOrientation = p_EdgeOrientation;
 		m_CenterReachPos = p_CenterReachPos;
+		m_Shell = m_Animation.getAnimationData().get()->grabShells[grabName];
+		m_Shell.m_CurrentFrame = 1.0f;
 	}
 
-	void updateIKJoints();
+	void updateIKJoints(float dt);
 
 	void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Target, float p_MaxAngle) override
 	{
