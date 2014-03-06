@@ -35,7 +35,7 @@ ULONG STDMETHODCALLTYPE FontCollectionLoader::Release()
 {
 	ULONG newCount = InterlockedDecrement(&refCount_);
 	if(newCount == 0)
-		delete this;
+		instance_.reset();
 
 	return newCount;
 }
@@ -210,7 +210,7 @@ ULONG STDMETHODCALLTYPE FontFileLoader::Release()
 {
     ULONG newCount = InterlockedDecrement(&refCount_);
     if (newCount == 0)
-        delete this;
+		instance_.reset();
 
     return newCount;
 }
