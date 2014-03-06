@@ -9,7 +9,6 @@
 #include "Input/Input.h"
 
 #include "SpellFactory.h"
-#include "SpellInstance.h"
 #include "PhysicsTypes.h"
 
 #include <INetwork.h>
@@ -45,6 +44,10 @@ private:
 
 	Actor::wPtr m_PlayerSparks;
 
+	Actor::wPtr m_FlyingCamera;
+	Actor::wPtr m_SplineCamera;
+	Actor::wPtr m_PlayerDefault;
+
 	bool m_IsConnecting;
 	bool m_Connected;
 	bool m_InGame;
@@ -60,7 +63,7 @@ private:
 	DirectX::XMFLOAT3 m_PreviousLegalPlayerBodyRotation;
 
 	//DEBUG
-	Vector2 m_PlayerDirection;
+	Vector3 m_PlayerDirection;
 public:
 	GameLogic(void);
 	~GameLogic(void);
@@ -70,6 +73,7 @@ public:
 	void shutdown(void);
 
 	ActorList::ptr getObjects();
+	
 	/**
 	* Gets which scene the game should change to.
 	*/
@@ -77,8 +81,8 @@ public:
 
 	void onFrame(float p_DeltaTime);
 
-	void setPlayerDirection(Vector2 p_Direction);
-	Vector2 getPlayerDirection() const;
+	void setPlayerDirection(Vector3 p_Direction);
+	Vector3 getPlayerDirection() const;
 	BodyHandle getPlayerBodyHandle() const;
 	Vector3 getPlayerEyePosition() const;
 	Vector3 getPlayerViewRotation() const;
@@ -98,6 +102,11 @@ public:
 		const std::string& p_LevelName, const std::string& p_Username);
 	void leaveGame();
 
+	/**
+	 * Called when a spell should be thrown, and all checks for a valid throw will be checked against the spell definition.
+	 * 
+	 * @param p_SpellId what spell to work with
+	 */
 	void throwSpell(const char *p_SpellId);
 
 	/**
@@ -126,6 +135,24 @@ public:
 	 * @param p_State true if the player should be able to climb. false if the player should not be able to climb.
 	 */
 	void setPlayerClimb(bool p_State);
+
+	/**
+	 * Records a spline point. Position, look direction and up direction is saved.
+	 *
+	 */
+	void recordSpline();
+
+	/**
+	 * Removes last added spline point.
+	 *
+	 */
+
+	void removeLastSplineRecord();
+	/**
+	 * Clear current spline sequence.
+	 *
+	 */
+	void clearSplineSequence();
 	
 private:
 	void handleNetwork();
@@ -145,6 +172,8 @@ private:
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
 
 	void updateCountdownTimer(float p_DeltaTime);
+
+	void changeCameraMode(unsigned int p_Mode);
 
 	//TODO: DEBUG FUNCTIONS TO BE REMOVED BEFORE FINAL RELEASE
 	void loadSandbox();

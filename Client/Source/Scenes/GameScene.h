@@ -13,7 +13,6 @@ private:
 	bool m_ChangeScene;
 	bool m_ChangeList;
 	IGraphics::RenderTarget m_CurrentDebugView;
-	IGraphics::Object2D_Id m_GUI_ArrowId;
 	bool m_RenderDebugBV;
 	int m_SkyboxID;
 
@@ -31,6 +30,8 @@ private:
 
 	std::vector<int> m_ResourceIDs;
 	std::vector<LightClass> m_Lights;
+
+	float m_ViewSensitivity;
 
 	struct ReachIK
 	{
@@ -80,7 +81,12 @@ public:
 	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue) override;
 
 	int	getID() override;
-
+	
+	/**
+	* Sets the sensitivity factor for the view movement.
+	* @param p_Value the factor to use
+	*/
+	void setMouseSensitivity(float p_Value);
 private:
 	void addLight(IEventData::Ptr p_Data);
 	void removeLight(IEventData::Ptr p_Data);

@@ -65,6 +65,12 @@ Buffer *WrapperFactory::createBuffer(Buffer::Description &p_Description)
 Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoint, const char *p_ShaderModel,
 	ShaderType p_Type)
 {
+	return createShader(p_Filename, nullptr, p_EntryPoint, p_ShaderModel, p_Type);
+}
+
+Shader *WrapperFactory::createShader(LPCWSTR p_Filename, D3D_SHADER_MACRO *p_Defines, const char *p_EntryPoint, const char *p_ShaderModel,
+	ShaderType p_Type)
+{
 	Shader *shader = new Shader();
 	shader->initialize(m_Device, m_DeviceContext, 0);
 
@@ -79,7 +85,7 @@ Shader *WrapperFactory::createShader(LPCWSTR p_Filename, const char *p_EntryPoin
 			{
 				entryPoint = entryPointList.back();
 				entryPointList.pop_back();
-				addShaderStep(shader, p_Filename, nullptr, entryPoint.c_str(), p_ShaderModel, Shader::Type(i));
+				addShaderStep(shader, p_Filename, p_Defines, entryPoint.c_str(), p_ShaderModel, Shader::Type(i));
 				if(entryPointList.size() == 0)
 					break;
 			}

@@ -4,6 +4,8 @@
 #include "ClientExceptions.h"
 #include "HumanAnimationComponent.h"
 #include "Logger.h"
+#include "SplineControlComponent.h"
+#include "TweakSettings.h"
 
 #include <math.h>
 #include <sstream>
@@ -51,6 +53,14 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_PlayerTimeDifference = 0.f;
 	m_PlayerPositionInRace = 0;
 
+	TweakSettings* settings = TweakSettings::getInstance();
+	settings->setSetting("camera.mode",2);
+	settings->setListener("camera.mode", std::function<void(int)>(
+		[&] (int p_Mode)
+	{
+		changeCameraMode(p_Mode);
+	}));
+
 	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // Maybe not here.
 }
 
@@ -97,7 +107,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 		}
 	}
 
-	if (m_PlayerDirection.x != 0.f || m_PlayerDirection.y != 0.f)
+	if (m_PlayerDirection.x != 0.f ||
+		m_PlayerDirection.y != 0.f ||
+		m_PlayerDirection.z != 0.f)
 	{
 		XMVECTOR forward = XMLoadFloat3(&XMFLOAT3(getPlayerViewForward()));
 		forward = XMVectorSetY(forward, 0.f);
@@ -105,11 +117,16 @@ void GameLogic::onFrame(float p_DeltaTime)
 		XMVECTOR right = XMLoadFloat3(&XMFLOAT3(getPlayerViewRight()));
 		right = XMVectorSetY(right, 0.f);
 		right = XMVector3Normalize(right);
+		XMVECTOR up = XMVectorSet(0.f, 1.f, 0.f, 0.f);
 
-		XMVECTOR rotDirV = forward * m_PlayerDirection.x + right * m_PlayerDirection.y;
+		XMVECTOR rotDirV =
+			forward * m_PlayerDirection.x +
+			up * m_PlayerDirection.y +
+			right * m_PlayerDirection.z;
 
-		m_Player.setDirectionX(XMVectorGetX(rotDirV));
-		m_Player.setDirectionZ(XMVectorGetZ(rotDirV));
+		Vector3 rotDir;
+		XMStoreFloat3(&rotDir, rotDirV);
+		m_Player.setDirection(rotDir);
 	}
 	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime, 100);
@@ -189,9 +206,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 	animation->applyLookAtIK("Head", tempLook, 1.0f);
 }
 
-void GameLogic::setPlayerDirection(Vector2 p_Direction)
+void GameLogic::setPlayerDirection(Vector3 p_Direction)
 {
-	const float dirLengthSq = p_Direction.x * p_Direction.x + p_Direction.y * p_Direction.y;
+	const float dirLengthSq =
+		p_Direction.x * p_Direction.x +
+		p_Direction.y * p_Direction.y +
+		p_Direction.z * p_Direction.z;
 	if (dirLengthSq > 1.f)
 	{
 		const float div = 1.f / sqrtf(dirLengthSq);
@@ -200,7 +220,7 @@ void GameLogic::setPlayerDirection(Vector2 p_Direction)
 	m_PlayerDirection = p_Direction;
 }
 
-Vector2 GameLogic::getPlayerDirection() const
+Vector3 GameLogic::getPlayerDirection() const
 {
 	return m_PlayerDirection;
 }
@@ -406,9 +426,10 @@ void GameLogic::playLocalLevel()
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
-	std::weak_ptr<Actor> playerActor = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
+	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
+	
 	m_Player = Player();
-	m_Player.initialize(m_Physics, nullptr, playerActor);
+	m_Player.initialize(m_Physics, nullptr, m_PlayerDefault);
 
 	m_InGame = true;
 	m_PlayingLocal = true;
@@ -527,6 +548,36 @@ float GameLogic::getPlayerTimeDifference()
 void GameLogic::setPlayerClimb(bool p_State)
 {
 	m_Player.setClimbing(p_State);
+}
+
+void GameLogic::recordSpline()
+{
+	std::shared_ptr<SplineControlComponent> moveComp = m_Player.getActor().lock()->getComponent<SplineControlComponent>(SplineControlComponent::m_ComponentId).lock();
+
+	if(moveComp)
+	{
+		moveComp->recordPoint();
+	}
+}
+
+void GameLogic::removeLastSplineRecord()
+{
+	std::shared_ptr<SplineControlComponent> moveComp = m_Player.getActor().lock()->getComponent<SplineControlComponent>(SplineControlComponent::m_ComponentId).lock();
+
+	if(moveComp)
+	{
+		moveComp->removePreviousPoint();
+	}
+}
+
+void GameLogic::clearSplineSequence()
+{
+	std::shared_ptr<SplineControlComponent> moveComp = m_Player.getActor().lock()->getComponent<SplineControlComponent>(SplineControlComponent::m_ComponentId).lock();
+
+	if(moveComp)
+	{
+		moveComp->clearSequence();
+	}
 }
 
 void GameLogic::handleNetwork()
@@ -767,6 +818,7 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							m_Player.setCurrentMana(m_Player.getMaxMana());
 						}
 						if(object->Attribute("Type", "Placing"))
 						{
@@ -887,6 +939,7 @@ void GameLogic::handleNetwork()
 					{
 						m_Player = Player();
 						m_Player.initialize(m_Physics, m_Network, actor);
+						m_PlayerDefault = actor;
 					}
 
 					conn->sendDoneLoading();
@@ -1018,6 +1071,37 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 		m_CountdownTimer -= p_DeltaTime;
 		if(!(m_CountdownTimer - p_DeltaTime >= 0.f))
 			m_RenderGo = false;
+	}
+}
+
+void GameLogic::changeCameraMode(unsigned int p_Mode)
+{
+	switch (p_Mode)
+	{
+	case 0:
+		if(m_SplineCamera.expired())
+			m_SplineCamera = addActor(m_ActorFactory->createSplineCamera(m_Level.getStartPosition()));
+		Logger::log(Logger::Level::INFO, "Changed to spline camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
+		m_Player.setActor(m_SplineCamera);
+		break;
+	case 1:
+		if(m_FlyingCamera.expired())
+			m_FlyingCamera = addActor(m_ActorFactory->createFlyingCamera(m_Level.getStartPosition()));
+		Logger::log(Logger::Level::INFO, "Changed to flying camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
+		m_Player.setActor(m_FlyingCamera);
+		break;
+	case 2:
+		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
+		m_Player.setActor(m_PlayerDefault);
+		break;
+	default:
+		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
+		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
+		m_Player.setActor(m_PlayerDefault);
+		break;
 	}
 }
 

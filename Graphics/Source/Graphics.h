@@ -25,6 +25,7 @@
 class Graphics : public IGraphics
 {
 private:
+	//GPUTimer *timer;
 	ID3D11Device *m_Device;
 	ID3D11DeviceContext *m_DeviceContext;
 
@@ -53,7 +54,6 @@ private:
 	DirectX::XMFLOAT4X4 m_ProjectionMatrix;
 	DirectX::XMFLOAT3 m_Eye;
 
-	static const unsigned int m_MaxLightsPerLightInstance;
 	TextureLoader m_TextureLoader;	
 	WrapperFactory *m_WrapperFactory;
 	ModelFactory *m_ModelFactory;
@@ -107,7 +107,7 @@ public:
 	Graphics(void);
 	~Graphics(void);
 
-	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) override;
+	bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen, float p_FOV) override;
 	bool reInitialize(HWND p_Hwnd, int p_ScreenWidht, int p_ScreenHeight, bool p_Fullscreen) override;
 	
 	bool createModel(const char *p_ModelId, const char *p_Filename) override;
@@ -126,7 +126,7 @@ public:
 	bool releaseTexture(const char *p_TextureId) override;	
 
 	//Particles
-	bool createParticleEffectDefinition(const char *p_FileId, const char *p_filePath) override;
+	bool createParticleEffectDefinition(const char * /*p_FileId*/, const char *p_filePath) override;
 	bool releaseParticleEffectDefinition(const char *p_ParticleEffectId) override;
 
 	InstanceId createParticleEffectInstance(const char *p_ParticleEffectId) override;

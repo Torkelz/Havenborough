@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_CASE(TestDef)
 	BOOST_CHECK_NO_THROW(deferred = new DeferredRenderer());
 	
 	BOOST_CHECK_THROW(deferred->initialize(nullptr, nullptr, nullptr, 1280, 720, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),
-		nullptr, nullptr, 0, nullptr, nullptr, nullptr, nullptr, 10, 170.0f, 1000.0f), DeferredRenderException);
+		nullptr, nullptr, 0, nullptr, nullptr, nullptr, nullptr, 170.0f, 1000.0f), DeferredRenderException);
 
 	BOOST_CHECK_NO_THROW(SAFE_DELETE(deferred));
 }

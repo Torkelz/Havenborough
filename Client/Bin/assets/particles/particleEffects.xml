@@ -37,11 +37,11 @@
 	</Effect>
 	<Effect effectName="magic">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="75"/>
-		<EmitPerSec particlesPerSec="50"/>
+		<MaxCount maxParticles="125"/>
+		<EmitPerSec particlesPerSec="200"/>
 		<SysLife sysMaxLife="-1.0"/>
-		<BaseLife maxLife="1.0"/>
-		<LifeDeviation maxLifeDeviation="0.25"/>
+		<BaseLife maxLife="1.5"/>
+		<LifeDeviation maxLifeDeviation="0.5"/>
 		<Size sX="3.0" sY="3.0"/>
 		<PositionDeviation positionDeviation="3.0"/>
 		<Velocity vbX="0.0" vbY="0.0" vbZ="0.0" vdX="50.0" vdY="50.0" vdZ="50.0"/>
@@ -54,7 +54,7 @@
 		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="0.01"/>
 		<LifeDeviation maxLifeDeviation="0.01"/>
-		<Size sX="20.0" sY="20.0"/>
+		<Size sX="30.0" sY="30.0"/>
 		<PositionDeviation positionDeviation="1.0"/>
 		<Velocity vbX="0.0" vbY="0.0" vbZ="0.0" vdX="200.0" vdY="50.0" vdZ="200.0"/>
 		<Color cbX="0.4" cbY="0.0" cbZ="0.6" cbA="0.9" cdX="0.2" cdY="0.0" cdZ="0.2" cdA="0.1"/>

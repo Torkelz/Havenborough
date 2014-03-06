@@ -50,12 +50,16 @@ public:
 	 * called when a collision had happen.
 	 */
 	void collisionHappened();
-	
 	/**
-	 * Called to get the radius on the spell sphere depending on the spells stage.
+	 * Called to get the size of spell projectile.
 	 * 
-	 * @return the flying radius as long as it have not hit anything or timed out
-	 * else returning the exploding radius
+	 * @return the size of the spell. 
+	 */
+	Vector3 getSize() const;
+	/**
+	 * Called to get the radius on the spell sphere explosion.
+	 * 
+	 * @returning the exploding radius
 	 */
 	float getRadius() const;
 	
@@ -89,6 +93,11 @@ public:
 	 */
 	void spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit);
 
+	/**
+	 * Called to see the status of the m_IsColliding bool.
+	 * 
+	 * @return a bool status, true if a collision happen else false
+	 */
 	bool isColliding() const;
 
 private:

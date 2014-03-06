@@ -42,6 +42,7 @@ public:
 	void releaseAllBoundingVolumes(void) override;
 
 	void setGlobalGravity(float p_Gravity) override;
+	void setBodyGravity(BodyHandle p_Body, float p_Gravity) override;
 	bool getBodyInAir(BodyHandle p_Body) override;
 
 	HitData getHitDataAt(unsigned int p_Index) override;

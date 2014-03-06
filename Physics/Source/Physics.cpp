@@ -410,6 +410,15 @@ void Physics::setGlobalGravity(float p_Gravity)
 	m_GlobalGravity = p_Gravity;
 }
 
+void Physics::setBodyGravity(BodyHandle p_Body, float p_Gravity)
+{
+	Body* body = findBody(p_Body);
+	if (body == nullptr)
+		return;
+
+	body->setGravity(p_Gravity);
+}
+
 bool Physics::getBodyInAir(BodyHandle p_Body)
 {
     Body* body = findBody(p_Body);

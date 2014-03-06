@@ -7,6 +7,8 @@
 #include <boost/filesystem.hpp>
 #include <algorithm>
 
+//#define TIMER_START(x) { x->Start(); }
+//#define TIMER_STOP(x) { x->Stop(); double time = 0; x->GetAverageTime(time); if(time > 0) GraphicsLogger::log(GraphicsLogger::Level::INFO, std::to_string(time)); }
 using namespace DirectX;
 using std::vector;
 using std::string;
@@ -16,7 +18,6 @@ using std::make_pair;
 typedef vector<pair<IGraphics::Object2D_Id, Renderable2D>>::iterator Renderable2DIterator;
 typedef vector<pair<IGraphics::InstanceId, ModelInstance>>::iterator ModelInstanceIterator;
 
-const unsigned int Graphics::m_MaxLightsPerLightInstance = 100;
 Graphics::Graphics(void)
 {
 	m_Device = nullptr;
@@ -59,7 +60,7 @@ IGraphics *IGraphics::createGraphics()
 	return new Graphics();
 }
 
-bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen)
+bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen, float p_FOV)
 {	
 	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Initializing graphics");
 
@@ -195,14 +196,14 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	float nearZ = 10.0f;
 	float farZ = 100000.0f;
-
+	m_FOV = 2 * PI / 360.0f * p_FOV;
 	initializeMatrices(p_ScreenWidth, p_ScreenHeight, nearZ, farZ);
 
 	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, m_ShadowMapResolution, &m_SpotLights, &m_PointLights, &m_DirectionalLights, &m_ShadowMappedLight, 
-		m_MaxLightsPerLightInstance, m_FOV, m_FarZ);
+		m_FOV, m_FarZ);
 	
 	//Forward renderer
 	m_ForwardRenderer = new ForwardRendering();
@@ -484,7 +485,7 @@ bool Graphics::releaseTexture(const char *p_TextureId)
 	return false;
 }
 
-bool Graphics::createParticleEffectDefinition(const char *p_FileId, const char *p_FilePath)
+bool Graphics::createParticleEffectDefinition(const char * /*p_FileId*/, const char *p_FilePath)
 {
 	std::vector<ParticleEffectDefinition::ptr> tempList = m_ParticleFactory->createParticleEffectDefinition(p_FilePath);
 	
@@ -613,7 +614,7 @@ IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_S
 IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 	const char *p_ModelDefinition)
 {
-	ModelDefinition *defintion;
+	ModelDefinition *defintion = nullptr;
 	for(auto &model : m_ModelList)
 	{
 		if(model.first == string(p_ModelDefinition))
@@ -637,8 +638,9 @@ IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_Texture
 	float p_FontSize, Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation)
 {
 	Text_Id id = m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor);
-	m_TextRenderer->addTextObject(id, TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
-		m_TextFactory.getSRV(id)));
+	TextRenderer::TextInstance temp = TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id));
+	m_TextRenderer->addTextObject(id, temp);
 	return id;
 }
 
@@ -648,8 +650,9 @@ IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_Texture
 {
 	Text_Id id = m_TextFactory.createText(p_Text, p_TextureSize, p_Font, p_FontSize, p_FontColor,
 		p_TextAlignment, p_ParagraphAlignment, p_WordWrapping);
-	m_TextRenderer->addTextObject(id, TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
-		m_TextFactory.getSRV(id)));
+	TextRenderer::TextInstance temp = TextRenderer::TextInstance(p_Position, p_TextureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id));
+	m_TextRenderer->addTextObject(id, temp);
 	return id;
 }
 
@@ -762,6 +765,7 @@ void Graphics::setClearColor(Vector4 p_Color)
 
 void Graphics::drawFrame(void)
 {
+	//TIMER_START(timer);
 	if (!m_DeviceContext || !m_DeferredRender || !m_ForwardRenderer)
 	{
 		throw GraphicsException("", __LINE__, __FILE__);
@@ -771,11 +775,10 @@ void Graphics::drawFrame(void)
 
 
 	Begin(m_ClearColor);
-
 	m_DeferredRender->renderDeferred();
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, NULL); 
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 5)
+	if((int)m_SelectedRenderTarget >= 0 && (int)m_SelectedRenderTarget <= 6)
 	{
 		m_ShaderList.at("DebugDeferredShader")->setShader();
 		m_ShaderList.at("DebugDeferredShader")->setResource(Shader::Type::PIXEL_SHADER, 0, 1, 
@@ -803,6 +806,7 @@ void Graphics::drawFrame(void)
 	m_SpotLights.clear();
 	m_DirectionalLights.clear();
 	m_ShadowMappedLight = Light();
+	//TIMER_STOP(timer);
 }
 
 void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)
@@ -1182,12 +1186,13 @@ HRESULT Graphics::createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	// Don't set the advanced flags.
-	swapChainDesc.Flags = 0;
+	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	// Set the feature level to DirectX 11.
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_BGRA_SUPPORT, &featureLevel, 1, 
+	UINT flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_SINGLETHREADED;
+	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, &featureLevel, 1, 
 		D3D11_SDK_VERSION, &swapChainDesc, &m_SwapChain, &m_Device, NULL, &m_DeviceContext);
 }
 
@@ -1336,7 +1341,6 @@ void Graphics::initializeMatrices(int p_ScreenWidth, int p_ScreenHeight, float p
 	XMFLOAT4 up;
 	m_Eye = XMFLOAT3(0,0,-20);
 	m_FarZ = p_FarZ;
-	m_FOV = 0.25f * PI;
 
 	eye = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
 	lookAt = XMFLOAT4(0,0,0,1);

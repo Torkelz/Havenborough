@@ -25,6 +25,10 @@
     <ClInclude Include="Source\CommandManager.h" />
     <ClInclude Include="Source\CommonExceptions.h" />
     <ClInclude Include="Source\Components.h" />
+    <ClInclude Include="Source\FlyingControlComponent.h" />
+    <ClInclude Include="Source\LookComponent.h" />
+    <ClInclude Include="Source\RunControlComponent.h" />
+    <ClInclude Include="Source\SplineControlComponent.h" />
     <ClInclude Include="Source\StreamReader.h" />
     <ClInclude Include="Source\EventData.h" />
     <ClInclude Include="Source\EventManager.h" />
@@ -58,6 +62,10 @@
     <ClCompile Include="Source\Actor.cpp" />
     <ClCompile Include="Source\ActorFactory.cpp" />
     <ClCompile Include="Source\CommandManager.cpp" />
+    <ClCompile Include="Source\FlyingControlComponent.cpp" />
+    <ClCompile Include="Source\LookComponent.cpp" />
+    <ClCompile Include="Source\RunControlComponent.cpp" />
+    <ClCompile Include="Source\SplineControlComponent.cpp" />
     <ClCompile Include="Source\StreamReader.cpp" />
     <ClCompile Include="Source\EventManager.cpp" />
     <ClCompile Include="Source\HumanAnimationComponent.cpp" />
@@ -104,12 +112,12 @@
     <OutDir>$(ProjectDir)Test\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
-    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath);$(VLD_LIB_DIR)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)Bin\</OutDir>
     <IntDir>$(ProjectDir)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOST_LIB_DIR);$(LibraryPath);$(VLD_LIB_DIR)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -118,7 +126,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party;$(VLD_INC_DIR);$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>
@@ -139,7 +147,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party;$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common/3rd party;$(VLD_INC_DIR);$(SolutionDir)Network\include;$(SolutionDir)Physics\include;$(BOOST_INC_DIR)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName)$(ConfigurationName).pch</PrecompiledHeaderOutputFile>
       <DisableSpecificWarnings>4324;4510;4512;4610;4996</DisableSpecificWarnings>
       <AdditionalOptions>/D_WIN32_WINNT=0x0601 %(AdditionalOptions)</AdditionalOptions>

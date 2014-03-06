@@ -23,6 +23,8 @@ GameScene::GameScene()
 	m_UseThirdPersonCamera = false;
 	m_UseFlippedCamera = false;
 	m_DebugAnimations = false;
+
+	m_ViewSensitivity = 0.01f;
 }
 
 GameScene::~GameScene()
@@ -102,8 +104,9 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	float forward = state.getValue("moveForward") - state.getValue("moveBackward");
 	float right = state.getValue("moveRight") - state.getValue("moveLeft");
+	float up = state.getValue("moveUp") - state.getValue("moveDown");
 
-	m_GameLogic->setPlayerDirection(Vector2(forward, right));
+	m_GameLogic->setPlayerDirection(Vector3(forward, up, right));
 
 	m_Graphics->updateParticles(p_DeltaTime);
 }
@@ -201,79 +204,110 @@ void GameScene::setIsVisible(bool p_SetVisible)
 
 void GameScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	static const float sensitivity = 0.01f;
+	bool handled = false;
 	
-	if(p_Action == "changeSceneN" && p_Value == 1 && p_PrevValue == 0)
+	// Binary triggers
+	if (p_Value > 0.5f && p_PrevValue <= 0.5f)
 	{
-		m_NewSceneID = (int)RunScenes::GAMEPAUSE;
-		m_ChangeScene = true;
-	}
-	else if(p_Action == "changeSceneP" && p_Value == 1 && p_PrevValue == 0)
-	{
-		m_ChangeList = true;
-	}
-	else if(p_Action ==  "changeViewN" && p_Value == 1)
-	{
-		if((unsigned int)m_CurrentDebugView == 0)
-			m_CurrentDebugView = (IGraphics::RenderTarget)4;
-		else
-			m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+		handled = true;
 
-		Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
+		if(p_Action == "changeSceneN")
+		{
+			m_NewSceneID = (int)RunScenes::GAMEPAUSE;
+			m_ChangeScene = true;
+		}
+		else if(p_Action == "changeSceneP")
+		{
+			m_ChangeList = true;
+		}
+		else if(p_Action ==  "changeViewN")
+		{
+			if((unsigned int)m_CurrentDebugView == 0)
+				m_CurrentDebugView = (IGraphics::RenderTarget)4;
+			else
+				m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+
+			Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
+		}
+		else if(p_Action ==  "changeViewP")
+		{
+			m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
+			if((unsigned int)m_CurrentDebugView >= 6)
+				m_CurrentDebugView = (IGraphics::RenderTarget)0;
+			Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
+		}
+		else if( p_Action == "jump")
+		{
+			m_GameLogic->playerJump();
+		}
+		else if( p_Action == "switchBVDraw")
+		{
+			m_RenderDebugBV = !m_RenderDebugBV;
+		}
+		else if (p_Action == "leaveGame")
+		{
+			m_GameLogic->leaveGame();
+		}
+		else if (p_Action == "thirdPersonCamera")
+		{
+			m_UseThirdPersonCamera = !m_UseThirdPersonCamera;
+		}
+		else if (p_Action == "flipCamera")
+		{
+			m_UseFlippedCamera = !m_UseFlippedCamera;
+		}
+		else if(p_Action == "spellCast")
+		{
+			m_GameLogic->throwSpell("TestSpell");
+		}
+		else if(p_Action == "drawPivots")
+		{
+			m_DebugAnimations = !m_DebugAnimations;
+		}
+		else if(p_Action == "wave")
+		{
+			m_GameLogic->playerWave();
+		}
+		else if(p_Action == "splineRecord")
+		{
+			m_GameLogic->recordSpline();
+		}
+		else if(p_Action == "splineRemove")
+		{
+			m_GameLogic->removeLastSplineRecord();
+		}
+		else if(p_Action == "splineClear")
+		{
+			m_GameLogic->clearSplineSequence();
+		}
+		else
+		{
+			handled = false;
+		}
 	}
-	else if(p_Action ==  "changeViewP" && p_Value == 1)
-	{
-		m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
-		if((unsigned int)m_CurrentDebugView >= 6)
-			m_CurrentDebugView = (IGraphics::RenderTarget)0;
-		Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
-	}
-	else if (p_Action == "mouseMoveHori")
-	{
-		m_GameLogic->movePlayerView(p_Value * sensitivity, 0.f);
-	}
-	else if (p_Action == "mouseMoveVert")
-	{
-		m_GameLogic->movePlayerView(0.f, -p_Value * sensitivity);
-	}
-	else if( p_Action == "jump" && p_Value == 1)
-	{
-		m_GameLogic->playerJump();
-	}
-	else if( p_Action == "switchBVDraw" && p_Value == 1.f && p_PrevValue == 0)
-	{
-		m_RenderDebugBV = !m_RenderDebugBV;
-	}
-	else if (p_Action == "leaveGame" && p_Value == 1.f)
-	{
-		m_GameLogic->leaveGame();
-	}
-	else if (p_Action == "thirdPersonCamera" && p_Value == 1.f)
-	{
-		m_UseThirdPersonCamera = !m_UseThirdPersonCamera;
-	}
-	else if (p_Action == "flipCamera" && p_Value == 1.f)
-	{
-		m_UseFlippedCamera = !m_UseFlippedCamera;
-	}
-	else if(p_Action == "spellCast" && p_Value == 1.f)
-	{
-		m_GameLogic->throwSpell("TestSpell");
-	}
-	else if(p_Action == "climbEdge")
+
+	if (handled)
+		return;
+
+	// Analog triggers
+	if(p_Action == "climbEdge")
 	{
 		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
 	}
-	else if(p_Action == "DrawPivots" && p_Value == 1.f)
+	else if (p_Action == "mouseMoveHori")
 	{
-		m_DebugAnimations = !m_DebugAnimations;
+		m_GameLogic->movePlayerView(p_Value * m_ViewSensitivity, 0.f);
 	}
-	else if(p_Action == "wave" && p_Value == 1.0f)
+	else if (p_Action == "mouseMoveVert")
 	{
-		m_GameLogic->playerWave();
+		m_GameLogic->movePlayerView(0.f, -p_Value * m_ViewSensitivity);
 	}
 }
 
+void GameScene::setMouseSensitivity(float p_Value)
+{
+	m_ViewSensitivity *= p_Value;
+}
 /*########## TEST FUNCTIONS ##########*/
 
 int GameScene::getID()

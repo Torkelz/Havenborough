@@ -63,8 +63,10 @@ void Window::init(const std::string& p_Title, DirectX::XMFLOAT2 p_WindowSize)
 		m_ClassUseCount++;
 	}
 
+	m_WindowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+
 	RECT windowSize = { 0, 0, (long)p_WindowSize.x, (long)p_WindowSize.y };
-	AdjustWindowRectEx(&windowSize, WS_OVERLAPPEDWINDOW, FALSE, WS_EX_OVERLAPPEDWINDOW);
+	AdjustWindowRectEx(&windowSize, m_WindowStyle, FALSE, WS_EX_OVERLAPPEDWINDOW);
 
 	std::vector<wchar_t> convertedTitle(p_Title.size() + 1);
 	mbstowcs(convertedTitle.data(), p_Title.data(), p_Title.size() + 1);
@@ -72,7 +74,7 @@ void Window::init(const std::string& p_Title, DirectX::XMFLOAT2 p_WindowSize)
 		WS_EX_OVERLAPPEDWINDOW,
 		m_ClassName,
 		convertedTitle.data(),
-		WS_OVERLAPPEDWINDOW,
+		m_WindowStyle,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		windowSize.right - windowSize.left,

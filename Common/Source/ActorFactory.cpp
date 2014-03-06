@@ -1,7 +1,11 @@
 #include "ActorFactory.h"
 #include "CommonExceptions.h"
 #include "Components.h"
+#include "FlyingControlComponent.h"
+#include "SplineControlComponent.h"
 #include "HumanAnimationComponent.h"
+#include "LookComponent.h"
+#include "RunControlComponent.h"
 #include "SpellComponent.h"
 #include "XMLHelper.h"
 
@@ -28,6 +32,9 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["Spell"] = std::bind(&ActorFactory::createSpellComponent, this);
 	m_ComponentCreators["Look"] = std::bind(&ActorFactory::createLookComponent, this);
 	m_ComponentCreators["HumanAnimation"] = std::bind(&ActorFactory::createHumanAnimationComponent, this);
+	m_ComponentCreators["FlyingControl"] = std::bind(&ActorFactory::createFlyingControlComponent, this);
+	m_ComponentCreators["SplineControl"] = std::bind(&ActorFactory::createSplineControlComponent, this);
+	m_ComponentCreators["RunControl"] = std::bind(&ActorFactory::createRunControlComponent, this);
 }
 
 void ActorFactory::setPhysics(IPhysics* p_Physics)
@@ -94,24 +101,6 @@ Actor::ptr ActorFactory::createActor(const tinyxml2::XMLElement* p_Data, Actor::
 	return actor;
 }
 
-Actor::ptr ActorFactory::createBasicModel(const std::string& p_Model, Vector3 p_Position)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	pushVector(printer, p_Position);
-	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", p_Model.c_str());
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
-
-	return actor;
-}
-
 void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Halfsize)
 {
 	p_Printer.OpenElement("AABBPhysics");
@@ -119,25 +108,6 @@ void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Half
 	pushVector(p_Printer, "Halfsize", p_Halfsize);
 	pushVector(p_Printer, "OffsetPosition", p_Position);
 	p_Printer.CloseElement();
-}
-
-Actor::ptr ActorFactory::createCollisionSphere(Vector3 p_Position, float p_Radius)
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	pushVector(printer, p_Position);
-	printer.OpenElement("SpherePhysics");
-	printer.PushAttribute("Radius", p_Radius);
-	pushVector(printer, "Position", p_Position);
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
-
-	return actor;
 }
 
 Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale)
@@ -200,6 +170,11 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position) const
 	printer.CloseElement();
 	printer.OpenElement("HumanAnimation");
 	printer.PushAttribute("Animation", "Dzala");
+	printer.CloseElement();
+	printer.OpenElement("RunControl");
+	printer.PushAttribute("MaxSpeed", 1350.f);
+	printer.PushAttribute("MaxSpeedDefault", 900.f);
+	printer.PushAttribute("Acceleration", 600.f);
 	printer.CloseElement();
 	printer.CloseElement();
 
@@ -283,22 +258,6 @@ Actor::ptr ActorFactory::createPointLight(Vector3 p_Position, float p_Range, Vec
 	return actor;
 }
 
-Actor::ptr ActorFactory::createCheckPointArrow()
-{
-	tinyxml2::XMLPrinter printer;
-	printer.OpenElement("Object");
-	printer.OpenElement("Mesh");
-	pushVector(printer, "Scale", Vector3(1.0f, 1.0f, 1.0f));
-	pushVector(printer, "ColorTone", Vector3(1.0f, 1.0f, 1.0f));
-	printer.CloseElement();
-	printer.CloseElement();
-
-	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
-
-	return createActor(doc.FirstChildElement("Object"));
-}
-
 Actor::ptr ActorFactory::createParticles( Vector3 p_Position, const std::string& p_Effect )
 {
 	tinyxml2::XMLPrinter printer;
@@ -332,20 +291,54 @@ Actor::ptr ActorFactory::createParticles( Vector3 p_Position, const std::string&
 	return createActor(doc.FirstChildElement("Object"));
 }
 
-Actor::ptr ActorFactory::createBoxWithOBB(Vector3 p_Position, Vector3 p_Halfsize, Vector3 p_Rotation)
+Actor::ptr ActorFactory::createFlyingCamera(Vector3 p_Position)
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_Position);
-	pushRotation(printer, p_Rotation);
-	printer.OpenElement("OBBPhysics");
-	pushVector(printer, "Halfsize", p_Halfsize);
-	pushVector(printer, "Position", p_Position);
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", 50.f);
+	printer.PushAttribute("Mass", 70.f);
+	printer.PushAttribute("CollisionResponse", true);
+	printer.CloseElement();
+	printer.OpenElement("FlyingControl");
+	printer.PushAttribute("MaxSpeed", 1000.f);
+	printer.PushAttribute("Acceleration", 600.f);
+	printer.CloseElement();
+	printer.OpenElement("Look");
 	printer.CloseElement();
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;
-	doc.Parse(printer.CStr());
+	doc.Parse(printer.CStr(), printer.CStrSize());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createSplineCamera(Vector3 p_Position)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_Position);
+	printer.OpenElement("SpherePhysics");
+	printer.PushAttribute("Immovable", false);
+	printer.PushAttribute("Radius", 50.f);
+	printer.PushAttribute("Mass", 70.f);
+	printer.PushAttribute("CollisionResponse", true);
+	printer.CloseElement();
+	printer.OpenElement("SplineControl");
+	printer.PushAttribute("MaxSpeed", 1000.f);
+	printer.PushAttribute("Acceleration", 600.f);
+	printer.CloseElement();
+	printer.OpenElement("Look");
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr(), printer.CStrSize());
 
 	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
 
@@ -536,6 +529,30 @@ ActorComponent::ptr ActorFactory::createHumanAnimationComponent()
 	HumanAnimationComponent* comp = new HumanAnimationComponent;
 	comp->setResourceManager(m_ResourceManager);
 	comp->setAnimationLoader(m_AnimationLoader);
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createFlyingControlComponent()
+{
+	FlyingControlComponent* comp = new FlyingControlComponent;
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createSplineControlComponent()
+{
+	SplineControlComponent* comp = new SplineControlComponent;
+	comp->setPhysics(m_Physics);
+
+	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createRunControlComponent()
+{
+	RunControlComponent* comp = new RunControlComponent;
 	comp->setPhysics(m_Physics);
 
 	return ActorComponent::ptr(comp);

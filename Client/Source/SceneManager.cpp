@@ -55,7 +55,6 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 			sceneFail = true;
 		}
 	}
-
 	m_MenuSceneList[0]->setIsVisible(true);
 	m_MenuSceneList[0]->onFocus();
 	
@@ -227,12 +226,11 @@ IScene::ptr SceneManager::getScene(RunScenes p_Scene)
 
 void SceneManager::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action == "pauseScene" && p_Value == 1)
+	if(p_Action == "pauseScene" && p_Value > 0.5f && p_PrevValue <= 0.5f)
 	{
 		setPause();
 	}
-	//Change scene
-	else// if((p_Action == "changeSceneN"  && p_Value == 1) || (p_Action == "changeSceneP" && p_Value == 1))
+	else
 	{
 		passInput(p_Action, p_Value, p_PrevValue);
 	}
@@ -259,7 +257,6 @@ void SceneManager::passInput(std::string p_Action, float p_Value, float p_PrevVa
 		if(activeList->at(i)->getIsVisible())
 		{
 			activeList->at(i)->registeredInput(p_Action, p_Value, p_PrevValue);
-			i = nrScenes;
 		}
 	}
 	activeList = nullptr;
