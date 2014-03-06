@@ -586,6 +586,23 @@ bool GameLogic::getSplineCameraActive()
 	return m_SplineCameraActive;
 }
 
+unsigned int GameLogic::getPlayerTextComponentId()
+{
+	Actor::ptr actor = m_Player.getActor().lock();
+	unsigned int id = 0;
+
+	if(actor)
+	{
+		std::shared_ptr<TextInterface> comp = actor->getComponent<TextInterface>(TextInterface::m_ComponentId).lock();
+
+		if(comp)
+		{
+			id = comp->getId();
+		}
+	}
+	return id;
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)

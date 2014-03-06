@@ -183,7 +183,6 @@ void GameScene::render()
 				break;
 			}
 		}
-		
 	}
 
 	//From skybox branch, move later if needed.
@@ -193,7 +192,11 @@ void GameScene::render()
 	m_Graphics->render2D_Object(4);
 
 	for( auto &wText : m_WorldText)
-		m_Graphics->renderText(wText.second);
+	{
+		//Skip rendering own player tag.
+		if(m_GameLogic->getPlayerTextComponentId() != wText.first)
+			m_Graphics->renderText(wText.second);
+	}
 }
 
 bool GameScene::getIsVisible()
@@ -547,6 +550,8 @@ void GameScene::createWorldText(IEventData::Ptr p_Data)
 
 	IGraphics::Text_Id id = m_Graphics->createText(data->getText().c_str(), data->getFont().c_str(), data->getFontSize(),
 		data->getFontColor(), data->getPosition(), data->getScale(), data->getRotation());
+
+	m_Graphics->setTextBackgroundColor(id, data->getBackgroundColor());
 
 	m_WorldText[data->getComponentId()] = id;
 }

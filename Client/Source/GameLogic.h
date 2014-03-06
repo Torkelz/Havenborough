@@ -162,6 +162,13 @@ public:
 	 * @return true if spline camera is active. false if not active.
 	 */
 	bool getSplineCameraActive();
+
+	/**
+	 * Get player text component id.
+	 *
+	 * @return the id of the players text component id.
+	 */
+	unsigned int getPlayerTextComponentId();
 	
 private:
 	void handleNetwork();

@@ -1654,6 +1654,7 @@ private:
 	std::string m_Font;
 	float m_FontSize;
 	Vector4 m_FontColor;
+	Vector4 m_BackgroundColor;
 	Vector3 m_OffsetPosition;
 	float m_Scale;
 	float m_Rotation;
@@ -1691,14 +1692,24 @@ public:
 			textSettings->QueryFloatAttribute("Rotation", &m_Rotation);
 		}
 
+		m_BackgroundColor = Vector4(1.f, 1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* backtone = p_Data->FirstChildElement("BackgroundColor");
+		if (backtone)
+		{
+			backtone->QueryFloatAttribute("r", &m_BackgroundColor.x);
+			backtone->QueryFloatAttribute("g", &m_BackgroundColor.y);
+			backtone->QueryFloatAttribute("b", &m_BackgroundColor.z);
+			backtone->QueryFloatAttribute("a", &m_BackgroundColor.w);
+		}
+
 		m_FontColor = Vector4(1.f, 1.f, 1.f, 1.f);
 		const tinyxml2::XMLElement* tone = p_Data->FirstChildElement("FontColor");
 		if (tone)
 		{
-			tone->QueryFloatAttribute("x", &m_FontColor.x);
-			tone->QueryFloatAttribute("y", &m_FontColor.y);
-			tone->QueryFloatAttribute("z", &m_FontColor.z);
-			tone->QueryFloatAttribute("w", &m_FontColor.w);
+			tone->QueryFloatAttribute("r", &m_FontColor.x);
+			tone->QueryFloatAttribute("g", &m_FontColor.y);
+			tone->QueryFloatAttribute("b", &m_FontColor.z);
+			tone->QueryFloatAttribute("a", &m_FontColor.w);
 		}
 
 		m_OffsetPosition = Vector3(0.f, 0.f, 0.f);
@@ -1715,7 +1726,7 @@ public:
 	{
 		m_WorldPosition = m_Owner->getPosition() + m_OffsetPosition;
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new createWorldTextEventData(m_Text,
-			m_Font, m_FontSize, m_FontColor, m_WorldPosition, m_Scale, m_Rotation, m_ComponentId)));
+			m_Font, m_FontSize, m_FontColor, m_BackgroundColor, m_WorldPosition, m_Scale, m_Rotation, m_ComponentId)));
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -1728,6 +1739,7 @@ public:
 		p_Printer.PushAttribute("Scale", m_Scale);
 		p_Printer.PushAttribute("Rotation", m_Rotation);
 		p_Printer.CloseElement();
+		pushColor(p_Printer, "BackgroundColor", m_BackgroundColor);
 		pushColor(p_Printer, "FontColor", m_FontColor);
 		pushVector(p_Printer, "OffsetPosition", m_OffsetPosition);
 		p_Printer.CloseElement();

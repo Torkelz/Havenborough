@@ -1260,6 +1260,7 @@ private:
 	std::string m_Font;
 	float m_FontSize;
 	Vector4 m_FontColor;
+	Vector4 m_BackgroundColor;
 	Vector3 m_Position;
 	float m_Scale;
 	float m_Rotation;
@@ -1269,10 +1270,11 @@ private:
 public:
 	static const Type sk_EventType = Type(0x7cd2bbbb);
 
-	createWorldTextEventData(std::string p_Text, std::string p_Font, float p_FontSize, Vector4 p_FontColor,
-		Vector3 p_Position, float p_scale, float p_Rotation, unsigned int p_ComponentId)
-		:	m_Text(p_Text), m_Font(p_Font), m_FontSize(p_FontSize), m_FontColor(p_FontColor),
-		m_Position(p_Position), m_Scale(p_scale), m_Rotation(p_Rotation), m_ComponentId(p_ComponentId)
+	createWorldTextEventData(std::string p_Text, std::string p_Font, float p_FontSize, Vector4 p_FontColor, 
+		Vector4 p_BackgroundColor, Vector3 p_Position, float p_scale, float p_Rotation, unsigned int p_ComponentId)
+		:	m_Text(p_Text), m_Font(p_Font), m_FontSize(p_FontSize), m_FontColor(p_FontColor), 
+		m_BackgroundColor(p_BackgroundColor), m_Position(p_Position), m_Scale(p_scale), m_Rotation(p_Rotation), 
+		m_ComponentId(p_ComponentId)
 	{
 	}
 
@@ -1283,7 +1285,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new createWorldTextEventData(m_Text, m_Font, m_FontSize, m_FontColor, m_Position,
+		return Ptr(new createWorldTextEventData(m_Text, m_Font, m_FontSize, m_FontColor, m_BackgroundColor, m_Position,
 			 m_Scale, m_Rotation, m_ComponentId));
 	}
 
@@ -1314,6 +1316,11 @@ public:
 	Vector4 getFontColor()
 	{
 		return m_FontColor;
+	}
+
+	Vector4 getBackgroundColor()
+	{
+		return m_BackgroundColor;
 	}
 
 	Vector3 getPosition()
