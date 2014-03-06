@@ -288,7 +288,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		XMStoreFloat3(&m_Side, side);
 		m_EdgeOrientation = p_EdgeOrientation;
 		
-		XMStoreFloat3(&m_forward, fwd);
+		//XMStoreFloat3(&m_forward, fwd);
 		
 		XMVECTOR offsetToStartPos = XMVectorSet(0, m_ForceMoveY.back().x, m_ForceMoveZ.back().x,0);
 		offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
@@ -298,6 +298,13 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		XMStoreFloat3(&m_ForceMoveStartPos, sp);
 		setPosition(m_ForceMoveStartPos);
 		// The golden path code END
+
+		XMVECTOR forward;
+		forward = vReachPointCenter - XMLoadFloat3(&getPosition());
+		forward.m128_f32[1] = 0.0f;
+		forward = XMVector3Normalize(forward);
+
+		XMStoreFloat3(&m_forward, forward);
 		
 		if (m_Network)
 		{
