@@ -765,7 +765,6 @@ void Graphics::setClearColor(Vector4 p_Color)
 
 void Graphics::drawFrame(void)
 {
-	//TIMER_START(timer);
 	if (!m_DeviceContext || !m_DeferredRender || !m_ForwardRenderer)
 	{
 		throw GraphicsException("", __LINE__, __FILE__);
@@ -806,7 +805,6 @@ void Graphics::drawFrame(void)
 	m_SpotLights.clear();
 	m_DirectionalLights.clear();
 	m_ShadowMappedLight = Light();
-	//TIMER_STOP(timer);
 }
 
 void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)
