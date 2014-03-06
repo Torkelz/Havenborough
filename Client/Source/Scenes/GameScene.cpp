@@ -223,8 +223,8 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 
 		if(p_Action == "changeSceneN")
 		{
-			m_NewSceneID = (int)RunScenes::GAMEPAUSE;
-			m_ChangeScene = true;
+			//m_NewSceneID = (int)RunScenes::GAMEPAUSE;
+			//m_ChangeScene = true;
 		}
 		else if(p_Action == "changeSceneP")
 		{

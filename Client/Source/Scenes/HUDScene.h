@@ -81,12 +81,14 @@ private:
 	void updateTakenCheckpoints(IEventData::Ptr p_Data);
 	void activateHUD(IEventData::Ptr p_Data);
 	void setNrOfCheckpoints(IEventData::Ptr p_Data);
+	void onFinish(IEventData::Ptr p_Data);
 
 	void preLoadModels();
 	void releasePreLoadedModels();
 
 	void getHUDSettings( std::string p_Id, Vector3 &p_Position, Vector3 &p_Scale );
 	void adjustHUDPosition(Vector3 &p_Position);
+
 public:
 	/*########## TEST FUNCTIONS ##########*/
 	int	getID() override;

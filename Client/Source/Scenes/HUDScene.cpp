@@ -46,6 +46,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::setNrOfCheckpoints), GetNrOfCheckpoints::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::activateHUD), activateHUDEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateTakenCheckpoints), UpdateTakenCheckpoints::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::onFinish), FinishRaceEventData::sk_EventType);
 
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
@@ -321,6 +322,12 @@ void HUDScene::setNrOfCheckpoints(IEventData::Ptr p_Data)
 	m_NumberOfCheckpoints = data->getNumberOfCheckpoints();
 	m_TakenCheckpoints.append(std::to_string(m_NumberOfCheckpoints));
 	m_Graphics->updateText(m_TextHandle["Checkpoints"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
+}
+
+void HUDScene::onFinish(IEventData::Ptr p_Data)
+{
+	m_ChangeScene = true;
+	m_NewSceneID = (int)RunScenes::POST_GAME;
 }
 
 void HUDScene::updateTakenCheckpoints(IEventData::Ptr p_Data)

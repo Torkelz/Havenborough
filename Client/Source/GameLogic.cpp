@@ -734,6 +734,8 @@ void GameLogic::handleNetwork()
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
+
+							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData()));
 						}
 					}
 				}
@@ -991,8 +993,6 @@ void GameLogic::handleNetwork()
 					conn->sendDoneLoading();
 					m_InGame = true;
 					m_PlayingLocal = false;
-
-					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 				}
 				break;
 
@@ -1004,6 +1004,7 @@ void GameLogic::handleNetwork()
 
 			case PackageType::START_COUNTDOWN:
 				{
+					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 					m_Player.setAllowedToMove(false);
 					m_CountdownTimer = 3.0f;
 				}

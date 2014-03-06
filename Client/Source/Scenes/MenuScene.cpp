@@ -92,7 +92,7 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		{
 			if(m_SceneID == 0)
 			{
-				m_NewSceneID = (int)MenuScenes::OPTION;
+				//m_NewSceneID = (int)MenuScenes::OPTION;
 			}
 			else if(m_SceneID == 1)
 			{
