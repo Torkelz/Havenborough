@@ -33,7 +33,7 @@ namespace Havenborough_Launcher
                 ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg",
                     UriKind.Relative))
             };
-            //Icon = BitmapFrame.Create(new Uri(@"assets\textures\test.png", UriKind.RelativeOrAbsolute));
+            Icon = BitmapFrame.Create(new Uri(@"Havenborough.ico", UriKind.RelativeOrAbsolute));
 
             RefreshGameList();
         }
@@ -58,6 +58,7 @@ namespace Havenborough_Launcher
         private void HostServerButton_OnClick(object sender, RoutedEventArgs e)
         {
             Process.Start(ServerExec);
+            RefreshGameList();
         }
 
         private void RefreshGameList()
@@ -194,7 +195,7 @@ namespace Havenborough_Launcher
             {
                 case "FovSlider":
                     FovValue.Text = ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
-                    if ((int) slider.Value == 110)
+                    if ((int) slider.Value == 70)
                         FovValue.Text = "Quake Pro";
                     break;
                 case "MouseSenseSlider":

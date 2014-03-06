@@ -84,9 +84,10 @@ public:
 	 * @param p_ScreenWidth input of the window's width
 	 * @param p_ScreenHeight input of the window's height
 	 * @param p_Fullscreen input whether the program should run in full screen or not
+	 * @param p_FOV field of view the camera should use
 	 * @return true if successful, otherwise false
 	 */
-	virtual bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen) = 0;
+	virtual bool initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight,	bool p_Fullscreen, float p_FOV) = 0;
 
 	/**
 	 * Reinitialize parts of the graphics API when switching full screen on/off or changing resolution.
