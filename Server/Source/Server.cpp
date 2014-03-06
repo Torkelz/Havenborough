@@ -13,9 +13,7 @@ void Server::initialize()
 	m_Running = false;
 
 	m_Lobby.reset(new Lobby(this));
-	m_Lobby->addAvailableLevel("Havenborough Castle", 8, 20.f);
-	m_Lobby->addAvailableLevel("Old Town", 4, 20.f);
-	m_Lobby->addAvailableLevel("Test Level", 4, 5.f);
+	addGamesFromFile("assets/levels/levelList.xml");
 	m_Network = INetwork::createNetwork();
 	m_Network->initialize();
 	m_Network->createServer(31415);
@@ -189,5 +187,32 @@ void Server::updateClients()
 
 		static const std::chrono::milliseconds sleepDuration(20);
 		std::this_thread::sleep_for(sleepDuration - frameTime);
+	}
+}
+
+void Server::addGamesFromFile(const std::string& p_Filename)
+{
+	tinyxml2::XMLDocument doc;
+	doc.LoadFile(p_Filename.c_str());
+
+	const tinyxml2::XMLElement* listElem = doc.FirstChildElement("LevelList");
+	if (!listElem)
+		return;
+
+	for (const tinyxml2::XMLElement* levelElem = listElem->FirstChildElement("Level");
+		levelElem;
+		levelElem = levelElem->NextSiblingElement("Level"))
+	{
+		int levelMaxPlayers = 8;
+		float levelTimeOut = 20.f;
+		const char* levelName = levelElem->Attribute("Name");
+		const char* levelPath = levelElem->Attribute("Path");
+		levelElem->QueryAttribute("MaxPlayers", &levelMaxPlayers);
+		levelElem->QueryAttribute("TimeOut", &levelTimeOut);
+
+		if (levelName && levelPath && levelMaxPlayers > 0)
+		{
+			m_Lobby->addAvailableLevel(levelName, levelPath, (unsigned int)levelMaxPlayers, levelTimeOut);
+		}
 	}
 }
