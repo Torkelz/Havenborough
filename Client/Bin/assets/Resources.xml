@@ -120,7 +120,6 @@
         <Resource Name="CaveMiddleSection1" Path="assets/volumes/CB_CaveMiddleSection1.txc"/>
         <Resource Name="CaveUpperSection1" Path="assets/volumes/CB_CaveUpperSection1.txc"/>
         <Resource Name="CaveWall1" Path="assets/volumes/CB_CaveWall1.txc"/>
-        <Resource Name="Checkpoint1" Path="assets/volumes/CB_Checkpoint1.txc"/>
         <Resource Name="Crate1" Path="assets/volumes/CB_Crate1.txc"/>
         <Resource Name="Dzala" Path="assets/volumes/CB_Dzala.txc"/>
         <Resource Name="Fireplace1" Path="assets/volumes/CB_Fireplace1.txc"/>

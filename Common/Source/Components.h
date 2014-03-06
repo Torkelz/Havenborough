@@ -795,6 +795,8 @@ private:
 	ModelCompId m_Id;
 	Vector3 m_BaseScale;
 	Vector3 m_ColorTone;
+	Vector3 m_Offset;
+	bool NewPos;
 	std::string m_MeshName;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
@@ -831,11 +833,21 @@ public:
 			tone->QueryFloatAttribute("y", &m_ColorTone.y);
 			tone->QueryFloatAttribute("z", &m_ColorTone.z);
 		}
+
+		m_Offset = Vector3(0,0,0);
+		const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("OffsetPosition");
+		if (pos)
+		{
+			pos->QueryFloatAttribute("x", &m_Offset.x);
+			pos->QueryFloatAttribute("y", &m_Offset.y);
+			pos->QueryFloatAttribute("z", &m_Offset.z);
+		}
 	}
 	void postInit() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
 			m_BaseScale, m_ColorTone)));
+
 		setPosition(m_Owner->getPosition());
 		setRotation(m_Owner->getRotation());
 	}
@@ -846,12 +858,13 @@ public:
 		p_Printer.PushAttribute("Mesh", m_MeshName.c_str());
 		pushVector(p_Printer, "Scale", m_BaseScale);
 		pushVector(p_Printer, "ColorTone", m_ColorTone);
+		pushVector(p_Printer, "OffsetPosition", m_Offset);
 		p_Printer.CloseElement();
 	}
 
 	void setPosition(Vector3 p_Position) override
 	{
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(m_Id, p_Position)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(m_Id, p_Position + m_Offset)));
 	}
 
 	void setRotation(Vector3 p_Rotation) override
@@ -1434,6 +1447,9 @@ public:
 	}
 
 	virtual void setBaseColor(Vector4 p_NewBaseColor) = 0;
+	//virtual void setRotation(Vector3 p_NewRotation) = 0;
+	//virtual void setOffsetPosition(Vector3 p_NewPosition) = 0;
+
 };
 
 class ParticleComponent : public ParticleInterface
@@ -1442,6 +1458,8 @@ private:
 	unsigned int m_ParticleId;
 	std::string m_EffectName;
 	Vector4 m_BaseColor;
+	Vector3 m_OffsetPosition;
+	Vector3 m_Rotation;
 
 public:
 	~ParticleComponent()
@@ -1458,6 +1476,8 @@ public:
 		}
 		m_BaseColor = Vector4(-1.f, -1.f, -1.f, -1.f);
 		queryColor(p_Data->FirstChildElement("BaseColor"), m_BaseColor);
+		queryVector(p_Data->FirstChildElement("OffsetPosition"), m_OffsetPosition);
+		queryRotation(p_Data->FirstChildElement("Rotation"), m_Rotation);
 
 		m_EffectName = effectName;
 	}

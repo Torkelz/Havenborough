@@ -259,6 +259,7 @@ void FileGameRound::sendUpdates()
 						user->getConnection()->sendRemoveObjects(&id, 1);
 						user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
 						tinyxml2::XMLPrinter printer;
+
 						printer.OpenElement("ObjectUpdate");
 						printer.PushAttribute("ActorId", id-1);
 						printer.PushAttribute("Type", "Color");
@@ -266,9 +267,11 @@ void FileGameRound::sendUpdates()
 						printer.CloseElement();
 						const char* info = printer.CStr();
 						user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+
 						user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
 						user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
 
+						
 						printer.ClearBuffer();
 						printer.OpenElement("RacePositions");
 						printer.PushAttribute("Type", "Place");
