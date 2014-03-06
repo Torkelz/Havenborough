@@ -137,7 +137,7 @@ void HUDScene::setIsVisible(bool p_SetVisible)
 
 void HUDScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if (p_Value > 0.5f)
+	if (p_Value > 0.5f && p_PrevValue <= 0.5f)
 	{
 		if (p_Action == "toggleDebugInfo")
 		{
