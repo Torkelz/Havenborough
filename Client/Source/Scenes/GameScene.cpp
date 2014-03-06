@@ -67,7 +67,11 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeWorldText), removeWorldTextEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateWorldTextPosition), updateWorldTextPositionEventData::sk_EventType);
 
-	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
+	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::FINAL);
+	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::SSAO);
+	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::NORMAL);
+	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::CSM);
+	m_CurrentDebugView = 0;
 	m_RenderDebugBV = false;
 	preLoadModels();
 
@@ -188,14 +192,14 @@ void GameScene::render()
 	//From skybox branch, move later if needed.
 	m_Graphics->renderSkydome();
 
+	m_Graphics->setRenderTarget(m_SelectableRenderTargets[m_CurrentDebugView]);
+	
 	for( auto &wText : m_WorldText)
 	{
 		//Skip rendering own player tag.
 		if(m_GameLogic->getPlayerTextComponentId() != wText.first)
 			m_Graphics->renderText(wText.second);
 	}
-
-	m_Graphics->setRenderTarget(m_CurrentDebugView);
 }
 
 bool GameScene::getIsVisible()
@@ -228,19 +232,21 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		}
 		else if(p_Action ==  "changeViewN")
 		{
-			if((unsigned int)m_CurrentDebugView == 0)
-				m_CurrentDebugView = (IGraphics::RenderTarget)4;
+			if(m_CurrentDebugView >= m_SelectableRenderTargets.size() - 1)
+				m_CurrentDebugView = 0;
 			else
-				m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+				++m_CurrentDebugView;
 
-			Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
+			Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 		}
 		else if(p_Action ==  "changeViewP")
 		{
-			m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
-			if((unsigned int)m_CurrentDebugView >= 6)
-				m_CurrentDebugView = (IGraphics::RenderTarget)0;
-			Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
+			if(m_CurrentDebugView == 0)
+				m_CurrentDebugView = m_SelectableRenderTargets.size() - 1;
+			else
+				--m_CurrentDebugView;
+
+			Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 		}
 		else if( p_Action == "jump")
 		{

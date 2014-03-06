@@ -37,6 +37,11 @@ float3 GetGBufferNormal(in int3 p_SampleIndex, in Texture2D p_NormalTex)
 	return p_NormalTex.Load(p_SampleIndex).xyz * 2.f - 1.f;
 }
 
+float4 GetWorldPosition(in int3 p_SampleIndex, in Texture2D p_vPosTex)
+{
+	return p_vPosTex.Load(p_SampleIndex);	
+}
+
 void GetGBufferAttributes(in float2 p_ScreenPos,in float p_SSAOScale, in Texture2D p_NormalTex, in Texture2D p_DiffuseTex,
 	in Texture2D p_SSAO_Tex, in Texture2D p_WPosTex, out float3 p_Normal, out float3 p_DiffuseAlbedo,
 	out float3 p_SpecularAlbedo, out float3 p_SSAO, out float3 p_Position, out float p_SpecularPower)
@@ -53,7 +58,7 @@ void GetGBufferAttributes(in float2 p_ScreenPos,in float p_SSAOScale, in Texture
 	//scaledScreenPos *= p_SSAOScale;
 	p_SSAO = p_SSAO_Tex.Load(scaledScreenPos).xyz;
 
-	float4 wPosTexSample = p_WPosTex.Load(sampleIndex).xyzw;	
+	float4 wPosTexSample = GetWorldPosition(sampleIndex, p_WPosTex);
 	p_Position = wPosTexSample.xyz;
 	p_SpecularAlbedo = wPosTexSample.w;
 }

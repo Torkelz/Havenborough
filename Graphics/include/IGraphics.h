@@ -17,10 +17,11 @@ public:
 		NORMAL,
 		W_POSITION,
 		SSAO,
-		FINAL,
+		LIGHT,
 		CSM,
 		SSAOPing,
 		NONE,
+		FINAL = DIFFUSE,
 	};
 
 	/**

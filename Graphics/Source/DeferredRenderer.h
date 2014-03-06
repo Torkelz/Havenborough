@@ -67,6 +67,9 @@ private:
 	DirectX::XMFLOAT4X4	m_LightProjection;
 	D3D11_VIEWPORT		m_LightViewport;
 	unsigned int		m_MaxNumDirectionalShadows;
+	float				m_MinFogDistance;
+	float				m_MaxFogDistance;
+	std::string			m_FogColor;
 
 	//GPUTimer *m_Timer;
 public:
@@ -193,4 +196,5 @@ private:
 	void updateLightProjection(float p_viewHW);
 	void renderShadowMap(Light p_Directional, const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 	void registerTweakSettings();
+	void recompileFogShader(void);
 };

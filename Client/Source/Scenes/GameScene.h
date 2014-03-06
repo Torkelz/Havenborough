@@ -12,7 +12,6 @@ private:
 	int  m_NewSceneID;
 	bool m_ChangeScene;
 	bool m_ChangeList;
-	IGraphics::RenderTarget m_CurrentDebugView;
 	bool m_RenderDebugBV;
 	int m_SkyboxID;
 
@@ -30,6 +29,9 @@ private:
 
 	std::vector<int> m_ResourceIDs;
 	std::vector<LightClass> m_Lights;
+
+	unsigned int m_CurrentDebugView;
+	std::vector<IGraphics::RenderTarget> m_SelectableRenderTargets;
 
 	float m_ViewSensitivity;
 
