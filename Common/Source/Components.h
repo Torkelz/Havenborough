@@ -1680,6 +1680,9 @@ public:
 		m_Text = std::string(text);
 
 		m_Font = "Verdana";
+		m_Scale = 1.f;
+		m_Rotation = 0.f;
+		m_FontSize = 12.f;
 		const tinyxml2::XMLElement* textSettings = p_Data->FirstChildElement("TextSettings");
 		if (textSettings)
 		{
