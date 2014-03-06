@@ -15,7 +15,8 @@ private:
 	EventManager *m_EventManager;
 	ResourceManager *m_ResourceManager;
 
-	std::vector<int> m_ResourceIDs;
+	IGraphics::Text_Id m_GoalText;
+	IGraphics::Object2D_Id m_GoalObject;
 
 	Vector2 m_Resolution;
 
@@ -40,9 +41,6 @@ public:
 	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue) override;
 
 private:
-	void createGUIElement(std::string p_GUIIdentifier, int p_Id);
-	void createTextElement(std::string p_TextIdentifier, int p_Id);
-
 	void preLoadModels();
 	void releasePreLoadedModels();
 

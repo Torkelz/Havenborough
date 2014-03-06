@@ -66,7 +66,7 @@ void PostGameScene::onFocus()
 
 void PostGameScene::render()
 {
-
+	m_Graphics->render2D_Object(m_GoalObject);
 }
 
 bool PostGameScene::getIsVisible()
@@ -85,33 +85,17 @@ void PostGameScene::registeredInput(std::string p_Action, float p_Value, float p
 {
 }
 
-void PostGameScene::createGUIElement(std::string p_GUIIdentifier, int p_Id)
-{
-}
-
-void PostGameScene::createTextElement(std::string p_TextIdentifier, int p_Id)
-{
-}
-
 void PostGameScene::preLoadModels()
 {
-	static const std::string preloadedTextures[] =
-	{
-		"TEXTURE_NOT_FOUND",
-	};
-	for (const std::string &texture : preloadedTextures)
-	{
-		m_ResourceIDs.push_back(m_ResourceManager->loadResource("texture", texture));
-	}
+	m_GoalText = m_Graphics->createText(L"Goal", "Aniron", 100.f, Vector4(1.f, 1.f, 1.f, 1.f), Vector3(0.f, 0.f, 0.f), 1.0f, 0.f);
+	m_Graphics->setTextBackgroundColor(m_GoalText, Vector4(1.f, 1.f, 1.f, 0.f));
+	m_GoalObject = m_Graphics->create2D_Object(Vector3(0.f, 250.f, 2.f), Vector3(1.f, 1.f, 1.f), 0.f, m_GoalText);
 }
 
 void PostGameScene::releasePreLoadedModels()
 {
-	for (int res : m_ResourceIDs)
-	{
-		m_ResourceManager->releaseResource(res);
-	}
-	m_ResourceIDs.clear();
+	m_Graphics->release2D_Model(m_GoalObject);
+	m_Graphics->deleteText(m_GoalText);
 }
 
 /*########## TEST FUNCTIONS ##########*/

@@ -95,8 +95,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 	{
 		return;
 	}
-
-	if(m_Physics->getHitDataSize() > 0)
+	
+	Actor::ptr playerActor = m_Player.getActor().lock();
+	if(m_Physics->getHitDataSize() > 0 && playerActor)
 	{
 		for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 		{
@@ -133,7 +134,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Physics->update(p_DeltaTime, 100);
 
 	XMVECTOR actualViewRot = Vector3ToXMVECTOR(&getPlayerViewRotation(), 0.0f);
-	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
 		XMVECTOR playerRotation = actualViewRot;
