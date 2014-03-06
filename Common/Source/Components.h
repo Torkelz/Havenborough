@@ -1641,29 +1641,9 @@ public:
 		return m_ComponentId;
 	}
 
-	//virtual void setOffsetPosition(Vector3 p_Position) = 0;
+	virtual void setId(unsigned int p_ComponentId) = 0;
 
-	//virtual void setText(std::string p_Text) = 0;
-
-	///**
-	// * Update the scale of the model.
-	// *
-	// * @param p_CompName an identifier to keep track of the scale to keep track of it
-	// * @param p_Scale the new scale
-	// */
-	//virtual void updateScale(const std::string& p_CompName, Vector3 p_Scale) = 0;
-	///**
-	// * Remove a scale from the model.
-	// *
-	// * @param p_CompName an identifier of an existing scale
-	// */
-	//virtual void removeScale(const std::string& p_CompName) = 0;
-	///**
-	// * Change a color tone for the model.
-	// *
-	// * @param p_ColorTone the color in RGB range 0.0f to 1.0f
-	// */
-	//virtual void setColorTone(const Vector3 p_ColorTone) = 0;
+	virtual unsigned int getId() = 0;
 };
 
 
@@ -1733,7 +1713,6 @@ public:
 	}
 	void postInit() override
 	{
-
 		m_WorldPosition = m_Owner->getPosition() + m_OffsetPosition;
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new createWorldTextEventData(m_Text,
 			m_Font, m_FontSize, m_FontColor, m_WorldPosition, m_Scale, m_Rotation, m_ComponentId)));

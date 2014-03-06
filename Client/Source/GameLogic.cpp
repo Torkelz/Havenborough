@@ -20,6 +20,7 @@ GameLogic::GameLogic(void)
 	m_RenderGo = false;
 	m_PreviousLegalPlayerBodyRotation = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_lookAtPos = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	m_SplineCameraActive = false;
 }
 
 
@@ -580,6 +581,11 @@ void GameLogic::clearSplineSequence()
 	}
 }
 
+bool GameLogic::getSplineCameraActive()
+{
+	return m_SplineCameraActive;
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)
@@ -1088,6 +1094,7 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 
 void GameLogic::changeCameraMode(unsigned int p_Mode)
 {
+	m_SplineCameraActive = false;
 	switch (p_Mode)
 	{
 	case 0:
@@ -1096,6 +1103,7 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		Logger::log(Logger::Level::INFO, "Changed to spline camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_SplineCamera);
+		m_SplineCameraActive = true;
 		break;
 	case 1:
 		if(m_FlyingCamera.expired())

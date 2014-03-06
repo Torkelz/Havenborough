@@ -299,8 +299,12 @@ void TextFactory::setTextColor(Text_Id p_Identifier, Vector4 p_Color)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
-		m_TextResources.at(p_Identifier).m_Brush->SetColor(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w));
-		m_TextResources.at(p_Identifier).m_Update = true;
+		D2D1_COLOR_F color = m_TextResources.at(p_Identifier).m_Brush->GetColor();
+		if(p_Color.x != color.r || p_Color.y != color.g || p_Color.z != color.b || p_Color.w != color.a)
+		{
+			m_TextResources.at(p_Identifier).m_Brush->SetColor(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w));
+			m_TextResources.at(p_Identifier).m_Update = true;
+		}
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
@@ -312,8 +316,12 @@ void TextFactory::setBackgroundColor(Text_Id p_Identifier, Vector4 p_Color)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
-		m_TextResources.at(p_Identifier).m_ClearColor = D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w);
-		m_TextResources.at(p_Identifier).m_Update = true;
+		D2D1_COLOR_F color = m_TextResources.at(p_Identifier).m_ClearColor;
+		if(p_Color.x != color.r || p_Color.y != color.g || p_Color.z != color.b || p_Color.w != color.a)
+		{
+			m_TextResources.at(p_Identifier).m_ClearColor = D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w);
+			m_TextResources.at(p_Identifier).m_Update = true;
+		}
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 

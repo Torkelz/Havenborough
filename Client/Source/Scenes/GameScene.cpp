@@ -272,17 +272,24 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		{
 			m_GameLogic->playerWave();
 		}
-		else if(p_Action == "splineRecord")
+		else if (m_GameLogic->getSplineCameraActive())
 		{
-			m_GameLogic->recordSpline();
-		}
-		else if(p_Action == "splineRemove")
-		{
-			m_GameLogic->removeLastSplineRecord();
-		}
-		else if(p_Action == "splineClear")
-		{
-			m_GameLogic->clearSplineSequence();
+			if(p_Action == "splineRecord")
+			{
+				m_GameLogic->recordSpline();
+			}
+			else if(p_Action == "splineRemove")
+			{
+				m_GameLogic->removeLastSplineRecord();
+			}
+			else if(p_Action == "splineClear")
+			{
+				m_GameLogic->clearSplineSequence();
+			}
+			else
+			{
+				handled = false;
+			}
 		}
 		else
 		{
