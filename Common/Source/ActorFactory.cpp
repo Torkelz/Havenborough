@@ -122,7 +122,8 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	pushVector(printer, p_Position);
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "Checkpoint1");
-	pushVector(printer, "OffsetPosition", Vector3(0,160,0));
+	pushVector(printer, "Scale", Vector3(0.8f, 0.8f, 0.8f));
+	pushVector(printer, "OffsetPosition", Vector3(0,200,0));
 	printer.CloseElement();
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);
