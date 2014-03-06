@@ -4,9 +4,11 @@
 #include "Settings.h"
 #include <TweakCommand.h>
 #include "Scenes/HUDScene.h"
+#include "Scenes/GameScene.h"
 
-#include <sstream>
 #include <iomanip>
+#include <memory>
+#include <sstream>
 
 using namespace DirectX;
 
@@ -37,8 +39,9 @@ void BaseGameApp::init()
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
 	m_Graphics->setTweaker(TweakSettings::getInstance());
-	m_Graphics->setShadowMapResolution(settings.getShadowMapResolution());
-	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y, settings.getIsSettingEnabled("Fullscreen"));
+	m_Graphics->setShadowMapResolution((int)settings.getSettingValue("ShadowMap"));
+	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y,
+		settings.getIsSettingEnabled("Fullscreen"), settings.getSettingValue("FOV"));
 
 	m_Graphics->enableSSAO(settings.getIsSettingEnabled("SSAO"));
 	m_Graphics->enableShadowMap(settings.getIsSettingEnabled("ShadowMap"));
@@ -129,6 +132,7 @@ void BaseGameApp::init()
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
 	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings());
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
@@ -306,13 +310,25 @@ void BaseGameApp::updateDebugInfo()
 	unsigned int PRUsage = m_MemoryInfo.getPhysicalMemoryUsage();
 	unsigned int VUsage = m_Graphics->getVRAMUsage();
 	unsigned int BToMB = 1024 * 1024;
-	std::string vMemUsage = "Virtual RAM usage: " + std::to_string(VRUsage) + "B" + " (" + std::to_string(VRUsage/BToMB) + "MB)";
-	std::string pMemUsage = "Physical RAM usage: " + std::to_string(PRUsage) + "B" + " (" + std::to_string(PRUsage/BToMB) + "MB)";
-	std::string gMemUsage = "Video usage: " + std::to_string(VUsage) + "B" + " (" + std::to_string(VUsage/BToMB) + "MB)";
+	std::string vMemUsage = std::to_string(VRUsage) + "B" + " (" + std::to_string(VRUsage/BToMB) + "MB)";
+	std::string pMemUsage = std::to_string(PRUsage) + "B" + " (" + std::to_string(PRUsage/BToMB) + "MB)";
+	std::string gMemUsage = std::to_string(VUsage) + "B" + " (" + std::to_string(VUsage/BToMB) + "MB)";
 
-	std::string speed = "DeltaTime: " + std::to_string(m_DeltaTime) + " FPS: " + std::to_string(1.0f/m_DeltaTime);
+	std::shared_ptr<HUDScene> hud_Scene = std::dynamic_pointer_cast<HUDScene>(m_SceneManager.getScene(RunScenes::GAMEHUD));
+	if (hud_Scene)
+	{
+		DebugInfo& info = hud_Scene->getDebugInfo();
 
-	m_Window.setTitle(getGameTitle() + " | " + vMemUsage + " | " + pMemUsage + " | " + gMemUsage + " | " + speed);
+		info.updateDebugInfo("Virtual RAM", vMemUsage);
+		info.updateDebugInfo("Physical RAM", pMemUsage);
+		info.updateDebugInfo("Video RAM", gMemUsage);
+
+		char buffer[10];
+		std::sprintf(buffer, "%.1f", 1.0f / m_DeltaTime);
+		info.updateDebugInfo("FPS", buffer);
+		std::sprintf(buffer, "%.1f ms", m_DeltaTime * 1000.f);
+		info.updateDebugInfo("DeltaTime", buffer);
+	}
 }
 
 void BaseGameApp::resetTimer()
@@ -335,7 +351,7 @@ void BaseGameApp::updateTimer()
 	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{
-		Logger::log(Logger::Level::WARNING, "Computer to slow or something");
+		Logger::log(Logger::Level::WARNING, "Computer too slow or something");
 		m_DeltaTime = maxDeltaTime;
 	}
 }
@@ -351,23 +367,25 @@ void BaseGameApp::handleInput()
 		// Pass keystrokes to all active scenes.
 		m_SceneManager.registeredInput(in.m_Action, in.m_Value, in.m_PrevValue);
 
-		if (in.m_Action == "slowMode" && in.m_Value > 0.5f)
+		if (in.m_Value > 0.5f && in.m_PrevValue <= 0.5f)
 		{
-			if (m_TimeModifier <= 1.f)
+			if (in.m_Action == "slowMode")
 			{
-				m_TimeModifier = 10.f;
+				if (m_TimeModifier <= 1.f)
+				{
+					m_TimeModifier = 10.f;
+				}
+				else
+				{
+					m_TimeModifier = 1.f;
+				}
 			}
-			else
+			else if(in.m_Action == "fastMode")
 			{
-				m_TimeModifier = 1.f;
+				if (m_TimeModifier >= 1.0f)
+					m_TimeModifier = 0.1f;
+				else m_TimeModifier = 1.0f;
 			}
-		}
-
-		if(in.m_Action == "fastMode" && in.m_Value > 0.5f)
-		{
-			if (m_TimeModifier >= 1.0f)
-				m_TimeModifier = 0.1f;
-			else m_TimeModifier = 1.0f;
 		}
 	}
 }

@@ -27,9 +27,9 @@ private:
 	std::map<std::string, MouseButton> m_MouseButtonMap;
 
 	std::map<std::string, bool> m_SettingsEnabled;
+	std::map<std::string, float> m_SettingsValue;
 	std::map<std::string, HUDSettings> m_HUDSettings;
 	Vector2 m_Resolution;
-	int m_ShadowMapResolution;
 
 	std::string m_ServerURL;
 	unsigned short int m_ServerPort;
@@ -74,19 +74,19 @@ public:
 	 */
 	const bool getIsSettingEnabled(std::string p_SettingName) const;
 	/*
+	 * Get float value for settings.
+	 *
+	 * @param p_SettingName, the name of the setting to receive float value of.
+	 * @return float value depending on setting read from file.
+	 */
+	const float getSettingValue(std::string p_SettingName) const;
+	/*
 	 * Get the window size which is read from file.
 	 * If no resolution was read from file the default value is (1280,720)
 	 *
 	 * @return the window size as a Vector2.
 	 */
 	const Vector2 getResolution() const;
-	/*
-	 * Get the shadow map resolution from settings.
-	 * If no resolution was read from file the default value is (512)
-	 *
-	 * @return the map size as an integer.
-	 */
-	const int getShadowMapResolution() const;
 	/**
 	 * Gets the name of the level to play.
 	 *

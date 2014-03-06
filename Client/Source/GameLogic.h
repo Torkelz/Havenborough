@@ -59,6 +59,9 @@ private:
 	unsigned int m_PlayerPositionInRace;
 	float m_PlayerTimeDifference; //The difference in time to the first player.
 
+	DirectX::XMFLOAT3 m_lookAtPos;
+	DirectX::XMFLOAT3 m_PreviousLegalPlayerBodyRotation;
+
 	//DEBUG
 	Vector3 m_PlayerDirection;
 public:

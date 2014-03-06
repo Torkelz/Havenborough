@@ -97,6 +97,7 @@ void FileGameRound::sendLevel()
 				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
 				user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
 				user->getConnection()->sendLevelData(stream.c_str(), stream.size());
+				user->getConnection()->sendNrOfCheckpoints(player->getNumberOfCheckpoints());
 				user->getConnection()->sendAssignPlayer(actor->getId());
 			}
 		}
@@ -266,6 +267,7 @@ void FileGameRound::sendUpdates()
 						const char* info = printer.CStr();
 						user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
 						user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
+						user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
 
 						printer.ClearBuffer();
 						printer.OpenElement("RacePositions");
@@ -284,6 +286,7 @@ void FileGameRound::sendUpdates()
 					}
 					else
 					{
+						user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
 						user->getConnection()->sendRemoveObjects(&id, 1);
 						m_GoalCount++;
 						tinyxml2::XMLPrinter printer;

@@ -31,6 +31,8 @@ private:
 	std::vector<int> m_ResourceIDs;
 	std::vector<LightClass> m_Lights;
 
+	float m_ViewSensitivity;
+
 	struct ReachIK
 	{
 		std::string group;
@@ -81,7 +83,12 @@ public:
 	void registeredInput(std::string p_Action, float p_Value, float p_PrevValue) override;
 
 	int	getID() override;
-
+	
+	/**
+	* Sets the sensitivity factor for the view movement.
+	* @param p_Value the factor to use
+	*/
+	void setMouseSensitivity(float p_Value);
 private:
 	void addLight(IEventData::Ptr p_Data);
 	void removeLight(IEventData::Ptr p_Data);

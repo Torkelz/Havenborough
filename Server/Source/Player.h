@@ -119,4 +119,11 @@ public:
 	 * @param p_Time the current time of the server when a player collides with a checkpoint
 	 */
 	void clockPosition(float p_Time);
+
+	/**
+	 * Get number of checkpoints the level contains.
+	 *
+	 * @return unsigned int number of checkpoints.
+	 */
+	unsigned int getNumberOfCheckpoints();
 };

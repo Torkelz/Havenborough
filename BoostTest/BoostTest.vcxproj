@@ -110,6 +110,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\BinaryConverter\Source\InstanceLoader.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelConverter.cpp" />
     <ClCompile Include="..\BinaryConverter\Source\ModelLoader.cpp" />
+    <ClCompile Include="..\Client\Source\DebugInfo.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />
     <ClCompile Include="..\Client\Source\GameLogic.cpp" />
     <ClCompile Include="..\Client\Source\Level.cpp" />
@@ -125,6 +126,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
+    <ClCompile Include="..\Graphics\Source\FontCollectionLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp" />
     <ClCompile Include="..\Graphics\Source\GPUTimer.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />

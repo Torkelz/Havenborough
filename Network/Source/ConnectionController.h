@@ -92,6 +92,12 @@ public:
 	unsigned int getNumGameResultData(Package p_Package) override;
 	const char* getGameResultData(Package p_Package, unsigned int p_ExtraData) override;
 
+	void sendNrOfCheckpoints(unsigned int p_NrOfCheckpoints) override;
+	unsigned int getNrOfCheckpoints(Package p_Package) override;
+
+	void sendTakenCheckpoints(unsigned int p_TakenCheckpoints) override;
+	unsigned int getTakenCheckpoints(Package p_Package) override;
+
 	void sendLevelData(const char* p_Stream, size_t p_Size) override;
 	const size_t getLevelDataSize(Package p_Package) override;
 	const char* getLevelData(Package p_Package) override;
@@ -113,7 +119,7 @@ public:
 	void sendDoneCountdown() override;
 
 	void sendRequestGames() override;
-
+	
 	void sendGameList(const AvailableGameData* p_Games, unsigned int p_NumGames) override;
 	unsigned int getNumGameListGames(Package p_Package) override;
 	AvailableGameData getGameListGame(Package p_Package, unsigned int p_GameIdx) override;

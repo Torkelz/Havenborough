@@ -60,7 +60,7 @@ IGraphics *IGraphics::createGraphics()
 	return new Graphics();
 }
 
-bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen)
+bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bool p_Fullscreen, float p_FOV)
 {	
 	GraphicsLogger::log(GraphicsLogger::Level::INFO, "Initializing graphics");
 
@@ -196,7 +196,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	
 	float nearZ = 10.0f;
 	float farZ = 100000.0f;
-
+	m_FOV = 2 * PI / 360.0f * p_FOV;
 	initializeMatrices(p_ScreenWidth, p_ScreenHeight, nearZ, farZ);
 
 	//Deferred renderer
@@ -632,6 +632,29 @@ IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_S
 	set2D_ObjectRotationZ(m_Next2D_ObjectId, p_Rotation);
 
 	return m_Next2D_ObjectId++;
+}
+
+IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, const char *p_Font, float p_FontSize, Vector4 p_FontColor, 
+	Vector3 p_Position, float p_Scale, float p_Rotation)
+{
+	Text_Id id = m_TextFactory.createText(p_Text, p_Font, p_FontSize, p_FontColor);
+
+	ID3D11Resource *resource;
+	ID3D11Texture2D *texture;
+	D3D11_TEXTURE2D_DESC textureDesc;
+
+	m_TextFactory.getSRV(id)->GetResource(&resource);
+	resource->QueryInterface(&texture);
+	texture->GetDesc(&textureDesc);
+
+	SAFE_RELEASE(texture);
+	SAFE_RELEASE(resource);
+	Vector2 textureSize = Vector2((float)textureDesc.Width, (float)textureDesc.Height);
+
+	TextRenderer::TextInstance temp = TextRenderer::TextInstance(p_Position, textureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id));
+	m_TextRenderer->addTextObject(id, temp);
+	return id;
 }
 
 IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font,
@@ -1186,12 +1209,13 @@ HRESULT Graphics::createDeviceAndSwapChain(HWND p_Hwnd, int p_ScreenWidth, int p
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	// Don't set the advanced flags.
-	swapChainDesc.Flags = 0;
+	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	// Set the feature level to DirectX 11.
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_BGRA_SUPPORT, &featureLevel, 1, 
+	UINT flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_SINGLETHREADED;
+	return D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, &featureLevel, 1, 
 		D3D11_SDK_VERSION, &swapChainDesc, &m_SwapChain, &m_Device, NULL, &m_DeviceContext);
 }
 
@@ -1340,7 +1364,6 @@ void Graphics::initializeMatrices(int p_ScreenWidth, int p_ScreenHeight, float p
 	XMFLOAT4 up;
 	m_Eye = XMFLOAT3(0,0,-20);
 	m_FarZ = p_FarZ;
-	m_FOV = 0.25f * PI;
 
 	eye = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
 	lookAt = XMFLOAT4(0,0,0,1);

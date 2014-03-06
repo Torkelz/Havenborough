@@ -123,6 +123,8 @@ void Network::registerPackages()
 	m_PackagePrototypes.push_back(PackageBase::ptr(new LevelData));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new LeaveGame));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new ResultData));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new NumberOfCheckpoints));
+	m_PackagePrototypes.push_back(PackageBase::ptr(new TakenCheckpoints));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new CurrentCheckpoint));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new GamePositions));
 	m_PackagePrototypes.push_back(PackageBase::ptr(new SetSpawnPosition));
