@@ -174,7 +174,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.CloseElement();
 	pushColor(printer, "BackgroundColor", Vector4(0.f, 0.f, 0.f, 0.4f));
 	pushColor(printer, "FontColor", Vector4(0.8f, 0.8f, 0.8f, 1.f));
-	pushVector(printer, "OffsetPosition", Vector3(0.f, 170.f, 0.f));
+	pushVector(printer, "OffsetPosition", Vector3(0.f, 190.f, 0.f));
 	printer.CloseElement();
 
 	printer.OpenElement("Pulse");
