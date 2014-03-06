@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Sequence>
-    <Node>
-        <Position x="0.000000" y="0.000000" z="0.000000"/>
-        <Forward x="0.000000" y="0.000000" z="0.000000"/>
-        <Up x="0.000000" y="0.000000" z="0.000000"/>
-        <Time s="0.000000"/>
-    </Node>
-</Sequence>

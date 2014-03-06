@@ -128,7 +128,7 @@ public:
 					if(caster)
 					{
 						auto casterBodies = caster->getBodyHandles();
-						if (std::find(casterBodies.begin(), casterBodies.end(), hit.collisionVictim) != casterBodies.end())
+						if (std::find(casterBodies.begin(), casterBodies.end(), hit.collisionVictim) != casterBodies.end() || hit.colType == Type::OBBVSAABB)
 						{
 							continue;
 						}
