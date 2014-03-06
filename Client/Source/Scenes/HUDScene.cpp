@@ -11,7 +11,7 @@ HUDScene::HUDScene()
 	m_ChangeList = false;
 	m_FadeOut = false;
 	m_Color = Vector3(0.0274509803921569f, 0.2313725490196078f, 0.3764705882352941f);
-	m_BGColor = Vector3(0.207843137254902f, 0.207843137254902f, 0.207843137254902f);
+	m_BGColor = Vector3(0.8156862745098039f, 0.8156862745098039f, 0.8156862745098039f);
 	m_TimeTimerMax = 10.0f;
 	m_TimeTimerStartFade = 5.0f;
 	m_TimePositionFade = 1.0f;
@@ -387,10 +387,10 @@ void HUDScene::preLoadModels()
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "RacePos";
 	getHUDSettings(id,pos,scale);
-	createTextElement("RacePos", m_Graphics->createText(L"0", Vector2(200, 65), "Aniron", 42, Vector4(m_Color, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePos", m_Graphics->createText(L"1stST", Vector2(200, 65), "Aniron", 42, Vector4(m_Color, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePos", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["RacePos"]));
 
-	createTextElement("RacePosBG", m_Graphics->createText(L"0", Vector2(204, 69), "Aniron", 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePosBG", m_Graphics->createText(L"1stST", Vector2(204, 69), "Aniron", 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
 
 	pos = Vector3(418, 318, 3);

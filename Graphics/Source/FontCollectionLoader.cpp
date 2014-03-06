@@ -373,6 +373,8 @@ void FontContext::shutdown()
 {
     m_WriteFactory->UnregisterFontCollectionLoader(FontCollectionLoader::GetLoader());
     m_WriteFactory->UnregisterFontFileLoader(FontFileLoader::GetLoader());
+	FontCollectionLoader::ReleaseInstance();
+	FontFileLoader::ReleaseInstance();
 }
 
 HRESULT FontContext::InitializeInternal(IDWriteFactory* p_WriteFactory)
