@@ -187,5 +187,8 @@
     <FxCompile Include="Bin\assets\shaders\LightPassAmbient.hlsl">
       <Filter>HLSL</Filter>
     </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\DistanceFog.hlsl">
+      <Filter>HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

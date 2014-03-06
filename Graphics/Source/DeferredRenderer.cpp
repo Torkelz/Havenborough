@@ -458,6 +458,7 @@ void DeferredRenderer::renderLighting(const std::vector<std::vector<Renderable>>
 
 	// Collect the shader resources in an array and create a clear array.
 	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_SRV["CSM"]};
+	ID3D11ShaderResourceView *distanceFog_srvs[] = { m_SRV["WPosition"], m_SRV["Light"] };
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0,0,0};
 
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -490,10 +491,19 @@ void DeferredRenderer::renderLighting(const std::vector<std::vector<Renderable>>
 
 	renderAmbientLight(m_Buffer["DirectionalLightModel"]);
 
+	m_Shader["DistanceFog"]->setShader();
+	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::DIFFUSE], 0);
+	m_DeviceContext->PSSetShaderResources(0, 2, distanceFog_srvs);
+	m_DeviceContext->OMSetBlendState(m_BlendState2, blendFactor, sampleMask);
+	m_Buffer["DirectionalLightModel"]->setBuffer(0);
+
+	m_DeviceContext->Draw(m_Buffer["DirectionalLightModel"]->getNumOfElements(), 0);
+
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
 
+	m_DeviceContext->OMSetBlendState(m_BlendState2, blendFactor, sampleMask);
 	if(m_SkyDome && m_RenderSkyDome)
-		m_SkyDome->RenderSkyDome(m_RT[IGraphics::RenderTarget::FINAL], m_DepthStencilView, m_Buffer["DefaultConstant"]);
+		m_SkyDome->RenderSkyDome(m_RT[IGraphics::RenderTarget::DIFFUSE], m_DepthStencilView, m_Buffer["DefaultConstant"]);
 
 	m_DeviceContext->PSSetSamplers(0, 0, 0);
 
@@ -875,6 +885,9 @@ void DeferredRenderer::createShaders()
 	D3D_SHADER_MACRO ambientDefine[2] = {{ "AMBIENT_STRENGTH", "0.315f" }, nullptr };
 	m_Shader["Ambient"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassAmbient.hlsl",
 		ambientDefine, "VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
+
+	m_Shader["DistanceFog"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/DistanceFog.hlsl",
+		"DistanceFogVS,DistanceFogPS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
 
 void DeferredRenderer::loadLightModels()
