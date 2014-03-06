@@ -380,6 +380,7 @@ void HUDScene::preLoadModels()
 	m_TimePosition = pos;
 	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(120.f, 70.f), "Aniron", 72.f, Vector4(m_TimeColor, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(m_TimePosition, scale, 0.f, m_TextHandle["Time"]));
+	m_Graphics->setTextBackgroundColor(m_TextHandle["Time"], Vector4(m_TimeColor, 0.f));
 
 	pos = Vector3(-450, 320, 2);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
@@ -402,13 +403,13 @@ void HUDScene::preLoadModels()
 	m_Graphics->setTextAlignment(m_TextHandle["DebugTextKey"], TEXT_ALIGNMENT::LEADING);
 	m_Graphics->setTextParagraphAlignment(m_TextHandle["DebugTextKey"], PARAGRAPH_ALIGNMENT::NEAR_ALIGNMENT);
 	m_Graphics->setTextBackgroundColor(m_TextHandle["DebugTextKey"], Vector4(0.f, 0.f, 0.f, 0.4f));
-	createGUIElement("DebugTextKey", m_Graphics->create2D_Object(Vector3(-490.f, 160.f, 3.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextKey"]));
+	createGUIElement("DebugTextKey", m_Graphics->create2D_Object(Vector3(-490.f, 160.f, 4.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextKey"]));
 	
 	createTextElement("DebugTextValue", m_Graphics->createText(L"", Vector2(300.f, 400.f), "Segoe UI", 30, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	m_Graphics->setTextAlignment(m_TextHandle["DebugTextValue"], TEXT_ALIGNMENT::LEADING);
 	m_Graphics->setTextParagraphAlignment(m_TextHandle["DebugTextValue"], PARAGRAPH_ALIGNMENT::NEAR_ALIGNMENT);
 	m_Graphics->setTextBackgroundColor(m_TextHandle["DebugTextValue"], Vector4(0.f, 0.f, 0.f, 0.4f));
-	createGUIElement("DebugTextValue", m_Graphics->create2D_Object(Vector3(-190.f, 160.f, 3.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextValue"]));
+	createGUIElement("DebugTextValue", m_Graphics->create2D_Object(Vector3(-190.f, 160.f, 4.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextValue"]));
 }
 
 void HUDScene::releasePreLoadedModels()
