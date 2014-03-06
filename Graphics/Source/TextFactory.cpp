@@ -68,6 +68,7 @@ TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_Te
 	HRESULT hr = m_WriteFactory->CreateTextFormat(wc.data(), NULL, DWRITE_FONT_WEIGHT_REGULAR,
 		DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, p_FontSize, L"en-us", &textFormat);
 
+
 	if(SUCCEEDED(hr))
 	{
 		hr = textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);

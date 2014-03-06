@@ -1639,9 +1639,9 @@ public:
 		return m_ComponentId;
 	}
 
-	virtual void setOffsetPosition(Vector3 p_Position) = 0;
+	//virtual void setOffsetPosition(Vector3 p_Position) = 0;
 
-	virtual void setText(std::string p_Text) = 0;
+	//virtual void setText(std::string p_Text) = 0;
 
 	///**
 	// * Update the scale of the model.
@@ -1676,10 +1676,14 @@ private:
 	float m_Scale;
 	float m_Rotation;
 
+	Vector3 m_WorldPosition;
+
+	unsigned int m_ComponentId;
+
 public:
 	~TextComponent() override
 	{
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveLightEventData(m_Light.id)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new removeWorldTextEventData(m_ComponentId)));
 	}
 
 	void initialize(const tinyxml2::XMLElement* p_Data) override
@@ -1712,24 +1716,25 @@ public:
 			tone->QueryFloatAttribute("x", &m_FontColor.x);
 			tone->QueryFloatAttribute("y", &m_FontColor.y);
 			tone->QueryFloatAttribute("z", &m_FontColor.z);
+			tone->QueryFloatAttribute("w", &m_FontColor.w);
 		}
 
 		m_OffsetPosition = Vector3(0.f, 0.f, 0.f);
-		const tinyxml2::XMLElement* tone = p_Data->FirstChildElement("OffsetPosition");
+		const tinyxml2::XMLElement* offPos = p_Data->FirstChildElement("OffsetPosition");
 		if (tone)
 		{
-			tone->QueryFloatAttribute("x", &m_OffsetPosition.x);
-			tone->QueryFloatAttribute("y", &m_OffsetPosition.y);
-			tone->QueryFloatAttribute("z", &m_OffsetPosition.z);
+			offPos->QueryFloatAttribute("x", &m_OffsetPosition.x);
+			offPos->QueryFloatAttribute("y", &m_OffsetPosition.y);
+			offPos->QueryFloatAttribute("z", &m_OffsetPosition.z);
 		}
 
 	}
 	void postInit() override
 	{
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
-			m_BaseScale, m_ColorTone)));
-		setPosition(m_Owner->getPosition());
-		setRotation(m_Owner->getRotation());
+
+		m_WorldPosition = m_Owner->getPosition() + m_OffsetPosition;
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new createWorldTextEventData(m_Text,
+			m_Font, m_FontSize, m_FontColor, m_WorldPosition, m_Scale, m_Rotation, m_ComponentId)));
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -1742,9 +1747,24 @@ public:
 		p_Printer.PushAttribute("Scale", m_Scale);
 		p_Printer.PushAttribute("Rotation", m_Rotation);
 		p_Printer.CloseElement();
-		Vector3 color = Vector3(m_FontColor.x, m_FontColor.y, m_FontColor.z);
-		pushVector(p_Printer, "FontColor", color);
+		pushColor(p_Printer, "FontColor", m_FontColor);
 		pushVector(p_Printer, "OffsetPosition", m_OffsetPosition);
 		p_Printer.CloseElement();
+	}
+
+	void onUpdate(float p_DeltaTime) override
+	{
+		m_WorldPosition = m_Owner->getPosition() + m_OffsetPosition;
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new updateWorldTextPositionEventData(m_ComponentId,m_WorldPosition)));
+	}
+
+	void setId(unsigned int p_ComponentId)
+	{
+		m_ComponentId = p_ComponentId;
+	}
+
+	unsigned int getId()
+	{
+		return m_ComponentId;
 	}
 };

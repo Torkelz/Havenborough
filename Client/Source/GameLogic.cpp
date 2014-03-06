@@ -383,7 +383,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
-	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
+	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition(), m_Username));
 	
 	m_Player = Player();
 	m_Player.initialize(m_Physics, nullptr, m_PlayerDefault);

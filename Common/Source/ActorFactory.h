@@ -27,6 +27,7 @@ private:
 	unsigned int m_LastLightComponentId;
 	unsigned int m_LastParticleComponentId;
 	unsigned int m_LastSpellComponentId;
+	unsigned int m_LastTextComponentId;
 	IPhysics* m_Physics;
 	EventManager* m_EventManager;
 	ResourceManager* m_ResourceManager;
@@ -91,10 +92,10 @@ public:
 	Actor::ptr createActor(const tinyxml2::XMLElement* p_Data, Actor::Id p_Id);
 
 	// ************ Test methods ************
-	std::string getPlayerActorDescription(Vector3 p_Position) const;
+	std::string getPlayerActorDescription(Vector3 p_Position, std::string p_Username) const;
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale);
 	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, Vector3 p_ColorTone);
-	Actor::ptr createPlayerActor(Vector3 p_Position);
+	Actor::ptr createPlayerActor(Vector3 p_Position, std::string p_Username);
 	Actor::ptr createDirectionalLight(Vector3 p_Direction, Vector3 p_Color, float p_Intensity);
 	Actor::ptr createSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);
 	Actor::ptr createPointLight(Vector3 p_Position, float p_Range, Vector3 p_Color);
@@ -155,6 +156,7 @@ private:
 	ActorComponent::ptr createFlyingControlComponent();
 	ActorComponent::ptr createSplineControlComponent();
 	ActorComponent::ptr createRunControlComponent();
+	ActorComponent::ptr createTextComponent();
 
 	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceModel& p_Model);
 	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceBoundingVolume& p_Volume);
