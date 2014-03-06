@@ -10,6 +10,8 @@ HUDScene::HUDScene()
 	m_ChangeScene = false;
 	m_ChangeList = false;
 	m_FadeOut = false;
+	m_Color = Vector3(0.0274509803921569f, 0.2313725490196078f, 0.3764705882352941f);
+	m_BGColor = Vector3(0.207843137254902f, 0.207843137254902f, 0.207843137254902f);
 	m_TimeTimerMax = 10.0f;
 	m_TimeTimerStartFade = 5.0f;
 	m_TimePositionFade = 1.0f;
@@ -47,7 +49,6 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
-	m_TimeColor = Vector3(1.0f, 1.0f, 1.0f);
 
 	preLoadModels();
 
@@ -97,7 +98,7 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 			percentage = 1.0f;
 		}
 		m_Graphics->set2D_ObjectScale(m_GUI["Time"], scale);
-		m_Graphics->setTextColor(m_TextHandle["Time"], Vector4(m_TimeColor, percentage));
+		m_Graphics->setTextColor(m_TextHandle["Time"], Vector4(m_Color, percentage));
 		m_Graphics->set2D_ObjectPosition(m_GUI["Time"], position);
 	}
 	
@@ -270,7 +271,7 @@ void HUDScene::updatePlayerTime(IEventData::Ptr p_Data)
 	std::string string = ss.str();
 
 	m_Graphics->updateText(m_TextHandle["Time"], std::wstring(string.begin(), string.end()).c_str());
-	m_Graphics->setTextColor(m_TextHandle["Time"], Vector4(m_TimeColor, 1.0f));
+	m_Graphics->setTextColor(m_TextHandle["Time"], Vector4(m_Color, 1.0f));
 	m_TimeTimerCurrent = m_TimeTimerMax;
 	m_TimeScale = Vector3(10,10,10);
 	m_TimePositionCurrent = 0;
@@ -361,7 +362,7 @@ void HUDScene::preLoadModels()
 	createGUIElement("ManabarChange", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(140, 30), scale, 0.0f, "MANA_BARCHANGE"));
 	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 4), Vector2(144, 28), scale, 0.0f, "MANA_BAR"));
 
-	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
+	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), "Aniron", 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 2), Vector3(1,1,1), 0.f, m_TextHandle["ManabarCounter"]));
 
 	pos = Vector3(0, 0, 0);
@@ -370,7 +371,7 @@ void HUDScene::preLoadModels()
 	getHUDSettings(id, pos, scale);
 
 	
-	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), "Segoe UI", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
+	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), "Aniron", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
 
 	pos = Vector3(420, 250, 1);
@@ -378,25 +379,25 @@ void HUDScene::preLoadModels()
 	id = "Time";
 	getHUDSettings(id,pos,scale);
 	m_TimePosition = pos;
-	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(120.f, 70.f), "Aniron", 72.f, Vector4(m_TimeColor, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
+	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(120.f, 70.f), "Aniron", 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(m_TimePosition, scale, 0.f, m_TextHandle["Time"]));
-	m_Graphics->setTextBackgroundColor(m_TextHandle["Time"], Vector4(m_TimeColor, 0.f));
+	m_Graphics->setTextBackgroundColor(m_TextHandle["Time"], Vector4(m_Color, 0.f));
 
 	pos = Vector3(-450, 320, 2);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "RacePos";
 	getHUDSettings(id,pos,scale);
-	createTextElement("RacePos", m_Graphics->createText(L"0", Vector2(200, 65), "Aniron", 42, Vector4(0.0509803921568627f, 0.1882352941176471f, 0.6392156862745098f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePos", m_Graphics->createText(L"0", Vector2(200, 65), "Aniron", 42, Vector4(m_Color, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePos", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["RacePos"]));
 
-	createTextElement("RacePosBG", m_Graphics->createText(L"0", Vector2(204, 69), "Aniron", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePosBG", m_Graphics->createText(L"0", Vector2(204, 69), "Aniron", 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
 
 	pos = Vector3(418, 318, 3);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "Checkpoints";
 	getHUDSettings(id,pos,scale);
-	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(204, 69), "Aniron", 42, Vector4(1.f, 1.f, 1.f, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(204, 69), "Aniron", 42, Vector4(m_Color, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("Checkpoints", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Checkpoints"]));
 	
 	createTextElement("DebugTextKey", m_Graphics->createText(L"", Vector2(300.f, 400.f), "Segoe UI", 30, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));

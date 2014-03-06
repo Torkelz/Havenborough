@@ -14,7 +14,7 @@ private:
 	bool m_ShowDebugInfo;
 	unsigned int m_NumberOfCheckpoints;
 	std::string m_TakenCheckpoints;
-	Vector3 m_TimeColor, m_TimePosition, m_TimeScale;
+	Vector3 m_Color, m_BGColor, m_TimePosition, m_TimeScale;
 	bool m_FadeOut;
 	float m_TimeTimerMax, m_TimeTimerStartFade, m_TimePositionFade;
 	float m_TimeTimerCurrent, m_TimePositionCurrent;
