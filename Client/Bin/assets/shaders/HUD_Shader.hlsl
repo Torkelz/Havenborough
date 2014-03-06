@@ -40,5 +40,9 @@ VS_Output VS(VS_Input input)
 
 float4 PS(VS_Output input) : SV_Target
 {
-	return cHUD_Texture.Sample(cTextureSampler, input.texCoord);
+	float4 color = cHUD_Texture.Sample(cTextureSampler, input.texCoord);
+	if(color.w == 0.f)
+		discard;
+
+	return color;
 }

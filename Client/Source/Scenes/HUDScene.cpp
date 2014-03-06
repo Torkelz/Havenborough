@@ -33,7 +33,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	Input *p_InputQueue, GameLogic *p_GameLogic, EventManager *p_EventManager)
 {
 	m_SceneID = p_SceneID;
-
+	m_GUIFont = "StoneHenge";
 	m_Graphics = p_Graphics;
 	m_EventManager = p_EventManager;
 	m_ResourceManager = p_ResourceManager;
@@ -67,13 +67,13 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 		m_TimeTimerCurrent -= p_Dt;
 		m_TimePositionCurrent += p_Dt;
 		Vector3 position;
+		position.z = 1;
 		Vector3 scale(0.45f,0.45f,0.45f);
 		float proc = m_TimePositionCurrent / m_TimePositionFade;
 		if(proc < 1.0f)
 		{
 			position.x = m_TimePosition.x * proc;
 			position.y = m_TimePosition.y * proc;
-			position.z = m_TimePosition.z * proc;
 			if(m_TimeScale.x * (1 - proc) > 1)
 			{
 				scale.x = m_TimeScale.x * (1 - proc);
@@ -100,6 +100,9 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 		m_Graphics->set2D_ObjectScale(m_GUI["Time"], scale);
 		m_Graphics->setTextColor(m_TextHandle["Time"], Vector4(m_Color, percentage));
 		m_Graphics->set2D_ObjectPosition(m_GUI["Time"], position);
+		m_Graphics->set2D_ObjectScale(m_GUI["TimeBG"], scale);
+		m_Graphics->setTextColor(m_TextHandle["TimeBG"], Vector4(m_BGColor, percentage));
+		m_Graphics->set2D_ObjectPosition(m_GUI["TimeBG"], Vector3(position.x-2, position.y-2, position.z+1));
 	}
 	
 
@@ -156,9 +159,11 @@ void HUDScene::render()
 		m_Graphics->render2D_Object(m_GUI["ManabarChange"]);
 		m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
 		m_Graphics->render2D_Object(m_GUI["Time"]);
+		m_Graphics->render2D_Object(m_GUI["TimeBG"]);
 		m_Graphics->render2D_Object(m_GUI["RacePos"]);
 		m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
 		m_Graphics->render2D_Object(m_GUI["Checkpoints"]);
+		m_Graphics->render2D_Object(m_GUI["CheckpointsBG"]);
 		if (m_ShowDebugInfo)
 		{
 			m_Graphics->render2D_Object(m_GUI["DebugTextKey"]);
@@ -272,6 +277,8 @@ void HUDScene::updatePlayerTime(IEventData::Ptr p_Data)
 
 	m_Graphics->updateText(m_TextHandle["Time"], std::wstring(string.begin(), string.end()).c_str());
 	m_Graphics->setTextColor(m_TextHandle["Time"], Vector4(m_Color, 1.0f));
+	m_Graphics->updateText(m_TextHandle["TimeBG"], std::wstring(string.begin(), string.end()).c_str());
+	m_Graphics->setTextColor(m_TextHandle["TimeBG"], Vector4(m_Color, 1.0f));
 	m_TimeTimerCurrent = m_TimeTimerMax;
 	m_TimeScale = Vector3(10,10,10);
 	m_TimePositionCurrent = 0;
@@ -319,7 +326,9 @@ void HUDScene::setNrOfCheckpoints(IEventData::Ptr p_Data)
 	m_TakenCheckpoints = "0 / ";
 	m_NumberOfCheckpoints = data->getNumberOfCheckpoints();
 	m_TakenCheckpoints.append(std::to_string(m_NumberOfCheckpoints));
+		m_Graphics->render2D_Object(m_GUI["Checkpoints"]);
 	m_Graphics->updateText(m_TextHandle["Checkpoints"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
+	m_Graphics->updateText(m_TextHandle["CheckpointsBG"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
 }
 
 void HUDScene::updateTakenCheckpoints(IEventData::Ptr p_Data)
@@ -331,6 +340,7 @@ void HUDScene::updateTakenCheckpoints(IEventData::Ptr p_Data)
 	m_TakenCheckpoints.append(" / ");
 	m_TakenCheckpoints.append(std::to_string(m_NumberOfCheckpoints));
 	m_Graphics->updateText(m_TextHandle["Checkpoints"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
+	m_Graphics->updateText(m_TextHandle["CheckpointsBG"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
 }
 
 void HUDScene::preLoadModels()
@@ -362,7 +372,7 @@ void HUDScene::preLoadModels()
 	createGUIElement("ManabarChange", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(140, 30), scale, 0.0f, "MANA_BARCHANGE"));
 	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 4), Vector2(144, 28), scale, 0.0f, "MANA_BAR"));
 
-	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), "Aniron", 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
+	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), m_GUIFont.c_str(), 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 2), Vector3(1,1,1), 0.f, m_TextHandle["ManabarCounter"]));
 
 	pos = Vector3(0, 0, 0);
@@ -371,7 +381,7 @@ void HUDScene::preLoadModels()
 	getHUDSettings(id, pos, scale);
 
 	
-	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), "Aniron", 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
+	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), m_GUIFont.c_str(), 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
 
 	pos = Vector3(420, 250, 1);
@@ -379,29 +389,31 @@ void HUDScene::preLoadModels()
 	id = "Time";
 	getHUDSettings(id,pos,scale);
 	m_TimePosition = pos;
-	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(120.f, 70.f), "Aniron", 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
+	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(124.f, 74.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(m_TimePosition, scale, 0.f, m_TextHandle["Time"]));
 	m_Graphics->setTextBackgroundColor(m_TextHandle["Time"], Vector4(m_Color, 0.f));
+	createTextElement("TimeBG", m_Graphics->createText(L"0.00", Vector2(128.f, 78.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
+	createGUIElement("TimeBG", m_Graphics->create2D_Object(Vector3(m_TimePosition.x-2, m_TimePosition.y-2, m_TimePosition.z+1), scale, 0.f, m_TextHandle["TimeBG"]));
 
-	pos = Vector3(-450, 320, 2);
+	pos = Vector3(-450, 320, 3);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "RacePos";
 	getHUDSettings(id,pos,scale);
-	createTextElement("RacePos", m_Graphics->createText(L"1st", Vector2(200, 65), "Aniron", 42, Vector4(m_Color, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePos", m_Graphics->createText(L"1st", Vector2(200, 65), m_GUIFont.c_str(), 42, Vector4(m_Color, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePos", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["RacePos"]));
 
-	createTextElement("RacePosBG", m_Graphics->createText(L"1st", Vector2(204, 69), "Aniron", 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
+	createTextElement("RacePosBG", m_Graphics->createText(L"1st", Vector2(204, 69), m_GUIFont.c_str(), 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 2), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
 
 	pos = Vector3(418, 318, 3);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "Checkpoints";
 	getHUDSettings(id,pos,scale);
-	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(204, 69), "Aniron", 42, Vector4(m_Color, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(200, 65), m_GUIFont.c_str(), 42, Vector4(m_Color, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("Checkpoints", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Checkpoints"]));
 	
-	createTextElement("CheckpointsBG", m_Graphics->createText(L"1st", Vector2(204, 69), "Aniron", 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	createGUIElement("CheckpointsBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 3), Vector3(1,1,1), 0.f, m_TextHandle["CheckpointsBG"]));
+	createTextElement("CheckpointsBG", m_Graphics->createText(L"0/0", Vector2(204, 69), m_GUIFont.c_str(), 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createGUIElement("CheckpointsBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 4), Vector3(1,1,1), 0.f, m_TextHandle["CheckpointsBG"]));
 
 
 	createTextElement("DebugTextKey", m_Graphics->createText(L"", Vector2(300.f, 400.f), "Segoe UI", 30, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));

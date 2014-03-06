@@ -5,7 +5,7 @@
   <Character Name="Dzala" Style="Green" />
   <Settings>
     <SSAO Enabled="true" />
-    <ShadowMap Enabled="false" />
+    <ShadowMap Enabled="true" />
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
@@ -41,7 +41,7 @@
     <KeyMap Display="Main menu?" Command="goToMainMenu" Key="Return" />
     <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="O" />
     <KeyMap Display="Look back" Command="flipCamera" Key="P" />
-	<KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="114" />
+    <KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="114" />
     <KeyMap Display="Spline Record" Command="splineRecord" Key="R" />
     <KeyMap Display="Spline Remove" Command="splineRemove" Key="T" />
     <KeyMap Display="Spline Clear" Command="splineClear" Key="Y" />
@@ -55,8 +55,8 @@
     <Manabar x="0" y="-320" z="3" scale="0.75" />
     <Arrow x="0" y="300" z="150" scale="0.3" />
     <Countdown x="0" y="0" z="0" scale="2" />
-    <Time x="420" y="250" z="0" scale="1"/>
-    <RacePos x="-450" y="320" z="1" scale="1"/>
-    <Checkpoints x="418" y="318" z="3" scale="1"/>
+    <Time x="420" y="250" z="0" scale="1" />
+    <RacePos x="-450" y="320" z="1" scale="1" />
+    <Checkpoints x="418" y="318" z="3" scale="1" />
   </HUD>
 </UserOptions>

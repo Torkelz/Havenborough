@@ -290,9 +290,6 @@
     <ClCompile Include="..\Graphics\Source\TextRenderer.cpp">
       <Filter>TestGraphics\GraphicsImport</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp">
-      <Filter>TestClient\ClientImport</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Physics\BVLoaderTest.cpp">
       <Filter>TestPhysics</Filter>
     </ClCompile>
@@ -315,6 +312,9 @@
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
     <ClCompile Include="..\Client\Source\DebugInfo.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
   </ItemGroup>

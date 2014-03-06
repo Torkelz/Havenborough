@@ -25,6 +25,8 @@ class IScene
 public: 
 	typedef std::shared_ptr<IScene> ptr;
 	
+	virtual ~IScene() {};
+
 	/**
 	* Initialize the scene.
 	* @param p_SceneID init the ID in order

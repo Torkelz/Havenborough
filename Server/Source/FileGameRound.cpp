@@ -36,7 +36,7 @@ void FileGameRound::setup()
 			return p_Left.m_Number > p_Right.m_Number;
 		});
 	
-	static const Vector3 checkpointScale(1.f, 10.f, 1.f);
+	static const Vector3 checkpointScale(54.f, 170.f, 54.f);
 
 	std::vector<Actor::ptr> checkpointList;
 	checkpointList.push_back(m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointEnd(), checkpointScale));

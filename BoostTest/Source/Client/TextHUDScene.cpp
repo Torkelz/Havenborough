@@ -4,7 +4,7 @@
 
 BOOST_AUTO_TEST_SUITE(HUDSceneTest)
 
-BOOST_AUTO_TEST_CASE(SetGet)
+BOOST_AUTO_TEST_CASE(HUDSceneSetGet)
 {
 	HUDScene scene;
 
@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(SetGet)
 	BOOST_CHECK(scene.getID() == 0);
 }
 
-BOOST_AUTO_TEST_CASE(CreateElement)
+BOOST_AUTO_TEST_CASE(HUDSceneCreateElement)
 {
 	HUDScene scene;
 
