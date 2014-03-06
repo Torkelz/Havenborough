@@ -728,11 +728,43 @@ void Physics::resetForceOnBody(BodyHandle p_BodyHandle)
 	body->resetForce();
 }
 
-void Physics::setBodyForceCollisionNormal(BodyHandle p_BodyHandle, bool p_Bool)
+void Physics::setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVictim, bool p_Bool)
 {
-	Body *body = findBody(p_BodyHandle);
-	if(!body)
+	Body *body = findBody(p_Body);
+	Body *bodyVictim = findBody(p_BodyVictim);
+	if(!body || ! bodyVictim)
 		throw PhysicsException("Error! Trying to reset force on non existing body!", __LINE__, __FILE__);
 
-	body->setForceCollisionNormal(p_Bool);
+
+	HitData hit = Collision::boundingVolumeVsBoundingVolume(*body->getVolume(0), *bodyVictim->getVolume(0));
+	if(hit.intersect)
+	{
+		if(!m_IsServer)
+		{
+			if(body->getCollisionResponse(0) && bodyVictim->getCollisionResponse(0))
+			{
+				XMVECTOR temp;		// m
+				XMFLOAT4 tempPos;	// m
+
+				XMFLOAT4 vel = body->getVelocity();
+
+				XMVECTOR posNorm = Vector4ToXMVECTOR(&hit.colNorm);
+
+				//vel.y = 0.f;
+				body->setVelocity(vel);
+
+				if(p_Bool)
+				{
+					posNorm = XMVectorSet(0.f, 1.f, 0.f, 0.f);
+				}
+
+				temp = XMLoadFloat4(&body->getPosition()) + posNorm * hit.colLength;
+				XMStoreFloat4(&tempPos, temp);
+
+				body->setPosition(tempPos);
+			}
+		}
+	}
+	
+
 }

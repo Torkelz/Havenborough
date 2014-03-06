@@ -13,7 +13,7 @@ Player::Player(void)
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
 	m_JumpForce = 8000.0f;
-	m_FallTolerance = 0.75f;
+	m_FallTolerance = 0.25f;
 	m_FallTime = 0.f;
 	m_ForceMove = false;
 	m_CurrentForceMoveTime = 0.f;
@@ -120,15 +120,12 @@ void Player::update(float p_DeltaTime)
 				if(hit.collider == getBody())
 				{
 					Vector3 colPos = m_Physics->getBodyPosition(hit.collisionVictim);
-					colPos = colPos + hit.colNorm.xyz() * hit.colLength;
 
 					Vector3 curPos = m_Physics->getBodyPosition(getBody());
 
-					if(curPos.y > colPos.y && curPos.y - 29.f < colPos.y)
+					if(curPos.y > colPos.y && curPos.y - 30.f < colPos.y)
 					{
-						//curPos.y += 15.f;
-						//m_Physics->setBodyPosition(getBody(), curPos);
-						m_Physics->setBodyForceCollisionNormal(getBody(), true);
+						m_Physics->setBodyForceCollisionNormal(getBody(), hit.collisionVictim, true);
 						break;
 					}
 				}

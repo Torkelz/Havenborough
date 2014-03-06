@@ -14,7 +14,7 @@ private:
 	float m_AccConstant;
 
 	Vector3 m_RunningDirection;
-	bool m_isFalling;
+	bool m_IsFalling;
 	bool m_IsJumping;
 	Vector3 m_GroundNormal;
 

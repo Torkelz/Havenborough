@@ -310,6 +310,6 @@ public:
 	 */
 	virtual void resetForceOnBody(BodyHandle p_Body) = 0;
 
-	virtual void setBodyForceCollisionNormal(BodyHandle p_Body, bool p_Bool) = 0;
+	virtual void setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVictim, bool p_Bool) = 0;
 
 };

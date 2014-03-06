@@ -75,7 +75,7 @@ public:
 	Vector3 getBodyOrientation(BodyHandle p_BodyHandle) override;
 	void resetForceOnBody(BodyHandle p_BodyHandle) override;	
 
-	void setBodyForceCollisionNormal(BodyHandle p_Body, bool p_Bool) override;
+	void setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVictim, bool p_Bool) override;
 private:
 	Body* findBody(BodyHandle p_Body);
 	

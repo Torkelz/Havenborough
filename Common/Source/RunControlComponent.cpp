@@ -4,7 +4,7 @@
 RunControlComponent::RunControlComponent()
 	: m_Physics(nullptr),
 	m_PhysicsComp(),
-	m_isFalling(true),
+	m_IsFalling(true),
 	m_IsJumping(false),
 	m_MaxSpeed(0.f),
 	m_MaxSpeedDefault(0.f),
@@ -53,7 +53,7 @@ void RunControlComponent::move(float p_DeltaTime)
 
 	BodyHandle body = comp->getBodyHandle();
 	
-	if (!m_Physics->getBodyInAir(body) || getIsJumping())//|| !m_IsFalling)
+	if (getIsJumping() || !m_IsFalling)
 	{
 		using namespace DirectX;
 		XMFLOAT3 velocity = m_Physics->getBodyVelocity(body);
@@ -156,12 +156,12 @@ void RunControlComponent::setMaxSpeedAccelerationFactor(float p_Factor)
 
 bool RunControlComponent::getIsFalling() const
 {
-	return m_isFalling;
+	return m_IsFalling;
 }
 
 void RunControlComponent::setIsFalling(bool p_IsFalling)
 {
-	m_isFalling = p_IsFalling;
+	m_IsFalling = p_IsFalling;
 }
 
 bool RunControlComponent::getIsJumping() const
