@@ -82,11 +82,6 @@ public:
 	{
 		return instance_ != NULL;
 	}
-
-	static void ReleaseInstance()
-	{
-		SafeRelease(&instance_);
-	}
 };
 
 class FontFileEnumerator : public IDWriteFontFileEnumerator
@@ -153,11 +148,6 @@ public:
 	static bool IsLoaderInitialized()
 	{
 		return instance_ != NULL;
-	}
-
-	static void ReleaseInstance()
-	{
-		SafeRelease(&instance_);
 	}
 };
 

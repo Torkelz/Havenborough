@@ -387,10 +387,10 @@ void HUDScene::preLoadModels()
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "RacePos";
 	getHUDSettings(id,pos,scale);
-	createTextElement("RacePos", m_Graphics->createText(L"1stST", Vector2(200, 65), "Aniron", 42, Vector4(m_Color, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePos", m_Graphics->createText(L"1st", Vector2(200, 65), "Aniron", 42, Vector4(m_Color, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePos", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["RacePos"]));
 
-	createTextElement("RacePosBG", m_Graphics->createText(L"1stST", Vector2(204, 69), "Aniron", 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	createTextElement("RacePosBG", m_Graphics->createText(L"1st", Vector2(204, 69), "Aniron", 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 3), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
 
 	pos = Vector3(418, 318, 3);
