@@ -431,10 +431,10 @@ void DeferredRenderer::updateSSAO_VarConstantBuffer()
 	ssaoBuffer.corners[3] = DirectX::XMFLOAT4(+halfWidth, -halfHeight, m_FarZ, 0);
 	buildSSAO_OffsetVectors(ssaoBuffer);
 
-	ssaoBuffer.occlusionRadius	= 5.0f;
+	ssaoBuffer.occlusionRadius	= 15.0f;
 	ssaoBuffer.surfaceEpsilon	= 4.0f;
 	ssaoBuffer.occlusionFadeEnd	= 10.0f;
-	ssaoBuffer.occlusionFadeStart = 2.0f;
+	ssaoBuffer.occlusionFadeStart = 3.0f;
 
 	TweakSettings* settings = TweakSettings::getInstance();
 	settings->querySetting("ssao.radius", ssaoBuffer.occlusionRadius);
@@ -872,7 +872,7 @@ void DeferredRenderer::createShaders()
 	m_Shader["SSAO_Blur"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/SSAO_Blur.hlsl",
 		"VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	D3D_SHADER_MACRO ambientDefine[2] = {{ "AMBIENT_STRENGTH", "0.15f" }, nullptr };
+	D3D_SHADER_MACRO ambientDefine[2] = {{ "AMBIENT_STRENGTH", "0.315f" }, nullptr };
 	m_Shader["Ambient"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassAmbient.hlsl",
 		ambientDefine, "VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 }
@@ -1302,7 +1302,7 @@ void DeferredRenderer::registerTweakSettings()
 {
 	TweakSettings* settings = TweakSettings::getInstance();
 
-	settings->setSetting("ssao.radius", 5.f);
+	settings->setSetting("ssao.radius", 15.f);
 	settings->setListener("ssao.radius", std::function<void(float)>(
 		[&] (float)
 	{
@@ -1326,7 +1326,7 @@ void DeferredRenderer::registerTweakSettings()
 	}
 	));
 
-	settings->setSetting("ssao.fadeStart", 2.f);
+	settings->setSetting("ssao.fadeStart", 3.f);
 	settings->setListener("ssao.fadeStart", std::function<void(float)>(
 		[&] (float)
 	{
@@ -1344,7 +1344,7 @@ void DeferredRenderer::registerTweakSettings()
 	));
 	settings->setSetting("shadows.maxDirectional", 1);
 
-	settings->setSetting("light.ambient", 0.15f);
+	settings->setSetting("light.ambient", 0.315f);
 	settings->setListener("light.ambient", std::function<void(float)>(
 		[&] (float p_Value)
 		{
