@@ -182,7 +182,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 	XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
 	XMVECTOR vForward = XMLoadFloat3(&m_lookAtPos);
-	actorPos += vForward * 10;
+	actorPos += vForward * 1000;
 	XMFLOAT3 tempLook;
 	XMStoreFloat3(&tempLook, actorPos);
 	
