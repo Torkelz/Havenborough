@@ -12,11 +12,10 @@ private:
 	std::string m_FilePath;
 	std::unique_ptr<InstanceBinaryLoader> m_FileLoader;
 	std::vector<std::pair<Player::ptr, Actor::wPtr>> m_SendHitData;
-	std::vector<Actor::Id> m_ResultList;
+	std::vector<std::pair<std::string, float>> m_ResultList;
 
 	std::vector<Player::ptr> m_PlayerPositionList;
 
-	int m_GoalCount;
 	float m_Time;
 public:
 	void setup() override;
@@ -36,4 +35,6 @@ private:
 
 	void rearrangePlayerPosition();
 	unsigned int getPlayerPos(Actor::Id p_Player);
+
+	unsigned int countPlayersRacing() const;
 };

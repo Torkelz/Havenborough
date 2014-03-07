@@ -25,8 +25,6 @@ private:
 	IGraphics::Object2D_Id m_PlayerNamesObject;
 	IGraphics::Object2D_Id m_PlayerTimesObject;
 
-	std::vector<std::pair<std::string, std::string>> m_GoalList;
-
 public: 
 	PostGameScene();
 	~PostGameScene();
@@ -50,6 +48,8 @@ public:
 private:
 	void preLoadModels();
 	void releasePreLoadedModels();
+
+	void onGoalListUpdate(IEventData::Ptr p_Data);
 
 public:
 	/*########## TEST FUNCTIONS ##########*/
