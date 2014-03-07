@@ -101,7 +101,7 @@ void Player::update(float p_DeltaTime)
 			}
 		}
 
-		strActor->getEventManager()->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData( m_CurrentMana/100, m_PreviousMana/100)));
+		strActor->getEventManager()->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData( m_CurrentMana/100.f, m_PreviousMana/100.f)));
 	}
 
 	if(!m_ForceMove)
@@ -109,8 +109,6 @@ void Player::update(float p_DeltaTime)
 		if(m_AllowedToMove)
 		{
 			jump(p_DeltaTime);
-						
-			//m_Physics->setBodyForceCollisionNormal(getBody(), false);
 
 			unsigned int hitSize = m_Physics->getHitDataSize();
 			for(unsigned int i = 0; i < hitSize; i++)

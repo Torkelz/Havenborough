@@ -95,12 +95,28 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 
 				for(unsigned int k = 0; k < b.getVolumeListSize(); k++)
 				{
+					if(k == 5)
+						continue;
+
 					for(unsigned int l = 0; l < m_Bodies.at(j).getVolumeListSize(); l++)
 					{
 						HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *m_Bodies.at(j).getVolume(l));
 						if(hit.intersect)
 						{
-							handleCollision(hit, i, k, j, l, isOnGround);
+							if(k == 0)
+							{
+								XMFLOAT4 fBodyPos = b.getPosition();
+								XMFLOAT4 fVictimPos = m_Bodies.at(j).getPosition();
+								if(fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y - 0.01f)
+								{
+									((Hull*)m_Bodies.at(j).getVolume(0));
+									setBodyForceCollisionNormal(b.getHandle(), m_Bodies.at(j).getHandle(), true);
+								}
+								else
+									handleCollision(hit, i, k, j, l, isOnGround);
+							}
+							else
+								handleCollision(hit, i, k, j, l, isOnGround);
 						}
 					}
 				}
@@ -164,6 +180,7 @@ void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolum
 			b.setPosition(tempPos);
 		}
 	}
+	b.setLastCollision(p_Hit.collisionVictim);
 }
 
 void Physics::applyForce(BodyHandle p_Body, Vector3 p_Force)
@@ -556,8 +573,8 @@ void Physics::setBodyVolumePosition( BodyHandle p_Body, unsigned p_Volume, Vecto
 void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to set velocity on non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	Vector3 convVelocity = p_Velocity * 0.01f;	// m
 	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convVelocity, 0.f);	// m
@@ -568,8 +585,8 @@ void Physics::setBodyVelocity( BodyHandle p_Body, Vector3 p_Velocity)
 Vector3 Physics::getBodyVelocity(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return Vector3(0.f, 0.f, 0.f);
+	if(!body)
+		throw PhysicsException("Error! Trying to get velocity from non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	XMFLOAT4 tempVel = body->getVelocity();
 
@@ -597,8 +614,8 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 {
 	Body* body = findBody(p_BodyHandle);
 	Triangle trig;
-	if(body == nullptr)
-		return trig;
+	if(!body)
+		throw PhysicsException("Error! Trying to get a triangle from non existing body! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
 	
 	BoundingVolume *volume = body->getVolume(p_BoundingVolume);
 
@@ -647,8 +664,8 @@ Triangle Physics::getTriangleFromBody(unsigned int p_BodyHandle, unsigned int p_
 unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_BoundingVolume)
 {
 	Body* body = findBody(p_BodyHandle);
-	if(body == nullptr)
-		return 0;
+	if(!body)
+		throw PhysicsException("Error! Trying to get the number of triangles from non existing body! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
 
 	BoundingVolume *volume = body->getVolume(p_BoundingVolume);
 
@@ -681,8 +698,8 @@ unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_
 void Physics::setRotation(BodyHandle p_Body, XMMATRIX& p_Rotation)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to set rotation on non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	body->setRotation(p_Rotation);
 }
@@ -690,8 +707,8 @@ void Physics::setRotation(BodyHandle p_Body, XMMATRIX& p_Rotation)
 unsigned int Physics::getNrOfVolumesInBody(BodyHandle p_BodyHandle)
 {
 	Body* body = findBody(p_BodyHandle);
-	if(body == nullptr)
-		return 0;
+	if(!body)
+		throw PhysicsException("Error! Trying to get the number of volumes from non existing body! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
 
 	return body->getVolumeListSize();
 }
@@ -699,8 +716,8 @@ unsigned int Physics::getNrOfVolumesInBody(BodyHandle p_BodyHandle)
 Vector3 Physics::getBodyOrientation(BodyHandle p_BodyHandle)
 {
 	Body* body = findBody(p_BodyHandle);
-	if(body == nullptr)
-		return Vector3(0.f, 0.f, 0.f);
+	if(!body)
+		throw PhysicsException("Error! Trying to get orientation on non existing body! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
 
 	BoundingVolume *volume = body->getVolume();
 
@@ -719,7 +736,7 @@ void Physics::resetForceOnBody(BodyHandle p_BodyHandle)
 {
 	Body *body = findBody(p_BodyHandle);
 	if(!body)
-		throw PhysicsException("Error! Trying to reset force on non existing body!", __LINE__, __FILE__);
+		throw PhysicsException("Error! Trying to reset force on non existing body! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
 
 	body->resetForce();
 }
@@ -729,7 +746,7 @@ void Physics::setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVi
 	Body *body = findBody(p_Body);
 	Body *bodyVictim = findBody(p_BodyVictim);
 	if(!body || ! bodyVictim)
-		throw PhysicsException("Error! Trying to reset force on non existing body!", __LINE__, __FILE__);
+		throw PhysicsException("Error! Trying to force collision normal on non existing body!", __LINE__, __FILE__);
 
 
 	HitData hit = Collision::boundingVolumeVsBoundingVolume(*body->getVolume(0), *bodyVictim->getVolume(0));
@@ -746,7 +763,7 @@ void Physics::setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVi
 
 				XMVECTOR posNorm = Vector4ToXMVECTOR(&hit.colNorm);
 
-				//vel.y = 0.f;
+				vel.y = 0.f;
 				body->setVelocity(vel);
 
 				if(p_Bool)
@@ -760,7 +777,9 @@ void Physics::setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVi
 				body->setPosition(tempPos);
 			}
 		}
+		body->setLastCollision(bodyVictim->getHandle());
 	}
+	
 	
 
 }
