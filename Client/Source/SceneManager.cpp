@@ -104,10 +104,6 @@ void SceneManager::onFrame( float p_DeltaTime )
 		if(activeList->at(i)->getIsVisible())
 		{
 			activeList->at(i)->onFrame(p_DeltaTime,&m_NowShowing);
-			if(i != m_NowShowing)
-			{
-				i = nrScenes;
-			}
 		}
 	}
 
@@ -207,18 +203,6 @@ void SceneManager::startMenu()
 		m_MenuSceneList[i]->setIsVisible(false);
 	}
 	m_NowShowing = 0;
-}
-
-void SceneManager::gotoPostGame()
-{
-	m_IsMenuState = false;
-	for(unsigned int i = 0; i < m_NumberOfRunScene; i++)
-	{
-		m_RunSceneList[i]->setIsVisible(false);
-	}
-	m_RunSceneList[(size_t)RunScenes::POST_GAME]->setIsVisible(true);
-	m_RunSceneList[(size_t)RunScenes::POST_GAME]->onFocus();
-	m_NowShowing = (size_t)RunScenes::POST_GAME;
 }
 
 IScene::ptr SceneManager::getScene(RunScenes p_Scene)
