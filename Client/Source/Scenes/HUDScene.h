@@ -12,6 +12,12 @@ private:
 	bool m_ChangeScene;
 	bool m_ChangeList;
 	bool m_ShowDebugInfo;
+	unsigned int m_NumberOfCheckpoints;
+	std::string m_TakenCheckpoints;
+	Vector3 m_Color, m_BGColor, m_TimePosition, m_TimeScale;
+	bool m_FadeOut;
+	float m_TimeTimerMax, m_TimeTimerStartFade, m_TimePositionFade;
+	float m_TimeTimerCurrent, m_TimePositionCurrent;
 
 	IGraphics *m_Graphics;
 	EventManager *m_EventManager;
@@ -28,6 +34,7 @@ private:
 	bool m_RenderCountdown;
 	bool m_RenderHUD;
 	Vector3 m_CheckpointPosition;
+	Vector2 m_Resolution;
 public: 
 	HUDScene();
 	~HUDScene();
@@ -53,7 +60,7 @@ public:
 	 * Sets settings read from Settings.cpp to use with the hud.
 	 * @param p_Settings all settings read from Useroptions.xml
 	 */
-	void setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings);
+	void setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings, Vector2 p_ScreenResolution);
 
 	/**
 	 * Gets the debug info 
@@ -71,12 +78,17 @@ private:
 	void updateCheckpointPosition(IEventData::Ptr p_Data);
 	void updatePlayerTime(IEventData::Ptr p_Data);
 	void updatePlayerRacePosition(IEventData::Ptr p_Data);
+	void updateTakenCheckpoints(IEventData::Ptr p_Data);
 	void activateHUD(IEventData::Ptr p_Data);
+	void setNrOfCheckpoints(IEventData::Ptr p_Data);
+	void onFinish(IEventData::Ptr p_Data);
 
 	void preLoadModels();
 	void releasePreLoadedModels();
 
-	void getHUDSettings( std::string id, Vector3 &pos, Vector3 &scale );
+	void getHUDSettings( std::string p_Id, Vector3 &p_Position, Vector3 &p_Scale );
+	void adjustHUDPosition(Vector3 &p_Position);
+
 public:
 	/*########## TEST FUNCTIONS ##########*/
 	int	getID() override;

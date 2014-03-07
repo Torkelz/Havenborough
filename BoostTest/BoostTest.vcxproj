@@ -120,12 +120,14 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Client\Source\Scenes\GameScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\HUDScene.cpp" />
     <ClCompile Include="..\Client\Source\Scenes\MenuScene.cpp" />
+    <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="..\Client\Source\Settings.cpp" />
     <ClCompile Include="..\Client\Source\Window.cpp" />
     <ClCompile Include="..\Common\Source\InstanceBinaryLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\Buffer.cpp" />
     <ClCompile Include="..\Graphics\Source\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\DeferredRenderer.cpp" />
+    <ClCompile Include="..\Graphics\Source\FontCollectionLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\ForwardRendering.cpp" />
     <ClCompile Include="..\Graphics\Source\GPUTimer.cpp" />
     <ClCompile Include="..\Graphics\Source\Graphics.cpp" />

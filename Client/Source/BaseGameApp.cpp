@@ -131,7 +131,8 @@ void BaseGameApp::init()
 
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
-	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings());
+	Vector2 resolution(m_Window.getSize().x, m_Window.getSize().y);
+	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings(), resolution);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
 	m_MemoryInfo.update();
 	
@@ -351,7 +352,7 @@ void BaseGameApp::updateTimer()
 	static const float maxDeltaTime = 1.f / 24.f; // Up from 5.f. Animations start behaving wierd if frame rate drops below 24. 
 	if (m_DeltaTime > maxDeltaTime)
 	{
-		Logger::log(Logger::Level::WARNING, "Computer to slow or something");
+		Logger::log(Logger::Level::WARNING, "Computer too slow or something");
 		m_DeltaTime = maxDeltaTime;
 	}
 }
@@ -367,23 +368,25 @@ void BaseGameApp::handleInput()
 		// Pass keystrokes to all active scenes.
 		m_SceneManager.registeredInput(in.m_Action, in.m_Value, in.m_PrevValue);
 
-		if (in.m_Action == "slowMode" && in.m_Value > 0.5f)
+		if (in.m_Value > 0.5f && in.m_PrevValue <= 0.5f)
 		{
-			if (m_TimeModifier <= 1.f)
+			if (in.m_Action == "slowMode")
 			{
-				m_TimeModifier = 10.f;
+				if (m_TimeModifier <= 1.f)
+				{
+					m_TimeModifier = 10.f;
+				}
+				else
+				{
+					m_TimeModifier = 1.f;
+				}
 			}
-			else
+			else if(in.m_Action == "fastMode")
 			{
-				m_TimeModifier = 1.f;
+				if (m_TimeModifier >= 1.0f)
+					m_TimeModifier = 0.1f;
+				else m_TimeModifier = 1.0f;
 			}
-		}
-
-		if(in.m_Action == "fastMode" && in.m_Value > 0.5f)
-		{
-			if (m_TimeModifier >= 1.0f)
-				m_TimeModifier = 0.1f;
-			else m_TimeModifier = 1.0f;
 		}
 	}
 }

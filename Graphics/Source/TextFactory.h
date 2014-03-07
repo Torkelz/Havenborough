@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <map>
 
+#include "FontCollectionLoader.h"
 #include "TextResource.h"
 #include "TextEnums.h"
 #include "Utilities/XMFloatUtil.h"
@@ -19,6 +20,8 @@ private:
 	ID2D1Factory *m_D2DFactory;
 	IDWriteFactory *m_WriteFactory;
 	ID3D11Device *m_Device;
+	FontContext m_FontContext;
+	IDWriteFontCollection* m_FileFontCollection;
 
 	Vector2 m_Dpi;
 	D2D1_RENDER_TARGET_PROPERTIES m_DefaultProperties;
@@ -53,6 +56,17 @@ public:
 	* Shuts the text factory down and releases the text resources created.
 	*/
 	void shutdown(void);
+
+	/**
+	* Creates a text resource where the texture fits text. Throws exception if failing.
+	* @param p_Text the text to be created as resource
+	* @param p_Font the font to be used
+	* @param p_FontSize the size of the font to be used
+	* @param p_Color the color the text should be rendered with, RGBA from 0.0f to 1.0f
+	* @return the ID of the created text as unsigned int
+	*/
+	Text_Id createText(const wchar_t *p_Text, const char *p_Font, float p_FontSize,
+		Vector4 p_Color);
 
 	/**
 	* Creates a text resource. Throws exception if failing.

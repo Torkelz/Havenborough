@@ -1176,4 +1176,283 @@ public:
 		return m_State;
 	}
 };
+
+class GetNrOfCheckpoints : public BaseEventData
+{
+private:
+	int m_NrOfCheckpoints;
+
+public:
+	static const Type sk_EventType = Type(0x381c71c3);
+
+	GetNrOfCheckpoints(unsigned int p_NrOfCheckpoints)
+		:	m_NrOfCheckpoints(p_NrOfCheckpoints)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new GetNrOfCheckpoints(m_NrOfCheckpoints));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateNrOfCheckpoints";
+	}
+
+	int getNumberOfCheckpoints() const
+	{
+		return m_NrOfCheckpoints;
+	}
+};
+
+class UpdateTakenCheckpoints : public BaseEventData
+{
+private:
+	int m_TakenCheckpoints;
+
+public:
+	static const Type sk_EventType = Type(0xdc022c82);
+
+	UpdateTakenCheckpoints(unsigned int p_TakenCheckpoints)
+		:	m_TakenCheckpoints(p_TakenCheckpoints)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdateTakenCheckpoints(m_TakenCheckpoints));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdateTakenCheckpoints";
+	}
+
+	int getNumberOfCheckpointsTaken() const
+	{
+		return m_TakenCheckpoints;
+	}
+};
+
+class createWorldTextEventData : public BaseEventData
+{
+private:
+	std::string m_Text;
+	std::string m_Font;
+	float m_FontSize;
+	Vector4 m_FontColor;
+	Vector4 m_BackgroundColor;
+	Vector3 m_Position;
+	float m_Scale;
+	float m_Rotation;
+
+	unsigned int m_ComponentId;
+
+public:
+	static const Type sk_EventType = Type(0x7cd2bbbb);
+
+	createWorldTextEventData(std::string p_Text, std::string p_Font, float p_FontSize, Vector4 p_FontColor, 
+		Vector4 p_BackgroundColor, Vector3 p_Position, float p_scale, float p_Rotation, unsigned int p_ComponentId)
+		:	m_Text(p_Text), m_Font(p_Font), m_FontSize(p_FontSize), m_FontColor(p_FontColor), 
+		m_BackgroundColor(p_BackgroundColor), m_Position(p_Position), m_Scale(p_scale), m_Rotation(p_Rotation), 
+		m_ComponentId(p_ComponentId)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new createWorldTextEventData(m_Text, m_Font, m_FontSize, m_FontColor, m_BackgroundColor, m_Position,
+			 m_Scale, m_Rotation, m_ComponentId));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "createWorldTextEventData";
+	}
+
+	std::wstring getText()
+	{
+		return std::wstring(m_Text.begin(), m_Text.end());
+	}
+
+	std::string getFont()
+	{
+		return m_Font;
+	}
+
+	float getFontSize()
+	{
+		return m_FontSize;
+	}
+
+	Vector4 getFontColor()
+	{
+		return m_FontColor;
+	}
+
+	Vector4 getBackgroundColor()
+	{
+		return m_BackgroundColor;
+	}
+
+	Vector3 getPosition()
+	{
+		return m_Position;
+	}
+
+	float getScale()
+	{
+		return m_Scale;
+	}
+
+	float getRotation()
+	{
+		return m_Rotation;
+	}
+
+	unsigned int getComponentId()
+	{
+		return m_ComponentId;
+	}
+};
+
+class removeWorldTextEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+
+public:
+	static const Type sk_EventType = Type(0x7cd2abcc);
+
+	removeWorldTextEventData(unsigned int p_Id)
+		:	m_Id(p_Id)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new removeWorldTextEventData(m_Id));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "removeWorldTextEventData";
+	}
+
+	unsigned int getId()
+	{
+		return m_Id;
+	}
+};
+
+class updateWorldTextPositionEventData : public BaseEventData
+{
+private:
+	unsigned int m_Id;
+	Vector3 m_Position;
+
+public:
+	static const Type sk_EventType = Type(0x7cd2ccab);
+
+	updateWorldTextPositionEventData(unsigned int p_Id, Vector3 p_Position)
+		:	m_Id(p_Id), m_Position(p_Position)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new updateWorldTextPositionEventData(m_Id, m_Position));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "updateWorldTextPositionEventData";
+	}
+
+	unsigned int getId()
+	{
+		return m_Id;
+	}
+
+	Vector3 getPosition()
+	{
+		return m_Position;
+	}
+};
+
+class FinishRaceEventData : public BaseEventData
+{
+public:
+	static const Type sk_EventType = Type(0x552dd5cc);
+
+	FinishRaceEventData()
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new FinishRaceEventData);
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "FinishRaceEvent";
+	}
+};
+
 #pragma warning(pop)

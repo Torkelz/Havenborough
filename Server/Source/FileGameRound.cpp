@@ -24,7 +24,7 @@ void FileGameRound::setup()
 		static const float spawnCircleRadius = 200.f;
 		Vector3 position = basePos + Vector3(sinf(i * angle), 0.f, cosf(i * angle)) * spawnCircleRadius;
 
-		Actor::ptr actor = m_ActorFactory->createPlayerActor(position);
+		Actor::ptr actor = m_ActorFactory->createPlayerActor(position, m_Players[i]->getUser().lock()->getUsername());
 		m_Players[i]->setActor(actor);
 		m_Actors.push_back(actor);
 	}
@@ -97,6 +97,7 @@ void FileGameRound::sendLevel()
 				user->getConnection()->sendCreateObjects(instances.data(), instances.size());
 				user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
 				user->getConnection()->sendLevelData(stream.c_str(), stream.size());
+				user->getConnection()->sendNrOfCheckpoints(player->getNumberOfCheckpoints());
 				user->getConnection()->sendAssignPlayer(actor->getId());
 			}
 		}
@@ -258,6 +259,7 @@ void FileGameRound::sendUpdates()
 						user->getConnection()->sendRemoveObjects(&id, 1);
 						user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
 						tinyxml2::XMLPrinter printer;
+
 						printer.OpenElement("ObjectUpdate");
 						printer.PushAttribute("ActorId", id-1);
 						printer.PushAttribute("Type", "Color");
@@ -265,8 +267,11 @@ void FileGameRound::sendUpdates()
 						printer.CloseElement();
 						const char* info = printer.CStr();
 						user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
-						user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
 
+						user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
+						user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
+
+						
 						printer.ClearBuffer();
 						printer.OpenElement("RacePositions");
 						printer.PushAttribute("Type", "Place");
@@ -284,6 +289,7 @@ void FileGameRound::sendUpdates()
 					}
 					else
 					{
+						user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
 						user->getConnection()->sendRemoveObjects(&id, 1);
 						m_GoalCount++;
 						tinyxml2::XMLPrinter printer;

@@ -2,6 +2,7 @@
 #include "Scenes/GameScene.h"
 #include "Scenes/MenuScene.h"
 #include "Scenes/HUDScene.h"
+#include "Scenes/PostGameScene.h"
 #include "ClientExceptions.h"
 
 SceneManager::SceneManager()
@@ -28,13 +29,14 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	m_InputQueue = p_InputQueue;
 	m_GameLogic = p_GameLogic;
 
-	m_MenuSceneList.resize(1);
-	m_RunSceneList.resize(2);
+	m_MenuSceneList.resize((size_t)MenuScenes::ELEM_COUNT);
+	m_RunSceneList.resize((size_t)RunScenes::ELEM_COUNT);
 
-	m_MenuSceneList[0] = IScene::ptr(new MenuScene);
+	m_MenuSceneList[(size_t)MenuScenes::MAIN] = IScene::ptr(new MenuScene);
 
-	m_RunSceneList[0] = IScene::ptr(new GameScene);
-	m_RunSceneList[1] = IScene::ptr(new HUDScene);
+	m_RunSceneList[(size_t)RunScenes::GAMEMAIN] = IScene::ptr(new GameScene);
+	m_RunSceneList[(size_t)RunScenes::GAMEHUD] = IScene::ptr(new HUDScene);
+	m_RunSceneList[(size_t)RunScenes::POST_GAME] = IScene::ptr(new PostGameScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
 	m_NumberOfRunScene = m_RunSceneList.size();
@@ -160,9 +162,9 @@ void SceneManager::setPause()
 {
 	if(!m_IsMenuState)
 	{
-		bool currentState;
-		currentState = m_RunSceneList[(int)RunScenes::GAMEPAUSE]->getIsVisible();
-		m_RunSceneList[(int)RunScenes::GAMEPAUSE]->setIsVisible(!currentState);
+		//bool currentState;
+		//currentState = m_RunSceneList[(int)RunScenes::GAMEPAUSE]->getIsVisible();
+		//m_RunSceneList[(int)RunScenes::GAMEPAUSE]->setIsVisible(!currentState);
 	}
 }
 
@@ -226,12 +228,11 @@ IScene::ptr SceneManager::getScene(RunScenes p_Scene)
 
 void SceneManager::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
-	if(p_Action == "pauseScene" && p_Value == 1)
+	if(p_Action == "pauseScene" && p_Value > 0.5f && p_PrevValue <= 0.5f)
 	{
 		setPause();
 	}
-	//Change scene
-	else// if((p_Action == "changeSceneN"  && p_Value == 1) || (p_Action == "changeSceneP" && p_Value == 1))
+	else
 	{
 		passInput(p_Action, p_Value, p_PrevValue);
 	}

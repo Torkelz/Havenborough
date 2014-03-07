@@ -145,6 +145,8 @@ public:
 	Object2D_Id create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) override;
 
+	Text_Id createText(const wchar_t *p_Text, const char *p_Font, float p_FontSize, Vector4 p_FontColor, 
+		Vector3 p_Position, float p_Scale, float p_Rotation) override;
 	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,
 		Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation) override;
 	Text_Id createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font, float p_FontSize,

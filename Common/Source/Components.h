@@ -11,7 +11,6 @@
 
 #include <IPhysics.h>
 
-
 /**
  * Interface for a physics component.
  * 
@@ -820,6 +819,8 @@ private:
 	ModelCompId m_Id;
 	Vector3 m_BaseScale;
 	Vector3 m_ColorTone;
+	Vector3 m_Offset;
+	bool NewPos;
 	std::string m_MeshName;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
@@ -856,11 +857,21 @@ public:
 			tone->QueryFloatAttribute("y", &m_ColorTone.y);
 			tone->QueryFloatAttribute("z", &m_ColorTone.z);
 		}
+
+		m_Offset = Vector3(0,0,0);
+		const tinyxml2::XMLElement* pos = p_Data->FirstChildElement("OffsetPosition");
+		if (pos)
+		{
+			pos->QueryFloatAttribute("x", &m_Offset.x);
+			pos->QueryFloatAttribute("y", &m_Offset.y);
+			pos->QueryFloatAttribute("z", &m_Offset.z);
+		}
 	}
 	void postInit() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
 			m_BaseScale, m_ColorTone)));
+
 		setPosition(m_Owner->getPosition());
 		setRotation(m_Owner->getRotation());
 	}
@@ -871,12 +882,13 @@ public:
 		p_Printer.PushAttribute("Mesh", m_MeshName.c_str());
 		pushVector(p_Printer, "Scale", m_BaseScale);
 		pushVector(p_Printer, "ColorTone", m_ColorTone);
+		pushVector(p_Printer, "OffsetPosition", m_Offset);
 		p_Printer.CloseElement();
 	}
 
 	void setPosition(Vector3 p_Position) override
 	{
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(m_Id, p_Position)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(m_Id, p_Position + m_Offset)));
 	}
 
 	void setRotation(Vector3 p_Rotation) override
@@ -1459,6 +1471,9 @@ public:
 	}
 
 	virtual void setBaseColor(Vector4 p_NewBaseColor) = 0;
+	//virtual void setRotation(Vector3 p_NewRotation) = 0;
+	//virtual void setOffsetPosition(Vector3 p_NewPosition) = 0;
+
 };
 
 class ParticleComponent : public ParticleInterface
@@ -1467,6 +1482,8 @@ private:
 	unsigned int m_ParticleId;
 	std::string m_EffectName;
 	Vector4 m_BaseColor;
+	Vector3 m_OffsetPosition;
+	Vector3 m_Rotation;
 
 public:
 	~ParticleComponent()
@@ -1483,6 +1500,8 @@ public:
 		}
 		m_BaseColor = Vector4(-1.f, -1.f, -1.f, -1.f);
 		queryColor(p_Data->FirstChildElement("BaseColor"), m_BaseColor);
+		queryVector(p_Data->FirstChildElement("OffsetPosition"), m_OffsetPosition);
+		queryRotation(p_Data->FirstChildElement("Rotation"), m_Rotation);
 
 		m_EffectName = effectName;
 	}
@@ -1578,7 +1597,7 @@ public:
 	 * @param p_GroupName, the wanted IK-group.
 	 * @param p_Target, 3D point to reach for.
 	 */
-	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target) = 0;
+	virtual void applyIK_ReachPoint(const std::string& p_GroupName, Vector3 p_Target, float p_Weight) = 0;
 
 	/**
 	 * @param p_JointName, the name of the joint to get the position of.
@@ -1609,13 +1628,15 @@ public:
 	 * @param p_EdgeOrientation, the calculated orientation of the edge.
 	 * @param p_CenterReachPos, the center position that the IK uses.
 	 */
-	virtual void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos) = 0;
+	virtual void updateIKData(Vector3 p_EdgeOrientation, Vector3 p_CenterReachPos, std::string p_grabName) = 0;
 
 	/**
 	 * The animation component needs physics for some of its calculations.
 	 * @param p_Physics, a pointer to the physics engine.
 	 */
 	virtual void setPhysics(IPhysics *p_Physics) = 0;
+
+	virtual void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Target, float p_MaxAngle) = 0;
 };
 
 class SpellInterface : public ActorComponent
@@ -1651,4 +1672,140 @@ public:
 	virtual float getMaxSpeed() const = 0;
 	virtual void setMaxSpeed(float p_Speed) = 0;
 	virtual float getMaxSpeedDefault() const = 0;
+};
+
+/**
+ * Interface for model components.
+ */
+class TextInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 11;	/// Unique id
+	Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+
+	virtual void setId(unsigned int p_ComponentId) = 0;
+
+	virtual unsigned int getId() = 0;
+};
+
+
+class TextComponent : public TextInterface
+{
+private:
+	std::string m_Text;
+	std::string m_Font;
+	float m_FontSize;
+	Vector4 m_FontColor;
+	Vector4 m_BackgroundColor;
+	Vector3 m_OffsetPosition;
+	float m_Scale;
+	float m_Rotation;
+
+	Vector3 m_WorldPosition;
+
+	unsigned int m_ComponentId;
+
+public:
+	~TextComponent() override
+	{
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new removeWorldTextEventData(m_ComponentId)));
+	}
+
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		const char* text = p_Data->Attribute("Text");
+		if (!text)
+		{
+			throw CommonException("Component lacks text", __LINE__, __FILE__);
+		}
+
+		m_Text = std::string(text);
+
+		m_Font = "Verdana";
+		m_Scale = 1.f;
+		m_Rotation = 0.f;
+		m_FontSize = 12.f;
+		const tinyxml2::XMLElement* textSettings = p_Data->FirstChildElement("TextSettings");
+		if (textSettings)
+		{
+			const char* font = textSettings->Attribute("Font");
+			if(font != nullptr)
+				m_Font = font;
+
+			textSettings->QueryFloatAttribute("FontSize", &m_FontSize);
+			textSettings->QueryFloatAttribute("Scale", &m_Scale);
+			textSettings->QueryFloatAttribute("Rotation", &m_Rotation);
+		}
+
+		m_BackgroundColor = Vector4(1.f, 1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* backtone = p_Data->FirstChildElement("BackgroundColor");
+		if (backtone)
+		{
+			backtone->QueryFloatAttribute("r", &m_BackgroundColor.x);
+			backtone->QueryFloatAttribute("g", &m_BackgroundColor.y);
+			backtone->QueryFloatAttribute("b", &m_BackgroundColor.z);
+			backtone->QueryFloatAttribute("a", &m_BackgroundColor.w);
+		}
+
+		m_FontColor = Vector4(1.f, 1.f, 1.f, 1.f);
+		const tinyxml2::XMLElement* tone = p_Data->FirstChildElement("FontColor");
+		if (tone)
+		{
+			tone->QueryFloatAttribute("r", &m_FontColor.x);
+			tone->QueryFloatAttribute("g", &m_FontColor.y);
+			tone->QueryFloatAttribute("b", &m_FontColor.z);
+			tone->QueryFloatAttribute("a", &m_FontColor.w);
+		}
+
+		m_OffsetPosition = Vector3(0.f, 0.f, 0.f);
+		const tinyxml2::XMLElement* offPos = p_Data->FirstChildElement("OffsetPosition");
+		if (tone)
+		{
+			offPos->QueryFloatAttribute("x", &m_OffsetPosition.x);
+			offPos->QueryFloatAttribute("y", &m_OffsetPosition.y);
+			offPos->QueryFloatAttribute("z", &m_OffsetPosition.z);
+		}
+
+	}
+	void postInit() override
+	{
+		m_WorldPosition = m_Owner->getPosition() + m_OffsetPosition;
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new createWorldTextEventData(m_Text,
+			m_Font, m_FontSize, m_FontColor, m_BackgroundColor, m_WorldPosition, m_Scale, m_Rotation, m_ComponentId)));
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("TextComponent");
+		p_Printer.PushAttribute("Text", m_Text.c_str());
+		p_Printer.OpenElement("TextSettings");
+		p_Printer.PushAttribute("Font", m_Font.c_str());
+		p_Printer.PushAttribute("FontSize", m_FontSize);
+		p_Printer.PushAttribute("Scale", m_Scale);
+		p_Printer.PushAttribute("Rotation", m_Rotation);
+		p_Printer.CloseElement();
+		pushColor(p_Printer, "BackgroundColor", m_BackgroundColor);
+		pushColor(p_Printer, "FontColor", m_FontColor);
+		pushVector(p_Printer, "OffsetPosition", m_OffsetPosition);
+		p_Printer.CloseElement();
+	}
+
+	void onUpdate(float p_DeltaTime) override
+	{
+		m_WorldPosition = m_Owner->getPosition() + m_OffsetPosition;
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new updateWorldTextPositionEventData(m_ComponentId,m_WorldPosition)));
+	}
+
+	void setId(unsigned int p_ComponentId)
+	{
+		m_ComponentId = p_ComponentId;
+	}
+
+	unsigned int getId()
+	{
+		return m_ComponentId;
+	}
 };

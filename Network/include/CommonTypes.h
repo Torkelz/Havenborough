@@ -32,6 +32,8 @@ enum class PackageType : uint16_t
 	DONE_LOADING,
 	JOIN_GAME,
 	CURRENT_CHECKPOINT,
+	NUMBER_OF_CHECKPOINTS,
+	TAKEN_CHECKPOINTS,
 	LEAVE_GAME,
 	LEVEL_DATA,
 	GAME_POSITIONS,
@@ -40,7 +42,6 @@ enum class PackageType : uint16_t
 	THROW_SPELL,
 	START_COUNTDOWN,
 	DONE_COUNTDOWN,
-	
 };
 
 struct ObjectInstance

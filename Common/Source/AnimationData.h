@@ -27,4 +27,9 @@ struct AnimationData
 	 * movement. Makes Lucas happy. André brain farted super bad when the loader was written. It smelled.
 	 */
 	std::map<std::string, AnimationPath> animationPath;
+
+	/**
+	 * Some animations need IK coreections at certain frames.
+	 */
+	std::map<std::string, IKGrabShell> grabShells;
 };
