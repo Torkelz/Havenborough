@@ -21,10 +21,16 @@ void FileGameRound::setup()
 	const float angle = 2 * PI / m_Players.size();
 	for (size_t i = 0; i < m_Players.size(); ++i)
 	{
+		User::ptr user = m_Players[i]->getUser().lock();
+		if (!user)
+		{
+			continue;
+		}
+
 		static const float spawnCircleRadius = 200.f;
 		Vector3 position = basePos + Vector3(sinf(i * angle), 0.f, cosf(i * angle)) * spawnCircleRadius;
 
-		Actor::ptr actor = m_ActorFactory->createPlayerActor(position, m_Players[i]->getUser().lock()->getUsername());
+		Actor::ptr actor = m_ActorFactory->createPlayerActor(position, user->getUsername());
 		m_Players[i]->setActor(actor);
 		m_Actors.push_back(actor);
 	}

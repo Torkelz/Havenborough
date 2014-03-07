@@ -69,11 +69,6 @@ public:
 	*/
 	void startMenu();
 
-	/**
-	 * FIX ME PLEASE! ALL OF ME!
-	 */
-	void gotoPostGame();
-
 	IScene::ptr getScene(RunScenes p_Scene);
 	
 	/*########## TEST FUNCTIONS ##########*/
