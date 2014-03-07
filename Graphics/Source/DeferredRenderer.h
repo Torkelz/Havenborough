@@ -152,7 +152,7 @@ public:
 
 private:
 	void renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[],
-		const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
+		const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle, Shader* p_Shader);
 	void renderSSAO(void);
 	void blurSSAO(void);
 	void SSAO_PingPong(ID3D11ShaderResourceView*, ID3D11RenderTargetView*, bool p_HorizontalBlur);
@@ -190,7 +190,7 @@ private:
 
 	void renderObject(Renderable &p_Object);
 	void SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels );
-	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects );
+	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects, Shader* p_Shader);
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 	void updateLightProjection(float p_viewHW);

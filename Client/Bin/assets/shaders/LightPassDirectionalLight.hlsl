@@ -84,8 +84,13 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 
 	
 	float3 lighting = 0;
-	float innerBorder = SHADOW_BORDER;
-	float outerBorder = 1 - SHADOW_BORDER;
+	float percentage = 0.10f;
+	float2 center = float2(0.5f, 0.5f);
+	float2 gradient = center - lightPos.xy;
+	float innerBorder = SHADOW_BORDER * (1.f + percentage);
+	float outerBorder = 1 - SHADOW_BORDER * (1.f + percentage);
+	float innerGradBorder = SHADOW_BORDER;
+	float outerGradBorder = 1 - SHADOW_BORDER;
 	if(shadowMapped == 0)
 	{
 		lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
@@ -97,6 +102,13 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 		{
 			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
 				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
+
+			gradient = abs(gradient);
+			gradient = gradient - (0.5f - percentage);
+			gradient = gradient/percentage;
+			gradient = clamp(gradient, 0, 1);
+
+			lighting = lighting * (1 - gradient.x) * (1 - gradient.y);
 		}
 	}
 	else
@@ -105,6 +117,13 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 		{
 			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
 				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
+
+			gradient = abs(gradient);
+			gradient = gradient - ((1-2*SHADOW_BORDER)*(0.5f-percentage));
+			gradient = gradient/((1-2*SHADOW_BORDER)*percentage);
+			gradient = clamp(gradient, 0, 1);
+
+			lighting = lighting * (1 - (1 - gradient.x) * (1 - gradient.y));
 		}
 	}
 	return float4( lighting * input.lightIntensity, 1.0f );
@@ -166,13 +185,14 @@ float CalcShadowFactor(float3 uv, float nDotL)
         epsilon = clamp(epsilon, 0, 0.1);
 
 		float value = 0.f;
-		float coefficients[21] = 
+		float delta = 1.0f;
+		float coefficients[25] = 
 		{
-			0.000272337, 0.00089296, 0.002583865, 0.00659813, 0.014869116,
-			0.029570767, 0.051898313, 0.080381679, 0.109868729, 0.132526984,
-			0.14107424,
-			0.132526984, 0.109868729, 0.080381679, 0.051898313, 0.029570767,
-			0.014869116, 0.00659813, 0.002583865, 0.00089296, 0.000272337
+			0.003663,0.014652,0.025641,0.014652,0.003663,
+			0.014652,0.058608,0.095238,0.058608,0.014652,
+			0.025641,0.095238,0.150183,0.095238,0.025641,
+			0.014652,0.058608,0.095238,0.058608,0.014652,
+			0.003663,0.014652,0.025641,0.014652,0.003663
 		};
 
 		[unroll]
@@ -180,7 +200,7 @@ float CalcShadowFactor(float3 uv, float nDotL)
 		{
 			value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x + (i - 10) * SMAP_DX, uv.y + (i - 10) * SMAP_DX), uv.z) * coefficients[i];
 		}
-		percentLit = value;// * 0.5f;
+		percentLit = value;
 	 }
 	return percentLit;
 

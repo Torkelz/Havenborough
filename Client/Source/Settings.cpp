@@ -7,7 +7,7 @@
 Settings::Settings(void)
 {
 	m_Resolution = Vector2(1080,720);
-	m_SettingsValue["ShadowMap"] = 512.f;
+	m_SettingsValue["ShadowMapResolution"] = 512.f;
 	m_LevelName = "serverLevel";
 	m_Username = "Player";
 	m_ServerURL = "localhost";
