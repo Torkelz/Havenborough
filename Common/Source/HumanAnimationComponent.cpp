@@ -1,4 +1,5 @@
 #include "HumanAnimationComponent.h"
+#include "RunControlComponent.h"
 
 void HumanAnimationComponent::updateAnimation()
 {
@@ -6,6 +7,8 @@ void HumanAnimationComponent::updateAnimation()
 
 	Vector3 tempVector(0.f, 0.f, 0.f);
 	bool isInAir = true;
+	bool isFalling = false;
+	bool isJumping = false;
 	std::shared_ptr<PhysicsInterface> physComp = m_Owner->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
 	if (physComp)
 	{
@@ -13,7 +16,14 @@ void HumanAnimationComponent::updateAnimation()
 		isInAir = physComp->isInAir();
 	}
 	XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
-	
+	std::shared_ptr<MovementControlInterface> comp = m_Owner->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+	std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
+	if(runComp)
+	{
+		isFalling = runComp->getIsFalling();
+		isJumping = runComp->getIsJumping();
+	}
+
 	if(!m_ForceMove)
 	{
 		std::shared_ptr<LookInterface> lookComp = m_Owner->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
@@ -24,7 +34,7 @@ void HumanAnimationComponent::updateAnimation()
 		// Calculate the weight on the strafe track with some trigonometry.
 		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
 		changeAnimationWeight(2, 1 - abs(cosf(angle)));
-		if (!isInAir)
+		if (!isFalling)
 		{
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;

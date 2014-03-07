@@ -109,17 +109,6 @@ void Player::update(float p_DeltaTime)
 		if(m_AllowedToMove)
 		{
 			jump(p_DeltaTime);
-
-			unsigned int hitSize = m_Physics->getHitDataSize();
-			for(unsigned int i = 0; i < hitSize; i++)
-			{
-				HitData hit = m_Physics->getHitDataAt(i);
-				
-				if(hit.collider == getBody())
-				{
-					
-				}
-			}
 			Actor::ptr actor = m_Actor.lock();
 			if (actor)
 			{

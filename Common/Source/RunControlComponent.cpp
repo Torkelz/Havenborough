@@ -53,7 +53,7 @@ void RunControlComponent::move(float p_DeltaTime)
 
 	BodyHandle body = comp->getBodyHandle();
 	
-	if (getIsJumping() || !m_IsFalling)
+	if (getIsJumping() || !m_IsFalling || !m_Physics->getBodyInAir(body))
 	{
 		using namespace DirectX;
 		XMFLOAT3 velocity = m_Physics->getBodyVelocity(body);
