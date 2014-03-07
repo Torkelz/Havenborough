@@ -103,13 +103,13 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 						HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *m_Bodies.at(j).getVolume(l));
 						if(hit.intersect)
 						{
-							if(k == 0)
+							if(k == 0 && hit.colType == Type::HULLVSSPHERE)
 							{
 								XMFLOAT4 fBodyPos = b.getPosition();
 								XMFLOAT4 fVictimPos = m_Bodies.at(j).getPosition();
-								if(fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y - 0.01f)
+								Sphere s = ((Hull*)m_Bodies.at(j).getVolume(l))->getSphere();
+								if((fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y - 0.01f && s.getRadius() < 2.f))
 								{
-									((Hull*)m_Bodies.at(j).getVolume(0));
 									setBodyForceCollisionNormal(b.getHandle(), m_Bodies.at(j).getHandle(), true);
 								}
 								else
@@ -180,14 +180,13 @@ void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolum
 			b.setPosition(tempPos);
 		}
 	}
-	b.setLastCollision(p_Hit.collisionVictim);
 }
 
 void Physics::applyForce(BodyHandle p_Body, Vector3 p_Force)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to apply force on a non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	XMFLOAT4 tempForce = Vector3ToXMFLOAT4(&p_Force, 0.f); // kg*m/s^2
 
@@ -197,8 +196,8 @@ void Physics::applyForce(BodyHandle p_Body, Vector3 p_Force)
 void Physics::applyImpulse(BodyHandle p_Body, Vector3 p_Impulse)
 {
 	Body* body = findBody(p_Body);
-	if (body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to apply impulse on a non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	XMFLOAT4 fImpulse = Vector3ToXMFLOAT4(&p_Impulse, 0.f);
 	body->addImpulse(fImpulse);
@@ -243,8 +242,8 @@ BodyHandle Physics::createOBB(float p_Mass, bool p_IsImmovable, Vector3 p_Center
 void Physics::addSphereToBody(BodyHandle p_BodyHandle, Vector3 p_Position, float p_Radius)
 {
 	Body* body = findBody(p_BodyHandle);
-	if (body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to add a sphere to a non existing body! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
 
 	Vector3 convPosition = p_Position * 0.01f;	// m
 	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f); // m
@@ -257,8 +256,8 @@ void Physics::addSphereToBody(BodyHandle p_BodyHandle, Vector3 p_Position, float
 void Physics::addOBBToBody(BodyHandle p_BodyHandle, Vector3 p_CenterPos, Vector3 p_Extents) 
 {
 	Body* body = findBody(p_BodyHandle);
-	if (body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to add a OBB to a non existing body! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
 
 	Vector3 convPosition = p_CenterPos * 0.01f;	// m
 	Vector3 convExtents = p_Extents * 0.01f;
@@ -375,8 +374,9 @@ void Physics::releaseAllBoundingVolumes(void)
 void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 {
 	Body* body = findBody(p_BodyHandle);
-	if(body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to set scale to a a non existing body! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
+
 	XMVECTOR scale = Vector3ToXMVECTOR(&p_Scale, 0.f);
 
 	switch (body->getVolume()->getType())
@@ -432,8 +432,8 @@ void Physics::setGlobalGravity(float p_Gravity)
 void Physics::setBodyGravity(BodyHandle p_Body, float p_Gravity)
 {
 	Body* body = findBody(p_Body);
-	if (body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to set gravity to a a non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	body->setGravity(p_Gravity);
 }
@@ -441,8 +441,8 @@ void Physics::setBodyGravity(BodyHandle p_Body, float p_Gravity)
 bool Physics::getBodyInAir(BodyHandle p_Body)
 {
     Body* body = findBody(p_Body);
-    if(body == nullptr)
-            return false;
+	if(!body)
+		throw PhysicsException("Error! Trying to find if the body is in air from a non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
     return body->getInAir();
 }
@@ -450,8 +450,8 @@ bool Physics::getBodyInAir(BodyHandle p_Body)
 bool Physics::getBodyOnSomething(BodyHandle p_Body)
 {
     Body* body = findBody(p_Body);
-    if(body == nullptr)
-            return false;
+	if(!body)
+		throw PhysicsException("Error! Trying to find if body is on something in a non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	return body->getOnSomething();
 }
@@ -459,8 +459,8 @@ bool Physics::getBodyOnSomething(BodyHandle p_Body)
 BoundingVolume* Physics::getVolume(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return nullptr;
+	if(!body)
+		throw PhysicsException("Error! Trying to get a volume from a non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	return body->getVolume();
 }
@@ -479,7 +479,7 @@ bool Physics::getBodyLanded(BodyHandle p_Body)
 {
 	Body *body = findBody(p_Body);
 	if(!body)
-		return false;
+		throw PhysicsException("Error! Trying to get Landed from a non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	return body->getLanded();
 }
@@ -488,7 +488,7 @@ void Physics::setBodyCollisionResponse(BodyHandle p_Body, bool p_State)
 {
 	Body *body = findBody(p_Body);
 	if(!body)
-		return;
+		throw PhysicsException("Error! Trying to set collision response for a non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	body->setCollisionResponse(p_State);
 }
@@ -497,7 +497,7 @@ void Physics::setBodyVolumeCollisionResponse(BodyHandle p_Body, int p_Volume, bo
 {
 	Body *body = findBody(p_Body);
 	if(!body)
-		return;
+		throw PhysicsException("Error! Trying to set collision response for a volume in a non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	body->setCollisionResponse(p_Volume, p_State);
 }
@@ -506,8 +506,8 @@ void Physics::setBodyVolumeCollisionResponse(BodyHandle p_Body, int p_Volume, bo
 Vector3 Physics::getBodyPosition(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return Vector3(0.f, 0.f, 0.f);
+	if(!body)
+		throw PhysicsException("Error! Trying to get position from non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	XMFLOAT4 temp = body->getPosition();	// m
 
@@ -519,8 +519,8 @@ Vector3 Physics::getBodyPosition(BodyHandle p_Body)
 Vector3 Physics::getBodySize(BodyHandle p_Body)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return Vector3(0.f, 0.f, 0.f);
+	if(!body)
+		throw PhysicsException("Error! Trying to get size on non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	Vector3 temp;
 	float r;
@@ -550,8 +550,8 @@ Vector3 Physics::getBodySize(BodyHandle p_Body)
 void Physics::setBodyPosition( BodyHandle p_Body, Vector3 p_Position)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to set position on non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	Vector3 convPosition = p_Position * 0.01f;	// m
 	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f);	// m
@@ -562,8 +562,8 @@ void Physics::setBodyPosition( BodyHandle p_Body, Vector3 p_Position)
 void Physics::setBodyVolumePosition( BodyHandle p_Body, unsigned p_Volume, Vector3 p_Position)
 {
 	Body* body = findBody(p_Body);
-	if(body == nullptr)
-		return;
+	if(!body)
+		throw PhysicsException("Error! Trying to set volume position on non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
 	Vector3 convPosition = p_Position * 0.01f;	// m
 	body->setVolumePosition(p_Volume, Vector3ToXMVECTOR(&convPosition, 1.f));
@@ -777,9 +777,14 @@ void Physics::setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVi
 				body->setPosition(tempPos);
 			}
 		}
-		body->setLastCollision(bodyVictim->getHandle());
 	}
-	
-	
+}
 
+bool Physics::validBody(BodyHandle p_BodyHandle)
+{
+	Body *b = findBody(p_BodyHandle);
+	if(!b)
+		return false;
+	else
+		return true;
 }

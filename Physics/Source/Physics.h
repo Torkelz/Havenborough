@@ -76,6 +76,7 @@ public:
 	void resetForceOnBody(BodyHandle p_BodyHandle) override;	
 
 	void setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVictim, bool p_Bool) override;
+	bool validBody(BodyHandle p_BodyHandle);
 private:
 	Body* findBody(BodyHandle p_Body);
 	

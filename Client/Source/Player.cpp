@@ -13,7 +13,7 @@ Player::Player(void)
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
 	m_JumpForce = 8200.0f;
-	m_FallTolerance = 0.25f;
+	m_FallTolerance = 0.50f;
 	m_FallTime = 0.f;
 	m_ForceMove = false;
 	m_CurrentForceMoveTime = 0.f;

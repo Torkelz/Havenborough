@@ -102,10 +102,13 @@ void GameLogic::onFrame(float p_DeltaTime)
 		for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
-			m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
-				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player);
+			if(m_Physics->validBody(hit.collisionVictim))
+			{
+				m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
+					m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player);
 
-			Logger::log(Logger::Level::TRACE, "Collision reported");
+				Logger::log(Logger::Level::TRACE, "Collision reported");
+			}
 		}
 	}
 

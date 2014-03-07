@@ -312,4 +312,5 @@ public:
 
 	virtual void setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVictim, bool p_Bool) = 0;
 
+	virtual bool validBody(BodyHandle p_BodyHandle) = 0;
 };
