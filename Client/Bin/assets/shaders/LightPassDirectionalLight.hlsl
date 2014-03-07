@@ -170,22 +170,7 @@ float CalcShadowFactor(float3 uv, float nDotL)
 	 if ((saturate(uv.x) == uv.x) &&
         (saturate(uv.y) == uv.y) && uv.z > 0)
     {
-        // Use an offset value to mitigate shadow artifacts due to imprecise 
-        // floating-point values (shadow acne).
-        //
-        // This is an approximation of epsilon * tan(acos(saturate(NdotL))):
-        float margin = acos(nDotL);
-
-        // The offset can be slightly smaller with smoother shadow edges.
-        float epsilon = 0.0005 / margin;
-
-        //float epsilon = 0.001 / margin;
-
-        // Clamp epsilon to a fixed range so it doesn't go overboard.
-        epsilon = clamp(epsilon, 0, 0.1);
-
 		float value = 0.f;
-		float delta = 1.0f;
 		float coefficients[25] = 
 		{
 			0.003663,0.014652,0.025641,0.014652,0.003663,
@@ -196,9 +181,12 @@ float CalcShadowFactor(float3 uv, float nDotL)
 		};
 
 		[unroll]
-		for(int i = 0; i < 21; i++)
+		for(int i = 0; i < 5; i++)
 		{
-			value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x + (i - 10) * SMAP_DX, uv.y + (i - 10) * SMAP_DX), uv.z) * coefficients[i];
+			for(int j = 0; j < 5; j++)
+			{
+				value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x + (i - 2) * SMAP_DX, uv.y + (j - 2) * SMAP_DX), uv.z) * coefficients[i * 5 + j];
+			}
 		}
 		percentLit = value;
 	 }

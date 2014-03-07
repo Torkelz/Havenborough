@@ -167,7 +167,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	percentage = 0.5f - percentage;
 	m_ShadowMapBorder = percentage;
 	UINT resolution = m_ShadowMapResolution; //size of Shadow Map
-	initializeShadowMap(resolution, resolution);	
+	if(m_ShadowMap)
+		initializeShadowMap(resolution, resolution);	
 
 	//DXGI_FORMAT_R16G16B16A16_FLOAT
 	desc.Format	= DXGI_FORMAT_R16G16B16A16_FLOAT;

@@ -4,12 +4,12 @@
   <Game Level="Havenborough Castle" Username="Player" />
   <Character Name="Dzala" Style="Green" />
   <Settings>
-    <SSAO Enabled="true" />
+    <SSAO Enabled="false" />
     <ShadowMap Enabled="true" />
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
-    <ShadowMapResolution Value="1024" />
+    <ShadowMapResolution Value="4096" />
     <FOV Value="60" />
     <MouseSensitivity Value="0.5" />
   </Settings>
