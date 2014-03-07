@@ -11,15 +11,6 @@ PostGameScene::PostGameScene()
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
 	m_ResourceManager = nullptr;
-
-	m_GoalList.push_back(std::make_pair("Player1", "now"));
-	m_GoalList.push_back(std::make_pair("Player2", "now+1"));
-	m_GoalList.push_back(std::make_pair("Player3", "now+2"));
-	m_GoalList.push_back(std::make_pair("Player4", "now+3"));
-	m_GoalList.push_back(std::make_pair("Player5", "now+4"));
-	m_GoalList.push_back(std::make_pair("Player6", "now+5"));
-	m_GoalList.push_back(std::make_pair("Player7", "now+6"));
-	m_GoalList.push_back(std::make_pair("Player8", "now+7"));
 }
 
 PostGameScene::~PostGameScene()
@@ -38,7 +29,7 @@ bool PostGameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, Resource
 	m_EventManager = p_EventManager;
 	m_ResourceManager = p_ResourceManager;
 
-	//m_EventManager->addListener(EventListenerDelegate(this, &PostGameScene::updateGraphicalCountdown), UpdateGraphicalCountdownEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &PostGameScene::onGoalListUpdate), FinishRaceEventData::sk_EventType);
 
 	preLoadModels();
 
@@ -63,22 +54,6 @@ void PostGameScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 		*p_IsCurrentScene = -1;
 		m_ChangeList = false;
 	}
-
-	std::string playerNameText;
-	std::string playerTimeText;
-	for (const auto& val : m_GoalList)
-	{
-		playerNameText += val.first + '\n';
-		playerTimeText += val.second + '\n';
-	}
-
-	std::vector<wchar_t> wText(playerNameText.length() + 1);
-	mbstowcs(wText.data(), playerNameText.data(), playerNameText.length() + 1);
-	m_Graphics->updateText(m_PlayerNamesText, wText.data());
-
-	wText.resize(playerTimeText.length() + 1);
-	mbstowcs(wText.data(), playerTimeText.data(), playerTimeText.length() + 1);
-	m_Graphics->updateText(m_PlayerTimesText, wText.data());
 }
 
 void PostGameScene::onFocus()
@@ -99,7 +74,7 @@ void PostGameScene::render()
 
 bool PostGameScene::getIsVisible()
 {
-	return true;
+	return m_Visible;
 }
 
 void PostGameScene::setIsVisible(bool p_SetVisible)
@@ -168,6 +143,41 @@ void PostGameScene::releasePreLoadedModels()
 
 	m_Graphics->release2D_Model(m_PlayerTimesObject);
 	m_Graphics->deleteText(m_PlayerTimesText);
+}
+
+void PostGameScene::onGoalListUpdate(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<FinishRaceEventData> data = std::static_pointer_cast<FinishRaceEventData>(p_Data);
+
+	const auto& goalList = data->getGoalList();
+	std::string playerNameText;
+	std::wstring playerTimeText;
+
+	for (const auto& goalEntry : goalList)
+	{
+		int minutes = (int)goalEntry.second / 60;
+		float seconds = goalEntry.second - minutes * 60;
+		wchar_t buffer[64];
+		std::swprintf(buffer, L" %02.2d" L"\x2009" L":" L"\x2009" L"%06.3f\n", minutes, seconds);
+		playerNameText += " " + goalEntry.first + '\n';
+		playerTimeText += buffer;
+	}
+
+	if (!playerNameText.empty())
+	{
+		playerNameText = playerNameText.substr(0, playerNameText.length() - 1);
+	}
+
+	if (!playerNameText.empty())
+	{
+		playerTimeText = playerTimeText.substr(0, playerTimeText.length() - 1);
+	}
+
+	std::vector<wchar_t> wText(playerNameText.length() + 1);
+	mbstowcs(wText.data(), playerNameText.data(), playerNameText.length() + 1);
+	m_Graphics->updateText(m_PlayerNamesText, wText.data());
+
+	m_Graphics->updateText(m_PlayerTimesText, playerTimeText.data());
 }
 
 /*########## TEST FUNCTIONS ##########*/

@@ -36,7 +36,7 @@ BodyHandle Player::getCurrentCheckpointBodyHandle(void)
 	return m_CheckpointSystem.getCurrentCheckpointBodyHandle();
 }
 
-bool Player::reachedFinishLine(void)
+bool Player::reachedFinishLine(void) const
 {
 	return m_CheckpointSystem.reachedFinishLine();
 }

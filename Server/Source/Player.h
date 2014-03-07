@@ -79,7 +79,7 @@ public:
 	 *
      * @return true if finish line been reached, false if not
      */
-    bool reachedFinishLine(void);
+    bool reachedFinishLine(void) const;
 
 	/**
 	 * Checks if the finish line been reached.
