@@ -63,8 +63,15 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::spellHit), SpellHitEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createWorldText), createWorldTextEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeWorldText), removeWorldTextEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateWorldTextPosition), updateWorldTextPositionEventData::sk_EventType);
 
-	m_CurrentDebugView = IGraphics::RenderTarget::FINAL;
+	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::FINAL);
+	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::SSAO);
+	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::NORMAL);
+	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::CSM);
+	m_CurrentDebugView = 0;
 	m_RenderDebugBV = false;
 	preLoadModels();
 
@@ -180,16 +187,19 @@ void GameScene::render()
 				break;
 			}
 		}
-		
 	}
 
 	//From skybox branch, move later if needed.
 	m_Graphics->renderSkydome();
 
-	m_Graphics->setRenderTarget(m_CurrentDebugView);
-	m_Graphics->render2D_Object(4);
-
+	m_Graphics->setRenderTarget(m_SelectableRenderTargets[m_CurrentDebugView]);
 	
+	for( auto &wText : m_WorldText)
+	{
+		//Skip rendering own player tag.
+		if(m_GameLogic->getPlayerTextComponentId() != wText.first)
+			m_Graphics->renderText(wText.second);
+	}
 }
 
 bool GameScene::getIsVisible()
@@ -213,8 +223,8 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 
 		if(p_Action == "changeSceneN")
 		{
-			m_NewSceneID = (int)RunScenes::GAMEPAUSE;
-			m_ChangeScene = true;
+			//m_NewSceneID = (int)RunScenes::GAMEPAUSE;
+			//m_ChangeScene = true;
 		}
 		else if(p_Action == "changeSceneP")
 		{
@@ -222,19 +232,21 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		}
 		else if(p_Action ==  "changeViewN")
 		{
-			if((unsigned int)m_CurrentDebugView == 0)
-				m_CurrentDebugView = (IGraphics::RenderTarget)4;
+			if(m_CurrentDebugView >= m_SelectableRenderTargets.size() - 1)
+				m_CurrentDebugView = 0;
 			else
-				m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView - 1);
+				++m_CurrentDebugView;
 
-			Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
+			Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
 		}
 		else if(p_Action ==  "changeViewP")
 		{
-			m_CurrentDebugView = (IGraphics::RenderTarget)((unsigned int)m_CurrentDebugView + 1);
-			if((unsigned int)m_CurrentDebugView >= 6)
-				m_CurrentDebugView = (IGraphics::RenderTarget)0;
-			Logger::log(Logger::Level::DEBUG_L, "Selecting next view");
+			if(m_CurrentDebugView == 0)
+				m_CurrentDebugView = m_SelectableRenderTargets.size() - 1;
+			else
+				--m_CurrentDebugView;
+
+			Logger::log(Logger::Level::DEBUG_L, "Selecting previous view");
 		}
 		else if( p_Action == "jump")
 		{
@@ -268,17 +280,24 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		{
 			m_GameLogic->playerWave();
 		}
-		else if(p_Action == "splineRecord")
+		else if (m_GameLogic->getSplineCameraActive())
 		{
-			m_GameLogic->recordSpline();
-		}
-		else if(p_Action == "splineRemove")
-		{
-			m_GameLogic->removeLastSplineRecord();
-		}
-		else if(p_Action == "splineClear")
-		{
-			m_GameLogic->clearSplineSequence();
+			if(p_Action == "splineRecord")
+			{
+				m_GameLogic->recordSpline();
+			}
+			else if(p_Action == "splineRemove")
+			{
+				m_GameLogic->removeLastSplineRecord();
+			}
+			else if(p_Action == "splineClear")
+			{
+				m_GameLogic->clearSplineSequence();
+			}
+			else
+			{
+				handled = false;
+			}
 		}
 		else
 		{
@@ -528,6 +547,39 @@ void GameScene::spellHit(IEventData::Ptr p_Data)
 	std::shared_ptr<SpellHitEventData> data = std::static_pointer_cast<SpellHitEventData>(p_Data);
 
 	m_EventManager->queueEvent((IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExplosion", data->getPosition()))));
+}
+
+void GameScene::createWorldText(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<createWorldTextEventData> data = std::static_pointer_cast<createWorldTextEventData>(p_Data);
+
+	IGraphics::Text_Id id = m_Graphics->createText(data->getText().c_str(), data->getFont().c_str(), data->getFontSize(),
+		data->getFontColor(), data->getPosition(), data->getScale(), data->getRotation());
+
+	m_Graphics->setTextBackgroundColor(id, data->getBackgroundColor());
+
+	m_WorldText[data->getComponentId()] = id;
+}
+
+void GameScene::removeWorldText(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<removeWorldTextEventData> data = std::static_pointer_cast<removeWorldTextEventData>(p_Data);
+
+	if(m_WorldText.count(data->getId()) > 0)
+	{
+		m_Graphics->deleteText(m_WorldText.at(data->getId()));
+		m_WorldText.erase(data->getId());
+	}
+}
+
+void GameScene::updateWorldTextPosition(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<updateWorldTextPositionEventData> data = std::static_pointer_cast<updateWorldTextPositionEventData>(p_Data);
+
+	if(m_WorldText.count(data->getId()) > 0)
+	{
+		m_Graphics->setTextPosition(m_WorldText.at(data->getId()), data->getPosition());
+	}
 }
 
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)

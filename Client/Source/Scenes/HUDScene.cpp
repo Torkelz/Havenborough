@@ -46,6 +46,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::setNrOfCheckpoints), GetNrOfCheckpoints::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::activateHUD), activateHUDEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateTakenCheckpoints), UpdateTakenCheckpoints::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::onFinish), FinishRaceEventData::sk_EventType);
 
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
@@ -201,10 +202,11 @@ void HUDScene::registeredInput(std::string p_Action, float p_Value, float p_Prev
 	}
 }
 
-void HUDScene::setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings)
+void HUDScene::setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings, Vector2 p_ScreenResolution)
 {
 	releasePreLoadedModels();
 	m_HUDSettings = p_Settings;
+	m_Resolution = p_ScreenResolution;
 	preLoadModels();
 }
 
@@ -331,6 +333,12 @@ void HUDScene::setNrOfCheckpoints(IEventData::Ptr p_Data)
 	m_Graphics->updateText(m_TextHandle["CheckpointsBG"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
 }
 
+void HUDScene::onFinish(IEventData::Ptr p_Data)
+{
+	m_ChangeScene = true;
+	m_NewSceneID = (int)RunScenes::POST_GAME;
+}
+
 void HUDScene::updateTakenCheckpoints(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<UpdateTakenCheckpoints> data = std::static_pointer_cast<UpdateTakenCheckpoints>(p_Data);
@@ -361,13 +369,14 @@ void HUDScene::preLoadModels()
 	Vector3 scale = Vector3(0.3f, 0.3f, 0.3f);
 	std::string id = "Arrow";
 	getHUDSettings(id, pos, scale);
-
+	adjustHUDPosition(pos);
 	createGUIElement("Arrow",m_Graphics->create2D_Object(pos, scale, 0.f, "Arrow1"));
 
 	pos = Vector3(-400, -320, 3);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "Manabar";
 	getHUDSettings(id, pos, scale);
+	adjustHUDPosition(pos);
 
 	createGUIElement("ManabarChange", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(140, 30), scale, 0.0f, "MANA_BARCHANGE"));
 	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 4), Vector2(144, 28), scale, 0.0f, "MANA_BAR"));
@@ -379,15 +388,17 @@ void HUDScene::preLoadModels()
 	scale = Vector3(2.0f, 2.0f, 2.0f);
 	id = "Countdown";
 	getHUDSettings(id, pos, scale);
-
+	adjustHUDPosition(pos);
 	
-	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(130,65), m_GUIFont.c_str(), 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
+	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(180,120), m_GUIFont.c_str(), 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
 
 	pos = Vector3(420, 250, 1);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "Time";
 	getHUDSettings(id,pos,scale);
+	adjustHUDPosition(pos);
+
 	m_TimePosition = pos;
 	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(124.f, 74.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(m_TimePosition, scale, 0.f, m_TextHandle["Time"]));
@@ -399,6 +410,8 @@ void HUDScene::preLoadModels()
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "RacePos";
 	getHUDSettings(id,pos,scale);
+	adjustHUDPosition(pos);
+
 	createTextElement("RacePos", m_Graphics->createText(L"1st", Vector2(200, 65), m_GUIFont.c_str(), 42, Vector4(m_Color, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("RacePos", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["RacePos"]));
 
@@ -409,7 +422,9 @@ void HUDScene::preLoadModels()
 	scale = Vector3(1.0f, 1.0f, 1.0f);
 	id = "Checkpoints";
 	getHUDSettings(id,pos,scale);
-	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(200, 65), m_GUIFont.c_str(), 42, Vector4(m_Color, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
+	adjustHUDPosition(pos);
+
+	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(204, 69), m_GUIFont.c_str(), 42, Vector4(m_Color, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
 	createGUIElement("Checkpoints", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Checkpoints"]));
 	
 	createTextElement("CheckpointsBG", m_Graphics->createText(L"0/0", Vector2(204, 69), m_GUIFont.c_str(), 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
@@ -466,12 +481,29 @@ void HUDScene::createTextElementTest(std::string p_TextIdentifier, int p_Id)
 	createTextElement(p_TextIdentifier, p_Id);
 }
 
-void HUDScene::getHUDSettings( std::string id, Vector3 &pos, Vector3 &scale )
+void HUDScene::getHUDSettings( std::string p_Id, Vector3 &p_Position, Vector3 &p_Scale )
 {
-	if(m_HUDSettings.count(id) > 0)
+	if(m_HUDSettings.count(p_Id) > 0)
 	{
-		pos = m_HUDSettings.at(id).position;
-		float s = m_HUDSettings.at(id).scale;
-		scale = Vector3(s, s, s);
+		p_Position = m_HUDSettings.at(p_Id).position;
+		float s = m_HUDSettings.at(p_Id).scale;
+		p_Scale = Vector3(s, s, s);
+	}
+}
+
+void HUDScene::adjustHUDPosition(Vector3 &p_Position)
+{
+	if(m_Resolution.x > 0.f && m_Resolution.y > 0.f)
+	{
+		Vector2 origSize(1280,720);
+		float percentageX, percentageY;
+
+		percentageX  = (p_Position.x + origSize.x*0.5f) / origSize.x;
+		percentageY  = (p_Position.y + origSize.y*0.5f) / origSize.y;
+		percentageX = (percentageX > 1.f) ? 1.f : percentageX;
+		percentageY = (percentageY > 1.f) ? 1.f : percentageY;
+
+		p_Position.x = percentageX * m_Resolution.x - m_Resolution.x * 0.5f;
+		p_Position.y = percentageY * m_Resolution.y - m_Resolution.y * 0.5f;
 	}
 }

@@ -131,7 +131,8 @@ void BaseGameApp::init()
 
 	m_GameLogic.reset(new GameLogic());
 	m_SceneManager.init(m_Graphics, m_ResourceManager.get(), &m_InputQueue, m_GameLogic.get(), m_EventManager.get());
-	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings());
+	Vector2 resolution(m_Window.getSize().x, m_Window.getSize().y);
+	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings(), resolution);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
 	m_MemoryInfo.update();
 	

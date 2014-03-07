@@ -1,95 +1,56 @@
 #pragma pack_matrix(row_major)
+#include "DeferredHelper.hlsl"
 
-SamplerState m_textureSampler	: register(s0);
-Texture2D diffuse				: register(t0);
-Texture2D normalMap				: register(t1);
-Texture2D specular				: register(t2);
+SamplerState textureSampler	: register(s0);
+Texture2D diffuseTex		: register(t0);
+Texture2D normalTex			: register(t1);
+Texture2D specularTex		: register(t2);
 
 cbuffer cb : register(b0)
 {
-	float4x4 view;
-	float4x4 projection;
-	float3	 cameraPos;
+	float4x4 cView;
+	float4x4 cProjection;
+	float3	 cCameraPos;
+	float		cSSAOScale;
 };
 
 cbuffer cbWorld : register(b1)
 {
-	float4x4 world;
+	float4x4 cWorld;
 };
 
 struct VSIn
 {
-	float4 pos		: POSITION;
+	float4 position	: POSITION;
 	float3 normal	: NORMAL;
 	float2 uvCoord	: COORD;
 	float3 tangent	: TANGENT;
 	float3 binormal	: BINORMAL;
 };
 
-struct PSIn
-{
-	float4	pos		: SV_POSITION;
-	float4	wpos	: WSPOSITION;
-	float3 normal	: NORMAL;
-	float2 uvCoord	: COORD;
-	float3 tangent	: TANGENT;
-	float3 binormal	: BINORMAL;
-	float depth		: DEPTH;
-};
-
-struct PSOut
-{
-	half4 diffuse	: SV_Target0; // xyz = diffuse color, w = specularPower
-	half4 normal	: SV_Target1; // xyz = normal.xyz, w = depth
-	half4 wPosition	: SV_Target2; // xyz = world position, w = specular intensity
-};
-
-PSIn VS( VSIn input )
+//############################
+// Shader step: Vertex Shader
+//############################
+PSIn VS(VSIn p_Input)
 {
 	PSIn output;
 
-	output.pos = mul( projection, mul(view, mul(world, input.pos)));
-	output.wpos = mul(world, input.pos);
+	output.position = mul(cProjection, mul(cView, mul(cWorld, p_Input.position)));
+	output.wposition = mul(cWorld, p_Input.position);
 
-	output.normal = normalize(mul(world, float4(input.normal, 0.f)).xyz);
-	output.uvCoord = input.uvCoord;
-	output.tangent = normalize(mul(world, float4(input.tangent, 0.f)).xyz);
-	output.binormal = normalize(mul(world, float4(input.binormal, 0.f)).xyz);
-	output.depth = mul(view, mul(world, input.pos)).z;
+	output.normal = normalize(mul(cWorld, float4(p_Input.normal, 0.f)).xyz);
+	output.uvCoord = p_Input.uvCoord;
+	output.tangent = normalize(mul(cWorld, float4(p_Input.tangent, 0.f)).xyz);
+	output.binormal = normalize(mul(cWorld, float4(p_Input.binormal, 0.f)).xyz);
+	output.depth = mul(cView, mul(cWorld, p_Input.position)).z;
 
 	return output;
 }
 
-PSOut PS( PSIn input )
+//############################
+// Shader step: Pixel Shader
+//############################
+PSOut PS(PSIn p_Input)
 {
-	PSOut output;
-	float3 norm		= 0.5f * (input.normal + 1.0f);
-	float4 bumpMap	= normalMap.Sample(m_textureSampler, input.uvCoord);
-	bumpMap			= (bumpMap * 2.0f) - 1.0f;
-	float3 normal	= input.normal + bumpMap.x * input.tangent + -bumpMap.y * input.binormal;
-	normal			= mul(view, float4(normal, 0.f)).xyz;
-	normal			= 0.5f * (normalize(normal) + 1.0f);
-
-
-	float4 diffuseColor = diffuse.Sample(m_textureSampler, input.uvCoord);
-
-	if(diffuseColor.w >= 0.7f)
-		diffuseColor.w = 1.0f;
-	else
-		diffuseColor.w = 0.0f;
-
-	if(diffuseColor.w == 1.0f)
-	{
-		output.diffuse			= float4(diffuseColor.xyz, 1.0f);//input.diffuse.xyz; //specular intensity = 1.0f
-		output.normal.w			= input.depth;
-		output.normal.xyz		= normal;//normalize(mul((float3x3)view, normal));
-		output.wPosition.xyz	= float3(input.wpos.x, input.wpos.y, input.wpos.z);
-		output.wPosition.w		= specular.Sample(m_textureSampler, input.uvCoord).x;
-	}
-	else // If alpha is 0. Do not blend with any previous render targets.
-	{
-		discard;
-	}
-
-	return output;
+	return PSFunction(p_Input, cView, diffuseTex, normalTex, specularTex, textureSampler);
 }

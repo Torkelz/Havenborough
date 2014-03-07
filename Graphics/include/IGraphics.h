@@ -17,10 +17,11 @@ public:
 		NORMAL,
 		W_POSITION,
 		SSAO,
-		FINAL,
+		LIGHT,
 		CSM,
 		SSAOPing,
 		NONE,
+		FINAL = DIFFUSE,
 	};
 
 	/**
@@ -293,6 +294,19 @@ public:
 	*/
 	virtual Object2D_Id create2D_Object(Vector3 p_Position, Vector3 p_Scale, float p_Rotation,
 		const char *p_ModelDefinition) = 0;
+
+	/**
+	* Creates a text resource which can be used as texture. The texture size fits the text.
+	* @param p_Text the text to be created as resource
+	* @param p_Font the font to be used
+	* @param p_FontSize the size of the font to be used
+	* @param p_FontColor the color the text should be rendered with, RGBA from 0.0f to 1.0f
+	* @param p_Position the world position the text should be rendered at, in cm's
+	* @param p_Scale the uniform scale for the object, 1.0f is default value
+	* @param p_Rotation the rotation in model space in radians
+	*/
+	virtual Text_Id createText(const wchar_t *p_Text, const char *p_Font, float p_FontSize,
+		Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation) = 0;
 
 	/**
 	* Creates a text resource which can be used as texture.

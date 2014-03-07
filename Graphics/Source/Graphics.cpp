@@ -634,6 +634,29 @@ IGraphics::Object2D_Id Graphics::create2D_Object(Vector3 p_Position, Vector3 p_S
 	return m_Next2D_ObjectId++;
 }
 
+IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, const char *p_Font, float p_FontSize, Vector4 p_FontColor, 
+	Vector3 p_Position, float p_Scale, float p_Rotation)
+{
+	Text_Id id = m_TextFactory.createText(p_Text, p_Font, p_FontSize, p_FontColor);
+
+	ID3D11Resource *resource;
+	ID3D11Texture2D *texture;
+	D3D11_TEXTURE2D_DESC textureDesc;
+
+	m_TextFactory.getSRV(id)->GetResource(&resource);
+	resource->QueryInterface(&texture);
+	texture->GetDesc(&textureDesc);
+
+	SAFE_RELEASE(texture);
+	SAFE_RELEASE(resource);
+	Vector2 textureSize = Vector2((float)textureDesc.Width, (float)textureDesc.Height);
+
+	TextRenderer::TextInstance temp = TextRenderer::TextInstance(p_Position, textureSize, p_Scale, p_Rotation, 
+		m_TextFactory.getSRV(id));
+	m_TextRenderer->addTextObject(id, temp);
+	return id;
+}
+
 IGraphics::Text_Id Graphics::createText(const wchar_t *p_Text, Vector2 p_TextureSize, const char *p_Font,
 	float p_FontSize, Vector4 p_FontColor, Vector3 p_Position, float p_Scale, float p_Rotation)
 {
@@ -765,7 +788,6 @@ void Graphics::setClearColor(Vector4 p_Color)
 
 void Graphics::drawFrame(void)
 {
-	//TIMER_START(timer);
 	if (!m_DeviceContext || !m_DeferredRender || !m_ForwardRenderer)
 	{
 		throw GraphicsException("", __LINE__, __FILE__);
@@ -806,7 +828,6 @@ void Graphics::drawFrame(void)
 	m_SpotLights.clear();
 	m_DirectionalLights.clear();
 	m_ShadowMappedLight = Light();
-	//TIMER_STOP(timer);
 }
 
 void Graphics::setModelDefinitionTransparency(const char *p_ModelId, bool p_State)

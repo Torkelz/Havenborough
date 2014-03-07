@@ -46,8 +46,14 @@ namespace Havenborough_Launcher
 
             string source = dataProvider.Source.LocalPath;
             dataProvider.Document.Save(source);
-
-            Process.Start(ClientExec);
+            try
+            {
+                Process.Start(ClientExec);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.ToString(), "Failed to start game");
+            }  
         }
 
         private void Refresh_OnClick(object sender, RoutedEventArgs e)
@@ -57,7 +63,16 @@ namespace Havenborough_Launcher
 
         private void HostServerButton_OnClick(object sender, RoutedEventArgs e)
         {
-            Process.Start(ServerExec);
+            try
+            {
+                Process.Start(ServerExec);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.ToString(), "Failed to host server");
+            	return;
+            }
+            
             RefreshGameList();
         }
 

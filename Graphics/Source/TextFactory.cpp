@@ -66,6 +66,87 @@ void TextFactory::shutdown(void)
 	m_TextResources.clear();
 }
 
+TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, const char *p_Font, float p_FontSize, Vector4 p_Color)
+{
+	IDWriteTextLayout *layout = nullptr;
+	DWRITE_TEXT_METRICS m;
+
+	IDWriteTextFormat *textFormat = nullptr;
+	ID2D1RenderTarget *renderTarget = nullptr;
+	ID2D1SolidColorBrush *brush = nullptr;
+	ID3D11ShaderResourceView *SRV = nullptr;
+	IDXGISurface *surface = nullptr;
+
+	std::vector<wchar_t> wc(strlen(p_Font)+1);
+	mbstowcs (wc.data(), p_Font, wc.size());
+
+	HRESULT hr = m_WriteFactory->CreateTextFormat(wc.data(), m_FileFontCollection, DWRITE_FONT_WEIGHT_REGULAR,
+		DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, p_FontSize, L"en-us", &textFormat);
+
+	if (FAILED(hr))
+	{
+		hr = m_WriteFactory->CreateTextFormat(wc.data(), NULL, DWRITE_FONT_WEIGHT_REGULAR,
+			DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, p_FontSize, L"en-us", &textFormat);
+	}
+	hr = m_WriteFactory->CreateTextLayout(p_Text,(UINT32)wcslen(p_Text), textFormat, 1280,720, &layout);
+	if(SUCCEEDED(hr))
+	{
+		std::wstring t(p_Text);
+		layout->GetMetrics(&m);
+		SAFE_RELEASE(layout);
+		SRV = createSRV(Vector2(m.widthIncludingTrailingWhitespace, m.height));
+		surface = getIDXGISurfaceFromSRV(SRV);
+	}
+	else
+	{
+		SAFE_RELEASE(layout);
+		SAFE_RELEASE(textFormat);
+		throw TextFactoryException("Failed to read text dimensions for the texture.", __LINE__, __FILE__);
+	}
+
+	if(SUCCEEDED(hr))
+	{
+		hr = textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+		if(SUCCEEDED(hr))
+		{
+			hr = textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+			if(SUCCEEDED(hr))
+			{
+				hr = textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
+				if(SUCCEEDED(hr))
+				{
+					hr = m_D2DFactory->CreateDxgiSurfaceRenderTarget(surface, &m_DefaultProperties,	&renderTarget);
+					if(SUCCEEDED(hr))
+					{
+						hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, 
+							p_Color.w), &brush);
+						renderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+						if(SUCCEEDED(hr))
+						{
+							m_TextResources.insert(std::pair<Text_Id, TextResource>(m_NextTextId, 
+								TextResource(renderTarget, SRV, textFormat, brush,
+								D2D1::RectF(0.0f, 0.0f,	m.widthIncludingTrailingWhitespace, m.height), p_Text)));
+							m_TextResources.at(m_NextTextId).draw();
+						}
+					}
+				}
+			}			
+		}
+	}
+	SAFE_RELEASE(surface);
+
+	if(FAILED(hr))
+	{
+		SAFE_RELEASE(brush);
+		SAFE_RELEASE(renderTarget);
+		SAFE_RELEASE(textFormat);
+		SAFE_RELEASE(SRV);
+		throw TextFactoryException("Text to texture creation failed.", __LINE__, __FILE__);
+	}
+
+	return m_NextTextId++;
+}
+
 TextFactory::Text_Id TextFactory::createText(const wchar_t *p_Text, Vector2 p_TextureSize,
 	const char *p_Font, float p_FontSize, Vector4 p_Color)
 {
@@ -218,8 +299,12 @@ void TextFactory::setTextColor(Text_Id p_Identifier, Vector4 p_Color)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
-		m_TextResources.at(p_Identifier).m_Brush->SetColor(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w));
-		m_TextResources.at(p_Identifier).m_Update = true;
+		D2D1_COLOR_F color = m_TextResources.at(p_Identifier).m_Brush->GetColor();
+		if(p_Color.x != color.r || p_Color.y != color.g || p_Color.z != color.b || p_Color.w != color.a)
+		{
+			m_TextResources.at(p_Identifier).m_Brush->SetColor(D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w));
+			m_TextResources.at(p_Identifier).m_Update = true;
+		}
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 
@@ -231,8 +316,12 @@ void TextFactory::setBackgroundColor(Text_Id p_Identifier, Vector4 p_Color)
 {
 	if(m_TextResources.count(p_Identifier) > 0)
 	{
-		m_TextResources.at(p_Identifier).m_ClearColor = D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w);
-		m_TextResources.at(p_Identifier).m_Update = true;
+		D2D1_COLOR_F color = m_TextResources.at(p_Identifier).m_ClearColor;
+		if(p_Color.x != color.r || p_Color.y != color.g || p_Color.z != color.b || p_Color.w != color.a)
+		{
+			m_TextResources.at(p_Identifier).m_ClearColor = D2D1::ColorF(p_Color.x, p_Color.y, p_Color.z, p_Color.w);
+			m_TextResources.at(p_Identifier).m_Update = true;
+		}
 	}
 	else
 		throw TextFactoryException("Failed to delete text with identifier: " + 

@@ -11,14 +11,18 @@
 enum class MenuScenes
 {
 	MAIN,
-	OPTION
+	//OPTION,
+
+	ELEM_COUNT
 };
 enum class RunScenes
 {
 	GAMEMAIN,
 	GAMEHUD,
 	POST_GAME,
-	GAMEPAUSE
+	//GAMEPAUSE,
+
+	ELEM_COUNT
 };
 class IScene
 {

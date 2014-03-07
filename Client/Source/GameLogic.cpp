@@ -20,6 +20,7 @@ GameLogic::GameLogic(void)
 	m_RenderGo = false;
 	m_PreviousLegalPlayerBodyRotation = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_lookAtPos = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	m_SplineCameraActive = false;
 }
 
 
@@ -94,8 +95,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 	{
 		return;
 	}
-
-	if(m_Physics->getHitDataSize() > 0)
+	
+	Actor::ptr playerActor = m_Player.getActor().lock();
+	if(m_Physics->getHitDataSize() > 0 && playerActor)
 	{
 		for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 		{
@@ -132,7 +134,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Physics->update(p_DeltaTime, 100);
 
 	XMVECTOR actualViewRot = Vector3ToXMVECTOR(&getPlayerViewRotation(), 0.0f);
-	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
 		XMVECTOR playerRotation = actualViewRot;
@@ -426,7 +427,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
-	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition()));
+	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition(), m_Username));
 	
 	m_Player = Player();
 	m_Player.initialize(m_Physics, nullptr, m_PlayerDefault);
@@ -580,6 +581,28 @@ void GameLogic::clearSplineSequence()
 	}
 }
 
+bool GameLogic::getSplineCameraActive()
+{
+	return m_SplineCameraActive;
+}
+
+unsigned int GameLogic::getPlayerTextComponentId()
+{
+	Actor::ptr actor = m_Player.getActor().lock();
+	unsigned int id = 0;
+
+	if(actor)
+	{
+		std::shared_ptr<TextInterface> comp = actor->getComponent<TextInterface>(TextInterface::m_ComponentId).lock();
+
+		if(comp)
+		{
+			id = comp->getId();
+		}
+	}
+	return id;
+}
+
 void GameLogic::handleNetwork()
 {
 	if (m_Connected)
@@ -711,6 +734,8 @@ void GameLogic::handleNetwork()
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
+
+							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData()));
 						}
 					}
 				}
@@ -903,7 +928,7 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->playClimbAnimation(climbId);
-								comp->updateIKData(orientation, center);
+								comp->updateIKData(orientation, center, climbId);
 							}
 						}
 					}
@@ -968,8 +993,6 @@ void GameLogic::handleNetwork()
 					conn->sendDoneLoading();
 					m_InGame = true;
 					m_PlayingLocal = false;
-
-					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 				}
 				break;
 
@@ -981,6 +1004,7 @@ void GameLogic::handleNetwork()
 
 			case PackageType::START_COUNTDOWN:
 				{
+					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 					m_Player.setAllowedToMove(false);
 					m_CountdownTimer = 3.0f;
 				}
@@ -1099,6 +1123,7 @@ void GameLogic::updateCountdownTimer(float p_DeltaTime)
 
 void GameLogic::changeCameraMode(unsigned int p_Mode)
 {
+	m_SplineCameraActive = false;
 	switch (p_Mode)
 	{
 	case 0:
@@ -1107,6 +1132,7 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		Logger::log(Logger::Level::INFO, "Changed to spline camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_SplineCamera);
+		m_SplineCameraActive = true;
 		break;
 	case 1:
 		if(m_FlyingCamera.expired())

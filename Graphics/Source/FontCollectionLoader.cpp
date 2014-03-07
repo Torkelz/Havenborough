@@ -266,7 +266,7 @@ FontFileStream::FontFileStream(const std::string& p_FilePath) :
 	std::streampos offset = stream.tellg();
 	stream.seekg(0, std::ios::beg);
 
-	if ((int)offset <= -1)
+	if ((int)offset <= 0)
 		return;
 
 	m_FileContent.resize((size_t)offset);
