@@ -21,10 +21,16 @@ void FileGameRound::setup()
 	const float angle = 2 * PI / m_Players.size();
 	for (size_t i = 0; i < m_Players.size(); ++i)
 	{
+		User::ptr user = m_Players[i]->getUser().lock();
+		if (!user)
+		{
+			continue;
+		}
+
 		static const float spawnCircleRadius = 200.f;
 		Vector3 position = basePos + Vector3(sinf(i * angle), 0.f, cosf(i * angle)) * spawnCircleRadius;
 
-		Actor::ptr actor = m_ActorFactory->createPlayerActor(position, m_Players[i]->getUser().lock()->getUsername());
+		Actor::ptr actor = m_ActorFactory->createPlayerActor(position, user->getUsername());
 		m_Players[i]->setActor(actor);
 		m_Actors.push_back(actor);
 	}
@@ -36,7 +42,7 @@ void FileGameRound::setup()
 			return p_Left.m_Number > p_Right.m_Number;
 		});
 	
-	static const Vector3 checkpointScale(1.f, 10.f, 1.f);
+	static const Vector3 checkpointScale(54.f, 170.f, 54.f);
 
 	std::vector<Actor::ptr> checkpointList;
 	checkpointList.push_back(m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointEnd(), checkpointScale));
@@ -56,8 +62,8 @@ void FileGameRound::setup()
 
 	m_PlayerPositionList = m_Players;
 
-	m_GoalCount = 0;
 	m_Time = 0.f;
+	m_ResultListUpdated = false;
 }
 
 void FileGameRound::setFilePath(std::string p_Filepath)
@@ -238,171 +244,163 @@ void FileGameRound::sendUpdates()
 			user->getConnection()->sendUpdateObjects(data.data(), data.size(), extraC.data(), extraC.size());
 		}
 	}
-	Actor::Id id;
-	if(m_GoalCount >= 0)
+
+	for(unsigned int i = 0; i < m_SendHitData.size(); i++)
 	{
-		for(unsigned int i = 0; i < m_SendHitData.size(); i++)
+		Player::ptr player = m_SendHitData[i].first;
+		User::ptr user = player->getUser().lock();
+		if (user)
 		{
-			Player::ptr player = m_SendHitData[i].first;
-			User::ptr user = player->getUser().lock();
-			if (user)
+			unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
+			float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
+			float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
+			Actor::ptr actor = m_SendHitData[i].second.lock();
+			if (actor)
 			{
-				unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
-				float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
-				float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
-				Actor::ptr actor = m_SendHitData[i].second.lock();
-				if (actor)
+				const Actor::Id id = actor->getId();
+				if(!m_SendHitData[i].first->reachedFinishLine())
 				{
-					id = actor->getId();
-					if(!m_SendHitData[i].first->reachedFinishLine())
+					user->getConnection()->sendRemoveObjects(&id, 1);
+					user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
+					tinyxml2::XMLPrinter printer;
+
+					printer.OpenElement("ObjectUpdate");
+					printer.PushAttribute("ActorId", id-1);
+					printer.PushAttribute("Type", "Color");
+					pushColor(printer, "SetColor", player->getCurrentCheckpointColor());
+					printer.CloseElement();
+					const char* info = printer.CStr();
+					user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+
+					user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
+					user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
+
+						
+					printer.ClearBuffer();
+					printer.OpenElement("RacePositions");
+					printer.PushAttribute("Type", "Place");
+					Actor::ptr playerActor  = player->getActor().lock();
+					if(!playerActor)
 					{
-						user->getConnection()->sendRemoveObjects(&id, 1);
-						user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
-						tinyxml2::XMLPrinter printer;
-
-						printer.OpenElement("ObjectUpdate");
-						printer.PushAttribute("ActorId", id-1);
-						printer.PushAttribute("Type", "Color");
-						pushColor(printer, "SetColor", player->getCurrentCheckpointColor());
-						printer.CloseElement();
-						const char* info = printer.CStr();
-						user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
-
-						user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
-						user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
-
-						
-						printer.ClearBuffer();
-						printer.OpenElement("RacePositions");
-						printer.PushAttribute("Type", "Place");
-						Actor::ptr playerActor  = player->getActor().lock();
-						if(!playerActor)
-						{
-							break;
-						}
-						printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
-						
-						printer.PushAttribute("Time",  leadTime - playerTime);
-						printer.CloseElement();
-						info = printer.CStr();
-						user->getConnection()->sendRacePosition(&info, 1);
+						break;
 					}
-					else
+					printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
+						
+					printer.PushAttribute("Time",  leadTime - playerTime);
+					printer.CloseElement();
+					info = printer.CStr();
+					user->getConnection()->sendRacePosition(&info, 1);
+				}
+				else
+				{
+					user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
+					user->getConnection()->sendRemoveObjects(&id, 1);
+					tinyxml2::XMLPrinter printer;
+					printer.OpenElement("GameResult");
+					printer.PushAttribute("Type", "Position");
+					printer.PushAttribute("Place", m_ResultList.size() + 1);
+					printer.PushAttribute("Time", leadTime - playerTime);
+					printer.CloseElement();
+					const char* info = printer.CStr();
+					user->getConnection()->sendGameResult(&info, 1);
+					m_ResultList.push_back(std::make_pair(user->getUsername(), playerTime));
+					m_ResultListUpdated = true;
+						
+					Actor::ptr oldPlayerActor = player->getActor().lock();
+					Actor::ptr flyingCamera = m_ActorFactory->createFlyingCamera(
+						oldPlayerActor->getComponent<LookComponent>(LookComponent::m_ComponentId).lock()->getLookPosition());
+					m_Actors.push_back(flyingCamera);
+
+					std::ostringstream oStream;
+					flyingCamera->serialize(oStream);
+					ObjectInstance inst;
+					std::string desc = oStream.str();
+					inst.m_Description = desc.c_str();
+					inst.m_Id = flyingCamera->getId();
+
+					for (auto& otherPlayer : m_Players)
 					{
-						user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
-						user->getConnection()->sendRemoveObjects(&id, 1);
-						m_GoalCount++;
-						tinyxml2::XMLPrinter printer;
-						printer.OpenElement("GameResult");
-						printer.PushAttribute("Type", "Position");
-						printer.PushAttribute("Place", m_GoalCount);
-						printer.PushAttribute("Time", leadTime - playerTime);
-						printer.CloseElement();
-						const char* info = printer.CStr();
-						user->getConnection()->sendGameResult(&info, 1);
-						m_ResultList.push_back(player->getActor().lock()->getId());
-						
-						Actor::ptr oldPlayerActor = player->getActor().lock();
-						Actor::ptr flyingCamera = m_ActorFactory->createFlyingCamera(
-							oldPlayerActor->getComponent<LookComponent>(LookComponent::m_ComponentId).lock()->getLookPosition());
-						m_Actors.push_back(flyingCamera);
-
-						std::ostringstream oStream;
-						flyingCamera->serialize(oStream);
-						ObjectInstance inst;
-						std::string desc = oStream.str();
-						inst.m_Description = desc.c_str();
-						inst.m_Id = flyingCamera->getId();
-
-						for (auto& otherPlayer : m_Players)
+						User::ptr otherUser = otherPlayer->getUser().lock();
+						if(!otherUser)
 						{
-							User::ptr otherUser = otherPlayer->getUser().lock();
-							if(!otherUser)
-							{
-								continue;
-							}
-							otherUser->getConnection()->sendCreateObjects(&inst, 1);
+							continue;
 						}
-
-						user->getConnection()->sendAssignPlayer(inst.m_Id);
-
-						Actor::Id oldPlayerId = oldPlayerActor->getId();
-
-						for (auto& player : m_Players)
-						{
-							User::ptr otherUser = player->getUser().lock();
-							if(!otherUser)
-							{
-								continue;
-							}
-							otherUser->getConnection()->sendRemoveObjects(&oldPlayerId, 1);
-						}
-
-						auto actorIt = std::find_if(m_Actors.begin(), m_Actors.end(),
-							[&] (Actor::ptr p_Actor)
-							{
-								return p_Actor->getId() == oldPlayerId;
-							});
-						if (actorIt != m_Actors.end())
-						{
-							m_Actors.erase(actorIt);
-						}
-
-						player->setActor(flyingCamera);
+						otherUser->getConnection()->sendCreateObjects(&inst, 1);
 					}
+
+					user->getConnection()->sendAssignPlayer(inst.m_Id);
+
+					Actor::Id oldPlayerId = oldPlayerActor->getId();
+
+					for (auto& player : m_Players)
+					{
+						User::ptr otherUser = player->getUser().lock();
+						if(!otherUser)
+						{
+							continue;
+						}
+						otherUser->getConnection()->sendRemoveObjects(&oldPlayerId, 1);
+					}
+
+					auto actorIt = std::find_if(m_Actors.begin(), m_Actors.end(),
+						[&] (Actor::ptr p_Actor)
+						{
+							return p_Actor->getId() == oldPlayerId;
+						});
+					if (actorIt != m_Actors.end())
+					{
+						m_Actors.erase(actorIt);
+					}
+
+					player->setActor(flyingCamera);
 				}
 			}
-			for(auto& players : m_Players)
-			{
-				User::ptr user = players->getUser().lock();
-				if(!user)
-				{
-					continue;
-				}
-				tinyxml2::XMLPrinter printer;
-				printer.OpenElement("RacePositions");
-				printer.PushAttribute("Type", "Placing");
-				Actor::ptr playerActor  = players->getActor().lock();
-				if(!playerActor)
-				{
-					break;
-				}
-				printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
-				printer.CloseElement();
-				const char* info = printer.CStr();
-				user->getConnection()->sendRacePosition(&info,1);
-			}
-			m_SendHitData.clear();
 		}
-		if(m_Players.size() == m_GoalCount)
+		for(auto& players : m_Players)
 		{
-			tinyxml2::XMLPrinter printer;
-			printer.OpenElement("GameResult");
-			printer.PushAttribute("Type", "Result");
-			printer.OpenElement("ResultList");
-			printer.PushAttribute("VectorSize", m_Players.size());
-			for(unsigned int i = 0; i < m_ResultList.size(); i++)
+			User::ptr user = players->getUser().lock();
+			if(!user)
 			{
-				float time = 0;
-				printer.OpenElement("Place");
-				printer.PushAttribute("Player", m_ResultList[i]);
-				for(auto& player : m_Players)
-				{
-					if(player->getActor().lock()->getId() == m_ResultList[i])
-					{
-						unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
-						float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
-						float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
-						time = leadTime - playerTime;
-					}
-				}
-				printer.PushAttribute("Time", time);
-				printer.CloseElement();
+				continue;
 			}
-			printer.CloseElement();
+			tinyxml2::XMLPrinter printer;
+			printer.OpenElement("RacePositions");
+			printer.PushAttribute("Type", "Placing");
+			Actor::ptr playerActor  = players->getActor().lock();
+			if(!playerActor)
+			{
+				break;
+			}
+			printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
 			printer.CloseElement();
 			const char* info = printer.CStr();
-			for(auto& player : m_Players)
+			user->getConnection()->sendRacePosition(&info,1);
+		}
+		m_SendHitData.clear();
+	}
+
+	if(m_ResultListUpdated && countPlayersRacing() < m_Players.size())
+	{
+		tinyxml2::XMLPrinter printer;
+		printer.OpenElement("GameResult");
+		printer.PushAttribute("Type", "Result");
+		printer.OpenElement("ResultList");
+		for(unsigned int i = 0; i < m_ResultList.size(); i++)
+		{
+			printer.OpenElement("Place");
+			
+			const auto& result = m_ResultList[i];
+				
+			printer.PushAttribute("Player", result.first.c_str());
+			printer.PushAttribute("Time", result.second);
+			printer.CloseElement();
+		}
+		printer.CloseElement();
+		printer.CloseElement();
+		const char* info = printer.CStr();
+		for(auto& player : m_Players)
+		{
+			if (player->reachedFinishLine())
 			{
 				player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
 			}
@@ -426,9 +424,6 @@ void FileGameRound::playerDisconnected(Player::ptr p_DisconnectedPlayer)
 		if (user)
 		{
 			user->getConnection()->sendRemoveObjects(&playerActorId, 1);
-			m_GoalCount--;
-			if(m_GoalCount < 0)
-				m_GoalCount = 0;
 		}
 	}
 
@@ -588,4 +583,17 @@ unsigned int FileGameRound::getPlayerPos(Actor::Id p_Player)
 		}
 	}
 	throw std::exception("Error in function getPlayerPos!", __LINE__);
+}
+
+unsigned int FileGameRound::countPlayersRacing() const
+{
+	unsigned int count = 0;
+	for (const auto& player : m_Players)
+	{
+		if (!player->reachedFinishLine())
+		{
+			++count;
+		}
+	}
+	return count;
 }

@@ -4,12 +4,12 @@
   <Game Level="Havenborough Castle" Username="Player" />
   <Character Name="Dzala" Style="Green" />
   <Settings>
-    <SSAO Enabled="true" />
-    <ShadowMap Enabled="false" />
+    <SSAO Enabled="false" />
+    <ShadowMap Enabled="true" />
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
-    <ShadowMapResolution Value="1024" />
+    <ShadowMapResolution Value="4096" />
     <FOV Value="60" />
     <MouseSensitivity Value="0.5" />
   </Settings>
@@ -41,7 +41,7 @@
     <KeyMap Display="Main menu?" Command="goToMainMenu" Key="Return" />
     <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="O" />
     <KeyMap Display="Look back" Command="flipCamera" Key="P" />
-	<KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="114" />
+    <KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="114" />
     <KeyMap Display="Spline Record" Command="splineRecord" Key="R" />
     <KeyMap Display="Spline Remove" Command="splineRemove" Key="T" />
     <KeyMap Display="Spline Clear" Command="splineClear" Key="Y" />

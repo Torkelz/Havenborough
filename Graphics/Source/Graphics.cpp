@@ -201,6 +201,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 
 	//Deferred renderer
 	m_DeferredRender = new DeferredRenderer();
+	m_DeferredRender->enableShadowMap(m_ShadowMap);
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, m_ShadowMapResolution, &m_SpotLights, &m_PointLights, &m_DirectionalLights, &m_ShadowMappedLight, 
 		m_FOV, m_FarZ);
@@ -1108,7 +1109,6 @@ void Graphics::enableSSAO(bool p_State)
 void Graphics::enableShadowMap(bool p_State)
 {
 	m_ShadowMap = p_State;
-	m_DeferredRender->enableShadowMap(p_State);
 }
 
 void Graphics::setShadowMapResolution(int p_ShadowMapResolution)

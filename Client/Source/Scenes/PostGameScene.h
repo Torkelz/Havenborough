@@ -17,8 +17,13 @@ private:
 
 	IGraphics::Text_Id m_GoalText;
 	IGraphics::Object2D_Id m_GoalObject;
+	IGraphics::Text_Id m_GoalShadowText;
+	IGraphics::Object2D_Id m_GoalShadowObject;
 
-	Vector2 m_Resolution;
+	IGraphics::Text_Id m_PlayerNamesText;
+	IGraphics::Text_Id m_PlayerTimesText;
+	IGraphics::Object2D_Id m_PlayerNamesObject;
+	IGraphics::Object2D_Id m_PlayerTimesObject;
 
 public: 
 	PostGameScene();
@@ -43,6 +48,8 @@ public:
 private:
 	void preLoadModels();
 	void releasePreLoadedModels();
+
+	void onGoalListUpdate(IEventData::Ptr p_Data);
 
 public:
 	/*########## TEST FUNCTIONS ##########*/

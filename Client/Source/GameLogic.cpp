@@ -694,42 +694,25 @@ void GameLogic::handleNetwork()
 						tinyxml2::XMLElement* object = reader.FirstChildElement("GameResult");
 						if(object->Attribute("Type", "Result"))
 						{
-								m_Level = Level();
-								m_Actors.reset();
-								m_Actors.reset(new ActorList);
-								m_ActorFactory->setActorList(m_Actors);
+							object = object->FirstChildElement("ResultList");
+							if(!object)
+							Logger::log(Logger::Level::ERROR_L, "Could not find Object (ResultList)");
 
-								m_InGame = false;
-
-								IConnectionController* con = m_Network->getConnectionToServer();
-
-								if (!m_PlayingLocal && con && con->isConnected())
+							FinishRaceEventData::GoalList goalList;
+							std::string username("UnknownUser");
+							float time;
+							for(const auto* place = object->FirstChildElement("Place"); place; place = place->NextSiblingElement("Place"))
+							{
+								const char* name = place->Attribute("Player");
+								if (name)
 								{
-									con->sendLeaveGame();
+									username = name;
 								}
+								place->QueryAttribute("Time", &time);
+								goalList.push_back(std::make_pair(username, time));
+							}
 								
-								object = object->FirstChildElement("ResultList");
-								if(!object)
-								Logger::log(Logger::Level::ERROR_L, "Could not find Object (ResultList)");
-								int size = 0;
-								object->QueryAttribute("VectorSize", &size);
-								if(size == 0)
-								{
-									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
-								}
-								else
-								{
-									std::vector<std::pair<int, float>> GoalList;
-									int position;
-									float time;
-									for(int i = 0; i < size; i++)
-									{
-										object->QueryAttribute("Place", &position);
-										object->QueryAttribute("Time", &time);
-										GoalList.push_back(std::make_pair(position, time));
-									}
-									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
-								}
+							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData(goalList)));
 						}
 						else if(object->Attribute("Type", "Position"))
 						{
@@ -738,7 +721,7 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 
-							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData()));
+							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData(FinishRaceEventData::GoalList())));
 						}
 					}
 				}

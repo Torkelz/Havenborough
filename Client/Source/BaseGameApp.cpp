@@ -39,12 +39,12 @@ void BaseGameApp::init()
 	m_Graphics = IGraphics::createGraphics();
 	m_Graphics->setLogFunction(&Logger::logRaw);
 	m_Graphics->setTweaker(TweakSettings::getInstance());
-	m_Graphics->setShadowMapResolution((int)settings.getSettingValue("ShadowMap"));
+	m_Graphics->setShadowMapResolution((int)settings.getSettingValue("ShadowMapResolution"));
+	m_Graphics->enableShadowMap(settings.getIsSettingEnabled("ShadowMap"));
 	m_Graphics->initialize(m_Window.getHandle(), (int)m_Window.getSize().x, (int)m_Window.getSize().y,
 		settings.getIsSettingEnabled("Fullscreen"), settings.getSettingValue("FOV"));
 
 	m_Graphics->enableSSAO(settings.getIsSettingEnabled("SSAO"));
-	m_Graphics->enableShadowMap(settings.getIsSettingEnabled("ShadowMap"));
 	m_Graphics->enableVsync(settings.getIsSettingEnabled("VSync"));
 
 	m_Window.registerCallback(WM_CLOSE, std::bind(&BaseGameApp::handleWindowClose, this, std::placeholders::_1,

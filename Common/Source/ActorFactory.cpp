@@ -115,9 +115,9 @@ void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Half
 Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale)
 {
 	Vector3 AABBScale = p_Scale;
-	AABBScale.x *= 75.f;
-	AABBScale.y *= 60.f;
-	AABBScale.z *= 75.f;
+	AABBScale.x *= 1.3f;
+	AABBScale.y *= 2.f;
+	AABBScale.z *= 1.3f;
 
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
