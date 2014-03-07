@@ -63,6 +63,7 @@ void FileGameRound::setup()
 	m_PlayerPositionList = m_Players;
 
 	m_Time = 0.f;
+	m_ResultListUpdated = false;
 }
 
 void FileGameRound::setFilePath(std::string p_Filepath)
@@ -303,6 +304,7 @@ void FileGameRound::sendUpdates()
 					const char* info = printer.CStr();
 					user->getConnection()->sendGameResult(&info, 1);
 					m_ResultList.push_back(std::make_pair(user->getUsername(), playerTime));
+					m_ResultListUpdated = true;
 						
 					Actor::ptr oldPlayerActor = player->getActor().lock();
 					Actor::ptr flyingCamera = m_ActorFactory->createFlyingCamera(
@@ -376,7 +378,8 @@ void FileGameRound::sendUpdates()
 		}
 		m_SendHitData.clear();
 	}
-	if(countPlayersRacing() == 0)
+
+	if(m_ResultListUpdated && countPlayersRacing() < m_Players.size())
 	{
 		tinyxml2::XMLPrinter printer;
 		printer.OpenElement("GameResult");
@@ -397,7 +400,10 @@ void FileGameRound::sendUpdates()
 		const char* info = printer.CStr();
 		for(auto& player : m_Players)
 		{
-			player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
+			if (player->reachedFinishLine())
+			{
+				player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
+			}
 		}
 	}
 }

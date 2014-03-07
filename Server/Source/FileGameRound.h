@@ -13,6 +13,7 @@ private:
 	std::unique_ptr<InstanceBinaryLoader> m_FileLoader;
 	std::vector<std::pair<Player::ptr, Actor::wPtr>> m_SendHitData;
 	std::vector<std::pair<std::string, float>> m_ResultList;
+	bool m_ResultListUpdated;
 
 	std::vector<Player::ptr> m_PlayerPositionList;
 
