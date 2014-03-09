@@ -34,7 +34,7 @@ void HumanAnimationComponent::updateAnimation()
 		// Calculate the weight on the strafe track with some trigonometry.
 		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
 		changeAnimationWeight(2, 1 - abs(cosf(angle)));
-		if (!isFalling)
+		if (!isInAir)
 		{
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
@@ -107,7 +107,7 @@ void HumanAnimationComponent::updateAnimation()
 				}
 				else
 				{
-					if(m_FallSpeed > 0.0f)
+					if(m_FallSpeed > 0.0f && isFalling)
 						currentJumpState = JumpAnimationState::LIGHT_LANDING;
 				}
 				m_FallSpeed = 0.0f;
@@ -142,7 +142,7 @@ void HumanAnimationComponent::updateAnimation()
 			m_PrevSideState = currentSideState;
 			m_PrevJumpState = JumpAnimationState::IDLE;
 		}
-		else
+		else if(isFalling || isJumping)
 		{
 			float weight = 1 - (abs(cosf(angle)));
 			if(weight > 0.8f)
@@ -155,7 +155,7 @@ void HumanAnimationComponent::updateAnimation()
 			{
 				currentJumpState = JumpAnimationState::JUMP;
 			}
-			if(XMVectorGetY(velocity) < -flyLimit)
+			if(XMVectorGetY(velocity) < -flyLimit && isJumping)
 			{
 				currentJumpState = JumpAnimationState::FALLING;
 			}
@@ -179,17 +179,17 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::JUMP:
 					if (m_PrevJumpState != JumpAnimationState::FLYING)
 					{
-						if(XMVectorGetZ(velocity) > runLimit)
+						if(XMVectorGetZ(velocity) > runLimit && isJumping)
 						{
 							playAnimation("RunningJump", true);
 							queueAnimation("Falling");
 						}
-						else if (XMVectorGetX(velocity) > runLimit)
+						else if (XMVectorGetX(velocity) > runLimit && isJumping)
 						{
 							playAnimation("SideJumpRight", false);
 							queueAnimation("FallingSide");
 						}
-						else if (XMVectorGetX(velocity) < -runLimit)
+						else if (XMVectorGetX(velocity) < -runLimit && isJumping)
 						{
 							playAnimation("SideJumpLeft", false);
 							queueAnimation("FallingSide");

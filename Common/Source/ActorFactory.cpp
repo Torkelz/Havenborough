@@ -7,6 +7,7 @@
 #include "LookComponent.h"
 #include "RunControlComponent.h"
 #include "SpellComponent.h"
+#include "PlayerBodyComponent.h"
 #include "XMLHelper.h"
 
 ActorFactory::ActorFactory(unsigned int p_BaseActorId)
@@ -159,6 +160,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.PushAttribute("RadiusAnkle", 10.f);
 	printer.PushAttribute("RadiusHead", 25.f);
 	printer.PushAttribute("Mass", 68.f);
+	printer.PushAttribute("FallTolerance", 0.5f);
 	pushVector(printer, "HalfsizeBox", Vector3(25.f, 60.f, 25.f));
 	pushVector(printer, "OffsetPositionSphereMain", Vector3(0.f, 35.f, 0.f));
 	pushVector(printer, "OffsetPositionSphereHead", Vector3(0.f, 140.f, 0.f));

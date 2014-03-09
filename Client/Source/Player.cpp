@@ -13,8 +13,6 @@ Player::Player(void)
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
 	m_JumpForce = 8200.0f;
-	m_FallTolerance = 0.50f;
-	m_FallTime = 0.f;
 	m_ForceMove = false;
 	m_CurrentForceMoveTime = 0.f;
 	m_Height = 170.f;
@@ -109,31 +107,6 @@ void Player::update(float p_DeltaTime)
 		if(m_AllowedToMove)
 		{
 			jump(p_DeltaTime);
-			Actor::ptr actor = m_Actor.lock();
-			if (actor)
-			{
-				std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
-				std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
-
-				if (runComp)
-				{
-					if(!m_Physics->getBodyOnSomething(getBody()))
-					{
-						m_FallTime += p_DeltaTime;
-
-						if(m_FallTime > m_FallTolerance)
-						{
-							m_FallTime = 0.f;
-							runComp->setIsFalling(true);
-						}
-					}
-					else
-					{
-						runComp->setIsFalling(false);
-					}
-				}
-			}
-
 			if (strActor)
 			{
 				std::shared_ptr<MovementControlInterface> comp = strActor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();

@@ -692,7 +692,7 @@ unsigned int Physics::getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_
 		break;
 	}
 
-	return 0;
+	throw PhysicsException("Error! Trying to get the number of triangles from a non existing volume type!", __LINE__, __FILE__);
 }
 
 void Physics::setRotation(BodyHandle p_Body, XMMATRIX& p_Rotation)
@@ -725,11 +725,17 @@ Vector3 Physics::getBodyOrientation(BodyHandle p_BodyHandle)
 	{
 	case BoundingVolume::Type::OBB:
 		return ((OBB*)volume)->getOrientation();
+	case BoundingVolume::Type::AABBOX:
+		return Vector3(0.f, 0.f, 0.f);
+	case BoundingVolume::Type::SPHERE:
+		return Vector3(0.f, 0.f, 0.f);
+	case BoundingVolume::Type::HULL:
+		return Vector3(0.f, 0.f, 0.f);
 	default:
 		break;
 	}
 
-	return Vector3(0.f, 0.f, 0.f);
+	throw PhysicsException("Error! Trying to get orientation non existing volume! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
 }
 
 void Physics::resetForceOnBody(BodyHandle p_BodyHandle)
