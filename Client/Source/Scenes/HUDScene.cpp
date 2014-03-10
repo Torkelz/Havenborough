@@ -268,18 +268,24 @@ void HUDScene::updatePlayerTime(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<UpdatePlayerTimeEventData> data = std::static_pointer_cast<UpdatePlayerTimeEventData>(p_Data);
 
-	std::stringstream ss;
-	ss.precision(2);
+	std::wstring playerTimeText;
+	
 	float timeDiff = data->getTime();
-	float floorTimeDiff = floorf(timeDiff);
-	float timeDiffFrac = (timeDiff - floorTimeDiff) * 100.f;
 
-	ss << floorTimeDiff << "." << timeDiffFrac;
-	std::string string = ss.str();
+	int minutes = (int)timeDiff / 60;
+	float seconds = timeDiff - minutes * 60;
+	wchar_t buffer[64];
+	std::swprintf(buffer, L"%02.2d" L"." L"%05.2f\n", minutes, seconds);
+	playerTimeText += buffer;
 
-	m_Graphics->updateText(m_TextHandle["Time"], std::wstring(string.begin(), string.end()).c_str());
+	if (!playerTimeText.empty())
+	{
+		playerTimeText = playerTimeText.substr(0, playerTimeText.length() - 1);
+	}
+
+	m_Graphics->updateText(m_TextHandle["Time"], playerTimeText.data());
 	m_Graphics->setTextColor(m_TextHandle["Time"], Vector4(m_Color, 1.0f));
-	m_Graphics->updateText(m_TextHandle["TimeBG"], std::wstring(string.begin(), string.end()).c_str());
+	m_Graphics->updateText(m_TextHandle["TimeBG"], playerTimeText.data());
 	m_Graphics->setTextColor(m_TextHandle["TimeBG"], Vector4(m_Color, 1.0f));
 	m_TimeTimerCurrent = m_TimeTimerMax;
 	m_TimeScale = Vector3(10,10,10);
@@ -400,10 +406,10 @@ void HUDScene::preLoadModels()
 	adjustHUDPosition(pos);
 
 	m_TimePosition = pos;
-	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(124.f, 74.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
+	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(300.f, 580.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(m_TimePosition, scale, 0.f, m_TextHandle["Time"]));
 	m_Graphics->setTextBackgroundColor(m_TextHandle["Time"], Vector4(m_Color, 0.f));
-	createTextElement("TimeBG", m_Graphics->createText(L"0.00", Vector2(128.f, 78.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 100.f, 0.f), 1.f, 0.f));
+	createTextElement("TimeBG", m_Graphics->createText(L"0.00", Vector2(300.f, 580.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
 	createGUIElement("TimeBG", m_Graphics->create2D_Object(Vector3(m_TimePosition.x-2, m_TimePosition.y-2, m_TimePosition.z+1), scale, 0.f, m_TextHandle["TimeBG"]));
 
 	pos = Vector3(-450, 320, 3);
