@@ -200,6 +200,40 @@ namespace Havenborough_Launcher
             comboBox.SelectedIndex = 0;
         }
 
+        private void ScreenWidthLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<string>
+            {
+                "2560",
+                "1920",
+                "1366",
+                "1280",
+            };
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 3;
+        }
+
+        private void ScreenHeightLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<string>
+            {
+                "1440",
+                "1080",
+                "768",
+                "720",
+            };
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 3;
+        }
+
         private void SliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             var slider = sender as Slider;

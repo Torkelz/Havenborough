@@ -47,8 +47,8 @@
                         <StackPanel Orientation="Vertical"  Margin="0,0,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
                             <TextBlock FontSize="14" Text="Resolution" />
                             <StackPanel Orientation="Horizontal">
-                                <TextBox Text="{Binding XPath=@Width, Mode=TwoWay}" Width="50" />
-                                <TextBox Text="{Binding XPath=@Height, Mode=TwoWay}" Width="50" Margin="0,0,5,0"/>
+                                <ComboBox Loaded="ScreenWidthLoad" Text="{Binding XPath=@Width, Mode=TwoWay}" Width="80"/>
+                                <ComboBox Loaded="ScreenHeightLoad" Text="{Binding XPath=@Height, Mode=TwoWay}" Width="80"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Fullscreen}">
@@ -107,7 +107,7 @@
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <Button Width="100" Height="50" FontSize="16" FontWeight="Bold" Margin="0,0,0,5" Click="Refresh_OnClick"
                                 Content="REFRESH"/>
-                            <Button x:Name="LaunchButton" IsEnabled="False" Width="100" Height="50" FontSize="16" FontWeight="Bold"
+                            <Button x:Name="LaunchButton" IsEnabled="True" Width="100" Height="50" FontSize="16" FontWeight="Bold"
                                     Margin="0,5,0,0"  Click="Launch_OnClick" Content="LAUNCH"/>
                         </StackPanel>
                     </StackPanel>
