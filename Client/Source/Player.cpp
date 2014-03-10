@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Components.h"
 #include "RunControlComponent.h"
+#include "PlayerBodyComponent.h"
 #include <Logger.h>
 
 using namespace DirectX;
@@ -515,6 +516,11 @@ void Player::setJump(void)
 			{
 				runComp->setIsJumping(true);
 				runComp->setIsFalling(true);
+				std::shared_ptr<PhysicsInterface> physComp = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+				std::shared_ptr<PlayerBodyComponent> bodyComp = std::dynamic_pointer_cast<PlayerBodyComponent>(physComp);
+				if(bodyComp)
+					bodyComp->resetFallTime();
+
 				Vector3 temp = m_Physics->getBodyVelocity(getBody());
 				temp.y = 0.f;
 

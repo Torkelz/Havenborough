@@ -193,3 +193,8 @@ bool PlayerBodyComponent::isOnSomething() const
 {
 	return m_Physics->getBodyOnSomething(m_Body);
 }
+
+void PlayerBodyComponent::resetFallTime()
+{
+	m_FallTime = 0.f;
+}

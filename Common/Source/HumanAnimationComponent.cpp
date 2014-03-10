@@ -1,5 +1,6 @@
 #include "HumanAnimationComponent.h"
 #include "RunControlComponent.h"
+#include "Logger.h"
 
 void HumanAnimationComponent::updateAnimation()
 {
@@ -110,7 +111,10 @@ void HumanAnimationComponent::updateAnimation()
 				else
 				{
 					if(m_FallSpeed > 500.0f)
+					{
+						Logger::log(Logger::Level::INFO, std::string("VelocityY: " + std::to_string(m_FallSpeed)));
 						currentJumpState = JumpAnimationState::LIGHT_LANDING;
+					}
 				}
 				m_FallSpeed = 0.0f;
 			}
@@ -166,7 +170,7 @@ void HumanAnimationComponent::updateAnimation()
 				m_FallSpeed = abs(XMVectorGetY(velocity));
 			}
 
-			if (currentJumpState != m_PrevJumpState)
+			if (currentJumpState != m_PrevJumpState) //This is problem right here...
 			{
 				switch (currentJumpState)
 				{
@@ -200,9 +204,9 @@ void HumanAnimationComponent::updateAnimation()
 							playAnimation("StandingJump", true);
 							queueAnimation("Falling");
 						}
-						else if(isFalling)
+						else
 						{
-							currentJumpState = JumpAnimationState::FALLING;
+							queueAnimation("Falling");
 						}
 					}
 					break;
@@ -225,14 +229,18 @@ void HumanAnimationComponent::updateAnimation()
 						queueAnimation("Idle2");
 					break;
 				case JumpAnimationState::FALLING:
-					playAnimation("Falling", false);
+					playAnimation("Falling", true);
 					break;
 				default: // Just in case, so that the code doesn't break, hohohoho
 					break;
 				}
 			}
 			
-			m_PrevForwardState = ForwardAnimationState::WALKING_FORWARD;
+			if(isFalling)
+				m_PrevForwardState = ForwardAnimationState::WALKING_FORWARD;
+			else
+				m_PrevForwardState = ForwardAnimationState::RUNNING_FORWARD;
+
 			m_PrevSideState = SideAnimationState::IDLE;
 			m_PrevJumpState = currentJumpState;
 		}

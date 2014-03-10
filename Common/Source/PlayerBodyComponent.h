@@ -32,4 +32,5 @@ public:
 	bool isInAir() const override;
 	bool hasLanded() const override;
 	bool isOnSomething() const override;
+	void resetFallTime();
 };
