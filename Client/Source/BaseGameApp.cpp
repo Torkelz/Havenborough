@@ -155,6 +155,7 @@ void BaseGameApp::init()
 	m_ServerPort = settings.getServerPort();
 	m_LevelName = settings.getLevelName();
 	m_Username = settings.getUsername();
+	m_CharacterName = settings.getCharacterName();
 }
 
 void BaseGameApp::run()
@@ -165,7 +166,7 @@ void BaseGameApp::run()
 
 	resetTimer();
 
-	m_GameLogic->connectToServer(m_ServerURL, m_ServerPort, m_LevelName, m_Username);
+	m_GameLogic->connectToServer(m_ServerURL, m_ServerPort, m_LevelName, m_Username, m_CharacterName);
 
 	while (!m_ShouldQuit)
 	{

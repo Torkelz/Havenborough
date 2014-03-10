@@ -80,9 +80,10 @@ public:
 
 	void sendDoneLoading() override;
 
-	void sendJoinGame(const char* p_Game, const char* p_Username) override;
+	void sendJoinGame(const char* p_Game, const char* p_Username, const char* p_CharacterName) override;
 	const char* getJoinGameName(Package p_Package) override;
 	const char* getJoinGameUsername(Package p_Package) override;
+	const char* getJoinGameCharacterName(Package p_Package) override;
 
 	void sendRacePosition(const char** p_ExtraData, unsigned int p_NumExtraData) override;
 	unsigned int getNumRacePositionsData(Package p_Package) override;
