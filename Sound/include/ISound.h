@@ -36,12 +36,26 @@ public:
 	 */
 	virtual void onFrame(void) = 0;
 	/**
-	 * Load a sound from file into memory.
+	 * Load a sound from file into memory and set the loop state to be on.
 	 * @param p_SoundId resource name connected to the sound to load.
 	 * @param p_Filename filename of the sound file.
 	 * @param true if the load is successful otherwise false
 	 */
 	virtual bool loadSound(const char *p_SoundId, const char *p_Filename) = 0;
+	/**
+	 * Load a sound from file into memory and set the loop state to be off.
+	 * @param p_SoundId resource name connected to the sound to load.
+	 * @param p_Filename filename of the sound file.
+	 * @param true if the load is successful otherwise false
+	 */
+	virtual bool loadSoundWithoutLoop(const char *p_SoundId, const char *p_Filename) = 0;
+	/**
+	 * A way find out if an instance of a sound is playing.
+	 * @param p_SoundId resource name connected to the sound to load.
+	 * @return true if it's still playing else false
+	 * 
+	 */
+	virtual bool isPlaying(const char *p_SoundId) = 0;
 	/**
 	 * Stream a sound from file, NOT IMPLEMENTED!
 	 * @param p_SoundId resource name connected to the sound to load.

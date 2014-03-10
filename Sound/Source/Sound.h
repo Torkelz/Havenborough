@@ -73,6 +73,10 @@ public:
 
 	bool loadSound(const char *p_SoundId, const char *p_Filename) override;
 
+	bool loadSoundWithoutLoop(const char *p_SoundId, const char *p_Filename) override;
+
+	bool isPlaying(const char *p_SoundId) override;
+
 	bool loadStream(const char *p_SoundId, const char *p_Filename) override;
 
 	void playSound(const char *p_SoundId) override;

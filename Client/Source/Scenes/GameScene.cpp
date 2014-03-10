@@ -14,7 +14,8 @@ GameScene::GameScene()
 	m_NewSceneID = 0;
 	m_ChangeScene = false;
 	m_ChangeList = false;
-	
+	m_SoundExist = false;
+
 	m_GameLogic = nullptr;
 	m_Graphics = nullptr;
 	m_InputQueue = nullptr;
@@ -31,6 +32,8 @@ GameScene::~GameScene()
 {
 	m_Graphics = nullptr;
 	m_InputQueue = nullptr;
+
+	m_SoundManager = nullptr;
 }
 
 bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
@@ -79,9 +82,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
 
 	m_RandomEngine.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
-
-	m_SoundFolderPath = 
-	changeBackGroundSound("hello world");
+	m_SoundFolderPath = "assets/sounds/background";
 
 	return true;
 }
@@ -90,6 +91,8 @@ void GameScene::destroy()
 {
 	releasePreLoadedModels();
 	m_ResourceManager->releaseResource(m_SkyboxID);
+	m_SoundManager->releaseSound("CurrentSound");
+	m_BackGroundSoundsList.clear();
 }
 
 void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
@@ -121,6 +124,15 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->setPlayerDirection(Vector3(forward, up, right));
 
 	m_Graphics->updateParticles(p_DeltaTime);
+
+	m_SoundManager->onFrame();
+
+	if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
+	{
+		m_SoundManager->loadSoundWithoutLoop("CurrentSound", changeBackGroundSound(m_SoundFolderPath).c_str());
+		m_SoundExist = true;
+		m_SoundManager->playSound("CurrentSound");	
+	}
 }
 
 void GameScene::onFocus()
@@ -332,6 +344,11 @@ void GameScene::setMouseSensitivity(float p_Value)
 {
 	m_ViewSensitivity *= p_Value;
 }
+
+void GameScene::setSoundManager(ISound *p_SoundManager)
+{
+	m_SoundManager = p_SoundManager;
+}
 /*########## TEST FUNCTIONS ##########*/
 
 int GameScene::getID()
@@ -341,21 +358,28 @@ int GameScene::getID()
 
 std::string GameScene::changeBackGroundSound(const std::string& p_FontFolderPath)
 {
+	if (m_SoundExist)
+	{
+		m_SoundManager->releaseSound("CurrentSound");
+		m_SoundExist = false;
+	}
 	m_BackGroundSoundsList.clear();
 
-	//boost::filesystem::directory_iterator currFile(p_FontFolderPath);
-	//for (; currFile != boost::filesystem::directory_iterator(); ++currFile)
-	//{
-	//	auto filename = currFile->path();
-	//	m_BackGroundSoundsList.push_back(filename.string());
-	//}
+	boost::filesystem::directory_iterator currFile(p_FontFolderPath);
+	for (; currFile != boost::filesystem::directory_iterator(); ++currFile)
+	{
+		auto filename = currFile->path();
+		m_BackGroundSoundsList.push_back(filename.string());
+	}
 	int soundCount = m_BackGroundSoundsList.size();
 
-	std::uniform_int_distribution<int> newBackGroundSound(0, soundCount);
-	int lol = 1;
-	lol = newBackGroundSound(m_RandomEngine);
+	std::uniform_int_distribution<int> newBackGroundSound(0, soundCount-1);
+	int newSoundTrack = 0;
+	newSoundTrack = newBackGroundSound(m_RandomEngine);
 
-	return p_FontFolderPath;
+	std::string lol = m_BackGroundSoundsList[newSoundTrack];
+
+	return m_BackGroundSoundsList[newSoundTrack];
 }
 
 void GameScene::addLight(IEventData::Ptr p_Data)
