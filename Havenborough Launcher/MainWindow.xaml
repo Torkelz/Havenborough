@@ -47,8 +47,7 @@
                         <StackPanel Orientation="Vertical"  Margin="0,0,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
                             <TextBlock FontSize="14" Text="Resolution" />
                             <StackPanel Orientation="Horizontal">
-                                <ComboBox Loaded="ScreenWidthLoad" Text="{Binding XPath=@Width, Mode=TwoWay}" Width="80"/>
-                                <ComboBox Loaded="ScreenHeightLoad" Text="{Binding XPath=@Height, Mode=TwoWay}" Width="80"/>
+                                <ComboBox Loaded="ScreenResolutionLoad" SelectionChanged="ScreenResolutionChanged" Width="100"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Fullscreen}">
