@@ -461,3 +461,48 @@ t	35
 z	38
 t	47
 *EndPath
+
+*IKgrab
+na	Climb2
+sp	1.35
+tg	RightArm
+fi	1
+fif	3
+fof	3
+st	1
+en	16
+*EndGrab
+
+*IKgrab
+na	Climb3
+sp	1.2
+tg	RightArm
+fi	1
+fif	3
+fof	3
+st	1
+en	20
+tg	LeftArm
+fi	1
+fif	3
+fof	3
+st	1
+en	20
+*EndGrab
+
+*IKgrab
+na	Climb4
+sp	1.2
+tg	RightArm
+fi	1
+fif	3
+fof	3
+st	1
+en	25
+tg	LeftArm
+fi	1
+fif	3
+fof	3
+st	1
+en	17
+*EndGrab
