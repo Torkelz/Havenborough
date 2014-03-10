@@ -182,6 +182,7 @@ private:
 	void removeActor(Actor::Id p_Actor);
 
 	void removeActorByEvent(IEventData::Ptr p_Data);
+	void updateIKHeadByEvent(IEventData::Ptr p_Data);
 
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
 	//void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);

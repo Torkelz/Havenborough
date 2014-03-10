@@ -40,7 +40,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_EventManager = p_EventManager;
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameLogic::removeActorByEvent), RemoveActorEventData::sk_EventType);
-	
+	m_EventManager->addListener(EventListenerDelegate(this, &GameLogic::updateIKHeadByEvent), updateIKHeadEventData::sk_EventType);
+		
 	m_Actors.reset(new ActorList);
 	m_ActorFactory->setActorList(m_Actors);
 
@@ -997,16 +998,7 @@ void GameLogic::handleNetwork()
 						Actor::ptr actor = getActor(actorId);
 						Vector3 lookAt = Vector3(0,0,1);
 						queryVector(action->FirstChildElement("LookAt"), lookAt);
-
-						if (actor)
-						{
-							std::shared_ptr<AnimationInterface> comp = 
-								actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-							if (comp)
-							{
-								comp->applyLookAtIK("Head", lookAt, 1.f);
-							}
-						}
+						m_EventManager->queueEvent(IEventData::Ptr(new updateIKHeadEventData(actorId, lookAt)));
 					}
 				}
 				break;
@@ -1109,6 +1101,23 @@ void GameLogic::removeActorByEvent(IEventData::Ptr p_Data)
 	std::shared_ptr<RemoveActorEventData> data = std::static_pointer_cast<RemoveActorEventData>(p_Data);
 
 	removeActor(data->getActorId());
+}
+
+void GameLogic::updateIKHeadByEvent(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<updateIKHeadEventData> data = std::static_pointer_cast<updateIKHeadEventData>(p_Data);
+
+	Actor::ptr actor = getActor(data->getId());
+
+	if (actor)
+	{
+		std::shared_ptr<AnimationInterface> comp = 
+			actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+		if (comp)
+		{
+			comp->applyLookAtIK("Head", data->getLookAt(), 1.f);
+		}
+	}
 }
 
 void GameLogic::updateCountdownTimer(float p_DeltaTime)
