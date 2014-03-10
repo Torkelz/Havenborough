@@ -1,6 +1,9 @@
 #pragma once
 #include "IScene.h"
+#include "ISound.h"
 #include "../GameLogic.h"
+
+#include <random>
 #include <LightClass.h>
 
 class GameScene : public IScene
@@ -32,6 +35,10 @@ private:
 
 	unsigned int m_CurrentDebugView;
 	std::vector<IGraphics::RenderTarget> m_SelectableRenderTargets;
+
+	std::vector<std::string> m_BackGroundSoundsList;
+	std::string m_SoundFolderPath;
+	std::default_random_engine m_RandomEngine;
 
 	float m_ViewSensitivity;
 
@@ -92,6 +99,8 @@ public:
 	*/
 	void setMouseSensitivity(float p_Value);
 private:
+	std::string changeBackGroundSound(const std::string& p_FontFolderPath);
+
 	void addLight(IEventData::Ptr p_Data);
 	void removeLight(IEventData::Ptr p_Data);
 	void createMesh(IEventData::Ptr p_Data);

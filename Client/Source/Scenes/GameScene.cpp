@@ -78,6 +78,11 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	TweakSettings* tweakSettings = TweakSettings::getInstance();
 	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
 
+	m_RandomEngine.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
+
+	m_SoundFolderPath = 
+	changeBackGroundSound("hello world");
+
 	return true;
 }
 
@@ -332,6 +337,25 @@ void GameScene::setMouseSensitivity(float p_Value)
 int GameScene::getID()
 {
 	return m_SceneID;
+}
+
+std::string GameScene::changeBackGroundSound(const std::string& p_FontFolderPath)
+{
+	m_BackGroundSoundsList.clear();
+
+	//boost::filesystem::directory_iterator currFile(p_FontFolderPath);
+	//for (; currFile != boost::filesystem::directory_iterator(); ++currFile)
+	//{
+	//	auto filename = currFile->path();
+	//	m_BackGroundSoundsList.push_back(filename.string());
+	//}
+	int soundCount = m_BackGroundSoundsList.size();
+
+	std::uniform_int_distribution<int> newBackGroundSound(0, soundCount);
+	int lol = 1;
+	lol = newBackGroundSound(m_RandomEngine);
+
+	return p_FontFolderPath;
 }
 
 void GameScene::addLight(IEventData::Ptr p_Data)
