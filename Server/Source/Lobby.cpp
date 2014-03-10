@@ -133,7 +133,9 @@ void Lobby::handlePackagesForOneUser(User::wPtr p_User)
 			{
 				const std::string levelName = con->getJoinGameName(package);
 				const std::string username = con->getJoinGameUsername(package);
+				const std::string characterName = con->getJoinGameCharacterName(package);
 				user->setUsername(username);
+				user->setCharacterName(characterName);
 				joinLevel(user, levelName);
 
 				con->clearPackages(i + 1);

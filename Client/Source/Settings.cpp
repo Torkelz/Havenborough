@@ -12,6 +12,8 @@ Settings::Settings(void)
 	m_Username = "Player";
 	m_ServerURL = "localhost";
 	m_ServerPort = 31415;
+	m_CharacterName = "Dzala";
+	m_CharacterStyle = "Black";
 }
 
 
@@ -45,6 +47,10 @@ void Settings::initialize(std::string p_FilePath)
 		else if (elementName == "Game")
 		{
 			loadGame(element);
+		}
+		else if (elementName == "Character")
+		{
+			loadCharacter(element);
 		}
 		else if (elementName == "Server")
 		{
@@ -217,6 +223,21 @@ void Settings::loadGame(const tinyxml2::XMLElement *p_Element)
 	}
 }
 
+void Settings::loadCharacter(const tinyxml2::XMLElement *p_Element)
+{
+	const char* name = p_Element->Attribute("Name");
+	if (name)
+	{
+		m_CharacterName = name;
+	}
+
+	const char* style = p_Element->Attribute("Style");
+	if (style)
+	{
+		m_CharacterStyle = style;
+	}
+}
+
 void Settings::loadServer(const tinyxml2::XMLElement *p_Element)
 {
 	const char* address = p_Element->Attribute("Hostname");
@@ -313,6 +334,16 @@ const std::string& Settings::getLevelName() const
 const std::string& Settings::getUsername() const
 {
 	return m_Username;
+}
+
+const std::string& Settings::getCharacterName() const
+{
+	return m_CharacterName;
+}
+
+const std::string& Settings::geCharacterStyle() const
+{
+	return m_CharacterStyle;
 }
 
 const std::string& Settings::getServerURL() const

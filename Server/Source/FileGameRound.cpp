@@ -30,7 +30,7 @@ void FileGameRound::setup()
 		static const float spawnCircleRadius = 200.f;
 		Vector3 position = basePos + Vector3(sinf(i * angle), 0.f, cosf(i * angle)) * spawnCircleRadius;
 
-		Actor::ptr actor = m_ActorFactory->createPlayerActor(position, user->getUsername());
+		Actor::ptr actor = m_ActorFactory->createPlayerActor(position, user->getUsername(), user->getCharacterName());
 		m_Players[i]->setActor(actor);
 		m_Actors.push_back(actor);
 	}
