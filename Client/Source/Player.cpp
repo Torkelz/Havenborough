@@ -281,9 +281,22 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		//	m_ForceMoveZ[1].x += sp.m128_f32[2];
 		// The goldener path code END
 
+		// The path to Eldorado, city of golden paths
+		XMVECTOR normal = vEdgeOrientation;
+		normal.m128_f32[1] = 0.0f;
+		normal = XMVector3Normalize(normal);
+
+		// d = ((p0 - l0) dot n) / (l dot n)
+		float roof = XMVector3Dot((XMLoadFloat3(&playerOrigPos) - XMLoadFloat3(&p_BoxPos)), normal).m128_f32[0];
+		float bottom = XMVector3Dot( vEdgeOrientation, normal).m128_f32[0];
+		float d = roof / bottom;
+		// l0 + dl
+		vReachPointCenter =  XMLoadFloat3(&p_BoxPos) + vEdgeOrientation * d;
+		// The path to Eldorado, city of golden paths end
+		
 		// The golden path code
-		vReachPointCenter = XMLoadFloat3(&playerOrigPos) - XMLoadFloat3(&p_BoxPos);
-		vReachPointCenter = (XMVector3Dot(vReachPointCenter, vEdgeOrientation) * vEdgeOrientation) + XMLoadFloat3(&p_BoxPos);
+		//vReachPointCenter = XMLoadFloat3(&playerOrigPos) - XMLoadFloat3(&p_BoxPos);
+		//vReachPointCenter = (XMVector3Dot(vReachPointCenter, vEdgeOrientation) * XMVector3Normalize(vEdgeOrientation)) + XMLoadFloat3(&p_BoxPos);
 		XMStoreFloat3(&m_CenterReachPos, vReachPointCenter);
 		XMStoreFloat3(&m_Side, side);
 		m_EdgeOrientation = p_EdgeOrientation;

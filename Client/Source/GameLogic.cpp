@@ -162,8 +162,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 		if (fabs(angleDiff) > maxOffset && !m_Player.getForceMove())
 		{
 			float offset = angleDiff < 0.f ? -maxOffset : maxOffset;
-
+		
 			playerActor->setRotation(Vector3(currentAngle + offset, 0.f, 0.f));
+		}
+		else if (m_Player.getForceMove())
+		{
+			playerActor->setRotation(Vector3(currentAngle, 0.f, 0.f));
 		}
 	}
 
