@@ -223,7 +223,17 @@ void GameLogic::onFrame(float p_DeltaTime)
 			printer.CloseElement();
 			printer.CloseElement();
 
-			con->sendObjectAction(m_Player.getActor().lock()->getId(), printer.CStr());
+			Actor::ptr actor = m_Player.getActor().lock();
+
+			if (actor)
+			{
+				std::shared_ptr<AnimationInterface> comp = 
+					actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+				if (comp)
+				{
+					con->sendObjectAction(m_Player.getActor().lock()->getId(), printer.CStr());
+				}
+			}
 		}
 	}
 }
