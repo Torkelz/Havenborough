@@ -60,6 +60,7 @@ DeferredRenderer::DeferredRenderer()
 	m_Buffer["AnimatedConstant"] = nullptr;
 	m_Buffer["WorldInstance"] = nullptr;
 	m_Shader["IGeometry"] = nullptr;
+	m_Shader["ShadowMapGeometry"] = nullptr;
 
 	m_Buffer["LightConstant"] = nullptr;
 	m_Buffer["LightViewProj"] = nullptr;
@@ -166,7 +167,8 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	percentage = 0.5f - percentage;
 	m_ShadowMapBorder = percentage;
 	UINT resolution = m_ShadowMapResolution; //size of Shadow Map
-	initializeShadowMap(resolution, resolution);	
+	if(m_ShadowMap)
+		initializeShadowMap(resolution, resolution);	
 
 	//DXGI_FORMAT_R16G16B16A16_FLOAT
 	desc.Format	= DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -274,7 +276,7 @@ void DeferredRenderer::renderDeferred()
 		std::vector<Renderable> animatedOrSingle;
 
 		SortRenderables(animatedOrSingle, instancedModels);
-		renderGeometry(m_DepthStencilView, nrRT, rtv, instancedModels, animatedOrSingle);
+		renderGeometry(m_DepthStencilView, nrRT, rtv, instancedModels, animatedOrSingle, m_Shader["IGeometry"]);
 		if(m_SSAO)
 		{
 			D3D11_VIEWPORT vp, oldVP;
@@ -299,7 +301,8 @@ void DeferredRenderer::renderDeferred()
 
 
 void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[],
-	const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle)
+									  const std::vector<std::vector<Renderable>> &p_InstancedModels, 
+									  const std::vector<Renderable> &p_AnimatedOrSingle, Shader* p_Shader)
 {
 	// Set the render targets.
 	m_DeviceContext->OMSetRenderTargets(nrRT, rtv, p_DepthStencilView);
@@ -321,7 +324,7 @@ void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView
 	m_Buffer["ObjectConstant"]->unsetBuffer(1);
 
 	for( auto k : p_InstancedModels)
-		RenderObjectsInstanced(k);
+		RenderObjectsInstanced(k,p_Shader);
 
 	m_DeviceContext->PSSetSamplers(0,0,0);
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
@@ -874,6 +877,8 @@ void DeferredRenderer::createShaders()
 	m_Shader["IGeometry"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/GeoInstanceShader.hlsl", nullptr,
 		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER, instanceshaderDesc, 9);
 
+	m_Shader["ShadowMapGeometry"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/ShadowMapGeometry.hlsl", nullptr,
+		"VS,PS", "5_0", ShaderType::VERTEX_SHADER| ShaderType::PIXEL_SHADER, instanceshaderDesc, 9); 
 
 	m_Shader["SSAO"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/SSAO.hlsl",
 		"VS,PS", "5_0",ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
@@ -1156,7 +1161,7 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 	});
 }
 
-void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Objects )
+void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Objects, Shader* p_Shader)
 {
 	if(p_Objects.size() >  m_Buffer["WorldInstance"]->getNumOfElements())
 	{
@@ -1179,9 +1184,9 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 	ID3D11ShaderResourceView *nullsrvs[] = {0,0,0};
 
 	// Set shader.
-	m_Shader["IGeometry"]->setShader();
+	p_Shader->setShader();
 	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
-	m_Shader["IGeometry"]->setBlendState(m_BlendState2, data);
+	p_Shader->setBlendState(m_BlendState2, data);
 	m_DeviceContext->IASetVertexBuffers(0,2,buffers,Stride, Offsets);
 
 	D3D11_MAPPED_SUBRESOURCE ms;
@@ -1210,8 +1215,8 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 
 	for(unsigned int i = 0; i < 2; i++)
 		m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
-	m_Shader["IGeometry"]->setBlendState(0, data);
-	m_Shader["IGeometry"]->unSetShader();
+	p_Shader->setBlendState(0, data);
+	p_Shader->unSetShader();
 }
 
 void DeferredRenderer::updateLightView(DirectX::XMFLOAT3 p_Dir)
@@ -1261,7 +1266,7 @@ void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<st
 		//update and render Shadow map
 		updateConstantBuffer(m_LightView, m_LightProjection);
 
-		renderGeometry(m_DepthMapDSV, nrRT, &noRTV, p_InstancedModels, p_AnimatedOrSingle);
+		renderGeometry(m_DepthMapDSV, nrRT, &noRTV, p_InstancedModels, p_AnimatedOrSingle, m_Shader["ShadowMapGeometry"]);
 
 		m_DeviceContext->RSSetViewports(1, &prevViewport);
 

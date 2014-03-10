@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DebugInfo.cpp" />
+    <ClCompile Include="Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="Source\Scenes\HUDScene.cpp" />
     <ClCompile Include="Source\Settings.cpp" />
     <ClCompile Include="Source\EdgeCollisionResponse.cpp" />
@@ -56,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\DebugInfo.h" />
+    <ClInclude Include="Source\Scenes\PostGameScene.h" />
     <ClInclude Include="Source\Scenes\HUDScene.h" />
     <ClInclude Include="Source\Input\InputTranslatorEnums.h" />
     <ClInclude Include="Source\Settings.h" />
@@ -309,6 +311,12 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </EntryPointName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Bin\assets\shaders\ShadowMapGeometry.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>

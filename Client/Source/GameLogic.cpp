@@ -95,8 +95,9 @@ void GameLogic::onFrame(float p_DeltaTime)
 	{
 		return;
 	}
-
-	if(m_Physics->getHitDataSize() > 0)
+	
+	Actor::ptr playerActor = m_Player.getActor().lock();
+	if(m_Physics->getHitDataSize() > 0 && playerActor)
 	{
 		for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 		{
@@ -133,7 +134,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Physics->update(p_DeltaTime, 100);
 
 	XMVECTOR actualViewRot = Vector3ToXMVECTOR(&getPlayerViewRotation(), 0.0f);
-	Actor::ptr playerActor = m_Player.getActor().lock();
 	if (playerActor)
 	{
 		XMVECTOR playerRotation = actualViewRot;
@@ -431,7 +431,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
-	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition(), m_Username));
+	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition(), m_Username, m_CharacterName));
 	
 	m_Player = Player();
 	m_Player.initialize(m_Physics, nullptr, m_PlayerDefault);
@@ -448,12 +448,14 @@ void GameLogic::playLocalLevel()
 }
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port,
-								const std::string& p_LevelName, const std::string& p_Username)
+								const std::string& p_LevelName, const std::string& p_Username,
+								const std::string& p_CharacterName)
 {
 	if (!m_IsConnecting && !m_Connected)
 	{
 		m_LevelName = p_LevelName;
 		m_Username = p_Username;
+		m_CharacterName = p_CharacterName;
 
 		m_IsConnecting = true;
 		m_Network->connectToServer(p_URL.c_str(), p_Port, &connectedCallback, this);
@@ -695,42 +697,25 @@ void GameLogic::handleNetwork()
 						tinyxml2::XMLElement* object = reader.FirstChildElement("GameResult");
 						if(object->Attribute("Type", "Result"))
 						{
-								m_Level = Level();
-								m_Actors.reset();
-								m_Actors.reset(new ActorList);
-								m_ActorFactory->setActorList(m_Actors);
+							object = object->FirstChildElement("ResultList");
+							if(!object)
+							Logger::log(Logger::Level::ERROR_L, "Could not find Object (ResultList)");
 
-								m_InGame = false;
-
-								IConnectionController* con = m_Network->getConnectionToServer();
-
-								if (!m_PlayingLocal && con && con->isConnected())
+							FinishRaceEventData::GoalList goalList;
+							std::string username("UnknownUser");
+							float time;
+							for(const auto* place = object->FirstChildElement("Place"); place; place = place->NextSiblingElement("Place"))
+							{
+								const char* name = place->Attribute("Player");
+								if (name)
 								{
-									con->sendLeaveGame();
+									username = name;
 								}
+								place->QueryAttribute("Time", &time);
+								goalList.push_back(std::make_pair(username, time));
+							}
 								
-								object = object->FirstChildElement("ResultList");
-								if(!object)
-								Logger::log(Logger::Level::ERROR_L, "Could not find Object (ResultList)");
-								int size = 0;
-								object->QueryAttribute("VectorSize", &size);
-								if(size == 0)
-								{
-									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
-								}
-								else
-								{
-									std::vector<std::pair<int, float>> GoalList;
-									int position;
-									float time;
-									for(int i = 0; i < size; i++)
-									{
-										object->QueryAttribute("Place", &position);
-										object->QueryAttribute("Time", &time);
-										GoalList.push_back(std::make_pair(position, time));
-									}
-									m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData)); //DO SOMETHING HERE!!
-								}
+							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData(goalList)));
 						}
 						else if(object->Attribute("Type", "Position"))
 						{
@@ -738,6 +723,8 @@ void GameLogic::handleNetwork()
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
+
+							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData(FinishRaceEventData::GoalList())));
 						}
 					}
 				}
@@ -995,8 +982,6 @@ void GameLogic::handleNetwork()
 					conn->sendDoneLoading();
 					m_InGame = true;
 					m_PlayingLocal = false;
-
-					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 				}
 				break;
 
@@ -1008,6 +993,7 @@ void GameLogic::handleNetwork()
 
 			case PackageType::START_COUNTDOWN:
 				{
+					m_EventManager->queueEvent(IEventData::Ptr(new GameStartedEventData));
 					m_Player.setAllowedToMove(false);
 					m_CountdownTimer = 3.0f;
 				}
@@ -1034,7 +1020,7 @@ void GameLogic::joinGame()
 	IConnectionController* con = m_Network->getConnectionToServer();
 	if (!m_InGame && con && con->isConnected())
 	{
-		con->sendJoinGame(m_LevelName.c_str(), m_Username.c_str());
+		con->sendJoinGame(m_LevelName.c_str(), m_Username.c_str(), m_CharacterName.c_str());
 	}
 }
 

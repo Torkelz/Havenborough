@@ -485,6 +485,8 @@ BOOST_AUTO_TEST_CASE(PhysicsResourceIntegration)
 	physics->initialize(false);
 	BOOST_MESSAGE(testId + "Initializing the resource manager");
 	std::unique_ptr<ResourceManager> resourceManager(new ResourceManager);
+	resourceManager->loadDataFromFile("assets/Resources.xml");
+
 	using namespace std::placeholders;
 	BOOST_MESSAGE(testId + "Registering create and release functions for bounding volumes");
 	resourceManager->registerFunction("volume", std::bind(&IPhysics::createBV, physics, _1, _2), std::bind(&IPhysics::releaseBV, physics, _1));
@@ -516,6 +518,7 @@ BOOST_AUTO_TEST_CASE(PhysicsResourceIntegration)
 
 	BOOST_CHECK(resourceManager->releaseResource(resourceID));
 	
+	resourceManager->unregisterResourceType("volume");
 	IPhysics::deletePhysics(physics);
 	physics = nullptr;
 	Body::resetBodyHandleCounter();

@@ -13,12 +13,13 @@ private:
 	bool m_ChangeList;
 	bool m_ShowDebugInfo;
 	unsigned int m_NumberOfCheckpoints;
+	
 	std::string m_TakenCheckpoints;
 	Vector3 m_Color, m_BGColor, m_TimePosition, m_TimeScale;
 	bool m_FadeOut;
 	float m_TimeTimerMax, m_TimeTimerStartFade, m_TimePositionFade;
 	float m_TimeTimerCurrent, m_TimePositionCurrent;
-
+	std::string m_GUIFont;
 	IGraphics *m_Graphics;
 	EventManager *m_EventManager;
 	ResourceManager *m_ResourceManager;
@@ -81,12 +82,14 @@ private:
 	void updateTakenCheckpoints(IEventData::Ptr p_Data);
 	void activateHUD(IEventData::Ptr p_Data);
 	void setNrOfCheckpoints(IEventData::Ptr p_Data);
+	void onFinish(IEventData::Ptr p_Data);
 
 	void preLoadModels();
 	void releasePreLoadedModels();
 
 	void getHUDSettings( std::string p_Id, Vector3 &p_Position, Vector3 &p_Scale );
 	void adjustHUDPosition(Vector3 &p_Position);
+
 public:
 	/*########## TEST FUNCTIONS ##########*/
 	int	getID() override;

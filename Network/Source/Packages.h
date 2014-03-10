@@ -442,4 +442,4 @@ typedef Package2Obj<PackageType::OBJECT_ACTION, uint32_t, std::string> ObjectAct
 /**
  * A package representing the player joining a game.
  */
-typedef Package2Obj<PackageType::JOIN_GAME, std::string, std::string> JoinGame;
+typedef Package3Obj<PackageType::JOIN_GAME, std::string, std::string, std::string> JoinGame;

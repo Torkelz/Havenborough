@@ -47,7 +47,7 @@ BodyHandle CheckpointSystem::getCurrentCheckpointBodyHandle(void)
 	return m_Checkpoints.back().lock()->getBodyHandles().back();
 }
 
-bool CheckpointSystem::reachedFinishLine(void)
+bool CheckpointSystem::reachedFinishLine(void) const
 {
 	return m_Checkpoints.empty();
 }

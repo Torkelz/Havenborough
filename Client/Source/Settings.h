@@ -35,6 +35,9 @@ private:
 	unsigned short int m_ServerPort;
 	std::string m_LevelName;
 	std::string m_Username;
+	std::string m_CharacterName;
+	std::string m_CharacterStyle;
+
 
 public:
 	Settings(void);
@@ -100,6 +103,18 @@ public:
 	 */
 	const std::string& getUsername() const;
 	/**
+	 * Gets the username to display to other players.
+	 *
+	 * @return the players name
+	 */
+	const std::string& getCharacterName() const;
+	/**
+	 * Gets the username to display to other players.
+	 *
+	 * @return the players name
+	 */
+	const std::string& geCharacterStyle() const;
+	/**
 	 * Gets the URL address of the server to connect to.
 	 *
 	 * @return a string representation of a server address
@@ -123,5 +138,6 @@ private:
 	void loadSettings(tinyxml2::XMLElement *p_Element);
 	void loadGame(const tinyxml2::XMLElement *p_Element);
 	void loadServer(const tinyxml2::XMLElement *p_Element);
+	void loadCharacter(const tinyxml2::XMLElement *p_Element);
 	void loadHUD(tinyxml2::XMLElement *p_Element);
 };

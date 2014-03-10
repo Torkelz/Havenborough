@@ -32,6 +32,7 @@ VS_Output VS(VS_Input input)
 {
 	VS_Output output;
 	output.position = mul(cOrthoProjection, mul(cWorld, float4(input.position.xyz, 1.0f)));
+	output.position /= output.position.w;
 	output.texCoord = input.texCoord;
 	
 	return output;

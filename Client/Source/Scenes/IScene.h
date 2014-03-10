@@ -11,20 +11,26 @@
 enum class MenuScenes
 {
 	MAIN,
-	OPTION
+	//OPTION,
+
+	ELEM_COUNT
 };
 enum class RunScenes
 {
 	GAMEMAIN,
 	GAMEHUD,
 	POST_GAME,
-	GAMEPAUSE
+	//GAMEPAUSE,
+
+	ELEM_COUNT
 };
 class IScene
 {
 public: 
 	typedef std::shared_ptr<IScene> ptr;
 	
+	virtual ~IScene() {};
+
 	/**
 	* Initialize the scene.
 	* @param p_SceneID init the ID in order

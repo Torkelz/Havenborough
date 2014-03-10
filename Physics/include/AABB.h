@@ -39,6 +39,8 @@ public:
 		
 		m_Type		= Type::AABBOX;
 
+		m_Sphere.setPosition(XMLoadFloat4(&p_CenterPos));
+
 		calculateBounds();
 		m_CollisionResponse = true;
 		m_IDInBody = 0;

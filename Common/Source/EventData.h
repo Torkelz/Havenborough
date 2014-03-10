@@ -1425,4 +1425,46 @@ public:
 		return m_Position;
 	}
 };
+
+class FinishRaceEventData : public BaseEventData
+{
+public:
+	typedef std::vector<std::pair<std::string, float>> GoalList;
+
+private:
+	const GoalList m_GoalList;
+
+public:
+	static const Type sk_EventType = Type(0x552dd5cc);
+
+	FinishRaceEventData(const GoalList& p_GoalList)
+		: m_GoalList(p_GoalList)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new FinishRaceEventData(m_GoalList));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "FinishRaceEvent";
+	}
+
+	const GoalList& getGoalList() const
+	{
+		return m_GoalList;
+	}
+};
+
 #pragma warning(pop)

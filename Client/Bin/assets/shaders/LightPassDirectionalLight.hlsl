@@ -84,8 +84,13 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 
 	
 	float3 lighting = 0;
-	float innerBorder = SHADOW_BORDER;
-	float outerBorder = 1 - SHADOW_BORDER;
+	float percentage = 0.10f;
+	float2 center = float2(0.5f, 0.5f);
+	float2 gradient = center - lightPos.xy;
+	float innerBorder = SHADOW_BORDER * (1.f + percentage);
+	float outerBorder = 1 - SHADOW_BORDER * (1.f + percentage);
+	float innerGradBorder = SHADOW_BORDER;
+	float outerGradBorder = 1 - SHADOW_BORDER;
 	if(shadowMapped == 0)
 	{
 		lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
@@ -97,6 +102,13 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 		{
 			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
 				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
+
+			gradient = abs(gradient);
+			gradient = gradient - (0.5f - percentage);
+			gradient = gradient/percentage;
+			gradient = clamp(gradient, 0, 1);
+
+			lighting = lighting * (1 - gradient.x) * (1 - gradient.y);
 		}
 	}
 	else
@@ -105,6 +117,13 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 		{
 			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
 				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
+
+			gradient = abs(gradient);
+			gradient = gradient - ((1-2*SHADOW_BORDER)*(0.5f-percentage));
+			gradient = gradient/((1-2*SHADOW_BORDER)*percentage);
+			gradient = clamp(gradient, 0, 1);
+
+			lighting = lighting * (1 - (1 - gradient.x) * (1 - gradient.y));
 		}
 	}
 	return float4( lighting * input.lightIntensity, 1.0f );
@@ -151,36 +170,25 @@ float CalcShadowFactor(float3 uv, float nDotL)
 	 if ((saturate(uv.x) == uv.x) &&
         (saturate(uv.y) == uv.y) && uv.z > 0)
     {
-        // Use an offset value to mitigate shadow artifacts due to imprecise 
-        // floating-point values (shadow acne).
-        //
-        // This is an approximation of epsilon * tan(acos(saturate(NdotL))):
-        float margin = acos(nDotL);
-
-        // The offset can be slightly smaller with smoother shadow edges.
-        float epsilon = 0.0005 / margin;
-
-        //float epsilon = 0.001 / margin;
-
-        // Clamp epsilon to a fixed range so it doesn't go overboard.
-        epsilon = clamp(epsilon, 0, 0.1);
-
 		float value = 0.f;
-		float coefficients[21] = 
+		float coefficients[25] = 
 		{
-			0.000272337, 0.00089296, 0.002583865, 0.00659813, 0.014869116,
-			0.029570767, 0.051898313, 0.080381679, 0.109868729, 0.132526984,
-			0.14107424,
-			0.132526984, 0.109868729, 0.080381679, 0.051898313, 0.029570767,
-			0.014869116, 0.00659813, 0.002583865, 0.00089296, 0.000272337
+			0.003663,0.014652,0.025641,0.014652,0.003663,
+			0.014652,0.058608,0.095238,0.058608,0.014652,
+			0.025641,0.095238,0.150183,0.095238,0.025641,
+			0.014652,0.058608,0.095238,0.058608,0.014652,
+			0.003663,0.014652,0.025641,0.014652,0.003663
 		};
 
 		[unroll]
-		for(int i = 0; i < 21; i++)
+		for(int i = 0; i < 5; i++)
 		{
-			value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x + (i - 10) * SMAP_DX, uv.y + (i - 10) * SMAP_DX), uv.z) * coefficients[i];
+			for(int j = 0; j < 5; j++)
+			{
+				value += ShadowMap.SampleCmpLevelZero(shadowMapSampler, float2(uv.x + (i - 2) * SMAP_DX, uv.y + (j - 2) * SMAP_DX), uv.z) * coefficients[i * 5 + j];
+			}
 		}
-		percentLit = value;// * 0.5f;
+		percentLit = value;
 	 }
 	return percentLit;
 

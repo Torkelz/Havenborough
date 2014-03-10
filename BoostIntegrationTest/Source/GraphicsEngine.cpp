@@ -30,6 +30,9 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK_NO_THROW(window.init("Test Graphics", winSize));
 
 	IGraphics *graphics = IGraphics::createGraphics();
+	TweakSettings::initializeMaster();
+	graphics->setTweaker(TweakSettings::getInstance());
+
 	BOOST_MESSAGE(testId + "Checking init graphics with window");
 	BOOST_CHECK(graphics->initialize(window.getHandle(), (int)winSize.x, (int)winSize.y, false,45.0f));
 	
@@ -246,8 +249,8 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	BOOST_CHECK_EQUAL(graphics->createModelInstance("witch"), 6);
 
 	BOOST_MESSAGE(testId + "Trying to create model instances of non existing objects, expecting -1");
-	BOOST_CHECK_EQUAL(graphics->createModelInstance("box"), -1);
-	BOOST_CHECK_EQUAL(graphics->createModelInstance("house"), -1);
+	BOOST_CHECK_THROW(graphics->createModelInstance("box"), GraphicsException);
+	BOOST_CHECK_THROW(graphics->createModelInstance("house"), GraphicsException);
 
 	BOOST_MESSAGE(testId + "Creating model instance of existing objects to verify ID's continue correctly");
 	BOOST_CHECK_EQUAL(graphics->createModelInstance("barrel"), 7);
@@ -307,7 +310,7 @@ BOOST_AUTO_TEST_SUITE(GraphicsEngine)
 	
 	//Step 13
 	BOOST_MESSAGE(testId + "Creating model object of Checkpoint.btx");
-	BOOST_CHECK(graphics->createModel("checkpoint", "../../Client/Bin/assets/models/Checkpoint.btx"));
+	BOOST_CHECK(graphics->createModel("checkpoint", "../../Client/Bin/assets/models/Checkpoint1.btx"));
 
 	BOOST_MESSAGE(testId + "Setting model object checkpoint to transparent");
 	BOOST_CHECK_NO_THROW(graphics->setModelDefinitionTransparency("checkpoint", true));

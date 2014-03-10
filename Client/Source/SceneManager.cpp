@@ -2,6 +2,7 @@
 #include "Scenes/GameScene.h"
 #include "Scenes/MenuScene.h"
 #include "Scenes/HUDScene.h"
+#include "Scenes/PostGameScene.h"
 #include "ClientExceptions.h"
 
 SceneManager::SceneManager()
@@ -28,13 +29,14 @@ void SceneManager::init(IGraphics *p_Graphics, ResourceManager *p_ResourceManage
 	m_InputQueue = p_InputQueue;
 	m_GameLogic = p_GameLogic;
 
-	m_MenuSceneList.resize(1);
-	m_RunSceneList.resize(2);
+	m_MenuSceneList.resize((size_t)MenuScenes::ELEM_COUNT);
+	m_RunSceneList.resize((size_t)RunScenes::ELEM_COUNT);
 
-	m_MenuSceneList[0] = IScene::ptr(new MenuScene);
+	m_MenuSceneList[(size_t)MenuScenes::MAIN] = IScene::ptr(new MenuScene);
 
-	m_RunSceneList[0] = IScene::ptr(new GameScene);
-	m_RunSceneList[1] = IScene::ptr(new HUDScene);
+	m_RunSceneList[(size_t)RunScenes::GAMEMAIN] = IScene::ptr(new GameScene);
+	m_RunSceneList[(size_t)RunScenes::GAMEHUD] = IScene::ptr(new HUDScene);
+	m_RunSceneList[(size_t)RunScenes::POST_GAME] = IScene::ptr(new PostGameScene);
 
 	m_NumberOfMenuScene = m_MenuSceneList.size();
 	m_NumberOfRunScene = m_RunSceneList.size();
@@ -102,10 +104,6 @@ void SceneManager::onFrame( float p_DeltaTime )
 		if(activeList->at(i)->getIsVisible())
 		{
 			activeList->at(i)->onFrame(p_DeltaTime,&m_NowShowing);
-			if(i != m_NowShowing)
-			{
-				i = nrScenes;
-			}
 		}
 	}
 
@@ -160,9 +158,9 @@ void SceneManager::setPause()
 {
 	if(!m_IsMenuState)
 	{
-		bool currentState;
-		currentState = m_RunSceneList[(int)RunScenes::GAMEPAUSE]->getIsVisible();
-		m_RunSceneList[(int)RunScenes::GAMEPAUSE]->setIsVisible(!currentState);
+		//bool currentState;
+		//currentState = m_RunSceneList[(int)RunScenes::GAMEPAUSE]->getIsVisible();
+		//m_RunSceneList[(int)RunScenes::GAMEPAUSE]->setIsVisible(!currentState);
 	}
 }
 
@@ -205,18 +203,6 @@ void SceneManager::startMenu()
 		m_MenuSceneList[i]->setIsVisible(false);
 	}
 	m_NowShowing = 0;
-}
-
-void SceneManager::gotoPostGame()
-{
-	m_IsMenuState = false;
-	for(unsigned int i = 0; i < m_NumberOfRunScene; i++)
-	{
-		m_RunSceneList[i]->setIsVisible(false);
-	}
-	m_RunSceneList[(size_t)RunScenes::POST_GAME]->setIsVisible(true);
-	m_RunSceneList[(size_t)RunScenes::POST_GAME]->onFocus();
-	m_NowShowing = (size_t)RunScenes::POST_GAME;
 }
 
 IScene::ptr SceneManager::getScene(RunScenes p_Scene)
