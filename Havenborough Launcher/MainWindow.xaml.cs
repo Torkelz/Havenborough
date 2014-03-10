@@ -106,8 +106,26 @@ namespace Havenborough_Launcher
             if (comboBox == null)
                 return;
 
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+            XmlElement rootNode = dataProvider.Document["UserOptions"];
+            if (rootNode == null)
+                return;
+            XmlElement settingNode = rootNode["Settings"];
+            if (settingNode == null)
+                return;
+            XmlElement resolutionNode = settingNode["Resolution"];
+            if (resolutionNode == null)
+                return;
+            XmlAttribute width = resolutionNode.GetAttributeNode("Width");
+            XmlAttribute height = resolutionNode.GetAttributeNode("Height");
+            if (width == null || height == null)
+                return;
+
+            string screenRes = width.Value + "x" + height.Value;
             comboBox.ItemsSource = data;
-            comboBox.SelectedIndex = 6;
+            comboBox.SelectedIndex = data.IndexOf(screenRes); ;
         }
 
 
@@ -226,41 +244,34 @@ namespace Havenborough_Launcher
 
         private void ScreenResolutionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var resolution = sender as ComboBox;
-            if (resolution == null)
+            var resolutionBox = sender as ComboBox;
+            if (resolutionBox == null)
+                return;
+            var data = resolutionBox.SelectedItem;
+            if (data == null)
                 return;
 
-            var data = resolution.SelectedItem;
-            if (data == null)
-             return;
-            var superdata = data.ToString();
-            var widthData = superdata.Split('x');
+            var resolutionData = data.ToString().Split('x');
             
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
                 return;
-
             XmlElement rootNode = dataProvider.Document["UserOptions"];
             if (rootNode == null)
                 return;
-
             XmlElement settingNode = rootNode["Settings"];
             if (settingNode == null)
                 return;
-
             XmlElement resolutionNode = settingNode["Resolution"];
             if (resolutionNode == null)
                 return;
-
             XmlAttribute width = resolutionNode.GetAttributeNode("Width");
-            if (width == null)
-            {
-                int tummu = 32;
-            }
-            width.Value = widthData[0];
-
             XmlAttribute height = resolutionNode.GetAttributeNode("Height");
-            height.Value = widthData[1];
+            if (width == null || height == null)
+                return;
+
+            width.Value = resolutionData[0];
+            height.Value = resolutionData[1];
         }
 
         private void SliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
