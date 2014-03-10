@@ -514,7 +514,7 @@ void Player::setJump(void)
 			if(!runComp->getIsJumping() && m_JumpCount < m_JumpCountMax)
 			{
 				runComp->setIsJumping(true);
-
+				runComp->setIsFalling(true);
 				Vector3 temp = m_Physics->getBodyVelocity(getBody());
 				temp.y = 0.f;
 

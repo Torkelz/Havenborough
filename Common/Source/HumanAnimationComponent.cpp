@@ -103,7 +103,7 @@ void HumanAnimationComponent::updateAnimation()
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
 			if (physComp->isOnSomething())
 			{
-				if(m_FallSpeed >= 2000.0f)
+				if(m_FallSpeed >= 1500.0f)
 				{
 					currentJumpState = JumpAnimationState::HARD_LANDING;
 				}
@@ -120,13 +120,12 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentJumpState)
 				{
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
-					if (XMVectorGetZ(velocity) > runLimit)
-						queueAnimation("Run");
-					else
-						queueAnimation("Idle2");
-					break;
-
+						playAnimation("HardLanding", false);
+						if (XMVectorGetZ(velocity) > runLimit)
+							queueAnimation("Run");
+						else
+							queueAnimation("Idle2");
+						break;
 				case JumpAnimationState::LIGHT_LANDING:
 					playAnimation("BodyLand", false);
 					if (XMVectorGetZ(velocity) > runLimit)
@@ -201,13 +200,15 @@ void HumanAnimationComponent::updateAnimation()
 							playAnimation("StandingJump", true);
 							queueAnimation("Falling");
 						}
+						else if(isFalling)
+						{
+							currentJumpState = JumpAnimationState::FALLING;
+						}
 					}
 					break;
-
 				case JumpAnimationState::FLYING:
 					//playAnimation(temp, "Flying", false);
 					break;
-
 				case JumpAnimationState::HARD_LANDING:
 					playAnimation("HardLanding", false);
 					if (XMVectorGetZ(velocity) > runLimit)
@@ -223,16 +224,14 @@ void HumanAnimationComponent::updateAnimation()
 					else
 						queueAnimation("Idle2");
 					break;
-
 				case JumpAnimationState::FALLING:
 					playAnimation("Falling", false);
 					break;
-
 				default: // Just in case, so that the code doesn't break, hohohoho
 					break;
 				}
 			}
-
+			
 			m_PrevForwardState = ForwardAnimationState::WALKING_FORWARD;
 			m_PrevSideState = SideAnimationState::IDLE;
 			m_PrevJumpState = currentJumpState;
