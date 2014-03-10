@@ -275,7 +275,7 @@ void HUDScene::updatePlayerTime(IEventData::Ptr p_Data)
 	int minutes = (int)timeDiff / 60;
 	float seconds = timeDiff - minutes * 60;
 	wchar_t buffer[64];
-	std::swprintf(buffer, L"%02.2d" L"." L"%05.2f\n", minutes, seconds);
+	std::swprintf(buffer, L"+" L"%02.2d" L":" L"%05.2f\n", minutes, seconds);
 	playerTimeText += buffer;
 
 	if (!playerTimeText.empty())
