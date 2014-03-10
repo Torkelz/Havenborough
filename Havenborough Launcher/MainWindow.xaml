@@ -70,7 +70,7 @@
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Width="95" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
                             <TextBlock FontSize="14" Text="Shadows" />
                             <ComboBox Loaded="ShadowResolutionLoad" ItemTemplate="{StaticResource ShadowResTemplate}"
-                                Text="{Binding XPath=@Size, Mode=OneWayToSource}" />
+                                Text="{Binding XPath=@Value, Mode=OneWayToSource}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMap}">
                             <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />
