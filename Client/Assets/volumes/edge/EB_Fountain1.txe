@@ -1,0 +1,99 @@
+*ObjectHeader*
+#numObj: 19
+
+#MESH: Fountain1
+#Translation: 0 -50.878952 106.903114
+#Rotation: 0 0 0
+#Scale: 69.458138 10 10
+
+#MESH: Fountain1
+#Translation: 0 -175.540436 -190.500229
+#Rotation: 0 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: 0 -175.540436 190.500259
+#Rotation: 0 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: 111.367126 -175.540436 154.093826
+#Rotation: 0.628319 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: -111.264252 -175.540436 -154.380249
+#Rotation: 0.628319 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: 62.128975 -50.878952 -87.277893
+#Rotation: -0.636544 0 0
+#Scale: 70 10 10
+
+#MESH: Fountain1
+#Translation: -111.989113 -175.540436 154.39975
+#Rotation: -0.636544 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: -180.231293 -175.540436 -59.235004
+#Rotation: -1.89207 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: 180.310074 -175.540436 59.665482
+#Rotation: -1.89207 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: 180.573044 -175.540436 -59.486374
+#Rotation: 1.8761 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: -180.946228 -175.540436 58.713257
+#Rotation: 1.8761 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: -62.306076 -50.878952 86.551163
+#Rotation: -0.636544 0 0
+#Scale: 70 10 10
+
+#MESH: Fountain1
+#Translation: -101.49762 -50.878952 33.769676
+#Rotation: 1.8761 0 0
+#Scale: 70 10 10
+
+#MESH: Fountain1
+#Translation: 101.419136 -50.878952 -33.640392
+#Rotation: 1.8761 0 0
+#Scale: 70 10 10
+
+#MESH: Fountain1
+#Translation: 111.64019 -175.540436 -154.683884
+#Rotation: -0.636544 0 0
+#Scale: 124.041496 10 10
+
+#MESH: Fountain1
+#Translation: 101.811058 -50.878952 31.892094
+#Rotation: -1.89207 0 0
+#Scale: 70 10 10
+
+#MESH: Fountain1
+#Translation: -101.487373 -50.878952 -32.454643
+#Rotation: -1.89207 0 0
+#Scale: 70 10 10
+
+#MESH: Fountain1
+#Translation: -62.795792 -50.878952 -86.395439
+#Rotation: 0.628319 0 0
+#Scale: 70 10 10
+
+#MESH: Fountain1
+#Translation: 64.215981 -50.878952 85.990448
+#Rotation: 0.628319 0 0
+#Scale: 70 10 10
+
+

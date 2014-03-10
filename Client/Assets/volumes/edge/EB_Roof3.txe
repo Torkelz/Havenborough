@@ -1,0 +1,84 @@
+*ObjectHeader*
+#numObj: 16
+
+#MESH: Roof3
+#Translation: -599.999878 352.331055 0
+#Rotation: 0 0 0
+#Scale: 10 10 1200
+
+#MESH: Roof3
+#Translation: -299.358246 352.331055 -599.999939
+#Rotation: 1.570796 0 0
+#Scale: 10 10 599.444946
+
+#MESH: Roof3
+#Translation: -299.358246 352.331055 600.000061
+#Rotation: 1.570796 0 0
+#Scale: 10 10 599.444946
+
+#MESH: Roof3
+#Translation: -234.5047 700.993042 0
+#Rotation: 0 0 0
+#Scale: 10 10 594.972839
+
+#MESH: Roof3
+#Translation: -114.794884 700.993042 452.137054
+#Rotation: 0.669033 0 0
+#Scale: 10 10 380.759735
+
+#MESH: Roof3
+#Translation: -114.794884 700.993042 -453.033813
+#Rotation: -0.669037 0 0
+#Scale: 10 10 380.759735
+
+#MESH: Roof3
+#Translation: 149.684708 700.993042 -600
+#Rotation: 1.570796 0 0
+#Scale: 10 10 297.486725
+
+#MESH: Roof3
+#Translation: 149.684708 700.993042 600
+#Rotation: 1.570796 0 0
+#Scale: 10 10 297.486725
+
+#MESH: Roof3
+#Translation: 200.188202 878.387512 -447.967529
+#Rotation: 1.570796 0 0
+#Scale: 10 10 98.103333
+
+#MESH: Roof3
+#Translation: 200.719879 793.770874 -423.36969
+#Rotation: 1.570796 0 0
+#Scale: 10 10 98.103333
+
+#MESH: Roof3
+#Translation: 200.448441 793.770874 -323.36969
+#Rotation: 1.570796 0 0
+#Scale: 10 10 98.103333
+
+#MESH: Roof3
+#Translation: 150.607178 793.770874 -373.181122
+#Rotation: 0 0 0
+#Scale: 10 10 98.103333
+
+#MESH: Roof3
+#Translation: 250.607178 793.770874 -373.461395
+#Rotation: 0 0 0
+#Scale: 10 10 98.103333
+
+#MESH: Roof3
+#Translation: 250.607178 878.038635 -497.491394
+#Rotation: 0 0 0
+#Scale: 10 10 98.103333
+
+#MESH: Roof3
+#Translation: 150.607178 878.038635 -497.491394
+#Rotation: 0 0 0
+#Scale: 10 10 98.103333
+
+#MESH: Roof3
+#Translation: 200.188202 878.387512 -547.967529
+#Rotation: 1.570796 0 0
+#Scale: 10 10 98.103333
+
+
