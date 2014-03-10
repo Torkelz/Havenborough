@@ -42,6 +42,7 @@ private:
 	IConnectionController* m_Connection;
 	std::string m_Username;
 	std::string m_CharacterName;
+	std::string m_CharacterStyle;
 
 public:
 	/**
@@ -97,4 +98,18 @@ public:
 	 * @return the name of the user
 	 */
 	const std::string& getCharacterName() const;
+
+	/**
+	 * Gets the character style of the user.
+	 *
+	 * @return the current style of the user
+	 */
+	const std::string& getCharacterStyle() const;
+
+	/**
+	 * Sets a new character style for the user.
+	 *
+	 * @param p_Style the name of the style to use
+	 */
+	void setCharacterStyle(const std::string& p_Style);
 };

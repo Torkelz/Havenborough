@@ -371,12 +371,19 @@ bool Graphics::releaseModel(const char* p_ResourceName)
 	std::string resourceName(p_ResourceName);
 	if(m_ModelList.count(resourceName) > 0)
 	{
-		for(unsigned int i = 0; i < m_ModelList.at(resourceName).numOfMaterials; i++)
+		auto& model = m_ModelList.at(resourceName);
+		if (!model.is2D)
 		{
-			m_ReleaseModelTexture(m_ModelList.at(resourceName).diffuseTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-			m_ReleaseModelTexture(m_ModelList.at(resourceName).normalTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
-			m_ReleaseModelTexture(m_ModelList.at(resourceName).specularTexture[i].first.c_str(), m_ReleaseModelTextureUserdata);
+			for (auto& tex : model.diffuseTexture)
+				m_ReleaseModelTexture(tex.first.c_str(), m_ReleaseModelTextureUserdata);
+
+			for (auto& tex : model.normalTexture)
+				m_ReleaseModelTexture(tex.first.c_str(), m_ReleaseModelTextureUserdata);
+
+			for (auto& tex : model.specularTexture)
+				m_ReleaseModelTexture(tex.first.c_str(), m_ReleaseModelTextureUserdata);
 		}
+
 		m_ModelList.erase(resourceName);
 		return true;
 	}
@@ -388,7 +395,7 @@ bool Graphics::release2D_Model(Object2D_Id p_ObjectId)
 {
 	if(m_2D_Objects.count(p_ObjectId) > 0)
 	{
-		if (m_2D_Objects.at(p_ObjectId).model->numOfMaterials == 0)
+		if (m_2D_Objects.at(p_ObjectId).model->is2D)
 		{
 			SAFE_DELETE(m_2D_Objects.at(p_ObjectId).model);
 		}
@@ -695,19 +702,25 @@ void Graphics::renderModel(InstanceId p_ModelId)
 {
 	if(m_ModelInstances.count(p_ModelId) > 0)
 	{
-		ModelDefinition *modelDef = getModelFromList(m_ModelInstances.at(p_ModelId).getModelName());
+		const auto& model = m_ModelInstances[p_ModelId];
+		ModelDefinition *modelDef = getModelFromList(model.getModelName());
 		if(!modelDef->isTransparent)
 		{
 			m_DeferredRender->addRenderable(Renderable(
 				Renderable::Type::DEFERRED_OBJECT, modelDef,
-				m_ModelInstances.at(p_ModelId).getWorldMatrix(), &m_ModelInstances.at(p_ModelId).getFinalTransform()));
+				model.getWorldMatrix(),
+				&model.getFinalTransform(),
+				nullptr,
+				model.getSelectedMaterialSet()));
 		}
 		else
 		{
 			m_ForwardRenderer->addRenderable(Renderable(
 				Renderable::Type::FORWARD_OBJECT, modelDef,
-				m_ModelInstances.at(p_ModelId).getWorldMatrix(), &m_ModelInstances.at(p_ModelId).getFinalTransform(),
-				&m_ModelInstances.at(p_ModelId).getColorTone()));
+				model.getWorldMatrix(),
+				&model.getFinalTransform(),
+				&model.getColorTone(),
+				model.getSelectedMaterialSet()));
 		}
 	}
 	else
@@ -918,6 +931,26 @@ void Graphics::setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone)
 		m_ModelInstances.at(p_Instance).setColorTone(DirectX::XMFLOAT3(p_ColorTone));
 	else
 		throw GraphicsException("Failed to set model instance color tone, vector out of bounds.", __LINE__, __FILE__);
+}
+
+void Graphics::setModelStyle(InstanceId p_Instance, const char* p_Style)
+{
+	if(m_ModelInstances.count(p_Instance) > 0)
+	{
+		auto& modelInst = m_ModelInstances.at(p_Instance);
+		const ModelDefinition* model = getModelFromList(modelInst.getModelName());
+
+		for (unsigned int i = 0; i < model->materialSets.size(); i++)
+		{
+			if (model->materialSets[i].first == p_Style)
+			{
+				modelInst.setSelectedMaterialSet(i);
+				return;
+			}
+		}
+	}
+	else
+		throw GraphicsException("Failed to set model instance style, vector out of bounds.", __LINE__, __FILE__);
 }
 
 Vector3 Graphics::get2D_ObjectPosition(Object2D_Id p_Instance)

@@ -249,7 +249,8 @@ void ScreenRenderer::renderObject(Renderable2D &p_Object)
 	m_HUD_Shader->setBlendState(m_TransparencyAdditiveBlend, data);
 	m_DeviceContext->PSSetShaderResources(0, 1, &(p_Object.model->diffuseTexture[0].second));
 
-	m_DeviceContext->Draw(p_Object.model->drawInterval.at(0).second, p_Object.model->drawInterval.at(0).first);
+	const auto& material = p_Object.model->materialSets.at(0).second.at(0);
+	m_DeviceContext->Draw(material.numOfVertices, material.vertexStart);
 
 	ID3D11ShaderResourceView *nullSrv = 0;
 	m_DeviceContext->PSSetShaderResources(0, 1, &nullSrv);

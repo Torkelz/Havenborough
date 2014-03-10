@@ -216,8 +216,10 @@ BOOST_AUTO_TEST_CASE(TestSendJoinGame)
 	static const std::string testGameName("TestGameName");
 	static const std::string testGameUsername("TestUsername");
 	static const std::string testGameCharacterName("TestCharacterName");
+	static const std::string testGameCharacterStyle("TestCharacterStyle");
 
-	controller.sendJoinGame(testGameName.c_str(), testGameUsername.c_str(), testGameCharacterName.c_str());
+	controller.sendJoinGame(testGameName.c_str(), testGameUsername.c_str(),
+		testGameCharacterName.c_str(), testGameCharacterStyle.c_str());
 
 	BOOST_REQUIRE_EQUAL(controller.getNumPackages(), 1);
 
@@ -226,6 +228,7 @@ BOOST_AUTO_TEST_CASE(TestSendJoinGame)
 	BOOST_CHECK_EQUAL(controller.getJoinGameName(packageRef), testGameName);
 	BOOST_CHECK_EQUAL(controller.getJoinGameUsername(packageRef), testGameUsername);
 	BOOST_CHECK_EQUAL(controller.getJoinGameCharacterName(packageRef), testGameCharacterName);
+	BOOST_CHECK_EQUAL(controller.getJoinGameCharacterStyle(packageRef), testGameCharacterStyle);
 }
 
 BOOST_AUTO_TEST_CASE(TestSendObjectAction)
