@@ -129,65 +129,103 @@ void Player::update(float p_DeltaTime)
 	}
 	else
 	{
-		unsigned int currentFrame = (unsigned int)m_CurrentForceMoveTime;
-
-		// Check if you have passed the goal frame.
-		if(currentFrame >= m_ForceMoveY[1].y)
-			m_ForceMoveY.erase(m_ForceMoveY.begin());
-		if(currentFrame >= m_ForceMoveZ[1].y)
-			m_ForceMoveZ.erase(m_ForceMoveZ.begin());
-
-		// Check if you only have one frame left.
-		if(m_ForceMoveY.size() < 2 && m_ForceMoveZ.size() < 2)
+		if(m_Lerp)
 		{
-			m_ForceMove = false;
-			m_CurrentForceMoveTime = 0.f;
-			std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
-			aa.lock()->resetClimbState();
-			if (m_Network)
+			m_Timer += p_DeltaTime;
+
+			float proc = m_Timer / 0.1f; // The lerp shall take 0.1 seconds.
+			if(proc >= 1.f)
 			{
-				IConnectionController* con = m_Network->getConnectionToServer();
-				if (con && con->isConnected())
-				{
-					tinyxml2::XMLPrinter printer;
-					printer.OpenElement("Action");
-					printer.OpenElement("ResetClimb");
-					printer.CloseElement();
-					printer.CloseElement();
-
-					con->sendObjectAction(m_Actor.lock()->getId(), printer.CStr());
-				}
+				m_Lerp = false;
+				m_Timer = 0.f;
+				std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+				AnimationPath pp = aa.lock()->getAnimationData(m_ClimbId);
+				aa.lock()->playClimbAnimation(m_ClimbId);
 			}
-			return;
+			else
+			{
+				XMVECTOR lerpVector = DirectX::XMLoadFloat3(&m_ForceMoveStartPos) - XMLoadFloat3(&m_StartClimbPosition);
+				XMFLOAT3 currpos;
+				XMStoreFloat3(&currpos, XMLoadFloat3(&m_StartClimbPosition) + lerpVector * proc);
+				setPosition(currpos);
+
+				XMVECTOR lerpForward = DirectX::XMLoadFloat3(&m_forward) - XMLoadFloat3(&m_StartClimbCameraFwd);
+				XMVECTOR lerpUp = XMVectorSet(0,1,0,0) - XMLoadFloat3(&m_StartClimbCameraUp);
+				XMFLOAT3 currFwd, currUp;
+
+				XMStoreFloat3(&currFwd, XMLoadFloat3(&m_StartClimbCameraFwd) + lerpForward * proc);
+				XMStoreFloat3(&currUp, XMLoadFloat3(&m_StartClimbCameraUp) + lerpUp * proc);
+				std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+				if (look)
+				{
+					look->setLookForward(currFwd);
+					look->setLookUp(currUp);
+				}
+			}			
 		}
-
-		float currentFrameTime = m_CurrentForceMoveTime - m_ForceMoveY[0].y;
-		float currentFrameSpan = m_ForceMoveY[1].y - m_ForceMoveY[0].y;
-		float timeFrac = currentFrameTime / currentFrameSpan;
-		float currentYPos = m_ForceMoveY[0].x + ((m_ForceMoveY[1].x - m_ForceMoveY[0].x) * timeFrac);
-
-		currentFrameTime = m_CurrentForceMoveTime - m_ForceMoveZ[0].y;
-		currentFrameSpan = m_ForceMoveZ[1].y - m_ForceMoveZ[0].y;
-		timeFrac = currentFrameTime / currentFrameSpan;
-		float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
-
-		m_CurrentForceMoveTime += p_DeltaTime * 24.0f * m_ClimbSpeedUp; // 24 FPS
-
-		DirectX::XMFLOAT3 temp;
-		DirectX::XMVECTOR tv = DirectX::XMVectorSet(0,currentYPos,currentZPos,0);
-		DirectX::XMVECTOR tstart = DirectX::XMLoadFloat3(&m_ForceMoveStartPos);
-		XMMATRIX rotation = XMLoadFloat4x4(&m_ForceMoveRotation);
-
-		tv = XMVector3Transform(tv, rotation);
-
-		DirectX::XMStoreFloat3(&temp, tstart+tv);
-		setPosition(temp);
-
-		std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
-		if (look)
+		
+		if(!m_Lerp)
 		{
-			look->setLookForward(Vector3(m_forward.x, m_forward.y, m_forward.z));
-			look->setLookUp(Vector3(0, 1, 0));
+			unsigned int currentFrame = (unsigned int)m_CurrentForceMoveTime;
+
+			// Check if you have passed the goal frame.
+			if(currentFrame >= m_ForceMoveY[1].y)
+				m_ForceMoveY.erase(m_ForceMoveY.begin());
+			if(currentFrame >= m_ForceMoveZ[1].y)
+				m_ForceMoveZ.erase(m_ForceMoveZ.begin());
+
+			// Check if you only have one frame left.
+			if(m_ForceMoveY.size() < 2 && m_ForceMoveZ.size() < 2)
+			{
+				m_ForceMove = false;
+				m_CurrentForceMoveTime = 0.f;
+				std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+				aa.lock()->resetClimbState();
+				if (m_Network)
+				{
+					IConnectionController* con = m_Network->getConnectionToServer();
+					if (con && con->isConnected())
+					{
+						tinyxml2::XMLPrinter printer;
+						printer.OpenElement("Action");
+						printer.OpenElement("ResetClimb");
+						printer.CloseElement();
+						printer.CloseElement();
+
+						con->sendObjectAction(m_Actor.lock()->getId(), printer.CStr());
+					}
+				}
+				return;
+			}
+
+			float currentFrameTime = m_CurrentForceMoveTime - m_ForceMoveY[0].y;
+			float currentFrameSpan = m_ForceMoveY[1].y - m_ForceMoveY[0].y;
+			float timeFrac = currentFrameTime / currentFrameSpan;
+			float currentYPos = m_ForceMoveY[0].x + ((m_ForceMoveY[1].x - m_ForceMoveY[0].x) * timeFrac);
+
+			currentFrameTime = m_CurrentForceMoveTime - m_ForceMoveZ[0].y;
+			currentFrameSpan = m_ForceMoveZ[1].y - m_ForceMoveZ[0].y;
+			timeFrac = currentFrameTime / currentFrameSpan;
+			float currentZPos = m_ForceMoveZ[0].x + ((m_ForceMoveZ[1].x - m_ForceMoveZ[0].x) * timeFrac);
+
+			m_CurrentForceMoveTime += p_DeltaTime * 24.0f * m_ClimbSpeedUp; // 24 FPS
+
+			DirectX::XMFLOAT3 temp;
+			DirectX::XMVECTOR tv = DirectX::XMVectorSet(0,currentYPos,currentZPos,0);
+			DirectX::XMVECTOR tstart = DirectX::XMLoadFloat3(&m_ForceMoveStartPos);
+			XMMATRIX rotation = XMLoadFloat4x4(&m_ForceMoveRotation);
+
+			tv = XMVector3Transform(tv, rotation);
+
+			DirectX::XMStoreFloat3(&temp, tstart+tv);
+			setPosition(temp); 
+
+			std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+			if (look)
+			{
+				look->setLookForward(Vector3(m_forward.x, m_forward.y, m_forward.z));
+				look->setLookUp(Vector3(0, 1, 0));
+			}
 		}
 	}
 }
@@ -196,6 +234,16 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 {
 	if(!m_ForceMove && m_Climb)
 	{
+		m_StartClimbPosition = getPosition();
+		m_Timer = 0.f;
+		m_Lerp = true;
+		std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+		if (look)
+		{
+			m_StartClimbCameraUp = look->getLookUp();
+			m_StartClimbCameraFwd = look->getLookForward();
+		}
+
 		XMVECTOR fwd = XMVectorSet(p_CollisionNormal.x, 0.f,p_CollisionNormal.z,0);
 		XMVECTOR len = XMVector3Length(fwd);
 		if (XMVectorGetX(len) == 0.f)
@@ -226,7 +274,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		//m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
 		std::weak_ptr<AnimationInterface> aa = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
 		AnimationPath pp = aa.lock()->getAnimationData(p_ClimbId);
-		aa.lock()->playClimbAnimation(p_ClimbId);
+		//aa.lock()->playClimbAnimation(p_ClimbId);
 		m_ClimbId = p_ClimbId;
 
 		m_ForceMoveY = pp.m_YPath;
@@ -281,7 +329,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		//	m_ForceMoveZ[1].x += sp.m128_f32[2];
 		// The goldener path code END
 
-		// The path to Eldorado, city of golden paths
+		// The Road to Eldorado, city of golden paths
 		XMVECTOR normal = vEdgeOrientation;
 		normal.m128_f32[1] = 0.0f;
 		normal = XMVector3Normalize(normal);
@@ -292,7 +340,9 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		float d = roof / bottom;
 		// l0 + dl
 		vReachPointCenter =  XMLoadFloat3(&p_BoxPos) + vEdgeOrientation * d;
-		// The path to Eldorado, city of golden paths end
+
+
+		// The Road to Eldorado, city of golden paths end
 		
 		// The golden path code
 		//vReachPointCenter = XMLoadFloat3(&playerOrigPos) - XMLoadFloat3(&p_BoxPos);
