@@ -50,6 +50,12 @@ public:
 	 * @return velocity
 	 */
 	virtual bool hasLanded() const = 0;
+	/**
+	 * Get if the components body is on something.
+	 *
+	 * @return true if it the body is on something otherwise false.
+	 */
+	virtual bool isOnSomething() const = 0;
 };
 
 /**
@@ -219,6 +225,10 @@ public:
 	{
 		return m_Physics->getBodyLanded(m_Body);
 	}
+	bool isOnSomething() const
+	{
+		return m_Physics->getBodyOnSomething(m_Body);
+	}
 };
 
 /**
@@ -323,6 +333,10 @@ public:
 	bool hasLanded() const override
 	{
 		return m_Physics->getBodyLanded(m_Body);
+	}
+	bool isOnSomething() const
+	{
+		return m_Physics->getBodyOnSomething(m_Body);
 	}
 };
 
@@ -435,6 +449,10 @@ public:
 	{
 		return m_Physics->getBodyLanded(m_Body);
 	}
+	bool isOnSomething() const
+	{
+		return m_Physics->getBodyOnSomething(m_Body);
+	}
 };
 
 /**
@@ -541,6 +559,10 @@ public:
 	bool hasLanded() const override
 	{
 		return m_Physics->getBodyLanded(m_Body);
+	}
+	bool isOnSomething() const
+	{
+		return m_Physics->getBodyOnSomething(m_Body);
 	}
 };
 

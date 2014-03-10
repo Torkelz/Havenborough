@@ -188,3 +188,8 @@ bool PlayerBodyComponent::hasLanded() const
 {
 	return m_Physics->getBodyLanded(m_Body);
 }
+
+bool PlayerBodyComponent::isOnSomething() const
+{
+	return m_Physics->getBodyOnSomething(m_Body);
+}

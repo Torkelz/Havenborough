@@ -31,4 +31,5 @@ public:
 	Vector3 getVelocity() const override;
 	bool isInAir() const override;
 	bool hasLanded() const override;
+	bool isOnSomething() const override;
 };

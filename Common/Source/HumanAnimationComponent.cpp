@@ -9,11 +9,13 @@ void HumanAnimationComponent::updateAnimation()
 	bool isInAir = true;
 	bool isFalling = false;
 	bool isJumping = false;
+	bool isOnSomething = false;
 	std::shared_ptr<PhysicsInterface> physComp = m_Owner->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
 	if (physComp)
 	{
 		tempVector = physComp->getVelocity();
 		isInAir = physComp->isInAir();
+		isOnSomething = physComp->isOnSomething();
 	}
 	XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
 	std::shared_ptr<MovementControlInterface> comp = m_Owner->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
@@ -99,15 +101,15 @@ void HumanAnimationComponent::updateAnimation()
 			}
 
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
-			if (physComp->hasLanded())
+			if (physComp->isOnSomething())
 			{
-				if(m_FallSpeed >= 1000.0f)
+				if(m_FallSpeed >= 2000.0f)
 				{
 					currentJumpState = JumpAnimationState::HARD_LANDING;
 				}
 				else
 				{
-					if(m_FallSpeed > 0.0f && isFalling)
+					if(m_FallSpeed > 500.0f)
 						currentJumpState = JumpAnimationState::LIGHT_LANDING;
 				}
 				m_FallSpeed = 0.0f;
@@ -142,7 +144,7 @@ void HumanAnimationComponent::updateAnimation()
 			m_PrevSideState = currentSideState;
 			m_PrevJumpState = JumpAnimationState::IDLE;
 		}
-		else if(isFalling || isJumping)
+		else
 		{
 			float weight = 1 - (abs(cosf(angle)));
 			if(weight > 0.8f)
@@ -155,14 +157,14 @@ void HumanAnimationComponent::updateAnimation()
 			{
 				currentJumpState = JumpAnimationState::JUMP;
 			}
-			if(XMVectorGetY(velocity) < -flyLimit && isJumping)
+			if(XMVectorGetY(velocity) < -flyLimit)
 			{
 				currentJumpState = JumpAnimationState::FALLING;
 			}
 
 			if (XMVectorGetY(velocity) > m_FallSpeed)
 			{
-				m_FallSpeed = XMVectorGetY(velocity);
+				m_FallSpeed = abs(XMVectorGetY(velocity));
 			}
 
 			if (currentJumpState != m_PrevJumpState)
@@ -194,7 +196,7 @@ void HumanAnimationComponent::updateAnimation()
 							playAnimation("SideJumpLeft", false);
 							queueAnimation("FallingSide");
 						}
-						else
+						else if(isJumping)
 						{
 							playAnimation("StandingJump", true);
 							queueAnimation("Falling");
@@ -223,7 +225,7 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 
 				case JumpAnimationState::FALLING:
-					//playAnimation(temp, "Falling", false);
+					playAnimation("Falling", false);
 					break;
 
 				default: // Just in case, so that the code doesn't break, hohohoho
@@ -236,6 +238,8 @@ void HumanAnimationComponent::updateAnimation()
 			m_PrevJumpState = currentJumpState;
 		}
 	}
+	else
+		m_FallSpeed = 0.f;
 }
 
 void HumanAnimationComponent::updateIKJoints(float dt)
