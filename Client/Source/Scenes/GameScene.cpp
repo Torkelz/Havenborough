@@ -127,12 +127,20 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_SoundManager->onFrame();
 
-	if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
+	if (m_SoundPath != "NULL")
 	{
-		m_SoundManager->loadSoundWithoutLoop("CurrentSound", changeBackGroundSound(m_SoundFolderPath).c_str());
-		m_SoundExist = true;
-		m_SoundManager->playSound("CurrentSound");	
-	}
+		if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
+		{
+			m_SoundPath = changeBackGroundSound(m_SoundFolderPath);
+			if (m_SoundPath != "NULL")
+			{		
+				m_SoundManager->loadSoundWithoutLoop("CurrentSound", m_SoundPath.c_str());
+				m_SoundExist = true;
+				m_SoundManager->playSound("CurrentSound");
+			}
+
+		}
+	}	
 }
 
 void GameScene::onFocus()
@@ -349,20 +357,16 @@ void GameScene::setSoundManager(ISound *p_SoundManager)
 {
 	m_SoundManager = p_SoundManager;
 }
-/*########## TEST FUNCTIONS ##########*/
-
-int GameScene::getID()
-{
-	return m_SceneID;
-}
 
 std::string GameScene::changeBackGroundSound(const std::string& p_FontFolderPath)
 {
+	
 	if (m_SoundExist)
 	{
 		m_SoundManager->releaseSound("CurrentSound");
 		m_SoundExist = false;
 	}
+
 	m_BackGroundSoundsList.clear();
 
 	boost::filesystem::directory_iterator currFile(p_FontFolderPath);
@@ -372,15 +376,25 @@ std::string GameScene::changeBackGroundSound(const std::string& p_FontFolderPath
 		m_BackGroundSoundsList.push_back(filename.string());
 	}
 	int soundCount = m_BackGroundSoundsList.size();
-
+	if (soundCount == 0)
+	{
+		std::string failToFindAFile = "NULL";
+		return failToFindAFile;
+	}
 	std::uniform_int_distribution<int> newBackGroundSound(0, soundCount-1);
 	int newSoundTrack = 0;
 	newSoundTrack = newBackGroundSound(m_RandomEngine);
 
-	std::string lol = m_BackGroundSoundsList[newSoundTrack];
-
 	return m_BackGroundSoundsList[newSoundTrack];
 }
+
+/*########## TEST FUNCTIONS ##########*/
+
+int GameScene::getID()
+{
+	return m_SceneID;
+}
+
 
 void GameScene::addLight(IEventData::Ptr p_Data)
 {

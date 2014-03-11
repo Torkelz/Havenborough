@@ -38,6 +38,7 @@ private:
 
 	std::vector<std::string> m_BackGroundSoundsList;
 	std::string m_SoundFolderPath;
+	std::string m_SoundPath;
 	std::default_random_engine m_RandomEngine;
 	ISound *m_SoundManager;
 	bool m_SoundExist;
