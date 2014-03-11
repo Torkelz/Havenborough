@@ -759,6 +759,8 @@ void GameLogic::handleNetwork()
 							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData(FinishRaceEventData::GoalList())));
 						}
 					}
+					m_Player.setManaRegeneration(false);
+					m_Player.setCurrentMana(0.f);
 				}
 				break;
 			case PackageType::CURRENT_CHECKPOINT:
@@ -1170,6 +1172,8 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_SplineCamera);
 		m_SplineCameraActive = true;
+		m_Player.setCurrentMana(0.f);
+		m_Player.setManaRegeneration(false);
 		break;
 	case 1:
 		if(m_FlyingCamera.expired())
@@ -1177,16 +1181,20 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		Logger::log(Logger::Level::INFO, "Changed to flying camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_FlyingCamera);
+		m_Player.setCurrentMana(0.f);
+		m_Player.setManaRegeneration(false);
 		break;
 	case 2:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
+		m_Player.setManaRegeneration(true);
 		break;
 	default:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
+		m_Player.setManaRegeneration(true);
 		break;
 	}
 }

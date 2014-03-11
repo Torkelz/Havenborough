@@ -25,6 +25,7 @@ Player::Player(void)
 	m_PreviousMana = m_CurrentMana;
 	m_ManaRegenerationSlow = 3.f;
 	m_ManaRegenerationFast = 10.f;
+	m_ManaRegeneration = true;
 	m_IsAtMaxSpeed = false;
 	m_IsPreviousManaSet = false;
 	m_AllowedToMove = true;
@@ -41,7 +42,6 @@ void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<
 	m_Physics = p_Physics;
 	m_Network = p_Network;
 	m_Actor = p_Actor;
-
 	setCurrentMana(0.f);
 
 	Actor::ptr strActor = m_Actor.lock();
@@ -53,28 +53,30 @@ void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<
 
 void Player::update(float p_DeltaTime)
 {	
-	if(!m_IsPreviousManaSet)
-		m_PreviousMana = m_CurrentMana;
-	else
-		m_IsPreviousManaSet = false;
-
-	Vector3 v3Vel = m_Physics->getBodyVelocity(getBody());
-	float v = XMVector4Length(Vector3ToXMVECTOR(&v3Vel, 0.f)).m128_f32[0];
-	std::shared_ptr<MovementControlInterface> moveComp = m_Actor.lock()->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
-	if(moveComp && v >= moveComp->getMaxSpeedDefault())
+	if(m_ManaRegeneration)
 	{
-		m_IsAtMaxSpeed = true;
-		m_CurrentMana += m_ManaRegenerationFast * p_DeltaTime;
-	}
-	else
-	{
-		m_IsAtMaxSpeed = false;
-		m_CurrentMana += m_ManaRegenerationSlow * p_DeltaTime;
-	}
+		if(!m_IsPreviousManaSet)
+			m_PreviousMana = m_CurrentMana;
+		else
+			m_IsPreviousManaSet = false;
 
-	if(m_CurrentMana >= m_MaxMana)
-		m_CurrentMana = m_MaxMana;
+		Vector3 v3Vel = m_Physics->getBodyVelocity(getBody());
+		float v = XMVector4Length(Vector3ToXMVECTOR(&v3Vel, 0.f)).m128_f32[0];
+		std::shared_ptr<MovementControlInterface> moveComp = m_Actor.lock()->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+		if(moveComp && v >= moveComp->getMaxSpeedDefault())
+		{
+			m_IsAtMaxSpeed = true;
+			m_CurrentMana += m_ManaRegenerationFast * p_DeltaTime;
+		}
+		else
+		{
+			m_IsAtMaxSpeed = false;
+			m_CurrentMana += m_ManaRegenerationSlow * p_DeltaTime;
+		}
 
+		if(m_CurrentMana >= m_MaxMana)
+			m_CurrentMana = m_MaxMana;
+	}
 	static const float respawnFallHeight = -2000.f; // -20m
 	static const float respawnDistance = 100000.f; // 1000m
 	static const float respawnDistanceSq = respawnDistance * respawnDistance;
@@ -718,4 +720,9 @@ void Player::jump(float dt)
 	{
 		m_JumpCount = 0;
 	}
+}
+
+void Player::setManaRegeneration(bool p_ShouldRegenerate)
+{
+	m_ManaRegeneration = p_ShouldRegenerate;
 }

@@ -92,15 +92,17 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 			{
 				if(i == j)
 					continue;
+				
+				if(isCameraPlayerCollision(b, m_Bodies.at(j)))
+					break;
+
 
 				for(unsigned int k = 0; k < b.getVolumeListSize(); k++)
 				{
-					if(k == 5)
-						continue;
-
 					for(unsigned int l = 0; l < m_Bodies.at(j).getVolumeListSize(); l++)
 					{
 						HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *m_Bodies.at(j).getVolume(l));
+	
 						if(hit.intersect)
 						{
 							if(k == 0 && hit.colType == Type::HULLVSSPHERE)
@@ -136,15 +138,16 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, int p_Victim, int p_VictimVolumeID, bool &p_IsOnGround)
 {
 	Body& b = m_Bodies[p_Collider];
+	Body& b1 = m_Bodies[p_Victim];
 	p_Hit.collider = b.getHandle();
 	p_Hit.IDInBody = p_ColliderVolumeId;
-	p_Hit.collisionVictim = m_Bodies.at(p_Victim).getHandle();
-	p_Hit.isEdge = m_Bodies.at(p_Victim).getIsEdge();
+	p_Hit.collisionVictim = b1.getHandle();
+	p_Hit.isEdge = b1.getIsEdge();
 	m_HitDatas.push_back(p_Hit);
 
 	if(!m_IsServer)
 	{
-		if(b.getCollisionResponse(p_ColliderVolumeId) && m_Bodies.at(p_Victim).getCollisionResponse(p_VictimVolumeID))
+		if(b.getCollisionResponse(p_ColliderVolumeId) && b1.getCollisionResponse(p_VictimVolumeID))
 		{
 			XMVECTOR temp;		// m
 			XMFLOAT4 tempPos;	// m
@@ -795,4 +798,18 @@ bool Physics::validBody(BodyHandle p_BodyHandle)
 		return false;
 	else
 		return true;
+}
+
+bool Physics::isCameraPlayerCollision(Body const &p_Collider, Body const &p_Victim)
+{
+	if(p_Collider.getGravity() > 0.f && p_Victim.getGravity() > 0.f)
+		return false;
+
+	if(!p_Collider.getIsImmovable() && p_Collider.getGravity() == 0.f)
+		return false;
+
+	if(!p_Victim.getIsImmovable() && p_Victim.getGravity() == 0.f)
+		return false;
+
+	return true;
 }

@@ -18,7 +18,7 @@ private:
 	float m_ClimbOffset; // Offset to position the player correctly when climbing. Needed because the sphere is positioned under the characters center.
 
 	float m_CurrentMana, m_PreviousMana, m_MaxMana, m_ManaRegenerationSlow, m_ManaRegenerationFast;
-	bool m_IsAtMaxSpeed, m_IsPreviousManaSet;
+	bool m_IsAtMaxSpeed, m_IsPreviousManaSet, m_ManaRegeneration;
 
 	bool m_ForceMove, m_Climb;
 	float m_CurrentForceMoveTime;
@@ -248,7 +248,12 @@ public:
 	 * @return true if the player should be able to move. false if the player should not be able to move.
 	 */
 	const bool getAllowedToMove() const;
-
+	/**
+	 * Should mana regeneration be on or off?
+	 *
+	 * @param true if mana regeneration should be on otherwise false
+	 */
+	void setManaRegeneration(bool p_ShouldRegen);
 private:
 	void jump(float dt);
 	void move(float p_DeltaTime);
