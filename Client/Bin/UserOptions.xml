@@ -36,7 +36,7 @@
     <!--Debug related-->
     <KeyMap Display="Next deferred view" Command="changeViewN" Key="Z" />
     <KeyMap Display="Prev deferred view" Command="changeViewP" Key="X" />
-    <KeyMap Display="Draw pivots" Command="DrawPivots" Key="C" />
+    <KeyMap Display="Draw pivots" Command="drawPivots" Key="C" />
     <KeyMap Display="Turn on bounding vol" Command="switchBVDraw" Key="V" />
     <KeyMap Display="Main menu?" Command="goToMainMenu" Key="Return" />
     <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="O" />
@@ -45,6 +45,8 @@
     <KeyMap Display="Spline Record" Command="splineRecord" Key="R" />
     <KeyMap Display="Spline Remove" Command="splineRemove" Key="T" />
     <KeyMap Display="Spline Clear" Command="splineClear" Key="Y" />
+    <KeyMap Display="Slow Mode" Command="slowMode" Key="48" />
+    <KeyMap Display="Fast Mode" Command="fastMode" Key="49" />
     <!--Mouse input-->
     <MouseMap Display="MouseMoveHori" Command="mouseMoveHori" Position="mousePosHori" Movement="Horizontal" />
     <MouseMap Display="MouseMoveVert" Command="mouseMoveVert" Position="mousePosVert" Movement="Vertical" />
