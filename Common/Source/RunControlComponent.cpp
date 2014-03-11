@@ -4,15 +4,16 @@
 RunControlComponent::RunControlComponent()
 	: m_Physics(nullptr),
 	m_PhysicsComp(),
+	m_IsFalling(true),
 	m_IsJumping(false),
 	m_MaxSpeed(0.f),
 	m_MaxSpeedDefault(0.f),
 	m_MaxSpeedCurrent(0.f),
-	m_MaxSpeedAccelerationFactor(100.f),
+	m_MaxSpeedAccelerationFactor(125.f),
 	m_AccConstant(0.f),
 	m_GroundNormal(0.f, 1.f, 0.f)
 {
-	TweakSettings::getInstance()->setListener(std::string("maxspeed"), std::function<void(float)>(std::bind(&RunControlComponent::setMaxSpeed, this, std::placeholders::_1)));
+	TweakSettings::getInstance()->setListener(std::string("maxSpeed"), std::function<void(float)>(std::bind(&RunControlComponent::setMaxSpeed, this, std::placeholders::_1)));
 	TweakSettings::getInstance()->setListener(std::string("acc"), std::function<void(float)>(std::bind(&RunControlComponent::setAccelerationConstant, this, std::placeholders::_1)));
 	TweakSettings::getInstance()->setListener(std::string("maxSpeedFactor"), std::function<void(float)>(std::bind(&RunControlComponent::setMaxSpeedAccelerationFactor, this, std::placeholders::_1)));
 	TweakSettings::getInstance()->setListener(std::string("maxSpeedDefault"), std::function<void(float)>(std::bind(&RunControlComponent::setMaxSpeedDefault, this, std::placeholders::_1)));
@@ -51,8 +52,8 @@ void RunControlComponent::move(float p_DeltaTime)
 	}
 
 	BodyHandle body = comp->getBodyHandle();
-
-	if (!m_Physics->getBodyInAir(body) || getIsJumping())
+	
+	if (getIsJumping() || !m_Physics->getBodyInAir(body))
 	{
 		using namespace DirectX;
 		XMFLOAT3 velocity = m_Physics->getBodyVelocity(body);
@@ -82,7 +83,7 @@ void RunControlComponent::move(float p_DeltaTime)
 		}
 
 		float speed = XMVector4Length(currentVelocity).m128_f32[0];
-		if(speed >= m_MaxSpeedDefault - 100)
+		if(speed >= m_MaxSpeedDefault - 1.f)
 		{
 			m_MaxSpeedCurrent += m_MaxSpeedAccelerationFactor * p_DeltaTime;
 			if(m_MaxSpeedCurrent >= m_MaxSpeed)
@@ -151,6 +152,16 @@ void RunControlComponent::setAccelerationConstant(float p_Acceleration)
 void RunControlComponent::setMaxSpeedAccelerationFactor(float p_Factor)
 {
 	m_MaxSpeedAccelerationFactor = p_Factor;
+}
+
+bool RunControlComponent::getIsFalling() const
+{
+	return m_IsFalling;
+}
+
+void RunControlComponent::setIsFalling(bool p_IsFalling)
+{
+	m_IsFalling = p_IsFalling;
 }
 
 bool RunControlComponent::getIsJumping() const

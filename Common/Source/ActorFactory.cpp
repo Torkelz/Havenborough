@@ -7,6 +7,7 @@
 #include "LookComponent.h"
 #include "RunControlComponent.h"
 #include "SpellComponent.h"
+#include "PlayerBodyComponent.h"
 #include "XMLHelper.h"
 
 ActorFactory::ActorFactory(unsigned int p_BaseActorId)
@@ -160,7 +161,8 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.PushAttribute("RadiusAnkle", 10.f);
 	printer.PushAttribute("RadiusHead", 25.f);
 	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "Halfsize", Vector3(25.f, 60.f, 25.f));
+	printer.PushAttribute("FallTolerance", 0.5f);
+	pushVector(printer, "HalfsizeBox", Vector3(25.f, 60.f, 25.f));
 	pushVector(printer, "OffsetPositionSphereMain", Vector3(0.f, 35.f, 0.f));
 	pushVector(printer, "OffsetPositionSphereHead", Vector3(0.f, 140.f, 0.f));
 	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 110.f, 0.f));
@@ -189,7 +191,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.PushAttribute("Animation", p_CharacterName.c_str());
 	printer.CloseElement();
 	printer.OpenElement("RunControl");
-	printer.PushAttribute("MaxSpeed", 1350.f);
+	printer.PushAttribute("MaxSpeed", 1500.f);
 	printer.PushAttribute("MaxSpeedDefault", 900.f);
 	printer.PushAttribute("Acceleration", 600.f);
 	printer.CloseElement();

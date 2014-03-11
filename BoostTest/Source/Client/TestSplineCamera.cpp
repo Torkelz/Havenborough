@@ -2,7 +2,7 @@
 #include "../../Common/Source/SplineControlComponent.h"
 #include "../../Common/Source/LookComponent.h"
 #include "../../Physics/Source/Physics.h"
-
+#include "../../Physics/Source/PhysicsExceptions.h"
 
 
 BOOST_AUTO_TEST_SUITE(SplineTest)
@@ -16,6 +16,21 @@ public:
 	Vector3 getBodyPosition(BodyHandle p_Body) override
 	{
 		return Vector3(0,0,0);
+	}
+
+	void setBodyPosition(BodyHandle p_Body, Vector3 p_newPos) override
+	{
+		
+	}
+
+	void applyImpulse(BodyHandle p_Body, Vector3 p_Impulse) override
+	{
+		
+	}
+
+	Vector3 getBodyVelocity(BodyHandle p_Body) override
+	{
+		return Vector3(0.f, 0.f, 0.f);
 	}
 
 	void releaseBody(BodyHandle p_Body) override
@@ -95,9 +110,9 @@ BOOST_AUTO_TEST_CASE(SplineMove)
 	testComp.recordPoint();
 	testComp.recordPoint();
 	testComp.recordPoint();
-	BOOST_CHECK_NO_THROW(testComp.move(0.0015f));
+	BOOST_CHECK_NO_THROW(testComp.move(0.0015f));//, PhysicsException);
 	testComp.runSplineTest(0);
-	BOOST_CHECK_NO_THROW(testComp.move(0.0015f));
+	BOOST_CHECK_NO_THROW(testComp.move(0.0015f));//, PhysicsException);
 }
 
 BOOST_AUTO_TEST_CASE(SplineLoad)

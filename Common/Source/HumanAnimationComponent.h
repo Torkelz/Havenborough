@@ -54,6 +54,7 @@ private:
 	ForceMoveState m_ForceMoveState;
 	float m_FallSpeed;
 	bool m_ForceMove;
+	bool m_QueuedFalling;
 
 	std::weak_ptr<ModelComponent> m_Model;
 	EventManager* m_EventManager;
@@ -82,6 +83,7 @@ public:
 		m_PrevJumpState = JumpAnimationState::IDLE;
 		m_ForceMoveState = ForceMoveState::IDLE;
 		m_ForceMove = false;
+		m_QueuedFalling = false;
 		m_LookAtPoint = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 		const char* resourceName = p_Data->Attribute("Animation");

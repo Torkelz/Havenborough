@@ -134,6 +134,7 @@ void BaseGameApp::init()
 	Vector2 resolution(m_Window.getSize().x, m_Window.getSize().y);
 	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings(), resolution);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setSoundManager(m_Sound);
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
