@@ -1,6 +1,5 @@
 <UserOptions>
   <Server Hostname="localhost" Port="31415" />
-  <!-- Test ip: 194.47.150.44 -->
   <Game Level="Havenborough Castle" Username="Player" />
   <Character Name="Dzala" Style="Green" />
   <Settings>
@@ -33,6 +32,10 @@
     <KeyMap Display="Wave" Command="wave" Key="Q" />
     <KeyMap Display="Climb" Command="climbEdge" Key="E" />
     <KeyMap Display="Cast spell" Command="spellCast" Key="F" />
+    <KeyMap Display="Turn Left" Command="turnLeft" Key="37" />
+    <KeyMap Display="Turn Right" Command="turnRight" Key="39" />
+    <KeyMap Display="Turn Up" Command="turnUp" Key="38" />
+    <KeyMap Display="Turn Down" Command="turnDown" Key="40" />
     <!--Debug related-->
     <KeyMap Display="Next deferred view" Command="changeViewN" Key="Z" />
     <KeyMap Display="Prev deferred view" Command="changeViewP" Key="X" />
@@ -48,8 +51,10 @@
     <KeyMap Display="Slow Mode" Command="slowMode" Key="48" />
     <KeyMap Display="Fast Mode" Command="fastMode" Key="49" />
     <!--Mouse input-->
-    <MouseMap Display="MouseMoveHori" Command="mouseMoveHori" Position="mousePosHori" Movement="Horizontal" />
-    <MouseMap Display="MouseMoveVert" Command="mouseMoveVert" Position="mousePosVert" Movement="Vertical" />
+    <MouseMap Display="Look Left" Command="lookLeft" Direction="NegX" />
+    <MouseMap Display="Look Right" Command="lookRight" Direction="PosX" />
+    <MouseMap Display="Look Up" Command="lookUp" Direction="PosY" />
+    <MouseMap Display="Look Down" Command="lookDown" Direction="NegY" />
     <MouseButtonMap Display="Cast spell" Command="spellCast" Button="Left" />
     <MouseButtonMap Display="Climb" Command="climbEdge" Button="Right" />
   </Controls>

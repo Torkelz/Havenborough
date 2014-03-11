@@ -61,11 +61,11 @@ void InputTranslator::addKeyboardMapping(USHORT p_VirtualKey, const std::string&
 	m_KeyboardMappings.push_back(rec);
 }
 
-void InputTranslator::addMouseMapping(Axis p_Axis, const std::string& p_PositionAction, const std::string& p_MovementAction)
+void InputTranslator::addMouseMapping(Axis p_Axis, bool p_PosDir, const std::string& p_MovementAction)
 {
 	Logger::log(Logger::Level::TRACE, "Adding mouse mapping");
 
-	MouseRecord rec = {p_Axis, p_PositionAction, p_MovementAction};
+	MouseRecord rec = {p_Axis, p_PosDir, p_MovementAction};
 	m_MouseMappings.push_back(rec);
 }
 
@@ -181,8 +181,6 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 
 	const float moveX = (float)lastX * sensitivity;
 	const float moveY = -(float)lastY * sensitivity;
-	const float posX = (float)tempPos.x / (float)windowSize.x;
-	const float posY = 1.f - (float)tempPos.y / (float)windowSize.y;
 
 	bool handled = false;
 	if (p_RawMouse.usButtonFlags != 0)
@@ -218,13 +216,6 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 		SetCursorPos(tempSize.x, tempSize.y);
 	}
 
-	// Filter out mouse movement outside window
-	//if (posX > 1.f || posX < 0.f
-	//	|| posY > 1.f || posY < 0.f)
-	//{
-	//	return handled;
-	//}
-	//
 	if (moveX == 0.f && moveY == 0.f)
 	{
 		return handled;
@@ -233,21 +224,26 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 	for (const MouseRecord& record : m_MouseMappings)
 	{
 		InputRecord moveInRec = {record.m_MoveAction, 0.f};
-		InputRecord posInRec = {record.m_PosAction, 0.f};
 
 		if (record.m_Axis == Axis::HORIZONTAL)
 		{
 			moveInRec.m_Value = moveX;
-			posInRec.m_Value = posX;
 		}
 		else if (record.m_Axis == Axis::VERTICAL)
 		{
 			moveInRec.m_Value = moveY;
-			posInRec.m_Value = posY;
 		}
+		
+		if (moveInRec.m_Value == 0.f)
+			continue;
 
-		m_RecordFunction(moveInRec);
-		m_RecordFunction(posInRec);
+		if (record.m_PosDir == (moveInRec.m_Value > 0.f))
+		{
+			if (moveInRec.m_Value < 0.f)
+				moveInRec.m_Value *= -1.f;
+
+			m_RecordFunction(moveInRec);
+		}
 	}
 
 	return true;

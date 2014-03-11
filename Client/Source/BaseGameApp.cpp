@@ -107,7 +107,7 @@ void BaseGameApp::init()
 	//Adding the loaded mousemaps to the translator
 	const std::vector<Settings::MouseStruct> mousekeys = settings.getMouseMap();
 	for(auto k : mousekeys)
-		translator->addMouseMapping(k.axis, k.position, k.movement);
+		translator->addMouseMapping(k.axis, k.posDir, k.command);
 
 	//Adding the loaded mousebuttonmaps to the translator
 	const std::map<std::string, MouseButton> mousebuttonKeys = settings.getMouseButtonMap();
