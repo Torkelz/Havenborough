@@ -1092,16 +1092,18 @@ void DeferredRenderer::renderObject(Renderable &p_Object)
 	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
 	p_Object.model->shader->setBlendState(m_BlendState2, data);
 
-	for(unsigned int j = 0; j < p_Object.model->numOfMaterials;j++)
+	const auto& materialSet = p_Object.model->materialSets[p_Object.materialSet].second;
+	for(const auto& material : materialSet)
 	{
-		ID3D11ShaderResourceView *srvs[] =  {	p_Object.model->diffuseTexture[j].second, 
-			p_Object.model->normalTexture[j].second, 
-			p_Object.model->specularTexture[j].second 
+		ID3D11ShaderResourceView *srvs[] =  {
+			p_Object.model->diffuseTexture[material.textureIndex].second, 
+			p_Object.model->normalTexture[material.textureIndex].second, 
+			p_Object.model->specularTexture[material.textureIndex].second 
 		};
 		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
 
-		m_DeviceContext->Draw(p_Object.model->drawInterval.at(j).second, p_Object.model->drawInterval.at(j).first);
+		m_DeviceContext->Draw(material.numOfVertices, material.vertexStart);
 	}
 
 	p_Object.model->shader->setBlendState(0, data);
@@ -1199,16 +1201,17 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 
 	m_DeviceContext->Unmap(m_Buffer["WorldInstance"]->getBufferPointer(), NULL);
 
-	for(unsigned int u = 0; u < p_Objects.front().model->numOfMaterials;u++)
+	const auto& materialSet = p_Objects.front().model->materialSets[p_Objects.front().materialSet].second;
+	for(const auto& material : materialSet)
 	{
-		ID3D11ShaderResourceView *srvs[] =  {	p_Objects.front().model->diffuseTexture[u].second, 
-			p_Objects.front().model->normalTexture[u].second, 
-			p_Objects.front().model->specularTexture[u].second 
+		ID3D11ShaderResourceView *srvs[] =  {
+			p_Objects.front().model->diffuseTexture[material.textureIndex].second, 
+			p_Objects.front().model->normalTexture[material.textureIndex].second, 
+			p_Objects.front().model->specularTexture[material.textureIndex].second 
 		};
 		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 		
-		m_DeviceContext->DrawInstanced(p_Objects.front().model->drawInterval.at(u).second, p_Objects.size(),
-			p_Objects.front().model->drawInterval.at(u).first,0);
+		m_DeviceContext->DrawInstanced(material.numOfVertices, p_Objects.size(), material.vertexStart,0);
 		
 		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	}

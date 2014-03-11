@@ -222,7 +222,7 @@ public:
 	 * @param p_Game the name of the game to join
 	 * @param p_Username the name the user wants to use
 	 */
-	virtual void sendJoinGame(const char* p_Game, const char* p_Username) = 0;
+	virtual void sendJoinGame(const char* p_Game, const char* p_Username, const char* p_CharacterName, const char* p_CharacterStyle) = 0;
 
 	/**
 	 * Get the name of the game the player tries to join.
@@ -239,6 +239,22 @@ public:
 	 * @return the name of the player from the package
 	 */
 	virtual const char* getJoinGameUsername(Package p_Package) = 0;
+
+	/**
+	 * Get the name of the character trying to join.
+	 *
+	 * @param p_Package a valid reference to a package with the JoinGame type.
+	 * @return the name of the player from the package
+	 */
+	virtual const char* getJoinGameCharacterName(Package p_Package) = 0;
+
+	/**
+	 * Gets the name of the character style for the joining user.
+	 *
+	 * @param p_Package a valid reference to a package with a JoinGame type
+	 * @return the character style for the user
+	 */
+	virtual const char* getJoinGameCharacterStyle(Package p_Package) = 0;
 
 	/**
 	 * Send information about how many checkpoints the level contains.

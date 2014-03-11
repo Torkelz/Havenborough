@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml;
+using Havenborough_Launcher.Properties;
 
 namespace Havenborough_Launcher
 {
@@ -37,6 +38,78 @@ namespace Havenborough_Launcher
 
             RefreshGameList();
         }
+
+        private void ShadowResolutionLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<ShadowResolution>
+            {
+                new ShadowResolution("V.High", "4096"),
+                new ShadowResolution("High", "2048"),
+                new ShadowResolution("Medium", "1024"),
+                new ShadowResolution("Low", "512")
+            };
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 2;
+        }
+
+        private void CharacterNameLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<string>
+            {
+                "Dzala",
+                "Zane"
+            };
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 0;
+        }
+
+        private void CharacterStyleLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<string>
+            {
+                "Green",
+                "Blue",
+                "Red",
+                "Black"
+            };
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 0;
+        }
+
+        private void ScreenResolutionLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<string>
+            {
+                "2560x1440",
+                "1920x1080",
+                "1680x1050",
+                "1600x1200",
+                "1440x900",
+                "1366x768",
+                "1280x720",
+                "1024x768",
+                "800x600"
+            };
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 6;
+        }
+
 
         private void Launch_OnClick(object sender, RoutedEventArgs e)
         {
@@ -151,53 +224,43 @@ namespace Havenborough_Launcher
             LaunchButton.IsEnabled = true;
         }
 
-        private void ShadowResolutionLoad(object sender, RoutedEventArgs e)
+        private void ScreenResolutionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var data = new List<ShadowResolution>
-            {
-                new ShadowResolution("V.High", "4096"),
-                new ShadowResolution("High", "2048"),
-                new ShadowResolution("Medium", "1024"),
-                new ShadowResolution("Low", "512")
-            };
-            var comboBox = sender as ComboBox;
-            if(comboBox == null)
+            var resolution = sender as ComboBox;
+            if (resolution == null)
                 return;
 
-            comboBox.ItemsSource = data;
-            comboBox.SelectedIndex = 2;
-        }
-
-        private void CharacterNameLoad(object sender, RoutedEventArgs e)
-        {
-            var data = new List<string>
-            {
-                "Dzala",
-                "Zane"
-            };
-            var comboBox = sender as ComboBox;
-            if(comboBox == null)
+            var data = resolution.SelectedItem;
+            if (data == null)
+             return;
+            var superdata = data.ToString();
+            var widthData = superdata.Split('x');
+            
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
                 return;
 
-            comboBox.ItemsSource = data;
-            comboBox.SelectedIndex = 0;
-        }
-
-        private void CharacterStyleLoad(object sender, RoutedEventArgs e)
-        {
-            var data = new List<string>
-            {
-                "Green",
-                "Blue",
-                "Red",
-                "Black"
-            };
-            var comboBox = sender as ComboBox;
-            if (comboBox == null)
+            XmlElement rootNode = dataProvider.Document["UserOptions"];
+            if (rootNode == null)
                 return;
 
-            comboBox.ItemsSource = data;
-            comboBox.SelectedIndex = 0;
+            XmlElement settingNode = rootNode["Settings"];
+            if (settingNode == null)
+                return;
+
+            XmlElement resolutionNode = settingNode["Resolution"];
+            if (resolutionNode == null)
+                return;
+
+            XmlAttribute width = resolutionNode.GetAttributeNode("Width");
+            if (width == null)
+            {
+                int tummu = 32;
+            }
+            width.Value = widthData[0];
+
+            XmlAttribute height = resolutionNode.GetAttributeNode("Height");
+            height.Value = widthData[1];
         }
 
         private void SliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

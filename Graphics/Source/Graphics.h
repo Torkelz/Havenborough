@@ -178,7 +178,8 @@ public:
 	void setModelPosition(InstanceId p_Instance, Vector3 p_Position) override;
 	void setModelRotation(InstanceId p_Instance, Vector3 p_YawPitchRoll) override;
 	void setModelScale(InstanceId p_Instance, Vector3 p_Scale) override;
-	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;	
+	void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) override;
+	void setModelStyle(InstanceId p_Instance, const char* p_Style) override;
 	void set2D_ObjectPosition(Object2D_Id p_Instance, Vector3 p_Position) override;
 	void set2D_ObjectScale(Object2D_Id p_Instance, Vector3 p_Scale) override;
 	Vector3 get2D_ObjectPosition(Object2D_Id p_Instance) override;

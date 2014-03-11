@@ -45,14 +45,14 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	const vector<Material> &materialData = modelLoader.getMaterial();
 	const vector<MaterialBuffer> &materialBufferData = modelLoader.getMaterialBuffer();
 	
-	bool isAnimated = modelLoader.getAnimated();
-	bool isGradient = modelLoader.getTransparent();
+	model.isAnimated = modelLoader.getAnimated();
+	model.isTransparent = modelLoader.getTransparent();
 
-	if(!isAnimated)
+	if(!model.isAnimated)
 	{
 		const vector<StaticVertex> &vertexData = modelLoader.getStaticVertexBuffer();
 		bufferDescription = createBufferDescription(vertexData, Buffer::Usage::USAGE_IMMUTABLE); //Change to default when needed to change data.
-		if(isGradient)
+		if(model.isTransparent)
 			model.shader = m_ShaderList->at("DefaultForwardShader");
 		else
 			model.shader = m_ShaderList->at("DefaultDeferredShader");
@@ -68,19 +68,47 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	boost::filesystem::path modelPath(p_Filename);
 	boost::filesystem::path parentDir(modelPath.parent_path());
 
-	vector<pair<int, int>> tempInterval(materialBufferData.size());
-	for(unsigned int i = 0; i < materialBufferData.size(); i++)
+	if (model.isAnimated)
 	{
-		tempInterval.at(i).first = materialBufferData.at(i).start;
-		tempInterval.at(i).second = materialBufferData.at(i).length;
+		static const char* styles[4] =
+		{
+			"Green",
+			"Red",
+			"Blue",
+			"Black",
+		};
+
+		for (unsigned int styleId = 0; styleId < 4; ++styleId)
+		{
+			unsigned int startIndex = model.diffuseTexture.size();
+
+			vector<ModelDefinition::Material> tempInterval(materialBufferData.size());
+			for(unsigned int i = 0; i < materialBufferData.size(); i++)
+			{
+				tempInterval.at(i).vertexStart = materialBufferData.at(i).start;
+				tempInterval.at(i).numOfVertices = materialBufferData.at(i).length;
+				tempInterval.at(i).textureIndex = startIndex + i;
+			}
+			model.materialSets.push_back(std::make_pair(styles[styleId], tempInterval));
+
+			loadTextures(model, p_Filename, materialData.size(), materialData, styles[styleId]);
+		}
 	}
-	loadTextures(model, p_Filename, materialData.size() , materialData);
+	else
+	{
+		vector<ModelDefinition::Material> tempInterval(materialBufferData.size());
+		for(unsigned int i = 0; i < materialBufferData.size(); i++)
+		{
+			tempInterval.at(i).vertexStart = materialBufferData.at(i).start;
+			tempInterval.at(i).numOfVertices = materialBufferData.at(i).length;
+			tempInterval.at(i).textureIndex = i;
+		}
+		model.materialSets.push_back(std::make_pair("default", tempInterval));
+
+		loadTextures(model, p_Filename, materialData.size(), materialData, nullptr);
+	}
 
 	model.vertexBuffer.swap(vertexBuffer);
-	model.drawInterval = tempInterval;
-	model.numOfMaterials = materialData.size();
-	model.isAnimated = isAnimated;
-	model.isTransparent = modelLoader.getTransparent();
 
 	modelLoader.clear();
 	
@@ -94,8 +122,10 @@ ModelDefinition *ModelFactory::create2D_Model(Vector2 p_HalfSize, const char *p_
 	create2D_VertexBuffer(model, p_HalfSize);
 	
 	model->diffuseTexture.push_back(make_pair(std::string(p_TextureId), getTextureFromList(p_TextureId)));
-	model->drawInterval.push_back(std::make_pair(0, 6));
-	model->numOfMaterials = 0;
+	model->materialSets.resize(1);
+	model->materialSets[0].first = "default";
+	model->materialSets[0].second.push_back(ModelDefinition::Material(0, 6, 0));
+	model->is2D = true;
 	model->isAnimated = false;
 
 	return model;
@@ -117,8 +147,10 @@ ModelDefinition *ModelFactory::create2D_Model(ID3D11ShaderResourceView *p_Textur
 	create2D_VertexBuffer(model, halfSize);
 
 	model->diffuseTexture.push_back(make_pair(std::string("Text"), p_Texture));
-	model->drawInterval.push_back(std::make_pair(0, 6));
-	model->numOfMaterials = 0;
+	model->materialSets.resize(1);
+	model->materialSets[0].first = "default";
+	model->materialSets[0].second.push_back(ModelDefinition::Material(0, 6, 0));
+	model->is2D = true;
 	model->isAnimated = false;
 
 	return model;
@@ -188,39 +220,82 @@ void ModelFactory::create2D_VertexBuffer(ModelDefinition *p_Model, Vector2 p_Hal
 }
 
 void ModelFactory::loadTextures(ModelDefinition &p_Model, const char *p_Filename, unsigned int p_NumOfMaterials,
-	const vector<Material> &p_Materials)
+	const vector<Material> &p_Materials, const char *p_Style)
 {
 	using std::pair;
 
 	boost::filesystem::path modelPath(p_Filename);
 	boost::filesystem::path parentDir(modelPath.parent_path().parent_path() / "textures");
 
-	vector<pair<string, ID3D11ShaderResourceView*>> diffuse;
-	vector<pair<string, ID3D11ShaderResourceView*>> normal;
-	vector<pair<string, ID3D11ShaderResourceView*>> specular;
-
+	string styleOfDoom;
+	if(p_Style)
+		styleOfDoom = p_Style;
 	for(unsigned int i = 0; i < p_NumOfMaterials; i++)
 	{
 		const Material &material = p_Materials.at(i);
-		boost::filesystem::path diff = (material.m_DiffuseMap == "NONE" || material.m_DiffuseMap == "Default_COLOR.dds") ?
-			parentDir / "Default_COLOR.dds" : parentDir / material.m_DiffuseMap;
+		boost::filesystem::path diff;
+		if(p_Model.isAnimated)
+		{
+			string pathToHell = modelPath.parent_path().string() + "/Dzala.btx";
+			if(string(p_Filename) == pathToHell)
+			{
+				switch(i)
+				{
+				case 0:
+					{
+						if(styleOfDoom == "Green")
+							diff = parentDir / "Dzala_BodyGreen_COLOR.dds";
+						else if(styleOfDoom == "Red")
+							diff = parentDir / "Dzala_BodyRed_COLOR.dds";
+						else if(styleOfDoom == "Blue")
+							diff = parentDir / "Dzala_BodyBlue_COLOR.dds";
+						else if(styleOfDoom == "Black")
+							diff = parentDir / "Dzala_BodyBlack_COLOR.dds";
+						break;
+					}
+				case 1:
+					{
+						if(styleOfDoom == "Green")
+							diff = parentDir / "Dzala_AccessoriesGreen_COLOR.dds";
+						else if(styleOfDoom == "Red")
+							diff = parentDir / "Dzala_AccessoriesRed_COLOR.dds";
+						else if(styleOfDoom == "Blue")
+							diff = parentDir / "Dzala_AccessoriesBlue_COLOR.dds";
+						else if(styleOfDoom == "Black")
+							diff = parentDir / "Dzala_AccessoriesBlack_COLOR.dds";
+						break;
+					}
+				}
+				
+			}
+			if(p_Filename == modelPath.parent_path().string() + "/Zane.btx")
+			{
+				string filename = "Zane_" + styleOfDoom + "_COLOR.dds";
+				diff = parentDir / filename;
+			}
+		}
+		else
+		{
+			diff = (material.m_DiffuseMap == "NONE" || material.m_DiffuseMap == "Default_COLOR.dds") ?
+				parentDir / "Default_COLOR.dds" : parentDir / material.m_DiffuseMap;
+		}
 		boost::filesystem::path norm = (material.m_NormalMap == "NONE" || material.m_NormalMap == "Default_NRM.dds") ?
 			parentDir/ "Default_NRM.dds" : parentDir / material.m_NormalMap;
 		boost::filesystem::path spec = (material.m_SpecularMap == "NONE" || material.m_SpecularMap == "Default_SPEC.dds") ?
 			parentDir / "Default_SPEC.dds" : parentDir / material.m_SpecularMap;
 
-		m_LoadModelTexture(material.m_DiffuseMap.c_str(), diff.string().c_str(), m_LoadModelTextureUserdata);
-		m_LoadModelTexture(material.m_NormalMap.c_str(), norm.string().c_str(), m_LoadModelTextureUserdata);
-		m_LoadModelTexture(material.m_SpecularMap.c_str(), spec.string().c_str(), m_LoadModelTextureUserdata);
+		std::string strDiff = diff.string();
+		std::string strNorm = norm.string();
+		std::string strSpec = spec.string();
 
-		diffuse.push_back(std::make_pair(material.m_DiffuseMap, getTextureFromList(material.m_DiffuseMap.c_str())));
-		normal.push_back(std::make_pair(material.m_NormalMap, getTextureFromList(material.m_NormalMap.c_str())));
-		specular.push_back(std::make_pair(material.m_SpecularMap, getTextureFromList(material.m_SpecularMap.c_str())));
+		m_LoadModelTexture(diff.string().c_str(), strDiff.c_str(), m_LoadModelTextureUserdata);
+		m_LoadModelTexture(material.m_NormalMap.c_str(), strNorm.c_str(), m_LoadModelTextureUserdata);
+		m_LoadModelTexture(material.m_SpecularMap.c_str(), strSpec.c_str(), m_LoadModelTextureUserdata);
+
+		p_Model.diffuseTexture.push_back(std::make_pair(strDiff, getTextureFromList(strDiff)));
+		p_Model.normalTexture.push_back(std::make_pair(material.m_NormalMap, getTextureFromList(material.m_NormalMap)));
+		p_Model.specularTexture.push_back(std::make_pair(material.m_SpecularMap, getTextureFromList(material.m_SpecularMap)));
 	}
-
-	p_Model.diffuseTexture = diffuse;
-	p_Model.normalTexture = normal;
-	p_Model.specularTexture = specular;
 }
 
 ID3D11ShaderResourceView *ModelFactory::getTextureFromList(string p_Identifier)

@@ -47,8 +47,7 @@
                         <StackPanel Orientation="Vertical"  Margin="0,0,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
                             <TextBlock FontSize="14" Text="Resolution" />
                             <StackPanel Orientation="Horizontal">
-                                <TextBox Text="{Binding XPath=@Width, Mode=TwoWay}" Width="50" />
-                                <TextBox Text="{Binding XPath=@Height, Mode=TwoWay}" Width="50" Margin="0,0,5,0"/>
+                                <ComboBox Loaded="ScreenResolutionLoad" SelectionChanged="ScreenResolutionChanged" Width="100"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Fullscreen}">
@@ -70,7 +69,7 @@
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Width="95" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
                             <TextBlock FontSize="14" Text="Shadows" />
                             <ComboBox Loaded="ShadowResolutionLoad" ItemTemplate="{StaticResource ShadowResTemplate}"
-                                Text="{Binding XPath=@Size, Mode=OneWayToSource}" />
+                                Text="{Binding XPath=@Value, Mode=OneWayToSource}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMap}">
                             <CheckBox IsChecked="{Binding XPath=@Enabled, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" />

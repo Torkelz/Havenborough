@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(RemoveLightEventDataTest)
 BOOST_AUTO_TEST_CASE(CreateMeshEventDataTest)
 {
 	std::shared_ptr<CreateMeshEventData> eventData(new CreateMeshEventData(2, "test", Vector3(2.0f, 1.0f, 2.0f),
-		Vector3(0.0f, 0.5f, 0.5f)));
+		Vector3(0.0f, 0.5f, 0.5f), "testStyle"));
 
 	BOOST_CHECK(eventData->getName() == "CreateMeshEvent");
 	BOOST_CHECK(eventData->getEventType() == 0xdeadbeef);
@@ -221,12 +221,14 @@ BOOST_AUTO_TEST_CASE(CreateMeshEventDataTest)
 	BOOST_CHECK(eventData->getId() == 2);
 	BOOST_CHECK(eventData->getScale() == Vector3(2.0f, 1.0f, 2.0f));
 	BOOST_CHECK(eventData->getColorTone() == Vector3(0.0f, 0.5f, 0.5f));
+	BOOST_CHECK_EQUAL(eventData->getStyle(), "testStyle");
 
 	std::shared_ptr<CreateMeshEventData> newEventData = std::static_pointer_cast<CreateMeshEventData>(eventData->copy());
 	BOOST_CHECK(newEventData->getMeshName() == "test");
 	BOOST_CHECK(newEventData->getId() == 2);
 	BOOST_CHECK(newEventData->getScale() == Vector3(2.0f, 1.0f, 2.0f));
 	BOOST_CHECK(newEventData->getColorTone() == Vector3(0.0f, 0.5f, 0.5f));
+	BOOST_CHECK_EQUAL(newEventData->getStyle(), "testStyle");
 }
 
 BOOST_AUTO_TEST_CASE(RemoveMeshEventDataTest)

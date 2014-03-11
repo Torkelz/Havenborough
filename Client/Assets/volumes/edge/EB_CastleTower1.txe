@@ -1,0 +1,19 @@
+*ObjectHeader*
+#numObj: 3
+
+#MESH: CastleTower1
+#Translation: -373.687378 3649.092773 2898.197998
+#Rotation: -1.015599 0 0
+#Scale: 576.729309 10 10
+
+#MESH: CastleTower1
+#Translation: -49.971119 3649.092773 3233.745605
+#Rotation: -0.481211 0 0
+#Scale: 383.860016 10 10
+
+#MESH: CastleTower1
+#Translation: 439.369263 3649.092773 3233.667725
+#Rotation: 0.267475 0 0
+#Scale: 653.652832 10 10
+
+

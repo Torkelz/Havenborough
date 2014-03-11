@@ -1,0 +1,14 @@
+*ObjectHeader*
+#numObj: 2
+
+#MESH: Floor6
+#Translation: -150 2.36352 -600
+#Rotation: 0 0 0
+#Scale: 299.107483 10 10
+
+#MESH: Floor6
+#Translation: -150 2.36352 600
+#Rotation: 0 0 0
+#Scale: 299.107483 10 10
+
+

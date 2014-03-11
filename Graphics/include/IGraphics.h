@@ -481,6 +481,16 @@ public:
 	virtual void setModelColorTone(InstanceId p_Instance, Vector3 p_ColorTone) = 0;
 
 	/**
+	 * Sets the style of the model instance.
+	 *
+	 * If the specified style does not exist for the model, nothing happens.
+	 *
+	 * @param p_Instance the model instance to change style of
+	 * @param p_Style a null-terminated string with the name of the desired style
+	 */
+	virtual void setModelStyle(InstanceId p_Instance, const char* p_Style) = 0;
+
+	/**
 	* Get the pixel position on screen of a 2D object.
 	* @param p_Instance an identifier to an object
 	*/

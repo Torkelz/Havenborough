@@ -1,0 +1,19 @@
+*ObjectHeader*
+#numObj: 3
+
+#MESH: Platform3
+#Translation: 0 54.692459 -144.104034
+#Rotation: 0 0 0
+#Scale: 286.125153 10 10
+
+#MESH: Platform3
+#Translation: -144.447769 54.692459 -34.883656
+#Rotation: 1.570796 0 0
+#Scale: 214.439575 10 10
+
+#MESH: Platform3
+#Translation: 144.447769 54.692459 -34.883656
+#Rotation: 1.570796 0 0
+#Scale: 214.439575 10 10
+
+

@@ -3,7 +3,8 @@
 User::User(IConnectionController* p_Connection)
 	:	m_Connection(p_Connection),
 		m_State(State::LOBBY),
-		m_Username("UnknownUser")
+		m_Username("UnknownUser"),
+		m_CharacterName("UnknownCharacter")
 {
 }
 
@@ -30,4 +31,24 @@ const std::string& User::getUsername() const
 void User::setUsername(const std::string& p_Username)
 {
 	m_Username = p_Username;
+}
+
+void User::setCharacterName(const std::string& p_Username)
+{
+	m_CharacterName = p_Username;
+}
+
+const std::string& User::getCharacterName() const
+{
+	return m_CharacterName;
+}
+
+const std::string& User::getCharacterStyle() const
+{
+	return m_CharacterStyle;
+}
+
+void User::setCharacterStyle(const std::string& p_Style)
+{
+	m_CharacterStyle = p_Style;
 }

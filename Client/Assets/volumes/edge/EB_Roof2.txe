@@ -1,0 +1,64 @@
+*ObjectHeader*
+#numObj: 12
+
+#MESH: Roof2
+#Translation: 0 351.874054 -600
+#Rotation: 0 0 0
+#Scale: 1200 10 10
+
+#MESH: Roof2
+#Translation: -599.999878 351.874054 0
+#Rotation: 1.570796 0 0
+#Scale: 1200 10 10
+
+#MESH: Roof2
+#Translation: 600 351.874054 0
+#Rotation: 1.570796 0 0
+#Scale: 1200 10 10
+
+#MESH: Roof2
+#Translation: 460.435181 536.690918 -345.243439
+#Rotation: 1.570796 0 0
+#Scale: 101.027 10 10
+
+#MESH: Roof2
+#Translation: 360.435181 536.690918 -345.243439
+#Rotation: 1.570796 0 0
+#Scale: 101.027 10 10
+
+#MESH: Roof2
+#Translation: 360.435181 452.52301 -219.026489
+#Rotation: 1.570796 0 0
+#Scale: 101.027 10 10
+
+#MESH: Roof2
+#Translation: 460.435181 452.52301 -220.277954
+#Rotation: 1.570796 0 0
+#Scale: 101.027 10 10
+
+#MESH: Roof2
+#Translation: 410.803192 452.52301 -170.180817
+#Rotation: 0 0 0
+#Scale: 101.027 10 10
+
+#MESH: Roof2
+#Translation: 410.803192 452.52301 -270.180817
+#Rotation: 0 0 0
+#Scale: 101.027 10 10
+
+#MESH: Roof2
+#Translation: 409.745148 536.690918 -295.238983
+#Rotation: 0 0 0
+#Scale: 101.027 10 10
+
+#MESH: Roof2
+#Translation: 410.551025 536.690918 -395.238983
+#Rotation: 0 0 0
+#Scale: 101.027 10 10
+
+#MESH: Roof2
+#Translation: 0 351.874054 600
+#Rotation: 0 0 0
+#Scale: 1200 10 10
+
+

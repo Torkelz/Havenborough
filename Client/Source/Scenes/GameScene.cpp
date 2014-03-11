@@ -430,6 +430,7 @@ void GameScene::createMesh(IEventData::Ptr p_Data)
 	};
 	m_Graphics->setModelScale(mesh.modelId, meshData->getScale());
 	m_Graphics->setModelColorTone(mesh.modelId, meshData->getColorTone());
+	m_Graphics->setModelStyle(mesh.modelId, meshData->getStyle().c_str());
 	
 	m_Models.push_back(mesh);
 }
@@ -504,9 +505,10 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 			const std::vector<DirectX::XMFLOAT4X4>& animation = animationData->getAnimationData();
 			m_Graphics->animationPose(model.modelId, animation.data(), animation.size());
 
-			const AnimationData::ptr poseData = animationData->getAnimation();
 			if( m_DebugAnimations )
 			{
+				const AnimationData::ptr poseData = animationData->getAnimation();
+
 				for (unsigned int i = 0; i < animation.size(); ++i)
 				{
 					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 || i == 4 || i == 3 )
