@@ -18,10 +18,12 @@ struct Renderable
 	const std::vector<DirectX::XMFLOAT4X4> *finalTransforms;
 	const DirectX::XMFLOAT3 *colorTone;
 	ParticleInstance::ptr particles;
+	int materialSet;
 
 	Renderable(Type p_Type, ModelDefinition *p_Model, const DirectX::XMFLOAT4X4& p_World,
 		const std::vector<DirectX::XMFLOAT4X4>* p_FinalTransforms = nullptr, 
-		const DirectX::XMFLOAT3 *p_ColorTone = nullptr)
+		const DirectX::XMFLOAT3 *p_ColorTone = nullptr,
+		int p_MaterialSet = 0)
 	{
 		using namespace DirectX;
 
@@ -29,6 +31,7 @@ struct Renderable
 		model = p_Model;
 		world = p_World;
 		colorTone = p_ColorTone;
+		materialSet = p_MaterialSet;
 
 		XMStoreFloat4x4(&invTransposeWorld, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&world)))); 
 		invTransposeWorld._41 = 0.f;
@@ -46,7 +49,8 @@ struct Renderable
 			world(p_Particles->getWorldMatrix()),
 			invTransposeWorld(),
 			finalTransforms(nullptr),
-			colorTone(nullptr)
+			colorTone(nullptr),
+			materialSet(0)
 	{
 	}
 

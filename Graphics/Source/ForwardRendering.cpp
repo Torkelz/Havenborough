@@ -303,17 +303,17 @@ void ForwardRendering::renderObject(Renderable& p_Object)
 	float data[] = { 1.0f, 1.0f, 1.f, 1.0f};
 	p_Object.model->shader->setBlendState(m_TransparencyAdditiveBlend, data);
 
-	for(unsigned int j = 0; j < p_Object.model->numOfMaterials;j++)
+	const auto& materialSet = p_Object.model->materialSets[p_Object.materialSet].second;
+	for(const auto& material : materialSet)
 	{
 		ID3D11ShaderResourceView *srvs[] =  {
-			p_Object.model->diffuseTexture[j].second, 
-			p_Object.model->normalTexture[j].second, 
-			p_Object.model->specularTexture[j].second 
+			p_Object.model->diffuseTexture[material.textureIndex].second, 
+			p_Object.model->normalTexture[material.textureIndex].second, 
+			p_Object.model->specularTexture[material.textureIndex].second 
 		};
 		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 
-		m_DeviceContext->Draw(p_Object.model->drawInterval.at(j).second,
-			p_Object.model->drawInterval.at(j).first);
+		m_DeviceContext->Draw(material.numOfVertices, material.vertexStart);
 
 		// The textures will be needed to be grabbed from the model later.
 		static ID3D11ShaderResourceView * const nullsrvs[] = {NULL,NULL,NULL};

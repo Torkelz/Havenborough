@@ -42,3 +42,13 @@ const std::string& User::getCharacterName() const
 {
 	return m_CharacterName;
 }
+
+const std::string& User::getCharacterStyle() const
+{
+	return m_CharacterStyle;
+}
+
+void User::setCharacterStyle(const std::string& p_Style)
+{
+	m_CharacterStyle = p_Style;
+}
