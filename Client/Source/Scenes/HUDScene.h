@@ -19,6 +19,12 @@ private:
 	bool m_FadeOut;
 	float m_TimeTimerMax, m_TimeTimerStartFade, m_TimePositionFade;
 	float m_TimeTimerCurrent, m_TimePositionCurrent;
+	float m_TimeFlashFade, m_TimeFlashFadeMax;
+	bool m_FadeOutFlash;
+	float m_ManaCost, m_CurrentMana;
+	float m_TimePulse, m_TimePulseFade, m_TimePulseMax;
+	bool m_Pulse;
+
 	std::string m_GUIFont;
 	IGraphics *m_Graphics;
 	EventManager *m_EventManager;

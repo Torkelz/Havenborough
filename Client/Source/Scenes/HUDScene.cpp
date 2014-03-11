@@ -14,7 +14,17 @@ HUDScene::HUDScene()
 	m_BGColor = Vector3(0.8156862745098039f, 0.8156862745098039f, 0.8156862745098039f);
 	m_TimeTimerMax = 10.0f;
 	m_TimeTimerStartFade = 5.0f;
-	m_TimePositionFade = 1.0f;
+	m_TimePositionFade = 1.f;
+	m_TimeFlashFade = 0.f;
+	m_TimeFlashFadeMax = 0.5f;
+	m_FadeOutFlash = false;
+	m_ManaCost = 55.f;
+	m_CurrentMana = 0.f;
+	m_TimePulse = 0.f;
+	m_TimePulseFade = 0.f;
+	m_TimePulseMax = 1.f;
+	m_Pulse = false;
+
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
 	m_ResourceManager = nullptr;
@@ -69,18 +79,11 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 		m_TimePositionCurrent += p_Dt;
 		Vector3 position;
 		position.z = 1;
-		Vector3 scale(0.45f,0.45f,0.45f);
 		float proc = m_TimePositionCurrent / m_TimePositionFade;
 		if(proc < 1.0f)
 		{
 			position.x = m_TimePosition.x * proc;
-			position.y = m_TimePosition.y * proc;
-			if(m_TimeScale.x * (1 - proc) > 1)
-			{
-				scale.x = m_TimeScale.x * (1 - proc);
-				scale.y = m_TimeScale.y * (1 - proc);
-				scale.z = m_TimeScale.z * (1 - proc);
-			}
+			position.y = 150.f * (1 - proc) + m_TimePosition.y * proc;
 		}
 		else
 		{
@@ -98,13 +101,90 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 		{
 			percentage = 1.0f;
 		}
-		m_Graphics->set2D_ObjectScale(m_GUI["Time"], scale);
+
+		Vector3 tempScale = Vector3(0.45f, 0.45f, 0.45f);
+
+		m_Graphics->set2D_ObjectScale(m_GUI["Time"], tempScale);
 		m_Graphics->setTextColor(m_TextHandle["Time"], Vector4(m_Color, percentage));
 		m_Graphics->set2D_ObjectPosition(m_GUI["Time"], position);
-		m_Graphics->set2D_ObjectScale(m_GUI["TimeBG"], scale);
+
+		m_Graphics->set2D_ObjectScale(m_GUI["TimeBG"], tempScale);
 		m_Graphics->setTextColor(m_TextHandle["TimeBG"], Vector4(m_BGColor, percentage));
 		m_Graphics->set2D_ObjectPosition(m_GUI["TimeBG"], Vector3(position.x-2, position.y-2, position.z+1));
 	}
+
+	if(m_FadeOutFlash)
+	{
+		m_TimeFlashFade += p_Dt;
+
+		float percentage = m_TimeFlashFade / m_TimeFlashFadeMax;
+
+		Vector3 scale(2.f, 2.f, 2.f);
+
+		scale.x = m_TimeScale.x + (scale.x - m_TimeScale.x) * percentage;
+		scale.y = m_TimeScale.y + (scale.y - m_TimeScale.y) * percentage;
+		scale.z = m_TimeScale.z + (scale.z - m_TimeScale.z) * percentage;
+
+		m_Graphics->set2D_ObjectScale(m_GUI["TimeFlash"], scale);
+		m_Graphics->setTextColor(m_TextHandle["TimeFlash"], Vector4(0.f, 0.f, 0.f, 0.5f - 0.5f * percentage));
+
+		if(m_TimeFlashFade >= m_TimeFlashFadeMax)
+		{
+			m_FadeOutFlash = false;
+		}
+	}
+
+	if(m_Pulse)
+	{
+		m_TimePulse += p_Dt;
+
+
+	}
+	
+	if(m_Pulse)
+	{
+		m_TimePulse += p_Dt;
+
+		float percentage = m_TimePulse / m_TimePulseMax;
+
+		Vector4 color = Vector4(0.f, 0.666f, 0.0f, 1.f);
+		Vector4 tempColor = Vector4(0.1f, 0.1f, 0.1f, 1.f);
+
+		color.x = color.x * percentage;
+		color.y = color.y * percentage;
+		color.z = color.z * percentage;
+
+		m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], color);
+
+	}
+
+	/*if(!m_Pulse)
+		m_TimePulse += p_Dt;
+	else
+		m_TimePulse -= p_Dt;
+
+	if(m_TimePulse >= m_TimePulseMax)
+	{
+		m_Pulse = true;
+	}
+	else if(m_TimePulse <= 0.f)
+	{
+		m_Pulse = false;
+	}
+
+	float percentage = m_TimePulse / m_TimePulseMax;
+
+	Vector3 scale(2.f, 2.f, 2.f);
+	Vector3 tempScale(1.f, 1.f, 1.f);
+
+	scale.x = tempScale.x + (scale.x - tempScale.x) * percentage;
+	scale.y = tempScale.y + (scale.y - tempScale.y) * percentage;
+	scale.z = tempScale.z + (scale.z - tempScale.z) * percentage;*/
+
+	//m_Graphics->set2D_ObjectScale(m_GUI["Manabar"], scale);
+	//m_Graphics->set2D_ObjectScale(m_GUI["ManabarChange"], scale);
+	//m_Graphics->set2D_ObjectScale(m_GUI["ManabarCounter"], scale);
+
 	
 
 	if(m_ChangeScene)
@@ -161,6 +241,7 @@ void HUDScene::render()
 		m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
 		m_Graphics->render2D_Object(m_GUI["Time"]);
 		m_Graphics->render2D_Object(m_GUI["TimeBG"]);
+		m_Graphics->render2D_Object(m_GUI["TimeFlash"]);
 		m_Graphics->render2D_Object(m_GUI["RacePos"]);
 		m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
 		m_Graphics->render2D_Object(m_GUI["Checkpoints"]);
@@ -171,12 +252,12 @@ void HUDScene::render()
 			m_Graphics->render2D_Object(m_GUI["DebugTextValue"]);
 		}
 
-			if(m_RenderCountdown)
-			{
-				m_Graphics->render2D_Object(m_GUI["Countdown"]);
-				m_RenderCountdown = false;
-			}
+		if(m_RenderCountdown)
+		{
+			m_Graphics->render2D_Object(m_GUI["Countdown"]);
+			m_RenderCountdown = false;
 		}
+	}
 }
 
 bool HUDScene::getIsVisible()
@@ -251,9 +332,24 @@ void HUDScene::updateGraphicalManabar(IEventData::Ptr p_Data)
 		float ss = m_HUDSettings.at(id).scale;
 		s = Vector3(ss,ss,ss);
 	}
+
 	m_Graphics->set2D_ObjectScale(m_GUI["ManabarChange"], Vector3(data->getCurrentMana() * s.x, s.y, 0.f));
 
 	m_Graphics->updateText(m_TextHandle["ManabarCounter"], std::to_wstring((int)(data->getCurrentMana() * 100)).c_str());
+
+
+	if(data->getCurrentMana() * 100 >= data->getManaCost())
+	{
+		m_Graphics->setTextColor(m_TextHandle["ManabarCounter"], Vector4(1.f, 1.f, 1.f, 1.f));
+		m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.f, 0.666f, 0.f, 1.f));
+		m_Pulse = true;
+	}
+	else
+	{
+		m_Graphics->setTextColor(m_TextHandle["ManabarCounter"], Vector4(1.f, 0.f, 0.f, 1.f));
+		m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.1f, 0.1f, 0.1f, 1.f));
+		m_Pulse = false;
+	}
 
 	Vector2 barSize = m_Graphics->get2D_ObjectHalfSize(m_GUI["ManabarChange"]);
 	barSize.x *= s.x;
@@ -270,7 +366,7 @@ void HUDScene::updatePlayerTime(IEventData::Ptr p_Data)
 
 	std::wstring playerTimeText;
 	
-	float timeDiff = data->getTime();
+	float timeDiff = fabs(data->getTime());
 
 	int minutes = (int)timeDiff / 60;
 	float seconds = timeDiff - minutes * 60;
@@ -287,10 +383,15 @@ void HUDScene::updatePlayerTime(IEventData::Ptr p_Data)
 	m_Graphics->setTextColor(m_TextHandle["Time"], Vector4(m_Color, 1.0f));
 	m_Graphics->updateText(m_TextHandle["TimeBG"], playerTimeText.data());
 	m_Graphics->setTextColor(m_TextHandle["TimeBG"], Vector4(m_Color, 1.0f));
+	m_Graphics->updateText(m_TextHandle["TimeFlash"], playerTimeText.data());
+	m_Graphics->setTextColor(m_TextHandle["TimeFlash"], Vector4(m_Color, 1.0f));
 	m_TimeTimerCurrent = m_TimeTimerMax;
-	m_TimeScale = Vector3(10,10,10);
+	m_TimeScale = Vector3(0.45f, 0.45f, 0.45f);
 	m_TimePositionCurrent = 0;
 	m_FadeOut = true;
+
+	m_FadeOutFlash = true;
+	m_TimeFlashFade = 0.f;
 }
 
 void HUDScene::updatePlayerRacePosition(IEventData::Ptr p_Data)
@@ -400,17 +501,20 @@ void HUDScene::preLoadModels()
 	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
 
 	pos = Vector3(420, 250, 1);
-	scale = Vector3(1.0f, 1.0f, 1.0f);
+	scale = Vector3(1.f, 1.f, 1.f);
 	id = "Time";
 	getHUDSettings(id,pos,scale);
 	adjustHUDPosition(pos);
 
 	m_TimePosition = pos;
-	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(300.f, 580.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
+	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(m_TimePosition, scale, 0.f, m_TextHandle["Time"]));
-	m_Graphics->setTextBackgroundColor(m_TextHandle["Time"], Vector4(m_Color, 0.f));
-	createTextElement("TimeBG", m_Graphics->createText(L"0.00", Vector2(300.f, 580.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
+	m_Graphics->setTextBackgroundColor(m_TextHandle["Time"], Vector4(m_Color, 0.0f));
+	createTextElement("TimeBG", m_Graphics->createText(L"0.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
 	createGUIElement("TimeBG", m_Graphics->create2D_Object(Vector3(m_TimePosition.x-2, m_TimePosition.y-2, m_TimePosition.z+1), scale, 0.f, m_TextHandle["TimeBG"]));
+
+	createTextElement("TimeFlash", m_Graphics->createText(L"0.00", Vector2(500.f, 300.f), m_GUIFont.c_str(), 72.f, Vector4(1.f, 1.f, 1.f, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
+	createGUIElement("TimeFlash", m_Graphics->create2D_Object(Vector3(0.f, 150.f, 0.f), scale, 0.f, m_TextHandle["TimeFlash"]));
 
 	pos = Vector3(-450, 320, 3);
 	scale = Vector3(1.0f, 1.0f, 1.0f);
