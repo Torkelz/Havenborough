@@ -9,7 +9,6 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml;
-using Havenborough_Launcher.Properties;
 
 namespace Havenborough_Launcher
 {
@@ -20,7 +19,7 @@ namespace Havenborough_Launcher
     {
         private const string ClientExec = "Client.exe";
         private const string ServerExec = "Server.exe";
-
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -39,23 +38,6 @@ namespace Havenborough_Launcher
             RefreshGameList();
         }
 
-        private void ShadowResolutionLoad(object sender, RoutedEventArgs e)
-        {
-            var data = new List<ShadowResolution>
-            {
-                new ShadowResolution("V.High", "4096"),
-                new ShadowResolution("High", "2048"),
-                new ShadowResolution("Medium", "1024"),
-                new ShadowResolution("Low", "512")
-            };
-            var comboBox = sender as ComboBox;
-            if (comboBox == null)
-                return;
-
-            comboBox.ItemsSource = data;
-            comboBox.SelectedIndex = 2;
-        }
-
         private void CharacterNameLoad(object sender, RoutedEventArgs e)
         {
             var data = new List<string>
@@ -69,6 +51,19 @@ namespace Havenborough_Launcher
 
             comboBox.ItemsSource = data;
             comboBox.SelectedIndex = 0;
+
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+            XmlElement rootNode = dataProvider.Document["UserOptions"];
+            if (rootNode == null)
+                return;
+            XmlElement characterNode = rootNode["Character"];
+            if (characterNode == null)
+                return;
+            var name = characterNode.GetAttribute("Name");
+            if (name.Length != 0)
+                comboBox.SelectedIndex = data.IndexOf(name);
         }
 
         private void CharacterStyleLoad(object sender, RoutedEventArgs e)
@@ -86,6 +81,19 @@ namespace Havenborough_Launcher
 
             comboBox.ItemsSource = data;
             comboBox.SelectedIndex = 0;
+
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+            XmlElement rootNode = dataProvider.Document["UserOptions"];
+            if (rootNode == null)
+                return;
+            XmlElement characterNode = rootNode["Character"];
+            if (characterNode == null)
+                return;
+            var style = characterNode.GetAttribute("Style");
+            if (style.Length != 0)
+                comboBox.SelectedIndex = data.IndexOf(style);
         }
 
         private void ScreenResolutionLoad(object sender, RoutedEventArgs e)
@@ -105,6 +113,7 @@ namespace Havenborough_Launcher
             var comboBox = sender as ComboBox;
             if (comboBox == null)
                 return;
+            comboBox.ItemsSource = data;
 
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
@@ -118,16 +127,30 @@ namespace Havenborough_Launcher
             XmlElement resolutionNode = settingNode["Resolution"];
             if (resolutionNode == null)
                 return;
-            XmlAttribute width = resolutionNode.GetAttributeNode("Width");
-            XmlAttribute height = resolutionNode.GetAttributeNode("Height");
-            if (width == null || height == null)
-                return;
-
-            string screenRes = width.Value + "x" + height.Value;
-            comboBox.ItemsSource = data;
-            comboBox.SelectedIndex = data.IndexOf(screenRes); ;
+            var width = resolutionNode.GetAttribute("Width");
+            var height = resolutionNode.GetAttribute("Height");
+            if (width.Length == 0 || height.Length == 0)
+                comboBox.SelectedIndex = 6;
+            else
+                comboBox.SelectedIndex = data.IndexOf(width + "x" + height);
         }
 
+        private void ShadowResolutionLoad(object sender, RoutedEventArgs e)
+        {
+            var data = new List<ShadowResolution>
+            {
+                new ShadowResolution("V.High", "4096"),
+                new ShadowResolution("High", "2048"),
+                new ShadowResolution("Medium", "1024"),
+                new ShadowResolution("Low", "512")
+            };
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+
+            comboBox.ItemsSource = data;
+            comboBox.SelectedIndex = 2;
+        }
 
         private void Launch_OnClick(object sender, RoutedEventArgs e)
         {
@@ -139,7 +162,7 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source);
             try
             {
-                Process.Start(ClientExec);
+                //Process.Start(ClientExec);
             }
             catch (Exception ex)
             {
@@ -207,7 +230,7 @@ namespace Havenborough_Launcher
                 gameList.Refresh(host, port);
         }
 
-        private void OnSelectedGameChanged(object sender, SelectionChangedEventArgs args)
+        private void OnSelectedGameChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedGame = GameListView.SelectedItem as GameList.Game;
             if (selectedGame == null ||
@@ -222,32 +245,86 @@ namespace Havenborough_Launcher
             if (dataProvider == null)
                 return;
 
-            XmlElement rootNode = dataProvider.Document["UserOptions"];
-            if (rootNode == null)
+            XmlElement rootElement = dataProvider.Document["UserOptions"];
+            if (rootElement == null)
             {
                 return;
             }
 
-            XmlElement gameNode = rootNode["Game"];
-            if (gameNode == null)
+            XmlElement gameElement = rootElement["Game"];
+            if (gameElement == null)
             {
-                gameNode = dataProvider.Document.CreateElement("Game");
-                rootNode.AppendChild(gameNode);
+                gameElement = dataProvider.Document.CreateElement("Game");
+                rootElement.AppendChild(gameElement);
             }
 
             XmlAttribute levelAttribute = dataProvider.Document.CreateAttribute("Level");
             levelAttribute.Value = selectedGame.Name;
-            gameNode.Attributes.SetNamedItem(levelAttribute);
+            gameElement.Attributes.SetNamedItem(levelAttribute);
 
             LaunchButton.IsEnabled = true;
         }
 
+        private void CharacterNameChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+            var data = comboBox.SelectedItem;
+            if (data == null)
+                return;
+
+            var styleData = data.ToString();
+
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+            XmlElement rootElement = dataProvider.Document["UserOptions"];
+            if (rootElement == null)
+                return;
+            XmlElement characterElement = rootElement["Character"];
+            if (characterElement == null)
+                return;
+            XmlAttribute nameAttribute = characterElement.GetAttributeNode("Name");
+            if (nameAttribute == null)
+                return;
+
+            nameAttribute.Value = styleData;
+        }
+
+        private void CharacterStyleChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+            var data = comboBox.SelectedItem;
+            if (data == null)
+                return;
+
+            var styleData = data.ToString();
+
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+            XmlElement rootElement = dataProvider.Document["UserOptions"];
+            if (rootElement == null)
+                return;
+            XmlElement characterElement = rootElement["Character"];
+            if (characterElement == null)
+                return;
+            XmlAttribute styleAttribute = characterElement.GetAttributeNode("Style");
+            if (styleAttribute == null)
+                return;
+
+            styleAttribute.Value = styleData;
+        }
+
         private void ScreenResolutionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var resolutionBox = sender as ComboBox;
-            if (resolutionBox == null)
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
                 return;
-            var data = resolutionBox.SelectedItem;
+            var data = comboBox.SelectedItem;
             if (data == null)
                 return;
 
