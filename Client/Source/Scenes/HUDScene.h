@@ -23,7 +23,7 @@ private:
 	bool m_FadeOutFlash;
 	float m_ManaCost, m_CurrentMana;
 	float m_TimePulse, m_TimePulseFade, m_TimePulseMax;
-	bool m_Pulse;
+	bool m_Pulse, m_Hej;
 
 	std::string m_GUIFont;
 	IGraphics *m_Graphics;

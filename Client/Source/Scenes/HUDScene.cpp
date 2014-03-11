@@ -24,6 +24,7 @@ HUDScene::HUDScene()
 	m_TimePulseFade = 0.f;
 	m_TimePulseMax = 1.f;
 	m_Pulse = false;
+	m_Hej = false;
 
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
@@ -133,59 +134,29 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 			m_FadeOutFlash = false;
 		}
 	}
-
-	if(m_Pulse)
-	{
-		m_TimePulse += p_Dt;
-
-
-	}
 	
-	if(m_Pulse)
+	if(!m_Hej)
 	{
 		m_TimePulse += p_Dt;
 
 		float percentage = m_TimePulse / m_TimePulseMax;
 
-		Vector4 color = Vector4(0.f, 0.666f, 0.0f, 1.f);
-		Vector4 tempColor = Vector4(0.1f, 0.1f, 0.1f, 1.f);
+		Vector4 color = Vector4(0.1f, 0.1f, 0.1f, 1.f);
+		Vector4 tempColor = Vector4(0.f, 0.666f, 0.f, 1.f);
 
-		color.x = color.x * percentage;
-		color.y = color.y * percentage;
-		color.z = color.z * percentage;
+		color.x = color.x + tempColor.x * (1 - percentage);
+		color.y = color.y + tempColor.x * (1 - percentage);
+		color.z = color.z + tempColor.x * (1 - percentage);
 
 		m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], color);
 
+		if(m_TimePulse >= m_TimePulseMax)
+		{
+			m_Pulse = false;
+			m_Hej = true;
+			m_TimePulse = 0.f;
+		}
 	}
-
-	/*if(!m_Pulse)
-		m_TimePulse += p_Dt;
-	else
-		m_TimePulse -= p_Dt;
-
-	if(m_TimePulse >= m_TimePulseMax)
-	{
-		m_Pulse = true;
-	}
-	else if(m_TimePulse <= 0.f)
-	{
-		m_Pulse = false;
-	}
-
-	float percentage = m_TimePulse / m_TimePulseMax;
-
-	Vector3 scale(2.f, 2.f, 2.f);
-	Vector3 tempScale(1.f, 1.f, 1.f);
-
-	scale.x = tempScale.x + (scale.x - tempScale.x) * percentage;
-	scale.y = tempScale.y + (scale.y - tempScale.y) * percentage;
-	scale.z = tempScale.z + (scale.z - tempScale.z) * percentage;*/
-
-	//m_Graphics->set2D_ObjectScale(m_GUI["Manabar"], scale);
-	//m_Graphics->set2D_ObjectScale(m_GUI["ManabarChange"], scale);
-	//m_Graphics->set2D_ObjectScale(m_GUI["ManabarCounter"], scale);
-
-	
 
 	if(m_ChangeScene)
 	{
@@ -341,7 +312,9 @@ void HUDScene::updateGraphicalManabar(IEventData::Ptr p_Data)
 	if(data->getCurrentMana() * 100 >= data->getManaCost())
 	{
 		m_Graphics->setTextColor(m_TextHandle["ManabarCounter"], Vector4(1.f, 1.f, 1.f, 1.f));
-		m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.f, 0.666f, 0.f, 1.f));
+		if(!m_Pulse)
+			m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.f, 0.666f, 0.f, 1.f));
+
 		m_Pulse = true;
 	}
 	else
@@ -349,6 +322,8 @@ void HUDScene::updateGraphicalManabar(IEventData::Ptr p_Data)
 		m_Graphics->setTextColor(m_TextHandle["ManabarCounter"], Vector4(1.f, 0.f, 0.f, 1.f));
 		m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.1f, 0.1f, 0.1f, 1.f));
 		m_Pulse = false;
+		m_Hej = false;
+		m_TimePulse = 0.f;
 	}
 
 	Vector2 barSize = m_Graphics->get2D_ObjectHalfSize(m_GUI["ManabarChange"]);
