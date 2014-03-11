@@ -4,6 +4,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h> //For VK_* defines
 
+#include <tuple>
+#include <boost/algorithm/string.hpp>
+
 Settings::Settings(void)
 {
 	m_Resolution = Vector2(1080,720);
@@ -129,20 +132,40 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 		}
 		else if(elementName == "MouseMap")
 		{
-			const char* pValue = element->Attribute("Position");
-			const char* mValue = element->Attribute("Movement");
-			if (!mValue || !pValue)
-				throw ClientException("Settings tried to load the attribute \"movement\" or \"position\" from element: " + elementName + ".", __LINE__, __FILE__);
+			const char* direction = element->Attribute("Direction");
+			if (!direction)
+				throw ClientException("Settings tried to load the attribute \"Direction\" from element: " + elementName + ".", __LINE__, __FILE__);
+
+			std::string sDir(direction);
+
+			static const std::tuple<std::string, Axis, bool> mouseDirs[] =
+			{
+				std::make_tuple("NegX", Axis::HORIZONTAL, false),
+				std::make_tuple("PosX", Axis::HORIZONTAL, true),
+				std::make_tuple("NegY", Axis::VERTICAL, false),
+				std::make_tuple("PosY", Axis::VERTICAL, true),
+			};
 
 			MouseStruct m;
-			m.movement = std::string(commandValue);
-			m.position = pValue;
-			std::string keyValue(mValue);
+			bool foundDir = false;
 
-			if(keyValue == "Vertical")
-				m.axis = Axis::VERTICAL;
-			else if(keyValue == "Horizontal")
-				m.axis = Axis::HORIZONTAL;
+			for (const auto& dir : mouseDirs)
+			{
+				if (boost::iequals(std::get<0>(dir), sDir))
+				{
+					m.axis = std::get<1>(dir);
+					m.posDir = std::get<2>(dir);
+					foundDir = true;
+					break;
+				}
+			}
+
+			if (!foundDir)
+			{
+				throw ClientException(std::string("Invalid setting for \"") + commandValue + std::string("\" in MouseMap"), __LINE__, __FILE__);
+			}
+
+			m.command = commandValue;
 
 			m_MouseMap.push_back(m);
 		}

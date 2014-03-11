@@ -753,6 +753,11 @@ public:
 		m_Id = p_Id;
 	}
 
+	const std::string& getMeshName() const
+	{
+		return m_MeshName;
+	}
+
 private:
 	void calculateScale()
 	{

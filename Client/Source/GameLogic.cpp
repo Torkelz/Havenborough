@@ -23,7 +23,6 @@ GameLogic::GameLogic(void)
 	m_SplineCameraActive = false;
 }
 
-
 GameLogic::~GameLogic(void)
 {
 	m_Physics = nullptr;
