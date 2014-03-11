@@ -14,7 +14,8 @@ GameScene::GameScene()
 	m_NewSceneID = 0;
 	m_ChangeScene = false;
 	m_ChangeList = false;
-	
+	m_SoundExist = false;
+
 	m_GameLogic = nullptr;
 	m_Graphics = nullptr;
 	m_InputQueue = nullptr;
@@ -31,6 +32,8 @@ GameScene::~GameScene()
 {
 	m_Graphics = nullptr;
 	m_InputQueue = nullptr;
+
+	m_SoundManager = nullptr;
 }
 
 bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManager *p_ResourceManager,
@@ -78,6 +81,15 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	TweakSettings* tweakSettings = TweakSettings::getInstance();
 	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
 
+	m_RandomEngine.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
+	m_SoundFolderPath = "assets/sounds/background";
+
+
+	unsigned int id = m_Graphics->createText(L"Press again to exit \nPress any key to continue     ", "Verdana", 27.f, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f);
+	m_Graphics->setTextBackgroundColor(id, Vector4(0.f, 0.f, 0.f, 0.4f));
+	m_PauseId = m_Graphics->create2D_Object(Vector3(0,0,0), Vector3(1,1,1), 0.f, id);
+	m_RenderPause = false;
+
 	return true;
 }
 
@@ -85,6 +97,8 @@ void GameScene::destroy()
 {
 	releasePreLoadedModels();
 	m_ResourceManager->releaseResource(m_SkyboxID);
+	m_SoundManager->releaseSound("CurrentSound");
+	m_BackGroundSoundsList.clear();
 }
 
 void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
@@ -113,9 +127,35 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	float right = state.getValue("moveRight") - state.getValue("moveLeft");
 	float up = state.getValue("moveUp") - state.getValue("moveDown");
 
+	if( up != 0.0f || right != 0.0f || forward != 0.0f )
+	{
+		m_RenderPause = false;
+	}
 	m_GameLogic->setPlayerDirection(Vector3(forward, up, right));
 
+	float vert = state.getValue("turnUp") - state.getValue("turnDown");
+	float hori = state.getValue("turnRight") - state.getValue("turnLeft");
+	const float turnSize = p_DeltaTime * 600.f * m_ViewSensitivity;
+	m_GameLogic->movePlayerView(hori * turnSize, -vert * turnSize);
+
 	m_Graphics->updateParticles(p_DeltaTime);
+
+	m_SoundManager->onFrame();
+
+	if (m_SoundPath != "NULL")
+	{
+		if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
+		{
+			m_SoundPath = changeBackGroundSound(m_SoundFolderPath);
+			if (m_SoundPath != "NULL")
+			{		
+				m_SoundManager->loadSoundWithoutLoop("CurrentSound", m_SoundPath.c_str());
+				m_SoundExist = true;
+				m_SoundManager->playSound("CurrentSound");
+			}
+
+		}
+	}	
 }
 
 void GameScene::onFocus()
@@ -200,6 +240,9 @@ void GameScene::render()
 		if(m_GameLogic->getPlayerTextComponentId() != wText.first)
 			m_Graphics->renderText(wText.second);
 	}
+
+	if(m_RenderPause)
+		m_Graphics->render2D_Object(m_PauseId);
 }
 
 bool GameScene::getIsVisible()
@@ -215,7 +258,6 @@ void GameScene::setIsVisible(bool p_SetVisible)
 void GameScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
 	bool handled = false;
-	
 	// Binary triggers
 	if (p_Value > 0.5f && p_PrevValue <= 0.5f)
 	{
@@ -258,7 +300,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		}
 		else if (p_Action == "leaveGame")
 		{
-			m_GameLogic->leaveGame();
+ 			if(m_RenderPause)
+				m_GameLogic->leaveGame();
+			m_RenderPause = true;
+			handled =  false;
 		}
 		else if (p_Action == "thirdPersonCamera")
 		{
@@ -303,6 +348,8 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		{
 			handled = false;
 		}
+		if(handled)
+			m_RenderPause = false;
 	}
 
 	if (handled)
@@ -313,13 +360,21 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
 	}
-	else if (p_Action == "mouseMoveHori")
+	else if (p_Action == "lookRight")
 	{
 		m_GameLogic->movePlayerView(p_Value * m_ViewSensitivity, 0.f);
 	}
-	else if (p_Action == "mouseMoveVert")
+	else if (p_Action == "lookLeft")
+	{
+		m_GameLogic->movePlayerView(-p_Value * m_ViewSensitivity, 0.f);
+	}
+	else if (p_Action == "lookUp")
 	{
 		m_GameLogic->movePlayerView(0.f, -p_Value * m_ViewSensitivity);
+	}
+	else if (p_Action == "lookDown")
+	{
+		m_GameLogic->movePlayerView(0.f, p_Value * m_ViewSensitivity);
 	}
 }
 
@@ -327,12 +382,49 @@ void GameScene::setMouseSensitivity(float p_Value)
 {
 	m_ViewSensitivity *= p_Value;
 }
+
+void GameScene::setSoundManager(ISound *p_SoundManager)
+{
+	m_SoundManager = p_SoundManager;
+}
+
+std::string GameScene::changeBackGroundSound(const std::string& p_FontFolderPath)
+{
+	
+	if (m_SoundExist)
+	{
+		m_SoundManager->releaseSound("CurrentSound");
+		m_SoundExist = false;
+	}
+
+	m_BackGroundSoundsList.clear();
+
+	boost::filesystem::directory_iterator currFile(p_FontFolderPath);
+	for (; currFile != boost::filesystem::directory_iterator(); ++currFile)
+	{
+		auto filename = currFile->path();
+		m_BackGroundSoundsList.push_back(filename.string());
+	}
+	int soundCount = m_BackGroundSoundsList.size();
+	if (soundCount == 0)
+	{
+		std::string failToFindAFile = "NULL";
+		return failToFindAFile;
+	}
+	std::uniform_int_distribution<int> newBackGroundSound(0, soundCount-1);
+	int newSoundTrack = 0;
+	newSoundTrack = newBackGroundSound(m_RandomEngine);
+
+	return m_BackGroundSoundsList[newSoundTrack];
+}
+
 /*########## TEST FUNCTIONS ##########*/
 
 int GameScene::getID()
 {
 	return m_SceneID;
 }
+
 
 void GameScene::addLight(IEventData::Ptr p_Data)
 {
@@ -368,6 +460,7 @@ void GameScene::createMesh(IEventData::Ptr p_Data)
 	};
 	m_Graphics->setModelScale(mesh.modelId, meshData->getScale());
 	m_Graphics->setModelColorTone(mesh.modelId, meshData->getColorTone());
+	m_Graphics->setModelStyle(mesh.modelId, meshData->getStyle().c_str());
 	
 	m_Models.push_back(mesh);
 }
@@ -442,9 +535,10 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 			const std::vector<DirectX::XMFLOAT4X4>& animation = animationData->getAnimationData();
 			m_Graphics->animationPose(model.modelId, animation.data(), animation.size());
 
-			const AnimationData::ptr poseData = animationData->getAnimation();
 			if( m_DebugAnimations )
 			{
+				const AnimationData::ptr poseData = animationData->getAnimation();
+
 				for (unsigned int i = 0; i < animation.size(); ++i)
 				{
 					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 || i == 4 || i == 3 )

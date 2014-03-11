@@ -135,15 +135,17 @@ BOOST_AUTO_TEST_CASE(TestInputRegisteredMouse)
 	InputTranslatorStub* rawTranslator = new InputTranslatorStub;
 	InputTranslatorStub::ptr fakeTranslator(rawTranslator);
 
-	static const std::string moveVertAction("testMoveVert");
-	static const std::string moveHoriAction("testMoveHori");
-	static const std::string posVertAction("testPosVert");
-	static const std::string posHoriAction("testPosHori");
+	static const std::string moveUpAction("testMoveUp");
+	static const std::string moveDownAction("testMoveDown");
+	static const std::string moveLeftAction("testMoveLeft");
+	static const std::string moveRightAction("testMoveRight");
 	static const std::string leftButton("testLeftButton");
 	static const std::string button5("testButton5");
 
-	fakeTranslator->addMouseMapping(Axis::VERTICAL, posVertAction, moveVertAction);
-	fakeTranslator->addMouseMapping(Axis::HORIZONTAL, posHoriAction, moveHoriAction);
+	fakeTranslator->addMouseMapping(Axis::VERTICAL, true, moveUpAction);
+	fakeTranslator->addMouseMapping(Axis::VERTICAL, false, moveDownAction);
+	fakeTranslator->addMouseMapping(Axis::HORIZONTAL, true, moveRightAction);
+	fakeTranslator->addMouseMapping(Axis::HORIZONTAL, false, moveLeftAction);
 	fakeTranslator->addMouseButtonMapping(MouseButton::LEFT, leftButton);
 	fakeTranslator->addMouseButtonMapping(MouseButton::EXTRA_2, button5);
 
@@ -154,6 +156,10 @@ BOOST_AUTO_TEST_CASE(TestInputRegisteredMouse)
 	msg1.lLastX = 0;
 	msg1.lLastY = 0;
 	msg1.usButtonFlags = RI_MOUSE_LEFT_BUTTON_DOWN;
+
+	RAWMOUSE msg1_1 = {};
+	msg1_1.lLastX = -10;
+	msg1_1.lLastY = -5;
 
 	RAWMOUSE msg2 = {};
 	msg2.lLastX = 10;
@@ -166,40 +172,41 @@ BOOST_AUTO_TEST_CASE(TestInputRegisteredMouse)
 	msg3.usButtonFlags = RI_MOUSE_BUTTON_5_UP;
 
 	BOOST_CHECK_EQUAL(rawTranslator->handleFakeMouseInput(msg1), true);
+	BOOST_CHECK_EQUAL(rawTranslator->handleFakeMouseInput(msg1_1), true);
 	BOOST_CHECK_EQUAL(rawTranslator->handleFakeMouseInput(msg2), true);
 
-	BOOST_CHECK_GE(input.getFrameInputs().size(), 5U);
-	bool movedX = false;
-	bool movedY = false;
-	bool posXChanged = false;
-	bool posYChanged = false;
+	BOOST_CHECK_GE(input.getFrameInputs().size(), 4U);
+	bool movedPosX = false;
+	bool movedNegX = false;
+	bool movedPosY = false;
+	bool movedNegY = false;
 	bool leftButtonPressed = false;
 	bool button5Pressed = false;
 
 	for (const InputRecord& rec : input.getFrameInputs())
 	{
-		if      (rec.m_Action == moveVertAction) movedY = true;
-		else if (rec.m_Action == moveHoriAction) movedX = true;
-		else if (rec.m_Action == posVertAction) posYChanged = true;
-		else if (rec.m_Action == posHoriAction) posXChanged = true;
+		if      (rec.m_Action == moveUpAction) movedNegY = true;
+		else if (rec.m_Action == moveDownAction) movedPosY = true;
+		else if (rec.m_Action == moveLeftAction) movedNegX = true;
+		else if (rec.m_Action == moveRightAction) movedPosX = true;
 		else if (rec.m_Action == leftButton) leftButtonPressed = true;
 		else if (rec.m_Action == button5) button5Pressed = true;
 		else
 			BOOST_FAIL("Unknown action received: " + rec.m_Action);
 	}
 
-	BOOST_CHECK(movedX);
-	BOOST_CHECK(movedY);
-	BOOST_CHECK(posXChanged);
-	BOOST_CHECK(posYChanged);
-	BOOST_CHECK(leftButtonPressed);
-	BOOST_CHECK(!button5Pressed);
+	BOOST_CHECK_EQUAL(movedNegX, true);
+	BOOST_CHECK_EQUAL(movedPosX, true);
+	BOOST_CHECK_EQUAL(movedNegY, true);
+	BOOST_CHECK_EQUAL(movedPosY, false);
+	BOOST_CHECK_EQUAL(leftButtonPressed, true);
+	BOOST_CHECK_EQUAL(button5Pressed, false);
 
-	BOOST_CHECK_EQUAL(input.getCurrentState().size(), 5);
-	BOOST_CHECK(input.getCurrentState().hasRecord(moveVertAction));
-	BOOST_CHECK_EQUAL(input.getCurrentState().getValue(moveVertAction), 0.f);
-	BOOST_CHECK(input.getCurrentState().hasRecord(moveHoriAction));
-	BOOST_CHECK_EQUAL(input.getCurrentState().getValue(moveHoriAction), 10.f);
+	BOOST_CHECK_EQUAL(input.getCurrentState().size(), 4);
+	BOOST_CHECK(input.getCurrentState().hasRecord(moveUpAction));
+	BOOST_CHECK_EQUAL(input.getCurrentState().getValue(moveUpAction), 5.f);
+	BOOST_CHECK(input.getCurrentState().hasRecord(moveRightAction));
+	BOOST_CHECK_EQUAL(input.getCurrentState().getValue(moveRightAction), 10.f);
 	
 	BOOST_CHECK(!input.getCurrentState().hasRecord(button5));
 	BOOST_CHECK_EQUAL(input.getCurrentState().getValue(button5), 0.f);
@@ -208,7 +215,7 @@ BOOST_AUTO_TEST_CASE(TestInputRegisteredMouse)
 
 	BOOST_CHECK(rawTranslator->handleFakeMouseInput(msg3));
 
-	BOOST_CHECK_GE(input.getFrameInputs().size(), 5U);
+	BOOST_CHECK_EQUAL(input.getFrameInputs().size(), 3U);
 	BOOST_CHECK_EQUAL(input.getCurrentState().size(), 6);
 	BOOST_CHECK(input.getCurrentState().hasRecord(button5));
 	BOOST_CHECK_EQUAL(input.getCurrentState().getValue(button5), 0.f);

@@ -109,7 +109,7 @@ void BaseGameApp::init()
 	//Adding the loaded mousemaps to the translator
 	const std::vector<Settings::MouseStruct> mousekeys = settings.getMouseMap();
 	for(auto k : mousekeys)
-		translator->addMouseMapping(k.axis, k.position, k.movement);
+		translator->addMouseMapping(k.axis, k.posDir, k.command);
 
 	//Adding the loaded mousebuttonmaps to the translator
 	const std::map<std::string, MouseButton> mousebuttonKeys = settings.getMouseButtonMap();
@@ -134,6 +134,7 @@ void BaseGameApp::init()
 	Vector2 resolution(m_Window.getSize().x, m_Window.getSize().y);
 	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings(), resolution);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setSoundManager(m_Sound);
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
@@ -156,6 +157,7 @@ void BaseGameApp::init()
 	m_LevelName = settings.getLevelName();
 	m_Username = settings.getUsername();
 	m_CharacterName = settings.getCharacterName();
+	m_CharacterStyle = settings.geCharacterStyle();
 }
 
 void BaseGameApp::run()
@@ -166,7 +168,7 @@ void BaseGameApp::run()
 
 	resetTimer();
 
-	m_GameLogic->connectToServer(m_ServerURL, m_ServerPort, m_LevelName, m_Username, m_CharacterName);
+	m_GameLogic->connectToServer(m_ServerURL, m_ServerPort, m_LevelName, m_Username, m_CharacterName, m_CharacterStyle);
 
 	while (!m_ShouldQuit)
 	{

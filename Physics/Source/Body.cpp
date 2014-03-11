@@ -40,6 +40,8 @@ Body::Body(float p_mass, BoundingVolume::ptr p_BoundingVolume, bool p_IsImmovabl
 	m_IsImmovable		= p_IsImmovable;
 	m_IsEdge			= p_IsEdge;
 	m_Landed			= false;
+
+	m_ForceCollisionNormal	= false;
 }
 
 Body::Body(Body &&p_Other)
@@ -58,7 +60,8 @@ Body::Body(Body &&p_Other)
 	  m_OnSomething(p_Other.m_OnSomething),
 	  m_IsImmovable(p_Other.m_IsImmovable),
 	  m_IsEdge(p_Other.m_IsEdge),
-	  m_Landed(p_Other.m_Landed)
+	  m_Landed(p_Other.m_Landed),
+	  m_ForceCollisionNormal(p_Other.m_ForceCollisionNormal)
 {}
 
 Body& Body::operator=(Body&& p_Other)
@@ -79,6 +82,7 @@ Body& Body::operator=(Body&& p_Other)
 	std::swap(m_IsImmovable, p_Other.m_IsImmovable);
 	std::swap(m_IsEdge, p_Other.m_IsEdge);
 	std::swap(m_Landed, p_Other.m_Landed);
+	std::swap(m_ForceCollisionNormal, p_Other.m_ForceCollisionNormal);
 
 	return *this;
 }
@@ -323,4 +327,13 @@ void Body::resetForce()
 	m_Acceleration		= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_AvgAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	m_NewAcceleration	= XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+}
+
+void Body::setForceCollisionNormal(bool p_Bool)
+{
+	m_ForceCollisionNormal = p_Bool;
+}
+bool Body::getForceCollisionNormal() const
+{
+	return m_ForceCollisionNormal;
 }

@@ -33,6 +33,7 @@ private:
 	std::string m_LevelName;
 	std::string m_Username;
 	std::string m_CharacterName;
+	std::string m_CharacterStyle;
 	
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
@@ -102,7 +103,8 @@ public:
 
 	void connectToServer(const std::string& p_URL, unsigned short p_Port,
 		const std::string& p_LevelName, const std::string& p_Username,
-		const std::string& p_CharacterName);
+		const std::string& p_CharacterName,
+		const std::string& p_CharacterStyle);
 	void leaveGame();
 
 	/**
@@ -182,6 +184,7 @@ private:
 	void removeActor(Actor::Id p_Actor);
 
 	void removeActorByEvent(IEventData::Ptr p_Data);
+	void updateIKHeadByEvent(IEventData::Ptr p_Data);
 
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
 	//void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);

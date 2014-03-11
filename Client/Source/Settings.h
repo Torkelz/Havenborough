@@ -12,9 +12,9 @@ class Settings
 public:
 	struct MouseStruct
 	{
-		std::string movement;
-		std::string position;
+		std::string command;
 		Axis axis;
+		bool posDir;
 	};
 	struct HUDSettings
 	{

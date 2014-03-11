@@ -8,7 +8,8 @@ using std::vector;
 
 ModelInstance::ModelInstance()
 	: m_IsCalculated(false), 
-	m_ColorTone(DirectX::XMFLOAT3(1.f, 1.f, 1.f))
+	m_ColorTone(DirectX::XMFLOAT3(1.f, 1.f, 1.f)),
+	m_SelectedMaterialSet(0)
 {
 }
 
@@ -80,4 +81,14 @@ const vector<DirectX::XMFLOAT4X4>& ModelInstance::getFinalTransform() const
 void ModelInstance::animationPose(const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size)
 {
 	m_FinalTransform.assign(p_Pose, p_Pose + p_Size);
+}
+
+int ModelInstance::getSelectedMaterialSet() const
+{
+	return m_SelectedMaterialSet;
+}
+
+void ModelInstance::setSelectedMaterialSet(int p_Mat)
+{
+	m_SelectedMaterialSet = p_Mat;
 }

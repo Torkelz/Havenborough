@@ -1,4 +1,6 @@
 #include "HumanAnimationComponent.h"
+#include "RunControlComponent.h"
+#include "Logger.h"
 
 void HumanAnimationComponent::updateAnimation()
 {
@@ -6,14 +8,25 @@ void HumanAnimationComponent::updateAnimation()
 
 	Vector3 tempVector(0.f, 0.f, 0.f);
 	bool isInAir = true;
+	bool isFalling = false;
+	bool isJumping = false;
+	bool isOnSomething = false;
 	std::shared_ptr<PhysicsInterface> physComp = m_Owner->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
 	if (physComp)
 	{
 		tempVector = physComp->getVelocity();
 		isInAir = physComp->isInAir();
+		isOnSomething = physComp->isOnSomething();
 	}
 	XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
-	
+	std::shared_ptr<MovementControlInterface> comp = m_Owner->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+	std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
+	if(runComp)
+	{
+		isFalling = runComp->getIsFalling();
+		isJumping = runComp->getIsJumping();
+	}
+
 	if(!m_ForceMove)
 	{
 		std::shared_ptr<LookInterface> lookComp = m_Owner->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
@@ -26,6 +39,7 @@ void HumanAnimationComponent::updateAnimation()
 		changeAnimationWeight(2, 1 - abs(cosf(angle)));
 		if (!isInAir)
 		{
+			m_QueuedFalling = false;
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
 			SideAnimationState currentSideState = SideAnimationState::IDLE;
@@ -89,16 +103,19 @@ void HumanAnimationComponent::updateAnimation()
 			}
 
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
-			if (physComp->hasLanded())
+			if (physComp->isOnSomething())
 			{
-				if(m_FallSpeed >= 1000.0f)
+				
+				if(m_FallSpeed >= 1400.0f)
 				{
 					currentJumpState = JumpAnimationState::HARD_LANDING;
 				}
 				else
 				{
-					if(m_FallSpeed > 0.0f)
+					if(m_FallSpeed > 500.0f)
+					{
 						currentJumpState = JumpAnimationState::LIGHT_LANDING;
+					}
 				}
 				m_FallSpeed = 0.0f;
 			}
@@ -108,13 +125,12 @@ void HumanAnimationComponent::updateAnimation()
 				switch (currentJumpState)
 				{
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
-					if (XMVectorGetZ(velocity) > runLimit)
-						queueAnimation("Run");
-					else
-						queueAnimation("Idle2");
-					break;
-
+						playAnimation("HardLanding", false);
+						if (XMVectorGetZ(velocity) > runLimit)
+							queueAnimation("Run");
+						else
+							queueAnimation("Idle2");
+						break;
 				case JumpAnimationState::LIGHT_LANDING:
 					playAnimation("BodyLand", false);
 					if (XMVectorGetZ(velocity) > runLimit)
@@ -132,7 +148,7 @@ void HumanAnimationComponent::updateAnimation()
 			m_PrevSideState = currentSideState;
 			m_PrevJumpState = JumpAnimationState::IDLE;
 		}
-		else
+		else if(isFalling || isJumping)
 		{
 			float weight = 1 - (abs(cosf(angle)));
 			if(weight > 0.8f)
@@ -147,12 +163,13 @@ void HumanAnimationComponent::updateAnimation()
 			}
 			if(XMVectorGetY(velocity) < -flyLimit)
 			{
+				if(m_PrevJumpState != JumpAnimationState::FALLING)
 				currentJumpState = JumpAnimationState::FALLING;
 			}
 
-			if (XMVectorGetY(velocity) > m_FallSpeed)
+			if (fabs(XMVectorGetY(velocity)) > m_FallSpeed)
 			{
-				m_FallSpeed = XMVectorGetY(velocity);
+				m_FallSpeed = fabs(XMVectorGetY(velocity));
 			}
 
 			if (currentJumpState != m_PrevJumpState)
@@ -169,33 +186,44 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::JUMP:
 					if (m_PrevJumpState != JumpAnimationState::FLYING)
 					{
-						if(XMVectorGetZ(velocity) > runLimit)
+						if(XMVectorGetZ(velocity) > runLimit && isJumping)
 						{
 							playAnimation("RunningJump", true);
 							queueAnimation("Falling");
+							m_QueuedFalling = true;
 						}
-						else if (XMVectorGetX(velocity) > runLimit)
+						else if (XMVectorGetX(velocity) > runLimit && isJumping)
 						{
 							playAnimation("SideJumpRight", false);
 							queueAnimation("FallingSide");
+							m_QueuedFalling = true;
 						}
-						else if (XMVectorGetX(velocity) < -runLimit)
+						else if (XMVectorGetX(velocity) < -runLimit && isJumping)
 						{
 							playAnimation("SideJumpLeft", false);
 							queueAnimation("FallingSide");
+							m_QueuedFalling = true;
 						}
-						else
+						else if(isJumping)
 						{
 							playAnimation("StandingJump", true);
 							queueAnimation("Falling");
+							m_QueuedFalling = true;
+						}
+						else
+						{
+							if(!m_QueuedFalling)
+							{
+								m_QueuedFalling = true;
+								playAnimation("Falling", false);
+							}
+							currentJumpState = JumpAnimationState::FALLING;
 						}
 					}
 					break;
-
 				case JumpAnimationState::FLYING:
 					//playAnimation(temp, "Flying", false);
 					break;
-
 				case JumpAnimationState::HARD_LANDING:
 					playAnimation("HardLanding", false);
 					if (XMVectorGetZ(velocity) > runLimit)
@@ -211,21 +239,28 @@ void HumanAnimationComponent::updateAnimation()
 					else
 						queueAnimation("Idle2");
 					break;
-
 				case JumpAnimationState::FALLING:
-					//playAnimation(temp, "Falling", false);
+					//playAnimation("Falling", true);
 					break;
-
 				default: // Just in case, so that the code doesn't break, hohohoho
 					break;
 				}
 			}
+			
+			if(isFalling)
+				m_PrevForwardState = ForwardAnimationState::WALKING_FORWARD;
+			else
+				m_PrevForwardState = ForwardAnimationState::RUNNING_FORWARD;
 
-			m_PrevForwardState = ForwardAnimationState::WALKING_FORWARD;
 			m_PrevSideState = SideAnimationState::IDLE;
 			m_PrevJumpState = currentJumpState;
 		}
 	}
+	else
+		m_FallSpeed = 0.f;
+
+	if(m_ForceMove)
+		m_PrevForwardState = ForwardAnimationState::RUNNING_FORWARD;
 }
 
 void HumanAnimationComponent::updateIKJoints(float dt)

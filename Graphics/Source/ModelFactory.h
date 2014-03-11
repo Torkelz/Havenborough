@@ -87,7 +87,7 @@ private:
 	void create2D_VertexBuffer(ModelDefinition *p_Model, Vector2 p_HalfSize);
 
 	void loadTextures(ModelDefinition &model, const char *p_Filename, unsigned int p_NumOfMaterials,
-		const std::vector<Material> &p_Materials);
+		const std::vector<Material> &p_Materials, const char *p_Style);
 	void load2D_Texture(ModelDefinition &model, const char *p_TextureId);
 	ID3D11ShaderResourceView *getTextureFromList(std::string p_Identifier);
 };

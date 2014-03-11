@@ -206,12 +206,13 @@ void ConnectionController::sendDoneLoading()
 	writeData(package.getData(), (uint16_t)package.getType());
 }
 
-void ConnectionController::sendJoinGame(const char* p_Game, const char* p_Username, const char* p_CharacterName)
+void ConnectionController::sendJoinGame(const char* p_Game, const char* p_Username, const char* p_CharacterName, const char* p_CharacterStyle)
 {
 	JoinGame package;
-	package.m_Object1 = p_Game;
-	package.m_Object2 = p_Username;
-	package.m_Object3 = p_CharacterName;
+	package.m_Object1.game = p_Game;
+	package.m_Object1.username = p_Username;
+	package.m_Object1.characterName = p_CharacterName;
+	package.m_Object1.characterStyle = p_CharacterStyle;
 
 	writeData(package.getData(), (uint16_t)package.getType());
 }
@@ -220,21 +221,28 @@ const char* ConnectionController::getJoinGameName(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
-	return joinGame->m_Object1.c_str();
+	return joinGame->m_Object1.game.c_str();
 }
 
 const char* ConnectionController::getJoinGameUsername(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
-	return joinGame->m_Object2.c_str();
+	return joinGame->m_Object1.username.c_str();
 }
 
 const char* ConnectionController::getJoinGameCharacterName(Package p_Package)
 {
 	std::lock_guard<std::mutex> lock(m_ReceivedLock);
 	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
-	return joinGame->m_Object3.c_str();
+	return joinGame->m_Object1.characterName.c_str();
+}
+
+const char* ConnectionController::getJoinGameCharacterStyle(Package p_Package)
+{
+	std::lock_guard<std::mutex> lock(m_ReceivedLock);
+	JoinGame* joinGame = static_cast<JoinGame*>(m_ReceivedPackages[p_Package].get());
+	return joinGame->m_Object1.characterStyle.c_str();
 }
 
 const char* ConnectionController::getLevelData(Package p_Package)
