@@ -267,8 +267,15 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 				if (runComp)
 				{
 					runComp->setIsJumping(false);
+					runComp->setIsFalling(false);
 				}
+
+				std::shared_ptr<PhysicsInterface> physComp = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+				std::shared_ptr<PlayerBodyComponent> bodyComp = std::dynamic_pointer_cast<PlayerBodyComponent>(physComp);
+				if(bodyComp)
+					bodyComp->resetFallTime();
 			}
+
 			m_JumpCount = 0;
 		//}
 		//m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));

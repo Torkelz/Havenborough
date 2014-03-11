@@ -167,9 +167,9 @@ void HumanAnimationComponent::updateAnimation()
 				currentJumpState = JumpAnimationState::FALLING;
 			}
 
-			if (abs(XMVectorGetY(velocity)) > m_FallSpeed)
+			if (fabs(XMVectorGetY(velocity)) > m_FallSpeed)
 			{
-				m_FallSpeed = abs(XMVectorGetY(velocity));
+				m_FallSpeed = fabs(XMVectorGetY(velocity));
 			}
 
 			if (currentJumpState != m_PrevJumpState)
@@ -258,6 +258,9 @@ void HumanAnimationComponent::updateAnimation()
 	}
 	else
 		m_FallSpeed = 0.f;
+
+	if(m_ForceMove)
+		m_PrevForwardState = ForwardAnimationState::RUNNING_FORWARD;
 }
 
 void HumanAnimationComponent::updateIKJoints(float dt)
