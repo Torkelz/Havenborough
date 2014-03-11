@@ -39,6 +39,7 @@ void HumanAnimationComponent::updateAnimation()
 		changeAnimationWeight(2, 1 - abs(cosf(angle)));
 		if (!isInAir)
 		{
+			m_QueuedFalling = false;
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
 			SideAnimationState currentSideState = SideAnimationState::IDLE;
@@ -147,7 +148,7 @@ void HumanAnimationComponent::updateAnimation()
 			m_PrevSideState = currentSideState;
 			m_PrevJumpState = JumpAnimationState::IDLE;
 		}
-		else
+		else if(isFalling)
 		{
 			float weight = 1 - (abs(cosf(angle)));
 			if(weight > 0.8f)
@@ -162,6 +163,7 @@ void HumanAnimationComponent::updateAnimation()
 			}
 			if(XMVectorGetY(velocity) < -flyLimit)
 			{
+				if(m_PrevJumpState != JumpAnimationState::FALLING)
 				currentJumpState = JumpAnimationState::FALLING;
 			}
 
@@ -170,7 +172,7 @@ void HumanAnimationComponent::updateAnimation()
 				m_FallSpeed = abs(XMVectorGetY(velocity));
 			}
 
-			if (currentJumpState != m_PrevJumpState) //This is problem right here...
+			if (currentJumpState != m_PrevJumpState)
 			{
 				switch (currentJumpState)
 				{
@@ -188,25 +190,34 @@ void HumanAnimationComponent::updateAnimation()
 						{
 							playAnimation("RunningJump", true);
 							queueAnimation("Falling");
+							m_QueuedFalling = true;
 						}
 						else if (XMVectorGetX(velocity) > runLimit && isJumping)
 						{
 							playAnimation("SideJumpRight", false);
 							queueAnimation("FallingSide");
+							m_QueuedFalling = true;
 						}
 						else if (XMVectorGetX(velocity) < -runLimit && isJumping)
 						{
 							playAnimation("SideJumpLeft", false);
 							queueAnimation("FallingSide");
+							m_QueuedFalling = true;
 						}
 						else if(isJumping)
 						{
 							playAnimation("StandingJump", true);
 							queueAnimation("Falling");
+							m_QueuedFalling = true;
 						}
 						else
 						{
-							queueAnimation("Falling");
+							if(!m_QueuedFalling)
+							{
+								m_QueuedFalling = true;
+								playAnimation("Falling", false);
+							}
+							currentJumpState = JumpAnimationState::FALLING;
 						}
 					}
 					break;
@@ -229,7 +240,7 @@ void HumanAnimationComponent::updateAnimation()
 						queueAnimation("Idle2");
 					break;
 				case JumpAnimationState::FALLING:
-					playAnimation("Falling", true);
+					//playAnimation("Falling", true);
 					break;
 				default: // Just in case, so that the code doesn't break, hohohoho
 					break;
