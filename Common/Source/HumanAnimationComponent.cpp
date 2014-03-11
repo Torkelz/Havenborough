@@ -148,7 +148,7 @@ void HumanAnimationComponent::updateAnimation()
 			m_PrevSideState = currentSideState;
 			m_PrevJumpState = JumpAnimationState::IDLE;
 		}
-		else if(isFalling)
+		else if(isFalling || isJumping)
 		{
 			float weight = 1 - (abs(cosf(angle)));
 			if(weight > 0.8f)
