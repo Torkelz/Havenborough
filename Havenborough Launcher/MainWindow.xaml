@@ -76,8 +76,8 @@
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Width="95"
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
                             <TextBlock FontSize="14" Text="Shadows" />
-                            <ComboBox Loaded="ShadowResolutionLoad" ItemTemplate="{StaticResource ShadowResTemplate}"
-                                Text="{Binding XPath=@Value, Mode=OneWayToSource}" />
+                            <ComboBox Loaded="ShadowResolutionLoad" SelectionChanged="ShadowResolutionChanged"
+                                      ItemTemplate="{StaticResource ShadowResTemplate}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0"
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMap}">

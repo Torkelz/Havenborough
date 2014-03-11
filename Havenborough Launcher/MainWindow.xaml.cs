@@ -162,7 +162,45 @@ namespace Havenborough_Launcher
                 return;
 
             comboBox.ItemsSource = data;
-            comboBox.SelectedIndex = 2;
+
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+            {
+                comboBox.SelectedIndex = 2;
+                return;
+            }
+            XmlElement rootElement = dataProvider.Document["UserOptions"];
+            if (rootElement == null)
+            {
+                comboBox.SelectedIndex = 2;
+                return;
+            }
+            XmlElement settingsElement = rootElement["Settings"];
+            if (settingsElement == null)
+            {
+                comboBox.SelectedIndex = 2;
+                return;
+            }
+            XmlElement resolutionElement = settingsElement["ShadowMapResolution"];
+            if (resolutionElement == null)
+            {
+                comboBox.SelectedIndex = 2;
+                return;
+            }
+            var resolution = resolutionElement.GetAttribute("Value");
+            if (resolution.Length != 0)
+            {
+                for (int i = 0; i < data.Count; i++)
+                {
+                    if (resolution == data[i].Size)
+                    {
+                        comboBox.SelectedIndex = i;
+                        return;
+                    }  
+                    else
+                        comboBox.SelectedIndex =  2;         
+                }
+            }
         }
 
         private void Launch_OnClick(object sender, RoutedEventArgs e)
@@ -357,6 +395,34 @@ namespace Havenborough_Launcher
 
             widthAttribute.Value = resolutionData[0];
             heightAttribute.Value = resolutionData[1];
+        }
+
+        private void ShadowResolutionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox == null)
+                return;
+            var data = comboBox.SelectedItem;
+            if (data == null)
+                return;
+
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+            XmlElement rootElement = dataProvider.Document["UserOptions"];
+            if (rootElement == null)
+                return;
+            XmlElement settingsElement = rootElement["Settings"];
+            if (settingsElement == null)
+                return;
+            XmlElement resolutionElement = settingsElement["ShadowMapResolution"];
+            if (resolutionElement == null)
+                return;
+            XmlAttribute sizeAttribute = resolutionElement.GetAttributeNode("Value");
+            if (sizeAttribute == null)
+                return;
+
+            sizeAttribute.Value = data.ToString();
         }
 
         private void SliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
