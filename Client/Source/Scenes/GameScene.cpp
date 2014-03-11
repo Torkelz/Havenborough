@@ -344,7 +344,7 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 			handled = false;
 		}
 		if(handled)
-			m_RenderPause = true;
+			m_RenderPause = false;
 	}
 
 	if (handled)
