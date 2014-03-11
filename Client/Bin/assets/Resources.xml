@@ -128,7 +128,39 @@
         <Resource Name="WoodenPlatform3" Path="assets/models/WoodenPlatform3.btx"/>
         <Resource Name="WoodenShed1" Path="assets/models/WoodenShed1.btx"/>
         <Resource Name="Zane" Path="assets/models/Zane.btx"/>
-        <Resource Name="Minque6" Path="assets/models/Minque6.btx"/>
+        <Resource Name="CastleStairway1" Path="assets/models/CastleStairway1.btx"/>
+        <Resource Name="Crane" Path="assets/models/Crane.btx"/>
+        <Resource Name="Floor1" Path="assets/models/Floor1.btx"/>
+        <Resource Name="Floor2" Path="assets/models/Floor2.btx"/>
+        <Resource Name="Floor3" Path="assets/models/Floor3.btx"/>
+        <Resource Name="Floor4" Path="assets/models/Floor4.btx"/>
+        <Resource Name="Floor5" Path="assets/models/Floor5.btx"/>
+        <Resource Name="Floor6" Path="assets/models/Floor6.btx"/>
+        <Resource Name="Floor7" Path="assets/models/Floor7.btx"/>
+        <Resource Name="Floor8" Path="assets/models/Floor8.btx"/>
+        <Resource Name="Fountain1" Path="assets/models/Fountain1.btx"/>
+        <Resource Name="House7" Path="assets/models/House7.btx"/>
+        <Resource Name="House8" Path="assets/models/House8.btx"/>
+        <Resource Name="House9" Path="assets/models/House9.btx"/>
+        <Resource Name="MarketBox1" Path="assets/models/MarketBox1.btx"/>
+        <Resource Name="MarketBox2" Path="assets/models/MarketBox2.btx"/>
+        <Resource Name="MarketBread1" Path="assets/models/MarketBread1.btx"/>
+        <Resource Name="MarketBread2" Path="assets/models/MarketBread2.btx"/>
+        <Resource Name="MarketBread3" Path="assets/models/MarketBread3.btx"/>
+        <Resource Name="MarketBucket1" Path="assets/models/MarketBucket1.btx"/>
+        <Resource Name="MarketBucket2" Path="assets/models/MarketBucket2.btx"/>
+        <Resource Name="Roof1" Path="assets/models/Roof1.btx"/>
+        <Resource Name="Roof2" Path="assets/models/Roof2.btx"/>
+        <Resource Name="Roof3" Path="assets/models/Roof3.btx"/>
+        <Resource Name="SuspensionBridge1" Path="assets/models/SuspensionBridge1.btx"/>
+        <Resource Name="Torch1" Path="assets/models/Torch1.btx"/>
+        <Resource Name="Wall1" Path="assets/models/Wall1.btx"/>
+        <Resource Name="Wall2" Path="assets/models/Wall2.btx"/>
+        <Resource Name="Well" Path="assets/models/Well.btx"/>
+        <Resource Name="Wheel1" Path="assets/models/Wheel1.btx"/>
+        <Resource Name="WoodenPlatform1" Path="assets/models/WoodenPlatform1.btx"/>
+        <Resource Name="WoodenPlatform2" Path="assets/models/WoodenPlatform2.btx"/>
+        <Resource Name="WoodenPlatform3" Path="assets/models/WoodenPlatform3.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Aqueduct1" Path="assets/volumes/CB_Aqueduct1.txc"/>
@@ -221,6 +253,28 @@
         <Resource Name="WoodenShed1" Path="assets/volumes/CB_WoodenShed1.txc"/>
         <Resource Name="Zane" Path="assets/volumes/CB_Zane.txc"/>
         <Resource Name="Minque6" Path="assets/volumes/CB_Minque6.txc"/>
+        <Resource Name="CastleStairway1" Path="assets/volumes/CB_CastleStairway1.txc"/>
+        <Resource Name="Checkpoint1" Path="assets/volumes/CB_Checkpoint1.txc"/>
+        <Resource Name="Crane" Path="assets/volumes/CB_Crane.txc"/>
+        <Resource Name="Floor1" Path="assets/volumes/CB_Floor1.txc"/>
+        <Resource Name="Floor2" Path="assets/volumes/CB_Floor2.txc"/>
+        <Resource Name="Floor3" Path="assets/volumes/CB_Floor3.txc"/>
+        <Resource Name="Floor4" Path="assets/volumes/CB_Floor4.txc"/>
+        <Resource Name="Floor5" Path="assets/volumes/CB_Floor5.txc"/>
+        <Resource Name="Floor6" Path="assets/volumes/CB_Floor6.txc"/>
+        <Resource Name="Floor7" Path="assets/volumes/CB_Floor7.txc"/>
+        <Resource Name="Floor8" Path="assets/volumes/CB_Floor8.txc"/>
+        <Resource Name="Roof1" Path="assets/volumes/CB_Roof1.txc"/>
+        <Resource Name="Roof2" Path="assets/volumes/CB_Roof2.txc"/>
+        <Resource Name="Roof3" Path="assets/volumes/CB_Roof3.txc"/>
+        <Resource Name="SuspensionBridge1" Path="assets/volumes/CB_SuspensionBridge1.txc"/>
+        <Resource Name="Wall1" Path="assets/volumes/CB_Wall1.txc"/>
+        <Resource Name="Wall2" Path="assets/volumes/CB_Wall2.txc"/>
+        <Resource Name="Well" Path="assets/volumes/CB_Well.txc"/>
+        <Resource Name="WoodenPlatform1" Path="assets/volumes/CB_WoodenPlatform1.txc"/>
+        <Resource Name="WoodenPlatform2" Path="assets/volumes/CB_WoodenPlatform2.txc"/>
+        <Resource Name="WoodenPlatform3" Path="assets/volumes/CB_WoodenPlatform3.txc"/>
+        <Resource Name="Zane" Path="assets/volumes/CB_Zane.txc"/>
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>

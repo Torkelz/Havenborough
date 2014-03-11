@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Components.h"
 #include "RunControlComponent.h"
+#include "PlayerBodyComponent.h"
 #include <Logger.h>
 
 using namespace DirectX;
@@ -12,7 +13,7 @@ Player::Player(void)
     m_JumpCountMax = 2;
     m_JumpTime = 0.f;
     m_JumpTimeMax = 0.2f;
-	m_JumpForce = 7000.f;
+	m_JumpForce = 8200.0f;
 	m_ForceMove = false;
 	m_CurrentForceMoveTime = 0.f;
 	m_Height = 170.f;
@@ -60,7 +61,7 @@ void Player::update(float p_DeltaTime)
 	Vector3 v3Vel = m_Physics->getBodyVelocity(getBody());
 	float v = XMVector4Length(Vector3ToXMVECTOR(&v3Vel, 0.f)).m128_f32[0];
 	std::shared_ptr<MovementControlInterface> moveComp = m_Actor.lock()->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
-	if(moveComp && v >= moveComp->getMaxSpeedDefault() - 100.f)
+	if(moveComp && v >= moveComp->getMaxSpeedDefault())
 	{
 		m_IsAtMaxSpeed = true;
 		m_CurrentMana += m_ManaRegenerationFast * p_DeltaTime;
@@ -99,7 +100,7 @@ void Player::update(float p_DeltaTime)
 			}
 		}
 
-		strActor->getEventManager()->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData( m_CurrentMana/100, m_PreviousMana/100)));
+		strActor->getEventManager()->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData( m_CurrentMana/100.f, m_PreviousMana/100.f)));
 	}
 
 	if(!m_ForceMove)
@@ -107,7 +108,6 @@ void Player::update(float p_DeltaTime)
 		if(m_AllowedToMove)
 		{
 			jump(p_DeltaTime);
-			
 			if (strActor)
 			{
 				std::shared_ptr<MovementControlInterface> comp = strActor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
@@ -267,8 +267,15 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 				if (runComp)
 				{
 					runComp->setIsJumping(false);
+					runComp->setIsFalling(false);
 				}
+
+				std::shared_ptr<PhysicsInterface> physComp = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+				std::shared_ptr<PlayerBodyComponent> bodyComp = std::dynamic_pointer_cast<PlayerBodyComponent>(physComp);
+				if(bodyComp)
+					bodyComp->resetFallTime();
 			}
+
 			m_JumpCount = 0;
 		//}
 		//m_Physics->setBodyVelocity(getBody(), Vector3(0,0,0));
@@ -567,30 +574,37 @@ Vector3 Player::getDirection() const
 
 void Player::setJump(void)
 {
-	if(m_AllowedToMove)
-	{
-		if(m_Physics->getBodyInAir(getBody()))
-		{
-			m_JumpCount++;
-		}
-		
+	if(m_AllowedToMove && !m_ForceMove)
+	{		
 		Actor::ptr actor = m_Actor.lock();
 		if (!actor)
 			return;
 
 		std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
 		std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
-
-		if(runComp && !runComp->getIsJumping() && m_JumpCount < m_JumpCountMax)
+		if(runComp)
 		{
-			runComp->setIsJumping(true);
+			if(runComp->getIsFalling())
+			{
+				m_JumpCount++;
+			}
 
-			Vector3 temp = m_Physics->getBodyVelocity(getBody());
-			temp.y = 0.f;
+			if(!runComp->getIsJumping() && m_JumpCount < m_JumpCountMax)
+			{
+				runComp->setIsJumping(true);
+				runComp->setIsFalling(true);
+				std::shared_ptr<PhysicsInterface> physComp = actor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+				std::shared_ptr<PlayerBodyComponent> bodyComp = std::dynamic_pointer_cast<PlayerBodyComponent>(physComp);
+				if(bodyComp)
+					bodyComp->resetFallTime();
 
-			m_Physics->setBodyVelocity(getBody(), temp);
+				Vector3 temp = m_Physics->getBodyVelocity(getBody());
+				temp.y = 0.f;
 
-			m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
+				m_Physics->setBodyVelocity(getBody(), temp);
+
+				m_Physics->applyForce(getBody(), Vector3(0.f, m_JumpForce, 0.f));
+			}
 		}
 	}
 }

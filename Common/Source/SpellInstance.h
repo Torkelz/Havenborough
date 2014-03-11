@@ -91,7 +91,7 @@ public:
 	 * @param p_Physics a pointer to the physics
 	 * @param p_Hit all the hitdata about the colliding bodyhandle
 	 */
-	void spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit);
+	void spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit, BodyHandle p_CasterBody);
 
 	/**
 	 * Called to see the status of the m_IsColliding bool.
@@ -101,7 +101,7 @@ public:
 	bool isColliding() const;
 
 private:
-	void explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit);
+	void explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit, BodyHandle p_CasterBody);
 
 };
 

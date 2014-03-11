@@ -98,8 +98,6 @@ void BaseGameApp::init()
 	translator->init(&m_Window);
 
 	Logger::log(Logger::Level::DEBUG_L, "Adding input mappings");
-	translator->addKeyboardMapping('0', "slowMode");
-	translator->addKeyboardMapping('1', "fastMode");
 
 	//Adding the loaded keymaps to the translator
 	const std::map<std::string, unsigned short> keys = settings.getKeyMap();
@@ -109,7 +107,7 @@ void BaseGameApp::init()
 	//Adding the loaded mousemaps to the translator
 	const std::vector<Settings::MouseStruct> mousekeys = settings.getMouseMap();
 	for(auto k : mousekeys)
-		translator->addMouseMapping(k.axis, k.position, k.movement);
+		translator->addMouseMapping(k.axis, k.posDir, k.command);
 
 	//Adding the loaded mousebuttonmaps to the translator
 	const std::map<std::string, MouseButton> mousebuttonKeys = settings.getMouseButtonMap();
@@ -134,6 +132,7 @@ void BaseGameApp::init()
 	Vector2 resolution(m_Window.getSize().x, m_Window.getSize().y);
 	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings(), resolution);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setSoundManager(m_Sound);
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
@@ -375,13 +374,8 @@ void BaseGameApp::handleInput()
 			if (in.m_Action == "slowMode")
 			{
 				if (m_TimeModifier <= 1.f)
-				{
 					m_TimeModifier = 10.f;
-				}
-				else
-				{
-					m_TimeModifier = 1.f;
-				}
+				else m_TimeModifier = 1.f;
 			}
 			else if(in.m_Action == "fastMode")
 			{

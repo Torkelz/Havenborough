@@ -216,7 +216,13 @@ public:
      * @return true if the body is in the air, otherwise false.
      */
     virtual bool getBodyInAir(BodyHandle p_Body) = 0;
-
+	/**
+     * Get if the target body is in the air (affected by gravity)
+     *
+	 * @param p_Body the body to work with.
+     * @return true if the body is in the air, otherwise false.
+     */
+    virtual bool getBodyOnSomething(BodyHandle p_Body) = 0;
 	/**
 	 * Get the hitdata from the vector containing all the collision hitdata for the last frame.
 	 *
@@ -303,4 +309,8 @@ public:
 	 * @param p_Body, which body to reset.
 	 */
 	virtual void resetForceOnBody(BodyHandle p_Body) = 0;
+
+	virtual void setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVictim, bool p_Bool) = 0;
+
+	virtual bool validBody(BodyHandle p_BodyHandle) = 0;
 };

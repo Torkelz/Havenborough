@@ -417,29 +417,33 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 DirectX::XMFLOAT3 Animation::getJointPos(const string& p_JointName, XMFLOAT4X4 p_WorldMatrix)
 {
 	const std::vector<Joint>& p_Joints = m_Data->joints;
-
-	for (const auto& joint : p_Joints)
+	
+	if(m_FinalTransform.size() > 0)
 	{
-		if (joint.m_JointName == p_JointName)
+		for (const auto& joint : p_Joints)
 		{
-			// The joints' positions in world space is the zero vector in joint space transformed to world space.
-			XMMATRIX jointCombinedTransform = XMMatrixMultiply(
-				XMLoadFloat4x4(&p_WorldMatrix),
-				XMMatrixMultiply(
-					XMLoadFloat4x4(&m_FinalTransform[joint.m_ID - 1]),
-					XMLoadFloat4x4(&joint.m_TotalJointOffset)));
+			if (joint.m_JointName == p_JointName)
+			{
+				// The joints' positions in world space is the zero vector in joint space transformed to world space.
+				XMMATRIX jointCombinedTransform = XMMatrixMultiply(
+					XMLoadFloat4x4(&p_WorldMatrix),
+					XMMatrixMultiply(
+						XMLoadFloat4x4(&m_FinalTransform[joint.m_ID - 1]),
+						XMLoadFloat4x4(&joint.m_TotalJointOffset)));
 
-			XMFLOAT4X4 jointCombinedTransformData;
-			XMStoreFloat4x4(&jointCombinedTransformData, jointCombinedTransform);
+				XMFLOAT4X4 jointCombinedTransformData;
+				XMStoreFloat4x4(&jointCombinedTransformData, jointCombinedTransform);
 
-			XMFLOAT3 jointPosition(jointCombinedTransformData._14, jointCombinedTransformData._24,
-				jointCombinedTransformData._34); 
+				XMFLOAT3 jointPosition(jointCombinedTransformData._14, jointCombinedTransformData._24,
+					jointCombinedTransformData._34); 
 
-			return jointPosition;
+				return jointPosition;
+			}
 		}
-	}
 
-	throw InvalidArgument("Joint does not exist: '" + p_JointName + "'", __LINE__, __FILE__);
+		throw InvalidArgument("Joint does not exist: '" + p_JointName + "'", __LINE__, __FILE__);
+	}
+	return XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
 
 void Animation::updateFinalTransforms()
