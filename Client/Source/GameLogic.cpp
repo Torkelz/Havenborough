@@ -40,7 +40,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_EventManager = p_EventManager;
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameLogic::removeActorByEvent), RemoveActorEventData::sk_EventType);
-	
+		
 	m_Actors.reset(new ActorList);
 	m_ActorFactory->setActorList(m_Actors);
 
@@ -186,7 +186,46 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 		conn->sendPlayerControl(data);
 	}
+
 	m_Player.update(p_DeltaTime);
+	std::shared_ptr<AnimationInterface> animation = playerActor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+	if(animation)
+	{
+		XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
+		XMVECTOR vForward = XMLoadFloat3(&m_lookAtPos);
+		XMFLOAT3 tempLook;
+		actorPos += vForward * 1000;
+		XMStoreFloat3(&tempLook, actorPos);
+	
+		animation->setLookAtPoint(tempLook);
+
+		if (m_Network)
+		{
+			IConnectionController* con = m_Network->getConnectionToServer();
+			if (con && con->isConnected())
+			{
+				tinyxml2::XMLPrinter printer;
+				Vector3 tLook = tempLook;
+				printer.OpenElement("Action");
+				printer.OpenElement("IKHead");
+				pushVector(printer, "LookAt", tLook);
+				printer.CloseElement();
+				printer.CloseElement();
+
+				Actor::ptr actor = m_Player.getActor().lock();
+
+				if (actor)
+				{
+					std::shared_ptr<AnimationInterface> comp = 
+						actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+					if (comp)
+					{
+						con->sendObjectAction(m_Player.getActor().lock()->getId(), printer.CStr());
+					}
+				}
+			}
+		}
+	}
 	m_Actors->onUpdate(p_DeltaTime);
 	
 
@@ -200,18 +239,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 			temp->setPosition(m_Player.getEyePosition());
 		}
 	}
-
-	std::shared_ptr<AnimationInterface> animation = playerActor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-	if(!animation)
-		return;
-
-	XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
-	XMVECTOR vForward = XMLoadFloat3(&m_lookAtPos);
-	actorPos += vForward * 10;
-	XMFLOAT3 tempLook;
-	XMStoreFloat3(&tempLook, actorPos);
-	
-	animation->applyLookAtIK("Head", tempLook, 1.0f);
 }
 
 void GameLogic::setPlayerDirection(Vector3 p_Direction)
@@ -361,8 +388,8 @@ DirectX::XMFLOAT4X4 GameLogic::getPlayerViewRotationMatrix() const
 
 void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 {
-	/*if(m_Player.getForceMove())
-		return;*/
+	if(m_Player.getForceMove())
+		return;
 
 	Actor::ptr actor = m_Player.getActor().lock();
 	if (!actor)
@@ -967,6 +994,22 @@ void GameLogic::handleNetwork()
 							if (comp)
 							{
 								comp->playAnimation(animId, false);
+							}
+						}
+					}
+					else if(std::string(action->Value()) == "IKHead")
+					{
+						Actor::ptr actor = getActor(actorId);
+						Vector3 lookAt = Vector3(0,0,1);
+						queryVector(action->FirstChildElement("LookAt"), lookAt);
+
+						if (actor)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+									actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->setLookAtPoint(lookAt);
 							}
 						}
 					}
