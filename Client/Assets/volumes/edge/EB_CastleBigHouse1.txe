@@ -1,9 +1,14 @@
 *ObjectHeader*
-#numObj: 1
+#numObj: 2
 
 #MESH: CastleBigHouse1
 #Translation: 423.03891 4019.217529 12199.075195
 #Rotation: 0.282115 0 0
 #Scale: 1871.791138 10 10
+
+#MESH: CastleBigHouse1
+#Translation: 445.040894 4019.217529 12274.984375
+#Rotation: 0.282115 0 0
+#Scale: 2061.415527 10 10
 
 

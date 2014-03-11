@@ -77,6 +77,7 @@ int main(int argc, char* argv[])
 			std::cout << outputBuffer.data() << std::endl;
 			instanceLoader.clear();
 			levelConverter.clear();
+
 			return EXIT_SUCCESS;
 		}
 		std::cout << argv[0] << " does not support files of type: " << type << std::endl

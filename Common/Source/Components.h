@@ -777,6 +777,10 @@ public:
 	 * @param p_ColorTone the color in RGB range 0.0f to 1.0f
 	 */
 	virtual void setColorTone(const Vector3 p_ColorTone) = 0;
+
+	virtual void setOffset(const Vector3 p_Offset) = 0;
+
+	virtual Vector3 getOffset() = 0;
 };
 
 /**
@@ -871,6 +875,18 @@ public:
 	void setPosition(Vector3 p_Position) override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(m_Id, p_Position + m_Offset)));
+	}
+
+	void setOffset(const Vector3 p_Offset) override
+	{
+		Vector3 position = m_Owner->getPosition();
+		m_Offset = p_Offset;
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(m_Id, position + m_Offset)));
+	}
+
+	Vector3 getOffset() override
+	{
+		return m_Offset;
 	}
 
 	void setRotation(Vector3 p_Rotation) override
@@ -1789,5 +1805,71 @@ public:
 	unsigned int getId()
 	{
 		return m_ComponentId;
+	}
+};
+
+class OffsetCalculationInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 12; /// Unique id
+	Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+};
+
+class ModelSinOffsetComponent : public OffsetCalculationInterface
+{
+private:
+	Vector3 m_Position;
+	Vector3 m_Offset;
+	float m_Random;
+	float m_Time;
+	std::weak_ptr<ModelInterface> m_Model;
+public:
+
+	~ModelSinOffsetComponent() override
+	{
+
+	}
+
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		m_Time = 0;
+		m_Random = 0;
+		m_Offset = Vector3(0,0,0);
+		p_Data->QueryAttribute("Random", &m_Random);
+		queryVector(p_Data->FirstChildElement("Offset"), m_Offset);
+	}
+	
+	void postInit() override
+	{
+		m_Model = m_Owner->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
+		if(!m_Model.lock())
+		{
+			return;
+		}
+		m_Position = m_Model.lock()->getOffset();
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("ModelSinOffset");
+		p_Printer.PushAttribute("Random", m_Random);
+		pushVector(p_Printer, "Offset", m_Offset);
+		p_Printer.CloseElement();
+	}
+
+	void onUpdate(float p_DeltaTime) override
+	{
+		m_Time += p_DeltaTime;
+
+		float sinus = std::sin(m_Time+m_Random);
+		Vector3 result = m_Position + m_Offset * sinus;
+		if(!m_Model.lock())
+		{
+			return;
+		}
+		m_Model.lock()->setOffset(result);
 	}
 };

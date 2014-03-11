@@ -16,7 +16,7 @@ void FileGameRound::setup()
 {
 	m_FileLoader.reset(new InstanceBinaryLoader);
 	m_FileLoader->loadBinaryFile(m_FilePath);
-
+	m_Random.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
 	const Vector3 basePos = Vector3(m_FileLoader->getCheckPointStart()) + Vector3(0.f, spawnEpsilon, 0.f);
 	const float angle = 2 * PI / m_Players.size();
 	for (size_t i = 0; i < m_Players.size(); ++i)
@@ -37,7 +37,21 @@ void FileGameRound::setup()
 		m_Actors.push_back(actor);
 	}
 
-	std::vector<InstanceBinaryLoader::CheckPointStruct> checkpoints = m_FileLoader->getCheckPointData();
+	std::vector<std::vector<InstanceBinaryLoader::CheckPointStruct>> listOfCheckpoints = m_FileLoader->getCheckPointData();
+	std::vector<InstanceBinaryLoader::CheckPointStruct> checkpoints;
+
+	for(unsigned int i = 0; i < listOfCheckpoints.size(); i++)
+	{
+		unsigned int size = listOfCheckpoints[i].size();
+		if(!size)
+		{
+			return;
+		}
+		std::uniform_int_distribution<int> randomCheckpoint(0, size-1);
+		unsigned int value = randomCheckpoint(m_Random);
+		checkpoints.push_back(listOfCheckpoints[i][value]);
+	}
+
 	std::sort(checkpoints.begin(), checkpoints.end(),
 		[] (const InstanceBinaryLoader::CheckPointStruct& p_Left, const InstanceBinaryLoader::CheckPointStruct& p_Right)
 		{
@@ -47,10 +61,13 @@ void FileGameRound::setup()
 	static const Vector3 checkpointScale(54.f, 170.f, 54.f);
 
 	std::vector<Actor::ptr> checkpointList;
-	checkpointList.push_back(m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointEnd(), checkpointScale));
+	std::srand(255);
+	float random = (float)std::rand();
+	checkpointList.push_back(m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointEnd(), checkpointScale, random));
 	for (const auto& checkpoint : checkpoints)
 	{
-		checkpointList.push_back(m_ActorFactory->createCheckPointActor(checkpoint.m_Translation, checkpointScale));
+		random = (float)std::rand();
+		checkpointList.push_back(m_ActorFactory->createCheckPointActor(checkpoint.m_Translation, checkpointScale, random));
 	}
 
 	for (const auto& checkpoint : checkpointList)
@@ -577,7 +594,7 @@ unsigned int FileGameRound::getPlayerPos(Actor::Id p_Player)
 		Actor::ptr actor = m_PlayerPositionList[i]->getActor().lock();
 		if(!actor)
 		{
-			return i;/////////////////////////////////////////////
+			return i;
 		}
 		if(actor->getId() == p_Player)
 		{

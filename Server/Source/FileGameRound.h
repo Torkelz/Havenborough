@@ -4,6 +4,7 @@
 #include "InstanceBinaryLoader.h"
 
 #include <DirectXMath.h>
+#include <random>
 #include <tinyxml2/tinyxml2.h>
 
 class FileGameRound : public GameRound
@@ -14,7 +15,7 @@ private:
 	std::vector<std::pair<Player::ptr, Actor::wPtr>> m_SendHitData;
 	std::vector<std::pair<std::string, float>> m_ResultList;
 	bool m_ResultListUpdated;
-
+	std::default_random_engine m_Random;
 	std::vector<Player::ptr> m_PlayerPositionList;
 
 	float m_Time;
