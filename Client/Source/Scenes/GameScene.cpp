@@ -78,6 +78,12 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	TweakSettings* tweakSettings = TweakSettings::getInstance();
 	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
 
+
+	unsigned int id = m_Graphics->createText(L"Press again to exit \nPress any key to continue     ", "Verdana", 27.f, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f);
+	m_Graphics->setTextBackgroundColor(id, Vector4(0.f, 0.f, 0.f, 0.4f));
+	m_PauseId = m_Graphics->create2D_Object(Vector3(0,0,0), Vector3(1,1,1), 0.f, id);
+	m_RenderPause = false;
+
 	return true;
 }
 
@@ -113,6 +119,10 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	float right = state.getValue("moveRight") - state.getValue("moveLeft");
 	float up = state.getValue("moveUp") - state.getValue("moveDown");
 
+	if( up != 0.0f || right != 0.0f || forward != 0.0f )
+	{
+		m_RenderPause = false;
+	}
 	m_GameLogic->setPlayerDirection(Vector3(forward, up, right));
 
 	m_Graphics->updateParticles(p_DeltaTime);
@@ -200,6 +210,9 @@ void GameScene::render()
 		if(m_GameLogic->getPlayerTextComponentId() != wText.first)
 			m_Graphics->renderText(wText.second);
 	}
+
+	if(m_RenderPause)
+		m_Graphics->render2D_Object(m_PauseId);
 }
 
 bool GameScene::getIsVisible()
@@ -215,7 +228,6 @@ void GameScene::setIsVisible(bool p_SetVisible)
 void GameScene::registeredInput(std::string p_Action, float p_Value, float p_PrevValue)
 {
 	bool handled = false;
-	
 	// Binary triggers
 	if (p_Value > 0.5f && p_PrevValue <= 0.5f)
 	{
@@ -258,7 +270,10 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		}
 		else if (p_Action == "leaveGame")
 		{
-			m_GameLogic->leaveGame();
+ 			if(m_RenderPause)
+				m_GameLogic->leaveGame();
+			m_RenderPause = true;
+			handled =  false;
 		}
 		else if (p_Action == "thirdPersonCamera")
 		{
@@ -303,6 +318,8 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		{
 			handled = false;
 		}
+		if(handled)
+			m_RenderPause = true;
 	}
 
 	if (handled)
