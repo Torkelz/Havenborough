@@ -50,20 +50,25 @@ namespace Havenborough_Launcher
                 return;
 
             comboBox.ItemsSource = data;
-            comboBox.SelectedIndex = 0;
 
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
                 return;
-            XmlElement rootNode = dataProvider.Document["UserOptions"];
-            if (rootNode == null)
+            XmlElement rootElement = dataProvider.Document["UserOptions"];
+            if (rootElement == null)
+            {
+                comboBox.SelectedIndex = 0;
                 return;
-            XmlElement characterNode = rootNode["Character"];
-            if (characterNode == null)
+            }
+            XmlElement characterElement = rootElement["Character"];
+            if (characterElement == null)
+            {
+                comboBox.SelectedIndex = 0;
                 return;
-            var name = characterNode.GetAttribute("Name");
+            }
+            var name = characterElement.GetAttribute("Name");
             if (name.Length != 0)
-                comboBox.SelectedIndex = data.IndexOf(name);
+                comboBox.SelectedIndex = data.IndexOf(name) == -1 ? 0 : data.IndexOf(name);
         }
 
         private void CharacterStyleLoad(object sender, RoutedEventArgs e)
@@ -80,20 +85,28 @@ namespace Havenborough_Launcher
                 return;
 
             comboBox.ItemsSource = data;
-            comboBox.SelectedIndex = 0;
 
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
+            {
+                comboBox.SelectedIndex = 0;
                 return;
+            }
             XmlElement rootNode = dataProvider.Document["UserOptions"];
             if (rootNode == null)
+            {
+                comboBox.SelectedIndex = 0;
                 return;
+            }
             XmlElement characterNode = rootNode["Character"];
             if (characterNode == null)
+            {
+                comboBox.SelectedIndex = 0;
                 return;
+            }
             var style = characterNode.GetAttribute("Style");
             if (style.Length != 0)
-                comboBox.SelectedIndex = data.IndexOf(style);
+                comboBox.SelectedIndex = data.IndexOf(style) == -1 ? 0 : data.IndexOf(style);
         }
 
         private void ScreenResolutionLoad(object sender, RoutedEventArgs e)
@@ -118,17 +131,17 @@ namespace Havenborough_Launcher
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
                 return;
-            XmlElement rootNode = dataProvider.Document["UserOptions"];
-            if (rootNode == null)
+            XmlElement rootElement = dataProvider.Document["UserOptions"];
+            if (rootElement == null)
                 return;
-            XmlElement settingNode = rootNode["Settings"];
-            if (settingNode == null)
+            XmlElement settingsElement = rootElement["Settings"];
+            if (settingsElement == null)
                 return;
-            XmlElement resolutionNode = settingNode["Resolution"];
-            if (resolutionNode == null)
+            XmlElement resolutionElement = settingsElement["Resolution"];
+            if (resolutionElement == null)
                 return;
-            var width = resolutionNode.GetAttribute("Width");
-            var height = resolutionNode.GetAttribute("Height");
+            var width = resolutionElement.GetAttribute("Width");
+            var height = resolutionElement.GetAttribute("Height");
             if (width.Length == 0 || height.Length == 0)
                 comboBox.SelectedIndex = 6;
             else
@@ -203,27 +216,22 @@ namespace Havenborough_Launcher
                 doc.Load(dataProvider.Source.LocalPath);
             }
             else
-            {
                 doc = dataProvider.Document;
-            }
 
-            XmlElement rootNode = doc["UserOptions"];
-            if (rootNode == null)
+            XmlElement rootElement = doc["UserOptions"];
+            if (rootElement == null)
+                return;
+            XmlElement serverElement = rootElement["Server"];
+            if (serverElement == null)
                 return;
 
-            XmlElement serverNode = rootNode["Server"];
-            if (serverNode == null)
-                return;
+            XmlAttribute hostAttribute = serverElement.GetAttributeNode("Hostname");
+            string host = hostAttribute != null ? hostAttribute.Value : "localhost";
 
-            XmlNode hostNode = serverNode.Attributes.GetNamedItem("Hostname");
-            string host = "localhost";
-            if (hostNode != null)
-                host = hostNode.Value;
-
-            XmlNode portNode = serverNode.Attributes.GetNamedItem("Port");
+            XmlAttribute portAttribute = serverElement.GetAttributeNode("Port");
             int port = 31415;
-            if (portNode != null)
-                int.TryParse(portNode.Value, out port);
+            if (portAttribute != null)
+                int.TryParse(portAttribute.Value, out port);
 
             var gameList = Resources["GameDataSource"] as GameList;
             if (gameList != null)
@@ -333,22 +341,22 @@ namespace Havenborough_Launcher
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
                 return;
-            XmlElement rootNode = dataProvider.Document["UserOptions"];
-            if (rootNode == null)
+            XmlElement rootElement = dataProvider.Document["UserOptions"];
+            if (rootElement == null)
                 return;
-            XmlElement settingNode = rootNode["Settings"];
-            if (settingNode == null)
+            XmlElement settingsElement = rootElement["Settings"];
+            if (settingsElement == null)
                 return;
-            XmlElement resolutionNode = settingNode["Resolution"];
-            if (resolutionNode == null)
+            XmlElement resolutionElement = settingsElement["Resolution"];
+            if (resolutionElement == null)
                 return;
-            XmlAttribute width = resolutionNode.GetAttributeNode("Width");
-            XmlAttribute height = resolutionNode.GetAttributeNode("Height");
-            if (width == null || height == null)
+            XmlAttribute widthAttribute = resolutionElement.GetAttributeNode("Width");
+            XmlAttribute heightAttribute = resolutionElement.GetAttributeNode("Height");
+            if (widthAttribute == null || heightAttribute == null)
                 return;
 
-            width.Value = resolutionData[0];
-            height.Value = resolutionData[1];
+            widthAttribute.Value = resolutionData[0];
+            heightAttribute.Value = resolutionData[1];
         }
 
         private void SliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
