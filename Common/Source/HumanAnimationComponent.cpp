@@ -105,7 +105,8 @@ void HumanAnimationComponent::updateAnimation()
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
 			if (physComp->isOnSomething())
 			{
-				if(m_FallSpeed >= 1500.0f)
+				
+				if(m_FallSpeed >= 1400.0f)
 				{
 					currentJumpState = JumpAnimationState::HARD_LANDING;
 				}
@@ -113,7 +114,6 @@ void HumanAnimationComponent::updateAnimation()
 				{
 					if(m_FallSpeed > 500.0f)
 					{
-						//Logger::log(Logger::Level::INFO, std::string("VelocityY: " + std::to_string(m_FallSpeed)));
 						currentJumpState = JumpAnimationState::LIGHT_LANDING;
 					}
 				}
@@ -167,7 +167,7 @@ void HumanAnimationComponent::updateAnimation()
 				currentJumpState = JumpAnimationState::FALLING;
 			}
 
-			if (XMVectorGetY(velocity) > m_FallSpeed)
+			if (abs(XMVectorGetY(velocity)) > m_FallSpeed)
 			{
 				m_FallSpeed = abs(XMVectorGetY(velocity));
 			}
