@@ -55,6 +55,7 @@ private:
 	float m_FallSpeed;
 	bool m_ForceMove;
 	bool m_QueuedFalling;
+	bool m_Dzala;
 
 	std::weak_ptr<ModelComponent> m_Model;
 	EventManager* m_EventManager;
@@ -85,6 +86,7 @@ public:
 		m_ForceMove = false;
 		m_QueuedFalling = false;
 		m_LookAtPoint = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		m_Dzala = true;
 
 		const char* resourceName = p_Data->Attribute("Animation");
 		if (!resourceName)
@@ -107,6 +109,9 @@ public:
 		m_Model = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId);
 		m_EventManager = m_Owner->getEventManager();
 		playAnimation( "Idle", false );
+
+		if(m_Model.lock()->getMeshName() != "Dzala")
+			m_Dzala = false;
 	}
 
 	void onUpdate(float p_DeltaTime) override

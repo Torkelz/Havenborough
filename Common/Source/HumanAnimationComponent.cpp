@@ -341,11 +341,20 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 				vToe = vToe - vAnkle;
 				vToe.m128_f32[1] = 0.f;
 			
-				vToe = DirectX::XMVector3Normalize(vToe);
-				vToe *= 20.0f;
-				vToe += vAnkle;
-				vToe.m128_f32[1] = hit.colPos.y;
-				hit.colPos = vToe;
+				if (m_Dzala)
+				{
+					vToe = DirectX::XMVector3Normalize(vToe);
+					vToe *= 20.0f;
+					vToe += vAnkle;
+					hit.colPos = vToe;
+				}
+				else
+				{
+					vToe *= 2.0f;
+					vToe += vAnkle;
+					vToe.m128_f32[1] -= 10.0f;
+					hit.colPos = vToe;
+				}
 
 				applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos), 1.0f);
 			}
@@ -359,15 +368,26 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
 				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
 
+				float ydiff = anklePos.y - toePos.y;
+								
 				vToe = vToe - vAnkle;
 				vToe.m128_f32[1] = 0.f;
-			
-				vToe = DirectX::XMVector3Normalize(vToe);
-				vToe *= 20.0f;
-				vToe += vAnkle;
-				vToe.m128_f32[1] = hit.colPos.y;
-				hit.colPos = vToe;
-
+				
+				if (m_Dzala)
+				{
+					vToe = DirectX::XMVector3Normalize(vToe);
+					vToe *= 20.0f;
+					vToe += vAnkle;
+					hit.colPos = vToe;
+				}
+				else
+				{
+					vToe *= 2.0f;
+					vToe += vAnkle;
+					vToe.m128_f32[1] -= 10.0f;
+					hit.colPos = vToe;
+				}
+				
 				applyIK_ReachPoint("RightFoot", Vector4ToXMFLOAT3(&hit.colPos), 1.0f);
 			}
 		}
