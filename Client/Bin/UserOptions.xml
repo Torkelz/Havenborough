@@ -72,7 +72,7 @@
 		<Position x="418" y="318" z="3" />
 	</Checkpoints>
 	<Crosshair scale="1">
-		<Color r="0" g="1" b="0" a="1" />
+		<Color r="1" g="1" b="1" a="1" />
 	</Crosshair>
   </HUD>
 </UserOptions>

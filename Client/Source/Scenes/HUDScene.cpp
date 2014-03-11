@@ -493,12 +493,13 @@ void HUDScene::preLoadModels()
 	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), m_GUIFont.c_str(), 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 2), Vector3(1,1,1), 0.f, m_TextHandle["ManabarCounter"]));
 
-	Vector4 crosshairColor(1.f, 0.f, 0.f, 1.f);
+	Vector4 crosshairColor(1.f, 1.f, 1.f, 1.f);
 	Vector3 crosshairPosition(0.f, 0.f, 0.f);
 	Vector3 crosshairScale(1.f, 1.f, 1.f);
 	getHUDSettings("Crosshair", crosshairPosition, crosshairScale);
 	getHUDColor("Crosshair", crosshairColor);
 	createGUIElement("Crosshair", m_Graphics->create2D_Object(crosshairPosition, Vector2(2.f, 2.f), crosshairScale, 0.f, "Crosshair"));
+	m_Graphics->set2D_ObjectColor(m_GUI["Crosshair"], crosshairColor);
 
 	pos = Vector3(0, 0, 0);
 	scale = Vector3(2.0f, 2.0f, 2.0f);
