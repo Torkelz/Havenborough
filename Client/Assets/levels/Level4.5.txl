@@ -1311,7 +1311,7 @@
 #Rotation: -1.068967 0 0
 #Scale: 1 1 1
 
-#MESH: CastleStariway1
+#MESH: CastleStairway1
 #Translation: -7567.197266 4835.163086 -8071.054199
 #Rotation: -1.068967 0 0
 #Scale: 1 1 1
