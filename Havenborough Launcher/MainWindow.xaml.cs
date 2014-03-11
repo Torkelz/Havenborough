@@ -203,7 +203,7 @@ namespace Havenborough_Launcher
             }
         }
 
-        private void Launch_OnClick(object sender, RoutedEventArgs e)
+        private void LaunchButton_OnClick(object sender, RoutedEventArgs e)
         {
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
@@ -221,7 +221,7 @@ namespace Havenborough_Launcher
             }  
         }
 
-        private void Refresh_OnClick(object sender, RoutedEventArgs e)
+        private void RefreshButton_OnClick(object sender, RoutedEventArgs e)
         {
             RefreshGameList();
         }
@@ -239,6 +239,12 @@ namespace Havenborough_Launcher
             }
             
             RefreshGameList();
+        }
+
+        private void CreditsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var window = new Credits();
+            window.Show();
         }
 
         private void RefreshGameList()
