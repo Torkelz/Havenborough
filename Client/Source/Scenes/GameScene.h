@@ -77,6 +77,9 @@ private:
 
 	//Text Component id, Graphics Text id
 	std::map<unsigned int, unsigned int> m_WorldText;
+
+	bool m_RenderPause;
+	unsigned int m_PauseId;
 public: 
 	GameScene();
 	~GameScene();
