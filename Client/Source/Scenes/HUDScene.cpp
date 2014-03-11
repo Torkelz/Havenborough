@@ -445,14 +445,7 @@ void HUDScene::preLoadModels()
 }
 
 void HUDScene::releasePreLoadedModels()
-
 {
-	for (int res : m_ResourceIDs)
-	{
-		m_ResourceManager->releaseResource(res);
-	}
-	m_ResourceIDs.clear();
-
 	for(auto id : m_GUI)
 	{
 		m_Graphics->release2D_Model(id.second);
@@ -464,6 +457,12 @@ void HUDScene::releasePreLoadedModels()
 	}
 	m_TextHandle.clear();
 	m_HUDSettings.clear();
+
+	for (int res : m_ResourceIDs)
+	{
+		m_ResourceManager->releaseResource(res);
+	}
+	m_ResourceIDs.clear();
 }
 /*########## TEST FUNCTIONS ##########*/
 

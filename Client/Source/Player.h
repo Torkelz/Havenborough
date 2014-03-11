@@ -37,6 +37,11 @@ private:
 	float m_Height; 
 	float m_EyeHeight;
 	bool m_AllowedToMove;
+	bool m_Lerp;
+	DirectX::XMFLOAT3 m_StartClimbPosition;
+	DirectX::XMFLOAT3 m_StartClimbCameraFwd;
+	DirectX::XMFLOAT3 m_StartClimbCameraUp;
+	float m_Timer;
 public:
 	/**
 	* Constructor

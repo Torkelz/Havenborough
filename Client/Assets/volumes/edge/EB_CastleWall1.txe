@@ -1,0 +1,19 @@
+*ObjectHeader*
+#numObj: 3
+
+#MESH: CastleWall1
+#Translation: -2391.498779 3745.67334 2359.760742
+#Rotation: 0 0 0
+#Scale: 4569.011719 10 10
+
+#MESH: CastleWall1
+#Translation: -2391.498779 3745.67334 2415.24292
+#Rotation: 0 0 0
+#Scale: 4569.011719 10 10
+
+#MESH: CastleWall1
+#Translation: -2391.498779 3649.092773 2672.144043
+#Rotation: 0 0 0
+#Scale: 4569.011719 10 10
+
+

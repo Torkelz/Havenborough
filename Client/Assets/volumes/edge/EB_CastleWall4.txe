@@ -1,0 +1,49 @@
+*ObjectHeader*
+#numObj: 9
+
+#MESH: CastleWall4
+#Translation: -6490.567871 3776.703125 7476.479004
+#Rotation: -1.02396 0 0
+#Scale: 556.034058 10 10
+
+#MESH: CastleWall4
+#Translation: -6593.570313 3776.703125 7539.183105
+#Rotation: -1.02396 0 0
+#Scale: 556.034058 10 10
+
+#MESH: CastleWall4
+#Translation: -7008.341797 3745.67334 7912.044922
+#Rotation: -1.02396 0 0
+#Scale: 3966.573975 10 10
+
+#MESH: CastleWall4
+#Translation: -7055.733398 3745.67334 7940.89502
+#Rotation: -1.02396 0 0
+#Scale: 3966.573975 10 10
+
+#MESH: CastleWall4
+#Translation: -7547.17041 3649.092773 6230.632813
+#Rotation: -2.323349 0 0
+#Scale: 296.094208 10 10
+
+#MESH: CastleWall4
+#Translation: -6199.728516 3649.092773 8746.290039
+#Rotation: -1.02396 0 0
+#Scale: 1683.364136 10 10
+
+#MESH: CastleWall4
+#Translation: -7362.805176 3649.092773 6821.212891
+#Rotation: -1.02396 0 0
+#Scale: 1108.266113 10 10
+
+#MESH: CastleWall4
+#Translation: -7415.65918 3649.092773 5935.126465
+#Rotation: -1.710342 0 0
+#Scale: 368.884552 10 10
+
+#MESH: CastleWall4
+#Translation: -7513.14502 3649.092773 5450.998047
+#Rotation: -1.178597 0 0
+#Scale: 644.869385 10 10
+
+

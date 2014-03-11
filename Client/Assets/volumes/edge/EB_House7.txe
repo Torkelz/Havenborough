@@ -1,0 +1,89 @@
+*ObjectHeader*
+#numObj: 17
+
+#MESH: House7
+#Translation: -288.385223 145.833206 230.484818
+#Rotation: 0 0 0
+#Scale: 82.990158 10 10
+
+#MESH: House7
+#Translation: -241.659027 146.385117 283.660553
+#Rotation: 1.570796 0 0
+#Scale: 92.841202 10 10
+
+#MESH: House7
+#Translation: -27.729189 146.098633 282.003174
+#Rotation: 1.570796 0 0
+#Scale: 92.841202 10 10
+
+#MESH: House7
+#Translation: 151.349167 146.098633 233.090073
+#Rotation: 0 0 0
+#Scale: 344.264648 10 10
+
+#MESH: House7
+#Translation: 0.900239 145.833206 -357.725006
+#Rotation: 0 0 0
+#Scale: 656.987427 10 10
+
+#MESH: House7
+#Translation: -137.821426 248.474686 181.595688
+#Rotation: 1.570796 0 0
+#Scale: 292.596924 10 10
+
+#MESH: House7
+#Translation: -125.997063 248.080307 182.274261
+#Rotation: 1.570796 0 0
+#Scale: 292.596924 10 10
+
+#MESH: House7
+#Translation: -325.434235 245.010773 -159.046738
+#Rotation: 1.570796 0 -0.582773
+#Scale: 235.252777 10 10
+
+#MESH: House7
+#Translation: -325.434235 162.972275 -307.024872
+#Rotation: 1.570796 0 -0.335511
+#Scale: 110.874954 10 10
+
+#MESH: House7
+#Translation: -325.434235 245.010773 33.05743
+#Rotation: 1.570796 0 0.581317
+#Scale: 235.252777 10 10
+
+#MESH: House7
+#Translation: -325.434235 162.023209 182.801514
+#Rotation: 1.570796 0 0.341968
+#Scale: 110.874954 10 10
+
+#MESH: House7
+#Translation: 327.459991 162.023209 182.801514
+#Rotation: 1.570796 0 0.341968
+#Scale: 110.874954 10 10
+
+#MESH: House7
+#Translation: 327.328644 245.010773 33.05743
+#Rotation: 1.570796 0 0.581317
+#Scale: 235.252777 10 10
+
+#MESH: House7
+#Translation: 327.328644 245.010773 -159.046738
+#Rotation: 1.570796 0 -0.582773
+#Scale: 235.252777 10 10
+
+#MESH: House7
+#Translation: 327.459991 162.972275 -307.024872
+#Rotation: 1.570796 0 -0.335511
+#Scale: 110.874954 10 10
+
+#MESH: House7
+#Translation: -46.314262 151.283859 327.663879
+#Rotation: 0.0127701 0.0160169 -0.232617
+#Scale: 45.094784 10 10
+
+#MESH: House7
+#Translation: -220.940491 147.177017 330.081146
+#Rotation: 0.0187801 0.00818031 0.254292
+#Scale: 45.094784 10 10
+
+

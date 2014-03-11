@@ -165,8 +165,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 		if (fabs(angleDiff) > maxOffset && !m_Player.getForceMove())
 		{
 			float offset = angleDiff < 0.f ? -maxOffset : maxOffset;
-
+		
 			playerActor->setRotation(Vector3(currentAngle + offset, 0.f, 0.f));
+		}
+		else if (m_Player.getForceMove())
+		{
+			playerActor->setRotation(Vector3(currentAngle, 0.f, 0.f));
 		}
 	}
 
@@ -430,7 +434,7 @@ void GameLogic::playLocalLevel()
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
-	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition(), m_Username));
+	m_PlayerDefault = addActor(m_ActorFactory->createPlayerActor(m_Level.getStartPosition(), m_Username, m_CharacterName, m_CharacterStyle));
 	
 	m_Player = Player();
 	m_Player.initialize(m_Physics, nullptr, m_PlayerDefault);
@@ -447,12 +451,16 @@ void GameLogic::playLocalLevel()
 }
 
 void GameLogic::connectToServer(const std::string& p_URL, unsigned short p_Port,
-								const std::string& p_LevelName, const std::string& p_Username)
+								const std::string& p_LevelName, const std::string& p_Username,
+								const std::string& p_CharacterName,
+								const std::string& p_CharacterStyle)
 {
 	if (!m_IsConnecting && !m_Connected)
 	{
 		m_LevelName = p_LevelName;
 		m_Username = p_Username;
+		m_CharacterName = p_CharacterName;
+		m_CharacterStyle = p_CharacterStyle;
 
 		m_IsConnecting = true;
 		m_Network->connectToServer(p_URL.c_str(), p_Port, &connectedCallback, this);
@@ -1017,7 +1025,7 @@ void GameLogic::joinGame()
 	IConnectionController* con = m_Network->getConnectionToServer();
 	if (!m_InGame && con && con->isConnected())
 	{
-		con->sendJoinGame(m_LevelName.c_str(), m_Username.c_str());
+		con->sendJoinGame(m_LevelName.c_str(), m_Username.c_str(), m_CharacterName.c_str(), m_CharacterStyle.c_str());
 	}
 }
 

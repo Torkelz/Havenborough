@@ -146,13 +146,14 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	return actor;
 }
 
-std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::string p_Username) const
+std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::string p_Username, std::string p_CharacterName, std::string p_CharacterStyle) const
 {
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_Position);
 	printer.OpenElement("Model");
-	printer.PushAttribute("Mesh", "Dzala");
+	printer.PushAttribute("Mesh", p_CharacterName.c_str());
+	printer.PushAttribute("Style", p_CharacterStyle.c_str());
 	printer.CloseElement();
 
 	printer.OpenElement("PlayerPhysics");
@@ -187,7 +188,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.OpenElement("Look");
 	printer.CloseElement();
 	printer.OpenElement("HumanAnimation");
-	printer.PushAttribute("Animation", "Dzala");
+	printer.PushAttribute("Animation", p_CharacterName.c_str());
 	printer.CloseElement();
 	printer.OpenElement("RunControl");
 	printer.PushAttribute("MaxSpeed", 1500.f);
@@ -199,10 +200,10 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	return printer.CStr();
 }
 
-Actor::ptr ActorFactory::createPlayerActor(Vector3 p_Position, std::string p_Username)
+Actor::ptr ActorFactory::createPlayerActor(Vector3 p_Position, std::string p_Username, std::string p_CharacterName, std::string p_CharacterStyle)
 {
 	tinyxml2::XMLDocument doc;
-	doc.Parse(getPlayerActorDescription(p_Position, p_Username).c_str());
+	doc.Parse(getPlayerActorDescription(p_Position, p_Username, p_CharacterName, p_CharacterStyle).c_str());
 
 	return createActor(doc.FirstChildElement("Object"));
 }

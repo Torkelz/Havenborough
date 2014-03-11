@@ -616,6 +616,7 @@ private:
 	Vector3 m_Offset;
 	bool NewPos;
 	std::string m_MeshName;
+	std::string m_Style;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
 
 public:
@@ -633,6 +634,10 @@ public:
 		}
 
 		m_MeshName = std::string(mesh);
+
+		const char* style = p_Data->Attribute("Style");
+		if (style)
+			m_Style = style;
 
 		m_BaseScale = Vector3(1.f, 1.f, 1.f);
 		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
@@ -664,7 +669,7 @@ public:
 	void postInit() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateMeshEventData(m_Id, m_MeshName,
-			m_BaseScale, m_ColorTone)));
+			m_BaseScale, m_ColorTone, m_Style)));
 
 		setPosition(m_Owner->getPosition());
 		setRotation(m_Owner->getRotation());
@@ -674,6 +679,8 @@ public:
 	{
 		p_Printer.OpenElement("Model");
 		p_Printer.PushAttribute("Mesh", m_MeshName.c_str());
+		if (!m_Style.empty())
+			p_Printer.PushAttribute("Style", m_Style.c_str());
 		pushVector(p_Printer, "Scale", m_BaseScale);
 		pushVector(p_Printer, "ColorTone", m_ColorTone);
 		pushVector(p_Printer, "OffsetPosition", m_Offset);

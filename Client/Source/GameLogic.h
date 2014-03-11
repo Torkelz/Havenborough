@@ -32,6 +32,8 @@ private:
 	Player m_Player;
 	std::string m_LevelName;
 	std::string m_Username;
+	std::string m_CharacterName;
+	std::string m_CharacterStyle;
 	
 	EdgeCollisionResponse m_EdgeCollResponse;
 	
@@ -100,7 +102,9 @@ public:
 	void playLocalLevel();
 
 	void connectToServer(const std::string& p_URL, unsigned short p_Port,
-		const std::string& p_LevelName, const std::string& p_Username);
+		const std::string& p_LevelName, const std::string& p_Username,
+		const std::string& p_CharacterName,
+		const std::string& p_CharacterStyle);
 	void leaveGame();
 
 	/**

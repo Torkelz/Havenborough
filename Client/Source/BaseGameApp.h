@@ -61,6 +61,8 @@ private:
 	unsigned short int m_ServerPort;
 	std::string m_LevelName;
 	std::string m_Username;
+	std::string m_CharacterName;
+	std::string m_CharacterStyle;
 
 public:
 	/**

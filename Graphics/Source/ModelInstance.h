@@ -20,6 +20,8 @@
 
 	DirectX::XMFLOAT3 m_ColorTone;
 
+	int m_SelectedMaterialSet;
+
 	/**
 	 * The matrices that transforms from bind space to model space with animations.
 	 * Row major.
@@ -100,6 +102,20 @@
 	 * @param p_Size the number of matrices in p_Pose
 	 */
 	void animationPose(const DirectX::XMFLOAT4X4* p_Pose, unsigned int p_Size);
+
+	/**
+	 * Gets the currently selected material set.
+	 *
+	 * @return the index of the models material sets currently used
+	 */
+	int getSelectedMaterialSet() const;
+
+	/**
+	 * Sets the currently selected material set.
+	 *
+	 * @param p_Mat the index of the models material sets to use
+	 */
+	void setSelectedMaterialSet(int p_Mat);
 
  private:
 	void calculateWorldMatrix(void) const;

@@ -429,6 +429,28 @@ BOOST_CLASS_TRACKING(GameList, boost::serialization::track_never)
 
 BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
 
+struct JoinGameData
+{
+	std::string game;
+	std::string username;
+	std::string characterName;
+	std::string characterStyle;
+
+	template <typename Archive>
+	void  serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar & game;
+		ar & username;
+		ar & characterName;
+		ar & characterStyle;
+	}
+};
+
+/**
+ * A package representing the player joining a game.
+ */
+typedef Package1Obj<PackageType::JOIN_GAME, JoinGameData> JoinGame;
+
 /**
  * A package representing the update of objects in the game world.
  */
@@ -438,8 +460,3 @@ BOOST_IS_BITWISE_SERIALIZABLE(UpdateObjectData)
  * A package representing one objects action in the game world.
  */
 typedef Package2Obj<PackageType::OBJECT_ACTION, uint32_t, std::string> ObjectAction;
-
-/**
- * A package representing the player joining a game.
- */
-typedef Package2Obj<PackageType::JOIN_GAME, std::string, std::string> JoinGame;

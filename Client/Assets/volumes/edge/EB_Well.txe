@@ -1,0 +1,34 @@
+*ObjectHeader*
+#numObj: 6
+
+#MESH: Well
+#Translation: 0 63.952831 84.46283
+#Rotation: 0 0 0
+#Scale: 10 10 10
+
+#MESH: Well
+#Translation: 0 63.952831 -83.048409
+#Rotation: 0 0 0
+#Scale: 10 10 10
+
+#MESH: Well
+#Translation: -78.976868 86.878494 44.302055
+#Rotation: 1.570796 0 0.503341
+#Scale: 5.97486 10 10
+
+#MESH: Well
+#Translation: 78.253029 86.878494 44.302055
+#Rotation: 1.570796 0 0.503341
+#Scale: 5.97486 10 10
+
+#MESH: Well
+#Translation: 78.253029 86.878494 -43.807587
+#Rotation: -1.570796 0 0.503341
+#Scale: 5.97486 10 10
+
+#MESH: Well
+#Translation: -78.641968 86.878494 -43.807587
+#Rotation: -1.570796 0 0.503341
+#Scale: 5.97486 10 10
+
+

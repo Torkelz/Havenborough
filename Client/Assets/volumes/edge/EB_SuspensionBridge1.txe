@@ -1,0 +1,74 @@
+*ObjectHeader*
+#numObj: 14
+
+#MESH: SuspensionBridge1
+#Translation: 123.697548 -1.880715 0
+#Rotation: 0 0 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: 123.697548 16.596554 -291.388245
+#Rotation: 0 0.123497 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: 123.697548 58.182484 -577.466125
+#Rotation: 0 0.164197 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: 123.697548 120.120789 -859.593994
+#Rotation: 0 0.258714 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: 123.697548 16.088423 286.695709
+#Rotation: 0 -0.125706 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: 123.697548 57.811241 571.023743
+#Rotation: 0 -0.166537 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: 123.697548 118.923698 852.411377
+#Rotation: 0 -0.25991 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: -126.046555 118.923698 852.411377
+#Rotation: 0 -0.25991 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: -126.046555 57.811241 571.023743
+#Rotation: 0 -0.166537 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: -126.046555 16.088423 286.695709
+#Rotation: 0 -0.125706 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: -126.046555 -1.880715 0
+#Rotation: 0 0 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: -126.046555 16.596554 -291.388245
+#Rotation: 0 0.123497 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: -126.046555 58.182484 -577.466125
+#Rotation: 0 0.164197 0
+#Scale: 10 10 287.5271
+
+#MESH: SuspensionBridge1
+#Translation: -126.046555 120.120789 -859.593994
+#Rotation: 0 0.258714 0
+#Scale: 10 10 287.5271
+
+
