@@ -1619,6 +1619,8 @@ public:
 	virtual void setPhysics(IPhysics *p_Physics) = 0;
 
 	virtual void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Target, float p_MaxAngle) = 0;
+
+	virtual void setLookAtPoint(const DirectX::XMFLOAT3& p_Target) = 0;
 };
 
 class SpellInterface : public ActorComponent
