@@ -312,7 +312,7 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		{
 			m_GameLogic->throwSpell("TestSpell");
 		}
-		else if(p_Action == "DrawPivots")
+		else if(p_Action == "drawPivots")
 		{
 			m_DebugAnimations = !m_DebugAnimations;
 		}
