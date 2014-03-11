@@ -113,7 +113,7 @@ void HumanAnimationComponent::updateAnimation()
 				{
 					if(m_FallSpeed > 500.0f)
 					{
-						Logger::log(Logger::Level::INFO, std::string("VelocityY: " + std::to_string(m_FallSpeed)));
+						//Logger::log(Logger::Level::INFO, std::string("VelocityY: " + std::to_string(m_FallSpeed)));
 						currentJumpState = JumpAnimationState::LIGHT_LANDING;
 					}
 				}
