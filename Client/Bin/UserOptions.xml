@@ -20,8 +20,7 @@
 		Left Ctrl: LCtrl
 		Right Ctrl: RCrtl
 		-->
-    <KeyMap Display="Back where?" Command="back" Key="Escape" />
-    <KeyMap Display="Leave game" Command="leaveGame" Key="Escape" />
+    <KeyMap Display="Leave game" Command="leaveGame" Key="13" />
     <KeyMap Display="Movement forwards" Command="moveForward" Key="W" />
     <KeyMap Display="Movement backwards" Command="moveBackward" Key="S" />
     <KeyMap Display="Movement up" Command="moveUp" Key="Space" />
