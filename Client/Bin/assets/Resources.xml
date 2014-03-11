@@ -6,6 +6,7 @@
         <Resource Name="SKYBOXDDS" Path="assets/textures/Skybox1_COLOR.dds"/>
         <Resource Name="Particle1" Path="assets/textures/Particle1.dds"/>
         <Resource Name="LoadingScreen" Path="assets/textures/LoadingScreen.dds"/>
+        <Resource Name="Crosshair" Path="assets/textures/Dot.png" />
     </ResourceType>
     <ResourceType Type="sound">
         <Resource Name="Background" Path="assets/sounds/Mainbackground.mp3"/>

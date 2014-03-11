@@ -94,6 +94,7 @@ private:
 	void releasePreLoadedModels();
 
 	void getHUDSettings( std::string p_Id, Vector3 &p_Position, Vector3 &p_Scale );
+	void getHUDColor(const std::string& p_Id, Vector4& p_Color);
 	void adjustHUDPosition(Vector3 &p_Position);
 
 public:

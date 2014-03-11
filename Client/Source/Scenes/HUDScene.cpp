@@ -246,6 +246,7 @@ void HUDScene::render()
 		m_Graphics->render2D_Object(m_GUI["RacePosBG"]);
 		m_Graphics->render2D_Object(m_GUI["Checkpoints"]);
 		m_Graphics->render2D_Object(m_GUI["CheckpointsBG"]);
+		m_Graphics->render2D_Object(m_GUI["Crosshair"]);
 		if (m_ShowDebugInfo)
 		{
 			m_Graphics->render2D_Object(m_GUI["DebugTextKey"]);
@@ -465,6 +466,7 @@ void HUDScene::preLoadModels()
 		"TEXTURE_NOT_FOUND",
 		"MANA_BAR",
 		"MANA_BARCHANGE",
+		"Crosshair",
 	};
 	for (const std::string &texture : preloadedTextures)
 	{
@@ -490,6 +492,13 @@ void HUDScene::preLoadModels()
 
 	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), m_GUIFont.c_str(), 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 2), Vector3(1,1,1), 0.f, m_TextHandle["ManabarCounter"]));
+
+	Vector4 crosshairColor(1.f, 0.f, 0.f, 1.f);
+	Vector3 crosshairPosition(0.f, 0.f, 0.f);
+	Vector3 crosshairScale(1.f, 1.f, 1.f);
+	getHUDSettings("Crosshair", crosshairPosition, crosshairScale);
+	getHUDColor("Crosshair", crosshairColor);
+	createGUIElement("Crosshair", m_Graphics->create2D_Object(crosshairPosition, Vector2(2.f, 2.f), crosshairScale, 0.f, "Crosshair"));
 
 	pos = Vector3(0, 0, 0);
 	scale = Vector3(2.0f, 2.0f, 2.0f);
@@ -597,6 +606,15 @@ void HUDScene::getHUDSettings( std::string p_Id, Vector3 &p_Position, Vector3 &p
 		p_Position = m_HUDSettings.at(p_Id).position;
 		float s = m_HUDSettings.at(p_Id).scale;
 		p_Scale = Vector3(s, s, s);
+	}
+}
+
+void HUDScene::getHUDColor(const std::string& p_Id, Vector4& p_Color)
+{
+	const auto it = m_HUDSettings.find(p_Id);
+	if (it != m_HUDSettings.end())
+	{
+		p_Color = it->second.color;
 	}
 }
 

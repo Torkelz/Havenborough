@@ -20,6 +20,7 @@ public:
 	{
 		Vector3 position;
 		float scale;
+		Vector4 color;
 	};
 private:
 	std::map<std::string, unsigned short> m_KeyMap;
