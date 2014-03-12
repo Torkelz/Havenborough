@@ -1461,7 +1461,7 @@ public:
 	virtual void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Target, float p_MaxAngle) = 0;
 
 	virtual void setLookAtPoint(const DirectX::XMFLOAT3& p_Target) = 0;
-	virtual bool getCrash() = 0;
+	virtual bool getLanding() = 0;
 };
 
 class SpellInterface : public ActorComponent

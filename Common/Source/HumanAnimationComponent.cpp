@@ -127,7 +127,7 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::HARD_LANDING:
 						playAnimation("HardLanding", false);
 						queueAnimation("Idle2");
-						m_Crash = true;
+						m_Landing = true;
 						break;
 				case JumpAnimationState::LIGHT_LANDING:
 					playAnimation("BodyLand", false);
@@ -225,7 +225,7 @@ void HumanAnimationComponent::updateAnimation()
 				case JumpAnimationState::HARD_LANDING:
 						playAnimation("HardLanding", false);
 						queueAnimation("Idle2");
-						m_Crash = true;
+						m_Landing = true;
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
@@ -255,7 +255,7 @@ void HumanAnimationComponent::updateAnimation()
 	else
 		m_FallSpeed = 0.f;
 
-	if(m_Crash)
+	if(m_Landing)
 		m_PrevForwardState = ForwardAnimationState::IDLE;
 	if(m_ForceMove)
 		m_PrevForwardState = ForwardAnimationState::RUNNING_FORWARD;

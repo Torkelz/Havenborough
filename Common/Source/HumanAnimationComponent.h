@@ -56,9 +56,9 @@ private:
 	bool m_ForceMove;
 	bool m_QueuedFalling;
 	bool m_Dzala;
-	bool m_Crash;
-	float m_CrashTimer;
-	float m_MaxCrashTime;
+	bool m_Landing;
+	float m_LandTimer;
+	float m_MaxLandTime;
 
 	std::weak_ptr<ModelComponent> m_Model;
 	EventManager* m_EventManager;
@@ -90,9 +90,9 @@ public:
 		m_QueuedFalling = false;
 		m_LookAtPoint = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		m_Dzala = true;
-		m_Crash = false;
-		m_CrashTimer = 0.0f;
-		m_MaxCrashTime = 0.5f;
+		m_Landing = false;
+		m_LandTimer = 0.0f;
+		m_MaxLandTime = 0.5f;
 
 		const char* resourceName = p_Data->Attribute("Animation");
 		if (!resourceName)
@@ -146,13 +146,13 @@ public:
 
 		applyLookAtIK("Head", m_LookAtPoint, 1.0f);
 
-		if(m_Crash)
+		if(m_Landing)
 		{
-			m_CrashTimer += p_DeltaTime;
-			if(m_CrashTimer >= m_MaxCrashTime)
+			m_LandTimer += p_DeltaTime;
+			if(m_LandTimer >= m_MaxLandTime)
 			{
-				m_Crash =  false;
-				m_CrashTimer = 0.0f;
+				m_Landing =  false;
+				m_LandTimer = 0.0f;
 			}
 		}
 	}
@@ -255,8 +255,8 @@ public:
 		m_LookAtPoint = p_Target;
 	}
 
-	bool getCrash() override
+	bool getLanding() override
 	{
-		return m_Crash;
+		return m_Landing;
 	}
 };

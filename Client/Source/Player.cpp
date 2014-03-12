@@ -30,6 +30,7 @@ Player::Player(void)
 	m_IsPreviousManaSet = false;
 	m_AllowedToMove = true;
 	m_ClimbSpeedUp = 1.0f;
+	m_Landing = false;
 }
 
 Player::~Player(void)
@@ -52,9 +53,15 @@ void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<
 }
 
 void Player::update(float p_DeltaTime)
-{	
-	std::weak_ptr<AnimationInterface> bb = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
-	m_AllowedToMove = !bb.lock()->getCrash();
+{
+
+	std::weak_ptr<AnimationInterface> wbb = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+	std::shared_ptr<AnimationInterface> shbb = wbb.lock();
+	if(shbb)
+		m_Landing = shbb->getLanding();
+	else
+		m_Landing = false;
+
 
 	if(m_ManaRegeneration)
 	{
@@ -112,14 +119,23 @@ void Player::update(float p_DeltaTime)
 	{
 		if(m_AllowedToMove)
 		{
-			jump(p_DeltaTime);
-			if (strActor)
+			if(!m_Landing)
 			{
-				std::shared_ptr<MovementControlInterface> comp = strActor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
-				if (comp)
+				jump(p_DeltaTime);
+				if (strActor)
 				{
-					comp->move(p_DeltaTime);
+					std::shared_ptr<MovementControlInterface> comp = strActor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+					if (comp)
+					{
+						comp->move(p_DeltaTime);
+					}
 				}
+			}
+			else
+			{
+				std::shared_ptr<PhysicsInterface> comp = strActor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+				Vector3 fel = m_Physics->getBodyVelocity(comp->getBodyHandle());
+				m_Physics->setBodyVelocity(comp->getBodyHandle(), Vector3(0.f, fel.y, 0.f));
 			}
 		}
 		else
