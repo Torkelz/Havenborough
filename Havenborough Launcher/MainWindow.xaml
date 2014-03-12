@@ -68,7 +68,7 @@
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/FOV}">
                             <TextBlock FontSize="14" Text="FOV"/>
                             <Slider x:Name="FovSlider"  Value="{Binding XPath=@Value, Mode=TwoWay}" Width="95" Minimum="35" Maximum="70"
-                                    HorizontalAlignment="Left" ValueChanged="SliderChanged"/>
+                                    HorizontalAlignment="Left" ValueChanged="Slider_OnChanged"/>
                             <TextBlock x:Name="FovValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
                         </StackPanel>
                     </StackPanel>
@@ -112,7 +112,7 @@
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <ListBox x:Name="GameListView" BorderThickness="1" BorderBrush="White" Height="110" Width="250"
                                      ItemsSource="{Binding Path=Games}" ItemTemplate="{StaticResource GameListTemplate}"
-                                     IsSynchronizedWithCurrentItem="True" SelectionChanged="OnSelectedGameChanged" />
+                                     IsSynchronizedWithCurrentItem="True" SelectionChanged="SelectedGame_OnChanged" />
                         </StackPanel>
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <Button x:Name="RefreshButton" Width="100" Height="50" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"
@@ -132,7 +132,7 @@
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/MouseSensitivity}">
                             <TextBlock FontSize="14" Text="Mouse Sensitivty"/>
                             <Slider x:Name="MouseSenseSlider"  Width="100" Value="{Binding XPath=@Value, Mode=TwoWay}" Minimum="0.1" Maximum="1"
-                                    HorizontalAlignment="Left" ValueChanged="SliderChanged" />
+                                    HorizontalAlignment="Left" ValueChanged="Slider_OnChanged" />
                             <TextBlock x:Name="MouseSenseValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
@@ -158,8 +158,9 @@
                     <ListBox x:Name="MousebuttonMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseButtonMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding XPath=@Button, Mode=OneTime}" Width="50" TextAlignment="Center" />
+                                <StackPanel x:Name="MouseBindPanel" Orientation="Horizontal" >
+                                    <TextBox x:Name="MouseBindBox" Text="{Binding XPath=@Button, Mode=TwoWay}" Width="80" IsReadOnly="False"
+                                             TextAlignment="Center" />
                                     <Label Content="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
@@ -170,7 +171,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding XPath=@Direction, Mode=OneTime}" Width="50" TextAlignment="Center" />
+                                    <TextBox Text="{Binding XPath=@Direction, Mode=TwoWay}" Width="50" TextAlignment="Center" />
                                     <Label Content="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>

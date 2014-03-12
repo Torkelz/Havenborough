@@ -317,6 +317,57 @@ namespace Havenborough_Launcher
             sizeAttribute.Value = data.ToString();
         }
 
+        private void KeyBindBox_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            if (textBox == null)
+                return;
+
+            int virtualKey;
+            int.TryParse(textBox.Text, out virtualKey);
+            textBox.Text = KeyInterop.KeyFromVirtualKey(virtualKey).ToString();
+        }
+
+        private void KeyBindBox_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
+            var key = e.SystemKey != Key.None ? e.SystemKey : e.Key;
+
+            var stackPanel = sender as StackPanel;
+            if (stackPanel == null)
+                return;
+            var objects = stackPanel.Children;
+            var textBox = objects[0] as TextBox;
+            var textBlock = objects[1] as TextBlock;
+            if (textBox == null || textBlock == null)
+                return;
+
+            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
+            if (dataProvider == null)
+                return;
+            XmlElement rootElement = dataProvider.Document["UserOptions"];
+            if (rootElement == null)
+                return;
+            XmlElement controlsElement = rootElement["Controls"];
+            if (controlsElement == null)
+                return;
+
+            for (XmlNode xmlNode = controlsElement["KeyMap"]; xmlNode != null;
+                xmlNode = xmlNode.NextSibling)
+            {
+                var keyMapElement = xmlNode as XmlElement;
+                if (keyMapElement == null)
+                    continue;
+
+                if (keyMapElement.GetAttribute("Display") != textBlock.Text)
+                    continue;
+
+                keyMapElement.SetAttribute("Key", (KeyInterop.VirtualKeyFromKey(key)).ToString(CultureInfo.InvariantCulture));
+                textBox.Text = key.ToString();
+                break;
+            }
+        }
+
         private void LaunchButton_OnClick(object sender, RoutedEventArgs e)
         {
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
@@ -402,7 +453,7 @@ namespace Havenborough_Launcher
                 gameList.Refresh(host, port);
         }
 
-        private void OnSelectedGameChanged(object sender, SelectionChangedEventArgs e)
+        private void SelectedGame_OnChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedGame = GameListView.SelectedItem as GameList.Game;
             if (selectedGame == null ||
@@ -437,7 +488,7 @@ namespace Havenborough_Launcher
             LaunchButton.IsEnabled = true;
         }
 
-        private void SliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Slider_OnChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             var slider = sender as Slider;
             if (slider == null || FovValue == null || MouseSenseValue == null)
@@ -471,55 +522,17 @@ namespace Havenborough_Launcher
                
         }
 
-        private void KeyBindBox_OnLoaded(object sender, RoutedEventArgs e)
+        private void MouseBindPanel_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            var textBox = sender as TextBox;
-            if (textBox == null)
-                return;
-
-            int virtualKey;
-            int.TryParse(textBox.Text, out virtualKey);
-            textBox.Text = KeyInterop.KeyFromVirtualKey(virtualKey).ToString();
-        }
-
-        private void KeyBindBox_OnKeyDown(object sender, KeyEventArgs e)
-        {
-            e.Handled = true;
-            var key = e.SystemKey != Key.None ? e.SystemKey : e.Key;
-
             var stackPanel = sender as StackPanel;
             if (stackPanel == null)
                 return;
             var objects = stackPanel.Children;
             var textBox = objects[0] as TextBox;
-            var textBlock = objects[1] as TextBlock;
-            if (textBox == null || textBlock == null)
-                return;
-            
-            var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
-            if (dataProvider == null)
-                return;
-            XmlElement rootElement = dataProvider.Document["UserOptions"];
-            if (rootElement == null)
-                return;
-            XmlElement controlsElement = rootElement["Controls"];
-            if (controlsElement == null)
-                return;
-            
-            for (XmlNode xmlNode = controlsElement["KeyMap"]; xmlNode != null;
-                xmlNode = xmlNode.NextSibling)
-            {
-                var keyMapElement = xmlNode as XmlElement;
-                if (keyMapElement == null)
-                    continue;
 
-                if (keyMapElement.GetAttribute("Display") != textBlock.Text)
-                    continue;
-
-                keyMapElement.SetAttribute("Key", (KeyInterop.VirtualKeyFromKey(key)).ToString(CultureInfo.InvariantCulture));
-                textBox.Text = key.ToString();
-                break;
-            }
+            if(textBox == null)
+                return;
+            textBox.Text = e.ChangedButton.ToString();
         }
     }
 

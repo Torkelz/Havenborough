@@ -29,23 +29,22 @@
     <KeyMap Display="Turn Up" Command="turnUp" Key="38" />
     <KeyMap Display="Turn Down" Command="turnDown" Key="40" />
     <!--Debug related-->
-    <KeyMap Display="Next deferred view" Command="changeViewN" Key="90" />
-    <KeyMap Display="Prev deferred view" Command="changeViewP" Key="88" />
-    <KeyMap Display="Draw pivots" Command="DrawPivots" Key="73" />
-    <KeyMap Display="Turn on bounding vol" Command="switchBVDraw" Key="86" />
-    <KeyMap Display="Main menu?" Command="goToMainMenu" Key="Return" />
-    <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="79" />
-    <KeyMap Display="Look back" Command="flipCamera" Key="80" />
-    <KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="114" />
-    <KeyMap Display="Spline Record" Command="splineRecord" Key="115" />
-    <KeyMap Display="Spline Remove" Command="splineRemove" Key="116" />
-    <KeyMap Display="Spline Clear" Command="splineClear" Key="117" />
+    <KeyMap Display="Next deferred view" Command="changeViewN" Key="120" />
+    <KeyMap Display="Prev deferred view" Command="changeViewP" Key="121" />
+    <KeyMap Display="Draw pivots" Command="DrawPivots" Key="122" />
+    <KeyMap Display="Turn on bounding vol" Command="switchBVDraw" Key="123" />
+    <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="116" />
+    <KeyMap Display="Look back" Command="flipCamera" Key="117" />
+    <KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="113" />
+    <KeyMap Display="Spline Record" Command="splineRecord" Key="114" />
+    <KeyMap Display="Spline Remove" Command="splineRemove" Key="115" />
+    <KeyMap Display="Spline Clear" Command="splineClear" Key="116" />
     <!--Mouse input-->
     <MouseMap Display="Look Left" Command="lookLeft" Direction="NegX" />
     <MouseMap Display="Look Right" Command="lookRight" Direction="PosX" />
     <MouseMap Display="Look Up" Command="lookUp" Direction="PosY" />
     <MouseMap Display="Look Down" Command="lookDown" Direction="NegY" />
-    <MouseButtonMap Display="Cast spell" Command="spellCast" Button="Left" />
+    <MouseButtonMap Display="Cast spell" Command="spellCast" Button="Middle" />
     <MouseButtonMap Display="Climb" Command="climbEdge" Button="Right" />
   </Controls>
   <HUD>
