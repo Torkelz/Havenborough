@@ -11,6 +11,7 @@ public:
 		int m_NumberOfModels;
 		int m_NumberOfLights;
 		int m_NumberOfCheckPoints;
+		int m_NumberOfEffects;
 	};
 	struct ModelData
 	{
@@ -52,8 +53,15 @@ public:
 		int m_Number;
 		DirectX::XMFLOAT3 m_Translation;
 	};
+	struct EffectData
+	{
+		std::string m_EffectName;
+		std::vector<DirectX::XMFLOAT3> m_Translation;
+		std::vector<DirectX::XMFLOAT3> m_Rotation;
+	};
 private: 
 	std::vector<InstanceBinaryLoader::ModelData> m_LevelData;
+	std::vector<InstanceBinaryLoader::EffectData> m_LevelEffectData;
 	std::vector<InstanceBinaryLoader::DirectionalLight> m_LevelDirectionalLightList;
 	std::vector<InstanceBinaryLoader::PointLight> m_LevelPointLightList;
 	std::vector<InstanceBinaryLoader::SpotLight> m_LevelSpotLightList;
@@ -145,6 +153,13 @@ public:
 	const std::vector<std::vector<InstanceBinaryLoader::CheckPointStruct>>& getCheckPointData() const;
 
 	/**
+	 * Returns information about the effects in the level.
+	 *
+	 * @return a vector of EffectData struct. 
+	 */
+	const std::vector<InstanceBinaryLoader::EffectData>& getEffectData() const;
+
+	/**
 	 * Get the stream information about the file.
 	 *
 	 * @return a const char pointer with binary information, dont forget to get the size of the stream.
@@ -158,6 +173,7 @@ protected:
 	
 	InstanceBinaryLoader::Header readHeader(std::istream& p_Input);
 	std::vector<InstanceBinaryLoader::ModelData> readLevel(std::istream& p_Input);
+	std::vector<InstanceBinaryLoader::EffectData> readEffects(std::istream& p_Input);
 	void readLevelLighting(std::istream& p_Input);
 	void readLevelCheckPoint(std::istream& p_Input);
 
