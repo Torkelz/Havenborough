@@ -360,7 +360,13 @@ namespace Havenborough_Launcher
 
         private void CreditsButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var window = new Credits();
+            var window = new CreditsWindow();
+            window.Show();
+        }
+
+        private void InstructionsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var window = new InstructionsWindow();
             window.Show();
         }
 
@@ -433,7 +439,6 @@ namespace Havenborough_Launcher
 
             LaunchButton.IsEnabled = true;
         }
-
 
         private void SliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {

@@ -6,11 +6,11 @@ using System.Windows.Media.Imaging;
 namespace Havenborough_Launcher
 {
     /// <summary>
-    /// Interaction logic for Credits.xaml
+    /// Interaction logic for InstructionsWindow.xaml
     /// </summary>
-    public partial class Credits
+    public partial class InstructionsWindow
     {
-        public Credits()
+        public InstructionsWindow()
         {
             InitializeComponent();
 
@@ -22,7 +22,7 @@ namespace Havenborough_Launcher
             Icon = BitmapFrame.Create(new Uri(@"Havenborough.ico", UriKind.RelativeOrAbsolute));
         }
 
-        private void Back_OnClick(object sender, RoutedEventArgs e)
+        private void Close_OnClick(object sender, RoutedEventArgs e)
         {
             Close();
         }

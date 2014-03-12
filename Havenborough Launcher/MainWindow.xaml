@@ -128,16 +128,18 @@
             <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical" Margin="0,0,10,5"
+                        <StackPanel Orientation="Vertical" Margin="0,0,20,0" HorizontalAlignment="Left"
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/MouseSensitivity}">
                             <TextBlock FontSize="14" Text="Mouse Sensitivty"/>
                             <Slider x:Name="MouseSenseSlider"  Width="100" Value="{Binding XPath=@Value, Mode=TwoWay}" Minimum="0.1" Maximum="1"
                                     HorizontalAlignment="Left" ValueChanged="SliderChanged" />
                             <TextBlock x:Name="MouseSenseValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
                         </StackPanel>
-                        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="100,0,0,0">
-                            <Button x:Name="CreditsButton" Height="35" FontSize="14" FontWeight="Bold" Click="CreditsButton_OnClick"
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="CreditsButton" Height="35" FontSize="12" FontWeight="Bold" Click="CreditsButton_OnClick"
                         		HorizontalAlignment="Right"  Content="CREDITS" />
+                            <Button x:Name="InstructionsButton" Height="35" FontSize="12" FontWeight="Bold" Margin="5,0,0,0"
+                                    Click="InstructionsButton_OnClick" HorizontalAlignment="Right"  Content="INSTRUCTIONS" />
                         </StackPanel>
                     </StackPanel>
                     <Label Content="KEY BINDINGS" FontWeight="Bold" />
