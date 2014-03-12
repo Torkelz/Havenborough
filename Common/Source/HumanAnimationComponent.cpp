@@ -277,7 +277,7 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 			if(m_Shell.m_Grabs.at("RightArm").m_Active)
 			{
 				XMVECTOR reachPoint;
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("RightArm").m_Position);
 				Vector3 vReachPointR = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("RightArm", vReachPointR, m_Shell.m_Weight);
 			}
@@ -289,13 +289,13 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 			Vector3 vReachPoint;
 			if(m_Shell.m_Grabs.at("RightArm").m_Active)
 			{
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("RightArm").m_Position);
 				vReachPoint = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("RightArm", vReachPoint, m_Shell.m_Weight);
 			}
 			if(m_Shell.m_Grabs.at("LeftArm").m_Active)
 			{
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("LeftArm").m_Position);
 				vReachPoint = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("LeftArm", vReachPoint, m_Shell.m_Weight);
 			}
@@ -307,14 +307,14 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 			Vector3 vReachPoint;
 			if(m_Shell.m_Grabs.at("RightArm").m_Active)
 			{
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("RightArm").m_Position);
 				vReachPoint = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("RightArm", vReachPoint, m_Shell.m_Weight);
 			}
 
 			if(m_Shell.m_Grabs.at("LeftArm").m_Active)
 			{
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("LeftArm").m_Position);
 				vReachPoint = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("LeftArm", vReachPoint, m_Shell.m_Weight);
 			}
