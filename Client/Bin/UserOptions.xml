@@ -28,7 +28,7 @@
     <KeyMap Display="Look right" Command="turnRight" Key="39" />
     <KeyMap Display="Look up" Command="turnUp" Key="38" />
     <KeyMap Display="Look down" Command="turnDown" Key="40" />
-    <!--Debug related
+    <!--Debug related-->
     <KeyMap Display="Next deferred view" Command="changeViewN" Key="120" />
     <KeyMap Display="Prev deferred view" Command="changeViewP" Key="121" />
     <KeyMap Display="Draw pivots" Command="DrawPivots" Key="122" />
@@ -40,7 +40,7 @@
     <KeyMap Display="Spline Remove" Command="splineRemove" Key="115" />
     <KeyMap Display="Spline Clear" Command="splineClear" Key="116" />
     <KeyMap Display="Slow Mode" Command="slowMode" Key="118" />
-    <KeyMap Display="Fast Mode" Command="fastMode" Key="119" />-->
+    <KeyMap Display="Fast Mode" Command="fastMode" Key="119" />
     <!--Mouse input-->
     <MouseMap Display="Look left" Command="lookLeft" Direction="NegX" />
     <MouseMap Display="Look right" Command="lookRight" Direction="PosX" />
@@ -52,25 +52,25 @@
   <HUD>
     <!-- Positions in 1280x720 resolution. Will automatically adjust depending on resolution -->
     <Manabar scale="0.75">
-		<Position x="0" y="-320" z="3" />
-	</Manabar>
+      <Position x="0" y="-320" z="3" />
+    </Manabar>
     <Arrow scale="0.3">
-		<Position x="0" y="300" z="150" />
-	</Arrow>
+      <Position x="0" y="300" z="150" />
+    </Arrow>
     <Countdown scale="2">
-		<Position x="0" y="0" z="0" />
-	</Countdown>
+      <Position x="0" y="0" z="0" />
+    </Countdown>
     <Time>
-		<Position x="420" y="250" z="0" />
-	</Time>
+      <Position x="420" y="250" z="0" />
+    </Time>
     <RacePos>
-		<Position x="-450" y="320" z="1" />
-	</RacePos>
+      <Position x="-450" y="320" z="1" />
+    </RacePos>
     <Checkpoints>
-		<Position x="418" y="318" z="3" />
-	</Checkpoints>
-	<Crosshair scale="1">
-		<Color r="1" g="1" b="1" a="1" />
-	</Crosshair>
+      <Position x="418" y="318" z="3" />
+    </Checkpoints>
+    <Crosshair scale="1">
+      <Color r="1" g="1" b="1" a="1" />
+    </Crosshair>
   </HUD>
 </UserOptions>
