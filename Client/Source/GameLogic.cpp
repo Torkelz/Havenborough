@@ -19,7 +19,7 @@ GameLogic::GameLogic(void)
 	m_CountdownTimer = 0.f;
 	m_RenderGo = false;
 	m_PreviousLegalPlayerBodyRotation = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	m_lookAtPos = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	m_LookAtPos = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_SplineCameraActive = false;
 }
 
@@ -191,7 +191,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(animation)
 	{
 		XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
-		XMVECTOR vForward = XMLoadFloat3(&m_lookAtPos);
+		XMVECTOR vForward = XMLoadFloat3(&m_LookAtPos);
 		XMFLOAT3 tempLook;
 		actorPos += vForward * 1000;
 		XMStoreFloat3(&tempLook, actorPos);
@@ -422,7 +422,7 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 		return;
 	}
 
-	XMStoreFloat3(&m_lookAtPos, vForward);
+	XMStoreFloat3(&m_LookAtPos, vForward);
 
 	look->setLookForward(forward);
 	look->setLookUp(up);
@@ -1166,7 +1166,7 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		if(m_SplineCamera.expired())
 			m_SplineCamera = addActor(m_ActorFactory->createSplineCamera(m_Level.getStartPosition()));
 		Logger::log(Logger::Level::INFO, "Changed to spline camera.");
-		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
+		m_EventManager->queueEvent(IEventData::Ptr(new ActivateHUDEventData(false)));
 		m_Player.setActor(m_SplineCamera);
 		m_SplineCameraActive = true;
 		break;
@@ -1174,17 +1174,17 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		if(m_FlyingCamera.expired())
 			m_FlyingCamera = addActor(m_ActorFactory->createFlyingCamera(m_Level.getStartPosition()));
 		Logger::log(Logger::Level::INFO, "Changed to flying camera.");
-		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
+		m_EventManager->queueEvent(IEventData::Ptr(new ActivateHUDEventData(false)));
 		m_Player.setActor(m_FlyingCamera);
 		break;
 	case 2:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
-		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
+		m_EventManager->queueEvent(IEventData::Ptr(new ActivateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
 		break;
 	default:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
-		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
+		m_EventManager->queueEvent(IEventData::Ptr(new ActivateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
 		break;
 	}

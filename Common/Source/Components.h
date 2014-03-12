@@ -73,7 +73,6 @@ private:
 	Vector3 m_OffsetRotation;
 	Vector3 m_Halfsize;
 	
-
 public:
 	~OBB_Component() override
 	{
@@ -618,7 +617,6 @@ private:
 	Vector3 m_BaseScale;
 	Vector3 m_ColorTone;
 	Vector3 m_Offset;
-	bool NewPos;
 	std::string m_MeshName;
 	std::string m_Style;
 	std::vector<std::pair<std::string, Vector3>> m_AppliedScales;
@@ -1293,9 +1291,6 @@ public:
 	}
 
 	virtual void setBaseColor(Vector4 p_NewBaseColor) = 0;
-	//virtual void setRotation(Vector3 p_NewRotation) = 0;
-	//virtual void setOffsetPosition(Vector3 p_NewPosition) = 0;
-
 };
 
 class ParticleComponent : public ParticleInterface
@@ -1535,7 +1530,7 @@ private:
 public:
 	~TextComponent() override
 	{
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new removeWorldTextEventData(m_ComponentId)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new RemoveWorldTextEventData(m_ComponentId)));
 	}
 
 	void initialize(const tinyxml2::XMLElement* p_Data) override
@@ -1597,7 +1592,7 @@ public:
 	void postInit() override
 	{
 		m_WorldPosition = m_Owner->getPosition() + m_OffsetPosition;
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new createWorldTextEventData(m_Text,
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new CreateWorldTextEventData(m_Text,
 			m_Font, m_FontSize, m_FontColor, m_BackgroundColor, m_WorldPosition, m_Scale, m_Rotation, m_ComponentId)));
 	}
 
@@ -1620,7 +1615,7 @@ public:
 	void onUpdate(float p_DeltaTime) override
 	{
 		m_WorldPosition = m_Owner->getPosition() + m_OffsetPosition;
-		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new updateWorldTextPositionEventData(m_ComponentId,m_WorldPosition)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateWorldTextPositionEventData(m_ComponentId,m_WorldPosition)));
 	}
 
 	void setId(unsigned int p_ComponentId)

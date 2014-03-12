@@ -808,7 +808,6 @@ public:
 	}
 };
 
-
 class UpdateParticleBaseColorEventData : public BaseEventData
 {
 private:
@@ -1023,7 +1022,7 @@ public:
 		return m_CurrentMana;
 	}
 
-	float getPrevioudMana() const
+	float getPreviousMana() const
 	{
 		return m_PreviousMana;
 	}
@@ -1147,7 +1146,7 @@ public:
 	}
 };
 
-class activateHUDEventData : public BaseEventData
+class ActivateHUDEventData : public BaseEventData
 {
 private:
 	bool m_State;
@@ -1155,7 +1154,7 @@ private:
 public:
 	static const Type sk_EventType = Type(0x7cd2fd2b);
 
-	activateHUDEventData(bool p_State)
+	ActivateHUDEventData(bool p_State)
 		:	m_State(p_State)
 	{
 	}
@@ -1167,7 +1166,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new activateHUDEventData(m_State));
+		return Ptr(new ActivateHUDEventData(m_State));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1261,7 +1260,7 @@ public:
 	}
 };
 
-class createWorldTextEventData : public BaseEventData
+class CreateWorldTextEventData : public BaseEventData
 {
 private:
 	std::string m_Text;
@@ -1278,7 +1277,7 @@ private:
 public:
 	static const Type sk_EventType = Type(0x7cd2bbbb);
 
-	createWorldTextEventData(std::string p_Text, std::string p_Font, float p_FontSize, Vector4 p_FontColor, 
+	CreateWorldTextEventData(std::string p_Text, std::string p_Font, float p_FontSize, Vector4 p_FontColor, 
 		Vector4 p_BackgroundColor, Vector3 p_Position, float p_scale, float p_Rotation, unsigned int p_ComponentId)
 		:	m_Text(p_Text), m_Font(p_Font), m_FontSize(p_FontSize), m_FontColor(p_FontColor), 
 		m_BackgroundColor(p_BackgroundColor), m_Position(p_Position), m_Scale(p_scale), m_Rotation(p_Rotation), 
@@ -1293,7 +1292,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new createWorldTextEventData(m_Text, m_Font, m_FontSize, m_FontColor, m_BackgroundColor, m_Position,
+		return Ptr(new CreateWorldTextEventData(m_Text, m_Font, m_FontSize, m_FontColor, m_BackgroundColor, m_Position,
 			 m_Scale, m_Rotation, m_ComponentId));
 	}
 
@@ -1306,53 +1305,53 @@ public:
 		return "createWorldTextEventData";
 	}
 
-	std::wstring getText()
+	std::wstring getText() const
 	{
 		return std::wstring(m_Text.begin(), m_Text.end());
 	}
 
-	std::string getFont()
+	std::string getFont() const
 	{
 		return m_Font;
 	}
 
-	float getFontSize()
+	float getFontSize() const
 	{
 		return m_FontSize;
 	}
 
-	Vector4 getFontColor()
+	Vector4 getFontColor() const
 	{
 		return m_FontColor;
 	}
 
-	Vector4 getBackgroundColor()
+	Vector4 getBackgroundColor() const
 	{
 		return m_BackgroundColor;
 	}
 
-	Vector3 getPosition()
+	Vector3 getPosition() const
 	{
 		return m_Position;
 	}
 
-	float getScale()
+	float getScale() const
 	{
 		return m_Scale;
 	}
 
-	float getRotation()
+	float getRotation() const
 	{
 		return m_Rotation;
 	}
 
-	unsigned int getComponentId()
+	unsigned int getComponentId() const
 	{
 		return m_ComponentId;
 	}
 };
 
-class removeWorldTextEventData : public BaseEventData
+class RemoveWorldTextEventData : public BaseEventData
 {
 private:
 	unsigned int m_Id;
@@ -1360,7 +1359,7 @@ private:
 public:
 	static const Type sk_EventType = Type(0x7cd2abcc);
 
-	removeWorldTextEventData(unsigned int p_Id)
+	RemoveWorldTextEventData(unsigned int p_Id)
 		:	m_Id(p_Id)
 	{
 	}
@@ -1372,7 +1371,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new removeWorldTextEventData(m_Id));
+		return Ptr(new RemoveWorldTextEventData(m_Id));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1384,13 +1383,13 @@ public:
 		return "removeWorldTextEventData";
 	}
 
-	unsigned int getId()
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
 };
 
-class updateWorldTextPositionEventData : public BaseEventData
+class UpdateWorldTextPositionEventData : public BaseEventData
 {
 private:
 	unsigned int m_Id;
@@ -1399,7 +1398,7 @@ private:
 public:
 	static const Type sk_EventType = Type(0x7cd2ccab);
 
-	updateWorldTextPositionEventData(unsigned int p_Id, Vector3 p_Position)
+	UpdateWorldTextPositionEventData(unsigned int p_Id, Vector3 p_Position)
 		:	m_Id(p_Id), m_Position(p_Position)
 	{
 	}
@@ -1411,7 +1410,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new updateWorldTextPositionEventData(m_Id, m_Position));
+		return Ptr(new UpdateWorldTextPositionEventData(m_Id, m_Position));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1423,12 +1422,12 @@ public:
 		return "updateWorldTextPositionEventData";
 	}
 
-	unsigned int getId()
+	unsigned int getId() const
 	{
 		return m_Id;
 	}
 
-	Vector3 getPosition()
+	Vector3 getPosition() const
 	{
 		return m_Position;
 	}

@@ -66,9 +66,9 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::spellHit), SpellHitEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createWorldText), createWorldTextEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeWorldText), removeWorldTextEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateWorldTextPosition), updateWorldTextPositionEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createWorldText), CreateWorldTextEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeWorldText), RemoveWorldTextEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateWorldTextPosition), UpdateWorldTextPositionEventData::sk_EventType);
 
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::FINAL);
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::SSAO);
@@ -645,7 +645,7 @@ void GameScene::spellHit(IEventData::Ptr p_Data)
 
 void GameScene::createWorldText(IEventData::Ptr p_Data)
 {
-	std::shared_ptr<createWorldTextEventData> data = std::static_pointer_cast<createWorldTextEventData>(p_Data);
+	std::shared_ptr<CreateWorldTextEventData> data = std::static_pointer_cast<CreateWorldTextEventData>(p_Data);
 
 	IGraphics::Text_Id id = m_Graphics->createText(data->getText().c_str(), data->getFont().c_str(), data->getFontSize(),
 		data->getFontColor(), data->getPosition(), data->getScale(), data->getRotation());
@@ -657,7 +657,7 @@ void GameScene::createWorldText(IEventData::Ptr p_Data)
 
 void GameScene::removeWorldText(IEventData::Ptr p_Data)
 {
-	std::shared_ptr<removeWorldTextEventData> data = std::static_pointer_cast<removeWorldTextEventData>(p_Data);
+	std::shared_ptr<RemoveWorldTextEventData> data = std::static_pointer_cast<RemoveWorldTextEventData>(p_Data);
 
 	if(m_WorldText.count(data->getId()) > 0)
 	{
@@ -668,7 +668,7 @@ void GameScene::removeWorldText(IEventData::Ptr p_Data)
 
 void GameScene::updateWorldTextPosition(IEventData::Ptr p_Data)
 {
-	std::shared_ptr<updateWorldTextPositionEventData> data = std::static_pointer_cast<updateWorldTextPositionEventData>(p_Data);
+	std::shared_ptr<UpdateWorldTextPositionEventData> data = std::static_pointer_cast<UpdateWorldTextPositionEventData>(p_Data);
 
 	if(m_WorldText.count(data->getId()) > 0)
 	{

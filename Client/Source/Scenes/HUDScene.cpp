@@ -44,7 +44,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerTime), UpdatePlayerTimeEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerRacePosition), UpdatePlayerRaceEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::setNrOfCheckpoints), GetNrOfCheckpoints::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::activateHUD), activateHUDEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::activateHUD), ActivateHUDEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateTakenCheckpoints), UpdateTakenCheckpoints::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::onFinish), FinishRaceEventData::sk_EventType);
 
@@ -317,7 +317,7 @@ void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
 
 void HUDScene::activateHUD(IEventData::Ptr p_Data)
 {
-	std::shared_ptr<activateHUDEventData> data = std::static_pointer_cast<activateHUDEventData>(p_Data);
+	std::shared_ptr<ActivateHUDEventData> data = std::static_pointer_cast<ActivateHUDEventData>(p_Data);
 
 	m_RenderHUD = data->getState();
 }

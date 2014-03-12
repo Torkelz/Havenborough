@@ -62,7 +62,7 @@ private:
 	unsigned int m_PlayerPositionInRace;
 	float m_PlayerTimeDifference; //The difference in time to the first player.
 
-	DirectX::XMFLOAT3 m_lookAtPos;
+	DirectX::XMFLOAT3 m_LookAtPos;
 	DirectX::XMFLOAT3 m_PreviousLegalPlayerBodyRotation;
 
 	//DEBUG
@@ -187,8 +187,6 @@ private:
 	void updateIKHeadByEvent(IEventData::Ptr p_Data);
 
 	void playAnimation(Actor::ptr p_Actor, std::string p_AnimationName, bool p_Override);
-	//void queueAnimation(Actor::ptr p_Actor, std::string p_AnimationName);
-	//void changeAnimationWeight(Actor::ptr p_Actor, int p_Track, float p_Weight);
 
 	std::weak_ptr<Actor> addActor(Actor::ptr p_Actor);
 
