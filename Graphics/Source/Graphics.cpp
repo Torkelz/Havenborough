@@ -1006,6 +1006,17 @@ void Graphics::set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt)
 		throw GraphicsException("Failed to set 2D model look at, vector out of bounds.", __LINE__, __FILE__);
 }
 
+void Graphics::set2D_ObjectColor(Object2D_Id p_Instance, Vector4 p_Color)
+{
+	if(m_2D_Objects.count(p_Instance) > 0)
+	{
+		Renderable2D& renderable = m_2D_Objects.at(p_Instance);
+		renderable.color = p_Color;
+	}
+	else
+		throw GraphicsException("Failed to set 2D model color, vector out of bounds.", __LINE__, __FILE__);
+}
+
 void Graphics::updateText(Text_Id p_Identifier, const wchar_t *p_Text)
 {
 	m_TextFactory.updateText(p_Identifier, p_Text);

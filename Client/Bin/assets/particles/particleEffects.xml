@@ -1,8 +1,8 @@
 <Particle>
 	<Effect effectName="fire">
-		<Texture resourceName="Fire1.dds"/>
-		<MaxCount maxParticles="50"/>
-		<EmitPerSec particlesPerSec="75"/>
+		<Texture resourceName="Fire3.png"/>
+		<MaxCount maxParticles="30"/>
+		<EmitPerSec particlesPerSec="45"/>
 		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="1.5"/>
 		<LifeDeviation maxLifeDeviation="1.0"/>
@@ -24,16 +24,16 @@
 		<Color cbX="0.2" cbY="0.05" cbZ="0.0" cbA="0.8" cdX="0.1" cdY="0.05" cdZ="0.0" cdA="0.2"/>
 	</Effect> -->
 	<Effect effectName="smoke">
-		<Texture resourceName="Smoke3.dds"/>
-		<MaxCount maxParticles="12"/>
-		<EmitPerSec particlesPerSec="12"/>
+		<Texture resourceName="Smoke1.png"/>
+		<MaxCount maxParticles="48"/>
+		<EmitPerSec particlesPerSec="48"/>
 		<SysLife sysMaxLife="-1.0"/>
-		<BaseLife maxLife="0.7"/>
+		<BaseLife maxLife="0.8"/>
 		<LifeDeviation maxLifeDeviation="0.2"/>
 		<Size sX="5.0" sY="5.0"/>
 		<PositionDeviation positionDeviation="9.0"/>
-		<Velocity vbX="0.0" vbY="60.0" vbZ="0.0" vdX="5.0" vdY="20.0" vdZ="5.0"/>
-		<Color cbX="0.2" cbY="0.05" cbZ="0.0" cbA="0.6" cdX="0.1" cdY="0.05" cdZ="0.0" cdA="0.4"/>
+		<Velocity vbX="0.0" vbY="30.0" vbZ="0.0" vdX="5.0" vdY="10.0" vdZ="5.0"/>
+		<Color cbX="0.2" cbY="0.05" cbZ="0.0" cbA="0.9" cdX="0.1" cdY="0.05" cdZ="0.0" cdA="0.1"/>
 	</Effect>
 	<Effect effectName="magic">
 		<Texture resourceName="Particle1.dds"/>

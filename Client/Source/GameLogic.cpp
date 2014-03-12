@@ -23,7 +23,6 @@ GameLogic::GameLogic(void)
 	m_SplineCameraActive = false;
 }
 
-
 GameLogic::~GameLogic(void)
 {
 	m_Physics = nullptr;
@@ -239,6 +238,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 			temp->setPosition(m_Player.getEyePosition());
 		}
 	}
+
+	float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition("TestSpell");
+	float playerMana = m_Player.getCurrentMana();
+	float playerPrevMana = m_Player.getPreviousMana();
+
+	m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData(playerMana/100, playerPrevMana/100, manaCost)));
 }
 
 void GameLogic::setPlayerDirection(Vector3 p_Direction)
@@ -451,13 +456,13 @@ void GameLogic::playLocalLevel()
 	m_Level.setStartPosition(XMFLOAT3(0.f, 10.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("assets/levels/Level4.4.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level4.5.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
 	m_Level.loadLevel(input, m_Actors);
-	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(6200.0f, 250.0f, -30600.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
@@ -759,6 +764,8 @@ void GameLogic::handleNetwork()
 							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData(FinishRaceEventData::GoalList())));
 						}
 					}
+					m_Player.setManaRegeneration(false);
+					m_Player.setCurrentMana(0.f);
 				}
 				break;
 			case PackageType::CURRENT_CHECKPOINT:
@@ -1170,6 +1177,8 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_SplineCamera);
 		m_SplineCameraActive = true;
+		m_Player.setCurrentMana(0.f);
+		m_Player.setManaRegeneration(false);
 		break;
 	case 1:
 		if(m_FlyingCamera.expired())
@@ -1177,16 +1186,20 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		Logger::log(Logger::Level::INFO, "Changed to flying camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_FlyingCamera);
+		m_Player.setCurrentMana(0.f);
+		m_Player.setManaRegeneration(false);
 		break;
 	case 2:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
+		m_Player.setManaRegeneration(true);
 		break;
 	default:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
+		m_Player.setManaRegeneration(true);
 		break;
 	}
 }

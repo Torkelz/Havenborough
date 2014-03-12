@@ -481,6 +481,7 @@ t	47
 na	Climb2
 sp	1.35
 tg	RightArm
+po	50.0
 fi	1
 fif	3
 fof	3
@@ -492,12 +493,14 @@ en	16
 na	Climb3
 sp	1.2
 tg	RightArm
+po	23.0
 fi	1
 fif	3
 fof	3
 st	1
 en	20
 tg	LeftArm
+po	-23.0
 fi	1
 fif	3
 fof	3
@@ -509,12 +512,14 @@ en	20
 na	Climb4
 sp	1.2
 tg	RightArm
+po	22.0
 fi	1
 fif	3
 fof	3
 st	1
 en	25
 tg	LeftArm
+po	-22.0
 fi	1
 fif	3
 fof	3

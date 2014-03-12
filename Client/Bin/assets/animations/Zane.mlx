@@ -255,7 +255,7 @@ we	1.0
 
 *Clip
 na 	SideStepLeft
-sp 	2.0
+sp 	1.0
 st 	26
 en 	41
 lo 	1
@@ -270,7 +270,7 @@ we	1.0
 
 *Clip
 na 	SideStepRight
-sp 	2.0
+sp 	1.0
 st 	43
 en 	58
 lo 	1
@@ -466,6 +466,7 @@ t	47
 na	Climb2
 sp	1.35
 tg	RightArm
+po	23.0
 fi	1
 fif	3
 fof	3
@@ -477,12 +478,14 @@ en	16
 na	Climb3
 sp	1.2
 tg	RightArm
+po	23.0
 fi	1
 fif	3
 fof	3
 st	1
 en	20
 tg	LeftArm
+po	-23.0
 fi	1
 fif	3
 fof	3
@@ -494,12 +497,14 @@ en	20
 na	Climb4
 sp	1.2
 tg	RightArm
+po	22.0
 fi	1
 fif	3
 fof	3
 st	1
 en	25
 tg	LeftArm
+po	-22.0
 fi	1
 fif	3
 fof	3

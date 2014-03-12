@@ -541,8 +541,8 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 
 				for (unsigned int i = 0; i < animation.size(); ++i)
 				{
-					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 || i == 4 || i == 3 )
-					{
+					//if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 || i == 4 || i == 3 )
+					//{
 						XMMATRIX toBind = XMLoadFloat4x4(&poseData->joints[i].m_TotalJointOffset);
 						XMMATRIX toObject = XMLoadFloat4x4(&animation[i]);
 						XMMATRIX toWorld = XMLoadFloat4x4(&animationData->getWorld());
@@ -551,7 +551,7 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 						XMStoreFloat4x4(&fTransform, objectTransform);
 
 						m_Graphics->renderJoint(fTransform);
-					}
+					//}
 				}
 			}
 		}

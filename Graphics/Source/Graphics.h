@@ -186,6 +186,7 @@ public:
 	Vector2 get2D_ObjectHalfSize(Object2D_Id p_Instance) override;
 	void set2D_ObjectRotationZ(Object2D_Id p_Instance, float p_Rotation) override;
 	void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) override;
+	void set2D_ObjectColor(Object2D_Id p_Instance, Vector4 p_Color) override;
 	bool release2D_Model(Object2D_Id p_ObjectID) override;
 	void updateText(Text_Id p_Identifier, const wchar_t *p_Text) override;
 	void deleteText(Text_Id p_Identifier) override;

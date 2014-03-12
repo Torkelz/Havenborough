@@ -267,6 +267,10 @@ std::map<std::string, IKGrabShell> MattiasLucaseXtremeLoader::loadIKGrabs(std::s
 
 						std::getline(input, line);
 						stringstream = std::stringstream(line);
+						stringstream >> key >> grab.m_Position;
+
+						std::getline(input, line);
+						stringstream = std::stringstream(line);
 						stringstream >> key >> grab.m_FadeIn;
 
 						std::getline(input, line);

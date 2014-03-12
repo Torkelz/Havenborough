@@ -990,12 +990,13 @@ class UpdateGraphicalManabarEventData : public BaseEventData
 private:
 	float m_CurrentMana;
 	float m_PreviousMana;
+	float m_ManaCost;
 
 public:
 	static const Type sk_EventType = Type(0x51515dff);
 
-	UpdateGraphicalManabarEventData(float p_CurrentMana, float p_PrevioudMana)
-		:	m_CurrentMana(p_CurrentMana), m_PreviousMana(p_PrevioudMana)
+	UpdateGraphicalManabarEventData(float p_CurrentMana, float p_PrevioudMana, float p_ManaCost)
+		:	m_CurrentMana(p_CurrentMana), m_PreviousMana(p_PrevioudMana), m_ManaCost(p_ManaCost)
 	{
 	}
 
@@ -1006,7 +1007,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new UpdateGraphicalManabarEventData(m_CurrentMana, m_PreviousMana));
+		return Ptr(new UpdateGraphicalManabarEventData(m_CurrentMana, m_PreviousMana, m_ManaCost));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1018,15 +1019,21 @@ public:
 		return "UpdateGraphicalManabarEventData";
 	}
 
+	float getManaCost() const
+	{
+		return m_ManaCost;
+	}
+
 	float getCurrentMana() const
 	{
 		return m_CurrentMana;
 	}
 
-	float getPrevioudMana() const
+	float getPreviousMana() const
 	{
 		return m_PreviousMana;
 	}
+
 	float getDiffCurrPrevious() const
 	{
 		return m_CurrentMana - m_PreviousMana;

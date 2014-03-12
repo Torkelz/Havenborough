@@ -126,10 +126,8 @@ void HumanAnimationComponent::updateAnimation()
 				{
 				case JumpAnimationState::HARD_LANDING:
 						playAnimation("HardLanding", false);
-						if (XMVectorGetZ(velocity) > runLimit)
-							queueAnimation("Run");
-						else
-							queueAnimation("Idle2");
+						queueAnimation("Idle2");
+						m_Crash = true;
 						break;
 				case JumpAnimationState::LIGHT_LANDING:
 					playAnimation("BodyLand", false);
@@ -225,11 +223,9 @@ void HumanAnimationComponent::updateAnimation()
 					//playAnimation(temp, "Flying", false);
 					break;
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
-					if (XMVectorGetZ(velocity) > runLimit)
-						queueAnimation("Run");
-					else
+						playAnimation("HardLanding", false);
 						queueAnimation("Idle2");
+						m_Crash = true;
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
@@ -259,6 +255,8 @@ void HumanAnimationComponent::updateAnimation()
 	else
 		m_FallSpeed = 0.f;
 
+	if(m_Crash)
+		m_PrevForwardState = ForwardAnimationState::IDLE;
 	if(m_ForceMove)
 		m_PrevForwardState = ForwardAnimationState::RUNNING_FORWARD;
 }
@@ -277,7 +275,7 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 			if(m_Shell.m_Grabs.at("RightArm").m_Active)
 			{
 				XMVECTOR reachPoint;
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 40);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("RightArm").m_Position);
 				Vector3 vReachPointR = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("RightArm", vReachPointR, m_Shell.m_Weight);
 			}
@@ -289,13 +287,13 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 			Vector3 vReachPoint;
 			if(m_Shell.m_Grabs.at("RightArm").m_Active)
 			{
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("RightArm").m_Position);
 				vReachPoint = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("RightArm", vReachPoint, m_Shell.m_Weight);
 			}
 			if(m_Shell.m_Grabs.at("LeftArm").m_Active)
 			{
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("LeftArm").m_Position);
 				vReachPoint = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("LeftArm", vReachPoint, m_Shell.m_Weight);
 			}
@@ -307,14 +305,14 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 			Vector3 vReachPoint;
 			if(m_Shell.m_Grabs.at("RightArm").m_Active)
 			{
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("RightArm").m_Position);
 				vReachPoint = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("RightArm", vReachPoint, m_Shell.m_Weight);
 			}
 
 			if(m_Shell.m_Grabs.at("LeftArm").m_Active)
 			{
-				reachPoint = XMLoadFloat3(&m_CenterReachPos) - (XMLoadFloat3(&m_EdgeOrientation) * 20);
+				reachPoint = XMLoadFloat3(&m_CenterReachPos) + (XMLoadFloat3(&m_EdgeOrientation) * m_Shell.m_Grabs.at("LeftArm").m_Position);
 				vReachPoint = Vector4(reachPoint).xyz();
 				applyIK_ReachPoint("LeftArm", vReachPoint, m_Shell.m_Weight);
 			}
@@ -341,11 +339,20 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 				vToe = vToe - vAnkle;
 				vToe.m128_f32[1] = 0.f;
 			
-				vToe = DirectX::XMVector3Normalize(vToe);
-				vToe *= 20.0f;
-				vToe += vAnkle;
-				vToe.m128_f32[1] = hit.colPos.y;
-				hit.colPos = vToe;
+				if (m_Dzala)
+				{
+					vToe = DirectX::XMVector3Normalize(vToe);
+					vToe *= 20.0f;
+					vToe += vAnkle;
+					hit.colPos = vToe;
+				}
+				else
+				{
+					vToe *= 2.0f;
+					vToe += vAnkle;
+					vToe.m128_f32[1] -= 10.0f;
+					hit.colPos = vToe;
+				}
 
 				applyIK_ReachPoint("LeftFoot", Vector4ToXMFLOAT3(&hit.colPos), 1.0f);
 			}
@@ -359,15 +366,26 @@ void HumanAnimationComponent::updateIKJoints(float dt)
 				DirectX::XMVECTOR vAnkle = DirectX::XMLoadFloat3(&anklePos);
 				DirectX::XMVECTOR vToe = DirectX::XMLoadFloat3(&toePos);
 
+				float ydiff = anklePos.y - toePos.y;
+								
 				vToe = vToe - vAnkle;
 				vToe.m128_f32[1] = 0.f;
-			
-				vToe = DirectX::XMVector3Normalize(vToe);
-				vToe *= 20.0f;
-				vToe += vAnkle;
-				vToe.m128_f32[1] = hit.colPos.y;
-				hit.colPos = vToe;
-
+				
+				if (m_Dzala)
+				{
+					vToe = DirectX::XMVector3Normalize(vToe);
+					vToe *= 20.0f;
+					vToe += vAnkle;
+					hit.colPos = vToe;
+				}
+				else
+				{
+					vToe *= 2.0f;
+					vToe += vAnkle;
+					vToe.m128_f32[1] -= 10.0f;
+					hit.colPos = vToe;
+				}
+				
 				applyIK_ReachPoint("RightFoot", Vector4ToXMFLOAT3(&hit.colPos), 1.0f);
 			}
 		}

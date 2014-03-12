@@ -57,7 +57,7 @@ private:
 	std::vector<InstanceBinaryLoader::DirectionalLight> m_LevelDirectionalLightList;
 	std::vector<InstanceBinaryLoader::PointLight> m_LevelPointLightList;
 	std::vector<InstanceBinaryLoader::SpotLight> m_LevelSpotLightList;
-	std::vector<InstanceBinaryLoader::CheckPointStruct> m_LevelCheckPointList;
+	std::vector<std::vector<InstanceBinaryLoader::CheckPointStruct>> m_LevelCheckPointList;
 	DirectX::XMFLOAT3 m_LevelCheckPointStart;
 	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
 	Header m_Header;
@@ -142,7 +142,7 @@ public:
 	 *
 	 * @return a vector of CheckPoint struct. 
 	 */
-	const std::vector<InstanceBinaryLoader::CheckPointStruct>& getCheckPointData() const;
+	const std::vector<std::vector<InstanceBinaryLoader::CheckPointStruct>>& getCheckPointData() const;
 
 	/**
 	 * Get the stream information about the file.

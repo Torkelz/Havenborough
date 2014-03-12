@@ -1,4 +1,5 @@
 <LevelList>
+  	<Level Name="Havenborough Castle: Caverton" Path="assets/levels/Level4.5.btxl" MaxPlayers="8" TimeOut="20" />
 	<Level Name="Havenborough Castle" Path="assets/levels/Level4.4.btxl" MaxPlayers="8" TimeOut="20" />
 	<Level Name="Old Town" Path="assets/levels/Level1.2.1.btxl" MaxPlayers="4" TimeOut="20" />
 	<Level Name="Test Level" Path="assets/levels/Level2.btxl" MaxPlayers="4" TimeOut="5" />

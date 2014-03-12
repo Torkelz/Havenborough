@@ -193,14 +193,51 @@ void InstanceConverter::createCheckPoints(std::ostream* p_Output)
 		tempEnd->x *= -1; 
 		p_Output->write(reinterpret_cast<const char*>(tempStart), sizeof(DirectX::XMFLOAT3));
 		p_Output->write(reinterpret_cast<const char*>(tempEnd), sizeof(DirectX::XMFLOAT3));
-		int size = m_LevelCheckPointList->size();
-		intToByte(size, p_Output);
+
+		std::vector<std::vector<InstanceLoader::CheckPointStruct>> listsOfCheckpoints;
 		std::vector<InstanceLoader::CheckPointStruct> tempList =  *m_LevelCheckPointList;
 		for(auto& tempObj : tempList)
 		{
 			tempObj.m_Translation.x *= -1;
 		}
-		p_Output->write(reinterpret_cast<const char*>(tempList.data()), sizeof(InstanceLoader::CheckPointStruct) * size);
+		unsigned int size = m_LevelCheckPointList->size();
+		bool checked = false;
+		for(unsigned int i = 0; i < size; i++)
+		{
+			if(!listsOfCheckpoints.empty())
+			{
+				for(unsigned int j = 0; j < listsOfCheckpoints.size(); j++)
+				{
+					if(listsOfCheckpoints[j][0].m_Number == tempList[i].m_Number)
+					{
+						listsOfCheckpoints[j].push_back(tempList[i]);
+						checked = true;
+						break;
+					}
+				}
+				if(!checked)
+				{
+					std::vector<InstanceLoader::CheckPointStruct> temp;
+					temp.push_back(tempList[i]);
+					listsOfCheckpoints.push_back(temp);
+				}
+				checked = false;
+			}
+			else
+			{
+				std::vector<InstanceLoader::CheckPointStruct> temp;
+				temp.push_back(tempList[i]);
+				listsOfCheckpoints.push_back(temp);
+			}
+		}
+		unsigned int numCheckpoints = listsOfCheckpoints.size();
+		intToByte(numCheckpoints, p_Output);
+		for(unsigned int i = 0; i < numCheckpoints; i++)
+		{
+			int nrOfSame = listsOfCheckpoints[i].size();
+			intToByte(nrOfSame, p_Output);
+			p_Output->write(reinterpret_cast<const char*>(listsOfCheckpoints[i].data()), sizeof(InstanceLoader::CheckPointStruct) * nrOfSame);
+		}
 	}
 }
 

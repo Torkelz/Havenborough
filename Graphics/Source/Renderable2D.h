@@ -10,10 +10,11 @@ struct Renderable2D
 	DirectX::XMFLOAT4X4 rotation;
 	Vector2 halfSize;
 	Vector3 scale;
+	Vector4 color;
 	
 	Renderable2D(ModelDefinition *p_Definition) :
 		model(p_Definition), position(DirectX::XMFLOAT3()), rotation(DirectX::XMFLOAT4X4()),
-		scale(Vector3(1.0f, 1.0f, 1.0f))
+		scale(Vector3(1.0f, 1.0f, 1.0f)), color(Vector4(1.f, 1.f, 1.f, 1.f))
 	{
 	}
 
