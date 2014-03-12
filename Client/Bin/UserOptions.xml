@@ -28,7 +28,7 @@
     <KeyMap Display="Turn Right" Command="turnRight" Key="39" />
     <KeyMap Display="Turn Up" Command="turnUp" Key="38" />
     <KeyMap Display="Turn Down" Command="turnDown" Key="40" />
-    <!--Debug related-->
+    <!--Debug related
     <KeyMap Display="Next deferred view" Command="changeViewN" Key="120" />
     <KeyMap Display="Prev deferred view" Command="changeViewP" Key="121" />
     <KeyMap Display="Draw pivots" Command="DrawPivots" Key="122" />
@@ -38,7 +38,7 @@
     <KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="113" />
     <KeyMap Display="Spline Record" Command="splineRecord" Key="114" />
     <KeyMap Display="Spline Remove" Command="splineRemove" Key="115" />
-    <KeyMap Display="Spline Clear" Command="splineClear" Key="116" />
+    <KeyMap Display="Spline Clear" Command="splineClear" Key="116" />-->
     <!--Mouse input-->
     <MouseMap Display="Look Left" Command="lookLeft" Direction="NegX" />
     <MouseMap Display="Look Right" Command="lookRight" Direction="PosX" />

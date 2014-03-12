@@ -392,7 +392,7 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source);
             try
             {
-                //Process.Start(ClientExec);
+                Process.Start(ClientExec);
             }
             catch (Exception ex)
             {
