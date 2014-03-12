@@ -18,13 +18,12 @@ HUDScene::HUDScene()
 	m_TimeFlashFade = 0.f;
 	m_TimeFlashFadeMax = 0.5f;
 	m_FadeOutFlash = false;
-	m_ManaCost = 55.f;
-	m_CurrentMana = 0.f;
-	m_TimePulse = 0.f;
-	m_TimePulseFade = 0.f;
-	m_TimePulseMax = 1.f;
-	m_Pulse = false;
-	m_Hej = false;
+	m_FeedbackManabarTime = 0.f;
+	m_FeedbackManabarTimeMax = 0.5f;
+	m_FeedbackManabar = false;
+	m_FeedbackCastable = false;
+	m_FeedbackFade = false;
+	m_ManabarScale = Vector3(0.f, 0.f, 0.f);
 
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
@@ -134,27 +133,37 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 			m_FadeOutFlash = false;
 		}
 	}
-	
-	if(!m_Hej)
+
+
+	if(m_FeedbackCastable)
 	{
-		m_TimePulse += p_Dt;
+		if(!m_FeedbackFade)
+			m_FeedbackManabarTime += p_Dt;
+		else
+			m_FeedbackManabarTime -= p_Dt;
 
-		float percentage = m_TimePulse / m_TimePulseMax;
+		float per = m_FeedbackManabarTime / m_FeedbackManabarTimeMax;
 
-		Vector4 color = Vector4(0.1f, 0.1f, 0.1f, 1.f);
-		Vector4 tempColor = Vector4(0.f, 0.666f, 0.f, 1.f);
+		m_Graphics->set2D_ObjectColor(m_GUI["ManabarFeedback"], Vector4(29.f/256.f * per, 76.f/256.f * per, 215.f / 256.f * per, per));
 
-		color.x = color.x + tempColor.x * (1 - percentage);
-		color.y = color.y + tempColor.x * (1 - percentage);
-		color.z = color.z + tempColor.x * (1 - percentage);
+		Vector3 tempScale = Vector3(1.f, 2.f, 2.f);
 
-		m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], color);
+		tempScale.x = m_ManabarScale.x + (tempScale.x - m_ManabarScale.x) * per;
+		tempScale.y = m_ManabarScale.y + (tempScale.y - m_ManabarScale.y) * per;
+		tempScale.z = m_ManabarScale.z + (tempScale.z - m_ManabarScale.z) * per;
 
-		if(m_TimePulse >= m_TimePulseMax)
+		m_Graphics->set2D_ObjectScale(m_GUI["ManabarFeedback"], tempScale);
+
+		if(m_FeedbackManabarTime < 0.f)
 		{
-			m_Pulse = false;
-			m_Hej = true;
-			m_TimePulse = 0.f;
+			m_FeedbackManabarTime = 0.f;
+			m_FeedbackCastable = false;
+			m_FeedbackFade = false;
+		}
+
+		if(m_FeedbackManabarTime >= m_FeedbackManabarTimeMax)
+		{
+			m_FeedbackFade = true;
 		}
 	}
 
@@ -210,6 +219,7 @@ void HUDScene::render()
 		m_Graphics->render2D_Object(m_GUI["Manabar"]);
 		m_Graphics->render2D_Object(m_GUI["ManabarChange"]);
 		m_Graphics->render2D_Object(m_GUI["ManabarCounter"]);
+		m_Graphics->render2D_Object(m_GUI["ManabarFeedback"]);
 		m_Graphics->render2D_Object(m_GUI["Time"]);
 		m_Graphics->render2D_Object(m_GUI["TimeBG"]);
 		m_Graphics->render2D_Object(m_GUI["TimeFlash"]);
@@ -311,25 +321,23 @@ void HUDScene::updateGraphicalManabar(IEventData::Ptr p_Data)
 
 	if(data->getCurrentMana() * 100 >= data->getManaCost())
 	{
-		m_Graphics->setTextColor(m_TextHandle["ManabarCounter"], Vector4(1.f, 1.f, 1.f, 1.f));
-		if(!m_Pulse)
-			m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.f, 0.666f, 0.f, 1.f));
-
-		m_Pulse = true;
+		if(!m_FeedbackManabar)
+			m_FeedbackCastable = true;
+		m_Graphics->set2D_ObjectColor(m_GUI["ManabarChange"], Vector4(29.f/256.f, 76.f/256.f, 215.f / 256.f, 1.f));
+		
+		m_FeedbackManabar = true;
 	}
 	else
 	{
-		m_Graphics->setTextColor(m_TextHandle["ManabarCounter"], Vector4(1.f, 0.f, 0.f, 1.f));
-		m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.1f, 0.1f, 0.1f, 1.f));
-		m_Pulse = false;
-		m_Hej = false;
-		m_TimePulse = 0.f;
+		m_Graphics->set2D_ObjectColor(m_GUI["ManabarChange"], Vector4(1.f, 1.f, 1.f, 1.f));
+
+		m_FeedbackManabar = false;
 	}
 
 	Vector2 barSize = m_Graphics->get2D_ObjectHalfSize(m_GUI["ManabarChange"]);
 	barSize.x *= s.x;
 	Vector3 barPos = m_Graphics->get2D_ObjectPosition(m_GUI["ManabarChange"]);
-	m_Graphics->set2D_ObjectPosition(m_GUI["ManabarCounter"], Vector3(barPos.x, barPos.y, 2));
+	//m_Graphics->set2D_ObjectPosition(m_GUI["ManabarCounter"], Vector3(barPos.x, barPos.y, 2));
 
 	barPos = Vector3(barPos.x + (data->getDiffCurrPrevious() * barSize.x), barPos.y, barPos.z);
 	m_Graphics->set2D_ObjectPosition(m_GUI["ManabarChange"], barPos);
@@ -460,8 +468,13 @@ void HUDScene::preLoadModels()
 	getHUDSettings(id, pos, scale);
 	adjustHUDPosition(pos);
 
-	createGUIElement("ManabarChange", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(140, 30), scale, 0.0f, "MANA_BARCHANGE"));
-	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 4), Vector2(144, 28), scale, 0.0f, "MANA_BAR"));
+	createGUIElement("ManabarChange", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(140, 28), scale, 0.0f, "MANA_BARCHANGE"));
+	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y - 0.5f, 4), Vector2(144, 30), scale, 0.0f, "MANA_BAR"));
+	m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.f, 0.f, 0.f, 1.f));
+
+	createGUIElement("ManabarFeedback", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 4), Vector2(144, 28), scale, 0.0f, "MANA_BARCHANGE"));
+	m_ManabarScale = scale;
+	m_Graphics->set2D_ObjectColor(m_GUI["ManabarFeedback"], Vector4(0.f, 0.f, 0.f, 0.f));
 
 	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), m_GUIFont.c_str(), 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
 	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 2), Vector3(1,1,1), 0.f, m_TextHandle["ManabarCounter"]));
