@@ -144,10 +144,10 @@
                     <ListBox x:Name="KeyMap"  ItemsSource="{Binding XPath=/UserOptions/Controls/KeyMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" KeyDown="KeyBindBox_OnKeyDown" >
+                                <StackPanel x:Name="KeyMapPanel" Orientation="Horizontal" KeyDown="KeyBindBox_OnKeyDown" >
                                     <TextBox x:Name="KeyBindBox" Text="{Binding XPath=@Key, Mode=OneTime}" Width="50" IsReadOnly="True"
                                              TextAlignment="Center" Loaded="FrameworkElement_OnLoaded"/>
-                                    <Label Content="{Binding XPath=@Display, Mode=OneTime}" />
+                                    <TextBlock Text="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

@@ -287,8 +287,7 @@ namespace Havenborough_Launcher
                         comboBox.SelectedIndex = i;
                         return;
                     }  
-                    else
-                        comboBox.SelectedIndex =  2;         
+                    comboBox.SelectedIndex =  2;         
                 }
             }
         }
@@ -488,8 +487,11 @@ namespace Havenborough_Launcher
             var stackPanel = sender as StackPanel;
             if (stackPanel == null)
                 return;
-            var children = stackPanel.Children;// Text = e.Key.ToString();
-            var textBox = children.OfType<TextBox>();
+            var objects = stackPanel.Children;
+            var textBox = objects[0] as TextBox;
+            var label = objects[1] as TextBlock;
+            if (textBox == null || label == null)
+                return;
             
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
             if (dataProvider == null)
@@ -500,13 +502,20 @@ namespace Havenborough_Launcher
             XmlElement controlsElement = rootElement["Controls"];
             if (controlsElement == null)
                 return;
-            for (XmlElement keyMapElement = controlsElement["KeyMap"];
-                keyMapElement != null;
-                keyMapElement = keyMapElement.NextSibling["KeyMap"])
+            
+            for (XmlNode keyMapElement = controlsElement["KeyMap"]; keyMapElement != null;
+                keyMapElement = keyMapElement.NextSibling)
             {
-                if (keyMapElement.GetAttribute("Command") == "leaveGame")
+                var elem = keyMapElement as XmlElement;
+                if (elem == null)
+                    continue;
+
+                string text1 = elem.GetAttribute("Display");
+                string text2 = label.Text;
+                if (elem.GetAttribute("Display") == label.Text)
                 {
-                    keyMapElement.SetAttribute("Key", ((uint) e.Key).ToString(CultureInfo.InvariantCulture));
+                    elem.SetAttribute("Key", ((uint)e.Key).ToString(CultureInfo.InvariantCulture));
+                    textBox.Text = e.Key.ToString();
                     break;
                 }
             }
