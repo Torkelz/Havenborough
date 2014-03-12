@@ -228,7 +228,7 @@ void Body::setLanded(bool p_bool)
 	m_Landed = p_bool;
 }
 
-bool Body::getIsImmovable()
+bool Body::getIsImmovable() const
 {
 	return m_IsImmovable;
 }
@@ -310,7 +310,7 @@ DirectX::XMFLOAT4 Body::getACC()
 	return m_NewAcceleration;
 }
 
-float Body::getGravity()
+float Body::getGravity() const
 {
 	return m_Gravity;
 }

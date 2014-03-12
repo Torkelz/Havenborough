@@ -56,6 +56,9 @@ private:
 	bool m_ForceMove;
 	bool m_QueuedFalling;
 	bool m_Dzala;
+	bool m_Crash;
+	float m_CrashTimer;
+	float m_MaxCrashTime;
 
 	std::weak_ptr<ModelComponent> m_Model;
 	EventManager* m_EventManager;
@@ -87,6 +90,9 @@ public:
 		m_QueuedFalling = false;
 		m_LookAtPoint = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		m_Dzala = true;
+		m_Crash = false;
+		m_CrashTimer = 0.0f;
+		m_MaxCrashTime = 0.5f;
 
 		const char* resourceName = p_Data->Attribute("Animation");
 		if (!resourceName)
@@ -139,6 +145,16 @@ public:
 		}
 
 		applyLookAtIK("Head", m_LookAtPoint, 1.0f);
+
+		if(m_Crash)
+		{
+			m_CrashTimer += p_DeltaTime;
+			if(m_CrashTimer >= m_MaxCrashTime)
+			{
+				m_Crash =  false;
+				m_CrashTimer = 0.0f;
+			}
+		}
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
@@ -237,5 +253,10 @@ public:
 	void setLookAtPoint(const DirectX::XMFLOAT3& p_Target) override
 	{
 		m_LookAtPoint = p_Target;
+	}
+
+	bool getCrash() override
+	{
+		return m_Crash;
 	}
 };

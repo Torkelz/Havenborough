@@ -22,6 +22,12 @@ struct cObjectBuffer
 	DirectX::XMFLOAT4X4 world;
 };
 
+struct cObjectBufferColor
+{
+	DirectX::XMFLOAT4X4 world;
+	DirectX::XMFLOAT4 color;
+};
+
 struct cAnimatedObjectBuffer
 {
 	DirectX::XMFLOAT4X4 invTransposeWorld;

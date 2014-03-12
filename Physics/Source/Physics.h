@@ -89,5 +89,7 @@ private:
 	void setRotation(BodyHandle p_Body, DirectX::XMMATRIX& p_Rotation);
 
 	void handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, int p_Victim, int p_VictimVolumeID, bool &p_IsOnGround);
+
+	bool isCameraPlayerCollision(Body const &p_Collider, Body const &p_Victim);
 };
 
