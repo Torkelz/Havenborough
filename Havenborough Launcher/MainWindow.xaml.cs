@@ -474,16 +474,17 @@ namespace Havenborough_Launcher
             var textBox = sender as TextBox;
             if (textBox == null)
                 return;
-            uint test;
-            uint.TryParse(textBox.Text, out test);
+            int test;
+            int.TryParse(textBox.Text, out test);
 
-            var backtest = (Key) test;
+            var backtest = KeyInterop.KeyFromVirtualKey(test);
             textBox.Text = backtest.ToString();
         }
 
 
         private void KeyBindBox_OnKeyDown(object sender, KeyEventArgs e)
         {
+            e.Handled = true;
             var stackPanel = sender as StackPanel;
             if (stackPanel == null)
                 return;
@@ -514,7 +515,7 @@ namespace Havenborough_Launcher
                 string text2 = label.Text;
                 if (elem.GetAttribute("Display") == label.Text)
                 {
-                    elem.SetAttribute("Key", ((uint)e.Key).ToString(CultureInfo.InvariantCulture));
+                    elem.SetAttribute("Key", (KeyInterop.VirtualKeyFromKey(e.Key)).ToString(CultureInfo.InvariantCulture));
                     textBox.Text = e.Key.ToString();
                     break;
                 }

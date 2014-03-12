@@ -13,40 +13,33 @@
     <MouseSensitivity Value="0.5" />
   </Settings>
   <Controls>
-    <!--
-		KEY : Key code
-		Left shift: LShift
-		Right shift: RShift
-		Left Ctrl: LCtrl
-		Right Ctrl: RCrtl
-		-->
-    <KeyMap Display="Leave game" Command="leaveGame" Key="13" />
-    <KeyMap Display="Movement forwards" Command="moveForward" Key="66" />
-    <KeyMap Display="Movement backwards" Command="moveBackward" Key="62" />
-    <KeyMap Display="Strafe left" Command="moveLeft" Key="44" />
-    <KeyMap Display="Strafe right" Command="moveRight" Key="47" />
-    <KeyMap Display="Movement up" Command="moveUp" Key="Space" />
-    <KeyMap Display="Movement down" Command="moveDown" Key="16" />
-    <KeyMap Display="Jump" Command="jump" Key="18" />
-    <KeyMap Display="Wave" Command="wave" Key="60" />
-    <KeyMap Display="Climb" Command="climbEdge" Key="48" />
-    <KeyMap Display="Cast spell" Command="spellCast" Key="49" />
+    <KeyMap Display="Leave game" Command="leaveGame" Key="27" />
+    <KeyMap Display="Movement forwards" Command="moveForward" Key="87" />
+    <KeyMap Display="Movement backwards" Command="moveBackward" Key="83" />
+    <KeyMap Display="Strafe left" Command="moveLeft" Key="65" />
+    <KeyMap Display="Strafe right" Command="moveRight" Key="68" />
+    <KeyMap Display="Movement up" Command="moveUp" Key="32" />
+    <KeyMap Display="Movement down" Command="moveDown" Key="160" />
+    <KeyMap Display="Jump" Command="jump" Key="32" />
+    <KeyMap Display="Wave" Command="wave" Key="81" />
+    <KeyMap Display="Climb" Command="climbEdge" Key="69" />
+    <KeyMap Display="Cast spell" Command="spellCast" Key="70" />
     <KeyMap Display="Turn Left" Command="turnLeft" Key="37" />
     <KeyMap Display="Turn Right" Command="turnRight" Key="39" />
     <KeyMap Display="Turn Up" Command="turnUp" Key="38" />
     <KeyMap Display="Turn Down" Command="turnDown" Key="40" />
     <!--Debug related-->
     <KeyMap Display="Next deferred view" Command="changeViewN" Key="90" />
-    <KeyMap Display="Prev deferred view" Command="changeViewP" Key="91" />
-    <KeyMap Display="Draw pivots" Command="DrawPivots" Key="92" />
-    <KeyMap Display="Turn on bounding vol" Command="switchBVDraw" Key="93" />
+    <KeyMap Display="Prev deferred view" Command="changeViewP" Key="88" />
+    <KeyMap Display="Draw pivots" Command="DrawPivots" Key="73" />
+    <KeyMap Display="Turn on bounding vol" Command="switchBVDraw" Key="86" />
     <KeyMap Display="Main menu?" Command="goToMainMenu" Key="Return" />
-    <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="94" />
-    <KeyMap Display="Look back" Command="flipCamera" Key="95" />
-    <KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="101" />
-    <KeyMap Display="Spline Record" Command="splineRecord" Key="98" />
-    <KeyMap Display="Spline Remove" Command="splineRemove" Key="156" />
-    <KeyMap Display="Spline Clear" Command="splineClear" Key="100" />
+    <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="79" />
+    <KeyMap Display="Look back" Command="flipCamera" Key="80" />
+    <KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="114" />
+    <KeyMap Display="Spline Record" Command="splineRecord" Key="115" />
+    <KeyMap Display="Spline Remove" Command="splineRemove" Key="116" />
+    <KeyMap Display="Spline Clear" Command="splineClear" Key="117" />
     <!--Mouse input-->
     <MouseMap Display="Look Left" Command="lookLeft" Direction="NegX" />
     <MouseMap Display="Look Right" Command="lookRight" Direction="PosX" />
