@@ -21,7 +21,6 @@ private:
 	float m_TimeTimerCurrent, m_TimePositionCurrent;
 	float m_TimeFlashFade, m_TimeFlashFadeMax;
 	bool m_FadeOutFlash;
-	float m_ManaCost, m_CurrentMana;
 	float m_FeedbackManabarTime, m_FeedbackManabarTimeMax;
 	bool m_FeedbackManabar, m_FeedbackCastable, m_FeedbackFade;
 	Vector3 m_ManabarScale;
