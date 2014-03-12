@@ -113,6 +113,8 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Client\Source\DebugInfo.cpp" />
     <ClCompile Include="..\Client\Source\EdgeCollisionResponse.cpp" />
     <ClCompile Include="..\Client\Source\GameLogic.cpp" />
+    <ClCompile Include="..\Client\Source\Input\DeviceManager.cpp" />
+    <ClCompile Include="..\Client\Source\Input\Gamepad.cpp" />
     <ClCompile Include="..\Client\Source\Level.cpp" />
     <ClCompile Include="..\Client\Source\Player.cpp" />
     <ClCompile Include="..\Client\Source\RAMInfo.cpp" />

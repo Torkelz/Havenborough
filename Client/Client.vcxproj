@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DebugInfo.cpp" />
+    <ClCompile Include="Source\Input\DeviceManager.cpp" />
+    <ClCompile Include="Source\Input\Gamepad.cpp" />
     <ClCompile Include="Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="Source\Scenes\HUDScene.cpp" />
     <ClCompile Include="Source\Settings.cpp" />
@@ -57,6 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\DebugInfo.h" />
+    <ClInclude Include="Source\Input\DeviceManager.h" />
+    <ClInclude Include="Source\Input\Gamepad.h" />
+    <ClInclude Include="Source\Input\hid.h" />
     <ClInclude Include="Source\Scenes\PostGameScene.h" />
     <ClInclude Include="Source\Scenes\HUDScene.h" />
     <ClInclude Include="Source\Input\InputTranslatorEnums.h" />

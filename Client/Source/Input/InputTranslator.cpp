@@ -2,48 +2,6 @@
 #include "../ClientExceptions.h"
 #include <Logger.h>
 
-#include <hidsdi.h>
-
-static const struct HIDDLL {
-	HMODULE _module;
-
-#define HID_DECLARE(fname) decltype(&::fname) fname
-#define HID_DEFINE(fname) fname = reinterpret_cast<decltype(fname)>(GetProcAddress(_module, #fname))
-#define HID_PERFORM(MACRO) \
-	MACRO(HidP_GetCaps); \
-	MACRO(HidP_GetSpecificValueCaps); \
-	MACRO(HidP_GetUsageValue); \
-	MACRO(HidP_MaxUsageListLength); \
-	MACRO(HidP_GetUsagesEx); \
-	MACRO(HidD_GetPreparsedData); \
-	MACRO(HidD_FreePreparsedData); \
-	MACRO(HidP_SetUsageValue); \
-	MACRO(HidP_SetUsages); \
-	MACRO(HidP_UnsetUsages); \
-	MACRO(HidD_SetFeature); \
-	MACRO(HidD_GetFeature); \
-	MACRO(HidP_GetButtonCaps);
-
-	HID_PERFORM(HID_DECLARE);
-
-	HIDDLL() {
-		memset(this, 0, sizeof(*this));
-		_module = LoadLibraryA("hid.dll");
-		if (_module) {
-			HID_PERFORM(HID_DEFINE);
-		}
-	}
-	
-#undef HID_PERFORM
-#undef HID_DECLARE
-#undef HID_DEFINE
-	
-	~HIDDLL() {
-		if (_module)
-			FreeLibrary(_module);
-	}
-} hid;
-
 InputTranslator::InputTranslator()
 	: m_Window(nullptr), m_MouseLocked(false)
 {
@@ -179,7 +137,7 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 		break;
 
 	case RIM_TYPEHID:
-		if (handleHIDInput(rawInputData))
+		if (m_DeviceManager.handleInput(rawInputData))
 		{
 			handled = true;
 		}
@@ -420,27 +378,6 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 			m_RecordFunction(moveInRec);
 		}
 	}
-
-	return true;
-}
-
-bool InputTranslator::handleHIDInput(const RAWINPUT* p_RawHID)
-{
-	UINT bufferSize = 0;
-	GetRawInputDeviceInfoA(p_RawHID->header.hDevice,
-		RIDI_PREPARSEDDATA, nullptr, &bufferSize);
-	std::vector<char> prepBuffer(bufferSize);
-	GetRawInputDeviceInfoA(p_RawHID->header.hDevice,
-		RIDI_PREPARSEDDATA, prepBuffer.data(), &bufferSize);
-
-	PHIDP_PREPARSED_DATA preparsedData = (PHIDP_PREPARSED_DATA)prepBuffer.data();
-
-	HIDP_CAPS capabilities;
-	hid.HidP_GetCaps(preparsedData, &capabilities);
-
-	std::vector<HIDP_BUTTON_CAPS> buttonCaps(capabilities.NumberInputButtonCaps);
-	USHORT capsLength = capabilities.NumberInputButtonCaps;
-	hid.HidP_GetButtonCaps(HidP_Input, buttonCaps.data(), &capsLength, preparsedData);
 
 	return true;
 }

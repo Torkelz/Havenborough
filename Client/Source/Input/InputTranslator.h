@@ -1,4 +1,5 @@
 #pragma once
+#include "DeviceManager.h"
 #include "InputRecord.h"
 #include "../Window.h"
 #include "InputTranslatorEnums.h"
@@ -52,6 +53,9 @@ protected:
 		std::string	m_Action;
 	};
 	std::vector<MouseButtonRecord> m_MouseButtonMappings;
+
+	DeviceManager m_DeviceManager;
+
 private:
 	bool m_MouseLocked;
 public:
@@ -130,5 +134,4 @@ protected:
 	UINT translateKey(const RAWKEYBOARD& p_RawKeyboard, UINT* p_ScanCode) const;
 
 	bool handleMouseInput(const RAWMOUSE& p_RawMouse);
-	bool handleHIDInput(const RAWINPUT* p_RawHID);
 };
