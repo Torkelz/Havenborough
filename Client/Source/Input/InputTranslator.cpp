@@ -61,11 +61,11 @@ void InputTranslator::addKeyboardMapping(USHORT p_VirtualKey, const std::string&
 	m_KeyboardMappings.push_back(rec);
 }
 
-void InputTranslator::addMouseMapping(Axis p_Axis, const std::string& p_PositionAction, const std::string& p_MovementAction)
+void InputTranslator::addMouseMapping(Axis p_Axis, bool p_PosDir, const std::string& p_MovementAction)
 {
 	Logger::log(Logger::Level::TRACE, "Adding mouse mapping");
 
-	MouseRecord rec = {p_Axis, p_PositionAction, p_MovementAction};
+	MouseRecord rec = {p_Axis, p_PosDir, p_MovementAction};
 	m_MouseMappings.push_back(rec);
 }
 
@@ -143,7 +143,8 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 
 bool InputTranslator::handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard)
 {
-	USHORT keyCode = p_RawKeyboard.VKey;
+	UINT keyCode = translateKey(p_RawKeyboard, nullptr);
+
 	float value = 0.f, prevValue = -1.f;
 	if (!(p_RawKeyboard.Flags & RI_KEY_BREAK))
 	{
@@ -164,6 +165,124 @@ bool InputTranslator::handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard)
 	return handled;
 }
 
+// http://molecularmusings.wordpress.com/2011/09/05/properly-handling-keyboard-input/
+UINT InputTranslator::translateKey(const RAWKEYBOARD& p_RawKeyboard, UINT* p_ScanCode) const
+{
+	UINT keyCode = p_RawKeyboard.VKey;
+	UINT scanCode = p_RawKeyboard.MakeCode;
+	UINT flags = p_RawKeyboard.Flags;
+
+	if (keyCode == 255)
+	{
+		return false;
+	}
+	else if (keyCode == VK_SHIFT)
+	{
+		keyCode = MapVirtualKeyA(scanCode, MAPVK_VSC_TO_VK_EX);
+	}
+	else if (keyCode == VK_NUMLOCK)
+	{
+		scanCode = MapVirtualKeyA(keyCode, MAPVK_VK_TO_VSC) | 0x100;
+	}
+
+	const bool isE0 = (flags & RI_KEY_E0) != 0;
+	const bool isE1 = (flags & RI_KEY_E1) != 0;
+
+	if (isE1)
+	{
+		if (keyCode == VK_PAUSE)
+		{
+			scanCode = 0x45;
+		}
+		else
+		{
+			scanCode = MapVirtualKeyA(keyCode, MAPVK_VK_TO_VSC);
+		}
+	}
+
+	switch (keyCode)
+	{
+	case VK_CONTROL:
+		if (isE0)
+			keyCode = VK_RCONTROL;
+		else
+			keyCode = VK_LCONTROL;
+		break;
+
+	case VK_MENU:
+		if (isE0)
+			keyCode = VK_RMENU;
+		else
+			keyCode = VK_LMENU;
+		break;
+
+	case VK_RETURN:
+		if (isE0)
+			keyCode = VK_SEPARATOR;
+		break;
+
+	case VK_INSERT:
+		if (!isE0)
+			keyCode = VK_NUMPAD0;
+		break;
+
+	case VK_DELETE:
+		if (!isE0)
+			keyCode = VK_DECIMAL;
+		break;
+
+	case VK_HOME:
+		if (!isE0)
+			keyCode = VK_NUMPAD7;
+		break;
+
+	case VK_END:
+		if (!isE0)
+			keyCode = VK_NUMPAD1;
+		break;
+
+	case VK_PRIOR:
+		if (!isE0)
+			keyCode = VK_NUMPAD9;
+		break;
+
+	case VK_NEXT:
+		if (!isE0)
+			keyCode = VK_NUMPAD3;
+		break;
+
+	case VK_LEFT:
+		if (!isE0)
+			keyCode = VK_NUMPAD4;
+		break;
+
+	case VK_RIGHT:
+		if (!isE0)
+			keyCode = VK_NUMPAD6;
+		break;
+
+	case VK_UP:
+		if (!isE0)
+			keyCode = VK_NUMPAD8;
+		break;
+
+	case VK_DOWN:
+		if (!isE0)
+			keyCode = VK_NUMPAD2;
+		break;
+
+	case VK_CLEAR:
+		if (!isE0)
+			keyCode = VK_NUMPAD5;
+		break;
+	}
+
+	if (p_ScanCode)
+		*p_ScanCode = scanCode;
+
+	return keyCode;
+}
+
 bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 {
 	const LONG lastX = p_RawMouse.lLastX;
@@ -181,8 +300,6 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 
 	const float moveX = (float)lastX * sensitivity;
 	const float moveY = -(float)lastY * sensitivity;
-	const float posX = (float)tempPos.x / (float)windowSize.x;
-	const float posY = 1.f - (float)tempPos.y / (float)windowSize.y;
 
 	bool handled = false;
 	if (p_RawMouse.usButtonFlags != 0)
@@ -218,13 +335,6 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 		SetCursorPos(tempSize.x, tempSize.y);
 	}
 
-	// Filter out mouse movement outside window
-	//if (posX > 1.f || posX < 0.f
-	//	|| posY > 1.f || posY < 0.f)
-	//{
-	//	return handled;
-	//}
-	//
 	if (moveX == 0.f && moveY == 0.f)
 	{
 		return handled;
@@ -233,21 +343,26 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 	for (const MouseRecord& record : m_MouseMappings)
 	{
 		InputRecord moveInRec = {record.m_MoveAction, 0.f};
-		InputRecord posInRec = {record.m_PosAction, 0.f};
 
 		if (record.m_Axis == Axis::HORIZONTAL)
 		{
 			moveInRec.m_Value = moveX;
-			posInRec.m_Value = posX;
 		}
 		else if (record.m_Axis == Axis::VERTICAL)
 		{
 			moveInRec.m_Value = moveY;
-			posInRec.m_Value = posY;
 		}
+		
+		if (moveInRec.m_Value == 0.f)
+			continue;
 
-		m_RecordFunction(moveInRec);
-		m_RecordFunction(posInRec);
+		if (record.m_PosDir == (moveInRec.m_Value > 0.f))
+		{
+			if (moveInRec.m_Value < 0.f)
+				moveInRec.m_Value *= -1.f;
+
+			m_RecordFunction(moveInRec);
+		}
 	}
 
 	return true;

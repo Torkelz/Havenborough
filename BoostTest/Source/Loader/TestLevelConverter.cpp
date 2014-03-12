@@ -54,12 +54,14 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 
 	static const char binHeader[] = "\x01\0\0\0"
 		"\x05\0\0\0"
-		"\x03\0\0\0";
+		"\x03\0\0\0"
+		"\x01\0\0\0";
 
 	InstanceLoader::LevelHeader header;
 	header.m_NumberOfModels = 1;
 	header.m_NumberOfLights = 5;
 	header.m_NumberOfCheckPoints = 3;
+	header.m_NumberOfEffects = 1;
 	conv.setLevelHead(header);
 
 	std::ostringstream output;
@@ -69,7 +71,8 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin(), resHeader.begin()+4, binHeader, binHeader + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+4, resHeader.begin()+8, binHeader+4, binHeader+4 + sizeof(int));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+8, resHeader.end(), binHeader+8, binHeader+8 + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+8, resHeader.begin()+12, binHeader+8, binHeader+8 + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+12, resHeader.end(), binHeader+12, binHeader+12 + sizeof(int));
 	conv.clear();
 }
 
@@ -268,11 +271,11 @@ BOOST_AUTO_TEST_CASE(TestCreateCheckPoints)
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 16, resPoint.begin() + 20, float3TransEnd[1].c, float3TransEnd[1].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 20, resPoint.begin() + 24, float3TransEnd[2].c, float3TransEnd[2].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 24, resPoint.begin() + 28, size , size + sizeof(int));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 28, resPoint.begin() + 32, number.c , number.c + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 32, resPoint.begin() + 36, number.c , number.c + sizeof(int));
 	float3Trans[0].f *= -1;
-	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 32, resPoint.begin() + 36, float3Trans[0].c, float3Trans[0].c + sizeof(float));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 36, resPoint.begin() + 40, float3Trans[1].c, float3Trans[1].c + sizeof(float));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 40, resPoint.begin() + 44, float3Trans[2].c, float3Trans[2].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 36, resPoint.begin() + 40, float3Trans[0].c, float3Trans[0].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 40, resPoint.begin() + 44, float3Trans[1].c, float3Trans[1].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 44, resPoint.begin() + 48, float3Trans[2].c, float3Trans[2].c + sizeof(float));
 	conv.clear();
 }
 

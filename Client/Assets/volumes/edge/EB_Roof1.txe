@@ -1,82 +1,82 @@
 *ObjectHeader*
 #numObj: 16
 
-#MESH: RoofShape1
+#MESH: Roof1
 #Translation: -16.164515 349.319916 -600
 #Rotation: 0 0 0
 #Scale: 1221.087646 10 10
 
-#MESH: RoofShape2
+#MESH: Roof1
 #Translation: -16.164515 349.319916 600
 #Rotation: 0 0 0
 #Scale: 1221.087646 10 10
 
-#MESH: RoofShape3
+#MESH: Roof1
 #Translation: 600 349.319916 0
 #Rotation: 1.570796 0 0
 #Scale: 1200 10 10
 
-#MESH: RoofShape4
+#MESH: Roof1
 #Translation: -628.989746 354.166351 292.535736
 #Rotation: 1.570796 0 0
 #Scale: 606.126648 10 10
 
-#MESH: RoofShape5
+#MESH: Roof1
 #Translation: -628.989746 354.166351 -448.27713
 #Rotation: 1.570796 0 0
 #Scale: 313.419312 10 10
 
-#MESH: RoofShape6
+#MESH: Roof1
 #Translation: -301.028198 349.319916 -148.72377
 #Rotation: 1.570796 0 0
 #Scale: 198.703506 10 10
 
-#MESH: RoofShape7
+#MESH: Roof1
 #Translation: -464.020142 351.869934 -268.739441
 #Rotation: -0.138681 0 0
 #Scale: 329.499542 10 10
 
-#MESH: RoofShape8
+#MESH: Roof1
 #Translation: -467.95813 351.878357 -30.902357
 #Rotation: 0.114478 0 0
 #Scale: 333.10376 10 10
 
-#MESH: RoofShape9
+#MESH: Roof1
 #Translation: 395.602386 449.036835 -220.856522
 #Rotation: 1.570796 0 0
 #Scale: 99.238663 10 10
 
-#MESH: RoofShape10
+#MESH: Roof1
 #Translation: 495.602386 449.036835 -219.79892
 #Rotation: 1.570796 0 0
 #Scale: 99.238663 10 10
 
-#MESH: RoofShape11
+#MESH: Roof1
 #Translation: 495.602417 534.136963 -344.713715
 #Rotation: 1.570796 0 0
 #Scale: 99.238663 10 10
 
-#MESH: RoofShape12
+#MESH: Roof1
 #Translation: 395.602386 534.136963 -345.373444
 #Rotation: 1.570796 0 0
 #Scale: 99.238663 10 10
 
-#MESH: RoofShape13
+#MESH: Roof1
 #Translation: 444.606903 534.136963 -295.238983
 #Rotation: 0 0 0
 #Scale: 99.238663 10 10
 
-#MESH: RoofShape14
+#MESH: Roof1
 #Translation: 445.448608 534.136963 -395.238983
 #Rotation: 0 0 0
 #Scale: 99.238663 10 10
 
-#MESH: RoofShape15
+#MESH: Roof1
 #Translation: 445.623596 449.036835 -270.555725
 #Rotation: 0 0 0
 #Scale: 99.238663 10 10
 
-#MESH: RoofShape16
+#MESH: Roof1
 #Translation: 445.2005 449.036835 -170.55574
 #Rotation: 0 0 0
 #Scale: 99.238663 10 10

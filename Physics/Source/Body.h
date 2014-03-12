@@ -31,6 +31,8 @@ protected:
 	bool				m_IsEdge;
 	bool				m_Landed;
 
+	bool				m_ForceCollisionNormal;
+
 	std::vector<BoundingVolume::ptr> m_Volumes;
 public:
 	/**
@@ -119,7 +121,7 @@ public:
 	* Is the body immovable(static)?
 	* @return a bool, if the body is movable or immovable.
 	*/
-	bool getIsImmovable();
+	bool getIsImmovable() const;
 	/**
 	* Is the body a Edge(static)?
 	* @return a bool, if the body is an edge.
@@ -218,7 +220,11 @@ public:
 	/**
 	* Resets all force and velocity on a body.
 	*/
-	void resetForce();		
+	void resetForce();
+
+	void setForceCollisionNormal(bool p_Bool);
+	bool getForceCollisionNormal() const;
+
 private:
 	/**
 	 * Calculates the new acceleration in m/s^2.
@@ -233,5 +239,5 @@ public:
 	DirectX::XMFLOAT4 getNetForce();
 	DirectX::XMFLOAT4 getACC();
 	DirectX::XMFLOAT4 getLastACC();
-	float getGravity();
+	float getGravity() const;
 };

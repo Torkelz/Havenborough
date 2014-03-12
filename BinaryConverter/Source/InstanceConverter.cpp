@@ -5,7 +5,9 @@ InstanceConverter::InstanceConverter()
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
+	m_Header.m_NumberOfEffects = 0;
 	m_LevelDataSize = 0;
+	m_EffectDataSize = 0;
 	m_LevelCheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
 	m_LevelCheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
 }
@@ -20,7 +22,9 @@ void InstanceConverter::clear()
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
+	m_Header.m_NumberOfEffects = 0;
 	m_LevelDataSize = 0;
+	m_EffectDataSize = 0;
 	m_LevelCheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
 	m_LevelCheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
 }
@@ -38,6 +42,7 @@ bool InstanceConverter::writeFile(std::string p_FilePath)
 		createLevel(&output);
 		createLighting(&output);
 		createCheckPoints(&output);
+		createEffect(&output);
 	}
 	else
 	{
@@ -52,6 +57,7 @@ void InstanceConverter::createHeader(std::ostream* p_Output)
 	intToByte(m_Header.m_NumberOfModels, p_Output);
 	intToByte(m_Header.m_NumberOfLights, p_Output);
 	intToByte(m_Header.m_NumberOfCheckPoints, p_Output);
+	intToByte(m_Header.m_NumberOfEffects, p_Output);
 }
 
 void InstanceConverter::createLevel(std::ostream* p_Output)
@@ -193,14 +199,110 @@ void InstanceConverter::createCheckPoints(std::ostream* p_Output)
 		tempEnd->x *= -1; 
 		p_Output->write(reinterpret_cast<const char*>(tempStart), sizeof(DirectX::XMFLOAT3));
 		p_Output->write(reinterpret_cast<const char*>(tempEnd), sizeof(DirectX::XMFLOAT3));
-		int size = m_LevelCheckPointList->size();
-		intToByte(size, p_Output);
+
+		std::vector<std::vector<InstanceLoader::CheckPointStruct>> listsOfCheckpoints;
 		std::vector<InstanceLoader::CheckPointStruct> tempList =  *m_LevelCheckPointList;
 		for(auto& tempObj : tempList)
 		{
 			tempObj.m_Translation.x *= -1;
 		}
-		p_Output->write(reinterpret_cast<const char*>(tempList.data()), sizeof(InstanceLoader::CheckPointStruct) * size);
+		unsigned int size = m_LevelCheckPointList->size();
+		bool checked = false;
+		for(unsigned int i = 0; i < size; i++)
+		{
+			if(!listsOfCheckpoints.empty())
+			{
+				for(unsigned int j = 0; j < listsOfCheckpoints.size(); j++)
+				{
+					if(listsOfCheckpoints[j][0].m_Number == tempList[i].m_Number)
+					{
+						listsOfCheckpoints[j].push_back(tempList[i]);
+						checked = true;
+						break;
+					}
+				}
+				if(!checked)
+				{
+					std::vector<InstanceLoader::CheckPointStruct> temp;
+					temp.push_back(tempList[i]);
+					listsOfCheckpoints.push_back(temp);
+				}
+				checked = false;
+			}
+			else
+			{
+				std::vector<InstanceLoader::CheckPointStruct> temp;
+				temp.push_back(tempList[i]);
+				listsOfCheckpoints.push_back(temp);
+			}
+		}
+		unsigned int numCheckpoints = listsOfCheckpoints.size();
+		intToByte(numCheckpoints, p_Output);
+		for(unsigned int i = 0; i < numCheckpoints; i++)
+		{
+			int nrOfSame = listsOfCheckpoints[i].size();
+			intToByte(nrOfSame, p_Output);
+			p_Output->write(reinterpret_cast<const char*>(listsOfCheckpoints[i].data()), sizeof(InstanceLoader::CheckPointStruct) * nrOfSame);
+		}
+	}
+}
+
+void InstanceConverter::createEffect(std::ostream* p_Output)
+{
+	if(m_Header.m_NumberOfEffects != 0)
+	{
+		std::vector<Effects> effect;
+		Effects eff;
+		bool written = false;
+		
+		for(int i = 0; i < m_EffectDataSize; i++)
+		{
+			eff = Effects();
+			for(unsigned int j = 0; j < effect.size(); j++)
+			{
+				if(effect.at(j).m_EffectName == m_EffectList->at(i).m_EffectName)
+				{
+					DirectX::XMFLOAT3 translation = m_EffectList->at(i).m_Translation;
+					translation.x *= -1.f;
+					effect.at(j).m_Translation.push_back(translation);
+
+					DirectX::XMFLOAT3 rotation = m_EffectList->at(i).m_Rotation;
+					rotation.x *= -1.f;
+					rotation.z *= -1.f;
+					effect.at(j).m_Rotation.push_back(rotation);
+					written = true;
+					break;
+				}	
+			}
+			if(written != true)
+			{
+				DirectX::XMFLOAT3 translation = m_EffectList->at(i).m_Translation;
+				translation.x *= -1.f;
+				eff.m_Translation.push_back(translation);
+
+				DirectX::XMFLOAT3 rotation = m_EffectList->at(i).m_Rotation;
+				rotation.x *= -1.f;
+				rotation.z *= -1.f;
+				eff.m_Rotation.push_back(rotation);
+				eff.m_EffectName = m_EffectList->at(i).m_EffectName;
+				effect.push_back(eff);
+			}
+			written = false;
+		}
+		intToByte(effect.size(), p_Output);
+		for(unsigned int i = 0; i < effect.size(); i++)
+		{
+			stringToByte(effect.at(i).m_EffectName, p_Output);
+			if(m_EffectList->size() == 0)
+			{
+				intToByte(0, p_Output);
+				intToByte(0, p_Output);
+			}
+			intToByte(effect.at(i).m_Translation.size(), p_Output);
+			p_Output->write(reinterpret_cast<const char*>(effect.at(i).m_Translation.data()), sizeof(DirectX::XMFLOAT3) * effect.at(i).m_Translation.size());
+			intToByte(effect.at(i).m_Rotation.size(), p_Output);
+			p_Output->write(reinterpret_cast<const char*>(effect.at(i).m_Rotation.data()), sizeof(DirectX::XMFLOAT3) * effect.at(i).m_Rotation.size());
+		}
 	}
 }
 
@@ -260,4 +362,10 @@ void InstanceConverter::setLevelCheckPointEnd(DirectX::XMFLOAT3 p_LevelCheckPoin
 void InstanceConverter::setModelInformation(const std::vector<InstanceLoader::ModelHeader>* p_ModelInformation)
 {
 	m_ModelInformation = p_ModelInformation;
+}
+
+void InstanceConverter::setEffectList(const std::vector<InstanceLoader::EffectStruct>* p_EffectList)
+{
+	m_EffectList = p_EffectList;
+	m_EffectDataSize = m_EffectList->size();
 }

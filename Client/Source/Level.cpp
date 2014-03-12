@@ -105,6 +105,20 @@ bool Level::loadLevel(std::istream& p_LevelData, ActorList::ptr p_ActorOut)
 		p_ActorOut->addActor(spotActor);
 	}
 
+
+	Actor::ptr particleEffect;
+	for(const auto& effect : levelLoader.getEffectData())
+	{
+		for(unsigned int i = 0; i < effect.m_Translation.size(); i++)
+		{
+			Vector3 position = Vector3(effect.m_Translation[i].x, effect.m_Translation[i].y, effect.m_Translation[i].z);
+			Vector3 rotation = Vector3(effect.m_Rotation[i].x, effect.m_Rotation[i].y, effect.m_Rotation[i].z);
+			particleEffect = m_ActorFactory->createParticles(position, effect.m_EffectName.c_str());
+			particleEffect->setRotation(rotation);
+			p_ActorOut->addActor(particleEffect);
+		}
+	}
+
 	return true;
 }
 

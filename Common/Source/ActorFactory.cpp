@@ -7,6 +7,7 @@
 #include "LookComponent.h"
 #include "RunControlComponent.h"
 #include "SpellComponent.h"
+#include "PlayerBodyComponent.h"
 #include "XMLHelper.h"
 
 ActorFactory::ActorFactory(unsigned int p_BaseActorId)
@@ -25,6 +26,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["SpherePhysics"] = std::bind(&ActorFactory::createCollisionSphereComponent, this);
 	m_ComponentCreators["MeshPhysics"] = std::bind(&ActorFactory::createBoundingMeshComponent, this);
 	m_ComponentCreators["Model"] = std::bind(&ActorFactory::createModelComponent, this);
+	m_ComponentCreators["ModelSinOffset"] = std::bind(&ActorFactory::createModelSinOffsetComponent, this);
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
 	m_ComponentCreators["CircleMovement"] = std::bind(&ActorFactory::createCircleMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
@@ -112,29 +114,42 @@ void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Half
 	p_Printer.CloseElement();
 }
 
-Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale)
+Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_Random)
 {
 	Vector3 AABBScale = p_Scale;
-	AABBScale.x *= 1.3f;
+	AABBScale.x *= 1.66f;
 	AABBScale.y *= 2.f;
-	AABBScale.z *= 1.3f;
+	AABBScale.z *= 1.66f;
 
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_Position);
+
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "Checkpoint1");
 	pushVector(printer, "Scale", Vector3(0.8f, 0.8f, 0.8f));
 	pushVector(printer, "OffsetPosition", Vector3(0,200,0));
 	printer.CloseElement();
+
+	printer.OpenElement("ModelSinOffset");
+	printer.PushAttribute("Random", p_Random);
+	pushVector(printer, "Offset", Vector3(0, 50, 0));
+	printer.CloseElement();
+
+	printer.OpenElement("Movement");
+	pushVector(printer, "RotationalVelocity",Vector3(1.57f,0.f,0.f));
+	printer.CloseElement();
+
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);
 	pushVector(printer, "Halfsize", AABBScale);
 	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
+
 	printer.OpenElement("Particle");
 	printer.PushAttribute("Effect", "checkpointSwirl");
 	printer.CloseElement();
+
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;
@@ -160,7 +175,8 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.PushAttribute("RadiusAnkle", 10.f);
 	printer.PushAttribute("RadiusHead", 25.f);
 	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "Halfsize", Vector3(25.f, 60.f, 25.f));
+	printer.PushAttribute("FallTolerance", 0.5f);
+	pushVector(printer, "HalfsizeBox", Vector3(25.f, 60.f, 25.f));
 	pushVector(printer, "OffsetPositionSphereMain", Vector3(0.f, 35.f, 0.f));
 	pushVector(printer, "OffsetPositionSphereHead", Vector3(0.f, 140.f, 0.f));
 	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 110.f, 0.f));
@@ -189,7 +205,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.PushAttribute("Animation", p_CharacterName.c_str());
 	printer.CloseElement();
 	printer.OpenElement("RunControl");
-	printer.PushAttribute("MaxSpeed", 1350.f);
+	printer.PushAttribute("MaxSpeed", 1500.f);
 	printer.PushAttribute("MaxSpeedDefault", 900.f);
 	printer.PushAttribute("Acceleration", 600.f);
 	printer.CloseElement();
@@ -378,7 +394,7 @@ Actor::ptr ActorFactory::createInstanceActor(
 	}
 	for (const auto& edge : p_Edges)
 	{
-		print(printer, edge);
+		print(printer, edge, p_Model.scale);
 	}
 	printer.CloseElement();
 
@@ -495,6 +511,11 @@ ActorComponent::ptr ActorFactory::createModelComponent()
 	return ActorComponent::ptr(comp);
 }
 
+ActorComponent::ptr ActorFactory::createModelSinOffsetComponent()
+{
+	return ActorComponent::ptr(new ModelSinOffsetComponent);
+}
+
 ActorComponent::ptr ActorFactory::createMovementComponent()
 {
 	return ActorComponent::ptr(new MovementComponent);
@@ -598,14 +619,80 @@ void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceBounding
 	p_Printer.CloseElement();
 }
 
-void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge)
+void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge, Vector3 p_Scale)
 {
 	p_Printer.OpenElement("OBBPhysics");
 	p_Printer.PushAttribute("Immovable", true);
 	p_Printer.PushAttribute("Mass", 0.f);
 	p_Printer.PushAttribute("IsEdge", true);
-	pushVector(p_Printer, "Halfsize", p_Edge.halfsize);
-	pushVector(p_Printer, "OffsetPosition", p_Edge.offsetPosition);
-	pushRotation(p_Printer, "OffsetRotation", p_Edge.offsetRotation);
+
+	using namespace DirectX;
+
+	XMFLOAT3 position = p_Edge.offsetPosition;
+	XMFLOAT3 rotation = p_Edge.offsetRotation;
+	XMFLOAT3 halfSize = p_Edge.halfsize;
+
+	if(p_Scale.x == p_Scale.y && p_Scale.x == p_Scale.z)
+	{
+		halfSize = p_Edge.halfsize * p_Scale.x;
+		position = p_Edge.offsetPosition * p_Scale.x;
+	}
+	else
+	{
+		XMMATRIX rotMat , scalMat;
+		rotMat = XMMatrixRotationRollPitchYaw(rotation.y, rotation.x, rotation.z);
+		scalMat = XMMatrixScalingFromVector(XMLoadFloat3(&p_Scale));
+
+		float offsetValue = halfSize.x;
+		int index = 0;
+		float sideValue = halfSize.y;
+		if(halfSize.x < halfSize.y)
+		{
+			offsetValue = halfSize.y;
+			sideValue = halfSize.x;
+			index = 1;
+		}
+		if(offsetValue < halfSize.z)
+		{
+			offsetValue = halfSize.z;
+			index = 2;
+		}
+
+		XMVECTOR sizeVector = XMVectorZero();
+		sizeVector.m128_f32[index] = offsetValue;
+
+		sizeVector = XMVector3Transform(sizeVector, rotMat);
+
+		XMVECTOR pos1, pos2;
+		XMVECTOR centerPos = XMLoadFloat3(&position);
+		centerPos.m128_f32[3] = 1.0f;
+		pos1 = centerPos + sizeVector;
+		pos2 = centerPos - sizeVector;
+
+		pos1 = XMVector3Transform(pos1, scalMat);
+		pos2 = XMVector3Transform(pos2, scalMat);
+
+		centerPos = (pos1 + pos2) * 0.5f;
+
+		XMStoreFloat3(&position, centerPos);
+
+		XMVECTOR dirVector = pos1 - centerPos;
+
+		float length = XMVector3Length(dirVector).m128_f32[0];
+
+		halfSize.x = length;
+		halfSize.y = sideValue;
+		halfSize.z = sideValue;
+
+		XMFLOAT3 direction; 
+		XMStoreFloat3(&direction,dirVector);
+		rotation.x = -atan2f(direction.z, direction.x);
+		rotation.y = 0;
+		rotation.z = asinf(direction.y / length);
+	}
+
+	pushVector(p_Printer, "Halfsize", halfSize);
+	pushVector(p_Printer, "OffsetPosition", position);
+	pushRotation(p_Printer, "OffsetRotation", rotation);
 	p_Printer.CloseElement();
 }

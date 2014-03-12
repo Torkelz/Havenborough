@@ -23,7 +23,6 @@ GameLogic::GameLogic(void)
 	m_SplineCameraActive = false;
 }
 
-
 GameLogic::~GameLogic(void)
 {
 	m_Physics = nullptr;
@@ -40,7 +39,7 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_EventManager = p_EventManager;
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameLogic::removeActorByEvent), RemoveActorEventData::sk_EventType);
-	
+		
 	m_Actors.reset(new ActorList);
 	m_ActorFactory->setActorList(m_Actors);
 
@@ -102,10 +101,13 @@ void GameLogic::onFrame(float p_DeltaTime)
 		for(int i = m_Physics->getHitDataSize() - 1; i >= 0; i--)
 		{
 			HitData hit = m_Physics->getHitDataAt(i);
-			m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
-				m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player);
+			if(m_Physics->validBody(hit.collisionVictim))
+			{
+				m_EdgeCollResponse.checkCollision(hit, m_Physics->getBodyPosition(hit.collisionVictim),
+					m_Physics->getBodyOrientation(hit.collisionVictim), &m_Player);
 
-			Logger::log(Logger::Level::TRACE, "Collision reported");
+				Logger::log(Logger::Level::TRACE, "Collision reported");
+			}
 		}
 	}
 
@@ -183,7 +185,46 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 		conn->sendPlayerControl(data);
 	}
+
 	m_Player.update(p_DeltaTime);
+	std::shared_ptr<AnimationInterface> animation = playerActor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+	if(animation)
+	{
+		XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
+		XMVECTOR vForward = XMLoadFloat3(&m_lookAtPos);
+		XMFLOAT3 tempLook;
+		actorPos += vForward * 1000;
+		XMStoreFloat3(&tempLook, actorPos);
+	
+		animation->setLookAtPoint(tempLook);
+
+		if (m_Network)
+		{
+			IConnectionController* con = m_Network->getConnectionToServer();
+			if (con && con->isConnected())
+			{
+				tinyxml2::XMLPrinter printer;
+				Vector3 tLook = tempLook;
+				printer.OpenElement("Action");
+				printer.OpenElement("IKHead");
+				pushVector(printer, "LookAt", tLook);
+				printer.CloseElement();
+				printer.CloseElement();
+
+				Actor::ptr actor = m_Player.getActor().lock();
+
+				if (actor)
+				{
+					std::shared_ptr<AnimationInterface> comp = 
+						actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+					if (comp)
+					{
+						con->sendObjectAction(m_Player.getActor().lock()->getId(), printer.CStr());
+					}
+				}
+			}
+		}
+	}
 	m_Actors->onUpdate(p_DeltaTime);
 	
 
@@ -197,18 +238,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 			temp->setPosition(m_Player.getEyePosition());
 		}
 	}
-
-	std::shared_ptr<AnimationInterface> animation = playerActor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
-	if(!animation)
-		return;
-
-	XMVECTOR actorPos = Vector3ToXMVECTOR(&getPlayerEyePosition(), 1.0f);
-	XMVECTOR vForward = XMLoadFloat3(&m_lookAtPos);
-	actorPos += vForward * 10;
-	XMFLOAT3 tempLook;
-	XMStoreFloat3(&tempLook, actorPos);
-	
-	animation->applyLookAtIK("Head", tempLook, 1.0f);
 
 	float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition("TestSpell");
 	float playerMana = m_Player.getCurrentMana();
@@ -364,8 +393,8 @@ DirectX::XMFLOAT4X4 GameLogic::getPlayerViewRotationMatrix() const
 
 void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 {
-	/*if(m_Player.getForceMove())
-		return;*/
+	if(m_Player.getForceMove())
+		return;
 
 	Actor::ptr actor = m_Player.getActor().lock();
 	if (!actor)
@@ -427,13 +456,13 @@ void GameLogic::playLocalLevel()
 	m_Level.setStartPosition(XMFLOAT3(0.f, 10.0f, 1500.f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #else
-	std::ifstream input("assets/levels/Level4.4.btxl", std::istream::in | std::istream::binary);
+	std::ifstream input("assets/levels/Level4.5.btxl", std::istream::in | std::istream::binary);
 	if(!input)
 	{
 		throw InvalidArgument("File could not be found: LoadLevel", __LINE__, __FILE__);
 	}
 	m_Level.loadLevel(input, m_Actors);
-	m_Level.setStartPosition(XMFLOAT3(0.0f, 2000.0f, 1500.0f)); //TODO: Remove this line when level gets the position from file
+	m_Level.setStartPosition(XMFLOAT3(6200.0f, 250.0f, -30600.0f)); //TODO: Remove this line when level gets the position from file
 	m_Level.setGoalPosition(XMFLOAT3(4850.0f, 0.0f, -2528.0f)); //TODO: Remove this line when level gets the position from file
 #endif
 
@@ -735,6 +764,8 @@ void GameLogic::handleNetwork()
 							m_EventManager->queueEvent(IEventData::Ptr(new FinishRaceEventData(FinishRaceEventData::GoalList())));
 						}
 					}
+					m_Player.setManaRegeneration(false);
+					m_Player.setCurrentMana(0.f);
 				}
 				break;
 			case PackageType::CURRENT_CHECKPOINT:
@@ -973,6 +1004,22 @@ void GameLogic::handleNetwork()
 							}
 						}
 					}
+					else if(std::string(action->Value()) == "IKHead")
+					{
+						Actor::ptr actor = getActor(actorId);
+						Vector3 lookAt = Vector3(0,0,1);
+						queryVector(action->FirstChildElement("LookAt"), lookAt);
+
+						if (actor)
+						{
+							std::shared_ptr<AnimationInterface> comp = 
+									actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+							if (comp)
+							{
+								comp->setLookAtPoint(lookAt);
+							}
+						}
+					}
 				}
 				break;
 
@@ -1130,6 +1177,8 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_SplineCamera);
 		m_SplineCameraActive = true;
+		m_Player.setCurrentMana(0.f);
+		m_Player.setManaRegeneration(false);
 		break;
 	case 1:
 		if(m_FlyingCamera.expired())
@@ -1137,16 +1186,20 @@ void GameLogic::changeCameraMode(unsigned int p_Mode)
 		Logger::log(Logger::Level::INFO, "Changed to flying camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(false)));
 		m_Player.setActor(m_FlyingCamera);
+		m_Player.setCurrentMana(0.f);
+		m_Player.setManaRegeneration(false);
 		break;
 	case 2:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
+		m_Player.setManaRegeneration(true);
 		break;
 	default:
 		Logger::log(Logger::Level::INFO, "Changed to Player camera.");
 		m_EventManager->queueEvent(IEventData::Ptr(new activateHUDEventData(true)));
 		m_Player.setActor(m_PlayerDefault);
+		m_Player.setManaRegeneration(true);
 		break;
 	}
 }

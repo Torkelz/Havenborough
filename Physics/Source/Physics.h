@@ -44,6 +44,7 @@ public:
 	void setGlobalGravity(float p_Gravity) override;
 	void setBodyGravity(BodyHandle p_Body, float p_Gravity) override;
 	bool getBodyInAir(BodyHandle p_Body) override;
+	bool getBodyOnSomething(BodyHandle p_Body) override;
 
 	HitData getHitDataAt(unsigned int p_Index) override;
 	unsigned int getHitDataSize() override;
@@ -72,7 +73,10 @@ public:
 	unsigned int getNrOfTrianglesFromBody(unsigned int p_BodyHandle, int p_BoundingVolume) override;
 	unsigned int getNrOfVolumesInBody(BodyHandle p_BodyHandle);
 	Vector3 getBodyOrientation(BodyHandle p_BodyHandle) override;
-	void resetForceOnBody(BodyHandle p_BodyHandle) override;	 
+	void resetForceOnBody(BodyHandle p_BodyHandle) override;	
+
+	void setBodyForceCollisionNormal(BodyHandle p_Body, BodyHandle p_BodyVictim, bool p_Bool) override;
+	bool validBody(BodyHandle p_BodyHandle);
 private:
 	Body* findBody(BodyHandle p_Body);
 	
@@ -85,5 +89,7 @@ private:
 	void setRotation(BodyHandle p_Body, DirectX::XMMATRIX& p_Rotation);
 
 	void handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, int p_Victim, int p_VictimVolumeID, bool &p_IsOnGround);
+
+	bool isCameraPlayerCollision(Body const &p_Collider, Body const &p_Victim);
 };
 

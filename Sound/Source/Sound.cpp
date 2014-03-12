@@ -132,6 +132,30 @@ bool Sound::loadSound(const char *p_SoundId, const char *p_Filename)
 	return true;
 }
 
+bool Sound::loadSoundWithoutLoop(const char *p_SoundId, const char *p_Filename)
+{
+
+	FMOD::Sound *s;
+	FMOD::Channel *c;
+	errorCheck(m_System->createSound(p_Filename, FMOD_LOOP_OFF, 0, &s));
+	errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s, true, &c));
+
+	SoundInstance si(p_SoundId, s, c);
+	m_Sounds.push_back(si);
+	s = nullptr;
+
+	return true;
+}
+
+bool Sound::isPlaying(const char *p_SoundId)
+{
+	bool temp;
+	SoundInstance *s = getSound(std::string(p_SoundId));
+	s->getChannel()->isPlaying(&temp);
+
+	return temp;
+}
+
 bool Sound::loadStream(const char *p_SoundId, const char *p_Filename)
 {
 	return true;

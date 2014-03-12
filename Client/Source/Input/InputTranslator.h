@@ -41,7 +41,7 @@ protected:
 	struct MouseRecord
 	{
 		Axis		m_Axis;
-		std::string	m_PosAction;
+		bool		m_PosDir;
 		std::string	m_MoveAction;
 	};
 	std::vector<MouseRecord> m_MouseMappings;
@@ -90,13 +90,13 @@ public:
 	void addKeyboardMapping(USHORT p_VirtualKey, const std::string& p_Action);
 	/**
 	 * Add a new mouse mapping to the translation for a single axis.
-	 * Duplicate calls will result in dupplicated translations.
+	 * Duplicate calls will result in duplicated translations.
 	 *
 	 * @param p_Axis The axis to map to an action.
-	 * @param p_PositionAction The action that mouse position changes will be translated to.
+	 * @param p_PosDir true to use positive directions, false to use negative directions
 	 * @param p_MovementAction The action that mouse movements will be translated to.
 	 */
-	void addMouseMapping(Axis p_Axis, const std::string& p_PositionAction, const std::string& p_MovementAction);
+	void addMouseMapping(Axis p_Axis, bool p_PosDir, const std::string& p_MovementAction);
 
 	/**
 	 * Add a new mouse button mapping to the translation. Duplicate calls will
@@ -127,5 +127,7 @@ protected:
 	bool handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
 	bool handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard);
+	UINT translateKey(const RAWKEYBOARD& p_RawKeyboard, UINT* p_ScanCode) const;
+
 	bool handleMouseInput(const RAWMOUSE& p_RawMouse);
 };

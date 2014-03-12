@@ -5,6 +5,7 @@ InstanceLoader::InstanceLoader()
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
+	m_Header.m_NumberOfEffects = 0;
 }
 
 InstanceLoader::~InstanceLoader()
@@ -18,6 +19,8 @@ void InstanceLoader::clear()
 	m_ModelList.shrink_to_fit();
 	m_CheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
 	m_CheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
+	m_EffectList.clear();
+	m_EffectList.shrink_to_fit();
 	m_LevelCheckPointList.clear();
 	m_LevelCheckPointList.shrink_to_fit();
 	m_LevelDirectionalLightList.clear();
@@ -72,6 +75,11 @@ void InstanceLoader::startReading(std::istream& p_Input)
 			m_Header.m_NumberOfCheckPoints = readHeader(p_Input);
 			std::getline(p_Input, line);
 		}
+		else if(key == "*EffectHeader*")
+		{
+			m_Header.m_NumberOfEffects = readHeader(p_Input);
+			std::getline(p_Input, line);
+		}
 		else if(key == "#MESH:" || key == "#MESH")
 		{
 			readMeshList(p_Input);
@@ -85,6 +93,11 @@ void InstanceLoader::startReading(std::istream& p_Input)
 		else if(key == "#Type:")
 		{
 			readCheckPointList(p_Input);
+			std::getline(p_Input, line);
+		}
+		else if(key == "#Effect:")
+		{
+			readEffect(p_Input);
 			std::getline(p_Input, line);
 		}
 	}
@@ -219,6 +232,23 @@ void InstanceLoader::readCheckPointList(std::istream& p_Input)
 	}
 }
 
+void InstanceLoader::readEffect(std::istream& p_Input)
+{
+	std::string key, filler, line;
+	EffectStruct tempEffect;
+	std::string tempString;
+	m_Stringstream >> tempString;
+	tempEffect.m_EffectName = tempString;
+	std::getline(p_Input, line);
+	m_Stringstream = std::stringstream(line);
+	m_Stringstream >> filler >> tempEffect.m_Translation.x >> tempEffect.m_Translation.y >> tempEffect.m_Translation.z;
+	std::getline(p_Input, line);
+	m_Stringstream = std::stringstream(line);
+	m_Stringstream >> filler >> tempEffect.m_Rotation.x >> tempEffect.m_Rotation.y >> tempEffect.m_Rotation.z;
+
+	m_EffectList.push_back(tempEffect);
+}
+
 void InstanceLoader::byteToString(std::istream& p_Input, std::string& p_Return)
 {
 	int strLength = 0;
@@ -271,6 +301,7 @@ void InstanceLoader::clearData()
 	m_ModelList.clear();
 	m_CheckPointStart = DirectX::XMFLOAT3(0, 0, 0);
 	m_CheckPointEnd = DirectX::XMFLOAT3(0, 0, 0);
+	m_EffectList.clear();
 	m_LevelCheckPointList.clear();
 	m_LevelDirectionalLightList.clear();
 	m_LevelPointLightList.clear();
@@ -310,6 +341,11 @@ const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight
 const std::vector<InstanceLoader::CheckPointStruct>& InstanceLoader::getLevelCheckPointList() const
 {
 	return m_LevelCheckPointList;
+}
+
+const std::vector<InstanceLoader::EffectStruct>& InstanceLoader::getLevelEffectList() const
+{
+	return m_EffectList;
 }
 
 DirectX::XMFLOAT3 InstanceLoader::getLevelCheckPointStart() const

@@ -54,6 +54,11 @@ private:
 	ForceMoveState m_ForceMoveState;
 	float m_FallSpeed;
 	bool m_ForceMove;
+	bool m_QueuedFalling;
+	bool m_Dzala;
+	bool m_Crash;
+	float m_CrashTimer;
+	float m_MaxCrashTime;
 
 	std::weak_ptr<ModelComponent> m_Model;
 	EventManager* m_EventManager;
@@ -67,7 +72,7 @@ private:
 	IPhysics		*m_Physics;
 	std::string		m_ClimbId;
 	IKGrabShell		m_Shell;
-
+	DirectX::XMFLOAT3 m_LookAtPoint;
 public:
 	~HumanAnimationComponent()
 	{
@@ -82,6 +87,12 @@ public:
 		m_PrevJumpState = JumpAnimationState::IDLE;
 		m_ForceMoveState = ForceMoveState::IDLE;
 		m_ForceMove = false;
+		m_QueuedFalling = false;
+		m_LookAtPoint = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		m_Dzala = true;
+		m_Crash = false;
+		m_CrashTimer = 0.0f;
+		m_MaxCrashTime = 0.5f;
 
 		const char* resourceName = p_Data->Attribute("Animation");
 		if (!resourceName)
@@ -104,6 +115,9 @@ public:
 		m_Model = m_Owner->getComponent<ModelComponent>(ModelInterface::m_ComponentId);
 		m_EventManager = m_Owner->getEventManager();
 		playAnimation( "Idle", false );
+
+		if(m_Model.lock()->getMeshName() != "Dzala")
+			m_Dzala = false;
 	}
 
 	void onUpdate(float p_DeltaTime) override
@@ -123,11 +137,23 @@ public:
 		m_Physics->setBodyVolumePosition(m_Owner->getBodyHandles()[0], 4, eye);
 
 		updateIKJoints(p_DeltaTime);
-
+		
 		std::shared_ptr<ModelComponent> comp = m_Model.lock();
 		if (comp)
 		{
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform(), m_Animation.getAnimationData(), m_Owner->getWorldMatrix())));
+		}
+
+		applyLookAtIK("Head", m_LookAtPoint, 1.0f);
+
+		if(m_Crash)
+		{
+			m_CrashTimer += p_DeltaTime;
+			if(m_CrashTimer >= m_MaxCrashTime)
+			{
+				m_Crash =  false;
+				m_CrashTimer = 0.0f;
+			}
 		}
 	}
 
@@ -222,5 +248,15 @@ public:
 		{
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform(), m_Animation.getAnimationData(), m_Owner->getWorldMatrix())));
 		}
+	}
+
+	void setLookAtPoint(const DirectX::XMFLOAT3& p_Target) override
+	{
+		m_LookAtPoint = p_Target;
+	}
+
+	bool getCrash() override
+	{
+		return m_Crash;
 	}
 };

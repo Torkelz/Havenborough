@@ -5,6 +5,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h> //For VK_* defines
 
+#include <tuple>
+#include <boost/algorithm/string.hpp>
+
 Settings::Settings(void)
 {
 	m_Resolution = Vector2(1080,720);
@@ -76,74 +79,49 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 
 		if(elementName == "KeyMap")
 		{
-			const char* value = element->Attribute("Key");
-			if(!value)
-				throw ClientException("Settings tried to load the attribute \"key\" from element: " + elementName + ".", __LINE__, __FILE__);
+			int value = -1;
+			element->QueryAttribute("Key", &value);
+			if(value < 0)
+				throw ClientException("Settings tried to load the attribute \"Key\" from element: " + elementName + ".", __LINE__, __FILE__);
 
-			std::string sValue(value);
-			unsigned short keyValue;
-
-			if (sValue.length() == 1 && sValue[0] >= 'A' && sValue[0] <= 'Z')
-			{
-				keyValue = sValue[0];
-			}
-			else
-			{
-				if(sValue == "Escape")
-					keyValue = VK_ESCAPE;
-				else if(sValue == "Space")
-					keyValue = VK_SPACE;
-				else if(sValue == "Return")
-					keyValue = VK_RETURN;
-				else if(sValue == "LShift")
-					keyValue = VK_LSHIFT;
-				else if(sValue == "RShift")
-					keyValue = VK_RSHIFT;
-				else if(sValue == "LCtrl")
-					keyValue = VK_LCONTROL;
-				else if(sValue == "RCtrl")
-					keyValue = VK_RCONTROL;
-				else
-				{
-					try
-					{
-						int val = std::stoi(sValue);
-#undef max
-						if (val < 0 || val > std::numeric_limits<unsigned short>::max())
-						{
-							throw std::out_of_range("Value is not a short");
-						}
-						keyValue = (unsigned short)val;
-					}
-					catch (std::invalid_argument* e)
-					{
-						throw ClientException("Settings tried to map \""+sValue+"\"." + std::string(e->what()), __LINE__, __FILE__);
-					}
-					catch (std::out_of_range* e)
-					{
-						throw ClientException("Settings tried to map \""+sValue+"\". The value is out of range. " + std::string(e->what()), __LINE__, __FILE__);
-					}
-				}
-			}
-
-			m_KeyMap.insert(make_pair(std::string(commandValue), keyValue));
+			m_KeyMap.insert(make_pair(std::string(commandValue), value));
 		}
 		else if(elementName == "MouseMap")
 		{
-			const char* pValue = element->Attribute("Position");
-			const char* mValue = element->Attribute("Movement");
-			if (!mValue || !pValue)
-				throw ClientException("Settings tried to load the attribute \"movement\" or \"position\" from element: " + elementName + ".", __LINE__, __FILE__);
+			const char* direction = element->Attribute("Direction");
+			if (!direction)
+				throw ClientException("Settings tried to load the attribute \"Direction\" from element: " + elementName + ".", __LINE__, __FILE__);
+
+			std::string sDir(direction);
+
+			static const std::tuple<std::string, Axis, bool> mouseDirs[] =
+			{
+				std::make_tuple("NegX", Axis::HORIZONTAL, false),
+				std::make_tuple("PosX", Axis::HORIZONTAL, true),
+				std::make_tuple("NegY", Axis::VERTICAL, false),
+				std::make_tuple("PosY", Axis::VERTICAL, true),
+			};
 
 			MouseStruct m;
-			m.movement = std::string(commandValue);
-			m.position = pValue;
-			std::string keyValue(mValue);
+			bool foundDir = false;
 
-			if(keyValue == "Vertical")
-				m.axis = Axis::VERTICAL;
-			else if(keyValue == "Horizontal")
-				m.axis = Axis::HORIZONTAL;
+			for (const auto& dir : mouseDirs)
+			{
+				if (boost::iequals(std::get<0>(dir), sDir))
+				{
+					m.axis = std::get<1>(dir);
+					m.posDir = std::get<2>(dir);
+					foundDir = true;
+					break;
+				}
+			}
+
+			if (!foundDir)
+			{
+				throw ClientException(std::string("Invalid setting for \"") + commandValue + std::string("\" in MouseMap"), __LINE__, __FILE__);
+			}
+
+			m.command = commandValue;
 
 			m_MouseMap.push_back(m);
 		}
@@ -249,6 +227,7 @@ void Settings::loadServer(const tinyxml2::XMLElement *p_Element)
 
 	unsigned int tPort = m_ServerPort;
 	p_Element->QueryAttribute("Port", &tPort);
+#undef max
 	if (tPort <= std::numeric_limits<uint16_t>::max())
 	{
 		m_ServerPort = tPort;
