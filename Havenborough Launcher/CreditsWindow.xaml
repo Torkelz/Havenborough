@@ -1,0 +1,67 @@
+﻿<controls:MetroWindow x:Class="Havenborough_Launcher.CreditsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        Title="Havenborough CreditsWindow" Height="625" Width="875" ResizeMode="NoResize">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50*" />
+            <ColumnDefinition Width="38*" />
+            <ColumnDefinition Width="12*" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <StackPanel Orientation="Vertical" Margin="10">
+                <StackPanel>
+                    <TextBlock Text="Philip Andersson" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Fredrik Cronqvist" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="André Eliasson" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Pontus Franzén" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Mattias Fridh" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Sofie Höglund" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Tim Jungvig" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Robin Karlsson" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Sebastian Larsson" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Lucas Linderoth" />
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Christian Lindås" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10*" />
+                <RowDefinition Height="80*" />
+                <RowDefinition Height="10*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <StackPanel Margin="10">
+                    <TextBlock Text="© 2014 Havenborough" TextWrapping="Wrap" TextAlignment="Center"></TextBlock>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="2">
+                <StackPanel Margin="10" VerticalAlignment="Bottom">
+                    <Button Height="35" FontSize="16" FontWeight="Bold" Click="Close_OnClick" Content="CLOSE"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</controls:MetroWindow>

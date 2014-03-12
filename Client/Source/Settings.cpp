@@ -78,57 +78,12 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 
 		if(elementName == "KeyMap")
 		{
-			const char* value = element->Attribute("Key");
-			if(!value)
-				throw ClientException("Settings tried to load the attribute \"key\" from element: " + elementName + ".", __LINE__, __FILE__);
+			int value = -1;
+			element->QueryAttribute("Key", &value);
+			if(value < 0)
+				throw ClientException("Settings tried to load the attribute \"Key\" from element: " + elementName + ".", __LINE__, __FILE__);
 
-			std::string sValue(value);
-			unsigned short keyValue;
-
-			if (sValue.length() == 1 && sValue[0] >= 'A' && sValue[0] <= 'Z')
-			{
-				keyValue = sValue[0];
-			}
-			else
-			{
-				if(sValue == "Escape")
-					keyValue = VK_ESCAPE;
-				else if(sValue == "Space")
-					keyValue = VK_SPACE;
-				else if(sValue == "Return")
-					keyValue = VK_RETURN;
-				else if(sValue == "LShift")
-					keyValue = VK_LSHIFT;
-				else if(sValue == "RShift")
-					keyValue = VK_RSHIFT;
-				else if(sValue == "LCtrl")
-					keyValue = VK_LCONTROL;
-				else if(sValue == "RCtrl")
-					keyValue = VK_RCONTROL;
-				else
-				{
-					try
-					{
-						int val = std::stoi(sValue);
-#undef max
-						if (val < 0 || val > std::numeric_limits<unsigned short>::max())
-						{
-							throw std::out_of_range("Value is not a short");
-						}
-						keyValue = (unsigned short)val;
-					}
-					catch (std::invalid_argument* e)
-					{
-						throw ClientException("Settings tried to map \""+sValue+"\"." + std::string(e->what()), __LINE__, __FILE__);
-					}
-					catch (std::out_of_range* e)
-					{
-						throw ClientException("Settings tried to map \""+sValue+"\". The value is out of range. " + std::string(e->what()), __LINE__, __FILE__);
-					}
-				}
-			}
-
-			m_KeyMap.insert(make_pair(std::string(commandValue), keyValue));
+			m_KeyMap.insert(make_pair(std::string(commandValue), value));
 		}
 		else if(elementName == "MouseMap")
 		{
@@ -271,6 +226,7 @@ void Settings::loadServer(const tinyxml2::XMLElement *p_Element)
 
 	unsigned int tPort = m_ServerPort;
 	p_Element->QueryAttribute("Port", &tPort);
+#undef max
 	if (tPort <= std::numeric_limits<uint16_t>::max())
 	{
 		m_ServerPort = tPort;

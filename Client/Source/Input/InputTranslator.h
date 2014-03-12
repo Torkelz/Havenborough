@@ -127,5 +127,7 @@ protected:
 	bool handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
 	bool handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard);
+	UINT translateKey(const RAWKEYBOARD& p_RawKeyboard, UINT* p_ScanCode) const;
+
 	bool handleMouseInput(const RAWMOUSE& p_RawMouse);
 };
