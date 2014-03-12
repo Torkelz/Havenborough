@@ -93,10 +93,6 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 				if(i == j)
 					continue;
 				
-				if(isCameraPlayerCollision(b, m_Bodies.at(j)))
-					break;
-
-
 				for(unsigned int k = 0; k < b.getVolumeListSize(); k++)
 				{
 					for(unsigned int l = 0; l < m_Bodies.at(j).getVolumeListSize(); l++)
@@ -105,6 +101,9 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 	
 						if(hit.intersect)
 						{
+							if(isCameraPlayerCollision(b, m_Bodies.at(j)))
+								break;
+
 							if(k == 0 && hit.colType == Type::HULLVSSPHERE)
 							{
 								XMFLOAT4 fBodyPos = b.getPosition();
@@ -805,11 +804,11 @@ bool Physics::isCameraPlayerCollision(Body const &p_Collider, Body const &p_Vict
 	if(p_Collider.getGravity() > 0.f && p_Victim.getGravity() > 0.f)
 		return false;
 
-	if(!p_Collider.getIsImmovable() && p_Collider.getGravity() == 0.f)
-		return false;
+	if(!p_Collider.getIsImmovable() && p_Collider.getGravity() == 0.f && !p_Victim.getIsImmovable())
+		return true;
 
 	if(!p_Victim.getIsImmovable() && p_Victim.getGravity() == 0.f)
-		return false;
+		return true;
 
-	return true;
+	return false;
 }
