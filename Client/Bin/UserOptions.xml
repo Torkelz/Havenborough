@@ -1,6 +1,6 @@
 <UserOptions>
   <Server Hostname="localhost" Port="31415" />
-  <Game Level="Havenborough Castle: Under Town" Username="Player" />
+  <Game Level="Havenborough Castle: Caverton" Username="Player" />
   <Character Name="Dzala" Style="Green" />
   <Settings>
     <SSAO Enabled="true" />
