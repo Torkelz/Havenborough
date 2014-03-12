@@ -130,4 +130,5 @@ protected:
 	UINT translateKey(const RAWKEYBOARD& p_RawKeyboard, UINT* p_ScanCode) const;
 
 	bool handleMouseInput(const RAWMOUSE& p_RawMouse);
+	bool handleHIDInput(const RAWINPUT* p_RawHID);
 };

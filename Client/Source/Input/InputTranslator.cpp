@@ -2,6 +2,48 @@
 #include "../ClientExceptions.h"
 #include <Logger.h>
 
+#include <hidsdi.h>
+
+static const struct HIDDLL {
+	HMODULE _module;
+
+#define HID_DECLARE(fname) decltype(&::fname) fname
+#define HID_DEFINE(fname) fname = reinterpret_cast<decltype(fname)>(GetProcAddress(_module, #fname))
+#define HID_PERFORM(MACRO) \
+	MACRO(HidP_GetCaps); \
+	MACRO(HidP_GetSpecificValueCaps); \
+	MACRO(HidP_GetUsageValue); \
+	MACRO(HidP_MaxUsageListLength); \
+	MACRO(HidP_GetUsagesEx); \
+	MACRO(HidD_GetPreparsedData); \
+	MACRO(HidD_FreePreparsedData); \
+	MACRO(HidP_SetUsageValue); \
+	MACRO(HidP_SetUsages); \
+	MACRO(HidP_UnsetUsages); \
+	MACRO(HidD_SetFeature); \
+	MACRO(HidD_GetFeature); \
+	MACRO(HidP_GetButtonCaps);
+
+	HID_PERFORM(HID_DECLARE);
+
+	HIDDLL() {
+		memset(this, 0, sizeof(*this));
+		_module = LoadLibraryA("hid.dll");
+		if (_module) {
+			HID_PERFORM(HID_DEFINE);
+		}
+	}
+	
+#undef HID_PERFORM
+#undef HID_DECLARE
+#undef HID_DEFINE
+	
+	~HIDDLL() {
+		if (_module)
+			FreeLibrary(_module);
+	}
+} hid;
+
 InputTranslator::InputTranslator()
 	: m_Window(nullptr), m_MouseLocked(false)
 {
@@ -16,7 +58,7 @@ void InputTranslator::init(Window* p_Window)
 		throw InvalidArgument("Window must not be null", __LINE__, __FILE__);
 	}
 
-	RAWINPUTDEVICE inputDevices[2];
+	RAWINPUTDEVICE inputDevices[3];
 
 	// Generic mouse
 	inputDevices[0].usUsagePage	= 0x01;
@@ -30,7 +72,12 @@ void InputTranslator::init(Window* p_Window)
 	inputDevices[1].dwFlags		= 0;
 	inputDevices[1].hwndTarget	= 0;
 
-	if (RegisterRawInputDevices(&inputDevices[0], 2, sizeof(inputDevices[0])) == FALSE)
+	inputDevices[2].usUsagePage = 0x01;
+	inputDevices[2].usUsage		= 0x04;
+	inputDevices[2].dwFlags		= 0;
+	inputDevices[2].hwndTarget	= 0;
+
+	if (RegisterRawInputDevices(&inputDevices[0], 3, sizeof(inputDevices[0])) == FALSE)
 	{
 		throw Win32Exception("Failed to register raw input devices", __LINE__, __FILE__);
 	}
@@ -115,19 +162,28 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 
 	RAWINPUT* rawInputData = reinterpret_cast<RAWINPUT*>(buffer.data());
 
-	if (rawInputData->header.dwType == RIM_TYPEKEYBOARD)
+	switch (rawInputData->header.dwType)
 	{
+	case RIM_TYPEKEYBOARD:
 		if (handleKeyboardInput(rawInputData->data.keyboard))
 		{
 			handled = true;
 		}
-	}
-	else if (rawInputData->header.dwType == RIM_TYPEMOUSE)
-	{
+		break;
+
+	case RIM_TYPEMOUSE:
 		if (handleMouseInput(rawInputData->data.mouse))
 		{
 			handled = true;
 		}
+		break;
+
+	case RIM_TYPEHID:
+		if (handleHIDInput(rawInputData))
+		{
+			handled = true;
+		}
+		break;
 	}
 
 	if (handled)
@@ -364,6 +420,27 @@ bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
 			m_RecordFunction(moveInRec);
 		}
 	}
+
+	return true;
+}
+
+bool InputTranslator::handleHIDInput(const RAWINPUT* p_RawHID)
+{
+	UINT bufferSize = 0;
+	GetRawInputDeviceInfoA(p_RawHID->header.hDevice,
+		RIDI_PREPARSEDDATA, nullptr, &bufferSize);
+	std::vector<char> prepBuffer(bufferSize);
+	GetRawInputDeviceInfoA(p_RawHID->header.hDevice,
+		RIDI_PREPARSEDDATA, prepBuffer.data(), &bufferSize);
+
+	PHIDP_PREPARSED_DATA preparsedData = (PHIDP_PREPARSED_DATA)prepBuffer.data();
+
+	HIDP_CAPS capabilities;
+	hid.HidP_GetCaps(preparsedData, &capabilities);
+
+	std::vector<HIDP_BUTTON_CAPS> buttonCaps(capabilities.NumberInputButtonCaps);
+	USHORT capsLength = capabilities.NumberInputButtonCaps;
+	hid.HidP_GetButtonCaps(HidP_Input, buttonCaps.data(), &capsLength, preparsedData);
 
 	return true;
 }
