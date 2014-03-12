@@ -11,6 +11,7 @@ cbuffer cb : register (b0)
 cbuffer cbPos : register (b1)
 {
 	float4x4 cWorld;
+	float4 cColor;
 };
 
 struct VS_Input
@@ -44,5 +45,5 @@ float4 PS(VS_Output input) : SV_Target
 	if(color.w == 0.f)
 		discard;
 
-	return color;
+	return saturate(color * cColor);
 }

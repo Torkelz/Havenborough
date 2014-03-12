@@ -305,7 +305,7 @@ void FileGameRound::sendUpdates()
 					}
 					printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
 						
-					printer.PushAttribute("Time",  leadTime - playerTime);
+					printer.PushAttribute("Time",  playerTime - leadTime);
 					printer.CloseElement();
 					info = printer.CStr();
 					user->getConnection()->sendRacePosition(&info, 1);

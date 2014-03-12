@@ -238,6 +238,12 @@ void GameLogic::onFrame(float p_DeltaTime)
 			temp->setPosition(m_Player.getEyePosition());
 		}
 	}
+
+	float manaCost = m_ActorFactory->getSpellFactory()->getManaCostFromSpellDefinition("TestSpell");
+	float playerMana = m_Player.getCurrentMana();
+	float playerPrevMana = m_Player.getPreviousMana();
+
+	m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData(playerMana/100, playerPrevMana/100, manaCost)));
 }
 
 void GameLogic::setPlayerDirection(Vector3 p_Direction)

@@ -105,7 +105,7 @@ void Player::update(float p_DeltaTime)
 			}
 		}
 
-		strActor->getEventManager()->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData( m_CurrentMana/100.f, m_PreviousMana/100.f)));
+		//strActor->getEventManager()->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData( m_CurrentMana/100, m_PreviousMana/100)));
 	}
 
 	if(!m_ForceMove)

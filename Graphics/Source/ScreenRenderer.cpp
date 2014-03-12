@@ -114,9 +114,9 @@ void ScreenRenderer::createBuffers(void)
 	VRAMInfo::getInstance()->updateUsage(sizeof(c2D_ObjectBuffer));
 
 	cbdesc.initData = nullptr;
-	cbdesc.sizeOfElement = sizeof(cObjectBuffer);
+	cbdesc.sizeOfElement = sizeof(cObjectBufferColor);
 	m_ObjectConstantBuffer = WrapperFactory::getInstance()->createBuffer(cbdesc);
-	VRAMInfo::getInstance()->updateUsage(sizeof(cObjectBuffer));
+	VRAMInfo::getInstance()->updateUsage(sizeof(cObjectBufferColor));
 }
 
 D3D11_SAMPLER_DESC ScreenRenderer::createSamplerDescription(void)
@@ -216,8 +216,13 @@ void ScreenRenderer::renderScreen(void)
 
 		for(auto &object : m_2D_Objects)
 		{
+			cObjectBufferColor temp;
+			temp.world = object.getWorldMatrix();
+			temp.color = object.color;
+
 			m_DeviceContext->UpdateSubresource(m_ObjectConstantBuffer->getBufferPointer(), NULL, nullptr,
-				&object.getWorldMatrix(), NULL, NULL);
+				&temp, NULL, NULL);
+
 			renderObject(object);
 		}
 

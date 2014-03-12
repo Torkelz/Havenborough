@@ -530,6 +530,13 @@ public:
 	* @param p_LookAt the position in the world
 	*/
 	virtual void set2D_ObjectLookAt(Object2D_Id p_Instance, Vector3 p_LookAt) = 0;
+
+	/**
+	* Set a color for the 2D object.
+	* @param p_Instance an identifier to an object
+	* @param p_Color new color.
+	*/
+	virtual void set2D_ObjectColor(Object2D_Id p_Instance, Vector4 p_Color) = 0;
 	
 	/**
 	* releases a 2D model
