@@ -1056,6 +1056,7 @@ void GameLogic::handleNetwork()
 			case PackageType::DONE_COUNTDOWN:
 				{
 					m_Player.setAllowedToMove(true);
+					m_Player.setStartElapsedTime(true);
 				}
 				break;
 

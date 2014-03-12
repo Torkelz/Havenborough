@@ -20,10 +20,12 @@ private:
 	float m_TimeTimerMax, m_TimeTimerStartFade, m_TimePositionFade;
 	float m_TimeTimerCurrent, m_TimePositionCurrent;
 	float m_TimeFlashFade, m_TimeFlashFadeMax;
+	Vector3 m_TimeFlashScale;
 	bool m_FadeOutFlash;
 	float m_FeedbackManabarTime, m_FeedbackManabarTimeMax;
 	bool m_FeedbackManabar, m_FeedbackCastable, m_FeedbackFade;
 	Vector3 m_ManabarScale;
+	Vector3 m_ManabarColor;
 
 	std::string m_GUIFont;
 	IGraphics *m_Graphics;
@@ -84,11 +86,14 @@ private:
 	void updateGraphicalManabar(IEventData::Ptr p_Data);
 	void updateCheckpointPosition(IEventData::Ptr p_Data);
 	void updatePlayerTime(IEventData::Ptr p_Data);
+	void updatePlayerElapsedTime(IEventData::Ptr p_Data);
 	void updatePlayerRacePosition(IEventData::Ptr p_Data);
 	void updateTakenCheckpoints(IEventData::Ptr p_Data);
 	void activateHUD(IEventData::Ptr p_Data);
 	void setNrOfCheckpoints(IEventData::Ptr p_Data);
 	void onFinish(IEventData::Ptr p_Data);
+
+	void createArrow();
 
 	void preLoadModels();
 	void releasePreLoadedModels();

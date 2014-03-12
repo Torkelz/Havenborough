@@ -30,6 +30,8 @@ Player::Player(void)
 	m_IsPreviousManaSet = false;
 	m_AllowedToMove = true;
 	m_ClimbSpeedUp = 1.0f;
+	m_ElapsedTime = 0.f;
+	m_StartElapsedTime = false;
 }
 
 Player::~Player(void)
@@ -84,6 +86,12 @@ void Player::update(float p_DeltaTime)
 	Actor::ptr strActor = m_Actor.lock();
 	if (strActor)
 	{
+		if(m_StartElapsedTime)
+		{
+			m_ElapsedTime += p_DeltaTime;
+			strActor->getEventManager()->queueEvent(IEventData::Ptr(new UpdatePlayerElapsedTimeEventData(m_ElapsedTime)));
+		}
+
 		Vector3 currentPos = strActor->getPosition();
 		const float distanceSq =
 			currentPos.x * currentPos.x +
@@ -101,8 +109,6 @@ void Player::update(float p_DeltaTime)
 				m_Physics->setBodyVelocity(comp->getBodyHandle(), Vector3(0.f, 0.f, 0.f));
 			}
 		}
-
-		//strActor->getEventManager()->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData( m_CurrentMana/100, m_PreviousMana/100)));
 	}
 
 	if(!m_ForceMove)
@@ -112,6 +118,8 @@ void Player::update(float p_DeltaTime)
 			jump(p_DeltaTime);
 			if (strActor)
 			{
+
+
 				std::shared_ptr<MovementControlInterface> comp = strActor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
 				if (comp)
 				{
@@ -725,4 +733,9 @@ void Player::jump(float dt)
 void Player::setManaRegeneration(bool p_ShouldRegenerate)
 {
 	m_ManaRegeneration = p_ShouldRegenerate;
+}
+
+void Player::setStartElapsedTime(bool p_Start)
+{
+	m_StartElapsedTime = p_Start;
 }

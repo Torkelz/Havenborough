@@ -63,8 +63,9 @@
     <Manabar x="0" y="-320" z="3" scale="0.75" />
     <Arrow x="0" y="300" z="150" scale="0.3" />
     <Countdown x="0" y="0" z="0" scale="2" />
-    <Time x="420" y="250" z="0" scale="1" />
-    <RacePos x="-450" y="320" z="1" scale="1" />
-    <Checkpoints x="418" y="318" z="3" scale="1" />
+    <Time x="530" y="240" z="0" scale="0.45" />
+	<ElapsedTime x="530" y="280" z="0" scale="0.45" />
+    <RacePos x="-560" y="320" z="1" scale="1" />
+    <Checkpoints x="535" y="318" z="3" scale="1" />
   </HUD>
 </UserOptions>

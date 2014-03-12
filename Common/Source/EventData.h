@@ -1116,6 +1116,44 @@ public:
 	}
 };
 
+class UpdatePlayerElapsedTimeEventData : public BaseEventData
+{
+private:
+	float m_ElapsedTime;
+
+public:
+	static const Type sk_EventType = Type(0x4c1c642c);
+
+	UpdatePlayerElapsedTimeEventData(float p_ElapsedTime)
+		:	m_ElapsedTime(p_ElapsedTime)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdatePlayerElapsedTimeEventData(m_ElapsedTime));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdatePlayerElapsedTimeEventData";
+	}
+
+	float getElapsedTime() const
+	{
+		return m_ElapsedTime;
+	}
+};
+
 class UpdatePlayerRaceEventData : public BaseEventData
 {
 private:
