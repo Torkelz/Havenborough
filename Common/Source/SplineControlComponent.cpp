@@ -83,6 +83,13 @@ void SplineControlComponent::postInit()
 		selectSequence(p_Sequence);
 	}));
 
+	settings->setSetting("spline.adjustspeed", 0.f);
+	settings->setListener("spline.adjustspeed", std::function<void(float)>(
+		[&] (float p_Speed)
+	{
+		adjustSpeed(p_Speed);
+	}));
+
 	reset();
 }
 
@@ -416,6 +423,21 @@ void SplineControlComponent::selectSequence(unsigned int p_Sequence)
 	{
 		std::string msg = "Valid spline values: " + std::string(" to ") + std::to_string(m_Sequences.size() - 1);
 		Logger::log(Logger::Level::INFO, msg);
+	}
+}
+
+void SplineControlComponent::adjustSpeed(float p_Speed)
+{
+	if(m_Sequences.size() > 0 && m_Sequences.at(m_SplineSequence).m_Positions.size() > 0)
+	{
+		for( auto &s : m_Sequences)
+		{
+			for( auto &t : s.m_Time )
+			{
+				if( t > 0.f)
+					t *= p_Speed;
+			}
+		}
 	}
 }
 

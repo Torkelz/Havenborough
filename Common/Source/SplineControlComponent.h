@@ -86,6 +86,7 @@ private:
 	void newSequence();
 	void currentSequence();
 	void selectSequence(unsigned int p_Sequence);
+	void adjustSpeed(float p_Speed);
 
 	Vector3 catMullRom(const std::vector<Vector3> &p_Path, unsigned int p_CurrPoint, float p_Percentage);
 

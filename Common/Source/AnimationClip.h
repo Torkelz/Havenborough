@@ -104,6 +104,7 @@ struct AnimationPath
 struct IKGrab
 {
 	std::string			m_Target;
+	float				m_Position;
 	bool				m_Active;
 	float				m_Start;
 	float				m_End;
@@ -115,6 +116,7 @@ struct IKGrab
 	IKGrab()
 	{
 		m_Target = "default";
+		m_Position = 0.0f;
 	}
 };
 
