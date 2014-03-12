@@ -121,7 +121,7 @@ public:
 	* Is the body immovable(static)?
 	* @return a bool, if the body is movable or immovable.
 	*/
-	bool getIsImmovable();
+	bool getIsImmovable() const;
 	/**
 	* Is the body a Edge(static)?
 	* @return a bool, if the body is an edge.
@@ -239,5 +239,5 @@ public:
 	DirectX::XMFLOAT4 getNetForce();
 	DirectX::XMFLOAT4 getACC();
 	DirectX::XMFLOAT4 getLastACC();
-	float getGravity();
+	float getGravity() const;
 };
