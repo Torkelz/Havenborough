@@ -143,7 +143,8 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 
 bool InputTranslator::handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard)
 {
-	USHORT keyCode = p_RawKeyboard.VKey;
+	UINT keyCode = translateKey(p_RawKeyboard, nullptr);
+
 	float value = 0.f, prevValue = -1.f;
 	if (!(p_RawKeyboard.Flags & RI_KEY_BREAK))
 	{
@@ -162,6 +163,124 @@ bool InputTranslator::handleKeyboardInput(const RAWKEYBOARD& p_RawKeyboard)
 	}
 
 	return handled;
+}
+
+// http://molecularmusings.wordpress.com/2011/09/05/properly-handling-keyboard-input/
+UINT InputTranslator::translateKey(const RAWKEYBOARD& p_RawKeyboard, UINT* p_ScanCode) const
+{
+	UINT keyCode = p_RawKeyboard.VKey;
+	UINT scanCode = p_RawKeyboard.MakeCode;
+	UINT flags = p_RawKeyboard.Flags;
+
+	if (keyCode == 255)
+	{
+		return false;
+	}
+	else if (keyCode == VK_SHIFT)
+	{
+		keyCode = MapVirtualKeyA(scanCode, MAPVK_VSC_TO_VK_EX);
+	}
+	else if (keyCode == VK_NUMLOCK)
+	{
+		scanCode = MapVirtualKeyA(keyCode, MAPVK_VK_TO_VSC) | 0x100;
+	}
+
+	const bool isE0 = (flags & RI_KEY_E0) != 0;
+	const bool isE1 = (flags & RI_KEY_E1) != 0;
+
+	if (isE1)
+	{
+		if (keyCode == VK_PAUSE)
+		{
+			scanCode = 0x45;
+		}
+		else
+		{
+			scanCode = MapVirtualKeyA(keyCode, MAPVK_VK_TO_VSC);
+		}
+	}
+
+	switch (keyCode)
+	{
+	case VK_CONTROL:
+		if (isE0)
+			keyCode = VK_RCONTROL;
+		else
+			keyCode = VK_LCONTROL;
+		break;
+
+	case VK_MENU:
+		if (isE0)
+			keyCode = VK_RMENU;
+		else
+			keyCode = VK_LMENU;
+		break;
+
+	case VK_RETURN:
+		if (isE0)
+			keyCode = VK_SEPARATOR;
+		break;
+
+	case VK_INSERT:
+		if (!isE0)
+			keyCode = VK_NUMPAD0;
+		break;
+
+	case VK_DELETE:
+		if (!isE0)
+			keyCode = VK_DECIMAL;
+		break;
+
+	case VK_HOME:
+		if (!isE0)
+			keyCode = VK_NUMPAD7;
+		break;
+
+	case VK_END:
+		if (!isE0)
+			keyCode = VK_NUMPAD1;
+		break;
+
+	case VK_PRIOR:
+		if (!isE0)
+			keyCode = VK_NUMPAD9;
+		break;
+
+	case VK_NEXT:
+		if (!isE0)
+			keyCode = VK_NUMPAD3;
+		break;
+
+	case VK_LEFT:
+		if (!isE0)
+			keyCode = VK_NUMPAD4;
+		break;
+
+	case VK_RIGHT:
+		if (!isE0)
+			keyCode = VK_NUMPAD6;
+		break;
+
+	case VK_UP:
+		if (!isE0)
+			keyCode = VK_NUMPAD8;
+		break;
+
+	case VK_DOWN:
+		if (!isE0)
+			keyCode = VK_NUMPAD2;
+		break;
+
+	case VK_CLEAR:
+		if (!isE0)
+			keyCode = VK_NUMPAD5;
+		break;
+	}
+
+	if (p_ScanCode)
+		*p_ScanCode = scanCode;
+
+	return keyCode;
 }
 
 bool InputTranslator::handleMouseInput(const RAWMOUSE& p_RawMouse)
