@@ -99,7 +99,7 @@ bool SpellInstance::isColliding() const
 void SpellInstance::explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit, BodyHandle p_CasterBody)
 {
 	float modifier = -1.f;
-	float casterEffectModifier = 1.3f;
+	float casterEffectModifier = 1.4f;
 	if(p_Hit.IDInBody == 1)
 	{
 		float forceFactor = p_Hit.colLength / m_SpellDefinition->explosionRadius;
