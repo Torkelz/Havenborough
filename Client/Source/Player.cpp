@@ -53,8 +53,8 @@ void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<
 
 void Player::update(float p_DeltaTime)
 {	
-	std::weak_ptr<AnimationInterface> bb = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
-	m_AllowedToMove = !bb.lock()->getCrash();
+	//std::weak_ptr<AnimationInterface> bb = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+	//m_AllowedToMove = !bb.lock()->getCrash();
 
 	if(m_ManaRegeneration)
 	{
