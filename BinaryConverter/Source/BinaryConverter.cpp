@@ -77,7 +77,6 @@ int main(int argc, char* argv[])
 			std::cout << outputBuffer.data() << std::endl;
 			instanceLoader.clear();
 			levelConverter.clear();
-
 			return EXIT_SUCCESS;
 		}
 		std::cout << argv[0] << " does not support files of type: " << type << std::endl
@@ -107,8 +106,6 @@ void setFileInfo(ModelLoader* p_Loader, ModelConverter* p_Converter)
 	p_Converter->setMaterial(&p_Loader->getMaterial());
 	p_Converter->setWeightsList(&p_Loader->getWeightsList());
 	p_Converter->setListOfJoints(&p_Loader->getListOfJoints());
-	//p_Converter->setAnimationStartValue(p_Loader->getAnimationStartValue());
-	//p_Converter->setAnimationEndValue(p_Loader->getAnimationEndValue());
 	p_Converter->setNumberOfFrames(p_Loader->getNumberOfFrames());
 }
 
@@ -123,4 +120,5 @@ void setLevelInfo(InstanceLoader* p_Loader, InstanceConverter* p_Converter)
 	p_Converter->setLevelCheckPointStart(p_Loader->getLevelCheckPointStart());
 	p_Converter->setLevelCheckPointEnd(p_Loader->getLevelCheckPointEnd());
 	p_Converter->setModelInformation(&p_Loader->getModelInformation());
+	p_Converter->setEffectList(&p_Loader->getLevelEffectList());
 }

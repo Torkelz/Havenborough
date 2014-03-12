@@ -56,6 +56,6 @@ BOOST_AUTO_TEST_CASE(LoadingFileThrowsCheck)
 	BOOST_CHECK_THROW(settings.initialize("../Source/TestSettingsFiles/TestUserOptionsWrongMouse.xml"), ClientException);
 	BOOST_CHECK_THROW(settings.initialize("../Source/TestSettingsFiles/TestUserOptionsWrongMouseButton.xml"), ClientException);
 	BOOST_CHECK_THROW(settings.initialize("../Source/TestSettingsFiles/TestUserOptionsWrongCommand.xml"), ClientException);
-	BOOST_CHECK_THROW(settings.initialize("../Source/TestSettingsFiles/TestUserOptionsWrongKeyBind.xml"), std::invalid_argument);
+	BOOST_CHECK_THROW(settings.initialize("../Source/TestSettingsFiles/TestUserOptionsWrongKeyBind.xml"), ClientException);
 }
 BOOST_AUTO_TEST_SUITE_END()

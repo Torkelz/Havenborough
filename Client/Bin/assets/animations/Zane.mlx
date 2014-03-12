@@ -255,7 +255,7 @@ we	1.0
 
 *Clip
 na 	SideStepLeft
-sp 	2.0
+sp 	1.0
 st 	26
 en 	41
 lo 	1
@@ -270,7 +270,7 @@ we	1.0
 
 *Clip
 na 	SideStepRight
-sp 	2.0
+sp 	1.0
 st 	43
 en 	58
 lo 	1

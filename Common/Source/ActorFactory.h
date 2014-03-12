@@ -160,5 +160,5 @@ private:
 
 	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceModel& p_Model);
 	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceBoundingVolume& p_Volume);
-	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge);
+	void print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge, Vector3 p_Scale);
 };

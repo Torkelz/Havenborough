@@ -38,12 +38,12 @@
                         <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="95"
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
                             <TextBlock FontSize="14" Text="Character" />
-                            <ComboBox Loaded="CharacterNameLoad" SelectionChanged="CharacterNameChanged" />
+                            <ComboBox Loaded="CharacterName_OnLoaded" SelectionChanged="CharacterName_OnChanged" />
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Margin="5,0,0,0" Width="95"
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
                             <TextBlock FontSize="14" Text="Style" />
-                            <ComboBox Loaded="CharacterStyleLoad" SelectionChanged="CharacterStyleChanged"/>
+                            <ComboBox Loaded="CharacterStyle_OnLoaded" SelectionChanged="CharacterStyle_OnChanged"/>
                         </StackPanel>
                     </StackPanel>
                     <StackPanel x:Name="ScreenSettings" Orientation="Vertical" HorizontalAlignment="Left" Width="200" Margin="0,0,0,25">
@@ -51,7 +51,7 @@
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/Resolution}">
                             <TextBlock FontSize="14" Text="Resolution" />
                             <StackPanel Orientation="Horizontal">
-                                <ComboBox Loaded="ScreenResolutionLoad" SelectionChanged="ScreenResolutionChanged" Width="95"/>
+                                <ComboBox Loaded="ScreenResolution_OnLoaded" SelectionChanged="ScreenResolution_OnChanged" Width="95"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0"
@@ -68,7 +68,7 @@
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/FOV}">
                             <TextBlock FontSize="14" Text="FOV"/>
                             <Slider x:Name="FovSlider"  Value="{Binding XPath=@Value, Mode=TwoWay}" Width="95" Minimum="35" Maximum="70"
-                                    HorizontalAlignment="Left" ValueChanged="SliderChanged"/>
+                                    HorizontalAlignment="Left" ValueChanged="Slider_OnChanged"/>
                             <TextBlock x:Name="FovValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
                         </StackPanel>
                     </StackPanel>
@@ -76,7 +76,7 @@
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Width="95"
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/ShadowMapResolution}">
                             <TextBlock FontSize="14" Text="Shadows" />
-                            <ComboBox Loaded="ShadowResolutionLoad" SelectionChanged="ShadowResolutionChanged"
+                            <ComboBox Loaded="ShadowResolution_OnLoaded" SelectionChanged="ShadowResolution_OnChanged"
                                       ItemTemplate="{StaticResource ShadowResTemplate}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0"
@@ -112,7 +112,7 @@
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <ListBox x:Name="GameListView" BorderThickness="1" BorderBrush="White" Height="110" Width="250"
                                      ItemsSource="{Binding Path=Games}" ItemTemplate="{StaticResource GameListTemplate}"
-                                     IsSynchronizedWithCurrentItem="True" SelectionChanged="OnSelectedGameChanged" />
+                                     IsSynchronizedWithCurrentItem="True" SelectionChanged="SelectedGame_OnChanged" />
                         </StackPanel>
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <Button x:Name="RefreshButton" Width="100" Height="50" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"
@@ -128,36 +128,42 @@
             <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical" Margin="0,0,10,5"
+                        <StackPanel Orientation="Vertical" Margin="0,0,20,0" HorizontalAlignment="Left"
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/MouseSensitivity}">
                             <TextBlock FontSize="14" Text="Mouse Sensitivty"/>
                             <Slider x:Name="MouseSenseSlider"  Width="100" Value="{Binding XPath=@Value, Mode=TwoWay}" Minimum="0.1" Maximum="1"
-                                    HorizontalAlignment="Left" ValueChanged="SliderChanged" />
+                                    HorizontalAlignment="Left" ValueChanged="Slider_OnChanged" />
                             <TextBlock x:Name="MouseSenseValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
                         </StackPanel>
-                        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="100,0,0,0">
-                            <Button x:Name="CreditsButton" Height="35" FontSize="14" FontWeight="Bold" Click="CreditsButton_OnClick"
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="CreditsButton" Height="35" FontSize="12" FontWeight="Bold" Click="CreditsButton_OnClick"
                         		HorizontalAlignment="Right"  Content="CREDITS" />
+                            <Button x:Name="InstructionsButton" Height="35" FontSize="12" FontWeight="Bold" Margin="5,0,0,0"
+                                    Click="InstructionsButton_OnClick" HorizontalAlignment="Right"  Content="INSTRUCTIONS" />
                         </StackPanel>
                     </StackPanel>
                     <Label Content="KEY BINDINGS" FontWeight="Bold" />
                     <ListBox x:Name="KeyMap"  ItemsSource="{Binding XPath=/UserOptions/Controls/KeyMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding XPath=@Key, Mode=TwoWay}" Width="50" TextAlignment="Center" />
-                                    <Label Content="{Binding XPath=@Display, Mode=TwoWay}" />
+                                <StackPanel x:Name="KeyBindPanel" Orientation="Horizontal" PreviewKeyDown="KeyBindTextBox_OnKeyDown" >
+                                    <TextBox x:Name="KeyBindTextBox" Text="{Binding XPath=@Key, Mode=OneTime}" Width="80" IsReadOnly="True"
+                                             TextAlignment="Center" Loaded="KeyBindBox_OnLoaded"
+                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp"/>
+                                    <TextBlock x:Name="KeyBindTextBlock" Text="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                     <Label Content="MOUSE KEY BINDINGS" FontWeight="Bold" />
-                    <ListBox x:Name="MousebuttonMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseButtonMap}">
+                    <ListBox x:Name="MouseButtonMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseButtonMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding XPath=@Button, Mode=TwoWay}" Width="50" TextAlignment="Center" />
-                                    <Label Content="{Binding XPath=@Display, Mode=TwoWay}" />
+                                <StackPanel x:Name="MouseButtonBindPanel" Orientation="Horizontal">
+                                    <TextBox x:Name="MouseButtonBindTextBox" Text="{Binding XPath=@Button, Mode=TwoWay}" Width="80" 
+                                             IsReadOnly="True" TextAlignment="Center" PreviewMouseDown="MouseButtonBindTextBox_OnMouseDown"
+                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp"/>
+                                    <Label x:Name="MouseButtonBindLabel"  Content="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -166,9 +172,10 @@
                     <ListBox x:Name="MouseMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding XPath=@Direction, Mode=TwoWay}" Width="50" TextAlignment="Center" />
-                                    <Label Content="{Binding XPath=@Display, Mode=OneTime}" />
+                                <StackPanel x:Name="MouseMovementPanel"  Orientation="Horizontal">
+                                    <TextBox x:Name="MouseMovementTextBox" Text="{Binding XPath=@Direction, Mode=TwoWay}" Width="50"
+                                             TextAlignment="Center" MouseRightButtonUp="Controlers_OnMouseRightButtonUp" />
+                                    <Label x:Name="MouseMovementLabel" Content="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
