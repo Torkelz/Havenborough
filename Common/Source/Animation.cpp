@@ -683,6 +683,47 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 	updateFinalTransforms();
 }
 
+XMFLOAT3 Animation::getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_LookAt, DirectX::XMFLOAT4X4 p_World)
+{
+	XMFLOAT3 returnValue;
+	XMVECTOR lookAt = XMLoadFloat3(&p_LookAt);
+
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+	const Joint* headJoint = nullptr;
+
+	for (unsigned int i = 0; i < p_Joints.size(); i++)
+	{
+		const Joint& joint = p_Joints[i];
+
+		if (joint.m_JointName == p_Joint)
+		{
+			headJoint = &joint;
+			break;
+		}
+	}
+
+	if (headJoint != nullptr)
+	{
+		XMMATRIX rotation = XMLoadFloat4x4(&m_FinalTransform[headJoint->m_ID - 1]);
+		XMFLOAT4X4 flipMatrixData(
+		-1.f, 0.f, 0.f, 0.f,
+		 0.f, 1.f, 0.f, 0.f,
+		 0.f, 0.f, 1.f, 0.f,
+		 0.f, 0.f, 0.f, 1.f);
+		XMMATRIX flipMatrix = XMLoadFloat4x4(&flipMatrixData);
+		flipMatrix = XMMatrixInverse(nullptr, flipMatrix);
+		rotation = XMMatrixMultiply(flipMatrix, rotation);
+		rotation = XMMatrixTranspose(rotation);
+		lookAt = XMVector4Transform(lookAt, rotation);
+
+		//XMMATRIX world = XMLoadFloat4x4(&p_World);
+		//lookAt = XMVector4Transform(lookAt, world);
+	}
+
+	XMStoreFloat3(&returnValue, lookAt);
+	return returnValue;
+}
+
 void Animation::setAnimationData(AnimationData::ptr p_Data)
 {
 	m_Data = p_Data;

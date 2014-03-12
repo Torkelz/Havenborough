@@ -1462,6 +1462,7 @@ public:
 
 	virtual void setLookAtPoint(const DirectX::XMFLOAT3& p_Target) = 0;
 	virtual bool getCrash() = 0;
+	virtual DirectX::XMFLOAT3 getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_LookAt) = 0;
 };
 
 class SpellInterface : public ActorComponent

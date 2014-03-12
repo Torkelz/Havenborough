@@ -259,4 +259,9 @@ public:
 	{
 		return m_Crash;
 	}
+
+	DirectX::XMFLOAT3 getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_LookAt) override
+	{
+		return m_Animation.getViewDirection(p_Joint, p_LookAt, m_Owner->getWorldMatrix());
+	}
 };

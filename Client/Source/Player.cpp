@@ -228,7 +228,9 @@ void Player::update(float p_DeltaTime)
 			std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
 			if (look)
 			{
-				look->setLookForward(Vector3(m_forward.x, m_forward.y, m_forward.z));
+				Vector3 lookDirection = bb.lock()->getViewDirection("Head", m_forward);
+				
+				look->setLookForward(m_forward);
 				look->setLookUp(Vector3(0, 1, 0));
 			}
 		}
