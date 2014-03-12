@@ -47,9 +47,11 @@ InstanceBinaryLoader::Header InstanceBinaryLoader::readHeader(std::istream& p_In
 	header.m_NumberOfModels = 0;
 	header.m_NumberOfLights = 0;
 	header.m_NumberOfCheckPoints = 0;
+	header.m_NumberOfEffects = 0;
 	byteToInt(p_Input, header.m_NumberOfModels); 
 	byteToInt(p_Input, header.m_NumberOfLights);
 	byteToInt(p_Input, header.m_NumberOfCheckPoints);
+	byteToInt(p_Input, header.m_NumberOfEffects);
 	return header;
 }
 

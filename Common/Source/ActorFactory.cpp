@@ -394,7 +394,7 @@ Actor::ptr ActorFactory::createInstanceActor(
 	}
 	for (const auto& edge : p_Edges)
 	{
-		print(printer, edge);
+		print(printer, edge, p_Model.scale);
 	}
 	printer.CloseElement();
 
@@ -619,12 +619,23 @@ void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceBounding
 	p_Printer.CloseElement();
 }
 
-void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge)
+void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge, Vector3 p_Scale)
 {
 	p_Printer.OpenElement("OBBPhysics");
 	p_Printer.PushAttribute("Immovable", true);
 	p_Printer.PushAttribute("Mass", 0.f);
 	p_Printer.PushAttribute("IsEdge", true);
+
+	using namespace DirectX;
+
+	if(p_Scale.x == p_Scale.y && p_Scale.x == p_Scale.z)
+	{
+
+	}
+	else
+	{
+
+	}
 	pushVector(p_Printer, "Halfsize", p_Edge.halfsize);
 	pushVector(p_Printer, "OffsetPosition", p_Edge.offsetPosition);
 	pushRotation(p_Printer, "OffsetRotation", p_Edge.offsetRotation);
