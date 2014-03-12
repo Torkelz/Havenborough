@@ -328,7 +328,7 @@ namespace Havenborough_Launcher
             textBox.Text = KeyInterop.KeyFromVirtualKey(virtualKey).ToString();
         }
 
-        private void KeyBindBox_OnKeyDown(object sender, KeyEventArgs e)
+        private void KeyBindTextBox_OnKeyDown(object sender, KeyEventArgs e)
         {
             e.Handled = true;
             var key = e.SystemKey != Key.None ? e.SystemKey : e.Key;
@@ -366,6 +366,20 @@ namespace Havenborough_Launcher
                 textBox.Text = key.ToString();
                 break;
             }
+        }
+
+        private void MouseButtonBindTextBox_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            if (textBox == null)
+                return;
+
+            textBox.Text = e.ChangedButton.ToString();
+        }
+
+        private void Controlers_OnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
         }
 
         private void LaunchButton_OnClick(object sender, RoutedEventArgs e)
@@ -520,19 +534,6 @@ namespace Havenborough_Launcher
                     break;
             }
                
-        }
-
-        private void MouseBindPanel_OnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var stackPanel = sender as StackPanel;
-            if (stackPanel == null)
-                return;
-            var objects = stackPanel.Children;
-            var textBox = objects[0] as TextBox;
-
-            if(textBox == null)
-                return;
-            textBox.Text = e.ChangedButton.ToString();
         }
     }
 

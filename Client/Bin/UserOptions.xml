@@ -44,7 +44,7 @@
     <MouseMap Display="Look Right" Command="lookRight" Direction="PosX" />
     <MouseMap Display="Look Up" Command="lookUp" Direction="PosY" />
     <MouseMap Display="Look Down" Command="lookDown" Direction="NegY" />
-    <MouseButtonMap Display="Cast spell" Command="spellCast" Button="Middle" />
+    <MouseButtonMap Display="Cast spell" Command="spellCast" Button="Left" />
     <MouseButtonMap Display="Climb" Command="climbEdge" Button="Right" />
   </Controls>
   <HUD>

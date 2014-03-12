@@ -146,22 +146,24 @@
                     <ListBox x:Name="KeyMap"  ItemsSource="{Binding XPath=/UserOptions/Controls/KeyMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel x:Name="KeyBindPanel" Orientation="Horizontal" PreviewKeyDown="KeyBindBox_OnKeyDown" >
-                                    <TextBox x:Name="KeyBindBox" Text="{Binding XPath=@Key, Mode=OneTime}" Width="80" IsReadOnly="True"
-                                             TextAlignment="Center" Loaded="KeyBindBox_OnLoaded"/>
-                                    <TextBlock Text="{Binding XPath=@Display, Mode=OneTime}" />
+                                <StackPanel x:Name="KeyBindPanel" Orientation="Horizontal" PreviewKeyDown="KeyBindTextBox_OnKeyDown" >
+                                    <TextBox x:Name="KeyBindTextBox" Text="{Binding XPath=@Key, Mode=OneTime}" Width="80" IsReadOnly="True"
+                                             TextAlignment="Center" Loaded="KeyBindBox_OnLoaded"
+                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp"/>
+                                    <TextBlock x:Name="KeyBindTextBlock" Text="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                     <Label Content="MOUSE KEY BINDINGS" FontWeight="Bold" />
-                    <ListBox x:Name="MousebuttonMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseButtonMap}">
+                    <ListBox x:Name="MouseButtonMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseButtonMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel x:Name="MouseBindPanel" Orientation="Horizontal" >
-                                    <TextBox x:Name="MouseBindBox" Text="{Binding XPath=@Button, Mode=TwoWay}" Width="80" IsReadOnly="False"
-                                             TextAlignment="Center" />
-                                    <Label Content="{Binding XPath=@Display, Mode=OneTime}" />
+                                <StackPanel x:Name="MouseButtonBindPanel" Orientation="Horizontal">
+                                    <TextBox x:Name="MouseButtonBindTextBox" Text="{Binding XPath=@Button, Mode=TwoWay}" Width="80" 
+                                             IsReadOnly="True" TextAlignment="Center" PreviewMouseDown="MouseButtonBindTextBox_OnMouseDown"
+                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp"/>
+                                    <Label x:Name="MouseButtonBindLabel"  Content="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -170,9 +172,10 @@
                     <ListBox x:Name="MouseMap" ItemsSource="{Binding XPath=/UserOptions/Controls/MouseMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding XPath=@Direction, Mode=TwoWay}" Width="50" TextAlignment="Center" />
-                                    <Label Content="{Binding XPath=@Display, Mode=OneTime}" />
+                                <StackPanel x:Name="MouseMovementPanel"  Orientation="Horizontal">
+                                    <TextBox x:Name="MouseMovementTextBox" Text="{Binding XPath=@Direction, Mode=TwoWay}" Width="50"
+                                             TextAlignment="Center" MouseRightButtonUp="Controlers_OnMouseRightButtonUp" />
+                                    <Label x:Name="MouseMovementLabel" Content="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
