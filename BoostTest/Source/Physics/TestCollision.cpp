@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(SphereVsSphereHit)
 	HitData hitData = Collision::boundingVolumeVsBoundingVolume(s1, s2);
 
 	BOOST_CHECK(hitData.intersect);
-	BOOST_CHECK_CLOSE_FRACTION(hitData.colLength, 10000.f, 0.001f);
+	BOOST_CHECK_CLOSE_FRACTION(hitData.colLength, 100.f, 0.001f);
 	BOOST_CHECK_SMALL(hitData.colNorm.x, 0.001f);
 	BOOST_CHECK_CLOSE_FRACTION(hitData.colNorm.y, 1.f, 0.001f);
 	BOOST_CHECK_SMALL(hitData.colNorm.z, 0.001f);
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(AABBVsSphereHitOrigin)
 	BOOST_CHECK_EQUAL(hit.colNorm.y, 0.f);
 	BOOST_CHECK_EQUAL(hit.colNorm.z, 0.f);
 
-	BOOST_CHECK_EQUAL(hit.colLength, 100.f);
+	BOOST_CHECK_EQUAL(hit.colLength, 1.f);
 
 	BOOST_CHECK_EQUAL(hit.colPos.x, 0.f);
 	BOOST_CHECK_EQUAL(hit.colPos.y, 0.f);
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(BoundingVolumeVsBoundingVolumeHit)
 	BOOST_CHECK_EQUAL(hit.colPos.y, 200.f);
 	BOOST_CHECK_EQUAL(hit.colPos.z, 0.f);
 	
-	BOOST_CHECK_EQUAL(hit.colLength, 50.f);
+	BOOST_CHECK_EQUAL(hit.colLength, 0.5f);
 }
 
 BOOST_AUTO_TEST_CASE(OBBvsOBBHit)
@@ -473,7 +473,7 @@ BOOST_AUTO_TEST_CASE(OBBCollisionVectorTest)
 
 	hd = Collision::boundingVolumeVsBoundingVolume(obb1, obb2);
 	BOOST_CHECK(hd.intersect);
-	BOOST_CHECK_CLOSE_FRACTION(hd.colLength, 500.f, 0.01f);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colLength, 5.f, 0.01f);
 	BOOST_CHECK_SMALL(hd.colNorm.x, 0.01f);
 	BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.y, -1.f, 0.01f);
 	BOOST_CHECK_SMALL(hd.colNorm.z, 0.01f);
@@ -493,7 +493,7 @@ BOOST_AUTO_TEST_CASE(OBBCollisionVectorTest)
 
 	hd = Collision::boundingVolumeVsBoundingVolume(obb1, obb2);
 	BOOST_CHECK(hd.intersect);
-	BOOST_CHECK_CLOSE_FRACTION(hd.colLength, 10.f, 0.001f);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colLength, 0.1f, 0.001f);
 	BOOST_CHECK_SMALL(hd.colNorm.x, 0.001f);
 	BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.y, 1.f, 0.001f);
 	BOOST_CHECK_SMALL(hd.colNorm.z, 0.001f);
@@ -507,7 +507,7 @@ BOOST_AUTO_TEST_CASE(OBBCollisionVectorTest)
 
 	hd = Collision::boundingVolumeVsBoundingVolume(obb1, obb2);
 	BOOST_CHECK(hd.intersect);
-	BOOST_CHECK_CLOSE_FRACTION(hd.colLength, 10.f, 0.001f);
+	BOOST_CHECK_CLOSE_FRACTION(hd.colLength, 0.1f, 0.001f);
 	BOOST_CHECK_CLOSE_FRACTION(hd.colNorm.x, 1.f, 0.001f);
 	BOOST_CHECK_SMALL(hd.colNorm.y, 0.001f);
 	BOOST_CHECK_SMALL(hd.colNorm.z, 0.001f);

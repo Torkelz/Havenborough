@@ -268,11 +268,11 @@ BOOST_AUTO_TEST_CASE(TestCreateCheckPoints)
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 16, resPoint.begin() + 20, float3TransEnd[1].c, float3TransEnd[1].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 20, resPoint.begin() + 24, float3TransEnd[2].c, float3TransEnd[2].c + sizeof(float));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 24, resPoint.begin() + 28, size , size + sizeof(int));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 28, resPoint.begin() + 32, number.c , number.c + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 32, resPoint.begin() + 36, number.c , number.c + sizeof(int));
 	float3Trans[0].f *= -1;
-	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 32, resPoint.begin() + 36, float3Trans[0].c, float3Trans[0].c + sizeof(float));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 36, resPoint.begin() + 40, float3Trans[1].c, float3Trans[1].c + sizeof(float));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 40, resPoint.begin() + 44, float3Trans[2].c, float3Trans[2].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 36, resPoint.begin() + 40, float3Trans[0].c, float3Trans[0].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 40, resPoint.begin() + 44, float3Trans[1].c, float3Trans[1].c + sizeof(float));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resPoint.begin() + 44, resPoint.begin() + 48, float3Trans[2].c, float3Trans[2].c + sizeof(float));
 	conv.clear();
 }
 

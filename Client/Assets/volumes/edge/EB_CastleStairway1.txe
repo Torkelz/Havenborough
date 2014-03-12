@@ -1,12 +1,12 @@
 *ObjectHeader*
 #numObj: 2
 
-#MESH: CastleStariway1
+#MESH: CastleStairway1
 #Translation: -2418.747314 2779.766357 5116.050293
 #Rotation: 0 0 0
 #Scale: 616.433777 10 10
 
-#MESH: CastleStariway1
+#MESH: CastleStairway1
 #Translation: -2418.747314 2779.766357 5210.243164
 #Rotation: 0 0 0
 #Scale: 616.433777 10 10

@@ -120,7 +120,7 @@ HitData Collision::sphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Spher
 		hit.colPos = hitPos * 100.f;
 		hit.colNorm = normalized;
 
-		hit.colLength = (rSum - sqrtf(c)) * 100.f;
+		hit.colLength = (rSum - sqrtf(c));
 
 		hit.colType = Type::SPHEREVSSPHERE;
 	}
@@ -237,7 +237,7 @@ HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(&spherePos) - colPos);
 
 		hit.colNorm = tempNorm;
-		hit.colLength = (p_Sphere.getRadius() - sqrtf(d)) * 100.f;
+		hit.colLength = (p_Sphere.getRadius() - sqrtf(d));
 
 		hit.colType = Type::AABBVSSPHERE;
 	}
@@ -292,7 +292,7 @@ HitData Collision::OBBvsSphere(OBB const &p_OBB, Sphere const &p_Sphere)
 		}
 			
 		
-		hit.colLength = (p_Sphere.getRadius() - sqrtf(vv.m128_f32[0])) * 100.f;
+		hit.colLength = (p_Sphere.getRadius() - sqrtf(vv.m128_f32[0]));
 		hit.colType = Type::OBBVSSPHERE;
 	}
 
@@ -370,7 +370,7 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 			n = XMVectorSetW(n, 0.f);
 			hit.colNorm = XMVector4Normalize(n);
 		}
-		hit.colLength = (p_Sphere.getRadius() - sqrtf(distance)) * 100.f;
+		hit.colLength = (p_Sphere.getRadius() - sqrtf(distance));
 		hit.colType = Type::HULLVSSPHERE;
 
 	}
@@ -556,7 +556,7 @@ HitData Collision::SATBoxVsBox(OBB const &p_OBB, BoundingVolume const &p_vol)
 	HitData hit = HitData();
 	hit.intersect = true;
 	hit.colNorm = XMVector4Normalize(least);
-	hit.colLength = overlap * 100.f;
+	hit.colLength = overlap;
 
 	if(p_vol.getType() == BoundingVolume::Type::OBB)
 		hit.colType = Type::OBBVSOBB;
@@ -775,7 +775,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		MTV = XMVector4Normalize(MTV);
 
 		hit.colNorm = MTV;
-		hit.colLength = depth * 100.f;
+		hit.colLength = depth;
 	}
 	return hit;
 

@@ -7,6 +7,7 @@
 #include "LookComponent.h"
 #include "RunControlComponent.h"
 #include "SpellComponent.h"
+#include "PlayerBodyComponent.h"
 #include "XMLHelper.h"
 
 ActorFactory::ActorFactory(unsigned int p_BaseActorId)
@@ -25,6 +26,7 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["SpherePhysics"] = std::bind(&ActorFactory::createCollisionSphereComponent, this);
 	m_ComponentCreators["MeshPhysics"] = std::bind(&ActorFactory::createBoundingMeshComponent, this);
 	m_ComponentCreators["Model"] = std::bind(&ActorFactory::createModelComponent, this);
+	m_ComponentCreators["ModelSinOffset"] = std::bind(&ActorFactory::createModelSinOffsetComponent, this);
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
 	m_ComponentCreators["CircleMovement"] = std::bind(&ActorFactory::createCircleMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
@@ -112,29 +114,42 @@ void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Half
 	p_Printer.CloseElement();
 }
 
-Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale)
+Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_Random)
 {
 	Vector3 AABBScale = p_Scale;
-	AABBScale.x *= 1.3f;
+	AABBScale.x *= 1.66f;
 	AABBScale.y *= 2.f;
-	AABBScale.z *= 1.3f;
+	AABBScale.z *= 1.66f;
 
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_Position);
+
 	printer.OpenElement("Model");
 	printer.PushAttribute("Mesh", "Checkpoint1");
 	pushVector(printer, "Scale", Vector3(0.8f, 0.8f, 0.8f));
 	pushVector(printer, "OffsetPosition", Vector3(0,200,0));
 	printer.CloseElement();
+
+	printer.OpenElement("ModelSinOffset");
+	printer.PushAttribute("Random", p_Random);
+	pushVector(printer, "Offset", Vector3(0, 50, 0));
+	printer.CloseElement();
+
+	printer.OpenElement("Movement");
+	pushVector(printer, "RotationalVelocity",Vector3(1.57f,0.f,0.f));
+	printer.CloseElement();
+
 	printer.OpenElement("AABBPhysics");
 	printer.PushAttribute("CollisionResponse", false);
 	pushVector(printer, "Halfsize", AABBScale);
 	pushVector(printer, "OffsetPosition", Vector3(0.0f, AABBScale.y, 0.0f));
 	printer.CloseElement();
+
 	printer.OpenElement("Particle");
 	printer.PushAttribute("Effect", "checkpointSwirl");
 	printer.CloseElement();
+
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;
@@ -160,7 +175,8 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.PushAttribute("RadiusAnkle", 10.f);
 	printer.PushAttribute("RadiusHead", 25.f);
 	printer.PushAttribute("Mass", 68.f);
-	pushVector(printer, "Halfsize", Vector3(25.f, 60.f, 25.f));
+	printer.PushAttribute("FallTolerance", 0.5f);
+	pushVector(printer, "HalfsizeBox", Vector3(25.f, 60.f, 25.f));
 	pushVector(printer, "OffsetPositionSphereMain", Vector3(0.f, 35.f, 0.f));
 	pushVector(printer, "OffsetPositionSphereHead", Vector3(0.f, 140.f, 0.f));
 	pushVector(printer, "OffsetPositionBox", Vector3(0.f, 110.f, 0.f));
@@ -189,7 +205,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.PushAttribute("Animation", p_CharacterName.c_str());
 	printer.CloseElement();
 	printer.OpenElement("RunControl");
-	printer.PushAttribute("MaxSpeed", 1350.f);
+	printer.PushAttribute("MaxSpeed", 1500.f);
 	printer.PushAttribute("MaxSpeedDefault", 900.f);
 	printer.PushAttribute("Acceleration", 600.f);
 	printer.CloseElement();
@@ -493,6 +509,11 @@ ActorComponent::ptr ActorFactory::createModelComponent()
 	comp->setId(++m_LastModelComponentId);
 
 	return ActorComponent::ptr(comp);
+}
+
+ActorComponent::ptr ActorFactory::createModelSinOffsetComponent()
+{
+	return ActorComponent::ptr(new ModelSinOffsetComponent);
 }
 
 ActorComponent::ptr ActorFactory::createMovementComponent()

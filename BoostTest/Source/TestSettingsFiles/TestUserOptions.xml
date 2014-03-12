@@ -41,8 +41,10 @@
 		<KeyMap Command="resetAnimation" Key="N"/>
 		<KeyMap Command="layerAnimation" Key="M"/>
 		<KeyMap Command="resetLayerAnimation" Key="V"/>
-		<MouseMap Command="mouseMoveHori" Position="mousePosHori" Movement="Horizontal"/>
-		<MouseMap Command="mouseMoveVert" Position="mousePosVert" Movement="Vertical"/>
+		<MouseMap Display="Look Left" Command="lookLeft" Direction="NegX" />
+		<MouseMap Display="Look Right" Command="lookRight" Direction="PosX" />
+		<MouseMap Display="Look Up" Command="lookUp" Direction="PosY" />
+		<MouseMap Display="Look Down" Command="lookDown" Direction="NegY" />
 		<MouseButtonMap Command="spellCast" Button="Left"/>
 		<MouseButtonMap Command="ClimbEdge" Button="Right"/>
 		<MouseButtonMap Command="gogogogo" Button="Left"/>

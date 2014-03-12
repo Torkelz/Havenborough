@@ -9,6 +9,7 @@
 #include "Utilities/Util.h"
 #include "AnimationClip.h"
 
+
 #include <IPhysics.h>
 
 /**
@@ -49,6 +50,12 @@ public:
 	 * @return velocity
 	 */
 	virtual bool hasLanded() const = 0;
+	/**
+	 * Get if the components body is on something.
+	 *
+	 * @return true if it the body is on something otherwise false.
+	 */
+	virtual bool isOnSomething() const = 0;
 };
 
 /**
@@ -218,6 +225,10 @@ public:
 	{
 		return m_Physics->getBodyLanded(m_Body);
 	}
+	bool isOnSomething() const
+	{
+		return m_Physics->getBodyOnSomething(m_Body);
+	}
 };
 
 /**
@@ -322,6 +333,10 @@ public:
 	bool hasLanded() const override
 	{
 		return m_Physics->getBodyLanded(m_Body);
+	}
+	bool isOnSomething() const
+	{
+		return m_Physics->getBodyOnSomething(m_Body);
 	}
 };
 
@@ -434,6 +449,10 @@ public:
 	{
 		return m_Physics->getBodyLanded(m_Body);
 	}
+	bool isOnSomething() const
+	{
+		return m_Physics->getBodyOnSomething(m_Body);
+	}
 };
 
 /**
@@ -541,211 +560,11 @@ public:
 	{
 		return m_Physics->getBodyLanded(m_Body);
 	}
-};
-
-/**
- * Player body component
- */
-class PlayerBodyComponent : public PhysicsInterface
-{
-private:
-	BodyHandle m_Body;
-	IPhysics* m_Physics;
-	float m_RadiusMain;
-	float m_RadiusAnkle;
-	float m_RadiusHead;
-	float m_Mass;
-	Vector3 m_OffsetPositionSphereMain;
-	Vector3 m_OffsetPositionSphereHead;
-	Vector3 m_OffsetPositionBox;
-	Vector3 m_OffsetRotation;
-	Vector3 m_Halfsize;
-	Vector3 m_Scale;
-
-public:
-	~PlayerBodyComponent() override
+	bool isOnSomething() const
 	{
-		m_Physics->releaseBody(m_Body);
-	}
-	
-	/**
-	 * Set the physics to use for the component.
-	 *
-	 * @param p_Physics the physics library to use
-	 */
-	void setPhysics(IPhysics* p_Physics)
-	{
-		m_Physics = p_Physics;
-	}
-
-	/**
-	 * Set the physics to use for the component.
-	 *
-	 * @param p_Physics the physics library to use
-	 */
-	void initialize(const tinyxml2::XMLElement* p_Data) override
-	{
-		m_RadiusMain = 1.f;
-		p_Data->QueryFloatAttribute("RadiusMain", &m_RadiusMain);
-		m_RadiusAnkle = 1.f;
-		p_Data->QueryFloatAttribute("RadiusAnkle", &m_RadiusAnkle);
-		m_RadiusHead = 1.f;
-		p_Data->QueryFloatAttribute("RadiusHead", &m_RadiusHead);
-		m_Mass = 1.f;
-		p_Data->QueryFloatAttribute("Mass", &m_Mass);
-
-		m_Scale = Vector3(1.f, 1.f, 1.f);
-		const tinyxml2::XMLElement* scale = p_Data->FirstChildElement("Scale");
-		if (scale)
-		{
-			m_Scale.x = scale->FloatAttribute("x");
-			m_Scale.y = scale->FloatAttribute("y");
-			m_Scale.z = scale->FloatAttribute("z");
-		}
-
-		m_Halfsize = Vector3(1.f, 1.f, 1.f);
-		const tinyxml2::XMLElement* size = p_Data->FirstChildElement("Halfsize");
-		if (size)
-		{
-			m_Halfsize.x = size->FloatAttribute("x");
-			m_Halfsize.y = size->FloatAttribute("y");
-			m_Halfsize.z = size->FloatAttribute("z");
-		}
-
-		m_OffsetPositionSphereHead = Vector3(0.f, 0.f, 0.f);
-		const tinyxml2::XMLElement* relPosSphereHead = p_Data->FirstChildElement("OffsetPositionSphereHead");
-		if (relPosSphereHead)
-		{
-			relPosSphereHead->QueryAttribute("x", &m_OffsetPositionSphereHead.x);
-			relPosSphereHead->QueryAttribute("y", &m_OffsetPositionSphereHead.y);
-			relPosSphereHead->QueryAttribute("z", &m_OffsetPositionSphereHead.z);
-		}
-
-		m_OffsetPositionSphereMain = Vector3(0.f, 0.f, 0.f);
-		const tinyxml2::XMLElement* relPosSphereMain = p_Data->FirstChildElement("OffsetPositionSphereMain");
-		if (relPosSphereMain)
-		{
-			relPosSphereMain->QueryAttribute("x", &m_OffsetPositionSphereMain.x);
-			relPosSphereMain->QueryAttribute("y", &m_OffsetPositionSphereMain.y);
-			relPosSphereMain->QueryAttribute("z", &m_OffsetPositionSphereMain.z);
-		}
-
-		m_OffsetPositionBox = Vector3(0.f, 0.f, 0.f);
-		const tinyxml2::XMLElement* relPosBox = p_Data->FirstChildElement("OffsetPositionBox");
-		if (relPosBox)
-		{
-			relPosBox->QueryAttribute("x", &m_OffsetPositionBox.x);
-			relPosBox->QueryAttribute("y", &m_OffsetPositionBox.y);
-			relPosBox->QueryAttribute("z", &m_OffsetPositionBox.z);
-		}
-
-		m_OffsetRotation = Vector3(0.f, 0.f, 0.f);
-		const tinyxml2::XMLElement* relRot = p_Data->FirstChildElement("OffsetRotation");
-		if(relRot)
-		{
-			queryRotation(relRot, m_OffsetRotation);
-		}
-
-
-	}
-
-	void postInit() override
-	{
-		m_Body = m_Physics->createSphere(m_Mass, false, m_Owner->getPosition() + m_OffsetPositionSphereMain, m_RadiusMain);
-		
-		using namespace DirectX;
-		XMFLOAT4X4 rotMat = m_Owner->getWorldMatrix();
-		XMMATRIX mRotMat = XMMatrixTranspose(XMLoadFloat4x4(&rotMat));
-		XMVECTOR pos = XMLoadFloat3(&XMFLOAT3(m_OffsetPositionBox));
-		pos = XMVectorSetW(pos, 1.f);
-		XMVECTOR rotPos = XMVector4Transform(pos, mRotMat);
-		XMFLOAT3 fRotPos;
-		XMStoreFloat3(&fRotPos, rotPos);
-		
-		m_Physics->addOBBToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionBox, m_Halfsize);
-
-		Vector3 ownerRot = m_Owner->getRotation();
-		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
-		XMMATRIX compRotation = XMMatrixRotationRollPitchYaw(m_OffsetRotation.y, m_OffsetRotation.x, m_OffsetRotation.z);
-		XMMATRIX multRotation = compRotation * ownerRotation;
-		XMFLOAT4X4 fMultRotation;
-		XMStoreFloat4x4(&fMultRotation, multRotation);
-		m_Physics->setBodyRotationMatrix(m_Body, fMultRotation);
-
-		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereMain, m_RadiusAnkle);
-		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereMain, m_RadiusAnkle);
-
-		m_Physics->setBodyVolumeCollisionResponse(m_Body, 2, false);
-		m_Physics->setBodyVolumeCollisionResponse(m_Body, 3, false);
-
-		m_Physics->addSphereToBody(m_Body, m_Owner->getPosition() + m_OffsetPositionSphereHead, m_RadiusHead);
-
-		m_Physics->setBodyRotation(m_Body, m_Owner->getRotation());
-		m_Physics->setBodyScale(m_Body, m_Scale);
-	}
-
-	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
-	{
-		p_Printer.OpenElement("PlayerPhysics");
-		p_Printer.PushAttribute("RadiusMain", m_RadiusMain);
-		p_Printer.PushAttribute("RadiusAnkle", m_RadiusAnkle);
-		p_Printer.PushAttribute("RadiusHead", m_RadiusHead);
-		p_Printer.PushAttribute("Mass", m_Mass);
-		pushVector(p_Printer, "Scale", m_Scale);
-		pushVector(p_Printer, "Halfsize", m_Halfsize);
-		pushVector(p_Printer, "OffsetPositionSphereMain", m_OffsetPositionSphereMain);
-		pushVector(p_Printer, "OffsetPositionSphereHead", m_OffsetPositionSphereHead);
-		pushVector(p_Printer, "OffsetPositionBox", m_OffsetPositionBox);
-		pushVector(p_Printer, "OffsetRotation", m_OffsetRotation);
-		p_Printer.CloseElement();
-	}
-
-	void onUpdate(float p_DeltaTime) override
-	{
-		m_Owner->setPosition(m_Physics->getBodyPosition(m_Body) - m_OffsetPositionSphereMain);
-		Vector3 rotation = m_Owner->getRotation();
-		m_Physics->setBodyRotation(m_Body, rotation);
-
-
-	}
-
-	void setPosition(Vector3 p_Position) override
-	{
-		m_Physics->setBodyPosition(m_Body, p_Position + m_OffsetPositionSphereMain);
-	}
-
-	void setRotation(Vector3 p_Rotation) override
-	{
-		using namespace DirectX;
-		Vector3 ownerRot = p_Rotation;
-		XMMATRIX ownerRotation = XMMatrixRotationRollPitchYaw(ownerRot.y, ownerRot.x, ownerRot.z);
-		XMMATRIX compRotation = XMMatrixRotationRollPitchYaw(m_OffsetRotation.y, m_OffsetRotation.x, m_OffsetRotation.z);
-		XMMATRIX multRotation = compRotation * ownerRotation;
-		XMFLOAT4X4 fMultRotation;
-		XMStoreFloat4x4(&fMultRotation, multRotation);
-		m_Physics->setBodyRotationMatrix(m_Body, fMultRotation);
-	}
-
-	BodyHandle getBodyHandle() const override
-	{
-		return m_Body;
-	}
-
-	Vector3 getVelocity() const override
-	{
-		return m_Physics->getBodyVelocity(m_Body);
-	}
-
-	bool isInAir() const override
-	{
-		return m_Physics->getBodyInAir(m_Body);
-	}
-	bool hasLanded() const override
-	{
-		return m_Physics->getBodyLanded(m_Body);
+		return m_Physics->getBodyOnSomething(m_Body);
 	}
 };
-
 
 /**
  * Interface for model components.
@@ -777,6 +596,10 @@ public:
 	 * @param p_ColorTone the color in RGB range 0.0f to 1.0f
 	 */
 	virtual void setColorTone(const Vector3 p_ColorTone) = 0;
+
+	virtual void setOffset(const Vector3 p_Offset) = 0;
+
+	virtual Vector3 getOffset() = 0;
 };
 
 /**
@@ -873,6 +696,18 @@ public:
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(m_Id, p_Position + m_Offset)));
 	}
 
+	void setOffset(const Vector3 p_Offset) override
+	{
+		Vector3 position = m_Owner->getPosition();
+		m_Offset = p_Offset;
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelPositionEventData(m_Id, position + m_Offset)));
+	}
+
+	Vector3 getOffset() override
+	{
+		return m_Offset;
+	}
+
 	void setRotation(Vector3 p_Rotation) override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateModelRotationEventData(m_Id, p_Rotation)));
@@ -932,6 +767,11 @@ public:
 	void setId(ModelCompId p_Id)
 	{
 		m_Id = p_Id;
+	}
+
+	const std::string& getMeshName() const
+	{
+		return m_MeshName;
 	}
 
 private:
@@ -1619,6 +1459,8 @@ public:
 	virtual void setPhysics(IPhysics *p_Physics) = 0;
 
 	virtual void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Target, float p_MaxAngle) = 0;
+
+	virtual void setLookAtPoint(const DirectX::XMFLOAT3& p_Target) = 0;
 };
 
 class SpellInterface : public ActorComponent
@@ -1789,5 +1631,71 @@ public:
 	unsigned int getId()
 	{
 		return m_ComponentId;
+	}
+};
+
+class OffsetCalculationInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 12; /// Unique id
+	Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+};
+
+class ModelSinOffsetComponent : public OffsetCalculationInterface
+{
+private:
+	Vector3 m_Position;
+	Vector3 m_Offset;
+	float m_Random;
+	float m_Time;
+	std::weak_ptr<ModelInterface> m_Model;
+public:
+
+	~ModelSinOffsetComponent() override
+	{
+
+	}
+
+	void initialize(const tinyxml2::XMLElement* p_Data) override
+	{
+		m_Time = 0;
+		m_Random = 0;
+		m_Offset = Vector3(0,0,0);
+		p_Data->QueryAttribute("Random", &m_Random);
+		queryVector(p_Data->FirstChildElement("Offset"), m_Offset);
+	}
+	
+	void postInit() override
+	{
+		m_Model = m_Owner->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
+		if(!m_Model.lock())
+		{
+			return;
+		}
+		m_Position = m_Model.lock()->getOffset();
+	}
+
+	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
+	{
+		p_Printer.OpenElement("ModelSinOffset");
+		p_Printer.PushAttribute("Random", m_Random);
+		pushVector(p_Printer, "Offset", m_Offset);
+		p_Printer.CloseElement();
+	}
+
+	void onUpdate(float p_DeltaTime) override
+	{
+		m_Time += p_DeltaTime;
+
+		float sinus = std::sin(m_Time+m_Random);
+		Vector3 result = m_Position + m_Offset * sinus;
+		if(!m_Model.lock())
+		{
+			return;
+		}
+		m_Model.lock()->setOffset(result);
 	}
 };

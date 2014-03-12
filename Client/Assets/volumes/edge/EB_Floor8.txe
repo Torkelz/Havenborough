@@ -1,0 +1,19 @@
+*ObjectHeader*
+#numObj: 3
+
+#MESH: Floor8
+#Translation: -150 2.36352 -600
+#Rotation: 0 0 0
+#Scale: 299.107483 10 10
+
+#MESH: Floor8
+#Translation: -150 2.36352 600
+#Rotation: 0 0 0
+#Scale: 299.107483 10 10
+
+#MESH: Floor8
+#Translation: 600 2.36352 -151.938629
+#Rotation: 1.570796 0 0
+#Scale: 299.107483 10 10
+
+
