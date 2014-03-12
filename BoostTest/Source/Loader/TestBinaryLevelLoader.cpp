@@ -166,6 +166,7 @@ BOOST_AUTO_TEST_CASE(TestReadLevelCheckPoint)
 		"\0\0pA\0\0?D\0\0\0?"
 		"\0\0\0D\0\0\0D\0\0\0D"
 		"\x01\0\0\0"
+		"\x01\0\0\0"
 		"\x05\0\0\0"
 		"\0\0\0D\0\0\0D\0\0\0D";
 
@@ -173,17 +174,17 @@ BOOST_AUTO_TEST_CASE(TestReadLevelCheckPoint)
 	std::istringstream tempString(std::string(binData, binData + sizeof(binData)));
 	loader.testLevelCheckPointList(tempString);
 
-	std::vector<InstanceBinaryLoader::CheckPointStruct> checkPoints;
+	std::vector<std::vector<InstanceBinaryLoader::CheckPointStruct>> checkPoints;
 	checkPoints.resize(1);
 	DirectX::XMFLOAT3 start, end;
 	checkPoints = loader.getCheckPointData();
 	start = loader.getCheckPointStart();
 	end = loader.getCheckPointEnd();
 
-	BOOST_CHECK_EQUAL(checkPoints.at(0).m_Number, 5);
-	BOOST_CHECK_EQUAL(checkPoints.at(0).m_Translation.x, 512.0f);
-	BOOST_CHECK_EQUAL(checkPoints.at(0).m_Translation.y, 512.0f);
-	BOOST_CHECK_EQUAL(checkPoints.at(0).m_Translation.z, 512.0f);
+	BOOST_CHECK_EQUAL(checkPoints.at(0).at(0).m_Number, 5);
+	BOOST_CHECK_EQUAL(checkPoints.at(0).at(0).m_Translation.x, 512.0f);
+	BOOST_CHECK_EQUAL(checkPoints.at(0).at(0).m_Translation.y, 512.0f);
+	BOOST_CHECK_EQUAL(checkPoints.at(0).at(0).m_Translation.z, 512.0f);
 	BOOST_CHECK_EQUAL(start.x, 15.0f);
 	BOOST_CHECK_EQUAL(start.y, 764.0f);
 	BOOST_CHECK_EQUAL(start.z, 0.5f);

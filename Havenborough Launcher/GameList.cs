@@ -76,6 +76,7 @@ namespace Havenborough_Launcher
 
         public void Refresh(string host, int port)
         {
+            Games.Clear();
             Task.Run(() =>
             {
                 byte[] data = null;

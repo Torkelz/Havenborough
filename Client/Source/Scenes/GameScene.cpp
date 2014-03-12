@@ -133,6 +133,11 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	}
 	m_GameLogic->setPlayerDirection(Vector3(forward, up, right));
 
+	float vert = state.getValue("turnUp") - state.getValue("turnDown");
+	float hori = state.getValue("turnRight") - state.getValue("turnLeft");
+	const float turnSize = p_DeltaTime * 600.f * m_ViewSensitivity;
+	m_GameLogic->movePlayerView(hori * turnSize, -vert * turnSize);
+
 	m_Graphics->updateParticles(p_DeltaTime);
 
 	m_SoundManager->onFrame();
@@ -355,13 +360,21 @@ void GameScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 	{
 		m_GameLogic->setPlayerClimb(p_Value > 0.5f);
 	}
-	else if (p_Action == "mouseMoveHori")
+	else if (p_Action == "lookRight")
 	{
 		m_GameLogic->movePlayerView(p_Value * m_ViewSensitivity, 0.f);
 	}
-	else if (p_Action == "mouseMoveVert")
+	else if (p_Action == "lookLeft")
+	{
+		m_GameLogic->movePlayerView(-p_Value * m_ViewSensitivity, 0.f);
+	}
+	else if (p_Action == "lookUp")
 	{
 		m_GameLogic->movePlayerView(0.f, -p_Value * m_ViewSensitivity);
+	}
+	else if (p_Action == "lookDown")
+	{
+		m_GameLogic->movePlayerView(0.f, p_Value * m_ViewSensitivity);
 	}
 }
 
@@ -528,8 +541,8 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 
 				for (unsigned int i = 0; i < animation.size(); ++i)
 				{
-					if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 || i == 4 || i == 3 )
-					{
+					//if( i == 31 || i == 30 || i == 29 || i == 6 || i == 7 || i == 8 || i == 4 || i == 3 )
+					//{
 						XMMATRIX toBind = XMLoadFloat4x4(&poseData->joints[i].m_TotalJointOffset);
 						XMMATRIX toObject = XMLoadFloat4x4(&animation[i]);
 						XMMATRIX toWorld = XMLoadFloat4x4(&animationData->getWorld());
@@ -538,7 +551,7 @@ void GameScene::updateAnimation(IEventData::Ptr p_Data)
 						XMStoreFloat4x4(&fTransform, objectTransform);
 
 						m_Graphics->renderJoint(fTransform);
-					}
+					//}
 				}
 			}
 		}

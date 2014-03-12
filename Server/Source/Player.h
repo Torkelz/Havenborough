@@ -19,7 +19,6 @@ private:
 	User::wPtr m_User;
 	Actor::wPtr m_Actor;
 	CheckpointSystem m_CheckpointSystem;
-
 	unsigned int m_NrOfCheckpointsTaken;
 	std::vector<float> m_ClockTime;
 

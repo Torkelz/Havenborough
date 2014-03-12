@@ -162,7 +162,7 @@ public:
 			{
 				if(m_Physics->getHitDataAt(i).collisionVictim == m_Body)
 				{
-					m_SpellInstance->spellHit(p_DeltaTime, m_Physics, m_Physics->getHitDataAt(i));
+					m_SpellInstance->spellHit(p_DeltaTime, m_Physics, m_Physics->getHitDataAt(i), m_Caster.lock()->getBodyHandles()[0]);
 				}
 			}
 		}

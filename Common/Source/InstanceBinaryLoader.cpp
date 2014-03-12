@@ -112,14 +112,27 @@ void InstanceBinaryLoader::readLevelLighting(std::istream& p_Input)
 
 void InstanceBinaryLoader::readLevelCheckPoint(std::istream& p_Input)
 {
+	std::vector<InstanceBinaryLoader::CheckPointStruct> loader;
 	DirectX::XMFLOAT3 *tempStart = &m_LevelCheckPointStart,*tempEnd = &m_LevelCheckPointEnd;
 	p_Input.read(reinterpret_cast<char*>(tempStart), sizeof(DirectX::XMFLOAT3));
 	p_Input.read(reinterpret_cast<char*>(tempEnd), sizeof(DirectX::XMFLOAT3));
 	int size;
 	byteToInt(p_Input, size);
-	m_LevelCheckPointList.resize(size);
 	if(size != 0)
-		p_Input.read(reinterpret_cast<char*>(m_LevelCheckPointList.data()), sizeof(CheckPointStruct) * size);
+	{
+		for(int i = 0; i < size; i++)
+		{
+			int innerSize;
+			byteToInt(p_Input, innerSize);
+			loader.resize(innerSize);
+			if(innerSize != 0)
+			{
+				p_Input.read(reinterpret_cast<char*>(loader.data()),sizeof(CheckPointStruct) * innerSize);
+				m_LevelCheckPointList.push_back(loader);
+			}
+			loader.clear();
+		}
+	}
 }
 
 const std::vector<InstanceBinaryLoader::ModelData>& InstanceBinaryLoader::getModelData() const
@@ -152,7 +165,7 @@ DirectX::XMFLOAT3 InstanceBinaryLoader::getCheckPointEnd() const
 	return m_LevelCheckPointEnd;
 }
 
-const std::vector<InstanceBinaryLoader::CheckPointStruct>& InstanceBinaryLoader::getCheckPointData() const
+const std::vector<std::vector<InstanceBinaryLoader::CheckPointStruct>>& InstanceBinaryLoader::getCheckPointData() const
 {
 	return m_LevelCheckPointList;
 }
