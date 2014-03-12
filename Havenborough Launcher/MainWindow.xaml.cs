@@ -485,6 +485,8 @@ namespace Havenborough_Launcher
         private void KeyBindBox_OnKeyDown(object sender, KeyEventArgs e)
         {
             e.Handled = true;
+            Key key = e.SystemKey != Key.None ? e.SystemKey : e.Key;
+
             var stackPanel = sender as StackPanel;
             if (stackPanel == null)
                 return;
@@ -515,8 +517,8 @@ namespace Havenborough_Launcher
                 string text2 = label.Text;
                 if (elem.GetAttribute("Display") == label.Text)
                 {
-                    elem.SetAttribute("Key", (KeyInterop.VirtualKeyFromKey(e.Key)).ToString(CultureInfo.InvariantCulture));
-                    textBox.Text = e.Key.ToString();
+                    elem.SetAttribute("Key", (KeyInterop.VirtualKeyFromKey(key)).ToString(CultureInfo.InvariantCulture));
+                    textBox.Text = key.ToString();
                     break;
                 }
             }
