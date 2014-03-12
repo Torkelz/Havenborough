@@ -93,7 +93,13 @@ private:
 	void setNrOfCheckpoints(IEventData::Ptr p_Data);
 	void onFinish(IEventData::Ptr p_Data);
 
-	void createArrow();
+	void createArrowElement();
+	void createManabarElement();
+	void createCountdownElement();
+	void createTimeElement();
+	void createRacePositionElement();
+	void createCheckpointElement();
+	void createDebugElement();
 
 	void preLoadModels();
 	void releasePreLoadedModels();
