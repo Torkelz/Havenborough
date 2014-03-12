@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Net.Mime;
-using System.Security.Principal;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -474,31 +471,29 @@ namespace Havenborough_Launcher
                
         }
 
-        private void FrameworkElement_OnLoaded(object sender, RoutedEventArgs e)
+        private void KeyBindBox_OnLoaded(object sender, RoutedEventArgs e)
         {
             var textBox = sender as TextBox;
             if (textBox == null)
                 return;
-            int test;
-            int.TryParse(textBox.Text, out test);
 
-            var backtest = KeyInterop.KeyFromVirtualKey(test);
-            textBox.Text = backtest.ToString();
+            int virtualKey;
+            int.TryParse(textBox.Text, out virtualKey);
+            textBox.Text = KeyInterop.KeyFromVirtualKey(virtualKey).ToString();
         }
-
 
         private void KeyBindBox_OnKeyDown(object sender, KeyEventArgs e)
         {
             e.Handled = true;
-            Key key = e.SystemKey != Key.None ? e.SystemKey : e.Key;
+            var key = e.SystemKey != Key.None ? e.SystemKey : e.Key;
 
             var stackPanel = sender as StackPanel;
             if (stackPanel == null)
                 return;
             var objects = stackPanel.Children;
             var textBox = objects[0] as TextBox;
-            var label = objects[1] as TextBlock;
-            if (textBox == null || label == null)
+            var textBlock = objects[1] as TextBlock;
+            if (textBox == null || textBlock == null)
                 return;
             
             var dataProvider = (Resources["DataProvider"] as XmlDataProvider);
@@ -511,21 +506,19 @@ namespace Havenborough_Launcher
             if (controlsElement == null)
                 return;
             
-            for (XmlNode keyMapElement = controlsElement["KeyMap"]; keyMapElement != null;
-                keyMapElement = keyMapElement.NextSibling)
+            for (XmlNode xmlNode = controlsElement["KeyMap"]; xmlNode != null;
+                xmlNode = xmlNode.NextSibling)
             {
-                var elem = keyMapElement as XmlElement;
-                if (elem == null)
+                var keyMapElement = xmlNode as XmlElement;
+                if (keyMapElement == null)
                     continue;
 
-                string text1 = elem.GetAttribute("Display");
-                string text2 = label.Text;
-                if (elem.GetAttribute("Display") == label.Text)
-                {
-                    elem.SetAttribute("Key", (KeyInterop.VirtualKeyFromKey(key)).ToString(CultureInfo.InvariantCulture));
-                    textBox.Text = key.ToString();
-                    break;
-                }
+                if (keyMapElement.GetAttribute("Display") != textBlock.Text)
+                    continue;
+
+                keyMapElement.SetAttribute("Key", (KeyInterop.VirtualKeyFromKey(key)).ToString(CultureInfo.InvariantCulture));
+                textBox.Text = key.ToString();
+                break;
             }
         }
     }
