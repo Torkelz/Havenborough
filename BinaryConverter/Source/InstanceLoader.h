@@ -14,6 +14,7 @@ public:
 		int m_NumberOfModels;
 		int m_NumberOfLights;
 		int m_NumberOfCheckPoints;
+		int m_NumberOfEffects;
 	};
 	struct ModelHeader
 	{
@@ -56,10 +57,17 @@ public:
 		int m_Number;
 		DirectX::XMFLOAT3 m_Translation;
 	};
+	struct EffectStruct
+	{
+		std::string m_EffectName;
+		DirectX::XMFLOAT3 m_Translation;
+		DirectX::XMFLOAT3 m_Rotation;
+	};
 private:
 	DirectX::XMFLOAT3 m_CheckPointStart;
 	DirectX::XMFLOAT3 m_CheckPointEnd;
 	std::vector<CheckPointStruct> m_LevelCheckPointList;
+	std::vector<EffectStruct> m_EffectList;
 	std::vector<ModelStruct> m_ModelList;
 	std::vector<std::pair<LightData,DirectionalLight>> m_LevelDirectionalLightList;
 	std::vector<std::pair<LightData,PointLight>> m_LevelPointLightList;
@@ -154,6 +162,13 @@ public:
 	 */
 	const std::vector<ModelHeader>& getModelInformation() const;
 
+	/**
+	 * Returns a vector with information about the levels effects.
+	 *
+	 * @return EffectStruct list.
+	 */
+	const std::vector<InstanceLoader::EffectStruct>& InstanceLoader::getLevelEffectList() const;
+
 protected:
 	void byteToInt(std::istream& p_Input, int& p_Return);
 	void byteToString(std::istream& p_Input, std::string& p_Return);
@@ -165,6 +180,7 @@ protected:
 	void readMeshList(std::istream& p_Input);
 	void readLightList(std::istream& p_Input);
 	void readCheckPointList(std::istream& p_Input);
+	void InstanceLoader::readEffect(std::istream& p_Input);
 
 private:
 	void clearData();

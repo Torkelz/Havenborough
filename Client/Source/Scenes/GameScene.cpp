@@ -152,8 +152,8 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 				m_SoundManager->loadSoundWithoutLoop("CurrentSound", m_SoundPath.c_str());
 				m_SoundExist = true;
 				m_SoundManager->playSound("CurrentSound");
+				m_SoundManager->setSoundVolume("CurrentSound", 0.2f);
 			}
-
 		}
 	}	
 }
