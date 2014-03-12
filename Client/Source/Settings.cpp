@@ -1,5 +1,6 @@
 #include "Settings.h"
 #include "ClientExceptions.h"
+#include <XMLHelper.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h> //For VK_* defines
@@ -242,20 +243,14 @@ void Settings::loadHUD(tinyxml2::XMLElement *p_Element)
 		if(m_HUDSettings.count(elementName) > 0)
 				throw ClientException("Settings tried to load an already loaded element: " + elementName + ".", __LINE__, __FILE__);
 
-		tinyxml2::XMLError res;
 		HUDSettings hudSett;
-		res = element->QueryFloatAttribute("x", &hudSett.position.x);
-		if(res == tinyxml2::XML_SUCCESS)
-			res = element->QueryFloatAttribute("y", &hudSett.position.y);
-		if(res == tinyxml2::XML_SUCCESS)
-			res = element->QueryFloatAttribute("z", &hudSett.position.z);
+		hudSett.color = Vector4(1.f, 1.f, 1.f, 1.f);
+		hudSett.position = Vector3(0.f, 0.f, 0.f);
+		hudSett.scale = 1.f;
 
-		if(res != tinyxml2::XML_SUCCESS)
-				throw ClientException("Settings tried to load the position from element: " + elementName + ".", __LINE__, __FILE__);
-
-		res = element->QueryFloatAttribute("scale", &hudSett.scale);
-		if(res != tinyxml2::XML_SUCCESS)
-				throw ClientException("Settings tried to load the scale from element: " + elementName + ".", __LINE__, __FILE__);
+		queryColor(element->FirstChildElement("Color"), hudSett.color);
+		queryVector(element->FirstChildElement("Position"), hudSett.position);
+		element->QueryFloatAttribute("scale", &hudSett.scale);
 		
 		m_HUDSettings.insert(std::pair<std::string, HUDSettings>(elementName, hudSett));
 	}
