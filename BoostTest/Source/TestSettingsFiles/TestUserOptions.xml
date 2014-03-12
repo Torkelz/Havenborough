@@ -7,7 +7,7 @@
     <ShadowMap Enabled="true" />
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
-    <Resolution Width="1280" Height="720" />
+	<Resolution Width="1380" Height="725"/>
     <ShadowMapResolution Value="2048" />
     <FOV Value="60" />
     <MouseSensitivity Value="0.5" />

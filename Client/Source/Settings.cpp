@@ -81,7 +81,7 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 			int value = -1;
 			element->QueryAttribute("Key", &value);
 			if(value < 0)
-				throw ClientException("Settings tried to load the attribute \"key\" from element: " + elementName + ".", __LINE__, __FILE__);
+				throw ClientException("Settings tried to load the attribute \"Key\" from element: " + elementName + ".", __LINE__, __FILE__);
 
 			m_KeyMap.insert(make_pair(std::string(commandValue), value));
 		}
