@@ -126,10 +126,8 @@ void HumanAnimationComponent::updateAnimation()
 				{
 				case JumpAnimationState::HARD_LANDING:
 						playAnimation("HardLanding", false);
-						if (XMVectorGetZ(velocity) > runLimit)
-							queueAnimation("Run");
-						else
-							queueAnimation("Idle2");
+						queueAnimation("Idle2");
+						m_Crash = true;
 						break;
 				case JumpAnimationState::LIGHT_LANDING:
 					playAnimation("BodyLand", false);
@@ -225,11 +223,9 @@ void HumanAnimationComponent::updateAnimation()
 					//playAnimation(temp, "Flying", false);
 					break;
 				case JumpAnimationState::HARD_LANDING:
-					playAnimation("HardLanding", false);
-					if (XMVectorGetZ(velocity) > runLimit)
-						queueAnimation("Run");
-					else
+						playAnimation("HardLanding", false);
 						queueAnimation("Idle2");
+						m_Crash = true;
 					break;
 
 				case JumpAnimationState::LIGHT_LANDING:
@@ -259,6 +255,8 @@ void HumanAnimationComponent::updateAnimation()
 	else
 		m_FallSpeed = 0.f;
 
+	if(m_Crash)
+		m_PrevForwardState = ForwardAnimationState::IDLE;
 	if(m_ForceMove)
 		m_PrevForwardState = ForwardAnimationState::RUNNING_FORWARD;
 }
