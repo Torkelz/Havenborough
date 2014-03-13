@@ -16,7 +16,7 @@ void InputTranslator::init(Window* p_Window)
 		throw InvalidArgument("Window must not be null", __LINE__, __FILE__);
 	}
 
-	RAWINPUTDEVICE inputDevices[3];
+	RAWINPUTDEVICE inputDevices[4];
 
 	// Generic mouse
 	inputDevices[0].usUsagePage	= 0x01;
@@ -30,12 +30,19 @@ void InputTranslator::init(Window* p_Window)
 	inputDevices[1].dwFlags		= 0;
 	inputDevices[1].hwndTarget	= 0;
 
+	// Joystick
 	inputDevices[2].usUsagePage = 0x01;
 	inputDevices[2].usUsage		= 0x04;
 	inputDevices[2].dwFlags		= 0;
 	inputDevices[2].hwndTarget	= 0;
 
-	if (RegisterRawInputDevices(&inputDevices[0], 3, sizeof(inputDevices[0])) == FALSE)
+	// Gamepad
+	inputDevices[3].usUsagePage = 0x01;
+	inputDevices[3].usUsage		= 0x05;
+	inputDevices[3].dwFlags		= 0;
+	inputDevices[3].hwndTarget	= 0;
+
+	if (RegisterRawInputDevices(&inputDevices[0], 4, sizeof(inputDevices[0])) == FALSE)
 	{
 		throw Win32Exception("Failed to register raw input devices", __LINE__, __FILE__);
 	}
