@@ -27,7 +27,13 @@ Vector3 LookComponent::getLookPosition() const
 	std::shared_ptr<HumanAnimationComponent> comp = m_Owner->getComponent<HumanAnimationComponent>(HumanAnimationComponent::m_ComponentId).lock();
 	if (comp)
 	{
-		return comp->getJointPos("Head");
+		using namespace DirectX;
+
+		XMMATRIX rot = XMLoadFloat4x4(&getRotationMatrix());
+		Vector3 rotOffset;
+		XMStoreFloat3(&rotOffset, XMVector3Transform(XMLoadFloat3(&m_OffsetPosition), rot));
+
+		return Vector3(comp->getJointPos("HeadBase")) + rotOffset;
 	}
 	else
 	{
