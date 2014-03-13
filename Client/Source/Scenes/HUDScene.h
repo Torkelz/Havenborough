@@ -100,6 +100,7 @@ private:
 	void createRacePositionElement();
 	void createCheckpointElement();
 	void createDebugElement();
+	void createIndicatorElement();
 
 	void onFrameTimeElement(float p_DeltaTime);
 	void onFrameManabarElement(float p_DeltaTime);

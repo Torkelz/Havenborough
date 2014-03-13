@@ -252,6 +252,7 @@ void HUDScene::render()
 		m_Graphics->render2D_Object(m_GUI["Checkpoints"]);
 		m_Graphics->render2D_Object(m_GUI["CheckpointsBG"]);
 		m_Graphics->render2D_Object(m_GUI["Crosshair"]);
+		m_Graphics->render2D_Object(m_GUI["Indicator"]);
 		if (m_ShowDebugInfo)
 		{
 			m_Graphics->render2D_Object(m_GUI["DebugTextKey"]);
@@ -443,6 +444,8 @@ void HUDScene::updatePlayerRacePosition(IEventData::Ptr p_Data)
 
 	m_Graphics->updateText(m_TextHandle["RacePos"], std::wstring(position.begin(), position.end()).c_str());
 	m_Graphics->updateText(m_TextHandle["RacePosBG"], std::wstring(position.begin(), position.end()).c_str());
+
+
 }
 
 void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
@@ -615,6 +618,17 @@ void HUDScene::createDebugElement()
 	createGUIElement("DebugTextValue", m_Graphics->create2D_Object(Vector3(-190.f, 160.f, 4.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextValue"]));
 }
 
+void HUDScene::createIndicatorElement()
+{
+	Vector3 pos = Vector3(0.f, 0.f, 666.f);
+	Vector3 scale = Vector3(1.f, 1.f, 1.f);
+	std::string id = "Indicator";
+	getHUDSettings(id, pos, scale);
+	adjustHUDPosition(pos);
+	createGUIElement(id, m_Graphics->create2D_Object(pos, Vector2(m_Resolution.x*0.5f, m_Resolution.y*0.5f), scale, 0.f, "FEEDBACK_INDICATOR"));
+	m_Graphics->set2D_ObjectColor(m_GUI[id], Vector4(1.f, 1.f, 1.f, 0.f));
+}
+
 void HUDScene::preLoadModels()
 {
 	static const std::string preloadedTextures[] =
@@ -623,6 +637,7 @@ void HUDScene::preLoadModels()
 		"MANA_BAR",
 		"MANA_BARCHANGE",
 		"MANABAR_FEEDBACK",
+		"FEEDBACK_INDICATOR",
 		"Crosshair",
 	};
 	for (const std::string &texture : preloadedTextures)
@@ -638,6 +653,7 @@ void HUDScene::preLoadModels()
 	createRacePositionElement();
 	createCheckpointElement();
 	createDebugElement();
+	createIndicatorElement();
 }
 
 void HUDScene::releasePreLoadedModels()

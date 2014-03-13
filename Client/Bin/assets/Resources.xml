@@ -4,6 +4,7 @@
         <Resource Name="MANA_BARCHANGE" Path="assets/textures/manabar.png"/>
         <Resource Name="MANA_BAR" Path="assets/textures/manabar_changebar.png"/>
 	    <Resource Name="MANABAR_FEEDBACK" Path="assets/textures/manabarfeedback.png"/>
+		<Resource Name="FEEDBACK_INDICATOR" Path="assets/textures/FeedbackIndicator_COLOR.png"/>
         <Resource Name="SKYBOXDDS" Path="assets/textures/Skybox1_COLOR.dds"/>
         <Resource Name="Particle1" Path="assets/textures/Particle1.dds"/>
         <Resource Name="LoadingScreen" Path="assets/textures/LoadingScreen.dds"/>
