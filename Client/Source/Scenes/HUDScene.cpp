@@ -208,19 +208,22 @@ void HUDScene::onFrameDebugElement()
 	}
 }
 
-void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
+void HUDScene::onFrameIndicatorElement(float p_DeltaTime)
 {
-	onFrameTimeElement(p_Dt);
-	onFrameManabarElement(p_Dt);
-
 	if(m_IndicatorTimeFade >= 0.f)
 	{
-		m_IndicatorTimeFade -= p_Dt;
+		m_IndicatorTimeFade -= p_DeltaTime;
 
 		float per = m_IndicatorTimeFade / m_IndicatorTimeFadeMax;
 
 		m_Graphics->set2D_ObjectColor(m_GUI["Indicator"], Vector4(m_IndicatorColor, per * 1.5f));
 	}
+}
+
+void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
+{
+	onFrameTimeElement(p_Dt);
+	onFrameManabarElement(p_Dt);
 
 	if(m_ChangeScene)
 	{

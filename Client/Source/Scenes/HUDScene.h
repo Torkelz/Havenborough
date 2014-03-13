@@ -109,6 +109,7 @@ private:
 	void onFrameTimeElement(float p_DeltaTime);
 	void onFrameManabarElement(float p_DeltaTime);
 	void onFrameDebugElement();
+	void onFrameIndicatorElement(float p_DeltaTime);
 
 	void preLoadModels();
 	void releasePreLoadedModels();
