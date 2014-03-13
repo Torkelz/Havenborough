@@ -64,16 +64,8 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
 
-	preLoadModels();
+	//preLoadModels();
 
-	/*createArrowElement();
-	createManabarElement();
-	createCountdownElement();
-	createTimeElement();
-	createRacePositionElement();
-	createCheckpointElement();
-	createDebugElement();
-*/
 	return true;
 }
 
@@ -82,12 +74,12 @@ void HUDScene::destroy()
 	releasePreLoadedModels();
 }
 
-void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
+void HUDScene::onFrameTimeElement(float p_DeltaTime)
 {
 	if(m_FadeOut)
 	{
-		m_TimeTimerCurrent -= p_Dt;
-		m_TimePositionCurrent += p_Dt;
+		m_TimeTimerCurrent -= p_DeltaTime;
+		m_TimePositionCurrent += p_DeltaTime;
 		Vector3 position;
 		position.z = 1;
 		float proc = m_TimePositionCurrent / m_TimePositionFade;
@@ -124,7 +116,7 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 
 	if(m_FadeOutFlash)
 	{
-		m_TimeFlashFade += p_Dt;
+		m_TimeFlashFade += p_DeltaTime;
 
 		float percentage = m_TimeFlashFade / m_TimeFlashFadeMax;
 
@@ -142,15 +134,26 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 			m_FadeOutFlash = false;
 		}
 	}
+}
 
+void HUDScene::onFrameManabarElement(float p_DeltaTime)
+{
 	if(m_FeedbackCastable)
 	{
-		if(!m_FeedbackFade)
-			m_FeedbackManabarTime += p_Dt;
-		else
-			m_FeedbackManabarTime -= p_Dt;
+		float max = m_FeedbackManabarTimeMax;
 
-		float per = m_FeedbackManabarTime / m_FeedbackManabarTimeMax;
+		if(!m_FeedbackFade)
+		{
+			//no fade in.
+			m_FeedbackManabarTime += p_DeltaTime;
+			max = m_FeedbackManabarTime;
+		}
+		else
+		{
+			m_FeedbackManabarTime -= p_DeltaTime;
+		}
+
+		float per = m_FeedbackManabarTime / max;
 
 		m_Graphics->set2D_ObjectColor(m_GUI["ManabarFeedback"], Vector4(m_ManabarColor.x * per, m_ManabarColor.y * per, m_ManabarColor.z * per, per));
 
@@ -174,21 +177,10 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 			m_FeedbackFade = true;
 		}
 	}
+}
 
-	if(m_ChangeScene)
-	{
-		*p_IsCurrentScene = m_NewSceneID;
-		m_Visible = false;
-		m_ChangeScene = false;
-	}
-	else if(m_ChangeList)
-	{
-		*p_IsCurrentScene = -1;
-		m_ChangeList = false;
-	}
-
-	m_Graphics->set2D_ObjectLookAt(m_GUI["Arrow"], m_CheckpointPosition);
-
+void HUDScene::onFrameDebugElement()
+{
 	if (m_ShowDebugInfo)
 	{
 		std::string debugTextKey;
@@ -209,6 +201,28 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 		mbstowcs(wText.data(), debugTextValue.data(), debugTextValue.length() + 1);
 		m_Graphics->updateText(m_TextHandle["DebugTextValue"], wText.data());
 	}
+}
+
+void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
+{
+	onFrameTimeElement(p_Dt);
+	onFrameManabarElement(p_Dt);
+
+	if(m_ChangeScene)
+	{
+		*p_IsCurrentScene = m_NewSceneID;
+		m_Visible = false;
+		m_ChangeScene = false;
+	}
+	else if(m_ChangeList)
+	{
+		*p_IsCurrentScene = -1;
+		m_ChangeList = false;
+	}
+
+	m_Graphics->set2D_ObjectLookAt(m_GUI["Arrow"], m_CheckpointPosition);
+
+	onFrameDebugElement();
 }
 
 void HUDScene::onFocus()
@@ -277,7 +291,7 @@ void HUDScene::registeredInput(std::string p_Action, float p_Value, float p_Prev
 
 void HUDScene::setHUDSettings(std::map<std::string, Settings::HUDSettings> p_Settings, Vector2 p_ScreenResolution)
 {
-	releasePreLoadedModels();
+	//releasePreLoadedModels();
 	m_HUDSettings = p_Settings;
 	m_Resolution = p_ScreenResolution;
 	preLoadModels();
@@ -481,7 +495,7 @@ void HUDScene::createArrowElement()
 	std::string id = "Arrow";
 	getHUDSettings(id, pos, scale);
 	adjustHUDPosition(pos);
-	createGUIElement("Arrow", m_Graphics->create2D_Object(pos, scale, 0.f, "Arrow1"));
+	createGUIElement(id, m_Graphics->create2D_Object(pos, scale, 0.f, "Arrow1"));
 }
 
 void HUDScene::createManabarElement()
@@ -496,7 +510,7 @@ void HUDScene::createManabarElement()
 	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y - 0.5f, 4), Vector2(144, 30), scale, 0.0f, "MANA_BAR"));
 	m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.f, 0.f, 0.f, 1.f));
 
-	createGUIElement("ManabarFeedback", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 4), Vector2(144, 28), scale, 0.0f, "MANA_BARCHANGE"));
+	createGUIElement("ManabarFeedback", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3.5f), Vector2(144, 28), scale, 0.0f, "MANABAR_FEEDBACK"));
 	m_ManabarScale = scale;
 	m_Graphics->set2D_ObjectColor(m_GUI["ManabarFeedback"], Vector4(0.f, 0.f, 0.f, 0.f));
 
@@ -527,15 +541,15 @@ void HUDScene::createTimeElement()
 	m_TimeScale = scale;
 
 	m_TimePosition = pos;
-	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
+	createTextElement("Time", m_Graphics->createText(L"00:00.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
 	createGUIElement("Time", m_Graphics->create2D_Object(m_TimePosition, scale, 0.f, m_TextHandle["Time"]));
 	m_Graphics->setTextBackgroundColor(m_TextHandle["Time"], Vector4(m_Color, 0.0f));
-	createTextElement("TimeBG", m_Graphics->createText(L"0.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
+	createTextElement("TimeBG", m_Graphics->createText(L"00:00.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
 	createGUIElement("TimeBG", m_Graphics->create2D_Object(Vector3(m_TimePosition.x-2, m_TimePosition.y-2, m_TimePosition.z+1), scale, 0.f, m_TextHandle["TimeBG"]));
 	m_Graphics->setTextAlignment(m_TextHandle["Time"], TEXT_ALIGNMENT::JUSTIFIED);
 	m_Graphics->setTextAlignment(m_TextHandle["TimeBG"], TEXT_ALIGNMENT::JUSTIFIED);
 
-	createTextElement("TimeFlash", m_Graphics->createText(L"0.00", Vector2(500.f, 300.f), m_GUIFont.c_str(), 72.f, Vector4(1.f, 1.f, 1.f, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
+	createTextElement("TimeFlash", m_Graphics->createText(L"00:00.00", Vector2(500.f, 300.f), m_GUIFont.c_str(), 72.f, Vector4(1.f, 1.f, 1.f, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
 	createGUIElement("TimeFlash", m_Graphics->create2D_Object(Vector3(0.f, 150.f, 0.f), scale, 0.f, m_TextHandle["TimeFlash"]));
 	
 	pos = Vector3(420, 250, 1);
@@ -544,10 +558,10 @@ void HUDScene::createTimeElement()
 	getHUDSettings(id, pos, scale);
 	adjustHUDPosition(pos);
 
-	createTextElement("ElapsedTime", m_Graphics->createText(L"0.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
+	createTextElement("ElapsedTime", m_Graphics->createText(L"00:00.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
 	createGUIElement("ElapsedTime", m_Graphics->create2D_Object(Vector3(pos.x+19.f, pos.y, pos.z), scale, 0.f, m_TextHandle["ElapsedTime"]));
 
-	createTextElement("ElapsedTimeBG", m_Graphics->createText(L"0.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_BGColor, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
+	createTextElement("ElapsedTimeBG", m_Graphics->createText(L"00:00.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_BGColor, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
 	createGUIElement("ElapsedTimeBG", m_Graphics->create2D_Object(Vector3(pos.x+17, pos.y-2, pos.z+1), scale, 0.f, m_TextHandle["ElapsedTimeBG"]));
 
 	m_Graphics->setTextColor(m_TextHandle["ElapsedTime"], Vector4(m_Color, 1.0f));
@@ -608,6 +622,7 @@ void HUDScene::preLoadModels()
 		"TEXTURE_NOT_FOUND",
 		"MANA_BAR",
 		"MANA_BARCHANGE",
+		"MANABAR_FEEDBACK",
 		"Crosshair",
 	};
 	for (const std::string &texture : preloadedTextures)
@@ -616,121 +631,13 @@ void HUDScene::preLoadModels()
 	}
 	m_ResourceIDs.push_back(m_ResourceManager->loadResource("model", "Arrow1"));
 
-	Vector3 pos = Vector3(0, 300, 150.f);
-	Vector3 scale = Vector3(0.3f, 0.3f, 0.3f);
-	std::string id = "Arrow";
-	getHUDSettings(id, pos, scale);
-	adjustHUDPosition(pos);
-	createGUIElement("Arrow", m_Graphics->create2D_Object(pos, scale, 0.f, "Arrow1"));
-
-	 pos = Vector3(-400, -320, 3);
-	 scale = Vector3(1.0f, 1.0f, 1.0f);
-	 id = "Manabar";
-	getHUDSettings(id, pos, scale);
-	adjustHUDPosition(pos);
-
-	createGUIElement("ManabarChange", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 3), Vector2(140, 28), scale, 0.0f, "MANA_BARCHANGE"));
-	createGUIElement("Manabar", m_Graphics->create2D_Object(Vector3(pos.x, pos.y - 0.5f, 4), Vector2(144, 30), scale, 0.0f, "MANA_BAR"));
-	m_Graphics->set2D_ObjectColor(m_GUI["Manabar"], Vector4(0.f, 0.f, 0.f, 1.f));
-
-	createGUIElement("ManabarFeedback", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 4), Vector2(144, 28), scale, 0.0f, "MANA_BARCHANGE"));
-	m_ManabarScale = scale;
-	m_Graphics->set2D_ObjectColor(m_GUI["ManabarFeedback"], Vector4(0.f, 0.f, 0.f, 0.f));
-
-	createTextElement("ManabarCounter", m_Graphics->createText(L"", Vector2(130,65), m_GUIFont.c_str(), 20.f, Vector4(1,1,1,1), Vector3(0,0,0), 1.0f, 0.f));
-	createGUIElement("ManabarCounter", m_Graphics->create2D_Object(Vector3(pos.x, pos.y, 2), Vector3(1,1,1), 0.f, m_TextHandle["ManabarCounter"]));
-
-	Vector4 crosshairColor(1.f, 1.f, 1.f, 1.f);
-	Vector3 crosshairPosition(0.f, 0.f, 0.f);
-	Vector3 crosshairScale(1.f, 1.f, 1.f);
-	getHUDSettings("Crosshair", crosshairPosition, crosshairScale);
-	getHUDColor("Crosshair", crosshairColor);
-	createGUIElement("Crosshair", m_Graphics->create2D_Object(crosshairPosition, Vector2(2.f, 2.f), crosshairScale, 0.f, "Crosshair"));
-	m_Graphics->set2D_ObjectColor(m_GUI["Crosshair"], crosshairColor);
-
-	 pos = Vector3(0, 0, 0);
-	 scale = Vector3(2.0f, 2.0f, 2.0f);
-	 id = "Countdown";
-	getHUDSettings(id, pos, scale);
-	adjustHUDPosition(pos);
-	
-	createTextElement("Countdown", m_Graphics->createText(L"", Vector2(180,120), m_GUIFont.c_str(), 72.f, Vector4(1,0,0,1), Vector3(0,0,0), 1.0f, 0.f));
-	createGUIElement("Countdown", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Countdown"]));
-
-	 pos = Vector3(420, 250, 1);
-	 scale = Vector3(1.f, 1.f, 1.f);
-	 id = "Time";
-	getHUDSettings(id,pos,scale);
-	adjustHUDPosition(pos);
-
-	m_TimeScale = scale;
-
-	m_TimePosition = pos;
-	createTextElement("Time", m_Graphics->createText(L"0.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
-	createGUIElement("Time", m_Graphics->create2D_Object(m_TimePosition, scale, 0.f, m_TextHandle["Time"]));
-	m_Graphics->setTextBackgroundColor(m_TextHandle["Time"], Vector4(m_Color, 0.0f));
-	createTextElement("TimeBG", m_Graphics->createText(L"0.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
-	createGUIElement("TimeBG", m_Graphics->create2D_Object(Vector3(m_TimePosition.x-2, m_TimePosition.y-2, m_TimePosition.z+1), scale, 0.f, m_TextHandle["TimeBG"]));
-	m_Graphics->setTextAlignment(m_TextHandle["Time"], TEXT_ALIGNMENT::JUSTIFIED);
-	m_Graphics->setTextAlignment(m_TextHandle["TimeBG"], TEXT_ALIGNMENT::JUSTIFIED);
-
-	createTextElement("TimeFlash", m_Graphics->createText(L"0.00", Vector2(500.f, 300.f), m_GUIFont.c_str(), 72.f, Vector4(1.f, 1.f, 1.f, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
-	createGUIElement("TimeFlash", m_Graphics->create2D_Object(Vector3(0.f, 150.f, 0.f), scale, 0.f, m_TextHandle["TimeFlash"]));
-	
-	pos = Vector3(420, 250, 1);
-	scale = Vector3(1.f, 1.f, 1.f);
-	id = "ElapsedTime";
-	getHUDSettings(id, pos, scale);
-	adjustHUDPosition(pos);
-
-	createTextElement("ElapsedTime", m_Graphics->createText(L"00:00.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_Color, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
-	createGUIElement("ElapsedTime", m_Graphics->create2D_Object(Vector3(pos.x+19.f, pos.y, pos.z), scale, 0.f, m_TextHandle["ElapsedTime"]));
-
-	createTextElement("ElapsedTimeBG", m_Graphics->createText(L"00:00.00", Vector2(300.f, 80.f), m_GUIFont.c_str(), 72.f, Vector4(m_BGColor, 0.f), Vector3(0.f, 0.f, 0.f), 1.f, 0.f));
-	createGUIElement("ElapsedTimeBG", m_Graphics->create2D_Object(Vector3(pos.x+17, pos.y-2, pos.z+1), scale, 0.f, m_TextHandle["ElapsedTimeBG"]));
-
-	m_Graphics->setTextColor(m_TextHandle["ElapsedTime"], Vector4(m_Color, 1.0f));
-	m_Graphics->setTextColor(m_TextHandle["ElapsedTimeBG"], Vector4(m_BGColor, 1.0f));
-	m_Graphics->setTextAlignment(m_TextHandle["ElapsedTime"], TEXT_ALIGNMENT::JUSTIFIED);
-	m_Graphics->setTextAlignment(m_TextHandle["ElapsedTimeBG"], TEXT_ALIGNMENT::JUSTIFIED);
-
-	pos = Vector3(-450, 320, 3);
-	scale = Vector3(1.0f, 1.0f, 1.0f);
-	id = "RacePos";
-	getHUDSettings(id,pos,scale);
-	adjustHUDPosition(pos);
-
-	createTextElement("RacePos", m_Graphics->createText(L"1st", Vector2(200, 65), m_GUIFont.c_str(), 42, Vector4(m_Color, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	createGUIElement("RacePos", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["RacePos"]));
-
-	createTextElement("RacePosBG", m_Graphics->createText(L"1st", Vector2(204, 69), m_GUIFont.c_str(), 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	createGUIElement("RacePosBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 2), Vector3(1,1,1), 0.f, m_TextHandle["RacePosBG"]));
-
-
-
-	 pos = Vector3(418, 318, 3);
-	 scale = Vector3(1.0f, 1.0f, 1.0f);
-	 id = "Checkpoints";
-	getHUDSettings(id,pos,scale);
-	adjustHUDPosition(pos);
-
-	createTextElement("Checkpoints", m_Graphics->createText(L"0/0", Vector2(204, 69), m_GUIFont.c_str(), 42, Vector4(m_Color, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	createGUIElement("Checkpoints", m_Graphics->create2D_Object(pos, scale, 0.f, m_TextHandle["Checkpoints"]));
-	
-	createTextElement("CheckpointsBG", m_Graphics->createText(L"0/0", Vector2(204, 69), m_GUIFont.c_str(), 42, Vector4(m_BGColor, 0.8f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	createGUIElement("CheckpointsBG", m_Graphics->create2D_Object(Vector3(pos.x-2, pos.y-2, 4), Vector3(1,1,1), 0.f, m_TextHandle["CheckpointsBG"]));
-
-	createTextElement("DebugTextKey", m_Graphics->createText(L"", Vector2(300.f, 400.f), "Segoe UI", 30, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	m_Graphics->setTextAlignment(m_TextHandle["DebugTextKey"], TEXT_ALIGNMENT::LEADING);
-	m_Graphics->setTextParagraphAlignment(m_TextHandle["DebugTextKey"], PARAGRAPH_ALIGNMENT::NEAR_ALIGNMENT);
-	m_Graphics->setTextBackgroundColor(m_TextHandle["DebugTextKey"], Vector4(0.f, 0.f, 0.f, 0.4f));
-	createGUIElement("DebugTextKey", m_Graphics->create2D_Object(Vector3(-490.f, 160.f, 4.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextKey"]));
-	
-	createTextElement("DebugTextValue", m_Graphics->createText(L"", Vector2(300.f, 400.f), "Segoe UI", 30, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f));
-	m_Graphics->setTextAlignment(m_TextHandle["DebugTextValue"], TEXT_ALIGNMENT::LEADING);
-	m_Graphics->setTextParagraphAlignment(m_TextHandle["DebugTextValue"], PARAGRAPH_ALIGNMENT::NEAR_ALIGNMENT);
-	m_Graphics->setTextBackgroundColor(m_TextHandle["DebugTextValue"], Vector4(0.f, 0.f, 0.f, 0.4f));
-	createGUIElement("DebugTextValue", m_Graphics->create2D_Object(Vector3(-190.f, 160.f, 4.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextValue"]));
+	createArrowElement();
+	createManabarElement();
+	createCountdownElement();
+	createTimeElement();
+	createRacePositionElement();
+	createCheckpointElement();
+	createDebugElement();
 }
 
 void HUDScene::releasePreLoadedModels()

@@ -101,6 +101,10 @@ private:
 	void createCheckpointElement();
 	void createDebugElement();
 
+	void onFrameTimeElement(float p_DeltaTime);
+	void onFrameManabarElement(float p_DeltaTime);
+	void onFrameDebugElement();
+
 	void preLoadModels();
 	void releasePreLoadedModels();
 
