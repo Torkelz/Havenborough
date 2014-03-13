@@ -24,7 +24,16 @@ void BaseGameApp::init()
 	Logger::log(Logger::Level::INFO, "Initializing game app");
 	Settings settings;
 	settings.initialize("UserOptions.xml");
-	m_UserAddedSoundVolume = settings.getSettingValue("UserAddedSoundVolume") * 0.01f;
+	
+	float checkValue = settings.getSettingValue("MusicVolume") * 0.01f;
+	if (!checkValue > 1.f)
+	{
+		m_UserAddedSoundVolume = checkValue;
+	}
+	else
+	{
+		m_UserAddedSoundVolume = 1.f;
+	}	
 
 	TweakSettings::initializeMaster();
 
