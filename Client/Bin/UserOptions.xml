@@ -1,6 +1,6 @@
 <UserOptions>
   <Server Hostname="localhost" Port="31415" />
-  <Game Level="Havenborough Castle: Under Town" Username="Player" />
+  <Game Level="Havenborough Castle: Caverton" Username="Player" />
   <Character Name="Dzala" Style="Green" />
   <Settings>
     <SSAO Enabled="true" />
@@ -8,64 +8,72 @@
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
-    <ShadowMapResolution Value="1024" />
+    <ShadowMapResolution Value="2048" />
     <FOV Value="60" />
     <MouseSensitivity Value="0.5" />
   </Settings>
   <Controls>
-    <!--
-		KEY : Key code
-		Left shift: LShift
-		Right shift: RShift
-		Left Ctrl: LCtrl
-		Right Ctrl: RCrtl
-		-->
-    <KeyMap Display="Back where?" Command="back" Key="Escape" />
-    <KeyMap Display="Leave game" Command="leaveGame" Key="Escape" />
-    <KeyMap Display="Movement forwards" Command="moveForward" Key="W" />
-    <KeyMap Display="Movement backwards" Command="moveBackward" Key="S" />
-    <KeyMap Display="Movement up" Command="moveUp" Key="Space" />
-    <KeyMap Display="Movement down" Command="moveDown" Key="16" />
-    <KeyMap Display="Strafe left" Command="moveLeft" Key="A" />
-    <KeyMap Display="Strafe right" Command="moveRight" Key="D" />
-    <KeyMap Display="Jump" Command="jump" Key="Space" />
-    <KeyMap Display="Wave" Command="wave" Key="Q" />
-    <KeyMap Display="Climb" Command="climbEdge" Key="E" />
-    <KeyMap Display="Cast spell" Command="spellCast" Key="F" />
-    <KeyMap Display="Turn Left" Command="turnLeft" Key="37" />
-    <KeyMap Display="Turn Right" Command="turnRight" Key="39" />
-    <KeyMap Display="Turn Up" Command="turnUp" Key="38" />
-    <KeyMap Display="Turn Down" Command="turnDown" Key="40" />
+    <KeyMap Display="Leave game" Command="leaveGame" Key="27" />
+    <KeyMap Display="Movement forwards" Command="moveForward" Key="87" />
+    <KeyMap Display="Movement backwards" Command="moveBackward" Key="83" />
+    <KeyMap Display="Strafe left" Command="moveLeft" Key="65" />
+    <KeyMap Display="Strafe right" Command="moveRight" Key="68" />
+    <KeyMap Display="Movement up" Command="moveUp" Key="32" />
+    <KeyMap Display="Movement down" Command="moveDown" Key="160" />
+    <KeyMap Display="Jump" Command="jump" Key="32" />
+    <KeyMap Display="Wave" Command="wave" Key="81" />
+    <KeyMap Display="Climb" Command="climbEdge" Key="69" />
+    <KeyMap Display="Cast spell" Command="spellCast" Key="70" />
+    <KeyMap Display="Look left" Command="turnLeft" Key="37" />
+    <KeyMap Display="Look right" Command="turnRight" Key="39" />
+    <KeyMap Display="Look up" Command="turnUp" Key="38" />
+    <KeyMap Display="Look down" Command="turnDown" Key="40" />
     <!--Debug related-->
-    <KeyMap Display="Next deferred view" Command="changeViewN" Key="Z" />
-    <KeyMap Display="Prev deferred view" Command="changeViewP" Key="X" />
-    <KeyMap Display="Draw pivots" Command="drawPivots" Key="C" />
-    <KeyMap Display="Turn on bounding vol" Command="switchBVDraw" Key="V" />
-    <KeyMap Display="Main menu?" Command="goToMainMenu" Key="Return" />
-    <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="O" />
-    <KeyMap Display="Look back" Command="flipCamera" Key="P" />
-    <KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="114" />
-    <KeyMap Display="Spline Record" Command="splineRecord" Key="R" />
-    <KeyMap Display="Spline Remove" Command="splineRemove" Key="T" />
-    <KeyMap Display="Spline Clear" Command="splineClear" Key="Y" />
-    <KeyMap Display="Slow Mode" Command="slowMode" Key="48" />
-    <KeyMap Display="Fast Mode" Command="fastMode" Key="49" />
+    <KeyMap Display="Next deferred view" Command="changeViewN" Key="120" />
+    <KeyMap Display="Prev deferred view" Command="changeViewP" Key="121" />
+    <KeyMap Display="Draw pivots" Command="DrawPivots" Key="122" />
+    <KeyMap Display="Turn on bounding vol" Command="switchBVDraw" Key="123" />
+    <KeyMap Display="Third person mode" Command="thirdPersonCamera" Key="116" />
+    <KeyMap Display="Look back" Command="flipCamera" Key="117" />
+    <KeyMap Display="Toggle debug info" Command="toggleDebugInfo" Key="113" />
+    <KeyMap Display="Spline Record" Command="splineRecord" Key="114" />
+    <KeyMap Display="Spline Remove" Command="splineRemove" Key="115" />
+    <KeyMap Display="Spline Clear" Command="splineClear" Key="116" />
+    <KeyMap Display="Slow Mode" Command="slowMode" Key="118" />
+    <KeyMap Display="Fast Mode" Command="fastMode" Key="119" />
     <!--Mouse input-->
-    <MouseMap Display="Look Left" Command="lookLeft" Direction="NegX" />
-    <MouseMap Display="Look Right" Command="lookRight" Direction="PosX" />
-    <MouseMap Display="Look Up" Command="lookUp" Direction="PosY" />
-    <MouseMap Display="Look Down" Command="lookDown" Direction="NegY" />
+    <MouseMap Display="Look left" Command="lookLeft" Direction="NegX" />
+    <MouseMap Display="Look right" Command="lookRight" Direction="PosX" />
+    <MouseMap Display="Look up" Command="lookUp" Direction="PosY" />
+    <MouseMap Display="Look down" Command="lookDown" Direction="NegY" />
     <MouseButtonMap Display="Cast spell" Command="spellCast" Button="Left" />
     <MouseButtonMap Display="Climb" Command="climbEdge" Button="Right" />
   </Controls>
   <HUD>
     <!-- Positions in 1280x720 resolution. Will automatically adjust depending on resolution -->
-    <Manabar x="0" y="-320" z="3" scale="0.75" />
-    <Arrow x="0" y="300" z="150" scale="0.3" />
-    <Countdown x="0" y="0" z="0" scale="2" />
-    <Time x="530" y="240" z="0" scale="0.45" />
-	<ElapsedTime x="530" y="280" z="0" scale="0.45" />
-    <RacePos x="-560" y="320" z="1" scale="1" />
-    <Checkpoints x="535" y="318" z="3" scale="1" />
+    <Manabar scale="0.75">
+      <Position x="0" y="-320" z="3" />
+    </Manabar>
+    <Arrow scale="0.3">
+      <Position x="0" y="300" z="150" />
+    </Arrow>
+    <Countdown scale="2">
+      <Position x="0" y="0" z="0" />
+    </Countdown>
+    <Time scale="0.45">
+      <Position x="530" y="240" z="0" />
+    </Time>
+	<ElapsedTime scale="0.45">
+	  <Position x="530" y="280" z="0" />
+	</ElapsedTime>
+    <RacePos>
+      <Position x="-560" y="320" z="1" />
+    </RacePos>
+    <Checkpoints>
+      <Position x="535" y="318" z="3" />
+    </Checkpoints>
+    <Crosshair scale="1">
+      <Color r="1" g="1" b="1" a="1" />
+    </Crosshair>
   </HUD>
 </UserOptions>
