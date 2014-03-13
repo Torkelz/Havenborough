@@ -105,6 +105,7 @@ private:
 	void createCheckpointElement();
 	void createDebugElement();
 	void createIndicatorElement();
+	void createCrosshairElement();
 
 	void onFrameTimeElement(float p_DeltaTime);
 	void onFrameManabarElement(float p_DeltaTime);

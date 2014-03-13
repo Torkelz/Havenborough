@@ -655,6 +655,17 @@ void HUDScene::createIndicatorElement()
 	m_Graphics->set2D_ObjectColor(m_GUI[id], Vector4(1.f, 1.f, 1.f, 0.f));
 }
 
+void HUDScene::createCrosshairElement()
+{
+	Vector4 crosshairColor(1.f, 1.f, 1.f, 1.f);
+	Vector3 crosshairPosition(0.f, 0.f, 0.f);
+	Vector3 crosshairScale(1.f, 1.f, 1.f);
+	getHUDSettings("Crosshair", crosshairPosition, crosshairScale);
+	getHUDColor("Crosshair", crosshairColor);
+	createGUIElement("Crosshair", m_Graphics->create2D_Object(crosshairPosition, Vector2(2.f, 2.f), crosshairScale, 0.f, "Crosshair"));
+	m_Graphics->set2D_ObjectColor(m_GUI["Crosshair"], crosshairColor);
+}
+
 void HUDScene::preLoadModels()
 {
 	static const std::string preloadedTextures[] =
@@ -680,6 +691,7 @@ void HUDScene::preLoadModels()
 	createCheckpointElement();
 	createDebugElement();
 	createIndicatorElement();
+	createCrosshairElement();
 }
 
 void HUDScene::releasePreLoadedModels()
