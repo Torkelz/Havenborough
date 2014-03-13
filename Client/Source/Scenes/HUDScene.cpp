@@ -225,6 +225,8 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 	onFrameTimeElement(p_Dt);
 	onFrameManabarElement(p_Dt);
 
+	onFrameIndicatorElement(p_Dt);
+
 	if(m_ChangeScene)
 	{
 		*p_IsCurrentScene = m_NewSceneID;
