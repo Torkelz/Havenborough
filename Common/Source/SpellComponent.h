@@ -77,6 +77,12 @@ public:
 
 		m_Physics->setBodyCollisionResponse(m_Body, false);
 		m_Physics->setBodyVelocity(m_Body, m_SpellInstance->getVelocity());
+
+		std::weak_ptr<ModelInterface> asdff = m_Owner->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
+		if (asdff.lock())
+		{
+			asdff.lock()->setColorTone(Vector3(0.0f, 0.0f, 0.8f));
+		}
 	}
 
 	/**
@@ -146,6 +152,14 @@ public:
 			m_Physics->releaseBody(m_Body);
 			m_Body = m_Physics->createSphere(0.f, true, currentPosition, m_SpellInstance->getRadius());
 			m_Physics->setBodyCollisionResponse(m_Body, false);
+
+			std::weak_ptr<ModelInterface> asdff = m_Owner->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
+			if (asdff.lock())
+			{
+				asdff.lock()->updateScale(m_SpellName ,Vector3(50.f, 50.f, 50.f));
+				asdff.lock()->setColorTone(Vector3(0.99f, 0.0f, 0.0f));
+			}
+			
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitEventData(*m_Owner, currentPosition)));
 		}
 

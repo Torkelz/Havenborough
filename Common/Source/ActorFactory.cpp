@@ -411,6 +411,13 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_StartPosition);
+
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "ExplosionSphere1");
+	pushVector(printer, "Scale", Vector3(0.02f, 0.02f, 0.02f));
+	//pushColor(printer, "ColorTone", Vector3(0.2f, 0.0f, 0.8f));
+	printer.CloseElement();
+
 	printer.OpenElement("Spell");
 	printer.PushAttribute("SpellName", p_Spell.c_str());
 	printer.PushAttribute("CasterId", p_CasterId);
