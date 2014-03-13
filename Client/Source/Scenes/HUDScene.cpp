@@ -13,19 +13,23 @@ HUDScene::HUDScene()
 	m_Color = Vector3(0.0274509803921569f, 0.2313725490196078f, 0.3764705882352941f);
 	m_BGColor = Vector3(0.8156862745098039f, 0.8156862745098039f, 0.8156862745098039f);
 	m_ManabarColor = Vector3(0.11328125f, 0.296875f, 0.83984375f);
+	m_IndicatorColor = Vector3(0.f, 0.f, 0.f);
+	m_IndicatorSpellhitColor = Vector3(0.4f, 0.f, 0.8f);
 	m_TimeTimerMax = 10.0f;
 	m_TimeTimerStartFade = 5.0f;
 	m_TimePositionFade = 1.f;
-	m_TimeFlashFade = 0.f;
 	m_TimeFlashFadeMax = 0.5f;
 	m_TimeFlashScale = Vector3(0.f, 0.f, 0.f);
 	m_FadeOutFlash = false;
 	m_FeedbackManabarTime = 0.f;
-	m_FeedbackManabarTimeMax = 0.5f;
+	m_FeedbackManabarTimeMax = 0.666f;
 	m_FeedbackManabar = false;
 	m_FeedbackCastable = false;
 	m_FeedbackFade = false;
 	m_ManabarScale = Vector3(0.f, 0.f, 0.f);
+
+	m_IndicatorTimeFadeMax = 0.5f;
+	m_IndicatorTimeFade = 0.f;
 
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
@@ -60,6 +64,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateTakenCheckpoints), UpdateTakenCheckpoints::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::onFinish), FinishRaceEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerElapsedTime), UpdatePlayerElapsedTimeEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::onSpellhit), PlayerIsHitBySpellEventData::sk_EventType);
 
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
@@ -207,6 +212,15 @@ void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 {
 	onFrameTimeElement(p_Dt);
 	onFrameManabarElement(p_Dt);
+
+	if(m_IndicatorTimeFade >= 0.f)
+	{
+		m_IndicatorTimeFade -= p_Dt;
+
+		float per = m_IndicatorTimeFade / m_IndicatorTimeFadeMax;
+
+		m_Graphics->set2D_ObjectColor(m_GUI["Indicator"], Vector4(m_IndicatorColor, per * 1.5f));
+	}
 
 	if(m_ChangeScene)
 	{
@@ -445,7 +459,9 @@ void HUDScene::updatePlayerRacePosition(IEventData::Ptr p_Data)
 	m_Graphics->updateText(m_TextHandle["RacePos"], std::wstring(position.begin(), position.end()).c_str());
 	m_Graphics->updateText(m_TextHandle["RacePosBG"], std::wstring(position.begin(), position.end()).c_str());
 
-
+	m_IndicatorColor = m_Color;
+	m_IndicatorTimeFade = m_IndicatorTimeFadeMax;
+	//m_Graphics->set2D_ObjectColor(m_GUI["Indicator"], Vector4(m_IndicatorColor, 1.f));
 }
 
 void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
@@ -478,6 +494,13 @@ void HUDScene::onFinish(IEventData::Ptr p_Data)
 	m_ChangeScene = true;
 	m_NewSceneID = (int)RunScenes::POST_GAME;
 }
+
+void HUDScene::onSpellhit(IEventData::Ptr p_Data)
+{
+	m_IndicatorColor = m_IndicatorSpellhitColor;
+	m_IndicatorTimeFade = m_IndicatorTimeFadeMax;
+}
+
 
 void HUDScene::updateTakenCheckpoints(IEventData::Ptr p_Data)
 {

@@ -27,6 +27,9 @@ private:
 	Vector3 m_ManabarScale;
 	Vector3 m_ManabarColor;
 
+	Vector3 m_IndicatorColor, m_IndicatorSpellhitColor, m_IndicatorFullSpeedColor;
+	float m_IndicatorTimeFade, m_IndicatorTimeFadeMax;
+
 	std::string m_GUIFont;
 	IGraphics *m_Graphics;
 	EventManager *m_EventManager;
@@ -92,6 +95,7 @@ private:
 	void activateHUD(IEventData::Ptr p_Data);
 	void setNrOfCheckpoints(IEventData::Ptr p_Data);
 	void onFinish(IEventData::Ptr p_Data);
+	void onSpellhit(IEventData::Ptr p_Data);
 
 	void createArrowElement();
 	void createManabarElement();

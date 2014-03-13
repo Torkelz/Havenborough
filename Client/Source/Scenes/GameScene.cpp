@@ -66,6 +66,7 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleRotation), UpdateParticleRotationEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateParticleBaseColor), UpdateParticleBaseColorEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::spellHit), SpellHitEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::spellHitSphere), SpellHitSphereEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createWorldText), createWorldTextEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeWorldText), removeWorldTextEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateWorldTextPosition), updateWorldTextPositionEventData::sk_EventType);
@@ -641,6 +642,16 @@ void GameScene::spellHit(IEventData::Ptr p_Data)
 	std::shared_ptr<SpellHitEventData> data = std::static_pointer_cast<SpellHitEventData>(p_Data);
 
 	m_EventManager->queueEvent((IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExplosion", data->getPosition()))));
+}
+
+void GameScene::spellHitSphere(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<SpellHitSphereEventData> data = std::static_pointer_cast<SpellHitSphereEventData>(p_Data);
+
+	if(data->getCollisionVictim() == m_GameLogic->getPlayerBodyHandle())
+	{
+		m_EventManager->queueEvent((IEventData::Ptr(new PlayerIsHitBySpellEventData())));
+	}
 }
 
 void GameScene::createWorldText(IEventData::Ptr p_Data)

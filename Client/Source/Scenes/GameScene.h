@@ -124,6 +124,7 @@ private:
 	void updateParticleRotation(IEventData::Ptr p_Data);
 	void updateParticleBaseColor(IEventData::Ptr p_Data);
 	void spellHit(IEventData::Ptr p_Data);
+	void spellHitSphere(IEventData::Ptr p_Data);
 
 	void createWorldText(IEventData::Ptr p_Data);
 	void removeWorldText(IEventData::Ptr p_Data);
