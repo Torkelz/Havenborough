@@ -11,6 +11,8 @@
     <ShadowMapResolution Value="2048" />
     <FOV Value="60" />
     <MouseSensitivity Value="0.5" />
+    <MusicVolume Value="50" />
+    <SfxVolume Value="50" />
   </Settings>
   <Controls>
     <KeyMap Display="Leave game" Command="leaveGame" Key="27" />

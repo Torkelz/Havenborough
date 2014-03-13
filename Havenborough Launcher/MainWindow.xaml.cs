@@ -34,8 +34,7 @@ namespace Havenborough_Launcher
 
             Background = new ImageBrush
             {
-                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg",
-                    UriKind.Relative))
+                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg", UriKind.Relative))
             };
             Icon = BitmapFrame.Create(new Uri(@"Havenborough.ico", UriKind.RelativeOrAbsolute));
 
@@ -508,33 +507,48 @@ namespace Havenborough_Launcher
         private void Slider_OnChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             var slider = sender as Slider;
-            if (slider == null || FovValue == null || MouseSenseValue == null)
+            if (slider == null || FovValue == null || MouseSenseValue == null || MusicVolumeValue == null || 
+                SfxVolumeValue == null)
                 return;
 
             switch (slider.Name)
             {
                 case "FovSlider":
-                    FovValue.Text = ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
-                    if ((int) slider.Value == 70)
-                        FovValue.Text = "Quake Pro";
-                    break;
-                case "MouseSenseSlider":
                 {
-                    var val = slider.Value.ToString(CultureInfo.InvariantCulture);
-                    switch (val.Length)
-                    {
-                        case 1:
-                            MouseSenseValue.Text = val;
-                            break;
-                        case 3:
-                            MouseSenseValue.Text = val.Substring(0, 3);
-                            break;
-                        default:
-                            MouseSenseValue.Text = val.Substring(0, 4);
-                            break;
+                    FovValue.Text = (int) slider.Value == 70 ?
+                        "Quake Pro" : ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
+                        break;
                     }
-                }
-                    break;
+                case "MouseSenseSlider":
+                    {
+                        var val = slider.Value.ToString(CultureInfo.InvariantCulture);
+                        switch (val.Length)
+                        {
+                            case 1:
+                                MouseSenseValue.Text = val;
+                                break;
+                            case 3:
+                                MouseSenseValue.Text = val.Substring(0, 3);
+                                break;
+                            default:
+                                MouseSenseValue.Text = val.Substring(0, 4);
+                                break;
+                        }
+                        break;
+
+                    }
+                case "MusicVolumeSlider":
+                    {
+                        MusicVolumeValue.Text = (int) slider.Value == 0 ? 
+                            "Muted" : ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
+                        break;
+                    }
+                case "SfxVolumeSlider":
+                    {
+                        SfxVolumeValue.Text = (int)slider.Value == 0 ?
+                            "Muted" : ((int)slider.Value).ToString(CultureInfo.InvariantCulture);
+                        break;
+                    }
             }
                
         }
