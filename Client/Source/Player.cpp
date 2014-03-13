@@ -31,6 +31,7 @@ Player::Player(void)
 	m_AllowedToMove = true;
 	m_ClimbSpeedUp = 1.0f;
 	m_ElapsedTime = 0.f;
+	m_Landing = false;
 	m_StartElapsedTime = false;
 }
 
@@ -54,7 +55,16 @@ void Player::initialize(IPhysics *p_Physics, INetwork *p_Network, std::weak_ptr<
 }
 
 void Player::update(float p_DeltaTime)
-{	
+{
+
+	std::weak_ptr<AnimationInterface> wbb = m_Actor.lock()->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId);
+	std::shared_ptr<AnimationInterface> shbb = wbb.lock();
+	if(shbb)
+		m_Landing = shbb->getLanding();
+	else
+		m_Landing = false;
+
+
 	if(m_ManaRegeneration)
 	{
 		if(!m_IsPreviousManaSet)
@@ -115,16 +125,25 @@ void Player::update(float p_DeltaTime)
 	{
 		if(m_AllowedToMove)
 		{
-			jump(p_DeltaTime);
-			if (strActor)
+			if(!m_Landing)
 			{
-
-
-				std::shared_ptr<MovementControlInterface> comp = strActor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
-				if (comp)
+				jump(p_DeltaTime);
+				if (strActor)
 				{
-					comp->move(p_DeltaTime);
+
+
+					std::shared_ptr<MovementControlInterface> comp = strActor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+					if (comp)
+					{
+						comp->move(p_DeltaTime);
+					}
 				}
+			}
+			else
+			{
+				std::shared_ptr<PhysicsInterface> comp = strActor->getComponent<PhysicsInterface>(PhysicsInterface::m_ComponentId).lock();
+				Vector3 fel = m_Physics->getBodyVelocity(comp->getBodyHandle());
+				m_Physics->setBodyVelocity(comp->getBodyHandle(), Vector3(0.f, fel.y, 0.f));
 			}
 		}
 		else
@@ -323,29 +342,6 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 
 		XMVECTOR vEdgeOrientation = XMLoadFloat3(&p_EdgeOrientation);
 
-		// The goldener path code IS A LIE!
-		//vReachPointCenter = (XMVector3Dot(vReachPointCenter, vEdgeOrientation) * vEdgeOrientation) + XMLoadFloat3(&p_BoxPos);
-		//XMStoreFloat3(&m_CenterReachPos, vReachPointCenter);
-		//XMStoreFloat3(&m_Side, side);
-		//m_EdgeOrientation = p_EdgeOrientation;
-		//
-		//XMStoreFloat3(&m_forward, fwd);
-		//XMVECTOR offsetToStartPos = XMVectorSet(0, m_ForceMoveY.back().x, m_ForceMoveZ.back().x,0);
-		//offsetToStartPos = XMVector3Transform(-offsetToStartPos, a);
-		//
-		//XMVECTOR sp;
-		//sp = vReachPointCenter + XMVectorSet(0,edgeY,0,0) + offsetToStartPos;
-		//
-		//XMVECTOR asp;
-		//asp = XMLoadFloat3(&m_ForceMoveStartPos);
-		//sp = sp - asp;
-		//m_ForceMoveY[1].x += sp.m128_f32[1];
-		//if(m_EdgeOrientation.x > 0.0f)
-		//	m_ForceMoveZ[1].x += sp.m128_f32[0];
-		//else
-		//	m_ForceMoveZ[1].x += sp.m128_f32[2];
-		// The goldener path code END
-
 		// The Road to Eldorado, city of golden paths
 		XMVECTOR normal = vEdgeOrientation;
 		normal.m128_f32[1] = 0.0f;
@@ -357,8 +353,6 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		float d = roof / bottom;
 		// l0 + dl
 		vReachPointCenter =  XMLoadFloat3(&p_BoxPos) + vEdgeOrientation * d;
-
-
 		// The Road to Eldorado, city of golden paths end
 		
 		// The golden path code

@@ -104,7 +104,7 @@ void MenuScene::registeredInput(std::string p_Action, float p_Value, float p_Pre
 		{
 			m_ChangeList = true;
 		}
-		else if (p_Action == "back")
+		else if (p_Action == "leaveGame")
 		{
 			m_EventManager->queueEvent(IEventData::Ptr(new QuitGameEventData));
 		}

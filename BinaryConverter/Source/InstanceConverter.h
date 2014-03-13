@@ -16,17 +16,23 @@ private:
 		std::vector<DirectX::XMFLOAT3> m_Rotation;
 		std::vector<DirectX::XMFLOAT3> m_Scale;
 	};
-
+	struct Effects
+	{
+		std::string m_EffectName;
+		std::vector<DirectX::XMFLOAT3> m_Translation;
+		std::vector<DirectX::XMFLOAT3> m_Rotation;
+	};
 	DirectX::XMFLOAT3 m_LevelCheckPointStart;
 	DirectX::XMFLOAT3 m_LevelCheckPointEnd;
 	const std::vector<InstanceLoader::CheckPointStruct>* m_LevelCheckPointList;
+	const std::vector<InstanceLoader::EffectStruct>* m_EffectList;
 	const std::vector<InstanceLoader::ModelStruct>* m_Data;
 	const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::DirectionalLight>>* m_LevelDirectionalLightList;
 	const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::PointLight>>* m_LevelPointLightList;
 	const std::vector<std::pair<InstanceLoader::LightData, InstanceLoader::SpotLight>>* m_LevelSpotLightList;
 	const std::vector<InstanceLoader::ModelHeader>* m_ModelInformation;
 	InstanceLoader::LevelHeader m_Header;
-	int m_LevelDataSize;
+	int m_LevelDataSize, m_EffectDataSize;
 public:
 	/**
 	 * Constructor
@@ -110,6 +116,13 @@ public:
 	void setModelInformation(const std::vector<InstanceLoader::ModelHeader>* p_ModelInformation);
 
 	/**
+	 * Sets the list of effects for the level.
+	 *
+	 * @param p_EffectList, is a list of effects structs that contains positions and rotations.
+	 */
+	void InstanceConverter::setEffectList(const std::vector<InstanceLoader::EffectStruct>* p_EffectList);
+
+	/**
 	 * Clears the writer.
 	 */
 	void clear();
@@ -121,4 +134,5 @@ protected:
 	void createLevel(std::ostream* p_Output);
 	void createLighting(std::ostream* p_Output);
 	void createCheckPoints(std::ostream* p_Output);
+	void InstanceConverter::createEffect(std::ostream* p_Output);
 };

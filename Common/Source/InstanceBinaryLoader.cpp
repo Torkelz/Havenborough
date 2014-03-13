@@ -7,12 +7,14 @@ InstanceBinaryLoader::InstanceBinaryLoader()
 	m_Header.m_NumberOfModels = 0;
 	m_Header.m_NumberOfLights = 0;
 	m_Header.m_NumberOfCheckPoints = 0;
+	m_Header.m_NumberOfEffects = 0;
 }
 
 InstanceBinaryLoader::~InstanceBinaryLoader()
 {
 	clear();
 	m_LevelCheckPointList.shrink_to_fit();
+	m_LevelEffectData.shrink_to_fit();
 	m_LevelData.shrink_to_fit();
 	m_LevelDirectionalLightList.shrink_to_fit();
 	m_LevelPointLightList.shrink_to_fit();
@@ -36,6 +38,7 @@ void InstanceBinaryLoader::readStreamData(std::istream& p_Input)
 	if(m_Header.m_NumberOfModels != 0)m_LevelData = readLevel(p_Input);
 	if(m_Header.m_NumberOfLights != 0)readLevelLighting(p_Input);
 	if(m_Header.m_NumberOfCheckPoints != 0)readLevelCheckPoint(p_Input);
+	if(m_Header.m_NumberOfEffects != 0)m_LevelEffectData = readEffects(p_Input);
 }
 
 InstanceBinaryLoader::Header InstanceBinaryLoader::readHeader(std::istream& p_Input)
@@ -44,9 +47,11 @@ InstanceBinaryLoader::Header InstanceBinaryLoader::readHeader(std::istream& p_In
 	header.m_NumberOfModels = 0;
 	header.m_NumberOfLights = 0;
 	header.m_NumberOfCheckPoints = 0;
+	header.m_NumberOfEffects = 0;
 	byteToInt(p_Input, header.m_NumberOfModels); 
 	byteToInt(p_Input, header.m_NumberOfLights);
 	byteToInt(p_Input, header.m_NumberOfCheckPoints);
+	byteToInt(p_Input, header.m_NumberOfEffects);
 	return header;
 }
 
@@ -135,6 +140,28 @@ void InstanceBinaryLoader::readLevelCheckPoint(std::istream& p_Input)
 	}
 }
 
+std::vector<InstanceBinaryLoader::EffectData> InstanceBinaryLoader::readEffects(std::istream& p_Input)
+{
+	std::vector<InstanceBinaryLoader::EffectData> data;
+	int numberOfDifferentEffects;
+	byteToInt(p_Input, numberOfDifferentEffects);
+	for(int i = 0; i < numberOfDifferentEffects; i++)
+	{
+		EffectData effect = EffectData();
+		int size;
+		byteToString(p_Input, effect.m_EffectName);
+		byteToInt(p_Input, size);
+		effect.m_Translation.resize(size);
+		p_Input.read(reinterpret_cast<char*>(effect.m_Translation.data()),sizeof(DirectX::XMFLOAT3) * size);
+		byteToInt(p_Input, size);
+		effect.m_Rotation.resize(size);
+		p_Input.read(reinterpret_cast<char*>(effect.m_Rotation.data()),sizeof(DirectX::XMFLOAT3) * size);
+		data.push_back(effect);
+	}
+
+	return data;
+}
+
 const std::vector<InstanceBinaryLoader::ModelData>& InstanceBinaryLoader::getModelData() const
 {
 	return m_LevelData;
@@ -163,6 +190,11 @@ DirectX::XMFLOAT3 InstanceBinaryLoader::getCheckPointStart() const
 DirectX::XMFLOAT3 InstanceBinaryLoader::getCheckPointEnd() const
 {
 	return m_LevelCheckPointEnd;
+}
+
+const std::vector<InstanceBinaryLoader::EffectData>& InstanceBinaryLoader::getEffectData() const
+{
+	return m_LevelEffectData;
 }
 
 const std::vector<std::vector<InstanceBinaryLoader::CheckPointStruct>>& InstanceBinaryLoader::getCheckPointData() const

@@ -16,7 +16,7 @@ private:
     float m_JumpTime, m_JumpTimeMax;
 	float m_JumpForce;
 	float m_ClimbOffset; // Offset to position the player correctly when climbing. Needed because the sphere is positioned under the characters center.
-
+	bool m_Landing;
 	float m_CurrentMana, m_PreviousMana, m_MaxMana, m_ManaRegenerationSlow, m_ManaRegenerationFast;
 	bool m_IsAtMaxSpeed, m_IsPreviousManaSet, m_ManaRegeneration;
 

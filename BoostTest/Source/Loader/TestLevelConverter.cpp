@@ -54,12 +54,14 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 
 	static const char binHeader[] = "\x01\0\0\0"
 		"\x05\0\0\0"
-		"\x03\0\0\0";
+		"\x03\0\0\0"
+		"\x01\0\0\0";
 
 	InstanceLoader::LevelHeader header;
 	header.m_NumberOfModels = 1;
 	header.m_NumberOfLights = 5;
 	header.m_NumberOfCheckPoints = 3;
+	header.m_NumberOfEffects = 1;
 	conv.setLevelHead(header);
 
 	std::ostringstream output;
@@ -69,7 +71,8 @@ BOOST_AUTO_TEST_CASE(TestCreateHeader)
 
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin(), resHeader.begin()+4, binHeader, binHeader + sizeof(int));
 	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+4, resHeader.begin()+8, binHeader+4, binHeader+4 + sizeof(int));
-	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+8, resHeader.end(), binHeader+8, binHeader+8 + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+8, resHeader.begin()+12, binHeader+8, binHeader+8 + sizeof(int));
+	BOOST_CHECK_EQUAL_COLLECTIONS(resHeader.begin()+12, resHeader.end(), binHeader+12, binHeader+12 + sizeof(int));
 	conv.clear();
 }
 

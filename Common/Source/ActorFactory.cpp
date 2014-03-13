@@ -394,7 +394,7 @@ Actor::ptr ActorFactory::createInstanceActor(
 	}
 	for (const auto& edge : p_Edges)
 	{
-		print(printer, edge);
+		print(printer, edge, p_Model.scale);
 	}
 	printer.CloseElement();
 
@@ -619,14 +619,80 @@ void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceBounding
 	p_Printer.CloseElement();
 }
 
-void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge)
+void ActorFactory::print(tinyxml2::XMLPrinter& p_Printer, const InstanceEdgeBox& p_Edge, Vector3 p_Scale)
 {
 	p_Printer.OpenElement("OBBPhysics");
 	p_Printer.PushAttribute("Immovable", true);
 	p_Printer.PushAttribute("Mass", 0.f);
 	p_Printer.PushAttribute("IsEdge", true);
-	pushVector(p_Printer, "Halfsize", p_Edge.halfsize);
-	pushVector(p_Printer, "OffsetPosition", p_Edge.offsetPosition);
-	pushRotation(p_Printer, "OffsetRotation", p_Edge.offsetRotation);
+
+	using namespace DirectX;
+
+	XMFLOAT3 position = p_Edge.offsetPosition;
+	XMFLOAT3 rotation = p_Edge.offsetRotation;
+	XMFLOAT3 halfSize = p_Edge.halfsize;
+
+	if(p_Scale.x == p_Scale.y && p_Scale.x == p_Scale.z)
+	{
+		halfSize = p_Edge.halfsize * p_Scale.x;
+		position = p_Edge.offsetPosition * p_Scale.x;
+	}
+	else
+	{
+		XMMATRIX rotMat , scalMat;
+		rotMat = XMMatrixRotationRollPitchYaw(rotation.y, rotation.x, rotation.z);
+		scalMat = XMMatrixScalingFromVector(XMLoadFloat3(&p_Scale));
+
+		float offsetValue = halfSize.x;
+		int index = 0;
+		float sideValue = halfSize.y;
+		if(halfSize.x < halfSize.y)
+		{
+			offsetValue = halfSize.y;
+			sideValue = halfSize.x;
+			index = 1;
+		}
+		if(offsetValue < halfSize.z)
+		{
+			offsetValue = halfSize.z;
+			index = 2;
+		}
+
+		XMVECTOR sizeVector = XMVectorZero();
+		sizeVector.m128_f32[index] = offsetValue;
+
+		sizeVector = XMVector3Transform(sizeVector, rotMat);
+
+		XMVECTOR pos1, pos2;
+		XMVECTOR centerPos = XMLoadFloat3(&position);
+		centerPos.m128_f32[3] = 1.0f;
+		pos1 = centerPos + sizeVector;
+		pos2 = centerPos - sizeVector;
+
+		pos1 = XMVector3Transform(pos1, scalMat);
+		pos2 = XMVector3Transform(pos2, scalMat);
+
+		centerPos = (pos1 + pos2) * 0.5f;
+
+		XMStoreFloat3(&position, centerPos);
+
+		XMVECTOR dirVector = pos1 - centerPos;
+
+		float length = XMVector3Length(dirVector).m128_f32[0];
+
+		halfSize.x = length;
+		halfSize.y = sideValue;
+		halfSize.z = sideValue;
+
+		XMFLOAT3 direction; 
+		XMStoreFloat3(&direction,dirVector);
+		rotation.x = -atan2f(direction.z, direction.x);
+		rotation.y = 0;
+		rotation.z = asinf(direction.y / length);
+	}
+
+	pushVector(p_Printer, "Halfsize", halfSize);
+	pushVector(p_Printer, "OffsetPosition", position);
+	pushRotation(p_Printer, "OffsetRotation", rotation);
 	p_Printer.CloseElement();
 }
