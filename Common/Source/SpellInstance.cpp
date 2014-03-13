@@ -89,6 +89,8 @@ void SpellInstance::spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitDa
 			break;
 		}
 	}
+
+
 }
 
 bool SpellInstance::isColliding() const
@@ -114,5 +116,7 @@ void SpellInstance::explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const H
 		{
 			p_Physics->applyImpulse(p_Hit.collider, vTemp.xyz() * casterEffectModifier * p_DeltaTime);
 		}
+
+
 	}
 }

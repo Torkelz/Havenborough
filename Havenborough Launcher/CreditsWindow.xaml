@@ -26,6 +26,8 @@
                 </StackPanel.Resources>
                 <TextBlock Style="{StaticResource TitelStyle}" Text="Project Lead" />
                 <TextBlock Style="{StaticResource NameStyle}" Text="Robin Karlsson" />
+                <TextBlock Style="{StaticResource TitelStyle}" Text="Project Management" />
+                <TextBlock Style="{StaticResource NameStyle}" Text="Pontus Franzén" />
                 <TextBlock Style="{StaticResource TitelStyle}" Text="Lead Game Design" />
                 <TextBlock Style="{StaticResource NameStyle}" Text="Mattias Fridh" />
                 <TextBlock Style="{StaticResource TitelStyle}" Text="Lead Programmer" />
@@ -36,6 +38,7 @@
                 <TextBlock Style="{StaticResource NameStyle}" Text="Philip Andersson" />
                 <TextBlock Style="{StaticResource NameStyle}" Text="Fredrik Cronqvist" />
                 <TextBlock Style="{StaticResource NameStyle}" Text="André Eliasson" />
+                <TextBlock Style="{StaticResource NameStyle}" Text="Pontus Franzén" />
                 <TextBlock Style="{StaticResource NameStyle}" Text="Mattias Fridh" />
                 <TextBlock Style="{StaticResource NameStyle}" Text="Sofie Höglund" />
                 <TextBlock Style="{StaticResource NameStyle}" Text="Tim Jungvig" />

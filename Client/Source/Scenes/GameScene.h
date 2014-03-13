@@ -36,12 +36,13 @@ private:
 	unsigned int m_CurrentDebugView;
 	std::vector<IGraphics::RenderTarget> m_SelectableRenderTargets;
 
-	std::vector<std::string> m_BackGroundSoundsList;
+	std::vector<std::string> m_BackgroundSoundsList;
 	std::string m_SoundFolderPath;
 	std::string m_SoundPath;
 	std::default_random_engine m_RandomEngine;
 	ISound *m_SoundManager;
 	bool m_SoundExist;
+	float m_UserAddedSoundVolume;
 
 	float m_ViewSensitivity;
 
@@ -106,6 +107,8 @@ public:
 	void setMouseSensitivity(float p_Value);
 
 	void setSoundManager(ISound *p_SoundManager);
+
+	void setUserAddedSoundVolume(float p_SoundVolume);
 private:
 	std::string changeBackGroundSound(const std::string& p_FontFolderPath);
 
@@ -124,6 +127,7 @@ private:
 	void updateParticleRotation(IEventData::Ptr p_Data);
 	void updateParticleBaseColor(IEventData::Ptr p_Data);
 	void spellHit(IEventData::Ptr p_Data);
+	void spellHitSphere(IEventData::Ptr p_Data);
 
 	void createWorldText(IEventData::Ptr p_Data);
 	void removeWorldText(IEventData::Ptr p_Data);

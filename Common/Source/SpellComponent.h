@@ -146,7 +146,7 @@ public:
 			m_Physics->releaseBody(m_Body);
 			m_Body = m_Physics->createSphere(0.f, true, currentPosition, m_SpellInstance->getRadius());
 			m_Physics->setBodyCollisionResponse(m_Body, false);
-			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitEventData(*m_Owner, currentPosition)));
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitEventData(*m_Owner, currentPosition )));
 		}
 
 		if (m_SpellInstance->isDead())
@@ -162,6 +162,7 @@ public:
 			{
 				if(m_Physics->getHitDataAt(i).collisionVictim == m_Body)
 				{
+					m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitSphereEventData( m_Physics->getHitDataAt(i).collider )));
 					m_SpellInstance->spellHit(p_DeltaTime, m_Physics, m_Physics->getHitDataAt(i), m_Caster.lock()->getBodyHandles()[0]);
 				}
 			}
