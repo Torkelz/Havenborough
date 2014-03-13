@@ -366,6 +366,8 @@ void Animation::applyIK_ReachPoint(const std::string& p_GroupName, const DirectX
 
 	XMVECTOR rotationAxis = XMVector3Cross(-nmlStartToJoint, nmlJointToEnd);
 	rotationAxis = XMVector3Normalize(rotationAxis);
+	if (XMVector3LengthSq(rotationAxis).m128_f32[0] < 0.5f)
+		return;
 
 	XMVECTOR objectJointToStart = XMVector4Transform(XMVectorSet(0.f, 0.f, 0.f, 1.f), XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_LocalTransforms[middleJoint->m_ID - 1]))));
 	XMVECTOR objectJointToEnd = XMVector4Transform(XMVectorSet(0.f, 0.f, 0.f, 1.f), XMMatrixTranspose(XMLoadFloat4x4(&m_LocalTransforms[endJoint->m_ID - 1])));

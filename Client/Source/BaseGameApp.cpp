@@ -25,6 +25,16 @@ void BaseGameApp::init()
 	Settings settings;
 	settings.initialize("UserOptions.xml");
 
+	float checkValue = 0.5f;//settings.getSettingValue("MusicVolume") * 0.01f; //Remove "0.5f" when setings in launchen is done
+	
+	if (checkValue <= 1.f || checkValue >= 0.f)
+	{
+		m_UserAddedSoundVolume = checkValue;
+	}
+	else
+	{
+		m_UserAddedSoundVolume = 1.f;
+	}	
 
 	TweakSettings::initializeMaster();
 
@@ -133,6 +143,7 @@ void BaseGameApp::init()
 	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings(), resolution);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setSoundManager(m_Sound);
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setUserAddedSoundVolume(m_UserAddedSoundVolume);
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);
@@ -179,6 +190,8 @@ void BaseGameApp::run()
 		handleInput();
 
 		updateLogic();
+
+		m_Sound->onFrame();
 
 		render();
 		

@@ -2,32 +2,64 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
-        Title="Havenborough CreditsWindow" Height="625" Width="875" ResizeMode="NoResize">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50*" />
-            <ColumnDefinition Width="38*" />
-            <ColumnDefinition Width="12*" />
-        </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0">
-            
-        </Grid>
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="10*" />
-                <RowDefinition Height="80*" />
-                <RowDefinition Height="10*" />
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
-                <StackPanel Margin="10">
-                    <TextBlock Text="© 2014 Havenborough" TextWrapping="Wrap" TextAlignment="Center"></TextBlock>
+        Title="Havenborough CreditsWindow" Height="625" Width="875" ResizeMode="NoResize"
+        Background="Black">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+        <Grid x:Name="InstructionsGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="44*" />
+                <ColumnDefinition Width="44*" />
+                <ColumnDefinition Width="12*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" VerticalAlignment="Top">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="14" />
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                            <Setter Property="TextAlignment" Value="Justify" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <StackPanel Width="250" Margin="-75,10,0,0">
+                        <Label x:Name="CheckpointImage" Loaded="ImageLabels_OnLoaded" />
+                        <TextBlock Text="This is a checkpoint. Collect all of them before any opponent does. A blue checkpoint is the current one you can take, when taken a white one will become blue and possible to collect. The red checkpoint is the final which will turn green and possible to collect when it is the only checkpoint left." />
+                    </StackPanel>
+                    <StackPanel Width="250" Margin="50,10,0,0">
+                        <Label x:Name="CheckpointsLeftImage" Loaded="ImageLabels_OnLoaded" />
+                        <TextBlock Text="The number to the left indicates how many checkpoints you have collected. The number to the right is the number of checkpoints to collect."/>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
-            <Grid Grid.Row="2">
-                <StackPanel Margin="10" VerticalAlignment="Bottom">
-                    <Button Height="35" FontSize="16" FontWeight="Bold" Click="Close_OnClick" Content="CLOSE"/>
+            <Grid Grid.Column="1" VerticalAlignment="Top">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="14" />
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                            <Setter Property="TextAlignment" Value="Justify" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <StackPanel Width="230" Margin="10,80,10,10">
+                        <Label x:Name="ArrowImage" Loaded="ImageLabels_OnLoaded" />
+                        <TextBlock Text="The arrow points to the location of your current checkpoint." />
+                    </StackPanel>
+                    <StackPanel Width="230" Margin="-40,80,10,10">
+                        <Label x:Name="ManabarImage" Loaded="ImageLabels_OnLoaded" />
+                        <TextBlock Text="This indicates your amount of mana, it is blue when you have enough mana to cast a spell. It regenerates over time and the faster you run the faster it regenerates." />
+                    </StackPanel>
                 </StackPanel>
             </Grid>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="90*" />
+                    <RowDefinition Height="10*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="1">
+                    <StackPanel Margin="10" VerticalAlignment="Bottom">
+                        <Button Height="35" FontSize="16" FontWeight="Bold" Click="Close_OnClick" Content="CLOSE"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </controls:MetroWindow>

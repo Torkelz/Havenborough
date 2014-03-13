@@ -21,6 +21,9 @@ namespace Havenborough_Launcher
         private const string ClientExec = "Client.exe";
         private const string ServerExec = "Server.exe";
         
+        /// <summary>
+        /// Launcher main window. Creates main window and displays for user interaction.
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -31,8 +34,7 @@ namespace Havenborough_Launcher
 
             Background = new ImageBrush
             {
-                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg",
-                    UriKind.Relative))
+                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg", UriKind.Relative))
             };
             Icon = BitmapFrame.Create(new Uri(@"Havenborough.ico", UriKind.RelativeOrAbsolute));
 
@@ -328,7 +330,7 @@ namespace Havenborough_Launcher
             textBox.Text = KeyInterop.KeyFromVirtualKey(virtualKey).ToString();
         }
 
-        private void KeyBindTextBox_OnKeyDown(object sender, KeyEventArgs e)
+        private void KeyBindPanel_OnKeyDown(object sender, KeyEventArgs e)
         {
             e.Handled = true;
             var key = e.SystemKey != Key.None ? e.SystemKey : e.Key;
@@ -505,16 +507,18 @@ namespace Havenborough_Launcher
         private void Slider_OnChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             var slider = sender as Slider;
-            if (slider == null || FovValue == null || MouseSenseValue == null)
+            if (slider == null || FovValue == null || MouseSenseValue == null || MusicVolumeValue == null || 
+                SfxVolumeValue == null)
                 return;
 
             switch (slider.Name)
             {
                 case "FovSlider":
-                    FovValue.Text = ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
-                    if ((int) slider.Value == 70)
-                        FovValue.Text = "Quake Pro";
-                    break;
+                {
+                    FovValue.Text = (int) slider.Value == 70 ?
+                        "Quake Pro" : ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
+                        break;
+                }
                 case "MouseSenseSlider":
                 {
                     var val = slider.Value.ToString(CultureInfo.InvariantCulture);
@@ -530,10 +534,32 @@ namespace Havenborough_Launcher
                             MouseSenseValue.Text = val.Substring(0, 4);
                             break;
                     }
-                }
                     break;
+
+                }
+                case "MusicVolumeSlider":
+                {
+                    MusicVolumeValue.Text = (int) slider.Value == 0 ? 
+                        "Muted" : ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
+                    break;
+                }
+                case "SfxVolumeSlider":
+                {
+                    SfxVolumeValue.Text = (int)slider.Value == 0 ?
+                        "Muted" : ((int)slider.Value).ToString(CultureInfo.InvariantCulture);
+                    break;
+                }
             }
-               
+        }
+
+        private void KeyBindTextBox_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            if (textBox == null)
+                return;
+
+            bool test = textBox.IsFocused;
+            //textBox.Background = Brushes.Azure;
         }
     }
 

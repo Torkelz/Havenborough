@@ -194,7 +194,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_TextureLoader = TextureLoader(m_Device, m_DeviceContext);
 	createDefaultShaders();
 	
-	float nearZ = 10.0f;
+	float nearZ = 8.0f;
 	float farZ = 100000.0f;
 	m_FOV = 2 * PI / 360.0f * p_FOV;
 	initializeMatrices(p_ScreenWidth, p_ScreenHeight, nearZ, farZ);
@@ -1069,15 +1069,11 @@ void Graphics::setTextRotation(Text_Id p_Identifier, float p_Rotation)
 
 void Graphics::updateCamera(Vector3 p_Position, Vector3 p_Forward, Vector3 p_Up)
 {
+	m_Eye = p_Position;
+
 	XMVECTOR upVec = XMVectorSet(p_Up.x, p_Up.y, p_Up.z, 0.f);
 	XMVECTOR forwardVec = XMVectorSet(p_Forward.x, p_Forward.y, p_Forward.z, 0.f);
 	XMVECTOR pos = XMVectorSet(p_Position.x, p_Position.y, p_Position.z, 1.f);
-
-	XMVECTOR flatForward = XMVectorSetY(forwardVec, 0.f);
-	XMVECTOR flatUp = XMVectorSetY(upVec, 0.f);
-	
-	pos += flatForward * 0.f + forwardVec * 10.f + flatUp * 0.f;
-	XMStoreFloat3(&m_Eye, pos);
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixTranspose(XMMatrixLookToLH(pos, forwardVec, upVec)));
 

@@ -15,6 +15,7 @@ GameScene::GameScene()
 	m_ChangeScene = false;
 	m_ChangeList = false;
 	m_SoundExist = false;
+	m_UserAddedSoundVolume = 0.f;
 
 	m_GameLogic = nullptr;
 	m_Graphics = nullptr;
@@ -99,7 +100,7 @@ void GameScene::destroy()
 	releasePreLoadedModels();
 	m_ResourceManager->releaseResource(m_SkyboxID);
 	m_SoundManager->releaseSound("CurrentSound");
-	m_BackGroundSoundsList.clear();
+	m_BackgroundSoundsList.clear();
 }
 
 void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
@@ -141,8 +142,6 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_Graphics->updateParticles(p_DeltaTime);
 
-	m_SoundManager->onFrame();
-
 	if (m_SoundPath != "NULL")
 	{
 		if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
@@ -153,7 +152,7 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 				m_SoundManager->loadSoundWithoutLoop("CurrentSound", m_SoundPath.c_str());
 				m_SoundExist = true;
 				m_SoundManager->playSound("CurrentSound");
-				m_SoundManager->setSoundVolume("CurrentSound", 0.2f);
+				m_SoundManager->setSoundVolume("CurrentSound", 0.5f);//m_UserAddedSoundVolume); //Remove "0.5f" with "m_UserAddedSoundVolume" when Launcher are done
 			}
 		}
 	}	
@@ -389,6 +388,11 @@ void GameScene::setSoundManager(ISound *p_SoundManager)
 	m_SoundManager = p_SoundManager;
 }
 
+void GameScene::setUserAddedSoundVolume(float p_SoundVolume)
+{
+	m_UserAddedSoundVolume = p_SoundVolume;
+}
+
 std::string GameScene::changeBackGroundSound(const std::string& p_FontFolderPath)
 {
 	
@@ -398,15 +402,15 @@ std::string GameScene::changeBackGroundSound(const std::string& p_FontFolderPath
 		m_SoundExist = false;
 	}
 
-	m_BackGroundSoundsList.clear();
+	m_BackgroundSoundsList.clear();
 
 	boost::filesystem::directory_iterator currFile(p_FontFolderPath);
 	for (; currFile != boost::filesystem::directory_iterator(); ++currFile)
 	{
 		auto filename = currFile->path();
-		m_BackGroundSoundsList.push_back(filename.string());
+		m_BackgroundSoundsList.push_back(filename.string());
 	}
-	int soundCount = m_BackGroundSoundsList.size();
+	int soundCount = m_BackgroundSoundsList.size();
 	if (soundCount == 0)
 	{
 		std::string failToFindAFile = "NULL";
@@ -416,7 +420,7 @@ std::string GameScene::changeBackGroundSound(const std::string& p_FontFolderPath
 	int newSoundTrack = 0;
 	newSoundTrack = newBackGroundSound(m_RandomEngine);
 
-	return m_BackGroundSoundsList[newSoundTrack];
+	return m_BackgroundSoundsList[newSoundTrack];
 }
 
 /*########## TEST FUNCTIONS ##########*/
