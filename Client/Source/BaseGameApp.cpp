@@ -26,7 +26,7 @@ void BaseGameApp::init()
 	settings.initialize("UserOptions.xml");
 	
 	float checkValue = settings.getSettingValue("MusicVolume") * 0.01f;
-	if (!checkValue > 1.f)
+	if (checkValue <= 1.f || checkValue >= 0.f)
 	{
 		m_UserAddedSoundVolume = checkValue;
 	}
@@ -189,6 +189,8 @@ void BaseGameApp::run()
 		handleInput();
 
 		updateLogic();
+
+		m_Sound->onFrame();
 
 		render();
 		
