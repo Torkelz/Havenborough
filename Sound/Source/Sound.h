@@ -69,9 +69,15 @@ public:
 
 	void initialize(void) override;
 
+	void onFrameListener(Vector3* p_Position, Vector3* p_Velocity, Vector3* p_Forward, Vector3* p_Up) override;
+
+	void onFrameSound(const char* p_SoundID, Vector3* p_Position, Vector3* p_Velocity) override;
+
 	void onFrame(void) override;
 
 	bool loadSound(const char *p_SoundId, const char *p_Filename) override;
+
+	bool load3DSound(const char *p_SoundId, const char *p_Filename, float p_MinDistance) override;
 
 	bool loadSoundWithoutLoop(const char *p_SoundId, const char *p_Filename) override;
 
@@ -81,6 +87,8 @@ public:
 
 	void playSound(const char *p_SoundId) override;
 
+	void play3DSound(const char *p_SoundId, Vector3* p_Position, Vector3* p_Velocity) override;
+	
 	void pauseSound(const char *p_SoundId, bool p_Pause) override;
 
 	void stopSound(const char *p_SoundId) override;

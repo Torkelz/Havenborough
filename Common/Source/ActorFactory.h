@@ -147,6 +147,7 @@ private:
 	ActorComponent::ptr createModelSinOffsetComponent();
 	ActorComponent::ptr createMovementComponent();
 	ActorComponent::ptr createCircleMovementComponent();
+	ActorComponent::ptr createSoundComponent();
 	ActorComponent::ptr createPulseComponent();
 	ActorComponent::ptr createLightComponent();
 	ActorComponent::ptr createParticleComponent();

@@ -1700,3 +1700,14 @@ public:
 		m_Model.lock()->setOffset(result);
 	}
 };
+
+
+class SoundInterface : public ActorComponent
+{
+public:
+	static const Id m_ComponentId = 13; /// Unique id
+	Id getComponentId() const override
+	{
+		return m_ComponentId;
+	}
+};

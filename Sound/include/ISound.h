@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <Utilities\Util.h>
 
 class ISound
 {
@@ -31,6 +32,26 @@ public:
 	 * Initialize Sound and FMOD.
 	 */
 	virtual void initialize(void) = 0;
+
+	/**
+	 * Updates the FMOD listener system, should be called every frame.
+	 *
+	 * @param p_Position the listeners position
+	 * @param p_Velocity the velocity of the listener
+	 * @param p_Forward listeners look direction
+	 * @param p_Up vector for the listener
+	 */
+	virtual void onFrameListener(Vector3* p_Position, Vector3* p_Velocity, Vector3* p_Forward, Vector3* p_Up)  = 0;
+
+	/**
+	 * Updates the FMOD sound system, should be called every frame.
+	 *
+	 * @param p_SoundID the sound id
+	 * @param p_Position the listeners position
+	 * @param p_Velocity the velocity of the listener
+	 */
+	virtual void onFrameSound(const char* p_SoundID, Vector3* p_Position, Vector3* p_Velocity) = 0;
+
 	/**
 	 * Updates the FMOD system, should be called every frame.
 	 */
@@ -42,6 +63,18 @@ public:
 	 * @param true if the load is successful otherwise false
 	 */
 	virtual bool loadSound(const char *p_SoundId, const char *p_Filename) = 0;
+	
+	/**
+	 * Load a sound from file into memory and set the loop state to be on.
+	 * Sets information about the 3D sound.
+	 * @param p_SoundId resource name connected to the sound to load.
+	 * @param p_Filename filename of the sound file.
+	 * @param p_MinDistance from the sound source.
+	 * @param p_MaxDistance from the sound source.
+	 * @return true if the load is successful otherwise false
+	 */
+	virtual bool load3DSound(const char *p_SoundId, const char *p_Filename, float p_MinDistance) = 0;
+
 	/**
 	 * Load a sound from file into memory and set the loop state to be off.
 	 * @param p_SoundId resource name connected to the sound to load.
@@ -68,6 +101,15 @@ public:
 	 * @param p_SoundId which sound to play
 	 */
 	virtual void playSound(const char *p_SoundId) = 0;
+
+	/**
+	 * Play 3D sound from a position with a velocity;
+	 * @param p_SoundId wich sound to play
+	 * @param the sounds start position
+	 * @param the sounds velocity
+	 */
+	virtual void play3DSound(const char *p_SoundId, Vector3* p_Position, Vector3* p_Velocity) = 0;
+
 	/**
 	 * Pause/unpause a sound.
 	 * @param p_SoundId which sound to pause

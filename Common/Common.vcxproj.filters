@@ -147,6 +147,9 @@
     <ClInclude Include="Source\PlayerBodyComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SoundComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rd party\tinyxml2\tinyxml2.cpp">

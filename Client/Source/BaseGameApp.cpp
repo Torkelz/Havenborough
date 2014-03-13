@@ -179,6 +179,8 @@ void BaseGameApp::run()
 		handleInput();
 
 		updateLogic();
+		
+		m_Sound->onFrame();
 
 		render();
 		

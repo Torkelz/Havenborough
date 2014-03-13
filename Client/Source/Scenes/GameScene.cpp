@@ -139,9 +139,8 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->movePlayerView(hori * turnSize, -vert * turnSize);
 
 	m_Graphics->updateParticles(p_DeltaTime);
-
-	m_SoundManager->onFrame();
-
+	Vector3 soundPos = Vector3(0.f, 0.0f, 0.f);
+	Vector3 soundVelocity = Vector3(0,0,0);
 	if (m_SoundPath != "NULL")
 	{
 		if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
@@ -149,13 +148,13 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 			m_SoundPath = changeBackGroundSound(m_SoundFolderPath);
 			if (m_SoundPath != "NULL")
 			{		
-				m_SoundManager->loadSoundWithoutLoop("CurrentSound", m_SoundPath.c_str());
+				m_SoundManager->load3DSound("CurrentSound", m_SoundPath.c_str(),10.0f);
 				m_SoundExist = true;
-				m_SoundManager->playSound("CurrentSound");
-				m_SoundManager->setSoundVolume("CurrentSound", 0.2f);
+				//m_SoundManager->play3DSound("CurrentSound", &soundPos, &soundVelocity);
 			}
 		}
-	}	
+	}
+	m_SoundManager->onFrameListener(&m_GameLogic->getPlayerEyePosition(), &soundVelocity, &m_GameLogic->getPlayerViewForward(), &m_GameLogic->getPlayerViewUp());
 }
 
 void GameScene::onFocus()

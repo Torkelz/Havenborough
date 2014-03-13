@@ -98,8 +98,9 @@ void Sound::initialize(void)
 		/*
 			... and re-init.
 		*/
-		errorCheck(m_System->init(100, FMOD_INIT_NORMAL, 0));
+		errorCheck(m_System->init(100, FMOD_INIT_3D_RIGHTHANDED , 0));
 	}
+	errorCheck(m_System->set3DSettings(1.0f, 100.0f, 1.0f));
 
 	errorCheck(m_System->createChannelGroup("Music Group", &m_MusicChannelGroup));
 
@@ -110,6 +111,25 @@ void Sound::initialize(void)
 	errorCheck(m_MasterChannelGroup->addGroup(m_MusicChannelGroup));
 
 	errorCheck(m_MasterChannelGroup->addGroup(m_SfxChannelGroup));
+
+	
+}
+
+void Sound::onFrameListener(Vector3* p_Position, Vector3* p_Velocity, Vector3* p_Forward, Vector3* p_Up)
+{
+	m_System->set3DListenerAttributes(0,
+		reinterpret_cast<FMOD_VECTOR*>(p_Position), 
+		NULL, 
+		reinterpret_cast<FMOD_VECTOR*>(p_Forward), 
+		reinterpret_cast<FMOD_VECTOR*>(p_Up));
+}
+
+void Sound::onFrameSound(const char* p_SoundID, Vector3* p_Position, Vector3* p_Velocity)
+{
+	SoundInstance* instSound = getSound(p_SoundID);
+	instSound->getChannel()->set3DAttributes(
+		reinterpret_cast<FMOD_VECTOR*>(p_Position) ,
+		reinterpret_cast<FMOD_VECTOR*>(p_Velocity));
 }
 
 void Sound::onFrame(void)
@@ -127,6 +147,24 @@ bool Sound::loadSound(const char *p_SoundId, const char *p_Filename)
 
 	SoundInstance si(p_SoundId, s, c);
 	m_Sounds.push_back(si);
+	s = nullptr;
+	
+	return true;
+}
+
+bool Sound::load3DSound(const char *p_SoundId, const char *p_Filename, float minDistance)
+{
+
+	FMOD::Sound *s;
+	FMOD::Channel *c;
+	errorCheck(m_System->createSound(p_Filename, FMOD_3D, 0, &s));
+	errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s, true, &c));
+	FMOD_VECTOR temp = {0,0,0};
+	FMOD_RESULT result = c->set3DAttributes(&temp, NULL);
+	result = c->set3DMinMaxDistance(minDistance, 10000.0f);
+	SoundInstance si(p_SoundId, s, c);
+	m_Sounds.push_back(si);
+
 	s = nullptr;
 	
 	return true;
@@ -180,6 +218,37 @@ void Sound::playSound(const char *p_SoundId)
 	else
 	{
 		errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, &c));
+		s->setChannel(c);
+	}
+}
+
+void Sound::play3DSound(const char *p_SoundId, Vector3* p_Position, Vector3* p_Velocity)
+{
+	SoundInstance *s = getSound(std::string(p_SoundId));
+	FMOD::Channel *c;
+	if(s->getChannel())
+	{
+		bool p;
+		errorCheck(s->getChannel()->getPaused(&p));
+		if(p)
+			errorCheck(s->getChannel()->setPaused(false));
+		else
+		{
+			errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, &c));
+
+			c->set3DAttributes(
+		reinterpret_cast<FMOD_VECTOR*>(p_Position) ,
+		reinterpret_cast<FMOD_VECTOR*>(p_Velocity));
+			s->setChannel(c);
+		}
+	}
+	else
+	{
+		errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, &c));
+
+		c->set3DAttributes(
+		reinterpret_cast<FMOD_VECTOR*>(p_Position) ,
+		reinterpret_cast<FMOD_VECTOR*>(p_Velocity));
 		s->setChannel(c);
 	}
 }
