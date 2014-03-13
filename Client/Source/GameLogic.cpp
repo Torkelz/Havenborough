@@ -243,7 +243,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 	float playerMana = m_Player.getCurrentMana();
 	float playerPrevMana = m_Player.getPreviousMana();
 
-	m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData(playerMana/100, playerPrevMana/100, manaCost)));
+	m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData(playerMana/100.f, playerPrevMana/100.f, manaCost)));
 }
 
 void GameLogic::setPlayerDirection(Vector3 p_Direction)

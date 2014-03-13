@@ -62,7 +62,6 @@ void Player::update(float p_DeltaTime)
 	else
 		m_Landing = false;
 
-
 	if(m_ManaRegeneration)
 	{
 		if(!m_IsPreviousManaSet)
@@ -114,7 +113,6 @@ void Player::update(float p_DeltaTime)
 
 		//strActor->getEventManager()->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData( m_CurrentMana/100, m_PreviousMana/100)));
 	}
-
 	if(!m_ForceMove)
 	{
 		if(m_AllowedToMove)
@@ -570,7 +568,7 @@ Vector3 Player::getDirection() const
 
 void Player::setJump(void)
 {
-	if(m_AllowedToMove && !m_ForceMove)
+	if(m_AllowedToMove && !m_ForceMove && !m_Landing)
 	{		
 		Actor::ptr actor = m_Actor.lock();
 		if (!actor)
