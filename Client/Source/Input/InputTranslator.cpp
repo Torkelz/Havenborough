@@ -63,6 +63,7 @@ void InputTranslator::destroy()
 void InputTranslator::setRecordHandler(InputTranslator::recordFunc_t p_RecordHandler)
 {
 	m_RecordFunction = p_RecordHandler;
+	m_DeviceManager.setRecordFunc(p_RecordHandler);
 }
 
 void InputTranslator::addKeyboardMapping(USHORT p_VirtualKey, const std::string& p_Action)
@@ -104,6 +105,16 @@ void InputTranslator::addMouseButtonMapping(MouseButton p_Button, const std::str
 void InputTranslator::lockMouse(bool p_State)
 {
 	m_MouseLocked = p_State;
+}
+
+void InputTranslator::addButtonMapping(USAGE p_ButtonUsage, const std::string& p_Action)
+{
+	m_DeviceManager.addButtonMapping(p_ButtonUsage, p_Action);
+}
+
+void InputTranslator::addAxisMapping(USAGE p_AxisUsage, bool p_PosDir, const std::string& p_Action)
+{
+	m_DeviceManager.addAxisMapping(p_AxisUsage, p_PosDir, p_Action);
 }
 
 bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)

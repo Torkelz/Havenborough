@@ -117,6 +117,9 @@ public:
 	 * @param p_State true for lock.
 	 */
 	void lockMouse(bool p_State);
+	
+	void addButtonMapping(USAGE p_ButtonUsage, const std::string& p_Action);
+	void addAxisMapping(USAGE p_AxisUsage, bool p_PosDir, const std::string& p_Action);
 
 protected:
 	/**

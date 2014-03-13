@@ -3,8 +3,52 @@
 #include "../ClientExceptions.h"
 #include <Logger.h>
 
-Gamepad::Gamepad(HANDLE p_Device) :
-	m_Device(p_Device)
+void Gamepad::Translator::setRecordFunc(recordFunc_t p_RecordFunc)
+{
+	m_RecordFunc = p_RecordFunc;
+}
+
+void Gamepad::Translator::addButtonMapping(USAGE p_ButtonUsage, const std::string& p_Action)
+{
+	m_ButtonBinds[p_ButtonUsage] = p_Action;
+}
+
+void Gamepad::Translator::addAxisMapping(USAGE p_AxisUsage, bool p_PosDir, const std::string& p_Action)
+{
+	m_AxesBinds[std::make_pair(p_AxisUsage, p_PosDir)] = p_Action;
+}
+
+void Gamepad::Translator::passButton(USAGE p_ButtonUsage, float p_Value, float p_PrevValue)
+{
+	auto it = m_ButtonBinds.find(p_ButtonUsage);
+	if (it == m_ButtonBinds.end())
+		return;
+
+	InputRecord rec;
+	rec.m_Action = it->second;
+	rec.m_Value = p_Value;
+	rec.m_PrevValue = p_PrevValue;
+
+	m_RecordFunc(rec);
+}
+
+void Gamepad::Translator::passAxis(USAGE p_AxisUsage, bool p_PosDir, float p_Value, float p_PrevValue)
+{
+	auto it = m_AxesBinds.find(std::make_pair(p_AxisUsage, p_PosDir));
+	if (it == m_AxesBinds.end())
+		return;
+
+	InputRecord rec;
+	rec.m_Action = it->second;
+	rec.m_Value = p_Value;
+	rec.m_PrevValue = p_PrevValue;
+
+	m_RecordFunc(rec);
+}
+
+Gamepad::Gamepad(HANDLE p_Device, Translator::ptr p_Translator) :
+	m_Device(p_Device),
+	m_Translator(p_Translator)
 {
 	UINT bufferSize = 0;
 	GetRawInputDeviceInfoA(m_Device,
@@ -71,7 +115,7 @@ bool Gamepad::handleInput(RAWINPUT* p_RawHID)
 			throw ClientException("Getting HID usage value failed: " + std::to_string(stat), __LINE__, __FILE__);
 		}
 
-		checkAxis(vCaps.Range.UsageMin, value);
+		checkAxis(vCaps, value);
 	}
 
 	return true;
@@ -86,7 +130,7 @@ void Gamepad::checkButtons(const std::vector<USAGE>& p_PressedButtons)
 			p_PressedButtons.end(),
 			button.first) == p_PressedButtons.end())
 		{
-			Logger::log(Logger::Level::INFO, "Button " + std::to_string(button.first) + " released");
+			m_Translator->passButton(button.first, 0.f, 1.f);
 			button.second = false;
 		}
 	}
@@ -101,23 +145,84 @@ void Gamepad::checkButtons(const std::vector<USAGE>& p_PressedButtons)
 
 		if (!insertRes.first->second)
 		{
-			Logger::log(Logger::Level::INFO, "Button " + std::to_string(button) + " pressed");
+			m_Translator->passButton(button, 1.f, 0.f);
 			insertRes.first->second = true;
 		}
 	}
 }
 
-void Gamepad::checkAxis(USAGE p_Axis, ULONG p_Value)
+static float normalizeValue(const HIDP_VALUE_CAPS& p_Axis, ULONG p_Center, ULONG p_Value)
 {
-	auto insertRes = m_CurrentAxisStates.insert(std::make_pair(p_Axis, p_Value));
-	if (insertRes.second)
+	if (p_Axis.LogicalMin == 0 && p_Axis.LogicalMax == -1)
 	{
-		Logger::log(Logger::Level::INFO, "New axis detected: " + std::to_string(p_Axis));
+#undef max
+		float val = (float)p_Value / (float)(2 << (p_Axis.BitSize - 2));
+		return fabs(val - 1.f);
 	}
 
-	if (p_Value != insertRes.first->second)
+	if (p_Value < p_Center)
 	{
-		Logger::log(Logger::Level::INFO, "Axis " + std::to_string(p_Axis) + " moved to " + std::to_string(p_Value));
-		insertRes.first->second = p_Value;
+		const ULONG minRange = p_Center - p_Axis.LogicalMin;
+		const ULONG distance = p_Center - p_Value;
+
+		return (float)distance / (float)minRange;
 	}
+	else if (p_Value > p_Center)
+	{
+		const ULONG maxRange = p_Axis.LogicalMax - p_Center;
+		const ULONG distance = p_Value - p_Center;
+
+		return (float)distance / (float)maxRange;
+	}
+	else
+	{
+		return 0.f;
+	}
+}
+
+void Gamepad::checkAxis(const HIDP_VALUE_CAPS& p_Axis, ULONG p_Value)
+{
+	const USAGE usage = p_Axis.Range.UsageMin;
+
+	auto insertRes = m_CurrentAxisStates.insert(
+		std::make_pair(usage, Axis(p_Value, p_Value)));
+	if (insertRes.second)
+	{
+		Logger::log(Logger::Level::INFO, "New axis detected: " + std::to_string(usage));
+	}
+
+	Axis& axis = insertRes.first->second;
+
+	const float prevValue = normalizeValue(p_Axis, axis.center, axis.value);
+	float currentValue = normalizeValue(p_Axis, axis.center, p_Value);
+
+	static const float deadZoneMin = 0.2f;
+	static const float deadZoneMax = 0.5f;
+	static const float deadZoneWidth = deadZoneMax - deadZoneMin;
+
+	if (currentValue < deadZoneMax)
+	{
+		if (currentValue < deadZoneMin)
+			currentValue = 0.f;
+		else
+			currentValue = (currentValue - deadZoneMin) * deadZoneMax / deadZoneWidth;
+	}
+	
+	if (p_Value < axis.center)
+	{
+		m_Translator->passAxis(usage, false, currentValue, prevValue);
+		m_Translator->passAxis(usage, true, 0.f, 0.f);
+	}
+	else if (p_Value > axis.center)
+	{
+		m_Translator->passAxis(usage, true, currentValue, prevValue);
+		m_Translator->passAxis(usage, false, 0.f, 0.f);
+	}
+	else
+	{
+		m_Translator->passAxis(usage, true, 0.f, 0.f);
+		m_Translator->passAxis(usage, false, 0.f, 0.f);
+	}
+
+	axis.value = p_Value;
 }

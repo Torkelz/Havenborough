@@ -124,6 +124,21 @@ void BaseGameApp::init()
 	for(auto k : mousebuttonKeys)
 		translator->addMouseButtonMapping(k.second, k.first);
 
+	translator->addAxisMapping(49, false, "moveForward");
+	translator->addAxisMapping(49, true, "moveBackward");
+	translator->addAxisMapping(48, false, "moveLeft");
+	translator->addAxisMapping(48, true, "moveRight");
+	translator->addAxisMapping(51, true, "turnRight");
+	translator->addAxisMapping(51, false, "turnLeft");
+	translator->addAxisMapping(52, true, "turnDown");
+	translator->addAxisMapping(52, false, "turnUp");
+	translator->addAxisMapping(50, false, "spellCast");
+	translator->addAxisMapping(50, true, "climbEdge");
+	translator->addButtonMapping(1, "jump");
+	translator->addButtonMapping(6, "jump");
+	translator->addButtonMapping(7, "leaveGame");
+	translator->addButtonMapping(4, "wave");
+
 	m_InputQueue.init(std::move(translator));
 
 	m_Network = INetwork::createNetwork();
