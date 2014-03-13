@@ -206,14 +206,14 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	registerTweakSettings();
 }
 
-void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
+void DeferredRenderer::initializeShadowMap(UINT p_Width, UINT p_Height)
 {
 	//use typeless format because the DSV is going to interpret the
 	//bits as DXGI_FORMAT_D24_UNORM_S8_UNIT, whereas the SRV is going
 	//to interpret the bits as DXGI_FORMAT_R24_UNORM_X8_TYPELESS.
 	D3D11_TEXTURE2D_DESC texDesc;
-    texDesc.Width     = width;
-    texDesc.Height    = height;
+    texDesc.Width     = p_Width;
+    texDesc.Height    = p_Height;
     texDesc.MipLevels = 1;
     texDesc.ArraySize = 1;
     texDesc.Format    = DXGI_FORMAT_R32_TYPELESS;
@@ -226,7 +226,7 @@ void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
 
 	ID3D11Texture2D* depthMap = 0;
 	HRESULT hr = m_Device->CreateTexture2D(&texDesc, 0, &depthMap);
-	int val = VRAMInfo::getInstance()->calculateFormatUsage(texDesc.Format, width, height);
+	int val = VRAMInfo::getInstance()->calculateFormatUsage(texDesc.Format, p_Width, p_Height);
 	VRAMInfo::getInstance()->updateUsage(val);
 	//render from light
     D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
@@ -245,8 +245,8 @@ void DeferredRenderer::initializeShadowMap(UINT width, UINT height)
 	hr =  m_Device->CreateShaderResourceView(depthMap, &srvDesc, &m_SRV["CSM"]);
 
 	//viewport that  matches the shadow map dimensions.
-	m_LightViewport.Width = (float)width;
-	m_LightViewport.Height = (float)height;
+	m_LightViewport.Width = (float)p_Width;
+	m_LightViewport.Height = (float)p_Height;
 	m_LightViewport.MinDepth = 0.0f;
 	m_LightViewport.MaxDepth = 1.0f;
 	m_LightViewport.TopLeftX = 0.0f;
@@ -300,12 +300,12 @@ void DeferredRenderer::renderDeferred()
 }
 
 
-void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[],
+void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int p_NrRT, ID3D11RenderTargetView* p_RTV[],
 									  const std::vector<std::vector<Renderable>> &p_InstancedModels, 
 									  const std::vector<Renderable> &p_AnimatedOrSingle, Shader* p_Shader)
 {
 	// Set the render targets.
-	m_DeviceContext->OMSetRenderTargets(nrRT, rtv, p_DepthStencilView);
+	m_DeviceContext->OMSetRenderTargets(p_NrRT, p_RTV, p_DepthStencilView);
 	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// The textures will be needed to be grabbed from the model later.
@@ -587,19 +587,19 @@ void DeferredRenderer::updateLightBuffer(bool p_Big, bool p_ShadowMapped)
 	m_DeviceContext->UpdateSubresource(m_Buffer["LightViewProj"]->getBufferPointer(), NULL, NULL, &cb, NULL, NULL);
 }
 
-ID3D11RenderTargetView *DeferredRenderer::createRenderTarget(D3D11_TEXTURE2D_DESC &desc)
+ID3D11RenderTargetView *DeferredRenderer::createRenderTarget(D3D11_TEXTURE2D_DESC &p_Desc)
 {
 	// Create the render target texture
 	HRESULT result = S_FALSE;
 	ID3D11RenderTargetView* ret = nullptr;
 	//Create the render targets
 	D3D11_RENDER_TARGET_VIEW_DESC rtDesc;
-	rtDesc.Format = desc.Format;
+	rtDesc.Format = p_Desc.Format;
 	rtDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtDesc.Texture2D.MipSlice = 0;
 
 	ID3D11Texture2D *temp;
-	result = m_Device->CreateTexture2D(&desc, nullptr, &temp);
+	result = m_Device->CreateTexture2D(&p_Desc, nullptr, &temp);
 	if(FAILED(result))
 		throw GraphicsException("Error creating Texture2D while creating a render target.", __LINE__, __FILE__);
 
@@ -609,16 +609,16 @@ ID3D11RenderTargetView *DeferredRenderer::createRenderTarget(D3D11_TEXTURE2D_DES
 	if(FAILED(result))
 		throw GraphicsException("Error creating a render target.", __LINE__, __FILE__);
 
-	VRAMInfo::getInstance()->updateUsage(VRAMInfo::getInstance()->calculateFormatUsage(desc.Format,
-		desc.Width, desc.Height));
+	VRAMInfo::getInstance()->updateUsage(VRAMInfo::getInstance()->calculateFormatUsage(p_Desc.Format,
+		p_Desc.Width, p_Desc.Height));
 
 	return ret;
 }
 
-ID3D11ShaderResourceView *DeferredRenderer::createShaderResourceView( D3D11_TEXTURE2D_DESC &desc, ID3D11RenderTargetView *p_Rendertarget)
+ID3D11ShaderResourceView *DeferredRenderer::createShaderResourceView( D3D11_TEXTURE2D_DESC &p_Desc, ID3D11RenderTargetView *p_Rendertarget)
 {
 	D3D11_SHADER_RESOURCE_VIEW_DESC dssrvdesc;
-	dssrvdesc.Format = desc.Format;
+	dssrvdesc.Format = p_Desc.Format;
 	dssrvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	dssrvdesc.Texture2D.MipLevels = 1;
 	dssrvdesc.Texture2D.MostDetailedMip = 0;

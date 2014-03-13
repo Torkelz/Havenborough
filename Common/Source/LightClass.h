@@ -69,7 +69,7 @@ public:
 	}
 
 private:
-	LightClass(Type p_Type, Vector3 p_position, Vector3 p_color,	Vector3 p_direction,
+	LightClass(Type p_Type, Vector3 p_position, Vector3 p_color, Vector3 p_direction,
 		Vector2 p_angles, float p_range)
 	{
 		type = p_Type;

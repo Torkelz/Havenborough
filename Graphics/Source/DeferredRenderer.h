@@ -103,13 +103,6 @@ public:
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
 		float p_FOV, float p_FarZ);
 
-
-	/*
-	* Creates the shadow map Texture2D desc, depthMap, depthStencilViewDesc, ShaderResourceViewDesc.
-	*
-	*/
-	void initializeShadowMap(UINT width, UINT height);
-
 	/*
 	 * Call to render the graphics using deferred rendering.
 	 *
@@ -151,7 +144,7 @@ public:
 	void enableShadowMap(bool p_State);
 
 private:
-	void renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[],
+	void renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int p_NrRT, ID3D11RenderTargetView* p_RTV[],
 		const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle, Shader* p_Shader);
 	void renderSSAO(void);
 	void blurSSAO(void);
@@ -159,24 +152,17 @@ private:
 	void updateSSAO_BlurConstantBuffer(bool p_HorizontalBlur);
 	void updateSSAO_VarConstantBuffer();
 
-
-	void clearRenderTargets(unsigned int nrRT);
-
-
 	void renderLighting(const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 	void renderSkyDomeImpl();
-
 
 	void renderLight(Shader *p_Shader, Buffer *p_ModelBuffer, std::vector<Light> *p_Lights);
 	void renderAmbientLight(Buffer *p_ModelBuffer);
 
-
 	void updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix);
 	void updateLightBuffer(bool p_Big, bool p_ShadowMapped);
 
-
-	ID3D11RenderTargetView *createRenderTarget(D3D11_TEXTURE2D_DESC &desc);
-	ID3D11ShaderResourceView *createShaderResourceView(D3D11_TEXTURE2D_DESC &desc, ID3D11RenderTargetView *p_Rendertarget);
+	ID3D11RenderTargetView *createRenderTarget(D3D11_TEXTURE2D_DESC &p_Desc);
+	ID3D11ShaderResourceView *createShaderResourceView(D3D11_TEXTURE2D_DESC &p_Desc, ID3D11RenderTargetView *p_Rendertarget);
 	void createBuffers();
 	void buildSSAO_OffsetVectors(cSSAO_Buffer &p_Buffer);
 	void clearRenderTargets();
@@ -187,7 +173,6 @@ private:
 	void createLightStates(); //Rasterize and depth state
 	void createRandomTexture(unsigned int p_Size);
 
-
 	void renderObject(Renderable &p_Object);
 	void SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels );
 	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects, Shader* p_Shader);
@@ -197,4 +182,5 @@ private:
 	void renderShadowMap(Light p_Directional, const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 	void registerTweakSettings();
 	void recompileFogShader(void);
+	void initializeShadowMap(UINT p_Width, UINT p_Height);
 };

@@ -34,14 +34,11 @@ public:
 	 * @return the type of the resource.
 	 */
 	const std::string& getType() const;
-public:
-
 };
 
 
 class ResourceManager
 {
-public:
 protected:
 	unsigned int m_NextID;
 	std::vector<ResourceType> m_ResourceList;
