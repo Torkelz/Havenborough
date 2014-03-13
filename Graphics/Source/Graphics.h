@@ -97,9 +97,6 @@ private:
 
 	TextFactory m_TextFactory;
 
-	ID3D11ShaderResourceView *textSRV;
-	IDXGIKeyedMutex *dxgiKeyedMutex10, *dxgiKeyedMutex11;
-
 	bool m_ShadowMap;
 	int m_ShadowMapResolution;
 

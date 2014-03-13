@@ -22,7 +22,6 @@ public:
 		D2D1::ColorF p_ClearColor = D2D1::ColorF(0,0,0,0));
 	~TextResource();
 
-	//TextResource &operator=(TextResource p_Other);
 	TextResource &operator=(TextResource &&p_Other);
 
 	void draw();

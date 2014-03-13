@@ -52,12 +52,6 @@ struct particlecBuffer
 	DirectX::XMFLOAT4X4 projM;
 	DirectX::XMFLOAT4	cameraPos;
 	DirectX::XMFLOAT2	size;
-	//DirectX::XMFLOAT4	centerPos;
-	//DirectX::XMFLOAT4	color;
-	//DirectX::XMFLOAT4	particleColorDeviation;
-	//DirectX::XMFLOAT3	particlePositionDeviation;
-	//DirectX::XMFLOAT3	velocityDeviation;
-	//DirectX::XMFLOAT2	uvCoord;
 };
 
 struct ShaderParticle
