@@ -252,7 +252,7 @@ void Player::update(float p_DeltaTime)
 			std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
 			if (look)
 			{
-				XMFLOAT4X4 calculatedViewMatrix = bb.lock()->getViewDirection("Head");
+				XMFLOAT4X4 calculatedViewMatrix = shbb->getViewDirection("Head");
 				// CAUTION! This matrix does not contain any values for the side vector!
 				
 				//look->setLookForward(m_forward);
@@ -788,7 +788,7 @@ void Player::fixLookToHead()
 
 			if(XMVector3LengthSq(headBasePos).m128_f32[1] > 0 && XMVector3LengthSq(headPos).m128_f32[1] > 0)
 			{
-				XMVECTOR upV = headBasePos - headPos;
+				XMVECTOR upV = XMVector3Normalize(headBasePos - headPos);
 				XMStoreFloat3(&up, upV);
 			}
 
