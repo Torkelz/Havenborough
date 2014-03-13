@@ -252,8 +252,13 @@ void Player::update(float p_DeltaTime)
 			std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
 			if (look)
 			{
-				look->setLookForward(Vector3(m_forward.x, m_forward.y, m_forward.z));
-				look->setLookUp(Vector3(0, 1, 0));
+				XMFLOAT4X4 calculatedViewMatrix = bb.lock()->getViewDirection("Head");
+				// CAUTION! This matrix does not contain any values for the side vector!
+				
+				//look->setLookForward(m_forward);
+				//look->setLookUp(Vector3(0, 1, 0));
+				//look->setLookUp(Vector3(calculatedViewMatrix._21, calculatedViewMatrix._22, calculatedViewMatrix._23));
+				look->setLookForward(Vector3(calculatedViewMatrix._31, calculatedViewMatrix._32, calculatedViewMatrix._33));
 			}
 		}
 	}
@@ -263,10 +268,14 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 {
 	if(!m_ForceMove && m_Climb)
 	{
+		Actor::ptr actor = m_Actor.lock();
+		if (!actor)
+			return;
+
 		m_StartClimbPosition = getPosition();
 		m_Timer = 0.f;
 		m_Lerp = true;
-		std::shared_ptr<LookInterface> look = m_Actor.lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+		std::shared_ptr<LookInterface> look = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
 		if (look)
 		{
 			m_StartClimbCameraUp = look->getLookUp();
@@ -280,6 +289,11 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 			return;
 		}
 		fwd /= len;
+		fwd *= -1.f;
+
+		float rotationAngle = atan2f(fwd.m128_f32[0], fwd.m128_f32[2]);
+
+		actor->setRotation(Vector3(rotationAngle, 0.f, 0.f));
 
 		m_ForceMove = true;
 		
@@ -287,7 +301,6 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		//{
 			m_Physics->resetForceOnBody(getBody());
 			
-			Actor::ptr actor = m_Actor.lock();
 			if (actor)
 			{
 				std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
@@ -318,7 +331,7 @@ void Player::forceMove(std::string p_ClimbId, DirectX::XMFLOAT3 p_CollisionNorma
 		m_ClimbSpeedUp = pp.m_Speed;
 		m_ForceMoveStartPos = getPosition();
 
-		fwd *= -1.f;
+		
 		XMVECTOR up = XMVectorSet(0,1,0,0);
 		XMVECTOR side = XMVector3Normalize(XMVector3Cross(up, fwd));
 		
@@ -732,4 +745,54 @@ void Player::setManaRegeneration(bool p_ShouldRegenerate)
 void Player::setStartElapsedTime(bool p_Start)
 {
 	m_StartElapsedTime = p_Start;
+}
+
+XMFLOAT3 Player::getUpVector()
+{
+	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+
+	
+	Actor::ptr actor = m_Actor.lock();
+	if (actor)
+	{
+		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+		if (comp)
+		{
+			XMVECTOR headPos = Vector4ToXMVECTOR(&Vector4(comp->getJointPos("Head"), 0.0f));
+			XMVECTOR headBasePos = Vector4ToXMVECTOR(&Vector4(comp->getJointPos("HeadBase"), 0.0f));
+
+			if(XMVector3LengthSq(headBasePos).m128_f32[1] > 0 && XMVector3LengthSq(headPos).m128_f32[1] > 0)
+			{
+				XMVECTOR upV = headBasePos - headPos;
+				XMStoreFloat3(&up, upV);
+			}
+		}
+	}
+
+	return up;
+}
+
+void Player::fixLookToHead()
+{
+	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+
+	Actor::ptr actor = m_Actor.lock();
+	if (actor)
+	{
+		std::shared_ptr<AnimationInterface> comp = actor->getComponent<AnimationInterface>(AnimationInterface::m_ComponentId).lock();
+		std::shared_ptr<LookInterface> look = actor->getComponent<LookInterface>(LookInterface::m_ComponentId).lock();
+		if (comp && look)
+		{
+			XMVECTOR headPos = Vector4ToXMVECTOR(&Vector4(comp->getJointPos("Head"), 0.0f));
+			XMVECTOR headBasePos = Vector4ToXMVECTOR(&Vector4(comp->getJointPos("HeadBase"), 0.0f));
+
+			if(XMVector3LengthSq(headBasePos).m128_f32[1] > 0 && XMVector3LengthSq(headPos).m128_f32[1] > 0)
+			{
+				XMVECTOR upV = headBasePos - headPos;
+				XMStoreFloat3(&up, upV);
+			}
+
+			look->setLookUp(up);
+		}
+	}
 }

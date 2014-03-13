@@ -261,6 +261,11 @@ public:
 	 * Set if the elapsed timer should be counted.
 	 */
 	void setStartElapsedTime(bool p_Start);
+
+	DirectX::XMFLOAT3 getUpVector();
+
+	void fixLookToHead();
+
 private:
 	void jump(float dt);
 	void move(float p_DeltaTime);

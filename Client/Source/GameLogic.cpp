@@ -113,7 +113,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 
 	if (m_PlayerDirection.x != 0.f ||
 		m_PlayerDirection.y != 0.f ||
-		m_PlayerDirection.z != 0.f)
+		m_PlayerDirection.z != 0.f && !m_Player.getForceMove())
 	{
 		XMVECTOR forward = XMLoadFloat3(&XMFLOAT3(getPlayerViewForward()));
 		forward = XMVectorSetY(forward, 0.f);
@@ -135,20 +135,14 @@ void GameLogic::onFrame(float p_DeltaTime)
 	if(!m_Player.getForceMove())
 		m_Physics->update(p_DeltaTime, 100);
 
-	XMVECTOR actualViewRot = Vector3ToXMVECTOR(&getPlayerViewRotation(), 0.0f);
-	if (playerActor)
+	if (playerActor && !m_Player.getForceMove())
 	{
-		XMVECTOR playerRotation = actualViewRot;
-		playerRotation.m128_f32[1] = 0.f;
-		XMMATRIX rotation = XMMatrixRotationRollPitchYaw(playerRotation.m128_f32[1], playerRotation.m128_f32[0], playerRotation.m128_f32[2]);
-		playerRotation = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+		Vector3 actualViewRot = getPlayerViewRotation();
+		XMMATRIX rotation = XMMatrixRotationRollPitchYaw(0.f, actualViewRot.x, 0.f);
+		XMVECTOR playerRotation = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 		playerRotation = XMVector3Transform(playerRotation, rotation);
 
-		float currentAngle = acosf(XMVector3Dot(XMVectorSet(0.f, 0.f, 1.f, 0.f), playerRotation).m128_f32[0]);
-		if (playerRotation.m128_f32[0] < 0.f)
-		{
-			currentAngle = -currentAngle;
-		}
+		float currentAngle = actualViewRot.x;
 
 		Vector3 previousPlayerRotation = playerActor->getRotation();
 		float angleDiff = previousPlayerRotation.x - currentAngle;
@@ -166,10 +160,6 @@ void GameLogic::onFrame(float p_DeltaTime)
 			float offset = angleDiff < 0.f ? -maxOffset : maxOffset;
 		
 			playerActor->setRotation(Vector3(currentAngle + offset, 0.f, 0.f));
-		}
-		else if (m_Player.getForceMove())
-		{
-			playerActor->setRotation(Vector3(currentAngle, 0.f, 0.f));
 		}
 	}
 
@@ -226,6 +216,8 @@ void GameLogic::onFrame(float p_DeltaTime)
 		}
 	}
 	m_Actors->onUpdate(p_DeltaTime);
+
+	m_Player.fixLookToHead();
 	
 
 	updateCountdownTimer(p_DeltaTime);
@@ -393,9 +385,6 @@ DirectX::XMFLOAT4X4 GameLogic::getPlayerViewRotationMatrix() const
 
 void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 {
-	if(m_Player.getForceMove())
-		return;
-
 	Actor::ptr actor = m_Player.getActor().lock();
 	if (!actor)
 	{
@@ -407,31 +396,34 @@ void GameLogic::movePlayerView(float p_Yaw, float p_Pitch)
 	{
 		return;
 	}
-
-	XMFLOAT3 forward = look->getLookForward();
+	
 	XMFLOAT3 up = look->getLookUp();
-	XMVECTOR vForward = XMVector3Normalize(XMLoadFloat3(&forward));
-	XMVECTOR vUp = XMVector3Normalize(XMLoadFloat3(&up));
-	XMVECTOR vRight = XMVector3Cross(vUp, vForward);
-
-	XMVECTOR rotationYaw = XMQuaternionRotationRollPitchYaw(0.f, p_Yaw, 0.f);
-	XMVECTOR rotationPitch = XMQuaternionRotationAxis(vRight, p_Pitch);
-	XMVECTOR rotation = XMQuaternionMultiply(rotationPitch, rotationYaw);
-	XMVECTOR newUp = XMVector3Rotate(vUp, rotation);
-
-	XMStoreFloat3(&forward, XMVector3Rotate(vForward, rotation));
-	XMStoreFloat3(&up, newUp);
-
-	if (forward.y > 0.9f || forward.y < -0.9f ||
-		XMVectorGetX(XMVector3Dot(XMVectorSet(0.f, 1.f, 0.f, 0.f), newUp)) < 0.f)
+	
+	if(!m_Player.getForceMove())
 	{
-		return;
+		XMVECTOR vUp = XMVector3Normalize(XMLoadFloat3(&up));
+		XMFLOAT3 forward = look->getLookForward();
+		XMVECTOR vForward = XMVector3Normalize(XMLoadFloat3(&forward));
+		XMVECTOR vRight = XMVector3Cross(vUp, vForward);
+
+		XMVECTOR rotationYaw = XMQuaternionRotationRollPitchYaw(0.f, p_Yaw, 0.f);
+		XMVECTOR rotationPitch = XMQuaternionRotationAxis(vRight, p_Pitch);
+		XMVECTOR rotation = XMQuaternionMultiply(rotationPitch, rotationYaw);
+		XMVECTOR newUp = XMVector3Rotate(vUp, rotation);
+
+		XMStoreFloat3(&forward, XMVector3Rotate(vForward, rotation));
+		XMStoreFloat3(&up, newUp);
+
+		if (forward.y > 0.9f || forward.y < -0.9f ||
+			XMVectorGetX(XMVector3Dot(XMVectorSet(0.f, 1.f, 0.f, 0.f), newUp)) < 0.f)
+		{
+			return;
+		}
+
+		XMStoreFloat3(&m_lookAtPos, vForward);
+		look->setLookForward(forward);
+		look->setLookUp(up);
 	}
-
-	XMStoreFloat3(&m_lookAtPos, vForward);
-
-	look->setLookForward(forward);
-	look->setLookUp(up);
 }
 
 void GameLogic::playerJump()
