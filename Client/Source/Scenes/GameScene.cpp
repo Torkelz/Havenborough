@@ -69,6 +69,9 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createWorldText), createWorldTextEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeWorldText), removeWorldTextEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateWorldTextPosition), updateWorldTextPositionEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::create3DSound), Create3DSoundEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::update3DSound), Update3DSoundEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::release3DSound), Release3DSoundEventData::sk_EventType);
 
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::FINAL);
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::SSAO);
@@ -139,22 +142,8 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->movePlayerView(hori * turnSize, -vert * turnSize);
 
 	m_Graphics->updateParticles(p_DeltaTime);
-	Vector3 soundPos = Vector3(0.f, 0.0f, 0.f);
-	Vector3 soundVelocity = Vector3(0,0,0);
-	if (m_SoundPath != "NULL")
-	{
-		if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
-		{
-			m_SoundPath = changeBackGroundSound(m_SoundFolderPath);
-			if (m_SoundPath != "NULL")
-			{		
-				m_SoundManager->load3DSound("CurrentSound", m_SoundPath.c_str(),10.0f);
-				m_SoundExist = true;
-				//m_SoundManager->play3DSound("CurrentSound", &soundPos, &soundVelocity);
-			}
-		}
-	}
-	m_SoundManager->onFrameListener(&m_GameLogic->getPlayerEyePosition(), &soundVelocity, &m_GameLogic->getPlayerViewForward(), &m_GameLogic->getPlayerViewUp());
+	
+	m_SoundManager->onFrameListener(&m_GameLogic->getPlayerEyePosition(), NULL, &m_GameLogic->getPlayerViewForward(), &m_GameLogic->getPlayerViewUp());
 }
 
 void GameScene::onFocus()
@@ -640,6 +629,39 @@ void GameScene::spellHit(IEventData::Ptr p_Data)
 	std::shared_ptr<SpellHitEventData> data = std::static_pointer_cast<SpellHitEventData>(p_Data);
 
 	m_EventManager->queueEvent((IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExplosion", data->getPosition()))));
+}
+
+void GameScene::create3DSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<Create3DSoundEventData> data = std::static_pointer_cast<Create3DSoundEventData>(p_Data);
+
+	if (data.get()->getFilePath() != "NULL")
+	{
+		//if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
+		//{
+			//m_SoundPath = changeBackGroundSound(m_SoundFolderPath);
+			//if (m_SoundPath != "NULL")
+			//{		
+		m_SoundManager->load3DSound(data.get()->getSoundID().c_str(), data.get()->getFilePath().c_str(),data.get()->getMinDistance());
+		//m_SoundExist = true;
+				//m_SoundManager->play3DSound("CurrentSound", &soundPos, &soundVelocity);
+			//}
+		//}
+	}
+}
+
+void GameScene::update3DSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<Update3DSoundEventData> data = std::dynamic_pointer_cast<Update3DSoundEventData>(p_Data);
+
+	m_SoundManager->play3DSound(data.get()->getSoundID().c_str(), &data.get()->getPosition(), &data.get()->getVelocity());
+}
+
+void GameScene::release3DSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<Release3DSoundEventData> data = std::static_pointer_cast<Release3DSoundEventData>(p_Data);
+
+	m_SoundManager->releaseSound(data.get()->getSoundID().c_str());
 }
 
 void GameScene::createWorldText(IEventData::Ptr p_Data)

@@ -157,7 +157,7 @@ bool Sound::load3DSound(const char *p_SoundId, const char *p_Filename, float min
 
 	FMOD::Sound *s;
 	FMOD::Channel *c;
-	errorCheck(m_System->createSound(p_Filename, FMOD_3D, 0, &s));
+	errorCheck(m_System->createSound(p_Filename,FMOD_LOOP_NORMAL | FMOD_3D, 0, &s));
 	errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s, true, &c));
 	FMOD_VECTOR temp = {0,0,0};
 	FMOD_RESULT result = c->set3DAttributes(&temp, NULL);
