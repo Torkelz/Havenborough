@@ -24,8 +24,9 @@ void BaseGameApp::init()
 	Logger::log(Logger::Level::INFO, "Initializing game app");
 	Settings settings;
 	settings.initialize("UserOptions.xml");
+
+	float checkValue = 0.5f;//settings.getSettingValue("MusicVolume") * 0.01f; //Remove "0.5f" when setings in launchen is done
 	
-	float checkValue = settings.getSettingValue("MusicVolume") * 0.01f;
 	if (checkValue <= 1.f || checkValue >= 0.f)
 	{
 		m_UserAddedSoundVolume = checkValue;
