@@ -24,7 +24,7 @@ void BaseGameApp::init()
 	Logger::log(Logger::Level::INFO, "Initializing game app");
 	Settings settings;
 	settings.initialize("UserOptions.xml");
-
+	m_UserAddedSoundVolume = settings.getSettingValue("UserAddedSoundVolume") * 0.01f;
 
 	TweakSettings::initializeMaster();
 
@@ -133,6 +133,7 @@ void BaseGameApp::init()
 	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings(), resolution);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setSoundManager(m_Sound);
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setUserAddedSoundVolume(m_UserAddedSoundVolume);
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);

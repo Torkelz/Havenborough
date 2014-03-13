@@ -54,6 +54,7 @@ private:
 	__int64 m_CurrTimeStamp;
 	float m_SecsPerCnt;
 	float m_DeltaTime;
+	float m_UserAddedSoundVolume;
 	
 	std::unique_ptr<GameLogic> m_GameLogic;
 
