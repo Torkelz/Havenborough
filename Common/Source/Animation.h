@@ -119,7 +119,7 @@ public:
 
 	void applyLookAtIK(const std::string& p_GroupName, const DirectX::XMFLOAT3& p_Position, DirectX::XMFLOAT4X4 p_WorldMatrix, float p_MaxAngle);
 
-	DirectX::XMFLOAT4X4 getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_BodyRotation);
+	DirectX::XMFLOAT4X4 getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_BodyRotation, DirectX::XMFLOAT3 p_Up);
 
 	void setAnimationData(AnimationData::ptr p_Data);
 

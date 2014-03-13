@@ -683,11 +683,11 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 	updateFinalTransforms();
 }
 
-XMFLOAT4X4 Animation::getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_BodyRotation)
+XMFLOAT4X4 Animation::getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_BodyRotation, DirectX::XMFLOAT3 p_Up)
 {
 	XMFLOAT4X4 returnValue;
-	XMVECTOR lookAt = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-	XMVECTOR up = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+	XMVECTOR lookAt = XMLoadFloat3(&p_Up);//XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	XMVECTOR up = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);//XMLoadFloat3(&p_Up);
 
 	const std::vector<Joint>& p_Joints = m_Data->joints;
 	const Joint* headJoint = nullptr;
@@ -711,54 +711,6 @@ XMFLOAT4X4 Animation::getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_
 		rotation = XMMatrixTranspose(rotation);
 		lookAt = XMVector4Transform(lookAt, rotation);
 		up = XMVector4Transform(up, rotation);
-
-		//XMMATRIX world = XMLoadFloat4x4(&p_World);
-
-		// Calculate matrices for transforming vectors from joint spaces to world space
-		//XMMATRIX headCombinedTransform = XMMatrixMultiply(
-		//	world,
-		//	XMMatrixMultiply(
-		//		XMLoadFloat4x4(&m_FinalTransform[headJoint->m_ID - 1]),
-		//		XMLoadFloat4x4(&headJoint->m_TotalJointOffset)));
-		//XMFLOAT4X4 headCombinedTransformedData;
-		//XMStoreFloat4x4(&headCombinedTransformedData, headCombinedTransform);
-
-		//// The joints' positions in world space is the zero vector in joint space transformed to world space.
-		//XMFLOAT4 headPosition(headCombinedTransformedData._14, headCombinedTransformedData._24,
-		//	headCombinedTransformedData._34, 1.f); 
-		//
-		//XMVECTOR headPositionV = XMLoadFloat4(&headPosition);
-		//
-		//XMVECTOR headToTarget =  target - headPositionV;
-		//
-		//float wantedJointAngle = 0.f;
-		//
-		//// Normalize look at target
-		//headToTarget = XMVector3Normalize(headToTarget);
-		//// Get the standard look at vector
-		//XMVECTOR lookAt = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-		//lookAt = XMVector3Transform(lookAt, world);
-		//lookAt = XMVector3Normalize(lookAt);
-
-		//// Get rotation axis and angle
-		//XMVECTOR rotationAxis;
-		//rotationAxis = XMVector3Cross(headForward, headToTarget);
-		//rotationAxis = XMVector3Normalize(rotationAxis);
-		//XMMATRIX headCombinedTransformInverse = XMMatrixInverse(nullptr, headCombinedTransform);
-		//rotationAxis = XMVector3Transform(rotationAxis, headCombinedTransform);
-		//wantedJointAngle = acosf(XMVector3Dot(headForward, headToTarget).m128_f32[0]);
-		//
-		//// Limit angle
-		//wantedJointAngle = std::min( wantedJointAngle, p_MaxAngle );
-		//// Apply the transformation to the bone
-		//XMMATRIX rotation;
-		//rotation = XMMatrixRotationAxis(rotationAxis, wantedJointAngle);
-		//
-		//XMStoreFloat4x4(&m_LocalTransforms[headJoint->m_ID - 1],
-		//XMMatrixMultiply(XMLoadFloat4x4(&m_LocalTransforms[headJoint->m_ID - 1]), rotation));
-
-		//XMMATRIX world = XMLoadFloat4x4(&p_World);
-		//lookAt = XMVector4Transform(lookAt, world);
 	}
 
 	returnValue = XMFLOAT4X4( 0.0f, 0.0f, 0.0f, 0.0f,
