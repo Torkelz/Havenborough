@@ -394,7 +394,7 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source);
             try
             {
-                //Process.Start(ClientExec);
+                Process.Start(ClientExec);
             }
             catch (Exception ex)
             {
@@ -518,39 +518,38 @@ namespace Havenborough_Launcher
                     FovValue.Text = (int) slider.Value == 70 ?
                         "Quake Pro" : ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
                         break;
-                    }
+                }
                 case "MouseSenseSlider":
+                {
+                    var val = slider.Value.ToString(CultureInfo.InvariantCulture);
+                    switch (val.Length)
                     {
-                        var val = slider.Value.ToString(CultureInfo.InvariantCulture);
-                        switch (val.Length)
-                        {
-                            case 1:
-                                MouseSenseValue.Text = val;
-                                break;
-                            case 3:
-                                MouseSenseValue.Text = val.Substring(0, 3);
-                                break;
-                            default:
-                                MouseSenseValue.Text = val.Substring(0, 4);
-                                break;
-                        }
-                        break;
+                        case 1:
+                            MouseSenseValue.Text = val;
+                            break;
+                        case 3:
+                            MouseSenseValue.Text = val.Substring(0, 3);
+                            break;
+                        default:
+                            MouseSenseValue.Text = val.Substring(0, 4);
+                            break;
+                    }
+                    break;
 
-                    }
+                }
                 case "MusicVolumeSlider":
-                    {
-                        MusicVolumeValue.Text = (int) slider.Value == 0 ? 
-                            "Muted" : ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
-                        break;
-                    }
+                {
+                    MusicVolumeValue.Text = (int) slider.Value == 0 ? 
+                        "Muted" : ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
+                    break;
+                }
                 case "SfxVolumeSlider":
-                    {
-                        SfxVolumeValue.Text = (int)slider.Value == 0 ?
-                            "Muted" : ((int)slider.Value).ToString(CultureInfo.InvariantCulture);
-                        break;
-                    }
+                {
+                    SfxVolumeValue.Text = (int)slider.Value == 0 ?
+                        "Muted" : ((int)slider.Value).ToString(CultureInfo.InvariantCulture);
+                    break;
+                }
             }
-               
         }
 
         private void KeyBindTextBox_OnMouseDown(object sender, MouseButtonEventArgs e)
