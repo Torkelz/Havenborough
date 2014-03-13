@@ -146,10 +146,10 @@
                     <ListBox x:Name="KeyMap"  ItemsSource="{Binding XPath=/UserOptions/Controls/KeyMap}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel x:Name="KeyBindPanel" Orientation="Horizontal" PreviewKeyDown="KeyBindTextBox_OnKeyDown" >
+                                <StackPanel x:Name="KeyBindPanel" Orientation="Horizontal" PreviewKeyDown="KeyBindPanel_OnKeyDown" >
                                     <TextBox x:Name="KeyBindTextBox" Text="{Binding XPath=@Key, Mode=OneTime}" Width="80" IsReadOnly="True"
-                                             TextAlignment="Center" Loaded="KeyBindBox_OnLoaded"
-                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp"/>
+                                             TextAlignment="Center" Loaded="KeyBindBox_OnLoaded" PreviewMouseDown="KeyBindTextBox_OnMouseDown"
+                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp" />
                                     <TextBlock x:Name="KeyBindTextBlock" Text="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>

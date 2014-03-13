@@ -21,6 +21,9 @@ namespace Havenborough_Launcher
         private const string ClientExec = "Client.exe";
         private const string ServerExec = "Server.exe";
         
+        /// <summary>
+        /// Launcher main window. Creates main window and displays for user interaction.
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -328,7 +331,7 @@ namespace Havenborough_Launcher
             textBox.Text = KeyInterop.KeyFromVirtualKey(virtualKey).ToString();
         }
 
-        private void KeyBindTextBox_OnKeyDown(object sender, KeyEventArgs e)
+        private void KeyBindPanel_OnKeyDown(object sender, KeyEventArgs e)
         {
             e.Handled = true;
             var key = e.SystemKey != Key.None ? e.SystemKey : e.Key;
@@ -392,7 +395,7 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source);
             try
             {
-                Process.Start(ClientExec);
+                //Process.Start(ClientExec);
             }
             catch (Exception ex)
             {
@@ -534,6 +537,16 @@ namespace Havenborough_Launcher
                     break;
             }
                
+        }
+
+        private void KeyBindTextBox_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            if (textBox == null)
+                return;
+
+            bool test = textBox.IsFocused;
+            //textBox.Background = Brushes.Azure;
         }
     }
 
