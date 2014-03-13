@@ -254,6 +254,11 @@ public:
 	 * @param true if mana regeneration should be on otherwise false
 	 */
 	void setManaRegeneration(bool p_ShouldRegen);
+
+	DirectX::XMFLOAT3 getUpVector();
+
+	void fixLookToHead();
+
 private:
 	void jump(float dt);
 	void move(float p_DeltaTime);

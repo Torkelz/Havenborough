@@ -143,8 +143,8 @@ public:
 		{
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform(), m_Animation.getAnimationData(), m_Owner->getWorldMatrix())));
 		}
-
-		applyLookAtIK("Head", m_LookAtPoint, 1.0f);
+		if(!m_ForceMove)
+			applyLookAtIK("Head", m_LookAtPoint, 1.0f);
 
 		if(m_Crash)
 		{
@@ -260,8 +260,8 @@ public:
 		return m_Crash;
 	}
 
-	DirectX::XMFLOAT3 getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_LookAt) override
+	DirectX::XMFLOAT4X4 getViewDirection(std::string p_Joint) override
 	{
-		return m_Animation.getViewDirection(p_Joint, p_LookAt, m_Owner->getWorldMatrix());
+		return m_Animation.getViewDirection(p_Joint, m_Owner->getRotation());
 	}
 };
