@@ -65,9 +65,9 @@
     <Time scale="0.45">
       <Position x="530" y="240" z="0" />
     </Time>
-	<ElapsedTime scale="0.45">
-	  <Position x="530" y="280" z="0" />
-	</ElapsedTime>
+    <ElapsedTime scale="0.45">
+      <Position x="530" y="280" z="0" />
+    </ElapsedTime>
     <RacePos>
       <Position x="-560" y="320" z="1" />
     </RacePos>
