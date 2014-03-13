@@ -404,7 +404,6 @@ void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
 	std::shared_ptr<UpdateCheckpointPositionEventData> data = std::static_pointer_cast<UpdateCheckpointPositionEventData>(p_Data);
 
 	m_CheckpointPosition = data->getPosition();
-	m_CheckpointPosition.y = m_CheckpointPosition.y - 20.f;
 }
 
 void HUDScene::activateHUD(IEventData::Ptr p_Data)
