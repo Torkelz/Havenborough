@@ -40,6 +40,9 @@ private:
 
 	unsigned int countPlayersRacing() const;
 	
+	void createPlayerActors();
+	void createCheckpoints();
+
 	void sendPositionUpdate(const Player::ptr p_Player, const float* p_Time) const;
 	void sendPositionUpdates() const;
 	void sendResultLists() const;
