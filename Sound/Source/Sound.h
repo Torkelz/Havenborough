@@ -16,8 +16,8 @@ struct SoundInstance
 	FMOD::Sound		*m_Sound;
 	FMOD::Channel	*m_Channel;
 
-	explicit SoundInstance(std::string p_SoundId, FMOD::Sound *p_Sound, FMOD::Channel *p_Channel)
-		: m_SoundId(p_SoundId), m_Sound(p_Sound), m_Channel(p_Channel)
+	explicit SoundInstance(std::string p_SoundId, FMOD::Sound *p_Sound)
+		: m_SoundId(p_SoundId), m_Sound(p_Sound)
 	{
 	}
 	~SoundInstance()
@@ -51,13 +51,18 @@ struct SoundInstance
 class Sound : public ISound
 {
 private:
+	static int m_NextHandle;
+
+	static int getNextHandle();
+
 	FMOD::System										*m_System;
 	FMOD_SPEAKERMODE									m_SpeakerMode;
 	FMOD_CAPS											m_Caps;
-	std::vector<SoundInstance>							m_Sounds;
+	std::vector<SoundInstance>							m_InstanceList;
 	FMOD::ChannelGroup									*m_MusicChannelGroup;
 	FMOD::ChannelGroup									*m_SfxChannelGroup;
 	FMOD::ChannelGroup									*m_MasterChannelGroup;
+	std::vector<std::pair<std::string, FMOD::Sound*>>	m_SoundList; 
 	int													m_Key;
 	int													m_NumDrivers;
 	unsigned int										m_Version;
@@ -116,6 +121,8 @@ public:
 	bool getPaused(const char* p_SoundId) override;
 
 	bool getMasterMute() override;
+
+	static void resetSoundHandleCounter();
 private:
 	void errorCheck(FMOD_RESULT p_Result);
 	SoundInstance *getSound(std::string p_SoundId);

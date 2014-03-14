@@ -70,8 +70,9 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeWorldText), removeWorldTextEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateWorldTextPosition), updateWorldTextPositionEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::create3DSound), Create3DSoundEventData::sk_EventType);
-	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::update3DSound), Update3DSoundEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::play3DSound), Play3DSoundEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::release3DSound), Release3DSoundEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::update3DSound), Update3DSoundEventData::sk_EventType);
 
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::FINAL);
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::SSAO);
@@ -635,24 +636,22 @@ void GameScene::create3DSound(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<Create3DSoundEventData> data = std::static_pointer_cast<Create3DSoundEventData>(p_Data);
 
-	if (data.get()->getFilePath() != "NULL")
+	if (data.get()->getFilePath() != "ERROR")
 	{
-		//if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
-		//{
-			//m_SoundPath = changeBackGroundSound(m_SoundFolderPath);
-			//if (m_SoundPath != "NULL")
-			//{		
 		m_SoundManager->load3DSound(data.get()->getSoundID().c_str(), data.get()->getFilePath().c_str(),data.get()->getMinDistance());
-		//m_SoundExist = true;
-				//m_SoundManager->play3DSound("CurrentSound", &soundPos, &soundVelocity);
-			//}
-		//}
 	}
 }
 
 void GameScene::update3DSound(IEventData::Ptr p_Data)
 {
-	std::shared_ptr<Update3DSoundEventData> data = std::dynamic_pointer_cast<Update3DSoundEventData>(p_Data);
+	std::shared_ptr<Update3DSoundEventData> data = std::static_pointer_cast<Update3DSoundEventData>(p_Data);
+
+	m_SoundManager->onFrameSound(data.get()->getSoundID().c_str(), &data.get()->getPosition(), &data.get()->getVelocity());
+}
+
+void GameScene::play3DSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<Play3DSoundEventData> data = std::static_pointer_cast<Play3DSoundEventData>(p_Data);
 
 	m_SoundManager->play3DSound(data.get()->getSoundID().c_str(), &data.get()->getPosition(), &data.get()->getVelocity());
 }

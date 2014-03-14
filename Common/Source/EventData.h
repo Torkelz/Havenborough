@@ -1532,7 +1532,7 @@ public:
 	}
 };
 
-class Update3DSoundEventData : public BaseEventData
+class Play3DSoundEventData : public BaseEventData
 {
 private:
 	std::string m_SoundID;
@@ -1542,7 +1542,7 @@ private:
 public:
 	static const Type sk_EventType = Type(0x5fcc08af);
 
-	Update3DSoundEventData(const char* p_SoundID, Vector3 p_Position, Vector3 p_Velocity)
+	Play3DSoundEventData(const char* p_SoundID, Vector3 p_Position, Vector3 p_Velocity)
 		: m_SoundID(p_SoundID), m_Position(p_Position), m_Velocity(p_Velocity)
 	{
 	}
@@ -1554,7 +1554,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new Update3DSoundEventData(m_SoundID.c_str(), m_Position, m_Velocity));
+		return Ptr(new Play3DSoundEventData(m_SoundID.c_str(), m_Position, m_Velocity));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1563,7 +1563,7 @@ public:
 
 	virtual const char *getName(void) const override
 	{
-		return "Update3DSoundEventData";
+		return "Play3DSoundEventData";
 	}
 
 	const std::string getSoundID() const
@@ -1617,6 +1617,55 @@ public:
 	const std::string getSoundID() const
 	{
 		return m_SoundID;
+	}
+};
+
+class Update3DSoundEventData : public BaseEventData
+{
+private:
+	std::string m_SoundID;
+	Vector3 m_Position;
+	Vector3 m_Velocity;
+public:
+	static const Type sk_EventType = Type(0x8941b8d4);
+
+	Update3DSoundEventData(const char* p_SoundID, Vector3 p_Position, Vector3 p_Velocity)
+		: m_SoundID(p_SoundID), m_Position(p_Position), m_Velocity(p_Velocity)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new Update3DSoundEventData(m_SoundID.c_str(), m_Position, m_Velocity));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "Update3DSoundEventData";
+	}
+
+	const std::string getSoundID() const
+	{
+		return m_SoundID;
+	}
+
+	Vector3 getPosition() const
+	{
+		return m_Position;
+	}
+
+	Vector3 getVelocity() const
+	{
+		return m_Velocity;
 	}
 };
 

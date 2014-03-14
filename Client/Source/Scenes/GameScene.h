@@ -125,8 +125,9 @@ private:
 	void updateParticleBaseColor(IEventData::Ptr p_Data);
 	void spellHit(IEventData::Ptr p_Data);
 	void create3DSound(IEventData::Ptr p_Data);
-	void update3DSound(IEventData::Ptr p_Data);
+	void play3DSound(IEventData::Ptr p_Data);
 	void release3DSound(IEventData::Ptr p_Data);
+	void update3DSound(IEventData::Ptr p_Data);
 
 
 	void createWorldText(IEventData::Ptr p_Data);

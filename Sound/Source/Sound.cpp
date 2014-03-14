@@ -2,7 +2,16 @@
 
 #include "SoundLogger.h"
 
+int Sound::m_NextHandle = 1;
 
+int Sound::getNextHandle()
+{
+	return m_NextHandle++;
+}
+void Sound::resetSoundHandleCounter()
+{
+	m_NextHandle = 1;
+}
 
 Sound::Sound(void)
 {
@@ -141,14 +150,23 @@ bool Sound::loadSound(const char *p_SoundId, const char *p_Filename)
 {
 
 	FMOD::Sound *s;
-	FMOD::Channel *c;
-	errorCheck(m_System->createSound(p_Filename, FMOD_LOOP_NORMAL, 0, &s));
-	errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s, true, &c));
-
-	SoundInstance si(p_SoundId, s, c);
-	m_Sounds.push_back(si);
-	s = nullptr;
-	
+	bool found = false;
+	for (auto sound : m_SoundList)
+	{
+		if(strcmp( sound.first.c_str(), p_SoundId ) == 0)
+		{
+			found = true;
+		}
+	}
+	if(!found)
+	{
+		errorCheck(m_System->createSound(p_Filename, FMOD_LOOP_NORMAL, 0, &s));
+		m_SoundList.push_back(std::make_pair(std::string(p_SoundId), s));
+	}
+	else
+	{
+		SoundInstance si( , s);
+	}
 	return true;
 }
 

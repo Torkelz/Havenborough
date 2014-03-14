@@ -30,6 +30,7 @@ public:
 	void postInit() override
 	{
 		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new Create3DSoundEventData(m_SoundID.c_str(), m_FilePath.c_str(), m_MinDistance)));
+		m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new Play3DSoundEventData(m_SoundID.c_str(), m_Owner->getPosition(), m_Velocity)));
 	}
 
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
