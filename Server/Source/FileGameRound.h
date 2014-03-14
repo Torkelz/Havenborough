@@ -47,4 +47,9 @@ private:
 	void sendPositionUpdates() const;
 	void sendResultLists() const;
 	void sendSelectNextCheckpoint(const Player::ptr p_Player, const User::ptr p_User) const;
+
+	void handleThrowSpell(const Player::ptr p_Player, Package p_Package, IConnectionController* p_Connection);
+	void handleObjectAction(const Player::ptr p_Player, Package p_Package, IConnectionController* p_Connection);
+
+	void replacePlayerActorWithFlyingCamera(Player::ptr p_Player, const User::ptr p_User);
 };

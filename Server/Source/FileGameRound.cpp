@@ -117,66 +117,11 @@ void FileGameRound::handleExtraPackage(Player::ptr p_Player, Package p_Package)
 	switch (type)
 	{
 	case PackageType::THROW_SPELL:
-		{
-			Actor::ptr playerActor = p_Player->getActor().lock();
-			if (!playerActor)
-			{
-				break;
-			}
-
-			Actor::ptr spellActor = m_ActorFactory->createSpell(
-				con->getThrowSpellName(p_Package),
-				playerActor->getId(),
-				con->getThrowSpellDirection(p_Package),
-				con->getThrowSpellStartPosition(p_Package));
-
-			std::ostringstream outStream;
-			spellActor->serialize(outStream);
-			std::string spellDescription = outStream.str();
-
-			ObjectInstance spellInstance;
-			spellInstance.m_Id = spellActor->getId();
-			spellInstance.m_Description = spellDescription.c_str();
-
-			for (auto& player : m_Players)
-			{
-				if (player == p_Player)
-				{
-					continue;
-				}
-
-				User::ptr otherUser = player->getUser().lock();
-				if (!otherUser)
-				{
-					continue;
-				}
-
-				otherUser->getConnection()->sendCreateObjects(&spellInstance, 1);
-			}
-		}
+		handleThrowSpell(p_Player, p_Package, con);
 		break;
 
 	case PackageType::OBJECT_ACTION:
-		{
-			Actor::Id actor = con->getObjectActionId(p_Package);
-			const char* action = con->getObjectActionAction(p_Package);
-
-			for (auto& player : m_Players)
-			{
-				if (player == p_Player)
-				{
-					continue;
-				}
-
-				User::ptr otherUser = player->getUser().lock();
-				if (!otherUser)
-				{
-					continue;
-				}
-
-				otherUser->getConnection()->sendObjectAction(actor, action);
-			}
-		}
+		handleObjectAction(p_Player, p_Package, con);
 		break;
 
 	default:
@@ -213,8 +158,6 @@ void FileGameRound::sendUpdates()
 		if (user)
 		{
 			unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
-			float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
-			float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
 			Actor::ptr actor = hitData.second.lock();
 			if (actor)
 			{
@@ -223,6 +166,9 @@ void FileGameRound::sendUpdates()
 				user->getConnection()->sendRemoveObjects(&id, 1);
 				user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
 				user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
+
+				const float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
+				const float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
 
 				if(!player->reachedFinishLine())
 				{
@@ -235,49 +181,7 @@ void FileGameRound::sendUpdates()
 					m_ResultList.push_back(std::make_pair(user->getUsername(), playerTime));
 					m_ResultListUpdated = true;
 						
-					Actor::ptr oldPlayerActor = player->getActor().lock();
-					Actor::ptr flyingCamera = m_ActorFactory->createFlyingCamera(
-						oldPlayerActor->getComponent<LookComponent>(LookComponent::m_ComponentId).lock()->getLookPosition());
-					m_Actors.push_back(flyingCamera);
-
-					std::ostringstream oStream;
-					flyingCamera->serialize(oStream);
-					ObjectInstance inst;
-					std::string desc = oStream.str();
-					inst.m_Description = desc.c_str();
-					inst.m_Id = flyingCamera->getId();
-
-					for (auto& otherPlayer : m_Players)
-					{
-						User::ptr otherUser = otherPlayer->getUser().lock();
-						if(!otherUser)
-						{
-							continue;
-						}
-						otherUser->getConnection()->sendCreateObjects(&inst, 1);
-					}
-
-					user->getConnection()->sendAssignPlayer(inst.m_Id);
-
-					Actor::Id oldPlayerId = oldPlayerActor->getId();
-
-					for (auto& player : m_Players)
-					{
-						User::ptr otherUser = player->getUser().lock();
-						if(!otherUser)
-						{
-							continue;
-						}
-						otherUser->getConnection()->sendRemoveObjects(&oldPlayerId, 1);
-					}
-
-					player->setActor(flyingCamera);
-
-					auto actorIt = std::find(m_Actors.begin(), m_Actors.end(), oldPlayerActor);
-					if (actorIt != m_Actors.end())
-					{
-						m_Actors.erase(actorIt);
-					}
+					replacePlayerActorWithFlyingCamera(player, user);
 				}
 			}
 		}
@@ -609,4 +513,112 @@ void FileGameRound::sendSelectNextCheckpoint(const Player::ptr p_Player, const U
 	p_User->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
 
 	p_User->getConnection()->sendCurrentCheckpoint(p_Player->getCurrentCheckpoint()->getPosition());
+}
+
+void FileGameRound::handleThrowSpell(const Player::ptr p_Player, Package p_Package, IConnectionController* p_Connection)
+{
+	Actor::ptr playerActor = p_Player->getActor().lock();
+	if (!playerActor)
+	{
+		return;
+	}
+
+	Actor::ptr spellActor = m_ActorFactory->createSpell(
+		p_Connection->getThrowSpellName(p_Package),
+		playerActor->getId(),
+		p_Connection->getThrowSpellDirection(p_Package),
+		p_Connection->getThrowSpellStartPosition(p_Package));
+
+	std::ostringstream outStream;
+	spellActor->serialize(outStream);
+	std::string spellDescription = outStream.str();
+
+	ObjectInstance spellInstance;
+	spellInstance.m_Id = spellActor->getId();
+	spellInstance.m_Description = spellDescription.c_str();
+
+	for (auto& player : m_Players)
+	{
+		if (player == p_Player)
+		{
+			continue;
+		}
+
+		User::ptr otherUser = player->getUser().lock();
+		if (!otherUser)
+		{
+			continue;
+		}
+
+		otherUser->getConnection()->sendCreateObjects(&spellInstance, 1);
+	}
+}
+
+void FileGameRound::handleObjectAction(const Player::ptr p_Player, Package p_Package, IConnectionController* p_Connection)
+{
+	Actor::Id actor = p_Connection->getObjectActionId(p_Package);
+	const char* action = p_Connection->getObjectActionAction(p_Package);
+
+	for (auto& player : m_Players)
+	{
+		if (player == p_Player)
+		{
+			continue;
+		}
+
+		User::ptr otherUser = player->getUser().lock();
+		if (!otherUser)
+		{
+			continue;
+		}
+
+		otherUser->getConnection()->sendObjectAction(actor, action);
+	}
+}
+
+void FileGameRound::replacePlayerActorWithFlyingCamera(Player::ptr p_Player, const User::ptr p_User)
+{
+	Actor::ptr oldPlayerActor = p_Player->getActor().lock();
+	Actor::ptr flyingCamera = m_ActorFactory->createFlyingCamera(
+		oldPlayerActor->getComponent<LookComponent>(LookComponent::m_ComponentId).lock()->getLookPosition());
+	m_Actors.push_back(flyingCamera);
+
+	std::ostringstream oStream;
+	flyingCamera->serialize(oStream);
+	ObjectInstance inst;
+	std::string desc = oStream.str();
+	inst.m_Description = desc.c_str();
+	inst.m_Id = flyingCamera->getId();
+
+	for (auto& otherPlayer : m_Players)
+	{
+		User::ptr otherUser = otherPlayer->getUser().lock();
+		if(!otherUser)
+		{
+			continue;
+		}
+		otherUser->getConnection()->sendCreateObjects(&inst, 1);
+	}
+
+	p_User->getConnection()->sendAssignPlayer(inst.m_Id);
+
+	Actor::Id oldPlayerId = oldPlayerActor->getId();
+
+	for (auto& player : m_Players)
+	{
+		User::ptr otherUser = player->getUser().lock();
+		if(!otherUser)
+		{
+			continue;
+		}
+		otherUser->getConnection()->sendRemoveObjects(&oldPlayerId, 1);
+	}
+
+	p_Player->setActor(flyingCamera);
+
+	auto actorIt = std::find(m_Actors.begin(), m_Actors.end(), oldPlayerActor);
+	if (actorIt != m_Actors.end())
+	{
+		m_Actors.erase(actorIt);
+	}
 }
