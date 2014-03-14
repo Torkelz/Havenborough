@@ -8,7 +8,7 @@
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
-    <ShadowMapResolution Value="2048" />
+    <ShadowMapResolution Value="1024" />
     <FOV Value="60" />
     <MouseSensitivity Value="0.5" />
     <MusicVolume Value="50" />

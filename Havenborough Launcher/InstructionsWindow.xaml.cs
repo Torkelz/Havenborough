@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -75,6 +74,13 @@ namespace Havenborough_Launcher
                 case "PositionInstruction":
                 {
                     SetImage(label, @"assets\textures\Launcher_InstructionsPosition.png");
+                    label.Width *= 0.75f;
+                    label.Height *= 0.75f;
+                    break;
+                }
+                case "ClimbInstruction":
+                {
+                    SetImage(label, @"assets\textures\Launcher_InstructionsClimb.png");
                     label.Width *= 0.75f;
                     label.Height *= 0.75f;
                     break;
