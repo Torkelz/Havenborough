@@ -2,6 +2,9 @@
 #include "Logger.h"
 #include "SpellFactory.h"
 
+#include <chrono>
+#include <random>
+
 class SpellComponent : public SpellInterface
 {
 
@@ -16,6 +19,7 @@ private:
 	BodyHandle m_Body;
 	Actor::wPtr m_Caster;
 	Actor::Id m_CasterId;
+	std::default_random_engine m_RandomEngine;
 
 public:
 	/**
@@ -51,6 +55,8 @@ public:
 
 		m_StartDirection = Vector3(0.f, 0.f, 0.f);
 		queryVector(p_Data->FirstChildElement("Direction"), m_StartDirection);
+
+		m_RandomEngine.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
 	}
 
 	/**
@@ -156,6 +162,17 @@ public:
 			std::weak_ptr<ModelInterface> asdff = m_Owner->getComponent<ModelInterface>(ModelInterface::m_ComponentId);
 			if (asdff.lock())
 			{
+				std::uniform_real_distribution<float> rotationDistributionYaw(-6.28f, 6.28f);
+				std::uniform_real_distribution<float> rotationDistributionPitch(-6.28f, 6.28f);
+				std::uniform_real_distribution<float> rotationDistributionRoll(-6.28f, 6.28f);
+
+				DirectX::XMFLOAT3 rot(
+					rotationDistributionYaw(m_RandomEngine),
+					rotationDistributionPitch(m_RandomEngine),
+					rotationDistributionRoll(m_RandomEngine));
+				
+
+				asdff.lock()->setRotation(rot);
 				asdff.lock()->updateScale(m_SpellName ,Vector3(50.f, 50.f, 50.f));
 				asdff.lock()->setColorTone(Vector3(0.99f, 0.0f, 0.0f));
 			}
