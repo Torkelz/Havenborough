@@ -39,7 +39,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_EventManager = p_EventManager;
 
 	m_EventManager->addListener(EventListenerDelegate(this, &GameLogic::removeActorByEvent), RemoveActorEventData::sk_EventType);
-		
+	m_EventManager->addListener(EventListenerDelegate(this, &GameLogic::spellHit), SpellHitEventData::sk_EventType);	
+
 	m_Actors.reset(new ActorList);
 	m_ActorFactory->setActorList(m_Actors);
 
@@ -60,6 +61,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	{
 		changeCameraMode(p_Mode);
 	}));
+
+
 
 	m_ActorFactory->getSpellFactory()->createSpellDefinition("TestSpell", ".."); // Maybe not here.
 }
@@ -236,6 +239,27 @@ void GameLogic::onFrame(float p_DeltaTime)
 	float playerPrevMana = m_Player.getPreviousMana();
 
 	m_EventManager->queueEvent(IEventData::Ptr(new UpdateGraphicalManabarEventData(playerMana/100.f, playerPrevMana/100.f, manaCost)));
+}
+
+void GameLogic::spellHit(IEventData::Ptr p_Data)
+{
+	m_RandomEngine.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
+
+	std::uniform_real_distribution<float> rotationDistributionYaw(-6.28f, 6.28f);
+	std::uniform_real_distribution<float> rotationDistributionPitch(-6.28f, 6.28f);
+	std::uniform_real_distribution<float> rotationDistributionRoll(-6.28f, 6.28f);
+
+	DirectX::XMFLOAT3 rot(
+		rotationDistributionYaw(m_RandomEngine),
+		rotationDistributionPitch(m_RandomEngine),
+		rotationDistributionRoll(m_RandomEngine));
+
+	std::shared_ptr<SpellHitEventData> data = std::static_pointer_cast<SpellHitEventData>(p_Data);
+	
+	Actor::ptr asdff = m_ActorFactory->createSpellExplosion(data->getPosition());
+	asdff->setRotation(rot);
+	addActor(asdff);
+
 }
 
 void GameLogic::setPlayerDirection(Vector3 p_Direction)

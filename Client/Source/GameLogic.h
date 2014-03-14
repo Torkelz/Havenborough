@@ -11,6 +11,8 @@
 #include "SpellFactory.h"
 #include "PhysicsTypes.h"
 
+#include <chrono>
+#include <random>
 #include <INetwork.h>
 
 class GameLogic
@@ -45,6 +47,8 @@ private:
 	ActorList::ptr m_Actors;
 
 	Actor::wPtr m_PlayerSparks;
+
+	std::default_random_engine m_RandomEngine;
 
 	Actor::wPtr m_FlyingCamera;
 	Actor::wPtr m_SplineCamera;
@@ -84,6 +88,7 @@ public:
 
 	void onFrame(float p_DeltaTime);
 
+	void spellHit(IEventData::Ptr p_Data);
 	void setPlayerDirection(Vector3 p_Direction);
 	Vector3 getPlayerDirection() const;
 	BodyHandle getPlayerBodyHandle() const;

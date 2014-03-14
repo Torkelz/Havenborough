@@ -423,11 +423,36 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	printer.PushAttribute("CasterId", p_CasterId);
 	pushVector(printer, "Direction", p_Direction);
 	printer.CloseElement();
+
 	printer.OpenElement("Particle");
 	printer.PushAttribute("Effect", "magic");
 	printer.CloseElement();
+
 	printer.OpenElement("Particle");
 	printer.PushAttribute("Effect", "magicProjectile");
+	printer.CloseElement();
+	printer.CloseElement();
+
+	tinyxml2::XMLDocument doc;
+	doc.Parse(printer.CStr());
+
+	Actor::ptr actor = createActor(doc.FirstChildElement("Object"));
+
+	return actor;
+}
+
+Actor::ptr ActorFactory::createSpellExplosion(Vector3 p_StartPosition)
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("Object");
+	pushVector(printer, p_StartPosition);
+
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "ExplosionSphere1");
+	printer.CloseElement();
+
+	printer.OpenElement("Particle");
+	printer.PushAttribute("Effect", "spellExplosion");
 	printer.CloseElement();
 	printer.CloseElement();
 

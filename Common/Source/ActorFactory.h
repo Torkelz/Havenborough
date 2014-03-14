@@ -101,6 +101,7 @@ public:
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect);
 	Actor::ptr createParticles(Vector3 p_Position, const std::string& p_Effect, Vector4 p_BaseColor);
 	Actor::ptr createSpell(const std::string& p_Spell, Actor::Id p_CasterId, Vector3 p_Direction, Vector3 p_StartPosition);
+	Actor::ptr createSpellExplosion(Vector3 p_StartPosition);
 	Actor::ptr createFlyingCamera(Vector3 p_Position);
 	Actor::ptr createSplineCamera(Vector3 p_Position);
 
