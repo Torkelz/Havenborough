@@ -794,3 +794,19 @@ void Player::fixLookToHead()
 		}
 	}
 }
+
+void Player::getMaxSpeed(float &p_MaxSpeed, float &p_MaxSpeedCurrent, float &p_MaxSpeedDefault) const
+{
+	Actor::ptr actor = m_Actor.lock();
+	if (!actor)
+		return;
+
+	std::shared_ptr<MovementControlInterface> comp = actor->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
+	std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
+	if(runComp)
+	{
+		p_MaxSpeed = runComp->getMaxSpeed();
+		p_MaxSpeedCurrent = runComp->getMaxSpeedCurrent();
+		p_MaxSpeedDefault = runComp->getMaxSpeedDefault();
+	}
+}

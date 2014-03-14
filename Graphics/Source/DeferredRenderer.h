@@ -14,7 +14,7 @@
 class DeferredRenderer
 {
 private:
-	float m_FOV;
+	float *m_FOV;
 	float m_FarZ;
 	float m_ScreenWidth;
 	float m_ScreenHeight;
@@ -50,6 +50,7 @@ private:
 	bool m_RenderSkyDome;
 	SkyDome	*m_SkyDome;
 
+	bool m_FOVIsUpdated;
 	bool m_SSAO;
 	bool m_ShadowMap;
 	float m_SSAO_ResolutionScale;
@@ -101,7 +102,7 @@ public:
 		DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,
 		DirectX::XMFLOAT4X4 *p_ProjectionMatrix,int p_ShadowMapResolution, std::vector<Light> *p_SpotLights,
 		std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
-		float p_FOV, float p_FarZ);
+		float *p_FOV, float p_FarZ);
 
 
 	/*
@@ -149,6 +150,11 @@ public:
 	void enableSSAO(bool p_State);
 
 	void enableShadowMap(bool p_State);
+
+	/**
+	 * Changes m_FOVIsUpdated to true.
+	 */
+	void FOVIsUpdated();
 
 private:
 	void renderGeometry(ID3D11DepthStencilView* p_DepthStencilView, unsigned int nrRT, ID3D11RenderTargetView* rtv[],

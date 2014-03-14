@@ -6,6 +6,7 @@
 #include "Logger.h"
 #include "SplineControlComponent.h"
 #include "TweakSettings.h"
+#include "RunControlComponent.h"
 
 #include <math.h>
 #include <sstream>
@@ -52,6 +53,8 @@ void GameLogic::initialize(ResourceManager *p_ResourceManager, IPhysics *p_Physi
 	m_StartLocal = false;
 	m_PlayerTimeDifference = 0.f;
 	m_PlayerPositionInRace = 0;
+
+	m_OriginalFOV = 70.f;
 
 	TweakSettings* settings = TweakSettings::getInstance();
 	settings->setSetting("camera.mode",2);
@@ -581,6 +584,11 @@ float GameLogic::getPlayerTimeDifference()
 	return m_PlayerTimeDifference;
 }
 
+void GameLogic::getPlayerMaxSpeed(float &p_MaxSpeed, float &p_MaxSpeedCurrent, float &p_MaxSpeedDefault)
+{
+	m_Player.getMaxSpeed(p_MaxSpeed, p_MaxSpeedCurrent, p_MaxSpeedDefault);
+}
+
 void GameLogic::setPlayerClimb(bool p_State)
 {
 	m_Player.setClimbing(p_State);
@@ -636,6 +644,16 @@ unsigned int GameLogic::getPlayerTextComponentId()
 		}
 	}
 	return id;
+}
+
+void GameLogic::setOriginalFOV(float p_OriginalFOV)
+{
+	m_OriginalFOV = p_OriginalFOV;
+}
+
+float GameLogic::getOriginalFOV() const
+{
+	return m_OriginalFOV;
 }
 
 void GameLogic::handleNetwork()

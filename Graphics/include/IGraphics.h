@@ -704,6 +704,13 @@ public:
 	 */
 	virtual void setShadowMapResolution(int p_ShadowMapResolution) = 0;
 
+	/**
+	 * Changes the FOV and updates the projection matrix.
+	 *
+	 * @param p_FOV, new FOV the game will use.
+	 */
+	virtual void setFOV(float p_FOV) = 0;
+
 private:
 
 	/**

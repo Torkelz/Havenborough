@@ -142,6 +142,23 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_Graphics->updateParticles(p_DeltaTime);
 
+	float maxSpeed, maxSpeedCurrent, maxSpeedDefault;
+	m_GameLogic->getPlayerMaxSpeed(maxSpeed, maxSpeedCurrent, maxSpeedDefault);
+
+	if(maxSpeedCurrent > maxSpeedDefault)
+	{
+		maxSpeed -= maxSpeedDefault;
+		maxSpeedCurrent -= maxSpeedDefault;
+
+		float per = maxSpeedCurrent / maxSpeed;
+
+		float fov = m_GameLogic->getOriginalFOV() + 10.f * per;
+
+		m_Graphics->setFOV(fov);
+	}
+	else
+		m_Graphics->setFOV(m_GameLogic->getOriginalFOV());
+
 	if (m_SoundPath != "NULL")
 	{
 		if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))

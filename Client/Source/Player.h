@@ -266,6 +266,9 @@ public:
 
 	void fixLookToHead();
 
+	void getMaxSpeed( float &p_MaxSpeed, float &p_MaxSpeedCurrent, float &p_MaxSpeedDefault ) const;
+
+
 private:
 	void jump(float dt);
 	void move(float p_DeltaTime);

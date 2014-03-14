@@ -463,10 +463,6 @@ void HUDScene::updatePlayerRacePosition(IEventData::Ptr p_Data)
 
 	m_Graphics->updateText(m_TextHandle["RacePos"], std::wstring(position.begin(), position.end()).c_str());
 	m_Graphics->updateText(m_TextHandle["RacePosBG"], std::wstring(position.begin(), position.end()).c_str());
-
-	m_IndicatorColor = m_Color;
-	m_IndicatorTimeFade = m_IndicatorTimeFadeMax;
-	//m_Graphics->set2D_ObjectColor(m_GUI["Indicator"], Vector4(m_IndicatorColor, 1.f));
 }
 
 void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
@@ -517,6 +513,9 @@ void HUDScene::updateTakenCheckpoints(IEventData::Ptr p_Data)
 	m_TakenCheckpoints.append(std::to_string(m_NumberOfCheckpoints));
 	m_Graphics->updateText(m_TextHandle["Checkpoints"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
 	m_Graphics->updateText(m_TextHandle["CheckpointsBG"], std::wstring(m_TakenCheckpoints.begin(), m_TakenCheckpoints.end()).c_str());
+
+	m_IndicatorColor = m_Color;
+	m_IndicatorTimeFade = m_IndicatorTimeFadeMax;
 }
 
 void HUDScene::createArrowElement()

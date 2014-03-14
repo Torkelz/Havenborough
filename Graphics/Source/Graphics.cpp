@@ -204,7 +204,7 @@ bool Graphics::initialize(HWND p_Hwnd, int p_ScreenWidth, int p_ScreenHeight, bo
 	m_DeferredRender->enableShadowMap(m_ShadowMap);
 	m_DeferredRender->initialize(m_Device,m_DeviceContext, m_DepthStencilView,p_ScreenWidth, p_ScreenHeight,
 		m_Eye, &m_ViewMatrix, &m_ProjectionMatrix, m_ShadowMapResolution, &m_SpotLights, &m_PointLights, &m_DirectionalLights, &m_ShadowMappedLight, 
-		m_FOV, m_FarZ);
+		&m_FOV, m_FarZ);
 	
 	//Forward renderer
 	m_ForwardRenderer = new ForwardRendering();
@@ -1156,6 +1156,19 @@ void Graphics::setShadowMapResolution(int p_ShadowMapResolution)
 	m_ShadowMapResolution = p_ShadowMapResolution;
 }
 
+void Graphics::setFOV(float p_FOV)
+{
+	if(m_FOV != p_FOV)
+	{
+		m_FOV = 2 * PI / 360.0f * p_FOV;
+
+		XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(m_FOV,
+			(float)m_ScreenWidth / (float)m_ScreenHeight, m_NearZ, m_FarZ)));
+
+		m_DeferredRender->FOVIsUpdated();
+	}
+}
+
 
 void Graphics::createDefaultShaders(void)
 {
@@ -1402,6 +1415,9 @@ void Graphics::initializeMatrices(int p_ScreenWidth, int p_ScreenHeight, float p
 	XMFLOAT4 up;
 	m_Eye = XMFLOAT3(0,0,-20);
 	m_FarZ = p_FarZ;
+	m_NearZ = p_NearZ;
+	m_ScreenHeight = p_ScreenHeight;
+	m_ScreenWidth = p_ScreenWidth;
 
 	eye = XMFLOAT4(m_Eye.x,m_Eye.y,m_Eye.z,1);
 	lookAt = XMFLOAT4(0,0,0,1);

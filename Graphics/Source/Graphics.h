@@ -48,8 +48,11 @@ private:
 	float m_ClearColor[4];
 	IGraphics::RenderTarget m_SelectedRenderTarget;
 
+	int m_ScreenHeight;
+	int m_ScreenWidth;
 	float m_FOV;
 	float m_FarZ;
+	float m_NearZ;
 	DirectX::XMFLOAT4X4 m_ViewMatrix;
 	DirectX::XMFLOAT4X4 m_ProjectionMatrix;
 	DirectX::XMFLOAT3 m_Eye;
@@ -214,6 +217,7 @@ public:
 	void enableSSAO(bool p_State) override;
 	void enableShadowMap(bool p_State) override;
 	void setShadowMapResolution(int p_ShadowMapResolution) override;
+	void setFOV(float p_FOV) override;
 
 private:
 	void createDefaultShaders(void) override;

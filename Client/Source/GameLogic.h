@@ -59,6 +59,8 @@ private:
 	float m_CountdownTimer;
 	bool m_RenderGo;
 
+	float m_OriginalFOV;
+
 	unsigned int m_PlayerPositionInRace;
 	float m_PlayerTimeDifference; //The difference in time to the first player.
 
@@ -126,6 +128,15 @@ public:
 	 * @return the difference in time
 	 */
 	float getPlayerTimeDifference();
+
+	/**
+	 * Passthrough function to get follow parameters from player class
+	 *
+	 * @p_MaxSpeed, Top MaxSpeed a player can reach.
+	 * @p_MaxSpeedCurrent, player's current maxSpeed.
+	 * @p_MaxSpeedDefault, max speed a player can reach before slowly reaching the top max speed.
+	 */
+	void getPlayerMaxSpeed(float &p_MaxSpeed, float &p_MaxSpeedCurrent, float &p_MaxSpeedDefault);
 	//void releaseSpellInstance(int p_SpellId);
 
 	/**
@@ -173,6 +184,20 @@ public:
 	 * @return the id of the players text component id.
 	 */
 	unsigned int getPlayerTextComponentId();
+
+	/**
+	 * Sets the FOV of the game at startup.
+	 *
+	 * @param p_OriginalFOV, 
+	 */
+	void setOriginalFOV(float p_OriginalFOV);
+
+	/**
+	 * Returns the original FOV the player chose in the launcher.
+	 *
+	 * @return, orginial FOV.
+	 */
+	float getOriginalFOV() const;
 	
 private:
 	void handleNetwork();

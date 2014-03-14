@@ -153,6 +153,7 @@ void BaseGameApp::init()
 	m_ActorFactory.setSpellFactory(m_SpellFactory.get());
 
 	m_GameLogic->initialize(m_ResourceManager.get(), m_Physics, &m_ActorFactory, m_EventManager.get(), m_Network);
+	m_GameLogic->setOriginalFOV(settings.getSettingValue("FOV"));
 
 	// Set Current Size
 	m_NewWindowSize = m_Window.getSize();
