@@ -31,7 +31,7 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	spell->m_Type = SpellDefinition::Type::EXPLOSION;
 	spell->explosionRadius = 600.f;
 	spell->effectTime = 0.1f;
-	spell->maxTimeToLive = 5.f;
+	spell->maxTimeToLive = 3.f;
 	spell->force = 2000.f;
 	spell->minForce = 4000.f;
 	spell->spellName = p_Spellname;
