@@ -73,6 +73,7 @@ private:
 	std::string		m_ClimbId;
 	IKGrabShell		m_Shell;
 	DirectX::XMFLOAT3 m_LookAtPoint;
+	DirectX::XMFLOAT3 m_Up;
 public:
 	~HumanAnimationComponent()
 	{
@@ -118,6 +119,13 @@ public:
 
 		if(m_Model.lock()->getMeshName() != "Dzala")
 			m_Dzala = false;
+
+		if(m_Dzala)
+		{
+			m_Up = DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f);
+		}
+		else
+			m_Up = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
 	}
 
 	void onUpdate(float p_DeltaTime) override
@@ -143,8 +151,8 @@ public:
 		{
 			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new UpdateAnimationEventData(comp->getId(), m_Animation.getFinalTransform(), m_Animation.getAnimationData(), m_Owner->getWorldMatrix())));
 		}
-
-		applyLookAtIK("Head", m_LookAtPoint, 1.0f);
+		if(!m_ForceMove)
+			applyLookAtIK("Head", m_LookAtPoint, 1.0f);
 
 		if(m_Landing)
 		{
@@ -258,5 +266,10 @@ public:
 	bool getLanding() override
 	{
 		return m_Landing;
+	}
+
+	DirectX::XMFLOAT4X4 getViewDirection(std::string p_Joint) override
+	{
+		return m_Animation.getViewDirection(p_Joint, m_Owner->getRotation(), m_Up);
 	}
 };
