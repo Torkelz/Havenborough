@@ -61,7 +61,7 @@
 	</Effect>
 	<Effect effectName="spellExplosion">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="200"/>
+		<MaxCount maxParticles="400"/>
 		<EmitPerSec particlesPerSec="800"/>
 		<SysLife sysMaxLife="2.0"/>
 		<BaseLife maxLife="2.0"/>
