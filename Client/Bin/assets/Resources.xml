@@ -132,6 +132,7 @@
         <Resource Name="WoodenShed1" Path="assets/models/WoodenShed1.btx"/>
         <Resource Name="Zane" Path="assets/models/Zane.btx"/>
         <Resource Name="Minque6" Path="assets/models/Minque6.btx"/>
+        <Resource Name="ExplosionSphere1" Path="assets/models/ExplosionSphere1.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Aqueduct1" Path="assets/volumes/CB_Aqueduct1.txc"/>

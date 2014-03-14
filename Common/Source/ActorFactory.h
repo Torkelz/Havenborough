@@ -93,7 +93,7 @@ public:
 
 	// ************ Test methods ************
 	std::string getPlayerActorDescription(Vector3 p_Position, std::string p_Username, std::string p_CharacterName, std::string p_CharacterStyle) const;
-	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_Seed);
+	Actor::ptr createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_StartTime);
 	Actor::ptr createPlayerActor(Vector3 p_Position, std::string p_Username, std::string p_CharacterName, std::string p_CharacterStyle);
 	Actor::ptr createDirectionalLight(Vector3 p_Direction, Vector3 p_Color, float p_Intensity);
 	Actor::ptr createSpotLight(Vector3 p_Position, Vector3 p_Direction, Vector2 p_MinMaxAngles, float p_Range, Vector3 p_Color);

@@ -319,14 +319,14 @@ sp 	1.0
 st 	522
 en 	545
 lo 	0
-f	Spine1
+f	Hip
 tr	4
 la	1
 fi	1
 fif	6
 fo	1
 fof	6
-we	1.0
+we	0.7
 
 *Clip
 na 	SideJumpRight

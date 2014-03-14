@@ -104,8 +104,8 @@ MatrixDecomposed Animation::updateKeyFrameInformation(const Joint& p_Joint, unsi
 	}
 	else if(m_Tracks[p_CurrentTrack].fadeOut && !m_Tracks[p_CurrentTrack].clip->m_Loop)
 	{
-		return p_Joint.interpolateEx(p_ToParentData, tempData, 1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames /
-			(float)m_Tracks[p_CurrentTrack].clip->m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip->m_Weight) *
+		return p_Joint.interpolateEx(p_ToParentData, tempData, (1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames /
+			(float)m_Tracks[p_CurrentTrack].clip->m_FadeOutFrames))) * m_Tracks[p_CurrentTrack].clip->m_Weight *
 			m_Tracks[p_CurrentTrack].dynamicWeight );
 	}
 	else
@@ -683,6 +683,44 @@ void Animation::applyLookAtIK(const std::string& p_GroupName, const DirectX::XMF
 
 	// Update the resulting child transformations
 	updateFinalTransforms();
+}
+
+XMFLOAT4X4 Animation::getViewDirection(std::string p_Joint, DirectX::XMFLOAT3 p_BodyRotation, DirectX::XMFLOAT3 p_Up)
+{
+	XMFLOAT4X4 returnValue;
+	XMVECTOR lookAt = XMLoadFloat3(&p_Up);//XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	XMVECTOR up = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);//XMLoadFloat3(&p_Up);
+
+	const std::vector<Joint>& p_Joints = m_Data->joints;
+	const Joint* headJoint = nullptr;
+
+	for (unsigned int i = 0; i < p_Joints.size(); i++)
+	{
+		const Joint& joint = p_Joints[i];
+
+		if (joint.m_JointName == p_Joint)
+		{
+			headJoint = &joint;
+			break;
+		}
+	}
+
+	if (headJoint != nullptr)
+	{
+		XMMATRIX rotation =	XMMatrixMultiply( XMMatrixRotationRollPitchYaw(0.0f, p_BodyRotation.x, 0.0f) ,XMMatrixMultiply(
+				XMLoadFloat4x4(&m_FinalTransform[headJoint->m_ID - 1]),
+				XMLoadFloat4x4(&headJoint->m_TotalJointOffset)));
+		rotation = XMMatrixTranspose(rotation);
+		lookAt = XMVector4Transform(lookAt, rotation);
+		up = XMVector4Transform(up, rotation);
+	}
+
+	returnValue = XMFLOAT4X4( 0.0f, 0.0f, 0.0f, 0.0f,
+		-up.m128_f32[0], up.m128_f32[1], up.m128_f32[2], 0.0f,
+		-lookAt.m128_f32[0], lookAt.m128_f32[1], lookAt.m128_f32[2], 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f );
+
+	return returnValue;
 }
 
 void Animation::setAnimationData(AnimationData::ptr p_Data)

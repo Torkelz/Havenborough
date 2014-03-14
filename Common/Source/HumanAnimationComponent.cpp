@@ -18,6 +18,7 @@ void HumanAnimationComponent::updateAnimation()
 		isInAir = physComp->isInAir();
 		isOnSomething = physComp->isOnSomething();
 	}
+
 	XMVECTOR velocity = Vector3ToXMVECTOR(&tempVector, 0.0f);
 	std::shared_ptr<MovementControlInterface> comp = m_Owner->getComponent<MovementControlInterface>(MovementControlInterface::m_ComponentId).lock();
 	std::shared_ptr<RunControlComponent> runComp = std::dynamic_pointer_cast<RunControlComponent>(comp);
@@ -26,6 +27,9 @@ void HumanAnimationComponent::updateAnimation()
 		isFalling = runComp->getIsFalling();
 		isJumping = runComp->getIsJumping();
 	}
+
+	if (!isOnSomething)
+		m_FallSpeed = XMVectorGetY(velocity);
 
 	if(!m_ForceMove)
 	{
@@ -37,8 +41,10 @@ void HumanAnimationComponent::updateAnimation()
 		// Calculate the weight on the strafe track with some trigonometry.
 		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
 		changeAnimationWeight(2, 1 - abs(cosf(angle)));
-		if (!isInAir)
+		
+		if (isOnSomething)
 		{
+
 			m_QueuedFalling = false;
 			// Decide what animation to play on the motion tracks.
 			ForwardAnimationState currentForwardState = ForwardAnimationState::IDLE;
@@ -101,24 +107,26 @@ void HumanAnimationComponent::updateAnimation()
 					break;
 				}
 			}
-
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
-			if (physComp->isOnSomething())
+	
+			if(m_FallSpeed <= -3400.f)
 			{
-				
-				if(m_FallSpeed >= 1400.0f)
-				{
-					currentJumpState = JumpAnimationState::HARD_LANDING;
-				}
-				else
-				{
-					if(m_FallSpeed > 500.0f)
-					{
-						currentJumpState = JumpAnimationState::LIGHT_LANDING;
-					}
-				}
-				m_FallSpeed = 0.0f;
+				currentJumpState = JumpAnimationState::HARD_LANDING;
+				m_Landing = true;
 			}
+			if(m_FallSpeed <= -2400.0f)
+			{
+				currentJumpState = JumpAnimationState::HARD_LANDING;
+				m_Landing = true;
+			}
+			else
+			{
+				if(m_FallSpeed < -500.0f)
+				{
+					currentJumpState = JumpAnimationState::LIGHT_LANDING;
+				}
+			}
+			m_FallSpeed = 0;
 
 			if (currentJumpState != m_PrevJumpState)
 			{
@@ -163,11 +171,6 @@ void HumanAnimationComponent::updateAnimation()
 			{
 				if(m_PrevJumpState != JumpAnimationState::FALLING)
 				currentJumpState = JumpAnimationState::FALLING;
-			}
-
-			if (fabs(XMVectorGetY(velocity)) > m_FallSpeed)
-			{
-				m_FallSpeed = fabs(XMVectorGetY(velocity));
 			}
 
 			if (currentJumpState != m_PrevJumpState)
@@ -252,8 +255,6 @@ void HumanAnimationComponent::updateAnimation()
 			m_PrevJumpState = currentJumpState;
 		}
 	}
-	else
-		m_FallSpeed = 0.f;
 
 	if(m_Landing)
 		m_PrevForwardState = ForwardAnimationState::IDLE;
