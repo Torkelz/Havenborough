@@ -397,7 +397,7 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source);
             try
             {
-                Process.Start(ClientExec);
+                //Process.Start(ClientExec);
             }
             catch (Exception ex)
             {
@@ -555,16 +555,22 @@ namespace Havenborough_Launcher
             }
         }
 
-        private void KeyBindTextBox_OnMouseDown(object sender, MouseButtonEventArgs e)
+        private void TextBox_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             var textBox = sender as TextBox;
             if (textBox == null)
                 return;
 
-            if (!textBox.IsFocused)
-                textBox.Focus();
+            textBox.Background = new SolidColorBrush(Color.FromRgb(0x45, 0x45, 0x45));
+        }
 
-            textBox.Background = Brushes.DarkGray;
+        private void TextBox_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            if (textBox == null)
+                return;
+
+            textBox.Background = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x25));
         }
     }
 

@@ -27,15 +27,15 @@
                 <RowDefinition Height="70*" />
                 <RowDefinition Height="30*" />
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" VerticalAlignment="Top">  
+            <Grid Grid.Row="0" VerticalAlignment="Top">
                 <StackPanel Orientation="Vertical" Margin="10" HorizontalAlignment="Left">
-                    <StackPanel x:Name="Player" Orientation="Vertical" HorizontalAlignment="Left" Width="200" Margin="0,0,0,5"
+                    <StackPanel x:Name="Player" Orientation="Vertical" HorizontalAlignment="Left" Width="215" Margin="0,0,0,5"
                                 DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Game}">
                         <TextBlock FontSize="14" Text="Playername" />
-                        <TextBox Text="{Binding XPath=@Username, Mode=TwoWay}" />
+                        <TextBox Text="{Binding XPath=@Username, Mode=TwoWay}" PreviewMouseDown="TextBox_OnMouseDown" LostFocus="TextBox_OnLostFocus"/>
                     </StackPanel>
-                    <StackPanel x:Name="Character"  Orientation="Horizontal" HorizontalAlignment="Left" Width="200" Margin="0,0,0,25">
-                        <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="95"
+                    <StackPanel x:Name="Character"  Orientation="Horizontal" HorizontalAlignment="Left" Width="215" Margin="0,0,0,25">
+                        <StackPanel Orientation="Vertical" Margin="0,0,20,0" Width="95"
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
                             <TextBlock FontSize="14" Text="Character" />
                             <ComboBox Loaded="CharacterName_OnLoaded" SelectionChanged="CharacterName_OnChanged" />
@@ -115,18 +115,20 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10"
                                 DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Server}">
                         <TextBlock FontSize="16" Text="Hostname" Width="80" />
-                        <TextBox Text="{Binding XPath=@Hostname, Mode=TwoWay}" Width="200" />
+                        <TextBox Text="{Binding XPath=@Hostname, Mode=TwoWay}" Width="200" PreviewMouseDown="TextBox_OnMouseDown"
+                                 LostFocus="TextBox_OnLostFocus" />
                         <TextBlock FontSize="16" Text="Port" Margin="5,0,0,0" Width="35"/>
-                        <TextBox Text="{Binding XPath=@Port, Mode=TwoWay}" Width="50" />
+                        <TextBox Text="{Binding XPath=@Port, Mode=TwoWay}" Width="50" PreviewMouseDown="TextBox_OnMouseDown" 
+                                 LostFocus="TextBox_OnLostFocus"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <StackPanel.DataContext>
                             <Binding Source="{StaticResource GameDataSource}" />
                         </StackPanel.DataContext>
-                            <Button x:Name="HostServerButton" Width="100" Height="110" FontSize="16" FontWeight="Bold" Margin="0,0,10,0" 
+                        <Button x:Name="HostServerButton" Width="100" Height="110" FontSize="16" FontWeight="Bold" Margin="0,0,10,0" 
                                     Click="HostServerButton_OnClick">
-                                <TextBlock FontSize="16" FontWeight="Bold" TextWrapping="Wrap" Text="HOST SERVER"></TextBlock>
-                            </Button>
+                            <TextBlock FontSize="16" FontWeight="Bold" TextWrapping="Wrap" Text="HOST SERVER"></TextBlock>
+                        </Button>
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <ListBox x:Name="GameListView" BorderThickness="1" BorderBrush="White" Height="110" Width="250"
                                      ItemsSource="{Binding Path=Games}" ItemTemplate="{StaticResource GameListTemplate}"
@@ -135,29 +137,30 @@
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <Button x:Name="RefreshButton" Width="100" Height="50" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"
                                     Click="RefreshButton_OnClick" Content="REFRESH"/>
-                            <Button x:Name="LaunchButton" IsEnabled="False" Width="100" Height="50" FontSize="16" FontWeight="Bold"
+                            <Button x:Name="LaunchButton" IsEnabled="True" Width="100" Height="50" FontSize="16" FontWeight="Bold"
                                     Margin="0,5,0,0"  Click="LaunchButton_OnClick" Content="LAUNCH"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Grid>
         </Grid>
-        <Grid Grid.Column="1" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Controls/*}" Margin="0,10,0,10">
+        <Grid Grid.Column="1" DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Controls/*}" Margin="0,10,0,10" 
+              HorizontalAlignment="Right">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical" Margin="0,0,20,0" HorizontalAlignment="Left"
-                                    DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/MouseSensitivity}">
-                            <TextBlock FontSize="14" Text="Mouse Sensitivty"/>
-                            <Slider x:Name="MouseSenseSlider"  Width="100" Value="{Binding XPath=@Value, Mode=TwoWay}" Minimum="0.1" Maximum="1"
-                                    HorizontalAlignment="Left" ValueChanged="Slider_OnChanged" />
-                            <TextBlock x:Name="MouseSenseValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
+                <StackPanel Orientation="Vertical" Width="235" HorizontalAlignment="Center">
+                    <StackPanel DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/MouseSensitivity}">
+                        <StackPanel Orientation="Horizontal" Width="190" HorizontalAlignment="Center" Margin="0,0,0,25">
+                            <Button x:Name="InstructionsButton" Width="100" Height="35" FontSize="12" FontWeight="Bold" Click="InstructionsButton_OnClick"
+                    			Content="INSTRUCTIONS" HorizontalAlignment="Center"/>
+                            <Button x:Name="CreditsButton" Width="75" Height="35" FontSize="12" FontWeight="Bold" Margin="15,0,0,0"
+                                    Click="CreditsButton_OnClick"
+                            	Content="CREDITS" HorizontalAlignment="Right" />
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Button x:Name="CreditsButton" Height="35" FontSize="12" FontWeight="Bold" Click="CreditsButton_OnClick"
-                        		HorizontalAlignment="Right"  Content="CREDITS" />
-                            <Button x:Name="InstructionsButton" Height="35" FontSize="12" FontWeight="Bold" Margin="5,0,0,0"
-                                    Click="InstructionsButton_OnClick" HorizontalAlignment="Right"  Content="INSTRUCTIONS" />
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock FontSize="14" Text="Mouse Sensitivty"/>
+                            <Slider x:Name="MouseSenseSlider"  Width="100" Value="{Binding Mode=TwoWay, XPath=@Value}" Minimum="0.1" Maximum="1"
+                    		    HorizontalAlignment="Left" ValueChanged="Slider_OnChanged" />
+                            <TextBlock x:Name="MouseSenseValue" Text="{Binding Mode=OneTime, XPath=@Value}" />
                         </StackPanel>
                     </StackPanel>
                     <Label Content="KEY BINDINGS" FontWeight="Bold" />
@@ -166,9 +169,9 @@
                             <DataTemplate>
                                 <StackPanel x:Name="KeyBindPanel" Orientation="Horizontal" PreviewKeyDown="KeyBindPanel_OnKeyDown" >
                                     <TextBox x:Name="KeyBindTextBox" Text="{Binding XPath=@Key, Mode=OneTime}" Width="80" IsReadOnly="True"
-                                             TextAlignment="Center" Loaded="KeyBindBox_OnLoaded" PreviewMouseDown="KeyBindTextBox_OnMouseDown"
-                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp" />
-                                    <TextBlock x:Name="KeyBindTextBlock" Text="{Binding XPath=@Display, Mode=OneTime}" />
+                                             TextAlignment="Center" Loaded="KeyBindBox_OnLoaded" PreviewMouseDown="TextBox_OnMouseDown"
+                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp" LostFocus="TextBox_OnLostFocus"/>
+                                    <TextBlock x:Name="KeyBindTextBlock" Text="{Binding XPath=@Display, Mode=OneTime}" Margin="5,5,0,0"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -180,7 +183,7 @@
                                 <StackPanel x:Name="MouseButtonBindPanel" Orientation="Horizontal">
                                     <TextBox x:Name="MouseButtonBindTextBox" Text="{Binding XPath=@Button, Mode=TwoWay}" Width="80" 
                                              IsReadOnly="True" TextAlignment="Center" PreviewMouseDown="MouseButtonBindTextBox_OnMouseDown"
-                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp"/>
+                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp" />
                                     <Label x:Name="MouseButtonBindLabel"  Content="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
@@ -192,7 +195,8 @@
                             <DataTemplate>
                                 <StackPanel x:Name="MouseMovementPanel"  Orientation="Horizontal">
                                     <TextBox x:Name="MouseMovementTextBox" Text="{Binding XPath=@Direction, Mode=TwoWay}" Width="50"
-                                             TextAlignment="Center" MouseRightButtonUp="Controlers_OnMouseRightButtonUp" />
+                                             TextAlignment="Center" PreviewMouseDown="TextBox_OnMouseDown"
+                                             MouseRightButtonUp="Controlers_OnMouseRightButtonUp" LostFocus="TextBox_OnLostFocus" />
                                     <Label x:Name="MouseMovementLabel" Content="{Binding XPath=@Display, Mode=OneTime}" />
                                 </StackPanel>
                             </DataTemplate>
