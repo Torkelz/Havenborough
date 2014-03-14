@@ -160,7 +160,7 @@ public:
 				asdff.lock()->setColorTone(Vector3(0.99f, 0.0f, 0.0f));
 			}
 			
-			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitEventData(*m_Owner, currentPosition)));
+			m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitEventData(*m_Owner, currentPosition )));
 		}
 
 		if (m_SpellInstance->isDead())
@@ -176,6 +176,7 @@ public:
 			{
 				if(m_Physics->getHitDataAt(i).collisionVictim == m_Body)
 				{
+					m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitSphereEventData( m_Physics->getHitDataAt(i).collider )));
 					m_SpellInstance->spellHit(p_DeltaTime, m_Physics, m_Physics->getHitDataAt(i), m_Caster.lock()->getBodyHandles()[0]);
 				}
 			}

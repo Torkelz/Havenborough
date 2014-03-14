@@ -11,6 +11,8 @@
     <ShadowMapResolution Value="2048" />
     <FOV Value="60" />
     <MouseSensitivity Value="0.5" />
+    <MusicVolume Value="50" />
+    <SfxVolume Value="50" />
   </Settings>
   <Controls>
     <KeyMap Display="Leave game" Command="leaveGame" Key="27" />
@@ -61,11 +63,11 @@
       <Position x="0" y="0" z="0" />
     </Countdown>
     <Time scale="0.45">
-      <Position x="530" y="240" z="0" />
+      <Position x="530" y="255" z="0" />
     </Time>
-	<ElapsedTime scale="0.45">
-	  <Position x="530" y="280" z="0" />
-	</ElapsedTime>
+    <ElapsedTime scale="0.45">
+      <Position x="530" y="280" z="0" />
+    </ElapsedTime>
     <RacePos>
       <Position x="-560" y="320" z="1" />
     </RacePos>

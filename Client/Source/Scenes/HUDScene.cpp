@@ -13,19 +13,23 @@ HUDScene::HUDScene()
 	m_Color = Vector3(0.0274509803921569f, 0.2313725490196078f, 0.3764705882352941f);
 	m_BGColor = Vector3(0.8156862745098039f, 0.8156862745098039f, 0.8156862745098039f);
 	m_ManabarColor = Vector3(0.11328125f, 0.296875f, 0.83984375f);
+	m_IndicatorColor = Vector3(0.f, 0.f, 0.f);
+	m_IndicatorSpellhitColor = Vector3(0.4f, 0.f, 0.8f);
 	m_TimeTimerMax = 10.0f;
 	m_TimeTimerStartFade = 5.0f;
 	m_TimePositionFade = 1.f;
-	m_TimeFlashFade = 0.f;
 	m_TimeFlashFadeMax = 0.5f;
 	m_TimeFlashScale = Vector3(0.f, 0.f, 0.f);
 	m_FadeOutFlash = false;
 	m_FeedbackManabarTime = 0.f;
-	m_FeedbackManabarTimeMax = 0.5f;
+	m_FeedbackManabarTimeMax = 0.666f;
 	m_FeedbackManabar = false;
 	m_FeedbackCastable = false;
 	m_FeedbackFade = false;
 	m_ManabarScale = Vector3(0.f, 0.f, 0.f);
+
+	m_IndicatorTimeFadeMax = 0.5f;
+	m_IndicatorTimeFade = 0.f;
 
 	m_Graphics = nullptr;
 	m_EventManager = nullptr;
@@ -60,6 +64,7 @@ bool HUDScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceManag
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updateTakenCheckpoints), UpdateTakenCheckpoints::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::onFinish), FinishRaceEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::updatePlayerElapsedTime), UpdatePlayerElapsedTimeEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &HUDScene::onSpellhit), PlayerIsHitBySpellEventData::sk_EventType);
 
 	m_CheckpointPosition = Vector3(0,0,0);
 	m_RenderCountdown = false;
@@ -203,6 +208,18 @@ void HUDScene::onFrameDebugElement()
 	}
 }
 
+void HUDScene::onFrameIndicatorElement(float p_DeltaTime)
+{
+	if(m_IndicatorTimeFade >= 0.f)
+	{
+		m_IndicatorTimeFade -= p_DeltaTime;
+
+		float per = m_IndicatorTimeFade / m_IndicatorTimeFadeMax;
+
+		m_Graphics->set2D_ObjectColor(m_GUI["Indicator"], Vector4(m_IndicatorColor, per * 1.5f));
+	}
+}
+
 void HUDScene::onFrame(float p_Dt, int* p_IsCurrentScene)
 {
 	onFrameTimeElement(p_Dt);
@@ -252,6 +269,7 @@ void HUDScene::render()
 		m_Graphics->render2D_Object(m_GUI["Checkpoints"]);
 		m_Graphics->render2D_Object(m_GUI["CheckpointsBG"]);
 		m_Graphics->render2D_Object(m_GUI["Crosshair"]);
+		m_Graphics->render2D_Object(m_GUI["Indicator"]);
 		if (m_ShowDebugInfo)
 		{
 			m_Graphics->render2D_Object(m_GUI["DebugTextKey"]);
@@ -443,6 +461,10 @@ void HUDScene::updatePlayerRacePosition(IEventData::Ptr p_Data)
 
 	m_Graphics->updateText(m_TextHandle["RacePos"], std::wstring(position.begin(), position.end()).c_str());
 	m_Graphics->updateText(m_TextHandle["RacePosBG"], std::wstring(position.begin(), position.end()).c_str());
+
+	m_IndicatorColor = m_Color;
+	m_IndicatorTimeFade = m_IndicatorTimeFadeMax;
+	//m_Graphics->set2D_ObjectColor(m_GUI["Indicator"], Vector4(m_IndicatorColor, 1.f));
 }
 
 void HUDScene::updateCheckpointPosition(IEventData::Ptr p_Data)
@@ -475,6 +497,13 @@ void HUDScene::onFinish(IEventData::Ptr p_Data)
 	m_ChangeScene = true;
 	m_NewSceneID = (int)RunScenes::POST_GAME;
 }
+
+void HUDScene::onSpellhit(IEventData::Ptr p_Data)
+{
+	m_IndicatorColor = m_IndicatorSpellhitColor;
+	m_IndicatorTimeFade = m_IndicatorTimeFadeMax;
+}
+
 
 void HUDScene::updateTakenCheckpoints(IEventData::Ptr p_Data)
 {
@@ -615,6 +644,28 @@ void HUDScene::createDebugElement()
 	createGUIElement("DebugTextValue", m_Graphics->create2D_Object(Vector3(-190.f, 160.f, 4.f), Vector3(1,1,1), 0.f, m_TextHandle["DebugTextValue"]));
 }
 
+void HUDScene::createIndicatorElement()
+{
+	Vector3 pos = Vector3(0.f, 0.f, 666.f);
+	Vector3 scale = Vector3(1.f, 1.f, 1.f);
+	std::string id = "Indicator";
+	getHUDSettings(id, pos, scale);
+	adjustHUDPosition(pos);
+	createGUIElement(id, m_Graphics->create2D_Object(pos, Vector2(m_Resolution.x*0.5f, m_Resolution.y*0.5f), scale, 0.f, "FEEDBACK_INDICATOR"));
+	m_Graphics->set2D_ObjectColor(m_GUI[id], Vector4(1.f, 1.f, 1.f, 0.f));
+}
+
+void HUDScene::createCrosshairElement()
+{
+	Vector4 crosshairColor(1.f, 1.f, 1.f, 1.f);
+	Vector3 crosshairPosition(0.f, 0.f, 0.f);
+	Vector3 crosshairScale(1.f, 1.f, 1.f);
+	getHUDSettings("Crosshair", crosshairPosition, crosshairScale);
+	getHUDColor("Crosshair", crosshairColor);
+	createGUIElement("Crosshair", m_Graphics->create2D_Object(crosshairPosition, Vector2(2.f, 2.f), crosshairScale, 0.f, "Crosshair"));
+	m_Graphics->set2D_ObjectColor(m_GUI["Crosshair"], crosshairColor);
+}
+
 void HUDScene::preLoadModels()
 {
 	static const std::string preloadedTextures[] =
@@ -623,6 +674,7 @@ void HUDScene::preLoadModels()
 		"MANA_BAR",
 		"MANA_BARCHANGE",
 		"MANABAR_FEEDBACK",
+		"FEEDBACK_INDICATOR",
 		"Crosshair",
 	};
 	for (const std::string &texture : preloadedTextures)
@@ -638,6 +690,8 @@ void HUDScene::preLoadModels()
 	createRacePositionElement();
 	createCheckpointElement();
 	createDebugElement();
+	createIndicatorElement();
+	createCrosshairElement();
 }
 
 void HUDScene::releasePreLoadedModels()

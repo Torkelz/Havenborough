@@ -891,9 +891,9 @@ void DeferredRenderer::createShaders()
 	m_Shader["Ambient"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassAmbient.hlsl",
 		ambientDefine, "VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	m_FogColor = std::string("0.3f,0.3f,0.45f");
+	m_FogColor = std::string("0.15f,0.35f,0.6f");
 	m_MinFogDistance = 3000.0f;
-	m_MaxFogDistance = 20000.0f;
+	m_MaxFogDistance = 30000.0f;
 	recompileFogShader();
 }
 

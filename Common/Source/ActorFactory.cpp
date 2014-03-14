@@ -200,6 +200,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.PushAttribute("Strength", 0.5f);
 	printer.CloseElement();
 	printer.OpenElement("Look");
+	pushVector(printer, "OffsetPosition", Vector3(0.f, -10.f, 7.f));
 	printer.CloseElement();
 	printer.OpenElement("HumanAnimation");
 	printer.PushAttribute("Animation", p_CharacterName.c_str());
