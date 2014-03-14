@@ -137,7 +137,7 @@
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <Button x:Name="RefreshButton" Width="100" Height="50" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"
                                     Click="RefreshButton_OnClick" Content="REFRESH"/>
-                            <Button x:Name="LaunchButton" IsEnabled="True" Width="100" Height="50" FontSize="16" FontWeight="Bold"
+                            <Button x:Name="LaunchButton" IsEnabled="False" Width="100" Height="50" FontSize="16" FontWeight="Bold"
                                     Margin="0,5,0,0"  Click="LaunchButton_OnClick" Content="LAUNCH"/>
                         </StackPanel>
                     </StackPanel>

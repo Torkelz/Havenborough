@@ -10,8 +10,7 @@
                 <ColumnDefinition Width="22*" />
                 <ColumnDefinition Width="22*" />
                 <ColumnDefinition Width="22*" />
-                <ColumnDefinition Width="22*" />
-                
+                <ColumnDefinition Width="22*" />   
                 <ColumnDefinition Width="12*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
