@@ -121,12 +121,14 @@ void PostGameScene::preLoadModels()
 	m_Graphics->setTextBackgroundColor(m_PlayerNamesText, listBackground);
 	m_Graphics->setTextAlignment(m_PlayerNamesText, TEXT_ALIGNMENT::LEADING);
 	m_Graphics->setTextParagraphAlignment(m_PlayerNamesText, PARAGRAPH_ALIGNMENT::NEAR_ALIGNMENT);
+	m_Graphics->setTextWordWrapping(m_PlayerNamesText, WORD_WRAPPING::NO_WRAP);
 	m_PlayerNamesObject = m_Graphics->create2D_Object(Vector3(listXCenter - listXOffset, listYCenter, 3.f), Vector3(1.f, 1.f, 1.f), 0.f, m_PlayerNamesText);
 
 	m_PlayerTimesText = m_Graphics->createText(L"Some time", textureSize, listFont, listFontSize, listForground, Vector3(0.f, 0.f, 0.f), 1.f, 0.f);
 	m_Graphics->setTextBackgroundColor(m_PlayerTimesText, listBackground);
 	m_Graphics->setTextAlignment(m_PlayerTimesText, TEXT_ALIGNMENT::LEADING);
 	m_Graphics->setTextParagraphAlignment(m_PlayerTimesText, PARAGRAPH_ALIGNMENT::NEAR_ALIGNMENT);
+	m_Graphics->setTextWordWrapping(m_PlayerTimesText, WORD_WRAPPING::NO_WRAP);
 	m_PlayerTimesObject = m_Graphics->create2D_Object(Vector3(listXCenter + listXOffset, listYCenter, 3.f), Vector3(1.f, 1.f, 1.f), 0.f, m_PlayerTimesText);
 }
 
