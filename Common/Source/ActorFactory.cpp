@@ -114,7 +114,7 @@ void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Half
 	p_Printer.CloseElement();
 }
 
-Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_Random)
+Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_StartTime)
 {
 	Vector3 AABBScale = p_Scale;
 	AABBScale.x *= 1.66f;
@@ -132,7 +132,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	printer.CloseElement();
 
 	printer.OpenElement("ModelSinOffset");
-	printer.PushAttribute("Random", p_Random);
+	printer.PushAttribute("StartTime", p_StartTime);
 	pushVector(printer, "Offset", Vector3(0, 50, 0));
 	printer.CloseElement();
 
