@@ -29,7 +29,7 @@ SpellDefinition::ptr SpellFactory::createSpellDefinition(const char* p_Spellname
 	spell.reset(new SpellDefinition());
 
 	spell->m_Type = SpellDefinition::Type::EXPLOSION;
-	spell->explosionRadius = 300.f;
+	spell->explosionRadius = 600.f;
 	spell->effectTime = 0.1f;
 	spell->maxTimeToLive = 3.f;
 	spell->force = 2000.f;

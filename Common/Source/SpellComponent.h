@@ -173,7 +173,7 @@ public:
 				
 
 				asdff.lock()->setRotation(rot);
-				asdff.lock()->updateScale(m_SpellName ,Vector3(25.f, 25.f, 25.f));
+				asdff.lock()->updateScale(m_SpellName ,Vector3(50.f, 50.f, 50.f));
 				asdff.lock()->setColorTone(Vector3(0.15f, 0.0f, 0.85f));
 			}
 			
