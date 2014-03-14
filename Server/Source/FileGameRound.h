@@ -36,7 +36,12 @@ private:
 	Actor::ptr findActor(BodyHandle p_Body);
 
 	void rearrangePlayerPosition();
-	unsigned int getPlayerPos(Player::ptr p_Player);
+	unsigned int getPlayerPos(Player::ptr p_Player) const;
 
 	unsigned int countPlayersRacing() const;
+	
+	void sendPositionUpdate(const Player::ptr p_Player, const float* p_Time) const;
+	void sendPositionUpdates() const;
+	void sendResultLists() const;
+	void sendSelectNextCheckpoint(const Player::ptr p_Player, const User::ptr p_User) const;
 };
