@@ -36,7 +36,7 @@ private:
 	Actor::ptr findActor(BodyHandle p_Body);
 
 	void rearrangePlayerPosition();
-	unsigned int getPlayerPos(Actor::Id p_Player);
+	unsigned int getPlayerPos(Player::ptr p_Player);
 
 	unsigned int countPlayersRacing() const;
 };

@@ -1651,7 +1651,6 @@ class ModelSinOffsetComponent : public OffsetCalculationInterface
 private:
 	Vector3 m_Position;
 	Vector3 m_Offset;
-	float m_Random;
 	float m_Time;
 	std::weak_ptr<ModelInterface> m_Model;
 public:
@@ -1664,9 +1663,8 @@ public:
 	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
 		m_Time = 0;
-		m_Random = 0;
 		m_Offset = Vector3(0,0,0);
-		p_Data->QueryAttribute("Random", &m_Random);
+		p_Data->QueryAttribute("StartTime", &m_Time);
 		queryVector(p_Data->FirstChildElement("Offset"), m_Offset);
 	}
 	
@@ -1683,7 +1681,7 @@ public:
 	void serialize(tinyxml2::XMLPrinter& p_Printer) const override
 	{
 		p_Printer.OpenElement("ModelSinOffset");
-		p_Printer.PushAttribute("Random", m_Random);
+		p_Printer.PushAttribute("StartTime", m_Time);
 		pushVector(p_Printer, "Offset", m_Offset);
 		p_Printer.CloseElement();
 	}
@@ -1692,7 +1690,7 @@ public:
 	{
 		m_Time += p_DeltaTime;
 
-		float sinus = std::sin(m_Time+m_Random);
+		float sinus = std::sin(m_Time);
 		Vector3 result = m_Position + m_Offset * sinus;
 		if(!m_Model.lock())
 		{

@@ -40,16 +40,13 @@ void FileGameRound::setup()
 	std::vector<std::vector<InstanceBinaryLoader::CheckPointStruct>> listOfCheckpoints = m_FileLoader->getCheckPointData();
 	std::vector<InstanceBinaryLoader::CheckPointStruct> checkpoints;
 
-	for(unsigned int i = 0; i < listOfCheckpoints.size(); i++)
+	for(const auto& checkpointGroup : listOfCheckpoints)
 	{
-		unsigned int size = listOfCheckpoints[i].size();
-		if(!size)
-		{
-			return;
-		}
-		std::uniform_int_distribution<int> randomCheckpoint(0, size-1);
-		unsigned int value = randomCheckpoint(m_Random);
-		checkpoints.push_back(listOfCheckpoints[i][value]);
+		if (checkpointGroup.empty())
+			continue;
+
+		std::uniform_int_distribution<int> randomCheckpoint(0, checkpointGroup.size() - 1);
+		checkpoints.push_back(checkpointGroup[randomCheckpoint(m_Random)]);
 	}
 
 	std::sort(checkpoints.begin(), checkpoints.end(),
@@ -61,13 +58,11 @@ void FileGameRound::setup()
 	static const Vector3 checkpointScale(54.f, 170.f, 54.f);
 
 	std::vector<Actor::ptr> checkpointList;
-	std::srand(255);
-	float random = (float)std::rand();
-	checkpointList.push_back(m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointEnd(), checkpointScale, random));
+	std::uniform_real_distribution<float> circleDist(0.f, PI * 2.f);
+	checkpointList.push_back(m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointEnd(), checkpointScale, circleDist(m_Random)));
 	for (const auto& checkpoint : checkpoints)
 	{
-		random = (float)std::rand();
-		checkpointList.push_back(m_ActorFactory->createCheckPointActor(checkpoint.m_Translation, checkpointScale, random));
+		checkpointList.push_back(m_ActorFactory->createCheckPointActor(checkpoint.m_Translation, checkpointScale, circleDist(m_Random)));
 	}
 
 	for (const auto& checkpoint : checkpointList)
@@ -246,7 +241,6 @@ void FileGameRound::handleExtraPackage(Player::ptr p_Player, Package p_Package)
 void FileGameRound::sendUpdates()
 {
 	std::vector<UpdateObjectData> data;
-	bool goalReached = false;
 	std::vector<std::string> extra;
 	std::vector<const char*> extraC;
 	for (auto& player : m_Players)
@@ -264,27 +258,27 @@ void FileGameRound::sendUpdates()
 		}
 	}
 
-	for(unsigned int i = 0; i < m_SendHitData.size(); i++)
+	for(const auto& hitData : m_SendHitData)
 	{
-		Player::ptr player = m_SendHitData[i].first;
+		Player::ptr player = hitData.first;
 		User::ptr user = player->getUser().lock();
 		if (user)
 		{
 			unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
 			float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
 			float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
-			Actor::ptr actor = m_SendHitData[i].second.lock();
+			Actor::ptr actor = hitData.second.lock();
 			if (actor)
 			{
 				const Actor::Id id = actor->getId();
-				if(!m_SendHitData[i].first->reachedFinishLine())
+				if(!player->reachedFinishLine())
 				{
 					user->getConnection()->sendRemoveObjects(&id, 1);
 					user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
 					tinyxml2::XMLPrinter printer;
 
 					printer.OpenElement("ObjectUpdate");
-					printer.PushAttribute("ActorId", id-1);
+					printer.PushAttribute("ActorId", player->getCurrentCheckpoint()->getId());
 					printer.PushAttribute("Type", "Color");
 					pushColor(printer, "SetColor", player->getCurrentCheckpointColor());
 					printer.CloseElement();
@@ -301,10 +295,10 @@ void FileGameRound::sendUpdates()
 					Actor::ptr playerActor  = player->getActor().lock();
 					if(!playerActor)
 					{
-						break;
+						continue;
 					}
-					printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
-						
+					printer.PushAttribute("Place", getPlayerPos(player));
+					
 					printer.PushAttribute("Time",  playerTime - leadTime);
 					printer.CloseElement();
 					info = printer.CStr();
@@ -390,7 +384,7 @@ void FileGameRound::sendUpdates()
 			{
 				break;
 			}
-			printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
+			printer.PushAttribute("Place", getPlayerPos(players));
 			printer.CloseElement();
 			const char* info = printer.CStr();
 			user->getConnection()->sendRacePosition(&info,1);
@@ -554,49 +548,26 @@ Actor::ptr FileGameRound::findActor(BodyHandle p_Body)
 
 void FileGameRound::rearrangePlayerPosition()
 {
-	std::vector<Player::ptr> temp = m_PlayerPositionList;
-
-	for(unsigned int i = 0; i < temp.size() - 1; i++)
+	std::sort(m_PlayerPositionList.begin(), m_PlayerPositionList.end(),
+		[] (const Player::ptr p_Left, const Player::ptr p_Right)
 	{
-		for(unsigned int j = i + 1; j < temp.size(); j++)
-		{
-			unsigned int iCheckPointTaken = temp[i]->getNrOfCheckpointsTaken();
-			unsigned int jCheckPointTaken = temp[j]->getNrOfCheckpointsTaken();
-			if(iCheckPointTaken < jCheckPointTaken)
-			{
-				Player::ptr tempPlayer = temp[i];
-				temp[i] = temp[j];
-				temp[j] = tempPlayer;
-			}
-			else if(iCheckPointTaken == jCheckPointTaken)
-			{
-				if(temp[i]->getClockedTimeAtCheckpoint(iCheckPointTaken) > temp[j]->getClockedTimeAtCheckpoint(jCheckPointTaken))
-				{
-					Player::ptr tempPlayer = temp[i];
-					temp[i] = temp[j];
-					temp[j] = tempPlayer;
-				}
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
+		const unsigned int leftNum = p_Left->getNrOfCheckpointsTaken();
+		const unsigned int rightNum = p_Right->getNrOfCheckpointsTaken();
 
-	m_PlayerPositionList = temp;
+		if (rightNum < leftNum)
+			return true;
+		if (leftNum < rightNum)
+			return false;
+
+		return p_Left->getClockedTimeAtCheckpoint(leftNum) < p_Right->getClockedTimeAtCheckpoint(rightNum);
+	});
 }
 
-unsigned int FileGameRound::getPlayerPos(Actor::Id p_Player)
+unsigned int FileGameRound::getPlayerPos(Player::ptr p_Player)
 {
 	for(unsigned int i = 0; i < m_PlayerPositionList.size(); i++)
 	{
-		Actor::ptr actor = m_PlayerPositionList[i]->getActor().lock();
-		if(!actor)
-		{
-			return i;
-		}
-		if(actor->getId() == p_Player)
+		if(m_PlayerPositionList[i] == p_Player)
 		{
 			return i+1;
 		}
