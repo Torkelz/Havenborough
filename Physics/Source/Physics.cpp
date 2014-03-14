@@ -63,8 +63,8 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 		itr = (int)ceil(fabs(p_DeltaTime / timestep - 0.5f)); // When the fps goes under this the game start to update physics more than once / frame.
 		//itr = 1;
 
-		if(itr > 4)
-			itr = 4;
+		if(itr > 2)
+			itr = 2;
 		else if(itr == 0)
 			itr = 1;
 						
