@@ -104,8 +104,8 @@ MatrixDecomposed Animation::updateKeyFrameInformation(const Joint& p_Joint, unsi
 	}
 	else if(m_Tracks[p_CurrentTrack].fadeOut && !m_Tracks[p_CurrentTrack].clip->m_Loop)
 	{
-		return p_Joint.interpolateEx(p_ToParentData, tempData, 1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames /
-			(float)m_Tracks[p_CurrentTrack].clip->m_FadeOutFrames) * m_Tracks[p_CurrentTrack].clip->m_Weight) *
+		return p_Joint.interpolateEx(p_ToParentData, tempData, (1.0f - ((m_Tracks[p_CurrentTrack].fadedFrames /
+			(float)m_Tracks[p_CurrentTrack].clip->m_FadeOutFrames))) * m_Tracks[p_CurrentTrack].clip->m_Weight *
 			m_Tracks[p_CurrentTrack].dynamicWeight );
 	}
 	else
