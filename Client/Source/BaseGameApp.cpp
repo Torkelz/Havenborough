@@ -25,7 +25,7 @@ void BaseGameApp::init()
 	Settings settings;
 	settings.initialize("UserOptions.xml");
 
-	float checkValue = 0.5f;//settings.getSettingValue("MusicVolume") * 0.01f; //Remove "0.5f" when setings in launchen is done
+	float checkValue = settings.getSettingValue("MusicVolume") * 0.01f;
 	
 	if (checkValue <= 1.f || checkValue >= 0.f)
 	{
@@ -144,6 +144,8 @@ void BaseGameApp::init()
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setSoundManager(m_Sound);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setUserAddedSoundVolume(m_UserAddedSoundVolume);
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->launchUserSound();
+
 	m_MemoryInfo.update();
 	
 	m_ActorFactory.setPhysics(m_Physics);

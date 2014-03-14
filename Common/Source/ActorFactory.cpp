@@ -114,7 +114,7 @@ void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Half
 	p_Printer.CloseElement();
 }
 
-Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_Random)
+Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_StartTime)
 {
 	Vector3 AABBScale = p_Scale;
 	AABBScale.x *= 1.66f;
@@ -132,7 +132,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	printer.CloseElement();
 
 	printer.OpenElement("ModelSinOffset");
-	printer.PushAttribute("Random", p_Random);
+	printer.PushAttribute("StartTime", p_StartTime);
 	pushVector(printer, "Offset", Vector3(0, 50, 0));
 	printer.CloseElement();
 
@@ -412,6 +412,12 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_StartPosition);
+
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "ExplosionSphere1");
+	pushVector(printer, "Scale", Vector3(0.02f, 0.02f, 0.02f));
+	printer.CloseElement();
+
 	printer.OpenElement("Spell");
 	printer.PushAttribute("SpellName", p_Spell.c_str());
 	printer.PushAttribute("CasterId", p_CasterId);

@@ -1,13 +1,13 @@
 <Particle>
 	<Effect effectName="fire">
 		<Texture resourceName="Fire3.png"/>
-		<MaxCount maxParticles="30"/>
-		<EmitPerSec particlesPerSec="45"/>
+		<MaxCount maxParticles="20"/>
+		<EmitPerSec particlesPerSec="20"/>
 		<SysLife sysMaxLife="-1.0"/>
 		<BaseLife maxLife="1.5"/>
 		<LifeDeviation maxLifeDeviation="1.0"/>
 		<Size sX="10" sY="10"/>
-		<PositionDeviation positionDeviation="5.0"/>
+		<PositionDeviation positionDeviation="4.0"/>
 		<Velocity vbX="0.0" vbY="10.0" vbZ="0.0" vdX="0.0" vdY="5.0" vdZ="0.0"/>
 		<Color cbX="1.0" cbY="1.0" cbZ="1.0" cbA="0.8" cdX="0.0" cdY="0.0" cdZ="0.0" cdA="0.2"/>
 	</Effect>
@@ -61,7 +61,7 @@
 	</Effect>
 	<Effect effectName="spellExplosion">
 		<Texture resourceName="Particle1.dds"/>
-		<MaxCount maxParticles="200"/>
+		<MaxCount maxParticles="400"/>
 		<EmitPerSec particlesPerSec="800"/>
 		<SysLife sysMaxLife="2.0"/>
 		<BaseLife maxLife="2.0"/>

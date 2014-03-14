@@ -11,6 +11,17 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseDark.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="InformationText" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextAlignment" Value="Justify" />
+                <Setter Property="Padding" Value="5" />
+            </Style>
+            <Style x:Key="InformationPanel" TargetType="StackPanel">
+                <Setter Property="Background" Value="#FF353535" />
+                <Setter Property="Border.BorderThickness" Value="10" />
+                <Setter Property="Border.BorderBrush" Value="White" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

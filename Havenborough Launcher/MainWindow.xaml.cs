@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml;
 
+
 namespace Havenborough_Launcher
 {
     /// <summary>
@@ -368,6 +369,8 @@ namespace Havenborough_Launcher
                 textBox.Text = key.ToString();
                 break;
             }
+            Keyboard.ClearFocus();
+            textBox.Background = Brushes.Transparent;
         }
 
         private void MouseButtonBindTextBox_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -552,14 +555,22 @@ namespace Havenborough_Launcher
             }
         }
 
-        private void KeyBindTextBox_OnMouseDown(object sender, MouseButtonEventArgs e)
+        private void TextBox_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             var textBox = sender as TextBox;
             if (textBox == null)
                 return;
 
-            bool test = textBox.IsFocused;
-            //textBox.Background = Brushes.Azure;
+            textBox.Background = new SolidColorBrush(Color.FromRgb(0x45, 0x45, 0x45));
+        }
+
+        private void TextBox_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            if (textBox == null)
+                return;
+
+            textBox.Background = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x25));
         }
     }
 
