@@ -731,6 +731,7 @@ void GameLogic::handleNetwork()
 				{
 					unsigned int numberTaken = conn->getTakenCheckpoints(package);
 					m_EventManager->queueEvent(IEventData::Ptr(new UpdateTakenCheckpoints(numberTaken)));
+					m_Player.setCurrentMana(m_Player.getMaxMana());
 				}
 				break;
 			case PackageType::RESULT_GAME:
@@ -904,7 +905,6 @@ void GameLogic::handleNetwork()
 							object->QueryAttribute("Time", &m_PlayerTimeDifference);
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
-							m_Player.setCurrentMana(m_Player.getMaxMana());
 						}
 						if(object->Attribute("Type", "Placing"))
 						{
