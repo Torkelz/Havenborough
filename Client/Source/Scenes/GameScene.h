@@ -58,7 +58,17 @@ private:
 		IGraphics::InstanceId modelId;
 		std::vector<ReachIK> activeIKs;
 	};
+	
 	std::vector<MeshBinding> m_Models;
+	
+	struct SoundBinding
+	{
+		int soundID;
+		Actor::Id actorID;
+		int resourceID;
+	};
+	
+	std::vector<SoundBinding> m_SoundsID;
 
 	struct ParticleBinding
 	{

@@ -57,6 +57,7 @@ public:
 	 * @param p_Physics the physics library to use
 	 */
 	void setPhysics(IPhysics* p_Physics);
+
 	/**
 	 * Set the event manager actors created with this factory will use.
 	 *

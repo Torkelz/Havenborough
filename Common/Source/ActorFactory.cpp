@@ -283,13 +283,6 @@ Actor::ptr ActorFactory::createPointLight(Vector3 p_Position, float p_Range, Vec
 	pushVector(printer, "Position", p_Position);
 	pushColor(printer, "Color", p_Color);
 	printer.CloseElement();
-
-	printer.OpenElement("Sound");
-	printer.PushAttribute("SoundID", "fire");
-	printer.PushAttribute("FilePath", "C:\\Havenborough\\Client\\Bin\\assets\\sounds\\background\\Ambient.mp3");
-	printer.PushAttribute("MinDistance", 10.f);
-	pushVector(printer, "Velocity", Vector3(0,0,0));
-	printer.CloseElement();
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;
@@ -432,9 +425,8 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	printer.PushAttribute("Effect", "magicProjectile");
 	printer.CloseElement();
 	printer.OpenElement("Sound");
-	printer.PushAttribute("SoundID", "Spell");
-	printer.PushAttribute("FilePath", "C:\\Havenborough\\Client\\Bin\\assets\\sounds\\background\\Dark.mp3");
-	printer.PushAttribute("MinDistance", 10.f);
+	printer.PushAttribute("FileName", "Spell");
+	printer.PushAttribute("MinDistance", 10.0f);
 	pushVector(printer, "Velocity", Vector3(0,0,0));
 	printer.CloseElement();
 	printer.CloseElement();

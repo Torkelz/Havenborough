@@ -9,7 +9,8 @@
         <Resource Name="Crosshair" Path="assets/textures/Dot.png"/>
     </ResourceType>
     <ResourceType Type="sound">
-        <Resource Name="Background" Path="assets/sounds/Mainbackground.mp3"/>
+        <Resource Name="Background" Path="assets/sounds/background/Ambient.mp3"/>
+        <Resource Name="Spell" Path="assets/sounds/spell/Dark.mp3"/>
     </ResourceType>
     <ResourceType Type="particleSystem">
         <Resource Name="TestParticle" Path="assets/particles/particleEffects.xml"/>
@@ -17,6 +18,8 @@
     <ResourceType Type="spell">
         <Resource Name="TestSpell" Path="assets/spells/TestSpell.xml"/>
     </ResourceType>
+	<ResourceType Type="sound">
+    </ResourceType>	
     <ResourceType Type="model">
         <Resource Name="Aqueduct1" Path="assets/models/Aqueduct1.btx"/>
         <Resource Name="AqueductEnd1" Path="assets/models/AqueductEnd1.btx"/>

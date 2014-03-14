@@ -635,32 +635,52 @@ void GameScene::spellHit(IEventData::Ptr p_Data)
 void GameScene::create3DSound(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<Create3DSoundEventData> data = std::static_pointer_cast<Create3DSoundEventData>(p_Data);
-
-	if (data.get()->getFilePath() != "ERROR")
+	
+	int resource = m_ResourceManager->loadResource("sound", data->getSoundID());
+	m_ResourceIDs.push_back(resource);
+	SoundBinding sounding =
 	{
-		m_SoundManager->load3DSound(data.get()->getSoundID().c_str(), data.get()->getFilePath().c_str(),data.get()->getMinDistance());
-	}
+		m_SoundManager->createSoundInstance(data->getSoundID().c_str()),
+		data->getActorID(),
+		resource
+	};
+	m_SoundManager->set3DMinDistance(sounding.soundID, data->getMinDistance());
+	m_SoundManager->setSoundModes(sounding.soundID, true, true);
+	m_SoundsID.push_back(sounding);
 }
 
 void GameScene::update3DSound(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<Update3DSoundEventData> data = std::static_pointer_cast<Update3DSoundEventData>(p_Data);
-
-	m_SoundManager->onFrameSound(data.get()->getSoundID().c_str(), &data.get()->getPosition(), &data.get()->getVelocity());
+	for(auto &s : m_SoundsID)
+	{
+		if(s.actorID == data->getActorID())
+			m_SoundManager->onFrameSound(s.soundID, &data.get()->getPosition(), &data.get()->getVelocity());
+	}
 }
 
 void GameScene::play3DSound(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<Play3DSoundEventData> data = std::static_pointer_cast<Play3DSoundEventData>(p_Data);
-
-	m_SoundManager->play3DSound(data.get()->getSoundID().c_str(), &data.get()->getPosition(), &data.get()->getVelocity());
+	for(auto &s : m_SoundsID)
+	{
+		if(s.actorID == data->getActorID())
+		{
+			m_SoundManager->play3DSound(s.soundID, &data.get()->getPosition(), &data.get()->getVelocity());
+		}
+	}
 }
 
 void GameScene::release3DSound(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<Release3DSoundEventData> data = std::static_pointer_cast<Release3DSoundEventData>(p_Data);
-
-	m_SoundManager->releaseSound(data.get()->getSoundID().c_str());
+	for(auto &s : m_SoundsID)
+	{
+		if(s.actorID == data->getActorID())
+		{
+			m_SoundManager->stopSound(s.soundID);
+		}
+	}
 }
 
 void GameScene::createWorldText(IEventData::Ptr p_Data)
