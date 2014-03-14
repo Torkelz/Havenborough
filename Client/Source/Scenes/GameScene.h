@@ -81,6 +81,7 @@ private:
 
 	bool m_RenderPause;
 	unsigned int m_PauseId;
+	float m_FOVPercentage;
 public: 
 	GameScene();
 	~GameScene();

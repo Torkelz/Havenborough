@@ -25,6 +25,7 @@ GameScene::GameScene()
 	m_UseThirdPersonCamera = false;
 	m_UseFlippedCamera = false;
 	m_DebugAnimations = false;
+	m_FOVPercentage = 0.f;
 
 	m_ViewSensitivity = 0.01f;
 }
@@ -145,19 +146,40 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	float maxSpeed, maxSpeedCurrent, maxSpeedDefault;
 	m_GameLogic->getPlayerMaxSpeed(maxSpeed, maxSpeedCurrent, maxSpeedDefault);
 
+	
+	//maxSpeed -= maxSpeedDefault;
+	//maxSpeedCurrent -= maxSpeedDefault;
+	float per = maxSpeedCurrent / maxSpeed;
+
+
+	float FOVSpeed = per * p_DeltaTime;
+
+	float FOVDiff = (m_GameLogic->getOriginalFOV() + 15.f <= 180.f) ? 15.f : 180.f - m_GameLogic->getOriginalFOV();
 	if(maxSpeedCurrent > maxSpeedDefault)
 	{
-		maxSpeed -= maxSpeedDefault;
-		maxSpeedCurrent -= maxSpeedDefault;
+		FOVSpeed *= 0.5f;
+		
+		if(per <= 1.0f && m_FOVPercentage + FOVSpeed <= 1.0f)
+			m_FOVPercentage += FOVSpeed;
+		else
+			m_FOVPercentage = 1.f;
 
-		float per = maxSpeedCurrent / maxSpeed;
-
-		float fov = m_GameLogic->getOriginalFOV() + 10.f * per;
+		float fov = m_GameLogic->getOriginalFOV() + FOVDiff * m_FOVPercentage;
 
 		m_Graphics->setFOV(fov);
 	}
 	else
-		m_Graphics->setFOV(m_GameLogic->getOriginalFOV());
+	{
+		FOVSpeed *= 4.f;
+		if(m_FOVPercentage - FOVSpeed >= 0.f)
+			m_FOVPercentage -= FOVSpeed;
+		else
+			m_FOVPercentage = 0.f;
+
+		float fov = m_GameLogic->getOriginalFOV() + FOVDiff * m_FOVPercentage;
+
+		m_Graphics->setFOV(fov);
+	}
 
 	if (m_SoundPath != "NULL")
 	{
