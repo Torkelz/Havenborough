@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using MahApps.Metro.Controls;
 
 namespace Havenborough_Launcher
 {
@@ -24,37 +27,63 @@ namespace Havenborough_Launcher
 
         private void ImageLabels_OnLoaded(object sender, RoutedEventArgs e)
         {
-            var label = sender as Label;
-            if (label == null)
+            var stackPanel = sender as StackPanel;
+            if (stackPanel == null)
+                return;
+            var label = stackPanel.GetChildObjects().First() as Label;
+            var textBlock = stackPanel.GetChildObjects().Last() as TextBlock;
+            if (label == null || textBlock == null)
                 return;
 
-            switch (label.Name)
+            switch (stackPanel.Name)
             {
-                case "CheckpointImage":
+                case "CheckpointInstruction":
                 {
                     SetImage(label, @"assets\textures\Launcher_InstructionsCheckpoint.png");
+                    label.Width *= 0.5f;
+                    label.Height *= 0.5f;
                     break;
                 }
-                case "ArrowImage":
+                case "ArrowInstruction":
                 {
                     SetImage(label, @"assets\textures\Launcher_InstructionsArrow.png");
+                    label.Width *= 0.75f;
+                    label.Height *= 0.75f;
                     break;
                 }
-                case "CheckpointsLeftImage":
+                case "CheckpointsLeftInstruction":
                 {
                     SetImage(label, @"assets\textures\Launcher_InstructionsCheckpointsLeft.png");
+                    label.Width *= 0.75f;
+                    label.Height *= 0.75f;
                     break;
                 }
-                case "ManabarImage":
+                case "ManabarInstruction":
                 {
                     SetImage(label, @"assets\textures\Launcher_InstructionsManabar.png");
+                    label.Width *= 0.75f;
+                    label.Height *= 0.75f;
+                    break;
+                }
+                case "TimeInstruction":
+                {
+                    SetImage(label, @"assets\textures\Launcher_InstructionsTime.png");
+                    label.Width *= 0.75f;
+                    label.Height *= 0.75f;
+                    break;
+                }
+                case "PositionInstruction":
+                {
+                    SetImage(label, @"assets\textures\Launcher_InstructionsPosition.png");
+                    label.Width *= 0.75f;
+                    label.Height *= 0.75f;
                     break;
                 }
             }
-
+            textBlock.Width = label.Width;
         }
 
-        private static void SetImage(Label label, string filepath)
+        private static void SetImage(Control label, string filepath)
         {
             if (label == null)
                 return;
