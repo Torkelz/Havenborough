@@ -109,6 +109,8 @@ public:
 	void setSoundManager(ISound *p_SoundManager);
 
 	void setUserAddedSoundVolume(float p_SoundVolume);
+
+	void launchUserSound();
 private:
 	std::string changeBackGroundSound(const std::string& p_FontFolderPath);
 

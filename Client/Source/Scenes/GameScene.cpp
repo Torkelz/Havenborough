@@ -142,6 +142,11 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 
 	m_Graphics->updateParticles(p_DeltaTime);
 
+
+}
+
+void GameScene::launchUserSound()
+{
 	if (m_SoundPath != "NULL")
 	{
 		if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
@@ -149,10 +154,11 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 			m_SoundPath = changeBackGroundSound(m_SoundFolderPath);
 			if (m_SoundPath != "NULL")
 			{		
-				m_SoundManager->loadSoundWithoutLoop("CurrentSound", m_SoundPath.c_str());
+				//m_SoundManager->loadSoundWithoutLoop("CurrentSound", m_SoundPath.c_str());
+				m_SoundManager->loadSound("CurrentSound", m_SoundPath.c_str());
 				m_SoundExist = true;
 				m_SoundManager->playSound("CurrentSound");
-				m_SoundManager->setSoundVolume("CurrentSound", 0.5f);//m_UserAddedSoundVolume); //Remove "0.5f" with "m_UserAddedSoundVolume" when Launcher are done
+				m_SoundManager->setSoundVolume("CurrentSound", m_UserAddedSoundVolume);
 			}
 		}
 	}	
