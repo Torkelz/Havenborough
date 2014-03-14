@@ -146,6 +146,14 @@ void Settings::loadControls(tinyxml2::XMLElement *p_Element)
 
 			m_MouseButtonMap.insert(make_pair(std::string(commandValue), value));
 		}
+		else if (elementName == "GamepadAxisMap")
+		{
+			loadGamepadAxis(element, commandValue);
+		}
+		else if (elementName == "GamepadButtonMap")
+		{
+			loadGamepadButton(element, commandValue);
+		}
 	}
 }
 
@@ -271,6 +279,16 @@ const std::map<std::string, MouseButton> &Settings::getMouseButtonMap() const
 	return m_MouseButtonMap;
 }
 
+const std::vector<Settings::AxisSetting>& Settings::getGamepadAxisMap() const
+{
+	return m_AxesSettings;
+}
+
+const std::vector<std::pair<USAGE, std::string>>& Settings::getGamepadButtonMap() const
+{
+	return m_GamepadButtonMap;
+}
+
 const bool Settings::getIsSettingEnabled(std::string p_SettingName) const
 {
 	if (m_SettingsEnabled.count(p_SettingName) > 0)
@@ -333,4 +351,31 @@ unsigned short int Settings::getServerPort() const
 std::map<std::string, Settings::HUDSettings> Settings::getHUDSettings() const
 {
 	return m_HUDSettings;
+}
+
+void Settings::loadGamepadAxis(const tinyxml2::XMLElement* p_Element, const std::string& p_Command)
+{
+	int usage;
+	if (p_Element->QueryAttribute("Usage", &usage) != tinyxml2::XML_NO_ERROR)
+		return;
+	if (usage < 0 || usage > std::numeric_limits<USAGE>::max())
+		return;
+
+	AxisSetting setting;
+	setting.usage = (USAGE)usage;
+	setting.command = p_Command;
+	setting.posDir = !(p_Element->Attribute("Direction", "Neg") != nullptr);
+
+	m_AxesSettings.push_back(setting);
+}
+
+void Settings::loadGamepadButton(const tinyxml2::XMLElement* p_Element, const std::string& p_Command)
+{
+	int usage;
+	if (p_Element->QueryAttribute("Usage", &usage) != tinyxml2::XML_NO_ERROR)
+		return;
+	if (usage < 0 || usage > std::numeric_limits<USAGE>::max())
+		return;
+
+	m_GamepadButtonMap.push_back(std::make_pair((USAGE)usage, p_Command));
 }
