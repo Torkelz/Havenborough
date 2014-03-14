@@ -258,6 +258,13 @@ void GameLogic::spellHit(IEventData::Ptr p_Data)
 	
 	Actor::ptr asdff = m_ActorFactory->createSpellExplosion(data->getPosition());
 	asdff->setRotation(rot);
+
+	std::weak_ptr<ModelInterface> explosionModel = asdff->getComponent<ModelComponent>(ModelInterface::m_ComponentId);
+	if (explosionModel.lock())
+	{
+		explosionModel.lock()->setColorTone(Vector3(0.9f, 0.0f, 0.f));
+	}
+	
 	addActor(asdff);
 
 }
