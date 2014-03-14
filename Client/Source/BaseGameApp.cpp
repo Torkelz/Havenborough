@@ -1,10 +1,11 @@
 #include "BaseGameApp.h"
 
 #include <Logger.h>
-#include "Settings.h"
-#include <TweakCommand.h>
 #include "Scenes/HUDScene.h"
 #include "Scenes/GameScene.h"
+#include "Settings.h"
+#include <TweakCommand.h>
+#include "../resource.h"
 
 #include <iomanip>
 #include <memory>
@@ -44,6 +45,8 @@ void BaseGameApp::init()
 	m_TimeToNextMemUpdate = 0.f;
 	m_TimeModifier = 1.f;
 	
+	HICON icon = (HICON)LoadImageA(GetModuleHandleA(NULL), MAKEINTRESOURCEA(IDI_ICON1), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+	m_Window.setIcon(icon);
 	m_Window.init(getGameTitle(), settings.getResolution());
 	
 	m_Graphics = IGraphics::createGraphics();
@@ -252,6 +255,7 @@ void BaseGameApp::shutdown()
 	m_EventManager.reset();
 
 	m_Window.destroy();
+	DestroyIcon(m_Window.getIcon());
 }
 
 std::string BaseGameApp::getGameTitle() const
