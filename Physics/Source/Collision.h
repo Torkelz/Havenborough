@@ -52,6 +52,10 @@ public:
 	* @return HitData, see HitData definition.
 	*/
 	static HitData AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere );
+
+	static bool AABBvsSphereIntersect(XMFLOAT4 p_Min, XMFLOAT4 p_Max, Sphere const &p_Sphere);
+
+	static bool AABBInsideSphere(XMFLOAT4 p_Min, XMFLOAT4 p_Max, Sphere const &p_Sphere);
 	/**
 	* OBB versus OBB collision test
 	* ## SphereVsSphere check happens before 

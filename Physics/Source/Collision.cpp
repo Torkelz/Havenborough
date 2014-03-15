@@ -262,6 +262,130 @@ HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 	return hit;
 }
 
+bool Collision::AABBvsSphereIntersect(XMFLOAT4 p_Min, XMFLOAT4 p_Max, Sphere const &p_Sphere)
+{
+	//Check to see if the sphere overlaps the AABB
+	//const bool AABBOverlapsSphere ( const AABB& B, const SCALAR r, VECTOR& C )
+	float s = 0; // m
+	float d = 0; // m^2
+
+	//find the square of the distance
+	//from the sphere to the box
+	XMFLOAT4 spherePos = p_Sphere.getPosition();	// m
+	XMFLOAT3 dist;	// m
+
+	//if the sphere is outside of the box, find the corner closest to the sphere center in each axis.
+	//else special case for when the sphere center is inside that axis slab.
+
+
+	// x
+	if( spherePos.x <= p_Min.x )
+	{
+		dist.x = p_Min.x;
+	}
+	else if( spherePos.x > p_Max.x )
+	{
+		dist.x = p_Max.x;
+	}
+	else
+		dist.x = spherePos.x;
+
+	s = spherePos.x - dist.x;
+	d += s*s;
+
+	// y
+	if( spherePos.y <= p_Min.y )
+	{
+		dist.y = p_Min.y;
+	}
+	else if( spherePos.y > p_Max.y )
+	{
+		dist.y = p_Max.y;
+	}
+	else
+		dist.y = spherePos.y;
+
+	s = spherePos.y - dist.y;
+	d += s*s;
+
+	// z
+	if( spherePos.z <= p_Min.z )
+	{
+		dist.z = p_Min.z;
+	}
+	else if( spherePos.z > p_Max.z )
+	{
+		dist.z = p_Max.z;
+	}
+	else
+		dist.z = spherePos.z;
+
+	s = spherePos.z - dist.z;
+	d += s*s;
+
+	if(d <= p_Sphere.getSqrRadius())
+	{
+		return true;
+	}
+	return false;
+}
+
+bool Collision::AABBInsideSphere(XMFLOAT4 p_Min, XMFLOAT4 p_Max, Sphere const &p_Sphere)
+{
+	XMFLOAT4 spherePos = p_Sphere.getPosition();
+	float radius = p_Sphere.getRadius();
+
+	//xyz
+	XMVECTOR v = XMVectorSet(p_Min.x - spherePos.x, p_Min.y - spherePos.y, p_Min.z - spherePos.z, 0.f);
+	float l = XMVector3Length(v).m128_f32[0];
+	if(l > radius)
+		return false;
+
+	//Xyz
+	v = XMVectorSet(p_Max.x - spherePos.x, p_Min.y - spherePos.y, p_Min.z - spherePos.z, 0.f);
+	l = XMVector3Length(v).m128_f32[0];
+	if(l > radius)
+		return false;
+	
+	//xYz
+	v = XMVectorSet(p_Min.x - spherePos.x, p_Max.y - spherePos.y, p_Min.z - spherePos.z, 0.f);
+	l = XMVector3Length(v).m128_f32[0];
+	if(l > radius)
+		return false;
+
+	//XYz
+	v = XMVectorSet(p_Max.x - spherePos.x, p_Max.y - spherePos.y, p_Min.z - spherePos.z, 0.f);
+	l = XMVector3Length(v).m128_f32[0];
+	if(l > radius)
+		return false;
+
+	//xyZ
+	v = XMVectorSet(p_Min.x - spherePos.x, p_Min.y - spherePos.y, p_Max.z - spherePos.z, 0.f);
+	l = XMVector3Length(v).m128_f32[0];
+	if(l > radius)
+		return false;
+
+	//XyZ
+	v = XMVectorSet(p_Max.x - spherePos.x, p_Min.y - spherePos.y, p_Max.z - spherePos.z, 0.f);
+	l = XMVector3Length(v).m128_f32[0];
+	if(l > radius)
+		return false;
+
+	//xYZ
+	v = XMVectorSet(p_Min.x - spherePos.x, p_Max.y - spherePos.y, p_Max.z - spherePos.z, 0.f);
+	l = XMVector3Length(v).m128_f32[0];
+	if(l > radius)
+		return false;
+
+	//XYZ
+	v = XMVectorSet(p_Max.x - spherePos.x, p_Max.y - spherePos.y, p_Max.z - spherePos.z, 0.f);
+	l = XMVector3Length(v).m128_f32[0];
+	if(l > radius)
+		return false;
+
+	return true;
+}
+
 HitData Collision::OBBvsOBB(OBB const &p_OBB1, OBB const &p_OBB2)
 {
 	if(!surroundingSphereVsSphere(p_OBB1.getSphere(), p_OBB2.getSphere()))
