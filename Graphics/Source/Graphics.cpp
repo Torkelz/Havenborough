@@ -1162,6 +1162,9 @@ void Graphics::setFOV(float p_FOV)
 	{
 		m_FOV = 2 * PI / 360.0f * p_FOV;
 
+		if (m_FOV > PI * 0.99f || m_FOV < 0.01f)
+			throw GraphicsException(std::to_string(m_FOV) + "! Are you crazy! What do you think that would look like!", __LINE__, __FILE__);
+		
 		XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(m_FOV,
 			(float)m_ScreenWidth / (float)m_ScreenHeight, m_NearZ, m_FarZ)));
 

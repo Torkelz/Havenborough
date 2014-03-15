@@ -130,7 +130,8 @@ void SkyDome::RenderSkyDome(ID3D11RenderTargetView *p_RenderTarget, ID3D11DepthS
 	m_SkyDomeBuffer->unsetBuffer(0);
 	m_SkyDomeShader->unSetShader();
 	p_ConstantBuffer->unsetBuffer(0);
-	m_DeviceContext->PSSetSamplers(0,0,0);
+	ID3D11SamplerState* const nullSamplerState = nullptr;
+	m_DeviceContext->PSSetSamplers(0, 1, &nullSamplerState);
 
 	ID3D11ShaderResourceView * nullsrv[] = {0};
 	m_DeviceContext->PSSetShaderResources(0,1,nullsrv);
