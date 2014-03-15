@@ -2,33 +2,33 @@
 #numObj: 6
 
 #MESH: Well
-#Translation: 0 63.952831 84.46283
+#Translation: -0.537603 67.387917 -83.345833
 #Rotation: 0 0 0
-#Scale: 10 10 10
+#Scale: 157.069824 10 10
 
 #MESH: Well
-#Translation: 0 63.952831 -83.048409
+#Translation: -0.537603 67.387917 83.345833
 #Rotation: 0 0 0
-#Scale: 10 10 10
+#Scale: 157.069824 10 10
 
 #MESH: Well
-#Translation: -78.976868 86.878494 44.302055
-#Rotation: 1.570796 0 0.503341
-#Scale: 5.97486 10 10
+#Translation: 78.42012 87.218323 -42.339069
+#Rotation: -1.570796 0 0.503335
+#Scale: 94.958931 10 10
 
 #MESH: Well
-#Translation: 78.253029 86.878494 44.302055
-#Rotation: 1.570796 0 0.503341
-#Scale: 5.97486 10 10
+#Translation: 78.42012 87.218323 43.400612
+#Rotation: 1.570796 0 0.503335
+#Scale: 94.958931 10 10
 
 #MESH: Well
-#Translation: 78.253029 86.878494 -43.807587
-#Rotation: -1.570796 0 0.503341
-#Scale: 5.97486 10 10
+#Translation: -78.565788 87.218323 -42.339069
+#Rotation: -1.570796 0 0.503335
+#Scale: 94.958931 10 10
 
 #MESH: Well
-#Translation: -78.641968 86.878494 -43.807587
-#Rotation: -1.570796 0 0.503341
-#Scale: 5.97486 10 10
+#Translation: -78.565788 87.218323 43.400612
+#Rotation: 1.570796 0 0.503335
+#Scale: 94.958931 10 10
 
 

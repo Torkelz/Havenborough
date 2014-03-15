@@ -83,7 +83,7 @@ f	Hip
 tr	0
 la	0
 fi	1
-fif	5
+fif	8
 fo	0
 fof 	10
 we	1.0
@@ -304,13 +304,13 @@ sp 	1.0
 st 	364
 en 	386
 lo 	0
-f	Spine1
+f	Hip
 tr	4
 la	1
 fi	1
-fif	6
+fif	2
 fo	1
-fof	6
+fof	2
 we	0.5
 
 *Clip
@@ -345,17 +345,17 @@ we	1.0
 
 *Clip
 na 	Wave
-sp 	1.0
-st 	233
-en 	299
+sp 	0.2
+st 	197
+en 	206
 lo 	0
-f	Hip
+f	R_UpperArm
 tr	4
 la	1
 fi	1
-fif	6
+fif	1
 fo	1
-fof	6
+fof	1
 we	1.0
 
 *IKgroup

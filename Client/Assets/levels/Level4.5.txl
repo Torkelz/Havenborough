@@ -1,5 +1,5 @@
 *ObjectHeader*
-#numObj: 802
+#numObj: 1209
 
 #MESH: Island1
 #Translation: -6468.859375 0 -30278.160156
@@ -346,11 +346,6 @@
 #Rotation: 1.591425 0 1.570796
 #Scale: 0.984121 1.354718 1.598729
 
-#MESH: BrokenPlattform1
-#Translation: -7865.167969 971.605774 -27028.753906
-#Rotation: -1.57291 0 0
-#Scale: 1 1 1
-
 #MESH: Stone1
 #Translation: -8083.135254 778.979614 -27438.443359
 #Rotation: 1.079004 1.167174 1.218735
@@ -456,11 +451,6 @@
 #Rotation: 2.031119 0 0
 #Scale: 0.795393 0.795393 0.795393
 
-#MESH: House4
-#Translation: -4400.544434 555.114929 -29389.71875
-#Rotation: -1.020413 0.000984139 -0.0119558
-#Scale: 1 1 1
-
 #MESH: Tree1
 #Translation: -8390.712891 483.822723 -29931.814453
 #Rotation: 2.491795 0.105334 -0.137898
@@ -471,13 +461,8 @@
 #Rotation: -2.464633 0.0722306 0.0389409
 #Scale: 0.683644 0.683644 0.683644
 
-#MESH: House5
-#Translation: -7096.407227 555.524353 -32123.353516
-#Rotation: -0.247661 0 0
-#Scale: 1 1 1
-
 #MESH: Stone3
-#Translation: -4908.742188 79.91787 -30140.775391
+#Translation: -4386.307129 76.181793 -30109.091797
 #Rotation: -2.806645 -0.254632 -0.95167
 #Scale: 4.098002 4.098002 4.098002
 
@@ -487,7 +472,7 @@
 #Scale: 1 1 1
 
 #MESH: House1
-#Translation: -8659.741211 393.536957 -32094.619141
+#Translation: -8856.708008 393.536957 -32120.609375
 #Rotation: -0.253498 0.00859989 -0.00786755
 #Scale: 1 1 1
 
@@ -762,14 +747,9 @@
 #Scale: 1.431667 1 1
 
 #MESH: StoneBrick2
-#Translation: -5394.27002 53.509808 -33276.046875
+#Translation: -5384.166504 52.098751 -33313.917969
 #Rotation: -1.456063 1.47293 0.377108
-#Scale: 1.431667 1 1
-
-#MESH: StoneBrick2
-#Translation: -5339.257813 45.826748 -33482.234375
-#Rotation: 1.306777 0.0909695 3.105455
-#Scale: 1.431667 1 1
+#Scale: 1.953738 1 1
 
 #MESH: StoneBrick2
 #Translation: -6167.640625 86.519791 -32401.787109
@@ -797,14 +777,9 @@
 #Scale: 1.431667 1 1
 
 #MESH: StoneBrick2
-#Translation: -5892.256836 52.80283 -33408.652344
+#Translation: -5882.812012 51.60548 -33444.042969
 #Rotation: -1.482305 1.475572 0.350744
-#Scale: 1.431667 1 1
-
-#MESH: StoneBrick2
-#Translation: -5837.227539 45.826748 -33614.859375
-#Rotation: 1.307076 0.0894107 3.108787
-#Scale: 1.431667 1 1
+#Scale: 1.898888 1 1
 
 #MESH: StoneBrick2
 #Translation: -6353.820313 87.043053 -31623.919922
@@ -832,17 +807,17 @@
 #Scale: 1.205437 1 1
 
 #MESH: StoneBrick2
-#Translation: -6665.663574 81.196899 -31537.009766
-#Rotation: -3.081211 0.0234886 -0.033843
+#Translation: -6665.663574 86.84697 -31537.009766
+#Rotation: -3.080384 0.0212385 0.00312782
 #Scale: 1.464896 1 1
 
 #MESH: StoneBrick2
-#Translation: -6870.289063 77.57135 -31488.226563
+#Translation: -6870.289063 87.96685 -31488.226563
 #Rotation: 0 -1.570796 -2.734299
 #Scale: 1.369018 1 1
 
 #MESH: StoneBrick2
-#Translation: -7057.514648 77.57135 -31407.455078
+#Translation: -7057.514648 87.96685 -31407.455078
 #Rotation: 0.407293 0 3.141593
 #Scale: 1.369018 1 1
 
@@ -997,13 +972,8 @@
 #Scale: 1 1 1
 
 #MESH: MarketStand1
-#Translation: -5041.13916 228.2323 -30561.550781
-#Rotation: 0.39285 0 0
-#Scale: 1 1 1
-
-#MESH: MarketStand2
-#Translation: -4609.152344 193.716522 -30715.425781
-#Rotation: -2.737934 0 0
+#Translation: -8060.831543 205.728836 -31453.455078
+#Rotation: 2.874946 0 0
 #Scale: 1 1 1
 
 #MESH: Wagon2
@@ -1076,11 +1046,6 @@
 #Rotation: 2.031119 0 0
 #Scale: 0.795393 0.795393 0.795393
 
-#MESH: Flag1
-#Translation: -6468.859375 79.371956 -30278.160156
-#Rotation: 2.438482 0 0
-#Scale: 1 1 1
-
 #MESH: Grass1
 #Translation: -7064.50293 221.152466 -29020.263672
 #Rotation: 2.779741 0.17561 0.0619693
@@ -1101,63 +1066,13 @@
 #Rotation: 2.161943 0 0
 #Scale: 1 1 1
 
-#MESH: StandingLamp1
-#Translation: -5256.32373 89.365166 -29791.683594
-#Rotation: 2.438482 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -5795.706055 89.365166 -29160.402344
-#Rotation: 2.062087 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -7606.716309 187.393723 -29481.619141
-#Rotation: 2.062087 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -7448.580078 87.412277 -31139.425781
-#Rotation: 2.913804 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -8170.401855 77.453995 -31347.373047
-#Rotation: 2.913804 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -9338.545898 66.988441 -31671.890625
-#Rotation: 2.913804 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -5648.941895 93.142365 -32202.015625
-#Rotation: 2.495223 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -6207.543945 90.792374 -32356.052734
-#Rotation: 2.83276 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -6391.122559 90.792374 -31582.615234
-#Rotation: 2.946939 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -4702.768555 90.792374 -31396.875
-#Rotation: -2.562029 0 0
-#Scale: 1 1 1
-
 #MESH: WoodenShed1
 #Translation: -4880.860352 198.620544 -31714.617188
 #Rotation: -2.292334 -0.00897516 0.00974614
 #Scale: 1 1 1
 
 #MESH: WoodenShed1
-#Translation: -9078.299805 178.660568 -31726.855469
+#Translation: -8691.99707 171.199127 -31591.451172
 #Rotation: -1.84075 -0.0123285 0.00485259
 #Scale: 1 1 1
 
@@ -1172,43 +1087,38 @@
 #Scale: 0.678363 0.678363 0.678363
 
 #MESH: MarketStand2
-#Translation: -6618.956055 193.716522 -31334.410156
-#Rotation: 0.140856 0 0
+#Translation: -6249.470703 200.022903 -32495.802734
+#Rotation: 1.289362 -0.00173029 -0.0277887
 #Scale: 1 1 1
 
 #MESH: MarketStand2
-#Translation: -7009.200195 193.716522 -31218.503906
-#Rotation: 0.45962 0 0
+#Translation: -6349.762207 206.386169 -32136.779297
+#Rotation: 1.306419 0 0
 #Scale: 1 1 1
 
 #MESH: Barrel1
-#Translation: -7279.464355 177.526154 -31183.949219
-#Rotation: -1.174279 0 0
+#Translation: -6502.893555 190.195801 -31911.417969
+#Rotation: -0.327481 0 0
 #Scale: 0.795393 0.795393 0.795393
 
 #MESH: Barrel1
-#Translation: -7228.650879 177.526154 -31149.511719
-#Rotation: 2.545991 0 0
+#Translation: -6443.437012 190.195801 -31926.675781
+#Rotation: -2.890395 0 0
 #Scale: 0.795393 0.795393 0.795393
 
 #MESH: Wagon2
-#Translation: -7210.036133 78.654297 -31140.130859
-#Rotation: 1.027753 0 0
+#Translation: -6424.078125 91.323944 -31934.40625
+#Rotation: 1.874551 0 0
 #Scale: 1 1 1
 
 #MESH: Crate1
-#Translation: -6661.884277 120.515137 -31299.550781
-#Rotation: 2.477239 0 0
+#Translation: -6235.708008 128.21611 -32440.388672
+#Rotation: -2.657273 0.021233 0.0180115
 #Scale: 1 1 1
 
 #MESH: Crate1
-#Translation: -6565.550781 120.515137 -31308.580078
-#Rotation: -3.092153 0 0
-#Scale: 1 1 1
-
-#MESH: StandingLamp1
-#Translation: -6687.625488 187.393723 -28888.78125
-#Rotation: 2.062087 0 0
+#Translation: -6204.46875 125.538689 -32531.923828
+#Rotation: -1.943612 0.00425956 0.0275148
 #Scale: 1 1 1
 
 #MESH: Stone3
@@ -1257,18 +1167,13 @@
 #Scale: 1 1 1
 
 #MESH: Island3
-#Translation: -7567.197266 4835.163086 -8071.054688
-#Rotation: -1.068973 0 0
-#Scale: 1 1 1
-
-#MESH: Top3
-#Translation: -7567.197266 4835.163086 -8071.054688
-#Rotation: -1.068973 0 0
+#Translation: -7554.920898 4835.163086 -8066.569336
+#Rotation: -1.068979 0 0
 #Scale: 1 1 1
 
 #MESH: CastleBigHouse1
-#Translation: -7567.197266 4835.163086 -8071.054199
-#Rotation: -1.068967 0 0
+#Translation: -7567.197266 4845.101563 -8071.054199
+#Rotation: -1.068962 0 0
 #Scale: 1 1 1
 
 #MESH: CastleSmallHouse1
@@ -1327,82 +1232,72 @@
 #Scale: 1 1 1
 
 #MESH: Island2
-#Translation: -8441.223633 813.800171 -20429.402344
-#Rotation: -2.270633 0 0
+#Translation: -8304.704102 636.156921 -20642.832031
+#Rotation: -1.329653 0.0246475 -0.0845433
 #Scale: 1.557781 1.557781 1.557781
 
 #MESH: Island2Top1
-#Translation: -8441.223633 813.800171 -20429.402344
-#Rotation: -2.270633 0 0
+#Translation: -8304.667969 636.144043 -20642.685547
+#Rotation: -1.329653 0.0246475 -0.0845433
 #Scale: 1.557781 1.557781 1.557781
 
 #MESH: Island2Top1
-#Translation: -6117.932129 1176.144043 -23188.628906
+#Translation: -6117.932129 1467.314331 -22724.652344
 #Rotation: -0.968572 0 0
 #Scale: 1 1 1
 
 #MESH: Island2
-#Translation: -6117.932129 1176.144043 -23188.628906
+#Translation: -6117.932129 1467.314331 -22724.652344
 #Rotation: -0.968572 0 0
 #Scale: 1 1 1
 
 #MESH: Island2Top1
-#Translation: -7715.109863 733.108704 -25480.111328
-#Rotation: 1.781289 0 0
+#Translation: -7750.046387 813.80127 -25209.689453
+#Rotation: 1.546623 0 0
 #Scale: 1 1 1
 
 #MESH: Island2
-#Translation: -7715.109863 733.108704 -25480.111328
-#Rotation: 1.781289 0 0
+#Translation: -7750.046387 813.80127 -25209.689453
+#Rotation: 1.546623 0 0
 #Scale: 1 1 1
-
-#MESH: StoneChunk1
-#Translation: -7801.191895 752.611816 -26426.939453
-#Rotation: 1.591425 0 1.827142
-#Scale: 0.984121 1.354718 1.598729
 
 #MESH: Stone3
-#Translation: -7124.390137 702.920654 -24859.175781
-#Rotation: -0.896614 -0.11068 -2.965815
+#Translation: -7814.549805 1050.899048 -25171.167969
+#Rotation: -1.1192 -0.0271463 -3.140642
 #Scale: 7.010199 7.010199 7.010199
 
 #MESH: StoneChunk1
-#Translation: -6790.202637 1030.267334 -24221.691406
-#Rotation: -2.580191 0 1.570796
-#Scale: 0.984121 1.354718 1.598729
-
-#MESH: StoneChunk1
-#Translation: -7088.570313 932.504089 -22052.880859
-#Rotation: -2.580191 0 1.570796
+#Translation: -7857.818359 1240.137939 -25273.861328
+#Rotation: 1.570796 0 1.570796
 #Scale: 0.984121 1.354718 1.598729
 
 #MESH: Tree1
-#Translation: -7880.383789 983.363098 -24763.824219
-#Rotation: -2.270633 0 0
+#Translation: -8579.094727 1044.14502 -25230.613281
+#Rotation: -2.505298 0 0
 #Scale: 0.683644 0.683644 0.683644
 
 #MESH: Tree1
-#Translation: -7627.670898 1069.557983 -24762.916016
-#Rotation: -2.270633 0 0
+#Translation: -8477.995117 1150.25061 -25001.908203
+#Rotation: -2.505298 0 0
 #Scale: 1 1 1
 
 #MESH: Stone3
-#Translation: -7809.500977 776.376282 -24901.679688
-#Rotation: -0.896614 -0.11068 -1.107646
+#Translation: -8420.097656 857.068909 -25227.960938
+#Rotation: -1.13128 -0.11068 -1.107646
 #Scale: 1.925111 1.925111 1.925111
 
 #MESH: House1
-#Translation: -5649.113281 1534.215942 -23115.744141
+#Translation: -5649.113281 1830.955688 -22651.767578
 #Rotation: -1.759486 -0.00729438 -0.00909111
 #Scale: 1 1 1
 
 #MESH: Tree1
-#Translation: -5858.579102 1512.505615 -23879.613281
+#Translation: -5858.579102 1809.245483 -23415.636719
 #Rotation: -1.579677 0 0
 #Scale: 1 1 1
 
 #MESH: Tree1
-#Translation: -7027.57959 1392.56958 -23323.333984
+#Translation: -7027.57959 1689.309326 -22859.357422
 #Rotation: -1.579677 0.0632567 0
 #Scale: 0.7 0.7 0.7
 
@@ -1426,11 +1321,6 @@
 #Rotation: -1.068973 0 0
 #Scale: 1 1 1
 
-#MESH: Tunnel1
-#Translation: -7567.197266 4835.163086 -8071.054688
-#Rotation: -1.068973 0 0
-#Scale: 1 1 1
-
 #MESH: Bench1
 #Translation: -6781.238281 105.928009 -29740.060547
 #Rotation: 2.565694 0 0
@@ -1446,19 +1336,14 @@
 #Rotation: 2.409515 0 0
 #Scale: 1 1 1
 
-#MESH: House4
-#Translation: -9415.164063 20465.205078 -12816.174805
-#Rotation: 0.522942 2.33413e-006 -0.0392153
-#Scale: 1 1 1
-
 #MESH: House5
-#Translation: -6962.253418 20406.830078 -13549.289063
-#Rotation: -1.166747 0 0
+#Translation: 1456.147705 5191.790039 6678.906738
+#Rotation: 0.546169 0 0
 #Scale: 1 1 1
 
 #MESH: House6
-#Translation: -6927.301758 20433.736328 -9141.180664
-#Rotation: -2.646 0 0
+#Translation: -1323.049194 5189.975098 8871.694336
+#Rotation: 2.228045 0 0
 #Scale: 1 1 1
 
 #MESH: Floor2
@@ -1469,11 +1354,6 @@
 #MESH: Roof3
 #Translation: -5043.792969 4260.469238 -8264.142578
 #Rotation: 0.474328 0 0
-#Scale: 1 1 1
-
-#MESH: Floor4
-#Translation: -6938.725098 2853.532959 -10898.631836
-#Rotation: -0.676577 0 0
 #Scale: 1 1 1
 
 #MESH: Roof2
@@ -1642,8 +1522,8 @@
 #Scale: 1 1 0.95
 
 #MESH: Scaffold1
-#Translation: -12065.727539 2817.899902 -12833.598633
-#Rotation: 2.090782 0 0
+#Translation: -11048.882813 2817.899902 -12585.147461
+#Rotation: 0.536829 0 0
 #Scale: 1 1 1
 
 #MESH: Scaffold2
@@ -1682,8 +1562,8 @@
 #Scale: 1 1 1
 
 #MESH: Well
-#Translation: -8574.577148 4902.880371 -3440.711426
-#Rotation: 0 0 0
+#Translation: -7087.931152 4900.323242 -3429.396973
+#Rotation: 0.509753 0 0
 #Scale: 1 1 1
 
 #MESH: Crane
@@ -2027,7 +1907,7 @@
 #Scale: 1 1 1
 
 #MESH: Floor3
-#Translation: -12721.054688 3556.155762 -11622.454102
+#Translation: -12721.054688 3556.156006 -11622.454102
 #Rotation: -2.621607 0 0
 #Scale: 1 1 1
 
@@ -2077,33 +1957,23 @@
 #Scale: 1 1 1
 
 #MESH: Floor6
-#Translation: -12721.054688 3206.181641 -11622.454102
+#Translation: -12721.054688 3206.181885 -11622.454102
 #Rotation: 2.090782 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
-#Translation: -11674 2506.528076 -12226.984375
-#Rotation: 2.090782 0 0
-#Scale: 1 1 1
-
-#MESH: Floor3
-#Translation: -11674 2855.587891 -12226.985352
+#Translation: -11674 2506.528076 -12226.985352
 #Rotation: 2.090782 0 0
 #Scale: 1 1 1
 
 #MESH: Roof3
 #Translation: -11674 2855.587891 -12226.985352
-#Rotation: 2.090782 0 0
+#Rotation: -1.05081 0 0
 #Scale: 1 1 1
 
 #MESH: WoodenPlatform3
 #Translation: -12380.875977 3856.037354 -12333.802734
 #Rotation: -1.05081 0 0
-#Scale: 1 1 1
-
-#MESH: WoodenPlatform3
-#Translation: -11523.583008 3330.475586 -12824.639648
-#Rotation: 0.519986 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
@@ -2366,11 +2236,6 @@
 #Rotation: -2.556872 0 0
 #Scale: 1 1 1
 
-#MESH: Floor3
-#Translation: -7167.527832 3208.686035 -8274.956055
-#Rotation: -2.556872 0 0
-#Scale: 1 1 1
-
 #MESH: Floor2
 #Translation: -8828.337891 2856.978271 -8614.763672
 #Rotation: -2.556872 0 0
@@ -2418,6 +2283,11 @@
 
 #MESH: Floor1
 #Translation: -12141.65625 2506.528076 -6938.20752
+#Rotation: 0.519986 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -12141.655273 2855.587891 -6938.20752
 #Rotation: 0.519986 0 0
 #Scale: 1 1 1
 
@@ -2482,8 +2352,8 @@
 #Scale: 1 1 1
 
 #MESH: Wall2
-#Translation: -7124.52832 4866.044434 -5984.409668
-#Rotation: 0 0 0
+#Translation: -6420.288574 4866.044434 -5815.595215
+#Rotation: -1.088843 0 0
 #Scale: 1 1 1
 
 #MESH: WoodenPlatform3
@@ -2937,13 +2807,13 @@
 #Scale: 1 1 1
 
 #MESH: Wall2
-#Translation: -6700.133789 4866.044434 -5850.008301
-#Rotation: 2.787688 0 0
+#Translation: -6600.041504 4866.044434 -6098.550781
+#Rotation: -0.93602 0 0
 #Scale: 1 1 1
 
 #MESH: Wall2
 #Translation: -6820.554688 4866.044434 -6344.418945
-#Rotation: -0.781765 0 0
+#Rotation: -0.781768 0 0
 #Scale: 1 1 1
 
 #MESH: Roof3
@@ -3237,8 +3107,8 @@
 #Scale: 1 1 1
 
 #MESH: Floor1
-#Translation: -8539.916016 4313.756836 -12504.983398
-#Rotation: -2.621607 0 0
+#Translation: -8539.916016 4304.756836 -12504.983398
+#Rotation: 2.090782 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
@@ -3441,6 +3311,11 @@
 #Rotation: 2.109527 0 0
 #Scale: 1 1 1
 
+#MESH: Floor2
+#Translation: -12742.712891 2855.587891 -7980.176758
+#Rotation: 0.519986 0 0
+#Scale: 1 1 1
+
 #MESH: Floor4
 #Translation: -12742.712891 3210.5 -7980.176758
 #Rotation: 0.519986 0 0
@@ -3506,6 +3381,11 @@
 #Rotation: 0.519986 0 0
 #Scale: 1 1 1
 
+#MESH: Roof2
+#Translation: -14542.914063 3902.670166 -8701.788086
+#Rotation: 0.519986 0 0
+#Scale: 1 1 1
+
 #MESH: Floor2
 #Translation: -13494.775391 4257.167969 -9293.722656
 #Rotation: 0.519986 0 0
@@ -3524,11 +3404,6 @@
 #MESH: Floor6
 #Translation: -13494.775391 4603.875977 -9293.722656
 #Rotation: 2.090782 0 0
-#Scale: 1 1 1
-
-#MESH: Roof2
-#Translation: -14542.914063 3902.670166 -8701.788086
-#Rotation: 0.519986 0 0
 #Scale: 1 1 1
 
 #MESH: WoodenPlatform3
@@ -3681,18 +3556,8 @@
 #Rotation: -1.016672 0 0
 #Scale: 1 1 1
 
-#MESH: Floor3
-#Translation: -6007.480469 5140.089844 470.181183
-#Rotation: -1.016672 0 0
-#Scale: 1 1 1
-
 #MESH: Floor1
 #Translation: -4982.328613 4794.652832 -159.925568
-#Rotation: -1.016672 0 0
-#Scale: 1 1 1
-
-#MESH: Floor3
-#Translation: -4982.328613 5140.089844 -159.925323
 #Rotation: -1.016672 0 0
 #Scale: 1 1 1
 
@@ -3702,88 +3567,53 @@
 #Scale: 1 1 1
 
 #MESH: Floor3
-#Translation: -3962.87915 5140.089844 -795.608704
+#Translation: -3962.878906 5140.089844 -795.609009
 #Rotation: -1.016672 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
-#Translation: -2966.955322 4794.652832 -2591.30542
+#Translation: -2966.955566 4794.652832 -2591.305664
 #Rotation: -0.174511 0 0
 #Scale: 1 1 1
 
 #MESH: Floor3
-#Translation: -2966.955322 5140.089844 -2591.30542
+#Translation: -2966.955078 5140.089844 -2591.304932
+#Rotation: -0.174515 0 0
+#Scale: 1 1 1
+
+#MESH: Floor1
+#Translation: -2753.873291 4794.652832 -3772.945801
 #Rotation: -0.174511 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
-#Translation: -2753.873047 4794.652832 -3772.945801
-#Rotation: -0.174511 0 0
-#Scale: 1 1 1
-
-#MESH: Floor3
-#Translation: -2753.873291 5140.089844 -3772.945557
-#Rotation: -0.174511 0 0
+#Translation: -8640.651367 4794.652832 1091.778931
+#Rotation: -1.745312 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
-#Translation: -8640.651367 4794.652832 1091.778687
-#Rotation: -1.745308 0 0
-#Scale: 1 1 1
-
-#MESH: Floor3
-#Translation: -8640.651367 5140.089844 1091.778931
-#Rotation: -1.745308 0 0
+#Translation: -9830.407227 4794.652832 878.333984
+#Rotation: -1.745312 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
-#Translation: -9830.407227 4794.652832 878.333801
-#Rotation: -1.745308 0 0
-#Scale: 1 1 1
-
-#MESH: Floor3
-#Translation: -9830.407227 5140.089844 878.334045
-#Rotation: -1.745308 0 0
-#Scale: 1 1 1
-
-#MESH: Floor1
-#Translation: -8896.871094 4794.652832 -889.489441
+#Translation: -7282.323242 4794.652832 -1364.595703
 #Rotation: -1.05081 0 0
 #Scale: 1 1 1
 
 #MESH: Floor3
-#Translation: -8896.871094 5140.089844 -889.489197
+#Translation: -7282.323242 5140.089844 -1364.594971
 #Rotation: -1.05081 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
-#Translation: -7704.368164 4794.652832 -1218.626709
-#Rotation: -1.05081 0 0
-#Scale: 1 1 1
-
-#MESH: Floor3
-#Translation: -7704.368164 5140.089844 -1218.626465
+#Translation: -5193.62793 4794.652832 -2555.453857
 #Rotation: -1.05081 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
-#Translation: -5109.70459 4794.652832 -2704.183594
-#Rotation: -1.05081 0 0
-#Scale: 1 1 1
-
-#MESH: Floor3
-#Translation: -5109.70459 5140.089844 -2704.18335
-#Rotation: -1.05081 0 0
-#Scale: 1 1 1
-
-#MESH: Floor1
-#Translation: -6154.562012 4794.652832 -2108.569092
-#Rotation: -1.05081 0 0
-#Scale: 1 1 1
-
-#MESH: Floor3
-#Translation: -6154.562012 5140.089844 -2108.568848
-#Rotation: -1.05081 0 0
+#Translation: -6238.485352 4794.652832 -1959.838989
+#Rotation: 2.090782 0 0
 #Scale: 1 1 1
 
 #MESH: Floor1
@@ -3884,16 +3714,6 @@
 #MESH: WoodenPlatform3
 #Translation: -16578.087891 3675.835205 -7083.983887
 #Rotation: 2.782351 0 0
-#Scale: 1 1 1
-
-#MESH: Floor2
-#Translation: -12141.655273 2855.587891 -6938.20752
-#Rotation: 0.519986 0 0
-#Scale: 1 1 1
-
-#MESH: Floor2
-#Translation: -12742.712891 2855.587891 -7980.176758
-#Rotation: 0.519986 0 0
 #Scale: 1 1 1
 
 #MESH: Floor7
@@ -4006,13 +3826,2228 @@
 #Rotation: -2.643633 0 0
 #Scale: 1 1 1
 
+#MESH: Wall2
+#Translation: -6257.798828 4866.044434 -5520.970215
+#Rotation: -1.084425 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -6101.574707 4866.044434 -5225.503418
+#Rotation: -1.084425 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -5939.552246 4866.044434 -4930.90332
+#Rotation: -1.074031 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -5780.661133 4866.044434 -4637.805664
+#Rotation: -1.074031 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -5625.288086 4866.044434 -4356.469727
+#Rotation: -1.074031 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9462.422852 4866.044434 -4157.77832
+#Rotation: -1.060882 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9296.123047 4866.044434 -3867.225586
+#Rotation: -1.084425 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9140.709961 4866.044434 -3573.291748
+#Rotation: -1.084425 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -8977.825195 4866.044434 -3277.582031
+#Rotation: -1.074031 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -8818.865234 4866.044434 -2984.357422
+#Rotation: -1.074031 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -8666.176758 4866.044434 -2707.973877
+#Rotation: -1.074031 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9591.5625 4866.044434 -4461.928711
+#Rotation: -1.242162 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9685.75293 4866.044434 -4778.043945
+#Rotation: -1.341961 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9728.8125 4866.044434 -5099.123047
+#Rotation: -1.498852 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9702.396484 4866.044434 -5420.708008
+#Rotation: -1.782698 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9609.162109 4866.044434 -5731.120605
+#Rotation: -1.8932 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9468.859375 4866.044434 -6019.149902
+#Rotation: -2.145522 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9266.973633 4866.044434 -6272.779297
+#Rotation: -2.336862 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9023.994141 4866.044434 -6493.066895
+#Rotation: -2.487881 0 0
+#Scale: 1 1 1
+
+#MESH: Wall1
+#Translation: -8706.586914 4866.044434 -6666.890625
+#Rotation: 0.398289 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -7442.674316 4866.044434 -6729.10791
+#Rotation: 2.85269 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -7763.70459 4866.044434 -6802.186035
+#Rotation: 2.936689 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -8010.210938 4866.044434 -6824.571777
+#Rotation: -3.053783 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -5193.62793 5140.089844 -2555.453857
+#Rotation: 2.090782 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -2966.955078 5490.551758 -2591.304932
+#Rotation: -0.174515 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -2753.873047 5490.551758 -3772.946045
+#Rotation: -0.174515 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -2753.873047 5140.089844 -3772.946045
+#Rotation: -0.174515 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -3962.878906 5490.551758 -795.609009
+#Rotation: -1.016672 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -6007.47998 5490.551758 470.181
+#Rotation: 0.554125 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -4982.329102 5490.551758 -159.925003
+#Rotation: 0.554125 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -4982.329102 5140.089844 -159.925003
+#Rotation: -1.016672 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -8640.651367 5140.089844 1091.779053
+#Rotation: 2.967077 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -6007.47998 5140.089844 470.181
+#Rotation: -2.587468 0 0
+#Scale: 1 1 1
+
+#MESH: Floor6
+#Translation: -6238.484863 5140.089844 -1959.838989
+#Rotation: -2.621607 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -5193.62793 5840.210449 -2555.454102
+#Rotation: 2.090782 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -6238.484863 5489.036133 -1959.838989
+#Rotation: -2.621607 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -6238.484863 5839.538574 -1959.838989
+#Rotation: 2.090782 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -7282.323242 5489.036133 -1364.594971
+#Rotation: 0.519986 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -7282.323242 5839.538574 -1364.594971
+#Rotation: 2.090782 0 0
+#Scale: 1 1 1
+
+#MESH: Floor5
+#Translation: -5193.62793 5489.036133 -2555.454102
+#Rotation: -1.05081 0 0
+#Scale: 1 1 1
+
+#MESH: Roof2
+#Translation: -9830.407227 4791.354492 878.333984
+#Rotation: -1.745312 0 0
+#Scale: 1 1 1
+
+#MESH: Roof2
+#Translation: -8640.651367 5140.089844 1091.779053
+#Rotation: -1.745312 0 0
+#Scale: 1 1 1
+
+#MESH: MarketStand2
+#Translation: -6250.836914 4904.812988 -4879.366699
+#Rotation: -1.045415 0 0
+#Scale: 1 1 1
+
+#MESH: MarketStand1
+#Translation: -6564.02832 4931.31543 -5401.443848
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: Wagon2
+#Translation: -6140.099609 4793.292969 -4639.28125
+#Rotation: -0.688602 0 0
+#Scale: 1 1 1
+
+#MESH: Bench2
+#Translation: -5884.706543 4851.942383 -4409.525391
+#Rotation: -1.42896 0 0
+#Scale: 1 1 1
+
+#MESH: Crate1
+#Translation: -6363.829102 4832.211914 -5268.712891
+#Rotation: 2.94872 0 0
+#Scale: 1 1 1
+
+#MESH: Bench1
+#Translation: -8746.970703 4820.86377 -3209.481934
+#Rotation: 2.565694 0 0
+#Scale: 1 1 1
+
+#MESH: MarketStand1
+#Translation: -6898.801758 4931.31543 -5916.351563
+#Rotation: 2.205765 0 0
+#Scale: 1 1 1
+
+#MESH: Crate1
+#Translation: -6450.993164 4832.211914 -5225.418945
+#Rotation: 1.838436 0 0
+#Scale: 1 1 1
+
+#MESH: Crate1
+#Translation: -6412.300781 4911.224121 -5246.112793
+#Rotation: 2.279137 0 0
+#Scale: 1 1 1
+
+#MESH: Barrel1
+#Translation: -6676.448242 4842.86377 -5569.968262
+#Rotation: -1.689151 0 0
+#Scale: 1 1 1
+
+#MESH: Barrel1
+#Translation: -6628.284668 4842.86377 -5636.503906
+#Rotation: 2.883601 0 0
+#Scale: 1 1 1
+
+#MESH: Barrel1
+#Translation: -6131.03418 4887.271973 -4652.337402
+#Rotation: -1.689151 0 0
+#Scale: 0.8 0.8 0.8
+
+#MESH: Barrel1
+#Translation: -6090.553711 4887.271973 -4700.456055
+#Rotation: 1.452441 0 3.141593
+#Scale: 0.8 0.8 0.8
+
+#MESH: MarketBox1
+#Translation: -6857.79834 4897.294922 -5910.44873
+#Rotation: 2.205765 -0.198479 0
+#Scale: 1 1 1
+
+#MESH: MarketBox2
+#Translation: -6820.631348 4897.210449 -5861.367188
+#Rotation: 2.205765 -0.198479 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6535.820801 4897.522461 -5454.253906
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread2
+#Translation: -6482.652832 4897.245117 -5346.952148
+#Rotation: -2.672326 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread3
+#Translation: -6597.482422 4895.528809 -5521.227539
+#Rotation: 1.922647 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBucket1
+#Translation: -6932.92041 4900.450195 -6018.805664
+#Rotation: 2.205765 -0.277891 0
+#Scale: 1 1 1
+
+#MESH: MarketBucket2
+#Translation: -6895.37793 4900.450195 -5967.849121
+#Rotation: 2.205765 -0.277891 0
+#Scale: 1 1 1
+
+#MESH: MarketBucket1
+#Translation: -7038.464844 4817.167969 -6062.569336
+#Rotation: 0.908766 0 0
+#Scale: 1.584 1.584 1.584
+
+#MESH: MarketBucket2
+#Translation: -6973.496094 4817.167969 -6126.871094
+#Rotation: 0 0 0
+#Scale: 1.584 1.584 1.584
+
+#MESH: MarketBread3
+#Translation: -6591.108887 4895.528809 -5509.772461
+#Rotation: -1.043436 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread3
+#Translation: -6581.659668 4895.528809 -5493.095215
+#Rotation: 1.99852 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread3
+#Translation: -6573.246094 4895.528809 -5478.09668
+#Rotation: -1.160166 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread3
+#Translation: -6577.628906 4895.528809 -5485.928223
+#Rotation: 2.008506 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6528.212891 4897.522461 -5440.727051
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6520.932617 4897.522461 -5427.783691
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6514.11084 4897.522461 -5415.653809
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6536.821289 4897.522461 -5402.880859
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6544.0625 4897.522461 -5415.754883
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6551.121582 4897.522461 -5428.306152
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6558.263672 4897.522461 -5441.005371
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6545.06543 4906.89502 -5441.56543
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6537.097656 4906.89502 -5427.399414
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread1
+#Translation: -6529.847656 4906.89502 -5414.508789
+#Rotation: 2.083138 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread2
+#Translation: -6499.749023 4897.245117 -5362.151367
+#Rotation: 3.059976 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6520.683105 4897.245117 -5345.6875
+#Rotation: 3.083349 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6503.166016 4897.245117 -5332.594238
+#Rotation: 0.929716 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6494.079102 4897.245117 -5312.807129
+#Rotation: -2.887435 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6471.61084 4897.245117 -5325.529297
+#Rotation: -3.098524 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6471.709473 4897.245117 -5327.81543
+#Rotation: 2.083138 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6484.083008 4903.422363 -5329.611328
+#Rotation: 0.929716 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6503.223633 4903.422363 -5346.098145
+#Rotation: 2.610542 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6531.294922 4897.245117 -5326.080078
+#Rotation: 3.083349 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6516.75293 4897.245117 -5311.264648
+#Rotation: 0.929716 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread2
+#Translation: -6514.292969 4903.434082 -5326.480469
+#Rotation: 0.929716 0 0
+#Scale: 1.2 1.2 1.2
+
+#MESH: MarketBread3
+#Translation: -6578.334473 4900.120117 -5489.783203
+#Rotation: -1.160166 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread3
+#Translation: -6583.601074 4895.358398 -5501.880371
+#Rotation: -1.160166 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread3
+#Translation: -6582.171875 4900.012695 -5498.59668
+#Rotation: -1.160166 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread3
+#Translation: -6580.452637 4905.445313 -5494.648438
+#Rotation: 1.947646 0 0
+#Scale: 1 1 1
+
+#MESH: MarketBread3
+#Translation: -6574.839355 4900.120117 -5481.756348
+#Rotation: 2.011564 0 0
+#Scale: 1 1 1
+
+#MESH: HangingStairCase1
+#Translation: -4734.846191 4895.148438 -7053.856445
+#Rotation: 2.068756 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -6788.498047 242.441757 -31356.214844
+#Rotation: -2.748195 0 0
+#Scale: 1 1 1
+
+#MESH: House1
+#Translation: -4245.208008 390.883026 -29028.460938
+#Rotation: -0.997037 0 0
+#Scale: 1 1 1
+
+#MESH: StoneBrick2
+#Translation: -4868.333008 75.702904 -29337.886719
+#Rotation: 0.819278 -1.543906 1.319727
+#Scale: 1.209252 1 1
+
+#MESH: StoneBrick2
+#Translation: -4218.814941 54.593643 -28327.597656
+#Rotation: -0.997254 -0.00648441 3.12019
+#Scale: 1.209252 1 1
+
+#MESH: Tree1
+#Translation: -4748.301758 393.077789 -30355.896484
+#Rotation: 0 0 0
+#Scale: 1 1 1
+
+#MESH: Tree1
+#Translation: -4509.438965 252.930984 -30416.234375
+#Rotation: 1.681197 0 0
+#Scale: 0.5 0.5 0.5
+
+#MESH: StoneBrick2
+#Translation: -5005.586914 87.38224 -30455.650391
+#Rotation: 0 1.570796 2.759548
+#Scale: 1.431667 1 1
+
+#MESH: StoneBrick2
+#Translation: -4808.44043 89.208412 -30537.421875
+#Rotation: 0.392718 0 3.141593
+#Scale: 1.431667 1 1
+
+#MESH: StoneBrick2
+#Translation: -4612.240723 89.652313 -30620.6875
+#Rotation: 0 -1.570796 -2.744348
+#Scale: 1.431667 1 1
+
+#MESH: StoneBrick2
+#Translation: -4417.616211 86.411819 -30705.154297
+#Rotation: -2.717414 0 0.0359267
+#Scale: 1.431667 1 1
+
+#MESH: StoneBrick2
+#Translation: -4224.115723 77.409203 -30794.34375
+#Rotation: -2.720322 0 0.0447849
+#Scale: 1.431667 1 1
+
+#MESH: StoneBrick2
+#Translation: -5148.554199 87.38224 -30398.234375
+#Rotation: 0 1.570796 2.759548
+#Scale: 0.634148 1 1
+
+#MESH: StoneBrick2
+#Translation: -3081.838135 29.83205 -31307.988281
+#Rotation: 0.438233 0.0940974 3.09859
+#Scale: 1.431667 1 1
+
+#MESH: StoneBrick2
+#Translation: -3274.651367 38.97123 -31216.679688
+#Rotation: -2.273907 1.467365 0.427427
+#Scale: 1.431667 1 1
+
+#MESH: Wagon1
+#Translation: -6769.895996 66.541901 -31561.699219
+#Rotation: 2.21467 0.359229 0
+#Scale: 1 1 1
+
+#MESH: Wagon1
+#Translation: -8926.435547 57.04224 -31663.414063
+#Rotation: 1.537675 0.403728 0
+#Scale: 1 1 1
+
+#MESH: Island2
+#Translation: -3917.251221 437.658844 -25334.818359
+#Rotation: 1.439679 0 0
+#Scale: 1 1 1
+
+#MESH: Island2Top1
+#Translation: -3917.251221 437.658844 -25334.818359
+#Rotation: 1.439679 0 0
+#Scale: 1 1 1
+
+#MESH: Tree1
+#Translation: -3829.8125 774.108154 -24603.794922
+#Rotation: -2.270633 0 0
+#Scale: 1 1 1
+
+#MESH: Tree1
+#Translation: -4082.525146 687.913269 -24604.705078
+#Rotation: -2.270633 0 0
+#Scale: 0.683644 0.683644 0.683644
+
+#MESH: Stone3
+#Translation: -3607.595703 480.926422 -24742.558594
+#Rotation: -0.896614 -0.11068 -1.107646
+#Scale: 1.925111 1.925111 1.925111
+
+#MESH: SuspensionBridge1
+#Translation: -4408.923828 306.738556 -27160.027344
+#Rotation: 0.283091 -0.191986 0
+#Scale: 1 1 0.9
+
+#MESH: WoodenPlatform1
+#Translation: -4688.650879 98.568626 -28140.324219
+#Rotation: 0.279929 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform1
+#Translation: -4126.689941 436.875916 -26185.521484
+#Rotation: -2.861664 0 0
+#Scale: 1 1 1
+
+#MESH: SuspensionBridge1
+#Translation: -5838.354004 671.555542 -25354.984375
+#Rotation: -1.567677 -0.191986 0
+#Scale: 1 1 0.9
+
+#MESH: WoodenPlatform1
+#Translation: -4818.929199 463.38559 -25352.935547
+#Rotation: -1.570839 0 0
+#Scale: 1 1 1
+
+#MESH: SuspensionBridge1
+#Translation: -7846.889648 1086.18396 -26304.072266
+#Rotation: 0 -0.21958 0
+#Scale: 1 1 0.9
+
+#MESH: WoodenPlatform1
+#Translation: -6853.98291 802.628906 -25355.123047
+#Rotation: 1.570753 0 0
+#Scale: 1 1 1
+
+#MESH: StoneChunk1
+#Translation: -8903.764648 638.453369 -28614.859375
+#Rotation: 0.0104832 0.0342826 0.0667045
+#Scale: 1.113947 1.302828 1.302828
+
+#MESH: StoneChunk1
+#Translation: -7798.209473 1240.137939 -25058.453125
+#Rotation: 2.123981 0 1.570796
+#Scale: 0.984121 1.354718 1.598729
+
+#MESH: SuspensionBridge1
+#Translation: -7268.227051 1400.817749 -24162.886719
+#Rotation: 0.523929 -0.125605 0
+#Scale: 1 1 0.9
+
+#MESH: WoodenPlatform1
+#Translation: -6754.887207 1475.842896 -23276.511719
+#Rotation: -2.623202 0 0
+#Scale: 1 1 1
+
+#MESH: Tree1
+#Translation: -7271.171875 1134.783081 -25880.871094
+#Rotation: -1.007045 0 0
+#Scale: 1 1 1
+
+#MESH: SuspensionBridge1
+#Translation: -4768.949219 993.708557 -24322.246094
+#Rotation: -0.841912 -0.506687 0
+#Scale: 1 1 1
+
+#MESH: House8
+#Translation: -3215.852783 641.561157 -25232.320313
+#Rotation: -1.655519 0 0
+#Scale: 1 1 1
+
 #MESH: WoodenPlatform3
-#Translation: -3998.97998 4833.736816 -6942.913086
-#Rotation: -1.072836 0 0
+#Translation: -5522.982422 1420.653564 -23651.3125
+#Rotation: -0.841912 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform1
+#Translation: -4020.416504 471.297943 -24992.404297
+#Rotation: -0.841912 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 7197.541504 5183.918945 12770.874023
+#Rotation: -2.736888 0 0
+#Scale: 1 1 1
+
+#MESH: House5
+#Translation: 3051.433838 5170.863281 15066.179688
+#Rotation: -2.70152 0 0
+#Scale: 1 1 1
+
+#MESH: House6
+#Translation: 5992.489746 5175.098145 4721.32959
+#Rotation: -1.69536 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -7038.858887 242.441757 -31252.306641
+#Rotation: -2.748195 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -15931.40332 8083.241211 -4417.585449
+#Rotation: -0.789228 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -15493.84082 8083.241211 -3976.658936
+#Rotation: -0.789228 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -15928.78125 8083.241211 -1794.32373
+#Rotation: 0.731565 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -17013.869141 9047.84082 -692.660645
+#Rotation: 0.731565 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -16430.365234 8592.53418 -1270.69519
+#Rotation: 0.731565 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -19233.378906 9047.84082 -2908.558838
+#Rotation: -2.379241 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -18206.943359 8066.447754 -3928.34082
+#Rotation: -2.379241 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -18672.214844 8583.661133 -3465.8479
+#Rotation: -2.379241 0 0
+#Scale: 1 1 1
+
+#MESH: House5
+#Translation: 7159.404297 5188.530273 10925.598633
+#Rotation: -1.175195 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 1388.081543 5183.918945 13834.545898
+#Rotation: 0.454366 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 2661.236084 5183.918945 5638.815918
+#Rotation: -2.687384 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 5912.579102 5183.918945 2234.844727
+#Rotation: -1.678513 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 898.482483 5183.918945 8515.380859
+#Rotation: -0.94215 0 0
+#Scale: 1 1 1
+
+#MESH: House5
+#Translation: 3602.694336 5191.790039 6544.369629
+#Rotation: 3.008426 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: -38.923615 5183.918945 7226.040039
+#Rotation: -0.94215 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: -3194.06958 5183.918945 9133.116211
+#Rotation: -0.790138 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: -4672.681641 5183.918945 7713.42334
+#Rotation: 0.589887 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: -2974.587402 5183.918945 6654.075684
+#Rotation: 0.560799 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: -972.72229 5183.918945 5525.998047
+#Rotation: 0.516833 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 450.71405 5183.918945 4844.970215
+#Rotation: 0.472786 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 2252.241211 5183.918945 3923.533936
+#Rotation: 0.472786 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 3668.833984 5183.918945 3198.981934
+#Rotation: 0.472786 0 0
+#Scale: 1 1 1
+
+#MESH: House5
+#Translation: 128.536133 5191.790039 11457.40918
+#Rotation: 2.135186 0 0
+#Scale: 1 1 1
+
+#MESH: House7v2
+#Translation: -2482.236572 4865.734863 10033.619141
+#Rotation: -0.797298 0 0
+#Scale: 1 1 1
+
+#MESH: House8v2
+#Translation: 442.207306 4865.001465 10724.154297
+#Rotation: -2.55875 0 0
+#Scale: 1 1 1
+
+#MESH: House9v2
+#Translation: 2335.897949 5132.785156 8096.852051
+#Rotation: 0.432581 0 0
+#Scale: 1 1 1
+
+#MESH: House9v2
+#Translation: 1018.568848 5132.785156 12612.266602
+#Rotation: 2.048694 0 0
+#Scale: 1 1 1
+
+#MESH: House8v2
+#Translation: -1869.513794 4865.001465 10633.568359
+#Rotation: -0.819617 0 0
+#Scale: 1 1 1
+
+#MESH: House9v2
+#Translation: 1665.899658 5132.785156 15514.773438
+#Rotation: 0.491556 0 0
+#Scale: 1 1 1
+
+#MESH: House6
+#Translation: 5180.577637 5168.427734 14061.845703
+#Rotation: -2.7051 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 5915.098145 5183.918945 8372.208008
+#Rotation: -2.772319 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 6222.244141 5183.918945 9663.71875
+#Rotation: -1.136176 0 0
+#Scale: 1 1 1
+
+#MESH: House4
+#Translation: 7503.068848 5183.918945 8141.211914
+#Rotation: 1.61253 0 0
+#Scale: 1 1 1
+
+#MESH: House7v2
+#Translation: 5229.043457 4865.734863 6533.716309
+#Rotation: -1.724136 0 0
+#Scale: 1 1 1
+
+#MESH: House8v2
+#Translation: 6126.521973 4865.001465 6764.482422
+#Rotation: 0.341789 0 0
+#Scale: 1 1 1
+
+#MESH: House8v2
+#Translation: 7849.496094 4865.001465 9449.830078
+#Rotation: 1.606648 0 0
+#Scale: 1 1 1
+
+#MESH: House7v2
+#Translation: 8214.119141 4839.836426 12199.96582
+#Rotation: -2.757113 0 0
+#Scale: 1 1 1
+
+#MESH: House8v2
+#Translation: 7431.593262 4845.827148 6204.095215
+#Rotation: 1.681398 0 0
+#Scale: 1 1 1
+
+#MESH: House8v2
+#Translation: 7261.484863 4845.827148 4672.321777
+#Rotation: 1.681396 0 0
+#Scale: 1 1 1
+
+#MESH: House7v2
+#Translation: 7409.333984 4845.827148 5424.18457
+#Rotation: 1.681398 0 0
+#Scale: 1 1 1
+
+#MESH: House8v2
+#Translation: 4509.725098 4845.827148 2278.955322
+#Rotation: 1.544861 0 0
+#Scale: 1 1 1
+
+#MESH: House8v2
+#Translation: 7030.726563 4845.827148 2594.461914
+#Rotation: 1.681398 0 0
+#Scale: 1 1 1
+
+#MESH: House7v2
+#Translation: 7008.467285 4845.827148 1814.551392
+#Rotation: 1.681398 0 0
+#Scale: 1 1 1
+
+#MESH: StoneBrick2
+#Translation: 2523.637207 4673.692871 13881.587891
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 2792.080811 4673.692871 13757.203125
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3060.720459 4673.692871 13632.728516
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3330.307129 4673.692871 13507.814453
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3600.178711 4673.692871 13382.768555
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3869.909424 4673.692871 13257.787109
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4139.539063 4673.692871 13132.853516
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4408.595703 4673.692871 13008.18457
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4677.832031 4673.692871 12883.433594
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4947.556152 4673.692871 12758.455078
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5216.379395 4673.692871 12633.894531
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5754.423828 4673.692871 12384.589844
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 6023.247559 4673.692871 12260.029297
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5484.699707 4673.692871 12509.567383
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 6292.237305 4673.692871 12135.391602
+#Rotation: 0.433903 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 6540.16748 4673.692871 12020.512695
+#Rotation: 0.433903 0 0
+#Scale: 1.7 1 1
+
+#MESH: StoneBrick2
+#Translation: 6789.25 4686.34082 11912.93457
+#Rotation: 0.382657 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 7064.191406 4686.34082 11802.271484
+#Rotation: 0.382657 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 7337.914551 4686.34082 11692.098633
+#Rotation: 0.382657 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 7612.331055 4686.34082 11581.646484
+#Rotation: 0.382657 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 7887.23584 4686.34082 11470.998047
+#Rotation: 0.382657 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 8160.577148 4686.34082 11360.979492
+#Rotation: 0.382657 0 0
+#Scale: 2 1 1
+
+#MESH: House7v2
+#Translation: 6837.397949 4865.734863 11428.898438
+#Rotation: -1.192654 0 0
+#Scale: 1 1 1
+
+#MESH: Island3Top1Part1
+#Translation: -7567.196777 4835.163086 -8071.055176
+#Rotation: -1.068979 0 0
+#Scale: 1 1 1
+
+#MESH: StoneBrick2
+#Translation: 6583.29834 4686.797363 11831.311523
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 6458.523438 4686.797363 11560.980469
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 6208.80957 4686.797363 11019.963867
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 6333.584473 4686.797363 11290.294922
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5710.278809 4686.797363 9939.871094
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5835.053711 4686.797363 10210.202148
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5959.992188 4686.797363 10480.888672
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 6084.76709 4686.797363 10751.219727
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5211.126465 4686.797363 8858.432617
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5335.901367 4686.797363 9128.763672
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5460.840332 4686.797363 9399.450195
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5585.614746 4686.797363 9669.78125
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5087.056152 4686.797363 8589.628906
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4962.28125 4686.797363 8319.297852
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4854.383789 4673.699219 8085.531738
+#Rotation: 2.003225 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 4742.098633 4673.699219 7842.260254
+#Rotation: 2.003225 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4565.761719 4674.631348 7763.79541
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 4349.68457 4674.631348 7863.528809
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 4135.878418 4686.109375 7961.296387
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 3920.946533 4686.109375 8060.501465
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 3490.547119 4686.109375 8259.158203
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 3705.479248 4686.109375 8159.953125
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 2630.782715 4686.109375 8655.993164
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 2845.7146 4686.109375 8556.789063
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 3061.182129 4686.109375 8457.336914
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 3276.114258 4686.109375 8358.131836
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 1771.372681 4686.109375 9052.666016
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 1986.304688 4686.109375 8953.460938
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 2201.772217 4686.109375 8854.008789
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 2416.704102 4686.109375 8754.804688
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 936.484131 4686.109375 9438.019531
+#Rotation: -2.709164 0 0
+#Scale: 1.2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1125.60791 4686.109375 9350.726563
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 1341.075439 4686.109375 9251.275391
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 1556.007446 4686.109375 9152.070313
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 743.30835 4674.333496 9531.647461
+#Rotation: -2.709164 0 0
+#Scale: 1.7 1 1
+
+#MESH: StoneBrick2
+#Translation: 522.020142 4674.333496 9633.786133
+#Rotation: -2.709164 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 470.024658 4674.292969 9791.857422
+#Rotation: 2.003225 0 0
+#Scale: 1.6 1 1
+
+#MESH: StoneBrick2
+#Translation: 575.829163 4674.292969 10021.087891
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 687.602539 4685.771973 10261.811523
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 799.452271 4685.771973 10504.139648
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 1022.911926 4685.771973 10988.275391
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 911.062195 4685.771973 10745.947266
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 1470.761108 4686.895508 11958.563477
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 1358.911377 4686.895508 11716.235352
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 1247.301514 4686.895508 11474.426758
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 1135.451782 4686.895508 11232.098633
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 1921.262451 4686.895508 12927.932617
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 1809.41272 4686.895508 12685.604492
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 1697.802856 4686.895508 12443.796875
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 1585.953125 4686.895508 12201.46875
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 2353.364502 4686.895508 13864.103516
+#Rotation: 2.003225 0 0
+#Scale: 1.3 1 1
+
+#MESH: StoneBrick2
+#Translation: 2256.98291 4686.895508 13655.288086
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 2145.373047 4686.895508 13413.479492
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 2033.523315 4686.895508 13171.151367
+#Rotation: 2.003225 0 0
+#Scale: 1.8 1 1
+
+#MESH: StoneBrick2
+#Translation: 2256.987061 4687.344238 14020.935547
+#Rotation: 0.513512 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1998.828613 4687.344238 14166.53125
+#Rotation: 0.513512 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1481.902588 4687.344238 14458.066406
+#Rotation: 0.513512 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1740.061035 4687.344238 14312.470703
+#Rotation: 0.513512 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 762.983215 4687.344238 14863.521484
+#Rotation: 0.513512 0 0
+#Scale: 1.165345 1 1
+
+#MESH: StoneBrick2
+#Translation: 1223.284668 4687.344238 14603.921875
+#Rotation: 0.513512 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 965.126282 4687.344238 14749.517578
+#Rotation: 0.513512 0 0
+#Scale: 2 1 1
+
+#MESH: MarketStand4
+#Translation: 4212.263672 4790.65625 10567.157227
+#Rotation: 2.207541 0 0
+#Scale: 1 1 1
+
+#MESH: MarketStand3
+#Translation: 4487.289063 4799.312012 10839.904297
+#Rotation: -0.951924 0 0
+#Scale: 1 1 1
+
+#MESH: Fountain1
+#Translation: 3535.61792 4912.830078 10826.016602
+#Rotation: 0.466469 0 0
+#Scale: 1 1 1
+
+#MESH: StoneBrick2
+#Translation: 2367.341553 4686.59668 12277.384766
+#Rotation: 2.544769 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 2612.026611 4686.59668 12443.644531
+#Rotation: 2.544769 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3160.128418 4686.59668 12651.447266
+#Rotation: 2.855713 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 2876.308838 4686.59668 12568.023438
+#Rotation: 2.855713 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4307.504395 4686.59668 12521.570313
+#Rotation: -2.794847 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4029.284912 4686.59668 12622.103516
+#Rotation: -2.794847 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3742.605957 4686.59668 12678.054688
+#Rotation: -3.105791 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3446.969482 4686.59668 12688.643555
+#Rotation: -3.105791 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5385.900391 4686.59668 10612.293945
+#Rotation: -1.53775 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5395.674316 4686.59668 10907.958984
+#Rotation: -1.53775 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5360.431641 4686.59668 11197.913086
+#Rotation: -1.848694 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5279.276367 4686.59668 11482.389648
+#Rotation: -1.848694 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5155.382324 4686.59668 11743.753906
+#Rotation: -2.170376 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4988.449219 4686.59668 11987.980469
+#Rotation: -2.170376 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4788.586914 4686.59668 12200.984375
+#Rotation: -2.48132 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4554.936523 4686.59668 12382.423828
+#Rotation: -2.48132 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1913.166138 4686.59668 9904.31543
+#Rotation: 0.977422 0 0
+#Scale: 1.869709 1 1
+
+#MESH: StoneBrick2
+#Translation: 2073.789307 4686.59668 9666.162109
+#Rotation: 0.977422 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 2272.325684 4686.59668 9451.922852
+#Rotation: 0.666478 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 2504.846191 4686.59668 9269.036133
+#Rotation: 0.666478 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 2758.441162 4686.59668 9129.928711
+#Rotation: 0.344796 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3036.856201 4686.59668 9029.938477
+#Rotation: 0.344796 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3323.643799 4686.59668 8974.545898
+#Rotation: 0.0338527 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3619.300293 4686.59668 8964.53418
+#Rotation: 0.0338527 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5229.202637 4686.59668 10053.964844
+#Rotation: -1.223244 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5088.016602 4686.59668 9798.266602
+#Rotation: -0.9123 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4906.992676 4686.59668 9564.292969
+#Rotation: -0.9123 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4696.419922 4686.59668 9366
+#Rotation: -0.590618 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4450.708008 4686.59668 9201.261719
+#Rotation: -0.590618 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 4185.658691 4686.59668 9078.524414
+#Rotation: -0.279675 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 3901.327148 4686.59668 8996.863281
+#Rotation: -0.279675 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 5329.959961 4686.59668 10332.103516
+#Rotation: -1.223244 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 2160.678467 4686.59668 12085.02832
+#Rotation: 2.231277 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1979.190186 4686.59668 11851.416016
+#Rotation: 2.231277 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1837.49707 4686.59668 11595.99707
+#Rotation: 1.920334 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1736.1875 4686.59668 11318.05957
+#Rotation: 1.920334 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1683.044556 4686.59668 11033.741211
+#Rotation: 1.598652 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1674.805298 4686.59668 10738.029297
+#Rotation: 1.598652 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1711.552612 4686.59668 10448.262695
+#Rotation: 1.287708 0 0
+#Scale: 2 1 1
+
+#MESH: StoneBrick2
+#Translation: 1794.18335 4686.59668 10164.210938
+#Rotation: 1.287708 0 0
+#Scale: 2 1 1
+
+#MESH: Tunnel1
+#Translation: -7567.196777 4835.163086 -8071.055176
+#Rotation: -1.068979 0 0
+#Scale: 1 1 1
+
+#MESH: House7v3
+#Translation: -7207.048828 241.557999 -33131.121094
+#Rotation: 0.243386 0 0
+#Scale: 1 1 1
+
+#MESH: House9
+#Translation: -7166.625 503.404999 -31852.259766
+#Rotation: 0.393397 0 0
+#Scale: 1 1 1
+
+#MESH: House8v3
+#Translation: -8011.486816 227.744995 -32880.226563
+#Rotation: 0.471954 0 0
+#Scale: 1 1 1
+
+#MESH: House7v3
+#Translation: -6388.971191 241.557999 -33094.351563
+#Rotation: 1.30034 0 0
+#Scale: 1 1 1
+
+#MESH: House8v3
+#Translation: -4875.878906 248.636993 -29792.576172
+#Rotation: -0.997037 0 0
+#Scale: 1 1 1
+
+#MESH: Island2
+#Translation: -1091.357788 437.658844 -33561.878906
+#Rotation: 1.439679 0 0
+#Scale: 1.566635 1.566635 1.566635
+
+#MESH: Island2Top1
+#Translation: -1091.357788 437.658844 -33561.878906
+#Rotation: 1.439679 0 0
+#Scale: 1.566635 1.566635 1.566635
+
+#MESH: Island2Top1
+#Translation: -5222.713867 437.658844 -37245.007813
+#Rotation: -2.224864 0 0
+#Scale: 1.941182 1.941182 1.941182
+
+#MESH: Island2
+#Translation: -5222.713867 437.658844 -37245.007813
+#Rotation: -2.224864 0 0
+#Scale: 1.941182 1.941182 1.941182
+
+#MESH: SuspensionBridge1
+#Translation: -2933.995361 479.532288 -35339.773438
+#Rotation: 0.869336 0 0
+#Scale: 1 1 1
+
+#MESH: Island2
+#Translation: -13402.009766 700.54248 -32362.318359
+#Rotation: -2.525434 0 0
+#Scale: 1.775253 1.775253 1.775253
+
+#MESH: Island2Top1
+#Translation: -13402.009766 700.54248 -32362.318359
+#Rotation: -2.525434 0 0
+#Scale: 1.775253 1.775253 1.775253
+
+#MESH: Island2
+#Translation: -10279.143555 -279.185547 -35400.863281
+#Rotation: -2.525434 0 0
+#Scale: 1.359663 1.359663 1.359663
+
+#MESH: Island2Top1
+#Translation: -10279.143555 -279.185547 -35400.863281
+#Rotation: -2.525434 0 0
+#Scale: 1.359663 1.359663 1.359663
+
+#MESH: SuspensionBridge1
+#Translation: -8155.64209 264.975983 -36410.535156
+#Rotation: 1.950037 -0.202954 0
+#Scale: 1 1 1
+
+#MESH: SuspensionBridge1
+#Translation: -10772.024414 407.877411 -31638.666016
+#Rotation: 1.326125 0.34959 0
+#Scale: 1 1 1
+
+#MESH: SuspensionBridge1
+#Translation: -5494.088867 379.522949 -34331.023438
+#Rotation: -0.12239 0.350695 0.0302521
+#Scale: 1 1 1
+
+#MESH: SuspensionBridge1
+#Translation: -11597.141602 313.520111 -34408.660156
+#Rotation: 2.483477 0.438409 -0.0329544
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -7715.407715 3495.405273 -10650.49707
+#Rotation: 2.463251 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -8262.849609 3153.792969 -10614.052734
+#Rotation: -0.986076 0 0
+#Scale: 1 1 1
+
+#MESH: Floor5
+#Translation: -6938.725098 2850.799072 -10898.631836
+#Rotation: -0.676577 0 0
+#Scale: 1 1 1
+
+#MESH: HangingStairCase1
+#Translation: -6938.725098 2850.799072 -10898.631836
+#Rotation: -0.676577 0 0
+#Scale: 1 1 1
+
+#MESH: Floor5
+#Translation: -7167.527832 3203.144043 -8274.956055
+#Rotation: -2.556872 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -7166.869141 3148.187744 -9089.69043
+#Rotation: 0.58472 0 0
+#Scale: 1 1 1
+
+#MESH: Scaffold2
+#Translation: -7590.001953 2808.783447 -8842.955078
+#Rotation: 2.164194 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -6917.847656 4544.852539 -7626.784668
+#Rotation: -2.549043 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -7165.117188 4544.852539 -7460.309082
+#Rotation: -2.549043 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -8987.788086 4544.852539 -10756.391602
+#Rotation: 0.587972 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -10485.037109 3847.657959 -9765.911133
+#Rotation: 0.587972 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -10645.071289 3847.657959 -10143.801758
+#Rotation: -2.608893 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -11602.689453 4544.252441 -9273.898438
+#Rotation: 0.541145 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -10567.120117 4544.255371 -9021.834961
+#Rotation: -1.026927 0 0
+#Scale: 1 1 1
+
+#MESH: HangingStairCase1
+#Translation: -8539.916016 4313.756836 -12504.984375
+#Rotation: 2.090782 0 0
+#Scale: 1 1 1
+
+#MESH: HangingStairCase1
+#Translation: -11674 2503.018555 -12226.985352
+#Rotation: -2.621607 0 0
+#Scale: 1 1 1
+
+#MESH: Floor2
+#Translation: -11674 2855.587891 -12226.985352
+#Rotation: -1.05081 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -9040.695313 1603.26001 -17432.337891
+#Rotation: 0.00114872 0 0
+#Scale: 1 1 1
+
+#MESH: Barrel1
+#Translation: -7676.431152 698.841736 -18110.640625
+#Rotation: -0.0991322 0 0
+#Scale: 0.795393 0.795393 0.795393
+
+#MESH: Crate1
+#Translation: -7757.660156 699.228088 -18114.287109
+#Rotation: 1.259689 0 0
+#Scale: 1 1 1
+
+#MESH: Wagon2
+#Translation: -7817.868164 663.14624 -17993.251953
+#Rotation: 0.51288 0 0
+#Scale: 1 1 1
+
+#MESH: Barrel1
+#Translation: -7829.449707 762.018066 -18010.583984
+#Rotation: 2.031119 0 0
+#Scale: 0.795393 0.795393 0.795393
+
+#MESH: Barrel1
+#Translation: -7856.718262 762.018066 -18065.578125
+#Rotation: -1.689151 0 0
+#Scale: 0.795393 0.795393 0.795393
+
+#MESH: Crane
+#Translation: -7951.179199 1298.562866 -17826.085938
+#Rotation: -2.819751 0 0
+#Scale: 1.463341 1.463341 1.463341
+
+#MESH: WoodenPlatform3
+#Translation: -7914.771973 1225.367676 -17527.621094
+#Rotation: -0.0344277 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -8137.011719 1329.789673 -19585.855469
+#Rotation: 1.466097 0 0
+#Scale: 1 1 1
+
+#MESH: Torch1
+#Translation: -7211.479004 1386.996826 -19551.304688
+#Rotation: 3.049079 0 0
+#Scale: 1 1 1
+
+#MESH: WoodenShed1
+#Translation: -9254.911133 766.601807 -18380.996094
+#Rotation: -0.142123 -0.000434906 -0.0128465
+#Scale: 2.001744 2.001744 2.001744
+
+#MESH: WoodenShed1
+#Translation: -9196.344727 681.658203 -18820.169922
+#Rotation: -0.142123 -0.000434906 -0.0128465
+#Scale: 2.034266 2.034266 2.034266
+
+#MESH: House8
+#Translation: -7285.516602 790.720581 -18860.542969
+#Rotation: -1.660189 0 0
+#Scale: 1 1 1
+
+#MESH: Crate1
+#Translation: -9136.78418 660.598267 -18635.060547
+#Rotation: 1.259689 0 0
+#Scale: 1 1 1
+
+#MESH: Barrel1
+#Translation: -9055.555664 660.211853 -18631.414063
+#Rotation: -0.0991322 0 0
+#Scale: 0.795393 0.795393 0.795393
+
+#MESH: Wagon1
+#Translation: -7636.75 614.169556 -18682.880859
+#Rotation: 0.389633 0.403728 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform3
+#Translation: -11622.250977 3152.450928 -13045.905273
+#Rotation: 0.518537 0 0
+#Scale: 1 1 1
+
+#MESH: Ladder1
+#Translation: -7531.024414 609.977295 -19137.300781
+#Rotation: 1.389699 -0.00476559 -0.0438711
+#Scale: 1 1 1
+
+#MESH: Grass1
+#Translation: -7475.637695 625.28186 -19197.46875
+#Rotation: 3.017519 0.209206 -0.150437
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7438.73877 620.355652 -19192.146484
+#Rotation: 2.67516 0.153396 -0.101766
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7408.763184 625.416138 -19187.984375
+#Rotation: 2.628233 0.175711 -0.20299
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7506.382324 613.65625 -19197.681641
+#Rotation: 2.628233 0.175711 -0.20299
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7526.458496 624.257385 -19163.488281
+#Rotation: 3.043226 -0.073572 -0.23452
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7529.060059 622.304626 -19137.121094
+#Rotation: 2.141313 -0.141197 -0.129938
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7529.060059 622.304626 -19109.435547
+#Rotation: 2.141313 -0.141197 -0.129938
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -9015.265625 615.163086 -19021.527344
+#Rotation: 2.106542 0.137695 -0.0965269
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -8999.236328 615.163086 -18993.0625
+#Rotation: 2.489656 0.239009 -0.114764
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -9035.807617 615.163086 -18976.197266
+#Rotation: 1.95278 -0.190324 0.157153
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -9052.739258 612.214417 -19000.371094
+#Rotation: 1.631072 -0.203048 -0.203022
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -9047.522461 615.707581 -19032.449219
+#Rotation: 1.631072 -0.203048 -0.203022
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -9160.505859 630.384766 -18194.900391
+#Rotation: 1.631072 -0.203048 -0.203022
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -9165.722656 626.891602 -18162.822266
+#Rotation: 1.631072 -0.203048 -0.203022
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -9128.25 629.840271 -18183.978516
+#Rotation: 2.106542 0.137695 -0.0965269
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -9112.219727 629.840271 -18155.513672
+#Rotation: 2.489656 0.239009 -0.114764
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -9148.791992 629.840271 -18138.646484
+#Rotation: 1.95278 -0.190324 0.157153
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Well
+#Translation: -7492.743164 865.733948 -21161.964844
+#Rotation: 0.459685 0.0138162 -0.0336746
+#Scale: 1.233079 1.233079 1.233079
+
+#MESH: Wall2
+#Translation: -6969.835938 765.111938 -21171.003906
+#Rotation: 1.854667 -0.066415 0.0494851
+#Scale: 1 1 1
+
+#MESH: Wall1
+#Translation: -6906.079102 732.990723 -20810.416016
+#Rotation: -1.507941 0.00503615 -0.0798463
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -7103.978027 778.065308 -21464.34375
+#Rotation: 2.11585 -0.066415 0.0494851
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -7323.669434 794.318542 -21686.458984
+#Rotation: 2.496464 -0.0450886 0.0379064
+#Scale: 1 1 1
+
+#MESH: Grass1
+#Translation: -7642.995605 753.925049 -21210.878906
+#Rotation: 2.309062 -0.189007 -0.0396653
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7630.146973 747.402039 -21231.230469
+#Rotation: 1.650388 0.0944541 -0.0281843
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Torch1
+#Translation: -7581.13623 939.814941 -21115.027344
+#Rotation: 2.057253 0 0
+#Scale: 1 1 1
+
+#MESH: Grass1
+#Translation: -7601.658691 749.152466 -21240.154297
+#Rotation: 1.714277 -0.0309289 -0.0383383
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7571.810547 749.152466 -21253.519531
+#Rotation: 2.626704 0.0682006 -0.145695
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7545.33252 749.152466 -21264.210938
+#Rotation: 2.192899 -0.0038235 -0.14223
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7523.985352 749.152466 -21279.587891
+#Rotation: 2.05594 -0.0122135 -0.218662
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7500.233887 744.55365 -21291.677734
+#Rotation: 1.642927 -0.0997347 -0.132914
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7476.410156 744.55365 -21308.679688
+#Rotation: 1.937919 -0.0946607 -0.121769
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7442.952148 742.68158 -21308.679688
+#Rotation: 1.987956 0.164221 -0.237685
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7427.126465 747.833862 -21282.587891
+#Rotation: 1.181992 -0.00368225 -0.155627
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7414.833008 747.833862 -21258.613281
+#Rotation: 2.027621 0.138825 -0.0941887
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7399.428223 742.588135 -21234.728516
+#Rotation: 1.489758 0.0947085 -0.10984
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7387.676758 742.588135 -21210.154297
+#Rotation: 1.728767 0.0746589 -0.0401542
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7374.955078 742.588135 -21186.992188
+#Rotation: -3.068619 0.0294445 0.0878923
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7365.020996 739.669678 -21163.484375
+#Rotation: 3.059984 0.0223695 0.0305732
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7635.555176 753.925049 -21178.873047
+#Rotation: 2.309062 -0.189007 -0.0396653
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7623.583984 753.925049 -21149.857422
+#Rotation: 1.974489 -0.110323 -0.0456863
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7609.947754 748.260803 -21114.496094
+#Rotation: 1.537284 -0.0284052 0.0933601
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7596.938965 748.260803 -21089.712891
+#Rotation: 1.475636 -0.188912 0.16583
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7586.422363 748.260803 -21062.607422
+#Rotation: 1.674636 -0.0349399 0.193087
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7575.282227 748.260803 -21039.199219
+#Rotation: 1.235185 -0.0644744 0.276081
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7549.789063 744.873901 -21016.509766
+#Rotation: 1.56943 -0.0324236 0.136435
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7523.160156 744.873901 -21012.865234
+#Rotation: 2.298084 0.072108 0.194749
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7497.601563 744.873901 -21021.949219
+#Rotation: 2.193107 0.0316155 0.151869
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7472.042969 744.873901 -21033.533203
+#Rotation: -3.080955 -0.0161847 0.146469
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7448.552734 744.873901 -21048.277344
+#Rotation: 3.126435 -0.0700011 0.100587
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7424.02002 744.873901 -21059.015625
+#Rotation: 1.425344 0.10386 0.14774
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7401.27002 744.873901 -21068.789063
+#Rotation: 2.433821 -0.0345817 0.119482
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7376.884277 744.873901 -21082.433594
+#Rotation: 2.75458 -0.0101006 0.112945
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7351.608887 744.873901 -21103.236328
+#Rotation: 2.926844 -0.025234 0.160235
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: Grass1
+#Translation: -7350.080078 744.873901 -21133.990234
+#Rotation: 3.020862 0.0742649 0.0368052
+#Scale: 0.4422 0.4422 0.4422
+
+#MESH: WoodenPlatform1
+#Translation: -8282.516602 784.960938 -22067.601563
+#Rotation: 2.998984 0 0
+#Scale: 1 1 1
+
+#MESH: SuspensionBridge1
+#Translation: -8107.532715 834.94519 -23205.039063
+#Rotation: -0.154985 0.0161145 0
+#Scale: 1 1 1
+
+#MESH: WoodenPlatform1
+#Translation: -7928.523926 815.48407 -24348.076172
+#Rotation: -0.147307 0 0
+#Scale: 1 1 1
+
+#MESH: Wall1
+#Translation: -9706.901367 686.484314 -20806.869141
+#Rotation: -1.893559 0.0234966 -0.11643
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9565.145508 736.59375 -21146.867188
+#Rotation: 1.093532 -0.0157105 0.115445
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9393.022461 774.898438 -21425.923828
+#Rotation: 0.982196 -0.00272898 0.116472
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9189.645508 803.898132 -21666.943359
+#Rotation: 0.752649 0.00598412 0.0405472
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -8928.213867 817.620239 -21869.228516
+#Rotation: 0.622827 -0.00161112 0.0394344
+#Scale: 1 1 1
+
+#MESH: Wall1
+#Translation: -10935.186523 2575.354004 -14279.882813
+#Rotation: -0.979461 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -10706.113281 2575.354004 -14004.586914
+#Rotation: -0.728687 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -10452.887695 2575.354004 -13798.087891
+#Rotation: -0.63856 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -10178.692383 2575.354004 -13618.115234
+#Rotation: -0.511939 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -9883.607422 2575.354004 -13470.744141
+#Rotation: -0.415214 0 0
+#Scale: 1 1 1
+
+#MESH: Wall1
+#Translation: -9138.418945 2575.354004 -13158.708984
+#Rotation: -0.355505 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -7857.140137 2575.354004 -12744.092773
+#Rotation: -0.298773 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -7228.806152 2575.354004 -12642.719727
+#Rotation: 0.141616 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -7538.329102 2575.354004 -12656.477539
+#Rotation: -0.227788 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -8162.887207 2575.354004 -12835.601563
+#Rotation: -0.310852 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -8475.743164 2575.354004 -12936.112305
+#Rotation: -0.310852 0 0
+#Scale: 1 1 1
+
+#MESH: Wall2
+#Translation: -8788.599609 2575.354004 -13036.623047
+#Rotation: -0.310852 0 0
+#Scale: 1 1 1
+
+#MESH: Crate1
+#Translation: -10363.169922 2547.562988 -14369.841797
+#Rotation: 1.259689 0 0
+#Scale: 1 1 1
+
+#MESH: Barrel1
+#Translation: -10442.507813 2546.754883 -14377.732422
+#Rotation: -0.0991322 0 0
+#Scale: 0.795393 0.795393 0.795393
+
+#MESH: WoodenShed1
+#Translation: -9871.931641 2630.924072 -14192.416016
+#Rotation: -1.639689 -0.0128439 -0.000506178
+#Scale: 2.034266 2.034266 2.034266
+
+#MESH: WoodenShed1
+#Translation: -8895.150391 2618.032227 -13897.748047
+#Rotation: -2.286414 -0.0105554 0.00733529
+#Scale: 2.034266 2.034266 2.034266
+
+#MESH: WoodenShed1
+#Translation: -7989.70752 2605.36792 -13110.606445
+#Rotation: -2.286414 -0.0105554 0.00733529
+#Scale: 2.034266 2.034266 2.034266
+
+#MESH: Crate1
+#Translation: -9069.126953 2547.562988 -13974.772461
+#Rotation: 1.259689 0 0
+#Scale: 1 1 1
+
+#MESH: Barrel1
+#Translation: -9148.463867 2546.754883 -13982.663086
+#Rotation: -0.0991322 0 0
+#Scale: 0.795393 0.795393 0.795393
+
+#MESH: Barrel1
+#Translation: -9188.96875 2546.754883 -13949.969727
+#Rotation: -0.0991322 0 0
+#Scale: 0.795393 0.795393 0.795393
+
+#MESH: Torch1
+#Translation: -8881.243164 2744.466797 -14072.831055
+#Rotation: 2.445965 0 0
 #Scale: 1 1 1
 
 *LightHeader*
-#numLights 10
+#numLights 23
 
 #Light: directionalLightShape1
 #Translation: -48211.554688 16319.233398 -32633.191406
@@ -4020,12 +6055,6 @@ Color: 1 1 1
 Type: kDirectionalLight
 Intensity: 1
 Direction: 6264.128418 -5085.657715 146.78299
-
-#Light: pointLightShape1
-#Translation: -11673.119141 3107.225586 -12035.056641
-Color: 0.529412 0.57171 1
-Type: kPointLight
-Intensity: 1
 
 #Light: pointLightShape2
 #Translation: -16744.607422 3812.980469 -8179.709473
@@ -4041,13 +6070,7 @@ Intensity: 1
 
 #Light: pointLightShape4
 #Translation: -7624.637695 5314.713379 -4529.410156
-Color: 1 0.588235 0.588235
-Type: kPointLight
-Intensity: 1
-
-#Light: pointLightShape5
-#Translation: -9865.432617 5259.400391 -14181.930664
-Color: 1 0.849791 0.539
+Color: 1 0.924704 0.588235
 Type: kPointLight
 Intensity: 1
 
@@ -4074,6 +6097,96 @@ Intensity: 1
 Color: 1 0.849791 0.539
 Type: kPointLight
 Intensity: 1
+
+#Light: pointLightShape10
+#Translation: -6787.558105 279.952759 -31349.392578
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape11
+#Translation: -7037.918945 279.952759 -31245.486328
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape12
+#Translation: -15925.444336 8120.751953 -4421.037598
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape13
+#Translation: -15487.882813 8120.751953 -3980.111084
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape14
+#Translation: -15931.931641 8120.751953 -1800.447388
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape15
+#Translation: -17017.019531 9085.351563 -698.784241
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape16
+#Translation: -16433.515625 8630.044922 -1276.818848
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape17
+#Translation: -19230.041016 9085.351563 -2902.535156
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape18
+#Translation: -18203.605469 8103.958496 -3922.317139
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape19
+#Translation: -18668.878906 8621.171875 -3459.824219
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape20
+#Translation: -8141.240723 1367.300659 -19584.445313
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape21
+#Translation: -7211.603027 1424.507813 -19545.482422
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape22
+#Translation: -7549.205566 852.5896 -18980.003906
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape23
+#Translation: -7584.39502 977.325928 -21111.783203
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
+
+#Light: pointLightShape24
+#Translation: -8883.146484 2781.977783 -14069.480469
+Color: 0.745098 0.543009 0.0438293
+Type: kPointLight
+Intensity: 0.3
 
 *CheckPointHeader*
 #numCheckpoints 24
@@ -4118,7 +6231,7 @@ Translation: -10652.856466 5313.362419 -4985.338093
 
 #Type: CheckPoint
 #NR: 5
-Translation: -4930.48886 4802.390128 -1392.327053
+Translation: -5565.716064 4802.390128 -1065.009669
 
 #Type: CheckPoint
 #NR: 5
@@ -4170,12 +6283,127 @@ Translation: -7781.436545 791.515787 -25530.695496
 
 #Type: CheckPoint
 #NR: 2
-Translation: -6317.934412 1228.927292 -23199.109391
+Translation: -6317.934412 1525.667112 -22735.132625
 
 #Type: CheckPoint
 #NR: 2
-Translation: -5594.644811 1964.568838 -23351.539752
+Translation: -5594.644811 2261.308657 -22887.562986
 
 #Type: CheckPoint
 #NR: 2
 Translation: -8238.381306 911.683513 -20232.530605
+
+*EffectHeader*
+#numEfftects 28
+
+#Effect: fire
+#Translation: -6787.241791 274.137367 -31350.87506
+#Rotation: -2.748195 0 0
+
+#Effect: smoke
+#Translation: -6785.030257 300.244284 -31348.838563
+#Rotation: -2.748195 0 0
+
+#Effect: smoke
+#Translation: -7035.391236 300.244284 -31244.930818
+#Rotation: -2.748195 0 0
+
+#Effect: fire
+#Translation: -7037.602769 274.137367 -31246.967315
+#Rotation: -2.748195 0 0
+
+#Effect: smoke
+#Translation: -15925.887968 8141.04357 -4423.587426
+#Rotation: -0.789228 0 0
+
+#Effect: fire
+#Translation: -15926.935898 8114.936653 -4420.769618
+#Rotation: -0.789228 0 0
+
+#Effect: fire
+#Translation: -15489.373657 8114.936653 -3979.842919
+#Rotation: -0.789228 0 0
+
+#Effect: smoke
+#Translation: -15488.325727 8141.04357 -3982.660727
+#Rotation: -0.789228 0 0
+
+#Effect: fire
+#Translation: -15931.738304 8114.936653 -1798.944686
+#Rotation: 0.731565 0 0
+
+#Effect: smoke
+#Translation: -15934.500212 8141.04357 -1800.132147
+#Rotation: 0.731565 0 0
+
+#Effect: fire
+#Translation: -17016.825868 9079.536218 -697.281614
+#Rotation: 0.731565 0 0
+
+#Effect: smoke
+#Translation: -17019.587776 9105.643135 -698.469076
+#Rotation: 0.731565 0 0
+
+#Effect: fire
+#Translation: -16433.321872 8624.229625 -1275.316145
+#Rotation: 0.731565 0 0
+
+#Effect: smoke
+#Translation: -16436.08378 8650.336542 -1276.503606
+#Rotation: 0.731565 0 0
+
+#Effect: fire
+#Translation: -19230.280617 9079.536218 -2904.031119
+#Rotation: -2.379241 0 0
+
+#Effect: smoke
+#Translation: -19227.483466 9105.643135 -2902.929236
+#Rotation: -2.379241 0 0
+
+#Effect: fire
+#Translation: -18203.845397 8098.143226 -3923.813077
+#Rotation: -2.379241 0 0
+
+#Effect: smoke
+#Translation: -18201.048246 8124.250143 -3922.711194
+#Rotation: -2.379241 0 0
+
+#Effect: fire
+#Translation: -18669.117941 8615.356333 -3461.320281
+#Rotation: -2.379241 0 0
+
+#Effect: smoke
+#Translation: -18666.32079 8641.46325 -3460.218398
+#Rotation: -2.379241 0 0
+
+#Effect: fire
+#Translation: -8140.924532 1361.485262 -19585.927497
+#Rotation: -2.748195 0 0
+
+#Effect: smoke
+#Translation: -8138.712998 1387.592178 -19583.891
+#Rotation: -2.748195 0 0
+
+#Effect: fire
+#Translation: -7211.28679 1418.692386 -19546.964526
+#Rotation: -2.748195 0 0
+
+#Effect: smoke
+#Translation: -7209.075256 1444.799303 -19544.928029
+#Rotation: -2.748195 0 0
+
+#Effect: fire
+#Translation: -7584.078641 971.510531 -21113.265416
+#Rotation: -2.748195 0 0
+
+#Effect: smoke
+#Translation: -7581.867107 997.617448 -21111.228919
+#Rotation: -2.748195 0 0
+
+#Effect: fire
+#Translation: -8882.830035 2776.162334 -14070.961649
+#Rotation: -2.748195 0 0
+
+#Effect: smoke
+#Translation: -8880.618502 2802.269251 -14068.925153
+#Rotation: -2.748195 0 0

@@ -1,0 +1,29 @@
+*ObjectHeader*
+#numObj: 5
+
+#MESH: HangingStaircase1
+#Translation: -427.969391 3.953497 817.313049
+#Rotation: 0 0 0
+#Scale: 298.130096 10 10
+
+#MESH: HangingStaircase1
+#Translation: 451.327911 352.377411 817.313049
+#Rotation: 0 0 0
+#Scale: 288.348724 10 10
+
+#MESH: HangingStaircase1
+#Translation: 597.805176 352.377411 708.189209
+#Rotation: 1.570796 0 0
+#Scale: 219.465424 10 10
+
+#MESH: HangingStaircase1
+#Translation: -578.786133 3.953497 708.189209
+#Rotation: 1.570796 0 0
+#Scale: 214.747406 10 10
+
+#MESH: HangingStaircase1
+#Translation: 14.159153 177.437378 817.313049
+#Rotation: 0 0 0.532297
+#Scale: 677.731323 10 10
+
+
