@@ -738,7 +738,7 @@ void GameScene::updateWorldTextPosition(IEventData::Ptr p_Data)
 
 void GameScene::renderBoundingVolume(BodyHandle p_BodyHandle)
 {
-	unsigned int nrVolumes = m_GameLogic->getPhysics()->getNrOfVolumesInBody(p_BodyHandle) + 1;
+	unsigned int nrVolumes = m_GameLogic->getPhysics()->getNrOfVolumesInBody(p_BodyHandle);
 
 	for(unsigned int j = 0; j < nrVolumes; j++)
 	{
