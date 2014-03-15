@@ -112,7 +112,7 @@ public:
 	* Get the sphere surrounding the OBB.
 	* @return m_Sphere the surrounding sphere
 	*/
-	Sphere getSphere() const
+	const Sphere& getSphere() const
 	{
 		return m_Sphere;
 	}

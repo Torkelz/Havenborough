@@ -115,7 +115,7 @@ public:
 	 * Get the sphere surrounding the hull.
 	 * @return m_Sphere the surrounding sphere
 	 */
-	Sphere getSphere() const
+	const Sphere& getSphere() const
 	{
 		return m_Sphere;
 	}
@@ -182,31 +182,26 @@ public:
 	*/
 	DirectX::XMVECTOR findClosestPointOnTriangle(DirectX::XMFLOAT4 const &p_Point, int p_TriangleIndex) const
 	{
-		//Triangle triangle = m_Triangles[p_TriangleIndex];//getTriangleInWorldCoord(p_TriangleIndex);
 		DirectX::XMVECTOR p = XMLoadFloat4(&m_Position);
 
 		using DirectX::operator-;
 		using DirectX::operator*;
 		using DirectX::operator+;
 
-		Vector4 ta = m_Triangles[p_TriangleIndex].corners[0] + m_Position;
-		ta.w = 1.f;
-		Vector4 tb = m_Triangles[p_TriangleIndex].corners[1] + m_Position;
-		tb.w = 1.f;
-		Vector4 tc = m_Triangles[p_TriangleIndex].corners[2] + m_Position;
-		tc.w = 1.f;
-
-		DirectX::XMVECTOR a = XMLoadFloat4(&ta);
-		DirectX::XMVECTOR b = XMLoadFloat4(&tb);
-		DirectX::XMVECTOR c = XMLoadFloat4(&tc);
+		DirectX::XMVECTOR a = XMLoadFloat3(&m_Triangles[p_TriangleIndex].corners[0].xyz()) + p;
+		//a.m128_f32[3] = 1.f;
+		DirectX::XMVECTOR b = XMLoadFloat3(&m_Triangles[p_TriangleIndex].corners[1].xyz()) + p;
+		//b.m128_f32[3] = 1.f;
+		DirectX::XMVECTOR c = XMLoadFloat3(&m_Triangles[p_TriangleIndex].corners[2].xyz()) + p;
+		//c.m128_f32[3] = 1.f;
 		DirectX::XMVECTOR pos = DirectX::XMLoadFloat4(&p_Point);
 
 		DirectX::XMVECTOR ab = b - a;
 		DirectX::XMVECTOR ac = c - a;
 		DirectX::XMVECTOR ap = pos - a;
 
-		float d1 = DirectX::XMVector4Dot(ab, ap).m128_f32[0];
-		float d2 = DirectX::XMVector4Dot(ac, ap).m128_f32[0];
+		float d1 = DirectX::XMVector3Dot(ab, ap).m128_f32[0];
+		float d2 = DirectX::XMVector3Dot(ac, ap).m128_f32[0];
 
 		//DirectX::XMFLOAT4 ret;
 		if(d1 <= 0.f && d2 <= 0.f)
@@ -216,8 +211,8 @@ public:
 		}
 
 		DirectX::XMVECTOR bp = pos - b;
-		float d3 = DirectX::XMVector4Dot(ab, bp).m128_f32[0];
-		float d4 = DirectX::XMVector4Dot(ac, bp).m128_f32[0];
+		float d3 = DirectX::XMVector3Dot(ab, bp).m128_f32[0];
+		float d4 = DirectX::XMVector3Dot(ac, bp).m128_f32[0];
 
 		if(d3 >= 0.f && d4 <= d3)
 		{

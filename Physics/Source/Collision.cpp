@@ -456,16 +456,16 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 	if(!surroundingSphereVsSphere(p_Hull.getSphere(), p_Sphere))
 		return HitData();
 
-	HitData hit = HitData();
-	XMVECTOR spherePos = XMLoadFloat4(&p_Sphere.getPosition());
+	HitData hit;// = HitData();
+	XMFLOAT4 XMSpherePos = p_Sphere.getPosition();
+	XMVECTOR spherePos = XMLoadFloat4(&XMSpherePos);
 
 	float distance = FLT_MAX;
 	XMVECTOR closestPoint = g_XMZero;
-	for(unsigned int i = 0; i < p_Hull.getTriangleListSize(); i++)
+	unsigned int nrTriangles = p_Hull.getTriangleListSize();
+	for(unsigned int i = 0; i < nrTriangles; i++)
 	{
-		Triangle triangle = p_Hull.getTriangleInWorldCoord(i);
-
-		XMVECTOR point = p_Hull.findClosestPointOnTriangle(p_Sphere.getPosition(), i);
+		XMVECTOR point = p_Hull.findClosestPointOnTriangle(XMSpherePos, i);
 		XMVECTOR v = point - spherePos;
 
 		float vv = XMVectorGetX(XMVector4Dot(v, v));
@@ -488,7 +488,7 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 		hit.colPos.z = XMVectorGetZ(closestPoint) * 100.f;
 		hit.colPos.w = 1.f;
 
-		XMVECTOR tempNorm = XMVector4Normalize(XMLoadFloat4(&p_Sphere.getPosition()) - closestPoint);
+		XMVECTOR tempNorm = XMVector4Normalize(spherePos - closestPoint);
 
 
 		float l = XMVectorGetX(XMVector4Length(tempNorm));

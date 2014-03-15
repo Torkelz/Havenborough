@@ -101,7 +101,7 @@ struct Vector4 : public DirectX::XMFLOAT4
 	{
 		return Vector4(x * p_Right, y * p_Right, z * p_Right, w * p_Right);
 	}
-	Vector3 xyz()
+	Vector3 xyz() const
 	{
 		return Vector3(x, y, z);
 	}
