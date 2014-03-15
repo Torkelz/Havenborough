@@ -116,7 +116,7 @@ bool Collision::surroundingSphereVsSphere(Sphere const &p_Sphere1, Sphere const 
 
 HitData Collision::sphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Sphere2 )
 {
-	HitData hit = HitData();
+	HitData hit;
 
 	XMFLOAT4 s1Pos = p_Sphere1.getPosition();
 	XMFLOAT4 s2Pos = p_Sphere2.getPosition();
@@ -177,7 +177,7 @@ HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 	if(!surroundingSphereVsSphere(p_AABB.getSphere(), p_Sphere))
 		return HitData();
 
-	HitData hit = HitData();
+	HitData hit;
 
 	//Check to see if the sphere overlaps the AABB
 	//const bool AABBOverlapsSphere ( const AABB& B, const SCALAR r, VECTOR& C )
@@ -399,7 +399,7 @@ HitData Collision::OBBvsSphere(OBB const &p_OBB, Sphere const &p_Sphere)
 	if(!surroundingSphereVsSphere(p_OBB.getSphere(), p_Sphere))
 		return HitData();
 
-	HitData hit = HitData();
+	HitData hit;
 
 	XMVECTOR sphereCent = XMLoadFloat4(&p_Sphere.getPosition());	// m
 	
@@ -456,7 +456,7 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 	if(!surroundingSphereVsSphere(p_Hull.getSphere(), p_Sphere))
 		return HitData();
 
-	HitData hit;// = HitData();
+	HitData hit;
 	XMFLOAT4 XMSpherePos = p_Sphere.getPosition();
 	XMVECTOR spherePos = XMLoadFloat4(&XMSpherePos);
 
@@ -509,7 +509,7 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 
 HitData Collision::SATBoxVsBox(OBB const &p_OBB, BoundingVolume const &p_vol)
 {
-	HitData miss = HitData();
+	HitData miss;
 	float r, ra, rb, overlap = FLT_MAX;
 
 	XMMATRIX R, AbsR;
@@ -681,7 +681,7 @@ HitData Collision::SATBoxVsBox(OBB const &p_OBB, BoundingVolume const &p_vol)
 
 	if(temp > 0)
 		least *= -1.f;
-	HitData hit = HitData();
+	HitData hit;
 	hit.intersect = true;
 	hit.colNorm = XMVector4Normalize(least);
 	hit.colLength = overlap;
@@ -696,7 +696,7 @@ HitData Collision::SATBoxVsBox(OBB const &p_OBB, BoundingVolume const &p_vol)
 
 HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 {
-	HitData hit = HitData();
+	HitData hit;
 
 	//Box center
 	const XMVECTOR C = XMLoadFloat4(&p_OBB.getPosition());

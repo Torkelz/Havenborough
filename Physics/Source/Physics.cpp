@@ -110,7 +110,7 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 								XMFLOAT4 fVictimPos = m_Bodies.at(j).getPosition();
 								Sphere s = ((Hull*)m_Bodies.at(j).getVolume(l))->getSphere();
 								float r  = ((Sphere*)b.getVolume(0))->getRadius();
-								if((s.getRadius() < 1.f && fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y))
+								if((s.getRadius() < 1.5f && fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y))
 								{
 									//PhysicsLogger::log(PhysicsLogger::Level::INFO, "StepSize");
 									setBodyForceCollisionNormal(b.getHandle(), m_Bodies.at(j).getHandle(), true);
