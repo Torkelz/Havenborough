@@ -95,13 +95,32 @@ HitData Collision::boundingVolumeVsHull(BoundingVolume const &p_Volume, Hull con
 	}
 }
 
+bool Collision::surroundingSphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Sphere2 )
+{
+	XMFLOAT4 s1Pos = p_Sphere1.getPosition();
+	XMFLOAT4 s2Pos = p_Sphere2.getPosition();
+	XMVECTOR CDiff = XMVectorSet(s2Pos.x - s1Pos.x, s2Pos.y - s1Pos.y, s2Pos.z - s1Pos.z, s2Pos.w - s1Pos.w);
+	
+	float c = XMVector3LengthSq(CDiff).m128_f32[0]; // m^2
+	float rSum = p_Sphere2.getRadius() + p_Sphere1.getRadius();	// m
+    float rSumSqr = rSum*rSum;	// m^2
+
+	//Find out if the sphere centers are separated with more distance than the radiuses.
+    if(c <= rSumSqr)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 HitData Collision::sphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Sphere2 )
 {
 	HitData hit = HitData();
 
-	XMVECTOR s1Pos = XMLoadFloat4(&p_Sphere1.getPosition());
-	XMVECTOR s2Pos = XMLoadFloat4(&p_Sphere2.getPosition());
-	XMVECTOR CDiff = s2Pos - s1Pos;
+	XMFLOAT4 s1Pos = p_Sphere1.getPosition();
+	XMFLOAT4 s2Pos = p_Sphere2.getPosition();
+	XMVECTOR CDiff = XMVectorSet(s2Pos.x - s1Pos.x, s2Pos.y - s1Pos.y, s2Pos.z - s1Pos.z, s2Pos.w - s1Pos.w);
 	
 	float c = XMVectorGetX(XMVector3LengthSq(CDiff)); // m^2
 	float rSum = p_Sphere2.getRadius() + p_Sphere1.getRadius();	// m
@@ -114,7 +133,7 @@ HitData Collision::sphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Spher
 
 		XMFLOAT4 position;	// m
 		
-		XMVECTOR normalized = XMVector4Normalize((s1Pos - s2Pos));
+		XMVECTOR normalized = XMVector4Normalize(XMVectorSet(s1Pos.x - s2Pos.x, s1Pos.y - s2Pos.y, s1Pos.z - s2Pos.z, s1Pos.w - s2Pos.w));
 		XMVECTOR hitPos = normalized  * p_Sphere2.getRadius();	// m
 
 		hit.colPos = hitPos * 100.f;
@@ -130,11 +149,10 @@ HitData Collision::sphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Spher
 
 HitData Collision::AABBvsAABB(AABB const &p_AABB1, AABB const &p_AABB2 )
 {	
-	HitData hit = sphereVsSphere(p_AABB1.getSphere(), p_AABB2.getSphere());
-	if(!hit.intersect)
-		return hit;
+	if(!surroundingSphereVsSphere(p_AABB1.getSphere(), p_AABB2.getSphere()))
+		return HitData();
 
-	hit = HitData();
+	HitData hit = HitData();
 	XMFLOAT4 max1 = p_AABB1.getMax();	// m
 	XMFLOAT4 min1 = p_AABB1.getMin();	// m
 	XMFLOAT4 max2 = p_AABB2.getMax();	// m
@@ -156,11 +174,10 @@ HitData Collision::AABBvsAABB(AABB const &p_AABB1, AABB const &p_AABB2 )
 
 HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 {
-	HitData hit = sphereVsSphere(p_AABB.getSphere(), p_Sphere); 
-	if(!hit.intersect)
-		return hit;
+	if(!surroundingSphereVsSphere(p_AABB.getSphere(), p_Sphere))
+		return HitData();
 
-	hit = HitData();
+	HitData hit = HitData();
 
 	//Check to see if the sphere overlaps the AABB
 	//const bool AABBOverlapsSphere ( const AABB& B, const SCALAR r, VECTOR& C )
@@ -170,7 +187,7 @@ HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 	//find the square of the distance
 	//from the sphere to the box
 	XMFLOAT4 spherePos = p_Sphere.getPosition();	// m
-	XMFLOAT3 dist = XMFLOAT3(.0f, .0f, .0f);	// m
+	XMFLOAT3 dist;	// m
 
 	//if the sphere is outside of the box, find the corner closest to the sphere center in each axis.
 	//else special case for when the sphere center is inside that axis slab.
@@ -247,23 +264,18 @@ HitData Collision::AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere)
 
 HitData Collision::OBBvsOBB(OBB const &p_OBB1, OBB const &p_OBB2)
 {
-	HitData hit = sphereVsSphere(p_OBB1.getSphere(), p_OBB2.getSphere());
-	if(!hit.intersect)
-		return hit;
+	if(!surroundingSphereVsSphere(p_OBB1.getSphere(), p_OBB2.getSphere()))
+		return HitData();
 
 	return SATBoxVsBox(p_OBB1, p_OBB2);
 }
 
 HitData Collision::OBBvsSphere(OBB const &p_OBB, Sphere const &p_Sphere)
 {
-	HitData hit = sphereVsSphere(p_OBB.getSphere(), p_Sphere);
-	if(!hit.intersect)
-		return hit;
+	if(!surroundingSphereVsSphere(p_OBB.getSphere(), p_Sphere))
+		return HitData();
 
-	hit = HitData();
-
-	XMFLOAT4 dist;	// m
-	
+	HitData hit = HitData();
 
 	XMVECTOR sphereCent = XMLoadFloat4(&p_Sphere.getPosition());	// m
 	
@@ -301,32 +313,26 @@ HitData Collision::OBBvsSphere(OBB const &p_OBB, Sphere const &p_Sphere)
 
 HitData Collision::OBBvsAABB(OBB const &p_OBB, AABB const &p_AABB)
 {
-	HitData hit = sphereVsSphere(p_OBB.getSphere(), p_AABB.getSphere());
-	if(!hit.intersect)
-		return hit;
+	if(!surroundingSphereVsSphere(p_OBB.getSphere(), p_AABB.getSphere()))
+		return HitData();
 
 	return SATBoxVsBox(p_OBB, p_AABB);
 }
 
 HitData Collision::OBBVsHull(OBB const &p_OBB, Hull const &p_Hull)
 {
-	HitData hit = sphereVsSphere(p_OBB.getSphere(), p_Hull.getSphere());
-	if(!hit.intersect)
-		return hit;
+	if(!surroundingSphereVsSphere(p_OBB.getSphere(), p_Hull.getSphere()))
+		return HitData();
 
 	return SATBoxVsHull(p_OBB, p_Hull);
 }
 
 HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 {
-	HitData hit = sphereVsSphere(p_Hull.getSphere(), p_Sphere);
-	if(!hit.intersect)
-		return hit;
+	if(!surroundingSphereVsSphere(p_Hull.getSphere(), p_Sphere))
+		return HitData();
 
-	hit = HitData();
-
-	
-
+	HitData hit = HitData();
 	XMVECTOR spherePos = XMLoadFloat4(&p_Sphere.getPosition());
 
 	float distance = FLT_MAX;
@@ -374,8 +380,6 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 		hit.colType = Type::HULLVSSPHERE;
 
 	}
-
-
 	return hit;
 }
 

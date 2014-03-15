@@ -30,6 +30,9 @@ public:
 	* @return HitData, see HitData definition.
 	*/
 	static HitData boundingVolumeVsHull(BoundingVolume const &p_Volume, Hull const &p_Hull);
+	
+	static bool Collision::surroundingSphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Sphere2);
+
 	/**
 	* Sphere versus Sphere collision
 	* @return HitData, see HitData definition.
