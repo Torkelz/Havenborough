@@ -3,7 +3,6 @@
 SamplerState m_textureSampler	: register(s0);
 Texture2D diffuse				: register(t0);
 Texture2D normalMap				: register(t1);
-Texture2D specular				: register(t2);
 
 cbuffer cb : register(b1)
 {
