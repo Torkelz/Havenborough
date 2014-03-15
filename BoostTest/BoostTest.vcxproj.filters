@@ -320,6 +320,12 @@
     <ClCompile Include="..\Client\Source\Scenes\PostGameScene.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\DeviceManager.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Client\Source\Input\Gamepad.cpp">
+      <Filter>TestClient\ClientImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

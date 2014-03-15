@@ -899,6 +899,75 @@ public:
 	}
 };
 
+class SpellHitSphereEventData : public BaseEventData
+{
+private:
+	BodyHandle m_CollisionVictim;
+
+public:
+	static const Type sk_EventType = Type(0x8d03c1df);
+
+	SpellHitSphereEventData(BodyHandle p_CollisionVictim)
+		:	m_CollisionVictim(p_CollisionVictim)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new SpellHitSphereEventData(m_CollisionVictim));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "SpellHitSphereEventData";
+	}
+
+	BodyHandle getCollisionVictim() const
+	{
+		return m_CollisionVictim;
+	}
+};
+
+class PlayerIsHitBySpellEventData : public BaseEventData
+{
+private:
+
+public:
+	static const Type sk_EventType = Type(0x4540b51a);
+
+	PlayerIsHitBySpellEventData()
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new PlayerIsHitBySpellEventData());
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "PlayerIsHitBySpellEventData";
+	}
+};
+
 class RemoveActorEventData : public BaseEventData
 {
 private:
@@ -1113,6 +1182,44 @@ public:
 	float getTime() const
 	{
 		return m_Time;
+	}
+};
+
+class UpdatePlayerElapsedTimeEventData : public BaseEventData
+{
+private:
+	float m_ElapsedTime;
+
+public:
+	static const Type sk_EventType = Type(0x4c1c642c);
+
+	UpdatePlayerElapsedTimeEventData(float p_ElapsedTime)
+		:	m_ElapsedTime(p_ElapsedTime)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new UpdatePlayerElapsedTimeEventData(m_ElapsedTime));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "UpdatePlayerElapsedTimeEventData";
+	}
+
+	float getElapsedTime() const
+	{
+		return m_ElapsedTime;
 	}
 };
 

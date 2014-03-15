@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DebugInfo.cpp" />
+    <ClCompile Include="Source\Input\DeviceManager.cpp" />
+    <ClCompile Include="Source\Input\Gamepad.cpp" />
     <ClCompile Include="Source\Scenes\PostGameScene.cpp" />
     <ClCompile Include="Source\Scenes\HUDScene.cpp" />
     <ClCompile Include="Source\Settings.cpp" />
@@ -56,7 +58,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Source\DebugInfo.h" />
+    <ClInclude Include="Source\Input\DeviceManager.h" />
+    <ClInclude Include="Source\Input\Gamepad.h" />
+    <ClInclude Include="Source\Input\hid.h" />
     <ClInclude Include="Source\Scenes\PostGameScene.h" />
     <ClInclude Include="Source\Scenes\HUDScene.h" />
     <ClInclude Include="Source\Input\InputTranslatorEnums.h" />
@@ -319,6 +325,12 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Client.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\ico.ico" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{10229040-9B98-4F55-8CC9-8F1DA231CE04}</ProjectGuid>

@@ -379,6 +379,19 @@ bool Sound::releaseSound(const char *p_SoundId)
 	return false;
 }
 
+bool Sound::releaseInstance(int p_SoundId)
+{
+	for(auto it = m_InstanceList.begin(); it != m_InstanceList.end(); ++it)
+	{
+		if(it->first == p_SoundId)
+		{
+			m_InstanceList.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
 void Sound::shutdown(void)
 {
 	for(auto &s : m_SoundList)

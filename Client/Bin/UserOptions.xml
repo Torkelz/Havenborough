@@ -8,9 +8,11 @@
     <VSync Enabled="false" />
     <Fullscreen Enabled="false" />
     <Resolution Width="1280" Height="720" />
-    <ShadowMapResolution Value="2048" />
+    <ShadowMapResolution Value="1024" />
     <FOV Value="60" />
     <MouseSensitivity Value="0.5" />
+    <MusicVolume Value="50" />
+    <SfxVolume Value="50" />
   </Settings>
   <Controls>
     <KeyMap Display="Leave game" Command="leaveGame" Key="27" />
@@ -48,6 +50,43 @@
     <MouseMap Display="Look down" Command="lookDown" Direction="NegY" />
     <MouseButtonMap Display="Cast spell" Command="spellCast" Button="Left" />
     <MouseButtonMap Display="Climb" Command="climbEdge" Button="Right" />
+	<!-- Gamepad input
+
+	This is a default mapping for an Xbox360 controller.
+	_Axes_
+	- 48: Left stick X
+	- 49: Left stick Y
+	- 50: Triggers, 0 - -1 for right trigger, 0 - 1 for left trigger.
+		Note: Due to Windows wanting backward compatibility for older API:s,
+		there is no reliable way to detect the triggers when pushed simultaneously.
+	- 51: Right stick X
+	- 52: Right stick Y
+	- 57: D-Pad, but strangely numbered and not currently supported.
+	
+	_Buttons_
+	- 1: A
+	- 2: B
+	- 3: X
+	- 4: Y
+	- 5: Left bumper
+	- 6: Right bumper
+	- 7: Back
+	- 8: Start
+	-->
+	<GamepadAxisMap Display="Movement forwards" Command="moveForward" Usage="49" Direction="Neg" />
+	<GamepadAxisMap Display="Movement backwards" Command="moveBackward" Usage="49" Direction="Pos" />
+	<GamepadAxisMap Display="Strafe left" Command="moveLeft" Usage="48" Direction="Neg" />
+	<GamepadAxisMap Display="Strafe right" Command="moveRight" Usage="48" Direction="Pos" />
+	<GamepadAxisMap Display="Look left" Command="turnLeft" Usage="51" Direction="Neg" />
+	<GamepadAxisMap Display="Look right" Command="turnRight" Usage="51" Direction="Pos" />
+	<GamepadAxisMap Display="Look up" Command="turnUp" Usage="52" Direction="Neg" />
+	<GamepadAxisMap Display="Look down" Command="turnDown" Usage="52" Direction="Pos" />
+	<GamepadAxisMap Display="Cast spell" Command="spellCast" Usage="50" Direction="Neg" />
+	<GamepadAxisMap Display="Climb" Command="climbEdge" Usage="50" Direction="Pos" />
+	<GamepadButtonMap Display="Jump" Command="jump" Usage="1" />
+	<GamepadButtonMap Display="Jump" Command="jump" Usage="6" />
+	<GamepadButtonMap Display="Leave game" Command="leaveGame" Usage="7" />
+	<GamepadButtonMap Display="Wave" Command="wave" Usage="4" />
   </Controls>
   <HUD>
     <!-- Positions in 1280x720 resolution. Will automatically adjust depending on resolution -->
@@ -60,14 +99,17 @@
     <Countdown scale="2">
       <Position x="0" y="0" z="0" />
     </Countdown>
-    <Time>
-      <Position x="420" y="250" z="0" />
+    <Time scale="0.45">
+      <Position x="530" y="255" z="0" />
     </Time>
+    <ElapsedTime scale="0.45">
+      <Position x="530" y="280" z="0" />
+    </ElapsedTime>
     <RacePos>
-      <Position x="-450" y="320" z="1" />
+      <Position x="-560" y="320" z="1" />
     </RacePos>
     <Checkpoints>
-      <Position x="418" y="318" z="3" />
+      <Position x="535" y="318" z="3" />
     </Checkpoints>
     <Crosshair scale="1">
       <Color r="1" g="1" b="1" a="1" />

@@ -16,7 +16,7 @@ void InputTranslator::init(Window* p_Window)
 		throw InvalidArgument("Window must not be null", __LINE__, __FILE__);
 	}
 
-	RAWINPUTDEVICE inputDevices[2];
+	RAWINPUTDEVICE inputDevices[4];
 
 	// Generic mouse
 	inputDevices[0].usUsagePage	= 0x01;
@@ -30,7 +30,19 @@ void InputTranslator::init(Window* p_Window)
 	inputDevices[1].dwFlags		= 0;
 	inputDevices[1].hwndTarget	= 0;
 
-	if (RegisterRawInputDevices(&inputDevices[0], 2, sizeof(inputDevices[0])) == FALSE)
+	// Joystick
+	inputDevices[2].usUsagePage = 0x01;
+	inputDevices[2].usUsage		= 0x04;
+	inputDevices[2].dwFlags		= 0;
+	inputDevices[2].hwndTarget	= 0;
+
+	// Gamepad
+	inputDevices[3].usUsagePage = 0x01;
+	inputDevices[3].usUsage		= 0x05;
+	inputDevices[3].dwFlags		= 0;
+	inputDevices[3].hwndTarget	= 0;
+
+	if (RegisterRawInputDevices(&inputDevices[0], 4, sizeof(inputDevices[0])) == FALSE)
 	{
 		throw Win32Exception("Failed to register raw input devices", __LINE__, __FILE__);
 	}
@@ -51,6 +63,7 @@ void InputTranslator::destroy()
 void InputTranslator::setRecordHandler(InputTranslator::recordFunc_t p_RecordHandler)
 {
 	m_RecordFunction = p_RecordHandler;
+	m_DeviceManager.setRecordFunc(p_RecordHandler);
 }
 
 void InputTranslator::addKeyboardMapping(USHORT p_VirtualKey, const std::string& p_Action)
@@ -94,6 +107,16 @@ void InputTranslator::lockMouse(bool p_State)
 	m_MouseLocked = p_State;
 }
 
+void InputTranslator::addButtonMapping(USAGE p_ButtonUsage, const std::string& p_Action)
+{
+	m_DeviceManager.addButtonMapping(p_ButtonUsage, p_Action);
+}
+
+void InputTranslator::addAxisMapping(USAGE p_AxisUsage, bool p_PosDir, const std::string& p_Action)
+{
+	m_DeviceManager.addAxisMapping(p_AxisUsage, p_PosDir, p_Action);
+}
+
 bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result)
 {
 	if (!m_RecordFunction)
@@ -115,19 +138,28 @@ bool InputTranslator::handleRawInput(WPARAM p_WParam, LPARAM p_LParam, LRESULT& 
 
 	RAWINPUT* rawInputData = reinterpret_cast<RAWINPUT*>(buffer.data());
 
-	if (rawInputData->header.dwType == RIM_TYPEKEYBOARD)
+	switch (rawInputData->header.dwType)
 	{
+	case RIM_TYPEKEYBOARD:
 		if (handleKeyboardInput(rawInputData->data.keyboard))
 		{
 			handled = true;
 		}
-	}
-	else if (rawInputData->header.dwType == RIM_TYPEMOUSE)
-	{
+		break;
+
+	case RIM_TYPEMOUSE:
 		if (handleMouseInput(rawInputData->data.mouse))
 		{
 			handled = true;
 		}
+		break;
+
+	case RIM_TYPEHID:
+		if (m_DeviceManager.handleInput(rawInputData))
+		{
+			handled = true;
+		}
+		break;
 	}
 
 	if (handled)

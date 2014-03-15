@@ -94,7 +94,12 @@ unsigned int VRAMInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width, i
 		}
 	case DXGI_FORMAT_B8G8R8A8_UNORM:
 		{
-			result = 0;
+			result = Size::B8G8R8X8_UNORM * p_Width * p_Height;
+			break;
+		}
+	case DXGI_FORMAT_R16G16B16A16_UNORM:
+		{
+			result = Size::R16G16B16A16_UNORM * p_Width * p_Height;
 			break;
 		}
 	case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
@@ -104,7 +109,7 @@ unsigned int VRAMInfo::calculateFormatUsage(DXGI_FORMAT p_Format, int p_Width, i
 		}
 	default:
 		{
-			throw MemoryUsageException("Error when determining memory size of texture. Illegal file format or color type.", __LINE__, __FILE__);
+			throw MemoryUsageException("Error when determining memory size of texture. Illegal file format or color type." + p_Format, __LINE__, __FILE__);
 			break;
 		}
 		

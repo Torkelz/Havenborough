@@ -149,6 +149,8 @@ public:
 	 * @return true if the release succeeded otherwise false
 	 */
 	virtual bool releaseSound(const char *p_SoundId) = 0;
+
+	virtual bool releaseInstance(int p_SoundId) = 0;
 	/**
 	 * Shutdowns FMOD and releases all objects
 	 */

@@ -76,6 +76,8 @@ DeferredRenderer::DeferredRenderer()
 	m_SkyDome = nullptr;
 	m_SSAO = false;
 	m_DepthMapDSV = nullptr;
+
+	m_FOVIsUpdated = false;
 }
 
 DeferredRenderer::~DeferredRenderer(void)
@@ -121,7 +123,7 @@ void DeferredRenderer::initialize(ID3D11Device* p_Device, ID3D11DeviceContext* p
 	ID3D11DepthStencilView *p_DepthStencilView, unsigned int p_ScreenWidth, unsigned int p_ScreenHeight,
 	DirectX::XMFLOAT3 p_CameraPosition, DirectX::XMFLOAT4X4 *p_ViewMatrix,	DirectX::XMFLOAT4X4 *p_ProjectionMatrix, int p_ShadowMapResolution,
 	std::vector<Light> *p_SpotLights, std::vector<Light> *p_PointLights, std::vector<Light> *p_DirectionalLights, Light *p_ShadowMappedLight,
-	float p_FOV, float p_FarZ)
+	float *p_FOV, float p_FarZ)
 {
 	m_Device			= p_Device;
 	m_DeviceContext		= p_DeviceContext;
@@ -270,6 +272,12 @@ void DeferredRenderer::renderDeferred()
 		m_RT[IGraphics::RenderTarget::DIFFUSE], m_RT[IGraphics::RenderTarget::NORMAL], m_RT[IGraphics::RenderTarget::W_POSITION]
 		};
 		
+		if(m_FOVIsUpdated)
+		{
+			updateSSAO_VarConstantBuffer();
+			m_FOVIsUpdated = false;
+		}
+
 		updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
 
 		std::vector<std::vector<Renderable>> instancedModels;
@@ -425,7 +433,7 @@ void DeferredRenderer::updateSSAO_VarConstantBuffer()
 {
 	cSSAO_Buffer ssaoBuffer;
 	float aspect = m_ScreenWidth / m_ScreenHeight;
-	float halfHeight = m_FarZ * std::tanf(0.5f * m_FOV);
+	float halfHeight = m_FarZ * std::tanf(0.5f * (*m_FOV));
 	float halfWidth = aspect * halfHeight;
 
 	ssaoBuffer.corners[0] = DirectX::XMFLOAT4(-halfWidth, -halfHeight, m_FarZ, 0);
@@ -565,6 +573,11 @@ void DeferredRenderer::enableSSAO(bool p_State)
 void DeferredRenderer::enableShadowMap(bool p_State)
 {
 	m_ShadowMap = p_State;
+}
+
+void DeferredRenderer::FOVIsUpdated()
+{
+	m_FOVIsUpdated = true;
 }
 
 void DeferredRenderer::updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix)
@@ -891,9 +904,9 @@ void DeferredRenderer::createShaders()
 	m_Shader["Ambient"] = WrapperFactory::getInstance()->createShader(L"assets/shaders/LightPassAmbient.hlsl",
 		ambientDefine, "VS,PS", "5_0", ShaderType::VERTEX_SHADER | ShaderType::PIXEL_SHADER);
 
-	m_FogColor = std::string("0.3f,0.3f,0.45f");
+	m_FogColor = std::string("0.15f,0.35f,0.6f");
 	m_MinFogDistance = 3000.0f;
-	m_MaxFogDistance = 20000.0f;
+	m_MaxFogDistance = 30000.0f;
 	recompileFogShader();
 }
 

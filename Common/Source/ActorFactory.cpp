@@ -116,7 +116,7 @@ void addEdge(tinyxml2::XMLPrinter& p_Printer, Vector3 p_Position, Vector3 p_Half
 	p_Printer.CloseElement();
 }
 
-Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_Random)
+Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Scale, float p_StartTime)
 {
 	Vector3 AABBScale = p_Scale;
 	AABBScale.x *= 1.66f;
@@ -134,7 +134,7 @@ Actor::ptr ActorFactory::createCheckPointActor(Vector3 p_Position, Vector3 p_Sca
 	printer.CloseElement();
 
 	printer.OpenElement("ModelSinOffset");
-	printer.PushAttribute("Random", p_Random);
+	printer.PushAttribute("StartTime", p_StartTime);
 	pushVector(printer, "Offset", Vector3(0, 50, 0));
 	printer.CloseElement();
 
@@ -202,6 +202,7 @@ std::string ActorFactory::getPlayerActorDescription(Vector3 p_Position, std::str
 	printer.PushAttribute("Strength", 0.5f);
 	printer.CloseElement();
 	printer.OpenElement("Look");
+	pushVector(printer, "OffsetPosition", Vector3(0.f, -10.f, 7.f));
 	printer.CloseElement();
 	printer.OpenElement("HumanAnimation");
 	printer.PushAttribute("Animation", p_CharacterName.c_str());
@@ -413,6 +414,12 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("Object");
 	pushVector(printer, p_StartPosition);
+
+	printer.OpenElement("Model");
+	printer.PushAttribute("Mesh", "ExplosionSphere1");
+	pushVector(printer, "Scale", Vector3(0.02f, 0.02f, 0.02f));
+	printer.CloseElement();
+
 	printer.OpenElement("Spell");
 	printer.PushAttribute("SpellName", p_Spell.c_str());
 	printer.PushAttribute("CasterId", p_CasterId);
@@ -425,7 +432,7 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	printer.PushAttribute("Effect", "magicProjectile");
 	printer.CloseElement();
 	printer.OpenElement("Sound");
-	printer.PushAttribute("FileName", "Spell");
+	printer.PushAttribute("FileName", "InAir");
 	printer.PushAttribute("MinDistance", 100.0f);
 	pushVector(printer, "Velocity", Vector3(0,0,0));
 	printer.CloseElement();

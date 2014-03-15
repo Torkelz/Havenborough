@@ -17,67 +17,9 @@ void FileGameRound::setup()
 	m_FileLoader.reset(new InstanceBinaryLoader);
 	m_FileLoader->loadBinaryFile(m_FilePath);
 	m_Random.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
-	const Vector3 basePos = Vector3(m_FileLoader->getCheckPointStart()) + Vector3(0.f, spawnEpsilon, 0.f);
-	const float angle = 2 * PI / m_Players.size();
-	for (size_t i = 0; i < m_Players.size(); ++i)
-	{
-		User::ptr user = m_Players[i]->getUser().lock();
-		if (!user)
-		{
-			continue;
-		}
 
-		static const float spawnCircleRadius = 200.f;
-		Vector3 position = basePos + Vector3(sinf(i * angle), 0.f, cosf(i * angle)) * spawnCircleRadius;
-
-		Actor::ptr actor = m_ActorFactory->createPlayerActor(
-			position, user->getUsername(),
-			user->getCharacterName(), user->getCharacterStyle());
-		m_Players[i]->setActor(actor);
-		m_Actors.push_back(actor);
-	}
-
-	std::vector<std::vector<InstanceBinaryLoader::CheckPointStruct>> listOfCheckpoints = m_FileLoader->getCheckPointData();
-	std::vector<InstanceBinaryLoader::CheckPointStruct> checkpoints;
-
-	for(unsigned int i = 0; i < listOfCheckpoints.size(); i++)
-	{
-		unsigned int size = listOfCheckpoints[i].size();
-		if(!size)
-		{
-			return;
-		}
-		std::uniform_int_distribution<int> randomCheckpoint(0, size-1);
-		unsigned int value = randomCheckpoint(m_Random);
-		checkpoints.push_back(listOfCheckpoints[i][value]);
-	}
-
-	std::sort(checkpoints.begin(), checkpoints.end(),
-		[] (const InstanceBinaryLoader::CheckPointStruct& p_Left, const InstanceBinaryLoader::CheckPointStruct& p_Right)
-		{
-			return p_Left.m_Number > p_Right.m_Number;
-		});
-	
-	static const Vector3 checkpointScale(54.f, 170.f, 54.f);
-
-	std::vector<Actor::ptr> checkpointList;
-	std::srand(255);
-	float random = (float)std::rand();
-	checkpointList.push_back(m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointEnd(), checkpointScale, random));
-	for (const auto& checkpoint : checkpoints)
-	{
-		random = (float)std::rand();
-		checkpointList.push_back(m_ActorFactory->createCheckPointActor(checkpoint.m_Translation, checkpointScale, random));
-	}
-
-	for (const auto& checkpoint : checkpointList)
-	{
-		m_Actors.push_back(checkpoint);
-		for(auto& player : m_Players)
-		{
-			player->addCheckpoint(checkpoint);
-		}
-	}
+	createPlayerActors();
+	createCheckpoints();
 
 	m_PlayerPositionList = m_Players;
 
@@ -175,66 +117,11 @@ void FileGameRound::handleExtraPackage(Player::ptr p_Player, Package p_Package)
 	switch (type)
 	{
 	case PackageType::THROW_SPELL:
-		{
-			Actor::ptr playerActor = p_Player->getActor().lock();
-			if (!playerActor)
-			{
-				break;
-			}
-
-			Actor::ptr spellActor = m_ActorFactory->createSpell(
-				con->getThrowSpellName(p_Package),
-				playerActor->getId(),
-				con->getThrowSpellDirection(p_Package),
-				con->getThrowSpellStartPosition(p_Package));
-
-			std::ostringstream outStream;
-			spellActor->serialize(outStream);
-			std::string spellDescription = outStream.str();
-
-			ObjectInstance spellInstance;
-			spellInstance.m_Id = spellActor->getId();
-			spellInstance.m_Description = spellDescription.c_str();
-
-			for (auto& player : m_Players)
-			{
-				if (player == p_Player)
-				{
-					continue;
-				}
-
-				User::ptr otherUser = player->getUser().lock();
-				if (!otherUser)
-				{
-					continue;
-				}
-
-				otherUser->getConnection()->sendCreateObjects(&spellInstance, 1);
-			}
-		}
+		handleThrowSpell(p_Player, p_Package, con);
 		break;
 
 	case PackageType::OBJECT_ACTION:
-		{
-			Actor::Id actor = con->getObjectActionId(p_Package);
-			const char* action = con->getObjectActionAction(p_Package);
-
-			for (auto& player : m_Players)
-			{
-				if (player == p_Player)
-				{
-					continue;
-				}
-
-				User::ptr otherUser = player->getUser().lock();
-				if (!otherUser)
-				{
-					continue;
-				}
-
-				otherUser->getConnection()->sendObjectAction(actor, action);
-			}
-		}
+		handleObjectAction(p_Player, p_Package, con);
 		break;
 
 	default:
@@ -246,7 +133,6 @@ void FileGameRound::handleExtraPackage(Player::ptr p_Player, Package p_Package)
 void FileGameRound::sendUpdates()
 {
 	std::vector<UpdateObjectData> data;
-	bool goalReached = false;
 	std::vector<std::string> extra;
 	std::vector<const char*> extraC;
 	for (auto& player : m_Players)
@@ -264,166 +150,52 @@ void FileGameRound::sendUpdates()
 		}
 	}
 
-	for(unsigned int i = 0; i < m_SendHitData.size(); i++)
+	const bool updatePositions = !m_SendHitData.empty();
+	for(const auto& hitData : m_SendHitData)
 	{
-		Player::ptr player = m_SendHitData[i].first;
+		Player::ptr player = hitData.first;
 		User::ptr user = player->getUser().lock();
 		if (user)
 		{
 			unsigned int checkpointIndex = player->getNrOfCheckpointsTaken();
-			float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
-			float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
-			Actor::ptr actor = m_SendHitData[i].second.lock();
+			Actor::ptr actor = hitData.second.lock();
 			if (actor)
 			{
 				const Actor::Id id = actor->getId();
-				if(!m_SendHitData[i].first->reachedFinishLine())
+				
+				user->getConnection()->sendRemoveObjects(&id, 1);
+				user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
+				user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
+
+				const float leadTime = m_PlayerPositionList[0]->getClockedTimeAtCheckpoint(checkpointIndex);
+				const float playerTime = player->getClockedTimeAtCheckpoint(checkpointIndex);
+
+				if(!player->reachedFinishLine())
 				{
-					user->getConnection()->sendRemoveObjects(&id, 1);
-					user->getConnection()->sendSetSpawnPosition(actor->getPosition() + Vector3(0.f, spawnEpsilon, 0.f));
-					tinyxml2::XMLPrinter printer;
-
-					printer.OpenElement("ObjectUpdate");
-					printer.PushAttribute("ActorId", id-1);
-					printer.PushAttribute("Type", "Color");
-					pushColor(printer, "SetColor", player->getCurrentCheckpointColor());
-					printer.CloseElement();
-					const char* info = printer.CStr();
-					user->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
-
-					user->getConnection()->sendCurrentCheckpoint(player->getCurrentCheckpoint()->getPosition());
-					user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
-
-						
-					printer.ClearBuffer();
-					printer.OpenElement("RacePositions");
-					printer.PushAttribute("Type", "Place");
-					Actor::ptr playerActor  = player->getActor().lock();
-					if(!playerActor)
-					{
-						break;
-					}
-					printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
-						
-					printer.PushAttribute("Time",  playerTime - leadTime);
-					printer.CloseElement();
-					info = printer.CStr();
-					user->getConnection()->sendRacePosition(&info, 1);
+					sendSelectNextCheckpoint(player, user);
+					const float timeDiff = playerTime - leadTime;
+					sendPositionUpdate(player, &timeDiff);
 				}
 				else
 				{
-					user->getConnection()->sendTakenCheckpoints(player->getNrOfCheckpointsTaken());
-					user->getConnection()->sendRemoveObjects(&id, 1);
-					tinyxml2::XMLPrinter printer;
-					printer.OpenElement("GameResult");
-					printer.PushAttribute("Type", "Position");
-					printer.PushAttribute("Place", m_ResultList.size() + 1);
-					printer.PushAttribute("Time", leadTime - playerTime);
-					printer.CloseElement();
-					const char* info = printer.CStr();
-					user->getConnection()->sendGameResult(&info, 1);
 					m_ResultList.push_back(std::make_pair(user->getUsername(), playerTime));
 					m_ResultListUpdated = true;
 						
-					Actor::ptr oldPlayerActor = player->getActor().lock();
-					Actor::ptr flyingCamera = m_ActorFactory->createFlyingCamera(
-						oldPlayerActor->getComponent<LookComponent>(LookComponent::m_ComponentId).lock()->getLookPosition());
-					m_Actors.push_back(flyingCamera);
-
-					std::ostringstream oStream;
-					flyingCamera->serialize(oStream);
-					ObjectInstance inst;
-					std::string desc = oStream.str();
-					inst.m_Description = desc.c_str();
-					inst.m_Id = flyingCamera->getId();
-
-					for (auto& otherPlayer : m_Players)
-					{
-						User::ptr otherUser = otherPlayer->getUser().lock();
-						if(!otherUser)
-						{
-							continue;
-						}
-						otherUser->getConnection()->sendCreateObjects(&inst, 1);
-					}
-
-					user->getConnection()->sendAssignPlayer(inst.m_Id);
-
-					Actor::Id oldPlayerId = oldPlayerActor->getId();
-
-					for (auto& player : m_Players)
-					{
-						User::ptr otherUser = player->getUser().lock();
-						if(!otherUser)
-						{
-							continue;
-						}
-						otherUser->getConnection()->sendRemoveObjects(&oldPlayerId, 1);
-					}
-
-					auto actorIt = std::find_if(m_Actors.begin(), m_Actors.end(),
-						[&] (Actor::ptr p_Actor)
-						{
-							return p_Actor->getId() == oldPlayerId;
-						});
-					if (actorIt != m_Actors.end())
-					{
-						m_Actors.erase(actorIt);
-					}
-
-					player->setActor(flyingCamera);
+					replacePlayerActorWithFlyingCamera(player, user);
 				}
 			}
 		}
-		for(auto& players : m_Players)
-		{
-			User::ptr user = players->getUser().lock();
-			if(!user)
-			{
-				continue;
-			}
-			tinyxml2::XMLPrinter printer;
-			printer.OpenElement("RacePositions");
-			printer.PushAttribute("Type", "Placing");
-			Actor::ptr playerActor  = players->getActor().lock();
-			if(!playerActor)
-			{
-				break;
-			}
-			printer.PushAttribute("Place", getPlayerPos(playerActor->getId()));
-			printer.CloseElement();
-			const char* info = printer.CStr();
-			user->getConnection()->sendRacePosition(&info,1);
-		}
-		m_SendHitData.clear();
+	}
+	m_SendHitData.clear();
+
+	if (updatePositions)
+	{
+		sendPositionUpdates();
 	}
 
 	if(m_ResultListUpdated && countPlayersRacing() < m_Players.size())
 	{
-		tinyxml2::XMLPrinter printer;
-		printer.OpenElement("GameResult");
-		printer.PushAttribute("Type", "Result");
-		printer.OpenElement("ResultList");
-		for(unsigned int i = 0; i < m_ResultList.size(); i++)
-		{
-			printer.OpenElement("Place");
-			
-			const auto& result = m_ResultList[i];
-				
-			printer.PushAttribute("Player", result.first.c_str());
-			printer.PushAttribute("Time", result.second);
-			printer.CloseElement();
-		}
-		printer.CloseElement();
-		printer.CloseElement();
-		const char* info = printer.CStr();
-		for(auto& player : m_Players)
-		{
-			if (player->reachedFinishLine())
-			{
-				player->getUser().lock()->getConnection()->sendGameResult(&info, 1);
-			}
-		}
+		sendResultLists();
 	}
 }
 
@@ -492,9 +264,14 @@ UpdateObjectData FileGameRound::getUpdateData(const Player::ptr p_Player)
 
 std::string FileGameRound::getExtraData(const Player::ptr p_Player)
 {
+	Actor::ptr actor = p_Player->getActor().lock();
+
+	if (!actor)
+		return "";
+
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("ObjectUpdate");
-	printer.PushAttribute("ActorId", p_Player->getActor().lock()->getId());
+	printer.PushAttribute("ActorId", actor->getId());
 	printer.PushAttribute("Type", "Look");
 	p_Player->getActor().lock()->getComponent<LookInterface>(LookInterface::m_ComponentId).lock()->serialize(printer);
 	printer.CloseElement();
@@ -508,8 +285,18 @@ Player::ptr FileGameRound::findPlayer(BodyHandle p_Body)
 	[&p_Body] (Player::ptr p_Player)
 	{
 		Actor::ptr actor = p_Player->getActor().lock();
-					
-		return actor && actor->getBodyHandles()[0] == p_Body;
+		if (!actor)
+			return false;
+
+		for (auto& body : actor->getBodyHandles())
+		{
+			if (body == p_Body)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	});
 
 	if (playerIt == m_Players.end())
@@ -554,49 +341,26 @@ Actor::ptr FileGameRound::findActor(BodyHandle p_Body)
 
 void FileGameRound::rearrangePlayerPosition()
 {
-	std::vector<Player::ptr> temp = m_PlayerPositionList;
-
-	for(unsigned int i = 0; i < temp.size() - 1; i++)
+	std::sort(m_PlayerPositionList.begin(), m_PlayerPositionList.end(),
+		[] (const Player::ptr p_Left, const Player::ptr p_Right)
 	{
-		for(unsigned int j = i + 1; j < temp.size(); j++)
-		{
-			unsigned int iCheckPointTaken = temp[i]->getNrOfCheckpointsTaken();
-			unsigned int jCheckPointTaken = temp[j]->getNrOfCheckpointsTaken();
-			if(iCheckPointTaken < jCheckPointTaken)
-			{
-				Player::ptr tempPlayer = temp[i];
-				temp[i] = temp[j];
-				temp[j] = tempPlayer;
-			}
-			else if(iCheckPointTaken == jCheckPointTaken)
-			{
-				if(temp[i]->getClockedTimeAtCheckpoint(iCheckPointTaken) > temp[j]->getClockedTimeAtCheckpoint(jCheckPointTaken))
-				{
-					Player::ptr tempPlayer = temp[i];
-					temp[i] = temp[j];
-					temp[j] = tempPlayer;
-				}
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
+		const unsigned int leftNum = p_Left->getNrOfCheckpointsTaken();
+		const unsigned int rightNum = p_Right->getNrOfCheckpointsTaken();
 
-	m_PlayerPositionList = temp;
+		if (rightNum < leftNum)
+			return true;
+		if (leftNum < rightNum)
+			return false;
+
+		return p_Left->getClockedTimeAtCheckpoint(leftNum) < p_Right->getClockedTimeAtCheckpoint(rightNum);
+	});
 }
 
-unsigned int FileGameRound::getPlayerPos(Actor::Id p_Player)
+unsigned int FileGameRound::getPlayerPos(Player::ptr p_Player) const
 {
 	for(unsigned int i = 0; i < m_PlayerPositionList.size(); i++)
 	{
-		Actor::ptr actor = m_PlayerPositionList[i]->getActor().lock();
-		if(!actor)
-		{
-			return i;
-		}
-		if(actor->getId() == p_Player)
+		if(m_PlayerPositionList[i] == p_Player)
 		{
 			return i+1;
 		}
@@ -615,4 +379,246 @@ unsigned int FileGameRound::countPlayersRacing() const
 		}
 	}
 	return count;
+}
+
+void FileGameRound::createPlayerActors()
+{
+	const Vector3 basePos = Vector3(m_FileLoader->getCheckPointStart()) + Vector3(0.f, spawnEpsilon, 0.f);
+	const float angle = 2 * PI / m_Players.size();
+	for (size_t i = 0; i < m_Players.size(); ++i)
+	{
+		User::ptr user = m_Players[i]->getUser().lock();
+		if (!user)
+		{
+			continue;
+		}
+
+		static const float spawnCircleRadius = 200.f;
+		Vector3 position = basePos + Vector3(sinf(i * angle), 0.f, cosf(i * angle)) * spawnCircleRadius;
+
+		Actor::ptr actor = m_ActorFactory->createPlayerActor(
+			position, user->getUsername(),
+			user->getCharacterName(), user->getCharacterStyle());
+		m_Players[i]->setActor(actor);
+		m_Actors.push_back(actor);
+	}
+}
+
+void FileGameRound::createCheckpoints()
+{
+	std::vector<InstanceBinaryLoader::CheckPointStruct> checkpoints;
+
+	for(const auto& checkpointGroup : m_FileLoader->getCheckPointData())
+	{
+		if (checkpointGroup.empty())
+			continue;
+
+		std::uniform_int_distribution<int> randomCheckpoint(0, checkpointGroup.size() - 1);
+		checkpoints.push_back(checkpointGroup[randomCheckpoint(m_Random)]);
+	}
+
+	std::sort(checkpoints.begin(), checkpoints.end(),
+		[] (const InstanceBinaryLoader::CheckPointStruct& p_Left, const InstanceBinaryLoader::CheckPointStruct& p_Right)
+		{
+			return p_Left.m_Number > p_Right.m_Number;
+		});
+	
+	static const Vector3 checkpointScale(54.f, 170.f, 54.f);
+
+	std::vector<Actor::ptr> checkpointList;
+	std::uniform_real_distribution<float> circleDist(0.f, PI * 2.f);
+	checkpointList.push_back(m_ActorFactory->createCheckPointActor(m_FileLoader->getCheckPointEnd(), checkpointScale, circleDist(m_Random)));
+	for (const auto& checkpoint : checkpoints)
+	{
+		checkpointList.push_back(m_ActorFactory->createCheckPointActor(checkpoint.m_Translation, checkpointScale, circleDist(m_Random)));
+	}
+
+	for (const auto& checkpoint : checkpointList)
+	{
+		m_Actors.push_back(checkpoint);
+		for(auto& player : m_Players)
+		{
+			player->addCheckpoint(checkpoint);
+		}
+	}
+}
+
+void FileGameRound::sendPositionUpdate(const Player::ptr p_Player, const float* p_Time) const
+{
+	User::ptr user = p_Player->getUser().lock();
+	if(!user)
+	{
+		return;
+	}
+
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("RacePositions");
+	printer.PushAttribute("Type", "Placing");
+	printer.PushAttribute("Place", getPlayerPos(p_Player));
+	if (p_Time)
+		printer.PushAttribute("Time", *p_Time);
+	printer.CloseElement();
+	const char* info = printer.CStr();
+	user->getConnection()->sendRacePosition(&info,1);
+}
+
+void FileGameRound::sendPositionUpdates() const
+{
+	for(const auto& player : m_Players)
+	{
+		sendPositionUpdate(player, nullptr);
+	}
+}
+
+void FileGameRound::sendResultLists() const
+{
+	tinyxml2::XMLPrinter printer;
+	printer.OpenElement("GameResult");
+	printer.PushAttribute("Type", "Result");
+	printer.OpenElement("ResultList");
+	for(unsigned int i = 0; i < m_ResultList.size(); i++)
+	{
+		printer.OpenElement("Place");
+			
+		const auto& result = m_ResultList[i];
+				
+		printer.PushAttribute("Player", result.first.c_str());
+		printer.PushAttribute("Time", result.second);
+		printer.CloseElement();
+	}
+	printer.CloseElement();
+	printer.CloseElement();
+	const char* info = printer.CStr();
+	for(auto& player : m_Players)
+	{
+		if (player->reachedFinishLine())
+		{
+			User::ptr user = player->getUser().lock();
+			if (user)
+				user->getConnection()->sendGameResult(&info, 1);
+		}
+	}
+}
+
+void FileGameRound::sendSelectNextCheckpoint(const Player::ptr p_Player, const User::ptr p_User) const
+{
+	tinyxml2::XMLPrinter printer;				
+
+	printer.OpenElement("ObjectUpdate");
+	printer.PushAttribute("ActorId", p_Player->getCurrentCheckpoint()->getId());
+	printer.PushAttribute("Type", "Color");
+	pushColor(printer, "SetColor", p_Player->getCurrentCheckpointColor());
+	printer.CloseElement();
+	const char* info = printer.CStr();
+	p_User->getConnection()->sendUpdateObjects(NULL, 0, &info, 1);
+
+	p_User->getConnection()->sendCurrentCheckpoint(p_Player->getCurrentCheckpoint()->getPosition());
+}
+
+void FileGameRound::handleThrowSpell(const Player::ptr p_Player, Package p_Package, IConnectionController* p_Connection)
+{
+	Actor::ptr playerActor = p_Player->getActor().lock();
+	if (!playerActor)
+	{
+		return;
+	}
+
+	Actor::ptr spellActor = m_ActorFactory->createSpell(
+		p_Connection->getThrowSpellName(p_Package),
+		playerActor->getId(),
+		p_Connection->getThrowSpellDirection(p_Package),
+		p_Connection->getThrowSpellStartPosition(p_Package));
+
+	std::ostringstream outStream;
+	spellActor->serialize(outStream);
+	std::string spellDescription = outStream.str();
+
+	ObjectInstance spellInstance;
+	spellInstance.m_Id = spellActor->getId();
+	spellInstance.m_Description = spellDescription.c_str();
+
+	for (auto& player : m_Players)
+	{
+		if (player == p_Player)
+		{
+			continue;
+		}
+
+		User::ptr otherUser = player->getUser().lock();
+		if (!otherUser)
+		{
+			continue;
+		}
+
+		otherUser->getConnection()->sendCreateObjects(&spellInstance, 1);
+	}
+}
+
+void FileGameRound::handleObjectAction(const Player::ptr p_Player, Package p_Package, IConnectionController* p_Connection)
+{
+	Actor::Id actor = p_Connection->getObjectActionId(p_Package);
+	const char* action = p_Connection->getObjectActionAction(p_Package);
+
+	for (auto& player : m_Players)
+	{
+		if (player == p_Player)
+		{
+			continue;
+		}
+
+		User::ptr otherUser = player->getUser().lock();
+		if (!otherUser)
+		{
+			continue;
+		}
+
+		otherUser->getConnection()->sendObjectAction(actor, action);
+	}
+}
+
+void FileGameRound::replacePlayerActorWithFlyingCamera(Player::ptr p_Player, const User::ptr p_User)
+{
+	Actor::ptr oldPlayerActor = p_Player->getActor().lock();
+	Actor::ptr flyingCamera = m_ActorFactory->createFlyingCamera(
+		oldPlayerActor->getComponent<LookComponent>(LookComponent::m_ComponentId).lock()->getLookPosition());
+	m_Actors.push_back(flyingCamera);
+
+	std::ostringstream oStream;
+	flyingCamera->serialize(oStream);
+	ObjectInstance inst;
+	std::string desc = oStream.str();
+	inst.m_Description = desc.c_str();
+	inst.m_Id = flyingCamera->getId();
+
+	for (auto& otherPlayer : m_Players)
+	{
+		User::ptr otherUser = otherPlayer->getUser().lock();
+		if(!otherUser)
+		{
+			continue;
+		}
+		otherUser->getConnection()->sendCreateObjects(&inst, 1);
+	}
+
+	p_User->getConnection()->sendAssignPlayer(inst.m_Id);
+
+	Actor::Id oldPlayerId = oldPlayerActor->getId();
+
+	for (auto& player : m_Players)
+	{
+		User::ptr otherUser = player->getUser().lock();
+		if(!otherUser)
+		{
+			continue;
+		}
+		otherUser->getConnection()->sendRemoveObjects(&oldPlayerId, 1);
+	}
+
+	p_Player->setActor(flyingCamera);
+
+	auto actorIt = std::find(m_Actors.begin(), m_Actors.end(), oldPlayerActor);
+	if (actorIt != m_Actors.end())
+	{
+		m_Actors.erase(actorIt);
+	}
 }

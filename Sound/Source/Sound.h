@@ -107,6 +107,8 @@ public:
 	
 	bool releaseSound(const char *p_SoundId) override;
 
+	bool releaseInstance(int p_SoundId) override;
+
 	void shutdown(void) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;

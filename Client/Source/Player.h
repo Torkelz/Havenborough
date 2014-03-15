@@ -42,6 +42,9 @@ private:
 	DirectX::XMFLOAT3 m_StartClimbCameraFwd;
 	DirectX::XMFLOAT3 m_StartClimbCameraUp;
 	float m_Timer;
+
+	float m_ElapsedTime;
+	bool m_StartElapsedTime;
 public:
 	/**
 	* Constructor
@@ -254,6 +257,18 @@ public:
 	 * @param true if mana regeneration should be on otherwise false
 	 */
 	void setManaRegeneration(bool p_ShouldRegen);
+	/**
+	 * Set if the elapsed timer should be counted.
+	 */
+	void setStartElapsedTime(bool p_Start);
+
+	DirectX::XMFLOAT3 getUpVector();
+
+	void fixLookToHead();
+
+	void getMaxSpeed( float &p_MaxSpeed, float &p_MaxSpeedCurrent, float &p_MaxSpeedDefault ) const;
+
+
 private:
 	void jump(float dt);
 	void move(float p_DeltaTime);
