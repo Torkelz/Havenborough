@@ -5,7 +5,8 @@
 class DummyBoundingVolume : public BoundingVolume
 {
 public:
-	DummyBoundingVolume()
+	DummyBoundingVolume() :
+		BoundingVolume(nullptr)
 	{
 		m_Type = Type::NONE;
 		m_BodyHandle = 0;

@@ -2,6 +2,8 @@
 #include <DirectXMath.h>
 #include <memory>
 
+class Sphere;
+
 class BoundingVolume
 {
 public:
@@ -19,11 +21,14 @@ protected:
 	bool				m_CollisionResponse;
 	int					m_IDInBody;
 	unsigned int		m_BodyHandle;
+	Sphere*				m_SurroundingSphere;
 
 public:
 	typedef std::unique_ptr<BoundingVolume> ptr;
 
-	BoundingVolume(){};
+	explicit BoundingVolume(Sphere* p_SurroundingSphere) :
+		m_SurroundingSphere(p_SurroundingSphere)
+	{}
 	/* Updates position for BoundingVolume with translation matrix.
 	 * @param p_Translation, move the BV in relative coordinates.
 	 */
@@ -106,4 +111,9 @@ public:
 	 * Destructor
 	 */
 	virtual ~BoundingVolume(){};
+
+	const Sphere* getSurroundingSphere() const
+	{
+		return m_SurroundingSphere;
+	};
 };

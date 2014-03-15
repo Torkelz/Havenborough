@@ -11,7 +11,8 @@ public:
 	/**
 	* Default constructor, sets radius to zero and position to origo.
 	*/
-	Sphere()
+	Sphere() :
+		BoundingVolume(this)
 	{
 		m_BodyHandle = 0;
 		setRadius(0.0f);
@@ -26,7 +27,8 @@ public:
 	* @p_radius, sphere's radius in m.
 	* @p_pos, sphere's position in m.
 	*/
-	Sphere(float p_Radius, DirectX::XMFLOAT4 p_Pos) : BoundingVolume()
+	Sphere(float p_Radius, DirectX::XMFLOAT4 p_Pos) :
+		BoundingVolume(this)
 	{
 		m_BodyHandle = 0;
 		setRadius(p_Radius);

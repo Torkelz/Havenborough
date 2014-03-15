@@ -17,7 +17,8 @@ public:
 	 * The hull is always created with origo as center position, call updatePosition to move the hull to its desired place.
 	 * @param p_Triangles, a list of triangles that make up the hull
 	 */
-	Hull(std::vector<Triangle> p_Triangles)
+	Hull(std::vector<Triangle> p_Triangles) :
+		BoundingVolume(&m_Sphere)
 	{
 		m_BodyHandle = 0;
 		m_Position = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
