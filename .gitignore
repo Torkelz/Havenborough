@@ -50,3 +50,5 @@ packages/
 Havenborough Launcher/packages.config
 Client/Bin/MahApps.Metro.xml
 BoostTest/Bin/SplineTest.xml
+*.vsp
+*.psess

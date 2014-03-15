@@ -465,7 +465,7 @@ HitData Collision::HullVsSphere(Hull const &p_Hull, Sphere const &p_Sphere)
 	{
 		Triangle triangle = p_Hull.getTriangleInWorldCoord(i);
 
-		XMVECTOR point = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(p_Sphere.getPosition(), i));
+		XMVECTOR point = p_Hull.findClosestPointOnTriangle(p_Sphere.getPosition(), i);
 		XMVECTOR v = point - spherePos;
 
 		float vv = XMVectorGetX(XMVector4Dot(v, v));
@@ -859,7 +859,7 @@ HitData Collision::SATBoxVsHull(OBB const &p_OBB, Hull const &p_Hull)
 		//Minimum translation vector for this triangle in the hull.
 		XMVECTOR triangleMTV = least * overlap;
 
-		XMVECTOR trianglePoint = XMLoadFloat4(&p_Hull.findClosestPointOnTriangle(p_OBB.getPosition(), i));
+		XMVECTOR trianglePoint = p_Hull.findClosestPointOnTriangle(p_OBB.getPosition(), i);
 		XMVECTOR boxCenterToTriangle = trianglePoint - C;
 
 		//Check the direction of the MTV to see if we need to change it.
