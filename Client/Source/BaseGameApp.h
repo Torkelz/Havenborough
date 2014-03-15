@@ -31,6 +31,7 @@ private:
 	float m_MemUpdateDelay;
 	float m_TimeToNextMemUpdate;
 	float m_TimeModifier;
+	int m_BackgroundSoundID, m_SoundResourceID;
 
 	INetwork* m_Network;
 	StreamReader::ptr m_ConsoleReader;

@@ -426,7 +426,7 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	printer.CloseElement();
 	printer.OpenElement("Sound");
 	printer.PushAttribute("FileName", "Spell");
-	printer.PushAttribute("MinDistance", 10.0f);
+	printer.PushAttribute("MinDistance", 100.0f);
 	pushVector(printer, "Velocity", Vector3(0,0,0));
 	printer.CloseElement();
 	printer.CloseElement();

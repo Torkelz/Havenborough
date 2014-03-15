@@ -18,8 +18,6 @@
     <ResourceType Type="spell">
         <Resource Name="TestSpell" Path="assets/spells/TestSpell.xml"/>
     </ResourceType>
-	<ResourceType Type="sound">
-    </ResourceType>	
     <ResourceType Type="model">
         <Resource Name="Aqueduct1" Path="assets/models/Aqueduct1.btx"/>
         <Resource Name="AqueductEnd1" Path="assets/models/AqueductEnd1.btx"/>
@@ -132,7 +130,6 @@
         <Resource Name="WoodenPlatform3" Path="assets/models/WoodenPlatform3.btx"/>
         <Resource Name="WoodenShed1" Path="assets/models/WoodenShed1.btx"/>
         <Resource Name="Zane" Path="assets/models/Zane.btx"/>
-        <Resource Name="Minque6" Path="assets/models/Minque6.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Aqueduct1" Path="assets/volumes/CB_Aqueduct1.txc"/>
@@ -224,7 +221,6 @@
         <Resource Name="WoodenPlatform3" Path="assets/volumes/CB_WoodenPlatform3.txc"/>
         <Resource Name="WoodenShed1" Path="assets/volumes/CB_WoodenShed1.txc"/>
         <Resource Name="Zane" Path="assets/volumes/CB_Zane.txc"/>
-        <Resource Name="Minque6" Path="assets/volumes/CB_Minque6.txc"/>
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>

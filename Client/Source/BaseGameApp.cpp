@@ -216,7 +216,9 @@ void BaseGameApp::shutdown()
 	m_ResourceManager->unregisterResourceType("volume");
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
-
+	
+	m_Sound->stopSound(m_BackgroundSoundID);
+	m_ResourceManager->releaseResource(m_SoundResourceID);
 	m_ResourceManager->unregisterResourceType("sound");
 	ISound::deleteSound(m_Sound);
 	m_Sound = nullptr;
@@ -408,6 +410,10 @@ void BaseGameApp::render()
 void BaseGameApp::startGame(IEventData::Ptr p_Data)
 {
 	m_SceneManager.startRun();
+	m_SoundResourceID = m_ResourceManager->loadResource("sound", "Background");
+	m_BackgroundSoundID = m_Sound->createSoundInstance("Background");
+	m_Sound->setSoundModes(m_BackgroundSoundID, false, true);
+	m_Sound->playSound(m_BackgroundSoundID);
 }
 
 void BaseGameApp::quitGame(IEventData::Ptr p_Data)
