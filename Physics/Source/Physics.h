@@ -4,6 +4,7 @@
 #include "BVLoader.h"
 #include "Octree.h"
 
+#include <map>
 #include <set>
 
 class Physics : public IPhysics
@@ -11,7 +12,6 @@ class Physics : public IPhysics
 public:
 private:
 	float m_GlobalGravity;
-	std::vector<Body> m_Bodies;
 	std::vector<HitData> m_HitDatas;
 	BVLoader m_BVLoader;
 	bool m_LoadBVSphereTemplateOnce;
@@ -20,8 +20,10 @@ private:
 	bool m_IsServer;
 	std::vector<DirectX::XMFLOAT3> m_BoxTriangleIndex;
 
+	std::map<BodyHandle, Body> m_Bodies;
 	Octree m_Octree;
 	std::set<BodyHandle> m_PotentialIntersections;
+	std::set<BodyHandle> m_MovableBodies;
 
 public:
 	Physics();
@@ -94,7 +96,8 @@ private:
 
 	void setRotation(BodyHandle p_Body, DirectX::XMMATRIX& p_Rotation);
 
-	void handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, Body& p_Victim, int p_VictimVolumeID, bool &p_IsOnGround);
+	void singleCollisionCheck(Body& p_Collider, Body& p_Victim, bool& p_IsOnGround);
+	void handleCollision(HitData p_Hit, Body& p_Collider, int p_ColliderVolumeId, Body& p_Victim, int p_VictimVolumeID, bool &p_IsOnGround);
 
 	bool isCameraPlayerCollision(Body const &p_Collider, Body const &p_Victim);
 };
