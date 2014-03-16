@@ -78,8 +78,8 @@ void LookComponent::setLookUp(Vector3 p_Up)
 Vector3 LookComponent::getLookRight() const
 {
 	DirectX::XMVECTOR rightV = DirectX::XMVector3Cross(
-		DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(m_Up)),
-		DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(m_Forward)));
+		DirectX::XMLoadFloat3(&m_Up),
+		DirectX::XMLoadFloat3(&m_Forward));
 	Vector3 right;
 	DirectX::XMStoreFloat3(&right, DirectX::XMVector3Normalize(rightV));
 
@@ -91,8 +91,8 @@ DirectX::XMFLOAT4X4 LookComponent::getRotationMatrix() const
 	Vector3 right = getLookRight();
 
 	DirectX::XMVECTOR upV = DirectX::XMVector3Cross(
-		DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(m_Forward)),
-		DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(right)));
+		DirectX::XMLoadFloat3(&m_Forward),
+		DirectX::XMLoadFloat3(&right));
 	Vector3 correctedUp;
 	DirectX::XMStoreFloat3(&correctedUp, DirectX::XMVector3Normalize(upV));
 
