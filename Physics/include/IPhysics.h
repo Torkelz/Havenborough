@@ -15,9 +15,10 @@ public:
 	/**
 	 * Initialize all the variables
 	 * @param p_IsServer, used to determine wether the collisions should modify body position or not, 
-	 * true if the server is initializing the physics, false when the clients do.
+	 *			true if the server is initializing the physics, false when the clients do.
+	 * @param p_Timestep the time used to incrementally update the physics simulation
 	 */
-	virtual void initialize(bool p_IsServer) = 0;
+	virtual void initialize(bool p_IsServer, float p_Timestep) = 0;
 
 	/**
 	 * Create a boundingVolume sphere with a body.
@@ -180,9 +181,9 @@ public:
 	 * Keeps physics updated, collision checks etc.
 	 *
 	 * @param p_DeltaTime are a timestep
-	 * @param p_FPSCheckLimit, when the fps has reached this value the physics update will happend more than once / frame used for making it less likely .
+	 * @param p_MaxSteps the maximum amount of simulation steps to run
 	 */
-	virtual void update(float p_DeltaTime, unsigned p_FPSCheckLimit) = 0;
+	virtual void update(float p_DeltaTime, unsigned p_MaxSteps) = 0;
 	/**
 	 * Apply a force on an object.
 	 *
