@@ -16,7 +16,6 @@ namespace Havenborough_Launcher
         public InstructionsWindow()
         {
             InitializeComponent();
-            Icon = BitmapFrame.Create(new Uri(@"Havenborough.ico", UriKind.RelativeOrAbsolute));
         }
 
         private void Close_OnClick(object sender, RoutedEventArgs e)
@@ -53,8 +52,8 @@ namespace Havenborough_Launcher
                 case "CheckpointsLeftInstruction":
                 {
                     SetImage(label, @"assets\textures\Launcher_InstructionsCheckpointsLeft.png");
-                    label.Width *= 0.75f;
-                    label.Height *= 0.75f;
+                    label.Width *= 0.8f;
+                    label.Height *= 0.8f;
                     break;
                 }
                 case "ManabarInstruction":
@@ -81,8 +80,8 @@ namespace Havenborough_Launcher
                 case "ClimbInstruction":
                 {
                     SetImage(label, @"assets\textures\Launcher_InstructionsClimb.png");
-                    label.Width *= 0.75f;
-                    label.Height *= 0.75f;
+                    label.Width *= 0.7f;
+                    label.Height *= 0.7f;
                     break;
                 }
             }

@@ -2,15 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
-        Title="Havenborough CreditsWindow" Height="625" Width="875" ResizeMode="NoResize"
-        Background="Black">
+        Title="The Apprentice of Havenborough - Instructions" Height="625" Width="875" ResizeMode="NoResize" Background="Black" Icon="Havenborough.ico">
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
         <Grid x:Name="InstructionsGrid" Margin="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="22*" />
                 <ColumnDefinition Width="22*" />
                 <ColumnDefinition Width="22*" />
-                <ColumnDefinition Width="22*" />   
+                <ColumnDefinition Width="22*" />
                 <ColumnDefinition Width="12*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -24,50 +23,67 @@
                 <RowDefinition Height="10*" />
                 <RowDefinition Height="10*" />
                 <RowDefinition Height="10*" />
+                <RowDefinition Height="10*" />
+                <RowDefinition Height="10*" />
+                <RowDefinition Height="10*" />
             </Grid.RowDefinitions>
             <Grid Grid.Column="0" Grid.Row="0" ColumnSpan="3" RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <StackPanel x:Name="CheckpointInstruction" Loaded="ImageLabels_OnLoaded" Style="{StaticResource InformationPanel}">
-                    <Label />
-                    <TextBlock Style="{StaticResource InformationText}" Text="These are checkpoints. Collect all of them before any opponent does. A blue checkpoint is the current one you can take, when taken a white one will become blue and possible to collect. The red checkpoint is the final which will turn green and possible to collect when it is the only checkpoint left." />
-                </StackPanel>
+                <Border Style="{StaticResource InformationPanelBorder}">
+                    <StackPanel x:Name="CheckpointInstruction" Loaded="ImageLabels_OnLoaded">
+                        <Label />
+                        <TextBlock Style="{StaticResource InformationText}" Text="These are checkpoints. Collect all of them before any opponent does. A blue checkpoint is the current one you can take, when taken a white one will become blue and possible to collect. The red checkpoint is the final which will turn green and possible to collect when it is the only checkpoint left." />
+                    </StackPanel>
+                </Border>
             </Grid>
-            <Grid Grid.Column="3" Grid.Row="1" ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <StackPanel x:Name="ArrowInstruction" Loaded="ImageLabels_OnLoaded" Style="{StaticResource InformationPanel}">
-                    <Label />
-                    <TextBlock Style="{StaticResource InformationText}" Text="The arrow points to the location of your current checkpoint." />
-                </StackPanel>
+            <Grid Grid.Column="3" Grid.Row="1" ColumnSpan="2" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <Border Style="{StaticResource InformationPanelBorder}">
+                    <StackPanel x:Name="ArrowInstruction" Loaded="ImageLabels_OnLoaded">
+                        <Label />
+                        <TextBlock Style="{StaticResource InformationText}" Text="The arrow points to the location of your current checkpoint." />
+                    </StackPanel>
+                </Border>
             </Grid>
-            <Grid Grid.Column="0" Grid.Row="3" ColumnSpan="2" RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <StackPanel x:Name="CheckpointsLeftInstruction" Loaded="ImageLabels_OnLoaded" Style="{StaticResource InformationPanel}">
-                    <Label />
-                    <TextBlock Style="{StaticResource InformationText}" Text="The number to the left indicates how many checkpoints you have collected. The number to the right is the number of checkpoints to collect."/>
-                </StackPanel>
+            <Grid Grid.Column="0" Grid.Row="6" ColumnSpan="2" RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Style="{StaticResource InformationPanelBorder}">
+                    <StackPanel x:Name="CheckpointsLeftInstruction" Loaded="ImageLabels_OnLoaded">
+                        <Label />
+                        <TextBlock Style="{StaticResource InformationText}" Text="The number to the left indicates how many checkpoints you have collected. The number to the right is the number of checkpoints to collect."/>
+                    </StackPanel>
+                </Border>
             </Grid>
-            <Grid Grid.Column="2" Grid.Row="3" ColumnSpan="3" RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <StackPanel x:Name="ManabarInstruction" Loaded="ImageLabels_OnLoaded" Style="{StaticResource InformationPanel}">
-                    <Label />
-                    <TextBlock Style="{StaticResource InformationText}" Text="This indicates your amount of mana, it is blue when you have enough mana to cast a spell. It regenerates over time and the faster you run the faster it regenerates. To cast a spell press the cast spell button." />
-                </StackPanel>
+            <Grid Grid.Column="2" Grid.Row="5" ColumnSpan="3" RowSpan="5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Style="{StaticResource InformationPanelBorder}">
+                    <StackPanel x:Name="ManabarInstruction" Loaded="ImageLabels_OnLoaded">
+                        <Label />
+                        <TextBlock Style="{StaticResource InformationText}" Text="This indicates your amount of mana, it is blue when you have enough mana to cast a spell with push effect. The spell can be used to push away opponents or, if you aim below yourself, as a boost to how high you can jump. Your mana regenerates over time and the faster you run the faster it regenerates. To cast a spell press the cast spell button." />
+                    </StackPanel>
+                </Border>
             </Grid>
-            <Grid Grid.Column="0" Grid.Row="6" ColumnSpan="3" RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <StackPanel x:Name="ClimbInstruction" Loaded="ImageLabels_OnLoaded" Style="{StaticResource InformationPanel}">
-                    <Label />
-                    <TextBlock Style="{StaticResource InformationText}" Text="You can climb up edges on most objects. Hold the climb button when jumping or running towards an edge. The red lines indicate examples where you can climb. Also, when in air it is possible to do a double jump." />
-                </StackPanel>
+            <Grid Grid.Column="0" Grid.Row="10" ColumnSpan="3" RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <Border Style="{StaticResource InformationPanelBorder}">
+                    <StackPanel x:Name="ClimbInstruction" Loaded="ImageLabels_OnLoaded">
+                        <Label />
+                        <TextBlock Style="{StaticResource InformationText}" Text="You can climb up edges on most objects. Hold the climb button when jumping or running towards an edge. The red lines are examples where you can climb. Also, when in air it is possible to do a double jump." />
+                    </StackPanel>
+                </Border>
             </Grid>
-            <Grid Grid.Column="3" Grid.Row="6" ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <StackPanel x:Name="PositionInstruction" Loaded="ImageLabels_OnLoaded" Style="{StaticResource InformationPanel}">
-                    <Label />
-                    <TextBlock Style="{StaticResource InformationText}" Text="This is your lap position." />
-                </StackPanel>
+            <Grid Grid.Column="3" Grid.Row="10" ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Style="{StaticResource InformationPanelBorder}">
+                    <StackPanel x:Name="PositionInstruction" Loaded="ImageLabels_OnLoaded">
+                        <Label />
+                        <TextBlock Style="{StaticResource InformationText}" Text="This is your lap position." />
+                    </StackPanel>
+                </Border>
             </Grid>
-            <Grid Grid.Column="3" Grid.Row="7" HorizontalAlignment="Right" VerticalAlignment="Top">
-                <StackPanel x:Name="TimeInstruction" Loaded="ImageLabels_OnLoaded" Style="{StaticResource InformationPanel}">
-                    <Label />
-                    <TextBlock Style="{StaticResource InformationText}" Text="This is the elapsed time." />
-                </StackPanel>
+            <Grid Grid.Column="3" Grid.Row="11" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top">
+                <Border Style="{StaticResource InformationPanelBorder}">
+                    <StackPanel x:Name="TimeInstruction" Loaded="ImageLabels_OnLoaded">
+                        <Label />
+                        <TextBlock Style="{StaticResource InformationText}" Text="This is the elapsed time." />
+                    </StackPanel>
+                </Border>
             </Grid>
-            <Grid Grid.Column="4" Grid.Row="9" Margin="10" VerticalAlignment="Bottom">
+            <Grid Grid.Column="4" Grid.Row="12" Margin="10" VerticalAlignment="Bottom">
                 <StackPanel Margin="10" VerticalAlignment="Bottom">
                     <Button Height="35" FontSize="16" FontWeight="Bold" Click="Close_OnClick" Content="CLOSE"/>
                 </StackPanel>

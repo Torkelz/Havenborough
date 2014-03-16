@@ -50,7 +50,7 @@
     <MouseMap Display="Look down" Command="lookDown" Direction="NegY" />
     <MouseButtonMap Display="Cast spell" Command="spellCast" Button="Left" />
     <MouseButtonMap Display="Climb" Command="climbEdge" Button="Right" />
-	<!-- Gamepad input
+    <!-- Gamepad input
 
 	This is a default mapping for an Xbox360 controller.
 	_Axes_
@@ -73,20 +73,20 @@
 	- 7: Back
 	- 8: Start
 	-->
-	<GamepadAxisMap Display="Movement forwards" Command="moveForward" Usage="49" Direction="Neg" />
-	<GamepadAxisMap Display="Movement backwards" Command="moveBackward" Usage="49" Direction="Pos" />
-	<GamepadAxisMap Display="Strafe left" Command="moveLeft" Usage="48" Direction="Neg" />
-	<GamepadAxisMap Display="Strafe right" Command="moveRight" Usage="48" Direction="Pos" />
-	<GamepadAxisMap Display="Look left" Command="turnLeft" Usage="51" Direction="Neg" />
-	<GamepadAxisMap Display="Look right" Command="turnRight" Usage="51" Direction="Pos" />
-	<GamepadAxisMap Display="Look up" Command="turnUp" Usage="52" Direction="Neg" />
-	<GamepadAxisMap Display="Look down" Command="turnDown" Usage="52" Direction="Pos" />
-	<GamepadAxisMap Display="Cast spell" Command="spellCast" Usage="50" Direction="Neg" />
-	<GamepadAxisMap Display="Climb" Command="climbEdge" Usage="50" Direction="Pos" />
-	<GamepadButtonMap Display="Jump" Command="jump" Usage="1" />
-	<GamepadButtonMap Display="Jump" Command="jump" Usage="6" />
-	<GamepadButtonMap Display="Leave game" Command="leaveGame" Usage="7" />
-	<GamepadButtonMap Display="Wave" Command="wave" Usage="4" />
+    <GamepadAxisMap Display="Movement forwards" Command="moveForward" Usage="49" Direction="Neg" />
+    <GamepadAxisMap Display="Movement backwards" Command="moveBackward" Usage="49" Direction="Pos" />
+    <GamepadAxisMap Display="Strafe left" Command="moveLeft" Usage="48" Direction="Neg" />
+    <GamepadAxisMap Display="Strafe right" Command="moveRight" Usage="48" Direction="Pos" />
+    <GamepadAxisMap Display="Look left" Command="turnLeft" Usage="51" Direction="Neg" />
+    <GamepadAxisMap Display="Look right" Command="turnRight" Usage="51" Direction="Pos" />
+    <GamepadAxisMap Display="Look up" Command="turnUp" Usage="52" Direction="Neg" />
+    <GamepadAxisMap Display="Look down" Command="turnDown" Usage="52" Direction="Pos" />
+    <GamepadAxisMap Display="Cast spell" Command="spellCast" Usage="50" Direction="Neg" />
+    <GamepadAxisMap Display="Climb" Command="climbEdge" Usage="50" Direction="Pos" />
+    <GamepadButtonMap Display="Jump" Command="jump" Usage="1" />
+    <GamepadButtonMap Display="Jump" Command="jump" Usage="6" />
+    <GamepadButtonMap Display="Leave game" Command="leaveGame" Usage="7" />
+    <GamepadButtonMap Display="Wave" Command="wave" Usage="4" />
   </Controls>
   <HUD>
     <!-- Positions in 1280x720 resolution. Will automatically adjust depending on resolution -->
