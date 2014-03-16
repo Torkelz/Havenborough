@@ -119,7 +119,7 @@ void RunControlComponent::move(float p_DeltaTime)
 
 		XMVECTOR diffVel = XMVectorSet(vMaxVelocity.m128_f32[0] - currentVelocity.m128_f32[0], 0.f, vMaxVelocity.m128_f32[2] - currentVelocity.m128_f32[2], 0.f);	// cm/s
 	
-		XMVECTOR force = (diffVel / 100.f * m_AccConstant) / 8.f;		// kg * m/s^2
+		XMVECTOR force = (diffVel / 100.f * m_AccConstant) * 0.1f;		// kg * m/s^2
 
 		XMVECTOR forceDiffImpulse = force * p_DeltaTime;	// kg * m/s
 

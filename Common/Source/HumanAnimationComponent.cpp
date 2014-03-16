@@ -109,11 +109,6 @@ void HumanAnimationComponent::updateAnimation()
 			}
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
 	
-			if(m_FallSpeed <= -3400.f)
-			{
-				currentJumpState = JumpAnimationState::HARD_LANDING;
-				m_Landing = true;
-			}
 			if(m_FallSpeed <= -2400.0f)
 			{
 				currentJumpState = JumpAnimationState::HARD_LANDING;
