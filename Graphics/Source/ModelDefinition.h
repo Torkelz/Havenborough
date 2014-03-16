@@ -2,6 +2,9 @@
 #include "Buffer.h"
 #include "Shader.h"
 
+#include <DirectXMath.h>
+
+#include <array>
 #include <memory>
 #include <vector>
 #include <map>
@@ -68,6 +71,8 @@ public:
 	 */
 	bool is2D;
 
+	std::array<DirectX::XMFLOAT3, 8> boundingVolume;
+
 public:
 	/**
 	 * Default contructor. Constructs an object without any data.
@@ -92,7 +97,8 @@ public:
 			specularTexture(p_Other.specularTexture),
 			isAnimated(p_Other.isAnimated),
 			isTransparent(p_Other.isTransparent),
-			is2D(p_Other.is2D)
+			is2D(p_Other.is2D),
+			boundingVolume(std::move(p_Other.boundingVolume))
 	{}
 
 	/**
@@ -109,6 +115,7 @@ public:
 		std::swap(isAnimated, p_Other.isAnimated);
 		std::swap(isTransparent, p_Other.isTransparent);
 		std::swap(is2D, p_Other.is2D);
+		std::swap(boundingVolume, p_Other.boundingVolume);
 
 		return *this;
 	}

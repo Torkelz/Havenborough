@@ -279,6 +279,7 @@ void DeferredRenderer::renderDeferred()
 		}
 
 		updateConstantBuffer(*m_ViewMatrix, *m_ProjectionMatrix);
+		unsigned int one = 1;
 
 		std::vector<std::vector<Renderable>> instancedModels;
 		std::vector<Renderable> animatedOrSingle;
@@ -586,6 +587,9 @@ void DeferredRenderer::FOVIsUpdated()
 
 void DeferredRenderer::updateConstantBuffer(DirectX::XMFLOAT4X4 p_ViewMatrix, DirectX::XMFLOAT4X4 p_ProjMatrix)
 {
+	m_CurrentView = p_ViewMatrix;
+	m_CurrentProjection = p_ProjMatrix;
+
 	cBuffer cb;
 	cb.view = p_ViewMatrix;
 	cb.proj = p_ProjMatrix;
@@ -1090,6 +1094,9 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 
 void DeferredRenderer::renderObject(const Renderable &p_Object)
 {
+	if (!isVisible(p_Object))
+		return;
+
 	p_Object.model->vertexBuffer->setBuffer(0);
 
 	if (p_Object.model->isAnimated)
@@ -1215,8 +1222,15 @@ void DeferredRenderer::RenderObjectsInstanced(const std::vector<Renderable> &p_O
 	m_DeviceContext->Map(m_Buffer["WorldInstance"]->getBufferPointer(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
 
 	XMFLOAT4X4 *ptr = (XMFLOAT4X4 *)ms.pData;
+	size_t numVisible = 0;
 	for(unsigned int j = 0; j < p_Objects.size(); j++)
-		ptr[j] = p_Objects[j].world;
+	{
+		if (!isVisible(p_Objects[j]))
+			continue;
+
+		ptr[numVisible] = p_Objects[j].world;
+		++numVisible;
+	}
 
 	m_DeviceContext->Unmap(m_Buffer["WorldInstance"]->getBufferPointer(), NULL);
 
@@ -1230,7 +1244,7 @@ void DeferredRenderer::RenderObjectsInstanced(const std::vector<Renderable> &p_O
 		};
 		m_DeviceContext->PSSetShaderResources(0, 3, srvs);
 		
-		m_DeviceContext->DrawInstanced(material.numOfVertices, p_Objects.size(), material.vertexStart,0);
+		m_DeviceContext->DrawInstanced(material.numOfVertices, numVisible, material.vertexStart,0);
 		
 		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	}
@@ -1456,4 +1470,49 @@ void DeferredRenderer::recompileFogShader(void)
 
 	SAFE_DELETE(m_Shader["DistanceFog"]);
 	m_Shader["DistanceFog"] = tempFogShader;
+}
+
+bool DeferredRenderer::isVisible(const Renderable& p_Object) const
+{
+	XMMATRIX world = XMLoadFloat4x4(&p_Object.world);
+	XMMATRIX view = XMLoadFloat4x4(&m_CurrentView);
+	XMMATRIX proj = XMLoadFloat4x4(&m_CurrentProjection);
+	XMMATRIX projWorldView = XMMatrixTranspose(proj * view * world);
+
+	std::array<XMVECTOR, 8> corners;
+	size_t i = 0;
+	for (const auto& corner : p_Object.model->boundingVolume)
+	{
+		corners[i] = XMVector4Transform(XMVectorSetW(XMLoadFloat3(&corner), 1.f), projWorldView);
+		corners[i] /= corners[i].m128_f32[3];
+		++i;
+	}
+
+	static const std::tuple<int, float, float> planes[6] =
+	{
+		std::make_tuple(0, 1.f, 1.f),
+		std::make_tuple(0, 1.f, -1.f),
+		std::make_tuple(1, 1.f, 1.f),
+		std::make_tuple(1, 1.f, -1.f),
+		std::make_tuple(2, 1.f, 1.f),
+		std::make_tuple(2, 0.f, -1.f)
+	};
+
+	for (const auto& plane : planes)
+	{
+		bool outside = true;
+		for (const auto& corner : corners)
+		{
+			if (corner.m128_f32[std::get<0>(plane)] * std::get<2>(plane) <= std::get<1>(plane))
+			{
+				outside = false;
+				break;
+			}
+		}
+
+		if (outside)
+			return false;
+	}
+
+	return true;
 }

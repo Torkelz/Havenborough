@@ -2,6 +2,7 @@
 
 #include "ShaderStructs.h"
 
+#include <array>
 #include <fstream>
 #include <vector>
 #include <string>
@@ -26,6 +27,7 @@ private:
 	std::vector<AnimatedVertex> m_AnimationVertexBuffer;
 	std::vector<StaticVertex> m_VertexBuffer;
 	std::vector<MaterialBuffer> m_MaterialBuffer;
+	std::array<DirectX::XMFLOAT3, 8> m_BoundingVolume;
 
 public:	
 	/**
@@ -101,6 +103,8 @@ public:
 	 */
 	bool getCollideAble() const;
 
+	const std::array<DirectX::XMFLOAT3, 8>& getBoundingVolume() const;
+
 protected:
 	void byteToInt(std::istream* p_Input, int& p_Return);
 	void byteToString(std::istream* p_Input, std::string& p_Return);
@@ -113,4 +117,7 @@ protected:
 
 private:
 	void clearData();
+
+	void calculateBoundingVolume(const std::vector<AnimatedVertex>& p_Vertices);
+	void calculateBoundingVolume(const std::vector<StaticVertex>& p_Vertices);
 };

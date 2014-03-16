@@ -63,6 +63,9 @@ private:
 	UINT m_Width;
 	UINT m_Height;
 
+	DirectX::XMFLOAT4X4	m_CurrentView;
+	DirectX::XMFLOAT4X4	m_CurrentProjection;
+
 	float				m_ViewHW;
 	DirectX::XMFLOAT4X4	m_LightView;
 	DirectX::XMFLOAT4X4	m_LightProjection;
@@ -203,4 +206,6 @@ private:
 	void renderShadowMap(Light p_Directional, const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 	void registerTweakSettings();
 	void recompileFogShader(void);
+
+	bool isVisible(const Renderable& p_Object) const;
 };
