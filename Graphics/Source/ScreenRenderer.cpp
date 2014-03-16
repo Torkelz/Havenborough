@@ -263,5 +263,6 @@ void ScreenRenderer::renderObject(Renderable2D &p_Object)
 	m_HUD_Shader->setBlendState(0, data);
 	m_HUD_Shader->unSetShader();
 	p_Object.model->vertexBuffer->unsetBuffer(0);
-	m_DeviceContext->PSSetSamplers(0,0,0);
+	ID3D11SamplerState* const nullSamplerState = nullptr;
+	m_DeviceContext->PSSetSamplers(0,1,&nullSamplerState);
 }

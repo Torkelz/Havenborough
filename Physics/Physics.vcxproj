@@ -93,12 +93,14 @@
     <ClCompile Include="Source\BVLoader.cpp" />
     <ClCompile Include="Source\Body.cpp" />
     <ClCompile Include="Source\Collision.cpp" />
+    <ClCompile Include="Source\Octree.cpp" />
     <ClCompile Include="Source\PhysicsLogger.cpp" />
     <ClCompile Include="Source\Physics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Hull.h" />
     <ClInclude Include="include\OBB.h" />
+    <ClInclude Include="Source\Octree.h" />
     <ClInclude Include="Source\PhysicsExceptions.h" />
     <ClInclude Include="Source\BVLoader.h" />
     <ClInclude Include="include\PhysicsTypes.h" />

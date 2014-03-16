@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include "BoundingVolume.h"
+#include <Sphere.h>
 
 #include <vector>
 
@@ -14,6 +15,7 @@ protected:
 	static BodyHandle getNextHandle();
 
 	BodyHandle m_Handle;
+	Sphere m_SurroundingSphere;
 
 	DirectX::XMFLOAT4	m_NetForce;			// kg*m/s^2
 	DirectX::XMFLOAT4	m_Position;			// m
@@ -161,6 +163,7 @@ public:
 	* @return body's volume.
 	*/
 	BoundingVolume *getVolume();		
+	const BoundingVolume* getVolume() const;
 	/**
 	* Get the chosen volume that is connected to the body.
 	* @param p_Volume, what volume to get.
@@ -225,12 +228,17 @@ public:
 	void setForceCollisionNormal(bool p_Bool);
 	bool getForceCollisionNormal() const;
 
+	const Sphere* getSurroundingSphere() const;
+
 private:
 	/**
 	 * Calculates the new acceleration in m/s^2.
 	 */
 	DirectX::XMFLOAT4 calculateAcceleration();
 	void addGravity();
+
+	void updateSurroundingSphere(const Sphere* p_ChangedVolumeSphere);
+
 protected:
 	Body(const Body&);
 	Body& operator=(const Body&);

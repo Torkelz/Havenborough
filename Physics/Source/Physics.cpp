@@ -87,43 +87,51 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 			b.setLanded(false);
 
 			bool isOnGround = false;
-			
-			for (unsigned j = 0; j < nrOfBodies; j++)
+
+			m_Octree.findPotentialIntersections(
+				b.getSurroundingSphere(),
+					std::inserter(m_PotentialIntersections, m_PotentialIntersections.end()));
+
+			for (const auto& potentialIntersection : m_PotentialIntersections)
 			{
-				if(i == j)
+				if(b.getHandle() == potentialIntersection)
 					continue;
+
+				Body& b2 = *findBody(potentialIntersection);
 				
 				for(unsigned int k = 0; k < b.getVolumeListSize(); k++)
 				{
-					for(unsigned int l = 0; l < m_Bodies.at(j).getVolumeListSize(); l++)
+					for(unsigned int l = 0; l < b2.getVolumeListSize(); l++)
 					{
-						HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *m_Bodies.at(j).getVolume(l));
+						HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *b2.getVolume(l));
 	
 						if(hit.intersect)
 						{
-							if(isCameraPlayerCollision(b, m_Bodies.at(j)))
+							if(isCameraPlayerCollision(b, b2))
 								break;
 
 							if(k == 0 && hit.colType == Type::HULLVSSPHERE)
 							{
 								XMFLOAT4 fBodyPos = b.getPosition();
-								XMFLOAT4 fVictimPos = m_Bodies.at(j).getPosition();
-								Sphere s = ((Hull*)m_Bodies.at(j).getVolume(l))->getSphere();
+								XMFLOAT4 fVictimPos = b2.getPosition();
+								Sphere s = ((Hull*)b2.getVolume(l))->getSphere();
 								float r  = ((Sphere*)b.getVolume(0))->getRadius();
 								if((s.getRadius() < 1.55f && fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y))
 								{
 									//PhysicsLogger::log(PhysicsLogger::Level::INFO, "StepSize");
-									setBodyForceCollisionNormal(b.getHandle(), m_Bodies.at(j).getHandle(), true);
+									setBodyForceCollisionNormal(b.getHandle(), b2.getHandle(), true);
 								}
 								else
-									handleCollision(hit, i, k, j, l, isOnGround);
+									handleCollision(hit, i, k, b2, l, isOnGround);
 							}
 							else
-								handleCollision(hit, i, k, j, l, isOnGround);
+								handleCollision(hit, i, k, b2, l, isOnGround);
 						}
 					}
 				}
 			}
+
+			m_PotentialIntersections.clear();
 
 			if(!m_IsServer)
 			{
@@ -134,10 +142,10 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 	}
 }
 
-void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, int p_Victim, int p_VictimVolumeID, bool &p_IsOnGround)
+void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, Body& p_Victim, int p_VictimVolumeID, bool &p_IsOnGround)
 {
 	Body& b = m_Bodies[p_Collider];
-	Body& b1 = m_Bodies[p_Victim];
+	Body& b1 = p_Victim;
 	p_Hit.collider = b.getHandle();
 	p_Hit.IDInBody = p_ColliderVolumeId;
 	p_Hit.collisionVictim = b1.getHandle();
@@ -316,6 +324,11 @@ void Physics::releaseBody(BodyHandle p_Body)
 		if (body.getHandle() == p_Body)
 		{
 			std::swap(body, m_Bodies.back());
+			Body& removedBody = m_Bodies.back();
+			if (removedBody.getIsImmovable())
+			{
+				m_Octree.removeBody(p_Body, removedBody.getSurroundingSphere());
+			}
 			m_Bodies.pop_back();
 			return;
 		}
@@ -373,6 +386,8 @@ void Physics::releaseAllBoundingVolumes(void)
 	Body b;
 	b.resetBodyHandleCounter();
 	m_sphereBoundingVolume.clear();
+
+	m_Octree.reset();
 }
 
 void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
@@ -380,28 +395,19 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 	Body* body = findBody(p_BodyHandle);
 	if(!body)
 		throw PhysicsException("Error! Trying to set scale to a a non existing body! BodyHandle =" + std::to_string(p_BodyHandle), __LINE__, __FILE__);
+	
+	if (body->getIsImmovable())
+	{
+		m_Octree.removeBody(body->getHandle(), body->getSurroundingSphere());
+	}
 
 	XMVECTOR scale = Vector3ToXMVECTOR(&p_Scale, 0.f);
 
-	switch (body->getVolume()->getType())
+	body->getVolume()->scale(scale);
+
+	if (body->getIsImmovable())
 	{
-	case BoundingVolume::Type::AABBOX:
-		((AABB*)body->getVolume())->scale(scale);
-		break;
-
-	case BoundingVolume::Type::HULL:
-		((Hull*)body->getVolume())->scale(scale);
-		break;
-
-	case BoundingVolume::Type::OBB:
-		((OBB*)body->getVolume())->scale(scale);
-		break;
-
-	case BoundingVolume::Type::SPHERE:
-		((Sphere*)body->getVolume())->scale(scale);
-		break;
-	default:
-		break;
+		m_Octree.addBody(body->getHandle(), body->getSurroundingSphere());
 	}
 }
 
@@ -409,6 +415,10 @@ BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, b
 {
 	m_Bodies.emplace_back(p_Mass, BoundingVolume::ptr(p_BoundingVolume), p_IsImmovable, p_IsEdge);
 	m_Bodies.back().setGravity(m_GlobalGravity);
+	if (p_IsImmovable)
+	{
+		m_Octree.addBody(m_Bodies.back().getHandle(), m_Bodies.back().getSurroundingSphere());
+	}
 	return m_Bodies.back().getHandle();
 }
 
@@ -557,10 +567,20 @@ void Physics::setBodyPosition( BodyHandle p_Body, Vector3 p_Position)
 	if(!body)
 		throw PhysicsException("Error! Trying to set position on non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
 
+	if (body->getIsImmovable())
+	{
+		m_Octree.removeBody(body->getHandle(), body->getSurroundingSphere());
+	}
+
 	Vector3 convPosition = p_Position * 0.01f;	// m
 	XMFLOAT4 tempPosition = Vector3ToXMFLOAT4(&convPosition, 1.f);	// m
 
 	body->setPosition(tempPosition);
+
+	if (body->getIsImmovable())
+	{
+		m_Octree.addBody(body->getHandle(), body->getSurroundingSphere());
+	}
 }
 
 void Physics::setBodyVolumePosition( BodyHandle p_Body, unsigned p_Volume, Vector3 p_Position)
@@ -568,9 +588,19 @@ void Physics::setBodyVolumePosition( BodyHandle p_Body, unsigned p_Volume, Vecto
 	Body* body = findBody(p_Body);
 	if(!body)
 		throw PhysicsException("Error! Trying to set volume position on non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
+	
+	if (body->getIsImmovable())
+	{
+		m_Octree.removeBody(body->getHandle(), body->getSurroundingSphere());
+	}
 
 	Vector3 convPosition = p_Position * 0.01f;	// m
 	body->setVolumePosition(p_Volume, Vector3ToXMVECTOR(&convPosition, 1.f));
+
+	if (body->getIsImmovable())
+	{
+		m_Octree.addBody(body->getHandle(), body->getSurroundingSphere());
+	}
 }
 
 
@@ -704,8 +734,18 @@ void Physics::setRotation(BodyHandle p_Body, XMMATRIX& p_Rotation)
 	Body* body = findBody(p_Body);
 	if(!body)
 		throw PhysicsException("Error! Trying to set rotation on non existing body! BodyHandle =" + std::to_string(p_Body), __LINE__, __FILE__);
+	
+	if (body->getIsImmovable())
+	{
+		m_Octree.removeBody(body->getHandle(), body->getSurroundingSphere());
+	}
 
 	body->setRotation(p_Rotation);
+
+	if (body->getIsImmovable())
+	{
+		m_Octree.addBody(body->getHandle(), body->getSurroundingSphere());
+	}
 }
 
 unsigned int Physics::getNrOfVolumesInBody(BodyHandle p_BodyHandle)

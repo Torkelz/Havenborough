@@ -386,6 +386,21 @@ bool Collision::AABBInsideSphere(XMFLOAT4 p_Min, XMFLOAT4 p_Max, Sphere const &p
 	return true;
 }
 
+bool Collision::SphereInsideAABB(XMFLOAT4 p_Min, XMFLOAT4 p_Max, Sphere const &p_Sphere)
+{
+	XMFLOAT4 spherePos = p_Sphere.getPosition();
+	float radius = p_Sphere.getRadius();
+
+	if (spherePos.x + radius > p_Max.x) return false;
+	if (spherePos.x - radius < p_Min.x)	return false;
+	if (spherePos.y + radius > p_Max.y) return false;
+	if (spherePos.y - radius < p_Min.y) return false;
+	if (spherePos.z + radius > p_Max.z) return false;
+	if (spherePos.z - radius < p_Min.z) return false;
+
+	return true;
+}
+
 HitData Collision::OBBvsOBB(OBB const &p_OBB1, OBB const &p_OBB2)
 {
 	if(!surroundingSphereVsSphere(p_OBB1.getSphere(), p_OBB2.getSphere()))
