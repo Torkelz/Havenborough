@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Havenborough_Launcher"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        Title="Havenborough" Height="645" Width="875" ResizeMode="NoResize">
+        Title="Havenborough" Height="645" Width="875" ResizeMode="NoResize" Icon="Havenborough.ico">
     <Controls:MetroWindow.Resources>
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
         <local:GameList x:Key="GameDataSource" />

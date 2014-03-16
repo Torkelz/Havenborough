@@ -36,7 +36,6 @@ namespace Havenborough_Launcher
             {
                 ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg", UriKind.Relative))
             };
-            Icon = BitmapFrame.Create(new Uri(@"Havenborough.ico", UriKind.RelativeOrAbsolute));
 
             RefreshGameList();
         }

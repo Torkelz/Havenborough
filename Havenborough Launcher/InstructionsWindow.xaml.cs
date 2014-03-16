@@ -16,7 +16,6 @@ namespace Havenborough_Launcher
         public InstructionsWindow()
         {
             InitializeComponent();
-            Icon = BitmapFrame.Create(new Uri(@"Havenborough.ico", UriKind.RelativeOrAbsolute));
         }
 
         private void Close_OnClick(object sender, RoutedEventArgs e)

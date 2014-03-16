@@ -18,7 +18,6 @@ namespace Havenborough_Launcher
             {
                 ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg", UriKind.Relative))
             };
-            Icon = BitmapFrame.Create(new Uri(@"Havenborough.ico", UriKind.RelativeOrAbsolute));
         }
 
         private void Close_OnClick(object sender, RoutedEventArgs e)
