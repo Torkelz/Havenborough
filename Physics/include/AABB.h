@@ -14,7 +14,8 @@ private:
 	DirectX::XMFLOAT4	m_Size;
 	
 public:
-	AABB()
+	AABB() :
+		BoundingVolume(&m_Sphere)
 	{
 		m_BodyHandle = 0;
 		m_Position = DirectX::XMFLOAT4(0.f,0.f,0.f,1.f);
@@ -28,7 +29,8 @@ public:
 	 * @param p_CenterPos the position in world space in m
 	 * @param p_Size the halfsize of the box in m
 	 */
-	AABB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) : BoundingVolume()
+	AABB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Size) :
+		BoundingVolume(&m_Sphere)
 	{
 		m_BodyHandle = 0;
 		m_Position = p_CenterPos;

@@ -14,7 +14,8 @@ public:
 	/**
 	* Default Constructor
 	*/
-	OBB()
+	OBB() :
+		BoundingVolume(&m_Sphere)
 	{
 		m_BodyHandle	= 0;
 		m_Position		= DirectX::XMFLOAT4(0.f, 0.f, 0.f, 0.f); //OBB Center Point
@@ -32,7 +33,8 @@ public:
 	* @param p_CenterPos the center position of the box
 	* @param p_Extents the box positive half lengths
 	*/
-	OBB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Extents)
+	OBB(DirectX::XMFLOAT4 p_CenterPos, DirectX::XMFLOAT4 p_Extents) :
+		BoundingVolume(&m_Sphere)
 	{
 		m_BodyHandle	= 0;
 		m_Position		= p_CenterPos; //OBB Center Point.
@@ -112,7 +114,7 @@ public:
 	* Get the sphere surrounding the OBB.
 	* @return m_Sphere the surrounding sphere
 	*/
-	Sphere getSphere() const
+	const Sphere& getSphere() const
 	{
 		return m_Sphere;
 	}

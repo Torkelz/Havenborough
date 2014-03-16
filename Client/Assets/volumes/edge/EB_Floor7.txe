@@ -1,32 +1,32 @@
 *ObjectHeader*
 #numObj: 6
 
-#MESH: Floor7
+#MESH: Floor5
 #Translation: -608.048401 106.747002 0.542254
 #Rotation: 0 0 0
 #Scale: 10 10 1185.53418
 
-#MESH: Floor7
+#MESH: Floor5
 #Translation: -552.79071 106.747002 26.265125
 #Rotation: 0 0 0
 #Scale: 10 10 1141.526367
 
-#MESH: Floor7
+#MESH: Floor5
 #Translation: 600 0.360039 -428.265167
 #Rotation: 0 0 0
 #Scale: 10 10 240.906036
 
-#MESH: Floor7
+#MESH: Floor5
 #Translation: -429.353882 0.694389 600.558594
 #Rotation: 1.570796 0 0
 #Scale: 10 10 240.906036
 
-#MESH: Floor7
+#MESH: Floor5
 #Translation: 19.807474 102.980156 -553.50708
 #Rotation: 1.570796 0 0
 #Scale: 10 10 1141.526367
 
-#MESH: Floor7
+#MESH: Floor5
 #Translation: -0.530134 106.747002 -598.285645
 #Rotation: 1.570796 0 0
 #Scale: 10 10 1185.53418

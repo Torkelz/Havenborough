@@ -124,6 +124,9 @@
     <ClCompile Include="..\Graphics\Source\GPUTimer.cpp">
       <Filter>Graphics\GraphicsImport</Filter>
     </ClCompile>
+    <ClCompile Include="..\Physics\Source\Octree.cpp">
+      <Filter>Physics\Physics Import</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Graphics">

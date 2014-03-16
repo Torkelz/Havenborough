@@ -7,6 +7,10 @@
 #include <vector>
 #include <map>
 
+#ifndef USAGE
+#define USAGE unsigned short
+#endif
+
 class Settings
 {
 public:
@@ -22,10 +26,20 @@ public:
 		float scale;
 		Vector4 color;
 	};
+	struct AxisSetting
+	{
+		USAGE usage;
+		bool posDir;
+		std::string command;
+	};
+
 private:
 	std::map<std::string, unsigned short> m_KeyMap;
 	std::vector<MouseStruct> m_MouseMap;
 	std::map<std::string, MouseButton> m_MouseButtonMap;
+
+	std::vector<AxisSetting> m_AxesSettings;
+	std::vector<std::pair<USAGE, std::string>> m_GamepadButtonMap;
 
 	std::map<std::string, bool> m_SettingsEnabled;
 	std::map<std::string, float> m_SettingsValue;
@@ -70,6 +84,18 @@ public:
 	 * @return the mouse button mapping read from options file.
 	 */
 	const std::map<std::string, MouseButton> &getMouseButtonMap() const;
+	/**
+	 * Gets the axis maps for the gamepad.
+	 *
+	 * @return a list of axis settings for a gamepad
+	 */
+	const std::vector<AxisSetting>& getGamepadAxisMap() const;
+	/**
+	 * Gets the button maps for the gamepad.
+	 *
+	 * @return a list of button settings for a gamepad
+	 */
+	const std::vector<std::pair<USAGE, std::string>>& getGamepadButtonMap() const;
 	/*
 	 * Get true or false for settings.
 	 *
@@ -141,4 +167,7 @@ private:
 	void loadServer(const tinyxml2::XMLElement *p_Element);
 	void loadCharacter(const tinyxml2::XMLElement *p_Element);
 	void loadHUD(tinyxml2::XMLElement *p_Element);
+
+	void loadGamepadAxis(const tinyxml2::XMLElement* p_Element, const std::string& p_Command);
+	void loadGamepadButton(const tinyxml2::XMLElement* p_Element, const std::string& p_Command);
 };

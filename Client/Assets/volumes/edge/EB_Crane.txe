@@ -1,55 +1,45 @@
 *ObjectHeader*
-#numObj: 26
+#numObj: 24
 
 #MESH: Crane
-#Translation: -306.629028 -116.832672 84.40937
+#Translation: -378.324371 -116.832672 117.555641
 #Rotation: 0 0 0
-#Scale: 10 10 146.833237
+#Scale: 10 10 211.154709
 
 #MESH: Crane
-#Translation: -144.932663 -116.832672 84.40937
+#Translation: -73.198044 -116.832672 117.245453
 #Rotation: 0 0 0
-#Scale: 10 10 146.833237
+#Scale: 10 10 209.928375
 
 #MESH: Crane
-#Translation: -222.440887 -116.832672 159.063141
+#Translation: -226.070984 -116.832672 223.437317
 #Rotation: -1.570796 0 0
-#Scale: 10 10 146.833237
+#Scale: 10 10 303.091919
 
 #MESH: Crane
-#Translation: -173.903671 -116.832672 10.741828
+#Translation: -225.777023 -116.832672 10.741828
 #Rotation: -1.570796 0 0
-#Scale: 10 10 56.035404
+#Scale: 10 10 300.969727
 
 #MESH: Crane
-#Translation: -282.78656 -116.832672 10.741828
+#Translation: -226.527847 191.580246 -12.355156
 #Rotation: -1.570796 0 0
-#Scale: 10 10 48.07399
+#Scale: 10 10 303.874146
 
 #MESH: Crane
-#Translation: -282.78656 191.580246 -12.355156
+#Translation: -225.382858 191.574463 -225.10965
 #Rotation: -1.570796 0 0
-#Scale: 10 10 48.07399
+#Scale: 10 10 296.648193
 
 #MESH: Crane
-#Translation: -173.903671 191.580246 -12.355156
-#Rotation: -1.570796 0 0
-#Scale: 10 10 56.035404
-
-#MESH: Crane
-#Translation: -222.440887 191.574463 -160.665619
-#Rotation: -1.570796 0 0
-#Scale: 10 10 146.833237
-
-#MESH: Crane
-#Translation: -306.629028 191.925095 -86.265572
+#Translation: -378.32431 191.925095 -116.959846
 #Rotation: 0 0 0
-#Scale: 10 10 146.833237
+#Scale: 10 10 203.327805
 
 #MESH: Crane
-#Translation: -144.932663 191.925095 -86.265572
+#Translation: -73.198105 191.925095 -118.486481
 #Rotation: 0 0 0
-#Scale: 10 10 146.833237
+#Scale: 10 10 206.17099
 
 #MESH: Crane
 #Translation: -230.158127 451.145477 58.720226

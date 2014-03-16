@@ -1,4 +1,5 @@
 #pragma once
+#include "DeviceManager.h"
 #include "InputRecord.h"
 #include "../Window.h"
 #include "InputTranslatorEnums.h"
@@ -52,6 +53,9 @@ protected:
 		std::string	m_Action;
 	};
 	std::vector<MouseButtonRecord> m_MouseButtonMappings;
+
+	DeviceManager m_DeviceManager;
+
 private:
 	bool m_MouseLocked;
 public:
@@ -113,6 +117,9 @@ public:
 	 * @param p_State true for lock.
 	 */
 	void lockMouse(bool p_State);
+	
+	void addButtonMapping(USAGE p_ButtonUsage, const std::string& p_Action);
+	void addAxisMapping(USAGE p_AxisUsage, bool p_PosDir, const std::string& p_Action);
 
 protected:
 	/**

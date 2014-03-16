@@ -133,6 +133,22 @@
         <Resource Name="Zane" Path="assets/models/Zane.btx"/>
         <Resource Name="Minque6" Path="assets/models/Minque6.btx"/>
         <Resource Name="ExplosionSphere1" Path="assets/models/ExplosionSphere1.btx"/>
+        <Resource Name="HangingStairCase1" Path="assets/models/HangingStairCase1.btx"/>
+        <Resource Name="House10" Path="assets/models/House10.btx"/>
+        <Resource Name="House11" Path="assets/models/House11.btx"/>
+        <Resource Name="House1v2" Path="assets/models/House1v2.btx"/>
+        <Resource Name="House4v2" Path="assets/models/House4v2.btx"/>
+        <Resource Name="House5v2" Path="assets/models/House5v2.btx"/>
+        <Resource Name="House6v2" Path="assets/models/House6v2.btx"/>
+        <Resource Name="House7v2" Path="assets/models/House7v2.btx"/>
+        <Resource Name="House7v3" Path="assets/models/House7v3.btx"/>
+        <Resource Name="House8v2" Path="assets/models/House8v2.btx"/>
+        <Resource Name="House8v3" Path="assets/models/House8v3.btx"/>
+        <Resource Name="House9v2" Path="assets/models/House9v2.btx"/>
+        <Resource Name="House9v3" Path="assets/models/House9v3.btx"/>
+        <Resource Name="Island3Top1Part1" Path="assets/models/Island3Top1Part1.btx"/>
+        <Resource Name="MarketStand3" Path="assets/models/MarketStand3.btx"/>
+        <Resource Name="MarketStand4" Path="assets/models/MarketStand4.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Aqueduct1" Path="assets/volumes/CB_Aqueduct1.txc"/>
@@ -225,6 +241,30 @@
         <Resource Name="WoodenShed1" Path="assets/volumes/CB_WoodenShed1.txc"/>
         <Resource Name="Zane" Path="assets/volumes/CB_Zane.txc"/>
         <Resource Name="Minque6" Path="assets/volumes/CB_Minque6.txc"/>
+        <Resource Name="Fountain1" Path="assets/volumes/CB_Fountain1.txc"/>
+        <Resource Name="HangingStairCase1" Path="assets/volumes/CB_HangingStairCase1.txc"/>
+        <Resource Name="House10" Path="assets/volumes/CB_House10.txc"/>
+        <Resource Name="House11" Path="assets/volumes/CB_House11.txc"/>
+        <Resource Name="House1v2" Path="assets/volumes/CB_House1v2.txc"/>
+        <Resource Name="House4v2" Path="assets/volumes/CB_House4v2.txc"/>
+        <Resource Name="House5v2" Path="assets/volumes/CB_House5v2.txc"/>
+        <Resource Name="House6v2" Path="assets/volumes/CB_House6v2.txc"/>
+        <Resource Name="House7" Path="assets/volumes/CB_House7.txc"/>
+        <Resource Name="House7v2" Path="assets/volumes/CB_House7v2.txc"/>
+        <Resource Name="House7v3" Path="assets/volumes/CB_House7v3.txc"/>
+        <Resource Name="House8" Path="assets/volumes/CB_House8.txc"/>
+        <Resource Name="House8v2" Path="assets/volumes/CB_House8v2.txc"/>
+        <Resource Name="House8v3" Path="assets/volumes/CB_House8v3.txc"/>
+        <Resource Name="House9" Path="assets/volumes/CB_House9.txc"/>
+        <Resource Name="House9v2" Path="assets/volumes/CB_House9v2.txc"/>
+        <Resource Name="House9v3" Path="assets/volumes/CB_House9v3.txc"/>
+        <Resource Name="Island3Top1Part1" Path="assets/volumes/CB_Island3Top1Part1.txc"/>
+        <Resource Name="MarketBox1" Path="assets/volumes/CB_MarketBox1.txc"/>
+        <Resource Name="MarketBox2" Path="assets/volumes/CB_MarketBox2.txc"/>
+        <Resource Name="MarketBucket1" Path="assets/volumes/CB_MarketBucket1.txc"/>
+        <Resource Name="MarketBucket2" Path="assets/volumes/CB_MarketBucket2.txc"/>
+        <Resource Name="MarketStand3" Path="assets/volumes/CB_MarketStand3.txc"/>
+        <Resource Name="MarketStand4" Path="assets/volumes/CB_MarketStand4.txc"/>
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>

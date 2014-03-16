@@ -1,5 +1,5 @@
 *ObjectHeader*
-#numObj: 19
+#numObj: 20
 
 #MESH: Fountain1
 #Translation: 0 -50.878952 106.903114
@@ -95,5 +95,10 @@
 #Translation: 64.215981 -50.878952 85.990448
 #Rotation: 0.628319 0 0
 #Scale: 70 10 10
+
+#MESH: Fountain1
+#Translation: 0 -50.878952 -107.869095
+#Rotation: 0 0 0
+#Scale: 69.458138 10 10
 
 

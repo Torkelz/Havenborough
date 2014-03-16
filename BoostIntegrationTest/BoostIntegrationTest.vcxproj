@@ -43,6 +43,7 @@
     <ClCompile Include="..\Graphics\Source\VRAMInfo.cpp" />
     <ClCompile Include="..\Graphics\Source\WICTextureLoader.cpp" />
     <ClCompile Include="..\Graphics\Source\WrapperFactory.cpp" />
+    <ClCompile Include="..\Physics\Source\Octree.cpp" />
     <ClCompile Include="..\Sound\Source\Sound.cpp" />
     <ClCompile Include="..\Sound\Source\SoundLogger.cpp" />
     <ClCompile Include="..\Physics\Source\Body.cpp" />

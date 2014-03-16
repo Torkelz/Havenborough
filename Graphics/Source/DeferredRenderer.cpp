@@ -333,8 +333,9 @@ void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView
 
 	for( auto k : p_InstancedModels)
 		RenderObjectsInstanced(k,p_Shader);
-
-	m_DeviceContext->PSSetSamplers(0,0,0);
+	
+	ID3D11SamplerState* const nullSamplerState = nullptr;
+	m_DeviceContext->PSSetSamplers(0, 1, &nullSamplerState);
 	m_Buffer["DefaultConstant"]->unsetBuffer(0);
 
 	// Unset render targets.
@@ -502,6 +503,8 @@ void DeferredRenderer::renderLighting(const std::vector<std::vector<Renderable>>
 
 	renderAmbientLight(m_Buffer["DirectionalLightModel"]);
 
+	m_DeviceContext->PSSetShaderResources(0, 5, nullsrvs);
+
 	m_Shader["DistanceFog"]->setShader();
 	m_DeviceContext->OMSetRenderTargets(1, &m_RT[IGraphics::RenderTarget::DIFFUSE], 0);
 	m_DeviceContext->PSSetShaderResources(0, 2, distanceFog_srvs);
@@ -516,7 +519,8 @@ void DeferredRenderer::renderLighting(const std::vector<std::vector<Renderable>>
 	if(m_SkyDome && m_RenderSkyDome)
 		m_SkyDome->RenderSkyDome(m_RT[IGraphics::RenderTarget::DIFFUSE], m_DepthStencilView, m_Buffer["DefaultConstant"]);
 
-	m_DeviceContext->PSSetSamplers(0, 0, 0);
+	ID3D11SamplerState* const nullSamplerState = nullptr;
+	m_DeviceContext->PSSetSamplers(0, 1, &nullSamplerState);
 
 	m_DeviceContext->PSSetShaderResources(0, 5, nullsrvs);
 	m_DeviceContext->OMSetRenderTargets(0, 0, 0);
@@ -1012,8 +1016,8 @@ void DeferredRenderer::renderLight(Shader *p_Shader, Buffer* p_ModelBuffer, vect
 
 		m_DeviceContext->DrawInstanced(p_ModelBuffer->getNumOfElements(), p_Lights->size(),0,0);
 
-		for(unsigned int i = 0; i < 2; i++)
-			m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
+		ID3D11Buffer* nullBuffers[] = { nullptr, nullptr };
+		m_DeviceContext->IASetVertexBuffers(0, 2, nullBuffers, Stride, Offsets);
 		p_Shader->unSetShader();
 	}
 }
@@ -1028,6 +1032,8 @@ void DeferredRenderer::renderAmbientLight(Buffer* p_ModelBuffer)
 
 	m_DeviceContext->Draw(p_ModelBuffer->getNumOfElements(), 0);
 
+	ID3D11ShaderResourceView* nullSrv = nullptr;
+	m_DeviceContext->PSSetShaderResources(0, 1, &nullSrv);
 	p_ModelBuffer->unsetBuffer(0);
 	m_Shader["Ambient"]->unSetShader();
 }
@@ -1229,8 +1235,8 @@ void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Object
 		m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	}
 
-	for(unsigned int i = 0; i < 2; i++)
-		m_DeviceContext->IASetVertexBuffers(i,0,0,0, 0);
+	ID3D11Buffer* nullBuffers[] = { nullptr, nullptr };
+	m_DeviceContext->IASetVertexBuffers(0, 2, nullBuffers, Stride, Offsets);
 	p_Shader->setBlendState(0, data);
 	p_Shader->unSetShader();
 }
@@ -1257,6 +1263,7 @@ void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<st
 	ID3D11RenderTargetView *noRTV = nullptr;
 	
 	ID3D11ShaderResourceView *srvs[] = {m_SRV["WPosition"], m_SRV["Normal"], m_SRV["Diffuse"], m_SRV["SSAO"], m_SRV["CSM"]};
+	ID3D11ShaderResourceView *nullSrvs[] = { nullptr, nullptr, nullptr, nullptr, nullptr };
 
 	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	UINT sampleMask = 0xffffffff;
@@ -1326,6 +1333,7 @@ void DeferredRenderer::renderShadowMap(Light p_Directional, const std::vector<st
 
 		m_Shader["DirectionalLight"]->unSetShader();
 
+		m_DeviceContext->PSSetShaderResources(0, 5, nullSrvs);
 		m_DeviceContext->OMSetDepthStencilState(previousDepthState,0);
 		m_DeviceContext->OMSetBlendState(0, blendFactor, sampleMask);
 	}

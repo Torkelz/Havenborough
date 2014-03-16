@@ -2,6 +2,9 @@
 #include "IPhysics.h"
 #include "Body.h"
 #include "BVLoader.h"
+#include "Octree.h"
+
+#include <set>
 
 class Physics : public IPhysics
 {
@@ -16,6 +19,9 @@ private:
 	std::vector<BVLoader::BoundingVolume> m_sphereBoundingVolume;
 	bool m_IsServer;
 	std::vector<DirectX::XMFLOAT3> m_BoxTriangleIndex;
+
+	Octree m_Octree;
+	std::set<BodyHandle> m_PotentialIntersections;
 
 public:
 	Physics();
@@ -88,7 +94,7 @@ private:
 
 	void setRotation(BodyHandle p_Body, DirectX::XMMATRIX& p_Rotation);
 
-	void handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, int p_Victim, int p_VictimVolumeID, bool &p_IsOnGround);
+	void handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, Body& p_Victim, int p_VictimVolumeID, bool &p_IsOnGround);
 
 	bool isCameraPlayerCollision(Body const &p_Collider, Body const &p_Victim);
 };
