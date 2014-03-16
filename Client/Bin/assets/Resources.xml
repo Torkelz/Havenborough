@@ -152,6 +152,13 @@
         <Resource Name="Island3Top1Part1" Path="assets/models/Island3Top1Part1.btx"/>
         <Resource Name="MarketStand3" Path="assets/models/MarketStand3.btx"/>
         <Resource Name="MarketStand4" Path="assets/models/MarketStand4.btx"/>
+        <Resource Name="Island3Top1Part2" Path="assets/models/Island3Top1Part2.btx"/>
+        <Resource Name="Island3Top1Part3" Path="assets/models/Island3Top1Part3.btx"/>
+        <Resource Name="UpperTopSidewalk" Path="assets/models/UpperTopSidewalk.btx"/>
+        <Resource Name="Park1Part1" Path="assets/models/Park1Part1.btx"/>
+        <Resource Name="Park1Part2" Path="assets/models/Park1Part2.btx"/>
+        <Resource Name="Park1Part3" Path="assets/models/Park1Part3.btx"/>
+        <Resource Name="Park1Part4" Path="assets/models/Park1Part4.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Aqueduct1" Path="assets/volumes/CB_Aqueduct1.txc"/>
@@ -267,6 +274,13 @@
         <Resource Name="MarketBucket2" Path="assets/volumes/CB_MarketBucket2.txc"/>
         <Resource Name="MarketStand3" Path="assets/volumes/CB_MarketStand3.txc"/>
         <Resource Name="MarketStand4" Path="assets/volumes/CB_MarketStand4.txc"/>
+        <Resource Name="Island3Top1Part2" Path="assets/volumes/CB_Island3Top1Part2.txc"/>
+        <Resource Name="Island3Top1Part3" Path="assets/volumes/CB_Island3Top1Part3.txc"/>
+        <Resource Name="UpperTopSidewalk" Path="assets/volumes/CB_UpperTopSidewalk.txc"/>
+        <Resource Name="Park1Part1" Path="assets/volumes/CB_Park1Part1.txc"/>
+        <Resource Name="Park1Part2" Path="assets/volumes/CB_Park1Part2.txc"/>
+        <Resource Name="Park1Part3" Path="assets/volumes/CB_Park1Part3.txc"/>
+        <Resource Name="Park1Part4" Path="assets/volumes/CB_Park1Part4.txc"/>
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>
