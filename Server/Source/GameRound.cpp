@@ -51,7 +51,7 @@ void GameRound::initialize(ActorFactory::ptr p_ActorFactory, Lobby* p_ReturnLobb
 
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
-	m_Physics->initialize(true);
+	m_Physics->initialize(true, 1.f / 60.f);
 
 	m_EventManager.reset(new EventManager);
 
@@ -221,7 +221,7 @@ void GameRound::runGame()
 		currentTime = std::chrono::high_resolution_clock::now();
 		const clock::duration frameTime = currentTime - previousTime;
 
-		m_Physics->update(deltaTime, 50);
+		m_Physics->update(deltaTime, 2);
 
 		handlePackages();
 		checkForDisconnectedUsers();
@@ -252,7 +252,7 @@ void GameRound::runGame()
 
 		deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(frameTime).count();
 
-		m_Physics->update(deltaTime, 100);
+		m_Physics->update(deltaTime, 2);
 
 		handlePackages();
 		checkForDisconnectedUsers();

@@ -41,43 +41,39 @@ Body* Physics::findBody(BodyHandle p_Body)
 	return &findRes->second;
 }
 
-void Physics::initialize(bool p_IsServer)
+void Physics::initialize(bool p_IsServer, float p_Timestep)
 {
 	PhysicsLogger::log(PhysicsLogger::Level::INFO, "Initializing physics");
 
 	fillTriangleIndexList();
 	m_LoadBVSphereTemplateOnce = true;
 	m_IsServer = p_IsServer;
+	m_Timestep = p_Timestep;
+	m_LeftOverTime = 0.f;
 }
 
-void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
+void Physics::update(float p_DeltaTime, unsigned p_MaxSteps)
 {
-	int itr = 1;
-
-	float timestep = 1 / (float)(p_FPSCheckLimit * 2.f); 
-
-	if(timestep*2.f < p_DeltaTime)
-	{
-		itr = (int)ceil(fabs(p_DeltaTime / timestep - 0.5f)); // When the fps goes under this the game start to update physics more than once / frame.
-		//itr = 1;
-
-		if(itr > 4)
-			itr = 4;
-		else if(itr == 0)
-			itr = 1;
-						
-		p_DeltaTime /= itr;
-	}
+	m_LeftOverTime += p_DeltaTime;
+	unsigned int itr = 0;
 
 	m_HitDatas.clear();
-	unsigned int nrOfBodies = m_Bodies.size();
-	for(int p = 0; p < itr; p++)
+	while (m_LeftOverTime >= m_Timestep)
 	{
+		++itr;
+		if (itr > p_MaxSteps)
+		{
+			m_LeftOverTime = 0;
+			break;
+		}
+
+		m_LeftOverTime -= m_Timestep;
+
 		for(BodyHandle movableBodyHandle : m_MovableBodies)
 		{
 			Body& b = *findBody(movableBodyHandle);
 
-			b.update(p_DeltaTime);
+			b.update(m_Timestep);
 
 			b.setLanded(false);
 

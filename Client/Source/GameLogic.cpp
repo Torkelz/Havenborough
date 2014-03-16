@@ -136,7 +136,7 @@ void GameLogic::onFrame(float p_DeltaTime)
 		m_Player.setDirection(rotDir);
 	}
 	if(!m_Player.getForceMove())
-		m_Physics->update(p_DeltaTime, 100);
+		m_Physics->update(p_DeltaTime, 4);
 
 	if (playerActor && !m_Player.getForceMove())
 	{

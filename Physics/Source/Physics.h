@@ -12,6 +12,8 @@ class Physics : public IPhysics
 public:
 private:
 	float m_GlobalGravity;
+	float m_Timestep;
+	float m_LeftOverTime;
 	std::vector<HitData> m_HitDatas;
 	BVLoader m_BVLoader;
 	bool m_LoadBVSphereTemplateOnce;
@@ -29,9 +31,9 @@ public:
 	Physics();
 	~Physics();
 
-	void initialize(bool p_IsServer) override;
+	void initialize(bool p_IsServer, float p_Timestep) override;
 
-	void update(float p_DeltaTime, unsigned p_FPSCheckLimit) override;
+	void update(float p_DeltaTime, unsigned p_MaxSteps) override;
 	void applyForce(BodyHandle p_Body, Vector3 p_Force) override;
 	void applyImpulse(BodyHandle p_Body, Vector3 p_Impulse) override;
 
