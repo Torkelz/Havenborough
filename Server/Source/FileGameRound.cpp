@@ -453,7 +453,6 @@ void FileGameRound::sendPositionUpdate(const Player::ptr p_Player, const float* 
 
 	tinyxml2::XMLPrinter printer;
 	printer.OpenElement("RacePositions");
-	printer.PushAttribute("Type", "Placing");
 	printer.PushAttribute("Place", getPlayerPos(p_Player));
 	if (p_Time)
 		printer.PushAttribute("Time", *p_Time);

@@ -899,17 +899,13 @@ void GameLogic::handleNetwork()
 						tinyxml2::XMLDocument reader;
 						reader.Parse(result);
 						tinyxml2::XMLElement* object = reader.FirstChildElement("RacePositions");
-						if(object->Attribute("Type", "Place"))
+						if (object->QueryAttribute("Place", &m_PlayerPositionInRace) == tinyxml2::XML_NO_ERROR)
 						{
-							object->QueryAttribute("Place", &m_PlayerPositionInRace);	
-							object->QueryAttribute("Time", &m_PlayerTimeDifference);
-							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
 						}
-						if(object->Attribute("Type", "Placing"))
+						if (object->QueryAttribute("Time", &m_PlayerTimeDifference) == tinyxml2::XML_NO_ERROR)
 						{
-							object->QueryAttribute("Place", &m_PlayerPositionInRace);
-							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerRaceEventData(m_PlayerPositionInRace)));
+							m_EventManager->queueEvent(IEventData::Ptr(new UpdatePlayerTimeEventData(m_PlayerTimeDifference)));
 						}
 					}
 				}
