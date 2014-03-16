@@ -5,8 +5,10 @@
 
 class DummyBoundingVolume : public BoundingVolume
 {
+	Sphere m_Sphere;
 public:
-	DummyBoundingVolume()
+	DummyBoundingVolume() :
+		BoundingVolume(&m_Sphere)
 	{
 		m_Type = Type::NONE;
 		m_BodyHandle = 0;

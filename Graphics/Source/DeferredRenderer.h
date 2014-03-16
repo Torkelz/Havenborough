@@ -194,9 +194,9 @@ private:
 	void createRandomTexture(unsigned int p_Size);
 
 
-	void renderObject(Renderable &p_Object);
+	void renderObject(const Renderable &p_Object);
 	void SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels );
-	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects, Shader* p_Shader);
+	void RenderObjectsInstanced(const std::vector<Renderable> &p_Objects, Shader* p_Shader);
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 	void updateLightProjection(float p_viewHW);

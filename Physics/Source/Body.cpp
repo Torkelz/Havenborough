@@ -24,6 +24,7 @@ Body::Body(float p_mass, BoundingVolume::ptr p_BoundingVolume, bool p_IsImmovabl
 		m_Volumes.push_back(std::move(p_BoundingVolume));
 		m_Volumes.at(0)->setBodyHandle(m_Handle);
 		m_Position = m_Volumes.at(0)->getPosition();
+		updateSurroundingSphere(m_Volumes.back()->getSurroundingSphere());
 	}
 		
 
@@ -61,7 +62,8 @@ Body::Body(Body &&p_Other)
 	  m_IsImmovable(p_Other.m_IsImmovable),
 	  m_IsEdge(p_Other.m_IsEdge),
 	  m_Landed(p_Other.m_Landed),
-	  m_ForceCollisionNormal(p_Other.m_ForceCollisionNormal)
+	  m_ForceCollisionNormal(p_Other.m_ForceCollisionNormal),
+	  m_SurroundingSphere(p_Other.m_SurroundingSphere)
 {}
 
 Body& Body::operator=(Body&& p_Other)
@@ -83,6 +85,7 @@ Body& Body::operator=(Body&& p_Other)
 	std::swap(m_IsEdge, p_Other.m_IsEdge);
 	std::swap(m_Landed, p_Other.m_Landed);
 	std::swap(m_ForceCollisionNormal, p_Other.m_ForceCollisionNormal);
+	std::swap(m_SurroundingSphere, p_Other.m_SurroundingSphere);
 
 	return *this;
 }
@@ -118,6 +121,7 @@ void Body::addVolume(BoundingVolume::ptr p_Volume)
 	p_Volume->setBodyHandle(m_Handle);
 	p_Volume->setIDInBody(m_Volumes.size());
 	m_Volumes.push_back(std::move(p_Volume));
+	updateSurroundingSphere(m_Volumes.back()->getSurroundingSphere());
 }
 
 void Body::update(float p_DeltaTime)
@@ -165,6 +169,8 @@ void Body::updateBoundingVolumePosition(DirectX::XMFLOAT4 p_Position)
 
 	for(auto &v : m_Volumes)
 		v->updatePosition(tempTrans);
+
+	m_SurroundingSphere.setPosition(XMLoadFloat4(&m_Position));
 }
 
 XMFLOAT4 Body::calculateAcceleration()
@@ -185,6 +191,27 @@ XMFLOAT4 Body::calculateAcceleration()
 
 	acc.w = 0.f;
 	return acc;
+}
+
+void Body::updateSurroundingSphere(const Sphere* p_ChangedVolumeSphere)
+{
+	m_SurroundingSphere.setPosition(XMLoadFloat4(&m_Position));
+	const float currentRadius = m_SurroundingSphere.getRadius();
+	const float changedRadius = p_ChangedVolumeSphere->getRadius();
+	
+	const XMFLOAT4 changedSpherePos = p_ChangedVolumeSphere->getPosition();
+	const XMFLOAT3 diffPos(
+		m_Position.x - changedSpherePos.x,
+		m_Position.y - changedSpherePos.y,
+		m_Position.z - changedSpherePos.z);
+
+	const float diffSq = diffPos.x * diffPos.x + diffPos.y * diffPos.y + diffPos.z * diffPos.z;
+	const float diff = sqrtf(diffSq);
+	
+	if (currentRadius < diff + changedRadius)
+	{
+		m_SurroundingSphere.setRadius(diff + changedRadius);
+	}
 }
 
 void Body::setGravity(float p_Gravity)
@@ -258,8 +285,16 @@ BoundingVolume* Body::getVolume()
 	return m_Volumes.at(0).get();
 }
 
+const BoundingVolume* Body::getVolume() const
+{
+	return m_Volumes.at(0).get();
+}
+
 BoundingVolume* Body::getVolume(unsigned p_Volume)
 {
+	if (p_Volume >= m_Volumes.size())
+		return &m_SurroundingSphere;
+
 	return m_Volumes.at(p_Volume).get();
 }
 
@@ -271,6 +306,7 @@ unsigned int Body::getVolumeListSize()
 void Body::setVolumePosition(unsigned p_Volume, DirectX::XMVECTOR const &p_Position)
 {
 	m_Volumes.at(p_Volume)->setPosition(p_Position);
+	updateSurroundingSphere(m_Volumes.at(p_Volume)->getSurroundingSphere());
 }
 
 XMFLOAT4 Body::getVelocity()
@@ -293,11 +329,8 @@ XMFLOAT4 Body::getPosition()
 void Body::setPosition(XMFLOAT4 p_Position)
 {
 	XMFLOAT4 diffPos(p_Position.x - m_Position.x, p_Position.y - m_Position.y, p_Position.z - m_Position.z, p_Position.w - m_Position.w);
+	m_Position = p_Position;
 	updateBoundingVolumePosition(diffPos);
-	m_Position.x = p_Position.x;
-	m_Position.y = p_Position.y;
-	m_Position.z = p_Position.z;
-	m_Position.w = p_Position.w;
 }
 
 DirectX::XMFLOAT4 Body::getNetForce()
@@ -336,4 +369,9 @@ void Body::setForceCollisionNormal(bool p_Bool)
 bool Body::getForceCollisionNormal() const
 {
 	return m_ForceCollisionNormal;
+}
+
+const Sphere* Body::getSurroundingSphere() const
+{
+	return getVolume()->getSurroundingSphere();
 }

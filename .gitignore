@@ -50,3 +50,7 @@ packages/
 Havenborough Launcher/packages.config
 Client/Bin/MahApps.Metro.xml
 BoostTest/Bin/SplineTest.xml
+*.vsp
+*.psess
+Client/Bin/The Apprentice of Havenborough.exe.config
+Client/Bin/The Apprentice of Havenborough.vshost.exe.config

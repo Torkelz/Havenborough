@@ -58,7 +58,7 @@ void BaseGameApp::init()
 
 	m_Physics = IPhysics::createPhysics();
 	m_Physics->setLogFunction(&Logger::logRaw);
-	m_Physics->initialize(false);
+	m_Physics->initialize(false, 1.f / 80.f);
 
 	m_AnimationLoader.reset(new AnimationLoader);
 	m_SpellFactory.reset(new SpellFactory());

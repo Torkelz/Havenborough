@@ -326,6 +326,12 @@
     <ClCompile Include="..\Client\Source\Input\Gamepad.cpp">
       <Filter>TestClient\ClientImport</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Physics\TestOctree.cpp">
+      <Filter>TestPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Physics\Source\Octree.cpp">
+      <Filter>TestPhysics\PhysicsImport</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\dummy.hlsl">

@@ -1,0 +1,44 @@
+*ObjectHeader*
+#numObj: 8
+
+#MESH: House10
+#Translation: 216.632065 124.945068 -1.072634
+#Rotation: 0 0 0
+#Scale: 10 10 639.161621
+
+#MESH: House10
+#Translation: -215.792984 124.945068 -1.072634
+#Rotation: 0 0 0
+#Scale: 10 10 639.161621
+
+#MESH: House10
+#Translation: -2.376497 208.403412 387.758789
+#Rotation: 1.570796 0 0
+#Scale: 10 10 26.920002
+
+#MESH: House10
+#Translation: -2.376497 208.403412 -387.582031
+#Rotation: 1.570796 0 0
+#Scale: 10 10 26.920002
+
+#MESH: House10
+#Translation: -116.36467 159.802963 353.92218
+#Rotation: 1.246447 -0.399164 0
+#Scale: 10 10 234.161667
+
+#MESH: House10
+#Translation: 113.140656 165.968918 353.972046
+#Rotation: -1.260684 -0.368734 -0.13153
+#Scale: 10 10 234.161667
+
+#MESH: House10
+#Translation: 113.140656 166.33992 -354.943878
+#Rotation: 1.267135 0.368832 -0.147826
+#Scale: 10 10 234.161667
+
+#MESH: House10
+#Translation: -116.952858 165.128433 -348.701172
+#Rotation: 1.937363 -0.383458 -0.159763
+#Scale: 10 10 234.161667
+
+

@@ -17,10 +17,12 @@
                 <Setter Property="TextAlignment" Value="Justify" />
                 <Setter Property="Padding" Value="5" />
             </Style>
-            <Style x:Key="InformationPanel" TargetType="StackPanel">
+            <Style x:Key="InformationPanelBorder" TargetType="Border">
+                <Setter Property="Padding" Value="10" />
                 <Setter Property="Background" Value="#FF353535" />
-                <Setter Property="Border.BorderThickness" Value="10" />
-                <Setter Property="Border.BorderBrush" Value="White" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="BorderBrush" Value="White" />
+                <Setter Property="CornerRadius" Value="5"></Setter>
             </Style>
         </ResourceDictionary>
     </Application.Resources>

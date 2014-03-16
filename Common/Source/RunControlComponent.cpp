@@ -71,15 +71,22 @@ void RunControlComponent::move(float p_DeltaTime)
 		XMVECTOR up = XMVectorSet(0.f, 1.f, 0.f, 0.f);
 		XMVECTOR groundNormal = XMLoadFloat3(&m_GroundNormal);
 		XMVECTOR rotAxis = XMVector3Cross(groundNormal, up);
+		bool rotatePlane = false;
+		float rotationAngle = 0.f;
 		if (XMVector3Dot(rotAxis, rotAxis).m128_f32[0] > 0.001f)
 		{
-			float angle = XMVector3AngleBetweenVectors(groundNormal, up).m128_f32[0];
+			rotationAngle = XMVector3AngleBetweenVectors(groundNormal, up).m128_f32[0];
 
-			if (angle < PI * 0.3f)
+			if (rotationAngle < PI * 0.3f)
 			{
-				XMMATRIX rotMatrix = XMMatrixRotationAxis(rotAxis, -angle);
-				vMaxVelocity = XMVector3Transform(vMaxVelocity, rotMatrix);
+				rotatePlane = true;
 			}
+		}
+
+		if (rotatePlane)
+		{
+			XMMATRIX rotMatrix = XMMatrixRotationAxis(rotAxis, -rotationAngle);
+			vMaxVelocity = XMVector3Transform(vMaxVelocity, rotMatrix);
 		}
 
 		float speed = XMVector4Length(currentVelocity).m128_f32[0];
@@ -95,6 +102,15 @@ void RunControlComponent::move(float p_DeltaTime)
 		}
 
 		XMVECTOR diffVel = vMaxVelocity - currentVelocity;	// cm/s
+
+		// Project onto plane
+		if (!rotatePlane)
+		{
+			groundNormal = up;
+		}
+
+		const XMVECTOR projectedNormalLength = XMVector3Dot(diffVel, groundNormal);
+		diffVel -= groundNormal * projectedNormalLength;
 	
 		XMVECTOR force = diffVel / 100.f * m_AccConstant;		// kg * m/s^2
 
@@ -107,6 +123,30 @@ void RunControlComponent::move(float p_DeltaTime)
 
 		m_RunningDirection = Vector3();
 	}
+	else
+	{
+		using namespace DirectX;
+		XMFLOAT3 velocity = m_Physics->getBodyVelocity(body);
+		XMVECTOR currentVelocity = XMLoadFloat3(&velocity);	// cm/s
+
+		XMFLOAT3 maxVelocity(m_RunningDirection.x * getMaxSpeedCurrent(),
+			0.f, m_RunningDirection.z * getMaxSpeedCurrent());	// cm/s
+		XMVECTOR vMaxVelocity = XMLoadFloat3(&maxVelocity);
+
+		XMVECTOR diffVel = XMVectorSet(vMaxVelocity.m128_f32[0] - currentVelocity.m128_f32[0], 0.f, vMaxVelocity.m128_f32[2] - currentVelocity.m128_f32[2], 0.f);	// cm/s
+	
+		XMVECTOR force = (diffVel / 100.f * m_AccConstant) * 0.1f;		// kg * m/s^2
+
+		XMVECTOR forceDiffImpulse = force * p_DeltaTime;	// kg * m/s
+
+		XMFLOAT3 fForceDiff;
+		XMStoreFloat3(&fForceDiff, forceDiffImpulse);
+
+		m_Physics->applyImpulse(body, fForceDiff);
+
+		m_RunningDirection = Vector3();
+	}
+
 }
 
 Vector3 RunControlComponent::getLocalDirection() const

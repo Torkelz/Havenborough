@@ -17,7 +17,8 @@ public:
 	 * The hull is always created with origo as center position, call updatePosition to move the hull to its desired place.
 	 * @param p_Triangles, a list of triangles that make up the hull
 	 */
-	Hull(std::vector<Triangle> p_Triangles)
+	Hull(std::vector<Triangle> p_Triangles) :
+		BoundingVolume(&m_Sphere)
 	{
 		m_BodyHandle = 0;
 		m_Position = DirectX::XMFLOAT4(0.f, 0.f, 0.f, 1.f);
@@ -115,7 +116,7 @@ public:
 	 * Get the sphere surrounding the hull.
 	 * @return m_Sphere the surrounding sphere
 	 */
-	Sphere getSphere() const
+	const Sphere& getSphere() const
 	{
 		return m_Sphere;
 	}
@@ -180,41 +181,44 @@ public:
 	* @param p_C, corner[2] of triangle in world coordinates
 	* @return closest point in the triangle
 	*/
-	DirectX::XMFLOAT4 findClosestPointOnTriangle(DirectX::XMFLOAT4 const &p_Point, int p_TriangleIndex) const
+	DirectX::XMVECTOR findClosestPointOnTriangle(DirectX::XMFLOAT4 const &p_Point, int p_TriangleIndex) const
 	{
-		Triangle triangle = getTriangleInWorldCoord(p_TriangleIndex);
-
-		DirectX::XMVECTOR a = Vector4ToXMVECTOR(&triangle.corners[0]);
-		DirectX::XMVECTOR b = Vector4ToXMVECTOR(&triangle.corners[1]);
-		DirectX::XMVECTOR c = Vector4ToXMVECTOR(&triangle.corners[2]);
-		DirectX::XMVECTOR pos = DirectX::XMLoadFloat4(&p_Point);
+		DirectX::XMVECTOR p = XMLoadFloat4(&m_Position);
 
 		using DirectX::operator-;
 		using DirectX::operator*;
 		using DirectX::operator+;
 
+		DirectX::XMVECTOR a = XMLoadFloat3(&m_Triangles[p_TriangleIndex].corners[0].xyz()) + p;
+		//a.m128_f32[3] = 1.f;
+		DirectX::XMVECTOR b = XMLoadFloat3(&m_Triangles[p_TriangleIndex].corners[1].xyz()) + p;
+		//b.m128_f32[3] = 1.f;
+		DirectX::XMVECTOR c = XMLoadFloat3(&m_Triangles[p_TriangleIndex].corners[2].xyz()) + p;
+		//c.m128_f32[3] = 1.f;
+		DirectX::XMVECTOR pos = DirectX::XMLoadFloat4(&p_Point);
+
 		DirectX::XMVECTOR ab = b - a;
 		DirectX::XMVECTOR ac = c - a;
 		DirectX::XMVECTOR ap = pos - a;
 
-		float d1 = DirectX::XMVector4Dot(ab, ap).m128_f32[0];
-		float d2 = DirectX::XMVector4Dot(ac, ap).m128_f32[0];
-			
-		DirectX::XMFLOAT4 ret;
+		float d1 = DirectX::XMVector3Dot(ab, ap).m128_f32[0];
+		float d2 = DirectX::XMVector3Dot(ac, ap).m128_f32[0];
+
+		//DirectX::XMFLOAT4 ret;
 		if(d1 <= 0.f && d2 <= 0.f)
 		{
-			DirectX::XMStoreFloat4(&ret, a);
-			return ret;
+			//DirectX::XMStoreFloat4(&ret, a);
+			return a;
 		}
 
 		DirectX::XMVECTOR bp = pos - b;
-		float d3 = DirectX::XMVector4Dot(ab, bp).m128_f32[0];
-		float d4 = DirectX::XMVector4Dot(ac, bp).m128_f32[0];
+		float d3 = DirectX::XMVector3Dot(ab, bp).m128_f32[0];
+		float d4 = DirectX::XMVector3Dot(ac, bp).m128_f32[0];
 
 		if(d3 >= 0.f && d4 <= d3)
 		{
-			DirectX::XMStoreFloat4(&ret, b);
-			return ret;
+			//DirectX::XMStoreFloat4(&ret, b);
+			return b;
 		}
 
 		float vc = d1*d4 - d3*d2;
@@ -224,8 +228,8 @@ public:
 		if(vc <= 0.f && d1 >= 0.f && d3 <= 0.f)
 		{
 			float v = d1 / (d1 - d3);	
-			DirectX::XMStoreFloat4(&ret, a + v * ab);
-			return ret;
+			//DirectX::XMStoreFloat4(&ret, a + v * ab);
+			return a + v * ab;
 		}
 
 		DirectX::XMVECTOR cp = pos - c;
@@ -234,32 +238,32 @@ public:
 
 		if(d6 >= 0.f && d5 <= d6)
 		{
-			DirectX::XMStoreFloat4(&ret, c);
-			return ret;
+			//DirectX::XMStoreFloat4(&ret, c);
+			return c;
 		}
 
 		float vb = d5*d2 - d1*d6;
 		if(vb <= 0.f && d2 >= 0.f && d6 <= 0.f)
 		{
 			float w = d2 / (d2 - d6);
-			DirectX::XMStoreFloat4(&ret, a + w * ac);
-			return ret;
+			//DirectX::XMStoreFloat4(&ret, a + w * ac);
+			return a + w * ac;
 		}
 
 		float va = d3*d6 - d5*d4;
 		if(va <= 0.f && (d4 - d3) >= 0.f && (d5 - d6) >= 0.f)
 		{
 			float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-			DirectX::XMStoreFloat4(&ret, b + w * ( c - b ));
-			return ret;
+			//DirectX::XMStoreFloat4(&ret, b + w * ( c - b ));
+			return b + w * ( c - b );
 		}
 
 		float denom = 1.f / ( va + vb + vc);
 
 		float v = vb * denom;
 		float w = vc * denom;
-		DirectX::XMStoreFloat4(&ret, a + ab * v + ac * w);
-		return ret;
+		//DirectX::XMStoreFloat4(&ret, a + ab * v + ac * w);
+		return a + ab * v + ac * w;
 	}
 private:
 	float findFarthestDistanceOnTriangle() const

@@ -1162,6 +1162,9 @@ void Graphics::setFOV(float p_FOV)
 	{
 		m_FOV = 2 * PI / 360.0f * p_FOV;
 
+		if (m_FOV > PI * 0.99f || m_FOV < 0.01f)
+			throw GraphicsException(std::to_string(m_FOV) + "! Are you crazy! What do you think that would look like!", __LINE__, __FILE__);
+		
 		XMStoreFloat4x4(&m_ProjectionMatrix, XMMatrixTranspose(XMMatrixPerspectiveFovLH(m_FOV,
 			(float)m_ScreenWidth / (float)m_ScreenHeight, m_NearZ, m_FarZ)));
 
@@ -1442,8 +1445,9 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 
 ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 {
-	if(m_ModelList.count(p_Identifier) > 0)
-		return &m_ModelList.at(p_Identifier);
+	auto findIt = m_ModelList.find(p_Identifier);
+	if (findIt != m_ModelList.end())
+		return &findIt->second;
 	else
 		throw GraphicsException("Failed to get model from list, vector out of bounds: " + p_Identifier,
 		__LINE__, __FILE__);

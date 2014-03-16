@@ -30,6 +30,9 @@ public:
 	* @return HitData, see HitData definition.
 	*/
 	static HitData boundingVolumeVsHull(BoundingVolume const &p_Volume, Hull const &p_Hull);
+	
+	static bool Collision::surroundingSphereVsSphere(Sphere const &p_Sphere1, Sphere const &p_Sphere2);
+
 	/**
 	* Sphere versus Sphere collision
 	* @return HitData, see HitData definition.
@@ -49,6 +52,12 @@ public:
 	* @return HitData, see HitData definition.
 	*/
 	static HitData AABBvsSphere(AABB const &p_AABB, Sphere const &p_Sphere );
+
+	static bool AABBvsSphereIntersect(DirectX::XMFLOAT4 p_Min, DirectX::XMFLOAT4 p_Max, Sphere const &p_Sphere);
+
+	static bool AABBInsideSphere(DirectX::XMFLOAT4 p_Min, DirectX::XMFLOAT4 p_Max, Sphere const &p_Sphere);
+
+	static bool SphereInsideAABB(DirectX::XMFLOAT4 p_Min, DirectX::XMFLOAT4 p_Max, Sphere const &p_Sphere);
 	/**
 	* OBB versus OBB collision test
 	* ## SphereVsSphere check happens before 

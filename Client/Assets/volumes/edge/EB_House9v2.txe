@@ -1,0 +1,99 @@
+*ObjectHeader*
+#numObj: 19
+
+#MESH: House9v2
+#Translation: -234.848541 291.111328 628.855286
+#Rotation: 0 0 0.317537
+#Scale: 128.688629 10 10
+
+#MESH: House9v2
+#Translation: -452.066833 275.231018 405.969177
+#Rotation: 0 0 0
+#Scale: 315.724213 10 10
+
+#MESH: House9v2
+#Translation: -296.644989 271.704773 516.564026
+#Rotation: 1.570796 0 0
+#Scale: 227.775543 10 10
+
+#MESH: House9v2
+#Translation: -607.160217 315.480072 314.388306
+#Rotation: 1.570796 0 0.407779
+#Scale: 204.690994 10 10
+
+#MESH: House9v2
+#Translation: -607.160217 486.167572 52.103931
+#Rotation: 1.55806 -0.000304488 0.65225
+#Scale: 427.140137 10 10
+
+#MESH: House9v2
+#Translation: -607.160217 482.608917 -286.984772
+#Rotation: 1.570796 0 -0.655968
+#Scale: 432.876587 10 10
+
+#MESH: House9v2
+#Translation: -607.160217 311.701843 -547.164307
+#Rotation: 1.570796 0 -0.40344
+#Scale: 194.596786 10 10
+
+#MESH: House9v2
+#Translation: 0 275.231018 -635.345947
+#Rotation: 0 0 0
+#Scale: 1225.303345 10 10
+
+#MESH: House9v2
+#Translation: 331.497253 271.415527 519.101868
+#Rotation: 1.570796 0 0
+#Scale: 223.439865 10 10
+
+#MESH: House9v2
+#Translation: 471.77182 275.231018 405.969177
+#Rotation: 0 0 0
+#Scale: 288.120148 10 10
+
+#MESH: House9v2
+#Translation: 274.411926 288.519989 628.855286
+#Rotation: 0 0 -0.307736
+#Scale: 125.259315 10 10
+
+#MESH: House9v2
+#Translation: 119.373993 426.657959 628.855286
+#Rotation: 0 0 -0.892159
+#Scale: 302.834869 10 10
+
+#MESH: House9v2
+#Translation: -78.242737 427.768494 628.855286
+#Rotation: 0 0 0.888105
+#Scale: 299.10611 10 10
+
+#MESH: House9v2
+#Translation: 28.211321 544.730347 298.79834
+#Rotation: 1.570796 0 0
+#Scale: 660.695251 10 10
+
+#MESH: House9v2
+#Translation: 14.056079 544.806885 298.79834
+#Rotation: 1.570796 0 0
+#Scale: 660.695251 10 10
+
+#MESH: House9v2
+#Translation: 612.41095 311.701843 -547.164307
+#Rotation: 1.570796 0 -0.40344
+#Scale: 194.596786 10 10
+
+#MESH: House9v2
+#Translation: 612.41095 482.608917 -286.984772
+#Rotation: 1.570796 0 -0.655968
+#Scale: 432.876587 10 10
+
+#MESH: House9v2
+#Translation: 612.41095 486.167572 52.103931
+#Rotation: 1.55806 -0.000304488 0.65225
+#Scale: 427.140137 10 10
+
+#MESH: House9v2
+#Translation: 612.41095 315.480072 314.388306
+#Rotation: 1.570796 0 0.407779
+#Scale: 204.690994 10 10
+
+

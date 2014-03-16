@@ -119,12 +119,7 @@ void HumanAnimationComponent::updateAnimation()
 			}
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
 	
-			if(m_FallSpeed <= -3400.f)
-			{
-				currentJumpState = JumpAnimationState::HARD_LANDING;
-				m_EventManager->queueEvent(IEventData::Ptr(new CreateSingleSoundEventData("Land", 50.0f, m_Owner->getPosition(), nulled)));
-				m_Landing = true;
-			}
+
 			if(m_FallSpeed <= -2400.0f)
 			{
 				currentJumpState = JumpAnimationState::HARD_LANDING;
@@ -174,7 +169,6 @@ void HumanAnimationComponent::updateAnimation()
 				int lol = 42;
 			static const float runLimit = 100.f;
 			float flyLimit = 500.0f;
-			Vector3 nulled = Vector3(0,0,0);
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
 
 			if(XMVectorGetY(velocity) < flyLimit)

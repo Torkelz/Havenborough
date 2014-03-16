@@ -159,6 +159,7 @@ $(TargetPath)</Command>
     <ClCompile Include="..\Network\Source\NetworkLogger.cpp" />
     <ClCompile Include="..\Physics\Source\Body.cpp" />
     <ClCompile Include="..\Physics\Source\BVLoader.cpp" />
+    <ClCompile Include="..\Physics\Source\Octree.cpp" />
     <ClCompile Include="..\Physics\Source\Physics.cpp" />
     <ClCompile Include="..\Network\Source\ConnectionController.cpp" />
     <ClCompile Include="..\Network\Source\Network.cpp" />
@@ -190,6 +191,7 @@ $(TargetPath)</Command>
     <ClCompile Include="Source\Loader\TestLoader.cpp" />
     <ClCompile Include="Source\Network\TestConnectionController.cpp" />
     <ClCompile Include="Source\Network\TestSerialize.cpp" />
+    <ClCompile Include="Source\Physics\TestOctree.cpp" />
     <ClCompile Include="Source\testProgram.cpp" />
     <ClCompile Include="Source\SceneManager\TestSceneManager.cpp" />
     <ClCompile Include="Source\Client\TestWindow.cpp" />
