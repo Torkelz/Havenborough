@@ -1445,8 +1445,9 @@ Shader *Graphics::getShaderFromList(string p_Identifier)
 
 ModelDefinition *Graphics::getModelFromList(string p_Identifier)
 {
-	if(m_ModelList.count(p_Identifier) > 0)
-		return &m_ModelList.at(p_Identifier);
+	auto findIt = m_ModelList.find(p_Identifier);
+	if (findIt != m_ModelList.end())
+		return &findIt->second;
 	else
 		throw GraphicsException("Failed to get model from list, vector out of bounds: " + p_Identifier,
 		__LINE__, __FILE__);

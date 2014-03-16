@@ -324,14 +324,14 @@ void DeferredRenderer::renderGeometry(ID3D11DepthStencilView* p_DepthStencilView
 	m_Buffer["ObjectConstant"]->setBuffer(1);
 	m_Buffer["AnimatedConstant"]->setBuffer(2);
 
-	for( auto animation : p_AnimatedOrSingle )
+	for(const auto& animation : p_AnimatedOrSingle )
 		renderObject(animation);
 
 	m_DeviceContext->PSSetShaderResources(0, 3, nullsrvs);
 	m_Buffer["AnimatedConstant"]->unsetBuffer(2);
 	m_Buffer["ObjectConstant"]->unsetBuffer(1);
 
-	for( auto k : p_InstancedModels)
+	for(const auto& k : p_InstancedModels)
 		RenderObjectsInstanced(k,p_Shader);
 	
 	ID3D11SamplerState* const nullSamplerState = nullptr;
@@ -1088,7 +1088,7 @@ void DeferredRenderer::createRandomTexture(unsigned int p_Size)
 	SAFE_RELEASE(texture);
 }
 
-void DeferredRenderer::renderObject(Renderable &p_Object)
+void DeferredRenderer::renderObject(const Renderable &p_Object)
 {
 	p_Object.model->vertexBuffer->setBuffer(0);
 
@@ -1182,7 +1182,7 @@ void DeferredRenderer::SortRenderables( std::vector<Renderable> &animatedOrSingl
 	});
 }
 
-void DeferredRenderer::RenderObjectsInstanced( std::vector<Renderable> &p_Objects, Shader* p_Shader)
+void DeferredRenderer::RenderObjectsInstanced(const std::vector<Renderable> &p_Objects, Shader* p_Shader)
 {
 	if(p_Objects.size() >  m_Buffer["WorldInstance"]->getNumOfElements())
 	{
