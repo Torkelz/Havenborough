@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Havenborough_Launcher"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        Title="Havenborough" Height="645" Width="875" ResizeMode="NoResize" Icon="Havenborough.ico">
+        Title="The Apprentice of Havenborough" Height="645" Width="875" ResizeMode="NoResize" Icon="Havenborough.ico">
     <Controls:MetroWindow.Resources>
         <local:StringToBoolConverter x:Key="StringToBoolConverter" />
         <local:GameList x:Key="GameDataSource" />
@@ -22,6 +22,7 @@
             <ColumnDefinition Width="65*" />
             <ColumnDefinition Width="35*" />
         </Grid.ColumnDefinitions>
+        
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="70*" />
@@ -95,16 +96,18 @@
                     <StackPanel x:Name="SoundSettings" Orientation="Vertical" HorizontalAlignment="Left" Width="200">
                         <StackPanel Orientation="Vertical" Margin="0,5,0,0"
                                         DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/MusicVolume}">
+                            <MediaElement x:Name="MusicVolumeMedia" LoadedBehavior="Manual" />
                             <TextBlock FontSize="14" Text="Music Volume"/>
                             <Slider x:Name="MusicVolumeSlider"  Value="{Binding XPath=@Value, Mode=TwoWay}" Width="95" Minimum="0" Maximum="100"
-                                        HorizontalAlignment="Left" ValueChanged="Slider_OnChanged"/>
+                                    HorizontalAlignment="Left" ValueChanged="Slider_OnChanged" />
                             <TextBlock x:Name="MusicVolumeValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Margin="0,5,0,0"
                                         DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Settings/SfxVolume}">
+                            <MediaElement x:Name="SfxVolumeMedia" LoadedBehavior="Manual" />
                             <TextBlock FontSize="14" Text="Sfx Volume"/>
                             <Slider x:Name="SfxVolumeSlider"  Value="{Binding XPath=@Value, Mode=TwoWay}" Width="95" Minimum="0" Maximum="100"
-                                        HorizontalAlignment="Left" ValueChanged="Slider_OnChanged"/>
+                                    HorizontalAlignment="Left" ValueChanged="Slider_OnChanged" />
                             <TextBlock x:Name="SfxVolumeValue" Text="{Binding XPath=@Value, Mode=OneTime}" />
                         </StackPanel>
                     </StackPanel>
@@ -137,7 +140,7 @@
                         <StackPanel Margin="10,0,10,0" VerticalAlignment="Center">
                             <Button x:Name="RefreshButton" Width="100" Height="50" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"
                                     Click="RefreshButton_OnClick" Content="REFRESH"/>
-                            <Button x:Name="LaunchButton" IsEnabled="False" Width="100" Height="50" FontSize="16" FontWeight="Bold"
+                            <Button x:Name="LaunchButton" IsEnabled="True" Width="100" Height="50" FontSize="16" FontWeight="Bold"
                                     Margin="0,5,0,0"  Click="LaunchButton_OnClick" Content="LAUNCH"/>
                         </StackPanel>
                     </StackPanel>

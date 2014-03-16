@@ -20,6 +20,7 @@ namespace Havenborough_Launcher
     {
         private const string ClientExec = "Client.exe";
         private const string ServerExec = "Server.exe";
+        private static bool _sfxStartUp = true;
         
         /// <summary>
         /// Launcher main window. Creates main window and displays for user interaction.
@@ -36,6 +37,8 @@ namespace Havenborough_Launcher
             {
                 ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg", UriKind.Relative))
             };
+            MusicVolumeMedia.Source = new Uri(@"assets\sounds\launcher\Music.mp3", UriKind.Relative);
+            MusicVolumeMedia.Play();
 
             RefreshGameList();
         }
@@ -395,7 +398,7 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source);
             try
             {
-                Process.Start(ClientExec);
+                //Process.Start(ClientExec);
             }
             catch (Exception ex)
             {
@@ -542,12 +545,21 @@ namespace Havenborough_Launcher
                 {
                     MusicVolumeValue.Text = (int) slider.Value == 0 ? 
                         "Muted" : ((int) slider.Value).ToString(CultureInfo.InvariantCulture);
+                    MusicVolumeMedia.Volume = slider.Value * 0.01;
                     break;
                 }
                 case "SfxVolumeSlider":
                 {
                     SfxVolumeValue.Text = (int)slider.Value == 0 ?
                         "Muted" : ((int)slider.Value).ToString(CultureInfo.InvariantCulture);
+                    if (_sfxStartUp)
+                        _sfxStartUp = false;
+                    else
+                    {
+                       SfxVolumeMedia.Source = new Uri(@"assets\sounds\launcher\", UriKind.Relative);
+                       SfxVolumeMedia.Volume = slider.Value * 0.01;
+                       SfxVolumeMedia.Play(); 
+                    }
                     break;
                 }
             }
