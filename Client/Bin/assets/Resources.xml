@@ -12,7 +12,7 @@
     </ResourceType>
     <ResourceType Type="sound">
         <Resource Name="Shoot" Path="assets/sounds/spell/Shoot.mp3"/>
-        <Resource Name="Explotion" Path="assets/sounds/spell/Explotion.mp3"/>
+        <Resource Name="Explosion" Path="assets/sounds/spell/Explosion.mp3"/>
         <Resource Name="InAir" Path="assets/sounds/spell/Shoot.mp3"/>
         <Resource Name="Land" Path="assets/sounds/sfx/Land.mp3"/>
         <Resource Name="Running" Path="assets/sounds/sfx/Running.mp3"/>

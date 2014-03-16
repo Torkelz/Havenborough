@@ -1593,13 +1593,16 @@ class Create3DSoundEventData : public BaseEventData
 {
 private:
 	float m_MinDistance;
-	std::string m_SoundID;
+	std::string m_SoundTitle;
 	Actor::Id m_ActorID; 
+	int m_SoundID;
+	bool m_3D;
+	bool m_Loop;
 public:
 	static const Type sk_EventType = Type(0xa05bbdd8);
 
-	Create3DSoundEventData(const char* p_SoundID, Actor::Id p_ActorID, float p_MinDistance)
-		: m_SoundID(p_SoundID), m_ActorID(p_ActorID), m_MinDistance(p_MinDistance)
+	Create3DSoundEventData(const char* p_SoundTitle, Actor::Id p_ActorID, float p_MinDistance, int p_SoundID, bool p_3D, bool p_Loop)
+		: m_SoundTitle(p_SoundTitle), m_ActorID(p_ActorID), m_MinDistance(p_MinDistance), m_SoundID(p_SoundID), m_3D(p_3D), m_Loop(p_Loop)
 	{
 	}
 
@@ -1610,7 +1613,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new Create3DSoundEventData(m_SoundID.c_str(), m_ActorID, m_MinDistance));
+		return Ptr(new Create3DSoundEventData(m_SoundTitle.c_str(), m_ActorID, m_MinDistance, m_SoundID, m_3D, m_Loop));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1627,14 +1630,29 @@ public:
 		return m_ActorID;
 	}
 
-	const std::string getSoundID() const
+	const std::string getSoundTitle() const
 	{
-		return m_SoundID;
+		return m_SoundTitle;
 	}
 
 	const float getMinDistance() const
 	{
 		return m_MinDistance;
+	}
+
+	const int getSoundID() const
+	{
+		return m_SoundID;
+	}
+
+	const bool get3DBool() const
+	{
+		return m_3D;
+	}
+
+	const bool getLoopBool() const
+	{
+		return m_Loop;
 	}
 };
 
@@ -1642,14 +1660,15 @@ class Play3DSoundEventData : public BaseEventData
 {
 private:
 	Actor::Id m_ActorID;
+	int m_SoundID;
 	Vector3 m_Position;
 	Vector3 m_Velocity;
 
 public:
 	static const Type sk_EventType = Type(0x5fcc08af);
 
-	Play3DSoundEventData(Actor::Id p_ActorID, Vector3 p_Position, Vector3 p_Velocity)
-		: m_ActorID(p_ActorID), m_Position(p_Position), m_Velocity(p_Velocity)
+	Play3DSoundEventData(Actor::Id p_ActorID, int p_SoundID, Vector3 p_Position, Vector3 p_Velocity)
+		: m_ActorID(p_ActorID), m_SoundID(p_SoundID), m_Position(p_Position), m_Velocity(p_Velocity)
 	{
 	}
 
@@ -1660,7 +1679,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new Play3DSoundEventData(m_ActorID, m_Position, m_Velocity));
+		return Ptr(new Play3DSoundEventData(m_ActorID, m_SoundID, m_Position, m_Velocity));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1675,6 +1694,11 @@ public:
 	const Actor::Id getActorID() const
 	{
 		return m_ActorID;
+	}
+
+	const int getSoundID() const
+	{
+		return m_SoundID;
 	}
 
 	Vector3 getPosition() const
@@ -1692,12 +1716,13 @@ class Release3DSoundEventData : public BaseEventData
 {
 private:
 	Actor::Id m_ActorID;
+	int m_SoundID;
 
 public:
 	static const Type sk_EventType = Type(0x32376336);
 
-	Release3DSoundEventData(Actor::Id p_ActorID)
-		: m_ActorID(p_ActorID)
+	Release3DSoundEventData(Actor::Id p_ActorID, int p_SoundID)
+		: m_ActorID(p_ActorID), m_SoundID(p_SoundID)
 	{
 	}
 
@@ -1708,7 +1733,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new Release3DSoundEventData(m_ActorID));
+		return Ptr(new Release3DSoundEventData(m_ActorID, m_SoundID));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1724,19 +1749,25 @@ public:
 	{
 		return m_ActorID;
 	}
+
+	const int getSoundID() const
+	{
+		return m_SoundID;
+	}
 };
 
 class Update3DSoundEventData : public BaseEventData
 {
 private:
 	Actor::Id m_ActorID;
+	int m_SoundID;
 	Vector3 m_Position;
 	Vector3 m_Velocity;
 public:
 	static const Type sk_EventType = Type(0x8941b8d4);
 
-	Update3DSoundEventData(Actor::Id p_ActorID, Vector3 p_Position, Vector3 p_Velocity)
-		: m_ActorID(p_ActorID), m_Position(p_Position), m_Velocity(p_Velocity)
+	Update3DSoundEventData(Actor::Id p_ActorID, int p_SoundID, Vector3 p_Position, Vector3 p_Velocity)
+		: m_ActorID(p_ActorID), m_SoundID(p_SoundID), m_Position(p_Position), m_Velocity(p_Velocity)
 	{
 	}
 
@@ -1747,7 +1778,7 @@ public:
 
 	virtual Ptr copy(void) const override
 	{
-		return Ptr(new Update3DSoundEventData(m_ActorID, m_Position, m_Velocity));
+		return Ptr(new Update3DSoundEventData(m_ActorID, m_SoundID, m_Position, m_Velocity));
 	}
 
 	virtual void serialize(std::ostream &p_Out) const override
@@ -1764,6 +1795,11 @@ public:
 		return m_ActorID;
 	}
 
+	const int getSoundID() const
+	{
+		return m_SoundID;
+	}
+
 	Vector3 getPosition() const
 	{
 		return m_Position;
@@ -1775,4 +1811,107 @@ public:
 	}
 };
 
+class PausedSoundEventData : public BaseEventData
+{
+private:
+	Actor::Id m_ActorID;
+	int m_SoundID;
+	bool m_Paused;
+public:
+	static const Type sk_EventType = Type(0xb76661e6);
+
+	PausedSoundEventData(Actor::Id p_ActorID, int p_SoundID, bool p_Paused)
+		: m_ActorID(p_ActorID), m_SoundID(p_SoundID), m_Paused(p_Paused)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new PausedSoundEventData(m_ActorID, m_SoundID, m_Paused));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "PausedSoundEventData";
+	}
+
+	const Actor::Id getActorID() const
+	{
+		return m_ActorID;
+	}
+
+	const int getSoundID() const
+	{
+		return m_SoundID;
+	}
+
+	const bool getPaused() const
+	{
+		return m_Paused;
+	}
+};
+
+class CreateSingleSoundEventData : public BaseEventData
+{
+private:
+	std::string m_SoundTitle;
+	float m_MinDistance;
+	Vector3 m_Position;
+	Vector3 m_Velocity;
+public:
+	static const Type sk_EventType = Type(0xf169ae09);
+
+	CreateSingleSoundEventData(std::string p_SoundTitle, float p_MinDistance, Vector3 p_Position, Vector3 p_Velocity)
+		: m_SoundTitle(p_SoundTitle), m_MinDistance(p_MinDistance), m_Position(p_Position), m_Velocity(p_Velocity)
+	{
+	}
+
+	virtual const Type &getEventType(void) const override
+	{
+		return sk_EventType;
+	}
+
+	virtual Ptr copy(void) const override
+	{
+		return Ptr(new CreateSingleSoundEventData(m_SoundTitle, m_MinDistance, m_Position, m_Velocity));
+	}
+
+	virtual void serialize(std::ostream &p_Out) const override
+	{
+	}
+
+	virtual const char *getName(void) const override
+	{
+		return "CreateSingleSoundEventData";
+	}
+
+	const std::string getSoundTitle() const
+	{
+		return m_SoundTitle;
+	}
+
+	const float getMinDistance() const
+	{
+		return m_MinDistance;
+	}
+
+	Vector3 getPosition() const
+	{
+		return m_Position;
+	}
+
+	Vector3 getVelocity() const
+	{
+		return m_Velocity;
+	}
+};
 #pragma warning(pop)

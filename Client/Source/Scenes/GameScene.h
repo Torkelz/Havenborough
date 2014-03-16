@@ -61,7 +61,7 @@ private:
 	struct SoundBinding
 	{
 		int soundID;
-		Actor::Id actorID;
+		std::pair<Actor::Id,int> actorID;
 		int resourceID;
 	};
 	
@@ -137,6 +137,8 @@ private:
 	void play3DSound(IEventData::Ptr p_Data);
 	void release3DSound(IEventData::Ptr p_Data);
 	void update3DSound(IEventData::Ptr p_Data);
+	void setPausedSound(IEventData::Ptr p_Data);
+	void createSingleSound(IEventData::Ptr p_Data);
 
 
 	void createWorldText(IEventData::Ptr p_Data);
