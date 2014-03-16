@@ -32,57 +32,48 @@ void IPhysics::deletePhysics(IPhysics* p_Physics)
 
 Body* Physics::findBody(BodyHandle p_Body)
 {
-	for (Body& b : m_Bodies)
+	auto findRes = m_Bodies.find(p_Body);
+	if (findRes == m_Bodies.end())
 	{
-		if (b.getHandle() == p_Body)
-		{
-			return &b;
-		}
+		return nullptr;
 	}
 
-	return nullptr;
+	return &findRes->second;
 }
 
-void Physics::initialize(bool p_IsServer)
+void Physics::initialize(bool p_IsServer, float p_Timestep)
 {
 	PhysicsLogger::log(PhysicsLogger::Level::INFO, "Initializing physics");
 
 	fillTriangleIndexList();
 	m_LoadBVSphereTemplateOnce = true;
 	m_IsServer = p_IsServer;
+	m_Timestep = p_Timestep;
+	m_LeftOverTime = 0.f;
 }
 
-void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
+void Physics::update(float p_DeltaTime, unsigned p_MaxSteps)
 {
-	int itr = 1;
-
-	float timestep = 1 / (float)(p_FPSCheckLimit * 2.f); 
-
-	if(timestep*2.f < p_DeltaTime)
-	{
-		itr = (int)ceil(fabs(p_DeltaTime / timestep - 0.5f)); // When the fps goes under this the game start to update physics more than once / frame.
-		//itr = 1;
-
-		if(itr > 4)
-			itr = 4;
-		else if(itr == 0)
-			itr = 1;
-						
-		p_DeltaTime /= itr;
-	}
+	m_LeftOverTime += p_DeltaTime;
+	unsigned int itr = 0;
 
 	m_HitDatas.clear();
-	unsigned int nrOfBodies = m_Bodies.size();
-	for(int p = 0; p < itr; p++)
+	while (m_LeftOverTime >= m_Timestep)
 	{
-		for(unsigned i = 0; i < nrOfBodies; i++)
+		++itr;
+		if (itr > p_MaxSteps)
 		{
-			Body& b = m_Bodies[i];
+			m_LeftOverTime = 0;
+			break;
+		}
 
-			if(b.getIsImmovable())
-				continue;
+		m_LeftOverTime -= m_Timestep;
 
-			b.update(p_DeltaTime);
+		for(BodyHandle movableBodyHandle : m_MovableBodies)
+		{
+			Body& b = *findBody(movableBodyHandle);
+
+			b.update(m_Timestep);
 
 			b.setLanded(false);
 
@@ -99,39 +90,19 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 
 				Body& b2 = *findBody(potentialIntersection);
 				
-				for(unsigned int k = 0; k < b.getVolumeListSize(); k++)
-				{
-					for(unsigned int l = 0; l < b2.getVolumeListSize(); l++)
-					{
-						HitData hit = Collision::boundingVolumeVsBoundingVolume(*b.getVolume(k), *b2.getVolume(l));
-	
-						if(hit.intersect)
-						{
-							if(isCameraPlayerCollision(b, b2))
-								break;
-
-							if(k == 0 && hit.colType == Type::HULLVSSPHERE)
-							{
-								XMFLOAT4 fBodyPos = b.getPosition();
-								XMFLOAT4 fVictimPos = b2.getPosition();
-								Sphere s = ((Hull*)b2.getVolume(l))->getSphere();
-								float r  = ((Sphere*)b.getVolume(0))->getRadius();
-								if((s.getRadius() < 1.f && fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y))
-								{
-									//PhysicsLogger::log(PhysicsLogger::Level::INFO, "StepSize");
-									setBodyForceCollisionNormal(b.getHandle(), b2.getHandle(), true);
-								}
-								else
-									handleCollision(hit, i, k, b2, l, isOnGround);
-							}
-							else
-								handleCollision(hit, i, k, b2, l, isOnGround);
-						}
-					}
-				}
+				singleCollisionCheck(b, b2, isOnGround);
 			}
-
 			m_PotentialIntersections.clear();
+
+			for (BodyHandle otherMovableHandle : m_MovableBodies)
+			{
+				if (b.getHandle() == otherMovableHandle)
+					continue;
+
+				Body& b2 = *findBody(otherMovableHandle);
+
+				singleCollisionCheck(b, b2, isOnGround);
+			}
 
 			if(!m_IsServer)
 			{
@@ -142,9 +113,46 @@ void Physics::update(float p_DeltaTime, unsigned p_FPSCheckLimit)
 	}
 }
 
-void Physics::handleCollision(HitData p_Hit, int p_Collider, int p_ColliderVolumeId, Body& p_Victim, int p_VictimVolumeID, bool &p_IsOnGround)
+void Physics::singleCollisionCheck(Body& p_Collider, Body& p_Victim, bool& p_IsOnGround)
 {
-	Body& b = m_Bodies[p_Collider];
+	if (!Collision::surroundingSphereVsSphere(*p_Collider.getSurroundingSphere(), *p_Victim.getSurroundingSphere()))
+		return;
+
+	for(unsigned int k = 0; k < p_Collider.getVolumeListSize(); k++)
+	{
+		for(unsigned int l = 0; l < p_Victim.getVolumeListSize(); l++)
+		{
+			HitData hit = Collision::boundingVolumeVsBoundingVolume(*p_Collider.getVolume(k), *p_Victim.getVolume(l));
+	
+			if(hit.intersect)
+			{
+				if(isCameraPlayerCollision(p_Collider, p_Victim))
+					break;
+
+				if(k == 0 && hit.colType == Type::HULLVSSPHERE)
+				{
+					XMFLOAT4 fBodyPos = p_Collider.getPosition();
+					XMFLOAT4 fVictimPos = p_Victim.getPosition();
+					Sphere s = ((Hull*)p_Victim.getVolume(l))->getSphere();
+					float r  = ((Sphere*)p_Collider.getVolume(0))->getRadius();
+					if((s.getRadius() < 1.f && fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y))
+					{
+						//PhysicsLogger::log(PhysicsLogger::Level::INFO, "StepSize");
+						setBodyForceCollisionNormal(p_Collider.getHandle(), p_Victim.getHandle(), true);
+					}
+					else
+						handleCollision(hit, p_Collider, k, p_Victim, l, p_IsOnGround);
+				}
+				else
+					handleCollision(hit, p_Collider, k, p_Victim, l, p_IsOnGround);
+			}
+		}
+	}
+}
+
+void Physics::handleCollision(HitData p_Hit, Body& p_Collider, int p_ColliderVolumeId, Body& p_Victim, int p_VictimVolumeID, bool &p_IsOnGround)
+{
+	Body& b = p_Collider;
 	Body& b1 = p_Victim;
 	p_Hit.collider = b.getHandle();
 	p_Hit.IDInBody = p_ColliderVolumeId;
@@ -319,20 +327,21 @@ BodyHandle Physics::createBVInstance(const char* p_VolumeID)
 
 void Physics::releaseBody(BodyHandle p_Body)
 {
-	for (auto& body : m_Bodies)
+	auto findIt = m_Bodies.find(p_Body);
+	if (findIt == m_Bodies.end())
+		return;
+
+	Body& removedBody = findIt->second;
+	if (removedBody.getIsImmovable())
 	{
-		if (body.getHandle() == p_Body)
-		{
-			std::swap(body, m_Bodies.back());
-			Body& removedBody = m_Bodies.back();
-			if (removedBody.getIsImmovable())
-			{
-				m_Octree.removeBody(p_Body, removedBody.getSurroundingSphere());
-			}
-			m_Bodies.pop_back();
-			return;
-		}
+		m_Octree.removeBody(p_Body, removedBody.getSurroundingSphere());
 	}
+	else
+	{
+		m_MovableBodies.erase(p_Body);
+	}
+
+	m_Bodies.erase(findIt);
 }
 
 bool Physics::createBV(const char* p_VolumeID, const char* p_FilePath)
@@ -381,13 +390,13 @@ bool Physics::releaseBV(const char* p_VolumeID)
 
 void Physics::releaseAllBoundingVolumes(void)
 {
-	m_Bodies.clear();
-	m_Bodies.shrink_to_fit();
-	Body b;
-	b.resetBodyHandleCounter();
+	std::swap(m_Bodies, std::map<BodyHandle, Body>());
+
+	Body::resetBodyHandleCounter();
 	m_sphereBoundingVolume.clear();
 
 	m_Octree.reset();
+	m_MovableBodies.clear();
 }
 
 void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
@@ -413,13 +422,20 @@ void Physics::setBodyScale(BodyHandle p_BodyHandle, Vector3 p_Scale)
 
 BodyHandle Physics::createBody(float p_Mass, BoundingVolume* p_BoundingVolume, bool p_IsImmovable, bool p_IsEdge)
 {
-	m_Bodies.emplace_back(p_Mass, BoundingVolume::ptr(p_BoundingVolume), p_IsImmovable, p_IsEdge);
-	m_Bodies.back().setGravity(m_GlobalGravity);
+	Body b(p_Mass, BoundingVolume::ptr(p_BoundingVolume), p_IsImmovable, p_IsEdge);
+	Body& insertedBody = m_Bodies[b.getHandle()] = std::move(b);
+	insertedBody.setGravity(m_GlobalGravity);
+
 	if (p_IsImmovable)
 	{
-		m_Octree.addBody(m_Bodies.back().getHandle(), m_Bodies.back().getSurroundingSphere());
+		m_Octree.addBody(insertedBody.getHandle(), insertedBody.getSurroundingSphere());
 	}
-	return m_Bodies.back().getHandle();
+	else
+	{
+		m_MovableBodies.insert(insertedBody.getHandle());
+	}
+
+	return insertedBody.getHandle();
 }
 
 void Physics::fillTriangleIndexList()
