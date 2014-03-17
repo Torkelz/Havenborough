@@ -22,7 +22,6 @@
             <ColumnDefinition Width="65*" />
             <ColumnDefinition Width="35*" />
         </Grid.ColumnDefinitions>
-        
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="70*" />
@@ -44,7 +43,7 @@
                         <StackPanel Orientation="Vertical" Margin="5,0,0,0" Width="95"
                                     DataContext="{Binding Source={StaticResource DataProvider}, XPath=/UserOptions/Character}">
                             <TextBlock FontSize="14" Text="Style" />
-                            <ComboBox Loaded="CharacterStyle_OnLoaded" SelectionChanged="CharacterStyle_OnChanged"/>
+                            <ComboBox Loaded="CharacterStyle_OnLoaded" SelectionChanged="CharacterStyle_OnChanged" />
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
@@ -174,7 +173,7 @@
                                     <TextBox x:Name="KeyBindTextBox" Text="{Binding XPath=@Key, Mode=OneTime}" Width="80" IsReadOnly="True"
                                              TextAlignment="Center" Loaded="KeyBindBox_OnLoaded" PreviewMouseDown="TextBox_OnMouseDown"
                                              MouseRightButtonUp="Controlers_OnMouseRightButtonUp" LostFocus="TextBox_OnLostFocus"/>
-                                    <TextBlock x:Name="KeyBindTextBlock" Text="{Binding XPath=@Display, Mode=OneTime}" Margin="5,5,0,0"/>
+                                    <TextBlock x:Name="KeyBindTextBlock" Text="{Binding XPath=@Display, Mode=OneTime}" Margin="5,5,0,0" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>

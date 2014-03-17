@@ -583,6 +583,12 @@ namespace Havenborough_Launcher
 
             textBox.Background = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x25));
         }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            MusicVolumeMedia.Play();
+        }
     }
 
     public class BoolInverterConverter : IValueConverter
