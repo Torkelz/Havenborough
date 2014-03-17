@@ -855,6 +855,11 @@ bool Physics::validBody(BodyHandle p_BodyHandle)
 		return true;
 }
 
+float Physics::getTimestep() const
+{
+	return m_Timestep;
+}
+
 bool Physics::isCameraPlayerCollision(Body const &p_Collider, Body const &p_Victim)
 {
 	if(p_Collider.getGravity() > 0.f && p_Victim.getGravity() > 0.f)

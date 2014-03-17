@@ -194,7 +194,7 @@ public:
 				if(m_Physics->getHitDataAt(i).collisionVictim == m_Body)
 				{
 					m_Owner->getEventManager()->queueEvent(IEventData::Ptr(new SpellHitSphereEventData( m_Physics->getHitDataAt(i).collider )));
-					m_SpellInstance->spellHit(p_DeltaTime, m_Physics, m_Physics->getHitDataAt(i), m_Caster.lock()->getBodyHandles()[0]);
+					m_SpellInstance->spellHit(m_Physics, m_Physics->getHitDataAt(i), m_Caster.lock()->getBodyHandles()[0]);
 				}
 			}
 		}

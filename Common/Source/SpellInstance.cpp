@@ -74,13 +74,13 @@ bool SpellInstance::isDead() const
 	return m_IsDead;
 }
 
-void SpellInstance::spellHit(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit, BodyHandle p_CasterBody)
+void SpellInstance::spellHit(IPhysics* p_Physics, const HitData& p_Hit, BodyHandle p_CasterBody)
 {
 	switch (m_SpellDefinition->m_Type)
 	{
 	case SpellDefinition::Type::EXPLOSION:
 		{
-			explodeSpell(p_DeltaTime, p_Physics, p_Hit, p_CasterBody);
+			explodeSpell(p_Physics, p_Hit, p_CasterBody);
 			break;
 		}
 
@@ -98,7 +98,7 @@ bool SpellInstance::isColliding() const
 	return m_IsColliding;
 }
 
-void SpellInstance::explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const HitData& p_Hit, BodyHandle p_CasterBody)
+void SpellInstance::explodeSpell(IPhysics* p_Physics, const HitData& p_Hit, BodyHandle p_CasterBody)
 {
 	float modifier = -1.f;
 	float casterEffectModifier = 1.4f;
@@ -110,11 +110,11 @@ void SpellInstance::explodeSpell(float p_DeltaTime, IPhysics* p_Physics, const H
 		
 		if (p_Hit.collider == p_CasterBody)
 		{
-			p_Physics->applyImpulse(p_Hit.collider, vTemp.xyz()  * p_DeltaTime);
+			p_Physics->applyImpulse(p_Hit.collider, vTemp.xyz()  * p_Physics->getTimestep());
 		} 
 		else
 		{
-			p_Physics->applyImpulse(p_Hit.collider, vTemp.xyz() * casterEffectModifier * p_DeltaTime);
+			p_Physics->applyImpulse(p_Hit.collider, vTemp.xyz() * casterEffectModifier  * p_Physics->getTimestep());
 		}
 
 
