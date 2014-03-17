@@ -398,6 +398,7 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source);
             try
             {
+                MusicVolumeMedia.Stop();
                 Process.Start(ClientExec);
             }
             catch (Exception ex)
