@@ -11,6 +11,7 @@
         <Resource Name="Crosshair" Path="assets/textures/Dot.png"/>
     </ResourceType>
     <ResourceType Type="sound">
+        <Resource Name="Fire" Path="assets/sounds/sfx/Fire.mp3"/>
         <Resource Name="Shoot" Path="assets/sounds/spell/Shoot.mp3"/>
         <Resource Name="Explosion" Path="assets/sounds/spell/Explosion.mp3"/>
         <Resource Name="InAir" Path="assets/sounds/spell/Shoot.mp3"/>

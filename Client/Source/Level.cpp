@@ -1,12 +1,14 @@
 #include "Level.h"
 #include "InstanceBinaryLoader.h"
 #include "boost\filesystem.hpp"
+#include "EventData.h"
 #include <XMLHelper.h>
 
-Level::Level(ResourceManager* p_Resources, ActorFactory* p_ActorFactory)
+Level::Level(ResourceManager* p_Resources, ActorFactory* p_ActorFactory, EventManager* p_EventManager)
 {
 	m_Resources = p_Resources;
 	m_ActorFactory = p_ActorFactory;
+	m_EventManager = p_EventManager;
 
 	m_StartPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_GoalPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -114,6 +116,12 @@ bool Level::loadLevel(std::istream& p_LevelData, ActorList::ptr p_ActorOut)
 			Vector3 position = Vector3(effect.m_Translation[i].x, effect.m_Translation[i].y, effect.m_Translation[i].z);
 			Vector3 rotation = Vector3(effect.m_Rotation[i].x, effect.m_Rotation[i].y, effect.m_Rotation[i].z);
 			particleEffect = m_ActorFactory->createParticles(position, effect.m_EffectName.c_str());
+			Vector3 temp = Vector3(0,0,0);
+			if(effect.m_EffectName == "fire")
+			{
+				m_EventManager->queueEvent(IEventData::Ptr(new Create3DSoundEventData("Fire", i, 10.0f, 50+i, true, true)));
+				m_EventManager->queueEvent(IEventData::Ptr(new Play3DSoundEventData(i, 50+i, effect.m_Translation[i], temp)));
+			}
 			particleEffect->setRotation(rotation);
 			p_ActorOut->addActor(particleEffect);
 		}
