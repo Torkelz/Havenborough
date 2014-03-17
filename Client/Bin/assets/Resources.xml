@@ -160,6 +160,7 @@
         <Resource Name="Park1Part2" Path="assets/models/Park1Part2.btx"/>
         <Resource Name="Park1Part3" Path="assets/models/Park1Part3.btx"/>
         <Resource Name="Park1Part4" Path="assets/models/Park1Part4.btx"/>
+        <Resource Name="Minque6" Path="assets/models/Minque6.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Aqueduct1" Path="assets/volumes/CB_Aqueduct1.txc"/>
@@ -282,6 +283,7 @@
         <Resource Name="Park1Part2" Path="assets/volumes/CB_Park1Part2.txc"/>
         <Resource Name="Park1Part3" Path="assets/volumes/CB_Park1Part3.txc"/>
         <Resource Name="Park1Part4" Path="assets/volumes/CB_Park1Part4.txc"/>
+        <Resource Name="Minque6" Path="assets/volumes/CB_Minque6.txc"/>
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>

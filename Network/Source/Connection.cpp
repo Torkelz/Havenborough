@@ -171,7 +171,7 @@ void Connection::writeData(const std::string& p_Buffer, uint16_t p_ID)
 	NetworkLogger::log(NetworkLogger::Level::TRACE, "Connection received data to send");
 
 	Header header;
-	header.m_Size = static_cast<uint16_t>(p_Buffer.size() + sizeof(Header));
+	header.m_Size = static_cast<uint32_t>(p_Buffer.size() + sizeof(Header));
 	header.m_TypeID = p_ID;
 
 	if(!m_LockWriting.test_and_set())

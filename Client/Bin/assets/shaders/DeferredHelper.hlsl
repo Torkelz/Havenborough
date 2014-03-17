@@ -25,7 +25,7 @@ struct PSOut
 //		Shared Pixel Function
 //################################
 PSOut PSFunction(PSIn p_Input, float4x4 p_View, Texture2D p_DiffuseTex, Texture2D p_NormalTex, 
-	Texture2D p_SpecularTex, SamplerState p_TextureSampler)
+	SamplerState p_TextureSampler)
 {
 	PSOut output;
 	float3 norm		= 0.5f * (p_Input.normal + 1.0f);
@@ -47,8 +47,7 @@ PSOut PSFunction(PSIn p_Input, float4x4 p_View, Texture2D p_DiffuseTex, Texture2
 		output.diffuse			= float4(diffuseColor.xyz, 1.0f);//input.diffuse.xyz; //specular intensity = 1.0f
 		output.normal.w			= p_Input.depth;
 		output.normal.xyz		= normal;//normalize(mul((float3x3)view, normal));
-		output.wPosition.xyz	= float3(p_Input.wposition.x, p_Input.wposition.y, p_Input.wposition.z);
-		output.wPosition.w		= p_SpecularTex.Sample(p_TextureSampler, p_Input.uvCoord).x;
+		output.wPosition		= float4(p_Input.wposition.x, p_Input.wposition.y, p_Input.wposition.z, 1.f);
 
 	}
 	else // If alpha is 0. Do not blend with any previous render targets.

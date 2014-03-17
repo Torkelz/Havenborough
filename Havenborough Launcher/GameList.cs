@@ -138,25 +138,25 @@ namespace Havenborough_Launcher
 
         void SendRequest(Socket clientSocket)
         {
-            const short packageSize = 4;
+            const int packageSize = 6;
             const short requestId = 1;
 
-            byte[] request = new byte[4];
+            byte[] request = new byte[6];
             BitConverter.GetBytes(packageSize).CopyTo(request, 0);
-            BitConverter.GetBytes(requestId).CopyTo(request, 2);
+            BitConverter.GetBytes(requestId).CopyTo(request, 4);
 
             clientSocket.Send(request);
         }
 
         byte[] ReadResponse(Socket clientSocket)
         {
-            byte[] header = new byte[4];
+            byte[] header = new byte[6];
             ReceiveAll(clientSocket, header, 4);
 
-            short length = BitConverter.ToInt16(header, 0);
+            int length = BitConverter.ToInt32(header, 0);
 
-            byte[] data = new byte[length - 4];
-            ReceiveAll(clientSocket, data, length - 4);
+            byte[] data = new byte[length - 6];
+            ReceiveAll(clientSocket, data, length - 6);
 
             return data;
         }

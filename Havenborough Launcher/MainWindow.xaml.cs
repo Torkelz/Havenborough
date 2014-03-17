@@ -398,6 +398,7 @@ namespace Havenborough_Launcher
             dataProvider.Document.Save(source);
             try
             {
+                MusicVolumeMedia.Stop();
                 Process.Start(ClientExec);
             }
             catch (Exception ex)
@@ -581,6 +582,12 @@ namespace Havenborough_Launcher
                 return;
 
             textBox.Background = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x25));
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            MusicVolumeMedia.Play();
         }
     }
 

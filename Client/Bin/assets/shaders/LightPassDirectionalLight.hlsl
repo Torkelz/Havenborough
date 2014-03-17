@@ -16,8 +16,8 @@ Texture2D ShadowMap  : register (t4);
 
 SamplerComparisonState shadowMapSampler : register (s0);
 
-float3 CalcLighting( float3 normal, float3 position, float3 diffuseAlbedo, float3 specularAlbedo,
-	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor, float3 ssao, float4 light);
+float3 CalcLighting( float3 normal, float3 position, float3 diffuseAlbedo,
+	float3 lightPos, float3 lightDirection, float3 lightColor, float3 ssao, float4 light);
 float CalcShadowFactor(float3 uv, float nDotL);
 float Blur(float3 uv);
 
@@ -61,13 +61,11 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 	float3 normal;
 	float3 position;
 	float3 diffuseAlbedo;
-	float3 specularAlbedo;
-	float specularPower;
 	float3 ssao;
 	
 	// Sample the G-Buffer properties from the textures
 	GetGBufferAttributes(input.vposition.xy, ssaoScale, normalTex, diffuseTex, SSAO_Tex, wPosTex,
-		normal, diffuseAlbedo, specularAlbedo, ssao, position, specularPower);
+		normal, diffuseAlbedo, ssao, position);
 	
 	float4x4 t =
 	{
@@ -93,15 +91,15 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 	float outerGradBorder = 1 - SHADOW_BORDER;
 	if(shadowMapped == 0)
 	{
-		lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
-				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
+		lighting = CalcLighting(normal, position, diffuseAlbedo,
+				input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
 	}
 	else if(big == 0)
 	{
 		if(lightPos.x > 0.f && lightPos.x < 1.f && lightPos.y > 0.f && lightPos.y < 1.f)
 		{
-			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
-				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
+			lighting = CalcLighting(normal, position, diffuseAlbedo,
+				input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
 
 			gradient = abs(gradient);
 			gradient = gradient - (0.5f - percentage);
@@ -115,8 +113,8 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 	{
 		if(lightPos.x < innerBorder || lightPos.x > outerBorder || lightPos.y < innerBorder || lightPos.y > outerBorder)
 		{
-			lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
-				specularPower,input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
+			lighting = CalcLighting(normal, position, diffuseAlbedo,
+				input.lightPos, input.lightDirection, input.lightColor, ssao, lightPos);
 
 			gradient = abs(gradient);
 			gradient = gradient - ((1-2*SHADOW_BORDER)*(0.5f-percentage));
@@ -133,8 +131,8 @@ float4 DirectionalLightPS(VSLightOutput input) : SV_TARGET
 //################################
 //		HELPER FUNCTIONS
 //################################
-float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3 specularAlbedo,
-	float specularPower, float3 lightPos, float3 lightDirection, float3 lightColor, float3 ssao, float4 light)
+float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo,
+		float3 lightPos, float3 lightDirection, float3 lightColor, float3 ssao, float4 light)
 {
 
 	float attenuation = 1.0f;
@@ -146,16 +144,8 @@ float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3
 	
 	diffuse *=  CalcShadowFactor(light.xyz, nDotL);
 
-	// Calculate the specular term
-	float3 V = normalize(cameraPos - position);
-	V = mul(view, float4(V, 0.f)).xyz;
-
-	float3 H = normalize( L + V );
-	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
-							 lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
-
-	return saturate(( diffuse + specular) * attenuation);
+	return saturate(diffuse * attenuation);
 }
 
 //texel size

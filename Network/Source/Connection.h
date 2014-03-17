@@ -19,11 +19,13 @@
 class Connection : public IConnection, public std::enable_shared_from_this<Connection>
 {
 protected:
+#pragma pack(push, 1)
 	struct Header
 	{
-		uint16_t m_Size;
+		uint32_t m_Size;
 		uint16_t m_TypeID;
 	};
+#pragma pack(pop)
 	
 	State m_State;
 

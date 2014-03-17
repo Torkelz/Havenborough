@@ -6,8 +6,8 @@ Texture2D normalTex	 : register (t1);
 Texture2D diffuseTex : register (t2);
 Texture2D SSAO_Tex	 : register (t3);
 
-float3 CalcLighting( float3 normal,	float3 position, float3 diffuseAlbedo, float3 specularAlbedo,
-	float specularPower, float3 lightPos, float lightRange,	float3 lightColor, float3 ssao);
+float3 CalcLighting( float3 normal,	float3 position, float3 diffuseAlbedo,
+	float3 lightPos, float lightRange,	float3 lightColor, float3 ssao);
 
 cbuffer cb : register(b0)
 {
@@ -60,22 +60,20 @@ float4 PointLightPS(VSLightOutput input) : SV_TARGET
 	float3 normal;
 	float3 position;
 	float3 diffuseAlbedo;
-	float3 specularAlbedo;
-	float specularPower;
 	float3 ssao;
 	
 	// Sample the G-Buffer properties from the textures
 	GetGBufferAttributes(input.vposition.xy, ssaoScale, normalTex, diffuseTex, SSAO_Tex, wPosTex,
-		normal, diffuseAlbedo, specularAlbedo, ssao, position, specularPower);
+		normal, diffuseAlbedo, ssao, position);
 
-	float3 lighting = CalcLighting(normal, position, diffuseAlbedo, specularAlbedo, 
-		specularPower,input.lightPos,input.lightRange, input.lightColor, ssao);
+	float3 lighting = CalcLighting(normal, position, diffuseAlbedo, 
+		input.lightPos,input.lightRange, input.lightColor, ssao);
 
 	return float4( lighting, 1.0f );
 }
 
-float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3 specularAlbedo,
-	float specularPower, float3 lightPos, float lightRange,	float3 lightColor, float3 ssao)
+float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo,
+	float3 lightPos, float lightRange,	float3 lightColor, float3 ssao)
 {
 	float3 L = lightPos - position;
 	float dist = length( L );
@@ -89,13 +87,6 @@ float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3
 	float nDotL = saturate( dot( normal, L ) );
 	float3 diffuse = nDotL * lightColor * diffuseAlbedo * pow(ssao, 10);
 
-	// Calculate the specular term
-	float3 V = normalize(cameraPos - position);
-	V = mul(view, float4(V, 0.0f)).xyz;
-
-	float3 H = normalize( L + V );
-	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
-							 lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
-	return saturate(( diffuse + specular ) * attenuation);
+	return saturate(diffuse * attenuation);
 }

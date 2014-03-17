@@ -44,7 +44,7 @@ float4 GetWorldPosition(in int3 p_SampleIndex, in Texture2D p_vPosTex)
 
 void GetGBufferAttributes(in float2 p_ScreenPos,in float p_SSAOScale, in Texture2D p_NormalTex, in Texture2D p_DiffuseTex,
 	in Texture2D p_SSAO_Tex, in Texture2D p_WPosTex, out float3 p_Normal, out float3 p_DiffuseAlbedo,
-	out float3 p_SpecularAlbedo, out float3 p_SSAO, out float3 p_Position, out float p_SpecularPower)
+	out float3 p_SSAO, out float3 p_Position)
 {
 	int3 sampleIndex = int3(p_ScreenPos,0);
 
@@ -52,7 +52,6 @@ void GetGBufferAttributes(in float2 p_ScreenPos,in float p_SSAOScale, in Texture
 
 	float4 diffuseTexSample = GetGBufferDiffuseSpec(sampleIndex, p_DiffuseTex);
 	p_DiffuseAlbedo = diffuseTexSample.xyz;	
-	p_SpecularPower = diffuseTexSample.w;
 
 	int3 scaledScreenPos = int3(p_ScreenPos * p_SSAOScale, 0);
 	//scaledScreenPos *= p_SSAOScale;
@@ -60,5 +59,4 @@ void GetGBufferAttributes(in float2 p_ScreenPos,in float p_SSAOScale, in Texture
 
 	float4 wPosTexSample = GetWorldPosition(sampleIndex, p_WPosTex);
 	p_Position = wPosTexSample.xyz;
-	p_SpecularAlbedo = wPosTexSample.w;
 }
