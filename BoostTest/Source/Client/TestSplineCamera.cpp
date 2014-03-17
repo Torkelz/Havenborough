@@ -72,6 +72,9 @@ BOOST_AUTO_TEST_CASE(SplineSave)
 	dummyPhysics ps;
 
 	std::shared_ptr<LookComponent> l(new LookComponent());
+	tinyxml2::XMLDocument doc2;
+	doc2.InsertFirstChild(doc2.NewElement("Look"));
+	l->initialize(doc2.RootElement());
 	std::shared_ptr<CollisionSphereComponent> p(new CollisionSphereComponent());
 	p->setPhysics(&ps);
 
@@ -102,6 +105,9 @@ BOOST_AUTO_TEST_CASE(SplineMove)
 	dummyPhysics ps;
 
 	std::shared_ptr<LookComponent> l(new LookComponent());
+	tinyxml2::XMLDocument doc2;
+	doc2.InsertFirstChild(doc2.NewElement("Look"));
+	l->initialize(doc2.RootElement());
 	std::shared_ptr<CollisionSphereComponent> p(new CollisionSphereComponent());
 	p->setPhysics(&ps);
 

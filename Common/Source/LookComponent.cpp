@@ -48,7 +48,14 @@ Vector3 LookComponent::getLookForward() const
 
 void LookComponent::setLookForward(Vector3 p_Forward)
 {
-	m_Forward = p_Forward;
+	float lengthSq =
+		p_Forward.x * p_Forward.x +
+		p_Forward.y * p_Forward.y +
+		p_Forward.z * p_Forward.z;
+
+	assert(lengthSq > 0.5f);
+
+	m_Forward = p_Forward * (1.f / sqrtf(lengthSq));
 }
 
 Vector3 LookComponent::getLookUp() const
@@ -58,16 +65,23 @@ Vector3 LookComponent::getLookUp() const
 
 void LookComponent::setLookUp(Vector3 p_Up)
 {
-	m_Up = p_Up;
+	float lengthSq =
+		p_Up.x * p_Up.x +
+		p_Up.y * p_Up.y +
+		p_Up.z * p_Up.z;
+
+	assert(lengthSq > 0.5f);
+
+	m_Up = p_Up * (1.f / sqrtf(lengthSq));
 }
 
 Vector3 LookComponent::getLookRight() const
 {
 	DirectX::XMVECTOR rightV = DirectX::XMVector3Cross(
-		DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(m_Up)),
-		DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(m_Forward)));
+		DirectX::XMLoadFloat3(&m_Up),
+		DirectX::XMLoadFloat3(&m_Forward));
 	Vector3 right;
-	DirectX::XMStoreFloat3((DirectX::XMFLOAT3*)&right, rightV);
+	DirectX::XMStoreFloat3(&right, DirectX::XMVector3Normalize(rightV));
 
 	return right;
 }
@@ -76,9 +90,15 @@ DirectX::XMFLOAT4X4 LookComponent::getRotationMatrix() const
 {
 	Vector3 right = getLookRight();
 
+	DirectX::XMVECTOR upV = DirectX::XMVector3Cross(
+		DirectX::XMLoadFloat3(&m_Forward),
+		DirectX::XMLoadFloat3(&right));
+	Vector3 correctedUp;
+	DirectX::XMStoreFloat3(&correctedUp, DirectX::XMVector3Normalize(upV));
+
 	return DirectX::XMFLOAT4X4(
 		right.x, right.y, right.z, 0.f,
-		m_Up.x, m_Up.y, m_Up.z, 0.f,
+		correctedUp.x, correctedUp.y, correctedUp.z, 0.f,
 		m_Forward.x, m_Forward.y, m_Forward.z, 0.f,
 		0.f, 0.f, 0.f, 1.f);
 }

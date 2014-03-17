@@ -57,6 +57,7 @@ public:
 	 * @param p_Physics the physics library to use
 	 */
 	void setPhysics(IPhysics* p_Physics);
+
 	/**
 	 * Set the event manager actors created with this factory will use.
 	 *
@@ -147,6 +148,7 @@ private:
 	ActorComponent::ptr createModelSinOffsetComponent();
 	ActorComponent::ptr createMovementComponent();
 	ActorComponent::ptr createCircleMovementComponent();
+	ActorComponent::ptr createSoundComponent();
 	ActorComponent::ptr createPulseComponent();
 	ActorComponent::ptr createLightComponent();
 	ActorComponent::ptr createParticleComponent();

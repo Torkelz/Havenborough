@@ -15,7 +15,6 @@ GameScene::GameScene()
 	m_ChangeScene = false;
 	m_ChangeList = false;
 	m_SoundExist = false;
-	m_UserAddedSoundVolume = 0.f;
 
 	m_GameLogic = nullptr;
 	m_Graphics = nullptr;
@@ -72,6 +71,12 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createWorldText), createWorldTextEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::removeWorldText), removeWorldTextEventData::sk_EventType);
 	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::updateWorldTextPosition), updateWorldTextPositionEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::create3DSound), Create3DSoundEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::play3DSound), Play3DSoundEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::release3DSound), Release3DSoundEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::update3DSound), Update3DSoundEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::setPausedSound), PausedSoundEventData::sk_EventType);
+	m_EventManager->addListener(EventListenerDelegate(this, &GameScene::createSingleSound), CreateSingleSoundEventData::sk_EventType);
 
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::FINAL);
 	m_SelectableRenderTargets.push_back(IGraphics::RenderTarget::SSAO);
@@ -83,10 +88,6 @@ bool GameScene::init(unsigned int p_SceneID, IGraphics *p_Graphics, ResourceMana
 
 	TweakSettings* tweakSettings = TweakSettings::getInstance();
 	tweakSettings->setListener("camera.flipped", std::function<void(bool)>([&] (bool p_Val) { m_UseFlippedCamera = p_Val; }));
-
-	m_RandomEngine.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
-	m_SoundFolderPath = "assets/sounds/background";
-
 
 	unsigned int id = m_Graphics->createText(L"Press again to exit \nPress any key to continue     ", "Verdana", 27.f, Vector4(0.8f, 0.8f, 0.8f, 1.f), Vector3(0.0f, 0.0f, 0.0f), 1.0f, 0.f);
 	m_Graphics->setTextBackgroundColor(id, Vector4(0.f, 0.f, 0.f, 0.4f));
@@ -100,8 +101,6 @@ void GameScene::destroy()
 {
 	releasePreLoadedModels();
 	m_ResourceManager->releaseResource(m_SkyboxID);
-	m_SoundManager->releaseSound("CurrentSound");
-	m_BackgroundSoundsList.clear();
 }
 
 void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
@@ -142,7 +141,9 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 	m_GameLogic->movePlayerView(hori * turnSize, -vert * turnSize);
 
 	m_Graphics->updateParticles(p_DeltaTime);
-
+	
+	m_SoundManager->onFrameListener(&m_GameLogic->getPlayerEyePosition(), NULL, &m_GameLogic->getPlayerViewForward(), &m_GameLogic->getPlayerViewUp());
+	
 	float maxSpeed, maxSpeedCurrent, maxSpeedDefault;
 	m_GameLogic->getPlayerMaxSpeed(maxSpeed, maxSpeedCurrent, maxSpeedDefault);
 
@@ -175,32 +176,12 @@ void GameScene::onFrame(float p_DeltaTime, int* p_IsCurrentScene)
 			m_FOVPercentage -= FOVSpeed;
 		else
 			m_FOVPercentage = 0.f;
-
 		float fov = m_GameLogic->getOriginalFOV() + FOVDiff * m_FOVPercentage;
 
 		m_Graphics->setFOV(fov);
 	}
 
 
-}
-
-void GameScene::launchUserSound()
-{
-	if (m_SoundPath != "NULL")
-	{
-		if (!m_SoundExist || !m_SoundManager->isPlaying("CurrentSound"))
-		{
-			m_SoundPath = changeBackGroundSound(m_SoundFolderPath);
-			if (m_SoundPath != "NULL")
-			{		
-				//m_SoundManager->loadSoundWithoutLoop("CurrentSound", m_SoundPath.c_str());
-				m_SoundManager->loadSound("CurrentSound", m_SoundPath.c_str());
-				m_SoundExist = true;
-				m_SoundManager->playSound("CurrentSound");
-				m_SoundManager->setSoundVolume("CurrentSound", m_UserAddedSoundVolume);
-			}
-		}
-	}	
 }
 
 void GameScene::onFocus()
@@ -433,41 +414,6 @@ void GameScene::setSoundManager(ISound *p_SoundManager)
 	m_SoundManager = p_SoundManager;
 }
 
-void GameScene::setUserAddedSoundVolume(float p_SoundVolume)
-{
-	m_UserAddedSoundVolume = p_SoundVolume;
-}
-
-std::string GameScene::changeBackGroundSound(const std::string& p_FontFolderPath)
-{
-	
-	if (m_SoundExist)
-	{
-		m_SoundManager->releaseSound("CurrentSound");
-		m_SoundExist = false;
-	}
-
-	m_BackgroundSoundsList.clear();
-
-	boost::filesystem::directory_iterator currFile(p_FontFolderPath);
-	for (; currFile != boost::filesystem::directory_iterator(); ++currFile)
-	{
-		auto filename = currFile->path();
-		m_BackgroundSoundsList.push_back(filename.string());
-	}
-	int soundCount = m_BackgroundSoundsList.size();
-	if (soundCount == 0)
-	{
-		std::string failToFindAFile = "NULL";
-		return failToFindAFile;
-	}
-	std::uniform_int_distribution<int> newBackGroundSound(0, soundCount-1);
-	int newSoundTrack = 0;
-	newSoundTrack = newBackGroundSound(m_RandomEngine);
-
-	return m_BackgroundSoundsList[newSoundTrack];
-}
-
 /*########## TEST FUNCTIONS ##########*/
 
 int GameScene::getID()
@@ -690,7 +636,9 @@ void GameScene::spellHit(IEventData::Ptr p_Data)
 {
 	std::shared_ptr<SpellHitEventData> data = std::static_pointer_cast<SpellHitEventData>(p_Data);
 
-	m_EventManager->queueEvent((IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExplosion", data->getPosition()))));
+	m_EventManager->queueEvent(IEventData::Ptr(new CreateParticleEventData(++m_ExtraParticleID, "spellExplosion", data->getPosition())));
+	Vector3 velocity = Vector3(0,0,0);
+	m_EventManager->queueEvent(IEventData::Ptr(new CreateSingleSoundEventData("Explosion", 500.0f, data->getPosition(), velocity)));
 }
 
 void GameScene::spellHitSphere(IEventData::Ptr p_Data)
@@ -699,8 +647,94 @@ void GameScene::spellHitSphere(IEventData::Ptr p_Data)
 
 	if(data->getCollisionVictim() == m_GameLogic->getPlayerBodyHandle())
 	{
-		m_EventManager->queueEvent((IEventData::Ptr(new PlayerIsHitBySpellEventData())));
+		m_EventManager->queueEvent(IEventData::Ptr(new PlayerIsHitBySpellEventData()));
 	}
+}
+
+void GameScene::create3DSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<Create3DSoundEventData> data = std::static_pointer_cast<Create3DSoundEventData>(p_Data);
+	
+	int resource = m_ResourceManager->loadResource("sound", data->getSoundTitle());
+	m_ResourceIDs.push_back(resource);
+	SoundBinding sounding =
+	{
+		m_SoundManager->createSoundInstance(data->getSoundTitle().c_str()),
+		std::make_pair(data->getActorID(), data->getSoundID()),
+		resource
+	};
+	m_SoundManager->set3DMinDistance(sounding.soundID, data->getMinDistance());
+	m_SoundManager->setSoundModes(sounding.soundID, data->get3DBool(), data->getLoopBool());
+	m_SoundManager->addSoundToGroup(sounding.soundID, ISound::ChannelGroup::SFX);
+	m_SoundsID.push_back(sounding);
+}
+
+void GameScene::update3DSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<Update3DSoundEventData> data = std::static_pointer_cast<Update3DSoundEventData>(p_Data);
+	for(auto &s : m_SoundsID)
+	{
+		if(s.actorID.first == data->getActorID() && s.actorID.second == data->getSoundID())
+		{
+			m_SoundManager->onFrameSound(s.soundID, &data->getPosition(), &data->getVelocity());
+			break;
+		}
+	}
+}
+
+void GameScene::play3DSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<Play3DSoundEventData> data = std::static_pointer_cast<Play3DSoundEventData>(p_Data);
+	for(auto &s : m_SoundsID)
+	{
+		if(s.actorID.first == data->getActorID() && s.actorID.second == data->getSoundID())
+		{
+			m_SoundManager->play3DSound(s.soundID, &data->getPosition(), &data->getVelocity());
+			break;
+		}
+	}
+}
+
+void GameScene::release3DSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<Release3DSoundEventData> data = std::static_pointer_cast<Release3DSoundEventData>(p_Data);
+	for(auto &s : m_SoundsID)
+	{
+		if(s.actorID.first == data->getActorID() && s.actorID.second == data->getSoundID())
+		{
+			m_SoundManager->setSoundVolume(s.soundID, 0.0f);
+			m_SoundManager->stopSound(s.soundID);
+			m_SoundManager->releaseInstance(s.soundID);
+			break;
+		}
+	}
+}
+
+void GameScene::setPausedSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<PausedSoundEventData> data = std::static_pointer_cast<PausedSoundEventData>(p_Data);
+	for(auto &s : m_SoundsID)
+	{
+		if(s.actorID.first == data->getActorID() && s.actorID.second == data->getSoundID())
+		{
+			m_SoundManager->pauseSound(s.soundID, data->getPaused());
+			break;
+		}
+	}
+}
+
+void GameScene::createSingleSound(IEventData::Ptr p_Data)
+{
+	std::shared_ptr<CreateSingleSoundEventData> data = std::static_pointer_cast<CreateSingleSoundEventData>(p_Data);
+
+	int resource = m_ResourceManager->loadResource("sound", data->getSoundTitle().c_str());
+	int id = m_SoundManager->createSoundInstance(data->getSoundTitle().c_str());
+	m_SoundManager->set3DMinDistance(id, data->getMinDistance());
+	m_SoundManager->setSoundModes(id, true, false);
+	m_SoundManager->addSoundToGroup(id,ISound::ChannelGroup::SFX);
+	m_SoundManager->play3DSound(id, &data->getPosition(), &data->getVelocity());
+	m_SoundManager->releaseInstance(id);
+	m_ResourceManager->releaseResource(resource);
 }
 
 void GameScene::createWorldText(IEventData::Ptr p_Data)

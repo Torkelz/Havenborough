@@ -63,6 +63,9 @@ private:
 	UINT m_Width;
 	UINT m_Height;
 
+	DirectX::XMFLOAT4X4	m_CurrentView;
+	DirectX::XMFLOAT4X4	m_CurrentProjection;
+
 	float				m_ViewHW;
 	DirectX::XMFLOAT4X4	m_LightView;
 	DirectX::XMFLOAT4X4	m_LightProjection;
@@ -194,13 +197,15 @@ private:
 	void createRandomTexture(unsigned int p_Size);
 
 
-	void renderObject(Renderable &p_Object);
+	void renderObject(const Renderable &p_Object);
 	void SortRenderables( std::vector<Renderable> &animatedOrSingle, std::vector<std::vector<Renderable>> &instancedModels );
-	void RenderObjectsInstanced( std::vector<Renderable> &p_Objects, Shader* p_Shader);
+	void RenderObjectsInstanced(const std::vector<Renderable> &p_Objects, Shader* p_Shader);
 
 	void updateLightView(DirectX::XMFLOAT3 p_Dir);
 	void updateLightProjection(float p_viewHW);
 	void renderShadowMap(Light p_Directional, const std::vector<std::vector<Renderable>> &p_InstancedModels, const std::vector<Renderable> &p_AnimatedOrSingle);
 	void registerTweakSettings();
 	void recompileFogShader(void);
+
+	bool isVisible(const Renderable& p_Object) const;
 };

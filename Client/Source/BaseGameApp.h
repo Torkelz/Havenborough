@@ -17,6 +17,7 @@
 #include <ResourceManager.h>
 #include <TweakSettings.h>
 
+#include <random>
 #include <DirectXMath.h>
 
 class BaseGameApp
@@ -31,6 +32,9 @@ private:
 	float m_MemUpdateDelay;
 	float m_TimeToNextMemUpdate;
 	float m_TimeModifier;
+	int m_BackgroundSoundID, m_SoundResourceID;
+	std::vector<std::string> m_BackgroundSoundsList;
+	std::default_random_engine m_RandomEngine;
 
 	INetwork* m_Network;
 	StreamReader::ptr m_ConsoleReader;
@@ -105,6 +109,8 @@ private:
 	bool handleWindowExitSizeMove(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
 
 	bool handleWindowSize(WPARAM p_WParam, LPARAM p_LParam, LRESULT& p_Result);
+
+	void loadBackgroundSound();
 
 	void updateDebugInfo();
 
