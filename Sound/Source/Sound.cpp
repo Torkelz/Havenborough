@@ -2,16 +2,7 @@
 
 #include "SoundLogger.h"
 
-int Sound::m_NextHandle = 1;
 
-int Sound::getNextHandle()
-{
-	return m_NextHandle++;
-}
-void Sound::resetSoundHandleCounter()
-{
-	m_NextHandle = 1;
-}
 
 Sound::Sound(void)
 {
@@ -107,9 +98,8 @@ void Sound::initialize(void)
 		/*
 			... and re-init.
 		*/
-		errorCheck(m_System->init(100, FMOD_INIT_NORMAL , 0));
+		errorCheck(m_System->init(100, FMOD_INIT_NORMAL, 0));
 	}
-	errorCheck(m_System->set3DSettings(1.0f, 100.0f, 1.0f));
 
 	errorCheck(m_System->createChannelGroup("Music Group", &m_MusicChannelGroup));
 
@@ -120,25 +110,6 @@ void Sound::initialize(void)
 	errorCheck(m_MasterChannelGroup->addGroup(m_MusicChannelGroup));
 
 	errorCheck(m_MasterChannelGroup->addGroup(m_SfxChannelGroup));
-
-	
-}
-
-void Sound::onFrameListener(Vector3* p_Position, Vector3* p_Velocity, Vector3* p_Forward, Vector3* p_Up)
-{
-	m_System->set3DListenerAttributes(0,
-		reinterpret_cast<FMOD_VECTOR*>(p_Position), 
-		reinterpret_cast<FMOD_VECTOR*>(p_Velocity), 
-		reinterpret_cast<FMOD_VECTOR*>(p_Forward), 
-		reinterpret_cast<FMOD_VECTOR*>(p_Up));
-}
-
-void Sound::onFrameSound(int p_SoundID, Vector3* p_Position, Vector3* p_Velocity)
-{
-	SoundInstance* instSound = getSound(p_SoundID);
-	instSound->getChannel()->set3DAttributes(
-		reinterpret_cast<FMOD_VECTOR*>(p_Position) ,
-		reinterpret_cast<FMOD_VECTOR*>(p_Velocity));
 }
 
 void Sound::onFrame(void)
@@ -150,88 +121,37 @@ bool Sound::loadSound(const char *p_SoundId, const char *p_Filename)
 {
 
 	FMOD::Sound *s;
-	bool found = false;
-	for (auto sound : m_SoundList)
-	{
-		if(strcmp( sound.first.c_str(), p_SoundId ) == 0)
-		{
-			found = true;
-		}
-	}
-	if(!found)
-	{
-		errorCheck(m_System->createSound(p_Filename, FMOD_LOOP_NORMAL | FMOD_3D, 0, &s));
-		m_SoundList.push_back(std::make_pair(std::string(p_SoundId), s));
-	}
+	FMOD::Channel *c;
+	errorCheck(m_System->createSound(p_Filename, FMOD_LOOP_NORMAL, 0, &s));
+	errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s, true, &c));
+
+	SoundInstance si(p_SoundId, s, c);
+	m_Sounds.push_back(si);
+	s = nullptr;
+	
 	return true;
 }
 
-int Sound::createSoundInstance(const char *p_SoundId)
+bool Sound::loadSoundWithoutLoop(const char *p_SoundId, const char *p_Filename)
 {
-	for (auto sound : m_SoundList)
-	{
-		if(strcmp( sound.first.c_str(), p_SoundId ) == 0)
-		{
-			SoundInstance si(sound.second);
-			FMOD::Channel *c;
-			int ID = getNextHandle();
-			errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, si.getSound(), true, &c));
-			si.setChannel(c);
-			m_InstanceList.push_back(std::make_pair(ID, si));
-			return ID;
-		}
-	}
-	throw SoundException("Sound not found!" + std::string(p_SoundId), __LINE__, __FILE__);
+
+	FMOD::Sound *s;
+	FMOD::Channel *c;
+	errorCheck(m_System->createSound(p_Filename, FMOD_LOOP_OFF, 0, &s));
+	errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s, true, &c));
+
+	SoundInstance si(p_SoundId, s, c);
+	m_Sounds.push_back(si);
+	s = nullptr;
+
+	return true;
 }
 
-void Sound::set3DMinDistance(int p_SoundId, float minDistance)
-{
-	for(auto &instance : m_InstanceList)
-	{
-		if(instance.first == p_SoundId)
-		{
-			instance.second.getChannel()->set3DMinMaxDistance(minDistance, 10000.0f);
-			return;
-		}
-	}
-	throw SoundException("Sound not found!" + std::to_string(p_SoundId), __LINE__, __FILE__);
-}
-
-void Sound::setSoundModes(int p_SoundId, bool p_3D, bool p_Loop)
-{
-	SoundInstance *s = getSound(p_SoundId);
-	if(!s->getSound())
-		throw SoundException("Sound not found!"+ std::to_string(p_SoundId), __LINE__, __FILE__);
-
-	FMOD_MODE m;
-	errorCheck(s->getChannel()->getMode(&m));
-
-	if(p_3D)
-	{
-		m |= FMOD_3D;
-	}
-	else
-	{
-		m &= ~FMOD_3D;
-		m |= FMOD_2D;
-	}
-	if(p_Loop)
-	{
-		m |= FMOD_LOOP_NORMAL;
-	}
-	else
-	{
-		m &= ~FMOD_LOOP_NORMAL;
-		m |= FMOD_LOOP_OFF;
-	}
-	errorCheck(s->getChannel()->setMode(m));
-}
-
-bool Sound::isPlaying(int p_SoundId)
+bool Sound::isPlaying(const char *p_SoundId)
 {
 	bool temp;
-	SoundInstance *s = getSound(p_SoundId);
-	errorCheck(s->getChannel()->isPlaying(&temp));
+	SoundInstance *s = getSound(std::string(p_SoundId));
+	s->getChannel()->isPlaying(&temp);
 
 	return temp;
 }
@@ -241,66 +161,44 @@ bool Sound::loadStream(const char *p_SoundId, const char *p_Filename)
 	return true;
 }
 
-void Sound::playSound(int p_SoundId)
+void Sound::playSound(const char *p_SoundId)
 {
-	SoundInstance *s = getSound(p_SoundId);
+	SoundInstance *s = getSound(std::string(p_SoundId));
 	FMOD::Channel *c;
-	if(!s->getChannel())
-	{
-		errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, &c));
-		s->setChannel(c);
-	}
-	else
-	{
-		bool p;
-		errorCheck(s->getChannel()->getPaused(&p));
-		if(p)
-			errorCheck(s->getChannel()->setPaused(false));
-	}
-}
-
-void Sound::play3DSound(int p_SoundId, Vector3* p_Position, Vector3* p_Velocity)
-{
-	SoundInstance *s = getSound(p_SoundId);
-	FMOD::Channel *c;
-	if(!s->getChannel())
-	{
-		errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, &c));
-
-		errorCheck(c->set3DAttributes(
-		reinterpret_cast<FMOD_VECTOR*>(p_Position) ,
-		reinterpret_cast<FMOD_VECTOR*>(p_Velocity)));
-		s->setChannel(c);
-	}
-	else
-	{
-		bool p;
-		errorCheck(s->getChannel()->getPaused(&p));
-		if(p)
-			errorCheck(s->getChannel()->setPaused(false));
-
-		errorCheck(s->getChannel()->set3DAttributes(
-		reinterpret_cast<FMOD_VECTOR*>(p_Position) ,
-		reinterpret_cast<FMOD_VECTOR*>(p_Velocity)));
-		
-	}
-}
-
-void Sound::pauseSound(int p_SoundId, bool p_Pause)
-{
-	SoundInstance *s = getSound(p_SoundId);
 	if(s->getChannel())
 	{
 		bool p;
 		errorCheck(s->getChannel()->getPaused(&p));
+		if(p)
+			errorCheck(s->getChannel()->setPaused(false));
+		else
+		{
+			errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, &c));
+			s->setChannel(c);
+		}
+	}
+	else
+	{
+		errorCheck(m_System->playSound(FMOD_CHANNEL_FREE, s->getSound(), false, &c));
+		s->setChannel(c);
+	}
+}
+
+void Sound::pauseSound(const char *p_SoundId, bool p_Pause)
+{
+	SoundInstance *s = getSound(std::string(p_SoundId));
+	if(s->getChannel())
+	{
+		bool p;
+		s->getChannel()->getPaused(&p);
 		if(p != p_Pause)
 		errorCheck(s->getChannel()->setPaused(p_Pause));
 	}
 }
 
-void Sound::stopSound(int p_SoundId)
+void Sound::stopSound(const char *p_SoundId)
 {
-	SoundInstance *s = getSound(p_SoundId);
+	SoundInstance *s = getSound(std::string(p_SoundId));
 	if(s->getChannel())
 	{
 		errorCheck(s->getChannel()->stop()); 
@@ -308,9 +206,9 @@ void Sound::stopSound(int p_SoundId)
 	}
 }
 
-void Sound::addSoundToGroup(int p_SoundId, ISound::ChannelGroup p_Group)
+void Sound::addSoundToGroup(const char* p_SoundId, ISound::ChannelGroup p_Group)
 {
-	SoundInstance *s = getSound(p_SoundId);
+	SoundInstance *s = getSound(std::string(p_SoundId));
 	if(s->getChannel())
 	{
 		switch(p_Group)
@@ -341,9 +239,9 @@ void Sound::setGroupVolume(ISound::ChannelGroup p_Group, float p_Volume)
 	}
 }
 
-void Sound::setSoundVolume(int p_SoundId, float p_Volume)
+void Sound::setSoundVolume(const char *p_SoundId, float p_Volume)
 {
-	SoundInstance *s = getSound(p_SoundId);
+	SoundInstance *s = getSound(std::string(p_SoundId));
 	if(s->getChannel())
 	{
 		errorCheck(s->getChannel()->setVolume(p_Volume));
@@ -353,7 +251,6 @@ void Sound::setSoundVolume(int p_SoundId, float p_Volume)
 		throw SoundException("The sound channel does not exist.",__LINE__,__FILE__);
 	}
 }
-
 
 void Sound::muteAll(bool m_Mute)
 {
@@ -367,25 +264,12 @@ void Sound::pauseAll(bool p_Pause)
 
 bool Sound::releaseSound(const char *p_SoundId)
 {
-	for(auto it = m_SoundList.begin(); it != m_SoundList.end(); ++it)
+	for(auto it = m_Sounds.begin(); it != m_Sounds.end(); ++it)
 	{
-		if(strcmp(it->first.c_str(), p_SoundId) == 0)
+		if(strcmp(it->getSoundId().c_str(), p_SoundId) == 0)
 		{
-			errorCheck(it->second->release());
-			m_SoundList.erase(it);
-			return true;
-		}
-	}
-	return false;
-}
-
-bool Sound::releaseInstance(int p_SoundId)
-{
-	for(auto it = m_InstanceList.begin(); it != m_InstanceList.end(); ++it)
-	{
-		if(it->first == p_SoundId)
-		{
-			m_InstanceList.erase(it);
+			errorCheck(it->destroy());
+			m_Sounds.erase(it);
 			return true;
 		}
 	}
@@ -394,12 +278,12 @@ bool Sound::releaseInstance(int p_SoundId)
 
 void Sound::shutdown(void)
 {
-	for(auto &s : m_SoundList)
+	for(auto &s : m_Sounds)
 	{
-		errorCheck(s.second->release());
+		errorCheck(s.destroy());
 	}
 
-	m_SoundList.clear();
+	m_Sounds.clear();
 
 	FMODSAFERELEASE(m_MusicChannelGroup);
 	FMODSAFERELEASE(m_SfxChannelGroup);
@@ -424,20 +308,23 @@ void Sound::errorCheck(FMOD_RESULT p_Result)
 	}
 }
 
-SoundInstance *Sound::getSound(int p_SoundId)
+SoundInstance *Sound::getSound(std::string p_SoundId)
 {
-	for(auto &s : m_InstanceList)
+	for(auto &s : m_Sounds)
 	{
-		if(s.first == p_SoundId)
-			return &s.second;
+		if(s.getSoundId() == p_SoundId)
+		{
+			return &s;
+		}
 	}
-	throw SoundException("Sound " + std::to_string(p_SoundId) + " not found. Is the file missing?", __LINE__, __FILE__);
+
+	throw SoundException("Sound " + p_SoundId + " not found. Is the file missing?", __LINE__, __FILE__);
 }
 
-float Sound::getVolume(int p_SoundId)
+float Sound::getVolume(const char* p_SoundId)
 {
 	float returnParam;
-	errorCheck(getSound(p_SoundId)->getChannel()->getVolume( &returnParam ));
+	getSound(std::string(p_SoundId))->getChannel()->getVolume( &returnParam );
 	return returnParam;
 }
 
@@ -459,16 +346,16 @@ float Sound::getGroupVolume(ISound::ChannelGroup p_Group)
 	return returnParam;
 }
 
-bool Sound::getPaused(int p_SoundId)
+bool Sound::getPaused(const char* p_SoundId)
 {
 	bool returnParam;
-	errorCheck(getSound(p_SoundId)->getChannel()->getPaused(&returnParam));
+	getSound(std::string(p_SoundId))->getChannel()->getPaused(&returnParam);
 	return returnParam;
 }
 
 bool Sound::getMasterMute()
 {
 	bool returnParam;
-	errorCheck(m_MasterChannelGroup->getMute(&returnParam));
+	m_MasterChannelGroup->getMute(&returnParam);
 	return returnParam;
 }

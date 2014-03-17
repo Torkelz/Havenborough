@@ -123,30 +123,6 @@ void RunControlComponent::move(float p_DeltaTime)
 
 		m_RunningDirection = Vector3();
 	}
-	else
-	{
-		using namespace DirectX;
-		XMFLOAT3 velocity = m_Physics->getBodyVelocity(body);
-		XMVECTOR currentVelocity = XMLoadFloat3(&velocity);	// cm/s
-
-		XMFLOAT3 maxVelocity(m_RunningDirection.x * getMaxSpeedCurrent(),
-			0.f, m_RunningDirection.z * getMaxSpeedCurrent());	// cm/s
-		XMVECTOR vMaxVelocity = XMLoadFloat3(&maxVelocity);
-
-		XMVECTOR diffVel = XMVectorSet(vMaxVelocity.m128_f32[0] - currentVelocity.m128_f32[0], 0.f, vMaxVelocity.m128_f32[2] - currentVelocity.m128_f32[2], 0.f);	// cm/s
-	
-		XMVECTOR force = (diffVel / 100.f * m_AccConstant) * 0.1f;		// kg * m/s^2
-
-		XMVECTOR forceDiffImpulse = force * p_DeltaTime;	// kg * m/s
-
-		XMFLOAT3 fForceDiff;
-		XMStoreFloat3(&fForceDiff, forceDiffImpulse);
-
-		m_Physics->applyImpulse(body, fForceDiff);
-
-		m_RunningDirection = Vector3();
-	}
-
 }
 
 Vector3 RunControlComponent::getLocalDirection() const

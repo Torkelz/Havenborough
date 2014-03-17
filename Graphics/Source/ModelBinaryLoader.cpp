@@ -125,12 +125,10 @@ void ModelBinaryLoader::loadBinaryFile(std::string p_FilePath)
 	if(m_FileHeader.m_Animated)
 	{
 		m_AnimationVertexBuffer = readVertexBufferAnimation(m_FileHeader.m_NumVertex, &input);
-		calculateBoundingVolume(m_AnimationVertexBuffer);
 	}
 	else
 	{
 		m_VertexBuffer = readVertexBuffer(m_FileHeader.m_NumVertex, &input);
-		calculateBoundingVolume(m_VertexBuffer);
 	}
 	m_MaterialBuffer = readMaterialBuffer(m_FileHeader.m_NumMaterialBuffer, &input);
 	
@@ -171,11 +169,6 @@ bool ModelBinaryLoader::getCollideAble() const
 	return m_FileHeader.m_CollideAble;
 }
 
-const std::array<DirectX::XMFLOAT3, 8>& ModelBinaryLoader::getBoundingVolume() const
-{
-	return m_BoundingVolume;
-}
-
 void ModelBinaryLoader::clearData()
 {
 	m_FileHeader.m_ModelName = "";
@@ -189,46 +182,4 @@ void ModelBinaryLoader::clearData()
 	m_AnimationVertexBuffer.clear();
 	m_VertexBuffer.clear();
 	m_MaterialBuffer.clear();
-}
-
-template <typename VertList>
-void calcBoundingVolume(const VertList& p_Vertices, std::array<DirectX::XMFLOAT3, 8>& p_Volume)
-{
-	DirectX::XMFLOAT3 minPos(
-		std::numeric_limits<float>::max(),
-		std::numeric_limits<float>::max(),
-		std::numeric_limits<float>::max());
-	DirectX::XMFLOAT3 maxPos(
-		std::numeric_limits<float>::min(),
-		std::numeric_limits<float>::min(),
-		std::numeric_limits<float>::min());
-
-	for (const auto& vert : p_Vertices)
-	{
-		if (vert.m_Position.x < minPos.x) minPos.x = vert.m_Position.x;
-		if (vert.m_Position.x > maxPos.x) maxPos.x = vert.m_Position.x;
-		if (vert.m_Position.y < minPos.y) minPos.y = vert.m_Position.y;
-		if (vert.m_Position.y > maxPos.y) maxPos.y = vert.m_Position.y;
-		if (vert.m_Position.z < minPos.z) minPos.z = vert.m_Position.z;
-		if (vert.m_Position.z > maxPos.z) maxPos.z = vert.m_Position.z;
-	}
-
-	p_Volume[0] = DirectX::XMFLOAT3(minPos.x, minPos.y, minPos.z);
-	p_Volume[1] = DirectX::XMFLOAT3(minPos.x, minPos.y, maxPos.z);
-	p_Volume[2] = DirectX::XMFLOAT3(minPos.x, maxPos.y, minPos.z);
-	p_Volume[3] = DirectX::XMFLOAT3(minPos.x, maxPos.y, maxPos.z);
-	p_Volume[4] = DirectX::XMFLOAT3(maxPos.x, minPos.y, minPos.z);
-	p_Volume[5] = DirectX::XMFLOAT3(maxPos.x, minPos.y, maxPos.z);
-	p_Volume[6] = DirectX::XMFLOAT3(maxPos.x, maxPos.y, minPos.z);
-	p_Volume[7] = DirectX::XMFLOAT3(maxPos.x, maxPos.y, maxPos.z);
-}
-
-void ModelBinaryLoader::calculateBoundingVolume(const std::vector<AnimatedVertex>& p_Vertices)
-{
-	calcBoundingVolume(p_Vertices, m_BoundingVolume);
-}
-
-void ModelBinaryLoader::calculateBoundingVolume(const std::vector<StaticVertex>& p_Vertices)
-{
-	calcBoundingVolume(p_Vertices, m_BoundingVolume);
 }

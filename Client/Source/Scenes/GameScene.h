@@ -36,9 +36,13 @@ private:
 	unsigned int m_CurrentDebugView;
 	std::vector<IGraphics::RenderTarget> m_SelectableRenderTargets;
 
-
+	std::vector<std::string> m_BackgroundSoundsList;
+	std::string m_SoundFolderPath;
+	std::string m_SoundPath;
+	std::default_random_engine m_RandomEngine;
 	ISound *m_SoundManager;
 	bool m_SoundExist;
+	float m_UserAddedSoundVolume;
 
 	float m_ViewSensitivity;
 
@@ -55,17 +59,7 @@ private:
 		IGraphics::InstanceId modelId;
 		std::vector<ReachIK> activeIKs;
 	};
-	
 	std::vector<MeshBinding> m_Models;
-	
-	struct SoundBinding
-	{
-		int soundID;
-		std::pair<Actor::Id,int> actorID;
-		int resourceID;
-	};
-	
-	std::vector<SoundBinding> m_SoundsID;
 
 	struct ParticleBinding
 	{
@@ -114,6 +108,10 @@ public:
 	void setMouseSensitivity(float p_Value);
 
 	void setSoundManager(ISound *p_SoundManager);
+
+	void setUserAddedSoundVolume(float p_SoundVolume);
+
+	void launchUserSound();
 private:
 	std::string changeBackGroundSound(const std::string& p_FontFolderPath);
 
@@ -133,13 +131,6 @@ private:
 	void updateParticleBaseColor(IEventData::Ptr p_Data);
 	void spellHit(IEventData::Ptr p_Data);
 	void spellHitSphere(IEventData::Ptr p_Data);
-	void create3DSound(IEventData::Ptr p_Data);
-	void play3DSound(IEventData::Ptr p_Data);
-	void release3DSound(IEventData::Ptr p_Data);
-	void update3DSound(IEventData::Ptr p_Data);
-	void setPausedSound(IEventData::Ptr p_Data);
-	void createSingleSound(IEventData::Ptr p_Data);
-
 
 	void createWorldText(IEventData::Ptr p_Data);
 	void removeWorldText(IEventData::Ptr p_Data);

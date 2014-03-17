@@ -12,15 +12,20 @@
 
 struct SoundInstance
 {
+	std::string		m_SoundId;
 	FMOD::Sound		*m_Sound;
 	FMOD::Channel	*m_Channel;
 
-	explicit SoundInstance(FMOD::Sound *p_Sound)
-		: m_Sound(p_Sound)
+	explicit SoundInstance(std::string p_SoundId, FMOD::Sound *p_Sound, FMOD::Channel *p_Channel)
+		: m_SoundId(p_SoundId), m_Sound(p_Sound), m_Channel(p_Channel)
 	{
 	}
 	~SoundInstance()
 	{
+	}
+	const std::string &getSoundId() const
+	{
+		return m_SoundId;
 	}
 	FMOD::Sound *getSound() const
 	{
@@ -30,7 +35,7 @@ struct SoundInstance
 	{
 		m_Channel = p_Channel;
 	}
-	FMOD::Channel *getChannel()
+	FMOD::Channel *getChannel() const
 	{
 		return m_Channel;
 	}
@@ -46,18 +51,13 @@ struct SoundInstance
 class Sound : public ISound
 {
 private:
-	static int m_NextHandle;
-
-	static int getNextHandle();
-
 	FMOD::System										*m_System;
 	FMOD_SPEAKERMODE									m_SpeakerMode;
 	FMOD_CAPS											m_Caps;
-	std::vector<std::pair<int, SoundInstance>>			m_InstanceList;
+	std::vector<SoundInstance>							m_Sounds;
 	FMOD::ChannelGroup									*m_MusicChannelGroup;
 	FMOD::ChannelGroup									*m_SfxChannelGroup;
 	FMOD::ChannelGroup									*m_MasterChannelGroup;
-	std::vector<std::pair<std::string, FMOD::Sound*>>	m_SoundList; 
 	int													m_Key;
 	int													m_NumDrivers;
 	unsigned int										m_Version;
@@ -69,37 +69,27 @@ public:
 
 	void initialize(void) override;
 
-	void onFrameListener(Vector3* p_Position, Vector3* p_Velocity, Vector3* p_Forward, Vector3* p_Up) override;
-
-	void onFrameSound(int p_SoundID, Vector3* p_Position, Vector3* p_Velocity) override;
-
 	void onFrame(void) override;
 
 	bool loadSound(const char *p_SoundId, const char *p_Filename) override;
 
-	void set3DMinDistance(int p_SoundId, float p_MinDistance) override;
+	bool loadSoundWithoutLoop(const char *p_SoundId, const char *p_Filename) override;
 
-	void setSoundModes(int p_SoundId, bool p_3D, bool p_Loop) override;
-
-	int createSoundInstance(const char *p_SoundId) override;
-
-	bool isPlaying(int p_SoundId) override;
+	bool isPlaying(const char *p_SoundId) override;
 
 	bool loadStream(const char *p_SoundId, const char *p_Filename) override;
 
-	void playSound(int p_SoundId) override;
+	void playSound(const char *p_SoundId) override;
 
-	void play3DSound(int p_SoundId, Vector3* p_Position, Vector3* p_Velocity) override;
-	
-	void pauseSound(int p_SoundId, bool p_Pause) override;
+	void pauseSound(const char *p_SoundId, bool p_Pause) override;
 
-	void stopSound(int p_SoundId) override;
+	void stopSound(const char *p_SoundId) override;
 
-	void addSoundToGroup(int SoundId, ChannelGroup p_Group);
+	void addSoundToGroup(const char *SoundId, ChannelGroup p_Group);
 
 	void setGroupVolume(ISound::ChannelGroup p_Group, float p_Volume) override;
 	
-	void setSoundVolume(int p_SoundId, float p_Volume) override;
+	void setSoundVolume(const char *p_SoundId, float p_Volume) override;
 
 	void muteAll(bool p_Mute) override;
 
@@ -107,22 +97,18 @@ public:
 	
 	bool releaseSound(const char *p_SoundId) override;
 
-	bool releaseInstance(int p_SoundId) override;
-
 	void shutdown(void) override;
 
 	void setLogFunction(clientLogCallback_t p_LogCallback) override;
 
-	float getVolume(int p_SoundId) override;
+	float getVolume(const char* p_SoundId) override;
 
 	float getGroupVolume(ISound::ChannelGroup p_Group) override;
 
-	bool getPaused(int p_SoundId) override;
+	bool getPaused(const char* p_SoundId) override;
 
 	bool getMasterMute() override;
-
-	static void resetSoundHandleCounter();
 private:
 	void errorCheck(FMOD_RESULT p_Result);
-	SoundInstance *getSound(int p_SoundId);
+	SoundInstance *getSound(std::string p_SoundId);
 };

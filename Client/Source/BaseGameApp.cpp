@@ -26,6 +26,17 @@ void BaseGameApp::init()
 	Settings settings;
 	settings.initialize("UserOptions.xml");
 
+	float checkValue = settings.getSettingValue("MusicVolume") * 0.01f;
+	
+	if (checkValue <= 1.f || checkValue >= 0.f)
+	{
+		m_UserAddedSoundVolume = checkValue;
+	}
+	else
+	{
+		m_UserAddedSoundVolume = 1.f;
+	}	
+
 	TweakSettings::initializeMaster();
 
 	m_GameLogic = nullptr;
@@ -63,34 +74,10 @@ void BaseGameApp::init()
 	m_AnimationLoader.reset(new AnimationLoader);
 	m_SpellFactory.reset(new SpellFactory());
 
-	m_RandomEngine.seed((unsigned long)std::chrono::system_clock::now().time_since_epoch().count());
 	m_ResourceManager.reset(new ResourceManager());
 	m_Sound = ISound::createSound();
 	m_Sound->setLogFunction(&Logger::logRaw);
 	m_Sound->initialize();
-	loadBackgroundSound();
-
-	float musikVolume = settings.getSettingValue("MusicVolume") * 0.01f;
-	
-	if (musikVolume <= 1.f || musikVolume >= 0.f)
-	{
-		m_Sound->setGroupVolume(ISound::ChannelGroup::MUSIC, musikVolume);
-	}
-	else
-	{
-		m_Sound->setGroupVolume(ISound::ChannelGroup::MUSIC, 1.0f);
-	}	
-
-	float sfxVolume = settings.getSettingValue("SfxVolume") * 0.01f;
-
-	if (sfxVolume <= 1.f || sfxVolume >= 0.f)
-	{
-		m_Sound->setGroupVolume(ISound::ChannelGroup::SFX, sfxVolume);
-	}
-	else
-	{
-		m_Sound->setGroupVolume(ISound::ChannelGroup::SFX, 1.0f);
-	}
 
 	using std::placeholders::_1;
 	using std::placeholders::_2;
@@ -165,6 +152,8 @@ void BaseGameApp::init()
 	((HUDScene*)m_SceneManager.getScene(RunScenes::GAMEHUD).get())->setHUDSettings(settings.getHUDSettings(), resolution);
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setMouseSensitivity(settings.getSettingValue("MouseSensitivity"));
 	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setSoundManager(m_Sound);
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->setUserAddedSoundVolume(m_UserAddedSoundVolume);
+	((GameScene*)m_SceneManager.getScene(RunScenes::GAMEMAIN).get())->launchUserSound();
 
 	m_MemoryInfo.update();
 	
@@ -192,28 +181,6 @@ void BaseGameApp::init()
 	m_CharacterStyle = settings.geCharacterStyle();
 }
 
-void BaseGameApp::loadBackgroundSound()
-{
-	std::string path = "assets/sounds/background";
-	boost::filesystem::directory_iterator currFile(path);
-	for (; currFile != boost::filesystem::directory_iterator(); ++currFile)
-	{
-		auto filename = currFile->path();
-		m_BackgroundSoundsList.push_back(filename.string());
-	}
-	int soundCount = m_BackgroundSoundsList.size();
-	if (soundCount == 0)
-	{
-		return;
-	}
-
-	std::uniform_int_distribution<int> newBackGroundSound(0, soundCount-1);
-	int newSoundTrack = 0;
-	newSoundTrack = newBackGroundSound(m_RandomEngine);
-
-	m_Sound->loadSound("Background" ,m_BackgroundSoundsList[newSoundTrack].c_str());
-}
-
 void BaseGameApp::run()
 {
 	Logger::log(Logger::Level::INFO, "Running the game");
@@ -235,8 +202,6 @@ void BaseGameApp::run()
 		handleInput();
 
 		updateLogic();
-		
-		m_Sound->onFrame();
 
 		m_Sound->onFrame();
 
@@ -274,9 +239,7 @@ void BaseGameApp::shutdown()
 	m_ResourceManager->unregisterResourceType("volume");
 	IPhysics::deletePhysics(m_Physics);
 	m_Physics = nullptr;
-	
-	m_Sound->stopSound(m_BackgroundSoundID);
-	m_Sound->releaseInstance(m_BackgroundSoundID);
+
 	m_ResourceManager->unregisterResourceType("sound");
 	ISound::deleteSound(m_Sound);
 	m_Sound = nullptr;
@@ -469,10 +432,6 @@ void BaseGameApp::render()
 void BaseGameApp::startGame(IEventData::Ptr p_Data)
 {
 	m_SceneManager.startRun();
-	m_BackgroundSoundID = m_Sound->createSoundInstance("Background");
-	m_Sound->setSoundModes(m_BackgroundSoundID, false, true);
-	m_Sound->addSoundToGroup(m_BackgroundSoundID, ISound::ChannelGroup::MUSIC);
-	m_Sound->playSound(m_BackgroundSoundID);
 }
 
 void BaseGameApp::quitGame(IEventData::Ptr p_Data)

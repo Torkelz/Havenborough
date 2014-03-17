@@ -1,7 +1,6 @@
 #include "ActorFactory.h"
 #include "CommonExceptions.h"
 #include "Components.h"
-#include "SoundComponent.h"
 #include "FlyingControlComponent.h"
 #include "SplineControlComponent.h"
 #include "HumanAnimationComponent.h"
@@ -31,7 +30,6 @@ ActorFactory::ActorFactory(unsigned int p_BaseActorId)
 	m_ComponentCreators["Movement"] = std::bind(&ActorFactory::createMovementComponent, this);
 	m_ComponentCreators["CircleMovement"] = std::bind(&ActorFactory::createCircleMovementComponent, this);
 	m_ComponentCreators["Pulse"] = std::bind(&ActorFactory::createPulseComponent, this);
-	m_ComponentCreators["Sound"] = std::bind(&ActorFactory::createSoundComponent, this);
 	m_ComponentCreators["Light"] = std::bind(&ActorFactory::createLightComponent, this);
 	m_ComponentCreators["Particle"] = std::bind(&ActorFactory::createParticleComponent, this);
 	m_ComponentCreators["Spell"] = std::bind(&ActorFactory::createSpellComponent, this);
@@ -431,14 +429,6 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	printer.OpenElement("Particle");
 	printer.PushAttribute("Effect", "magicProjectile");
 	printer.CloseElement();
-	printer.OpenElement("Sound");
-	printer.PushAttribute("FileName", "InAir");
-	printer.PushAttribute("SoundID", 10);
-	printer.PushAttribute("MultiD", 1);
-	printer.PushAttribute("Loop", 1);
-	printer.PushAttribute("MinDistance", 50.0f);
-	pushVector(printer, "Velocity", Vector3(0,0,0));
-	printer.CloseElement();
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;
@@ -541,11 +531,6 @@ ActorComponent::ptr ActorFactory::createMovementComponent()
 ActorComponent::ptr ActorFactory::createCircleMovementComponent()
 {
 	return ActorComponent::ptr(new CircleMovementComponent);
-}
-
-ActorComponent::ptr ActorFactory::createSoundComponent()
-{
-	return ActorComponent::ptr(new SoundComponent);
 }
 
 ActorComponent::ptr ActorFactory::createPulseComponent()

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <Utilities\Util.h>
 
 class ISound
 {
@@ -32,26 +31,6 @@ public:
 	 * Initialize Sound and FMOD.
 	 */
 	virtual void initialize(void) = 0;
-
-	/**
-	 * Updates the FMOD listener system, should be called every frame.
-	 *
-	 * @param p_Position the listeners position
-	 * @param p_Velocity the velocity of the listener
-	 * @param p_Forward listeners look direction
-	 * @param p_Up vector for the listener
-	 */
-	virtual void onFrameListener(Vector3* p_Position, Vector3* p_Velocity, Vector3* p_Forward, Vector3* p_Up)  = 0;
-
-	/**
-	 * Updates the FMOD sound system, should be called every frame.
-	 *
-	 * @param p_SoundID the sound id
-	 * @param p_Position the listeners position
-	 * @param p_Velocity the velocity of the listener
-	 */
-	virtual void onFrameSound(int p_SoundID, Vector3* p_Position, Vector3* p_Velocity) = 0;
-
 	/**
 	 * Updates the FMOD system, should be called every frame.
 	 */
@@ -63,20 +42,20 @@ public:
 	 * @param true if the load is successful otherwise false
 	 */
 	virtual bool loadSound(const char *p_SoundId, const char *p_Filename) = 0;
-
-	virtual void set3DMinDistance(int p_SoundId, float p_MinDistance) = 0;
-
-	virtual void setSoundModes(int p_SoundId, bool p_3D, bool p_Loop) = 0;
-
-	virtual int createSoundInstance(const char *p_SoundId) = 0;
-
+	/**
+	 * Load a sound from file into memory and set the loop state to be off.
+	 * @param p_SoundId resource name connected to the sound to load.
+	 * @param p_Filename filename of the sound file.
+	 * @param true if the load is successful otherwise false
+	 */
+	virtual bool loadSoundWithoutLoop(const char *p_SoundId, const char *p_Filename) = 0;
 	/**
 	 * A way find out if an instance of a sound is playing.
 	 * @param p_SoundId resource name connected to the sound to load.
 	 * @return true if it's still playing else false
 	 * 
 	 */
-	virtual bool isPlaying(int p_SoundId) = 0;
+	virtual bool isPlaying(const char *p_SoundId) = 0;
 	/**
 	 * Stream a sound from file, NOT IMPLEMENTED!
 	 * @param p_SoundId resource name connected to the sound to load.
@@ -88,33 +67,24 @@ public:
 	 * Play a sound.
 	 * @param p_SoundId which sound to play
 	 */
-	virtual void playSound(int p_SoundId) = 0;
-
-	/**
-	 * Play 3D sound from a position with a velocity;
-	 * @param p_SoundId wich sound to play
-	 * @param the sounds start position
-	 * @param the sounds velocity
-	 */
-	virtual void play3DSound(int p_SoundId, Vector3* p_Position, Vector3* p_Velocity) = 0;
-
+	virtual void playSound(const char *p_SoundId) = 0;
 	/**
 	 * Pause/unpause a sound.
 	 * @param p_SoundId which sound to pause
 	 * @param p_Pause true pauses the sound, false unpauses the sound
 	 */
-	virtual void pauseSound(int p_SoundId, bool p_Pause) = 0;
+	virtual void pauseSound(const char *p_SoundId, bool p_Pause) = 0;
 	/**
 	 * Stop a sound.
 	 * @param p_SoundId which sound to stop
 	 */
-	virtual void stopSound(int p_SoundId) = 0;
+	virtual void stopSound(const char *p_SoundId) = 0;
 	/**
 	 * Add a sound to a group.
 	 * @param p_SoundId which sound to add
 	 * @param p_Group which group to add the sound to.
 	 */
-	virtual void addSoundToGroup(int SoundId, ChannelGroup p_Group) = 0;
+	virtual void addSoundToGroup(const char *SoundId, ChannelGroup p_Group) = 0;
 	/**
 	 * Add a sound to a group.
 	 * @param p_SoundId which sound to remove
@@ -126,7 +96,7 @@ public:
 	 * @param p_SoundId which channel to change the volume on
 	 * @param p_Volume the new volume value which should 0.0 - 1.0 where 0.0 is mute and 1.0 is max volume.
 	 */
-	virtual void setSoundVolume(int p_SoundId, float p_Volume) = 0;
+	virtual void setSoundVolume(const char *p_SoundId, float p_Volume) = 0;
 	/**
 	 * Set Volume for all sounds in a group.
 	 * @param p_Group which group to change the Volume on, use Master to change volume all sounds.
@@ -149,8 +119,6 @@ public:
 	 * @return true if the release succeeded otherwise false
 	 */
 	virtual bool releaseSound(const char *p_SoundId) = 0;
-
-	virtual bool releaseInstance(int p_SoundId) = 0;
 	/**
 	 * Shutdowns FMOD and releases all objects
 	 */
@@ -175,7 +143,7 @@ public:
 	 *
 	 * @param identification for the sound/group to get volume from.
 	 */
-	virtual float getVolume(int p_SoundId) = 0;
+	virtual float getVolume(const char* p_SoundId) = 0;
 	virtual float getGroupVolume(ISound::ChannelGroup p_Group) = 0;
 
 	/**
@@ -183,7 +151,7 @@ public:
 	 *
 	 * @param identification for the sound/group to get paused status from.
 	 */
-	virtual bool getPaused(int p_SoundId) = 0;
+	virtual bool getPaused(const char* p_SoundId) = 0;
 	/**
 	 * Get functions for debug and/or mute indicator on the UI.
 	 *

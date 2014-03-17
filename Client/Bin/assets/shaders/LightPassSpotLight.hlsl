@@ -8,8 +8,8 @@ Texture2D SSAO_Tex	 : register (t3);
 
 float4x4 calcRotationMatrix(float3 direction, float3 position);
 
-float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo,
-	float3 lightPos, float lightRange,	float3 lightDirection, 
+float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3 specularAlbedo,
+	float specularPower, float3 lightPos, float lightRange,	float3 lightDirection, 
 	float2 spotlightAngles,	float3 lightColor, float3 ssao);
 
 cbuffer cb : register(b0)
@@ -79,21 +79,23 @@ float4 SpotLightPS(VSLightOutput input) : SV_TARGET
 	float3 normal;
 	float3 position;
 	float3 diffuseAlbedo;
+	float3 specularAlbedo;
+	float specularPower;
 	float3 ssao;
 	
 	// Sample the G-Buffer properties from the textures
 	GetGBufferAttributes(input.vposition.xy, ssaoScale, normalTex, diffuseTex, SSAO_Tex, wPosTex,
-		normal, diffuseAlbedo, ssao, position);
+		normal, diffuseAlbedo, specularAlbedo, ssao, position, specularPower);
 
-	float3 lighting = CalcLighting(normal, position, diffuseAlbedo, 
-		input.lightPos,input.lightRange, input.lightDirection,
+	float3 lighting = CalcLighting(normal, position, diffuseAlbedo,	specularAlbedo, 
+		specularPower,input.lightPos,input.lightRange, input.lightDirection,
 		input.spotlightAngles, input.lightColor, ssao);
 
 	return float4( lighting, 1.0f );
 }
 
-float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo,
-	float3 lightPos, float lightRange,	float3 lightDirection,
+float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo, float3 specularAlbedo,
+	float specularPower, float3 lightPos, float lightRange,	float3 lightDirection,
 	float2 spotlightAngles,	float3 lightColor, float3 ssao)
 {
 	float3 L = lightPos - position;
@@ -118,8 +120,15 @@ float3 CalcLighting(float3 normal, float3 position,	float3 diffuseAlbedo,
 	float nDotL = saturate( dot( normal, L ) );
 	float3 diffuse = nDotL * lightColor * diffuseAlbedo * pow(ssao, 10);
 
+	// Calculate the specular term
+	float3 V = normalize(cameraPos - position);
+	V = mul(view, float4(V, 0.0f)).xyz;
+
+	float3 H = normalize( L + V );
+	float3 specular = pow( saturate( dot(normal, H) ), specularPower ) *
+							 lightColor * specularAlbedo.xyz * nDotL;
 	// Final value is the sum of the albedo and diffuse with attenuation applied
-	return saturate(diffuse * attenuation);
+	return saturate(( diffuse + specular ) * attenuation);
 }
 
 float4x4 calcRotationMatrix(float3 direction, float3 position)

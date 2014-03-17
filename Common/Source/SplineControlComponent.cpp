@@ -112,12 +112,10 @@ void SplineControlComponent::move(float p_DeltaTime)
 
 		float nextTime = time.at(m_CurrentPoint + 1);
 
-		while(m_CurrentTime >= nextTime && m_CurrentPoint < time.size() - 1)
+		if(m_CurrentTime >= nextTime)
 		{
 			m_CurrentPoint++;
 			m_CurrentTime -= nextTime;
-			if (m_CurrentPoint + 1 < time.size())
-				nextTime = time.at(m_CurrentPoint + 1);
 		}
 
 		if(m_CurrentPoint > time.size() - 2)

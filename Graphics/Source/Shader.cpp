@@ -75,9 +75,7 @@ HRESULT Shader::compileAndCreateShader(LPCWSTR p_Filename, D3D_SHADER_MACRO* p_D
 		{
 			std::string temp = (std::string)(char*)errorMessage->GetBufferPointer();
 			SAFE_RELEASE(errorMessage);
-			std::wstring filename(p_Filename);
-			throw ShaderException("Error when compiling shader: "
-				+ std::string(filename.begin(), filename.end()) + "\n" + temp, __LINE__, __FILE__);
+			throw ShaderException("Error when compiling shader.\n" + temp, __LINE__, __FILE__);
 		}
 	}
 

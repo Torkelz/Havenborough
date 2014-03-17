@@ -59,7 +59,6 @@ private:
 	bool m_Landing;
 	float m_LandTimer;
 	float m_MaxLandTime;
-	int m_RunningSound, m_LandingSound;
 
 	std::weak_ptr<ModelComponent> m_Model;
 	EventManager* m_EventManager;
@@ -79,14 +78,10 @@ public:
 	~HumanAnimationComponent()
 	{
 		m_ResourceManager->releaseResource(m_AnimationResource);
-		m_EventManager->queueEvent(IEventData::Ptr(new Release3DSoundEventData(m_Owner->getId(), m_RunningSound)));
-		m_EventManager->queueEvent(IEventData::Ptr(new Release3DSoundEventData(m_Owner->getId(), m_LandingSound)));
 	}
 
 	void initialize(const tinyxml2::XMLElement* p_Data) override
 	{
-		m_RunningSound = 0;
-		m_LandingSound = 1;
 		m_FallSpeed = 0.f;
 		m_PrevForwardState = ForwardAnimationState::IDLE;
 		m_PrevSideState = SideAnimationState::IDLE;
@@ -131,7 +126,6 @@ public:
 		}
 		else
 			m_Up = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-		m_EventManager->queueEvent(IEventData::Ptr(new Create3DSoundEventData("Running", m_Owner->getId(), 50.0f, m_RunningSound, true, true)));
 	}
 
 	void onUpdate(float p_DeltaTime) override

@@ -85,5 +85,5 @@ PSIn VS(VSIn input)
 //############################
 PSOut PS( PSIn input )
 {
-	return PSFunction(input, cView, diffuseTex, normalTex, textureSampler);
+	return PSFunction(input, cView, diffuseTex, normalTex, specularTex, textureSampler);
 }
