@@ -5,8 +5,8 @@
         Title="The Apprentice of Havenborough - Credits" Height="625" Width="875" ResizeMode="NoResize" Icon="Havenborough.ico">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50*" />
-            <ColumnDefinition Width="38*" />
+            <ColumnDefinition Width="68*" />
+            <ColumnDefinition Width="20*" />
             <ColumnDefinition Width="12*" />
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">

@@ -16,7 +16,7 @@ namespace Havenborough_Launcher
 
             Background = new ImageBrush
             {
-                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg", UriKind.Relative))
+                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_CreditsBackground.png", UriKind.Relative))
             };
         }
 

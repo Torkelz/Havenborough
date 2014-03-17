@@ -35,7 +35,7 @@ namespace Havenborough_Launcher
 
             Background = new ImageBrush
             {
-                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_Background.jpg", UriKind.Relative))
+                ImageSource = new BitmapImage(new Uri(@"assets\textures\Launcher_MainBackground.png", UriKind.Relative))
             };
             MusicVolumeMedia.Source = new Uri(@"assets\sounds\launcher\Music.mp3", UriKind.Relative);
             MusicVolumeMedia.Play();
@@ -557,7 +557,7 @@ namespace Havenborough_Launcher
                         _sfxStartUp = false;
                     else
                     {
-                       SfxVolumeMedia.Source = new Uri(@"assets\sounds\launcher\", UriKind.Relative);
+                       SfxVolumeMedia.Source = new Uri(@"assets\sounds\launcher\Land.mp3", UriKind.Relative);
                        SfxVolumeMedia.Volume = slider.Value * 0.01;
                        SfxVolumeMedia.Play(); 
                     }
