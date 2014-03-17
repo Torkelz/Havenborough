@@ -4,7 +4,6 @@
 SamplerState textureSampler	: register(s0);
 Texture2D diffuseTex		: register(t0);
 Texture2D normalTex			: register(t1);
-Texture2D specularTex		: register(t2);
 
 cbuffer cb : register(b0)
 {
@@ -52,5 +51,5 @@ PSIn VS(VSIn p_Input)
 //############################
 PSOut PS(PSIn p_Input)
 {
-	return PSFunction(p_Input, cView, diffuseTex, normalTex, specularTex, textureSampler);
+	return PSFunction(p_Input, cView, diffuseTex, normalTex, textureSampler);
 }

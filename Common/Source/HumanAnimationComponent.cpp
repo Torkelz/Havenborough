@@ -37,7 +37,7 @@ void HumanAnimationComponent::updateAnimation()
 		XMVECTOR look = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 		XMMATRIX rotationInverse = XMMatrixTranspose(XMLoadFloat4x4(&lookComp->getRotationMatrix()));
 		velocity = XMVector3Transform(velocity, rotationInverse);
-
+		Vector3 nulled = Vector3(0,0,0);
 		// Calculate the weight on the strafe track with some trigonometry.
 		float angle = XMVectorGetX(XMVector3AngleBetweenVectors(look, velocity));
 		changeAnimationWeight(2, 1 - abs(cosf(angle)));
@@ -72,6 +72,16 @@ void HumanAnimationComponent::updateAnimation()
 			else if (XMVectorGetX(velocity) >= -10.f && XMVectorGetX(velocity) <= 10.f )
 			{
 				changeAnimationWeight(2, 0.0f);
+			}
+
+			if(currentForwardState == ForwardAnimationState::IDLE && currentSideState == SideAnimationState::IDLE)
+			{
+				m_EventManager->queueEvent(IEventData::Ptr(new PausedSoundEventData(m_Owner->getId(), m_RunningSound, true)));
+			}
+			else
+			{
+				m_EventManager->queueEvent(IEventData::Ptr(new Update3DSoundEventData(m_Owner->getId(), m_RunningSound, m_Owner->getPosition(), nulled)));
+				m_EventManager->queueEvent(IEventData::Ptr(new PausedSoundEventData(m_Owner->getId(), m_RunningSound, false)));
 			}
 
 			if (currentForwardState != m_PrevForwardState)
@@ -109,14 +119,11 @@ void HumanAnimationComponent::updateAnimation()
 			}
 			JumpAnimationState currentJumpState = JumpAnimationState::JUMP;
 	
-			if(m_FallSpeed <= -3400.f)
-			{
-				currentJumpState = JumpAnimationState::HARD_LANDING;
-				m_Landing = true;
-			}
+
 			if(m_FallSpeed <= -2400.0f)
 			{
 				currentJumpState = JumpAnimationState::HARD_LANDING;
+				m_EventManager->queueEvent(IEventData::Ptr(new CreateSingleSoundEventData("Land", 50.0f, m_Owner->getPosition(), nulled)));
 				m_Landing = true;
 			}
 			else
@@ -156,6 +163,7 @@ void HumanAnimationComponent::updateAnimation()
 		}
 		else if(isFalling || isJumping)
 		{
+			m_EventManager->queueEvent(IEventData::Ptr(new PausedSoundEventData(m_Owner->getId(), m_RunningSound, true)));
 			float weight = 1 - (abs(cosf(angle)));
 			if(weight > 0.8f)
 				int lol = 42;

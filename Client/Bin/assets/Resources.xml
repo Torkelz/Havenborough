@@ -11,7 +11,11 @@
         <Resource Name="Crosshair" Path="assets/textures/Dot.png"/>
     </ResourceType>
     <ResourceType Type="sound">
-        <Resource Name="Background" Path="assets/sounds/Mainbackground.mp3"/>
+        <Resource Name="Shoot" Path="assets/sounds/spell/Shoot.mp3"/>
+        <Resource Name="Explosion" Path="assets/sounds/spell/Explosion.mp3"/>
+        <Resource Name="InAir" Path="assets/sounds/spell/Shoot.mp3"/>
+        <Resource Name="Land" Path="assets/sounds/sfx/Land.mp3"/>
+        <Resource Name="Running" Path="assets/sounds/sfx/Running.mp3"/>
     </ResourceType>
     <ResourceType Type="particleSystem">
         <Resource Name="TestParticle" Path="assets/particles/particleEffects.xml"/>
@@ -131,7 +135,6 @@
         <Resource Name="WoodenPlatform3" Path="assets/models/WoodenPlatform3.btx"/>
         <Resource Name="WoodenShed1" Path="assets/models/WoodenShed1.btx"/>
         <Resource Name="Zane" Path="assets/models/Zane.btx"/>
-        <Resource Name="Minque6" Path="assets/models/Minque6.btx"/>
         <Resource Name="ExplosionSphere1" Path="assets/models/ExplosionSphere1.btx"/>
         <Resource Name="HangingStairCase1" Path="assets/models/HangingStairCase1.btx"/>
         <Resource Name="House10" Path="assets/models/House10.btx"/>
@@ -149,6 +152,14 @@
         <Resource Name="Island3Top1Part1" Path="assets/models/Island3Top1Part1.btx"/>
         <Resource Name="MarketStand3" Path="assets/models/MarketStand3.btx"/>
         <Resource Name="MarketStand4" Path="assets/models/MarketStand4.btx"/>
+        <Resource Name="Island3Top1Part2" Path="assets/models/Island3Top1Part2.btx"/>
+        <Resource Name="Island3Top1Part3" Path="assets/models/Island3Top1Part3.btx"/>
+        <Resource Name="UpperTopSidewalk" Path="assets/models/UpperTopSidewalk.btx"/>
+        <Resource Name="Park1Part1" Path="assets/models/Park1Part1.btx"/>
+        <Resource Name="Park1Part2" Path="assets/models/Park1Part2.btx"/>
+        <Resource Name="Park1Part3" Path="assets/models/Park1Part3.btx"/>
+        <Resource Name="Park1Part4" Path="assets/models/Park1Part4.btx"/>
+        <Resource Name="Minque6" Path="assets/models/Minque6.btx"/>
     </ResourceType>
     <ResourceType Type="volume">
         <Resource Name="Aqueduct1" Path="assets/volumes/CB_Aqueduct1.txc"/>
@@ -240,7 +251,6 @@
         <Resource Name="WoodenPlatform3" Path="assets/volumes/CB_WoodenPlatform3.txc"/>
         <Resource Name="WoodenShed1" Path="assets/volumes/CB_WoodenShed1.txc"/>
         <Resource Name="Zane" Path="assets/volumes/CB_Zane.txc"/>
-        <Resource Name="Minque6" Path="assets/volumes/CB_Minque6.txc"/>
         <Resource Name="Fountain1" Path="assets/volumes/CB_Fountain1.txc"/>
         <Resource Name="HangingStairCase1" Path="assets/volumes/CB_HangingStairCase1.txc"/>
         <Resource Name="House10" Path="assets/volumes/CB_House10.txc"/>
@@ -265,6 +275,14 @@
         <Resource Name="MarketBucket2" Path="assets/volumes/CB_MarketBucket2.txc"/>
         <Resource Name="MarketStand3" Path="assets/volumes/CB_MarketStand3.txc"/>
         <Resource Name="MarketStand4" Path="assets/volumes/CB_MarketStand4.txc"/>
+        <Resource Name="Island3Top1Part2" Path="assets/volumes/CB_Island3Top1Part2.txc"/>
+        <Resource Name="Island3Top1Part3" Path="assets/volumes/CB_Island3Top1Part3.txc"/>
+        <Resource Name="UpperTopSidewalk" Path="assets/volumes/CB_UpperTopSidewalk.txc"/>
+        <Resource Name="Park1Part1" Path="assets/volumes/CB_Park1Part1.txc"/>
+        <Resource Name="Park1Part2" Path="assets/volumes/CB_Park1Part2.txc"/>
+        <Resource Name="Park1Part3" Path="assets/volumes/CB_Park1Part3.txc"/>
+        <Resource Name="Park1Part4" Path="assets/volumes/CB_Park1Part4.txc"/>
+        <Resource Name="Minque6" Path="assets/volumes/CB_Minque6.txc"/>
     </ResourceType>
     <ResourceType Type="animation">
         <Resource Name="Dzala" Path="assets/animations/Dzala.atx"/>

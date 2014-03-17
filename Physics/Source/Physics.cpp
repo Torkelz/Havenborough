@@ -135,7 +135,7 @@ void Physics::singleCollisionCheck(Body& p_Collider, Body& p_Victim, bool& p_IsO
 					XMFLOAT4 fVictimPos = p_Victim.getPosition();
 					Sphere s = ((Hull*)p_Victim.getVolume(l))->getSphere();
 					float r  = ((Sphere*)p_Collider.getVolume(0))->getRadius();
-					if((s.getRadius() < 1.f && fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y))
+					if((s.getRadius() < 1.55f && fVictimPos.y > fBodyPos.y - 0.35f && fVictimPos.y < fBodyPos.y))
 					{
 						//PhysicsLogger::log(PhysicsLogger::Level::INFO, "StepSize");
 						setBodyForceCollisionNormal(p_Collider.getHandle(), p_Victim.getHandle(), true);

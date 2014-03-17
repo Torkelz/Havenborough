@@ -109,6 +109,7 @@ ModelDefinition ModelFactory::createModel(const char *p_Filename)
 	}
 
 	model.vertexBuffer.swap(vertexBuffer);
+	model.boundingVolume = modelLoader.getBoundingVolume();
 
 	modelLoader.clear();
 	
