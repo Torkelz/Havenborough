@@ -15,7 +15,7 @@ we	1.0
 
 *Clip
 na 	Run
-sp 	1
+sp 	1.2
 st 	2
 en 	17
 lo 	1
@@ -255,7 +255,7 @@ we	1.0
 
 *Clip
 na 	SideStepLeft
-sp 	1.0
+sp 	1.2
 st 	26
 en 	41
 lo 	1
@@ -270,7 +270,7 @@ we	1.0
 
 *Clip
 na 	SideStepRight
-sp 	1.0
+sp 	1.2
 st 	43
 en 	58
 lo 	1
@@ -285,7 +285,7 @@ we	1.0
 
 *Clip
 na 	BackPaddle
-sp 	1.0
+sp 	1.2
 st 	60
 en 	75
 lo 	1
@@ -300,7 +300,7 @@ we	1.0
 
 *Clip
 na 	BodyLand
-sp 	1.0
+sp 	2.0
 st 	364
 en 	386
 lo 	0
@@ -311,7 +311,7 @@ fi	1
 fif	2
 fo	1
 fof	2
-we	0.5
+we	0.7
 
 *Clip
 na 	SideJumpRight

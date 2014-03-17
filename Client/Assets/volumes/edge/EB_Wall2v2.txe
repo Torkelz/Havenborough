@@ -1,0 +1,34 @@
+*ObjectHeader*
+#numObj: 6
+
+#MESH: Wall2v2
+#Translation: 86.779236 71.988258 0
+#Rotation: 0 0 0
+#Scale: 10 10 81.098907
+
+#MESH: Wall2v2
+#Translation: 157.677109 71.961845 0
+#Rotation: 0 0 0
+#Scale: 10 10 81.098907
+
+#MESH: Wall2v2
+#Translation: -46.509396 18.141657 41.370659
+#Rotation: 1.570796 0 0
+#Scale: 10 10 250.999817
+
+#MESH: Wall2v2
+#Translation: -46.509396 18.141657 -40.938667
+#Rotation: 1.570796 0 0
+#Scale: 10 10 250.999817
+
+#MESH: Wall2v2
+#Translation: 122.203949 72.001297 41.370659
+#Rotation: 1.570796 0 0
+#Scale: 10 10 69.648476
+
+#MESH: Wall2v2
+#Translation: 122.203949 72.001297 -40.857643
+#Rotation: 1.570796 0 0
+#Scale: 10 10 69.648476
+
+
