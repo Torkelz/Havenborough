@@ -1485,16 +1485,17 @@ bool DeferredRenderer::isVisible(const Renderable& p_Object) const
 	{
 		corners[i] = XMVector4Transform(XMVectorSetW(XMLoadFloat3(&corner), 1.f), projWorldView);
 		corners[i] /= corners[i].m128_f32[3];
+
 		++i;
 	}
 
-	static const std::tuple<int, float, float> planes[6] =
+	static const std::tuple<int, float, float> planes[] =
 	{
-		std::make_tuple(0, 1.f, 1.f),
-		std::make_tuple(0, 1.f, -1.f),
-		std::make_tuple(1, 1.f, 1.f),
-		std::make_tuple(1, 1.f, -1.f),
-		std::make_tuple(2, 1.f, 1.f),
+		std::make_tuple(0, 4.f, 1.f),
+		std::make_tuple(0, 4.f, -1.f),
+		std::make_tuple(1, 4.f, 1.f),
+		std::make_tuple(1, 4.f, -1.f),
+		std::make_tuple(2, 4.f, 1.f),
 		std::make_tuple(2, 0.f, -1.f)
 	};
 
