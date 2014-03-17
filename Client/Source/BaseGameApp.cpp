@@ -238,8 +238,6 @@ void BaseGameApp::run()
 		
 		m_Sound->onFrame();
 
-		m_Sound->onFrame();
-
 		render();
 		
 		m_MemoryInfo.update();

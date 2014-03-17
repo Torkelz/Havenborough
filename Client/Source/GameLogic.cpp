@@ -440,7 +440,7 @@ void GameLogic::playLocalLevel()
 	m_Actors.reset(new ActorList());
 	m_ActorFactory->setActorList(m_Actors);
 
-	m_Level = Level(m_ResourceManager, m_ActorFactory);
+	m_Level = Level(m_ResourceManager, m_ActorFactory, m_EventManager);
 #ifdef _DEBUG
 	std::ifstream input("assets/levels/Level2.btxl", std::istream::in | std::istream::binary);
 	if(!input)
@@ -696,7 +696,7 @@ void GameLogic::handleNetwork()
 
 			case PackageType::LEVEL_DATA:
 				{
-					m_Level = Level(m_ResourceManager, m_ActorFactory);
+					m_Level = Level(m_ResourceManager, m_ActorFactory, m_EventManager);
 					size_t size = conn->getLevelDataSize(package);
 					if (size > 0)
 					{

@@ -431,14 +431,14 @@ Actor::ptr ActorFactory::createSpell(const std::string& p_Spell, Actor::Id p_Cas
 	printer.OpenElement("Particle");
 	printer.PushAttribute("Effect", "magicProjectile");
 	printer.CloseElement();
-	printer.OpenElement("Sound");
-	printer.PushAttribute("FileName", "InAir");
-	printer.PushAttribute("SoundID", 10);
-	printer.PushAttribute("MultiD", 1);
-	printer.PushAttribute("Loop", 1);
-	printer.PushAttribute("MinDistance", 50.0f);
-	pushVector(printer, "Velocity", Vector3(0,0,0));
-	printer.CloseElement();
+	//printer.OpenElement("Sound");
+	//printer.PushAttribute("FileName", "InAir");
+	//printer.PushAttribute("SoundID", 10);
+	//printer.PushAttribute("MultiD", 1);
+	//printer.PushAttribute("Loop", 1);
+	//printer.PushAttribute("MinDistance", 50.0f);
+	//pushVector(printer, "Velocity", Vector3(0,0,0));
+	//printer.CloseElement();
 	printer.CloseElement();
 
 	tinyxml2::XMLDocument doc;
