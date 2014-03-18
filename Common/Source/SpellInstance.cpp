@@ -101,7 +101,7 @@ bool SpellInstance::isColliding() const
 void SpellInstance::explodeSpell(IPhysics* p_Physics, const HitData& p_Hit, BodyHandle p_CasterBody)
 {
 	float modifier = -1.f;
-	float casterEffectModifier = 1.4f;
+	float casterEffectModifier = 4.f;
 
 	if(p_Hit.IDInBody == 1)
 	{
